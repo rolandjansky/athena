@@ -1,0 +1,3498 @@
+2014-09-22  Stefania Spagnolo  <Stefania.Spagnolo@le.infn.it>
+
+	* tagging MuonRecExample-02-05-62
+	* python/MuonPrdProviderToolsConfig.py (RpcPrepDataProviderTool): do not shift differently data and MC from the point of view of RPC times
+
+2014-09-04 Niels van Eldik
+	* move back to old Moore segment finder using new hough transform
+	* tagging MuonRecExample-02-05-61
+
+2014-08-26 Sue Cheatham
+	* typo in MuonCalibConfig.py
+	* tagging MuonRecExample-02-05-60
+
+2014-08-22 Niels van Eldik
+        * small fix for particle creation
+        * tagging MuonRecExample-02-05-59
+
+2014-08-20 Niels van Eldik
+        * small fix
+        * tagging MuonRecExample-02-05-58
+
+2014-08-19 Niels van Eldik
+        * add xAODPrepData for clusters 
+        * tagging MuonRecExample-02-05-57
+
+2014-07-29 Niels van Eldik
+        * split truth decoration and segment truth matching
+        * tagging MuonRecExample-02-05-56
+
+2014-07-24 Jochen Meyer
+        * update of CondDB tag for CSC I-Lines
+        * tagging MuonRecExample-02-05-55
+
+2014-07-07 Niels van Eldik
+	* clean-up output items and sync with MuonCombinedRecExample
+	* move truth decoration into MuonRecExample
+        * tagging MuonRecExample-02-05-54
+
+2014-07-04 Niels van Eldik
+	* add option to produce xAOD::PrepRawData
+	* add option to cluster RPC/TGC
+        * tagging MuonRecExample-02-05-53
+
+2014-06-24 Jochen Meyer
+        * temporary flags for CSC I-Lines (for testing only)
+        * minor fix in MuonStandalone.py (by William Leight)
+           (ported from tag MuonRecExample-02-05-50)
+        * tagging MuonRecExample-02-05-51
+
+2014-06-17 Niels van Eldik
+	* CscTools.py: fix bug with CscAlignmentTool
+	* tagging MuonRecExample-02-05-49
+
+2014-06-17 Niels van Eldik
+	* CscTools.py: fix bug with CscAlignmentTool
+	* tagging MuonRecExample-02-05-48
+
+2014-05-27 Mark Owen
+	* MuonRecTools.py: Remove call to getPublicTool("MuonSegmentMerger") - fixes muon trigger tests
+	* tagging MuonRecExample-02-05-47
+
+2014-05-13 Niels van Eldik
+	* add Moore cosmic reco
+	* tagging MuonRecExample-02-05-46
+
+2014-04-16 Niels van Eldik
+	* remove old classes
+	* tagging MuonRecExample-02-05-45
+
+2014-03-28 Niels van Eldik
+	* fix bug in config
+	* tagging MuonRecExample-02-05-44
+
+2014-03-27 Niels van Eldik
+	* fix bug in config
+	* add summary for Hough
+	* tagging MuonRecExample-02-05-43
+
+2014-03-19 Niels van Eldik
+	* add xAOD track particle creation
+	* tagging MuonRecExample-02-05-42
+
+2014-03-03 Niels van Eldik
+	* clean-up configuration
+	* tagging MuonRecExample-02-05-41
+
+2014-02-28 Daniel Ventura
+	* add MuonClusterizationTool and flag
+	* tagging MuonRecExample-02-05-40
+
+2014-01-18 Niels van Eldik
+	* remove MuonSegment and TrackParticles from AOD output for now
+        * tagging MuonRecExample-02-05-39
+
+2014-01-17 Niels van Eldik
+	* don't crash on configuration errors
+        * tagging MuonRecExample-02-05-38
+
+2014-01-17 Niels van Eldik
+	* update OutputList
+        * tagging MuonRecExample-02-05-37
+
+2014-01-17 Felix Rauscher
+	* some fixes for calibration ntuple
+        * share/MuonRDO_to_PRD_jobOptions.py, python/MuonRecExampleConfigDb.py: remove RpcClusterBuilderPRD
+        * tagging MuonRecExample-02-05-36
+
+2013-12-04  Massimiliano Bellomo  <massimiliano.bellomo@cern.ch>
+	* MuonRec_myTopOptions.py, adding flags to run in mig5 and devval
+        * Tagging MuonRecExample-02-05-35
+
+2013-12-03 Niels van Eldik
+	* disable calibration ntuple production by default in standalone jobO
+	* tagging MuonRecExample-02-05-34
+
+2013-11-29 Niels van Eldik
+	* temporarely remove Moore and Muonboy setup
+	* tagging MuonRecExample-02-05-33
+
+2013-11-29 Niels van Eldik
+	* temporarely remove Moore and Muonboy setup
+	* tagging MuonRecExample-02-05-32
+
+2013-11-28 Niels van Eldik
+	* new Hough default
+	* tagging MuonRecExample-02-05-31
+
+2013-11-28 Niels van Eldik
+	* update of SA configuration
+	* tagging MuonRecExample-02-05-30
+
+2013-11-27 Niels van Eldik
+	* update of SA configuration
+	* tagging MuonRecExample-02-05-29
+
+2013-11-27 Niels van Eldik
+	* update of SA configuration
+	* tagging MuonRecExample-02-05-28
+
+2013-10-29 Niels van Eldik
+	* fix configuration
+	* tagging MuonRecExample-02-05-27
+
+2013-10-25 Niels van Eldik
+	* enable CSC segment making
+	* clean-up csc segment finding
+	* tagging MuonRecExample-02-05-26
+
+2013-10-25 Niels van Eldik
+	* enable CSC segment making
+	* clean-up csc segment finding
+	* tagging MuonRecExample-02-05-25
+
+2013-10-18 Niels van Eldik
+	* add option to switch off trackparticle creation
+	* tagging MuonRecExample-02-05-24
+
+2013-09-29 Niels van Eldik
+	* reco now running
+	* tagging MuonRecExample-02-05-23
+
+2013-09-23 Felix Rauscher
+	* doSegmentsOnly for 3rd chain
+	* tagging MuonRecExample-02-05-22
+
+2013-09-16 Niels van Eldik
+	* add option to only run road search
+	* tagging MuonRecExample-02-05-21
+
+2013-09096 Felix Rauscher
+	* use unified TGC prepradata container in Muonboy/fixed
+	* tagging MuonRecExample-02-05-20
+
+2013-09096 Felix Rauscher
+	* use unified TGC prepradata container in Muonboy
+	* tagging MuonRecExample-02-05-19
+
+2013-09-03 Niels van Eldik
+	* adding a few more ifs to allow disabling of reco
+	* tagging MuonRecExample-02-05-18
+
+2013-08-09 Niels van Eldik
+	* take MuonCalibFlags always from MuonCnvExample
+	* tagging MuonRecExample-02-05-17
+
+2013-07-09 Niels van Eldik
+	* MuonTrackPerformance: fix bug
+	* tagging MuonRecExample-02-05-16
+
+2013-07-03 Alessandro DI Mattia <dimattia@cern.ch>
+	* merged with the fix from Felix into MuonRecExample-02-03-08-01
+	* tagging MuonRecExample-02-05-15
+
+2013-05-23 Daniel Ventura
+	* fix MuonClusterSegmentFinderTool configuration
+	* tagging MuonRecExample-02-05-14
+
+2013-05-21 Niels van Eldik
+	* MuonRecExampleConfigDb.py: add MuonTruthSummaryTool
+	* MuonStandalone.py: add special cleaner for segment finding
+	* tagging MuonRecExample-02-05-13
+
+2013-05-19 Niels van Eldik
+	* MuonRecExampleConfigDb.py: add MuonTrackToSegmentTool
+	* tagging MuonRecExample-02-05-12
+
+2013-05-18 Niels van Eldik
+	* add segments to MuonTrackD3PD
+	* tagging MuonRecExample-02-05-11
+
+2013-04-29 Niels van Eldik
+	* add option to use the truth tracking as standard track finding
+	* tagging MuonRecExample-02-05-10
+
+2013-04-24 Daniel Ventura
+	* configure MuonClusterSegmentFinderTool
+	* tagging MuonRecExample-02-05-09  
+
+2013-04-23 Niels van Eldik
+	* configure MuonTrackTruthTool
+	* tagging MuonRecExample-02-05-08
+
+2013-04-23 Niels van Eldik
+	* configure MuonLayerHoughTool
+	* tagging MuonRecExample-02-05-07
+
+2013-04-20 Niels van Eldik
+	* reshuffle order of algs
+	* tagging MuonRecExample-02-05-06
+
+2013-04-18 Daniel Ventura
+	* enable MuonLayerHough for NSW
+	* tagging MuonRecExample-02-05-05
+
+2013-04-15 Daniel Ventura
+	* enable NSW segment finding in new third chain
+	* tagging MuonRecExample-02-05-04
+
+2013-04-04 Niels van Eldik
+	* remove debug print
+	* tagging MuonRecExample-02-05-03
+
+2013-03-19 Felix Rauscher
+	* remove debug print
+	* tagging MuonRecExample-02-05-02
+
+2013-03-18 Edward.Moyse@cern.ch
+        * Add NSW PRDs to output
+        * MuonRecExample-02-05-01
+
+2013-03-18 Niels van Eldik
+	* add option to use MuonTruthSegments in track finding
+	* MuonRecExample-02-04-05
+
+2013-03-15 Niels van Eldik
+	* add doFastDigitization and doPseudoTracking
+	* MuonRecExample-02-04-04
+
+2013-03-11 Niels van Eldik
+	* add stgc
+	* MuonRecExample-02-04-03
+
+2013-03-10 Niels van Eldik
+	* enable fast digi in reco jobs -> needs fix 
+	* MuonRecExample-02-04-02
+
+2013-03-10 Niels van Eldik
+	* add jobO to enable truth tracking
+	* MuonRecExample-02-04-01
+
+2013-03-10 Niels van Eldik
+	* add truth for new technologies to output list + option to run fast digi
+	* MuonRecExample-02-04-00
+
+1013-3-08 Felix Rauscher
+      * write SDO in ESDs
+      * tagging MuonRecExample-02-03-08
+
+2013-02-26 Daniel Ventura
+	* update third chain configuration to run new steering
+	* tagging MuonRecExample-02-03-07
+	
+2013-02-13 Daniel Ventura
+	* add doNewThirdChain flag to MuonRecFlags
+	* tagging MuonRecExample-02-03-06
+	
+2012-02-11 Felix Rauscher
+	* another fix in a flag
+	* tagging MuonRecExample-02-03-05	
+
+2013-02-11 Felix Rauscher
+	* create MuonSegmentToCalibSegment when only 3rd chain is running
+	* tagging MuonRecExample-02-03-04
+
+2013-02-08 Felix Rauscher
+	* configuration for 3rd chain in calibration ntuple
+	* tagging MuonRecExample-02-03-03
+
+2012-10-03 Niels van Eldik
+	* disable old chains (turned on by mistake)
+	* enable third chain for cosmics
+	* MuonRecExample-02-03-02
+
+2012-09-07 Niels van Eldik
+	* remove dependency on MuonCombiTrackMaker
+	* MuonRecExample-02-03-01
+
+2012-09-05 Edward.Moyse@cern.ch
+	* disable old chains (moore and muonboy) by default
+	* MuonRecExample-02-03-00
+
+2012-07-18 Niels van Eldik
+	* add truth for all muon tracks and track particles (code moved to MuonCombinedRecExample)
+	* TrackParticle truth still crashes....
+	* MuonRecExample-02-02-08
+
+2012-07-10 Edward.Moyse@cern.ch
+	* Added 3rd chain TrackParticles to D3PD
+	* MuonRecExample-02-02-07
+
+2012-07-05 Tomoe.Kihismoto@cern.ch
+	* share/MuonRecOutputItemList.py
+    Removed previous, current and next BC containers for TGC prd.
+	* tag MuonRecExample-02-02-06
+
+2012-07-02 Edward.Moyse@cern.ch
+	* First attempt to fix bug#93923 - make a new method in muonboy.py called configureMboySegmentMaking()
+        * Might see some warnings as Tools are attempted to be added twice, so will need to fix these.
+	* tag MuonRecExample-02-02-05
+
+2012-06-25  Stefania Spagnolo  <Stefania.Spagnolo@le.infn.it>
+
+	* tag MuonRecExample-02-02-04
+	* share/MuonRec_jobOptions.py: add options to merge into a single container the previous, current and next BC containersfor TGC prd.  
+
+2012-05-30 Edward.Moyse@cen.ch
+	* Fix for bug#94916 - Muon SW D3PD doesn't run on real data
+	* tag MuonRecExample-02-02-03
+
+2012-05-29 Ahmimed Ouraou
+	* python/Muonboy.py  decrease errors for BEE
+	* tag MuonRecExample-02-02-02
+
+2012-05-24 Edward.Moyse@cern.ch
+	* fixes for d3PD truth writing
+	* tagging MuonRecExample-02-02-01
+
+2012-05-23 willocq@physics.umass.edu
+        * Removal of CBNT
+	R       python/MuonCBNTFlags.py
+	M       python/MuonRecStandaloneOnlySetup.py
+	D       share/MuonCBNT_jobOptions.py
+	M       share/MuonRec_myTopOptions.py
+	M       share/MuonDataRec_myTopOptions.py
+	M       share/MuonRec_topOptions.py
+	M       doc/mainpage.h
+        * tagging MuonRecExample-02-02-00
+	
+2012-05-14 Edward.Moyse@cern.ch
+        * share/MuonRecD3PDCreation.py - add Muon hits
+        * tagging MuonRecExample-02-01-47
+
+2012-05-14 Edward.Moyse@cern.ch
+	* share/MuonRecD3PDCreation.py - add TrackRecord and cleanup tracks etc
+	* tagging MuonRecExample-02-01-46
+
+2012-05-09 Felix Rauscher
+	* fix bug 94441
+	* tagging MuonRecExample-02-01-45
+
+2012-05-03 Tomoe Kishimoto
+	* Added TGC_MeasurementAllBCs
+	* Tagged MuonRecExample-02-01-44
+
+1012-04-27 Felix Rauscher
+	* configuration for adding segment to track matching branches to
+	  calibration ntuple
+	  needs MuonCalibExtraTreeAlg-00-09-00
+	* tag MuonRecExample-02-01-43
+
+2012-03-22 Niels van Eldik
+	* python/MuonRecTools.py: update configuration of MdtDriftCircleCreator for MC 
+	* tag MuonRecExample-02-01-42
+
+2012-03-29 willocq@physics.umass.edu
+	* Added truth object to D3PD maker
+	* share/MuonRecD3PDCreation.py
+	* Tagged MuonRecExample-02-01-41
+
+2012-03-22 Niels van Eldik
+	* turn off muon chain for cosmics
+	* tag MuonRecExample-02-01-40
+
+2012-03-21 Edward.Moyse@cern.ch 
+	* Added 3rd chain truth
+	- share/MuonRecOutputItemList_jobOptions.py
+	* Tagged MuonRecExample-02-01-39
+
+2012-03-16 Dinos Bachas
+	* python/MuonStandaloneFlags.py  add strategy option to clean up segments in the barrel-endcap overlap case
+	* tag MuonRecExample-02-01-38
+
+2012-02-24 Ahmimed Ouraou
+	* python/Muonboy.py  more error tunings
+	* tag MuonRecExample-02-01-37
+
+2012-02-21 Niels van Eldik
+	* add sensible error scaling for the CSCs
+	* clean-up CSC configuration
+	* tag MuonRecExample-02-01-36
+
+2012-02-14 Ahmimed Ouraou
+	* python/Muonboy.py  fix tag 02-01-33
+	* tag MuonRecExample-02-01-35
+
+2012-02-14 Niels van Eldik
+	* integrate MuonSegmentMerger, only enable with Muonboy segments
+	* tag MuonRecExample-02-01-34
+
+2012-02-13 Ahmimed Ouraou
+	* python/Muonboy.py  add error tuning for BIL1A13 + fine tuning of others
+	* tag MuonRecExample-02-01-33
+
+2012-02-13 Felix Rauscher
+	* python/MuonRecFlags.py: switch on error tuning fo rMC too
+	* python/MuonRecFlags.py: apply alignment correction for MC
+	* python/MuonCalibConfig.py: switch off hole search in calibration ntuple creation
+	* python/Muonboy.py: centralice error-tuning logic in default setting of muonRecFlags.enableErrorTuning
+	* tagging MuonRecExample-02-01-32
+
+2012-02-07 Ahmimed Ouraou
+	* python/Muonboy.py  error tunning
+	* tag MuonRecExample-02-01-31
+
+2012-01-30 Martin Woudstra
+	Add possibility to run Moore with MuPatTrackBuilder
+	* python/MuonRecUtils.py: add functionality to ExtraFlags
+	* python/MooreFlags.py: add flags for running Moore with MuPatTrackBuilder
+	* python/MooreTools.py: add config of MuonTrackSteering for Moore
+	* python/MuonRecExampleConfigDb.py: add MoooreTrackSteering
+	* python/Moore.py: Add possibility to run Moore with MuPatTrackBuilder
+	* python/MuonStandalone.py: bring ExtraFlags higher up for running in Trigger
+	* tagging MuonRecExample-02-01-30
+
+2012-01-20 Felix Rauscher 
+	* python/MuonRecTools.py: Apply flag for time-slewing correction
+	* tagging MuonRecExample-02-01-29
+
+2012-01-17 Niels van Eldik 
+       * share/MuonRecOutputItemList_jobOptions.py: write out all new muon collections
+       * tagging MuonRecExample-02-01-28
+
+2012-01-10 Niels van Eldik 
+       * python/MuonRecFlags.py: correctly disable new chain when reading ESD/AOD
+       * tagging MuonRecExample-02-01-27
+
+2012-01-11 Felix Rauscher
+	* python/MuonCalibConfig.py: 
+	- MuonSegmentToCalibSegment.UpdateForT0Shift runs with every version \
+	  of MuonCalibPatRec
+	* tagging MuonRecExample-02-01-26
+
+2012-01-10 Niels van Eldik 
+       * python/MuonRecFlags.py: enable new chain 
+       * python/MuonStandaloneFlags.py:  
+          - set default segment collection to Muonboy  
+          - correctly configure error runing for Moore track finding 
+       * python/MuonStandalone.py:  
+	  - rename output segments of new chain Muonboy segment maker to MuonSegments
+	  - rename new chain Muonboy segment maker MuonSegmentMaker
+       * tag MuonRecExample-02-01-25
+
+2012-01-05 Ahmimed Ouraou
+	* python/Muonboy.py: list of missing EE stations now taken from dead channel service
+        * tag MuonRecExample-02-01-24
+
+2011-12-16 Niels van Eldik
+       * python/MuonRecTools.py: use new flag
+       * python/Moore.py: add option to turn on curved segment finding
+       * tag MuonRecExample-02-01-23
+
+2011-11-05 Jean-Francois Laporte
+	*update python/MuonRecExampleConfigDb.py
+	*update python/MuonStandalone.py
+	*update share/MuonRecOutputItemList_jobOptions.py
+	*update ChangeLog
+
+        * tag MuonRecExample-02-01-22
+
+Introduce TheThirdChainMboyMuonSegmentMakerTester
+
+2011-11-05 Jean-Francois Laporte
+	*update python/MuonRecTools.py
+	*update ChangeLog
+
+        * tag MuonRecExample-02-01-21
+
+Set KeepAllPerigee true
+
+2011-11-08 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py: check for doWriteESD and doWriteAOD first. Attempt to fix bug#79056)
+	* tag MuonRecExample-02-01-20
+
+2011-10-18 Ahmimed Ouraou
+	* python/Muonboy.py: fix use of new enableErrorTuning flag
+        * tag MuonRecExample-02-01-19
+
+2011-10-26 Niels van Eldik
+	* python/MuonRecFlags.py: add option to turn on error tuning
+	* python/Muonboy.py: use new flag
+	* tag MuonRecExample-02-01-18
+
+2011-10-18 Ahmimed Ouraou
+	* share/MuonCBNT_jobOptions.py   Allow Muonboy CBNT when reading ESD
+        * tag MuonRecExample-02-01-17
+
+2011-09-29 Niels van Eldik
+	* python/MuonStandalone:
+	  - also produce single station track for Muonboy track builder
+	* tagging MuonRecExample-02-01-16
+
+2011-09-27 Jean-Francois Laporte
+	* python/MuonRecExampleConfigDb.py Introduce MuonBackTracker to be used in MuPatTrackBuilder
+	* python/MuonStandalone.py         Introduce MuonBackTracker to be used in MuPatTrackBuilder
+        * tag MuonRecExample-02-01-15
+
+2011-09-20 Martin Woudstra
+	Fix for bug #83799
+	* python/MooreTools.py: add some tool dependencies missing in C++
+	* tagging MuonRecExample-02-01-14
+
+2011-08-29 Niels van Eldik
+	* python/MuonStandaloneFlags:
+	  - move to TG material as default material source of the Moore track builder
+	  - turn off error tuning of the Moore track builder
+	* python/MooreFlags: move to TG material as default material source of Moore
+	* tagging MuonRecExample-02-01-13
+
+2011-08-25 Jean-Francois Laporte
+	* python/MuonRecExampleConfigDb.py Introduce MboyTrackUndressingTool
+	* python/MuonStandalone.py         Introduce MboyTrackUndressingTool
+        * tag MuonRecExample-02-01-12
+
+2011-08-19 Felix Rauscher
+	* always set MuonSegmentToCalibSegment.UpdateForT0Shift = -1
+	  Like this MuonDriftCircleErrorStrategy::T0Refit will be used
+	* tagging MuonRecExample-02-01-11
+
+2011-08-17 Felix Rauscher
+	* reverting change from MuonRecExample-02-01-08 (BUG 85576)
+	* tagging MuonRecExample-02-01-10
+
+2011-08-10 Martin Woudstra
+	Fix for bug #85333
+	* share/MuonRec_jobOptions.py: add call to MuonCvnExample/MuonReadRDO_jobOptions.py
+	Requires MuonCnvExample-02-04-02 or later
+	* tag MuonRecExample-02-01-09
+
+2011-08-04 Felix Rauscher
+	* store and retrieve setting of doSegmentT0Fit in meta-info
+	* tag MuonRecExample-02-01-08
+
+2011-07-28  Ahmimed Ouraou
+	* python/Muonboy.py      more tuning on Muonboy alignment errors
+	* tag MuonRecExample-02-01-07 
+
+2011-07-14 Niels van Eldik
+	* python/Muonboy.py: reenable error tuning
+	* tag MuonRecExample-02-01-06
+
+2011-07-14 Niels van Eldik
+	* python/MooreFlags.py:   disable error tuning in Moore -> move to Muid
+	* python/MuonRecTools.py: Decrease CSC errors
+	* tag MuonRecExample-02-01-05
+
+2011-07-13 Martin Woudstra
+	Bugfixes
+	* python/MuonRecUtils.py: import mdtCalibWindowNumber from new place
+	* python/MooreTools.py: import mdtCalibWindowNumber from new place
+	* python/MuonRecFlags.py: remove flags readMDTCalibFromBlob and correctMdtRtForBField (now in MuonCnvExample)
+	* python/MuonRecTools.py:
+	  - import mdtCalibWindowNumber from new place
+	  - call mdtCalibFlags.setDefaults
+	  - use correctMdtRtForBField from mdtCalibFlags instead of muonRecFlags
+	* python/MuonReadCalib.py: print message when loaded
+	* python/MuonAlignFlags.py: fix bug in printout and in setting of flags for Digitization
+	* python/MuonAlignConfig.py: rewrite if-else statement
+	Required MuonCnvExample-02-04-01 or later
+	* tag MuonRecExample-02-01-04
+
+2011-07-13  Ahmimed Ouraou
+	* python/Muonboy.py      add more flexibility to Muonboy alignment errors
+	* tag MuonRecExample-02-01-03
+
+2011-07-12  stefania spagnolo  <stefaniaspagnolo@imac-spagnolo.le.infn.it>
+
+
+        * tag MuonRecExample-02-01-02	
+	* python/MuonRecFlags.py: revert changes done in the previous tag (b fieldCorrection default nust be controlled in MuonCncExample)
+	* python/MuonAlignFlags.py: new, define UseAlines, useBlines, useIlines
+	* python/MuonAlignConfig.py: here use MuonAlignFlags to set B-lines and I-lines on in atlas data reco only
+	* share/MuonRec_jobOptions.py: disable CSC alignment correction at Cluster level if  muonAlignFlags.UseIlines
+	
+
+2011-07-12 Felix Rauscher
+	* python/MuonRecFlags.py: correctMdtRtForBField defaults to true if we are reading collision data
+	*  tag MuonRecExample-02-01-01
+	
+2011-07-08 Martin Woudstra
+	Summary:
+	  - Moves some files to MuonCnvExample to solve dependency issue with MDT_Digitization
+	  - More use of ConfiguredFactory
+	* python/MuonRecUtils.py:
+	  - move uglyHackedInclude function from MuonRecTools.py to here
+	  - move mdtCalibWindow functions to MuonCvnExample
+	  - more robust castor directory listing
+	* python/MuonRecTools.py:
+	  - move uglyHackedInclude function to MuonRecUtils.py
+	  - add dependencies on MdtCalibrationSvc
+	* python/MuonCalibConfig.py: add dependency on MdtCalibrationSvc
+	* python/MooreTools.py: import mdtCalibWindowNumber from new location: MuonCnvExample
+	* python/MuonReadCalib.py: Moved to MuonCnvExample. Kept for now for backwards-compat
+	* python/MuonPrdProviderToolsConfig.py: move to use of ConfiguredFactory 
+	* python/MuonRecExampleConfigDb.py: add/remove/update some entries
+	* python/MuonRecFlags.py:
+	  - forward flag values to new MuonCnvExample flags
+	  - move recent flag mdtCalibrationSource to MuonCnvExample (do not keep here)
+	* python/MuonReadBSConfig.py: Moved to MuonCnvExample. Kept for backwards compat
+	* share/MuonCBNT_jobOptions.py: add dependency on MdtCalibrationSvc
+	* share/MuonRDO_to_PRD_jobOptions.py: move to use of ConfiguredFactory
+	* share/MuonReadBS_jobOptions.py: moved to MuonCvnExample. Kept for backwards compat
+	* share/MuonDataRec_myTopOptions.py: remove global variables EvtMax and skipEvents
+	* share/MuonRec_topOptions.py:       remove global variables EvtMax and skipEvents
+	* share/Muon_RT_default.data: deleted. Moved to MuonCnvExample
+	* share/MuonRec_myTopOptions.py: move back input files to root:// syntax (works for pool files)
+	* share/MuonRec_jobOptions.py:
+	  - include MuonReadBS_jobOptions.py from MuonCnvExample instead of MuonRecExample
+	  - fix bug in TrackRecordFilter for MuonExitLayer
+	  - removed now obsolete import of MuonReadCalib
+	* cmt/requirements: no longer install Muon_RT_default.data
+	Requires MuonCnvExample-02-04-00 or later
+        * tag MuonRecExample-02-01-00	
+
+2011-07-08 Niels van Eldik
+	* enable writing of MuonExitLayer
+	NB: BUGGY. DO NOT USE THIS TAG
+        * tag MuonRecExample-02-00-27
+
+2011-07-05 Elisa Pueschel
+	Fix for http://savannah.cern.ch/bugs/?83915>
+	* python/MuonStandalone.py
+	* python/MuonStandaloneFlags.py setting default strategies
+        * tag MuonRecExample-02-00-26
+
+2011-07-05 Ahmimed Ouraou
+	* python/Muonboy.py      tune Muonboy alignment errors
+
+2011-07-05 Niels van Eldik
+	* introduce correct time window on data for MDTs
+        * tag MuonRecExample-02-00-25
+
+2011-07-01 Felix Rauscher
+	* possibility to set MDT calibration input via job option to sqlite-file
+	* tag MuonRecExample-02-00-24
+
+2011-06-24 Elisa Pueschel
+	* tag MuonRecExample-02-00-23
+	
+2011-06-23 Elisa Pueschel
+	* MuonStandalone: enable separate track building and refinement, multiple strategies
+	* tag MuonRecExample-02-00-21-02
+	
+2011-06-23 Ahmimed Ouraou
+	* python/Muonboy.py      put back the requirement on roa for segment making
+
+2011-06-20 Martin Woudstra
+	Fix for bug #81909
+	* python/MuonRecUtils.py:
+	  - class FileList: add support for different castor hosts
+	  - new function assertCastorStager()
+	* python/MuonRecStandaloneOnlySetup.py: minor cleanup
+	* python/MuonAlignConfig.py: explicitly assign the configured MGM_AlignmentDbTool
+	* python/MuonRecExampleConfigDb.py: add BS->RDO algorithms (RawDataProviders)
+	* python/MuonRecFlags.py: modify module loading message
+	* python/MuonReadBSConfig.py: move to factory functions for use with ConfiguredFactory
+	* share/MuonReadBS_jobOptions.py: get the algorithms from the CfgGetter
+	* share/MuonDataRec_myTopOptions.py:
+	  - call MuonRec_topOptions.py to make uniform with MuonRec_myTopOptions
+	  - fix input files for bug #81909
+	  - remove some obsolete stuff
+	  - move some things to MuonRec_topOptions.py
+	* share/MuonRec_myTopOptions.py:
+	  - fix input files for bug #81909
+	  - remove some obsolete stuff
+	* share/MuonRec_topOptions.py: move some things from MuonDataRec_myTopOptions.py to here
+	* tag MuonRecExample-02-00-22
+	  
+2011-06-17 Niels van Eldik
+	* MuPatTools: disable MuonSegmentExtender when running Moore
+	* MuonStandalone: configure all track builders when running Moore
+	* tag MuonRecExample-02-00-21
+
+2011-06-16 Niels van Eldik
+	* MuonStandaloneFlags: add printSummary flag
+	* MuonStandalone: enable output of single station tracks
+	* tag MuonRecExample-02-00-20
+
+2011-06-16 Felix Rauscher
+	* configuration for writing calibration ntuple from ESD
+	* tag MuonRecExample-02-00-19
+
+2011-06-10 Niels van Eldik
+	* update MuonStandalone configuration
+	* tag MuonRecExample-02-00-18
+
+2011-06-09 Elisa Pueschel and Dinos Bachas
+	* add property for Mboy track refinement
+	* tag MuonRecExample-02-00-17
+
+2011-06-06 Niels van Eldik
+	* python/MuonStandalone.py: update collection names
+	* share/MuonRecOutputItemList_jobOptions.py: add MuonStandalone output
+	* share/MuonTrackPerformance_jobOptions.py: update collection names
+        * tag MuonRecExample-02-00-16
+
+2011-06-03 Niels van Eldik
+	* python/MooreTools.py: fix typo crashing trigger
+        * tag MuonRecExample-02-00-15
+
+2011-06-03 Niels van Eldik
+	* python/MuonRecExampleConfigDb.py: remove obsolete ROT creators
+	* python/MooreTools.py: cleanup refit tool configuration
+	* python/MuonRecTools.py: update default error tuning
+        * tag MuonRecExample-02-00-14
+
+2011-06-02 Martin Woudstra and Niels van Eldik
+	* python/MuonRecFlags.py: new flag to allow writing of MuonExitLayer
+	* share/MuonRec_jobOptions.py: filter muon exit layer if it is written out
+	* share/MuonRecOutputItemList_jobOptions.py: write MuonExitLayer if flag is enabled
+	* python/MuonStandalone.py: enable phi matching for Moore track builder
+	* python/Moore.py: move all tool configuration into MooreTools.py
+	* python/MooreTools.py: 
+	 - move all tool configuration into MooreTools.py from Moore.py
+	 - add MuonErrorOptimisationTool
+	 - update configuration of MuonRefitTool to also scale errors for EE/BEE
+	* python/MuonRecExampleConfigDb.py: extend tool list
+	* python/MuonRecUtils.py: add ExtraFlags object
+        * tag MuonRecExample-02-00-13
+
+2011-05-31 Martin Woudstra obo Susumu Oda
+	Fixes for bugs #81711 and #82569
+	* python/MuonRecFlags.py:  add new flag calibNtupleRawTGC to fix bug #81711
+	* python/MuonCalibConfig.py: use new flag calibNtupleRawTGC to fix bug #81711
+	* share/MuonRecOutputItemList_jobOptions.py: remove combined items to fix bug #82569
+	* cmt/requirements: cleanup
+	Requires new tags of MuonCalibTools, MuonCalibNtuple
+	* tag MuonRecExample-02-00-12
+
+2011-05-29 Ahmimed Ouraou
+	* python/Muonboy.py      use muonRecFlags.useTGCPriorNextBC to use or not these additionnal BC for TGC
+
+2011-05-25 Martin Woudstra
+	* MooreFlags.py: add new flags to allow decoupling of modules
+	* Moore.py/MooreTools.py: remove some circular dependencies
+	* tag MuonRecExample-02-00-11
+
+2011-05-25 Niels van Eldik
+	* update moore configuration
+	* add track particle creation for Standalone reco
+	* tag MuonRecExample-02-00-10
+
+2011-05-11 Edward.Moyse@cern.ch
+	* share/MuonRecD3PDCreation.py - fix for d3PD creations
+	* tag MuonRecExample-02-00-09
+
+2011-05-10 Martin Woudstra
+	- Move ConfiguredFactory and CfgGetter to AthenaCommon
+	- Fix bug in Moore configuration when running doSegmentT0Fit=True
+	* python/Muonboy.py, MuonRecUtils.py, MuonCalibConfig.py, MuonPrdProviderToolsConfig.py,
+	  MuPatTools.py,ConfigureMuonRec.py, MuonRecExampleConfigDb.py, MuonReadBSConfig.py, MuonStandalone.py,
+	  share/MuonRecLoadTools.py, MuonCBNT_jobOptions.py: get CfgGetter from AthenaCommon
+	* python/MuonRecTools.py: turn more classes into factory functions
+	* python/Moore.py, MooreTools.py, MuonRecTools.py: add more flexibility to config
+	* python/DataFiles.py: update Zmumu data files
+	* python/MuonRecStandaloneFlags.py: be more resilient against missing input files
+	* python/CfgGetter.py: removed (moved to AthenaCommon)
+	* python/ConfiguredFactory.py: removed (moved to AthenaCommon)
+	* share/MuonRec_topOptions.py: remove some obsolete lines
+	* share/MuonRec_myTopOptions.py:     set input files only if not yet set
+	* share/MuonDataRec_myTopOptions.py: set input files only if not yet set
+	REQUIRES AthenaCommon-02-16-60 or later (i.e. 17.0.0 or later)
+	* tag MuonRecExample-02-00-08
+	
+2011-05-04 Ahmimed Ouraou
+	* python/MuonRecTools.py   apply wiresag on MdtDriftCircleCreator according to muonRecFlags.useWireSagCorrections
+
+2011-05-03 Ahmimed Ouraou
+	* python/Muonboy.py        increase error of misaligned stations
+
+2011-05-02 Zach Marshall <zmarshal@caltech.edu>
+	* python/MuonStandalone.py: Adding functionality for overwriting Moore and Muonboy tracks
+	* tag MuonRecExample-02-00-07
+
+2011-04-28 Zach Marshall <zmarshal@caltech.edu>
+	* python/MuonStandaloneFlags.py : Flag cleanup and new strategy
+	* python/MuonStandalone.py : Flag cleanup
+	* share/MuonTrackPerformance_jobOptions.py : Addition of new track collection to debug output
+	* tag MuonRecExample-02-00-06
+
+2011-04-26 Martin Woudstra
+	- Add config for new Hybrid Muon Reco o.b.o. Zach Marshall
+	- Cleanup of ConfiguredFactory as preparation for move to AthenaCommon
+	* python/MuonStandalone.py: new module with config of new Hybrid Muon Reco
+	* python/MuonStandaloneFlags.py: new module with JobProperties for new Hybrid Muon Reco
+	* python/ConfigurableFactory.py: renamed to ConfiguredFactory
+	* python/ConfiguredFactory.py: cleanup in preparation for move to AthenaCommon.
+	* python/MuonRecUtils.py:
+	  - move some helper functions to module ConfiguredFactory
+	  - move classes ConfiguredBase(Meta) from ConfigurableFactory to here
+	  - make FileList.readDirectory more robust (don't crash when empty directory)
+	* python/MuonRecTools.py:     import ConfiguredBase from new location
+	* python/MooreTools.py:       import ConfiguredBase from new location
+	* python/MuonReadBSConfig.py: import ConfiguredBase from new location
+	* python/MooreFlags.py: remove flip-flopping of flag optimiseMomentumResolutionUsingChi2
+	* python/MuonCalibConfig.py:   import getProperty from renamed module
+	* python/ConfiguredMuonRec.py: import getProperty from renamed module
+	* python/Moore.py:             import getProperty from renamed module
+	* python/MuonPrdProviderToolsConfig.py: start preparations to move to ConfiguredFactory
+	* python/MuPatTools.py: add config for New Hybrid Muon Reco
+	* python/MuonRec.py: add new Hybrid Muon Reco
+	* python/CfgGetter.py: forward new accessors, remove now obsolete ctor options
+	* python/MuonRecFlags.py: add new flag doStandalone to enable new Hybrid Muon Reco
+	* python/MuonRecExampleConfigDb.py:
+	  - use extra config functions of ConfiguredFactory
+	  - add entries for MuonReadBSConfig.py, MuonStandalone.py
+	* tag MuonRecExample-02-00-05
+
+2011-04-15 Ahmimed Ouraou
+	Add muonRecFlags.useWireSagCorrections
+	* python/MuonRecFlags.py   define muonRecFlags.useWireSagCorrections
+	* python/Muonboy.py        use muonRecFlags.useWireSagCorrections for MboySvc configuration
+
+2011-04-05 Martin Woudstra
+	Further development of ConfigurableFactory
+	* python/ConfigurableFactory.py: expand read(): load all databases named <package>/<package>ConfigDb.py
+	* tag MuonRecExample-02-00-04
+
+2011-04-05 Niels van Eldik
+	* python/MuonRecTools.py: update defaults for simulation
+	* tag MuonRecExample-02-00-03
+
+2011-04-01 Martin Woudstra
+	Further development of ConfigurableFactory
+	* python/ConfigurableFactory.py:
+	  - make independent of other MuonRecExample modules
+	  - simplify and remove some functions
+	  - first version of auto-reading database
+	* python/CfgGetter.py: renamed from CfgRepo.py
+	* python/MuonRecTools.py:
+	  - import getters from CfgGetter
+	  - remove all addTool()
+	  - put some flags dependencies in functions
+	  - turn more classes into factory functions
+	* python/MuonRecUtils.py: move some functions to ConfigurableFactory
+	* python/MuonCalibConfig.py:
+	  - import getters from CfgGetter
+	  - replace call to getPublicToolProperty() with getProperty()
+	* python/MuonReadBSConfig.py: always make the classes so they can be added to the ConfigDb
+	* python/ConfiguredMuonRec.py: import getProperty from ConfigurableFactory
+	* python/Muonboy.py:
+	  - remove obsolete import of getProperty
+	  - import getters from CfgGetter
+	* python/MooreTools.py:
+	  - import getters from CfgGetter
+	  - remove all addTool()
+	  - put some flags dependencies in functions
+	  - turn more classes into factory functions
+	  - remove CscClusterOnTrackCreator factory function
+	  - remove CscSegmentMakers
+	* python/MuPatTools.py:
+	  - import getters from CfgGetter
+	  - remove all addTool()
+	* python/Moore.py:
+	  - import getters from CfgGetter
+	  - remove all addTool()
+	  - put some flags dependencies in functions
+	  - turn more classes into factory functions
+	  - make MuonRefitTool_s2(_c05) configs on demand
+	* python/MuonRecExampleConfigDb.py: new file containing database for ConfigurableFactory
+	* share/MuonRecLoadTools.py: import tools from CfgGetter
+	* share/MuonCBNT_jobOptions.py: import getters from CfgGetter
+	* share/MuonDigitization_jobOptions.py: comment out some obsolete includes
+	* tag MuonRecExample-02-00-02
+
+2011-03-23 Martin Woudstra
+	Remove dependency on package MuonDigiExample for bug #78374
+	New way to set limits on Mdt drift time (obo Mike Flowerdew)
+	* share/MuonDigitization_jobOptions.py: new file to replace the use of MuonDigiExample
+	* share/MuonRec_jobOptions.py: call new digitization jobOptions file
+	* python/MuonRecFlags.py: add flag correctMdtRtForBField
+	* python/MuonRecUtils.py: add mdtCalibWindow functions (obo Mike Flowerdew)
+	* python/MuonRecTools.py:
+	  - use new way to configure MDT timing windows (obo Mike Flowerdew)
+	  - use new flag correctMdtRtForBField (obo Mike Flowerdew)
+	* python/MuonReadCalib.py:
+	  - use new way to configure MDT timing windows (obo Mike Flowerdew)
+	  - use new flag correctMdtRtForBField (obo Mike Flowerdew)
+	* python/Moore.py: use new way to configure MDT timing windows (obo Mike Flowerdew)
+	* python/MooreTools.py: add factory function CscClusterOnTrackCreator
+	* python/DataFiles.py: fix filename error in Zmumu_HITS
+	REQUIRES:
+	- MdtDriftCircleOnTrackCreator-02-08-05
+	- MuonCalibPatRec-00-07-19
+	- MdtCalibSvc-02-02-28
+	* tag MuonRecExample-02-00-01	
+	
+2011-03-22 Martin Woudstra
+	Fixes for bugs 79469,79131,79706 and 79679.
+	Merge with MuonRecExample-01-13-14-10
+	Changes in that branch:
+	* python/ConfigurableFactory.py: new separate file to contain remodeled ConfigurableFactory classes
+	* python/MuonRecTools.py:
+	  - fix bug #79469
+	  - remove ConfigurableFactory instance from here (to another file)
+	  - apply Alan's fix of MuonRecExample-01-11-17-19: increase extrapolator Tolerance to 1.1um (MuonExtrapolator) to fix skipped MTG material
+	  - turn MuonChi2TrackFitter into factory function
+	  - adapt to new ConfigurableFactory
+	  - new MdtDriftCircleOnTrack error strategies
+	* python/Moore.py:
+	  - adapt to new ConfigurableFactory
+	  - many tools in separate file MooreTools.py
+	  - use CfgMgr to get classes
+	  - add new track steering + new track finding
+	  - fix for bug 79131 for both old and new steering
+	* python/MooreTools.py:
+	  - move tools that stay in new design to here
+	  - use CfgMgr to get classes
+	  - make compatible new MdtDriftCircleOnTrack error strategies
+	  - fix adding of CscSegmentMakers
+	  - add CscClusterOnTrackCreator (misnamed theMuonClusterOnTrackCreator)
+	  - turn MCTBFitter into factory function
+	  - remove obsolete MCTBFitterFinalFit (created on-the-fly as a clone)
+	* python/MooreFlags.py:
+	  - switch on new steering
+	  - switch on track-segment matching
+	* python/MuonRecUtils.py:
+	  - getTypeAndName function
+	  - remove ConfigurableFactory classes
+          - fix bug in input filename expansion when reading contents of an rfio/castor directory
+	  - add new functions getPropertyType and isPropertyDefault
+	* python/CfgRepo.py: new separate file to hold the ConfigurableFactory instance
+	* python/MuonReadBSConfig.py: adapt to new COnfigurableFactory
+	* share/MuonDataRec_myTopOptions.py: new default input data file (2010 data)
+	* share/MuonRec_jobOptions.py: comment out Muon_TrackParticleTruthMaker (absent in 17,devval)
+	* tag MuonRecExample-02-00-00
+
+2011-03-11 Felix Rauscher<rauscher@cern.ch>
+	* python/MuonCalibConfig.py remove options for deprecated calib tools
+	* tagging MuonRecExample-01-14-02
+
+2011-03-09 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: remove t0 scan, so that Muonboy will fit segment t0
+	* tag MuonRecExample-01-14-01
+
+2011-03-08 Edward.Moyse@cern.ch
+	* d3PDs - do Tracks as well as TrackParticles (off by default)
+	* tagging MuonRecExample-01-14-00
+
+2011-02-28 Felix Rauscher <rauscher@cern.ch>
+	* python/MuonCalibConfig.py: Only write truth branches if rec.doTruth()
+	* removing surplus svn:executable properties
+	* tagging MuonRecExample-01-13-14
+
+2011-02-28 Felix Rauscher <rauscher@cern.ch>
+        * python/MuonCalibConfig.py: Only write truth branches if rec.doTruth()
+        * removing surplus svn:executable properties
+        * tagging MuonRecExample-01-13-14
+	
+2011-02-01 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: add debug printout
+	* python/MuonRecStandaloneFlags.py: allow easy manual override of dataset via InputData
+	* tag MuonRecExample-01-13-13
+
+2011-01-25 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Moore.py: put back version from 01-13-07 for compatibility with dev
+	* tag MuonRecExample-01-13-12
+
+2011-01-22 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: fix setting when t0 fitted but not used
+        * tag MuonRecExample-01-13-10
+
+2011-01-20 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: tune Muonboy settings
+        * tag MuonRecExample-01-13-09
+
+2011-01-18 Niels van Eldik <niels.van.eldik@cern.ch> 
+       * MuonRecFlags.py, 
+        - switch off t0 refit 
+       * Moore.py: 
+	 - reduce MDT errors 
+	 - new Moore package layout 
+       * MuonRecTools.py: 
+	 - reduce MDT errors 
+       * MuonRecExample-01-13-08
+	
+2011-01-11 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: update for no t0 fit
+        * tag MuonRecExample-01-13-07
+
+2011-01-05 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: fix list of missing EEL
+        * tag MuonRecExample-01-13-06
+
+2010-12-02 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: tune errors
+        * tag MuonRecExample-01-13-04
+
+2010-11-23 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+	* ChangeLog
+
+	* tag MuonRecExample-01-13-03
+
+Remove InDetBeamSpotService/BeamCondSvc.py in Muonboy.py
+
+2010-11-18 Felix Rauscher <rauscher@cern.ch>
+	* MuonRecFlags.py, MuonReadCalib.py: Add job property 
+	  readMDTCalibFromBlob, which switched to /MDT/T0BLOB and /MDT/RTBLOB.
+	  Off by default
+	* tag MuonRecExample-01-13-02
+
+2010-10-28 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/MuonRecTools.py   put the (10,30) window also for nominal simulation
+	* tag MuonRecExample-01-13-01
+
+2010-10-20 Susumu Oda <Susumu.Oda@cern.ch>
+	* Removed doTGC_rawdataROD flag from MuonRecFlags.py and MuonReadBSConfig.py
+	  to use readout formatted data instead of raw data. 
+	* MuonRecExample-01-13-00
+
+2010-10-06 Niels van Eldik <niels.van.eldik@cern.ch>
+        * MuonRecTools:
+	 - fix but in DCMathSegmentMaker and MuonSegmentMoment configuration (2)
+        * MuonRecExample-01-12-06
+
+2010-10-05 Niels van Eldik <niels.van.eldik@cern.ch>
+        * MuonRecTools:
+	 - fix but in DCMathSegmentMaker and MuonSegmentMoment configuration
+        * MuonRecExample-01-12-05
+
+2010-10-04 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/MuonReadCalib.py  adapt to new definition of TimeWindowLowerBound/TimeWindowUpperBound 
+	* tag MuonRecExample-01-12-04
+
+2010-09-27 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/MuonRecTools.py   put (10,30) window in MdtDriftCircleOnTrackCreatorAdjustableT0s
+	* tag MuonRecExample-01-12-03
+
+2010-09-21 Niels van Eldik <niels.van.eldik@cern.ch>
+        * Moore.py:
+         - add time windows ROT creator
+         - always run matching
+        * MuonRecTools:
+         - add time window ROT creator
+        * MuonRecExample-01-1202
+
+2010-09-21 Niels van Eldik <niels.van.eldik@cern.ch>
+	* Moore.py: 
+	  - also use small errors for chambers without t0 refit
+	* MooreFlags:
+	  - always use iterative fitting to optimize reso on data 
+	* MuonRecExample-01-12-01
+
+2010-09-20 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py : add RPC sector logic to list of things to write in the ESDs (which 
+	means this must be coupled to MuonEventAthenaPool-00-23-00 or later)
+	* tag MuonRecExample-01-12-00
+
+2010-09-14 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: tune errors
+        * tag MuonRecExample-01-11-17
+
+2010-09-09 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py: tune errors
+        * tag MuonRecExample-01-11-16
+
+2010-08-30 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MooreFlags.py: complete setDefaults()
+	* share/MuonDataRec_myTopOptions.py: use auto-config for beamType
+	* tag MuonRecExample-01-11-15
+
+2010-08-26 Martin Woudstra <martin.woudstra@cern.ch>
+	Improve error handling for bugs:
+	https://savannah.cern.ch/bugs/?61555
+	https://savannah.cern.ch/bugs/?63218
+	https://savannah.cern.ch/bugs/?61690
+	* python/ConfiguredMuonRec.py: mods to allow access to dataKeys without actual algs
+	* python/Muonboy.py: loading tools and algs only if actually run
+	* python/Moore.py:
+	  - loading tools and algs only if actually run
+	  - add some explicit dependencies
+	* python/MuonRecTools.py:
+	  - don't always load ResidualPullCalculator (for bug 61555)
+	  - don't explicitly load any tools if Muons off (for bug 61555)
+	* python/MuonRecUtils.py: raise exception if input files are not found (for bug 61690)
+	* python/MuonRecStandaloneFlags.py: change memory model of InputData
+	* python/MuonCalibConfig.py:
+	  - load more tools explicitly
+	  - use muonRecFlags.Commissioning instead of rec.Commissioning
+	  - do not run calib ntuple if Muons are off (for bug 61555)
+	* python/MuonRecFlags.py:
+	  - new flags: makePRDs,Commissioning
+	  - add check on rec.doMuon()
+	  - call setDefaults() on muonboyFlags and mooreFlags
+	* python/MuonboyFlags.py: add (empty) function setDefaults() for uniformity
+	* share/MuonCBNT_jobOptions.py: load more tools explicitly
+	* share/MuonRec_jobOptions.py:
+	  - rename recAlgs to rec and recAlgsFlags to recAlgs
+	  - remove some obsolete code
+	* share/MuonRecOutputItemList_jobOptions.py:
+	  - use muonRecFlags.Commissioning instead of rec.Commissioning
+	  - rename recFlags to rec
+	* share/Muon[Data]Rec_myTopOptions.py: more robust handling of config failure
+	* tag MuonRecExample-01-11-14
+
+2010-08-19 Niels van Eldik <niels.van.eldik@cern.ch>
+	* Moore.py: 
+	  - retune MDT hits errors
+	* MuonRecTools:
+	  - retune MDT hits errors
+	* MuonRecExample-01-11-13
+
+2010-08-12 Niels van Eldik <niels.van.eldik@cern.ch>
+	* Moore.py: 
+	  - enable new segment momentum code
+	  - enable new EO hole search
+	* MuonRecTools:
+	  - configure new segment momentum code
+	* MuonRecExample-01-11-12
+
+2010-07-30 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py
+	   - tuning for data/MC
+        *MuonRecExample-01-11-11
+
+2010-07-13 Niels van Eldik <niels.van.eldik@cern.ch>
+	* Moore.py: clean up + small retune
+	* MuonRecExample-01-11-10
+
+2010-07-13 Niels van Eldik <niels.van.eldik@cern.ch>
+	*  share/MuonRecOutputItemList_jobOptions.py: fix bug in writing of ChamberT0s for AOD
+	* MuonRecExample-01-11-09
+
+2010-07-07 Ahmimed Ouraou <ahmimed.ouraou@cea.fr>
+	* python/Muonboy.py
+	   - tune errors on alignment
+	   - remove dead CSC layers
+        *MuonRecExample-01-11-08 
+
+2010-04-19 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools.py: retune search window + road segment finding
+	* MuonRecExample-01-11-07
+
+2010-06-14 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+	* ChangeLog
+
+	* MuonRecExample-01-11-06
+
+Fix a typo UseT0Fit is not a logical
+
+2010-04-19 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools.py: 
+	  - enlarge TGC eta errors to account for TGC misaligment to 20 mm
+	  - reduce search window + road segment finding
+	  - reduce errors MDT hits to 1.5*err + 0.5
+	* python/Moore.py:        
+	  - ensure all tools are configured correctly
+	  - configure MuonChamberHoleRecoveryTool with extrapolator instead of propagator
+	  - reduce search window seeded segment search
+	* requires: MuonCombiTrackMaker-00-03-88      
+        * tag MuonRecExample-01-11-05
+
+2010-06-11 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+	* ChangeLog
+
+	* MuonRecExample-01-11-04
+
+ Set MboySvc.UseT0Fit = True to keep the same configuration concerning the t0 fit, 
+ i.e t0s are used in reconstruction after t0s fit
+ when UseT0Fit is false it is possible to do the reconstruction without the t0 fitted
+ although the t0 refit can have been done before reconstruction
+
+2010-06-05 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+	* ChangeLog
+
+	* MuonRecExample-01-11-03
+
+ Set MboySvc.AligTGCeta to take into account poor TGC alignment in loose seeting
+
+2010-05-24 Edward.Moyse@cern.ch
+	* share/MuonRec_jobOptions.py: make truth have proper output level
+	* MuonRecExample-01-11-02
+
+2010-05-21  Rosy Nikolaidou  <rosyni@lxplus230.cern.ch>
+
+	* python/Muonboy.py mask dead layers of CSCs on reconstruction
+	* MuonRecExample-01-11-01
+
+2010-05-11 Edward.Moyse@cern.ch
+	* Enable writing of Muon track truth:
+	M      share/MuonRecOutputItemList_jobOptions.py
+	M      share/MuonRec_jobOptions.py
+	* MuonRecExample-01-11-00
+
+2010-05-10 Felix Rauscher <rauscher@cern.ch>
+	* avoid try-except-block in import of TrkResidualPullCalculator (Bug: https://savannah.cern.ch/bugs/?67096)
+	* MuonRecExample-01-10-14
+
+2010-05-10  Rosy Nikolaidou  <rosyni@lxplus222.cern.ch>
+
+	* python/Muonboy.py control of TGC hits of next and prior to BC only on data and commissioning setup
+	* tag MuonRecExample-01-10-13
+
+2010-05-07 Felix Rauscher <rauscher@cern.ch>
+	* python fix to make import of TrkResidualPullCalculator backward compatible
+	* tagging MuonRecExample-01-10-12
+
+2010-05-06  Rosy Nikolaidou  <rosyni@lxplus232.cern.ch>
+
+	* python/Muonboy.py use of the TGC hits of next and prior to BC only in commissioning setup
+	* tag MuonRecExample-01-10-11
+
+2010-05-06 Martin Woudstra
+	Changes only used in MuonStandalone running (not in production)
+	* python/MuonRecUtils.py:
+	  - add support for input file syntax root://castoratlas//
+	  - more checks on validity of list of input files
+	  - add support to optionally set STAGE_SVCCLASS in DataFiles.py
+	* python/DataFiles.py:
+	  - move to root://castoratlas// syntax to solve castor annoyances
+	  - update some datasets to ATLAS-GEO-08-* (old ones disappeared)
+	* python/MuonRecStandaloneFlags.py
+	  - add support for AutoConfiguration (DetDescrVersion + ConditionsTag) in DataFiles.py
+	  - more checks on validity of list of input files
+        * tag MuonRecExample-01-10-10
+
+2010-05-05 Wolfgang Liebig
+        * MuonRecTools.py: change package from where ResidualPullCalculator is picked up
+          Important: this change is not compatible with earlier releases and is tied to
+          the presence of the new package TrkResidualPullCalculator in the release
+        * tag MuonRecExample-01-10-09
+
+2010-03-30 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+
+        * tag MuonRecExample-01-10-08
+
+Use 3 TGC BCs: current, next and prior
+
+2010-04-19 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools.py: enlarge TGC eta errors to account for TGC misaligment
+	* python/MooreFlags.py:   reduce momentum for SL fit to 2000 as for cosmics
+	* python/Moore.py:        new cut on segment ADC + no additional error scaling for broad TGC/RPC/CSC-phi
+	* requires: MuonSegmentSelectionTools-00-00-12      
+        * tag MuonRecExample-01-10-07
+
+2010-03-27 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py
+
+        * tag MuonRecExample-01-10-06
+
+Update T0 step for T0 refit, resolutions and alignment errors
+
+2010-03-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: provide infrastructure to enlarge errors of CSCs in the track fit
+	* python/MooreFlags.py: add new flag to enable running with larger CSC errors
+	* requires MuonCombiTrackMaker-00-03-84
+        * tag MuonRecExample-01-10-05
+
+2010-03-12 Kevin Black <kblack@fas.harvard.edu>
+	tag MuonRecExample-01-10-04
+	
+2010-03-12 Kevin Black <kblack@fas.harvard.edu>
+	* tag MuonRecExample-01-10-03
+
+2010-03-12 Kevin Black <kblack@fas.harvard.edu>
+	* share/MuonRecOutputItemList_jobOptions.py: remove split ID tracks from ESD
+	* tag MuonRecExample-01-10-02
+	
+2010-03-12 Kevin Black (kblack@fas.harvard.edu)
+	* share/MuonRecOutputItemList_jobOptions.py: add split ID tracks in case of cosmics
+	* tag MuonRecExample-01-10-01
+
+2010-03-12 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py: added chamberT0s to AOD
+	* python/MuonRecTools.py: enable detailed track summary
+	* tag MuonRecExample-01-10-00
+
+2010-03-10 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: correctly configure propagator pf MuonCombiTrackMaker for merging of split tracks
+	* requires MuonCombiTrackMaker-00-03-83
+        * tag MuonRecExample-01-09-12
+	
+2010-10-03 Rosy Nikolaidou
+        * Enable by default the CSCs again python/MuonRecFlags.py
+        * tag MuonRecExample-01-09-11
+
+2010-03-03 Edward.Moyse@cern.ch
+	* Renabled writing of RDOs for commissioning.
+	M      share/MuonRecOutputItemList_jobOptions.py
+	* tag MuonRecExample-01-09-10
+
+2010-02-22 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: do not configure CscRotCreators if running with CSCs
+        * tag MuonRecExample-01-09-09
+	
+2010-02-22 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools: enable output of T0MuonSegments from DCMathSegmentMaker
+	* python/Moore.py: 
+	  - switch on writing of MuonChamerT0s for Moore
+	  - bug fix in configuration of outlier recovery 
+	* share/MuonRecOutputItemList_jobOptions.py: add MuGirl and Moore MuonChamberT0s
+        * tag MuonRecExample-01-09-08
+
+2010-02-08 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools: disable writing of MuonTrackSummary until persistency issues are solved
+        * tag MuonRecExample-01-09-07
+
+2010-02-17  Rosy Nikolaidou  <rosyni@lxplus204.cern.ch>
+
+	* python/Muonboy.py: add a cut on Adc values for segments
+	* tag MuonRecExample-01-09-06
+
+2010-02-08 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: fix two typos in configuration
+        * tag MuonRecExample-01-09-05
+
+2010-02-04 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MooreFlags.py: fix bug in enabling of matching
+        * tag MuonRecExample-01-09-04
+
+2010-02-04 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: turn on ADC fraction cut for segments, requires MuonSegmentSelectionTools-00-00-08 or higher
+        * tag MuonRecExample-01-09-03
+
+2010-02-02 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools:
+	  - MuonTrackSummaryHelperTool: enable creation of MuonTrackSummary
+	* python/Moore.py: prepare for ADC fraction cut
+        * tag MuonRecExample-01-09-02
+
+2010-02-02 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MooreFlags.py: 
+          - enable segment matching for simulation
+          - add option to run update of second coordinate, default True
+          - enable refit for collisions
+	* python/Moore.py
+	  - MuonChamberHoleRecovery uses MCTBPropagator instead of SL propagator 
+          - always switch off recovery if running with T0 fit
+	* python/MuonRecTools:
+	  - DCMathSegmentMaker: always enable refit of segments + option to enable update of second coordinate
+        * tag MuonRecExample-01-09-01
+
+2010-01-22 Edward.Moyse@cern.ch
+	* Added new flag to allow writing of Muon SDOs in ESDs.
+	M      python/MuonRecFlags.py
+	M      share/MuonRecOutputItemList_jobOptions.py
+	* tag MuonRecExample-01-09-00
+
+2010-01-19 Rosy Nikolaidou <rosy.nicolaidou@cern.ch>
+        * python/Muonboy.py: same configuration for collision data and MC, use of forceDataMode flag 
+        * tag MuonRecExample-01-08-17
+
+2010-01-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: use rec.Commissioning to set default flags
+	* python/Moore.py:        remove explicit use of rec.Commissioning
+	* python/MuonRecTools.py: remove explicit use of rec.Commissioning
+        * tag MuonRecExample-01-08-16
+
+2010-01-19 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: don't know why but needed
+        * tag MuonRecExample-01-08-15
+
+2010-01-18 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py:
+	  - fix typo
+        * tag MuonRecExample-01-08-14
+
+2010-01-18 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTools.py: look at rec.Commissioning in addition to muonRecFlags.forceDataMode
+	* python/Moore.py:
+	  - look at rec.Commissioning in addition to muonRecFlags.forceDataMode
+	  - fix typo
+        * tag MuonRecExample-01-08-13	
+
+2010-01-18 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MooreFlags.py: new flags
+	  - materialSourceFinalFit: material source for final fit ("TGBlended","TGMat","MBoy")
+	  - useSegmentMatching: switch on segment/segment matching
+          - useTrackSegmentMatching: switch on track/segment matching
+          - optimiseMomentumResolutionUsingChi2: enable optimization for momentum resolution during commissioning running
+	* python/Moore.py
+	  - add code to process new flags
+	* python/MuonCalibConfig.py
+	  - disable reading of CSC segment combinations for Moore (already part of the segment collection)
+        * tag MuonRecExample-01-08-12
+
+2010-01-05 Martin Woudstra <martin.woudstra@cern.ch>
+	Merge with branch tag MuonRecExample-01-08-09-04
+	Note: Works together with MuonCombinedRecExample-00-01-17-03 (or later)
+	Changes:
+	* share/MuonRecOutputItemList_jobOptions.py: add MooreExtrapolatedTrackParticles to fix bug #60482
+	* python/MuonCalibConfig.py: enable ExtraTreeTriggerAlg when reading ESD
+	* python/Muonboy.py
+	  - prevent Muonboy for the absence of CSCs
+	  - remove unecessary printouts
+	  - remove from joboptions the fixing of the momentum in the absence of magnetic field as Muonboy reads directly the Db now for that 
+        * tag MuonRecExample-01-08-11
+
+2009-12-09 Rosy Nikolaidou 
+        * disable CSCs for data (crashes at Tier0 on collision events)  
+        * tag MuonRecExample-01-08-10
+ 
+2009-12-05 Kevin Black <kblack@fas.harvard.edu>
+	* fix configuration for calibration ntuple
+	* tag MuonRecExample-01-08-09
+
+2009-12-01  Rosy Nikolaidou  <rosyni@lxplus221.cern.ch>
+
+	* share/MuonRecOutputItemList_jobOptions.py comment out the addition of RDOs in the ESD until the configuration problem is solved
+	* tag MuonRecExample-01-08-08
+
+	* python/Muonboy.py MdTTube resolution configuration for cosmics
+	* tag MuonRecExample-01-08-07
+
+2009-11-30 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: bugfix in ConfigurableFactory. Add a few utility functions
+	* python/MuonCalibConfig.py: rewrite to allow more flexibility needed for trigger debugging
+	* python/MuonRecFlags.py:
+	  - add new flags for more flexible config of MuonCalibNtuple
+	  - fix bug in doSegmentsOnly: value was not forwarded to muonboyFlag and mooreFlags
+	* python/MuonRecStandaloneOnlySetup.py: setup new CalibNtuple flags
+	* share/MuonRec_jobOptions.py: adapt to new calib flags
+	* share/MuonRec_topOptions.py: remove obsolete setting of old style flags
+	* share/MuonRec_myTopOptions.py: add examples of new calibration ntuple flags
+	* share/MuonDataRec_myTopOptions.py: add examples of new calibration ntuple flags
+	* MuonRecExample-01-08-06
+
+2009-11-29 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py: don't write TGC RDOs in commissioning phase 
+(bug#59676)
+	* MuonRecExample-01-08-05
+
+2009-11-27  Rosy Nikolaidou  <rosyni@lxplus226.cern.ch>
+
+	* python/Muonboy.py more configuration for first collisions
+	* tag MuonRecExample-01-08-04
+
+2009-11-25  Rosy Nikolaidou  <rosyni@lxplus237.cern.ch>
+
+	* python/Muonboy.py enable T0fit for collision mode as well
+	* tag MuonRecExample-01-08-03
+
+2009-11-18  Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+        * extend to Mboy consistent setting of  ToF correction between MdtDriftCircleOnTrackCreator and AdjustableT0ToolMboy
+
+	* Tagged MuonRecExample-01-08-02	
+
+2009-11-18 Martin Woudstra <martin.woudstra@cern.ch>
+	Fix bug in Moore timing + add some new features (for private running)
+	* python/MuonRecUtils.py:
+	  - add functions to ConfigurableFactories to access configurable properties
+	  - add protection against adding duplicates
+	* python/MuonRecTools.py:
+	  - forward & use new functions of ConfigurableFactory
+	  - set consistent ToF correction between MdtDriftCircleOnTrackCreator and AdjustableT0ToolMoore
+	* python/MuonRecFlags.py:
+	  - useAlignmentCorrections: enable by default for real data if Geomodel is loaded, even if reco is not running
+	  - doSegmentT0Fit: enable by default also for MC cosmics and single beam
+	* python/MuonReadBSConfig.pyL fix adding duplicate tool TgcROD_Decoder
+	* share/MuonRecOutputItemList_jobOptions.py: fix bug in name of RpcPadContainer in EDSlist for Commissioning
+	* share/SelectEvents_jobOptions.py: new file to allow selecting events by event number
+	* share/MuonRec_topOptions.py: use new jobOptions to select events
+	* share/MuonDataRec_myTopOptions.py: use new jobOptions to select events
+	* Tagged MuonRecExample-01-08-01	
+
+2009-11-15  Rosy Nikolaidou  <rosyni@lxplus239.cern.ch>
+	* share/MuonDataRec_myTopOptions.py: revamping Persint jobOptions and recipe to run on 2008 splash events
+
+2009-11-13 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py: added RDOs to ESD if recFlags.Commissioning() set
+	* Tagged MuonRecExample-01-08-00
+
+2009-11-12 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: improve error handling of ConfigurableFactory, use new clone function
+	* python/MuonCalibConfig.py: improve error handling
+	* python/Moore.py: update MCTBEntryMatchingTool config
+	* tagging MuonRecExample-01-07-25
+
+2009-11-10  Rosy Nikolaidou  <rosyni@lxplus218.cern.ch>
+
+	* python/MuonBoy.py updating configuration for first data
+	* tag  MuonRecExample-01-07-24
+
+2009-11-02 Andrew Meade <ameade@physics.umass.edu>
+	* MuonRecFlags: added forceDataMode and forceCollisionsMode, both default to false
+	* MuonRecTools.py and Moore.py
+	  - updated some cuts that will be applied for data-collisions
+	    + hole cuts loosened in several tools 
+	    + not a change here, but this mode uses 1mm fixed errors and t0 fitting	
+	  - forceDataMode turns on these settings while processing simulation
+	  - forceCollisionsMode does the same, plus it puts all tools into collisions assumptions, except for timing.
+	  - designed for testing first data settings with pointing cosmics
+	* tag  MuonRecExample-01-07-23
+	
+2009-09-30 niels van eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: 
+	  - switch off outlier recovery for cosmics
+	* python/MuonRecTools.py: enable memory optimisation for cosmics
+	  - reduce fixed errors to 1 mm
+	  - reduce pull cut segment finding to 3 sigma
+	  - enable usage of double errors needed for segment finding
+	* requires DCMathSegmentMaker-00-12-01
+	* Tagged MuonRecExample-01-07-22
+
+2009-09-30  Rosy Nikolaidou  <rosyni@lxplus209.cern.ch>
+
+	* share/MuonCBNT_jobOptions.py add import of mooreFlags and muonboyFlags(fix bug #56305)
+	* tag  MuonRecExample-01-07-21
+
+2009-09-29  Rosy Nikolaidou  <rosyni@lxplus209.cern.ch>
+
+	* cmt/requirements fix compilation warning on overriding commands for target `../share/MuonRec_myTopOptions.py
+        * tag  MuonRecExample-01-07-20
+
+2009-09-29  Rosy Nikolaidou  <rosyni@lxplus209.cern.ch>	
+	* share/MuonRecOutputItemList_jobOption.py enable writing of chamber T0s information
+	* share/MuonDataRec_myTopOptions.py add all configuration for the descoping exercise and comment on each line
+	* tag MuonRecExample-01-07-19
+
+2009-09-28  Rosy Nikolaidou  <rosyni@lxplus205.cern.ch>,Martin Woudstra <martin.woudstra@cern.ch>
+
+	* python/Muonboy.py add chamber T0 writing
+	* share/MuonRecOutputItemList_jobOption.py add writing chamber T0 to ESD
+	* tag MuonRecExample-01-07-18
+
+	* python/Muonboy.py, Moore.py, MuonCalibConfig.py fix config for descoping
+	* python/Muonboy.py calibration tracks=ConvertedMboyTracks
+	* Tagged MuonRecExample-01-07-17
+
+2009-09-28  Rosy Nikolaidou  <rosyni@lxplus205.cern.ch>,Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Muonboy.py correct the segment only steering 
+	* Tagged MuonRecExample-01-07-16
+
+2009-09-28  Rosy Nikolaidou  <rosyni@lxplus205.cern.ch>,Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py, MuonRecFlags.py, MooreFlags.py, Moore.py, MuonboyFlags.py, Muonboy.py for descoping track building (add and use doSegmentsOnly flags in moore and muonboy flags)
+	* Tagged MuonRecExample-01-07-15
+
+2009-09-25 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Moore.py: configure track & segment matching tools
+	* requires MuonCombiTrackMaker-00-03-61 (or later)
+ 	* requires MuonSegmentMatchingTools-00-00-17 (or later)
+	* Tagged MuonRecExample-01-07-14
+
+2009-09-18 Kevin Black <kblack@fas.harvard.edu>
+	* share/MuonRecFlags.py: turn CSC on by default for data
+	* Tagged MuonRecExample-01-07-13
+	
+2009-08-31 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonTrackPerformance.py: rename to MuonTrackPerformance_jobOptions.py to avoid pb. when running from share/
+	* share/MuonRec_jobOptions.py: adapt to rename above
+	* Tagged MuonRecExample-01-07-12
+
+2009-08-28 niels van eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: enable memory optimisation for cosmics
+	* Tagged MuonRecExample-01-07-11
+
+2009-08-25 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonTrackPerformance.py: new jobOptions to do (optional) tracking performance studies (truth matching)
+	* python/MuonRecFlags.py: add flags to steer new jobOptions MuonTrackPerformance.py
+	* share/MuonRec_jobOptions.py: add (conditional) calling of new MuonTrackPerformance.py
+	* Tagged MuonRecExample-01-07-10	
+
+2009-08-25 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Moore.py: add support for TrackSelectionProcessorTool
+	* Tagged MuonRecExample-01-07-09
+
+2009-08-07 Stephane Willocq <Stephane.Willocq@cern.ch>
+	* share/MuonRec_myTopOptions.py:  comment out MuonTestEDM config to suppress large output
+	* Tagged MuonRecExample-01-07-08	
+
+2009-08-04 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCablingConfig.py: delete global variables to avoid memory fragmentation
+	* python/MuonPrdProviderToolsConfig.py: import MuonCablingConfig from MuonCnvExample instead of MuonRecExample
+	* python/MuonReadBSConfig.py:           import MuonCablingConfig from MuonCnvExample instead of MuonRecExample
+	* share/MuonRec_jobOptions.py:        - import MuonCablingConfig from MuonCnvExample instead of MuonRecExample
+	                                      - add include.block
+	* Tagged MuonRecExample-01-07-07	
+
+2009-08-03 Martin Woudstra <martin.woudstra@cern.ch>, Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: forwarding to MuonCnvExample.MuonCablingConfig and print deprecation WARNING
+	* Tagged MuonRecExample-01-07-06
+
+2009-08-03 Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: attempt to keep vmem down by not loading new cabling DB tool for RDO jobs & (again) revert to use old RPC cabling
+	* Tagging MuonRecExample-01-07-05
+
+2009-07-29 Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: Use old RPC cabling by default still
+	* Tagging MuonRecExample-01-07-04
+
+2009-07-27 Martin Woudstra <martin.woudstra@cern.ch>
+	Fix for bug #53390: https://savannah.cern.ch/bugs/?53390
+	* python/MuonCalibConfig.py:
+	  - call muonCalibFlags.setDefaults() to fix bug #53390
+	  - bugfix: only run ExtraTreeTriggerAlg if ExtraTreeAlg is running
+	* Tagging MuonRecExample-01-07-03
+
+2009-07-27  Rosy Nikolaidou  <rosyni@lxplus211.cern.ch>
+
+	* Tagging MuonRecExample-01-07-02
+
+2009-07-27  Rosy Nikolaidou  <rosyni@lxplus211.cern.ch>
+	
+
+	* python/MuonAlignConfig.py new spliting of online offline folder for alignment constants, don't use alignment corrections for problematic conditions tags
+	*update HEAD no specific tag, waiting the rest of corrections from Ed
+
+2009-07-21 Edward.Moyse
+	* python/MuonCablingConfig.py: Enable new MDT cabling for data, but internally use old for RDOs
+	* Tagged MuonRecExample-01-07-00
+
+2009-07-17  Rosy Nikolaidou  <rosyni@lxplus216.cern.ch>
+
+	* python/MuonRecFlags.py add a new flag to DataPeriod ->Reproc09
+	* python/MuonReadCalib.py updates on the folders to read the calibration constants , removing all specific tags
+	* python/MuonCablingConfig.py control which MDT cabling service to load with the DataPeriod flag (by default we read old MDT cabling service have to switch to new once fully debugged.)
+
+2009-07-14 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: 
+	  - FileList,DataInfo: add possibility to limit the number of expanded input files
+	  - FileList: more resilient against non-readable input files
+	* python/DataFiles.py: limit the number of input files to 10
+	* python/MuonRecStandaloneFlags.py: Do not set any default InputData
+	* python/MuonRecStandaloneOnlySetup.py: do not set default InputData
+	* share/MuonDataRec_myTopOptions.py: 
+	  - change default input file to 2009 data
+	  - clean up examples of setting different input data
+	  - better protect setting of STAGE_SVCCLASS='atldata'
+	  - try using AutoConfiguration (from RecExCommon)
+	* Tagged MuonRecExample-01-06-12	
+
+2009-07-10 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: merged with MuonCalibAlgs.MuonCalib
+	* python/Muonboy.py: adapt getCalibConfig() to new MuonCalibConfig
+	* python/Moore.py  : adapt getCalibConfig() to new MuonCalibConfig
+	* python/MuonRecUtils.py: add function dumpDetFlags to add DetFlags to config.txt
+	* python/MuonRecStandaloneOnlySetup.py: set RuntimeStrictness='abort'
+	* share/MuonRec_jobOptions.py: adapt to new MuonCalibConfig
+	* share/MuonRec_myTopOptions.py:  add more examples and add use of dumpDetFlags
+	* share/MuonDataRec_myTopOptions.py:  add try block and add use of dumpDetFlags
+	* Tagged MuonRecExample-01-06-11
+
+2009-07-09 Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: Removed include of TGCgeometry since this is trigger-only
+	* Tagged MuonRecExample-01-06-10
+
+2009-07-09 Martin Woudstra <martin.woudstra@cern.ch>
+	Remove use of deprecated GlobalFlags (to fix broken tag 01-06-08). Changed files:
+	* python/MuonRecStandaloneFlags.py
+	* python/MuonRecStandaloneOnlySetup.py
+	* share/MuonRec_topOptions.py
+	* share/MuonRec_jobOptions.py
+	Remove obsolete files:
+	* share/MuonInputSetup_jobOptions.py
+	* share/MuonRecPoolConvertors.py
+	* Tagged MuonRecExample-01-06-09	
+
+2009-07-09 Edward.Moyse@cern.ch
+	* python/MuonRecTools.py: ParticleCreator - use KeepParameters=True by default
+
+2009-07-07 Martin Woudstra
+	* python/MuonRecStandaloneOnlySetup.py: chose default input files here
+	* Tagged  MuonRecExample-01-06-08
+	2009-07-09: WARNING: MuonRec_myTopOptions.py broken due to this change
+
+2009-07-07 Martin Woudstra
+	Fixes for bug #52732: http://savannah.cern.ch/bugs/?52732
+	* python/MuonPrdProviderToolsConfig.py: add condition on DetFlags.digitize to fix bug #52732
+	* share/MuonRDO_to_PRD_jobOptions.py:   add condition on DetFlags.digitize to fix bug #52732
+	Other improvements:
+	* python/MuonRecUtils.py: FileList: add possibility to get list of input files in directory
+	* python/DataFiles.py: move (most) input files to ATLAS-GEO-02-01-00
+	* python/MuonRecStandaloneFlags.py: do not activate InputData (to make it optional)
+	* share/MuonRec_myTopOptions.py: add more examples of predefined input datafiles
+	* Tagged  MuonRecExample-01-06-07
+	
+2009-06-24  Rosy Nikolaidou  <rosyni@lxplus214.cern.ch>
+
+	* python/MuonAlignConfig.py removing the tag name from the alignment folders (for data)
+	* Tagged  MuonRecExample-01-06-06
+
+2009-05-28 Niels van Eldik
+        * python/Moore.py:  
+	  - also add option to split tracks crossing calo
+        * Tagged MuonRecExample-01-06-05
+
+2009-05-28 Niels van Eldik
+        * python/Moore.py:  
+ 	  - loosening cuts for cosmic reconstruction
+        * Tagged MuonRecExample-01-06-04
+
+2009-06-17 Edward.Moyse@cern.ch
+	* python/MuonRecFlags.py: changed 'flags' to 'flagsOn' (typo)
+	* Tagged MuonRecExample-01-06-03
+
+2009-06-16  Rosy Nikolaidou  <rosyni@lxplus204.cern.ch>
+
+	* python/Muonboy.py mask EES and EEL chambers at reconstruction level
+	* Tagged MuonRecExample-01-06-02
+
+2009-06-12 Martin Woudstra
+	Fix configuration part of bug 51623: https://savannah.cern.ch/bugs/?51623
+	* share/MuonRec_jobOptions.py: only run MuonPRD_MultiTruthMaker when PRD's are being made (bug #51623)
+	* share/MuonDataRec_myTopOptions.py: fix typo in new filename
+	* Tagged MuonRecExample-01-06-01	
+	2009-07-09: WARNING: Tag corrupted. Calibration ntuple broken. (accidentally contains half-finished migration - beware of svn cp)
+
+2009-06-11 Martin Woudstra
+	Complete the fix for bug 49848: https://savannah.cern.ch/bugs/?func=detailitem&item_id=49848
+	* python/MuonCablingConfig.py: remove (now obsolete) TgcCablingServerConfig.isReconstruction = True
+	Temporary workaround for bug 51240: https://savannah.cern.ch/bugs/?func=detailitem&item_id=51240
+	* share/MuonDataRec_myTopOptions.py: 
+	  - set rec.doTile=False
+	  - change default input file to the only one that seems to be there (?)
+	Other fix (no bugreport yet):
+	* python/MuonRecFlags.py: remove reference to removed flags MooreFlags.Config and MuonboyFlags.Config
+	Requires the following tags to have TGC cabling work correctly:
+	- MuonSpectrometer/MuonCablings/TGCcablingInterface-00-01-08
+	- MuonSpectrometer/MuonCablings/MuonCablingServers-00-00-19
+	- MuonSpectrometer/MuonCnv/MuonByteStreamCnvTest-02-07-03
+	- MuonSpectrometer/MuonCnv/MuonTGC_CnvTools-00-06-26
+	- Trigger/TrigT1/TrigT1TGC-00-02-12
+	- Trigger/TrigT1/TrigT1TGCRecRoiSvc-00-00-35
+	These tags are all in 15.3.0, and in AtlasP1HLT 15.2.0.X (15.2.0.2).
+	If they are added to a 15.2.X.Y cache (AtlasTier0,AtlasProduction), then the following dependent packages need 
+	to be added too because they need to be recompiled:
+	- MuonSpectrometer/MuonCablings/TGCgeometry
+	- Event/EventOverlay/OverlayValidation
+	- Trigger/TrigAlgorithms/TrigL2CosmicMuon
+	* Tagged MuonRecExample-01-06-00
+	WARNING: TAG NOT COMPATIBLE WITH 15.2.X.Y unless the above list of tags is also added.
+
+2009-06-10 Martin Woudstra
+	* python/MuonRecTools.py: Fix config of MboyCollectMatterTool for cosmics
+	* Tagged MuonRecExample-01-05-06
+
+2009-05-28 Martin Woudstra
+	Major cleanup of Moore configuration and remove all old configs.
+	Implementations of item 2k of https://twiki.cern.ch/twiki/bin/view/Atlas/MuonReviewTaskForce#Configuration
+	* python/ConfiguredMuonRec.py: minor change in setting of properties
+	* python/ConfiguredMoore.py: removed
+	* python/MooMoore.py: removed
+	* python/MoMuMoore.py: removed
+	* python/Moore.py: move all (simplified) Moore config here
+	* python/MuonRec.py: put Moore and Muonboy configs hardcoded
+	* python/MooreFlags.py: remove obsolete flags Config
+	* python/MuonboyFlags.py: remove obsolete flags Config
+	* Tagged MuonRecExample-01-05-05
+	
+2009-05-28 Niels van Eldik
+	* python/MoMuMoore.py: 
+          - only configure new MuonTrackExtrapolationTool for cosmics
+	* python/MuonRecTools.py
+	  - switch off segment refit
+	* Tagged MuonRecExample-01-05-04
+
+2009-05-22 Martin Woudstra
+	Merge with MuonRecExample-01-04-02-01 (was for 15.2.X.Y)
+	Call muonRecFlags.setDefaults() in the following files to ensure that the
+	defaults are always set correctly, and it has become independent of when the
+	files get imported or included.
+	Direct reason: to fix pb with TGC decoder in Reco_trf.py on data
+	* python/ConfiguredMoore.py
+	* python/MoMuMoore.py
+	* python/MuonCBNTFlags.py: in addition improve setDefaults() function
+	* python/MuonCablingConfig.py
+	* python/MuonCalibConfig.py
+	* python/MuonReadBSConfig.py
+	* python/MuonReadCalib.py
+	* python/MuonRec.py
+	* python/MuonRecStandaloneFlags.py
+	* python/MuonRecTools.py
+	* python/Muonboy.py
+	* share/MuonCBNT_jobOptions.py: in addition call muonCBNT.setDefaults()
+	Other fixes
+	* python/MuonRecFlags.py: fix in sync_DetFlags(): did not work anymore after above changes
+	* share/MuonRDO_toPRD_jobOptions.py: fix typo
+	* Tagged MuonRecExample-01-05-03
+
+2009-05-22 Martin Woudstra
+	Fix bug #41002 (item 2f of https://twiki.cern.ch/twiki/bin/view/Atlas/MuonReviewTaskForce#Configuration)
+	* python/MuonRecFlags.py: improve function syn_DetFlags()
+	  - cover RDO->BS case (i.e. don't run RIO makers)
+	  - allow calling for subset of technologies
+	Other fixes:
+	* share/MuonRec_jobOptions.py: only call PRD_Truth if PRD's are available
+	* share/MuonRDO_toPRD_jobOptions.py: add extra conditions to make sure the tools are there
+	* python/MuonPrdProviderToolsConfig.py: cosmetic change in message
+	* Tagged MuonRecExample-01-05-02
+	post-tagging WARNING: This tag does not work due to syntax typo in share/MuonRDO_toPRD_jobOptions.py
+
+2009-05-18 Edward.Moyse@cern.ch
+	* Added PRD truth:
+	  - share/MuonRecOutputItemList_jobOptions.py
+	  - share/MuonRec_jobOptions.py
+	* Tagged MuonRecExample-01-05-01
+
+2009-05-14 Niels van Eldik
+	* python/MoMuMoore.py: 
+	  - clean up setup of material source, use new flag for material
+          - configure new MuonTrackExtrapolationTool
+	* python/MooreFlags.py: 
+	  - add flag for material source and straight line fit momentum
+	* Tagged MuonRecExample-01-04-03
+
+2009-04-27 Niels van Eldik
+	* share/MuonCBNT_jobOptions.py: remove initialization of MuonResidualPullCalculator
+	* python/MoMuMoore.py: call setDefaults() of mooreFlags
+	* python/MooreFlags.py: 
+	 - change default of addEndcapMiddleSingleStationTracks to True
+	 - add setDefaults and correctly configure addEndcapMiddleSingleStationTracks for cosmics, single beam and collisions
+	* Tagged MuonRecExample-01-04-02
+
+2009-05-02 Martin Woudstra
+	Cleanup: Implement action item number 2a of
+	https://twiki.cern.ch/twiki/bin/view/Atlas/MuonReviewTaskForce#Configuration
+	* python/MuonPrdProviderToolsConfig.py: use single instance of RawDataProviderTools
+	* share/MuonRDO_to_PRD_jobOptions.py: do full config of RdoToPrd Algs here instead of in MuonRdoToPrepData package
+	* share/MuonReadBS_jobOptions.py: take RawDataProviderTools from ToolSvc
+	* Tagged MuonRecExample-01-04-01
+
+2009-04-27 Niels van Eldik
+	* python/MuonRecTools.py: remove MuonResidualPullCalculator
+	* python/MoMuMoore.py:
+	  - update MuonClusterOnTrackCreator for errors per technology (not backwards compatible)
+	* Tagged MuonRecExample-01-04-00
+
+2009-04-27 Niels van Eldik
+	* python/MuonRecTools.py: switch on refit of endcap middle segments
+	* python/MoMuMoore.py: 
+	  - add option to add endcap middle segments as tracks
+	  - always run seed and candidate cleaning during track finding
+	  - tighter cuts on holes for simulation
+	* python/MooreFlags.py: add option to add endcap middle segments as tracks
+	* Tagged MuonRecExample-01-03-05
+
+2009-04-26 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: put back flag Enabled (accidentally removed)
+	* Tagged MuonRecExample-01-03-04
+	
+2009-04-24 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: add class SummaryJobProperty
+	* python/MuonRecFlags.py: use class SummaryJobProperty
+	* Tagged MuonRecExample-01-03-03
+
+2009-04-23 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: add function setDefaultJobProperty
+	* python/MuonRecFlags.py:
+	  - add property calibNtupleOutput
+	  - make setDefaults do what it says: set the defaults (i.e. the class property) so
+	    that it becomes independent of the import order
+	* python/MuonCalibConfig.py: set calibration ntuple filename from new JobProperty
+	* share/MuonRec_jobOptions.py: call muonRecFlags.setDefaults()
+	* Tagged MuonRecExample-01-03-02
+
+2009-04-15 Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: Susumu's changes - use cabling server again, but set isReconstruction=True
+	* Tagged MuonRecExample-01-03-01
+
+2009-04-09 Edward.Moyse@cern.ch
+	* python/MuonCablingConfig.py: TGC cabling can now autoconfig so use that instead
+	* Tagged MuonRecExample-01-03-00
+
+2009-04-01 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTools.py: change MuonChi2TrackFitter config for GlobalChi2Fitter-00-03-00 (or later)
+        * Tagged MuonRecExample-01-02-22
+
+2009-04-01 Martin Woudstra <martin.woudstra@cern.ch>
+	Merge with MuonRecExample-01-02-16-branch (from tag -01-02-16-06):
+	* python/MuonReadCalib.py: add cut on MDT time window for simulation (NvE)
+	* python/MoMuMoore.py: update for moore clean-up, not backwards compatible (NvE)
+	* python/Muonboy.py: Set on some Mboy settings for bothMC and data cosmics (JFL)
+	Other fixes:
+	* python/MoMuMoore.py: some more cleanup
+	* share/MuonDataRec_myTopOptions.py: fix Calo config for MuonCalibExtraTreeTriggerAlg (from PK)
+	* python/MuonCalibConfig.py:  fix for MuonCalibExtraTreeTriggerAlg (from PK)
+        * Tagged MuonRecExample-01-02-21
+	
+2009-03-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonReadBSConfig.py: put CscROD_Decoder in Muon namespace
+        * Tagged MuonRecExample-01-02-20	
+
+2009-02-27 Niels van Eldik
+	* python/MuonRecTools.py: correctly configure material in GXF
+	* python/MoMuMoore.py: update configuration for cosmics
+        * Tagged MuonRecExample-01-02-19
+
+2009-02-24 Edward.Moyse@cern.ch
+	Updates for use of useBStoRdoTool flag for RDO to PRD conversions (from Stefania):
+	* python/MuonPrdProviderToolsConfig.py 
+	* share/MuonRDO_to_PRD_jobOptions.py  
+	* Tagged MuonRecExample-01-02-18
+
+2009-02-18 Martin Woudstra <martin.woudstra@cern.ch>
+	Remove obsolete files:
+	* share/MuonRec_standaloneTopOptions.py
+	* share/MuonRec_all.py
+	Add doxygen doc to mark as obsolete (but don't remove yet):
+	* share/MuonInputSetup_jobOptions.py
+	* share/MuonRecPoolConvertors.py
+	Add resilience against missing MuonCalibAlgs.MuonCalibFlags
+	* python/MuonRecFlags.py
+	* python/MuonRecStandaloneOnlySetup.py
+	* python/MuonRecUtils.py
+	Use athenaCommonFlags.AllowIgnoreConfigError instead of muonRecFlags.applyResilience
+	in preparation for removal of the applyResilience flag:
+	* python/MuonCalibConfig.py
+	* python/MuonRec.py
+	* python/MuonRecFlags.py
+	* share/MuonRec_topOptions.py
+	* share/MuonRec_myTopOptions.py
+	* share/MuonDataRec_myTopOptions.py
+	Other changes:
+	* python/MuonRecFlags.py: remove auto-loading of containers of some flags
+	* python/MuonRecUtils.py: fix import of GaudiHandles (changed package)
+	* share/MuonDataRec_myTopOptions.py: improve config of monitoring
+	* tagging MuonRecExample-01-02-17
+
+2009-02-18 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py - write out RpcCoinData 
+
+2009-02-11 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: import GaudiHandles from the correct place
+	* python/MuonRecStandaloneOnlySetup.py: add setting of DQMonFlags
+	* share/MuonRec_jobOptions.py: 
+	  - add extra if before including RDO_to_PRD (for clarity - is already done inside)
+	  - add some doxygen doc
+	* share/MuonDataRec_myTopOptions.py: add setting of DQMonFlags to avoid crash when running monitoring
+	* tagging MuonRecExample-01-02-16
+	
+2009-02-06 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_myTopOptions.py: remove reference to removed old versions of Moore
+	* share/MuonCBNT_jobOptions.py:
+	  - CBNTAA_Muon (Mboy) moved to package MboyStatistics
+	  - remove reference to MooStatistics (removed from release)
+	  - add protections with DetFlags
+	* python/MuonCBNTFlags.py: switch on RpcRawNtuple only for data
+	* python/MooreFlags.py: remove reference to removed old versions of Moore
+	* python/MuonRecFlags.py: enable useAlignmentCorrections for real data
+	* python/MuonCalibConfig.py: make compatible with single and multiple segments in calibration ntuple
+	* python/MuonReadBSConfig.py: rename RawDataProviderTool classes to solve picking problem
+	* tagging MuonRecExample-01-02-15
+
+2009-02-05  Rosy Nikolaidou  <rosyni@lxplus217.cern.ch>
+
+	* share/MuonCBNT_jobOptions.py add T0 refiting information for Muonboy 
+	* tagging MuonRecExample-01-02-14
+
+2009-02-03  Martin Woudstra Rosy Nikolaidou
+
+	* python/MuonAlignConfig.py add TGC A lines 
+	* tagging MuonRecExample-01-02-13
+
+2009-01-29 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: write both Moore and Muonboy segments
+	* python/ConfiguredMoore.py: add segmentsKey for Calibration Ntuple
+	REQUIRES: MuonCalibPatRec-00-07-06 and MuonCalibNtuple-01-04-06
+	* tagging MuonRecExample-01-02-12
+
+2009-01-28 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py: setting BeamCondSvc cf #46138 
+	* tagging MuonRecExample-01-02-11
+
+2009-01-27 Edward.Moyse@cern.ch
+	* python/MuonRecTools.py: added import of new TrkEventCnvTools module to fix bug#45095
+	* tagging MuonRecExample-01-02-10
+
+2009-01-22 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/DataFiles.py: doxify documentation
+	* python/MuonReadBSConfig.py: move BS tools to here and change names of TGC ROD tools
+	* python/MuonRecTools.py: remove BS tools from here
+	* python/MuonRecFlags.py: rename doSpecialTGC to doTGC_rawdataROD
+	REQUIRES: MuonTGC_CnvTools-00-05-23 (or later)
+	* tagging MuonRecExample-01-02-09
+
+2009-01-21 Martin Woudstra <martin.woudstra@cern.ch>
+	Add some more doxygen documentation to:
+	* python/MuonRecUtils.py
+
+2009-01-19 Martin Woudstra <martin.woudstra@cern.ch>
+	Add some more doxygen documentation to:
+	* doc/mainpage.h
+	* share/MuonRDO_to_PRD_jobOptions.py
+	* share/MuonReadBS_jobOptions.py
+	
+2009-01-14 Martin Woudstra <martin.woudstra@cern.ch>
+	Add some more doxygen documentation to:
+	* doc/mainpage.h
+	* python/MuonRecFlags.py
+	* python/MooreFlags.py
+	* python/MuonboyFlags.py
+	* python/MuonStandaloneRecFlags.py
+	* python/MuonCBNT_Flags.py
+	* share/MuonRec_all.py
+	* share/MuonRec_standaloneTopOptions.py
+	* tag MuonRecExample-01-02-08
+
+2009-01-12 Martin Woudstra <martin.woudstra@cern.ch>
+	* doc/mainpage.h: first version for doxygen documentation
+	* python/MuonRecFlags.py: change format of doc for doxygen
+	* share/MuonRec_standaloneTopOptions.py: try to mark as OBSOLETE in documentation
+	* tag MuonRecExample-01-02-07
+
+2009-01-09 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: extra protection for MuonCalibExtraTreeTriggerAlg
+	* python/MuonRecStandaloneOnlySetup.py: switch off DetFlags.digitize
+	* share/MuonRec_topOptions.py: replace obsolete RecExCommon/RecExCommon_flags.py
+	* python/ConfiguredMuonRec.py: simplify printout
+	* python/Muonboy.py: remove prints
+	* python/MuonRec.py: remove prints
+	* python/MuonRecTools.py: remove prints
+	* python/MuonReadCalib.py: remove prints
+	* python/MuonAlignConfig.py: remove prints
+	* share/MuonRec_jobOptions.py: remove prints
+	* share/MuonReadBS_jobOptiosn.py: remove print
+	* tag MuonRecExample-01-02-06
+
+2008-12-28 Ketevi A. Assamagan <ketevi@bn.gov>
+
+	* write out the MuonCaloEnergyContainer even when Calo is off (parametrized energy loss)
+	* tag MuonRecExample-01-02-05
+
+2008-12-26 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* put MuGirl LowBeta into a separate collection
+	* tag MuonRecExample-01-02-04
+
+2008-12-17 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTools.py: 
+	  - mods for changes in TrkParticleCreatorTool and MuonIdentificationHelper
+	  - bugfix: remove duplicate MuonPhiHitSelector and MuonSegmentMomentum
+	* Requires TrkParticleCreator-00-10-14 and MuonIdentificationHelper-00-02-00
+	* tag MuonRecExample-01-02-03
+
+2008-12-11  Rosy Nikolaidou  <rosyni@lxplus236.cern.ch>
+
+	* python/MuonCalibConfig.py change Track Container of Muonboy Tracks for the calibration ntuple
+	* tag MuonRecExample-01-02-02
+
+2008-12-09 Martin Woudstra <martin.woudstra@cern.ch>, Rosy Nikolaidou
+	* python/MoMuMoore.py: 
+	  - clone DCMathSegmentMaker to correctly set t0 segment fitter
+	  - force enableMuon on RegSelSvc when used (fix part of bug #45131)
+	* python/MuonReadCalib.py: remove CSC conditions tag overrides (old hack)
+	* python/MuonRecUtils.py: change order of arguments in ConfigurableFactory.addToolClone (more like addTool)
+	* python/MuonRecTools.py: adapt to new addToolClone interface
+	* python/MuonRecStandaloneOnlySetup.py: make independent of details of MuonCombinedRecFlags
+	* share/MuonDataRec_myTopOptions.py: 
+	  - change beamType from singlebeam to cosmics
+	  - set correct conditions tags for reprocessing
+	  - make MBoyView config depend on doMoore and doMuonboy
+	* share/MuonRec_topOptions.py: more cleanup of CBNT (copied from MuonCombinedRecExample)
+	* tagging MuonRecExample-01-02-01
+	
+2008-12-08  Rosy Nikolaidou  <rosyni@lxplus219.cern.ch>
+
+	* share/MuonDataRec_myTopOptions.py set default dataperiod flag to LHC
+        * tag 01-01-24 NOTE: TAG REMOVED FROM CVS
+	
+	* python/MuonAlignConfig.py  correct endcap alignment folders
+	* tag 01-01-23 NOTE: TAG REMOVED FROM CVS
+
+	* python/Muonboy.py change fixed momentum value to 6 GeV for runs without magnetic field
+	* python/MuonAlignConfig.py change folders of endcap alignment correctionsfor the reprocessing 
+	
+
+2008-12-04 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTool.py: remove duplicate building of MuonTrackingGeometry. Enable MuonExtrapolator.ResolveMuonStation
+	* share/MuonRecLoadTools.py: remove references to MuonTrackingGeometry
+	* share/MuonRec_topOptions.py: remove obsolete hack for perfMon+VP1 conflict
+	* Requires MuidExample-00-01-11-01
+	* tagging MuonRecExample-01-02-00
+
+2008-12-03 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCBNTFlags.py: change some defaults
+	* share/MuonCBNT_jobOptions.py: add section for MooStatistics
+	* share/MuonDataRec_myTopOptions.py: some cleanup and mods for reprocessing
+	* tagging MuonRecExample-01-01-21
+
+2008-12-02 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: set correct values of MuonSegmentToCalibSegment.UpdateForT0Shift and MuonSegmentToCalibSegment.DoTOF
+	* python/MuonRecUtils.py: add cloning functions to ConfigurableFactories
+	* python/MuonRecTools.py: add tools for segment t0 fitting
+	* python/Muonboy.py: use segment t0 fitting tools from MuonRecTools
+	* share/MuonRDO_to_PRD_jobOptions.py: enable TwinTubes in PRD making
+	* tagging MuonRecExample-01-01-20
+
+2008-11-30 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonAlignConfig.py: remove old sector 5 alignment tag
+	* tagging MuonRecExample-01-01-19
+
+2008-11-28 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonAlignConfig.py: add tags for end cap alignment
+	* share/MuonData_mytopOptions.py: change default geometry to no field
+	* tagging MuonRecExample-01-01-18
+	
+2008-11-26 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonAlignConfig.py: add tag for barrel alignment
+	* tagging MuonRecExample-01-01-17
+	
+2008-11-24 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: add flags doSegmentT0Fit & useTGCPriorNextBC, remove debugLevel flags
+	* python/MooreFlags.py:   add flag printSummary
+	* python/MuonRecTools.py: use flag doSegmentT0Fit
+	* python/MoMuMoore.py:    use flags doSegmentT0Fit, useTGCPriorNextBC, printSummary
+	* python/Muonboy.py:      use flag doSegmentT0Fit
+	* python/MuonRecStandaloneOnlySetup.py: remove flag doTileMuid, add flag doLArMuid
+	* tagging MuonRecExample-01-01-16
+
+2008-11-24 Kevin Black <kblack@fas.harvard.edu>
+	* revert last change
+	* tagging MuonRecExample-01-01-15
+	
+2008-11-24 Kevin Black <kblack@fas.harvard.edu>
+	* python/MoMuMoore.py - change MuonCombiTrackMaker to not recalibrate MDT hits
+	* tagging MuonRecExample-01-01-14
+	
+2008-11-24 Kevin Black <kblack@fas.harvard.edu>
+	* python/Muonboy.py - turn t0 fitting on by default for Muonboy
+	* tagging MuonRecExample-01-01-13
+ 
+2008-11-24 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonDataRec_myTopOptions.py - change default dataperiod for reprocessing, b field off
+	* tagging MuonRecExample-01-01-12
+
+2008-11-24 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools.py: turn on Moore t0 fitting for cosmics
+	* python/MoMuMoore.py: turn on Moore t0 fitting for cosmics
+        * tagging MuonRecExample-01-01-11
+	
+2008-11-21 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonRecFlags.py: add new dataperiod flag for reprocessing 
+	* python/MuonReadCalib.py: add new dataperiod for reprocessing
+        * tagging MuonRecExample-01-01-10
+	
+2008-11-20 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: add MuonCalibExtraTreeTriggerAlg, write both Moore and Muonboy tracks
+	* python/MuonRecFlags.py: set default calibration ntuple to trackNtuple
+	* share/MuonDataRec_myTopOptions.py: prepare for Dec 2008 reprocessing
+	* share/MuonRecOutputItemList_jobOptions.py: add MooreExtrapolatedTracks to ESD
+	* tagging MuonRecExample-01-01-09
+
+2008-11-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonReadBSConfig.py: select on DetFlags.readRDOBS rather than DetFlags.makeRIO
+	* share/MuonReadBS_jobOptions.py: select on DetFlags.readRDOBS rather than DetFlags.makeRIO
+	* tagging MuonRecExample-01-01-08
+
+2008-11-13 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRDO_to_PRD_jobOptions.py: new jobOptions for separate RDO->PRD making, includes bugfix.
+	* share/MuonRec_jobOptions.py: use new MuonRDO_to_PRD_jobOptions.py
+	* share/MuonDataRec_myTopOptions.py: minor fixes
+	* tagging MuonRecExample-01-01-07
+	
+2008-10-31 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonRecFlags.py change variable name for RPC PRD 
+	* tagging MuonRecExample-01-01-06 
+
+2008-10-28  Rosy Nikolaidou  <rosyni@lxplus208.cern.ch>
+
+	* python/MuonRecFlags.py set by default specialTGC to True only for Data	* tagging MuonRecExample-01-01-05
+
+2008-10-28  Rosy Nikolaidou  <rosyni@lxplus208.cern.ch>
+
+
+	* python/MuonRecFlags.py set by default specialTGC to True only for bytestream
+	* python/Muonboy.py configuration for floating T0
+	* share/MuonDataRec_myTopOptions.py add and Lock Magnetic Field flags
+	* tagging MuonRecExample-01-01-04
+
+2008-10-27 Kevin Black <kblack@fas.harvard.edu>
+	* python/MuonRecTools.py - add TGC special decoding
+	* python/MuonRecFlags.py - add flag to switch to special decoding
+	* tagging MuonRecExample-01-01-03
+	
+2008-10-26 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py : turn on pattern phi angle cut
+	* tagged MuonRecExample-01-01-02
+
+
+2008-10-24  Rosy Nikolaidou  <rosyni@lxplus203.cern.ch>
+
+	* python/MuonCBNTFlags.py configure flags for ntuple production 
+        * remove the last dependencies with MuonCommRecExample 
+	* share/MuonDataRec_myTopOptions.py to run on cosmics and single beam data (used for the tutorial ) 
+
+2008-10-20 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MuonRecTools.py : update segment maker configuration
+	* tagged MuonRecExample-01-01-00
+
+2008-10-16 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore : update CSC configuration, use public tools
+	* python/MuonRecTools.py : configure MCTBTrackFitter to use MuonRotCreator 
+	* tagged MuonRecExample-01-00-02
+
+2008-10-13 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* added the CSc Strip PrepRawData after discussion
+	* tagged MuonRecExample-01-00-01
+
+2008-10-10  Martin Woudstra  <woudstra@cern.ch> & Rosy Nikolaidou
+	* Merge with branch MuonRecExample-00-13-29-branch: Merging with MuonCommRecExample
+	* Tagged MuonRecExample-01-00-00
+
+2008-10-08 Edward.Moyse@cern.ch (Martin Woudstra)
+	* cmt/requirements : correct link to use MuonRec_myTopOpts.
+	* python/MoMuMoore.py : New configuration of DCMathSegmentMaker
+	* python/MuonRecTools.py : New configuration of DCMathSegmentMaker
+	* python/MuonRec.py : Fix for reco from ESD
+	* Tagged MuonRecExample-00-13-30
+
+2008-09-05 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRec.py: remove explicit use of muonRecFlags.Enabled() -> allow reco on ESD files
+	* tagging MuonRecExample-00-13-29
+
+2008-09-02 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py:    undo changes of new DCMathSegmentMaker (MuonRecExample-00-13-26)
+	* python/MuonRecTools.py: undo changes of new DCMathSegmentMaker (MuonRecExample-00-13-26)
+	* requires DCMathSegmentMaker-00-07-08 or older(!)
+	* tagging MuonRecExample-00-13-28
+
+2008-09-02 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_topOptions.py: add support for DetDescrVersion on command line (with -c)
+	* Requires DCMathSegmentMaker-00-07-09 or later (because of change made in MuonRecExample-00-13-26)
+	* tagging MuonRecExample-00-13-27
+
+2008-09-01 Edward.Moyse@cern.ch
+	* Fixed typo.
+
+2008-08-28 Edward.Moyse@cern.ch
+	* share/MuonRecOutputItemList_jobOptions.py: Added TGC Coincidence data.
+
+2008-08-27 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRec_standaloneTopOptions: fix comments about running private files
+
+2008-08-22 Yair Mahalalel <yair@cern.ch>, Nir Amram <nir@cern.ch>
+	* Removed deprecated properties from calls to DCMathSegmentMaker
+	* Requires DCMathSegmentMaker-00-07-09 or later
+	* tagging MuonRecExample-00-13-26
+
+2008-08-22 Niels van Eldik <niels.van.eldik@cern.ch>
+	* update MoMuMoore configuration 
+	  - add configuration of fitter tools using tracking geometry material 
+	* tagging MuonRecExample-00-13-25
+
+2008-08-21 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMoore.py, Muonboy.py, MooMoore.py, MoMuMoore.py, MuonCalibConfig.py: 
+	  simplify configuration of Calibration Ntuple
+	* tagging MuonRecExample-00-13-24
+
+2008-08-21 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTools.py: add __slots__ to MuonRecToolBase to avoid property mistyping
+	* python/MoMuMoore.py: remove obsolete (and buggy) class MuonSegmentRecoveryTool
+	* tagging MuonRecExample-00-13-23
+
+2008-08-20 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonCalibConfig.py: bugfix in using MuonPrdSelect
+	* tagging MuonRecExample-00-13-22
+
+2008-08-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: add new flags doPrdSelect
+	* share/MuonRec_jobOptions.py: add option do to MuonPrdSelect
+	* python/MuonCalibConfig.py: add option do to MuonPrdSelect
+	* python/MoMuMoore/MooMoore.py: use SegmentCombinations instead of Segments for CalibNtuple
+
+
+2008-08-12 Martin Woudstra <martin.woudstra@cern.ch>
+	* move function getProperty from python/ConfiguredMuonRec.py to python/MuonRecUtils.py
+	* python/MuonCalibConfig.py: switch on hole search for Moore in MuonCalibExtraTree
+	* python/MuonRecStandaloneOnlySetup.py: fine-tune flags
+	* python/MuonRecTools.py: update default config of MuonHolesOnTrackTool
+	* tagging MuonRecExample-00-13-21
+
+2008-08-07 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: don't update DetFlags if DetFlags.Muon_off()
+	* tagging MuonRecExample-00-13-20
+
+2008-08-07 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: 
+	  - Enable only controls part of flags (to solve trigger problem)
+	  - remove obsolete flag doTruthMatching
+	* share/MuonRec_jobOptions.py: don't run CscClusterization if CSCs are off
+	* share/MuonRec_topOptions.py: remove some obsolete lines
+	* tagging MuonRecExample-00-13-19
+
+2008-08-05 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonReadBS_jobOptions.py: replace muonRecFlags.doMDTs() etc with DetFlags.makeRIO.MDT_on() etc.
+	* share/MuonRec_jobOptions.py: remove call to muonRecFlags.syncFlags() (should be done in RecExCommon_DetFlags.py)
+	* tagging MuonRecExample-00-13-18
+	
+2008-08-04 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecCombinedFlags.py: removed because superseded by MuonCombinedRecExample
+	* python/MuonReadBSConfig.py: replace muonRecFlags.doMDTs() etc with DetFlags.makeRIO.MDT_on() etc.
+	* share/MuonRec_myTopOptions.py: remove reference to MuonRecCombinedFlags module (removed)
+	* share/MuonRec_topOptions.py: 
+	  - cleanup of documentation
+	  - remove CBNTAA_MboyESD if Staco is not run
+	* tagging MuonRecExample-00-13-17
+
+2008-07-31 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonReadBSConfig.py: only load ByteStreamCnvSvc if not already there, so as not to break online
+	* tagging MuonRecExample-00-13-16
+
+2008-07-31 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py:
+	  - bugfix: make override_lock_and_set_Value() do what it says
+	  - add override_lock_and_set_On() and override_lock_and_set_Off()
+	* tagging MuonRecExample-00-13-15	
+
+2008-07-31 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecStandaloneOnlySetup.py: 
+	  - new file configuring flags to run Muon Standalone Reco only
+	  - don't write ESD by default
+	  - write CBNT by default
+	  - switch off JetRec
+	* python/MuonRecStandaloneFlags.py: only keep the extra JobProperties. Rest goes to above file
+	* python/MuonRec.py:    remove MuonRecTools.loadAll() (moved to MuonRecTools.py)
+	* python/MuonRecTools.py: add  MuonRecTools.loadAll() (moved from MuonRec.py)
+	* python/MuonRecFlags.py: propagate Enabled flag to all other flags (set_On/set_Off)
+	* python/MuonRecUtils.py: add function override_lock_and_set_Value()
+	* share/MuonRec_myTopOptions.py:
+	  - fix typo in example for custom input files
+	  - use new MuonRecStandaloneOnlySetup.py
+	* share/MuonRec_standaloneTopOptions.py: use new MuonRecStandaloneOnlySetup.py
+	* share/MuonRec_topOptions.py: use new MuonRecStandaloneOnlySetup.py
+	* tagging MuonRecExample-00-13-14
+
+2008-07-28 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MooreFlags.py fix default flavour of Moore
+	* tagging MuonRecExample-00-13-13
+
+2008-07-24 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: better synchronization with DetFlags
+	* share/MuonRec_jobOptions.py: call muonRecFlags.syncFlags()
+	* tagging MuonRecExample-00-13-12
+
+2008-07-21 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: better error message in case of configuration import problems
+	* tagging MuonRecExample-00-13-11
+
+2008-07-17 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: better handling of disabled configs
+	* python/MuonRecCombinedFlags.py: re-enable MuGirl (+ minor cleanup)
+	* python/MuonRecFlags.py: sync DetFlags with doMDTs etc flags
+	* python/MuonRecStandaloneFlags.py: switch off some more algs
+	* python/MuonRecTools.py: 
+	  - setup AmdcAth when MboySvc is loaded
+	  - more cabling config setup for BS converters
+	* python/MuonRecUtils.py: bugfix & better error handling in InputFileList decoder
+	* python/MuonReadBSConfig.py: 
+	  - new config file to setup tools/services for reading muon bytestream
+	  - to be used by: online,offline,RDO->PRD
+	* share/MuonReadBS_jobOptions.py:
+	  - add include.block
+	  - use new MuonReadBSConfig module
+	  - for offline (not for online)
+	* share/MuonRec_topOptions.py: fix EvtMax setting from command line + add SkipEvents from command line
+	* share/MuonRec_jobOptions.py: some cleanup
+	* share/MuonRecOutputItemList_jobOptions.py: add MuTagIMO containers
+	* tagging MuonRecExample-00-13-10
+
+2008-07-04 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecStandaloneFlags.py: fix bug that prevented running digitization on-the-fly
+	* tagging MuonRecExample-00-13-09
+
+2008-07-02 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/DataFiles.py: add FDR1_BS_RTT bytestream input file
+	* python/MuonRecTools.py: 
+	  - add bytestream conversion tools
+	  - add MboySvc to set MinuitOutFile = False
+	  - MuonDynamicLayerCreater explicitly depends on MboySvc
+	* python/MuonRecUtils.py: add conditionsTag to DataInfo
+	* python/Muonboy.py: get MboySvc from MuonRecTools
+	* python/MuonRecStandaloneFlags.py: 
+	  - switch off some more algorithms
+	  - InputData passes info on to the respective JobProperties
+	* share/MuonReadBS_jobOptions.py: 
+	  - comment out VERBOSE output
+	  - move public tools to python/MuonRecTools.py
+	* share/MuonRec_all.py:
+	  - set conditionsTag
+          - set ServiceMgr.ByteStreamCnvSvc.IsSimulation=True if running on MC (copied from RecExCommon)
+	* share/MuonRec_myTopOptions.py: add doc on how to read user chosen input files
+	* share/MuonRec_standaloneTopOptions.py:
+	  - add doc on how to read user chosen input files
+	  - remove readBS flag (no longer needed with better muonRecFlags.InputData)
+	* share/MuonRec_topOptions.py: 
+	  - use muonRecFlags.InputData to select input files to read
+	  - better dealing with RecExCommon_flags.py
+	  - remove some obsolete lines
+	* tagging MuonRecExample-00-13-08
+
+2008-07-02 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* fix CSCPAD; it should be CSCRDO -> MuonReadBS_jobOptions.py
+	* MuonRecExample-00-13-07
+
+2008-06-30 Martin Woudstra <martin.woudstra@cern.ch> 
+	* MuonAlignConfig.py: read constants from multiple folders
+	  NB: Only works on FDR-2 data!
+	* Tagging MuonRecExample-00-13-06
+
+2008-06-30 Edward.Moyse@cern.ch
+	* MuonRec_all : include BS fragments here and removed from
+	MuonReadBS_jobOptions.py
+	* Tagged MuonRecExample-00-13-05
+
+2008-06-28 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* update AOD/ESD list for MuGirl refitted tracks/trackParticles
+	* tagging MuonRecExample-00-13-04	
+
+2008-06-26 Martin Woudstra <martin.woudstra@cern.ch> 
+	* Merge with MuonRecExample-00-10-25-branch (adding alignment corrections):
+	* python/MuonRecFlags.py: add new flag to switch on/off alignment corrections (off by default)
+	* python/Muonboy.py: enable reading of alignment corrections
+	* python/MuonAlignConfig.py: new module to switch on alignment corrections
+	* share/MuonRec_jobOptions.py: add calling of MuonAlignConfig
+	* tagging MuonRecExample-00-13-03
+
+2008-06-18 Edward.Moyse@cern.ch
+	* MuonRedBS_jobOptions.py: check to see if technologies switched on/off
+	* Tagged MuonRecExample-00-13-02
+
+2008-06-13 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* update AOD list
+	* Tagged MuonRecExample-00-13-01
+
+2008-06-11 Edward.Moyse@cern.ch
+	* Update BS jobOpts to run all technologies, and reduce output.
+	* Tagged MuonRecExample-00-13-00
+
+2008-05-05 Niels van Eldik <niels.van.eldik@cern.ch>
+	* update MoMuMoore configuration 
+	  - use STEP instead of RungeKutta to prepare for usage of Sarka's material
+	  - use material from track in cleaner
+	* tagging MuonRecExample-00-12-03
+
+2008-05-20 Martin Woudstra <martin.woudstra@cern.ch> 
+	* python/MuonRecCombinedFlags.py: 
+	  - make dependent on doMoore and doMuonboy
+	  - add MuTag; 
+	  - switch off MuGirl (causes crash in finalize)
+	* tagging MuonRecExample-00-12-02
+	
+2008-05-20 Martin Woudstra <martin.woudstra@cern.ch> 
+	* python/Muonboy.py: fix config for DumpOnly=True (from Jean-Francois Laporte)
+	* share/MuonRec_standaloneTopOptions.py: set non-bytestream as default (from Ed Moyse)
+	* tagging MuonRecExample-00-12-01
+
+2008-05-20 Edward.Moyse@cern.ch
+	* Modified standalone jobOpts to handle reading BS and added MuonReadBS_jobOptions.py
+	* tagged MuonRecExample-00-12-00
+
+2008-05-05 Niels van Eldik <niels.van.eldik@cern.ch>
+	* update MoMuMoore configuration 
+	  - update PatternLocation key
+	* tagging MuonRecExample-00-11-05
+
+2008-05-05 Niels van Eldik <niels.van.eldik@cern.ch>
+	* update MoMuMoore configuration 
+	* add configuration for MuonSegmentRegionRecoveryTool
+	* tagging MuonRecExample-00-11-04
+
+2008-04-17 Niels van Eldik <niels.van.eldik@cern.ch>
+	* configure GlobalChi2Fitter to use material from track
+	* add configuration for MuonSegmentRegionRecoveryTool
+	* tagging MuonRecExample-00-11-03
+
+2008-04-32 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* added TileMuon candidates to the ESD list - following discussions in the performance meeting on 04/32/2008
+	* tagging MuonRecExample-00-11-02
+
+2008-04-18 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+        * implementation of Rousseau's request to run MuonBuilder as the ESD saving MuonCollections in both ESD and AOD
+        * this tag is for 14.2.0 ONLY - MUST be collected together with others tags of MuonAlgs, ParticleBuilderOptions and RecExComm
+        * tagging MuonRecExample-00-11-01
+
+2008-04-17 Niels van Eldik <niels.van.eldik@cern.ch>
+	* configure GlobalChi2Fitter to never use material from track
+	* tagging MuonRecExample-00-10-27
+
+2008-04-15 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MooMoore.py: make sure to set the MooTracks dataKey
+	* python/ConfiguredMuonRec.py: better error message
+	* share/MuonRecOutputItemList_jobOptions.py: add new MuidCombinedTracks to ESD
+	* tagging MuonRecExample-00-10-26
+
+2008-04-15 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/Moore.py: switch to new chain
+	* python/MuonRecOutputList.py : add new Muid extrapolated tracks
+	* tagging MuonRecExample-00-10-25	
+
+2008-04-10 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: bugfixes and extended functionality in Factories
+	* python/MuonRecTools.py: fix getPrivateTool function and add get*Clone functions
+	* share/MuonRec_myTopOptions.py:
+	  - add doc for user fine-tuning
+	  - write out config after user fine-tuning
+	* tagging MuonRecExample-00-10-24
+
+2008-04-04  Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_standaloneTopOptions.py: 
+	  - fix for users wanting to change flags
+	  - add documentation
+	* share/MuonRec_topOptions.py: 
+	  - fix for users wanting to change flags
+	  - add documentation
+	* share/MuonRec_myTopOptions.py: add documentation
+	* python/Moore.py: add documentation
+	* python/MooreFlags.py: add documentation
+	* python/Muonboy.py:
+	  - remove obsolete MuonboyCombined
+	  - MuonboyStandalone (renamed Muonboy) runs up to TrackParticles
+	* python/MuonboyFlags.py: change default Config to reflect change in Muonboy.py
+	* tagging MuonRecExample-00-10-23
+	
+2008-04-01  Martin Woudstra <martin.woudstra@cern.ch>
+	* */*.py: fully cleanup doMoore and doMuonboy flags from recAlgs
+	* python/MoMuMoore.py: always load all tools to avoid misconfiguration
+	* python/MuonRecStandaloneFlags.py: add recFlags.doTrigger = False
+	* share/MuonRec_*TopOptions.py: move to new way of selecting Reco config
+	* tagging MuonRecExample-00-10-22
+	
+2008-03-31  David Rousseau  <droussea@lxbuild083.cern.ch>
+
+	* share/*.py : doMoore doMuonboy removed from recAlgs (only in muonRecFlags) 
+	* tagging MuonRecExample-00-10-21
+	
+2008-03-25 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py: fix typo when doCSCs == False
+	* python/MuonRecUtils.py: a
+	  - add function fillJobPropertyContainer
+	  - fixes in AutoLoadContainer
+	* python/MuonboyFlags.py: add property Config
+	* python/MooreFlags.py: add property Config
+	* python/MuonRec.py: use new Config properties
+	* python/MuonRecFlags.py: 
+	  - fix wrong useage of AutoLoadContainer
+	  - set doMoore & doMuonboy from SelectReco (to disappear)
+	* python/MuonRecStandaloneFlags.py: use new properties
+	* python/MuonRecCombinedFlags.py: new flags module to run combined reco
+	* share/MuonRec_topOptions.py: 
+	  - move some stuff to MuonRecCombinedFlags.py
+	  - set some more old flags
+	* share/MuonRec_myTopOptions.py: use new properties
+	* tagging MuonRecExample-00-10-20
+
+2008-03-21 Ketevi A. Assamagan <keetvi@bnl.gov>
+
+	* fix ESD list for Calo Muons
+	* tagging MuonRecExample-00-10-19
+
+2008-03-20 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecUtils.py: print out ConfigurableFactory in alphabetic order
+	* share/MuonRec_myTopOptions.py: fix mistake in include()
+
+2008-03-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Moore.py: fix in MoMuMoore config
+	* python/MuonRecUtils.py: add AlgToolFactory,ServiceFactory,ConfiguredBase,ConfiguredBaseMeta
+	* python/MuonRecTools.py: add and use MuonRecToolBase
+	* python/MuMuMoore.py: use MuonRecToolBase
+	* tagging MuonRecExample-00-10-18
+	
+2008-03-19 Niels van Eldik <niels.van.eldik@cern.ch>, Martin Woudstra <martin.woudstra@cern.ch>
+	* python/DataFiles.py: add entry for pileup sample
+	* python/ConfiguredMuonRec.py: better error handling
+	* share/MuonRec_topOptions.py:
+	  - remove explicit setting of muonRecFlags.SelectReco
+	  - reduce TrackingGeometry output
+	* share/MuonRec_myTopOptions.py: new Top JobOptions file for end-users
+
+	* python/MoMuMoore.py: 
+          - configure ambiguity processor to use new MuonTrackScoringTool, switch off DropDouble
+	  - tigher cuts for SL track fits
+	* python/MuonRecTools.py
+	  - configure DCMathSegmentMaker to use trigger hits in segment height function
+	* tagging MuonRecExample-00-10-17
+	
+2008-03-18 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* fix the the ESD list - there was a typo
+	* add CaloEnergy collection to AOD list
+	8 MuonRecExample-00-10-16
+
+2008-03-17 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+          - move to MuonTrackScoringTool
+	* tagging MuonRecExample-00-10-15
+
+2008-03-17 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+          - tighter chi2/ndof cut: 100 -> 20
+          - switch off phi cleaning during segment finding stage, moved to track fitting
+	* tagging MuonRecExample-00-10-14
+
+2008-03-12 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+          - really set outlier cut to 3 sigma
+          - really switch off retrying of fit with numerical derivatives 
+	  - switch off addition of 2D CSC segments if 4D is added
+	* python/MuonRecTools.py: reduce precision of propagator
+	* tagging MuonRecExample-00-10-13
+
+2008-02-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py:  update cleaner chi2 cut to be 100 
+				outlier cut now set to 3 sigma 
+				switch off retrying of fit with numerical derivatives
+	* tagging MuonRecExample-00-10-12
+
+2008-02-29 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecStandaloneFlags.py: set recFlags.doESD = True to get it running again
+	* share/MuonRec_topOptions.py: set old-style flags from new-style flags
+	* tagging MuonRecExample-00-10-11
+
+2008-02-28 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: add flags doMoore, doMuonboy, Enabled
+	* python/MuonRec.py: disable if needed based on doMoore, doMuonboy (from RecAlgsFlags for now)
+	* python/ConfiguredMuonRec.py: add enable/disable feature
+	* python/MuonCalibConfig.py: print error instead of exception if no reco config found
+	* python/MuonRecUtils.py: move some stuff from MuonRecFlags to here
+	* tagging MuonRecExample-00-10-10
+
+2008-02-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: update configuration to switch to tube hit fit
+	* tagging MuonRecExample-00-10-09
+
+2008-02-25 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py: adapt config to new Extrapolator (by using classes from MuonRecTools)
+	* python/MuonRecTools.py: more flexible use of new (Muon)Extrapolator
+	* share/MuonRec_topOptions.py: switch off PerfMon if doVP1=True to avoid crash (well, reveal another one)
+	* tagging MuonRecExample-00-10-08
+
+2008-02-22  Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecTools.py: adapt to change in Extrapolator (multiple MaterialEffectUpdators)
+	* tagging MuonRecExample-00-10-07
+
+2008-02-20  Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRecOutputItemList_jobOptions.py: fix??Moore Segments keys (bug #32928)
+	* python/Moore.py: add hack to fix bug #33705
+	* python/ConfiguredMuonRec.py: derive from object (needed for above hack)
+	* python/MoMuMoore.py: don't run unneeded old Moore specific stuff
+	* tagging MuonRecExample-00-10-06
+
+2008-02-19  Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py: adapt to privatized MooSegmentCombinationFinder
+	* python/Moore.py: 
+	 - adapt to privatized MooSegmentCombinationFinder
+	 - remove all references to ConfiguredCSC
+	* python/ConfiguredCSC.py: remove obsolete file
+	* python/MuonRecTools.py: new module to replace share/MuonRecLoadTools.py
+	* share/MuonRecLoadTools.py: temporary uses python/MuonRecTools.py for backwards compat
+	* python/MuonRec.py: load all muon rec tools from here
+	* python/MuonRecUtils.py: generalise ToolFactory to ConfigurableFactory & extend functionality
+	* share/MuonRec_all.py: add auditing of tools
+	* share/MuonRec_topOption.py: minor cleanup
+	* tagging MuonRecExample-00-10-05
+	
+2008-02-15  Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py: fixes for CalibrationNtuple and for Commissioning
+	* python/Moore.py: adapt to changes in MoMuMoore.py
+	* tagging MuonRecExample-00-10-04
+
+2008-02-13 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* MuonCaloEnergyCollection to ESD
+	* MuonRecExample-00-10-03
+
+2008-02-11 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: correctly configure collections for MoMuMoore
+	* python/Moore.py:     correctly configure collections for MoMuMoore
+	* tagging MuonRecExample-00-10-02
+
+2008-02-10 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: allow configuration of cleaner
+	* python/Moore.py:     correctly configure cleaner         
+	* tagging MuonRecExample-00-10-01
+
+2008-02-10 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py:     configure AlgTool chain
+	* python/ConfiguredCSC.py: obsolete, removed code
+	* tagging MuonRecExample-00-10-00
+
+2008-02-07 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: added flags doMDTs, doCSCs, doRPCs, doTGCs
+	* share/MuonRecLoadTools.py: use MuonTrackingGeometry configuration from MuonTrackingGeometry package
+	* python/Muonboy_Comm.py: removed (now in MuonCommRecExample)
+	* python/MboySvc_Comm.py: removed (now in MuonCommRecExample)
+	* share/ConfiguredMuonRecFlags.py: remove obsolete file
+	* tagging MuonRecExample-00-09-46
+	
+2008-01-29 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredCSC.py: update for new (single alg) CscSegmentMaker
+	  Requires CscSegmentMakers-00-02-01 or later
+	* tagging MuonRecExample-00-09-45
+
+2008-01-22 Martin Woudstra <martin.woudstra@cern.ch>
+	* Summary: 
+	  - changes for MuonCommRecExample
+	  - fix MoMuTracks config 
+	  - adapt Muonboy config for MuonCommRecExample
+	  - better error checking
+	* python/ConfiguredMuonRec.py: better error checking
+	* python/MoMuMoore.py: 
+	  - Add DCMathSegmentMaker to list of tools
+	  - fix MoMuTracks configuration
+	* python/Muonboy.py: changes for use in MuonCommRecExample
+	* python/MuonboyFlags_Comm.py: removed (moved to MuonCommRecExample)
+	* python/MuonCalibConfig.py: new module taken out of share/MuonRec_jobOptions.py
+	* python/MuonRecUtils.py: add shared loggers logMuon and logMuonResil
+	* python/MuonRec.py: use shared loggers
+	* python/MuonRecFlags.py: remove entry for MuonboyFlags_Comm.py
+	* share/MuonRec_jobOptions.py: 
+	  - removed Calibration config, to put in separate module
+	  - use shared loggers
+	* share/MuonRec_standaloneTopOptions.py: apply PoolSvc patch to avoid PoolFileCatalog
+	* share/MuonRec_topOptions.py:           apply PoolSvc patch to avoid PoolFileCatalog
+	* share/MuonRecPoolConvertors.py: remove old-style flag doAOD
+	* tagging MuonRecExample-00-09-44
+	
+2008-01-16 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* python/MoMuMoore.py: remove flags that have become default, add MuonHoughPatternTool to ToolSvc
+	* tagging MuonRecExample-00-09-43
+
+2008-01-09 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/*.py, python/*.py: remove old flags
+	* python/MuonRecStandaloneFlags.py: switch off resilience by default
+	* tagging MuonRecExample-00-09-42
+
+2007-12-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: add functions setProperty() and setOutputLevel()
+	* share/MuonRec_standaloneTopOptions.py: write config.txt using new tool
+2007-12-17 Edward.Moyse@cern.ch
+	* share/MuonRecoOutput - modified to use rec.doTruth
+	* share/MuonRec_jobOptions.py - don't try to use RDOs if readESD = True
+	* tagged MuonRecExample-00-09-41
+
+2007-12-13 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+	  - add configuration of MuonChamberHoleRecoveryTool
+	* tagging MuonRecExample-00-09-39
+
+2007-12-10 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+	  - add new fitter configuration + CscClusterCreator for error scaling
+	* tagging MuonRecExample-00-09-38
+
+2007-12-05 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRecOutputItemList_jobOptions.py: add MooreTracks to ESD itemList
+	* share/MuonRec_jobOptions.py:           move doTrackRecordFilter flag to recAlgsFlags
+	* share/Muonrec_standaloneTopOptions.py: move doTrackRecordFilter flag to recAlgsFlags
+	* python/MuonRecStandaloneFlags.py: add setting of default for recAlgsFlags.doTrackRecordFilter
+	* tagging MuonRecExample-00-09-36
+	* tagging MuonRecExample-00-09-37 (by accident)
+
+2007-12-04 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Muonboy.py: fix bug in tracks dataKey for calibration
+	* python/MuonRec_jobOptions.py: add calibration setup printout
+	* tagging MuonRecExample-00-09-35
+
+2007-11-27 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_jobOptions.py:
+	  - add import of recFlags
+	  - put back test on doTrackRecordFilter
+	* share/Muonrec_standaloneTopOptions.py:
+	  - put back setting of doTrackRecordFilter
+	* tagging MuonRecExample-00-09-34
+
+2007-11-26 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py:
+	  - take output tracks after AmbiguitySolver (SG key: "MooreTracks")
+	  - add special dataKey for calibration ntuple: MuonSegmentCombinationsForCalibration
+	* share/MuonRec_jobOptions.py: 
+	  - remove unneeded (slow) RDO-to-digit algorithm
+	  - more dynamic MuonCalib configuration
+	  - move configuration of TrackRecordFilter here (using configurables)
+	    and use doTruth flag instead of doTrackRecordFilter to steer it
+	* share/MuonRec_all.py: fix for new style flags
+	* share/MuonRec_standaloneTopOptions.py: 
+	  - remove setting of default flags (moved to MuonRecStandaloneFlags.py)
+	* python/MuonRecStandaloneFlags.py:
+	  - set default standalone recFlags, recAlgsFlags and GlobalFlags
+	* tagging MuonRecExample-00-09-33
+	
+2007-11-14 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: 
+	  - move configuration of propagator + extrapolator inside MoMuMoore.py 
+	  - switch on create of eta-competing ROTs
+	* share/MuonRecLoadTools.py
+	  - make STEP default once more
+	* tagging MuonRecExample-00-09-32
+
+2007-11-21 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Moore.py: change default from StandardMoore to MoMuMoore
+	* python/ConfiguredMuonRec.py: extend hasConfig/getConfig to look for className
+	* python/MuonRecUtils.py: 
+	   - add classes StringNumberList, FileList, DataInfo
+	   - add class ToolFactory (untested)
+	   - minor change in RecConfigInfo
+	* python/MuonRecFlags.py: 
+	   - only allow new-style configuration
+	   - move Standalone flags to separate module MuonRecStandaloneFlags
+	   - move InputData lists to separate file DataFiles.py
+	* python/MuonRecStandaloneFlags.py: new module with flags for standalone running
+	* python/DataFiles.py: new file: define standard datasets to run in standalone mode
+	* python/ConfiguredMboyView.py: removed (moved to package MboyView)
+	* share/MuonRecLoadTools.py: cleanup
+	* share/MuonRec_jobOptions.py: 
+	   - only allow new-style configuration
+	   - more robust setting of muonCalibFlags.EvenTag
+	* share/MuonRec_standaloneTopOptions.py: moving to new flags
+	* share/MuonRec_all.py: moving to new flags
+	* share/MuonRec_topOptions.py: first step to new flags: run only Standalone
+	* share/Moore_jobOptions.py: removed (obsolete file)
+	* tagging MuonRecExample-00-09-31
+
+2007-11-19 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/MuonRecLoadTools.py: changes for MuonDynamicLayerCreator (on request of JFL)
+	* tagging MuonRecExample-00-09-30
+	
+2007-11-14 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: NoDiscarding = False
+	* tagging MuonRecExample-00-09-29
+
+2007-11-13 Niels van Eldik <niels.van.eldik@cern.ch>
+	* python/MoMuMoore.py: adopt new naming scheme for data keys
+	* tagging MuonRecExample-00-09-28
+
+2007-11-08 Niels van Eldik <niels.van.eldik@cern.ch>
+	* share/MuonRecLoadTools.py: configure both RK + STEP propagator
+	* python/MoMuMoore.py: add MuonSeededSegmentMaker to toolSvc
+	* tagging MuonRecExample-00-09-27
+
+2007-11-08 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: fix another bug in DataKey propagation
+	* tagging MuonRecExample-00-09-26
+	
+2007-11-07 Martin Woudstra <martin.woudstra@cern.ch>
+	* Fix bug in DataKeys propagation if more than one reco is run.
+	* python/ConfiguredMuonRec.py: introduce class ParallelMuonRec
+	* python/MuonRec.py: use new class ParallelMuonRec
+	* tagging MuonRecExample-00-09-25
+
+2007-11-06 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_standaloneTopOptions.py: use correct syntax for globalflags
+	* python/ConfiguredCSC.py: move CSC_DHoughSegmentMakerAlg to configurables
+	* python/MuonRecFlags.py: fix documentation & printout
+	* tagging MuonRecExample-00-09-24
+
+2007-10-24 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_standaloneTopOptions.py: add ChronoAuditor, move from GlobalFlags to globalflags
+	* share/MuonRec_all.py: add ChronoAuditor, move to using AtlasGeomodel configurables
+	* share/MuonRecLoadTools.py: remove redundant line
+	* python/MuonRecFlags.py: switch on Muonboy new-style by default
+	* python/ConfiguredMuonRec.py:
+	   - rename registerDataKeyToSet() and registerDataKeyToGet() to registerOutputKey() and registerInputKey()
+	   - don't delay anything to configure() unless needed
+	* python/ConfiguredMoore.py: put MuidParticleCreator in try block for robustness
+	* python/MuonRec.py: adapt to new way of sharing keys
+	* python/*.py: move to registerOutputKey() and registerInputKey()
+
+2007-10-24 Niels van Eldik <niels.van.eldik@cern.ch>
+	* share/MuonRecLoadTools.py: switch off reduction of scattering surfaces in MuonDynamicLayerCreator
+	* python/MoMuMoore.py: switch on cleaning, add ambigutiy solver
+	* tagging MuonRecExample-00-09-22
+
+2007-10-22 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/MuonRec_all.py: remove obsolete include( "MdtCalibSvc/MdtCalibrationSvc_jobOptions.py" )
+	* tagging MuonRecExample-00-09-21
+	
+2007-10-19 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/Moore_jobOptions.py: remove obsolete include( "iPatTrajectory/TrajectorySvc_jobOptions.py" )
+	* python/Moore.py:           remove obsolete include( "iPatTrajectory/TrajectorySvc_jobOptions.py" )
+	* tagging MuonRecExample-00-09-20
+
+2007-10-18 Jean-Francois Laporte <laportej@hep.saclay.cea.fr>
+	* python/Muonboy.py python/MuonboyFlags.py python/MuonboyFlags_Comm.py
+        *  change the MboyView management
+	* tagging MuonRecExample-00-09-19
+	
+2007-10-05 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_all.py: fix for new-style AuditorSvc
+	* share/MuonRec_standaloneTopOptions.py: some cleanup
+	* tagging MuonRecExample-00-09-17
+	
+2007-10-05 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRecLoadTools.py: fix crash due to backwards compatibility removal
+	* tagging MuonRecExample-00-09-16
+	
+2007-10-01 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: bugfix in unConfigure()
+	* tagging MuonRecExample-00-09-15
+
+2007-09-21 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRecLoadTools.py: fix typo (in commented-out line - not critical)
+
+2007-09-20 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* python/MoMuMoore.py: fix typo (previous 2 tags not usable for MoMuMoore
+	* tagging MuonRecExample-00-09-14
+
+2007-09-20 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MooMoore.py: 
+	  - fix bug for externalCSC configuration (Csc4dMoore)
+	    (actually: revert bugfix of 2007-09-14)
+	* tagging MuonRecExample-00-09-13
+
+2007-09-20 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* Niels update the ChangeLog please!!
+	* Niels: python/MoMuMoore: property changed from bool to int
+	* tagging MuonRecExample-00-09-11
+	* python/MoMuMoore: 
+	  - put tdc cut to true for patterns (needed for bug #29261), works only with MuonHoughPatternAlgs-00-04-02!
+	  - MuonSegmentCombinationCleaner: noInner = True for Moore
+	* tagging MuonRecExample-00-09-12
+	
+2007-09-17 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* re-added MuGirl Segments to the ESD item list and AOD item list
+	* the bug in MuGirl Segment persistency is fixed
+	* tagged MuonRecExample-00-09-10
+
+2007-09-14 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: fix bug in old-to-new flags conversion
+	* test/MuonRecFlags_test.py: improve tests to catch more problems
+	* python/ConfiguredMuonRec.py: bugfix + make topConfigs directly accessible in CompositeMuonRec
+	* python/Moore.py: clean and better MoMuMoore back-conversion
+	* python/MooMoore.py: 
+	  - fix bug for externalCSC configuration (Csc4dMoore)
+	  - make clean solution for MoMuMoore back-conversion (remove hack)
+	* removed MuGirl Segments from the ESD item list and AOD item list,
+	    because it crashes. See Savannah bug #29585
+	* tagged MuonRecExample-00-09-09
+
+2007-09-14 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* added MuGirl Segments to the ESD item list and AOD item list
+	* tagged MuonRecExample-00-09-08
+
+2007-09-14 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* remove WriteCscByteStream_topOptions.py, ReadCscByteStream_options.py
+	* remove CscRdoToCscPrepData_topOptions.py and CscDigitToCscRdo_topOptions.py
+	* remove TgcDigitToTgcRDO_topOption.py as well
+	* keep them under MuonByteStreamCnvTest
+	* tagged MuonRecExample-00-09-07
+
+2007-09-13 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* added WriteCscByteStream_topOptions.py, ReadCscByteStream_options.py
+	* added CscRdoToCscPrepData_topOptions.py and CscDigitToCscRdo_topOptions.py
+	* tagged MuonRecExample-00-09-05
+	* added TgcDigitToTgcRDO_topOption.py as well
+	* tagged MuonRecExample-00-09-06
+	* It was recommended to move these top options out of AtlasEvent to cleanup runtime dependencies
+
+2007-09-13 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Muonboy.py: fix typo in loading of MboyView
+	* python/MuonRecFlags.py:
+	  - do automatic newToOldFlags(), so users don't have to do that explicitly
+	* test/MuonRecFlags_test.py: adapt to changes in MuonRecFlags.py
+	* share/MuonRec_jobOptions.py: remove hack for calib that did not work
+	
+2007-09-11 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: 
+	  - fix problem in converting old flags to new flags to fix bug #29476
+	  - make it possible to switch on or off new-style for Moore and Muonboy individually
+	  - use Moore new config by default
+	  - use Muonboy old config by default
+	  - fix problem in AutoLoadContainer
+	  - add functions setDefaults() and newToOldFlags()
+	  - ignore JobProperties lock
+	* python/MuonRecUtils.py: new file for python utilities
+	* python/ConfiguredMuonRec.py: improve Resilience
+	* share/MuonRec_jobOptions.py:
+	  - make it possible to switch on or off new-style config for Moore and Muonboy individually
+	  - add fix for calibration ntuple when running other than MoMuTracks
+	* share/MuonRec_standaloneTopOptions.py: 
+	  - use new function MuonRecFlags.newToOldFlags()
+	  - switch on new-style config (both Moore and Muonboy)
+	* test: new directory for unit tests
+	* test/UnitTest.py: new file with customized unittest
+	* test/MuonRecFlags_test.py: unit test for module MuonRecFlags.py
+	* tagged MuonRecExample-00-09-04
+
+2007-09-11 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* commented out MuGirlSegments to the ESD item_list
+	* add the MuonSegments to AODList
+	* MuonRecExample-00-09-03
+
+2007-09-10 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* add MuGirlSegments to the ESD item_list - it was left out for some reason
+	* MuonRecExample-00-09-02
+
+2007-09-07 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecLoadTools.py: 
+	  - move to STEP Propagator (needed by MuonTrackingGeometry)
+	  - MuonParticleCreatorTool uses AtlasExtrapolator (instead of MuonExtrapolator)
+	  - remove obsolete tool MuonboyParticleCreator
+	* python/MuonRecFlags.py: fix bug in switching off Muon Reco via old flags
+	* tagged MuonRecExample-00-09-01
+
+2007-09-06 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMoore.py: add MuidParticleCreator to fix bug #29372
+	* python/ConfiguredMuonRec.py: add possibility to add individual algorithms and tools to CompositeMuonRec
+	* tagged MuonRecExample-00-08-33
+	* Also tagged MuonRecExample-00-09-00
+
+2007-09-04  Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: add function to propagate old flags into new flags
+	* python/MuonRec.py: propagate old flags into new flags
+	* python/ConfiguredMuonRec.py: 
+	  - add new functions: registerDataKeyToGet() and registerDataKey()
+	  - add sub-configs as direct members of CompositeMuonRec
+	* python/ConfiguredCSC.py: use new function: registerDataKey()
+	* python/ConfiguredMoore.py: remove default dataKeys
+	* python/MoMuMoore.py: 
+	  - remove hack: dataKey MuonSegmentsForMooreBackConversion
+	  - rename dataKey MuonSegments to MuonSegmentCombinations
+	* python/MooMoore.py: 
+	  - remove hack: dataKey MuonSegmentsForMooreBackConversion
+          - use new function: registerDataKeyToGet()
+	* python/Moore.py: 
+	  - clean solution for passing special value of dataKey MuonSegmentCombinations
+	  - overwrite value of MuonSegmentCombinationCleaner.UpdatePhi
+	* python/Muonboy.py: 
+	  - use new function: registerDataKey()
+	  - bugfix in settting of keys
+	  - add MuonboyStandalone and MuonboyCombined
+	  - set MuonboyCombined as default to avoid breaking RecExCommon
+	* share/MuonRecLoadTools.py:
+	  - fix configuration of MuonTrackingGeometry
+	  - remove some obsolete tools
+	* share/MuonRec_jobOptions.py: use new-style config by default
+	* tagged MuonRecExample-00-08-32
+	
+2007-08-31  Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MoMuMoore.py: fix by Niels
+	* tagged MuonRecExample-00-08-31
+ 	
+2007-08-31 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: 
+	   - improve AutoLoadContainer
+	   - add properties: doTruthMatching, doSegmentsOnly
+	   - bugfix in default of InputData
+	   - automatically add all defined flags to container
+	* python/ConfiguredMuonRec.py: add new functionality to CompositeMuonRec
+	* python/ConfiguredMoore.py: support running until segments only
+	* python/Muonboy.py: 
+	   - don't run combined reco
+	   - support running until segments only
+	   - add some DataKeys
+	* python/MuonboyFlags_Comm.py: also import Muonboy
+	* python/MuonRec.py: don't print jobproperties (already done elsewhere)
+	* share/Moore_jobOptions.py: add MoMu flag, fix to MuonCombiTrackBuilder config
+	* share/MuonRec_all.py: remove setting of GlobalFlags and DetFlags
+	* share/MuonRec_standaloneTopOptions:
+	   - add VP1
+	   - add examples and improve new-style config
+	   - Select datafiles and DetDescrVersion from muonRecFlags.InputData,
+	     an easy way to select some standard samples to run on.
+	   - add writing of configuration at end of job
+	* tagged MuonRecExample-00-08-30
+
+2007-08-30 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/Muonboy.py: get Muonboy new config to work
+	* python/MuonRec_jobOptions.py:	add part to do Digitization on-the-fly
+	
+2007-08-29 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py: do not share dataKeys and improve printout
+	* python/ConfiguredMoore.py: share dataKeys within Moore
+	* python/MoMuMoore.py: set "CscSegments" DataKey to match Moore_jobOptions.py
+	* python/MooMoore.py:  take over recent improvement in Moore_jobOptions.py
+	* python/MuonRecFlags.py
+	   - add and use utility class AutoLoadContainer
+	   - add JobProperties: applyResilience, doVP1, InputData
+	Status of new config: 
+	   - StandardMoore, Csc4dMoore, MoMu: working
+	   - MoMuMoore: no tracks
+	   - Muonboy: segfault
+	* python/MuonRec.py: remove Calib setup (move to MuonRec_jobOptions.py)
+	* share/MuonRec_jobOptions.py: add new-style Calib setup
+
+2007-08-27 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* Moore_jobOptions: improve MoMuMoore configuration
+	* tagged MuonRecExample-00-08-29
+	
+2007-08-27 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredMuonRec.py:
+	   - Add name as a member
+	   - Add class CompositeMuonRec 
+	   - Add Resilience
+	* python/ConfiguredMoore.py:
+	   - Introduce new base class ConfiguredMooreStage
+	   - Use CompositeMuonRec as baseclass 
+	* python/MooMoore.py: 
+	    - Fix typo. 
+	    - Make setting of CscSegments key depend on external CSC SegmentMaking 
+	    - MooMakeTracks defaults moved to C++
+	    - Use new function: hasExternalCSC() (old scheme did not work)
+	* python/ConfiguredCSC.py
+	    - new base class ConfiguredCscSegments
+	* python/MoMuMoore.py: Use external CSC Segments in MuonHoughPattens (if available)
+	* python/Moore.py:
+           - adapt to new base class CompositeMuonRec
+	* python/Muonboy.py: add name
+	* python/MuonRec.py: 
+	   - add class MuonRec based on CompositeMuonRec
+	   - print out the configuration
+	   - use new-style Calibration setup
+	* share/MuonRec_standaloneTopOptions.py: remove muonRec printout (moved to MuonRec.py)
+	* share/MuonRec_jobOptions.py: Use modified new-style muonRec. Remove Calib (moved to MuonRec.py)
+	* tagged MuonRecExample-00-08-28
+
+2007-08-27 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* Moore_jobOptions: fix MoMuMoore configuration
+	* tagged MuonRecExample-00-08-27
+
+2007-08-23 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* Moore_jobOptions: houghpatternalg always uses cscsegments if available
+	* tagged MuonRecExample-00-08-26
+
+2007-08-21 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecLoadTools: better configuration of MuonRotCreator
+	* tagged MuonRecExample-00-08-25
+
+2007-08-20 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/ConfiguredCSC.py: support old style (13.0.25) and new style (13.0.30) CSC config
+	* python/ConfiguredMuonRec.py:	bugfix in printout
+	* python/MoMuMoore.py update MuonTracks storegate key
+	* python/MuonRecFlags.py: add flags doDigitization
+	* python/MuonRec_jobOptions.py: fix typo in TgcDigitToTgcRDO
+
+2007-08-15 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/MuonRecFlags.py: removed Calibration flags to MuonCalibAlgs; have just doCalib instead.
+	* python/MoMuMoore.py: remove VERBOSE level and add MuonSegmentCombinationCleaner
+	* python/ConfiguredCSC.py: use old Csc4dSegmentMaker include files (seems to work)
+	                           fix up CSC_DHoughSegmentMakerAlg (not tested)
+	* python/ConfiguredMuonRec.py: bugfix in getProperty()
+
+2007-08-14 Martin Woudstra <martin.woudstra@cern.ch>
+	* share/MuonRec_jobOptions.py: add new-style configuration
+	* share/MuonRec_standalone_jobOptions.py: add new-style configuration
+	* python/*.py: bugfixes and additions in new-style configuration
+
+2007-08-12 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* Fix so that CaloTrkMuid collections are saved in the ESD even when the muons are off
+	* CaloTrkMuid needs only InDet and Calo
+	* MuonRecExample-00-08-24
+
+2007-08-11 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* Muoncluster wrritten only when Calo is ON
+	* MuonRecExample-00-08-23	
+
+2007-08-10 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* fix an error - when writing out Muon CaloClusters to ESD
+	MuonRecExample-00-08-22	
+
+2007-08-02 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecLoadTools: better configuration of MuonHolesOnTrackTool
+	* tagged as MuonRecExample-00-08-21
+	
+2007-08-01 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* bug fix - to fix a crash where muons are not there, related to muon clusters
+
+2007-07-30 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/Moore_jobOptions.py: fix typo topAlg -> TopAlg (thanks Ricardo!)
+        * tagged as MuonRecExample-00-08-18
+
+2007-07-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* switch off refit in DCMathSegmentMaker
+	* tagging MuonRecExample-00-08-17
+
+2007-07-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* bug fix
+	* adding MuonChi2SLTrackFitter
+	* tagging MuonRecExample-00-08-15
+
+2007-07-26 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* bug fix
+	* Added Muon CaloClusterContainer to the list
+
+2007-07-25 Ketevi A. Assamagan <ketevi@bnl.gov>
+
+	* Added Muon CaloClusterContainer to the list
+
+2007-07-20 Edward.Moyse@cern.ch
+	* Configure geometry properly (fix for bug#27991)
+	* tagged MuonRecExample-00-08-13
+
+2007-07-18  Alan Poppleton  <Alan.Poppleton@cern.ch>
+
+	* share/MuonRec_jobOptions.py: reinstate MuonRDOToDigit as required for trigger
+
+	* tagged as MuonRecExample-00-08-12
+
+2007-07-15  Alan Poppleton  <Alan.Poppleton@cern.ch>
+
+	* share/MuonRec_jobOptions.py: removed obsolete RdoToDigit include
+	* share/Moore_jobOptions.py:   removed remaining lines about atlantis / pragmatic CSC errors
+	* share/MuonRecLoadTools.py (MuonTrackingGeometrySvc): revert Jochem's change for tonight
+
+	* tagged as MuonRecExample-00-08-11
+
+2007-07-13 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecLoadTools: add MuonTrackingGeometrySvc as ExtSvc
+	* tagged as MuonRecExample-00-08-10
+
+2007-07-09 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: fixed typo MuTagTrackParticles
+	* tagged as MuonRecExample-00-08-09
+
+2007-07-09 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: update MuonAODList
+	* tagged as MuonRecExample-00-08-08
+
+2007-07-07 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/MuonRec_topOptions.py: change to handle MooMakeAANtuplePulls configurable
+        * share/MuonRec_standaloneTopOptions.py: change to handle MooMakeAANtuplePulls configurable
+        * tagged as MuonRecExample-00-08-07
+
+2007-07-05 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: put track location of MooMakeTracks back in and change MooCnvAlg track location
+	* tagged as MuonRecExample-00-08-05 & MuonRecExample-00-08-06
+
+2007-07-05 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: put unnecessary setting of MooMakeTracks properties, back in, temporarily, to make tag compatible with current 13.0.20
+	* tagged as MuonRecExample-00-08-04
+
+2007-07-04 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: update MuonAODList
+
+2007-07-02 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: fill MuonESDList and MuonAODList on request of Davide Constanzo, for the moment mimicks old behaviour
+	* MuonRecExample-00-08-03
+	
+2007-06-28 Edward.Moyse@cern.ch
+	* share/Moore_jobOptions.py : removed remaining lines about atlantis / 
+pragmetic CSC errors
+	* MuonRecExample-00-08-02
+
+2007-06-28 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/MuonRec_jobOptions.py: set doNewMuonParticleCreation=False to avoid crash (from Ed)
+	* share/Moore_jobOptions.py: remove unnecessary setting of MooMakeTracks properties,
+	and change of useCscClusters property in MooMakeRzPatterns
+        * tagged as MuonRecExample-00-08-01
+
+2007-06-21 Edward.Moyse@cern.ch
+	* share//MuonRecLoadTools.py fix loading of TrackingGeometrySvc and addition of 
+TrackingVolumeSvc
+	* share/MuonRec_jobOptions added retrieve of new MuonParticleCreation
+	* tagged MuonRecExample-00-08-00
+
+2007-06-18 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: new structure, fragments for new algs, calibration ntuple
+	* share/MuonRecLoadTools.py: added MuonSegmentCombinationCleaner tools, moved MuonIdHelper tool
+	* tagged as MuonRecExample-00-07-16
+	
+2007-06-10 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/MuonRec_topOptions.py: updated/cleaned flags 
+	(including use of doESD instead of AllAlgs)
+        * tagged as MuonRecExample-00-07-15
+
+2007-05-24 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: add CaloMuonIdContainer
+	* tagged MuonRecExample-00-07-14
+	
+2007-05-22 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecLoadTools.py : change MuonHoleOnTrackTool to MuonHolesOnTrackTool (note the 's')
+	* MuonRecLoadTools.py : fix for TrackingGeometryName of MuonHoleOnTrackTool
+	* tagged MuonRecExample-00-07-13
+	
+2007-05-21 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions.py: update, include of specific key names
+	* tagged MuonRecExample-00-07-12
+	
+2007-05-18 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions.py: David Rousseau's changes addded
+	* tagged MuonRecExample-00-07-11
+
+2007-05-16 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* correct typo
+	* tagged MuonRecExample-00-07-10
+	
+2007-05-15 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecLoadTools: property of global chi2 fitter changed
+	* tagged MuonRecExample-00-07-09
+	
+2007-05-15 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRec_topOptions: comment out DetFlags.detdescr.Calo_setOff()
+	* change particle creator for Moore, Alan's joboptions
+	* tagged MuonRecExample-00-07-08
+	
+2007-05-11 Martin Woudstra <martin.woudstra@cern.ch>
+	* python/*.py: continue with migration to configurables/JobProperties
+	* cmt/requirements: add installation of python modules
+
+2007-05-01 Niels van Eldik <niels.van.eldik@cern.ch>
+	* switch on particle creator for Moore
+	* change include for Muonboy
+	* tagged MuonRecExample-00-07-07
+	
+2007-05-01 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* MuonRecOutputItemList_jobOptions: change name of TrackRecordCollection to match TES and AOD name (bug 25982)
+	* tagged MuonRecExample-00-07-06
+	
+2007-04-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* switch off particle creator for Moore
+	* tagged MuonRecExample-00-07-05
+	
+2007-04-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* switch on particle creator for Moore
+	* tagged MuonRecExample-00-07-04
+	
+2007-04-27 Niels van Eldik <niels.van.eldik@cern.ch>
+	* remove inclusion of MuonCombiTrackBuilder as default turned off
+	* tagged MuonRecExample-00-07-03
+	
+2007-04-26 Niels van Eldik <niels.van.eldik@cern.ch>
+	* update configuration of ROT creators
+	* tagged MuonRecExample-00-07-01
+	
+2007-04-26 Niels van Eldik <niels.van.eldik@cern.ch>
+	* Move to configurables
+	* tagged MuonRecExample-00-07-00
+	
+2007-04-23 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* Removed commented out include of MuidParticleCreator at Alan's request.
+	* tagged MuonRecExample-00-06-03
+	
+2007-04-24 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* doRefit under temporary flag (should use MuonRecFlags at some point)
+	* switched off MuidParticleCreator again (I prefer not to brach for such a small fix
+	* removed MuonTestEDM joboptions (where does this come from?)
+	* tagged MuonRecExample-00-06-02
+	
+2007-04-23 Edward.Moyse@cern.ch
+	* Removed commented out include of MuidParticleCreator at Alan's request.
+
+2007-04-12 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions: property removed from MuonHoughPatternAlgs
+	* tagged MuonRecExample-00-06-01
+	
+2007-04-10 KevinBlack kblack@fas.harvard.edu
+	* changes for Moore in trigger seeded mode
+	* tagged MuonRecExample-00-06-00
+	
+2007-04-05 Edward.Moyse@cern.ch
+	* Some changes from Wolfgang, primarily to do with configurables
+	* tagged MuonRecExample-00-05-00
+
+2007-04-05 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: flag removed for MuonHoughPatternAlgs
+	* tagged MuonRecExample-00-04-06
+	
+2007-04-02 Edward.Moyse@cern.ch
+	* removed MooTrackCleanerTools_jobOptions & 
+MooMaterialProviderTools_jobOptions as per Alan's instructions
+	* tagged MuonRecExample-00-04-05
+
+2007-03-29 Jochem Snuverink <jsnuverink@nikhef.nl>
+        * rename Changelog to ChangeLog
+	* share/Moore_jobOptions.py: add muonsegmentcombiners part: updated
+	* tagged MuonRecExample-00-04-04
+	
+2007-03-29 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* switch Moore & Muonboy on by default (Muonboy not yet working in 64 bit?)
+	* tagged MuonRecExample-00-04-03
+	
+2007-03-28 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: add muonsegmentcombiners part: updated
+	* removal support for moomakeroads/tracks (might be added again, but not working atm)
+	* tagged MuonRecExample-00-04-02
+	
+2007-03-27 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: add muonsegmentcombiners part
+	* tagged MuonRecExample-00-04-01
+	
+2007-03-26 Edward.Moyse@cern.ch
+	* hacked jobOpts to get around latest configurable issues
+	* at some point, need to work out were Geometry config properly belongs (duplication 
+between this package and MuonTGRecTools)
+	* tagged  MuonRecExample-00-04-00
+
+2007-03-23 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/MuonRec_jobOptions.py: remove G4Sim joboptions, no longer necessary
+
+2007-03-19 Edward.Moyse@cern.ch 
+	* share/MuonRec_jobOptions.py : don't include MuonRecTools if Muons off
+	* share/MuonRec_jobOptions.py : use correct version of RdoToDigit jobOpts
+	* share/MuonRecLoadTools : Configurables fixes
+	* and finally share/MuonRec_jobOptions.py : added new typo (probably!)
+	* tagged MuonRecExample-00-03-04
+
+2007-03-19 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: fixed typo
+	* tagged MuonRecExample-00-03-03
+	
+2007-03-19 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/MuonRec_jobOptions.py: fixed typo
+	* tagged MuonRecExample-00-03-02
+	
+2007-03-19 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: for changed package name
+	* tagged MuonRecExample-00-03-01
+	
+2007-03-17 Edward.Moyse@cern.ch
+	* only load tools if Muons on.
+
+2007-03-16 Edward.Moyse@cern.ch
+	* clean up
+	* added fragments to run standalone (mostly copied from InDetRecExample)
+	* tagged MuonRecExample-00-03-00
+
+2007-03-12 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/MuonRec_jobOptions.py: add G4Sim joboptions, for trackRecordFilter to get past bug
+	* tagged MuonRecExample-00-02-02
+	
+2007-01-09 Edward.Moyse@cern.ch
+	* changes to enable running from PRDs 
+	* (some will need reverting once problems are fixed)
+	* tagged MuonRecExample-00-02-01
+
+2006-11-29 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/MuonRec_topOptions.py: new top options to drive muon reconstruction
+        (copied from jobOptions.py and modified significantly)
+        * tagged as MuonRecExample-00-01-08
+
+2006-11-23 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/Moore_jobOptions.py: reduce output by turning off MooSummary and setting print level = 0
+        * tagged as MuonRecExample-00-01-07
+
+2006-11-22 Stephane Willocq <Stephane.Willocq@cern.ch>
+        * share/Moore_jobOptions.py: change container name for Moore segments
+        * tagged as MuonRecExample-00-01-06
+
+2006-11-19 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: always do MuonSegmentToMooRzSegment for segments in atlantis
+	* tagging MuonRecExample-00-01-05
+	
+2006-11-18 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: add option to switch between segmentmakeralgs and several fixes
+	
+2006-11-16 Jochem Snuverink <jsnuverink@nikhef.nl>
+	* share/Moore_jobOptions.py: add options to switch between different pattern finder, segmentmakers, trackbuilders
+	
+2006-10-30 Edward.Moyse@cern.ch
+	* Removed doAODLvl1=False lines from MuonRec_jobOptions.py (requested by Attila)
+	* tagged 00-01-04
+
+2006-10-23 Stephane.Willocq@cern.ch
+        * share/Moore_jobOptions.py: add new job options to run Moore with the new EDM
+        * share/MuonRec_jobOptions.py: switch default Moore job options from
+          old MooAlgs/Moore_RecEx_jobOptions_G4.py to MuonRecExample/Moore_jobOptions.py
+        * tagged 00-01-03
+
+2006-10-03 Edward.Moyse@cern.ch
+	* removed lines referring to Calo
+        * tagged 00-01-02
+
+2006-09-28 Edward.Moyse@cern.ch
+	* taken David Rousseau's latest version as base
+	* tagged 00-01-01
+
+2006-09-16	Edward.Moyse@cern.ch
+	* tagged 00-00-01

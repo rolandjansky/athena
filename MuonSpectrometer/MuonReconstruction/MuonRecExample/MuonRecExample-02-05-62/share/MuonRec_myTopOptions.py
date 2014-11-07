@@ -1,0 +1,154 @@
+from MuonRecExample.MuonRecFlags import muonRecFlags
+from RecExConfig.RecFlags import rec
+from RecExConfig.RecAlgsFlags import recAlgs
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
+## flag to set number of events to be processed
+EvtMax = -1
+
+## flag to run low-level muon D3PD making (temporary workaround until MuonD3PDMaker is fully migrated)
+## In Mig5: it requires to compile locally packages from ~mbellomo/public/muValid/eigen/setupToRunRecoD3PD
+## In devval : it requires to check-out and compile trunk of MuonRecoD3PDMaker 
+doD3PD = False
+
+## flag for running in mig5
+doMig5 = False
+
+# flags to tweak standalone muon reconstruction
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
+
+# in Standalone mode, don't allow any configuration errors
+athenaCommonFlags.AllowIgnoreConfigError = False
+
+# add some more flags available for standalone running
+import MuonRecExample.MuonRecStandaloneFlags
+
+# configure flags so that only Muon Standalone reco is run
+import MuonRecExample.MuonRecStandaloneOnlySetup
+
+#import MuonCombinedRecExample.MuonCombinedRecOnlySetup 
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+
+from MuonRecExample import MuonRecUtils
+from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
+#--------------------------------------------------------------------------------
+# Input
+#--------------------------------------------------------------------------------
+athenaCommonFlags.FilesInput = [
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0001.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0002.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0003.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0004.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0005.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0006.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0007.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0008.rdo.pool.root",
+"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0009.rdo.pool.root"
+]
+
+if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):
+    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
+#    assertCastorStager("castoratlast3","atlascerngroupdisk")
+#    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("rfio:/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
+
+#--------------------------------------------------------------------------------
+# Output
+#--------------------------------------------------------------------------------
+#rec.doPerfMon = True
+#rec.doDetailedAuditor = True
+#rec.doWriteESD = True
+muonRecFlags.doCalibNtuple = False # write calibration ntuple?
+#muonRecFlags.calibNtupleSegments = False # write segments to ntuple?
+#muonRecFlags.calibNtupleTracks = False # write tracks to ntuple?
+#muonRecFlags.calibNtupleTrigger = False # write trigger info to ntuple?
+#muonRecFlags.calibMoore = False   # write Moore tracks/segments to ntuple?
+#muonRecFlags.calibMuonboy = False # write Muonboy tracks/segments to ntuple?
+#muonRecFlags.doTrkD3PD = True # write d3PDs 
+###
+#muonRecFlags.doMuonboy = False  # switch on or off Muonboy
+#muonRecFlags.doMoore = False    # switch on or off Moore
+
+### Switch on/off d3PDs
+#muonRecFlags.doTrkD3PD = False   
+
+#rec.doNameAuditor = True
+#muonRecFlags.doVP1 = True    # Decide whether to run Virtual Point1 graphical event display
+rec.doTruth=True
+
+#rec.doTrigger = True
+
+# Read geometry alignment corrections from DB
+#muonRecFlags.useAlignmentCorrections = True
+rec.doTrigger = False
+#recFlags.doTruth.set_Value_and_Lock(False)
+muonRecFlags.doMoore.set_Value_and_Lock(False)
+muonRecFlags.doMuonboy.set_Value_and_Lock(False)
+muonRecFlags.doStandalone.set_Value_and_Lock(True)
+# Read geometry alignment corrections from DB
+#muonRecFlags.useAlignmentCorrections = True
+muonRecFlags.doTrackPerformance    = True
+muonRecFlags.TrackPerfSummaryLevel = 2
+muonRecFlags.TrackPerfDebugLevel   = 5
+muonRecFlags.doCSCs                = True
+muonRecFlags.doNSWNewThirdChain    = True
+
+# flags to tweak standalone muon reconstruction
+if doMig5:
+    muonStandaloneFlags.doSegmentsOnly       = False
+    muonStandaloneFlags.patternsOnly         = False
+    muonStandaloneFlags.createTrackParticles = False
+
+muonStandaloneFlags.printSummary         = True
+muonCombinedRecFlags.doTrackPerformance  = True
+muonCombinedRecFlags.doMuGirl            = True
+muonCombinedRecFlags.printSummary        = True
+
+
+##### no more flags after this line #####
+try:
+    include("MuonRecExample/MuonRec_topOptions.py")
+    ###### put any user finetuning after this line #####
+
+    #from MuonTestEDM.MuonTestEDMConf import MuonTestEDM
+    #MyEDMTester = MuonTestEDM(DoDumpPRDs=True, DoDumpTracks=False, DoDumpRDOs=True, DoDumpSegments=False)
+    #topSequence += MyEDMTester
+        
+    #if not 'DumpFileName' in dir():
+    #  DumpFileName="ReadBS"
+    
+    #MyEDMTester.RdoDumpFileName    = DumpFileName+".rdo.log"
+    #MyEDMTester.PrdDumpFileName    = DumpFileName+".prd.log"
+    #MyEDMTester.TrackDumpFileName  = DumpFileName+".track.log"
+    #MyEDMTester.TrackParticleDumpFileName  = DumpFileName+".trackParticle.log"
+    #MyEDMTester.SegmentDumpFileName= DumpFileName+".segment.log"
+    #MyEDMTester.SummaryDumpFileName= DumpFileName+".summary.log" 
+
+    ###### put any user finetuning before this line #####
+
+    # D3PD
+    if doD3PD:
+        from MuonRecoD3PDMaker.muonRecoD3PD import muonRecoD3PD
+        muonRecoD3PD ("muon_reco.root")
+
+##### DO NOT ADD ANYTHING AFTER THIS LINE #####
+except:
+    # print the stacktrace (saving could fail, and would then obscure the real problem)
+    import traceback
+    print traceback.format_exc().rstrip()
+    
+    # always write config so far for debugging
+    from AthenaCommon.ConfigurationShelve import saveToAscii
+    saveToAscii("config.txt")
+    # add DetFlags
+    from MuonRecExample.MuonRecUtils import dumpDetFlags
+    dumpDetFlags("config.txt")
+    # but still exit with error
+    import sys
+    sys.exit(10)
+else:
+    # and write config to include user changes after topOptions
+    from AthenaCommon.ConfigurationShelve import saveToAscii
+    saveToAscii("config.txt")
+    # add DetFlags
+    from MuonRecExample.MuonRecUtils import dumpDetFlags
+    dumpDetFlags("config.txt")

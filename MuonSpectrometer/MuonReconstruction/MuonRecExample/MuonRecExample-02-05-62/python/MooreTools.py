@@ -33,7 +33,7 @@ from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 from MooreFlags import mooreFlags
 from MuonRecFlags import muonRecFlags
-from MuonStandaloneFlags import muonStandaloneFlags
+
 #==============================================================
 
 # call  setDefaults to update flags
@@ -124,7 +124,7 @@ if not muonRecFlags.doCSCs():
     MooSegmentCombinationFinder.setDefaultProperties(
     Csc2dSegmentMaker         = None,
     Csc4dSegmentMaker         = None )
-if muonStandaloneFlags.printSummary():
+if mooreFlags.printSummary():
     MooSegmentCombinationFinder.setDefaultProperties( DoSummary = True )
 # end of class MooSegmentCombinationFinder
 

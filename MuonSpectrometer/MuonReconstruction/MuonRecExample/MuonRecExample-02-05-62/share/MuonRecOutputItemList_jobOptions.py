@@ -15,8 +15,6 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
    # TrackParticles 
    MuonAODList+=[ "xAOD::TrackParticleContainer_v1#MuonSpectrometerTrackParticles" ]
    MuonAODList+=[ "xAOD::TrackParticleAuxContainer_v1#MuonSpectrometerTrackParticlesAux." ]
-   MuonAODList+=[ "xAOD::TrackParticleContainer_v1#MuonSpectrometerOnlyTrackParticles" ]
-   MuonAODList+=[ "xAOD::TrackParticleAuxContainer_v1#MuonSpectrometerOnlyTrackParticlesAux." ]
 
    if rec.doTruth():
       # Truth Particle Container
