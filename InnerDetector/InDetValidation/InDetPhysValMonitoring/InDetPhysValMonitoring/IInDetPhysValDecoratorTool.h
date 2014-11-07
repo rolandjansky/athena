@@ -26,8 +26,8 @@ class IInDetPhysValDecoratorTool:virtual public IAlgTool{
 public:
 	static const InterfaceID & interfaceID();
 	
-	virtual bool decorateTruth(const xAOD::TruthParticle & /*particle*/){return false;} //default implementation
-  virtual bool decorateTrack(const xAOD::TrackParticle & /*particle*/){return false;}
+	virtual bool decorateTruth(const xAOD::TruthParticle & /*particle*/, const std::string& /*prefix = ""*/){return false;} //default implementation
+  virtual bool decorateTrack(const xAOD::TrackParticle & /*particle*/, const std::string& /*prefix = ""*/){return false;}
 };
 
 inline const InterfaceID & IInDetPhysValDecoratorTool::interfaceID(){

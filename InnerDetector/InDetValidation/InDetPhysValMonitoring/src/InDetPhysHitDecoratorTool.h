@@ -39,7 +39,7 @@ public:
 	 virtual ~InDetPhysHitDecoratorTool ();
 	 virtual StatusCode initialize();
 	 virtual StatusCode finalize  ();
-	 virtual bool decorateTrack(const xAOD::TrackParticle & particle);
+	 virtual bool decorateTrack(const xAOD::TrackParticle & particle, const std::string& prefix);
  private:
    ToolHandle<Trk::ITrackHoleSearchTool>	m_holeSearchTool;
    ToolHandle<Trk::IUpdator>	m_updatorHandle; //!< Tool handle of updator for unbiased states

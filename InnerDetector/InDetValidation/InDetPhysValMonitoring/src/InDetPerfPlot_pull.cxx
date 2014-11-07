@@ -10,7 +10,7 @@ InDetPerfPlot_pull::InDetPerfPlot_pull(PlotBase* pParent, const std::string & sD
    :PlotBase(pParent, sDir), 
    m_pullPlots(NPARAMS),
    m_pullPlotsWide(NPARAMS),
-   m_paramNames{"d0","z0", "phi", "theta","qopt"}
+   m_paramNames{"d0","z0", "phi", "theta","qOverP"}
    {
 //
 }
@@ -94,7 +94,7 @@ InDetPerfPlot_pull::formTitle(const unsigned int param) const {
     {"z_{0};", "(z^{rec}_{0}-z^{tru}_{0})/#sigma_{z_{0}}"},
     {"#phi;", "(#phi^{rec}-#phi^{tru})/#sigma_{#phi}"},
     {"#theta;","(#theta^{rec}-#theta^{tru})/#sigma_{#theta}"},
-    {"q/p_{T};", "(q/p_{T}^{rec}-q/p_{T}^{tru})/#sigma_{q/p_{T}}"}
+    {"q/p;", "(q/p^{rec}-q/p^{tru})/#sigma_{q/p}"}
   };
   static std::string titlePrefix("Pull Distribution of ");
 

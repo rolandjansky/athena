@@ -33,14 +33,14 @@ TruthClassDecoratorTool::finalize(){
 }
 
 bool 
-TruthClassDecoratorTool::decorateTruth(const xAOD::TruthParticle & particle){
+TruthClassDecoratorTool::decorateTruth(const xAOD::TruthParticle & particle,const std::string& prefix){
 	bool success(false);
 	if (not m_truthClassifier.empty()){
 		auto truthClass = m_truthClassifier->particleTruthClassifier(&particle);
 		int type = static_cast<int>(truthClass.first);
 		int origin = static_cast<int>(truthClass.second);
-		particle.auxdecor<int>("truthType") = type;
-		particle.auxdecor<int>("truthOrigin") = origin;
+		particle.auxdecor<int>(prefix+"truthType") = type;
+		particle.auxdecor<int>(prefix+"truthOrigin") = origin;
 		success = true;
 	}
 	return success;

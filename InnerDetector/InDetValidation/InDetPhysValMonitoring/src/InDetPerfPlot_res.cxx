@@ -107,7 +107,7 @@ InDetPerfPlot_res::InDetPerfPlot_res(PlotBase* pParent, const std::string & sDir
    :PlotBase(pParent, sDir), 
    m_trackEtaBins(20),
    m_resPlots(NPARAMS, std::vector<TH1*>(m_trackEtaBins)),
-   m_paramNames{"d0","z0", "phi", "theta","z0st","qopt"},
+   m_paramNames{"d0","z0", "phi", "theta","z0st","qOverP"},
    m_projectionNames{"mean", "res"}
    {
 //
@@ -218,7 +218,7 @@ InDetPerfPlot_res::formProjectionTitle(const unsigned int projection, const unsi
 		{"#phi", "#phi^{rec}-#phi^{tru}"},
 		{"#theta","#theta^{rec}-#theta^{tru}"},
 		{"z_{0}*sin(#theta)", "z_{0}sin(#theta)^{rec}-z_{0}sin(#theta)^{tru}"},
-		{"1/p_{T}", "q/p_{T}^{rec}-q/p_{T}^{tru}"}
+		{"q/p_{T}", "q/p^{rec}-q/p^{tru}"}
 	};
 	static std::string projectionTitles[2] = { "Track Measurement Bias: ","Track Resolution: "};
 	static std::string sigma[2] = {"#sigma(",""};

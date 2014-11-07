@@ -142,7 +142,7 @@ InDetPhysValMonitoringTool::fillHistograms(){
       //decorate the track here, if necessary <insert code>
       //bool successfulTrackDecoration = m_hitDecoratorTool->decorateTrack(*thisTrack);
       //if (not successfulTrackDecoration) ATH_MSG_DEBUG ("Could not get hit info for the track particle.");
-      bool successfulTrackDecoration = m_errDecoratorTool->decorateTrack(*thisTrack);
+      bool successfulTrackDecoration = m_errDecoratorTool->decorateTrack(*thisTrack,"");
       if (not successfulTrackDecoration) ATH_MSG_WARNING ("Could not get err info for the track particle.");
       //
       m_monPlots->fill(*thisTrack);//Make all the plots requiring only trackParticle
@@ -157,9 +157,9 @@ InDetPhysValMonitoringTool::fillHistograms(){
         * Decorate the particles with information 
         * before plotting those variables below
         **/
-        bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*associatedTruth);
+        bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*associatedTruth,"");
         if (not successfulDecoration) ATH_MSG_WARNING ("Could not retrieve some information for the truth particle.");
-        successfulDecoration = m_truthClassDecoratorTool->decorateTruth(*associatedTruth);
+        successfulDecoration = m_truthClassDecoratorTool->decorateTruth(*associatedTruth,"");
         if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
         //should explicitly decide whether to continue or not in the case of unsuccessful addition of information...
         m_monPlots->fill(*thisTrack, *associatedTruth); //Make all the plots requiring both truth and track

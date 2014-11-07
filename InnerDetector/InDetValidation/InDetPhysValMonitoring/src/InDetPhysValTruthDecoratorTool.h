@@ -15,7 +15,10 @@
 #include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+
+class IBeamCondSvc;
 
 //class to decorate xAOD::TruthParticles with additional information required by validation
 class InDetPhysValTruthDecoratorTool:virtual public IInDetPhysValDecoratorTool, public AthAlgTool{
@@ -25,8 +28,11 @@ public:
 	 virtual ~InDetPhysValTruthDecoratorTool ();
 	 virtual StatusCode initialize();
 	 virtual StatusCode finalize  ();
-	 virtual bool decorateTruth(const xAOD::TruthParticle & particle);	
+	 virtual bool decorateTruth(const xAOD::TruthParticle & particle, const std::string& prefix);	
  private:
-	 ToolHandle<Trk::IExtrapolator> m_extrapolator;
+
+
+ToolHandle<Trk::IExtrapolator> m_extrapolator;
+ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
 };
 #endif

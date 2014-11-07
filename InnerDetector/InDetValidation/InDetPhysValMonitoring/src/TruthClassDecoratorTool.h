@@ -25,7 +25,7 @@ public:
   virtual ~TruthClassDecoratorTool () {/*nop*/};
 	virtual StatusCode initialize();
 	virtual StatusCode finalize  ();
-	virtual bool decorateTruth(const xAOD::TruthParticle & particle);	
+	virtual bool decorateTruth(const xAOD::TruthParticle & particle,const std::string& prefix = "");	
 private:
 	 ToolHandle<IMCTruthClassifier>        m_truthClassifier;
 

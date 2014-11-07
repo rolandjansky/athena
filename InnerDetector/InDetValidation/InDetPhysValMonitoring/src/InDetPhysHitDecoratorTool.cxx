@@ -108,7 +108,7 @@ InDetPhysHitDecoratorTool::finalize  (){
 }
 
 bool
-InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle){
+InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, const std::string& prefix){
 	typedef std::tuple<int, float, float, float, float, int> SingleResult_t;
 	typedef std::vector<SingleResult_t> TrackResult_t;
 	const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
@@ -188,7 +188,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle){
 					if (not biasedTrackParameters) ATH_MSG_INFO("biasedTrackParameters were not found");
 				}
 			}//end of for loop
-			particle.auxdecor<TrackResult_t>("hitResiduals") = result;
+			particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result;
 			return true;
 		} 
 	} else {

@@ -38,7 +38,7 @@ ParameterErrDecoratorTool::finalize  (){
 }
 
 bool 
-ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle){
+ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle,const std::string & prefix){
 	ATH_MSG_VERBOSE ("Decorate track with errors ");
 	bool success(true);
 	const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();
@@ -53,11 +53,11 @@ ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle){
   float trkthetaerr = Amg::error(errorMat,Trk::theta);
   float trkqopterr = Amg::error(covVert,4)*1000.;
 	//
-  particle.auxdecor<float>("d0err") = trkd0err;
-  particle.auxdecor<float>("z0err") = trkz0err;
-  particle.auxdecor<float>("phierr") = trkphierr;
-  particle.auxdecor<float>("thetaerr") = trkthetaerr;
-  particle.auxdecor<float>("qopterr") = trkqopterr;
+  particle.auxdecor<float>(prefix+"d0err") = trkd0err;
+  particle.auxdecor<float>(prefix+"z0err") = trkz0err;
+  particle.auxdecor<float>(prefix+"phierr") = trkphierr;
+  particle.auxdecor<float>(prefix+"thetaerr") = trkthetaerr;
+  particle.auxdecor<float>(prefix+"qopterr") = trkqopterr;
 	return success;
 }
 /**

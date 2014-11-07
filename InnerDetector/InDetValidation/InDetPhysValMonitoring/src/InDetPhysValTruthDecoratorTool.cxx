@@ -16,26 +16,28 @@
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "TrkParameters/TrackParameters.h" //Contains typedef to Trk::CurvilinearParameters
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
-//ref: ​https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
+
+//ref: https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
 namespace {
   template <class T>
-	bool
-	is_nan(const T & n){
-		return (n!=n);
-	}
-	
-	double chargeOnParticle(const int pid){
-    	  if (pid == 1000010020) return 1.0; //deuteron
-    	  if (pid == 1000010030) return 1.0; //triton
-    	  double charge(std::numeric_limits<double>::quiet_NaN());
-    	  TDatabasePDG p;
-    	  TParticlePDG* ap = TDatabasePDG::Instance()->GetParticle (pid);
-	  if (ap){
-      	    charge=ap->Charge()/3.0; //see :http://root.cern.ch/root/html/TParticlePDG.html#TParticlePDG:fCharge
-    	  }
-    	  return charge;
-	}
+  bool
+  is_nan(const T & n){
+    return (n!=n);
+  }
+  
+  double chargeOnParticle(const int pid){
+    if (pid == 1000010020) return 1.0; //deuteron
+    if (pid == 1000010030) return 1.0; //triton
+    double charge(std::numeric_limits<double>::quiet_NaN());
+    TDatabasePDG p;
+    TParticlePDG* ap = TDatabasePDG::Instance()->GetParticle (pid);
+    if (ap){
+      charge=ap->Charge()/3.0; //see :http://root.cern.ch/root/html/TParticlePDG.html#TParticlePDG:fCharge
+    }
+    return charge;
+  }
 }
 
 
@@ -44,9 +46,9 @@ namespace {
 
 InDetPhysValTruthDecoratorTool::InDetPhysValTruthDecoratorTool(const std::string& type,const std::string& name,const IInterface* parent):
 AthAlgTool(type,name,parent),
-m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"){
+m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+m_beamSpotSvc("BeamCondSvc",name){
 declareInterface<IInDetPhysValDecoratorTool>(this);
-
 }
 InDetPhysValTruthDecoratorTool::~InDetPhysValTruthDecoratorTool (){
   //nop
@@ -57,6 +59,8 @@ InDetPhysValTruthDecoratorTool::initialize(){
   StatusCode sc = AlgTool::initialize();
   if (sc.isFailure()) return sc;
   ATH_CHECK(m_extrapolator.retrieve());
+
+  ATH_CHECK( m_beamSpotSvc.retrieve());
   return sc;
 }
 
@@ -67,13 +71,15 @@ InDetPhysValTruthDecoratorTool::finalize  (){
 }
 
 bool
-InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & particle){
-		ATH_MSG_VERBOSE ("Decorate truth with d0 etc");
+InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & particle, const std::string& prefix){
+    ATH_MSG_VERBOSE ("Decorate truth with d0 etc");
+    if( particle.isNeutral() ) return false;
     const Amg::Vector3D momentum(particle.px(), particle.py(), particle.pz());
     const int pid(particle.pdgId());
-    double charge = chargeOnParticle(pid);
+    double charge = particle.charge();
+
     if (is_nan(charge)){
-      ATH_MSG_WARNING("charge not found on particle with pid "<<pid);
+      ATH_MSG_DEBUG("charge not found on particle with pid "<<pid);
       return false;
     } 
 
@@ -87,13 +93,16 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & partic
       return false;
     }
     if (!ptruthVertex){
-      ATH_MSG_WARNING("A production vertex pointer was retrieved, but it is NULL");
+      ATH_MSG_DEBUG("A production vertex pointer was retrieved, but it is NULL");
       return false;
     }
     const Amg::Vector3D position(ptruthVertex->x(), ptruthVertex->y(), ptruthVertex->z());
     //delete ptruthVertex;ptruthVertex=0;
     const Trk::CurvilinearParameters cParameters(position, momentum, charge);
-    const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters,Trk::PerigeeSurface(), Trk::anyDirection, false);
+    
+    Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
+
+    const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters,persf, Trk::anyDirection, false);
     if (tP){
       double d0_truth = tP->parameters()[Trk::d0];
       double theta_truth = tP->parameters()[Trk::theta];
@@ -101,16 +110,16 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & partic
       double phi_truth = tP->parameters()[Trk::phi];
       double qOverP_truth = tP->parameters()[Trk::qOverP]; //P or Pt ??
       double z0st_truth = z0_truth * std::sin(theta_truth);
-      particle.auxdecor<float>("d0") = d0_truth;
-      particle.auxdecor<float>("z0") = z0_truth;
-      particle.auxdecor<float>("phi") = phi_truth;
-      particle.auxdecor<float>("theta") = theta_truth;
-      particle.auxdecor<float>("z0st") = z0st_truth;
-      particle.auxdecor<float>("qopt") = qOverP_truth;
+      particle.auxdecor<float>(prefix + "d0") = d0_truth;
+      particle.auxdecor<float>(prefix + "z0") = z0_truth;
+      particle.auxdecor<float>(prefix + "phi") = phi_truth;
+      particle.auxdecor<float>(prefix + "theta") = theta_truth;
+      particle.auxdecor<float>(prefix + "z0st") = z0st_truth;
+      particle.auxdecor<float>(prefix + "qOverP") = qOverP_truth;
       delete tP;tP=0;
       return true;
     } else {
-      ATH_MSG_WARNING("The TrackParameters pointer for this TruthParticle is NULL");
+      ATH_MSG_DEBUG("The TrackParameters pointer for this TruthParticle is NULL");
       return false;
     }
 }

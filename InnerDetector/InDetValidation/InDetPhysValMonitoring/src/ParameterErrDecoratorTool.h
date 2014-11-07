@@ -24,7 +24,7 @@ public:
 	 virtual ~ParameterErrDecoratorTool();
 	 virtual StatusCode initialize();
 	 virtual StatusCode finalize  ();
-	 virtual bool decorateTrack(const xAOD::TrackParticle & particle);
+	 virtual bool decorateTrack(const xAOD::TrackParticle & particle,const std::string & prefix);
 	 
 private:
 	
