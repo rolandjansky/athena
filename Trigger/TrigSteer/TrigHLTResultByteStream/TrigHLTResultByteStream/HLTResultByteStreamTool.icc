@@ -1,0 +1,75 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "eformat/SourceID.h"
+#include "TrigSteeringEvent/HLTResult.h"
+#include "GaudiKernel/MsgStream.h"
+
+template<class ROBF>
+StatusCode HLT::HLTResultByteStreamTool::convert(const ROBF* rob, HLTResult*& result, MsgStream* log){
+
+   typedef typename ROBF::lower_type RODF;
+   typedef std::vector<RODF*, DF_ALLOCATOR<RODF*> > VRODFragment;
+   //typedef std::vector<RODF*> VRODFragment;
+   const VRODFragment * vROD = & (rob->compounds());
+   EventFormat::Version formatVersion = rob->header().version();
+
+   typename VRODFragment::const_iterator rod_it = vROD->begin();
+   typename VRODFragment::const_iterator rod_it_end = vROD->end();
+   typedef typename  RODF::iterator ROD_iterator;
+
+   StoreGateSvc* p_StoreGate;
+   StatusCode sc = service("StoreGateSvc", p_StoreGate);
+   if (sc.isFailure())
+   {
+     (*log) << MSG::ERROR
+	    << "Unable to get pointer to StoreGate Service!" << endreq;
+   } else {
+     const DataHandle<EventInfo> thisEvent;
+     sc = p_StoreGate->retrieve(thisEvent);
+   }
+   std::vector<unsigned int> l2ResultContent;
+   l2ResultContent.clear();
+   for(; rod_it!=rod_it_end;++rod_it){
+     const RODF* rod = (*rod_it);
+
+     // get ROD source ID
+     uint32_t rodId = rod->header().source_id();
+
+     // Check the versioning.
+     if (formatVersion != EventFormat::DEFAULT_VERSION){
+       (*log) << MSG::ERROR << " Wrong format version in BS : "
+	      << formatVersion.full() << endreq;
+     }
+
+     EventFormat::SourceID helpHLTResultID(EventFormat::TDAQ_LVL2, EventFormat::ROD_TYPE,0);
+
+
+     if( rodId == helpHLTResultID.source_id() ){
+       ROD_iterator it     = rod->begin() ;
+       ROD_iterator it_end = rod->end() ;
+       for(; it!=it_end;++it)
+         {
+         l2ResultContent.push_back(*it);
+         }
+     }
+   }
+
+   if((rob->header().status()).size()==1 && (rob->header().status())[0]==0){
+     result->setBeenCreated(false);
+     result->deserialize(l2ResultContent);
+     uint32_t l1id = rob->header().specific_part().lvl1_id();
+     result->setl1id(l1id);
+     (*log) << MSG::DEBUG << " ---> Pesa Level 2 result found "  << endreq;
+   } else {
+     result->setBeenCreated(true);
+     uint32_t l1id = rob->header().specific_part().lvl1_id();
+     result->setl1id(l1id);
+     (*log) << MSG::DEBUG << " ---> Dummy Level 2 result found "  << endreq;
+   }
+
+   return StatusCode::SUCCESS;
+}
