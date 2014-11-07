@@ -18,6 +18,7 @@ alias checkxAOD     checkxAOD.py
 alias diffPoolFiles diffPoolFiles.py
 alias merge-poolfiles merge-poolfiles.py
 alias checkTag      checkTag.py
+alias checkMetaSG   checkMetaSG.py
 alias setupWorkArea setupWorkArea.py
 alias pyroot        pyroot.py
 alias print_auditor_callgraph print_auditor_callgraph.py
@@ -53,6 +54,7 @@ apply_pattern declare_scripts files="\
  checkFile.py \
  checkPlugins.py \
  checkSG.py \
+ checkMetaSG.py \
  checkTP.py \
  checkTag.py \
  checkxAOD.py \
@@ -65,7 +67,8 @@ apply_pattern declare_scripts files="\
  dlldep.py \
  dso-stats.py \
  dump-athfile.py \
- filter-and-merge-d3pd.py \
+ dumpAthfilelite.py \
+  filter-and-merge-d3pd.py \
  gen-typereg-dso.py \
  gen_klass.py \
  get-tag-diff.py \

@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 588873 $"
+__version__ = "$Revision: 621178 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -393,8 +393,10 @@ class AthFileServer(object):
     def _root_open(self, fname):
         import PyUtils.Helpers as H
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
-        import re
-        with H.restricted_ldenviron(projects=['AtlasCore']):
+        import re, os
+        restrictedProjects = ['AtlasCore']
+        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
                     'TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
@@ -1023,7 +1025,10 @@ class FilePeeker(object):
 
     def _root_open(self, fname, raw=False):
         import PyUtils.Helpers as H
-        with H.restricted_ldenviron(projects=['AtlasCore']):
+        restrictedProjects = ['AtlasCore']
+        import os
+        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
             with H.ShutUp(filters=[
@@ -1061,7 +1066,10 @@ class FilePeeker(object):
         runs=[]
         evts=[]
         import PyUtils.Helpers as H
-        with H.restricted_ldenviron(projects=['AtlasCore']):
+        restrictedProjects = ['AtlasCore']
+        import os
+        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
             if isinstance(fname, basestring):
@@ -1119,7 +1127,10 @@ class FilePeeker(object):
     def _is_empty_pool_file(self, fname):
         is_empty = False
         import PyUtils.Helpers as H
-        with H.restricted_ldenviron(projects=['AtlasCore']):
+        restrictedProjects = ['AtlasCore']
+        import os
+        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): restrictedProjects=[] #special case for athanalysisbase
+        with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
             if isinstance(fname, basestring):
@@ -1140,6 +1151,8 @@ class FilePeeker(object):
         return is_empty
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
+        import os
+        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase"): projects=[] #special case for athanalysisbase
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()

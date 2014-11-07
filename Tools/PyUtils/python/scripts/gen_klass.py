@@ -6,7 +6,7 @@
 # @author Sebastien Binet
 # @date   April 2008
 
-__version__ = "$Revision: 615061 $"
+__version__ = "$Revision: 615060 $"
 __author__ = "Sebastien Binet"
 __doc__ = """\
 helper script to generate header and cxx files of various athena
@@ -873,7 +873,7 @@ StatusCode %(klass)s::finalize()
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615061 $'
+__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -911,7 +911,7 @@ class %(klass)s (PyAthena.Alg):
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615061 $'
+__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -946,7 +946,7 @@ class %(klass)s (PyAthena.Svc):
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615061 $'
+__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -981,7 +981,7 @@ class %(klass)s (PyAthena.AlgTool):
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615061 $'
+__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
