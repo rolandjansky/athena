@@ -72,6 +72,9 @@ StatusCode ISF::GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge)
 
     ATH_MSG_VERBOSE("Retrieved Vertex shift of: " << *curShift);
 
+    // Get the signal process vertex, just in case...
+    HepMC::FourVector old_signal_spot = ge.signal_process_vertex()?ge.signal_process_vertex()->position():HepMC::FourVector(0,0,0,0);
+
     // loop over the vertices in the event, they are in respect with another
     //   (code from Simulation/Fatras/FatrasAlgs/McEventPreProcessing.cxx)
     HepMC::GenEvent::vertex_iterator vtxIt    = ge.vertices_begin();
@@ -92,6 +95,31 @@ StatusCode ISF::GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge)
       // store the updated position in the vertex
       curVtx->set_position( newPos);
     }
+
+    // Do the same for the signal process vertex
+    if ( ge.signal_process_vertex() ){
+      // Signal process vertex is a pointer.  There is some risk that the pointer points 
+      //  to a vertex somewhere else in the event, rather than a unique / new vertex, in
+      //  which case we will have already modified its position in the loop above.  That
+      //  is the reason for hanging on to an old position and seeing if we've moved...
+      // I would love it if HepMC had a minus operator defined for FourVectors... or
+      //  even a get for the three vector component :(
+      HepMC::FourVector why_no_minus( ge.signal_process_vertex()->position().x() - old_signal_spot.x() ,
+                                      ge.signal_process_vertex()->position().y() - old_signal_spot.y() ,
+                                      ge.signal_process_vertex()->position().z() - old_signal_spot.z() ,
+                                      ge.signal_process_vertex()->position().t() - old_signal_spot.t() );
+      if ( why_no_minus.rho() < 0.000001 && why_no_minus.m2() < 0.000001 ){
+        const HepMC::FourVector &curPos = ge.signal_process_vertex()->position();
+        CLHEP::HepLorentzVector newPos( curPos.x(), curPos.y(), curPos.z(), curPos.t() );
+        newPos += (*curShift);
+        ge.signal_process_vertex()->set_position( newPos);
+      }
+    } else { // Have to make a new one
+      // Don't worry about ID and weights - those should never be used from this thing
+      HepMC::GenVertex * sig_proc_vert = new HepMC::GenVertex( (*curShift) );
+      // ge will now take ownership of the signal process vertex
+      ge.set_signal_process_vertex( sig_proc_vert );
+    } // Manipulated the signal process vertex
 
     // memory cleanup
     delete curShift;
