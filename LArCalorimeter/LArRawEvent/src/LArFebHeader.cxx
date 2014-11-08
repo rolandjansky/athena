@@ -57,7 +57,10 @@ int LArFebHeader::degray(int x)
           if (x&(1<<i))
             {
               unsigned int tmp1,tmp2=0;
-              tmp1 = (x>>(i+1))<<(i+1);
+              if (i < 31)
+                tmp1 = (x>>(i+1))<<(i+1);
+              else
+                tmp1 = 0;
               if (i>0)
                 tmp2 = x & ((1<<i)-1);
               //    printf("tmp1 =%x tmp2=%x\n",tmp1,tmp2 );

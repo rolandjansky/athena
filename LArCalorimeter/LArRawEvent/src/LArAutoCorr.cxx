@@ -61,10 +61,10 @@ double  LArAutoCorr::get_mean() const
 {
   double mean = 0;
 
- int nsamples = m_sum.size();
+  int nsamples = m_sum.size();
   for(int i=0; i<nsamples; i++)
     mean += m_sum[i];
-    mean /= ((double)(nsamples*m_nped));
+  mean /= ((double)(nsamples*m_nped));
 
   return mean;
 }
