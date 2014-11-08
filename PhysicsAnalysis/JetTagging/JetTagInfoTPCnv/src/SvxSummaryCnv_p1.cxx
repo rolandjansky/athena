@@ -6,7 +6,11 @@
 /// Type converter for the SvxSummary persistent/transient classes
 ///
 
+#define private public
+#define protected public
 #include "JetTagInfo/SvxSummary.h"
+#undef protected
+#undef private
 #include "JetTagInfoTPCnv/SvxSummaryCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -29,24 +33,23 @@ namespace Analysis {
 					      msg);
 
     /// Now, our particular members.
-    persObj->m_Results.assign(transObj->Results().begin(),
-                              transObj->Results().end());
+    persObj->m_Results.assign(transObj->m_Results.begin(), transObj->m_Results.end());
 
     /// Now, the various objects that are contained.
     persObj->m_Svx = baseToPersistent(&m_recoVertexCnv,
-				      &transObj->Svx(),
+				      &transObj->m_Svx,
 				      msg);
 
     transToPersVectorObj
       (this,
        &m_trackParticleCnv,
-       transObj->TrkInSvx(),
+       transObj->m_TrkInSvx,
        persObj->m_TrkInSvx,
        msg);
     transToPersVectorObj
       (this,
        &m_trackParticleCnv,
-       transObj->TrkFromV0(),
+       transObj->m_TrkFromV0,
        persObj->m_TrkFromV0,
        msg);
 
@@ -63,32 +66,24 @@ namespace Analysis {
     fillTransFromPStore (&m_baseTagCnv, persObj->m_BaseTagInfo, transObj, msg);
 
     /// Now, our particular members.
-    transObj->Results (std::vector<double> (persObj->m_Results.begin(),
-                                            persObj->m_Results.end()));
+    transObj->m_Results.assign(persObj->m_Results.begin(), persObj->m_Results.end());
 
     /// Now, the various objects that are contained.
-    Trk::RecVertex svx;
     fillTransFromPStore(&m_recoVertexCnv,
 			persObj->m_Svx,
-			&svx,
+			&transObj->m_Svx,
 			msg);
-    transObj->Svx (std::move (svx));
-
-    std::vector<const Rec::TrackParticle*> trkInSvx;
+    
     persToTransVectorObj(this,
 			 &m_trackParticleCnv,
 			 persObj->m_TrkInSvx,
-			 trkInSvx,
+			 transObj->m_TrkInSvx,
 			 msg);
-    transObj->TrkInSvx (std::move (trkInSvx));
-
-    std::vector<const Rec::TrackParticle*> trkFromV0;
     persToTransVectorObj(this,
 			 &m_trackParticleCnv,
 			 persObj->m_TrkFromV0,
-			 trkFromV0,
+			 transObj->m_TrkFromV0,
 			 msg);
-    transObj->TrkFromV0 (std::move (trkFromV0));
   }
 
 }

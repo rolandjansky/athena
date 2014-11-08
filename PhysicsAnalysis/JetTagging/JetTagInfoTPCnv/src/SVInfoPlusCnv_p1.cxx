@@ -6,8 +6,12 @@
 /// Type converter for the SVInfoPlus persistent/transient classes
 ///
 
+#define private public
+#define protected public
 #include "JetTagInfo/SVInfoPlus.h"
 #include "JetTagInfo/SVTrackInfo.h"
+#undef protected
+#undef private
 #include "JetTagInfoTPCnv/SVInfoPlusCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -19,6 +23,14 @@ using std::back_inserter;
 
 namespace Analysis {
 
+
+  ///
+  /// Helper function to get the EL out of the se vector.
+  ///
+  const ElementLink<Rec::TrackParticleContainer> extractEL(const SVTrackInfo &item)
+  {
+    return item.m_track;
+  }
 
   ///
   /// Given a transient rep, save it to a persistent one.
@@ -33,15 +45,15 @@ namespace Analysis {
 					      msg);
 
     /// Now, our particular members.
-    persObj->m_NGTinJet = transObj->getNGTrackInJet();
-    persObj->m_NGTinSvx = transObj->getNGTrackInSvx();
-    persObj->m_N2Tpair = transObj->getN2T();
-    persObj->m_masssvx = transObj->getMass();
-    persObj->m_efracsvx = transObj->getEnergyFraction();
-    persObj->m_normdist = transObj->getNormDist();
+    persObj->m_NGTinJet = transObj->m_NGTinJet;
+    persObj->m_NGTinSvx = transObj->m_NGTinSvx;
+    persObj->m_N2Tpair = transObj->m_N2Tpair;
+    persObj->m_masssvx = transObj->m_masssvx;
+    persObj->m_efracsvx = transObj->m_efracsvx;
+    persObj->m_normdist = transObj->m_normdist;
 
     persObj->m_recsvx = toPersistent (&m_recoVertexCnv,
-				      &transObj->getRecSvx(),
+				      &transObj->m_recsvx,
 				      msg);
 
     ///
@@ -52,11 +64,20 @@ namespace Analysis {
     ///
 
     ElementLinkVector<Rec::TrackParticleContainer> movedVector;
-    size_t sz = transObj->numTrackInfo();
-    for (size_t i = 0; i < sz; i++)
-      movedVector.push_back (transObj->getTrackInfo(i).trackLink());
+    transform(transObj->m_trackinfo.begin(), transObj->m_trackinfo.end(),
+	      back_inserter(movedVector), &extractEL);
 
     m_trackVecCnv.transToPers (&movedVector, &persObj->m_trackinfo, msg);
+  }
+
+  ///
+  /// Helper class to turn an element link into a SVTrackInfo object.
+  ///
+  SVTrackInfo generateSVT (const ElementLink<Rec::TrackParticleContainer> &item)
+  {
+    SVTrackInfo result;
+    result.m_track = item;
+    return result;
   }
 
   ///
@@ -66,26 +87,21 @@ namespace Analysis {
 				      SVInfoPlus *transObj,
 				      MsgStream &msg)
   {
-    // Clear contained vector.
-    *transObj = SVInfoPlus();
-
     /// Do the base class first.
     fillTransFromPStore (&m_baseTagCnv, persObj->m_BaseTagInfo, transObj, msg);
 
     /// Now, our particular members.
-    transObj->setNGTrackInJet (persObj->m_NGTinJet);
-    transObj->setNGTrackInSvx (persObj->m_NGTinSvx);
-    transObj->setN2T (persObj->m_N2Tpair);
-    transObj->setMass (persObj->m_masssvx);
-    transObj->setEnergyFraction (persObj->m_efracsvx);
-    transObj->setNormDist (persObj->m_normdist);
+    transObj->m_NGTinJet = persObj->m_NGTinJet;
+    transObj->m_NGTinSvx = persObj->m_NGTinSvx;
+    transObj->m_N2Tpair = persObj->m_N2Tpair;
+    transObj->m_masssvx = persObj->m_masssvx;
+    transObj->m_efracsvx = persObj->m_efracsvx;
+    transObj->m_normdist = persObj->m_normdist;
 
-    Trk::RecVertex svx;
     fillTransFromPStore (&m_recoVertexCnv,
 			 persObj->m_recsvx,
-			 &svx,
+			 &transObj->m_recsvx,
 			 msg);
-    transObj->setRecSvx (std::move (svx));
 
     ///
     /// This is a little funny. The SVTrackInfo's are really just
@@ -97,9 +113,10 @@ namespace Analysis {
 
     ElementLinkVector<Rec::TrackParticleContainer> movedVector;
     m_trackVecCnv.persToTrans(&persObj->m_trackinfo, &movedVector, msg);
-    size_t sz = movedVector.size();
-    for (size_t i = 0; i < sz; i++)
-      transObj->addTrackInfo (SVTrackInfo (movedVector[i]));
+
+    transform(movedVector.begin(), movedVector.end(),
+	      back_inserter(transObj->m_trackinfo),
+	      &generateSVT);
   }
 
 }

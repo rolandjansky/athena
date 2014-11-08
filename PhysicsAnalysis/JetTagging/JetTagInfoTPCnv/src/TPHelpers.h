@@ -9,6 +9,7 @@
 ///
 
 #include <vector>
+using std::vector;
 
 namespace Analysis {
 
@@ -19,13 +20,13 @@ namespace Analysis {
   template<class CNV, class CNVForObj, class ObjType>
   void persToTransVectorObj (CNV *masterCvt,
 			     CNVForObj **cnv,
-			     const std::vector<TPObjRef> &persVector,
-			     std::vector<ObjType*> &result,
+			     const vector<TPObjRef> &persVector,
+			     vector<ObjType*> &result,
 			     MsgStream &msg)
   {
       result.clear();
       result.reserve(persVector.size());
-      for (std::vector<TPObjRef>::const_iterator itr = persVector.begin();
+      for (vector<TPObjRef>::const_iterator itr = persVector.begin();
 	   itr != persVector.end();
 	   itr++) {
 	result.push_back(masterCvt->createTransFromPStore(cnv, *itr, msg));
@@ -39,8 +40,8 @@ namespace Analysis {
   template<typename CNV, typename CNVForObj, typename ObjType>
   void transToPersVectorObj(CNV *masterCvt,
 			    CNVForObj **cnv,
-			    const std::vector<ObjType*> &transVector,
-			    std::vector<TPObjRef> &result,
+			    const vector<ObjType*> &transVector,
+			    vector<TPObjRef> &result,
 			    MsgStream &msg)
     {
       result.clear();
