@@ -41,10 +41,9 @@ LArDigitContainer* LArDigitContainerCnv::createTransient() {
      delete pers;
      return trans;
    }
-   else {
-     log << MSG::ERROR << "Unsupported persistent version of LArDigitContainer. GUID="
-     << m_classID.toString() << endreq;
-     throw std::runtime_error("Unsupported persistent version of Data Collection");
-   }
-   return new LArDigitContainer(); //Return emtpy container (should never end here anyway)
+
+   log << MSG::ERROR << "Unsupported persistent version of LArDigitContainer. GUID="
+       << m_classID.toString() << endreq;
+   throw std::runtime_error("Unsupported persistent version of Data Collection");
+   // not reached
 }
