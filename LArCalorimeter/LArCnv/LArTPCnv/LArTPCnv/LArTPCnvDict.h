@@ -33,7 +33,7 @@
 #include "LArTPCnv/LArNoisyROSummary_p3.h" 
 
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_LARTPCNV {
     std::pair<unsigned int, std::vector<int> >  m_pair1;
     std::vector<std::pair<unsigned int, std::vector<int> >  > m_vpair1;
 

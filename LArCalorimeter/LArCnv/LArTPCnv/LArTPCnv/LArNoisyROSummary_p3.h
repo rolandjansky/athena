@@ -16,9 +16,14 @@ class LArNoisyROSummary_p3
  public:
   friend class LArNoisyROSummaryCnv_p3;
 
-  LArNoisyROSummary_p3(): m_noisy_febs(), m_noisy_preamps(), 
-    m_BadFEBFlaggedPartitions(0), m_BadFEB_WFlaggedPartitions(0),
-    m_SatTightFlaggedPartitions(0) {};
+  LArNoisyROSummary_p3():
+    m_noisy_febs(),
+    m_noisy_preamps(), 
+    m_BadFEBFlaggedPartitions(0),
+    m_BadFEB_WFlaggedPartitions(0),
+    m_SatMediumFlaggedPartitions(0),
+    m_SatTightFlaggedPartitions(0)
+  {};
 
  private:
   std::vector<unsigned int> m_noisy_febs;
