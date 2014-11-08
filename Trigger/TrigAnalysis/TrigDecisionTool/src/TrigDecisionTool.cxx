@@ -30,7 +30,7 @@ static std::vector<std::string> s_instances;
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name, const std::string& type,
                                          const IInterface* parent) :
-   AlgTool(name, type, parent),
+   AthAlgTool(name, type, parent),
    TrigDecisionToolCore(name),
    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
    m_store("StoreGateSvc", name),

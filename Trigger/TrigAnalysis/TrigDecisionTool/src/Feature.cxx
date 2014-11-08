@@ -94,11 +94,14 @@ namespace FeatureAccessImpl {
     
     //get all EmTau RoIs
     const ROICONTAINER* cont;
-    navigation->getAccessProxy()->retrieve(cont);
-
+    StatusCode sc = navigation->getAccessProxy()->retrieve(cont);
+    if(sc.isFailure()){
+      REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR,"Feature.cxx:xAODcollect") << "failed retrieving RoI container" << endreq;
+      return;
+    }
 
     typename ROICONTAINER::const_iterator emtauit;
-    ROI* found(0);
+    //ROI* found(0);
     for(auto it : rois){
       for(emtauit=cont->begin();emtauit!=cont->end();++emtauit){
 	if((*emtauit)->roiWord() == it.cptr()->roiWord()){

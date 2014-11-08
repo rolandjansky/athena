@@ -34,7 +34,7 @@ using namespace std;
 
 class TrigInDetTrack {
 public:
-  TrigInDetTrack(int arg){a = arg;}
+  TrigInDetTrack(int arg=0){a = arg;}
   ~TrigInDetTrack() { std::cerr << " deleting Track: "<< a << std::endl; }
   int a;
 };
@@ -46,7 +46,7 @@ CLASS_DEF(TrigInDetTrackCollection, 64210, 1)
 
 class TrigCaloCluster {
 public:
-  TrigCaloCluster(int arg){a = arg;}
+  TrigCaloCluster(int arg=0){a = arg;}
   ~TrigCaloCluster() { std::cerr << " deleting Cluster: "<< a << std::endl; }
   int a;
 };
@@ -58,8 +58,8 @@ CLASS_DEF(TrigCaloClusterContainer, 64220, 1)
 
 
 void  nevercalled() {
-  HLT::RegisterType<TrigCaloCluster,TrigCaloClusterContainer>::instan();
-  HLT::RegisterType<TrigInDetTrack,TrigInDetTrackCollection>::instan();
+  //HLT::RegisterType<TrigCaloCluster,TrigCaloClusterContainer>::instan();
+  //HLT::RegisterType<TrigInDetTrack,TrigInDetTrackCollection>::instan();
 }
 
 

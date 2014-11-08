@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 582216 2014-02-07 16:53:01Z krasznaa $
+// $Id: TrigDecisionTool.h 627046 2014-11-08 02:03:59Z ssnyder $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -19,7 +19,7 @@
  * @author Joerg Stelzer  <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -45,7 +45,7 @@ namespace Trig {
   static const InterfaceID IID_TrigDecisionTool("Trig::TrigDecisionTool", 1, 0);
 
   class TrigDecisionTool :
-    public AlgTool,
+    public AthAlgTool,
     virtual Trig::ITrigDecisionTool,
     virtual public IIncidentListener,
     public TrigDecisionToolCore,
@@ -83,6 +83,8 @@ namespace Trig {
     
     using TrigDecisionToolCore::isPassed;
     using TrigDecisionToolCore::isPassedBits;
+
+    bool msgLvl(const MSG::Level lvl) const { return Logger::msgLvl(lvl); }
 
   private:
       
