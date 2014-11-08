@@ -18,7 +18,10 @@ namespace Analysis {
     friend class BaseTagInfoCnv_p1;
 
   public:
-    inline BaseTagInfo_p1() {};
+    inline BaseTagInfo_p1()
+      : m_isValid(false),
+      m_weight(0)
+      {}
 
   private:
     bool m_isValid;                      

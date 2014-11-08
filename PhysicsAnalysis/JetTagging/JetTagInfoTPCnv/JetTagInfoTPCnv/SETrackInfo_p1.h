@@ -19,6 +19,12 @@ namespace Analysis {
   class SETrackInfo_p1 {
     friend class SETrackInfoCnv_p1;
 
+  public:
+    SETrackInfo_p1()
+      : m_valD0wrtPV(0),
+        m_pTrel(0)
+    {}
+
   private:
     ElementLinkInt_p1 m_electron;
     ElementLinkInt_p1 m_photon;

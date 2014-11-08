@@ -19,7 +19,7 @@ namespace Analysis {
 
   class TruthInfo_p1 {
     friend class TruthInfoCnv_p1;
-  private:
+  public:
     /// Basic info
     TPObjRef m_BaseTagInfo;
 

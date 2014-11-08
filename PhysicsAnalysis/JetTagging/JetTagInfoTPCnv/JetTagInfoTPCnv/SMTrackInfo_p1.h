@@ -19,6 +19,12 @@ namespace Analysis {
   class SMTrackInfo_p1 {
     friend class SMTrackInfoCnv_p1;
 
+  public:
+    SMTrackInfo_p1()
+      : m_valD0wrtPV(0),
+        m_pTrel(0)
+    {}
+
   private:
     ElementLinkInt_p1 m_muon;
     float m_valD0wrtPV;
