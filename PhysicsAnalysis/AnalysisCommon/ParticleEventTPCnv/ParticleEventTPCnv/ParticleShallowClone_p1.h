@@ -88,6 +88,8 @@ private:
 /////////////////////////////////////////////////////////////////// 
 
 inline ParticleShallowClone_p1::ParticleShallowClone_p1()
+  : m_hasCharge(false),
+    m_charge(0)
 {}
 
 #endif //> PARTICLEEVENTTPCNV_PARTICLESHALLOWCLONE_P1_H
