@@ -20,6 +20,7 @@ namespace VxVertexDict
   {
     public:
       ElementLink< VxContainer > m_link;
+      std::vector<Trk::VxTrackAtVertex> m_vvtav;
   };
 }
 

@@ -14,5 +14,6 @@
     <field name="m_trackOrParticleLink" transient="true" />
   </class>
   <class name="std::vector<Trk::VxTrackAtVertex*>" />
+  <class name="std::vector<Trk::VxTrackAtVertex>" />
   <class name="Trk::ExtendedVxCandidate" />
 </lcgdict>

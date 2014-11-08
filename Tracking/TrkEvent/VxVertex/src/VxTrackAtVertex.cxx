@@ -25,9 +25,12 @@ namespace Trk {
 			      m_trkWeight(1.),
 			      m_VertexCompatibility(0.),
                               m_perigeeAtVertex(0),
+                              m_neutralPerigeeAtVertex(0),
                               m_linState(0),
                               m_initialPerigee(0),
-			      m_ImpactPoint3dAtaPlane(0),     
+                              m_initialNeutralPerigee(0),
+			      m_ImpactPoint3dAtaPlane(0), 
+			      m_ImpactPoint3dNeutralAtaPlane(NULL),    
                               m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
@@ -36,14 +39,17 @@ namespace Trk {
                               }
                              
 
-  VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, Trk::TrackParameters* perigeeAtVertex) :
+  VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, Trk::TrackParameters* perigeeAtVertex, Trk::NeutralParameters* neutralPerigeeAtVertex) :
                               m_fitQuality(Trk::FitQuality(chi2PerTrk,2.)),
 			      m_trkWeight(1.),
 			      m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
+                              m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
                               m_linState(0),
                               m_initialPerigee(0),
+                              m_initialNeutralPerigee(0),
 			      m_ImpactPoint3dAtaPlane(0),
+                              m_ImpactPoint3dNeutralAtaPlane(NULL),
 			      m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
@@ -51,15 +57,36 @@ namespace Trk {
 #endif
                               }
 
+  VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, Trk::TrackParameters* perigeeAtVertex, Trk::NeutralParameters* neutralPerigeeAtVertex, 
+				   double ndfPerTrk, Trk::LinearizedTrack * linState):
+                              m_fitQuality(Trk::FitQuality(chi2PerTrk,ndfPerTrk)),
+			      m_trkWeight(1.),
+			      m_VertexCompatibility(0.),
+                              m_perigeeAtVertex(perigeeAtVertex),
+                              m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
+                              m_linState(linState),
+                              m_initialPerigee(0),
+                              m_initialNeutralPerigee(NULL),
+			      m_ImpactPoint3dAtaPlane(0),
+                              m_ImpactPoint3dNeutralAtaPlane(NULL),
+                              m_trackOrParticleLink(0)
+                              {
+#ifndef NDEBUG
+                                s_numberOfInstantiations++;
+#endif
+                              }
   VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, Trk::TrackParameters* perigeeAtVertex, 
 				   double ndfPerTrk, Trk::LinearizedTrack * linState):
                               m_fitQuality(Trk::FitQuality(chi2PerTrk,ndfPerTrk)),
 			      m_trkWeight(1.),
 			      m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
+			      m_neutralPerigeeAtVertex(NULL),
                               m_linState(linState),
                               m_initialPerigee(0),
+			      m_initialNeutralPerigee(NULL),
 			      m_ImpactPoint3dAtaPlane(0),
+                              m_ImpactPoint3dNeutralAtaPlane(NULL),
                               m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
@@ -71,14 +98,39 @@ namespace Trk {
 //Kirill Prokofiev 27-03-06  
   VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, 
                                    Trk::TrackParameters* perigeeAtVertex, 
+                                   Trk::NeutralParameters* neutralPerigeeAtVertex, 
+				   const Trk::TrackParameters* initialPerigee,   
+				   const Trk::NeutralParameters* initialNeutralPerigee):   
+			           m_fitQuality(Trk::FitQuality(chi2PerTrk,2.)),
+				   m_trkWeight(1.),
+				   m_VertexCompatibility(0.),
+                                   m_perigeeAtVertex(perigeeAtVertex),
+                                   m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
+                                   m_linState(0),
+                                   m_initialPerigee(initialPerigee),
+                                   m_initialNeutralPerigee(initialNeutralPerigee),
+	  		           m_ImpactPoint3dAtaPlane(0),
+				   m_ImpactPoint3dNeutralAtaPlane(NULL),
+                                   m_trackOrParticleLink(0)
+                              {
+#ifndef NDEBUG
+                                s_numberOfInstantiations++;
+#endif
+                              }
+
+  VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, 
+                                   Trk::TrackParameters* perigeeAtVertex, 
 				   const Trk::TrackParameters* initialPerigee):   
 			           m_fitQuality(Trk::FitQuality(chi2PerTrk,2.)),
 				   m_trkWeight(1.),
 				   m_VertexCompatibility(0.),
                                    m_perigeeAtVertex(perigeeAtVertex),
+				   m_neutralPerigeeAtVertex(NULL),
                                    m_linState(0),
                                    m_initialPerigee(initialPerigee),
+                                   m_initialNeutralPerigee(NULL),
 	  		           m_ImpactPoint3dAtaPlane(0),
+				   m_ImpactPoint3dNeutralAtaPlane(NULL),
                                    m_trackOrParticleLink(0)
                               {
 #ifndef NDEBUG
@@ -88,6 +140,29 @@ namespace Trk {
   
   VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, 
                                    Trk::TrackParameters* perigeeAtVertex,  
+                                   Trk::NeutralParameters* neutralPerigeeAtVertex,  
+				   const Trk::TrackParameters* initialPerigee,
+				   const Trk::NeutralParameters* initialNeutralPerigee,
+		                   double ndfPerTrk,
+				   Trk::LinearizedTrack * linState):
+			      m_fitQuality(Trk::FitQuality(chi2PerTrk,ndfPerTrk)),
+			      m_trkWeight(1.),
+                              m_VertexCompatibility(0.),
+                              m_perigeeAtVertex(perigeeAtVertex),
+                              m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
+                              m_linState(linState),
+                              m_initialPerigee(initialPerigee),
+                              m_initialNeutralPerigee(initialNeutralPerigee),
+			      m_ImpactPoint3dAtaPlane(0),
+			      m_ImpactPoint3dNeutralAtaPlane(NULL),
+                              m_trackOrParticleLink(0)
+			      {
+#ifndef NDEBUG
+                                s_numberOfInstantiations++;
+#endif
+                              }
+  VxTrackAtVertex::VxTrackAtVertex(double chi2PerTrk, 
+                                   Trk::TrackParameters* perigeeAtVertex,  
 				   const Trk::TrackParameters* initialPerigee,
 		                   double ndfPerTrk,
 				   Trk::LinearizedTrack * linState):
@@ -95,9 +170,12 @@ namespace Trk {
 			      m_trkWeight(1.),
                               m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
+                              m_neutralPerigeeAtVertex(NULL),
                               m_linState(linState),
                               m_initialPerigee(initialPerigee),
+                              m_initialNeutralPerigee(NULL),
 			      m_ImpactPoint3dAtaPlane(0),
+			      m_ImpactPoint3dNeutralAtaPlane(NULL),
                               m_trackOrParticleLink(0)
 			      {
 #ifndef NDEBUG
@@ -110,9 +188,12 @@ namespace Trk {
 				  m_trkWeight(1.),
 				  m_VertexCompatibility(0.),
 				  m_perigeeAtVertex(0),
+				  m_neutralPerigeeAtVertex(0),
 				  m_linState(0),
 				  m_initialPerigee(0),
+				  m_initialNeutralPerigee(0),
 				  m_ImpactPoint3dAtaPlane(0),
+			          m_ImpactPoint3dNeutralAtaPlane(NULL),
                                   m_trackOrParticleLink (0)
   {  
     this->setOrigTrack(trackOrParticleLink);
@@ -126,9 +207,11 @@ namespace Trk {
   VxTrackAtVertex::~VxTrackAtVertex() 
   { 
    if (m_perigeeAtVertex !=0) { delete m_perigeeAtVertex; m_perigeeAtVertex=0; }
+   if (m_neutralPerigeeAtVertex !=0) { delete m_neutralPerigeeAtVertex; m_neutralPerigeeAtVertex=0; }
    if (m_linState !=0)        { delete m_linState;        m_linState=0; } 
 //    if (m_initialPerigee !=0)  { delete m_initialPerigee;  m_initialPerigee=0; }
    if (m_ImpactPoint3dAtaPlane!=0) { delete m_ImpactPoint3dAtaPlane; m_ImpactPoint3dAtaPlane=0; }
+   if (m_ImpactPoint3dNeutralAtaPlane!=0) { delete m_ImpactPoint3dNeutralAtaPlane; m_ImpactPoint3dNeutralAtaPlane=0; }
    if (m_trackOrParticleLink!=0) { delete m_trackOrParticleLink; m_trackOrParticleLink=0; }
 #ifndef NDEBUG
    s_numberOfInstantiations--;
@@ -141,10 +224,13 @@ namespace Trk {
 	m_trkWeight(rhs.m_trkWeight),
         m_VertexCompatibility(rhs.m_VertexCompatibility),
         m_perigeeAtVertex(rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : 0),
+        m_neutralPerigeeAtVertex(rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : 0),
 	m_linState(rhs.m_linState ? rhs.m_linState->clone() : 0),
 // 	m_initialPerigee(rhs.m_initialPerigee ? rhs.m_initialPerigee->clone() : 0),
 	m_initialPerigee(rhs.m_initialPerigee),
+	m_initialNeutralPerigee(rhs.m_initialNeutralPerigee),
 	m_ImpactPoint3dAtaPlane(rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : 0),
+	m_ImpactPoint3dNeutralAtaPlane(rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : 0),
         m_trackOrParticleLink(rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0)
   {
 #ifndef NDEBUG
@@ -161,11 +247,14 @@ namespace Trk {
       m_fitQuality = rhs.m_fitQuality;
       m_trkWeight = rhs.m_trkWeight;
       m_perigeeAtVertex = rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : 0;
+      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : 0;
       m_linState = rhs.m_linState ? rhs.m_linState->clone() : 0;
 //       m_initialPerigee = rhs.m_initialPerigee ? rhs.m_initialPerigee->clone() : 0;
       m_initialPerigee = rhs.m_initialPerigee;
+      m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
       m_trackOrParticleLink = rhs.m_trackOrParticleLink;
       m_ImpactPoint3dAtaPlane=rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : 0;
+      m_ImpactPoint3dNeutralAtaPlane=rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : 0;
       m_VertexCompatibility=rhs.m_VertexCompatibility;
       m_trackOrParticleLink=rhs.m_trackOrParticleLink;
     }

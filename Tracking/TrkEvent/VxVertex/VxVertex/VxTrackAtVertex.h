@@ -31,6 +31,7 @@
 #define VXVERTEX_VXTRACKATVERTEX_H
 
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 #include "VxVertex/LinearizedTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkTrackLink/ITrackLink.h"
@@ -85,18 +86,21 @@ namespace Trk
     * Chi2 value. NOTE: using this constructor does not allow to store the
     * initial (before refit) Perigee parameters of the track. 
     */
-      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex);
+      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, NeutralParameters* neutralPerigeeAtVertex=NULL);
       
     /**
      * Constructor taking the  perigee parameters of the track, chi2,
      * and the initial TrackParameters of the track.
      */ 
+      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, NeutralParameters* neutralPerigeeAtVertex, const TrackParameters* initialPerigee, const NeutralParameters* initialNeutralPerigee);
       VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, const TrackParameters* initialPerigee);
 
     /**
      * Constructor required for iterative vertex fitters only (with and without link to original track).
      * In addition to the previous ones, it asks for a pointer to the LinearizedTrack
      */
+      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, NeutralParameters* neutralPerigeeAtVertex,
+		      double ndfPerTrk,LinearizedTrack * linState=0);
       VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,
 		      double ndfPerTrk,LinearizedTrack * linState=0);
 		     
@@ -105,8 +109,9 @@ namespace Trk
      * In addition to the previous ones, it asks for a pointer to the LinearizedTrack, but also needs an
      * initial track parameters.
      */
-
-      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,  const TrackParameters* initialPerigee,
+      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, NeutralParameters* neutralPerigeeAtVertex,  const TrackParameters* initialPerigee, const NeutralParameters* initialNeutralPerigee,
+		      double ndfPerTrk,LinearizedTrack * linState=0); 
+      VxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex, const TrackParameters* initialPerigee,
 		      double ndfPerTrk,LinearizedTrack * linState=0); 
 
       VxTrackAtVertex(ITrackLink* trackOrParticleLink);
@@ -159,7 +164,21 @@ namespace Trk
      * Access to the initial perigee parameters of trajectory
      */
       virtual const TrackParameters* initialPerigee(void) const; 
-      
+ 
+
+    /**
+     * Perigee parameters with respect to fitted vertex
+     * d_0 and z_0 are equal to 0 in case the trajectory was refitted
+     * with the knowledge of the reconstructed vertex 
+     */  
+      const NeutralParameters* neutralPerigeeAtVertex(void) const; 
+
+    /**
+     * Access to the initial perigee parameters of trajectory
+     */
+      virtual const NeutralParameters* initialNeutralPerigee(void) const; 
+ 
+     
     /**
      * Set methods for various components
      */
@@ -180,6 +199,7 @@ namespace Trk
      * Setting up parameters at vertex.
      */   
       void setPerigeeAtVertex(TrackParameters * perigee);
+      void setPerigeeAtVertex(NeutralParameters * perigee);
      
     /**
      * This method changes a pointer to original perigee of the track.
@@ -187,6 +207,13 @@ namespace Trk
      * will not be changed. Use setOrigTrack() method for that.
      */ 
       void setInitialPerigee(const TrackParameters * perigee); 
+
+    /**
+     * This method changes a pointer to original perigee of the neutral.
+     * If the object has EL to Neutral, the pointer
+     * will not be changed. Use setOrigTrack() method for that.
+     */ 
+      void setInitialPerigee(const NeutralParameters * perigee); 
       
     /**
      * Equality operator required when working with vectors
@@ -233,6 +260,22 @@ namespace Trk
      * Returns ImpactPoint3dAtaPlane.(const access) 
      */
       const AtaPlane * ImpactPoint3dAtaPlane(void) const;
+
+    /**
+     * Set method for ImpactPoint3dNeutralAtaPlane.
+     */
+      void setImpactPoint3dNeutralAtaPlane(NeutralAtaPlane* myIP3dNeutralAtaPlane);
+      
+    /**
+     * Returns ImpactPoint3dNeutralAtaPlane. 
+     */
+      NeutralAtaPlane * ImpactPoint3dNeutralAtaPlane(void);
+      
+    /**
+     * Returns ImpactPoint3dNeutralAtaPlane.(const access) 
+     */
+      const NeutralAtaPlane * ImpactPoint3dNeutralAtaPlane(void) const;
+
       
 
 //hack: access methods  to the new link:  
@@ -258,7 +301,7 @@ namespace Trk
     /** 									     
      * Value of the compatibility of the track to the actual vertex, based	     
      * on the estimation on the distance between the track and the vertex through    
-     * the IP3dAtaPlane.							     
+     * the IP3dAtaPlane or IP3dNeutralAtaPlane.							     
      */ 									     
       double m_VertexCompatibility;         
       
@@ -270,6 +313,15 @@ namespace Trk
      *  These values are written to the VxPrimary part of the CBNT. 
      */
       TrackParameters* m_perigeeAtVertex;
+
+    /** 
+     *  The perigee parameters of neutrals used in the fit
+     *  wrt. the fitted vertex. In case the vertex fitter used
+     *  includes smoothing, this perigee state is set to 
+     *  refitted neutral state after the fit.
+     *  These values are written to the VxPrimary part of the CBNT. 
+     */
+      NeutralParameters* m_neutralPerigeeAtVertex;
        
     /** 							     
      * Linearized track, required for the iterative vertex fitting    
@@ -283,6 +335,7 @@ namespace Trk
      * vector of TrackParameterss, instead of vector of tracks.      
      */ 							     
       const TrackParameters * m_initialPerigee;
+      const NeutralParameters * m_initialNeutralPerigee;
        
     /** 									       
      * Pointer to the TrackParameters defined on the Plane with center the actual      
@@ -292,6 +345,7 @@ namespace Trk
      * the compatibility of a vertex with the track.				       
      */ 									       
       AtaPlane * m_ImpactPoint3dAtaPlane;
+      NeutralAtaPlane * m_ImpactPoint3dNeutralAtaPlane;
   
 //hacks related to the new link structure
       ITrackLink * m_trackOrParticleLink;  
@@ -319,6 +373,13 @@ namespace Trk
     return 0;													    
   }
 
+  inline const NeutralParameters*  VxTrackAtVertex::initialNeutralPerigee(void) const
+  {
+    if (m_initialNeutralPerigee!=0) return m_initialNeutralPerigee;//as default always return the proper object (be consistent!)  
+    if(m_trackOrParticleLink!=0) return m_trackOrParticleLink->neutralParameters();
+    return 0;													    
+  }
+
   inline VxTrackAtVertex* VxTrackAtVertex::clone() const
   {
     return new VxTrackAtVertex(*this);
@@ -338,6 +399,22 @@ namespace Trk
   inline const AtaPlane * VxTrackAtVertex::ImpactPoint3dAtaPlane(void) const
   {
     return m_ImpactPoint3dAtaPlane;
+  }
+
+  inline void VxTrackAtVertex::setImpactPoint3dNeutralAtaPlane(NeutralAtaPlane * myIP3dNeutralAtaPlane)
+  { 
+    if (m_ImpactPoint3dNeutralAtaPlane != 0) delete m_ImpactPoint3dNeutralAtaPlane;
+    m_ImpactPoint3dNeutralAtaPlane=myIP3dNeutralAtaPlane;
+  }  
+
+  inline NeutralAtaPlane * VxTrackAtVertex::ImpactPoint3dNeutralAtaPlane(void)
+  {
+    return m_ImpactPoint3dNeutralAtaPlane;
+  }
+ 
+  inline const NeutralAtaPlane * VxTrackAtVertex::ImpactPoint3dNeutralAtaPlane(void) const
+  {
+    return m_ImpactPoint3dNeutralAtaPlane;
   }
 
   inline void VxTrackAtVertex::setWeight(const double weight)
@@ -380,6 +457,11 @@ namespace Trk
     return m_perigeeAtVertex;
   }
 
+  inline const NeutralParameters* VxTrackAtVertex::neutralPerigeeAtVertex(void) const
+  {
+    return m_neutralPerigeeAtVertex;
+  }
+
   inline void VxTrackAtVertex::setTrackQuality(const FitQuality& trkQuality)
   {   
     m_fitQuality = trkQuality;
@@ -389,6 +471,12 @@ namespace Trk
   {
     if (m_perigeeAtVertex != 0) delete m_perigeeAtVertex;
     m_perigeeAtVertex = perigee;
+  }
+
+  inline void VxTrackAtVertex::setPerigeeAtVertex(NeutralParameters * perigee)
+  {
+    if (m_neutralPerigeeAtVertex != 0) delete m_neutralPerigeeAtVertex;
+    m_neutralPerigeeAtVertex = perigee;
   }
   
   inline void VxTrackAtVertex::setLinTrack(LinearizedTrack * myLinTrack)
@@ -411,12 +499,21 @@ namespace Trk
 //      if (m_initialPerigee!=0) { delete m_initialPerigee; m_initialPerigee=0; }
 //      const TrackParameters * tmpInPer = trk->parameters();
       m_initialPerigee = trk->parameters();
-    }else m_initialPerigee = 0;
+      m_initialNeutralPerigee = trk->neutralParameters();
+    }else {
+      m_initialPerigee = 0;
+      m_initialNeutralPerigee = 0;
+    }
   }//end of setOrigTrack method
   
   inline void VxTrackAtVertex::setInitialPerigee(const TrackParameters * perigee)
   {
    if(m_trackOrParticleLink == 0) m_initialPerigee = perigee;
+  }
+
+  inline void VxTrackAtVertex::setInitialPerigee(const NeutralParameters * perigee)
+  {
+   if(m_trackOrParticleLink == 0) m_initialNeutralPerigee = perigee;
   }
   
 /**Overload of << operator for both, MsgStream and std::ostream for debug 

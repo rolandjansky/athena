@@ -8,6 +8,7 @@ use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
 use CLIDSvc             CLIDSvc-*            Control
 use DataModel           DataModel-*          Control
 use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
 use GeoPrimitives       GeoPrimitives-*              DetectorDescription
 use EventPrimitives     EventPrimitives-*              Event
