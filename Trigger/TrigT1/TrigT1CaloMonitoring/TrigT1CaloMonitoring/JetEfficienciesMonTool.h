@@ -39,6 +39,7 @@ class CondAttrListCollection;
 class LVL1_ROI;
 //class JetCollection;
 //class Jet;
+class IJetSelector;
 class VxContainer;
 class TileID;
 class CaloLVL1_ID;
@@ -256,7 +257,11 @@ private:
   ToolHandle<LVL1::IL1CaloLArTowerEnergy> m_larEnergy;
   /// Trigger decision tool
   ToolHandle<Trig::TrigDecisionTool> m_trigger;
-
+  /// JetSelect
+  ToolHandle<IJetSelector> m_looseJetSelector;
+  ToolHandle<IJetSelector> m_mediumJetSelector;
+  ToolHandle<IJetSelector> m_tightJetSelector;
+  
   /// Tile ID helper
   const TileID*             m_tileID;
   /// Calo ID helper

@@ -59,18 +59,30 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice(0),
     m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice(0),
     m_v_ppm_1d_tt_adc_SignalProfile(0),
-    m_v_ppm_em_2d_etaPhi_tt_lut_Threshold(0),
-    m_v_ppm_had_2d_etaPhi_tt_lut_Threshold(0),
-    m_h_ppm_em_2d_etaPhi_tt_lut_AverageEt(0),
-    m_h_ppm_had_2d_etaPhi_tt_lut_AverageEt(0),
-    m_h_ppm_em_1d_tt_lut_Et(0),
-    m_h_ppm_em_1d_tt_lut_Eta(0),
-    m_h_ppm_em_1d_tt_lut_Phi(0),
-    m_h_ppm_had_1d_tt_lut_Et(0),
-    m_h_ppm_had_1d_tt_lut_Eta(0),
-    m_h_ppm_had_1d_tt_lut_Phi(0),
-    m_h_ppm_1d_tt_lut_LutPerBCN(0),
-    m_h_ppm_2d_tt_lut_BcidBits(0),
+    m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold(0),
+    m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt(0),
+    m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold(0),
+    m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt(0),
+    m_h_ppm_em_1d_tt_lutcp_Et(0),
+    m_h_ppm_em_1d_tt_lutcp_Eta(0),
+    m_h_ppm_em_1d_tt_lutcp_Phi(0),
+    m_h_ppm_had_1d_tt_lutcp_Et(0),
+    m_h_ppm_had_1d_tt_lutcp_Eta(0),
+    m_h_ppm_had_1d_tt_lutcp_Phi(0),
+    m_h_ppm_1d_tt_lutcp_LutPerBCN(0),
+    m_h_ppm_2d_tt_lutcp_BcidBits(0),
+    m_h_ppm_em_1d_tt_lutjep_Et(0),
+    m_h_ppm_em_1d_tt_lutjep_Eta(0),
+    m_h_ppm_em_1d_tt_lutjep_Phi(0),
+    m_h_ppm_had_1d_tt_lutjep_Et(0),
+    m_h_ppm_had_1d_tt_lutjep_Eta(0),
+    m_h_ppm_had_1d_tt_lutjep_Phi(0),
+    m_h_ppm_1d_tt_lutjep_LutPerBCN(0),
+    m_h_ppm_2d_tt_lutjep_BcidBits(0),
     m_h_ppm_1d_ErrorSummary(0),
     m_h_ppm_2d_Status03(0),
     m_h_ppm_2d_Status47(0),
@@ -178,10 +190,13 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 
   if ( newRun ) {
 
-    MonGroup TT_HitMaps(this, m_PathInRootFile+"/LUT/EtaPhiMaps", run, attr);
+    MonGroup TT_LutCpHitMaps(this, m_PathInRootFile+"/LUT-CP/EtaPhiMaps", run, attr);
+    MonGroup TT_LutJepHitMaps(this, m_PathInRootFile+"/LUT-JEP/EtaPhiMaps", run, attr);
     MonGroup TT_ADC(this, m_PathInRootFile+"/ADC/EtaPhiMaps", run, attr);
     MonGroup TT_ADCSlices(this, m_PathInRootFile+"/ADC/Timeslices", run, attr);
-    MonGroup TT_LUTPeakDist(this, m_PathInRootFile+"/LUT/Distributions",
+    MonGroup TT_LutCpPeakDist(this, m_PathInRootFile+"/LUT-CP/Distributions",
+                                                                  run, attr);
+    MonGroup TT_LutJepPeakDist(this, m_PathInRootFile+"/LUT-JEP/Distributions",
                                                                   run, attr);
     MonGroup TT_Error(this, m_ErrorPathInRootFile, run, attr);
     MonGroup TT_ErrorEvents(this, m_ErrorPathInRootFile, run, attr, "",
@@ -263,82 +278,123 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 
     // Per run and last N lumiblocks - online only
     if (m_environment == AthenaMonManager::online || m_onlineTest) {
-      m_v_ppm_em_2d_etaPhi_tt_lut_Threshold.clear();
-      m_v_ppm_had_2d_etaPhi_tt_lut_Threshold.clear();
-      m_histTool->setMonGroup(&TT_HitMaps);
+      m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.clear();
+      m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.clear();
+      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.clear();
+      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.clear();
+      m_histTool->setMonGroup(&TT_LutCpHitMaps);
       for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
         buffer.str("");
         buffer_name.str("");
         buffer << m_TT_HitMap_ThreshVec[thresh];
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
 	TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
-	       "ppm_em_2d_etaPhi_tt_lut_Threshold"+buffer_name.str(),
-	       "#eta - #phi Map of EM LUT > "+buffer.str());
-	m_v_ppm_em_2d_etaPhi_tt_lut_Threshold.push_back(hist);
+	       "ppm_em_2d_etaPhi_tt_lutcp_Threshold"+buffer_name.str(),
+	       "#eta - #phi Map of EM LUT-CP > "+buffer.str());
+	m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
 	hist = m_histTool->bookPPMHadEtaVsPhi(
-	       "ppm_had_2d_etaPhi_tt_lut_Threshold"+buffer_name.str(),
-	       "#eta - #phi Map of HAD LUT > "+buffer.str());
-	m_v_ppm_had_2d_etaPhi_tt_lut_Threshold.push_back(hist);
+	       "ppm_had_2d_etaPhi_tt_lutcp_Threshold"+buffer_name.str(),
+	       "#eta - #phi Map of HAD LUT-CP > "+buffer.str());
+	m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
+	hist = m_histTool->bookPPMEmEtaVsPhi(
+	       "ppm_em_2d_etaPhi_tt_lutjep_Threshold"+buffer_name.str(),
+	       "#eta - #phi Map of EM LUT-JEP > "+buffer.str());
+	m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
+	hist = m_histTool->bookPPMHadEtaVsPhi(
+	       "ppm_had_2d_etaPhi_tt_lutjep_Threshold"+buffer_name.str(),
+	       "#eta - #phi Map of HAD LUT-JEP > "+buffer.str());
+	m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
       }
       for (int block = 0; block <= m_TT_HitMap_LumiBlocks; ++block) {
         buffer.str("");
 	buffer << block;
         MonGroup lumiGroup(this,
-	  m_PathInRootFile+"/LUT/EtaPhiMaps/lumi_"+buffer.str(), run, attr);
+	  m_PathInRootFile+"/LUT-CP/EtaPhiMaps/lumi_"+buffer.str(), run, attr);
         m_histTool->setMonGroup(&lumiGroup);
 	for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
           buffer_name.str("");
 	  buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
-	  std::string name = "ppm_em_2d_etaPhi_tt_lut_Thresh"+buffer_name.str();
+	  std::string name = "ppm_em_2d_etaPhi_tt_lutcp_Thresh"+buffer_name.str();
 	  buffer.str("");
 	  if (block == 0) buffer << m_TT_HitMap_ThreshVec[thresh] << ", Current Lumi-block";
 	  else            buffer << m_TT_HitMap_ThreshVec[thresh] << ", Lumi-block -" << block;
-	  std::string title = "#eta - #phi Map of EM LUT > "+buffer.str();
+	  std::string title = "#eta - #phi Map of EM LUT-CP > "+buffer.str();
 	  TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(name, title);
-	  m_v_ppm_em_2d_etaPhi_tt_lut_Threshold.push_back(hist);
-	  title = "#eta - #phi Map of HAD LUT > "+buffer.str();
+	  m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
+	  title = "#eta - #phi Map of HAD LUT-CP > "+buffer.str();
 	  buffer_name.str("");
 	  buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
-	  name = "ppm_had_2d_etaPhi_tt_lut_Thresh"+buffer_name.str();
+	  name = "ppm_had_2d_etaPhi_tt_lutcp_Thresh"+buffer_name.str();
 	  hist = m_histTool->bookPPMHadEtaVsPhi(name, title);
-	  m_v_ppm_had_2d_etaPhi_tt_lut_Threshold.push_back(hist);
+	  m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
+	}
+      }
+       for (int block = 0; block <= m_TT_HitMap_LumiBlocks; ++block) {
+        buffer.str("");
+	buffer << block;
+        MonGroup lumiGroup(this,
+	  m_PathInRootFile+"/LUT-JEP/EtaPhiMaps/lumi_"+buffer.str(), run, attr);
+        m_histTool->setMonGroup(&lumiGroup);
+	for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+          buffer_name.str("");
+	  buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
+	  std::string name = "ppm_em_2d_etaPhi_tt_lutjep_Thresh"+buffer_name.str();
+	  buffer.str("");
+	  if (block == 0) buffer << m_TT_HitMap_ThreshVec[thresh] << ", Current Lumi-block";
+	  else            buffer << m_TT_HitMap_ThreshVec[thresh] << ", Lumi-block -" << block;
+	  std::string title = "#eta - #phi Map of EM LUT-JEP > "+buffer.str();
+	  TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(name, title);
+	  m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
+	  title = "#eta - #phi Map of HAD LUT-JEP > "+buffer.str();
+	  buffer_name.str("");
+	  buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
+	  name = "ppm_had_2d_etaPhi_tt_lutjep_Thresh"+buffer_name.str();
+	  hist = m_histTool->bookPPMHadEtaVsPhi(name, title);
+	  m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
 	}
       }
     }
 
-    m_histTool->setMonGroup(&TT_HitMaps);
+    m_histTool->setMonGroup(&TT_LutCpHitMaps);
 
-    m_h_ppm_em_2d_etaPhi_tt_lut_AverageEt = m_histTool->bookProfilePPMEmEtaVsPhi(
-      "ppm_em_2d_etaPhi_tt_lut_AverageEt","EM Average LUT Et for Et > 5");
-    m_h_ppm_had_2d_etaPhi_tt_lut_AverageEt = m_histTool->bookProfilePPMHadEtaVsPhi(
-      "ppm_had_2d_etaPhi_tt_lut_AverageEt","HAD Average LUT Et for Et > 5");
-    
-    //--------------- distribution of LUT peak per detector region -----------
-
-    m_histTool->setMonGroup(&TT_LUTPeakDist);
-
-    m_h_ppm_em_1d_tt_lut_Et = m_histTool->book1F("ppm_em_1d_tt_lut_Et",
-      "EM LUT: Distribution of Peak;em LUT Peak [GeV]",
-      m_MaxEnergyRange-1, 1, m_MaxEnergyRange);
-    m_h_ppm_em_1d_tt_lut_Eta = m_histTool->bookPPMEmEta("ppm_em_1d_tt_lut_Eta",
-      "EM LUT: Distribution of Peak per #eta");
-    m_h_ppm_em_1d_tt_lut_Phi = m_histTool->book1F("ppm_em_1d_tt_lut_Phi",
-      "EM LUT: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+    m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt = m_histTool->bookProfilePPMEmEtaVsPhi(
+      "ppm_em_2d_etaPhi_tt_lutcp_AverageEt","EM Average LUT-CP Et for Et > 5");
+    m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt = m_histTool->bookProfilePPMHadEtaVsPhi(
+      "ppm_had_2d_etaPhi_tt_lutcp_AverageEt","HAD Average LUT-CP Et for Et > 5");
       
-    m_h_ppm_had_1d_tt_lut_Et = m_histTool->book1F("ppm_had_1d_tt_lut_Et",
-      "HAD LUT: Distribution of Peak;had LUT Peak [GeV]",
-      m_MaxEnergyRange-1, 1, m_MaxEnergyRange); 
-    m_h_ppm_had_1d_tt_lut_Eta = m_histTool->bookPPMHadEta("ppm_had_1d_tt_lut_Eta",
-      "HAD LUT: Distribution of Peak per #eta");
-    m_h_ppm_had_1d_tt_lut_Phi = m_histTool->book1F("ppm_had_1d_tt_lut_Phi",
-      "HAD LUT: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+    m_histTool->setMonGroup(&TT_LutJepHitMaps);
 
-    m_h_ppm_1d_tt_lut_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lut_LutPerBCN",
-      "Num of LUT > 5 per BC;Bunch Crossing;Num. of LUT above limit",
+    m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt = m_histTool->bookProfilePPMEmEtaVsPhi(
+      "ppm_em_2d_etaPhi_tt_lutjep_AverageEt","EM Average LUT-JEP Et for Et > 5");
+    m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt = m_histTool->bookProfilePPMHadEtaVsPhi(
+      "ppm_had_2d_etaPhi_tt_lutjep_AverageEt","HAD Average LUT-JEP Et for Et > 5");
+    
+    //--------------- distribution of LUT-CP peak per detector region -----------
+
+    m_histTool->setMonGroup(&TT_LutCpPeakDist);
+
+    m_h_ppm_em_1d_tt_lutcp_Et = m_histTool->book1F("ppm_em_1d_tt_lutcp_Et",
+      "EM LUT-CP: Distribution of Peak;em LUT Peak [GeV]",
+      m_MaxEnergyRange-1, 1, m_MaxEnergyRange);
+    m_h_ppm_em_1d_tt_lutcp_Eta = m_histTool->bookPPMEmEta("ppm_em_1d_tt_lutcp_Eta",
+      "EM LUT-CP: Distribution of Peak per #eta");
+    m_h_ppm_em_1d_tt_lutcp_Phi = m_histTool->book1F("ppm_em_1d_tt_lutcp_Phi",
+      "EM LUT-CP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+      
+    m_h_ppm_had_1d_tt_lutcp_Et = m_histTool->book1F("ppm_had_1d_tt_lutcp_Et",
+      "HAD LUT-CP: Distribution of Peak;had LUT Peak [GeV]",
+      m_MaxEnergyRange-1, 1, m_MaxEnergyRange); 
+    m_h_ppm_had_1d_tt_lutcp_Eta = m_histTool->bookPPMHadEta("ppm_had_1d_tt_lutcp_Eta",
+      "HAD LUT-CP: Distribution of Peak per #eta");
+    m_h_ppm_had_1d_tt_lutcp_Phi = m_histTool->book1F("ppm_had_1d_tt_lutcp_Phi",
+      "HAD LUT-CP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+
+    m_h_ppm_1d_tt_lutcp_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutcp_LutPerBCN",
+      "Num of LUT-CP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
       0xdec, 0, 0xdec);
-    m_h_ppm_2d_tt_lut_BcidBits = m_histTool->book2F("ppm_2d_tt_lut_BcidBits",
+    m_h_ppm_2d_tt_lutcp_BcidBits = m_histTool->book2F("ppm_2d_tt_lutcp_BcidBits",
       "PPM: Bits of BCID Logic Word Vs. LUT", 8, 0., 8., 256, 0., 256.);
-    LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_lut_BcidBits->GetXaxis();
+    LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_lutcp_BcidBits->GetXaxis();
     axis->SetBinLabel(1, "none");
     axis->SetBinLabel(2, "extBC only");
     axis->SetBinLabel(3, "satBC only");
@@ -347,6 +403,41 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     axis->SetBinLabel(6, "extBC & peakF");
     axis->SetBinLabel(7, "satBC & peakF");
     axis->SetBinLabel(8, "all");
+    
+    //--------------- distribution of LUT-JEP peak per detector region -----------
+
+    m_histTool->setMonGroup(&TT_LutJepPeakDist);
+
+    m_h_ppm_em_1d_tt_lutjep_Et = m_histTool->book1F("ppm_em_1d_tt_lutjep_Et",
+      "EM LUT-JEP: Distribution of Peak;em LUT Peak [GeV]",
+      m_MaxEnergyRange-1, 1, m_MaxEnergyRange);
+    m_h_ppm_em_1d_tt_lutjep_Eta = m_histTool->bookPPMEmEta("ppm_em_1d_tt_lutjep_Eta",
+      "EM LUT-JEP: Distribution of Peak per #eta");
+    m_h_ppm_em_1d_tt_lutjep_Phi = m_histTool->book1F("ppm_em_1d_tt_lutjep_Phi",
+      "EM LUT-JEP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+      
+    m_h_ppm_had_1d_tt_lutjep_Et = m_histTool->book1F("ppm_had_1d_tt_lutjep_Et",
+      "HAD LUT-JEP: Distribution of Peak;had LUT Peak [GeV]",
+      m_MaxEnergyRange-1, 1, m_MaxEnergyRange); 
+    m_h_ppm_had_1d_tt_lutjep_Eta = m_histTool->bookPPMHadEta("ppm_had_1d_tt_lutjep_Eta",
+      "HAD LUT-JEP: Distribution of Peak per #eta");
+    m_h_ppm_had_1d_tt_lutjep_Phi = m_histTool->book1F("ppm_had_1d_tt_lutjep_Phi",
+      "HAD LUT-JEP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
+
+    m_h_ppm_1d_tt_lutjep_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutjep_LutPerBCN",
+      "Num of LUT-JEP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
+      0xdec, 0, 0xdec);
+    m_h_ppm_2d_tt_lutjep_BcidBits = m_histTool->book2F("ppm_2d_tt_lutjep_BcidBits",
+      "PPM: Bits of BCID Logic Word Vs. LUT", 8, 0., 8., 256, 0., 256.);
+    LWHist::LWHistAxis* axis2 = m_h_ppm_2d_tt_lutjep_BcidBits->GetXaxis();
+    axis2->SetBinLabel(1, "none");
+    axis2->SetBinLabel(2, "extBC only");
+    axis2->SetBinLabel(3, "satBC only");
+    axis2->SetBinLabel(4, "extBC & satBC");
+    axis2->SetBinLabel(5, "peakF only");
+    axis2->SetBinLabel(6, "extBC & peakF");
+    axis2->SetBinLabel(7, "satBC & peakF");
+    axis2->SetBinLabel(8, "all");
  
     //-------------------------Summary of Errors------------------------------
 
@@ -439,19 +530,19 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 
   if ( newLumiBlock ) {
 
-    //---------------------------- LUT Hitmaps per threshold -----------------
+    //---------------------------- LUT-CP Hitmaps per threshold -----------------
     if (m_environment == AthenaMonManager::online || m_onlineTest) {
 
       // Current lumi copied to lumi-1 and so on
       for (int block = m_TT_HitMap_LumiBlocks-1; block >= 0; --block) {
 	for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
-	  TH2F_LW* hist1 = m_v_ppm_em_2d_etaPhi_tt_lut_Threshold[
+	  TH2F_LW* hist1 = m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[
 	                           (block+1)*m_TT_HitMap_ThreshVec.size() + thresh];
-	  TH2F_LW* hist2 = m_v_ppm_em_2d_etaPhi_tt_lut_Threshold[
+	  TH2F_LW* hist2 = m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[
 	                           (block+2)*m_TT_HitMap_ThreshVec.size() + thresh];
-	  TH2F_LW* hist3 = m_v_ppm_had_2d_etaPhi_tt_lut_Threshold[
+	  TH2F_LW* hist3 = m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[
 	                           (block+1)*m_TT_HitMap_ThreshVec.size() + thresh];
-	  TH2F_LW* hist4 = m_v_ppm_had_2d_etaPhi_tt_lut_Threshold[
+	  TH2F_LW* hist4 = m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[
 	                           (block+2)*m_TT_HitMap_ThreshVec.size() + thresh];
 	  hist2->Reset();
 	  hist4->Reset();
@@ -476,9 +567,9 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     } else {
 
       // Offline - per lumiblock - merge will give per run
-      m_v_ppm_em_2d_etaPhi_tt_lut_Threshold.clear();
-      m_v_ppm_had_2d_etaPhi_tt_lut_Threshold.clear();
-      MonGroup TT_LumiHitMaps(this, m_PathInRootFile+"/LUT/EtaPhiMaps",
+      m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.clear();
+      m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.clear();
+      MonGroup TT_LumiHitMaps(this, m_PathInRootFile+"/LUT-CP/EtaPhiMaps",
                                                           lumiBlock, attr);
       m_histTool->setMonGroup(&TT_LumiHitMaps);
       std::stringstream buffer;
@@ -489,18 +580,82 @@ StatusCode PPrMon::bookHistogramsRecurrent()
         buffer << m_TT_HitMap_ThreshVec[thresh];
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
 	TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
-	  "ppm_em_2d_etaPhi_tt_lut_Threshold"+buffer_name.str(),
-	  "#eta - #phi Map of EM LUT > "+buffer.str());
-	m_v_ppm_em_2d_etaPhi_tt_lut_Threshold.push_back(hist);
+	  "ppm_em_2d_etaPhi_tt_lutcp_Threshold"+buffer_name.str(),
+	  "#eta - #phi Map of EM LUT-CP > "+buffer.str());
+	m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
 	hist = m_histTool->bookPPMHadEtaVsPhi(
-	  "ppm_had_2d_etaPhi_tt_lut_Threshold"+buffer_name.str(),
-	  "#eta - #phi Map of Had LUT > "+buffer.str());
-	m_v_ppm_had_2d_etaPhi_tt_lut_Threshold.push_back(hist);
+	  "ppm_had_2d_etaPhi_tt_lutcp_Threshold"+buffer_name.str(),
+	  "#eta - #phi Map of Had LUT-CP > "+buffer.str());
+	m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
       }
     }
 
     m_histTool->unsetMonGroup();
     if (newRun) m_histBooked = true;
+    
+    //---------------------------- LUT-JEP Hitmaps per threshold -----------------
+    if (m_environment == AthenaMonManager::online || m_onlineTest) {
+
+      // Current lumi copied to lumi-1 and so on
+      for (int block = m_TT_HitMap_LumiBlocks-1; block >= 0; --block) {
+	for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+	  TH2F_LW* hist1 = m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[
+	                           (block+1)*m_TT_HitMap_ThreshVec.size() + thresh];
+	  TH2F_LW* hist2 = m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[
+	                           (block+2)*m_TT_HitMap_ThreshVec.size() + thresh];
+	  TH2F_LW* hist3 = m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[
+	                           (block+1)*m_TT_HitMap_ThreshVec.size() + thresh];
+	  TH2F_LW* hist4 = m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[
+	                           (block+2)*m_TT_HitMap_ThreshVec.size() + thresh];
+	  hist2->Reset();
+	  hist4->Reset();
+	  unsigned int ix = 0;
+	  unsigned int iy = 0;
+	  double content = 0.;
+	  double error   = 0.;
+	  hist1->resetActiveBinLoop();
+	  while (hist1->getNextActiveBin(ix, iy, content, error)) {
+	    if (content > 0.) hist2->SetBinContent(ix, iy, content);
+	  }
+	  hist3->resetActiveBinLoop();
+	  while (hist3->getNextActiveBin(ix, iy, content, error)) {
+	    if (content > 0.) hist4->SetBinContent(ix, iy, content);
+	  }
+	  if (block == 0) {
+            hist1->Reset();
+	    hist3->Reset();
+	  }
+        }
+      }
+    } else {
+
+      // Offline - per lumiblock - merge will give per run
+      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.clear();
+      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.clear();
+      MonGroup TT_LumiHitMaps(this, m_PathInRootFile+"/LUT-JEP/EtaPhiMaps",
+                                                          lumiBlock, attr);
+      m_histTool->setMonGroup(&TT_LumiHitMaps);
+      std::stringstream buffer;
+      std::stringstream buffer_name;
+      for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+        buffer.str("");
+        buffer_name.str("");
+        buffer << m_TT_HitMap_ThreshVec[thresh];
+        buffer_name << std::setw(2) << std::setfill('0') << thresh;
+	TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
+	  "ppm_em_2d_etaPhi_tt_lutjep_Threshold"+buffer_name.str(),
+	  "#eta - #phi Map of EM LUT-JEP > "+buffer.str());
+	m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
+	hist = m_histTool->bookPPMHadEtaVsPhi(
+	  "ppm_had_2d_etaPhi_tt_lutjep_Threshold"+buffer_name.str(),
+	  "#eta - #phi Map of Had LUT-JEP > "+buffer.str());
+	m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
+      }
+    }
+
+    m_histTool->unsetMonGroup();
+    if (newRun) m_histBooked = true;
+    
   }
 
   return StatusCode::SUCCESS;
@@ -565,21 +720,34 @@ StatusCode PPrMon::fillHistograms()
     //---------------------------- EM Energy -----------------------------
     // em LUT Peak per channel
     const int EmEnergy = (*TriggerTowerIterator)->emEnergy();
+    const int EmEnergy2 = EmEnergy/2;
     const double eta   = (*TriggerTowerIterator)->eta();
     const double phi   = (*TriggerTowerIterator)->phi();
 
     // em energy distributions per detector region
     if (EmEnergy > 0) {
-      m_h_ppm_em_1d_tt_lut_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lut_Phi, eta, phi);
-      m_h_ppm_em_1d_tt_lut_Et->Fill(EmEnergy, 1);
+      m_h_ppm_em_1d_tt_lutcp_Eta->Fill(eta, 1);
+      m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutcp_Phi, eta, phi);
+      m_h_ppm_em_1d_tt_lutcp_Et->Fill(EmEnergy, 1);
       if (EmEnergy > 5) {
-        m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lut_AverageEt, eta, phi,
+        m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
 	                                                             EmEnergy);
         // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lut_LutPerBCN->Fill(bunchCrossing);
+        m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
       }
-      m_h_ppm_2d_tt_lut_BcidBits->Fill((*TriggerTowerIterator)->emBCID(), EmEnergy);
+      m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->emBCID(), EmEnergy);
+    }
+    if (EmEnergy2 > 0) {
+      m_h_ppm_em_1d_tt_lutjep_Eta->Fill(eta, 1);
+      m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutjep_Phi, eta, phi);
+      m_h_ppm_em_1d_tt_lutjep_Et->Fill(EmEnergy2, 1);
+      if (EmEnergy2 > 5) {
+        m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
+	                                                             EmEnergy2);
+        // Bunch crossing and BCID bits
+        m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
+      }
+      m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->emBCID(), EmEnergy2);
     }
 	 
     //---------------------------- EM LUT HitMaps -----------------------------
@@ -587,11 +755,23 @@ StatusCode PPrMon::fillHistograms()
       if (EmEnergy > 0) {
         unsigned int u_EmEnergy = static_cast<unsigned int>(EmEnergy); 
         if (u_EmEnergy > m_TT_HitMap_ThreshVec[thresh]) {
-   	  m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lut_Threshold[thresh],
+   	  m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh],
 	                                                            eta, phi, 1);
 	  if (m_environment == AthenaMonManager::online || m_onlineTest) {
 	    m_histTool->fillPPMEmEtaVsPhi(
-	      m_v_ppm_em_2d_etaPhi_tt_lut_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+	      m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+	      eta, phi, 1);
+          }
+        }
+      }
+      if (EmEnergy2 > 0) {
+        unsigned int u_EmEnergy2 = static_cast<unsigned int>(EmEnergy2); 
+        if (u_EmEnergy2 > m_TT_HitMap_ThreshVec[thresh]) {
+   	  m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh],
+	                                                            eta, phi, 1);
+	  if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	    m_histTool->fillPPMEmEtaVsPhi(
+	      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
 	      eta, phi, 1);
           }
         }
@@ -601,19 +781,32 @@ StatusCode PPrMon::fillHistograms()
     //---------------------------- HAD Energy -----------------------------
     // had LUT peak per channel
     const int HadEnergy = (*TriggerTowerIterator)->hadEnergy();
+    const int HadEnergy2 = HadEnergy*2;
 	
     // had energy distribution per detector region
     if (HadEnergy>0) {
-      m_h_ppm_had_1d_tt_lut_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lut_Phi, eta, phi);
-      m_h_ppm_had_1d_tt_lut_Et->Fill(HadEnergy,1);
+      m_h_ppm_had_1d_tt_lutcp_Eta->Fill(eta, 1);
+      m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutcp_Phi, eta, phi);
+      m_h_ppm_had_1d_tt_lutcp_Et->Fill(HadEnergy,1);
       if (HadEnergy>5) {
-        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lut_AverageEt, eta, phi,
+        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
 	                                                            HadEnergy);
         // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lut_LutPerBCN->Fill(bunchCrossing);
+        m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
       }
-      m_h_ppm_2d_tt_lut_BcidBits->Fill((*TriggerTowerIterator)->hadBCID(), HadEnergy);
+      m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->hadBCID(), HadEnergy);
+    }
+    if (HadEnergy2>0) {
+      m_h_ppm_had_1d_tt_lutjep_Eta->Fill(eta, 1);
+      m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutjep_Phi, eta, phi);
+      m_h_ppm_had_1d_tt_lutjep_Et->Fill(HadEnergy2,1);
+      if (HadEnergy>5) {
+        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
+	                                                            HadEnergy2);
+        // Bunch crossing and BCID bits
+        m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
+      }
+      m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->hadBCID(), HadEnergy2);
     }
     
     //---------------------------- had LUT HitMaps -----------------------------
@@ -621,11 +814,23 @@ StatusCode PPrMon::fillHistograms()
       if (HadEnergy > 0) {
         unsigned int u_HadEnergy = static_cast<unsigned int>(HadEnergy);
         if (u_HadEnergy > m_TT_HitMap_ThreshVec[thresh]) {
-	  m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lut_Threshold[thresh],
+	  m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh],
 	                                                            eta, phi, 1);
           if (m_environment == AthenaMonManager::online || m_onlineTest) {
 	    m_histTool->fillPPMHadEtaVsPhi(
-	      m_v_ppm_had_2d_etaPhi_tt_lut_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+	      m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+	      eta, phi, 1);
+          }
+        }
+      }
+      if (HadEnergy2 > 0) {
+        unsigned int u_HadEnergy2 = static_cast<unsigned int>(HadEnergy2);
+        if (u_HadEnergy2 > m_TT_HitMap_ThreshVec[thresh]) {
+	  m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh],
+	                                                            eta, phi, 1);
+          if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	    m_histTool->fillPPMHadEtaVsPhi(
+	      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
 	      eta, phi, 1);
           }
         }

@@ -26,8 +26,7 @@ use TileEvent                   TileEvent-*             TileCalorimeter
 use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
 use VxVertex                    VxVertex-*              Tracking/TrkEvent
 use egammaEvent                 egammaEvent-*           Reconstruction/egamma
-#use JetEvent                    JetEvent-*              Reconstruction/Jet
-use JetUtils                    JetUtils-*              Reconstruction/Jet
+use JetInterface				 JetInterface-*			Reconstruction/Jet
 
 use TrigT1CaloUtils             TrigT1CaloUtils-*       Trigger/TrigT1
 use TrigT1CaloEvent             TrigT1CaloEvent-*       Trigger/TrigT1

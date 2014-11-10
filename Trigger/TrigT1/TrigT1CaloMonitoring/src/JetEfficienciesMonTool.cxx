@@ -42,9 +42,9 @@
 #include "EventInfo/EventID.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
-//#include "JetEvent/JetCollection.h"
-//#include "JetEvent/Jet.h"
-#include "JetUtils/JetCaloQualityUtils.h"
+// #include "JetSelectorTools/JetCleaningTool.h"
+#include "JetInterface/IJetSelector.h"
+
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "Identifier/Identifier.h"
 
@@ -68,6 +68,9 @@ JetEfficienciesMonTool::JetEfficienciesMonTool(const std::string & type,
 			m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
 			m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
 			m_trigger("Trig::TrigDecisionTool/TrigDecisionTool"),
+			// m_looseJetSelector("JetCleaningTool/JetCleaningLooseTool"),
+			// m_mediumJetSelector("JetCleaningTool/JetCleaningMediumTool"),
+			// m_tightJetSelector("JetCleaningTool/JetCleaningTightTool"),
 			m_tileID(0),
 			m_TT_ID(0),
 			m_tileCablingService(0),
@@ -126,6 +129,11 @@ JetEfficienciesMonTool::JetEfficienciesMonTool(const std::string & type,
 	declareProperty("TriggerTowerTool", m_ttTool);
 	declareProperty("LArTowerEnergyTool", m_larEnergy);
 	declareProperty("TrigDecisionTool", m_trigger);
+	
+	declareProperty("JetCleaningLooseTool", m_looseJetSelector);
+	declareProperty("JetCleaningMediumTool", m_mediumJetSelector);
+	declareProperty("JetCleaningTightTool", m_tightJetSelector);
+
 	declareProperty("DeadChannelsFolder", m_dbPpmDeadChannelsFolder);
 	declareProperty("TriggerTowersLocation", m_triggerTowersLocation);
 	declareProperty("RoIsLocation", m_lvl1RoIsLocation);
@@ -223,6 +231,25 @@ StatusCode JetEfficienciesMonTool::initialize()
 		msg(MSG::ERROR) << "Can't get handle on TrigDecisionTool" << endreq;
 		return sc;
 	}
+
+	sc = m_looseJetSelector.retrieve();
+	if (sc.isFailure()) {
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolLoose" << endreq;
+		return sc;
+	}
+
+	sc = m_mediumJetSelector.retrieve();
+	if (sc.isFailure()) {
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolMedium" << endreq;
+		return sc;
+	}
+
+	sc = m_tightJetSelector.retrieve();
+	if (sc.isFailure()) {
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningTooTight" << endreq;
+		return sc;
+	}
+
 
         // retrieve CaloLVL1_ID, TileID, from det store
         sc = detStore()->retrieve(m_TT_ID);
@@ -749,17 +776,28 @@ double JetEfficienciesMonTool::calcDeltaR(double eta1, double phi1, double eta2,
 bool JetEfficienciesMonTool::correctJetQuality(const Jet* jet) {
 	
 	bool correctType = false;
+	
+	// TODO: Move this tools to class members? But they are used
+	// only in this method.
+	//JetCleaningTool looseBadJet( JetCleaningTool::LooseBad );
+	//JetCleaningTool mediumBadJet( JetCleaningTool::MediumBad );
+	//JetCleaningTool tightBadJet( JetCleaningTool::TightBad );
+
 	switch (m_jetQualityLevel) {
   	    case 0: //"None"
         	    correctType = true; break;
-            case 10: //"Jet Loose" 
-        	    correctType = jet::JetCaloQualityUtils::isGood(jet,false); break;
+        case 10: //"Jet Loose" 
+        	correctType = !m_looseJetSelector->keep(*jet); 
+		    break;
 	    case 20: //"Jet Medium"
-        	    correctType = jet::JetCaloQualityUtils::isGoodMedium(jet,false); break;
+        	correctType = !m_mediumJetSelector->keep(*jet); 
+            break;
 	    case 30: //"Jet Tight"
-        	    correctType = jet::JetCaloQualityUtils::isGoodTight(jet,false); break;
+        	correctType = !m_tightJetSelector->keep(*jet); 
+            break;
   	    default:
-        	    correctType = false; break;
+        	correctType = false;
+            break;
 	}
 	return correctType;
 }

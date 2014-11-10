@@ -50,14 +50,24 @@ namespace LVL1 {
  *                                                     Maximum timeslice                    <br>
  *                                                     Eta-phi maximum timeslice profile    <br>
  *                                                     Signal shape profiles by partition   </td></tr>
- *  <tr><td> @c L1Calo/PPM/LUT/Distributions </td><td> LUT Et, eta, phi distributions       <br>
- *                                                     Number of LUT>5 by bunchcrossing     <br>
- *                                                     BCID bits VS LUT Et                  </td></tr>
- *  <tr><td> @c L1Calo/PPM/LUT/EtaPhiMaps    </td><td> Eta-phi LUT hitmaps for various Et
+ *  <tr><td> @c L1Calo/PPM/LUT-CP/Distributions </td><td> LUT-CP Et, eta, phi distributions <br>
+ *                                                     Number of LUT-CP>5 by bunchcrossing  <br>
+ *                                                     BCID bits VS LUT-CP Et               </td></tr>
+ *  <tr><td> @c L1Calo/PPM/LUT-CP/EtaPhiMaps    </td><td> Eta-phi LUT-CP hitmaps for various Et
  *                                                     thresholds.
  *                                                     Produced every lumiblock on Tier0    <br>
  *                                                     Eta-phi average Et for Et>5          </td></tr>
- *  <tr><td> <tt>L1Calo/PPM/LUT/EtaPhiMaps/lumi_0,1,... </tt></td><td>
+ *  <tr><td> @c L1Calo/PPM/LUT-JEP/Distributions </td><td> LUT-JEP Et, eta, phi distributions<br>
+ *                                                     Number of LUT-JEP>5 by bunchcrossing  <br>
+ *                                                     BCID bits VS LUT-JEP Et               </td></tr>
+ *  <tr><td> @c L1Calo/PPM/LUT-JEP/EtaPhiMaps    </td><td> Eta-phi LUT-JEP hitmaps for various Et
+ *                                                     thresholds.
+ *                                                     Produced every lumiblock on Tier0    <br>
+ *                                                     Eta-phi average Et for Et>5          </td></tr>
+ *  <tr><td> <tt>L1Calo/PPM/LUT-CP/EtaPhiMaps/lumi_0,1,... </tt></td><td>
+ *                                                     Similar for last few lumiblocks.
+ *                                                     Online only                          </td></tr>
+ *  <tr><td> <tt>L1Calo/PPM/LUT-JEP/EtaPhiMaps/lumi_0,1,... </tt></td><td>
  *                                                     Similar for last few lumiblocks.
  *                                                     Online only                          </td></tr>
  *  <tr><td> @c L1Calo/PPM/Errors            </td><td> SubStatus word errors                <br>
@@ -208,23 +218,41 @@ private:
   
   std::vector<TProfile_LW*> m_v_ppm_1d_tt_adc_SignalProfile;    ///< Signal Shape Profiles for each partition
 
-  //LUT Hitmaps per threshold
-  std::vector<TH2F_LW*> m_v_ppm_em_2d_etaPhi_tt_lut_Threshold;  ///< eta-phi Map of EM LUT > each cut
-  std::vector<TH2F_LW*> m_v_ppm_had_2d_etaPhi_tt_lut_Threshold; ///< eta-phi Map of HAD LUT > each cut
-  TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_lut_AverageEt;         ///< EM Average LUT Et for Et > 5
-  TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_lut_AverageEt;        ///< HAD Average LUT Et for Et > 5
+  //LUT-CP Hitmaps per threshold
+  std::vector<TH2F_LW*> m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold;  ///< eta-phi Map of EM LUT-CP > each cut
+  std::vector<TH2F_LW*> m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold; ///< eta-phi Map of HAD LUT-CP > each cut
+  TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt;         ///< EM Average LUT-CP Et for Et > 5
+  TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt;        ///< HAD Average LUT-CP Et for Et > 5
+  
+  //LUT-JEP Hitmaps per threshold
+  std::vector<TH2F_LW*> m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold;  ///< eta-phi Map of EM LUT-JEP > each cut
+  std::vector<TH2F_LW*> m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold; ///< eta-phi Map of HAD LUT-JEP > each cut
+  TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt;         ///< EM Average LUT-JEP Et for Et > 5
+  TProfile2D_LW* m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt;        ///< HAD Average LUT-JEP Et for Et > 5
 
-  //distribution of LUT peak per detector region
-  TH1F_LW* m_h_ppm_em_1d_tt_lut_Et;                  ///< EM LUT: Distribution of Peak
-  TH1F_LW* m_h_ppm_em_1d_tt_lut_Eta;                 ///< EM LUT: Distribution of Peak per eta
-  TH1F_LW* m_h_ppm_em_1d_tt_lut_Phi;                 ///< EM LUT: Distribution of Peak per phi
+  //distribution of LUT-CP peak per detector region
+  TH1F_LW* m_h_ppm_em_1d_tt_lutcp_Et;                  ///< EM LUT-CP: Distribution of Peak
+  TH1F_LW* m_h_ppm_em_1d_tt_lutcp_Eta;                 ///< EM LUT-CP: Distribution of Peak per eta
+  TH1F_LW* m_h_ppm_em_1d_tt_lutcp_Phi;                 ///< EM LUT-CP: Distribution of Peak per phi
 
-  TH1F_LW* m_h_ppm_had_1d_tt_lut_Et;                 ///< HAD LUT: Distribution of Peak
-  TH1F_LW* m_h_ppm_had_1d_tt_lut_Eta;                ///< HAD LUT: Distribution of Peak per eta
-  TH1F_LW* m_h_ppm_had_1d_tt_lut_Phi;                ///< HAD LUT: Distribution of Peak per phi
+  TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Et;                 ///< HAD LUT-CP: Distribution of Peak
+  TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Eta;                ///< HAD LUT-CP: Distribution of Peak per eta
+  TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Phi;                ///< HAD LUT-CP: Distribution of Peak per phi
 
-  TH1F_LW* m_h_ppm_1d_tt_lut_LutPerBCN;              ///< Num of LUT > 5 per BC
-  TH2F_LW* m_h_ppm_2d_tt_lut_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT
+  TH1F_LW* m_h_ppm_1d_tt_lutcp_LutPerBCN;              ///< Num of LUT-CP > 5 per BC
+  TH2F_LW* m_h_ppm_2d_tt_lutcp_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-CP
+  
+  //distribution of LUT-JEP peak per detector region
+  TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Et;                  ///< EM LUT-JEP: Distribution of Peak
+  TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Eta;                 ///< EM LUT-JEP: Distribution of Peak per eta
+  TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Phi;                 ///< EM LUT-JEP: Distribution of Peak per phi
+
+  TH1F_LW* m_h_ppm_had_1d_tt_lutjep_Et;                 ///< HAD LUT-JEP: Distribution of Peak
+  TH1F_LW* m_h_ppm_had_1d_tt_lutjep_Eta;                ///< HAD LUT-JEP: Distribution of Peak per eta
+  TH1F_LW* m_h_ppm_had_1d_tt_lutjep_Phi;                ///< HAD LUT-JEP: Distribution of Peak per phi
+
+  TH1F_LW* m_h_ppm_1d_tt_lutjep_LutPerBCN;              ///< Num of LUT-JEP > 5 per BC
+  TH2F_LW* m_h_ppm_2d_tt_lutjep_BcidBits;               ///< PPM: Bits of BCID Logic Word Vs. LUT-JEP
    
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors

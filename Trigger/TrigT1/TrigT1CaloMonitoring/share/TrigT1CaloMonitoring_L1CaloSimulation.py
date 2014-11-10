@@ -98,9 +98,11 @@ job.JEPCMMMaker.JetElementLocation="JetElements"
 job.JEPCMMMaker.JEMHitsLocation = "JEMHits"
 job.JEPCMMMaker.JEMEtSumsLocation = "JEMEtSums"
 ####input (from Simulation - intermediate data)
-job.JEPCMMMaker.JetEtRoILocation = "Sim_JetEtRoIs"
-job.JEPCMMMaker.EnergyRoILocation = "Sim_EnergyRoIs"
-job.JEPCMMMaker.EtMapsLocation = "Sim_CMMEtSumsMAPS"
+
+# Comment this line: not such attribute
+# job.JEPCMMMaker.JetEtRoILocation = "Sim_JetEtRoIs"
+# job.JEPCMMMaker.EnergyRoILocation = "Sim_EnergyRoIs"
+# job.JEPCMMMaker.EtMapsLocation = "Sim_CMMEtSumsMAPS"
 job.JEPCMMMaker.JetRoILocation = "Sim_JetRoIs"
 ##output
 job.JEPCMMMaker.JEMRoILocation = "Sim_JEMRoIs"

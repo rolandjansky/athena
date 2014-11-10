@@ -303,7 +303,7 @@ StatusCode JEMMon::bookHistogramsRecurrent()
     // This code is back compativle with RUN1 (l1version==0)
     // More on theresholds configuration see:
     //    TrigConf::L1DataDef::setMaxThresholdsFromL1Versionl1version
-    for (int i = 0; i < jetNames.size(); i++) {
+    for (size_t i = 0; i < jetNames.size(); i++) {
       buffer.str("");
       buffer << i;
       name  = "jem_2d_etaPhi_roi_MainThresh" + buffer.str();

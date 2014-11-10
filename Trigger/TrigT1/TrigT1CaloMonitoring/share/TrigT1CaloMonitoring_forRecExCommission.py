@@ -310,9 +310,14 @@ if l1caloRawMon:
             #=================================================================================
             trigstring = ['EF_.*']
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JetEfficienciesMonTool
+            from JetSelectorTools.ConfiguredAthJetCleaningTools import *  
             L1JetEfficienciesMonTool = JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
                                                                   TriggerStrings = trigstring
                                                               )
+            L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredAthJetCleaningTools_Loose("JetCleaningLooseTool")       
+            L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredAthJetCleaningTools_Medium("JetCleaningMediumTool")
+            L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredAthJetCleaningTools_Tight("JetCleaningTightTool") 
+
             ToolSvc += L1JetEfficienciesMonTool
             L1CaloMan.AthenaMonTools += [ L1JetEfficienciesMonTool ]
             if not hasattr( ToolSvc, "TrigDecisionTool" ):
