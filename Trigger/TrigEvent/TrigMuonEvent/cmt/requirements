@@ -58,9 +58,9 @@ files="-s=${TrigMuonEvent_root}/TrigMuonEvent MuonFeature.h MuonFeatureContainer
 
 apply_pattern sercnv \
 libtag="xAOD" \
-typesWithNamespace="xAOD::MuonContainer xAOD::MuonAuxContainer xAOD::L2StandAloneMuonContainer xAOD::L2StandAloneMuonAuxContainer" \
+typesWithNamespace="xAOD::MuonContainer xAOD::MuonAuxContainer xAOD::L2StandAloneMuonContainer xAOD::L2StandAloneMuonAuxContainer xAOD::L2CombinedMuonContainer xAOD::L2CombinedMuonAuxContainer" \
 files="-s=${xAODMuon_root}/xAODMuon MuonContainer.h MuonAuxContainer.h \
-       -s=${xAODTrigMuon_root}/xAODTrigMuon L2StandAloneMuonContainer.h L2StandAloneMuonAuxContainer.h"
+       -s=${xAODTrigMuon_root}/xAODTrigMuon L2StandAloneMuonContainer.h L2StandAloneMuonAuxContainer.h L2CombinedMuonContainer.h L2CombinedMuonAuxContainer.h"
 
 use TestTools      TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=Operators extrapatterns=".*"
