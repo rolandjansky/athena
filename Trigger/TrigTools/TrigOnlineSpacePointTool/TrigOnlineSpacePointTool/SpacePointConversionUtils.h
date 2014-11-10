@@ -111,13 +111,6 @@ namespace FTF {//FastTrackFinder
       double m_dr, m_dphi, m_dz;
   };
 
-  class FullScanFilter : public BaseSpacePointFilter {
-  public: 
-  FullScanFilter(std::vector<TrigSiSpacePointBase>& vec, LayerCalculator& lc) : BaseSpacePointFilter(vec,lc) {};
-    virtual void operator()(const Trk::SpacePoint* p) {
-      createSpacePoint(p);
-    }
-  };
   class RoI_Filter : public BaseSpacePointFilter {
     public:
   RoI_Filter(std::vector<TrigSiSpacePointBase>& vec, LayerCalculator& lc, const IRoiDescriptor* roi, bool filter_phi=true) : BaseSpacePointFilter(vec,lc), 
@@ -137,13 +130,15 @@ namespace FTF {//FastTrackFinder
 
   template < typename T> class SpacePointSelector {
   public:
-    SpacePointSelector(T& t) : m_filter(t) {};
+    SpacePointSelector(T& t) : m_filter(t), m_pIDC(nullptr) {};
     ~SpacePointSelector(){};
     void operator() (const IdentifierHash& id) {
-      SpacePointContainer::const_iterator collIt = m_pIDC->indexFind(id);
-      if(collIt!=m_pIDC->end()) {
-	m_filter.setLayer((*collIt)->identify());
-	std::for_each((*collIt)->begin(),(*collIt)->end(),m_filter);
+      if (m_pIDC) {
+        SpacePointContainer::const_iterator collIt = m_pIDC->indexFind(id);
+        if(collIt!=m_pIDC->end()) {
+          m_filter.setLayer((*collIt)->identify());
+          std::for_each((*collIt)->begin(),(*collIt)->end(),m_filter);
+        }
       }
     }
     void operator()(const SpacePointCollection* coll) {
@@ -155,13 +150,6 @@ namespace FTF {//FastTrackFinder
       m_pIDC=p;
       int ret = m_filter.vectorSize();
       std::for_each(idVec.begin(),idVec.end(),*this);
-      return m_filter.vectorSize()-ret;
-    }
-
-    int select(const SpacePointContainer* p) {
-      m_pIDC=p;
-      int ret = m_filter.vectorSize();
-      std::for_each(p->begin(),p->end(),*this);
       return m_filter.vectorSize()-ret;
     }
 

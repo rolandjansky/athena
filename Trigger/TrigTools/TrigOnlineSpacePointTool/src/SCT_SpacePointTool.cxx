@@ -7,8 +7,6 @@
 #include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "Identifier/IdentifierHash.h" 
 #include "StoreGate/StoreGate.h"
 #include <string>

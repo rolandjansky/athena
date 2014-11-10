@@ -40,7 +40,6 @@ use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescript
 use TrkSpacePoint               TrkSpacePoint-*                 Tracking/TrkEvent
 use ByteStreamCnvSvcBase        ByteStreamCnvSvcBase-*          Event
 use DataModel 			DataModel-* 			Control
-use EventInfo                   EventInfo-*                     Event
 use InDetBeamSpotService        InDetBeamSpotService-*          InnerDetector/InDetConditions
 use TrigTimeAlgs		TrigTimeAlgs-*		        Trigger/TrigTools
 use SCT_RawDataByteStreamCnv    SCT_RawDataByteStreamCnv-*      InnerDetector/InDetEventCnv

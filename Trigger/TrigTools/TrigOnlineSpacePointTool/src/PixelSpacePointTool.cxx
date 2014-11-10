@@ -7,8 +7,6 @@
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 #include "StoreGate/StoreGate.h"

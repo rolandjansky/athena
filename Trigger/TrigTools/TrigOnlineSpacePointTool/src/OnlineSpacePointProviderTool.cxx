@@ -16,8 +16,6 @@
 #include "StoreGate/DataHandle.h"
 #include "DataModel/DataVector.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "ByteStreamData/RawEvent.h"
 
 // EDM & Identifier

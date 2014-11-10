@@ -89,33 +89,6 @@ StatusCode TrigSpacePointConversionTool::finalize() {
   return sc;
 }
 
-StatusCode TrigSpacePointConversionTool::getSpacePoints(std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) {
-
-  output.clear();
-
-  StatusCode sc = retrieveSpacePointsContainers();
-  if(sc.isFailure()) return sc;
-
-  int offsets[3];
-
-  offsets[0] = m_layerNumberTool->offsetEndcapPixels();
-  offsets[1] = m_layerNumberTool->offsetBarrelSCT();
-  offsets[2] = m_layerNumberTool->offsetEndcapSCT();
-
-  FTF::LayerCalculator lc(m_atlasId, m_pixelId, m_sctId, offsets);
-
-  FTF::FullScanFilter filter(output,lc);
-  FTF::SpacePointSelector<FTF::FullScanFilter> selector(filter);
-	
-  nPix=selector.select(m_pixelSpacePointsContainer);
-  nSct=selector.select(m_sctSpacePointsContainer);
-
-  if(!m_useBeamTilt) shiftSpacePoints(output);
-  else transformSpacePoints(output);
-
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
 							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) {
 
