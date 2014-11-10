@@ -494,11 +494,23 @@ def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
     from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
     return iFatras__FatrasSimSvc(name, **kwargs )
 
+def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):
+    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasNewExtrapolationSimTool'))
+    return getFatrasSimServiceID(name, **kwargs )
+
 def getFatrasGeoIDFixSimServiceID(name="ISF_FatrasGeoIDFixSimSvc", **kwargs):
     kwargs.setdefault("EnableGeoIDOverride"      , True  )
     kwargs.setdefault("GeoIDOverrideZ"           , 3150. )
     kwargs.setdefault("GeoIDOverride"            , 3     ) # ISF::fAtlasCalo
     return getFatrasSimServiceID(name, **kwargs )
+
+def getFatrasNewExtrapolationSimTool(name="ISF_FatrasNewExtrapolationSimTool", **kwargs):
+    # add your custom configuration of the SimTool here
+    #   NB: only the 'delta' to the normal SimTool configuration needs to be configured here, eg:
+    # kwargs.setdefault("SimHitCreatorMS" , '' )
+    # kwargs.setdefault("SimHitCreatorID" , 'ISF_FatrasNewExtrapolationSimHitCreatorID' )
+    # ..
+    return getFatrasSimTool(name, **kwargs )
 
 def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
     ## MB: Turn off track hit creation
