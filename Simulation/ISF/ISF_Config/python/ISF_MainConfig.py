@@ -292,6 +292,18 @@ def getKernel_ATLFASTIIF(name="ISF_Kernel_ATLFASTIIF", **kwargs):
     simFlags.SimulationFlavour = "ATLFASTIIF"
     return getKernel_GenericSimulator(name, **kwargs)
 
+############## Simulator: Fatras_newExtrapolation ###############
+def getKernel_Fatras_newExtrapolation(name="ISF_Kernel_Fatras_newExtrapolation", **kwargs):
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    # set the simFlags accordingly (TODO: is this even needed?)
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "Fatras_newExtrapolation"
+    return getKernel_GenericSimulator(name, **kwargs)
+
 ############## Simulator: ATLFASTIIF fast pileup ###############
 def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
     SimKernel = getKernel_GenericSimulator(name, **kwargs)
