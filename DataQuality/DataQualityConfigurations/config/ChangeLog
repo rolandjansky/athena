@@ -1,6 +1,121 @@
+2014-10-17 Rachel Hinman <rachel.reisner.hinman@cern.ch>
+	* initial addition of IBL to web displays for collisions and cosmics
+	* other updates for LS1 milestone runs/ run-2
+	
+2014-10-01  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* config/Tile/cosmics_run.config: updated configuration to take into account 
+	  changement of many histograms names and thereafore changed temporarily reference file for Tile
+
+2014-09-24  Khadeejah ALGhadeer <kalghade@cern.ch>
+            Remove the CombinedTower display
+
+2014-08-06  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* config/Tile/collisions_run.config: updated configuration to display numbers on 
+	  data corruption plots
+
+2014-07-16  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* config/Tile/collisions_run.config: updated configuration to take into account 
+	  changement of many histograms names and thereafore changed temporarily reference file for Tile
+
+2014-07-15 Remi Lafaye <remi.lafaye@cern.ch>
+	* config/Egamma/collisions_run_config updated directory tree structure
+
+2013-07-17 Nikos Tsirintanis <Nikolaos.Tsirintanis@cern.ch>
+	* config/MuonCombined/collisions_run.config
+		*Added Third Muon Chain DQ and Efficiency plots
+		*Modified Algorithms and Thresholds for all DQ plots
+
+2013-02-12 Rachel Rosten <rachel.rosten@cern.ch>
+	* config/MuonTrkPhys/*run_config another set of new histograms (m_N_HpT_pLB_*)
+
+2013-02-05 Rachel Rosten <rachel.rosten@cern.ch>
+	* config/MuonTrkPhys/*run_config changed display of m_N_Mu_LB_per_DRegion
+
+2013-02-05  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+	* config/Tile/heavyions_run.config: removed histograms tileCellEnergyRebin
+
+2013-02-03 Rachel Rosten <rachel.rosten@cern.ch>
+	* config/MuonTrkPhys/collision_run.config: added m_good_id_trk_pt histogram
+	* config/MuonTrkPhys/heavyions_run.config: changed to match collisions_run.config - finetune from here
+
+2013-02-02 Edward Sarkisyan-Grinbaum <sedward@mail.cern.ch>
+	* config/HLT/HLTminbias/heavyions_run.config
+	* -> new reference added, MinBiasMon folder of 218473, express, f516_m1296 
+          (DataQualityConfigurations/scripts/updateHists.C used, thanks to Adrian)
+        * -> HLT/TRMBI/IDMinbias: hip_trk Trigger failed/passed moved from Expert to Regular 
+        * -> HLT/TRMBI/ZDC: ZDC_C_vs_LHCF, V/TE trigs moved from Expert to Regular 
+        * -> changes in these plots due to the changes in the pPb menu
+
+2013-01-31  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/Tile/heavyions_run.config: commented out missing histogram tileCellEnergyRebin, no reference.
+	* config/L1Calo/heavyions_run.config: changed algorithm for l1calo_1d_Errors*, l1calo_1d_RejectedEvents, no reference.
+	* config/HLT/HLTelec/heavyions_run.config: references cannot be used together with regex.
+	* config/HLT/HLTgamma/heavyions_run.config: references cannot be used together with regex.
+	* config/HLT/HLTOfflineShift/heavyions_run.config: commented out missing directories MuonMon/etaphi2D and EgammaSigTE/g5_loose, no reference.
+	* config/Global/heavyions_run.config: commented out missing subdirectories of BackgroundMon, no reference.
+
+2013-01-31  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/common/heavyions_run.config: changed CMRs to run 217999 (f514_m1291).
+
+2013-01-30 Rachel Rosten <rachel.rosten@cern.ch>
+	* config/MuonTrkPhys: Mu_LB_per_DRegion histo added for hi and pp
+
+2013-01-29  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/MuonTracks: superseded by MuonTrkPhys, removed on behalf of Rachel.
+	* config/MuonPhysics: superseded by MuonTrkPhys, removed on behalf of Rachel.
+	* config/MuonSegments: superseded by MuonTrkPhys, removed on behalf of Rachel.
+
+2013-01-27 Ivana Hristova  <ivana.hristova@cern.ch>
+	* L1Calo/collisions_run.config: updated Et thresholds for the p-Pb run
+	* L1Calo/heavyions_run.config: updated Et thresholds for the p-Pb run
+
+2013-01-25  Helena Santos<helena@lip.pt>
+	* config/Jets/heavyions_run.config: Tune JetEtaAsymNorm axis
+
+2013-01-25  Khadeejah ALGhadeer <khadeejah.alghadeer@cern.ch>
+	* config/LArMonitoring/collisions_run.config:Fix the CellEnergyVsTime Histograms config. 
+	* config/LArMonitoring/cosmics_run.config:   Fix the CellEnergyVsTime Histograms config.                      
+	* config/LArMonitoring/heavyions_run.config: Fix the CellEnergyVsTime Histograms config. 
+
+2013-01-20  Tom Neep  <tneep@cern.ch>
+	* HLTidtrk: heavyions_run.config changes for p-Pb collisions
+	
+2013-01-20  Venkatesh Kaushik  <Venkat.Kaushik@cern.ch>
+	* HLTjet: heavyions_run.config changes for p-Pb collisions
+
+2013-01-17  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/TRT/heavyions_run.config: added more histograms for Argon straws, with zero weight.
+	* config/TRT/*.config: simplified and unified configuration files.
+
+2013-01-15  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/TRT/heavyions_run.config: added histograms for Argon straws, with zero weight.
+
+2013-01-11  Khadeejah ALGhadeer <khadeejah.alghadeer@cern.ch>
+	* config/LArMonitoring/collisions_run.config: Change the CellEnergyVsTime Histograms config from 2D to 1D
+	* config/LArMonitoring/cosmics_run.config:    Change the CellEnergyVsTime Histograms config from 2D to 1D
+	* config/LArMonitoring/heavyions_run.config:  Change the CellEnergyVsTime Histograms config from 2D to 1D
+
+2012-12-21 Rachel Rosten <rachel.rosten@cern.ch>
+	* config/MuonTrkPhys/collision_run.config:  added missing Staco MDT histograms, tweaked thresholds on algorithms, fixed gridlines
+
+2012-12-14  Adrian Vogel  <adrian.vogel@cern.ch>
+	* config/*/collisions_*.config: added stream-dependent CMRs for JetCalibDelayed next to the ones for JetTauEtmiss.
+	* config/common/collisions_run.config: added stream-dependent CMRs for JetCalibDelayed, using the same as JetTauEtmiss for now.
+
+2012-12-14 Edward Sarkisyan-Grinbaum <sedward@mail.cern.ch>
+	* config/HLT/HLTminbias/heavyions_run.config
+	* -> new reference added, high stat pPb run 217999 (express, x248_m1286) 
+
+2012-12-14 Edward Sarkisyan-Grinbaum <sedward@mail.cern.ch>
+	* config/HLT/HLTminbias/heavyions_run.config: ZDC in
+	* config/HLT/HLTOfflineShift/heavyions_run.config: ZDC in
+	* HLTminbias_Ref for heavyions_run is run 210184: pPb pilot run 
+
 2012-12-02 Rachel Rosten
-	* config/MuonTrkPhys/collisions_run.config: Removed some composite algorithms in Detector Specific, modified ranges in varoius BinsOutOfRange 
-histos
+	* config/MuonTrkPhys/collisions_run.config: Removed some composite algorithms in Detector Specific, modified ranges in varoius BinsOutOfRange histos
 
 2012-11-27 Christian Ohm
 	* Updated the CTP configurations for collsions, cosmics and heavy ions
