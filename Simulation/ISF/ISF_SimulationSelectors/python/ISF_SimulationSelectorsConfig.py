@@ -73,6 +73,10 @@ def getDefaultFatrasSelector(name="ISF_DefaultFatrasSelector", **kwargs):
     kwargs.setdefault("Simulator"   , getService('ISF_FatrasSimSvc'))
     return getDefaultSimSelector(name, **kwargs )
 
+def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapolationSelector", **kwargs):
+    kwargs.setdefault("Simulator"   , getService('ISF_FatrasNewExtrapolationSimSvc'))
+    return getDefaultSimSelector(name, **kwargs )
+
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs): 
     kwargs.setdefault("Simulator"   , getService('ISF_FatrasPileupSimSvc'))
     return getPileupSimSelector(name, **kwargs )
