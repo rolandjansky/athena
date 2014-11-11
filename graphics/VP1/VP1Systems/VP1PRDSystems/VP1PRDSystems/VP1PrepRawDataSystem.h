@@ -51,7 +51,8 @@ public slots:
   void appropriateMDTProjectionsChanged(int);//0: No projections, 1: Project to end of tubes, 2: Project to end of chamber volume.
   void setApplicableIDProjections( InDetProjFlags::InDetProjPartsFlags pixel,
 				   InDetProjFlags::InDetProjPartsFlags sct,
-				   InDetProjFlags::InDetProjPartsFlags trt );
+				   InDetProjFlags::InDetProjPartsFlags trt,
+				   InDetProjFlags::InDetProjPartsFlags planar = 0);
   void muonChambersWithTracksChanged(const std::set<GeoPVConstLink>&);
 
 signals:
