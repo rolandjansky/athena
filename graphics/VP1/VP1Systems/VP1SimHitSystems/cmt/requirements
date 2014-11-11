@@ -6,6 +6,7 @@ manager Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  VP1Base                    VP1Base-*                       graphics/VP1
+use  ISF_FatrasDetDescrModel	ISF_FatrasDetDescrModel-*	Simulation/ISF/ISF_Fatras
 
 private
 use  AtlasCoinInventor          AtlasCoinInventor-*             External
@@ -17,6 +18,7 @@ use  StoreGate                  StoreGate-*                     Control
 use  VP1Qt                      VP1Qt-*                         graphics/VP1
 use  VP1Utils                   VP1Utils-*                      graphics/VP1
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
 end_private
 
 apply_pattern qt4based_library

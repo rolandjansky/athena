@@ -36,6 +36,8 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetIdentifier/PixelID.h"
+#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
 class VP1SimHitSystem::Clockwork
 {
@@ -51,8 +53,7 @@ public:
 VP1SimHitSystem::VP1SimHitSystem()
   :IVP13DSystemSimple("Sim Hits","Display simulation hits from trackers","Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>"),
    _clockwork(new Clockwork())
-{
-}
+{}
 
 VP1SimHitSystem::~VP1SimHitSystem()
 {
@@ -207,13 +208,72 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
     const DataHandle<SiHitCollection> p_collection;
     if(sg->retrieve(p_collection,"PixelHits")==StatusCode::SUCCESS)
     {
-      for(SiHitConstIterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit)
-      {
-        GeoSiHit ghit(*i_hit);
-        if(!ghit) continue;
-        HepGeom::Point3D<double> u = ghit.getGlobalPosition();
-        hitVtxProperty->vertex.set1Value(hitCount++,u.x(),u.y(),u.z());
-      }
+      StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+      //ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", "PixelLayerBuilder");
+      // if (detStore.retrieve().isFailure())   {
+      // 	std::cout << "Noemi --> buildHitTree() Can't locate the DetectorStore" << std::endl;
+      // }
+      // else {
+      // 	std::cout << "Noemi --> DetectorStore retrieved" << std::endl;
+	
+	iFatras::IdHashDetElementCollection *PixelDetElementMap = new iFatras::IdHashDetElementCollection;
+	const PixelID *pixel_ID =0;
+
+	//Retrieve the map with IdHash to DetElement
+	if ((detStore->contains<iFatras::IdHashDetElementCollection>("Pixel_IdHashDetElementMap"))){
+	  if((detStore->retrieve(PixelDetElementMap, "Pixel_IdHashDetElementMap")).isFailure()){
+	    std::cout << "Noemi --> buildHitTree() Could not retrieve collection Pixel_IdHashDetElementMap." << std::endl;
+	  }
+	  else {
+	    std::cout << "Noemi --> buildHitTree() Pixel_IdHashDetElementMap successfully retrieved." << std::endl;
+	    
+	    if (detStore->retrieve(pixel_ID, "PixelID").isFailure()) 
+	      std::cout << "Noemi --> buildHitTree() Could not retrieve PixelID." << std::endl;	    
+	    else {
+	      std::cout << "Noemi --> buildHitTree() PixelID successfully retrieved." << std::endl;
+	    }
+	  }
+	}
+            
+	for(SiHitConstIterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit)
+	  {
+	    GeoSiHit ghit(*i_hit);
+	    if(!ghit) continue;
+	    HepGeom::Point3D<double> u = ghit.getGlobalPosition();
+	    std::cout << "Noemi --> buildHitTree() Global position "<< u << std::endl;
+	    
+	    if(PixelDetElementMap) {
+	      std::cout << "Noemi --> buildHitTree() Correcting Global position "<< std::endl;
+	      int barrelEC = i_hit->getBarrelEndcap();
+	      int layerDisk = i_hit->getLayerDisk();
+	      int phiModule = i_hit->getPhiModule();
+	      int etaModule = i_hit->getEtaModule();
+	      
+	      std::cout << "Noemi --> buildHitTree() Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << std::endl;
+	      
+	      Identifier idwafer = pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
+	      IdentifierHash idhash = pixel_ID->wafer_hash(pixel_ID->wafer_id(idwafer));
+	      auto it_map = PixelDetElementMap->find(idhash);
+	      if (it_map == PixelDetElementMap->end()) 
+		std::cout << "Noemi --> buildHitTree() Id hash " << idhash << " not found in the map from id hash to planar detector element." << std::endl;
+	      else{
+		std::cout << "Noemi --> buildHitTree() Id hash " << idhash << " found in the map." << std::endl;
+		const iFatras::PlanarDetElement* hitPlanarDetElement = it_map->second;
+		
+		if(hitPlanarDetElement) {
+		  std::cout << "Noemi --> buildHitTree() PlanarDetElement found!!" << std::endl;
+		  const HepGeom::Point3D<double> CorrectedGlobalStartPosition = hitPlanarDetElement->transformHit() * HepGeom::Point3D<double>(i_hit->localStartPosition());
+		  u = HepGeom::Point3D<double>(CorrectedGlobalStartPosition.x(),
+					       CorrectedGlobalStartPosition.y(),
+					       CorrectedGlobalStartPosition.z());
+		  
+		  std::cout << "Noemi --> buildHitTree() Corrected Global position "<< u << std::endl;		  
+		} else 
+		  std::cout << "Noemi --> buildHitTree() Problem with the PlanarDetElement" << std::endl;
+	      }
+	    }  
+	    hitVtxProperty->vertex.set1Value(hitCount++,u.x(),u.y(),u.z());
+	  }
     }
     else
       message("Unable to retrieve Pixel Hits");
