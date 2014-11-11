@@ -12,9 +12,6 @@
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
-#include "RPCgeometry/IRPCgeometrySvc.h"
-#include "TGCgeometry/TGCgeometrySvc.h"
-
 #include "MDTcabling/IMDTcablingSvc.h"
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"

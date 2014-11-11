@@ -22,6 +22,7 @@ use RPCgeometry            RPCgeometry-*              MuonSpectrometer/MuonCabli
 use MDTcabling             MDTcabling-*               MuonSpectrometer/MuonCablings
 
 use MuonMDT_Cabling	   MuonMDT_Cabling-*	      MuonSpectrometer/MuonCablings
+use MuonTGC_Cabling        MuonTGC_Cabling-*          MuonSpectrometer/MuonCablings
 
 #use CSCcabling             CSCcabling-*               MuonSpectrometer/MuonCablings
 use MuonRPC_Cabling        MuonRPC_Cabling-*          MuonSpectrometer/MuonCablings
@@ -31,13 +32,13 @@ use MuonIdHelpers          MuonIdHelpers-*            MuonSpectrometer
 use MuonRDO                MuonRDO-*                  MuonSpectrometer
 use GeoPrimitives	   GeoPrimitives-*	      DetectorDescription
 
-use xAODTrigMuon   xAODTrigMuon-*       Event/xAOD
-
-use TrigMuonBackExtrapolator  TrigMuonBackExtrapolator-*  Trigger/TrigTools
-
 use TrigMuonEvent          TrigMuonEvent-*            Trigger/TrigEvent
 use MdtCalibSvc            MdtCalibSvc-*              MuonSpectrometer/MuonCalib/MdtCalib
 use RPCcablingInterface    RPCcablingInterface-*      MuonSpectrometer/MuonCablings
+
+use TrigMuonBackExtrapolator  TrigMuonBackExtrapolator-*  Trigger/TrigTools
+
+use xAODTrigMuon   xAODTrigMuon-*       Event/xAOD
 
 ##use MuonCnvExample	   MuonCnvExample-*	      MuonSpectrometer/MuonCnv
 
@@ -51,14 +52,9 @@ use EventInfo              EventInfo-*                Event
 use MuonCalibEvent         MuonCalibEvent-*           MuonSpectrometer/MuonCalib
 use MuonContainerManager   MuonContainerManager-*     MuonSpectrometer/MuonCnv
 
-##### for new geometry #####
 use MuonReadoutGeometry	   MuonReadoutGeometry-*      MuonSpectrometer/MuonDetDescr
 use MuonIdHelpers          MuonIdHelpers-*            MuonSpectrometer
-use MuonMDT_Cabling	   MuonMDT_Cabling-* 	      MuonSpectrometer/MuonCablings
-##use MuonTGC_Cabling	   MuonTGC_Cabling-*	      MuonSpectrometer/MuonCablings
 use MuonCablingData	   MuonCablingData-*	      MuonSpectrometer/MuonCablings
-##use MuonGeoModel	   MuonGeoModel-*	      MuonSpectrometer
-############################
 
 macro_append TrigL2MuonSA_linkopts " -lcirc_proc -lMuCalDecode"
 
