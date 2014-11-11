@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 609046 2014-07-28 18:41:26Z btamadio $'
+__version__ = '$Id: beamspotman.py 622207 2014-10-16 17:54:05Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -1146,7 +1146,7 @@ if cmd=='runaod' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='2nd', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
+                                           batchqueue='atlasb1_long', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps=options.postprocsteps,
                                            autoconfparams='DetDescrVersion',

@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 612724 2014-08-20 18:00:26Z beringer $'
+__version__ = '$Id: beamspotnt.py 622207 2014-10-16 17:54:05Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -857,6 +857,8 @@ if cmd=='ave' and len(args)==1:
     if options.varlist is None:
         #varList = 'posX,posY,posZ,sigmaX,sigmaY,sigmaZ,tiltX,tiltY,rhoXY,sigmaXY,k'
         varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY']
+        if options.cooltag:
+            varList.append('sigmaXY')
     else:
         varList = options.varlist.split(',')
 

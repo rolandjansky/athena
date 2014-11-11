@@ -1,11 +1,11 @@
-# $Id: VertexTemplate.py 613144 2014-08-22 21:34:29Z btamadio $
+# $Id: VertexTemplate.py 621197 2014-10-10 18:46:48Z btamadio $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 613144 2014-08-22 21:34:29Z btamadio $"
+print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 621197 2014-10-10 18:46:48Z btamadio $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -23,6 +23,7 @@ if not 'MaxCount' in jobConfig:                      jobConfig['MaxCount'] = -1
 if not 'RunRange' in jobConfig:                      jobConfig['RunRange'] = 1
 if not 'EventRange' in jobConfig:                    jobConfig['EventRange'] = -1
 if not 'SeparateByBCID' in jobConfig:                jobConfig['SeparateByBCID'] = False
+if not 'SeparateByPileup' in jobConfig:              jobConfig['SeparateByPileup'] = False
 if not 'VertexContainer' in jobConfig:               jobConfig['VertexContainer'] = 'PrimaryVertices'
 if not 'VertexTypes' in jobConfig:                   jobConfig['VertexTypes'] = ['PriVtx']
 if not 'MinTracksPerVtx' in jobConfig:               jobConfig['MinTracksPerVtx'] = 5
@@ -32,13 +33,18 @@ if not 'MaxSigmaTr' in jobConfig:                    jobConfig['MaxSigmaTr'] = 2
 if not 'OutlierChi2Tr' in jobConfig:                 jobConfig['OutlierChi2Tr'] = 20.
 if not 'InitialKFactor' in jobConfig:                jobConfig['InitialKFactor'] = 1.0
 if not 'ConstantKFactor' in jobConfig:               jobConfig['ConstantKFactor'] = False
-if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = True
 if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps'] = ''
 if not 'VertexNtuple' in jobConfig:                  jobConfig['VertexNtuple'] = True
 if not 'TruncatedRMS' in jobConfig:                  jobConfig['TruncatedRMS'] = True
 if not 'SetInitialRMS' in jobConfig:                 jobConfig['SetInitialRMS'] = False
 if not 'WriteAllVertices' in jobConfig:              jobConfig['WriteAllVertices'] = False
-
+if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = False
+if not 'InitialKFactor' in jobConfig:                jobConfig['InitialKFactor'] = 1.0
+if not 'vtxCutRooFit' in jobConfig:                  jobConfig['vtxCutRooFit'] = 'vxx < .0025 && vyy< .0025 && abs(x) < 2 && abs(y) < 2 && abs(z) < 300'
+if not 'PileupMin' in jobConfig:                     jobConfig['PileupMin'] = 0
+if not 'PileupMax' in jobConfig:                     jobConfig['PileupMax'] = 0
+if not 'RMSCut' in jobConfig:                        jobConfig['RMSCut'] = 16
+if not 'UseTruth' in jobConfig:                      jobConfig['UseTruth'] = False
 # JobOptions to specify event filtering:
 # bcidList    - List of BCIDs to use
 # lbList      - List of LBs to use
@@ -84,7 +90,10 @@ if jobConfig['SetInitialRMS']:
     ToolSvc.InDetBeamSpotVertex.InitParSigmaY   = 0.10
 
 ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRooFit',
-                                             OutputLevel     = min(INFO,jobConfig['outputlevel']))
+                                             OutputLevel     = min(INFO,jobConfig['outputlevel']),
+                                             VtxCut          = jobConfig['vtxCutRooFit'],
+                                             kStart          = jobConfig['InitialKFactor'],
+                                             RMSCut          = jobConfig['RMSCut'])
 
 if jobConfig['SetInitialRMS']:
     ToolSvc.InDetBeamSpotRooFit.InitParSigmaX   = 0.10
@@ -98,6 +107,7 @@ topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBea
                                                  RunRange            = jobConfig['RunRange'],
                                                  EventRange          = jobConfig['EventRange'],
                                                  SeparateByBCID      = jobConfig['SeparateByBCID'],
+                                                 SeparateByPileup    = jobConfig['SeparateByPileup'],
                                                  UseFilledBCIDsOnly  = jobConfig['UseFilledBCIDsOnly'],
                                                  DoHists             = True,
                                                  UseDefaultValues    = True,
@@ -111,7 +121,10 @@ topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBea
                                                  MaxTransverseErr    = jobConfig['MaxTransverseErr'],
                                                  VertexNtuple        = jobConfig['VertexNtuple'],
                                                  OutputLevel         = min(INFO,jobConfig['outputlevel']),
-                                                 WriteAllVertices    = jobConfig['WriteAllVertices'])
+                                                 WriteAllVertices    = jobConfig['WriteAllVertices'],
+                                                 PileupMin           = jobConfig['PileupMin'],
+                                                 PileupMax           = jobConfig['PileupMax'],
+                                                 UseTruth            = jobConfig['UseTruth'])
 
 
 if jobConfig['UseFilledBCIDsOnly']:

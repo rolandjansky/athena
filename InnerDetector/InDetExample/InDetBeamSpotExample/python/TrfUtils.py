@@ -5,29 +5,28 @@
 Utilities for writing job transforms for use at T0 and at the CAF Task Management System.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TrfUtils.py 531483 2012-12-21 04:50:16Z hurwitz $'
+__version__ = '$Id: TrfUtils.py 616574 2014-09-12 20:43:28Z btamadio $'
 
 
-import commands, os, sys, pickle, pprint
+import commands, os, sys, pprint
+import json, yaml
 from InDetBeamSpotExample import JobRunner
 from InDetBeamSpotExample import TaskManager
 from optparse import OptionParser
 
-
-def readPickle(fname):
-    """Read a pickled file and return its data."""
-    f = open(fname, 'r')
-    data = pickle.load(f)
+def readJSON(fname):
+    """Read a JSON file and return its data."""
+    f = open(fname,'r')
+    """JSON converts strings to unicode, so we use YAML instead."""
+    data = yaml.load(f)
     f.close()
     return data
 
-
-def writePickle(fname, data):
-    """Write a pickled file with data."""
-    f = open(fname, 'w')
-    pickle.dump(data,f)
+def writeJSON(fname, data):
+    """Serialize data and write to fname."""
+    f = open(fname,'w')
+    print >> f,json.dumps(data)
     f.close()
-
 
 def getDataSetName(name, sep='#'):
     """Extract dataset name from a qualified file name."""
@@ -88,10 +87,19 @@ def getFileDescription(fileName,dsname=''):
        assumed to be prepended to the fileName (first part, before '#')."""
     if not dsname:
         dsname = getDataSetName(fileName)
-    d = {'lfn': getFileName(fileName),
-         'dataset': dsname,
-         'GUID': getGuid(fileName)
-         }
+    d = {
+        'dataset': dsname,
+        'subFiles':[
+            {
+                'name': getFileName(fileName),
+                'file_guid': getGuid(fileName),
+                'file_size': 0,
+                'nentries': 0,
+                'checkSum': 0,
+                
+                }
+            ]
+        }
     return d
 
 
@@ -115,31 +123,31 @@ class JobRunnerTransform:
         self.templateOutputName = templateOutputName
         self.jobDirOutputName = jobDirOutputName
         self.outputList = [ ]   # List of qualified output files (ie file names including dataset name)
-        self.reportName = 'jobReport.gpickle'
+        self.reportName = 'jobReport.json'
         self.prodDir = '.'
         self.prodTaskDb = ''
 
         # Process command line args and extract argdict
-        parser = OptionParser(usage="%prog --argdict=LOCALPICKLEFILE")
-        parser.add_option('-a', '--argdict', dest='argdict', help='Local file with pickled dictonary of key/value pairs')
+        parser = OptionParser(usage="%prog --argJSON=<JSON file>")
+        parser.add_option('-a', '--argJSON', dest='argJSON', help='Local file with JSON-serialized dictionary of key/value pairs')
         (options,args) = parser.parse_args()
         if len(args) != 0:
             self.report('WRONGARGSNUMBER_ERROR','Wrong number of command line arguments')
             parser.error('wrong number of command line arguments')
-        if not options.argdict:
-            self.report('NOARGDICT_ERROR','Must use --argdict option to specify argdict.gpickle file')
-            parser.error('option --argdict is mandatory')
+        if not options.argJSON:
+            self.report('NOARGDICT_ERROR','Must use --argJSON to specify argdict.json file')
+            parser.error('option --argJSON is mandatory')
         try:
-            self.argdictFileName = options.argdict 
-            self.argdict = readPickle(options.argdict)
+            self.argdictFileName = options.argJSON 
+            self.argdict = readJSON(options.argJSON)
         except Exception,e:
-            self.report('ARGDICTNOTREADABLE_ERROR','File %s with pickled argdict cannot be read' % options.argdict)
-            print 'ERROR: file %s with pickled argdict cannot be read' % options.argdict
+            self.report('ARGDICTNOTREADABLE_ERROR','File %s with JSON-serialized argdict cannot be read' % options.argJSON)
+            print 'ERROR: file %s with JSON-serialized argdict cannot be read' % options.argJSON
             print 'DEBUG: Exception =',e
             sys.exit(1)
 
         # Print argdict
-        print '\nInput argdict (%s):\n' % options.argdict
+        print '\nInput argdict (%s):\n' % options.argJSON
         print pprint.pformat(self.argdict)
         print '\n'
 
@@ -158,7 +166,7 @@ class JobRunnerTransform:
             print 'ERROR: no input file specified'
             sys.exit(1)
         self.outputfile = getFileName(self.argdict[outputParamName])
-        self.outputList.append(self.argdict[outputParamName])
+        #self.outputList.append(self.argdict[outputParamName])
         self.outputds = getDataSetName(self.argdict[outputParamName])
         if not self.outputds:
             self.report('NODATASET_ERROR','No dataset given in parameter '+outputParamName)
@@ -200,7 +208,7 @@ class JobRunnerTransform:
                                           addinputtopoolcatalog=False,
                                           returnstatuscode=True)
         self.runner.appendParam('cmdjobpreprocessing',
-                                'cp %s %s/%s.argdict.gpickle' % (self.argdictFileName, self.runner.getParam('jobdir'),self.jobname))
+                                'cp %s %s/%s.argdict.json' % (self.argdictFileName, self.runner.getParam('jobdir'),self.jobname))
         self.runner.setParam(self.templateOutputName,self.outputfile)
         if self.jobDirOutputName:
             self.runner.appendParam('cmdjobpostprocessing',
@@ -216,7 +224,7 @@ class JobRunnerTransform:
     def addOutput(self, paramName, templateName, jobDirName=''):
         """Add an additional output file to the output dataset. If jobDirName is set, the
            output file will also be copied under that name to the job directory."""
-        self.outputList.append(self.argdict[paramName])
+        #self.outputList.append(self.argdict[paramName])
         f = getFileName(self.argdict[paramName])
         self.runner.setParam(templateName,f)
         if jobDirName:
@@ -296,23 +304,24 @@ class JobRunnerTransform:
                 jobStatus = 999
                 jobStatusAcronym = 'NOJOBSTATUS_ERROR'
                 moreText = "Jobrunner terminated abnormally and w/o a job status; athena job may or may not have run"
+
         jobStatusAcronym = jobStatusAcronym[:128]   # 128 char limit in T0 DB
-        report = {'prodsys': {'trfCode': jobStatus,
-                              'trfAcronym': jobStatusAcronym,
-                              'jobOutputs': []
-                              } }
+        report =  {'exitCode': jobStatus,
+                   'exitAcronym': jobStatusAcronym,
+                   'files': { 'output':[] }
+                  }
         if moreText:
-            report['prodsys']['more'] = {'txt1': moreText}
+            report['exitMsg'] = moreText
 
         # If there was no error, store outputs (request from Armin to not give any outputs for failed jobs).
         # Must also check that output file indeed exists.
         if jobStatus==0:
             for f in self.outputList:
                 if os.path.exists(getFileName(f)):
-                    report['prodsys']['jobOutputs'].append(getFileDescription(f))
+                    report['files']['output'].append(getFileDescription(f))
 
         # Write jobReport file
-        writePickle(self.reportName,report)
+        writeJSON(self.reportName,report)
 
         # Copy  jobReport file to job directory - note we do this only if there was
         # no error, otherwise we might overwrite an older report from an OK job
@@ -324,6 +333,6 @@ class JobRunnerTransform:
                 print 'DEBUG: Exception =',e
 
         # Nicely print job report to stdout
-        print '\n\nJob report (jobReport.gpickle):\n'
+        print '\n\nJob report (jobReport.json):\n'
         print pprint.pformat(report)
         print '\n'

@@ -13,8 +13,12 @@ import sys
 # beamspotman.py --srctag IndetBeampos-RunDep-MC11-MC12prep-pPbprep-001 -t IndetBeampos-RunDep-MC11-MC12prep-pPbprep-001 --destdbname OFLP200 --srcdbname OFLP200 upload IndetBeampos-RunDep-MC11-MC12prep-pPbprep-001.db
 
 tagdict = {
-    (0,142308)       : "IndetBeampos-unconstrained",                        # 2009 900 GeV (unconstrained)     
-    (142308, 152166) : "IndetBeampos-unconstrained",                        # 2009 2 TeV (unconstrained)       
+    (0,141748)       : "IndetBeampos-unconstrained",                        # pre - 2009 900 GeV (unconstrained)
+    (141748, 142308) : "IndetBeampos-data09_900GeV-ave-001",                # 2009 900 GeV (new)
+    (142308, 142309) : "IndetBeampos-unconstrained",                        # 2009 2 TeV (unconstrained)
+    (142309, 142402) : "IndetBeampos-data09_900GeV-ave-001",                # 2009 900 GeV (new)
+    (142402, 142403) : "IndetBeampos-unconstrained",                        # 2009 2 TeV (unconstrained)
+    (142403, 152166) : "IndetBeampos-unconstrained",                        # pre - 2010 7 TeV (unconstrained)       
     (152166, 154465) : "IndetBeampos-data10_7TeV-PeriodDtoI-ave-001",       # 2010 7 TeV (new)                 
     (154465, 154813) : "IndetBeampos-data10_900GeV-ave-001",                # 2010 900 GeV (new)               
     (154813, 168665) : "IndetBeampos-data10_7TeV-PeriodDtoI-ave-001",       # 2010 7 TeV (new)                 
@@ -37,8 +41,12 @@ tagdict = {
     (217946, 219171) : "IndetBeampos-data13_hip-PeriodAtoB-ave-001",        # 2013 HIP (same)
     (219171, 219366) : "IndetBeampos-data13_2p76TeV-AllYear-ave-001",       # 2013 2.76 TeV (same)
     (219366, 222222) : "IndetBeampos-unconstrained",                        # unused, unconstrained
-    (222222, 0)      : "IndetBeampos-13TeV-0.45m-300urad"                   # DC14
+    (222222, 222250) : "IndetBeampos-13TeV-0.45m-300urad",                  # DC14 (mu=30), 25ns
+    (222250, 222500) : "IndetBeampos-13TeV-0.45m-300urad",                  # DC14 (mu=30), 50ns
+    (222500, 222525) : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 50ns
+    (222525, 0)      : "IndetBeampos-13TeV-0.80m-290urad-1.24ns-2.7umr",    # mc15 25ns
     }
+
 
 tags   = [tagdict[key] for key in sorted(tagdict.iterkeys())]
 runmin = [rl for (rl,ru) in sorted(tagdict.iterkeys())]
@@ -50,7 +58,7 @@ for (rl,ru) in sorted(tagdict.iterkeys(),reverse=True):
 assert(len(runmin) == len(runmax) == len(tags))
 nTag = len(tags)
 
-tag='IndetBeampos-RunDep-MC14-BestKnowledge-001'
+tag='IndetBeampos-RunDep-MC15-BestKnowledge-001'
 dbfile = tag + '.db'
 folderHandle = openBeamSpotDbFile(dbfile, dbName = 'OFLP200', forceNew = True)
 
