@@ -25,23 +25,17 @@ recoLog = logging.getLogger('rdo_to_rdotrigger')
 recoLog.info( '****************** STARTING RDO->RDOTrigger MAKING *****************' )
 
 ## Input
-if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
 if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
 
-##Outputs
-outputs = set(dir(runArgs)) & set(('tmpRDO', 'outputRDOFile'))
-if len(outputs) > 1:
-    recoLog.fatal("Both outputRDOFile and tmpRDO specified - this configuration should not be used!")
-    raise SystemError
-elif len(outputs) == 1:
-    rec.doWriteRDO.set_Value_and_Lock( True )   
-    athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( getattr(runArgs, outputs.pop()) )
+if hasattr(runArgs,"outputRDO_TRIGFile"):
+    rec.doWriteRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_TRIGFile )
 else:
     recoLog.warning("No RDO output file specified")
-    
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -61,15 +55,52 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
-oldRDOList=StreamRDO.ItemList
-from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
-theCKS2=CfgKeyStore("KeyStore")
-CILMergeRDO=CfgItemList("RDOprime",allowWildCard=True)
-CILMergeRDO.add(oldRDOList)
-CILMergeRDO.add(theCKS2.streamRDO())
+from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
+trigDecWriter = WriteTrigDecision()
+# inform TD maker that some parts may be missing
+if TriggerFlags.dataTakingConditions()=='Lvl1Only':
+    topSequence.TrigDecMaker.doL2=False
+    topSequence.TrigDecMaker.doEF=False
+    topSequence.TrigDecMaker.doHLT=False
+elif TriggerFlags.dataTakingConditions()=='HltOnly':
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence.TrigDecMaker.doL1=False
+# Decide based on the run number whether to assume a merged, or a
+# split HLT:
+if not TriggerFlags.doMergedHLTResult():
+    topSequence.TrigDecMaker.doHLT = False
+else:
+    topSequence.TrigDecMaker.doL2 = False
+    topSequence.TrigDecMaker.doEF = False
 
-StreamRDO.ItemList = CILMergeRDO()
+from TrigEDMConfig.TriggerEDM import getLvl1ESDList, getESDList, \
+                  getAODList, getLvl1AODList, getTrigIDTruthList
+esdList = getESDList()
+aodList = getAODList()
+l1EsdList = getLvl1ESDList()
+l1AodList = getLvl1AODList()
+# In HLTTriggerResultGetter.py filled only when rec.doESD or rec.doAOD
+trigIDTruthESD = getTrigIDTruthList(TriggerFlags.ESDEDMSet())
+trigIDTruthAOD = getTrigIDTruthList(TriggerFlags.AODEDMSet())
 
+def fillTrigList(inlist):
+    triglist = []
+    for k in inlist:
+      items = inlist[k]
+      for j in items:
+          triglist.append( k + "#" + j)
+    return triglist
+
+triglists = fillTrigList(esdList)
+triglists += fillTrigList(aodList)
+triglists += fillTrigList(l1EsdList)
+triglists += fillTrigList(l1AodList)
+triglists += fillTrigList(trigIDTruthESD)
+triglists += fillTrigList(trigIDTruthAOD)
+
+StreamRDO.ItemList += list(set(triglists))
+
+rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

@@ -40,7 +40,12 @@ if hasattr(runArgs,"inputRDOFile"):
 if hasattr(runArgs,"inputRDO_TRIGFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
-    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile )
+    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
+    TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock( True )
+if hasattr(runArgs,"inputRDO_FILTFile"):
+    rec.readRDO.set_Value_and_Lock( True )
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_FILTFile )
 if hasattr(runArgs,"inputEVNTFile"):
     #specific settings for AtlfastIIF
     rec.readRDO.set_Value_and_Lock( True )
@@ -121,9 +126,8 @@ if hasattr(runArgs, "outputTXT_FTKIPFile"):
     rec.doTrigger.set_Value_and_Lock(False)
     rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
     
-# Trigger already run in this RDO?
-if hasattr(runArgs, "doRDOTrigger") and runArgs.doRDOTrigger == True:
-    TriggerFlags.doTriggerConfigOnly=True
+if hasattr(runArgs, "doRDOTrigger"):
+    TriggerFlags.doTriggerConfigOnly.set_Value_and_Lock(True)
 
 # Event display tarballs    
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):

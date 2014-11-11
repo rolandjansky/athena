@@ -17,6 +17,9 @@ def addCommonRecTrfArgs(parser):
                         help='Autoconfiguration settings (whitespace or comma separated)', nargs='+', metavar='AUTOCONFKEY')
     parser.add_argument('--trigStream', group='Common Reco', type=trfArgClasses.argFactory(trfArgClasses.argList), 
                         help='Trigger stream setting')
+    parser.add_argument('--topOptions', group='Common Reco', type=trfArgClasses.argFactory(trfArgClasses.argSubstep), 
+                        nargs="+", help='Alternative top options file for reconstruction (can be substep specific)', 
+                        metavar="substep:TOPOPTIONS")
 
 
 def addStandardRecoFiles(parser):
@@ -36,6 +39,12 @@ def addStandardRecoFiles(parser):
     parser.add_argument('--outputESDFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output'),
                         help='Output ESD file', group='Reco Files')
+    parser.add_argument('--outputRDO_TRIGFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
+                        help='Output RDO_TRIG file', group='Reco Files')
+    parser.add_argument('--inputRDO_TRIGFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
+                        help='Input RDO_TRIG file', group='Reco Files')
     parser.add_argument('--inputAODFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                         help='Input AOD file', group='Reco Files')
@@ -60,6 +69,9 @@ def addStandardRecoFiles(parser):
     parser.add_argument('--inputEVNTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                         help='Input EVNT file for NTUP_TRUTH making', group='Reco Files')
+    parser.add_argument('--outputTXT_JIVEXMLTGZFile',
+                        type = trfArgClasses.argFactory(trfArgClasses.argFile, io = 'output'),
+                        help = 'Output JiveXML.tgz file', group = 'Reco Files')
 
 
 ## @brief Add reconstruction substeps to a set object
@@ -68,8 +80,10 @@ def addStandardRecoFiles(parser):
 def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'RDOtoBS', skeletonFile = 'RecJobTransforms/skeleton.RDOtoBS_tf.py',
                                    substep = 'r2b', inData = ['RDO'], outData = ['BS']))
+    executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
+                                   substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                   substep = 'r2e', inData = ['BS', 'RDO'], outData = ['ESD', 'HIST_ESD_INT'], 
+                                   substep = 'r2e', inData = ['BS', 'RDO'], outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],
                                    perfMonFile = 'ntuple_RAWtoESD.pmon.gz'))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
                                    substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT'], 

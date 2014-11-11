@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## A simple RAWtoESD transform. 
-# @version $Id: RAWtoESD_tf.py 571113 2013-11-18 21:45:05Z graemes $ 
+# @version $Id: RAWtoESD_tf.py 627717 2014-11-11 18:55:17Z graemes $ 
 
 import os.path
 import sys
@@ -22,7 +22,7 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-ListOfDefaultPositionalKeys=['--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--checkEventCount', '--command', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputBSFile', '--inputRDOFile', '--maxEvents', '--noimf', '--notcmalloc', '--outputESDFile', '--outputHIST_ESD_INTFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation']
+ListOfDefaultPositionalKeys = ['--amiConfig', '--amiMetadataTag', '--asetup', '--athena', '--athenaopts', '--checkEventCount', '--command', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputBSFile', '--inputRDOFile', '--maxEvents', '--noimf', '--notcmalloc', '--outputESDFile', '--outputHIST_ESD_INTFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--outputTXT_JIVEXMLTGZFile']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -50,6 +50,9 @@ def getTransform():
 def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('RAWtoESD_tf', 'RAW to ESD specific options')
+    parser.add_argument('--inputRDO_TRIGFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argRDO_TRIGFile, io='input'),
+                        help='Input rdo trigger file', group='RAWtoESD_tf')
     parser.add_argument('--inputBSFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
                         help='Input bytestream file', group='RAWtoESD_tf')
@@ -62,6 +65,8 @@ def addMyArgs(parser):
     parser.add_argument('--outputHIST_ESD_INTFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', countable=False),
                         help='Output DQ monitoring file', group='RAWtoESD_tf')
+    parser.add_argument('--outputTXT_JIVEXMLTGZFile', type = trfArgClasses.argFactory(trfArgClasses.argFile, io = 'output'),
+                        help = 'Output JiveXML.tgz file', group = 'RAWtoESD_tf')
 
 
 if __name__ == '__main__':
