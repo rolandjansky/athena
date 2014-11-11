@@ -4,7 +4,6 @@
 
 #include "egammaUtils/EMConversionUtils.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkSurfaces/PerigeeSurface.h" 
@@ -18,31 +17,55 @@ namespace EMConversionUtils {
   void getConversionPositionAndPt(const xAOD::Vertex* myCandidate, Amg::Vector3D& pos, double& pt) 
   {
     
-    pos = myCandidate->position();    
+    const std::vector< Trk::VxTrackAtVertex > trkAtVx ((myCandidate->vxTrackAtVertex()));
+    
+    pos = myCandidate->position();
+    
     //invariant mass, photon pT
-    if(myCandidate->nTrackParticles() == 2) {
-      TLorentzVector sum_mom = myCandidate->trackParticle(0)->p4() + myCandidate->trackParticle(1)->p4() ;
-      pt = sum_mom.Perp();
-    }
-    else {
-      pt = myCandidate->trackParticle(0)->pt();
+    if(trkAtVx.size() == 2) {
+      const Trk::TrackParameters*perigee1 = dynamic_cast<const Trk::Perigee*>(trkAtVx[0].perigeeAtVertex());
+      const Trk::TrackParameters*perigee2 = dynamic_cast<const Trk::Perigee*>(trkAtVx[1].perigeeAtVertex());
+      if (perigee1 && perigee2) {
+	const  Amg::Vector3D sum_mom = perigee1->momentum() + perigee2->momentum();
+	pt = sum_mom.perp();
+      }
+    } else {
+      const Trk::TrackParameters*perigee1 = dynamic_cast<const Trk::Perigee*>(trkAtVx[0].perigeeAtVertex());
+      if (perigee1) {
+	pt = perigee1->momentum().perp();
+      }
     }
   }
 
   /** @brief Get the momentum of the conversion candidate  */
   double getConversionP(const xAOD::Vertex* myCandidate) 
   {
-    if(myCandidate->nTrackParticles() == 2) {
-      TLorentzVector sum_mom = myCandidate->trackParticle(0)->p4() + myCandidate->trackParticle(1)->p4() ;
-      return sum_mom.Mag();
-    }
-    else {
-      return  myCandidate->trackParticle(0)->p4().Mag();
+    const std::vector< Trk::VxTrackAtVertex > trkAtVx ((myCandidate->vxTrackAtVertex()));
+    
+    //invariant mass, photon pT
+    if(trkAtVx.size() == 2) {
+      const Trk::TrackParameters* perigee1 = dynamic_cast<const Trk::Perigee*>(trkAtVx[0].perigeeAtVertex());
+      const Trk::TrackParameters* perigee2 = dynamic_cast<const Trk::Perigee*>(trkAtVx[1].perigeeAtVertex());
+      if (perigee1 && perigee2) {
+	const Amg::Vector3D sum_mom = perigee1->momentum() + perigee2->momentum();
+	return sum_mom.mag();
+      } else {
+	return -999.;
+      }
+    } else {
+      const Trk::TrackParameters* perigee1 = dynamic_cast<const Trk::Perigee*>(trkAtVx[0].perigeeAtVertex());
+      if (perigee1) {
+	return perigee1->momentum().mag();
+      } else {
+	return -999.;
+      }
     }
   }
 
   /** @brief Get the position of the conversion candidate  */
-  Amg::Vector3D getConversionPosition(const xAOD::Vertex* myCandidate) {   
+  Amg::Vector3D getConversionPosition(const xAOD::Vertex* myCandidate) 
+  {
+    
     return  myCandidate->position();
   }
 
