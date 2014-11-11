@@ -7,11 +7,16 @@
 // Author: David Cote, September 2008 <david.cote@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
+#define private public
+#define protected public
 #include "EventBookkeeperMetaData/EventBookkeeper.h"
+#undef private
+#undef protected
+
 #include "EventBookkeeperTPCnv/EventBookkeeperCnv_p1.h"
 
 void EventBookkeeperCnv_p1::transToPers(const EventBookkeeper* trans, EventBookkeeper_p1* pers, MsgStream &log) {
-  log << MSG::ERROR << "EventBookkeeperCnv_p1::transToPers should never be called. There is a mistake." << endmsg;
+  log << MSG::ERROR << "EventBookkeeperCnv_p1::transToPers should never be called. There is a mistake." << endreq;
   pers->m_nWeightedAcceptedEvents = trans->getNWeightedAcceptedEvents();
   pers->m_nAcceptedEvents = trans->getNAcceptedEvents();
   pers->m_cycle = trans->getCycle();
