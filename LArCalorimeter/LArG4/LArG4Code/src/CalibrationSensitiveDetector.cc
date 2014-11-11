@@ -134,7 +134,8 @@ namespace LArG4 {
 
     // access for primary particle identifier of G4Track
     unsigned int particle_id = 0;
-    if ( m_doCalibHitParticleID ) particle_id = m_event_info->GetCurrentPrimary()->barcode();
+    if ( m_doCalibHitParticleID && m_event_info )
+      particle_id = m_event_info->GetCurrentPrimary()->barcode();
     
     for(unsigned int i=0; i<m_hitMergers.size(); i++)
     {
@@ -173,7 +174,8 @@ namespace LArG4 {
 
     // access for primary particle identifier of G4Track
     unsigned int particle_id = 0;
-    if( m_doCalibHitParticleID ) particle_id = m_event_info->GetCurrentPrimary()->barcode();
+    if( m_doCalibHitParticleID && m_event_info )
+      particle_id = m_event_info->GetCurrentPrimary()->barcode();
         
     for(unsigned int i=0; i<m_hitMergers.size(); i++)
     {
