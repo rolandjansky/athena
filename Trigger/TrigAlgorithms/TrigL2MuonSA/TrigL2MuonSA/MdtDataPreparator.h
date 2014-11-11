@@ -11,7 +11,6 @@
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "TGCgeometry/TGCgeometrySvc.h" // necessary to avoid compiler warning
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "MDTcabling/IMDTcablingSvc.h"
 #include "RegionSelector/IRegSelSvc.h"

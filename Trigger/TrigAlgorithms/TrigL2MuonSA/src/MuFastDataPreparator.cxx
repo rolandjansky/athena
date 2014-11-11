@@ -98,12 +98,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    }
    msg() << MSG::DEBUG << "Retrieved the RegionSelector service " << endreq;
    
-   sc = m_rpcDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
-      return sc;
+   if (m_use_rpc) {
+     sc = m_rpcDataPreparator.retrieve();
+     if ( sc.isFailure() ) {
+       msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
+       return sc;
+     }
+     msg() << MSG::DEBUG << "Retrieved service " << m_rpcDataPreparator << endreq;
    }
-   msg() << MSG::DEBUG << "Retrieved service " << m_rpcDataPreparator << endreq;
 
    sc = m_tgcDataPreparator.retrieve();
    if ( sc.isFailure() ) {
@@ -207,6 +209,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::setGeometry(bool use_new_geometry
      msg() << MSG::DEBUG << "Retrieved service " << m_mdtCablingSvc << endreq;
    }
 
+  m_tgcDataPreparator->setGeometry(use_new_geometry);
   m_mdtDataPreparator->setGeometry(use_new_geometry);
 
   return StatusCode::SUCCESS;
