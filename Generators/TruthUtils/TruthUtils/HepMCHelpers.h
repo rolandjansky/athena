@@ -66,17 +66,21 @@ namespace MC {
   }
 
 
-  /// @brief Identify if the particle could interact with the detector, e.g. not a neutrino or WIMP
-  inline bool isSimInteracting(const HepMC::GenParticle* p) {
-    if (! MC::isGenStable(p)) return false;
+  /// @brief Identify if the particle would not interact with the detector, e.g. not a neutrino or WIMP
+  inline bool isNonInteracting(const HepMC::GenParticle* p) {
     const int apid = abs(p->pdg_id());
-    if (apid == 12 || apid == 14 || apid == 16) return false;
+    if (apid == 12 || apid == 14 || apid == 16) return true;
     /// @todo Use MCUtils functions to make this more general, e.g. isStronglyInteracting || isEMInteracting (need to write these fns)
     if (p->status() % 1000 == 1) { //< Isn't this implied by isGenStable?
-      if (apid == 1000022 || apid == 1000024 || apid == 5100022) return false;
-      if (apid == 39 || apid == 1000039 || apid == 5000039) return false;
+      if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true;
+      if (apid == 39 || apid == 1000039 || apid == 5000039) return true;
     }
-    return true;
+    return false;
+  }
+  /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
+  inline bool isSimInteracting(const HepMC::GenParticle* p) {
+    if (! MC::isGenStable(p)) return false; //skip particles which the simulation would not see
+    return !MC::isNonInteracting(p);
   }
 
   /// @brief Oddly-named alias for isSimInteracting
