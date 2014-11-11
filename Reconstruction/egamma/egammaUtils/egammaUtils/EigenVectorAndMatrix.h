@@ -10,24 +10,24 @@
 class EigenVectorAndMatrix {
 
 public:
- EigenVectorAndMatrix(Amg::VectorX &v, Amg::MatrixX  &m) : m_vector(v), m_matrix(m) {
+ EigenVectorAndMatrix(Amg::VectorX &v, Amg::MatrixX  &m) : vector(v), matrix(m) {
   }
   Amg::VectorX& getVector() {
-    return m_vector;
+    return vector;
   }
   Amg::MatrixX& getMatrix() {
-    return m_matrix;
+    return matrix;
   }
   const Amg::VectorX& getVector() const {
-    return m_vector;
+    return vector;
   }
   const Amg::MatrixX& getMatrix() const {
-    return m_matrix;
+    return matrix;
   }
 
 private:
-  Amg::VectorX m_vector;
-  Amg::MatrixX m_matrix;
+  Amg::VectorX vector;
+  Amg::MatrixX matrix;
 };
 
 #endif
