@@ -10,7 +10,6 @@
 #include "VP1GuideLineSystems/InDetProjHelper.h"
 #include "VP1GuideLineSystems/InDetProjParams.h"
 
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -30,7 +29,7 @@ PRDHandle_TRT::PRDHandle_TRT(PRDCollHandle_TRT*collhandle, const InDet::TRT_Drif
 void PRDHandle_TRT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
 {
   const Trk::CylinderBounds* ccbo = dynamic_cast<const Trk::CylinderBounds*>(&(m_driftcircle->detectorElement()->surface(m_driftcircle->identify()).bounds()));
-  if (not ccbo) return;
+  assert(ccbo!=0);
   const double radius = m_driftcircle->localPosition()[0];
   const double halflength = ccbo->halflengthZ();
   const double mintuberadius = 0.1;

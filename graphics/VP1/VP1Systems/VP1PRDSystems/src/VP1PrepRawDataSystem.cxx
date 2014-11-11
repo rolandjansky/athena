@@ -15,6 +15,7 @@
 #include "VP1PRDSystems/PRDCollHandle_MDT.h"
 #include "VP1PRDSystems/PRDCollHandle_MM.h"
 #include "VP1PRDSystems/PRDCollHandle_Pixel.h"
+#include "VP1PRDSystems/PRDCollHandle_Planar.h"
 #include "VP1PRDSystems/PRDCollHandle_RPC.h"
 #include "VP1PRDSystems/PRDCollHandle_SCT.h"
 #include "VP1PRDSystems/PRDCollHandle_TGC.h"
@@ -60,6 +61,8 @@ public:
   InDetProjFlags::InDetProjPartsFlags idprojflags_pixel;
   InDetProjFlags::InDetProjPartsFlags idprojflags_sct;
   InDetProjFlags::InDetProjPartsFlags idprojflags_trt;
+
+  InDetProjFlags::InDetProjPartsFlags idprojflags_planar;
   int appropriatemdtprojection;
   
   SoSeparator * multisel_sep;
@@ -179,6 +182,7 @@ public:
   QList<PRDCollHandleBase*> createCollections() {
     QList<PRDCollHandleBase*> l;
     l << createSpecificCollections<PRDCollHandle_Pixel>();
+    l << createSpecificCollections<PRDCollHandle_Planar>();
     l << createSpecificCollections<PRDCollHandle_SCT>();
     l << createSpecificCollections<PRDCollHandle_TRT>();
     l << createSpecificCollections<PRDCollHandle_SpacePoints>();
@@ -210,6 +214,7 @@ VP1PrepRawDataSystem::VP1PrepRawDataSystem()
   d->common = 0;
   d->controller = 0;
   d->idprojflags_pixel = InDetProjFlags::NoProjections;
+  d->idprojflags_planar = InDetProjFlags::NoProjections;
   d->idprojflags_sct = InDetProjFlags::NoProjections;
   d->idprojflags_trt = InDetProjFlags::NoProjections;
   d->appropriatemdtprojection = 0;
@@ -568,18 +573,24 @@ void VP1PrepRawDataSystem::appropriateMDTProjectionsChanged(int iproj)
 
 //_____________________________________________________________________________________
 void VP1PrepRawDataSystem::setApplicableIDProjections( InDetProjFlags::InDetProjPartsFlags pixel,
-                                                      InDetProjFlags::InDetProjPartsFlags sct,
-                                                      InDetProjFlags::InDetProjPartsFlags trt )
+						       InDetProjFlags::InDetProjPartsFlags sct,
+						       InDetProjFlags::InDetProjPartsFlags trt,
+						       InDetProjFlags::InDetProjPartsFlags planar)
 {
   messageVerbose("Signal received in setApplicableProjections (from "
                  +QString(sender()?sender()->objectName():"NULL sender")+")");
   if (d->idprojflags_pixel==pixel&&d->idprojflags_sct==sct&&d->idprojflags_trt==trt) {
     return;
   }
+
+  if (d->idprojflags_planar==planar)
+    return;
   
   d->idprojflags_pixel = pixel;
   d->idprojflags_trt = trt;
   d->idprojflags_sct = sct;
+
+  d->idprojflags_planar = planar;
   
   if (!d->controller)
     return;//applied upon creation of collections instead
