@@ -20,17 +20,3 @@ EventBookkeeper_p1::EventBookkeeper_p1()
   m_childrenEB.clear();
 }
 
-EventBookkeeper_p1::EventBookkeeper_p1( const EventBookkeeper_p1& rhs )
-{
-  m_name=rhs.m_name;
-  m_description=rhs.m_description;
-  m_parent=rhs.m_parent;
-  m_outputstream = rhs.m_outputstream;
-  m_logic = rhs.m_logic;
-  m_nAcceptedEvents=rhs.m_nAcceptedEvents;
-  m_nWeightedAcceptedEvents=rhs.m_nWeightedAcceptedEvents;
-  m_cycle=rhs.m_cycle;
-    m_childrenEB=rhs.m_childrenEB;
-}
-
-

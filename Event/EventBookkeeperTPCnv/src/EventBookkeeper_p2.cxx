@@ -21,25 +21,35 @@ EventBookkeeper_p2::EventBookkeeper_p2()
 }
 
 EventBookkeeper_p2::EventBookkeeper_p2( const EventBookkeeper_p2& rhs )
+  : m_childrenEB(0)
 {
-  m_name=rhs.m_name;
-  m_description=rhs.m_description;
-  m_inputstream=rhs.m_inputstream;
-  m_outputstream = rhs.m_outputstream;
-  m_logic = rhs.m_logic;
-  m_nAcceptedEvents=rhs.m_nAcceptedEvents;
-  m_nWeightedAcceptedEvents=rhs.m_nWeightedAcceptedEvents;
-  m_cycle=rhs.m_cycle;
-  //Make a new deep copy of the children by calling the constructor iteratively (as this becomes the new owner of these objects)
-  if (!rhs.m_childrenEB)
-    m_childrenEB = 0;
-  else {
-    m_childrenEB = new std::vector<EventBookkeeper_p2*>; 
-    for(unsigned int i=0; i<rhs.m_childrenEB->size(); i++){ 
-      EventBookkeeper_p2* child=new EventBookkeeper_p2(*rhs.m_childrenEB->at(i));
-      m_childrenEB->push_back(child); 
+  *this = rhs;
+}
+
+EventBookkeeper_p2& EventBookkeeper_p2::operator=( const EventBookkeeper_p2& rhs )
+{
+  if (this != &rhs) {
+    m_name=rhs.m_name;
+    m_description=rhs.m_description;
+    m_inputstream=rhs.m_inputstream;
+    m_outputstream = rhs.m_outputstream;
+    m_logic = rhs.m_logic;
+    m_nAcceptedEvents=rhs.m_nAcceptedEvents;
+    m_nWeightedAcceptedEvents=rhs.m_nWeightedAcceptedEvents;
+    m_cycle=rhs.m_cycle;
+    //Make a new deep copy of the children by calling the constructor iteratively (as this becomes the new owner of these objects)
+    delete m_childrenEB;
+    if (!rhs.m_childrenEB)
+      m_childrenEB = 0;
+    else {
+      m_childrenEB = new std::vector<EventBookkeeper_p2*>; 
+      for(unsigned int i=0; i<rhs.m_childrenEB->size(); i++){ 
+        EventBookkeeper_p2* child=new EventBookkeeper_p2(*rhs.m_childrenEB->at(i));
+        m_childrenEB->push_back(child); 
+      }
     }
   }
+  return *this;
 }
 
 EventBookkeeper_p2::~EventBookkeeper_p2()

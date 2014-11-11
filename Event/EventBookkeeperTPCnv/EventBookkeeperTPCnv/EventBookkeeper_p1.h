@@ -21,7 +21,6 @@ class EventBookkeeper_p1 {
   ///////////////////////////////////////////////////////////////////////
   
      EventBookkeeper_p1();
-  EventBookkeeper_p1(const EventBookkeeper_p1& rhs);
   ~EventBookkeeper_p1();
 
   std::string m_name;

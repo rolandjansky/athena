@@ -20,7 +20,6 @@ class SkimDecision_p1 {
   ///////////////////////////////////////////////////////////////////////
   
   SkimDecision_p1();
-  SkimDecision_p1(const SkimDecision_p1& rhs);
   ~SkimDecision_p1();
 
   std::string m_name;

@@ -22,6 +22,7 @@ class EventBookkeeper_p2 {
   
   EventBookkeeper_p2();
   EventBookkeeper_p2(const EventBookkeeper_p2& rhs);
+  EventBookkeeper_p2& operator=(const EventBookkeeper_p2& rhs);
   ~EventBookkeeper_p2();
   
   std::string m_name;

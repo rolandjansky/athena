@@ -13,10 +13,3 @@ SkimDecision_p1::SkimDecision_p1()
   m_isAccepted=true;
 }
 
-SkimDecision_p1::SkimDecision_p1( const SkimDecision_p1& rhs )
-{
-  m_name=rhs.m_name;
-  m_isAccepted=rhs.m_isAccepted;
-}
-
-
