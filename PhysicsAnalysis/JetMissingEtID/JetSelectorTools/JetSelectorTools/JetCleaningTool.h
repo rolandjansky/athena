@@ -69,7 +69,11 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     /** The D3PDReader accept method */
     const Root::TAccept& accept( const xAOD::Jet& jet) const;
 
-    int keep(const xAOD::Jet& jet) const final { return accept(jet); }
+    int keep(const xAOD::Jet& jet) const
+#if __cplusplus >= 201100
+                  final
+#endif // GCC XML, you make me so sad, with your lack of C++11 support making my code ugly
+                 { return accept(jet); }
 
     /** Helpers for cut names */
     CleaningLevel getCutLevel( const std::string ) const;

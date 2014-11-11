@@ -12,7 +12,7 @@
 ##=============================================================================
 
 # Import the needed general stuff
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import SetToolProperties
 from AthenaCommon import CfgMgr
 
 # Import the needed stuff specific to the JetCleaning

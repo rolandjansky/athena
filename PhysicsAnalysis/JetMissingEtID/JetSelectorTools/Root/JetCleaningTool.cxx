@@ -31,20 +31,16 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
 
 /** Cut-based constructor */
 JetCleaningTool::JetCleaningTool(const CleaningLevel alevel)
-  : asg::AsgTool( "JetCleaningTool_"+getCutName(alevel) )
-  , m_cutName("")
-  , cutLevel(alevel)
+  : JetCleaningTool( "JetCleaningTool_"+getCutName(alevel) )
 {
-  declareProperty( "CutLevel" , m_cutName = getCutName(alevel) );
+  cutLevel=alevel;
 }
 
 /** Cut and string based constructor */
 JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel alevel)
-  : asg::AsgTool(name)
-  , m_cutName("")
-  , cutLevel(alevel)
+  : JetCleaningTool(name)
 {
-  declareProperty( "CutLevel" , m_cutName = getCutName(alevel) );
+  cutLevel=alevel;
 }
 
 //=============================================================================
@@ -52,6 +48,11 @@ JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel a
 //=============================================================================
 StatusCode JetCleaningTool::initialize()
 {
+  if (UnknownCut==cutLevel){
+    ATH_MSG_ERROR( "Tool initialized with unknown cleaning level." );
+    return StatusCode::FAILURE;
+  }
+
   if (m_cutName!="") cutLevel = getCutLevel( m_cutName );
   ATH_MSG_INFO( "Configured with cut level " << getCutName( cutLevel ) );
 
@@ -155,13 +156,15 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 {
   std::vector<float> sumPtTrkvec;
   jet.getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );
+  double sumpttrk = 0;
+  if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
 
   return accept (jet.getAttribute<float>("EMFrac"),
                  jet.getAttribute<float>("HECFrac"),
                  jet.getAttribute<float>("LArQuality"),
                  jet.getAttribute<float>("HECQuality"),
                  jet.getAttribute<float>("Timing"),
-                 sumPtTrkvec[0],
+                 sumpttrk,
                  jet.eta(),
                  jet.pt(),
                  jet.getAttribute<float>("FracSamplingMax"),

@@ -16,7 +16,7 @@ PyCintex.Cintex.Enable()
 import ROOT
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 
 def JetCleaningToolConfig_VeryLoose(theTool) :

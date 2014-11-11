@@ -5,5 +5,6 @@ PACKAGE          = JetSelectorTools
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  =
 PACKAGE_DEP      = AsgTools PATCore xAODJet JetInterface
+PACKAGE_REFLEX   = 1
 
 include $(ROOTCOREDIR)/Makefile-common
