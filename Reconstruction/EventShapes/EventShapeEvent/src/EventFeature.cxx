@@ -119,22 +119,24 @@ EventFeature::~EventFeature()
 
 EventFeature& EventFeature::operator=(const EventFeature& feature)
 {
-  m_type           = feature.m_type;
-  m_tag            = feature.m_tag;
-  m_dataWords      = feature.m_dataWords;
-  m_dataBlocks     = feature.m_dataBlocks;
-  m_structureFixed = feature.m_structureFixed; 
-  if ( feature.m_dataList.empty() )
+  if (this != &feature) {
+    m_type           = feature.m_type;
+    m_tag            = feature.m_tag;
+    m_dataWords      = feature.m_dataWords;
+    m_dataBlocks     = feature.m_dataBlocks;
+    m_structureFixed = feature.m_structureFixed; 
+    if ( feature.m_dataList.empty() )
     {
       m_dataList.clear();
     }
-  else
+    else
     {
       m_dataList.resize(feature.m_dataList.size());
       std::copy(feature.m_dataList.begin(),feature.m_dataList.end(),
 		m_dataList.begin());
     }
-  this->setFeatureStructure();
+    this->setFeatureStructure();
+  }
   return *this;
 }
 

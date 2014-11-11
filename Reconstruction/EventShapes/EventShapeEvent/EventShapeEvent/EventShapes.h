@@ -46,9 +46,6 @@ class EventShapes
   
   EventShapes() : m_type(UNKNOWN) {};
   
-  EventShapes(const EventShapes& es)
-   : m_type(es.m_type), m_values(es.m_values) {};
-  
   EventShapes(EventShapeType type, double value)
    : m_type(type)
   { m_values.push_back(value); };

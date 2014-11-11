@@ -55,8 +55,7 @@ public:
    */
   EventEtDensity(double rho,double sigma,double area,
 		 const fastjet::RangeDefinition& range);
-  /*! @brief Copy constructor */
-  EventEtDensity(const EventEtDensity& data);
+  // Use default copy constructor.
   /*! @brief Destructor */
   ~EventEtDensity();
 
@@ -222,15 +221,6 @@ inline EventEtDensity::EventEtDensity(double rho,double sigma,double area,
   rhoSigma  = sigma;
   areaValue = area;
   range.get_rap_limits(etaRangeLow,etaRangeHigh); 
-}
-
-inline EventEtDensity::EventEtDensity(const EventEtDensity& data)
-{
-  rhoValue     = data.rhoValue;
-  rhoSigma     = data.rhoSigma;
-  areaValue    = data.areaValue;
-  etaRangeLow  = data.etaRangeLow;
-  etaRangeHigh = data.etaRangeHigh;
 }
 
 inline EventEtDensity::~EventEtDensity()
