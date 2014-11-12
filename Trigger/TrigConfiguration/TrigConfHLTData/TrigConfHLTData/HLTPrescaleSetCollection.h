@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -94,8 +96,8 @@ namespace TrigConf {
 
       HLTPrescaleSet* addPrescaleSet( const cont& add_psinfo );
 
-      mutable unsigned int m_currentLB {0};
-      mutable HLTPrescaleSet* m_currentPSS {nullptr};
+      mutable unsigned int m_currentLB;
+      mutable HLTPrescaleSet* m_currentPSS;
 
       std::list<cont> m_prescaleSets;         //!< all prescale sets with start lb      
 

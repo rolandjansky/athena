@@ -12,6 +12,10 @@ using namespace std;
 using namespace TrigConf;
 
 TrigConf::HLTPrescaleSetCollection::HLTPrescaleSetCollection()
+   : m_currentLB( 0 ),
+     m_currentPSS( nullptr ),
+     m_prescaleSets(),
+     m_prescaleSetCollection_mutex()
 {}
 
 HLTPrescaleSetCollection::~HLTPrescaleSetCollection() {

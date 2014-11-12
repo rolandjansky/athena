@@ -81,8 +81,8 @@ namespace TrigConf {
       HLTChainList              m_HLTChainList;    ///< list of HLT trigger chains (owned)
       HLTSequenceList           m_HLTSequenceList; ///< list of HLT trigger sequences (owned)
       HLTPrescaleSetCollection  m_hltPrescaleSets;  ///< the hlt prescale set (owned)
-      bool                      m_setMergedHLT; 
-      std::string               m_ConfigSrc;
+      bool                      m_setMergedHLT {false};
+      std::string               m_ConfigSrc {""};
 
       /**@brief TE labels <-> id conversion map*/
       std::map<std::string, unsigned int> m_str2idMap; 

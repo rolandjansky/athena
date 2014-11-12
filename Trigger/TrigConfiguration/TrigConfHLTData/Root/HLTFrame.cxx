@@ -25,9 +25,7 @@ using namespace TrigConf;
 
 // constructor
 HLTFrame::HLTFrame() :
-   TrigConfData(),
-   m_setMergedHLT(false),
-   m_ConfigSrc("")
+   TrigConfData()
 {}
 
 

@@ -89,12 +89,12 @@ namespace TrigConf {
    private:
 
       std::vector<HLTTriggerElement*> m_inputTEs;   //!< list of input trigger elements
-      HLTTriggerElement*              m_outputTE;   //!< list of output trigger elements (just 1)
+      HLTTriggerElement*              m_outputTE { nullptr };   //!< list of output trigger elements (just 1)
       std::vector<std::string>        m_algorithms; //!< list of algorithms
-      HLTTriggerElement*              m_topoStartTE; //!< only for topolical algorithms: specify output TE from previous topological Algo, for combinations
+      HLTTriggerElement*              m_topoStartTE { nullptr }; //!< only for topolical algorithms: specify output TE from previous topological Algo, for combinations
 
       // bit 0 - L2 / bit 1 - EF / bit 2 - HLT / bit 3 - unset
-      mutable unsigned int            m_level;      //!< level where sequence is running for a given configuration (to be determined in light of the menu, this
+      mutable unsigned int            m_level { 0 };      //!< level where sequence is running for a given configuration (to be determined in light of the menu, this
                                                     //!< is not a property of the chain per se.) In rare cases a sequence could be running explicitely in both levels
       void set() const { m_level &= 0x7; } 
                                              

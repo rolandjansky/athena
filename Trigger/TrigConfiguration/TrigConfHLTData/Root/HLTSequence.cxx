@@ -26,15 +26,18 @@ TrigConf::HLTSequence::HLTSequence( const vector<HLTTriggerElement*>& inputTEs,
                                     const vector<string>& algorithms) :
    m_inputTEs  ( inputTEs ),
    m_outputTE  ( outputTE ),
-   m_algorithms( algorithms ),
-   m_topoStartTE( 0 ),
-   m_level( 0 )
+   m_algorithms( algorithms )
 {
    setName(outputTE->name());
 }
 
 TrigConf::HLTSequence::~HLTSequence( )
-{}
+{
+   for(HLTTriggerElement* te : m_inputTEs)
+      delete te;
+   delete m_outputTE;
+   delete m_topoStartTE;
+}
 
 void
 TrigConf::HLTSequence::set_outputTE( HLTTriggerElement* outputTE ) {
