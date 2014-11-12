@@ -121,6 +121,7 @@ StatusCode PoolCollectionConverter::initialize() {
          // Prefix with PFN:
          m_connection = "PFN:" + m_inputCollection;
       }
+      m_poolCollection = 0;
       try {
          m_poolCollection = m_poolSvc->createCollection("RootCollection",
 	         m_connection,
@@ -132,6 +133,10 @@ StatusCode PoolCollectionConverter::initialize() {
          // Now set where to look in the implicit file
          m_inputCollection = m_inputContainer + "(DataHeader)";
       }
+/*
+      // Now set where to look in the implicit file
+      m_inputCollection = m_inputContainer + "(DataHeader)";
+*/
    }
    try {
       if (m_poolCollection == 0) {
