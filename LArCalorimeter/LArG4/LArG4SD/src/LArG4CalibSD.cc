@@ -358,7 +358,7 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
 
   // access for primary particle identifier of G4Track
   unsigned int particle_id = 0;
-  if( m_doCalibHitParticleID )
+  if( m_doCalibHitParticleID && m_event_info ) 
     particle_id = m_event_info->GetCurrentPrimary()->barcode();
 
   for(unsigned int i=0; i<m_hitMergers.size(); i++)
@@ -453,7 +453,7 @@ G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
 
   // retreive particle ID
   unsigned int particle_id = 0;
-  if( m_doCalibHitParticleID ) {
+  if( m_doCalibHitParticleID && m_event_info ) {
     particle_id = m_event_info->GetCurrentPrimary()->barcode();
   }
 
