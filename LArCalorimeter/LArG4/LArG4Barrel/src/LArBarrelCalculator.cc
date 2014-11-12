@@ -37,6 +37,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 
 #include "LArHV/LArHVManager.h"
 #include "LArHV/EMBHVManager.h"
@@ -153,16 +154,10 @@ LArBarrelCalculator::LArBarrelCalculator()
    if (IflCur) m_accmap = AccMap::GetAccMap();
    else        m_accmap = 0;
    if (IflCur) {
-        m_etamap1 = new MapEta(1);
-        m_etamap2 = new MapEta(2);
-        if (IflMapTrans) m_etamap3 = new MapEta(3);
-        else             m_etamap3 = 0;
+        m_etamap1 = CxxUtils::make_unique<MapEta>(1);
+        m_etamap2 = CxxUtils::make_unique<MapEta>(2);
+        if (IflMapTrans) m_etamap3 = CxxUtils::make_unique<MapEta>(3);
    } 
-   else {
-        m_etamap1=0;
-        m_etamap2=0;
-        m_etamap3=0;
-   }
    if (IflCur)
      std::cout << " LArBarrelCalculator: end of reading current maps" << std::endl;
 

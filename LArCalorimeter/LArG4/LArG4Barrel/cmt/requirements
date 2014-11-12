@@ -22,6 +22,7 @@ apply_pattern installed_library
 #macro_append LArG4Barrel_cppflags  " -DLARG4NOROOT -O -Wno-unused"
 
 private
+use CxxUtils         CxxUtils-*          Control
 use StoreGate        StoreGate-*         Control
 use GaudiInterface   GaudiInterface-*    External
 use LArG4RunControl  LArG4RunControl-*   LArCalorimeter/LArG4
