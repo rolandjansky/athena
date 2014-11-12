@@ -22,7 +22,7 @@ const ubit16 Matrix::NDLLCYC=8;
  // DLL period, ns
 const float  Matrix::DLLtime=BCtime/(float)NDLLCYC;
  // Number of Bunch-Crossings to be considered
-const sbit16 Matrix::NBunch=NOBXS;
+const sbit16 Matrix::NBunch= NOBXS;
  // Lenght of the CMA buffers
 const sbit16 Matrix::nclock=NDLLCYC*NBunch;
  // ReadOut offset in DLL steps
@@ -56,7 +56,7 @@ if(matrixDebug&1<<df) {
 }
 thisBC=0;                       // temporary initialization
 
- BCzero=3;
+BCzero=BCZERO;
 //BCzero=(nclock/NDLLCYC)/2;      // default initialization of BCzero
                                 // user setting by setBCzero
 
