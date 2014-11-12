@@ -13,6 +13,8 @@
 #include "GaudiKernel/IAlgTool.h"
 // Trk
 #include "TrkParameters/TrackParameters.h"
+#include "TrkExUtils/TrackSurfaceIntersection.h"
+
 
 namespace Trk
 {
@@ -22,7 +24,7 @@ namespace Trk
     class PlaneSurface;
     class StraightLineSurface;
     class Surface;
-    class TrackSurfaceIntersection;
+    class TrackIntersection;
   
     /** Interface ID for IIntersector*/  
     static const InterfaceID IID_IIntersector("IIntersector", 1, 0);
@@ -46,7 +48,6 @@ namespace Trk
     {
 
     protected:
-	typedef	Trk::TrackSurfaceIntersection	Intersection;
     
     public:
 
@@ -57,33 +58,33 @@ namespace Trk
 	static const InterfaceID& interfaceID() { return IID_IIntersector; }
 
 	/**IIntersector interface method for general Surface type */
-	virtual const Intersection* intersectSurface(const Surface&		surface,
-						     const Intersection*	trackIntersection,
+	virtual const TrackSurfaceIntersection* intersectSurface(const Surface&		surface,
+						     const TrackSurfaceIntersection*	trackIntersection,
 						     const double      		qOverP) = 0;
                
 	/**IIntersector interface method for specific Surface type : PerigeeSurface */
-	virtual const Intersection* approachPerigeeSurface(const PerigeeSurface&	surface,
-							   const Intersection*		trackIntersection,
+	virtual const TrackSurfaceIntersection* approachPerigeeSurface(const PerigeeSurface&	surface,
+							   const TrackSurfaceIntersection*		trackIntersection,
 							   const double      		qOverP) = 0;
 	
 	/**IIntersector interface method for specific Surface type : StraightLineSurface */
-	virtual const Intersection* approachStraightLineSurface(const StraightLineSurface& surface,
-								const Intersection*	trackIntersection,
+	virtual const TrackSurfaceIntersection* approachStraightLineSurface(const StraightLineSurface& surface,
+								const TrackSurfaceIntersection*	trackIntersection,
 								const double      	qOverP) = 0;
               
 	/**IIntersector interface method for specific Surface type : CylinderSurface */
-	virtual const Intersection* intersectCylinderSurface (const CylinderSurface&	surface,
-							      const Intersection*	trackIntersection,
+	virtual const TrackSurfaceIntersection* intersectCylinderSurface (const CylinderSurface&	surface,
+							      const TrackSurfaceIntersection*	trackIntersection,
 							      const double      	qOverP) = 0;
 
 	/**IIntersector interface method for specific Surface type : DiscSurface */
-	virtual const Intersection* intersectDiscSurface (const DiscSurface&	surface,
-							  const Intersection*	trackIntersection,
+	virtual const TrackSurfaceIntersection* intersectDiscSurface (const DiscSurface&	surface,
+							  const TrackSurfaceIntersection*	trackIntersection,
 							  const double      	qOverP) = 0;
 
 	/**IIntersector interface method for specific Surface type : PlaneSurface */
-	virtual const Intersection* intersectPlaneSurface(const PlaneSurface&	surface,
-							  const Intersection*	trackIntersection,
+	virtual const TrackSurfaceIntersection* intersectPlaneSurface(const PlaneSurface&	surface,
+							  const TrackSurfaceIntersection*	trackIntersection,
 							  const double      	qOverP) = 0;
  
 	/**IIntersector interface method
