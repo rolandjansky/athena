@@ -800,3 +800,10 @@ getDecoration
 AthenaOutputStream
 attr
 MacOS
+setOption
+AUXDATAOPTION
+IAuxSetOption
+PackedContainer
+IAuxTypeVectorFactory
+objType
+toPacked

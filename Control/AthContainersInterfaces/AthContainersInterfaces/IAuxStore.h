@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxStore.h 599872 2014-06-02 13:08:41Z ssnyder $
+// $Id: IAuxStore.h 626146 2014-11-04 19:59:30Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxStore.h
  * @author scott snyder <snyder@bnl.gov>
@@ -38,6 +38,9 @@
 
 
 namespace SG {
+
+
+class AuxDataOption;
 
 
 /**
@@ -129,6 +132,20 @@ public:
    * (running destructors as appropriate).
    */
   virtual void shift (size_t pos, ptrdiff_t offs) = 0;
+
+
+  /**
+   * @brief Set an option for a given auxiliary variable.
+   * @param auxid The identifier of the desired aux data item.
+   * @param option The option to set.
+   *
+   * The interpretation of the option depends on the particular representation
+   * of the variable.
+   *
+   * Returns true if the option setting was successful; false otherwise.
+   */
+  virtual bool setOption (auxid_t /*auxid*/, const AuxDataOption& /*option*/)
+  { return false; }
 };
 
 

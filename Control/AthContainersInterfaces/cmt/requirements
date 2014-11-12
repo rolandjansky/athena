@@ -16,4 +16,5 @@ private
 use TestTools      TestTools-*         AtlasTest 
 
 apply_pattern UnitTest_run unit_test=AuxStore_traits
+apply_pattern UnitTest_run unit_test=AuxDataOption
   

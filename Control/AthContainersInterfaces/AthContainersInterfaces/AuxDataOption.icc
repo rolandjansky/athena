@@ -1,0 +1,94 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainersInterfaces/AuxDataOption.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Oct, 2014
+ * @brief Hold information about an option setting request.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor, with an integer value.
+ * @param name The option name.
+ * @param val The option value.
+ */
+inline
+AuxDataOption::AuxDataOption (const std::string& name, int val)
+  : m_name (name),
+    m_isInt(true)
+{
+  m_val.i = val;
+}
+
+
+/**
+ * @brief Constructor, with a float value.
+ * @param name The option name.
+ * @param val The option value.
+ */
+inline
+AuxDataOption::AuxDataOption (const std::string& name, float val)
+  : m_name (name),
+    m_isInt(false)
+{
+  m_val.f = val;
+}
+
+/**
+ * @brief Constructor, with a double value.
+ * @param name The option name.
+ * @param val The option value.
+ */
+inline
+AuxDataOption::AuxDataOption (const std::string& name, double val)
+  : m_name (name),
+    m_isInt(false)
+{
+  m_val.f = val;
+}
+
+
+/**
+ * @brief The name of the option.
+ */
+inline
+std::string AuxDataOption::name() const
+{
+  return m_name;
+}
+
+
+/**
+ * @brief Return the option value as an integer.
+ */
+inline
+int AuxDataOption::intVal() const
+{
+  if (m_isInt)
+    return m_val.i;
+  else
+    return m_val.f;
+}
+
+
+/**
+ * @brief Return the option value as a float.
+ */
+inline
+float AuxDataOption::floatVal() const
+{
+  if (m_isInt)
+    return m_val.i;
+  else
+    return m_val.f;
+}
+
+
+} // namespace SG

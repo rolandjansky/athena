@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IConstAuxStore.h 612955 2014-08-21 19:25:10Z ssnyder $
+// $Id: IConstAuxStore.h 612954 2014-08-21 19:25:01Z ssnyder $
 /**
  * @file AthContainersInterfaces/IConstAuxStore.h
  * @author scott snyder <snyder@bnl.gov>

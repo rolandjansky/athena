@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxTypeVector.h 612955 2014-08-21 19:25:10Z ssnyder $
+// $Id: IAuxTypeVector.h 627925 2014-11-12 16:36:20Z ssnyder $
 /**
  * @file AthContainersInterfaces/IAuxTypeVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -21,6 +21,9 @@
 
 
 namespace SG {
+
+
+class AuxDataOption;
 
 
 /**
@@ -100,6 +103,48 @@ public:
    * (running destructors as appropriate).
    */
   virtual void shift (size_t pos, ptrdiff_t offs) = 0;
+
+
+  /**
+   * @brief Set an option for this variable.
+   * @param option The option to set.
+   *
+   * The interpretation of the option depends on the particular representation
+   * of the variable provided by the concrete class.
+   *
+   * Returns true if the option setting was successful; false otherwise.
+   */
+  virtual bool setOption (const AuxDataOption& /*option*/)
+  { return false; }
+
+
+  /**
+   * @brief Make a packed version of the variable.
+   *
+   * If possible, return a new vector object that stores the data
+   * in a @c PackedContainer.  The data itself should be _moved_
+   * to the new container (so that this vector becomes empty).
+   * This ensures that pointers to the data are preserved.
+   *
+   * If successful, a newly-allocated object is returned.
+   * A null pointer is returned on failure (operation not supported,
+   * type can't be packed, type is already packed).
+   */
+  virtual IAuxTypeVector* toPacked() { return 0; }
+
+
+  /**
+   * @brief Return the type of the complete object to be saved.
+   *
+   * For example, if the object is a @c std::vector, then we return
+   * the @c type_info of the vector.  But if we're holding
+   * a @c PackedContainer, then we return the @c type_info of the
+   * @c PackedContainer.
+   *
+   * Can return null if the operation is not supported.  In that case,
+   * I/O will use the type found from the variable registry.
+   */
+  virtual const std::type_info* objType() const { return 0; }
 };
 
 

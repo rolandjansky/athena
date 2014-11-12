@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStore_traits_test.cxx 581163 2014-02-03 10:40:22Z krasznaa $
+// $Id: AuxStore_traits_test.cxx 627017 2014-11-07 21:46:42Z ssnyder $
 /**
  * @file AthContainersInterfaces/test/AuxStore_traits_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -11,6 +11,7 @@
  */
 
 
+#undef NDEBUG
 #include "AthContainersInterfaces/AuxStore_traits.h"
 #include "AthContainersInterfaces/CLASS_AUXSTORE.h"
 #include <iostream>
