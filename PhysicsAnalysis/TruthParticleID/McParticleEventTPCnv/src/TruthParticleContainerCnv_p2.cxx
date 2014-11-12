@@ -155,11 +155,7 @@ TruthParticleContainerCnv_p2::transToPers( const TruthParticleContainer* /*trans
       << endreq;
 
   throw std::runtime_error( "Retired TruthParticleContainerCnv_p2::transToPers() !!" );
-
-  msg << MSG::DEBUG 
-      << "Created persistent state of TruthParticleContainer [OK]"
-      << endreq;
-  return;
+  // not reached
 }
 
 /////////////////////////////////////////////////////////////////// 

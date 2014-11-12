@@ -54,6 +54,9 @@ class T_TPCnv<TruthParticleContainer, TruthParticleContainer_p4>
   T_TPCnv();
   ~T_TPCnv();
 
+  T_TPCnv(const T_TPCnv&) = delete;
+  T_TPCnv& operator= (const T_TPCnv&) = delete;
+
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
   ///////////////////////////////////////////////////////////////////

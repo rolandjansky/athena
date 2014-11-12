@@ -8,23 +8,26 @@ use GaudiInterface	GaudiInterface-*		External
 use AtlasBoost		AtlasBoost-*			External
 use AtlasROOT		AtlasROOT-*			    External
 use AtlasReflex		AtlasReflex-*			External
-use AtlasHepMC		AtlasHepMC-*			External
 
-use AthenaKernel    AthenaKernel-*          Control
 use DataModelAthenaPool DataModelAthenaPool-*		Control
-use StoreGate		StoreGate-*			Control
 
 use AthenaPoolCnvSvc	AthenaPoolCnvSvc-*		Database/AthenaPOOL
 
 use GeneratorObjects	GeneratorObjects-*		Generators
 
-use McParticleKernel	McParticleKernel-*		PhysicsAnalysis/TruthParticleID
 use McParticleEvent	McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+
+private
+use AtlasHepMC		AtlasHepMC-*			External
+use StoreGate		StoreGate-*			Control
+use AthenaKernel    AthenaKernel-*          Control
+use McParticleKernel	McParticleKernel-*		PhysicsAnalysis/TruthParticleID
+end_private
 
 branches McParticleEventTPCnv src
 
 private
-macro_append ROOT_linkopts " -lEG"
+apply_tag ROOTEGLibs
 end_private
 
 library McParticleEventTPCnv *.cxx
@@ -33,7 +36,6 @@ apply_pattern tpcnv_library
 
 apply_pattern lcgdict dict=McParticleEventTPCnv selectionfile=selection.xml headerfiles="-s=${McParticleEventTPCnv_root}/McParticleEventTPCnv McParticleEventTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_McParticleEventTPCnv selectionfile=OLD_selection.xml headerfiles="-s=${McParticleEventTPCnv_root}/McParticleEventTPCnv McParticleEventTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_McParticleEventTPCnv selectionfile=ARA_selection.xml headerfiles="-s=${McParticleEventTPCnv_root}/McParticleEventTPCnv McParticleEventTPCnvDict.h"
 
 macro_append McParticleEventTPCnvDict_dependencies  " McParticleEventTPCnv"
 

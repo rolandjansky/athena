@@ -21,21 +21,12 @@
 
 #include "McParticleEventTPCnv/TruthEtIsolationsContainer_p1.h"
 
-#include "McParticleEventTPCnv/TruthParticleContainerCnv_p5.h"
-#include "McParticleEventTPCnv/TruthParticleContainerCnv_p6.h"
-#include "McParticleEventTPCnv/RootTruthParticleContainerCnv_p4.h"
-
-#include "McParticleEventTPCnv/TruthEtIsolationsContainerCnv_p1.h"
-
 
 namespace McParticleEventTPCnv_dict {
 
   struct tmp {
     TruthEtIsolations_p1::EtIsolMap_t m_etIsolMap_p1;
     TruthEtIsolations_p1::EtIsolBc_t  m_etIsolBc_p1;
-
-    T_TPCnv<TruthParticleContainer, TruthParticleContainer_p4> m_truthparticlecontainer_p4;
-
   };
 
 } //> namespace McParticleEventTPCnv_dict
