@@ -457,7 +457,10 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
   // setup up G4Material ---------------------------------------------------------------------------
   // if not available on input, take Al
-  if (!ematprop) ematprop=new Trk::Material(88.93,388.62,26.98,13.,0.0027);
+  if (!ematprop) {
+    Trk::Material defMat(88.93,388.62,26.98,13.,0.0027); 
+    ematprop=&defMat;
+  }
   //
   // make Z being an integeter
   int  iZ = boost::math::iround(ematprop->averageZ());
@@ -477,6 +480,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   // sanity checks
   if(g4mat == 0 || g4elem ==0) {
     ATH_MSG_WARNING ( " Unable to create G4Material or G4Element with Z=" << iZ << " --> skipping hadronic interaction");
+    if (g4mat) delete g4mat;
     return chDef;
   }
   // add the G4Element to our material
