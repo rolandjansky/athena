@@ -59,6 +59,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                  << G4endl;
           G4Exception("EscapedEnergyProcessing", "InvalidDefaultCalculator", FatalException,
                       "Process: No appropriate default calculator");
+          std::abort();
         }
     }
 
