@@ -7,7 +7,7 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "ParticleEvent/ParticleBaseContainer.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include <TMath.h>
 #include <algorithm>
 
@@ -54,7 +54,7 @@ StatusCode TruthJetWeightFilter::filterInitialize() {
   ATH_MSG_INFO("maxEtaRange = " << m_maxEtaRange);
 
   ATH_MSG_INFO("deactivateFilter = " << m_deactivateFilter);
-  ATH_MSG_INFO("TruthJetContainer=" << m_TruthJetContainerName);
+  ATH_MSG_INFO("xAOD::JetContainer=" << m_TruthJetContainerName);
 
   ATH_MSG_INFO("samplingRandomSeed = " << m_samplingRandomSeed);
   m_rand = new TRandom3(m_samplingRandomSeed);
@@ -96,12 +96,12 @@ StatusCode TruthJetWeightFilter::filterEvent() {
 StatusCode TruthJetWeightFilter::getEffJetPt(double &prob) {
   StatusCode sc = StatusCode::SUCCESS;
 
-  const JetCollection* truthjetTES;
+  const xAOD::JetContainer* truthjetTES;
   CHECK(evtStore()->retrieve(truthjetTES, m_TruthJetContainerName));
-  ATH_MSG_DEBUG("TruthJet container size = " << truthjetTES->size());
+  ATH_MSG_DEBUG("xAOD::JetContainer size = " << truthjetTES->size());
   double leadpartupw = 1.;
-  JetCollection::const_iterator it_truth = truthjetTES->begin();
-  const Jet* leadingJet = 0;
+  xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin();
+  const xAOD::Jet* leadingJet = 0;
   double leadingJetPt = m_minPt;
 
   for (int i = 0; it_truth != truthjetTES->end(); ++it_truth, i++) {
@@ -109,7 +109,10 @@ StatusCode TruthJetWeightFilter::getEffJetPt(double &prob) {
     if (m_maxEtaRange > 0. && TMath::Abs((*it_truth)->eta()) > m_maxEtaRange) continue;
     double jetpt = (*it_truth)->pt()/Gaudi::Units::GeV;
 
-    if (m_weightAlgorithm == 2 || m_weightAlgorithm == 4) jetpt = getRescaledJetPt((*it_truth)->hlv())/Gaudi::Units::GeV;
+    TLorentzVector jet_tlv = (*it_truth)->p4();
+    CLHEP::HepLorentzVector jet_hlv(jet_tlv.Px(), jet_tlv.Py(), jet_tlv.Pz(), jet_tlv.E());
+
+    if (m_weightAlgorithm == 2 || m_weightAlgorithm == 4) jetpt = getRescaledJetPt(jet_hlv)/Gaudi::Units::GeV;
     if (leadingJet == 0 || jetpt > leadingJetPt) {
       leadingJet = (*it_truth);
       leadingJetPt = jetpt;
@@ -118,7 +121,7 @@ StatusCode TruthJetWeightFilter::getEffJetPt(double &prob) {
     if (m_weightAlgorithm == 3 || m_weightAlgorithm == 4) {
       CLHEP::HepLorentzVector lead, sublead, leadchg, highm5, highm10;
       double newleadpartupw = 1.;
-      getLeadTruthParts((*it_truth)->hlv(), lead, sublead, leadchg, highm5, highm10);
+      getLeadTruthParts(jet_hlv, lead, sublead, leadchg, highm5, highm10);
       if (lead.perp()/Gaudi::Units::GeV > m_minPtLeadUpweight) {
         if (sublead.perp() <= 0. || lead.perp()/sublead.perp() > 10.) {
           newleadpartupw = 10.;
@@ -158,13 +161,13 @@ StatusCode TruthJetWeightFilter::getEffJetPt(double &prob) {
 
 StatusCode TruthJetWeightFilter::getEffJetSubinfo(double &prob) {
   StatusCode sc = StatusCode::SUCCESS;
-  const JetCollection* truthjetTES;
+  const xAOD::JetContainer* truthjetTES;
   CHECK(evtStore()->retrieve(truthjetTES, m_TruthJetContainerName));
-  ATH_MSG_DEBUG("TruthJet container size = " << truthjetTES->size());
+  ATH_MSG_DEBUG("xAOD::JetContainer size = " << truthjetTES->size());
 
   prob = m_minEfficiency;
   double maxmva = -999.;
-  JetCollection::const_iterator it_truth = truthjetTES->begin();
+  xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin();
   for (int i = 0; it_truth != truthjetTES->end(); ++it_truth, i++) {
     ATH_MSG_DEBUG("TruthJet #" << i << " pt "  <<(*it_truth)->pt()/Gaudi::Units::GeV << " eta "  <<(*it_truth)->eta());
 
@@ -175,7 +178,10 @@ StatusCode TruthJetWeightFilter::getEffJetSubinfo(double &prob) {
     std::vector <double> jetvalues;
     jetvalues.reserve(15);
     jetvalues.push_back((*it_truth)->pt()/Gaudi::Units::GeV);
-    getJetSubinfo((*it_truth)->hlv(), jetvalues);
+
+    TLorentzVector jet_tlv = (*it_truth)->p4();
+    CLHEP::HepLorentzVector jet_hlv(jet_tlv.Px(), jet_tlv.Py(), jet_tlv.Pz(), jet_tlv.E());
+    getJetSubinfo(jet_hlv, jetvalues);
 
     ATH_MSG_DEBUG("ptj, egcore, hadcore," << " leadpt, leadptchg, highmom5");
     for (unsigned int ii = 0; ii < jetvalues.size(); ii++) ATH_MSG_DEBUG(jetvalues[ii]);

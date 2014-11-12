@@ -7,13 +7,13 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "ParticleEvent/ParticleBaseContainer.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 
 
 // Pt  High --> Low
 class High2LowByJetClassPt {
 public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
     return (t1->pt() > t2->pt());
   }
 };
@@ -43,7 +43,7 @@ VBFForwardJetsFilter::VBFForwardJetsFilter(const std::string & name, ISvcLocator
 
 StatusCode VBFForwardJetsFilter::filterInitialize() {
   ATH_MSG_INFO("*** Jet selection ***");
-  ATH_MSG_INFO("TruthJetContainer=" <<  m_TruthJetContainerName);
+  ATH_MSG_INFO("xAOD::JetContainer=" <<  m_TruthJetContainerName);
   ATH_MSG_INFO("JetMinPt=" << m_JetMinPt);
   ATH_MSG_INFO("JetMaxEta=" << m_JetMaxEta);
   ATH_MSG_INFO("*** Apply number of jets(=Nj)? ***");
@@ -87,9 +87,9 @@ StatusCode VBFForwardJetsFilter::filterInitialize() {
 
 
 StatusCode VBFForwardJetsFilter::filterEvent() {
-  const JetCollection* truthjetTES;
+  const xAOD::JetContainer* truthjetTES;
   CHECK(evtStore()->retrieve(truthjetTES, m_TruthJetContainerName));
-  ATH_MSG_DEBUG("TruthJet container size = " << truthjetTES->size());
+  ATH_MSG_DEBUG("xAOD::JetContainer size = " << truthjetTES->size());
 
   // Get MCTruth Photon/Electon/Tau(HadronicDecay)
   std::vector<HepMC::GenParticle*> MCTruthPhotonList;
@@ -142,8 +142,8 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   }
 
   // Select TruthJets
-  std::vector<const Jet*> jetList;
-  for (JetCollection::const_iterator it_truth = truthjetTES->begin(); it_truth != truthjetTES->end(); ++it_truth) {
+  std::vector<const xAOD::Jet*> jetList;
+  for (xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin(); it_truth != truthjetTES->end(); ++it_truth) {
     if ( (*it_truth)->pt() > m_JetMinPt && fabs( (*it_truth)->eta() ) < m_JetMaxEta ) {
       jetList.push_back(*it_truth);
       ATH_MSG_INFO("jet pt(Gaudi::Units::GeV) = " << (*it_truth)->pt()/Gaudi::Units::GeV << " eta = " << (*it_truth)->eta());
@@ -164,7 +164,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   if (m_Jet1MinPt >= 0.) {
     flag1stJet = 0;
     if (jetList.size() >= 1) {
-      const Jet *j1 = jetList[0];
+      const xAOD::Jet *j1 = jetList[0];
       if (j1->pt() > m_Jet1MinPt && fabs(j1->eta()) < m_Jet1MaxEta) {
         flag1stJet = 1;
       }
@@ -176,7 +176,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   if (m_Jet2MinPt >= 0.) {
     flag2ndJet = 0;
     if (jetList.size() >= 2) {
-      const Jet *j2 = jetList[1];
+      const xAOD::Jet *j2 = jetList[1];
       if (j2->pt() > m_Jet2MinPt && fabs(j2->eta()) < m_Jet2MaxEta) {
         flag2ndJet = 1;
       }
@@ -188,8 +188,8 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   if (m_UseOppositeSignEtaJet1Jet2) {
     flagSign = 0;
     if (jetList.size() >= 2) {
-      const Jet *j1 = jetList[0];
-      const Jet *j2 = jetList[1];
+      const xAOD::Jet *j1 = jetList[0];
+      const xAOD::Jet *j2 = jetList[1];
       if (j1->eta()*j2->eta() < 0.) flagSign = 1;
     }
   }
@@ -204,7 +204,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
       for (unsigned i=0;i<jetList.size()-1;++i) {
         for (unsigned j=i+1;j<jetList.size();++j) {
           double dEta = fabs(jetList[i]->eta()-jetList[j]->eta());
-          double Mjj = (jetList[i]->hlv()+jetList[j]->hlv()).mag();
+          double Mjj = (jetList[i]->p4()+jetList[j]->p4()).M();
           ATH_MSG_INFO("DeltaEtaJJ = " << dEta << " MassJJ(CLHEP::GeV) = " << Mjj/CLHEP::GeV << " (" << i << ", " << j << ")");
           if (okDeltaEtaJJ == 0 && dEta > m_DeltaEtaJJ) okDeltaEtaJJ = 1;
           if (okMassJJ == 0 && Mjj > m_MassJJ) okMassJJ = 1;
@@ -257,7 +257,7 @@ CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenPa
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const Jet *jet, std::vector<HepMC::GenParticle*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepMC::GenParticle*> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
     if (list[i]->momentum().perp() != 0.) {
@@ -274,7 +274,7 @@ double VBFForwardJetsFilter::getMinDeltaR(const Jet *jet, std::vector<HepMC::Gen
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const Jet *jet, std::vector<CLHEP::HepLorentzVector*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHEP::HepLorentzVector*> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
     if (list[i]->vect().perp() != 0.) {
@@ -291,14 +291,14 @@ double VBFForwardJetsFilter::getMinDeltaR(const Jet *jet, std::vector<CLHEP::Hep
 }
 
 
-void VBFForwardJetsFilter::removePseudoJets( std::vector<const Jet*> &jetList,
+void VBFForwardJetsFilter::removePseudoJets( std::vector<const xAOD::Jet*> &jetList,
                                              std::vector<HepMC::GenParticle*> &MCTruthPhotonList,
                                              std::vector<HepMC::GenParticle*> &MCTruthElectronList,
                                              std::vector<CLHEP::HepLorentzVector*>   &MCTruthTauList) {
-  std::vector<const Jet*> orgJetList = jetList;
+  std::vector<const xAOD::Jet*> orgJetList = jetList;
   jetList.clear();
   for (unsigned i=0;i<orgJetList.size();++i) {
-    const Jet *jet = orgJetList[i];
+    const xAOD::Jet *jet = orgJetList[i];
     double dR1 = getMinDeltaR(jet,MCTruthPhotonList);
     double dR2 = getMinDeltaR(jet,MCTruthElectronList);
     double dR3 = getMinDeltaR(jet,MCTruthTauList);

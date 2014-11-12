@@ -10,7 +10,7 @@
 #include "GaudiKernel/AlgFactory.h"
 
 // Used for retrieving the collection
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
@@ -81,17 +81,17 @@ StatusCode HTFilter::filterEvent() {
   m_total++; // Book keeping
 
   // Get jet container out
-  const DataHandle<JetCollection> truthjetTES = 0;
-  if ( !m_storeGate->contains<JetCollection>( m_TruthJetContainerName ) ||
+  const DataHandle<xAOD::JetContainer> truthjetTES = 0;
+  if ( !m_storeGate->contains<xAOD::JetContainer>( m_TruthJetContainerName ) ||
         m_storeGate->retrieve( truthjetTES, m_TruthJetContainerName).isFailure() || !truthjetTES ){
-    (*m_log) << MSG::INFO << "No JetCollection found in StoreGate with key " << m_TruthJetContainerName << endreq; 
+    (*m_log) << MSG::INFO << "No xAOD::JetContainer found in StoreGate with key " << m_TruthJetContainerName << endreq; 
     setFilterPassed(m_MinHT<1.);  
     return StatusCode::SUCCESS;
   }
 
   // Get HT
   double HT = -1;
-  for (JetCollection::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
+  for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
     if ( (*it_truth)->pt()>m_MinPt*CLHEP::GeV && abs((*it_truth)->eta())<m_MaxEta ) HT += (*it_truth)->pt();
   }

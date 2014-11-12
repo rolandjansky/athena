@@ -21,12 +21,11 @@
 // Other classes used by this class:-
 #include <math.h>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
-#include "JetEvent/JetConstituentIterator.h"
+#include "xAODJet/JetContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
 #include "TRandom3.h"
+#include "TLorentzVector.h"
 
 
 using HepMC::GenVertex;
@@ -97,20 +96,20 @@ StatusCode DiBjetFilter::filterEvent() {
   bool pass = false;
   m_Nevt++;
 
-  const JetCollection* truthjetTES = 0;
+  const xAOD::JetContainer* truthjetTES = 0;
   StatusCode sc=evtStore()->retrieve( truthjetTES, m_TruthJetContainerName);
   if( sc.isFailure()  ||  !truthjetTES ) {
     msg(MSG::WARNING)
-	<< "No TruthJet container found in TDS " << m_TruthJetContainerName \
+	<< "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
 	<< sc.isFailure() << " "<<   !truthjetTES
 	<< endreq;
     return StatusCode::SUCCESS;
   }
 
   bool passLeadJetCut = false;
-  JetCollection::const_iterator jitr;
+  xAOD::JetContainer::const_iterator jitr;
   double lead_jet_pt = 0.0;
-  std::vector<JetCollection::const_iterator> jets;
+  std::vector<xAOD::JetContainer::const_iterator> jets;
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
     if( (*jitr)->pt() > lead_jet_pt ){
        lead_jet_pt = (*jitr)->pt();
@@ -121,7 +120,7 @@ StatusCode DiBjetFilter::filterEvent() {
   }
 
   if( lead_jet_pt > m_leadJet_ptMin && lead_jet_pt < m_leadJet_ptMax ) passLeadJetCut = true;
-    
+
   int bJetCounter = 0; 
   double weight = 1;
   McEventCollection::const_iterator itr;
@@ -139,8 +138,8 @@ StatusCode DiBjetFilter::filterEvent() {
     for(uint i = 0; i < jets.size(); i++){   
       for(uint j = 0; j < bHadrons.size(); j++){
 	HepMC::FourVector tmp = (*bHadrons[j])->momentum();
-	CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
-	double dR = (*jets[i])->hlv().deltaR(genpart);
+	TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+	double dR = (*jets[i])->p4().DeltaR(genpart);
 	if(dR<m_deltaRFromTruth){ 
 	  bJetCounter++;
 	  break;
@@ -151,8 +150,8 @@ StatusCode DiBjetFilter::filterEvent() {
 
   m_SumOfWeigths_Evt += weight;
 
-  pass = (bJetCounter > 1) && passLeadJetCut;
-  if( (bJetCounter < 2) && m_AcceptSomeLightEvents 
+  pass = (bJetCounter >= 2) && passLeadJetCut;
+  if( (bJetCounter <= 1) && m_AcceptSomeLightEvents 
       && m_ranNumGen->Uniform() < (1.0 / m_LightJetSuppressionFactor ) 
       && passLeadJetCut ){
     /* Modify event weight to account for light jet prescale */

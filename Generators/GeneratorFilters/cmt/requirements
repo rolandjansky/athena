@@ -6,8 +6,8 @@ use GeneratorModules    GeneratorModules-*    Generators
 use AtlasCLHEP          AtlasCLHEP-*          External
 use AtlasHepMC          AtlasHepMC-*          External
 use AtlasROOT           AtlasROOT-*           External
-use JetEvent            JetEvent-*            Reconstruction/Jet
 use StoreGate           StoreGate-*           Control
+use xAODJet             xAODJet-*             Event/xAOD
 
 private
 use HepPDT              *                     LCG_Interfaces

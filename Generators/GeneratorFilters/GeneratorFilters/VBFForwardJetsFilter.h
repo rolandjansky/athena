@@ -8,7 +8,7 @@
 #include "GeneratorModules/GenFilter.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <vector>
-class Jet;
+#include "xAODJet/Jet.h"
 
 
 /// Filter of the type of VBF forward jets
@@ -41,12 +41,12 @@ private:
   std::string m_TruthJetContainerName;
 
   CLHEP::HepLorentzVector sumDaughterNeutrinos(HepMC::GenParticle* tau);
-  void removePseudoJets(std::vector<const Jet*>& jetList,
+  void removePseudoJets(std::vector<const xAOD::Jet*>& jetList,
                         std::vector<HepMC::GenParticle*>& MCTruthPhotonList,
                         std::vector<HepMC::GenParticle*>& MCTruthElectronList,
                         std::vector<CLHEP::HepLorentzVector*>  & MCTruthTauList);
-  double getMinDeltaR(const Jet* jet, std::vector<HepMC::GenParticle*>& list);
-  double getMinDeltaR(const Jet* jet, std::vector<CLHEP::HepLorentzVector*>& list);
+  double getMinDeltaR(const xAOD::Jet* jet, std::vector<HepMC::GenParticle*>& list);
+  double getMinDeltaR(const xAOD::Jet* jet, std::vector<CLHEP::HepLorentzVector*>& list);
 };
 
 #endif

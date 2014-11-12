@@ -4,7 +4,7 @@
 
 #include "GeneratorFilters/HeavyFlavorHadronFilter.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "CxxUtils/BasicTypes.h"
 #include <cmath>
 
@@ -70,11 +70,11 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
 
   m_Nevt++;
 
-  std::vector<JetCollection::const_iterator> jets;
+  std::vector<xAOD::JetContainer::const_iterator> jets;
   if (m_RequireTruthJet) {
-    const JetCollection* truthjetTES;
+    const xAOD::JetContainer* truthjetTES;
     CHECK(evtStore()->retrieve( truthjetTES, m_TruthJetContainerName));
-    for (JetCollection::const_iterator j = truthjetTES->begin(); j != truthjetTES->end() ; ++j) {
+    for (xAOD::JetContainer::const_iterator j = truthjetTES->begin(); j != truthjetTES->end() ; ++j) {
       if ((*j)->pt() > m_jetPtMin && fabs((*j)->eta()) < m_jetEtaMax) {
         jets.push_back(j);
       }
@@ -99,9 +99,9 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
           fabs((*pitr)->momentum().pseudoRapidity())<m_bEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = (*pitr)->momentum();
-          CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+          TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
-            double dR = (*jets[i])->hlv().deltaR(genpart);
+            double dR = (*jets[i])->p4().DeltaR(genpart);
             if (dR<m_deltaRFromTruth) bPass=true;
           }
         } else {
@@ -121,9 +121,9 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
           fabs((*pitr)->momentum().pseudoRapidity())<m_cEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = (*pitr)->momentum();
-          CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+          TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
-            double dR = (*jets[i])->hlv().deltaR(genpart);
+            double dR = (*jets[i])->p4().DeltaR(genpart);
             if (dR<m_deltaRFromTruth) cPass=true;
           }
         } else {
@@ -139,9 +139,9 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
           fabs((*pitr)->momentum().pseudoRapidity())<m_bottomEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = (*pitr)->momentum();
-          CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+          TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
-            double dR = (*jets[i])->hlv().deltaR(genpart);
+            double dR = (*jets[i])->p4().DeltaR(genpart);
             if (dR < m_deltaRFromTruth) BHadronPass=true;
           }
         } else {
@@ -157,9 +157,9 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
           fabs((*pitr)->momentum().pseudoRapidity())<m_charmEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = (*pitr)->momentum();
-          CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+          TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (uint i=0; i<jets.size(); i++) {
-            double dR = (*jets[i])->hlv().deltaR(genpart);
+            double dR = (*jets[i])->p4().DeltaR(genpart);
             if (dR < m_deltaRFromTruth) DHadronPass=true;
           }
         } else {
@@ -176,9 +176,9 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
           fabs((*pitr)->momentum().pseudoRapidity()) < m_PDGEtaMax) {
         if (m_RequireTruthJet) {
           HepMC::FourVector tmp = (*pitr)->momentum();
-          CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+          TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
           for (size_t i = 0; i < jets.size(); ++i) {
-            double dR = (*jets[i])->hlv().deltaR(genpart);
+            double dR = (*jets[i])->p4().DeltaR(genpart);
             if (dR < m_deltaRFromTruth) PDGIDPass = true;
           }
         } else {
