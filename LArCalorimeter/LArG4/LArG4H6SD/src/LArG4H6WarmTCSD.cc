@@ -36,7 +36,10 @@ static FADS::SensitiveDetectorEntryT<LArG4H6WarmTCSD> WarmTC_SDY("LArG4H6WarmTC:
 static FADS::SensitiveDetectorEntryT<LArG4H6WarmTCSD> WarmTC_SDAbs("LArG4H6WarmTC::Abs");
 
 
-LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name) :FADS::FadsSensitiveDetector(name), m_Collection(0)
+LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name) :
+  FADS::FadsSensitiveDetector(name),
+  m_Collection(0),
+  m_CalibSD(0)
 {
   if(name.find("::Abs")!=std::string::npos){
     collectionName.insert("WarmTCAbsCollection");
