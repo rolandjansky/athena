@@ -16,7 +16,30 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ListItem.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaKernel/errorcheck.h"
+#include "InDetIdentifier/PixelID.h"
+
 #include <cmath>
+#include <stdexcept>
+#include <sstream>
+
+const char *Trk::RIO_OnTrackErrorScalingTool::s_pix_names[Trk::RIO_OnTrackErrorScalingTool::kNPixParamTypes]={
+    "PixPhi Barrel",
+    "PixEta Barrel",
+    "PixPhi IBL",
+    "PixEta IBL",
+    "PixPhi Endcap",
+    "PixEta Endcap",
+  };
+
+const int Trk::RIO_OnTrackErrorScalingTool::s_pix_idx[Trk::RIO_OnTrackErrorScalingTool::kNPixParamTypes]={
+    kPixBarrelPhi,
+    kPixBarrelEta,
+    kPixIBLPhi,
+    kPixIBLEta,
+    kPixEndcapPhi,
+    kPixEndcapEta};
+
 
 // constructor
 Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string& t,
@@ -30,10 +53,6 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_do_tgc(false),
      m_do_rpc(false),
      m_do_csc(false),
-     m_scaling_pixPhi_barrel(std::vector<double>(0)),
-     m_scaling_pixPhi_endcap(std::vector<double>(0)),
-     m_scaling_pixEta_barrel(std::vector<double>(0)),
-     m_scaling_pixEta_endcap(std::vector<double>(0)),
      m_scaling_sct_barrel(std::vector<double>(0)),
      m_scaling_sct_endcap(std::vector<double>(0)),
      m_scaling_trt_barrel(std::vector<double>(0)),
@@ -46,10 +65,48 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_scaling_rpcEta(std::vector<double>(0)),
      m_scaling_cscPhi(std::vector<double>(0)),
      m_scaling_cscEta(std::vector<double>(0)),
+     m_override_database_id_errors(false),
+     m_override_scale_inflation_pix_bar_x(10.),
+     m_override_scale_inflation_pix_bar_y(10.),
+     m_override_scale_inflation_pix_ecs_x(10.),
+     m_override_scale_inflation_pix_ecs_y(10.),
+     m_override_scale_inflation_sct_bar(10.),
+     m_override_scale_inflation_sct_ecs(10.),
+     m_override_scale_inflation_trt_bar(10.),
+     m_override_scale_inflation_trt_ecs(10.),
+     m_override_constant_term_pix_bar_x(0.0044),
+     m_override_constant_term_pix_bar_y(0.0312),
+     m_override_constant_term_pix_ecs_x(0.026),
+     m_override_constant_term_pix_ecs_y(0.0),
+     m_override_constant_term_sct_bar(0.0065),
+     m_override_constant_term_sct_ecs(0.0071),
+     m_override_constant_term_trt_bar(0.0),
+     m_override_constant_term_trt_ecs(0.0),
      m_idFolder("/Indet/TrkErrorScaling"),
      m_muonFolder("/MUON/TrkErrorScaling")
  {
    declareInterface<IRIO_OnTrackErrorScalingTool>(this);
+   declareProperty("overrideDatabaseID",m_override_database_id_errors,"inflate ID errors by multiplicative scale factor, overriding any database values");
+   declareProperty("overrideScalePix",m_override_scale_inflation_pix_bar_x,"factor to inflate pixel errors (barrel local x)");
+   declareProperty("overrideScalePixBarX",m_override_scale_inflation_pix_bar_x,"factor to inflate pixel errors (barrel local x)");
+   declareProperty("overrideScalePixBarY",m_override_scale_inflation_pix_bar_y,"factor to inflate pixel errors (barrel local y)");
+   declareProperty("overrideScalePixECsX",m_override_scale_inflation_pix_ecs_x,"factor to inflate pixel errors (endcaps local x)");
+   declareProperty("overrideScalePixECsY",m_override_scale_inflation_pix_ecs_y,"factor to inflate pixel errors (endcaps local y)");
+   declareProperty("overrideScaleSCT",m_override_scale_inflation_sct_bar,"factor to inflate SCT errors in the barrel");
+   declareProperty("overrideScaleSCTBar",m_override_scale_inflation_sct_bar,"factor to inflate SCT errors in the barrel");
+   declareProperty("overrideScaleSCTECs",m_override_scale_inflation_sct_ecs,"factor to inflate SCT errors in the end caps");
+   declareProperty("overrideScaleTRT",m_override_scale_inflation_trt_bar,"factor to inflate TRT errors");
+   declareProperty("overrideScaleTRTBar",m_override_scale_inflation_trt_bar,"factor to inflate TRT errors (barrel)");
+   declareProperty("overrideScaleTRTECs",m_override_scale_inflation_trt_ecs,"factor to inflate TRT errors (end caps)");
+   declareProperty("overrideConstantPixBarX",m_override_constant_term_pix_bar_x,"factor to change the constant term of pixel errors (barrel local x)");
+   declareProperty("overrideConstantPixBarY",m_override_constant_term_pix_bar_y,"factor to change the constant term of pixel errors (barrel local y)");
+   declareProperty("overrideConstantPixECsX",m_override_constant_term_pix_ecs_x,"factor to change the constant term of pixel errors (endcaps local x)");
+   declareProperty("overrideConstantPixECsY",m_override_constant_term_pix_ecs_y,"factor to change the constant term of pixel errors (endcaps local y)");
+   declareProperty("overrideConstantSCTBar",m_override_constant_term_sct_bar,"factor to change the constant term of SCT errors (barrel)");
+   declareProperty("overrideConstantSCTECs",m_override_constant_term_sct_ecs,"factor to change the constant term of SCT errors (end caops)");
+   declareProperty("overrideConstantTRTBar",m_override_constant_term_trt_bar,"factor to change the constant term of TRT errors (barrel)");
+   declareProperty("overrideConstantTRTECs",m_override_constant_term_trt_ecs,"factor to change the constant term of TRT errors (endcaps)");
+   m_scaling_pix.resize(kNPixParamTypes);
  }
 
 // destructor
@@ -62,18 +119,19 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
   if (StatusCode::SUCCESS!=AlgTool::initialize())
     return StatusCode::FAILURE;
  
+  CHECK(  detStore()->retrieve(m_pixelID, "PixelID") );
+
   /* set up scaling factors for error matrices (use their **2 for cov)
    */
 
+  assert( m_scaling_pix.size() == kNPixParamTypes );
   // --- check scaling factors
-  registerParameters(m_do_pix,
-                    &m_scaling_pixPhi_barrel,"PixPhi Barrel");
-  registerParameters(m_do_pix,
-                    &m_scaling_pixEta_barrel,"PixEta Barrel");
-  registerParameters(m_do_pix,
-                    &m_scaling_pixPhi_endcap,"PixPhi Endcap");
-  registerParameters(m_do_pix,
-                    &m_scaling_pixEta_endcap,"PixEta Endcap");
+  
+  assert( kNPixParamTypes%2 == 0);
+  for (int i=0; i <kNPixParamTypes; ++i) {
+    registerParameters(m_do_pix, &(m_scaling_pix[ s_pix_idx[i] ]), s_pix_names[i] );
+  }
+                    
 
   registerParameters(m_do_sct,
                     &m_scaling_sct_barrel,"SCT Barrel");
@@ -122,7 +180,13 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
     m_do_pix = false;
     m_do_sct = false;
     m_do_trt = false;
-  }  
+  }
+  if (m_override_database_id_errors) {
+    msg(MSG::INFO) << " ignoring COOL; forcing scaling of intrinsic measurment errors in ID." << endreq;
+    m_do_pix = true;
+    m_do_sct = true;
+    m_do_trt = true;
+  }
 
   // find and register callback function for Muons
   if (detStore()->contains<CondAttrListCollection>(m_muonFolder)) {
@@ -154,12 +218,12 @@ MsgStream& Trk::RIO_OnTrackErrorScalingTool::dump( MsgStream& out ) const
   out << std::endl << name() << " has found the following factors and constants to scale errors:"  <<std::endl;
   out << "| Detector System                factor   constant            |"           <<std::endl;
   out << "+-------------------------------------------------------------+"           <<std::endl;
-  out << makeInfoString("Pix Phi barrel",m_do_pix,m_scaling_pixPhi_barrel) <<std::endl;
-  out << makeInfoString("Pix Eta barrel",m_do_pix,m_scaling_pixEta_barrel) <<std::endl;
-  out << makeInfoString("Pix Phi endcap",m_do_pix,m_scaling_pixPhi_endcap) <<std::endl;
-  out << makeInfoString("Pix Eta endcap",m_do_pix,m_scaling_pixEta_endcap) <<std::endl;
+
+  for (int i=0; i<kNPixParamTypes; ++i) {
+    out << makeInfoString(s_pix_names[i],m_do_pix,m_scaling_pix[ s_pix_idx[i] ]) <<std::endl;
+  }
   out << makeInfoString("SCT barrel    ",m_do_sct,m_scaling_sct_barrel) <<std::endl;
-  out << makeInfoString("SCT endcap    ",m_do_sct,m_scaling_sct_endcap) <<std::endl;
+  out << makeInfoString("SCT barrel    ",m_do_sct,m_scaling_sct_barrel) <<std::endl;
   out << makeInfoString("TRT barrel    ",m_do_trt,m_scaling_trt_barrel) <<std::endl;
   out << makeInfoString("TRT endcap    ",m_do_trt,m_scaling_trt_endcap) <<std::endl;
   out << makeInfoString("MDT barrel    ",m_do_mdt,m_scaling_mdt_barrel) <<std::endl;
@@ -245,30 +309,54 @@ void Trk::RIO_OnTrackErrorScalingTool::scale2by2
 
 Amg::MatrixX* 
 Trk::RIO_OnTrackErrorScalingTool::createScaledPixelCovariance
-  (const Amg::MatrixX& inputCov, bool is_endcap) const
+  (const Amg::MatrixX& inputCov, const Identifier& id) const
 {
   Amg::MatrixX* newCov = new Amg::MatrixX(inputCov);
+  assert( m_pixelID );
+
+  // from SiDetectorElement::isEndcap
+  bool is_endcap = !(m_pixelID->is_barrel(id) || m_pixelID->is_dbm(id));
+  unsigned int idx=kNPixParamTypes;
+  
   if (is_endcap) {
-    scale2by2(*newCov,m_scaling_pixPhi_endcap,m_scaling_pixEta_endcap);
-    if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "changing original Pix-EC cov " << endreq;
-      std::cout << inputCov << " to "<< *newCov
-                <<" by:" << m_scaling_pixPhi_endcap[0]
-                <<", " << m_scaling_pixPhi_endcap[1]
-                <<" / "<< m_scaling_pixEta_endcap[0]
-                <<", " << m_scaling_pixEta_endcap[1] << std::endl;
-    }
+    idx=kPixEndcapPhi;
   } else {
-    scale2by2(*newCov,m_scaling_pixPhi_barrel,m_scaling_pixEta_barrel);
-    if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "changing original Pix-BR cov " << endreq;
-      std::cout << inputCov << "to " << *newCov 
-                <<" by:" << m_scaling_pixPhi_barrel[0]
-                << ", "  << m_scaling_pixPhi_barrel[1]
-                << " / " << m_scaling_pixEta_barrel[0]
-                << ", "  << m_scaling_pixEta_barrel[1] << std::endl;
+
+    // from  PixelDigitizationTool::getReadoutTech
+    int barrel_ec = m_pixelID->barrel_ec(id);
+    bool is_ibl = abs(barrel_ec)==4 || m_pixelID->eta_module_max(id)>6;
+    if (is_ibl) {
+      idx = kPixIBLPhi;
+    }
+    else {
+      idx = kPixBarrelPhi;
     }
   }
+
+  assert( m_scaling_pix.size()>idx+1);
+  if (m_scaling_pix[idx].size()<2 ) {
+    assert( idx < kNPixParamTypes);
+
+    std::stringstream message;
+    message << "ERROR " << name() << " createScaledPixelCovariance : No error scaling factors for  "  << s_pix_names[idx] 
+            << " or " << s_pix_names[idx+1]
+            << ".";
+    throw std::runtime_error( message.str() );
+  }
+
+  assert(   m_scaling_pix[idx].size()>1
+         && m_scaling_pix[idx+1].size()>1 );
+
+  scale2by2(*newCov,m_scaling_pix[idx] /* phi */ ,m_scaling_pix[idx+1] /* eta */);
+  if (msgLvl(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "changing original Pix-" << (idx==kPixEndcapPhi ? "EC " : (idx==kPixIBLPhi ? "IBL" : "BR " )) << " cov " << endreq;
+    msg(MSG::VERBOSE) << inputCov << " to "<< *newCov
+                      <<" by:" << m_scaling_pix[idx][0]
+                      <<", " << m_scaling_pix[idx][1]
+                      <<" / "<< m_scaling_pix[idx+1][0]
+                      <<", " << m_scaling_pix[idx+1][1] << endreq;
+  }
+
   return newCov;
 }
 
@@ -445,6 +533,74 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
       }
     }
   }
+
+  for (int i=0; i < kNPixParamTypes-1; i+=2 ) {
+    bool has_eta_scaling=(m_scaling_pix[i+1].size()>0);
+    bool has_phi_scaling=(m_scaling_pix[i].size()>0);
+    if (has_eta_scaling != has_phi_scaling) {
+      ATH_MSG_ERROR( "Missing pixel scaling factors for " 
+                     << s_pix_names[i] << "[" << m_scaling_pix[i].size() << " params]"
+                     << " or " << s_pix_names[i+1]  << "[" << m_scaling_pix[i+1].size() << " params]"
+                     << ".");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  // if requested, scale up the ID errors by the values in job options
+  if (m_override_database_id_errors) {
+    msg(MSG::WARNING) << "WARNING overriding database error scaling parameters with values specified by job options; see "
+                      << __FILE__ << " at line " << __LINE__ << endreq;
+    m_do_pix = true;
+    m_do_sct = true;
+    m_do_trt = true;
+    std::vector<double> scale(2);
+
+    // pixel barrel 
+    // local x (phi -> old convetion)
+    scale[0] = m_override_scale_inflation_pix_bar_x;
+    scale[1] = m_override_constant_term_pix_bar_x; // 0.0044;
+    m_scaling_pix[kPixBarrelPhi] = scale;
+    m_scaling_pix[kPixIBLPhi] = scale;
+
+    // local y (eta -> old convention)
+    scale[0] = m_override_scale_inflation_pix_bar_y;
+    scale[1] = m_override_constant_term_pix_bar_y; // 0.0312;
+    m_scaling_pix[kPixBarrelEta] = scale;
+    m_scaling_pix[kPixIBLEta] = scale;
+
+    // pixel end caps
+    // local x (phi -> old convetion)
+    scale[0] = m_override_scale_inflation_pix_bar_x;
+    scale[1] = m_override_constant_term_pix_ecs_x; // 0.0026;
+    m_scaling_pix[kPixEndcapPhi] = scale;
+
+    // local y (eta -> old convention)
+    scale[0] = m_override_scale_inflation_pix_bar_y;
+    scale[1] = m_override_constant_term_pix_ecs_y; // 0.;
+    m_scaling_pix[kPixEndcapEta] = scale;
+
+    // sct barrel
+    scale[0] = m_override_scale_inflation_sct_bar;
+    scale[1] = m_override_constant_term_sct_bar; // 0.0065
+    m_scaling_sct_barrel = scale;
+
+    // sct end caps
+    scale[0] = m_override_scale_inflation_sct_ecs;
+    scale[1] = m_override_constant_term_sct_ecs; // 0.0071;
+    m_scaling_sct_endcap = scale;
+
+    // trt barrel
+    scale[0] = m_override_scale_inflation_trt_bar;
+    scale[1] = m_override_constant_term_trt_bar; // 0.;
+    m_scaling_trt_barrel = scale;
+    m_scaling_trt_endcap = scale;
+
+    // trt end caps
+    scale[0] = m_override_scale_inflation_trt_ecs;
+    scale[1] = m_override_constant_term_trt_ecs; // 0.;
+    m_scaling_trt_endcap = scale;
+  }
+
   // printout new constants if in debug print mode
   ATH_MSG_DEBUG ( (*this) );
   return StatusCode::SUCCESS;

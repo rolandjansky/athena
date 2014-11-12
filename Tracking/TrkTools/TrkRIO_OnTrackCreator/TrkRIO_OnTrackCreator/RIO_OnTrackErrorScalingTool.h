@@ -20,6 +20,8 @@
 #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+class PixelID;
+
 namespace Trk {
 
   /** @class RIO_OnTrackErrorScalingTool
@@ -76,7 +78,7 @@ namespace Trk {
     virtual bool needToScaleCsc() const; 
     //! cov matrix creation from cov input and Pixel error scaling parameters
     virtual Amg::MatrixX* createScaledPixelCovariance
-      (const Amg::MatrixX&, bool) const;
+      (const Amg::MatrixX&, const Identifier& id) const;
     //! cov matrix creation from cov input and SCT error scaling parameters 
     virtual Amg::MatrixX* createScaledSctCovariance
       (const Amg::MatrixX&, bool, double ) const;
@@ -102,6 +104,8 @@ namespace Trk {
   ///////////////////////////////////////////////////////////////////
   // Private data members:
   ///////////////////////////////////////////////////////////////////
+    const PixelID*        m_pixelID;
+
     bool                  m_do_pix;
     bool                  m_do_sct;
     bool                  m_do_trt;
@@ -109,6 +113,14 @@ namespace Trk {
     bool                  m_do_tgc;
     bool                  m_do_rpc;
     bool                  m_do_csc;
+    enum PixParamType {kPixBarrelPhi,kPixBarrelEta,
+                       kPixIBLPhi,   kPixIBLEta,
+                       kPixEndcapPhi,kPixEndcapEta,
+                       kNPixParamTypes};
+    std::vector< std::vector<double> >   m_scaling_pix;
+    static const int   s_pix_idx[kNPixParamTypes];
+    static const char *s_pix_names[kNPixParamTypes];
+
     std::vector<double>   m_scaling_pixPhi_barrel;
     std::vector<double>   m_scaling_pixPhi_endcap;
     std::vector<double>   m_scaling_pixEta_barrel;
@@ -125,6 +137,23 @@ namespace Trk {
     std::vector<double>   m_scaling_rpcEta;
     std::vector<double>   m_scaling_cscPhi;
     std::vector<double>   m_scaling_cscEta;
+    bool                  m_override_database_id_errors;
+    double                m_override_scale_inflation_pix_bar_x; // pixel barrel local x
+    double                m_override_scale_inflation_pix_bar_y; // pixel barrel local y
+    double                m_override_scale_inflation_pix_ecs_x; // pixel endcaps local x
+    double                m_override_scale_inflation_pix_ecs_y; // pixel endcaps local y
+    double                m_override_scale_inflation_sct_bar;  // for barrel
+    double                m_override_scale_inflation_sct_ecs;  // for the end caps
+    double                m_override_scale_inflation_trt_bar;  // barrel
+    double                m_override_scale_inflation_trt_ecs;  // ecs
+    double                m_override_constant_term_pix_bar_x;
+    double                m_override_constant_term_pix_bar_y;
+    double                m_override_constant_term_pix_ecs_x;
+    double                m_override_constant_term_pix_ecs_y;
+    double                m_override_constant_term_sct_bar;
+    double                m_override_constant_term_sct_ecs;
+    double                m_override_constant_term_trt_bar;
+    double                m_override_constant_term_trt_ecs;
 
     //! conditions data handling: COOL folder name for InDet scaling paremeters
     const std::string m_idFolder;

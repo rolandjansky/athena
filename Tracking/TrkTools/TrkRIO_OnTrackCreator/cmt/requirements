@@ -10,7 +10,7 @@ use AtlasPolicy          AtlasPolicy-*
 use GaudiInterface       GaudiInterface-*        External
 use AthenaBaseComps      AthenaBaseComps-*       Control
 use AthenaKernel         AthenaKernel-*          Control
-use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
+#use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkParameters        TrkParameters-*         Tracking/TrkEvent
 use TrkToolInterfaces    TrkToolInterfaces-*     Tracking/TrkTools
 use EventPrimitives      EventPrimitives-*       Event
@@ -22,6 +22,7 @@ use TrkRIO_OnTrack       TrkRIO_OnTrack-*        Tracking/TrkEvent
 use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
 use Identifier           Identifier-*            DetectorDescription
 use AtlasDetDescr        AtlasDetDescr-*         DetectorDescription
+use InDetIdentifier      InDetIdentifier-*       InnerDetector/InDetDetDescr
 
 public
 
