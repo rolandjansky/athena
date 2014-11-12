@@ -34,6 +34,8 @@ LArHitsEventAction::LArHitsEventAction():
   ApplicationAction(),
   m_storedContainers(0),
   m_storedCalibContainers(0),
+  m_detStore(0),
+  m_msgSvc(0),
   m_timeBinType("Default"),
   m_timeBinWidth(2.5*CLHEP::ns),
   m_doMiniFcal(false),
