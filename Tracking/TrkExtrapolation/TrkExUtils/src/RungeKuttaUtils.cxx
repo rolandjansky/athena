@@ -79,14 +79,33 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
   par[2]  = atan2(P[4],P[3]);
   par[3]  = acos (P[5]);
   par[4]  = P[6];
-  
+
   unsigned int ty = su->type(); 
-  if(ty == Trk::Surface::Plane   ) {transformGlobalToPlane   (su,useJac,P,par,Jac); return;}
-  if(ty == Trk::Surface::Line    ) {transformGlobalToLine    (su,useJac,P,par,Jac); return;} 
-  if(ty == Trk::Surface::Cylinder) {transformGlobalToCylinder(su,useJac,P,par,Jac); return;}
-  if(ty == Trk::Surface::Perigee ) {transformGlobalToPerigee (su,useJac,P,par,Jac); return;}
-  if(ty == Trk::Surface::Disc    ) {transformGlobalToDisc    (su,useJac,P,par,Jac); return;}
-                                    transformGlobalToCone    (su,useJac,P,par,Jac);
+
+  if     (ty == Trk::Surface::Plane   ) transformGlobalToPlane   (su,useJac,P,par,Jac); 
+  else if(ty == Trk::Surface::Line    ) transformGlobalToLine    (su,useJac,P,par,Jac);
+  else if(ty == Trk::Surface::Cylinder) transformGlobalToCylinder(su,useJac,P,par,Jac);
+  else if(ty == Trk::Surface::Perigee ) transformGlobalToPerigee (su,useJac,P,par,Jac);
+  else if(ty == Trk::Surface::Disc    ) transformGlobalToDisc    (su,useJac,P,par,Jac);
+  else                                  transformGlobalToCone    (su,useJac,P,par,Jac);
+
+  if(!useJac) return;
+
+  double P3,P4, C = P[3]*P[3]+P[4]*P[4]; 
+  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
+  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
+
+  Jac[10] = P3*P[11]-P4*P[10];    // dPhi/dL0
+  Jac[11] = P3*P[18]-P4*P[17];    // dPhi/dL1
+  Jac[12] = P3*P[25]-P4*P[24];    // dPhi/dPhi
+  Jac[13] = P3*P[32]-P4*P[31];    // dPhi/dThe
+  Jac[14] = P3*P[39]-P4*P[38];    // dPhi/dCM
+  Jac[15] = C*P[12];              // dThe/dL0
+  Jac[16] = C*P[19];              // dThe/dL1
+  Jac[17] = C*P[26];              // dThe/dPhi
+  Jac[18] = C*P[33];              // dThe/dThe
+  Jac[19] = C*P[40];              // dThe/dCM
+  Jac[20] = P  [41];              // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -112,32 +131,25 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
   //
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
-  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2],s;
+  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
   if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
 
-  s=P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  P[ 7]-=(s*P[ 3]); P[ 8]-=(s*P[4 ]); P[ 9]-=(s*P[ 5]); 
-  P[10]-=(s*P[42]); P[11]-=(s*P[43]); P[12]-=(s*P[44]);
- 
-  s=P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
-  P[14]-=(s*P[ 3]); P[15]-=(s*P[ 4]); P[16]-=(s*P[ 5]);
-  P[17]-=(s*P[42]); P[18]-=(s*P[43]); P[19]-=(s*P[44]);
-   
-  s=P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  P[21]-=(s*P[ 3]); P[22]-=(s*P[ 4]); P[23]-=(s*P[5]);
-  P[24]-=(s*P[42]); P[25]-=(s*P[43]); P[26]-=(s*P[44]);
+  double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
+  double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
+  double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
+  double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
+  double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
 
-  s=P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  P[28]-=(s*P[ 3]); P[29]-=(s*P[ 4]); P[30]-=(s*P[ 5]);
-  P[31]-=(s*P[42]); P[32]-=(s*P[43]); P[33]-=(s*P[44]);
-
-  s=P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
-  P[35]-=(s*P[ 3]); P[36]-=(s*P[ 4]); P[37]-=(s*P[ 5]);
-  P[38]-=(s*P[42]); P[39]-=(s*P[43]); P[40]-=(s*P[44]);
-
-  double P3,P4,C = P[3]*P[3]+P[4]*P[4]; 
-  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
-  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
+  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]); 
+  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
 
   // Jacobian production
   //
@@ -151,18 +163,6 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
   Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];                               // dL1/dPhi
   Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30];                               // dL1/dThe
   Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37];                               // dL1/dCM
-
-  Jac[10] = P3*P[11]-P4*P[10];                                                 // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                                                 // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                                                 // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                                                 // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                                                 // dPhi/dCM
-  Jac[15] = C*P[12];                                                           // dThe/dL0
-  Jac[16] = C*P[19];                                                           // dThe/dL1
-  Jac[17] = C*P[26];                                                           // dThe/dPhi
-  Jac[18] = C*P[33];                                                           // dThe/dThe
-  Jac[19] = C*P[40];                                                           // dThe/dCM
-  Jac[20] = P[41];                                                             // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -191,27 +191,25 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
   //
   double S[3] =  {T(0,2),T(1,2),T(2,2)};
 
-  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2],s;
+  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
   if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
-  s=P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2]; 
-  P[ 7]-=(s*P[ 3]); P[ 8]-=(s*P[ 4]); P[ 9]-=(s*P[ 5]);
-  P[10]-=(s*P[42]); P[11]-=(s*P[43]); P[12]-=(s*P[44]);
-  
-  s=P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
-  P[14]-=(s*P[ 3]); P[15]-=(s*P[ 4]); P[16]-=(s*P[ 5]);
-  P[17]-=(s*P[42]); P[18]-=(s*P[43]); P[19]-=(s*P[44]);
 
-  s=P[21]*S[0]+P[22]*S[1]+P[23]*S[2]; 
-  P[21]-=(s*P[ 3]); P[22]-=(s*P[ 4]); P[23]-=(s*P[ 5]);
-  P[24]-=(s*P[42]); P[25]-=(s*P[43]); P[26]-=(s*P[44]);
+  double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2]; 
+  double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
+  double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2]; 
+  double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2]; 
+  double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
 
-  s=P[28]*S[0]+P[29]*S[1]+P[30]*S[2]; 
-  P[28]-=(s*P[ 3]); P[29]-=(s*P[ 4]); P[30]-=(s*P[ 5]);
-  P[31]-=(s*P[42]); P[32]-=(s*P[43]); P[33]-=(s*P[44]);
-
-  s=P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
-  P[35]-=(s*P[ 3]); P[36]-=(s*P[ 4]); P[37]-=(s*P[ 5]);
-  P[38]-=(s*P[42]); P[39]-=(s*P[43]); P[40]-=(s*P[44]);
+  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
+  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
  
   // Jacobian production
   //
@@ -223,10 +221,6 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
   double B1 =(RC*Ay[1]-RS*Ax[1])*Ri;
   double B2 =(RC*Ay[2]-RS*Ax[2])*Ri;
 
-  double P3,P4,C = P[3]*P[3]+P[4]*P[4]; 
-  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
-  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
-
   Jac[ 0] = A0*P[ 7]+A1*P[ 8]+A2*P[ 9];                                        // dL0/dL0
   Jac[ 1] = A0*P[14]+A1*P[15]+A2*P[16];                                        // dL0/dL1
   Jac[ 2] = A0*P[21]+A1*P[22]+A2*P[23];                                        // dL0/dPhi
@@ -237,18 +231,6 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
   Jac[ 7] = B0*P[21]+B1*P[22]+B2*P[23];                                        // dL1/dPhi
   Jac[ 8] = B0*P[28]+B1*P[29]+B2*P[30];                                        // dL1/dThe
   Jac[ 9] = B0*P[35]+B1*P[36]+B2*P[37];                                        // dL1/dCM
-
-  Jac[10] = P3*P[11]-P4*P[10];                                                 // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                                                 // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                                                 // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                                                 // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                                                 // dPhi/dCM
-  Jac[15] = C*P[12];                                                           // dThe/dL0
-  Jac[16] = C*P[19];                                                           // dThe/dL1
-  Jac[17] = C*P[26];                                                           // dThe/dPhi
-  Jac[18] = C*P[33];                                                           // dThe/dThe
-  Jac[19] = C*P[40];                                                           // dThe/dCM
-  Jac[20] = P[41];                                                             // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -284,36 +266,30 @@ void Trk::RungeKuttaUtils::transformGlobalToCylinder
   double ax = P[3]-Az[0]*C; x-=(B*Az[0]);
   double ay = P[4]-Az[1]*C; y-=(B*Az[1]);
   double az = P[5]-Az[2]*C; z-=(B*Az[2]);
-  double A  =(ax*x+ay*y+az*z),s; if(A!=0.) A=1./A; x*=A; y*=A; z*=A;
-  s=P[ 7]*x+P[ 8]*y+P[ 9]*z; 
-  P[ 7]-=(s*P[ 3]); P[ 8]-=(s*P[ 4]); P[ 9]-=(s*P[ 5]);
-  P[10]-=(s*P[42]); P[11]-=(s*P[43]); P[12]-=(s*P[44]);
+  double A  =(ax*x+ay*y+az*z); if(A!=0.) A=1./A; x*=A; y*=A; z*=A;
 
-  s=P[14]*x+P[15]*y+P[16]*z; 
-  P[14]-=(s*P[ 3]); P[15]-=(s*P[ 4]); P[16]-=(s*P[ 5]);
-  P[17]-=(s*P[42]); P[18]-=(s*P[43]); P[19]-=(s*P[44]);
+  double s0 = P[ 7]*x+P[ 8]*y+P[ 9]*z; 
+  double s1 = P[14]*x+P[15]*y+P[16]*z; 
+  double s2 = P[21]*x+P[22]*y+P[23]*z; 
+  double s3 = P[28]*x+P[29]*y+P[30]*z; 
+  double s4 = P[35]*x+P[36]*y+P[37]*z; 
 
-  s=P[21]*x+P[22]*y+P[23]*z; 
-  P[21]-=(s*P[ 3]); P[22]-=(s*P[ 4]); P[23]-=(s*P[ 5]);
-  P[24]-=(s*P[42]); P[25]-=(s*P[43]); P[26]-=(s*P[44]);
-
-  s=P[28]*x+P[29]*y+P[30]*z; 
-  P[28]-=(s*P[ 3]); P[29]-=(s*P[ 4]); P[30]-=(s*P[ 5]);
-  P[31]-=(s*P[42]); P[32]-=(s*P[43]); P[33]-=(s*P[44]);
-
-  s=P[35]*x+P[36]*y+P[37]*z; 
-  P[35]-=(s*P[ 3]); P[36]-=(s*P[ 4]); P[37]-=(s*P[ 5]);
-  P[38]-=(s*P[42]); P[39]-=(s*P[43]); P[40]-=(s*P[44]);
+  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
+  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
 
   // Jacobian production
   //
   double A0 =(RC*Ay[0]-RS*Ax[0])*(R=1./R);
   double A1 =(RC*Ay[1]-RS*Ax[1])* R;
   double A2 =(RC*Ay[2]-RS*Ax[2])* R;
-
-  double P3,P4; C = P[3]*P[3]+P[4]*P[4]; 
-  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
-  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
 
   Jac[ 0] = A0*P[ 7]+A1*P[ 8]+A2*P[ 9];                                        // dL0/dL0
   Jac[ 1] = A0*P[14]+A1*P[15]+A2*P[16];                                        // dL0/dL1
@@ -325,18 +301,6 @@ void Trk::RungeKuttaUtils::transformGlobalToCylinder
   Jac[ 7] = Az[0]*P[21]+Az[1]*P[22]+Az[2]*P[23];                               // dL1/dPhi
   Jac[ 8] = Az[0]*P[28]+Az[1]*P[29]+Az[2]*P[30];                               // dL1/dThe
   Jac[ 9] = Az[0]*P[35]+Az[1]*P[36]+Az[2]*P[37];                               // dL1/dP4
-
-  Jac[10] = P3*P[11]-P4*P[10];                                                 // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                                                 // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                                                 // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                                                 // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                                                 // dPhi/dCM
-  Jac[15] = C*P[12];                                                           // dThe/dL0
-  Jac[16] = C*P[19];                                                           // dThe/dL1
-  Jac[17] = C*P[26];                                                           // dThe/dPhi
-  Jac[18] = C*P[33];                                                           // dThe/dThe
-  Jac[19] = C*P[40];                                                           // dThe/dCM
-  Jac[20] = P[41];                                                             // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -367,36 +331,28 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
   double d  = P[3]*A[0]+P[4]*A[1]+P[5]*A[2]; 
   double a  = (1.-d)*(1.+d); if(a!=0.) a=1./a;
   double X = d*A[0]-P[3], Y = d*A[1]-P[4], Z = d*A[2]-P[5];
-  double d1,d2,d3,d4,d5,s1,s2,s3,s4,s5;
-  d1=P[10]*A[0]+P[11]*A[1]+P[12]*A[2];
-  d2=P[17]*A[0]+P[18]*A[1]+P[19]*A[2];
-  d3=P[24]*A[0]+P[25]*A[1]+P[26]*A[2];
-  d4=P[31]*A[0]+P[32]*A[1]+P[33]*A[2];
-  d5=P[38]*A[0]+P[39]*A[1]+P[40]*A[2];
-  s1=(((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(d1*A[0]-P[10]))+(y*(d1*A[1]-P[11])+z*(d1*A[2]-P[12])))*a;
-  s2=(((P[14]*X+P[15]*Y+P[16]*Z)+x*(d2*A[0]-P[17]))+(y*(d2*A[1]-P[18])+z*(d2*A[2]-P[19])))*a;
-  s3=(((P[21]*X+P[22]*Y+P[23]*Z)+x*(d3*A[0]-P[24]))+(y*(d3*A[1]-P[25])+z*(d3*A[2]-P[26])))*a;
-  s4=(((P[28]*X+P[29]*Y+P[30]*Z)+x*(d4*A[0]-P[31]))+(y*(d4*A[1]-P[32])+z*(d4*A[2]-P[33])))*a;
-  s5=(((P[35]*X+P[36]*Y+P[37]*Z)+x*(d5*A[0]-P[38]))+(y*(d5*A[1]-P[39])+z*(d5*A[2]-P[40])))*a;
+
+  double d1 = P[10]*A[0]+P[11]*A[1]+P[12]*A[2];
+  double d2 = P[17]*A[0]+P[18]*A[1]+P[19]*A[2];
+  double d3 = P[24]*A[0]+P[25]*A[1]+P[26]*A[2];
+  double d4 = P[31]*A[0]+P[32]*A[1]+P[33]*A[2];
+  double d5 = P[38]*A[0]+P[39]*A[1]+P[40]*A[2];
+  double s1 = (((P[ 7]*X+P[ 8]*Y+P[ 9]*Z)+x*(d1*A[0]-P[10]))+(y*(d1*A[1]-P[11])+z*(d1*A[2]-P[12])))*a;
+  double s2 = (((P[14]*X+P[15]*Y+P[16]*Z)+x*(d2*A[0]-P[17]))+(y*(d2*A[1]-P[18])+z*(d2*A[2]-P[19])))*a;
+  double s3 = (((P[21]*X+P[22]*Y+P[23]*Z)+x*(d3*A[0]-P[24]))+(y*(d3*A[1]-P[25])+z*(d3*A[2]-P[26])))*a;
+  double s4 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(d4*A[0]-P[31]))+(y*(d4*A[1]-P[32])+z*(d4*A[2]-P[33])))*a;
+  double s5 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(d5*A[0]-P[38]))+(y*(d5*A[1]-P[39])+z*(d5*A[2]-P[40])))*a;
   
   P[ 7]+=(s1*P[ 3]); P[ 8]+=(s1*P[ 4]); P[ 9]+=(s1*P[ 5]); 
   P[10]+=(s1*P[42]); P[11]+=(s1*P[43]); P[12]+=(s1*P[44]);
-
   P[14]+=(s2*P[ 3]); P[15]+=(s2*P[ 4]); P[16]+=(s2*P[ 5]); 
   P[17]+=(s2*P[42]); P[18]+=(s2*P[43]); P[19]+=(s2*P[44]);
-
   P[21]+=(s3*P[ 3]); P[22]+=(s3*P[ 4]); P[23]+=(s3*P[ 5]); 
   P[24]+=(s3*P[42]); P[25]+=(s3*P[43]); P[26]+=(s3*P[44]);
-
   P[28]+=(s4*P[ 3]); P[29]+=(s4*P[ 4]); P[30]+=(s4*P[ 5]); 
   P[31]+=(s4*P[42]); P[32]+=(s4*P[43]); P[33]+=(s4*P[44]);
-
   P[35]+=(s5*P[ 3]); P[36]+=(s5*P[ 4]); P[37]+=(s5*P[ 5]); 
   P[38]+=(s5*P[42]); P[39]+=(s5*P[43]); P[40]+=(s5*P[44]);
-
-  double P3,P4,C = P[3]*P[3]+P[4]*P[4]; 
-  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
-  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
 
   // Jacobian production
   //
@@ -410,17 +366,6 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
   Jac[ 7] = A[0]*P[21]+A[1]*P[22]+A[2]*P[23];       // dL1/dPhi
   Jac[ 8] = A[0]*P[28]+A[1]*P[29]+A[2]*P[30];       // dL1/dThe
   Jac[ 9] = A[0]*P[35]+A[1]*P[36]+A[2]*P[37];       // dL1/dCM
-  Jac[10] = P3*P[11]-P4*P[10];                      // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                      // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                      // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                      // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                      // dPhi/dCM
-  Jac[15] = C*P[12];                                // dThe/dL0
-  Jac[16] = C*P[19];                                // dThe/dL1
-  Jac[17] = C*P[26];                                // dThe/dPhi
-  Jac[18] = C*P[33];                                // dThe/dThe
-  Jac[19] = C*P[40];                                // dThe/dCM
-  Jac[20] = P[41];                                  // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -445,31 +390,24 @@ void Trk::RungeKuttaUtils::transformGlobalToPerigee
 
   // Condition trajectory on surface
   //
-  double a  = (1.-P[5])*(1.+P[5]), X =-P[3], Y = -P[4], s; if(a!=0.) a=1./a;
+  double a  = (1.-P[5])*(1.+P[5]), X =-P[3], Y = -P[4]; if(a!=0.) a=1./a;
 
-  s=(P[ 7]*X+P[ 8]*Y-x*P[10]-y*P[11])*a; 
-  P[ 7]+=(s*P[ 3]); P[ 8]+=(s*P[ 4]); P[ 9]+=(s*P[ 5]);
-  P[10]+=(s*P[42]); P[11]+=(s*P[43]); P[12]+=(s*P[44]);
-
-  s=(P[14]*X+P[15]*Y-x*P[17]-y*P[18])*a; 
-  P[14]+=(s*P[ 3]); P[15]+=(s*P[ 4]); P[16]+=(s*P[ 5]);
-  P[17]+=(s*P[42]); P[18]+=(s*P[43]); P[19]+=(s*P[44]);
-
-  s=(P[21]*X+P[22]*Y-x*P[24]-y*P[25])*a; 
-  P[21]+=(s*P[ 3]); P[22]+=(s*P[ 4]); P[23]+=(s*P[ 5]);
-  P[24]+=(s*P[42]); P[25]+=(s*P[43]); P[26]+=(s*P[44]);
-
-  s=(P[28]*X+P[29]*Y-x*P[31]-y*P[32])*a; 
-  P[28]+=(s*P[ 3]); P[29]+=(s*P[ 4]); P[30]+=(s*P[ 5]);
-  P[31]+=(s*P[42]); P[32]+=(s*P[43]); P[33]+=(s*P[44]);
-
-  s=(P[35]*X+P[36]*Y-x*P[38]-y*P[39])*a; 
-  P[35]+=(s*P[ 3]); P[36]+=(s*P[ 4]); P[37]+=(s*P[ 5]);
-  P[38]+=(s*P[42]); P[39]+=(s*P[43]); P[40]+=(s*P[44]);
-
-  double P3,P4,C = P[3]*P[3]+P[4]*P[4]; 
-  if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
-  else           {C=-1.e10; P3 = 1.    ; P4 =0.    ;             }
+  double s0 = ((P[ 7]*X+P[ 8]*Y)-(x*P[10]+y*P[11]))*a; 
+  double s1 = ((P[14]*X+P[15]*Y)-(x*P[17]+y*P[18]))*a; 
+  double s2 = ((P[21]*X+P[22]*Y)-(x*P[24]+y*P[25]))*a; 
+  double s3 = ((P[28]*X+P[29]*Y)-(x*P[31]+y*P[32]))*a; 
+  double s4 = ((P[35]*X+P[36]*Y)-(x*P[38]+y*P[39]))*a; 
+ 
+  P[ 7]+=(s0*P[ 3]); P[ 8]+=(s0*P[ 4]); P[ 9]+=(s0*P[ 5]);
+  P[10]+=(s0*P[42]); P[11]+=(s0*P[43]); P[12]+=(s0*P[44]);
+  P[14]+=(s1*P[ 3]); P[15]+=(s1*P[ 4]); P[16]+=(s1*P[ 5]);
+  P[17]+=(s1*P[42]); P[18]+=(s1*P[43]); P[19]+=(s1*P[44]);
+  P[21]+=(s2*P[ 3]); P[22]+=(s2*P[ 4]); P[23]+=(s2*P[ 5]);
+  P[24]+=(s2*P[42]); P[25]+=(s2*P[43]); P[26]+=(s2*P[44]);
+  P[28]+=(s3*P[ 3]); P[29]+=(s3*P[ 4]); P[30]+=(s3*P[ 5]);
+  P[31]+=(s3*P[42]); P[32]+=(s3*P[43]); P[33]+=(s3*P[44]);
+  P[35]+=(s4*P[ 3]); P[36]+=(s4*P[ 4]); P[37]+=(s4*P[ 5]);
+  P[38]+=(s4*P[42]); P[39]+=(s4*P[43]); P[40]+=(s4*P[44]);
 
   // Jacobian production
   //
@@ -483,17 +421,6 @@ void Trk::RungeKuttaUtils::transformGlobalToPerigee
   Jac[ 7] = P[23];                                           // dL1/dPhi
   Jac[ 8] = P[30];                                           // dL1/dThe
   Jac[ 9] = P[37];                                           // dL1/dCM
-  Jac[10] = P3*P[11]-P4*P[10];                               // dPhi/dL0
-  Jac[11] = P3*P[18]-P4*P[17];                               // dPhi/dL1
-  Jac[12] = P3*P[25]-P4*P[24];                               // dPhi/dPhi
-  Jac[13] = P3*P[32]-P4*P[31];                               // dPhi/dThe
-  Jac[14] = P3*P[39]-P4*P[38];                               // dPhi/dCM
-  Jac[15] = C*P[12];                                         // dThe/dL0
-  Jac[16] = C*P[19];                                         // dThe/dL1
-  Jac[17] = C*P[26];                                         // dThe/dPhi
-  Jac[18] = C*P[33];                                         // dThe/dThe
-  Jac[19] = C*P[40];                                         // dThe/dCM
-  Jac[20] = P[41];                                           // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -531,17 +458,6 @@ void Trk::RungeKuttaUtils::transformGlobalToCone
   Jac[ 7] = 0.;        // dL1/dPhi
   Jac[ 8] = 0.;        // dL1/dThe
   Jac[ 9] = 0.;        // dL1/dCM
-  Jac[10] = 0.;        // dPhi/dL0
-  Jac[11] = 0.;        // dPhi/dL1
-  Jac[12] = 0.;        // dPhi/dPhi
-  Jac[13] = 0.;        // dPhi/dThe
-  Jac[14] = 0.;        // dPhi/dCM
-  Jac[15] = 0.;        // dThe/dL0
-  Jac[16] = 0.;        // dThe/dL1
-  Jac[17] = 0.;        // dThe/dPhi
-  Jac[18] = 0.;        // dThe/dThe
-  Jac[19] = 0.;        // dThe/dCM
-  Jac[20] = 0.;        // dCM /dCM
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -552,8 +468,8 @@ double Trk::RungeKuttaUtils::stepEstimator
 (int kind,double* Su,const double* P,bool& Q) const
 {
   if(kind==1) return stepEstimatorToPlane       (Su,P,Q);
-  if(kind==2) return stepEstimatorToCylinder    (Su,P,Q);
   if(kind==0) return stepEstimatorToStraightLine(Su,P,Q);
+  if(kind==2) return stepEstimatorToCylinder    (Su,P,Q);
   if(kind==3) return stepEstimatorToCone        (Su,P,Q);
   return 1000000.;
 } 
@@ -569,7 +485,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToPlane
   const double* a = &P[3];          // Start direction
   
   double  A = a[0]*S[0]+a[1]*S[1]+a[2]*S[2]; if(A==0.) {Q=false; return 1000000.;} 
-  double  D = S[3]-(r[0]*S[0]+r[1]*S[1]+r[2]*S[2]);
+  double  D = (S[3]-r[0]*S[0])-(r[1]*S[1]+r[2]*S[2]);
   Q=true;  return (D/A);
 }
 
@@ -1069,7 +985,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
   if(ty == Trk::Surface::Cylinder) {transformCylinderToGlobal(useJac,su,p,P); return true;}
   if(ty == Trk::Surface::Perigee ) {transformPerigeeToGlobal (useJac,su,p,P); return true;}
   if(ty == Trk::Surface::Disc    ) {transformDiscToGlobal    (useJac,su,p,P); return true;}
- return false; 
+  return false; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1092,28 +1008,25 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   double Ay[3] = {-Ax[1]*P[5],Ax[0]*P[5],An  };
   double S [3] = {    P[3]   , P[4]     ,P[5]};
 
-  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2],s;
+  double    A = P[3]*S[0]+P[4]*S[1]+P[5]*S[2];
   if(A!=0.) A=1./A; S[0]*=A; S[1]*=A; S[2]*=A;
    
-  s=P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  P[ 7]-=(s*P[ 3]); P[ 8]-=(s*P[4 ]); P[ 9]-=(s*P[ 5]); 
-  P[10]-=(s*P[42]); P[11]-=(s*P[43]); P[12]-=(s*P[44]);
- 
-  s=P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
-  P[14]-=(s*P[ 3]); P[15]-=(s*P[ 4]); P[16]-=(s*P[ 5]);
-  P[17]-=(s*P[42]); P[18]-=(s*P[43]); P[19]-=(s*P[44]);
-   
-  s=P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  P[21]-=(s*P[ 3]); P[22]-=(s*P[ 4]); P[23]-=(s*P[5]);
-  P[24]-=(s*P[42]); P[25]-=(s*P[43]); P[26]-=(s*P[44]);
+  double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
+  double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2]; 
+  double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
+  double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
+  double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
 
-  s=P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  P[28]-=(s*P[ 3]); P[29]-=(s*P[ 4]); P[30]-=(s*P[ 5]);
-  P[31]-=(s*P[42]); P[32]-=(s*P[43]); P[33]-=(s*P[44]);
-
-  s=P[35]*S[0]+P[36]*S[1]+P[37]*S[2]; 
-  P[35]-=(s*P[ 3]); P[36]-=(s*P[ 4]); P[37]-=(s*P[ 5]);
-  P[38]-=(s*P[42]); P[39]-=(s*P[43]); P[40]-=(s*P[44]);
+  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]); 
+  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4]; 
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}
