@@ -19,31 +19,6 @@
 namespace CP
 {
 
-  // Hash function for SystematicSet
-  std::size_t SystematicSetHash::operator()(const SystematicSet& sysSet)
-  {
-    return sysSet.hash();
-  }
-
-  // Hash function for boost hash
-  std::size_t hash_value(const SystematicSet& sysSet)
-  {
-    return sysSet.hash();
-  }
-
-  // Comparison operator for std::map sorting
-  bool operator < (const SystematicSet& a, const SystematicSet& b)
-  {
-    return a.name() < b.name();
-  }
-
-  // Equality operator for unordered containers
-  bool operator == (const SystematicSet& a, const SystematicSet& b)
-  {
-    return a.name() == b.name();
-  }
-
-
   // Default constructor
   SystematicSet::SystematicSet()
         : m_joinedName(""),
@@ -56,10 +31,6 @@ namespace CP
   // Constructor for splitting a single systematics string
   SystematicSet::SystematicSet(const std::string& systematics)
         : SystematicSet()
-        //: m_joinedName(""),
-        //  m_nameIsCached(false),
-        //  m_hash(0),
-        //  m_hashIsCached(false)
   {
     std::string::size_type split = 0, split2 = 0;
     while ((split = systematics.find ("-", split2)) != std::string::npos) {
@@ -73,18 +44,10 @@ namespace CP
   // Constructor for a vector of systematic names
   SystematicSet::SystematicSet(const std::vector<std::string>& systematics)
         : SystematicSet()
-        //: m_joinedName(""),
-        //  m_nameIsCached(false),
-        //  m_hash(0),
-        //  m_hashIsCached(false)
   {
     for (const auto & sys : systematics) {
       m_sysVariations.insert(sys);
     }
-    //for (auto sysItr = systematics.begin();
-    //     sysItr != systematics.end(); ++sysItr) {
-    //  m_sysVariations.insert(*sysItr);
-    //}
   }
 
   // Constructor for a vector of SystematicVariation
@@ -95,10 +58,6 @@ namespace CP
     for (const auto & sys : systematics) {
       m_sysVariations.insert(sys);
     }
-    //for (auto sysItr = systematics.begin();
-    //     sysItr != systematics.end(); ++sysItr) {
-    //  m_sysVariations.insert(*sysItr);
-    //}
   }
 
 
@@ -110,10 +69,6 @@ namespace CP
     for (const auto & sys : systematics) {
       m_sysVariations.insert(sys);
     }
-    //for (auto sysItr = systematics.begin();
-    //     sysItr != systematics.end(); ++sysItr) {
-    //  m_sysVariations.insert(*sysItr);
-    //}
   }
 
 
@@ -133,10 +88,6 @@ namespace CP
     for (const auto & sys : systematics) {
       insert(sys);
     }
-    //for (auto sysItr = systematics.begin();
-    //     sysItr != systematics.end(); ++sysItr) {
-    //  insert(*sysItr);
-    //}
   }
 
 
@@ -177,12 +128,6 @@ namespace CP
       if (sys.basename() == basename)
         filteredSysts.insert(sys);
     }
-    //for (auto sysItr = m_sysVariations.begin();
-    //     sysItr != m_sysVariations.end(); ++sysItr)
-    //{
-    //  if (sysItr->basename() == basename)
-    //    filteredSysts.insert(*sysItr);
-    //}
     return filteredSysts;
   }
 
@@ -194,10 +139,6 @@ namespace CP
     for (const auto & sys : m_sysVariations) {
       baseNames.insert(sys.basename());
     }
-    //for (auto sysItr = m_sysVariations.begin();
-    //     sysItr != m_sysVariations.end(); ++sysItr) {
-    //  baseNames.insert(sysItr->basename());
-    //}
     return baseNames;
   }
 
@@ -207,8 +148,6 @@ namespace CP
   SystematicSet::getSystematicByBaseName(const std::string& basename) const
   {
     const SystematicVariation* sysMatched = NULL;
-    //for (auto sysItr = m_sysVariations.begin();
-    //     sysItr != m_sysVariations.end(); ++sysItr)
     for (const auto & sys : m_sysVariations) {
       if(sys.basename() == basename) {
         if(!sysMatched) sysMatched = &sys;
@@ -243,8 +182,6 @@ namespace CP
     // convert affecting set into base systematics
     std::set<std::string> affectingBaseSysts = affectingSysts.getBaseNames();
     // loop over given systematics to filter
-    //for (auto sysItr = systConfig.begin();
-    //     sysItr != systConfig.end(); ++sysItr)
     for (const auto & sys : systConfig) {
       // If this systematic or its continuous counterpart are
       // in the affecting set, add them to the filtered set.
@@ -292,8 +229,6 @@ namespace CP
   std::string SystematicSet::joinNames() const
   {
     std::string joinedName;
-    //for (auto sysItr = m_sysVariations.begin();
-    //     sysItr != m_sysVariations.end(); ++sysItr)
     for (const auto & sys : m_sysVariations) {
       if (!joinedName.empty()) {
         joinedName += "-";
@@ -307,8 +242,33 @@ namespace CP
   // Compute the hash value for this SystematicSet
   std::size_t SystematicSet::computeHash() const
   {
-    static boost::hash<std::string> hashFunction;
+    static std::hash<std::string> hashFunction;
+    //static boost::hash<std::string> hashFunction;
     return hashFunction(name());
+  }
+
+  // General hash function for SystematicSet
+  std::size_t SystematicSetHash::operator()(const SystematicSet& sysSet)
+  {
+    return sysSet.hash();
+  }
+
+  // Hash function for boost hash
+  std::size_t hash_value(const SystematicSet& sysSet)
+  {
+    return sysSet.hash();
+  }
+
+  // Comparison operator for std::map sorting
+  bool operator < (const SystematicSet& a, const SystematicSet& b)
+  {
+    return a.name() < b.name();
+  }
+
+  // Equality operator for unordered containers
+  bool operator == (const SystematicSet& a, const SystematicSet& b)
+  {
+    return a.name() == b.name();
   }
 
 }

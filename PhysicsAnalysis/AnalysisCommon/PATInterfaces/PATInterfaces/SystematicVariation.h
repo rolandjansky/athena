@@ -74,7 +74,9 @@ namespace CP
     /// failures: out of memory II
   public:
     enum CONTINUOUS_ARG {CONTINUOUS};
+    #ifndef __CINT__
     SystematicVariation (const std::string& val_basename, CONTINUOUS_ARG);
+    #endif
 
 
     /// effects: this constructor picks the systematic from the set of
@@ -88,7 +90,7 @@ namespace CP
     ///   can more easily pick up systematics they care about (in
     ///   certain situations).
   public:
-    SystematicVariation (const std::set<SystematicVariation>& systematics,
+    SystematicVariation (const std::set<CP::SystematicVariation>& systematics,
 			 std::string val_basename);
 
 

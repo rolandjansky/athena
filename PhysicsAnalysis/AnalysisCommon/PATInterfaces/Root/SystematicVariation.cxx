@@ -106,12 +106,14 @@ namespace CP
 
 
 
+  #ifndef __CINT__
   SystematicVariation ::
   SystematicVariation (const std::string& val_basename, CONTINUOUS_ARG)
     : m_name (val_basename + "__continuous")
   {
     RCU_NEW_INVARIANT (this);
   }
+  #endif
 
 
 

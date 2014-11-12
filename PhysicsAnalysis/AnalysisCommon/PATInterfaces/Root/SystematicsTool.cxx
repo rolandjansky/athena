@@ -1,4 +1,4 @@
-// $Id: SystematicsTool.cxx 615243 2014-09-05 12:32:00Z krasznaa $
+// $Id: SystematicsTool.cxx 619296 2014-10-01 04:42:40Z sfarrell $
 //        Copyright Iowa State University 2014.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -10,6 +10,7 @@
 
 // System include(s):
 #include <iostream>
+#include <unordered_map>
 
 // Infrastructure include(s):
 #include "RootCoreUtils/Assert.h"
@@ -21,7 +22,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 
 // Other include(s):
-#include "boost/unordered_map.hpp"
+//#include "boost/unordered_map.hpp"
 
 namespace CP {
 
@@ -80,8 +81,8 @@ namespace CP {
       // Cache the mapping of systConfig to applied systematics,
       // to take advantage of the name+hash caching mechanisms
       // of SystematicSet
-      // TODO: switch to std unordered map
-      static boost::unordered_map
+      //static boost::unordered_map
+      static std::unordered_map
         <SystematicSet, SystematicSet> systSetFilterMap;
 
       // First, try to find this input set in the map
