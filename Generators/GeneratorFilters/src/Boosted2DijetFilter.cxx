@@ -19,11 +19,11 @@
 // Other classes used by this class:-
 #include <math.h>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
-#include "JetEvent/JetConstituentIterator.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/Jet.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
+#include "TLorentzVector.h"
 
 
 using HepMC::GenVertex;
@@ -82,31 +82,31 @@ StatusCode Boosted2DijetFilter::filterEvent() {
   bool pass = false;
   m_Nevt++;
 
-  const JetCollection* truthjetTES = 0;
+  const xAOD::JetContainer* truthjetTES = 0;
   StatusCode sc=evtStore()->retrieve( truthjetTES, m_TruthJetContainerName);
   if( sc.isFailure()  ||  !truthjetTES ) {
     ATH_MSG_WARNING(
-	 "No TruthJet container found in TDS " << m_TruthJetContainerName \
+	 "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
 	<< sc.isFailure() << " "<<   !truthjetTES);
 	
     return StatusCode::SUCCESS;
   }
 
   //getting the akt8 jets
-  const JetCollection* truthjetTES_akt8 = 0;
+  const xAOD::JetContainer* truthjetTES_akt8 = 0;
   StatusCode sc_akt8=evtStore()->retrieve( truthjetTES_akt8, m_TruthJetContainerName_akt8);
   if( sc.isFailure()  ||  !truthjetTES_akt8 ) {
     ATH_MSG_WARNING(
-	 "No TruthJet container found in TDS " << m_TruthJetContainerName_akt8 \
+	 "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName_akt8 \
 	 << sc_akt8.isFailure() << " "<<   !truthjetTES_akt8);
     return StatusCode::SUCCESS;
   }
 
-  JetCollection::const_iterator jitr;
-  std::vector<JetCollection::const_iterator> jets;
-  JetCollection::const_iterator jitr_akt8;
-  std::vector<JetCollection::const_iterator> jets_akt8;
-  std::vector<CLHEP::HepLorentzVector> dijets;
+  xAOD::JetContainer::const_iterator jitr;
+  std::vector<xAOD::JetContainer::const_iterator> jets;
+  xAOD::JetContainer::const_iterator jitr_akt8;
+  std::vector<xAOD::JetContainer::const_iterator> jets_akt8;
+  std::vector<TLorentzVector> dijets;
   
   //getting a collection of truth jets which pass some cuts 
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
@@ -129,13 +129,13 @@ StatusCode Boosted2DijetFilter::filterEvent() {
   //Step 1: look for two unique akt4 dijets
   if(jets.size() > 2){
     //now we have jets, try to form dijets
-    CLHEP::HepLorentzVector temp_dijet;
+    TLorentzVector temp_dijet;
     for(uint k =0; k < jets.size(); k++){
       for(uint l =k+1; l < jets.size(); l++){
         if(jets[k] == jets[l]) continue;
-        if((*jets[k])->hlv().deltaR((*jets[l])->hlv()) < m_dijet_dRMax){
-          temp_dijet = (*jets[k])->hlv() + (*jets[l])->hlv();
-          if(temp_dijet.perp() > m_dijet_ptMin){
+        if((*jets[k])->p4().DeltaR((*jets[l])->p4()) < m_dijet_dRMax){
+          temp_dijet = (*jets[k])->p4() + (*jets[l])->p4();
+          if(temp_dijet.Pt() > m_dijet_ptMin){
             dijets.push_back(temp_dijet);
             jetIDs.push_back(k);
             jetIDs.push_back(l);
@@ -174,7 +174,7 @@ StatusCode Boosted2DijetFilter::filterEvent() {
   }else if(jets_akt8.size() > 0 && dijets.size() > 0){
     //Step 3: look for unique dijet + akt8 jet pair
     for(unsigned int i=0;i<dijets.size();i++){
-      if(dijets[i].deltaR((*jets_akt8[0])->hlv() < 0.8)){ pass = true;}
+      if(dijets[i].DeltaR((*jets_akt8[0])->p4()) < 0.8){ pass = true;}
     }
 
   }

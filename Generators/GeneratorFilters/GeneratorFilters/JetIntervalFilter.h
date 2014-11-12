@@ -6,8 +6,6 @@
 #define GENERATORFILTERS_JETINTERVALFILTER_H
 
 #include "GeneratorModules/GenFilter.h"
-class JetCollection;
-class Jet;
 class TRandom3;
 
 /// Filter events by interval between jets

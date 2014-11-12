@@ -6,8 +6,7 @@
 #define GENERATORFILTERSVBFMJJINTERVALFILTER_H
 
 #include "GeneratorModules/GenFilter.h"
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
+#include "xAODJet/JetContainer.h"
 
 class IAtRndmGenSvc;
 
@@ -48,7 +47,7 @@ private:
 
 public:
 
-  double getEventWeight(JetCollection *jets);
+  double getEventWeight(xAOD::JetContainer *jets);
 };
 
 #endif

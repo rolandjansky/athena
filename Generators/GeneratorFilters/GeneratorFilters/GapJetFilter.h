@@ -18,10 +18,6 @@
 #include <vector>
 #include <string>
 
-//Objects being analysed
-class JetCollection;
-class Jet;
-
 //Random number generator required
 class TRandom3;
 
