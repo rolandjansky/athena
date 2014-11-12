@@ -23,6 +23,7 @@ class LArG4BirksLaw;
 #include <stdexcept>
 #include <vector>
 #include <string>
+#include <memory>
 
 class G4Step;
 class AccMap;
@@ -37,6 +38,9 @@ public:
 
   // Destructor
   ~LArBarrelCalculator();
+
+  LArBarrelCalculator (const LArBarrelCalculator&) = delete;
+  LArBarrelCalculator& operator= (const LArBarrelCalculator&) = delete;
   
   virtual G4bool Process(const G4Step*);
   
@@ -76,9 +80,9 @@ private:
   LArVG4DetectorParameters* m_parameters;
   LArG4::Barrel::Geometry* m_geometry;
   AccMap*   m_accmap;
-  MapEta*   m_etamap1;
-  MapEta*   m_etamap2;
-  MapEta*   m_etamap3;
+  std::unique_ptr<MapEta>   m_etamap1;
+  std::unique_ptr<MapEta>   m_etamap2;
+  std::unique_ptr<MapEta>   m_etamap3;
 
   G4float m_OOTcut;
 
