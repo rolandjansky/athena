@@ -10,8 +10,15 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "EventInfo/EventInfo.h"        // For setting the weight
 #include "EventInfo/EventType.h"        // From event info - the real holder of the event weight
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
+
+
+// Pt  High --> Low
+class High2LowByJetClassPt {
+public:
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
+    return (t1->pt() > t2->pt());
+  }
+};
 
 
 VBFMjjIntervalFilter::VBFMjjIntervalFilter(const std::string& name, ISvcLocator* pSvcLocator)
@@ -57,11 +64,11 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
 
   // Retrieve jet container
-  const DataHandle<JetCollection> truthJetCollection = 0;
-  if ( !evtStore()->contains<JetCollection>( m_TruthJetContainerName ) ||
+  const DataHandle<xAOD::JetContainer> truthJetCollection = 0;
+  if ( !evtStore()->contains<xAOD::JetContainer>( m_TruthJetContainerName ) ||
        evtStore()->retrieve( truthJetCollection, m_TruthJetContainerName).isFailure() ||
        !truthJetCollection ) {
-    ATH_MSG_ERROR("No JetCollection found in StoreGate with key " << m_TruthJetContainerName);
+    ATH_MSG_ERROR("No xAOD::JetContainer found in StoreGate with key " << m_TruthJetContainerName);
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   }
@@ -81,14 +88,14 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
 
   // Filter based on rapidity acceptance and sort
-  JetCollection filteredJets(SG::VIEW_ELEMENTS);
-  for (JetCollection::const_iterator jitr = truthJetCollection->begin(); jitr != truthJetCollection->end(); ++jitr) {
+  xAOD::JetContainer filteredJets(SG::VIEW_ELEMENTS);
+  for (xAOD::JetContainer::const_iterator jitr = truthJetCollection->begin(); jitr != truthJetCollection->end(); ++jitr) {
     if (fabs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
       bool notJet = checkOverlap((*jitr)->rapidity(), (*jitr)->phi(), MCTruthElectronList);
-      if (!notJet) filteredJets.push_back(const_cast<Jet*>(*jitr));
+      if (!notJet) filteredJets.push_back(const_cast<xAOD::Jet*>(*jitr));
     }
   }
-  filteredJets.setOrdered(JetCollection::ByPtDown);
+  filteredJets.sort(High2LowByJetClassPt());
 
   double eventWeight = 1.0;
   eventWeight = getEventWeight(&filteredJets);
@@ -142,7 +149,7 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
 }
 
 
-double VBFMjjIntervalFilter::getEventWeight(JetCollection *jets) {
+double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
   double weight = 1.0;
   if (jets->size() == 0) {
     weight /= m_prob0;
@@ -151,7 +158,7 @@ double VBFMjjIntervalFilter::getEventWeight(JetCollection *jets) {
     weight /= m_prob1;
     ATH_MSG_DEBUG("Event in 1-jet weighting. Weight is " << weight);
   } else {
-    double mjj = (jets->at(0)->hlv() + jets->at(1)->hlv()).m();
+    double mjj = (jets->at(0)->p4() + jets->at(1)->p4()).M();
     if (mjj < m_mjjlow) {
       weight /= m_prob2low;
     } else if (mjj > m_mjjhigh) {

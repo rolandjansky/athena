@@ -3,7 +3,7 @@
 */
 
 #include "GeneratorFilters/MultiObjectsFilter.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 MultiObjectsFilter::MultiObjectsFilter(const std::string& name, ISvcLocator* pSvcLocator)
@@ -81,11 +81,11 @@ StatusCode MultiObjectsFilter::filterEvent() {
   }
 
   if (m_useJet) {
-    const JetCollection* truthjetTES;
+    const xAOD::JetContainer* truthjetTES;
     CHECK(evtStore()->retrieve(truthjetTES, m_TruthJetContainerName));
-    ATH_MSG_DEBUG("TruthJet Container Size = " << truthjetTES->size());
+    ATH_MSG_DEBUG("xAOD::JetContainer Size = " << truthjetTES->size());
 
-    for (JetCollection::const_iterator jitr = truthjetTES->begin(); jitr != truthjetTES->end(); ++jitr) {
+    for (xAOD::JetContainer::const_iterator jitr = truthjetTES->begin(); jitr != truthjetTES->end(); ++jitr) {
       if ((*jitr)->pt() > m_jetPtCut && fabs((*jitr)->eta()) < m_jetEtaCut) {
         ATH_MSG_DEBUG("Found jet: pT, eta, phi = " << (*jitr)->pt()/Gaudi::Units::GeV << "GeV, " << (*jitr)->eta() << " " << (*jitr)->phi());
         pt.push_back((*jitr)->pt());

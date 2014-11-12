@@ -6,7 +6,7 @@
 #define GENERATORFILTERS_BSUBSTRUCTURE_H
 
 #include "GeneratorModules/GenFilter.h"
-class Jet;
+#include "xAODJet/Jet.h"
 class TH1;
 
 typedef std::vector<const HepMC::GenParticle*> Particles;
@@ -36,11 +36,11 @@ private:
   /// the delta-r between two vectors at y, phi
   double deltaR(double y1, double phi1, double y2, double phi2)const;
   /// the delta-r between a jet an a hadron
-  double deltaR(const HepMC::GenParticle *particle, const Jet *jet)const;
+  double deltaR(const HepMC::GenParticle *particle, const xAOD::Jet *jet)const;
   /// the delta-r between two hadrons
   double deltaR(const HepMC::GenParticle *particle1, const HepMC::GenParticle *particle2)const;
   /// the delta-r between two jets
-  double deltaR(const Jet*, const Jet*)const;
+  double deltaR(const xAOD::Jet*, const xAOD::Jet*)const;
   // the delta-phi of two angles, returned in the range 0-Pi
   double deltaPhi(double phi1, double phi2)const;
 

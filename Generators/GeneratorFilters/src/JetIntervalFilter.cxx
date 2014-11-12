@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GeneratorFilters/JetIntervalFilter.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include <cmath>
 #include "TRandom3.h"
@@ -13,7 +13,7 @@
 /// @todo Move to a generator utils library
 class High2LowByJetClassPt {
 public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
     return (t1->pt() > t2->pt());
   }
 };
@@ -22,8 +22,8 @@ public:
 /// @todo Move to a generator utils library
 class High2LowByJetClassEt {
 public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
-    return (t1->et() > t2->et());
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
+    return ((t1->p4()).Et() > (t2->p4()).Et());
   }
 };
 
@@ -71,7 +71,7 @@ JetIntervalFilter::JetIntervalFilter(const std::string & name, ISvcLocator * pSv
 
 StatusCode JetIntervalFilter::filterInitialize() {
   // Output settings to screen
-  ATH_MSG_INFO("Truth Jet Container: " <<  m_jetContainer);
+  ATH_MSG_INFO("xAOD::JetContainer: " <<  m_jetContainer);
   ATH_MSG_INFO("Jet Number: " <<  m_jetNumber);
   ATH_MSG_INFO("Opposite Side Jets: " <<  m_jetOppositeSide);
 
@@ -122,13 +122,13 @@ StatusCode JetIntervalFilter::filterFinalize() {
 
 StatusCode JetIntervalFilter::filterEvent() {
   // Get TruthJets
-  ATH_MSG_DEBUG("Get truthJet container");
-  const JetCollection* truthjetTES;
+  ATH_MSG_DEBUG("Get xAOD::JetContainer");
+  const xAOD::JetContainer* truthjetTES;
   CHECK(evtStore()->retrieve(truthjetTES, m_jetContainer));
-  ATH_MSG_INFO("TruthJet Container Size = " << truthjetTES->size());
+  ATH_MSG_INFO("xAOD::JetContainer Size = " << truthjetTES->size());
 
   // Get a list of all the truth jets
-  std::vector<const Jet*> jetList(truthjetTES->begin(), truthjetTES->end());
+  std::vector<const xAOD::Jet*> jetList(truthjetTES->begin(), truthjetTES->end());
 
   // Sort jets by Pt or Et
   if (m_jetCutByPt) {
@@ -146,7 +146,7 @@ StatusCode JetIntervalFilter::filterEvent() {
   // Leading 1st jet
   int flag1stJet = -1;
   if (jetList.size() >= 1) {
-    const Jet *j1 = jetList[0];
+    const xAOD::Jet *j1 = jetList[0];
     flag1stJet = 1;
     if (m_jetCutByPt) {
       if (j1->pt() < m_jet1MinPt) {
@@ -156,10 +156,10 @@ StatusCode JetIntervalFilter::filterEvent() {
         flag1stJet = 0;
       }
     } else {
-      if (j1->et() < m_jet1MinEt) {
+      if (j1->p4().Et() < m_jet1MinEt) {
         flag1stJet = 0;
       }
-      if (j1->et() > m_jet1MaxEt) {
+      if (j1->p4().Et() > m_jet1MaxEt) {
         flag1stJet = 0;
       }
     }
@@ -175,7 +175,7 @@ StatusCode JetIntervalFilter::filterEvent() {
   // 2nd jet
   int flag2ndJet = -1;
   if (jetList.size() >= 2) {
-    const Jet *j2 = jetList[1];
+    const xAOD::Jet *j2 = jetList[1];
     flag2ndJet = 1;
     if (m_jetCutByPt) {
       if (j2->pt() < m_jet2MinPt) {
@@ -185,10 +185,10 @@ StatusCode JetIntervalFilter::filterEvent() {
         flag2ndJet = 0;
       }
     } else {
-      if (j2->et() < m_jet2MinEt) {
+      if (j2->p4().Et() < m_jet2MinEt) {
         flag2ndJet = 0;
       }
-      if (j2->et() > m_jet2MaxEt) {
+      if (j2->p4().Et() > m_jet2MaxEt) {
         flag2ndJet = 0;
       }
     }
@@ -207,8 +207,8 @@ StatusCode JetIntervalFilter::filterEvent() {
   if (m_jetOppositeSide) {
     flagSign = 0;
     if (jetList.size() >= 2) {
-      const Jet *j1 = jetList[0];
-      const Jet *j2 = jetList[1];
+      const xAOD::Jet *j1 = jetList[0];
+      const xAOD::Jet *j2 = jetList[1];
       if (j1->eta()*j2->eta() < 0.) flagSign = 1;
     }
   }
@@ -218,8 +218,8 @@ StatusCode JetIntervalFilter::filterEvent() {
   int flagJJ = -1;
   double intervalSize = -100.0;
   if (jetList.size() >= 2) {
-    const Jet *j1 = jetList[0];
-    const Jet *j2 = jetList[1];
+    const xAOD::Jet *j1 = jetList[0];
+    const xAOD::Jet *j2 = jetList[1];
     flagJJ = 1;
     intervalSize = std::fabs(j1->eta()-j2->eta());
     if (intervalSize < m_minDeltaEta) {

@@ -5,7 +5,7 @@
 #include "GeneratorFilters/BSubstruct.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "TH1F.h"
 
 #include <cmath>
@@ -73,7 +73,7 @@ inline  double BSubstruct::deltaR(const HepMC::GenParticle* particle1, const Hep
 }
 
 
-inline double BSubstruct::deltaR(const HepMC::GenParticle* particle, const Jet* jet) const {
+inline double BSubstruct::deltaR(const HepMC::GenParticle* particle, const xAOD::Jet* jet) const {
   // GenParticle does not provide rapidity (only pseudo-rapidity)
   // Since we are likely dealing with massive b-hadrons and massive jets
   // and the jet-clustering alg uses rapidity, I think we should use that
@@ -83,7 +83,7 @@ inline double BSubstruct::deltaR(const HepMC::GenParticle* particle, const Jet* 
 }
 
 
-inline double BSubstruct::deltaR(const Jet* jet1, const Jet* jet2) const {
+inline double BSubstruct::deltaR(const xAOD::Jet* jet1, const xAOD::Jet* jet2) const {
   return deltaR(jet1->rapidity(), jet1->phi(), jet2->rapidity(), jet2->phi());
 }
 
@@ -217,7 +217,7 @@ StatusCode BSubstruct::filterEvent() {
 
   if (m_doHeavyHadrons) fillHistos(m_h_dPhiAll, m_h_dRAll, m_h_nBAll, 0, bHadrons, 1.);
 
-  const JetCollection* jets;
+  const xAOD::JetContainer* jets;
   StatusCode sc = evtStore()->retrieve(jets, m_jetContainerName);
   if (sc == StatusCode::FAILURE || jets == 0 || jets->size() == 0) {
     setFilterPassed(false);
@@ -226,7 +226,7 @@ StatusCode BSubstruct::filterEvent() {
   }
 
   bool gotJet = false;
-  for (JetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (xAOD::JetContainer::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
     if ((*jet)->pt() < m_jetPTMin) continue;
     if (m_doJetMaxPTCut && (*jet)->pt() > m_jetPTMax) continue;
     gotJet = true;

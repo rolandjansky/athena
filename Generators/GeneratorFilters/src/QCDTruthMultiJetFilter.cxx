@@ -4,7 +4,7 @@
 
 #include "GeneratorFilters/QCDTruthMultiJetFilter.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 #include "EventInfo/EventInfo.h" // For setting the weight
@@ -70,10 +70,10 @@ StatusCode QCDTruthMultiJetFilter::filterEvent() {
   }
 
   // Get jet container out
-  const DataHandle<JetCollection> truthjetTES = 0;
-  if (!evtStore()->contains<JetCollection>(m_TruthJetContainerName) ||
+  const DataHandle<xAOD::JetContainer> truthjetTES = 0;
+  if (!evtStore()->contains<xAOD::JetContainer>(m_TruthJetContainerName) ||
       evtStore()->retrieve(truthjetTES, m_TruthJetContainerName).isFailure() || !truthjetTES) {
-    ATH_MSG_INFO("No JetCollection found in StoreGate with key " << m_TruthJetContainerName);
+    ATH_MSG_ERROR("No xAOD::JetContainer found in StoreGate with key " << m_TruthJetContainerName);
     setFilterPassed(m_MinLeadJetPt < 1);
     return StatusCode::SUCCESS;
   }
@@ -81,7 +81,7 @@ StatusCode QCDTruthMultiJetFilter::filterEvent() {
   // Count jets above m_NjetMinPt and find pT of leading jet
   int Njet=0;
   double pt_lead = -1;
-  for (JetCollection::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
+  for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
     if (fabs( (*it_truth)->eta() ) > m_MaxEta) continue;
     if ((*it_truth)->pt() > m_NjetMinPt*Gaudi::Units::GeV) Njet++;

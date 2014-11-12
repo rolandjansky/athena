@@ -4,23 +4,15 @@
 
 // Filter to suppress events in the low pt/deltaY region.
 #include "GeneratorFilters/JetForwardFilter.h"
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
 #include "TRandom3.h"
 
 // Pt  High --> Low
 /// @todo Move to a util library
 class High2LowByJetClassPt {
 public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
     return (t1->pt() > t2->pt());
-  }
-};
-// Et  High --> Low
-/// @todo Move to a util library
-class High2LowByJetClassEt {
-public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
-    return (t1->et() > t2->et());
   }
 };
 
@@ -56,7 +48,7 @@ JetForwardFilter::JetForwardFilter(const std::string& name, ISvcLocator* pSvcLoc
 
 
 StatusCode JetForwardFilter::filterInitialize() {
-  ATH_MSG_INFO("Truth Jet Container: " <<  m_jetContainer);
+  ATH_MSG_INFO("xAOD::JetContainer: " <<  m_jetContainer);
   ATH_MSG_INFO("Jet 1 Min Pt: " <<  m_minPt1);
   ATH_MSG_INFO("Jet 1 Max Pt: " <<  m_maxPt1);
   ATH_MSG_INFO("Jet 2 Min Pt: " <<  m_minPt2);
@@ -100,12 +92,12 @@ StatusCode JetForwardFilter::filterFinalize() {
 
 StatusCode JetForwardFilter::filterEvent() {
   // Get TruthJets
-  const JetCollection* truthjetTES;
+  const xAOD::JetContainer* truthjetTES;
   CHECK(evtStore()->retrieve(truthjetTES, m_jetContainer));
-  ATH_MSG_INFO("TruthJet Container Size = " << truthjetTES->size());
+  ATH_MSG_INFO("xAOD::JetContainer Size = " << truthjetTES->size());
 
   // Get a list of all the truth jets, sorted by pT
-  std::vector<const Jet*> jetList(truthjetTES->begin(), truthjetTES->end());
+  std::vector<const xAOD::Jet*> jetList(truthjetTES->begin(), truthjetTES->end());
   std::sort(jetList.begin(), jetList.end(), High2LowByJetClassPt());
 
   // Number of jets (need at least two)
@@ -115,7 +107,7 @@ StatusCode JetForwardFilter::filterEvent() {
   int flag1stJet = -1;
   double jetPt1 = -1.0;
   if (jetList.size() >= 1) {
-    const Jet* j1 = jetList[0];
+    const xAOD::Jet* j1 = jetList[0];
     jetPt1 = j1->pt()/1000.0;
     flag1stJet = 1;
     if (j1->pt()/1000.0 < m_minPt1) flag1stJet = 0;
@@ -125,7 +117,7 @@ StatusCode JetForwardFilter::filterEvent() {
   // Leading 2nd jet
   int flag2ndJet = -1;
   if (jetList.size() >= 2) {
-    const Jet* j2 = jetList[1];
+    const xAOD::Jet* j2 = jetList[1];
     flag2ndJet = 1;
     if (j2->pt()/1000.0 < m_minPt2) flag2ndJet = 0;
     if (j2->pt()/1000.0 > m_maxPt2) flag2ndJet = 0;
@@ -135,8 +127,8 @@ StatusCode JetForwardFilter::filterEvent() {
   int flagJJ = -1;
   double intervalSize = -100.0;
   if (jetList.size() >= 2) {
-    const Jet *j1 = jetList[0];
-    const Jet *j2 = jetList[1];
+    const xAOD::Jet *j1 = jetList[0];
+    const xAOD::Jet *j2 = jetList[1];
     flagJJ = 1;
     intervalSize = std::fabs(j1->rapidity()-j2->rapidity());
     if (intervalSize < m_minDeltaY) flagJJ = 0;

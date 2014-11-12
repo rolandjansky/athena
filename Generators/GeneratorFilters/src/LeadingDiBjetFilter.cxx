@@ -24,12 +24,11 @@
 // Other classes used by this class:-
 #include <math.h>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
-#include "JetEvent/JetConstituentIterator.h"
+#include "xAODJet/JetContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
 #include "TRandom3.h"
+#include "TLorentzVector.h"
 
 
 using HepMC::GenVertex;
@@ -103,13 +102,13 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
   bool pass = false;
   m_Nevt++;
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 001" << endreq;
-  const JetCollection* truthjetTES = 0;
+  const xAOD::JetContainer* truthjetTES = 0;
   //  StatusCode sc=m_sgSvc->retrieve( truthjetTES, m_TruthJetContainerName);
   StatusCode sc=evtStore()->retrieve( truthjetTES, m_TruthJetContainerName);
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 002" << endreq;
   if( sc.isFailure()  ||  !truthjetTES ) {
     log << MSG::WARNING
-	<< "No TruthJet container found in TDS " << m_TruthJetContainerName \
+	<< "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
 	<< sc.isFailure() << " "<<   !truthjetTES
 	<< endreq;
     return StatusCode::SUCCESS;
@@ -117,10 +116,10 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
 
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 003" << endreq;
   bool passLeadJetCut = false;
-  JetCollection::const_iterator jitr;
+  xAOD::JetContainer::const_iterator jitr;
   double lead_jet_pt = 0.0;
   double lead_2nd_jet_pt = 0.0;
-  std::vector<JetCollection::const_iterator> jets;
+  std::vector<xAOD::JetContainer::const_iterator> jets;
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 004" << endreq;
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
     if( (*jitr)->pt() < m_jetPtMin ) continue;
@@ -185,8 +184,8 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
     for(uint i = 0; i < jets.size(); i++){   
       for(uint j = 0; j < bHadrons.size(); j++){
 	HepMC::FourVector tmp = (*bHadrons[j])->momentum();
-	CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
-	double dR = (*jets[i])->hlv().deltaR(genpart);
+	TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
+	double dR = (*jets[i])->p4().DeltaR(genpart);
 	if(dR<m_deltaRFromTruth){ 
 	  bJetCounter++;
 	  break;

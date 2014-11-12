@@ -19,7 +19,8 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 // Truth objects analysed
-#include "JetEvent/JetCollection.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/Jet.h"
 
 // Other classes used by this class:-
 //#include <cmath>
@@ -35,19 +36,10 @@ using namespace std;
 class High2LowByJetClassPt
 {
 public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
+  bool operator () (const xAOD::Jet *t1, const xAOD::Jet *t2) const {
     return (t1->pt() > t2->pt());
   }
 };
-// Et  High --> Low
-class High2LowByJetClassEt
-{
-public:
-  bool operator () (const Jet *t1, const Jet *t2) const {
-    return (t1->et() > t2->et());
-  }
-};
-
 
 //--------------------------------------------------------------------------
 GapJetFilter::GapJetFilter(const std::string & name,
@@ -108,7 +100,7 @@ GapJetFilter::filterInitialize()
   }
 
   //Output settings to screen
-  msg(MSG::INFO) << "Truth Jet Container: " <<  m_jetContainer << endreq;
+  msg(MSG::INFO) << "xAOD::JetContainer: " <<  m_jetContainer << endreq;
 
   //Jet Kinematic Cuts
   msg( MSG::INFO) << "Jet 1 Min Pt: " <<  m_minPt1 <<" Gaudi::Units::GeV"<< endreq;
@@ -161,23 +153,23 @@ GapJetFilter::filterEvent()
   // Get TruthJets
   //
   msg(MSG::DEBUG) << "get truthJet container" << endreq;
-  const JetCollection* truthjetTES;
+  const xAOD::JetContainer* truthjetTES;
   sc=m_storeGate->retrieve(truthjetTES, m_jetContainer);
   if( sc.isFailure() || !truthjetTES ) {
     msg(MSG::WARNING)
-         << "No TruthJet container found in TDS " 
+         << "No xAOD::JetContainer found in TDS " 
 	 << m_jetContainer << " " 
 	 << sc.isFailure() << " " << !truthjetTES
          << endreq;
     return StatusCode::SUCCESS;
   }
-  msg(MSG::INFO) << "TruthJet Container Size = " 
+  msg(MSG::INFO) << "xAOD::JetContainer Size = " 
        << truthjetTES->size() << endreq;
 
 
   // Get a list of all the truth jets
-  std::vector<const Jet*> jetList;
-  for (JetCollection::const_iterator it_truth = truthjetTES->begin(); 
+  std::vector<const xAOD::Jet*> jetList;
+  for (xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin(); 
        it_truth != truthjetTES->end(); ++it_truth) {
 
       jetList.push_back(*it_truth);
@@ -204,7 +196,7 @@ GapJetFilter::filterEvent()
   //double jetPt1 = -1.0;
   //float jetEta1 = -99.0;
   if (jetList.size() >=1) {
-    const Jet *j1 = jetList[0];
+    const xAOD::Jet *j1 = jetList[0];
     //jetPt1 = j1->pt()/1000.0;
     flag1stJet = 1;
 
@@ -224,7 +216,7 @@ GapJetFilter::filterEvent()
   int flag2ndJet = -1;
   //float jetEta2 = -99.0;
   if (jetList.size() >=2) {
-    const Jet *j2 = jetList[1];
+    const xAOD::Jet *j2 = jetList[1];
     
     flag2ndJet = 1;
 
