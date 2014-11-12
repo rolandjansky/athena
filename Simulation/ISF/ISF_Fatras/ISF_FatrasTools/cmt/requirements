@@ -21,7 +21,6 @@ use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode
 ########## Tracking ############################################################
 use TrkDetDescrUtils         TrkDetDescrUtils-*         Tracking/TrkDetDescr
 use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
-use TrkEventUtils            TrkEventUtils-*            Tracking/TrkEvent
 use TrkExInterfaces          TrkExInterfaces-*          Tracking/TrkExtrapolation
 use TrkExUtils               TrkExUtils-*               Tracking/TrkExtrapolation
 use TrkParameters            TrkParameters-*            Tracking/TrkEvent
@@ -44,6 +43,7 @@ use TrkVolumes               TrkVolumes-*               Tracking/TrkDetDescr
 use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*    Tracking/TrkDetDescr
 use TrkTrack                 TrkTrack-*                 Tracking/TrkEvent
 use TrkMaterialOnTrack       TrkMaterialOnTrack-*       Tracking/TrkEvent
+use TrkNeutralParameters     TrkNeutralParameters-*     Tracking/TrkEvent
 
 ########## ISF #################################################################
 use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core   

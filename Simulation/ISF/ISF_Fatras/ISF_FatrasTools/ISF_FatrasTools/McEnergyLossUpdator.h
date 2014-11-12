@@ -57,7 +57,7 @@ namespace iFatras{
     /** IEnergyLossUpdator public method to compute dEdX */
     double dEdX( const Trk::MaterialProperties& materialProperties,
 	               double momentum,
-	               Trk::ParticleHypothesis particleHypothesis = Trk::pion ) const;
+	               Trk::ParticleHypothesis particleHypothesis = Trk::pion ) const override;
 
     /** IEnergyLossUpdator public method to compute the mean and variance of the energy loss */
     Trk::EnergyLoss* energyLoss( const Trk::MaterialProperties& materialProperties,
@@ -65,7 +65,15 @@ namespace iFatras{
                                  double pathCorrection,
                                  Trk::PropDirection direction = Trk::alongMomentum,
                                  Trk::ParticleHypothesis particleHypothesis = Trk::pion,
-                                 bool mpv=true) const;
+                                 bool mpv=true) const override;
+
+  /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
+        the detailed Eloss information Calorimeter energy, error momentum and momentum error */
+  
+    Trk::EnergyLoss* updateEnergyLoss( Trk::EnergyLoss*, double, double, double, double, int&) const override { return 0; }
+  
+   /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
+   void getX0ElossScales(int, double, double, double&, double& ) const override {}
 
  private:
   

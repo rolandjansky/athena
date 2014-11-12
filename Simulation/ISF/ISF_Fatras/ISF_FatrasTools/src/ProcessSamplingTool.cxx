@@ -139,8 +139,6 @@ Trk::PathLimit iFatras::ProcessSamplingTool::sampleProcess(double momentum,doubl
     x0Max = log(rndx)/attenuation ;
     process = 5;
 
-    //std::cout <<"annihilation path limit:"<< x0Max << std::endl;
-
     return Trk::PathLimit(x0Max,process);
 
   }

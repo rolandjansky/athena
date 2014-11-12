@@ -20,7 +20,6 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkEventUtils/TrkParametersManipulator.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkDetDescrUtils/LayerIndexSampleMap.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
@@ -76,7 +75,6 @@ namespace iFatras {
    */
    
    class McMaterialEffectsUpdator : public AthAlgTool,
-                                    public Trk::TrkParametersManipulator,
                                     virtual public Trk::ITimedMatEffUpdator {
     public:      
       /**AlgTool constructor for McMaterialEffectsUpdator*/
