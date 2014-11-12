@@ -628,17 +628,20 @@ double deadZone(double locx, double locy, double /*rot*/=0)
 		       if(copyModule == 31) phiBin = 0; else phiBin=copyModule+1;
 		 }
 	      type =2; 
-              if( locy < pads[copyN-100][4] ) region = 3;  else region = 2;
 	      switch(copyN) {
 	         case 100: {sampling = 0; break;}
 	         case 101: case 102: {sampling=1; break;}	
 	         case 103: case 104: {sampling=2; break;}	
 	         case 105: case 106: {sampling=3; break;}	
 	      }
-              switch(region) {
-                  case 3: { etaBin = 3 - binSearch(locy, copyN-100, region-2); break; }
-                  case 2: { etaBin = 13 - binSearch(locy, copyN-100, region-2); break; }
-                  default: { assert(0<1); break; }
+
+              if( locy < pads[copyN-100][4] ) {
+                region = 3;
+                etaBin = 3 - binSearch(locy, copyN-100, region-2);
+              }
+              else {
+                region = 2;
+                etaBin = 13 - binSearch(locy, copyN-100, region-2);
               }
 	   }
 	}
