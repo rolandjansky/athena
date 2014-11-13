@@ -17,8 +17,6 @@ apply_pattern installed_library
 
 private
 
-use EventPrimitives	EventPrimitives-* Event
-
 use TrigTimeAlgs                TrigTimeAlgs-*          Trigger/TrigTools
 use TrkRIO_OnTrack TrkRIO_OnTrack-* Tracking/TrkEvent
 use InDetRIO_OnTrack InDetRIO_OnTrack-* InnerDetector/InDetRecEvent

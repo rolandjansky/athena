@@ -18,8 +18,6 @@
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetTrackUtils/TrigToTrkTrackTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "EventPrimitives/SymmetricMatrixHelpers.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
