@@ -127,7 +127,6 @@ namespace InDet {
 
   const Trk::ResidualPull* InDet::InDetTestBLayerTool::bLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
   {
-    
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
@@ -139,9 +138,44 @@ namespace InDet {
 
   }
 
+  const Trk::ResidualPull* InDet::InDetTestBLayerTool::innermostPixelLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
+  {
+  
+    const Trk::Track* track = trackparticle->originalTrack();
+    
+    if (!track) {
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      return 0;
+    }
+
+    return(this->innermostPixelLayerHitResidual(track));
+
+  }
+
+   const Trk::ResidualPull* InDet::InDetTestBLayerTool::nextToInnermostPixelLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
+  {
+  
+    const Trk::Track* track = trackparticle->originalTrack();
+    
+    if (!track) {
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      return 0;
+    }
+
+    return(this->nextToInnermostPixelLayerHitResidual(track));
+
+  }
+
+ 
   const Trk::ResidualPull* InDet::InDetTestBLayerTool::bLayerHitResidual(const Trk::Track* track) const
   {
+   
+    return (this->innermostPixelLayerHitResidual(track));
+ 
+  }  
 
+  const Trk::ResidualPull* InDet::InDetTestBLayerTool::innermostPixelLayerHitResidual(const Trk::Track* track) const
+  {
     //    const Trk::ResidualPull* residualPull=0;
     const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();    
     
@@ -174,11 +208,11 @@ namespace InDet {
 		if(m_pixelId->is_barrel(id)) 
 		{ 
 		    ATH_MSG_DEBUG("Found pixel barrel");
-		    if(m_pixelId->is_blayer(id)) 
+		    if(m_pixelId->layer_disk(id) == 0) 
 		      {
 			if (msgLvl(MSG::DEBUG)) 
 			  {
-			    msg(MSG::DEBUG) << "Found b-layer  " << id.get_compact() << endreq;	    
+			    msg(MSG::DEBUG) << "Found Innermost Pixel Layer  " << id.get_compact() << endreq;	    
 			  }
 			
 			return m_residualPullCalculator->residualPull(measurement,(*it)->trackParameters(),Trk::ResidualPull::Biased);
@@ -192,11 +226,64 @@ namespace InDet {
   
     return 0;
     
-  }
+  }  
+
+  const Trk::ResidualPull* InDet::InDetTestBLayerTool::nextToInnermostPixelLayerHitResidual(const Trk::Track* track) const
+  {
+    //    const Trk::ResidualPull* residualPull=0;
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();    
+    
+    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+	 it!=trackStates->end();
+	 it++) {
+      if (!(*it)) {
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	continue;
+      }
+
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+
+	ATH_MSG_VERBOSE ("try to get measurement for track state");
+	// Get pointer to measurement on track
+	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+
+
+	if(  (*it)->trackParameters() !=0 &&
+	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
+	  {  
+
+	    Identifier id;
+	    id = (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify();
+	    if (m_idHelper->is_pixel(id)) 
+	      {
+		ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
+		if(m_pixelId->is_barrel(id)) 
+		{ 
+		    ATH_MSG_DEBUG("Found pixel barrel");
+		    if(m_pixelId->layer_disk(id) == 1) 
+		      {
+			if (msgLvl(MSG::DEBUG)) 
+			  {
+			    msg(MSG::DEBUG) << "Found Next To Innermost Pixel Layer  " << id.get_compact() << endreq;	    
+			  }
+			
+			return m_residualPullCalculator->residualPull(measurement,(*it)->trackParameters(),Trk::ResidualPull::Biased);
+			
+		      }
+		  }
+	      }
+	  }
+      }
+    }
+  
+    return 0;
+    
+  }   
 
   bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::Track* track, bool recompute) const 
   {
-    
     if(!recompute){
       const Trk::TrackSummary* ts =  track->trackSummary();
       if(ts){
@@ -226,10 +313,76 @@ namespace InDet {
 	return this->expectHitInBLayer(mp);
       }
   }
+
+   bool InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(const Trk::Track* track, bool recompute) const 
+  {
+    if(!recompute){
+      const Trk::TrackSummary* ts =  track->trackSummary();
+      if(ts){
+	int ehbl = ts->get(Trk::expectInnermostPixelLayerHit); 
+	if(0==ehbl || 1==ehbl ){
+	  ATH_MSG_DEBUG("Found expectHitInInnermostPixelLayer info in TrackSummary: return cached value" );
+	  return ehbl;
+	}
+      }
+    }
+    else{
+      ATH_MSG_DEBUG("Forced to recompute expectHitInInnermostPixelLayer info" );
+    }
+
+    ATH_MSG_DEBUG("computing expectHitInInnermostPixelLayer info" );
+
+    const Trk::Perigee* mp = track->perigeeParameters();
+    
+    if (!mp)
+      {
+	ATH_MSG_WARNING("Found Track with no perigee parameters: no Innermost Pixel Layer info will be provided " );
+	return false;
+      } 
+    else 
+      {
+	ATH_MSG_DEBUG("Track perigee parameters");
+	return this->expectHitInInnermostPixelLayer(mp);
+      }
+  }
+
+
+  bool InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(const Trk::Track* track, bool recompute) const 
+  {
+    if(!recompute){
+      const Trk::TrackSummary* ts =  track->trackSummary();
+      if(ts){
+	int ehbl = ts->get(Trk::expectNextToInnermostPixelLayerHit); 
+	if(0==ehbl || 1==ehbl ){
+	  ATH_MSG_DEBUG("Found expectHitInNextToInnermostPixelLayer info in TrackSummary: return cached value" );
+	  return ehbl;
+	}
+      }
+    }
+    else{
+      ATH_MSG_DEBUG("Forced to recompute expectHitInNextToInnermostPixelLayer info" );
+    }
+
+    ATH_MSG_DEBUG("computing expectHitInNextToInnermostPixelLayer info" );
+
+    const Trk::Perigee* mp = track->perigeeParameters();
+    
+    if (!mp)
+      {
+	ATH_MSG_WARNING("Found Track with no perigee parameters: no Next To Innermost Pixel Layer info will be provided " );
+	return false;
+      } 
+    else 
+      {
+	ATH_MSG_DEBUG("Track perigee parameters");
+	return this->expectHitInNextToInnermostPixelLayer(mp);
+      }
+  }
+
+
   
   bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::TrackParticleBase* track, bool recompute) const
   {
-    
     if(!recompute){
       const Trk::TrackSummary* ts =  track->trackSummary();
       if(ts){
@@ -260,11 +413,80 @@ namespace InDet {
 	return (this->expectHitInBLayer(mp));
       }
   }
+
+  bool InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(const Trk::TrackParticleBase* track, bool recompute) const
+  {
+    
+    if(!recompute){
+      const Trk::TrackSummary* ts =  track->trackSummary();
+      if(ts){
+	int ehbl = ts->get(Trk::expectInnermostPixelLayerHit); 
+	if(0==ehbl || 1==ehbl ){
+	  ATH_MSG_DEBUG("Found expectHitInInnerMostPixelLayer info in TrackSummary: return cached value" );
+	  return ehbl;
+	}
+      }
+    }
+    else{
+      ATH_MSG_DEBUG("Forced to recompute expectHitInInnermostPixelLayer info" );
+    }
+    
+    ATH_MSG_DEBUG("computing expectHitInInnermostPxielLayer info" );
+    
+    const Trk::Perigee* mp = track->perigee();
+    
+    if(!mp)
+      {
+	ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no Innermost Pixel info will be provided");
+	return false;
+      } 
+    else
+      {
+	ATH_MSG_DEBUG("TrackParticle perigee parameters");
+	//	  mp->dump(mLog);
+	return (this->expectHitInInnermostPixelLayer(mp));
+      }
+  }
+
+
+   bool InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(const Trk::TrackParticleBase* track, bool recompute) const
+  {
+    
+    if(!recompute){
+      const Trk::TrackSummary* ts =  track->trackSummary();
+      if(ts){
+	int ehbl = ts->get(Trk::expectNextToInnermostPixelLayerHit); 
+	if(0==ehbl || 1==ehbl ){
+	  ATH_MSG_DEBUG("Found expectHitInNextToInnermostPxielLayer info in TrackSummary: return cached value" );
+	  return ehbl;
+	}
+      }
+    }
+    else{
+      ATH_MSG_DEBUG("Forced to recompute expectHitInNextToInnermostLayer info" );
+    }
+    
+    ATH_MSG_DEBUG("computing expectHitInNexttoInnermostPixelLayer info" );
+    
+    const Trk::Perigee* mp = track->perigee();
+    
+    if(!mp)
+      {
+	ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no NextToInnermost info will be provided");
+	return false;
+      } 
+    else
+      {
+	ATH_MSG_DEBUG("TrackParticle perigee parameters");
+	//	  mp->dump(mLog);
+	return (this->expectHitInNextToInnermostPixelLayer(mp));
+      }
+  }
   
+
 
   bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::TrackParameters* trackpar) const
   {
-    
     if(!m_configured){
       ATH_MSG_WARNING("Unconfigured tool, unable to compute expectHitInBLayer");
       return false;
@@ -277,7 +499,7 @@ namespace InDet {
     
 
     std::vector<const Trk::TrackParameters*> blayerParam;
-    if(!this->getBLayerParameters(trackpar, blayerParam)) return false;	
+    if(!this->getPixelLayerParameters(trackpar, blayerParam, 0)) return false;	
 
     std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
 
@@ -332,7 +554,151 @@ namespace InDet {
     return expect_hit;
     
   }
+
+  bool InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const
+  {
+    
+    if(!m_configured){
+      ATH_MSG_WARNING("Unconfigured tool, unable to compute expectHitInInnermostPixelLayer");
+      return false;
+    }
+
+
+    bool expect_hit = false; /// will be set to true if at least on good module is passed
+
+    //// Cylinder bigger than the b-layer ////
+    
+
+    std::vector<const Trk::TrackParameters*> blayerParam;
+    if(!this->getPixelLayerParameters(trackpar, blayerParam,0)) return false;	
+
+    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
+
+    for(; it !=blayerParam.end(); ++it){
+
+      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+
+      if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+
+	if( m_checkActiveAreas ){
+
+	  if( isActive(*it) ){
+
+	    if(m_checkDeadRegions){
+
+	      double fracGood = getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      if(fracGood>m_goodFracCut){
+		ATH_MSG_DEBUG("Condition Summary: Innermost Layer good");
+		expect_hit=true;  /// pass good module -> hit is expected on blayer
+	      }
+	      else{
+		ATH_MSG_DEBUG("b-layer in dead region");
+	      }
+
+	    }
+	    else{ /// check dead regios
+	      ATH_MSG_DEBUG("Condition Summary: Innermost Layer good");
+	      expect_hit=true;  /// pass good module -> hit is expected on blayer
+	    }
+
+	  }
+	  else{
+	    ATH_MSG_DEBUG("Condition Summary: Innermost Layer good but outside active area");
+	  }
+
+	} /// check active area (check edges)
+	else{
+	  ATH_MSG_DEBUG("Condition Summary: Innermost Layer good, active areas not checked");
+	  expect_hit=true; /// pass good module -> hit is expected on blayer
+	}
+
+      }
+      else{
+	ATH_MSG_DEBUG("Innermost Layer not good");
+      }
+
+      delete *it;
+
+    } /// blayer param
+
+
+    return expect_hit;
+    
+  }
 		    
+
+  bool InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(const Trk::TrackParameters* trackpar) const
+  {
+    
+    if(!m_configured){
+      ATH_MSG_WARNING("Unconfigured tool, unable to compute expectHitInNextToInnermostPixelLayer");
+      return false;
+    }
+
+
+    bool expect_hit = false; /// will be set to true if at least on good module is passed
+
+    //// Cylinder bigger than the b-layer ////
+    
+
+    std::vector<const Trk::TrackParameters*> blayerParam;
+    if(!this->getPixelLayerParameters(trackpar, blayerParam,1)) return false;	
+
+    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
+
+    for(; it !=blayerParam.end(); ++it){
+
+      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+
+      if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+
+	if( m_checkActiveAreas ){
+
+	  if( isActive(*it) ){
+
+	    if(m_checkDeadRegions){
+
+	      double fracGood = getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      if(fracGood>m_goodFracCut){
+		ATH_MSG_DEBUG("Condition Summary: NExt To Innermost Layer good");
+		expect_hit=true;  /// pass good module -> hit is expected on blayer
+	      }
+	      else{
+		ATH_MSG_DEBUG("b-layer in dead region");
+	      }
+
+	    }
+	    else{ /// check dead regios
+	      ATH_MSG_DEBUG("Condition Summary: Next To Innermost Layer good");
+	      expect_hit=true;  /// pass good module -> hit is expected on blayer
+	    }
+
+	  }
+	  else{
+	    ATH_MSG_DEBUG("Condition Summary: Next To Innermost Layer good but outside active area");
+	  }
+
+	} /// check active area (check edges)
+	else{
+	  ATH_MSG_DEBUG("Condition Summary: Next To Innermost Layer good, active areas not checked");
+	  expect_hit=true; /// pass good module -> hit is expected on blayer
+	}
+
+      }
+      else{
+	ATH_MSG_DEBUG(" Next To Innermost Layer not good");
+      }
+
+      delete *it;
+
+    } /// blayer param
+
+
+    return expect_hit;
+    
+  }
+
+
 
   bool InDet::InDetTestBLayerTool::isActive(const Trk::TrackParameters* trackpar) const
   {
@@ -375,7 +741,7 @@ namespace InDet {
 
 
   bool InDet::InDetTestBLayerTool::getTrackStateOnBlayerInfo(const Trk::Track* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
-
+  
     const Trk::TrackParameters* startParameters = 0;
   
     if (track->perigeeParameters()){
@@ -399,8 +765,58 @@ namespace InDet {
   }
 
 
-  bool InDet::InDetTestBLayerTool::getTrackStateOnBlayerInfo(const Trk::TrackParticleBase* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+   bool InDet::InDetTestBLayerTool::getTrackStateOnInnermostPixelLayerInfo(const Trk::Track* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+   
+    const Trk::TrackParameters* startParameters = 0;
+  
+    if (track->perigeeParameters()){
+      startParameters = track->perigeeParameters()->clone();
+    }
+    else if (track->trackParameters()->front()) {
+      startParameters = m_extrapolator->extrapolate(*(track->trackParameters()->front()),
+						    Trk::PerigeeSurface(),
+						    Trk::anyDirection,
+						    false);
+    }
+  
+    if(!startParameters){
+      ATH_MSG_WARNING("Found Track with no perigee parameters: no Innermost Pixel layer info will be provided" );
+      return false;
+    }
 
+    bool succeed = getTrackStateOnInnermostPixelLayerInfo(startParameters, infoList);
+     delete startParameters;
+     return succeed;
+  }
+
+
+   bool InDet::InDetTestBLayerTool::getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::Track* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+   
+    const Trk::TrackParameters* startParameters = 0;
+  
+    if (track->perigeeParameters()){
+      startParameters = track->perigeeParameters()->clone();
+    }
+    else if (track->trackParameters()->front()) {
+      startParameters = m_extrapolator->extrapolate(*(track->trackParameters()->front()),
+						    Trk::PerigeeSurface(),
+						    Trk::anyDirection,
+						    false);
+    }
+  
+    if(!startParameters){
+      ATH_MSG_WARNING("Found Track with no perigee parameters: no Next to Innermost Pixel layer info will be provided" );
+      return false;
+    }
+
+    bool succeed = getTrackStateOnNextToInnermostPixelLayerInfo(startParameters, infoList);
+     delete startParameters;
+     return succeed;
+  }
+
+
+  bool InDet::InDetTestBLayerTool::getTrackStateOnBlayerInfo(const Trk::TrackParticleBase* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+  
    const Trk::Perigee* startParameters = track->perigee();
 
     if(!startParameters){
@@ -412,9 +828,37 @@ namespace InDet {
     
   }
 
+  bool InDet::InDetTestBLayerTool::getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParticleBase* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+    
+   const Trk::Perigee* startParameters = track->perigee();
+
+    if(!startParameters){
+      ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no Innermost Pixel layer info will be provided");
+      return false;
+    } 
+ 
+    return getTrackStateOnInnermostPixelLayerInfo(startParameters, infoList);
+    
+  }
+
+
+   bool InDet::InDetTestBLayerTool::getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParticleBase* track, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+    
+   const Trk::Perigee* startParameters = track->perigee();
+
+    if(!startParameters){
+      ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no Next To Innermost Pixel layer info will be provided");
+      return false;
+    } 
+ 
+    return getTrackStateOnNextToInnermostPixelLayerInfo(startParameters, infoList);
+    
+  }
+
+
 
   bool InDet::InDetTestBLayerTool::getTrackStateOnBlayerInfo(const Trk::TrackParameters* trackpar, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
-
+ 
     infoList.clear();
 
 
@@ -424,7 +868,7 @@ namespace InDet {
     }
 
     std::vector<const Trk::TrackParameters*> blayerParam;
-    if(!getBLayerParameters(trackpar, blayerParam)) return false;
+    if(!getPixelLayerParameters(trackpar, blayerParam, 0)) return false;
 
     std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
     for(; it !=blayerParam.end(); ++it){
@@ -519,11 +963,225 @@ namespace InDet {
     return true;
 
   }
+
+  bool InDet::InDetTestBLayerTool::getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+   
+    infoList.clear();
+
+
+    if(!m_configured){
+      ATH_MSG_WARNING("Unconfigured tool, unable to compute Innermost Pixel Layer info");
+      return false;
+    }
+
+    std::vector<const Trk::TrackParameters*> blayerParam;
+    if(!getPixelLayerParameters(trackpar, blayerParam, 0)) return false;
+
+    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
+    for(; it !=blayerParam.end(); ++it){
+
+      const Trk::TrackParameters* trkParam = *it;           
+      TrackStateOnBLayerInfo blayerInfo;
+        
+      double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
+      blayerInfo.goodFraction(fracGood);
+
+      Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
+      blayerInfo.moduleId(id);
+
+      const InDetDD::SiDetectorElement* sielem = dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
+//     const Trk::Surface *aS = trkParam->associatedSurface();
+//     const Trk::LocalPosition locPos = *(aS->globalToLocal(trkParam->position()));
+      const Amg::Vector2D& locPos = trkParam->localPosition();
+
+      if(sielem){
+	Identifier holeId_c =sielem->identifierOfPosition(locPos);
+	blayerInfo.pixelId(holeId_c);
+
+	double etaDist = -9999;
+	double phiDist = -9999;
+	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&sielem->design());
+	if(design){
+	  design->distanceToDetectorEdge(locPos, etaDist, phiDist); //// implicite cast from Trk::LocalPosition to SiLocalPosition
+	}
+	else{
+	  ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  );
+	}
+	blayerInfo.distToModuleEdgePhi(phiDist);
+	blayerInfo.distToModuleEdgeEta(etaDist);
+      }
+      else{
+	ATH_MSG_WARNING ( " SiDetectorElement not found in TrackParameters" );
+      }
+
+      blayerInfo.globalPosition(trkParam->position());
+
+
+      blayerInfo.localX(locPos[Trk::locX]);
+      blayerInfo.localY(locPos[Trk::locY]);
+
+      blayerInfo.theta(trkParam->parameters()[Trk::theta]); 
+      blayerInfo.phi(trkParam->parameters()[Trk::phi0]); 
+
+      float error_locx = -9999;
+      float error_locy = -9999;
+
+      if(trkParam){
+        error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
+        error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+      }
+      else{
+	ATH_MSG_DEBUG ( "could not MeasuredTrackParameters for hole  " <<   m_idHelper->show_to_string(id)  );
+      }
+
+      blayerInfo.errLocalX(error_locx);
+      blayerInfo.errLocalY(error_locy);
+
+      bool isgood =  m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE);
+    
+      double phitol = 2.5;
+      double etatol = 5.;
+      if (trkParam) {
+	phitol = 3.* sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));			  
+	etatol = 3.* sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+      }
+
+      bool isIn=true;
+      if(sielem){
+	InDetDD::SiIntersect siIn = sielem->inDetector(locPos, phitol, etatol);
+	isIn = siIn.in();
+      }
+
+      if(isgood){
+	if(isIn)blayerInfo.type(insideGoodModule);
+	else blayerInfo.type(nearGoodModuleEdge);
+      }
+      else{
+	if(isIn)blayerInfo.type(insideBadModule);
+	else blayerInfo.type(nearBadModuleEdge);
+      }
+
+      infoList.push_back(blayerInfo);
+
+      delete trkParam;
+
+    } /// blayer param
+
+    return true;
+
+  }
+
+  bool InDet::InDetTestBLayerTool::getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, std::vector<TrackStateOnBLayerInfo>& infoList)  const{
+   
+    infoList.clear();
+
+
+    if(!m_configured){
+      ATH_MSG_WARNING("Unconfigured tool, unable to compute Next To Innermost Pixel Layer info");
+      return false;
+    }
+
+    std::vector<const Trk::TrackParameters*> blayerParam;
+    if(!getPixelLayerParameters(trackpar, blayerParam, 1)) return false;
+
+    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
+    for(; it !=blayerParam.end(); ++it){
+
+      const Trk::TrackParameters* trkParam = *it;           
+      TrackStateOnBLayerInfo blayerInfo;
+        
+      double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
+      blayerInfo.goodFraction(fracGood);
+
+      Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
+      blayerInfo.moduleId(id);
+
+      const InDetDD::SiDetectorElement* sielem = dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
+//     const Trk::Surface *aS = trkParam->associatedSurface();
+//     const Trk::LocalPosition locPos = *(aS->globalToLocal(trkParam->position()));
+      const Amg::Vector2D& locPos = trkParam->localPosition();
+
+      if(sielem){
+	Identifier holeId_c =sielem->identifierOfPosition(locPos);
+	blayerInfo.pixelId(holeId_c);
+
+	double etaDist = -9999;
+	double phiDist = -9999;
+	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&sielem->design());
+	if(design){
+	  design->distanceToDetectorEdge(locPos, etaDist, phiDist); //// implicite cast from Trk::LocalPosition to SiLocalPosition
+	}
+	else{
+	  ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  );
+	}
+	blayerInfo.distToModuleEdgePhi(phiDist);
+	blayerInfo.distToModuleEdgeEta(etaDist);
+      }
+      else{
+	ATH_MSG_WARNING ( " SiDetectorElement not found in TrackParameters" );
+      }
+
+      blayerInfo.globalPosition(trkParam->position());
+
+
+      blayerInfo.localX(locPos[Trk::locX]);
+      blayerInfo.localY(locPos[Trk::locY]);
+
+      blayerInfo.theta(trkParam->parameters()[Trk::theta]); 
+      blayerInfo.phi(trkParam->parameters()[Trk::phi0]); 
+
+      float error_locx = -9999;
+      float error_locy = -9999;
+
+      if(trkParam){
+        error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
+        error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+      }
+      else{
+	ATH_MSG_DEBUG ( "could not MeasuredTrackParameters for hole  " <<   m_idHelper->show_to_string(id)  );
+      }
+
+      blayerInfo.errLocalX(error_locx);
+      blayerInfo.errLocalY(error_locy);
+
+      bool isgood =  m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE);
+    
+      double phitol = 2.5;
+      double etatol = 5.;
+      if (trkParam) {
+	phitol = 3.* sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));			  
+	etatol = 3.* sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+      }
+
+      bool isIn=true;
+      if(sielem){
+	InDetDD::SiIntersect siIn = sielem->inDetector(locPos, phitol, etatol);
+	isIn = siIn.in();
+      }
+
+      if(isgood){
+	if(isIn)blayerInfo.type(insideGoodModule);
+	else blayerInfo.type(nearGoodModuleEdge);
+      }
+      else{
+	if(isIn)blayerInfo.type(insideBadModule);
+	else blayerInfo.type(nearBadModuleEdge);
+      }
+
+      infoList.push_back(blayerInfo);
+
+      delete trkParam;
+
+    } /// blayer param
+
+    return true;
+
+  } 
  
-  bool InDet::InDetTestBLayerTool::getBLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& blayerParam) const{
+  bool InDet::InDetTestBLayerTool::getPixelLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& blayerParam, int layer) const{
 
     //// Cylinder bigger than the b-layer ////
-    ATH_MSG_DEBUG("Trying to extrapolate to blayer");
+    ATH_MSG_DEBUG("Trying to extrapolate to Pixel layer " << layer);
 
     Trk::CylinderSurface BiggerThanBLayerSurface (new Transform3D(Transform3D::Identity()), 
 						  100.0,
@@ -573,12 +1231,12 @@ namespace InDet {
        continue;
      }
      ATH_MSG_DEBUG("Found pixel barrel");
-     if(!m_pixelId->is_blayer(id)) {
+     if(m_pixelId->layer_disk(id)!=layer) {
        delete *it;
        continue;
      }
 
-     ATH_MSG_DEBUG( "Found b-layer  " << id.get_compact() );
+     ATH_MSG_DEBUG( "Found layer  " <<  layer << " ID: " << id.get_compact() );
      blayerParam.push_back((*it));
 
    } /// all params

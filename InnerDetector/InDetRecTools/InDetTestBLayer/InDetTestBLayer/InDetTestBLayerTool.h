@@ -55,10 +55,39 @@ namespace InDet {
     virtual bool getTrackStateOnBlayerInfo(const Trk::TrackParameters* trackpar, 
 					   std::vector<TrackStateOnBLayerInfo>& infoList)  const;
 
+    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParticleBase*, bool recompute=false) const;
+    virtual bool expectHitInInnermostPixelLayer(const Trk::Track*, bool recompute=false) const;
+    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const;
+
+    virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(const Trk::Track* ) const;
+    virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(const Trk::TrackParticleBase*) const;
+ 
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParticleBase*, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::Track*, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParticleBase*, bool recompute=false) const;
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::Track*, bool recompute=false) const;
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParameters* trackpar) const;
+    
+    virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(const Trk::Track* ) const;
+    virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(const Trk::TrackParticleBase*) const;
+    
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParticleBase*, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::Track*, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const;
+    
+
   private:
 
     bool isActive(const Trk::TrackParameters* trackpar) const ;
-    bool getBLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& blayerParam) const;
+    bool getPixelLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& blayerParam, int layer) const;
     double getFracGood(const Trk::TrackParameters* trackpar, double phiRegionSize, double etaRegionSize) const;
 
     /** Pointer to Extrapolator AlgTool*/
