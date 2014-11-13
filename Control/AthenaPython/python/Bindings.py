@@ -17,9 +17,8 @@ from AthenaCommon.Logging import logging
 def _load_dict(lib):
     """Helper function to remember which libraries have been already loaded
     """
-    import PyCintex
-    PyCintex.Cintex.Enable()
-    return PyCintex.loadDictionary(lib)
+    import cppyy
+    return cppyy.loadDictionary(lib)
 
 @memoize
 def _import_ROOT():
@@ -120,9 +119,9 @@ class _PyAthenaBindingsCatalog(object):
             from AthenaServices.Dso import registry
             registry.load_type (name)
             try:
-                import PyCintex
+                import cppyy
                 #klass = getattr(ROOT, name)
-                klass = PyCintex.makeClass(name)
+                klass = cppyy.makeClass(name)
             except AttributeError:
                 raise AttributeError("no reflex-dict for type [%s]"%name)
         return klass
@@ -262,8 +261,8 @@ def py_alg(algName, iface='IAlgorithm'):
     
     # handle pycomponents...
     from .Configurables import PyComponents
-    import PyCintex
-    alg = PyCintex.libPyROOT.MakeNullPointer(iface)
+    import cppyy
+    alg = cppyy.libPyROOT.MakeNullPointer(iface)
     if not algmgr.getAlgorithm(algName, alg).isSuccess():
         return
 
@@ -307,7 +306,7 @@ def _py_init_StoreGate():
 ### pythonizations for IThinningSvc
 @memoize
 def _py_init_ThinningSvc():
-    import PyCintex
+    import cppyy
     # IThinningSvc bindings from dictionary
     _load_dict( "libAthenaPythonDict" )
 
@@ -315,21 +314,21 @@ def _py_init_ThinningSvc():
     sgbindings = _py_init_StoreGateSvc()
 
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # make sure AthenaInternal namespace has been created
-    gbl.AthenaInternal = PyCintex.makeNamespace('AthenaInternal')
+    gbl.AthenaInternal = cppyy.makeNamespace('AthenaInternal')
     
     #global py_thinning
-    py_thinning = PyCintex.gbl.AthenaInternal.thinContainer
+    py_thinning = cppyy.gbl.AthenaInternal.thinContainer
 
     #global py_thinning_idx
-    py_thinning_idx = PyCintex.gbl.AthenaInternal.thinIdxContainer
+    py_thinning_idx = cppyy.gbl.AthenaInternal.thinIdxContainer
 
     # retrieve the IThinningSvc class
     #global IThinningSvc
-    IThinningSvc = PyCintex.gbl.IThinningSvc
-    IThinningSvc.RemovedIdx = PyCintex.gbl.AthenaInternal.thinRemovedIdx()
+    IThinningSvc = cppyy.gbl.IThinningSvc
+    IThinningSvc.RemovedIdx = cppyy.gbl.AthenaInternal.thinRemovedIdx()
     
     # add specialized filter method
     from operator import isCallable
@@ -353,15 +352,15 @@ def _py_init_ThinningSvc():
 ### pythonizations for IIncidentSvc
 @memoize
 def _py_init_IIncidentSvc():
-    import PyCintex
+    import cppyy
     # IIncidentSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # retrieve the IIncidentSvc class
     global IIncidentSvc
-    IIncidentSvc = PyCintex.gbl.IIncidentSvc
+    IIncidentSvc = cppyy.gbl.IIncidentSvc
 
     IIncidentSvc._cpp_addListener = IIncidentSvc.addListener
     def addListener (self, *args):
@@ -387,20 +386,20 @@ def _py_init_IIncidentSvc():
 ### pythonizations for ClassIDSvc
 @memoize
 def _py_init_ClassIDSvc():
-    import PyCintex
+    import cppyy
     # IClassIDSvc bindings from dictionary
     _load_dict( "libAthenaPythonDict" )
 
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # load the AthenaInternal::getClid helper method
-    PyCintex.makeNamespace('AthenaInternal')
-    _getClid = PyCintex.gbl.AthenaInternal.getClid
+    cppyy.makeNamespace('AthenaInternal')
+    _getClid = cppyy.gbl.AthenaInternal.getClid
     
     # retrieve the IClassIDSvc class
     global IClassIDSvc
-    IClassIDSvc = PyCintex.gbl.IClassIDSvc
+    IClassIDSvc = cppyy.gbl.IClassIDSvc
 
     _missing_clids  = {
         'DataHistory' : 83814411L, 
@@ -441,16 +440,16 @@ def _py_init_ClassIDSvc():
 ### pythonizations for ITHistSvc
 @memoize
 def _py_init_THistSvc():
-    import PyCintex
+    import cppyy
     # ITHistSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
 
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # retrieve the ITHistSvc class
     global ITHistSvc
-    ITHistSvc = PyCintex.gbl.ITHistSvc
+    ITHistSvc = cppyy.gbl.ITHistSvc
     from weakref import WeakValueDictionary
     # per-object cache of ROOT objects
     #ITHistSvc._py_cache = WeakValueDictionary()
@@ -546,8 +545,8 @@ def _py_init_THistSvc():
         except KeyError:
             pass
         def _get_helper(klass, hsvc, meth, oid, update_cache=True):
-            import PyCintex
-            makeNullPtr = PyCintex.libPyROOT.MakeNullPointer
+            import cppyy
+            makeNullPtr = cppyy.libPyROOT.MakeNullPointer
             o = makeNullPtr(klass)
             if meth(oid, o).isSuccess():
                 if update_cache:
@@ -705,16 +704,16 @@ del %s""" % (n,n,n,n,n)
 ### pythonizations for EventStreamInfo
 @memoize
 def _py_init_EventStreamInfo():
-    import PyCintex
+    import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # retrieve the EventStreamInfo class
-    ESI = PyCintex.gbl.EventStreamInfo
+    ESI = cppyy.gbl.EventStreamInfo
     # retrieve the PyEventStreamInfo helper class
-    PyESI= PyCintex.gbl.PyEventStreamInfo
+    PyESI= cppyy.gbl.PyEventStreamInfo
     def run_numbers(self):
         self._run_numbers = PyESI.runNumbers(self)
         return list(self._run_numbers)
@@ -739,21 +738,21 @@ def _py_init_EventStreamInfo():
 ### pythonizations for EventType
 @memoize
 def _py_init_EventType():
-    import PyCintex
+    import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
+    gbl = cppyy.makeNamespace('')
 
     # retrieve the EventType class
-    cls = PyCintex.gbl.EventType
+    cls = cppyy.gbl.EventType
     cls.bit_mask_typecodes = [
         ('IS_DATA','IS_SIMULATION'),    #0
         ('IS_ATLAS', 'IS_TESTBEAM'),    #1
         ('IS_PHYSICS','IS_CALIBRATION'),#2
         ]
     # retrieve the PyEventType class
-    py_cls = PyCintex.gbl.PyEventType
+    py_cls = cppyy.gbl.PyEventType
     def raw_bit_mask(self):
         self._raw_bit_mask = py_cls.bit_mask(self)
         return self._raw_bit_mask
