@@ -27,6 +27,7 @@
   <!-- not yet
   <function name="AthenaInternal::queryInterface" />
   -->
+  <class name="AthenaInternal::ROOT6_AthenaPython_WorkAround_Dummy" />
   <function name="AthenaInternal::getClid" />
 
 </lcgdict>
