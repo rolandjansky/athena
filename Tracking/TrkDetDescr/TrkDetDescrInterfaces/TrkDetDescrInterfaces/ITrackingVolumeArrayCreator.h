@@ -99,10 +99,7 @@ namespace Trk {
        virtual TrackingVolumeArray* doubleTrapezoidVolumesArrayNav(const std::vector< const TrackingVolume* >& vols,
                                                                    Trk::BinUtility* binUtil,
                                                                    bool navigationtype=false) const = 0;
-      
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}       
+  
   };
 
 } // end of namespace

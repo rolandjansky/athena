@@ -39,12 +39,6 @@ namespace Trk {
 
       /** TrackingVolumeBuilder interface method - returns vector of Volumes */
       virtual const  std::vector<const TrackingVolume*>* trackingVolumes() const = 0;
-
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}
-  
-    protected:
                        
   };
 

@@ -54,10 +54,6 @@ namespace Trk {
       /** The unique signature */
       virtual GeometrySignature geometrySignature() const = 0;
       
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}
-                                                           
   };
 
 } // end of namespace

@@ -53,10 +53,6 @@ namespace Trk {
       virtual const std::vector< std::pair<const TrackParameters*, const Layer* > >* materialLayers(const Trk::TrackParameters& parm,
                                                                 const Trk::Surface& sf,
                                                                 const Trk::IPropagator* prop = 0) const = 0; 
-      
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}      
   };
 
 } // end of namespace

@@ -65,7 +65,6 @@ namespace Trk {
                                                       Material& matprop,
                                                       VolumeBounds* volBounds = 0,
                                                       Amg::Transform3D* transform = 0,
-                                                      int entryLayers = 0,
                                                       const std::string& volumeName = "UndefinedVolume",
                                                       BinningType btype = arbitrary) const = 0;
                                                                                                             
@@ -77,7 +76,6 @@ namespace Trk {
           @param matprop : dense material properties for this TrackingVolume
           @param loc1Min, loc1Max, loc2Min, loc2Max : local position in space,
                            this TrackingVolume is restricted to Translation only
-          @param entryLayers : switch to build entry layers
           @param volumeName  : volume name to be given
 
           */
@@ -86,7 +84,6 @@ namespace Trk {
                                                       Material& matprop,
                                                       double loc1Min, double loc1Max,
                                                       double loc2Min, double loc2Max,
-                                                      int entryLayers = 0,
                                                       const std::string& volumeName = "UndefinedVolume",
                                                       BinningType btype = arbitrary) const = 0;
                                                                                                             
@@ -98,7 +95,6 @@ namespace Trk {
                            this TrackingVolume is restricted to Translation only
           @param materialLayers : number of material layers (aequidistant binning)
           @param cylinder : type of layers 
-          @param entryLayers : switch to build entry layers
           @param volumeName  : volume name to be given
                    
         */                                                      
@@ -108,7 +104,6 @@ namespace Trk {
                                                       double loc2Min, double loc2Max,
                                                       unsigned int materialLayers,
                                                       bool cylinder = true,
-                                                      int entryLayers = 0,
                                                       const std::string& volumeName = "UndefinedVolume") const = 0;
 
        /** create a gap volume from dimensions and
@@ -117,7 +112,6 @@ namespace Trk {
           @param layerPositions : custom layer positions
           @param materialLayers : number of material layers (aequidistant binning)
           @param cylinder : type of layers 
-          @param entryLayers : switch to build entry layers
           @param volumeName  : volume name to be given
                    
         */                                                      
@@ -127,7 +121,6 @@ namespace Trk {
                                                       double loc2Min, double loc2Max,
                                                       const std::vector<double>& layerPositions,
                                                       bool cylinder = true,
-                                                      int entryLayers = 0,
                                                       const std::string& volumeName = "UndefinedVolume",
                                                       BinningType btype = arbitrary) const = 0;
                                                                                                                                                                   
@@ -141,11 +134,10 @@ namespace Trk {
       virtual const TrackingVolume* createContainerTrackingVolume(
                                                    const std::vector<const TrackingVolume*>& volumes,
                                                    Material& matprop,
-                                                   const std::string& volumeName ="UndefinedVolume") const = 0;
+                                                   const std::string& volumeName ="UndefinedVolume",
+                                                   bool buildBoundaryLayers = false,
+                                                   bool replaceBoundaryFace = false) const = 0;
                                                                                                                                                          
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}
 
   };
 

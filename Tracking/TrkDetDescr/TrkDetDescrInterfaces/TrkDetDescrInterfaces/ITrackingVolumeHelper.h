@@ -49,63 +49,14 @@ namespace Trk {
       /** AlgTool and IAlgTool interface methods */
       static const InterfaceID& interfaceID() { return IID_ITrackingVolumeHelper; }
 
-      /** TrackingVolumeBuilder interface method - returns vector of Volumes */
-      virtual TrackingVolume* trackingVolumeCylinderLayers(
-                                                  Amg::Transform3D* trans,
-                                                  CylinderVolumeBounds* bounds,
-                                                  Material& matprop,
-                                                  std::vector<double> radii,
-                                                  std::vector<double> envelopeCovers,
-                                                  const std::string& volumeName="UndefinedVolume" ,
-                                                  int materialBinsRZ = 10, int materialBinsPhi = 1,
-                                                  BinningType btype = arbitrary,
-                                                  bool redoNavigation = false) const = 0;
-
-      /** TrackingVolumeBuilder interface method - returns vector of Volumes */
-      virtual TrackingVolume* trackingVolumeDiscLayers(
-                                                  Amg::Transform3D* trans,
-                                                  CylinderVolumeBounds* bounds,
-                                                  Material& matprop,
-                                                  std::vector<double> zPos,
-                                                  std::vector<double> envelopeInnerCovers,
-                                                  std::vector<double> envelopeOuterCovers,
-                                                  const std::string& volumeName="UndefinedVolume",
-                                                  int materialBinsRZ = 10, int materialBinsPhi = 10,
-                                                  BinningType btype = arbitrary,
-                                                  bool redoNavigation = false) const = 0;
-
-      /** TrackingVolumeHelper interface method - creation of  Gap volume with a single layer */
-      virtual TrackingVolume* createCylindricalGapVolume(double rMin, double rMax, double zMin, double zMax,
-                                                         Material& matprop,
-                                                         const std::string& volumeName ="UndefinedVolume",
-                                                         bool cylinderLayer = true,
-                                                         double coverOne = 25.,
-                                                         double coverTwo = 25.,
-                                                         int materialBinsRZ = 10, int materialBinsPhi = 10,
-                                                         bool redoNavigation = false) const = 0;
-
-      /** Create a one level higher TrackingVolue */
-      virtual TrackingVolume* createCylindricalTopLevelVolume(
-                                                   const std::vector<const TrackingVolume*>& volumes,
-                                                   Material& matprop,
-                                                   const std::string& volumeName ="UndefinedVolume",
-                                                   bool glue=false) const =0;
-
-      /** Reshape a Tracking Volume 
-        - be careful with that as the layerarray is only copied */
-      virtual const TrackingVolume* resizeCylindricalTrackingVolume(
-                                                        const TrackingVolume* tvol,
-                                                        double rMin, double rMax,
-                                                        double zMin, double zMax) const = 0;
-
-
       /** Glue Volume method: One to one
            --- Neccessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
           */ 
       virtual void glueTrackingVolumes(const TrackingVolume& firstVol,
                                        BoundarySurfaceFace firstFace,
                                        const TrackingVolume& secondVol,
-                                       BoundarySurfaceFace secondFace) const = 0;
+                                       BoundarySurfaceFace secondFace,
+                                       bool buildBoundaryLayer = false) const = 0;
 
       /** Glue Volume method: One to many
            --- Neccessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
@@ -113,7 +64,20 @@ namespace Trk {
       virtual void glueTrackingVolumes(const TrackingVolume& firstVol,
                                        BoundarySurfaceFace firstFace,
                                        const std::vector<const TrackingVolume*>& secondVolumes,
-                                       BoundarySurfaceFace secondFace) const = 0;
+                                       BoundarySurfaceFace secondFace,
+                                       bool buildBoundaryLayer = false,
+                                       bool boundaryFaceExchange = false) const = 0;
+                                       
+                                       
+      /** Method to glue two VolumeArrays together (at navigation level) - without output
+         --- Necessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
+      */
+      virtual void glueTrackingVolumes(const std::vector<const TrackingVolume*>& firstVolumes,
+                                       BoundarySurfaceFace firstFace,
+                                       const std::vector<const TrackingVolume*>& secondVolumes,
+                                       BoundarySurfaceFace secondFace,
+                                       bool buildBoundaryLayer = false,
+                                       bool boundaryFaceExchange = false) const = 0;                                       
 
       /** Glue Volume method: many to many plus enveloping volume
            --- Neccessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
@@ -123,7 +87,6 @@ namespace Trk {
                                                             const TrackingVolume& secondVol,
                                                             BoundarySurfaceFace secondFace,
                                                             std::string name) const = 0;
-
     
       /**  Glue Volume method: set inside Volume 
          --- Neccessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
@@ -142,7 +105,7 @@ namespace Trk {
       virtual void setInsideTrackingVolumeArray(const TrackingVolume& tvol,
                                                 BoundarySurfaceFace face,
                                                 SharedObject<BinnedArray<TrackingVolume> > insidevolarray) const = 0;
-      
+                                                                                                      
       /**  Glue Volume method: set outside Volume
            --- Neccessary as friendship cannot be inherited: your father's friend isn't necessary yours ---
       */
@@ -161,9 +124,9 @@ namespace Trk {
                                                  BoundarySurfaceFace face,
                                                  SharedObject<BinnedArray<TrackingVolume> > outsidevolarray) const = 0;
 
-      /** Validation Action:
-          Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const {}
+  protected:
+    /** Protected method to register the Layer to the Surface */
+    void associateLayer(const Layer& lay, const Surface& sf) const { sf.associateLayer(lay); }
                          
   };
 
