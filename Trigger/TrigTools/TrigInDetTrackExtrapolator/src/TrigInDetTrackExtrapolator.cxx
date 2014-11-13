@@ -246,10 +246,10 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
       eta=-log(sin(theta)/cos(theta));
       if(Y[2]<0.0) eta=-eta;
 
-      double pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
+      double track_pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
 
       pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->m_getTrackState(2),
-				   Y[2],eta,pT,
+				   Y[2],eta,track_pT,
 				   TrigInDetTrackFitPar::BARREL,Radius);
       delete pFinalState;
     }
@@ -371,14 +371,14 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
       double Phi0=atan2(Y[1],Y[0]);
       double R0=sqrt(Y[0]*Y[0]+Y[1]*Y[1]);
       double eta=-log(sin(0.5*pFinalState->m_getTrackState(3))/cos(0.5*pFinalState->m_getTrackState(3)));
-      double pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
+      double track_pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
 
       double theta=atan(R0/fabs(Zcoordinate))/2.0;
       eta=-log(sin(theta)/cos(theta));
       if(Zcoordinate<0.0) eta=-eta;
 
       pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->m_getTrackState(2),
-				   R0,eta,pT,
+				   R0,eta,track_pT,
 				   TrigInDetTrackFitPar::ENDCAP,Zcoordinate);
 
       delete pFinalState;
@@ -494,14 +494,14 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
       double R0=sqrt(gP[0]*gP[0]+gP[1]*gP[1]);
       double theta=acos(gV[2]);
       double eta=-log(sin(0.5*theta)/cos(0.5*theta));
-      double pT=sin(theta)*pP->pT()/sint;
+      double track_pT=sin(theta)*pP->pT()/sint;
 
       theta=atan(R0/fabs(Zcoordinate))/2.0;
       eta=-log(sin(theta)/cos(theta));
       if(Zcoordinate<0.0) eta=-eta;
 
       pEP=new TrigInDetTrackFitPar(Phi0,phi,
-				   R0,eta,pT,
+				   R0,eta,track_pT,
 				   TrigInDetTrackFitPar::ENDCAP,Zcoordinate);
     }
   else if(isBarrel)
@@ -514,14 +514,14 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
       double phi=atan2(gV[1],gV[0]);
       double theta=acos(gV[2]);
       double eta=-log(sin(0.5*theta)/cos(0.5*theta));
-      double pT=sin(theta)*pP->pT()/sint;
+      double track_pT=sin(theta)*pP->pT()/sint;
       theta=atan(Radius/fabs(gP[2]))/2.0;
 
       eta=-log(sin(theta)/cos(theta));
       if(gP[2]<0.0) eta=-eta;
 
       pEP=new TrigInDetTrackFitPar(Phi0,phi,
-				   gP[2],eta,pT,
+				   gP[2],eta,track_pT,
 				   TrigInDetTrackFitPar::BARREL,Radius);
     }
   
