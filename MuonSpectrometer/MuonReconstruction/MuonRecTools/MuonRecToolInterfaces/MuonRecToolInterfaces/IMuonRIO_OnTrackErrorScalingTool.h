@@ -35,7 +35,7 @@ namespace Muon {
 
     virtual Amg::MatrixX*
       createScaledPixelCovariance(const Amg::MatrixX&,
-				  bool) const { return 0; }
+				  const Identifier&) const { return 0; }
 
     virtual Amg::MatrixX*
       createScaledSctCovariance(const Amg::MatrixX&,
