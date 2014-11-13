@@ -150,10 +150,10 @@ namespace InDet {
       }
       if(flag==1 && fR-vtxR<m_maxdR) pass = false;
       
-      double PhiVtxTrk = fabs(vertex->position().phi() - perigee1.parameters()[Trk::phi0]);
+      double PhiVtxTrk = vertex->position().phi() - perigee1.parameters()[Trk::phi0];
       if (PhiVtxTrk < -pi) PhiVtxTrk += twopi;
       if (PhiVtxTrk >  pi) PhiVtxTrk -= twopi;
-      if (PhiVtxTrk>m_maxPhiVtxTrk) pass = false;
+      if (fabs(PhiVtxTrk)>m_maxPhiVtxTrk) pass = false;
     }
     return pass;
   }
