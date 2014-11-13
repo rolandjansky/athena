@@ -1,0 +1,245 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//Root includes
+#include "TTree.h"
+#include "TString.h"
+// Amg
+#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+// Trk includes
+#include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
+
+
+template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
+{
+    
+    // ----------------- creation of the surfaces & track parameters -------------
+    for (size_t it = 0; it < TrkExUnitTestBase::m_numTests; ++it ){
+        // create the curvilinear parameters
+        double eta   = m_etaMin + (m_etaMax-m_etaMin)*Trk::TrkExUnitTestBase::m_flatDist->shoot();
+        double theta = 2.*atan(exp(-eta));
+        double phi   = m_phiMin + (m_phiMax-m_phiMin)*Trk::TrkExUnitTestBase::m_flatDist->shoot();
+        double pt    = m_ptMin  + (m_ptMax - m_ptMin)*Trk::TrkExUnitTestBase::m_flatDist->shoot(); 
+        double p     = pt/sin(theta);
+        double q     = m_parametersMode ? (Trk::TrkExUnitTestBase::m_flatDist->shoot() > 0.5 ? 1. : -1) : 1.;      // charge or neutral
+
+        // initializa the validation variables
+        m_endSuccessful= 0;    
+        m_endPositionX = 0.;
+        m_endPositionY = 0.;
+        m_endPositionZ = 0.;
+        m_endPositionR = 0.;
+        m_endPhi       = 0.;
+        m_endEta       = 0.;
+        m_endTheta     = 0.;
+        m_endP         = 0.;
+        m_endPt        = 0.;
+        // material collection
+        m_materialThicknessInX0                 = 0.;
+        m_materialThicknessInL0                 = 0.;
+        m_materialThicknessInX0Sensitive        = 0.;
+        m_materialThicknessInX0Passive          = 0.;
+        m_materialThicknessInX0Boundary         = 0.;
+        
+        m_materialThicknessInX0Bwd              = 0.;
+        m_materialThicknessInL0Bwd              = 0.;
+        
+        m_materialThicknessInX0Cylinder         = 0.;
+        m_materialThicknessInX0Disc             = 0.;
+        m_materialThicknessInX0Plane            = 0.;
+        
+        if (m_collectMaterial){
+            m_materialThicknessInX0Steps->clear();
+            m_materialThicknessInX0Steps->clear();
+            m_materialPositionX->clear();
+            m_materialPositionY->clear();
+            m_materialPositionZ->clear();
+            m_materialPositionR->clear();
+            m_materialScaling->clear();
+            m_stepDirection->clear();
+        }
+        
+        for (size_t ip = 0; ip < m_parameterNames.size(); ++ip){
+            // clear
+            m_pPositionX[ip]->clear();
+            m_pPositionY[ip]->clear();
+            m_pPositionZ[ip]->clear();
+            m_pPositionR[ip]->clear();
+            m_pPhi[ip]->clear();    
+            m_pTheta[ip]->clear();
+            m_pEta[ip]->clear();
+            m_pP[ip]->clear();
+            m_pPt[ip]->clear();            
+        }                
+            
+        Amg::Vector3D momentum(p*sin(theta)*cos(phi), p*sin(theta)*sin(phi), p*cos(theta));        
+        // create the start parameters
+        P startParameters(0.,0., phi, theta, q/p, Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
+        
+        m_startPositionX = startParameters.position().x();
+        m_startPositionY = startParameters.position().y();
+        m_startPositionZ = startParameters.position().z();
+        m_startPositionR = startParameters.position().perp();
+        m_startPhi       = phi;  
+        m_startEta       = eta;
+        m_startTheta     = theta;   
+        m_startPt        = pt;
+        m_startP         = p;
+        m_charge         = q;
+        
+        // setup the extrapolation how you'd like it
+        Trk::ExtrapolationCell<T> ecc(startParameters);
+        ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
+        if (m_collectSensitive) ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive);
+        if (m_collectPassive)   ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectPassive);
+        if (m_collectBoundary)  ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectBoundary);
+        if (m_collectMaterial)  ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectMaterial);
+        // force a stop in the extrapoaltion mode
+        if (m_pathLimit > 0.) {
+            ecc.pathLimit = m_pathLimit;
+            ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
+        }
+        // call the extrapolation engine
+        Trk::ExtrapolationCode eCode = m_extrapolationEngine->extrapolate(ecc);
+        // safe the success code
+        m_endSuccessful= int(eCode.code);
+        // end the parameters if there
+        if (eCode.isSuccess() && ecc.endParameters){
+            m_endPositionX = ecc.endParameters->position().x();
+            m_endPositionY = ecc.endParameters->position().y();
+            m_endPositionZ = ecc.endParameters->position().z();
+            m_endPositionR = ecc.endParameters->position().perp();
+            m_endPhi       = ecc.endParameters->momentum().phi();  
+            m_endEta       = ecc.endParameters->momentum().eta();
+            m_endTheta     = ecc.endParameters->momentum().theta();   
+            m_endP         = ecc.endParameters->momentum().mag();
+            m_endPt        = ecc.endParameters->momentum().perp();
+        
+            // fill in the step parameters
+            if (!fillStepInformationT<T,P>(ecc,1).isSuccess()) 
+                ATH_MSG_VERBOSE("Somthing went wrong with recording the step information.");    
+            // for the memory cleanup
+            const T* feParameters = ecc.endParameters;
+            // do the back extrapolation
+            if (m_backExtrapolation){
+                // let's restart at the destination
+                ecc.restartAtDestination();
+                // call the extrapolation engine
+                Trk::ExtrapolationCode eCodeBwd = m_extrapolationEngine->extrapolate(ecc,&startParameters.associatedSurface(),Trk::oppositeMomentum);
+                // safe the success code
+                m_backSuccessful= int(eCodeBwd.code);
+                // end the parameters if there
+                if (eCodeBwd.isSuccess() && ecc.endParameters){
+                    m_backPositionX = ecc.endParameters->position().x();
+                    m_backPositionY = ecc.endParameters->position().y();
+                    m_backPositionZ = ecc.endParameters->position().z();
+                    m_backPositionR = ecc.endParameters->position().perp();
+                    m_backPhi       = ecc.endParameters->momentum().phi();  
+                    m_backEta       = ecc.endParameters->momentum().eta();
+                    m_backTheta     = ecc.endParameters->momentum().theta();   
+                    m_backP         = ecc.endParameters->momentum().mag();
+                    m_backPt        = ecc.endParameters->momentum().perp();
+                    // fill in the step parameters
+                    if (!fillStepInformationT<T,P>(ecc,-1).isSuccess()) 
+                        ATH_MSG_VERBOSE("Somthing went wrong with recording the step information."); 
+                    // memory cleanup
+                    delete ecc.endParameters;
+                }
+            }
+            // now clean up the first end parameters
+            delete feParameters;
+        } else {
+            ATH_MSG_WARNING("Extrapolation was not Successful - code : " << eCode.toString() << " -> Printing start parameters.");
+            ATH_MSG_WARNING("    -> start x     = " << m_startPositionX );
+            ATH_MSG_WARNING("    -> start y     = " << m_startPositionY );
+            ATH_MSG_WARNING("    -> start z     = " << m_startPositionZ  );
+            ATH_MSG_WARNING("    -> start r     = " << m_startPositionR );
+            ATH_MSG_WARNING("    -> start phi   = " << m_startPhi       );
+            ATH_MSG_WARNING("    -> start eta   = " << m_startEta       );
+            ATH_MSG_WARNING("    -> start theta = " << m_startTheta     );
+            ATH_MSG_WARNING("    -> start pt    = " << m_startPt        );
+            ATH_MSG_WARNING("    -> start p     = " << m_startP         );
+        }
+        m_tree->Fill();
+    }
+    return StatusCode::SUCCESS;
+}
+
+template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInformationT( Trk::ExtrapolationCell<T>& ecc, int fwdBwd ) 
+{
+    // loop over the collected information
+    for (auto& es : ecc.extrapolationSteps){
+        // continue if we have parameters
+       const T* parameters = es.parameters;
+       if (parameters){
+           // there are parameters assigned, so they need to be either 
+           // sensitive -> ip = 0
+           // passive   -> ip = 1
+           // boundary  -> ip = 2
+           unsigned int ip = 0;
+           if (es.stepConfiguration.checkMode(Trk::ExtrapolationMode::CollectPassive)){
+               ip = 1;
+           } else if (es.stepConfiguration.checkMode(Trk::ExtrapolationMode::CollectBoundary)){
+               ip = 2;
+           }       
+           m_pPositionX[ip]->push_back(parameters->position().x());
+           m_pPositionY[ip]->push_back(parameters->position().y());
+           m_pPositionZ[ip]->push_back(parameters->position().z());
+           m_pPositionR[ip]->push_back(parameters->position().perp());
+           m_pPhi[ip]->push_back(parameters->momentum().phi());  
+           m_pTheta[ip]->push_back(parameters->momentum().eta());
+           m_pEta[ip]->push_back(parameters->momentum().theta()); 
+           m_pP[ip]->push_back(parameters->momentum().mag());
+           m_pPt[ip]->push_back(parameters->momentum().perp()); 
+           
+           // collect the material if configured to do so
+           if (m_collectMaterial && es.material){
+               // thickness in X0 and L0
+               float tInX0 = es.material->thicknessInX0()*es.materialScaling;
+               float tInL0 = es.material->thicknessInX0()*es.materialScaling;
+               // the accummulated material
+               if (fwdBwd > 0 ){
+                   m_materialThicknessInX0 += tInX0;
+                   m_materialThicknessInL0 += tInL0;
+               } else {
+                   m_materialThicknessInX0Bwd += tInX0;
+                   m_materialThicknessInL0Bwd += tInL0;
+               } 
+               // the stepwise material
+               m_materialThicknessInX0Steps->push_back(tInX0);
+               m_materialThicknessInX0Steps->push_back(tInL0);
+               m_materialPositionX->push_back(es.materialPosition.x());
+               m_materialPositionY->push_back(es.materialPosition.y());
+               m_materialPositionZ->push_back(es.materialPosition.z());
+               m_materialPositionR->push_back(es.materialPosition.perp());  
+               m_materialScaling->push_back(es.materialScaling);
+               m_stepDirection->push_back(fwdBwd);
+               // check what type of material you have
+               if (es.stepConfiguration.checkMode(Trk::ExtrapolationMode::CollectSensitive)){
+                   m_materialThicknessInX0Sensitive       += tInX0;
+               } else if (es.stepConfiguration.checkMode(Trk::ExtrapolationMode::CollectPassive)){
+                   m_materialThicknessInX0Passive         += tInX0;
+               } else if (es.stepConfiguration.checkMode(Trk::ExtrapolationMode::CollectBoundary)) {
+                   m_materialThicknessInX0Boundary        += tInX0;
+               }
+               // check what type of surface you have
+               if (es.surface && es.surface->type() == Trk::Surface::Cylinder ){
+                   m_materialThicknessInX0Cylinder       += tInX0;
+               } else if (es.surface && es.surface->type() == Trk::Surface::Disc ){
+                   m_materialThicknessInX0Disc           += tInX0;
+               } else if (es.surface && es.surface->type() == Trk::Surface::Plane ){
+                   m_materialThicknessInX0Plane          += tInX0;
+               }
+               // delete the parameters if there are any there
+               delete parameters;
+           }
+       }
+    }
+    
+    return StatusCode::SUCCESS;
+}    
+
+
+
