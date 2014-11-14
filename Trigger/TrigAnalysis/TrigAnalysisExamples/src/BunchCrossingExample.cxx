@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingExample.cxx 326080 2010-10-08 13:50:09Z krasznaa $
+// $Id: BunchCrossingExample.cxx 628392 2014-11-14 12:40:08Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -76,11 +76,11 @@ namespace Trig {
             // don't mean much...
             ATH_MSG_INFO( "This bunch was "
                           << m_bcTool->distanceFromFront( bcid,
-                                                          IIBunchCrossingTool::NanoSec )
+                                                          IBunchCrossingTool::NanoSec )
                           << " nanoseconds from the front of its train" );
             ATH_MSG_INFO( "Also, it was "
                           << m_bcTool->distanceFromFront( bcid,
-                                                          IIBunchCrossingTool::BunchCrossings )
+                                                          IBunchCrossingTool::BunchCrossings )
                           << " bunch crossings away from the front of its train" );
 
          } else {
