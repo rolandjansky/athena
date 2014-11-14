@@ -86,6 +86,9 @@ namespace Reco {
           
       /** Interface method for use with Track and the beamspot from the BeamSpotSvc - ESD */
       const Trk::Perigee* perigeeAtBeamspot(const Trk::Track& trk) const;   
+
+      /** Interface method for use with Track and the beamline from the BeamSpotSvc - ESD */
+      const Trk::Perigee* perigeeAtBeamline(const Trk::Track& trk) const;   
       
       /** Interface method for use with TrackParticle and the beamline from the BeamSpotSvc - AOD*/
       const Trk::TrackParameters* trackAtBeamline(const Rec::TrackParticle& tp) const;
