@@ -70,7 +70,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
     isSelected = recoStatus.checkStatus(CaloRecoStatus::StatusIndicator(m_recoStatus[i]));
   if ( isSelected ) {
     //report <<MSG::VERBOSE<<"Cluster is selected for local calibration"<<endreq;
-    for (auto tool : m_calibTools) {
+    for (auto& tool : m_calibTools) {
       if (tool->weight(theCluster).isFailure())
 	msg(MSG::ERROR) << " failed to weight cluster " << endreq;
     }

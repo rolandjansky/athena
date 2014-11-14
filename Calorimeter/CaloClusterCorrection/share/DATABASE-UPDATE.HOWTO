@@ -251,9 +251,16 @@ to the file in the dataset.  This should look something like this:
 
   cond09_mc.000003.gen.COND._0049.pool.root
 
-Now, change the new entry in poolfiles.py to refer to this new LFN:
+Also find the FID (GUID) assigned to the file; it should look 
+something like:
 
-    'caloswcorr_pool_v5' : 'LFN:cond09_mc.000003.gen.COND._0049.pool.root',
+  C8E77C8B-87C8-DC11-8A25-000423D67746
+
+Now, change the new entry in poolfiles.py to refer to this new FID.
+It's also good to include the LFN as a comment.
+
+    #oflcond.000001.conditions.recon.pool.v0000._0044.pool.root
+    'caloswcorr_pool_v5' : 'FID:C8E77C8B-87C8-DC11-8A25-000423D67746',
 
 Check that the file has been replicated to AFS, currently under
 
