@@ -16,6 +16,8 @@ namespace LVL1 {
 		       ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), 
 						  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
 						  m_bcmL1ContainerName("BCM_RDOs"),
+						  m_bcmRDO(0),
+						  m_6bit_flag(false),
 						  m_badDataFound(false)
   {
     declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
