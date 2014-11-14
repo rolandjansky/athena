@@ -110,6 +110,7 @@ IntersectorWrapper::propagate (const TrackParameters&		parameters,
 			       BoundaryCheck			boundsCheck,
 			       const MagneticFieldProperties&	/*magProperties*/,
 			       TransportJacobian*&		/*transportJac*/,
+                   double&,
 			       ParticleHypothesis		/*particle*/,
 			       bool				curvilinear,
 			       const TrackingVolume*) const
@@ -216,11 +217,11 @@ IntersectorWrapper::findIntersection (const TrackParameters&	parameters,
 	m_position	=  parameters.position();
 	m_position	=  Amg::Vector3D(parameters.position());
 	m_qOverP	=  1./m_momentum.mag();
-	m_intersection	=  new Intersection(m_position,m_momentum*m_qOverP,0.);
+	m_intersection	=  new TrackSurfaceIntersection(m_position,m_momentum*m_qOverP,0.);
 	m_qOverP	*= m_charge;
     }
 
-    const Intersection* oldIntersection = m_intersection;
+    const TrackSurfaceIntersection* oldIntersection = m_intersection;
     m_intersection = m_intersector->intersectSurface(surface,
 						     oldIntersection,
 						     m_qOverP);
@@ -263,3 +264,4 @@ IntersectorWrapper::findIntersection (const TrackParameters&	parameters,
 }
 
 } // end of namespace
+

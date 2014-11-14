@@ -18,6 +18,8 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkDetDescrUtils/Intersection.h"
+
 
 namespace Trk
 {
@@ -149,7 +151,7 @@ RungeKuttaIntersector::finalize()
 /**IIntersector interface method for general Surface type */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectSurface(const Surface&		surface,
-					const Intersection*	trackIntersection,
+					const TrackSurfaceIntersection*	trackIntersection,
 					const double      	qOverP)
 {
     // trap low momentum
@@ -181,7 +183,7 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
 /**IIntersector interface method for specific Surface type : PerigeeSurface */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
-					      const Intersection*	trackIntersection,
+					      const TrackSurfaceIntersection*	trackIntersection,
 					      const double      	qOverP)
 {
     // set member data
@@ -210,9 +212,9 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
     if (m_distance > m_shortStepMin) shortStep();
 
     // ensure intersection is valid (ie. on surface)
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -222,7 +224,7 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&	surface,
-						   const Intersection*		trackIntersection,
+						   const TrackSurfaceIntersection*		trackIntersection,
 						   const double      		qOverP)
 {
     // set member data
@@ -251,9 +253,9 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&	su
     if (m_distance > m_shortStepMin) shortStep();
     
     // ensure intersection is valid (ie. on surface)
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -263,7 +265,7 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&	su
 /**IIntersector interface method for specific Surface type : CylinderSurface */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
-						 const Intersection*	trackIntersection,
+						 const TrackSurfaceIntersection*	trackIntersection,
 						 const double      	qOverP)
 {
     // set member data
@@ -310,9 +312,9 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
     if (m_distance > m_shortStepMin) shortStep();
     
     // ensure intersection is valid (ie. on surface)
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -322,7 +324,7 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
 /**IIntersector interface method for specific Surface type : DiscSurface */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&		surface,
-					     const Intersection*	trackIntersection,
+					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double      		qOverP)
 {
     setCache(trackIntersection, qOverP);
@@ -349,9 +351,9 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&		surface,
     if (std::abs(m_stepLength) > m_shortStepMin) shortStep();
         
     // ensure intersection is valid (ie. on surface)
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     m_intersectionNumber		= intersection->serialNumber();
@@ -361,7 +363,7 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&		surface,
 /**IIntersector interface method for specific Surface type : PlaneSurface */
 const Trk::TrackSurfaceIntersection*
 RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
-					     const Intersection*	trackIntersection,
+					     const TrackSurfaceIntersection*	trackIntersection,
 					     const double      		qOverP)
 {
     // set member data
@@ -389,9 +391,9 @@ RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
     if (m_distance > m_shortStepMin) shortStep();
     
     // ensure intersection is valid (ie. on surface)
-    SurfaceIntersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
+    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
     if (! SLIntersect.valid)		return 0;
-    const Intersection* intersection	= new Intersection(SLIntersect.intersection,
+    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
 							   m_direction,
 							   m_pathLength);
     m_intersectionNumber		= intersection->serialNumber();

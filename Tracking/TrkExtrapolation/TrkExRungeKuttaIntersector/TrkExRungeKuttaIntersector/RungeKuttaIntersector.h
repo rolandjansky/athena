@@ -36,33 +36,33 @@ public:
     StatusCode			finalize();
 
     /**IIntersector interface method for general Surface type */
-    const Intersection*		intersectSurface(const Surface&		surface,
-						 const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
+						 const TrackSurfaceIntersection*	trackIntersection,
 						 const double      	qOverP);
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
-    const Intersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
-						       const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
+						       const TrackSurfaceIntersection*	trackIntersection,
 						       const double      	qOverP);
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
-    const Intersection*		approachStraightLineSurface(const StraightLineSurface& surface,
-							    const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
+							    const TrackSurfaceIntersection*	trackIntersection,
 							    const double      	qOverP);
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
-    const Intersection*		intersectCylinderSurface (const CylinderSurface& surface,
-							  const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
+							  const TrackSurfaceIntersection*	trackIntersection,
 							  const double      	qOverP);
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
-    const Intersection*		intersectDiscSurface (const DiscSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
+						      const TrackSurfaceIntersection*	trackIntersection,
 						      const double      	qOverP);
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
-    const Intersection*		intersectPlaneSurface(const PlaneSurface&	surface,
-						      const Intersection*	trackIntersection,
+    const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
+						      const TrackSurfaceIntersection*	trackIntersection,
 						      const double      	qOverP);
  
     /**IIntersector interface method for validity check over a particular extrapolation range */
@@ -84,7 +84,7 @@ private:
 					 const Amg::Vector3D&	planeNormal);
     Amg::Vector3D	field (const Amg::Vector3D& point) const;
     bool		notTrapped (void);
-    void		setCache (const Intersection*	trackIntersection,
+    void		setCache (const TrackSurfaceIntersection*	trackIntersection,
 				  const double		qOverP);
     void		shortStep (void);
     void		step (void);
@@ -221,7 +221,7 @@ RungeKuttaIntersector::field (const Amg::Vector3D& position) const
 }
     
 inline void
-RungeKuttaIntersector::setCache (const Intersection*	trackIntersection,
+RungeKuttaIntersector::setCache (const TrackSurfaceIntersection*	trackIntersection,
 				 const double		qOverP)
 {
     if (trackIntersection->serialNumber() == m_intersectionNumber

@@ -108,6 +108,7 @@ public:
 					 BoundaryCheck,
 					 const MagneticFieldProperties&,
 					 TransportJacobian*&,
+                     double&,
 					 ParticleHypothesis,
 					 bool,
 					 const TrackingVolume*) const;
@@ -173,7 +174,6 @@ public:
     
 
 private:
-    typedef	TrackSurfaceIntersection	Intersection;
     
     // private methods
     void			createParameters (const Surface&	surface,
@@ -188,12 +188,12 @@ private:
     ToolHandle<IPropagator>		m_linePropagator;
 
     // current parameter cache
-    mutable double			m_charge;
-    mutable const Intersection*      	m_intersection;
-    mutable Amg::Vector3D		m_momentum;
-    mutable const TrackParameters*	m_parameters;
-    mutable Amg::Vector3D		m_position;
-    mutable double			m_qOverP;
+    mutable double			    m_charge;
+    mutable const TrackSurfaceIntersection* m_intersection;
+    mutable Amg::Vector3D		    m_momentum;
+    mutable const TrackParameters*  	    m_parameters;
+    mutable Amg::Vector3D		    m_position;
+    mutable double			    m_qOverP;
 };
 
 } // end of namespace
