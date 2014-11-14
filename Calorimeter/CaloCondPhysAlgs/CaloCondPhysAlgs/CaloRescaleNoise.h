@@ -6,7 +6,7 @@
 //
 
 #ifndef _CaloCondPhysAlgs_CaloRescaleNoise_H
-#define _CaloCondPhysAlgs_CaloRescaleNoise__H
+#define _CaloCondPhysAlgs_CaloRescaleNoise_H
 
 #include <string>
 

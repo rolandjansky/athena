@@ -6,7 +6,7 @@
 //
 
 #ifndef _CaloCondPhysAlgs_CaloCellPosition2Ntuple_H
-#define _CaloCondPhysAlgs_CaloCellPosition2Ntuple__H
+#define _CaloCondPhysAlgs_CaloCellPosition2Ntuple_H
 
 #include <string>
 

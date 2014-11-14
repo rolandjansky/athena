@@ -12,8 +12,7 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 //=== AttributeList
@@ -245,12 +244,12 @@ StatusCode CaloCellNoiseAlg::execute()
 
   }
 
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   if (m_sgSvc->retrieve(eventInfo).isFailure()) {
     log << MSG::WARNING << " Cannot access to event info " << endreq;
     return StatusCode::SUCCESS;
   }
-  unsigned int lumiblock = eventInfo->event_ID()->lumi_block();
+  unsigned int lumiblock = eventInfo->lumiBlock();
 
   log << MSG::DEBUG << " lumiblock " << lumiblock << endreq;
 

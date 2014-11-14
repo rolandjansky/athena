@@ -6,7 +6,7 @@
 //
 
 #ifndef _CaloCondPhysAlgs_CaloAddCellPedShift_H
-#define _CaloCondPhysAlgs_CaloAddCellPedShift__H
+#define _CaloCondPhysAlgs_CaloAddCellPedShift_H
 
 #include <string>
 

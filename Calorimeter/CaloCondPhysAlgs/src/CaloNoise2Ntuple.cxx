@@ -11,8 +11,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 //Constructor
@@ -131,13 +130,13 @@ StatusCode CaloNoise2Ntuple::execute()
   MsgStream log( messageService(), name() );
   log << MSG::DEBUG <<"CaloNoise2Ntuple execute()" << endreq;
   
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   if (m_sgSvc->retrieve(eventInfo).isFailure()) {
     log << MSG::WARNING << " Cannot access to event info " << endreq;
     return StatusCode::SUCCESS;
   }
-  m_lumiBlock = eventInfo->event_ID()->lumi_block();
-  m_runNumber       = eventInfo->event_ID()->run_number();
+  m_lumiBlock = eventInfo->lumiBlock();
+  m_runNumber = eventInfo->runNumber();
 
   return StatusCode::SUCCESS; 
 }

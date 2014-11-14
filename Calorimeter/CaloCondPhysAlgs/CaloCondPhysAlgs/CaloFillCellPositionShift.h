@@ -7,7 +7,7 @@
 //
 
 #ifndef _CaloCondPhysAlgs_CaloFillCellPositionShift_H
-#define _CaloCondPhysAlgs_CaloFillCellPositionShift__H
+#define _CaloCondPhysAlgs_CaloFillCellPositionShift_H
 
 #include <string>
 

@@ -11,8 +11,6 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 
 //Constructor
