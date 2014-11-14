@@ -32,6 +32,9 @@
 // next candidate for removal
 //#include "TrigT1RPCmonitoring/DetailedTW.h" 
 
+#include "TrigT1RPChardware/SectorLogic.h"
+#include "TrigT1RPChardware/MatrixReadOut.h"
+
 #include "TrigT1RPClogic/decodeSL.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"

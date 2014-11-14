@@ -28,6 +28,7 @@ apply_pattern declare_python_modules files="*.py"
 
 private
 
+use TrigT1RPChardware    TrigT1RPChardware-*      Trigger/TrigT1
 use AtlasHepMC           AtlasHepMC-*             External
 use GeneratorObjects     GeneratorObjects-*       Generators
 use MuonDigitContainer   MuonDigitContainer-*     MuonSpectrometer
