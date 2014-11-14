@@ -627,10 +627,6 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	      const GeoShape & endPlate2Cutted3562 = (endPlate2->subtract( (*endPlate2Cut)<< cutOutTransformation ) ) ;	    
 	      lvEndPlate2 = new GeoLogVol("EndPlate2", &(endPlate2Cutted3562) , matIron);
 	    }
-	  else
-	    {
-	      lvEndPlate2 = new GeoLogVol("EndPlate2",endPlate2,matIron);
-	    }
 	  
 	  //         dy1EndPlate = rminbT * tan_delta_phi_2 * CLHEP::cm;
 	  //         dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
@@ -2722,7 +2718,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
         if (dbManager->SCNTdrw() > 0)
           // round to integer for all tiles except gap scin 
           tileSize=round(tileSize); 
-          rMax = (dbManager->TILBrmin() + dbManager->SCNTrc() + tileSize/2)*CLHEP::cm;
+        rMax = (dbManager->TILBrmin() + dbManager->SCNTrc() + tileSize/2)*CLHEP::cm;
       }
 
       rmins.push_back(rMin);

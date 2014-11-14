@@ -10,8 +10,8 @@
  * @author Vakho Tsulaia
  *
  */
-#ifndef TileGeoSectionBuioder_h
-#define TileGeoSectionBuilder_h 1
+#ifndef TILEGEOMODEL_TILEGEOSECTIONBUILDER_H
+#define TILEGEOMODEL_TILEGEOSECTIONBUILDER_H
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -200,5 +200,4 @@ class TileGeoSectionBuilder
 
 };
 
-#endif
-
+#endif // not TILEGEOMODEL_TILEGEOSECTIONBUILDER_H
