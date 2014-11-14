@@ -27,7 +27,7 @@ Released for free under a Creative Commons Attribution 2.5 License
 
 <?php 
 
-     $job_types = array( "bjet_", "el_", "mu_", "tau_", "minBias", "cosmic" );
+     $job_types = array( "bjet_", "el_", "mu_", "tau_", "ttbar_", "minBias", "cosmic" );
 
      echo "<table>\n";
      tableTitle("", "&nbsp;full tests for $branch-$release  $project" );
@@ -48,7 +48,8 @@ Released for free under a Creative Commons Attribution 2.5 License
         if ( strpos($dir,$job_type) != true  ) continue;
  
         if ( $dir != "." && $dir != ".." ) {  
-          $long_dir = "$package_dir/$dir/TIDAWeb";
+          // $long_dir = "$package_dir/$dir/TIDAWeb";
+          $long_dir = "../../$dir/TIDAWeb";
           $short_jobname = str_replace( "TrigInDetValidation_", "", $dir );
 
           //  $new_letters = substr( $short_jobname, 0, 2 );
@@ -66,6 +67,7 @@ Released for free under a Creative Commons Attribution 2.5 License
           }
 
           if ( file_exists( "../../$dir/TIDAWeb" ) ) { 
+             // print( "\t<li><a href=\"$long_dir/$page\"><span>  $short_jobname </span></a> </li>\n" );
              print( "\t<li><a href=\"$long_dir/$page\"><span>  $short_jobname </span></a> </li>\n" );
           }
           else { 

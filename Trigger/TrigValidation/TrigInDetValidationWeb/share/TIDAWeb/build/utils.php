@@ -1,10 +1,25 @@
 <?php
 
+/// is this a low pt page?
+$lowpt=$_GET['lowpt'];
+$object_type=$_GET['type']; 
+
+  
 function curPageURL() {
   $pageURL = 'http';
   if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
   $pageURL .= "://";
-  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+  //  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+  $server = $_SERVER["HTTP_X_SERVER_HOST"];
+  if ( "$server" === "" ) { 
+    /// if not forwarded
+    $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+  }
+  else {
+    $pageURL .= $server.$_SERVER["REQUEST_URI"];
+  }
+
+
   return $pageURL;
 }
 
@@ -40,7 +55,8 @@ function is_dir_empty($dir) {
 }
 
 
-function lowptLink( $directory, $lowpt ) { 
+function lowptLink( $directory, $lowpt ) {
+//  if ( $object_type != "" ) $directory = "$directory-$object_type"; 
   if ( file_exists ( $directory ) ) { 
      if ( !is_dir_empty( $directory ) ) { 
        if ( $lowpt != "true" ) return " - high pt <a href=\"$rawpage?lowpt=true\"> (switch to low pt) </a>\n";
@@ -62,9 +78,11 @@ function pageTitle( $branch, $release, $project ) {
 
 
 function tableTitle( $label, $title, $extra="" ) {
+  global $object_type;
   // print("<tr>\n<a id=\"$label\"></a>\n");
   print("<tr>\n");
-  print("<td colspan=\"3\"><span class=\"tablaTitle\">$title $extra</span></td>\n");
+  if ( $object_type == "" ) print("<td colspan=\"3\"><span class=\"tablaTitle\">$title $extra</span></td>\n");
+  else                      print("<td colspan=\"3\"><span class=\"tablaTitle\">$title $extra ($object_type)</span></td>\n"); 
   print("</tr>\n");
 }
 
@@ -87,12 +105,13 @@ $plot_directory = "";
 
 function tableRow( $hdir, $hrefa, $alta, $hrefb, $altb ) {
 
-   global $plot_directory;
    global $found_plots;
-
-   $plot_directory = $hdir;	 
+   global $plot_directory;
+   global $object_type;
 
    if ( !$found_plots ) return;
+
+   $plot_directory = $hdir;	 
 
    if ( $hdir == ".." ) { 
       /// if directory is "..", then all *-plots* 
@@ -102,6 +121,10 @@ function tableRow( $hdir, $hrefa, $alta, $hrefb, $altb ) {
       return;
    }
  
+   if ( $object_type != "" ) $hdir = "$hdir-$object_type";
+
+   //      print( "tableRow type : $object_type :  $hdir : <br/>\n"); 
+
    print("<tr>\n");
    tableImageEntry( "$hdir/$hrefa", $alta );  print("<td></td>\n"); // print("<td width=\"30\"></td>\n");		  		  
    tableImageEntry( "$hdir/$hrefb", $altb );
@@ -131,11 +154,6 @@ function tableRowSingle( $hdir, $hrefa ) {
 /// http://localhost/~sutt/prod/rtt/rel_2/devval/build/x86_64-slc6-gcc47-opt/offline/TrigInDetValidation/TrigInDetValidation_el_Zee_pu46_run2_oldSeeding/TIDAWeb/
 
 
-/// is this a low pt page?
-$lowpt=$_GET['lowpt'];
-
-
-
 
 
 /// useful navigation stuff  
@@ -145,7 +163,7 @@ $tags = explode("/", curPageURL() );
 $N = count( $tags );
 
 $page       = $tags[$N-1];
-$short_page = str_replace( "?lowpt=true", "", str_replace( "?lowpt=false", "", $page ) );
+$short_page = str_replace( "?lowpt=true", "", str_replace( "?lowpt=false", "", str_replace( "?type=tau", "", str_replace( "?type=muon", "", str_replace( "?type=electron", "", str_replace( "?type=bjet", "", $page ) ) ) ) ) );
 $arch       = $tags[$N-6];
 $branch     = $tags[$N-8];
 
@@ -159,8 +177,12 @@ $arch_p    = $tags[$N-6];
 $branch_p  = $tags[$N-8];
 $release   = $tags[$N-9];
 
+$rtt_base = "";
 $big_tags = explode( "prod/rtt", curPageURL() );
-$rtt_base = "$big_tags[0]/prod/rtt";
+for ( $idir=0 ; $idir<9 ; $idir++ ) { 
+  // $rtt_base = "$big_tags[0]/prod/rtt";
+  $rtt_base += "../";
+} 
 
 // print( "_____ page:    $page    $page_p <br />" );
 // print( "_____ job:     $job     $job_p <br />" );
@@ -279,6 +301,30 @@ print( "l2_eff_dir:   $l2eff_dir <br />\n" );
 print( "l2_res_dir:   $l2res_dir <br />\n" );
 print( "l2_diff_dir:  $l2diff_dir <br />\n" );
 **/
+
+
+function checkPlotType() { 
+   global $plot_directory;
+   global $short_page;
+   global $object_type;
+
+   $object_types = array( "electron", "muon", "tau", "bjet" );
+
+   $first = TRUE;
+   foreach ($object_types as &$otype) {
+      if ( file_exists( "$plot_directory-$otype" )  ) { 
+            if ( $first ) print("<li><span>\n");
+	    $first = FALSE;
+	    if ( $otype === $object_type ) print ( "$otype\n");
+            else {
+               if ( $lowpt == "" ) print ( "<a href=\"$short_page?type=$otype\">$otype</a>\n");
+               else                print ( "<a href=\"$short_page?lowpt=$lowpt&type=$otype\">$otype</a>\n");
+            }
+      }	       
+   }
+   if ( !$first ) print("</span></li>\n");
+}
+
 
 ?>
 
