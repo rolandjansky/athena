@@ -35,12 +35,12 @@ namespace LVL1 {
 						    m_singleCounterInputs(false){
 
     // Defining the mapping of scintillator counters to threshold.
-    int counter = 0;
-    std::vector<int> phi(0);
+    unsigned int counter = 0;
+    std::vector<unsigned int> phi(0);
     for (int i=0;i<2;i++) {
       phi.clear();
       for (int j=0;j<8;j++) {
-	if(i==1 && j%2!=0) phi.push_back(-1);
+	if(i==1 && j%2!=0) phi.push_back(1000);
 	else{
 	  phi.push_back(counter);
 	  counter++;
@@ -306,7 +306,7 @@ namespace LVL1 {
   //---------------------------------------------------------------------
 
   StatusCode TrigT1MBTS::execute() {
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "execute()" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
     
     StatusCode sc;
     std::string containerName;
@@ -322,8 +322,8 @@ namespace LVL1 {
       }
       return StatusCode::SUCCESS;
     }
-    else if(msgLvl(MSG::INFO)) {
-      msg(MSG::INFO) << containerName << " Container Successfully Retrieved" 
+    else if(msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" 
 		      << endreq;
     }
 
@@ -345,9 +345,9 @@ namespace LVL1 {
       return StatusCode::SUCCESS;
     }
 
-    if(msgLvl(MSG::INFO)) {
-      msg(MSG::INFO) << "m_tileTTL1MBTS->size() = "<< m_tileTTL1MBTS->size() <<", elements: " << endreq;
-      //msg(MSG::INFO) << (std::string)(*m_tileTTL1MBTS) << endreq;
+    if(msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "m_tileTTL1MBTS->size() = "<< m_tileTTL1MBTS->size() <<", elements: " << endreq;
+      msg(MSG::DEBUG) << (std::string)(*m_tileTTL1MBTS) << endreq;
     }
 
     unsigned int triggersEBA = 0; // Number of triggers in EBA
@@ -404,14 +404,14 @@ namespace LVL1 {
       }
       */
       // Single input triggers.
-      int thresholdIndex = m_thresholdNumber[channel][phi];
-      int thresholdIndex12 = m_thresholdNumber12[channel][phi];
-      if(thresholdIndex > m_thresholds_c.size() || thresholdIndex > m_thresholds_a.size()) {
+      unsigned int thresholdIndex = m_thresholdNumber[channel][phi];
+      unsigned int thresholdIndex12 = m_thresholdNumber12[channel][phi];
+      if(thresholdIndex > (unsigned int)m_thresholds_c.size() || thresholdIndex > (unsigned int)m_thresholds_a.size()) {
 	if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Threshold index \"" << thresholdIndex << "\" for single triggers is out of range." << endreq;
 	return StatusCode::FAILURE;
       }
 
-      if(thresholdIndex12 == -1){
+      if(thresholdIndex12 == 1000){
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "this is a needless counter for run2, the sample will be skipped!" << endreq;
 	continue;
       }
@@ -450,7 +450,7 @@ namespace LVL1 {
     if (triggersEBA>7) triggersEBA=7;
     if (triggersEBC>7) triggersEBC=7;
 
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Multis: "<< triggersEBA <<" and "<< triggersEBC <<endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Multis: "<< triggersEBA <<" and "<< triggersEBC <<endreq;
 
     unsigned int cableWordA = single_triggers_A+(triggersEBA<<m_cablestart_a);
     unsigned int cableWordC = single_triggers_C+(triggersEBC<<m_cablestart_c);
@@ -459,10 +459,10 @@ namespace LVL1 {
     MbtsCTP *mbtsACTP = new MbtsCTP(cableWordA);
     MbtsCTP *mbtsCCTP = new MbtsCTP(cableWordC);
 
-    mbtsACTP->dump();
-    mbtsCCTP->dump();
-    if(MSG::INFO)  msg(MSG::INFO) << " mbtsACTP:  " << mbtsACTP->print() << endreq;
-    if(MSG::INFO)  msg(MSG::INFO) << " mbtsCCTP:  " << mbtsCCTP->print() << endreq;
+    //mbtsACTP->dump();
+    //mbtsCCTP->dump();
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsACTP:  " << mbtsACTP->print() << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsCCTP:  " << mbtsCCTP->print() << endreq;
 
     std::string containerNameA = DEFAULT_MbtsACTPLocation;
     std::string containerNameC = DEFAULT_MbtsCCTPLocation;

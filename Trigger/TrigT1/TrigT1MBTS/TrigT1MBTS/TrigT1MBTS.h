@@ -69,8 +69,8 @@ namespace LVL1 {
 
     /** A data member containing the mapping from channel,phi to
 	threshold number **/
-    std::vector<std::vector<int> > m_thresholdNumber;
-    std::vector<std::vector<int> > m_thresholdNumber12;
+    std::vector<std::vector<unsigned int> > m_thresholdNumber;
+    std::vector<std::vector<unsigned int> > m_thresholdNumber12;
 
     /** The index of the sample bin corresponding to a particle
 	arriving from the IP. */
