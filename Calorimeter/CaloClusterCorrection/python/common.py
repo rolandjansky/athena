@@ -276,6 +276,13 @@ class CaloClusterCorrSetup:
         if tryhier and version[0] != '@':
             version = "@%s-%s%s" % (corrclass, generation, version)
 
+        # Only use COOL if we're actually trying to resolve a COOL tag.
+        # Otherwise we can run into problems: it looks like `ununsed'
+        # COOL tags are removed in DB replicas.
+        if version[0] != '@' and len(source) > 0:
+            if CALOCORR_COOL in source:
+                source.remove (CALOCORR_COOL)
+
         (vcorrlist, version) = self.lookup_version (version)
 
         # Default to the standard list if no explicit correction list.
