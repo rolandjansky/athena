@@ -1,106 +1,114 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUEFFICIENCYJETIDTOOL_H 
+#ifndef TAUEFFICIENCYJETIDTOOL_H
 #define TAUEFFICIENCYJETIDTOOL_H
 
+/*
+  author: Dirk Duschinger
+  mail: dirk.duschinger@cern.ch
+  documentation in: ../README.rst
+                    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
+		    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+*/
+
 // Local include(s):
-#include "AsgTools/StatusCode.h"
-#include "TauAnalysisTools/Enums.h"
 #include "CommonEfficiencyTool.h"
 
-namespace TauAnalysisTools {
-    
-  class TauEfficiencyJetIDTool : public CommonEfficiencyTool
-  {
-    /// Create a proper constructor for Athena
-    ASG_TOOL_CLASS( TauEfficiencyJetIDTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
+namespace TauAnalysisTools
+{
 
-    public:
-    
-    TauEfficiencyJetIDTool(std::string sName);
-    
-    virtual ~TauEfficiencyJetIDTool()
-    {
-    }
+class TauEfficiencyJetIDTool : public CommonEfficiencyTool
+{
+  /// Create a proper constructor for Athena
+  ASG_TOOL_CLASS( TauEfficiencyJetIDTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
-    StatusCode configure();
-    
-    StatusCode configure(PropertyMgr* pPropertyMgr);
+public:
 
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau, double& efficiencyScaleFactor);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactor(xAOD::TauJet& xTau);
+  TauEfficiencyJetIDTool(std::string sName);
 
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau, double& efficiencyScaleFactor);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactorStatUnc(xAOD::TauJet& xTau);
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau, double& efficiencyScaleFactor);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactorSysUnc(xAOD::TauJet& xTau);
+  virtual ~TauEfficiencyJetIDTool();
 
-    // virtual bool AlreadyApplied(const xAOD::TauJet& xTau) const = 0;
+  virtual StatusCode initialize();
 
-    
-  private:
-    
-    std::string ConvertEtaToString(const float& fEta);
+  CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+      double& efficiencyScaleFactor);
+  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
 
-    TauAnalysisTools::CorrectionCode GetIDSF(double& val,
-					     double eta,
-					     int prongness,
-					     double pT=30);
-    
-    TauAnalysisTools::CorrectionCode GetIDSysUnc(double& val,
-						 double eta,
-						 int prongness,
-						 double pT=30);
-    
-    TauAnalysisTools::CorrectionCode GetIDStatUnc(double& val,
-						  double eta,
-						  int prongness,
-						  double pT=30);
-    
-    TauAnalysisTools::CorrectionCode GetExclIDSF(double& val,
-						 double eta,
-						 int prongness,
-						 double pT=30);
-    
-    TauAnalysisTools::CorrectionCode GetExclIDSysUnc(double& val,
-						     double eta,
-						     int prongness,
-						     double pT=30);
-    
-    TauAnalysisTools::CorrectionCode GetExclIDStatUnc(double& val,
-						      double eta,
-						      int prongness,
-						      double pT=30);
-    
-    std::string ConvertIDToString(const int& iLevel);
-    
-    TauAnalysisTools::CorrectionCode GetIDValue(double& val,
-						const std::string& sWorkingPoint,
-						const float& fPt);
-    
-    std::string getWorkingPoint(const xAOD::TauJet& xTau);
+  CP::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau,
+      double& efficiencyScaleFactor);
+  CP::CorrectionCode applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau);
+  CP::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau,
+      double& efficiencyScaleFactor);
+  CP::CorrectionCode applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau);
 
-    void SwitchOnPtBinnedIDSF(bool bSwitch);
-    
-    // bool configs
-    bool m_bUseIDExclusiveSF;
-    bool m_bUseInclusiveEta;
-    bool m_bUsePtBinnedSF;
-    bool m_bUseHighPtUncert;
+  bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
+  CP::SystematicSet affectingSystematics() const;
+  CP::SystematicSet recommendedSystematics() const;
+  CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-    // string configs
-    std::string m_sIDLevel;
-    std::string m_sIDpt;
+private:
 
-    // enum configs, need to be int to work within athena
-    int m_iIDLevel;
+  std::string ConvertEtaToString(const float& fEta);
 
-    // declaration of the working point
-    std::string m_sWorkingPoint;
+  CP::CorrectionCode getTotalSF(const xAOD::TauJet& xTau,
+                                double& dEfficiencyScaleFactor);
+  CP::CorrectionCode getExclTotalSF(const xAOD::TauJet& xTau,
+                                    double& dEfficiencyScaleFactor);
 
-  };
+  CP::CorrectionCode GetIDSF(double& val,
+                             double eta,
+                             int prongness,
+                             double pT=30);
+
+  CP::CorrectionCode GetIDSysUnc(double& val,
+                                 double eta,
+                                 int prongness,
+                                 double pT=30);
+
+  CP::CorrectionCode GetIDStatUnc(double& val,
+                                  double eta,
+                                  int prongness,
+                                  double pT=30);
+
+  CP::CorrectionCode GetExclIDSF(double& val,
+                                 double eta,
+                                 int prongness,
+                                 double pT=30);
+
+  CP::CorrectionCode GetExclIDSysUnc(double& val,
+                                     double eta,
+                                     int prongness,
+                                     double pT=30);
+
+  CP::CorrectionCode GetExclIDStatUnc(double& val,
+                                      double eta,
+                                      int prongness,
+                                      double pT=30);
+
+  std::string ConvertIDToString(const int& iLevel);
+
+  CP::CorrectionCode GetIDValue(double& val,
+                                const std::string& sWorkingPoint,
+                                const float& fPt);
+
+  std::string getWorkingPoint(const xAOD::TauJet& xTau);
+
+  void SwitchOnPtBinnedIDSF(bool bSwitch);
+
+  // string configs
+  std::string m_sIDLevel;
+  std::string m_sIDpt;
+
+  // declaration of the working point
+  std::string m_sWorkingPoint;
+
+};
 } // namespace TauAnalysisTools
 
 #endif // TAUEFFICIENCYJETIDTOOL_H

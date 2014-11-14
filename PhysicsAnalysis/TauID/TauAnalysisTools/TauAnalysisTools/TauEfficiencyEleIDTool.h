@@ -1,85 +1,97 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef DEVEL
 #ifndef TAUEFFICIENCYELEIDTOOL_H
 #define TAUEFFICIENCYELEIDTOOL_H
+
+/*
+  author: Dirk Duschinger
+  mail: dirk.duschinger@cern.ch
+  documentation in: ../README.rst
+                    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
+		    or
+                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+*/
 
 // Local include(s):
 #include "CommonEfficiencyTool.h"
 
-namespace TauAnalysisTools {
-  
-  class TauEfficiencyEleIDTool : public CommonEfficiencyTool
-  {
-    ASG_TOOL_CLASS( TauEfficiencyEleIDTool, TauAnalysisTools::TauEfficiencyEleIDTool )
+namespace TauAnalysisTools
+{
 
-    public:
+class TauEfficiencyEleIDTool : public CommonEfficiencyTool
+{
+  ASG_TOOL_CLASS( TauEfficiencyEleIDTool, TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
-    TauEfficiencyEleIDTool(EfficiencyCorrectionType eEfficiencyCorrectionType,
-			   const std::string& sSharepath,
-			   bool bDebug=false);
+public:
 
-    ~TauEfficiencyEleIDTool()
-    {
-    }
+  TauEfficiencyEleIDTool(std::string sName);
 
-    void configure(int iConfig1, int iConfig2 = 0, int iConfig3 = 0);
+  virtual ~TauEfficiencyEleIDTool();
 
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau, double& efficiencyScaleFactor);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactor(xAOD::TauJet& xTau);
+  virtual StatusCode initialize();
 
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau, double& efficiencyScaleFactorStatUnc, int iSysType = 0);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactorStatUnc(xAOD::TauJet& xTau, int iSysType = 0);
-    TauAnalysisTools::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau, double& efficiencyScaleFactorSysUnc, int iSysType = 0);
-    TauAnalysisTools::CorrectionCode applyEfficiencyScaleFactorSysUnc(xAOD::TauJet& xTau, int iSysType = 0);
+  CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
+      double& dEfficiencyScaleFactor);
+  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
 
-  private:
-    
-    TauAnalysisTools::CorrectionCode GetEVetoSF(double& val,
-				     float trackEta,
-				     int nTrack);
+  CP::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau,
+      double& dEfficiencyScaleFactorStatUnc);
+  CP::CorrectionCode applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau);
+  CP::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau,
+      double& dEfficiencyScaleFactorSysUnc);
+  CP::CorrectionCode applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau);
 
-    TauAnalysisTools::CorrectionCode GetEVetoSFUnc(double& val,
-					float trackEta,
-					int nTrack,
-					int direction);
-    TauAnalysisTools::CorrectionCode GetIDValue(double& val,
-				     const std::string& sWorkingPoint,
-				     const float& fPt);
-    
-    std::string ConvertIDToString(const JETID& level);
-    std::string ConvertEVetoToString(const EVETO& level);
-    std::string ConvertOLRToString(const OLR& level);
+  bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
+  CP::SystematicSet affectingSystematics() const;
+  CP::SystematicSet recommendedSystematics() const;
+  CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-    float checkTrackEtaValidity(float& trackEta);
-    double getLeadTrackEta(const xAOD::TauJet* xTau);
+private:
 
-    float GetIDValue(const std::string& sWorkingPoint, const float& fPt);
+  CP::CorrectionCode GetEVetoSF(double& dVal,
+                                float fTrackEta,
+                                int iNTrack);
 
-    std::string getWorkingPoint(const xAOD::TauJet& tau);
-    
-    // enum configs
-    JETID m_eIDLevel;
-    EVETO m_eEVLevel;
-    OLR m_eOLR;
+  CP::CorrectionCode GetEVetoSFUnc(double& dVal,
+                                   float fTrackEta,
+                                   int iNTrack);
+  CP::CorrectionCode GetIDValue(double& dVal,
+                                const std::string& sWorkingPoint,
+                                const float& fPt);
 
-    // string configs 
-    std::string m_sIDLevel;
-    std::string m_sEVLevel;
-    std::string m_sOLR;
+  void setupWorkingPointSubstrings();
+  std::string ConvertIDToString(int iLevel);
+  std::string ConvertEVetoToString(int iLevel);
+  std::string ConvertOLRToString(int iLevel);
 
-    // string configs for 3p eveto
-    std::string m_sIDLevel_eveto3p;
-    std::string m_sEVLevel_eveto3p;
-    std::string m_sOLR_eveto3p;
-    
-    // declaration of the working point
-    std::string m_sWorkingPoint;
+  float checkTrackEtaValidity(float& fTrackEta);
+  double getLeadTrackEta(const xAOD::TauJet* xTau);
 
-  };
+  float GetIDValue(const std::string& sWorkingPoint, const float& fPt);
+
+
+  // string configs
+  std::string m_sIDLevel;
+  std::string m_sEVLevel;
+  std::string m_sOLRLevel;
+
+  // string configs for 3p eveto
+  std::string m_sIDLevel_eveto3p;
+  std::string m_sEVLevel_eveto3p;
+  std::string m_sOLRLevel_eveto3p;
+
+  // declaration of the working point
+  std::string m_sWorkingPoint;
+
+  // up/down direction
+  int m_iSysDirection;
+
+};
 } // namespace TauAnalysisTools
 
 #endif // TAUEFFICIENCYELEIDTOOL_H
-#endif

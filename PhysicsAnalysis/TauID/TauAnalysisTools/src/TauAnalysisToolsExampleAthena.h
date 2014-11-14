@@ -16,31 +16,33 @@
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 
-namespace TauAnalysisTools {
+namespace TauAnalysisTools
+{
 
-   class TauAnalysisToolsExampleAthena : public AthAlgorithm {
+class TauAnalysisToolsExampleAthena : public AthAlgorithm
+{
 
-   public:
-      /// Regular Algorithm constructor
-      TauAnalysisToolsExampleAthena( const std::string& name, ISvcLocator* svcLoc );
+public:
+  /// Regular Algorithm constructor
+  TauAnalysisToolsExampleAthena( const std::string& name, ISvcLocator* svcLoc );
 
-      /// Function initialising the algorithm
-      virtual StatusCode initialize();
-      /// Function executing the algorithm
-      virtual StatusCode execute();
+  /// Function initialising the algorithm
+  virtual StatusCode initialize();
+  /// Function executing the algorithm
+  virtual StatusCode execute();
 
-   private:
-      /// StoreGate key for the muon container to investigate
-      std::string m_sgKey;
+private:
+  /// StoreGate key for the muon container to investigate
+  std::string m_sgKey;
 
-      /// Connection to the selection tool
-      ToolHandle< ITauSelectionTool > m_selTool;
-      /// Connection to the smearing tool
-      ToolHandle< ITauSmearingTool > m_smearTool;
-      /// Connection to the efficiency correction tool
-      ToolHandle< ITauEfficiencyCorrectionsTool > m_effTool;
+  /// Connection to the selection tool
+  ToolHandle< ITauSelectionTool > m_selTool;
+  /// Connection to the smearing tool
+  ToolHandle< ITauSmearingTool > m_smearTool;
+  /// Connection to the efficiency correction tool
+  ToolHandle< ITauEfficiencyCorrectionsTool > m_effTool;
 
-   }; // class TauAnalysisToolsExampleAthena
+}; // class TauAnalysisToolsExampleAthena
 
 } // namespace TauAnalysisTools
 

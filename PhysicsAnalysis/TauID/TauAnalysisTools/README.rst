@@ -7,7 +7,7 @@ TauAnalysisTools: Package hosting tools for tau analysis
 
 .. meta::
    :description: TauAnalysisTools: Package hosting tools for tau analysis
-   :keywords: TauAnalysisTools, tau, maddog
+   :keywords: TauAnalysisTools, tau, TauEfficiencyCorrectionsTool, TauSelectionTool, TauSmearingTool, maddog
 
 .. contents:: Table of contents
 
@@ -21,33 +21,71 @@ analysis. Currently following tools are available:
 * **TauSelectionTool:** generic tool to apply a set of requirements on tau
     candidates
 * **TauSmearingTool:** currently support tau energy corrections
-* **TauEfficiencyCorrectionTool:** currently provides jet identification scale
-    factors and the associated uncertainties
-
+* **TauEfficiencyCorrectionsTool:** provides identification scale factors and the
+    associated uncertainties
+* **TauTruthMatchingTool:** performs matching of taus to the visible truth tau
+    4-momentum
+* **TauTruthTrackMatchingTool:** performs matching of tracks to truth taus and
+    tracks to truth charged particles
+    
 All relevant information about the actual measurement of these uncertainties can
 be found here: `TauRecommendationsWinterConf2013
 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauRecommendationsWinterConf2013>`_.
 These numbers are mostly valid for 2012 data analysis using reprocessed data,
 i.e. p1443 (p1344/p1345).
 
-Most of the functionality of TauEfficiencyCorrectionsTool and TauSmearingToolwas
-copied from former `TauCorrUncert Tool
+Most of the functionality of TauEfficiencyCorrectionsTool and TauSmearingTool
+was copied from former `TauCorrUncert Tool
 <https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauCorrUncert>`_.
+
+Although this package is intended to be dual-use, it is mostly designed for
+AnalysisBase. Thus, information on how to use the tool within ATHENA might not
+be up to date.
+
+In case of any problems, issues or suggestions don't hesitate to contact the
+authors.
 
 -----
 Setup
 -----
 
-First start with a clean shell and setup rootcore via::
+Athena
+------
+
+First start with a clean shell and setup ATHENA, for example via::
 
   export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
   alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
   setupATLAS
 
-  rcSetup Base,2.X.X
+  #use 19.1.2.1 or higher
+  asetup AtlasProduction,19.1.2.1,here
+
+get the package and setup environment::
+  
+  cmt co PhysicsAnalysis/TauID/TauAnalysisTools
+  
+  cd PhysicsAnalysis/TauID/TauAnalysisTools/cmt/
+  source setup.sh
+
+finally compile::
+  
+  cmt make
+
+AnalysisBase
+------------
+
+First start with a clean shell and setup RootCore via::
+
+  export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+  alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
+  setupATLAS
+
+  #use 2.0.11 or higher
+  rcSetup Base,2.0.11
   rc find_packages
 
-and comile with::
+and compile with::
 
   rc compile
 
@@ -63,314 +101,40 @@ For each tool the message level can be adjusted like::
 
   TauSelTool.msg().setLevel( MSG::VERBOSE );
 
-----------------
-TauSelectionTool
-----------------
+--------
+Examples
+--------
 
-This tool intends to perform simple selections on a set of tau properties. It
-also offers a common set of recommended cuts for a quick start. The
-TauSelectionTool can be for example created by::
+Athena
+------
 
-  TauAnalysisTools::TauSelectionTool TauSelTool( "TauSelectorTool" );
-  // define eta regions, excluding crack region
-  std::vector<double> vAbsEtaRegion = {0, 1.37, 1.52, 2.5};
-  TauSelTool.SetProperty("AbsEtaRegion", vAbsEtaRegion);
-  // define pt threshold, note that pt has to be given in GeV
-  TauSelTool.SetProperty("PtMin", 20);
-  // define absolute charge requirement, in general should be set to 1
-  TauSelTool.SetProperty("AbsCharge", 1);
-  // define number of tracks required, most analysis use 1 and 3 track taus
-  std::vector<int> vNTracks = {1,3};
-  TauSelTool.SetProperty( "NTracks", vNTrack);
-  // requiring tau to pass a jet BDT working point
-  TauSelTool.SetProperty( "JetIDWP", TauAnalysisTools::JetBDTTight);
-  // and finally define cuts actually to be executed:
-  TauSelTool.SetProperty( "SelectionCuts",
-                          TauAnalysisTools::CutPt |
-                          TauAnalysisTools::CutAbsEta |
-			  TauAnalysisTools::CutAbsCharge |
-			  TauAnalysisTools::CutNTrack |
-			  TauAnalysisTools::CutJetIDWP);
-  TauSelTool.initialize();
+AnalysisBase
+------------
 
-To test if a tau has passed all selection requirements just ask::
+An example implementation of all tools can be found for stand-alone mode in
+``TauAnalysisTools/util/TauAnalysisToolsExample.cxx``. The binary file should be
+found after compilation in
+``RootCoreBin/bin/x86_64-slc6-gcc47-opt/TauAnalysisToolsExample``.
 
-  TauSelTool.accept(*tau);
+The example can be executed via::
 
-which returns ``true``, in case all cuts defined in the property ``"Selection
-Cuts"`` are passed, and ``false`` otherwise.
+  RootCoreBin/bin/x86_64-slc6-gcc47-opt/TauAnalysisToolsExample FILENAME [NUMEVENTS]
 
-If the user wants to use recommended cuts, he should setup the tool via::
+FILENAME has to point to a root file and NUMEVENTS is an integer of events to
+process. If NUMEVENTS is not set all events are processed. The same is true if
+the actual number of events in the root file is less than the given number. 
 
-  TauAnalysisTools::TauSelectionTool TauSelTool( "TauSelectorTool" );
-  TauSelTool.setRecommendedProperties(); 
-  TauSelTool.initialize();
-
-The following table gives an overview of all currently available cuts and their setup:
-
-.. list-table:: 
-   :header-rows: 1
-   :widths: 10 10 80
-   
-   * - Cut
-     - Cut setup
-     - Description
-
-   * - CutPt
-     - PtRegion
-     - accepting taus within pt regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-
-   * -
-     - PtMin
-     - accepting taus with a pt above a lower bound
-
-   * -
-     - PtMax
-     - accepting taus with a pt below an upper bound
-
-   * - CutAbsEta
-     - AbsEtaRegion
-     - accepting taus within absolute eta regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-     
-   * -
-     - AbsEtaMin
-     - accepting taus with an absolute eta above a lower bound
-
-   * -
-     - AbsEtaMax
-     - accepting taus with an absolute eta below an upper bound
-
-   * - CutAbsCharge
-     - AbsCharges
-     - accepting taus with a set of absolute charges, each value in the vector will be accepted
-
-   * -
-     - AbsCharge
-     - accepting taus with the given absolute charge
-
-   * - CutNTracks
-     - NTracks
-     - accepting taus with a set of track multiplicities, each value in the vector will be accepted
-
-   * -
-     - NTrack
-     - accepting taus with the given track multiplicity
-
-   * - CutJetBDTRegion
-     - JetBDTRegion
-     - accepting taus within jet BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-
-   * -
-     - JetBDTMin
-     - accepting taus with a jet BDT score above a lower bound
-
-   * -
-     - JetBDTMax
-     - accepting taus with a jet BDT score below an upper bound
-
-   * - CutJetIDWP
-     - JetIDWP
-     - accepting taus passing the given working point
-
-   * - CutEleBDTRegion
-     - EleBDTRegion
-     - accepting taus within ele BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-
-   * -
-     - EleBDTMin
-     - accepting taus with a ele BDT score above a lower bound
-
-   * -
-     - EleBDTMax
-     - accepting taus with a ele BDT score below an upper bound
-
-   * - CutEleBDTWP
-     - EleBDTWP
-     - accepting taus passing the given working point
-
-Currently implemented working points for ``CutJetIDWP`` are:
-
-.. list-table::
-   :header-rows: 1
-
-   * - Jet ID working points
-     - description
-     
-   * - JetBDTNONE
-     - not passing BDT loose working point
-     
-   * - JetBDTLoose
-     - passing BDT loose working point
-     
-   * - JetBDTMedium
-     - passing BDT medium working point
-     
-   * - JetBDTTight
-     - passing BDT tight working point
-     
-   * - JetBDTLooseNotTight
-     - passing BDT loose but not BDT tight working point
-     
-   * - JetBDTLooseNotMedium
-     - passing BDT loose but not BDT medium working point
-     
-   * - JetBDTMediumNotTight
-     - passing BDT medium but not BDT tight working point
-
-and for ``CutEleBDTWP``:
-
-.. list-table::
-   :header-rows: 1
-
-   * - Electron Veto working points
-     - description
-     
-   * - EVETOBDTLOOSE
-     -
-     
-   * - EVETOBDTMEDIUM
-     -
-     
-   * - EVETOBDTTIGHT
-     -
-
-
----------------
-TauSmearingTool
----------------
-
-This tool provide mainly corrections to scale your tau pT up or down (in MC)
-according to the TES uncertainties (which are analysis independent). The
-momentum of xAOD taus have already been corrected for proper tau energy scale,
-and therefore the tool returns for simulation a correction factor of 1. In data
-the tau pT is shifted and needs to be corrected.
-
-The tool can in general be used calling::
-
-   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmaringTool" ); // setting
-   direction for systematics (only effective for simulation)
-   TauSmeTool.setProperty("Direction", 1);
-   TauSmeTool.initialize();
-
-   TauSmeTool.applyCorrection(*tau);
-
-If you like to access a specific component of the TES uncertainty, i.e.
-statistical uncertainty of the in-situ measurement you need to call before
-initializing::
-
-    TauSmeTool.setProperty( "TESComponent", = FINAL );
-
-**However, you should get in contact with TauWG first before doing this in your analysis!**
-
-New nuisance parameters are provided for single TES components::
-
-  * FINAL: "old style" total TES uncertainty
-  * TOTAL: total TES uncertainty w/ constraints from in-situ measurement at low
-    pt (pt < 50 GeV), i.e. sqrt(MODELING**2 + CLOSURE**2 + INSITUINTERPOL**2 +
-    SINGLEPARTICLE**2)
-  * INSITU: total in-site component, i.e. sqrt(INSITUSYS**2 + INSITUSTAT**2)   
-    **NOTE: no interpolation is applied here; if you want to apply interpolation take INSITUINTERPOL**
-  * INSITUINTERPOL: total in-situ component with pt interpolation accoording to 
-    sqrt(1 - (pt -50)/20) * INSITU for 50 GeV < pt < 70 GeV; above pt > 70 GeV
-    the interpolation factor is 0, while for pt < 50 GeV it is 1
-  * INSITUSTAT/INSITUSYST: statistical and systematic component of in-situ
-    measurement
-  * SINGLEPARTICLEINTERPOL: single particle response interpolated as
-    "switch-on", i.e. (1 - sqrt(1 - (pt -50)/20)) * SINGLEPARTICLE * MODELING:
-    modeling component
   
----------------------------
-TauEfficiencyCorrectionTool
----------------------------
+-----------------------------------
+Particular information on the tools
+-----------------------------------
 
-This tool aims to provide efficiency scale factors and the according statistical
-and systatic uncertainties for tau identification and electron veto,
-i.e. recommended scale factors labeled `JetID` (binned in pt), preliminary scale
-factors labeled `ContJetID` (binned in jet BDT score) and scale factors for the
-electron veto labeled `EleID` (binned in eta).
+More detailed information on how to use the tools can be found here:
 
-The tool is in general initialized, e.g. for JetID scale factors, by::
-
-  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffTool( "TauEfficiencyCorrectionsTool" );
-  TauEffTool.setProperty("EfficiencyCorrectionType", SFJetID)
-  TauEffTool.initialize();
-
-  TauEffTool.applyEfficiencyScaleFactor(xTau);                                     // either directly appending scale factors to the xAOD tau auxiliary store
-  TauEffTool.getEfficiencyScaleFactor(xTau, dEfficiencyScaleFactor);               // or storing fake factors in variable dEfficiencyScaleFactor
-  TauEffTool.applyEfficiencyScaleFactorStatUnc(xTau);                              // either directly appending scale factors statistical uncertainty to the xAOD tau auxiliary store
-  TauEffTool.getEfficiencyScaleFactorStatUnc(xTau, dEfficiencyScaleFactorStatUnc); // or storing fake factors statistical uncertainty in variable dEfficiencyScaleFactor
-  TauEffTool.applyEfficiencyScaleFactorSysUnc(xTau);                               // either directly appending scale factors systematic uncertainty to the xAOD tau auxiliary store
-  TauEffTool.getEfficiencyScaleFactorSysUnc(xTau, dEfficiencyScaleFactorSysUnc);   // or storing fake factors systematic uncertainty in variable dEfficiencyScaleFactor
-      
-The other scale factors can be retreived by choosing a differnt
-`EfficiencyCorrectionType`. For further scale factor related specifications
-please refer to the following sections.
-
-The default settings are as follows:
-
-+------------------+---------------+
-| property name    | default value |
-+------------------+---------------+
-| SharePath        | "../share/"   |
-+------------------+---------------+
-| IDLevel          | SFJetID       |
-+------------------+---------------+
-| SysDirection     | 1             |
-+------------------+---------------+
+* `TauSelectionTool <doc/README-TauSelectionTool.rst>`_
+* `TauSmearingTool <doc/README-TauSmearingTool.rst>`_
+* `TauEfficiencyCorrectionsTool <doc/README-TauEfficiencyCorrectionsTool.rst>`_
+* `TauTruthMatchingTool <doc/README-TauTruthMatchingTool.rst>`_
+* `TauTruthTrackMatchingTool <doc/README-TauTruthTrackMatchingTool.rst>`_
 
 
-
-
-JetID
------
-
-To change the default behaviour call::
-
-  TauEffTool.setProperty("UseInclusiveEta", false);
-
-which will switch to eta inclusive scale factors. Call::
-
-  TauEffTool.setProperty("UseIDExclusiveSF", false);
-
-to get exclusive ID (i.e. fail loose, loose not medium, medium not tight and
-tight) scale factors. Call::
-
-  TauEffTool.setProperty("UsePtBinnedSF", false);
-
-in order to access pt binned scale factors. Call::
-
-  SFTool->SwitchOnHighPtUncert(true);
-
-in order to inflate uncertainty for pT > 100 GeV. For details please refer to
-these `slides
-<https://indico.cern.ch/event/304094/contribution/2/material/slides/0.pdf>`_.
-
-The default setup is:
-
-+------------------+---------------+
-| property name    | default value |
-+------------------+---------------+
-| FileName         | "ID/sf.root"  |
-+------------------+---------------+
-| UseIDExclusiveSF | false         |
-+------------------+---------------+
-| UseInclusiveEta  | false         |
-+------------------+---------------+
-| UsePtBinnedSF    | false         |
-+------------------+---------------+
-| UseHighPtUncert  | false         |
-+------------------+---------------+
-
-
-ContJetID
----------
-
-information to be added
-
-
-EleID
------
-
-information to be added
-
-..  LocalWords:  JETIDNONE

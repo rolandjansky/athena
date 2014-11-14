@@ -6,15 +6,22 @@ use AtlasPolicy     AtlasPolicy-*
 
 use AsgTools        AsgTools-*        Control/AthToolSupport
 use PATCore         PATCore-*         PhysicsAnalysis/AnalysisCommon
+use PATInterfaces   PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
 
 use xAODTau         xAODTau-*         Event/xAOD
+use xAODTruth       xAODTruth-*       Event/xAOD
+use xAODTracking    xAODTracking-*    Event/xAOD
 use AtlasROOT       AtlasROOT-*       External
+use AthLinks        AthLinks-*        Control
+use PathResolver    PathResolver-*    Tools
+# use AtlasReflex AtlasReflex-* External -no-auto-imports
 
 private
 
 use GaudiInterface  GaudiInterface-*  External
-use xAODEventInfo   xAODEventInfo-*   Event/xAOD
 use AthenaBaseComps AthenaBaseComps-* Control
+use xAODEventInfo   xAODEventInfo-*   Event/xAOD
+use xAODCore        xAODCore-*        Event/xAOD
 
 end_private
 
@@ -27,3 +34,7 @@ apply_pattern declare_joboptions files=*.py
 
 # Install 
 apply_pattern declare_runtime files="*.root ../share/EfficiencyCorrections/*.root ../share/Smearing/*.root" 
+
+# # generate dictionaries for PyROOT 
+# apply_pattern lcgdict dict=TauAnalysisTools selectionfile=selection.xml headerfiles="../TauAnalysisTools/TauAnalysisToolsDict.h"
+

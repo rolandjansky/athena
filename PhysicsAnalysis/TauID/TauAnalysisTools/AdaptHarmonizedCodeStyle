@@ -1,0 +1,42 @@
+#!/bin/bash
+
+if [ "$1" != "" ]
+then
+    if [ "$1" != "-c" ]
+    then
+	echo 'the only allowed option is -c to cleanup backup file'
+	exit
+    fi
+fi
+	
+
+# test if astyle is installed
+type astyle > /dev/null
+if [ $? -ne 0 ]
+then
+    echo "Program astyle is required but not installed."
+    echo "To get the program ask your admin or package manager or visit http://astyle.sourceforge.net/."
+    echo "Aborting."
+    exit 1
+fi
+
+echo adapt harmonized code style
+# adapt code style to all .cxx and .h files
+astyle --style=allman -s2 TauAnalysisTools/*.h Root/*.cxx src/components/*.cxx src/*.cxx src/*.h util/*.cxx
+
+# if everything went fine make a cleanup of saved original files
+if [ $? -eq 0 ]
+then
+    if [ "$1" == "-c" ]
+    then
+	echo cleanup .orig files
+	rm -f TauAnalysisTools/*.orig Root/*.orig src/*.orig src/components/*.orig util/*.orig
+    fi
+else
+    echo "Something went wrong."
+    echo "Aborting."
+    exit 2
+fi
+
+echo "harmonization went quite harmonious" 
+exit 0

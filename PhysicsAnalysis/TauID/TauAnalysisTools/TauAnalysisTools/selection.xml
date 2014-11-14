@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="TauAnalysisTools::TauEfficiencyCorrectionsTool" />
+  <class name="TauAnalysisTools::TauSelectionTool" />
+  <class name="TauAnalysisTools::TauSmearingTool" />
+  <class name="TauAnalysisTools::TauTruthMatchingTool" />
+  <class name="TauAnalysisTools::TauTruthTrackMatchingTool" />
+</lcgdict>
