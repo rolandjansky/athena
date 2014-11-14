@@ -68,6 +68,7 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     G4ExceptionDescription description;
     description << "ProcessHits: COULD NOT LOCATE MODULE(From Copy)";
     G4Exception("ZDC_StripSD", "FailedToLocateModule", FatalException, description);
+    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
 
   if (Side>1 || Zloc>3) {
@@ -77,6 +78,7 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
     G4ExceptionDescription description;
     description << "ProcessHits: IMPOSSIBLE MODULE LOCATION (From Copy)";
     G4Exception("ZDC_StripSD", "ImpossibleModuleLocation", FatalException, description);
+    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
   const G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const float Pmin   = 2.761*CLHEP::eV; // MinPhotonEnergy :: Cherenkov Photons below this energy are not produced

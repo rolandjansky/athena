@@ -68,6 +68,7 @@ G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     G4ExceptionDescription description;
     description << "ProcessHits: COULD NOT LOCATE PIXEL(From Copy)";
     G4Exception("ZDC_PixelSD", "FailedToLocatePixel", FatalException, description);
+    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
 
   if (Pixel_No>79 || Module>1 || Side>1) {
@@ -78,6 +79,7 @@ G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     G4ExceptionDescription description;
     description << "ProcessHits: IMPOSSIBLE PIXEL LOCATION (From Copy)";
     G4Exception("ZDC_PixelSD", "ImpossiblePixelLocation", FatalException, description);
+    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
 
   //THIS PART CALCULATES THE CHERENKOV ENERGY DEPOSITED IN PIXELS (AFTER CHECKING THE CUTS)
