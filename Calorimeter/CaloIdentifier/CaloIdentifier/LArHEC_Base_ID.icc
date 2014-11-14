@@ -201,7 +201,8 @@ inline bool LArHEC_Base_ID::is_connected(const Identifier channelId) const
 inline IdentifierHash LArHEC_Base_ID::channel_hash (Identifier channelId) const
 {
     const HashCalc& hc = m_hash_calcs[m_pn_reg_impl.unpack(channelId)];
-    return (hc.m_hash + (eta(channelId)-hc.m_etamin)*hc.m_nphi + phi(channelId)-hc.m_phimin );
+    //return (hc.m_hash + (eta(channelId)-hc.m_etamin)*hc.m_nphi + phi(channelId)-hc.m_phimin );
+    return (hc.m_hash + (m_eta_impl.unpack(channelId)-hc.m_etamin)*hc.m_nphi + (m_phi_impl.unpack(channelId)-hc.m_phimin) ); 
 }
 
 //----------------------------------------------------------------------------

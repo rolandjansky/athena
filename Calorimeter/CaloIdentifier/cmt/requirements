@@ -62,3 +62,7 @@ apply_pattern UnitTest_run unit_test=CaloIDHelper extrapatterns="$(ep)"
 # Make dict for idhelpers
 use AtlasReflex  AtlasReflex-* External -no_auto_imports
 apply_pattern lcgdict dict=CaloIdentifier selectionfile=selection.xml headerfiles="../CaloIdentifier/CaloIdentifierDict.h"
+
+private
+#macro_append cppflags " -Winline 
+macro_append cppflags " --param inline-unit-growth=300"
