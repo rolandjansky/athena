@@ -6,8 +6,8 @@
 //
 // Andrei Gaponenko, 2008
 
-#ifndef TTBARLLJETSCNV_P1_H
-#define TTBARLLCNV_P1_H
+#ifndef TOPEVENTTPCNV_TTBARLLJETSCNV_P1_H
+#define TOPEVENTTPCNV_TTBARLLJETSCNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
@@ -35,4 +35,4 @@ public:
   
 };
 
-#endif/*TTBARLLCNV_P1_H*/
+#endif // not TOPEVENTTPCNV_TTBARLLJETSCNV_P1_H

@@ -6,7 +6,6 @@ use AtlasPolicy         	AtlasPolicy-*
 use AthenaPoolCnvSvc    	AthenaPoolCnvSvc-*     	Database/AthenaPOOL
 use DataModelAthenaPool 	DataModelAthenaPool-*   Control
 use StoreGate           	StoreGate-*             Control
-use FourMom             	FourMom-*               Event
 
 use TopEvent			TopEvent-*		Reconstruction/Top
 use JetEvent			JetEvent-* 		Reconstruction/Jet
@@ -17,6 +16,10 @@ use MissingETEvent      	MissingETEvent-*        Reconstruction
 use Particle			Particle-*		Reconstruction
 
 use McParticleEvent		McParticleEvent-* 	PhysicsAnalysis/TruthParticleID
+
+private
+use FourMom             	FourMom-*               Event
+end_private
 
 apply_pattern installed_library
 library TopEventTPCnv *.cxx
