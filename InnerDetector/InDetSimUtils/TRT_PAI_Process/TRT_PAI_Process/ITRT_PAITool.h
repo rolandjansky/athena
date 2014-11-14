@@ -3,7 +3,7 @@
 */
 
 #ifndef ITRT_PAITOOL_H
-#define ITRT_PAITTOOL_H 1
+#define ITRT_PAITOOL_H 1
 
 // Include files
 #include "GaudiKernel/IAlgTool.h"
