@@ -79,6 +79,7 @@ namespace TrkDriftCircleMath {
     unsigned int  m_nlay;
     std::vector<unsigned int>  m_ntubesml;
     double        m_tubeDist;
+    double        m_tubeRad;
     double        m_tubeStage;
     double        m_layDist;
     double        m_stationTheta;
