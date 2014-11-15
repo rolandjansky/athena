@@ -23,8 +23,7 @@ using namespace std;
 
 ReadTriggerInfo::ReadTriggerInfo(const std::string& name, 
 				 ISvcLocator* svcloc) :
-  Algorithm(name, svcloc), 
-  mStoreGateSvc("StoreGateSvc", this->name()),
+  AthAlgorithm(name, svcloc), 
   mTrigAccessTool("TrigAccessTool"), 
   //  mTrigMenuHists("TrigMenuHists"), 
   mEvent(0) {
@@ -44,10 +43,8 @@ ReadTriggerInfo::~ReadTriggerInfo() {
 }
 
 StatusCode ReadTriggerInfo::initialize() {
-  MsgStream log(msgSvc(), name());
-
   if (mTrigAccessTool.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve TrigAccessTool" << endreq;
+    ATH_MSG_WARNING ("Cannot retrieve TrigAccessTool");
   }
 //   if (mTrigMenuHists.retrieve().isFailure()) {
 //     log << MSG::WARNING << "Cannot retrieve TrigMenuHists" << endreq;

@@ -3,11 +3,11 @@
 /*
   JustInitTDTAlgo.hxx
 */
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
 
-class JustInitTDTAlgo : public Algorithm {
+class JustInitTDTAlgo : public AthAlgorithm {
 public:
   JustInitTDTAlgo(const std::string& name, ISvcLocator* svcloc);
   ~JustInitTDTAlgo();

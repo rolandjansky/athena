@@ -8,7 +8,7 @@
 #include "TriggerMenuAnalysis/JustInitTDTAlgo.hxx"
 
 JustInitTDTAlgo::JustInitTDTAlgo(const std::string& name, ISvcLocator* svcloc) : 
-  Algorithm(name, svcloc), 
+  AthAlgorithm(name, svcloc), 
   mTrigAccessTool("TrigAccessTool/TrigAccessTool", this) {
   declareProperty("TrigAccessTool", mTrigAccessTool, "TrigAccessTool");
 }
@@ -18,8 +18,7 @@ JustInitTDTAlgo::~JustInitTDTAlgo() {
 
 StatusCode JustInitTDTAlgo::initialize() {
   if (mTrigAccessTool.retrieve().isFailure()) {
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "Cannot retrieve TrigAccessTool" << endreq;
+    ATH_MSG_WARNING ("Cannot retrieve TrigAccessTool");
   }
   return StatusCode::SUCCESS;
 }
