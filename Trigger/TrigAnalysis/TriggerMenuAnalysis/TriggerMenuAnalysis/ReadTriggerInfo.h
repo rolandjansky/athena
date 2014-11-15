@@ -7,7 +7,7 @@
 /*
   ReadTriggerInfo.h
 */
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 
-class ReadTriggerInfo : public Algorithm {
+class ReadTriggerInfo : public AthAlgorithm {
 public:
   ReadTriggerInfo(const std::string& name, ISvcLocator* svcloc);
   virtual ~ReadTriggerInfo();
@@ -26,7 +26,6 @@ public:
   StatusCode finalize();
 
 private:
-  ServiceHandle<StoreGateSvc> mStoreGateSvc;
   ToolHandle<TrigAccessTool> mTrigAccessTool;
   //  ToolHandle<TrigMenuHists> mTrigMenuHists;
 

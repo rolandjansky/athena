@@ -21,7 +21,7 @@ const InterfaceID& TrigMenuHists::interfaceID() {
 
 TrigMenuHists::TrigMenuHists(const std::string& type, const std::string& name, 
 			     const IInterface* p) :
-  AlgTool(type, name, p), 
+  AthAlgTool(type, name, p), 
   mTHistSvc("THistSvc", this->name()), 
   mHistMuFastPt(0), mHistMuInDetPt(0), mHistMuCombPt(0) {
   declareInterface<TrigMenuHists>(this);

@@ -7,14 +7,14 @@
 /*
   TrigMenuHists.h
 */
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TriggerMenuAnalysis/HLTObjectsInRoI.h"
 #include <vector>
 #include "TH1.h"
 
-class TrigMenuHists : public AlgTool {
+class TrigMenuHists : public AthAlgTool {
 public:
   static const InterfaceID& interfaceID();
 

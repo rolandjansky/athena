@@ -7,7 +7,7 @@
 /*
   TrigAccessTool.h
 */
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -23,7 +23,7 @@ namespace Trig {
   class ChainGroup;
 }
 
-class TrigAccessTool : public AlgTool {
+class TrigAccessTool : public AthAlgTool {
 public:
   static const InterfaceID& interfaceID();
 
@@ -71,14 +71,13 @@ protected:
   bool decodeHLTResult(const std::string& name);
 
 protected:
-  ServiceHandle<StoreGateSvc> mStoreGateSvc;
   ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
 
   std::map<std::string, const Trig::ChainGroup*> mChainGroups;
 };
 
 StoreGateSvc* TrigAccessTool::getStoreGateSvc() {
-  return &(*mStoreGateSvc);
+  return &(*evtStore());
 }
 
 Trig::TrigDecisionTool* TrigAccessTool::getTrigDecisionTool() {

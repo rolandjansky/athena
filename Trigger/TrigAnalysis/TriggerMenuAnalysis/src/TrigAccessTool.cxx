@@ -32,13 +32,11 @@ const InterfaceID& TrigAccessTool::interfaceID() {
 TrigAccessTool::TrigAccessTool(const std::string& type, 
 			       const std::string& name, 
 			       const IInterface* p) :
-  AlgTool(type, name , p), 
-  mStoreGateSvc("StoreGateSvc", this->name()), 
+  AthAlgTool(type, name , p), 
   mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool") {
   //  mNavigation("Navigation") {
   declareInterface<TrigAccessTool>(this);
 
-  declareProperty("StoreGateSvc", mStoreGateSvc, "StoreGateSvc");
   declareProperty("TrigDecisionTool", mTrigDecisionTool, "TrigDecisionTool");
   //  declareProperty("Navigation", mNavigation, "HLT::Navigation");
 }
@@ -47,13 +45,8 @@ TrigAccessTool::~TrigAccessTool() {
 }
 
 StatusCode TrigAccessTool::initialize() {
-  MsgStream log(msgSvc(), name());
-
-  if (mStoreGateSvc.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve service StoreGateSvc" << endreq;
-  }
   if (mTrigDecisionTool.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve service TrigDecisionTool" << endreq;
+    ATH_MSG_WARNING ("Cannot retrieve service TrigDecisionTool");
   }
 //   if (mNavigation.retrieve().isFailure()) {
 //     log << MSG::WARNING << "Cannot retrieve service HLT::Navigation" << endreq;
@@ -78,11 +71,10 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
 					HLTObjectsInRoI* (*func)(), int level) {
   HLT::NavigationCore* navitool = 0;
 
-  MsgStream log(msgSvc(), name());
 //   log << MSG::DEBUG << "navitool = " << navitool << endreq;
 //   log << MSG::DEBUG << "te = " << te << endreq;
-  log << MSG::DEBUG << "Look for an roi (already found " 
-      << objs.size() << " objs)" << endreq;
+  ATH_MSG_DEBUG ("Look for an roi (already found " 
+                 << objs.size() << " objs)");
 
   const std::vector<HLT::TriggerElement*> tmp_tes;
   const std::vector<HLT::TriggerElement*>::const_iterator p_te;
@@ -101,7 +93,7 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
 	  // roiA_b -> teA1_b -> teA2_b
 	  // This condition selects which RoI the object belong to when
 	  // there are more than one RoI of the same TE name.
-	  log << MSG::DEBUG << "SEEDED_BY && RUN_BY_SAME_FEX" << endreq;
+	  ATH_MSG_DEBUG ("SEEDED_BY && RUN_BY_SAME_FEX");
 	  x = *p;
 	} else {
 	  // A ->B1,B2->C1,C2 
@@ -113,13 +105,13 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
 	// This condition selects makes sure that no new RoI object is 
 	// created for the physically same RoI. Note that the TE in the first 
 	// step has no direct predecessor except for the RoI node.
-	log << MSG::DEBUG << "IN_SAME_ROI && RUN_BY_SAME_FEX" << endreq;
+	ATH_MSG_DEBUG ("IN_SAME_ROI && RUN_BY_SAME_FEX");
 	x = *p;
       }
       delete y;
     }
   }
-  if (x==0) log << MSG::DEBUG << "NO_COMMON_ROI" << endreq;
+  if (x==0) ATH_MSG_DEBUG ("NO_COMMON_ROI");
   return x;
 }
 
@@ -196,15 +188,13 @@ bool TrigAccessTool::RoI_AseedsB(const HLTObjectsInRoI* roiA,
 
 
 bool TrigAccessTool::getL1RoIObjects(L1RoIObjects& objs) {
-  MsgStream log(msgSvc(), name());
-
   const LVL1_ROI* rois;
   StoreGateSvc* sgsvc = getStoreGateSvc();
 
   if (sgsvc->retrieve(rois).isFailure()) {
-    log << MSG::WARNING << "Cannot find LVL1_ROI" << endreq;
+    ATH_MSG_WARNING ("Cannot find LVL1_ROI");
   } else {
-    log << MSG::WARNING << "found LVL1_ROI" << endreq;
+    ATH_MSG_WARNING ("found LVL1_ROI");
     objs.setMuonRoIs(rois->getMuonROIs());
     objs.setEmTauRoIs(rois->getEmTauROIs());
     objs.setJetRoIs(rois->getJetROIs());
@@ -219,9 +209,8 @@ bool TrigAccessTool::getL1RoIObjects(L1RoIObjects& objs) {
 bool TrigAccessTool::getChainObjects(const std::string& chain_name, 
 				    std::vector<HLTObjectsInRoI*>& objs, 
 				    HLTObjectsInRoI* (*func)()) {
-  MsgStream log(msgSvc(), name());
   //  log.setLevel(MSG::DEBUG);
-  log << MSG::DEBUG << "In getChainObjects: " << chain_name << endreq;
+  ATH_MSG_DEBUG ("In getChainObjects: " << chain_name);
   //  return true;
 
   //  int level=2;
@@ -232,20 +221,19 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
   if (p_cg == mChainGroups.end()) {
     cg = mTrigDecisionTool->getChainGroup(chain_name);
     mChainGroups[chain_name] = cg;
-    log << MSG::DEBUG << "Creating chain group now" << endreq;
+    ATH_MSG_DEBUG ("Creating chain group now");
   } else {
     cg = p_cg->second;
   }
 
-  log << MSG::DEBUG << "Print ChainGroup : " << cg->patterns() << endreq;
-  log << MSG::DEBUG << "List of triggers: " << cg->getListOfTriggers() << endreq;
-  log << MSG::DEBUG << "passed? : " <<  cg->isPassed() << endreq;
+  ATH_MSG_DEBUG ("Print ChainGroup : " << cg->patterns());
+  ATH_MSG_DEBUG ("List of triggers: " << cg->getListOfTriggers());
+  ATH_MSG_DEBUG ("passed? : " <<  cg->isPassed());
 
   Trig::FeatureContainer fc = cg->features(TrigDefs::alsoDeactivateTEs);
   std::vector<Trig::Combination> combs = fc.getCombinations();
 
-  log << MSG::DEBUG << "Number of combinations from TDT: " << 
-    combs.size() << endreq;
+  ATH_MSG_DEBUG ("Number of combinations from TDT: " << combs.size());
   std::vector<Trig::Combination>::const_iterator p_comb;
   std::vector<HLTObjectsInRoI*>::const_iterator p_roi;
   HLTObjectsInRoI* roi = 0;
@@ -253,19 +241,19 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     roi = func();
     roi->setDataFromCombination(*p_comb, chain_name, *mTrigDecisionTool);
-    log << MSG::DEBUG << "dump HLTObjectsInRoI for the tmp" << endreq;
+    ATH_MSG_DEBUG ("dump HLTObjectsInRoI for the tmp");
     roi->dump();
     bool foundit=false;
-    log << MSG::DEBUG << "Number of existing RoIs to compare: " << objs.size() << endreq;
+    ATH_MSG_DEBUG ("Number of existing RoIs to compare: " << objs.size());
     for (p_roi=objs.begin(); p_roi!=objs.end(); ++p_roi) {
-      log << MSG::DEBUG << "dump HLTObjectsInRoI for the comparing one" << endreq;
+      ATH_MSG_DEBUG ("dump HLTObjectsInRoI for the comparing one");
       (*p_roi)->dump();
       if ( (*p_roi)->runBySameFex(roi)) {
 	(*p_roi)->setDataFromCombination(*p_comb, chain_name, *mTrigDecisionTool);
 	delete roi;
 	roi = *p_roi;
 	foundit = true;
-	log << MSG::DEBUG << "Found RoI run with the same Fex" << endreq;
+	ATH_MSG_DEBUG ("Found RoI run with the same Fex");
 	break;
       }
     }
@@ -274,7 +262,7 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
     }
     roi->addAssociatedChain(chain_name);
   }
-  log << MSG::DEBUG << "hltaccess done for " << chain_name << endreq;
+  ATH_MSG_DEBUG ("hltaccess done for " << chain_name);
 
   return true;
 }
@@ -287,8 +275,6 @@ void TrigAccessTool::createChainGroup(const std::string& chain_name) {
 }
 
 void TrigAccessTool::printL1Results() const {
-  MsgStream log(msgSvc(), name());
-
 //   std::vector<std::string> configured_chains = 
 //     mTrigDecisionTool->getConfiguredChainNames();
 
