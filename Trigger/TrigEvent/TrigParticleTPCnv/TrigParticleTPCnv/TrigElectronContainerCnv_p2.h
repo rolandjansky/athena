@@ -16,7 +16,7 @@
  * File and Version Information:
  * $Id: TrigElectronContainerCnv_p2.h,v 1.2 2009-04-01 22:13:30 salvator Exp $
  **********************************************************************************/
-#ifndef TRIGPARTICLETPCNV_TRIGELCTRONCONTAINERCNV_P2_H
+#ifndef TRIGPARTICLETPCNV_TRIGELECTRONCONTAINERCNV_P2_H
 #define TRIGPARTICLETPCNV_TRIGELECTRONCONTAINERCNV_P2_H
 
 #define private public
