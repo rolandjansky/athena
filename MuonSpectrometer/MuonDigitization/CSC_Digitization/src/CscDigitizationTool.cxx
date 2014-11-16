@@ -690,8 +690,7 @@ StatusCode CscDigitizationTool::processBunchXing(int /*bunchXing*/,
     CSCSimHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      CSCSimHit cschit(*i);
-      cscHitColl->Insert(cschit);
+      cscHitColl->Emplace(*i);
     }
     m_thpcCSC->insert(thisEventIndex, cscHitColl);
     //store these for deletion at the end of mergeEvent
