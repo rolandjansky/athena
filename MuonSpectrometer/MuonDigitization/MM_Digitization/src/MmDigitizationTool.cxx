@@ -432,8 +432,7 @@ StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
  
     // Read hits from this collection
     for (; i!=e; ++i){ 
-      GenericMuonSimHit mmhit(*i);
-      MMHitColl->Insert(mmhit);
+      MMHitColl->Emplace(*i);
     }
     m_thpcMM->insert(thisEventIndex, MMHitColl);
     
