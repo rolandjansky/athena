@@ -36,13 +36,24 @@ namespace{
 }
 
 
-SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):AthService(name,svc),
+SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
+  AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name),
   m_DCSConditionsSvc( "SCT_DCSConditionsSvc", name ),
   m_cablingSvc( "SCT_CablingSvc", name ),
-  m_sct_waferHash(0),  m_maxq(100),
-  m_outputLowHits(false),m_lowHitCut(100){
+  m_pSCTHelper(0),
+  m_sct_waferHash(0),  
+  m_sct_numHitsInWafer(0),
+  m_lumiBlock(0),
+  m_maxq(100),
+  m_phvtripPrevTime(0),
+  m_phvtripFirstTime(0),
+  m_absolutetriplimit(0),
+  m_relativetriplimit(0),
+  m_evt(0),
+  m_outputLowHits(false),m_lowHitCut(100)
+{
 }
 
 
@@ -82,7 +93,7 @@ SCT_CalibHvSvc::book(){
   initQueue(m_prevLBN, 4, 0);
   vector< pair <int,int> > dummy;      
    //first set num events processed to 0
-  int n_elements=8176;  //info taken from SCTCalib.h: SCT specific number 
+  //int n_elements=8176;  //info taken from SCTCalib.h: SCT specific number 
   m_phvtripProcessedEventsInt.insert(m_phvtripProcessedEventsInt.end(), n_elements, 1);
   m_phvtripRunningTotalInt.insert(m_phvtripRunningTotalInt.end(), n_elements, 0);
   m_phvtripHasItTripped.insert(m_phvtripHasItTripped.end(),n_elements, 0);

@@ -38,10 +38,21 @@ static int MAXHASH(0);
 
 
 
-SCT_CalibBsErrorSvc::SCT_CalibBsErrorSvc(const std::string &name, ISvcLocator * svc):AthService(name,svc),
-m_detStore("DetectorStore", name),
-m_evtStore("StoreGateSvc", name), 
-m_bytestreamErrorsSvc( "SCT_ByteStreamErrorsSvc", name ){
+SCT_CalibBsErrorSvc::SCT_CalibBsErrorSvc(const std::string &name, ISvcLocator * svc):
+  AthService(name,svc),
+  m_detStore("DetectorStore", name),
+  m_evtStore("StoreGateSvc", name), 
+  m_bytestreamErrorsSvc( "SCT_ByteStreamErrorsSvc", name ),
+  m_pSCTHelper(0),
+  m_scterr_bec(0),
+  m_scterr_layer(0),
+  m_scterr_eta(0),
+  m_scterr_phi(0),
+  m_scterr_side(0),
+  m_scterr_rodid(0),
+  m_scterr_channel(0),
+  m_scterr_type(0)
+{
 
 }
 

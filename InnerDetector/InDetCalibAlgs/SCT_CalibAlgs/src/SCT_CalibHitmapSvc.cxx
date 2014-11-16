@@ -116,7 +116,11 @@ SCT_CalibHitmapSvc::read(const std::string & fileName){
   m_phistoVector.clear();
   TFile *fileHitmap = TFile::Open( fileName.c_str() );
   msg( MSG::INFO ) << "opening Hitmap file : " << fileName.c_str() << endreq;
-  if(fileHitmap==NULL)  msg( MSG::ERROR ) << "can not open Hitmap file : " << fileName.c_str() << endreq;
+
+  if(fileHitmap==NULL) {
+    msg( MSG::ERROR ) << "can not open Hitmap file : " << fileName.c_str() << endreq;
+    return result;
+  }
   //histogram for numbers of events
   m_numberOfEventsHisto = (TH1I*) fileHitmap->Get("GENERAL/events");
   if( m_numberOfEventsHisto==NULL ) {

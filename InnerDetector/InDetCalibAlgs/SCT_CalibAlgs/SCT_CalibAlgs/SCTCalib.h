@@ -176,15 +176,8 @@ const;
   Identifier m_moduleId;
   Identifier m_waferId;
   int tq[100];
-  int wafersize;
   UnsignedIntegerProperty curr_time;
-  int dtime;
   bool newbin;
-  int prevhash;
-  int waferhash;
-  bool isgoodnow;
-  int numhits;
-  double limit;
   std::ofstream ofile, gofile;
 
   UnsignedIntegerProperty m_phvtripFirstTime;
@@ -335,11 +328,8 @@ const;
   bool    m_readHIST;   // True if HIST is used
 
   // Histograms
-  TH1I *                    hist_numberOfEventsInHitmaps;
   std::vector<TH1F *>       m_phitmapHistoVector;
-  TH1I *                    hist_numberOfEventsInLB;
   std::vector<TH1F *>       m_pLBHistoVector;
-  TH1I *                    hist_numberOfEventsInBSErrors;
   std::vector<TH1F *>       m_pBSErrorsHistoVector;
   std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVector;
   std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVectorECp;

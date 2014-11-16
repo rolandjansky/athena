@@ -60,19 +60,33 @@ static bool becUnderscoreFormat(false);
 SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLocator ) :
   AthService(name, pSvcLocator),
   m_detStore(0),
+  
+  m_attrListColl(0),
+  m_attrListColl_deadStrip(0),
+  m_attrListColl_deadChip(0),
+  m_attrListColl_eff(0),
+  m_attrListColl_no(0),
+  m_attrListColl_RawOccu(0),
+  m_attrListColl_BSErr(0),
+  m_attrListColl_LA(0),
+  //boolean properties
   m_writeCondObjs(true),
   m_regIOV(true),
   m_readWriteCool(true),
   m_twoStepWriteReg(false),
   m_manualiov(true),
-  m_regTime(0),
+  //
+  /*m_regTime(0), never used */
   m_version(0),
   m_beginRun(IOVTime::MINRUN),
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
+  
   m_evt(0),
   m_regSvc(0),
   m_streamer(0),
+  m_badIds(),
+  
   m_defectRecorded(false),
   m_deadStripRecorded(false),
   m_deadChipRecorded(false),
@@ -81,16 +95,19 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   m_RawOccuRecorded(false),
   m_BSErrRecorded(false),
   m_LARecorded(false),
-  m_currentDefectList("")
+  m_pHelper(0),
+  m_currentDefectList("") 
 {
   declareProperty("WriteCondObjs",        m_writeCondObjs);
   declareProperty("RegisterIOV",          m_regIOV);
   declareProperty("ReadWriteCool",        m_readWriteCool);
   declareProperty("TwoStepWriteReg",      m_twoStepWriteReg);
   declareProperty("ManualIOV",            m_manualiov);
-  declareProperty("RegTime",              m_regTime);  // Register time in sec
+  //declareProperty("RegTime",              m_regTime);  never used Register time in sec
+  
   declareProperty("BeginRun",             m_beginRun);
   declareProperty("EndRun",               m_endRun);
+  //string properties:
   declareProperty("StreamName",           m_streamName);
   declareProperty("TagID4NoisyStrips",    m_tagID4NoisyStrips);
   declareProperty("TagID4DeadStrips",     m_tagID4DeadStrips);

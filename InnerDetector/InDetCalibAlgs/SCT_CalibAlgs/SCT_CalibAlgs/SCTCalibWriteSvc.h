@@ -188,11 +188,11 @@ private:
   BooleanProperty              m_readWriteCool;
   BooleanProperty              m_twoStepWriteReg;
   BooleanProperty              m_manualiov;
-  IntegerProperty              m_regTime;
+  /*IntegerProperty              m_regTime;*/
   IntegerProperty              m_version;
-  IntegerProperty              m_nhits_noisychip;
-  IntegerProperty              m_nhits_noisywafer;
-  IntegerProperty              m_nhits_noisymodule;
+  /*IntegerProperty              m_nhits_noisychip;*/
+  /*IntegerProperty              m_nhits_noisywafer;*/
+  /*IntegerProperty              m_nhits_noisymodule;*/
   IntegerProperty      m_beginRun;
   IntegerProperty      m_endRun;
   StringProperty               m_streamName;
@@ -209,9 +209,8 @@ private:
   IIOVRegistrationSvc*         m_regSvc;
   IAthenaOutputStreamTool*     m_streamer;
 
-  StringArrayProperty          m_badElements; //list of bad detector elements (= module sides)
+  //StringArrayProperty          m_badElements; unused list of bad detector elements (= module sides)
   std::set<Identifier>         m_badIds;
-  bool                         m_filled;
   bool                         m_defectRecorded;
   bool                         m_deadStripRecorded;
   bool                         m_deadChipRecorded;

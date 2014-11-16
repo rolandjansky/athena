@@ -138,9 +138,14 @@ SCT_CalibLbSvc::read(const std::string & fileName){
   m_phistoVector.clear();
   TFile *fileLB = TFile::Open( fileName.c_str() );
   msg( MSG::INFO ) << "opening LB file : " << fileName.c_str() << endreq;
-  if(fileLB==NULL)  msg( MSG::ERROR ) << "can not open LB file : " << fileName.c_str() << endreq;
-  
-  m_numberOfEventsHisto= (TH1I*) fileLB->Get("GENERAL/events");
+
+  if(fileLB){
+    m_numberOfEventsHisto= (TH1I*) fileLB->Get("GENERAL/events");
+  } else {
+    msg( MSG::ERROR ) << "can not open LB file : " << fileName.c_str() << endreq;
+    return result;
+  }
+
   if( m_numberOfEventsHisto==NULL ) {
     msg( MSG::ERROR ) << "Error in reading EventNumber histogram" << endreq;
   }
@@ -219,11 +224,16 @@ SCT_CalibLbSvc::fillFromData(){
 void
 SCT_CalibLbSvc::fillLbForWafer(const IdentifierHash &waferHash, const int theFirstStrip, const int groupSize ){
   const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement( waferHash );
-  if ( !pElement ) msg( MSG::FATAL ) << "Element pointer is NULL" << endreq;
-  int stripNumber = ( pElement->swapPhiReadoutDirection() ) ? lastStrip - theFirstStrip : theFirstStrip;
-  int index = ((int)waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip;
-  //--- Fill LB histograms
-  for( int j = 0; j != groupSize; ++j ) {
+
+  if ( pElement) {
+    int stripNumber = ( pElement->swapPhiReadoutDirection() ) ? lastStrip - theFirstStrip : theFirstStrip;
+    int index = ((int)waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip;
+    //--- Fill LB histograms
+    for( int j = 0; j != groupSize; ++j ) {
       m_phistoVector[ index ]->Fill( m_lumiBlock );
+    }
+  } else {
+    msg( MSG::FATAL ) << "Element pointer is NULL" << endreq;
   }
+  
 }

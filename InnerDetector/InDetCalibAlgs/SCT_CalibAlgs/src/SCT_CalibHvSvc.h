@@ -71,16 +71,11 @@ private:
   ServiceHandle<ISCT_CablingSvc>                  m_cablingSvc;
   
   const SCT_ID* m_pSCTHelper;
-  const InDetDD::SCT_DetectorManager* m_pManager;
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   typedef std::vector<int> VecInt;
   VecInt *m_sct_waferHash;
-  VecInt *m_sct_firstStrip;
-  VecInt *m_sct_rdoGroupSize;
   VecInt *m_sct_numHitsInWafer;
-  
-  
   mutable int m_lumiBlock;
   
   //private use in this class

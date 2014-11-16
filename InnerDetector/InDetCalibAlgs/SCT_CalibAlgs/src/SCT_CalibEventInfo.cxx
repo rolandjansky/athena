@@ -31,6 +31,7 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * sv
   m_timeStampBegin(INTMAX),
   m_timeStampEnd(INTMIN),
   m_timeStampMax(INTMIN),
+  m_duration(0),										   
   m_LBBegin(INTMAX),
   m_LBEnd(INTMIN),
   m_numLB(0),

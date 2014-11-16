@@ -130,7 +130,11 @@ namespace{
 
 SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthAlgorithm( name, pSvcLocator ), 
+  
   p_sgSvc                     ("StoreGateSvc",name),
+  m_thistSvc(0),
+  m_pSCTHelper(0),
+  m_pManager(0),
   m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
   m_DCSConditionsSvc          ("SCT_DCSConditionsSvc",name),
   m_ConfigurationConditionsSvc("SCT_ConfigurationConditionsSvc",name),
@@ -142,9 +146,15 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_calibLbSvc                ("SCT_CalibLbSvc",name),
   m_calibModuleListSvc        ("SCT_CalibModuleListSvc",name),
   m_calibEvtInfoSvc           ("SCT_CalibEventInfo",name),
+  m_numOfEventsProcessed(0),
+  
+  m_numOfLBsProcessed(0),
   m_absolutetriplimit(0),
-  m_relativetriplimit(0)
-{
+  m_relativetriplimit(0),
+  m_numberOfEventsHist(0),
+  inputHist(0),
+  /* m_readHist(false), */
+  MAXHASH(0){
   declareProperty( "RunNumber",                 m_runNumber );
   declareProperty( "RunStartTime",              m_runStartTime );
   declareProperty( "RunEndTime",                m_runEndTime );
@@ -367,18 +377,23 @@ StatusCode SCTCalib::initialize(){
     }
     inputHist = TFile::Open( hist.c_str() );
     msg( MSG::INFO ) << "opening HIST file : " << hist.c_str() << endreq;
-    if(inputHist==NULL)  msg( MSG::WARNING ) << "can not open HIST : " << hist.c_str() << endreq;
 
-    //--- Check run number
-    const std::string os=boost::lexical_cast<std::string>((int)m_runNumber);
-    msg( MSG::INFO ) << "Getting HIST directory : " << (int)m_runNumber << endreq;
-    if ( not inputHist->GetDirectory( "/run_"+TString(os) ) ) return msg( MSG::ERROR ) << "RunNumber in HIST is inconsistent with jobO : " << os << endreq, StatusCode::FAILURE ;
-    msg( MSG::INFO ) << "Getting Number of events: " << m_calibEvtInfoSvc->counter() << endreq;
-    //--- Read number of events : Get an entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
-    std::string osHist= std::string( "/run_") + boost::lexical_cast<std::string>((int)m_runNumber)+"/GLOBAL/DQTDataFlow/events_lb";
-    TH1I* hist_events = (TH1I *) inputHist->Get( osHist.c_str() );
-    m_numberOfEventsHist = hist_events->GetBinContent( 6 ); // Entry in "tier0ESD"
-    //m_numberOfEventsHist = 13902;
+    if(inputHist){  
+      //--- Check run number
+      const std::string os=boost::lexical_cast<std::string>((int)m_runNumber);
+      msg( MSG::INFO ) << "Getting HIST directory : " << (int)m_runNumber << endreq;
+      if ( not inputHist->GetDirectory( "/run_"+TString(os) ) ) return msg( MSG::ERROR ) << "RunNumber in HIST is inconsistent with jobO : " << os << endreq, StatusCode::FAILURE ;
+      msg( MSG::INFO ) << "Getting Number of events: " << m_calibEvtInfoSvc->counter() << endreq;
+      //--- Read number of events : Get an entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
+      std::string osHist= std::string( "/run_") + boost::lexical_cast<std::string>((int)m_runNumber)+"/GLOBAL/DQTDataFlow/events_lb";
+      TH1I* hist_events = (TH1I *) inputHist->Get( osHist.c_str() );
+      m_numberOfEventsHist = hist_events->GetBinContent( 6 ); // Entry in "tier0ESD"
+      //m_numberOfEventsHist = 13902;
+    }else{
+      msg( MSG::WARNING ) << "can not open HIST : " << hist.c_str() << endreq;
+    }
+    
+
     msg( MSG::INFO ) << "Initialization of TimeStamp/LB, taken from runInfo.txt" << endreq;
     //--- Initialization of TimeStamp/LB, taken from runInfo.txt
     m_calibEvtInfoSvc->setSource("HIST");
@@ -2663,7 +2678,10 @@ SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
       //--- Chip number : taken from SCT_ConfigurationConditionsSvc::getChip
       IdentifierHash waferHash = m_pSCTHelper->wafer_hash( m_pSCTHelper->wafer_id( stripId ) );
       const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement( waferHash );
-      if ( !pElement ) msg( MSG::FATAL ) << "Element pointer is NULL" << endreq;
+      if ( !pElement ) {
+	msg( MSG::FATAL ) << "Element pointer is NULL" << endreq;
+	continue;
+      }
       int stripOnline = ( pElement->swapPhiReadoutDirection() ) ? lastStrip - stripOffline : stripOffline;
       int chipId = m_pSCTHelper->side( stripId ) == 0 ? stripOnline/n_stripPerChip : stripOnline/n_stripPerChip + n_chipPerSide;
       //--- Count number of noisy strips per chips
