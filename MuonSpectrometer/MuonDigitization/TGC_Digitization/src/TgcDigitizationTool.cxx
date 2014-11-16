@@ -147,8 +147,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int /*bunchXing*/,
     TGCSimHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for(; i!=e; ++i) {
-      TGCSimHit tgchit = *i;
-      TGCHitColl->Insert(tgchit);
+      TGCHitColl->Emplace(*i);
     }
     m_thpcTGC->insert(thisEventIndex, TGCHitColl);
     //store these for deletion at the end of mergeEvent
