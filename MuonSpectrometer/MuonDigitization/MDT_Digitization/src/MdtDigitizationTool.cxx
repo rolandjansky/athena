@@ -354,8 +354,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing, PileUpEventInfo:
     
     // Read hits from this collection
     for (; i!=e; ++i){
-      MDTSimHit mdthit(*i);
-      MDTHitColl->Insert(mdthit);
+      MDTHitColl->Emplace(*i);
     }
     m_thpcMDT->insert(thisEventIndex, MDTHitColl);
     //store these for deletion at the end of mergeEvent
