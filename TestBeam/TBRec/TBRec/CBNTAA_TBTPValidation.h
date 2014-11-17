@@ -5,7 +5,6 @@
 #ifndef CBNTAA_TBTPVALIDATION_H
 #define CBNTAA_TBTPVALIDATION_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CBNT_TBRecBase.h"
@@ -35,8 +34,6 @@ class CBNTAA_TBTPValidation : public CBNT_TBRecBase
  private:
 
   bool m_neverReturnFailure;   // controls when StatusCode::FAILURE can be issued in execute()
-
-  StoreGateSvc* m_eventStore;
 
   // TBADCRawCont
 	std::vector<unsigned int> *m_adc;

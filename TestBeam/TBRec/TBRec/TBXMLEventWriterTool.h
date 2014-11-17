@@ -8,8 +8,6 @@
 /// \brief writes out event header
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/AlgTool.h"
-
 #include "TBRec/TBXMLWriterToolBase.h"
 
 #include <iostream>

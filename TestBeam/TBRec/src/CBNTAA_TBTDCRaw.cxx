@@ -7,7 +7,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TBEvent/TBTDCRawCont.h"
 #include <vector>
@@ -18,7 +17,6 @@ CBNTAA_TBTDCRaw::CBNTAA_TBTDCRaw(const std::string & name, ISvcLocator * pSvcLoc
 	declareProperty("ContainerKey1",m_containerKey1="TDCRawCont");
 	m_tdc=NULL;
 	m_underThreshold=NULL;
-        m_eventStore = 0;
 }
 
 CBNTAA_TBTDCRaw::~CBNTAA_TBTDCRaw() 
@@ -31,34 +29,10 @@ CBNTAA_TBTDCRaw::~CBNTAA_TBTDCRaw()
 
 StatusCode CBNTAA_TBTDCRaw::CBNT_initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in initialize()" 
-      << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
 
- StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR
-	  << "Unable to retrieve pointer to StoreGate Service"
-	  << endreq;
-      return sc;
-    }
-
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    } 
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
 
   addBranch("TBTDCRaw",m_tdc);
   addBranch("TBTDCRaw_underThreshold",m_underThreshold);
@@ -69,16 +43,11 @@ StatusCode CBNTAA_TBTDCRaw::CBNT_initialize()
 
 StatusCode CBNTAA_TBTDCRaw::CBNT_execute()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-  
   const TBTDCRawCont * tdcCont;
-	sc = m_eventStore->retrieve(tdcCont,m_containerKey1);
+  StatusCode sc = evtStore()->retrieve(tdcCont,m_containerKey1);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << "\033[31m" << " Cannot read TBTDCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" << endreq;
+      ATH_MSG_ERROR ( "\033[31m" << " Cannot read TBTDCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -87,20 +56,20 @@ StatusCode CBNTAA_TBTDCRaw::CBNT_execute()
     }
   else
     {
-			log << MSG::DEBUG << "\033[31m" << "Going over TBTDCRawCont channels ..."<< "\033[0m" <<endreq;
+      ATH_MSG_DEBUG ( "\033[31m" << "Going over TBTDCRawCont channels ..."<< "\033[0m" );
+      
+      const unsigned nTDC = (TBTDCRawCont::size_type)tdcCont->size();
+      m_tdc->resize(nTDC);
+      m_underThreshold->resize(nTDC);
 
-			const unsigned nTDC = (TBTDCRawCont::size_type)tdcCont->size();
-			m_tdc->resize(nTDC);
-			m_underThreshold->resize(nTDC);
-
-			unsigned NtupleVectorIndex = 0;
+      unsigned NtupleVectorIndex = 0;
       TBTDCRawCont::const_iterator it_tdc = tdcCont->begin();
       TBTDCRawCont::const_iterator last_tdc = tdcCont->end();
       for(;it_tdc!=last_tdc;it_tdc++,NtupleVectorIndex++) {
-				const TBTDCRaw * tdc = (*it_tdc);
-				(*m_tdc)[NtupleVectorIndex] = tdc->getTDC();
-				(*m_underThreshold)[NtupleVectorIndex] = tdc->isUnderThreshold();
-			}
+        const TBTDCRaw * tdc = (*it_tdc);
+        (*m_tdc)[NtupleVectorIndex] = tdc->getTDC();
+        (*m_underThreshold)[NtupleVectorIndex] = tdc->isUnderThreshold();
+      }
     }
 
   return StatusCode::SUCCESS;
@@ -118,12 +87,7 @@ StatusCode CBNTAA_TBTDCRaw::CBNT_clear()
 
 StatusCode CBNTAA_TBTDCRaw::CBNT_finalize()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in finalize()" 
-      << endreq;
-  
+  ATH_MSG_DEBUG ( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 

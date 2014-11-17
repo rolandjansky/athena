@@ -11,7 +11,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
@@ -21,7 +21,7 @@
 
 class StoreGateSvc;
 
-class TBBPCRec : public Algorithm
+class TBBPCRec : public AthAlgorithm
 {
 
 
@@ -44,8 +44,6 @@ class TBBPCRec : public Algorithm
   // Properties //
   ////////////////
 
-  StoreGateSvc* m_StoreGate;
-  
   std::string m_SGkey,m_SGrecordkey;
   std::string m_calib_filename;
 

@@ -8,7 +8,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -29,8 +28,6 @@ using CLHEP::ns;
 
 CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
   :CBNT_TBRecBase(name, pSvcLocator)
-   , m_eventStore(0)
-   , m_detectorStore(0)
    , m_onlineHelper(0)
    , m_emId(0)
    , m_energy_cut(2.*GeV)
@@ -71,44 +68,13 @@ CBNT_Timing::~CBNT_Timing()
 
 StatusCode CBNT_Timing::CBNT_initialize() {
 
-  // messaging
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "CBNT_Timing in initialize()" 
-      << endreq;
+  ATH_MSG_DEBUG  ( "CBNT_Timing in initialize()" );
 
-  StatusCode sc;
-
-  // allocate eventStore
-  sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "cannot allocate StoreGateSvc" << endreq;
-    return sc;
-  }
-  
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
 
-  // allocate detectorStore
-  sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "cannot allocate DetectorStore" << endreq;
-    return sc;
-  }
-  
-  // allocate LArCablingService
-  sc = m_cablingService.retrieve();
-  if (sc.isFailure()){
-    log << MSG::ERROR << "cannot allocate LArCablingService" << endreq;
-    return sc;
-  }
-
-  // get LArOnlineID helper
-  sc = m_detectorStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
     addBranch ("TDC_TimeCell",m_time_cell);
     addBranch ("TDC_EnergyCell",m_energy_cell);
@@ -130,25 +96,20 @@ StatusCode CBNT_Timing::CBNT_initialize() {
 
   
   // setup calorimeter module and sampling lookup tables
-  if ((this->setupLookupTables()).isFailure()) {
-    log << MSG::ERROR
-           << "problems performing setup of module and sampling lookup tables"
-           << endreq;
-    return sc;
-  }
+  ATH_CHECK( this->setupLookupTables() );
 
   // get calorimeter samplings ids for the requested samplings
-  log << MSG::INFO << "Included calorimeter samplings: ";
+  msg() << MSG::INFO << "Included calorimeter samplings: ";
   for (std::vector<std::string>::const_iterator sampling = m_sampling_names.begin(); sampling != m_sampling_names.end(); sampling++) {
     //    CaloSampling::CaloSample idSamp = CaloSamplingHelper::getSamplingId(*sampling);
     CaloSampling::CaloSample idSamp = m_samplingFromNameLookup[*sampling];
     if (idSamp != CaloSampling::Unknown) {
       m_samplingIndices.push_back(idSamp);
-      log << MSG::INFO << "\042" << *sampling
+      msg() << MSG::INFO << "\042" << *sampling
              << "\042 ";
     }
   }
-  log << MSG::INFO << endreq;
+  msg() << MSG::INFO << endreq;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
   for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
@@ -164,7 +125,7 @@ StatusCode CBNT_Timing::CBNT_initialize() {
   std::map< CaloCell_ID::SUBCALO, std::vector<CaloSampling::CaloSample> >::iterator it = m_calosAndSamplings.begin();
   for (; it != m_calosAndSamplings.end(); it++) {
     CaloCell_ID::SUBCALO idCalo = it->first;
-    log << MSG::INFO
+    msg() << MSG::INFO
            << "Included calorimeter : \042"
            << m_caloToNameLookup[idCalo]
            << "\042 samplings:";
@@ -172,12 +133,12 @@ StatusCode CBNT_Timing::CBNT_initialize() {
     std::vector<CaloSampling::CaloSample>::iterator sample     = samplingV.begin();
     std::vector<CaloSampling::CaloSample>::iterator lastSample = samplingV.end();
     for (; sample != lastSample; sample++) {
-       log << MSG::INFO
+      msg() << MSG::INFO
              << " \042"
              << m_samplingToNameLookup[*sample]
              << "\042";
     }
-    log  << MSG::INFO << endreq;
+    msg()  << MSG::INFO << endreq;
   }
 
   return StatusCode::SUCCESS; 
@@ -187,40 +148,19 @@ StatusCode CBNT_Timing::CBNT_initialize() {
 
 StatusCode CBNT_Timing::CBNT_execute()
 {
- 
-  // Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG
-      << "in execute()" 
-      << endreq;
-
-  StatusCode sc;
-
+  ATH_MSG_DEBUG ( "in execute()" );
   
   /////////////////
   // Data Access //
   /////////////////
   
   // CaloCells
-  const CaloCellContainer* cellContainer;
-  sc = m_eventStore->retrieve(cellContainer, m_caloCellName );
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-           << "cannot allocate CaloCellContainer with key <"
-           << m_caloCellName
-           << ">"
-           << endreq;
-    return sc;
-  }
+  const CaloCellContainer* cellContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellName ) );
 
   // TBPhase 
-  TBPhase * phase;
-  sc = m_eventStore->retrieve(phase,m_tbphase);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot read TBPhase from StoreGate! key= " << m_tbphase << endreq;
-      return sc;
-  }
-   
+  TBPhase * phase = nullptr;
+  ATH_CHECK( evtStore()->retrieve(phase,m_tbphase) );
   
   m_tdc_phase = phase->getPhase();
 
@@ -266,13 +206,13 @@ StatusCode CBNT_Timing::CBNT_execute()
       }
     }
     // print out
-    log << MSG::INFO << "FEB IDs: ";
+    msg() << MSG::INFO << "FEB IDs: ";
     for (std::vector<HWIdentifier>::iterator it_febID = m_febIDs.begin(); it_febID != m_febIDs.end(); it_febID++) {
       std::ostringstream os; 
       os << std::hex << *it_febID;
-      log << MSG::INFO << " \042" << os.str() << "\042";
+      msg() << MSG::INFO << " \042" << os.str() << "\042";
     }
-    log << MSG::INFO << endreq;
+    msg() << MSG::INFO << endreq;
 
     m_first_event = false;
   }
@@ -295,11 +235,10 @@ StatusCode CBNT_Timing::CBNT_execute()
 
   for (; it != m_calosAndSamplings.end(); it++) {
     CaloCell_ID::SUBCALO idCalo = it->first;
-    log << MSG::DEBUG
-        << "Looping over CaloCells of calorimeter : \042"
+    ATH_MSG_DEBUG
+      ( "Looping over CaloCells of calorimeter : \042"
         << m_caloToNameLookup[idCalo]
-        << "\042"
-        << endreq;
+        << "\042" );
     std::vector<CaloSampling::CaloSample> samplingV = it->second;
 
     // loop over the corresponding CaloCell's
@@ -349,10 +288,9 @@ StatusCode CBNT_Timing::CBNT_execute()
 	  sumETimeTotal += energy * time;
 	  eSet = true;
 
-	  log << MSG::DEBUG
-              << "cell time = " << time/ns << " ns"
-              << "; energy = " << energy/GeV << " GeV"
-              << endreq;
+	  ATH_MSG_DEBUG
+            ( "cell time = " << time/ns << " ns"
+              << "; energy = " << energy/GeV << " GeV" );
 
 	} else {
 	  // below energy cut
@@ -422,12 +360,7 @@ StatusCode CBNT_Timing::CBNT_execute()
 
 StatusCode CBNT_Timing::CBNT_finalize()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in finalize()" 
-      << endreq;
-  
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

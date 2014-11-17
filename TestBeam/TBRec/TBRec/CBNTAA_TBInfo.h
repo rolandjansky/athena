@@ -7,7 +7,6 @@
 
 #include "CBNT_TBRecBase.h"
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/Algorithm.h"
 #include <vector>
 
 class TBCaloCoordinate;

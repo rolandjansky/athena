@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -38,8 +37,6 @@
 
 CBNT_CaloH6::CBNT_CaloH6(const std::string & name, ISvcLocator * pSvcLocator) :
   CBNT_TBRecBase(name, pSvcLocator),
-  m_StoreGate(0),
-  m_detStore(0),
   m_emecID_help(0),
   m_hecID_help(0),
   m_fcalID_help(0),
@@ -64,25 +61,7 @@ CBNT_CaloH6::~CBNT_CaloH6(){}
 
 StatusCode CBNT_CaloH6::CBNT_initialize()
 { //initialize
-  
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG<< "initialize()" << endreq;
-  
-  StatusCode sc;
-  
-  // accessing Store Gate
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ){
-    log << MSG::FATAL << "Unable to locate the StoreGateSvc Service" <<endreq;
-    return sc;
-  }
-  
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    }
+  ATH_MSG_DEBUG( "initialize()" );
   
   m_hecID_help = NULL;
   m_emecID_help = NULL;
@@ -100,35 +79,28 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
   // m_hecID_help = m_larMgr->get_hec_id();
   m_hecID_help = CaloIdManager::instance()->getHEC_ID();
   if (!m_hecID_help) {
-    log << MSG::ERROR << "unable to obtain hec id " << endreq;
+    ATH_MSG_ERROR ( "unable to obtain hec id " );
     return StatusCode::FAILURE;
   }
   // m_emecID_help = m_larMgr->get_em_id();
   m_emecID_help = CaloIdManager::instance()->getEM_ID();
   if (!m_emecID_help) {
-    log << MSG::ERROR << "unable to obtain emec id " << endreq;
+    ATH_MSG_ERROR ( "unable to obtain emec id " );
     return StatusCode::FAILURE;
   }
   
   // m_fcalID_help = m_larMgr->get_fcal_id();
   m_fcalID_help =  CaloIdManager::instance()->getFCAL_ID();
   if (!m_fcalID_help) {
-    log << MSG::ERROR << "unable to obtain fcal id " << endreq;
+    ATH_MSG_ERROR ( "unable to obtain fcal id " );
     return StatusCode::FAILURE;
   }
 
-  log<<MSG::DEBUG<<"Got to before p_toolSvc"<<endreq;
+  ATH_MSG_DEBUG("Got to before p_toolSvc");
   
-  // noise tool
-  sc = m_noiseTool.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::FATAL
-	<< "CBNT_CaloH6: Unable to find tool " << m_noiseTool.typeAndName()
-	<< endreq;
-    return sc;
-  }  
+  ATH_CHECK( m_noiseTool.retrieve() );
 
-  log << MSG::DEBUG << "Before Booking Ntuple" << endreq;  
+  ATH_MSG_DEBUG ( "Before Booking Ntuple" );
   
   //hec, 241 channels
   //emec, 113 channels
@@ -154,21 +126,12 @@ StatusCode CBNT_CaloH6::CBNT_initialize()
 
 StatusCode CBNT_CaloH6::CBNT_execute()
 { //execute
-  
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "execute()"<< endreq;
-  
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "execute()");
   
   //Accesing the CaloCellContainer
   const CaloCellContainer* cellContainer;
   
-  sc = m_StoreGate->retrieve(cellContainer);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "couldn't get the calo cells from storegate" << endreq;
-    log << MSG::ERROR << "here is what is in storegate: " << m_StoreGate->dump() << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(cellContainer) );
   
   CaloCellContainer::const_iterator ifirst = cellContainer->begin();
   CaloCellContainer::const_iterator ilast = cellContainer->end();
@@ -190,7 +153,7 @@ StatusCode CBNT_CaloH6::CBNT_execute()
       
       float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
 
-      log<<MSG::DEBUG<<"noiseRMS HEC"<<noiseSigma<<endreq;
+      ATH_MSG_DEBUG("noiseRMS HEC"<<noiseSigma);
       
       const Identifier hecid=cell_ptr->ID();
       
@@ -208,7 +171,7 @@ StatusCode CBNT_CaloH6::CBNT_execute()
       
       float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
       
-      log<<MSG::DEBUG<<"noiseRMS EMEC"<<noiseSigma<<endreq;
+      ATH_MSG_DEBUG("noiseRMS EMEC"<<noiseSigma);
       
       const Identifier emecid=cell_ptr->ID();
       
@@ -224,7 +187,7 @@ StatusCode CBNT_CaloH6::CBNT_execute()
       
       float noiseSigma = m_noiseTool->elecNoiseRMS(cell_ptr);
       
-      log<<MSG::DEBUG<<"noiseRMS FCAL"<<noiseSigma<<endreq;
+      ATH_MSG_DEBUG("noiseRMS FCAL"<<noiseSigma);
       
       const Identifier fcalid=cell_ptr->ID();
       
@@ -246,11 +209,7 @@ StatusCode CBNT_CaloH6::CBNT_execute()
 
 StatusCode CBNT_CaloH6::CBNT_finalize()
 { //finalize
-  
-  MsgStream log( msgSvc(), name() );
-  
-  log << MSG::INFO << "finalize()" <<endreq;
-  
+  ATH_MSG_INFO ( "finalize()" );
   return StatusCode::SUCCESS;   
   
 } //finalize

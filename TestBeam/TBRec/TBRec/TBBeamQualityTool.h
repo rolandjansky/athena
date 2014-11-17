@@ -15,7 +15,7 @@
 #ifndef TBBEAMQUALITYTOOL_H
 #define TBBEAMQUALITYTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
 #include <vector>
@@ -24,7 +24,7 @@ class StoreGateSvc;
 
 static const InterfaceID IID_TBBeamQualityTool("TBBeamQualityTool", 1 , 0);
 
-class TBBeamQualityTool : public AlgTool
+class TBBeamQualityTool : public AthAlgTool
 {
  public:
 
@@ -42,9 +42,5 @@ class TBBeamQualityTool : public AlgTool
   virtual StatusCode initializeTool();
   
   static const InterfaceID& interfaceID() { return IID_TBBeamQualityTool;}
- protected:
-  
-  StoreGateSvc* m_storegate;
-  
 };
 #endif

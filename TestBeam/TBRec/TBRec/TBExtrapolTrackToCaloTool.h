@@ -15,7 +15,7 @@
 #define TRACKTOCALO_TBEXTRAPOLTRACKTOCALO_H
 
 //#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/NeutralParticle.h"
@@ -33,13 +33,19 @@ class ICaloCoordinateTool;
 class IMessageSvc;
 class CaloDepthTool;
 class ICaloSurfaceBuilder;
+class ImpactInCalo;
 
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkDetDescrUtils/Intersection.h"
+
 namespace Trk {
   class Track;
   class IExtrapolator;
+  class TrackParticleBase;
 }
+
+static const InterfaceID IID_TBExtrapolTrackToCaloTool("TBExtrapolTrackToCaloTool", 1 , 0); 
 
 //<<<<<< INCLUDES >>>>>>
 
@@ -74,12 +80,14 @@ namespace Trk {
 
  */
 
-class TBExtrapolTrackToCaloTool : public AthAlgTool, 
-	     virtual public IExtrapolateToCaloTool
-
+//class TBExtrapolTrackToCaloTool : public AthAlgTool, 
+//	     virtual public IExtrapolateToCaloTool
+class TBExtrapolTrackToCaloTool : public AthAlgTool
 {
 public:
   
+  // Retrieve interface ID
+  static const InterfaceID& interfaceID() { return IID_TBExtrapolTrackToCaloTool; } 
   // Constructor:
 
   TBExtrapolTrackToCaloTool(const std::string& type, 
@@ -228,7 +236,7 @@ public:
 
   virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex& vertex, bool /*reuse*/) const;
 
-  virtual Trk::SurfaceIntersection getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const;
+  virtual Trk::Intersection getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const;
 
 private:
 

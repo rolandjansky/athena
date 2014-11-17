@@ -9,7 +9,7 @@
 // class TBNoiseWrite 
 // Write ROOT Tree with noise in randomly triggered events
 //
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 class TFile;
@@ -20,7 +20,7 @@ class IToolSvc;
 class LArDigitContainer;
 class LArCablingService;
 
-class TBNoiseWrite: public Algorithm {
+class TBNoiseWrite: public AthAlgorithm {
  public:    
   
   TBNoiseWrite(const std::string& name, ISvcLocator* pSvcLocator);
@@ -63,15 +63,12 @@ class TBNoiseWrite: public Algorithm {
   TTree* m_header_tree;                   // Header Tree pointer
   TTree* m_tree;                          // Noise Tree pointer
 
-  StoreGateSvc* m_eventStore;
-  StoreGateSvc* m_detStore;
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
   LArCablingService* m_larCablingSvc;
 
   /** Text file containing xCryo and yTable */
   std::string m_txtFileWithXY;
-
 };
 
 #endif

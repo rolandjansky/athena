@@ -3,7 +3,7 @@
 */
 
 #ifndef TBREC_TBPHASESTREAMERTOOL_H
-#define TBREC_TBPHASETOOL_H
+#define TBREC_TBPHASESTREAMERTOOL_H
 
 /*! \brief Used for cutting TBPhase on guard region
  *
@@ -44,4 +44,4 @@ class TBPhaseStreamerTool : public TBEventStreamerTool
   std::string m_TBPhaseKey;
     
 };
-#endif
+#endif // not TBREC_TBPHASESTREAMERTOOL_H

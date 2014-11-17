@@ -11,7 +11,7 @@
  * \c StatusCode::FAILURE. The algorithm keeps scores of success and failures.
  */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
@@ -21,7 +21,7 @@
 class TBEventStreamerTool;
 class StoreGateSvc;
 
-class TBEventStreamer : public Algorithm
+class TBEventStreamer : public AthAlgorithm
 {
  public:
   /*! \brief Algorithm constructor */
@@ -37,8 +37,6 @@ class TBEventStreamer : public Algorithm
 //  std::vector<std::string> m_toolNames;
 //  std::vector<TBEventStreamerTool*> m_tools;
   ToolHandleArray<TBEventStreamerTool> m_tools;
-
-  StoreGateSvc* m_storeGate;
 
   std::map<ToolHandle<TBEventStreamerTool>, unsigned int> m_acceptCounter;
   std::map<ToolHandle<TBEventStreamerTool>, unsigned int> m_rejectCounter;

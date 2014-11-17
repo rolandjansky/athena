@@ -11,7 +11,6 @@
 #include "TBRec/TBExtrapolTrackToCaloTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -25,7 +24,7 @@
 #include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
 
-#include "TrackToCalo/ImpactInCalo.h"
+//#include "TrackToCalo/ImpactInCalo.h"
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -38,8 +37,8 @@
 #include "CaloDetDescr/CaloDepthTool.h"
 
 //#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-#include "TrackToCalo/ImpactInCaloCollection.h"
+//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+#include "TBRec/ImpactInCaloCollection.h"
 
 
 using HepGeom::Point3D;
@@ -49,8 +48,7 @@ using HepGeom::Vector3D;
 // Constructor with parameters:
 TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name, 
                                    ISvcLocator *pSvcLocator) :
-  Algorithm(name,pSvcLocator),
-  m_StoreGate(0),
+  AthAlgorithm(name,pSvcLocator),
   m_TrackName("Tracks"),
   m_tracks(0)
 {  
@@ -73,26 +71,7 @@ TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name,
 // Initialize method:
 StatusCode TBTrackToCaloAlg::initialize()
 {
-
-  // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TBTrackToCaloAlg::initialize()" << endreq;
-
-  StatusCode sc;
-
-  // Get an Identifier helper object
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Detector service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_MSG_DEBUG ( "TBTrackToCaloAlg::initialize()" );
 
   m_calo_dd = CaloDetDescrManager::instance();
   m_calo_id = m_calo_dd->getCaloCell_ID();
@@ -100,49 +79,38 @@ StatusCode TBTrackToCaloAlg::initialize()
 
   // General access to Tools :
   IToolSvc* p_toolSvc = 0;
-  sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Cannot find ToolSvc ??? " << endreq;
-    return StatusCode::FAILURE; 
-  }
+  ATH_CHECK( service("ToolSvc", p_toolSvc) );
 
   IAlgTool* algTool = 0;
 
-  sc = p_toolSvc->retrieveTool("ExtrapolTrackToCaloTool", algTool,this);
+  StatusCode sc = p_toolSvc->retrieveTool("ExtrapolTrackToCaloTool", algTool,this);
   //m_toCalo=dynamic_cast<IExtrapolTrackToCaloTool*>(algTool); 
   //m_toCalo=dynamic_cast<IExtrapolateToCaloTool*>(algTool); 
   m_toCalo=dynamic_cast<TBExtrapolTrackToCaloTool*>(algTool); 
   if(sc.isFailure() || !m_toCalo) {
-    log << MSG::ERROR << "Cannot get ExtrapolTrackToCaloTool" << endreq;
+    ATH_MSG_ERROR ( "Cannot get ExtrapolTrackToCaloTool" );
     return StatusCode::FAILURE;
   }
   
-  IAlgTool* tool;
-  sc = p_toolSvc->retrieveTool("TBCaloCoordinate", tool);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Cannot get TBCaloCoordinate tool" << endreq;
-    return StatusCode::FAILURE;
-  }
+  IAlgTool* tool = 0;
+  ATH_CHECK( p_toolSvc->retrieveTool("TBCaloCoordinate", tool) );
   m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(tool);
 
   // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
   m_calodepth = m_toCalo->getCaloDepth();
   if (!m_calodepth) {
-    log << MSG::ERROR << "Cannot get CaloDepthTool" << endreq;
+    ATH_MSG_ERROR ( "Cannot get CaloDepthTool" );
     return StatusCode::FAILURE; 
   }
 
-  log << MSG::INFO << "TBTrackToCaloAlg initialisation OK" << endreq;
+  ATH_MSG_INFO ( "TBTrackToCaloAlg initialisation OK" );
   return StatusCode::SUCCESS;
 }
 
 // Execute method:
 StatusCode TBTrackToCaloAlg::execute() 
 {
-  // Get the messaging service, print where you are
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TBTrackToCaloAlg::execute()" << endreq;
+  ATH_MSG_DEBUG ( "TBTrackToCaloAlg::execute()" );
 
   // just a simple test ( trick to trigger position reading )
   // PrintBeamPosition();
@@ -168,8 +136,7 @@ StatusCode TBTrackToCaloAlg::execute()
 // Finalize method:
 StatusCode TBTrackToCaloAlg::finalize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TBTrackToCaloAlg::finalize()" << endreq;
+  ATH_MSG_DEBUG ( "TBTrackToCaloAlg::finalize()" );
   
   return StatusCode::SUCCESS;
 }
@@ -180,16 +147,14 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
 {
   bool got_a_track = false;
   
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TBTrackToCaloAlg::CreateTrkImpactInCalo()" << endreq;
+  ATH_MSG_DEBUG ( "TBTrackToCaloAlg::CreateTrkImpactInCalo()" );
 
   //create and record new ImpactInCalo container
   ImpactInCaloCollection* outputContainer = new ImpactInCaloCollection();
-  sc=m_StoreGate->record(outputContainer,m_ImpactInCalosOutputName,false); //"false" indicates it can't be modified by another algorithm
+  StatusCode sc=evtStore()->record(outputContainer,m_ImpactInCalosOutputName,false); //"false" indicates it can't be modified by another algorithm
   if(sc != StatusCode::SUCCESS){
-    log << MSG::ERROR << " Could not record ImpactInCaloCollection" 
-	      << m_ImpactInCalosOutputName << endreq ;
+    ATH_MSG_ERROR ( " Could not record ImpactInCaloCollection" 
+                    << m_ImpactInCalosOutputName );
     return got_a_track ;
   }
 
@@ -199,21 +164,21 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
   if( m_trkinput == "TrackParticleCandidates")
     {
       if (m_TrackParticleName == "") {
-	log << MSG::ERROR <<"m_TrackParticleName not set" << endreq;
+	ATH_MSG_ERROR ("m_TrackParticleName not set" );
 	return StatusCode::SUCCESS;
       }
 
-      sc = m_StoreGate->retrieve(m_particle, m_TrackParticleName);
+      sc = evtStore()->retrieve(m_particle, m_TrackParticleName);
 
-      if (sc.isFailure()) log << MSG::ERROR <<"TrackParticle not found: will only play with calo " << m_TrackParticleName << endreq;
+      if (sc.isFailure()) ATH_MSG_ERROR ("TrackParticle not found: will only play with calo " << m_TrackParticleName );
       else {
-	log <<MSG::DEBUG <<"TrackParticle found in StoreGate" <<endreq; 
+	ATH_MSG_DEBUG ("TrackParticle found in StoreGate" );
 	for (Rec::TrackParticleContainer::const_iterator itr = (*m_particle).begin(); itr < (*m_particle).end(); itr++) {
 	  const Trk::Track* tr = (*itr)->originalTrack();
 
 	  ImpactInCalo * imp = GetImpactsInCalo(tr, got_a_track);	  
 	  if(imp) outputContainer->push_back(imp);
-	  else log <<MSG::DEBUG <<" ImpactInCalo pointer not valid for this track"<<endreq;
+	  else ATH_MSG_DEBUG (" ImpactInCalo pointer not valid for this track");
 	}
       }
     }
@@ -221,20 +186,20 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
   else
     {
       if (m_TrackName == "") {
-	log << MSG::ERROR <<"m_TrackName not set" << endreq;
+	ATH_MSG_ERROR ("m_TrackName not set" );
 	return StatusCode::SUCCESS;
       }
 
-      sc = m_StoreGate->retrieve(m_tracks, m_TrackName);
+      sc = evtStore()->retrieve(m_tracks, m_TrackName);
 
-      if (sc.isFailure()) log << MSG::ERROR <<"Tracks not found: will only play with calo " << m_TrackName << endreq;
+      if (sc.isFailure()) ATH_MSG_ERROR ("Tracks not found: will only play with calo " << m_TrackName );
       else {
-	log <<MSG::DEBUG <<"Tracks found in StoreGate" <<endreq; 
+	ATH_MSG_DEBUG ("Tracks found in StoreGate" );
 	for (TrackCollection::const_iterator itr = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++) {
 
 	  ImpactInCalo * imp = GetImpactsInCalo(*itr, got_a_track);
 	  if(imp) outputContainer->push_back(imp);
-	  else log <<MSG::DEBUG <<" ImpactInCalo pointer not valid for this track"<<endreq;
+	  else ATH_MSG_DEBUG (" ImpactInCalo pointer not valid for this track");
 	}
       }
     }
@@ -244,8 +209,6 @@ bool TBTrackToCaloAlg::CreateTrkImpactInCalo()
 
 ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& got_a_track)
 {
-  MsgStream log(msgSvc(), name());
-
   Amg::Vector3D* pt_calo_ctb = new Amg::Vector3D; 
   Amg::Vector3D* pt_calo_local = new Amg::Vector3D; 
 
@@ -259,7 +222,7 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa = (*it)->eta();
   } 
   else
-    log << MSG::ERROR << "  No track parameters for this track ??? do nothing " << endreq;
+    ATH_MSG_ERROR ( "  No track parameters for this track ??? do nothing " );
   
   double distbar = 0.;
   double distec = 0.;
@@ -316,13 +279,13 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     distbar = m_calodepth->deta(CaloCell_ID::PreSamplerB,trketa);
     distec = m_calodepth->deta(CaloCell_ID::PreSamplerE,trketa);
     
-    log << MSG::DEBUG << " TrackTo ...PS : for eta= " << trketa << " dist to Barrel =" << distbar 
-	<< " to endcap =" << distec << endreq;
+    ATH_MSG_DEBUG ( " TrackTo ...PS : for eta= " << trketa << " dist to Barrel =" << distbar 
+                    << " to endcap =" << distec );
     if (distbar < 0 )  sample = CaloCell_ID::PreSamplerB;
     else if (distec < 0 ) sample = CaloCell_ID::PreSamplerE;
     else if ( distbar < distec) sample = CaloCell_ID::PreSamplerB;
     else sample = CaloCell_ID::PreSamplerE;
-    log << MSG::DEBUG << "  => will shoot in sample " << sample << endreq;
+    ATH_MSG_DEBUG ( "  => will shoot in sample " << sample );
     
     result = m_toCalo->TrackSeenByCalo(track,sample,offset,
 				       pt_calo_ctb,pt_calo_local,trketa_at,trkphi_at);
@@ -337,22 +300,22 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa_at_0 = trketa_at;
       trkphi_at_0 = trkphi_at;
       
-      log << MSG::DEBUG << "Extrapolation to PreSamplerB gives: " 
+      ATH_MSG_DEBUG ( "Extrapolation to PreSamplerB gives: " 
 	  << " etaCaloLocal=" << pt_calo_local->eta()
-	  << " phiCaloLocal=" << pt_calo_local->phi() <<  endreq;
+                      << " phiCaloLocal=" << pt_calo_local->phi() );
     }
     
     // strip :
     distbar = m_calodepth->deta(CaloCell_ID::EMB1,trketa);
     distec = m_calodepth->deta(CaloCell_ID::EME1,trketa);
     
-    log << MSG::DEBUG << " TrackTo ...Strip : for eta= " << trketa << " dist to Barrel =" << distbar 
-	<< " to endcap =" << distec << endreq;
+    ATH_MSG_DEBUG ( " TrackTo ...Strip : for eta= " << trketa << " dist to Barrel =" << distbar 
+                    << " to endcap =" << distec );
     if (distbar < 0 ) sample = CaloCell_ID::EMB1;
     else if (distec < 0 ) sample = CaloCell_ID::EME1;
     else if ( distbar < distec) sample = CaloCell_ID::EMB1;
     else sample = CaloCell_ID::EME1;
-    log << MSG::DEBUG << "  => will shoot in sample " << sample << endreq;
+    ATH_MSG_DEBUG ( "  => will shoot in sample " << sample );
     
     result = m_toCalo->TrackSeenByCalo(track,sample,offset,
 				       pt_calo_ctb,pt_calo_local,trketa_at,trkphi_at);
@@ -367,9 +330,9 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa_at_1 = trketa_at;
       trkphi_at_1 = trkphi_at;
       
-      log << MSG::DEBUG << "Extrapolation to EMB1 gives: " 
-	  << " etaCaloLocal=" << pt_calo_local->eta()
-	  << " phiCaloLocal=" << pt_calo_local->phi() <<  endreq;
+      ATH_MSG_DEBUG ( "Extrapolation to EMB1 gives: " 
+                      << " etaCaloLocal=" << pt_calo_local->eta()
+                      << " phiCaloLocal=" << pt_calo_local->phi() );
     }
     
     
@@ -377,13 +340,13 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     distbar = m_calodepth->deta(CaloCell_ID::EMB2,trketa);
     distec = m_calodepth->deta(CaloCell_ID::EME2,trketa);
     
-    log << MSG::DEBUG << " TrackTo ...Middle : for eta= " << trketa << " dist to Barrel =" << distbar 
-	<< " to endcap =" << distec << endreq;
+    ATH_MSG_DEBUG ( " TrackTo ...Middle : for eta= " << trketa << " dist to Barrel =" << distbar 
+                    << " to endcap =" << distec );
     if (distbar < 0 ) sample = CaloCell_ID::EMB2;
     else if (distec < 0 ) sample = CaloCell_ID::EME2;
     else if ( distbar < distec) sample = CaloCell_ID::EMB2;
     else sample = CaloCell_ID::EME2;
-    log << MSG::DEBUG << "  => will shoot in sample " << sample << endreq;
+    ATH_MSG_DEBUG ( "  => will shoot in sample " << sample );
     
     result = m_toCalo->TrackSeenByCalo(track,sample,offset,
 				       pt_calo_ctb,pt_calo_local,trketa_at,trkphi_at);
@@ -398,9 +361,9 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa_at_2 = trketa_at;
       trkphi_at_2 = trkphi_at;
       
-      log << MSG::DEBUG << "Extrapolation to EMB2 gives: " 
-	  << " etaCaloLocal=" << pt_calo_local->eta()
-	  << " phiCaloLocal=" << pt_calo_local->phi() <<  endreq;
+      ATH_MSG_DEBUG ( "Extrapolation to EMB2 gives: " 
+                      << " etaCaloLocal=" << pt_calo_local->eta()
+                      << " phiCaloLocal=" << pt_calo_local->phi() );
     }
     
     // Back :
@@ -415,13 +378,13 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     distbar = m_calodepth->deta(CaloCell_ID::EMB3,trketa);
     distec = m_calodepth->deta(CaloCell_ID::EME3,trketa);
     
-    log << MSG::DEBUG << " TrackTo ...Back : for eta= " << trketa << " dist to Barrel =" << distbar 
-	<< " to endcap =" << distec << endreq;
+    ATH_MSG_DEBUG ( " TrackTo ...Back : for eta= " << trketa << " dist to Barrel =" << distbar 
+                    << " to endcap =" << distec );
     if (distbar < 0 ) sample = CaloCell_ID::EMB3;
     else if (distec < 0 ) sample = CaloCell_ID::EME3;
     else if ( distbar < distec) sample = CaloCell_ID::EMB3;
     else sample = CaloCell_ID::EME3;
-    log << MSG::DEBUG << "  => will shoot in sample " << sample << endreq;
+    ATH_MSG_DEBUG ( "  => will shoot in sample " << sample );
     
     result = m_toCalo->TrackSeenByCalo(track,sample,offset,
 				       pt_calo_ctb,pt_calo_local,trketa_at,trkphi_at);
@@ -436,22 +399,22 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa_at_3 = trketa_at;
       trkphi_at_3 = trkphi_at;
       
-      log << MSG::DEBUG << "Extrapolation to EMB3 gives: " 
-	  << " etaCaloLocal=" << pt_calo_local->eta()
-	  << " phiCaloLocal=" << pt_calo_local->phi() <<  endreq;
+      ATH_MSG_DEBUG ( "Extrapolation to EMB3 gives: " 
+                      << " etaCaloLocal=" << pt_calo_local->eta()
+                      << " phiCaloLocal=" << pt_calo_local->phi() );
     }
     
     // Tile or HEC0 :
     distbar = m_calodepth->deta(CaloCell_ID::TileBar0,trketa);
     distec = m_calodepth->deta(CaloCell_ID::HEC0,trketa);
     
-    log << MSG::DEBUG << " TrackTo ...Tile : for eta= " << trketa << " dist to Barrel =" << distbar 
-	<< " to endcap =" << distec << endreq;
+    ATH_MSG_DEBUG ( " TrackTo ...Tile : for eta= " << trketa << " dist to Barrel =" << distbar 
+                    << " to endcap =" << distec );
     if (distbar < 0 ) sample = CaloCell_ID::TileBar0;
     else if (distec < 0 ) sample = CaloCell_ID::HEC0;
     else if ( distbar > distec && distec < 10. ) sample = CaloCell_ID::HEC0;
     else sample = CaloCell_ID::TileBar0;
-    log << MSG::DEBUG << "  => will shoot in sample " << sample << endreq;
+    ATH_MSG_DEBUG ( "  => will shoot in sample " << sample );
     
     result = m_toCalo->TrackSeenByCalo(track,sample,offset,
 				       pt_calo_ctb,pt_calo_local,trketa_at,trkphi_at);
@@ -466,9 +429,9 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
       trketa_at_tile = trketa_at;
       trkphi_at_tile = trkphi_at;
       
-      log << MSG::DEBUG << "Extrapolation to TileBar0 gives: " 
-	  << " etaCaloLocal=" << pt_calo_local->eta()
-	  << " phiCaloLocal=" << pt_calo_local->phi() <<  endreq;
+      ATH_MSG_DEBUG ( "Extrapolation to TileBar0 gives: " 
+                      << " etaCaloLocal=" << pt_calo_local->eta()
+                      << " phiCaloLocal=" << pt_calo_local->phi() );
     }
   }
   
@@ -492,16 +455,15 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
 {
   StatusCode sc1, sc2;
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TBTrackToCaloAlg::CompareImpactWithCluster()" << endreq;
+  ATH_MSG_DEBUG ( "TBTrackToCaloAlg::CompareImpactWithCluster()" );
 
   // loop on clusters
   
   const CaloClusterContainer* cluster_container;
-  sc1=m_StoreGate->retrieve(cluster_container,m_cluster_container);
+  sc1=evtStore()->retrieve(cluster_container,m_cluster_container);
   
   const ImpactInCaloCollection* impact_collection;
-  sc2=m_StoreGate->retrieve(impact_collection,m_ImpactInCalosOutputName);
+  sc2=evtStore()->retrieve(impact_collection,m_ImpactInCalosOutputName);
   
   if(sc1 == StatusCode::SUCCESS && sc2 == StatusCode::SUCCESS ){
 
@@ -519,27 +481,27 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
       double heta = cluster->eta();
       double hphi = cluster->phi();
 
-      log << MSG::INFO << "Found a cluster : E= " << hecluster 
-	  << "(GeV), etaCaloLocal=" <<  heta 
-	  << ", phiCaloLocal=" << hphi <<endreq;
+      ATH_MSG_INFO ( "Found a cluster : E= " << hecluster 
+                     << "(GeV), etaCaloLocal=" <<  heta 
+                     << ", phiCaloLocal=" << hphi );
       
       for ( ; f_imp!=l_imp; f_imp++){ 
 	const ImpactInCalo* impact = (*f_imp);
 		
-	log << MSG::INFO 
-	    << "==> Comparison between cluster and impact in Middle : deta=" 
+	ATH_MSG_INFO 
+          ( "==> Comparison between cluster and impact in Middle : deta=" 
 	    << heta-impact->etaCaloLocal_2()
-	    << " , dphi=" << hphi-impact->phiCaloLocal_2() <<endreq;
+	    << " , dphi=" << hphi-impact->phiCaloLocal_2() );
       }
     }
   }
   else {
     if (sc1 != StatusCode::SUCCESS)
-      log << MSG::ERROR <<"Clusters not found" 
-	  << m_cluster_container << endreq;
+      ATH_MSG_ERROR ("Clusters not found" 
+                     << m_cluster_container );
     if (sc2 != StatusCode::SUCCESS)
-      log << MSG::ERROR <<"ImpactInCalos not found" 
-	  << m_ImpactInCalosOutputName << endreq;
+      ATH_MSG_ERROR ("ImpactInCalos not found" 
+                     << m_ImpactInCalosOutputName );
   }
 }
 
@@ -548,15 +510,13 @@ void TBTrackToCaloAlg::PrintImpact()
 {
   StatusCode sc;
 
-  MsgStream log(msgSvc(), name());
+  ATH_MSG_INFO ( " Method PrintImpacts : " );
 
-  log << MSG::INFO << " Method PrintImpacts : " << endreq;
-
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " Start with Impacts : " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " Start with Impacts : " );
   
   const ImpactInCaloCollection* impact_collection;
-  sc=m_StoreGate->retrieve(impact_collection,m_ImpactInCalosOutputName);
+  sc=evtStore()->retrieve(impact_collection,m_ImpactInCalosOutputName);
   
   if(sc == StatusCode::SUCCESS ){
 
@@ -570,46 +530,46 @@ void TBTrackToCaloAlg::PrintImpact()
       const double impcosPhi = std::cos(impact->phiCaloLocal_1());
       const double impeta = impact->etaCaloLocal_1();
 
-      log << MSG::INFO << "Found an impact in strips : parameters are eta = " << impeta  
-	  << " cosPhi = " << impcosPhi <<  endreq;      
+      ATH_MSG_INFO ( "Found an impact in strips : parameters are eta = " << impeta  
+                     << " cosPhi = " << impcosPhi );
  
       //impact->print();
     }
   }
   else {
-    log << MSG::ERROR <<"ImpactInCalos not found" 
-	<< m_ImpactInCalosOutputName << endreq;
+    ATH_MSG_ERROR ("ImpactInCalos not found" 
+                   << m_ImpactInCalosOutputName );
   }
 
   if (m_tracks) {
 
-    log << MSG::INFO << " " << endreq;      
-    log <<MSG::INFO <<" Now loop on Trk::Track collection " <<endreq; 
-    log << MSG::INFO << " " << endreq;      
+    ATH_MSG_INFO ( " " );
+    ATH_MSG_INFO (" Now loop on Trk::Track collection " );
+    ATH_MSG_INFO ( " " );
     
     for (TrackCollection::const_iterator itr  = 
 	   (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
       const Trk::Perigee *aMeasPer=
 	dynamic_cast<const Trk::Perigee*>((*itr)->perigeeParameters());
       if (aMeasPer==0){
-	log << MSG::ERROR << "Could not get Trk::MeasuredPerigee" << endreq;
+	ATH_MSG_ERROR ( "Could not get Trk::MeasuredPerigee" );
       }
       else {	
 
 	const double trkcosPhi = cos(aMeasPer->parameters()[Trk::phi]);
 	const double trketa = aMeasPer->eta();
 	
-	log << MSG::INFO << "Found a Trk::Track : parameters are eta = " << trketa  
-	    << " cosPhi = " << trkcosPhi <<  endreq;      	
+	ATH_MSG_INFO ( "Found a Trk::Track : parameters are eta = " << trketa  
+                       << " cosPhi = " << trkcosPhi );
       }
     }
   }
 
   if (m_particle) {
     
-    log << MSG::INFO << " " << endreq;      
-    log <<MSG::INFO <<" Now loop on Trk::TrackParticle collection " <<endreq; 
-    log << MSG::INFO << " " << endreq;      
+    ATH_MSG_INFO ( " " );
+    ATH_MSG_INFO (" Now loop on Trk::TrackParticle collection " );
+    ATH_MSG_INFO ( " " );
     
     for (Rec::TrackParticleContainer::const_iterator itr = m_particle->begin();
 	 itr != m_particle->end(); ++itr )
@@ -617,15 +577,15 @@ void TBTrackToCaloAlg::PrintImpact()
 	const Trk::Perigee *aMeasPer=
 	  dynamic_cast<const Trk::Perigee*>(((*itr)->originalTrack())->perigeeParameters());
 	if (aMeasPer==0){
-	  log << MSG::ERROR << "Could not get TrkParticle::MeasuredPerigee" << endreq;
+	  ATH_MSG_ERROR ( "Could not get TrkParticle::MeasuredPerigee" );
 	}
 	else {	
 	  
 	  const double partcosPhi = cos(aMeasPer->parameters()[Trk::phi]);
 	  const double parteta = aMeasPer->eta();
 	  
-	  log << MSG::INFO << "Found a trackparticle : parameters are eta = " << parteta  
-	      << " cosPhi = " << partcosPhi <<  endreq;      
+	  ATH_MSG_INFO ( "Found a trackparticle : parameters are eta = " << parteta  
+                         << " cosPhi = " << partcosPhi );
 	}
       }
   }
@@ -643,7 +603,7 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   // Retreive CaloCell's from StoreGate :  
 
   const CaloCellContainer* cell_container;
-  StatusCode sc=m_StoreGate->retrieve(cell_container,m_cell_container);
+  StatusCode sc=evtStore()->retrieve(cell_container,m_cell_container);
   if ( sc != StatusCode::SUCCESS  ) return 0;
 
   // Where is the track shooting ?
@@ -696,9 +656,7 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
 {
 
   // Get the messaging service, print where you are
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "TBTrackToCaloAlg::PrintCellsCrossed()" << endreq;
+  ATH_MSG_INFO ( "TBTrackToCaloAlg::PrintCellsCrossed()" );
   
   // Here we are :
   CaloCell_ID::CaloSample sam = CaloCell_ID::EMB2;
@@ -707,17 +665,17 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
   
   // get tracks from TDS
   if (m_TrackName == "") {
-    log << MSG::ERROR <<"m_TrackName not set" << endreq;
+    ATH_MSG_ERROR ("m_TrackName not set" );
     return StatusCode::SUCCESS;
   }
   
-  sc = m_StoreGate->retrieve(m_tracks, m_TrackName);
+  StatusCode sc = evtStore()->retrieve(m_tracks, m_TrackName);
   if (sc.isFailure()){
-    log << MSG::ERROR <<"Tracks not found: will only play with calo " 
-	<< m_TrackName << endreq;
+    ATH_MSG_ERROR ("Tracks not found: will only play with calo " 
+                   << m_TrackName );
   }
   else{ 
-    log <<MSG::DEBUG <<"Tracks found in StoreGate" <<endreq; 
+    ATH_MSG_DEBUG ("Tracks found in StoreGate" );
     
     for (TrackCollection::const_iterator itr  = 
 	   (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
@@ -725,7 +683,7 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
       const Trk::Perigee *aMeasPer=
 	dynamic_cast<const Trk::Perigee*>((*itr)->perigeeParameters());
       if (aMeasPer==0){
-	log << MSG::ERROR << "Could not get Trk::MeasuredPerigee" << endreq;
+	ATH_MSG_ERROR ( "Could not get Trk::MeasuredPerigee" );
       }
       else {
 	double d0 = aMeasPer->parameters()[Trk::d0];
@@ -733,9 +691,9 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
 	double phi0 = aMeasPer->parameters()[Trk::phi0];
 	double theta = aMeasPer->parameters()[Trk::theta];
 	double qOverP = aMeasPer->parameters()[Trk::qOverP];
-	log << MSG::INFO << " " << endreq;
-	log << MSG::INFO << "Found a track: parameters are " << d0  << " " 
-	    << z0  << " " << phi0 << " " << theta << " " << qOverP <<  endreq;
+	ATH_MSG_INFO ( " " );
+	ATH_MSG_INFO ( "Found a track: parameters are " << d0  << " " 
+                       << z0  << " " << phi0 << " " << theta << " " << qOverP );
       }
 
       // Warning : if anything fails, CellsCrossedByTrack will
@@ -749,14 +707,14 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
 
 	for ( CaloCellList::list_iterator itr  = 
 		my_list->begin(); itr < my_list->end(); itr++)
-	  log << MSG::INFO << "found cell ! eta=" << (*itr)->eta() 
-	      << " phi=" << (*itr)->phi() << " energy=" << (*itr)->energy() << endreq ;
+	  ATH_MSG_INFO ( "found cell ! eta=" << (*itr)->eta() 
+                         << " phi=" << (*itr)->phi() << " energy=" << (*itr)->energy() );
 	
 	delete my_list;
 
 	}
       else 
-	std::cout << " :-(  extrapolation did not work" << std::endl;
+	ATH_MSG_ERROR (" :-(  extrapolation did not work");
     }
   }
   
@@ -767,14 +725,11 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
 void TBTrackToCaloAlg::PrintBeamPosition()
 {
   // Get the messaging service, print where you are
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "TBTrackToCaloAlg::PrintBeamPosition()" << endreq;
+  ATH_MSG_INFO ( "TBTrackToCaloAlg::PrintBeamPosition()" );
 
-  log << MSG::INFO << "Just a check... beam direction in calo : " << endreq;
+  ATH_MSG_INFO ( "Just a check... beam direction in calo : " );
   m_calo_tb_coord->read_table_position();  
   Amg::Vector3D beam (1.,0.,0.);
   beam = ( *(m_calo_tb_coord->transform_ctb_to_calo()) )* beam;
-  log << MSG::INFO << " eta= "<< beam.eta() << " phi="<< beam.phi()<< endreq;
 }
 

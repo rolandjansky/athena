@@ -7,7 +7,7 @@
 #include "TBEvent/TBScintillatorCont.h"
 
 TBPartIDCherenkovMuTag::TBPartIDCherenkovMuTag(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator) { 
+  AthAlgorithm(name,pSvcLocator) { 
   declareProperty("SGScintkey",m_SGkeyscint = "ScintillatorCont");
   declareProperty("MuonTagName",m_muonTagName="muTag"); 
   declareProperty("CherenkovName",m_CherenkovName="C1");
@@ -20,7 +20,6 @@ TBPartIDCherenkovMuTag::TBPartIDCherenkovMuTag(const std::string& name, ISvcLoca
   m_NPions=0;
   m_NMuons=0;
   m_Nunknown=0;
-  m_StoreGate = 0;
   m_useCherenkovBelow = 0;
 }
 
@@ -28,22 +27,14 @@ TBPartIDCherenkovMuTag::~TBPartIDCherenkovMuTag()
 {}
 
 StatusCode TBPartIDCherenkovMuTag::initialize() {
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TBPartIDCherenkovMuTag::execute() {
-  MsgStream log(messageService(),name());
   const TBScintillatorCont *scintCont;
-  StatusCode sc = m_StoreGate->retrieve(scintCont, m_SGkeyscint);
+  StatusCode sc = evtStore()->retrieve(scintCont, m_SGkeyscint);
   if (sc.isFailure()){
-    log << MSG::WARNING << "Retrieval of TBScintillatorContainer with key "<<m_SGkeyscint<<" failed" << endreq;
+    ATH_MSG_WARNING ( "Retrieval of TBScintillatorContainer with key "<<m_SGkeyscint<<" failed" );
     return StatusCode::SUCCESS;
   }
   TBIdentifiedParticle* myParticle = new TBIdentifiedParticle();
@@ -55,7 +46,7 @@ StatusCode TBPartIDCherenkovMuTag::execute() {
     if((*it)->getDetectorName()==m_muonTagName) {
       if ((*it)->getSignal()>m_muonADCcut) {
 	myParticle->setParticle(TBIdentifiedParticle::MUON);
-	log << MSG::DEBUG << " MuonTag=" << (*it)->getSignal();
+	ATH_MSG_DEBUG (" MuonTag=" << (*it)->getSignal() );
 	break;
       }
     }
@@ -64,29 +55,29 @@ StatusCode TBPartIDCherenkovMuTag::execute() {
 	myParticle->setParticle(TBIdentifiedParticle::ELECTRON);
       else 
 	myParticle->setParticle(TBIdentifiedParticle::PION);
-      log << MSG::DEBUG << " Cherenkov=" << (*it)->getSignal();
+      ATH_MSG_DEBUG (" Cherenkov=" << (*it)->getSignal() );
     }
   }
     
   if (myParticle->getParticle()==TBIdentifiedParticle::ELECTRON) {
-    log << MSG::DEBUG << " Particle found to be an electron." << endreq;
+    ATH_MSG_DEBUG ( " Particle found to be an electron." );
     m_NElectrons++;
   }
   else if (myParticle->getParticle()==TBIdentifiedParticle::PION) {
-    log << MSG::DEBUG << " Particle found to be a pion." << endreq;
+    ATH_MSG_DEBUG ( " Particle found to be a pion." );
     m_NPions++;
   }
   else if (myParticle->getParticle()==TBIdentifiedParticle::MUON) {
-    log << MSG::DEBUG << " Particle found to be a muon." << endreq;
+    ATH_MSG_DEBUG ( " Particle found to be a muon." );
     m_NMuons++;
   }
   else {
-    log << MSG::DEBUG << " Particle cannot be identified." << endreq;
+    ATH_MSG_DEBUG ( " Particle cannot be identified." );
     m_Nunknown++;
   }
-  sc = m_StoreGate->record(myParticle,m_particleKey);
+  sc = evtStore()->record(myParticle,m_particleKey);
   if (sc.isFailure()){
-    log << MSG::WARNING << "Cannot record TBIdentifiedParticle with key " << m_particleKey << endreq;
+    ATH_MSG_WARNING ( "Cannot record TBIdentifiedParticle with key " << m_particleKey );
   }
   return StatusCode::SUCCESS;
 }
@@ -94,14 +85,13 @@ StatusCode TBPartIDCherenkovMuTag::execute() {
 
 StatusCode TBPartIDCherenkovMuTag::finalize() {
   if (m_printSummary) {
-    MsgStream log(messageService(),name());
     const unsigned Ntotal=m_NElectrons+m_NPions+m_NMuons+m_Nunknown;
-    log << MSG::INFO << "Particles found in the run:" << endreq;
-    log << MSG::INFO << "Electrons: " << m_NElectrons << endreq;
-    log << MSG::INFO << "Pions    : " << m_NPions << endreq;
-    log << MSG::INFO << "Muons    : " << m_NMuons << endreq;
-    log << MSG::INFO << "unkown   : " << m_Nunknown << endreq;
-    log << MSG::INFO << "Total    : " << Ntotal << endreq;
+    ATH_MSG_INFO ( "Particles found in the run:" );
+    ATH_MSG_INFO ( "Electrons: " << m_NElectrons );
+    ATH_MSG_INFO ( "Pions    : " << m_NPions );
+    ATH_MSG_INFO ( "Muons    : " << m_NMuons );
+    ATH_MSG_INFO ( "unkown   : " << m_Nunknown );
+    ATH_MSG_INFO ( "Total    : " << Ntotal );
   }
   return StatusCode::SUCCESS;
 }

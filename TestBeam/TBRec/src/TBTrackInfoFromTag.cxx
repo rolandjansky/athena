@@ -5,7 +5,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "TBRec/TBTrackInfoFromTag.h"
@@ -31,14 +30,13 @@ template <class type1, class type2> void copyArrToVec_2d(unsigned int size1, uns
 
 
 
-TBTrackInfoFromTag::TBTrackInfoFromTag(const std::string& name, ISvcLocator* pSvcLocator): Algorithm(name,pSvcLocator)
+TBTrackInfoFromTag::TBTrackInfoFromTag(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name,pSvcLocator)
  {
   // job options
    declareProperty("SGrecordkey",     m_SGrecordkey="TBTrackReducedInfo");
    declareProperty("EventInfoSGKey",  m_SGkey1="ByteStreamEventInfo");
    declareProperty("InputRootFile",   m_inputRootFileName="./cbnt_RecExTB_Combined.root");
 
-   m_StoreGate = 0;
    rootFile1 = 0;
    rootFile2 = 0;
    tbTree = 0;
@@ -69,18 +67,6 @@ TBTrackInfoFromTag::initialize()
   // Allocate Services //
   ///////////////////////
 
-  // message service
-  MsgStream log(messageService(),name());
-
-	// storeGate
-	StatusCode sc;
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-		MSG_ERROR_WHITEONBLACK(name() << ": Unable to locate Service StoreGateSvc");
-    return sc;
-  } 
-	
 	// initialize variables which store the max lenghts of the arrays
 	// from the input root file to be read by the TBTrackInfoFromTag package
 	m_max_nPixelHits = m_max_nSctHits = m_max_nTrtHitsTRT = 60;
@@ -100,46 +86,35 @@ TBTrackInfoFromTag::initialize()
 	// input root trees
 	TTree * tree;
 
-	MSG_DEBUG_RED("Reading in file " << m_inputRootFileName << "  ...");
+	ATH_MSG_DEBUG("Reading in file " << m_inputRootFileName << "  ...");
 
-	MSG_DEBUG_GREEN("\t- Getting TileRec_h1000 tree "); 
+	ATH_MSG_DEBUG("\t- Getting TileRec_h1000 tree "); 
 	rootFile1 = new TFile((TString)m_inputRootFileName);
 	rootFile1->cd((TString)m_inputRootFileName + ":/TileRec");
 	tree = (TTree*)gDirectory->Get("h1000");
 	tileRecTree = new TileRec_h1000(tree);
 
-	MSG_DEBUG_GREEN("\t- Getting TB_tree tree "); 
+	ATH_MSG_DEBUG("\t- Getting TB_tree tree "); 
 	rootFile2 = new TFile((TString)m_inputRootFileName);
 	rootFile2->cd((TString)m_inputRootFileName + ":/TB");
 	tree = (TTree*)gDirectory->Get("tree");
 	tbTree = new TB_tree(tree);
 
-  return sc;
+        return StatusCode::SUCCESS;
 }
 
 StatusCode
 TBTrackInfoFromTag::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-	MSG_DEBUG_RED("Executing TBTrackInfoFromTag...");
+	ATH_MSG_DEBUG("Executing TBTrackInfoFromTag...");
 
 	const EventInfo * evtInfo;
-	sc = m_StoreGate->retrieve(evtInfo,m_SGkey1);
-	if(sc != StatusCode::SUCCESS) {
-		MSG_ERROR_WHITEONBLACK("Cannot record EventInfo with key " << m_SGkey1);
-		return sc;
-  }
+	ATH_CHECK( evtStore()->retrieve(evtInfo,m_SGkey1) );
 
 	int runNumber = evtInfo->event_ID()->run_number();
 	int evtNumber = evtInfo->event_ID()->event_number();
 
-	MSG_DEBUG_GREEN("Run/Event numbers:\t " << runNumber << " / " << evtNumber); 
+	ATH_MSG_DEBUG("Run/Event numbers:\t " << runNumber << " / " << evtNumber); 
 
 /*
 	int returnFlag = 0;
@@ -148,11 +123,11 @@ TBTrackInfoFromTag::execute()
 	evtFindFlag2 = tbTree->Loop(evtNumber);
 
 	if(evtFindFlag1 < 0) {
-		MSG_DEBUG_PURPLE("There is no event number " << evtNumber << " in tileRecTree");
+		ATH_MSG_DEBUG("There is no event number " << evtNumber << " in tileRecTree");
 		returnFlag = 1;
 	}
 	if(evtFindFlag2 < 0) {
-		MSG_DEBUG_PURPLE("There is no event number " << evtNumber << " in tbTree");
+		ATH_MSG_DEBUG("There is no event number " << evtNumber << " in tbTree");
 		returnFlag = 1;
 	}
 
@@ -162,25 +137,25 @@ TBTrackInfoFromTag::execute()
 	tileRecTree->fChain->GetEntry(evtFindFlag1);
 	tbTree->fChain->GetEntry(evtFindFlag1);
 
-	MSG_DEBUG_WHITEONBLACK("EventNumber in EventInfo   =  " << evtNumber);
-	MSG_DEBUG_WHITEONBLACK("EventNumber in tbTree      =  " << tbTree->Event);
-	MSG_DEBUG_WHITEONBLACK("EventNumber in tileRecTree =  " << tileRecTree->Evt);
+	ATH_MSG_DEBUG("EventNumber in EventInfo   =  " << evtNumber);
+	ATH_MSG_DEBUG("EventNumber in tbTree      =  " << tbTree->Event);
+	ATH_MSG_DEBUG("EventNumber in tileRecTree =  " << tileRecTree->Evt);
 */
 
 
 	int evtFindFlag = tileRecTree->Loop(evtNumber);
 	if(evtFindFlag < 0) {
-		MSG_DEBUG_PURPLE("There is no event number " << evtNumber << " in tileRecTree");
-	  return sc;
+          ATH_MSG_DEBUG("There is no event number " << evtNumber << " in tileRecTree");
+	  return StatusCode::SUCCESS;
 	}
 
-	MSG_DEBUG_PURPLE("Get line number " << evtFindFlag << " from the trees");
+	ATH_MSG_DEBUG("Get line number " << evtFindFlag << " from the trees");
 	tileRecTree->fChain->GetEntry(evtFindFlag);
 	tbTree->fChain->GetEntry(evtFindFlag);
 
-	MSG_DEBUG_WHITEONBLACK("EventNumber in EventInfo   =  " << evtNumber);
-	MSG_DEBUG_WHITEONBLACK("EventNumber in tileRecTree =  " << tileRecTree->Evt);
-	MSG_DEBUG_WHITEONBLACK("EventNumber in tbTree      =  " << tbTree->Event);
+	ATH_MSG_DEBUG("EventNumber in EventInfo   =  " << evtNumber);
+	ATH_MSG_DEBUG("EventNumber in tileRecTree =  " << tileRecTree->Evt);
+	ATH_MSG_DEBUG("EventNumber in tbTree      =  " << tbTree->Event);
 
 	TBTrackInfo * trckInfo = new TBTrackInfo();
 
@@ -202,21 +177,21 @@ TBTrackInfoFromTag::execute()
 	copyArrToVec_2d( m_max1_Trt_HLTRT,  m_max2_Trt_HLTRT, tbTree->trk_Trt_HLTRT, &(trckInfo->tb_trk_Trt_HLTRT) );
 
 /*
-	MSG_DEBUG_GREEN("trk_nPixelHits:");
-	MSG_DEBUG_GREEN("m_max_nPixelHits " << m_max_nPixelHits );
+	ATH_MSG_DEBUG("trk_nPixelHits:");
+	ATH_MSG_DEBUG("m_max_nPixelHits " << m_max_nPixelHits );
 	for(int i=0; i<60; i++){
-		MSG_DEBUG_GREEN("\t- trckInfo->tb_trk_nPixelHits[i] " << i << " = "<< trckInfo->tb_trk_nPixelHits[i] );
-		MSG_DEBUG_GREEN("\t- tbTree->trk_nSctHits[i] " << i << " = " << tbTree->trk_nSctHits[i] );
+		ATH_MSG_DEBUG("\t- trckInfo->tb_trk_nPixelHits[i] " << i << " = "<< trckInfo->tb_trk_nPixelHits[i] );
+		ATH_MSG_DEBUG("\t- tbTree->trk_nSctHits[i] " << i << " = " << tbTree->trk_nSctHits[i] );
 	}
 
-	MSG_DEBUG_GREEN("2- tb_trk_Trt_HLTRT:");
-	MSG_DEBUG_GREEN("m_max1_Trt_HLTRT ,  m_max2_Trt_HLTRT = " << m_max1_Trt_HLTRT << " , " << m_max2_Trt_HLTRT);
+	ATH_MSG_DEBUG("2- tb_trk_Trt_HLTRT:");
+	ATH_MSG_DEBUG("m_max1_Trt_HLTRT ,  m_max2_Trt_HLTRT = " << m_max1_Trt_HLTRT << " , " << m_max2_Trt_HLTRT);
 	for(int i=0; i<60; i++){
-		MSG_DEBUG_GREEN("\t- "   << i << ": ");
+		ATH_MSG_DEBUG("\t- "   << i << ": ");
 		for(int j=0; j<5; j++){
-			MSG_DEBUG_GREEN("\t\t- tbTree->tb_trk_Trt_HLTRT[i][j]   : " << j << " = " << tbTree->trk_Trt_HLTRT[i][j] );
-			MSG_DEBUG_GREEN("\t\t- trckInfo->tb_trk_Trt_HLTRT[i][j] : " << j << " = " << trckInfo->tb_trk_Trt_HLTRT[i][j] );
-			MSG_DEBUG_GREEN("");
+			ATH_MSG_DEBUG("\t\t- tbTree->tb_trk_Trt_HLTRT[i][j]   : " << j << " = " << tbTree->trk_Trt_HLTRT[i][j] );
+			ATH_MSG_DEBUG("\t\t- trckInfo->tb_trk_Trt_HLTRT[i][j] : " << j << " = " << trckInfo->tb_trk_Trt_HLTRT[i][j] );
+			ATH_MSG_DEBUG("");
 		}
 	}
 
@@ -253,15 +228,11 @@ TBTrackInfoFromTag::execute()
 	copyArrToVec_2d( m_max1_SampleC,  m_max2_SampleC,  tileRecTree->SampleC2,  &(trckInfo->tileRec_SampleC2) );
 
 
-  sc = m_StoreGate->record(trckInfo,m_SGrecordkey);
-  if ( sc.isFailure( ) ) {
-		MSG_ERROR_WHITEONBLACK("Cannot record trckInfo with key " << m_SGrecordkey);
-  } else {
-		MSG_DEBUG_GREEN("\t- Recording TBTrackInfo in StorGate with key = " << m_SGrecordkey); 
-	}
+        ATH_CHECK( evtStore()->record(trckInfo,m_SGrecordkey) );
+        ATH_MSG_DEBUG("\t- Recording TBTrackInfo in StorGate with key = " << m_SGrecordkey); 
 
 
-  return sc;
+        return StatusCode::SUCCESS;
 }
 
 

@@ -9,8 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -19,7 +18,7 @@
 #include <vector>
 #include <string>
 
-class TBXMLWriterToolBase : public AlgTool
+class TBXMLWriterToolBase : public AthAlgTool
 {
   /////////////////////////////////
   // Constructors and Destructor //
@@ -29,8 +28,7 @@ class TBXMLWriterToolBase : public AlgTool
 
   TBXMLWriterToolBase(const std::string& type, const std::string& name,
 		      const IInterface* parent) 
-    : AlgTool( type, name, parent ),
-      m_storeGate(0)
+    : AthAlgTool( type, name, parent )
     { }
 
  public:
@@ -41,16 +39,7 @@ class TBXMLWriterToolBase : public AlgTool
   // initialize
   virtual StatusCode initialize()
     {
-      StatusCode checkOut = service("StoreGateSvc",m_storeGate);
-      if ( checkOut.isFailure() )
-	{
-	  MsgStream log(msgSvc(),name());
-	  log << MSG::ERROR
-	      << "cannot allocate StoreGate service."
-	      << endreq;
-	  return StatusCode::FAILURE;
-	}
-      return checkOut;
+      return StatusCode::SUCCESS;
     }
 
   /////////////
@@ -77,14 +66,6 @@ class TBXMLWriterToolBase : public AlgTool
 
  protected:
 
-  ////////////
-  // Stores //
-  ////////////
-
-  StoreGateSvc* m_storeGate;
-
-  //  const TBXMLWriter* m_mother;
- 
   ///////////////////////////
   // Client Implementation //
   ///////////////////////////

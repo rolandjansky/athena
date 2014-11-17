@@ -27,9 +27,7 @@ using CLHEP::megahertz;
 using CLHEP::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name, pSvcLocator),
-  m_storeGateSvc(0),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_OFCTool("LArOFCTool"),
   m_adc2mevTool("LArADC2MeVTool"),
   m_hvCorrTool("LArHVCorrTool"),
@@ -105,48 +103,13 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
 
 StatusCode TBECLArRawChannelBuilder::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  //Initialize stores, services & tools:
-  sc= service("StoreGateSvc",m_storeGateSvc);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  /*
- sc = m_roiMap.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endreq;
-    return StatusCode::FAILURE; 
-  }
-  */
-  if (m_useOFCTool) {
-    sc = m_OFCTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArOFCTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  }
+  if (m_useOFCTool)
+    ATH_CHECK( m_OFCTool.retrieve() );
 
   if (m_useRamp) {
-    sc = m_adc2mevTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArADC2MeV" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_adc2mevTool.retrieve() );
   } else {
     // pointer to detector manager:
     m_calo_dd_man = CaloDetDescrManager::instance();
@@ -168,25 +131,17 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
   if (!m_emId) {
-    log << MSG::ERROR << "Could not get lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not get lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   
   // translate offline ID into online ID
-  sc = m_larCablingSvc.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_larCablingSvc.retrieve() );
   
   // ***
 
   if (m_hvcorr) {
-    sc = m_hvCorrTool.retrieve();
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArHVCorrTool" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_hvCorrTool.retrieve() );
   }
 
 
@@ -232,10 +187,10 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
     m_SamplingPeriodeLowerLimit = 0;
   }
 
-  log << MSG::DEBUG << "Number of OFC time bins per sampling periode=" << m_NOFCTimeBins << endreq;
-  log << MSG::DEBUG << "Sampling Periode=" << m_SamplingPeriode << "ns" << endreq;
-  log << MSG::DEBUG << "Sampling Periode Limits: (" << m_SamplingPeriodeLowerLimit
-      << "," << m_SamplingPeriodeUpperLimit << ") ns" << endreq;
+  ATH_MSG_DEBUG ( "Number of OFC time bins per sampling periode=" << m_NOFCTimeBins );
+  ATH_MSG_DEBUG ( "Sampling Periode=" << m_SamplingPeriode << "ns" );
+  ATH_MSG_DEBUG ( "Sampling Periode Limits: (" << m_SamplingPeriodeLowerLimit
+                  << "," << m_SamplingPeriodeUpperLimit << ") ns" );
 
   return StatusCode::SUCCESS;
 }
@@ -244,9 +199,6 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
 StatusCode TBECLArRawChannelBuilder::execute() 
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-  
   //Counters for errors & warnings per event
   int noEnergy   = 0; // Number of completly failed channels in a given event
   int BadTiming  = 0; // Number of channels with bad timing in a given event
@@ -263,74 +215,57 @@ StatusCode TBECLArRawChannelBuilder::execute()
   float globalTimeOffset=0;
   //Pointer to conditions data objects 
   const ILArFEBTimeOffset* larFebTimeOffset=NULL;
-  const ILArPedestal* larPedestal=NULL;
   const ILArOFC* larOFC=NULL;
   const ILArShape* larShape=NULL;
   //Retrieve Digit Container
 
-  sc=m_storeGateSvc->retrieve(digitContainer,m_DataLocation);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << "from StoreGate." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(digitContainer,m_DataLocation) );
   
   //Retrieve calibration data
-  sc=m_detStore->retrieve(larPedestal);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArPedestal from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
+  const ILArPedestal* larPedestal=nullptr;
+  ATH_CHECK( detStore()->retrieve(larPedestal) );
   
   if (m_useShape) {
-    log << MSG::DEBUG << "Retrieving LArShape object" << endreq;
-    sc=m_detStore->retrieve(larShape);
+    ATH_MSG_DEBUG ( "Retrieving LArShape object" );
+    StatusCode sc=detStore()->retrieve(larShape);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "Can't retrieve LArShape from Conditions Store" << std::endl
-	  << "Quality factor will not be caluclated." << endreq;
+      ATH_MSG_WARNING ( "Can't retrieve LArShape from Conditions Store" << std::endl
+                        << "Quality factor will not be caluclated." );
       larShape=NULL;
     }
   }
-  log << MSG::DEBUG << "Retrieving LArOFC object" << endreq;
+  ATH_MSG_DEBUG ( "Retrieving LArOFC object" );
   if (!m_useOFCTool) {  //OFC-Conditons object only needed if OFC's not computed on-the-fly
-    sc=m_detStore->retrieve(larOFC);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Can't retrieve LArOFC from Conditions Store" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(larOFC) );
   }
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
     const TBPhase* theTBPhase;
     const ILArGlobalTimeOffset* larGlobalTimeOffset;
-    sc = m_storeGateSvc->retrieve(theTBPhase,"TBPhase");
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "cannot allocate TBPhase with key <TBPhase>"<< endreq;
-      //return StatusCode::FAILURE;
-      return StatusCode::SUCCESS;
-    }
+    ATH_CHECK( evtStore()->retrieve(theTBPhase,"TBPhase") );
     //Get Phase in nanoseconds
     PhaseTime = theTBPhase->getPhase();
     // ###
     if (m_phaseInv) PhaseTime = m_SamplingPeriode - PhaseTime ;
-    log << MSG::DEBUG << " *** Phase = " << PhaseTime << endreq;
+    ATH_MSG_DEBUG ( " *** Phase = " << PhaseTime );
     // ###
     
     //Get Global Time Offset
-    sc=m_detStore->retrieve(larGlobalTimeOffset);
+    StatusCode sc=detStore()->retrieve(larGlobalTimeOffset);
     if (sc.isSuccess()) globalTimeOffset = larGlobalTimeOffset->TimeOffset();
 
     //Get FEB time offset
-    sc=m_detStore->retrieve(larFebTimeOffset);
+    sc=detStore()->retrieve(larFebTimeOffset);
     if (sc.isFailure()) larFebTimeOffset=NULL;
   }
 
 
   LArRawChannelContainer* larRawChannelContainer=new LArRawChannelContainer();
   larRawChannelContainer->reserve(digitContainer->size());
-  sc = m_storeGateSvc->record(larRawChannelContainer,m_ChannelContainerName);
+  StatusCode sc = evtStore()->record(larRawChannelContainer,m_ChannelContainerName);
   if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endreq;
+    ATH_MSG_ERROR ( "Can't record LArRawChannelContainer in StoreGate" );
   }
 
   // Average number of LArDigits per event
@@ -338,7 +273,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
   m_aveChannels += digitContainer->size();
 
   bool debugPrint=false;
-  if (log.level() <= MSG::DEBUG ) debugPrint=true;
+  if (msgLvl(MSG::DEBUG) ) debugPrint=true;
 
   // Now all data is available, start loop over Digit Container
   LArDigitContainer::const_iterator cont_it=digitContainer->begin();
@@ -366,22 +301,22 @@ StatusCode TBECLArRawChannelBuilder::execute()
     int eta    = -99999 ; 
     int phi    = -99999 ; 
     int region = -99999 ;    
-    if (log.level() <= MSG::DEBUG ) {
+    if (msgLvl(MSG::DEBUG) ) {
       Identifier id ;
       try {
         id = m_larCablingSvc->cnvToIdentifier(chid);
       } catch ( LArID_Exception & except ) {
-        log << MSG::DEBUG << "A larCablingSvc exception was caught for channel 0x!" 
-  	    << MSG::hex << chid.get_compact() << MSG::dec << endreq;
+        ATH_MSG_DEBUG ( "A larCablingSvc exception was caught for channel 0x!" 
+                        << MSG::hex << chid.get_compact() << MSG::dec );
         continue ;
       }
       layer  = m_emId->sampling(id);
       eta    = m_emId->eta(id); 
       phi    = m_emId->phi(id);
       region = m_emId->region(id);    
-      log << MSG::VERBOSE << "Channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-                          << " [ Layer = " << layer << " - Eta = " << eta 
-      			  << " - Phi = " << phi << " - Region = " << region << " ] " << endreq ;
+      ATH_MSG_VERBOSE ( "Channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " [ Layer = " << layer << " - Eta = " << eta 
+                        << " - Phi = " << phi << " - Region = " << region << " ] " );
     }
         
     // check for saturation, in case skip channel
@@ -393,14 +328,14 @@ StatusCode TBECLArRawChannelBuilder::execute()
       }
     }
     if ( nSatur>-1 ) {
-      log << MSG::DEBUG << "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec ;         
+      msg() << MSG::DEBUG << "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec ;         
       saturation++;
     }
     if ( m_skipSaturCells && nSatur>-1 ) {
-      log << ". Skipping channel." << endreq; 
+      msg() << ". Skipping channel." << endreq; 
       continue; // Ignore this cell, saturation on at least one sample
     } else if ( nSatur>-1 ) {
-      log << "." << endreq;
+      msg() << "." << endreq;
     }   
     
     //Get conditions data for this channel:
@@ -411,14 +346,13 @@ StatusCode TBECLArRawChannelBuilder::execute()
     float pedestalAverage;
     if (pedestal < (1.0+LArElecCalib::ERRORCODE)) {
       if( m_pedestalFallbackMode >= 1 ) {
-        log << MSG::DEBUG << "No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-            << " Gain " << gain <<".  Using time sample " << m_iPedestal << endreq;
+        ATH_MSG_DEBUG ( "No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " Gain " << gain <<".  Using time sample " << m_iPedestal );
         pedestalAverage=samples[m_iPedestal];
       } else {              
-	log << MSG::DEBUG << noEnergy << ". No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-            //<< " Gain " << gain << ". Skipping channel." << endreq;
+	ATH_MSG_DEBUG ( noEnergy << ". No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
             << " [ Layer = " << layer << " - Eta = " << eta << " - Phi = " << phi << " - Region = " << region << " ]"
-	    << " Gain = " << gain << ". Skipping channel." << endreq;
+                        << " Gain = " << gain << ". Skipping channel." );
 	noEnergy++;
         continue;
       }
@@ -426,8 +360,8 @@ StatusCode TBECLArRawChannelBuilder::execute()
       if( ( m_pedestalFallbackMode>=2 && gain==CaloGain::LARLOWGAIN )   ||
           ( m_pedestalFallbackMode>=3 && gain==CaloGain::LARMEDIUMGAIN ) ||
           ( m_pedestalFallbackMode>=4 && gain==CaloGain::LARHIGHGAIN )       ) {
-        log << MSG::DEBUG << "Forcing pedestal fallback for  channel 0x" << MSG::hex << chid.get_compact()
-            << MSG::dec   << " Gain=" << gain << ". Using time sample " << m_iPedestal << endreq;
+        ATH_MSG_DEBUG ( "Forcing pedestal fallback for  channel 0x" << MSG::hex << chid.get_compact()
+                        << MSG::dec   << " Gain=" << gain << ". Using time sample " << m_iPedestal );
         pedestalAverage=samples[m_iPedestal];
       } else {
         pedestalAverage=pedestal;
@@ -448,26 +382,26 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	febTimeOffset=larFebTimeOffset->TimeOffset(febid);
       double timeShift=PhaseTime+globalTimeOffset+febTimeOffset;
       if (debugPrint)
-       log << MSG::VERBOSE << "Channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+        msg() << MSG::VERBOSE << "Channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
  	   << " phase=" << PhaseTime  << " Feb=" << febTimeOffset 
 	   << " Global=" << globalTimeOffset;
 
       if (m_useOFCPhase) {
 	const double ofcTimeOffset=larOFC->timeOffset(chid,gain);
 	timeShift+=ofcTimeOffset;
-	if (debugPrint) log << MSG::VERBOSE << " OFC=" << ofcTimeOffset;
+	if (debugPrint) msg() << MSG::VERBOSE << " OFC=" << ofcTimeOffset;
       }
 
-      if (debugPrint) log << MSG::VERBOSE << " Total=" << timeShift << endreq;
+      if (debugPrint) msg() << MSG::VERBOSE << " Total=" << timeShift << endreq;
       
       if (m_allowTimeJump && timeShift >= m_NOFCPhases*m_OFCTimeBin ) {
-	if (debugPrint) log << MSG::VERBOSE << "Time Sample jump: -1" << endreq;
+	if (debugPrint) ATH_MSG_VERBOSE ( "Time Sample jump: -1" );
 	timeSampleShift -= 1;
 	//timeShift       -= m_NOFCTimeBins*m_OFCTimeBin ;
 	timeShift       -= m_SamplingPeriode ;
       }
       else if (m_allowTimeJump && timeShift < 0 ) {
-	if (debugPrint) log << MSG::VERBOSE << "Time Sample jump: +1" << endreq;
+	if (debugPrint) ATH_MSG_VERBOSE ( "Time Sample jump: +1" );
 	timeSampleShift += 1;
 	//timeShift       += m_NOFCTimeBins*m_OFCTimeBin ;
         timeShift       += m_SamplingPeriode ;
@@ -476,16 +410,16 @@ StatusCode TBECLArRawChannelBuilder::execute()
       if (m_allowTimeJump && ( timeShift > m_NOFCPhases*m_OFCTimeBin || timeShift < 0 ) ) {
 	BadTiming++;
 	noEnergy++;
-	log << MSG::ERROR << noEnergy << ". Time offset out of range for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	    << " Found " << timeShift << ",  expected ( 0 - " << m_NOFCPhases*m_OFCTimeBin << ") ns. Skipping channel." << endreq;
+	ATH_MSG_ERROR ( noEnergy << ". Time offset out of range for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " Found " << timeShift << ",  expected ( 0 - " << m_NOFCPhases*m_OFCTimeBin << ") ns. Skipping channel." );
 	continue;
       }
       
       if (m_allowTimeJump && timeSampleShift < 0) {
 	BadTiming++;
 	noEnergy++;
-	log << MSG::ERROR << noEnergy << ". Negative time sample (" << timeSampleShift << ") shift for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	    << " Found. Skipping channel." << endreq;
+	ATH_MSG_ERROR ( noEnergy << ". Negative time sample (" << timeSampleShift << ") shift for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " Found. Skipping channel." );
 	continue;
       }
 
@@ -497,13 +431,13 @@ StatusCode TBECLArRawChannelBuilder::execute()
       //else 
       //   OFCTimeBin -= 1 ; 
       
-      if (debugPrint) log << MSG::VERBOSE << "OFC bin width = " << m_OFCTimeBin << " - OFCBin = " << OFCTimeBin << " - timeShift = " << timeShift << endreq;
+      if (debugPrint) ATH_MSG_VERBOSE ( "OFC bin width = " << m_OFCTimeBin << " - OFCBin = " << OFCTimeBin << " - timeShift = " << timeShift );
       
       if ( OFCTimeBin < 0 ) {
-        log << MSG::ERROR << "Channel " << MSG::hex << chid.get_compact() << MSG::dec << " asks for OFC bin = " << OFCTimeBin << ". Set to 0." << endreq;
+        ATH_MSG_ERROR ( "Channel " << MSG::hex << chid.get_compact() << MSG::dec << " asks for OFC bin = " << OFCTimeBin << ". Set to 0." );
         OFCTimeBin=0;
       } else if ( OFCTimeBin >= m_NOFCPhases ) {
-        log << MSG::ERROR << "Channel " << MSG::hex << chid.get_compact() << MSG::dec << " asks for OFC bin = " << OFCTimeBin << ". Set to (NOFCPhases-1) =" << m_NOFCTimeBins-1 << endreq;
+        ATH_MSG_ERROR ( "Channel " << MSG::hex << chid.get_compact() << MSG::dec << " asks for OFC bin = " << OFCTimeBin << ". Set to (NOFCPhases-1) =" << m_NOFCTimeBins-1 );
         OFCTimeBin = m_NOFCPhases-1;
       }
 
@@ -514,20 +448,20 @@ StatusCode TBECLArRawChannelBuilder::execute()
     //Check if we have OFC for this channel and time bin
     if (ofc_a.size()==0) {
       noEnergy++;
-      log << MSG::DEBUG << noEnergy << ". No OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+      ATH_MSG_DEBUG ( noEnergy << ". No OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
           << " [ Layer = " << layer << " - Eta = " << eta << " - Phi = " << phi << " - Region = " << region << " ]"
-	  << " Time bin = " << OFCTimeBin << ", Gain = " << gain << ". Skipping channel." << endreq;
+                      << " Time bin = " << OFCTimeBin << ", Gain = " << gain << ". Skipping channel." );
       continue;
     } 
     if (ofc_a.size()+timeSampleShift>nSamples) {
       BadTiming++;
       noEnergy++;
       if (timeSampleShift==0)
-	log << MSG::DEBUG << "Found LArDigit with " << nSamples << " samples, but OFCs for " 
-	    << ofc_a.size() << " samples. Skipping Channel "<< endreq;
+	ATH_MSG_DEBUG ( "Found LArDigit with " << nSamples << " samples, but OFCs for " 
+                        << ofc_a.size() << " samples. Skipping Channel ");
       else //have time sample shift
-	log << MSG::DEBUG << "After time sample shift of " << timeSampleShift << ", " << nSamples-timeSampleShift
-	    << " samples left, but have OFCs for " << ofc_a.size() << " samples. Skipping Channel "<< endreq;
+	ATH_MSG_DEBUG ( "After time sample shift of " << timeSampleShift << ", " << nSamples-timeSampleShift
+                        << " samples left, but have OFCs for " << ofc_a.size() << " samples. Skipping Channel ");
       continue;
     } 
 
@@ -536,7 +470,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
     for (unsigned i=0;i<(ofc_a.size());i++) 
       ADCPeak+=(samples[i+timeSampleShift]-pedestalAverage)*ofc_a.at(i);
     
-    if (debugPrint) log << MSG::VERBOSE << "ADC Height calculated " << ADCPeak << " TimeBin=" << OFCTimeBin  << endreq;
+    if (debugPrint) ATH_MSG_VERBOSE ( "ADC Height calculated " << ADCPeak << " TimeBin=" << OFCTimeBin  );
      
     if (m_useRamp) {
       //ADC2MeV (a.k.a. Ramp)   
@@ -544,10 +478,9 @@ StatusCode TBECLArRawChannelBuilder::execute()
       //Check ramp coefficents
       if (ramp.size()==0) {
 	noEnergy++;
-	log << MSG::DEBUG << noEnergy << ". No ADC2MeV data found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec
-	    //<< " Gain "<< gain << " Skipping channel." << endreq;
+	ATH_MSG_DEBUG ( noEnergy << ". No ADC2MeV data found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec
 	    << " [ Layer = " << layer << " - Eta = " << eta << " - Phi = " << phi << " - Region = " << region << " ]"
-	    << " Gain = " << gain << ". Skipping channel." << endreq;
+                        << " Gain = " << gain << ". Skipping channel." );
 	continue;
       } 
       
@@ -556,7 +489,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
       
       if(ramp[1]>m_ramp_max[gain] || ramp[1]<0) {
 	noEnergy++;
-	log << MSG::DEBUG << "Bad ramp for channel " << chid << " (ramp[1] = " << ramp[1] << "): skip this channel" << endreq;
+	ATH_MSG_DEBUG ( "Bad ramp for channel " << chid << " (ramp[1] = " << ramp[1] << "): skip this channel" );
 	continue;
       } 
       
@@ -607,12 +540,12 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	ofc_b=larOFC->OFC_b(chid,gain,OFCTimeBin);
       if (ofc_b.size() != ofc_a.size()) {//don't have proper number of coefficients
 	if (ofc_b.size()==0)
-	  log << MSG::DEBUG << "No time-OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	      << " Gain "<< gain << " found. Time not calculated." << endreq;
+	  ATH_MSG_DEBUG ( "No time-OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                          << " Gain "<< gain << " found. Time not calculated." );
 	else
-	  log << MSG::DEBUG << "OFC for time size " << ofc_b.size() 
+	  ATH_MSG_DEBUG ( "OFC for time size " << ofc_b.size() 
               << " not equal to OFC for energy size " << ofc_a.size() 
-              << "   Time not calculated " << endreq;
+                          << "   Time not calculated " );
 	noTime++;
       }else{
 	for (unsigned i=0;i<(ofc_b.size());i++) 
@@ -621,7 +554,7 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	// !! Time is now in ns with respect to calibration pulse shape
 	// Used to calculate quality factor
       }
-      if (debugPrint) log << MSG::VERBOSE << "Time calculated " << time << " TimeBin=" << OFCTimeBin  << endreq;
+      if (debugPrint) ATH_MSG_VERBOSE ( "Time calculated " << time << " TimeBin=" << OFCTimeBin  );
 
       //Calculate Quality factor
       if (larShape) { //Have shape object
@@ -637,21 +570,21 @@ StatusCode TBECLArRawChannelBuilder::execute()
 	//Check Shape
         if (shape.size() < ofc_a.size()) {
 	  if (shape.size()==0) 
-	    log << MSG::DEBUG << "No Shape found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	 	<< " Gain "<< gain << ". Quality factor not calculated." << endreq;
+	    ATH_MSG_DEBUG ( "No Shape found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " Gain "<< gain << ". Quality factor not calculated." );
           else
-            log << MSG::DEBUG << "Shape size " << shape.size() 
+            ATH_MSG_DEBUG ( "Shape size " << shape.size() 
                 << "smaller than OFC size " << ofc_a.size() 
                 << "for channel 0x" << MSG::hex << chid.get_compact() 
-                << MSG::dec << ". Quality factor not calculated." << endreq;
+                            << MSG::dec << ". Quality factor not calculated." );
 	  quality=0;  //Can't calculate chi^2, assume good hit.
 	  noShape++;
 	}
 	else {//Shape ok
 	  if (time!=0 && shapeDer.size()!=shape.size()) { 
 	    //Send warning
-	    log << MSG::DEBUG << "Shape-Derivative has different size than Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	        << ". Derivative not taken into accout for quality factor." << endreq;
+	    ATH_MSG_DEBUG ( "Shape-Derivative has different size than Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << ". Derivative not taken into accout for quality factor." );
 	    noShapeDer++;
 	  }//end-if 
 	  if (time==0 || shapeDer.size()!=shape.size() ) { //Calculate Q without time info
@@ -691,29 +624,29 @@ StatusCode TBECLArRawChannelBuilder::execute()
     larRawChannelContainer->push_back(larRawChannel); //Add to container 
     ntot_raw++;
     if (debugPrint)
-      log << MSG::VERBOSE << "Got LArRawChannel #" << ntot_raw << ", chid=0x" << MSG::hex << chid.get_compact() << MSG::dec  
-  	  << " e=" << energy << " t=" << time << " Q=" << quality << endreq;
+      ATH_MSG_VERBOSE ( "Got LArRawChannel #" << ntot_raw << ", chid=0x" << MSG::hex << chid.get_compact() << MSG::dec  
+                        << " e=" << energy << " t=" << time << " Q=" << quality );
   } // End loop over LArDigits
 
-  log << MSG::DEBUG <<  ntot_raw << " channels successfully processed, (" << highE << " with high energy)" << endreq;
+  ATH_MSG_DEBUG (  ntot_raw << " channels successfully processed, (" << highE << " with high energy)" );
 
   // deal with bad timing
   if(BadTiming>=128){
-    log<< MSG::ERROR << "Too many channels (" <<BadTiming<<  " !) have a bad timing !!" << endreq;
-    log<< MSG::ERROR << "OFC time constants should be revisited !!!" << endreq;
-    log<< MSG::ERROR << "Event is skipped" << endreq;
+    ATH_MSG_ERROR ( "Too many channels (" <<BadTiming<<  " !) have a bad timing !!" );
+    ATH_MSG_ERROR ( "OFC time constants should be revisited !!!" );
+    ATH_MSG_ERROR ( "Event is skipped" );
     larRawChannelContainer->clear();
     //return StatusCode::SUCCESS;
   }
   
   // in case of at least one saturating cell, skip all event (if selected) 
   if ( saturation && m_skipSaturCells == 2 ) {
-    log<< MSG::ERROR << saturation << " saturating channels were found. Event is skipped." << endreq;
+    ATH_MSG_ERROR ( saturation << " saturating channels were found. Event is skipped." );
     larRawChannelContainer->clear();
   }
   
   //Put this LArRawChannel container in the transient store
-  //sc = m_storeGateSvc->record(m_larRawChannelContainer, m_ChannelContainerName);
+  //sc = evtStore()->record(m_larRawChannelContainer, m_ChannelContainerName);
   //if(sc.isFailure()) {
   // log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endreq;
   //}
@@ -765,48 +698,44 @@ StatusCode TBECLArRawChannelBuilder::execute()
       msglvl=MSG::ERROR;
     else
       msglvl=MSG::WARNING;
-    log << msglvl << " *** Error & Warning summary for this event *** " << std::endl;
+    msg() << msglvl << " *** Error & Warning summary for this event *** " << std::endl;
     
     if ( noEnergy ) {
-      log << msglvl << "   " << noEnergy << " out of " 
+      msg() << msglvl << "   " << noEnergy << " out of " 
 	  << digitContainer->size() << " channel(s) skipped due to a lack of basic calibration constants." 
 	  << std::endl;  	  
     }
     if ( noTime ) {
-      log << msglvl << "   " << noTime << " out of " 
+      msg() << msglvl << "   " << noTime << " out of " 
 	  << highE << " high-enegy channel(s) have no time-info due to a lack of Optimal Filtering Coefficients." 
 	  << std::endl;
     }
     if ( noShape ) {
-      log << msglvl << "   " << noShape << " out of " 
+      msg() << msglvl << "   " << noShape << " out of " 
 	  << highE << " high-enegy channel(s) have no quality factor due to a lack of shape." 
 	  << std::endl;
     }
     if ( noShapeDer ) { 
-      log << msglvl << "   " << noShapeDer << " out of " 
+      msg() << msglvl << "   " << noShapeDer << " out of " 
 	  << highE << " high-enegy channel(s) lack the derivative of the shape. Not taken into accout for Quality factor." 
 	  << std::endl;
     }
     if ( saturation ) {
       if ( m_skipSaturCells == 2 )
-          log << MSG::ERROR << "   " << saturation << " out of " 
+        msg() << MSG::ERROR << "   " << saturation << " out of " 
 	      << digitContainer->size() << " channel(s) showed saturations. The complete event was skipped." << std::endl;
       else if ( m_skipSaturCells == 1 )
-          log << MSG::ERROR << "   " << saturation << " out of " 
+        msg() << MSG::ERROR << "   " << saturation << " out of " 
 	      << digitContainer->size() << " channel(s) showed saturations and were skipped." << std::endl;
       else
-          log << MSG::WARNING << "   " << saturation << " out of " 
+        msg() << MSG::WARNING << "   " << saturation << " out of " 
 	      << digitContainer->size() << " channel(s) showed saturations." << std::endl;
     }
-    log << endreq;
+    msg() << endreq;
   }
     
   // lock raw channel container
-  sc = m_storeGateSvc->setConst(larRawChannelContainer);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot lock RawChannel Container " << endreq;
-    return(StatusCode::FAILURE);
-  }
+  ATH_CHECK( evtStore()->setConst(larRawChannelContainer) );
 
   return StatusCode::SUCCESS;
 }
@@ -824,10 +753,8 @@ StatusCode TBECLArRawChannelBuilder::finalize()
 
   // Error and Warning Summary for this job:
   
-  MsgStream log(msgSvc(), name());
-  
-  log << MSG::DEBUG << "  TBECLArRawChannelBuilder::finalize " 
-      << m_noEnergy << " " << m_noTime << " " << m_noShape << " " << m_noShapeDer << " " << m_saturation << endreq;
+  ATH_MSG_DEBUG ( "  TBECLArRawChannelBuilder::finalize " 
+                  << m_noEnergy << " " << m_noTime << " " << m_noShape << " " << m_noShapeDer << " " << m_saturation );
   
   if ( m_noEnergy || m_noTime || m_noShape || m_noShapeDer || m_saturation ) {
     MSG::Level msglvl;
@@ -835,37 +762,37 @@ StatusCode TBECLArRawChannelBuilder::finalize()
       msglvl=MSG::ERROR;
     else
       msglvl=MSG::WARNING;
-    log << msglvl << " *** Error & Warning Summary for all events *** " << std::endl ;
+    msg() << msglvl << " *** Error & Warning Summary for all events *** " << std::endl ;
     
     if (m_noEnergy)
-      log << msglvl << "   " << m_noEnergy << " events had on average " << (int)round(m_aveNoEnergy) 
+      msg() << msglvl << "   " << m_noEnergy << " events had on average " << (int)round(m_aveNoEnergy) 
           << " channels out of " << (int)round(m_aveChannels) << " without basic calibration constants." 
 	  << std::endl;
     
     if (m_noTime) 
-      log << msglvl << "   " << m_noTime  << " events had on average " << (int)round(m_aveNoTime) 
+      msg() << msglvl << "   " << m_noTime  << " events had on average " << (int)round(m_aveNoTime) 
           << " channels out of " << (int)round(m_aveChannels) << " without OFCs for timing." 
 	  << std::endl ;
    
     if (m_noShape)
-      log << msglvl << "   " << m_noShape << " events had on average " << (int)round(m_aveNoShape) 
+      msg() << msglvl << "   " << m_noShape << " events had on average " << (int)round(m_aveNoShape) 
           << " channels out of " << (int)round(m_aveChannels) << " without shape information." 
 	  << std::endl;
     
     if (m_noShapeDer)
-      log << msglvl << "   " << m_noShapeDer << " events had on average " << (int)round(m_aveNoShapeDer) 
+      msg() << msglvl << "   " << m_noShapeDer << " events had on average " << (int)round(m_aveNoShapeDer) 
           << " channels out of " << (int)round(m_aveChannels) << " without shape derivative." 
 	  << std::endl;
 	
     if ( m_saturation )
-      log << msglvl << "   " << m_saturation << " events had on average " << (int)round(m_aveSaturCells) 
+      msg() << msglvl << "   " << m_saturation << " events had on average " << (int)round(m_aveSaturCells) 
           << " out of " << (int)round(m_aveChannels) << " saturating channels."  
 	  << std::endl ;
     
-    log << endreq;
+    msg() << endreq;
   } 
   else
-    log << MSG::INFO << "TBECLArRawChannelBuilder finished without errors or warnings." << endreq;
+    ATH_MSG_INFO ( "TBECLArRawChannelBuilder finished without errors or warnings." );
 
   //if (m_larRawChannelContainer) {
     //m_larRawChannelContainer->release();

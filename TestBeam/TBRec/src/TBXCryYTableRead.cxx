@@ -24,7 +24,7 @@
 
 TBXCryYTableRead::TBXCryYTableRead(const std::string& name, 
 				   ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_nEvent(0),
   m_nEventRandomTrigger(0),
   m_first(true),
@@ -33,8 +33,7 @@ TBXCryYTableRead::TBXCryYTableRead(const std::string& name,
   m_xCryo(0),
   m_yTable(0),
   m_txtFileWithXY("xcryo_ytable.txt"),
-  m_eventinfo(0),
-  m_eventStore(0)
+  m_eventinfo(0)
 { 
   declareProperty("FileName",m_txtFileWithXY);
 }
@@ -44,18 +43,6 @@ TBXCryYTableRead::~TBXCryYTableRead()
 
 StatusCode TBXCryYTableRead::initialize()
 {
-  
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "in initialize()" << endreq;
-
-  // Get StoreGateSvc //
-  StatusCode sc = service ( "StoreGateSvc" , m_eventStore ) ;  
-  if( sc.isFailure() ) {
-    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endreq ;
-    sc = StatusCode::FAILURE ;
-    return sc ;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -69,15 +56,15 @@ StatusCode TBXCryYTableRead::execute()
 {
   m_nEvent++;
   MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "Executing TBXCryYTableRead " << endreq;
+  ATH_MSG_DEBUG ( "Executing TBXCryYTableRead " );
 
   StatusCode sc;
   // Retrieve Event Info from file
   const TBEventInfo* theEventInfo;
-  sc = m_eventStore->retrieve(theEventInfo,"TBEventInfo");
+  sc = evtStore()->retrieve(theEventInfo,"TBEventInfo");
   if ( sc.isFailure() ) {
-    log << MSG::ERROR
-	<< "Cannot retrieve TBEventInfo from StoreGate" << endreq;
+    ATH_MSG_ERROR
+      ( "Cannot retrieve TBEventInfo from StoreGate" );
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   }
@@ -88,13 +75,13 @@ StatusCode TBXCryYTableRead::execute()
     // Fill run header
     m_nRun = theEventInfo->getRunNum();
     m_beamMom = theEventInfo->getBeamMomentum();
-    log << MSG::DEBUG << "Run, mom. from EventInfo: "<<m_nRun<<","<<m_beamMom<<endreq;
+    ATH_MSG_DEBUG ( "Run, mom. from EventInfo: "<<m_nRun<<","<<m_beamMom);
     // Get xcryo and ytable from a file
     float xFile, yFile, eFile;
     getXcryoYtable(xFile, yFile, eFile);
     if(m_beamMom != eFile) {
-       log << MSG::WARNING << "Energy from file: "<<eFile<<" is different than from bytestream: "<<m_beamMom<<"  !!!"<<endreq;
-       log << MSG::WARNING << "Using value from file !!!"<<endreq;
+       ATH_MSG_WARNING ( "Energy from file: "<<eFile<<" is different than from bytestream: "<<m_beamMom<<"  !!!");
+       ATH_MSG_WARNING ( "Using value from file !!!");
        m_beamMom = eFile;
     }
     m_xCryo = xFile;
@@ -107,7 +94,7 @@ StatusCode TBXCryYTableRead::execute()
 //                                theEventInfo->getEventType(), m_nRun, m_beamMom, 
 //                                theEventInfo->getBeamParticle(), m_xCryo, theEventInfo->getCryoAngle(),
 //                                m_yTable);
-  log << MSG::DEBUG << "Filling TBEvent info with cryoX,tableY: "<<m_xCryo<<","<<m_yTable<<endreq;
+  ATH_MSG_DEBUG ( "Filling TBEvent info with cryoX,tableY: "<<m_xCryo<<","<<m_yTable);
   (const_cast<TBEventInfo*>(theEventInfo))->m_cryoX = m_xCryo;
   (const_cast<TBEventInfo*>(theEventInfo))->m_tableY = m_yTable;
   // in case if energy was different, change also this one
@@ -126,26 +113,24 @@ StatusCode TBXCryYTableRead::execute()
 
 StatusCode TBXCryYTableRead::getXcryoYtable(float &x, float &y, float &e) {
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "in getXcryoYtable(float x, float y)" << endreq;
+  ATH_MSG_DEBUG ( "in getXcryoYtable(float x, float y)" );
 
   std::ifstream xyFile;
   std::string line;
   std::string filename = PathResolver::find_file(m_txtFileWithXY, "DATAPATH");
   xyFile.open(filename.c_str());
   if (!xyFile.is_open()) {
-    log << MSG::ERROR << "File " << m_txtFileWithXY << " fail to open in $DATAPATH" 
-	<< endreq;
+    ATH_MSG_ERROR ( "File " << m_txtFileWithXY << " fail to open in $DATAPATH");
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << "Asking for run: "<<m_nRun<<endreq;
+  ATH_MSG_DEBUG ( "Asking for run: "<<m_nRun);
   while ( getline(xyFile, line, '\n') ) {
     int run;
     std::istringstream buf(line);
     e = 0;
     buf >> run >> x >> y >> e;
-    log << MSG::DEBUG << "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e<<endreq;
+    ATH_MSG_DEBUG ( "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e);
     if (run == m_nRun && xyFile.good()) return StatusCode::SUCCESS;
   }
 

@@ -5,7 +5,6 @@
 #ifndef CBNT_BEAM_H
 #define CBNT_BEAM_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CBNT_TBRecBase.h"
 #include <fstream>
@@ -30,7 +29,6 @@ class CBNT_BeamInstrumentation : public CBNT_TBRecBase
 
   bool m_neverReturnFailure;   // controls when StatusCode::FAILURE can be issued in execute()
 
-  StoreGateSvc* m_eventStore;
   std::string m_containerKey1;
   std::string m_containerKey2;
   std::string m_containerKey3;

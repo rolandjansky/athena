@@ -5,7 +5,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "TBRec/TBMWPCRec.h"
@@ -20,8 +19,7 @@
 
 TBMWPCRec::TBMWPCRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator),
-  m_StoreGate(0)
+  AthAlgorithm(name,pSvcLocator)
  {
   // job options
 
@@ -44,48 +42,25 @@ TBMWPCRec::~TBMWPCRec()
 StatusCode
 TBMWPCRec::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-
   m_mwpc_names[0]="X2"; m_mwpc_names[1]="Y2";m_mwpc_names[2]="X3";m_mwpc_names[3]="Y3";m_mwpc_names[4]="X4";
   m_mwpc_names[5]="Y4";m_mwpc_names[6]="X5";m_mwpc_names[7]="Y5";
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 TBMWPCRec::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-  log << MSG::DEBUG << "In execute()" << endreq;
+  ATH_MSG_DEBUG ( "In execute()" );
 
   // Reconstruct MWPC :
   TBMWPCRawCont * mwpcrawCont;
-  sc = m_StoreGate->retrieve(mwpcrawCont, m_SGkey);
+  StatusCode sc = evtStore()->retrieve(mwpcrawCont, m_SGkey);
   if (sc.isFailure()){
-    log << MSG::INFO << "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" << endreq;
+    ATH_MSG_INFO ( "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" );
     
   }else {
-    log << MSG::DEBUG << "TBMWPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << mwpcrawCont->size()<< endreq;
+    ATH_MSG_DEBUG ( "TBMWPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << mwpcrawCont->size());
     
     TBMWPCCont * mwpcCont = new TBMWPCCont();
     TBMWPCRawCont::const_iterator it_bc   = mwpcrawCont->begin();
@@ -102,7 +77,10 @@ TBMWPCRec::execute()
 	  if(name==m_mwpc_names[ind]) break; 
 	  else ind++;
 	}
-      if(ind==8){log<<MSG::ERROR<< "No calibrations for MWPC" <<name<<endreq;continue;}
+      if(ind==8) {
+        ATH_MSG_ERROR( "No calibrations for MWPC" <<name);
+        continue;
+      }
 
       // build new MWPC
       TBMWPC * mwpc = new TBMWPC(name);
@@ -116,7 +94,10 @@ TBMWPCRec::execute()
       cluspos.clear(); clussize.clear();
 
       unsigned int nclus = cwireno.size();
-      if(nclus!=nwires.size()) { log << MSG::INFO << " Problem with cluster number  in MWPC plane "<<ind<< endreq;continue;}
+      if(nclus!=nwires.size()) {
+        ATH_MSG_INFO ( " Problem with cluster number  in MWPC plane "<<ind);
+        continue;
+      }
       for(unsigned int clus=0;clus<nclus;clus++){
 
 	// Cluster center (cm) (from 2002 code)
@@ -130,7 +111,7 @@ TBMWPCRec::execute()
 	// Halfsize of cluster (cm) (from 2002 code)
 	float hwidth = 0.5*nwires[clus]*m_mwpc_wirestep[ind];
 	
-	log << MSG::DEBUG << " coor= "<<coor<<"cm , w="<<hwidth<<"cm"<< endreq;
+	ATH_MSG_DEBUG ( " coor= "<<coor<<"cm , w="<<hwidth<<"cm");
 
 	cluspos.push_back(coor);
 	clussize.push_back(hwidth);	
@@ -146,10 +127,10 @@ TBMWPCRec::execute()
       mwpcCont->push_back(mwpc);
     }
 
-    log << MSG::DEBUG << " recording "<<m_SGrecordkey<<endreq;
-    sc = m_StoreGate->record(mwpcCont,m_SGrecordkey);
+    ATH_MSG_DEBUG ( " recording "<<m_SGrecordkey);
+    sc = evtStore()->record(mwpcCont,m_SGrecordkey);
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record MWPCCont" << endreq;
+      ATH_MSG_FATAL ( "Cannot record MWPCCont" );
     }
   }
 
@@ -166,11 +147,5 @@ TBMWPCRec::execute()
 StatusCode 
 TBMWPCRec::finalize()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-
   return StatusCode::SUCCESS;
 }

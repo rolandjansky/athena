@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
 
@@ -15,8 +14,7 @@
 TBEventStreamerTool::TBEventStreamerTool(const std::string& name,
 					 const std::string& type,
 					 const IInterface* parent)
-  : AlgTool(name,type,parent),
-    m_storeGate(0)
+  : AthAlgTool(name,type,parent)
 { }
 
 TBEventStreamerTool::~TBEventStreamerTool()
@@ -24,19 +22,8 @@ TBEventStreamerTool::~TBEventStreamerTool()
 
 StatusCode TBEventStreamerTool::initialize()
 {
-  MsgStream report(msgSvc(),name());
-
-  StatusCode checkOut = service("StoreGateSvc",m_storeGate);
-  if ( checkOut.isFailure() )
-    {
-      report << MSG::ERROR
-	     << "Cannot alllocate StoreGate service!"
-	     << endreq;
-    }
-
   this->initializeTool();
-
-  return checkOut;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TBEventStreamerTool::initializeTool()

@@ -7,13 +7,13 @@
 // 
 // class TBXCryYTableRead 
 //
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 class IToolSvc;
 class TBEventInfo;
 
-class TBXCryYTableRead: public Algorithm {
+class TBXCryYTableRead: public AthAlgorithm {
  public:    
   
   TBXCryYTableRead(const std::string& name, ISvcLocator* pSvcLocator);
@@ -39,8 +39,6 @@ class TBXCryYTableRead: public Algorithm {
   std::string m_txtFileWithXY;            // name of the file with X,y info
 
   TBEventInfo * m_eventinfo;
-
-  StoreGateSvc* m_eventStore;
 };
 
 #endif

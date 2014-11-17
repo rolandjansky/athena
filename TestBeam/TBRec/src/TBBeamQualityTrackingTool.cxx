@@ -111,6 +111,6 @@ StatusCode TBBeamQualityTrackingTool::accept(std::vector<std::string> m_particle
       return StatusCode::FAILURE;
     }
   }
-  return StatusCode::SUCCESS;
+  // NOT REACHED
 }
   

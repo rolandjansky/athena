@@ -48,16 +48,8 @@ StatusCode TBPhaseStreamerTool::accept()
 {
   MsgStream report(msgSvc(),name());
   
-  const TBPhase* thePhase;
-  StatusCode sc = m_storeGate->retrieve(thePhase,m_TBPhaseKey);
-  if ( sc.isFailure() )  {
-    report << MSG::ERROR
-           << "cannot retrieve TBPhase object with key "
-           << m_TBPhaseKey
-           << " from StoreGate"
-           << endreq;
-    return StatusCode::FAILURE;
-  }
+  const TBPhase* thePhase = 0;
+  ATH_CHECK( evtStore()->retrieve(thePhase,m_TBPhaseKey) );
 
   // Get the absolute value of the distance of the TDC-WAC
   float dTtoWAC = thePhase->getdTtoWAC();

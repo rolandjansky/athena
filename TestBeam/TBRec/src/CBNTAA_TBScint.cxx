@@ -7,7 +7,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "LArG4TBSimEvent/LArG4H6FrontHitCollection.h"
 #include <fstream>
@@ -16,26 +15,10 @@
 
 
 CBNTAA_TBScint::CBNTAA_TBScint(const std::string & name, ISvcLocator * pSvcLocator) : CBNT_TBRecBase(name, pSvcLocator),m_scint_num(0),m_scint_en(0),m_scint_trackid(0),m_scint_pdg(0)  {
-  m_eventStore = 0;
 }
 
 StatusCode CBNTAA_TBScint::CBNT_initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()"  << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-
-  IToolSvc* toolSvc;
-  sc=service("ToolSvc",toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_DEBUG ( "in initialize()"  );
 
   // Add scint parameters
   addBranch("bm_scint_num", m_scint_num);
@@ -47,11 +30,8 @@ StatusCode CBNTAA_TBScint::CBNT_initialize() {
 }
 
 StatusCode CBNTAA_TBScint::CBNT_execute() {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG ( "in execute()" );
   
-  StatusCode sc;
   double edep;
   int scnum, pcode, trid;
   unsigned i;
@@ -59,7 +39,7 @@ StatusCode CBNTAA_TBScint::CBNT_execute() {
   // Get scint. hits
   LArG4H6FrontHitCollection *frontcoll;
   LArG4H6FrontHitCollection *movecoll;
-  sc = m_eventStore->retrieve(frontcoll,"Front::Hits");
+  StatusCode sc = evtStore()->retrieve(frontcoll,"Front::Hits");
   if (sc.isSuccess()){
      LArG4H6FrontHitConstIterator f_it = frontcoll->begin();
      LArG4H6FrontHitConstIterator f_end = frontcoll->end();
@@ -87,11 +67,11 @@ StatusCode CBNTAA_TBScint::CBNT_execute() {
        }
      }
   } else {
-    log << MSG::WARNING << "Retrieval of Front Hits failed..." << endreq;
+    ATH_MSG_WARNING ( "Retrieval of Front Hits failed..." );
     return StatusCode::FAILURE;
   }
 
-  sc = m_eventStore->retrieve(movecoll,"Movable::Hits");
+  sc = evtStore()->retrieve(movecoll,"Movable::Hits");
   if (sc.isSuccess()){
      LArG4H6FrontHitConstIterator m_it = movecoll->begin();
      LArG4H6FrontHitConstIterator m_end = movecoll->end();
@@ -119,15 +99,14 @@ StatusCode CBNTAA_TBScint::CBNT_execute() {
        }
      }
   } else {
-    log << MSG::WARNING << "Retrieval of Movable Hits failed" << endreq;
+    ATH_MSG_WARNING ( "Retrieval of Movable Hits failed" );
   }
        
   return StatusCode::SUCCESS;
 }
 
 StatusCode CBNTAA_TBScint::CBNT_finalize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

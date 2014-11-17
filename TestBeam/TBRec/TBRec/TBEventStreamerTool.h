@@ -5,7 +5,7 @@
 #ifndef TBREC_TBEVENTSTREAMERTOOL_H
 #define TBREC_TBEVENTSTREAMERTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
 
@@ -13,7 +13,7 @@ class StoreGateSvc;
 
 static const InterfaceID IID_TBEventStreamerTool("TBEventStreamerTool", 1 , 0);
 
-class TBEventStreamerTool : public AlgTool
+class TBEventStreamerTool : public AthAlgTool
 {
  public:
 
@@ -30,9 +30,5 @@ class TBEventStreamerTool : public AlgTool
   virtual StatusCode initializeTool();
 
   static const InterfaceID& interfaceID() { return IID_TBEventStreamerTool;}
- protected:
-
-  StoreGateSvc* m_storeGate;
-
 };
 #endif

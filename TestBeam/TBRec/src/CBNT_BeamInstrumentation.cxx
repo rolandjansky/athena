@@ -7,7 +7,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
@@ -39,7 +38,6 @@ CBNT_BeamInstrumentation::CBNT_BeamInstrumentation(const std::string & name, ISv
   m_bpc_right=NULL;
   m_bpc_adc_hor=NULL;
   m_bpc_adc_ver=NULL;
-  m_eventStore = 0;
   m_trig_sel = 0;
   m_clock = 0;
   m_trig = 0;
@@ -72,34 +70,7 @@ CBNT_BeamInstrumentation::~CBNT_BeamInstrumentation()
 
 StatusCode CBNT_BeamInstrumentation::CBNT_initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in initialize()" 
-      << endreq;
-
- StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR
-	  << "Unable to retrieve pointer to StoreGate Service"
-	  << endreq;
-      return sc;
-    }
-
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    } 
+  ATH_MSG_DEBUG ( "in initialize()" );
 
 //  NTuple::Tuple* ntuplePtr;
 //  ntuplePtr = this->nt();
@@ -166,10 +137,10 @@ StatusCode CBNT_BeamInstrumentation::CBNT_initialize()
 //  sc = ntuplePtr->addItem ("Beam/Trigger",m_trig, 0, 20);
   addBranch("Beam/Trigger",m_trig,"Trigger/I");
   // trigger array
-  log << MSG::DEBUG <<" m_trig_array"<<m_trig_array<<endreq;
+  ATH_MSG_DEBUG (" m_trig_array"<<m_trig_array);
   if (m_trig_array==true) {
     
-    log << MSG::DEBUG <<" loading array ntuple"<<endreq;
+    ATH_MSG_DEBUG (" loading array ntuple");
 //    sc = ntuplePtr->addItem("Beam/NTrig",m_trig_id,0,50);
     addBranch("Beam/NTrig",m_trig_id,"Ntrig/I");
 
@@ -185,20 +156,13 @@ StatusCode CBNT_BeamInstrumentation::CBNT_initialize()
 
 StatusCode CBNT_BeamInstrumentation::CBNT_execute()
 {
-  
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG
-      << "in execute()" 
-      << endreq;
-  
-  StatusCode sc;
-  
-  const TBScintillatorCont * scintc;
-  sc = m_eventStore->retrieve(scintc,m_containerKey1);
+  ATH_MSG_DEBUG ( "in execute()" );
+
+  const TBScintillatorCont * scintc = nullptr;
+  StatusCode sc = evtStore()->retrieve(scintc,m_containerKey1);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << " Cannot read TBScintillatorCont from StoreGate! key= " << m_containerKey1 << endreq;
+      ATH_MSG_ERROR ( " Cannot read TBScintillatorCont from StoreGate! key= " << m_containerKey1 );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -230,11 +194,11 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
       } //end loop over scintillator-container
     }
   
-  const TBBPCCont * bpcc;
-  sc = m_eventStore->retrieve(bpcc,m_containerKey2);
+  const TBBPCCont * bpcc = nullptr;
+  sc = evtStore()->retrieve(bpcc,m_containerKey2);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << " Cannot read TBBPCCont from StoreGate! key= " << m_containerKey2 << endreq;
+      ATH_MSG_ERROR ( " Cannot read TBBPCCont from StoreGate! key= " << m_containerKey2 );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -262,10 +226,10 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
     }
     
   if (m_bpc_raw==true) { //bpc raw
-   TBBPCRawCont * bpccr;
-    sc = m_eventStore->retrieve(bpccr, m_containerKey3);
+   TBBPCRawCont * bpccr = nullptr;
+    sc = evtStore()->retrieve(bpccr, m_containerKey3);
     if (sc.isFailure()){
-      log << MSG::ERROR << " Cannot read TBBPCRawCont from StoreGate! key= " <<m_containerKey3<< endreq;
+      ATH_MSG_ERROR ( " Cannot read TBBPCRawCont from StoreGate! key= " <<m_containerKey3);
     } else {
       const unsigned nBPCs=m_bpc_names.size();
       TBBPCRawCont::const_iterator it_bpcr = bpccr->begin();
@@ -275,9 +239,9 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
 	std::string name = bpcr->getDetectorName();
         unsigned NtupleVectorIndex;
         for ( NtupleVectorIndex=0; NtupleVectorIndex!=nBPCs; NtupleVectorIndex++){
-	  log << MSG::DEBUG <<" loading 1"<<endreq;
+	  ATH_MSG_DEBUG (" loading 1");
           if (name==m_bpc_names[NtupleVectorIndex]){
-	    log << MSG::DEBUG <<" Ntuple Vector"<<NtupleVectorIndex<<endreq;
+	    ATH_MSG_DEBUG (" Ntuple Vector"<<NtupleVectorIndex);
 	    m_bpc_up[NtupleVectorIndex] = bpcr->getTDCUp();
 	    m_bpc_down[NtupleVectorIndex] = bpcr->getTDCDown();
 	    m_bpc_right[NtupleVectorIndex] = bpcr->getTDCRight();
@@ -290,11 +254,11 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
     }
   } //bpcraw
   
-  const TBPhase * phase;
-  sc = m_eventStore->retrieve(phase,m_containerKey4);
+  const TBPhase * phase = nullptr;
+  sc = evtStore()->retrieve(phase,m_containerKey4);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << " Cannot read TBPhase from StoreGate! key= " << m_containerKey4 << endreq;
+      ATH_MSG_ERROR ( " Cannot read TBPhase from StoreGate! key= " << m_containerKey4 );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -306,11 +270,11 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
       m_clock = phase->getPhase();
     }
   
-  const TBTriggerPatternUnit * trig;
-  sc = m_eventStore->retrieve(trig,m_containerKey5);
+  const TBTriggerPatternUnit * trig = nullptr;
+  sc = evtStore()->retrieve(trig,m_containerKey5);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << " Cannot read TBTriggerPatternUnit from StoreGate! key= " << m_containerKey5 << endreq;
+      ATH_MSG_ERROR ( " Cannot read TBTriggerPatternUnit from StoreGate! key= " << m_containerKey5 );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -329,7 +293,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
     unsigned int word =trig->getTriggerWord();
   
     // Checking if objects in triggflag triggered
-    log<<MSG::DEBUG<<m_triggflag.size()<<endreq;
+    ATH_MSG_DEBUG(m_triggflag.size());
     
     m_trig_sel->reserve(m_triggflag.size()+1);
     for(int unsigned i=0;i<m_triggflag.size()+1;i++){
@@ -347,12 +311,7 @@ StatusCode CBNT_BeamInstrumentation::CBNT_execute()
 
 StatusCode CBNT_BeamInstrumentation::CBNT_finalize()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in finalize()" 
-      << endreq;
-  
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

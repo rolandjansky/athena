@@ -6,6 +6,7 @@ public
 
 use  AtlasPolicy                AtlasPolicy-*
 use  AthenaKernel               AthenaKernel-*                  Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
 use  CaloEvent                  CaloEvent-*                     Calorimeter
@@ -28,10 +29,10 @@ use  TrkTrack                   TrkTrack-*                      Tracking/TrkEven
 use  CLIDSvc                     CLIDSvc-*                       Control
 use  DataModel                   DataModel-*                     Control
 use  EventInfo                  EventInfo-*                     Event
-use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
 use  GeoPrimitives               GeoPrimitives-*                 DetectorDescription
 use  xAODTracking                xAODTracking-*                  Event/xAOD
 use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
+use TrkDetDescrUtils		TrkDetDescrUtils-*              Tracking/TrkDetDescr
 
 private
 use  AtlasBoost                 AtlasBoost-*                    External
@@ -44,7 +45,6 @@ use  CondDBObjects              CondDBObjects-*                 Database
 use CaloDmDetDescr              CaloDmDetDescr-*                Calorimeter
 use CaloSimEvent                CaloSimEvent-*                  Calorimeter 
 use Particle                    Particle-*                      Reconstruction
-use TrackToCalo                 TrackToCalo-*                   Reconstruction/RecoTools
 use CaloTrackingGeometry        CaloTrackingGeometry-*          Calorimeter
 use TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtrapolation
 use TrkEventPrimitives          TrkEventPrimitives-*            Tracking/TrkEvent

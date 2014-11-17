@@ -11,7 +11,7 @@
 //  author : Pierre-Antoine Delsart                                          //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
@@ -21,11 +21,8 @@
 
 class StoreGateSvc;
 
-class TBMWPCRec : public Algorithm
+class TBMWPCRec : public AthAlgorithm
 {
-
-
-
  public:
 
   TBMWPCRec(const std::string& name, ISvcLocator* pSvcLocator);
@@ -44,8 +41,6 @@ class TBMWPCRec : public Algorithm
   // Properties //
   ////////////////
 
-  StoreGateSvc* m_StoreGate;
-  
   std::string m_SGkey,m_SGrecordkey;
 
   //////////////////

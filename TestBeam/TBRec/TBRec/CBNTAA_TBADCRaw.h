@@ -5,7 +5,6 @@
 #ifndef CBNT_TBADCRAW_H
 #define CBNT_TBADCRAW_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CBNT_TBRecBase.h"
@@ -36,13 +35,11 @@ class CBNTAA_TBADCRaw : public CBNT_TBRecBase
 
   bool m_neverReturnFailure;   // controls when StatusCode::FAILURE can be issued in execute()
 
-  StoreGateSvc* m_eventStore;
-
-	std::vector<unsigned int> *m_adc;
+  std::vector<unsigned int> *m_adc;
   std::string m_containerKey1;
 
   //Private function to build names for ntuple entries. Concatinates strings
-  //but omitts characters that are problematic for root like -+:*/
+  //but omits characters that are problematic for root like -+:*/
   std::string add_name(const char* base, const std::string extension);
 
   StatusCode CBNT_clear();

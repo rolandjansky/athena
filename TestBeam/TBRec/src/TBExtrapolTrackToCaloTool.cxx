@@ -56,7 +56,7 @@ TBExtrapolTrackToCaloTool::TBExtrapolTrackToCaloTool(const std::string& type,
   //  m_extrapolatorName("Trk::Extrapolator"),   
   // m_extrapolatorInstanceName("Extrapolator")
 {
-  declareInterface<IExtrapolateToCaloTool>( this );
+  //declareInterface<IExtrapolateToCaloTool>( this );
 
  declareProperty ("CaloSurfaceBuilder",m_calosurf,"Extrapolation ToolHandle");
  declareProperty ("Extrapolator",m_extrapolator,"CaloSurfaceBuilder ToolHandle");
@@ -568,9 +568,9 @@ Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex&
 }
 
 
-Trk::SurfaceIntersection TBExtrapolTrackToCaloTool::getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const
+Trk::Intersection TBExtrapolTrackToCaloTool::getIntersectionInCalo(const Amg::Vector3D& position, const Amg::Vector3D& momentum, const CaloCell_ID::CaloSample sample) const
 {
-  Trk::SurfaceIntersection result{Amg::Vector3D(0., 0., 0.), 0., false};
+  Trk::Intersection result{Amg::Vector3D(0., 0., 0.), 0., false};
 
   // get the destination Surface
   const Trk::Surface* surface = m_calosurf->CreateUserSurface (sample, 0. /* offset */, momentum.eta());

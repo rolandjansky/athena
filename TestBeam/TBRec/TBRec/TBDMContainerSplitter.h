@@ -10,12 +10,12 @@
 // Splitting the CalibDMContainer hits to two, leaving all leakage in second
 // both are VIEW containers....
 //
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 class CaloDmDescrManager;
 
-class TBDMContainerSplitter: public Algorithm {
+class TBDMContainerSplitter: public AthAlgorithm {
  public:    
   
   TBDMContainerSplitter(const std::string& name, ISvcLocator* pSvcLocator);
@@ -30,9 +30,7 @@ class TBDMContainerSplitter: public Algorithm {
   std::string m_DMHitsCaloKey;               // DM hits in calo modules  container key
   std::string m_DMHitsLeakKey;               // DM hits for leakage container key
 
-  StoreGateSvc* m_eventStore;
   const CaloDmDescrManager* m_caloDmDescrManager; 
-
 };
 
 #endif

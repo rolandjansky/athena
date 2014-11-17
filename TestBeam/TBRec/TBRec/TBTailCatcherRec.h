@@ -11,7 +11,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
@@ -21,11 +21,8 @@
 
 class StoreGateSvc;
 
-class TBTailCatcherRec : public Algorithm
+class TBTailCatcherRec : public AthAlgorithm
 {
-
-
-
  public:
 
   TBTailCatcherRec(const std::string& name, ISvcLocator* pSvcLocator);
@@ -38,13 +35,10 @@ class TBTailCatcherRec : public Algorithm
 
 
  private:
-
-
   ////////////////
   // Properties //
   ////////////////
 
-  StoreGateSvc* m_StoreGate;
   std::string m_SGkey;
 
   //////////////////

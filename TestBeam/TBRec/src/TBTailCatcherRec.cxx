@@ -5,7 +5,6 @@
 #define WTC_ADC_MAX 1024
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "TBRec/TBTailCatcherRec.h"
@@ -20,8 +19,7 @@
 
 TBTailCatcherRec::TBTailCatcherRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator),
-  m_StoreGate(0)
+  AthAlgorithm(name,pSvcLocator)
  {
   // job options
 
@@ -37,50 +35,25 @@ TBTailCatcherRec::~TBTailCatcherRec()
 StatusCode
 TBTailCatcherRec::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  }
-  
-  
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 TBTailCatcherRec::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-    log << MSG::DEBUG << "In execute()" << endreq;
+  ATH_MSG_DEBUG ( "In execute()" );
 
   TBTailCatcherRaw * tailcatchraw;
-  sc = m_StoreGate->retrieve(tailcatchraw, m_SGkey);
+  StatusCode sc = evtStore()->retrieve(tailcatchraw, m_SGkey);
   if (sc.isFailure()){
-    log << MSG::DEBUG << "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" << endreq;
+    ATH_MSG_DEBUG ( "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" );
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   }else {
     
     if(m_tailcatch_calib.size()!=tailcatchraw->size()){
-      log << MSG::ERROR << "Calib factor number : "<<m_tailcatch_calib.size();
-      log << " != "<<tailcatchraw->size()<<" = number of scints in TailCatcherRaw"<<endreq;
+      ATH_MSG_ERROR ( "Calib factor number : "<<m_tailcatch_calib.size()
+                      << " != "<<tailcatchraw->size()<<" = number of scints in TailCatcherRaw");
       setFilterPassed(false);
       return StatusCode::SUCCESS;
     }
@@ -107,9 +80,9 @@ TBTailCatcherRec::execute()
       ind++;
     }
     TBTailCatcher * tailcatch = new TBTailCatcher(tailcatchraw->getDetectorName(),tailcatchraw->isOverflow(),theScints);
-    sc = m_StoreGate->record(tailcatch,"TailCatcher");
+    sc = evtStore()->record(tailcatch,"TailCatcher");
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record TailCatcher " << endreq;
+      ATH_MSG_FATAL ( "Cannot record TailCatcher " );
     }
   }
   if ( sc.isFailure( ) ) {
@@ -124,11 +97,5 @@ TBTailCatcherRec::execute()
 StatusCode 
 TBTailCatcherRec::finalize()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-
   return StatusCode::SUCCESS;
 }

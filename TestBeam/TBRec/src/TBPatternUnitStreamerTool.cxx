@@ -164,28 +164,15 @@ StatusCode TBPatternUnitStreamerTool::accept()
   
   // Always accept non-physics events
   const TBEventInfo* theEventInfo;
-  StatusCode sc = m_storeGate->retrieve(theEventInfo,"TBEventInfo");
-  if ( sc.isFailure() ) {
-    report << MSG::ERROR
-        << "Cannot retrieve TBEventInfo from StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(theEventInfo,"TBEventInfo") );
+
   unsigned short evType = theEventInfo->getEventType();
   report << MSG::DEBUG << "Event Type found " << evType << endreq;
   if (evType != 1) return StatusCode::SUCCESS;
 
   // retrieve pattern unit
   const TBTriggerPatternUnit* theTrigger;
-  StatusCode checkOut = m_storeGate->retrieve(theTrigger,m_patternUnitKey);
-  if ( checkOut.isFailure() )
-    {
-      report << MSG::ERROR
-	     << "cannot retrieve TBTriggerPatternUnit object with key <"
-	     << m_patternUnitKey
-	     << "> from StoreGate"
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( evtStore()->retrieve(theTrigger,m_patternUnitKey) );
 
   //
   bit_mask thePattern = theTrigger->getTriggerWord() & 0x00ffffff;

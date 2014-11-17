@@ -12,7 +12,7 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 class TBXMLWriterToolBase;
@@ -21,7 +21,7 @@ class TBXMLWriterToolBase;
 #include <vector>
 #include <map>
 
-class TBXMLWriter : public Algorithm
+class TBXMLWriter : public AthAlgorithm
 {
  public:
   
@@ -66,8 +66,6 @@ class TBXMLWriter : public Algorithm
   ////////////
   // Stores //
   ////////////
-
-  StoreGateSvc* m_storeGate;
 
   std::map<std::string,unsigned int> m_toolAccept;
   std::map<std::string,unsigned int> m_toolReject;

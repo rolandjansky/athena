@@ -13,18 +13,16 @@
  * June 30, 2004 - implementation based on a first draft from Marco Delmastro
  */  
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
 
 class StoreGateSvc;
 
-class TBPhaseRec : public Algorithm
+class TBPhaseRec : public AthAlgorithm
 {
-
  public:
-
   TBPhaseRec(const std::string& name, ISvcLocator* pSvcLocator);
   ~TBPhaseRec();
 
@@ -37,13 +35,9 @@ class TBPhaseRec : public Algorithm
   static const int unknown = -99999 ;
 
  private:
-
-
   ////////////////
   // Properties //
   ////////////////
-  StoreGateSvc* m_StoreGate;
-
   std::vector<std::string> m_tdcNames ;   // the TDC(s) with phase information
   std::vector<float> m_tdcToTime;         // per TDC
   std::vector<float> m_tdcwac;            // wrap around constants

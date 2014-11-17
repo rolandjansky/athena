@@ -11,7 +11,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
@@ -19,7 +19,7 @@
 
 class StoreGateSvc;
 
-class TBAlgoSequencer : public Algorithm
+class TBAlgoSequencer : public AthAlgorithm
 {
 
   typedef std::string             KeyType;
@@ -56,7 +56,5 @@ class TBAlgoSequencer : public Algorithm
   unsigned int m_rejectNoEvent;
   std::map<std::string,unsigned int> m_rejectPattern;
   std::map<std::string,unsigned int> m_acceptPattern;
-
-  StoreGateSvc* m_storeGate;
 };
 #endif
