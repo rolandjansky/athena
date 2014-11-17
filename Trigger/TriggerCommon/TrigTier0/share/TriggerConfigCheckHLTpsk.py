@@ -23,8 +23,10 @@ if len(runNumbers)>0:
     import PyUtils.AthFile as AthFile
 
     # get connection to COOL and find the HLT ps key
-    coolDbConn = indirectOpen("COOLONL_TRIGGER/COMP200",oracle=True)
-    hltfolder=coolDbConn.getFolder('/TRIGGER/HLT/HltConfigKeys')
+
+    from IOVDbSvc.CondDB import conddb
+    coolDbConn = indirectOpen("COOLONL_TRIGGER/%s" % conddb.dbdata,oracle=True)
+    hltfolder=coolDbConn.getFolder('/TRIGGER/HLT/PrescaleKey')
     lvl1folder=coolDbConn.getFolder('/TRIGGER/LVL1/Lvl1ConfigKey')
     chansel = cool.ChannelSelection(0,0,cool.ChannelSelection.sinceBeforeChannel)
 
@@ -36,25 +38,26 @@ if len(runNumbers)>0:
         iovmax=((RunNumber+1) << 32)-1
         # read info from COOL
         hltobjs = hltfolder.browseObjects( iovmin, iovmax, chansel)
-        if hltobjs.goToNext():    
+        allHltpsks = []
+        while hltobjs.goToNext():
             obj=hltobjs.currentRef()
             ch = obj.channelId()
-            hltpsk = int(obj.payloadValue("HltPrescaleConfigurationKey")) # By default is a string
-            mlog.info("HLT prescale key for run %d is %d "%(RunNumber,hltpsk))
-            if hltpsk == 0:
-                needToTurnOffHLT = True
-        else:
+            hltpsk = int(obj.payloadValue("HltPrescaleKey")) # By default is a string
+            allHltpsks += [hltpsk]
+        mlog.info("HLT prescale keys for run %d are %r " % (RunNumber,allHltpsks))
+        if len(allHltpsks) == 0:
             needToTurnOffHLT = True
-        # same thing for lvl1    
+
+        # same thing for lvl1
+        allLvl1psks = []
         lvl1objs = lvl1folder.browseObjects( iovmin, iovmax, chansel)
-        if lvl1objs.goToNext():
+        while lvl1objs.goToNext():
             obj=lvl1objs.currentRef()
             ch = obj.channelId()
             lvl1psk = int(obj.payloadValue("Lvl1PrescaleConfigurationKey"))
-            mlog.info("LVL1 prescale key for run %d is %d "%(RunNumber,lvl1psk))
-            if lvl1psk == 0:
-                needToTurnOffLVL1 = True
-        else:
+            allLvl1psks += [lvl1psk]
+        mlog.info("LVL1 prescale keys for run %d are %r " % (RunNumber,allLvl1psks))
+        if len(allLvl1psks) == 0:
             needToTurnOffLVL1 = True
           
     if needToTurnOffHLT and needToTurnOffLVL1:
