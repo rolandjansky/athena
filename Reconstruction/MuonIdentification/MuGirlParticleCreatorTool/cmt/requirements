@@ -10,7 +10,7 @@ use  GaudiInterface           GaudiInterface-*              External
 use  MuGirlInterfaces         MuGirlInterfaces-*            Reconstruction/MuonIdentification
 use  MuidInterfaces           MuidInterfaces-*              Reconstruction/MuonIdentification
 private
-use  EventInfo                EventInfo-*                   Event
+use  xAODEventInfo            xAODEventInfo-*               Event/xAOD
 use  MuonSegment              MuonSegment-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  TrkPrepRawData           TrkPrepRawData-*              Tracking/TrkEvent
 use  muonEvent                muonEvent-*                   Reconstruction/MuonIdentification

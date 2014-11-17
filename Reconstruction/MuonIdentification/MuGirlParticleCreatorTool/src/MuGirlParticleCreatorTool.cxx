@@ -14,8 +14,7 @@
 #include "MuGirlParticleCreatorTool/ParticleCreatorNTuple.h"
 #include "MuonSegment/MuonSegment.h"
 #include "GaudiKernel/NTuple.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "muonEvent/MuonContainer.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrigMuonEvent/MuonFeature.h"
@@ -455,13 +454,12 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
 */
             if (m_doNTuple)
             {
-                const EventInfo* pEventInfo = NULL;
+	        const xAOD::EventInfo* pEventInfo = NULL;
                 if (evtStore()->retrieve(pEventInfo).isFailure() || pEventInfo == NULL)
                     msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endreq;
                 else
                 {
-                    EventID* pID = pEventInfo->event_ID();
-                    if (m_pNTuple->fillEventInfo(pID->run_number(), pID->event_number()).isFailure())
+                    if (m_pNTuple->fillEventInfo(pEventInfo->runNumber(), pEventInfo->eventNumber()).isFailure())
                         msg(MSG::WARNING) << "Cannot fill event info" << endreq;
                 }
                 if (m_pNTuple->fill(pSummary, m_doTruth, m_pTruthTool).isFailure())
@@ -627,6 +625,9 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
 //            continue;
         if (pSummary->startFromBetaRefit) continue;
 
+	ATH_MSG_DEBUG("MuGirlParticleCreatorTool removeRedundant "<<pSummary->muonSegmentList.size());
+
+	if (pSummary->muonSegmentList.size()>10) continue; 
         for (size_t iSeg = 0; iSeg < pSummary->muonSegmentList.size(); iSeg++)
         {
             const Muon::MuonSegment* pSeg = pSummary->muonSegmentList[iSeg];
@@ -656,7 +657,7 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
             }
         }
     }
-
+    
     for (size_t iCand = 0; iCand < nCand; iCand++)
     {
         if (!IncludeList[iCand])
