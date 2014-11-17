@@ -177,13 +177,14 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   void bookProcHists();  
   void processHists();
   void processMaskHists();
-  StatusCode deleteProcHists();  
+ // StatusCode deleteProcHists();  
 
   StatusCode deleteHistograms();
   void deleteMonGroups();
   StatusCode deleteTileHists();
   void deleteCaloLayers(); 
   StatusCode deleteLarMultThreHists();
+  StatusCode deleteProcHists(); 
   void deleteLarMultThreHistVectors();
   StatusCode deleteSporHists();
   StatusCode deleteLarNonThreHists();
@@ -342,6 +343,13 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
 
   bool m_useBeamBackgroundRemoval; 
   bool m_passBeamBackgroundRemoval;
+
+  bool m_failReadyFilterTool; // km add
+  bool m_failLArCollisionTime; // km add
+  bool m_failBadLBTool; // km add
+  
+  // const Int_t flag = 7;
+  //char *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackgroundRemoval", "Trigger", "maskbadcel"};
 
   // Trigger Awareness:
   bool m_useTrigger;
@@ -637,6 +645,7 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
 
   // summary plot
   TH1F* h_n_trigEvent;
+  TH1F* h_EvtRejSumm; // km add
 
   // monitoring cell with energy > 4*DBnoise
   TH2F * h_cellOccupancyEtaLumi[MAXLAYER];
@@ -654,6 +663,7 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   TH2F*         h_energyVsTime_imask[MAXLAYER];
 
   // occupancy, energy, quality and time plots for several different thresholds for each layer 
+ 
   TH2F**        h_occupancy_etaphi[MAXLAYER];
   TH1F**        h_occupancy_eta[MAXLAYER];
   TH1F**        h_occupancy_phi[MAXLAYER];

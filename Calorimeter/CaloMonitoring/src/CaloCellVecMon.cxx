@@ -16,6 +16,7 @@
 //		  D Hu  Jun 2011 - May 2012
 //                K ALGhadeer August 2012/2013 add 1D CellEnergyVsTime histograms with diffrent energy thresholds 
 //                L Sawyer 12/2013 Modified booking to reflect new managed histograms
+//                K ALGhadeer 08/19 Moved bookProcHists under bookHistogram
 // ********************************************************************
 #include "CaloMonitoring/CaloCellVecMon.h"
 
@@ -284,6 +285,7 @@ void CaloCellVecMon::initHists(){
   h_CellsRMSdivDBnoisePhi = 0;
 
   h_n_trigEvent = 0;
+  h_EvtRejSumm = 0 ;// km add
 
   for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++){
     h_cellOccupancyEtaLumi[ilyr] = 0;
@@ -300,6 +302,7 @@ void CaloCellVecMon::initHists(){
     h_energyVsTime_imask[ilyr] = 0;
 
     h_occupancy_etaphi[ilyr] = 0;
+
     h_occupancy_eta[ilyr] = 0;
     h_occupancy_phi[ilyr] = 0;
 
@@ -1647,10 +1650,10 @@ StatusCode CaloCellVecMon::bookHistograms(){
     else TheTrigger = m_triggerChainProp;
     
     bookMonGroups(TheTrigger,theinterval);
-
-    bookTileHists();
-
-    bookCaloLayers();  
+ 
+    bookCaloLayers(); 
+ 
+    bookTileHists(); 
 
     bookLarMultThreHists();
 
@@ -1658,9 +1661,40 @@ StatusCode CaloCellVecMon::bookHistograms(){
 
     bookLarNonThreHists();  
 
-    bookSummHists();
 
-    deleteCaloLayers();
+    bookSummHists();
+    
+    processTileHists(); // khadeejah add
+    
+    setBookSwitch();  //Khadeejah add
+
+    
+    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
+    else m_procimask = false; 
+
+    if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
+       if(!m_doMaskingOnline) {
+         //Book inverse masked histograms that would have been booked and filled in fillHistograms if
+         // doMaskingOnline was on and which can be constructed here.
+         if(m_doInverseMasking) {
+           if(m_bookProcHists) bookImaskHists();
+         }
+         maskBadChanHists();
+       }
+    }
+
+    if(m_bookProcHists) bookProcHists();  //Khadeejah 
+
+    processHists(); // Khadeejah 
+
+    if(m_procimask) processMaskHists();
+
+
+    deleteBookSwitch();
+
+    deleteCaloLayers(); // Khadeejah comment out
+    
+ //   m_bookProcHists = m_ifSaveAndDeleteHists;  // Khadeejah add
 //  }
 
 //  ATH_MSG_INFO("CaloCellVecMon::bookHistograms() is done");
@@ -2267,6 +2301,8 @@ void CaloCellVecMon::bookCaloLayers() {
 
 void CaloCellVecMon::bookLarMultThreHists(){
 //    ATH_MSG_INFO("in bookLarMultThreHists()");
+    
+
     book2DEtaPhiHists(h_occupancy_etaphi,Occupancy_2d,"CellOccupancyVsEtaPhi_%s_%s",
                       "No. of events in (#eta,#phi) for %s - %s",m_fillEtaPhiOccupancy,
                       m_tempEtaPhiOccupancy);
@@ -2279,13 +2315,8 @@ void CaloCellVecMon::bookLarMultThreHists(){
 
     book2DEtaPhiHists(h_energyProfile_etaphi,Temporary,"TempEnergyNoiseTProfile_%s_%s",
                       "Average Cell Energy vs (#eta,#phi) in %s - %s",m_doEtaPhiEnergyProfile);
-    for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++) {
-      for(int ti = 0; ti<m_nThresholds[ilyr/2]; ti++) {
-        if(m_doEtaPhiEnergyProfile[ilyr/2][ti]){
-          h_energyProfile_etaphi[ilyr][ti]->SetErrorOption("s");
-        }
-      }
-    }
+                    
+    
     book2DEtaPhiHists(h_totalEnergy_etaphi,TotalEnergy,"TotalEnergyVsEtaPhi_%s_%s",
                       "Total Cell Energy vs (#eta,#phi) in %s - %s",m_fillEtaPhiTotalEnergy,
                       m_tempEtaPhiTotalEnergy);
@@ -2564,6 +2595,16 @@ void CaloCellVecMon::bookSummHists(){
 //    ATH_MSG_INFO("in bookSummHists()");
     h_n_trigEvent = new TH1F("nEvtsByTrigger","Total Events: bin 0, RNDM Trigger: 1, Calo Trigger: 2, MinBias Trigger: 3, MET Trigger: 4, Misc Trigger: 5, Events Selected for Noise Plots: 6 ",7,0.,7.);
     SummaryGroup->regHist( h_n_trigEvent ).ignore();
+    
+     const Int_t flag = 7;
+     char const *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackgroundRemoval", "Trigger", "maskbadcel"};
+     h_EvtRejSumm  = new TH1F("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, LArCollisionTime: 4, BeamBackgroundRemoval: 5, Trigger: 6, maskbadcell: 7 ",7,0.,7.);
+   //  h_EvtRejSumm  = new TH1F(flag);
+     h_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
+    for (int i=1;i<=flag;i++) h_EvtRejSumm->GetXaxis()->SetBinLabel(i,Summary[i-1]);
+    SummaryGroup->regHist( h_EvtRejSumm ).ignore();
+    
+  
 //    ATH_MSG_INFO("end of bookSummHists()");
 }
  
@@ -2672,14 +2713,30 @@ StatusCode CaloCellVecMon::checkFilters(bool& ifPass){
  
  if(m_useLArNoisyAlg && (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)) ifPass = 0;
 
+ m_failReadyFilterTool= false; // khadeejah
+
  if(m_useReadyFilterTool){
    if(!m_ReadyFilterTool->accept()) ifPass = 0;
- } 
-
- if(m_useBadLBTool){
-   if(!m_BadLBTool->accept()) ifPass = 0;
+   else if (!m_ReadyFilterTool->accept())  {m_failReadyFilterTool= true; } // km add
  }
+   //  h_EvtRejSumm->Fill( m_ReadyFilterToolchan ); // m_ReadyFilterToolChan = 1 in init
+   
+    h_EvtRejSumm->Fill(1);
+    
+    if (m_failReadyFilterTool) h_EvtRejSumm->Fill(2); // km ad
+    m_failBadLBTool=false;
+ 
+   if(m_useBadLBTool){
+   if(!m_BadLBTool->accept()) ifPass = 0;
+   else if (!m_BadLBTool->accept()) { m_failBadLBTool=true;} //km add
+   }
+   // h_EvtRejSumm->Fill( m_BadLBToolchan ); // m_BadLBToolChan = 2 in init
 
+  if (m_failBadLBTool) h_EvtRejSumm->Fill(3); // m_BadLBToolChan = 2 in init
+ // if (m_useBadLBTool) h_EvtRejSumm->Fill(3); // m_BadLBToolChan = 2 in init
+  
+ m_failLArCollisionTime = false; // km add
+ 
  const LArCollisionTime * larTime;
  sc = evtStore()->retrieve(larTime,"LArCollisionTime");
  if(sc.isFailure()){
@@ -2689,6 +2746,15 @@ StatusCode CaloCellVecMon::checkFilters(bool& ifPass){
   if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10) ifPass = 0;
  }
 
+ // this work
+ sc = evtStore()->retrieve(larTime,"LArCollisionTime");
+ if(sc.isFailure()){
+   ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
+   }else{
+ if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  m_failLArCollisionTime=true;
+ } // this is work ok
+
+   if (m_failLArCollisionTime) h_EvtRejSumm->Fill(4);
 // ATH_MSG_INFO("CaloCellVecMon::checkFilters() is done");
  return StatusCode::SUCCESS;
 }
@@ -2707,6 +2773,8 @@ StatusCode CaloCellVecMon::checkBeamBackgroundRemoval()
 //   ATH_MSG_INFO("BeamBackgroundData is retrieved");
    if( beamBackgroundData->GetNumSegment() > 0 )  m_passBeamBackgroundRemoval = false;
   }
+  
+     if (m_passBeamBackgroundRemoval) h_EvtRejSumm->Fill(5);  // km ad
 //  ATH_MSG_INFO("m_passBeamBackgroundRemoval ="<<m_passBeamBackgroundRemoval);
 //  ATH_MSG_INFO("CaloCellVecMon::checkBeamBackgroundRemoval() ends");
   return StatusCode::SUCCESS;
@@ -2808,7 +2876,9 @@ void CaloCellVecMon::fillTrigPara(){
     if(m_fillNoThreshNoisePlots) {
       h_n_trigEvent->Fill(6.5);
     }
-
+   
+  
+ 
     for(int ilyrns=EMBPNS; ilyrns<MAXLYRNS; ilyrns++) {
       for(int ti=0; ti < m_nThresholds[ilyrns]; ti++) {
         if ( (m_threshTriggersToInclude[ilyrns][ti] == NOTA) && (m_threshTriggersToExclude[ilyrns][ti] == NOTA) ) {
@@ -2875,6 +2945,9 @@ void CaloCellVecMon::fillTrigPara(){
   else {
     h_n_trigEvent->Fill(6.5);
   }
+
+//  if (m_useTrigger) h_EvtRejSumm->Fill(5.5);  // km add
+   if (m_useTrigger) h_EvtRejSumm->Fill(6); 
 
   for(int ilyrns=EMBPNS; ilyrns<MAXLYRNS; ilyrns++) {
    for(int ti=0; ti < m_nThresholds[ilyrns]; ti++) {
@@ -3309,6 +3382,9 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
       maskbadcell = m_badChannelMask->cellShouldBeMasked(id,gain); //<-- (Online) cell masking based on this
   else  maskbadcell = false; 
 
+   // km add
+// if (maskbadcell)  h_EvtRejSumm->Fill(6.5);
+ if (maskbadcell)  h_EvtRejSumm->Fill(7);
   // decide if cell should be masked: masksel==1: neither badcell, nor nocondition; masksel==0: either badcell, or noconditions 
   bool masksel = !maskbadcell && !masknoconditions; 
 
@@ -3385,8 +3461,8 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
     if(threshIsPassed) {
        if(masksel || (!m_doMaskingOnline) ) {
 
-          if(m_fillEtaPhiOccupancy[caloLyrNS][ti]) h_occupancy_etaphi[caloLyr][ti]->Fill(celleta,cellphi); 
-
+          if(m_fillEtaPhiOccupancy[caloLyrNS][ti]) h_occupancy_etaphi[caloLyr][ti]->Fill(celleta,cellphi);
+          
           if(m_fillEtaOccupancy[caloLyrNS][ti]) h_occupancy_eta[caloLyr][ti]->Fill(celleta); 
 
           if(m_fillPhiOccupancy[caloLyrNS][ti]) h_occupancy_phi[caloLyr][ti]->Fill(cellphi); 
@@ -3610,13 +3686,13 @@ StatusCode CaloCellVecMon::realProcHistograms(){
 
     StatusCode sc = StatusCode::SUCCESS;
 
-    processTileHists();
+   // processTileHists(); // khadeejah comment out
    
-    bookCaloLayers();
+   // bookCaloLayers(); //Khadeejah comment out
   
-    setBookSwitch(); 
+   // setBookSwitch();  //Khadeejah comment out
 
-    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
+/*    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
     else m_procimask = false; 
 
     if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
@@ -3630,9 +3706,9 @@ StatusCode CaloCellVecMon::realProcHistograms(){
        }
     }
 
-    if(m_bookProcHists) bookProcHists();
+  //  if(m_bookProcHists) bookProcHists();  //Khadeejah Comment out
 
-    processHists();
+  //  processHists(); // Khadeejah comment out
 
     if(m_procimask) processMaskHists();
 
@@ -3647,20 +3723,20 @@ StatusCode CaloCellVecMon::realProcHistograms(){
           }
          }
       } 
-    }
+    }*/
 
-    if(m_ifSaveAndDeleteHists)  sc=deleteProcHists();
+  /*  if(m_ifSaveAndDeleteHists)  sc=deleteProcHists(); // Khadeejah comment out and declear it under StatusCode CaloCellVecMon::deleteHistograms(){
     if(sc.isFailure()){
      ATH_MSG_ERROR("fail in deleteProcHists ");
      return sc;
-    }
+    }*/
 
 
-    deleteBookSwitch();
+  //  deleteBookSwitch();
  
-    deleteCaloLayers();
+  //  deleteCaloLayers();
 
-    m_bookProcHists = m_ifSaveAndDeleteHists;
+ //   m_bookProcHists = m_ifSaveAndDeleteHists;
 
 //    ATH_MSG_INFO("CaloCellVecMon realProcHistograms() is done");
     return sc;
@@ -4267,8 +4343,8 @@ void CaloCellVecMon::processMaskHists(){
 
 }
 
-
-StatusCode CaloCellVecMon::deleteProcHists(){
+  // Khadeejah move the definition after deleteHistograms() deleteLarMultThreHists(){
+/*StatusCode CaloCellVecMon::deleteProcHists(){
 //      ATH_MSG_INFO("deleteProcHists() starts .");  
       StatusCode sc = StatusCode::SUCCESS;
   
@@ -4402,7 +4478,7 @@ StatusCode CaloCellVecMon::deleteProcHists(){
       }
 //      ATH_MSG_INFO("deleteProcHists() is done .");  
       return sc;
-} 
+} */
 
 //////////////////////////////////////////////////////////////////
 StatusCode CaloCellVecMon::deleteHistograms(){
@@ -4428,6 +4504,29 @@ StatusCode CaloCellVecMon::deleteHistograms(){
   }
 
   deleteLarMultThreHistVectors();
+
+ //Khadeejah add
+
+   sc=deleteProcHists();
+    if(sc.isFailure()){
+     ATH_MSG_ERROR("fail in deleteProcHists ");
+     return sc;
+    }
+ 
+//Khadeejah add
+  if(m_maskKnownBadChannels || m_maskNoCondChannels){
+      if(!m_doMaskingOnline) {
+         if(m_doInverseMasking)  {
+          sc = deleteImaskHists();
+          if(sc.isFailure()){
+           ATH_MSG_ERROR("fail in deleteImaskHists ");
+           return sc;
+          }
+         }
+      } 
+    }
+
+
 
   if(m_sporadic_switch) {
    sc=deleteSporHists();
@@ -4613,6 +4712,7 @@ StatusCode CaloCellVecMon::deleteLarMultThreHists(){
     return sc;
   }
 
+
 //  ATH_MSG_INFO("before h_occupancy_eta");
   sc=saveAndDeleteHistsInLayers(h_occupancy_eta,Occupancy_1d,m_fillEtaOccupancy,m_doPercentageOccupancy);
   if(sc.isFailure()){
@@ -4747,6 +4847,143 @@ StatusCode CaloCellVecMon::deleteLarMultThreHists(){
 //  ATH_MSG_INFO("end of deleteLarMultThreHists ");
   return sc;
 }
+StatusCode CaloCellVecMon::deleteProcHists(){
+//      ATH_MSG_INFO("deleteProcHists() starts .");  
+      StatusCode sc = StatusCode::SUCCESS;
+  
+      sc=saveAndDeleteHistsInLayers(h_percentOccupancy_etaphi,PercentOccupancy_2d, m_procPercentOccEtaPhi);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_percentOccupancy_eta,PercentOccupancy_1d,m_procPercentOccEta); 
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_percentOccupancy_phi,PercentOccupancy_1d,m_procPercentOccPhi);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_occupancy_etaphi,Occupancy_2d,m_procAbsOccEtaPhi);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_occupancy_eta,Occupancy_1d,m_procAbsOccEta);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_occupancy_phi,Occupancy_1d,m_procAbsOccPhi);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_averageEnergy_etaphi,AvgEnergy,m_doEtaPhiAvgEnTh);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_averageEnergy_etaphi,AvgEnergyNoTh,m_doEtaPhiAvgEnNoTh);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_totalEnergy_etaphi,TotalEnergy,m_procEtaPhiTotalEnergy);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_noise_etaphi,Noise,m_procEtaPhiEnergyRMS);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_deviationFromDBnoise_etaphi,NoiseVsDB,m_procEtaPhiDeviationFromDBnoise); 
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_averageQuality_etaphi,AvgQuality,m_procEtaPhiAverageQuality);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_averageTime_etaphi,AvgTime,m_procEtaPhiAverageTime);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_fractionOverQth_etaphi,PoorQualityFraction,m_procEtaPhiFractionOverQth);
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+      sc=saveAndDeleteHistsInLayers(h_fractionPastTth_etaphi,PoorTimeFraction,m_procEtaPhiFractionPastTth); 
+      if(sc.isFailure()){
+       ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+       return sc;
+      }
+
+      if( m_procimask ) {
+       sc=saveAndDeleteHistsInLayers(h_percentOccupancy_etaphi_imask,PercentOccupancy_2d, m_procPercentOccEtaPhi);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_percentOccupancy_eta_imask,PercentOccupancy_1d,m_procPercentOccEta);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_percentOccupancy_phi_imask,PercentOccupancy_1d,m_procPercentOccPhi);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_occupancy_etaphi_imask,Occupancy_2d,m_procAbsOccEtaPhi);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_occupancy_eta_imask,Occupancy_1d,m_procAbsOccEta);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_occupancy_phi_imask,Occupancy_1d,m_procAbsOccPhi);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_averageEnergy_etaphi_imask,AvgEnergy,m_doEtaPhiAvgEnTh);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_averageEnergy_etaphi_imask,AvgEnergyNoTh,m_doEtaPhiAvgEnNoTh);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_totalEnergy_etaphi_imask,TotalEnergy,m_procEtaPhiTotalEnergy);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+       sc=saveAndDeleteHistsInLayers(h_noise_etaphi,Noise,m_procEtaPhiEnergyRMS);
+       if(sc.isFailure()){
+        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayers  ");
+        return sc;
+       }
+      }
+//      ATH_MSG_INFO("deleteProcHists() is done .");  
+      return sc;
+} 
+
+
 
 void CaloCellVecMon::deleteLarMultThreHistVectors(){
 //  ATH_MSG_INFO("inside deleteLarMultThreHistsVectors ");
@@ -4756,7 +4993,7 @@ void CaloCellVecMon::deleteLarMultThreHistVectors(){
       delete [] h_occupancy_etaphi[ilyr];
       h_occupancy_etaphi[ilyr]=0;
     } 
-
+    
     if(h_occupancy_eta[ilyr]){
       delete [] h_occupancy_eta[ilyr];
       h_occupancy_eta[ilyr]=0;
@@ -5158,6 +5395,7 @@ StatusCode CaloCellVecMon::deleteSummHists(){
   StatusCode sc = StatusCode::SUCCESS;
 //  ATH_MSG_INFO("inside deleteSummHists");
   sc=saveAndDeleteHistFromGroup(h_n_trigEvent,SummaryGroup,1);
+  sc=saveAndDeleteHistFromGroup(h_EvtRejSumm,SummaryGroup,1); // km add
 //  ATH_MSG_INFO("end of deleteSummHists");
   return sc; 
 }

@@ -3,6 +3,7 @@
 # CaloClusterVecVecMon_jobOpt.py   F Spano' 08/15/07 --change monMan to  CaloMon
 # CaloClusterMonCollisions_jobOpt.py: new names updates for collisions  F Spano' 07/16/09
 # EMTopoClusterVecMonCollisions_jobOpt.py Ram Dhullipudi 11/24/09
+# EMTopoClusterVecMonCosmics_jobOpt.py changed EMTopoSW35 to LArClusterEM Alghadeer 8/11/14
 #---------------------------------------------------------
 # Author      : The CaloMonitoring group
 # Description : JO steering CaloTopoClusters monitoring for single beam and collisions
@@ -21,10 +22,11 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
-if DQMonFlags.monManEnvironment() == 'online':
-   tmp_CaloClusterContainer = "EMTopoCluster430"
-else:
-   tmp_CaloClusterContainer = "EMTopoSW35"
+#if DQMonFlags.monManEnvironment() == 'online':
+#   tmp_CaloClusterContainer = "EMTopoCluster430"
+#else:
+#   tmp_CaloClusterContainer = "LArClusterEM"
+tmp_CaloClusterContainer = "LArClusterEM"
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_timeGran = "run"

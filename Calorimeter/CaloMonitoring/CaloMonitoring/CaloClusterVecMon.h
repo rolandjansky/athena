@@ -106,6 +106,8 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    bool m_useLArNoisyAlg;
 
    bool m_useBeamBackgroundRemoval; 
+   bool m_failReadyFilterTool; // km add
+   bool m_failBadLBTool; // km add
 
    //energy threshold, eta min and time width for plots 
    float m_Ethresh[MAX_E];
@@ -134,12 +136,11 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    float m_maxclusene_bot;
 
    // cluster EM variables
-   // 2014-02-04 W.L. Comment out instead of migrating to xAOD::CaloCluster
-   //double m_EMenergy;
-   //double m_EMenergy_abs;
-   //double m_EMet;
-   //double m_EMeta;
-   //double m_EMphi;
+   double m_EMenergy;
+   double m_EMenergy_abs;
+   double m_EMet;
+   double m_EMeta;
+   double m_EMphi;
 
    // cell hists
    TH1I*       m_nCells;
@@ -155,10 +156,13 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    // mult-threshold cluster hists
    TH2F*       m_clus_etaphi_Et_thresh[MAX_E];
    TProfile2D* m_etaphi_thresh_avgEt[MAX_E];
-   //TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
-   //TH2F*       m_EMclus_etaVsPhi[MAX_E];
+   TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
+   TH2F*       m_EMclus_etaVsPhi[MAX_E];
    TH1F*       m_clus_eta[MAX_E];
    TH1F*       m_clus_phi[MAX_E][3];
+   TH1F*       m_EvtRejSumm; // km add
+   TH1F*       m_clus_eta_Et[MAX_E]; // km add
+   TH1F*       m_clus_phi_Et[MAX_E][3]; // km add
    TH2F*       m_etaVsPhi[MAX_E];
    TProfile2D* m_etaphi_thresh_avgenergy[MAX_E];
    TH2F*       m_etaphi_thresh_Totalenergy[MAX_E];

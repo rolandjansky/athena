@@ -55,7 +55,7 @@ CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string&
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("CaloClusterContainer", m_clusterContainerName="EMTopoCluster420"); 
+  declareProperty("CaloClusterContainer", m_clusterContainerName="CaloCalTopoCluster"); 
 
   declareProperty("TimeGran",m_timeGran="lowStat");
  
@@ -107,10 +107,13 @@ void CaloClusterVecMon::initHists(){
  for (int iE=0; iE<MAX_E; iE++){
    m_clus_etaphi_Et_thresh[iE]=0;
    m_etaphi_thresh_avgEt[iE]=0;
-   //m_EMclus_etaphi_Et_thresh[iE]=0;
-   //m_EMclus_etaVsPhi[iE]=0;
+   m_EMclus_etaphi_Et_thresh[iE]=0;
+   m_EMclus_etaVsPhi[iE]=0;
    m_clus_eta[iE]=0;
-   for(int j_plot=0; j_plot<3; j_plot++) m_clus_phi[iE][j_plot]=0;
+   m_clus_eta_Et[iE]=0;  // km add
+   for(int j_plot=0; j_plot<3; j_plot++){
+   m_clus_phi[iE][j_plot]=0;
+   m_clus_phi_Et[iE][j_plot]=0;} // km add
    m_etaVsPhi[iE]=0;
    m_etaphi_thresh_avgenergy[iE]=0;
    m_etaphi_thresh_Totalenergy[iE]=0;
@@ -384,7 +387,15 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
     MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TransEnergy", theinterval);    
     MonGroup  cluster_2dTotale_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TotalEnergy", theinterval);   
     MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Time_Energy", theinterval);
-
+    MonGroup  cluster_SummaryGroup_expert ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Summary", theinterval); // add
+    // km add
+    
+     const Int_t flag = 7;
+    char const *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","BeamBackgroundRemoval"};
+    m_EvtRejSumm  = new TH1F("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, BeamBackgroundRemoval: 4 ",4,0.,4.);
+    m_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
+    cluster_SummaryGroup_expert.regHist( m_EvtRejSumm ).ignore();
+     for (int i=1;i<=flag;i++) m_EvtRejSumm->GetXaxis()->SetBinLabel(i,Summary[i-1]);
 
     for (int i=0; i<MAX_E; i++) { //loop over thresholds
       char bname[256];
@@ -404,7 +415,7 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       m_etaphi_thresh_avgEt[i]->GetXaxis()->SetTitle("#eta");
       m_etaphi_thresh_avgEt[i]->GetYaxis()->SetTitle("#phi");
 
-      /*
+      
       sprintf(btitle, "Hit Map of EMclusters with  Et_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_EMclus_etaphi_Et_thresh%d", i);
       m_EMclus_etaphi_Et_thresh[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
@@ -419,13 +430,20 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       else cluster_2drates_expert.regHist(m_EMclus_etaVsPhi[i]).ignore();
       m_EMclus_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
       m_EMclus_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
-      */
+      
 
       sprintf(btitle, "Hit Map of Clusters with E-Clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_clus_eta%d", i);
       m_clus_eta[i] = new TH1F(bname,btitle,64,-5.0,5.0);
       cluster_1drates_expert.regHist( m_clus_eta[i] ).ignore();
       m_clus_eta[i]->GetXaxis()->SetTitle("#eta");
+      
+      // km add 
+      sprintf(btitle, "Hit Map of Clusters with Et-Clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "m_clus_eta_Et%d", i);
+      m_clus_eta_Et[i] = new TH1F(bname,btitle,64,-5.0,5.0);
+      cluster_1drates_expert.regHist( m_clus_eta_Et[i]).ignore();
+      m_clus_eta_Et[i]->GetXaxis()->SetTitle("#eta");
 
       for (int j=0; j<3;j++){ //loop over regions
         switch(j){
@@ -449,6 +467,31 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
         m_clus_phi[i][j]->GetZaxis()->SetMoreLogLabels();
       }      
 
+      // km add
+    
+       for (int j=0; j<3;j++){ //loop over regions
+        switch(j){
+        case 0:
+          sprintf(btitle, "Hit Map of Barrel Clusters Vs Phi Et_Clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dBarrel", i);
+          break;
+        case 1:
+          sprintf(btitle, "Hit Map of EndCapA Clusters Vs Phi with Et_clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dEndcapA", i);
+          break;
+        case 2:
+          sprintf(btitle, "Hit Map of EndCapC clusters Vs phi with Et_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dEndcapC", i);
+          break;
+        }
+        m_clus_phi_Et[i][j] =  new TH1F(bname,btitle,64,-3.15,3.15);
+        cluster_1drates_expert.regHist( m_clus_phi_Et[i][j] ).ignore();
+        m_clus_phi_Et[i][j]->GetXaxis()->SetTitle("#phi");
+        m_clus_phi_Et[i][j]->GetYaxis()->SetMoreLogLabels();
+        m_clus_phi_Et[i][j]->GetZaxis()->SetMoreLogLabels();
+      }      
+      
+ 
       sprintf(btitle, "Hit Map of clusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_EtavsPhi%d", i);
       m_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
@@ -456,6 +499,8 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       else cluster_2drates_expert.regHist(m_etaVsPhi[i]).ignore();
       m_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
       m_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
+     // m_etaVsPhi[i]->SetAxisRange(0,1000000,"Z");
+     // m_etaVsPhi[i]->GetZaxis()->SetMoreLogLabels(); // an option
 
       sprintf(btitle, "Avg energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "etaphi_thresh_avgenergy_%d", i);
@@ -727,13 +772,23 @@ StatusCode CaloClusterVecMon::checkFilters(bool& ifPass){
    }
  }
 
+m_failReadyFilterTool= false; // km add  
  if(m_useReadyFilterTool){
    if(!m_ReadyFilterTool->accept()) ifPass = 0;
+  else if (!m_ReadyFilterTool->accept())  {m_failReadyFilterTool= true; } // km add
  }
-
+ 
+  m_EvtRejSumm->Fill(1); // this is for all the events km add
+  if (m_ReadyFilterTool) m_EvtRejSumm->Fill(2); // km add
+ // m_EvtRejSumm->GetXaxis()->SetBinLabel(1.5,"FilterTool");
+  
+ m_failBadLBTool=false;
  if(m_useBadLBTool){
    if(!m_BadLBTool->accept()) ifPass = 0;
+   else if (!m_BadLBTool->accept()) { m_failBadLBTool=true;} //km add
  }
+ 
+ if (m_failBadLBTool) m_EvtRejSumm->Fill(3); // km add
  
 // ATH_MSG_INFO("CaloClusterVecMon::checkBeamBackgroundRemoval() starts");
  if(m_useBeamBackgroundRemoval){ 
@@ -752,6 +807,7 @@ StatusCode CaloClusterVecMon::checkFilters(bool& ifPass){
    }
  } 
 //  ATH_MSG_INFO("CaloClusterVecMon::checkBeamBackgroundRemoval() ends"); 
+ if  (m_useBeamBackgroundRemoval) m_EvtRejSumm->Fill(4); // km add
 
  if(sc!=StatusCode::SUCCESS){
   ATH_MSG_WARNING("failure in checkFilters");
@@ -821,35 +877,25 @@ void CaloClusterVecMon::fillCellHist(const CaloCluster* clus){
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CaloClusterVecMon::fillClusterEMvar(const CaloCluster* /*clus*/){
- /*
-  2014-02-04 W.L. Comment out instead of migrating to xAOD::CaloCluster
-  What's the point of averaging the sampling quantities of a particular cluster?
-
+void CaloClusterVecMon::fillClusterEMvar(const xAOD::CaloCluster* clus){
+ 
   m_EMenergy=0.;
   m_EMenergy_abs=0.;
   m_EMet=0.;
   m_EMeta=0.;
   m_EMphi=0.;
 
-
-  std::vector<double> samplers_energy;
-  std::vector<double> samplers_eta;
-  std::vector<double> samplers_phi;
-
-  clus->getEInSamples(samplers_energy);
-  clus->getEtaInSamples(samplers_eta);
-  clus->getPhiInSamples(samplers_phi);
-
-  for (unsigned int sampler_id=0; sampler_id<samplers_energy.size() &&  sampler_id<samplers_eta.size() &&  sampler_id<samplers_phi.size(); sampler_id++){
-    float sampler_energy = samplers_energy.at(sampler_id);
-    float sampler_eta = samplers_eta.at(sampler_id);
-    float sampler_phi = samplers_phi.at(sampler_id);
-    if(sampler_id<CaloSampling::HEC0){
-     m_EMenergy=m_EMenergy+sampler_energy;
-     m_EMenergy_abs=m_EMenergy_abs+fabs(sampler_energy);
-     m_EMeta=m_EMeta+sampler_eta*fabs(sampler_energy);
-     m_EMphi=m_EMphi+sampler_phi*fabs(sampler_energy);
+  //Loop over samplings
+  for (unsigned iS=0;iS<CaloSampling::HEC0;++iS) {
+    const CaloSampling::CaloSample iSamp=(CaloSampling::CaloSample)iS;
+    if (clus->hasSampling(iSamp)) {
+      const float sampler_energy = clus->eSample(iSamp);
+      const float sampler_eta = clus->etaSample(iSamp);//samplers_eta.at(sampler_id);
+      const float sampler_phi = clus->phiSample(iSamp);//samplers_phi.at(sampler_id);
+      m_EMenergy+=sampler_energy;
+      m_EMenergy_abs+=fabs(sampler_energy);
+      m_EMeta+=sampler_eta*fabs(sampler_energy);
+      m_EMphi+=sampler_phi*fabs(sampler_energy);
     }
   }
 
@@ -865,7 +911,6 @@ void CaloClusterVecMon::fillClusterEMvar(const CaloCluster* /*clus*/){
     m_EMeta=0.;
     m_EMphi=0.;
   }
-  */
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -920,13 +965,25 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
     if(fabs(EtaClus) < 5.0) {
 
       for (int j=0;j<MAX_E;j++) {
-        if(EtClus/GEV > m_Ethresh[j]) {
+        if(EtClus > m_Ethresh[j]*GEV) {
           m_clus_etaphi_Et_thresh[j]->Fill(EtaClus, PhiClus);
           m_etaphi_thresh_avgEt[j]->Fill(EtaClus, PhiClus,EtClus/GEV);
         }
 
-        //if(m_EMet/GEV>m_Ethresh[j])  m_EMclus_etaphi_Et_thresh[j]->Fill(m_EMeta,m_EMphi);
-        //if(m_EMenergy/GEV>m_Ethresh[j])  m_EMclus_etaVsPhi[j]->Fill(m_EMeta,m_EMphi);
+        if(m_EMet>m_Ethresh[j]*GEV)  m_EMclus_etaphi_Et_thresh[j]->Fill(m_EMeta,m_EMphi);
+        if(m_EMenergy>m_Ethresh[j]*GEV)  m_EMclus_etaVsPhi[j]->Fill(m_EMeta,m_EMphi);
+
+         // km add
+          if (EtClus > m_Ethresh[j]*GEV ) {
+           m_clus_eta_Et[j]->Fill(EtaClus);
+           if (fabs(EtaClus)<1.5) {
+            m_clus_phi_Et[j][0]->Fill(PhiClus);
+          }else if (EtaClus > 1.5) {
+            m_clus_phi_Et[j][1]->Fill(PhiClus);
+          }else {
+            m_clus_phi_Et[j][2]->Fill(PhiClus);
+          }
+        }    
 
         if(EClus/GEV > m_Ethresh[j]) {
           m_clus_eta[j]->Fill(EtaClus);
