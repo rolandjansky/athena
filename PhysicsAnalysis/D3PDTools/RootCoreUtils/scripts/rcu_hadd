@@ -11,6 +11,6 @@ shift
 for file in "$@"
 do
     echo $file
-done | root -l -b -q "$ROOTCOREBIN/user_scripts/RootCoreUtils/rcu_hadd.C ($max_files, "\""$output_file"\"")"
+done | root -l -b -q "$ROOTCOREDIR/scripts/load_packages.C" "$ROOTCOREBIN/user_scripts/RootCoreUtils/rcu_hadd.C ($max_files, "\""$output_file"\"")"
 
 test -f "$output_file"
