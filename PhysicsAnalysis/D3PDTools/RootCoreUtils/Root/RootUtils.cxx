@@ -14,7 +14,6 @@
 #include <RootCoreUtils/RootUtils.h>
 
 #include <TDirectory.h>
-#include <TEfficiency.h>
 #include <TH1.h>
 #include <TTree.h>
 #include <RootCoreUtils/Assert.h>
@@ -33,13 +32,6 @@ namespace RCU
     if (hist)
     {
       hist->SetDirectory (directory);
-      return true;
-    }
-
-    TEfficiency *const efficiency = dynamic_cast<TEfficiency*>(object);
-    if (efficiency)
-    {
-      efficiency->SetDirectory (directory);
       return true;
     }
 

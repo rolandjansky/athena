@@ -18,15 +18,9 @@
 
 #include <RootCoreUtils/Global.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#pragma GCC diagnostic ignored "-Wkeyword-macro"
-#include <boost/regex.hpp>
-#pragma GCC diagnostic pop
-
 #include <string>
 
+class TRegexp;
 class TString;
 
 namespace RCU
@@ -44,7 +38,7 @@ namespace RCU
   ///   expression
   /// guarantee: strong
   /// failures: out of memory II
-  bool match_expr (const boost::regex& expr, const std::string& str);
+  bool match_expr (const TRegexp& expr, const std::string& str);
 
 
   /// returns: a string that is the regular expression equivalent of
@@ -53,7 +47,7 @@ namespace RCU
   /// failures: out of memory II
   /// rationale: I am returning a TString instead of an std::string,
   ///   so that this can be passed directly into regexp
-  std::string glob_to_regexp (const std::string& glob);
+  TString glob_to_regexp (const std::string& glob);
 }
 
 #endif
