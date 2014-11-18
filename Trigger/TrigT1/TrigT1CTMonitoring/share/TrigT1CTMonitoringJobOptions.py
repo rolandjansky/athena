@@ -49,7 +49,8 @@ def _getBunchGroupKey(run,lb):
 
 whoami = os.popen('whoami').read().rstrip()
 
-pathToFiles = "/afs/cern.ch/work/c/cohm/L1CT/data/218006_missing_CTP_RIO/"
+pathToFiles = "/afs/cern.ch/user/p/pottgen/212619_LB4_missing_orbit/"
+#pathToFiles = "/afs/cern.ch/work/c/cohm/L1CT/data/218006_missing_CTP_RIO/"
 #pathToFiles = "/afs/cern.ch/work/c/cohm/L1CT/data/213964_LB72_MIOCT_problem/"
 #pathToFiles = "/tmp/cohm/"
 #pathToFiles = "/afs/cern.ch/work/c/cohm/L1CT/data/213964_LB72_MIOCT_problem/"
@@ -74,7 +75,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.Constants import *
 
 MessageSvc = Service( "MessageSvc" )
-MessageSvc.OutputLevel  = WARNING
+MessageSvc.OutputLevel  = DEBUG
 MessageSvc.defaultLimit = 10000000
 
 ## FILEKEY must match that given to THistSvc
@@ -223,7 +224,8 @@ elif checkDQ:
 
 else:
     LVL1ConfigSvc.ConfigSource = "XML"
-    LVL1ConfigSvc.XMLFile = "HLTconfig_Physics_pp_v1_16.1.0.2.xml"
+    #LVL1ConfigSvc.XMLFile = "HLTconfig_Physics_pp_v1_16.1.0.2.xml"
+    LVL1ConfigSvc.XMLMenuFile = "HLTconfig_Physics_pp_v1_16.1.0.2.xml"
     LVL1ConfigSvc.CreateLegacyObjects = True
     svcMgr += LVL1ConfigSvc
     

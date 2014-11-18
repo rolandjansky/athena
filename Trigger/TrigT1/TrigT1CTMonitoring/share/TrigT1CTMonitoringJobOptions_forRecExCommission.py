@@ -43,8 +43,7 @@ from AthenaCommon.AppMgr import ToolSvc as toolSvc
 from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
 
 #-----------ONLINE CODE---------------------
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-if athenaCommonFlags.isOnline:
+if isOnline:
     #from TrigServices.TrigServicesConf import TrigMonTHistSvc
     #THistSvc = TrigMonTHistSvc("THistSvc") 
     #svcMgr += THistSvc 
@@ -170,7 +169,7 @@ if athenaCommonFlags.isOnline:
 
    
 #-----------OFFLINE CODE---------------------
-if not athenaCommonFlags.isOnline:
+if not isOnline:
 
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter()
@@ -250,7 +249,7 @@ if not athenaCommonFlags.isOnline:
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB') 
         #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent") # already added by some other alg
-        conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
+        #conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
         conddb.addFolder('TDAQ', "/TDAQ/RunCtrl/DataTakingMode")
         conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
 

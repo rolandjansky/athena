@@ -11,6 +11,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
+//#include "TrigConfigSvc/ITrigConfigSvc.h"
+//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
@@ -39,6 +41,7 @@ namespace LVL1 {
   class ZdcCTP;
   class BptxCTP;
   class NimCTP;
+  class FrontPanelCTP;
 }
 
 namespace TrigConf {
@@ -59,9 +62,11 @@ namespace TrigT1CTMonitoring {
     DeriveSimulationInputs( const std::string& name, ISvcLocator* pSvcLocator );
     StatusCode DeriveL1CaloInput();
     StatusCode DeriveL1CaloInput_fromSim();
-    StatusCode ReadPitConfigFromCool();
+    //StatusCode ReadPitConfigFromCool();
+    StatusCode ReadInputMappingFromCool();
     StatusCode fillPitMap(int pitNum, std::vector<TrigConf::PIT*> m_pitVector);
-    StatusCode fillStoreGate();
+		StatusCode fillFPIMap(int bitNum);
+    StatusCode fillStoreGate(unsigned int ctpVersionNum);
 
     virtual StatusCode initialize();
     virtual StatusCode beginRun();
@@ -71,13 +76,17 @@ namespace TrigT1CTMonitoring {
     bool do_MuCTPI_input;
     bool do_L1Calo_input;
     bool do_L1Calo_sim;
-    int N_cablebits;
-    int N_slots;
-    int N_connectors;
+		
+    int N_cablebits; //same for CTPIN boards and front panel
+		
+    int N_slots_ctpin;
+    int N_connectors_ctpin;
+		int N_connectors_fp; //front panel
 
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
 
-    int Cables[31][3][4];
+    int CTPINCables[31][3][4]; //[cableBits][slots][connectors] for inputs arriving at CTPIN boards
+    int FPCables[31][3][2]; //[cableBits][connectors][clock] for inputs arriving at CTPCORE front panel (as of runII)
     std::vector<TrigConf::PIT*> m_pitVector;
 
     ~DeriveSimulationInputs();

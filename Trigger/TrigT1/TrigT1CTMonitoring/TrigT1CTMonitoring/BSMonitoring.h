@@ -17,6 +17,7 @@
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
+//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/ChannelSelection.h"
@@ -40,7 +41,6 @@ namespace cool {
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
-  class CTPTriggerThreshold;
 }
 
 namespace ROIB {

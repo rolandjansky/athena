@@ -9,8 +9,7 @@ use  AthenaMonitoring           AthenaMonitoring-*              Control
 use  AtlasCOOL                  AtlasCOOL-*                     External
 use  GaudiInterface             GaudiInterface-*                External
 use  StoreGate                  StoreGate-*                     Control
-#use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConfiguration
-use  TrigConfInterfaces		TrigConfInterfaces-*		Trigger/TrigConfiguration
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
 use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
 private
@@ -25,6 +24,7 @@ use  TrigConfStorage            TrigConfStorage-*               Trigger/TrigConf
 use  TrigT1CTP                  TrigT1CTP-*                     Trigger/TrigT1
 use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+#use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConfiguration
 end_private
 
 apply_pattern dual_use_library  files="*.cxx"

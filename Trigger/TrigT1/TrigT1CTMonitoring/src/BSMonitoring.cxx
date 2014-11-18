@@ -17,6 +17,7 @@
 #include "TrigT1Result/RoIBResult.h"
 
 // TrigConf includes
+//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -1101,14 +1102,14 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
     }
     else errorSummary->Fill(1,0);
     /*
-     * PIT,TBP,TAP,TAV 
+     * TIP,TBP,TAP,TAV 
      */
     short bunchIndex = -storeBunch;
 
-    std::bitset<160> PITfirst;
-    std::bitset<256> TBPfirst;
-    std::bitset<256> TAPfirst;
-    PITfirst.set();
+    std::bitset<512> TIPfirst;
+    std::bitset<512> TBPfirst;
+    std::bitset<512> TAPfirst;
+    TIPfirst.set();
     TBPfirst.set();
     TAPfirst.set();
 
@@ -1124,21 +1125,21 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
           it != BCs.end(); ++it, ++bunchIndex ) {
       bcid = it->getBCID();
 
-      const std::bitset<160> currentPIT(it->getPIT());
+      const std::bitset<512> currentTIP(it->getTIP());
       
-      if (currentPIT.any()) {
-        for ( size_t pitNum = 0; pitNum < currentPIT.size(); ++pitNum ) {
-          if (currentPIT.test(pitNum)) {
-            pitBC->Fill(pitNum, bunchIndex);
-     	    if (PITfirst.test(pitNum)) {
-              PITfirst.set(pitNum,0);
-              pitFirstBC->Fill(pitNum, bunchIndex);
+      if (currentTIP.any()) {
+        for ( size_t tipNum = 0; tipNum < currentTIP.size(); ++tipNum ) {
+          if (currentTIP.test(tipNum)) {
+            pitBC->Fill(tipNum, bunchIndex);
+     	    if (TIPfirst.test(tipNum)) {
+              TIPfirst.set(tipNum,0);
+              pitFirstBC->Fill(tipNum, bunchIndex);
             }
           }
         }
       }
 
-      const std::bitset<256> currentTBP(it->getTBP());
+      const std::bitset<512> currentTBP(it->getTBP());
 
       if (currentTBP.any()) {
         for ( size_t item = 0; item < currentTBP.size(); ++item ) {
@@ -1159,7 +1160,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
         }
       }
 
-      const std::bitset<256> currentTAP(it->getTAP());
+      const std::bitset<512> currentTAP(it->getTAP());
 
       if (currentTAP.any()) {
         for ( size_t item = 0; item < currentTAP.size(); ++item ) {
@@ -1173,7 +1174,7 @@ doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO)
         }
       }
 
-      const std::bitset<256> currentTAV(it->getTAV());
+      const std::bitset<512> currentTAV(it->getTAV());
 
       if (currentTAV.any()) {
         for ( size_t item = 0; item < currentTAV.size(); ++item ) {
@@ -1546,8 +1547,8 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
     }
     }*/
 
-  const std::bitset<256> currentTBP(bunchCrossing.getTBP());
-  const std::bitset<256> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP()); 
+  const std::bitset<512> currentTBP(bunchCrossing.getTBP());
+  const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP()); 
 
   if ( currentTBP != currentTBP_rerun ) {
 
