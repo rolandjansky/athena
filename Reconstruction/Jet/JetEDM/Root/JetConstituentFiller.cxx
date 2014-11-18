@@ -27,12 +27,18 @@ typedef std::vector<const MuonSegment*> MuonSegmentVector;
 typedef IndexedTConstituentUserInfo<MuonSegment> MuonSegmentCUI;
 typedef std::vector<MuonSegmentVector> MuonSegmentMap;
 
+//**********************************************************************
+
 namespace {
   enum ParType { UNDEF, IPART, MUSEG };
 }
 typedef std::vector<ParType> ParTypeVector;
 
-int JetConstituentFiller::extractConstituents(xAOD::Jet& jet, const fastjet::PseudoJet* ppj2) {
+//**********************************************************************
+
+int JetConstituentFiller::
+extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
+                    const fastjet::PseudoJet* ppj2) {
   const fastjet::PseudoJet* ppseudojet = jet.getPseudoJet();
   if ( ppseudojet == 0 ) {
     ppseudojet = ppj2;
@@ -106,7 +112,18 @@ int JetConstituentFiller::extractConstituents(xAOD::Jet& jet, const fastjet::Pse
   }
   
   // Set ghost associated particles:
-  for ( size_t i=1; i<out.size(); ++i){
+  for ( size_t i=1; i<out.size(); ++i ) {
+    if ( pghostlabs != nullptr ) {
+      const NameList& ghostlabs = *pghostlabs;
+      if ( find(ghostlabs.begin(), ghostlabs.end(), pli->label(i)) == ghostlabs.end() ) {
+        nbad += out[i].size();
+        continue;
+      }
+    } else {
+      if ( out[i].size()==0 && outms[i].size()==0 ) {
+        continue;
+      }
+    }
     ParType& partype = partypes[i];
     std::string cname = pli->label(i) + "Count";
     std::string ptname = pli->label(i) + "Pt";
@@ -128,6 +145,7 @@ int JetConstituentFiller::extractConstituents(xAOD::Jet& jet, const fastjet::Pse
   return nbad;
 }
 
+//**********************************************************************
 
 PseudoJetVector JetConstituentFiller::constituentPseudoJets(const xAOD::Jet& jet, bool ignoreGhosts){
 
@@ -158,7 +176,5 @@ PseudoJetVector JetConstituentFiller::constituentPseudoJets(const xAOD::Jet& jet
   }
   return constituents;
 }
-
-
-
+//**********************************************************************
 
