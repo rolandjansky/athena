@@ -573,7 +573,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>EgammaStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs
+			tct_recotrf.py --jobnum=2 --trigStream=Egamma --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec 'rec.doTrigger=False'
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -703,7 +703,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>MuonsStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs
+			tct_recotrf.py --jobnum=2 --trigStream=Muons --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec 'rec.doTrigger=False'
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -832,7 +832,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>JetTauEtmissStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs
+			tct_recotrf.py --jobnum=2 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec 'rec.doTrigger=False'
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -961,7 +961,7 @@
 		      <doc>RecoTrf with beamType=collisions</doc>
 		      <jobTransformJobName>MinBiasStream_Run201489_Pileup_20_Collisions_withoutHIST</jobTransformJobName>
 		      <jobTransformCmd>               
-			tct_recotrf.py --jobnum=2 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs
+			tct_recotrf.py --jobnum=2 --trigStream=MinBias --nfiles=2 --maxEvents=375 --runnum=00201489 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00201489/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-GEO-20-00-02 --lumiblock=9,10 --dropHIST --dropDESDs --dropDRAWs --dropNTUPs --preExec 'rec.doTrigger=False'
 		      </jobTransformCmd> 
 		      <group>TCTTransform</group>   
 		      <queue>medium</queue>
@@ -1905,6 +1905,108 @@
 
             </chainElement>
 
+            <!-- Reconstruction job, using latest castor collections -->
+            <chainElement>
+                
+              <jobTransform userJobId="2014_M-week_reco">
+                <doc>RecoTrf</doc>
+                <jobTransformJobName>2014_M-week_reco</jobTransformJobName>
+                <jobTransformCmd>
+                  tct_recotrf.py --jobnum=0 --trigStream=express --runnum=00242651 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00242651/express_express --lumiblock=100 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");InDetFlags.ForceCoraCool=True;'"
+                </jobTransformCmd>
+                <group>TCTTransform</group>
+                <queue>medium</queue>
+                <batchWallTime>420</batchWallTime>
+                <castorSvcClass>t0atlas</castorSvcClass>
+              
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>FileGrepper</testname>
+                  <arg>
+                    <argname>inputFile</argname>
+                    <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                  </arg>
+                  <arg>
+                    <argname>outputFile</argname>
+                    <argvalue>2014_M-week_reco.summary.txt</argvalue> 
+                  </arg>
+                  <arg>
+                    <argname>searchList</argname>
+                    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                  </arg>
+                </test>
+
+              </jobTransform>
+	    </chainElement>
+
+            <!-- Reconstruction job, using latest castor collections -->
+            <chainElement>
+                
+              <jobTransform userJobId="2014_M-week_reco_noTrigger">
+                <doc>RecoTrf</doc>
+                <jobTransformJobName>2014_M-week_reco_noTrigger</jobTransformJobName>
+                <jobTransformCmd>
+                  tct_recotrf.py --jobnum=0 --trigStream=express --runnum=00242651 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00242651/express_express --lumiblock=100 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\");InDetFlags.ForceCoraCool=True;'"
+                </jobTransformCmd>
+                <group>TCTTransform</group>
+                <queue>medium</queue>
+                <batchWallTime>420</batchWallTime>
+                <castorSvcClass>t0atlas</castorSvcClass>
+              
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>FileGrepper</testname>
+                  <arg>
+                    <argname>inputFile</argname>
+                    <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                  </arg>
+                  <arg>
+                    <argname>outputFile</argname>
+                    <argvalue>2014_M-week_reco_noTrigger.summary.txt</argvalue> 
+                  </arg>
+                  <arg>
+                    <argname>searchList</argname>
+                    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                  </arg>
+                </test>
+
+              </jobTransform>
+	    </chainElement>
+
+            <!-- Reconstruction job, using latest castor collections -->
+            <chainElement>
+                
+              <jobTransform userJobId="2012_reco_wTrigger">
+                <doc>RecoTrf</doc>
+                <jobTransformJobName>2012_reco_wTrigger</jobTransformJobName>
+                <jobTransformCmd>
+                  tct_recotrf.py --jobnum=0 --trigStream=Single_Stream --runnum=00212967 --nfiles=1 --maxEvents=100 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00212967/Single_Stream --lumiblock=291 --autoConfiguration=everything --conditionsTag=COMCOND-ES1PA-006-05 --geometryVersion=ATLAS-GEO-20-00-02 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doBTagging=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;globalflags.DatabaseInstance=\"COMP200\";'"
+                </jobTransformCmd>
+                <group>TCTTransform</group>
+                <queue>medium</queue>
+                <batchWallTime>420</batchWallTime>
+                <castorSvcClass>t0atlas</castorSvcClass>
+              
+                <test>
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>FileGrepper</testname>
+                  <arg>
+                    <argname>inputFile</argname>
+                    <argvalue>log.*</argvalue> <!-- put this one if you use job log -->
+                  </arg>
+                  <arg>
+                    <argname>outputFile</argname>
+                    <argvalue>2012_reco_wTrigger.summary.txt</argvalue> 
+                  </arg>
+                  <arg>
+                    <argname>searchList</argname>
+                    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                  </arg>
+                </test>
+
+              </jobTransform>
+	    </chainElement>
+
             <sequential> <!-- DigitizationTest, Reconstruct_ttbar_RDO_Collisions -->
               <!-- Run digitization on a fixed HITS file -->
 	      <chainElement>
@@ -1933,7 +2035,7 @@
 		  <doc>Reconstruction job from MC RDO</doc>
 	  	  <jobTransformJobName>Reconstruct_ttbar_RDO_Collisions</jobTransformJobName>
 		  <jobTransformCmd>		  
-                    Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE
+                    Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE --preExec 'rec.doTrigger=False'
 		  </jobTransformCmd> 
 		  <group>TCTTransform</group>	
 	          <chaindataset_info>
