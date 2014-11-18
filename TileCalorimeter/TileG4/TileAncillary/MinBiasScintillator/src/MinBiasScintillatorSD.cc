@@ -47,9 +47,11 @@ static SensitiveDetectorEntryT<MinBiasScintillatorSD> minbiasscintillatorSD("Min
 
 MinBiasScintillatorSD::MinBiasScintillatorSD(G4String name)
   : FadsSensitiveDetector(name),
+    m_hitsCollection(0),
     m_msg("MinBiasScintillatorSD"),
     m_containerName("MBTSHits"),
-    m_iamowner(true)
+    m_iamowner(true),
+    m_hit()
 {  
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   StatusCode status = svcLocator->service("StoreGateSvc", m_sgSvc);
