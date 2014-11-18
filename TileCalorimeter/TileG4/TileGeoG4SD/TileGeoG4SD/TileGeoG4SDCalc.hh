@@ -24,6 +24,7 @@
 #include "CaloIdentifier/TileTBID.h"
 
 #include <vector>
+#include <memory>
 
 using namespace FADS;
 
@@ -100,6 +101,9 @@ public:
     bool   m_doCalibHitParticleID;
 
 private:
+    // Private copy-constructor
+    TileGeoG4SDCalc& operator=( const TileGeoG4SDCalc& ) = delete;
+    TileGeoG4SDCalc ( const TileGeoG4SDCalc& ) = delete;
     IMessageSvc* m_msgSvc;
     MsgStream*   m_log;
 
@@ -133,7 +137,7 @@ private:
     bool   m_doTileRow;
 
     /** @brief Structure holding the attenuation lengths */
-    TileRow* m_row;
+    std::unique_ptr<TileRow> m_row;
 
     /** @brief true if time of flight correction is applied
         for particles coming from ATLAS center */

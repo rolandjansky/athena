@@ -23,6 +23,7 @@
 #include "EventContainers/SelectAllObject.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CxxUtils/make_unique.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -47,6 +48,7 @@ TileFCSmStepToTileHitVec::TileFCSmStepToTileHitVec(const std::string& name, ISvc
     , m_tileID(0)
     , m_tileInfo(0)
     , m_tileMgr(0)
+    , m_calc(0)
     , m_UshapeType(0)
     , m_deltaT(0.5 * Gaudi::Units::nanosecond)
     , m_allHits(0)
@@ -119,7 +121,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
     const double size_correction = 2.75 + 1.5/2.;
 
     const ISF_FCS_Parametrization::FCS_StepInfoCollection* inCollect;
-    TileHitVector* FCS_hits = new TileHitVector();
+    std::unique_ptr<TileHitVector> FCS_hits = CxxUtils::make_unique<TileHitVector>();
 
     // Get FCS_StepInfo from FCS_StepInfoCollection
     if ( evtStore()->retrieve(inCollect,m_FCS_StepInfo).isFailure() ) {
@@ -330,7 +332,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
     }//retrieve(inCollect,m_FCS_StepInfo).isTrue()
 
     // Register the set of TileHits to the event store
-    CHECK( evtStore()->record(FCS_hits, m_hitVec, false ) );
+    CHECK( evtStore()->record(std::move(FCS_hits), m_hitVec, false ) );
 
     ATH_MSG_DEBUG( "Execution completed,  nHit=" << nHit << "  sum_size=" << sum_size << "  Etot=" << Etot );
     // ATH_MSG_INFO( "Execution completed,  nHit=" << nHit << "  sum_size=" << sum_size << "  Etot=" << Etot );

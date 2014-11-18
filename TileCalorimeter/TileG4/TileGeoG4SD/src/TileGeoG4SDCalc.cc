@@ -21,6 +21,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
@@ -276,7 +277,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(bool is_ctb)
         std::string ratioFileName = "TileOpticalRatio.dat";
         std::string attFile   = PathResolver::find_file(attFileName,   "DATAPATH");
         std::string ratioFile = PathResolver::find_file(ratioFileName, "DATAPATH");
-        m_row = new TileRow(attFile, ratioFile); //holds attenuation lengths for tiles
+        m_row = CxxUtils::make_unique<TileRow>(attFile, ratioFile); //holds attenuation lengths for tiles
         (*m_log) << MSG::INFO << "Using Optical Ratio = " << m_row->OpticalRatio[0].at(0) << endreq;
     }
 

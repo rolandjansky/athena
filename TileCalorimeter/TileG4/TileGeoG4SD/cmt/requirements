@@ -19,6 +19,7 @@ use GaudiInterface         GaudiInterface-*         External
 use AtlasCLHEP             AtlasCLHEP-*             External
 use StoreGate              StoreGate-*              Control
 use AthenaKernel           AthenaKernel-*           Control
+use CxxUtils               CxxUtils-*               Control
 use EventContainers        EventContainers-*        Event
 
 use PathResolver           PathResolver-*           Tools
