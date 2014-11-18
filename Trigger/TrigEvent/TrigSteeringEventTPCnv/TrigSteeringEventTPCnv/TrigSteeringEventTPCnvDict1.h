@@ -21,6 +21,11 @@
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p2.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p2.h"
 
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollection_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p3.h"
+
 
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCollection_tlp1.h"
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCollectionCnv_tlp1.h"
@@ -48,6 +53,7 @@ struct dummy_TrigSteeringEventTPCnvDict1
 
   std::vector<TrigRoiDescriptor_p1> 	      m_dummyTrigRoiDescriptor_p1;
   std::vector<TrigRoiDescriptor_p2> 	      m_dummyTrigRoiDescriptor_p2;
+  std::vector<TrigRoiDescriptor_p3> 	      m_dummyTrigRoiDescriptor_p3;
 
 
   std::vector<TrigOperationalInfo_p1>         m_dummyTrigOperationalInfo;

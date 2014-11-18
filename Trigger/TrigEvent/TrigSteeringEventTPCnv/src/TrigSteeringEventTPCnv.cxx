@@ -22,6 +22,11 @@
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p2.h"
 #include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p2.h"
 
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollectionCnv_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCollection_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptor_p3.h"
+#include "TrigSteeringEventTPCnv/TrigRoiDescriptorCnv_p3.h"
+
 
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCollection_tlp1.h"
 #include "TrigSteeringEventTPCnv/TrigOperationalInfoCollectionCnv_tlp1.h"
@@ -62,6 +67,11 @@ DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCnv_p1,
 DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCnv_p2,
                       TrigRoiDescriptor,
                       TrigRoiDescriptor_p2,
+                      Athena::TPCnvVers::Old)
+
+DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCnv_p3,
+                      TrigRoiDescriptor,
+                      TrigRoiDescriptor_p3,
                       Athena::TPCnvVers::Current)
                       
 DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCollectionCnv_tlp1,
@@ -72,6 +82,11 @@ DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCollectionCnv_tlp1,
 DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCollectionCnv_p2,
                       TrigRoiDescriptorCollection,
                       TrigRoiDescriptorCollection_p2,
+                      Athena::TPCnvVers::Old)
+
+DECLARE_TPCNV_FACTORY(TrigRoiDescriptorCollectionCnv_p3,
+                      TrigRoiDescriptorCollection,
+                      TrigRoiDescriptorCollection_p3,
                       Athena::TPCnvVers::Current)
                       
 DECLARE_TPCNV_FACTORY(TrigPassBitsCnv_p1,

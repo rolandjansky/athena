@@ -8,6 +8,8 @@
   <class name="std::vector<TrigRoiDescriptorCollection_p1>" /> <!--Fab, is this thing needed?  we never have such nested object.-->  
 
   <class name="TrigRoiDescriptorCollection_p2" id="D1A44F23-416C-4AB6-BFFA-2EA280565D4E"/>
+  <class name="TrigRoiDescriptorCollection_p3" id="615418EF-EEFB-4E87-A396-7313E67C547E"/>
+
 
 
 <!-- TrigRoiDescriptor -->
@@ -16,6 +18,9 @@
 
   <class name="TrigRoiDescriptor_p2"  id="D53CE59B-99A8-4B25-87D5-C08D1AF4BA8A" />
   <class name="std::vector<TrigRoiDescriptor_p2>" />
+
+  <class name="TrigRoiDescriptor_p3"  id="28F5BCC8-1F3D-47B1-8286-087F1B298F0A" />
+  <class name="std::vector<TrigRoiDescriptor_p3>" />
 
 <!-- TrigPassBitsCollection -->
   <class name="TrigPassBitsCollection_p1" id="E6E4F396-D696-4C1C-A0C4-7766E0AF9BB5"/>
