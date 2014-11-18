@@ -5,6 +5,23 @@
 
 #include "LArRawConditions/LArFecLvTempDcs.h"
 
+
+LArFecLvTempDcsOcem::LArFecLvTempDcsOcem() :
+  m_powerOn(false),  m_powerOut(false), m_interlock(false), 
+  m_overCurrent(false), m_overTemperature(false), m_remote(false),
+  m_voltage(0),	m_current(0),m_on(false), m_out(false),m_state(0)
+{}
+
+LArFecLvTempDcsLvps::LArFecLvTempDcsLvps() :
+  m_AVG(false),	m_AMG(false),m_PSOT(false),m_PSOTOR(false),m_temperature(-999) {}
+
+
+
+LArFecLvTempDcs::LArFecLvTempDcs() :
+  m_ELMBStat(false),m_febMin(-999),m_febMax(-999)
+{}
+
+
 void
 LArFecLvTempDcsOcem::print(MsgStream& log) const{
 	log << endreq << " OCEM variables : "

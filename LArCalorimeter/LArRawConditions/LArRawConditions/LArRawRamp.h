@@ -37,8 +37,8 @@ class LArRawRamp
     std::vector<float> RMS;
     uint16_t NTriggers;
     bool operator<(const RAMPPOINT_t& a) const
-     {return DAC<a.DAC;}  //to allow sorting of the vector
-    RAMPPOINT_t() : NTriggers(0) {};
+    {return DAC<a.DAC;}  //to allow sorting of the vector
+  RAMPPOINT_t() : ADC(0), DAC(0), iMaxSample(0),TimeMax(0),NTriggers(0) {};
   };
   
   LArRawRamp(HWIdentifier id, CaloGain::CaloGain gain);

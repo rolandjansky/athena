@@ -16,9 +16,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArShapeP*"/>
-  <class pattern="std::vector<LArShapeP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArShapeP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArShapeP> > >"/>
+  <class name="std::vector<LArShapeP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArShapeP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArShapeP> > >"/>
   <class pattern="*iterator<const*LArShapeP*"/>
 
   <!-- LArTdriftP -->
@@ -29,9 +29,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArTdriftP*"/>
-  <class pattern="std::vector<LArTdriftP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArTdriftP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArTdriftP> > >"/>
+  <class name="std::vector<LArTdriftP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArTdriftP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArTdriftP> > >"/>
   <class pattern="*iterator<const*LArTdriftP*"/>
 
 
@@ -43,9 +43,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArRinjP*"/>
-  <class pattern="std::vector<LArRinjP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArRinjP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArRinjP> > >"/>
+  <class name="std::vector<LArRinjP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArRinjP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArRinjP> > >"/>
   <class pattern="*iterator<const*LArRinjP*"/>
 
   <!-- LArCableLengthP -->
@@ -56,9 +56,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArCableLengthP*"/>
-  <class pattern="std::vector<LArCableLengthP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArCableLengthP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArCableLengthP> > >"/>
+  <class name="std::vector<LArCableLengthP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArCableLengthP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArCableLengthP> > >"/>
   <class pattern="*iterator<const*LArCableLengthP*"/>
 
   <!-- LArCableAttenuationP -->
@@ -69,9 +69,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArCableAttenuationP*"/>
-  <class pattern="std::vector<LArCableAttenuationP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArCableAttenuationP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArCableAttenuationP> > >"/>
+  <class name="std::vector<LArCableAttenuationP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArCableAttenuationP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArCableAttenuationP> > >"/>
   <class pattern="*iterator<const*LArCableAttenuationP*"/>
 
   <!-- LArTshaperP -->
@@ -82,9 +82,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArTshaperP*"/>
-  <class pattern="std::vector<LArTshaperP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArTshaperP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArTshaperP> > >"/>
+  <class name="std::vector<LArTshaperP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArTshaperP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArTshaperP> > >"/>
   <class pattern="*iterator<const*LArTshaperP*"/>
 
   <!-- LArOFCBinP -->
@@ -95,9 +95,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArOFCBinP*"/>
-  <class pattern="std::vector<LArOFCBinP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArOFCBinP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArOFCBinP> > >"/>
+  <class name="std::vector<LArOFCBinP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArOFCBinP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArOFCBinP> > >"/>
   <class pattern="*iterator<const*LArOFCBinP*"/>
   
   <!-- LArEMEC_CphiP -->
@@ -108,9 +108,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArEMEC_CphiP*"/>
-  <class pattern="std::vector<LArEMEC_CphiP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArEMEC_CphiP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArEMEC_CphiP> > >"/>
+  <class name="std::vector<LArEMEC_CphiP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArEMEC_CphiP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_CphiP> > >"/>
   <class pattern="*iterator<const*LArEMEC_CphiP*"/>
   
   <!-- LArEMEC_HValphaP -->
@@ -121,9 +121,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArEMEC_HValphaP*"/>
-  <class pattern="std::vector<LArEMEC_HValphaP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArEMEC_HValphaP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HValphaP> > >"/>
+  <class name="std::vector<LArEMEC_HValphaP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArEMEC_HValphaP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HValphaP> > >"/>
   <class pattern="*iterator<const*LArEMEC_HValphaP*"/>
 
   <!-- LArEMEC_HVbetaP -->
@@ -134,9 +134,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArEMEC_HVbetaP*"/>
-  <class pattern="std::vector<LArEMEC_HVbetaP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArEMEC_HVbetaP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HVbetaP> > >"/>
+  <class name="std::vector<LArEMEC_HVbetaP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArEMEC_HVbetaP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArEMEC_HVbetaP> > >"/>
   <class pattern="*iterator<const*LArEMEC_HVbetaP*"/>
 
 
@@ -151,9 +151,9 @@
   <class name="std::vector<LArCaliWave>" />
   <!-- <class name="std::vector<std::vector<LArCaliWaveVec> >" /> -->
   <class pattern="std::pair<unsigned*LArCaliWaveVec*"/>
-  <class pattern="std::vector<LArCaliWaveVec>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArCaliWaveVec> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArCaliWaveVec> > >"/>
+  <class name="std::vector<LArCaliWaveVec>"/>
+  <class name="std::vector<std::pair<unsigned int, LArCaliWaveVec> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArCaliWaveVec> > >"/>
   <class pattern="*iterator<const*LArCaliWaveVec*"/>
 
   <!-- LArPhysWave -->
@@ -165,9 +165,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArPhysWave*"/>
-  <class pattern="std::vector<LArPhysWave>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArPhysWave> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArPhysWave> > >"/>
+  <class name="std::vector<LArPhysWave>"/>
+  <class name="std::vector<std::pair<unsigned int, LArPhysWave> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArPhysWave> > >"/>
   <class pattern="*iterator<const*LArPhysWave*"/>
 
 
@@ -261,7 +261,10 @@
     <class pattern="*_Base*"/>
     <class pattern="*reverse_iterator*"/>
     <class pattern="*::iterator*"/>
-    <class pattern="*allocator*"/>
+    <class pattern="*_Miter_base*"/>
+    <class pattern="*_Niter_base*"/>
+    <class pattern="*_Iter_base*"/>
+    <class pattern="std::allocator*"/>
 
   </exclusion>
 

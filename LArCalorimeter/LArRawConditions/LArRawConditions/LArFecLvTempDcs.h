@@ -26,7 +26,7 @@ DATE:           June 14th, 2006
 
 class LArFecLvTempDcsOcem {
    public:
-	LArFecLvTempDcsOcem(){};
+        LArFecLvTempDcsOcem();
 	~LArFecLvTempDcsOcem(){};
 	void print(MsgStream& log) const;
 	// Set methods
@@ -161,7 +161,7 @@ class LArFecLvTempDcsVolts {
 
 class LArFecLvTempDcsLvps {
    public:
-	LArFecLvTempDcsLvps(){};
+	LArFecLvTempDcsLvps();
 	~LArFecLvTempDcsLvps(){};
 	void print( MsgStream& log ) const;
 	// Set methods
@@ -217,7 +217,7 @@ class LArFecLvTempDcs {
      // m_DCS->getOCEM().voltage();
      // Constructor (to be defined in cxx file)
    public:
-     LArFecLvTempDcs() {};
+     LArFecLvTempDcs();
      ~LArFecLvTempDcs(){};
      void print( MsgStream& log ) const;
      // OCEM (280V Power Supply)

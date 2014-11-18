@@ -40,9 +40,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArAutoCorrP*"/>
-  <class pattern="std::vector<LArAutoCorrP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArAutoCorrP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArAutoCorrP> > >"/>
+  <class name="std::vector<LArAutoCorrP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArAutoCorrP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArAutoCorrP> > >"/>
   <class pattern="*iterator<const*LArAutoCorrP*"/>
 
   <!-- LArCaliPulseParamsP -->
@@ -61,9 +61,9 @@
 
 
   <class pattern="std::pair<unsigned*LArCaliPulseParamsP*"/>
-  <class pattern="std::vector<LArCaliPulseParamsP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArCaliPulseParamsP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArCaliPulseParamsP> > >"/>
+  <class name="std::vector<LArCaliPulseParamsP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArCaliPulseParamsP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArCaliPulseParamsP> > >"/>
   <class pattern="*iterator<const*LArCaliPulseParamsP*"/>
 
   <!-- LArDAC2uAP -->
@@ -75,9 +75,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArDAC2uAP*"/>
-  <class pattern="std::vector<LArDAC2uAP>"/>
-  <class pattern="std::vector<std::pair<unsigned int,LArDAC2uAP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int,std::vector<LArDAC2uAP> > >"/>
+  <class name="std::vector<LArDAC2uAP>"/>
+  <class name="std::vector<std::pair<unsigned int,LArDAC2uAP> >"/>
+  <class name="std::vector<std::pair<unsigned int,std::vector<LArDAC2uAP> > >"/>
   <class pattern="*iterator<const*LArDAC2uAP*"/>
 
 
@@ -89,9 +89,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArDetCellParamsP*"/>
-  <class pattern="std::vector<LArDetCellParamsP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArDetCellParamsP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArDetCellParamsP> > >"/>
+  <class name="std::vector<LArDetCellParamsP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArDetCellParamsP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArDetCellParamsP> > >"/>
   <class pattern="*iterator<const*LArDetCellParamsP*"/>
 
   <!-- LArfSamplP -->
@@ -103,9 +103,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArfSamplP*"/>
-  <class pattern="std::vector<LArfSamplP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArfSamplP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArfSamplP> > >"/>
+  <class name="std::vector<LArfSamplP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArfSamplP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArfSamplP> > >"/>
   <class pattern="*iterator<const*LArfSamplP*"/>
 
   <!-- LArH6OscillationP -->
@@ -116,9 +116,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArH6OscillationP*"/>
-  <class pattern="std::vector<LArH6OscillationP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArH6OscillationP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector>LArH6OscillationP> > >"/>
+  <class name="std::vector<LArH6OscillationP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArH6OscillationP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArH6OscillationP> > >"/>
   <class pattern="*iterator<const*LArH6OscillationP*"/>
 
   <!-- LArHVScaleCorrComplete -->
@@ -128,9 +128,9 @@
   <class name="LArSingleFloatP" />
   <class name="LArConditionsSubset<LArSingleFloatP>" />
   <class pattern="std::pair<unsigned*LArSingleFloatP*"/>
-  <class pattern="std::vector<LArSingleFloatP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArSingleFloatP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArSingleFloatP> > >"/>
+  <class name="std::vector<LArSingleFloatP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArSingleFloatP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArSingleFloatP> > >"/>
   <class pattern="*iterator<const*LArSingleFloatP*"/>
 
 
@@ -143,9 +143,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArMinBiasP*"/>
-  <class pattern="std::vector<LArMinBiasP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArMinBiasP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMinBiasP> > >"/>
+  <class name="std::vector<LArMinBiasP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArMinBiasP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArMinBiasP> > >"/>
   <class pattern="*iterator<const*LArMinBiasP*"/>
 
   <!-- LArMinBiasAverageP -->
@@ -158,9 +158,9 @@
 
 
   <class pattern="std::pair<unsigned*LArMinBiasAverageP*"/>
-  <class pattern="std::vector<LArMinBiasAverageP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArMinBiasAverageP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMinBiasAverageP> > >"/>
+  <class name="std::vector<LArMinBiasAverageP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArMinBiasAverageP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArMinBiasAverageP> > >"/>
   <class pattern="*iterator<const*LArMinBiasAverageP*"/>
 
   <!-- LArMphysOverMcalP -->
@@ -173,9 +173,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArMphysOverMcalP*"/>
-  <class pattern="std::vector<LArMphysOverMcalP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArMphysOverMcalP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArMphysOverMcalP> > >"/>
+  <class name="std::vector<LArMphysOverMcalP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArMphysOverMcalP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArMphysOverMcalP> > >"/>
   <class pattern="*iterator<const*LArMphysOverMcalP*"/>
 
   <!-- LArNoiseP -->
@@ -187,9 +187,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArNoiseP*"/>
-  <class pattern="std::vector<LArNoiseP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArNoiseP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArNoiseP> > >"/>
+  <class name="std::vector<LArNoiseP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArNoiseP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArNoiseP> > >"/>
   <class pattern="*iterator<const*LArNoiseP*"/>
 
 
@@ -208,9 +208,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArOFCP*"/>
-  <class pattern="std::vector<LArOFCP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArOFCP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArOFCP> > >"/>
+  <class name="std::vector<LArOFCP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArOFCP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArOFCP> > >"/>
   <class pattern="*iterator<const*LArOFCP*"/>
   
 
@@ -225,9 +225,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArPedestalP*"/>
-  <class pattern="std::vector<LArPedestalP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArPedestalP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArPedestalP> > >"/>
+  <class name="std::vector<LArPedestalP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArPedestalP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArPedestalP> > >"/>
   <class pattern="*iterator<const*LArPedestalP*"/> 
 
 
@@ -240,9 +240,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LArPhysCaliTdiffP*"/>
-  <class pattern="std::vector<LArPhysCaliTdiffP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArPhysCaliTdiffP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArPhysCaliTdiffP> > >"/>
+  <class name="std::vector<LArPhysCaliTdiffP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArPhysCaliTdiffP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArPhysCaliTdiffP> > >"/>
   <class pattern="*iterator<const*LArPhysCaliTdiffP*"/>
 
   <!-- LArRampP -->
@@ -255,9 +255,9 @@
     <field name="m_subsetMap" transient="true" />
   </class>
   <class pattern="std::pair<unsigned*LArRampP*"/>
-  <class pattern="std::vector<LArRampP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LArRampP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LArRampP> > >"/>
+  <class name="std::vector<LArRampP>"/>
+  <class name="std::vector<std::pair<unsigned int, LArRampP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LArRampP> > >"/>
   <class pattern="*iterator<const*LArRampP*"/>
 
 
@@ -270,9 +270,9 @@
   </class>
 
   <class pattern="std::pair<unsigned*LAruA2MeVP*"/>
-  <class pattern="std::vector<LAruA2MeVP>"/>
-  <class pattern="std::vector<std::pair<unsigned int, LAruA2MeVP> >"/>
-  <class pattern="std::vector<std::pair<unsigned int, std::vector<LAruA2MeVP> > >"/>
+  <class name="std::vector<LAruA2MeVP>"/>
+  <class name="std::vector<std::pair<unsigned int, LAruA2MeVP> >"/>
+  <class name="std::vector<std::pair<unsigned int, std::vector<LAruA2MeVP> > >"/>
   <class pattern="*iterator<const*LAruA2MeVP*"/>
 
 
@@ -317,7 +317,10 @@
     <class pattern="*_Base*"/>
     <class pattern="*reverse_iterator*"/>
     <class pattern="*::iterator*"/>
-    <class pattern="*allocator*"/>
+    <class pattern="*_Miter_base*"/>
+    <class pattern="*_Niter_base*"/>
+    <class pattern="*_Iter_base*"/>
+    <class pattern="std::allocator*"/>
 
   </exclusion>
 </lcgdict>

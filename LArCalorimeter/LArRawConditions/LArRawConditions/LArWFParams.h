@@ -130,6 +130,7 @@ LArWFParams::LArWFParams(double tcal, double fstep, double tdrift, double omega0
 			 double taur, double tshaper, double ampli, 
 			 double tdiff)
 	:
+        m_flag(0),
 	m_Tcal(tcal), 
 	m_Fstep(fstep), 
 	m_Tdrift(tdrift), 
@@ -161,6 +162,7 @@ inline
 LArWFParams::LArWFParams(double tcal, double fstep, double tdrift, double omega0, 
 			 double taur, double tshaper, double ampli)
 	:
+        m_flag(0),
 	m_Tcal(tcal), 
 	m_Fstep(fstep), 
 	m_Tdrift(tdrift), 
@@ -168,6 +170,7 @@ LArWFParams::LArWFParams(double tcal, double fstep, double tdrift, double omega0
 	m_Taur(taur), 
 	m_Tshaper(tshaper), 
 	m_Amplitude(ampli), 
+        m_Tdiff(0),
 	m_isValid(true) {}
 
 inline
