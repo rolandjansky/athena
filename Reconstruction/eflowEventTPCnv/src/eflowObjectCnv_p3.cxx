@@ -48,11 +48,9 @@ void eflowObjectCnv_p3::persToTrans( const eflowObject_p3 *persObj, eflowObject 
   int i = 0;
 
   for (; firstTrack != lastTrack; firstTrack++){
-    const Rec::TrackParticleContainer* trackContainer = (*firstTrack).getDataPtr();
     ElementLink<Rec::TrackParticleContainer> thisTrackElementLink = *firstTrack;
     if (thisTrackElementLink.isValid()){
-      const Rec::TrackParticle* track = **firstTrack;
-      transObj->m_eflowTrack.addElement(trackContainer,track);
+      transObj->m_eflowTrack.addElement(thisTrackElementLink);
     }
     else if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "This Track element link is not valid" << endreq;
     i++;
