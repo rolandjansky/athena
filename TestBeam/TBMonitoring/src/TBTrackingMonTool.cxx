@@ -5,7 +5,6 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBTrackingMonTool.h"
@@ -43,20 +42,8 @@ TBTrackingMonTool::~TBTrackingMonTool()
 StatusCode TBTrackingMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
   if(m_monitor_track == false){
-    log << MSG::INFO << name() << " Not monitoring tracks " << endreq;
-  }
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
+    ATH_MSG_INFO ( name() << " Not monitoring tracks " );
   }
 
   //set to true whitin bookHist() 
@@ -79,14 +66,7 @@ StatusCode TBTrackingMonTool::bookHists()
 StatusCode TBTrackingMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-#ifndef NDEBUG
-  log << MSG::INFO << "in mybookHists()" << endreq;
-#endif
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in mybookHists()" );
    
   // Track histos ----------------------------------
   if(m_monitor_track){
@@ -114,16 +94,8 @@ StatusCode TBTrackingMonTool::mybookHists()
      */
    }
 
-  log << MSG::DEBUG << "histo path: " << m_path + "/BeamDetectors/" << endreq;
+  ATH_MSG_DEBUG ( "histo path: " << m_path + "/BeamDetectors/" );
 
-  log << MSG::INFO << " Monitoring Tracks \t  " ;
-  if(m_monitor_track) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-
-  log << MSG::INFO << " testTool \t  " ;
-  if(m_testTool) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  
   SetBookStatus(true);
 
   return StatusCode::SUCCESS;
@@ -133,12 +105,7 @@ StatusCode TBTrackingMonTool::mybookHists()
 StatusCode TBTrackingMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-#ifndef NDEBUG
-  log << MSG::DEBUG << "in fillHists()" << endreq;
-#endif
+  ATH_MSG_DEBUG ( "in fillHists()" );
 
   // Fill some tacking objects for testing
   if(m_testTool){
@@ -149,15 +116,13 @@ StatusCode TBTrackingMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   //  First, the track if we monitor track -----------------
   TBTrack * track=NULL;
   if(m_monitor_track){
     //Retrieve TBTrack collection from SG
-    sc = m_StoreGate->retrieve(track, "Track");	
+    StatusCode sc = evtStore()->retrieve(track, "Track");	
     if (sc.isFailure()){
-      log << MSG::DEBUG << "TBTrackingMonTool: Retrieval of Track failed" << endreq;
+      ATH_MSG_DEBUG ( "TBTrackingMonTool: Retrieval of Track failed" );
     }else {	          
       m_histo_track_chi2->fill(track->getChi2_global(),1.0);
       m_histo_track_Uslope->fill(track->getUslope(),1.0);
@@ -178,8 +143,4 @@ return StatusCode::SUCCESS;
 void TBTrackingMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
-  // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
- 
 }

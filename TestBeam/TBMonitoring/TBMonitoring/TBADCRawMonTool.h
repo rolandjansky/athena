@@ -4,10 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TBTADCRAWMONTOOL_H
-#define TBADCRAWMONTOOL_H
+#ifndef TBMONITORING_TBADCRAWMONTOOL_H
+#define TBMONITORING_TBADCRAWMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -50,9 +49,6 @@ class TBADCRawMonTool: public MonitorToolBase
 
  private:
 
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   std::string m_path;
 
   //Declared properties
@@ -71,4 +67,4 @@ class TBADCRawMonTool: public MonitorToolBase
 };
 
 
-#endif
+#endif // not TBMONITORING_TBADCRAWMONTOOL_H

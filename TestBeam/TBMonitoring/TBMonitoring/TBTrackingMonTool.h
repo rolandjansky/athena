@@ -7,7 +7,6 @@
 #ifndef TBTRACKINGMONTOOL_H
 #define TBTRACKINGMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -15,7 +14,6 @@
 #include "AIDA/IHistogram1D.h"
 #include "AIDA/IHistogram2D.h" 
 
-#include "StoreGate/StoreGateSvc.h" 
 
 /** @class TBTrackingMonTool TBTrackingMonTool.h 
     "TBMonitoring/TBTrackingMonTool.h"
@@ -44,10 +42,6 @@ class TBTrackingMonTool: public MonitorToolBase
   void FillRandomDetect();
 
  private:
-
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   std::string m_path;
 
   //Declared properties

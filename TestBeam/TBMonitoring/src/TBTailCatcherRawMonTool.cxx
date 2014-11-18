@@ -5,7 +5,6 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBTailCatcherRawMonTool.h"
@@ -48,19 +47,6 @@ TBTailCatcherRawMonTool::~TBTailCatcherRawMonTool()
 StatusCode TBTailCatcherRawMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
-  }
-
   //set to true whitin bookHist() 
   m_isBooked = false;
 
@@ -81,39 +67,30 @@ StatusCode TBTailCatcherRawMonTool::bookHists()
 StatusCode TBTailCatcherRawMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-  
-#ifndef NDEBUG
-  log << MSG::INFO << "in mybookHists()" << endreq;
-#endif
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
   //Start of tailcatcher raw histos
   TBTailCatcherRaw * tcRaw=NULL;
   TBTailCatcher * tcReco=NULL;
   if(m_monitor_tailcatcher_raw){
     //Retrieve tailcatcher raw 
-    sc = m_StoreGate->retrieve(tcRaw);
+    StatusCode sc = evtStore()->retrieve(tcRaw);
     
     if (sc.isFailure()){
-      log << MSG::INFO 
-	  << "TBTailCatcherMonTool: Retrieval of TailCatcher Raw failed" 
-	  << endreq;
+      ATH_MSG_INFO 
+        ( "TBTailCatcherMonTool: Retrieval of TailCatcher Raw failed"  );
       m_monitor_tailcatcher_raw=false;
     }else m_tcScintNum = tcRaw->size(); //Get number of scintillators with the tailcatcher
   }
   if(m_monitor_tailcatcher_reco){
     //Retrieve tailcatcher raw 
-    sc = m_StoreGate->retrieve(tcReco);
+    StatusCode sc = evtStore()->retrieve(tcReco);
     
     if (sc.isFailure()){
-      log << MSG::INFO 
-	  << "TBTailCatcherMonTool: Retrieval of TailCatcher failed" 
-	  << endreq;
+      ATH_MSG_INFO 
+        ( "TBTailCatcherMonTool: Retrieval of TailCatcher failed"  );
       m_monitor_tailcatcher_reco=false;
-    }else m_tcScintNum = tcRaw->size(); //Get number of scintillators with the tailcatcher
+    }else m_tcScintNum = tcReco->size(); //Get number of scintillators with the tailcatcher
   }
 
 
@@ -121,15 +98,12 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 
   if(m_monitor_tailcatcher_reco|m_monitor_tailcatcher_raw){
        
-       log << MSG::DEBUG << "Number od Scintillator in tailcatcher: "
-	   << m_tcScintNum
-	   << endreq;
+    ATH_MSG_DEBUG ( "Number od Scintillator in tailcatcher: " << m_tcScintNum);
        
        if(m_tcScintNum == 0){
-	 log << MSG::INFO 
-	     << "!! Warning !! "
-	     << "There is no scintillator recorded in the tailcather."
-	     << endreq;
+	 ATH_MSG_INFO 
+           ( "!! Warning !! "
+	     << "There is no scintillator recorded in the tailcather." );
 	 SetBookStatus(false);
        } else {
 
@@ -158,9 +132,8 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 	 
 
 	 for(int i = 0; i < m_tcScintNum; i++){
-	   log << MSG::DEBUG << "Number of scintillators in book loop: "
-	       << m_tcScintNum
-	       << endreq;
+	   ATH_MSG_DEBUG ( "Number of scintillators in book loop: "
+                           << m_tcScintNum );
 	   std::string name;
 	   if(m_monitor_tailcatcher_reco) name = (*iterreco)->getDetectorName();
 	   if(m_monitor_tailcatcher_raw) name = (*iter)->getDetectorName();
@@ -178,9 +151,7 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 	   }else if(i<48){
 	     name = "layer6";
 	   }
-	   log << MSG::DEBUG << "Scint Name: " 
-	       << m_scintNames[i]
-	       << endreq;
+	   ATH_MSG_DEBUG ( "Scint Name: " << m_scintNames[i] );
 
 	   std::string hname = m_path;
 	   std::string htitle = "TailCatcher Scintillator ";
@@ -221,22 +192,9 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
      
    } //End of tailcatcher histo
 
-  log << MSG::DEBUG << "histo path: " << m_path + "/BeamDetectors/" << endreq;
+  ATH_MSG_DEBUG ( "histo path: " << m_path + "/BeamDetectors/" );
 
-  log << MSG::INFO << " \t Monitoring TailCatcherRaw   " ;
-  if(m_monitor_tailcatcher_raw) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  log << MSG::INFO << " \t Monitoring TailCatcherReco   " ;
-  if(m_monitor_tailcatcher_reco) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-
-  log << MSG::INFO << " \t testTool \t \t  " ;
-  if(m_testTool) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  
-
-  
-  log << MSG::DEBUG << "Leaving mybookHists()" << endreq;
+  ATH_MSG_DEBUG ( "Leaving mybookHists()" );
 
   return StatusCode::SUCCESS;
 }
@@ -245,10 +203,7 @@ StatusCode TBTailCatcherRawMonTool::mybookHists()
 StatusCode TBTailCatcherRawMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "In fillHists()" << endreq;
+  ATH_MSG_DEBUG ( "In fillHists()" );
 
   // Fill some tacking objects for testing
   if(m_testTool){
@@ -259,16 +214,13 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   // Tailcatcher monitor
   if(m_monitor_tailcatcher_raw){  
     TBTailCatcherRaw * tcRaw=NULL;
-    sc = m_StoreGate->retrieve(tcRaw);
+    StatusCode sc = evtStore()->retrieve(tcRaw);
     if (sc.isFailure()){
-      log << MSG::DEBUG 
-	  << "BeamDetectorMonitoring: Retrieval of TBTailCatcherRaw failed" 
-	  << endreq;
+      ATH_MSG_DEBUG 
+        ( "BeamDetectorMonitoring: Retrieval of TBTailCatcherRaw failed"  );
     } else {
       
       TBTailCatcherRaw::const_iterator it_tcScint = tcRaw->begin();
@@ -278,8 +230,7 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
 	
 	// Check if tcScint is in sync with m_scintNames - defined in book hist
 	if((*it_tcScint)->getDetectorName() != m_scintNames[nameind]){
-	  log << MSG::ERROR << "Monitoring Raw TC. Error: booking and filling out of sync."
-	      << endreq;
+	  ATH_MSG_ERROR ( "Monitoring Raw TC. Error: booking and filling out of sync." );
 	  return StatusCode::FAILURE;
 	}
 
@@ -295,11 +246,10 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
 
   if(m_monitor_tailcatcher_reco){  
     TBTailCatcher * tcReco=NULL;
-    sc = m_StoreGate->retrieve(tcReco);
+    StatusCode sc = evtStore()->retrieve(tcReco);
     if (sc.isFailure()){
-      log << MSG::DEBUG 
-	  << "BeamDetectorMonitoring: Retrieval of TBTailCatcher failed" 
-	  << endreq;
+      ATH_MSG_DEBUG 
+        ( "BeamDetectorMonitoring: Retrieval of TBTailCatcher failed" );
     } else {
       
       TBTailCatcher::const_iterator it_tcScint = tcReco->begin();
@@ -310,8 +260,7 @@ StatusCode TBTailCatcherRawMonTool::fillHists()
 	
 	// Check if tcScint is in sync with m_scintNames - defined in book hist
 	if((*it_tcScint)->getDetectorName() != m_scintNames[nameind]){
-	  log << MSG::ERROR << "Monitoring Reco TC. Error: booking and filling out of sync."
-	      << endreq;
+	  ATH_MSG_ERROR ( "Monitoring Reco TC. Error: booking and filling out of sync." );
 	  return StatusCode::FAILURE;
 	}
 
@@ -334,8 +283,4 @@ return StatusCode::SUCCESS;
 void TBTailCatcherRawMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
-  // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
-  // Nothing here!! //
 }

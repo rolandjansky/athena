@@ -52,19 +52,8 @@ TBBeamQualityDoubleHitsMonTool::~TBBeamQualityDoubleHitsMonTool()
 
 StatusCode TBBeamQualityDoubleHitsMonTool::initialize()
 {//init
-  MsgStream log(msgSvc(), name());
+  ATH_MSG_DEBUG ( "initialize" );
   
-  log << MSG::DEBUG
-      << "initialize"
-      << endreq;
-  
-  StatusCode sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name()
-	<< ": Unable to locate Service StoreGateSvc"
-	<< endreq;
-    return sc;
-  }
   // set to true in book hist
   m_isBooked = false;
   
@@ -73,27 +62,19 @@ StatusCode TBBeamQualityDoubleHitsMonTool::initialize()
 
 StatusCode TBBeamQualityDoubleHitsMonTool::bookHists()
 { //book
-  
-  MsgStream log(msgSvc(), name());
-  
-  log << MSG::DEBUG
-      << "booking histograms"
-      << endreq;
+  ATH_MSG_DEBUG ( "booking histograms" );
   
   if(!m_isBooked) {
     
-    log << MSG::DEBUG << "in bookHists()" << endreq;
-    log << MSG::DEBUG << "Base path:" << m_path << endreq;
-    log << MSG::DEBUG << "Histo path:" << m_histoPath << endreq;
-    log << MSG::DEBUG << "Full path: " <<   m_path+m_histoPath << endreq;
+    ATH_MSG_DEBUG ( "in bookHists()" );
+    ATH_MSG_DEBUG ( "Base path:" << m_path );
+    ATH_MSG_DEBUG ( "Histo path:" << m_histoPath );
+    ATH_MSG_DEBUG ( "Full path: " <<   m_path+m_histoPath );
     
     // number of scintillators selected
     m_scintnum = m_scintselect.size();
     
-    log << MSG::DEBUG
-	<< " Number of Selected Scintillators: "
-	<< m_scintnum
-	<< endreq;
+    ATH_MSG_DEBUG ( " Number of Selected Scintillators: " << m_scintnum );
     
     std::string path = m_path+m_histoPath;
     
@@ -133,41 +114,23 @@ StatusCode TBBeamQualityDoubleHitsMonTool::bookHists()
       }
       m_isBooked=true;
     }
-    log << MSG::DEBUG
-	<< "Booked Histograms"
-	<< endreq;
+    ATH_MSG_DEBUG ( "Booked Histograms" );
   }   
   return StatusCode::SUCCESS;  
 } //book
 
 StatusCode TBBeamQualityDoubleHitsMonTool::fillHists()
 { //fill
+  ATH_MSG_DEBUG ( "TBBeamQualityDoubleHitsMonTool: Started fillHists" );
   
-  MsgStream log(msgSvc(),name());
-  
-  log << MSG::DEBUG
-      << "TBBeamQualityDoubleHitsMonTool: Started fillHists"
-      << endreq;
-  
-  // checking out StoreGateSvc
-  StatusCode sc = service("StoreGateSvc",m_StoreGate);
-  if ( sc.isFailure() )
-    {
-      log << MSG::ERROR
-          << "Cannot alllocate StoreGate service!"
-          << endreq;
-    }
-  
-  TBScintillatorRawCont * scint_raw;
-  
-  sc = m_StoreGate->retrieve(scint_raw, m_SGScintRawKey);
+  TBScintillatorRawCont * scint_raw = nullptr;
+  StatusCode sc = evtStore()->retrieve(scint_raw, m_SGScintRawKey);
   
   if (sc.isFailure()){
-    log << MSG::DEBUG
-	<< "TBBeamQualityDoubleHitsMonTool: Can't Retrieve "
+    ATH_MSG_DEBUG
+      ( "TBBeamQualityDoubleHitsMonTool: Can't Retrieve "
 	<< m_SGScintRawKey
-	<<" fro SG"
-	<< endreq;
+	<<" from SG" );
     
   }else { //else
     
@@ -196,9 +159,7 @@ StatusCode TBBeamQualityDoubleHitsMonTool::fillHists()
     } //fill
   }// else
   
-  log << MSG::DEBUG
-      << "Filled Histograms"
-      << endreq;
+  ATH_MSG_DEBUG ( "Filled Histograms" );
   
   return StatusCode::SUCCESS;
 } //fill

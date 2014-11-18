@@ -14,15 +14,12 @@
 #ifndef TBTRIGGERPATTERNUNITMONTOOL_H
 #define TBTRIGGERPATTERNUNITMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
 
 #include "AIDA/IHistogram1D.h"
 #include "AIDA/IHistogram2D.h" 
-
-#include "StoreGate/StoreGateSvc.h" 
 
 class TBTriggerPatternUnitMonTool: public MonitorToolBase
 {
@@ -49,10 +46,6 @@ class TBTriggerPatternUnitMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-
-  // Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-  
   std::string m_path,m_SGkey;
   
   bool m_monitor_triggpat;

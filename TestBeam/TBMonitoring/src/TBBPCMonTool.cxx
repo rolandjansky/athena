@@ -12,7 +12,6 @@
 //
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBBPCMonTool.h"
@@ -69,7 +68,6 @@ TBBPCMonTool::TBBPCMonTool(const std::string & type,
   m_histo_bpctdcDown=NULL;
   m_histo_bpcadcHorizontal=NULL;
   m_histo_bpcadcVertical=NULL;
-
 }
 
 /*---------------------------------------------------------*/
@@ -104,22 +102,6 @@ TBBPCMonTool::~TBBPCMonTool()
 StatusCode TBBPCMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
-
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
-  }
-
-
-
   //set to true whitin bookHist() 
   m_isBooked = false;
 
@@ -133,11 +115,10 @@ StatusCode TBBPCMonTool::bookHists()
   // This is called by parent class in initialize().
   // We want to book histos according to 1st event so 
   // we use mybookHist()
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in bookHists()" << endreq;
+  ATH_MSG_DEBUG ( "in bookHists()" );
   if(!m_bookatfirstevent)
     {
-      log << MSG::INFO << " Booking histos now" << endreq;
+      ATH_MSG_INFO ( " Booking histos now" );
       m_bpcnum =  m_bpc_names.size();
       std::string path;
       if(m_monitor_bpc){
@@ -205,21 +186,8 @@ StatusCode TBBPCMonTool::bookHists()
 
       }
       
-      log << MSG::DEBUG << "histo path: " << path  << endreq;
+      ATH_MSG_DEBUG ( "histo path: " << path  );
       
-      log << MSG::INFO << " \t Monitoring BPC \t " ;
-      if(m_monitor_bpc) log << " \t : YES "<< endreq;
-      else log << " \t : NO "<< endreq;
-
-      log << MSG::INFO << " \t Monitoring raw BPC  " ;
-      if(m_monitor_bpcraw) log << " \t \t : YES "<< endreq;
-      else log << " \t \t: NO "<< endreq;
-
-      
-      log << MSG::INFO << " \t Fake Detectors  \t  " ;
-      if(m_fake_detector) log << " \t : YES "<< endreq;
-      else log << " \t : NO "<< endreq;
-
       SetBookStatus(true);
       return StatusCode::SUCCESS;      
     }
@@ -230,23 +198,17 @@ StatusCode TBBPCMonTool::bookHists()
 StatusCode TBBPCMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
-#ifndef NDEBUG
-  log << MSG::DEBUG << "in mybookHists()" << endreq;
-#endif
-
-  StatusCode sc;
   std::string path = m_path;
 
  //Get Run number
   std::stringstream rn_stream;
   EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  sc=m_StoreGate->retrieve(thisEventInfo);
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS)
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
   else
     {thisEvent=thisEventInfo->event_ID();
      rn_stream << "Run " << thisEvent->run_number() << " ";
@@ -259,11 +221,9 @@ StatusCode TBBPCMonTool::mybookHists()
   //  BPC Histos -----------------------------------
    if(m_monitor_bpc){
      // retrieve bpc container.
-     sc = m_StoreGate->retrieve(bpcCont, m_SGkeybpc);
+     sc = evtStore()->retrieve(bpcCont, m_SGkeybpc);
      if (sc.isFailure()){
-       log << MSG::INFO 
-	   << "BeamDetectorMonitoring: Retrieval of BPC failed" 
-	   << endreq;
+       ATH_MSG_INFO ( "BeamDetectorMonitoring: Retrieval of BPC failed" );
        m_monitor_bpc=false;
      } else {
        
@@ -271,15 +231,14 @@ StatusCode TBBPCMonTool::mybookHists()
        m_bpcnum = bpcCont->size() > m_bpc_names.size() ? m_bpc_names.size():bpcCont->size();
        // if m_bpcnum=0 don't book histo yet.
        if(m_bpcnum==0) {
-	 log << MSG::INFO << " BPC Cont is empty"<< endreq;
+	 ATH_MSG_INFO ( " BPC Cont is empty");
 	 return StatusCode::SUCCESS;
        }
        if(bpcCont->size() != m_bpc_names.size())
-	 log << MSG::INFO 
-	     << "!! Warning !! Number of BPC in SG="
+	 ATH_MSG_INFO 
+           ( "!! Warning !! Number of BPC in SG="
 	     <<  bpcCont->size()
-	     << " differs from number in jobOptions=" << m_bpc_names.size()
-	     << endreq;
+	     << " differs from number in jobOptions=" << m_bpc_names.size() );
 
        // Map histo number to a bpc name
        m_bpc_map.clear();
@@ -294,10 +253,12 @@ StatusCode TBBPCMonTool::mybookHists()
 	 }
 	 if(it_bc!=last_bc){
 	   m_bpc_map.push_back(j);
-	   log << MSG::DEBUG << "histo "<<Nfound<< " --> BPC "<< m_bpc_names[m_bpc_map[Nfound]] << endreq;
+	   ATH_MSG_DEBUG ( "histo "<<Nfound<< " --> BPC "<< m_bpc_names[m_bpc_map[Nfound]] );
 	   Nfound++;
 	 }
-	 else {log << MSG::DEBUG << "BPC "<< m_bpc_names[j]<< " Not Found"  << endreq;}
+	 else {
+           ATH_MSG_DEBUG ( "BPC "<< m_bpc_names[j]<< " Not Found"  );
+         }
        }
        
        // Now there are Nfound matching between BPC in Cont and the ones in the joboption list
@@ -329,18 +290,18 @@ StatusCode TBBPCMonTool::mybookHists()
    }
    // BPCRaw histos -------------------------------------
    if(m_monitor_bpcraw){
-     sc = m_StoreGate->retrieve(bpcrawCont, m_SGkeybpcraw);
+     sc = evtStore()->retrieve(bpcrawCont, m_SGkeybpcraw);
      if (sc.isFailure()){
-       log << MSG::INFO << "BeamDetectorMonitoring: Retrieval of BPCRawCont failed" << endreq;
+       ATH_MSG_INFO ( "BeamDetectorMonitoring: Retrieval of BPCRawCont failed" );
        m_monitor_bpcraw=false;
      } else {
        m_bpcnum = bpcrawCont->size() > m_bpc_names.size() ? m_bpc_names.size():bpcrawCont->size();
        if(m_bpcnum==0) {
-	 log << MSG::INFO << " BPCRaw Cont is empty"<< endreq;
+	 ATH_MSG_INFO ( " BPCRaw Cont is empty");
 	 return StatusCode::SUCCESS;
        }
        if(bpcrawCont->size() != m_bpc_names.size())
-	 log << MSG::INFO << "!! Warning !! Number of BPCRaw in SG="<< bpcrawCont->size()<<" differs from number in jobOptions" << endreq;
+	 ATH_MSG_INFO ( "!! Warning !! Number of BPCRaw in SG="<< bpcrawCont->size()<<" differs from number in jobOptions" );
        
        // Map histo number to a bpc name
        m_bpc_map.clear();
@@ -355,10 +316,12 @@ StatusCode TBBPCMonTool::mybookHists()
 	 }
 	 if(it_bc!=last_bc){
 	   m_bpc_map.push_back(j);
-	   log << MSG::DEBUG << "histo "<<Nfound<< " --> BPC "<< m_bpc_names[j] <<" ==" << (*it_bc)->getDetectorName()  << endreq;
+	   ATH_MSG_DEBUG ( "histo "<<Nfound<< " --> BPC "<< m_bpc_names[j] <<" ==" << (*it_bc)->getDetectorName()  );
 	   Nfound++;
 	 }
-	 else {log << MSG::DEBUG << "BPC "<< m_bpc_names[j]<< " Not Found"  << endreq;}
+	 else {
+           ATH_MSG_DEBUG ( "BPC "<< m_bpc_names[j]<< " Not Found"  );
+         }
        }
        
        // Now there are Nfound matching between BPC in Cont and the ones in the joboption list
@@ -406,21 +369,8 @@ StatusCode TBBPCMonTool::mybookHists()
    }
 
 
-  log << MSG::DEBUG << "histo path: " << path  << endreq;
+   ATH_MSG_DEBUG ( "histo path: " << path  );
 
-  log << MSG::INFO << " \t Monitoring BPC \t " ;
-  if(m_monitor_bpc) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-
-  log << MSG::INFO << " \t Monitoring raw BPC  " ;
-  if(m_monitor_bpcraw) log << " \t \t : YES "<< endreq;
-  else log << " \t \t: NO "<< endreq;
-
-
-  log << MSG::INFO << " \t Fake Detectors  \t  " ;
-  if(m_fake_detector) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  
   SetBookStatus(true);
 
   return StatusCode::SUCCESS;
@@ -439,12 +389,7 @@ StatusCode TBBPCMonTool::mybookHists()
 StatusCode TBBPCMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-#ifndef NDEBUG
-  log << MSG::DEBUG << "in fillHists()" << endreq;
-#endif
+  ATH_MSG_DEBUG ( "in fillHists()" );
 
   // Fill some bpc and stuff (testing) 
   if(m_fake_detector) FillRandomDetect();
@@ -453,10 +398,8 @@ StatusCode TBBPCMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   if(m_bpcnum==0) {
-    log << MSG::INFO << " Nothing to monitor"<< endreq;
+    ATH_MSG_INFO ( " Nothing to monitor");
     return StatusCode::SUCCESS;
   }
   
@@ -467,18 +410,18 @@ StatusCode TBBPCMonTool::fillHists()
     TBBPCRawCont *  bpcrawCont;
     
     //Retrieve TBBPC collection from SG
-    sc = m_StoreGate->retrieve(bpcCont, m_SGkeybpc);
+    StatusCode sc = evtStore()->retrieve(bpcCont, m_SGkeybpc);
     if (sc.isFailure()){
-      log << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of BPC failed" << endreq;
+      ATH_MSG_DEBUG ( "BeamDetectorMonitoring: Retrieval of BPC failed" );
 
     }else {
 
       TBBPCRawCont::const_iterator it_bcraw ;
       //      TBBPCRawCont::const_iterator last_bcraw ;
       if(m_monitor_bpcraw){
-	sc = m_StoreGate->retrieve(bpcrawCont, m_SGkeybpcraw);
+	sc = evtStore()->retrieve(bpcrawCont, m_SGkeybpcraw);
 	if (sc.isFailure()){
-	  log << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of BPCRaw failed" << endreq;
+	  ATH_MSG_DEBUG ( "BeamDetectorMonitoring: Retrieval of BPCRaw failed" );
 	  
 	}
       }
@@ -500,18 +443,17 @@ StatusCode TBBPCMonTool::fillHists()
 
 	  if(it_bc==last_bc) {
 	    // did not find the bpc
-	    log << MSG::INFO 
-		<< "BeamDetectorMonitoring: could not find bpc named "
-		<< m_bpc_names[m_bpc_map[nameind]] 
-		<< endreq;
+	    ATH_MSG_INFO 
+              ( "BeamDetectorMonitoring: could not find bpc named "
+		<< m_bpc_names[m_bpc_map[nameind]]  );
 	    continue;
 	  }
 	}
 	
 	// now it_bpc contains the right bpc.
 	const TBBPC * bpc = (*it_bc);
-	log << MSG::DEBUG << "Filling histo '" << m_bpc_names[m_bpc_map[nameind]] 
-	    <<". X=" << bpc->getXPos() << " Y=" << bpc->getYPos() << endreq;
+	ATH_MSG_DEBUG ( "Filling histo '" << m_bpc_names[m_bpc_map[nameind]] 
+                        <<". X=" << bpc->getXPos() << " Y=" << bpc->getYPos() );
 	if(! bpc->isXPosOverflow()) m_histo_bpcposX[nameind]->fill(bpc->getXPos() , 1.0);
 	if(! bpc->isYPosOverflow()) m_histo_bpcposY[nameind]->fill(bpc->getYPos() , 1.0);
 	
@@ -541,14 +483,12 @@ StatusCode TBBPCMonTool::fillHists()
   // BPCRaw only Monitor     ----------------------------------------------------
   if(m_monitor_bpcraw && !m_monitor_bpc ){
     //Pointer to a TBBPC container
-    TBBPCRawCont *  bpcrawCont;
+    TBBPCRawCont *  bpcrawCont = nullptr;
     
     //Retrieve TBBPC collection from SG
-    sc = m_StoreGate->retrieve(bpcrawCont, m_SGkeybpcraw);
+    StatusCode sc = evtStore()->retrieve(bpcrawCont, m_SGkeybpcraw);
     if (sc.isFailure()){
-      log << MSG::DEBUG 
-	  << "BeamDetectorMonitoring: Retrieval of BPCRaw failed" 
-	  << endreq;
+      ATH_MSG_DEBUG ( "BeamDetectorMonitoring: Retrieval of BPCRaw failed" );
 
     }else {
 
@@ -558,7 +498,7 @@ StatusCode TBBPCMonTool::fillHists()
 
       // loop over list of bpc to monitor :
       for(int nameind=0; nameind<m_bpcnum;nameind++){
-	log << MSG::DEBUG << "looking for BPC : "<< m_bpc_names[m_bpc_map[nameind]] <<endreq;
+	ATH_MSG_DEBUG ( "looking for BPC : "<< m_bpc_names[m_bpc_map[nameind]] );
 
 	// if we got out of sync, find the bpc named m_bpc_names[m_bpc_map[nameind]]
 	if(it_bc==last_bc) it_bc   = bpcrawCont->begin();  // reinit it_bc
@@ -570,10 +510,9 @@ StatusCode TBBPCMonTool::fillHists()
 	  }
 	  if(it_bc==last_bc) {
 	    // did not find the bpcraw
-	    log << MSG::INFO 
-		<< "BeamDetectorMonitoring: could not find bpcraw named "
-		<< m_bpc_names[m_bpc_map[nameind]] 
-		<< endreq;
+	    ATH_MSG_INFO 
+              ( "BeamDetectorMonitoring: could not find bpcraw named "
+		<< m_bpc_names[m_bpc_map[nameind]] );
 	    continue;
 	  }else {}
 	}
@@ -581,16 +520,15 @@ StatusCode TBBPCMonTool::fillHists()
 
 	// now it_bc contains the right bpc.
 	const TBBPCRaw * bpcraw = (*it_bc);
-	log << MSG::DEBUG << "BPC " <<bpcraw->getDetectorName() << endreq;
-	log << MSG::DEBUG 
-	    << "BPCRaw"
+	ATH_MSG_DEBUG ( "BPC " <<bpcraw->getDetectorName() );
+	ATH_MSG_DEBUG 
+          ( "BPCRaw"
 	    << nameind << "  " 
 	    << bpcraw->getDetectorName() << " signals "
 	    << (unsigned int) bpcraw->getTDCLeft()
 	    << " " <<  (int) bpcraw->getTDCRight()
 	    << " " <<  (int) bpcraw->getTDCUp() 
-	    << " " <<  (int) bpcraw->getTDCDown()
-	    << endreq;
+	    << " " <<  (int) bpcraw->getTDCDown() );
 
 	if(!bpcraw->isOverflow(TBBPCRaw::tdcLeft))  m_histo_bpctdcLeft[nameind]->fill(bpcraw->getTDCLeft(),1.0);
 	if(!bpcraw->isOverflow(TBBPCRaw::tdcRight)) m_histo_bpctdcRight[nameind]->fill(bpcraw->getTDCRight(),1.0);
@@ -606,7 +544,7 @@ StatusCode TBBPCMonTool::fillHists()
     }
   } 
 
-  log << MSG::DEBUG << "fillHists() ended" << endreq;
+  ATH_MSG_DEBUG ( "fillHists() ended" );
   return StatusCode::SUCCESS;
 }
 
@@ -615,8 +553,6 @@ void TBBPCMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
   // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
 
   // BPC ---------------------------------------------------
   TBBPCCont * bpcCont = new TBBPCCont();
@@ -632,9 +568,9 @@ void TBBPCMonTool::FillRandomDetect()
   bpcCont->push_back(bpc2);
 
 
-  StatusCode sc = m_StoreGate->record(bpcCont,m_SGkeybpc);
+  StatusCode sc = evtStore()->record(bpcCont,m_SGkeybpc);
   if ( sc.isFailure( ) ) {
-    log << MSG::FATAL << "Cannot record BPCCont" << endreq;
+    ATH_MSG_FATAL ( "Cannot record BPCCont" );
   }
 
   // Broken.
@@ -650,9 +586,9 @@ void TBBPCMonTool::FillRandomDetect()
   bpcrawCont->push_back(bpcraw1);
   bpcrawCont->push_back(bpcraw2);
 
-  sc = m_StoreGate->record(bpcrawCont,m_SGkeybpcraw);
+  sc = evtStore()->record(bpcrawCont,m_SGkeybpcraw);
   if ( sc.isFailure( ) ) {
-    log << MSG::FATAL << "Cannot record BPCRawCont" << endreq;
+    ATH_MSG_FATAL ( "Cannot record BPCRawCont" );
   }
 
 

@@ -16,7 +16,6 @@
 #ifndef TBSCINTILLATORMONTOOL_H
 #define TBSCINTILLATORMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -51,10 +50,6 @@ class TBScintillatorMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   std::string m_path,m_SGkeyscint;
   std::vector<std::string> m_scint_names;
   std::vector<short> m_scint_map;

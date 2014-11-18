@@ -5,7 +5,6 @@
 #ifndef TBBPCALIGNMENTMONTOOL_H
 #define TBBPCALIGNMENTMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
@@ -38,10 +37,6 @@ class TBBPCAlignmentMonTool: public MonitorToolBase
   float gammln(float xx);
   
  private:
-
-  // pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   StatusCode getnewcalib();
 
   // private members

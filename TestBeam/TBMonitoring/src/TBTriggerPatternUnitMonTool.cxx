@@ -12,7 +12,6 @@
 //
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBTriggerPatternUnitMonTool.h"
@@ -52,18 +51,6 @@ TBTriggerPatternUnitMonTool::~TBTriggerPatternUnitMonTool()
 StatusCode TBTriggerPatternUnitMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
-  }
-
   if(m_triggflag.size()==0){
     m_triggflag.push_back(0x00000001);
     m_triggflag.push_back(0x00000002);
@@ -100,14 +87,7 @@ StatusCode TBTriggerPatternUnitMonTool::bookHists()
 StatusCode TBTriggerPatternUnitMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-#ifndef NDEBUG
-  log << MSG::INFO << "in mybookHists()" << endreq;
-#endif
-
-  //StatusCode sc;
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
    // Trigger Pattern  histos ----------------------------------
    if(m_monitor_triggpat){
@@ -116,16 +96,8 @@ StatusCode TBTriggerPatternUnitMonTool::mybookHists()
      
    }
 
-  log << MSG::DEBUG << "histo path: " << m_path + "/BeamDetectors/1" << endreq;
+   ATH_MSG_DEBUG ( "histo path: " << m_path + "/BeamDetectors/1" );
 
-  log << MSG::INFO << " Monitoring Trigger Pattern" ;
-  if(m_monitor_triggpat) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-
-  log << MSG::INFO << " Fake Detectors  \t  " ;
-  if(m_fake_detector) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  
   SetBookStatus(true);
 
   return StatusCode::SUCCESS;
@@ -135,12 +107,7 @@ StatusCode TBTriggerPatternUnitMonTool::mybookHists()
 StatusCode TBTriggerPatternUnitMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-#ifndef NDEBUG
-  log << MSG::DEBUG << "in fillHists()" << endreq;
-#endif
+  ATH_MSG_DEBUG ( "in fillHists()" );
 
   // Fill some bpc and stuff (testing) 
   if(m_fake_detector) FillRandomDetect();
@@ -149,19 +116,12 @@ StatusCode TBTriggerPatternUnitMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   // Trigger Pattern monitor ------------------------------------------------------
   if(m_monitor_triggpat){  
     TBTriggerPatternUnit * triggpat_object;
    
-    sc = m_StoreGate->retrieve(triggpat_object, m_SGkey);
-    if (sc.isFailure()){
-      log << MSG::INFO 
-	  << "TBTriggerPatternUnitMonitoring: Retrieval of Trigger Pattern failed" 
-	  << endreq;
-      return sc;
-    }else {
+    ATH_CHECK( evtStore()->retrieve(triggpat_object, m_SGkey) );
+    {
       unsigned int word =triggpat_object->getTriggerWord();
       for(unsigned int i=0;i<m_triggflag.size();i++){
 	bool trigg=((word & m_triggflag[i])!=0);
@@ -177,7 +137,7 @@ StatusCode TBTriggerPatternUnitMonTool::fillHists()
     }
   } // Trigg Pattern
 
-  log << MSG::DEBUG << "fillHists() ended" << endreq;
+  ATH_MSG_DEBUG ( "fillHists() ended" );
   return StatusCode::SUCCESS;
 }
 
@@ -187,10 +147,6 @@ void TBTriggerPatternUnitMonTool::FillRandomDetect()
 {
   // Fake different beam detectors/data classes
 
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc;
-
   // Trigg Pattern -----------------------------------------
   TBTriggerPatternUnit *triggpat = new TBTriggerPatternUnit();
   // set first, third and fifth bit on :
@@ -199,11 +155,9 @@ void TBTriggerPatternUnitMonTool::FillRandomDetect()
   word = word | 0x00000010;
   triggpat->setTriggerWord(word);
 
-  sc = m_StoreGate->record(triggpat,m_SGkey);
+  StatusCode sc = evtStore()->record(triggpat,m_SGkey);
   if ( sc.isFailure( ) ) {
-    log << MSG::FATAL 
-	<< "Cannot record TriggPat" 
-	<< endreq;
+    ATH_MSG_FATAL ( "Cannot record TriggPat" );
   }
 
 }

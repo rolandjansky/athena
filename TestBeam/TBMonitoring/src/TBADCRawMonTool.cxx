@@ -5,7 +5,6 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBADCRawMonTool.h"
@@ -44,20 +43,8 @@ TBADCRawMonTool::~TBADCRawMonTool()
 StatusCode TBADCRawMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
   if(m_monitor_adc == false){
-    log << MSG::INFO << name() << " Not monitoring adc " << endreq;
-  }
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
+    ATH_MSG_INFO ( name() << " Not monitoring adc " );
   }
 
   //set to true whitin bookHist() 
@@ -80,14 +67,7 @@ StatusCode TBADCRawMonTool::bookHists()
 StatusCode TBADCRawMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-  
-#ifndef NDEBUG
-  log << MSG::INFO << "in mybookHists()" << endreq;
-#endif
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
   //Start of adc raw histos
    if(m_monitor_adc){
@@ -108,19 +88,11 @@ StatusCode TBADCRawMonTool::mybookHists()
      }
    }
 
-  log << MSG::DEBUG << "histo path: " << m_path + "/BeamDetectors/" << endreq;
+   ATH_MSG_DEBUG ( "histo path: " << m_path + "/BeamDetectors/" );
 
-  log << MSG::INFO << " \t Monitoring ADCRaw \t  " ;
-  if(m_monitor_adc) log << " \t : YES "<< endreq;
-  else log << " \t  : NO "<< endreq;
-
-  log << MSG::INFO << " \t testTool \t  " ;
-  if(m_testTool) log << " \t \t : YES "<< endreq;
-  else log << " \t \t : NO "<< endreq;
-  
   SetBookStatus(true);
   
-  log << MSG::DEBUG << "Leaving mybookHists()" << endreq;
+  ATH_MSG_DEBUG ( "Leaving mybookHists()" );
 
   return StatusCode::SUCCESS;
 }
@@ -129,10 +101,7 @@ StatusCode TBADCRawMonTool::mybookHists()
 StatusCode TBADCRawMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "In fillHists()" << endreq;
+  ATH_MSG_DEBUG ( "In fillHists()" );
 
   // Fill some tacking objects for testing
   if(m_testTool){
@@ -143,16 +112,13 @@ StatusCode TBADCRawMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   // ADC monitor
   if(m_monitor_adc){  
     TBADCRawCont * adcRawCont=NULL;
-    sc = m_StoreGate->retrieve(adcRawCont);
+    StatusCode sc = evtStore()->retrieve(adcRawCont);
     if (sc.isFailure()){
-      log << MSG::DEBUG 
-	  << "BeamDetectorMonitoring: Retrieval of TBADCRawCont failed" 
-	  << endreq;
+      ATH_MSG_DEBUG 
+        ( "BeamDetectorMonitoring: Retrieval of TBADCRawCont failed" );
     } else {
       
       TBADCRawCont::const_iterator it_adc = adcRawCont->begin();
@@ -165,8 +131,10 @@ StatusCode TBADCRawMonTool::fillHists()
 	// Check if adcRawCont is in sync with m_adcNames - defined in book hist
 	  if((*it_adc)->getDetectorName() == m_adcNames[nameind]) break;
 	}
-	if(it_adc==last_adc){log<< MSG::DEBUG << "Did not found" << m_adcNames[nameind] <<endreq;continue;}
-	
+	if(it_adc==last_adc){
+          ATH_MSG_DEBUG ( "Did not found" << m_adcNames[nameind] );
+          continue;
+        }
 
 	// now it_scint contains the right scint
 	const TBADCRaw * adc = (*it_adc);
@@ -183,8 +151,4 @@ return StatusCode::SUCCESS;
 void TBADCRawMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
-  // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
-  // Nothing here!! //
 }

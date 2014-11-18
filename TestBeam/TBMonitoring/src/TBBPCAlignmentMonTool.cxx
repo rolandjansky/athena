@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h" 
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBBPCAlignmentMonTool.h"
@@ -52,20 +51,8 @@ TBBPCAlignmentMonTool::~TBBPCAlignmentMonTool(){}
 StatusCode TBBPCAlignmentMonTool:: initialize()
 ///////////////////////////////////////////////
 {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
   
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-        << ": Unable to locate Service StoreGateSvc" 
-        << endreq;
-    return sc;
-  }
-
   // this flag is set to true within bookHists() 
   m_isBooked = false;
 
@@ -76,12 +63,7 @@ StatusCode TBBPCAlignmentMonTool:: initialize()
 StatusCode TBBPCAlignmentMonTool::bookHists()
 ////////////////////////////////////
 {
-
-  MsgStream log(msgSvc(), name());
-   
-  log << MSG::DEBUG 
-      << "in bookHists()" 
-      << endreq;
+  ATH_MSG_DEBUG ( "in bookHists()" );
 
  
   //  book BPC calibration histograms 
@@ -131,27 +113,7 @@ StatusCode TBBPCAlignmentMonTool::bookHists()
     m_isBooked = true;
      
   } 
-     
- 
 
-  log << MSG::INFO 
-      << " \t Monitoring BPC Calibration\t " ;
-  
-      if(m_monitor_bpccalib) log << " \t : YES "
-                                 << endreq;
-                        else log << " \t : NO "
-		                 << endreq;
-  
-  log << MSG::INFO
-      << " \t Histograms booked\t " ;
-      
-      if(m_isBooked) log << " \t : YES "
-                         << endreq;
-			
-                else log << " \t : NO : "
-			 << endreq;
-  
-  
   return StatusCode::SUCCESS;
 }
 
@@ -160,24 +122,17 @@ StatusCode TBBPCAlignmentMonTool::bookHists()
 StatusCode TBBPCAlignmentMonTool::fillHists()
 ///////////////////////////////////////////////
 {
- 
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-  
-  log << MSG::DEBUG 
-      << "in fillHists()" 
-      << endreq;
+  ATH_MSG_DEBUG ( "in fillHists()"  );
   
   // get run number 
 
   unsigned int thisrun=0;
   EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  StatusCode sc1;
-  sc1=m_StoreGate->retrieve(thisEventInfo);
+  StatusCode sc1 = evtStore()->retrieve(thisEventInfo);
   if (sc1!=StatusCode::SUCCESS){
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
-    log << MSG::WARNING << "     => can't get calib constant. Exit" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
+    ATH_MSG_WARNING ( "     => can't get calib constant. Exit" );
     return sc1;
   }
   else
@@ -202,26 +157,20 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
     // fill BPC alignment histograms
     // first retrieve TBBPC container from StoreGate
     
-    TBBPCCont *  bpcCont;
-    sc = m_StoreGate->retrieve(bpcCont, m_SGkeybpc);
-    
+    TBBPCCont *  bpcCont = nullptr;
+    StatusCode sc = evtStore()->retrieve(bpcCont, m_SGkeybpc);
     if (sc.isFailure()){
-      log << MSG::WARNING 
-          << "Retrieval of TBBPCCont failed" 
-	  << endreq;
+      ATH_MSG_WARNING ( "Retrieval of TBBPCCont failed" );
     }
     
     else {
 
       // retrieve Track from StoreGate
       
-      TBTrack * track;
-      sc = m_StoreGate->retrieve(track, m_SGkeytrack);
-      
+      TBTrack * track = nullptr;
+      StatusCode sc = evtStore()->retrieve(track, m_SGkeytrack);
       if (sc.isFailure()){
-        log << MSG::WARNING
-	    << "Retrieval of TBTrack failed"
-	    << endreq; 
+        ATH_MSG_WARNING ( "Retrieval of TBTrack failed" );
       }
       
       else { 
@@ -245,10 +194,9 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
 	 }      
         
 	 if ( i == m_bpcnum ){
-	   log << MSG::WARNING
-	       << bpc->getDetectorName()
-	       << " could not be matched to the list of BPC names"
-	       << endreq; 
+	   ATH_MSG_WARNING
+             ( bpc->getDetectorName()
+	       << " could not be matched to the list of BPC names" );
 	 }
 	 
 	 else {
@@ -293,8 +241,6 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
     }
 
   } 
-
-
  
   return StatusCode::SUCCESS;
 }
@@ -303,12 +249,7 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
 StatusCode TBBPCAlignmentMonTool::finalHists()
 ///////////////////////////////////////////////
 {
-  
-  MsgStream log(msgSvc(), name());
-  
-  log << MSG::DEBUG 
-      << "in finalHists()" 
-      << endreq;
+  ATH_MSG_DEBUG  ( "in finalHists()" );
 
   if (m_isBooked){
   
@@ -504,8 +445,7 @@ StatusCode TBBPCAlignmentMonTool::getnewcalib()
   // coeff must have the following order :
   // bpcnumber posX posY posZX posZY errposX errposY errposZX errposZY errmeasX errmeasY
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Get new calibs for run " << m_runnumber<< endreq;
+  ATH_MSG_INFO ( "Get new calibs for run " << m_runnumber);
   
   int bpcnumber= m_bpc_names.size();
 
@@ -525,13 +465,13 @@ StatusCode TBBPCAlignmentMonTool::getnewcalib()
   std::ifstream calibfile;
   calibfile.open(m_calib_filename.c_str());
   if(!calibfile.good()){
-    log << MSG::INFO << " Problem with file named "<< m_calib_filename << endreq;
+    ATH_MSG_INFO ( " Problem with file named "<< m_calib_filename );
     return StatusCode::FAILURE;
   }
   unsigned int runnumber;
   calibfile >> runnumber;
   pos = calibfile.tellg();
-  log << MSG::INFO << " Run number "<< runnumber << endreq;
+  ATH_MSG_INFO ( " Run number "<< runnumber );
   while((runnumber<m_runnumber)&&(!calibfile.eof()))
     {
       runnumber=0;
@@ -540,15 +480,19 @@ StatusCode TBBPCAlignmentMonTool::getnewcalib()
       for(int j=0;j<bpcnumber+1;j++) calibfile.ignore(5000,'\n');
       // check next runnumber
       calibfile >> runnumber;
-      if(runnumber==0) { log << MSG::INFO << "empty line"<<endreq;calibfile.clear();break;} // reached an empty line : exit.
-      log << MSG::INFO << " Run number "<< runnumber << endreq;
+      if(runnumber==0) {
+        ATH_MSG_INFO ( "empty line");
+        calibfile.clear();
+        break;
+      } // reached an empty line : exit.
+      ATH_MSG_INFO ( " Run number "<< runnumber );
     }
   
   // Now we found the good set of constant (the ones following pos)
   if(runnumber==m_runnumber)  pos = calibfile.tellg();
-  log << MSG::INFO << " Pos = "<< pos << endreq;
+  ATH_MSG_INFO ( " Pos = "<< pos );
   calibfile.seekg(pos);
-  log << MSG::INFO << " Will use the following constants :" << endreq;
+  ATH_MSG_INFO ( " Will use the following constants :" );
   for(int j=0;j<bpcnumber;j++) 
     {
       int bpcn;
@@ -564,34 +508,27 @@ StatusCode TBBPCAlignmentMonTool::getnewcalib()
       calibfile >> m_bpc_errmeasX[j];
       calibfile >> m_bpc_errmeasY[j];
 
-      log << MSG::WARNING << bpcn << " "<<m_bpc_alignX[j];    
-      log << MSG::WARNING << " "<< m_bpc_alignY[j];    
-      log << MSG::WARNING << " "<< m_bpc_posZX[j];   
-      log << MSG::WARNING << " "<< m_bpc_posZY[j];   
-      log << MSG::WARNING << " "<< m_bpc_erralignX[j]; 
-      log << MSG::WARNING << " "<< m_bpc_erralignY[j]; 
-      log << MSG::WARNING << " "<< m_bpc_errposZX[j];  
-      log << MSG::WARNING << " "<< m_bpc_errposZY[j];
-      log << MSG::WARNING << " "<< m_bpc_errmeasX[j];
-      log << MSG::WARNING << " "<< m_bpc_errmeasY[j]<<endreq;
-
-				    
-
-				    
-	
+      ATH_MSG_WARNING ( bpcn << " "<<m_bpc_alignX[j]    
+                        << " "<< m_bpc_alignY[j]    
+                        << " "<< m_bpc_posZX[j]   
+                        << " "<< m_bpc_posZY[j]   
+                        << " "<< m_bpc_erralignX[j] 
+                        << " "<< m_bpc_erralignY[j] 
+                        << " "<< m_bpc_errposZX[j]  
+                        << " "<< m_bpc_errposZY[j]
+                        << " "<< m_bpc_errmeasX[j]
+                        << " "<< m_bpc_errmeasY[j]);
     }
   
   calibfile.close();
 
   return StatusCode::SUCCESS;  
-  
 }
 
 float TBBPCAlignmentMonTool::gammq(float a, float x)
 {
-	MsgStream log(msgSvc(),name());
 	float gamser, gammcf, gln;
-	if (x < 0.0 || a <=0.0) log << MSG::ERROR << "invalid arguments in routine gammq" << endreq;
+	if (x < 0.0 || a <=0.0) ATH_MSG_ERROR ( "invalid arguments in routine gammq" );
         if( x < (a+1.0) ) {
  		gser(&gamser,a,x,&gln);
 		return 1.0-gamser;
@@ -603,15 +540,15 @@ float TBBPCAlignmentMonTool::gammq(float a, float x)
 
 void TBBPCAlignmentMonTool::gser(float *gamser, float a, float x, float *gln)
 {
-	MsgStream lo(msgSvc(),name());
 	int n;
 	float sum, del, ap;
 
 	*gln=gammln(a);
 	if ( x <= 0.0 ){
-		if ( x < 0.0) lo << MSG::ERROR << "x less than 0 in routine gser" << endreq;
-		*gamser=0.0;
-		return;
+          if ( x < 0.0)
+            ATH_MSG_ERROR ( "x less than 0 in routine gser" );
+          *gamser=0.0;
+          return;
 	} else {
 		ap=a;
 		del=sum=1.0/a;
@@ -625,14 +562,13 @@ void TBBPCAlignmentMonTool::gser(float *gamser, float a, float x, float *gln)
 			}
 		}
 
-		lo << MSG::ERROR << "a too large, ITMAX too small in routine gser";
+		ATH_MSG_ERROR ("a too large, ITMAX too small in routine gser");
 		return;
 	}
 }
 
 void TBBPCAlignmentMonTool::gcf(float *gammcf, float a, float x, float *gln)
 {
-	MsgStream lo(msgSvc(),name());
 	int i;
 	float an, b, c, d, del, h;
 
@@ -653,7 +589,7 @@ void TBBPCAlignmentMonTool::gcf(float *gammcf, float a, float x, float *gln)
 		h *= del;
 		if (fabs(del-1.0) < 3.0e-7) break;
 	}
-	if (i > 100) lo << MSG::ERROR << "a too large, ITMAX too small in gcf" << endreq;
+	if (i > 100) ATH_MSG_ERROR ( "a too large, ITMAX too small in gcf" );
 	*gammcf=exp(-x+a*log(x) - (*gln))*h;
 }
 

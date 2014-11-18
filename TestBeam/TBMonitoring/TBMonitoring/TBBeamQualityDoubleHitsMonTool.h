@@ -15,7 +15,6 @@
 #ifndef TBBEAMQUALITYDOUBLEHITSMONTOOL_H
 #define TBBEAMQUALITYDOUBLEHITSMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 #include "GaudiKernel/IHistogramSvc.h"
 
@@ -42,8 +41,6 @@ class TBBeamQualityDoubleHitsMonTool: public MonitorToolBase
   StatusCode fillHists();
   
  private:
-  StoreGateSvc* m_StoreGate; 
-  
   //keys
   std::string m_SGScintRawKey;
   

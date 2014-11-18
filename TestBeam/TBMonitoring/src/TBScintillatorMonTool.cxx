@@ -12,7 +12,6 @@
 //
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBScintillatorMonTool.h"
@@ -73,20 +72,6 @@ TBScintillatorMonTool::~TBScintillatorMonTool()
 StatusCode TBScintillatorMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
-  }
-
-
-
   //set to true whitin bookHist() 
   m_isBooked = false;
 
@@ -101,16 +86,15 @@ StatusCode TBScintillatorMonTool::bookHists()
   // We want to book histos according to 1st event so 
   // we use mybookHist()
   
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in bookHists()" << endreq;
-  log << MSG::DEBUG << "Base path:" << m_path << endreq;
-  log << MSG::DEBUG << "Histo path:" << m_histoPath << endreq;
-  log << MSG::DEBUG << "Full path: " <<   m_path+m_histoPath << endreq;
+  ATH_MSG_DEBUG ( "in bookHists()" );
+  ATH_MSG_DEBUG ( "Base path:" << m_path );
+  ATH_MSG_DEBUG ( "Histo path:" << m_histoPath );
+  ATH_MSG_DEBUG ( "Full path: " <<   m_path+m_histoPath );
   if(!m_bookatfirstevent)
     { 
       //m_path += "/BeamDetectors/Scintillator/";
       const std::string path=m_path+m_histoPath;
-      log << MSG::INFO << " Booking histos now" << endreq;
+      ATH_MSG_INFO ( " Booking histos now" );
       m_scint_map.clear();
       m_scintnum = m_scint_names.size();
       m_histo_scint = new IHistogram1D*[m_scintnum];
@@ -119,7 +103,7 @@ StatusCode TBScintillatorMonTool::bookHists()
 	m_scint_map.push_back(nameind);
 	std::string hname = path+m_scint_names[nameind];
 	std::string htitle =  "Scintillator  "+m_scint_names[nameind]+ " Signal";
-	log << MSG::DEBUG << "            histo scint "<< hname << endreq;
+	ATH_MSG_DEBUG ( "            histo scint "<< hname );
 	m_histo_scint[nameind] = ToolHistoSvc()->book(hname,htitle,m_adcbin,m_adcmin,m_adcmax);
 	
 	hname =path+"Time"+m_scint_names[nameind];
@@ -127,42 +111,27 @@ StatusCode TBScintillatorMonTool::bookHists()
 	m_histo_scint_time[nameind] = ToolHistoSvc()->book(hname,htitle,m_tdcbin,m_tdcmin,m_tdcmax);
 	
       }
-      log << MSG::DEBUG << "histo path: " << path  << endreq;
+      ATH_MSG_DEBUG ( "histo path: " << path  );
       
-      log << MSG::INFO << " \t Monitoring Scintillators  " ;
-      log << " \t : YES "<< endreq;
-      
-      
-      
-      log << MSG::INFO << " \t Fake Detectors  \t  " ;
-      if(m_fake_detector) log << " \t : YES "<< endreq;
-      else log << " \t : NO "<< endreq;
       SetBookStatus(true);
       return StatusCode::SUCCESS;      
     }
   else return StatusCode::SUCCESS;
-
 }
 
 /*---------------------------------------------------------*/
 StatusCode TBScintillatorMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
-  log << MSG::DEBUG << "in mybookHists()" << endreq;
-
-
-  StatusCode sc;
-  
    //Get Run number
   std::stringstream rn_stream;
   EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  sc=m_StoreGate->retrieve(thisEventInfo);
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS)
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
   else
     {thisEvent=thisEventInfo->event_ID();
      rn_stream << "Run " << thisEvent->run_number() << " ";
@@ -172,21 +141,21 @@ StatusCode TBScintillatorMonTool::mybookHists()
   
   // Scintillator histos ----------------------------
 
-  TBScintillatorCont *scintCont;
-  sc = m_StoreGate->retrieve(scintCont, m_SGkeyscint);
+  TBScintillatorCont *scintCont = nullptr;
+  sc = evtStore()->retrieve(scintCont, m_SGkeyscint);
   if (sc.isFailure()){
-    log << MSG::INFO << "BeamDetectorMonitoring: Retrieval of Scintillators failed" << endreq;
+    ATH_MSG_INFO ( "BeamDetectorMonitoring: Retrieval of Scintillators failed" );
   } else {
     m_scintnum = scintCont->size() > m_scint_names.size() ? m_scint_names.size():scintCont->size();
     // if container empty don't book histo yet.
     if(m_scintnum==0) {
-      log << MSG::INFO << " Scintillator Cont is empty"<< endreq;
+      ATH_MSG_INFO ( " Scintillator Cont is empty");
       return StatusCode::SUCCESS;
     }
     if(scintCont->size() != m_scint_names.size()){
-      log << MSG::INFO << "!! Warning !! Number of SCINTRaw in SG="
-	  <<scintCont->size()<<" differs from number in jobOptions=" << m_scint_names.size()
-	  << endreq;}
+      ATH_MSG_INFO ( "!! Warning !! Number of SCINTRaw in SG="
+                     <<scintCont->size()<<" differs from number in jobOptions=" << m_scint_names.size() );
+    }
 
     // Map histo number to a scint name
     m_scint_map.clear();
@@ -200,10 +169,12 @@ StatusCode TBScintillatorMonTool::mybookHists()
       }
       if(it_bc!=last_bc){
 	m_scint_map.push_back(j);
-	log << MSG::DEBUG << "histo "<<Nfound<< " --> SCINT "<< m_scint_names[m_scint_map[Nfound]] << endreq;
+	ATH_MSG_DEBUG ( "histo "<<Nfound<< " --> SCINT "<< m_scint_names[m_scint_map[Nfound]] );
 	Nfound++;
       }
-      else {log << MSG::DEBUG << "SCINT "<< m_scint_names[j]<< " Not Found"  << endreq;}
+      else {
+        ATH_MSG_DEBUG ( "SCINT "<< m_scint_names[j]<< " Not Found"  );
+      }
     }
        
     // Now there are Nfound matching between SCINT in Cont and the joboption list
@@ -221,25 +192,16 @@ StatusCode TBScintillatorMonTool::mybookHists()
     for(int nameind=0;nameind<Nfound;nameind++){ // (Nfound = m_scint_map.size())
       std::string hname = path+m_scint_names[m_scint_map[nameind]];
       std::string htitle = runnumber + "Scintillator  "+m_scint_names[m_scint_map[nameind]]+ " Signal";
-      log << MSG::DEBUG << "            histo scint "<< hname << endreq;
+      ATH_MSG_DEBUG ( "            histo scint "<< hname );
       m_histo_scint[nameind] = ToolHistoSvc()->book(hname,htitle,m_adcbin,m_adcmin,m_adcmax);
 	
       hname =path+"Time"+m_scint_names[m_scint_map[nameind]];
       htitle = runnumber + "Scintillator  "+m_scint_names[m_scint_map[nameind]]+ " Time signal";
       m_histo_scint_time[nameind] = ToolHistoSvc()->book(hname,htitle,m_tdcbin,m_tdcmin,m_tdcmax);
     }
-    log << MSG::DEBUG << "histo path: " << path  << endreq;
+    ATH_MSG_DEBUG ( "histo path: " << path  );
   }
 
-  log << MSG::INFO << " \t Monitoring Scintillators  " ;
-  log << " \t : YES "<< endreq;
-  
-
-
-  log << MSG::INFO << " \t Fake Detectors  \t  " ;
-  if(m_fake_detector) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-  
   SetBookStatus(true);
 
   return StatusCode::SUCCESS;
@@ -258,12 +220,7 @@ StatusCode TBScintillatorMonTool::mybookHists()
 StatusCode TBScintillatorMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-
-  log << MSG::DEBUG << "in fillHists()" << endreq;
-
+  ATH_MSG_DEBUG ( "in fillHists()" );
  
   // Fill some bpc and stuff (testing) 
   if(m_fake_detector) FillRandomDetect();
@@ -273,20 +230,17 @@ StatusCode TBScintillatorMonTool::fillHists()
   }
 
   if(m_scintnum==0) {
-    log << MSG::INFO << " Nothing to monitor"<< endreq;
+    ATH_MSG_INFO ( " Nothing to monitor");
     return StatusCode::SUCCESS;
   }
 
-  StatusCode sc;
- 
   // Scint monitor ----------------------------------------------------------------
 
-  TBScintillatorCont * scintCont;
-  sc = m_StoreGate->retrieve(scintCont, m_SGkeyscint);
+  TBScintillatorCont * scintCont = nullptr;
+  StatusCode sc = evtStore()->retrieve(scintCont, m_SGkeyscint);
   if (sc.isFailure()){
-    log << MSG::DEBUG 
-	<< "BeamDetectorMonitoring: Retrieval of Scintillators failed" 
-	<< endreq;
+    ATH_MSG_DEBUG 
+      ( "BeamDetectorMonitoring: Retrieval of Scintillators failed"  );
   }else {
     TBScintillatorCont::const_iterator it_scint   = scintCont->begin();
     TBScintillatorCont::const_iterator last_scint   = scintCont->end();
@@ -298,24 +252,23 @@ StatusCode TBScintillatorMonTool::fillHists()
       if((it_scint!=last_scint)&&((*it_scint)->getDetectorName() != m_scint_names[m_scint_map[nameind]])){
 	it_scint=scintCont->begin();
 	while(it_scint!=last_scint){
-	  log << MSG::DEBUG << (*it_scint)->getDetectorName() << " ";
+	  msg() << MSG::DEBUG << (*it_scint)->getDetectorName() << " ";
 	  if ((*it_scint)->getDetectorName() != m_scint_names[m_scint_map[nameind]]) it_scint++;
 	  else break;
 	}
-	log << MSG::DEBUG << endreq;
+	msg() << MSG::DEBUG << endreq;
       }
       if(it_scint==last_scint) {
 	// did not find the scint
-	log << MSG::INFO 
-	    << "BeamDetectorMonitoring: could not find scintillator "
+	ATH_MSG_INFO 
+          ( "BeamDetectorMonitoring: could not find scintillator "
 	    << "named "
-	    << m_scint_names[m_scint_map[nameind]] 
-	    << endreq;
+	    << m_scint_names[m_scint_map[nameind]]  );
 	it_scint= scintCont->begin();
 	continue;
       }
 
-      log << MSG::DEBUG << "Scint " <<(*it_scint)->getDetectorName() << " Sig= "<< (*it_scint)->getSignal() <<" Time Sig= " <<(*it_scint)->getTimeSignal()<< endreq;	
+      ATH_MSG_DEBUG ( "Scint " <<(*it_scint)->getDetectorName() << " Sig= "<< (*it_scint)->getSignal() <<" Time Sig= " <<(*it_scint)->getTimeSignal());
       // now it_scint contains the right scint
       const TBScintillator * scint = (*it_scint);
 
@@ -327,7 +280,7 @@ StatusCode TBScintillatorMonTool::fillHists()
     }
   }
 
-  log << MSG::DEBUG << "fillHists() ended" << endreq;
+  ATH_MSG_DEBUG ( "fillHists() ended" );
   return StatusCode::SUCCESS;
 }
 
@@ -335,10 +288,4 @@ StatusCode TBScintillatorMonTool::fillHists()
 void TBScintillatorMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
-  // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
-
-  
-
 }

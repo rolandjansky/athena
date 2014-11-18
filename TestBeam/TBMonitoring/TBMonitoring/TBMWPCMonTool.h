@@ -4,10 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TBMWPCTMONTOOL_H
-#define TBMWPCMONTOOL_H
+#ifndef TBMONITORING_TBMWPCMONTOOL_H
+#define TBMONITORING_TBMWPCMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -49,10 +48,6 @@ class TBMWPCMonTool: public MonitorToolBase
   void FillRandomDetect();
 
  private:
-
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   std::string m_path;
 
   //Declared properties
@@ -82,4 +77,4 @@ class TBMWPCMonTool: public MonitorToolBase
 };
 
 
-#endif
+#endif // not TBMONITORING_TBMWPCMONTOOL_H

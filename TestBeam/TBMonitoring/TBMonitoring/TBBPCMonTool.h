@@ -16,7 +16,6 @@
 #ifndef TBBPCMONTOOL_H
 #define TBBPCMONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "AthenaMonitoring/MonitorToolBase.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -51,10 +50,6 @@ class TBBPCMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;   
-
   std::string m_path,m_SGkeybpc,m_SGkeybpcraw;
   std::vector<std::string> m_bpc_names;
   std::vector<short> m_bpc_map;

@@ -5,7 +5,6 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "TBMonitoring/TBTDCRawMonTool.h"
@@ -44,20 +43,8 @@ TBTDCRawMonTool::~TBTDCRawMonTool()
 StatusCode TBTDCRawMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-
   if(m_monitor_tdc == false){
-    log << MSG::INFO << name() << " Not monitoring tdc " << endreq;
-  }
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-	<< ": Unable to locate Service StoreGateSvc" 
-	<< endreq;
-    return sc;
+    ATH_MSG_INFO ( name() << " Not monitoring tdc " );
   }
 
   //set to true whitin bookHist() 
@@ -80,14 +67,7 @@ StatusCode TBTDCRawMonTool::bookHists()
 StatusCode TBTDCRawMonTool::mybookHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-  
-#ifndef NDEBUG
-  log << MSG::INFO << "in mybookHists()" << endreq;
-#endif
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in mybookHists()" );
 
   //Start of tdc raw histos
    if(m_monitor_tdc){
@@ -108,19 +88,11 @@ StatusCode TBTDCRawMonTool::mybookHists()
      }
    }  //End of tdc histo
 
-  log << MSG::DEBUG << "histo path: " << m_path + "/BeamDetectors/" << endreq;
+   ATH_MSG_DEBUG ( "histo path: " << m_path + "/BeamDetectors/" );
 
-  log << MSG::INFO << " \t Monitoring TDCRaw \t  " ;
-  if(m_monitor_tdc) log << " \t : YES "<< endreq;
-  else log << " \t : NO "<< endreq;
-
-  log << MSG::INFO << " \t testTool \t  " ;
-  if(m_testTool) log << " \t \t : YES "<< endreq;
-  else log << " \t \t : NO "<< endreq;
-  
   SetBookStatus(true);
   
-  log << MSG::DEBUG << "Leaving mybookHists()" << endreq;
+  ATH_MSG_DEBUG ( "Leaving mybookHists()" );
 
   return StatusCode::SUCCESS;
 }
@@ -129,10 +101,7 @@ StatusCode TBTDCRawMonTool::mybookHists()
 StatusCode TBTDCRawMonTool::fillHists()
 /*---------------------------------------------------------*/
 {
- 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "In fillHists()" << endreq;
+  ATH_MSG_DEBUG ( "In fillHists()" );
 
   // Fill some tacking objects for testing
   if(m_testTool){
@@ -143,15 +112,12 @@ StatusCode TBTDCRawMonTool::fillHists()
     this->mybookHists();
   }
 
-  StatusCode sc;
-
   if(m_monitor_tdc){  
     TBTDCRawCont * tdcRawCont=NULL;
-    sc = m_StoreGate->retrieve(tdcRawCont);
+    StatusCode sc = evtStore()->retrieve(tdcRawCont);
     if (sc.isFailure()){
-      log << MSG::DEBUG 
-	  << "BeamDetectorMonitoring: Retrieval of TBTDCRawCont failed" 
-	  << endreq;
+      ATH_MSG_DEBUG 
+        ( "BeamDetectorMonitoring: Retrieval of TBTDCRawCont failed" );
     } else {
       
       TBTDCRawCont::const_iterator it_tdc = tdcRawCont->begin();
@@ -159,13 +125,15 @@ StatusCode TBTDCRawMonTool::fillHists()
       
       // loop over list of scint to monitor :
       for(int nameind=0; nameind < m_tdcNum; nameind++){      
-	log<< MSG::DEBUG << " Looking for " << m_tdcNames[nameind] <<endreq;
+	ATH_MSG_DEBUG ( " Looking for " << m_tdcNames[nameind] );
 	for(it_tdc = tdcRawCont->begin();it_tdc!=last_tdc;it_tdc++){	
 	// Check if tdcRawCont is in sync with m_tdcNames - defined in book hist
 	  if((*it_tdc)->getDetectorName() == m_tdcNames[nameind]) break;
 	}
-	if(it_tdc==last_tdc){log<< MSG::DEBUG << "Did not found" << m_tdcNames[nameind] <<endreq;continue;}
-	
+	if(it_tdc==last_tdc) {
+          ATH_MSG_DEBUG ( "Did not found" << m_tdcNames[nameind] );
+          continue;
+        }
 
 	// now it_scint contains the right scint
 	const TBTDCRaw * tdc = (*it_tdc);
@@ -175,7 +143,7 @@ StatusCode TBTDCRawMonTool::fillHists()
       }
     }
   }
-  log<< MSG::DEBUG << " fillHists() ended" << endreq;
+  ATH_MSG_DEBUG ( " fillHists() ended" );
   return StatusCode::SUCCESS;
 }
 
@@ -183,8 +151,4 @@ StatusCode TBTDCRawMonTool::fillHists()
 void TBTDCRawMonTool::FillRandomDetect()
 /*---------------------------------------------------------*/
 {
-  // Fake different beam detectors/data classes
-
-  MsgStream log(msgSvc(), name());
-  // Nothing here!! //
 }
