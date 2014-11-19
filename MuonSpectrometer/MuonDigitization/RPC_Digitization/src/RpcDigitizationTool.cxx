@@ -299,8 +299,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int /*bunchXing*/,
     RPCSimHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      RPCSimHit rpchit(*i);
-      RPCHitColl->Insert(rpchit);
+      RPCHitColl->Emplace(*i);
     }
     m_thpcRPC->insert(thisEventIndex, RPCHitColl);
     //m_thpcRPC->insert(iEvt->time(), RPCHitColl);
