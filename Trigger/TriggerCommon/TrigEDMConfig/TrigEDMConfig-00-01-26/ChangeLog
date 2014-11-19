@@ -1,0 +1,564 @@
+2014-09-07  RD Schaffer  <R.D.Schaffer@cern.ch>
+
+        * tagging as TrigEDMConfig-00-01-26
+	* python/TriggerEDM.py: removed the _v1 for electron and photon containers
+
+2014-09-07 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * cmt/requirements: forced xAOD loading as per JIRA report ATR-8987
+        * taggig as TrigEDMConfig-00-01-25
+
+2014-09-06 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * cmt/requirements: forced xAOD loading as per JIRA report ATR-8987
+        * taggig as TrigEDMConfig-00-01-24
+
+2014-09-02 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * python/TriggerEDM.py: updated XAOD:TauJetContainer as per JIRA report ATR-9004
+        * taggig as TrigEDMConfig-00-01-23
+
+2014-08-29 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * python/TriggerEDM.py: updated TrackParticleContainer T/P converter to tlp3
+        * taggig as TrigEDMConfig-00-01-22
+
+2014-08-25 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* added L2 Trig Muons (xAOD)
+	* tagging TrigEDMConfig-00-01-21
+
+2014-08-05 Tomasz Bold
+	* fixed MinBias EDm definitions
+	* TrigEDMConfig-00-01-20
+	
+2014-07-29 Andrzej Zemla <azemla@cern.ch>
+	* python/TriggerEDM.py: added xAOD::TrigMinBias containers
+	* tagging TrigEDMConfig-00-01-19
+
+2014-07-18 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: added Muon tracks sav #104887
+	* tagging TrigEDMConfig-00-01-18
+
+2014-07-16 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Fixed the StoreGate keys of the auxiliary containers of the
+	  newly added LVL2 track containers.
+	* Tagging as TrigEDMConfig-00-01-17
+
+2014-07-15  Jiri Masik  <masik@pcmanat66.cern.ch>
+
+	* python/TriggerEDM.py: add converted L2 track collection, tagged
+	as TrigEDMConfig-00-01-16
+
+2014-07-14 Lukas Heinrich <lukas.heinrich@gmail.com>
+	* python/TriggerEDM.py: added EM clusters
+	* tagging as TrigEDMConfig-00-01-15 
+
+2014-07-14 Lukas Heinrich <lukas.heinrich@gmail.com>
+	* python/TriggerEDM.py: added L2 egamma containers
+	* tagging as TrigEDMConfig-00-01-14
+
+2014-07-11 Fabrizio Salvatore <p.salvatore@cern.ch>
+	* python/TriggerEDM.py: re-added 'AOD AODFULL' to MuonFeature*
+	* taggig as TrigEDMConfig-00-01-13
+
+2014-07-03 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: dirty hack to get aux->parent mapping until we get rewrite
+	* tagging TrigEDMConfig-00-01-12
+
+2014-06-27 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: added Aux. suffix to VertexAuxContainer
+	* tagging TrigEDMConfig-00-01-11
+
+2014-06-26 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: adjusted egamma names
+	* tagging TrigEDMConfig-00-01-10
+
+2014-06-25 Lukas Heinrich <lukas.heinrich@cern.ch>
+        * python/TriggerEDM.py: ading electrons and photons
+        * tagging as TrigEDMConfig-00-01-09
+
+2014-06-25 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: moved container name insertion back here, only insert for HLT list items sav #104737
+	* tagging as TrigEDMConfig-00-01-08
+
+2014-06-25 Fabrizio Salvatore <p.salvatore@cern.ch>
+	* python/TriggerEDM.py: removed 'BS ESD AOD AODFULL' from CaloClusterContainer
+	* taggig as TrigEDMConfig-00-01-07
+
+2014-06-20 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: moved all xAOD lists to HLT list
+	* taggig as TrigEDMConfig-00-01-06
+
+2014-06-20 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* python/TriggerEDM.py: added back in the removed old Tau related entries
+	* changed JetAuxContainer container to TrigAuxContainer as this is what the trigger uses
+	* tagging as TrigEDMConfig-00-01-05
+
+2014-06-19  Jiri Masik  <masik@pcmanat66.cern.ch>
+
+	* python/TriggerEDM.py: Aux container names should be end with
+	Aux.?, tagged as TrigEDMConfig-00-01-04
+
+2014-06-17  Jiri Masik  <masik@pcmanat66.cern.ch>
+
+	* python/TriggerEDM.py: add xAOD::TrackParticleContainer and
+	VertexContainer to the output, tagged as TrigEDMConfig-00-01-02
+
+2014-06-18 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* adding xAOD Muons
+
+2014-06-12 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* added xAOD outputs to Trigger Lists
+	* changed naming scheme (via function, no changes in list)
+
+2014-06-05 Francesca Pastore <francesca.pastore@cern.ch>
+	* Added TriggerHLTList, and functions, for specific objects in the merged
+	HLT system
+	* TrigEDMConfig-00-00-99
+
+2014-05-08 Francesca Pastore <francesca.pastore@cern.ch>
+	* Added HLTResult_HLT in EDM; added function to unify L2/EF preregistrationlist 
+	* TrigEDMConfig-00-00-98
+
+2014-01-24 Noemi Calace <ncalace@cern.ch>
+	* TriggerEDM.py: made some changes for datascouting
+	* TrigEDMConfig-00-00-97
+
+2014-03-24 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Removed all the clashing containers from the AODFULL and AODSLIM
+	  output formats. This is to be able to write the new style
+	  (x)AOD files where each container must have a unique StoreGate
+	  key.
+	* This is just meant to be a temporary solution for release 19.0.1.
+	  A way will be developed for 19.0.2 in order to rename containers
+	  on the fly in a meaningful way.
+	* Tagging as TrigEDMConfig-00-00-96
+
+2014-03-12 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Removed the old style CTP_Decision and LVL1_ROI objects from
+	  the output list.
+	* Added xAOD::TrigConfKeys to the output list. It is needed for
+	  the ROOT-readable trigger configuration metadata reading.
+	* Tagging as TrigEDMConfig-00-00-95
+
+2013-03-11 Lukas Heinrich <lukas.heinrich@cern.ch>
+	* TriggerEDM.py: added xAOD objects for ROIs and TrigDecision
+
+2014-02-17 Fab Salvatore <p.salvatore@cern.ch>
+	* TriggerEDM.py: added HLT_TrigJetRec to EF stream
+	* TrigEDMConfig-00-00-93
+
+2014-01-24 Noemi Calace <ncalace@cern.ch>
+	* TriggerEDM.py: extented with possibility to add collections that only go to
+	data-scouting streams (and example)
+	* TrigEDMConfig-00-00-92
+
+2013-09-13 Tomasz Bold
+	* added TrigCombinedEventTPCnv1Dict to the loaded libs so the BS to ESD part works (uuid -> class relation is known)
+	* TrigEDMConfig-00-00-91
+
+2013-09-04 Tomasz Bold
+	* added prerequisites definitions for the TrigComposite, no new containers
+	* TrigEDMConfig-00-00-90
+
+2013-08-30  Jiri Masik  <Jiri.Masik@cern.ch>
+	* python/TriggerEDM.py: disable preloading of remaining ARA_
+	dictionaries
+	* tagged as TrigEDMConfig-00-00-89
+
+2013-08-20  Jiri Masik  <Jiri.Masik@cern.ch>
+	* python/TriggerEDM.py: disable preloading of
+	ARA_TrigParticleTPCnv1Dict
+	* tagged as TrigEDMConfig-00-00-88
+
+2013-08-08 Frank Winklmeier <fwinkl@cern>
+	* Tau TP converters moved from RecTPCnv package to tauEventTPCnv
+	* Tagged as TrigEDMConfig-00-00-87
+
+2013-06-20 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * New TriggerEDM.py following updates from Rodger Mantifel
+	* Tagged as TrigEDMConfig-00-00-86
+
+2012-08-29 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added 'TrigEFBphysContainer#HLT_EFBMuMuXFex'
+	* Tagged as TrigEDMConfig-00-00-85
+
+2012-08-01 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added 'TrigRNNOutput#HLT_TrigTRTHTCounts' to #clusters
+	* Tagged as TrigEDMConfig-00-00-84
+
+2012-04-23 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved 'TrigVertexCollection#HLT_EFHistoPrmVtx' to EFList
+	* Tagged as TrigEDMConfig-00-00-83
+
+2012-04-12 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added ('Rec::TrackParticleContainer#HLT_InDetTrigParticleCreation_MuonIso_EFID', 'BS ESD AODFULL'),
+        * for studies on isolation in EF (http://savannah.cern.ch/bugs/?93635)
+	* Tagged as TrigEDMConfig-00-00-82
+
+2012-04-10 Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
+	* fix for TrigTauContainer (using wrong converter).
+
+2012-03-14 Dmitry Emeliyanov<Dmitry.Emeliyanov@cern.ch>
+        * added more TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder collections
+	* Tagged as TrigEDMConfig-00-00-80
+	
+2012-02-23 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Changed TrigEFMissingET_allCells to TrigEFMissingET_topocl
+        * (request from Allen Mincer)
+	* Tagged as TrigEDMConfig-00-00-79
+
+2012-02-14 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added EDMLibraries for TrigTopoEvent and TrigTopoEventTPCnv
+        * Savannah bug report: http://savannah.cern.ch/bugs/?84079
+	* Tagged as TrigEDMConfig-00-00-78
+
+2012-02-13 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added 'TrigVertexCollection#HLT_EFHistoPrmVtx' (from Andrea Coccaro) 
+        * for all type of output files (BS, ESD, AODFULL, AODSLIM)
+	* Tagged as TrigEDMConfig-00-00-77
+
+2012-02-13 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added Change in VxContainer (from Andrea Coccaro) 
+        * all type of output files (BS, ESD, AODFULL, AODSLIM)
+	* Tagged as TrigEDMConfig-00-00-76
+
+2012-02-07 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * added ElectronMuonTopoInfo object to list of TriggerEDM which are 
+        * preserved for all type of output files (BS, ESD, AOD)
+	* Tagged as TrigEDMConfig-00-00-75
+
+2012-02-02 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Evolution of TrigMuonEFIsolationContainer (from _p1 to _p2)
+	* Tagged as TrigEDMConfig-00-00-74
+
+2012-02-01 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Evolution of TrigEmClusterContainer (from _p3 to _p4)
+	* Tagged as TrigEDMConfig-00-00-73
+
+2012-01-22 Joerg Stelzer <stelzer@cern.ch>
+	* python/TriggerEDM.py: added JetKeyDescriptor and JetMomentMap (from Bertrand Chapleau)
+	* Tagged as TrigEDMConfig-00-00-72
+
+2012-01-18 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Propagated to TiggerEDM.py the changes in TrigBphysHypo
+	* Tagged as TrigEDMConfig-00-00-71
+
+2012-01-07 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * sync with new EDM for IsoMuonFeature and CombinedMuonFeature for 2012 algorithms
+	* Tagged as TrigEDMConfig-00-00-70
+
+2011-11-21 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added ('TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder' , 'BS ESD AODFULL'), to trunk
+	* Tagged as TrigEDMConfig-00-00-69
+
+2011-11-18 Curtis Black <curtis.black@cern.ch>
+	* TrigTauCluster converter moved to _p5
+	* Tagged as TrigEDMConfig-00-00-68
+
+2011-10-03 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added ('TrigMissingET#HLT_L2MissingET_FEB', 'BS ESD AODFULL AODSLIM'),
+        * Tagged as TrigEDMConfig-00-00-67
+
+2011-09-18 Fabrizio Salvatore <p.salvatore@cern.ch>
+	* Added HLT_InDetTrigParticleCreation_Electron_EFID to AODSLIM
+	* Tagged as TrigEDMConfig-00-00-66
+
+2011-08-24 Joerg Stelzer <stelzer@cern.ch>
+	* Added TrigPassFlags class
+	* Tagged as TrigEDMConfig-00-00-65
+
+2011-07-28 Tomasz Bold
+
+	* added TrigTauClusterDetails to AODSLIM
+
+2011-06-06  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Evolution of TrigEMCluster and RingerRings containers
+        * Added new TrigCaloClusterContainer
+	* Tagged as TrigEDMConfig-00-00-63
+
+2011-06-01  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added the following containers to 'AODSLIM' after request from EGamma:
+        * HLT_TrigCaloClusterMaker, Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Photon_EFID
+        * Rec::TrackParticleContainer_HLT_InDetTrigParticleCreationCombined_Electron_EFID
+	* Tagged as TrigEDMConfig-00-00-62
+
+2011-05-24  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigT2MBTSContainer container
+	* Tagged as TrigEDMConfig-00-00-61
+
+2011-05-24  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigTauTracksInfoCollection container
+	* Tagged as TrigEDMConfig-00-00-60
+
+2011-05-16  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigSpacePointCollection container
+	* Tagged as TrigEDMConfig-00-00-59
+
+2011-05-11  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added TrigTopoEvent in EDMLibraries
+	* Tagged as TrigEDMConfig-00-00-58
+
+2011-05-04  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigMissingET converter
+	* Tagged as TrigEDMConfig-00-00-57
+
+2011-05-04  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigTrtHitCounts converter
+	* Tagged as TrigEDMConfig-00-00-56
+
+2011-05-03  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigMuonEFContainer converter
+	* Tagged as TrigEDMConfig-00-00-55
+
+2011-04-28  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigT2JetContainer converter
+	* Tagged as TrigEDMConfig-00-00-54
+
+2011-04-22  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Optimization of TrigRNNOutputContainer converter
+	* Tagged as TrigEDMConfig-00-00-53
+
+2011-04-19  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added partial update to TrigTauCluster:
+        * - one variable added to TrigTauCluster class;
+        * - TP converter moved to _p4
+	* Tagged as TrigEDMConfig-00-00-52
+
+2011-04-14  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Removed TrigTauCluster converter update to _p4:
+        * needs further testing
+        * (additional objects added to TrigTauCluster class).
+	* Tagged as TrigEDMConfig-00-00-51
+
+2011-04-14  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * TrigPhotonContainer performance optimization
+        * Added TrigPhoton_p3 and corresponding converters
+        * Updated TrigTauCluster converter to _p4
+        * (additional objects added to TrigTauCluster class).
+	* Tagged as TrigEDMConfig-00-00-50
+
+2011-04-12  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * TrigElectronContainer performance optimization
+        * Added TrigElectron_p3 and corresponding converters
+	* Tagged as TrigEDMConfig-00-00-49
+
+2011-04-07  Fabrizio Salvatore <p.salvatore@cern.ch>
+        * TrigL2BjetContainer performance optimization
+        * Added TrigL2Bjet_p3 and corresponding converters
+	* Tagged as TrigEDMConfig-00-00-48
+        
+2011-02-28 Fab Salvatore <p.salvatore@cern.ch>
+        * added HLT_ prefix to EFJetEtSum key
+	* Tagged as TrigEDMConfig-00-00-47
+
+2011-02-26 Fab Salvatore <p.salvatore@cern.ch>
+        * added: ('TrigMissingET#EFJetEtSum', 'BS ESD AODFULL AODSLIM'),
+	* Tagged as TrigEDMConfig-00-00-46
+
+2011-02-18 Fab Salvatore <p.salvatore@cern.ch>
+	* added AODSLIM to:
+	* TrigTauCluster#HLT_TrigT2CaloTau
+ 	* TrigTauTracksInfo#HLT
+ 	* Analysis::TauDetailsContainer#HLT_TrigTauDetailsMerged
+ 	* Analysis::TauDetailsContainer#HLT_TrigTauDetailsCalo
+ 	* egDetailContainer#HLT_egamma_Electrons
+ 	* egDetailContainer#HLT_egamma
+ 	* egDetailContainer#HLT_egamma_Photons
+	* Tagged as TrigEDMConfig-00-00-45
+
+2011-02-18 Fab Salvatore <p.salvatore@cern.ch>
+	* added AODSLIM to TrigInDetTrackCollection#HLT_TrigIDSCAN_Muon
+        * and TrigInDetTrackCollection#HLT_TrigIDSCAN_muonIso
+        * added AODSLIM to egammaContainer#HLT_egamma_Electrons
+	* Tagged as TrigEDMConfig-00-00-44
+
+2011-02-07 Tomasz Bold
+
+	* added configurability of the collections which go to AOD
+
+2011-01-22 Fab Salvatore <p.salvatore@cern.ch>
+	* put TrigMuonEFContainer back for backward compatibility
+	* Tagged as TrigEDMConfig-00-00-42
+
+2011-01-19 Fab Salvatore <p.salvatore@cern.ch>
+	* removed TrigMuonEFContainer 
+	* Tagged as TrigEDMConfig-00-00-41
+
+2011-01-15 Tomasz Bold
+
+	* moved to _p2 for TrigRoiDescriptor collections
+	* Tagged as TrigEDMConfig-00-00-40
+	
+2011-01-13 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added TrigMuonEFIsolationContainer
+	* Tagged as TrigEDMConfig-00-00-39
+
+2011-1-09 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved MdtRackSegment to a simple _pX model
+        * (optimization of Trigger EDM) 
+	* Tagged as TrigEDMConfig-00-00-38
+
+2010-12-15 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * change TileTrackMuFeature to contain just one vector of floats;
+        * Evolved TileTrackMuFeature to _p3 to use ElementLinks_p3 and not ElementLinks_p1
+        * moved from tlpX model to simple pX model  
+        * (optimization of Trigger EDM) 
+	* Tagged as TrigEDMConfig-00-00-37
+
+2010-12-14 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * change TileMuonFeature_p1 to contain just one vector of floats;
+        * moved from tlpX model to simple pX model  
+        * (optimization of Trigger EDM) 
+	* Tagged as TrigEDMConfig-00-00-36
+
+2010-12-13 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Evolved CombinedMuonFeature to _p3 to use ElementLinks_p3 and not ElementLinks_p1 
+        * (optimization of Trigger EDM) 
+	* Tagged as TrigEDMConfig-00-00-35
+
+2010-11-15 Tomasz Bold
+
+	* Fixed ARA objects renaming to handle gracefully the same obj at L2 and EF
+	* Tagged as TrigEDMConfig-00-00-34
+	
+2010-11-12 Tomasz Bold
+
+	* Added persistification of TrigPassBits at EF (fixed ESD/AOD lists accordingly)
+	* Tagged as TrigEDMConfig-00-00-33
+	
+2010-11-03 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Removed persistification of
+        * HLT_InDetTrigParticleCreation_minBias_EFID from AOD
+        * TrigEDMConfig-00-00-32
+
+2010-10-26 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added TrigVertexCountsCollection
+        * TrigEDMConfig-00-00-31
+
+2010-08-26 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Modification of TrigTauCluster and TrigTauClusterDetails (P. Casado)
+        * (optimization of Trigger EDM)
+        * TrigEDMConfig-00-00-29
+
+2010-08-25 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Persistent class optimization in TrigParticle and TrigInDetEvent
+        * TrigEDMConfig-00-00-28
+
+2010-08-17 Brian Petersen
+	* Move MuonFeatureDetails to the end of the persistification list
+	* TrigEDMConfig-00-00-27
+	
+2010-07-30 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved from MuonFeatureContainer_tlp2 to MuonFeatureContainer_p3
+        * (persistent class optimization)
+        * TrigEDMConfig-00-00-26
+
+2010-07-28 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved from CombinedMuonFeatureContainer_tlp1 to CombinedMuonFeatureContainer_p2
+        * (persistent class optimization)
+        * TrigEDMConfig-00-00-25
+
+2010-06-22 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Changed TP converter for IsoMuonFeatureContainer (_tlp1 -> _p2)
+        * TrigEDMConfig-00-00-24
+
+2010-06-14 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Changed JetCollection_tlp2 -> JetCollection_tlp5
+	* TrigEDMConfig-00-00-23
+
+2010-06-14 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added HLT_L2JetEtSum to list of TrigMissingET objects
+	* TrigEDMConfig-00-00-22
+
+2010-06-03 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added TrigMuonClusterFeature to list of L2 collections
+	* TrigEDMConfig-00-00-21
+
+2010-05-28 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added RecTPCnvDict, OLD_RecTPCnvDict and ARA_RecTPCnvDict
+        * to the list of EDMLibraries
+	* TrigEDMConfig-00-00-20
+
+2010-05-19 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * changed TauDetailsContainer_tlp1->TauDetailsContainer_tlp2 and 
+        * TauJetContainer_p3->TauJetContainer_p4 in TriggerEDM.py
+	* TrigEDMConfig-00-00-19
+
+2010-05-19 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * TrigOperationalInfo#HLT_EXPRESS_OPI_EF now only in BS (removed from ESD)
+	* TrigEDMConfig-00-00-18
+
+2010-05-13 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * introduced DataVector<LVL1::TriggerTower>#TriggerTowersMuon in ESD
+	* TrigEDMConfig-00-00-17
+
+2010-05-11 Ilija Vukotic <ilija@vukotic.me>
+        * changed MuonFeatureDetailsContainer
+        * TrigEDMConfig-00-00-16
+
+2010-05-07  Jiri MASIK  <Jiri.Masik@cern.ch>
+        * python/TriggerEDM.py: add minBias TrackParticles
+        * TrigEDMConfig-00-00-15
+
+2010-04-28 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added HLT_TrigBeamSpotVertex and HLT_TrigBeamSpotVertex_SiTrack keys
+	* TrigEDMConfig-00-00-14
+
+2010-04-26 Rustem Ospanov <rustem@cern.ch>
+	* Add TrigOpertionalInfo object at EF with express stream chain names
+	* Drop HLT_OPI_L2 and HLT_OPI_EF collections from ESD
+	* TrigEDMConfig-00-00-13
+	
+2010-04-23 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * introduced LVL1::RODHeader key in BS and ESD
+	* TrigEDMConfig-00-00-12
+
+2010-04-08 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * removed previously introduced key.
+        * Existing 'secondaryRoI_L2' will be used instead 
+        * (Savannah report: http://savannah.cern.ch/bugs/?65436, comment #11)
+	* TrigEDMConfig-00-00-11
+
+2010-04-07 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * added following RoI Descriptor key:
+        * TrigRoiDescriptor#HLT_ReverseRoI to BS, ESD and AOD in TriggerEDM.py
+        * (Savannah report: http://savannah.cern.ch/bugs/?65436)
+	* TrigEDMConfig-00-00-10
+
+2010-03-29 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * evolved TrigMuonEFInfoContainer from tlp1 to tlp2
+        * plus code cleanup for more efficient running (Ilija Vukotic)
+	* TrigEDMConfig-00-00-09
+
+2010-03-25 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Updated tlp converter for TrigInDetTrackCollection to TrigInDetTrackCollection_tlp2 
+        * in TriggerEDM.py script
+	* TrigEDMConfig-00-00-08
+
+2009-02-18 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added 'TrigEFBphysContainer#HLT_EFTrackMass' ('BS ESD AOD') 
+        * to TriggerEDM.py script
+	* TrigEDMConfig-00-00-07
+
+2009-12-10 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * minor additions to TriggerLvl1List which allows to move some of 
+        * L1Calo monitoring from the RAWtoESD step to the ESDtoAOD step at Tier0
+	* TrigEDMConfig-00-00-06
+
+2009-12-04 Iwona Grabowska-Bold <Iwona.Grabowska@cern.ch>
+        * TRTOnly EFID collections added to EDM
+	* TrigEDMConfig-00-00-05
+
+2009-11-18 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved 'CaloCellContainer' to the bottom of L2 and EF list: corrected typo
+	* TrigEDMConfig-00-00-04
+
+2009-11-18 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved 'CaloCellContainer' to the bottom of L2 and EF list
+	* TrigEDMConfig-00-00-03
+
+2009-10-11 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Added TrigMissingET#HLT_TrigEFMissingET_allCells
+	* TrigEDMConfig-00-00-02
+
+2009-27-10 Fabrizio Salvatore <p.salvatore@cern.ch>
+        * Moved TriggerEDM.py in new package
+	* TrigEDMConfig-00-00-01
+	
