@@ -158,9 +158,6 @@ TriggerL2List = [
     ('TrigInDetTrackCollection#HLT_TrigL2SiTrackFinder' ,                 'BS ESD AODFULL',          'Tracking'),
     ('TrigInDetTrackCollection#HLT_TrigFastTrackFinder_TrigInDetTrack_Muon', 'BS ESD AODFULL',          'Muon'),
 
-    # temporary fix for MinBias issue (ATR-9216)
-    ('TrigVertexCollection#HLT_TrigL2SiTrackFinder_FullScan_ZF_Only',         'BS ESD AODFULL AODSLIM', 'MinBias'),
-
     # calocell
     ('CaloCellContainer#HLT_TrigT2CaloEgammaCells',                       'BS ESD AODFULL',          'Egamma'),
     ('CaloCellContainer#HLT_TrigT2CaloTauCells',                          'BS ESD',                  'Tau'),
@@ -430,12 +427,7 @@ TriggerHLTList = [
     ('xAOD::JetContainer_v1#HLT_TrigHLTJetRec',					'BS ESD AODFULL AODSLIM',  'Jet'),
     ('xAOD::JetTrigAuxContainer_v1#HLT_TrigHLTJetRecAux.',			'BS ESD AODFULL AODSLIM',  'Jet'),
     ('xAOD::JetContainer_v1#HLT_TrigCosmicJetRec',				'BS ESD AODFULL AODSLIM',  'Jet'),
-    ('xAOD::JetTrigAuxContainer_v1#HLT_TrigCosmicJetRecAux.',			'BS ESD AODFULL AODSLIM',  'Jet'),
-
-    #btagging
-    ('xAOD::BTaggingContainer_v1#HLT_HLTBjetFex',                               'BS ESD AODFULL AODSLIM',  'Bjet'),
-    ('xAOD::BTaggingAuxContainer_v1#HLT_HLTBjetFexAux.',                        'BS ESD AODFULL AODSLIM',  'Bjet')
-
+    ('xAOD::JetTrigAuxContainer_v1#HLT_TrigCosmicJetRecAux.',			'BS ESD AODFULL AODSLIM',  'Jet')
 ]
 
 TriggerResultsList=[
@@ -680,8 +672,6 @@ EDMDetails["xAOD::TrigDecision_v1"]               = {'persistent':"",           
 EDMDetails["xAOD::TrigDecisionAuxInfo_v1"]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigDecision_v1'}
 EDMDetails["xAOD::TrigConfKeys_v1"]               = {'persistent':"",              'typealias':'' }
 
-EDMDetails["xAOD::BTaggingContainer_v1"]          = {'persistent':"",              'typealias':'' }
-EDMDetails["xAOD::BTaggingAuxContainer_v1"]       = {'persistent':"",              'typealias':'', 'parent': 'xAOD::BTaggingContainer_v1'}
 
 
 #
