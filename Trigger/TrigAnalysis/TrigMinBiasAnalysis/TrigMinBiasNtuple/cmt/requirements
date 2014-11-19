@@ -12,10 +12,11 @@ use TrigNtupleBase       TrigNtupleBase-*        Trigger/TrigAnalysis
 use AtlasHepMC           AtlasHepMC-*            External
 use HepPDT               v*                      LCG_Interfaces
 use TrigCaloEvent        TrigCaloEvent-*         Trigger/TrigEvent
-use TrigConfigSvc        TrigConfigSvc-*         Trigger/TrigConfiguration
 use TrigInDetEvent       TrigInDetEvent-*        Trigger/TrigEvent
+use TrigConfInterfaces   TrigConfInterfaces-*    Trigger/TrigConfiguration
 
-apply_pattern dual_use_library files=*.cxx files=components/*.cxx
+
+apply_pattern dual_use_library files=*.cxx
 
 apply_pattern declare_joboptions files="*.py"
 

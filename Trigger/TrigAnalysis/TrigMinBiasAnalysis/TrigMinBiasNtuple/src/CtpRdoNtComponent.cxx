@@ -90,7 +90,7 @@ namespace NtComponent {
     m_timeNanoSec = ctpRDO->getTimeNanoSec();   
 
     // Get the datawords for all bunches that were read out.
-    *m_pit = ctpRDO->getPITWords();
+    *m_pit = ctpRDO->getTIPWords(); // this was changed from PIT (Run1 = 160 internal trigger lines) to TIP (Run2 = 320 internal trigger lines + 192 direct inputs from L1Topo + ALFA) // joerg
     *m_tbp = ctpRDO->getTBPWords();
     *m_tap = ctpRDO->getTAPWords();
     *m_tav = ctpRDO->getTAVWords();
