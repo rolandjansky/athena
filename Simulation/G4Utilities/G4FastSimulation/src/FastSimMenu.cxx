@@ -6,16 +6,15 @@
 #include "G4FastSimulation/FastSimModelCatalog.h"
 #include "G4FastSimulation/FastSimModel.h"
 
-#include <iostream>
+#include "FadsUtilities/Tokenizer.h"
 
 #include "G4FastSimulationManager.hh"
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 
-#include "FadsUtilities/Tokenizer.h"
-
-#include <string>
+#include <iostream>
 #include <map>
+#include <string>
 #include <vector>
 
 bool isMatch(const std::string& a,const std::string b)
@@ -28,34 +27,34 @@ bool isMatch(const std::string& a,const std::string b)
   bool returnValue=true;
   std::string temp=b;
   for (unsigned int i=0;i<tokens.size();i++)
-  {
-    if (tokens[i].empty()) continue;
-    std::string::size_type npos=temp.find(tokens[i]);
-    if (i==0 && npos) 
-      return false;
-    if (npos!=std::string::npos)
     {
-      temp=temp.substr(npos, temp.size()-npos);
+      if (tokens[i].empty()) continue;
+      std::string::size_type npos=temp.find(tokens[i]);
+      if (i==0 && npos)
+        return false;
+      if (npos!=std::string::npos)
+        {
+          temp=temp.substr(npos, temp.size()-npos);
+        }
+      else
+        {
+          returnValue=false;
+          break;
+        }
     }
-    else 
-    {
-      returnValue=false;
-      break;
-    }
-  }
   if (returnValue && !tokens[tokens.size()-1].empty())
-  {
-    std::string temp=tokens[tokens.size()-1];
-    std::string temp2=b.substr(b.size()-temp.size(),temp.size());
-    if (temp!=temp2) 
-      return false;
-  }
+    {
+      std::string temp=tokens[tokens.size()-1];
+      std::string temp2=b.substr(b.size()-temp.size(),temp.size());
+      if (temp!=temp2)
+        return false;
+    }
   return returnValue;
 }
 
 FastSimMenu::FastSimMenu()
 {
-  std::cout << "Creating the FastSimMenu\n ";
+  std::cout << "FastSimMenu    Creating the FastSimMenu" << std::endl;
 }
 
 void FastSimMenu::ListFastSimModels()
@@ -66,34 +65,31 @@ void FastSimMenu::ListFastSimModels()
 
 void FastSimMenu::AssignFsModel(std::string regName, std::string modelName)
 {
-  std::cout << " +++++ AssignFsModel called for " 
-	    << regName << " and " << modelName << "\n";
+  std::cout << "FastSimMenu   +++++ AssignFsModel called for "
+            << regName << " and " << modelName << std::endl;
 
   FastSimModelCatalog* cat = FastSimModelCatalog::GetInstance();
   FastSimModel* model = cat->GetModel(modelName);
+  if(0 == model) { return; }
 
-  if(model)
-  {
-    G4RegionStore* rs = G4RegionStore::GetInstance();
+  G4RegionStore* rs = G4RegionStore::GetInstance();
 
-    for (unsigned int i=0;i<rs->size();i++)
+  for (unsigned int i=0;i<rs->size();i++)
     {
       G4Region* reg=(*rs)[i];
 
       if (reg==0) continue;
       if (isMatch(regName,reg->GetName()))
-      {
-	std::cout<<"Assigning fast simulation model " << modelName 
-		 << " to region "<< regName << "\n";
+        {
+          std::cout<<"FastSimMenu   Assigning fast simulation model " << modelName
+                   << " to region "<< regName << std::endl;
 
-	G4FastSimulationManager* theFastSimulationManager = reg->GetFastSimulationManager();
-	if ( theFastSimulationManager == 0 )
-	  theFastSimulationManager = new G4FastSimulationManager(reg);
-	theFastSimulationManager->AddFastSimulationModel(model);
-	theFastSimulationManager->ActivateFastSimulationModel(model->GetName());
-      }
+          G4FastSimulationManager* theFastSimulationManager = reg->GetFastSimulationManager();
+          if ( theFastSimulationManager == 0 )
+            theFastSimulationManager = new G4FastSimulationManager(reg);
+          theFastSimulationManager->AddFastSimulationModel(model);
+          theFastSimulationManager->ActivateFastSimulationModel(model->GetName());
+        }
     }
-  }
-  else
-    std::cout<<"Warning the fast simulation model " << modelName << " not found!\n";
+  return;
 }
