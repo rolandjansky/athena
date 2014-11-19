@@ -28,6 +28,7 @@ namespace TrkDriftCircleMath {
     {
       m_validGeometry = true;
       m_tubeDist = 30.035;
+      m_tubeRad =  m_id.stName() == 53 ? 7.1 : 14.6; // BME chambers are small tubes
       m_layDist  = 26.011;
       // initialize first tubes to zero
       m_ntubesml.push_back(0);
@@ -159,20 +160,20 @@ namespace TrkDriftCircleMath {
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
   	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
-	  if( std::abs(res) > 14.6 ) {
+	  if( std::abs(res) > m_tubeRad ) {
  	    //std::cout << "   tube has larger radius " << std::endl;
 
 	    if( m_tubeDist > 0 ){
-	      if( res > 14.6 ) break;
+	      if( res > m_tubeRad ) break;
 	    }else{
-	      if( res < -14.6 ) break;
+	      if( res < -m_tubeRad ) break;
 	    }
 
  	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    // if this is a chamber with only the second ml, set the ml index accordingly
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
-	    crossedTubes.push_back( DriftCircle(lp,14.6,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
+	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
  	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}
@@ -181,17 +182,17 @@ namespace TrkDriftCircleMath {
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
   	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
-	  if( std::abs(res) > 14.6 ) {
+	  if( std::abs(res) > m_tubeRad ) {
  	    //std::cout << "   tube has larger radius " << std::endl;
 	    if( m_tubeDist > 0 ){
-	      if( res < - 14.6 ) break;
+	      if( res < - m_tubeRad ) break;
 	    }else{
-	      if( res > 14.6 ) break;
+	      if( res > m_tubeRad ) break;
 	    }
  	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
-	    crossedTubes.push_back( DriftCircle(lp,14.6,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
+	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
  	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}	
@@ -222,7 +223,8 @@ namespace TrkDriftCircleMath {
     std::cout << "  nml " << m_nml << " nlay " << m_nlay << " ntube1 " << m_ntubesml[0]
 	      << " ntube2 " << m_ntubesml[1] << std::endl;
     std::cout << " pos ml1 " << m_firstTube[0] << "  ml2 " << m_firstTube[1] << std::endl;
-    std::cout << " tubeDist " << m_tubeDist << " tubeStage " << m_tubeStage << " layDist " << m_layDist << std::endl;
+    std::cout << " tubeDist " << m_tubeDist << " tubeStage " << m_tubeStage
+              << " layDist " << m_layDist << " tubeRad " << m_tubeRad << std::endl;
   }
 
 }
