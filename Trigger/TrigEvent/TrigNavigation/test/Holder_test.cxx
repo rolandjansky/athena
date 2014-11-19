@@ -47,12 +47,21 @@ StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typ
   END_TEST;
 }
 
+StatusCode getUniqueKeyBeforeReg() {
+  BEGIN_TEST( "use of unique key without sync to SG" );
+  auto h = new HolderImp<TestBContainer, TestBContainer >();
+  h->prepare(msglog, pStore);
+  std::string key = h->getUniqueKey();
+  REPORT_AND_CONTINUE("Got unique Key:" << key);
+  END_TEST;
+}
+
 //*****************************************************************************
 StatusCode creation() {
   BEGIN_TEST( "Creation of the holders Container <-> Container" );
   Holder<TestBContainer >* cc(0);
 
-  if (  reg(new HolderImp<TestBContainer, TestBContainer >() , "creation0", 0, 0, cc).isFailure() ) REPORT_AND_STOP( "reg creation0" );
+  if (  reg( new HolderImp<TestBContainer, TestBContainer >() , "creation0", 0, 0, cc).isFailure() ) REPORT_AND_STOP( "reg creation0" );
 
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc(0); 
@@ -111,7 +120,7 @@ StatusCode add_operation(bool wihtAux) {
   dav3->push_back(new TestB(7));
   dav3->push_back(new TestB(7));
 
-  HLT::TriggerElement::ObjectIndex four =  cch->add(dav3, false, "dav3");
+  /*HLT::TriggerElement::ObjectIndex four = */ cch->add(dav3, false, "dav3");
 
   // retieve back the information
   {
@@ -230,6 +239,9 @@ int main() {
   *msglog << MSG::DEBUG << pStore->dump();
   *msglog << endreq;
 
+
+
+
   pStore->clearStore();
   if ( add_operation(false).isFailure() )
     ABORT("Failed add_operation w/o Aux");
@@ -249,25 +261,10 @@ int main() {
   if ( serialization().isFailure() )
     ABORT("Failed serialization");
 
+  *msglog << MSG::DEBUG << "Unique key "  << endreq;
+  if ( getUniqueKeyBeforeReg().isFailure() ) 
+    ABORT("UniqueKey failed");
 
   REPORT_AND_CONTINUE( "END all went fine" );
-  return 0;
-
-
-  /*
-
-
-
-
-
-  //////////////////////////////////////////////////////////////////
-  *msglog << MSG::DEBUG << "Serialization test" << endreq;
-  std::vector<uint32_t>
-  
-  //  pStore->clearStore();
-  */
-  *msglog << MSG::INFO << "SUCCESS " << endreq;
-  *msglog << MSG::DEBUG << "deleting messages below are related to scope exit " << endreq;
-  
   return 0;
 }

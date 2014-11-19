@@ -391,8 +391,8 @@ StatusCode construction_test(HLT::Navigation* hns) {
   zz->setErrorState(true);
   TriggerElement* zz2 = hns->addNode(telist,  33311);  zz2->getId();
   TriggerElement* zz1 = hns->addNode(zz,      33321); 
-  TriggerElement* zz1prim = hns->addNode(zz1, 33323); 
-  TriggerElement* zz1prim2 = hns->addNode(telist, 33324, false, true); 
+  /*TriggerElement* zz1prim =*/  hns->addNode(zz1, 33323); 
+  /*TriggerElement* zz1prim2 =*/ hns->addNode(telist, 33324, false, true); 
 
   REPORT_AND_CONTINUE("RoIs made");
 
@@ -514,7 +514,7 @@ StatusCode counting_test(HLT::Navigation* hns) {
 
 }
 //****************************************************************************************
-StatusCode seeding_test(HLT::Navigation* hns) {
+StatusCode seeding_test(HLT::Navigation* /*hns*/) {
   BEGIN_TEST("seeding");
   
 
@@ -673,7 +673,7 @@ TestBContainer* makeTestB(int value, size_t size=3) {
 StatusCode container_feature_test(HLT::Navigation* hns) {
   BEGIN_TEST("container feature operations test");
   TriggerElement* clu1        = getTE(hns, 111);
-  TriggerElement* track1      = getTE(hns, 1111);
+  /* TriggerElement* track1 =*/ getTE(hns, 1111);
   TriggerElement* el1      = getTE(hns, 11111);
 
   TestBContainer *tb1 = makeTestB(1);
@@ -854,7 +854,7 @@ int main () {
   //  log << MSG::DEBUG << pStore->dump() << endreq;
   
 
-  HLT::Navigation* newhns;
+  HLT::Navigation* newhns(0);
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation2", algTool).isSuccess() ) {
     REPORT_AND_CONTINUE( "OK navigation tool retrieved" );
     newhns = dynamic_cast< HLT::Navigation*>(algTool);

@@ -90,6 +90,7 @@ bool HLT::NavigationCore::getFeature( const TriggerElement* te, const T*&  featu
 
   const TriggerElement::FeatureAccessHelper& fea = features_access_helpers.front();
   TriggerElement::ObjectIndex objectIndex(fea.getIndex());
+  
   HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
   
   if ( holder->get(feature, objectIndex) == false ) {

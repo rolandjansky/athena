@@ -20,10 +20,6 @@
 #define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x 
 
 
-
-
-
-
 /////////////////////////////////////////////////////////////////////////////
 // T is for objects, C for container for this objects
 template<class STORED>
@@ -221,12 +217,13 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
       HMLOG(WARNING) << "HolderImp::syncWithSG objects already in SG, however failed syncing (SG::retrieve) to them " << *this << endreq;
       return false;
     }          
+    /*
     HMLOG(VERBOSE) << "HolderImp::syncWithSG got container from SG: " << m_containerProxy.data() << endreq; 
     if ( this->m_aux )  {
       const bool transientInSGAux ( this->m_aux->transientContains(H::m_storeGate, auxkey ) );
       const bool persistentThroughSGAux ( this->m_aux->contains(H::m_storeGate, auxkey ) );
       if(!transientInSGAux and !persistentThroughSGAux){
-	HMLOG(WARNING) << "HolderImp::syncWithSG syncing Aux holder and CONTAINER is SG but Aux Store not" << endreq;
+	HMLOG(WARNING) << "HolderImp::syncWithSG syncing Aux holder and CONTAINER is in SG but Aux Store not" << endreq;
 	return false;
       }
       if(this->m_aux->sync(H::m_storeGate,auxkey).isFailure()){
@@ -237,8 +234,9 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
       HLTNavDetails::TypeProxy<auxtype>* auxcasted = static_cast<HLTNavDetails::TypeProxy<auxtype>*>(this->m_aux);
       HMLOG(VERBOSE) << "HolderImp::syncWithSG got aux container from SG: " << auxcasted->data() << endreq; 
       HMLOG(VERBOSE) << "HolderImp::syncWithSG store is: " << m_containerProxy.data()->getStore() << endreq; 
-    }         
-  } else { // SG is empty, we need to put the obj ito it
+    } 
+    */        
+  } else { // SG is empty, we need to put the obj into it
     HMLOG(VERBOSE) << "HolderImp::syncWithSG objects not in SG, adding them to SG " << *this << endreq;
     if (  m_containerProxy.create().isFailure() )  {
       HMLOG(WARNING) << "HolderImp::syncWithSG can not create container " << *this << endreq;
@@ -248,7 +246,7 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
     m_containerProxy.data()->clear(policy);
     
     CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
-    if ( auxCLID ) {
+    if ( auxCLID and policy != SG::VIEW_ELEMENTS ) {
       if ( H::m_aux == 0 ) {
 	HMLOG(ERROR) << "HolderImp::syncWithSG can not clone Aux store proxy " << *this << endreq;
 	return false;
@@ -275,7 +273,7 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
 	HMLOG(DEBUG) << "HolderImp::syncWithSG Aux sotore configured for " << *this << endreq;
 	container->setStore(aux);
       } else {
-	HMLOG(WARNING) << "HolderImp::syncWithSG type configured to have Aux store but no appropriate Aux interaces are implemented AuxVectorBase for container: " 
+	HMLOG(WARNING) << "HolderImp::syncWithSG type configured to have Aux store but no appropriate Aux interfaces are implemented AuxVectorBase for container: " 
 		       << container << " IAuxStore for Aux sotore: " << aux <<  " "<<  *this << endreq;
 	return false;	
       }
@@ -402,6 +400,7 @@ struct insert<STORED, CONTAINER, true>{
 
       if ( source->ownPolicy() == SG::VIEW_ELEMENTS and source->trackIndices() == false ) {
 	MLOG( VERBOSE ) << "insert::do_it destination container made a VIEW"    << endreq;
+	dest->setStore(static_cast<SG::IAuxStore*>(nullptr));
 	dest->clear( SG::VIEW_ELEMENTS);
       }
       
@@ -541,12 +540,33 @@ struct remap<STORED, CONTAINER, true> {
   }
 };
 
+template<class STORED, class CONTAINER, bool>
+struct destinationOwnPolicy {};
+
+template<class STORED, class CONTAINER>
+struct destinationOwnPolicy<STORED, CONTAINER, false> {
+  static SG::OwnershipPolicy get(const STORED* /*source*/) {
+    return SG::OWN_ELEMENTS;
+  }
+};
+
+template<class STORED, class CONTAINER>
+struct destinationOwnPolicy<STORED, CONTAINER, true> {
+  static SG::OwnershipPolicy get(const STORED* source) {
+    if ( source->ownPolicy() == SG::VIEW_ELEMENTS )
+      return SG::VIEW_ELEMENTS;
+    return SG::OWN_ELEMENTS;
+  }
+};
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
 HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add( const STORED* f, bool inSG, const std::string& sgKey ) {
   typedef Holder<STORED> H;
-  if ( ! syncWithSG() )
+  
+  if ( ! syncWithSG( destinationOwnPolicy<STORED, CONTAINER, boost::is_same<STORED, CONTAINER>::value>::get(f) ) )
     return HLT::TriggerElement::ObjectIndex();
 
   uint32_t bidx = m_containerProxy.data()->size();

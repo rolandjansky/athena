@@ -11,7 +11,7 @@
 #include "TrigNavigation/AccessProxy.h" 
 //#include "TrigNavigation/Holder.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_TRIGNAVIGATION {
   std::vector<HLT::TriggerElement*> te_vec;
   std::vector<const HLT::TriggerElement*> te_const_vec;
   // HLT::NavigationCore nc;

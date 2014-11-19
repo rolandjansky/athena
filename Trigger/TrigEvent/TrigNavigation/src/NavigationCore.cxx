@@ -275,14 +275,6 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
 
 bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name ) const {
 
-  const std::vector<TriggerElement*>& fullList =  m_factory.listOfProduced();
-  std::vector<TriggerElement*> all;
-  for(std::vector<TriggerElement*>::const_iterator iter = fullList.begin(); iter != fullList.end(); ++iter) {
-    if(! (*iter)->transient() ) {
-      all.push_back( *iter );
-    }
-  }
-
   cuts.clear();
   clid_name.clear();
 
@@ -298,36 +290,11 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
 
   cuts.push_back(output.size()); // mark a cut place
 
-  unsigned int endSizeIndex = output.size();
-  output.push_back(0); // reserve one word (accessible under the index startSize)
+  bool tesSerializationStatus = serializeTEs(output);
 
 
-  // reserve space (in order to be efficient it should not be resized any more, this can be studied probably later to find optimum)
-  output.reserve(10*all.size());
+  MLOG(DEBUG) << "serializes: TEsm status: " << tesSerializationStatus << " size: " << output.size() << endreq;
 
-  // SERIALZE NAVIGATION STRUCTURE
-  // size (measured in elements)
-  output.push_back(all.size());
-
-  // helper keys
-  std::map<TriggerElement*, uint16_t> keys;
-
-  const TriggerElement* previous = 0;
-  std::vector<TriggerElement*>::const_iterator it;
-  uint16_t indexForTe = 0;
-  for ( it = all.begin(); it != all.end(); ++it ) {
-    // first we stream pointer as it (this is already an unique key for this TE)
-    //    output.push_back((unsigned int)(*it));
-    (*it)->serialize(output, keys, previous);
-    previous = *it;
-    keys[*it] =  indexForTe;
-    indexForTe++;
-  }
-  unsigned int endSize = output.size();
-
-  MLOG(DEBUG) << "serialize: Sizes start: " << endSizeIndex << " end: " << endSize <<
-    " TEs: " << m_factory.listOfProduced().size() << endreq;
-  output[endSizeIndex] = endSize; // one can use it for cutting out all features
 
   cuts.push_back(output.size()); // mark a cut place
 
@@ -513,45 +480,16 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
     return false;
   }
 
-  unsigned int endOfChunk  = *inputIt++; // size of the chunk
+  //  unsigned int endOfChunk  = *inputIt++; // size of the chunk
   //  std::cerr << "Deserialization ot the chunk: " << endOfChunk  << std::endl;
-
-  unsigned int size = *inputIt++;
-  MLOG(DEBUG) << "deserialize: Number of TEs: " << size  << endreq;
-  TriggerElement* previous = 0;
-  std::map<uint16_t, TriggerElement* > keys;
-
-  for ( unsigned int i = 0; i < size; ++i ) {
-
-    // create new TE
-
-    TriggerElement* te = m_factory.produce(TriggerElement::enquireId(inputIt)); //
-    te->deserialize(inputIt, keys, previous);
-    previous = te;
-    // keys table for deserialization of other TEs
-    keys[i] = te;
-
-  }
-
-  if ( not m_factory.empty() ) {
-
-    // rebuild  sameRoI relations (this can't be done by TEs deserialization)
-    TriggerElement* initialNode = getInitialNode();
-    std::vector<TriggerElement*>::const_iterator roiTEit;
-    for ( roiTEit = getDirectSuccessors(initialNode).begin(); 
-	  roiTEit != getDirectSuccessors(initialNode).end(); ++roiTEit ) {
-      fillSameRoIRelation((*roiTEit), (*roiTEit));
-    }
-  } else {
-    MLOG(INFO) << "deserialize: the navigation TEs structure is empty, initial Node is missing" << endreq;
-    return false;
-  }
   
 
+  bool tesDeserializationStatus = deserializeTEs(input, inputIt);
+  MLOG(DEBUG) << "deserialize: TEs structure unpacked, status: " << tesDeserializationStatus  << endreq;
+  
   // EOF TEs deserialization
   // deserialize Features
-  std::vector<uint32_t>::const_iterator it=input.begin();
-  advance(it, endOfChunk );
+  std::vector<uint32_t>::const_iterator it  = inputIt; 
   std::vector<uint32_t> blob;
   while ( extractBlob(input, it, blob) ) {
 
@@ -785,12 +723,15 @@ void NavigationCore::prepare() {
 }
 
 bool NavigationCore::registerHolder(IHolder* holder) {
-  /*  if ( syncWithSG )
-      if (  ! holder->syncWithSG() ) {
-      *m_log << MSG::WARNING << "createHolder: super-container can't be recorded to SG for CLID:" << holder->typeClid()  << " and label: " << holder->label() << " sub type index: " << holder->subTypeIndex() << endreq;
-      // return false;
-      }
+  /*  if ( syncWithSG ) */
+
+  /*  we can not sync now because it is to early i.e. we do not know the ownership (VIEW/OWN)
+if (  ! holder->syncWithSG() ) {
+    *m_log << MSG::WARNING << "createHolder: super-container can't be recorded to SG for CLID:" << holder->typeClid()  << " and label: " << holder->label() << " sub type index: " << holder->subTypeIndex() << endreq;
+    // return false;
+  }
   */
+
   if ( m_featuresByLabel.count(holder->typeClid()) != 0 || m_featuresByIndex.count(holder->typeClid()) != 0 ) {
     if (m_featuresByIndex[holder->typeClid()].count(holder->subTypeIndex()) != 0
         || m_featuresByLabel[holder->typeClid()].count(holder->label()) != 0 ) {
