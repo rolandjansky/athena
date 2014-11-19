@@ -930,8 +930,8 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       ++m_drawerEvtStatus[ros2][drawer2].nMaskedChannels;
 
       if (gain1 == CaloGain::INVALIDGAIN || gain2 == CaloGain::INVALIDGAIN) {
-        if (gain1 == CaloGain::INVALIDGAIN) gain1 = (CaloGain::CaloGain) TileID::LOWGAIN;
-        if (gain2 == CaloGain::INVALIDGAIN) gain2 = (CaloGain::CaloGain) TileID::LOWGAIN;
+        if (gain1 == CaloGain::INVALIDGAIN) gain1 = 0; // this is TileID::LOWGAIN; - commented out to make Coverity happy
+        if (gain2 == CaloGain::INVALIDGAIN) gain2 = 0; // this is TileID::LOWGAIN; - commented out to make Coverity happy
         pCell->setEnergy(m_zeroEnergy, m_zeroEnergy, gain1, gain2); // reset energy completely, indicate problem putting low gain
       } else {
         pCell->setEnergy(m_zeroEnergy, m_zeroEnergy); // reset energy completely without changing gain

@@ -396,11 +396,12 @@ StatusCode TileRawCorrelatedNoise::execute() {
         if (OriginalDigits[Ros - 1][Drawer][Channel]) {
           int nSamples = (OriginalDigits[Ros - 1][Drawer][Channel])->nsamples();
           std::vector<float> digits(nSamples);
-          for (int Sample = 0; Sample < nSamples; ++Sample)
+          for (int Sample = 0; Sample < nSamples; ++Sample) {
             digits[Sample] = NewSamples[Ros - 1][Drawer][Channel][Sample];
-            NewDigits[Ros - 1][Drawer][Channel] = new TileDigits(
-                (OriginalDigits[Ros - 1][Drawer][Channel])->adc_HWID(), digits);
-            NewDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]);
+          }
+          NewDigits[Ros - 1][Drawer][Channel] = new TileDigits(
+              (OriginalDigits[Ros - 1][Drawer][Channel])->adc_HWID(), digits);
+          NewDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]);
         }
       }
     }

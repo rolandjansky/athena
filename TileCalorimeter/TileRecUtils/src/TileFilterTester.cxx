@@ -332,30 +332,39 @@ void TileFilterTester::GenEvents(int Nevent) {
   std::cout << " Cuts applied:  rchisqCut=" << rchisqCut << ", chiCut=" << chiCut << std::endl;
   std::cout << "     ApileMin=" << ApileMin << ", ApileMax=" << ApileMax << ", AmpInTime=" << AinTime << std::endl;
   std::cout << " Compare difference (rec-gen) for:   Ngen=" << Ngen << ", Nrec=" << Nrec << std::endl;
-  double rm = Dsum/Nrec;
-  //double errm = Esum/Nrec;
-  double errsig = pow(E2sum/Nrec, 0.5);
-  double rsig = pow(D2sum/Nrec, 0.5);
 
-  double rmg = Dsumg/Nrecg;
-  //double errmg = Esumg/Nrecg;
-  double errsigg = pow(E2sumg/Nrecg, 0.5);
-  double rsigg = pow(D2sumg/Nrecg, 0.5);
-
-  double rmb = Dsumg/Nrecb;
-  //double errmb = Esumb/Nrecb;
-  double errsigb = pow(E2sumb/Nrecb, 0.5);
-  double rsigb = pow(D2sumb/Nrecb, 0.5);
+  int den = Nrec ? Nrec : 1;
+  double rm = Dsum/den;
+  //double errm = Esum/den;
+  double errsig = pow(E2sum/den, 0.5);
+  double rsig = pow(D2sum/den, 0.5);
 
   std::cout << " All  configurations:  N=" << std::setw(7) <<Nrec << ",  Diff =" << std::setw(6) << std::setprecision(3)
-       << rm << ",  sig =" << rsig << "  (errsig=" << errsig << ")" << std::endl; 
-  std::cout << " Good configurations:  N=" << std::setw(7) << Nrecg << ",  Diff =" << std::setw(6) << std::setprecision(3)
-       << rmg << ",  sig =" << rsigg << "  (errsig=" << errsigg << ")" << std::endl; 
-  if(Nrecb>3) {
-  std::cout << " Bad  configurations:  N=" << std::setw(7) << Nrecb << ",  Diff =" << std::setw(6) << std::setprecision(3)
-       << rmb << ",  sig =" << rsigb << "  (errsig=" << errsigb << ")" << std::endl; 
-  std::cout << "     Nover=" << Nover << ",  Nunder=" << Nunder << ",  Nmixed=" << Nmixed << std::endl;
+            << rm << ",  sig =" << rsig << "  (errsig=" << errsig << ")" << std::endl; 
+
+  if (Nrecg) {
+    double rmg = Dsumg/Nrecg;
+    //double errmg = Esumg/Nrecg;
+    double errsigg = pow(E2sumg/Nrecg, 0.5);
+    double rsigg = pow(D2sumg/Nrecg, 0.5);
+
+    std::cout << " Good configurations:  N=" << std::setw(7) << Nrecg << ",  Diff =" << std::setw(6) << std::setprecision(3)
+              << rmg << ",  sig =" << rsigg << "  (errsig=" << errsigg << ")" << std::endl; 
   }
+  
+  if (Nrecb) {
+    double rmb = Dsumg/Nrecb;
+    //double errmb = Esumb/Nrecb;
+    double errsigb = pow(E2sumb/Nrecb, 0.5);
+    double rsigb = pow(D2sumb/Nrecb, 0.5);
+
+    //if(Nrecb>3)
+    std::cout << " Bad  configurations:  N=" << std::setw(7) << Nrecb << ",  Diff =" << std::setw(6) << std::setprecision(3)
+              << rmb << ",  sig =" << rsigb << "  (errsig=" << errsigb << ")" << std::endl; 
+  }
+
+  std::cout << "     Nover=" << Nover << ",  Nunder=" << Nunder << ",  Nmixed=" << Nmixed << std::endl;
+
   std::cout << std::endl;
   // Print out summary of icode counts:
   for(int i=0; i<ncodeSize; i++) {

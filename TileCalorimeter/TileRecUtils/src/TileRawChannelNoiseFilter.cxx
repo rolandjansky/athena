@@ -168,8 +168,9 @@ StatusCode TileRawChannelNoiseFilter::process(
     memset(chanmap, 0, sizeof(chanmap));
 
     // iterate over all channels in a collection
-    TileRawChannelCollection::const_iterator rchItr = (*collItr)->begin();
-    TileRawChannelCollection::const_iterator lastRch = (*collItr)->end();
+    TileRawChannelCollection* coll = (*collItr).getDataPtr();
+    TileRawChannelCollection::iterator rchItr = coll->begin();
+    TileRawChannelCollection::iterator lastRch = coll->end();
 
     for (; rchItr != lastRch; ++rchItr) {
       TileRawChannel* rch = (*rchItr);
@@ -300,7 +301,7 @@ StatusCode TileRawChannelNoiseFilter::process(
     if (ncorr == 0) continue; // nothing to correct
 
     // iterate over all channels in a collection again
-    for (rchItr = (*collItr)->begin(); rchItr != lastRch; ++rchItr) {
+    for (rchItr = coll->begin(); rchItr != lastRch; ++rchItr) {
       TileRawChannel* rch = (*rchItr);
       int chan = m_tileHWID->channel(rch->adc_HWID());
       int gain = m_tileHWID->adc(rch->adc_HWID());

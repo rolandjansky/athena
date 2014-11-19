@@ -28,7 +28,7 @@
 //****************************************************************************
 
 #ifndef TILERECUTILS_TILERAWCHANNELVERIFY_H
-#define TILERECUTILS_TILERAWCHANNElVERIFY_H
+#define TILERECUTILS_TILERAWCHANNELVERIFY_H
 
 // Tile includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -67,4 +67,4 @@ class TileRawChannelVerify: public AthAlgorithm {
     bool m_sortFlag;         //!< if true=> TileRawChannels are sorted by amplitude
 };
 
-#endif // TILEDIGITIZATION_TILERAWCHANNELVERIFY
+#endif // not TILERECUTILS_TILERAWCHANNELVERIFY_H

@@ -31,13 +31,17 @@ TileRawChannelMaker::TileRawChannelMaker(const std::string& name,
     : AthAlgorithm(name, pSvcLocator)
     , m_TileDigitsContainerID("TileDigitsCnt")
     , m_tileRawChannelBuilderList()
-    , m_fitOverflow(false)
+    , m_fitOverflow(false)      
 {
   // declareProperty("TileRawChannelBuilder",m_TileRawChannelBuilderIDVec);
   declareProperty("TileDigitsContainer", m_TileDigitsContainerID);
   declareProperty("TileRawChannelBuilder", m_tileRawChannelBuilderList, "List Of Tools");
   declareProperty("FitOverflow", m_fitOverflow, "Fit or not overflows");
   declareProperty("TileRawChannelBuilderFitOverflow", m_tileRawChannelBuilderFitOverflow, "Tool to fit overflows");
+
+  m_overflowReplaceTimeCut = 50.0;
+  m_overflowReplacePedestalCut  = 170.0;
+  m_overflowReplaceChi2Cut = 40000.0;  
 }
 
 /**
@@ -64,10 +68,6 @@ StatusCode TileRawChannelMaker::initialize() {
   if (m_fitOverflow) {
     CHECK( m_tileRawChannelBuilderFitOverflow.retrieve() );
   }
-
-  m_overflowReplaceTimeCut = 50.0;
-  m_overflowReplacePedestalCut  = 170.0;
-  m_overflowReplaceChi2Cut = 40000.0;  
 
   ATH_MSG_INFO( "Initialization completed successfully");
 
@@ -167,7 +167,7 @@ void TileRawChannelMaker::fitOverflowedChannels() {
     Overflows_t::const_iterator itOverflow = overflows.begin();
     for (; itOverflow != overflows.end(); ++itOverflow) {
       TileRawChannel* rwCh = (*itOverflow).first;
-      TileDigits* pDigits = (*itOverflow).second;
+      const TileDigits* pDigits = (*itOverflow).second;
       TileRawChannel* fittedRwCh = m_tileRawChannelBuilderFitOverflow->rawChannel(pDigits);
 
       bool fitOK = ( ( fabs(fittedRwCh->time()) < m_overflowReplaceTimeCut     ) &&
