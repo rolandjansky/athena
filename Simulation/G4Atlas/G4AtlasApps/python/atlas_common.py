@@ -314,7 +314,7 @@ class BeamPipe(object):
                 #if not hasattr(ServiceMgr, 'DeadMaterialFastSimSvc' ):
                 #    from LArG4FastSimSvc.LArG4FastSimSvcConfig import DeadMaterialFastSimSvc
                 #    ServiceMgr += DeadMaterialFastSimSvc()
-                self.atlas_SimpleFastKiller = PyG4Atlas.FastSimModel('LArG4FastSimulation', 'SimpleFastKiller')
+                self.atlas_SimpleFastKiller = PyG4Atlas.FastSimModel('G4FastSimulation', 'SimpleFastKiller')
                 self.atlas_SimpleFastKiller.add_Region(self.atlas_beampipe_PhysReg)
                 AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_SimpleFastKiller)
                 AtlasG4Eng.G4Eng.log.info('Adding fast sim model to the beampipe!')
