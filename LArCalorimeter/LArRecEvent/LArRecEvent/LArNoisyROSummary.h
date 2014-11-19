@@ -66,12 +66,6 @@ class LArNoisyROSummary
   //** set Partition bit pattern for saturated cells tight criteria flagging **//
   void SetSatTightFlaggedPartitions(uint8_t bitpattern) { m_SatTightFlaggedPartitions = bitpattern;}
 
-  //** Set Partition bit pattern for mini-noise-burst flagging (tight) **/
-  void SetMNBTightFlaggedPartitions(uint8_t bitpattern) { m_MNBTightFlaggedPartitions=bitpattern; }
-
-  //** Set Partition bit pattern for mini-noise-burst flagging **/
-  void SetMNBLooseFlaggedPartitions(uint8_t bitpattern) { m_MNBLooseFlaggedPartitions=bitpattern; }
-
 
   //** retrieve noisy FEBs by id */
   const std::vector<HWIdentifier>& get_noisy_febs() const;
@@ -91,13 +85,6 @@ class LArNoisyROSummary
   //** Partition bit map for saturated cells tight criteria flagging **//
   uint8_t SatTightFlaggedPartitions() const {return m_SatTightFlaggedPartitions;}
 
-  //** Partition bit map for mini-noise-burst flagging **//
-  uint8_t MNBLooseFlaggedPartititions() const {return m_MNBLooseFlaggedPartitions;}
-
-  //** Partition bit map for mini-noise-burst flagging (tight) **//
-  uint8_t MNBTightFlaggedPartititions() const {return m_MNBTightFlaggedPartitions;}
-
-
  private:
 
   //** List of noisy FEBs */
@@ -111,10 +98,6 @@ class LArNoisyROSummary
   uint8_t m_BadFEB_WFlaggedPartitions;
   uint8_t m_SatMediumFlaggedPartitions;
   uint8_t m_SatTightFlaggedPartitions;
-
-  //** Flags for Mini-noise-bursts */
-  uint8_t m_MNBLooseFlaggedPartitions;
-  uint8_t m_MNBTightFlaggedPartitions;
 
 };
 
