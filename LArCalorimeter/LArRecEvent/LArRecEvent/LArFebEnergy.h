@@ -84,6 +84,6 @@ inline LArFebEnergy::LArFebEnergy( unsigned int febid, double ex, double ey, dou
   : m_febId(febid), m_ex(ex), m_ey(ey), m_ez(ez), m_sumE(sume){}
 
 inline LArFebEnergy::LArFebEnergy( unsigned int febid ) 
-  : m_febId(febid){}
+  : m_febId(febid) , m_ex(0.) , m_ey(0.), m_ez(0.), m_sumE(0.) {}
 
 #endif //LARFEBENERGY_H
