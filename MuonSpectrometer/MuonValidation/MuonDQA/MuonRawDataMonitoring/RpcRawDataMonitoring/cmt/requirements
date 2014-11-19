@@ -16,7 +16,6 @@ use 	AthenaBaseComps		AthenaBaseComps-*		Control
 use     AthenaMonitoring        AthenaMonitoring-*              Control
 use     GaudiInterface          GaudiInterface-*        	External
 use     AtlasROOT               AtlasROOT-*                     External
-use     EventInfo               EventInfo-*                     Event
 use	MuonGeoModel		MuonGeoModel-*  	        MuonSpectrometer
 use	MuonReadoutGeometry	MuonReadoutGeometry-*		MuonSpectrometer/MuonDetDescr
 use     MuonRDO                 MuonRDO-*                	MuonSpectrometer
@@ -27,6 +26,7 @@ use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
 use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
 private
+use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
 use     EventPrimitives         EventPrimitives-*               Event
 use     GeoPrimitives           GeoPrimitives-*                 DetectorDescription
 use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer

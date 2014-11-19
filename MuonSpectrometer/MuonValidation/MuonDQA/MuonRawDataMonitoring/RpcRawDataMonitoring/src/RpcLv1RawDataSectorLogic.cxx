@@ -13,7 +13,8 @@
       
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
- 
+
+#include "xAODEventInfo/EventInfo.h" 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -99,7 +100,7 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::StoreTriggerType() 
 {
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   StatusCode sc = StatusCode::SUCCESS;
   sc = m_eventStore -> retrieve(eventInfo);
   if (sc.isFailure()){
@@ -109,11 +110,7 @@ StatusCode RpcLv1RawDataSectorLogic::StoreTriggerType()
   else if (m_debuglevel) 
     m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic::retrieved eventInfo" << endreq;
   
-  // Protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
-  if(eventInfo -> trigger_info() != NULL) 
-    trigtype = eventInfo -> trigger_info() -> level1TriggerType();
-  else 
-    trigtype = -1;
+  trigtype = eventInfo->level1TriggerType();
   
   return sc;
 }

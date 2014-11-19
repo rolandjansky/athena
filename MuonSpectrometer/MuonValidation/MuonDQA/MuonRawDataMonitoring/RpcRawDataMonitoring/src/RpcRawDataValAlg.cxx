@@ -47,8 +47,7 @@
 #include "RpcRawDataMonitoring/RpcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
   
-#include "EventInfo/EventInfo.h" 
-#include "EventInfo/EventID.h" 
+#include "xAODEventInfo/EventInfo.h" 
     
 #include <fstream> 
 #include <sstream>
@@ -93,7 +92,9 @@ RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string 
   declareProperty("CosmicStation",       m_cosmicStation	= 0	);
   declareProperty("Side",                m_side			= 0	); 
   declareProperty("Clusters",            m_doClusters		= true	);			
-  declareProperty("doTrigEvol",		 m_doTrigEvol		= true	); // historical plot of trigger hits
+  declareProperty("doTrigEvol",		 m_doTrigEvol		= false	); // historical plot of trigger hits		
+  declareProperty("doLumiPlot",	         m_doLumiPlot		= false	); 		
+  declareProperty("doTriggerHits",	 m_doTriggerHits	= false	); 
   declareProperty("minStatTrEvol",	 minStatTrEvol		= 300	);  
   declareProperty("lv1Thres_0",		 m_lv1Thres_0		= 99	);
   declareProperty("lv1Thres_1",		 m_lv1Thres_1		= 1	);
@@ -227,7 +228,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
        
       int lumiblock = -1 ;
 	
-      const DataHandle<EventInfo> eventInfo;
+      const DataHandle<xAOD::EventInfo> eventInfo;
       StatusCode sc = m_eventStore->retrieve( eventInfo );
       if (sc.isFailure()) {
 	ATH_MSG_INFO ( "no event info" );
@@ -235,7 +236,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
       }
       else {
 	  
-	lumiblock = eventInfo->event_ID()->lumi_block()  ;
+	lumiblock = eventInfo->lumiBlock()  ;
 	  
 	ATH_MSG_DEBUG ( "event LB " << lumiblock ); 
 	      
@@ -643,7 +644,6 @@ StatusCode RpcRawDataValAlg::fillHistograms()
       MonGroup rpcprd_dq_Panel( this, m_generic_path_rpcmonitoring + "/GLOBAL", run, ATTRIB_UNMANAGED )     ;
       MonGroup rpcTrigRoad ( this, m_generic_path_rpcmonitoring + "/TriggerRoad", run, ATTRIB_UNMANAGED );
       MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
-      MonGroup rpcTrig_lumi_block ( this, m_generic_path_rpcmonitoring + "/lumiblock", run, ATTRIB_UNMANAGED );
     
        
       sc = rpcprd_shift.getHist(rpctime, "Time_Distribution") ;
@@ -926,19 +926,22 @@ StatusCode RpcRawDataValAlg::fillHistograms()
       if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get RPC_Threshold_Phi hist " );
          
       // lumiblock histos
-
-      sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Eta_LowPt, "rpcTriggerHitsPerEvents_Eta_LowPt");
-      if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Eta_LowPt hist " ); 
+      if(m_doLumiPlot){
+       
+       MonGroup rpcTrig_lumi_block ( this, m_generic_path_rpcmonitoring + "/lumiblock", run, ATTRIB_UNMANAGED );
+ 
+       sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Eta_LowPt, "rpcTriggerHitsPerEvents_Eta_LowPt");
+       if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Eta_LowPt hist " ); 
      
-      sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Phi_LowPt, "rpcTriggerHitsPerEvents_Phi_LowPt");
-      if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Phi_LowPt hist " );    
+       sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Phi_LowPt, "rpcTriggerHitsPerEvents_Phi_LowPt");
+       if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Phi_LowPt hist " );    
         
-      sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Eta_HighPt, "rpcTriggerHitsPerEvents_Eta_HighPt");
-      if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Eta_HighPt hist " ); 
+       sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Eta_HighPt, "rpcTriggerHitsPerEvents_Eta_HighPt");
+       if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Eta_HighPt hist " ); 
  	  
-      sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Phi_HighPt, "rpcTriggerHitsPerEvents_Phi_HighPt");
-      if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Phi_HighPt hist " );  
-          
+       sc = rpcTrig_lumi_block.getHist( rpcTriggerHitsPerEvents_Phi_HighPt, "rpcTriggerHitsPerEvents_Phi_HighPt");
+       if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get rpcTriggerHitsPerEvents_Phi_HighPt hist " );  
+      }   
 	      
       for (containerIt = rpc_container->begin() ; containerIt != rpc_container->end() ; ++containerIt) 
 	{ 
@@ -1642,7 +1645,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
   
   
       // loop on trigger hits
-    
+     if(m_doTriggerHits){  
          
       NTrigger_Eta_LowPt	= 0	 ;  
       NTrigger_Phi_LowPt	= 0	 ;  
@@ -2215,12 +2218,16 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 	      }
 	    }  
 	} // end loop on trigger hits
-       
-      rpcTriggerHitsPerEvents_Eta_LowPt  ->  Fill (NTrigger_Eta_LowPt )  ;  
-      rpcTriggerHitsPerEvents_Phi_LowPt  ->  Fill (NTrigger_Phi_LowPt )  ;  
-      rpcTriggerHitsPerEvents_Eta_HighPt ->  Fill (NTrigger_Eta_HighPt)  ;  
-      rpcTriggerHitsPerEvents_Phi_HighPt ->  Fill (NTrigger_Phi_HighPt)  ;
-
+      } //end if
+      
+      
+      
+      if(m_doLumiPlot){
+       rpcTriggerHitsPerEvents_Eta_LowPt  ->  Fill (NTrigger_Eta_LowPt )  ;  
+       rpcTriggerHitsPerEvents_Phi_LowPt  ->  Fill (NTrigger_Phi_LowPt )  ;  
+       rpcTriggerHitsPerEvents_Eta_HighPt ->  Fill (NTrigger_Eta_HighPt)  ;  
+       rpcTriggerHitsPerEvents_Phi_HighPt ->  Fill (NTrigger_Phi_HighPt)  ;
+      }
       // begin cluster monitoring
       const Muon::RpcPrepDataContainer* rpc_clusterContainer;
       if(m_eventStore->contains<Muon::RpcPrepDataContainer>(m_clusterContainerName)){
@@ -2550,7 +2557,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
       MonGroup rpcTrigRoad ( this, m_generic_path_rpcmonitoring + "/TriggerRoad", run, ATTRIB_UNMANAGED )  ;
     
       if(newEventsBlock){}
-      if(newLumiBlock){
+      if(newLumiBlock && m_doLumiPlot){
 	
 	MonGroup rpcTrig_lumi_block ( this, m_generic_path_rpcmonitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
  	
@@ -5728,18 +5735,6 @@ StatusCode RpcRawDataValAlg::procHistograms()
 	    const MuonDQAHistList& hists1 = m_stationHists.getList( list_name);  
 	    TH1* rpcclustersizedislayer = hists1.getH1( panel_name + "_CSdistribution"); 
       
-	    double CS_panel_mean = 0    ;
-	    double CS_panel_err  = 0    ;
-	    int CS_panel_entries = 0    ;
-	        
-	    if(rpcclustersizedislayer)  { 
-	      CS_panel_mean    = rpcclustersizedislayer->GetMean()	       ;
-	      CS_panel_err     = rpcclustersizedislayer->GetRMS()	       ;
-	      CS_panel_entries = int(rpcclustersizedislayer->GetEntries() );
-	
-	    }
-             
-      
 	  }
     
   
@@ -5772,9 +5767,7 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
   const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
   
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
-  
-  Identifier idr = rpc->identify();
+  // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
   
   std::vector<int>  rpcstriptot  ;
   

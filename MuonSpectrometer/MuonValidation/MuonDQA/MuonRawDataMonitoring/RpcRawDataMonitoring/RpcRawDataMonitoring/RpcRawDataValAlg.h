@@ -189,6 +189,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
    
   std::vector<TH1I*> rpcNumberEtaStatFired_Side_Pt      ;
   bool  m_doTrigEvol		       ;
+  bool  m_doLumiPlot		       ;
+  bool  m_doTriggerHits                ;
   int   minStatTrEvol                  ;
   int   nTrigEtaStat_BA_LowPt	       ;
   int   nTrigEtaStat_BC_LowPt	       ;

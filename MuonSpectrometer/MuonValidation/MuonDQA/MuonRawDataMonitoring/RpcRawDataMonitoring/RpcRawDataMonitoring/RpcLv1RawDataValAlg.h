@@ -41,9 +41,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
-
 #include <sstream>
 #include <string.h>
 #include <vector>

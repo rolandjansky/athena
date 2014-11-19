@@ -8,12 +8,12 @@ if not 'MuonDQAFlags' in dir():
     print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
+############# RpcRawDataValAlg #############
+
 rpcRawMonMan = AthenaMonManager(name="RpcRawMonManager",
                                 FileKey             = DQMonFlags.monManFileKey(),
                                 Environment         = DQMonFlags.monManEnvironment(),
                                 OutputLevel         = muonOutputLevel)
-
-############# RpcRawDataValAlg #############
 from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcRawDataValAlg
 from StoreGate.StoreGateConf import StoreGateSvc
 if not hasattr(topSequence,"RpcClusterBuilderPRD"):
@@ -30,9 +30,9 @@ rpcRawDataValAlg = RpcRawDataValAlg(name='rpcRawDataValAlg',
                                     RpcSectorHist 	  = False,
                                     RpcReduceNbins 	  = 8,
                                     RpcReduceNbinsStrip   = 8,
-                                    doTrigEvol     	  = True,
-                                    minStatTrEvol	  = 1000,
-				    doCoolDB              = True,
+                                    doLumiPlot            = False,
+                                    doTriggerHits         = True,
+                                    doCoolDB              = True,
 				    lv1Thres_0            = 99,
 				    lv1Thres_1            = 1,
 				    lv1Thres_2            = 2,
@@ -44,14 +44,45 @@ ToolSvc += rpcRawDataValAlg
 rpcRawMonMan.AthenaMonTools += [ rpcRawDataValAlg ]
 topSequence += rpcRawMonMan
 print rpcRawMonMan
+#################### RPCStandaloneTracksMon #######################
 
-##################################################################
+rpcTrackMonMan = AthenaMonManager(name="RpcTrackMonManager",
+                                FileKey             = DQMonFlags.monManFileKey(),
+                                Environment         = DQMonFlags.monManEnvironment(),
+                                OutputLevel         = muonOutputLevel)
+
+from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RPCStandaloneTracksMon
+from StoreGate.StoreGateConf import StoreGateSvc
+if not hasattr(topSequence,"RpcClusterBuilderPRD"):
+    from RpcClusterization.RpcClusterizationConf import RpcClusterBuilderPRD
+    topSequence += RpcClusterBuilderPRD(ClusterTimeSpread = 10000,
+                                        OutputLevel = FATAL)
+
+OutputMessageLevel = WARNING
+
+RPCStandaloneTracksMon = RPCStandaloneTracksMon(name='RPCStandaloneTracksMon',
+                                                       RpcFile               = False,
+                                                       DoRpcEsd              = True,
+                                                       RpcChamberHist        = False,
+                                                       RPCStandaloneTracks   = True,
+                                                       RpcReduceNbins        = 8,
+                                                       RpcReduceNbinsStrip   = 8,
+						       rpc_readout_window    = 0.2, ## micro sec
+                                                       doRadiography         = False,
+						       doCoolDB              = False,
+                                                       ClusterContainer      = "rpcClusters") 
+ToolSvc += RPCStandaloneTracksMon
+rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
+topSequence += rpcTrackMonMan
+print rpcTrackMonMan
+
+############################ RpcLv1RawMonManager ######################################
 rpcLv1RawMonMan = AthenaMonManager(name="RpcLv1RawMonManager",
                                FileKey             = DQMonFlags.monManFileKey(),
                                Environment         = DQMonFlags.monManEnvironment(),
                                OutputLevel         = muonOutputLevel)
 
-############# RpcLv1RawDataEfficiency #############
+############# RpcLv1RawDataEfficiency ###################################################
 from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcLv1RawDataEfficiency
 from StoreGate.StoreGateConf import StoreGateSvc
 if not hasattr(topSequence,"RpcClusterBuilderPRD"):

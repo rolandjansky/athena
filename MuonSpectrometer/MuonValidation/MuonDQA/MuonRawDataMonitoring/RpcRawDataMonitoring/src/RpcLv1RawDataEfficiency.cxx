@@ -27,7 +27,7 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <inttypes.h> 
 
 #include <sstream>
@@ -288,7 +288,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 StatusCode RpcLv1RawDataEfficiency::StoreTriggerType() 
 {
   if (m_debuglevel) msg(MSG::DEBUG) << "Storing Trigger Type... " << endreq;
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   StatusCode sc = StatusCode::SUCCESS;
   sc = m_eventStore -> retrieve(eventInfo);
   if (sc.isFailure()){
@@ -299,23 +299,12 @@ StatusCode RpcLv1RawDataEfficiency::StoreTriggerType()
     msg(MSG::DEBUG) << "RpcLv1RawDataEfficiency::retrieved eventInfo" << endreq;
   
   // Protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
-  if(eventInfo->trigger_info() != NULL) 
-    m_trigtype = eventInfo -> trigger_info() -> level1TriggerType();
-  else 
-    m_trigtype = -1;
-  
+  m_trigtype = eventInfo->level1TriggerType();  
 
-  // Get EventID
-  const EventID* evtid = eventInfo->event_ID();
-  if(!evtid){
-    msg(MSG::FATAL) << " no evtid object" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   // Get event index variables
-  m_lumiblock    = evtid->lumi_block() ;
-  m_event     	= evtid->event_number() ;
-  m_BCID          = evtid->bunch_crossing_id() ;
+  m_lumiblock = eventInfo->lumiBlock() ;
+  m_event     = eventInfo->eventNumber() ;
+  m_BCID      = eventInfo->bcid() ;
   
   return sc;
 }
@@ -375,7 +364,7 @@ StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 {
-  msg(MSG::INFO) << "Filling histograms for RPCLv1RawDataEfficiency... " << endreq;
+  msg(MSG::DEBUG) << "Filling histograms for RPCLv1RawDataEfficiency... " << endreq;
   StatusCode sc = StatusCode::SUCCESS;
 
   

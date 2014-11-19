@@ -43,10 +43,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataCollection.h"
