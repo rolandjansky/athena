@@ -10,9 +10,9 @@
 #include <sstream>
 
 #define TCS_EXCEPTION(MSG) \
-std::stringstream o;\
+{ std::stringstream o;   \
 o << MSG;\
-throw TCS::Exception(o.str());
+throw TCS::Exception(o.str()); }
 
 namespace TCS {
    
