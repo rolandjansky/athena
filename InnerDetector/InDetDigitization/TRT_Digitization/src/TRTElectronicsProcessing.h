@@ -66,7 +66,6 @@ public:
   void ProcessDeposits( const std::vector<Deposit>&,
 			const int& hitID,
 			TRTDigit& outdigit,
-                        std::vector<int>& m_fastOrHtDiscriminator,
 			double lowthreshold,
 			const double& noiseamplitude,
 			bool isArgonStraw,

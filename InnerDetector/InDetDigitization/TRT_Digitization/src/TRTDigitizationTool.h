@@ -17,7 +17,6 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "TRTDigit.h"
-#include "TRTFastORAlg.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRawData/TRT_RDO_Container.h"
@@ -37,7 +36,6 @@ class TRTElectronicsProcessing;
 class TRTDigCondBase;
 class TRTNoise;
 class ITRT_StrawNeighbourSvc;
-class TRTFastORAlg;
 
 #include "TRTDigSimpleTimer.h"
 #include "HitManagement/TimedHitCollection.h"
@@ -91,7 +89,6 @@ public:
 
 private:
 
-  TRTFastORAlg *m_fastOR;
   Identifier getIdentifier( int hitID,
 			    IdentifierHash& hashId,
 			    Identifier& layerID,
@@ -165,12 +162,6 @@ private:
   bool m_useConditionsHTStatus; // added by Sasha for Argon
   unsigned short m_particleFlag; // 16-bit flag indicating the presence of up to 16 types of particle hitting the straw.
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added by Sasha for Argon
-
-  std::vector<std::vector<int> > m_fastOR_HTvector;
-  std::vector<int> m_fastOR_chipId;
-  std::vector<int> m_fastOR_phiId;
-  std::vector<int> m_fastOR_barrelEC;
-  std::vector<unsigned short> m_fastOR_particleFlag;
 
 };
 

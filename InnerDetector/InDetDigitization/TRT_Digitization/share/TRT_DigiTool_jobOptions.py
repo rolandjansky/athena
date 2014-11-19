@@ -14,4 +14,3 @@ if 'doSplitDigi' in jobproperties.Digitization.experimentalDigi():
 else:
     job.PileUpToolsAlg.PileUpTools += [ CfgGetter.getPrivateTool("TRTDigitizationTool", checkType=True) ]
 
-include("TRT_Digitization/postInclude.Make_FastOR_ntuple.py")

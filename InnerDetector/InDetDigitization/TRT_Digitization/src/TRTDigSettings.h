@@ -69,10 +69,6 @@ class TRTDigSettings {
   bool useAttenuation() const;
   double attenuationLength() const;
 
-  bool doFastOr() const;
-  bool doStreamer() const;
-  double streamerThreshold() const;
-
   //--- deposit energy smearing parameters:
   /** Get ionisation potential */
   double ionisationPotential(bool isArgonStraw) const;
@@ -359,9 +355,6 @@ class TRTDigSettings {
   bool m_smearingFactorDependsOnRadius;
   bool m_useAttenuation;
   double m_attenuationLength;
-  bool m_doFastOr;
-  bool m_doStreamer;
-  double m_streamerThreshold;
 
   //Now follows infrastructure for handling all the parameters in a robust way:
 

@@ -117,7 +117,6 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("solenoidalFieldStrength",&m_solenoidalFieldStrength,"Solenoidal Field Strength (assume perfect uniform field)","T",CLHEP::tesla,0.0,3.0);
   defineNewVariable("jitterTimeOffset",&m_jitterTimeOffset,"Jitter time offset (simulate lack of cosmic bunchcrossing time","ns",CLHEP::ns,0.0,25.0);
   defineNewVariable("attenuationLength",&m_attenuationLength,"Signal attenuation length in the wire","cm",CLHEP::cm,100.0,700.0);
-  defineNewVariable("streamerThreshold",&m_streamerThreshold,"Energy threshold at which the straw is thought to go into streamer-mode.","MeV",CLHEP::MeV,0.1,10.0);
 
   //unsigned ints:
   defineNewUIntVariable("numberOfBins",&m_numberOfBins,"Number of internal bins in time interval covered by each digit (must be whole multiple of numberOfBinsInEncodingBin)",24,480);
@@ -142,8 +141,6 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("useAttenuation",&m_useAttenuation,"Simulate attenuation of signal strength depending on propagation length in wire");
   defineNewBoolVariable("getT0FromData",&m_getT0FromData,"Shift the individual straw t0 according to data (conditions database)");
   defineNewBoolVariable("smearingFactorDependsOnRadius",&m_smearingFactorDependsOnRadius,"Smearing Factor is a function of cluster radius");
-  defineNewBoolVariable("doFastOr",&m_doFastOr,"Run fastOR processing");
-  defineNewBoolVariable("doStreamer",&m_doStreamer,"Determine if a straw is streaming, and modify ToHT according to measured alpha-particles");
 
   //ints:
   defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
@@ -424,9 +421,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // falses (unlikely to change)
   m_smearingFactorDependsOnRadius=false;
-  m_doFastOr = false;
-  m_doStreamer = false;
-  m_streamerThreshold = 1.0*CLHEP::MeV;
   m_useDriftTimeSpread = false;
   m_doCrosstalk = false;  //Crosstalk noise switched off by default (so far). Switch on by doCrosstalk() flag in j.o.
   m_crosstalkNoiseLevel = 0.01; // In cosmics: tuned to 0.01

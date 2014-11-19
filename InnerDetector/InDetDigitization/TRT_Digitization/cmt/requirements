@@ -4,6 +4,7 @@ author Andrei Zalite <Andrei.Zalite@cern.ch>
 author Yura Zalite   <Iuoris.Zalite@cern.ch>
 author Thomas Kittelmann <kittel@nbi.dk>
 author Esben Klinkby <klinkby@phy.duke.edu>
+author Andrew Beddall <Andrew.Beddall@cern.ch>
 
 public
 
@@ -40,8 +41,8 @@ use TRT_ConditionsServices        TRT_ConditionsServices-*        InnerDetector/
 #use TRT_DriftTimeSimUtils        TRT_DriftTimeSimUtils-*         InnerDetector/InDetSimUtils
 use TRT_PAI_Process               TRT_PAI_Process-*               InnerDetector/InDetSimUtils
 use MagFieldInterfaces            MagFieldInterfaces-*            MagneticField
-use AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
-use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+#use AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
+#use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 
 end_private
 

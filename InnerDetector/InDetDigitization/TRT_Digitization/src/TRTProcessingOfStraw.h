@@ -96,7 +96,6 @@ public:
   void ProcessStraw (hitCollConstIter i,
 		     hitCollConstIter e,
 		     TRTDigit& outdigit,
-                     std::vector<int>& m_highThresholdDigiArray,
 		     bool & m_alreadyPrintedPDGcodeWarning,
 		     const ComTime* m_ComTime,
                      bool UseArgonStraws,

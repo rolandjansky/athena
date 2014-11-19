@@ -27,7 +27,6 @@ TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endreq;
 
   m_pHRengine  = atRndmGenSvc->GetEngine("TRT_ThresholdFluctuations");
-  m_pHRengine2 = atRndmGenSvc->GetEngine("TRT_StreamerToHT");
 
   Initialize();
 
@@ -52,10 +51,6 @@ TRTElectronicsProcessing::~TRTElectronicsProcessing() {
 void TRTElectronicsProcessing::Initialize() {
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::Initialize() begin" << endreq;
-
-  m_doStreamer = m_settings->doStreamer();
-  m_streamerThreshold = m_settings->streamerThreshold();
-  m_doFastOr = m_settings->doFastOr();
 
   const int numberOfBins(static_cast<int>(m_settings->numberOfBins())); //returns unsigned int
   m_numberOfPostZeroBins = numberOfBins; //assigning to int
@@ -174,88 +169,6 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   };
 
 
-  // Streamer versions of the shaping functions are included here for possible use in the future.
-  // However they are currently commented and unused - instead the ternary output is modified for
-  // streamers (but only with m_doFastOr = true)
-
-  /*
-  const double sXeLT[160] = {
-    0.002900, 0.006600, 0.011900, 0.026800, 0.052900, 0.094800, 0.174100, 0.264600, 0.366100, 0.486200,
-    0.633800, 0.764600, 0.889600, 0.971600, 0.999500, 1.000000, 0.981800, 0.968400, 0.961300, 0.959000,
-    0.965400, 0.965000, 0.964900, 0.967500, 0.970800, 0.970000, 0.967600, 0.963700, 0.959600, 0.962400,
-    0.959000, 0.954400, 0.947600, 0.934200, 0.912100, 0.884300, 0.848400, 0.802200, 0.743100, 0.675900,
-    0.598700, 0.519300, 0.449700, 0.386900, 0.338500, 0.307100, 0.290700, 0.279200, 0.272900, 0.267400,
-    0.263800, 0.263400, 0.260400, 0.257400, 0.253600, 0.247400, 0.235200, 0.233000, 0.225200, 0.215900,
-    0.209200, 0.201700, 0.195900, 0.188900, 0.180700, 0.173000, 0.171200, 0.169900, 0.166000, 0.158900,
-    0.155500, 0.152200, 0.150000, 0.147000, 0.140500, 0.139000, 0.139800, 0.137800, 0.131900, 0.126700,
-    0.120900, 0.116600, 0.114100, 0.113400, 0.110400, 0.107100, 0.104800, 0.103700, 0.103300, 0.095600,
-    0.091200, 0.092300, 0.097900, 0.091000, 0.089300, 0.086200, 0.082500, 0.082400, 0.082700, 0.080600,
-    0.078900, 0.078200, 0.072300, 0.072500, 0.072900, 0.071100, 0.066100, 0.067600, 0.066000, 0.063200,
-    0.060200, 0.058200, 0.059600, 0.058000, 0.055500, 0.054900, 0.053400, 0.051800, 0.051500, 0.051300,
-    0.046900, 0.048100, 0.047500, 0.046700, 0.047500, 0.047500, 0.043600, 0.039800, 0.037900, 0.038700,
-    0.036800, 0.038500, 0.038500, 0.034700, 0.037000, 0.031700, 0.027700, 0.027600, 0.032400, 0.027800,
-    0.026700, 0.027400, 0.028000, 0.025100, 0.025200, 0.024600, 0.024200, 0.025000, 0.023200, 0.026400,
-    0.025200, 0.019800, 0.020000, 0.019200, 0.017600, 0.017000, 0.017800, 0.014700, 0.015000, 0.016800
-  };
-
-  const double sXeHT[160] = {
-    0.002900, 0.006600, 0.011900, 0.026800, 0.052900, 0.094800, 0.174100, 0.264600, 0.366100, 0.486200,
-    0.633800, 0.764600, 0.889600, 0.971600, 0.999500, 1.000000, 0.981800, 0.968400, 0.961300, 0.959000,
-    0.965400, 0.965000, 0.964900, 0.967500, 0.970800, 0.970000, 0.967600, 0.963700, 0.959600, 0.962400,
-    0.959000, 0.954400, 0.947600, 0.934200, 0.912100, 0.884300, 0.848400, 0.802200, 0.743100, 0.675900,
-    0.598700, 0.519300, 0.449700, 0.386900, 0.338500, 0.307100, 0.290700, 0.279200, 0.272900, 0.267400,
-    0.263800, 0.263400, 0.260400, 0.257400, 0.253600, 0.247400, 0.235200, 0.233000, 0.225200, 0.215900,
-    0.209200, 0.201700, 0.195900, 0.188900, 0.180700, 0.173000, 0.171200, 0.169900, 0.166000, 0.158900,
-    0.155500, 0.152200, 0.150000, 0.147000, 0.140500, 0.139000, 0.139800, 0.137800, 0.131900, 0.126700,
-    0.120900, 0.116600, 0.114100, 0.113400, 0.110400, 0.107100, 0.104800, 0.103700, 0.103300, 0.095600,
-    0.091200, 0.092300, 0.097900, 0.091000, 0.089300, 0.086200, 0.082500, 0.082400, 0.082700, 0.080600,
-    0.078900, 0.078200, 0.072300, 0.072500, 0.072900, 0.071100, 0.066100, 0.067600, 0.066000, 0.063200,
-    0.060200, 0.058200, 0.059600, 0.058000, 0.055500, 0.054900, 0.053400, 0.051800, 0.051500, 0.051300,
-    0.046900, 0.048100, 0.047500, 0.046700, 0.047500, 0.047500, 0.043600, 0.039800, 0.037900, 0.038700,
-    0.036800, 0.038500, 0.038500, 0.034700, 0.037000, 0.031700, 0.027700, 0.027600, 0.032400, 0.027800,
-    0.026700, 0.027400, 0.028000, 0.025100, 0.025200, 0.024600, 0.024200, 0.025000, 0.023200, 0.026400,
-    0.025200, 0.019800, 0.020000, 0.019200, 0.017600, 0.017000, 0.017800, 0.014700, 0.015000, 0.016800
-  };
-
-  const double sArLT[160] = {
-    0.002900, 0.006600, 0.011900, 0.026800, 0.052900, 0.094800, 0.174100, 0.264600, 0.366100, 0.486200,
-    0.633800, 0.764600, 0.889600, 0.971600, 0.999500, 1.000000, 0.981800, 0.968400, 0.961300, 0.959000,
-    0.965400, 0.965000, 0.964900, 0.967500, 0.970800, 0.970000, 0.967600, 0.963700, 0.959600, 0.962400,
-    0.959000, 0.954400, 0.947600, 0.934200, 0.912100, 0.884300, 0.848400, 0.802200, 0.743100, 0.675900,
-    0.598700, 0.519300, 0.449700, 0.386900, 0.338500, 0.307100, 0.290700, 0.279200, 0.272900, 0.267400,
-    0.263800, 0.263400, 0.260400, 0.257400, 0.253600, 0.247400, 0.235200, 0.233000, 0.225200, 0.215900,
-    0.209200, 0.201700, 0.195900, 0.188900, 0.180700, 0.173000, 0.171200, 0.169900, 0.166000, 0.158900,
-    0.155500, 0.152200, 0.150000, 0.147000, 0.140500, 0.139000, 0.139800, 0.137800, 0.131900, 0.126700,
-    0.120900, 0.116600, 0.114100, 0.113400, 0.110400, 0.107100, 0.104800, 0.103700, 0.103300, 0.095600,
-    0.091200, 0.092300, 0.097900, 0.091000, 0.089300, 0.086200, 0.082500, 0.082400, 0.082700, 0.080600,
-    0.078900, 0.078200, 0.072300, 0.072500, 0.072900, 0.071100, 0.066100, 0.067600, 0.066000, 0.063200,
-    0.060200, 0.058200, 0.059600, 0.058000, 0.055500, 0.054900, 0.053400, 0.051800, 0.051500, 0.051300,
-    0.046900, 0.048100, 0.047500, 0.046700, 0.047500, 0.047500, 0.043600, 0.039800, 0.037900, 0.038700,
-    0.036800, 0.038500, 0.038500, 0.034700, 0.037000, 0.031700, 0.027700, 0.027600, 0.032400, 0.027800,
-    0.026700, 0.027400, 0.028000, 0.025100, 0.025200, 0.024600, 0.024200, 0.025000, 0.023200, 0.026400,
-    0.025200, 0.019800, 0.020000, 0.019200, 0.017600, 0.017000, 0.017800, 0.014700, 0.015000, 0.016800
-  };
-
-  const double sArHT[160] = {
-    0.002900, 0.006600, 0.011900, 0.026800, 0.052900, 0.094800, 0.174100, 0.264600, 0.366100, 0.486200,
-    0.633800, 0.764600, 0.889600, 0.971600, 0.999500, 1.000000, 0.981800, 0.968400, 0.961300, 0.959000,
-    0.965400, 0.965000, 0.964900, 0.967500, 0.970800, 0.970000, 0.967600, 0.963700, 0.959600, 0.962400,
-    0.959000, 0.954400, 0.947600, 0.934200, 0.912100, 0.884300, 0.848400, 0.802200, 0.743100, 0.675900,
-    0.598700, 0.519300, 0.449700, 0.386900, 0.338500, 0.307100, 0.290700, 0.279200, 0.272900, 0.267400,
-    0.263800, 0.263400, 0.260400, 0.257400, 0.253600, 0.247400, 0.235200, 0.233000, 0.225200, 0.215900,
-    0.209200, 0.201700, 0.195900, 0.188900, 0.180700, 0.173000, 0.171200, 0.169900, 0.166000, 0.158900,
-    0.155500, 0.152200, 0.150000, 0.147000, 0.140500, 0.139000, 0.139800, 0.137800, 0.131900, 0.126700,
-    0.120900, 0.116600, 0.114100, 0.113400, 0.110400, 0.107100, 0.104800, 0.103700, 0.103300, 0.095600,
-    0.091200, 0.092300, 0.097900, 0.091000, 0.089300, 0.086200, 0.082500, 0.082400, 0.082700, 0.080600,
-    0.078900, 0.078200, 0.072300, 0.072500, 0.072900, 0.071100, 0.066100, 0.067600, 0.066000, 0.063200,
-    0.060200, 0.058200, 0.059600, 0.058000, 0.055500, 0.054900, 0.053400, 0.051800, 0.051500, 0.051300,
-    0.046900, 0.048100, 0.047500, 0.046700, 0.047500, 0.047500, 0.043600, 0.039800, 0.037900, 0.038700,
-    0.036800, 0.038500, 0.038500, 0.034700, 0.037000, 0.031700, 0.027700, 0.027600, 0.032400, 0.027800,
-    0.026700, 0.027400, 0.028000, 0.025100, 0.025200, 0.024600, 0.024200, 0.025000, 0.023200, 0.026400,
-    0.025200, 0.019800, 0.020000, 0.019200, 0.017600, 0.017000, 0.017800, 0.014700, 0.015000, 0.016800
-  };
-  */
-
   // We need to build four LT\HT pairs of amplitudes with iMode = isArgonStraws + 2*isStreamer;
   //
   //   iMode = 0 (isArgon = 0, isStreamer = 0) : Xenon straw in proportional-mode
@@ -293,7 +206,6 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
 void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 						const int& hitID,
 						TRTDigit& outdigit,
-                                                std::vector<int>& m_fastOrHtDiscriminator,
 						double lowthreshold,
 						const double& noiseamplitude,
 						bool isArgonStraw,
@@ -307,11 +219,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   // - Apply (fine-bin) threshold discrimination; threshold fluctuations are already applied by this point. //
   // - *optionally* Modify the (fine-bin) HT discriminator array for streamers (if m_doStreamer = true).    //
   // - Turn the fine discriminator array into a 27-bit output digit.                                        //
-  // - *optionally* Send (fine-bin) HT discriminator array to the FastOR algorithm (if m_doFastOr = true).  //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  bool isStreamer=false; // fixme: not used currently, unless you want a special shaping function for streaming straws.
-                         // we actually modify the ternary output for streamers - so remove?
 
   if (deposits.empty() && noiseamplitude<std::numeric_limits<double>::epsilon()) {
     return;
@@ -341,7 +249,6 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
     m_lowThresholdDiscriminator[i] = 0;
     m_highThresholdDiscriminator[i] = 0;
   }
-  m_fastOrHtDiscriminator.clear();
   // Fill cluster energies into relevant time bins
   // With pileup, m_timeInterval=125ns and signal event starting at 50 ns.
   const unsigned int numberOfDeposits(deposits.size());
@@ -358,6 +265,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 
   // Signal shaping; 8 different shaping functions for:
   // LT, HT, Argon, Xenon, proportional-mode, streamer mode.
+  bool isStreamer=0; // fixme: remove this.
   SignalShaping(isArgonStraw,isStreamer); // fixme: isStreamer is always 0.
   //std::cout << "AJB after shaping ";
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowThresholdSignal[i]*1.0e6 << " "; // (eV); or m_highThresholdSignal[i]
@@ -384,65 +292,11 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highhThresholdDiscriminator[i] << " ";
   //std::cout << std::endl;
 
-  // Optionally check if the straw has gone into streamer mode (depSum>m_streamerThreshold).
-  // This is almost always the case for HIPs but very rare for normal events. If the straw is streaming
-  // then the response is to set the ToHT (from that time) using nBinsOverHT() as measure with alpha rays.
-  // Fixme: the bool isStreamer is not used! The idea is that it would be available earlier on in the code for alternative shaping (which we don't use).
-  if (m_doStreamer)
-    {
-      double depSum=0.0;
-      for (int ibin=0; ibin<m_totalNumberOfBins; ++ibin) {
-        depSum += m_energyDistribution[ibin];
-        if (depSum>m_streamerThreshold) {
-          isStreamer = true;
-          int jbin = ibin + nBinsOverHT();
-          if (jbin>m_totalNumberOfBins) jbin=m_totalNumberOfBins;
-          for (int i=ibin; i<jbin; ++i)                { m_highThresholdDiscriminator[i]=1; } // set nBinsOverHT bins to "1",
-          for (int i=jbin; i<m_totalNumberOfBins; ++i) { m_highThresholdDiscriminator[i]=0; } // thereafter all bins are "0".
-          break;
-        }
-      }
-      //  std::cout << "AJB after streamer modifications ";
-      //  for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highThresholdDiscriminator[i] << " "; // or m_highThresholdDiscriminator[i]
-      //  std::cout << std::endl;
-    }
-
   // Finally turn the fine discriminator response arrays into an output digit.
   const unsigned int digit(EncodeDigit());
   if (digit) {
     outdigit = TRTDigit(hitID, digit);
   }
-
-  //////////////////////////////////////////////////////////////
-  // Optionally send the fine-bin discriminator HT output to  //
-  // the FastOR algorithm via m_fastOrHtDiscriminator. This   //
-  // gets returned anyway but is empty if m_doFastOr = false. //
-  //////////////////////////////////////////////////////////////
-  if (m_doFastOr)
-    {
-      // To save a lot of time in the FastOR class, only copy
-      // m_highThresholdDiscriminator to m_fastOrHtDiscriminator
-      // if there is at least one fine HT bit set. (increase?)
-      int nHTbitsset=0;
-      for (int ibin=0; ibin<m_totalNumberOfBins; ++ibin) {
-        nHTbitsset += m_highThresholdDiscriminator[ibin];
-      }
-      // straw_HT_ternaryInfo: 1 element (bin) = 0.78125 ns. There are 160 bins for each HT-straw vector.
-      // XPT: Make sure that after a leading edge in the HT the next 10 ns (~13 bins) are set to 1;
-      //      this makes sure the FastOR signal out of the DTMROC has a minimum width of 10 ns.
-      if (nHTbitsset>0) {
-        for (int ibin=0; ibin<m_totalNumberOfBins; ++ibin) {
-	  if (ibin>51) { // Start looking for leading edges at bin 51 (-10.15625 ns from 3rd bx)
-	    if ( m_highThresholdDiscriminator[ibin] == 1 && m_highThresholdDiscriminator[ibin-1] == 0 ){ // leading edge found!
- 	      for(int jbin=0; jbin<13 && ((ibin+jbin)<m_totalNumberOfBins) ; jbin++) {
-  		m_highThresholdDiscriminator[ibin+jbin] = 1;
-	      }
-	    }
-	  }
-          m_fastOrHtDiscriminator.push_back(m_highThresholdDiscriminator[ibin]);
-        }
-      }
-    } // end of FastOR section
 
 } // end of ProcessDeposits
 
@@ -726,24 +580,6 @@ unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
 
   return region;
 
-}
-
-//_____________________________________________________________________________
-
-// RNG modelling of measured ToHT values for alpha particles by Ximo Poveda Torres May 2013).
-// The statistics were not very high (580 values). See:
-// https://indico.cern.ch/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=225739
-int TRTElectronicsProcessing::nBinsOverHT() const {
-  double ToHT;
-  const double split(CLHEP::RandFlat::shoot(m_pHRengine2));
-  if (split>0.42) {
-    ToHT = CLHEP::RandGaussZiggurat::shoot(m_pHRengine2, 52.66, 0.50 );
-  } else {
-    const double r1(CLHEP::RandFlat::shoot(m_pHRengine2));
-    const double r2(CLHEP::RandFlat::shoot(m_pHRengine2));
-    ToHT = 25.0 + 21.0*r1 + 5.0*r2;
-  }
-  return static_cast<int>(ToHT/m_binWidth+0.5);
 }
 
 //___________________________________________________________________________

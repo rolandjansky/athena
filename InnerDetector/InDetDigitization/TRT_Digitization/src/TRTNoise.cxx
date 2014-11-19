@@ -323,7 +323,6 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
     m_pElectronicsProcessing->ProcessDeposits( deposits,
 					       dummyhitid,
 					       digit,
-                                               m_highThresholdDiscriminator, 
 					       lowthresholds.at(istraw),
 					       noiseamps.at(istraw),
 					       strawType.at(istraw) /// true - Argon; false - Xenon

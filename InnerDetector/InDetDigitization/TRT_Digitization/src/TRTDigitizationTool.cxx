@@ -26,8 +26,6 @@
 
 #include "TRTElectronicsNoise.h"
 
-#include "TRTFastORAlg.h"
-
 #include "Identifier/Identifier.h"
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -131,8 +129,6 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   declareProperty("UseArgonStraws",                m_UseArgonStraws); // need for Argon
   declareProperty("UseConditionsHTStatus",         m_useConditionsHTStatus); // need for Argon
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
-
-  m_fastOR = new TRTFastORAlg();
 
 }
 
@@ -239,12 +235,6 @@ StatusCode TRTDigitizationTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // init the FastOR class
-  if(StatusCode::SUCCESS != m_fastOR->initialize() ){
-    ATH_MSG_ERROR ( "Could not get TRT FASTOR" );
-    return StatusCode::FAILURE;
-  }
-
   timer_getservices.stop();
 
   //   // Create new  TRT_RDO_Container
@@ -298,12 +288,6 @@ StatusCode TRTDigitizationTool::initialize()
     }
   }
 
-  m_fastOR_HTvector.clear();
-  m_fastOR_chipId.clear();
-  m_fastOR_phiId.clear();
-  m_fastOR_barrelEC.clear();
-  m_fastOR_particleFlag.clear();
-
   return StatusCode::SUCCESS;
 }
 
@@ -343,7 +327,8 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
     }
     ATH_MSG_VERBOSE ( "TRTUncompressedHitCollection found with " << seHitColl->size() << " hits" );
     //Copy Hit Collection
-    TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits"));
+    //TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits"));
+    TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits", seHitColl->size())); // saves memory
     TRTUncompressedHitCollection::const_iterator i(seHitColl->begin());
     TRTUncompressedHitCollection::const_iterator e(seHitColl->end());
     // Read hits from this collection
@@ -530,8 +515,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // Digitization for the given straw
     TRTDigit digit_straw;
 
-    std::vector<int> fastOrHtDiscriminator;
-
     // Get the ComTime tool
     if (m_settings->doCosmicTimingPit()) {
       if ( StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime,"ComTime")) {
@@ -549,7 +532,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // Sasha: yes, we need to pass strawID (in such way we save some CPU time) otherwise we need to perform again the same
     //        steps as in function TRTDigitization::getIdentifier(...) to extract strawID from hitID -> more CPU time
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
-                                       fastOrHtDiscriminator,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_ComTime,
                                        IsArgonStraw(idStraw),
@@ -583,81 +565,12 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     }
 */
 
-    // finally (before the FastOr part) push back the output digit.
+    // finally push back the output digit.
     if ( digit_straw.GetDigit() ) {
       m_vDigits.push_back(digit_straw);
     }
 
-    ///////////////////////
-    // FastOR processing //
-    ///////////////////////
-    // If this straw has non-empty detailed highThreshold imformation (fastOrHtDiscriminator) then push it to
-    // the set of m_fastOR vectors. By default the doFastOR bool is false and so this will normally be empty.
-
-    if (fastOrHtDiscriminator.size() > 0) {
-
-      //std::cout << "AJB ";
-      //for (unsigned int i=0; i<fastOrHtDiscriminator.size(); ++i) std::cout << fastOrHtDiscriminator.at(i);
-      //std::cout << std::endl;
-
-      // get the chip ID using the TRTStrawNeighbourSvc class
-      int i_chip = 0;
-      m_TRTStrawNeighbourSvc->getChip(idStraw, i_chip);
-
-      int side = m_trt_id->barrel_ec(idLayer);
-      int idLayerWheel = m_trt_id->layer_or_wheel(idLayer);
-      // int Layer     = m_trt_id->straw_layer(idLayer); // not required
-      int phi_id       = m_trt_id->phi_module(idLayer);
-
-      // get the chip ID for the barrel, shift the chip ID per layer
-      // in order to have continuous numbering from 0 - 103
-      if( abs( side ) == 1 ) //Barrel
-        {
-          if( idLayerWheel == 0 ) i_chip -= 1;
-          if( idLayerWheel == 1 ) i_chip += 20;
-          if( idLayerWheel == 2 ) i_chip += 53;
-        }
-
-      // the standard side of the detector is 1, -1 for the barrel sides A and C and 2, -2 for the ECs
-      // in order to reduce the amount of information since we only need to determine if the HIP comes
-      // from the side A or C, we use zero for side A and 1 for side C.
-      side = (side<0) ? 0 : 1;
-
-      // Store the relevant information for the FastOR per straw
-      m_fastOR_HTvector.push_back(fastOrHtDiscriminator);
-      m_fastOR_chipId.push_back(i_chip);
-      m_fastOR_phiId.push_back(phi_id);
-      m_fastOR_barrelEC.push_back(side);
-      m_fastOR_particleFlag.push_back(m_particleFlag);
-      fastOrHtDiscriminator.clear();
-    } // end of FastOR
-
   } // end of straw loop
-
-  // Get the FastOR output for this event, and clear the vectors.
-  // fixme: Currently the fastOR_output goes to std::cout!
-  if (m_fastOR_HTvector.size() > 0) {
-
-    // fixme XP: using zero as default for q and preproc
-    int q=0;
-    int preproc=0;
-    int fastOR_output =
-      m_fastOR->TRTFastORAlg_getStrawId(m_fastOR_HTvector, m_fastOR_chipId,
-					m_fastOR_phiId, m_fastOR_barrelEC,
-					m_fastOR_particleFlag,
-					q, preproc);
-
-    // dummy usage to silence "unused" fastOR_output
-    // Fixme: make void?
-    if (0) std::cout << "FastOR output -> prepro="<< preproc << " q="<< q << ": " << std::hex << fastOR_output << std::dec << std::endl;
-
-    m_fastOR_HTvector.clear();
-    m_fastOR_chipId.clear();
-    m_fastOR_phiId.clear();
-    m_fastOR_barrelEC.clear();
-    m_fastOR_particleFlag.clear();
-
-  }
 
   return StatusCode::SUCCESS;
 }

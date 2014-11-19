@@ -21,15 +21,6 @@ inline int TRTDigSettings::digVers() const {
 inline double TRTDigSettings::attenuationLength() const {
   return m_attenuationLength;
 }
-inline bool TRTDigSettings::doFastOr() const {
-  return m_doFastOr;
-}
-inline bool TRTDigSettings::doStreamer() const {
-  return m_doStreamer;
-}
-inline double TRTDigSettings::streamerThreshold() const {
-  return m_streamerThreshold;
-}
 inline bool TRTDigSettings::smearingFactorDependsOnRadius() const {
   return m_smearingFactorDependsOnRadius;
 }

@@ -291,7 +291,6 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 //________________________________________________________________________________
 void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e,
 					  TRTDigit& outdigit,
-                                          std::vector<int>& m_highThresholdDiscriminator,
                                           bool & m_alreadyPrintedPDGcodeWarning,
                                           const ComTime* m_ComTime,
                                           bool isArgonStraw,
@@ -573,7 +572,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   }
 
   //Electronics processing:
-  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, m_highThresholdDiscriminator, lowthreshold, noiseamplitude, isArgonStraw );
+  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, lowthreshold, noiseamplitude, isArgonStraw );
 
   return;
 }

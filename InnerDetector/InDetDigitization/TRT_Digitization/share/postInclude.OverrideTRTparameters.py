@@ -1,12 +1,12 @@
 #########################################################
-#                                                  v10  #
+#                                                  v12  #
 #                                                       #
 # TRT_Digitization/postInclude.OverrideTRTparameters.py #
 #                                                       #
 # Overrride default settings in TRTDigSettings.cxx      #
 #                                                       #
 # This is not a full list, just the parameters likely   #
-# to be used in basic tuning/FastOR studies.            #
+# to be used in basic tuning...                         #
 #                                                       #
 # For a full list of overrridable parameters            #
 # and a list of setttings used in the job:              #
@@ -26,11 +26,8 @@ if not digitizationFlags.doXingByXingPileUp() and hasattr(job, 'TRTDigitization'
     else:
         trt = job.TRTDigitization
 else:
-   for alg in job:
-      if hasattr(alg, 'PileUpTools'):
-         trt = alg.PileUpTools[ "TRTDigitizationTool" ]
-         break
-      pass
+     from AthenaCommon.CfgGetter import getPublicTool
+     trt = getPublicTool("TRTDigitizationTool")
 if None == trt:
    raise AttributeError("TRTDigitization(Tool) not found.")
 
@@ -58,9 +55,9 @@ trt.Override_highThresholdBarShortArgon  = 0.002446
 trt.Override_highThresholdBarLongArgon   = 0.002141
 trt.Override_highThresholdECAwheelsArgon = 0.002235
 trt.Override_highThresholdECBwheelsArgon = 0.002146
-# TR efficiency for Argon, defaults = 0.55, 1.80
-trt.Override_trEfficiencyBarrel = 0.55
-trt.Override_trEfficiencyEndCap = 0.80
+# TR efficiency for Argon, defaults = 0.55, 0.80
+trt.Override_trEfficiencyBarrelArgon = 0.55
+trt.Override_trEfficiencyEndCapArgon = 0.80
 
 # T0, Old defaults = 7.0, 0.0
 # T0, New defaults = 1.0, 0.0
@@ -73,9 +70,10 @@ trt.Override_overallT0ShiftShortBarrel = 0.0
 trt.Override_noiseInUnhitStraws = 1
 trt.Override_averageNoiseLevel  = 0.02
 
-# FastOR, defaults = 0(false), 0(false), 1.0 MeV.
-trt.Override_doFastOr           = 0
-trt.Override_doStreamer         = 0
-trt.Override_streamerThreshold  = 1.0
+# HL delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns)
+trt.Override_htT0shiftBarShort  = 0
+trt.Override_htT0shiftBarLong   = 0
+trt.Override_htT0shiftECAwheels = 0
+trt.Override_htT0shiftECBwheels = 0
 
 ## EOF
