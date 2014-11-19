@@ -669,7 +669,7 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
     kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1 ]    )
     kwargs.setdefault("EnergyFactor"            , [      1.,      1.,      1.,      1.,      1. ]    )
-    kwargs.setdefault("BarcodeSvc"              , getService('ISF_LegacyBarcodeService')             )
+    kwargs.setdefault("BarcodeSvc"              , ISF_Flags.BarcodeService()                         )
     kwargs.setdefault("EnvelopeDefSvc"          , getService('AtlasGeometry_EnvelopeDefSvc')         )
     kwargs.setdefault("BeamPipeRadius"          , 500.						     )
 
