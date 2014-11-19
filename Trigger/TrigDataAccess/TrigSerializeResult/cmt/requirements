@@ -15,6 +15,7 @@ private
 
 use AthenaKernel        AthenaKernel-*               Control
 use AtlasReflex	        AtlasReflex-*	             External 
+use DataModelRoot	DataModelRoot-*              Control
 use AtlasROOT	        AtlasROOT-*	             External 
 use PathResolver        PathResolver-*               Tools
 

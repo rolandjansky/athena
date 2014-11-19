@@ -25,22 +25,11 @@
 //forward decl
 class TBuffer;
 class MsgStream;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,19,00)
-  namespace Reflex {
-    class Type;
-    class Object;
-  }
-#define REFLEX_NS Reflex
-#else
-namespace ROOT {
-   namespace Reflex {
-      class Type;
-      class Object;
-   }
-}
-#define REFLEX_NS ROOT::Reflex
-#endif
 
+#include "DataModelRoot/RootType.h"
+typedef RootType        Type;
+typedef RootDataMember  Member;
+typedef RootObject      Object;
 
 
 class TrigTSerializer : virtual public ITrigSerializerToolBase, public AlgTool {
@@ -77,8 +66,7 @@ public:
 private:
   void do_persistify(const std::string nameOfClass, void* instance);
   void do_persistify_obj(const std::string nameOfClass, void* instance);
-  void do_stl_workaround(const REFLEX_NS::Type *mytype,
-                         const REFLEX_NS::Object *myobject);
+  void do_stl_workaround(const Type *mytype, const Object *myobject);
   void do_follow_ptr(const std::string nameOfClass, void* instance);
   void add_previous_streamerinfos();
   

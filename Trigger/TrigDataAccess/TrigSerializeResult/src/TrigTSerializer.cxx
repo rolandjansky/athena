@@ -25,7 +25,6 @@
 #include "TClass.h"
 #include "TError.h"
 #include "TMethodCall.h"
-#include "Reflex/Reflex.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -36,19 +35,7 @@
 #include "TStreamerInfo.h"
 #include "PathResolver/PathResolver.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
-using ROOT::Reflex::Type;
-using ROOT::Reflex::Member;
-using ROOT::Reflex::Base;
-using ROOT::Reflex::Object;
-using ROOT::Reflex::Object_Cast;
-#else
-using Reflex::Type;
-using Reflex::Member;
-using Reflex::Base;
-using Reflex::Object;
-using Reflex::Object_Cast;
-#endif
+#include "DataModelRoot/RootType.h"
 
 #define  TRIGTSERHEADER  0xf00dbeef
 //#define  TRIGTSERTRAILER 0xbeeff00d
@@ -477,6 +464,27 @@ StatusCode persistifyEL(const TClass *cl, void* instance){
 
 */
 
+
+
+#ifdef ROOT_6
+
+#include <boost/current_function.hpp>
+using namespace std;
+
+void TrigTSerializerUnimplError() {
+   cerr << endl
+        << "ERROR!  method TrigTSerializer::" << BOOST_CURRENT_FUNCTION
+        << " was removed during migration to ROOT6" << endl;
+   abort();
+}
+
+void TrigTSerializer::do_persistify(const std::string , void* ) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_persistify_obj(const std::string , void*) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_stl_workaround(const Type *, const Object *) { TrigTSerializerUnimplError(); }
+
+#else // ROOT 5
+#include "Reflex/Base.h"
+
 void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instance){
 
   Type t = Type::ByName(nameOfClass);
@@ -538,8 +546,7 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
       //iterate over bases and the class 
       for (size_t ib=0; ib<=t.BaseSize(); ib++){
 
-
-	Base bc = t.BaseAt(ib);
+        Reflex::Base bc = t.BaseAt(ib);
 	Type tt = bc.ToType();
 	std::string nameOfBase = tt.Name();
 
@@ -594,7 +601,7 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 	    if (m_outputlevel<=MSG::VERBOSE){
 	      *m_log << MSG::VERBOSE << membername << " isPointer " << stype << endreq;
 	    }
-	    void *ptr =Object_Cast <void *>(obj.Get(membername));
+	    void *ptr = Reflex::Object_Cast <void *>(obj.Get(membername));
 	    do_follow_ptr(stype, ptr);
 	  } 
 	  //////////////////////////////       template      //////////////////////////////
@@ -772,6 +779,7 @@ void TrigTSerializer::do_stl_workaround(const Type *mytype,
   }
 }
 
+#endif // ROOT 5
 
 void TrigTSerializer::do_follow_ptr(const std::string name, void *ptr){
 
