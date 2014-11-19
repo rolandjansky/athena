@@ -16,8 +16,10 @@
 #include <iostream>
 
 TRRegionXMLHandler::TRRegionXMLHandler(std::string s,
-				       TRTTransitionRadiation *tr) :
+                                       TRTTransitionRadiation *tr) :
   DescriptionFactory(s), m_theProcess(tr),
+  m_storeGate(0),
+  m_initialLayoutIdDict(false),
   m_msg("TRRegionXMLHandler")
 {}
 
@@ -46,12 +48,12 @@ void TRRegionXMLHandler::BuildDescription()
     if (idDictMgr) {
       std::string tag = idDictMgr->manager()->tag();
       m_initialLayoutIdDict =
-	(tag == "initial_layout" || tag == "destaged_layout");
+        (tag == "initial_layout" || tag == "destaged_layout");
     }
   } else {
     if (msgLevel(MSG::FATAL))
       msg(MSG::FATAL) << "Could not retrieve geometry layout. TR process is not to be trusted in the following "
-		      << endreq;
+                      << endreq;
   }
 
 
@@ -70,11 +72,11 @@ void TRRegionXMLHandler::BuildDescription()
     // the code to abort
     if ( m_initialLayoutIdDict != 0 ) {
       if  ( ( volName!="TRT::MainRadiatorC" ) &&
-	    ( volName!="TRT::ThinRadiatorC" )    ) {
-	if (msgLevel(MSG::FATAL))
-	  msg(MSG::FATAL) << " Volume-name " << volName
-			  <<" not found! Geometry layout "
-			  << m_initialLayoutIdDict << endreq;
+            ( volName!="TRT::ThinRadiatorC" )    ) {
+        if (msgLevel(MSG::FATAL))
+          msg(MSG::FATAL) << " Volume-name " << volName
+                          <<" not found! Geometry layout "
+                          << m_initialLayoutIdDict << endreq;
         std::abort();
       }
     }
@@ -83,8 +85,8 @@ void TRRegionXMLHandler::BuildDescription()
 
   for( unsigned int i=0; i<numberOfVolumes; i++) {
     TRTRadiatorParameters rad( geomManager->GetVolume(detectorPart,volName)[i],
-			       foilThickness,gasThickness,
-			       (BEflag)regionFlag );
+                               foilThickness,gasThickness,
+                               (BEflag)regionFlag );
     m_theProcess->AddRadiatorParameters(rad);
   }
 
