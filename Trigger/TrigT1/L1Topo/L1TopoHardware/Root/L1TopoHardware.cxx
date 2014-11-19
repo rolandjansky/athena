@@ -45,6 +45,16 @@ DEF_HW(InputWidthTAU);
 DEF_HW(InputWidthJET);
 DEF_HW(InputWidthMU);
 
+DEF_HW(InputWidth1stStageSortEM);
+DEF_HW(InputWidth1stStageSortTAU);
+DEF_HW(InputWidth1stStageSortJET);
+DEF_HW(InputWidth1stStageSortMU);
+
+DEF_HW(InputWidth1stStageSelectEM);
+DEF_HW(InputWidth1stStageSelectTAU);
+DEF_HW(InputWidth1stStageSelectJET);
+DEF_HW(InputWidth1stStageSelectMU);
+
 DEF_HW(OutputWidthSortEM);
 DEF_HW(OutputWidthSelectEM);
 DEF_HW(OutputWidthSortTAU);
@@ -65,7 +75,9 @@ DEF_HW(NumberOfOutputBits);
 DEF_HW(KalmanMETCorrection_numberOfEtaBins);
 DEF_HW(KalmanMETCorrection_numberOfEtBins);
 DEF_HW(KalmanMETCorrection_correctionBitWidth);
-	
+
+DEF_HW(InputWidthMET);
+DEF_HW(OutputWidthMET);	
 DEF_HW(METEnergyBitWidth);
 DEF_HW(METSqrEnergyBitWidth, "", "2 * METEnergyBitWidth");
 	

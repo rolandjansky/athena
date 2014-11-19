@@ -28,6 +28,16 @@ namespace TCS {
    const uint32_t InputWidthTAU               = 120;
    const uint32_t InputWidthJET               = 64;
    const uint32_t InputWidthMU                = 32;
+
+   const uint32_t InputWidth1stStageSortEM                = 20;
+   const uint32_t InputWidth1stStageSortTAU               = 20;
+   const uint32_t InputWidth1stStageSortJET               = 16;
+   const uint32_t InputWidth1stStageSortMU                = 16;
+
+   const uint32_t InputWidth1stStageSelectEM                = 30;
+   const uint32_t InputWidth1stStageSelectTAU               = 30;
+   const uint32_t InputWidth1stStageSelectJET               = 16;
+   const uint32_t InputWidth1stStageSelectMU                = 16;
 		
    const uint32_t OutputWidthSortEM           = 6;
    const uint32_t OutputWidthSelectEM         = 6;
@@ -53,7 +63,9 @@ namespace TCS {
    const uint32_t KalmanMETCorrection_numberOfEtaBins    = 8;  // needs to be multiple of 2
    const uint32_t KalmanMETCorrection_numberOfEtBins     = 10; // needs to be multiple of 2
    const uint32_t KalmanMETCorrection_correctionBitWidth = 8;  // assuming format unsigned [0.0000000]
-	
+
+   const uint32_t InputWidthMET                = 2;
+   const uint32_t OutputWidthMET               = 1;	
    const uint32_t METEnergyBitWidth           = 15;
    const uint32_t METSqrEnergyBitWidth        = 2 * METEnergyBitWidth;
 	
