@@ -6,12 +6,12 @@
 // Templated class for the Hit collections in athena
 // There is a bunch of ifdef __CINT__ to make this class
 // intelligible to AthenaRoot and work out a persistency mechanism
-// 
+//
 
 
 #ifndef AtlasHitsVector_H
 #define AtlasHitsVector_H
-// 
+//
 //
 // vector class
 #include <vector>
@@ -21,22 +21,22 @@
 //
 // Gaudi includes, not provided to rootcint
 #ifndef __CINT__
-  #include "GaudiKernel/ISvcLocator.h"
-  #include "AthenaKernel/getMessageSvc.h"
-  #include "GaudiKernel/MsgStream.h"
-  #include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #endif
 
 //
-template <typename T> 
-  class AtlasHitsVector 
+template <typename T>
+class AtlasHitsVector
 {
 public:
   //
-  // additional typedef 
-  typedef T base_value_type; 
-  typedef std::vector<T>                           CONT; 
-  typedef typename CONT::value_type value_type; 
+  // additional typedef
+  typedef T base_value_type;
+  typedef std::vector<T>                           CONT;
+  typedef typename CONT::value_type value_type;
   typedef typename CONT::pointer pointer;
   typedef typename CONT::const_pointer const_pointer;
   typedef typename CONT::iterator iterator;
@@ -47,49 +47,49 @@ public:
   typedef typename CONT::difference_type difference_type;
   //
   // default constructor for rootcint
-#ifdef __CINT__ 
-  AtlasHitsVector<T>( ) {} 
+#ifdef __CINT__
+  AtlasHitsVector<T>( ) {}
   //
   // methods not provided to rootcint
-#else 
+#else
   AtlasHitsVector<T>(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
-    {
-      IMessageSvc* m_msgSvc(Athena::getMessageSvc());
-      MsgStream log(m_msgSvc, "AtlasHitsVector");
-      log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endreq;
-      
-      m_name = collectionName;
-      m_hitvector.reserve(mySize);
-    }
+  {
+    IMessageSvc* m_msgSvc(Athena::getMessageSvc());
+    MsgStream log(m_msgSvc, "AtlasHitsVector");
+    log << MSG::DEBUG << " initialized AtlasHitVector " << collectionName << endreq;
+
+    m_name = collectionName;
+    m_hitvector.reserve(mySize);
+  }
 
   ~AtlasHitsVector<T> () {
-      std::vector<T>().swap(m_hitvector);
-    }
+    std::vector<T>().swap(m_hitvector);
+  }
   void Clear()
-    {
-	m_hitvector.clear();
-        std::vector<T>().swap(m_hitvector);
-    }
+  {
+    m_hitvector.clear();
+    std::vector<T>().swap(m_hitvector);
+  }
 
   void Insert(const T& h)
-    {
-      m_hitvector.push_back(h);
-    }
+  {
+    m_hitvector.push_back(h);
+  }
   void Insert(const T&& h)
-    {
-      m_hitvector.push_back(h);
-    }
+  {
+    m_hitvector.push_back(h);
+  }
   template <class... Args> void Emplace(Args&&... args)
-    {
-      m_hitvector.emplace_back(args...);
-    }
+  {
+    m_hitvector.emplace_back(args...);
+  }
   int  Size() const
-    {
-      return size();
-    }
+  {
+    return size();
+  }
 #endif // __CINT__
-  
-  explicit AtlasHitsVector(const AtlasHitsVector<T>& rhs) 
+
+  explicit AtlasHitsVector(const AtlasHitsVector<T>& rhs)
     : m_hitvector(rhs.m_hitvector) {}
 
   // Conversion
@@ -120,36 +120,36 @@ public:
 
   void setName(const std::string& name) {m_name = name;}
   //
-  // vector methods. 
+  // vector methods.
   const std::vector<T>& getVector() {return m_hitvector;}
 
-  bool empty() const { return m_hitvector.empty(); } 
+  bool empty() const { return m_hitvector.empty(); }
 
-  const_iterator begin() const 
-    { return m_hitvector.begin(); } 
-  
-  const_iterator end() const 
-    { return m_hitvector.end(); } 
-  
-  iterator begin()  
-    { return m_hitvector.begin(); } 
-  
-  iterator end()  
-    { return m_hitvector.end(); } 
-  
+  const_iterator begin() const
+  { return m_hitvector.begin(); }
+
+  const_iterator end() const
+  { return m_hitvector.end(); }
+
+  iterator begin()
+  { return m_hitvector.begin(); }
+
+  iterator end()
+  { return m_hitvector.end(); }
+
   size_type size() const { return m_hitvector.size(); }
-  
-  void push_back(T t ) { m_hitvector.push_back(t);} 
+
+  void push_back(const T& t ) { m_hitvector.push_back(t);}
 
   T At(unsigned int pos) const {
-	  return m_hitvector.at(pos);
+    return m_hitvector.at(pos);
   }
-  
+
   const T operator[] (size_type n) const {return m_hitvector[n];}
-  
+
   void clear() {
-      m_hitvector.clear();
-      std::vector<T>().swap(m_hitvector);
+    m_hitvector.clear();
+    std::vector<T>().swap(m_hitvector);
   }
 
   void reserve (size_type n) {  m_hitvector.reserve (n); }
@@ -157,7 +157,7 @@ public:
   void resize (size_type n) {  m_hitvector.resize (n); }
 
 
- protected:
+protected:
   std::string     m_name;
   std::vector<T>  m_hitvector;
 
@@ -188,7 +188,7 @@ void dvl_makecontainer (size_t nreserve, AtlasHitsVector<T>*& cont)
 // when the dictionary for this class is loaded.
 template <class T>
 const std::type_info* AtlasHitsVector<T>::s_info =
-  DataModel_detail::DVLInfo<AtlasHitsVector<T> >::initHelper();
+                                                           DataModel_detail::DVLInfo<AtlasHitsVector<T> >::initHelper();
 
 
 #endif
