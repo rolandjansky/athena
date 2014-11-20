@@ -8,9 +8,10 @@
 // Calibration Sensitive Detector for TileCal simulation
 //
 // Author: Gia Khoriauli <gia@mail.cern.ch>
-//
 // May, 2005
-// Major updates: December, 2005;  July, 2013 (Sergey);
+//
+// Major updates: December, 2005;
+//                July, 2013 (Sergey);
 //
 //************************************************************
 
@@ -48,7 +49,6 @@ class Identifier;
 class CaloCell_ID;
 class CaloDM_ID;
 class IMessageSvc;
-class StoreGateSvc;
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class MsgStream;
@@ -147,7 +147,6 @@ private:
 
     //ATHENA AND OTHER SERVICES
     IMessageSvc*   m_msgSvc   ;
-    StoreGateSvc*  m_sgSvc    ;
     IRDBAccessSvc* m_rdbSvc   ;
     IGeoModelSvc*  m_geoModSvc;
     MsgStream*     m_log;
