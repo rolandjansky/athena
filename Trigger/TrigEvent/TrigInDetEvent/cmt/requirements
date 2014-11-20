@@ -95,11 +95,10 @@ typesWithNamespace="xAOD::TrackParticle	xAOD::TrackParticleContainer xAOD::Track
 		    xAOD::TrigTrackCounts xAOD::TrigTrackCountsContainer xAOD::TrigTrackCountsAuxContainer" \
     files="-s=${xAODTracking_root}/xAODTracking VertexContainer.h VertexAuxContainer.h \
     						TrackParticleContainer.h TrackParticleAuxContainer.h \
-           -s=${xAODTrigMinBias_root}/xAODTrigMinBias TrigSpacePointCountsContainer.h TrigSpacePointCountsAuxContainer.h \
-	   					      TrigHisto2DContainer.h TrigHisto2DAuxContainer.h \
-						      TrigVertexCountsContainer.h TrigVertexCountsAuxContainer.h \
-						      TrigTrackCountsContainer.h TrigTrackCountsAuxContainer.h"
-
+	   -s=${xAODTrigMinBias_root}/xAODTrigMinBias TrigSpacePointCounts.h TrigSpacePointCountsContainer.h TrigSpacePointCountsAuxContainer.h \
+                                 TrigHisto2D.h TrigHisto2DContainer.h TrigHisto2DAuxContainer.h \
+                              TrigVertexCounts.h TrigVertexCountsContainer.h TrigVertexCountsAuxContainer.h \
+                              TrigTrackCounts.h TrigTrackCountsContainer.h TrigTrackCountsAuxContainer.h"
 
 end_private
 

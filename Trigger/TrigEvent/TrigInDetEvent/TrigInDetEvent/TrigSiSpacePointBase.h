@@ -40,6 +40,12 @@ public:
       m_eta = eta(0.0);
       m_rotatedPhi = m_phi;
       m_barCode=-1;
+      if (m_offlineSpacePoint) {
+        m_isPixel = (m_offlineSpacePoint->clusterList().second==nullptr);
+      }
+      else {
+        m_isPixel = false;//Arbitrarily choose value when no offline spacepoint
+      }
     }
 
   // Destructor
@@ -96,6 +102,9 @@ public:
   double original_x() const {return  m_original_x;}
   double original_y() const {return  m_original_y;}
 
+  bool isPixel() const {return  m_isPixel;}
+  bool isSCT()   const {return !m_isPixel;}
+
   // Methods to calculate associated values
 
   double eta(double z0) const {
@@ -136,6 +145,7 @@ protected:
   int           m_usedBy;    //index of a track sp is assigned to
   int           m_index;     //sp index in a collection
   int           m_barCode;   //MC truth association
+  bool          m_isPixel; //Stores whether spacepoint is Pixel or SCT
 
 	const Trk::SpacePoint* m_offlineSpacePoint;
 };
