@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONNSTRING=oracle://int8r_nolb/atlas_tags_loading_test
-DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+DATADIR=/afs/.cern.ch/atlas/offline/test/POOLCollectionTools
 
 PICKLE=tagUploadT0.pickle
 #TRF=tagUploadT0_trf.py

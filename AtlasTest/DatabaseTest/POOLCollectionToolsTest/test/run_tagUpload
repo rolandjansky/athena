@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
+DATADIR=/afs/.cern.ch/atlas/offline/test/POOLCollectionTools
 TESTTABLE=atn_test_102268_Prov
 CONNSTRING=oracle://int8r_nolb/atlas_tags_loading_test
 #TESTFILE=$DATADIR/fdr08_run2_physics_Minbias_o3_f8_m10_1217278983_user.root
