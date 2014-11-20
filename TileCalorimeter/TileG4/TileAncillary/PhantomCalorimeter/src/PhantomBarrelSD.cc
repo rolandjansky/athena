@@ -48,7 +48,8 @@ PhantomBarrelSD::PhantomBarrelSD(G4String name)
   : FadsSensitiveDetector(name),
     detectorDescription(0),    
     phantombarrelSDMessenger(0),
-    m_iamowner(false)
+    m_iamowner(false),
+    m_hit()
 {
   phantombarrelSDMessenger = new PhantomBarrelSDMessenger(this);
   ISvcLocator* svcLocator = Gaudi::svcLocator();
