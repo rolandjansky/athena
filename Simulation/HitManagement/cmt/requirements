@@ -30,6 +30,6 @@ private
 apply_pattern install_runtime
 use TestTools      TestTools-*        AtlasTest -no_auto_imports
 #apply_pattern UnitTest_run unit_test=TimedHitPtr
-apply_pattern UnitTest_run unit_test=TimedHitPtrCollection
+apply_pattern UnitTest_run unit_test=TimedHitPtrCollection extrapatterns="^Warning in <TEnvRec::ChangeValue>: duplicate entry"
 
 
