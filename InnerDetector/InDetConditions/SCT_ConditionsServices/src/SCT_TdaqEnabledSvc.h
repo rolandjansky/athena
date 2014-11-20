@@ -4,7 +4,7 @@
 
 /**
  * @file SCT_TdaqEnabledSvc.h
- * interface file for service that keeps track of configuration conditions
+ * interface file for service that keeps track of Tdaq enabling/disabling of SCT Rods.
  * @author shaun.roe@cern.ch
 **/
 
@@ -32,7 +32,7 @@ class SCT_ID;
 
 /**
  * @class SCT_ConfigurationConditionsSvc
- * Service that keeps track of configuration conditions
+ * Service that keeps track of Tdaq enabling/disabling of SCT Rods.
 **/
 
 class SCT_TdaqEnabledSvc: virtual public ISCT_ConditionsSvc, public AthService {
@@ -49,7 +49,7 @@ public:
    static const InterfaceID & interfaceID();
   //@}
   
-  ///Can the service report about the given component? (TdaqEnabledSvc can answer questions about a module or module side)
+   ///Can the service report about the given component? (TdaqEnabledSvc can answer questions about a module or module side)
    virtual bool canReportAbout(InDetConditions::Hierarchy h);
 
    ///Is the detector element good?
@@ -58,11 +58,10 @@ public:
    ///is it good?, using wafer hash
    virtual bool isGood(const IdentifierHash & hashId);
 
-
    ///Manually get the data in the structure before proceeding
    virtual StatusCode fillData();
 
-   //I'm going to fill this from job options, but these may pecify the database is to be used
+   ///Overload 'fillData' to provide callback to data folder
    virtual StatusCode fillData(int& /*i*/ , std::list<std::string>& /*l*/);
 
    ///Are the data available?
@@ -72,7 +71,7 @@ public:
    virtual bool canFillDuringInitialize();
   
 private:
-   static const unsigned int NRODS=90; //in-class const initialization should be ok for ints
+   static const unsigned int NRODS; //!< This was 90 in run 1; changed to 128 on Oct 22, 2014
    //StringArrayProperty m_badElements; //list of bad (unconfigured) robs
    std::set<unsigned int> m_goodRods;
    std::set<IdentifierHash> m_goodIds;
@@ -88,6 +87,7 @@ private:
    const DataHandle<CondAttrListCollection>   m_dbList;                   //!< implies multi channel folder used
    bool m_noneBad;
    bool unfilledRun() const;  //!<Before run 119253, the folder was never filled so it looks like a disabled detector: this is to flag that condition
+   ///The folder name changed from run 1 to run 2; this function looks to see which folder has been pre-loaded
    std::string determineFolder(const std::string& option1, const std::string& option2) const;
 };
 

@@ -19,26 +19,22 @@ SCT_Chip::SCT_Chip():
 // Construct a chip from the id, config and masks
 SCT_Chip::SCT_Chip(short id, short config, uint32_t mask0, uint32_t mask1, uint32_t mask2, uint32_t mask3):
   m_id(id),
-  m_config(config){
+  m_config(config), m_numMasked(0){
   m_in     = m_config.test(IN_BIT) ? 1 : 0;
   m_out    = m_config.test(OUT_BIT) ? 1 : 0;
   m_end    = m_config.test(END_BIT);
   m_master = !m_config.test(MASTER_BIT);        // Master bit is 0 if master
-
   initializeMaskFromInts(mask0, mask1, mask2, mask3);
 }
 
 // Initialise chip mask (int version)
 bool SCT_Chip::initializeMaskFromInts(uint32_t mask0, uint32_t mask1, uint32_t mask2, uint32_t mask3){
   bool successfulInitialization(true);
-
   uint32_t subWords[nSubwords]={mask0,mask1,mask2,mask3};
-
   // Put the integers into 32 bit bitsets
   std::bitset<lenSubword> subBinary;
   for(uint i(0);i!=nSubwords;++i){
     subBinary = subWords[i];
-
     // Put the four bitsets together in one 128 bit bitset (private member data)
     for(uint j(0);j!=lenSubword;++j){
       m_mask[i*lenSubword+j]=subBinary[j];

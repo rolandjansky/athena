@@ -98,6 +98,7 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc( const std::string& name,ISvc
   m_evt(0),
   m_regSvc(0),
   m_streamer(0),
+  m_filled(false),
   m_defectRecorded(false),
   m_effRecorded(false),
   m_noRecorded(false),

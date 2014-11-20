@@ -30,8 +30,11 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 
+//static const member initializer
+const unsigned int SCT_TdaqEnabledSvc::NRODS=128;
 
 static const std::string databaseSignature("database");
+//The folder name changed between run 1 and run 2
 static const std::string run1FolderName("/TDAQ/EnabledResources/ATLAS/SCT/Robins"); //a multi-channel, single version folder in the DB
 static const std::string run2FolderName("/TDAQ/Resources/ATLAS/SCT/Robins");
 static const unsigned int earliestRunForFolder(119253);
@@ -43,11 +46,12 @@ namespace{ //anonymous namespace to introduce file scope
   }
   
   //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'
+  //October 2014: names can now also be of format 'ROL-SCT-B-00-210100'
   unsigned int
   parseChannelName(const std::string & chanNameString){
     unsigned int result(0);
     const unsigned int length=chanNameString.size();
-    if (length < 20) return result;
+    if (length < 19) return result; //very rough check on sanity of string, should use regex
     //get the last six numbers, these are in hex  
     std::istringstream iss(chanNameString.substr(length-6, 6));
     iss.exceptions(std::ios_base::badbit|std::ios_base::failbit);
@@ -179,11 +183,18 @@ SCT_TdaqEnabledSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/
     std::string enabled=payload["class"].data<std::string>();
     std::string chanName=m_dbList->chanName(channelNumber);
     unsigned int rodNumber=parseChannelName(chanName);
-    if (inRange(channelNumber,1,NRODS) and SCT_OnlineId::rodIdInRange(rodNumber)){
+    //range check on the rod channel number has been removed, since it refers both to existing channel names
+    //which can be rods in slots 1-128 but also historical names which have since been removed
+    if (SCT_OnlineId::rodIdInRange(rodNumber)){
       if (!enabled.empty() and !m_goodRods.insert(rodNumber).second) msg(MSG::WARNING)<<"Set insertion failed for rod "<<rodNumber<<endreq;
     } else {
-      msg(MSG::WARNING)<<"Channel names for this folder should be of the form ROL-SCT-BA-00-210000; this channel name is: "<<chanName<<endreq;
+      msg(MSG::WARNING)<<"Names in "<<m_coolFolderName<<" should be of the form ROL-SCT-BA-00-210000 this channel, number "<<channelNumber<<", is: "<<chanName<<endreq;
     }
+  }
+  if (m_goodRods.size()>NRODS){
+    msg(MSG::ERROR)<<"The number of rods declared as good appears to be greater than the permissible number of rods ("<<NRODS<<")"<<endreq;
+    m_filled=false;
+    return StatusCode::FAILURE;
   }
   unsigned int nBad = NRODS-m_goodRods.size();
   std::string howMany=inWords(nBad);

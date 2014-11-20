@@ -147,6 +147,8 @@ private:
 
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};
+  //determine which folder to use; COMP200 style or CONDBR2 style
+  std::string determineFolder(const std::string &option1, const std::string &option2) const;
 
 };
 

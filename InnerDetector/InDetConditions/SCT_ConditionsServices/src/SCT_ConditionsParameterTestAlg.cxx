@@ -108,6 +108,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute(){
   }
   m_histoString=asXmlString(histo);
   cout<<m_histoString<<endl;
+  if (not paramFilled) sc = StatusCode::FAILURE;
   return sc;
 } // SCT_ConditionsParameterTestAlg::execute()
 

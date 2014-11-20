@@ -49,6 +49,14 @@
 #include "../SCT_RadDamageSummarySvc.h"
 #include "../SCT_ElectricFieldTool.h"
 
+#include "../SCT_RODVetoSvc.h"
+
+#include "../SCT_RODVetoTestAlg.h"
+
+//specific to rod veto testing:
+
+DECLARE_ALGORITHM_FACTORY(SCT_RODVetoTestAlg)
+DECLARE_SERVICE_FACTORY(SCT_RODVetoSvc)
 
 DECLARE_ALGORITHM_FACTORY(SCT_ModuleVetoTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsSummaryTestAlg)
@@ -91,6 +99,8 @@ DECLARE_TOOL_FACTORY(SCT_ReadoutTool)
 DECLARE_TOOL_FACTORY(SCT_ElectricFieldTool)
 
 DECLARE_FACTORY_ENTRIES(SCT_ConditionsServices) {
+  DECLARE_SERVICE( SCT_RODVetoSvc );
+
   DECLARE_SERVICE( SCT_CachedSummarySvc);
   DECLARE_SERVICE( SCT_ConditionsSummarySvc);
   DECLARE_SERVICE( SCT_ModuleVetoSvc );
@@ -111,7 +121,7 @@ DECLARE_FACTORY_ENTRIES(SCT_ConditionsServices) {
   DECLARE_SERVICE( SCT_ChargeTrappingSvc )
   DECLARE_SERVICE( SCT_RadDamageSummarySvc )
 
-
+DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ModuleVetoTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsSummaryTestAlg )
   DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
