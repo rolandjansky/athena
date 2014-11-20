@@ -43,10 +43,8 @@
 //
 // ........ Gaudi needed includes
 //
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -66,8 +64,7 @@ using CLHEP::RandGaussZiggurat;
 
 
 LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
-  , m_storeGateSvc("StoreGateSvc",name)
+  AthAlgorithm(name, pSvcLocator)
   , m_atRndmGenSvc("AtRndmGenSvc",name)
   , m_rndmEngineName("LArTTL1Maker")
   , m_rndmEngine(0)
@@ -82,8 +79,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 //
 // ........ default values of private data
 //
-  m_detectorStore         = 0;
-  //m_storeGateSvc          = 0;
   m_chronSvc              = 0;
   m_mergeSvc              = 0;
   m_useTriggerTime        = false;
@@ -136,7 +131,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   // ........ declare the private data as properties
   //
 
-  declareProperty("EventStore",m_storeGateSvc,"StoreGate Service");
   declareProperty("SubDetectors",m_SubDetectors);
   declareProperty("RndmSvc", m_atRndmGenSvc);
 
@@ -167,6 +161,8 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("useMapFromStore",m_useMapfromStore,"Use LArHitEMap already filled from detector store");
 
+   declareProperty("TruthHitsContainer",m_truthHitsContainer="","Specify a value to get a pair of LArTTL1 containers with the truth hits in them");
+
 //
 return;
 }
@@ -174,9 +170,6 @@ return;
 
 LArTTL1Maker::~LArTTL1Maker()
 {  
-  /**  TTL1 Maker destructor                                      */
-
-return;
 }
 
 
@@ -191,34 +184,21 @@ StatusCode LArTTL1Maker::initialize()
 //
 // ......... declaration
 //
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   m_chronSvc = chronoSvc();
 
-  msglog << MSG::INFO 	
-	 << "***********************************************"
-	 << endreq;
-  msglog << MSG::INFO 	
-	 << "* Steering options for LArTTL1Maker algorithm *" 
-	 << endreq;
-  msglog << MSG::INFO 	
-	 << "***********************************************"
-	 << endreq;
+  ATH_MSG_INFO 	( "***********************************************" );
+  ATH_MSG_INFO 	( "* Steering options for LArTTL1Maker algorithm *"  );
+  ATH_MSG_INFO 	( "***********************************************" );
   //
   // ......... print the noise flag
   //
   if ( m_NoiseOnOff )
   {
-    msglog << MSG::INFO 
-	   << "Electronic noise will be added in each TT for selected sub-detectors." 
-	   << endreq;
+    ATH_MSG_INFO ( "Electronic noise will be added in each TT for selected sub-detectors." );
   }
   else
   {
-    msglog << MSG::INFO 
-	   << "No electronic noise added." 
-	   << endreq;
+    ATH_MSG_INFO ( "No electronic noise added." );
   }
 
 //
@@ -226,15 +206,11 @@ StatusCode LArTTL1Maker::initialize()
 //
   if (m_PileUp)
   {
-     msglog << MSG::INFO
-            << "take events from PileUp service"
-            << endreq;
+    ATH_MSG_INFO ( "take events from PileUp service" );
   }
   else
   {
-    msglog << MSG::INFO
-           << "no pile up"
-           << endreq;
+    ATH_MSG_INFO ( "no pile up" );
   }
 
 //
@@ -242,15 +218,11 @@ StatusCode LArTTL1Maker::initialize()
 //
   if (m_useTriggerTime) 
   {
-     msglog << MSG::INFO
-            << "use Trigger Time service " <<  m_triggerTimeToolName   
-            << endreq;
+    ATH_MSG_INFO ( "use Trigger Time service " <<  m_triggerTimeToolName );
   }
   else
   {
-    msglog << MSG::INFO
-           << "no Trigger Time used"
-           << endreq;
+    ATH_MSG_INFO ( "no Trigger Time used" );
   }
 
 //
@@ -259,246 +231,126 @@ StatusCode LArTTL1Maker::initialize()
 // currently the calib modes are not used anymore -> turning INFO logs into DEBUG
   if (m_noEmCalibMode)
   {
-     msglog << MSG::DEBUG
-            << "NO calibration mode chosen for EM towers "
-            << " == technical option. Should not be used for physics !!! "
-            << endreq;
+    ATH_MSG_DEBUG
+      ( "NO calibration mode chosen for EM towers "
+            << " == technical option. Should not be used for physics !!! " );
   }
-      else 
+  else 
   {
-    msglog << MSG::DEBUG
-	   << "standard calibration chosen for EM towers"
-	   << endreq;
+    ATH_MSG_DEBUG ( "standard calibration chosen for EM towers" );
   }
-
+    
   if (m_noHadCalibMode)
   {
-     msglog << MSG::DEBUG
-            << "NO calibration mode chosen for HEC towers "
-            << " == technical option. Should not be used for physics !!! "
-            << endreq;
+    ATH_MSG_DEBUG
+      ( "NO calibration mode chosen for HEC towers "
+        << " == technical option. Should not be used for physics !!! " );
   }
   else {
-     msglog << MSG::DEBUG
-            << "standard calibration mode chosen for HEC towers "
-            << endreq;
-  }
-
-//
-// ....... Access Event StoreGate
-//
-  //StatusCode sc = service ( "StoreGateSvc" , m_storeGateSvc ) ;
-  StatusCode sc = m_storeGateSvc.retrieve();
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to access pointer to StoreGate"
-	   << endreq;
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG ( "standard calibration mode chosen for HEC towers " );
   }
 
 //
 // locate the PileUpMergeSvc and initialize our local ptr
 //
   if (m_PileUp) {
-    if (!(service("PileUpMergeSvc", m_mergeSvc)).isSuccess() ||	0 == m_mergeSvc) {
-      msglog << MSG::ERROR 
-	     << "Could not find PileUpMergeSvc" 
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
-    else
-      {
-	msglog << MSG::DEBUG << "PileUpMergeSvc successfully initialized" << endreq;
-      }
+    ATH_CHECK( service("PileUpMergeSvc", m_mergeSvc) );
+    ATH_MSG_DEBUG ( "PileUpMergeSvc successfully initialized" );
   }     
   
 //
 // .........retrieve tool computing trigger time if requested
 //
   if (m_useTriggerTime && m_PileUp) {
-       msglog << MSG::INFO 
-        << " In case of pileup, the trigger time subtraction is done in PileUpSvc " 
-        << endreq;
-       msglog << MSG::INFO
-        << "  => LArTTL1Maker will not apply Trigger Time " << endreq;
-       m_useTriggerTime = false;
+    ATH_MSG_INFO 
+      ( " In case of pileup, the trigger time subtraction is done in PileUpSvc " );
+    ATH_MSG_INFO ( "  => LArTTL1Maker will not apply Trigger Time " );
+    m_useTriggerTime = false;
   }
 
   if (m_useTriggerTime) {
     IToolSvc* p_toolSvc = 0;
-    if (!(service("ToolSvc", p_toolSvc)).isSuccess() ||	0 == p_toolSvc) {
-      msglog << MSG::ERROR 
-	     << "Could not find ToolSvc" 
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( service("ToolSvc", p_toolSvc) );
 
     IAlgTool* algtool(0);
     ListItem theTool(m_triggerTimeToolName.value());
-    sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
+    StatusCode sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
     if (sc.isFailure()) {
-      msglog << MSG::ERROR
-	     << "Unable to find tool for " << m_triggerTimeToolName.value() << endreq;
+      ATH_MSG_ERROR
+        ( "Unable to find tool for " << m_triggerTimeToolName.value() );
       p_triggerTimeTool = 0;
     }
-     else {
-       p_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);
-       msglog << MSG::DEBUG << "retrieved TriggerTime tool: " 
-	      << m_triggerTimeToolName.value() << endreq;
-     }
+    else {
+      p_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);
+      ATH_MSG_DEBUG ( "retrieved TriggerTime tool: " 
+                      << m_triggerTimeToolName.value() );
+    }
   }
 
   //
   // ..... need LAr and CaloIdManager to retrieve all needed helpers
   //
-
-  const CaloIdManager* caloMgr;
-  const LArIdManager*	 larMgr;
-    //
-    // ....... Access Detector StoreGate
-    //
-  sc = service( "DetectorStore", m_detectorStore );
-  if ( sc.isSuccess( ) ) {
-    sc = m_detectorStore->retrieve(caloMgr);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      if (outputLevel <= MSG::DEBUG) {
-	msglog << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
-      }
-    }	
-    sc = m_detectorStore->retrieve(larMgr);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      if (outputLevel <= MSG::DEBUG) {
-	msglog << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-      }
-    }	
-  }   else {
-    msglog << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+  const CaloIdManager* caloMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve (caloMgr) );
+  const LArIdManager*	 larMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve (larMgr) );
   
   //
   //..... need of course the LVL1 helper
   //
   m_lvl1Helper = caloMgr->getLVL1_ID();
   if (!m_lvl1Helper) {
-    msglog << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access CaloLVL1_ID helper" );
     return StatusCode::FAILURE;
   } else {
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endreq;
-    }
+    ATH_MSG_DEBUG ( "Successfully accessed CaloLVL1_ID helper" );
   }
   
-  //
   //..... also need the LArEM helper (e.g. to deal with the barrel end part)
-  //
-  sc = m_detectorStore->retrieve(m_emHelper);
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Unable to retrieve LArEM helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG << "Successfully retrieved LArEM helper from DetectorStore" << endreq;
-    }
-  }	
+  ATH_CHECK( detStore()->retrieve(m_emHelper) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArEM helper from DetectorStore" );
   
-  //
   //..... also need the LArHEC helper to avoid adding up energy from 4th compartment
-  //
-  sc = m_detectorStore->retrieve(m_hecHelper);
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Unable to retrieve LArHEC helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG << "Successfully retrieved LArHEC helper from DetectorStore" << endreq;
-    }
-  }	
-  //
+  ATH_CHECK( detStore()->retrieve(m_hecHelper) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArHEC helper from DetectorStore" );
+
   //..... also need the LArFCAL helper to use hash ids to store all gains
-  //
-  sc = m_detectorStore->retrieve(m_fcalHelper);
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Unable to retrieve LArFCAL helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG << "Successfully retrieved LArFCAL helper from DetectorStore" << endreq;
-    }
-  }	
+  ATH_CHECK( detStore()->retrieve(m_fcalHelper) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArFCAL helper from DetectorStore" );
   
-  //
   // ..... need cabling services, to get channels associated to each TT
-  //
-  IToolSvc* toolSvc;
-  StatusCode status   = service( "ToolSvc",toolSvc  );
-  if(status.isSuccess()) {
-    sc = toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
-    if(sc.isFailure()) {
-      msglog << MSG::ERROR << "Could not retrieve LArCablingService"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-    sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-    if(sc.isFailure()) {
-      msglog << MSG::ERROR << "Could not retrieve CaloTriggerTowerService"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-  } else      {
-    msglog << MSG::ERROR << "Could not get ToolSvc"<< endreq;
-    return(StatusCode::FAILURE);
-  }
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
+  ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
   
   // Incident Service: 
-  IIncidentSvc* incSvc;
-  sc = service("IncidentSvc", incSvc);
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to retrieve pointer to DetectorStore "
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
+  IIncidentSvc* incSvc = nullptr;
+  ATH_CHECK( service("IncidentSvc", incSvc) );
   //start listening to "BeginRun"
   incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
 
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG 
-	   << "Initialization completed successfully" 
-	   << endreq;
-  }
 
-  sc = m_atRndmGenSvc.retrieve();
-  if(sc.isFailure()) {
-    msglog << MSG::ERROR << "Could not initialize random number service." << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_atRndmGenSvc.retrieve() );
   m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
   if(!m_rndmEngine) {
-    msglog << MSG::ERROR << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
+    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE ;
   }
 
+  ATH_MSG_DEBUG  ( "Initialization completed successfully"  );
   return StatusCode::SUCCESS;
-
 }
 
 
 
 void LArTTL1Maker::handle(const Incident& /* inc*/ )
 {
-  MsgStream msglog( msgSvc(), name() );
-  msglog << MSG::DEBUG << "LArTTL1Maker handle()" << endreq;
+  ATH_MSG_DEBUG ( "LArTTL1Maker handle()" );
 
   StatusCode sc = this->retrieveDatabase();
   if (sc.isFailure()) {
-    msglog << MSG::ERROR << " Error from retrieveDatabase " << endreq;
+    ATH_MSG_ERROR ( " Error from retrieveDatabase " );
   }
 
 
@@ -506,18 +358,15 @@ void LArTTL1Maker::handle(const Incident& /* inc*/ )
   // ...... init hit map 
   //
   if ( this->initHitMap() == StatusCode::FAILURE ) {
-    msglog << MSG::ERROR << " Error from initHitMap() " << endreq;
+    ATH_MSG_ERROR ( " Error from initHitMap() " );
   }
 
   //
   // ...... Read auxiliary data files
   //
   if ( this->readAuxiliary() == StatusCode::FAILURE ) {
-
-    msglog << MSG::ERROR << " Error from readAuxiliary() " << endreq;
-
-    }
-
+    ATH_MSG_ERROR ( " Error from readAuxiliary() " );
+  }
 
   return;
 }
@@ -526,18 +375,8 @@ StatusCode LArTTL1Maker::retrieveDatabase()
 {
 // can not do all that in initialize with the new calibration classes/Iov service
 
-  MsgStream msglog( msgSvc(), name() );
-  msglog << MSG::DEBUG << "LArTTL1Maker retrieveDatabase()" << endreq;
-  StatusCode sc;
-
-  sc = m_detectorStore->retrieve(m_dd_fSampl,m_fSamplKey);
-  if (sc.isFailure() || !m_dd_fSampl)  {
-    msglog << MSG::ERROR
-	   << "Unable to retrieve ILArfSampl from DetectorStore"
-	   << endreq;
-    return StatusCode::FAILURE;
-  } 
-
+  ATH_MSG_DEBUG ( "LArTTL1Maker retrieveDatabase()" );
+  ATH_CHECK (detStore()->retrieve(m_dd_fSampl,m_fSamplKey) );
   return StatusCode::SUCCESS;
 }
 
@@ -552,17 +391,8 @@ StatusCode LArTTL1Maker::execute()
 // + Subject: Make the TTL1s and put them into the container             +
 // +                                                                      +
 // +======================================================================+
-  //
-  // ......... declarations
-  //
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
 
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG 
-	   << "Begining of execution" 
-	   << endreq;
-  }
+  ATH_MSG_DEBUG ( "Begining of execution"  );
 
   //
   // ....... fill the LArHitEMap
@@ -573,9 +403,7 @@ StatusCode LArTTL1Maker::execute()
 
   int totHit=0;
   if ( this->fillEMap(totHit) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG << "total number of hits with |E|> 1.e-06 found = " << totHit << endreq;
-  }
+  ATH_MSG_DEBUG ( "total number of hits with |E|> 1.e-06 found = " << totHit );
   
 
   if(m_chronoTest) {
@@ -584,7 +412,7 @@ StatusCode LArTTL1Maker::execute()
   }
 
   if (!m_useMapfromStore && totHit==0) {
-    msglog << MSG::WARNING << " No LAr hit in the event "  << endreq;
+    ATH_MSG_WARNING ( " No LAr hit in the event "  );
   }
 
   //
@@ -594,59 +422,42 @@ StatusCode LArTTL1Maker::execute()
   if (m_useTriggerTime && p_triggerTimeTool) {
      trigtime = p_triggerTimeTool->time();
   }
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG << "Trigger time used : " << trigtime << endreq;
-  }
+  ATH_MSG_DEBUG ( "Trigger time used : " << trigtime );
 
   //
   // ....... create the LAr TTL1 Containers
   //
   LArTTL1Container *ttL1ContainerEm = new LArTTL1Container();
   if ( ttL1ContainerEm == 0 ){
-    msglog << MSG::ERROR 
-	   << "Could not allocate a new LArTTL1Container" 
-	   << endreq;
+    ATH_MSG_ERROR ( "Could not allocate a new LArTTL1Container"  );
     return StatusCode::FAILURE;	  
   }
   LArTTL1Container *ttL1ContainerHad = new LArTTL1Container();
   if ( ttL1ContainerHad == 0 ){
-    msglog << MSG::ERROR 
-	   << "Could not allocate a second new LArTTL1Container" 
-	   << endreq;
+    ATH_MSG_ERROR  ( "Could not allocate a second new LArTTL1Container" );
+    delete ttL1ContainerEm;
     return StatusCode::FAILURE;	  
   }
+
+
+   LArTTL1Container *truth_ttL1ContainerEm=0;
+   LArTTL1Container *truth_ttL1ContainerHad=0;
+   if(m_truthHitsContainer.size()>0) {
+      truth_ttL1ContainerEm = new LArTTL1Container();
+      truth_ttL1ContainerHad = new LArTTL1Container();
+   }
 
   //
   // ...... register the TTL1 containers into the TES 
   //
-  StatusCode sc = m_storeGateSvc->record( ttL1ContainerEm ,  m_EmTTL1ContainerName) ;
-  if( sc.isFailure() )
-  {
-    msglog << MSG::ERROR 
-	   << "Could not record new LArTTL1Container in TES : " 
-	   << m_EmTTL1ContainerName 
-	   << endreq;
-    return StatusCode::FAILURE;	  
-  }
-  sc = m_storeGateSvc->record( ttL1ContainerHad ,  m_HadTTL1ContainerName) ;
-  if( sc.isFailure() )
-  {
-    msglog << MSG::ERROR 
-	   << "Could not record second new LArTTL1Container in TES : " 
-	   << m_HadTTL1ContainerName 
-	   << endreq;
-    return StatusCode::FAILURE;	  
-  }
+   ATH_CHECK( evtStore()->record( ttL1ContainerEm ,  m_EmTTL1ContainerName) );
+   ATH_CHECK( evtStore()->record( ttL1ContainerHad ,  m_HadTTL1ContainerName) );
 
   //
   // ... initialise vectors for sums of energy in each TT
   //
   unsigned int nbTT = (unsigned int)m_lvl1Helper->tower_hash_max() ;
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG
-  	   << "Max number of LAr Trigger Towers= " << nbTT 
-	   << endreq;
-  }
+  ATH_MSG_DEBUG ( "Max number of LAr Trigger Towers= " << nbTT  );
   std::vector<std::vector<float> > sumEnergy ;   // inner index = time slot (from 0 to visEvecSize-1)
   std::vector<std::vector<float> > sumEnergy2 ;  // to allow barrel/endcap separation in 15th TT + FCAL2/3
   sumEnergy.resize(nbTT);
@@ -661,12 +472,9 @@ StatusCode LArTTL1Maker::execute()
     ttSumEvecSize=s_MAXSAMPLES+s_NBSAMPLES-1;
     refTime = s_MAXSAMPLES-1;
   }
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG
-	   << "Number of time slots considered= " << ttSumEvecSize
-	   << " reference time= " << refTime
-	   << endreq;
-  }
+  ATH_MSG_DEBUG
+    ( "Number of time slots considered= " << ttSumEvecSize
+      << " reference time= " << refTime );
   ttSumE.resize(ttSumEvecSize);
   for(unsigned int iTT=0;iTT<nbTT;iTT++){
     sumEnergy[iTT]=ttSumE;
@@ -677,9 +485,7 @@ StatusCode LArTTL1Maker::execute()
 
   int it = 0;
   int it_end = m_hitmap->GetNbCells();
-  msglog << MSG::DEBUG
-	 << "Size of the hit map= " << it_end
-	 << endreq;
+  ATH_MSG_DEBUG ( "Size of the hit map= " << it_end );
   
   //
   // .... loop on hit lists in the map
@@ -758,8 +564,8 @@ StatusCode LArTTL1Maker::execute()
                 // decodeInverse(eta,region) returns 15 (ok barrel) instead of 1 (ec value).
 		sinTheta = m_sinThetaEmec[0];			
 		specialCase = 1;
-	      msglog << MSG::VERBOSE << " special case " 
-		     << m_emHelper->show_to_string(ttId) << endreq ;
+                ATH_MSG_VERBOSE ( " special case " 
+                                  << m_emHelper->show_to_string(ttId) );
 	      }
 	    }
 	    relGain = 1.;  // no relative gain for EMB and EMEC
@@ -777,9 +583,9 @@ StatusCode LArTTL1Maker::execute()
 	    relGain = m_cellRelGainFcal [fcalHash] ;
 	    if(relGain < 0.001)  {
 	      nMissingGain++;
-	      msglog << MSG::WARNING << " No relative gain value found for FCAL cell " 
+	      ATH_MSG_WARNING ( " No relative gain value found for FCAL cell " 
 		     << m_emHelper->show_to_string(cellId) << " (index " << fcalHash  
-		     << "), setting default value 1. " << endreq ;
+                                << "), setting default value 1. " );
 	      relGain = 1. ;
 	    }
 	    sinTheta = 1.;   // this factor is included in the relative gain
@@ -801,19 +607,18 @@ StatusCode LArTTL1Maker::execute()
 	    float hitTime   = (*first).second - trigtime;
 	    if(hitTime>99000.) {
 	      if(hitEnergy > printEthresh) {
-		msglog << MSG::WARNING 
-		       << " Found pathological hit time, cellId= " << m_emHelper->show_to_string(cellId) 
-		       << "  time= " << hitTime 
-		       << "  energy= " << hitEnergy 
-		       << endreq;
+		ATH_MSG_WARNING 
+                  ( " Found pathological hit time, cellId= " << m_emHelper->show_to_string(cellId) 
+                    << "  time= " << hitTime 
+                    << "  energy= " << hitEnergy );
 	      }
-	    //  provisionnaly fix a bug in PileUpEvent. Normally not needed starting from 10.5.0
+	    //  provisionally fix a bug in PileUpEvent. Normally not needed starting from 10.5.0
 	      hitTime-=100000.;
 	    }
 	    // remove pathological energies (found in some Grid simulated DC2/Rome samples)
 	    if (fabs(hitEnergy)>1e+9) {
-	      msglog << MSG::WARNING << " Pathological energy ignored cellId= "
-		     << m_emHelper->show_to_string(cellId) << "  energy= " << hitEnergy << endreq;
+	      ATH_MSG_WARNING ( " Pathological energy ignored cellId= "
+                                << m_emHelper->show_to_string(cellId) << "  energy= " << hitEnergy );
 	      hitEnergy = 0.;
 	      hitTime = 0.;
 	    }
@@ -863,18 +668,14 @@ StatusCode LArTTL1Maker::execute()
 	      nOutOfTime++;
 	      if(hitEnergy >  printEthresh) {
 		if(!m_PileUp) {
-		  msglog << MSG::DEBUG
-			 << "Found a hit out of the timing window, hitTime= " << hitTime
-			 << " with more than " << printEthresh << " MeV: hitEnergy= " << hitEnergy << " MeV"
-			 << endreq;
+		  ATH_MSG_DEBUG
+                    ( "Found a hit out of the timing window, hitTime= " << hitTime
+			 << " with more than " << printEthresh << " MeV: hitEnergy= " << hitEnergy << " MeV" );
 		}
 		else {
-		  if (outputLevel <= MSG::VERBOSE) {
-		    msglog << MSG::VERBOSE
-			   << "Found a hit out of the timing window, hitTime= " << hitTime
-			   << " with more than " << printEthresh << " MeV: hitEnergy= " << hitEnergy << " MeV"
-			   << endreq;
-		  }
+                  ATH_MSG_VERBOSE
+                    ( "Found a hit out of the timing window, hitTime= " << hitTime
+                      << " with more than " << printEthresh << " MeV: hitEnergy= " << hitEnergy << " MeV" );
 		}
 	      }
 	    }
@@ -885,28 +686,23 @@ StatusCode LArTTL1Maker::execute()
     } // check hitlist > 0
   } // end of loop on hit lists
   
-    msglog << MSG::DEBUG
-	   << "Number of missing relative FCAL gains for this event = "
-	   <<  nMissingGain
-	   << endreq;
-  if (outputLevel <= MSG::VERBOSE) {
-    if (inTimeE == 0 || nInTime == 0)
-      msglog << MSG::VERBOSE << "No in time energy" << endreq;
-    else
-      msglog << MSG::VERBOSE
-             << "Out of time energy = " << outOfTimeE << " MeV"
-             << " represents " <<  100.* outOfTimeE/inTimeE
-             << " % of in time energy for " << nOutOfTime << " (" << 100.*nOutOfTime/nInTime << " %) hits"
-             << endreq;
-  }
+  ATH_MSG_DEBUG
+    ( "Number of missing relative FCAL gains for this event = "
+      <<  nMissingGain );
+  if (inTimeE == 0 || nInTime == 0)
+    ATH_MSG_VERBOSE ( "No in time energy" );
+  else
+    ATH_MSG_VERBOSE
+      ( "Out of time energy = " << outOfTimeE << " MeV"
+        << " represents " <<  100.* outOfTimeE/inTimeE
+        << " % of in time energy for " << nOutOfTime << " (" << 100.*nOutOfTime/nInTime << " %) hits" );
   if(outOfTimeE > 0.02*inTimeE) {
-    msglog << MSG::WARNING
-	   << "Out of time energy = " << outOfTimeE << " MeV"
+    ATH_MSG_WARNING
+      ( "Out of time energy = " << outOfTimeE << " MeV"
 	   << " larger than 2% of in time energy = " << inTimeE << " MeV; nb of out of time hits = " 
 	   << nInTime << " (" 
            <<  (nInTime > 0 ? 100.*nOutOfTime/nInTime : 0)
-           << " %)"
-	   << endreq;
+           << " %)" );
   }
 
   if(m_chronoTest) {
@@ -926,11 +722,7 @@ StatusCode LArTTL1Maker::execute()
   // ....... loop on Trigger Towers
   // ....... and build signals using pulse shape and noise for each TT
   //
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG
-	   << " Starting loop on Trigger Towers " 
-	   << endreq;
-  }
+  ATH_MSG_DEBUG ( " Starting loop on Trigger Towers " );
   for(; itTt!=itEnd;++itTt){
 	    
     Identifier towerId = (*itTt) ;
@@ -991,10 +783,9 @@ StatusCode LArTTL1Maker::execute()
 	if(  hasE2) {
 	  nSpecialCase+=1;
 	  if(nSpecialCase>1) {
-	    msglog << MSG::WARNING
-		   << " more than 1 special case, current Trigger Tower is " << emHadString[emHad] << ": "
-		   << m_emHelper->show_to_string(towerId) << " " 
-		   << endreq;
+	    ATH_MSG_WARNING
+              ( " more than 1 special case, current Trigger Tower is " << emHadString[emHad] << ": "
+		   << m_emHelper->show_to_string(towerId) << " " );
 	  }
 	  analogSum2 = computeSignal(towerId,Ieta,1,sumTTE2,refTime) ;
 	  for( int isamp=0 ; isamp < s_NBSAMPLES ; isamp++) {
@@ -1003,28 +794,20 @@ StatusCode LArTTL1Maker::execute()
 	}
 
 	if ( sumTTE[refTime] > m_debugThresh) {
-	  if (outputLevel <= MSG::DEBUG) {
-	    msglog << MSG::DEBUG
-		   << " current Trigger Tower is " << emHadString[emHad] << ": "
-		   << m_emHelper->show_to_string(towerId) << " " 
-		   << endreq;
-	    msglog << MSG::DEBUG
-		   << " transverse E (i.e. sum E / sampling fraction * sin_theta * rel gain)= (at ref. time, before calib)" 
-		   << sumTTE[refTime] << " + " << sumTTE2[refTime] << " (special cases) " 
-		   << endreq;
-	  }
+          ATH_MSG_DEBUG
+            ( " current Trigger Tower is " << emHadString[emHad] << ": "
+              << m_emHelper->show_to_string(towerId) << " " );
+          ATH_MSG_DEBUG
+            ( " transverse E (i.e. sum E / sampling fraction * sin_theta * rel gain)= (at ref. time, before calib)" 
+              << sumTTE[refTime] << " + " << sumTTE2[refTime] << " (special cases) " );
 	}
 	else if ( sumTTE[refTime] > 0.) {
-	  if (outputLevel <= MSG::VERBOSE) {
-	    msglog << MSG::VERBOSE
-		   << " current Trigger Tower is "  << emHadString[emHad] << ": "
-		   << m_emHelper->show_to_string(towerId) << " " 
-		   << endreq;
-	    msglog << MSG::VERBOSE
-		   << " [very low] transverse E (i.e. sum E / sampling fraction * sin_theta * rel gain)= (at ref. time, before calib)" 
-		   << sumTTE[refTime] << " + " << sumTTE2[refTime] << " (special cases) " 
-		   << endreq;
-	  }
+          ATH_MSG_VERBOSE
+            ( " current Trigger Tower is "  << emHadString[emHad] << ": "
+              << m_emHelper->show_to_string(towerId) << " " );
+          ATH_MSG_VERBOSE
+            ( " [very low] transverse E (i.e. sum E / sampling fraction * sin_theta * rel gain)= (at ref. time, before calib)" 
+              << sumTTE[refTime] << " + " << sumTTE2[refTime] << " (special cases) " );
 	}
 	
       }
@@ -1052,99 +835,86 @@ StatusCode LArTTL1Maker::execute()
       }
       
       if(sumTTE[refTime] > m_debugThresh) {
-	if (outputLevel <= MSG::DEBUG) {
-	  msglog << MSG::DEBUG
-		 << " uncalibrated amplitudes around peak (+-3 time slots): " 
-		 << sumTTE[refTime-3]  << ", "
-		 << sumTTE[refTime-2]  << ", "
-		 << sumTTE[refTime-1]  << ", "
-		 << sumTTE[refTime]  << ", "
-		 << sumTTE[refTime+1]  << ", "
-		 << sumTTE[refTime+2]  << ", "
-		 << sumTTE[refTime+3]
-		 << endreq;
-	  msglog << MSG::DEBUG
-		 << " calibrated signal is " 
-		 << analogSum[0] << ", "
-		 << analogSum[1] << ", "
-		 << analogSum[2] << ", "
-		 << analogSum[3] << ", "
-		 << analogSum[4] << ", "
-		 << analogSum[5] << ", "
-		 << analogSum[6] 
-		 << endreq;
-	  msglog << MSG::DEBUG
-		 << " shape of calibrated signal is " 
-		 << analogSum[0]/analogSum[3] << ", "
-		 << analogSum[1]/analogSum[3] << ", "
-		 << analogSum[2]/analogSum[3] << ", "
-		 << analogSum[3]/analogSum[3] << ", "
-		 << analogSum[4]/analogSum[3] << ", "
-		 << analogSum[5]/analogSum[3] << ", "
-		 << analogSum[6]/analogSum[3] 
-		 << endreq;
-	  msglog << MSG::DEBUG
-		 << " after adding noise, full signal is " 
-		 << fullSignal[0] << ", "
-		 << fullSignal[1] << ", "
-		 << fullSignal[2] << ", "
-		 << fullSignal[3] << ", "
-		 << fullSignal[4] << ", "
-		 << fullSignal[5] << ", "
-		 << fullSignal[6] 
-		 << endreq;
-	}
-	if (outputLevel <= MSG::VERBOSE) {
+        ATH_MSG_DEBUG
+          ( " uncalibrated amplitudes around peak (+-3 time slots): " 
+            << sumTTE[refTime-3]  << ", "
+            << sumTTE[refTime-2]  << ", "
+            << sumTTE[refTime-1]  << ", "
+            << sumTTE[refTime]  << ", "
+            << sumTTE[refTime+1]  << ", "
+            << sumTTE[refTime+2]  << ", "
+            << sumTTE[refTime+3] );
+        ATH_MSG_DEBUG
+          ( " calibrated signal is " 
+            << analogSum[0] << ", "
+            << analogSum[1] << ", "
+            << analogSum[2] << ", "
+            << analogSum[3] << ", "
+            << analogSum[4] << ", "
+            << analogSum[5] << ", "
+            << analogSum[6]  );
+        ATH_MSG_DEBUG
+          ( " shape of calibrated signal is " 
+            << analogSum[0]/analogSum[3] << ", "
+            << analogSum[1]/analogSum[3] << ", "
+            << analogSum[2]/analogSum[3] << ", "
+            << analogSum[3]/analogSum[3] << ", "
+            << analogSum[4]/analogSum[3] << ", "
+            << analogSum[5]/analogSum[3] << ", "
+            << analogSum[6]/analogSum[3] );
+        ATH_MSG_DEBUG
+          ( " after adding noise, full signal is " 
+            << fullSignal[0] << ", "
+            << fullSignal[1] << ", "
+            << fullSignal[2] << ", "
+            << fullSignal[3] << ", "
+            << fullSignal[4] << ", "
+            << fullSignal[5] << ", "
+            << fullSignal[6] );
+	if (msgLvl(MSG::VERBOSE)) {
 	  for (unsigned int iTime=0; iTime<sumTTE.size(); iTime++) {
-	    msglog << MSG::VERBOSE
-		   << " iTime [range=0-28 or 0-299] = " << iTime
-		   << " hit energy = " << sumTTE[iTime] 
-		   << endreq;
+	    ATH_MSG_VERBOSE
+              ( " iTime [range=0-28 or 0-299] = " << iTime
+		   << " hit energy = " << sumTTE[iTime] );
 	  }
 	}
       } else if(sumTTE[refTime] > 0.) {
-	if (outputLevel <= MSG::VERBOSE) {
-	  msglog << MSG::VERBOSE
-		 << " uncalibrated amplitudes around peak (+-3 time slots): " 
-		 << sumTTE[refTime-3]  << ", "
-		 << sumTTE[refTime-2]  << ", "
-		 << sumTTE[refTime-1]  << ", "
-		 << sumTTE[refTime]  << ", "
-		 << sumTTE[refTime+1]  << ", "
-		 << sumTTE[refTime+2]  << ", "
-		 << sumTTE[refTime+3]
-		 << endreq;
-	  msglog << MSG::VERBOSE
-		 << " calibrated signal is " 
-		 << analogSum[0] << ", "
-		 << analogSum[1] << ", "
-		 << analogSum[2] << ", "
-		 << analogSum[3] << ", "
-		 << analogSum[4] << ", "
-		 << analogSum[5] << ", "
-		 << analogSum[6] 
-		 << endreq;
-	  msglog << MSG::VERBOSE
-		 << " shape of calibrated signal is " 
-		 << analogSum[0]/analogSum[3] << ", "
-		 << analogSum[1]/analogSum[3] << ", "
-		 << analogSum[2]/analogSum[3] << ", "
-		 << analogSum[3]/analogSum[3] << ", "
-		 << analogSum[4]/analogSum[3] << ", "
-		 << analogSum[5]/analogSum[3] << ", "
-		 << analogSum[6]/analogSum[3] 
-		 << endreq;
-	  msglog << MSG::VERBOSE
-		 << " after adding noise, full signal is " 
-		 << fullSignal[0] << ", "
-		 << fullSignal[1] << ", "
-		 << fullSignal[2] << ", "
-		 << fullSignal[3] << ", "
-		 << fullSignal[4] << ", "
-		 << fullSignal[5] << ", "
-		 << fullSignal[6] 
-		 << endreq;
-	}
+        ATH_MSG_VERBOSE
+          ( " uncalibrated amplitudes around peak (+-3 time slots): " 
+            << sumTTE[refTime-3]  << ", "
+            << sumTTE[refTime-2]  << ", "
+            << sumTTE[refTime-1]  << ", "
+            << sumTTE[refTime]  << ", "
+            << sumTTE[refTime+1]  << ", "
+            << sumTTE[refTime+2]  << ", "
+            << sumTTE[refTime+3] );
+        ATH_MSG_VERBOSE
+          ( " calibrated signal is " 
+            << analogSum[0] << ", "
+            << analogSum[1] << ", "
+            << analogSum[2] << ", "
+            << analogSum[3] << ", "
+            << analogSum[4] << ", "
+            << analogSum[5] << ", "
+            << analogSum[6]  );
+        ATH_MSG_VERBOSE
+          ( " shape of calibrated signal is " 
+            << analogSum[0]/analogSum[3] << ", "
+            << analogSum[1]/analogSum[3] << ", "
+            << analogSum[2]/analogSum[3] << ", "
+            << analogSum[3]/analogSum[3] << ", "
+            << analogSum[4]/analogSum[3] << ", "
+            << analogSum[5]/analogSum[3] << ", "
+            << analogSum[6]/analogSum[3] );
+        ATH_MSG_VERBOSE
+          ( " after adding noise, full signal is " 
+            << fullSignal[0] << ", "
+            << fullSignal[1] << ", "
+            << fullSignal[2] << ", "
+            << fullSignal[3] << ", "
+            << fullSignal[4] << ", "
+            << fullSignal[5] << ", "
+            << fullSignal[6] );
       }
       
       if(fabs(fullSignal[s_PEAKPOS]) > 0.) {
@@ -1156,6 +926,14 @@ StatusCode LArTTL1Maker::execute()
 	ttL1 = new LArTTL1(ttChannel,towerId,fullSignal);
 	if (emHad) { ttL1ContainerHad->push_back(ttL1); }
 	else       { ttL1ContainerEm->push_back(ttL1); }
+
+         if(m_truthHitsContainer.size()>0) {
+            std::vector<float> et(3);et[0] = sumTTE[refTime-1]; et[1] = sumTTE[refTime]; et[2] = sumTTE[refTime+1];
+            LArTTL1* truth_ttL1 = new LArTTL1(ttChannel,towerId,et);
+            if (emHad) { truth_ttL1ContainerHad->push_back(truth_ttL1); }
+	    else       { truth_ttL1ContainerEm->push_back(truth_ttL1); }
+         }
+
       }
       
     }  // end excluding Tile cal
@@ -1165,34 +943,16 @@ StatusCode LArTTL1Maker::execute()
     m_chronSvc->chronoPrint ( "LArTTL1Mk TT loop " );
   }
   
-  msglog << MSG::DEBUG << "number of created TTL1s (Em, Had) = " 
-	 << ttL1ContainerEm->size() 
-	 << " , "
-	 << ttL1ContainerHad->size() 
-	 << endreq;
+  ATH_MSG_DEBUG ( "number of created TTL1s (Em, Had) = " 
+                  << ttL1ContainerEm->size() 
+                  << " , "
+                  << ttL1ContainerHad->size() );
 
   //
   // ...... lock the TTL1 containers
   //
-  sc = m_storeGateSvc->setConst( ttL1ContainerEm ) ;
-  if( sc.isFailure() )
-  {
-    msglog << MSG::ERROR 
-	   << "Could not lock em LArTTL1Container : " 
-	   << m_EmTTL1ContainerName 
-	   << endreq;
-    return StatusCode::FAILURE;	  
-  }
-  sc = m_storeGateSvc->setConst( ttL1ContainerHad ) ;
-  if( sc.isFailure() )
-  {
-    msglog << MSG::ERROR 
-	   << "Could not lock had LArTTL1Container : " 
-	   << m_HadTTL1ContainerName 
-	   << endreq;
-    return StatusCode::FAILURE;	  
-  }
-
+  ATH_CHECK( evtStore()->setConst( ttL1ContainerEm ) );
+  ATH_CHECK( evtStore()->setConst( ttL1ContainerHad ) );
 
   return StatusCode::SUCCESS;
 
@@ -1210,10 +970,8 @@ StatusCode LArTTL1Maker::finalize()
 //
 // ......... declaration
 //
-  MsgStream  msglog(messageService(),name());
 
-  msglog << MSG::INFO << " LArTTL1Maker finalize completed successfully" 
-	 << endreq;
+  ATH_MSG_INFO ( " LArTTL1Maker finalize completed successfully" );
 
   m_chronSvc->chronoPrint( "LArTTL1Mk hit loop " );
   m_chronSvc->chronoPrint( "LArTTL1Mk TT loop " );
@@ -1235,9 +993,6 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
 // +======================================================================+
 //
 
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   std::vector<float> bareSignal(s_NBSAMPLES) ;
   std::vector<float> pulseShape(s_MAXSAMPLES) ;
   std::vector<float> pulseShapeDer(s_MAXSAMPLES) ;
@@ -1247,10 +1002,7 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
   bool emec= m_lvl1Helper->is_emec(towerId);
 
   unsigned int visEvecSize=ttSumEnergy.size();
-  if (outputLevel <= MSG::VERBOSE) {
-    msglog << MSG::VERBOSE << "computeSignal: special case = " 
-	   << specialCase  << endreq ;
-  }
+  ATH_MSG_VERBOSE ( "computeSignal: special case = " << specialCase  );
 
   //
   // ..... case EM
@@ -1275,10 +1027,9 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
       }
     }
     if(calibCoeff < 0.001) {
-      msglog << MSG::WARNING << " No calibration coefficient value found for tower " 
-	     << m_emHelper->show_to_string(towerId) 
-	     << " setting default value 6. "  
-	     << endreq ;
+      ATH_MSG_WARNING ( " No calibration coefficient value found for tower " 
+                        << m_emHelper->show_to_string(towerId) 
+                        << " setting default value 6. "  );
       calibCoeff = 6.;
     }
 
@@ -1290,10 +1041,8 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
 	if(!m_noEmCalibMode) {
 	  // apply calibration coefficient
 	  ttSumEnergy[iTime] *= calibCoeff;
-	  if (outputLevel <= MSG::VERBOSE) {
-	    msglog << MSG::VERBOSE << " ComputeSignal: applied EM calibration coefficient (iTime) " 
-		   << calibCoeff << " (" << iTime << ") " << endreq;
-	  }
+          ATH_MSG_VERBOSE ( " ComputeSignal: applied EM calibration coefficient (iTime) " 
+                            << calibCoeff << " (" << iTime << ") " );
 	}
 	
 	// with respect to saturation
@@ -1438,9 +1187,8 @@ std::vector<float> LArTTL1Maker::computeSignal(const Identifier towerId, const i
     }
   }
   else {  
-    msglog << MSG::WARNING << " LArTTL1Maker: computeSignal unknown towerId " 
-	   << m_lvl1Helper->show_to_string(towerId)
-	   << endreq;
+    ATH_MSG_WARNING ( " LArTTL1Maker: computeSignal unknown towerId " 
+                      << m_lvl1Helper->show_to_string(towerId) );
     return  bareSignal ;
   }
 
@@ -1459,8 +1207,6 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
 // + Creation date: 2003/01/13                                            +
 // +                                                                      +
 // +======================================================================+
-
-  MsgStream  msglog(messageService(),name());
 
   std::vector<float> outputV (s_NBSAMPLES) ;
 
@@ -1491,9 +1237,7 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
     }
     else {  // barrelEnd
       sigmaNoise = sqrt(m_noiseRmsEmb[14]*m_noiseRmsEmb[14] + m_noiseRmsEmec[0]*m_noiseRmsEmec[0]);
-      msglog << MSG::VERBOSE << " LArTTL1Maker: barrelEnd noise rms" 
-	   << sigmaNoise
-	   << endreq;
+      ATH_MSG_VERBOSE ( " LArTTL1Maker: barrelEnd noise rms" << sigmaNoise );
     }
   } // end case EM
   //
@@ -1518,21 +1262,19 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
     //    sigmaNoise = m_noiseRmsFcal[module-1];
     noiseRms = m_noiseRmsFcal[module-1];
     sigmaNoise = noiseRms[Ieta-1];
-    msglog << MSG::VERBOSE << " LArTTL1Maker: noise FCAL= " << sigmaNoise
-	   << " module= " << module << "Ieta= " << Ieta << endreq;
+    ATH_MSG_VERBOSE ( " LArTTL1Maker: noise FCAL= " << sigmaNoise
+                      << " module= " << module << "Ieta= " << Ieta );
   }
   else {  
-    msglog << MSG::WARNING << " LArTTL1Maker: computeNoise unknown towerId " 
-	   << m_lvl1Helper->show_to_string(towerId)
-	   << endreq;
+    ATH_MSG_WARNING ( " LArTTL1Maker: computeNoise unknown towerId " 
+                      << m_lvl1Helper->show_to_string(towerId) );
     return  inputV ;
   }
 
   if(fabs((*autoC)[0]) < 0.001) {
-    msglog << MSG::WARNING << " No autocorrelation matrix found for tower " 
-	   << m_emHelper->show_to_string(towerId) << " " 
-	   << "setting default values 1.00   0.10  -0.30  -0.20  -0.05  -0.01  -0.01 "
-	   << endreq ;
+    ATH_MSG_WARNING ( " No autocorrelation matrix found for tower " 
+                      << m_emHelper->show_to_string(towerId) << " " 
+                      << "setting default values 1.00   0.10  -0.30  -0.20  -0.05  -0.01  -0.01 ");
     (*autoC)[0] = 1.00;
     (*autoC)[1] = 0.10;
     (*autoC)[2] =-0.30;
@@ -1542,10 +1284,9 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
     (*autoC)[6] =-0.01;
   }
   if(sigmaNoise < 0.001) {
-    msglog << MSG::WARNING << " No noise rms value found for tower " 
-	   << m_emHelper->show_to_string(towerId) << " " 
-	   << "setting default value 300 MeV "
-	   << endreq ;
+    ATH_MSG_WARNING ( " No noise rms value found for tower " 
+                      << m_emHelper->show_to_string(towerId) << " " 
+                      << "setting default value 300 MeV " );
     sigmaNoise = 300.;
   }
 
@@ -1611,28 +1352,17 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 // +                                                                      +
 // +======================================================================+
 
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
 //
 // ........ reset the map Energies
 //
   if (m_useMapfromStore) {
-     StatusCode sc = m_detectorStore->retrieve(m_hitmap,"LArHitEMap");
-     if (sc.isFailure()) {
-        msglog << " cannot retrieve LArHitEMap from detector Store " << endreq;
-        return sc;
-     }
+    ATH_CHECK( detStore()->retrieve(m_hitmap,"LArHitEMap") );
   }
 
   else {
 
     m_hitmap->EnergyReset();
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG 
-  	     << "Execute: energy reset done"
-	     << endreq;
-    }
+    ATH_MSG_DEBUG ( "Execute: energy reset done" );
 
 
     Identifier cellId;
@@ -1649,29 +1379,14 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
       //
       // ..... Get the pointer to the Hit Container from StoreGate
       //
-      if (outputLevel <= MSG::VERBOSE) {
-	msglog << MSG::VERBOSE << " asking for: " 
-	       << m_HitContainer[iHitContainer] 
-	       << endreq;
-      }
+      ATH_MSG_VERBOSE ( " asking for: " << m_HitContainer[iHitContainer] );
       
       if (!m_PileUp) {
-	const LArHitContainer* hit_container ;
-	StatusCode sc = m_storeGateSvc->retrieve( hit_container, 
-						  m_HitContainer[iHitContainer] ) ;
+	const LArHitContainer* hit_container = nullptr;
+	ATH_CHECK( evtStore()->retrieve( hit_container, 
+                                         m_HitContainer[iHitContainer] )  );
 	
-	if ( sc.isFailure() || !hit_container) 	  {
-	  msglog << MSG::ERROR << "Could not retrieve a LArHitContainer " 
-		 << m_HitContainer[iHitContainer] 
-		 << endreq;
-	  return StatusCode::FAILURE;
-	}
-	
-	if (outputLevel <= MSG::VERBOSE) {
-	  msglog << MSG::VERBOSE 
-		 << "number of hits: " << hit_container->size() 
-		 << endreq;
-	}
+        ATH_MSG_VERBOSE ( "number of hits: " << hit_container->size() );
 	
 	//
 	// ....... loop over hits and get informations
@@ -1688,9 +1403,8 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 	  //
 	  if (fabs(hitEnergy) > 1.e-06) {
 	    if ( !m_hitmap->AddEnergy(cellId,hitEnergy,hitTime) ) {
-	      msglog << MSG::FATAL << " Cell " << cellId.getString()
-		     << " could not add the energy= " << hitEnergy  << " (MeV)"
-		     << endreq;
+	      ATH_MSG_FATAL ( " Cell " << cellId.getString()
+                              << " could not add the energy= " << hitEnergy  << " (MeV)" );
 	      return(StatusCode::FAILURE);
 	    }
 	    ++totHit;
@@ -1711,17 +1425,11 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 	
 	if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
 					      ,hitContList).isSuccess()) && hitContList.size()==0) {
-	  msglog << MSG::ERROR 
-		 << "Could not fill TimedHitContList" 
-		 << endreq;
+	  ATH_MSG_ERROR ( "Could not fill TimedHitContList" );
 	  return StatusCode::FAILURE;
 	}
 	
-	if (outputLevel <= MSG::DEBUG) {
-	  msglog << MSG::DEBUG 
-		 << "number of containers in the list: " << hitContList.size() 
-		 << endreq;
-	}
+        ATH_MSG_DEBUG ( "number of containers in the list: " << hitContList.size() );
 	
 	//
 	// ...loop over this list
@@ -1739,12 +1447,9 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 
 	  // get LArHitContainer for this subevent
 	  const LArHitContainer& firstCont = *(iFirstCont->second);
-	  if (outputLevel <= MSG::DEBUG) {
-	    msglog << MSG::DEBUG 
-		   << "number of hits in container: " << firstCont.size() 
-		   << ", first five are:"
-		   << endreq;
-	  }
+          ATH_MSG_DEBUG 
+            ( "number of hits in container: " << firstCont.size() 
+              << ", first five are:" );
 	
 	  int numHit=0;
 	  // Loop over cells in this LArHitContainer
@@ -1757,11 +1462,10 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
             ++f_cell;
 
 	    if(numHit<5) {
-	      msglog << MSG::DEBUG
-		     << "cellId " << m_lvl1Helper->show_to_string(cellId) 
-		     << ", energy= " << hitEnergy
-		     << ", time= " << hitTime
-		     << endreq;
+	      ATH_MSG_DEBUG
+                ( "cellId " << m_lvl1Helper->show_to_string(cellId) 
+                  << ", energy= " << hitEnergy
+                  << ", time= " << hitTime );
 	    }
 	    ++numHit;
 	    ++totHit;
@@ -1771,9 +1475,8 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
 	    //
 	    if ( !m_hitmap->AddEnergy(cellId,hitEnergy,hitTime) )
 	      {
-		msglog << MSG::FATAL << " Cell " << cellId.getString()
-		       << " could not add the energy= " << hitEnergy  << " (?eV)"
-		       << endreq;
+		ATH_MSG_FATAL ( " Cell " << cellId.getString()
+                                << " could not add the energy= " << hitEnergy  << " (?eV)" );
 		return(StatusCode::FAILURE);
 	      }
 	    
@@ -1785,11 +1488,8 @@ StatusCode LArTTL1Maker::fillEMap(int& totHit)
       } // ... end of pile-up condition
     } // .... end of loop over containers
   
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG
-  	     << "skipped " << skipHit  << " hits with abs(energy) less than 1.e-06 " << endreq;
-    }
-
+    ATH_MSG_DEBUG
+      ( "skipped " << skipHit  << " hits with abs(energy) less than 1.e-06 " );
   }
 
   return StatusCode::SUCCESS;
@@ -1802,8 +1502,7 @@ StatusCode LArTTL1Maker::readAuxiliary()
   // ...... Read auxiliary data file for EM (barrel and EC)
   //
 
-  MsgStream msglog( msgSvc(), name() );
-  msglog << MSG::DEBUG << "executing readAuxiliary()" << endreq;
+  ATH_MSG_DEBUG ( "executing readAuxiliary()" );
 
   float refEnergy;
   std::vector<float> pulseShape(s_MAXSAMPLES) ;
@@ -1819,21 +1518,17 @@ StatusCode LArTTL1Maker::readAuxiliary()
 
   std::string pulsedataname=PathResolver::find_file ("LArEmLvl1.data", "DATAPATH");
   if (pulsedataname == "") {
-    msglog << MSG::ERROR << "Could not locate LArEmLvl1.data file" <<  endreq;
+    ATH_MSG_ERROR ( "Could not locate LArEmLvl1.data file" );
     return StatusCode::FAILURE;
   }
   const char * pulsedatafile= pulsedataname.c_str() ;
   std::ifstream infile (pulsedatafile) ;
 
   if(!infile) {
-    msglog << MSG::ERROR
-	   << " cannot open EM file "
-	   << endreq;
+    ATH_MSG_ERROR ( " cannot open EM file " );
     return StatusCode::FAILURE;
   } else {
-    msglog << MSG::DEBUG
-	   << " EM file opened "
-	   << endreq;
+    ATH_MSG_DEBUG ( " EM file opened " );
   }
 
   // first read the pulse shape for all energies 
@@ -1940,16 +1635,12 @@ StatusCode LArTTL1Maker::readAuxiliary()
   }
   
   infile.close() ;
-  msglog << MSG::DEBUG
-	 << " EM file closed "
-	 << endreq;
+  ATH_MSG_DEBUG ( " EM file closed " );
 
-  msglog << MSG::INFO
-	 << " 1 pulse shape per energy for EMB+EMEC : "
-	 << endreq;
+  ATH_MSG_INFO ( " 1 pulse shape per energy for EMB+EMEC : " );
   for(int iene=0;iene<s_NBENERGIES;iene++) {
-    msglog << MSG::INFO
-	   << m_refEnergyEm[iene] << " MeV: "
+    ATH_MSG_INFO
+      ( m_refEnergyEm[iene] << " MeV: "
 	   << (m_pulseShapeEm[iene])[0] << ", "
 	   << (m_pulseShapeEm[iene])[1] << ", "
 	   << (m_pulseShapeEm[iene])[2] << ", "
@@ -1974,10 +1665,10 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	   << (m_pulseShapeEm[iene])[21] << ", "
 	   << (m_pulseShapeEm[iene])[22] << ", "
 	   << (m_pulseShapeEm[iene])[23] << ", "
-	   << endreq;
+        );
   }
-  msglog << MSG::INFO
-	 << " 1 auto-corr matrix for EMB+EMEC : "
+  ATH_MSG_INFO
+    ( " 1 auto-corr matrix for EMB+EMEC : "
 	 << m_autoCorrEm[0] << ", "
 	 << m_autoCorrEm[1] << ", "
 	 << m_autoCorrEm[2] << ", "
@@ -1985,23 +1676,20 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	 << m_autoCorrEm[4] << ", "
 	 << m_autoCorrEm[5] << ", "
 	 << m_autoCorrEm[6] 
-	 << endreq;
+      );
 
-  msglog << MSG::DEBUG
-	 << " Finished reading 1 calib coeff + 1 noise value per eta bin for EM: "
-	 << endreq;
+  ATH_MSG_DEBUG
+    ( " Finished reading 1 calib coeff + 1 noise value per eta bin for EM: " );
   for(int ieta=0 ; ieta<s_NBETABINS ; ieta++) {
 // currently the calib coeffs are all set to 1 -> turning INFO logs into DEBUG
-    msglog << MSG::DEBUG
-	   << "Ieta= " << ieta+1
+    ATH_MSG_DEBUG
+      ( "Ieta= " << ieta+1
 	   << ", calib coeff EMB:  " << m_calibCoeffEmb[ieta]
-	   << ", calib coeff EMEC: " << m_calibCoeffEmec[ieta]
-	   << endreq;
-    msglog << MSG::INFO
-	   << "Ieta= " << ieta+1
+	   << ", calib coeff EMEC: " << m_calibCoeffEmec[ieta] );
+    ATH_MSG_INFO
+      ( "Ieta= " << ieta+1
 	   << ", noise rms   EMB:  " << m_noiseRmsEmb[ieta] << " MeV"
-	   << ", noise rms   EMEC: " << m_noiseRmsEmec[ieta] << " MeV"
-	   << endreq;
+	   << ", noise rms   EMEC: " << m_noiseRmsEmec[ieta] << " MeV" );
   }
 
   //
@@ -2010,21 +1698,17 @@ StatusCode LArTTL1Maker::readAuxiliary()
 
   pulsedataname=PathResolver::find_file ("LArHecLvl1.data", "DATAPATH");
   if (pulsedataname == "") {
-    msglog << MSG::ERROR << "Could not locate LArHecLvl1.data file" <<  endreq;
+    ATH_MSG_ERROR ( "Could not locate LArHecLvl1.data file" );
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
   infile.open(pulsedatafile) ;
 
   if(!infile) {
-    msglog << MSG::ERROR
-	   << " cannot open HEC file "
-	   << endreq;
+    ATH_MSG_ERROR ( " cannot open HEC file " );
     return StatusCode::FAILURE;
   } else {
-    msglog << MSG::DEBUG
-	   << " HEC file opened "
-	   << endreq;
+    ATH_MSG_DEBUG ( " HEC file opened " );
   }
 
   // first read the pulse shape for each eta bin (from Leonid Kurchaninov)
@@ -2106,11 +1790,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
     m_autoCorrHec.push_back(autoCorr);
   }
   infile.close() ;
-  msglog << MSG::DEBUG
-	 << " HEC file closed "
-	 << endreq;
-  msglog << MSG::INFO
-	 << " 1 pulse shape for HEC : "
+  ATH_MSG_DEBUG ( " HEC file closed " );
+  ATH_MSG_INFO
+    ( " 1 pulse shape for HEC : "
 	 << m_pulseShapeHec[0] << ", "
 	 << m_pulseShapeHec[1] << ", "
 	 << m_pulseShapeHec[2] << ", "
@@ -2136,23 +1818,22 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	 << m_pulseShapeHec[21] << ", "
 	 << m_pulseShapeHec[22] << ", "
 	 << m_pulseShapeHec[23] 
-	 << endreq;
-    msglog << MSG::DEBUG
-	 << "Finished reading calib coeff, noise rms, sat ene, auto corr for each eta bin for HEC: " 
-	 << endreq;
+      );
+  ATH_MSG_DEBUG
+    ( "Finished reading calib coeff, noise rms, sat ene, auto corr for each eta bin for HEC: "  );
     for(int ieta=1 ; ieta<s_NBETABINS ; ieta++) {
 // currently the calib coeffs are all set to 1 -> turning INFO logs into DEBUG
-      msglog << MSG::DEBUG
-	     << " Ieta= " << ieta+1
+      ATH_MSG_DEBUG
+        ( " Ieta= " << ieta+1
 	     << ", calib coeff HEC: " << m_calibCoeffHec[ieta]
-	     << endreq;
-      msglog << MSG::INFO
-	     << " Ieta= " << ieta+1
+          );
+      ATH_MSG_INFO
+        ( " Ieta= " << ieta+1
 	     << ", noise rms HEC: " << m_noiseRmsHec[ieta] << " MeV"
 	     << ", sat ene HEC: " << m_satEnergyHec[ieta] << " MeV"
-	     << endreq;
-      msglog << MSG::INFO
-	     << " Ieta= " << ieta+1
+          );
+      ATH_MSG_INFO
+        ( " Ieta= " << ieta+1
 	     << ", auto corr HEC: "
 	     << (m_autoCorrHec[ieta])[0] << ", "
 	     << (m_autoCorrHec[ieta])[1] << ", "
@@ -2161,7 +1842,7 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	     << (m_autoCorrHec[ieta])[4] << ", "
 	     << (m_autoCorrHec[ieta])[5] << ", "
 	     << (m_autoCorrHec[ieta])[6] << ", "
-	     << endreq;
+          );
     }
 
   //
@@ -2170,21 +1851,17 @@ StatusCode LArTTL1Maker::readAuxiliary()
 
   pulsedataname=PathResolver::find_file ("LArFcalLvl1.data", "DATAPATH");
   if (pulsedataname == "") {
-    msglog << MSG::ERROR << "Could not locate LArFcalLvl1.data file" <<  endreq;
+    ATH_MSG_ERROR ( "Could not locate LArFcalLvl1.data file" );
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
   infile.open(pulsedatafile) ;
 
   if(!infile) {
-    msglog << MSG::ERROR
-	   << " cannot open FCAL file "
-	   << endreq;
+    ATH_MSG_ERROR ( " cannot open FCAL file " );
     return StatusCode::FAILURE;
   } else {
-    msglog << MSG::DEBUG
-	   << " FCAL file opened "
-	   << endreq;
+    ATH_MSG_DEBUG ( " FCAL file opened " );
   }
 
   const int nMod = 3;
@@ -2268,36 +1945,33 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	 >> m_autoCorrFcal[6] ;
   
   infile.close() ;
-  msglog << MSG::DEBUG
-	 << " FCAL file closed "
-	 << endreq;
+  ATH_MSG_DEBUG ( " FCAL file closed " );
 
   std::vector<float> auxV(3);
   m_calibCoeffFcal.push_back(m_calibCoeffFcalEm);
   m_calibCoeffFcal.push_back(m_calibCoeffFcalHad);
 
-  msglog << MSG::DEBUG
-	 << "Finished reading noise, calib coeff and pulse shape for each module for FCAL: "
-	 << endreq;
+  ATH_MSG_DEBUG
+    ( "Finished reading noise, calib coeff and pulse shape for each module for FCAL: " );
   for(int iMod=0; iMod < nMod; iMod++) {
 
-    msglog << MSG::INFO
-	   << " iMod= " << iMod
+    ATH_MSG_INFO
+      ( " iMod= " << iMod
 	   << ", noise rms FCAL (eta bin 1,2,3,4): " 
 	   << m_noiseRmsFcal[iMod] << " (transverse) MeV "
-	   << endreq;
+        );
     if(iMod < 2){
-      msglog << MSG::INFO
-	     << " iMod= " << iMod
+      ATH_MSG_INFO
+        ( " iMod= " << iMod
 	     << ", calib coeff FCAL (eta bin 1,2,3,4): " 
 	     << (m_calibCoeffFcal[iMod])[0] << ", "
 	     << (m_calibCoeffFcal[iMod])[1] << ", "
 	     << (m_calibCoeffFcal[iMod])[2] << ", "
 	     << (m_calibCoeffFcal[iMod])[3]
-	     << endreq;
+          );
     }
-    msglog << MSG::INFO
-	   << " iMod= " << iMod
+    ATH_MSG_INFO
+      ( " iMod= " << iMod
 	   << ", pulse shape FCAL: " 
 	   << (m_pulseShapeFcal[iMod])[0] << ", "
 	   << (m_pulseShapeFcal[iMod])[1] << ", "
@@ -2323,10 +1997,10 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	   << (m_pulseShapeFcal[iMod])[21] << ", "
 	   << (m_pulseShapeFcal[iMod])[22] << ", "
 	   << (m_pulseShapeFcal[iMod])[23]
-	   << endreq;
+        );
   }
-  msglog << MSG::INFO
-	 << "auto corr FCAL: " 
+  ATH_MSG_INFO
+    ( "auto corr FCAL: " 
 	 << m_autoCorrFcal[0] << ", "
 	 << m_autoCorrFcal[1] << ", "
 	 << m_autoCorrFcal[2] << ", "
@@ -2334,26 +2008,22 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	 << m_autoCorrFcal[4] << ", "
 	 << m_autoCorrFcal[5] << ", "
 	 << m_autoCorrFcal[6]
-	 << endreq;
+      );
 
   // now the relative gains
   pulsedataname=PathResolver::find_file ("Fcal_ptweights_table7.data", "DATAPATH");
   if (pulsedataname == "") {
-    msglog << MSG::ERROR << "Could not locate Fcal_ptweights_table7.data file" <<  endreq;
+    ATH_MSG_ERROR ( "Could not locate Fcal_ptweights_table7.data file" );
     return StatusCode::FAILURE;
   }
   pulsedatafile= pulsedataname.c_str() ;
   infile.open(pulsedatafile) ;
 
   if(!infile) {
-    msglog << MSG::ERROR
-	   << " cannot open FCAL gains file "
-	   << endreq;
+    ATH_MSG_ERROR ( " cannot open FCAL gains file " );
     return StatusCode::FAILURE;
   } else {
-    msglog << MSG::DEBUG
-	   << " FCAL gains file opened "
-	   << endreq;
+    ATH_MSG_DEBUG ( " FCAL gains file opened " );
   }
 
   // first read the gain file for all cells (from John Rutherfoord)
@@ -2385,15 +2055,10 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	  >> TTlabel [12] >> gain [12]
 	  >> TTlabel [13] >> gain [13]) {
 
-    msglog << MSG::DEBUG
-	   << " TTlabel[0], gain[0]= " << TTlabel[0] << ", " << gain[0] 
-	   << endreq;
-    msglog << MSG::DEBUG
-	   << " [...] "
-	   << endreq;
-    msglog << MSG::DEBUG
-	   << " TTlabel[13], gain[13]= " << TTlabel[13] << ", "  << gain[13] 
-	   << endreq;
+    ATH_MSG_DEBUG ( " TTlabel[0], gain[0]= " << TTlabel[0] << ", " << gain[0] );
+    ATH_MSG_DEBUG ( " [...] ");
+    ATH_MSG_DEBUG
+      ( " TTlabel[13], gain[13]= " << TTlabel[13] << ", "  << gain[13] );
 
     //int barrel_ec_fcal = 2;
     //int pos_neg = -2; // C side (neg z)
@@ -2448,9 +2113,8 @@ StatusCode LArTTL1Maker::readAuxiliary()
       // ... create an offline TT+layer identifier from the labels read in.
       //
       Identifier ttId = m_lvl1Helper->layer_id(detZside, em_had, region, eta, phi, layer) ;
-      msglog << MSG::DEBUG
-	     << "ttId= " << m_lvl1Helper->show_to_string(ttId) 
-	     << endreq;
+      ATH_MSG_DEBUG
+        ( "ttId= " << m_lvl1Helper->show_to_string(ttId) );
       // 
       //... fill a vector with offline identifier of cells belonging to this tower (with layer info)
       //
@@ -2478,9 +2142,7 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	} // end condition cellPhi>=0
 	
       } // end of loop on channels in the tower
-      msglog << MSG::DEBUG
-	     << "nCell= " << nCell 
-	     << endreq;
+      ATH_MSG_DEBUG ( "nCell= " << nCell );
       
       //
       //... loop on the 4 cells of the current group and put their gain in the gain vector (indexed by hashes)
@@ -2491,9 +2153,7 @@ StatusCode LArTTL1Maker::readAuxiliary()
 	  unsigned int index = hashVec[index0] ;
 	  m_cellRelGainFcal [index] = gain[icol] ;
 	  ngain++;
-	  msglog << MSG::DEBUG
-		 << " index, gain= " << index << ", " << gain[icol]
-		 << endreq;
+	  ATH_MSG_DEBUG ( " index, gain= " << index << ", " << gain[icol] );
 	}
       }
       
@@ -2502,14 +2162,9 @@ StatusCode LArTTL1Maker::readAuxiliary()
   } // end of loop on lines
 
   
-  msglog << MSG::DEBUG
-	 << " number of lines found= " 
-	 << iline 
-	 << endreq;
+  ATH_MSG_DEBUG ( " number of lines found= " << iline  );
   infile.close() ;
-  msglog << MSG::INFO
-	 << " FCAL gains file closed, extracted " << ngain << " gains"
-	 << endreq;
+  ATH_MSG_INFO ( " FCAL gains file closed, extracted " << ngain << " gains" );
 
   return StatusCode::SUCCESS;
 
@@ -2550,13 +2205,9 @@ int LArTTL1Maker::decodeInverse(int region, int eta)
 
 StatusCode LArTTL1Maker::initHitMap()
 {
-
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   if (m_useMapfromStore) {
-      msglog << MSG::INFO << " Use LArHitEMap from detector store. should be filled by LArDigitMaker (digitmaker1)" << endreq;
-      return StatusCode::SUCCESS;
+    ATH_MSG_INFO ( " Use LArHitEMap from detector store. should be filled by LArDigitMaker (digitmaker1)" );
+    return StatusCode::SUCCESS;
   }
 
   m_hitmap = new LArHitEMap();
@@ -2616,11 +2267,10 @@ StatusCode LArTTL1Maker::initHitMap()
     //
     //........ Unknown case
     //
-    msglog << MSG::FATAL 
-	   << "Invalid SubDetector property : " << m_SubDetectors
-	   << "Valid ones are: LAr_All, LAr_Em, LAr_EmBarrel, "
-	   << "LAr_EmEndCap, LAr_HEC and LAr_Fcal "
-	   << endreq;
+    ATH_MSG_FATAL 
+      ( "Invalid SubDetector property : " << m_SubDetectors
+        << "Valid ones are: LAr_All, LAr_Em, LAr_EmBarrel, "
+        << "LAr_EmEndCap, LAr_HEC and LAr_Fcal " );
 
     return(StatusCode::FAILURE);
   }
@@ -2631,19 +2281,12 @@ StatusCode LArTTL1Maker::initHitMap()
 
   if ( ! m_hitmap->Initialize(SubDetFlag) )
     {
-      msglog << MSG::FATAL 
-	     << "Making of the cell table failed" 
-	     << endreq;
+      ATH_MSG_FATAL ( "Making of the cell table failed"  );
       return StatusCode::FAILURE;
     }
   
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::INFO
-	   << "Number of created cells in LArHitEMap " 
-	   << m_hitmap->GetNbCells() 
-	   << endreq;
-  }
-
+  ATH_MSG_INFO ( "Number of created cells in LArHitEMap " 
+                 << m_hitmap->GetNbCells() );
 
   return StatusCode::SUCCESS;
 }

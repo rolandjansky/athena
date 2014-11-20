@@ -15,7 +15,7 @@
 // ....... include
 //
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
 
@@ -25,7 +25,7 @@ class CaloLVL1_ID;
 /**
    @brief This algorithm is meant to be run in standalone only for TTL1 calibration purposes
  */
-class LArTTL1Calib : public Algorithm
+class LArTTL1Calib : public AthAlgorithm
 {
 //
 // >>>>>>>> public methods
@@ -93,7 +93,6 @@ class LArTTL1Calib : public Algorithm
   NTuple::Array<long>  m_Ietatthad;
   NTuple::Array<long>  m_Lphitthad;
   
-  StoreGateSvc*                m_storeGateSvc; 
   const CaloLVL1_ID*                 m_lvl1Helper;
 
 };

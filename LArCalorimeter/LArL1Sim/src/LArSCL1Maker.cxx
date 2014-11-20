@@ -4,7 +4,7 @@
 
 // +======================================================================+
 // +                                                                      +
-// + Author ........: Denis O. Damazio                                    +
+// + Author ........: Denis O. Damazio , Will Buttinger (Cambridge)       +
 // + Institut ......: BNL                                                 +
 // + Creation date .: 18/11/2013                                          +
 // +                                                                      +
@@ -27,6 +27,8 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArDigitization/LArHitList.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/CaloID_Exception.h"
@@ -37,6 +39,7 @@
 #include "LArTools/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloTriggerTool/ICaloSuperCellIDTool.h"
+#include "CaloEvent/CaloCellContainer.h"
 //
 // ........ Event Header Files:
 //
@@ -49,7 +52,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
-#include "GaudiKernel/Algorithm.h"
+
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -76,12 +79,18 @@ using CLHEP::RandGaussZiggurat;
 
 
 LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
-  , m_storeGateSvc("StoreGateSvc",name)
+  AthAlgorithm(name, pSvcLocator)
   , m_atRndmGenSvc("AtRndmGenSvc",name)
   , m_rndmEngineName("LArSCL1Maker")
   , m_rndmEngine(0)
+  , p_triggerTimeTool()
+  , m_cablingSCSvc("LArSuperCellCablingTool")
+  , m_scidtool("CaloSuperCellIDTool")
+  , m_scHelper(0)
+  , m_OnlSCHelper(0)
+  , m_incSvc("IncidentSvc",name)
   , m_hitmap(0)
+  , m_shapes(0), m_fracS(0), m_PedestalSC(0), m_NoiseSC(0)
   , m_autoCorrNoiseTool("LArAutoCorrNoiseTool")
   , m_adc2mevTool("LArADC2MeVTool")
   , m_fSamplKey("LARfSamplSC")
@@ -98,13 +107,12 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 //
 // ........ default values of private data
 //
-  m_detectorStore         = 0;
-  //m_storeGateSvc          = 0;
+
   m_chronSvc              = 0;
   m_mergeSvc              = 0;
   m_useTriggerTime        = false;
-  m_triggerTimeToolName   = "CosmicTriggerTimeTool";
-  p_triggerTimeTool       = 0;
+  //m_triggerTimeToolName   = "CosmicTriggerTimeTool";
+
 
   m_BeginRunPriority      = 100;
 
@@ -121,13 +129,11 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   m_noEmCalibMode            = false;
   m_noHadCalibMode           = false;
   m_chronoTest               = false;
-  m_debugThresh              = 5000.;
 
   //
   // ........ declare the private data as properties
   //
 
-  declareProperty("EventStore",m_storeGateSvc,"StoreGate Service");
   declareProperty("SubDetectors",m_SubDetectors);
   declareProperty("RndmSvc", m_atRndmGenSvc);
   declareProperty("AutoCorrNoiseTool",m_autoCorrNoiseTool,"Tool handle for electronic noise covariance");
@@ -140,14 +146,14 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("PileUp",m_PileUp);
   declareProperty("UseTriggerTime",m_useTriggerTime);
-  declareProperty("TriggerTimeToolName",m_triggerTimeToolName);
+  declareProperty("TriggerTimeTool",p_triggerTimeTool);
 
   declareProperty("FirstSample",m_firstSample=-1);
   declareProperty("NSamples",m_nSamples=7);
 
   declareProperty("ChronoTest",m_chronoTest);
-  declareProperty("DebugThreshold",m_debugThresh);
 
+   declareProperty("TruthHitsContainer",m_saveHitsContainer="","Specify to save hits");
 //
 return;
 }
@@ -172,131 +178,58 @@ StatusCode LArSCL1Maker::initialize()
 //
 // ......... declaration
 //
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   m_chronSvc = chronoSvc();
 
-  msglog << MSG::INFO 	
-	 << "***********************************************"
-	 << endreq;
-  msglog << MSG::INFO 	
-	 << "* Steering options for LArSCL1Maker algorithm *" 
-	 << endreq;
-  msglog << MSG::INFO 	
-	 << "***********************************************"
-	 << endreq;
+  ATH_MSG_INFO("***********************************************");
+  ATH_MSG_INFO("* Steering options for LArSCL1Maker algorithm *");
+  ATH_MSG_INFO("***********************************************");
+
   //
   // ......... print the noise flag
   //
-  if ( m_NoiseOnOff )
-  {
-    msglog << MSG::INFO 
-	   << "Electronic noise will be added in each SC for selected sub-detectors." 
-	   << endreq;
-  }
-  else
-  {
-    msglog << MSG::INFO 
-	   << "No electronic noise added." 
-	   << endreq;
-  }
+  if ( m_NoiseOnOff ) { ATH_MSG_INFO("Electronic noise will be added in each SC for selected sub-detectors."); }
+  else { ATH_MSG_INFO("No electronic noise added."); }
 
 //
 // ......... print the pile-up flag
 //
-  if (m_PileUp)
-  {
-     msglog << MSG::INFO
-            << "take events from PileUp service"
-            << endreq;
-  }
-  else
-  {
-    msglog << MSG::INFO
-           << "no pile up"
-           << endreq;
-  }
+  if (m_PileUp){ ATH_MSG_INFO("take events from PileUp service"); }
+  else { ATH_MSG_INFO("no pile up"); }
 
 //
 // ......... print the trigger time flag
 //
-  if (m_useTriggerTime) 
-  {
-     msglog << MSG::INFO
-            << "use Trigger Time service " <<  m_triggerTimeToolName   
-            << endreq;
-  }
-  else
-  {
-    msglog << MSG::INFO
-           << "no Trigger Time used"
-           << endreq;
-  }
+  if (m_useTriggerTime) { ATH_MSG_INFO("use Trigger Time service " <<  p_triggerTimeTool.name()); }
+  else { ATH_MSG_INFO("no Trigger Time used"); }
 
-//
-// ....... Access Event StoreGate
-//
-  //StatusCode sc = service ( "StoreGateSvc" , m_storeGateSvc ) ;
-  StatusCode sc = m_storeGateSvc.retrieve();
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to access pointer to StoreGate"
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
+
 
 //
 // locate the PileUpMergeSvc and initialize our local ptr
 //
   if (m_PileUp) {
     if (!(service("PileUpMergeSvc", m_mergeSvc)).isSuccess() ||	0 == m_mergeSvc) {
-      msglog << MSG::ERROR 
-	     << "Could not find PileUpMergeSvc" 
-	     << endreq;
+      ATH_MSG_ERROR( "Could not find PileUpMergeSvc" );
       return StatusCode::FAILURE;
+    } else {
+	ATH_MSG_DEBUG("PileUpMergeSvc successfully initialized");
     }
-    else
-      {
-	msglog << MSG::DEBUG << "PileUpMergeSvc successfully initialized" << endreq;
-      }
   }     
   
 //
 // .........retrieve tool computing trigger time if requested
 //
   if (m_useTriggerTime && m_PileUp) {
-       msglog << MSG::INFO 
-        << " In case of pileup, the trigger time subtraction is done in PileUpSvc " 
-        << endreq;
-       msglog << MSG::INFO
-        << "  => LArSCL1Maker will not apply Trigger Time " << endreq;
+       ATH_MSG_INFO(" In case of pileup, the trigger time subtraction is done in PileUpSvc ");
+       ATH_MSG_INFO("  => LArSCL1Maker will not apply Trigger Time ");
        m_useTriggerTime = false;
   }
 
   if (m_useTriggerTime) {
-    IToolSvc* p_toolSvc = 0;
-    if (!(service("ToolSvc", p_toolSvc)).isSuccess() ||	0 == p_toolSvc) {
-      msglog << MSG::ERROR 
-	     << "Could not find ToolSvc" 
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
-
-    IAlgTool* algtool(0);
-    ListItem theTool(m_triggerTimeToolName.value());
-    sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR
-	     << "Unable to find tool for " << m_triggerTimeToolName.value() << endreq;
-      p_triggerTimeTool = 0;
-    }
-     else {
-       p_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);
-       msglog << MSG::DEBUG << "retrieved TriggerTime tool: " 
-	      << m_triggerTimeToolName.value() << endreq;
-     }
+   if( p_triggerTimeTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Unable to retrieve trigger time tool. Disabling Trigger time");
+      m_useTriggerTime=false;
+   }
   }
 
   //
@@ -305,117 +238,49 @@ StatusCode LArSCL1Maker::initialize()
 
   const CaloIdManager* caloMgr;
   const LArIdManager*	 larMgr;
-    //
-    // ....... Access Detector StoreGate
-    //
-  sc = service( "DetectorStore", m_detectorStore );
-  if ( sc.isSuccess( ) ) {
-    sc = m_detectorStore->retrieve(caloMgr);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      if (outputLevel <= MSG::DEBUG) {
-	msglog << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
-      }
-    }	
-    sc = m_detectorStore->retrieve(larMgr);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      if (outputLevel <= MSG::DEBUG) {
-	msglog << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-      }
-    }	
 
-    sc = m_detectorStore->retrieve(m_OnlSCHelper);
-    if (sc.isFailure()) {
-      msglog << MSG::ERROR << "Unable to retrieve LArOnline_SuperCellID from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      if (outputLevel <= MSG::DEBUG) {
-        msglog << MSG::DEBUG << "Successfully retrieved LArOnline_SuperCellID from DetectorStore" << endreq;
-      }
-    }
-
-  }   else {
-    msglog << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+   CHECK( detStore()->retrieve(caloMgr) );
+   CHECK( detStore()->retrieve(larMgr) );
+   CHECK( detStore()->retrieve(m_OnlSCHelper) );
+   
 
   //
   //..... need of course the LVL1 helper
   //
   m_scHelper = caloMgr->getCaloCell_SuperCell_ID();
   if (!m_scHelper) {
-    msglog << MSG::ERROR << "Could not access CaloCell_SuperCell_ID helper" << endreq;
+    ATH_MSG_ERROR( "Could not access CaloCell_SuperCell_ID helper");
     return StatusCode::FAILURE;
   } else {
-    if (outputLevel <= MSG::DEBUG) {
-      msglog << MSG::DEBUG << "Successfully accessed CaloCell_SuperCell_ID helper" << endreq;
-    }
+    ATH_MSG_DEBUG( "Successfully accessed CaloCell_SuperCell_ID helper");
   }
   
   // ..... need cabling services, to get channels associated to each SC
   //
-  IToolSvc* toolSvc;
-  StatusCode status   = service( "ToolSvc",toolSvc  );
-  if(status.isSuccess()) {
-    sc = toolSvc->retrieveTool("LArSuperCellCablingTool",m_cablingSCSvc);
-    if(sc.isFailure()) {
-      msglog << MSG::ERROR << "Could not retrieve LArSuperCellCablingTool"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-    sc = toolSvc->retrieveTool("CaloSuperCellIDTool",m_scidtool);
-    if(sc.isFailure()) {
-      msglog << MSG::ERROR << "Could not retrieve CaloTriggerTowerService"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-  } else      {
-    msglog << MSG::ERROR << "Could not get ToolSvc"<< endreq;
-    return(StatusCode::FAILURE);
-  }
+
+  CHECK( m_cablingSCSvc.retrieve() );
+  CHECK( m_scidtool.retrieve() );
+
   
   // Incident Service: 
-  IIncidentSvc* incSvc;
-  sc = service("IncidentSvc", incSvc);
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to retrieve pointer to DetectorStore "
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK( m_incSvc.retrieve() );
   //start listening to "BeginRun"
-  incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
+  m_incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
 
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG 
-	   << "Initialization completed successfully" 
-	   << endreq;
-  }
+  ATH_MSG_DEBUG( "Initialization completed successfully" );
 
-  sc = m_atRndmGenSvc.retrieve();
-  if(sc.isFailure()) {
-    msglog << MSG::ERROR << "Could not initialize random number service." << endreq;
-    return sc;
-  }
+  CHECK( m_atRndmGenSvc.retrieve() );
+  
   m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
   if(!m_rndmEngine) {
-    msglog << MSG::ERROR << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
+    ATH_MSG_ERROR( "Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE ;
   }
 
-  if ( m_autoCorrNoiseTool.retrieve().isFailure() ) {
-   msglog << MSG::ERROR << "Unable to find LArAutoCorrNoiseTool" << endreq;
-   return StatusCode::FAILURE;
-  }
+  CHECK( m_autoCorrNoiseTool.retrieve() );
+  CHECK( m_adc2mevTool.retrieve() );
 
-  if ( m_adc2mevTool.retrieve().isFailure() ) {
-   msglog << MSG::ERROR << "Unable to find LArADC2MeVTool" << endreq;
-   return StatusCode::FAILURE;
-  }
+  CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
 
   return StatusCode::SUCCESS;
 
@@ -425,38 +290,16 @@ StatusCode LArSCL1Maker::initialize()
 
 void LArSCL1Maker::handle(const Incident& /* inc*/ )
 {
-  MsgStream msglog( msgSvc(), name() );
-  msglog << MSG::DEBUG << "LArSCL1Maker handle()" << endreq;
-
-  StatusCode sc = this->updateConditions();
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << " Error from updateConditions " << endreq;
-  }
-
-
+  ATH_MSG_DEBUG("LArSCL1Maker handle()");
+  if( this->updateConditions().isFailure()) ATH_MSG_ERROR("Failure in updating Conditions");
   return;
 }
 
 StatusCode LArSCL1Maker::execute()
 {
-// +======================================================================+
-// +                                                                      +
-// + Author: Denis O. Damazio                                             +
-// + Creation date: 2003/01/13                                            +
-// + Subject: Make the SCL1s and put them into the container             +
-// +                                                                      +
-// +======================================================================+
-  //
-  // ......... declarations
-  //
-  MsgStream  msglog(messageService(),name());
-  int outputLevel = msgSvc()->outputLevel( name() );
 
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG 
-	   << "Begining of execution" 
-	   << endreq;
-  }
+
+  ATH_MSG_DEBUG("Begining of execution" );
 
   //
   // ....... fill the LArHitEMap
@@ -466,11 +309,10 @@ StatusCode LArSCL1Maker::execute()
   }
 
   int totHit=0;
-  if ( this->fillEMap(totHit) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG << "total number of hits with |E|> 1.e-06 found = " << totHit << endreq;
-  }
-  
+  CHECK( detStore()->retrieve(m_hitmap,"LArHitEMap") );
+  totHit = m_hitmap->GetNbCells();
+  ATH_MSG_DEBUG("total number of hits with |E|> 1.e-06 found = " << totHit );
+
 
   if(m_chronoTest) {
     m_chronSvc->chronoStop ( "fill LArHitEMap " );
@@ -478,8 +320,8 @@ StatusCode LArSCL1Maker::execute()
   }
 
   if ( totHit==0) {
-    msglog << MSG::WARNING << " No LAr hit in the event "  << endreq;
-    msglog << MSG::WARNING << "cannot process this event" << endreq;
+    ATH_MSG_WARNING( " No LAr hit in the event ");
+    ATH_MSG_WARNING( "cannot process this event");
     return StatusCode::SUCCESS;
   }
 
@@ -487,44 +329,37 @@ StatusCode LArSCL1Maker::execute()
   // .....get the trigger time if requested
   //
   double trigtime=0;
-  if (m_useTriggerTime && p_triggerTimeTool) {
+  if (m_useTriggerTime && !p_triggerTimeTool.empty()) {
      trigtime = p_triggerTimeTool->time();
   }
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG << "Trigger time used : " << trigtime << endreq;
-  }
+  ATH_MSG_DEBUG("Trigger time used : " << trigtime);
 
 
   LArDigitContainer *scContainer = new LArDigitContainer();
   if ( scContainer == 0 ) {
-    msglog << MSG::ERROR 
-	   << "Could not allocate a new LArSCDigitContainer" 
-	   << endreq;
+    ATH_MSG_ERROR("Could not allocate a new LArSCDigitContainer" );
     return StatusCode::FAILURE;	  
   }
 
 
   // ...... register the TTL1 containers into the TES 
   //
-  StatusCode sc = m_storeGateSvc->record( scContainer ,  m_SCL1ContainerName) ;
-  if( sc.isFailure() )
-  {
-    msglog << MSG::ERROR 
-	   << "Could not record new LArDigitContainer in TES : " 
-	   << m_SCL1ContainerName 
-	   << endreq;
-    return StatusCode::FAILURE;	  
-  }
+  CHECK( evtStore()->record( scContainer ,  m_SCL1ContainerName) );
+
+
+   CaloCellContainer *scHitContainer = 0;
+   if(m_saveHitsContainer.size()>0) {
+      scHitContainer = new CaloCellContainer;
+      ATH_CHECK( evtStore()->record(scHitContainer, m_saveHitsContainer) );
+   }
+
 
   //
   // ... initialise vectors for sums of energy in each TT
   //
   unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
-  if (outputLevel <= MSG::DEBUG) {
-    msglog << MSG::DEBUG
-  	   << "Max number of LAr Super-Cell= " << nbSC 
-	   << endreq;
-  }
+  ATH_MSG_DEBUG("Max number of LAr Super-Cell= " << nbSC);
+
   std::vector<std::vector<float> > sumEnergy ;   // inner index = time slot (from 0 to visEvecSize-1)
   std::vector<std::vector<float> > sumTime ;   // inner index = time slot (from 0 to visEvecSize-1)
   sumEnergy.resize(nbSC);
@@ -543,9 +378,15 @@ StatusCode LArSCL1Maker::execute()
   alreadyThere.resize( nbSC );
   alreadyThere.assign( nbSC, false );
 
+   std::vector<float> truthE;
+   truthE.resize( nbSC );
+   truthE.assign( nbSC, 0 );
+
   std::vector<HWIdentifier> hwid;
   hwid.resize( nbSC );
   hwid.assign( nbSC, HWIdentifier(0) );
+
+  for(unsigned int i=0;i<m_OnlSCHelper->channelHashMax();++i) hwid[i]=m_OnlSCHelper->channel_Id(IdentifierHash(i)); 
 
   //m_nSamples=5;
   std::vector<float> samples;
@@ -562,12 +403,21 @@ StatusCode LArSCL1Maker::execute()
       if (timeE->size() > 0 ) {
         Identifier  cellId = hitlist->getIdentifier();
 
+         
 
           Identifier scId = m_scidtool->offlineToSuperCellID(cellId);
           IdentifierHash scHash = m_scHelper->calo_cell_hash(scId) ;
 	  if ( scHash.value() == 999999 ) continue;
 	  HWIdentifier hwSC = m_cablingSCSvc->createSignalChannelID(scId);
 	  IdentifierHash scHWHash = m_OnlSCHelper->channel_Hash(hwSC);
+
+         if(m_saveHitsContainer.size()>0) {
+            for(auto itr = timeE->begin(); itr!= timeE->end(); ++itr) {
+               if(fabs(itr->second) > 12.5) continue; //out of time energy deposit
+               truthE[scHWHash] += itr->first/m_fracS->FSAMPL(hwSC);
+            }
+         }
+
           hwid[scHWHash] = hwSC;
 
 	  float factor = 1.0;
@@ -595,48 +445,63 @@ StatusCode LArSCL1Maker::execute()
 
   it=0;
   it_end=nbSC;
-  int cc=0;
+  int cc=0;int dd=0;
   short MAXADC=4096; // 12 bits ADC?
   std::vector<float> noise(m_nSamples);
   double Rndm[32];
+  std::vector<float> zeroSamp; 
+  zeroSamp.assign(m_nSamples,0); // for empty channels 
   for( ; it != it_end; ++it){
-	
-	if ( alreadyThere[it] ){
-		const std::vector< float >&  vec= scFloatContainerTmp.at(it);
-		HWIdentifier id = hwid[it];
-		// reset noise
-		noise.assign(m_nSamples,0);
+      std::vector< float > & vec = zeroSamp; 
+      if ( alreadyThere[it] ) vec= scFloatContainerTmp.at(it); 
+      else {  cc++;  }
 
-		// noise definition
-		if ( m_NoiseOnOff ) {
-		float SigmaNoise = (m_NoiseSC->noise(id,0));
-		int index;
-		const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(id,0,m_nSamples));
+      HWIdentifier id = hwid[it];
+       if ( id == 0 ) { dd++; continue; } 
+		
 
-		RandGaussZiggurat::shootArray(m_rndmEngine,m_nSamples,Rndm,0.,1.);
+      //record the truth hit information
+      if(m_saveHitsContainer.size()>0) {
+            Identifier soft_id = m_cablingSCSvc->cnvToIdentifier(id);
+            IdentifierHash idhash = m_sem_mgr->getCaloCell_ID()->calo_cell_hash(soft_id);
+            const CaloDetDescrElement* dde = m_sem_mgr->get_element(idhash);
+            CaloGain::CaloGain gain = (CaloGain::CaloGain)1;
+            
+            CaloCell* cell = new CaloCell( dde, (float)truthE[it], 0, (uint16_t)0, (uint16_t)0, gain );
+            scHitContainer->push_back(cell);
+      }
 
-		for(int i=0;i<(int)m_nSamples;i++){
-		  noise[i]=0.;
-		  for(int j=0;j<=i;j++){
-			index = i* m_nSamples + j;
-			noise[i] += Rndm[j] * (*CorrGen)[index];
-		  }
-		  noise[i]=noise[i]*SigmaNoise;
-		}
-		}
+         // reset noise
+         noise.assign(m_nSamples,0);
 
-		int ped = m_PedestalSC->pedestal(id,0);
-	  	samplesInt.assign( m_nSamples, 0 );
-		for(unsigned int i=0; i< vec.size(); i++) {
-			samplesInt[i]=rint(vec[i]+ped+noise[i]);
-			if ( samplesInt[i] >= MAXADC ) samplesInt[i]=MAXADC-1;
-			if ( samplesInt[i] < 0 ) samplesInt[i]=0;
-		}
-		LArDigit* dig = new LArDigit(id, scGain, samplesInt );
-		scContainer->push_back(dig);
-	} else {
-		cc++;
-	}
+         // noise definition
+         if ( m_NoiseOnOff ) {
+         float SigmaNoise = (m_NoiseSC->noise(id,0));
+         int index;
+         const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(id,0,m_nSamples));
+
+         RandGaussZiggurat::shootArray(m_rndmEngine,m_nSamples,Rndm,0.,1.);
+
+         for(int i=0;i<(int)m_nSamples;i++){
+         noise[i]=0.;
+         for(int j=0;j<=i;j++){
+               index = i* m_nSamples + j;
+               noise[i] += Rndm[j] * (*CorrGen)[index];
+         }
+         noise[i]=noise[i]*SigmaNoise;
+         }
+         }
+
+         int ped = m_PedestalSC->pedestal(id,0);
+         samplesInt.assign( m_nSamples, 0 );
+         for(unsigned int i=0; i< vec.size(); i++) {
+               samplesInt[i]=rint(vec[i]+ped+noise[i]);
+               if ( samplesInt[i] >= MAXADC ) samplesInt[i]=MAXADC-1;
+               if ( samplesInt[i] < 0 ) samplesInt[i]=0;
+         }
+         LArDigit* dig = new LArDigit(id, scGain, samplesInt );
+         scContainer->push_back(dig);
+
   }
 
   if(m_chronoTest) {
@@ -652,20 +517,8 @@ StatusCode LArSCL1Maker::execute()
 
 StatusCode LArSCL1Maker::finalize()
 {
-// +======================================================================+
-// +                                                                      +
-// + Author: Denis O. Damazio                                             +
-// + Creation date: 18/11/2013                                            +
-// +                                                                      +
-// +======================================================================+
-//
-// ......... declaration
-//
-  MsgStream  msglog(messageService(),name());
 
-  msglog << MSG::INFO << " LArSCL1Maker finalize completed successfully" 
-	 << endreq;
-
+ ATH_MSG_INFO(" LArSCL1Maker finalize completed successfully");
   m_chronSvc->chronoPrint( "LArSCL1Mk hit loop " );
   m_chronSvc->chronoPrint( "LArSCL1Mk TT loop " );
   
@@ -674,95 +527,15 @@ StatusCode LArSCL1Maker::finalize()
 }
 
 
-StatusCode LArSCL1Maker::fillEMap(int& totHit) 
-
-{
-// +======================================================================+
-// +                                                                      +
-// + Author: Denis O. Damazio                                             +
-// + Creation date: 18/11/2013                                            +
-// +                                                                      +
-// +======================================================================+
-
-
-  MsgStream  msglog(messageService(),name());
-//
-// ........ reset the map Energies
-//
-  StatusCode sc = m_detectorStore->retrieve(m_hitmap,"LArHitEMap");
-  if (sc.isFailure()) {
-        msglog << " cannot retrieve LArHitEMap from detector Store " << endreq;
-        return sc;
-  }
-  totHit = m_hitmap->GetNbCells();
-
-  return StatusCode::SUCCESS;
-}
-
-
-//===========================================================================
-int LArSCL1Maker::decodeInverse(int region, int eta)
-{
-//===========================================================================
-// Maps [ region , eta ]  to [ Ieta] 
-// ==========================================================================
-// Problem: this is NOT a bijection, because of the "barrel end" zone. 
-//         Convention: only the barrel part of the identifying fields is returned 
-//===========================================================================
- 
- int Ieta=0;
- if(region == 0){  // Barrel + EC-OW
-   if(eta <= 14) {
-     Ieta=eta+1;         
-   }
-   else {
-     Ieta=eta-13;
-   }
- }
- else if( region == 1 || region == 2) { // EC-IW
-   if(region == 1) {   
-     Ieta=eta+12;
-   }
-   else {   
-     Ieta=15;
-   }
- }
- else if(region == 3) {  // FCAL 
-   Ieta=eta+1;
- }
- return Ieta ; 
-}
-
 
 StatusCode LArSCL1Maker::updateConditions(){
 
-  MsgStream  msglog(messageService(),name());
-  msglog << MSG::DEBUG << "Updating conditions" << endreq;
+  ATH_MSG_DEBUG( "Updating conditions" );
 
-  if (m_detectorStore == 0 ) {
-	msglog << "No valid DetStore, forget this" << endreq;
-	return StatusCode::FAILURE;
-  }
-
-  if ( (m_detectorStore->retrieve(m_fracS,m_fSamplKey)).isFailure() && !m_fracS ) {
-        msglog << "could not get fSampl conditions with key " << m_fSamplKey << endreq;
-	return StatusCode::FAILURE;
-  }
-
-  if ( (m_detectorStore->retrieve(m_shapes,m_shapesKey)).isFailure() && !m_shapes ) {
-        msglog << "could not get shape conditions with key " << m_shapesKey << endreq;
-	return StatusCode::FAILURE;
-  }
-
-  if ( (m_detectorStore->retrieve(m_NoiseSC,m_noiseKey)).isFailure() && !m_NoiseSC ) {
-        msglog << "could not get noise conditions with key " << m_noiseKey << endreq;
-	return StatusCode::FAILURE;
-  }
-
-  if ( (m_detectorStore->retrieve(m_PedestalSC,m_pedestalKey)).isFailure() && !m_PedestalSC ) {
-        msglog << "could not get pedestal conditions with key " << m_pedestalKey << endreq;
-	return StatusCode::FAILURE;
-  }
+  CHECK( detStore()->retrieve(m_fracS,m_fSamplKey) );
+  CHECK( detStore()->retrieve(m_shapes,m_shapesKey) );
+  CHECK( detStore()->retrieve(m_NoiseSC,m_noiseKey) );
+  CHECK( detStore()->retrieve(m_PedestalSC,m_pedestalKey) );
 
   return StatusCode::SUCCESS;
 
@@ -770,37 +543,34 @@ StatusCode LArSCL1Maker::updateConditions(){
 
 void LArSCL1Maker::printConditions(const HWIdentifier& hwSC){
 
-  	  MsgStream  msglog(messageService(),name());
-	  msglog << MSG::INFO << "HW Identifier : " << hwSC.get_identifier32().get_compact() << endreq;
+	  ATH_MSG_DEBUG("HW Identifier : " << hwSC.get_identifier32().get_compact() );
           if ( m_shapes ) {
                 ILArShape::ShapeRef_t shape = m_shapes->Shape(hwSC,0);
                 ILArShape::ShapeRef_t shapeder = m_shapes->ShapeDer(hwSC,0);
-                msglog << MSG::INFO  << "shape0.size() : " << shape.size() << endreq;
+                ATH_MSG_DEBUG( "shape0.size() : " << shape.size() );
                 for(unsigned int i=0;i<shape.size();i++)
-                   msglog << "shape[" << i << "]=" << shape[i] << " - " << shapeder[i] << "; ";
-                msglog << endreq;
+                   ATH_MSG_DEBUG("shape[" << i << "]=" << shape[i] << " - " << shapeder[i] << "; ");
           }
           if ( m_fracS  ) {
-                msglog << MSG::INFO << "fSample : " << m_fracS->FSAMPL(hwSC) << endreq;
+                ATH_MSG_DEBUG("fSample : " << m_fracS->FSAMPL(hwSC) );
           }
           if ( m_adc2mevTool ) {
-                msglog << MSG::INFO << "Ramp (gain0) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)0))[1] << endreq;
-                msglog << MSG::INFO << "Ramp (gain1) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] << endreq;
-                msglog << MSG::INFO << "Ramp (gain2) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)2))[1] << endreq;
+                ATH_MSG_DEBUG("Ramp (gain0) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)0))[1] );
+                ATH_MSG_DEBUG("Ramp (gain1) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] );
+                ATH_MSG_DEBUG("Ramp (gain2) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)2))[1] );
           }
           if ( m_PedestalSC ) {
-                msglog << MSG::INFO << "Pedestal : " << m_PedestalSC->pedestal(hwSC,0) << endreq;
+                ATH_MSG_DEBUG("Pedestal : " << m_PedestalSC->pedestal(hwSC,0) );
           }
           if ( m_NoiseSC ) {
-                msglog << "Noise : " << m_NoiseSC->noise(hwSC,0) << endreq;
+                ATH_MSG_DEBUG("Noise : " << m_NoiseSC->noise(hwSC,0) );
           }
           if ( m_autoCorrNoiseTool ) {
 		const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(hwSC,0,m_nSamples));
-		msglog << MSG::INFO << "Auto : " ;
-		for(size_t ii=0;ii<m_nSamples;++ii){
-		msglog << CorrGen->at(ii) << " ";
-		}
-		msglog << endreq;
+                std::stringstream ss; ss << "Auto : ";
+		for(size_t ii=0;ii<m_nSamples;++ii) ss << CorrGen->at(ii) << " ";
+                ATH_MSG_DEBUG(ss) ;
+
 	  }
 }
 

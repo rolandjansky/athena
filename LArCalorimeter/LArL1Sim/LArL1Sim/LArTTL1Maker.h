@@ -15,7 +15,7 @@
 // ....... include
 //
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -50,7 +50,7 @@ namespace CLHEP
    @author F. Ledroit (LPSC-Grenoble)
  */
 
-class LArTTL1Maker : public Algorithm,
+class LArTTL1Maker : public AthAlgorithm,
                      public IIncidentListener 
 {
 //
@@ -106,8 +106,6 @@ class LArTTL1Maker : public Algorithm,
 // >>>>>>>> private data parts
 //
 
-  StoreGateSvc*                m_detectorStore;
-  ServiceHandle<StoreGateSvc>                m_storeGateSvc; 
   IChronoStatSvc*              m_chronSvc;
   PileUpMergeSvc*              m_mergeSvc;
   ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
@@ -248,6 +246,10 @@ class LArTTL1Maker : public Algorithm,
   bool m_chronoTest;               
 /** key to access of fSamplKey */
   std::string m_fSamplKey;
+
+/** key for saving truth */
+   std::string m_truthHitsContainer;
+
 };
 
 #endif

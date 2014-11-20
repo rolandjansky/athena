@@ -28,9 +28,7 @@
 //
 // ........ Gaudi needed includes
 //
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "GaudiKernel/INTupleSvc.h"
@@ -42,7 +40,7 @@
 //
 
 LArTTL1Calib::LArTTL1Calib(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 // + -------------------------------------------------------------------- +
 // + Author ........: F. Ledroit                                          +
 // + Creation date .: 20/04/2004                                          +
@@ -60,7 +58,6 @@ LArTTL1Calib::LArTTL1Calib(const std::string& name, ISvcLocator* pSvcLocator) :
 
   m_pnt                   = 0;
 
-  m_storeGateSvc          = 0;
   m_lvl1Helper            = 0;
 
 //
@@ -87,107 +84,72 @@ StatusCode LArTTL1Calib::initialize()
 //
 // ......... declaration
 //
-  MsgStream  msglog(messageService(),name());
-  msglog << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
 
   NTuple::Directory* dir = 0;
   NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
 
   if ( file1 != 0) {
     if ( !(dir=ntupleSvc()->createDirectory("/NTUPLES/FILE1/DIR")) ) {
-      msglog << MSG::ERROR << "Cannot create directory /NTUPLES/FILE1/DIR" << endreq;
+      ATH_MSG_ERROR ( "Cannot create directory /NTUPLES/FILE1/DIR" );
     }
   }
   else {
-    msglog << MSG::ERROR << "Cannot access file /NTUPLES/FILE1" << endreq;
+    ATH_MSG_ERROR ( "Cannot access file /NTUPLES/FILE1" );
     return StatusCode::FAILURE;
   }
 
-  msglog << MSG::DEBUG << "created directory /NTUPLES/FILE1/DIR" << endreq;
+  ATH_MSG_DEBUG ( "created directory /NTUPLES/FILE1/DIR" );
       
   NTuplePtr pnt(ntupleSvc(),"/NTUPLES/FILE1/DIR/10");
   if (!pnt) {
     pnt = ntupleSvc()->book(dir,10 ,CLID_ColumnWiseTuple,"LArLvl1TT");
     
     if(pnt){
-      msglog << MSG::DEBUG << "booked ntuple LArLvl1TT" << endreq;
+      ATH_MSG_DEBUG ( "booked ntuple LArLvl1TT" );
       m_pnt = pnt;
-      StatusCode sc = pnt->addItem ("nTotEm",m_ntotem);
-      if ( sc == StatusCode::FAILURE ) {
-	msglog<<MSG::ERROR << "   could not add item to col wise ntuple" << endreq;
-	return StatusCode::FAILURE;
-      }
-    
-      sc = pnt->addItem ("EtTotEm",m_etotem);
-      sc = pnt->addItem ("n3x3Em",m_n3x3em);
-      sc = pnt->addItem ("E3x3Em",m_e3x3em);
-      sc = pnt->addItem ("EmostEm",m_emostem);
-      sc = pnt->addItem ("BarrelECEm",m_bec_mostEem);
-      sc = pnt->addItem ("EmFcalEm",m_emfcal_mostEem);
-      sc = pnt->addItem ("IetaEm",m_Ieta_mostEem);
-      sc = pnt->addItem ("LphiEm",m_Lphi_mostEem);
-      sc = pnt->addItem ("nTTaboveThrEm",m_nttem,0,m_maxNtt);
-      sc = pnt->addItem ("EtTTEm",m_nttem,m_ettem);
-      sc = pnt->addItem ("BECTTEm",m_nttem,m_becttem);
-      sc = pnt->addItem ("EmFcalTTEm",m_nttem,m_emfcalttem);
-      sc = pnt->addItem ("IetaTTEm",m_nttem,m_Ietattem);
-      sc = pnt->addItem ("LphiTTEm",m_nttem,m_Lphittem);
 
-      sc = pnt->addItem ("nTotHad",m_ntothad);
-      sc = pnt->addItem ("EtTotHad",m_etothad);
-      sc = pnt->addItem ("n3x3Had",m_n3x3had);
-      sc = pnt->addItem ("E3x3Had",m_e3x3had);
-      sc = pnt->addItem ("EmostHad",m_emosthad);
-      sc = pnt->addItem ("HecFcalHad",m_hecfcal_mostEhad);
-      sc = pnt->addItem ("IetaHad",m_Ieta_mostEhad);
-      sc = pnt->addItem ("LphiHad",m_Lphi_mostEhad);
-      sc = pnt->addItem ("nTTaboveThrHad",m_ntthad,0,m_maxNtt);
-      sc = pnt->addItem ("EtTTHad",m_ntthad,m_etthad);
-      sc = pnt->addItem ("HecFcalTTHad",m_ntthad,m_hecfcaltthad);
-      sc = pnt->addItem ("IetaTTHad",m_ntthad,m_Ietatthad);
-      sc = pnt->addItem ("LphiTTHad",m_ntthad,m_Lphitthad);
+      ATH_CHECK( pnt->addItem ("nTotEm",m_ntotem) );
+      ATH_CHECK( pnt->addItem ("EtTotEm",m_etotem) );
+      ATH_CHECK( pnt->addItem ("n3x3Em",m_n3x3em) );
+      ATH_CHECK( pnt->addItem ("E3x3Em",m_e3x3em) );
+      ATH_CHECK( pnt->addItem ("EmostEm",m_emostem) );
+      ATH_CHECK( pnt->addItem ("BarrelECEm",m_bec_mostEem) );
+      ATH_CHECK( pnt->addItem ("EmFcalEm",m_emfcal_mostEem) );
+      ATH_CHECK( pnt->addItem ("IetaEm",m_Ieta_mostEem) );
+      ATH_CHECK( pnt->addItem ("LphiEm",m_Lphi_mostEem) );
+      ATH_CHECK( pnt->addItem ("nTTaboveThrEm",m_nttem,0,m_maxNtt) );
+      ATH_CHECK( pnt->addItem ("EtTTEm",m_nttem,m_ettem) );
+      ATH_CHECK( pnt->addItem ("BECTTEm",m_nttem,m_becttem) );
+      ATH_CHECK( pnt->addItem ("EmFcalTTEm",m_nttem,m_emfcalttem) );
+      ATH_CHECK( pnt->addItem ("IetaTTEm",m_nttem,m_Ietattem) );
+      ATH_CHECK( pnt->addItem ("LphiTTEm",m_nttem,m_Lphittem) );
+
+      ATH_CHECK( pnt->addItem ("nTotHad",m_ntothad) );
+      ATH_CHECK( pnt->addItem ("EtTotHad",m_etothad) );
+      ATH_CHECK( pnt->addItem ("n3x3Had",m_n3x3had) );
+      ATH_CHECK( pnt->addItem ("E3x3Had",m_e3x3had) );
+      ATH_CHECK( pnt->addItem ("EmostHad",m_emosthad) );
+      ATH_CHECK( pnt->addItem ("HecFcalHad",m_hecfcal_mostEhad) );
+      ATH_CHECK( pnt->addItem ("IetaHad",m_Ieta_mostEhad) );
+      ATH_CHECK( pnt->addItem ("LphiHad",m_Lphi_mostEhad) );
+      ATH_CHECK( pnt->addItem ("nTTaboveThrHad",m_ntthad,0,m_maxNtt) );
+      ATH_CHECK( pnt->addItem ("EtTTHad",m_ntthad,m_etthad) );
+      ATH_CHECK( pnt->addItem ("HecFcalTTHad",m_ntthad,m_hecfcaltthad) );
+      ATH_CHECK( pnt->addItem ("IetaTTHad",m_ntthad,m_Ietatthad) );
+      ATH_CHECK( pnt->addItem ("LphiTTHad",m_ntthad,m_Lphitthad) );
       
     } else {
-      msglog << MSG::ERROR  << "could not book Ntuple" << endreq;
+      ATH_MSG_ERROR  ( "could not book Ntuple" );
     }
   } else {
-    msglog << MSG::ERROR << "Ntuple is already booked" << endreq;
+    ATH_MSG_ERROR ( "Ntuple is already booked" );
   }
 //
-// ....... Access Event StoreGate
-//
-  StatusCode sc = service ( "StoreGateSvc" , m_storeGateSvc ) ;
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to access pointer to StoreGate"
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
 
-  StoreGateSvc* detStore = 0;
-  const CaloLVL1_ID*	lvl1Helper;
-  sc = service( "DetectorStore", detStore );
-    if ( sc.isSuccess( ) ) {
-	sc = detStore->retrieve(lvl1Helper);
-	if (sc.isFailure()) {
-	    msglog << MSG::ERROR << "Unable to retrieve CaloLVL1_ID from DetectorStore" << endreq;
-	    return StatusCode::FAILURE;
-	} else {
-	    msglog << MSG::DEBUG << "Successfully retrieved CaloLVL1_ID from DetectorStore" << endreq;
-	}	
-    } 
-    else {
-	msglog << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-	return StatusCode::FAILURE;
-    }
-    m_lvl1Helper = lvl1Helper;
+  ATH_CHECK( detStore()->retrieve (m_lvl1Helper) );
 
-  msglog << MSG::DEBUG 
-	 << "Initialization completed successfully" 
-	 << endreq;
-
-
+  ATH_MSG_DEBUG  ( "Initialization completed successfully" );
   return StatusCode::SUCCESS;
 
 }
@@ -207,11 +169,7 @@ StatusCode LArTTL1Calib::execute()
   //
   // ......... declarations
   //
-  MsgStream  msglog(messageService(),name());
-
-  msglog << MSG::DEBUG 
-	 << "Begining of execution" 
-	 << endreq;
+  ATH_MSG_DEBUG ( "Begining of execution" );
 
   LArTTL1Container::const_iterator ttl1iter;
   Identifier ttOffId;
@@ -230,25 +188,13 @@ StatusCode LArTTL1Calib::execute()
   //
   // ..... Get the pointer to the TTL1 Container from StoreGate
   //
-    msglog << MSG::DEBUG << " asking for: " 
-	   << containerVec[iTTL1Container] 
-	   << endreq;
+    ATH_MSG_DEBUG ( " asking for: " << containerVec[iTTL1Container] );
     
     const LArTTL1Container* ttl1_container ;
-    StatusCode sc = m_storeGateSvc->retrieve( ttl1_container, containerVec[iTTL1Container] ) ;
-    
-    if ( sc.isFailure() || !ttl1_container) 
-      {
-      msglog << MSG::ERROR << "Could not retrieve a LArTTL1Container " 
-	     << containerVec[iTTL1Container] 
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve( ttl1_container, containerVec[iTTL1Container] ) );
 
     //
-    msglog << MSG::DEBUG 
-	   << "number of ttl1s: " << ttl1_container->size() 
-	   << endreq;
+    ATH_MSG_DEBUG ( "number of ttl1s: " << ttl1_container->size() );
 
     int samp = iTTL1Container;
     int indexem=0;
@@ -303,9 +249,7 @@ StatusCode LArTTL1Calib::execute()
 	}
 	else {
 	  if (m_maxNtt == indexem) {
-	    msglog << MSG::WARNING
-		   << "Too many em TT. Save only  " << m_maxNtt
-		   << endreq;
+	    ATH_MSG_WARNING ( "Too many em TT. Save only  " << m_maxNtt );
 	    break;
 	  }
 	}
@@ -324,18 +268,14 @@ StatusCode LArTTL1Calib::execute()
 	}
 	else {
 	  if (m_maxNtt == indexhad) {
-	    msglog << MSG::WARNING
-		   << "Too many had TT. Save only  " << m_maxNtt
-		   << endreq;
+	    ATH_MSG_WARNING ( "Too many had TT. Save only  " << m_maxNtt );
 	    break;
 	  }
 	}
       }
       
     } // .... end of loop over ittl1s
-    msglog << MSG::DEBUG 
-	   << "number of em/had ttl1s: " << indexem << " / " << indexhad
-	   << endreq;
+    ATH_MSG_DEBUG ( "number of em/had ttl1s: " << indexem << " / " << indexhad);
 
 
     int etaLim=13; // barrel-ec transition
@@ -379,16 +319,9 @@ StatusCode LArTTL1Calib::execute()
     }
       
   } // .... end of loop over containers
-  msglog << MSG::DEBUG 
-	 << "end of loop over containers, write record"
-	 << endreq;
+  ATH_MSG_DEBUG ( "end of loop over containers, write record" );
 
-  StatusCode sc = ntupleSvc()->writeRecord(m_pnt);
-  if (sc!=StatusCode::SUCCESS) {
-    msglog << MSG::ERROR << "writeRecord failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( ntupleSvc()->writeRecord(m_pnt) );
   return StatusCode::SUCCESS;
     
 }
@@ -403,15 +336,7 @@ StatusCode LArTTL1Calib::finalize()
 // +                                                                      +
 // +======================================================================+
 //
-// ......... declaration
-//
-  MsgStream  msglog(messageService(),name());
-
-//
-  msglog << MSG::DEBUG << " LArTTL1Calib finalize completed successfully" 
-	 << endreq;
-
-//
+  ATH_MSG_DEBUG ( " LArTTL1Calib finalize completed successfully" );
   return StatusCode::SUCCESS;
 
 }

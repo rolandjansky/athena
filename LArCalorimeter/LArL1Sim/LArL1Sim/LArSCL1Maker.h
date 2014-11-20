@@ -15,7 +15,7 @@
 // ....... include
 //
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -24,7 +24,6 @@
 #include "LArElecCalib/ILArADC2MeVTool.h"
 
 
-class StoreGateSvc;
 class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITriggerTime;
@@ -39,6 +38,8 @@ class ILArShape;
 class ILArfSampl;
 class ILArPedestal;
 class ILArNoise;
+
+class CaloSuperCellDetDescrManager;
 
 namespace CLHEP
 {
@@ -57,7 +58,7 @@ namespace CLHEP
    @author Denis O. Damazio (BNL)
  */
 
-class LArSCL1Maker : public Algorithm,
+class LArSCL1Maker : public AthAlgorithm,
                      public IIncidentListener 
 {
 //
@@ -97,13 +98,7 @@ class LArSCL1Maker : public Algorithm,
   std::vector<float> computeNoise(const Identifier towerId, const int Ieta,
 				  std::vector<float>& inputV) ;
 
-  /** method called at the begining of execute() to fill the hit map */
-  StatusCode fillEMap(int& totHit) ;
 
-  /** method called at initialization to read auxiliary data from ascii files */
-  StatusCode readAuxiliary();
-
-  int decodeInverse(int region, int eta);
 
   /** Method to update all conditions */
   StatusCode updateConditions();
@@ -121,8 +116,7 @@ class LArSCL1Maker : public Algorithm,
 // >>>>>>>> private data parts
 //
 
-  StoreGateSvc*                m_detectorStore;
-  ServiceHandle<StoreGateSvc>                m_storeGateSvc; 
+
   IChronoStatSvc*              m_chronSvc;
   PileUpMergeSvc*              m_mergeSvc;
   ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
@@ -131,22 +125,20 @@ class LArSCL1Maker : public Algorithm,
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
-  /** Alorithm property: name of the TriggerTimeTool*/
-  StringProperty m_triggerTimeToolName;
   /** pointer to the TriggerTimeTool */
-  ITriggerTime* p_triggerTimeTool;
+  ToolHandle<ITriggerTime> p_triggerTimeTool;
  
   int m_BeginRunPriority;
 
-  LArSuperCellCablingTool*      m_cablingSCSvc;
-  //CaloTriggerTowerService*      m_ttSvc;
-  ICaloSuperCellIDTool*           m_scidtool;
+  ToolHandle<LArSuperCellCablingTool>      m_cablingSCSvc;
+  ToolHandle<ICaloSuperCellIDTool>           m_scidtool;
   /** pointer to the offline TT helper */
-  //const CaloLVL1_ID*           m_lvl1Helper;
   const CaloCell_SuperCell_ID*     m_scHelper;
   /** pointer to the online LAr helper */
   const LArOnline_SuperCellID*   m_OnlSCHelper;
   
+
+   ServiceHandle<IIncidentSvc> m_incSvc;
 
   /** number of sampling (in depth) */
   static const short s_NBDEPTHS = 4 ;          
@@ -194,8 +186,6 @@ class LArSCL1Maker : public Algorithm,
   bool m_noEmCalibMode;            
 /** algorithm property: no calibration mode for had towers */
   bool m_noHadCalibMode;            
-/** algorithm property: debug threshold */
-  float m_debugThresh;              
 /** algorithm property: switch chrono on */
   bool m_chronoTest;               
 
@@ -226,6 +216,10 @@ class LArSCL1Maker : public Algorithm,
   unsigned int m_firstSample;
   /** m_first */
   bool m_first;
+
+   std::string m_saveHitsContainer;
+
+   const CaloSuperCellDetDescrManager* m_sem_mgr;
 
 };
 
