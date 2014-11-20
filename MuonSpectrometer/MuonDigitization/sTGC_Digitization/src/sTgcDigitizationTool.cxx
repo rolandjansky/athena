@@ -264,12 +264,12 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
   //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   
   //Perform null check on m_thpcsTGC. If pointer is not null throw error
-  if(!m_thpcsTGC) { 
-        m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
-  }else{
- 	ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
-	return StatusCode::FAILURE;	
-  }
+  //  if(!m_thpcsTGC) { 
+  //      m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+  //}else{
+  //	ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
+  //	return StatusCode::FAILURE;	
+  //}
 
   return StatusCode::SUCCESS;
 }
@@ -277,8 +277,11 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing, 
 						  PileUpEventInfo::SubEvent::const_iterator bSubEvents,
 						  PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-
+  
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
+  if(!m_thpcsTGC) {
+    m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+  }
 
   PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
   //loop on event and sub-events for the current bunch Xing
@@ -307,8 +310,7 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
 	   
     // Read hits from this collection
     for (; i!=e; ++i){
-      GenericMuonSimHit stgchit(*i);
-      sTGCHitColl->Insert(stgchit);
+      sTGCHitColl->Emplace(*i);
     }
     m_thpcsTGC->insert(thisEventIndex, sTGCHitColl);
     //store these for deletion at the end of mergeEvent
@@ -353,7 +355,7 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   }
 	 
   // create a new hits collection
-  m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>() ;
+  //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>() ;
   
   //Perform null check on m_thpcsTGC. If pointer is not null throw error
   if(!m_thpcsTGC) { 
@@ -396,10 +398,9 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
   }
 
   // reset the pointer (delete null pointer should be safe)
-  if (m_thpcsTGC){
-  	delete m_thpcsTGC; 
- 	 m_thpcsTGC = 0;
-  }
+  delete m_thpcsTGC; 
+  m_thpcsTGC = 0;
+
 	
   std::list<GenericMuonSimHitCollection*>::iterator STGCHitColl = m_STGCHitCollList.begin();
   std::list<GenericMuonSimHitCollection*>::iterator STGCHitCollEnd = m_STGCHitCollList.end();
@@ -446,7 +447,7 @@ StatusCode sTgcDigitizationTool::digitize() {
 StatusCode sTgcDigitizationTool::processAllSubEvents() {
   // 
   StatusCode status = StatusCode::SUCCESS;
-  m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
+  //m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
   
   status = recordDigitAndSdoContainers();
@@ -469,10 +470,9 @@ StatusCode sTgcDigitizationTool::processAllSubEvents() {
   }   
   
   // reset the pointer (delete null pointer should be safe)
-  if (m_thpcsTGC){
-  	delete m_thpcsTGC; 
- 	 m_thpcsTGC = 0;
-  }
+  delete m_thpcsTGC; 
+  m_thpcsTGC = 0;
+
 
   return status;
 }
@@ -513,15 +513,13 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   IdContext tgcContext = m_idHelper->module_context();
 
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
-  while(m_thpcsTGC->nextDetectorElement(i, e)) {
-    
+  while(m_thpcsTGC->nextDetectorElement(i, e)) {    
     std::map< Identifier, std::pair< std::pair<double, Amg::Vector3D>, const GenericMuonSimHit*> > merged_SimHit;
     // merge hits
 
   
     int nhits = 0;
-    while(i != e){
- 
+    while(i != e){ 
       TimedHitPtr<GenericMuonSimHit> phit = *i++;
       const GenericMuonSimHit& hit = *phit;     
       //m_SimHitOrg->Fill(hit.globalPosition().x(), hit.globalPosition().y());
