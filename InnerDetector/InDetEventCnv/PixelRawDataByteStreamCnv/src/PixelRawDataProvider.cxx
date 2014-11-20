@@ -19,7 +19,8 @@ PixelRawDataProvider::PixelRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_pixelCabling    ("PixelCablingSvc",name),
   m_robDataProvider ("ROBDataProviderSvc",name),
-  m_rawDataTool     ("PixelRawDataProviderTool")
+  m_rawDataTool     ("PixelRawDataProviderTool"),
+  m_pixel_id        (NULL)
 {
   declareProperty ("RDOKey"      , m_RDO_Key = "PixelRDOs");
   declareProperty ("ROBDataProvider", m_robDataProvider);

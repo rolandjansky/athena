@@ -18,13 +18,20 @@
 
 //using namespace std;
 
-#define PIXEL_DEBUG ;
+//#define PIXEL_DEBUG ;
 //#define PLOTS ;
 
 ////////////////////////
 // constructor
 ////////////////////////
-PixelRodEncoder::PixelRodEncoder(): m_pixelCabling("dummy","dummy") // the cabling tool is set in PixelRawContByteStreamTool
+PixelRodEncoder::PixelRodEncoder() : 
+    m_PixelID(NULL),
+    m_pixelCabling("dummy","dummy"), // the cabling tool is set in PixelRawContByteStreamTool
+    m_PixelDetectorManager(NULL),
+    m_RodBlockVersion(0),
+    m_is_ibl_present(0),
+    m_is_ibl_module(0),
+    m_is_dbm_module(0)
 {
 }
 
@@ -41,14 +48,14 @@ PixelRodEncoder::~PixelRodEncoder()
 ////////////////////////
 void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int BCs_per_LVL1ID) 
 {
-  log << MSG::VERBOSE << " #####################################################################################" << endreq;
 #ifdef PIXEL_DEBUG
+  log << MSG::VERBOSE << " #####################################################################################" << endreq;
   log << MSG::DEBUG << "Entering PixelRodEncoder" << endreq;
 #endif
-	
+
   // Loop over the Hits in a ROD
-  VRDO::iterator  rdo_it = m_RDOs.begin(); 
-  VRDO::iterator  rdo_it_end = m_RDOs.end();
+  VRDO::iterator rdo_it     = m_RDOs.begin(); 
+  VRDO::iterator rdo_it_end = m_RDOs.end();
 
   m_is_ibl_present = false;
 
@@ -63,8 +70,47 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
   m_is_dbm_module = false;
 #ifdef PIXEL_DEBUG
   log << MSG::VERBOSE << "in fillROD with " << BCs_per_LVL1ID << " LVL1As" << endreq;
+  log << MSG::VERBOSE << "Dimension of the RDO vector: " << m_RDOs.size() << endreq;
 #endif
 
+  // ordering of the elements of the RDOs vector by offlineId, n5
+  if (rdo_it != rdo_it_end) {
+    OrderInitialRdos orderInitialRdos(m_pixelCabling, m_PixelID); 
+    std::sort (rdo_it, rdo_it_end, orderInitialRdos); 
+/*
+#ifdef PIXEL_DEBUG
+    rdo_it = m_RDOs.begin(); 
+    int i(0);
+    uint32_t fe;
+    Identifier offlineId_last;
+    for (;rdo_it != rdo_it_end; ++rdo_it) {
+      if (rdo_it == m_RDOs.begin()) {
+	offlineId_last = m_PixelID->wafer_id((*rdo_it)->identify());
+      }
+      if (m_PixelID->wafer_id((*rdo_it)->identify()) != offlineId_last) {
+	log << MSG::VERBOSE << endreq;
+      }
+      ++i;
+      if ( (m_pixelCabling->isIBL((*rdo_it)->identify())) || 
+	   (m_pixelCabling->isDBM((*rdo_it)->identify())) ) { // IBL and DBM
+	fe = m_pixelCabling->getFEwrtSlink(&((*rdo_it)->identify()));
+	log << MSG::VERBOSE << "IBL/DBM \t";
+      }
+	else {
+	  fe = m_pixelCabling->getFE(&((*rdo_it)->identify()), m_PixelID->wafer_id((*rdo_it)->identify()) );
+	  log << MSG::VERBOSE << "Pixels  \t";
+	}
+      log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endreq;
+      offlineId_last = m_PixelID->wafer_id((*rdo_it)->identify());
+      //log << MSG::VERBOSE << "offlineId: " << std::hex << m_PixelID->wafer_id((*rdo_it)->identify()) << "\t FE n.: " << fe << endreq;
+    }
+#endif
+*/
+  }  
+  // end of ordering of the elements of the RDOs vector by offlineId, n5 
+  // NOW the RDOs should be ordered following (1) the offlineId, (2) the FE number
+
+  rdo_it = m_RDOs.begin(); 
   if (rdo_it!=rdo_it_end) {
 
     const RDO * rawdata;
@@ -306,9 +352,14 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
     	  Identifier offlineId_probe = m_PixelID->wafer_id(pixelId_probe);
 	  uint32_t fe_probe = m_pixelCabling->getFEwrtSlink(&pixelId_probe);
 
+#ifdef PIXEL_DEBUG
 	  log << MSG::VERBOSE << "offlineId: " << offlineId << "    offlineId_probe: " << offlineId_probe << ",    fe: " << FE << "     fe_probe: " << fe_probe << endreq;
-	  if ((offlineId_probe == offlineId) && (FE == fe_probe)) { 
-	    log << MSG::VERBOSE << "=======> IN " << endreq;
+#endif
+
+      if ((offlineId_probe == offlineId) && (FE == fe_probe)) {
+#ifdef PIXEL_DEBUG
+        log << MSG::VERBOSE << "=======> IN " << endreq;
+#endif
 	    rdos_sameIBL_offlineId.push_back((*rdo_it));
 	  }
 	  else {
@@ -436,7 +487,9 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	      if ((col1 == col0) && (row1 == (row0 + 1))) {
 		doubleHit = true;
+#ifdef PIXEL_DEBUG
 		log << MSG::VERBOSE << "Two adjacent hits found" << endreq;
+#endif
 		int tot0 = (*rdo_same_it)->getToT();
 		int tot1 = (*rdo_test_it)->getToT();
 		totInHitWord = (tot0 << 4) | tot1;
@@ -455,7 +508,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  } // end if "row0 == rowsPerFE" (== 336)
 
 	  if (!doubleHit) {
-	    totInHitWord = (((*rdo_same_it)->getToT()) << 4) | 0xF;
+        totInHitWord = (((*rdo_same_it)->getToT()) << 4) | 0x0;
 #ifdef PIXEL_DEBUG
 	    log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> col0: 0x" << std::hex << col0 << std::dec << ";   row0: 0x" << std::hex << row0 << std::dec << "   totInHitWord: 0x" << std::hex << totInHitWord << std::dec << endreq;
 #endif
@@ -711,4 +764,30 @@ bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData*
   else {return false;}
 }
 
+
+ bool OrderInitialRdos::operator() (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1)
+{
+  Identifier pixelId0 = rdo0->identify();
+  Identifier offlineId0 = m_PixelID->wafer_id(pixelId0);
+  Identifier pixelId1 = rdo1->identify();
+  Identifier offlineId1 = m_PixelID->wafer_id(pixelId1);
+  if (offlineId0 < offlineId1) {
+    return true;
+  }
+  if (offlineId0 == offlineId1) {
+    if ( (m_pixelCabling->isIBL(pixelId0)) || (m_pixelCabling->isDBM(pixelId0)) ) { // IBL and DBM
+      uint32_t fe0 = m_pixelCabling->getFEwrtSlink(&pixelId0);
+      uint32_t fe1 = m_pixelCabling->getFEwrtSlink(&pixelId1);
+      return (fe0 < fe1);
+    }
+    else { // PixelCase
+      uint32_t fe0 = m_pixelCabling->getFE(&pixelId0, offlineId0);
+      uint32_t fe1 = m_pixelCabling->getFE(&pixelId1, offlineId1);
+      return (fe0 < fe1);
+
+      //      return false;
+    }
+  }
+  else {return false; }
+}
 

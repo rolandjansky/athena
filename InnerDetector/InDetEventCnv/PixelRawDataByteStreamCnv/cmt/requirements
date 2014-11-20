@@ -17,5 +17,9 @@ use InDetIdentifier  	 InDetIdentifier-* 		InnerDetector/InDetDetDescr
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* 	Event 
 use AthenaBaseComps	AthenaBaseComps-*		Control
 use StoreGate		StoreGate-*			Control  
+
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
 library PixelRawDataByteStreamCnv *.cxx components/*.cxx
 apply_pattern component_library

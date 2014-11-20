@@ -110,9 +110,9 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
   // loop over the ROB fragments
   for(; rob_it!=vecRobs.end(); ++rob_it) {
 
-    uint32_t robid = (*rob_it)->rod_source_id();
+    uint32_t robid = (*rob_it)->rob_source_id();
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "Found ROD " 
+    msg(MSG::DEBUG) << "Found ROB " 
 	  << std::hex << robid << std::dec << endreq;
 #endif
 

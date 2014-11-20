@@ -110,15 +110,39 @@ class OrderRdos {
   ServiceHandle<IPixelCablingSvc> m_pixelCabling;
   Identifier m_offlineId;
 
-
  public :
   
  OrderRdos(Identifier offlineId, ServiceHandle<IPixelCablingSvc> pixelCabling): 
   m_pixelCabling("dummy","dummy") ,  m_offlineId(offlineId) 
   { m_pixelCabling = pixelCabling; };
   
- OrderRdos(const OrderRdos & orderFunct): 
+ OrderRdos(const OrderRdos & orderFunct): // copy constructor
   m_pixelCabling("dummy","dummy") , m_offlineId(orderFunct.m_offlineId) 
+    {  m_pixelCabling = orderFunct.m_pixelCabling; }; 
+  
+  bool operator () (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1);
+  
+};
+
+class OrderInitialRdos {
+
+ private :
+  
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling;
+  //  Identifier m_offlineId;
+  const PixelID * m_PixelID;
+
+ public :
+  
+  // OrderInitialRdos(Identifier offlineId, ServiceHandle<IPixelCablingSvc> pixelCabling, const PixelID * pixelID): 
+  //  m_pixelCabling("dummy","dummy") ,  m_offlineId(offlineId) , m_PixelID(pixelID)
+ OrderInitialRdos(ServiceHandle<IPixelCablingSvc> pixelCabling, const PixelID * pixelID): 
+  m_pixelCabling("dummy","dummy") , m_PixelID(pixelID)
+  { m_pixelCabling = pixelCabling; };
+  
+ OrderInitialRdos(const OrderInitialRdos & orderFunct): // copy constructor
+  //  m_pixelCabling("dummy","dummy") , m_offlineId(orderFunct.m_offlineId) , m_PixelID()
+  m_pixelCabling("dummy","dummy") , m_PixelID(orderFunct.m_PixelID)
     {  m_pixelCabling = orderFunct.m_pixelCabling; }; 
   
   bool operator () (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1);

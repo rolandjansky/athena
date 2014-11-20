@@ -21,7 +21,7 @@
 
 
 
-#define PIXEL_DEBUG ;
+//#define PIXEL_DEBUG ;
 //#define PLOTS ; // this flag is used only for debuggin purposes, to create plots for internal validation
 //--------------------------------------------------------------------------- constructor
 PixelRodDecoder::PixelRodDecoder
@@ -124,9 +124,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     
   m_is_ibl_module = false;
   m_is_dbm_module = false;
-  //  uint32_t rodId = robFrag->rod_source_id(); // get source ID => method of ROBFragment, Returns the source identifier of the ROD fragment
 
+  uint32_t rodId = robFrag->rod_source_id(); // get source ID => method of ROBFragment, Returns the source identifier of the ROD fragment
   uint32_t robId = robFrag->rob_source_id(); // get source ID => returns the Identifier of the ROB fragment. More correct to use w.r.t. rodId.
+  if (m_pixelCabling->isIBL(robId) && (robId != rodId)) {
+      ATH_MSG_WARNING("Discrepancy in IBL SourceId: ROBID 0x" << std::hex << robId << " unequal to RODID 0x" << rodId);
+  }
+
 
 #ifdef PIXEL_DEBUG
   msg(MSG::DEBUG) << "robId: 0x" << std::hex << robId << std::dec << endreq;
@@ -237,7 +241,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
       
       if (link_start) {    // if header found before last header was closed by a trailer -> error
-	msg(MSG::WARNING) << "unexpected link header found - data corruption - ROBID: 0x" << std::hex << robId << std::dec << endreq; // << " link: " << mLink << endreq;
+	msg(MSG::WARNING) << "unexpected link header found: 0x" << std::hex << rawDataWord << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec << endreq; // << " link: " << mLink << endreq;
 	m_errors->addDecodingError(); 
 	// do NOT add a "continue;" here, because it is more probable that this header is then related to the next hit/trailer words, so it is worth decoding it
       }
@@ -427,14 +431,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 	    hitwords[4] = (condensedWords[3] >> skip5) & mask24;
 #ifdef PIXEL_DEBUG
 	    msg(MSG::VERBOSE) << "4 consecutive IBL hit words found. Condensed hits are being decoded" << endreq;	    
-#endif
 	    // NOW all the hitwords have the shape (8T)(7C)(9R)
 	    msg(MSG::VERBOSE) << "The 5 IBL hits (with shape (8ToT)(7Col)(9Row)) contain the following info: row, col and ToT (ToT is still 8 bits):" << endreq;
+#endif
 	    for (unsigned int i(0); i < nHits; ++i) {
 	      row[i] = divideHits (hitwords[i], 0, 8); 
 	      col[i] = divideHits (hitwords[i], 9, 15); 
 	      tot[i] = divideHits (hitwords[i], 16, 23);
-	      msg(MSG::VERBOSE) << "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec << endreq; 
+          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec << endreq;
 	    }
 	    countHitCondensedWords = 0;
 	    //	    linkNum_IBLword = linkNum_IBLheader;
@@ -459,7 +463,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 	    //	    fe_IBLword = extractFefromLinkNum(linkNum_IBLword); 
 	    //	    sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
 	    //	    	    if ((fe_IBLword != fe_IBLheader) || (sLinkWord != sLinkHeader)) {
-	    //	      msg(MSG::WARNING) << "The IBL header and non-condensed words do not contain the same link number information (bits 24-28)" << endreq;
+        //	      msg(MSG::WARNING) << "The IBL header and non-condensed words do not contain the same link number information (bits 24-28)" << endreq;
 	    //	    }
 	  
 #ifdef PIXEL_DEBUG
@@ -624,9 +628,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #ifdef PIXEL_DEBUG
 	    msg(MSG::VERBOSE) << "ROW[" << i << "] = 0x"  << std::hex << row[i] << std::dec << ",  COL[" << i << "] = 0x" << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec << endreq;
 #endif
-	    if ((tot[i] & 0xF0) == 0xF0) {  // This must not happen. If the first 4-bits of tot[i] == 1111, there was no hit, so the word shouldn't have been sent. 
+        if ((tot[i] & 0xF0) == 0x00) {  // This must not happen. If the first 4-bits of tot[i] == 1111, there was no hit, so the word shouldn't have been sent.
 	      // Same happens if IBLtot[1] != 1111 (hit) and IBLtot[0]==1111 (no hit), but this second condition is included in the first.
-	      msg(MSG::WARNING) << "Illegal TOT code for TOT(0): 0x" << std::hex << (tot[i] >> 4) << std::dec << endreq;
+	      msg(MSG::WARNING) << "Illegal IBL TOT code: ToT1 = 0x" << std::hex << (tot[i] >> 4) << " - ROB = 0x" << robId
+          << ", hit word 0x" << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i] 
+          << "ToT1 = 0x" << std::hex << IBLtot[0] << "ToT2 = 0x" << IBLtot[1] << endreq;
+
 	      continue;
 	    }
 	    else {
@@ -665,10 +672,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #ifdef PIXEL_DEBUG
 		msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endreq;
 #endif
-		if (IBLtot[1] != 0xF) {  // both the TOT_1 and the TOT_2 contain Time Over Threshold info. 
+        if ((IBLtot[1] != 0x0) && (IBLtot[1] != 0xF)) {  // Consider both 0x0 and 0xF to indicate no hit
 		  if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
-		    // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 1111 (== no hit)
-		    msg(MSG::WARNING) << "Illegal IBL row number (> 336) associated to a non-zero TOT" << endreq;
+            // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
+            msg(MSG::WARNING) << "Illegal IBL row number for second ToT field: ROB = 0x" << std::hex << robId  
+            << ", hit word 0x"<< rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i] 
+            << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")" << endreq;
 		    m_errors->addInvalidIdentifier();
 		    continue;
 		  }
@@ -762,7 +771,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 #endif
       }
       else {   // no header found before trailer -> error
-	msg(MSG::WARNING) << "unexpected trailer found - data corruption - ROBID: 0x" << std::hex << robId << std::dec << " link: " << mLink << endreq;
+	msg(MSG::WARNING) << "unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption - ROBID: 0x" << std::hex << robId << std::dec << " link: " << mLink << endreq;
 	m_errors->addDecodingError();
 	continue;
       }
@@ -1463,136 +1472,136 @@ void PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned int
   switch (serviceCode) {
 
   case 0: // BCID counter error, from EOCHL
-    msg(MSG::DEBUG) << "BCID counter error (retrieved in IBL FE Flag word). Adding BCID errors" << endreq;
+    ATH_MSG_DEBUG("BCID counter error (retrieved in IBL FE Flag word). Adding BCID errors");
     for (unsigned int i(0); i < serviceCodeCounter; ++i)
       m_errors->addBCIDError();
     break;
 
   case 1: // Hamming code error in word 0, from EOCHL
-    msg(MSG::DEBUG) << "Hamming code error in word 0 (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Hamming code error in word 0 (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 2: // Hamming code error in word 1, from EOCHL
-    msg(MSG::DEBUG) << "Hamming code error in word 1 (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Hamming code error in word 1 (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 3: // Hamming code error in word 2, from EOCHL
-    msg(MSG::DEBUG) << "Hamming code error in word 2 (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Hamming code error in word 2 (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 4: // L1_in counter error, from EOCHL
-    msg(MSG::DEBUG) << "L1_in counter error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("L1_in counter error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 5: // L1 request counter error from EOCHL
-    msg(MSG::DEBUG) << "L1 request counter error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("L1 request counter error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 6: // L1 register error from EOCHL
-    msg(MSG::DEBUG) << "L1 register error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("L1 register error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 7: // L1 Trigger ID error from EOCHL
-    msg(MSG::DEBUG) << "L1 Trigger ID error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("L1 Trigger ID error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 8: // readout processor error from EOCHL
-    msg(MSG::DEBUG) << "Readout processor error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Readout processor error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 9: // Fifo_Full flag pulsed from EOCHL
-    msg(MSG::DEBUG) << "Fifo_Full flag pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Fifo_Full flag pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 10: // HitOr bus pulsed from PixelArray
-    msg(MSG::DEBUG) << "HitOr bus pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("HitOr bus pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   // case 11 to 13 not used
 
   case 14: // 3 MSBs of bunch counter and 7 MSBs of L1A counter from EOCHL
-    msg(MSG::DEBUG) << "3 MSBs of bunch counter (retrieved in IBL FE Flag word): " << ((serviceCode >> 7) & 0x7) << endreq;
-    msg(MSG::DEBUG) << "7 MSBs of L1A counter (retrieved in IBL FE Flag word): " << (serviceCode & 0x7F) << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3 MSBs of bunch counter (retrieved in IBL FE Flag word): " << ((serviceCode >> 7) & 0x7) << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "7 MSBs of L1A counter (retrieved in IBL FE Flag word): " << (serviceCode & 0x7F) << endreq;
     break;
 
   case 15: // Skipped trigger counter
-    msg(MSG::DEBUG) << "Skipped trigger counter (retrieved in IBL FE Flag word). There are " << serviceCodeCounter << " skipped triggers. Adding to Flagged errors" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Skipped trigger counter (retrieved in IBL FE Flag word). There are " << serviceCodeCounter << " skipped triggers. Adding to Flagged errors" << endreq;
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 16: // Truncated event flag and counter from EOCHL
-    msg(MSG::DEBUG) << "Truncated event flag and counter (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Truncated event flag and counter (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   // case 17 to 20 not used
 
   case 21: // Reset bar RA2b pulsedd from Pad, PRD
-    msg(MSG::DEBUG) << "Reset bar RA2b pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Reset bar RA2b pulsed (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 22: // PLL generated clock phase faster than reference from CLKGEN
-    msg(MSG::DEBUG) << "PLL generated clock phase faster than reference (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("PLL generated clock phase faster than reference (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 23: // Reference clock phase faster than PLL, from CLKGEN
-    msg(MSG::DEBUG) << "Reference clock phase faster than PLL (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Reference clock phase faster than PLL (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 24: // Triple redundant mismatchfrom CNFGMEM
-    msg(MSG::DEBUG) << "Triple redundant mismatch (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 25: // Write register data error from CMD
-    msg(MSG::DEBUG) << "Write register data error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Write register data error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 26: // Address error from CMD
-    msg(MSG::DEBUG) << "Address error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Address error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 27: // Other command decoder error- see CMD section from CMD
-    msg(MSG::DEBUG) << "Other command decoder error- see CMD section (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Other command decoder error- see CMD section (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 28: // Bit flip detected in command decoder input stream from CMD
-    msg(MSG::DEBUG) << "Bit flip detected in command decoder input stream (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Bit flip detected in command decoder input stream (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 29: // SEU upset detected in command decoder (triple redundant mismatch) from CMD
-    msg(MSG::DEBUG) << "SEU upset detected in command decoder (triple redundant mismatch) (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("SEU upset detected in command decoder (triple redundant mismatch) (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 30: // Data bus address error from CMD
-    msg(MSG::DEBUG) << "Data bus address error (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Data bus address error (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   case 31: // Triple redundant mismatch from CMD
-    msg(MSG::DEBUG) << "Triple redundant mismatch (retrieved in IBL FE Flag word). Adding to Flagged errors" << endreq;
+    ATH_MSG_DEBUG("Triple redundant mismatch (retrieved in IBL FE Flag word). Adding to Flagged errors");
     addToFlaggedErrorCounter(serviceCodeCounter);
     break;
 
   default:
-    msg(MSG::DEBUG) << "ServiceCode not used at the moment" << endreq;
+    ATH_MSG_DEBUG("ServiceCode not used at the moment");
   }
 }
