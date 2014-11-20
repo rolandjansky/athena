@@ -21,7 +21,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PixelID.h"
 
 class MsgStream;
 

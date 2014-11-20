@@ -27,31 +27,31 @@
 void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* transCont, TRT_HitCollection_p3* persCont, MsgStream &log)
 {
 
-/*
-  Spring 2009
-  Andrew Beddall - lossy TRT G4hit compression [p3]
+  /*
+    Spring 2009
+    Andrew Beddall - lossy TRT G4hit compression [p3]
 
     In p1, p2 versions, GEANT hits are persistified on disk as floats.
     In this p3 version, floats are compressed to "integers"/"short-floats" before persistifying.
     The saving is about 75%; see http://cern.ch/beddall/TRThitCompression/
 
-  Spring 2008
-  Rob Duxfield - lossless TRT G4hit compression [p2]
+    Spring 2008
+    Rob Duxfield - lossless TRT G4hit compression [p2]
 
     Finds hits belonging to a "string" (in which the end point of one hit is
     the same as the start point of the next) and persistifies the end point
     of each hit plus the start point of the first hit in each string.
-*/
+  */
 
-//  The original units from the hit simulation are indicated in comments;
-//  they are all in CLHEP units except for hitEne which is in keV.
-//  I sometimes make use of CLHEP scales *CLHEP::mm and *CLHEP::ns (both=1) for clarity (I hope!).
-//  See also https://twiki.cern.ch/twiki/bin/view/Atlas/TrtSoftware#Production_of_Hits
+  //  The original units from the hit simulation are indicated in comments;
+  //  they are all in CLHEP units except for hitEne which is in keV.
+  //  I sometimes make use of CLHEP scales *CLHEP::mm and *CLHEP::ns (both=1) for clarity (I hope!).
+  //  See also https://twiki.cern.ch/twiki/bin/view/Atlas/TrtSoftware#Production_of_Hits
 
   static const double dRcut = 1.0e-7*CLHEP::mm;
   static const double dTcut = 1.0*CLHEP::ns; // redundant?
 
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::transToPers()" << endreq;
 
   int lastBarcode = -1;
   int lastId = -1;
@@ -64,26 +64,26 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
 
   for (TRTUncompressedHitCollection::const_iterator it = transCont->begin(); it != transCont->end(); ++it) {
 
- //   const TRTUncompressedHit* trtHit = *it;
+    //   const TRTUncompressedHit* trtHit = *it;
     TRTUncompressedHitCollection::const_iterator trtHit = it;
 
-    if ( trtHit->m_partLink.barcode() != lastBarcode  ||  idx - endBC > 65500) {   // max unsigned short =  65535; 
+    if ( trtHit->m_partLink.barcode() != lastBarcode  ||  idx - endBC > 65500) {   // max unsigned short =  65535;
       // store barcode once for set of consecutive hits with same barcode
       lastBarcode = trtHit->m_partLink.barcode();
       persCont->m_barcode.push_back(lastBarcode);
       if ( idx > 0 ) {
-	persCont->m_nBC.push_back(idx - endBC);
-	endBC = idx;
+        persCont->m_nBC.push_back(idx - endBC);
+        endBC = idx;
       }
     }
 
-    if ( (int)trtHit->particleEncoding != lastId || idx - endId >  65500) { // max unsigned short =  65535; 
+    if ( (int)trtHit->particleEncoding != lastId || idx - endId >  65500) { // max unsigned short =  65535;
       // store id once for set of consecutive hits with same id
       lastId = trtHit->particleEncoding;
       persCont->m_id.push_back(lastId);
       if ( idx > 0 ) {
-	persCont->m_nId.push_back(idx - endId);
-	endId = idx;
+        persCont->m_nId.push_back(idx - endId);
+        endId = idx;
       }
     }
 
@@ -92,7 +92,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     const double meanTime = trtHit->globalTime; // ns  // Time of flight from the I.P. to the center of the hit.
     const double dTLast = fabs(meanTime - lastT);      // |d(meantime)| between the previous hit and the current one.
     const double dRLast = lastEnd.distance(hitStart);  // Distance between end of previous hit and start of current one;
-                                    // this is zero if the hit is a continuation of the same particle in the same straw.
+    // this is zero if the hit is a continuation of the same particle in the same straw.
 
     // Begin a new string if the current and previous hits are disconnected;
     // it looks like dTcut is redundant (but not sure about this).
@@ -159,7 +159,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
         persCont->m_nHits.push_back( idx - endHit );
         endHit = idx;
       }
-/*
+      /*
       // Validation output
       std::cout.precision(15);
       std::cout << "AJBTtoPstrawId "    << strawId      << std::endl;
@@ -168,7 +168,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
       std::cout << "AJBTtoPstartX "     << hitStart.x() << std::endl;
       std::cout << "AJBTtoPstartY "     << hitStart.y() << std::endl;
       std::cout << "AJBTtoPstartZ "     << hitStart.z() << std::endl;
-*/
+      */
     } // end of "begin new hit string"
 
     //////////////////////////
@@ -251,14 +251,14 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     // (relatively very few of these). Digitisation does not use hitEne for charged particles.
     //
     if ( lastId == 22 ||
-	 (int)(abs(lastId)/100000) == 41 ||  
-	 (int)(abs(lastId)/10000000) == 1
-	 ) persCont->m_hitEne.push_back( (float)(trtHit->energyDeposit) );  // keV
-    
+         (int)(abs(lastId)/100000) == 41 ||
+         (int)(abs(lastId)/10000000) == 1
+         ) persCont->m_hitEne.push_back( (float)(trtHit->energyDeposit) );  // keV
+
     lastEnd = hitEnd;
     lastT = meanTime;
     ++idx;
-/*
+    /*
     // Validation output
     std::cout.precision(15);
     std::cout << "AJBTtoPendR "     << endR                  << std::endl;
@@ -270,7 +270,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
     std::cout << "AJBTtoPkinEne "   << trtHit->kineticEnergy << std::endl;
     std::cout << "AJBTtoPhitEne "   << trtHit->energyDeposit << std::endl;
     std::cout << "AJBTtoPsteplength " << hitLength.distance() << std::endl;
-*/
+    */
   }
 
   persCont->m_nBC.push_back(idx - endBC);
@@ -292,7 +292,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p3::createTransient(const TRT
 void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
 
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p3::persToTrans()" << endreq;
 
   // some values are read less than once per hit, these need counters.
   unsigned int meanTimeofCount=0, startRCount=0, endRCount=0, hitEneCount=0;
@@ -351,7 +351,7 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
       //
       double startX = startR*cos(startPhi);
       double startY = startR*sin(startPhi);
-/*
+      /*
       // Validation output
       std::cout.precision(15);
       std::cout << "AJBPtoTstrawId "    << strawId              << std::endl;
@@ -361,15 +361,15 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
       std::cout << "AJBPtoTstartY "     << startY               << std::endl;
       std::cout << "AJBPtoTstartZ "     << startZ               << std::endl;
       std::cout << "AJBPtoTnHits "      << persCont->m_nHits[i] << std::endl;
-*/
+      */
       //
       // loop over end hits in the string - index [j]
       //
 
       for ( unsigned int j = startHit; j < endHit; j++ ) {
 
-	if ( j >= endBC + persCont->m_nBC[idxBC] ) endBC += persCont->m_nBC[idxBC++];
-	if ( j >= endId + persCont->m_nId[idxId] ) endId += persCont->m_nId[idxId++];
+        if ( j >= endBC + persCont->m_nBC[idxBC] ) endBC += persCont->m_nBC[idxBC++];
+        if ( j >= endId + persCont->m_nId[idxId] ) endId += persCont->m_nId[idxId++];
 
         //
         // hit meanTime
@@ -391,11 +391,11 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
         //
         // hit energy deposited in keV (only relevant for photons) 32-bit float
         //
-	const double hitEne = ( persCont->m_id[idxId] == 22 ||
-				(int)(abs(persCont->m_id[idxId])/100000) == 41 ||  
-				(int)(abs(persCont->m_id[idxId])/10000000) == 1
-				) ? (double)persCont->m_hitEne[hitEneCount++] : 0.0;
-	
+        const double hitEne = ( persCont->m_id[idxId] == 22 ||
+                                (int)(abs(persCont->m_id[idxId])/100000) == 41 ||
+                                (int)(abs(persCont->m_id[idxId])/10000000) == 1
+                                ) ? (double)persCont->m_hitEne[hitEneCount++] : 0.0;
+
         //
         // hit endPhi (can be modified later during "steplength preservation")
         //
@@ -463,7 +463,7 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
         double endZ = startZ + dZ;
         //dX = endX-startX; // for validation information
         //dY = endY-startY; // for validation information
-/*
+        /*
         // Validation output
         std::cout.precision(15);
         std::cout << "AJBPtoTendR "     << endR     << std::endl;
@@ -475,20 +475,16 @@ void TRT_HitCollectionCnv_p3::persToTrans(const TRT_HitCollection_p3* persCont, 
         std::cout << "AJBPtoTkinEne "   << kinEne   << std::endl;
         std::cout << "AJBPtoThitEne "   << hitEne   << std::endl;
         std::cout << "AJBPtoTsteplength " << sqrt(dX*dX+dY*dY+dZ*dZ) << std::endl;
-*/
+        */
         //
         // Notes:
         // - All units are CLHEP, except hitEne which is in keV.
         // - For charged particles kinEne is *zero*!
         //
-//        TRTUncompressedHit* hit = new TRTUncompressedHit( strawId, persCont->m_barcode[idxBC], persCont->m_id[idxId],
-//							  kinEne, hitEne, startX, startY, startZ,
-//							  endX, endY, endZ, meanTime );
-//	transCont->push_back(hit);
 
-        transCont->push_back(TRTUncompressedHit( strawId, persCont->m_barcode[idxBC], persCont->m_id[idxId],
-							  kinEne, hitEne, startX, startY, startZ,
-							  endX, endY, endZ, meanTime ));
+        transCont->Emplace( strawId, persCont->m_barcode[idxBC], persCont->m_id[idxId],
+                            kinEne, hitEne, startX, startY, startZ,
+                            endX, endY, endZ, meanTime );
         //
         // End of this hit becomes the start of the next;
         // use the original (uncorrected) values for X,Y

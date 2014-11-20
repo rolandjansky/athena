@@ -17,7 +17,7 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventCnvTools/IEventCnvSuperTool.h"

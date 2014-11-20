@@ -22,12 +22,12 @@
 
 //  * * *  stolen from eflowRec  * * *  //
 inline double phicorr(double a)
-{ 
-  if (a <= -M_PI)   
-    {     
+{
+  if (a <= -M_PI)
+    {
       return a+(2*M_PI*floor(-(a-M_PI)/(2*M_PI)));
     }
-  else if (a > M_PI) 
+  else if (a > M_PI)
     {
       return a-(2*M_PI*floor((a+M_PI)/(2*M_PI)));
     }
@@ -41,7 +41,7 @@ inline double phicorr(double a)
 inline double cycle(double a, double b)
 {
   double del = b-a;
-  if (del > M_PI) 
+  if (del > M_PI)
     {
       return a+2.0*M_PI;
     }
@@ -65,7 +65,7 @@ const int SiHitCollectionCnv_p2::m_2bMaximum = (unsigned short)(-1);
 
 void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitCollection_p2* persCont, MsgStream &/*log*/)
 {
-  // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and 
+  // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and
   // persistifies the end point of each hit plus the start point of the first hit in each string.
   //
   // Further compression is achieved by optimising the storage of the position vectors:- start (x,y,z) and (theta,phi) of
@@ -95,12 +95,12 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
   HepGeom::Point3D<double> lastPersEnd(0.0, 0.0, 0.0);
 
   for (SiHitCollection::const_iterator it = transCont->begin(); it != transCont->end(); ++it) {
-    
- //   const SiHit* siHit = *it;
-    
+
+    //   const SiHit* siHit = *it;
+
     SiHitCollection::const_iterator siHit = it;
-    
-    
+
+
     if ( siHit->m_partLink.barcode() != lastBarcode ) {
 
       // store barcode once for set of consecutive hits with same barcode
@@ -109,8 +109,8 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       persCont->m_barcode.push_back(lastBarcode);
 
       if (idx > 0) {
-	persCont->m_nBC.push_back(idx - endBC);
-	endBC = idx;
+        persCont->m_nBC.push_back(idx - endBC);
+        endBC = idx;
       }
     }
 
@@ -122,8 +122,8 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       persCont->m_id.push_back(lastId);
 
       if (idx > 0) {
-	persCont->m_nId.push_back(idx - endId);
-	endId = idx;
+        persCont->m_nId.push_back(idx - endId);
+        endId = idx;
       }
     }
 
@@ -131,7 +131,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
     const double dy = siHit->m_stY - lastTransEnd.y();
     const double dz = siHit->m_stZ - lastTransEnd.z();
     const double t = siHit->m_meanTime;
-    
+
     const double dRLast = sqrt(dx * dx + dy * dy + dz * dz);  // dR between end of previous hit and start of current one
     const double dTLast = fabs(t - lastT);
 
@@ -139,28 +139,28 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
     double theta = 0.0;
     double phi = 0.0;
     bool startNewString = false;
-    
+
     if (dRLast < dRcut && dTLast < dTcut) {
 
       // hit is part of existing string
 
       direction = CLHEP::Hep3Vector( siHit->m_enX - lastPersEnd.x(), siHit->m_enY - lastPersEnd.y(), siHit->m_enZ - lastPersEnd.z() );
-      
+
       theta = direction.theta();
       phi = phicorr( direction.phi() );
 
       const int dTheta_2b = (int)( (theta - stringFirstTheta) / m_persAngUnit + m_2bHalfMaximum + 0.5 );
       const int dPhi_2b = (int)( (cycle(phi, stringFirstPhi) - stringFirstPhi) / m_persAngUnit + m_2bHalfMaximum + 0.5 );
-      
+
       if ( dTheta_2b < m_2bMaximum && dTheta_2b >= 0 && dPhi_2b < m_2bMaximum && dPhi_2b >= 0) {
-	persCont->m_dTheta.push_back(dTheta_2b);
-	persCont->m_dPhi.push_back(dPhi_2b);
-	theta = stringFirstTheta + ( (double)dTheta_2b - m_2bHalfMaximum ) * m_persAngUnit;
-	phi = stringFirstPhi + ( (double)dPhi_2b - m_2bHalfMaximum ) * m_persAngUnit;
-	phi = phicorr(phi);
+        persCont->m_dTheta.push_back(dTheta_2b);
+        persCont->m_dPhi.push_back(dPhi_2b);
+        theta = stringFirstTheta + ( (double)dTheta_2b - m_2bHalfMaximum ) * m_persAngUnit;
+        phi = stringFirstPhi + ( (double)dPhi_2b - m_2bHalfMaximum ) * m_persAngUnit;
+        phi = phicorr(phi);
       }
       else {
-	startNewString = true;
+        startNewString = true;
       }
     }
 
@@ -169,7 +169,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       // begin new hit string
 
       direction = CLHEP::Hep3Vector( siHit->m_enX - siHit->m_stX, siHit->m_enY - siHit->m_stY, siHit->m_enZ - siHit->m_stZ );
-      
+
       theta = direction.theta();
       phi = phicorr( direction.phi() );
 
@@ -184,10 +184,10 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
 
       stringFirstTheta = theta;
       stringFirstPhi = phi;
-      
+
       if (idx > 0) {
-	persCont->m_nHits.push_back(idx - endHit);
-	endHit = idx;
+        persCont->m_nHits.push_back(idx - endHit);
+        endHit = idx;
       }
     }
 
@@ -242,13 +242,13 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
 
 
 SiHitCollection* SiHitCollectionCnv_p2::createTransient(const SiHitCollection_p2* persObj, MsgStream &log) {
-   std::auto_ptr<SiHitCollection> trans(new SiHitCollection("DefaultCollectionName",persObj->m_nHits.size()));
-   persToTrans(persObj, trans.get(), log);
-   return(trans.release());
+  std::auto_ptr<SiHitCollection> trans(new SiHitCollection("DefaultCollectionName",persObj->m_nHits.size()));
+  persToTrans(persObj, trans.get(), log);
+  return(trans.release());
 }
 
 
-void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHitCollection* transCont, MsgStream &/*log*/) 
+void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHitCollection* transCont, MsgStream &/*log*/)
 {
   unsigned int hitCount = 0;
   unsigned int angleCount = 0;
@@ -266,50 +266,45 @@ void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHi
 
       const unsigned int start = endHit;
       endHit += persCont->m_nHits[i];
-      
+
       const double t0 = persCont->m_hit1_meanTime[i];
       const double theta0 = persCont->m_hit1_theta[i];
       const double phi0 = persCont->m_hit1_phi[i];
       HepGeom::Point3D<double> endLast(persCont->m_hit1_x0[i], persCont->m_hit1_y0[i], persCont->m_hit1_z0[i]);
-      
+
       for (unsigned int j = start; j < endHit; j++) {
-	
-	if (j >= endBC + persCont->m_nBC[idxBC])
-	  endBC += persCont->m_nBC[idxBC++];
-	
-	if (j >= endId + persCont->m_nId[idxId])
-	  endId += persCont->m_nId[idxId++];
-	
-	const double eneLoss_2b = persCont->m_hitEne_2b[hitCount];
-	const double hitLength_2b = persCont->m_hitLength_2b[hitCount];
-	
-	const double eneLoss = (eneLoss_2b < m_2bMaximum) ? eneLoss_2b * m_persEneUnit : persCont->m_hitEne_4b[idxEne4b++];
-	const double length = (hitLength_2b < m_2bMaximum) ? hitLength_2b * m_persLenUnit : persCont->m_hitLength_4b[idxLen4b++];
 
-	const double dTheta = (j > start) ? ((double)persCont->m_dTheta[angleCount] - m_2bHalfMaximum) * m_persAngUnit : 0.0;
-	const double dPhi = (j > start) ? ((double)persCont->m_dPhi[angleCount] - m_2bHalfMaximum) * m_persAngUnit : 0.0;      
-	
-	const double meanTime = t0;
-	const double theta = theta0 + dTheta;
-	const double phi = phicorr(phi0 + dPhi);
-	
-	CLHEP::Hep3Vector r(length, 0.0, 0.0);
-	r.setTheta(theta);
-	r.setPhi(phi);
-	
-	HepGeom::Point3D<double> endThis( endLast + r );
-	
-//	SiHit* hit = new SiHit( endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId] );
+        if (j >= endBC + persCont->m_nBC[idxBC])
+          endBC += persCont->m_nBC[idxBC++];
 
-//        const SiHit & hit(endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId] );	
-//	transCont->push_back(hit);
-	
-	transCont->push_back(SiHit( endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId]));
-	
-	endLast = endThis;
-	
-	++hitCount;
-	if (j > start) ++angleCount;
+        if (j >= endId + persCont->m_nId[idxId])
+          endId += persCont->m_nId[idxId++];
+
+        const double eneLoss_2b = persCont->m_hitEne_2b[hitCount];
+        const double hitLength_2b = persCont->m_hitLength_2b[hitCount];
+
+        const double eneLoss = (eneLoss_2b < m_2bMaximum) ? eneLoss_2b * m_persEneUnit : persCont->m_hitEne_4b[idxEne4b++];
+        const double length = (hitLength_2b < m_2bMaximum) ? hitLength_2b * m_persLenUnit : persCont->m_hitLength_4b[idxLen4b++];
+
+        const double dTheta = (j > start) ? ((double)persCont->m_dTheta[angleCount] - m_2bHalfMaximum) * m_persAngUnit : 0.0;
+        const double dPhi = (j > start) ? ((double)persCont->m_dPhi[angleCount] - m_2bHalfMaximum) * m_persAngUnit : 0.0;
+
+        const double meanTime = t0;
+        const double theta = theta0 + dTheta;
+        const double phi = phicorr(phi0 + dPhi);
+
+        CLHEP::Hep3Vector r(length, 0.0, 0.0);
+        r.setTheta(theta);
+        r.setPhi(phi);
+
+        HepGeom::Point3D<double> endThis( endLast + r );
+
+        transCont->Emplace( endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId]);
+
+        endLast = endThis;
+
+        ++hitCount;
+        if (j > start) ++angleCount;
       }
     }
   }

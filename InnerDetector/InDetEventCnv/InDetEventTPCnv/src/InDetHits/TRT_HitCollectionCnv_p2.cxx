@@ -28,7 +28,7 @@
 
 void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* transCont, TRT_HitCollection_p2* persCont, MsgStream& /*log*/)
 {
-  // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and 
+  // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and
   // persistifies the end point of each hit plus the start point of the first hit in each string.
   //
   // Further compression is achieved by optimising the storage of the position vectors:- start (x,y,z) and (theta,phi) of
@@ -43,7 +43,7 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
   static const double dRcut = 1.0e-7;
   static const double dTcut = 1.0;
 
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::transToPers()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::transToPers()" << endreq;
 
   int lastBarcode = -1;
   int lastId = -1;
@@ -55,8 +55,8 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
   HepGeom::Point3D<double> lastEnd(0.0, 0.0, 0.0);
 
   for (TRTUncompressedHitCollection::const_iterator it = transCont->begin(); it != transCont->end(); ++it) {
-    
-    
+
+
     if ( it->m_partLink.barcode() != lastBarcode ) {
 
       // store barcode once for set of consecutive hits with same barcode
@@ -65,8 +65,8 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       persCont->m_barcode.push_back(lastBarcode);
 
       if (idx > 0) {
-	persCont->m_nBC.push_back(idx - endBC);
-	endBC = idx;
+        persCont->m_nBC.push_back(idx - endBC);
+        endBC = idx;
       }
     }
 
@@ -78,14 +78,14 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       persCont->m_id.push_back(lastId);
 
       if (idx > 0) {
-	persCont->m_nId.push_back(idx - endId);
-	endId = idx;
+        persCont->m_nId.push_back(idx - endId);
+        endId = idx;
       }
     }
 
     const HepGeom::Point3D<double> hitStart(it->preStepX, it->preStepY, it->preStepZ);
     const double t = it->globalTime;
-    
+
     const double dRLast = lastEnd.distance(hitStart);  // dR between end of previous hit and start of current one
     const double dTLast = fabs(t - lastT);
 
@@ -98,8 +98,8 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
       persCont->m_hit1_startZ.push_back( hitStart.z() );
 
       if (idx > 0) {
-	persCont->m_nHits.push_back(idx - endHit);
-	endHit = idx;
+        persCont->m_nHits.push_back(idx - endHit);
+        endHit = idx;
       }
     }
 
@@ -111,7 +111,7 @@ void TRT_HitCollectionCnv_p2::transToPers(const TRTUncompressedHitCollection* tr
     persCont->m_endX.push_back( it->postStepX );
     persCont->m_endY.push_back( it->postStepY );
     persCont->m_endZ.push_back( it->postStepZ );
-    
+
     lastEnd = HepGeom::Point3D<double>(it->postStepX, it->postStepY, it->postStepZ);
     lastT = t;
     ++idx;
@@ -132,7 +132,7 @@ TRTUncompressedHitCollection* TRT_HitCollectionCnv_p2::createTransient(const TRT
 
 void TRT_HitCollectionCnv_p2::persToTrans(const TRT_HitCollection_p2* persCont, TRTUncompressedHitCollection* transCont, MsgStream& /*log*/)
 {
-//    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::persToTrans()" << endreq;
+  //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p2::persToTrans()" << endreq;
 
   unsigned int hitCount = 0;
   unsigned int idxBC = 0;
@@ -147,30 +147,28 @@ void TRT_HitCollectionCnv_p2::persToTrans(const TRT_HitCollection_p2* persCont, 
 
       const unsigned int start = endHit;
       endHit += persCont->m_nHits[i];
-      
+
       HepGeom::Point3D<double> endLast(persCont->m_hit1_startX[i], persCont->m_hit1_startY[i], persCont->m_hit1_startZ[i]);
-      
+
       for (unsigned int j = start; j < endHit; j++) {
-	
-	if (j >= endBC + persCont->m_nBC[idxBC])
-	  endBC += persCont->m_nBC[idxBC++];
-	
-	if (j >= endId + persCont->m_nId[idxId])
-	  endId += persCont->m_nId[idxId++];
-	
-	const double eneLoss = persCont->m_hitEne[hitCount];
-	
-	HepGeom::Point3D<double> endThis(persCont->m_endX[j], persCont->m_endY[j], persCont->m_endZ[j]);
-	
-	transCont->push_back(TRTUncompressedHit( persCont->m_hitId[hitCount], persCont->m_barcode[idxBC], persCont->m_id[idxId], persCont->m_kinEne[hitCount],
-							  eneLoss, endLast.x(), endLast.y(), endLast.z(), endThis.x(), endThis.y(), endThis.z(),
-							  persCont->m_meanTime[hitCount] ));
-	
-	endLast = endThis;
-	++hitCount;
+
+        if (j >= endBC + persCont->m_nBC[idxBC])
+          endBC += persCont->m_nBC[idxBC++];
+
+        if (j >= endId + persCont->m_nId[idxId])
+          endId += persCont->m_nId[idxId++];
+
+        const double eneLoss = persCont->m_hitEne[hitCount];
+
+        HepGeom::Point3D<double> endThis(persCont->m_endX[j], persCont->m_endY[j], persCont->m_endZ[j]);
+
+        transCont->Emplace( persCont->m_hitId[hitCount], persCont->m_barcode[idxBC], persCont->m_id[idxId], persCont->m_kinEne[hitCount],
+                            eneLoss, endLast.x(), endLast.y(), endLast.z(), endThis.x(), endThis.y(), endThis.z(),
+                            persCont->m_meanTime[hitCount] );
+
+        endLast = endThis;
+        ++hitCount;
       }
     }
   }
 }
-
-
