@@ -48,7 +48,8 @@ MuonWallSD::MuonWallSD(G4String name)
   : FadsSensitiveDetector(name),
     detectorDescription(0),    
     muonwallSDMessenger(0),
-    m_iamowner(true)
+    m_iamowner(true),
+    m_hit()
 {  
   muonwallSDMessenger = new MuonWallSDMessenger(this);
   ISvcLocator* svcLocator = Gaudi::svcLocator();
