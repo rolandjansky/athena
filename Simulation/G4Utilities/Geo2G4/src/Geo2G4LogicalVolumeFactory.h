@@ -10,8 +10,8 @@ class GeoLogVol;
 
 class Geo2G4LogicalVolumeFactory {
 public:
-	Geo2G4LogicalVolumeFactory();
-	G4LogicalVolume* Build(const GeoLogVol*) const;
+  Geo2G4LogicalVolumeFactory();
+  G4LogicalVolume* Build(const GeoLogVol*) const;
 };
 
 #endif

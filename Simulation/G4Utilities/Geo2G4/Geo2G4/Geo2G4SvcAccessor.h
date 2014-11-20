@@ -7,14 +7,13 @@
 
 #include "Geo2G4/Geo2G4SvcBase.h"
 #include "Geo2G4/IGeo2G4Svc.h"
-#include "Geo2G4/Geo2G4Svc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 
 class Geo2G4SvcAccessor {
 public:
-	Geo2G4SvcBase* GetGeo2G4Svc() const;
+  Geo2G4SvcBase* GetGeo2G4Svc() const;
 };
 
 inline Geo2G4SvcBase* Geo2G4SvcAccessor::GetGeo2G4Svc() const
@@ -24,10 +23,10 @@ inline Geo2G4SvcBase* Geo2G4SvcAccessor::GetGeo2G4Svc() const
   StatusCode result = svcLocator->service("Geo2G4Svc",g2gSvc);
 
   if(result.isSuccess())
-  {
-    Geo2G4Svc* temp=dynamic_cast<Geo2G4Svc*>(g2gSvc);
-    return temp;
-  }
+    {
+      Geo2G4SvcBase* temp=dynamic_cast<Geo2G4SvcBase*>(g2gSvc);
+      return temp;
+    }
   else
     return 0;
 }

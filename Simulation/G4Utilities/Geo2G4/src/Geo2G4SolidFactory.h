@@ -2,28 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4MaterialFactory_h
-#define Geo2G4MaterialFactory_h
+#ifndef Geo2G4SolidFactory_h
+#define Geo2G4SolidFactory_h
 
-#include "G4Material.hh"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include <map>
 #include <string>
-typedef std::map<const GeoMaterial* , G4Material*, std::less<const GeoMaterial*> > matList;
-typedef std::map<std::string, const GeoMaterial*, std::less<std::string> > matNames;
+#include "AthenaKernel/MsgStreamMember.h"
 
-class Geo2G4MaterialFactory {
+class G4VSolid;
+class GeoShape;
+
+class Geo2G4SolidFactory
+{
 public:
-  Geo2G4MaterialFactory();
-  G4Material* Build(const GeoMaterial*);
+  Geo2G4SolidFactory();
+  G4VSolid* Build(const GeoShape*, std::string name=std::string("")) const;
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 private:
-  matList definedMaterials;
-  matNames definedMatNames;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 };

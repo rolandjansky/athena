@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4AssemblyVolume.h"
+#include "Geo2G4AssemblyVolume.h"
 #include "G4PVPlacement.hh"
 #include "G4RotationMatrix.hh"
 #include "G4AffineTransform.hh"

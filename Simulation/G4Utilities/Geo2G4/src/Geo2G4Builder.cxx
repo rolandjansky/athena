@@ -5,7 +5,7 @@
 #include "Geo2G4/Geo2G4Builder.h"
 #include "Geo2G4/Geo2G4SvcAccessor.h"
 #include "Geo2G4/Geo2G4SvcBase.h"
-#include "Geo2G4/Geo2G4OpticalSurfaceFactory.h"
+#include "Geo2G4OpticalSurfaceFactory.h"
 
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -18,76 +18,68 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
-#include "G4ReflectionFactory.hh"
-#include "G4LogicalBorderSurface.hh"
-#include "G4OpticalSurface.hh"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
 
+#include "G4ReflectionFactory.hh"
+#include "G4LogicalBorderSurface.hh"
+#include "G4OpticalSurface.hh"
+
 #include <map>
 #include <iostream>
-
-
 
 Geo2G4Builder::Geo2G4Builder(std::string detectorName):
   m_detectorName(detectorName),
   m_matAir(0),
-  m_pDetStore(0)
+  m_pDetStore(0),
+  m_msg("Geo2G4Builder")
 {
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   StatusCode sc=svcLocator->service("DetectorStore",m_pDetStore);
-  if (sc.isFailure()) 
-    {
-      std::cout<<"Geo2G4Builder for detector "<<detectorName<<std::endl
-	       <<"could not access the detector store - PANIC!!!!"<<std::endl;
-      abort();
-    }
-  else {}
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL("Geo2G4Builder for detector "<<detectorName<<"could not access the detector store - PANIC!!!!");
+    abort();
+  }
 
   const DataHandle<GeoModelExperiment> theExpt;
   sc = m_pDetStore->retrieve( theExpt, "ATLAS" );
-  if(sc.isFailure())
-    std::cerr << "Geo2G4Builder for detector "<< detectorName << "\n" 
-	      << "could not get GeoModelExperiment! \n";
-  else
-  {
+  if(sc.isFailure()){
+    ATH_MSG_ERROR("Detector "<< detectorName << "could not get GeoModelExperiment!");
+  } else {
     const GeoVDetectorManager *theManager = theExpt->getManager(detectorName);
-  
+
     for(unsigned int i=0; i<theManager->getNumTreeTops(); i++)
       m_treeTops.push_back(theManager->getTreeTop(i));
 
-    std::cout <<" found detector: top volume(s) \n";
+    ATH_MSG_INFO("Found detector: top volume(s)");
     for(unsigned int i=0; i<m_treeTops.size();i++)
-      std::cout << "   Tree Top " << i << " " 
-		<< m_treeTops[i]->getLogVol()->getName() << std::endl;
+      ATH_MSG_INFO( "   Tree Top " << i << " " << m_treeTops[i]->getLogVol()->getName() );
 
     if(m_treeTops.size()>1)
-    {
-      // -------- -------- MATERIAL MANAGER -------- ----------
-      DataHandle<StoredMaterialManager> theMaterialManager;
-      sc = m_pDetStore->retrieve(theMaterialManager, "MATERIALS");
-      if(sc.isFailure())
-	std::cerr << "Geo2G4Builder for detector "<< detectorName << "\n" 
-		  << "could not retrieve Material Manager when number of tree tops > 1\n";
-      else
-	m_matAir = theMaterialManager->getMaterial("std::Air");
-    }
+      {
+        // -------- -------- MATERIAL MANAGER -------- ----------
+        DataHandle<StoredMaterialManager> theMaterialManager;
+        sc = m_pDetStore->retrieve(theMaterialManager, "MATERIALS");
+        if(sc.isFailure())
+          ATH_MSG_ERROR("Detector "<< detectorName << "could not retrieve Material Manager when number of tree tops > 1");
+        else
+          m_matAir = theMaterialManager->getMaterial("std::Air");
+      }
 
     Geo2G4SvcAccessor accessor;
     Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
-    theBuilder=g->GetDefaultBuilder();  
+    theBuilder=g->GetDefaultBuilder();
     if(theBuilder)
-      std::cout<<"\n Geo2G4Builder: set volume builder ---> "<< theBuilder->GetKey()<<std::endl; 
+      ATH_MSG_INFO("Set volume builder ---> "<< theBuilder->GetKey());
     else
-      std::cout<<"\n Geo2G4Builder WARNING: 0 pointer to volume builder." 
-	       <<"\n Use 'DefaultBuilder' property of Geo2G4Svc or"
-	       <<"\n 'GetVolumeBuilder' method of Geo2G4Builder\n";
+      ATH_MSG_WARNING("0 pointer to volume builder."
+                      <<"\n Use 'DefaultBuilder' property of Geo2G4Svc or"
+                      <<"\n 'GetVolumeBuilder' method of Geo2G4Builder");
   }
 }
 
@@ -99,29 +91,25 @@ LogicalVolume* Geo2G4Builder::BuildTree()
 
   // Check whether we have to deal with optical surfaces
   if(m_pDetStore->contains<GeoBorderSurfaceContainer>(m_detectorName))
-  {
-    StatusCode sc = m_pDetStore->retrieve(surface_container,m_detectorName);
-    if(sc.isSuccess() && surface_container!=0 && surface_container->size()>0)
-      optical_volumes = new OpticalVolumesMap();
-  }
+    {
+      StatusCode sc = m_pDetStore->retrieve(surface_container,m_detectorName);
+      if(sc.isSuccess() && surface_container!=0 && surface_container->size()>0)
+        optical_volumes = new OpticalVolumesMap();
+    }
 
   if(theBuilder) {
-    if(m_treeTops.size()==1)
-    {
+    if(m_treeTops.size()==1) {
       motherTransform = m_treeTops[0]->getX();
       result = theBuilder->Build(m_treeTops[0],optical_volumes);
-    }
-    else
-    {
+    } else {
       // Create temporary GeoModel physical volume
       // The shape is composed by TreeTop shapes + their transforms
       const GeoShape& shFirst = (*(m_treeTops[0]->getLogVol()->getShape()))<<(m_treeTops[0]->getX());
       const GeoShape* shResult = &shFirst;
 
-      for(unsigned int i=1; i<m_treeTops.size(); i++)
-      {
-	const GeoShape& shNext = (*shResult).add((*(m_treeTops[i]->getLogVol()->getShape()))<<(m_treeTops[i]->getX()));
-	shResult = &shNext;
+      for(unsigned int i=1; i<m_treeTops.size(); i++){
+        const GeoShape& shNext = (*shResult).add((*(m_treeTops[i]->getLogVol()->getShape()))<<(m_treeTops[i]->getX()));
+        shResult = &shNext;
       }
 
       GeoLogVol* lvEnvelope = new GeoLogVol(m_detectorName,shResult,m_matAir);
@@ -133,41 +121,40 @@ LogicalVolume* Geo2G4Builder::BuildTree()
       PVConstLink world = m_treeTops[0]->getParent();
 
       // Add all tree tops to the result
-      for(unsigned int i=0; i<m_treeTops.size(); i++)
-      {
-	// Current Tree Top and its index
-	PVConstLink pv = m_treeTops[i];
-	Query<unsigned int> childIndx = world->indexOf(pv);
+      for(unsigned int i=0; i<m_treeTops.size(); i++) {
+        // Current Tree Top and its index
+        PVConstLink pv = m_treeTops[i];
+        Query<unsigned int> childIndx = world->indexOf(pv);
 
-	// Tree Top transformation
-	G4Transform3D theG4Position(world->getXToChildVol(childIndx));
+        // Tree Top transformation
+        G4Transform3D theG4Position(world->getXToChildVol(childIndx));
 
-	// Copy number
-	int id = 16969;
-	Query<int> Qint = world->getIdOfChildVol(childIndx);
-	if(Qint.isValid()) id = Qint;
+        // Copy number
+        int id = 16969;
+        Query<int> Qint = world->getIdOfChildVol(childIndx);
+        if(Qint.isValid()) id = Qint;
 
-	// PV Tree Top name
-	std::string nameTT =  world->getNameOfChildVol(childIndx);
-	if (nameTT == "ANON") nameTT = pv->getLogVol()->getName();
+        // PV Tree Top name
+        std::string nameTT =  world->getNameOfChildVol(childIndx);
+        if (nameTT == "ANON") nameTT = pv->getLogVol()->getName();
 
 
-	LogicalVolume* g4LV = theBuilder->Build(pv,optical_volumes);
-	G4ReflectionFactory::Instance()->Place(theG4Position,
-					       nameTT,
-					       g4LV,
-					       result,
-					       false,
-					       id);
+        LogicalVolume* g4LV = theBuilder->Build(pv,optical_volumes);
+        G4ReflectionFactory::Instance()->Place(theG4Position,
+                                               nameTT,
+                                               g4LV,
+                                               result,
+                                               false,
+                                               id);
       }
 
       // Add the temporary physical volume to the GeoModelExperiment
       GeoModelExperiment * theExpt;
       StatusCode sc = m_pDetStore->retrieve(theExpt,"ATLAS");
       if(sc.isFailure())
-	std::cout<<"\n Geo2G4Builder WARNING: Unable to retrieve GeoModelExperiment. Temporary volume cannot be released" << std::endl;
+        ATH_MSG_WARNING("Unable to retrieve GeoModelExperiment. Temporary volume cannot be released");
       else
-	theExpt->addTmpVolume(pvEnvelope);
+        theExpt->addTmpVolume(pvEnvelope);
     }
   }
 
@@ -175,7 +162,7 @@ LogicalVolume* Geo2G4Builder::BuildTree()
   if(optical_volumes!=0 && optical_volumes->size()>0){
     BuildOpticalSurfaces(surface_container,optical_volumes);
   } else if (optical_volumes!=0){
-    std::cout<< "Geo2G4Builder WARNING: optical volumes apparently requested, but none found!  Deleting temps" << std::endl;
+    ATH_MSG_WARNING("Optical volumes apparently requested, but none found!  Deleting temps");
   }
   if (optical_volumes!=0) delete optical_volumes;
 
@@ -183,17 +170,17 @@ LogicalVolume* Geo2G4Builder::BuildTree()
 }
 
 
-VolumeBuilder* 	Geo2G4Builder::GetVolumeBuilder(std::string bname)
+VolumeBuilder*  Geo2G4Builder::GetVolumeBuilder(std::string bname)
 {
   Geo2G4SvcAccessor accessor;
   Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
-  
+
   theBuilder=g->GetVolumeBuilder(bname);
   return theBuilder;
 }
 
 void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surface_container,
-					 const OpticalVolumesMap* optical_volumes)
+                                         const OpticalVolumesMap* optical_volumes)
 {
   Geo2G4OpticalSurfaceFactory surfaceFactory;
 
@@ -202,38 +189,34 @@ void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surfac
   GeoBorderSurfaceContainer::const_iterator last  = surface_container->end();
 
   for(;first!=last;first++)
-  {
-    // Build Optical Surface
-    const GeoBorderSurface& border_surface = *first;
-    G4OpticalSurface* g4OptSurface = surfaceFactory.Build(border_surface.getOptSurface());
-
-    G4VPhysicalVolume* g4PV1 = 0;
-    G4VPhysicalVolume* g4PV2 = 0;
-    OpticalVolumesMap::const_iterator volIt;
-
-    // First physical volume
-    volIt = optical_volumes->find(border_surface.getPV1());
-    if(volIt == optical_volumes->end())
     {
-      std::cerr << " Geo2G4Builder::BuildOpticalSurfaces. Unable to find " 
-		<< border_surface.getPV1()->getLogVol()->getName() 
-		<< " in Optical Volumes map\n";
-      continue;
-    }
-    g4PV1 = volIt.operator->()->second;
+      // Build Optical Surface
+      const GeoBorderSurface& border_surface = *first;
+      G4OpticalSurface* g4OptSurface = surfaceFactory.Build(border_surface.getOptSurface());
 
-    // Second physical volume
-    volIt = optical_volumes->find(border_surface.getPV2());
-    if(volIt == optical_volumes->end())
-    {
-      std::cerr << " Geo2G4Builder::BuildOpticalSurfaces. Unable to find " 
-		<< border_surface.getPV1()->getLogVol()->getName() 
-		<< " in Optical Volumes map\n";
-      continue;
-    }
-    g4PV2 = volIt.operator->()->second;
+      G4VPhysicalVolume* g4PV1 = 0;
+      G4VPhysicalVolume* g4PV2 = 0;
+      OpticalVolumesMap::const_iterator volIt;
 
-    // G4LogicalBorderSurface
-    G4LogicalBorderSurface* g4BorderSurface __attribute__((unused)) = new G4LogicalBorderSurface(border_surface.getName(),g4PV1,g4PV2,g4OptSurface);
-  }
+      // First physical volume
+      volIt = optical_volumes->find(border_surface.getPV1());
+      if(volIt == optical_volumes->end())
+        {
+          ATH_MSG_WARNING("Unable to find " << border_surface.getPV1()->getLogVol()->getName() << " in Optical Volumes map");
+          continue;
+        }
+      g4PV1 = volIt.operator->()->second;
+
+      // Second physical volume
+      volIt = optical_volumes->find(border_surface.getPV2());
+      if(volIt == optical_volumes->end())
+        {
+          ATH_MSG_WARNING("Unable to find " << border_surface.getPV1()->getLogVol()->getName() << " in Optical Volumes map");
+          continue;
+        }
+      g4PV2 = volIt.operator->()->second;
+
+      // G4LogicalBorderSurface
+      G4LogicalBorderSurface* g4BorderSurface __attribute__((unused)) = new G4LogicalBorderSurface(border_surface.getName(),g4PV1,g4PV2,g4OptSurface);
+    }
 }

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VolumeBuilder_H
-#define VolumeBuilder_H
+#ifndef GEO2G4_VolumeBuilder_H
+#define GEO2G4_VolumeBuilder_H
 
 #include "Geo2G4/LogicalVolume.h"
 #include "Geo2G4/Geo2G4SvcAccessor.h"
@@ -18,12 +18,10 @@
 
 typedef std::map< const GeoOpticalPhysVol*, G4VPhysicalVolume*,std::less< const GeoOpticalPhysVol*> > OpticalVolumesMap;
 
-class VolumeBuilder 
+class VolumeBuilder
 {
  public:
-  VolumeBuilder(std::string k):
-    paramOn(false),
-    key(k)
+  VolumeBuilder(std::string k): paramOn(false), key(k)
   {
     Geo2G4SvcAccessor accessor;
     Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
@@ -51,5 +49,4 @@ class VolumeBuilder
  private:
   std::string key;
 };
-
 #endif

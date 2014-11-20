@@ -2,72 +2,67 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4Svc.h"
-#include "GaudiKernel/SvcFactory.h"
+#include "Geo2G4Svc.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Geo2G4/Geo2G4SvcAccessor.h"
-#include "Geo2G4/GenericVolumeBuilder.h"
+#include "GenericVolumeBuilder.h"
 
 void InitializeBuilders();
 
 Geo2G4Svc::Geo2G4Svc(const std::string& n, ISvcLocator* svc):
-  Service(n,svc), log(msgSvc(),name()),m_pIncSvc(0),defaultBuilder(0),m_getTopTransform(true)
+  AthService(n,svc),m_pIncSvc(0),defaultBuilder(0),m_getTopTransform(true)
 {
-	log<<MSG::INFO<<"Creating the Geo2G4Svc "<<endreq;
-	declareProperty("GetTopTransform", m_getTopTransform);
+  ATH_MSG_VERBOSE ("Creating the Geo2G4Svc.");
+  declareProperty("GetTopTransform", m_getTopTransform);
 }
 Geo2G4Svc::~Geo2G4Svc()
 {;}
 
 StatusCode Geo2G4Svc::initialize()
 {
-	static int initialized=0;
-	if (initialized)
-		log<<MSG::INFO<<" Geo2G4Svc already initialized "<<endreq;
-	else
-	{
-		log<<MSG::INFO<<"Initializing the Geo2G4Svc "<<endreq;
-		log<<MSG::INFO<<"Creating all builders available "<<endreq;
-		InitializeBuilders();
+  static int initialized=0;
+  if (initialized)
+    ATH_MSG_VERBOSE (" Geo2G4Svc already initialized.");
+  else
+    {
+      ATH_MSG_VERBOSE ("Initializing the Geo2G4Svc.");
+      ATH_MSG_VERBOSE ("Creating all builders available.");
+      InitializeBuilders();
 
-		std::string nameBuilder = "Extended_Parameterised_Volume_Builder";
-		SetDefaultBuilder(nameBuilder);
-		log<<MSG::INFO<<nameBuilder << " --> set as default builder" <<endreq;
-		log<<MSG::INFO<<nameBuilder << " --> ParamOn flag = " << defaultBuilder->GetParam() << endreq;
-		initialized=1;
-  ListVolumeBuilders();
-	}
+      const std::string nameBuilder = "Extended_Parameterised_Volume_Builder"; //TODO Configurable property??
+      SetDefaultBuilder(nameBuilder);
+      ATH_MSG_VERBOSE (nameBuilder << " --> set as default builder" );
+      ATH_MSG_VERBOSE (nameBuilder << " --> ParamOn flag = " << defaultBuilder->GetParam());
+      initialized=1;
+      if(msgLvl(MSG::VERBOSE)) {
+        ListVolumeBuilders();
+      }
+    }
 
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode Geo2G4Svc::finalize()
 {
-	log<<MSG::INFO<<"Finalizing the Geo2G4Svc "<<endreq;
+  ATH_MSG_VERBOSE ("Finalizing the Geo2G4Svc.");
 
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode Geo2G4Svc::queryInterface(const InterfaceID& riid, void**ppvInt)
 {
-	StatusCode sc=StatusCode::FAILURE;
-	const InterfaceID& iid=intID();
-	if (riid==iid)
-	{
-		*ppvInt=dynamic_cast<IGeo2G4Svc*>(this);
-		sc=StatusCode::SUCCESS;
-	}
-	else
-	{
-		sc=Service::queryInterface(riid,ppvInt);
-	}
-	return sc;
+  const InterfaceID& iid=intID();
+  if (riid==iid)
+    {
+      *ppvInt=dynamic_cast<IGeo2G4Svc*>(this);
+      return StatusCode::SUCCESS;
+    }
+  return AthService::queryInterface(riid,ppvInt);
 }
 
 void Geo2G4Svc::handle(const Incident& )
@@ -76,54 +71,52 @@ void Geo2G4Svc::handle(const Incident& )
 
 void Geo2G4Svc::RegisterVolumeBuilder(VolumeBuilder* vb)
 {
-	std::string key=vb->GetKey();
-	if (m_builders.find(key)!=m_builders.end())
-	{
-		log<<MSG::INFO<<"Trying to set an already existing "
-		   <<"builder "<<key<<endreq;
-		log<<MSG::INFO<<"\t request ignored, nothing done "<<endreq;
-	}
-	else
-	{
-		m_builders[key]=vb;
-		log<<MSG::INFO<<"Volume builder registered "<<key<<endreq;
-	}
+  std::string key(vb->GetKey());
+  if (m_builders.find(key)!=m_builders.end())
+    {
+      ATH_MSG_DEBUG ("Trying to set an already existing builder "<<key);
+      ATH_MSG_DEBUG ("\t request ignored, nothing done ");
+    }
+  else
+    {
+      m_builders[key]=vb;
+      ATH_MSG_DEBUG ("Volume builder registered "<<key);
+    }
 }
 void Geo2G4Svc::ListVolumeBuilders()
 {
-	BuilderMap::const_iterator it;
-	std::cout<<"---- List of all Volume Builders registered with Geo2G4Svc ----"<<std::endl;
-	std::cout<<"---------------------------------------------------------------"<<std::endl;
-	for (it=m_builders.begin();it!=m_builders.end();it++)
-		std::cout<<" Volume Builder  "<<(*it).second->GetKey()<<std::endl;
-	std::cout<<"---------------------------------------------------------------"<<std::endl;
-	std::cout<<" default builder is "<<defaultBuilder->GetKey()<<std::endl;
+  BuilderMap::const_iterator it;
+  std::cout<<"---- List of all Volume Builders registered with Geo2G4Svc ----"<<std::endl;
+  std::cout<<"---------------------------------------------------------------"<<std::endl;
+  for (it=m_builders.begin();it!=m_builders.end();it++)
+    std::cout<<" Volume Builder  "<<(*it).second->GetKey()<<std::endl;
+  std::cout<<"---------------------------------------------------------------"<<std::endl;
+  std::cout<<" default builder is "<<defaultBuilder->GetKey()<<std::endl;
 }
 void Geo2G4Svc::UnregisterVolumeBuilder(VolumeBuilder* vb)
 {
-	std::string key=vb->GetKey();
-	if (m_builders.find(key)!=m_builders.end())
-	{
-		log<<MSG::INFO<<"Removing builder "<<key<<" from the list"<<endreq;
-		m_builders.erase(key);
-	}
-	else
-	{
-		log<<MSG::ERROR<<"Trying to remove a not-existing builder "<<key<<endreq;
-		log<<MSG::ERROR<<"\t request ignored, nothing done "<<endreq;
-	}
+  const std::string key(vb->GetKey());
+  if (m_builders.find(key)!=m_builders.end())
+    {
+      ATH_MSG_DEBUG ("Removing builder "<<key<<" from the list");
+      m_builders.erase(key);
+    }
+  else
+    {
+      ATH_MSG_ERROR ("Trying to remove a not-existing builder "<<key);
+      ATH_MSG_ERROR ("\t request ignored, nothing done ");
+    }
 }
 VolumeBuilder* Geo2G4Svc::GetVolumeBuilder(std::string s)
 {
-	if (m_builders.find(s)!=m_builders.end())
-	{
-		return m_builders[s];
-	}
-	else
-	{
-		log<<MSG::ERROR<<"Trying to retrieve a not existing builder "<<
-			s<<endreq;
-		log<<MSG::ERROR<<"\treturning Default Builder"<<endreq;
-	}
-	return defaultBuilder;
+  if (m_builders.find(s)!=m_builders.end())
+    {
+      return m_builders[s];
+    }
+  else
+    {
+      ATH_MSG_ERROR ("Trying to retrieve a not existing builder "<<s);
+      ATH_MSG_ERROR ("\treturning Default Builder");
+    }
+  return defaultBuilder;
 }

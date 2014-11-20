@@ -2,28 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4SolidFactory.h"
-#include "Geo2G4/LArWheelSolid.h"
-
-#include "G4VSolid.hh"
-#include "G4Box.hh"
-#include "G4Tubs.hh"
-#include "G4Trd.hh"
-#include "G4Polycone.hh"
-#include "G4Cons.hh"
-#include "G4Polyhedra.hh"
-#include "G4Trap.hh"
-#include "G4Para.hh"
-#include "G4UnionSolid.hh"
-#include "G4DisplacedSolid.hh"
-#include "G4IntersectionSolid.hh"
-#include "G4SubtractionSolid.hh"
-#include "G4ExtrudedSolid.hh"
-#include "G4TessellatedSolid.hh"
-#include "G4EllipticalTube.hh"
-#include "G4TriangularFacet.hh"
-#include "G4QuadrangularFacet.hh"
-#include "G4GenericTrap.hh"
+#include "Geo2G4SolidFactory.h"
+#include "LArWheelSolid.h"
 
 #include "GeoSpecialShapes/LArCustomShape.h"
 
@@ -45,6 +25,26 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
+
+#include "G4VSolid.hh"
+#include "G4Box.hh"
+#include "G4Tubs.hh"
+#include "G4Trd.hh"
+#include "G4Polycone.hh"
+#include "G4Cons.hh"
+#include "G4Polyhedra.hh"
+#include "G4Trap.hh"
+#include "G4Para.hh"
+#include "G4UnionSolid.hh"
+#include "G4DisplacedSolid.hh"
+#include "G4IntersectionSolid.hh"
+#include "G4SubtractionSolid.hh"
+#include "G4ExtrudedSolid.hh"
+#include "G4TessellatedSolid.hh"
+#include "G4EllipticalTube.hh"
+#include "G4TriangularFacet.hh"
+#include "G4QuadrangularFacet.hh"
+#include "G4GenericTrap.hh"
 
 #include <iostream>
 #include <map>
