@@ -121,7 +121,7 @@ AssociationObjectIterator(const AssociationObjectIterator& rhs) :
 
 /*! \brief assignment operator
  */
-AssociationObjectIterator operator=(const AssociationObjectIterator& rhs)
+AssociationObjectIterator& operator=(const AssociationObjectIterator& rhs)
 {
   if ( this != &rhs ) {
     m_store = rhs.m_store;

@@ -143,6 +143,8 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
                                      CLID link_clid,
                                      IProxyDictWithPool* sg)
 {
+  if (!sgkey) return;
+
   // Find the store to use.
   if (sg == 0)
     sg = this->source1();
@@ -272,7 +274,8 @@ void
 DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDictWithPool* sg /*= 0*/)
 {
   m_proxy = 0;
-  toIdentifiedObject (sgkey, CLID_NULL, sg);
+  if (sgkey)
+    toIdentifiedObject (sgkey, CLID_NULL, sg);
 }
 
 

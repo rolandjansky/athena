@@ -216,7 +216,8 @@ template <class INDEXING_POLICY>
 inline
 GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase()
   : m_key(0),
-    m_cacheValid(false)
+    m_cacheValid(false),
+    m_element()
 {
   INDEXING_POLICY::reset (m_index);
 }
@@ -343,7 +344,8 @@ GenericElementLinkBase<INDEXING_POLICY>::GenericElementLinkBase
   const index_type& elemID,
   IProxyDictWithPool* sg)
    : m_index (elemID),
-     m_cacheValid (false)
+     m_cacheValid (false),
+     m_element()
 {
   m_key = m_proxy.toStorableObject (obj, link_clid, sg);
 }
