@@ -13,8 +13,7 @@ sTgcDigitizationTool = sTgcDigitizationTool("sTgcDigitizationTool",
                                             InputObjectName = "sTGCSensitiveDetector", 
                                             OutputObjectName = "sTGC_DIGITS", 
                                             OutputSDOName = "sTGC_SDO",
-					    OutputLevel = VERBOSE,
-					    doTimeCorrection = 0)
+					    OutputLevel = VERBOSE)
 
 
 #from AthenaCommon import CfgGetter
