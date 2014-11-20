@@ -16,7 +16,7 @@ ServiceMgr.MessageSvc.defaultLimit = 10000000
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.PoolEvgenInput = ['/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/mu_E200_eta0-60-10000.evgen.pool.root']
 #athenaCommonFlags.PoolHitsOutput = "Hits.pool.root"
-athenaCommonFlags.EvtMax = 3
+athenaCommonFlags.EvtMax = 10
 
 ## Detector flags
 from AthenaCommon.DetFlags import DetFlags
@@ -30,8 +30,8 @@ DetFlags.Truth_setOff()
 
 ## Global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SDR-06"
-#jobproperties.Global.ConditionsTag = "OFLCOND-SDR-BS7T-05-26"
+jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SDR-27"
+#jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SDR-06"
 
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
@@ -51,13 +51,14 @@ simFlags.SimLayout.set_On()
 ## Set a specific Tile-Geo tag:
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
-GeoModelSvc.TileVersionOverride = "TileCal-GEO-06"
+GeoModelSvc.TileVersionOverride = "TileCal-GEO-08"
 
 ## Set the EtaPhi, VertexSpread and VertexRange checks on
 simFlags.EventFilter.set_On()
 
 ## No magnetic field
 #simFlags.MagneticField.set_Off()
+#simFlags.ReleaseGeoModel.set_Off()
 
 ## Use single particle generator
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

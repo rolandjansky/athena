@@ -8,9 +8,10 @@
 // Calibration Sensitive Detector for TileCal
 //
 // Author: Gia Khoriauli   <gia@mail.cern.ch>
-//
 // May, 2005.
-// Major updates: December, 2005;  July, 2013 (Sergey);
+//
+// Major updates: December, 2005;
+//                July, 2013 (Sergey);
 //
 //************************************************************
 
@@ -388,7 +389,10 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     if(m_calc->m_doCalibHitParticleID) {
 
       if (!m_allowMods) {
-	m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
+        if (m_event_info && m_event_info->GetCurrentPrimary()) 
+          m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
+        else
+          throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
       }
       
       /*
