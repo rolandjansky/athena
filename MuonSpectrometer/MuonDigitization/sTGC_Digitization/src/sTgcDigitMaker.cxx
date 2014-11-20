@@ -36,7 +36,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TF1.h" 
 #include "TMath.h"
@@ -77,7 +76,7 @@ sTgcDigitMaker::~sTgcDigitMaker()
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
-StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const int channelTypes)
+StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *m_rndmEngine, const int channelTypes)
 {
   // Initialize TgcIdHelper
   if(!m_hitIdHelper) {
@@ -96,7 +95,7 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   readFileOfTimeJitter();
 
   // getting our random numbers stream
-  m_engine = rndmEngine;
+  m_engine = m_rndmEngine;
 
   // Read share/sTGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold.
   readFileOfEnergyThreshold();
@@ -124,7 +123,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
 
   // check the digitization channel type
   if(m_channelTypes!=1 && m_channelTypes!=2 && m_channelTypes!=3){
-    ATH_MSG_ERROR("Invalid ChannelTypes : " << m_channelTypes << " (valid values are : 1 --> strips ; 2 --> strips / wires ; 3 --> strips / wires / pads)"); 
+    if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"Invalid ChannelTypes : " << m_channelTypes << " (valid values are : 1 --> strips ; 2 --> strips / wires ; 3 --> strips / wires / pads)" << endreq; 
   }
 
   // SimHits without energy loss are not recorded.
@@ -135,16 +134,16 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   sTgcSimIdToOfflineId simToOffline(*m_idHelper);  
   int simId = hit->GenericId();
   Identifier layid = simToOffline.convert(simId);
-  ATH_MSG_VERBOSE("sTgc hit:  " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() );
+  if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sTgc hit:  " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() << endreq;
 
   std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
   int isSmall = stName[2] == 'S';
 
-  ATH_MSG_DEBUG("Retrieving detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid) << " energyDeposit "<<energyDeposit );
+  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) <<"Retrieving detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid) << " energyDeposit "<<energyDeposit<<endreq;
 
   const MuonGM::sTgcReadoutElement* detEl = m_mdManager->getsTgcReadoutElement(layid);
   if( !detEl ){
-    ATH_MSG_WARNING("Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid) );
+    if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endreq;
     return 0;
   }
  
@@ -170,7 +169,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   IdentifierHash coll_hash;
   // contain (name, eta, phi, multiPlet)
   m_idHelper->get_detectorElement_hash(layid, coll_hash);
-  //ATH_MSG_DEBUG(" looking up collection using hash " << (int)coll_hash << " " << m_idHelper->print_to_string(layid) );
+  //if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) <<" looking up collection using hash " << (int)coll_hash << " " << m_idHelper->print_to_string(layid) << endreq;
 
   m_digits = new sTgcDigitCollection(layid, coll_hash);
 
@@ -233,17 +232,20 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   //if(m_doTimeCorrection) sDigitTime = bunchTime + timeJitterDetector + timeJitterElectronics + stripPropagationTime;
   //else {
   //  sDigitTime = timeJitterDetector + timeJitterElectronics + stripPropagationTime;
-  //  ATH_WARNING("Did not do Time Correction for this hit!");
+  //  msg(MSG::WARNING) << "Did not do Time Correction for this hit!"<< endreq;
   //}
 
   uint16_t bctag = 0;
 
   //if(sDigitTime < -m_bunchCrossingTime+m_timeWindowOffsetStrip || +m_bunchCrossingTime+m_timeWindowOffsetStrip+ m_timeWindowStrip < sDigitTime) {
-  //    ATH_MSG_DEBUG("Strip: Digitized time is outside of time window. " << sDigitTime
+  //  if(msgLevel(MSG::DEBUG)) {
+  //    msg(MSG::DEBUG) << "Strip: Digitized time is outside of time window. " << sDigitTime
   //      	      << " bunchTime: " << bunchTime 
   //                    << " time jitter from detector response : " << timeJitterDetector  
   //                    << " time jitter from electronics response : " << timeJitterElectronics  
-  //      	      << " propagation time: " << stripPropagationTime )
+  //      	      << " propagation time: " << stripPropagationTime
+  //      	      << endreq;
+  //  }
   //  return m_digits;
   //}
 
@@ -254,7 +256,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   //##################################################################################
   //######################################### strip readout ##########################
   //##################################################################################
-  ATH_MSG_DEBUG("sTgcDigitMaker::strip response ");
+  msg(MSG::INFO) << "sTgcDigitMaker::strip response " << endreq;
   int channelType = 1;
 
   Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
@@ -263,7 +265,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   Amg::Vector2D posOnSurf_strip(hitOnSurface_strip.x(),hitOnSurface_strip.y());
   bool insideBounds = SURF_STRIP.insideBounds(posOnSurf_strip);
   if(!insideBounds) { 
-    ATH_MSG_DEBUG("Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(newId) << "; local position " <<posOnSurf_strip ); 
+    if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(newId) << "; local position " <<posOnSurf_strip <<endreq; 
     if(m_digits) {delete m_digits; m_digits = 0;}
     return 0;
   }
@@ -272,13 +274,13 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
        
   int stripNumber = detEl->stripNumber(posOnSurf_strip, newId);
   if( stripNumber == -1 ){
-    ATH_MSG_ERROR("Failed to obtain strip number " << m_idHelper->print_to_string(newId) );
-    ATH_MSG_ERROR(" pos " << posOnSurf_strip );
+    if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(newId) << endreq;
+    if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<" pos " << posOnSurf_strip << endreq;
     //stripNumber = 1;
   }  
   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripNumber, true, &isValid);
   if(!isValid && stripNumber != -1) {
-    ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
+    msg(MSG::ERROR) <<"Failed to obtain identifier " << m_idHelper->print_to_string(newId) << endreq; 
     if(m_digits) {delete m_digits; m_digits = 0;}
     return 0;
   }
@@ -294,8 +296,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   
   m_noiseFactor = getNoiseFactor(inAngle_space);
 
-  //ATH_MSG_VERBOSE(" New hit " << m_idHelper->print_to_string(newId) << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" );
-  //ATH_MSG_VERBOSE(" charge_spread : posOnSurf_strip.x() =  " << posOnSurf_strip.x() );
+  //if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << " New hit " << m_idHelper->print_to_string(newId) << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" << endreq;
+  //if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << " charge_spread : posOnSurf_strip.x() =  " << posOnSurf_strip.x() << endreq;
 
   int stripnum = -1;
   for(int neighbor=0; neighbor<=3; neighbor++){  // spread the charge to 7 strips for the current algorithm
@@ -306,9 +308,9 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
 
       Amg::Vector2D locpos(0,0);
       if( !detEl->stripPosition(newId,locpos)){
-        ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) << endreq;
       }
-      //ATH_MSG_VERBOSE(" New hit " << m_idHelper->print_to_string(newId) << " locpos " << locpos << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" );
+      //if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << " New hit " << m_idHelper->print_to_string(newId) << " locpos " << locpos << " from truth " << hitOnSurface_strip << "Edep " << 1000.*energyDeposit << "KeV" << endreq;
       ////??? waiting for Sharka's update
       //const MuonStripDesign design = detEl->getDesign(newId);
       //if( !design ) {
@@ -322,7 +324,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
       float charge = charge_spread->Integral(xmin, xmax);
       charge = CLHEP::RandGauss::shoot(m_engine, charge, m_noiseFactor*charge);
 
-      //ATH_MSG_VERBOSE(" nearby strip " << m_idHelper->print_to_string(newId) << "locpos.x = " << locpos.x() << "  locpos.y = " << locpos.y() );
+      //msg(MSG::VERBOSE) << " nearby strip " << m_idHelper->print_to_string(newId) << "locpos.x = " << locpos.x() << "  locpos.y = " << locpos.y() << endreq;
 
       addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
 
@@ -348,7 +350,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
 
       Amg::Vector2D locpos(0,0);
       if( !detEl->stripPosition(newId,locpos)){
-        ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) <<"Failed to obtain local position for identifier " 
+        					     << m_idHelper->print_to_string(newId) << endreq;
       }
       ////??? waiting for Sharka's update
       //const MuonStripDesign* design = getDesign(newId);
@@ -384,14 +387,14 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   // end of strip digitization
 
   if(m_channelTypes==1) {
-    ATH_MSG_WARNING("Only digitize strip response !");
+    msg(MSG::WARNING) << "Only digitize strip response !" << endreq;
     return m_digits;
   }
 
   //##################################################################################
   //######################################### pad readout ##########################
   //##################################################################################
-  ATH_MSG_DEBUG("sTgcDigitMaker::pad response ");
+  msg(MSG::INFO) << "sTgcDigitMaker::pad response " << endreq;
   channelType = 0;
   
   //************************************ find the nearest readout element ************************************** 
@@ -408,8 +411,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   if(insideBounds) { 
     int padNumber = detEl->stripNumber(posOnSurf_pad, PAD_ID);
     if( padNumber == -1 ){
-      ATH_MSG_ERROR("Failed to obtain pad number " << m_idHelper->print_to_string(PAD_ID) );
-      ATH_MSG_ERROR(" pos " << posOnSurf_pad );
+      if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"Failed to obtain pad number " << m_idHelper->print_to_string(PAD_ID) << endreq;
+      if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<" pos " << posOnSurf_pad << endreq;
       //padNumber = 1;
     }  
     newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, true, &isValid);
@@ -417,15 +420,15 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
       addDigit(newId, bctag, sDigitTimePad, channelType);
     }
     else if(padNumber != -1) {  
-      ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
+      msg(MSG::ERROR) <<"Failed to obtain identifier " << m_idHelper->print_to_string(newId) << endreq; 
     }
   }
   else {
-    ATH_MSG_DEBUG("Outside of the pad surface boundary :" << m_idHelper->print_to_string(PAD_ID)<< " local position " <<posOnSurf_pad ); 
+    if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the pad surface boundary :" << m_idHelper->print_to_string(PAD_ID)<< " local position " <<posOnSurf_pad <<endreq; 
   }
   
   if(m_channelTypes==2) {
-    ATH_MSG_WARNING("Only digitize strip/pad response !");
+    msg(MSG::WARNING) << "Only digitize strip/pad response !" << endreq;
     return m_digits;
   }
    
@@ -433,7 +436,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   //##################################################################################
   //######################################### wire readout ##########################
   //##################################################################################
-  ATH_MSG_DEBUG("sTgcDigitMaker::wire response ");
+  msg(MSG::INFO) << "sTgcDigitMaker::wire response " << endreq;
   channelType = 2;
   if( abs(m_idHelper->stationEta(layid)) >= 3 ) {
 
@@ -451,8 +454,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
     if(insideBounds) {
       int wireNumber = detEl->stripNumber(posOnSurf_wire, WIRE_ID);
       if( wireNumber == -1 ){
-        ATH_MSG_ERROR("Failed to obtain wire number " << m_idHelper->print_to_string(WIRE_ID) );
-        ATH_MSG_ERROR(" pos " << posOnSurf_wire );
+        if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"Failed to obtain wire number " << m_idHelper->print_to_string(WIRE_ID) << endreq;
+        if(msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<" pos " << posOnSurf_wire << endreq;
         //wireNumber = 1;
       }  
   
@@ -463,17 +466,20 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
         if(wireNumber>=1&&wireNumber<=NumberOfWires) addDigit(newId, bctag, sDigitTimePad, channelType);
       } // end of if(isValid)
       else if (wireNumber != -1){  
-        ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
+        msg(MSG::ERROR) <<"Failed to obtain identifier " << m_idHelper->print_to_string(newId) << endreq; 
       }
     }
     else {
-      ATH_MSG_DEBUG("Outside of the wire surface boundary :" << m_idHelper->print_to_string(WIRE_ID)<< " local position " <<posOnSurf_wire ); 
+      if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the wire surface boundary :" << m_idHelper->print_to_string(WIRE_ID)<< " local position " <<posOnSurf_wire <<endreq; 
     }
   } // end of wire digitization 
 
   return m_digits;
 }
-
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+MsgStream& sTgcDigitMaker::msg(const MSG::Level lvl) const { return m_msg << lvl ; }
+bool sTgcDigitMaker::msgLevel(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
+void sTgcDigitMaker::setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void sTgcDigitMaker::readFileOfTimeJitter()
 {
@@ -486,12 +492,12 @@ void sTgcDigitMaker::readFileOfTimeJitter()
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not find file " << fileName );
+    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not find file " << fileName << endreq;
     exit(-1);
   }
 
   if(ifs.bad()){
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not open file "<< fileName );
+    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not open file "<< fileName << endreq;
     exit(-1);
   }
 
@@ -503,16 +509,16 @@ void sTgcDigitMaker::readFileOfTimeJitter()
   while(ifs.good()){
     ifs >> angle >> bins;
     if (ifs.eof()) break;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ";
+    if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ";
     m_vecAngle_Time.resize(i + 1);
     for (int j = 0; j < 41/*bins*/; j++) {
       ifs >> prob;
       m_vecAngle_Time[i].push_back(prob);
       if (j == 0)
-        if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
+        if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
+      if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
     }
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
+    if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
     i++;
   }
   ifs.close();
@@ -557,8 +563,8 @@ float sTgcDigitMaker::timeJitter(float inAngle_time) const
       +    wAngle *m_vecAngle_Time[jthAngle][ithJitter];
   }
 
-  ATH_MSG_VERBOSE("sTgcDigitMaker::timeJitter : angle = " << inAngle_time 
-                  << ";  timeJitterDetector = " << jitter );
+  msg(MSG::VERBOSE) << "sTgcDigitMaker::timeJitter : angle = " << inAngle_time
+                    << ";  timeJitterDetector = " << jitter << endreq;
 
   return jitter;
 }
@@ -570,7 +576,7 @@ bool sTgcDigitMaker::efficiencyCheck(const int channelType) const {
   else if(channelType == 1) { // strip
     if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfStrips) return true;
   }
-  ATH_MSG_DEBUG("efficiencyCheck(): Hit removed. channelType: " << channelType );
+  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed. channelType: " << channelType << endreq;
   return false;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -610,15 +616,20 @@ bool sTgcDigitMaker::efficiencyCheck(const std::string stationName, const int st
 void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const float digittime, int channelType) {
 
   if(channelType!=0&&channelType!=2) {
-    ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
+    msg(MSG::WARNING) << "Wrong sTgcDigit object with channelType" 
+                      << channelType
+                      << endreq;
   }
 
   bool duplicate = false;
   //sTgcDigit* multihitDigit = 0;
-  //ATH_MSG_DEBUG( "sTgcDigitMaker::addDigit"
+  //if(msgLevel(MSG::DEBUG)) {
+  //  msg(MSG::DEBUG) << "sTgcDigitMaker::addDigit"
   //      	    << " id = " << id
   //      	    << " bctag  = " << bctag
-  //      	    << " channelType  = " << channelType );
+  //      	    << " channelType  = " << channelType 
+  //      	    << endreq;
+  //}
    
   //if((bctag & 0x1) != 0) {
   //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
@@ -676,16 +687,21 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
 void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) {
 
   if(channelType!=1) {
-    ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
+    msg(MSG::WARNING) << "Wrong sTgcDigit object with channelType" 
+                      << channelType
+                      << endreq;
   }
 
   bool duplicate = false;
   //sTgcDigit* multihitDigit = 0;
-  //ATH_MSG_DEBUG( "sTgcDigitMaker::addDigit"
+  //if(msgLevel(MSG::DEBUG)) {
+  //  msg(MSG::DEBUG) << "sTgcDigitMaker::addDigit"
   //      	    << " id = " << id
   //      	    << " bctag  = " << bctag
   //      	    << " charge = " << charge
-  //      	    << " channelType  = " << channelType );
+  //      	    << " channelType  = " << channelType 
+  //      	    << endreq;
+  //}
    
   //if((bctag & 0x1) != 0) {
   //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
@@ -730,7 +746,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //}
 
-  for(sTgcDigitCollection::iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
     if(id==(*it)->identify() && digittime==(*it)->time()) {
       (*it)->set_charge(charge+(*it)->charge());  
       duplicate = true;
@@ -767,7 +783,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   const std::string fileName = "sTGC_Digitization_energyThreshold.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -775,7 +791,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -785,14 +801,17 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
     ifs >> iStationName >> stationEta
         >> stationPhi   >> multiPlet
         >> gasGap >> channelType >> energyThreshold;
-    ATH_MSG_DEBUG(  "sTgcDigitMaker::readFileOfEnergyThreshold"
-                    << " stationName= " << iStationName
-                    << " stationEta= " << stationEta
-                    << " stationPhi= " << stationPhi
-                    << " multiPlet= " << multiPlet
-                    << " gasGap= " << gasGap
-                    << " channelType= " << channelType
-                    << " energyThreshold(MeV)= " << energyThreshold );
+    if(msgLevel(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "sTgcDigitMaker::readFileOfEnergyThreshold"
+                      << " stationName= " << iStationName
+                      << " stationEta= " << stationEta
+                      << " stationPhi= " << stationPhi
+                      << " multiPlet= " << multiPlet
+                      << " gasGap= " << gasGap
+                      << " channelType= " << channelType
+                      << " energyThreshold(MeV)= " << energyThreshold
+                      << endreq;
+    }
 
     // Subtract offsets to use indices of energyThreshold array
     iStationName -= OFFSET_STATIONNAME;
@@ -841,7 +860,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   const std::string fileName = "sTGC_Digitization_deadChamber.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    ATH_MSG_FATAL("readFileOfDeadChamber(): Could not find file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not find file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -849,7 +868,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfDeadChamber(): Could not open file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not open file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -858,16 +877,19 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   std::string comment;
   while(ifs.good()) {
     ifs >> iStationName >> stationEta >> stationPhi >> multiPlet >> gasGap;
-    bool valid = getline(ifs, comment).good();
+    bool valid = getline(ifs, comment);
     if(!valid) break;
 
-    ATH_MSG_DEBUG( "sTgcDigitMaker::readFileOfDeadChamber"
-                    << " stationName= " << iStationName
-                    << " stationEta= " << stationEta
-                    << " stationPhi= " << stationPhi
-                    << " multiPlet= "  << multiPlet 
-                    << " gasGap= " << gasGap
-                    << " comment= " << comment );
+    if(msgLevel(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "sTgcDigitMaker::readFileOfDeadChamber"
+                      << " stationName= " << iStationName
+                      << " stationEta= " << stationEta
+                      << " stationPhi= " << stationPhi
+                      << " multiPlet= "  << multiPlet 
+                      << " gasGap= " << gasGap
+                      << " comment= " << comment
+                      << endreq;
+    }
 
     // Subtract offsets to use indices of isDeadChamber array
     iStationName -= OFFSET_STATIONNAME;
@@ -893,7 +915,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   // Close the sTGC_Digitization_deadChamber.dat file
   ifs.close();
 
-  ATH_MSG_INFO("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
+  if(msgLevel(MSG::INFO)) msg(MSG::INFO) << "sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers << endreq;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -913,7 +935,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   const std::string fileName = "sTGC_Digitization_timeWindowOffset.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -921,7 +943,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() );
+    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() << endreq;
     return;
   }
 
@@ -929,11 +951,14 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   double timeWindowOffset;
   while(ifs.good()) {
     ifs >> iStationName >> stationEta >> channelType >> timeWindowOffset;
-    ATH_MSG_DEBUG(  "sTgcDigitMaker::readFileOfTimeWindowOffset"
-                    << " stationName= " << iStationName
-                    << " stationEta= " << stationEta
-                    << " channelType= " << channelType
-                    << " timeWindowOffset= " << timeWindowOffset );
+    if(msgLevel(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "sTgcDigitMaker::readFileOfTimeWindowOffset"
+                      << " stationName= " << iStationName
+                      << " stationEta= " << stationEta
+                      << " channelType= " << channelType
+                      << " timeWindowOffset= " << timeWindowOffset
+                      << endreq;
+    }
 
     // Subtract offsets to use indices of isDeadChamber array
     iStationName -= OFFSET_STATIONNAME;
@@ -983,14 +1008,17 @@ double sTgcDigitMaker::getEnergyThreshold(const std::string stationName, int sta
   }
 
   // Show the energy threshold value
-  ATH_MSG_VERBOSE( "sTgcDigitMaker::getEnergyThreshold"
-                    << " stationName= " << iStationName+OFFSET_STATIONNAME
-                    << " stationEta= " << stationEta+OFFSET_STATIONETA
-                    << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
-                    << " multiPlet= " << multiPlet+OFFSET_MULTIPLET
-                    << " gasGap= "      << gasGap+OFFSET_GASGAP
-                    << " channelType= " << channelType+OFFSET_CHANNELTYPE
-                    << " energyThreshold(MeV)= " << energyThreshold );
+  if(msgLevel(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "sTgcDigitMaker::getEnergyThreshold"
+                      << " stationName= " << iStationName+OFFSET_STATIONNAME
+                      << " stationEta= " << stationEta+OFFSET_STATIONETA
+                      << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
+                      << " multiPlet= " << multiPlet+OFFSET_MULTIPLET
+                      << " gasGap= "      << gasGap+OFFSET_GASGAP
+                      << " channelType= " << channelType+OFFSET_CHANNELTYPE
+                      << " energyThreshold(MeV)= " << energyThreshold
+                      << endreq;
+  }
 
   return energyThreshold;
 }
@@ -1019,13 +1047,16 @@ bool sTgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta
   }
 
   // Show the energy threshold value
-  ATH_MSG_VERBOSE(  "sTgcDigitMaker::isDeadChamber"
-                    << " stationName= " << iStationName+OFFSET_STATIONNAME
-                    << " stationEta= " << stationEta+OFFSET_STATIONETA
-                    << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
-                    << " multiPlet = " << multiPlet +OFFSET_MULTIPLET
-                    << " gasGap= " << gasGap+OFFSET_GASGAP
-                    << " isDeadChamber= " << v_isDeadChamber );
+  if(msgLevel(MSG::VERBOSE)) {
+    msg(MSG::VERBOSE) << "sTgcDigitMaker::isDeadChamber"
+                      << " stationName= " << iStationName+OFFSET_STATIONNAME
+                      << " stationEta= " << stationEta+OFFSET_STATIONETA
+                      << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
+                      << " multiPlet = " << multiPlet +OFFSET_MULTIPLET
+                      << " gasGap= " << gasGap+OFFSET_GASGAP
+                      << " isDeadChamber= " << v_isDeadChamber
+                      << endreq;
+  }
 
   return v_isDeadChamber;
 }
