@@ -59,6 +59,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    MonGroup timeShift(  this, pathT.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
    MonGroup timeExpert( this, pathT.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    
+   sc = rdoExpert.regHist(m_mu_vs_lumi = TH1F_LW::create("Interactions_vs_lumi", "<Interactions> vs LB ; LumiBlock; <#Interactions/event>",2500,-0.5,2499.5));
    sc = rdoShift.regHist(m_hits_per_lumi      = TProfile_LW::create("Hits_per_lumi",    ("Number of pixel hits per event per LB" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    sc = rdoExpert.regHist(m_hits_per_lumi_ECA = TProfile_LW::create("Hits_per_lumi_ECA",("Number of pixel hits per event per LB, endcap A" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    sc = rdoExpert.regHist(m_hits_per_lumi_ECC = TProfile_LW::create("Hits_per_lumi_ECC",("Number of pixel hits per event per LB, endcap C" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
@@ -67,15 +68,15 @@ StatusCode PixelMainMon::BookHitsMon(void)
    sc = rdoExpert.regHist(m_hits_per_lumi_B1  = TProfile_LW::create("Hits_per_lumi_B1", ("Number of pixel hits per event per LB, barrel layer 1" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    sc = rdoExpert.regHist(m_hits_per_lumi_B2  = TProfile_LW::create("Hits_per_lumi_B2", ("Number of pixel hits per event per LB, barrel layer 2" + m_histTitleExt + ";lumi block;# hits/event").c_str(),2500,-0.5,2499.5));
    
-   sc = rdoExpert.regHist(m_hit_ToT_ECA    = TH1F_LW::create("Hit_ToT_ECA",("Hit Time over Threshold, endcap A" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
-   sc = rdoExpert.regHist(m_hit_ToT_ECC    = TH1F_LW::create("Hit_ToT_ECC",("Hit Time over Threshold, endcap C" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
+   sc = rdoExpert.regHist(m_hit_ToT_ECA    = TH1F_LW::create("Hit_ToT_ECA",("Hit ToT: endcap A" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
+   sc = rdoExpert.regHist(m_hit_ToT_ECC    = TH1F_LW::create("Hit_ToT_ECC",("Hit ToT: endcap C" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
    if(m_doIBL){
-     sc = rdoExpert.regHist(m_hit_ToT_IBL2D     = TH1F_LW::create("Hit_ToT_IBL2D", ("Hit Time over Threshold, IBL2D" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
-     sc = rdoExpert.regHist(m_hit_ToT_IBL3D     = TH1F_LW::create("Hit_ToT_IBL3D", ("Hit Time over Threshold, IBL3D" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
+     sc = rdoExpert.regHist(m_hit_ToT_IBL2D     = TH1F_LW::create("Hit_ToT_IBL2D", ("Hit ToT: IBL planar modules" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
+     sc = rdoExpert.regHist(m_hit_ToT_IBL3D     = TH1F_LW::create("Hit_ToT_IBL3D", ("Hit ToT: IBL 3D modules" + m_histTitleExt + ";ToT;# hits").c_str(), 16,-.5,15.5));
    }
-   sc = rdoExpert.regHist(m_hit_ToT_B0     = TH1F_LW::create("Hit_ToT_B0", ("Hit Time over Threshold, barrel layer 0" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
-   sc = rdoExpert.regHist(m_hit_ToT_B1     = TH1F_LW::create("Hit_ToT_B1", ("Hit Time over Threshold, barrel layer 1" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
-   sc = rdoExpert.regHist(m_hit_ToT_B2     = TH1F_LW::create("Hit_ToT_B2", ("Hit Time over Threshold, barrel layer 2" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
+   sc = rdoExpert.regHist(m_hit_ToT_B0     = TH1F_LW::create("Hit_ToT_B0", ("Hit ToT: barrel layer 0" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
+   sc = rdoExpert.regHist(m_hit_ToT_B1     = TH1F_LW::create("Hit_ToT_B1", ("Hit ToT: barrel layer 1" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
+   sc = rdoExpert.regHist(m_hit_ToT_B2     = TH1F_LW::create("Hit_ToT_B2", ("Hit ToT: barrel layer 2" + m_histTitleExt + ";ToT;# hits").c_str(), 300,-0.5,299.5));
   
    if(m_doIBL && m_doModules && !m_doOnline){
      sc= rdoExpert.regHist(m_ToT_vs_eta_IBL      = TH2F_LW::create("ToT_vs_eta_IBL", ("Hit ToT vs Eta, IBL" + m_histTitleExt + "; Module eta;ToT").c_str(),20,-10.5,9.5,16,0,16));
@@ -94,11 +95,18 @@ StatusCode PixelMainMon::BookHitsMon(void)
    if(m_doTiming)
      {
       sc = timeExpert.regHist(m_Lvl1ID_diff_mod_ATLAS    = TH1I_LW::create("Lvl1ID_diff_ATLAS_mod",  ("ATLAS_{Level 1 ID} - Module_{Level 1 ID}" + m_histTitleExt + ";#Delta Level 1 ID; # hits").c_str(), 41, -20.5, 20.5));
-      sc = timeShift.regHist(m_Lvl1A                    = TH1I_LW::create("Lvl1A",  ("Hit Level 1 Accept" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 8, -1.5, 6.5));
+      sc = timeShift.regHist(m_Lvl1A                    = TH1I_LW::create("Lvl1A",  ("Hit Level 1 Accept" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     sc = timeShift.regHist(m_Lvl1A_ECA                    = TH1I_LW::create("Lvl1A_ECA",  ("Hit Level 1 Accept, ECA" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     sc = timeShift.regHist(m_Lvl1A_ECC                    = TH1I_LW::create("Lvl1A_ECC",  ("Hit Level 1 Accept, ECC" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     sc = timeShift.regHist(m_Lvl1A_B0                    = TH1I_LW::create("Lvl1A_B0",  ("Hit Level 1 Accept, B0" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     sc = timeShift.regHist(m_Lvl1A_B1                    = TH1I_LW::create("Lvl1A_B1",  ("Hit Level 1 Accept, B1" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     sc = timeShift.regHist(m_Lvl1A_B2                    = TH1I_LW::create("Lvl1A_B2",  ("Hit Level 1 Accept, B2" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 14, -1.5, 12.5));
+     if(m_doIBL){sc = timeShift.regHist(m_Lvl1A_IBL       = TH1I_LW::create("Lvl1A_IBL",  ("Hit Level 1 Accept, IBL" + m_histTitleExt + ";Level 1 Accept; # hits").c_str(), 18, -1.5, 16.5));}
+
       sc = timeExpert.regHist(m_Lvl1ID                  = TH1I_LW::create("LvlID",  ("Level 1 ID" + m_histTitleExt + ";level 1 ID;# hits").c_str(), 20,-0.5,19.5));
       sc = timeShift.regHist(m_BCID                     = TH1I_LW::create("Pixel_BCID",  ("BCID" + m_histTitleExt + ";Pixel BCID;# pixel hits").c_str(), 300,-0.5,299.5));//2808 bunches but have a few extra bins to check 
       sc = timeShift.regHist(m_Atlas_BCID               = TH1F_LW::create("Atlas_BCID",  ("BCID" + m_histTitleExt + ";ATLAS BCID;# pixel hits").c_str(), 3500,-0.5,3499.5));
-      sc = timeShift.regHist(m_Atlas_BCID_hits          = TH2F_LW::create("Atlas_BCID_Hits",  ("BCID" + m_histTitleExt + ";BCID;# pixel hits").c_str(), 3500,-0.5,3499.5,100,0,5000));
+      sc = timeShift.regHist(m_Atlas_BCID_hits          = TH2F_LW::create("Atlas_BCID_Hits",  ("BCID" + m_histTitleExt + ";BCID;# pixel hits").c_str(), 3500,-0.5,3499.5,100,0,25000));
       sc = timeExpert.regHist(m_BCID_Profile            = TProfile_LW::create("Atlas_BCID_Profile",  ("BCID_Profile" + m_histTitleExt + ";BCID;# pixel hits").c_str(), 3500,-0.5,3499.5));  
       sc = timeExpert.regHist(m_diff_ROD_vs_Module_BCID = TH1I_LW::create("ROD_Module_BCID",("Difference between BCID of RODs and Modules " + m_histTitleExt + "; BCID: ROD-Module (#bc) ; Number of Pixels").c_str(),101,-50.5,50.5));
       if(!(m_doOnTrack || m_doOnPixelTrack))sc = timeShift.regHist(m_diff_ROD_BCID = TH2I_LW::create("ROD_BCID",("Difference between ROD BCID's versus ROD Number " + m_histTitleExt + "; ROD Number ; BCID: current - previous ROD").c_str(),132,-0.5,131.5,201,-100.5,100.5));//this makes no sense on track, so skip it     
@@ -122,6 +130,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
    {
      m_hit_num_mod = new PixelMonModules1D("Hit_num", ("Number of hits per event in module" + m_histTitleExt).c_str(), 15,-0.5,149.5,m_doIBL);
      sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run, m_doIBL);
+     m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track vs t in module" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
+     sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run, m_doIBL);
    }
    if(m_doModules || m_doFEChipSummary)
    {
@@ -221,9 +231,9 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
    MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
-   
+
    if(m_doHighOccupancy) {
-     sc = lumiBlockHist.regHist(m_num_hits_LB = TH1I_LW::create("num_hits_LB", ("Number of pixel hits per event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 200,0.,10000));
+     sc = lumiBlockHist.regHist(m_num_hits_LB = TH1I_LW::create("num_hits_LB", ("Number of pixel hits per event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 100,0.,25000));
    }
    if(m_doLowOccupancy) {
      sc = lumiBlockHist.regHist(m_num_hits_low_LB = TH1I_LW::create("num_hits_low_occupancy_LB", ("Number of pixel hits per event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 200,-0.5,199.5));
@@ -239,11 +249,24 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 
 StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 {
+  if(newLumiBlock && m_mu_vs_lumi){
+    if(m_lumiTool){
+      float mu = m_lumiTool->lbAverageInteractionsPerCrossing();
+      m_mu_vs_lumi->Fill(m_lumiBlockNum,mu);
+    }
+    else{
+      msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endreq;
+    }
+  }
+  
+    //  m_mu_LB->Fill(m_lumiBlockNum,managed->lbAverageInteractionsPerCrossing();
+
   // get ROD BCID
    const InDetTimeCollection *Pixel_BCIDColl = 0;  
    if ( evtStore()->contains<InDetTimeCollection>("PixelBCID") )  sc = evtStore()->retrieve(Pixel_BCIDColl, "PixelBCID"); 
    int n_pix_bcid_nrobs   = 0;   //pixel BCID robs counter
    int prev_pix_bcid = 0;
+   
    if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) 
    {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endreq;
@@ -362,7 +385,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       
       for(p_rdo=PixelCollection->begin(); p_rdo!=PixelCollection->end(); ++p_rdo) 
       {
-         rdoID=(*p_rdo)->identify();
+	rdoID=(*p_rdo)->identify();
 
 	 //if((*p_rdo)->getToT()>10){
 
@@ -373,7 +396,17 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	 if(m_occupancy) m_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
          if(m_average_occupancy) m_average_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
 	 
-	 if(m_Lvl1A) m_Lvl1A->Fill((*p_rdo)->getLVL1A());                 
+	 if(m_Lvl1A){ 
+	   m_Lvl1A->Fill((*p_rdo)->getLVL1A());                  
+	   if(m_pixelid->barrel_ec(rdoID)==2) m_Lvl1A_ECA->Fill((*p_rdo)->getLVL1A()); 
+	   if(m_pixelid->barrel_ec(rdoID)==-2) m_Lvl1A_ECC->Fill((*p_rdo)->getLVL1A()); 
+	   if (m_pixelid->barrel_ec(rdoID)==0) { 
+	     if(m_doIBL && m_Lvl1A_IBL && m_pixelid->layer_disk(rdoID)==0)m_Lvl1A_IBL->Fill((*p_rdo)->getLVL1A()); 
+	     if(m_Lvl1A_B0 && m_pixelid->layer_disk(rdoID)==0+m_doIBL) m_Lvl1A_B0->Fill((*p_rdo)->getLVL1A()); 
+	     if(m_Lvl1A_B1 && m_pixelid->layer_disk(rdoID)==1+m_doIBL) m_Lvl1A_B1->Fill((*p_rdo)->getLVL1A()); 
+	     if(m_Lvl1A_B2 && m_pixelid->layer_disk(rdoID)==2+m_doIBL) m_Lvl1A_B2->Fill((*p_rdo)->getLVL1A()); 
+	   } 
+	 } 
          if(m_Lvl1ID) m_Lvl1ID->Fill((*p_rdo)->getLVL1ID());
 
          const EventInfo* thisEventInfo;
@@ -385,6 +418,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
          }else{         
 	   if(m_Lvl1ID_diff_mod_ATLAS) m_Lvl1ID_diff_mod_ATLAS->Fill((int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID()));
+	   int lvl1id = (thisEventInfo->trigger_info()->extendedLevel1ID())&0xf;
 	   if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_lumiBlockNum,rdoID,m_pixelid,(int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID()));
          }
          
@@ -422,6 +456,15 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	 //lastphi=iphi;
          //}
 
+	 if(m_hiteff_mod){
+	   if(OnTrack(rdoID,false)){
+	     m_hiteff_mod->Fill(m_lumiBlockNum,1.,rdoID,m_pixelid,m_doIBL);
+	   }
+	   else{
+	     m_hiteff_mod->Fill(m_lumiBlockNum,0.,rdoID,m_pixelid,m_doIBL);
+	   }
+	 }
+	    
 	 if(m_pixelid->barrel_ec(rdoID)==2) m_hit_ToT_ECA->Fill((*p_rdo)->getToT());
 	 if(m_pixelid->barrel_ec(rdoID)==-2) m_hit_ToT_ECC->Fill((*p_rdo)->getToT());
 	 if (m_pixelid->barrel_ec(rdoID)==0) {

@@ -32,7 +32,7 @@
 //#include "TrkTrack/TrackCollection.h"            
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 //#include "TrkTrackSummary/TrackSummary.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 #include "PixelMonitoring/PixelMon2DLumiProfiles.h"
@@ -271,129 +271,130 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
    if(m_do2DMaps && !m_doOnline)
    {
-      m_SyncErrors = new PixelMon2DMaps("SyncErrors", ("Synchronisation Errors" + m_histTitleExt).c_str());  //to be removed ?
+      m_SyncErrors = new PixelMon2DMapsLW("SyncErrors", ("Synchronisation Errors" + m_histTitleExt).c_str());  //to be removed ?
       sc = m_SyncErrors->regHist(rodHistos);
-      m_TruncationErrors = new PixelMon2DMaps("Truncation_Errors", ("Truncation or High Occupancy Errors" + m_histTitleExt).c_str());  //to be removed ?
+      m_TruncationErrors = new PixelMon2DMapsLW("Truncation_Errors", ("Truncation or High Occupancy Errors" + m_histTitleExt).c_str());  //to be removed ?
       sc = m_TruncationErrors->regHist(rodHistos);
-      m_SyncErrors_mod = new PixelMon2DMaps("SyncErrors_mod", ("Module Synchronisation Errors" + m_histTitleExt).c_str());
+      m_SyncErrors_mod = new PixelMon2DMapsLW("SyncErrors_mod", ("Module Synchronisation Errors" + m_histTitleExt).c_str());
       sc = m_SyncErrors_mod->regHist(rodHistos);
-      m_SyncErrors_ROD = new PixelMon2DMaps("SyncErrors_ROD", ("ROD Synchronisation Errors" + m_histTitleExt).c_str());
+      m_SyncErrors_ROD = new PixelMon2DMapsLW("SyncErrors_ROD", ("ROD Synchronisation Errors" + m_histTitleExt).c_str());
       sc = m_SyncErrors_ROD->regHist(rodHistos);
-      m_TruncErrors_mod = new PixelMon2DMaps("TruncErrors_mod", ("Module Truncation or High Occupancy Errors" + m_histTitleExt).c_str());
+      m_TruncErrors_mod = new PixelMon2DMapsLW("TruncErrors_mod", ("Module Truncation or High Occupancy Errors" + m_histTitleExt).c_str());
       sc = m_TruncErrors_mod->regHist(rodHistos);
-      m_TruncErrors_ROD = new PixelMon2DMaps("TruncErrors_ROD", ("ROD Truncation or High Occupancy Errors" + m_histTitleExt).c_str());
+      m_TruncErrors_ROD = new PixelMon2DMapsLW("TruncErrors_ROD", ("ROD Truncation or High Occupancy Errors" + m_histTitleExt).c_str());
       sc = m_TruncErrors_ROD->regHist(rodHistos);
 
-      m_OpticalErrors = new PixelMon2DMaps("Optical_Errors", ("Optical Transmision Errors" + m_histTitleExt).c_str());
+      m_OpticalErrors = new PixelMon2DMapsLW("Optical_Errors", ("Optical Transmision Errors" + m_histTitleExt).c_str());
       sc = m_OpticalErrors->regHist(rodHistos);
-      m_SEU_Errors = new PixelMon2DMaps("SEU_Errors", ("SEU Errors" + m_histTitleExt).c_str());
+      m_SEU_Errors = new PixelMon2DMapsLW("SEU_Errors", ("SEU Errors" + m_histTitleExt).c_str());
       sc = m_SEU_Errors->regHist(rodHistos);
-      m_TimeoutErrors = new PixelMon2DMaps("Timeout_Errors", ("Timeout Errors" + m_histTitleExt).c_str());
+      m_TimeoutErrors = new PixelMon2DMapsLW("Timeout_Errors", ("Timeout Errors" + m_histTitleExt).c_str());
       sc = m_TimeoutErrors->regHist(rodHistos);
 
-      m_sync_mod_BCID1 = new PixelMon2DMaps("SyncErrors_mod_BCID1", ("Module Synchronization Errors, BCID1" + m_histTitleExt).c_str());
+      m_sync_mod_BCID1 = new PixelMon2DMapsLW("SyncErrors_mod_BCID1", ("Module Synchronization Errors, BCID1" + m_histTitleExt).c_str());
       sc = m_sync_mod_BCID1->regHist(rodExpert);
-      m_sync_mod_BCID2 = new PixelMon2DMaps("SyncErrors_mod_BCID2", ("Module Synchronization Errors, BCID2" + m_histTitleExt).c_str());
+      m_sync_mod_BCID2 = new PixelMon2DMapsLW("SyncErrors_mod_BCID2", ("Module Synchronization Errors, BCID2" + m_histTitleExt).c_str());
       sc = m_sync_mod_BCID2->regHist(rodExpert);
-      m_sync_mod_LVL1ID = new PixelMon2DMaps("SyncErrors_mod_LVL1ID", ("Module Synchronization Errors, LVL1ID" + m_histTitleExt).c_str());
+      m_sync_mod_LVL1ID = new PixelMon2DMapsLW("SyncErrors_mod_LVL1ID", ("Module Synchronization Errors, LVL1ID" + m_histTitleExt).c_str());
       sc = m_sync_mod_LVL1ID->regHist(rodExpert);
-      m_sync_rod_BCID = new PixelMon2DMaps("SyncErrors_ROD_BCID", ("ROD Synchronization Errors, BCID" + m_histTitleExt).c_str());
+      m_sync_rod_BCID = new PixelMon2DMapsLW("SyncErrors_ROD_BCID", ("ROD Synchronization Errors, BCID" + m_histTitleExt).c_str());
       sc = m_sync_rod_BCID->regHist(rodExpert);
-      m_sync_rod_LVL1ID = new PixelMon2DMaps("SyncErrors_ROD_LVL1ID", ("ROD Synchronization Errors, LVL1ID" + m_histTitleExt).c_str());
+      m_sync_rod_LVL1ID = new PixelMon2DMapsLW("SyncErrors_ROD_LVL1ID", ("ROD Synchronization Errors, LVL1ID" + m_histTitleExt).c_str());
       sc = m_sync_rod_LVL1ID->regHist(rodExpert);
-      m_trunc_mod_EOC = new PixelMon2DMaps("TruncErrors_mod_EoC", ("Module Truncation Errors, EoC" + m_histTitleExt).c_str());
+      m_trunc_mod_EOC = new PixelMon2DMapsLW("TruncErrors_mod_EoC", ("Module Truncation Errors, EoC" + m_histTitleExt).c_str());
       sc = m_trunc_mod_EOC->regHist(rodExpert);
-      m_trunc_mod_hitOF = new PixelMon2DMaps("TruncErrors_mod_hitOF", ("Module Truncation Errors, Hit Overflow" + m_histTitleExt).c_str());
+      m_trunc_mod_hitOF = new PixelMon2DMapsLW("TruncErrors_mod_hitOF", ("Module Truncation Errors, Hit Overflow" + m_histTitleExt).c_str());
       sc = m_trunc_mod_hitOF->regHist(rodExpert);
-      m_trunc_mod_EoEOF = new PixelMon2DMaps("TruncErrors_mod_EoEOF", ("Module Truncation Errors, EoE Overflow" + m_histTitleExt).c_str());
+      m_trunc_mod_EoEOF = new PixelMon2DMapsLW("TruncErrors_mod_EoEOF", ("Module Truncation Errors, EoE Overflow" + m_histTitleExt).c_str());
       sc = m_trunc_mod_EoEOF->regHist(rodExpert);
-      m_trunc_rod_HTlim = new PixelMon2DMaps("TruncErrors_ROD_HTlim", ("ROD Truncation Errors, H/T Limit" + m_histTitleExt).c_str());
+      m_trunc_rod_HTlim = new PixelMon2DMapsLW("TruncErrors_ROD_HTlim", ("ROD Truncation Errors, H/T Limit" + m_histTitleExt).c_str());
       sc = m_trunc_rod_HTlim->regHist(rodExpert);
-      m_trunc_rod_FIFOOF = new PixelMon2DMaps("TruncErrors_ROD_FIFOOF", ("ROD Truncation Errors, FIFO Overflow" + m_histTitleExt).c_str());
+      m_trunc_rod_FIFOOF = new PixelMon2DMapsLW("TruncErrors_ROD_FIFOOF", ("ROD Truncation Errors, FIFO Overflow" + m_histTitleExt).c_str());
       sc = m_trunc_rod_FIFOOF->regHist(rodExpert);
-      m_optical_error = new PixelMon2DMaps("Optical_Errors", ("Optical Transmision Errors" + m_histTitleExt).c_str());
+      m_optical_error = new PixelMon2DMapsLW("Optical_Errors", ("Optical Transmision Errors" + m_histTitleExt).c_str());
       sc = m_optical_error->regHist(rodExpert);
-      m_seu_hit_parity = new PixelMon2DMaps("SEUErrors_Hit_Parity", ("SEU Errors, Hit Parity" + m_histTitleExt).c_str());
+      m_seu_hit_parity = new PixelMon2DMapsLW("SEUErrors_Hit_Parity", ("SEU Errors, Hit Parity" + m_histTitleExt).c_str());
       sc = m_seu_hit_parity->regHist(rodExpert);
-      m_seu_reg_parity = new PixelMon2DMaps("SEUErrors_Reg_Parity", ("SEU Errors, Register Parity" + m_histTitleExt).c_str());
+      m_seu_reg_parity = new PixelMon2DMapsLW("SEUErrors_Reg_Parity", ("SEU Errors, Register Parity" + m_histTitleExt).c_str());
       sc = m_seu_reg_parity->regHist(rodExpert);
-      m_seu_hamming = new PixelMon2DMaps("SEUErrors_Hamming", ("SEU Errors, Hamming Code" + m_histTitleExt).c_str());
+      m_seu_hamming = new PixelMon2DMapsLW("SEUErrors_Hamming", ("SEU Errors, Hamming Code" + m_histTitleExt).c_str());
       sc = m_seu_hamming->regHist(rodExpert);
-      m_timeout = new PixelMon2DMaps("ROD_Timeout", ("ROD Formatter Timeout Errors" + m_histTitleExt).c_str());
+      m_timeout = new PixelMon2DMapsLW("ROD_Timeout", ("ROD Formatter Timeout Errors" + m_histTitleExt).c_str());
       sc = m_timeout->regHist(rodExpert);
-      m_FEwarning = new PixelMon2DMaps("FE_Warning", ("FE Warning Timeout Errors" + m_histTitleExt).c_str());
+      m_FEwarning = new PixelMon2DMapsLW("FE_Warning", ("FE Warning Timeout Errors" + m_histTitleExt).c_str());
       sc = m_FEwarning->regHist(rodExpert);
 
-      ///////////////////////////
-      m_sync_mod_BCID1_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_BCID1_per_LB", ("Avg Module Synchronization Errors, BCID1" + m_histTitleExt).c_str(),"# Mod BCID1 Errors/Event");
-      sc = m_sync_mod_BCID1_per_LB->regHist(rodExpert);
+      if(m_doModules){
+	m_sync_mod_BCID1_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_BCID1_per_LB", ("Avg Module Synchronization Errors, BCID1" + m_histTitleExt).c_str(),"# Mod BCID1 Errors/Event");
+	sc = m_sync_mod_BCID1_per_LB->regHist(rodExpert);
+	m_sync_mod_BCID2_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_BCID2_per_LB", ("Avg Module Synchronization Errors, BCID2" + m_histTitleExt).c_str(),"# Mod BCID2 Errors/Event");
+	sc = m_sync_mod_BCID2_per_LB->regHist(rodExpert);
+	m_sync_mod_LVL1ID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_LVL1ID_per_LB", ("Avg Module Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# Mod LVL1ID Errors/Event");
+	sc = m_sync_mod_LVL1ID_per_LB->regHist(rodExpert);
+	m_sync_mod_corr_LVL1ID_BCID2_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_corr_LVL1ID_BCID2_per_LB", ("Avg Module Synchronization Error Correlations, LVL1ID and BCID2" + m_histTitleExt).c_str(),"Events with LVL1ID and BCID2 Errors/Events with either LVL1ID or BCID2 errors");
+	sc = m_sync_mod_corr_LVL1ID_BCID2_per_LB->regHist(rodExpert);
+	m_sync_rod_BCID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_BCID_per_LB", ("Avg ROD Synchronization Errors, BCID" + m_histTitleExt).c_str(),"# ROD BCID Errors/Event");
+	sc = m_sync_rod_BCID_per_LB->regHist(rodExpert);
+	m_sync_rod_LVL1ID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_LVL1ID_per_LB", ("Avg ROD Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# ROD LVL1ID Errors/Event");
+	sc = m_sync_rod_LVL1ID_per_LB->regHist(rodExpert);
+	m_sync_rod_corr_LVL1ID_BCID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_corr_LVL1ID_BCID_per_LB", ("Avg ROD Synchronization Error Correlations, LVL1ID and BCID" + m_histTitleExt).c_str(),"Events with LVL1ID and BCID Errors/Events with either LVL1ID or BCID errors");
+	sc = m_sync_rod_corr_LVL1ID_BCID_per_LB->regHist(rodExpert);
+	m_trunc_mod_EOC_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_EOC_per_LB", ("Avg Module Truncation Errors, EoC" + m_histTitleExt).c_str(),"# Mod EoC Errors/Event");
+	sc = m_trunc_mod_EOC_per_LB->regHist(rodExpert);
+	m_trunc_mod_hitOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_hitOF_per_LB", ("Avg Module Truncation Errors, Hit Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
+	sc = m_trunc_mod_hitOF_per_LB->regHist(rodExpert);
+	m_trunc_mod_EoEOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_EoEOF_per_LB", ("Avg Module Truncation Errors, EoE Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
+	sc = m_trunc_mod_EoEOF_per_LB->regHist(rodExpert);
+	m_trunc_rod_HTlim_per_LB = new PixelMon2DLumiProfiles("TruncErrors_rod_HTlim_per_LB", ("Avg ROD Truncation Errors, H/T Limit" + m_histTitleExt).c_str(),"# H/T Errors/Event");
+	sc = m_trunc_rod_HTlim_per_LB->regHist(rodExpert);
+	m_trunc_rod_FIFOOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_rod_FIFOOF_per_LB", ("Avg ROD Truncation Errors, FIFO Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
+	sc = m_trunc_rod_FIFOOF_per_LB->regHist(rodExpert);
+	m_optical_error_per_LB = new PixelMon2DLumiProfiles("Optical_Errors_per_LB", ("Avg Optical Errors" + m_histTitleExt).c_str(),"# Optical Errors/Event");
+	sc = m_optical_error_per_LB->regHist(rodExpert);
+	m_seu_hit_parity_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Hit_Parity_per_LB", ("Avg SEU Errors, Hit Parity" + m_histTitleExt).c_str(),"# Hit Parity Errors/Event");
+	sc = m_seu_hit_parity_per_LB->regHist(rodExpert);
+	m_seu_reg_parity_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Reg_Parity_per_LB", ("Avg SEU Errors, Register Parity" + m_histTitleExt).c_str(),"# Reg Parity Errors/Event");
+	sc = m_seu_reg_parity_per_LB->regHist(rodExpert);
+	m_seu_hamming_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Hamming_per_LB", ("Avg SEU Errors, Hamming Code" + m_histTitleExt).c_str(),"# HC Errors/Event");
+	sc = m_seu_hamming_per_LB->regHist(rodExpert);
+	m_timeout_per_LB = new PixelMon2DLumiProfiles("ROD_Timeout_per_LB", ("Avg ROD Formatter Timeout Errors" + m_histTitleExt).c_str(),"# Timeout Errors/Event");
+	sc = m_timeout_per_LB->regHist(rodExpert);
+	m_FEwarning_per_LB = new PixelMon2DLumiProfiles("FE_Warning_per_LB", ("Avg FE Warning Errors" + m_histTitleExt).c_str(),"# FE Warning Errors/Event");
+	sc = m_FEwarning_per_LB->regHist(rodExpert);
+      }
+
       m_sync_mod_BCID1_int_LB = new PixelMon2DLumiMaps("SyncErrors_mod_BCID1_int_LB", ("All Module Synchronization Errors, BCID1" + m_histTitleExt).c_str(),"# Mod BCID1 Errors");
       sc = m_sync_mod_BCID1_int_LB->regHist(rodExpert);
-      m_sync_mod_BCID2_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_BCID2_per_LB", ("Avg Module Synchronization Errors, BCID2" + m_histTitleExt).c_str(),"# Mod BCID2 Errors/Event");
-      sc = m_sync_mod_BCID2_per_LB->regHist(rodExpert);
       m_sync_mod_BCID2_int_LB = new PixelMon2DLumiMaps("SyncErrors_mod_BCID2_int_LB", ("All Module Synchronization Errors, BCID2" + m_histTitleExt).c_str(),"# Mod BCID2 Errors");
       sc = m_sync_mod_BCID2_int_LB->regHist(rodExpert);
-      m_sync_mod_LVL1ID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_LVL1ID_per_LB", ("Avg Module Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# Mod LVL1ID Errors/Event");
-      sc = m_sync_mod_LVL1ID_per_LB->regHist(rodExpert);
       m_sync_mod_LVL1ID_int_LB = new PixelMon2DLumiMaps("SyncErrors_mod_LVL1ID_int_LB", ("All Module Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# Mod LVL1ID Errors");
       sc = m_sync_mod_LVL1ID_int_LB->regHist(rodExpert);
-      m_sync_mod_corr_LVL1ID_BCID2_per_LB = new PixelMon2DLumiProfiles("SyncErrors_mod_corr_LVL1ID_BCID2_per_LB", ("Avg Module Synchronization Error Correlations, LVL1ID and BCID2" + m_histTitleExt).c_str(),"Events with LVL1ID and BCID2 Errors/Events with either LVL1ID or BCID2 errors");
-      sc = m_sync_mod_corr_LVL1ID_BCID2_per_LB->regHist(rodExpert);
-      m_sync_rod_BCID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_BCID_per_LB", ("Avg ROD Synchronization Errors, BCID" + m_histTitleExt).c_str(),"# ROD BCID Errors/Event");
-      sc = m_sync_rod_BCID_per_LB->regHist(rodExpert);
       m_sync_rod_BCID_int_LB = new PixelMon2DLumiMaps("SyncErrors_rod_BCID_int_LB", ("All ROD Synchronization Errors, BCID" + m_histTitleExt).c_str(),"# ROD BCID Errors");
       sc = m_sync_rod_BCID_int_LB->regHist(rodExpert);
-      m_sync_rod_LVL1ID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_LVL1ID_per_LB", ("Avg ROD Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# ROD LVL1ID Errors/Event");
-      sc = m_sync_rod_LVL1ID_per_LB->regHist(rodExpert);
       m_sync_rod_LVL1ID_int_LB = new PixelMon2DLumiMaps("SyncErrors_rod_LVL1ID_int_LB", ("All ROD Synchronization Errors, LVL1ID" + m_histTitleExt).c_str(),"# ROD LVL1ID Errors");
       sc = m_sync_rod_LVL1ID_int_LB->regHist(rodExpert);
-      m_sync_rod_corr_LVL1ID_BCID_per_LB = new PixelMon2DLumiProfiles("SyncErrors_rod_corr_LVL1ID_BCID_per_LB", ("Avg ROD Synchronization Error Correlations, LVL1ID and BCID" + m_histTitleExt).c_str(),"Events with LVL1ID and BCID Errors/Events with either LVL1ID or BCID errors");
-      sc = m_sync_rod_corr_LVL1ID_BCID_per_LB->regHist(rodExpert);
-      m_trunc_mod_EOC_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_EOC_per_LB", ("Avg Module Truncation Errors, EoC" + m_histTitleExt).c_str(),"# Mod EoC Errors/Event");
-      sc = m_trunc_mod_EOC_per_LB->regHist(rodExpert);
       m_trunc_mod_EOC_int_LB = new PixelMon2DLumiMaps("TruncErrors_mod_EOC_int_LB", ("All Module Truncation Errors, EoC" + m_histTitleExt).c_str(),"# Mod EoC Errors");
       sc = m_trunc_mod_EOC_int_LB->regHist(rodExpert);
-      m_trunc_mod_hitOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_hitOF_per_LB", ("Avg Module Truncation Errors, Hit Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
-      sc = m_trunc_mod_hitOF_per_LB->regHist(rodExpert);
       m_trunc_mod_hitOF_int_LB = new PixelMon2DLumiMaps("TruncErrors_mod_hitOF_int_LB", ("All Module Truncation Errors, Hit Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors");
       sc = m_trunc_mod_hitOF_int_LB->regHist(rodExpert);
-      m_trunc_mod_EoEOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_mod_EoEOF_per_LB", ("Avg Module Truncation Errors, EoE Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
-      sc = m_trunc_mod_EoEOF_per_LB->regHist(rodExpert);
       m_trunc_mod_EoEOF_int_LB = new PixelMon2DLumiMaps("TruncErrors_mod_EoEOF_int_LB", ("All Module Truncation Errors, EoE Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors");
       sc = m_trunc_mod_EoEOF_int_LB->regHist(rodExpert);
-      m_trunc_rod_HTlim_per_LB = new PixelMon2DLumiProfiles("TruncErrors_rod_HTlim_per_LB", ("Avg ROD Truncation Errors, H/T Limit" + m_histTitleExt).c_str(),"# H/T Errors/Event");
-      sc = m_trunc_rod_HTlim_per_LB->regHist(rodExpert);
       m_trunc_rod_HTlim_int_LB = new PixelMon2DLumiMaps("TruncErrors_rod_HTlim_int_LB", ("All ROD Truncation Errors, H/T Limit" + m_histTitleExt).c_str(),"# H/T Errors");
       sc = m_trunc_rod_HTlim_int_LB->regHist(rodExpert);
-      m_trunc_rod_FIFOOF_per_LB = new PixelMon2DLumiProfiles("TruncErrors_rod_FIFOOF_per_LB", ("Avg ROD Truncation Errors, FIFO Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors/Event");
-      sc = m_trunc_rod_FIFOOF_per_LB->regHist(rodExpert);
       m_trunc_rod_FIFOOF_int_LB = new PixelMon2DLumiMaps("TruncErrors_rod_FIFOOF_int_LB", ("All ROD Truncation Errors, FIFO Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors");
       sc = m_trunc_rod_FIFOOF_int_LB->regHist(rodExpert);
-      m_optical_error_per_LB = new PixelMon2DLumiProfiles("Optical_Errors_per_LB", ("Avg Optical Errors" + m_histTitleExt).c_str(),"# Optical Errors/Event");
-      sc = m_optical_error_per_LB->regHist(rodExpert);
       m_optical_error_int_LB = new PixelMon2DLumiMaps("Optical_Errors_int_LB", ("All Optical Errors" + m_histTitleExt).c_str(),"# Optical Errors");
       sc = m_optical_error_int_LB->regHist(rodExpert);
-      m_seu_hit_parity_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Hit_Parity_per_LB", ("Avg SEU Errors, Hit Parity" + m_histTitleExt).c_str(),"# Hit Parity Errors/Event");
-      sc = m_seu_hit_parity_per_LB->regHist(rodExpert);
       m_seu_hit_parity_int_LB = new PixelMon2DLumiMaps("SEUErrors_Hit_Parity_int_LB", ("All SEU Errors, Hit Parity" + m_histTitleExt).c_str(),"# Hit Parity Errors");
       sc = m_seu_hit_parity_int_LB->regHist(rodExpert);
-      m_seu_reg_parity_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Reg_Parity_per_LB", ("Avg SEU Errors, Register Parity" + m_histTitleExt).c_str(),"# Reg Parity Errors/Event");
-      sc = m_seu_reg_parity_per_LB->regHist(rodExpert);
       m_seu_reg_parity_int_LB = new PixelMon2DLumiMaps("SEUErrors_Reg_Parity_int_LB", ("All SEU Errors, Register Parity" + m_histTitleExt).c_str(),"# Reg Parity Errors");
       sc = m_seu_reg_parity_int_LB->regHist(rodExpert);
-      m_seu_hamming_per_LB = new PixelMon2DLumiProfiles("SEUErrors_Hamming_per_LB", ("Avg SEU Errors, Hamming Code" + m_histTitleExt).c_str(),"# HC Errors/Event");
-      sc = m_seu_hamming_per_LB->regHist(rodExpert);
       m_seu_hamming_int_LB = new PixelMon2DLumiMaps("SEUErrors_Hamming_int_LB", ("All SEU Errors, Hamming Code" + m_histTitleExt).c_str(),"# HC Errors");
       sc = m_seu_hamming_int_LB->regHist(rodExpert);
-      m_timeout_per_LB = new PixelMon2DLumiProfiles("ROD_Timeout_per_LB", ("Avg ROD Formatter Timeout Errors" + m_histTitleExt).c_str(),"# Timeout Errors/Event");
-      sc = m_timeout_per_LB->regHist(rodExpert);
       m_timeout_int_LB = new PixelMon2DLumiMaps("ROD_Timeout_int_LB", ("All ROD Formatter Timeout Errors" + m_histTitleExt).c_str(),"# Timeout Errors");
       sc = m_timeout_int_LB->regHist(rodExpert); 
-      m_FEwarning_per_LB = new PixelMon2DLumiProfiles("FE_Warning_per_LB", ("Avg FE Warning Errors" + m_histTitleExt).c_str(),"# FE Warning Errors/Event");
-      sc = m_FEwarning_per_LB->regHist(rodExpert);
       m_FEwarning_int_LB = new PixelMon2DLumiMaps("FE_Warning_int_LB", ("All FE Warning Errors" + m_histTitleExt).c_str(),"# FE Warning Errors");
       sc = m_FEwarning_int_LB->regHist(rodExpert); 
-      ///////////////////////////
    }
 
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
@@ -410,7 +411,7 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
    MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
    
    if (m_do2DMaps && !m_doOnline) {
-     m_errors_LB = new PixelMon2DMaps("Errors_LB", ("Errors" + m_histTitleExt).c_str());
+     m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str());
      sc = m_errors_LB->regHist(lumiBlockHist);
    }
    
@@ -1015,7 +1016,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    if(m_SyncErrors_per_lumi_ECC)        m_SyncErrors_per_lumi_ECC      ->Fill(m_lumiBlockNum,nSyncErrors_ECC);
    if(m_SyncErrors_per_lumi_B0)         m_SyncErrors_per_lumi_B0       ->Fill(m_lumiBlockNum,nSyncErrors_B0);
    if(m_SyncErrors_per_lumi_B1)         m_SyncErrors_per_lumi_B1       ->Fill(m_lumiBlockNum,nSyncErrors_B1);
-   if(m_SyncErrors_per_lumi_ECA)        m_SyncErrors_per_lumi_B2       ->Fill(m_lumiBlockNum,nSyncErrors_B2);
+   if(m_SyncErrors_per_lumi_B2)        m_SyncErrors_per_lumi_B2       ->Fill(m_lumiBlockNum,nSyncErrors_B2);
 
    if(m_TruncationErrors_per_lumi)      m_TruncationErrors_per_lumi    ->Fill(m_lumiBlockNum,nTruncErrors);
    if(m_TruncationErrors_per_lumi_ECA)  m_TruncationErrors_per_lumi_ECA->Fill(m_lumiBlockNum,nTruncErrors_ECA);

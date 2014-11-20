@@ -44,6 +44,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelCabling/IPixelCablingSvc.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
@@ -58,13 +59,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_ErrorSvc("PixelByteStreamErrorsSvc",name),
    m_pixelCableSvc("PixelCablingSvc",name),
    m_IBLParameterSvc("IBLParameterSvc",name),
-   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool")
+   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+   m_lumiTool("LuminosityTool")
    //m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool")
 {                                                                        //all job options flags go here
    declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
    declareProperty("PixelByteStreamErrorsSvc",  m_ErrorSvc);
    declareProperty("PixelCablingSvc",           m_pixelCableSvc);
    declareProperty("HoleSearchTool",  m_holeSearchTool);
+   declareProperty("LuminosityTool",  m_lumiTool);
+
    //declareProperty("TrkSummaryTool",            m_trkSummaryTool);
 
    declareProperty("RDOName",         m_Pixel_RDOName         = "PixelRDOs");  //storegate container names
@@ -113,6 +117,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_newLowStatInterval = false;
 
    //initalize all the histograms to 0 to start
+   m_mu_vs_lumi = 0;
+   m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
    m_hits_per_lumi_ECA = 0;
    m_hits_per_lumi_ECC = 0;
@@ -138,6 +144,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_nlowToT_vs_clussize_ECC = 0;
    m_nlowToT_vs_clussize_ECA = 0;
    m_Lvl1A = 0;
+   m_Lvl1A_B0 = 0;
+   m_Lvl1A_B1 = 0;
+   m_Lvl1A_B2 = 0;
+   m_Lvl1A_IBL = 0;
+   m_Lvl1A_ECA = 0;
+   m_Lvl1A_ECC = 0;
    m_Lvl1ID = 0;                
    m_Lvl1ID_diff_mod_ATLAS_per_LB = 0;
    m_Lvl1ID_diff_mod_ATLAS = 0;
@@ -190,6 +202,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_track_res_eta = 0; 
    m_track_pull_eta = 0;
    m_track_chi2 = 0;
+   m_track_chi2_LB = 0;
    m_track_chi2_bcl1 = 0;
    m_track_chi2_bcl0 = 0;
    m_track_chi2_bclgt1 = 0;
@@ -217,10 +230,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clustot_highpt = 0;
    m_1hitclustot_highpt = 0;
    m_2hitclustot_highpt = 0;
+   m_tsos_hiteff_vs_lumi = 0;
    m_tsos_hitmap = 0;
    m_tsos_holemap = 0;
    m_tsos_outliermap = 0;
    m_clusters_per_lumi = 0;
+   m_clusters_per_lumi_PIX = 0;
    m_clusters_per_lumi_ECA = 0;
    m_clusters_per_lumi_ECC = 0;
    m_clusters_per_lumi_IBL = 0;
@@ -237,7 +252,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_totalclusters_per_lumi_B1 = 0;
    m_totalclusters_per_lumi_B2 = 0;
    m_highNclusters_per_lumi = 0;
-   m_cluster_ToT = 0;
+   m_cluster_ToT_PIX = 0;
+   m_cluster_ToT_IBL = 0;
    m_cluster_ToT_ECA = 0;
    m_cluster_ToT_IBL3D = 0;
    m_cluster_ToT_IBL2D = 0;
@@ -318,6 +334,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_col_width_ECA = 0;
    m_cluster_row_width_ECA = 0;
    m_cluster_LVL1A = 0;
+   m_cluster_LVL1A_PIX = 0;
+   m_clus_LVL1A_sizenot1 = 0; 
    m_cluster_LVL1A_highToT = 0;
    m_cluster_LVL1A_ECA = 0;
    m_cluster_LVL1A_ECC = 0;
@@ -359,7 +377,9 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clussize_vs_eta_ECC = 0;
    m_clussize_vs_eta_ECA = 0;
    m_cluster_occupancy = 0;
+   m_clusocc_sizenot1 = 0; 
    m_average_cluster_occupancy = 0;
+   m_cluseff_mod = 0;
    m_cluster_ToT_mod = 0;
    m_cluster_size_mod = 0;
    m_cluster_num_mod = 0;
@@ -367,6 +387,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
    m_num_clusters = 0;
+   m_num_clusters_PIX = 0;
    m_num_clusters_low = 0;
    m_num_clusters_ECA = 0;
    m_num_clusters_ECC = 0;
@@ -399,6 +420,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_badModules_per_lumi_B1 = 0;
    m_badModules_per_lumi_B2 = 0;
    m_disabledModules_per_lumi = 0;
+   m_disabledModules_per_lumi_PIX = 0;
    m_disabledModules_per_lumi_ECA = 0;
    m_disabledModules_per_lumi_ECC = 0;
    m_disabledModules_per_lumi_IBL = 0;
@@ -651,8 +673,23 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_ToT_LB = 0;      
    m_num_clusters_LB = 0;                                
    m_num_clusters_low_LB = 0;  
-}
 
+   m_pixelid =0;
+   pixelmgr =0;
+   m_event =0;
+   m_startTime =0; 
+   m_majorityDisabled =0;
+   m_lumiBlockNum =0;
+   m_currentTime =0;
+   m_LBstartTime =0;
+   m_LBendTime =0;
+   m_runNum =0;
+   m_idHelper =0;
+   m_Pixel_clcontainer =0;
+   m_Pixel_spcontainer =0;
+   m_tracks =0;
+}
+   
 PixelMainMon::~PixelMainMon()
 {
 }
@@ -662,14 +699,7 @@ StatusCode PixelMainMon::initialize()
 {
    sc = ManagedMonitorToolBase::initialize();
    if(!sc.isSuccess()) return sc;
-
-   m_event = 0;
-   m_lumiBlockNum = 0;
    time ( &m_startTime );  //mark time for start of run
-   m_LBstartTime = 0;
-   m_LBendTime = 0;
-   m_currentTime = 0;
-   m_runNum = 0;
    m_idHelper = new AtlasDetectorID;
 
    // Retrieve tools
@@ -727,12 +757,19 @@ StatusCode PixelMainMon::initialize()
      msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
    }
 
+   if ( m_lumiTool.retrieve().isFailure() ) {
+     msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endreq;
+     return StatusCode::FAILURE;
+   } else {
+     msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endreq;
+   }
+
    //if ( m_trkSummaryTool.retrieve().isFailure() ) {
    //  if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
    //} else {
    //  if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_trkSummaryTool << endreq;
    //}
-   
+
    return StatusCode::SUCCESS;
 }
 
@@ -813,6 +850,11 @@ StatusCode PixelMainMon::bookHistograms()
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status for lowStat" << endreq;  
        }
+     // if(m_doTrack){
+     //   sc=BookTrackLumiBlockMon();
+     //   if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
+     //   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status for lowStat" << endreq;  
+     // }
    }
 
    //   if(newRun) {
@@ -870,7 +912,7 @@ StatusCode PixelMainMon::bookHistograms()
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
       }
-      //   }
+      //}
 
       return StatusCode::SUCCESS;
 }

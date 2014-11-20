@@ -52,7 +52,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run,m_doIBL);
       
       m_Status_modules->SetBinLabel( "Status",2 ); 
-      m_Status_modules->formatHist("status");
+      m_Status_modules->formatHist("status",m_doIBL);
    }
    if(m_doOffline)
    {
@@ -69,6 +69,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
    sc = statusHistos.regHist(m_badModules_per_lumi_B2  = TProfile_LW::create("BadModules_per_lumi_B2", ("Number of bad modules (bad+active) per event per LB, barrel layer 2" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));
 
    sc = statusHistos.regHist(m_disabledModules_per_lumi     = TProfile_LW::create("DisabledModules_per_lumi",    ("Number of disabled modules (inactive or bad) per event per LB" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));
+   sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create("DisabledModules_per_lumi_PIX",("Number of disabled modules (inactive or bad) per event per LB, PIX" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));
    sc = statusHistos.regHist(m_disabledModules_per_lumi_ECA = TProfile_LW::create("DisabledModules_per_lumi_ECA",("Number of disabled modules (inactive or bad) per event per LB, endcap A" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));
    sc = statusHistos.regHist(m_disabledModules_per_lumi_ECC = TProfile_LW::create("DisabledModules_per_lumi_ECC",("Number of disabled modules (inactive or bad) per event per LB, endcap C" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));
    if(m_doIBL){sc = statusHistos.regHist(m_disabledModules_per_lumi_IBL  = TProfile_LW::create("DisabledModules_per_lumi_IBL", ("Number of disabled modules (inactive or bad) per event per LB, IBL" + m_histTitleExt + ";lumi block;# modules/event").c_str(),2500,-0.5,2499.5));}
@@ -188,9 +189,10 @@ StatusCode PixelMainMon::FillStatusMon(void)
       }
    } 
 
-   if(m_disabledModules_per_lumi)    m_disabledModules_per_lumi    ->Fill(m_lumiBlockNum,nDisabled); 
-   if(m_disabledModules_per_lumi_ECA)m_disabledModules_per_lumi_ECA->Fill(m_lumiBlockNum,nDisabled_ECA); 
-   if(m_disabledModules_per_lumi_ECC)m_disabledModules_per_lumi_ECC->Fill(m_lumiBlockNum,nDisabled_ECC); 
+   if(m_disabledModules_per_lumi)  m_disabledModules_per_lumi  ->Fill(m_lumiBlockNum,nDisabled); 
+   if(m_disabledModules_per_lumi_PIX)  m_disabledModules_per_lumi_PIX  ->Fill(m_lumiBlockNum,nDisabled-nDisabled_IBL);
+   if(m_disabledModules_per_lumi_ECA) m_disabledModules_per_lumi_ECA->Fill(m_lumiBlockNum,nDisabled_ECA); 
+   if(m_disabledModules_per_lumi_ECC) m_disabledModules_per_lumi_ECC->Fill(m_lumiBlockNum,nDisabled_ECC); 
    if(m_disabledModules_per_lumi_IBL) m_disabledModules_per_lumi_IBL ->Fill(m_lumiBlockNum,nDisabled_IBL);
    if(m_disabledModules_per_lumi_B0) m_disabledModules_per_lumi_B0 ->Fill(m_lumiBlockNum,nDisabled_B0); 
    if(m_disabledModules_per_lumi_B1) m_disabledModules_per_lumi_B1 ->Fill(m_lumiBlockNum,nDisabled_B1); 

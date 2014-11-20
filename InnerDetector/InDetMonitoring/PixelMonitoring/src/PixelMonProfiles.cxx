@@ -15,8 +15,8 @@
 PixelMonProfiles::PixelMonProfiles(std::string name, std::string title)
 {
 
-  IBL3D = new TProfile2D((name+"_IBL3D").c_str(),("IBL3D " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,13,-0.5,13.5);
-  IBL2D = new TProfile2D((name+"_IBL2D").c_str(),("IBL2D " + title + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,13,-0.5,13.5);
+  IBL3D = new TProfile2D((name+"_IBL3D").c_str(),("IBL 3D module " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = new TProfile2D((name+"_IBL2D").c_str(),("IBL planar module " + title + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
   B0 = new TProfile2D((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
   B1 = new TProfile2D((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
   B2 = new TProfile2D((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);

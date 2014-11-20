@@ -69,6 +69,11 @@ StatusCode PixelMainMon::BookTrackMon(void)
        sc = m_tsos_outliermap->regHist(trackHistos);
      }
 
+     if(m_doModules){
+       m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5,m_doIBL);
+       sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run, m_doIBL);
+     }
+
      if(!m_doOnline && m_doModules){
        sc=trackHistos.regHist(m_clustot_vs_pt = TH2F_LW::create("m_clustot_vs_pt",("Cluster ToT vs Track pT" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),10,0,50,250,0,250)); 
        sc=trackHistos.regHist(m_clustot_lowpt = TH1F_LW::create("m_clustot_lowpt",("Cluster ToT vs Track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),250,0,250));
@@ -261,16 +266,19 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	    }
 	  }
 
-	  if(m_idHelper->is_pixel(surfaceID) && m_tsos_hitmap && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
-	    m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL);
+	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
+	    if(m_tsos_hitmap)m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL);
+	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,1.,surfaceID,m_pixelid,m_doIBL);
 	  }
 
-	  if(m_idHelper->is_pixel(surfaceID) && m_tsos_holemap && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
-	    m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL);
+	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
+	    if(m_tsos_holemap)m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL);
+	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
 	  } 
 
-	  if(m_idHelper->is_pixel(surfaceID) && m_tsos_outliermap && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
-	    m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL);
+	  if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
+	    if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL);
+	    if(m_tsos_hiteff_vs_lumi)m_tsos_hiteff_vs_lumi->Fill(m_lumiBlockNum,0.,surfaceID,m_pixelid,m_doIBL);
 	  }
 	
 	    if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
@@ -332,7 +340,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
                // Get local error matrix for hit and track and calc pull
 	      const AmgSymMatrix(5) trackErrMat = (*trackAtPlane->covariance());
-	      const AmgSymMatrix(5) clusErrMat = clus->localCovariance();
+	      const Amg::MatrixX clusErrMat = clus->localCovariance();
 
                //pulls and residuals Phi
 	       double error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locX),2) + pow(Amg::error(clusErrMat,Trk::locX), 2));
@@ -343,7 +351,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
                m_track_pull_phi->Fill(pull);
 
                //pulls and residuals Eta
-               error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locY),2) + pow(Amg::error(clusErrMat,Trk::locY), 2));
+	       error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locY),2) + pow(Amg::error(clusErrMat,Trk::locY), 2));
                res = clus->localParameters()[Trk::locY]-localpos[1];
                m_track_res_eta->Fill(res);
                if(error_sum != 0) pull = (res)/error_sum;
@@ -392,13 +400,17 @@ StatusCode PixelMainMon::FillTrackMon(void)
          m_track_phi0->Fill(measPerigee->parameters()[Trk::phi0]);
          m_track_theta->Fill(measPerigee->parameters()[Trk::theta]);
          m_track_eta->Fill(measPerigee->eta());
-         if (track->fitQuality()->numberDoF() > 0) 
+         if (track->fitQuality()->numberDoF() > 0){ 
 	   m_track_chi2->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
-	 else 
+	   if(m_track_chi2_LB) m_track_chi2_LB->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
+	 }
+	 else{ 
 	   m_track_chi2->Fill(-1);
+	   if(m_track_chi2_LB) m_track_chi2_LB->Fill(-1);
+	 }	 
 	 if(m_tracks_per_lumi) m_tracks_per_lumi->Fill(m_lumiBlockNum);
 	 nTracks++;
-	      }
+	 }
       }
    }
 

@@ -6,39 +6,40 @@
 // Function to handle 2D maps of modules, one for each region
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "InDetIdentifier/PixelID.h"
 //#include "TH2I.h"
 #include "TH2F.h"
+#include "LWHists/TH2F_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title)
 
 {
-  IBL3D = new TH2F((name+"_IBL3D").c_str(),("IBL 3D modules " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = new TH2F((name+"_IBL2D").c_str(),("IBL planar modules " + title + ";shifted eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  B0 = new TH2F((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = new TH2F((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = new TH2F((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = new TH2F((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C  = new TH2F((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(),("IBL 3D modules " + title + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(),("IBL planar modules " + title + ";shifted eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  B0 = TH2F_LW::create((name+"_B0").c_str(),("Barrel layer 0 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1 = TH2F_LW::create((name+"_B1").c_str(),("Barrel layer 1 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2 = TH2F_LW::create((name+"_B2").c_str(),("Barrel layer 2 " + title + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A  = TH2F_LW::create((name+"_A" ).c_str(),("ECA "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  C  = TH2F_LW::create((name+"_C" ).c_str(),("ECC "            + title + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
 
   formatHist();
 }
 
-PixelMon2DMaps::~PixelMon2DMaps()
+PixelMon2DMapsLW::~PixelMon2DMapsLW()
 {
-   delete IBL3D;
-   delete IBL2D;
-   delete B0;
-   delete B1;
-   delete B2;
-   delete A;
-   delete C;
+   LWHist::safeDelete(IBL3D);
+   LWHist::safeDelete(IBL2D);
+   LWHist::safeDelete(B0);
+   LWHist::safeDelete(B1);
+   LWHist::safeDelete(B2);
+   LWHist::safeDelete(A);
+   LWHist::safeDelete(C);
 }
 
-void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
+void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
 {
   int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -75,20 +76,20 @@ void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
 }   
 
 
-void PixelMon2DMaps::Scale (double number)
-{
-   if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
+// void PixelMon2DMapsLW::Scale (double number)
+// {
+//    if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
 
-   A->Scale((float) 1.0/number);
-   C->Scale((float) 1.0/number);
-   B0->Scale((float) 1.0/number);
-   B1->Scale((float) 1.0/number);
-   B2->Scale((float) 1.0/number);
-   IBL2D->Scale((float) 1.0/number);
-   IBL3D->Scale((float) 1.0/number);
-}
+//    A->Scale((float) 1.0/number);
+//    C->Scale((float) 1.0/number);
+//    B0->Scale((float) 1.0/number);
+//    B1->Scale((float) 1.0/number);
+//    B2->Scale((float) 1.0/number);
+//    IBL2D->Scale((float) 1.0/number);
+//    IBL3D->Scale((float) 1.0/number);
+// }
 
-void PixelMon2DMaps::formatHist()
+void PixelMon2DMapsLW::formatHist()
 {
    const int ndisk = 3;
    const int nphi  = 48;
@@ -204,13 +205,13 @@ void PixelMon2DMaps::formatHist()
    A->GetYaxis()->SetLabelSize(0.02);
    C->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
-   IBL2D->GetYaxis()->SetTitleOffset(1.35);
-   IBL3D->GetYaxis()->SetTitleOffset(1.35);
-   B0->GetYaxis()->SetTitleOffset(1.35);
-   B1->GetYaxis()->SetTitleOffset(1.35);
-   B2->GetYaxis()->SetTitleOffset(1.35);
-   A->GetYaxis()->SetTitleOffset(1.35);
-   C->GetYaxis()->SetTitleOffset(1.35);
+   // IBL2D->GetYaxis()->SetTitleOffset(1.35);
+   // IBL3D->GetYaxis()->SetTitleOffset(1.35);
+   // B0->GetYaxis()->SetTitleOffset(1.35);
+   // B1->GetYaxis()->SetTitleOffset(1.35);
+   // B2->GetYaxis()->SetTitleOffset(1.35);
+   // A->GetYaxis()->SetTitleOffset(1.35);
+   // C->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
    IBL2D->SetOption("colz");
    IBL3D->SetOption("colz");
@@ -228,17 +229,17 @@ void PixelMon2DMaps::formatHist()
    A->SetMinimum(0.);
    C->SetMinimum(0.);
    //Remvoe the stats box because it's in the way
-   IBL2D->SetStats(0.);
-   IBL3D->SetStats(0.);
-   B0->SetStats(0.);
-   B1->SetStats(0.);
-   B2->SetStats(0.);
-   A->SetStats(0.);
-   C->SetStats(0.);
+   // IBL2D->SetStats(0.);
+   // IBL3D->SetStats(0.);
+   // B0->SetStats(0.);
+   // B1->SetStats(0.);
+   // B2->SetStats(0.);
+   // A->SetStats(0.);
+   // C->SetStats(0.);
 
 }
 
-StatusCode PixelMon2DMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
+StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
    sc = group.regHist(IBL2D);
    sc = group.regHist(IBL3D);
