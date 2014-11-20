@@ -10,17 +10,20 @@ use AtlasROOT           AtlasROOT-*             External
 
 # use CaloDetDescr	CaloDetDescr-* 		Calorimeter
 # use CaloInterface	CaloInterface-*		Calorimeter
-# use CaloUtils           CaloUtils-*             Calorimeter
+#
 
 #use PathResolver        PathResolver-*          Tools
 
 use TileEvent		TileEvent-*		TileCalorimeter
 use CaloGeoHelpers  CaloGeoHelpers-*  Calorimeter
-use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+use CaloUtils           CaloUtils-*             Calorimeter
 
 public
 
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use FourMomUtils        FourMomUtils-*          Event
+use xAODTracking        xAODTracking-*         Event/xAOD
 
 use AtlasPolicy		AtlasPolicy-*
 
@@ -43,3 +46,6 @@ apply_pattern installed_library
 	
 #apply_pattern lcgdict dict=JetUtils \
 # selectionfile="selection.xml"  headerfiles="../JetUtils/JetUtilsDict.h"
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=JetUtils_CaloQual

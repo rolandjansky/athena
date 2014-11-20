@@ -55,10 +55,10 @@ namespace jet{
        */
       unsigned index() const {return m_cellIt.index();}
       
-      const_iterator operator++() {++m_cellIt; ; prefetchCell() ;  return *this;}
-      const_iterator operator--() {--m_cellIt; prefetchCell() ;    return *this;}
-      const_iterator operator++(int) {++m_cellIt; prefetchCell() ; return *this;}
-      const_iterator operator--(int) {--m_cellIt; prefetchCell() ; return *this;}
+      const_iterator& operator++() {++m_cellIt; ; prefetchCell() ;  return *this;}
+      const_iterator& operator--() {--m_cellIt; prefetchCell() ;    return *this;}
+      const_iterator& operator++(int) {++m_cellIt; prefetchCell() ; return *this;}
+      const_iterator& operator--(int) {--m_cellIt; prefetchCell() ; return *this;}
       bool operator==(const const_iterator& b) const { return m_cellIt==b.m_cellIt;}
       bool operator!=(const const_iterator& b) const { return m_cellIt!=b.m_cellIt;}
 

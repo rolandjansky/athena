@@ -5,12 +5,12 @@
 */
 
 /**  
-     @class JetCaloQualityTool
-     Calculates calorimeter based variables for jet quality 
+     @file JetCaloQualityUtils 
+     Collection of utilities to compute calorimeter based variables for jet quality 
      @author Nikola Makovec
      @author P-A Delsart
      @date (first implementation) December , 2009
-     @date (re-write, run2) February , 2014
+     @date (re-write, run2) February-November, 2014
 */
 
 #ifndef JETUTIL_JETCALOQUALITYUTILS_H
@@ -34,35 +34,12 @@ namespace jet {
     /* @brief Compute the maximum of E_layer/Ejet*/
     static double fracSamplingMax(const Jet* jet, int& SamplingMax);
 
-    /* @brief Compute Out-Of-Time energy fraction from cells*/
-    static double jetOutOfTimeEnergyFraction(const Jet* jet, const double time=25, const bool doOnlyPos=false);
+    // /* @brief Compute Out-Of-Time energy fraction from cells*/
+    // static double jetOutOfTimeEnergyFraction(const Jet* jet, const double time=25, const bool doOnlyPos=false);
 
-    /* @brief Compute Out-Of-Time energy fraction from clusters*/
-    static double jetOutOfTimeEnergyFractionClusters(const Jet* jet=NULL, const double timecut=25, const bool doOnlyPos=false);
+    // /* @brief DEPRECATED still here to avoid a compilation failure in JetD3PDMaker/ */
+    static double jetOutOfTimeEnergyFractionClusters(const Jet* , const double , const bool ){return 0;}
 
-    /* @brief Compute the jet timing information using clusters*/
-    static double jetTimeClusters(const Jet* jet);
-
-    /* @brief Compute the jet timing information using cells*/
-    static double jetTimeCells(const Jet* jet);
-
-    /* @brief Compute the jet timing information - default to cells for compatibility*/
-    static double jetTime(const Jet* jet);
-
-    /* @brief Compute the jet average quality factor */
-    static double jetAverageLArQualityF(const Jet* jet);
-
-    /* @brief Compute the jet quality factor information*/
-    static double jetQuality(const Jet* jet, int LArQualityCut=4000, int TileQualityCut=254);
-
-    /* @brief Compute the jet quality factor information for LAr only*/
-    static double jetQualityLAr(const Jet* jet, int LArQualityCut=4000);
-
-    /* @brief Compute the jet quality factor information for Tile only*/
-    static double jetQualityTile(const Jet* jet, int TileQualityCut=254);
-
-    /* @brief Compute the jet quality factor information for HEC only*/
-    static double jetQualityHEC(const Jet* jet, int LArQualityCut=4000, int TileQualityCut=254);
 
     /* @brief Compute the jet energy fraction in HEC*/
     static double hecF(const Jet* jet);
@@ -76,29 +53,13 @@ namespace jet {
     /* @brief total negative energy in a jet*/
     static double jetNegativeEnergy(const Jet* jet);
 
-    /* @brief Check if it is a good jet with tight quality criteria (includes non-ugly)*/
-    static bool isGoodTight(const Jet* jet,const bool recalculateQuantities=false);
+    //  isGoodTight , isGoodMedium, isGoodMedium and 
+    // isBadTight, isBadMedium, isBad
+    // These functions are removed because DEPRECATED.
+    // Instead use IJetSelector and/or  JetCleaningTool from PhysicsAnalysis/JetMissingEtID/JetSelectorTools
 
-    /* @brief Check if it is a bad jet with tight quality criteria*/
-    static bool isBadTight(const Jet* jet,const bool recalculateQuantities=false);
-
-    /* @brief Check if it is a good jet with tight quality criteria (includes non-ugly)*/
-    static bool isGoodMedium(const Jet* jet,const bool recalculateQuantities=false);
-
-    /* @brief Check if it is a bad jet with tight quality criteria*/
-    /* @brief Check if it is a bad jet with medium quality criteria*/
-    static bool isBadMedium(const Jet* jet,const bool recalculateQuantities=false);
-
-    /* @brief Check if it is a good jet (includes non-ugly)*/
-    static bool isGood(const Jet* jet,const bool recalculateQuantities=false);
-
-    /* @brief Check if it is a bad jet*/
-    static bool isBad(const Jet* jet,const bool recalculateQuantities=false);
-
-    /* @brief Check if it is a ugly jet*/
+    /* @brief Check if it is a ugly jet. Still needed in run2 ? */
     static bool isUgly(const Jet* jet,const bool recalculateQuantities=false);
-
- 
 
 
   private:
@@ -119,8 +80,8 @@ namespace jet {
   using xAOD::JetAttribute;
 
   /* @brief Compute the minimal number of cells containing at least threshold% of the jet energy*/
-  class JetCalcnLeadingCells: public JetCaloCalculator {
-
+  class JetCalcnLeadingCells: virtual public JetCaloCalculator {
+  protected:
     std::vector<double> cell_energies;
     double sumE_cells;
     double threshold;
@@ -130,7 +91,8 @@ namespace jet {
 
 
   /* @brief Compute Out-Of-Time energy fraction */
-  class JetCalcOutOfTimeEnergyFraction: public JetCaloCalculator {
+  class JetCalcOutOfTimeEnergyFraction: virtual public JetCaloCalculator {
+  protected:
     double sumE,sumE_OOT;
   public:
     double timecut;
@@ -138,9 +100,10 @@ namespace jet {
     JETCALCFUNCDECL( JetCalcOutOfTimeEnergyFraction, JetAttribute::OotFracCells10, timecut = 10; onlyPosEnergy=false;sumE=0;);
   };
 
-  /* @brief Compute the jet timing information using cells*/
+  /* @brief Compute the jet timing information from calorimeter*/
 
-  class JetCalcTimeCells: public JetCaloCalculator {
+  class JetCalcTimeCells: virtual public JetCaloCalculator {
+  protected:
     double time,norm;
 
     JETCALCFUNCDECL( JetCalcTimeCells, JetAttribute::Timing, norm=0; );
@@ -149,8 +112,8 @@ namespace jet {
 
 
   /* @brief Compute the jet average quality factor */
-  class JetCalcAverageLArQualityF: public JetCaloCalculator {
-  
+  class JetCalcAverageLArQualityF: virtual public JetCaloCalculator {
+  protected:  
     double qf,norm;
     bool useTile;
     JETCALCFUNCDECL( JetCalcAverageLArQualityF, JetAttribute::AverageLArQF, useTile=false; norm=0;);
@@ -158,7 +121,7 @@ namespace jet {
   };
 
   /* @brief Compute the jet quality factor information*/
-  class JetCalcQuality: public JetCaloCalculator {
+  class JetCalcQuality: virtual public JetCaloCalculator {
   protected:
     double totE, badE;
 
@@ -172,22 +135,23 @@ namespace jet {
 
 
   /* @brief Compute the jet quality factor information for HEC only*/
-  class JetCalcQualityHEC: public JetCalcQuality {
+  class JetCalcQualityHEC: virtual public JetCalcQuality {
   public:
   
     //ABC this class does not include JETCALCFUNCDECL ?
-    bool processConstituent(xAOD::JetConstituentVector::iterator& iter, weight_t w);
-    bool processCell(const CaloCell *theCell, weight_t);
+    bool processConstituent(xAOD::JetConstituentVector::iterator& iter);
+    //bool processCell(const CaloCell *theCell, weight_t);
+    JetCaloCalculator* clone() const {return new JetCalcQualityHEC(*this); }
   
     //bool processCell(const CaloCell *cell, weight_t w);
-    JetCalcQualityHEC() : JetCalcQuality(JetAttribute::HECQuality) {  }
+    JetCalcQualityHEC() :  JetCaloCalculator(JetAttribute::HECQuality), JetCalcQuality(JetAttribute::HECQuality) {  }
 
   };
 
 
   /* @brief total negative energy in a jet*/
-  class JetCalcNegativeEnergy: public JetCaloCalculator {
-
+  class JetCalcNegativeEnergy: virtual public JetCaloCalculator {
+  protected:
     double totE;
     double totSig ; // cluster level calculation
 
@@ -195,12 +159,21 @@ namespace jet {
   };
 
   /* @brief total negative energy in a jet*/
-  class JetCalcCentroid: public JetCaloCalculator {
-
+  class JetCalcCentroid: virtual public JetCaloCalculator {
+  protected:
     double totE, centroid_x, centroid_y, centroid_z;
 
 
     JETCALCFUNCDECL( JetCalcCentroid, JetAttribute::CentroidR, totE=0; );
+  };
+
+  /// Fraction of Bad energy in jet. From cluster moment ENG_BAD_CELLS
+  class JetCalcBadCellsFrac : virtual public JetCaloCalculator {
+  protected:
+    double totE;
+    double badE;
+    JETCALCFUNCDECL( JetCalcBadCellsFrac, JetAttribute::BchCorrCell, setName("BchCorrCell"););
+    
   };
 
 }
