@@ -48,7 +48,8 @@ CombinedScintillatorSD::CombinedScintillatorSD(G4String name)
   : FadsSensitiveDetector(name),
     detectorDescription(0),    
     combinedscintillatorSDMessenger(0),
-    m_iamowner(false)
+    m_iamowner(false),
+    m_hit()
 {  
   combinedscintillatorSDMessenger = new CombinedScintillatorSDMessenger(this);
   ISvcLocator* svcLocator = Gaudi::svcLocator();
