@@ -13,14 +13,15 @@ if os.environ['CMTCONFIG'].endswith('-dbg'):
 else:
   doEdmMonitor    = False
   doNameAuditor   = False
-DetDescrVersion = "ATLAS-GEO-18-01-01"
+DetDescrVersion = "ATLAS-GEO-20-00-02"
 import AthenaCommon.SystemOfUnits as Units
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'data'
 if 'doReadBS' in dir() and doReadBS:
   globalflags.InputFormat   = 'bytestream'
-  globalflags.ConditionsTag = 'COMCOND-BLKPST-005-01'
+  globalflags.ConditionsTag = 'COMCOND-BLKPA-006-07'
 else:
   globalflags.InputFormat = 'pool'
 globalflags.DetDescrVersion = DetDescrVersion
@@ -60,21 +61,30 @@ InDetFlags.doPrintConfigurables = True
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.TRT_BuildStrawLayers = True
 
+from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline, LuminosityToolDefault
+theLumiTool = LuminosityToolOnline()
+from IOVDbSvc.CondDB import conddb
+conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB')
+theLumiTool.LBLBFolderName = "/TRIGGER/LUMI/LBLB"
+from AthenaCommon.AppMgr import ToolSvc
+ToolSvc += theLumiTool
+
 include("InDetRecExample/InDetRec_all.py")
 from TRT_Monitoring.TRT_MonitoringConf import TRT_Monitoring_Tool
 #TRT_Monitoring_Tool.m_useConditionsHTStatus = True
 #TRT_Monitoring_Tool.m_useArgonStraws = True
 TRT_Monitoring_Tool.doArgonXenonSeperation = True
-TRT_Monitoring_Tool.useHoleFinder = False 
+TRT_Monitoring_Tool.useHoleFinder = True #care
 from IOVDbSvc.CondDB import conddb
 conddb.addOverride("/TRT/Cond/StatusHT","TrtStrawStatusHT-ArTest-00-00")
-theApp.EvtMax = 50
+theApp.EvtMax = 10
 if not doReadBS:
   ServiceMgr.PoolSvc.AttemptCatalogPatch=True
   ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d158/CSC.005200.T1_McAtNlo_Jimmy.RDO.pool.root" ]
 if doReadBS:
 #  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW._lb0137._SFO-ALL._0001.1"]
 #AB  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
+#ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/work/e/ecelebi/public/data11_7TeV.00179710.physics_ZeroBias.merge.RAW" ]
   ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/public/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
 
 #  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/tmp/rjungst/testinput"]

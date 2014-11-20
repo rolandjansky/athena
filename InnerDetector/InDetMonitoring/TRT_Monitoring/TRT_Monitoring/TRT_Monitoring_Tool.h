@@ -10,12 +10,14 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "GaudiKernel/StatusCode.h"
 
+#include "LumiBlockComps/ILuminosityTool.h"
+
 #include <string>
 #include <vector>
 #include <set>
 
-class TH1F;
-class TH2F;
+//class TH1F;//We will keep TH*F commented util we need them again
+//class TH2F;
 class TProfile;
 class TH1F_LW;
 class TH2F_LW;
@@ -25,11 +27,11 @@ namespace Trk
 {
   class ITrackHoleSearchTool;
   class Track;
-  class ITrackHoleSearchTool;
+  //class ITrackHoleSearchTool;//repeated statement
   class TrackStateOnSurface;
   class ITrackSummaryTool;   
-  class IExtrapolator;
-  class IPropagator;
+  //class IExtrapolator;  //no need
+  //class IPropagator;    //no need
 }
 
 namespace InDetDD
@@ -54,7 +56,7 @@ class ITRT_DriftFunctionTool;
 
 class TRT_Monitoring_Tool : public ManagedMonitorToolBase
 {
-public:
+ public:
   TRT_Monitoring_Tool(const std::string &type, const std::string &name, const IInterface *parent);
   virtual ~TRT_Monitoring_Tool();
   virtual StatusCode initialize();
@@ -62,13 +64,13 @@ public:
   virtual StatusCode fillHistograms();  
   virtual StatusCode procHistograms();
 
-private:
+ private:
   int lastLumiBlock;
-  int nLumiBlock;
+  int nLumiBlock;//obsolete
   int evtLumiBlock;
   int good_bcid;
-  float probScale;
-  int numberOfTracks;
+  float probScale;//obsolete
+  int numberOfTracks;//obsolete
   int m_nTotalTracks;
   int m_nTracksB[2];
   int m_nTracksEC[2];
@@ -116,6 +118,7 @@ private:
   StatusCode Book_TRT_Shift_Tracks(bool isNewLumiBlock, bool isNewRun);
   StatusCode Retrieve_TRT_Tracks();
   StatusCode Fill_TRT_Tracks();
+  StatusCode Fill_TRT_HT();
 
   int strawLayerNumber(int strawLayerNumber, int LayerNumber);
  
@@ -129,27 +132,28 @@ private:
 
   // Returns Degrees, converted from radians (Athena Standard units)
   float radToDegrees(float radValue);
-
+  int strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber);
+  int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber);
 
   TH1F_LW* bookTH1F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
-  TH1F*       bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
+  //TH1F*       bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TH2F_LW* bookTH2F_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
-  TH2F*       bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
+  //TH2F*       bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile_LW* bookTProfile_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile*       bookTProfile(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
 
   template<typename T> StatusCode trtRegHist(T *hist, MonGroup &mongrp, const char *hName)
-  {
-    StatusCode scode = mongrp.regHist(hist);
-    if (scode == StatusCode::FAILURE) {
-      ATH_MSG_FATAL("Failed to register histogram " << hName);
+    {
+      StatusCode scode = mongrp.regHist(hist);
+      if (scode == StatusCode::FAILURE) {
+	ATH_MSG_FATAL("Failed to register histogram " << hName);
+      }
+      return scode;
     }
-    return scode;
-  }
   
   StatusCode Check_TRT_Readout_Integrity(const EventInfo* eventInfo);
 
-private:
+ private:
   static const int s_numberOfBarrelStacks;
   static const int s_numberOfEndCapStacks;
   
@@ -191,7 +195,7 @@ private:
   const EventInfo* eventInfo;
 
   std::string m_comTimeObjectName;
-  std::string geo_summary_provider;
+  std::string geo_summary_provider;//obsolete
   std::string mapPath;
 
   int rbins;
@@ -214,6 +218,7 @@ private:
   TProfile_LW* m_hNumHoTDetPhi_B;//hNumHoTPhi
   TProfile_LW* m_hAvgTroTDetPhi_B;//hAvgTrEdgeonTrack
   TH1F_LW* m_hNumSwLLWoT_B;//hLLHitsonTrk
+  TProfile_LW* m_hStrawEffDetPhi_B;//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_B;
   TH1F_LW* m_hHitWonTMap_B;
   TH1F_LW* m_hResidual_B;//hHitToTrkDistance
@@ -238,6 +243,7 @@ private:
   TProfile_LW* m_hNumHoTDetPhi_E[2];//hNumHoTPhi
   TProfile_LW* m_hAvgTroTDetPhi_E[2];//hAvgTrEdgeonTrack
   TH1F_LW* m_hNumSwLLWoT_E[2];//hLLHitsonTrk
+  TProfile_LW* m_hStrawEffDetPhi_E[2];//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_E[2];
   TH1F_LW* m_hHitWonTMap_E[2];
   TH1F_LW* m_hResidual_E[2];//hHitToTrkDistance
@@ -451,22 +457,36 @@ private:
   TH2F_LW* m_hLLOcc_Scatter[2];
   TH2F_LW* m_hHightoLowRatioOnTrack_Scatter[2];
   TH1F_LW* m_hOccAll;
-
+  //Arrays for normalizing probabilities of hHitWmap histograms (Leading Edge in Time Window probability per straw number)
+  float  m_scale_hHitWMap_B[1642];
+  float  m_scale_hHitWMap_B_Ar[1642];
   /* Helpers for the scatter histograms - 32 stacks (do same for both side for now) */
   float m_LLOcc[2][64]; // easy to keep occupancy separately for sides A&C, so let's do that
+
+  /**Initialize Aging plots**
+   **HT, All, Barrel, EC, In/A, Out/C, etc...
+   */
+
+  TH1F_LW* m_trackz_All[5][2];//({L1 Long, L2, L3, L1 short Pos, L2 Short Neg},{A,C})
+  TH1F_LW* m_trackz_HT[5][2];
+
+  TH1F_LW* m_trackr_All[4][2]; // ({In_A,In_B,Out_A,Out_B},{A,C})
+  TH1F_LW* m_trackr_HT[4][2];
+  TH1F_LW* m_IntLum;
+  TH1F_LW* m_LBvsLum;
 
 
   float m_HTfraconTrack_B[32];
   float m_LonTrack_B[32];
   int m_nTrack_B[32];
-  int m_nTrackwithHL_B[32];
+  int m_nTrackwithHL_B[32];//obsolete
 
 
 
   float m_HTfraconTrack_E[64];
   float m_LonTrack_E[64];
   int m_nTrack_E[64];
-  int m_nTrackwithHL_E[64];
+  int m_nTrackwithHL_E[64];//obsolete
 
   bool m_doRDOsMon;
   bool m_doGeoMon;
@@ -511,7 +531,7 @@ private:
   float TimeResidualScale_B;
   float ResidualScale_B_Ar;
   float TimeResidualScale_B_Ar;
-  float nTrkvPhiScale_B;
+  float nTrkvPhiScale_B;//obsolete
   int nTrksperLB_B;
   int nHitsperLB_B;
   int nHLHitsperLB_B;
@@ -526,23 +546,23 @@ private:
   float TimeResidualScale_E[2];
   float ResidualScale_E_Ar[2];
   float TimeResidualScale_E_Ar[2];
-  float nTrkvPhiScale_E[2];
+  float nTrkvPhiScale_E[2];//obsolete
   int nTrksperLB_E[2];
   int nHitsperLB_E[2];
   int nHLHitsperLB_E[2];
 
-
-  ToolHandle<Trk::IPropagator> m_propagatorTool;  
-  Trk::IPropagator *m_propagator; 
-  ToolHandle<Trk::IExtrapolator> m_extrapolatorTool; 
-  Trk::IExtrapolator *m_extrapolator;  
-
+  /*
+    ToolHandle<Trk::IPropagator> m_propagatorTool;  
+    Trk::IPropagator *m_propagator; 
+    ToolHandle<Trk::IExtrapolator> m_extrapolatorTool; 
+    Trk::IExtrapolator *m_extrapolator;  
+  */ //obsolete
   float m_maxDistToStraw;
   float m_DistToStraw;
   bool m_trt_only_trks;
   bool m_zero_field;
-  bool DEBUG;
-  bool m_printEventInfo;
+  bool DEBUG;//obsolete
+  bool m_printEventInfo;//obsolete
   float m_longToTCut;
   int m_nphi_bins;
   int m_EventBurstCut;
@@ -551,6 +571,9 @@ private:
   int m_minTRThits;
   float m_minP;
   void scale_LWHist(TH1F_LW* hist, float scale);
+  void scale_LWHistWithScaleArray (TH1F_LW* hist,float scale []);
+  int m_initScaleArrays();
+  int m_flagforscale;
   void divide_LWHist(TH1F_LW* result, TH1F_LW* a, TH1F_LW* b);
 
   ///// Additional stuff for efficiency measurements, online only for now
@@ -577,6 +600,8 @@ private:
   int m_every_xth_track;
   std::string m_RODlistfile;
   std::string m_datatype;
+
+  ToolHandle<ILuminosityTool>   m_lumiTool; 
 
   StatusCode Book_TRT_Efficiency(bool isNewLumiBlock, bool isNewRun);
   StatusCode Fill_TRT_Efficiency();

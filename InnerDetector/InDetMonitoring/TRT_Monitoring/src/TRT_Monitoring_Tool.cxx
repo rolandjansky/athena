@@ -4,21 +4,21 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-#include "TRT_TrackHoleSearch/TRTStrawEfficiency.h"
+//#include "TRT_TrackHoleSearch/TRTStrawEfficiency.h"// obsolete ?
 #include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
 #include "DataModel/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
-#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
+//#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"//obsolete
+//#include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"//obsolete
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 //#include "TrkParameters/MeasuredPerigee.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkExInterfaces/IExtrapolator.h"
+//#include "TrkExInterfaces/IPropagator.h"//obsolete
+//#include "TrkExInterfaces/IExtrapolator.h"//obselete
 #include "CommissionEvent/ComTime.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "Identifier/Identifier.h"
+#include "Identifier/Identifier.h"//may be obsolete, TRT_ID includes this
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "TrkTrack/Track.h"
@@ -36,8 +36,8 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "TH1.h"
-#include "TH2.h"
+//#include "TH1.h"//obsolete
+//#include "TH2.h"//obsolete
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -48,7 +48,7 @@
 #include <memory>
 
 using namespace std;
-
+//Private Static Const data member initialization
 const int TRT_Monitoring_Tool::s_numberOfBarrelStacks = 32;
 const int TRT_Monitoring_Tool::s_numberOfEndCapStacks = 32;
 const int TRT_Monitoring_Tool::s_Straw_max[2]={1642,3840};
@@ -134,8 +134,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   ResidualScale_E_Ar(),
   TimeResidualScale_E_Ar(),
   nTrkvPhiScale_E(),
-  m_propagator(0),
-  m_extrapolator(0),
+  //m_propagator(0),
+  //m_extrapolator(0),
   DEBUG(false),
   m_printEventInfo(false),
   m_longToTCut(9.375),
@@ -145,13 +145,13 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_minTRThits(10),
   m_minP(0),
   m_trt_hole_finder("TRTTrackHoleSearchTool"),
-  m_useHoleFinder(false),
   m_track_pt(0),
   m_track_eta(0),
   m_track_phi(0),
   m_track_d0(0),
   m_track_z0(0),
   m_min_tracks_straw(10),
+  m_lumiTool("LuminosityTool"),
   m_trkCollectionEff(0)
 
   //-----------------------------------------------------------------------------------------------//
@@ -165,43 +165,43 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   declareProperty("DriftFunctionTool",        m_drifttool);
   declareProperty("DoTRT_DCS",                m_doDCS);
   declareProperty("DoRDOsMon",                m_doRDOsMon           = true);
-  declareProperty("DoGeoMon",                 m_doGeoMon            = false);
+  declareProperty("DoGeoMon",                 m_doGeoMon            = false);//obsolete
   declareProperty("TRTRawDataObjectName",     m_rawDataObjectName   = "TRT_RDOs");
   declareProperty("NumberOfEvents",           m_nEvents             = -1);
   declareProperty("DoTracksMon",              m_doTracksMon         = true);
   declareProperty("TRTTracksObjectName",      m_tracksObjectName    = "Tracks");
-  declareProperty("doAside",                  DoAside               = true);
-  declareProperty("doCside",                  DoCside               = true);
+  declareProperty("doAside",                  DoAside               = true);//obsolete
+  declareProperty("doCside",                  DoCside               = true);//obsolete
   declareProperty("doStraws",                 DoStraws              = true);
   declareProperty("doChips",                  DoChips               = false);
   declareProperty("doExpert",                 DoExpert              = false);
   declareProperty("doEfficiency",             DoEfficiency          = true);
   declareProperty("doMaskStraws",             DoMaskStraws          = true);
   declareProperty("doShift",                  DoShift               = true);
-  declareProperty("doDiagnostic",             DoDiagnostic          = false);
+  declareProperty("doDiagnostic",             DoDiagnostic          = false);//obsolete
   declareProperty("ComTimeObjectName",        m_comTimeObjectName   = "TRT_Phase");
   declareProperty("TrkSummaryTool",           m_TrackSummaryTool);
-  declareProperty("Geo_Summary_Provider",     geo_summary_provider);
+  declareProperty("Geo_Summary_Provider",     geo_summary_provider);//probably obsolete
   declareProperty("Map_Path",                 mapPath); // obsolete
-  declareProperty("maxDistToStraw",           m_maxDistToStraw      = 2.0);
+  declareProperty("maxDistToStraw",           m_maxDistToStraw      = 2.0);//obsolete
   declareProperty("DistanceToStraw",          m_DistToStraw         = 0.4);
-  declareProperty("is_TRT_only_tracks",       m_trt_only_trks       = true);
-  declareProperty("is_zero_mag_field",        m_zero_field          = true);
+  declareProperty("is_TRT_only_tracks",       m_trt_only_trks       = true);//obsolete
+  declareProperty("is_zero_mag_field",        m_zero_field          = true);//obsolete
   //
   //   Tunable parameters for TRT monitoring histograms
   //
-  declareProperty("LE_TimeWindow_MIN",        m_LE_timeWindow_MIN   = 0);
-  declareProperty("LE_TimeWindow_MAX",        m_LE_timeWindow_MAX   = 24);
-  declareProperty("LL_TimeWindow_MIN",        m_LL_timeWindow_MIN   = 0);
-  declareProperty("LL_TimeWindow_MAX",        m_LL_timeWindow_MAX   = 24);
-  declareProperty("HL_TimeWindow_MIN",        m_HL_timeWindow_MIN   = 0);
-  declareProperty("HL_TimeWindow_MAX",        m_HL_timeWindow_MAX   = 3);
-  declareProperty("MIN_N_LL_Hits",            m_MIN_N_LL_Hits       = 10);
-  declareProperty("MIN_TOT_Hits",             m_MIN_TOT_Hits        = 2);
-  declareProperty("NoiseSuppressionLevel_30pc", m_NoiseSuppressionLevel_30pc = false);
-  declareProperty("NoiseSuppressionMap",      m_NoiseSuppressionMap = false);
-  declareProperty("Debug",                    DEBUG);
-  declareProperty("PrintEventInfo",           m_printEventInfo);
+  declareProperty("LE_TimeWindow_MIN",        m_LE_timeWindow_MIN   = 0);//obsolete
+  declareProperty("LE_TimeWindow_MAX",        m_LE_timeWindow_MAX   = 24);//obsolete
+  declareProperty("LL_TimeWindow_MIN",        m_LL_timeWindow_MIN   = 0);//obsolete
+  declareProperty("LL_TimeWindow_MAX",        m_LL_timeWindow_MAX   = 24);//obsolete
+  declareProperty("HL_TimeWindow_MIN",        m_HL_timeWindow_MIN   = 0);//obsolete
+  declareProperty("HL_TimeWindow_MAX",        m_HL_timeWindow_MAX   = 3);//obsolete
+  declareProperty("MIN_N_LL_Hits",            m_MIN_N_LL_Hits       = 10);//obsolete
+  declareProperty("MIN_TOT_Hits",             m_MIN_TOT_Hits        = 2);//obsolete
+  declareProperty("NoiseSuppressionLevel_30pc", m_NoiseSuppressionLevel_30pc = false);//obsolete
+  declareProperty("NoiseSuppressionMap",      m_NoiseSuppressionMap = false);//obsolete
+  declareProperty("Debug",                    DEBUG);//obsolete
+  declareProperty("PrintEventInfo",           m_printEventInfo);//obsolete
   declareProperty("ITRT_CalDbSvc",            m_trtcaldbSvc);
   declareProperty("LongToTCut",               m_longToTCut);
   declareProperty("NPhiBins",                 m_nphi_bins           = 360);
@@ -210,7 +210,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   declareProperty("IsCosmics",                m_isCosmics           = false);
   declareProperty("MinTRTHitCut",             m_minTRThits          = 10);
   declareProperty("trt_hole_finder",          m_trt_hole_finder);
-  declareProperty("useHoleFinder",            m_useHoleFinder);  
+  declareProperty("useHoleFinder",            m_useHoleFinder = true);
   declareProperty("track_collection_hole_finder", m_track_collection_hole_finder = "CombinedInDetTracks");
   declareProperty("max_abs_d0",               m_max_abs_d0          = 10 * CLHEP::mm);
   declareProperty("max_abs_z0",               m_max_abs_z0          = 300 * CLHEP::mm);
@@ -223,9 +223,11 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   declareProperty("min_trt_hits",             m_min_trt_hits        = 10);
   declareProperty("min_tracks_straw",         m_min_tracks_straw    = 10);
   declareProperty("every_xth_track",          m_every_xth_track     = 25);
-  declareProperty("whatdatatype",             m_datatype);
+  declareProperty("whatdatatype",             m_datatype);//obsolete
   declareProperty("doArgonXenonSeparation",   m_ArgonXenonSplitter  = true); // Argon Histograms won't be created if this is set to false.
+  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool"); 
 
+  m_flagforscale=1;//Added for a fix
   nEvents=0;
   m_hSummary = 0;
   m_hEvtPhaseDetPhi_B = 0;
@@ -323,6 +325,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_hNumTrksDetPhi_B = 0;
   m_hNumHoTDetPhi_B = 0;
   m_hAvgTroTDetPhi_B = 0;
+  m_hStrawEffDetPhi_B = 0;
   m_hNumSwLLWoT_B = 0;
   m_hHitWMap_B = 0;
   m_hHitWonTMap_B = 0;
@@ -353,6 +356,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
     m_hNumTrksDetPhi_E[iside] = 0;
     m_hNumHoTDetPhi_E[iside] = 0;
     m_hAvgTroTDetPhi_E[iside] = 0;
+    m_hStrawEffDetPhi_E[iside] = 0;
     m_hNumSwLLWoT_E[iside] = 0;
     m_hEvtPhaseDetPhi_E[iside] = 0;
     m_hHitWMap_E[iside] = 0;
@@ -578,7 +582,7 @@ StatusCode TRT_Monitoring_Tool::initialize()
           if (element ==NULL) continue;
 
           for (unsigned int istraw = 0; istraw < element->nStraws(); istraw++) {
-            if (istraw>element->nStraws())  continue;
+            //if (istraw>element->nStraws())  continue;//obsolete
 
             std::vector<Identifier> neighbourIDs;
             Identifier strawID = m_pTRTHelper->straw_id(id, int(istraw));
@@ -617,7 +621,7 @@ StatusCode TRT_Monitoring_Tool::initialize()
       }//for (unsigned int index = 0; index < maxHash; index++)
     } //for (int ibe=0; ibe<2; ibe++)
   }
-
+  //some initializaton
   if (DoShift) { // ugly way of doing this, so we probably want to clean it up a bit.
     // Barrel
     int ibe=0;
@@ -644,6 +648,15 @@ StatusCode TRT_Monitoring_Tool::initialize()
     }
   } // doshift for phi bin init
 
+  if (m_lumiTool.retrieve().isFailure()) {                                     
+    ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");                   
+    std::cout<<"Unable to retrieve Luminosity Tool"<<std::endl;
+    return StatusCode::FAILURE;                                      
+  } else {                                                                    
+    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");              
+    std::cout<<"Successfully retrieved  Luminosity Tool"<<std::endl;
+  }
+
   ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
   return sc;
 }
@@ -659,6 +672,7 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
   if (newRun) ATH_MSG_VERBOSE("newRun");
 
   StatusCode sc;
+  //If it is a new run check rdo and track containers.
   if (newRun) {
     if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
       ATH_MSG_WARNING("No TRT_RDO_Container by the name of " << m_rawDataObjectName << " in StoreGate. Skipping TRT RDO Monitoring.");
@@ -669,6 +683,15 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent()
       m_doTracksMon = false;
     }
   }// is new run?
+
+  if (m_lumiTool.retrieve().isFailure()) {                                    
+    ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");                  
+    std::cout<<"Unable to retrieve Luminosity Tool"<<std::endl;
+    return StatusCode::FAILURE;                                      
+  } else {                                                                    
+    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");               
+    std::cout<<"Successfully retrieved  Luminosity Tool"<<std::endl;
+  }
 
   //Book_TRT_RDOs registers all raw data histograms
   if (m_doRDOsMon) {
@@ -722,6 +745,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
   const std::string be_id[2] = { "B", "E" };
   const std::string side_id[2] = { "A", "C" };
 
+  //Booking of some expert monitoring histograms
   for (int ibe=0; ibe<2; ibe++) {
     for (int i=0; i<s_numberOfStacks[ibe]*2; i++) {
       std::ostringstream oss;
@@ -794,6 +818,9 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
       m_hSummary->GetXaxis()->SetBinLabel(6,"Tracks EC");
       m_hSummary->GetXaxis()->SetBinLabel(7,"Transition Side A");
       m_hSummary->GetXaxis()->SetBinLabel(8,"Transition Side C");
+      //lumi summary histograms 
+      m_IntLum =bookTH1F_LW(rdoShiftSmry,"hIntLum", "Luminosity", 1, 0., 1., " ", "Luminosity [#mub^{1}]", scode);
+      m_LBvsLum =bookTH1F_LW(rdoShiftSmry,"hLBvsLum", "Luminosity", 2000, 0., 2000., "Luminosity Bin", "Luminosity [#mub^{1}]", scode);
 
       const unsigned int maxLumiBlock = 200;
 
@@ -1021,12 +1048,19 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
   const std::string side_id[2] = { "A", "C" };
   const int maxLumiblock = 720;
 
+  //Arrays for Aging
+  const std::string gas_in[4] ={ "EA_in_A", "EA_in_B","EC_in_A","EC_in_B"};
+  const std::string gas_out[4] ={ "EA_out_A", "EA_out_B","EC_out_A","EC_out_B"}; 
+  const std::string gas[4] ={ "in_A","in_B","out_A","out_B"};
+  const std::string Mod[5] ={"1","2","3","shortP","shortN"}; 
+  const std::string Lum[8] ={"1","2","3","4","5","6","7","8"};
+
   for (int ibe=0; ibe<2; ibe++) {
     const std::string regionTag = " (" + barrel_or_endcap[ibe] + ")";
     //    MonGroup trackShift(this, "TRT/Shift/"+barrel_or_endcap[ibe], shift, run);
     //    MonGroup trackShiftRebinned(this, "TRT/Shift/"+barrel_or_endcap[ibe], shift, run,"","mergeRebinned");
     //    MonGroup trackShiftTH1(this, "TRT/Shift/"+barrel_or_endcap[ibe], shift, run,"","weightedEff");
-    MonGroup trackShift(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run);
+    MonGroup trackShift(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
     MonGroup trackShiftRebinned(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","mergeRebinned");
     MonGroup trackShiftTH1(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","weightedEff");
 
@@ -1065,6 +1099,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         m_hHLhitOnTrack_B       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack", "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
         m_hHtoLRatioOnTrack_B   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack", "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode);
         m_hHitWonTMap_B         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap", "Leading Edge in Time Window per Reconstructed Track" + regionTag, 1642, 0, 1642, "Straw Number", "Norm. Entries", scode);
+	m_hStrawEffDetPhi_B     = bookTProfile_LW(trackShift, "hStrawEffDetPhi", "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
 
       } else if (ibe==1) {
         for (int iside=0; iside<2; iside++) {
@@ -1098,6 +1133,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hHLhitOnTrack_E[iside]       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack_"+side_id[iside], "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
           m_hHtoLRatioOnTrack_E[iside]   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_"+side_id[iside], "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1.0, "HL/LL Ratio", "Norm. Entries", scode);
           m_hHitWonTMap_E[iside]         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap_"+side_id[iside], "Leading Edge in Time Window per Reconstructed Track" + regionTag, 3840, 0, 3840, "Straw Number", "Norm. Entries", scode);
+	  m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
         } //for (int iside=0; iside<2; iside++)
       } //else if (ibe==1)
 
@@ -1106,7 +1142,8 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         m_hLLOcc_Scatter[ibe]            = bookTH2F_LW(trackShift, "m_hLLOcc_Scatter", "LL Occupancy in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 400, 0.0, 1.0, "Luminosity Block (mod 720)", "LL Occupancy in Stacks", scode);
         m_hHightoLowRatioOnTrack_Scatter[ibe] = bookTH2F_LW(trackShift, "m_hHightoLowRatioOnTrack_Scatter", "HL/LL Ratio on Track in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 40, 0.0, 0.5, "Luminosity Block (mod 720)", "HL/LL Ratio in Stacks", scode);
       }
-
+      //ToDo: Fix this
+      if (ibe==1) continue; //a dirty fix to double booking
       //Here begins the booking of offline efficiency histograms.
       //      MonGroup trackEffBarrel(this, "TRT/Shift/Barrel",shift,run);
       //      MonGroup trackEffEndCap(this, "TRT/Shift/EndCap",shift,run);
@@ -1121,6 +1158,30 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 	m_hefficiencyEndCap_locR_Off_Ar[iside] = bookTProfile_LW(trackEffEndCap, "hEfficiencyEndCap"+side_id[iside]+"_locR_Off_Ar", "Efficiency vs Track-to-Wire Distance for Argon Straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
 	//End of offline efficiency histograms.
       }
+
+      /**Initialize Aging  plots      ************************
+       */
+
+      for(int iL = 0; iL<5;iL++){    
+	for(int iSide = 0; iSide<2; iSide++){
+	  if(iL<3){ 
+	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_All", "Number All Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of Hits", scode);           
+	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m"+Mod[iL]+"_"+side_id[iSide]+"_HT", "Number HT Hits side "+side_id[iSide]+" Layer "+Mod[iL], 30, -750., 750., "z [mm]", "Number of HT Hits", scode);           
+	  }
+	  if(iL==3){          
+	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of Hits", scode);           
+	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, 0., 725., "z [mm]", "Number of HT Hits", scode);
+	  }
+	  if(iL==4){          
+	    m_trackz_All[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_All_"+Mod[iL], "Number All Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of Hits", scode);           
+	    m_trackz_HT[iL][iSide] = bookTH1F_LW(trackEffBarrel, "trackz_m1_"+side_id[iSide]+"_HT_"+Mod[iL], "Number HT Hits side "+side_id[iSide]+" Layer 1 "+Mod[iL], 30, -725., 0., "z [mm]", "Number of HT Hits", scode);
+	  }   
+	  if(iL<4){
+	    m_trackr_All[iL][iSide] = bookTH1F_LW(trackEffEndCap, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_All", "Number All Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of Hits", scode);           
+	    m_trackr_HT[iL][iSide] = bookTH1F_LW(trackEffEndCap, "trackr_E"+side_id[iSide]+"_"+gas[iL]+"_HT", "Number HT Hits E"+side_id[iSide]+" "+gas[iL], 30, 644., 1004., "r [mm]", "Number of HT Hits", scode);
+	  }
+	}//Loop of iSide
+      }//Loop over Modules
 
     }//if (newRun && DoShift)
   }//for (int ibe=0; ibe<2; ibe++)
@@ -1137,7 +1198,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
 
   const EventInfo* eventInfo0;
   sc = evtStore()->retrieve(eventInfo0);
-
+  m_initScaleArrays();//a fix for  hitW
   if (m_doRDOsMon) {
     sc = Retrieve_TRT_RDOs();
     if (sc == StatusCode::FAILURE) return sc;
@@ -1145,8 +1206,8 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
     sc = CheckEventBurst();
     if (sc == StatusCode::FAILURE) return sc;
     if (passEventBurst) {
-      nEvents++;
-      evtLumiBlock++;
+      nEvents++;//counts N of events.this value used in summary histogram
+      evtLumiBlock++;//counts number of events in the current lumi block.It is initialized to zero at the end of each lumi block
       sc = Fill_TRT_RDOs();
       if (sc == StatusCode::FAILURE) return sc;
     }
@@ -1168,17 +1229,26 @@ StatusCode TRT_Monitoring_Tool::fillHistograms()
     if (sc == StatusCode::FAILURE) return sc;
   }
 
+  if (true){
+    if (!m_doTracksMon) {//to run HT histograms independent of m_doTracksMon flag
+      sc = Retrieve_TRT_Tracks();
+      if (sc == StatusCode::FAILURE) return sc;
+    }//if (!m_doTracksMon)
+    if (passEventBurst) sc = Fill_TRT_HT();
+    if (sc == StatusCode::FAILURE) return sc;
+  }
+
   return StatusCode::SUCCESS;
 }//fillHistograms()
 
-// Process all of the Histrograms.  ie divide, multiply, or whate ver and write them to file.
+// Process all of the Histrograms.  ie divide, multiply..etc and write them to file.
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::procHistograms()
 //----------------------------------------------------------------------------------//
 {
   double n_BorE[2][2], total_BorE[2][2];
   double nfill[2]={3.0, 2.0};  // [0]:barrel, [1]:endcap
-
+  //proccesing of online histograms
   if (m_environment != AthenaMonManager::online) {
     if (DoShift) {
       if (m_doRDOsMon) {
@@ -1243,13 +1313,29 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
           }
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert && endOfRun
-
+      
+      //fix for leading edge in time window probability vs straw number(Barrel) histograms
+      //
+      float scalearray[1642];
+      float scalearray_Ar[1642];
+      for(int k =0;k<1642;k++){
+	if (m_scale_hHitWMap_B[k]==0)
+	  scalearray[k]=0;
+	else
+	  scalearray[k]=1./(m_nEvents*m_scale_hHitWMap_B[k]);
+	//for argon
+	if (m_scale_hHitWMap_B_Ar[k]==0)
+	  scalearray_Ar[k]=0;
+	else
+	  scalearray_Ar[k]=1./(m_nEvents*m_scale_hHitWMap_B_Ar[k]);
+      }//for(int k =0;k<1642;k++){
+      //now we have scaling arrays for hHitWMap_B*
       if (DoStraws && endOfRun) {
         if (m_doRDOsMon && m_nEvents > 0) {
           if (ibe==0) {
-            scale_LWHist(m_hHitWMap_B, 1. / (m_nEvents*64));
+            scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
             if (m_ArgonXenonSplitter) {
-              scale_LWHist(m_hHitWMap_B_Ar, 1. / (m_nEvents * 64));
+              scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
             }
           } else if (ibe==1) {
             scale_LWHist(m_hHitWMap_E[0], 1. / (m_nEvents * 32));
@@ -1436,7 +1522,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
       }// if DoEfficiency && EndOfRun
 
     } // for (int ibe=0; ibe<2; ibe++)
-  }//if is not online
+  }//if the environment is not online
 
   if (endOfLumiBlock || endOfRun) {
     if (DoShift) {
@@ -1504,7 +1590,7 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
         } //for (int ibe=0; ibe<2; ibe++)
       } //if (m_doTracksMon)
     }//Doshift
-
+    //Resetting Occupuncy histograms for online environment
     if (DoShift && m_environment == AthenaMonManager::online && (lastLumiBlock % m_lumiBlocksToResetOcc) == 0) {
       for (int ibe=0; ibe<2; ibe++) {
         for (int iside=0; iside<2; iside++) {
@@ -1517,8 +1603,8 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
     }
 
     ATH_MSG_DEBUG("end of event and lumi block");
-    evtLumiBlock = 0;
-  } // end lumi block
+    evtLumiBlock = 0;//number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
+  } //if (endOfLumiBlock || endOfRun)
 
   if (endOfRun) {
     ATH_MSG_DEBUG("end of run");
@@ -1553,7 +1639,7 @@ StatusCode TRT_Monitoring_Tool::Retrieve_TRT_RDOs()
 }//Retrieve_TRT_RDOs()
 
 
-//Check for EventBurst
+//Check for EventBurst: Counts highlevelhits and returns passEventBurst flag true if the count is less than m_passEventBurstCut,returns allways succes
 StatusCode TRT_Monitoring_Tool::CheckEventBurst()
 {
   passEventBurst = true;
@@ -1591,7 +1677,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
   TRT_RDO_Container::const_iterator RDO_CollectionBegin = m_rdoContainer->begin();
   TRT_RDO_Container::const_iterator RDO_CollectionEnd   = m_rdoContainer->end();
   InDetTimeCollection *TRT_BCIDColl = 0;
-
+  //retrieve InDetTimeCollection from Store Gate
   if (evtStore()->contains<InDetTimeCollection>("TRT_BCID")) {
     if (evtStore()->retrieve(TRT_BCIDColl, "TRT_BCID").isFailure()) {
       ATH_MSG_INFO("Could not get InDetTimeCollection from Store Gate");
@@ -1600,29 +1686,31 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
     }
   }
 
+  //retrieve EventInfo from Store Gate
   const EventInfo* eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the EventInfo from Store Gate");
     return StatusCode::FAILURE;
   }
+  //Check readout Integrity of TRT 
   if (Check_TRT_Readout_Integrity(eventInfo).isFailure()) {
     ATH_MSG_ERROR("Failure when checking the TRT readout integrity");
     return StatusCode::FAILURE;
   }
 
-  int numberOfStacks_b[2];
+  int numberOfStacks_b[2];//Total stack number of barrel and endcap
   numberOfStacks_b[0]= s_numberOfBarrelStacks*3;
   numberOfStacks_b[1]= s_numberOfEndCapStacks*2;
 
   Identifier TRT_Identifier;
-  int numberOfStrawsMod[3]; // For barrel
+  int numberOfStrawsMod[3]; // For barrel(number if straw in module)
   numberOfStrawsMod[0]=329;
   numberOfStrawsMod[1]=520;
   numberOfStrawsMod[2]=793;
 
   int numberOfStrawsWheel[2]; // For endcap
-  numberOfStrawsWheel[0]=2304;   //6 layers (6*16=96) 96*24=2304 straws in wheel A
-  numberOfStrawsWheel[1]=1536;   //8 layers (8*8=64) 64*24=1536 straws in wheel B
+  numberOfStrawsWheel[0]=2304;   //6 layers (6*16=96) 96*24=2304 straws in wheel type A
+  numberOfStrawsWheel[1]=1536;   //8 layers (8*8=64) 64*24=1536 straws in wheel type B
 
   int moduleHits_B[192], moduleHits_E[128];
   int HLmoduleHits_B[192], HLmoduleHits_E[128];
@@ -1658,6 +1746,9 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
     nTRTHits[ibe] = 0;
 
     //Take out normalization from previous event for online environment
+    //Explanation: While online monitoring running we need to present out histograms repeatedly so we need to pay attention to normalization.
+    //before adding any information from new event to normalized histograms we need to take out the normalization of the previous event by scaling histograms back.
+    //After  we are done with filling those histograms we will normalize them again
     if (m_environment == AthenaMonManager::online && nEvents >0) {
       //Loop over stack histograms and normalize to number of events processed.
 
@@ -1671,12 +1762,26 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           scale_LWHist(m_hHitHMapC[ibe][i],  scale);
         }//Loop over A side and C side Stacks: for (int i=0; i<64; i++)
       }//if DoChips && DoExpert
+      //scale array for HitWMap_B*
+      float scalearray[1642];
+      float scalearray_Ar[1642];
+      for(int k =0;k<1642;k++){
+	if (m_scale_hHitWMap_B[k]==0)
+	  scalearray[k]=0;
+	else
+	  scalearray[k]=(nEvents-1)*m_scale_hHitWMap_B[k];
+	//for argon
+	if (m_scale_hHitWMap_B_Ar[k]==0)
+	  scalearray_Ar[k]=0;
+	else
+	  scalearray_Ar[k]=(nEvents-1)*m_scale_hHitWMap_B_Ar[k];
+      }
 
       if (DoStraws) {
         if (ibe == 0) {
-          scale_LWHist(m_hHitWMap_B, (nEvents-1) * 64);
+          scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
           if (m_ArgonXenonSplitter) {
-            scale_LWHist(m_hHitWMap_B_Ar, (nEvents-1) * 64);
+            scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
           }
         } else if (ibe==1) {
           scale_LWHist(m_hHitWMap_E[0], (nEvents-1) * 32);
@@ -1703,6 +1808,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 
   }// for (int ibe=0; ibe<2; ibe++)
 
+
+
   int nhitsall = 0;
   for (; RDO_CollectionBegin != RDO_CollectionEnd; ++RDO_CollectionBegin) {
     //Get pointer to TRT_Collection
@@ -1716,247 +1823,248 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
       TRT_Identifier = (*p_rdo)->identify();
       if (DoMaskStraws && m_sumSvc->get_status(TRT_Identifier)) continue;
       int m_barrel_ec = m_pTRTHelper->barrel_ec(TRT_Identifier);
+      //ToDo: Check TRT_LoLumRawData object
       const TRT_LoLumRawData* p_lolum=dynamic_cast<const TRT_LoLumRawData*>(*p_rdo);
       if (!p_lolum) continue;
       nhitsall++;
-      int barrelendcap_sectorflag[2][2];
-      barrelendcap_sectorflag[0][0]=1;  // barrel-A
-      barrelendcap_sectorflag[0][1]=-1; // barrel-C
-      barrelendcap_sectorflag[1][0]=2;  // endcap-A
-      barrelendcap_sectorflag[1][1]=-2;
+      /*//We don't need this anymore 
+	int barrelendcap_sectorflag[2][2];
+	barrelendcap_sectorflag[0][0]=1;  // barrel-A
+	barrelendcap_sectorflag[0][1]=-1; // barrel-C
+	barrelendcap_sectorflag[1][0]=2;  // endcap-A
+	barrelendcap_sectorflag[1][1]=-2;
+      */
+      int ibe   =abs(m_barrel_ec)-1;
+      int iside =m_barrel_ec>0?0:1; 
 
+      if (ibe!=1&&ibe!=0) continue;//if m_barrel_ec is outof range go to next measurement in rdo_collection
+      //ToDo: add a verbose message about this
       int moduleNumber_barrel1[2];
       int moduleNumber_barrel2[2];
       int moduleNumber_barrel3[2];
-
       int moduleNumber_endcapA[2];
       int moduleNumber_endcapB[2];
 
-      for (int ibe=0; ibe<2; ibe++) {  // ibe=0(barrel) ,ibe=1(endcap)
-	//Get TRT Identifier (need to know phi module, module layer, straw layer, and straw # with in the layer, to get proper straw numbering.
-	TRT_Identifier = p_lolum->identify();
+      //There used to be a loop over "ibe"
+      //It wasn't wery useful so now we dont use it      
+      // for (int ibe=0; ibe<2; ibe++) {  // ibe=0(barrel) ,ibe=1(endcap)
 
-	// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-	const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good);
+      //Get TRT Identifier (need to know phi module, module layer, straw layer, and straw # with in the layer, to get proper straw numbering.
+      TRT_Identifier = p_lolum->identify();
 
-	int m_phi_module     = m_pTRTHelper->phi_module(TRT_Identifier);
-	int m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(TRT_Identifier);
-	int m_straw_layer    = m_pTRTHelper->straw_layer(TRT_Identifier);
-	int m_straw          = m_pTRTHelper->straw(TRT_Identifier);
+      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good);
 
-	int m_strawNumber, m_chip=0, m_board=-1;
+      int m_phi_module     = m_pTRTHelper->phi_module(TRT_Identifier);
+      int m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(TRT_Identifier);
+      int m_straw_layer    = m_pTRTHelper->straw_layer(TRT_Identifier);
+      int m_straw          = m_pTRTHelper->straw(TRT_Identifier);
 
-	int ibe_tmp=-1;
-	if ((m_pTRTHelper->is_barrel(TRT_Identifier))
-	    && (m_pTRTHelper->barrel_ec(TRT_Identifier)==-1
-		|| m_pTRTHelper->barrel_ec(TRT_Identifier)==1)) { // barrel
-	  ibe_tmp=0;
-	  m_strawNumber=strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
-	  if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe_tmp]) {
-	    m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+      int m_strawNumber, m_chip=0, m_board=-1;
+      //ToDo: Check if that is really neccessary
+      bool is_barrel = m_pTRTHelper->is_barrel(TRT_Identifier);
+      //check straw number and find the correct m_chip and m_ board values
+
+      /* 'if' statements below were calling functions of m_pTRTHelper 
+       * Since we called  them before if conditions and give their values to variables 
+       * it was doing unnecessary computation
+       * Old ones were looking like the following
+       *
+       * if ((m_pTRTHelper->is_barrel(TRT_Identifier))
+       *      && (m_pTRTHelper->barrel_ec(TRT_Identifier)==-1
+       *          || m_pTRTHelper->barrel_ec(TRT_Identifier)==1)) {
+       */
+
+      if ( is_barrel && ibe==0 ) { // barrel
+	m_strawNumber=strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+	if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
+	  m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+	}
+	m_board = chipToBoard(m_chip);
+
+      } else if ( !is_barrel && ibe ==1 ) { // endcap
+	m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+	if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
+	  m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+	}
+	m_board = chipToBoard_EndCap(m_chip);
+      } else {
+	m_strawNumber=-1;
+      }
+      if (m_strawNumber<0 || m_strawNumber >= s_Straw_max[ibe]){
+	ATH_MSG_WARNING("Found m_strawNumber = " << m_strawNumber << " out of range.");	
+	continue;
+      }
+      //ToDo: rename them (They are clearly not member but have "m_" prefix)
+      const int m_driftTimeBin  = p_lolum->driftTimeBin();
+      const int m_trailingEdge  = p_lolum->trailingEdge();
+      const bool m_highlevel    = p_lolum->highLevel();
+      const bool m_firstBinHigh = p_lolum->firstBinHigh(); // if the first time bin is up then the hit is out of time window
+      const bool m_lastBinHigh  = p_lolum->lastBinHigh(); // if the last bin is up then the hit is out of time window.
+      const float m_timeOverThreshold = p_lolum->timeOverThreshold();
+
+      moduleNumber_barrel1[0]=m_phi_module;
+      moduleNumber_barrel1[1]=m_phi_module+96;
+
+      moduleNumber_barrel2[0]=m_phi_module+s_numberOfBarrelStacks;
+      moduleNumber_barrel2[1]=m_phi_module+s_numberOfBarrelStacks+96;
+
+      moduleNumber_barrel3[0]=m_phi_module+2*s_numberOfBarrelStacks;
+      moduleNumber_barrel3[1]=m_phi_module+2*s_numberOfBarrelStacks+96;
+
+      moduleNumber_endcapA[0]=m_phi_module;
+      moduleNumber_endcapA[1]=m_phi_module+64;
+
+      moduleNumber_endcapB[0]=m_phi_module+s_numberOfEndCapStacks;
+      moduleNumber_endcapB[1]=m_phi_module+s_numberOfEndCapStacks+64;
+
+      //There used to be an another for loop
+      // for (int iside=0; iside<2; iside++) {  // iside=0(A-side), iside=1(C-side)
+      //Anf a if condition to theck if ibe and iside is in an agreement with m_barrel_ec
+      //    if (m_barrel_ec==barrelendcap_sectorflag[ibe][iside]) {
+      //Now it just deciphers m_barrel_ec as soon as it gets it
+
+      int iphi_module=-999;
+      if (iside==0) { //A-side
+	iphi_module=m_phi_module;
+      } else if (iside==1) { //C-side
+	iphi_module=m_phi_module+32;
+      }
+      if (ibe==0) { // Barrel
+	nTRTHits[ibe]++;
+	if (DoStraws) {
+	  if (isArgonStraw) {
+	    m_hHitWMap_B_Ar->Fill(m_strawNumber); // Fill leading edge in time window histograms for Argon straws.
+	  } else {
+	    m_hHitWMap_B->Fill(m_strawNumber); // Fill leading edge in time window histograms.
 	  }
-	  m_board = chipToBoard(m_chip);
-
-	  if (m_strawNumber < 0 || m_strawNumber >= s_Straw_max[ibe_tmp]) {
-	    ATH_MSG_WARNING("Found m_strawNumber = " << m_strawNumber << " out of range.");
+	}
+	if (DoShift) {
+	  nHitsperLB_B++;
+	  if (m_highlevel) { nHLHitsperLB_B++; }
+	}
+      } else if (ibe==1) { // Endcap
+	nTRTHits[ibe]++;
+	if (DoStraws) {
+	  if (isArgonStraw) {
+	    m_hHitWMap_E_Ar[iside]->Fill(m_strawNumber); // Fill leading edge in time window histograms for Argon straws.
+	  } else {
+	    m_hHitWMap_E[iside]->Fill(m_strawNumber);// Fill leading edge in time window histograms.
 	  }
+	}//DoStraws
+	if (DoShift) {
+	  nHitsperLB_E[iside]++;
+	  if (m_highlevel) { nHLHitsperLB_E[iside]++; }
+	}
+      }
 
-	} else if ((!(m_pTRTHelper->is_barrel(TRT_Identifier)))
-		   && (m_pTRTHelper->barrel_ec(TRT_Identifier)==-2
-		       || m_pTRTHelper->barrel_ec(TRT_Identifier)==2)) { // endcap
-	  ibe_tmp=1;
-	  m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
-	  if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe_tmp]) {
-	    m_chip = mat_chip_E[m_phi_module][m_strawNumber];
-	  }
-	  m_board = chipToBoard_EndCap(m_chip);
 
-	  if (m_strawNumber < 0 || m_strawNumber >= s_Straw_max[ibe_tmp]) {
-	    ATH_MSG_WARNING("Found m_strawNumber= " << m_strawNumber << " out of range.");
+      if (DoExpert) {
+	if ((m_driftTimeBin<24) && !m_lastBinHigh && !m_firstBinHigh) { //Fill Leading Edge Histos.
+	  if (DoStraws) m_hHitWMapS[ibe][iphi_module]->Fill(m_strawNumber); //Leading Edge in time Window: Straws
+	  if (DoChips) m_hHitWMapC[ibe][iphi_module]->Fill(m_chip-1);      //Leading Edge in time Window: Chips
+	}
+	if ((m_trailingEdge<23)&& !m_lastBinHigh && !m_firstBinHigh) { //Fill Trailing Edge Histos
+	  if (DoStraws) m_hHitTrWMapS[ibe][iphi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125)); //Mean TE in time window: Straws
+	  if (DoChips) m_hHitTrWMapC[ibe][iphi_module]->Fill((m_chip-1), ((m_trailingEdge+1)*3.125));    //Mean TE in time window: Chips
+	}
+	if (DoStraws) m_hHitTrMapS[ibe][iphi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125)); //Mean TE: Straws
+	if (DoChips) m_hHitTrMapC[ibe][iphi_module]->Fill((m_chip-1), ((m_trailingEdge+1)*3.125));    //Mean TE: Chips
+
+	//Look at high threshold (HL) hit distributions (was there a HL hit? was the HL hit in the time window?)
+	if (m_highlevel) {  // If ANY highLevel bit is up.
+	  if (DoStraws) m_hHitHMapS[ibe][iphi_module]->Fill(m_strawNumber); //High Level: Straws
+	  if (DoChips) m_hHitHMapC[ibe][iphi_module]->Fill(m_chip-1);      //High Level: Chips
+
+	  if ((m_driftTimeBin<24) && !m_firstBinHigh && !m_lastBinHigh) {
+	    //m_hHitHWMapS[ibe][iphi_module]->Fill(strawNumber(m_straw,m_straw_layer,m_layer_or_wheel)); //HL in time window: Straws
+	    if (DoStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(m_strawNumber); //HL in time window: Straws
+	    if (DoChips) m_hHitHWMapC[ibe][iphi_module]->Fill(m_chip-1);      //HL in time window: Chip
 	  }
-	} else {
-	  m_strawNumber=-1;
 	}
 
-	if (ibe_tmp==-1) continue;
-	if (m_strawNumber<0 || m_strawNumber >= s_Straw_max[ibe_tmp]) continue;
+	if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin>0 || m_trailingEdge<23) {
+	  if (DoStraws) m_hHitAMapS[ibe][iphi_module]->Fill(m_strawNumber); //Any LL bit on: Straws
+	  if (DoChips) m_hHitAMapC[ibe][iphi_module]->Fill(m_chip-1);      //Any LL bit on: Chips
+	}
 
-	const int m_driftTimeBin = p_lolum->driftTimeBin();
-	const int m_trailingEdge = p_lolum->trailingEdge();
+	if ((m_driftTimeBin>0 || m_trailingEdge<23)&& !m_firstBinHigh && !m_lastBinHigh) {
+	  if (DoStraws) m_hHitAWMapS[ibe][iphi_module]->Fill(m_strawNumber); // LL in time window: Straws
+	  if (DoChips) m_hHitAWMapC[ibe][iphi_module]->Fill(m_chip-1);      // LL in time window: Chips
+	}//if  (m_driftTimeBin>0 && m_trailingEdge<23)
 
-	const bool m_highlevel = p_lolum->highLevel();
-	const bool m_firstBinHigh = p_lolum->firstBinHigh(); // if the first time bin is up then the hit is out of time window
-	const bool m_lastBinHigh = p_lolum->lastBinHigh(); // if the last bin is up then the hit is out of time window.
+	if (DoStraws) {
+	  m_hHitToTMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold); //Mean ToT (ns): Straws
+	  if (m_timeOverThreshold>m_longToTCut) {
+	    m_hHitToTLongMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold); //Mean ToT (ns) for Straws with ToT > LongToTCut: Straws
+	    m_hHitToTLongTrMapS[ibe][iphi_module]->Fill(m_strawNumber, (m_trailingEdge+1)*3.125);// Mean Tr (ns) for Straws with ToT > LongToTCut: Straws
+	  }
+	}
+	if (DoChips) m_hHitToTMapC[ibe][iphi_module]->Fill((m_chip-1), m_timeOverThreshold); //Mean ToT (ns): Chips
+	if (DoChips) {
+	  if (p_lolum->highLevel(1)) {
+	    m_hHtoBCMapC[ibe][iphi_module]->Fill(0.,(m_chip-1));
+	    m_hHtoBCMapB[ibe][iphi_module]->Fill(0.,(m_board-1));
+	  }
+	  if (p_lolum->highLevel(2)) {
+	    m_hHtoBCMapC[ibe][iphi_module]->Fill(1.,(m_chip-1));
+	    m_hHtoBCMapB[ibe][iphi_module]->Fill(1.,(m_board-1));
+	  }
+	  if (p_lolum->highLevel(3)) {
+	    m_hHtoBCMapC[ibe][iphi_module]->Fill(2.,(m_chip-1));
+	    m_hHtoBCMapB[ibe][iphi_module]->Fill(2.,(m_board-1));
+	  }
+	}
+      }//if DoExpert
+      //Set Module Numbers.
+      int moduleNumber=-1;
+      if (ibe==0) {// barrel
+	if (m_layer_or_wheel==0) {
+	  moduleNumber=moduleNumber_barrel1[iside];
+	  moduleHits_B[moduleNumber]++;
+	} else if (m_layer_or_wheel==1) {
+	  moduleNumber=moduleNumber_barrel2[iside];
+	  moduleHits_B[moduleNumber]++;
+	} else if (m_layer_or_wheel==2) {
+	  moduleNumber=moduleNumber_barrel3[iside];
+	  moduleHits_B[moduleNumber]++;
+	}
+	if (m_highlevel) {
+	  if (m_layer_or_wheel==0) {
+	    moduleNumber=moduleNumber_barrel1[iside];
+	    HLmoduleHits_B[moduleNumber]++;
+	  } else if (m_layer_or_wheel==1) {
+	    moduleNumber=moduleNumber_barrel2[iside];
+	    HLmoduleHits_B[moduleNumber]++;
+	  } else if (m_layer_or_wheel==2) {
+	    moduleNumber=moduleNumber_barrel3[iside];
+	    HLmoduleHits_B[moduleNumber]++;
+	  }
+	}//if HL hit
 
-	const float m_timeOverThreshold = p_lolum->timeOverThreshold();
-
-	moduleNumber_barrel1[0]=m_phi_module;
-	moduleNumber_barrel1[1]=m_phi_module+96;
-
-	moduleNumber_barrel2[0]=m_phi_module+s_numberOfBarrelStacks;
-	moduleNumber_barrel2[1]=m_phi_module+s_numberOfBarrelStacks+96;
-
-	moduleNumber_barrel3[0]=m_phi_module+2*s_numberOfBarrelStacks;
-	moduleNumber_barrel3[1]=m_phi_module+2*s_numberOfBarrelStacks+96;
-
-	moduleNumber_endcapA[0]=m_phi_module;
-	moduleNumber_endcapA[1]=m_phi_module+64;
-
-	moduleNumber_endcapB[0]=m_phi_module+s_numberOfEndCapStacks;
-	moduleNumber_endcapB[1]=m_phi_module+s_numberOfEndCapStacks+64;
-
-	for (int iside=0; iside<2; iside++) { // iside=0(A-side), iside=1(C-side)
-	  if (m_barrel_ec==barrelendcap_sectorflag[ibe][iside]) {
-
-	    int iphi_module=-999;
-	    if (iside==0) { //A-side
-	      iphi_module=m_phi_module;
-	    } else if (iside==1) { //C-side
-	      iphi_module=m_phi_module+32;
-	    }
-
-	    if (ibe==0) { // Barrel
-	      nTRTHits[ibe]++;
-	      if (DoStraws) {
-		if (isArgonStraw) {
-		  m_hHitWMap_B_Ar->Fill(m_strawNumber); // Fill leading edge in time window histograms for Argon straws.
-		} else {
-		  m_hHitWMap_B->Fill(m_strawNumber); // Fill leading edge in time window histograms.
-		}
-	      }
-	      if (DoShift) {
-		nHitsperLB_B++;
-		if (m_highlevel) { nHLHitsperLB_B++; }
-	      }
-	    } else if (ibe==1) { // Endcap
-	      nTRTHits[ibe]++;
-	      if (DoStraws) {
-		if (isArgonStraw) {
-		  m_hHitWMap_E_Ar[iside]->Fill(m_strawNumber); // Fill leading edge in time window histograms for Argon straws.
-		} else {
-		  m_hHitWMap_E[iside]->Fill(m_strawNumber);// Fill leading edge in time window histograms.
-		}
-	      }//DoStraws
-	      if (DoShift) {
-		nHitsperLB_E[iside]++;
-		if (m_highlevel) { nHLHitsperLB_E[iside]++; }
-	      }
-	    }
-
-
-	    if (DoExpert) {
-	      if ((m_driftTimeBin<24) && !m_lastBinHigh && !m_firstBinHigh) { //Fill Leading Edge Histos.
-		if (DoStraws) m_hHitWMapS[ibe][iphi_module]->Fill(m_strawNumber); //Leading Edge in time Window: Straws
-		if (DoChips) m_hHitWMapC[ibe][iphi_module]->Fill(m_chip-1);      //Leading Edge in time Window: Chips
-	      }
-	      if ((m_trailingEdge<23)&& !m_lastBinHigh && !m_firstBinHigh) { //Fill Trailing Edge Histos
-		if (DoStraws) m_hHitTrWMapS[ibe][iphi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125)); //Mean TE in time window: Straws
-		if (DoChips) m_hHitTrWMapC[ibe][iphi_module]->Fill((m_chip-1), ((m_trailingEdge+1)*3.125));    //Mean TE in time window: Chips
-	      }
-	      if (DoStraws) m_hHitTrMapS[ibe][iphi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125)); //Mean TE: Straws
-	      if (DoChips) m_hHitTrMapC[ibe][iphi_module]->Fill((m_chip-1), ((m_trailingEdge+1)*3.125));    //Mean TE: Chips
-
-	      //Look at high threshold (HL) hit distributions (was there a HL hit? was the HL hit in the time window?)
-	      if (m_highlevel) {  // If ANY highLevel bit is up.
-		if (DoStraws) m_hHitHMapS[ibe][iphi_module]->Fill(m_strawNumber); //High Level: Straws
-		if (DoChips) m_hHitHMapC[ibe][iphi_module]->Fill(m_chip-1);      //High Level: Chips
-
-		if ((m_driftTimeBin<24) && !m_firstBinHigh && !m_lastBinHigh) {
-		  //m_hHitHWMapS[ibe][iphi_module]->Fill(strawNumber(m_straw,m_straw_layer,m_layer_or_wheel)); //HL in time window: Straws
-		  if (DoStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(m_strawNumber); //HL in time window: Straws
-		  if (DoChips) m_hHitHWMapC[ibe][iphi_module]->Fill(m_chip-1);      //HL in time window: Chip
-		}
-	      }
-
-	      if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin>0 || m_trailingEdge<23) {
-		if (DoStraws) m_hHitAMapS[ibe][iphi_module]->Fill(m_strawNumber); //Any LL bit on: Straws
-		if (DoChips) m_hHitAMapC[ibe][iphi_module]->Fill(m_chip-1);      //Any LL bit on: Chips
-	      }
-
-	      if ((m_driftTimeBin>0 || m_trailingEdge<23)&& !m_firstBinHigh && !m_lastBinHigh) {
-		if (DoStraws) m_hHitAWMapS[ibe][iphi_module]->Fill(m_strawNumber); // LL in time window: Straws
-		if (DoChips) m_hHitAWMapC[ibe][iphi_module]->Fill(m_chip-1);      // LL in time window: Chips
-	      }//if  (m_driftTimeBin>0 && m_trailingEdge<23)
-
-	      if (DoStraws) {
-		m_hHitToTMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold); //Mean ToT (ns): Straws
-		if (m_timeOverThreshold>m_longToTCut) {
-		  m_hHitToTLongMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold); //Mean ToT (ns) for Straws with ToT > LongToTCut: Straws
-		  m_hHitToTLongTrMapS[ibe][iphi_module]->Fill(m_strawNumber, (m_trailingEdge+1)*3.125);// Mean Tr (ns) for Straws with ToT > LongToTCut: Straws
-		}
-	      }
-	      if (DoChips) m_hHitToTMapC[ibe][iphi_module]->Fill((m_chip-1), m_timeOverThreshold); //Mean ToT (ns): Chips
-	      if (DoChips) {
-		if (p_lolum->highLevel(1)) {
-		  m_hHtoBCMapC[ibe][iphi_module]->Fill(0.,(m_chip-1));
-		  m_hHtoBCMapB[ibe][iphi_module]->Fill(0.,(m_board-1));
-		}
-		if (p_lolum->highLevel(2)) {
-		  m_hHtoBCMapC[ibe][iphi_module]->Fill(1.,(m_chip-1));
-		  m_hHtoBCMapB[ibe][iphi_module]->Fill(1.,(m_board-1));
-		}
-		if (p_lolum->highLevel(3)) {
-		  m_hHtoBCMapC[ibe][iphi_module]->Fill(2.,(m_chip-1));
-		  m_hHtoBCMapB[ibe][iphi_module]->Fill(2.,(m_board-1));
-		}
-	      }
-	    }//if DoExpert
-
-	    //Set Module Numbers.
-	    int moduleNumber=-1;
-	    if (ibe==0) {// barrel
-	      if (m_layer_or_wheel==0) {
-		moduleNumber=moduleNumber_barrel1[iside];
-		moduleHits_B[moduleNumber]++;
-	      } else if (m_layer_or_wheel==1) {
-		moduleNumber=moduleNumber_barrel2[iside];
-		moduleHits_B[moduleNumber]++;
-	      } else if (m_layer_or_wheel==2) {
-		moduleNumber=moduleNumber_barrel3[iside];
-		moduleHits_B[moduleNumber]++;
-	      }
-	      if (m_highlevel) {
-		if (m_layer_or_wheel==0) {
-		  moduleNumber=moduleNumber_barrel1[iside];
-		  HLmoduleHits_B[moduleNumber]++;
-		} else if (m_layer_or_wheel==1) {
-		  moduleNumber=moduleNumber_barrel2[iside];
-		  HLmoduleHits_B[moduleNumber]++;
-		} else if (m_layer_or_wheel==2) {
-		  moduleNumber=moduleNumber_barrel3[iside];
-		  HLmoduleHits_B[moduleNumber]++;
-		}
-	      }//if HL hit
-
-	    } else if (ibe==1) { //endcap
-	      if (m_layer_or_wheel<6) { //WheelA (0-5)
-		moduleNumber=moduleNumber_endcapA[iside];
-		moduleHits_E[moduleNumber]++;
-	      } else if (m_layer_or_wheel>5) { //WheelB  (6-13)
-		moduleNumber=moduleNumber_endcapB[iside];
-		moduleHits_E[moduleNumber]++;
-	      }
-	      if (m_highlevel) {
-		if (m_layer_or_wheel<6) { //WheelA (0-5)
-		  moduleNumber=moduleNumber_endcapA[iside];
-		  HLmoduleHits_E[moduleNumber]++;
-		} else if (m_layer_or_wheel>5) { //WheelB  (6-13)
-		  moduleNumber=moduleNumber_endcapB[iside];
-		  HLmoduleHits_E[moduleNumber]++;
-		}
-	      }//if HL hit
-	    } // else if (ibe==1)
-
-	  } //if (m_barrel_ec==barrelendcap_sectorflag[ibe][iside])
-	} // for (int iside=0; iside<2; iside++)
-      } // for (int ibe=0; ibe<2; ibe++)
-
+      } else if (ibe==1) { //endcap
+	if (m_layer_or_wheel<6) { //WheelA (0-5)
+	  moduleNumber=moduleNumber_endcapA[iside];
+	  moduleHits_E[moduleNumber]++;
+	} else if (m_layer_or_wheel>5) { //WheelB  (6-13)
+	  moduleNumber=moduleNumber_endcapB[iside];
+	  moduleHits_E[moduleNumber]++;
+	}
+	if (m_highlevel) {
+	  if (m_layer_or_wheel<6) { //WheelA (0-5)
+	    moduleNumber=moduleNumber_endcapA[iside];
+	    HLmoduleHits_E[moduleNumber]++;
+	  } else if (m_layer_or_wheel>5) { //WheelB  (6-13)
+	    moduleNumber=moduleNumber_endcapB[iside];
+	    HLmoduleHits_E[moduleNumber]++;
+	  }
+	}//if HL hit
+      } // else if (ibe==1)
     } //Loop over rdo trt collection
-
   }//Loop over RDO Collection
 
   m_hOccAll->Fill(nhitsall/350848.);
-
+  //ToDo Explain this
   for (int ibe=0; ibe<2; ibe++) {
     if (DoShift) {
       if (ibe==0) {
@@ -2004,6 +2112,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
       } //for (int iside=0; iside<2; iside++)
     } //if DoShift
 
+    //Normalization for online environmenmet
     if (m_environment == AthenaMonManager::online) {
       //Loop over stack histograms and normalize to number of events processed.
       if (DoChips && DoExpert) {
@@ -2019,37 +2128,49 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
           }
         }//Loop over A side and C side Stacks
       }//if DoChips && DoExpert
-
+      float scalearray[1642];
+      float scalearray_Ar[1642];
+      for(int k =0;k<1642;k++){
+	if (m_scale_hHitWMap_B[k]==0)
+	  scalearray[k]=0;
+	else
+	  scalearray[k]=1./(nEvents*m_scale_hHitWMap_B[k]);
+	//for argon
+	if (m_scale_hHitWMap_B_Ar[k]==0)
+	  scalearray_Ar[k]=0;
+	else
+	  scalearray_Ar[k]=1./(nEvents*m_scale_hHitWMap_B_Ar[k]);
+      }
       if (DoStraws) {
         if (DoShift && nEvents > 0) {
           if (ibe==0) {
-            scale_LWHist(m_hHitWMap_B, 1./(64*nEvents));
+            scale_LWHistWithScaleArray(m_hHitWMap_B,scalearray);
             if (m_ArgonXenonSplitter) {
-              scale_LWHist(m_hHitWMap_B_Ar, 1. / (64 * nEvents));
-            }
-          } else if (ibe==1) {
-            scale_LWHist(m_hHitWMap_E[0], 1./(32*nEvents));
-            scale_LWHist(m_hHitWMap_E[1], 1./(32*nEvents));
-            if (m_ArgonXenonSplitter) {
-              scale_LWHist(m_hHitWMap_E_Ar[0], 1. / (32 * nEvents));
-              scale_LWHist(m_hHitWMap_E_Ar[1], 1. / (32 * nEvents));
-            }
-          }
-        } // DoShift && nEvents > 0
+              scale_LWHistWithScaleArray(m_hHitWMap_B_Ar,scalearray_Ar);
+	    }
+	  } else if (ibe==1) {
+	    scale_LWHist(m_hHitWMap_E[0], 1./(32*nEvents));
+	    scale_LWHist(m_hHitWMap_E[1], 1./(32*nEvents));
+	    if (m_ArgonXenonSplitter) {
+	      scale_LWHist(m_hHitWMap_E_Ar[0], 1. / (32 * nEvents));
+	      scale_LWHist(m_hHitWMap_E_Ar[1], 1. / (32 * nEvents));
+	    }
+	  }
+	} // DoShift && nEvents > 0
 
-        for (int i=0; i<64; i++) {
-          if (DoExpert && nEvents > 0) {
-            const float scale = 1./nEvents;
-            scale_LWHist(m_hHitHWMapS[ibe][i], scale);
-            scale_LWHist(m_hHitWMapS[ibe][i],  scale);
-            scale_LWHist(m_hHitAMapS[ibe][i],  scale);
-            scale_LWHist(m_hHitAWMapS[ibe][i], scale);
-            scale_LWHist(m_hHitHMapS[ibe][i],  scale);
-          } // DoExpert && nEvents > 0
-          for (int j=0; j<s_iChip_max[ibe]; j++) {
-            if (DoExpert) m_hStrawOcc[ibe][i]->Fill(m_hHitAMapS[ibe][i]->GetBinContent(j+1));
-          }
-        } //Loop over A side and B side Stacks: for (int i=0; i<64; i++)
+	for (int i=0; i<64; i++) {
+	  if (DoExpert && nEvents > 0) {
+	    const float scale = 1./nEvents;
+	    scale_LWHist(m_hHitHWMapS[ibe][i], scale);
+	    scale_LWHist(m_hHitWMapS[ibe][i],  scale);
+	    scale_LWHist(m_hHitAMapS[ibe][i],  scale);
+	    scale_LWHist(m_hHitAWMapS[ibe][i], scale);
+	    scale_LWHist(m_hHitHMapS[ibe][i],  scale);
+	  } // DoExpert && nEvents > 0
+	  for (int j=0; j<s_iChip_max[ibe]; j++) {
+	    if (DoExpert) m_hStrawOcc[ibe][i]->Fill(m_hHitAMapS[ibe][i]->GetBinContent(j+1));
+	  }
+	} //Loop over A side and B side Stacks: for (int i=0; i<64; i++)
       } // DoStraws
     }//If online environment
 
@@ -2113,13 +2234,18 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
   const Trk::Perigee* m_mPer = NULL;
   const DataVector<const Trk::TrackParameters>* AllTrkPar(0);
   DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
-
-  const int sectorflag[2][2] = {
+  //No Need for sectorflag anymore
+  /*
+    const int sectorflag[2][2] = {
     { +1, -1 }, // Barrel A, Barrel C
     { +2, -2 }  // Endcap A, Endcap C
-  };
+    };
+  */
 
   //Take out normalization of previous event for online environment
+  //Explanation: While online monitoring running we need to present out histograms repeatedly so we need to pay attention to normalization.
+  //before adding any information from new event to normalized histograms we need to take out the normalization of the previous event by scaling histograms back.
+  //After  we are done with filling those histograms we will normalize them again
   if (m_environment == AthenaMonManager::online) {
     for (int ibe=0; ibe<2; ibe++) { //ibe=0(barrel), ibe=1(endcap)
       if (DoChips && DoExpert) {
@@ -2237,16 +2363,19 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBeginTemp = trackStates->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
 
-    int n_pixel_hits = 0;
-    int n_sct_hits = 0;
-    int n_trt_hits = 0;
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != trackStates->end(); ++it) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-        if      (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> ((*it)->measurementOnTrack())) n_trt_hits++;
-        else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*>    ((*it)->measurementOnTrack())) n_sct_hits++;
-        else if (dynamic_cast<const InDet::PixelClusterOnTrack*>   ((*it)->measurementOnTrack())) n_pixel_hits++;
-      }
-    }
+    // int n_pixel_hits = 0;
+    // int n_sct_hits = 0;
+    // int n_trt_hits = 0;
+    // for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != trackStates->end(); ++it) {
+    //   if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+    //     if      (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> ((*it)->measurementOnTrack())) n_trt_hits++;
+    //     else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*>    ((*it)->measurementOnTrack())) n_sct_hits++;
+    //     else if (dynamic_cast<const InDet::PixelClusterOnTrack*>   ((*it)->measurementOnTrack())) n_pixel_hits++;
+    //   }
+    // }
+    int n_trt_hits = summary->get(Trk::numberOfTRTHits);
+    int n_sct_hits = summary->get(Trk::numberOfSCTHits);
+    int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
     const int n_si_hits = n_pixel_hits + n_sct_hits;
 
     const bool passed_track_preselection =
@@ -2269,91 +2398,135 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       ATH_MSG_DEBUG("This track has null track states on surface.");
       continue;
     }
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); it++) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-	const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	if (track_parameters) {
-	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	  if (m_pTRTHelper->is_trt(id)) {
-	    // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-	    const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
-	    float locR = track_parameters->parameters()[Trk::driftRadius];
-	    int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-	    for (int ibe=0; ibe<2; ibe++) {
-	      if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-		if (ibe==0) {
-		  if (isArgonStraw) {
-		    m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 1.0); // Fill Efficiency cs Track to Wire Distance
-		  } else {
-		    m_hefficiencyBarrel_locR_Off->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-		  }
-		} else if (ibe==1) {
-		  if (m_barrel_ec==sectorflag[ibe][0]) {
-		    if (isArgonStraw) {
-		      m_hefficiencyEndCap_locR_Off_Ar[0]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-		    } else {
-		      m_hefficiencyEndCap_locR_Off[0]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-		    }
-		  }else {
-		    if (isArgonStraw) {
-		      m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-		    } else {
-		      m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
-		    }
-		  }
-		}
-	      } // is barrel(or endcap)
-	    } // for (int ibe=0; ibe<2; ibe++)
-	  }// if is trt
-	}// if track_parameters
-      }// if measurement
-    }// loop over track states
 
+    //Fill Eff vs Track to wire distance histograms with value 1 for each hit on track
+    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); it++) {
+      if ( !((*it)->type(Trk::TrackStateOnSurface::Measurement))  )continue;// {
+      const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
+      if (track_parameters==0) continue;//{
+      Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
+      if (m_pTRTHelper->is_trt(id)==0) continue;//{
+
+
+      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
+      float locR = track_parameters->parameters()[Trk::driftRadius];
+      int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
+      //for (int ibe=0; ibe<2; ibe++) {
+      //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
+      int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+      int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
+
+      if (ibe==0) {
+	if (isArgonStraw) {
+	  m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 1.0); // Fill Efficiency cs Track to Wire Distance
+	} else {
+	  m_hefficiencyBarrel_locR_Off->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
+	}
+      } else if (ibe==1) {
+	//  if (m_barrel_ec==sectorflag[ibe][0]) {
+	if (isArgonStraw) {
+	  m_hefficiencyEndCap_locR_Off_Ar[iside]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
+	} else {
+	  m_hefficiencyEndCap_locR_Off[iside]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
+	}
+      }
+    }//loop over track states
+    //}else {
+    //if (isArgonStraw) {
+    // m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
+    // } else {
+    // m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 1.0);  // Fill Efficiency cs Track to Wire Distance
+    //	    }
+    //	  }
+    //	}
+    //      } // is barrel(or endcap)
+    //    } // for (int ibe=0; ibe<2; ibe++)
+    //  }// if is trt
+    //}// if track_parameters
+    // }// if measurement
+    //}// loop over track states
     if(m_useHoleFinder){
       const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(**p_trk);
       if (!holes) {
 	ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
 	continue;
       } else {
+
+
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = holes->begin(); it != holes->end(); ++it) {
-	  if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
-	    const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	    if (track_parameters) {
-	      Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	      if (m_pTRTHelper->is_trt(id)) {
-		// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-		const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
-		float locR = track_parameters->parameters()[Trk::driftRadius];
-		int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-		for (int ibe=0; ibe<2; ibe++) {
-		  if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-		    if (ibe==0) {
-		      if (isArgonStraw) {
-			m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-		      } else {
-			m_hefficiencyBarrel_locR_Off->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-		      }
-		    } else if (ibe==1) {
-		      if (m_barrel_ec==sectorflag[ibe][0]) {
-			if (isArgonStraw) {
-			  m_hefficiencyEndCap_locR_Off_Ar[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-			} else {
-			  m_hefficiencyEndCap_locR_Off[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-			}
-		      }else {
-			if (isArgonStraw) {
-			  m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-			} else {
-			  m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
-			}
-		      }
-		    }
-		  } // Barrel (or Endcap)
-		} // for (int ibe=0; ibe<2; ibe++)
-	      } // if is trt
-	    } // if (track_parameters)
+	  // if ( (*it)->type(Trk::TrackStateOnSurface::Measurement) ) {// ::Measurement was a copy-paste mistake introduced by me -Emre
+	  if ( !( (*it)->type(Trk::TrackStateOnSurface::Hole) )  )continue;
+	  const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
+	  if (track_parameters==0) continue;//{
+	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
+	  if (m_pTRTHelper->is_trt(id)==0) continue;//{
+
+	  // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+	  const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
+	  float locR = track_parameters->parameters()[Trk::driftRadius];
+	  int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
+	  int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+	  int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
+	  if (ibe==0) {
+	    if (isArgonStraw) {
+	      m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 0.0); // Fill Efficiency cs Track to Wire Distance
+	    } else {
+	      m_hefficiencyBarrel_locR_Off->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	    }
+	  } else if (ibe==1) {
+	    //  if (m_barrel_ec==sectorflag[ibe][0]) {
+	    if (isArgonStraw) {
+	      m_hefficiencyEndCap_locR_Off_Ar[iside]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	    } else {
+	      m_hefficiencyEndCap_locR_Off[iside]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	    }
 	  }
-	} // loop over holes
+	}//
+
+ 
+	/*
+	  if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
+	  const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
+	  if (track_parameters) {
+	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
+	  if (m_pTRTHelper->is_trt(id)) {
+	  // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+	  const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(id) != TRTCond::StrawStatus::Good);
+	  float locR = track_parameters->parameters()[Trk::driftRadius];
+	  int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
+	  for (int ibe=0; ibe<2; ibe++) {
+	  if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
+	  if (ibe==0) {
+	  if (isArgonStraw) {
+	  m_hefficiencyBarrel_locR_Off_Ar->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  } else {
+	  m_hefficiencyBarrel_locR_Off->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  }
+	  } else if (ibe==1) {
+	  if (m_barrel_ec==sectorflag[ibe][0]) {
+	  if (isArgonStraw) {
+	  m_hefficiencyEndCap_locR_Off_Ar[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  } else {
+	  m_hefficiencyEndCap_locR_Off[0]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  }
+	  }else {
+	  if (isArgonStraw) {
+	  m_hefficiencyEndCap_locR_Off_Ar[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  } else {
+	  m_hefficiencyEndCap_locR_Off[1]->Fill(locR, 0.0);  // Fill Efficiency cs Track to Wire Distance
+	  }
+	  }
+	  }
+	  } // Barrel (or Endcap)
+	  } // for (int ibe=0; ibe<2; ibe++)
+	  } // if is trt
+	  } // if (track_parameters)
+	  }
+	  } */ // loop over holes
+
+
+
 	delete holes;
       } // found holes
     }//m_useHoleFinder
@@ -2361,383 +2534,389 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
     
     m_nTotalTracks++;
 
-    int checkB[2],checkEC[2],checkEC_B[2];
-    for (int iside=0; iside<2; iside++) {
+    int checkB[2]    ={0,0};
+    int checkEC[2]   ={0,0};
+    int checkEC_B[2] ={0,0};
+    /*for (int iside=0; iside<2; iside++) {
       checkB[iside]=0;
       checkEC[iside]=0;
       checkEC_B[iside]=0;
-    }
-
+      }*/
     int m_nTRTHitsW[2][2], m_nTRTHLHitsW[2][2], m_nTRTHits_side[2][2];
     //int m_nTRTHitsW_permodule[2][3], m_nTRTHLHitsW_permodule[2][3]; //barrel
     int m_nTRTHitsW_perwheel[2][18] ; // endcap
-    int hitontrack[2];
-    int hitontrack_E_side[2];
+    
+    int hitontrack[2]       ={0,0};
+    int hitontrack_E_side[2] ={0,0};
+    //int hitontrack[2];
+    //int hitontrack_E_side[2];
 
     for (int ibe=0; ibe<2; ibe++) {
-      hitontrack[ibe]=0;
+      // hitontrack[ibe]=0;
       for (int iside=0; iside<2; iside++) {
         m_nTRTHits_side[ibe][iside]=-1;
         m_nTRTHitsW[ibe][iside]=0;
         m_nTRTHLHitsW[ibe][iside]=0;
-        hitontrack_E_side[iside]=0;
+        //hitontrack_E_side[iside]=0;
 
-        std::fill(m_nTRTHitsW_perwheel[iside], m_nTRTHitsW_perwheel[iside] + 18, 0);
+	//        std::fill(m_nTRTHitsW_perwheel[iside], m_nTRTHitsW_perwheel[iside] + 18, 0);
       }
+      std::fill(m_nTRTHitsW_perwheel[ibe], m_nTRTHitsW_perwheel[ibe] + 18, 0);
     }
 
-    for (int ibe=0; ibe<2; ibe++) {
-      bool isBarrelOnly = true;
-      bool ECAhit = false, ECChit = false, Bhit = false;
+    //    for (int ibe=0; ibe<2; ibe++) { // this was  loops avoidable
+    //    It only cost only some changes
 
-      int m_barrel_ec      = 0;
-      int m_layer_or_wheel = 0;
-      int m_phi_module     = 0;
-      int m_straw_layer    = 0;
-      int m_straw          = 0;
-      int m_nearest_straw_layer = 100;
-      int m_nearest_straw =0;
-      int testLayer = 100;
-      float m_phi2D = -100;
-      int innerstack = -999;
+    bool isBarrelOnly = true;
+    bool ECAhit = false, ECChit = false, Bhit = false;
 
-      //find det, phi of track:
-      // Means loop over all measurements on track to find phi of inner most hit
-      for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
-        if ((*TSOSItBeginTemp) == 0) {
-          continue;
-        } else if ((*TSOSItBeginTemp)->type(Trk::TrackStateOnSurface::Measurement)) {
+    int m_barrel_ec      = 0;
+    int m_layer_or_wheel = 0;
+    int m_phi_module     = 0;
+    int m_straw_layer    = 0;
+    int m_straw          = 0;
+    //following 5 arrays were normal variables  
+    //They are changed into arrays of the same variable  
+    int m_nearest_straw_layer[2] = {100,100}; 
+    int m_nearest_straw[2]       ={0,0};
+    int testLayer[2]             = {100,100};
+    int innerstack[2]            = {-999,-999};
+    float m_phi2D[2]             = {-100,-100};
 
-          const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBeginTemp)->measurementOnTrack());
-          const Trk::TrackParameters *aTrackParam = dynamic_cast<const Trk::TrackParameters*>((*TSOSItBeginTemp)->trackParameters());
+    //find det, phi of track:
+    // Means loop over all measurements on track to find phi of inner most hit
+    for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
 
-          if (!trtCircle) continue;
-          if (!aTrackParam) continue;
+      if ((*TSOSItBeginTemp) == 0)continue;
+      if (! ((*TSOSItBeginTemp)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
+      const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBeginTemp)->measurementOnTrack());
+      if (!trtCircle) continue;
+      const Trk::TrackParameters *aTrackParam = dynamic_cast<const Trk::TrackParameters*>((*TSOSItBeginTemp)->trackParameters());
+      if (!aTrackParam) continue;
 
-          Identifier DCoTId = trtCircle->identify();
-          m_barrel_ec      = m_pTRTHelper->barrel_ec(DCoTId);
-          m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);
-          m_straw_layer    = m_pTRTHelper->straw_layer(DCoTId);
-          m_straw          = m_pTRTHelper->straw(DCoTId);
+      Identifier DCoTId = trtCircle->identify();
+      m_barrel_ec      = m_pTRTHelper->barrel_ec(DCoTId);
+      int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+      //int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C
+      m_layer_or_wheel = m_pTRTHelper->layer_or_wheel (DCoTId);
+      //
+      m_straw_layer    = m_pTRTHelper->straw_layer(DCoTId);
+      //straw number in straw layer
+      m_straw          = m_pTRTHelper->straw(DCoTId); 
 
-          //restrict ourselves to the inner most TRT layers To get detector phi.
-          if ((m_layer_or_wheel < testLayer)&&(abs(m_barrel_ec)==sectorflag[ibe][0])) {
-            testLayer = m_layer_or_wheel;
-            if (m_straw_layer<m_nearest_straw_layer) {
-	      m_nearest_straw_layer = m_straw_layer;
-	      m_nearest_straw       = m_straw;
-	      const InDetDD::TRT_BaseElement* circleElement = NULL;
-	      circleElement = trtCircle->detectorElement();
-	      m_phi2D       = radToDegrees(circleElement->strawCenter(m_nearest_straw).phi());
-	      circleElement = NULL;
-	      innerstack    = m_pTRTHelper->phi_module(DCoTId);
-            }
-          }
-        }//tsos is a measurement
-      }//loop over tsos
+      //restrict ourselves to the inner most TRT layers To get detector phi.
+      if (m_layer_or_wheel >= testLayer[ibe]) continue;
+      testLayer[ibe] = m_layer_or_wheel; 
+      // if strawlayer of the straw  is less than previous one
+      if (m_straw_layer<m_nearest_straw_layer[ibe]) {
+	m_nearest_straw_layer[ibe] = m_straw_layer;
+	m_nearest_straw[ibe]       = m_straw;
+	// find the phi of the straw in degrees 
+	const InDetDD::TRT_BaseElement* circleElement = NULL;
+	circleElement = trtCircle->detectorElement();
+	m_phi2D[ibe]       = radToDegrees(circleElement->strawCenter(m_nearest_straw[ibe]).phi());
+	circleElement = NULL;
+	//phi module that the straw belongs
+	innerstack[ibe]    = m_pTRTHelper->phi_module(DCoTId);
+      }//if (m_straw_layer<m_nearest_straw_layer[ibe])
+    }//loop over TSOS 
 
-      if (m_phi2D == -999 && (abs(m_barrel_ec)==sectorflag[ibe][0])) {
-        ATH_MSG_DEBUG("Track did not go through inner layer.");
-      } else if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-        ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: "<<testLayer<<" m_straw_layer: "<<m_nearest_straw_layer<<".");
+
+    if (m_phi2D[0] == -999) {
+      ATH_MSG_DEBUG("Track did not go through inner layer of Barrel.");
+    } else {
+      ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: "<<testLayer[0]<<" m_straw_layer: "<<m_nearest_straw_layer[0]<<" (in the Barrel).");
+    }
+    if (m_phi2D[1] == -999) {
+      ATH_MSG_DEBUG("Track did not go through any inner layer of EndCap A or C.");
+    } else {
+      ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: "<<testLayer[1]<<" m_straw_layer: "<<m_nearest_straw_layer[1]<<" (in the EndCaps).");
+    }
+    bool trackfound[2][64];//trackfound[64] 
+    for (int i =1; i<2 ;i++) std::fill(trackfound[i], trackfound[i] + 64, false);
+    //for (int iside=0; iside<2; iside++) { //another for loop we got rid of
+    for (TSOSItBegin=TSOSItBegin0; TSOSItBegin!=TSOSItEnd; ++TSOSItBegin) {
+      //select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations 
+      if ((*TSOSItBegin) == 0) continue;
+      if( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; 
+      const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBegin)->measurementOnTrack());
+      if (!trtCircle) continue;
+      const Trk::TrackParameters *aTrackParam = dynamic_cast<const Trk::TrackParameters*>((*TSOSItBegin)->trackParameters());
+      if (!aTrackParam) continue;
+
+      Identifier DCoTId = trtCircle->identify();
+      m_barrel_ec       = m_pTRTHelper->barrel_ec(DCoTId);
+      m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(DCoTId);
+      m_phi_module      = m_pTRTHelper->phi_module(DCoTId);
+      m_straw_layer     = m_pTRTHelper->straw_layer(DCoTId);
+      m_straw           = m_pTRTHelper->straw(DCoTId);
+      int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+      int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C
+      int m_strawNumber[2] ={-1,-1} ;
+      int m_chip[2]={0,0};
+      if (ibe==0) {
+	m_strawNumber[ibe] = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+	if (m_strawNumber[ibe]>=0 && m_strawNumber[ibe]<s_Straw_max[ibe]) {
+	  m_chip[ibe] = mat_chip_B[m_phi_module][m_strawNumber[ibe]];
+	}
+
+      } else if (ibe==1) {
+	m_strawNumber[ibe] = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+	if (m_strawNumber[ibe]>=0 && m_strawNumber[ibe]<s_Straw_max[ibe]) {
+	  m_chip[ibe] = mat_chip_E[m_phi_module][m_strawNumber[ibe]];
+	}
+      } else {
+	m_strawNumber[ibe] = -1;
       }
 
-      bool trackfound[64];
-      std::fill(trackfound, trackfound + 64, false);
+      if (m_strawNumber[ibe]<0 || m_strawNumber[ibe] >= s_Straw_max[ibe]) continue;
+      if (checkB[iside]    == 0 && ibe==0) { m_nTracksB[iside]++; checkB[iside] = 1;}
+      if (checkEC[iside]   == 0 && ibe==1) { m_nTracksEC[iside]++; checkEC[iside] = 1;}
+      if (checkEC_B[iside] == 0 && checkB[iside]==1 && ibe==1 ) {
+	m_nTracksEC_B[iside]++;
+	checkEC_B[iside] = 1;
+      }//ToDo: be sure about this approach 
 
-      for (int iside=0; iside<2; iside++) { // iside=0(A-side), iside=1(C-side)
-        for (TSOSItBegin=TSOSItBegin0; TSOSItBegin!=TSOSItEnd; ++TSOSItBegin) {
-          if ((*TSOSItBegin) == 0) continue;
-          if ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) {
-	    const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBegin)->measurementOnTrack());
-	    const Trk::TrackParameters *aTrackParam = dynamic_cast<const Trk::TrackParameters*>((*TSOSItBegin)->trackParameters());
+      //if (m_pTRTHelper->barrel_ec(DCoTId) == 2) ECAhit = true;
+      //else if (m_pTRTHelper->barrel_ec(DCoTId) == -2) ECChit = true;
+      //else if (abs(m_pTRTHelper->barrel_ec(DCoTId)) == 1) Bhit = true;
+      //      if (ibe== 1) Bhit = true;
+      if (ibe==0) { Bhit = true;} //  barrel hit
+      else if (m_barrel_ec==  2){isBarrelOnly = false; ECAhit = true;}
+      else if (m_barrel_ec== -2){isBarrelOnly = false; ECChit = true;}
 
-	    if (!trtCircle) continue;
-	    if (!aTrackParam) continue;
+      //if ((m_pTRTHelper->barrel_ec(DCoTId)==sectorflag[ibe][iside])) {
+      Identifier surfaceID;
+      const Trk::MeasurementBase* mesb=(*TSOSItBegin)->measurementOnTrack();
 
-	    Identifier DCoTId = trtCircle->identify();
-	    m_barrel_ec       = m_pTRTHelper->barrel_ec(DCoTId);
-	    m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(DCoTId);
-	    m_phi_module      = m_pTRTHelper->phi_module(DCoTId);
-	    m_straw_layer     = m_pTRTHelper->straw_layer(DCoTId);
-	    m_straw           = m_pTRTHelper->straw(DCoTId);
+      surfaceID = trtCircle->identify();
 
-	    int m_strawNumber;
-	    int m_chip=0;
+      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good);
 
-	    int ibe_tmp=-1;
-	    if ((m_pTRTHelper->is_barrel(DCoTId))
-		&& (m_pTRTHelper->barrel_ec(DCoTId)==-1
-		    ||m_pTRTHelper->barrel_ec(DCoTId)==1)) {
-	      ibe_tmp=0;
-	      m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
-	      if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe_tmp]) {
-		m_chip = mat_chip_B[m_phi_module][m_strawNumber];
-	      }
+      float temp_locr = aTrackParam->parameters()[Trk::driftRadius];
+      TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
 
-	    } else if ((!(m_pTRTHelper->is_barrel(DCoTId)))
-		       && (m_pTRTHelper->barrel_ec(DCoTId)==-2
-			   || m_pTRTHelper->barrel_ec(DCoTId)==2)) {
-	      ibe_tmp=1;
-	      m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
-	      if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe_tmp]) {
-		m_chip = mat_chip_E[m_phi_module][m_strawNumber];
-	      }
+      int iphi_module=-9999;
+      if (iside==0) iphi_module=m_phi_module;
+      else if (iside==1) iphi_module=m_phi_module+32;
 
+      trackfound[ibe][iphi_module] = true;
+
+      if ((ibe==0&&temp_locr < m_DistToStraw) || (ibe==1&&((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)||(*TSOSItBegin)->type(Trk::TrackStateOnSurface::Outlier)||(*TSOSItBegin)->type(Trk::TrackStateOnSurface::Hole))&&temp_locr < m_DistToStraw)) {
+	if (m_idHelper->is_trt(DCoTId)) {
+	  //if (m_pTRTHelper->barrel_ec(DCoTId) == sectorflag[ibe][iside]) {
+	  if (ibe==0) {// barrel
+	    hitontrack[ibe]++;
+	    if (DoShift) m_hStrawEffDetPhi_B->Fill(m_phi_module, 1.0);
+	    if (DoStraws && DoShift) m_nStrawHits_B[m_strawNumber[ibe]]++;
+	  } else if (ibe==1) { //endcap
+	    hitontrack[ibe]++; hitontrack_E_side[iside]++;
+	    if (DoShift) m_hStrawEffDetPhi_E[iside]->Fill(m_phi_module, 1.0);
+	    if (DoStraws && DoShift) m_nStrawHits_E[iside][m_strawNumber[ibe]]++;
+	  }
+	  if (DoStraws && DoExpert) m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber[ibe],1.0);
+	  if (DoChips  && DoExpert) m_hChipsEff[ibe][iphi_module]->Fill((m_chip[ibe]-1),1.0);
+	  //}
+	}//if surface is trt
+      } else {
+	if (m_idHelper->is_trt(DCoTId)) { //ToDo:Is this really needed
+	  if (ibe==0) { //barrel
+	    if (DoShift) m_hStrawEffDetPhi_B->Fill(m_phi_module, 0.0);
+	    if (DoStraws && DoShift) m_nStrawHits_B[m_strawNumber[ibe]]++;
+	  } else if (ibe==1) { //endcap
+	    if (DoShift) m_hStrawEffDetPhi_E[iside]->Fill(m_phi_module, 0.0);
+	    if (DoStraws && DoShift) m_nStrawHits_E[iside][m_strawNumber[ibe]]++;
+	  }
+	  if (DoStraws && DoExpert) m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber[ibe],0.0);
+	  if (DoChips  && DoExpert) m_hChipsEff[ibe][iphi_module]->Fill((m_chip[ibe]-1),0.0);
+	}//is trt surface
+      }//is not measurement
+      const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
+      //const Trk::MeasurementBase* mesb = (*TSOSItBegin)->measurementOnTrack();
+      //bool isTubeHit = (mesb->localErrorMatrix().covValue(Trk::locX) > 1.0) ? 1 : 0;
+      bool isTubeHit = (mesb->localCovariance()(Trk::locX,Trk::locX) > 1.0) ? 1 : 0;
+
+      if (RawDriftCircle) {
+	//if (m_barrel_ec == sectorflag[ibe][iside]) {
+	m_nTRTHits_side[ibe][iside]++;
+	//}
+
+	float m_timeOverThreshold = RawDriftCircle->timeOverThreshold();
+	double t0 = m_trtcaldbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
+	if (DoExpert && DoStraws) m_hHitToTonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], m_timeOverThreshold);//Mean ToT (ns) on Track: Straws
+	if (DoExpert && DoChips) m_hHitToTonTMapC[ibe][iphi_module]->Fill((m_chip[ibe]-1),   m_timeOverThreshold);//Mean ToT (ns) on Track: Chips
+
+	if (RawDriftCircle->highLevel()) {
+	  TRT_LoLumRawData lolum(surfaceID,RawDriftCircle->getWord());
+	  if (DoExpert && DoStraws) m_hHitHonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe],1.0);// Any HL hit on track: Straws
+	  if (DoExpert && DoChips) m_hHitHonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1);// Any HL hit on track: Chips
+	  //if ((RawDriftCircle->driftTimeBin()<24) && !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) { 
+	  //inside of this if block was commented out before
+	  // if (DoExpert && DoStraws) m_hHitHWonTMapS[iphi_module]->Fill(m_strawNumber, 1.0);// HL in time window on track: Straws
+	  //}
+
+	}//is high level hit
+
+	const bool m_driftTimeValid = RawDriftCircle->driftTimeValid();
+	if (m_driftTimeValid) {
+	  const float m_validRawDriftTime = RawDriftCircle->rawDriftTime();
+	  if (DoExpert && DoStraws) m_hValidRawDriftTimeonTrk[ibe][iphi_module]->Fill(m_strawNumber[ibe], m_validRawDriftTime); //Valid Raw Drift Time on Track: Straws
+	  if (DoExpert && DoChips) m_hValidRawDriftTimeonTrkC[ibe][iphi_module]->Fill((m_chip[ibe]-1), m_validRawDriftTime); //Valid Raw Drift Time on Track: Chips
+	}
+
+	if (DoShift && DoStraws) {
+	  if (ibe==0) m_hDriftTimeonTrkDist_B->Fill(RawDriftCircle->rawDriftTime());
+	  else if (ibe==1) m_hDriftTimeonTrkDist_E[iside]->Fill(RawDriftCircle->rawDriftTime());
+	}
+
+	float locR = aTrackParam->parameters()[Trk::driftRadius];
+	float loc  = trtCircle->localParameters()[Trk::driftRadius];
+	if (isTubeHit) {
+	  bool isOK = false;
+	  loc = m_drifttool->driftRadius(RawDriftCircle->rawDriftTime(), DCoTId, t0, isOK);
+	  if ((loc * locR) < 0) loc = -loc;
+	}
+	// Calculate Residuals for hit
+	if (DoShift && DoStraws) {
+	  const double thist0 = m_trtcaldbSvc->getT0(surfaceID);
+	  const double trkdrifttime = rtr->drifttime(fabs(locR));
+	  const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
+	  if (ibe==0) {
+	    if (isArgonStraw) {
+	      m_hResidual_B_Ar->Fill(loc-locR); // Fill residuals for Argon Straws
+	      m_hTimeResidual_B_Ar->Fill(timeresidual); // Fill time residuals for Argon Straws
 	    } else {
-	      m_strawNumber = -1;
+	      m_hResidual_B->Fill(loc-locR); // Fill residuals 
+	      m_hTimeResidual_B->Fill(timeresidual); // Fill time residuals
 	    }
-	    if (ibe_tmp==-1) continue;
-	    if (m_strawNumber<0 || m_strawNumber >= s_Straw_max[ibe_tmp]) continue;
-
-	    if (checkB[iside]    == 0 && m_barrel_ec  == sectorflag[0][iside]) { m_nTracksB[iside]++; checkB[iside] = 1;}
-	    if (checkEC[iside]   == 0 && m_barrel_ec  == sectorflag[1][iside]) { m_nTracksEC[iside]++; checkEC[iside] = 1;}
-	    if (checkEC_B[iside] == 0 && checkB[iside]==1 && m_barrel_ec ==  sectorflag[1][iside]) {
-	      m_nTracksEC_B[iside]++;
-	      checkEC_B[iside] = 1;
+	  } else if (ibe==1) {
+	    if (isArgonStraw) {
+	      m_hResidual_E_Ar[iside]->Fill(loc - locR); // Fill residuals
+	      m_hTimeResidual_E_Ar[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
+	    } else {
+	      m_hResidual_E[iside]->Fill(loc - locR); // Fill residuals
+	      m_hTimeResidual_E[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
 	    }
-	    if (ibe==0) {
-	      if (abs(m_pTRTHelper->barrel_ec(DCoTId))!=1) isBarrelOnly = false;
+	  }// ibe==1
+	}//DoShift && DoStraws
+	if (DoShift) {
+	  if (ibe==0) {
+	    m_hWireToTrkPosition_B->Fill(locR);
+	  } else if (ibe==1) {
+	    m_hWireToTrkPosition_E[iside]->Fill(locR);
+	  }
+	}
+
+	const float LE = (RawDriftCircle->driftTimeBin())*3.125;
+	const float EP = timeCor;
+	if (DoShift && DoStraws) {
+	  if (ibe==0) {
+	    if (isArgonStraw) {
+	      if (m_isCosmics) m_hrtRelation_B_Ar->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
+	      else m_hrtRelation_B_Ar->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
+	    } else {
+	      if (m_isCosmics) m_hrtRelation_B->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation.
+	      else m_hrtRelation_B->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation.
 	    }
-	    if (m_pTRTHelper->barrel_ec(DCoTId) == 2) ECAhit = true;
-	    else if (m_pTRTHelper->barrel_ec(DCoTId) == -2) ECChit = true;
-	    else if (abs(m_pTRTHelper->barrel_ec(DCoTId)) == 1) Bhit = true;
+	  } else if (ibe==1) {
+	    if (isArgonStraw) {
+	      if (m_isCosmics) m_hrtRelation_E_Ar[iside]->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
+	      else m_hrtRelation_E_Ar[iside]->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
+	    } else {
+	      if (m_isCosmics) m_hrtRelation_E[iside]->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation.
+	      else m_hrtRelation_E[iside]->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation.
+	    }
+	  }//ibe==1
+	}
+	const int m_driftTimeBin = RawDriftCircle->driftTimeBin();
+	if ((m_driftTimeBin<24)&& !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) {
+	  if (DoStraws) {
+	    if (ibe==0) m_hHitWonTMap_B->Fill(m_strawNumber[ibe]);
+	    else if (ibe==1) m_hHitWonTMap_E[iside]->Fill(m_strawNumber[ibe]);
+	  }
+	  if (DoExpert && DoStraws) m_hHitWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe],1.0);//LE in time window on track: Straws
+	  if (DoExpert && DoChips) m_hHitWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1,1.0);//LE in time window on track: Chips
+	}
+	const int m_trailingEdge = RawDriftCircle->trailingEdge();
+	if ((m_trailingEdge<23) && !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) {
+	  if (DoExpert && DoStraws) m_hHitTronTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], ((m_trailingEdge+1)*3.125));// Mean TE on track: Straws
+	  if (DoExpert && DoChips) m_hHitTronTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1,((m_trailingEdge+1)*3.125));// Mean TE on track: Chips
+	  if (DoExpert && DoStraws) m_hHitTronTwEPCMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], (((m_trailingEdge+1)*3.125) - timeCor));// Mean TE on Track (with Event Phase correction): Straws
+	  if (DoExpert && DoChips) m_hHitTronTwEPCMapC[ibe][iphi_module]->Fill((m_chip[ibe]-1), (((m_trailingEdge+1)*3.125) - timeCor));// Mean TE on Track (with Event Phase correction): Chips
+	  if (DoShift && DoStraws) {
+	    if (RawDriftCircle->driftTimeValid()) {
+	      if (ibe==0) {
+		m_hTronTDist_B->Fill(((m_trailingEdge+1)*3.125));
+		m_hAvgTroTDetPhi_B->Fill(m_phi2D[ibe], ((m_trailingEdge+1)*3.125));
+	      } else if (ibe==1) {
+		m_hTronTDist_E[iside]->Fill(((m_trailingEdge+1)*3.125));
+		m_hAvgTroTDetPhi_E[iside]->Fill(m_phi2D[ibe], ((m_trailingEdge+1)*3.125));
+	      }
+	    }
+	  }
+	}
 
-	    if ((m_pTRTHelper->barrel_ec(DCoTId)==sectorflag[ibe][iside])) {
-	      Identifier surfaceID;
-	      const Trk::MeasurementBase* mesb=(*TSOSItBegin)->measurementOnTrack();
+	const bool m_firstBinHigh = RawDriftCircle->firstBinHigh();
+	const bool m_lastBinHigh = RawDriftCircle->lastBinHigh();
+	if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin>0 || m_trailingEdge<23) {
+	  if (DoExpert && DoStraws) m_hHitAonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe]);// Any LL bit on track: Straws
+	  if (DoExpert && DoChips) m_hHitAonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1);// Any LL bit on track: Chips
+	  m_nTRTHitsW[ibe][iside]++;
+	  //m_nTRTHitsW_permodule[iside][m_layer_or_wheel]++;
+	  m_nTRTHitsW_perwheel[iside][m_layer_or_wheel]++;
+	  if (RawDriftCircle->highLevel()) {
+	    m_nTRTHLHitsW[ibe][iside]++;
+	    //m_nTRTHLHitsW_permodule[iside][m_layer_or_wheel]++;
+	  }
+	}
 
-	      surfaceID = trtCircle->identify();
+	if ((m_driftTimeBin > 0) || (m_trailingEdge < 23)) {
+	  if (DoExpert && DoStraws) m_hHitAWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe]);//Any LL bit in time window on track: Straws
+	  if (DoExpert && DoChips) m_hHitAWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1);//Any LL bit in time window on track: Chips
+	}
 
-	      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
-	      const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good);
+      }// if raw drift circle
+      //}//  if ((m_pTRTHelper->barrel_ec(DCoTId)==sectorflag[ibe][iside]))
+      //} // else if ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement))
+    } //for (;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
+    //ToDo: work on the part below
+    for(int ibe=0 ;ibe <2 ;ibe++){
 
-	      float temp_locr = aTrackParam->parameters()[Trk::driftRadius];
-	      TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
-
-	      int iphi_module=-9999;
-	      if (iside==0) iphi_module=m_phi_module;
-	      else if (iside==1) iphi_module=m_phi_module+32;
-
-	      trackfound[iphi_module] = true;
-
-	      if ((ibe==0&&temp_locr < m_DistToStraw) || (ibe==1&&((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)||(*TSOSItBegin)->type(Trk::TrackStateOnSurface::Outlier)||(*TSOSItBegin)->type(Trk::TrackStateOnSurface::Hole))&&temp_locr < m_DistToStraw)) {
-		if (m_idHelper->is_trt(DCoTId)) {
-		  if (m_pTRTHelper->barrel_ec(DCoTId) == sectorflag[ibe][iside]) {
-
-		    if (ibe==0) {// barrel
-		      hitontrack[ibe]++;
-		      if (DoStraws && DoShift) m_nStrawHits_B[m_strawNumber]++;
-		    } else if (ibe==1) { //endcap
-		      hitontrack[ibe]++; hitontrack_E_side[iside]++;
-		      if (DoStraws && DoShift) m_nStrawHits_E[iside][m_strawNumber]++;
-		    }
-
-		    if (DoStraws && DoExpert) m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber,1.0);
-		    if (DoChips  && DoExpert) m_hChipsEff[ibe][iphi_module]->Fill((m_chip-1),1.0);
-
-		  }
-		}//if surface is trt
-	      } else {
-		if (m_idHelper->is_trt(DCoTId)) {
-		  if (m_pTRTHelper->barrel_ec(DCoTId) == sectorflag[ibe][iside]) {
-
-		    if (ibe==0) { //barrel
-		      if (DoStraws && DoShift) m_nStrawHits_B[m_strawNumber]++;
-		    } else if (ibe==1) { //endcap
-		      if (DoStraws && DoShift) m_nStrawHits_E[iside][m_strawNumber]++;
-		    }
-
-		    if (DoStraws && DoExpert) m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber,0.0);
-		    if (DoChips  && DoExpert) m_hChipsEff[ibe][iphi_module]->Fill((m_chip-1),0.0);
-		  }
-		}//is trt surface
-	      }//is not measurement
-
-	      const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
-	      //const Trk::MeasurementBase* mesb = (*TSOSItBegin)->measurementOnTrack();
-	      //bool isTubeHit = (mesb->localErrorMatrix().covValue(Trk::locX) > 1.0) ? 1 : 0;
-	      bool isTubeHit = (mesb->localCovariance()(Trk::locX,Trk::locX) > 1.0) ? 1 : 0;
-
-	      if (RawDriftCircle) {
-		if (m_barrel_ec == sectorflag[ibe][iside]) {
-		  m_nTRTHits_side[ibe][iside]++;
-		}
-
-		float m_timeOverThreshold = RawDriftCircle->timeOverThreshold();
-		double t0 = m_trtcaldbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
-		if (DoExpert && DoStraws) m_hHitToTonTMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold);//Mean ToT (ns) on Track: Straws
-		if (DoExpert && DoChips) m_hHitToTonTMapC[ibe][iphi_module]->Fill((m_chip-1),   m_timeOverThreshold);//Mean ToT (ns) on Track: Chips
-
-		if (RawDriftCircle->highLevel()) {
-		  TRT_LoLumRawData lolum(surfaceID,RawDriftCircle->getWord());
-		  if (DoExpert && DoStraws) m_hHitHonTMapS[ibe][iphi_module]->Fill(m_strawNumber,1.0);// Any HL hit on track: Straws
-		  if (DoExpert && DoChips) m_hHitHonTMapC[ibe][iphi_module]->Fill(m_chip-1);// Any HL hit on track: Chips
-		  if ((RawDriftCircle->driftTimeBin()<24) && !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) {
-		    // if (DoExpert && DoStraws) m_hHitHWonTMapS[iphi_module]->Fill(m_strawNumber, 1.0);// HL in time window on track: Straws
-		  }
-
-		}//is high level hit
-
-		const bool m_driftTimeValid = RawDriftCircle->driftTimeValid();
-		if (m_driftTimeValid) {
-		  const float m_validRawDriftTime = RawDriftCircle->rawDriftTime();
-		  if (DoExpert && DoStraws) m_hValidRawDriftTimeonTrk[ibe][iphi_module]->Fill(m_strawNumber, m_validRawDriftTime); //Valid Raw Drift Time on Track: Straws
-		  if (DoExpert && DoChips) m_hValidRawDriftTimeonTrkC[ibe][iphi_module]->Fill((m_chip-1), m_validRawDriftTime); //Valid Raw Drift Time on Track: Chips
-		}
-
-		if (DoShift && DoStraws) {
-		  if (ibe==0) m_hDriftTimeonTrkDist_B->Fill(RawDriftCircle->rawDriftTime());
-		  else if (ibe==1) m_hDriftTimeonTrkDist_E[iside]->Fill(RawDriftCircle->rawDriftTime());
-		}
-
-		float locR = aTrackParam->parameters()[Trk::driftRadius];
-		float loc  = trtCircle->localParameters()[Trk::driftRadius];
-		if (isTubeHit) {
-		  bool isOK = false;
-		  loc = m_drifttool->driftRadius(RawDriftCircle->rawDriftTime(), DCoTId, t0, isOK);
-		  if ((loc * locR) < 0) loc = -loc;
-		}
-		// Calculate Residuals for hit
-		if (DoShift && DoStraws) {
-		  const double thist0 = m_trtcaldbSvc->getT0(surfaceID);
-		  const double trkdrifttime = rtr->drifttime(fabs(locR));
-		  const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
-		  if (ibe==0) {
-		    if (isArgonStraw) {
-		      m_hResidual_B_Ar->Fill(loc-locR); // Fill residuals for Argon Straws
-		      m_hTimeResidual_B_Ar->Fill(timeresidual); // Fill time residuals for Argon Straws
-		    } else {
-		      m_hResidual_B->Fill(loc-locR); // Fill residuals 
-		      m_hTimeResidual_B->Fill(timeresidual); // Fill time residuals
-		    }
-		  } else if (ibe==1) {
-		    if (isArgonStraw) {
-		      m_hResidual_E_Ar[iside]->Fill(loc - locR); // Fill residuals
-		      m_hTimeResidual_E_Ar[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
-		    } else {
-		      m_hResidual_E[iside]->Fill(loc - locR); // Fill residuals
-		      m_hTimeResidual_E[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
-		    }
-		  }// ibe==1
-		}//DoShift && DoStraws
-		if (DoShift) {
-		  if (ibe==0) {
-		    m_hWireToTrkPosition_B->Fill(locR);
-		  } else if (ibe==1) {
-		    m_hWireToTrkPosition_E[iside]->Fill(locR);
-		  }
-		}
-
-		const float LE = (RawDriftCircle->driftTimeBin())*3.125;
-		const float EP = timeCor;
-		if (DoShift && DoStraws) {
-		  if (ibe==0) {
-		    if (isArgonStraw) {
-		      if (m_isCosmics) m_hrtRelation_B_Ar->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
-		      else m_hrtRelation_B_Ar->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
-		    } else {
-		      if (m_isCosmics) m_hrtRelation_B->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation.
-		      else m_hrtRelation_B->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation.
-		    }
-		  } else if (ibe==1) {
-		    if (isArgonStraw) {
-		      if (m_isCosmics) m_hrtRelation_E_Ar[iside]->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
-		      else m_hrtRelation_E_Ar[iside]->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation  for Argon Straws.
-		    } else {
-		      if (m_isCosmics) m_hrtRelation_E[iside]->Fill(LE - EP - t0, fabs(locR)); // Fill R(t) Relation.
-		      else m_hrtRelation_E[iside]->Fill(LE - t0, fabs(locR)); // Fill R(t) Relation.
-		    }
-		  }//ibe==1
-		}
-		const int m_driftTimeBin = RawDriftCircle->driftTimeBin();
-		if ((m_driftTimeBin<24)&& !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) {
-		  if (DoStraws) {
-		    if (ibe==0) m_hHitWonTMap_B->Fill(m_strawNumber);
-		    else if (ibe==1) m_hHitWonTMap_E[iside]->Fill(m_strawNumber);
-		  }
-		  if (DoExpert && DoStraws) m_hHitWonTMapS[ibe][iphi_module]->Fill(m_strawNumber,1.0);//LE in time window on track: Straws
-		  if (DoExpert && DoChips) m_hHitWonTMapC[ibe][iphi_module]->Fill(m_chip-1,1.0);//LE in time window on track: Chips
-		}
-		const int m_trailingEdge = RawDriftCircle->trailingEdge();
-		if ((m_trailingEdge<23) && !(RawDriftCircle->lastBinHigh()) && !(RawDriftCircle->firstBinHigh())) {
-		  if (DoExpert && DoStraws) m_hHitTronTMapS[ibe][iphi_module]->Fill(m_strawNumber, ((m_trailingEdge+1)*3.125));// Mean TE on track: Straws
-		  if (DoExpert && DoChips) m_hHitTronTMapC[ibe][iphi_module]->Fill(m_chip-1,((m_trailingEdge+1)*3.125));// Mean TE on track: Chips
-		  if (DoExpert && DoStraws) m_hHitTronTwEPCMapS[ibe][iphi_module]->Fill(m_strawNumber, (((m_trailingEdge+1)*3.125) - timeCor));// Mean TE on Track (with Event Phase correction): Straws
-		  if (DoExpert && DoChips) m_hHitTronTwEPCMapC[ibe][iphi_module]->Fill((m_chip-1), (((m_trailingEdge+1)*3.125) - timeCor));// Mean TE on Track (with Event Phase correction): Chips
-		  if (DoShift && DoStraws) {
-		    if (RawDriftCircle->driftTimeValid()) {
-		      if (ibe==0) {
-			m_hTronTDist_B->Fill(((m_trailingEdge+1)*3.125));
-			m_hAvgTroTDetPhi_B->Fill(m_phi2D, ((m_trailingEdge+1)*3.125));
-		      } else if (ibe==1) {
-			m_hTronTDist_E[iside]->Fill(((m_trailingEdge+1)*3.125));
-			m_hAvgTroTDetPhi_E[iside]->Fill(m_phi2D, ((m_trailingEdge+1)*3.125));
-		      }
-		    }
-		  }
-		}
-
-		const bool m_firstBinHigh = RawDriftCircle->firstBinHigh();
-		const bool m_lastBinHigh = RawDriftCircle->lastBinHigh();
-		if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin>0 || m_trailingEdge<23) {
-		  if (DoExpert && DoStraws) m_hHitAonTMapS[ibe][iphi_module]->Fill(m_strawNumber);// Any LL bit on track: Straws
-		  if (DoExpert && DoChips) m_hHitAonTMapC[ibe][iphi_module]->Fill(m_chip-1);// Any LL bit on track: Chips
-		  m_nTRTHitsW[ibe][iside]++;
-		  //m_nTRTHitsW_permodule[iside][m_layer_or_wheel]++;
-		  m_nTRTHitsW_perwheel[iside][m_layer_or_wheel]++;
-		  if (RawDriftCircle->highLevel()) {
-		    m_nTRTHLHitsW[ibe][iside]++;
-		    //m_nTRTHLHitsW_permodule[iside][m_layer_or_wheel]++;
-		  }
-		}
-
-		if ((m_driftTimeBin > 0) || (m_trailingEdge < 23)) {
-		  if (DoExpert && DoStraws) m_hHitAWonTMapS[ibe][iphi_module]->Fill(m_strawNumber);//Any LL bit in time window on track: Straws
-		  if (DoExpert && DoChips) m_hHitAWonTMapC[ibe][iphi_module]->Fill(m_chip-1);//Any LL bit in time window on track: Chips
-		}
-
-	      }// if raw drift circle
-	    }//  if ((m_pTRTHelper->barrel_ec(DCoTId)==sectorflag[ibe][iside]))
-          } // else if ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement))
-        } //for (;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
-      }// for (int iside=0;iside<=1;iside++)
-
-
-      for (int i = 0; i < 64; i++) if (trackfound[i]) ntrackstack[ibe][i]++;
+      for (int i = 0; i < 64; i++) if (trackfound[ibe][i]) ntrackstack[ibe][i]++;
       if (DoShift) {
         if (ibe==0) {
-          if (hitontrack[ibe]>=m_minTRThits) m_hNumHoTDetPhi_B->Fill(m_phi2D, hitontrack[ibe]);
+          if (hitontrack[ibe]>=m_minTRThits) m_hNumHoTDetPhi_B->Fill(m_phi2D[ibe], hitontrack[ibe]);
         }
         if (ibe==1) {
-          if (hitontrack_E_side[0]>=m_minTRThits) m_hNumHoTDetPhi_E[0]->Fill(m_phi2D,hitontrack_E_side[0]);
-          if (hitontrack_E_side[1]>=m_minTRThits) m_hNumHoTDetPhi_E[1]->Fill(m_phi2D,hitontrack_E_side[1]);
+          if (hitontrack_E_side[0]>=m_minTRThits) m_hNumHoTDetPhi_E[0]->Fill(m_phi2D[ibe],hitontrack_E_side[0]);
+          if (hitontrack_E_side[1]>=m_minTRThits) m_hNumHoTDetPhi_E[1]->Fill(m_phi2D[ibe],hitontrack_E_side[1]);
         }
       }
-      if (m_phi2D<0) continue;
+      if (m_phi2D[ibe]<0) continue;
 
       if (DoShift) {
         if (ibe==0) {
-          if (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]>0) m_hNumTrksDetPhi_B->Fill(m_phi2D);
+          if (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]>0) m_hNumTrksDetPhi_B->Fill(m_phi2D[ibe]);
         } else if (ibe==1) {
-          if (m_nTRTHitsW[ibe][0]>0) m_hNumTrksDetPhi_E[0]->Fill(m_phi2D);
-          if (m_nTRTHitsW[ibe][1]>0) m_hNumTrksDetPhi_E[1]->Fill(m_phi2D);
+          if (m_nTRTHitsW[ibe][0]>0) m_hNumTrksDetPhi_E[0]->Fill(m_phi2D[ibe]);
+          if (m_nTRTHitsW[ibe][1]>0) m_hNumTrksDetPhi_E[1]->Fill(m_phi2D[ibe]);
         }
       }
 
       if (DoShift) {
-        if (innerstack >= 0 && innerstack < s_iStack_max[ibe]) {
+        if (innerstack[ibe] >= 0 && innerstack[ibe] < s_iStack_max[ibe]) {
           if (ibe==0) {
-            m_LonTrack_B[innerstack] += (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
+            m_LonTrack_B[innerstack[ibe]] += (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
             if ((m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]) > 0) {
-              m_HTfraconTrack_B[innerstack] += (float)(m_nTRTHLHitsW[ibe][0]+m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
-              m_nTrack_B[innerstack]         = (m_nTrack_B[innerstack])+1;
+              m_HTfraconTrack_B[innerstack[ibe]] += (float)(m_nTRTHLHitsW[ibe][0]+m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
+              m_nTrack_B[innerstack[ibe]]         = (m_nTrack_B[innerstack[ibe]])+1;
             }
           } else if (ibe==1) {
-            m_LonTrack_E[innerstack] += (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
+            m_LonTrack_E[innerstack[ibe]] += (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
             if ((m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]) > 0) {
-              m_HTfraconTrack_E[innerstack] += (float)(m_nTRTHLHitsW[ibe][0]+m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
-              m_nTrack_E[innerstack]         = (m_nTrack_E[innerstack])+1;
+              m_HTfraconTrack_E[innerstack[ibe]] += (float)(m_nTRTHLHitsW[ibe][0]+m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]);
+              m_nTrack_E[innerstack[ibe]]         = (m_nTrack_E[innerstack[ibe]])+1;
             }
           }
         }// if (innerstack >= 0 && innerstack < s_iStack_max[ibe])
@@ -2794,8 +2973,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       if (ibe==0) {
         if ((m_nTRTHitsW[ibe][0]+m_nTRTHitsW[ibe][1]) > 0) nTrksperLB_B++;
         if (theComTime) {
-          if (DoShift && (m_phi2D > 0) && (std::fabs(timeCor) > 1e-8))
-            m_hEvtPhaseDetPhi_B->Fill(m_phi2D, timeCor);
+          if (DoShift && (m_phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8))
+            m_hEvtPhaseDetPhi_B->Fill(m_phi2D[ibe], timeCor);
         } //the comtime
       } else if (ibe==1) {
         for (int iside=0; iside<2; iside++) {
@@ -2803,12 +2982,12 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
           if (theComTime) {
             if (m_nTRTHits_side[ibe][iside]>5 && (std::fabs(timeCor)
 						  > 1e-8)) {
-              if (DoShift) m_hEvtPhaseDetPhi_E[iside]->Fill(m_phi2D, timeCor);
+              if (DoShift) m_hEvtPhaseDetPhi_E[iside]->Fill(m_phi2D[ibe], timeCor);
             }
           }
         }
       } // else if (ibe==1)
-    } // for (int ibe=0; ibe<2; ibe++)
+    }//ibe 
   }//for (p_trk=m_trkCollection->begin(); p_trk!=m_trkCollection->end(); ++p_trk)
 
   if (theComTime) {
@@ -3022,12 +3201,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
     ATH_MSG_ERROR("Could not find Tracks Collection for eff");
     return StatusCode::FAILURE;
   }
-
+  //
+  /*
   const int sectorflag[2][2] = {
     { +1, -1 },
     { +2, -2 }
   };
-
+  */
   int itrack = 0;
   for (TrackCollection::const_iterator track = m_trkCollectionEff->begin(); track != m_trkCollectionEff->end(); ++track) {
     // online: use all tracks, offline: use only every xth track, skip the rest
@@ -3063,25 +3243,28 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
       ATH_MSG_DEBUG("This track has null track states on surface.");
       continue;
     }
-    // count hits
-    int n_pixel_hits = 0;
-    int n_sct_hits   = 0;
-    int n_trt_hits   = 0;
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); ++it) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-	if      (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> ((*it)->measurementOnTrack())) n_trt_hits++;
-	else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*>    ((*it)->measurementOnTrack())) n_sct_hits++;
-	else if (dynamic_cast<const InDet::PixelClusterOnTrack*>   ((*it)->measurementOnTrack())) n_pixel_hits++;
-      }
-    }
-
-    // preselect tracks
-
+    // // count hits
+    // int n_pixel_hits = 0;
+    // int n_sct_hits   = 0;
+    // int n_trt_hits   = 0;
+    // for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); ++it) {
+    //   if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+    // 	if      (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> ((*it)->measurementOnTrack())) n_trt_hits++;
+    // 	else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*>    ((*it)->measurementOnTrack())) n_sct_hits++;
+    // 	else if (dynamic_cast<const InDet::PixelClusterOnTrack*>   ((*it)->measurementOnTrack())) n_pixel_hits++;
+    //   }
+    // }
+    const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+    int n_trt_hits = summary->get(Trk::numberOfTRTHits);
+    int n_sct_hits = summary->get(Trk::numberOfSCTHits);
+    int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
+    
     float m_p = 1.0e+08;
     if (perigee) {
       m_p =  (perigee->parameters()[Trk::qOverP]!=0.)?
 	fabs(1./(perigee->parameters()[Trk::qOverP])) : 1.0e+08;
     }
+    // preselect tracks
 
     const bool passed_track_preselection =
       (fabs(perigee->parameters()[Trk::d0]) < m_max_abs_d0)&&
@@ -3100,58 +3283,70 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
     }
     ATH_MSG_DEBUG("This track passed preselection.");
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track_states->begin(); it != track_states->end(); it++) {
-      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
-	const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	if (track_parameters) {
-	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	  if (m_pTRTHelper->is_trt(id)) {
-	    float locR = track_parameters->parameters()[Trk::driftRadius];
-	    int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-	    int m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
-	    int m_phi_module      = m_pTRTHelper->phi_module(id);
-	    int m_straw_layer     = m_pTRTHelper->straw_layer(id);
-	    int m_straw           = m_pTRTHelper->straw(id);
+      //if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+      if ( !((*it)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
+      const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
+      //if (track_parameters) {
+      if (!track_parameters) continue;
+      Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
+      //if ((m_pTRTHelper->is_trt(id)) {
+      if ( !((m_pTRTHelper->is_trt(id)) )) continue;
+      float locR = track_parameters->parameters()[Trk::driftRadius];
+      int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
+      int m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
+      int m_phi_module      = m_pTRTHelper->phi_module(id);
+      int m_straw_layer     = m_pTRTHelper->straw_layer(id);
+      int m_straw           = m_pTRTHelper->straw(id);
 
-	    for (int ibe=0; ibe<2; ibe++) {
-	      if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-		if (ibe==0) {
-		  m_hefficiencyBarrel_locR->Fill(locR, 1.0);
-		} else if (ibe==1) {
-		  if (m_barrel_ec==sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 1.0);
-		  else m_hefficiencyEndCap_locR[1]->Fill(locR, 1.0);
-		}
-		if (fabs(locR) < 1.3) {
-		  int m_strawNumber = 0, m_chip = 0;
-		  if (ibe==0) {
-		    m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
-		    if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_B[m_phi_module][m_strawNumber];
-		  } else if (ibe==1) {
-		    m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
-		    if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_E[m_phi_module][m_strawNumber];
-		  }
+      //for (int ibe=0; ibe<2; ibe++) {
+      //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
 
-		  m_hefficiencyMap[ibe]->Fill(m_strawNumber, 1.0);
+      int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+      int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
+      if (ibe==0) {
+	m_hefficiencyBarrel_locR->Fill(locR, 1.0);
+      } else if (ibe==1) {
+	//if (m_barrel_ec==sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 1.0);
+	//else m_hefficiencyEndCap_locR[1]->Fill(locR, 1.0);
+	m_hefficiencyEndCap_locR[iside]->Fill(locR, 1.0);
+      }
+      //if (fabs(locR) < 1.3) {
+      if (fabs(locR) >= 1.3) continue; 
+      int m_strawNumber = 0, m_chip = 0;
+      if (ibe==0) {
+	m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+	if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+      } else if (ibe==1) {
+	m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+	if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+      }
 
-		  if (DoExpert) {
-		    if (m_barrel_ec == sectorflag[ibe][0]) {
-		      m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 1.0);
-		      m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 1.0);
-		    } else {
-		      m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 1.0);
-		      m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 1.0);
-		    }
-		  } // Do Expert
-		  m_hefficiency_eta->Fill(m_track_eta, 1.0);
-		  m_hefficiency_phi->Fill(m_track_phi, 1.0);
-		  m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 1.0);
-		  m_hefficiency_z0->Fill(m_track_z0, 1.0);
-		} //locR < 1.3
-	      } // is barrel(or endcap)
-	    } // for (int ibe=0; ibe<2; ibe++)
-	  }// if is trt
-	}// if track_parameters
-      }// if measurement
+      m_hefficiencyMap[ibe]->Fill(m_strawNumber, 1.0);
+
+      if (DoExpert) {
+	if (iside == 0 ) {
+	  m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 1.0);
+	  m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 1.0);
+	} else if (iside == 1 )
+	  {
+	    m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 1.0);
+	    m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 1.0);
+	  }
+      } // Do Expert
+      m_hefficiency_eta->Fill(m_track_eta, 1.0);
+      m_hefficiency_phi->Fill(m_track_phi, 1.0);
+      m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 1.0);
+      m_hefficiency_z0->Fill(m_track_z0, 1.0);
+      //}//locR < 1.3
+      //}// is barrel(or endcap)
+      //}// for (int ibe=0; ibe<2; ibe++)
+      //}// if is trt
+      //}// if track_parameters
+      //}// if measurement
     }// loop over track states
+
+    //use hole finder to find holes on this track !
+
     if(m_useHoleFinder){
       const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(**track);
 
@@ -3160,57 +3355,65 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
 	continue;
       } else {
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = holes->begin(); it != holes->end(); ++it) {
-	  if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
-	    const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
-	    if (track_parameters) {
-	      Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-	      if (m_pTRTHelper->is_trt(id)) {
-		float locR = track_parameters->parameters()[Trk::driftRadius];
-		int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-		int m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
-		int m_phi_module      = m_pTRTHelper->phi_module(id);
-		int m_straw_layer     = m_pTRTHelper->straw_layer(id);
-		int m_straw           = m_pTRTHelper->straw(id);
+	  //if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
+	  if( !((*it)->type(Trk::TrackStateOnSurface::Hole)) ) continue;
+	  const Trk::TrackParameters* track_parameters = (*it)->trackParameters();
+	  //if (track_parameters) {
+	  if (!track_parameters) continue;
+	  Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
+	  //if (m_pTRTHelper->is_trt(id)) {
+	  if ( !(m_pTRTHelper->is_trt(id)) ) continue;
+	  float locR = track_parameters->parameters()[Trk::driftRadius];
+	  int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
+	  int m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
+	  int m_phi_module      = m_pTRTHelper->phi_module(id);
+	  int m_straw_layer     = m_pTRTHelper->straw_layer(id);
+	  int m_straw           = m_pTRTHelper->straw(id);
 
-		for (int ibe=0; ibe<2; ibe++) {
-		  if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
-		    if (ibe==0) {
-		      m_hefficiencyBarrel_locR->Fill(locR, 0.0);
-		    } else if (ibe==1) {
-		      if (m_barrel_ec == sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 0.0);
-		      else m_hefficiencyEndCap_locR[1]->Fill(locR, 0.0);
-		    }
-		    if (fabs(locR) < 1.3) {
-		      int m_strawNumber = 0, m_chip = 0;
-		      if (ibe==0) {
-			m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
-			if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_B[m_phi_module][m_strawNumber];
-		      } else if (ibe==1) {
-			m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
-			if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_E[m_phi_module][m_strawNumber];
-		      }
+	  //for (int ibe=0; ibe<2; ibe++) {
+	  //if (abs(m_barrel_ec) == sectorflag[ibe][0]) {
+	  int ibe   = abs(m_barrel_ec)-1;// ibe =0 barrel , ibe =1 encap
+	  int iside = m_barrel_ec > 0 ? 0:1;//iside= 0 side_A , iside = 1 side_C	   
 
-		      m_hefficiencyMap[ibe]->Fill(m_strawNumber, 0.0);
-
-		      if (DoExpert) {
-			if (m_barrel_ec == sectorflag[ibe][0]) {
-			  m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 0.0);
-			  m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 0.0);
-			} else {
-			  m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 0.0);
-			  m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 0.0);
-			}
-		      } // do expert
-		      m_hefficiency_eta->Fill(m_track_eta, 0.0);
-		      m_hefficiency_phi->Fill(m_track_phi, 0.0);
-		      m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 0.0);
-		      m_hefficiency_z0->Fill(m_track_z0, 0.0);
-		    } // loc R < 1.3
-		  } // Barrel (or Endcap)
-		} // for (int ibe=0; ibe<2; ibe++)
-	      } // if is trt
-	    } // if (track_parameters)
+	  if (ibe==0) {
+	    m_hefficiencyBarrel_locR->Fill(locR, 0.0);
+	  } else if (ibe==1) {
+	    //if (m_barrel_ec == sectorflag[ibe][0]) m_hefficiencyEndCap_locR[0]->Fill(locR, 0.0);
+	    //else m_hefficiencyEndCap_locR[1]->Fill(locR, 0.0);
+	    m_hefficiencyEndCap_locR[iside]->Fill(locR, 0.0);
 	  }
+	  //if (fabs(locR) < 1.3) {
+	  if (fabs(locR) >= 1.3) continue;
+	  int m_strawNumber = 0, m_chip = 0;
+	  if (ibe==0) {
+	    m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+	    if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+	  } else if (ibe==1) {
+	    m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+	    if (m_strawNumber>=0 && m_strawNumber<s_Straw_max[ibe]) m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+	  }
+
+	  m_hefficiencyMap[ibe]->Fill(m_strawNumber, 0.0);
+
+	  if (DoExpert) {
+	    if (iside == 0) {//if side_A
+	      m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 0.0);
+	      m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 0.0);
+	    } else if(iside == 1) {//else if side_C
+	      m_hefficiencyS[ibe][m_phi_module+32]->Fill(m_strawNumber, 0.0);
+	      m_hefficiencyC[ibe][m_phi_module+32]->Fill(m_chip, 0.0);
+	    }
+	  } // do expert
+	  m_hefficiency_eta->Fill(m_track_eta, 0.0);
+	  m_hefficiency_phi->Fill(m_track_phi, 0.0);
+	  m_hefficiency_pt->Fill(m_track_pt / CLHEP::GeV, 0.0);
+	  m_hefficiency_z0->Fill(m_track_z0, 0.0);
+	  //} // loc R < 1.3
+	  //} // Barrel (or Endcap)
+	  //} // for (int ibe=0; ibe<2; ibe++)
+	  //} // if is trt
+	  //} // if (track_parameters)
+	  //}//if ((*it)->type(Trk::TrackStateOnSurface::Hole)) {
 	} // loop over holes
 	delete holes;
       } // found holes
@@ -3247,6 +3450,214 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
   return sc;
 }
 
+
+
+//----------------------------------------------------------------------------------//
+StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
+//----------------------------------------------------------------------------------//
+{
+
+  ATH_MSG_VERBOSE("");
+  
+  //Time corrolation
+  //const float timeCor = theComTime ? theComTime->getTime() : 0;
+  //track iterator
+  DataVector<Trk::Track>::const_iterator p_trk;
+  const Trk::Perigee* perigee = NULL;
+  const DataVector<const Trk::TrackParameters>* AllTrkPar(0);
+  DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
+
+  int lumiBlockNumber;
+  //int trt_bcid;
+  const EventInfo* thisEventsInfo;
+  if (evtStore()->retrieve(thisEventsInfo).isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the EventInfo from Store Gate");
+    return StatusCode::FAILURE;
+  }else{
+    lumiBlockNumber = thisEventsInfo->event_ID()->lumi_block();
+    //trt_bcid = thisEventsInfo->event_ID()->bunch_crossing_id();
+  }
+  // get Online Luminosity 
+  //double lbDur = m_lumiTool->lbDuration();      
+  //double AveLum = m_lumiTool->lbAverageLuminosity();
+  double IntLum = (m_lumiTool->lbDuration()*m_lumiTool->lbAverageLuminosity());
+  m_IntLum->SetBinContent(1,IntLum);
+  m_LBvsLum->SetBinContent(lumiBlockNumber,IntLum);
+
+
+  for (p_trk = m_trkCollection->begin(); p_trk != m_trkCollection->end(); ++p_trk) {
+
+
+    AllTrkPar = (*p_trk)->trackParameters();
+    for (p_trkpariter = AllTrkPar->begin(); p_trkpariter != AllTrkPar->end(); ++p_trkpariter) {
+      if ((perigee = dynamic_cast<const Trk::Perigee*>(*p_trkpariter))) break;
+    }
+    //if you went through all of the track parameters and found no perigee mearsurement
+    //then something is wrong with the track and so don't use the track.
+    //i.e. continue to the next track.
+    if (!perigee) continue;
+
+    float track_eta  = perigee->eta();
+    //float track_phi  = perigee->parameters()[Trk::phi0];
+    //float track_d0   = perigee->parameters()[Trk::d0];
+    //float track_z0   = perigee->parameters()[Trk::z0];
+    //float track_theta= perigee->parameters()[Trk::theta];
+    float track_p    = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1./(perigee->parameters()[Trk::qOverP])) : 10e7;
+    //float track_pT  = perigee->pT();
+
+
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates = (**p_trk).trackStateOnSurfaces();
+    if (trackStates == 0) continue;
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
+    /*
+    int pixel_hits = 0;
+    int sct_hits = 0;
+    int trt_hits = 0;
+    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != trackStates->end(); ++it) {
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+        if      (dynamic_cast<const InDet::TRT_DriftCircleOnTrack*> ((*it)->measurementOnTrack()))trt_hits++;
+        else if (dynamic_cast<const InDet::SCT_ClusterOnTrack*>    ((*it)->measurementOnTrack())) sct_hits++;
+        else if (dynamic_cast<const InDet::PixelClusterOnTrack*>   ((*it)->measurementOnTrack())) pixel_hits++;
+      }
+    }
+    *///the code below is equivalent to this commented out part
+    const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+    int trt_hits = summary->get(Trk::numberOfTRTHits);
+    int sct_hits = summary->get(Trk::numberOfSCTHits);
+    int pixel_hits = summary->get(Trk::numberOfPixelHits);
+
+    bool passCuts = true;
+    if(fabs(track_eta)>2.5)passCuts=false;
+    if(fabs(track_p)<5000.)passCuts=false;
+    if(pixel_hits<1.)passCuts = false;
+    if(sct_hits<6.)passCuts = false;
+    if(trt_hits<6.)passCuts = false;
+
+    if(!passCuts)continue;
+
+
+    //Now we have hit informations
+
+    const DataVector<const Trk::TrackStateOnSurface>* track_states = (*p_trk)->trackStateOnSurfaces();
+    if (track_states) {
+      ATH_MSG_DEBUG("This track has " << track_states->size() << " track states on surface.");
+    } else {
+      ATH_MSG_DEBUG("This track has null track states on surface.");
+      continue;
+    }
+    int barrel_ec_side   = 0;
+    int layer_or_wheel = 0;
+    int phi_module     = 0;
+    int straw_layer    = 0;
+    //int straw          = 0;
+    // loop over Track state on surface
+    
+    for (; TSOSItBegin!=TSOSItEnd; ++TSOSItBegin) {
+      if ((*TSOSItBegin) == 0) continue;
+      if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
+      const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBegin)->measurementOnTrack());
+      const Trk::TrackParameters *aTrackParam = dynamic_cast<const Trk::TrackParameters*>((*TSOSItBegin)->trackParameters());
+      if (!trtCircle) continue;
+      if (!aTrackParam) continue;
+
+
+      Identifier DCoTId = trtCircle->identify();
+      barrel_ec_side  = m_pTRTHelper->barrel_ec(DCoTId);
+      //BA:1 BC:-1 EA:2 EC:-2
+      layer_or_wheel  = m_pTRTHelper->layer_or_wheel(DCoTId);
+      phi_module      = m_pTRTHelper->phi_module(DCoTId);
+      straw_layer     = m_pTRTHelper->straw_layer(DCoTId);
+      //straw           = m_pTRTHelper->straw(DCoTId);
+      int Ba_Ec = (abs(barrel_ec_side)-1);
+      int Side  = barrel_ec_side>0 ? 0 : 1;
+      //Ba_Ec:  0 is barrel 1 is Endcap
+      //Side :  0 is side_A 1 is side_C
+
+      double xPos = trtCircle->globalPosition().x(); // global x coordinate
+      double yPos = trtCircle->globalPosition().y(); // global y coordinate
+      double zPos = trtCircle->globalPosition().z(); // global z coordinate
+      double RPos = sqrt(xPos*xPos + yPos*yPos);
+
+
+      Identifier surfaceID;
+      surfaceID = trtCircle->identify();
+      // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
+      //const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good);//
+      const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
+      bool isHighLevel= RawDriftCircle->highLevel();
+
+      //Barrel Plots
+      bool A1 = false;
+      bool C1 = false;
+      bool A2 = false;
+      bool C2 = false;
+      bool A3 = false;
+      bool C3 = false;
+      bool shortStraw = false;
+
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) C1=true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&C1==false)A1= true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30))) C2 = true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==1)&&C2==false)A2= true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&phi_module%2!=0)C3 = true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==2)&&C3==false)A3 = true;
+      if(fabs(track_eta)<2.&&(Ba_Ec==0.)&&(layer_or_wheel==0)&&straw_layer<9.)shortStraw = true;
+
+      int InputBar = -1;
+      if(A1||A2||A3)InputBar=0;
+      if(C1||C2||C3)InputBar=1;
+
+      //Fill Barrel Plots
+
+      if((!shortStraw)&&(Ba_Ec==0.)){
+	m_trackz_All[layer_or_wheel][InputBar]->Fill(zPos);
+	if(isHighLevel)m_trackz_HT[layer_or_wheel][InputBar]->Fill(zPos);
+      }
+      if(shortStraw){
+	if(zPos>0.){
+	  m_trackz_All[3][InputBar]->Fill(zPos);
+	  if(isHighLevel)m_trackz_HT[3][InputBar]->Fill(zPos);
+	}
+	else{
+	  m_trackz_All[4][InputBar]->Fill(zPos);
+	  if(isHighLevel)m_trackz_HT[4][InputBar]->Fill(zPos);
+	}
+      }
+
+
+      //End of Barrel Plots
+
+      //Begin EC plots
+
+      int WType = -1.;
+
+      if((Ba_Ec==1)&&(layer_or_wheel<6)&&((straw_layer>3.&&straw_layer<8.)||(straw_layer>11.)))WType = 0.; //in_A
+      if((Ba_Ec==1)&&(layer_or_wheel>=6)&&(straw_layer>3.))WType = 3.;//out_B Assuming Reversed in Type B
+      if((Ba_Ec==1)&&(layer_or_wheel<6)&&((straw_layer>-1.&&straw_layer<4.)||(straw_layer>7.&&straw_layer<12.)))WType = 2.; //out_A
+      if((Ba_Ec==1)&&(layer_or_wheel>=6)&&((straw_layer>-1.&&straw_layer<4.)))WType=1.; //in_B Assuming Reversed in Type B
+
+
+      if(Ba_Ec==1){
+	m_trackr_All[WType][Side]->Fill(RPos);
+	if(isHighLevel)m_trackr_HT[WType][Side]->Fill(RPos);
+      }
+
+      //End of EC plots
+  
+
+    } //for (;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
+
+
+  }// for (p_trk = m_trkCollection->begin(); p_trk != m_trkCollection->end(); ++p_trk)
+
+
+  return StatusCode::SUCCESS;
+
+}//Fill_TRT_HT()
+
+
+
 //-------------------------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eventInfo)
 //-------------------------------------------------------------------------------------------------//
@@ -3262,7 +3673,7 @@ StatusCode TRT_Monitoring_Tool::Check_TRT_Readout_Integrity(const EventInfo* eve
 
       good_bcid = TRTEventID->bunch_crossing_id();
       if ((int)m_lumiBlock != lastLumiBlock) {
-        nLumiBlock++;
+        //nLumiBlock++;//obsolete
         lastLumiBlock = m_lumiBlock;
       }
 
@@ -3372,12 +3783,13 @@ int TRT_Monitoring_Tool::strawNumber(int strawNumber, int strawlayerNumber, int 
     addToStrawNumberNext = addToStrawNumber+numberOfStraws[i];
   } while (strawLayerNumber(strawlayerNumber,LayerNumber)!=i-1);
 
-  if (strawLayerNumber(strawlayerNumber,LayerNumber) % 2==-10) {
+  /*
+    if (strawLayerNumber(strawlayerNumber,LayerNumber) % 2==-10) {
     strawNumber += addToStrawNumber;
-  } else {
+    } else {
     strawNumber = addToStrawNumberNext - strawNumber-1;
-  }
-
+    }*/
+  strawNumber = addToStrawNumberNext - strawNumber-1;
   if (strawNumber < 0 || strawNumber > 1641) {
     ATH_MSG_WARNING("strawNumber = " << strawNumber << " out of range. Will set to 0.");
     strawNumber = 0;
@@ -3385,6 +3797,46 @@ int TRT_Monitoring_Tool::strawNumber(int strawNumber, int strawlayerNumber, int 
   return strawNumber;
 
 }//strawNumber()
+ 
+ //----------------------------------------------------------------//
+int TRT_Monitoring_Tool::strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber)
+//-----------------------------------------------------------------//
+{
+  const int numberOfStraws[75] = {
+    0,
+    15,
+    16,16,16,16,
+    17,17,17,17,17,
+    18,18,18,18,18,
+    19,19,19,
+    18,
+    19,
+    20,20,20,20,20,
+    21,21,21,21,21,
+    22,22,22,22,22,
+    23,23,23,23,23,
+    24,24,
+    23,23,
+    24,24,24,24,
+    25,25,25,25,25,
+    26,26,26,26,26,
+    27,27,27,27,27,
+    28,28,28,28,28,
+    29,29,29,29,
+    28,
+    0
+  };
+  //ToDo check inp_strawnumber
+  int i=1;      
+  for(i=1;inp_strawnumber>=0;i++){
+    inp_strawnumber-=numberOfStraws[i];
+  }
+  i -=2;
+  strawLayerNumber_reverse(i,strawlayerNumber,LayerNumber);
+  *strawNumber = -inp_strawnumber - 1;
+  
+  return 0;//  success  
+}//strawNumber_reverse()
 
 //----------------------------------------------------------------//
 int TRT_Monitoring_Tool::strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side)
@@ -3468,6 +3920,25 @@ int TRT_Monitoring_Tool::strawLayerNumber(int strawLayerNumber, int LayerNumber)
   }
 }
 
+//----------------------------------------------------------------------//
+int TRT_Monitoring_Tool::strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber)
+//---------------------------------------------------------------------//
+{
+  //Dabger? There are no checks on input
+  //use with care
+  if (strawLayerNumInp<19){
+    *strawLayerNumber = strawLayerNumInp;
+    *LayerNumber = 0;
+  }else if (strawLayerNumInp<43){
+    *strawLayerNumber = strawLayerNumInp - 19;
+    *LayerNumber = 1;
+  }else {
+    *strawLayerNumber = strawLayerNumInp - 43;
+    *LayerNumber = 2;
+  }
+  return 0;//succes
+}
+
 //----------------------------------------------------------------
 float TRT_Monitoring_Tool::radToDegrees(float radValue)
 //----------------------------------------------------------------
@@ -3529,7 +4000,20 @@ void TRT_Monitoring_Tool::scale_LWHist(TH1F_LW* hist, float scale)
   }
   hist->SetEntries(entries);
 }
-
+//function for scaling a histogram with an array
+// no checks on array size can do some harm
+void TRT_Monitoring_Tool::scale_LWHistWithScaleArray (TH1F_LW* hist, float scale [] )
+{
+  if (!hist) return;
+  const unsigned int entries = hist->GetEntries();
+  unsigned int index;
+  double content, error;
+  hist->resetActiveBinLoop();
+  while (hist->getNextActiveBin(index, content, error)) {
+    hist->SetBinContentAndError(index, scale[index] * content, scale[index] * error);
+  }
+  hist->SetEntries(entries);
+}
 // code to divide one histogram by another and save result
 // we could add coefficients to this, but we're not going to
 // we might also want to check that the bin ranges are the same, but for now
@@ -3570,9 +4054,9 @@ TH1F_LW *TRT_Monitoring_Tool::bookTH1F_LW(MonGroup& mongroup, const std::string 
 
   return hist;
 }
-
-TH1F *TRT_Monitoring_Tool::bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int nbins, double firstbin, double lastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
-{
+/*
+  TH1F *TRT_Monitoring_Tool::bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int nbins, double firstbin, double lastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
+  {
   TH1F *hist = new TH1F(hName.c_str(), hTitle.c_str(), nbins, firstbin, lastbin);
   scode = trtRegHist<TH1F>(hist, mongroup, hName.c_str());
 
@@ -3582,10 +4066,11 @@ TH1F *TRT_Monitoring_Tool::bookTH1F(MonGroup& mongroup, const std::string &hName
   hist->GetYaxis()->SetTitle(yTitle.c_str());
 
   return hist;
-}
-
-TH2F *TRT_Monitoring_Tool::bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xnbins, double xfirstbin, double xlastbin, int ynbins, double yfirstbin, double ylastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
-{
+  }
+*/
+/*
+  TH2F *TRT_Monitoring_Tool::bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xnbins, double xfirstbin, double xlastbin, int ynbins, double yfirstbin, double ylastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
+  {
   TH2F *hist = new TH2F(hName.c_str(), hTitle.c_str(), xnbins, xfirstbin, xlastbin, ynbins, yfirstbin, ylastbin);
   scode = trtRegHist<TH2F>(hist, mongroup, hName.c_str());
 
@@ -3595,8 +4080,9 @@ TH2F *TRT_Monitoring_Tool::bookTH2F(MonGroup& mongroup, const std::string &hName
   hist->SetYTitle(yTitle.c_str());
 
   return hist;
-}
+  }*/
 
+//TProfile can be rebinned (unlike TProfile_LW) so we still need it.
 TProfile *TRT_Monitoring_Tool::bookTProfile(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int nbins, double firstbin, double lastbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
 {
   TProfile *hist = new TProfile(hName.c_str(), hTitle.c_str(), nbins, firstbin, lastbin, ymin, ymax);
@@ -3641,3 +4127,31 @@ TH2F_LW *TRT_Monitoring_Tool::bookTH2F_LW(MonGroup& mongroup, const std::string 
 
   return hist;
 }
+
+
+int TRT_Monitoring_Tool::m_initScaleArrays(){
+  if(m_flagforscale == 0 ) return 0;
+  for (int i=0;i<1642;i++){
+    float countAr = 0;
+    float countXe = 0;
+    int sN,sLN,lN;
+    strawNumber_reverse(i,&sN,&sLN,&lN);
+    for (int side = -1 ;side <2;side+=2 ){
+      for (int j=0;j<32;j++ ){
+	Identifier Dummy_Identifier;
+	Dummy_Identifier = m_pTRTHelper->straw_id(side,j,lN,sLN,sN);
+	bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(Dummy_Identifier) != TRTCond::StrawStatus::Good);
+	if (isArgonStraw) 
+	  countAr +=1.0;
+	else
+	  countXe +=1.0; 
+      }
+    } 
+    m_scale_hHitWMap_B[i] = countXe;   
+    m_scale_hHitWMap_B_Ar[i] = countAr;
+  }
+  m_flagforscale=0;
+      
+
+  return 0;
+}// TRT_Monitoring_Tool::m_initScaleArrays()
