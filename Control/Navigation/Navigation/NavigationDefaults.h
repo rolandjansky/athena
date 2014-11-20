@@ -9,7 +9,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DataModel/ElementLink.h"
-#include "CxxUtils/fast_push_back.h"
 #include "AthLinks/tools/GenerateIndexingPolicy.h"
 
 #include <utility>
@@ -174,7 +173,7 @@ namespace NavigationDefaults
       {
         if (sizeHint && cont.capacity() < sizeHint)
           cont.reserve(sizeHint);
-        CxxUtils::fast_push_back (cont, *aChildContainer,anIndex, aPar);
+        cont.emplace_back (*aChildContainer,anIndex, aPar);
       }
 
       // insertion of ElementLink by ElementLink
