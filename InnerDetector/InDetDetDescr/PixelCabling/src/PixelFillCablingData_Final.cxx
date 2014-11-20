@@ -157,7 +157,7 @@ PixelCablingData* PixelFillCablingData_Final::initialiseFromFile(const string fi
             onlineId = (robid & 0xFFFFFF) | (linknumber << 24);
 
             IdentifierHash hashId;
-            m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel);
+            if (m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel)) msg(MSG::WARNING) << "Could not get hash from offlineId" << endreq;
             if (hashId > m_idHelper->wafer_hash_max()) {
                 msg(MSG::ERROR) << "IdHash overflow! HashId is 0x" << std::hex << hashId << endreq;
                 msg(MSG::ERROR) << "not mapped OfflineID: " << std::hex << offlineId << std::dec << " barrel_ec: " << barrel_ec

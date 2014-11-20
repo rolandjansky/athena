@@ -36,6 +36,14 @@
 #include <stdint.h>
 #include <utility>
 #include <string>
+#include <boost/unordered_map.hpp>
+
+
+// Provide hash_value function for unordered maps
+std::size_t hash_value(Identifier const& id);
+
+
+
 
 class PixelCablingData
 {
@@ -75,24 +83,24 @@ class PixelCablingData
    /* void copy_offrobMap(std::map< Identifier, uint32_t> &outputMap); */
 
    // Provide access to the cabling maps
-   std::map< uint64_t, Identifier > get_idMap_onoff();
-   std::map< Identifier, uint64_t> get_idMap_offon();
-   std::map< Identifier, uint32_t> get_idMap_offrob();
-   std::map< int,int> get_idMap_rodrob();
-   std::map< int,int> get_idMap_robrod();
-   std::map< std::string, Identifier> get_idMapDCSoff();
-
+   // (return std::map rather than the boost ones)
+   std::map<uint64_t, Identifier> get_idMap_onoff();
+   std::map<Identifier, uint64_t> get_idMap_offon();
+   std::map<Identifier, uint32_t> get_idMap_offrob();
+   std::map<int,int> get_idMap_rodrob();
+   std::map<int,int> get_idMap_robrod();
+   std::map<std::string, Identifier> get_idMapDCSoff();
 
 
  private:
 
-   std::map< uint64_t, Identifier > m_idMap_onoff;   // offline identifier -> online identifier map
-   std::map< Identifier, uint64_t> m_idMap_offon;   // online identifier -> offline identifier map
-   std::map< Identifier, uint32_t> m_idMap_offrob;   // offline identifier -> ROBId map
-   std::map< int,int> m_idMap_rodrob;                    // RODId -> ROBId map
-   std::map< int,int> m_idMap_robrod;                    // ROBId -> RODId map (reverse of m_idMap_rodrob)
-   std::map< uint32_t, std::deque<Identifier> > m_offlineListVect;   // ROBId -> offline identifier list
-   std::map< std::string, Identifier> m_idMapDCSoff; // DCS name -> offline identifier
+   boost::unordered_map<uint64_t, Identifier> m_idMap_onoff;   // offline identifier -> online identifier map
+   boost::unordered_map<Identifier, uint64_t> m_idMap_offon;   // online identifier -> offline identifier map
+   boost::unordered_map<Identifier, uint32_t> m_idMap_offrob;   // offline identifier -> ROBId map
+   boost::unordered_map<int,int> m_idMap_rodrob;                    // RODId -> ROBId map
+   boost::unordered_map<int,int> m_idMap_robrod;                    // ROBId -> RODId map (reverse of m_idMap_rodrob)
+   std::map<uint32_t, std::deque<Identifier> > m_offlineListVect;   // ROBId -> offline identifier list
+   boost::unordered_map<std::string, Identifier> m_idMapDCSoff; // DCS name -> offline identifier
 
    std::map<uint32_t,bool> m_rodReadoutMap; // save readout speed for each ROD. false=40MBit, true=80MBit
 

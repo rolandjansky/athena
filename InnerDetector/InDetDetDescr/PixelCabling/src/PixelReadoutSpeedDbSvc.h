@@ -49,7 +49,7 @@ class PixelReadoutSpeedDbSvc:  public AthService,
  private:
   ServiceHandle< StoreGateSvc > m_detStore;
 
-  const PixelID* m_pixelID;
+  //const PixelID* m_pixelID;
 
   unsigned int calback_calls;
   unsigned int print;

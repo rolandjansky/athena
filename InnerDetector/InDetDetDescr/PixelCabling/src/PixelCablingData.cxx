@@ -32,6 +32,14 @@
 #include <fstream>
 #include <sstream>
 
+
+// Hashing function for Identifiers
+std::size_t hash_value(Identifier const& id) {
+    boost::hash<int> hasher;
+    return hasher(id.get_compact());
+}
+
+
 ////////////////////////
 // constructor
 ////////////////////////
@@ -112,7 +120,7 @@ Identifier PixelCablingData::find_entry_onoff(const uint64_t onlineId) const {
     // Search m_idMap_onoff for the onlineId
     uint64_t searchId = onlineId;
     Identifier offlineId(0);
-    std::map<uint64_t, Identifier>::const_iterator iter(m_idMap_onoff.find(searchId));
+    boost::unordered_map<uint64_t, Identifier>::const_iterator iter(m_idMap_onoff.find(searchId));
 
     // OnlineId has been found - get the offline identifier
     if (iter != m_idMap_onoff.end()) offlineId = (*iter).second;
@@ -151,7 +159,7 @@ Identifier PixelCablingData::find_entry_onoff(const uint64_t onlineId) const {
 ////////////////////////
 uint64_t PixelCablingData::find_entry_offon(const Identifier offlineId) const {
     uint64_t onlineId; // declare online identifier
-    std::map<Identifier, uint64_t>::const_iterator iter(m_idMap_offon.find(offlineId)); // find offline identifier in m_idMap_offon map
+    boost::unordered_map<Identifier, uint64_t>::const_iterator iter(m_idMap_offon.find(offlineId)); // find offline identifier in m_idMap_offon map
     if (iter == m_idMap_offon.end()) { // if offline identifier not found in m_idMap_offon map -> ERROR
         onlineId = 0; // fill online identifier with empty identifier
         return onlineId; // return empty online identifier
@@ -165,7 +173,7 @@ uint64_t PixelCablingData::find_entry_offon(const Identifier offlineId) const {
 ////////////////////////
 uint32_t PixelCablingData::find_entry_offrob(const Identifier offlineId) const {
     uint32_t robid; // declare ROBId
-    std::map<Identifier, uint32_t>::const_iterator iter(m_idMap_offrob.find(offlineId)); // find offline identifier in m_idMap_offrob map
+    boost::unordered_map<Identifier, uint32_t>::const_iterator iter(m_idMap_offrob.find(offlineId)); // find offline identifier in m_idMap_offrob map
     if (iter == m_idMap_offrob.end()) { // if offline identifier not found in m_idMap_offrob map -> ERROR
         robid = 0; // fill ROBId with empty identifier
         return robid; // return empty ROBId
@@ -178,7 +186,7 @@ uint32_t PixelCablingData::find_entry_offrob(const Identifier offlineId) const {
 // find_entry_rodrob - search entry in the map m_idMap_rodrob - get the ROBId from the RODId
 ////////////////////////
 int PixelCablingData::find_entry_rodrob(const int rodid) {
-    std::map<int, int>::const_iterator iter(m_idMap_rodrob.find(rodid));
+    boost::unordered_map<int, int>::const_iterator iter(m_idMap_rodrob.find(rodid));
     if (iter == m_idMap_rodrob.end()) {
         return 0;
     }
@@ -191,7 +199,7 @@ int PixelCablingData::find_entry_rodrob(const int rodid) {
 // find_entry_robrod - search entry in the map m_idMap_robrod - get the RODId from the ROBId
 ////////////////////////
 int PixelCablingData::find_entry_robrod(const int robid) {
-    std::map<int,int>::const_iterator iter(m_idMap_robrod.find(robid));
+    boost::unordered_map<int,int>::const_iterator iter(m_idMap_robrod.find(robid));
     if (iter == m_idMap_robrod.end()) return 0;
     return iter->second;
 }
@@ -215,7 +223,7 @@ std::deque<Identifier> PixelCablingData::find_entry_offlineList(uint32_t robid) 
 // find_entry_DCSoffline - return offline Id for a DCS name
 ////////////////////////
 Identifier PixelCablingData::find_entry_DCSoffline(std::string DCSname) {
-    std::map<std::string, Identifier>::const_iterator iter(m_idMapDCSoff.find(DCSname));
+    boost::unordered_map<std::string, Identifier>::const_iterator iter(m_idMapDCSoff.find(DCSname));
     if (iter == m_idMapDCSoff.end()) {
         Identifier offlineId(0);
         return offlineId;
@@ -227,7 +235,7 @@ Identifier PixelCablingData::find_entry_DCSoffline(std::string DCSname) {
 // find_entry_DCSoffline - return DCS name for an offline ID
 ////////////////////////
 std::string PixelCablingData::find_entry_offlineDCS(const Identifier offlineId) {
-    std::map<std::string, Identifier>::const_iterator iter = m_idMapDCSoff.begin();
+    boost::unordered_map<std::string, Identifier>::const_iterator iter = m_idMapDCSoff.begin();
     for (; iter != m_idMapDCSoff.end(); iter++) {
         if (iter->second == offlineId)
             return iter->first;
@@ -240,7 +248,7 @@ std::string PixelCablingData::find_entry_offlineDCS(const Identifier offlineId) 
 ////////////////////////
 std::vector<uint32_t>& PixelCablingData::get_allRods() {
     if (m_allRods->empty()) { // fill vector from map only once
-        for (std::map<int, int>::iterator rodrobmap_iterator = m_idMap_rodrob.begin(); rodrobmap_iterator != m_idMap_rodrob.end(); rodrobmap_iterator++)
+        for (boost::unordered_map<int, int>::iterator rodrobmap_iterator = m_idMap_rodrob.begin(); rodrobmap_iterator != m_idMap_rodrob.end(); rodrobmap_iterator++)
             m_allRods->push_back(rodrobmap_iterator->first);
     }
     return *m_allRods;
@@ -252,7 +260,7 @@ std::vector<uint32_t>& PixelCablingData::get_allRods() {
 ////////////////////////
 std::vector<uint32_t>& PixelCablingData::get_allRobs() {
     if (m_allRobs->empty()) {
-        for (std::map<int,int>::const_iterator robrod_iter = m_idMap_robrod.begin(); robrod_iter != m_idMap_robrod.end(); robrod_iter++) {
+        for (boost::unordered_map<int,int>::const_iterator robrod_iter = m_idMap_robrod.begin(); robrod_iter != m_idMap_robrod.end(); robrod_iter++) {
             m_allRobs->push_back(robrod_iter->first);
         }
     }
@@ -278,7 +286,7 @@ uint64_t PixelCablingData::getOnlineIdFromRobId(const uint32_t robid, const uint
 
         // Need to search the on-off map for the appropriate onlineId
         uint32_t linknum_temp;
-        std::map<uint64_t, Identifier>::const_iterator itr = m_idMap_onoff.begin();
+        boost::unordered_map<uint64_t, Identifier>::const_iterator itr = m_idMap_onoff.begin();
         for (; itr != m_idMap_onoff.end(); ++itr) {
             if ((itr->first & 0xFFFFFF) == robid) {
                 linknum_temp = (itr->first >> 24);
@@ -304,37 +312,65 @@ uint64_t PixelCablingData::getOnlineIdFromRobId(const uint32_t robid, const uint
 //   outputMap = m_idMap_offrob;
 // }
 
-// Give access to the maps (return a copy)
-std::map< uint64_t, Identifier > PixelCablingData::get_idMap_onoff() {
-    std::map< uint64_t, Identifier > copy(m_idMap_onoff);
+
+// Give access to the maps (return a std::map copy)
+std::map<uint64_t, Identifier> PixelCablingData::get_idMap_onoff() {
+
+    std::map<uint64_t, Identifier> copy;
+    for (boost::unordered_map<uint64_t, Identifier>::const_iterator itr = m_idMap_onoff.begin();
+         itr != m_idMap_onoff.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
 
-std::map< Identifier, uint64_t> PixelCablingData::get_idMap_offon(){
-    std::map< Identifier, uint64_t> copy(m_idMap_offon);
+std::map<Identifier, uint64_t> PixelCablingData::get_idMap_offon(){
+
+    std::map<Identifier, uint64_t> copy;
+    for (boost::unordered_map<Identifier, uint64_t>::const_iterator itr = m_idMap_offon.begin();
+         itr != m_idMap_offon.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
 
-std::map< Identifier, uint32_t> PixelCablingData::get_idMap_offrob(){
-    std::map< Identifier, uint32_t> copy(m_idMap_offrob);
+std::map<Identifier, uint32_t> PixelCablingData::get_idMap_offrob(){
+
+    std::map<Identifier, uint32_t> copy;
+    for (boost::unordered_map<Identifier, uint32_t>::const_iterator itr = m_idMap_offrob.begin();
+         itr != m_idMap_offrob.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
 
-std::map< int,int> PixelCablingData::get_idMap_rodrob(){
-    std::map< int,int> copy(m_idMap_rodrob);
+std::map<int,int> PixelCablingData::get_idMap_rodrob(){
+
+    std::map<int,int> copy;
+    for (boost::unordered_map<int,int>::const_iterator itr = m_idMap_rodrob.begin();
+         itr != m_idMap_rodrob.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
 
-std::map< int,int> PixelCablingData::get_idMap_robrod(){
-    std::map< int,int> copy(m_idMap_robrod);
+std::map<int,int> PixelCablingData::get_idMap_robrod(){
+
+    std::map<int,int> copy;
+    for (boost::unordered_map<int,int>::const_iterator itr = m_idMap_robrod.begin();
+         itr != m_idMap_robrod.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
 
-std::map< std::string, Identifier> PixelCablingData::get_idMapDCSoff(){
-    std::map< std::string, Identifier> copy(m_idMapDCSoff);
+std::map<std::string, Identifier> PixelCablingData::get_idMapDCSoff(){
+
+    std::map<std::string, Identifier> copy;
+    for (boost::unordered_map<std::string, Identifier>::const_iterator itr = m_idMapDCSoff.begin();
+         itr != m_idMapDCSoff.end(); ++itr) {
+        copy.insert(*itr);
+    }
     return copy;
 }
-
-
-
 

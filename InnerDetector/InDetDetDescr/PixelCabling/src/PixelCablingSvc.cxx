@@ -34,7 +34,7 @@
 #include "CoolKernel/IObject.h"
 
 
-//#define PIXEL_DEBUG
+#define PIXEL_DEBUG
 
 
 using namespace std;
@@ -71,7 +71,8 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_DBMpresent(false),
     m_dbm_columnsPerFE(0),
     m_dbm_rowsPerFE(0),
-    m_dbm_FEsPerHalfModule(0)
+    m_dbm_FEsPerHalfModule(0),
+    m_eta_module_offset(0)
 {
     declareProperty("MappingType", m_mappingType = "Final");
     declareProperty("MappingFile", m_final_mapping_file = "");
@@ -168,7 +169,8 @@ StatusCode PixelCablingSvc::initialize( )
 
         // Hybrid IBL with DBM
         if (m_IBLpresent && m_isHybrid && m_DBMpresent) {
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat";
+            //m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat";
+            m_final_mapping_file = "Pixels_Atlas_IdMapping_M7.dat";
         }
         // Homogeneous IBL with DBM
         else if (m_IBLpresent && !m_isHybrid && m_DBMpresent) {
@@ -185,20 +187,6 @@ StatusCode PixelCablingSvc::initialize( )
         }
     }
 
-    
-    // Hack for M5:
-    // Load custom map, if it exists
-    string extMap = "/det/pix/CablingMap.txt";
-    ifstream fin(extMap.c_str());
-    if (fin.good()) {
-        fin.close();
-        m_final_mapping_file = extMap;
-        ATH_MSG_DEBUG("Using external mapping file: " << extMap);
-        }
-    else {
-        fin.close();
-        ATH_MSG_DEBUG("External mapping file not found: " << extMap);
-    }
 
     // Fill the columns/rows/FEsPerHalfModule vectors with remaining pixel values
     // m_layer_columns(rows)PerFE should be [IBL, PixLayer1, PixLayer2, PixLayer3]
@@ -292,12 +280,12 @@ StatusCode PixelCablingSvc::initialize( )
     // map is equal to number of modules reported by IBLParameterSvc
     // (to prevent running with incorrect mapping file)
 
+/*  Temporarily removed for M5, since not all IBL modules will be included
     int mapSize = m_cabling->get_size_onoff();
     int nModules = 1744;                                                    // number of pixel modules
     if (m_IBLpresent) nModules += 14 * m_layer_FEsPerHalfModule[0].size();  // add number of IBL modules
     if (m_DBMpresent) nModules += 24;                                       // add number of DBM modules
 
-/*  Temporarily removed for M5, since not all IBL modules will be included
     if (mapSize != nModules) {
         msg(MSG::FATAL) << "Bad configuration - number of modules in cabling map "
                         << "does not match the number reported by IBLParameterSvc" << endreq;
