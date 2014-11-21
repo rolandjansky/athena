@@ -6,9 +6,14 @@ use AtlasExternalArea AtlasExternalArea-* External
 
 use AtlasQt4 AtlasQt4-* External
 
-macro VP1Qwt_qwt_version "6.0.1"
+private
+use qwt	      v*		  LCG_Interfaces
+end_private
+
+macro VP1Qwt_qwt_version "$(qwt_config_version)"
 macro VP1Qwt_native_version "$(VP1Qwt_qwt_version)_qt$(qt_config_version)"
-macro VP1Qwt_home           "$(LCG_external)/qwt/$(VP1Qwt_native_version)/$(LCG_system)"
+# macro VP1Qwt_home           "$(LCG_external)/qwt/$(VP1Qwt_native_version)/$(LCG_system)"
+macro VP1Qwt_home           "$(LCG_external)/qwt/$(VP1Qwt_qwt_version)/$(LCG_system)"
 
 include_path none
 include_dirs "$(VP1Qwt_home)/include"
