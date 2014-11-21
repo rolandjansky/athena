@@ -7,9 +7,10 @@ use AtlasExternalArea AtlasExternalArea-* External
 use AtlasGSL          AtlasGSL-*          External
 use AtlasHepMC        AtlasHepMC-*        External
 
-#macro ThePEG_home "$(LCG_external)/MCGenerators/thepeg"
-macro ThePEG_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/thepeg"
-macro ThePEG_version "1.9.2"
+#macro LCG_config_version "61g"
+macro ThePEG_home "$(LCG_external)/MCGenerators/thepeg"
+#macro ThePEG_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/thepeg"
+macro ThePEG_version "1.9.2p1"
 macro ThePEG_native_version "$(ThePEG_version)_lcgcmt$(LCG_config_version)"
 macro ThePEG_system "$(LCG_ext_system)"
 macro ThePEG_installdir "$(ThePEG_home)/$(ThePEG_version)/$(ThePEG_system)"
