@@ -7,7 +7,9 @@ use AtlasExternalArea AtlasExternalArea-* External
 use ThePEG            ThePEG-*            External
 use AtlasHepMC        AtlasHepMC-*        External
 
-macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig++"
+#macro LCG_config_version "61g"
+#macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig++"
+macro Herwigpp_home "$(LCG_external)/MCGenerators/herwig++"
 macro Herwigpp_version "2.7.1"
 macro Herwigpp_native_version "$(Herwigpp_version)_lcgcmt$(LCG_config_version)"
 macro Herwigpp_system "$(LCG_ext_system)"
@@ -24,6 +26,9 @@ apply_pattern declare_installed_libraries dir=$(Herwigpp_lib)
 
 #apply_pattern declare_runtime files="$(Herwigpp_datadir)/*.rpo $(Herwigpp_datadir)/*.in"
 apply_pattern generic_declare_for_link kind=runtime prefix=$(tag)/share files="$(Herwigpp_datadir)/*.rpo $(Herwigpp_datadir)/*.in $(Herwigpp_datadir)/MSSM.model "
+#path_prepend PATH "$(Herwigpp_datadir)"
 
 include_path none
 include_dirs "$(Herwigpp_inc)"
+
+
