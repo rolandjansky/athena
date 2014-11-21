@@ -19,7 +19,7 @@
                   <doc>Create G4 hits for MC</doc>
                   <jobTransformJobName>BSFilter</jobTransformJobName>
                   <jobTransformCmd>
-               BSFilter_trf.py inputBSFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay//user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW OutputBSFilterFile=simpledummy.RAW EventIdFile=events.txt TriggerBit=5 skipEvents=0 maxEvents=5; AtlasG4_tf.py --DataRunNumber=2011 --inputEVNTFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_tid454603_00/EVNT.454603._000006.pool.root.1 --outputHITSFile=testRTT.HITS.pool.root --maxEvents=2 --skipEvents=0 --randomSeed=123456789 --geometryVersion=ATLAS-GEO-16-00-00 --conditionsTag=COMCOND-BLKPST-005-08 --physicsList=QGSP_BERT --preInclude='sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' --postInclude='sim:EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py'
+               BSFilter_trf.py inputBSFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay//user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW OutputBSFilterFile=simpledummy.RAW EventIdFile=events.txt TriggerBit=5 skipEvents=0 maxEvents=5; AtlasG4_tf.py --DataRunNumber=2011 --inputEVNTFile=root://eosatlas//eos/atlas/user/r/redlinge/overlay/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_tid454603_00/EVNT.454603._000006.pool.root.1 --outputHITSFile=testRTT.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=123456789 --geometryVersion=ATLAS-GEO-16-00-00 --conditionsTag=COMCOND-BLKPST-005-08 --physicsList=QGSP_BERT --preInclude='sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' --postInclude='sim:EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py'
                   </jobTransformCmd>
                   <group>Overlay_JobTransforms</group>
                   <queue>medium</queue>
@@ -138,7 +138,7 @@
                      <doc>Reco of MC+Data overlay</doc>
                      <jobTransformJobName>Reco</jobTransformJobName>
                      <jobTransformCmd>
-                       Reco_trf.py inputRDOFile=testRTT.RDO.pool.root geometryVersion=ATLAS-GEO-16-00-00 conditionsTag=COMCOND-BLKPST-005-08 preInclude=EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py postInclude=EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign_reco.py outputESDFile=testRTT.ESD.pool.root preExec_r2e='include.block("TrigT2CaloCommon/LArCellBuilding.py")'
+                       Reco_tf.py --inputRDOFile=testRTT.RDO.pool.root --geometryVersion=ATLAS-GEO-16-00-00 --conditionsTag=COMCOND-BLKPST-005-08 --preInclude=EventOverlayJobTransforms/UseOracle.py,EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py --postInclude=EventOverlayJobTransforms/Rt_override.py,EventOverlayJobTransforms/muAlign_reco.py --outputESDFile=testRTT.ESD.pool.root --preExec 'r2e:include.block("TrigT2CaloCommon/LArCellBuilding.py")'
                      </jobTransformCmd>
                      <group>Overlay_JobTransforms</group>
                      <chaindataset_info>
