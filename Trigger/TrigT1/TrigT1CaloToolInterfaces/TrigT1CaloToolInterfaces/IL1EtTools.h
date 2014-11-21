@@ -20,6 +20,7 @@ namespace LVL1
 class ModuleEnergy;
 class CrateEnergy;
 class SystemEnergy;
+class EnergyCMXData;
 
 /**
 Interface definition for L1EtTools
@@ -36,7 +37,10 @@ Interface definition for L1EtTools
                             DataVector<ModuleEnergy>* modules, int slice = -1) = 0;
     virtual void moduleSums(const std::map<int, JetElement*>* jemap,
                             DataVector<ModuleEnergy>* modules, int slice = -1) = 0;
-    virtual void crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates) = 0 ;
+    virtual void crateSums(const DataVector<ModuleEnergy>* modules,
+                            DataVector<CrateEnergy>* crates, float etaMax = 5.) = 0 ;
+    virtual void crateSums(const DataVector<EnergyCMXData>* modules,
+                            DataVector<CrateEnergy>* crates, float etaMax = 5.) = 0 ;
     virtual void crateSums(const DataVector<JetElement>* jetelements,
                            DataVector<CrateEnergy>* crates, int slice = -1) = 0;
     virtual void crateSums(const std::map<int, JetElement*>* jemap,

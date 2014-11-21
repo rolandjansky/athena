@@ -11,6 +11,7 @@ use AnalysisTriggerEvent AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
 use Identifier           Identifier-*           DetectorDescription
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 use TrigT1CaloEvent      TrigT1CaloEvent-*      Trigger/TrigT1
+use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
 #use TrigT1CaloUtils      TrigT1CaloUtils-*      Trigger/TrigT1
 
 #apply_pattern declare_joboptions files="*.py"

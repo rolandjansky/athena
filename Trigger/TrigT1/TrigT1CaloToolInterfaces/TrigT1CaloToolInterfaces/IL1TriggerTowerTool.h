@@ -14,6 +14,7 @@
 #ifndef IL1TRIGGERTOWERTOOL_H
 #define IL1TRIGGERTOWERTOOL_H
 
+#include <cstdint>
 #include <vector>
 
 #include "GaudiKernel/IAlgTool.h"
@@ -48,9 +49,11 @@ class IL1TriggerTowerTool : virtual public IAlgTool  {
                          std::vector<int> &et, std::vector<int> &bcidResults,
                          std::vector<int> &bcidDecisions) = 0;
 
+    virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
+                                    int bcid, float mu, std::vector<int_least16_t>& correctionOut) = 0;
+
     virtual void fir(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
     virtual void fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, std::vector<int> &output) = 0;
-    virtual void fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, int firPed, int iEta, int iBCID, int layer, std::vector<int> &output) = 0;
     virtual void dropBits(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
     virtual void dropBits(const std::vector<int> &fir, unsigned int first, std::vector<int> &output) = 0;
     virtual void etRange(const std::vector<int> &et, const L1CaloCoolChannelId& channelId, std::vector<int> &output) = 0;
