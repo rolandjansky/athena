@@ -4,12 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.h 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: TriggerTowerCnvTool.h 630277 2014-11-21 19:48:39Z vscharf $
 #ifndef XAODTRIGL1CALOCNV_TRIGGERTOWERCNVTOOL_H
 #define XAODTRIGL1CALOCNV_TRIGGERTOWERCNVTOOL_H
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
 #include "xAODTrigL1CaloCnv/ITriggerTowerCnvTool.h"
@@ -24,8 +25,8 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576328 $
-    * $Date: 2013-12-19 17:09:32 +0100 (Thu, 19 Dec 2013) $
+    * $Revision: 630277 $
+    * $Date: 2014-11-21 20:48:39 +0100 (Fri, 21 Nov 2014) $
     */
    class TriggerTowerCnvTool : public AthAlgTool,
                                public virtual ITriggerTowerCnvTool {
@@ -41,7 +42,6 @@ namespace xAODMaker {
       /// Function that fills an existing xAOD::EmTauRoIContainer
       virtual StatusCode convert( const DataVector<LVL1::TriggerTower>* esd,
                                   xAOD::TriggerTowerContainer* xaod );
-
    }; // class TriggerTowerCnvTool
 
 } // namespace xAODMaker

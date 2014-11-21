@@ -1,4 +1,4 @@
-# $Id: xAODTrigL1CaloCnv_jobOptions.py 576328 2013-12-19 16:09:32Z morrisj $
+# $Id: xAODTrigL1CaloCnv_jobOptions.py 575898 2013-12-17 13:58:54Z morrisj $
 
 # Set up the reading of a file:
 FNAME = "ESD.pool.root"

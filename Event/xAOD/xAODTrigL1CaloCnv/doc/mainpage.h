@@ -7,8 +7,8 @@
 
    @author John Morris <john.morris@cern.ch>
 
-   $Revision: 576328 $
-   $Date: 2013-12-19 17:09:32 +0100 (Thu, 19 Dec 2013) $
+   $Revision: 575874 $
+   $Date: 2013-12-17 13:39:55 +0100 (Tue, 17 Dec 2013) $
 
    @section xAODTrigL1CaloCnvOverview Overview
 

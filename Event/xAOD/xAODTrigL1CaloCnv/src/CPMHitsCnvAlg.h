@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMHitsCnvAlg.h 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: CPMHitsCnvAlg.h 576052 2013-12-18 09:13:50Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_CPMHITSCNVALG_H
 #define XAODTRIGL1CALOCNV_CPMHITSCNVALG_H
 
@@ -27,8 +27,8 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576328 $
-    * $Date: 2013-12-19 17:09:32 +0100 (Thu, 19 Dec 2013) $
+    * $Revision: 576052 $
+    * $Date: 2013-12-18 10:13:50 +0100 (Wed, 18 Dec 2013) $
     */
    class CPMHitsCnvAlg : public AthAlgorithm {
 

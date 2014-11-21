@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMRoICnvTool.cxx 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: CMMRoICnvTool.cxx 576007 2013-12-17 18:07:37Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CMMRoI.h"

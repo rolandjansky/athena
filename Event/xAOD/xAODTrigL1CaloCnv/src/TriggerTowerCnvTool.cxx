@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.cxx 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: TriggerTowerCnvTool.cxx 630277 2014-11-21 19:48:39Z vscharf $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -12,12 +12,24 @@
 // Local include(s):
 #include "TriggerTowerCnvTool.h"
 
+namespace {
+  template <typename T>
+  std::vector<T> convertVector(const std::vector<int>& in) {
+    std::vector<T> result;
+    for(auto i : in) {
+      result.push_back(static_cast<T>(i));
+    }
+    return result;
+  }
+}
+
 namespace xAODMaker {
 
    TriggerTowerCnvTool::TriggerTowerCnvTool( const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent )
-      : AthAlgTool( type, name, parent ) {
+      : AthAlgTool( type, name, parent )
+   {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< ITriggerTowerCnvTool >( this );
@@ -51,35 +63,47 @@ namespace xAODMaker {
       }
 
       // Loop over the ESD objects:     
-      TriggerTowerCollection::const_iterator itr = esd->begin();
-      TriggerTowerCollection::const_iterator end = esd->end();
-      for( ; itr != end; ++itr ) {
-        
-        xAOD::TriggerTower* x = new xAOD::TriggerTower();
+      for( const auto tt : *esd) {
+      // TriggerTowerCollection::const_iterator itr = esd->begin();
+      // TriggerTowerCollection::const_iterator end = esd->end();
+      // for( ; itr != end; ++itr ) {
+        // EM
+        xAOD::TriggerTower* x = new xAOD::TriggerTower;
         xaod->push_back( x );
-        
-        x->setCoord( (*itr)->eta() , (*itr)->phi() );
-        x->setKey( (*itr)->key() );
-        x->addEM(
-                 (*itr)->emADC(),
-                 (*itr)->emLUT(),
-                 (*itr)->emBCIDvec(),
-                 (*itr)->emBCIDext(),
-                 (*itr)->emError(),
-                 (*itr)->emPeak(),
-                 (*itr)->emADCPeak()
-                );
-        
-        x->addHad(
-                 (*itr)->hadADC(),
-                 (*itr)->hadLUT(),
-                 (*itr)->hadBCIDvec(),
-                 (*itr)->hadBCIDext(),
-                 (*itr)->hadError(),
-                 (*itr)->hadPeak(),
-                 (*itr)->hadADCPeak()
-                 );        
-        
+
+        x->initialize(0u, // coolId
+                      0u, // layer
+                      tt->eta(), // eta
+                      tt->phi(), // phi
+                      convertVector<uint_least8_t>(tt->emLUT()), // lut_cp
+                      convertVector<uint_least8_t>(tt->emLUT()),  // lut_jep
+                      std::vector<int_least16_t>(tt->emLUT().size(), 0), // correction
+                      std::vector<uint_least8_t>(tt->emLUT().size(), 0u), // correnctionEnabled
+                      convertVector<uint_least8_t>(tt->emBCIDvec()), // bcidVec
+                      convertVector<uint_least16_t>(tt->emADC()), // adc
+                      convertVector<uint_least8_t>(tt->emBCIDext()), //bcidExt
+                      static_cast<uint_least16_t>(tt->emError()), // error
+                      static_cast<uint_least8_t>(tt->emPeak()), // peak
+                      static_cast<uint_least8_t>(tt->emADCPeak())); //adcPeak
+
+        // HAD
+        x = new xAOD::TriggerTower;
+        xaod->push_back( x );
+
+        x->initialize(0u,
+                      1u,
+                      tt->eta(),
+                      tt->phi(),
+                      convertVector<uint_least8_t>(tt->hadLUT()),
+                      convertVector<uint_least8_t>(tt->hadLUT()), 
+                      std::vector<int_least16_t>(tt->hadLUT().size(), 0),
+                      std::vector<uint_least8_t>(tt->hadLUT().size(), 0u),
+                      convertVector<uint_least8_t>(tt->hadBCIDvec()),
+                      convertVector<uint_least16_t>(tt->hadADC()),
+                      convertVector<uint_least8_t>(tt->hadBCIDext()),
+                      static_cast<uint_least16_t>(tt->hadError()),
+                      static_cast<uint_least8_t>(tt->hadPeak()),
+                      static_cast<uint_least8_t>(tt->hadADCPeak()));
       }      
       // Return gracefully:
       return StatusCode::SUCCESS;

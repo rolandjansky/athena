@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMEtSumsCnvTool.cxx 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: CMMEtSumsCnvTool.cxx 575995 2013-12-17 16:56:45Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CMMEtSumsCollection.h"

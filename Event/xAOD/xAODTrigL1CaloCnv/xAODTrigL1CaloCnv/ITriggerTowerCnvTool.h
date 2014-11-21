@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITriggerTowerCnvTool.h 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: ITriggerTowerCnvTool.h 576327 2013-12-19 16:08:56Z morrisj $
 #ifndef XAODTRIGL1CALOCNV_ITRIGGERTOWERCNVTOOL_H
 #define XAODTRIGL1CALOCNV_ITRIGGERTOWERCNVTOOL_H
 
@@ -34,8 +34,8 @@ namespace xAODMaker {
     *
     * @author John Morris <john.morris@cern.ch>
     *
-    * $Revision: 576328 $
-    * $Date: 2013-12-19 17:09:32 +0100 (Thu, 19 Dec 2013) $
+    * $Revision: 576327 $
+    * $Date: 2013-12-19 17:08:56 +0100 (Thu, 19 Dec 2013) $
     */
    class ITriggerTowerCnvTool : public virtual IAlgTool {
    public:

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTowerCnvTool.cxx 576328 2013-12-19 16:09:32Z morrisj $
+// $Id: CPMTowerCnvTool.cxx 576327 2013-12-19 16:08:56Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CPMTowerCollection.h"
