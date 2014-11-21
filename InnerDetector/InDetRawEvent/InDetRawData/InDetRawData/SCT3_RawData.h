@@ -30,10 +30,7 @@ public:
 
   // Constructor with parameters:
   SCT3_RawData(const Identifier rdoId, const unsigned int word, 
-	       const std::vector<int>* errorHit);
-
-  SCT3_RawData(const Identifier rdoId, const unsigned int word, 
-	       std::vector<int>&& errorHit);
+	       std::vector<int>* errorHit);
 
   // Destructor:
   virtual ~SCT3_RawData();
@@ -44,6 +41,9 @@ public:
 
   // decode group of strips
   virtual int getGroupSize() const;
+
+  // decode strip number
+  virtual int getStrip() const;
 
   // decode time bin information for the 3 consecutive bunch crossings
   // This information is stored in 3 bits where the most significant bit
@@ -58,7 +58,7 @@ public:
   bool FirstHitError() const;
   bool SecondHitError() const;
 
-  const std::vector<int>& getErrorCondensedHit() const;
+  std::vector<int> getErrorCondensedHit();
 
 public:
   // public default constructor needed for I/O, but should not be
@@ -82,6 +82,13 @@ inline int SCT3_RawData::getGroupSize() const
 {
   return (m_word & 0x7FF);
 }
+
+//decode strip information
+inline int SCT3_RawData::getStrip() const
+{
+  return ((m_word >> 11) & 0x7FF);
+}
+
 
 //decode time bin information
 inline int SCT3_RawData::getTimeBin() const
@@ -124,7 +131,7 @@ inline bool SCT3_RawData::SecondHitError() const
 // returns a vector where each element is a number of the strip in 
 // that group (starting at zero) with an error in:
 
-inline const std::vector<int>& SCT3_RawData::getErrorCondensedHit() const
+inline std::vector<int> SCT3_RawData::getErrorCondensedHit()
 {
   return m_errorCondensedHit;
 }

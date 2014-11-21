@@ -44,12 +44,6 @@ unsigned int InDetRawData::getWord() const
 }
 
 
-void InDetRawData::merge (const InDetRawData& other)
-{
-  m_word |= other.m_word;
-}
-
-
 MsgStream& operator << ( MsgStream& sl, const InDetRawData& rdo) {
   sl << " Identifier " << rdo.identify() << " word " << rdo.getWord();
   return sl;
