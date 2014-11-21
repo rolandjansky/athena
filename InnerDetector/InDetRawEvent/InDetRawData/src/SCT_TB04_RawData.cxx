@@ -18,7 +18,17 @@
 // default constructor
 SCT_TB04_RawData::SCT_TB04_RawData() :
   SCT_RDORawData(Identifier(), 0) //call base-class constructor
-{}
+{
+	m_event = 0;
+  m_fragment_type = 0;
+  m_size = 0; 
+  m_word_error_count = 0;
+  m_event_count = 0;
+  m_onlineId = 0;
+  for(unsigned int i(0);i!=20;++i){
+    m_errorCondensedHit[i]=0;
+  }
+}
 
 // Constructor with parameters:
 // Mustard constructor
@@ -33,13 +43,21 @@ SCT_TB04_RawData::SCT_TB04_RawData(const Identifier rdoId, const unsigned int wo
   m_size = Size; 
   m_word_error_count = WordErrorCount;
   m_event_count = EventCount;
-  m_onlineId = onlineId;  
+  m_onlineId = onlineId;
+  for(unsigned int i(0);i!=20;++i){
+    m_errorCondensedHit[i]=0;
+  }
 }
 
 // ROD constructor
 SCT_TB04_RawData::SCT_TB04_RawData(const Identifier rdoId, const unsigned int word, const unsigned int onlineId,  float errorhit[20]) :
   SCT_RDORawData( rdoId, word) //call base-class constructor
 {
+  m_event = 0;
+  m_fragment_type = 0;
+  m_size = 0; 
+  m_word_error_count = 0;
+  m_event_count = 0;
   m_onlineId = onlineId; 
   for (int i=0;i<20;i++){
     m_errorCondensedHit[i] = errorhit[i];

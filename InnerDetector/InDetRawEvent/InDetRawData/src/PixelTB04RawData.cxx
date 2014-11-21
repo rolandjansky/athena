@@ -18,7 +18,10 @@
 // default constructor
 PixelTB04RawData::PixelTB04RawData() :
   PixelRDORawData( Identifier(), 0) //call base-class constructor
-{}
+{
+  m_BCID=0;
+  m_LVL1ID=0;
+}
 
 // Constructor with parameters:
 PixelTB04RawData::PixelTB04RawData(const Identifier rdoId, 
@@ -38,7 +41,6 @@ PixelTB04RawData::PixelTB04RawData(const Identifier rdoId,
 }
 
 // Destructor:
-//should I be destructing something here?
 PixelTB04RawData::~PixelTB04RawData()
 {}
 

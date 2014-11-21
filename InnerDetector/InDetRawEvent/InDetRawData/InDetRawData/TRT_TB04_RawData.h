@@ -32,31 +32,22 @@ public:
   // offline hashId of the readout element,
   // the word
   TRT_TB04_RawData(const Identifier rdoId, const unsigned int word);
-  // New constructor to have time offset into accout
+  /// New constructor to have time offset into account
   TRT_TB04_RawData(const Identifier rdoId, const unsigned int word, const unsigned int timeword);
 
   // Destructor:
   virtual ~TRT_TB04_RawData();
 
-    // High level threshold:
+  /// High level threshold:
   virtual bool highLevel() const;
 
-    // Time over threshold in ns for valid digits; zero otherwise:
+  /// Time over threshold in ns for valid digits; zero otherwise:
   virtual double timeOverThreshold() const;
 
     // drift time in bin
   virtual int driftTimeBin() const;
 
   unsigned int getTrigType() const;
-
-  ///////////////////////////////////////////////////////////////////
-  // Virtual methods
-  ///////////////////////////////////////////////////////////////////
-
-
-  ///////////////////////////////////////////////////////////////////
-  // Static methods:
-  ///////////////////////////////////////////////////////////////////
 
   // Create a new TRT_TB04_RawData and return a pointer to it:
   //  static TRT_TB04_RawData *newObject(const Identifier rdoId, const unsigned int word);

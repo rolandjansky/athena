@@ -18,7 +18,15 @@
 // default constructor
 SCT_TB03_RawData::SCT_TB03_RawData() :
   SCT_RDORawData(Identifier(), 0) //call base-class constructor
-{}
+{
+	m_event = 0;
+  m_fragment_type = 0;
+  m_size = 0; 
+  m_word_error_count = 0;
+  m_event_count = 0;
+  m_tbin = 0;
+  m_stream = 0;  
+}
 
 // Constructor with parameters:
 SCT_TB03_RawData::SCT_TB03_RawData(const Identifier rdoId, const unsigned int word, 

@@ -19,13 +19,17 @@
 // default constructor
 TRT_TB04_RawData::TRT_TB04_RawData() :
   TRT_RDORawData(Identifier(), 0) //call base-class constructor
-{}
+{
+	m_timeword = 0;
+}
 
 // Constructor with parameters:
 TRT_TB04_RawData::TRT_TB04_RawData(const Identifier rdoId,
                            const unsigned int word) :
   TRT_RDORawData( rdoId, word) //call base-class constructor
-{}
+{
+	m_timeword = 0;
+}
 
 // Constructor with parameters:
 // 
