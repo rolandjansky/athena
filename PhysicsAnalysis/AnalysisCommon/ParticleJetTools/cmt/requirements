@@ -6,6 +6,7 @@ manager Andreas Wildauer <andreas.wildauer@cern.ch>
 use AtlasPolicy          AtlasPolicy-*
 use GaudiInterface       GaudiInterface-*        External
 use AthenaBaseComps      AthenaBaseComps-*       Control
+use JetRec		 JetRec-*		 Reconstruction/Jet
 use AnalysisTools        AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
 use JetTagInfo           JetTagInfo-*            PhysicsAnalysis/JetTagging
 use EventPrimitives      EventPrimitives-*       Event
@@ -32,7 +33,7 @@ end_private
 
 #library ParticleJetTools *.cxx components/*.cxx
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="HadronUtils.cxx JetQuarkLabel.cxx ParticleToJetAssociator.cxx CopyTruthParticles.cxx"
+apply_pattern dual_use_library files="HadronUtils.cxx JetQuarkLabel.cxx JetConeLabeling.cxx ParticleToJetAssociator.cxx CopyTruthParticles.cxx CopyFlavorLabelTruthParticles.cxx CopyBosonTopLabelTruthParticles.cxx CopyTruthPartons.cxx JetPartonTruthLabel.cxx"
 apply_pattern declare_joboptions files="*.py"
 
 #private

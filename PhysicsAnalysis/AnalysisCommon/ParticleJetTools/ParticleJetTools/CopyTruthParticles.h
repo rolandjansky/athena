@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRUTHTAGINPUTS_COPYTRUTHPARTICLES_H
-#define TRUTHTAGINPUTS_COPYTRUTHPARTICLES_H
+#ifndef COPYTRUTHPARTICLES_H
+#define COPYTRUTHPARTICLES_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODTruth/TruthParticle.h"
@@ -23,15 +23,14 @@ public:
   //@}
 
   /// Classifier function(s)
-  bool classify(const xAOD::TruthParticle* tp);
+  virtual bool classify(const xAOD::TruthParticle* tp) = 0;
 
 
-private:
+protected:
 
   /// Name of output collection
   std::string m_outputname;
-  /// Particle selection mode
-  std::string m_ptype;
+
   /// Minimum pT for particle selection (in MeV)
   double m_ptmin;
 
