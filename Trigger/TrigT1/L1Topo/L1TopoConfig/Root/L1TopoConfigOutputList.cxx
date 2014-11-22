@@ -3,14 +3,26 @@
 */
 
 #include "L1TopoConfig/L1TopoConfigOutputList.h"
-
-#include "boost/foreach.hpp"
+#include "L1TopoCommon/Exception.h"
 
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 using namespace TXC;
+
+
+set<string> triggernames;
+set<unsigned int> triggercounters;
+
+void
+TriggerLine::calcCounter() { 
+   m_counter = 64 * m_module + 16 * m_fpga + 32 * m_clock + m_bit;
+   if(m_counter>191) {
+      TCS_EXCEPTION("Trigger line '" << *this << "' has illegal counter " << m_counter);
+   }
+}
 
 
 void
@@ -21,7 +33,22 @@ L1TopoConfigOutputList::addOutputListElement(const OutputListElement & output) {
 
 void
 L1TopoConfigOutputList::addTriggerLine(const TriggerLine & trigger) {
+
+   auto insname = triggernames.insert(trigger.name());
+   if(!insname.second)
+      TCS_EXCEPTION("Trigger line '" << trigger.name() << "' has been defined more than once");
+
+   auto inscount = triggercounters.insert(trigger.counter());
+   if(!inscount.second) {
+      string triggerWithSameCounter("");
+      for(auto & tl : m_triggerlines)
+         if(tl.counter() == trigger.counter())
+            triggerWithSameCounter = tl.name();
+      TCS_EXCEPTION("Trigger line '" << trigger.name() << "' is on the same output line (" << trigger.counter() << ") as trigger line '" << triggerWithSameCounter << "'");
+   }
+
    m_triggerlines.push_back(trigger);
+   
 }
 
 bool

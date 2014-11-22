@@ -4,7 +4,8 @@ package L1TopoConfig
 
 use  DetCommonPolicy    *
 use  Boost              *   LCG_Interfaces
-use L1TopoCommon        *   Trigger/TrigT1/L1Topo
+use  L1TopoCommon       *   Trigger/TrigT1/L1Topo
+use  TrigConfBase       *   Trigger/TrigConfiguration
 
 private
 # Trigger dependencies

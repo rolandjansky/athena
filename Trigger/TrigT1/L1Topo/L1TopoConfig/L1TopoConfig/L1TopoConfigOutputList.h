@@ -37,7 +37,7 @@ namespace TXC {
       unsigned int        fpga()     const { return m_fpga; }
       unsigned int        clock()    const { return m_clock; }
       unsigned int        bit()      const { return m_bit; }
-      unsigned int        counter()  const { return m_counter; }
+      unsigned int        counter()  const { return m_counter; } // unique counter between 0 and 191 - to be used everywhere
 
    private:
       std::string  m_name{""};
@@ -47,9 +47,9 @@ namespace TXC {
       unsigned int m_fpga{0};
       unsigned int m_clock{0};
       unsigned int m_bit{0};
-
-      void calcCounter() { m_counter = 64 * m_module + 32 * m_fpga + 16 * m_clock + m_bit; }
       unsigned int m_counter{0};
+
+      void calcCounter();
 
    };
 

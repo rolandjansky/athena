@@ -12,11 +12,11 @@
 #ifndef L1TOPOXMLPARSER_HPP
 #define L1TOPOXMLPARSER_HPP
 
-// L1Topo libraries
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include "L1TopoConfig/L1TopoConfigAlg.h"
 #include "L1TopoConfig/L1TopoMenu.h"
 
-// cpp libraries
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -28,7 +28,7 @@
 
 namespace TXC {
 
-   class L1TopoXMLParser {
+   class L1TopoXMLParser : public TrigConf::TrigConfMessaging {
   
    public:
 

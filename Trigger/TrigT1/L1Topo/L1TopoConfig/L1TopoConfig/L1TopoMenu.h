@@ -15,6 +15,11 @@
 #include "L1TopoConfig/L1TopoConfigOutputList.h"
 #include "L1TopoConfig/L1TopoConfigGlobal.h"
 
+namespace TrigConf {
+   class L1TopoConfig;
+   class L1TopoMenuLoader;
+}
+
 namespace TXC {
   
    class L1TopoMenu {
@@ -40,6 +45,7 @@ namespace TXC {
       // get menu attributes
       const std::string & getName() const {return m_name; }
       const std::string & getVersion() const {return m_version; }
+      const unsigned int& getSMK() const {return m_smk; }
 
 
       // accessors
@@ -54,6 +60,7 @@ namespace TXC {
       //! \brief set menu attributes
       void setName(const std::string & name) { m_name = name; }
       void setVersion(const std::string & version) {m_version = version; }
+      void setSMK(const unsigned int& smk) {m_smk = smk; }
     
       //! \brief add algorithm
       void addAlgorithm(const TXC::L1TopoConfigAlg &alg);
@@ -70,17 +77,21 @@ namespace TXC {
 
       L1TopoMenu& operator=(L1TopoMenu&& o);
       
+      void writeXML(const std::string& xmlfile);
 
    private:
 
       L1TopoMenu& operator=(const L1TopoMenu&) {return *this;}
 
       friend class L1TopoXMLParser;
+      friend class TrigConf::L1TopoConfig;
+      friend class TrigConf::L1TopoMenuLoader;
 
       TCS::StatusCode setTriggerList();
 
       std::string m_name{""};
       std::string m_version{""};
+      unsigned int m_smk;
 
       // vectors of menu objects
       std::vector<TXC::L1TopoConfigAlg> m_algos;

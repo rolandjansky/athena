@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 using namespace TXC;
@@ -91,6 +92,7 @@ void TXC::L1TopoConfigAlg::addFixedParameter(const std::string &name, const std:
 
 void TXC::L1TopoConfigAlg::addParameter(const std::string &name, const std::string &value, unsigned int position, unsigned int selection) {
   m_variableParameters.push_back( RegisterParameter( name, value, position, selection));
+  std::sort(m_variableParameters.begin(),m_variableParameters.end(),[](TXC::RegisterParameter r, TXC::RegisterParameter r2){ return (r.position < r2.position);});
 }
 
 
@@ -98,11 +100,11 @@ void TXC::L1TopoConfigAlg::addParameter(const std::string &name, const std::stri
 std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigAlg &alg) {
 
   if(alg.isSortAlg()) {
-     o << "Sorting algorithm " << alg.type() << "/" << alg.name() << endl;
+     o << "Sorting algorithm " << alg.algoID() << " : " << alg.type() << "/" << alg.name() << endl;
      o << "  Input  : " << alg.m_inputElements[0].value << endl;
      o << "  Output : " << alg.m_outputElements[0].value << endl;
   } else {
-     o << "Decision algorithm " << alg.type() << "/" << alg.name() << endl;
+     o << "Decision algorithm " << alg.algoID() << " : " << alg.type() << "/" << alg.name() << endl;
      for(TXC::InputElement ie: alg.m_inputElements)
         o << "  Input " << ie.position << " : " << ie.value << endl;
      for(TXC::OutputElement oe: alg.m_outputElements)

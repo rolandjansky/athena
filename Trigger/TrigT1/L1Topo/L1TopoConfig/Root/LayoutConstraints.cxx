@@ -7,7 +7,7 @@
 
 
 // Maximum number of components that require parameters
-unsigned int TCS::LayoutConstraints::g_maxComponents = 70;
+unsigned int TCS::LayoutConstraints::g_maxComponents = 100;
 
 // Max number of TOBs to be received by L1Topo
 unsigned int TCS::LayoutConstraints::g_maxJets = 48;
@@ -18,4 +18,4 @@ unsigned int TCS::LayoutConstraints::g_maxInclJets = 8;
 unsigned int TCS::LayoutConstraints::g_maxInclClusters = 8;
 
 // Maximum number of parameters per algorithm
-unsigned int TCS::LayoutConstraints::g_maxParams = 10;
+unsigned int TCS::LayoutConstraints::g_maxParams = 20;

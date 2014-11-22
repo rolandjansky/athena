@@ -26,7 +26,8 @@ using boost::property_tree::ptree;
 namespace pt = boost::property_tree;
 
 
-L1TopoXMLParser::L1TopoXMLParser() 
+L1TopoXMLParser::L1TopoXMLParser() :
+   TrigConfMessaging("L1TopoXMLParser")
 {}
 
 L1TopoXMLParser::~L1TopoXMLParser()
@@ -50,7 +51,7 @@ L1TopoXMLParser::readConfiguration(const std::string & inputfile) {
    m_menuPT = inputTree.get_child("TOPO_MENU");
 
    m_isValidConfigurtion = true;
-   cout << "Read " << inputfile << " successfully!" << endl;
+   TRG_MSG_INFO("Read " << inputfile << " successfully!");
 }
 
 
@@ -67,31 +68,49 @@ void TXC::L1TopoXMLParser::parseConfiguration() {
       ptree menuElement = x.second;
 
       // get branch attributes
-      if(menuElementName=="OutputList") {
+      if( menuElementName=="OutputList" ) {
+
          setOutputListParameters(menuElement);
-      } else if(menuElementName=="TopoConfig") {
+
+      } 
+
+      else if( menuElementName=="TopoConfig" ) {
+
          setTopoConfigParameters(menuElement);
-      } else if(menuElementName=="SortAlgo") {
+
+      }
+
+      else if( menuElementName=="SortAlgo" ) {
+
          TXC::L1TopoConfigAlg algo( getAttribute(menuElement,"name"), getAttribute(menuElement,"type") ); 
-         algo.setSortAlg(true);
-         setAlgoParameters(menuElement, algo);
-         algo.setAlgOutput(getAttribute(menuElement,"output"));
+         algo.setAlgKind( L1TopoConfigAlg::SORT );
+         setAlgoParameters( menuElement, algo );
+         algo.setAlgOutput( getAttribute(menuElement,"output") );
+         algo.setAlgoID( getUIntAttribute(menuElement, "algoId") );
          m_menu.addAlgorithm(algo);
-      } else if(menuElementName=="DecisionAlgo") {
-         TXC::L1TopoConfigAlg algo( getAttribute(menuElement,"name"), getAttribute(menuElement,"type") ); 
-         algo.setDecAlg(true);
+
+      }
+
+      else if( menuElementName=="DecisionAlgo" ) {
+
+         L1TopoConfigAlg algo( getAttribute(menuElement,"name"), getAttribute(menuElement,"type") ); 
+         algo.setAlgKind( L1TopoConfigAlg::DECISION );
          setAlgoParameters(menuElement, algo);
          algo.setAlgoID( getUIntAttribute(menuElement, "algoId") );
          m_menu.addAlgorithm(algo);
+
       } else {
-         cerr << "Unknown element" << menuElementName << endl;
+         TRG_MSG_FATAL("Unknown element" << menuElementName);
       }
    }
-   cout << "Parsing Successful!" << endl;
 
    m_menu.setTriggerList();
 
-   //m_menu.print();
+   TRG_MSG_INFO("Parsing Successful!");
+
+   if(msg().level() <= TrigConf::MSGTC::INFO)
+      m_menu.print();
+
 }
 
 

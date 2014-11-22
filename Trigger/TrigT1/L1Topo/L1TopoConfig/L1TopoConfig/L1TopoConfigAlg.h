@@ -55,6 +55,8 @@ namespace TXC {
 
    class L1TopoConfigAlg {
    public:
+
+      enum AlgKind { NONE = 0, SORT = 1, DECISION = 2 };
      
       // default constructor
       L1TopoConfigAlg(const std::string & name, const std::string & type); 
@@ -69,8 +71,8 @@ namespace TXC {
 
       const std::string & type() const { return m_type; }
       const std::string & output() const { return m_output; }
-      bool isSortAlg() const { return m_sortingAlg; }
-      bool isDecAlg() const { return m_decisionAlg; }
+      bool isSortAlg() const { return m_kind == SORT; }
+      bool isDecAlg() const { return m_kind == DECISION; }
 
       // accessors for algo inputs
       const std::vector<InputElement> & getInputs() const { return m_inputElements; }
@@ -92,8 +94,7 @@ namespace TXC {
       void setAlgType(const std::string & type) { m_type = type; }
       void setAlgOutput(const std::string & output) { m_output = output; }
       void setAlgoID( unsigned int algoID) { m_algoID = algoID; }
-      void setSortAlg(bool sort) { m_sortingAlg = sort; }
-      void setDecAlg(bool dec) { m_decisionAlg = dec; }
+      void setAlgKind(AlgKind kind) { m_kind = kind; }
 
       // algorithm parameter setters
       void addInput(const std::string & name, const std::string &value, unsigned int position);
@@ -112,9 +113,7 @@ namespace TXC {
       std::string m_type {""};
       std::string m_output {""};
       unsigned int m_algoID {0};
-      bool m_sortingAlg {false};
-      bool m_decisionAlg {false};
-    
+      AlgKind m_kind { AlgKind::NONE };
 
       // parameter attributes
       std::vector<TXC::InputElement> m_inputElements;
