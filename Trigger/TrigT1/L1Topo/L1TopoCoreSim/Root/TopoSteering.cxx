@@ -28,10 +28,12 @@
 
 using namespace std;
 using namespace TCS;
+using namespace TrigConf;
 using boost::lexical_cast;
 
 
-TopoSteering::TopoSteering()
+TopoSteering::TopoSteering() :
+   TrigConfMessaging("TopoSteering")
 {}
 
 TopoSteering::~TopoSteering() {
@@ -60,10 +62,11 @@ TopoSteering::reset() {
 
    m_structure.reset();
 
-   GenericTOB::clearHeap();
    ClusterTOB::clearHeap();
    JetTOB::clearHeap();
    MuonTOB::clearHeap();
+   MetTOB::clearHeap();
+   GenericTOB::clearHeap();
    CompositeTOB::clearHeap();
 
    m_simulationResult.reset();
@@ -74,14 +77,17 @@ TopoSteering::reset() {
 
 StatusCode
 TopoSteering::initializeAlgorithms() {
-   cout << "L1 TopoSteering: initializing algorithms" << endl;
+   TRG_MSG_INFO("initializing algorithms");
    if( ! structure().isConfigured() ) {
       TCS_EXCEPTION("L1Topo Steering has not been configured, can't run")
    }
 
    for(auto conn: m_structure.connectors()) {
       TCS::ConfigurableAlg * alg = conn->algorithm();
-      if(alg) alg->initialize();
+      if(alg) {
+         TRG_MSG_INFO("initializing algorithm " << alg->name());
+         alg->initialize();
+      }
    }
 
    return TCS::StatusCode::SUCCESS;
@@ -91,34 +97,49 @@ TopoSteering::initializeAlgorithms() {
 StatusCode
 TopoSteering::executeEvent() {
 
-   cout << "L1 TopoSteering: start executing event" << endl;
+   TRG_MSG_INFO("L1 TopoSteering: start executing event " << m_evtCounter << "-----------------------------------");
    if( ! structure().isConfigured() ) {
-      TCS_EXCEPTION("L1Topo Steering has not been configured, can't run")
+      TRG_MSG_INFO("L1Topo Steering has not been configured, can't run");
+      TCS_EXCEPTION("L1Topo Steering has not been configured, can't run");
    }
 
+   inputEvent().print();
+         
    // execute all connectors
+   StatusCode sc = StatusCode::SUCCESS;
+   TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " connectors");
    for(auto outConn: m_structure.outputConnectors()) {
-      cout << "L1 TopoSteering: executing output decision " << outConn.first << endl;
-      executeConnector(outConn.second);
+      TRG_MSG_INFO("executing trigger line " << outConn.first);
+      sc |= executeConnector(outConn.second);
+      TRG_MSG_INFO("result of trigger line " << outConn.first << " : " << outConn.second->decision().decision());
    }   
+               
+   sc |= m_simulationResult.collectResult();
 
-   m_simulationResult.collectResult();
-   cout << "L1 TopoSteering: finished executing event" << endl;
-   return TCS::StatusCode::SUCCESS;
+   m_simulationResult.globalDecision().print();
+
+   TRG_MSG_INFO("finished executing event " << m_evtCounter++);
+   return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode
 TopoSteering::executeTrigger(const std::string & TrigName) {
-   if( ! structure().isConfigured() ) {
+   if( ! structure().isConfigured() )
       TCS_EXCEPTION("TopoSteering has not been configured, can't run");
-   }
    
    DecisionConnector * outConn = m_structure.outputConnector(TrigName);
-   
-   return executeConnector(outConn);
+
+   StatusCode sc = executeConnector(outConn);
+
+   m_simulationResult.collectResult(outConn);
+
+   return sc;
 }
+
+
+
 
 
 
@@ -131,13 +152,14 @@ TopoSteering::executeConnector(TCS::Connector *conn) {
   
    StatusCode sc(StatusCode::SUCCESS);
 
-   cout << "  ... executing connector '" << conn->name() << "'" << endl;
-
    if(conn->isInputConnector()) {
+      //TRG_MSG_DEBUG("  ... executing input connector '" << conn->name() << "'");
       sc = executeInputConnector(dynamic_cast<InputConnector*>(conn));
    } else if(conn->isSortingConnector()) {
+      //TRG_MSG_DEBUG("  ... executing sorting connector '" << conn->name() << "'");
       sc = executeSortingConnector(dynamic_cast<SortingConnector*>(conn));
    } else {
+      //TRG_MSG_DEBUG("  ... executing decision connector '" << conn->name() << "'");
       sc = executeDecisionConnector(dynamic_cast<DecisionConnector*>(conn));
    }
 
@@ -155,11 +177,12 @@ TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
    StatusCode sc(StatusCode::SUCCESS);
 
    // attaching data from inputEvent to input connector, depending on the configured input type
+
    const InputTOBArray * inputData = inputEvent().inputTOBs( conn->inputTOBType() );
 
    conn->attachOutputData( inputData );
 
-   cout << "  ... attaching input data '" << inputData->name() << "' of size " << inputData->size() << " to connector '" << conn->name() << "'" << endl;
+   TRG_MSG_DEBUG("  ... executing input connector '" << conn->name() << "' -> attaching '" << inputData->name() << "' of size " << inputData->size());
 
    return sc;
 }
@@ -181,7 +204,7 @@ TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
    sc &= executeSortingAlgorithm(alg, conn->inputConnector(), sortedOutput);
 
-   cout << "  ... attaching sorted data '" << sortedOutput->name() << "' of size " << sortedOutput->size() << " to connector '" << conn->name() << "'" << endl;
+   TRG_MSG_DEBUG("  ... executing sorting connector '" << conn->name() << "' -> attaching '" << sortedOutput->name() << "' of size " << sortedOutput->size());
 
    conn->attachOutputData(sortedOutput);
 
@@ -196,14 +219,13 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
    StatusCode sc = StatusCode::SUCCESS;
   
    // execute all the prior connectors
-   for( TCS::Connector* inputConn: conn->inputConnectors() ) {
+   for( TCS::Connector* inputConn: conn->inputConnectors() )
       sc &= executeConnector(inputConn);
-   }
   
    // execute
    TCS::DecisionAlg* alg = conn->decisionAlgorithm();
 
-   cout << "  ... executing decision connector '" << conn->name() << "' with " << conn->triggers().size() << " active trigger lines. The algorithm has " << alg->numberOutputBits() << " output bits." << endl;
+   // TRG_MSG_DEBUG("  ... executing decision connector '" << conn->name() << "' with " << conn->triggers().size() << " active trigger lines. The algorithm has " << alg->numberOutputBits() << " output bits.");
 
    // the output is one TOBArray per output line
    vector<TOBArray *> output( alg->numberOutputBits() );
@@ -213,9 +235,9 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
    sc &= executeDecisionAlgorithm(alg, conn->inputConnectors(), output, conn->m_decision);
 
-   cout << "  ... attaching output data to connector '" << conn->name() << "'" << endl;
+   TRG_MSG_DEBUG("  ... executing decision connector '" << conn->name() << "' -> attaching output data:");
    for(TOBArray const * outarr : output) {
-      cout << "      data '" << outarr->name() << "' of size " << outarr->size() << endl;
+      TRG_MSG_DEBUG("           data '" << outarr->name() << "' of size " << outarr->size());
    }
 
    conn->attachOutputData(output);
@@ -233,7 +255,7 @@ TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
                                       TCS::InputConnector* inputConnector,
                                       TCS::TOBArray * & sortedOutput) {
                                            
-   cout << "  ... executing sorting alg '" << alg->fullname() << "'" << endl;
+   TRG_MSG_DEBUG("  ... executing sorting alg '" << alg->fullname() << "'");
 
    const InputTOBArray * input = inputConnector->outputData();
 
@@ -249,8 +271,8 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
                                        const std::vector<Connector*> & inputConnectors,
                                        const std::vector<TCS::TOBArray *> & output,
                                        TCS::Decision & decision) {
-   
-   cout << "  ... executing decision alg '" << alg->fullname() << "'" << endl;
+
+   TRG_MSG_DEBUG("  ... executing decision alg '" << alg->fullname() << "'");
 
    if(inputConnectors.size()<1) {
       TCS_EXCEPTION("L1Topo Steering: Decision algorithm expects at least 1 input array but got 0");
@@ -288,10 +310,35 @@ TopoSteering::printDebugInfo() {
 
 void
 TopoSteering::printConfiguration(std::ostream & o) const {
-   o << "TopoSteering configuration" << endl
-     << "==========================" << endl;
+   o << "==========================" << endl
+     << "TopoSteering configuration" << endl
+     << "--------------------------" << endl;
    structure().print(o);
+   o << "==========================" << endl;
 }
 
 
 
+void
+TopoSteering::setMsgLevel( TrigConf::MSGTC::Level lvl ) {
+
+   //const char* levelNames[TrigConf::MSGTC::NUM_LEVELS] = {"NIL","VERBOSE","DEBUG","INFO",
+   //                                                       "WARNING","ERROR","FATAL","ALWAYS"};
+   msg().setLevel( lvl );
+
+   inputEvent().msg().setLevel(lvl);
+
+   m_simulationResult.setMsgLevel( lvl );
+}
+
+void
+TopoSteering::setAlgMsgLevel( TrigConf::MSGTC::Level lvl ) {
+
+   m_AlgMsgLvl = lvl;
+
+   for( Connector * conn : m_structure.connectors() ) {
+      const ConfigurableAlg * alg = conn->algorithm();
+      if(alg==nullptr) continue;
+      alg->msg().setLevel(lvl);
+   }
+}

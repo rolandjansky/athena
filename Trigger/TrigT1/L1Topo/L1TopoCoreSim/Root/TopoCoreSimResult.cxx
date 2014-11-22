@@ -17,17 +17,44 @@
 using namespace std;
 using namespace TCS;
 
-TopoCoreSimResult::TopoCoreSimResult()
+TopoCoreSimResult::TopoCoreSimResult() :
+   TrigConfMessaging("TopoCoreSimResult")
 {}
 
 TopoCoreSimResult::~TopoCoreSimResult()
 {}
 
 
-StatusCode
-TopoCoreSimResult::collectResult() {
-   return m_globalDecision.collectDecision(m_outputConnectors);
+bool
+TopoCoreSimResult::triggerDecision(const std::string & triggerName) const {
+   auto x = m_triggerLocation.find(triggerName);
+   if( x == end(m_triggerLocation) )
+      TCS_EXCEPTION("No trigger with name '" << triggerName << "' defined");
+   return x->second->decision(triggerName);
 }
+
+const TCS::TOBArray*
+TopoCoreSimResult::triggerOutput(const std::string & triggerName) const {
+   auto x = m_triggerLocation.find(triggerName);
+   if( x == end(m_triggerLocation) )
+      TCS_EXCEPTION("No trigger with name '" << triggerName << "' defined");
+   return x->second->output(triggerName);
+}
+
+
+
+StatusCode
+TopoCoreSimResult::collectResult(TCS::DecisionConnector* outputConn) {
+   StatusCode sc = StatusCode::SUCCESS;
+   if (outputConn == nullptr ) {
+      sc = m_globalDecision.collectDecision(m_outputConnectors);
+   } else {
+      set<DecisionConnector*> c = { outputConn };
+      sc = m_globalDecision.collectDecision(c);
+   }
+   return sc;
+}
+
 
 StatusCode
 TopoCoreSimResult::reset() {
@@ -41,8 +68,15 @@ TopoCoreSimResult::setupFromMenu(const TXC::L1TopoMenu & menu,
 
    m_outputConnectorMap = outputConnectorMap;
 
-   for(auto & x : m_outputConnectorMap)
+   for(auto & x : m_outputConnectorMap) {
+      // fill the set
       m_outputConnectors.insert(x.second);
+
+      // fill the trigger line map (trigger name --> (TCS::DecisionConnector*,unsigned int index) )
+      for( const TXC::TriggerLine & trigger : x.second->triggers() ) {
+         m_triggerLocation[trigger.name()] = x.second;
+      }
+   }
 
    m_globalDecision.setTriggerLines(menu.getL1TopoConfigOutputList().getTriggerLines());
 
@@ -58,8 +92,10 @@ TCS::TopoCoreSimResult::output(const std::string & connName) const {
       if( conn->name() != connName ) continue;
       return conn->outputData();
    }
-   TCS_EXCEPTION("No connector with name '" << connName << "'")
-      return (*m_outputConnectors.begin())->outputData();
+
+   TCS_EXCEPTION("No connector with name '" << connName << "'");
+
+   return (*m_outputConnectors.begin())->outputData();
 }
 
 
@@ -80,4 +116,12 @@ operator<<(std::ostream& o, const TCS::TopoCoreSimResult & simRes) {
    }
 
    return o;
+}
+
+
+void
+TopoCoreSimResult::setMsgLevel( TrigConf::MSGTC::Level lvl ) {
+   msg().setLevel( lvl );
+
+   m_globalDecision.msg().setLevel( lvl );
 }

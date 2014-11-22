@@ -38,11 +38,15 @@ namespace TCS {
 
       const Decision & decision() const { return m_decision; }
 
+      bool decision(const std::string & trigger) const;
+
       const std::vector<TXC::TriggerLine> & triggers() const { return m_triggers; }
 
       // output data
       void attachOutputData(const std::vector<TOBArray *>&);
 
+      TOBArray const * output(const std::string & trigger) const;
+      
       const std::vector<TOBArray const *> & outputData() const { return m_outputData; }
       
    private: // functions

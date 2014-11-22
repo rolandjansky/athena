@@ -22,13 +22,38 @@ DecisionConnector::~DecisionConnector() {
    clearOutput();
 }
 
+bool
+TCS::DecisionConnector::decision(const std::string & trigger) const {
+   unsigned int index(0);
+   for(const TXC::TriggerLine & tl : m_triggers) {
+      if(tl.name() == trigger)
+         return m_decision.bit(index);
+      ++index;
+   }
+   TCS_EXCEPTION("Decision connector '" << name() << "' has no output trigger '" << trigger << "'");
+   return false;
+}
+
+
+TCS::TOBArray const *
+TCS::DecisionConnector::output(const std::string & trigger) const {
+   unsigned int index(0);
+   for(const TXC::TriggerLine & tl : m_triggers) {
+      if(tl.name() == trigger)
+         return m_outputData[index];
+      ++index;
+   }
+   TCS_EXCEPTION("Decision connector '" << name() << "' has no output trigger '" << trigger << "'");
+   return nullptr;
+}
+
 
 TCS::StatusCode
 TCS::DecisionConnector::clearOutput() {
    for(TOBArray const * x : m_outputData) {
       delete x;
-      x = 0;
    }
+   m_outputData.clear();
 
    // set decision to 0
    m_decision.reset();
@@ -53,7 +78,7 @@ DecisionConnector::attachOutputData(const std::vector<TOBArray *>& data) {
       TCS_EXCEPTION("Trying to attach data to decision connector '" << name() << "' which has already data attached");
    }
 
-   std::vector<TOBArray const *>  m_outputData;
+   //std::vector<TOBArray const *>  m_outputData;
    for(TOBArray * x : data)
       m_outputData.push_back( (TOBArray const *) x );
 }

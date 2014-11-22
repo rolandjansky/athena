@@ -2,6 +2,8 @@
 #include <vector>
 #include <stdint.h>
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoCoreSim/TopoASCIIReader.h"
@@ -11,6 +13,8 @@
 #include "L1TopoCoreSim/Connector.h"
 #include "L1TopoCoreSim/DecisionConnector.h"
 
+#include "L1TopoEvent/MetTOB.h"
+
 #include "TFile.h"
 #include "TH1.h"
 
@@ -18,16 +22,35 @@ using namespace std;
 
 int run(int argc, const char* argv[]) {
 
-
    if(argc<3) {
-      cout << "Please specify menu and data file:\n" << argv[0] << " <menu.xml> <data.txt>" << endl;
+      cout << "Please specify menu and data file:\n" << argv[0] << " <menu.xml> <data.txt> [INFO|DEBUG|WARNING] [INFO|DEBUG|WARNING]" << endl;
       return 1;
    }
 
+   TrigConf::MSGTC::Level msgLvl = TrigConf::MSGTC::WARNING;
+   TrigConf::MSGTC::Level algMsgLvl = TrigConf::MSGTC::WARNING;
+
+   if(argc>=4) {
+      string msgInput(argv[3]);
+      msgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
+      algMsgLvl = msgLvl;
+   }
+
+   if(argc>=5) {
+      string msgInput(argv[4]);
+      algMsgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
+   }
+
+   TrigConf::MsgStreamTC msg("TopoStandalone");
+   msg.setLevel( msgLvl );
+
    // read the menu
    TXC::L1TopoXMLParser XMLParser;
+   XMLParser.msg().setLevel( msgLvl );
    XMLParser.readConfiguration(argv[1]);
    XMLParser.parseConfiguration();
+
+   //XMLParser.menu().print();
 
    string filename = "L1TopoSimulation.root";
    if(argc>=4)
@@ -39,11 +62,26 @@ int run(int argc, const char* argv[]) {
    h[1] = new TH1F("DecisionModule2", "L1 Topo Decision (Module 2)", 64, 0, 64);
    h[2] = new TH1F("DecisionModule3", "L1 Topo Decision (Module 3)", 64, 0, 64);
 
+   const std::vector<TXC::TriggerLine> & topoTriggers = XMLParser.menu().getL1TopoConfigOutputList().getTriggerLines();
+   for(const TXC::TriggerLine tl : topoTriggers) {
+      h[tl.module()]->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
+   }
+   for(uint i=0; i<3; ++i)
+      h[i]->SetLabelSize(0.025);
+
+
+
    // instantiate steering
    TCS::TopoSteering steering;
    steering.setupFromConfiguration(XMLParser.takeMenu());
-   steering.printConfiguration(cout);
-   // steering.structure().printParameters(cout);
+
+   steering.setMsgLevel( msgLvl );
+
+   steering.setAlgMsgLevel( algMsgLvl );
+
+   //steering.printConfiguration(cout);
+
+   //steering.structure().printParameters(cout);
 
    steering.initializeAlgorithms();
 
@@ -59,19 +97,19 @@ int run(int argc, const char* argv[]) {
 
    // instantiate input event
    TCS::TopoInputEvent & inputEvent = steering.inputEvent();
+   inputEvent.msg().setLevel( msgLvl );
    reader.setInputEvent(&inputEvent);
 
+   //steering.simulationResult().globalDecision().msg().setLevel( TrigConf::MSGTC::INFO );
 
    // loop over the events
-   while(reader.getNextEvent()){
+   while(reader.getNextEvent()) {
 
-      cout << inputEvent << endl;
-    
+      msg << TrigConf::MSGTC::INFO << "=======================================================" << TrigConf::endmsgtc;
+
       steering.executeEvent();
 
       const TCS::GlobalDecision & globalDec = steering.simulationResult().globalDecision();
-
-      cout << globalDec << endl;
 
       for(unsigned int module=0; module<3; ++module)
          for(unsigned int trigger=0; trigger<64; ++trigger)
@@ -80,24 +118,25 @@ int run(int argc, const char* argv[]) {
       steering.reset();
 
    }
+   msg << TrigConf::MSGTC::INFO << "=======================================================" << TrigConf::endmsgtc;
   
    f->Write();
    f->Close();
 
    reader.printFileSummary();
   
-   return 1;
+   return 0;
 }
 
 
 int main(int argc, const char * argv[]) {
-  try {
-    return run(argc, argv);
-  }
-  catch(std::exception & e) {
-    cerr << "Caught exception: " << e.what() << endl;
-    return 1;
-  }
-  return 0;
+   try {
+      return run(argc, argv);
+   }
+   catch(std::exception & e) {
+      cerr << "Caught exception: " << e.what() << endl;
+      return 1;
+   }
+   return 0;
 }
 

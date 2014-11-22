@@ -19,19 +19,6 @@
 using namespace std;
 using namespace TCS;
  
-// vector<string> TCS::vectorize(const string& str) {
-//    vector<string> s;
-//    s.push_back(str);
-//    return s;
-// }
-
-// vector<string> TCS::vectorize2(const string& str1, const string & str2) {
-//    vector<string> s;
-//    s.push_back(str1);
-//    s.push_back(str2);
-//    return s;
-// }
-
 TCS::Connector::Connector( const std::string & name,
                            const std::vector<std::string> & inputs,
                            const std::string & algorithm,

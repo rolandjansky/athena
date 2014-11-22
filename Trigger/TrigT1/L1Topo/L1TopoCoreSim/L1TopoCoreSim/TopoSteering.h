@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
@@ -30,7 +32,7 @@ namespace TCS {
    class Decision;
    class DecisionAlg;
 
-   class TopoSteering {
+   class TopoSteering : public TrigConf::TrigConfMessaging {
    public:
      
       // default constructor
@@ -58,7 +60,7 @@ namespace TCS {
       // run the topo simulation
       StatusCode executeEvent();
       
-      StatusCode executeTrigger(const std::string & TrigName);
+      StatusCode executeTrigger(const std::string & triggerName);
 
       // resets the inputEvent, connectors (status, intermediate TOBs,
       // and decision of algs), and the simulation result
@@ -73,11 +75,12 @@ namespace TCS {
       
       void printConfiguration(std::ostream & o) const;
 
+      void setMsgLevel( TrigConf::MSGTC::Level lvl );
+
+      void setAlgMsgLevel( TrigConf::MSGTC::Level lvl );
 
       // in the meantime we have a mock configuration
       // StatusCode setupMockConfiguration();
-
-
 
    private:
 
@@ -105,6 +108,10 @@ namespace TCS {
       TopoCoreSimResult      m_simulationResult; // the result of the execution
 
       TopoSteeringStructure  m_structure;
+
+      unsigned int m_evtCounter = {1};
+      
+      TrigConf::MSGTC::Level m_AlgMsgLvl { TrigConf::MSGTC::WARNING };
 
    };
    

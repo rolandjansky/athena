@@ -25,7 +25,7 @@ namespace TCS {
 
       ~TopoSteeringStructure();
 
-      StatusCode setupFromMenu(const TXC::L1TopoMenu& menu);
+      StatusCode setupFromMenu(const TXC::L1TopoMenu& menu, bool debug = false);
 
       // accessors
       bool isConfigured() const { return m_isConfigured; }
@@ -56,7 +56,7 @@ namespace TCS {
 
       StatusCode linkConnectors();
 
-      StatusCode instantiateAlgorithms();
+      StatusCode instantiateAlgorithms(bool debug);
 
    private:
 
@@ -64,17 +64,13 @@ namespace TCS {
 
       std::vector<TCS::Connector*> m_connectors; // list of connectors
       
-      std::map<std::string, TCS::DecisionConnector*> m_outputLookup; // output connectors (subset of m_connectors)
+      std::map<std::string, TCS::DecisionConnector*> m_outputLookup; // output connectors (subset of m_connectors) by connector name
 
-      std::map<std::string, TCS::SortingConnector*> m_sortedLookup; // sorting connectors (subset of m_connectors)
+      std::map<std::string, TCS::SortingConnector*> m_sortedLookup; // sorting connectors (subset of m_connectors) by connector name
 
-      std::map<std::string, TCS::InputConnector*> m_inputLookup; // input connectors (subset of m_connectors)
+      std::map<std::string, TCS::InputConnector*> m_inputLookup; // input connectors (subset of m_connectors) by connector name
 
       std::vector<TCS::ParameterSpace*> m_parameters;
-
-//       std::vector<TCS::DecisionAlg*> m_algorithms;
-
-//       std::vector<TCS::SortingAlg*> m_sortingalgorithms;
       
    };
 

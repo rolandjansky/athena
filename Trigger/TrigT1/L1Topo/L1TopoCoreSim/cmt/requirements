@@ -12,6 +12,7 @@ use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L
 use  L1TopoInterfaces           L1TopoInterfaces-*              Trigger/TrigT1/L1Topo
 
 private
+use  TrigConfBase               TrigConfBase-*                  Trigger/TrigConfiguration
 use  L1TopoAlgorithms           L1TopoAlgorithms-*              Trigger/TrigT1/L1Topo
 use  L1TopoHardware             L1TopoHardware-*                Trigger/TrigT1/L1Topo
 use  Boost                      *                               LCG_Interfaces

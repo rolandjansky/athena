@@ -6,6 +6,8 @@
 #ifndef L1TopoCoreSimulation_GlobalDecision
 #define L1TopoCoreSimulation_GlobalDecision
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoConfig/L1TopoConfigOutputList.h"
 
@@ -27,10 +29,13 @@ namespace TCS {
    class Decision;
    class DecisionConnector;
 
-   class GlobalDecision {
+   class GlobalDecision : public TrigConf::TrigConfMessaging {
    public:
+      GlobalDecision();
 
       uint64_t decision(unsigned int module) const { return m_decision[module]; }
+
+      uint32_t decision(unsigned int module, unsigned int clock) const;
 
       bool passed(unsigned int module, unsigned int bit) const { return ( ( (uint64_t)0x1 << bit) & m_decision[module]) != 0; }
 
@@ -43,6 +48,8 @@ namespace TCS {
       StatusCode collectDecision(const std::set<DecisionConnector*> & outconn);
 
       StatusCode resetDecision();
+      
+      void print() const;
 
    private:
       friend std::ostream& ::operator<<(std::ostream&, const TCS::GlobalDecision &);

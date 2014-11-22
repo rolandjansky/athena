@@ -6,6 +6,8 @@
 #ifndef __L1TopoEvent__TopoCoreSimResult__
 #define __L1TopoEvent__TopoCoreSimResult__
 
+#include "TrigConfBase/TrigConfMessaging.h"
+
 #include <iostream>
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoCoreSim/GlobalDecision.h"
@@ -26,10 +28,14 @@ namespace TCS {
    class TOBArray;
    class DecisionConnector;
 
-   class TopoCoreSimResult {
+   class TopoCoreSimResult : public TrigConf::TrigConfMessaging {
    public:
       TopoCoreSimResult();
       ~TopoCoreSimResult();
+
+      bool triggerDecision(const std::string & triggerName) const;
+
+      const TCS::TOBArray* triggerOutput(const std::string & triggerName) const;
 
       const GlobalDecision& globalDecision() const { return m_globalDecision; }
 
@@ -37,17 +43,22 @@ namespace TCS {
 
       StatusCode setupFromMenu(const TXC::L1TopoMenu & menu, const std::map<std::string, TCS::DecisionConnector*>& outputConnectorMap);
 
-      StatusCode collectResult();
+      StatusCode collectResult(TCS::DecisionConnector* outputConn = nullptr );
 
       StatusCode reset();
+
+      void setMsgLevel( TrigConf::MSGTC::Level lvl );
 
    private:
       friend std::ostream& ::operator<<(std::ostream&, const TCS::TopoCoreSimResult &);
 
       GlobalDecision m_globalDecision;
 
-      // map to all decision algorithms for configuration and decision
+      // map from connector name to decision connectors
       std::map<std::string, TCS::DecisionConnector*> m_outputConnectorMap;
+
+      // map from trigger name to decision connectors
+      std::map<std::string, TCS::DecisionConnector*> m_triggerLocation;
 
       std::set<TCS::DecisionConnector*> m_outputConnectors;
 

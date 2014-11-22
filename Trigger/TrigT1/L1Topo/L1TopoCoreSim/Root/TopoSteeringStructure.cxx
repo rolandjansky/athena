@@ -64,6 +64,8 @@ TCS::TopoSteeringStructure::TopoSteeringStructure() :
 TopoSteeringStructure::~TopoSteeringStructure() {
    for( Connector* c: m_connectors ) 
       delete c;
+   for( ParameterSpace * ps : m_parameters )
+      delete ps;
 }
 
 
@@ -115,14 +117,17 @@ TCS::TopoSteeringStructure::printParameters(std::ostream & o) const {
 
 
 TCS::StatusCode
-TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
+TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu, bool debug) {
 
-   cout << "/***************************************************************************/" << endl
-        << "           L1Topo steering structure: configuring from L1 Topo Menu          " << endl
-        << "/***************************************************************************/" << endl;
+   if(debug)
+      cout << "/***************************************************************************/" << endl
+           << "           L1Topo steering structure: configuring from L1 Topo Menu          " << endl
+           << "/***************************************************************************/" << endl;
 
    set<TCS::inputTOBType_t> neededInputs;
-   cout << "... building sorting connectors" << endl;
+   if(debug)
+      cout << "... building sorting connectors" << endl;
+
    for( const TXC::L1TopoConfigAlg & configalgo: menu.getL1TopoConfigAlgs() ) {   
 
       if(!configalgo.isSortAlg()) continue;
@@ -135,14 +140,16 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
 
       // create connector
       SortingConnector * conn = new SortingConnector(configalgo.getInputNames()[0], configalgo.fullname(), configalgo.output());
-      cout << "Adding sorting connector " << "[" << *conn << "]" << endl;
+      if(debug)
+         cout << "Adding sorting connector " << "[" << *conn << "]" << endl;
       addSortingConnector( conn );
    }
 
 
 
 
-   cout << "... building output connectors" << endl;
+   if(debug)
+      cout << "... building output connectors" << endl;
    for( const TXC::L1TopoConfigAlg & configalgo: menu.getL1TopoConfigAlgs() ) {     
 
       if(!configalgo.isDecAlg()) continue;
@@ -161,13 +168,15 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
          if(trigger.name()!="UNDEF")
             conn->m_triggers.push_back(trigger);
       }
-      cout << "Adding decision connector " << "[" << *conn << "]" << endl;
+      if(debug)
+         cout << "Adding decision connector " << "[" << *conn << "]" << endl;
       addDecisionConnector( conn );
 
    }
 
 
-   cout << "... building input connectors" << endl;
+   if(debug)
+      cout << "... building input connectors" << endl;
    for(auto sortConn : m_sortedLookup) {
       const string & in = sortConn.second->inputNames()[0]; // name of input
 
@@ -176,7 +185,8 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
       InputConnector * conn = new InputConnector(in);
       m_connectors.push_back(conn);
       m_inputLookup[in] = conn;
-      cout << "Adding input connector " << "[" << *conn << "]" << endl;
+      if(debug)
+         cout << "Adding input connector " << "[" << *conn << "]" << endl;
    }
 
    
@@ -184,29 +194,32 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
    StatusCode sc = linkConnectors();
    
    // instantiate the algorithms from the algorithm names in the connectors
-   cout << "... instantiating algorithms" << endl;
-   sc &= instantiateAlgorithms();
+   if(debug)
+      cout << "... instantiating algorithms" << endl;
+   sc &= instantiateAlgorithms(debug);
    
 
    // iterate through OutputList elements
-   cout << "... checking output list" << endl;
-   cout << menu.getL1TopoConfigOutputList().getOutputList().size() << " output algorithms for " 
-        << menu.getL1TopoConfigOutputList().getTriggerLines().size() << " trigger lines." << endl;
-
+   if(debug) {
+      cout << "... checking output list" << endl;
+      cout << menu.getL1TopoConfigOutputList().getOutputList().size() << " output algorithms for " 
+           << menu.getL1TopoConfigOutputList().getTriggerLines().size() << " trigger lines." << endl;
+   }
    
    // set algorithm parameters
-   cout << "... setting algorithm parameters" << endl;
+   if(debug)
+      cout << "... setting algorithm parameters" << endl;
    for( const TXC::L1TopoConfigAlg & configalgo: menu.getL1TopoConfigAlgs() ) {
 
       ConfigurableAlg * alg = AlgFactory::instance().algorithm(configalgo.name());
 
       alg->setAlgoId( configalgo.algoID() );
 
-      cout << "Algorithm " << alg->name() << endl << "  (reading parameters)" << endl;
+      if(debug)
+         cout << "Algorithm " << alg->name() << endl << "  (reading parameters)" << endl;
 
-      if(alg->isDecisionAlg()) {
+      if(alg->isDecisionAlg())
          ((DecisionAlg *) alg)->setNumberOutputBits(configalgo.getOutputs().size());
-      }
 
       // create ParameterSpace for this algorithm
       ParameterSpace * ps = new ParameterSpace(alg->name());
@@ -218,7 +231,8 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
          uint32_t pos  = pe.position;
          uint32_t sel  = pe.selection;
          
-         cout << "  parameter " << pos << ": " << setw(20) << left << name << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
+         if(debug)
+            cout << "  parameter " << pos << ": " << setw(20) << left << name << " value = " << setw(3) << left << val << " (selection " << sel << ")" << endl;
          ps->addParameter( name, val, sel);
       }
 
@@ -227,29 +241,39 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu) {
          
          string   name = pe.name;
          uint32_t val = interpretGenericParam(pe.value);
-         if(name=="OutputBits") {
+         if(name=="NumResultBits") {
             if(val != configalgo.getOutputs().size()) {
                TCS_EXCEPTION("Algorithm " << name << " parameter OutputBits (" << val << ") is different from output size (" << configalgo.getOutputs().size() << ")");
             }
             continue; // ignore this, because it is defined through the output list
          }
-         cout << "  fixed parameter : " << setw(20) << left << name << " value = " << setw(3) << left << val << endl;
+         if(debug)
+            cout << "  fixed parameter : " << setw(20) << left << name << " value = " << setw(3) << left << val << endl;
          ps->addParameter( name, val);
       }
 
 
-      cout << "  (setting parameters)" << endl;
+      if(debug)
+         cout << "  (setting parameters)" << endl;
       alg->setParameters( *ps );
 
       if( alg->isDecisionAlg() ) {
+         if( m_parameters[alg->algoId()] != nullptr ) {
+            TCS_EXCEPTION("Decision algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
+         }
          m_parameters[alg->algoId()] = ps;
       } else if( alg->isSortingAlg() ) {
+         if( m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] != nullptr ) {
+            TCS_EXCEPTION("Sorting algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
+         }
          m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] = ps;
       }
    }
 
    m_isConfigured = true;
-   cout << "... L1TopoSteering successfully configured" << endl;
+
+   if(debug)
+      cout << "... L1TopoSteering successfully configured" << endl;
    
    return sc;
 }
@@ -283,7 +307,7 @@ TopoSteeringStructure::linkConnectors() {
 
 
 TCS::StatusCode
-TCS::TopoSteeringStructure::instantiateAlgorithms() {
+TCS::TopoSteeringStructure::instantiateAlgorithms(bool debug) {
 
    for(TCS::Connector* conn: m_connectors) {
 
@@ -298,7 +322,8 @@ TCS::TopoSteeringStructure::instantiateAlgorithms() {
 
       ConfigurableAlg * algInstance = TCS::AlgFactory::instance().algorithm(algName);
       if(algInstance==0) {
-         cout << "Instantiating " << alg << endl;
+         if(debug)
+            cout << "Instantiating " << alg << endl;
          algInstance = TCS::AlgFactory::create(algType, algName);
       } else {
          if(algInstance->className() != algType) {

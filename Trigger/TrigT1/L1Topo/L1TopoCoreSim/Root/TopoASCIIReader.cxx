@@ -57,9 +57,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<tau>" || currentLine == "<met>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -79,6 +79,13 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             cl.setPhiDouble( atof(results.at(5).c_str()) );
          }
          m_event->addCluster(cl);
+      } else if(type == "<tau>") {
+         TCS::ClusterTOB tau( TCS::ClusterTOB(atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()),atoi(results.at(3).c_str())));
+         if(results.size()==6) {
+            tau.setEtaDouble( atof(results.at(4).c_str()) );
+            tau.setPhiDouble( atof(results.at(5).c_str()) );
+         }
+         m_event->addTau(tau);
       } else if(type == "<jet>") {
          TCS::JetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()),atoi(results.at(3).c_str()) );
          if(results.size()==6) {
@@ -86,9 +93,25 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             jet.setPhiDouble( atof(results.at(5).c_str()) );
          }
          m_event->addJet( jet );
+      } else if(type == "<muon>") {
+         unsigned int et = atoi(results.at(0).c_str());
+         int eta = atoi(results.at(1).c_str());
+         int phi = atoi(results.at(2).c_str());
+         TCS::MuonTOB muon( et, 0, eta, phi );
+         if(results.size()==5) {
+            muon.setEtaDouble( atof(results.at(3).c_str()) );
+            muon.setPhiDouble( atof(results.at(4).c_str()) );
+         }
+         m_event->addMuon( muon );
+      } else if(type == "<met>") {
+         int ex = atoi(results.at(0).c_str());
+         int ey = atoi(results.at(1).c_str());
+         int et = atoi(results.at(2).c_str());
+         TCS::MetTOB met( ex, ey, et );
+         m_event->setMET( met );
       } else {
 
-         TCS_EXCEPTION( "TOB for this event is neither cluster, nor jet" );
+         TCS_EXCEPTION( "TOB for this event is of unknown type " << type);
 
       }
    } // end read event

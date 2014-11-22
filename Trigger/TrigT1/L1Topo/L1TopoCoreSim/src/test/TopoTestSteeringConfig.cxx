@@ -42,6 +42,13 @@ int run(int argc, const char * argv[]) {
 
    steering.printConfiguration(cout);
 
+   try {
+      steering.initializeAlgorithms();
+   } catch(exception & e) {
+      cerr << "TopoTestSteeringConfig: Caught exception when initializing algorithms " << endl << e.what() << endl;
+      return 1;
+   }
+
    steering.reset();
 
    return 0;
