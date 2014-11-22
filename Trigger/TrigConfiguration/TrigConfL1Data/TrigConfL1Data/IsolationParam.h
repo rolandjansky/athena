@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -55,16 +57,16 @@ namespace TrigConf {
 
    private:
 
-      std::string m_thrtype {""};
+      std::string m_thrtype { "" };
       bool m_isDefined { false };
-      int m_isobit          {0};
-      int m_offset          {0};
-      int m_slope           {0};
-      int m_mincut          {0};
-      int m_upperlimit      {0};
-      int m_etamin          {0};
-      int m_etamax          {0};
-      int m_priority        {0};
+      int m_isobit { 0 };
+      int m_offset { 0 };
+      int m_slope { 0 };
+      int m_mincut { 0 };
+      int m_upperlimit { 0 };
+      int m_etamin { 0 };
+      int m_etamax { 0 };
+      int m_priority { 0 };
 
    };
 

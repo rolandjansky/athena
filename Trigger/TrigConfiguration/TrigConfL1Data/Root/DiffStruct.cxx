@@ -5,8 +5,6 @@
 #include "TrigConfL1Data/DiffStruct.h"
 
 #include "boost/lexical_cast.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 #include <iostream>
 #include <fstream>
@@ -19,7 +17,7 @@ TrigConf::DiffStruct::DiffStruct(const std::string& tagname, const std::string& 
 {}
 
 TrigConf::DiffStruct::~DiffStruct() {
-   foreach(DiffStruct* d, subs)
+   for(DiffStruct* d : subs)
       delete d;
 }
 
@@ -80,23 +78,23 @@ TrigConf::DiffStruct::writeXML(ofstream & xmlfile, const std::string& prefix) co
    xmlfile << prefix << "<" << tagname;
    if(name!="")
       xmlfile << " name=\"" << name << "\"";
-   foreach(AttDiff d, attdiffs)
+   for(AttDiff d : attdiffs)
       xmlfile << " " << d.attname << "_l=\"" << d.lval << "\" " << d.attname << "_r=\"" << d.rval << "\"";
    if(subs.size()==0 && rightonly.size()==0 && leftonly.size()==0) {
       xmlfile << "/>" << endl;
    } else {
       xmlfile << ">" << endl;
-      foreach(DiffStruct *d, subs)
+      for(DiffStruct *d : subs)
          d->writeXML(xmlfile, prefix+"    ");
       if(leftonly.size()>0) {
          xmlfile << prefix << "    <LEFT_ONLY>" << endl;
-         foreach(OnlyMap_t::value_type tag_name, leftonly)
+         for(OnlyMap_t::value_type tag_name : leftonly)
             xmlfile << prefix << "        <" << tag_name.first << " name=\"" << tag_name.second << "\"/>" << endl;
          xmlfile << prefix << "    </LEFT_ONLY>" << endl;
       }
       if(rightonly.size()>0) {
          xmlfile << prefix << "    <RIGHT_ONLY>" << endl;
-         foreach(OnlyMap_t::value_type tag_name, rightonly)
+         for(OnlyMap_t::value_type tag_name : rightonly)
             xmlfile << prefix << "        <" << tag_name.first << " name=\"" << tag_name.second << "\"/>" << endl;
          xmlfile << prefix << "    </RIGHT_ONLY>" << endl;
       }

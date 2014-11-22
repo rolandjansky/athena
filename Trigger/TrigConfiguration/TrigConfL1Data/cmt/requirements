@@ -15,7 +15,7 @@ end_private
 #============================================================================
 
 # build shared library
-apply_pattern detcommon_shared_library
+apply_pattern detcommon_shared_generic_library files=../Root/*.cxx
 
 
 # ignore patterns from LCG_Policy

@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -87,8 +89,8 @@ namespace TrigConf {
    private:
       friend class CTPConfig;
 
-      unsigned int m_ctpVersion { 0 };
-      unsigned int m_l1Version { 0 };
+      unsigned int m_ctpVersion;
+      unsigned int m_l1Version;
       thrVecMap_t  m_thresholdVectors;        // vectors of TriggerThresholds accessed by type (map)
       thrVec_t     m_TriggerThresholdVector;  // vector of all TriggerThresholds (owns all thresholds)
       thrVec_t     m_ClusterThresholdVector;  // vector of all EM TAU thresholds (for backward compatibility, where EM and TAU thresholds are in one vector)

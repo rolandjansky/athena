@@ -14,13 +14,14 @@
 #include <stdio.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace TrigConf;
 
 ThresholdConfig::ThresholdConfig() :
-   L1DataBaseclass()
+   L1DataBaseclass(),
+   m_ctpVersion( 0 ),
+   m_l1Version( 0 )
 {
    // create a vector for each trigger type registered in L1DataDef.cxx 
    // size of vector is 0 and grows while being filled
@@ -93,16 +94,13 @@ TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr) {
    thr->setThresholdNumber(thr->mapping());
    insertInPosition(thrVec, thr, thr->mapping() );
 
-   // BPTX threshold is type NIM but gets inserted as BPTX as well
-   if(thr->name().find("BPTX")!=string::npos) {
-      string::size_type pos = thr->name().find_first_of("0123456789");
-      int mapping = boost::lexical_cast<int,string>(thr->name().substr(pos));
-      insertInPosition( thresholdVector(L1DataDef::BPTX), thr, mapping );
-   }
 
-
-
-   // secial case EM TAU thresholds
+   // BPTX threshold is type NIM but gets inserted as BPTX as well (in run 2 not anymore) - no easy way to make this backward compatible
+//    if(thr->name().find("BPTX")!=string::npos) {
+//       string::size_type pos = thr->name().find_first_of("0123456789");
+//       int mapping = boost::lexical_cast<int,string>(thr->name().substr(pos));
+//       insertInPosition( thresholdVector(L1DataDef::BPTX), thr, mapping );
+//    }
 
    // for backward compatibility a copy of all EM and TAU thresholds
    // is safed in the cluster threshold vector
@@ -118,7 +116,6 @@ TrigConf::ThresholdConfig::addTriggerThreshold(TriggerThreshold* thr) {
          insertInPosition( m_ClusterThresholdVector, thr, pos );
       }
    }
-
    return true;
 }
 
@@ -223,8 +220,11 @@ void
 TrigConf::ThresholdConfig::attributeThresholdNumbers() {
    // set the thresholdnumber for each threshold
 
+   // Run 2:
    // this has been changed, the thresholdnumbers now correspond to the position in the vector (the index)
-   // with the exception of the EM/TAU thresholds:
+   
+   // Run 1:
+   // EM/TAU thresholds were an exception:
 
    // The EM and TAU vector are related, 
    // 
@@ -237,7 +237,8 @@ TrigConf::ThresholdConfig::attributeThresholdNumbers() {
    // EM-TAU vector  : [EM0,EM1,...,EM7,TAU0,TAU1,...,TAU5,EM9,EM8]
    // thresholdNumber: [  0,  1,...,  7,   8,   9,...,  13, 14, 15]
 
-   BOOST_FOREACH(TriggerThreshold* p, thresholdVector(L1DataDef::EM)) {
+   
+   for(TriggerThreshold* p: thresholdVector(L1DataDef::EM)) {
       if(p==0) continue;
       const unsigned int max_em  = L1DataDef::typeConfig(L1DataDef::EM).max;
 
@@ -245,7 +246,7 @@ TrigConf::ThresholdConfig::attributeThresholdNumbers() {
          p->setThresholdNumber(max_em - 1 - (p->mapping()-8) );
    }
 
-   BOOST_FOREACH(TrigConf::TriggerThreshold* p, thresholdVector(L1DataDef::TAU)) {
+   for(TrigConf::TriggerThreshold* p: thresholdVector(L1DataDef::TAU)) {
       if(p==0) continue;
       if( p->ttype()==L1DataDef::TAU )
          p->setThresholdNumber(p->mapping() + 8);
@@ -268,7 +269,7 @@ void printVectorSummary(const TrigConf::ThresholdConfig::thrVec_t& vec,
    cout << indent << "=========================================" << endl
         << indent << " The " << name << ": " << vec.size() << " elements" << endl
         << indent << "=========================================" << endl;
-   BOOST_FOREACH(TrigConf::TriggerThreshold *thr, vec)
+   for(TrigConf::TriggerThreshold *thr: vec)
       if(thr) thr->print(indent + " ", detail);
       else cout << indent << " " << 0 << endl;
 }
@@ -277,7 +278,7 @@ void
 TrigConf::ThresholdConfig::print(const string& indent, unsigned int detail) const {
    if(detail>=2) {
       cout << indent << "Threshold configuration: " << getThresholdVector().size() << " thresholds" << endl;
-      BOOST_FOREACH(L1DataDef::TriggerType tt, L1DataDef::types()) {
+      for(L1DataDef::TriggerType tt : L1DataDef::types()) {
          cout << indent << "   " << L1DataDef::typeConfig(tt).name << " thresholds: " 
               << getThresholdVector(tt).size() << " thresholds" << endl;
       }

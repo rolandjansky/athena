@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -76,24 +78,24 @@ namespace TrigConf {
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    protected:
-      L1DataDef::TriggerType                m_type;
-      std::string                           m_SType;
-      bool                                  m_Active;
-      int                                   m_Mapping;
-      std::vector<TriggerThresholdValue*>   m_TriggerThresholdValueVector;
-      std::string                           m_CableName;
-      std::string                           m_CableCtpin;
-      std::string                           m_CableConnector;
-      int                                   m_CableStart;
-      int                                   m_CableEnd;
-      unsigned int                          m_Clock = 0;
-      int                                   m_ThresholdNumber; // specifies the number within a certain set of thresholds
-                                                               // e.g. the 5th cluster threshold
-      std::string                           m_ZBSeedingThresholdName;
-      int                                   m_ZBSeedingThresholdMulti;
-      int                                   m_BCDelay = 3564;
-      unsigned int                          m_Bitnum = 1;
-      std::string                           m_Input = "ctpin";
+      L1DataDef::TriggerType                m_type {L1DataDef::UNDEF};
+      std::string                           m_SType {"dummy"};
+      bool                                  m_Active {true};
+      int                                   m_Mapping {-1};
+      std::vector<TriggerThresholdValue*>   m_TriggerThresholdValueVector{};
+      std::string                           m_CableName{""};
+      std::string                           m_CableCtpin{""};
+      std::string                           m_CableConnector{""};
+      int                                   m_CableStart{0};
+      int                                   m_CableEnd{0};
+      unsigned int                          m_Clock{0};
+      int                                   m_ThresholdNumber{-1}; // specifies the number within a certain set of thresholds
+                                                                   // e.g. the 5th cluster threshold
+      std::string                           m_ZBSeedingThresholdName{""};
+      int                                   m_ZBSeedingThresholdMulti{0};
+      int                                   m_BCDelay{3564};
+      unsigned int                          m_Bitnum{1};
+      std::string                           m_Input{"ctpin"};
    };
 
 } 

@@ -4,7 +4,6 @@
 
 #include "TrigConfL1Data/PrioritySet.h"
 #include <iostream>
-#include "boost/foreach.hpp"
 
 
 using namespace std;
@@ -35,7 +34,7 @@ TrigConf::PrioritySet::print(const std::string& indent, unsigned int detail) con
       cout << indent << "PrioritySet " << name() << endl;
       cout << indent << "lvl1MasterTableId:      " << lvl1MasterTableId() << endl; 
       unsigned int ctpid(0);
-      BOOST_FOREACH(const string& priority, m_Priorities)
+      for(const string& priority: m_Priorities)
          cout << "\t " << ctpid++ << "\t" << " priority = " << priority << endl;  
    }
 } 
@@ -50,7 +49,7 @@ TrigConf::PrioritySet::writeXML(std::ostream & xmlfile, int indentLevel, int ind
       << "<PrioritySet name=\"" << name() << "\" version=\"" << version() << "\">"
       << endl;
    unsigned int ctpid(0);
-   BOOST_FOREACH(const string& priority, m_Priorities) {
+   for(const string& priority : m_Priorities) {
       indent(xmlfile, indentLevel + 1, indentWidth)
          << "<Priority ctpid=\"" << ctpid++
          << "\" priority=\"" << priority << "\">"

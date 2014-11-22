@@ -99,6 +99,7 @@ namespace TrigConf {
       declareBackwardCompatibleMethdods(lucid,LUCID);
       declareBackwardCompatibleMethdods(mbts, MBTS);
       declareBackwardCompatibleMethdods(nim,  NIM);
+      declareBackwardCompatibleMethdods(bptx, BPTX);
 
       // Zero bias Trigger
       declareBackwardCompatibleMethdods(zb,   ZB);

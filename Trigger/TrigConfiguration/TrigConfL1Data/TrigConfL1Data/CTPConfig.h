@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -100,10 +102,10 @@ namespace TrigConf {
 
    private:
 
-      unsigned int   m_ctpVersion { 0 };
-      unsigned int   m_l1Version { 0 };
-      int            m_PrescaleSetId { 0 };
-      int            m_BunchGroupSetId { 0 };
+      unsigned int   m_ctpVersion;
+      unsigned int   m_l1Version;
+      int            m_PrescaleSetId;
+      int            m_BunchGroupSetId;
       Menu           m_Menu;
       PrescaleSet    m_PrescaleSets[4];
       BunchGroupSet  m_BunchGroupSet;
@@ -113,11 +115,11 @@ namespace TrigConf {
       PrioritySet    m_PrioritySet;
       Muctpi         m_MuCTPi;
 
-      bool           m_LoadCtpFiles { true };
-      bool           m_LoadCtpcoreFiles { true };
-      bool           m_LoadCtpinFiles { true };
-      bool           m_LoadCtpmonFiles { true };
-      CTPFiles*      m_CTPFiles { nullptr };
+      bool           m_LoadCtpFiles;
+      bool           m_LoadCtpcoreFiles;
+      bool           m_LoadCtpinFiles;
+      bool           m_LoadCtpmonFiles;
+      CTPFiles*      m_CTPFiles;
 
    };
 }

@@ -17,7 +17,13 @@
 using namespace std;
 using namespace TrigConf;
 
-TriggerItem::TriggerItem() : TrigConfData()
+TriggerItem::TriggerItem() : TrigConfData(),
+                             m_ComplexDeadtime( 0 ),
+                             m_Definition( "" ),
+                             m_TopNode( nullptr ),
+                             m_CtpId( -1 ),
+                             m_TriggerType( 0 ),
+                             m_Partition( 0 )
 {}
 
 TriggerItem::~TriggerItem() {
@@ -52,6 +58,46 @@ TrigConf::TriggerItem::compareTo(const TriggerItem* o) const {
 void
 TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
 
+//    vector<string> tokens;
+//    enum TokenType { NUMBER, LOGIC, NONE };
+//    TokenType lastTokenType ( NONE );
+//    for(const char x : m_Definition) {
+//       TokenType currentTokenType = (x>='0' && x<='9') ? NUMBER : LOGIC;
+      
+//       if(currentTokenType != lastTokenType) {
+//          tokens.push_back("");
+//          lastTokenType = currentTokenType;
+//       }
+//       if(x=='&') {
+//          tokens.back().append("&amp;");
+//       } else {
+//          tokens.back().append(1,x);
+//       }
+//    }
+
+//    std::vector<const TriggerItemNode*> conditions;
+//    topNode()->getAllFinalNodes(conditions);
+
+//    string defForXML("");
+//    for(string x : tokens) {
+//       if(x[0]>='0' && x[0]<='9') {
+//          int pos = boost::lexical_cast<int,string>(x);
+//          for(const TriggerItemNode * x : conditions) {
+//             if(x->position()==pos) {
+//                if(x->isInternalTrigger()) {
+//                   defForXML.append( x->thresholdName() );
+//                } else {
+//                   defForXML.append( x->thresholdName() + "[x" + boost::lexical_cast<string,int>(x->multiplicity()) + "]" );
+//                }
+//                break;
+//             }
+//          }
+//       } else {
+//          defForXML.append(x);
+//       }
+//    }
+
+
    string final_def = m_Definition;
    bool end=false;
    string::size_type index=0;
@@ -74,8 +120,7 @@ TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) 
       << "\" name=\"" << name() 
       << "\" complex_deadtime=\"" << complex_deadtime()
       << "\" definition=\"" << final_def
-      << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4)
-      << "\" version=\"" << version() << "\">" << endl;
+      << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4) << "\">" << endl;
 
    if (m_TopNode)
       m_TopNode->writeXML(xmlfile, indentLevel+1, indentWidth);

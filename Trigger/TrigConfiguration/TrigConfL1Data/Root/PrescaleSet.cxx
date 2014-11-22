@@ -11,7 +11,7 @@
 using namespace std;
 using namespace TrigConf;
 
-const unsigned int PrescaleSet::N_PRESCALES = 256;
+//const unsigned int PrescaleSet::N_PRESCALES = 256;
 
 const int32_t PrescaleSet::maxPrescaleCut = 0xFFFFFF; //2**24 - 1
    
@@ -28,10 +28,10 @@ const int32_t PrescaleSet::maxPrescaleCut = 0xFFFFFF; //2**24 - 1
    prescale = 50000 --> C = 334
 */
 int32_t
-PrescaleSet::getCutFromPrescale(float prescale) {
+PrescaleSet::getCutFromPrescale(double prescale) {
    int32_t sign = prescale<0 ? -1 : 1;
-   float uprescale = fabs(prescale);
-   return sign * (int32_t(0x1000000 / uprescale) - 1);
+   double uprescale = fabs(prescale);
+   return sign * ( 0x1000000 - int32_t(0xFFFFFF/uprescale));
 }
 
 /**
@@ -46,11 +46,11 @@ PrescaleSet::getCutFromPrescale(float prescale) {
    cut = 3354    --> prescale =  5000.66020864  
    cut = 334     --> prescale = 50081.238806    
 */
-float
+double
 PrescaleSet::getPrescaleFromCut(int32_t cut) {
-   int32_t sign = cut<0 ? -1 : 1;
-   float   ucut = abs(cut);
-   return sign * ( 0x1000000 / ( ucut + 1 ) );
+   double sign = cut<0 ? -1 : 1;
+   uint32_t  ucut = abs(cut);
+   return (sign * 0xFFFFFF ) / ( 0x1000000 - ucut );
 }
 
 
@@ -186,8 +186,7 @@ TrigConf::PrescaleSet::writeXML(std::ostream & xmlfile, int indentLevel, int ind
       << "<PrescaleSet" 
       << " name=\"" << name() << "\""
       << " type=\"" << type() << "\""
-      << " menuPartition=\"" << partition() << "\""
-      << " version=\"" << version() << "\">"
+      << " menuPartition=\"" << partition() << "\">"
       << endl;
 
    if(newPrescaleStyle()) {

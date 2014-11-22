@@ -8,31 +8,19 @@
 #include "TrigConfL1Data/MuonThresholdValue.h"
 #include "TrigConfL1Data/EtThresholdValue.h"
 #include "TrigConfL1Data/XsThresholdValue.h"
+#include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/NimThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/CaloInfo.h"
 
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
 TrigConf::TriggerThreshold::TriggerThreshold() :
-   L1DataBaseclass(),
-   m_type(L1DataDef::UNDEF),
-   m_SType("dummy"),
-   m_Active(true), 
-   m_Mapping(-1),
-   m_CableName(""),
-   m_CableStart(0),
-   m_CableEnd(0),
-   m_ThresholdNumber(-1),
-   m_ZBSeedingThresholdName(""),
-   m_ZBSeedingThresholdMulti(0),
-   m_BCDelay(0)
+   L1DataBaseclass()
 {}
 
 TrigConf::TriggerThreshold::TriggerThreshold(const TriggerThreshold& thr) :
@@ -46,13 +34,16 @@ TrigConf::TriggerThreshold::TriggerThreshold(const TriggerThreshold& thr) :
    m_CableConnector(thr.m_CableConnector), 
    m_CableStart(thr.m_CableStart), 
    m_CableEnd(thr.m_CableEnd),
+   m_Clock(thr.m_Clock),
    m_ThresholdNumber(thr.m_ThresholdNumber),
    m_ZBSeedingThresholdName(thr.m_ZBSeedingThresholdName),
    m_ZBSeedingThresholdMulti(thr.m_ZBSeedingThresholdMulti),
-   m_BCDelay(thr.m_BCDelay)
+   m_BCDelay(thr.m_BCDelay),
+   m_Bitnum(thr.m_Bitnum),
+   m_Input(thr.m_Input)
 {
    // deep copy of the threshold values
-   BOOST_FOREACH(TriggerThresholdValue *thrV, thr.thresholdValueVector())
+   for(TriggerThresholdValue *thrV : thr.thresholdValueVector())
       addThresholdValue( thrV->createCopy() );
 }
   
@@ -95,7 +86,7 @@ TrigConf::TriggerThreshold::triggerThresholdValue(int eta_i,int phi_i) const {
    float eta = float(eta_i)+0.5;
    float phi = float(phi_i)+0.5;
 
-   foreach(TriggerThresholdValue* thrV, m_TriggerThresholdValueVector) {
+   for(TriggerThresholdValue* thrV : m_TriggerThresholdValueVector) {
 
       if( thrV->contains(eta, phi) ) {
 
@@ -158,10 +149,11 @@ TrigConf::TriggerThreshold::createThresholdValue(const std::string& type) {
       ttv = new XsThresholdValue();
    } else if (type == L1DataDef::nimType()    || type == L1DataDef::mbtsType()   || type == L1DataDef::mbtssiType() ||
               type == L1DataDef::bcmType()    || type == L1DataDef::bcmcmbType() || type == L1DataDef::lucidType()  ||
-              type == L1DataDef::calreqType() || type == L1DataDef::zdcType()    || type == L1DataDef::trtType()) {
+              type == L1DataDef::calreqType() || type == L1DataDef::zdcType()    || type == L1DataDef::trtType() ||
+              type == L1DataDef::bptxType() ) {
       ttv = new NimThresholdValue();
    } else {
-      cout << "TriggerThreshold::createThresholdValue:      ERROR Unknown trigger value type: " << type << "|" << L1DataDef::bcmType() <<endl;
+      cout << "TriggerThreshold::createThresholdValue:      ERROR Unknown trigger value type: " << type << endl;
       throw std::runtime_error("TriggerThreshold::createThresholdValue: Unknown trigger value type.");
    }
    return ttv;
@@ -169,7 +161,7 @@ TrigConf::TriggerThreshold::createThresholdValue(const std::string& type) {
 
 
 void TrigConf::TriggerThreshold::clearThresholdValues() {
-   foreach(TriggerThresholdValue* thrV, m_TriggerThresholdValueVector)
+   for(TriggerThresholdValue* thrV : m_TriggerThresholdValueVector)
       delete thrV;
    m_TriggerThresholdValueVector.clear();
 }
@@ -205,6 +197,19 @@ void TrigConf::TriggerThreshold::print(const std::string& indent, unsigned int d
 }
 
 
+namespace {
+   
+   bool compThrValues(TrigConf::TriggerThresholdValue *x, TrigConf::TriggerThresholdValue *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
+      if(x->priority() != y->priority())
+         return x->priority() < y->priority();
+      if(x->etamin() != y->etamin())
+         return x->etamin() < y->etamin();
+      return x->name() < y->name();
+   }
+
+}
+
+
 void
 TrigConf::TriggerThreshold::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
    indent(xmlfile, indentLevel, indentWidth) 
@@ -223,18 +228,21 @@ TrigConf::TriggerThreshold::writeXML(std::ostream & xmlfile, int indentLevel, in
 
    xmlfile << "\" version=\"" << version() <<"\">" << endl;
 
-   foreach(TriggerThresholdValue* thrV, m_TriggerThresholdValueVector)
+   auto sortedThresholdValues = m_TriggerThresholdValueVector;
+   sort(sortedThresholdValues.begin(),sortedThresholdValues.end(),compThrValues);
+
+   for(TriggerThresholdValue* thrV : sortedThresholdValues)
       thrV->writeXML(xmlfile, indentLevel+1, indentWidth);
       
    if(m_CableName!="") {
       if(input()=="ctpin") {
          indent(xmlfile, indentLevel+1, indentWidth)
-            << "<Cable connector=\"" << m_CableConnector << "\" ctpin=\"" << m_CableCtpin << "\" name=\"" << m_CableName << "\">" << endl;
+            << "<Cable connector=\"" << m_CableConnector << "\" input=\"" << m_CableCtpin << "\" name=\"" << m_CableName << "\">" << endl;
          indent(xmlfile, indentLevel+2, indentWidth)
             << "<Signal range_begin=\"" << m_CableStart << "\" range_end=\"" << m_CableEnd <<"\"/>" << endl;
       } else {
          indent(xmlfile, indentLevel+1, indentWidth)
-            << "<Cable connector=\"" << m_CableConnector << "\" name=\"" << m_CableName << "\">" << endl;
+            << "<Cable connector=\"" << m_CableConnector << "\" input=\"" << m_CableCtpin << "\" name=\"" << m_CableName << "\">" << endl;
          indent(xmlfile, indentLevel+2, indentWidth)
             << "<Signal range_begin=\"" << m_CableStart << "\" range_end=\"" << m_CableEnd <<"\" clock=\"" << m_Clock << "\"/>" << endl;
       }

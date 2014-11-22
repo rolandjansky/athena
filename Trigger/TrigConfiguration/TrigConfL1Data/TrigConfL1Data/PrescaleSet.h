@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,13 +22,13 @@ namespace TrigConf {
    class PrescaleSet : public L1DataBaseclass {
    public:
 
-      static const unsigned int N_PRESCALES;
+      //static const unsigned int N_PRESCALES;
 
       static const int32_t maxPrescaleCut;
 
-      static int32_t getCutFromPrescale(float prescale);
+      static int32_t getCutFromPrescale(double prescale);
 
-      static float getPrescaleFromCut(int32_t cut);
+      static double getPrescaleFromCut(int32_t cut);
 
       PrescaleSet();
       ~PrescaleSet();
@@ -64,7 +66,7 @@ namespace TrigConf {
       void writeXML(std::ostream & xmlfile, int indentLevel = 0, int indentWidth = 2) const;
 
    private:
-      bool m_null = true; // false: indicates if the prescale set has been filled
+      bool m_null; // false: indicates if the prescale set has been filled
 
       bool m_newPrescales; // if true, new random prescale style will be used
 

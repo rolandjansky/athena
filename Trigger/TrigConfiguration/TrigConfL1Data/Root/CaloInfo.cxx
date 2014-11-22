@@ -9,7 +9,20 @@ using namespace std;
 using namespace TrigConf;
 
 CaloInfo::CaloInfo()
-   : L1DataBaseclass()
+   : L1DataBaseclass(),
+     m_GlobalScale( 1 ),
+     m_JetWeights(),
+     m_CaloSinCos(),
+     m_METSigParam(),
+     m_IsolationHAIsoForEMthr( { 5 } ),
+     m_IsolationEMIsoForEMthr( { 5 } ),
+     m_IsolationEMIsoForTAUthr( { 5 } ),
+     m_tobEM(),
+     m_tobTau(),
+     m_tobJetSmall(),
+     m_tobJetLarge(),
+     m_JetWindowSizeSmall( 0 ),
+     m_JetWindowSizeLarge( 0 )
 {}
   
 CaloInfo::~CaloInfo() {}
@@ -84,7 +97,7 @@ void
 TrigConf::CaloInfo::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
    
    indent(xmlfile, indentLevel, indentWidth)
-      << "<CaloInfo name=\""<< name() <<"\" global_scale=\""<< globalScale() <<"\">" << endl;
+      << "<CaloInfo name=\""<< name() <<"\" global_em_scale=\""<< globalEmScale() <<"\" global_jet_scale=\""<< globalJetScale() <<"\">" << endl;
 
    bool hasJetWeights(false);
    for(int jw : m_JetWeights) // check if there is a jetweight that is not 0

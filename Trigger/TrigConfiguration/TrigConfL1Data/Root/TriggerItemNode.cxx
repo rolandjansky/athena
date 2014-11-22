@@ -14,7 +14,6 @@
 #include <sys/types.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace TrigConf;
@@ -31,7 +30,7 @@ TrigConf::TriggerItemNode::TriggerItemNode(NodeType type) :
 
 
 TrigConf::TriggerItemNode::~TriggerItemNode() {
-   BOOST_FOREACH(TriggerItemNode * node, m_Children)
+   for(TriggerItemNode * node : m_Children)
       delete node;
 }
 
@@ -119,13 +118,23 @@ TrigConf::TriggerItemNode::addChild(TriggerItemNode* node) {
 }
 
 void
+TrigConf::TriggerItemNode::getAllFinalNodes(std::vector<const TriggerItemNode*>& vec) const {
+   if(type() == OBJ) {
+      vec.push_back(this);
+   } else {
+      for(TriggerItemNode * node : m_Children)
+         node->getAllFinalNodes(vec);
+   }
+}
+
+void
 TrigConf::TriggerItemNode::getAllThresholds(std::vector<TriggerThreshold*>& vec) const {
    if(type() == OBJ) {
       if(!isInternalTrigger()) {
          if(m_Threshold) vec.push_back(m_Threshold);
       }
    } else {
-      BOOST_FOREACH(TriggerItemNode * node, m_Children)
+      for(TriggerItemNode * node : m_Children)
          node->getAllThresholds(vec);
    }
 }
@@ -175,7 +184,7 @@ TrigConf::TriggerItemNode::getAllRandomTriggers(std::vector<unsigned int>& vec) 
       if(internalTriggerType() == L1DataDef::RNDM)
          vec.push_back(m_InternalTrigger.second);
    } else {
-      BOOST_FOREACH(TriggerItemNode * node, m_Children)
+      for(TriggerItemNode * node : m_Children)
          node->getAllRandomTriggers(vec);
    }
 }
@@ -186,7 +195,7 @@ TrigConf::TriggerItemNode::getAllPrescaledClockTriggers(std::vector<unsigned int
       if(internalTriggerType() == L1DataDef::PCLK)
          vec.push_back(m_InternalTrigger.second);
    } else {
-      BOOST_FOREACH(TriggerItemNode * node, m_Children)
+      for(TriggerItemNode * node : m_Children)
          node->getAllPrescaledClockTriggers(vec);
    }
    return;
@@ -210,7 +219,7 @@ TrigConf::TriggerItemNode::writeXML(std::ostream & xmlfile, int indentLevel, int
 
       std::string logic = (m_NodeType==AND?"AND":"OR");
       indent(xmlfile, indentLevel, indentWidth) << "<" << logic << ">" << endl;
-      BOOST_FOREACH(TriggerItemNode *node, children())
+      for(TriggerItemNode *node : children())
          node->writeXML(xmlfile, indentLevel+1, indentWidth);
       indent(xmlfile, indentLevel, indentWidth) << "</"<<logic<<">" << endl;
       
@@ -252,7 +261,7 @@ TrigConf::TriggerItemNode::buildLogic(std::vector<std::string> & conditionList,
    } else if (m_NodeType == AND || m_NodeType == OR) {
       logic += "(";
       bool first = true;
-      BOOST_FOREACH(TriggerItemNode *node, children()) {
+      for(TriggerItemNode *node : children()) {
          if(!first) { logic += (m_NodeType==AND?"&":"|"); } else { first=false; }
          node->buildLogic(conditionList, logic);
       }

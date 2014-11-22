@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -32,10 +34,10 @@ namespace TrigConf {
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    private:
-      int         m_rate1    = 0;
-      int         m_rate2    = 0;
-      std::string m_names[4] = { "Random0", "Random1", "Random2", "Random3"};
-      uint32_t    m_cuts[4]  = { 0xffffff, 0xffffff, 0xffffff, 0xffffff };
+      int         m_rate1;
+      int         m_rate2;
+      std::string m_names[4];
+      uint32_t    m_cuts[4];
    };
 }
 #endif

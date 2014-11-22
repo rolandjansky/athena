@@ -8,8 +8,6 @@
 #include "TrigConfL1Data/HelperFunctions.h"
 #include <iostream>
 
-#include "boost/foreach.hpp"
-
 using namespace std;
 using namespace TrigConf;
 
@@ -72,23 +70,23 @@ TrigConf::Menu::item(const string& name) const {
 
 TrigConf::ThresholdMonitor*
 TrigConf::Menu::findThresholdMonitor(unsigned int id) {
-   BOOST_FOREACH(ThresholdMonitor* thrm, m_ThresholdMonitorVector)
+   for(ThresholdMonitor* thrm : m_ThresholdMonitorVector)
       if( thrm->id()==id ) return thrm;
    return 0;
 }
 
 TrigConf::PIT*
 TrigConf::Menu::findPIT(unsigned int id) {
-   BOOST_FOREACH(PIT* pit, m_PITs)
+   for(PIT* pit : m_PITs)
       if( pit->id()==id ) return pit;
    return 0;
 }
 
 TrigConf::TIP*
 TrigConf::Menu::findTIP(unsigned int id) {
-	BOOST_FOREACH(TIP* tip, m_TIPs)
-	if( tip->id()==id ) return tip;
-	return 0;
+   for(TIP* tip : m_TIPs)
+      if( tip->id()==id ) return tip;
+   return 0;
 }
 
 
@@ -108,7 +106,7 @@ TrigConf::DiffStruct*
 TrigConf::Menu::compareTo(const Menu* o) const {
    DiffStruct * ds = new DiffStruct("TriggerMenu");
    ds->check("name", name(), o->name());
-   BOOST_FOREACH(TriggerItem* item, items() ) {
+   for(TriggerItem* item : items() ) {
       TriggerItem* o_item(o->item(item->name()));
       if(o_item) {
          ds->addSub( item->compareTo(o_item) );
@@ -116,7 +114,7 @@ TrigConf::Menu::compareTo(const Menu* o) const {
          ds->addLeftOnlySub( "TriggerItem", item->name() );
       }
    }
-   BOOST_FOREACH(TriggerItem* o_item, o->items()) {
+   for(TriggerItem* o_item : o->items()) {
       const TriggerItem *item = this->item(o_item->name());
       if(item==0)
          ds->addRightOnlySub( "TriggerItem", o_item->name() );
@@ -133,13 +131,13 @@ void
 TrigConf::Menu::clear() {
    m_ThresholdConfig.clear();
 
-   BOOST_FOREACH( TriggerItem* item, m_TriggerItemVector) delete item;
+   for( TriggerItem* item : m_TriggerItemVector) delete item;
    m_TriggerItemVector.clear();
 
-   BOOST_FOREACH( ThresholdMonitor* thrMon, m_ThresholdMonitorVector) delete thrMon;
+   for( ThresholdMonitor* thrMon : m_ThresholdMonitorVector) delete thrMon;
    m_ThresholdMonitorVector.clear();
 
-   BOOST_FOREACH( PIT* pit, m_PITs) delete pit;
+   for( PIT* pit : m_PITs) delete pit;
    m_PITs.clear();
 }
 
@@ -156,7 +154,7 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          cout << indent << "==================================" << endl;
          cout << indent << "Trigger Items:" << endl;
          cout << indent << "==================================" << endl;
-         BOOST_FOREACH(TriggerItem* item, m_TriggerItemVector)
+         for(TriggerItem* item : m_TriggerItemVector)
             item->print(indent + "  ", detail);
 
          cout << indent << "==================================" << endl;
@@ -198,20 +196,55 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
 void
 TrigConf::Menu::writeXMLItems(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
    indent(xmlfile, indentLevel, indentWidth) 
-      << "<TriggerMenu id=\"" << id() << "\" name=\"" << name()
-      << "\" phase=\"lumi\" version=\"" << version() << "\">" << endl;
+      << "<TriggerMenu name=\"" << name()
+      << "\" phase=\"lumi\">" << endl;
    for(TriggerItem* item: m_TriggerItemVector)
       item->writeXML(xmlfile, indentLevel+1, indentWidth);
    indent(xmlfile, indentLevel, indentWidth) << "</TriggerMenu>" << endl;
 }
 
+namespace {
+   
+   bool compThr(TriggerThreshold *x, TriggerThreshold *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
+      return x->id() < y->id();
+   }
+
+}
 
 void
 TrigConf::Menu::writeXMLThresholds(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
    indent(xmlfile, indentLevel, indentWidth) << "<TriggerThresholdList>" << endl;
-   for(TriggerThreshold* thr: m_ThresholdConfig.getThresholdVector())
-      thr->writeXML(xmlfile, indentLevel+1, indentWidth);
+
+   auto sortedThresholds = m_ThresholdConfig.getThresholdVector();
+   sort(sortedThresholds.begin(),sortedThresholds.end(),compThr);
+
+   for(TriggerThreshold* thr: sortedThresholds) {
+      if(!thr->isInternal())
+         thr->writeXML(xmlfile, indentLevel+1, indentWidth);
+   }
    indent(xmlfile, indentLevel, indentWidth) << "</TriggerThresholdList>" << endl;
+}
+
+namespace {
+   
+   bool compMon(ThresholdMonitor *x, ThresholdMonitor *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
+      if(x->thresholdName() != y->thresholdName() )
+         return x->thresholdName() < y->thresholdName();
+      return x->multiplicity() < y->multiplicity();
+   }
+
+}
+
+void
+TrigConf::Menu::writeXMLMonCounters(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
+   indent(xmlfile, indentLevel, indentWidth) << "<TriggerCounterList>" << endl;
+
+   auto sortedMonitors = m_ThresholdMonitorVector;
+   sort(sortedMonitors.begin(),sortedMonitors.end(),compMon);
+
+   for(const ThresholdMonitor * mon: sortedMonitors)
+      mon->writeXML(xmlfile, indentLevel+1, indentWidth);
+   indent(xmlfile, indentLevel, indentWidth) << "</TriggerCounterList>" << endl;
 }
 
 

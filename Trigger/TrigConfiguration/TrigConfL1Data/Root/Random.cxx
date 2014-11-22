@@ -9,7 +9,12 @@
 
 using namespace std;
 
-TrigConf::Random::Random() : L1DataBaseclass()
+TrigConf::Random::Random() : L1DataBaseclass(),
+                             m_rate1( 0 ), m_rate2( 0 ),
+                             m_names{ "Random0", "Random1",
+                                      "Random2", "Random3" },
+                             m_cuts{ 0xffffff, 0xffffff, 0xffffff,
+                                     0xffffff }
 {}
 
 TrigConf::Random::~Random()

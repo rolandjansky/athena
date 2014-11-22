@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -32,8 +34,8 @@ namespace TrigConf {
       void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
       
    private:
-      unsigned int        m_InternalNumber = 99;
-      unsigned int        m_Partition = 0;
+      unsigned int        m_InternalNumber;
+      unsigned int        m_Partition;
       std::vector<int>    m_Bunches;
    };
 

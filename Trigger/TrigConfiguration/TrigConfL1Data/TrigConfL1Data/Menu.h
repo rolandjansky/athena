@@ -99,6 +99,7 @@ namespace TrigConf {
 
       void writeXMLItems(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
       void writeXMLThresholds(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
+      void writeXMLMonCounters(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
       DiffStruct* compareTo(const Menu* o) const;
 

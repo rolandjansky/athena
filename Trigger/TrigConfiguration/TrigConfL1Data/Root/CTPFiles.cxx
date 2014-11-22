@@ -9,6 +9,16 @@
 
 using namespace std;
 
+unsigned int TrigConf::CTPFiles::ALL_CTPCORELUT_SIZE = 0;     
+unsigned int TrigConf::CTPFiles::ALL_CTPCORECAM_SIZE = 0;
+unsigned int TrigConf::CTPFiles::ALL_CTPINMONSEL_SIZE = 0;
+unsigned int TrigConf::CTPFiles::ALL_CTPINMONDEC_SIZE = 0;
+unsigned int TrigConf::CTPFiles::CTPMON_MUX_OUTPUT_NUMBER = 0;
+unsigned int TrigConf::CTPFiles::CTPMON_ADDRESS_SELECTOR_NUMBER = 0;
+unsigned int TrigConf::CTPFiles::ALL_CTPMONSELECTOR_SIZE = 0;
+unsigned int TrigConf::CTPFiles::ALL_CTPMONDECODER_SIZE = 0;
+
+
 TrigConf::CTPFiles::CTPFiles() : 
    L1DataBaseclass(),
    m_Lvl1MasterTableId(0),
@@ -19,6 +29,35 @@ TrigConf::CTPFiles::CTPFiles() :
 {}
   
 TrigConf::CTPFiles::~CTPFiles() {}
+
+void 
+TrigConf::CTPFiles::setFileSizes(unsigned int run) {
+   if(run==1) {
+      ALL_CTPCORELUT_SIZE = 49664;      
+      ALL_CTPCORECAM_SIZE =  8192;
+      
+      ALL_CTPINMONSEL_SIZE = 124;
+      ALL_CTPINMONDEC_SIZE = 4096;
+
+      CTPMON_MUX_OUTPUT_NUMBER = 9;
+      CTPMON_ADDRESS_SELECTOR_NUMBER = 24;
+      ALL_CTPMONSELECTOR_SIZE = CTPMON_MUX_OUTPUT_NUMBER * CTPMON_ADDRESS_SELECTOR_NUMBER;
+      ALL_CTPMONDECODER_SIZE = 6656;
+   } else {
+      // https://svnweb.cern.ch/trac/atlastdaq/browser/LVL1/ctp/CtpcorePlusModule/trunk/CtpcorePlusModule/CtpcorePlusModule.h
+      ALL_CTPCORELUT_SIZE = 725248; // 0xb1100
+      ALL_CTPCORECAM_SIZE =  55296;
+      
+      ALL_CTPINMONSEL_SIZE = 124;
+      ALL_CTPINMONDEC_SIZE = 4096;
+
+      CTPMON_MUX_OUTPUT_NUMBER = 9;
+      CTPMON_ADDRESS_SELECTOR_NUMBER = 24;
+      ALL_CTPMONSELECTOR_SIZE = CTPMON_MUX_OUTPUT_NUMBER * CTPMON_ADDRESS_SELECTOR_NUMBER;
+      ALL_CTPMONDECODER_SIZE = 6656;
+   }
+}
+
 
 // get the files 
 std::vector<uint32_t>

@@ -50,10 +50,11 @@ TrigConf::TriggerThresholdValue::caloGlobalScaleCountToGeV() {
 // constructors
 TrigConf::TriggerThresholdValue::TriggerThresholdValue( )
    : L1DataBaseclass()
-   , m_Type("dummy")
+   , m_Type("")
    , m_Ptcut(0.0)
    , m_Priority(0.0)
    , m_Window(0)
+   , m_WindowSize( JetWindowSize::NONE )
    , m_PhiMin(0)
    , m_PhiMax(64)
    , m_EtaMin(-49)

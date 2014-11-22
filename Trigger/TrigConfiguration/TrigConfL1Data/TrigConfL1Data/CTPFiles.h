@@ -16,22 +16,23 @@ namespace TrigConf {
    class CTPFiles : public L1DataBaseclass {
       
    public:
-      static const u_int ALL_CTPCORELUT_SIZE = 49664;      
-      static const u_int ALL_CTPCORECAM_SIZE =  8192;
+      static u_int ALL_CTPCORELUT_SIZE;      
+      static u_int ALL_CTPCORECAM_SIZE;
       
-      static const u_int ALL_CTPINMONSEL_SIZE = 124;
-      static const u_int ALL_CTPINMONDEC_SIZE = 4096;
+      static u_int ALL_CTPINMONSEL_SIZE;
+      static u_int ALL_CTPINMONDEC_SIZE;
 
-      static const u_int CTPMON_MUX_OUTPUT_NUMBER = 9;
-      static const u_int CTPMON_ADDRESS_SELECTOR_NUMBER = 24;
-      static const u_int ALL_CTPMONSELECTOR_SIZE = 
-         CTPMON_MUX_OUTPUT_NUMBER * CTPMON_ADDRESS_SELECTOR_NUMBER;
-      static const u_int ALL_CTPMONDECODER_SIZE = 6656;
-      
+      static u_int CTPMON_MUX_OUTPUT_NUMBER;
+      static u_int CTPMON_ADDRESS_SELECTOR_NUMBER;
+      static u_int ALL_CTPMONSELECTOR_SIZE;
+      static u_int ALL_CTPMONDECODER_SIZE;
+
+     
       CTPFiles();
       ~CTPFiles();
 
       // Accessors
+      void setFileSizes(unsigned int run);
 
       // return copy of vector
       std::vector<uint32_t> ctpcoreLUT();

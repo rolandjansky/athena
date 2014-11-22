@@ -8,9 +8,12 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include <string>
+extern "C" {
+#   include <stdint.h>
+}
 
 namespace TrigConf {
-  
+
    class TriggerThreshold;
    class TriggerItemNode;
 
@@ -52,6 +55,7 @@ namespace TrigConf {
       L1DataDef::TriggerType internalTriggerType() const { return m_InternalTrigger.first; }
       unsigned int       internalTriggerNumber() const { return m_InternalTrigger.second; }
 
+      void getAllFinalNodes(std::vector<const TriggerItemNode*>&) const;
       void getAllThresholds(std::vector<TriggerThreshold*>&) const;
       void getAllBunchGroups(std::vector<bool>&) const; // vector of size 16 that describes the BGRPs used
       void getBunchGroupsMask(uint16_t & bgmask) const; // uint16 that describes the BGRPs used

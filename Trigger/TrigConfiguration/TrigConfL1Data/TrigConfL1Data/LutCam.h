@@ -16,6 +16,7 @@ namespace TrigConf {
    class LutCam : public L1DataBaseclass {
       
    public:
+
       static const u_int ALL_LUT_SIZE = 49664; // the source of these numbers is the CtpcoreModule.cc (CtpcoreModule::LUT_ADDR_SIZE)
       static const u_int ALL_CAM_SIZE =  8192;
       

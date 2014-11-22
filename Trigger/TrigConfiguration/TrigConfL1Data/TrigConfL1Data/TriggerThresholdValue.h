@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -71,15 +73,15 @@ namespace TrigConf {
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
     
    protected:
-      std::string  m_Type {""};
-      float        m_Ptcut {0};
-      unsigned int m_Priority {0};
-      unsigned int m_Window {0};
-      JetWindowSize::Size m_WindowSize { JetWindowSize::NONE }; // mutable as long as we calculate it on the fly
-      int          m_PhiMin {0};
-      int          m_PhiMax {64};
-      int          m_EtaMin {-49};
-      int          m_EtaMax {49};
+      std::string  m_Type;
+      float        m_Ptcut;
+      unsigned int m_Priority;
+      unsigned int m_Window;
+      JetWindowSize::Size m_WindowSize; // mutable as long as we calculate it on the fly
+      int          m_PhiMin;
+      int          m_PhiMax;
+      int          m_EtaMin;
+      int          m_EtaMax;
    };
 
 }

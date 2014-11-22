@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -62,12 +64,12 @@ namespace TrigConf {
       std::string __str__() const;
 
    private:
-      unsigned int m_ComplexDeadtime = 0;
-      std::string m_Definition       = "";
-      TriggerItemNode* m_TopNode     = nullptr;
-      int m_CtpId                    = -1;
-      unsigned int m_TriggerType     = 0; // 8 bit word (4 bit for secondary partitions
-      unsigned int m_Partition       = 0; // 8 bit word
+      unsigned int m_ComplexDeadtime;
+      std::string m_Definition;
+      TriggerItemNode* m_TopNode;
+      int m_CtpId;
+      unsigned int m_TriggerType; // 8 bit word (4 bit for secondary partitions
+      unsigned int m_Partition; // 8 bit word
 
       friend std::ostream & operator<<(std::ostream &, const TrigConf::TriggerItem &);
    };

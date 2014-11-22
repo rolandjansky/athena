@@ -8,7 +8,10 @@
 using namespace std;
 
 TrigConf::BunchGroup::BunchGroup() : 
-   L1DataBaseclass()
+   L1DataBaseclass(),
+   m_InternalNumber( 99 ),
+   m_Partition( 0 ),
+   m_Bunches()
 {}
   
 TrigConf::BunchGroup::~BunchGroup() {}
@@ -43,7 +46,7 @@ TrigConf::BunchGroup::print(const std::string& indent, unsigned int detail) cons
 
 void TrigConf::BunchGroup::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) const {
    indent(xmlfile,indentLevel, indentWidth) 
-      << "<BunchGroup menuPartition=\"" << m_Partition << "\" internalNumber=\"" << m_InternalNumber << "\" name=\"" << name() << "\"";
+      << "<BunchGroup internalNumber=\"" << m_InternalNumber << "\" name=\"" << name() << "\"";
    if(m_Bunches.size()==0) {
       xmlfile << "/>" << endl;
    } else {

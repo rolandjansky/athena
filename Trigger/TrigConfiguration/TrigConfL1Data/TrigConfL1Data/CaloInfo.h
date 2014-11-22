@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -15,6 +17,14 @@
 namespace TrigConf {
 
    struct MinTOBPt {
+      MinTOBPt() {}
+      MinTOBPt( unsigned int ptmin,
+                int32_t etamin,
+                int32_t etamax,
+                unsigned int priority) : 
+         ptmin( ptmin ), etamin( etamin ), etamax( etamax ), priority( priority )
+      {}
+
       unsigned int ptmin {0};
       int32_t etamin {-49};
       int32_t etamax {49};
@@ -30,6 +40,8 @@ namespace TrigConf {
 
       // getters
       double                             globalScale() const { return m_GlobalScale; }
+      float                              globalEmScale() const { return m_GlobalEmScale; }
+      float                              globalJetScale() const { return m_GlobalJetScale; }
 
       const std::vector<int>&            jetWeights() const { return m_JetWeights; }
 
@@ -52,6 +64,8 @@ namespace TrigConf {
 
       // setters
       void setGlobalScale(double val) { m_GlobalScale = val; }
+      void setGlobalEmScale(float val) { m_GlobalEmScale = val; }
+      void setGlobalJetScale(float val) { m_GlobalJetScale = val; }
       void addJetWeight(int);
       void addCaloSinCos(const CaloSinCos&);
 
@@ -73,21 +87,23 @@ namespace TrigConf {
       
    protected:
       float                   m_GlobalScale {1};
+      float                   m_GlobalEmScale {1};
+      float                   m_GlobalJetScale {1};
       std::vector<int>        m_JetWeights;
       std::vector<CaloSinCos> m_CaloSinCos;
       METSigParam             m_METSigParam;
 
-      std::vector<IsolationParam>  m_IsolationHAIsoForEMthr{5};
-      std::vector<IsolationParam>  m_IsolationEMIsoForEMthr{5};
-      std::vector<IsolationParam>  m_IsolationEMIsoForTAUthr{5};
+      std::vector<IsolationParam>  m_IsolationHAIsoForEMthr;
+      std::vector<IsolationParam>  m_IsolationEMIsoForEMthr;
+      std::vector<IsolationParam>  m_IsolationEMIsoForTAUthr;
 
       MinTOBPt                m_tobEM;
       MinTOBPt                m_tobTau;
       MinTOBPt                m_tobJetSmall;
       MinTOBPt                m_tobJetLarge;
 
-      unsigned int            m_JetWindowSizeSmall {0};
-      unsigned int            m_JetWindowSizeLarge {0};
+      unsigned int            m_JetWindowSizeSmall {4};
+      unsigned int            m_JetWindowSizeLarge {8};
 
    };
 
