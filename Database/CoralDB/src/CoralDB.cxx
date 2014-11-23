@@ -541,7 +541,7 @@ void CoralDB::insertTagListTableRow(const string& tablename, const string& newTa
 
 
 int CoralDB::highestRevision(const std::string& tagsTableName) const {
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tagsTableName).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tagsTableName).newQuery());
   query->addToOutputList("COALESCE(MAX(REV),-1)", "RESULT");
   query->defineOutputType("RESULT", "int");
   coral::ICursor& c = query->execute();
@@ -558,7 +558,7 @@ void CoralDB::copyRevisions(const string& newIdTag, const string& newTag, int ne
   string newRevisionString = os.str();
 
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(tagsTableName).dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& subquery = operation->query();
   subquery.addToTableList(tagsTableName);
   subquery.addToOutputList("ID");
@@ -586,7 +586,7 @@ void CoralDB::copyConnectivityTag(const string& newtag, const string& tmpIdTag) 
   
   { // copy MASTERLIST    
     coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"MASTERLIST").dataEditor();
-    std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+    std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
     coral::IQueryDefinition& subquery = operation->query();
     subquery.addToTableList(TABLENAME_PREFIX+"MASTERLIST");
     
@@ -606,7 +606,7 @@ void CoralDB::copyConnectivityTag(const string& newtag, const string& tmpIdTag) 
 
   { // Copy CONNECTIONS
     coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"CONNECTIONS").dataEditor();
-    std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+    std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
     coral::IQueryDefinition& subquery = operation->query();
     subquery.addToTableList(TABLENAME_PREFIX+"CONNECTIONS");
 
@@ -649,7 +649,7 @@ void CoralDB::copyDataTag(const string& newtag, const string& tmpIdTag) {
     string newRevisionString = os.str();
 
     coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"CLOBS").dataEditor();
-    std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+    std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
     coral::IQueryDefinition& subquery = operation->query();
     subquery.addToTableList(TABLENAME_PREFIX+"CLOBS", "C");
     subquery.addToTableList(TABLENAME_PREFIX+"CLOBS_REVS", "T");
@@ -682,7 +682,7 @@ void CoralDB::copyAliasTag(const string& newtag, const string& tmpIdTag) {
   insertTagListTableRow(TABLENAME_PREFIX+"ALIASES_TAGS", newtag, newIdTag );
 
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"ALIASES").dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& subquery = operation->query();
   subquery.addToTableList(TABLENAME_PREFIX+"ALIASES");
 
@@ -707,7 +707,7 @@ void CoralDB::copyAliasTag(const string& newtag, const string& tmpIdTag) {
 long CoralDB::copyIdTagRows(const string& tableTo, const string& tableFrom, const string& srcIdTag, const vector<string>& columns) 
 {
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(tableTo).dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& subquery = operation->query();
   subquery.addToTableList(tableFrom);
   
@@ -745,7 +745,7 @@ void CoralDB::copyMissingObjects(const string& newIdTag, const CompoundTag &from
   //----------------------------------------------------------------
   // INSERT INTO OBJECTDICT ...
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT").dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& topquery = operation->query();
 
   //----------------------------------------------------------------
@@ -1283,7 +1283,7 @@ void CoralDB::setAliasTag(const string& existingTag) {
 
 void CoralDB::getTagList(const string& tablename, TagList& output, const string& idTag) const {
   output.clear();
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tablename).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tablename).newQuery());
   query->addToOutputList("TAG");
   query->addToOutputList("LOCKED");
 
@@ -1304,7 +1304,7 @@ void CoralDB::getTagList(const string& tablename, TagList& output, const string&
 void CoralDB::getExistingObjectDictionaryTags(IdTagList& output) const {
   ReadOnlyTransactionGuard tg(this);
   output.clear();
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT_TAGS").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT_TAGS").newQuery());
   query->addToOutputList("IDTAG");
   query->addToOutputList("LOCKED");
 
@@ -1397,7 +1397,7 @@ CompoundTag CoralDB::getHistoricTag(time_t timeArg) const {
   ReadOnlyTransactionGuard tg(this);
   time_t requestedTime = timeArg ? timeArg : time(0);
   
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"TAG_HISTORY").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"TAG_HISTORY").newQuery());
   query->addToOutputList("IDTAG");
   query->addToOutputList("CONNECTIVITY_TAG");
   query->addToOutputList("DATA_TAG");
@@ -1435,7 +1435,7 @@ void CoralDB::getHistoryTable(HistoryTable& result) {
   ReadOnlyTransactionGuard tg(this);
   //coral::TimeStamp requestedTime = (timeArg == coral::TimeStamp())  ? coral::TimeStamp(seal::Time::current()) : timeArg;
   
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"TAG_HISTORY").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"TAG_HISTORY").newQuery());
   query->addToOutputList("IOV_BEGIN");
   query->addToOutputList("IDTAG");
   query->addToOutputList("CONNECTIVITY_TAG");
@@ -1515,7 +1515,7 @@ bool CoralDB::deleteMaster(const string& id) {
 
 vector<string> CoralDB::masterList() const {
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"MASTERLIST").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"MASTERLIST").newQuery());
   query->addToOutputList("ID");
   coral::AttributeList data;
   data.extend<string>("idtag");
@@ -1537,7 +1537,7 @@ vector<string> CoralDB::masterList() const {
 
 bool CoralDB::addObject(const string& id, const string& type) {
   bool didInsert = false;
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT").newQuery());
   query->addToOutputList("TYPE");
   coral::AttributeList data;
   data.extend<string>("ID");
@@ -1672,7 +1672,7 @@ bool CoralDB::renameID(const string& newId, const string& oldId) {
   // copy oldId ==> newId
     
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"OBJECTDICT").dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& subquery = operation->query();
   subquery.addToTableList(TABLENAME_PREFIX+"OBJECTDICT");
   subquery.addToOutputList(":NEWID");
@@ -1746,7 +1746,7 @@ void CoralDB::getObjectDictionary(ObjectDictionaryMap& objDict, const CompoundTa
   objDict.clear();
   ReadOnlyTransactionGuard tg(this);
 
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
 
   std::vector<coral::AttributeList> data;
 
@@ -2150,7 +2150,7 @@ vector<Connection> CoralDB::findConnectionsToSlot(const string& id, const string
 void CoralDB::getConnectionTable(ConnectionTableMap& connTable) const {
   connTable.clear();
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"CONNECTIONS").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"CONNECTIONS").newQuery());
   query->addToOutputList("ID");
   query->addToOutputList("SLOT");
   query->addToOutputList("TOID");
@@ -2178,7 +2178,7 @@ void CoralDB::getConnectionTable(ConnectionTableMap& connTable) const {
 void CoralDB::getConnectionTableForType(const string& type, bool getOutConnections, ConnectionTableMap& connTable) const {
   connTable.clear();
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "CONNECTIONS", "C");
   query->addToTableList(TABLENAME_PREFIX + "OBJECTDICT", "D");
 
@@ -2370,7 +2370,7 @@ bool CoralDB::deleteAlias(const string& id, const string& convention) {
 
 vector<Alias> CoralDB::findAliases(const string& id) const {
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"ALIASES").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"ALIASES").newQuery());
   query->addToOutputList("ALIAS");
   query->addToOutputList("CONVENTION");
   coral::AttributeList data;
@@ -2425,7 +2425,7 @@ string CoralDB::findId(const string& alias, const string& convention) const {
 
 void CoralDB::getAliasesTable(AliasesTable& res) const {
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"ALIASES").newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"ALIASES").newQuery());
   query->addToOutputList("ALIAS");
   query->addToOrderList("ALIAS");
   query->addToOutputList("CONVENTION");
@@ -2456,7 +2456,7 @@ void CoralDB::addNewRevision(const string& id, const string& tag, const string& 
 
   // First try to insert the new ID, assuming a REV is already defined for this (IDTAG,TAG)
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(tagsTableName).dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> newidop(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> newidop(editor.insertWithQuery());
   coral::IQueryDefinition& newidq = newidop->query();
   newidq.addToTableList(tagsTableName);
   newidq.addToOutputList("'"+id+"'");
@@ -2483,7 +2483,7 @@ void CoralDB::addNewRevision(const string& id, const string& tag, const string& 
   if(!numRows) { // Need to define new REV number, this (IDTAG,TAG) has not been seen
     // First try to insert the new ID, assuming a REV is already defined for this (IDTAG,TAG)
 
-    std::auto_ptr<coral::IOperationWithQuery> newtagop(editor.insertWithQuery());
+    std::unique_ptr<coral::IOperationWithQuery> newtagop(editor.insertWithQuery());
     coral::IQueryDefinition& newtagq = newtagop->query();
     newtagq.addToTableList(tagsTableName);
     newtagq.addToOutputList("'"+id+"'");
@@ -2510,7 +2510,7 @@ void CoralDB::addNewRevision(const string& id, const string& tag, const string& 
 //
 bool CoralDB::insertClobTableRow(const string& id, const string& field, const string& clob) {
   coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle(TABLENAME_PREFIX+"CLOBS").dataEditor();
-  std::auto_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
+  std::unique_ptr<coral::IOperationWithQuery> operation(editor.insertWithQuery());
   coral::IQueryDefinition& subquery = operation->query();
   subquery.addToTableList(TABLENAME_PREFIX+"CLOBS_REVS");
   subquery.addToOutputList("ID");
@@ -2619,7 +2619,7 @@ bool CoralDB::updateCLOB(const string& id, const string& field, const string& cl
 
 string CoralDB::findCLOB(const string& id, const string& field) const {
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "CLOBS", "C");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS_REVS", "T");
   query->addToOutputList("DATA");
@@ -2659,7 +2659,7 @@ string CoralDB::findCLOB(const string& id, const string& field) const {
 
 void CoralDB::findCLOBs(const string& id, ClobDataContainer& result) const {
   ReadOnlyTransactionGuard tg(this);
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "CLOBS", "C");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS_REVS", "T");
   query->addToOutputList("FIELD");
@@ -2696,7 +2696,7 @@ void CoralDB::getIdClobbedForType(const string& objType,ObjectDictionaryMap& res
   result.clear();
   ReadOnlyTransactionGuard tg(this);
 
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "OBJECTDICT", "D");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS", "C");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS_REVS", "T");
@@ -2727,7 +2727,7 @@ void CoralDB::getClobNames(ClobNameContainer& result) const {
   result.clear();
   ReadOnlyTransactionGuard tg(this);
 
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "CLOBS", "C");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS_REVS", "T");
   query->addToOutputList("C.ID", "ID");
@@ -2754,7 +2754,7 @@ void CoralDB::getNamedClobsForType(const string& objType, const string& field, C
   result.clear();
   ReadOnlyTransactionGuard tg(this);
 
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().newQuery());
   query->addToTableList(TABLENAME_PREFIX + "OBJECTDICT", "D");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS", "C");
   query->addToTableList(TABLENAME_PREFIX + "CLOBS_REVS", "T");
@@ -2849,7 +2849,7 @@ void CoralDB::observeTagLocks() const {
 template<class T> T CoralDB::findEntry(const string& tableName, const string& keyField, const string& keyValue, const string& resultField) 
   const
 {
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
   query->addToOutputList(resultField);
   coral::AttributeList data;
   data.template extend<string>(keyField);
@@ -2877,7 +2877,7 @@ template<class T> T CoralDB::findEntry(const string& tableName, const string& ke
 				       const string& keyField2, const string& keyValue2, const string& resultField)
   const
 {
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
   query->addToOutputList(resultField);
   coral::AttributeList data;
   data.template extend<string>(keyField1);
@@ -2909,7 +2909,7 @@ template<class T> T CoralDB::findEntry(const string& tableName, const string& ke
 template<class T, class KeyContainer> T CoralDB::findEntry(const string& tableName, const KeyContainer& keys, const string& resultField)
   const
 {
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
   query->addToOutputList(resultField);
   coral::AttributeList data;
   string conditions;
@@ -3017,7 +3017,7 @@ long CoralDB::updateRows(const string& tableName, const string& keyField1, const
 
 
 bool CoralDB::checkForLockedTags(const string& tableName, const string& idTag) const {
-  std::auto_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
+  std::unique_ptr<coral::IQuery> query(m_session->nominalSchema().tableHandle(tableName).newQuery());
   query->addToOutputList("LOCKED");
   coral::AttributeList data;
   data.extend<string>("IDTAG");
