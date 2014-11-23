@@ -1,0 +1,48 @@
+Usage: iLumiCalc.exe [OPTIONS]...
+
+  -h, --help                  Print help and exit
+      --version               Print version and exit
+
+Flags to specify data sample:
+  -r, --runnumber=STRING      Run number, range, or comma separated list, e.g. 
+                                177986-178109,179710
+      --lbstart=INT           LumiBlock number begin
+      --lbend=INT             LumiBlock number end
+  -x, --xml=STRING            Input XML file name
+      --xml_blacklist=STRING  Input XML file of blacklist
+  -T, --tag=STRING            Input TAG file name
+      --root=STRING           Input ROOT file name
+      --tree=STRING           Name of TTree in input ROOT file to which Lumi 
+                                string is attached
+      --d3pd_dir=STRING       Name of TDirectory in input ROOT file where Lumi 
+                                string is stored
+
+Flags to control luminosity calculation:
+      --lumitag=STRING        Offline luminosity database tag  
+                                (default=`OflLumi-8TeV-002')
+      --online                Use online luminosity estimates instead of 
+                                offline database  (default=off)
+      --lumichannel=INT       Luminosity estimate method by value  
+                                (default=`0')
+      --lumimethod=STRING     Luminosity estimate method by string  
+                                (default=`ATLAS_PREFERRED')
+  -t, --trigger=STRING        Trigger chain name used for prescale calculation
+      --livetrigger=STRING    L1 Trigger used for livetime calculation  
+                                (default=`L1_EM30')
+      --lar                   Calculate LAr defect fraction  (default=off)
+      --lartag=STRING         LAr noise burst database tag  
+                                (default=`LARBadChannelsOflEventVeto-UPD4-01')
+      --beamspot              Require online beamspot valid in trigger 
+                                livefraction  (default=off)
+      --beamspottag=STRING    Online beamspot database tag  
+                                (default=`IndetBeamposOnl-HLT-UPD1-001-00')
+      --scale_lumi=DOUBLE     Scale luminosity with a constant value  
+                                (default=`1.0')
+
+Flags to control output:
+      --xml_out=STRING        Output XML file name
+      --xml_collisionlist     Output XML file of lists of collision candidates  
+                                (default=off)
+      --plots                 Create some plots on demand  (default=off)
+  -V, --verbose               Verbose output level  (default=off)
+      --quiet                 Quiet output level  (default=off)

@@ -1,0 +1,28 @@
+This file gives instructions for setting up the lumicalc web service.  There are three servers:
+aiatlas110.cern.ch -> https://atlas-lumicalc-devel.cern.ch
+
+First, make sure you have a working directory:
+asetup 19.2.0,here
+cmt co LumiBlock/LumiCalc
+
+Make any changes, test, and compile before installing with git
+We will re-build this on the server.
+(cd LumiBlock/LumiCalc/cmt; gmake clean)
+
+Edit the ChangeLog
+Change the html/version.html file
+
+Then commit:
+svn ci -m <comment>
+svn cp . $SVNROOT/LumiBlock/LumiCalc/tags/LumiCalc-<version>
+
+Now, install using git.  From the release directory:
+
+git init
+git add LumiBlock
+git add InstallArea
+git commit -m 'first commit'
+unset SSH_ASKPASS
+git config --global http.sslVerify false
+git push https://torrence@lumicalc-devel.cern.ch/git/lumicalc/ master:master
+

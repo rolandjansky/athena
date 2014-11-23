@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>ATLAS Luminosity Calculator</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+    <meta name="ATLAS_Luminosity_Calculator" content="ATLAS Luminosity Calculator"></meta>
+    <link rel="stylesheet" type="text/css" href="css/atlas-datasummary.css" media="screen"></link>
+    <link rel="stylesheet" type="text/css" href="css/atlas-datasummary-print.css" media="print"></link>
+    <link rel="shortcut icon" href="images/favicon.ico"></link>
+</head>
+<body>
+<table class="toptable">
+<!--#include virtual="header.html" -->
+</table>
+<div id="content">
+<p>This form provides a restricted interface to the luminosity calculator iLumiCalc.exe.  A Good Run List appropriate for your processed data sample is required as an input.</p>
+<h3>Useful Links</h3>
+<ul>
+<li><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/LuminosityForPhysics">Luminosity Recommendations for Physics</a></li>
+<li><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/GoodRunsLists">Good Runs List TWiki</a></li>
+<li><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/CoolLumiCalcTutorial">LumiCalc Tutorial</a></li>
+<li><a href="https://twiki.cern.ch/twiki/bin/view/Atlas/LuminosityOfflineCool">Offline Luminosity Tags</a></li>
+<li><a href="http://cdsweb.cern.ch/record/970678">Luminosity Task Force Report</a></li>
+<li><a href="http://atlasdqm.web.cern.ch/atlasdqm/grlgen/">Standard GRLs available for download</a></li>
+<li><a href="https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LArEventVetoRel17">LAr Event Veto instructions</a></li>
+</ul>
+<h3>LumiCalc News</h3>
+<ul>
+<li><font color="red">19 Oct, 2014</font> - Tag OflLumi-2p76TeV-002 now final for 2013.</li>
+<li><font color="red">7 Oct, 2014</font> - Move to new server infrastructure.</li>
+<li><font color="red">9 May, 2014</font> - Tag OflLumi-HI-002 available for proton-lead.</li>
+<li><font color="red">21 Jun, 2013</font> - Tag OflLumi-7TeV-004 available with beam-beam corrections.</li>
+<li><font color="red">12 Feb, 2013</font> - Tag OflLumi-8TeV-003 available for Winter 2013.</li>  
+<!-- <li><font color="red">17 Jan, 2013</font> - Create CSV file of luminosity table.</li>   -->
+<!-- <li><font color="red">13 Jan, 2013</font> - Updated LAr EventVeto tag now default.</li>   -->
+<!-- <li><font color="red">21 Dec, 2012</font> - Updated LAr EventVeto tag for reprocessing available.</li>   -->
+<!-- <li><font color="red">13 Oct, 2012</font> - LAr EventVeto tag for reprocessing available.</li>   -->
+<!-- <li><font color="red">5 Sep, 2012</font> - Tag OflLumi-2p76TeV-001 available using preliminary vdM calibration for 2011 2.76 TeV data.</li>   -->
+<!-- <li><font color="red">30 Aug, 2012</font> - Option added to include online beamspot validity in trigger live fraction for b-jet triggers.</li>   -->
+<!-- <li><font color="red">30 Aug, 2012</font> - Support for BGRP7 triggers using --lumichannel=17</li> -->
+<!-- <li><font color="red">13 June, 2012</font> - Tag OflLumi-8TeV-002 available with (slightly) revised preliminary 2012 vdM calibrations.</li> -->
+<!-- <li><font color="red">4 June, 2012</font> - Tag OflLumi-7TeV-003 available with final 2011 vdM calibrations.</li> -->
+<!-- <li><font color="red">1 May, 2012</font> - Tag OflLumi-8TeV-001 available with preliminary 2012 vdM calibrations.</li> -->
+<!-- <li><font color="red">4 April, 2012</font> - First 2012 tag added.</li> -->
+<!-- <li><font color="red">7 September, 2011</font> - Moved to new server, LAr EventVeto added.</li> -->
+<!-- <li><font color="red">23 August, 2011</font> - General speedup, run ranges can now be used in conjunction with XML files to process a subset of the GRL.</li> -->
+<!-- <li><font color="red">04 July, 2011</font> - Tag OflLumi-7TeV-002 is now available with 2011 vdM calibrations.  This is now ready for physics use.</li> -->
+<!-- <li><font color="red">27 May, 2011</font> - To simplify 2011 data analysis, the OflLumi-7TeV-001 tag is now being updated as new data is recorded.</li> -->
+<!-- <li><font color="red">8 May, 2011</font> - Note: random trigger rates are NOT correctly accounted for in the luminosity calculation for random-seeded triggers!  For the moment these additional factors need to be applied separately.</li> -->
+<!-- <li><font color="red">7 May, 2011</font> - data10_7TeV tag for Moriond 2011 available as OflLumi-7TeV-003 (simple scaling of OflLumi-7TeV-002).</li> -->
+<!-- <li><font color="red">18 April, 2011</font> - LumiCalc now produces a histogram of average interactions per beam crossing (mu).  Use the --plots option to enable this. -->
+<!-- <li><font color="red">3 April, 2011</font> - First estimate of 2.76 TeV luminosity available at OflLumi-2p76TeV-000.</li> -->
+<!-- <li><font color="red">30 March, 2011</font> - For first estimates of 2011 luminosity, the preferred tag is OflLumi-7TeV-000.</li> -->
+<!-- <li><font color="red">7 March, 2011</font> - There is a new evaluation of the Luminosity scale and systematics available for Moriond.  To use this new evaluation, simply multiply the results returned by the OflLumi-7TeV-002 tag by 0.964.</li> -->
+</ul>
+<h3>Recommendations</h3>
+<table class="lumitable">
+<tr><th width=200pt>Data Sample</th><th width=200pt>Recommended<br />Luminosity Tag</th><th width=200pt>Recommended<br />Livefraction Trigger</th><th width=200pt>Comments</th></tr>
+<tr><td>data13_hip</td><td>OflLumi-HI-002</td><td>L1_LUCID_A_C</td><td>Preliminary vdM calibration</td></tr>
+<tr><td>data13_2p76TeV</td><td>OflLumi-2p76TeV-002</td><td>L1_LUCID_A_C</td><td>Final 2.76 lumi</td></tr>
+<tr><td>data12_8TeV</td><td>OflLumi-8TeV-003</td><td>L1_EM30</td><td>Preliminary 2012 vdM calibration</td></tr>
+<tr><td>data11_7TeV</td><td>OflLumi-7TeV-004</td><td>L1_EM30</td><td>Final 2011 results<br />(with beam-beam corrections)</td></tr>
+<tr><td>data10_7TeV</td><td>OflLumi-7TeV-004</td><td>L1_MBTS_2</td><td>Final 2010 results<br />(with beam-beam corrections)</tr>
+<tr><td>data11_2p76</td><td>OflLumi-2p76TeV-002</td><td>L1_LUCID_A_C</td><td>Final 2.76 lumi</td></tr>
+<tr><td>data10_hi</td><td>OflLumi-HI-000</td><td>L1_LUCID_A_C</td><td>Online estimate</td></tr>
+</table>
+<h3>Luminosity Calculator</h3>
+<p>See below for a synopsis of these quantities.</p>
+<form enctype="multipart/form-data" action="cgi-bin/LumiCalcHtml.py" method="post">
+<table class="bigtable">
+<tbody>
+<tr>
+<td width="20%">GRL XML File:</td>
+<td><input type="file" name="file" style="width: 100%" /></td>
+<td>GRL XML file which defines the data sample of interest. See below for information how to specify a subset of a GRL.</td>
+</tr>
+<tr>
+<td>Luminosity Tag:</td> 
+<td><select name="lumitag">
+<option value="OflLumi-8TeV-003" SELECTED>OflLumi-8TeV-003 (preferred 2012)</option>
+<option value="OflLumi-8TeV-002">OflLumi-8TeV-002</option>
+<option value="OflLumi-8TeV-001">OflLumi-8TeV-001</option>
+<option value="OflLumi-8TeV-000">OflLumi-8TeV-000</option>
+<option value="OflLumi-7TeV-004">OflLumi-7TeV-004 (final 2011, 2010)</option> 
+<option value="OflLumi-7TeV-003">OflLumi-7TeV-003</option> 
+<option value="OflLumi-7TeV-002">OflLumi-7TeV-002</option> 
+<option value="OflLumi-7TeV-001">OflLumi-7TeV-001</option> 
+<option value="OflLumi-7TeV-000">OflLumi-7TeV-000</option> 
+<option value="OflLumi-2p76TeV-002">OflLumi-2p76TeV-002 (final 2011, 2013)</option>
+<option value="OflLumi-2p76TeV-001">OflLumi-2p76TeV-001 (initial vdM calibration)</option>
+<option value="OflLumi-2p76TeV-000">OflLumi-2p76TeV-000 (initial offline estimate)</option>
+<option value="OflLumi-900GeV-001">OflLumi-900GeV-001 (900 GeV data only)</option> 
+<option value="OflLumi-HI-002">OflLumi-HI-002 (preferred 2013 p-Pb)</option> 
+<option value="OflLumi-HI-001">OflLumi-HI-001</option> 
+<option value="OflLumi-HI-000">OflLumi-HI-000 (preliminary heavy ion luminosity)</option> 
+<option value="OflLumi-UPD2-002">OflLumi-UPD2-002 (testing)</option> 
+<option value="--online">--online (not for physics use)</option>
+</select>
+</td>
+<td>Tag which defines the specific version of the luminosity measurement.  Only use --online for diagnostic checks.</td>
+</tr>
+<tr>
+<td>Live Fraction Trigger:</td>
+<td><input type="text" name="livetrig" size="40" value="L1_EM30" />
+</td>
+<td>This trigger is only used to compute the L1 live fraction.  Any high rate L1 trigger can be used.  Please see below for recommendations.</td>
+</tr>
+<tr>
+<td>Physics Trigger:</td>
+<td><input type="text" name="trigger" size="40" value="None" /></td>
+<td>This trigger is used to compute the prescale correction.  It is possible to use a L1 trigger, but if that trigger is prescaled at the HLT, you will get the wrong result!  Specify None to assume a prescale of 1 for all luminosity blocks.</td>
+</tr>
+<tr>
+<td>LAr EventVeto Tag:</td>
+<td><select name="lartag">
+<option value="LARBadChannelsOflEventVeto-UPD4-04" SELECTED>LARBadChannelsOflEventVeto-UPD4-04 (recommended)</option> 
+<option value="LARBadChannelsOflEventVeto-UPD4-03">LARBadChannelsOflEventVeto-UPD4-03</option> 
+<option value="LARBadChannelsOflEventVeto-UPD4-02">LARBadChannelsOflEventVeto-UPD4-02 (HCP dataset)</option> 
+<option value="LARBadChannelsOflEventVeto-UPD4-01">LARBadChannelsOflEventVeto-UPD4-01</option> 
+<option value="None">None</option>
+</select>
+</td>
+<td>Tag which defines the LAr Event Veto information.  Must be used to assess LAr Event Veto inefficiency.  Use None to turn this off.  See below or <a href="https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LArEventVetoRel17">here</a> for details.</td>  
+</tr> 
+<tr>
+<td>Other Options:</td>
+<td>
+<input type="checkbox" name="other" value="--lumichannel=17" /> Calculate BGRP7 luminosity (--lumichannel=17)<br />
+<input type="checkbox" name="other" value="--beamspot" /> Require online beamspot (--beamspot)<br />
+<input type="checkbox" name="other" value="--plots" /> Create output plots and ntuples (--plots)<br />
+<input type="checkbox" name="other" value="--verbose" /> Verbose output (--verbose)<br />
+<input type="text" name="clopts" size="40" /> Additional options</td>
+<td>Add any additional options here.  Use --help, or just click the Calculate Luminosity button below with no GRL specified, to find other possibilities.</td>
+</tr>
+</tbody>
+</table>
+<p>Remember, this process can take considerable time (minutes) for large data samples.  Pushing the button again will only make things worse. Please be patient!<br />
+<input type="submit" value="Calculate Luminosity" />
+</p>
+</form>
+<h3>Definitions</h3>
+<h4>Good Run List</h4>
+<p>A Good Run List (GRL) is an ATLAS standard XML file format which defines a list of Run and Luminosity Blocks to be considered.  The only officially supported source of GRLs is through the <a href="https://atlasdqm.cern.ch/grl/">Good Runs List Generator</a>.  There is also a growing list of pre-computed <a href="http://atlasdqm.web.cern.ch/atlasdqm/grlgen/">standard GRLs</a> available.</p>
+<p>  To specify a subset of an entire GRL, you can use the the run specifier in the Other Options box.  For example, -r 180614-180776,182726-183462 will only process runs in the XML file found in that run range.  This happens to correspond to periods E and G.  You can use a single run, a range, an open-ended range (e.g.: -r 182726-), or combine any of these into a comma separated list.  A run which satisfies any of these run-range criteria will be processed.</p>
+<h4>Luminosity Tag</h4>
+<p>The luminosity tag specifies the tag of the offline luminosity folder in COOL to use.  Details on the available tags can be found at the <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/LuminosityOfflineCool">Offline Luminosity Tags</a> TWiki page.</p>
+<h4>Live Fraction Trigger</h4>
+<p>Technically a question of trigger efficiency, for convenience the luminosity calculator also will compute the L1 live fraction, which is the fraction of delivered luminosity which ATLAS actually recorded.  Triggered events can be ignored (vetoed) for a number of reasons, including DAQ deadtime, HLT or SFO backpressure, or because the DAQ is paused.  Currently, the method for measuring the L1 live fraction is to count the number of triggers before and after veto which is stored independently in COOL.  In typical operations, all triggers in a given bunch group should observe an identical veto rate (and hence share the same live fraction).  The best trigger to use to make this determination is a trigger which has a high rate after prescale, so that the statistical uncertainty per luminosity block is low.</p>
+<p>The recommended live fraction triggers are:</p>
+<ul>
+<li>2010 pp: L1_MBTS_2 - this was the highest rate L1 trigger in 2010</li>
+<li>2010 HI: L1_LUCID_A_C - due to problems with the MBTS in HI running, this backup min-bias trigger is preferred</li>
+<li>2011 pp before September: L1_EM14 - guaranteed to be in the menu with rather high rate, this is the best option for 2011 data until September, removed from the menu in early September</li>
+<li>2011 pp: L1_EM30 - present for all of 2011, still has adequate rate, this is the best option for the complete 2011 data sample</li>
+<li>2012 pp: L1_EM30 - present for all of 2012</li>
+<li>2013: L1_LUCID_A_C - best minbias trigger for both pp at 2.76 TeV and p-Pb.</li>
+</ul>
+<p> One can also check the livefraction using any L1 physics trigger and similar results should be obtained.  Problems can be found if the prescaled trigger has a low enough rate to be in the range of Poisson statistics per lumi block, although summed over many luminosity blocks, the overall livefraction rate should still be accurate.</p>
+<h4>Physics Trigger</h4>
+<p>As another convenience, the luminosity calculator can also incorporate any trigger prescale into the definition of luminosity, but similar to the live fraction this is really a measure of the trigger efficiency.  It is important to always specify the ultimate EF trigger, as the relevant prescale factor is the product of L1, L2, and EF prescales.  Even though a given L1 trigger may be unprescaled, it doesn't mean that the HLT hasn't been configured to throw events away.  The luminosity calculation divides the delivered luminosity per lumi block by the total prescale factor to arrive at the luminosity after prescale.  The column reporting Lumi-weighted prescale is simply the ratio of total luminosity with and without this correction.  If you prefer to deal with the prescales somewhere else in your analysis, simply specify None and a prescale of 1 will be assumed.</p>    
+<p>If the specified trigger item doesn't exist or is disabled for a given luminosity block (indicated in TrigConf by a prescale of -1), the luminosity calculator will treat this as an infinite prescale.  This means this lumi block will not contribute to the delivered luminosity after prescale.  In addition, this luminosity block will be marked as 'Bad' in the accounting of Good/Bad luminosity blocks.  The other reason why a lumi block will be flagged as bad is if the luminosity value is known to be invalid.  No lumi block with a Green LUMI DQ flag should contain invalid data.</p>
+<p>Please note that the random trigger rates are not currently accounted for by the luminosity calculator.  Any random-seeded trigger will typically have a luminosity reported which is much larger than the true luminosity.</p>
+<h4>LAr Event Veto</h4>
+<p>Starting with the Release 17 reprocessing (Summer 2011) and all data taken from September 2011 onwards, certain LAr defects (noise bursts) are not rejected at the GRL stage.  
+Users must reject specific events instead, as more fully described on the <a href="https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LArEventVetoRel17">LArEventVetoRel17 TWiki</a>.  
+The loss of luminosity from applying these event vetos is calculated by determining what fraction of a given luminosity block has fallen into one of these LAr EventVeto periods.  
+The LAr event veto database is versioned, and one must use the DB tag which matches the version of the data being processed.  
+Please consult the <a href="https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LArEventVetoRel17">LArEventVetoRel17 TWiki</a> for the latest recommendation.</p>
+<p>If you want to specify a tag not present in the pop-up list, specify none, and in the Other Options box use --lar --lartag=TAG.</p>
+<h4>Other Options</h4>
+<p>Additional options can be specified in the text box, or by using the handy check boxes for commonly used options.  For triggers which use BGRP7, you must specify channel 17 to get the BGRP7 luminosity.  For triggers which include b-jet triggers, you must require the online beamspot status to be valid to get the correct livefraction.</p>
+</div>
+<!--#include virtual="footer.html" -->
+</body>
+</html>
+

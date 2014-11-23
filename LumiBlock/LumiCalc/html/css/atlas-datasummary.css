@@ -1,0 +1,245 @@
+body { margin:0 0 0; padding:0; background-color: #ffffff;}
+
+#content { padding: 10px; }
+
+table.bodytable 
+{ 
+  height:100%; 
+  vertical-align:top; 
+  padding: 0px; 
+  margin-left: 7px; 
+  margin-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  width:100% 
+}
+
+td { vertical-align: middle; text-align: left; font-family: sans-serif; font-size: 90%; }
+th { vertical-align: bottom; text-align: center; font-family: sans-serif; font-weight: bold; font-size: 90%; }
+
+td.option { width: 160px; }
+td.array  { width:  50px; }
+td.val    { width: 120px; }
+td.predef { width: 150px; }
+td.info   { width: 320px; }
+
+p.pgm { font-family: sans-serif }
+td.pgm { font-family: sans-serif; color: #222222; vertical-align: top; font-size: 87%; width: 50%; background: white; }
+td.cmt { font-family: sans-serif; color: #444444; font-size: 80%; vertical-align: top; background: white; }
+td.space { background: white; height: 10px; }
+
+th.alltitle { color: white; background-color: #2B3856; padding: 0 }
+th.alldescr { font-weight: normal; color: #222222; background-color: white; font-size: 80%; }
+th.coltitle { color: black; background-color: #98AFC7; }
+td.helptd { font-weight: normal; color: #000000; background-color: white; font-size: 130%; }
+
+table.toptable
+{
+  position: relative;
+  width: 100%;
+  top: 0;
+  bottom: auto;
+  left: 0;
+  right: auto;
+  margin: 0 0 0 0;
+  padding-top: 0px;
+  color: #ffffff;
+  background-repeat: no-repeat;
+  background-color: #5D6B7D;
+}
+
+table.toptable a 
+{ 
+  color:white;
+  font-size: 75%; 
+}
+
+table.toptable td
+{ 
+  text-align: left;
+  padding-left: 10px;
+}
+
+table.toptableLinks
+{
+  margin-left: auto; 
+  margin-right: 10px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  color: #ffffff;
+  background-repeat: no-repeat;
+}
+
+table.toptableLinks td 
+{ 
+  text-align: right;
+  border: 0px white solid;
+  padding: 0.4em;
+}
+
+table.bottomtable
+{
+  position: relative;
+  width: 100%;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  margin: 0 0 0 0;
+  padding-top: 0px;
+  color: #ffffff;
+  background-repeat: no-repeat;
+  background-color: #5D6B7D;
+  font-size: 85%;
+}
+
+table.bottomtable td
+{ 
+  padding-left: 12px;
+  padding-right: 15px;
+}
+
+table.bottomtable a 
+{ 
+  color:white;
+  font-style: italic;
+}
+
+td.t1 {
+  background: #B0FA91;
+}
+
+td.t2 {
+  background: #D9FAC9;
+}
+
+tr.highlight {
+  background: #FFFaa0;
+  color: #000000;
+}
+
+tr.sum {
+  background: #FFFaa0;
+  font-size: 90%;
+  color: #000000;
+  text-align: right;
+}
+
+tr.space {
+  background: #ffffff;
+  font-size: 90%;
+}
+
+a {text-decoration:none}
+:link    { color: rgb(0, 0, 100) }  /* for unvisited links */
+:visited { color: rgb(0, 0, 100) } /* for visited links */
+a:active { color: rgb(0, 0, 100) } /* when link is clicked */
+a:hover { text-decoration: underline; font-style: normal; color: rgb(0, 0, 150); }
+
+a.nolink:hover { text-decoration: none; color: white }
+ 
+a.info{
+  position:relative; /*this is the key*/
+  font-size: 11px;
+  background-color:#ffffff;
+  color:#777777;
+  text-decoration:none;
+  font-weight: lighter
+}
+
+a.info:hover{
+  background-color:#ffffff;
+  color:#aaaaaa;
+  font-weight: lighter
+}
+
+a.info span{
+  display: none
+}
+
+a.info:hover span{ /*the span will display just on :hover state*/
+  display:block;
+  font-size: 12px;
+  position:absolute;
+  top:-5em; left:0em; width:37em;
+  border:1px solid #667295;
+  background-color:#E5E9F5; 
+  color:#000000;
+  text-align: left;
+  font-weight: lighter;
+  padding: 5px
+}
+
+div.tooltip 
+{ 
+  font-size:11px; 
+  width:23em;
+}
+
+div.tip2 
+{
+  width:37em; 
+}
+
+table.defaulttable 
+{ 
+  padding: 0;
+  font-size: 120%; 
+  table-layout: fixed;
+}
+
+/* Specific table options */
+/*
+table.lumitable {
+	width: 100%;
+}
+*/
+
+table.lumitable td {
+	border: thin solid black;
+	text-align: right;
+}
+
+table.lumitable th {
+	font-weight: bold;
+	color: #ffffff;
+	background: #5D6B7D;
+	padding: 4px;
+}
+
+table.bigtable {
+	width: 100%;
+}
+
+table.bigtable td {
+	border: thin solid black;
+}
+
+table.bigtable th {
+	font-weight: bold;
+	color: #ffffff;
+	background: #5D6B7D;
+}
+
+
+/*
+table.timetable {
+	width: 100%;
+}
+*/
+
+table.timetable td {
+	border: thin solid black;
+}
+
+table.timetable th {
+	font-weight: bold;
+	color: #ffffff;
+	background: #5D6B7D;
+}
+
+table.summary {
+	background: #D4A017;
+}

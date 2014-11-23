@@ -1,0 +1,71 @@
+This file gives complete instructions for setting up the web-based lumicalc webserver on a new machine.
+Currently, this is available as https://atlas-lumicalc.cern.ch/ on voatlas204.
+
+o) Log into the target server
+
+ssh lxvoadm.cern.ch
+ssh voatlas204
+sudo -i -u atdsadm
+cd /var/vhost/atlas-lumicalc/secure
+
+o) Set up a release directory
+
+export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
+source $AtlasSetup/scripts/asetup.sh 16.6.6,here
+
+o) Change SVN 
+
+export SVNROOT=svn+ssh://torrence@svn.cern.ch/reps/atlasoff
+
+o) Check out package
+
+cmt co LumiBlock/LumiBlockComps 
+cmt co LumiBlock/LumiCalc
+
+o) Compile the package (no need to compile LumiCalc)
+
+(cd LumiBlock/LumiBlockComps/cmt; cmt bro gmake)
+
+o) Provide links to all needed html files in LumiCalc
+ln -fs LumiBlock/LumiCalc/html/index.html index.html
+ln -fs LumiBlock/LumiCalc/html/header.html header.html
+ln -fs LumiBlock/LumiCalc/html/footer.html footer.html
+ln -fs LumiBlock/LumiCalc/html/css css
+
+o) Provide link to result directory
+mkdir /tmp/lumifiles
+ln -fs /tmp/lumifiles results
+ 
+o) Provide a link to the iLumiCalc application scripts
+ln -fs LumiBlock/LumiCalc/python/LumiCalcHtml.py LumiCalcHtml.py
+ln -fs LumiBlock/LumiCalc/python/LumiCalcWorking.py LumiCalcWorking.py
+
+o) Link or copy the actual iLumiCalc execution script and modify for actual executable location
+cp LumiBlock/LumiCalc/share/runLumiCalc.sh .
+
+o) Create an install.sh file to make it easier to update from svn
+
+#!/bin/sh
+#
+# Utility script to install a new svn version of the iLumiCalc code
+#
+if [ $# -eq 0 ]
+     then
+         echo "Enter version number (00-00-00):"
+         read tag
+     else
+    tag="$1"
+    fi
+    echo "Switching to LumiBlockComps-$tag"
+
+    cd LumiBlock/LumiBlockComps
+    # Use svn switch
+     svn switch svn+ssh://torrence@svn.cern.ch/reps/atlasoff/LumiBlock/LumiBlockComps/tags/LumiBlockComps
+-$tag
+     # Also write new version
+     cd ../..
+     echo "LumiBlockComps-$tag" > version.html
+     # all done
+     exit
+
+
