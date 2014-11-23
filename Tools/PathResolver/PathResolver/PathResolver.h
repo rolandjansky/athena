@@ -9,7 +9,6 @@
 #include <string>
 
 
-
 class PathResolver
 
 {
@@ -26,6 +25,13 @@ public:
       LocalSearch,
       RecursiveSearch
     } SearchType;
+
+   typedef enum {
+      PR_regular_file,
+      PR_directory
+   } PR_file_type;
+
+
 
 /*
   static std::string find_package_file ( const std::string& logical_file_name, const std::string& search_repo = "atlasoff",
@@ -97,12 +103,21 @@ public:
    */
   static SearchPathStatus check_search_path (const std::string& search_path);
 
+   static void EnableDebugging(bool in) { m_enableDebugging=in; }
+
+   private:
+      static bool PR_find( const std::string& logical_file_name, const std::string& search_list, PR_file_type file_type, SearchType search_type,
+         std::string& result );
+
+
+      static bool m_enableDebugging;
 
 };
 
 std::string PathResolverFindXMLFile (const std::string& logical_file_name);
 std::string PathResolverFindDataFile (const std::string& logical_file_name);
 std::string PathResolverFindCalibFile (const std::string& logical_file_name);
+std::string PathResolverFindCalibDirectory (const std::string& logical_file_name);
 
 
 #endif

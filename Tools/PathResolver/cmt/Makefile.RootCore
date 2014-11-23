@@ -2,6 +2,6 @@ PACKAGE          = PathResolver
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  = 
 PACKAGE_PRELOAD  = Hist boost_filesystem
-PACKAGE_DEP	 = Asg_Boost
+PACKAGE_DEP	 = Asg_Boost CxxUtils
 
 include $(ROOTCOREDIR)/Makefile-common
