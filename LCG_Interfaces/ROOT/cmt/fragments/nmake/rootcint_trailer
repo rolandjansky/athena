@@ -1,0 +1,9 @@
+clean :: ${CONSTITUENT}clean
+	@cd .
+
+${CONSTITUENT}clean ::
+	$(cleanup_echo) ROOT dictionary
+	-$(cleanup_silent)
+	del $(dict)${CONSTITUENT}.*
+	del $(bin)${CONSTITUENT}.*
+
