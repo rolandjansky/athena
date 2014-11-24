@@ -7,8 +7,9 @@ use AtlasExternalArea AtlasExternalArea-* External
 use ThePEG            ThePEG-*            External
 use AtlasHepMC        AtlasHepMC-*        External
 
-macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt67c/herwig++"
-#macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig++"
+macro LCG_config_version "67c"
+macro Herwigpp_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/herwig++"
+#macro Herwigpp_home "$(LCG_external)/MCGenerators/herwig++"
 macro Herwigpp_version "2.7.1"
 macro Herwigpp_native_version "$(Herwigpp_version)_lcgcmt$(LCG_config_version)"
 macro Herwigpp_system "$(LCG_ext_system)"
