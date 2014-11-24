@@ -6,7 +6,8 @@ doCaloSeededBrem = True
 
 #AtlasLayerMat_x16_ATLAS-IBL-03
 from IOVDbSvc.CondDB import conddb
-conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_x16_ATLAS-IBL-03') 
+#conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_x16_ATLAS-IBL-03') 
+conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v19s0_ATLAS-R2-2015-02') 
 #--------------------------------------------------------------
 # Import config
 #--------------------------------------------------------------
