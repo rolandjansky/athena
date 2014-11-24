@@ -15,7 +15,7 @@
 #define TGCCABLING_ITGCCABLINGSVC_H
 
 #include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -28,11 +28,11 @@ class TGCCablingBase;
 // Declaration of the interface ID ( interface id, major version, minor version)
 static const InterfaceID IID_TGCcablingSvc("TGCcablingSvc", 1 , 0);
 
-class ITGCcablingSvc : public Service, virtual public IInterface 
+class ITGCcablingSvc : public AthService, virtual public IInterface 
 {
  public:
   ITGCcablingSvc(const std::string& name, ISvcLocator* svc)
-   : Service( name, svc ) {}
+   : AthService( name, svc ) {}
 
   // / Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_TGCcablingSvc; }
