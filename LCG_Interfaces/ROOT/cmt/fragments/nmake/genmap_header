@@ -1,0 +1,26 @@
+rootmapfile = ${LIBNAME}.rootmap
+fulllibname = ${LIBNAME}.$(shlibsuffix)
+
+!IF "$(ROOTMAP_DIR)"==""
+rootmapdir=..\$(tag)
+!ELSE
+rootmapdir=$(ROOTMAP_DIR)
+!ENDIF
+
+${CONSTITUENT} :: $(rootmapdir)\$(rootmapfile)
+
+$(rootmapdir)\$(rootmapfile) :: $(bin)$(fulllibname)
+	@echo 'Generating rootmap file for $(fulllibname)'
+	$(silent) cd $(bin) & $(genmap_cmd) -i $(fulllibname) -o $(rootmapdir)\$(rootmapfile) $(${CONSTITUENT}_genmapflags) -d
+
+
+
+install :: ${CONSTITUENT}install
+${CONSTITUENT}install :: ${CONSTITUENT}
+
+uninstall :: ${CONSTITUENT}uninstall
+${CONSTITUENT}uninstall :: ${CONSTITUENT}clean
+
+${CONSTITUENT}clean ::
+	@echo 'Deleting $(rootmapdir)\$(rootmapfile)'
+	@if exist $(rootmapdir)\$(rootmapfile) del $(rootmapdir)\$(rootmapfile)

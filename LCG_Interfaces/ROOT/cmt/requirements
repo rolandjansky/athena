@@ -1,0 +1,68 @@
+package ROOT
+
+use LCG_Configuration v*
+use LCG_Settings      v*
+use GCCXML            v* LCG_Interfaces -no_auto_imports
+use Python            v* LCG_Interfaces -no_auto_imports
+use xrootd            v* LCG_Interfaces
+
+apply_pattern use_optional pkg=Qt
+apply_pattern use_optional pkg=dcache_client
+apply_pattern use_optional pkg=gfal
+
+# RS overwrite with HEAD 
+macro ROOT_config_version 5.34.13p1
+macro ROOT_native_version "$(ROOT_config_version)"
+
+#macro ROOT_base "$(LCG_releases)/ROOT/$(ROOT_native_version)" 
+#macro ROOT_home "$(ROOT_base)/$(LCG_platform)/root"
+macro ROOT_base "${SITEROOT}/atlas/offline/external/root-snapshot/atlas-5.34.13p1"
+macro ROOT_home "$(ROOT_base)/$(LCG_platform)"
+
+include_path none
+include_dirs $(ROOT_home)/include
+
+macro ROOT_linkopts "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread " \
+      target-win    "/LIBPATH:$(ROOT_home)/lib libCore.lib libCint.lib libTree.lib " 
+
+macro ROOT_Reflex_linkopts "-L$(ROOT_home)/lib -lReflex" \
+      target-win           "/LIBPATH:$(ROOT_home)/lib libReflex.lib "
+
+macro_append ROOT_linkopts "" ROOT_GE_5_15&target-win   " libRIO.lib" ROOT_GE_5_15 " -lRIO"
+
+set ROOTSYS $(ROOT_home)
+
+macro ROOT_name "root"
+
+# Setup CMT dependency optimization macros
+macro ROOT_header_file_filter $(ROOT_home)/include
+macro ROOT_header_file_stamp  $(ROOT_home)/include/Type.h
+
+# Use LD_LIBRARY_PATH and not the InstallaArea to search for libraries
+apply_pattern set_bin_and_lib_path
+apply_pattern set_man_path
+
+path_append MANPATH       "$(ROOT_base)/src/root/man" \
+            target-win    "" 
+
+path_remove  PYTHONPATH   "/root/" \
+             target-win   "\root\"     
+path_prepend PYTHONPATH   "$(ROOT_home)/lib" \
+             target-win   "$(ROOT_home)\bin"        
+
+macro rootcint '"$(ROOT_home)/bin/rootcint"' 
+make_fragment rootcint -header=rootcint_header -trailer=rootcint_trailer
+
+macro genmap_cmd $(ROOTSYS)/bin/genmap
+make_fragment genmap -header=genmap_header
+
+macro ROOT_export_paths " $(ROOT_home) "
+
+action new_rootsys "python $(ROOTROOT)/scripts/new_rootsys.py $(cmt_args)"
+macro_remove cmt_actions_constituents "new_rootsys"
+
+#-----make fragments for dictionary generation---------------------------------------------------------------
+make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_header \
+              -trailer=reflex_dictionary_generator_trailer -dependencies
+
+
