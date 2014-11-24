@@ -56,6 +56,7 @@ class MdtDigitToMdtRDO : public Algorithm {
   MsgStream* m_log;
   bool m_debug;
   bool m_verbose;
+  bool m_BMEpresent;
 
 };
 

@@ -32,7 +32,8 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),m_EvtStore("StoreGateSvc", name),m_csmContainer(0)
+  Algorithm(name, pSvcLocator),m_EvtStore("StoreGateSvc", name),m_csmContainer(0),
+  m_BMEpresent(false)
 {
 
   declareProperty("Store", m_EvtStore, "help");
@@ -104,6 +105,10 @@ StatusCode MdtDigitToMdtRDO::initialize(){
   // create an empty pad container and record it
   m_csmContainer = new MdtCsmContainer();
   m_csmContainer->addRef();
+
+  // check if the layout includes elevator chambers
+  m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
+  if ( m_BMEpresent ) *m_log << MSG::INFO << "Processing configuration for layouts with BME chambers." << endreq;
   
   return StatusCode::SUCCESS;
 }
@@ -164,7 +169,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
     return StatusCode::FAILURE;
   }
 
-   MdtCsmIdHash hashF;
+  MdtCsmIdHash hashF;
 
   // Iterate on the collections
   collection_iterator it_coll = container->begin();
@@ -189,8 +194,71 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 					    1, 1, 1,
 					    subsystem, mrod, link, 
 					    tdc, channel);
-      // Create the new CSM
-      MdtCsm* mdtCsm = new MdtCsm(moduleId, moduleHash, subsystem, mrod, link);
+
+      if (!cabling) {
+	*m_log << MSG::ERROR 
+	       << "MDTcabling can't return an online ID for the channel : " << endreq;
+	*m_log << MSG::ERROR << name << " "
+	       << eta << " " << phi << " "
+	       << "and dummy multilayer=1, layer=1, tube=1 ." << endreq;
+	assert(false);
+      } 
+
+      Identifier chid1, chid2;
+      if ( m_BMEpresent ){
+	// 1st ML channel get_id
+	chid1 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
+					 m_mdtIdHelper->stationEta(moduleId),
+					 m_mdtIdHelper->stationPhi(moduleId),
+					 1, 1, 1 );
+	// 2nd ML channel id
+	if ( name == 53 ) {
+	  chid2 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
+					   m_mdtIdHelper->stationEta(moduleId),
+					   m_mdtIdHelper->stationPhi(moduleId),
+					   2, 1, 1 );
+        
+        }
+      }
+
+      unsigned int elementHash = 0, elementHash_2nd = 0;
+      MdtCsm* mdtCsm = 0;
+      MdtCsm* mdtCsm_2nd = 0;
+
+      // elevator chambers are read out by 2 CSMs
+      // they are split in the middle (for both multilayers)
+      // the first tube read out by the 2nd CSM is (offline!) tube 43
+
+      if ( !m_BMEpresent ) {
+	elementHash = hashF( moduleId );
+	mdtCsm = new MdtCsm(moduleId, moduleHash, subsystem, mrod, link);
+
+      } else {
+
+	elementHash = hashF( chid1 ); 
+	elementHash_2nd = hashF( chid2 );
+	mdtCsm = new MdtCsm(chid1, moduleHash, subsystem, mrod, link);
+
+        if ( name == 53 ) {
+	  uint8_t subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm, tdc_2ndcsm, channel_2ndcsm;
+
+	  cabling = m_cabling->getOnlineId(name, eta, phi, 1, 1, 43,
+					   subsystem_2ndcsm, mrod_2ndcsm,
+					   link_2ndcsm, tdc_2ndcsm, channel_2ndcsm);
+
+	  if (!cabling) {
+	    *m_log << MSG::ERROR 
+		   << "MDTcabling can't return an online ID for the channel : " << endreq;
+	    *m_log << MSG::ERROR << name << " "
+		   << eta << " " << phi << " "
+		   << " and dummy multilayer=1, layer=1, tube=1 ." << endreq;
+	    assert(false);
+	  } 
+
+	  mdtCsm_2nd = new MdtCsm(chid2, elementHash_2nd, subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm);
+
+	}
+      }
 
       // Iterate on the digits of the collection
       digit_iterator it_dig = mdtCollection->begin();
@@ -244,19 +312,28 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 		                    << " Width : " << width << endreq; 
 
 	      // Add the digit to the CSM
-	      mdtCsm->push_back(amtHit);
+	      if( name != 53 ) mdtCsm->push_back(amtHit);
+	      else {
+		if( link == mdtCsm->CsmId() ) mdtCsm->push_back(amtHit);
+		else if( link == mdtCsm_2nd->CsmId() ) mdtCsm_2nd->push_back(amtHit);
+		else *m_log << MSG::ERROR << "There's a BME digit that doesn't match a CSM" << endreq;
+	      }
 	            
 	    }
 	    
 	}
 
       // Add the CSM to the CsmContainer
-      unsigned int elementHash = hashF( moduleId );
       m_activeStore->setStore( &*m_EvtStore );
       sc = m_csmContainer->addCollection(mdtCsm, elementHash);
       if (sc.isFailure())
 	*m_log << MSG::WARNING << "Unable to record MDT CSM in IDC" << endreq;
         //delete mdtCsm;
+      if ( name == 53 && m_BMEpresent) {
+	sc = m_csmContainer->addCollection(mdtCsm_2nd, elementHash_2nd);
+	if (sc.isFailure()) 
+	  *m_log << MSG::WARNING << "Unable to record MDT CSM in IDC 2nd" << endreq;
+      }
     }
   return StatusCode::SUCCESS;
 
