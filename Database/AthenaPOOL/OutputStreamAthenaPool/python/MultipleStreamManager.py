@@ -390,6 +390,8 @@ class AugmentedRootStream( AugmentedStreamBase ):
                               StopOverride = True )
         if not hasattr( topSequence, D3PDMakerFlags.PreD3PDAlgSeqName() ):
             topSequence += [ preseq ]
+            pass
+        
 
         # Add the AANT algorithm for making it possible to back navigate
         # from D3PD events:
@@ -400,16 +402,22 @@ class AugmentedRootStream( AugmentedStreamBase ):
             else:
                 raise AttributeError( "Stream name '%s' can't be used!" % StreamName )
         if not hasattr( topSequence, ParentStreamName + "AANTStream" ):
-            from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
-            topSequence += AANTupleStream( ParentStreamName + "AANTStream",
-                                           ExtraRefNames = ['StreamRDO',
-                                                            'StreamRAW',
-                                                            'StreamESD',
-                                                            'StreamAOD'],
-                                           OutputName = FileName,
-                                           WriteInputDataHeader = True,
-                                           StreamName = ParentStreamName )
-
+            try:
+                from AnalysisTools.AnalysisToolsConf import AANTupleStream
+                topSequence += AANTupleStream( ParentStreamName + "AANTStream",
+                                               ExtraRefNames = ['StreamRDO',
+                                                                'StreamRAW',
+                                                                'StreamESD',
+                                                                'StreamAOD'],
+                                               OutputName = FileName,
+                                               WriteInputDataHeader = True,
+                                               StreamName = ParentStreamName )
+                pass
+            except ImportError:
+                print self.Name,": INFO didn't find AnalysisTools.AnalysisToolsConf in release."
+                pass
+            pass
+        
         # Make sure that THistSvc exists.
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr( ServiceMgr, 'THistSvc' ):
@@ -439,21 +447,28 @@ class AugmentedRootStream( AugmentedStreamBase ):
         # and also set up the accompanying filter sequence. Otherwise, we add it
         # as a stream; in that case we set up backwards compatibility for
         # 'filterSeq'.
-        import D3PDMakerCoreComps
-        if asAlg:
-            theseq = topSequence
-        else:
-            theseq = None
-        self.Stream = D3PDMakerCoreComps.MakerAlg( StreamName + "D3PDMaker", seq = theseq,
-                                                   file = FileName, stream = ParentStreamName,
-                                                   tuplename = TreeName,
-                                                   D3PDSvc = "D3PD::RootD3PDSvc" )
+        try:
+            import D3PDMakerCoreComps
+            if asAlg:
+                theseq = topSequence
+            else:
+                theseq = None
+                pass
+            self.Stream = D3PDMakerCoreComps.MakerAlg( StreamName + "D3PDMaker", seq = theseq,
+                                                       file = FileName, stream = ParentStreamName,
+                                                       tuplename = TreeName,
+                                                       D3PDSvc = "D3PD::RootD3PDSvc" )
 
-        if not asAlg:
-            from AthenaCommon.AppMgr import theApp
-            theApp.addOutputStream( self.Stream )
-            # Backwards compatibility for the filter algoirthm:
-            self.filterSeq = _RootStreamFilterHelper( self, topSequence )
+            if not asAlg:
+                from AthenaCommon.AppMgr import theApp
+                theApp.addOutputStream( self.Stream )
+                # Backwards compatibility for the filter algoirthm:
+                self.filterSeq = _RootStreamFilterHelper( self, topSequence )
+                pass
+            pass
+        except ImportError:
+            print self.Name,": INFO didn't find D3PDMakerCoreComps in release."
+            pass
 
         return
 
@@ -547,7 +562,7 @@ class MultipleStreamManager:
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
         theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-        theStream.AddMetaDataItem("xAOD::EventFormat_v1#EventFormat")
+        theStream.AddMetaDataItem("xAOD::EventFormat#EventFormat")
         theStream.Stream.WritingTool.SubLevelBranchName = "<key>"
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "';"
                                                     "COMPRESSION_LEVEL = '5'" ]
