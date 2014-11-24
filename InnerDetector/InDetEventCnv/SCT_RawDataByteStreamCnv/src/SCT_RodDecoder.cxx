@@ -160,7 +160,7 @@ SCT_RodDecoder::finalize() {
   if (m_config_data_bit > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: raw Data-> "     <<m_config_data_bit <<" raw data found: Config data mode"<<endreq;
   if (m_flag_error_bit > 0)       msg(MSG::INFO)<<"SCT BytestreamCnv summary: flag-> "         <<m_flag_error_bit<<" module link flag bit errors found"<<endreq;
   if (m_cond_hit1_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit1_error<<" 1st hit error found in condensed mode" <<endreq;
-  if (m_cond_hit2_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit1_error<<" 2nd hit error found in condensed mode" <<endreq;
+  if (m_cond_hit2_error > 0)      msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_cond_hit2_error<<" 2nd hit error found in condensed mode" <<endreq;
   if (m_chip_number_error > 0)    msg(MSG::INFO)<<"SCT BytestreamCnv summary: hit-> "          <<m_chip_number_error<<" Chip number > 5 error found"<<endreq;
   if (m_unknown_data_format > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: unknown data-> " <<m_unknown_data_format<<" Unknown data format found"<<endreq;
   if (m_RODClockErrorNumber > 0)  msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROD status word-> " <<m_RODClockErrorNumber<<" ROD clock errors found"<<endreq;

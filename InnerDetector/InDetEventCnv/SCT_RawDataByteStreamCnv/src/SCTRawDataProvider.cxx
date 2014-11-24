@@ -16,7 +16,10 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("SCTRawDataProviderTool",this),
-  m_cabling         ("SCT_CablingSvc",name)
+  m_cabling         ("SCT_CablingSvc",name),
+  m_sct_id(nullptr),
+  m_LVL1Collection(nullptr),
+  m_BCIDCollection(nullptr)
 {
   declareProperty ("RDOKey"      , m_RDO_Key = "SCT_RDOs");
   declareProperty ("ProviderTool", m_rawDataTool);
@@ -27,47 +30,24 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
 /// Initialize
 
 StatusCode SCTRawDataProvider::initialize() {
-
-  msg(MSG::INFO) << "SCTRawDataProvider::initialize" << endreq;
-
   /** Get ROBDataProviderSvc */
-  if (m_robDataProvider.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endreq;
-    return StatusCode::FAILURE;
-  } else
-    msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endreq;
- 
+  ATH_CHECK(m_robDataProvider.retrieve());
   /** Get SCTRawDataProviderTool */
-  if (m_rawDataTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_rawDataTool << endreq;
-    return StatusCode::FAILURE;
-  } else
-    msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endreq;
- 
-  if (detStore()->retrieve(m_sct_id,"SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve ID helper!"      
-		    << endreq;
-    return StatusCode::FAILURE;
-  } 
-
+  ATH_CHECK(m_rawDataTool.retrieve());
+  /** Get the SCT ID helper **/
+  ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
   /** Retrieve Cabling service */ 
-  if (m_cabling.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endreq;
-    return StatusCode::FAILURE;
-  } else
-    msg(MSG::INFO) << "Retrieved service " << m_cabling << endreq;
- 
-   return StatusCode::SUCCESS;
+  ATH_CHECK(m_cabling.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 /// --------------------------------------------------------------------
 /// Execute
 
 StatusCode SCTRawDataProvider::execute() {
-
   SCT_RDO_Container *container = new SCT_RDO_Container(m_sct_id->wafer_hash_max()); 
   if (evtStore()->record(container, m_RDO_Key).isFailure()) {
-    msg(MSG::FATAL) << "Uncable to record SCT RDO Container." << endreq;
+    msg(MSG::FATAL) << "Unable to record SCT RDO Container." << endreq;
     return StatusCode::FAILURE;
   }
   
