@@ -1,0 +1,60 @@
+# File: cmt/fragments/nmake/reflex_dictionary_generator
+# Author: Pere Mato
+
+# Makefile fragment to generate the Reflex dictionary together with a local rootmap file
+# and a merged file in the installation area if InstallArea is present
+
+.PHONY: ${CONSTITUENT} ${CONSTITUENT}clean MergeRootMap MergeRootMapclean
+
+ppcmd=-I
+
+dictdir=..\$(tag)\dict\${dictionary}
+gensrcdict=$(dictdir)\${NAME}_dict.cpp
+
+!ifdef ${dictionary}_rootmap
+rootmapname=${dictionary}Dict.rootmap
+rootmapdict=$(dictdir)\$(rootmapname)
+rootmapopts=--rootmap=$(rootmapname) --rootmap-lib=$(library_prefix)${dictionary}Dict
+!else
+rootmapdict=
+!endif
+
+${CONSTITUENT} ::  $(gensrcdict) $(rootmapdict) MergeRootMap
+	@:
+
+$(gensrcdict) $(rootmapdict) :: $(${NAME}_h_dependencies) $(${dictionary}_reflex_selection_file)
+	echo $@ ${NAME}${FILESUFFIX}
+	@-mkdir $(dictdir)
+	"$(genreflex_cmd)" ${FULLNAME} -o $(gensrcdict) $(${NAME}_reflex_options)  \
+			 $(${dictionary}_reflex_options) $(rootmapopts) $(gccxml_cppflags) $(pp_cppflags) $(includes) $(use_pp_cppflags) $(cppmacros)
+
+
+#---Dealing with merging the rootmap files 
+!ifdef ${dictionary}_rootmap
+
+!ifdef CMTINSTALLAREA
+mergedrootmapdir=$(CMTINSTALLAREA)\$(tag)\$(libdirname)
+!else
+mergedrootmapdir=..\$(tag)
+!endif 
+mergedrootmap=$(${dictionary}_rootmap)
+stamprootmap=$(mergedrootmapdir)\$(rootmapname).stamp
+
+MergeRootMap :: $(stamprootmap) $(mergedrootmap)
+	@:
+
+$(stamprootmap) $(mergedrootmap) :: $(rootmapdict)
+	@echo "Running merge_rootmap  ${CONSTITUENT} " 
+	"python $(merge_rootmap_cmd)" --do-merge --input-file $(rootmapdict) --merged-file $(mergedrootmap)
+
+${CONSTITUENT}clean ::
+	@echo "Un-merging rootmap"
+	@"python $(merge_rootmap_cmd)" --un-merge --input-file $(rootmapdict) --merged-file $(mergedrootmap)
+	@$(uninstall_command) $(stamprootmap)
+
+!else
+
+MergeRootMap ::
+        @:
+
+!endif

@@ -1,0 +1,2 @@
+${CONSTITUENT}clean ::
+	@if exist ..\$(tag)\dict rmdir /q /s ..\$(tag)\dict

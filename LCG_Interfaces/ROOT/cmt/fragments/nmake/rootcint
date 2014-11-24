@@ -1,0 +1,8 @@
+$(dict)${NAME}.rootcint : $(dict)${NAME}Dict.cpp
+	@echo $@
+
+$(dict)${NAME}Dict.cpp : ${FULLNAME}
+	@echo Generating ROOT Dictionary $@
+    	@if not exist $(dict) mkdir $(dict)
+	"$(rootcint)" -f $(dict)${NAME}Dict.cpp -c $(${NAME}_cintflags) ${FULLNAME} $(src)LinkDef.h
+
