@@ -5,7 +5,7 @@
 #ifndef FastCaloSim_CaloCell_ID_h
 #define FastCaloSim_CaloCell_ID_h
 
-#ifdef __CINT__
+#if defined(__CINT__) || defined(__CLING__)
 namespace CaloCell_ID {
   enum SUBCALO { LAREM = 0, LARHEC = 1, LARFCAL = 2, TILE = 3, NSUBCALO = 4, NOT_VALID=999999 };
 
@@ -20,9 +20,7 @@ namespace CaloCell_ID {
     Unknown
   };
 }
-#endif
-
-#ifndef __CINT__
+#else
 #include "CaloIdentifier/CaloCell_ID.h"
 #endif
 

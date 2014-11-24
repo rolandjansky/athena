@@ -11,10 +11,11 @@
 #include <iostream>
 
 
-ParticleEnergyShape::ParticleEnergyShape():Ecal(0),dist_in(0),dist000(0),dist_rec(0),E(0)
+ParticleEnergyShape::ParticleEnergyShape():Ecal(0),dist_in(0),dist000(0),dist_rec(0),E(0),fcal_tot(0),fcal_tot_uncor(0)
 {
   for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
     E_layer[sample]=0;
+    fcal_layer[sample]=0;
   }  
 }
 

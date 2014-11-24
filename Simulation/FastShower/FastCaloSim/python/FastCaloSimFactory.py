@@ -16,26 +16,26 @@ def FastCaloSimFactory():
 
     # FastShowerCellBuilderTool looks for the extrapolators with fixed names. Should be changed...
     #########################################################################################################
-    mlog.info("now configure ExtrapolateToCaloTools...")
-    from TrackToCalo.ExtrapolateToCaloToolBase import ExtrapolateToCaloToolFactory
+    #mlog.info("now configure ExtrapolateToCaloTools...")
+    #from TrackToCalo.ExtrapolateToCaloToolBase import ExtrapolateToCaloToolFactory
     
-    theFSElectronExtrapolTrackToCaloTool        =ExtrapolateToCaloToolFactory(depth="middle",straightLine=False)
-    theFastShowerCellBuilderTool.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
-    ToolSvc+=theFSElectronExtrapolTrackToCaloTool
+    #theFSElectronExtrapolTrackToCaloTool        =ExtrapolateToCaloToolFactory(depth="middle",straightLine=False)
+    #theFastShowerCellBuilderTool.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
+    #ToolSvc+=theFSElectronExtrapolTrackToCaloTool
     
-    theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolateToCaloToolFactory(depth="entrance",straightLine=False)
-    theFastShowerCellBuilderTool.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
-    ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
+    #theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolateToCaloToolFactory(depth="entrance",straightLine=False)
+    #theFastShowerCellBuilderTool.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
+    #ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
 
-    theFSPhotonExtrapolTrackToCaloTool          =ExtrapolateToCaloToolFactory(depth="middle",straightLine=True)
-    theFastShowerCellBuilderTool.gammaExtrapolTool=theFSPhotonExtrapolTrackToCaloTool.getFullName()
-    ToolSvc+=theFSPhotonExtrapolTrackToCaloTool
+    #theFSPhotonExtrapolTrackToCaloTool          =ExtrapolateToCaloToolFactory(depth="middle",straightLine=True)
+    #theFastShowerCellBuilderTool.gammaExtrapolTool=theFSPhotonExtrapolTrackToCaloTool.getFullName()
+    #ToolSvc+=theFSPhotonExtrapolTrackToCaloTool
 
-    theFSPhotonExtrapolTrackToCaloToolEntrance  =ExtrapolateToCaloToolFactory(depth="entrance",straightLine=True)
-    theFastShowerCellBuilderTool.gammaExtrapolToolEntrance=theFSPhotonExtrapolTrackToCaloToolEntrance.getFullName()
-    ToolSvc+=theFSPhotonExtrapolTrackToCaloToolEntrance
+    #theFSPhotonExtrapolTrackToCaloToolEntrance  =ExtrapolateToCaloToolFactory(depth="entrance",straightLine=True)
+    #theFastShowerCellBuilderTool.gammaExtrapolToolEntrance=theFSPhotonExtrapolTrackToCaloToolEntrance.getFullName()
+    #ToolSvc+=theFSPhotonExtrapolTrackToCaloToolEntrance
 
-    mlog.info("configure ExtrapolateToCaloTools finished")
+    #mlog.info("configure ExtrapolateToCaloTools finished")
 
     #########################################################################################################
     mlog.info("now configure theExtrapolator...")

@@ -25,7 +25,10 @@ BasicCellBuilderTool::BasicCellBuilderTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_nEvent(0)
+   m_nEvent(0),
+   m_caloDDM(0),
+   m_caloCID(0),
+   m_atlas_id(0)
 { 
   declareProperty("phi0_em",m_phi0_em);
   declareProperty("phi0_had",m_phi0_had);

@@ -13,15 +13,17 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
-#include "TruthHelper/GenAccessIO.h"
+//#include "TruthHelper/GenAccessIO.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
+#include "HepPDT/ParticleDataTable.hh"
 
+/*
 #if FastCaloSim_project_release_v1 == 12
   #include "CLHEP/HepPDT/ParticleDataTable.hh"
 #else  
   #include "HepPDT/ParticleDataTable.hh"
 #endif  
-
+*/
 /*
 #include "AtlfastEvent/CollectionDefs.h"
 

@@ -29,8 +29,8 @@
 //#include "TruthHelper/IsGenInteracting.h"
 //#include "TruthHelper/IsGenNonInteracting.h"
 //#include "TruthHelper/IsGenSimulStable.h"
-#include "FastCaloSim/FastCaloSimIsGenSimulStable.h"
-#include "TruthHelper/IsGenNonInteracting.h"
+//#include "FastCaloSim/FastCaloSimIsGenSimulStable.h"
+//#include "TruthHelper/IsGenNonInteracting.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -52,7 +52,7 @@
 #include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-#include "TruthHelper/PileUpType.h"
+//#include "TruthHelper/PileUpType.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -72,6 +72,10 @@
 #include "TMath.h"
 #include "TSpline.h"
 
+#include "TruthUtils/HepMCHelpers.h"
+#include "TruthUtils/HepMCParticleFilters.h"
+#include "GeneratorObjects/McEventCollection.h"
+
 //using namespace Atlfast;
 //using namespace FastShower;
 
@@ -81,6 +85,25 @@
 #include <iostream>
 #include <sstream>
 #include <limits>
+
+typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+
+//This is a copy of the previous isGenSimulStable which depended on TruthHelper
+bool FastCaloSimIsGenSimulStable(const HepMC::GenParticle* p) {
+  int status=p->status();
+  HepMC::GenVertex* vertex = p->end_vertex();
+  // we want to keep primary particle with status==2 but without vertex in HepMC 
+  int vertex_barcode=-999999;
+  if (vertex) vertex_barcode=vertex->barcode();
+  
+  return (
+	  (status%1000 == 1) ||
+	  (status%1000 == 2 && status > 1000) ||
+	  (status==2 && vertex_barcode<-200000)
+	  ) ? true:false;
+}
+
+
 
 FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, const std::string& name, const IInterface* parent)
                           :BasicCellBuilderTool(type, name, parent),
@@ -511,7 +534,12 @@ StatusCode FastShowerCellBuilderTool::OpenParamSource(std::string insource)
       ATH_MSG_WARNING("Could not parse string for database entry "<< insource);
       return StatusCode::SUCCESS;
     }
-    int cool_channel=atoi(str_cool_channel.c_str());
+    char *endptr;
+    int cool_channel=strtol(str_cool_channel.c_str(), &endptr, 0);
+    if (endptr[0] != '\0') {
+      ATH_MSG_ERROR("Could not convert string to int: " << str_cool_channel);
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_DEBUG("  channel "<< cool_channel);
     insource.erase(0,strpos+1);
 
@@ -1101,12 +1129,14 @@ bool FastShowerCellBuilderTool::get_calo_etaphi(const Trk::TrackParameters* para
     msg()<<" eta=" << letaCalo[sample] << "   phi=" << lphiCalo[sample] <<" dCalo="<<dCalo[sample]<< endreq;
     //        log << MSG::DEBUG <<"Final par HEL     eta "           << peta    << "   phi " << pphi    <<" deta="<<etaCalo-peta<<" dphi="<<phiCalo-pphi<< endreq;
   } 
- 
+
+  /*
+  //This seems to be a dead code 
   if(result) {
     delete result;
     result=0;
   }
-  
+  */
   return layerCaloOK[sample];
 }
 
@@ -2242,8 +2272,8 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
    return StatusCode::FAILURE;
   }
 
-  FastCaloSimIsGenSimulStable ifs;
-  IsGenNonInteracting invisible;
+  //FastCaloSimIsGenSimulStable ifs;
+  //TruthHelper::IsGenNonInteracting invisible;
   
   MCparticleCollection particles;
   MCparticleCollection Simulparticles;
@@ -2256,13 +2286,28 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   }
 
   // initialize a pileup type helper object
-  PileUpType pileupType( mcCollptr );
+  //PileUpType pileupType( mcCollptr );
  
   ATH_MSG_DEBUG("Start getting particles");
  
   // pileupType.signal_particles(particles, isStable);
-  pileupType.signal_particles(particles, ifs);
+  //pileupType.signal_particles(particles, ifs);
+  //ZH 28.07.2014 Try using TruthUtils instead:
  
+  if (mcCollptr->size() >0)
+    {
+      HepMC::GenEvent::particle_const_iterator istart = mcCollptr->at(0)->particles_begin();
+      HepMC::GenEvent::particle_const_iterator iend   = mcCollptr->at(0)->particles_end();
+      for ( ; istart!= iend; ++istart)
+	{
+	  //std::cout <<" ("<< FastCaloSimIsGenSimulStable(*istart)<<"/"<<(*istart)->barcode()<<","<<(*istart)->status()<<"/"<<ifs(*istart)<<") ";
+	  particles.push_back(*istart);
+	}
+      //std::cout <<std::endl;
+    }
+  particles = MC::filter_keep(particles, FastCaloSimIsGenSimulStable);
+  
+
   //sc = m_gentesIO->getMC(particles, &ifs, m_mcLocation );
   //if ( sc.isFailure() ) {
   //  log << MSG::ERROR << "getMC from "<<m_mcLocation<<" failed "<< endreq;
@@ -2303,7 +2348,8 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
         break;
       }
       if(m_invisibles[i]==0) {
-        if(invisible(par)) {
+	if(MC::isGenStable(par) && MC::isNonInteracting(par)) {
+	  //if(!MC::isSimInteracting(par)) {
           do_simul_state[par->barcode()]=invisibleTruthHelper;
           //log << MSG::DEBUG <<"INVISIBLE by TruthHelper: id="<<par->pdg_id()<<" stat="<<par->status()<<" bc="<<par->barcode()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<endreq;
           break;
@@ -2410,6 +2456,8 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   MCparticleCollectionCIter fpart = Simulparticles.begin();
   MCparticleCollectionCIter lpart = Simulparticles.end();
 
+  ATH_MSG_VERBOSE("FastShower simulation size: "<<Simulparticles.size());
+
   int stat_npar=0;
   int stat_npar_OK=0;
   int stat_npar_nOK=0;
@@ -2440,7 +2488,7 @@ StatusCode FastShowerCellBuilderTool::process(CaloCellContainer* theCellContaine
   }
 */          
 
-  ATH_MSG_DEBUG("Executing finished calo size=" <<theCellContainer->size()<<"; "<<stat_npar<<" particle(s), "<<stat_npar_OK<<" with sc=SUCCESS");
+  ATH_MSG_DEBUG("FastCaloSim Executing finished calo size=" <<theCellContainer->size()<<"; "<<stat_npar<<" particle(s), "<<stat_npar_OK<<" with sc=SUCCESS");
 
   if(releaseEvent().isFailure() ) {
    ATH_MSG_ERROR("releaseEvent() failed");

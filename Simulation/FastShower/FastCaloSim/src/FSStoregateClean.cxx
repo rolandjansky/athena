@@ -19,7 +19,7 @@
 namespace FastCaloSim {
 
   FSStoregateClean:: FSStoregateClean(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator)
+    Algorithm(name,pSvcLocator), m_storeGate(0)
   {
     
     declareProperty("StoreGateKeys",      m_SG_keys);
