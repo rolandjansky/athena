@@ -1,20 +1,57 @@
 package JetUncertainties
 
-author Pier-Olivier DeViveiros < viveiros AT physics.utoronto.ca >
-author Caterina Doglioni < caterina.doglioni AT cern.ch >
-author Stefanie Adomeit < stefanie.adomeit AT physik.uni-muenchen.de >
+author Steven Schramm < steven.schramm AT cern.ch >
 
-use AtlasPolicy AtlasPolicy-*
-use AtlasROOT AtlasROOT-* External
+public 
 
-## macros
-#apply_tag ROOTBasicLibs
-#apply_tag ROOTMathLibs
+use AtlasPolicy         AtlasPolicy-*
 
-## Create an installed library
-library JetUncertainties "../Root/*.cxx ../src/*.cxx"
-apply_pattern installed_library
+use AtlasBoost          AtlasBoost-*        External
+use AtlasROOT           AtlasROOT-*         External
 
-## This is so that the JESUncertainty.root file gets copied to the share area
-apply_pattern declare_runtime files="*.root ../analysisPlots/*.root"
+use AsgTools            AsgTools-*          Control/AthToolSupport
+use PATInterfaces       PATInterfaces-*     PhysicsAnalysis/AnalysisCommon
+
+use xAODJet             xAODJet-*           Event/xAOD
+use xAODEventInfo       xAODEventInfo-*     Event/xAOD
+
+use JetCPInterfaces     JetCPInterfaces-*   Reconstruction/Jet
+
+
+
+private
+
+use GaudiInterface      GaudiInterface-*    External
+
+use xAODCore            xAODCore-*          Event/xAOD
+use xAODTracking        xAODTracking-*      Event/xAOD
+
+use PathResolver        PathResolver-*      Tools
+
+end_private
+
+
+
+# Declare the library
+library JetUncertainties ../Root/*.cxx components/*.cxx
+
+apply_pattern component_library
+
+# Install the jobOptions
+apply_pattern declare_joboptions files=*.py
+
+
+# Prepare PathResolver
+apply_pattern generic_declare_for_link files="../share/JES_2011/Final/*.config ../share/JES_2011/Final/*.root" kind=calib prefix=share/JetUncertainties/JES_2011/Final name=JES_2011_Final
+apply_pattern generic_declare_for_link files="../share/JES_2012/Moriond2013/*.config ../share/JES_2012/Moriond2013/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Moriond2013 name=JES_2012_Moriond2013
+apply_pattern generic_declare_for_link files="../share/JES_2012/Final/*.config ../share/JES_2012/Final/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Final name=JES_2012_Final
+apply_pattern generic_declare_for_link files="../share/UJ_2012/*.config ../share/UJ_2012/*.root" kind=calib prefix=share/JetUncertainties/UJ_2012 name=UJ_2012
+apply_pattern generic_declare_for_link files="../share/analysisInputs/*.root" kind=calib prefix=share/JetUncertainties/analysisInputs name=analysisInputs
+
+
+# Reflex dictionary
+private
+use AtlasReflex         AtlasReflex-*       External -no-auto-imports
+apply_pattern lcgdict dict=JetUncertainties selectionfile=selection.xml headerfiles="../JetUncertainties/JetUncertaintiesDict.h"
+end_private
 

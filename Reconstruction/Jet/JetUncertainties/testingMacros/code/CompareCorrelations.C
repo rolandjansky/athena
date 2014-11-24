@@ -19,6 +19,8 @@
 #include "TStyle.h"
 #include "TError.h"
 #include <iostream>
+#include "../atlasstyle/AtlasStyle.C"
+#include "../atlasstyle/AtlasLabels.C"
 
 
 using namespace std;
@@ -30,6 +32,8 @@ typedef JESUncertaintyProvider JESprov;
 typedef enum { ptE, etaE } Variable;
 
 TLatex *tex;
+const bool MAKE_CONF_PLOTS = true;
+  
 
 double getCov(JESprov *mjp, StrV names, Variable var, double vary1, double vary2, double fixed)
 {
@@ -61,7 +65,7 @@ TH2D *MakeCorrMatrix(JESprov *mjp, StrV names, Variable var, VecD variableBins, 
       hcorr->SetBinContent(xi,yi,getCorr(mjp,names,var,vary1,vary2,fixed));
     }
   hcorr->SetStats(0); hcorr->SetMinimum(0); hcorr->SetMaximum(1);
-  TString axisTitle = (var==ptE)? "jet p_{T} [GeV]" : "jet #eta";
+  TString axisTitle = (var==ptE)? "#it{p}_{T}^{jet} [GeV]" : "jet #eta";
   hcorr->SetXTitle(axisTitle); hcorr->SetYTitle(axisTitle); hcorr->SetZTitle("correlation");
   return hcorr;
 }
@@ -73,7 +77,8 @@ TH2D *Subtract(TH2D *h1, TH2D *h2) {
     for (int yi=1;yi<=Nbins;++yi) {
       diff->SetBinContent(xi,yi,h2->GetBinContent(xi,yi)-h1->GetBinContent(xi,yi));
     }
-  diff->SetStats(0); diff->SetMinimum(-0.30); diff->SetMaximum(0.30);
+  diff->SetStats(0);
+  diff->GetZaxis()->SetRangeUser(-0.30,0.30);  //diff->SetMinimum(-0.30); diff->SetMaximum(0.30);
   //diff->SetXTitle("jet p_{T} [GeV]"); diff->SetYTitle("jet p_{T} [GeV]"); diff->SetZTitle("correlation difference");
   diff->SetXTitle(h1->GetXaxis()->GetTitle()); diff->SetYTitle(h1->GetYaxis()->GetTitle()); diff->SetZTitle(h1->GetZaxis()->GetTitle());
   return diff;
@@ -132,8 +137,8 @@ TH1D *GetNuis(JESprov *mjp, Str name, Variable var, VecD variableBins, double fi
       nuis->SetBinContent(i,mjp->getRelUncertComponent(name,fixed,vary));
   }
   nuis->SetStats(0);
-  TString axisTitle = (var==ptE)? "jet p_{T} [GeV]" : "jet #eta";
-  nuis->SetMinimum(-0.02); nuis->SetMaximum(0.05); nuis->SetXTitle(axisTitle);
+  TString axisTitle = (var==ptE)? "#it{p}_{T}^{jet} [GeV]" : "jet #eta";
+  nuis->GetYaxis()->SetRangeUser(-0.02,0.05); nuis->SetXTitle(axisTitle);
   return nuis;
 }
 
@@ -148,8 +153,8 @@ TH1D *GetTotUncert(JESprov *mjp, Variable var, VecD variableBins, double fixed) 
       tot->SetBinContent(i,mjp->getRelUncert(fixed,vary));
   }
   tot->SetStats(0);
-  TString axisTitle = (var==ptE)? "jet p_{T} [GeV]" : "jet #eta";
-  tot->SetMinimum(0); tot->SetMaximum(0.05); tot->SetXTitle(axisTitle);
+  TString axisTitle = (var==ptE)? "#it{p}_{T}^{jet} [GeV]" : "jet #eta";
+  tot->GetYaxis()->SetRangeUser(0,0.05); tot->SetXTitle(axisTitle);
   return tot;
 }
 
@@ -174,7 +179,7 @@ void *DrawNuis(JESprov *mjp, StrV names, Variable var, VecD variableBins, double
 
 void FormatAndDrawCorrMatrix(TH2D* corrMatrix,TString JESconfig,TString jetDesc,Variable var, double fixed)
 {
-  gPad->SetMargin(0.15,0.15,0.15,0.05); 
+  gPad->SetMargin(0.01,0.01,0.01,0.01); 
   //gPad->SetMargin(0.15,0.05,0.15,0.05);
   if (var==ptE)
   {
@@ -188,8 +193,55 @@ void FormatAndDrawCorrMatrix(TH2D* corrMatrix,TString JESconfig,TString jetDesc,
   }
   corrMatrix->Draw("colz");
   tex->SetTextColor(kBlack);
-  tex->DrawLatex(0.18,0.96,JESconfig); tex->DrawLatex(0.18,0.88,jetDesc);
+  TString titleWithoutPath = JESconfig;
+  if (titleWithoutPath.Contains('/'))
+    //titleWithoutPath.Remove(TString::EStripType(TString::kLeading),titleWithoutPath.Last('/'));
+    titleWithoutPath.Replace(0,titleWithoutPath.Last('/')+1,0,0);
+  tex->DrawLatex(0.18,0.96,titleWithoutPath); tex->DrawLatex(0.18,0.88,jetDesc);
   tex->DrawLatex(0.18,0.82,var==ptE ? Form("#eta = %.2f",fixed) : Form("p_{T} = %.1f GeV",fixed));
+}
+
+void FormatAndDrawCorrMatrixForConfNote(TH2D* corrMatrix,TString JESconfig,TString jetDesc,Variable var, double fixed)
+{
+  gPad->SetMargin(0.15,0.15,0.2,0.1); 
+  //gPad->SetMargin(0.15,0.05,0.15,0.05);
+  if (var==ptE)
+  {
+    gPad->SetLogx(true);
+    gPad->SetLogy(true);
+  }
+  else if (var==etaE)
+  {
+    gPad->SetLogx(false);
+    gPad->SetLogy(false);
+  }
+  
+  corrMatrix->SetTitleSize(0.06,"z");
+  corrMatrix->SetLabelSize(0.04,"z");
+  corrMatrix->SetTitleOffset(1.35,"x");
+  corrMatrix->SetTitleOffset(0.9,"y");
+  corrMatrix->SetTitleOffset(0.85,"z");
+  corrMatrix->SetLabelOffset(0.003,"x");
+  corrMatrix->GetXaxis()->SetMoreLogLabels();
+//  corrMatrix->GetYaxis()->SetMoreLogLabels();
+  
+  corrMatrix->Draw("colz");
+  
+  tex->SetTextColor(kBlack);
+  TString titleWithoutPath = JESconfig;
+  if (titleWithoutPath.Contains('/'))
+    titleWithoutPath.Replace(0,titleWithoutPath.Last('/')+1,0,0);
+  //tex->DrawLatex(0.18,0.96,titleWithoutPath);
+  titleWithoutPath.ReplaceAll("InsituJES2011_","");
+  titleWithoutPath.ReplaceAll(".config","");
+//  tex->DrawLatex(0.18,0.88,titleWithoutPath);
+//  tex->DrawLatex(0.18,0.88,"ATLAS Internal");
+//  tex->DrawLatex(0.18,0.82,jetDesc);
+//  tex->DrawLatex(0.18,0.76,var==ptE ? Form("#eta = %.2f",fixed) : Form("p_{T} = %.1f GeV",fixed));
+
+  ATLASLabel(0.15,0.96,(char*)"Internal",kBlack);
+  tex->DrawLatex(0.18,0.916,var==ptE ? Form("%s, #eta = %.2f, Data 2012",jetDesc.Data(),fixed) : Form("%s, #it{p}_{T}^{jet} = %.1f GeV, Data 2012",jetDesc.Data(),fixed));
+
 }
 
 void AddExtremaLabels(TH2D* matrix, Variable var)
@@ -245,6 +297,23 @@ void CreateFormatAndPlotMatrices(JESprov* jes1,JESprov* jes2,StrV compNames1,Str
   c->Print(psName+"[");
   c->Divide(2,2);
   
+  TCanvas *confCanvas;
+  const TString CONFPREFIX = "CONF_";
+  TString confpsName;
+  if (MAKE_CONF_PLOTS)
+  {
+    confpsName = psName;
+    if (! confpsName.Contains('/'))
+      confpsName = CONFPREFIX+confpsName;
+    else if (confpsName.First('/') == confpsName.Last('/'))
+      confpsName = confpsName.ReplaceAll("/","/"+CONFPREFIX);
+    else
+      confpsName = confpsName.ReplaceAll(".ps",CONFPREFIX+".ps");
+
+    confCanvas = new TCanvas();
+    confCanvas->Print(confpsName+"[");
+  }
+
   // Loop over the fixed values
   for (int ifix=0; ifix<fixedVals.size(); ifix++)
   {
@@ -254,11 +323,23 @@ void CreateFormatAndPlotMatrices(JESprov* jes1,JESprov* jes2,StrV compNames1,Str
     TH2D* corr1 = MakeCorrMatrix(jes1,compNames1,var,varyBins,fixed);
     c->cd(1);
     FormatAndDrawCorrMatrix(corr1,JESconfig1,jetDesc,var,fixed);
+    if (MAKE_CONF_PLOTS)
+    {
+      confCanvas->cd();
+      FormatAndDrawCorrMatrixForConfNote(corr1,JESconfig1,jetDesc,var,fixed);
+      confCanvas->Print(confpsName);
+    }
 
     // Create and plot the second matrix (upper right)
     TH2D* corr2 = MakeCorrMatrix(jes2,compNames2,var,varyBins,fixed);
     c->cd(2);
     FormatAndDrawCorrMatrix(corr2,JESconfig2,jetDesc,var,fixed);
+    if (MAKE_CONF_PLOTS)
+    {
+      confCanvas->cd();
+      FormatAndDrawCorrMatrixForConfNote(corr2,JESconfig2,jetDesc,var,fixed);
+      confCanvas->Print(confpsName);
+    }
 
     // Create and plot the difference matrix (bottom left)
     // Also add extremal value labels to the plot
@@ -266,6 +347,12 @@ void CreateFormatAndPlotMatrices(JESprov* jes1,JESprov* jes2,StrV compNames1,Str
     c->cd(3);
     FormatAndDrawCorrMatrix(diff,"",jetDesc,var,fixed);
     AddExtremaLabels(diff,var);
+    if (MAKE_CONF_PLOTS)
+    {
+      confCanvas->cd();
+      FormatAndDrawCorrMatrixForConfNote(diff,"",jetDesc,var,fixed);
+      confCanvas->Print(confpsName);
+    }
 
     // Nuisance parameter plot (bottom right) doesn't really make sense for eta
     // Only create if pt
@@ -277,23 +364,39 @@ void CreateFormatAndPlotMatrices(JESprov* jes1,JESprov* jes2,StrV compNames1,Str
 
     // Done, now print
     c->Print(psName);
+
   }
   c->Print(psName+"]"); // Close the ps file
+  if (MAKE_CONF_PLOTS)
+    confCanvas->Print(confpsName+"]");
   
-  // Convert the ps file to a pdf file
+  // Convert the ps file(s) to a pdf file
   Str pdf=Str(psName).ReplaceAll(".ps",".pdf");
   int stat = gSystem->Exec(Form("ps2pdf %s %s",psName.Data(),pdf.Data()));
   if (stat==0) {
     gSystem->Exec(Form("rm %s",psName.Data()));
     printf("\nProduced\n  %s\n",pdf.Data());
   }
+  if (MAKE_CONF_PLOTS)
+  {
+    Str confpdf = Str(confpsName).ReplaceAll(".ps",".pdf");
+    stat = gSystem->Exec(Form("ps2pdf %s %s",confpsName.Data(),confpdf.Data()));
+    if (stat==0)
+    {
+      gSystem->Exec(Form("rm %s",confpsName.Data()));
+      printf("  %s\n",confpdf.Data());
+    }
+  }
 }
 
 int main(int argc, char **argv) {
 
+  SetAtlasStyle();
   gErrorIgnoreLevel=2000;
+  gStyle->SetPalette(1);
 
   // Defaults
+  TString sharePath = "../share";
   TString JESconfig1="InsituJES2011_AllNuisanceParameters.config";
   TString JESconfig2="InsituJES2011_AlternativeCorrelation1.config";
   StrV jetAlgos = JESUtils::Vectorize("AntiKt4TopoEM",",");
@@ -303,18 +406,19 @@ int main(int argc, char **argv) {
   bool varyEtaCentral = true;
 
   // Override defaults with user input if provided
-  if (argc>2) {
-    JESconfig1=argv[1];
-    JESconfig2=argv[2];
+  if (argc>3) {
+    sharePath =argv[1];
+    JESconfig1=argv[2];
+    JESconfig2=argv[3];
   }
-  if (argc>3) jetAlgos = JESUtils::Vectorize(argv[3],",");
-  if (argc>4) MCtype=argv[4];
+  if (argc>4) jetAlgos = JESUtils::Vectorize(argv[4],",");
+  if (argc>5) MCtype=argv[5];
   
   // Define the binning to be used
   VecD varyPtBins         = JESUtils::GetLogBins(100,15,2500);
   VecD fixedEtaVals       = JESUtils::VectorizeD("0.1,0.5,1.0,2.0,3.0,4.0",",");
   VecD varyEtaBins        = JESUtils::GetUniformBins(90,0,4.5);
-  VecD fixedPtVals        = JESUtils::VectorizeD("25,80",",");
+  VecD fixedPtVals        = JESUtils::VectorizeD("25,45,80",",");
   VecD varyEtaCentralBins = JESUtils::GetUniformBins(30,0,1.5);
   VecD fixedPtCentralVals = JESUtils::VectorizeD("250,750",",");
   
@@ -331,13 +435,13 @@ int main(int argc, char **argv) {
     JESprov *jes1, *jes2;
     //jes1 = new MultijetProvider("MultijetJES.config",JESconfig1,jetAlgo,MCtype);
     //jes2 = new MultijetProvider("MultijetJES.config",JESconfig2,jetAlgo,MCtype);
-    jes1 = new JESprov(JESconfig1,jetAlgos[jeti],MCtype,"../share");
-    jes2 = new JESprov(JESconfig2,jetAlgos[jeti],MCtype,"../share");
+    jes1 = new JESprov(JESconfig1,jetAlgos[jeti],MCtype,sharePath);
+    jes2 = new JESprov(JESconfig2,jetAlgos[jeti],MCtype,sharePath);
     jes1->useGeV(); jes2->useGeV();
 
     StrV compNames1 = jes1->getComponentNames();
     StrV compNames2 = jes2->getComponentNames();
-    Str jetDesc(Form("Anti k_{t} R = 0.%d, %s+JES",
+    Str jetDesc(Form("Anti-#it{k}_{t} R = 0.%d, %s+JES",
           	   jetAlgos[jeti].Contains("Kt4")?4:6,
           	   jetAlgos[jeti].Contains("EM")?"EM":"LCW"));
     

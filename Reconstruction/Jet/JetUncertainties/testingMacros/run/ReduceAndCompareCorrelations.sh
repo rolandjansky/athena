@@ -4,11 +4,14 @@
 
 # Paths and directories of use, should only need to be set once
 startPath=`pwd`
-basePath="$startPath/../.."
+basePath="${startPath%/JetUncertainties/testingMacros/run}"
+
 JESprovPath="$basePath/JetUncertainties"
 JESsharePath="$JESprovPath/share"
+
 ReduceToolPath="$basePath/ToolsNuisanceParameters"
-ComparisonPath="$JESprovPath/testingMacros"
+CombinePath="$JESprovPath/testingMacros/python_scripts"
+ComparisonPath="$JESprovPath/testingMacros/code"
 
 
 # Compilation executuables, source, and flags, should only need to be set once
@@ -31,58 +34,53 @@ compareSource="CompareCorrelations.C"
 combineFilesExec="CombineRootAndConfigFilesAfterReduction.py"
 
 
-# Control variables, change as desired for each run
-numberOfReducedParam=5  # Number does not include residual term
-                        # "5" would give 5 reduced + 1 residual + 5 non-nuisance (such as eta calib) = 11 parameters
+# Global parameters, change as desired for each run
+algorithms="AntiKt4TopoEM,AntiKt4LCTopo" #Comma-separated list of jet algorithms to run
+#algorithms="AntiKt4TopoEM,AntiKt4LCTopo,AntiKt6TopoEM,AntiKt6LCTopo" #Comma-separated list of jet algorithms to run
+MCtype="MC12a" #"MC11b"                      # MC uncertainty to use for comparisons
+
+# Reduction parameters, change as desired for each run
+#categoriesToReduce="Statistical=2,Modelling=3,Detector=1,Mixed=1" # Best for 2011 AllNuisanceParameters
+#categoriesToReduce="Statistical=2,Modelling=2,Detector=1,Mixed=1" # Best for 2011 StrongerCorrelations
+#categoriesToReduce="Statistical=2,Modelling=3,Detector=2,Mixed=1" # Best for 2011 WeakerCorrelations
+#categoriesToReduce="Statistical=2,Modelling=3,Detector=2,Mixed=1" # Best for Moriond2013 AllParam
+#categoriesToReduce="Statistical=2,Modelling=2,Detector=2,Mixed=1" # Best for Moriond2013 StrongerCorrelations
+categoriesToReduce="Statistical=3,Modelling=3,Detector=2,Mixed=3" # Best for Final 2012
+#categoriesToReduce="global=5"
+numDimForReduction=1
 smoothing=1
-algorithms="AntiKt4TopoEM,AntiKt4LCTopo,AntiKt6TopoEM,AntiKt6LCTopo" #Comma-separated list of jet algorithms to run
-tempRootFile="ReducedNP_file.root" # Reduced param file, to be combined with the others described above, then deleted
-MCtype="MC11b" # MC uncertainty to use for comparisons
+tempRootFile="ReducedNP_file.root"  # Reduced param file, to be combined with the others described above, then deleted
+doComparison=0
 
 
 # Config and root file variables, change as desired for each run
-fileNameSuffix="AlternativeCorrelation3"
+#fileNamePath="JES_2012/Moriond2013" #"JES_2011/Final"
+fileNamePath="JES_2012/Final"
+fileNamePrefix="InsituJES2012" #"InsituJES2011"
+fileNameSuffix="AllNuisanceParameters" #"StrongerCorrelations"
 
-configOnlyNPfile="InsituJES2011_${fileNameSuffix}_OnlyNP.config"
-configFileToReduce="InsituJES2011_${fileNameSuffix}.config"
-configFileReduced="InsituJES2011_$(($numberOfReducedParam+6))NP_$fileNameSuffix.config"
-configFileForComparison="InsituJES2011_11NP_Preliminary.config"
+reductionLinkWords="ReducedFrom"
+if [[ $categoriesToReduce = *global* ]] ; then
+  reductionLinkWords="GlobalReductionFrom"
+else
+  reductionLinkWords="CategoryReductionFrom"
+fi
 
-rootFileToReduce="May14_AllNuisanceParameters.root"
-rootFileReduced="JESUncertainty_$(($numberOfReducedParam+6))NP_$fileNameSuffix.root"
-rootFileForComparison="JESUncertainty_Preliminary.root"
+configFileToReduce="${fileNamePath}/${fileNamePrefix}_${fileNameSuffix}.config"
+#configFileReduced="${fileNamePath}/${fileNamePrefix}_$(($numberOfReducedParam+6))NP_From${fileNameSuffix}.config"
+configFileReduced="${fileNamePath}/${fileNamePrefix}_${reductionLinkWords}_${fileNameSuffix}.config"
+configFileForComparison=$configFileToReduce
 
-# configOnlyNPfile="InsituJES2011_${fileNameSuffix}_OnlyNP.config"
-# configFileToReduce="InsituJES2011_${fileNameSuffix}.config"
-# configFileReduced="InsituJES2011_$(($numberOfReducedParam+6))NP_$fileNameSuffix.config"
-# configFileForComparison="InsituJES2011_${fileNameSuffix}.config"
-# 
-# rootFileToReduce="JESUncertainty_Preliminary.root"
-# rootFileReduced="JESUncertainty_$(($numberOfReducedParam+6))NP_$fileNameSuffix.root"
-# rootFileForComparison="JESUncertainty_Preliminary.root"
-
-
-# Useful methods
-linkfile() {
-  if test $# -eq 2 ; then
-    if [[ ! -e $1 ]] ; then
-      ln -s $2/$1
-    fi
-    ls $1
-  else
-    "Wrong number of arguments to linkfile"
-  fi
-}
-
-linkFileFromShare() {
-  linkfile $1 $JESsharePath
-}
+rootFileToReduce="${fileNamePath}/JESUncertainty_BaseComponents_2012.root" #2011.root"
+#rootFileReduced="${fileNamePath}/JESUncertainty_$(($numberOfReducedParam+6))NP_From${fileNameSuffix}.root"
+rootFileReduced="${fileNamePath}/JESUncertainty_${reductionLinkWords}_${fileNameSuffix}.root"
 
 makeDir() {
   if [[ ! -d $1 ]] ; then
     mkdir $1
   fi
 }
+
 
 
 # Compile the provider and executables
@@ -118,62 +116,72 @@ g++ -o $compareExec $compareSource $flags $includes && {
 echo "Successfully compiled all necessary libraries/programs!  Will now run..."
 
 
-# Link config/root files, make the expected directory structure, and run the reduction
+
+#############
+# Reduction #
+#############
+
 cd $ReduceToolPath
 
-linkFileFromShare $configOnlyNPfile
-linkFileFromShare $rootFileToReduce
-
+# Reduction expects a specific directory structure, so make it if necessary
 makeDir Plots
 makeDir SmoothCorrectionFiles
 makeDir SmoothCorrectionFiles/ReducedNP
 
-echo -e "\nExecuting reduction program...\n"
-./$reduceExec $configOnlyNPfile $numberOfReducedParam $algorithms $tempRootFile $smoothing
+# Perform the reduction
+echo -e "\nRunning the reduction program...\n"
+./$reduceExec $JESsharePath $configFileToReduce $tempRootFile $categoriesToReduce $algorithms $MCtype $smoothing $numDimForReduction
 if test $? -ne 0 ; then
-  echo -e "\nUnsuccessful execution of reduction program.  Exiting.\n"
+  echo -e "\n Unsuccessful execution of reduction program.  Exiting...\n"
   exit 1
 fi
-echo -e "\nFinished executing reduction program!\n"
-mv $tempRootFile $ComparisonPath/.
+echo -e "\nFinished the reduction program!\n"
+
+cp $tempRootFile $CombinePath/.
 
 
-# Link config/root files, then create the new root/config files from the old and reduced files
-cd $ComparisonPath
+###############
+# Combination #
+###############
 
-linkFileFromShare $configFileToReduce
-linkFileFromShare $rootFileToReduce
+cd $CombinePath
 
-echo -e "\nExecuting combination program...\n"
-python $combineFilesExec $configFileToReduce $rootFileToReduce $tempRootFile $configFileReduced $rootFileReduced $numberOfReducedParam
+# Perform the combination
+echo -e "\nRunning the combination program...\n"
+python $combineFilesExec $JESsharePath $configFileToReduce $rootFileToReduce $tempRootFile $configFileReduced $rootFileReduced
 if test $? -ne 0 ; then
-  echo -e "\nUnsuccessful execution of combination program.  Exiting.\n"
+  echo -e "\nUnsuccessful execution of combination program.  Exiting...\n"
   exit 2
 fi
-echo -e "\nFinished executing combination program!\n"
+echo -e "\nFinished the combination program!\n"
 
 rm $tempRootFile
-mv $configFileReduced $JESsharePath/.
-mv $rootFileReduced $JESsharePath/.
 
-# Link config/root files, then create and compare correlation matrices
-cd $ComparisonPath
 
-linkFileFromShare $configFileReduced
-linkFileFromShare $rootFileReduced
-linkFileFromShare $configFileForComparison
-linkFileFromShare $rootFileForComparison
+##############
+# Comparison #
+##############
 
-echo -e "\nExecuting correlation matrix comparison program...\n"
-./$compareExec $configFileForComparison $configFileReduced $algorithms $MCtype
-#./$compareExec $configFileReduced $configFileToReduce $algorithms $MCtype
-if test $? -ne 0 ; then
-  echo -e "\nUnsuccessful execution of comparison program.  Exiting.\n"
-  exit 3
+
+if test $doComparison -ne 0 ; then
+  cd $ComparisonPath
+  
+  echo -e "\nRunning correlation matrix comparison program...\n"
+  ./$compareExec $JESsharePath $configFileForComparison $configFileReduced $algorithms $MCtype
+  if test $? -ne 0 ; then
+    echo -e "\nUnsuccessful execution of comparison program.  Exiting...\n"
+    exit 3
+  fi
+  echo -e "\nFinished executing correlation matrix comparison program!\n"
 fi
-echo -e "\nFinished executing correlation matrix comparison program!\n"
 
 
 # Done!
 cd $startPath
+
+
+
+
+
+
 

@@ -10,7 +10,7 @@
 #include "TMarker.h"
 
 
-void ATLASLabel(Double_t x,Double_t y,char* text,Color_t color) 
+void ATLASLabel(Double_t x,Double_t y,const char* text,Color_t color) 
 {
   TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
   l.SetNDC();

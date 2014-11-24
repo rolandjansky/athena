@@ -16,6 +16,7 @@ typedef std::vector<TH1D*> HistV;
 std::vector<double> ptBins, etaBins; 
 Str _jetAlgo, _JESconfig;
 int _nNPmax=8;
+bool _jetAreaJES; // Moriond2013 JES or later
 
 // color and line-styles
 int cols[7] = {kRed,kBlue,kGreen+1,kGray+1,kOrange+2,kViolet-5,kCyan-2};
@@ -60,6 +61,8 @@ int main(int argc, char **argv) {
   // create Plots output dir - if it doesn't exist already
   gSystem->Exec("mkdir -p JES_Plots");
   Str ps="JES_Plots/"+Str(gSystem->BaseName(_JESconfig)).ReplaceAll(".config",".ps");
+
+  _jetAreaJES = _JESconfig.Contains("InsituJES2012");
   
   SetAtlasStyle(); gErrorIgnoreLevel=2000;
   
@@ -104,11 +107,14 @@ int main(int argc, char **argv) {
       }
 
       if (nps.size()+extraJES.size()>_nNPmax) {
-	DrawJEScompVsPt(nps,compNames,eta,"Baseline JES uncertainties");
+	if (_jetAreaJES)
+	  DrawJEScompVsPt(nps,compNames,eta,"#it{In situ} JES uncertainties");
+	else
+	  DrawJEScompVsPt(nps,compNames,eta,"Baseline JES uncertainties");
 	c->Print(ps);
 	TH1D *base = AddInQuad(nps);
 	nps.clear(); compNames.clear();
-	nps.push_back(base); compNames.push_back("Baseline JES");
+	nps.push_back(base); compNames.push_back(_jetAreaJES?"#it{In situ} JES":"Baseline JES");
       }
       
       for (int ci=0;ci<extraJES.size();++ci) {
@@ -143,11 +149,12 @@ int main(int argc, char **argv) {
 
       if (nps.size()+extraJES.size()>_nNPmax) {
 	//printf("More than %d!!!\n",_nNPmax);
-	DrawJEScompVsEta(nps,compNames,pt,"Baseline JES uncertainties");
+	DrawJEScompVsEta(nps,compNames,pt,_jetAreaJES?"#it{In situ} JES uncertainties":"Baseline JES uncertainties");
 	c->Print(ps);
 	TH1D *base = AddInQuad(nps);
 	nps.clear(); compNames.clear();
-	nps.push_back(base); compNames.push_back("Baseline JES");
+	nps.push_back(base); 
+	compNames.push_back(_jetAreaJES?"#it{In situ} JES":"Baseline JES");
       }
       
       for (int ci=0;ci<extraJES.size();++ci) {
@@ -273,8 +280,9 @@ double DrawVsEtaHisto(TH1 *h, double pt, Str opt, int col, int style, int width,
 
 double GetMultiUncert(JESprovider &j, Str name, double pt, double eta, 
 		      double DRmin, double mu, double NPV, double rms) {
+  // for closeby: assume a 20 GeV jet at DR=0.8 distance
   if (name=="Closeby")
-    return j.getRelClosebyUncert(pt,DRmin);
+    return _jetAreaJES?j.getRelClosebyUncert(pt,20.0*cos(0.8)/pt):j.getRelClosebyUncert(pt,DRmin);
   else if (name=="PileupMu") 
     return GetPileupUncertainty(j,pt,eta,NPV,mu,rms,0); 
   else if (name=="PileupNPV") 
