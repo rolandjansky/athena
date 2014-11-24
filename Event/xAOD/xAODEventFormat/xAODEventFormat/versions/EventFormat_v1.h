@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormat_v1.h 570630 2013-11-15 10:41:48Z binet $
+// $Id: EventFormat_v1.h 629191 2014-11-18 17:01:16Z krasznaa $
 #ifndef XAODEVENTFORMAT_VERSIONS_EVENTFORMAT_V1_H
 #define XAODEVENTFORMAT_VERSIONS_EVENTFORMAT_V1_H
 
@@ -32,8 +32,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 570630 $
-   /// $Date: 2013-11-15 11:41:48 +0100 (Fri, 15 Nov 2013) $
+   /// $Revision: 629191 $
+   /// $Date: 2014-11-18 18:01:16 +0100 (Tue, 18 Nov 2014) $
    ///
    class EventFormat_v1 {
 
@@ -95,11 +95,5 @@ namespace xAOD {
                              const EventFormat_v1& format );
 
 } // namespace xAOD
-
-// Specify a CLID for the class for Athena:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EventFormat_v1, 243004407, 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODEVENTFORMAT_VERSIONS_EVENTFORMAT_V1_H

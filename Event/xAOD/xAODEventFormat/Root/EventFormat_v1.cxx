@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormat_v1.cxx 586453 2014-03-06 10:24:33Z krasznaa $
+// $Id: EventFormat_v1.cxx 629218 2014-11-18 17:38:06Z krasznaa $
 
 // STL include(s):
 #include <iostream>
@@ -200,7 +200,7 @@ namespace xAOD {
    std::ostream& operator<<( std::ostream& out,
                              const EventFormat_v1& format ) {
 
-      out << "xAOD::EventFormat_v1:";
+      out << "xAOD::EventFormat:";
       EventFormat_v1::const_iterator itr = format.begin();
       EventFormat_v1::const_iterator end = format.end();
       for( int counter = 1; itr != end; ++itr, ++counter ) {
