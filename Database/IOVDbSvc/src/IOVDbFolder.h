@@ -5,8 +5,8 @@
 // IOVDbFolder.h
 // helper class for IOVDbSvc managing folder access
 // Richard Hawkings, started 24/11/08
-#ifndef __IOVDBFOLDER_H__
-#define __IOVDBFOLDER_H__
+#ifndef IOVDBSVC_IOVDBFOLDER_H
+#define IOVDBSVC_IOVDBFOLDER_H
 
 #include<string>
 #include "AthenaKernel/IClassIDSvc.h"
@@ -21,6 +21,7 @@
 
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
+#include <memory>
 
 class MsgStream;
 class IOVDbConn;
@@ -105,8 +106,10 @@ class IOVDbFolder {
   // make summary of usage
   void summary();
   // preload address to Storegate (does folder initialisation from COOL)
-  SG::TransientAddress* preLoadFolder(StoreGateSvc* detStore,
-	const unsigned int cacheRun, const unsigned int cacheTime);
+  std::unique_ptr<SG::TransientAddress>
+    preLoadFolder(StoreGateSvc* detStore,
+                  const unsigned int cacheRun,
+                  const unsigned int cacheTime);
 
   // print out cache
   void printCache();
@@ -282,4 +285,5 @@ inline bool IOVDbFolder::cacheValid(const cool::ValidityKey reftime) const {
 
 inline void IOVDbFolder::setDropped(const bool dropped) { m_dropped=dropped; }
 
-#endif //  __IOVDBFOLDER_H__
+#endif //  IOVDBSVC_IOVDBFOLDER_H
+

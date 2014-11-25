@@ -47,6 +47,7 @@
 #include "IOVDbConn.h"
 
 #include "IOVDbFolder.h"
+#include "CxxUtils/make_unique.h"
 
 
 
@@ -88,6 +89,7 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_cachepar(""),
   m_addrheader(""),
   m_clid(0),
+  m_fixedfields(0),
   m_ndbread(0),
   m_ncacheread(0),
   m_nobjread(0),
@@ -95,7 +97,11 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_readtime(0.),
   m_nchan(0),
   m_retrieved(false),
-  m_cachespec(0) 
+  m_cachespec(0),
+  m_boundmin(),
+  m_boundmax(),
+  m_nboundmin(0),
+  m_nboundmax(0)
 {
   // extract settings from the properties
   // foldername from the 'unnamed' property
@@ -838,12 +844,16 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
     // get payload for current time, including case where nothing returned
     IOVTime ireftime=makeTime(reftime);
     IOVPayloadContainer::const_iterator pitr=payload->find(ireftime);
+    // keep track of whether we create a new CondAttrListCollection, so we 
+    // can release the pointer later
+    bool newpptr=false; 
     const CondAttrListCollection* pptr;
     if (pitr==payload->end()) {
       if (m_log->level()<=MSG::DEBUG) 
           *m_log << MSG::DEBUG << "No IOVPayloadContainer for time " 
              << ireftime << " so make empty CondAttrListCollection" << endreq;
       pptr=new CondAttrListCollection(!m_timestamp);
+      newpptr=true;
     } else {
       pptr=*pitr;
     }
@@ -882,6 +892,8 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
       // have to copy the CondAttrListCollection as this will be put in 
       // detector store and eventually deleted
       attrListColl=new CondAttrListCollection(*pptr);
+      // release the pointer if we created a new CondAttrListCollection object
+      if (newpptr) delete pptr;
     }
     if (m_log->level()<=MSG::DEBUG) 
       *m_log << MSG::DEBUG << "Read file metadata for folder " << m_foldername 
@@ -1078,8 +1090,11 @@ void IOVDbFolder::summary() {
   }
 }
 
-SG::TransientAddress* IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
-                const unsigned int cacheRun,const unsigned int cacheTime) {
+std::unique_ptr<SG::TransientAddress>
+IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
+                           const unsigned int cacheRun,
+                           const unsigned int cacheTime)
+{
   // preload Address from SG - does folder setup including COOL access
   // also set detector store location - cannot be done in constructor
   // as detector store does not exist yet in IOVDbSvc initialisation
@@ -1089,7 +1104,6 @@ SG::TransientAddress* IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
     *m_log << MSG::DEBUG << "preLoadFolder for folder " << m_foldername 
            << endreq;
   p_detStore=detStore;
-  SG::TransientAddress* tad=0;
   std::string folderdesc;
   cool::IDatabasePtr dbPtr;
   cool::IFolderPtr fldPtr;
@@ -1266,7 +1280,7 @@ SG::TransientAddress* IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
     m_chansel=cool::ChannelSelection(0);
 
   // now create TAD
-  tad=new SG::TransientAddress(m_clid,m_key);
+  auto tad = CxxUtils::make_unique<SG::TransientAddress>(m_clid,m_key);
 
   // process symlinks, if any
   if (folderpar.getKey("symlinks","",buf)) {

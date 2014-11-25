@@ -79,7 +79,9 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_log(0),
     m_poolPayloadRequested(false),
     m_poolSvcContext(0),
+    m_state (INITIALIZATION),
     m_globalTag(""),
+    m_iovslop(),
     m_abort(false)
 {
   // declare all properties
@@ -371,9 +373,9 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
 	   fitr!=m_foldermap.end();++fitr) {
         IOVDbFolder* folder=fitr->second;
         if (folder->conn()==*citr || (folder->conn()==0 && doMeta)) {
-          SG::TransientAddress* tad;
-          tad=folder->preLoadFolder(&(*h_detStore),par_cacheRun.value(),
-				    par_cacheTime.value());
+          std::unique_ptr<SG::TransientAddress> tad =
+            folder->preLoadFolder(&(*h_detStore),par_cacheRun.value(),
+                                  par_cacheTime.value());
           if (oldconn!=*citr) {
             // close old connection if appropriate
             if (par_manageConnections && oldconn!=0) oldconn->setInactive();
@@ -385,7 +387,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
           }
           // for write-metadata folder, request data preload
           if (folder->writeMeta()) {
-            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadDataTAD(tad,
+            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadDataTAD(tad.get(),
 					   folder->eventStore())) {
               *m_log << MSG::ERROR << 
                 "Could not request IOVSvc to preload metadata for " << 
@@ -394,7 +396,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
             }
           } else {
             // for other folders, just preload TAD (not data)
-            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadTAD(tad,
+            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadTAD(tad.get(),
 					       folder->eventStore())) {
               *m_log << MSG::ERROR << 
 		"Could not request IOVSvc to preload metadata for " << 
@@ -403,7 +405,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
             }
           }
           // Add TAD to Storegate
-          tlist.push_back(tad);
+          tlist.push_back(tad.release());
           // check for IOV override
           folder->setIOVOverride(par_forceRunNumber.value(),
 	    par_forceLumiblockNumber.value(),par_forceTimestamp.value());
