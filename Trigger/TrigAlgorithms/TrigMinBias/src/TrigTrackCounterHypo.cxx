@@ -72,6 +72,7 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
   
   // Count the number of tracks within the selected region
   xAOD::TrigHisto2D *th2dZ0_pt = new xAOD::TrigHisto2D;
+  th2dZ0_pt->makePrivateStore();
   
   th2dZ0_pt->initialize(m_trigTrackCounts->z0Bins(),
 		       m_trigTrackCounts->z0Min(),
@@ -104,6 +105,9 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
   // for monitoring
   m_ntrksHypo = m_ntrksSelected;
   if( !pass ) m_ntrksSelected = -999;
+  th2dZ0_pt->releasePrivateStore();
+  delete th2dZ0_pt;
+  th2dZ0_pt=0;
   
   return HLT::OK;
 }
