@@ -86,6 +86,8 @@ private:
   double m_version;
   
   std::vector<std::string> m_commands;
+  std::vector<std::string> m_userParams;
+  std::vector<std::string> m_userModes;
   
   enum PDGID {PROTON=2212, ANTIPROTON=-2212, ELECTRON=11, POSITRON=-11, INVALID=0};
   

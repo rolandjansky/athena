@@ -3,6 +3,7 @@
 */
 
 #include "UserHooksUtils.h"
+#include "UserSetting.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "boost/lexical_cast.hpp"
 #include <stdexcept>
@@ -20,14 +21,14 @@ namespace Pythia8{
     
   public:
     
-    EnhanceMPI(): m_pTCut(10.), m_nMPIVeto(3){
+    EnhanceMPI(): m_pTCut("EnhanceMPI:PTCut", 10.), m_nMPIVeto(3){
       
       std::cout<<"**********************************************************"<<std::endl;
       std::cout<<"*                                                        *"<<std::endl;
       std::cout<<"*        Enhancing MPI emissions with UserHook!          *"<<std::endl;
       std::cout<<"*                                                        *"<<std::endl;
       std::cout<<"**********************************************************"<<std::endl;
-
+      
       m_passedEvent = 0;      
     }
     
@@ -49,7 +50,7 @@ namespace Pythia8{
       size_t nEmissions=0;
       for(int ii=event.size()-1; ii > 0 && nEmissions != 2; --ii){
         if(event[ii].status() != 33) continue;
-        if(event[ii].pT() > m_pTCut){
+        if(event[ii].pT() > m_pTCut(settingsPtr)){
           m_passedEvent = true;
           return false;
         }
@@ -91,7 +92,7 @@ namespace Pythia8{
     
   private:
     
-    double m_pTCut;
+    Pythia8_UserHooks::UserSetting<double> m_pTCut;
     
     bool m_passedEvent;
     

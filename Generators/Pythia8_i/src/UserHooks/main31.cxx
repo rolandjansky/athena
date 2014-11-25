@@ -3,6 +3,7 @@
 */
 
 #include "UserHooksUtils.h"
+#include "UserSetting.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "boost/lexical_cast.hpp"
 #include <stdexcept>
@@ -23,10 +24,12 @@ namespace Pythia8{
   public:  
     
     // Constructor and destructor.
-    main31() : nFinal(2),
+    main31() : m_nFinal("Main31:NFinal", 2),
+    m_pTHardMode("Main31:pTHard", 2),
+    m_pTDefMode("Main31:pTdef", 1),
     vetoMode(1), vetoCount(3),
-    pThardMode(2), pTemtMode(0),
-    emittedMode(0), pTdefMode(1),
+    pTemtMode(0),
+    emittedMode(0),
     MPIvetoMode(0),
     pThard(0), pTMPI(0),
     accepted(0),
@@ -155,15 +158,15 @@ namespace Pythia8{
         
         // If all necessary arguments have been given, then directly calculate.
         // POWHEG ISR and FSR, need i and j.
-        if ((pTdefMode == 0 || pTdefMode == 1) && i > 0 && j > 0) {
-          pTemt = pTpowheg(e, i, j, (pTdefMode == 0) ? false : FSR);
+        if ((m_pTDefMode(settingsPtr) == 0 || m_pTDefMode(settingsPtr) == 1) && i > 0 && j > 0) {
+          pTemt = pTpowheg(e, i, j, (m_pTDefMode(settingsPtr) == 0) ? false : FSR);
           
           // Pythia ISR, need i, j and r.
-        } else if (!FSR && pTdefMode == 2 && i > 0 && j > 0 && r > 0) {
+        } else if (!FSR && m_pTDefMode(settingsPtr) == 2 && i > 0 && j > 0 && r > 0) {
           pTemt = pTpythia(e, i, j, r, FSR);
           
           // Pythia FSR, need k, j and r.
-        } else if (FSR && pTdefMode == 2 && j > 0 && k > 0 && r > 0) {
+        } else if (FSR && m_pTDefMode(settingsPtr) == 2 && j > 0 && k > 0 && r > 0) {
           pTemt = pTpythia(e, k, j, r, FSR);
           
           // Otherwise need to try all possible combintations.
@@ -186,11 +189,11 @@ namespace Pythia8{
             if (!e[jNow].isFinal() || e[jNow].colType() == 0) continue;
             
             // POWHEG
-            if (pTdefMode == 0 || pTdefMode == 1) {
+            if (m_pTDefMode(settingsPtr) == 0 || m_pTDefMode(settingsPtr) == 1) {
               
               // ISR - only done once as just kinematical pT
               if (!FSR) {
-                pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
+                pTnow = pTpowheg(e, iInA, jNow, (m_pTDefMode(settingsPtr) == 0) ? false : FSR);
                 if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
                 
                 // FSR - try all outgoing partons from system before branching 
@@ -207,7 +210,7 @@ namespace Pythia8{
                   if (jNow == e[iNow].daughter1() 
                       && jNow == e[iNow].daughter2()) continue;
                   
-                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0) 
+                  pTnow = pTpowheg(e, iNow, jNow, (m_pTDefMode(settingsPtr) == 0) 
                                    ? false : FSR);
                   if (pTnow > 0.) pTemt = (pTemt < 0) 
                     ? pTnow : min(pTemt, pTnow);
@@ -216,7 +219,7 @@ namespace Pythia8{
               } // if (!FSR)
               
               // Pythia
-            } else if (pTdefMode == 2) {
+            } else if (m_pTDefMode(settingsPtr) == 2) {
               
               // ISR - other incoming as recoiler
               if (!FSR) {
@@ -292,27 +295,27 @@ namespace Pythia8{
         } else break;
       }
       // Extra check that we have the correct final state
-      if (count != nFinal && count != nFinal + 1) {
+      if (count != m_nFinal(settingsPtr) && count != m_nFinal(settingsPtr) + 1) {
         cout << "Error: wrong number of final state particles in event" << endl;
         exit(1);
       }
       // Flag if POWHEG radiation present and index
-      bool isEmt = (count == nFinal) ? false : true;
+      bool isEmt = (count == m_nFinal(settingsPtr)) ? false : true;
       int  iEmt  = (isEmt) ? e.size() - 1 : -1;
       
-      // If there is no radiation or if pThardMode is 0 then set pThard to Qfac.
-      if (!isEmt || pThardMode == 0) {
-        pThard = infoPtr->QFac();
+      // If there is no radiation or if pThardMode is 0 then set pThard to QRen.
+      if (!isEmt || m_pTHardMode(settingsPtr) == 0) {
+        pThard = infoPtr->QRen();
         
         // If pThardMode is 1 then the pT of the POWHEG emission is checked against
         // all other incoming and outgoing partons, with the minimal value taken
-      } else if (pThardMode == 1) {
+      } else if (m_pTHardMode(settingsPtr) == 1) {
         pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
         
         // If pThardMode is 2, then the pT of all final-state partons is checked
         // against all other incoming and outgoing partons, with the minimal value
         // taken
-      } else if (pThardMode == 2) {
+      } else if (m_pTHardMode(settingsPtr) == 2) {
         pThard = pTcalc(e, -1, -1, -1, -1, -1);
         
       }
@@ -323,7 +326,7 @@ namespace Pythia8{
       }
       
 #ifdef DBGOUTPUT
-      cout << "doVetoMPIStep: Qfac = " << infoPtr->QFac()
+      cout << "doVetoMPIStep: QRen = " << infoPtr->QRen()
       << ", pThard = " << pThard << endl << endl;
 #endif
       
@@ -492,8 +495,13 @@ namespace Pythia8{
     int    getNFSRveto() { return nFSRveto; }
     
   private:
-    int    nFinal, vetoMode, vetoCount, pThardMode, pTemtMode,
-    emittedMode, pTdefMode, MPIvetoMode;
+    
+    Pythia8_UserHooks::UserSetting<int> m_nFinal;
+    Pythia8_UserHooks::UserSetting<int> m_pTHardMode;
+    Pythia8_UserHooks::UserSetting<int> m_pTDefMode;
+    
+    int  vetoMode, vetoCount, pTemtMode,
+    emittedMode, MPIvetoMode;
     double pThard, pTMPI;
     bool   accepted;
     // The number of accepted emissions (in a row)
