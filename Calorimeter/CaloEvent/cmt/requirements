@@ -46,7 +46,7 @@ use AtlasReflex    AtlasReflex-*    External -no_auto_imports
 
 apply_pattern lcgdict dict=CaloEvent selectionfile=selection.xml \
 navigables="CaloCellContainer CaloClusterContainer" \
-elementLinks="CaloShowerContainer CaloCellLinkContainer" \
+elementLinks="CaloShowerContainer CaloCellLinkContainer CaloClusterCellLinkContainer" \
 dataLinks="CaloTowerContainer" \
 headerfiles="../CaloEvent/CaloEventDict.h" 
 

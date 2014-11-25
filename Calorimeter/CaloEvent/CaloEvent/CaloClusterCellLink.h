@@ -19,8 +19,9 @@
  *  used during run 1.
  */
 class CaloClusterCellLink {
-
   friend class CaloClusterCellLinksUpdater;
+
+ public:
   typedef double weight_t;
 
  private:
