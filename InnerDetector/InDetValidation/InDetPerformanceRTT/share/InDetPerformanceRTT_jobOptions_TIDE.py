@@ -15,15 +15,12 @@ doCaloSeededBrem = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
-import MagFieldServices.SetupField
 
 #--------------------------------------------------------------
 # Event related parameters and input files
 #--------------------------------------------------------------
 
-# top no pileup
-#athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/s/silviam/public/500events_devvval/OUT.R2-2015-01-01-00.RDO.pool.root"]
-#athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/n/nstyles/public/user.smaeland.001219.EXT0._00001.RDO.pool.root"]
+# top no pileup (default)
 #athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"]
 # H-gamgam, 40 pileup
 # athenaCommonFlags.FilesInput = ["root://eosatlas///eos/atlas/atlasdatadisk/mc11_valid/RDO/e850_s1310_s1300_d577/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d577_tid512895_00/RDO.512895._000039.pool.root.1"]
@@ -40,7 +37,7 @@ import MagFieldServices.SetupField
 
 # --- number of events to process
 if not 'EventMax' in dir():
-  EventMax = 500
+  EventMax = 10
   print "EventMax not set - do",EventMax,"events"
 else:
   print "EventMax set to",EventMax
@@ -69,8 +66,8 @@ else:
 # --- and switch off Muons
 DetFlags.Muon_setOff()
 
-#from AthenaCommon.BeamFlags import jobproperties as BeamFlags
-#BeamFlags.Beam.bunchSpacing.set_Value_and_Lock(50)
+from AthenaCommon.BeamFlags import jobproperties as BeamFlags
+BeamFlags.Beam.bunchSpacing.set_Value_and_Lock(50)
 
 #--------------------------------------------------------------
 # Control
@@ -146,10 +143,7 @@ recAlgs.doTrigger.set_Value_and_Lock         (False)
 
 from AthenaCommon.GlobalFlags import globalflags
 # --- set geometry version
-###globalflags.DetDescrVersion = DetDescrVersion
-
-## correct conditions tag in our specific input file's metadata
-globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-RUN12-SDR-10')
+globalflags.DetDescrVersion = DetDescrVersion
 
 print "globalflags configuration:"
 print globalflags
@@ -191,12 +185,13 @@ InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
 
-InDetFlags.doiPatRec.set_Value_and_Lock                            (False)
+InDetFlags.doiPatRec.set_Value_and_Lock                            (True)
 
 # --- possibility to run tracking on subdetectors separately (and independent from each other)
-InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock                 (True)
-InDetFlags.doTrackSegmentsSCT.set_Value_and_Lock                   (True)
-InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock                   (True)
+# --- Incompatible with TIDE setup
+#InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock                 (True)
+#InDetFlags.doTrackSegmentsSCT.set_Value_and_Lock                   (True)
+#InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock                   (True)
 
 # --- activate non default algorithms -- actually deactivate for now
 InDetFlags.doV0Finder.set_Value_and_Lock                           (False)
@@ -214,6 +209,9 @@ if 'FitterType' in dir():
 
 if 'LowPt' in dir():
   InDetFlags.doLowPt.set_Value_and_Lock                            (LowPt)
+
+# --- Activate TIDE (tracking in dense environments) option
+InDetFlags.doTIDE_Ambi.set_Value_and_Lock                          (True)
 
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!
