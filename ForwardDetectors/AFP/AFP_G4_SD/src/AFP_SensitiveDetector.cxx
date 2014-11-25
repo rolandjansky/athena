@@ -224,7 +224,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
     }
   */
   
-  if ( (bRes=VolumeName.contains("TDQuarticBarVacBorder")) && pParticleDefinition->GetPDGCharge() !=0 )
+  if ( (VolumeName.contains("TDQuarticBarVacBorder")) && pParticleDefinition->GetPDGCharge() !=0 )
     {
       nQuarticID=szbuff[7]-0x30;
 			
@@ -245,7 +245,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
       pHit->m_nStationID=nStationID;
       pHit->m_nDetectorID=nDetectorID;
-      pHit->m_nSensitiveElementID=(bRes? 2:1)+2*nQuarticID;//Q1: 1-2, Q2: 3-4
+      pHit->m_nSensitiveElementID=(2+2*nQuarticID);//Q1: 1-2, Q2: 3-4
+      //pHit->m_nSensitiveElementID=(bRes? 2:1)+2*nQuarticID;//Q1: 1-2, Q2: 3-4
 		
       //m_pTDSimHitCollection->Insert(*pHit);
       //m_nNumberOfTDSimHits++;
