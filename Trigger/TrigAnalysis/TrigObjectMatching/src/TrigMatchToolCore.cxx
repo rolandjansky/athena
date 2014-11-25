@@ -12,7 +12,8 @@
 #include "TrigObjectMatching/TrigMatchToolCore.h"
 
 TrigMatchToolCore::TrigMatchToolCore()
-  : m_nFeatureContainers (100)
+  : m_trigDecisionToolCore(0),
+    m_nFeatureContainers (100)
 {
 
    m_l1l2Map.clear();
