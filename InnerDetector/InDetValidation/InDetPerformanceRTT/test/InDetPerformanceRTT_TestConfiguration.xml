@@ -218,6 +218,16 @@
          <dataset>/afs/cern.ch/work/s/silviam/public/500events_devvval/OUT.R2-2015-01-01-00.RDO.pool.root</dataset>
       </athena>
 
+      <athena userJobId="TtbarIDPRTTTIDE">
+         <doc>ttbar with TIDE option, GlobalChi2Fitter</doc>
+         <commandLineFlags>EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
+         <options>InDetPerformanceRTT_jobOptions_TIDE.py</options>
+         <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
+         <group>TtbarIDPRTTTIDE</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1</dataset>
+      </athena>
+
       <athena userJobId="ZtomumuPileupIDPRTT">
          <doc>Z to mu mu With Pile-up, ATLAS-GEO-02-01-00, GlobalChi2Fitter</doc>
          <commandLineFlags>DetDescrVersion="ATLAS-GEO-02-01-00";EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
@@ -809,6 +819,53 @@
                   <arg>
                      <argname>DCubeRef</argname>
                      <argvalue>InDetStandardPlots-TtbarIBL.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>InDetStandardPlots.root</argvalue>
+                  </arg>
+               </test>
+        </jobGroup>
+
+        <jobGroup name="AthenaTtbarIDPRTTTIDE" parent="Athena">
+
+                <keepFilePattern>ALL_IDPerformanceRTT_*.html</keepFilePattern>
+                <keepFilePattern>*.png</keepFilePattern>
+                <keepFilePattern>*.html</keepFilePattern>
+                <keepFilePattern>InDetPerformanceRTT_*.tar.gz</keepFilePattern>
+                <keepFilePattern>*.php</keepFilePattern>
+                <keepFilePattern>*.log</keepFilePattern>
+                <keepFilePattern>*.xml</keepFilePattern>
+                <keepFilePattern>*.root</keepFilePattern>
+
+                <auxFilePattern>make*.C</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.py</auxFilePattern>
+                <auxFilePattern>ALL_IDPerformanceRTT_*.html</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.sh</auxFilePattern>
+                <auxFilePattern>IDPerformanceRTT_*.xml</auxFilePattern>
+
+               <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>ROOTMacroRunner</testname>
+                  <arg>
+                    <argname>macro</argname>
+                    <argvalue>makeplots.C</argvalue>
+                  </arg>
+               </test>
+               <test position="3">
+                  <modulename>IDPerformanceRTT_dynamic_pagemaker</modulename>
+                  <testname>IDPerformanceRTT_dynamic_pagemaker</testname>
+               </test>
+               <test position="2">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                     <argname>DCubeCfg</argname>
+                     <argvalue>TtbarTIDE_DCubeConfig.xml</argvalue>
+                  </arg>
+                  <arg>
+                     <argname>DCubeRef</argname>
+                     <argvalue>InDetStandardPlots-TtbarTIDE.root</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeMon</argname>
