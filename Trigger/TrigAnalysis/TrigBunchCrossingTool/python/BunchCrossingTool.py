@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingTool.py 517812 2012-09-17 07:16:58Z krasznaa $
+# $Id: BunchCrossingTool.py 586922 2014-03-10 14:56:39Z krasznaa $
 
 ## @package BunchCrossingTool
 #
@@ -9,8 +9,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 
 ##
 # @short Function instantiating the correct type of bunch crossing tool
@@ -28,8 +28,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def BunchCrossingTool( type = "" ):
 
     # Get ourselves a logger:
@@ -59,6 +59,9 @@ def BunchCrossingTool( type = "" ):
 
     # Decide which tool to use based on the global flags:
     from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        __logger.info( "Selecting LHCBunchCrossingTool for overlay job" )
+        return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
         from RecExConfig.RecAlgsFlags import recAlgs
@@ -71,9 +74,6 @@ def BunchCrossingTool( type = "" ):
                            "this job" )
             return LHCBunchCrossingTool()
     else:
-        if globalflags.isOverlay():
-            __logger.warning( "Overlay jobs are not handled necessarily correctly by "
-                              "this tool" )
         __logger.info( "Selecting MCBunchCrossingTool for this job" )
         return MCBunchCrossingTool()
 
@@ -96,8 +96,8 @@ def BunchCrossingTool( type = "" ):
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def TrigConfBunchCrossingTool():
 
     # The default name of the tool:
@@ -163,8 +163,8 @@ def TrigConfBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def MCBunchCrossingTool():
 
     # The default name of the tool:
@@ -228,8 +228,8 @@ def MCBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def LHCBunchCrossingTool():
 
     # The default name of the tool:
@@ -285,8 +285,8 @@ def LHCBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def WebBunchCrossingTool():
 
     # The default name of the tool:
@@ -331,8 +331,8 @@ def WebBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def StaticBunchCrossingTool():
 
     # The default name of the tool:
@@ -369,8 +369,8 @@ def StaticBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 517812 $
-# $Date: 2012-09-17 09:16:58 +0200 (Mon, 17 Sep 2012) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def D3PDBunchCrossingTool():
 
     # The default name of the tool:

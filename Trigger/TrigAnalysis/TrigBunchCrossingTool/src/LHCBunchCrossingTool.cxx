@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.cxx 518861 2012-09-25 09:38:44Z krasznaa $
+// $Id: LHCBunchCrossingTool.cxx 618331 2014-09-24 11:55:26Z krasznaa $
 
 // System include(s):
 #include <inttypes.h>
@@ -21,7 +21,6 @@
 
 // Local include(s):
 #include "LHCBunchCrossingTool.h"
-#include "TrigBunchCrossingTool/MsgWriter.h"
 
 namespace Trig {
 
@@ -31,10 +30,10 @@ namespace Trig {
    static const std::string LHC_FILLPARAMS_FOLDER = "/TDAQ/OLC/LHC/FILLPARAMS";
    static const std::string LHC_BUNCHDATA_FOLDER = "/TDAQ/OLC/LHC/BUNCHDATA";
 
-   LHCBunchCrossingTool::LHCBunchCrossingTool( const std::string& type,
+   LHCBunchCrossingTool::LHCBunchCrossingTool( const std::string& /*type*/,
                                                const std::string& name,
-                                               const IInterface* parent )
-      : AthAlgTool( type, name, parent ),
+                                               const IInterface* /*parent*/ )
+      : BunchCrossingToolBase( name ),
         m_incidentSvc( "IncidentSvc", name ),
         m_iovSvc( "IOVDbSvc", name ) {
 
@@ -43,24 +42,12 @@ namespace Trig {
       declareInterface< IBunchCrossingConfProvider >( this );
 
       // Declare the properties of the tool:
-      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 500,
-                       "Maximum bunch spacing in the trains in nanoseconds" );
-
-      declareProperty( "FrontLength", m_frontLength = 300,
-                       "Length of the front part of a train in nanoseconds" );
-      declareProperty( "TailLength", m_tailLength = 300,
-                       "Length of the tail part of a train in nanoseconds" );
-
       declareProperty( "IntensityChannel", m_intChannel = 1,
                        "Channel to get the bunch intensities from "
                        "(0 for BPTX, 1 for BCT)" );
    }
 
    StatusCode LHCBunchCrossingTool::initialize() {
-
-      // Configure the underlying logger:
-      MsgWriter::instance()->setMinType( msg().level() );
-      MsgWriter::instance()->setSource( name() );
 
       // Report about the initialization:
       ATH_MSG_INFO( "Initializing LHCBunchCrossingTool - package version: "
@@ -79,11 +66,6 @@ namespace Trig {
       }
       ATH_MSG_INFO( "  Beam intensity source: " << intChannel );
 
-      // Configure the base class:
-      setMaxBunchSpacing( m_maxBunchSpacing );
-      setFrontLength( m_frontLength );
-      setTailLength( m_tailLength );
-
       // Retrieve the needed service(s):
       CHECK( m_incidentSvc.retrieve() );
       CHECK( m_iovSvc.retrieve() );
@@ -101,20 +83,13 @@ namespace Trig {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode LHCBunchCrossingTool::finalize() {
-
-      ATH_MSG_INFO( "Finalizing LHCBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
-
-      return StatusCode::SUCCESS;
-   }
-
    /**
-    * The configuration ID is derived from the IOV of the currently loaded conditions.
-    * The LHC fill number could also be a good number in the future, but I'm not sure
-    * how to extract that at the moment.
+    * The configuration ID is derived from the IOV of the currently loaded
+    * conditions. The LHC fill number could also be a good number in the future,
+    * but I'm not sure how to extract that at the moment.
     */
-   IBunchCrossingConfProvider::configid_type LHCBunchCrossingTool::configID() const {
+   IBunchCrossingConfProvider::configid_type
+   LHCBunchCrossingTool::configID() const {
 
       return m_id;
    }
@@ -123,7 +98,8 @@ namespace Trig {
     * Override the function in case no valid beam intensity is available for the
     * moment.
     */
-   std::vector< float > LHCBunchCrossingTool::configuredIntensitiesBeam1() const {
+   std::vector< float >
+   LHCBunchCrossingTool::configuredIntensitiesBeam1() const {
 
       if( m_intValid ) {
          return BunchCrossingConfProviderBase::configuredIntensitiesBeam1();
@@ -136,7 +112,8 @@ namespace Trig {
     * Override the function in case no valid beam intensity is available for the
     * moment.
     */
-   std::vector< float > LHCBunchCrossingTool::configuredIntensitiesBeam2() const {
+   std::vector< float >
+   LHCBunchCrossingTool::configuredIntensitiesBeam2() const {
 
       if( m_intValid ) {
          return BunchCrossingConfProviderBase::configuredIntensitiesBeam2();
@@ -153,7 +130,8 @@ namespace Trig {
    LHCBunchCrossingTool::configuredUnpairedIntensitiesBeam1() const {
 
       if( m_intValid ) {
-         return BunchCrossingConfProviderBase::configuredUnpairedIntensitiesBeam1();
+         return BunchCrossingConfProviderBase::
+            configuredUnpairedIntensitiesBeam1();
       } else {
          return std::vector< float >();
       }
@@ -167,13 +145,15 @@ namespace Trig {
    LHCBunchCrossingTool::configuredUnpairedIntensitiesBeam2() const {
 
       if( m_intValid ) {
-         return BunchCrossingConfProviderBase::configuredUnpairedIntensitiesBeam2();
+         return BunchCrossingConfProviderBase::
+            configuredUnpairedIntensitiesBeam2();
       } else {
          return std::vector< float >();
       }
    }
 
-   StatusCode LHCBunchCrossingTool::update( IOVSVC_CALLBACK_ARGS_P( /*i*/, keys ) ) {
+   StatusCode LHCBunchCrossingTool::update( IOVSVC_CALLBACK_ARGS_P( /*i*/,
+                                                                    keys ) ) {
 
       ATH_MSG_INFO( "Updating the bunch configuration" );
 
@@ -260,24 +240,12 @@ namespace Trig {
       //
       // Now let the base class interpret the information:
       //
-      if( ! loadSingleBunches( m_filledBunches, m_filledIntBeam1,
-                               m_filledIntBeam2 ) ) {
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "Failed to interpret single bunches";
-         return StatusCode::FAILURE;
-      }
-      if( ! loadBunchTrains( m_filledBunches, m_filledIntBeam1,
-                             m_filledIntBeam2 ) ) {
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "Failed to interpret bunch trains";
-         return StatusCode::FAILURE;
-      }
-      if( ! loadUnpairedBunches( m_unpairedBunches1, m_unpairedBunches2,
-                                 m_unpairedIntBeam1, m_unpairedIntBeam2 ) ) {
-         REPORT_ERROR( StatusCode::FAILURE )
-            << "Failed to interpret unpaired bunches";
-         return StatusCode::FAILURE;
-      }
+      ATH_CHECK( loadSingleBunches( m_filledBunches, m_filledIntBeam1,
+                                    m_filledIntBeam2 ) );
+      ATH_CHECK( loadBunchTrains( m_filledBunches, m_filledIntBeam1,
+                                  m_filledIntBeam2 ) );
+      ATH_CHECK( loadUnpairedBunches( m_unpairedBunches1, m_unpairedBunches2,
+                                      m_unpairedIntBeam1, m_unpairedIntBeam2 ) );
 
       // Print the configuration to give some feedback to the user:
       printConfig();

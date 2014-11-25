@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MCBunchCrossingTool.cxx 519661 2012-10-01 09:33:16Z krasznaa $
+// $Id: MCBunchCrossingTool.cxx 618331 2014-09-24 11:55:26Z krasznaa $
 
 // System include(s):
 #include <cstdlib>
@@ -16,7 +16,6 @@
 
 // Local include(s):
 #include "MCBunchCrossingTool.h"
-#include "TrigBunchCrossingTool/MsgWriter.h"
 #include "TrigBunchCrossingTool/BunchCrossing.h"
 
 namespace Trig {
@@ -26,10 +25,10 @@ namespace Trig {
    /// The parameter in the MetaData that we're interested in
    static const std::string BEAM_INTENSITY_PATTERN = "BeamIntensityPattern";
 
-   MCBunchCrossingTool::MCBunchCrossingTool( const std::string& type,
+   MCBunchCrossingTool::MCBunchCrossingTool( const std::string& /*type*/,
                                              const std::string& name,
-                                             const IInterface* parent )
-      : AthAlgTool( type, name, parent ),
+                                             const IInterface* /*parent*/ )
+      : BunchCrossingToolBase( name ),
         m_incidentSvc( "IncidentSvc", name ) {
 
       // Declare the interfaces provided by the tool:
@@ -37,24 +36,12 @@ namespace Trig {
       declareInterface< IBunchCrossingConfProvider >( this );
 
       // Declare the properties of the tool:
-      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 500,
-                       "Maximum bunch spacing in the trains in nanoseconds" );
-
-      declareProperty( "FrontLength", m_frontLength = 300,
-                       "Length of the front part of a train in nanoseconds" );
-      declareProperty( "TailLength", m_tailLength = 300,
-                       "Length of the tail part of a train in nanoseconds" );
-
       declareProperty( "MinBunchIntensity", m_minBunchIntensity = 0.1,
                        "Minimum intensity for a bunch crossing to be considered a "
                        "filled crossing" );
    }
 
    StatusCode MCBunchCrossingTool::initialize() {
-
-      // Configure the underlying logger:
-      MsgWriter::instance()->setMinType( msg().level() );
-      MsgWriter::instance()->setSource( name() );
 
       // Report about the initialization:
       ATH_MSG_INFO( "Initializing MCBunchCrossingTool - package version: "
@@ -63,11 +50,6 @@ namespace Trig {
       ATH_MSG_INFO( "  Length of train front: " << m_frontLength << " ns" );
       ATH_MSG_INFO( "  Length of train tail : " << m_tailLength << " ns" );
       ATH_MSG_INFO( "  Minimum bunch-x int. : " << m_minBunchIntensity );
-
-      // Configure the base class:
-      setMaxBunchSpacing( m_maxBunchSpacing );
-      setFrontLength( m_frontLength );
-      setTailLength( m_tailLength );
 
       //
       // Register the callback(s):
@@ -81,14 +63,6 @@ namespace Trig {
 
       // Finally retrieve the incident service:
       CHECK( m_incidentSvc.retrieve() );
-
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode MCBunchCrossingTool::finalize() {
-
-      ATH_MSG_INFO( "Finalizing MCBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
 
       return StatusCode::SUCCESS;
    }
@@ -138,7 +112,7 @@ namespace Trig {
     * Function re-implemented to give meaningful answers for non-pileup MC files
     * as well.
     */
-   IIBunchCrossingTool::BunchCrossingType
+   IBunchCrossingTool::BunchCrossingType
    MCBunchCrossingTool::bcType( bcid_type bcid ) const {
 
       if( ! m_isConfigured ) return Single;
@@ -426,18 +400,10 @@ namespace Trig {
       //
       // Now let the base class interpret the information:
       //
-      if( ! loadSingleBunches( filled_bunches, filled_intensities ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to interpret single bunches";
-         return StatusCode::FAILURE;
-      }
-      if( ! loadBunchTrains( filled_bunches, filled_intensities ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to interpret bunch trains";
-         return StatusCode::FAILURE;
-      }
-      if( ! loadUnpairedBunches( std::vector< int >(), std::vector< int >() ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to clear unpaired bunches";
-         return StatusCode::FAILURE;
-      }
+      ATH_CHECK( loadSingleBunches( filled_bunches, filled_intensities ) );
+      ATH_CHECK( loadBunchTrains( filled_bunches, filled_intensities ) );
+      ATH_CHECK( loadUnpairedBunches( std::vector< int >(),
+                                      std::vector< int >() ) );
 
       // Print the configuration to give some feedback to the user:
       printConfig();

@@ -2,13 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchTrain.cxx 457114 2011-09-05 09:35:49Z krasznaa $
+// $Id: BunchTrain.cxx 625753 2014-11-03 13:40:15Z krasznaa $
 
-// STL include(s):
+// System include(s):
 #include <cstdlib>
+#include <iostream>
+
+// Gaudi/Athena include(s):
+#include "AsgTools/AsgMessaging.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchTrain.h"
+#include "SetPrint.h"
 
 namespace Trig {
 
@@ -16,7 +21,7 @@ namespace Trig {
     * Default constructor, creating an empty bunch train.
     */
    BunchTrain::BunchTrain()
-      : std::set< BunchCrossing >(), LogWriter( "BunchTrain" ), m_spacing( -1 ),
+      : std::set< BunchCrossing >(), m_spacing( -1 ),
         m_front(), m_back(), m_gapFound( false ) {
 
    }
@@ -29,10 +34,32 @@ namespace Trig {
     * @param parent The original BunchTrain object
     */
    BunchTrain::BunchTrain( const BunchTrain& parent )
-      : std::set< BunchCrossing >( parent ), LogWriter( "BunchTrain" ), m_spacing( -1 ),
+      : std::set< BunchCrossing >( parent ), m_spacing( -1 ),
         m_front(), m_back(), m_gapFound( false ) {
 
       validate();
+   }
+
+   BunchTrain& BunchTrain::operator= ( const BunchTrain& rhs ) {
+
+      // Protect against self-assignment:
+      if( this == &rhs ) {
+         return *this;
+      }
+
+      // Do the heavy lifting in the base class's assignment operator:
+      std::set< BunchCrossing >::operator=( rhs );
+
+      // Reset the cached variables:
+      m_front = end();
+      m_back  = end();
+      m_gapFound = false;
+
+      // Cache the variables:
+      validate();
+
+      // Return the updated object:
+      return *this;
    }
 
    /**
@@ -178,6 +205,10 @@ namespace Trig {
     */
    bool BunchTrain::validate() {
 
+      /// Helper object to print logging messages:
+      static asg::AsgMessaging logger( "Trig::BunchTrain" );
+      logger.msg().setLevel( MSG::INFO ); // This is a temporary hack until AsgTools is updated...
+
       // Reset the gap flag:
       m_gapFound = false;
 
@@ -213,8 +244,8 @@ namespace Trig {
             }
             // Or finally it could be that the configuration is just weird...
             else {
-               REPORT_MSG( WARNING, "Bunches don't appear to have "
-                           "equal spacing!" );
+               logger.msg() << MSG::WARNING << "Bunches don't appear to have "
+                            << "equal spacing!" << endmsg;
                return false;
             }
          }
@@ -222,36 +253,18 @@ namespace Trig {
 
       // Report what we found out about this train:
       if( m_gapFound ) {
-         REPORT_VERBOSE_MSG( "Gap found in train! train_front = "
-                             << *train_front() << "; train_back = "
-                             << *train_back() );
+         logger.msg() << MSG::VERBOSE
+                      << "Gap found in train! train_front = "
+                      << *train_front() << "; train_back = "
+                      << *train_back() << endmsg;
       } else {
-         REPORT_VERBOSE_MSG( "Gap not found in train! train_front = "
-                             << *train_front() << "; train_back = "
-                             << *train_back() );
+         logger.msg() << MSG::VERBOSE
+                      << "Gap not found in train! train_front = "
+                      << *train_front() << "; train_back = "
+                      << *train_back() << endmsg;
       }
 
       return true;
-   }
-
-   /**
-    * Operator for printing the configuration of bunch trains in a readable
-    * format. Note that the operator takes advantage of MsgLogger's ability
-    * to output <code>std::set</code> objects.
-    *
-    * @param stream A functioning MsgLogger object
-    * @param bt The bunch train to print
-    * @returns The same MsgLogger object that it received
-    */
-   MsgLogger& operator<< ( MsgLogger& stream, const BunchTrain& bt ) {
-
-      // Take advantage of the output operator defined for std::set objects:
-      stream << "[spacing: " << bt.spacing() << "; bunches: "
-             << *( dynamic_cast< const std::set< BunchCrossing >* >( &bt ) )
-             << "; front: " << *bt.train_front() << "; back: "
-             << *bt.train_back() << "]";
-
-      return stream;
    }
 
    /**
@@ -272,3 +285,41 @@ namespace Trig {
    }
 
 } // namespace Trig
+
+/**
+ * Operator for printing the configuration of bunch trains in a readable
+ * format.
+ *
+ * @param stream A standard std::ostream object
+ * @param bt The bunch train to print
+ * @returns The same stream object that it received
+ */
+std::ostream& operator<< ( std::ostream& stream, const Trig::BunchTrain& bt ) {
+
+   // Take advantage of the output operator defined for std::set objects:
+   stream << "[spacing: " << bt.spacing() << "; bunches: "
+          << static_cast< const std::set< Trig::BunchCrossing >& >( bt )
+          << "; front: " << *bt.train_front() << "; back: "
+          << *bt.train_back() << "]";
+
+   return stream;
+}
+
+/**
+ * Operator for printing the configuration of bunch trains in a readable
+ * format.
+ *
+ * @param stream A functional MsgStream object
+ * @param bt The bunch train to print
+ * @returns The same stream object that it received
+ */
+MsgStream& operator<< ( MsgStream& stream, const Trig::BunchTrain& bt ) {
+
+   // Take advantage of the output operator defined for std::set objects:
+   stream << "[spacing: " << bt.spacing() << "; bunches: "
+          << static_cast< const std::set< Trig::BunchCrossing >& >( bt )
+          << "; front: " << *bt.train_front() << "; back: "
+          << *bt.train_back() << "]";
+
+   return stream;
+}

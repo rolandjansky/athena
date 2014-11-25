@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: visitor.h 326907 2010-10-13 13:02:33Z krasznaa $
+// $Id: visitor.h 630796 2014-11-25 04:05:57Z ssnyder $
 /**********************************************
 
 License: BSD
@@ -11,7 +11,9 @@ Author: Terry Caton
 #define TRIGBUNCHCROSSINGTOOL_JSON_VISITOR_H
 
 // Local include(s):
+#ifndef TRIGBUNCHCROSSINGTOOL_JSON_ELEMENTS_H
 #include "elements.h"
+#endif
 
 namespace json {
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.h 515159 2012-08-27 15:52:05Z krasznaa $
+// $Id: LHCBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_LHCBUNCHCROSSINGTOOL_H
 
@@ -16,10 +16,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-// Interface include(s):
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
@@ -34,28 +30,26 @@ namespace coral {
 namespace Trig {
 
    /**
-    *  @short Implementation reading the information from the LHC conditions DB
+    * @short Implementation reading the information from the LHC conditions DB
     *
-    *         This implementation of the tool behaves pretty much like
-    *         TrigConfBunchCrossingTool. But instead of reading the BCIDs of the
-    *         colliding bunches out of the trigger configuration, it reads them
-    *         from the LHC conditions, stored in the TDAQ COOL folders.
+    * This implementation of the tool behaves pretty much like
+    * TrigConfBunchCrossingTool. But instead of reading the BCIDs of the
+    * colliding bunches out of the trigger configuration, it reads them
+    * from the LHC conditions, stored in the TDAQ COOL folders.
     *
-    *         Apparently for some runs this information is more reliable than the
-    *         trigger configuration.
+    * Apparently for some runs this information is more reliable than the
+    * trigger configuration.
     *
-    *         It also acts as a bunch crossing configuration provider,
-    *         implementing the Trig::IBunchCrossingConfProvider interface.
+    * It also acts as a bunch crossing configuration provider,
+    * implementing the Trig::IBunchCrossingConfProvider interface.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 515159 $
-    * $Date: 2012-08-27 17:52:05 +0200 (Mon, 27 Aug 2012) $
+    * $Revision: 618331 $
+    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
     */
-   class LHCBunchCrossingTool : public AthAlgTool,
-                                public virtual IBunchCrossingTool,
-                                public virtual BunchCrossingToolBase,
-                                public virtual BunchCrossingConfProviderBase {
+   class LHCBunchCrossingTool : public BunchCrossingToolBase,
+                                public BunchCrossingConfProviderBase {
 
    public:
       /// Standard AlgTool constructor
@@ -64,8 +58,6 @@ namespace Trig {
 
       /// Regular AlgTool initialization function
       virtual StatusCode initialize();
-      /// Regular AlgTool finalization function
-      virtual StatusCode finalize();
 
       /// Unique identifier for the current configuration
       virtual configid_type configID() const;

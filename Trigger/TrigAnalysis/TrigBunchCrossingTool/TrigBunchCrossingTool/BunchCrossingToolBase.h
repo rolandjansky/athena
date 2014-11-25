@@ -4,43 +4,49 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingToolBase.h 511865 2012-07-31 08:44:12Z krasznaa $
+// $Id: BunchCrossingToolBase.h 618331 2014-09-24 11:55:26Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGTOOLBASE_H
 #define TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGTOOLBASE_H
 
 // STL include(s):
 #include <set>
 #include <vector>
+#include <string>
+
+// Gaudi/Athena include(s):
+#include "AsgTools/AsgMetadataTool.h"
 
 // Interface include(s):
-#include "TrigAnalysisInterfaces/IIBunchCrossingTool.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 // Local include(s):
-#include "LogWriter.h"
-#include "BunchCrossing.h"
-#include "BunchTrain.h"
+#include "TrigBunchCrossingTool/BunchCrossing.h"
+#include "TrigBunchCrossingTool/BunchTrain.h"
 
 namespace Trig {
 
    /**
-    *  @short Base class for all BunchCrossingTool implementations
+    * @short Base class for all BunchCrossingTool implementations
     *
-    *         This class holds the logic of the bunch crossing tool. The concrete
-    *         implementations have to supply it with a vector of the filled bunches
-    *         and optionally their intensities, which they can get from any location
-    *         they want.
+    * This class holds the logic of the bunch crossing tool. The concrete
+    * implementations have to supply it with a vector of the filled bunches
+    * and optionally their intensities, which they can get from any location
+    * they want.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511865 $
-    * $Date: 2012-07-31 10:44:12 +0200 (Tue, 31 Jul 2012) $
+    * $Revision: 618331 $
+    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
     */
-   class BunchCrossingToolBase : public virtual IIBunchCrossingTool,
-                                 public LogWriter {
+   class BunchCrossingToolBase : public virtual IBunchCrossingTool,
+                                 public asg::AsgMetadataTool {
 
    public:
       /// Default constructor
-      BunchCrossingToolBase();
+      BunchCrossingToolBase( const std::string& name = "BunchCrossingToolBase" );
+
+      /// @name Functions implementing the IBunchCrossingTool interface
+      /// @{
 
       /// The simplest query: Is the bunch crossing filled or not?
       virtual bool isFilled( bcid_type bcid ) const;
@@ -112,53 +118,57 @@ namespace Trig {
       /// Get the bunch spacing in the trains
       virtual int bunchTrainSpacing( BunchDistanceType type = NanoSec ) const;
 
+      /// @}
+
    protected:
       /// Interpret the configuration for single bunches
-      bool loadSingleBunches( const std::vector< int >& bunches,
-                              const std::vector< float >& bunch_int1 =
-                              std::vector< float >(),
-                              const std::vector< float >& bunch_int2 =
-                              std::vector< float >() );
+      StatusCode loadSingleBunches( const std::vector< int >& bunches,
+                                    const std::vector< float >& bunch_int1 =
+                                    std::vector< float >(),
+                                    const std::vector< float >& bunch_int2 =
+                                    std::vector< float >() );
       /// Interpret the configuration for bunch trains
-      bool loadBunchTrains( const std::vector< int >& bunches,
-                            const std::vector< float >& bunch_int1 =
-                            std::vector< float >(),
-                            const std::vector< float >& bunch_int2 =
-                            std::vector< float >() );
+      StatusCode loadBunchTrains( const std::vector< int >& bunches,
+                                  const std::vector< float >& bunch_int1 =
+                                  std::vector< float >(),
+                                  const std::vector< float >& bunch_int2 =
+                                  std::vector< float >() );
       /// Interpret the configuration for unpaired bunches
-      bool loadUnpairedBunches( const std::vector< int >& beam1,
-                                const std::vector< int >& beam2,
-                                const std::vector< float >& bunch_int1 =
-                                std::vector< float >(),
-                                const std::vector< float >& bunch_int2 =
-                                std::vector< float >() );
-
-      /// Function setting the maximum bunch spacing parameter
-      virtual void setMaxBunchSpacing( int spacing );
-      /// Get the maximum bunch spacing parameter
-      virtual int maxBunchSpacing() const;
-
-      /// Function setting the length of the front of the bunch train
-      virtual void setFrontLength( int length );
-      /// Get the length of the front of the bunch train
-      virtual int frontLength() const;
-      /// Function setting the length of the tail of the bunch train
-      virtual void setTailLength( int length );
-      /// Get the length of the tail of the bunch train
-      virtual int tailLength() const;
+      StatusCode loadUnpairedBunches( const std::vector< int >& beam1,
+                                      const std::vector< int >& beam2,
+                                      const std::vector< float >& bunch_int1 =
+                                      std::vector< float >(),
+                                      const std::vector< float >& bunch_int2 =
+                                      std::vector< float >() );
 
       /// Function printing the configuration of the tool
       void printConfig() const;
 
-   private:
-      std::set< Trig::BunchCrossing > m_filledBunches; ///< List of colliding bunches
-      std::set< Trig::BunchCrossing > m_singleBunches; ///< Internal list of single bunches
-      std::set< Trig::BunchCrossing > m_unpairedBunches; ///< Internal list of unpaired bunches
-      std::set< Trig::BunchTrain >    m_bunchTrains; ///< Internal list of bunch trains
+      /// @name Variables holding the decoded bunch structure
+      /// @{
 
-      int m_maxBunchSpacing; ///< The maximum bunch spacing that the tool should consider
-      int m_frontLength; ///< Length of the "front" of a bunch train
-      int m_tailLength; ///< Length of the "tail" of a bunch train
+      /// List of colliding bunches
+      std::set< Trig::BunchCrossing > m_filledBunches;
+      /// Internal list of single bunches
+      std::set< Trig::BunchCrossing > m_singleBunches;
+      /// Internal list of unpaired bunches
+      std::set< Trig::BunchCrossing > m_unpairedBunches;
+      /// Internal list of bunch trains
+      std::set< Trig::BunchTrain > m_bunchTrains;
+
+      /// @}
+
+      /// @name Configurable tool properties
+      /// @{
+
+      /// The maximum bunch spacing that the tool should consider
+      int m_maxBunchSpacing;
+      /// Length of the "front" of a bunch train
+      int m_frontLength;
+      /// Length of the "tail" of a bunch train
+      int m_tailLength;
+
+      /// @}
 
    }; // class BunchCrossingToolBase
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfBunchCrossingTool.h 511865 2012-07-31 08:44:12Z krasznaa $
+// $Id: TrigConfBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_TRIGCONFBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_TRIGCONFBUNCHCROSSINGTOOL_H
 
@@ -12,13 +12,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 
 // Trigger include(s):
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
-
-// Interface include(s):
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
@@ -27,27 +23,26 @@
 namespace Trig {
 
    /**
-    *  @short The trigger config implementation of the IBunchCrossingTool interface
+    * @short The trigger config implementation of IBunchCrossingTool
     *
-    *         This implementation should be used primarily to get information about the
-    *         bunch pattern for data files. It retrieves the bunch pattern configuration
-    *         using the trigger configuration service. So in principle it can itself
-    *         get the configuration from a few different places. (Currently
-    *         TrigConf::LVL1ConfigSvc and TrigConf::DSConfigSvc provide this information.)
+    * This implementation should be used primarily to get information about the
+    * bunch pattern for data files. It retrieves the bunch pattern configuration
+    * using the trigger configuration service. So in principle it can itself
+    * get the configuration from a few different places. (Currently
+    * TrigConf::LVL1ConfigSvc and TrigConf::DSConfigSvc provide this
+    * information.)
     *
-    *         It also acts as a bunch crossing configuration provider, implementing the
-    *         Trig::IBunchCrossingConfProvider interface.
+    * It also acts as a bunch crossing configuration provider, implementing the
+    * Trig::IBunchCrossingConfProvider interface.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511865 $
-    * $Date: 2012-07-31 10:44:12 +0200 (Tue, 31 Jul 2012) $
+    * $Revision: 618331 $
+    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
     */
-   class TrigConfBunchCrossingTool : public AthAlgTool,
-                                     public virtual IBunchCrossingTool,
-                                     public virtual IIncidentListener,
-                                     public virtual BunchCrossingToolBase,
-                                     public virtual BunchCrossingConfProviderBase {
+   class TrigConfBunchCrossingTool : public virtual IIncidentListener,
+                                     public BunchCrossingToolBase,
+                                     public BunchCrossingConfProviderBase {
 
    public:
       /// Standard AlgTool constructor
@@ -56,8 +51,6 @@ namespace Trig {
 
       /// Regular AlgTool initialization function
       virtual StatusCode initialize();
-      /// Regular AlgTool finalization function
-      virtual StatusCode finalize();
 
       /// Function called when a registered incident happens
       virtual void handle( const Incident& inc );
@@ -79,12 +72,10 @@ namespace Trig {
       /// Print the "raw" configuration for debugging
       void printBunchGroups() const;
 
-      int m_bgId; ///< DB ID of the BunchGroups settings which was loaded last
+      unsigned int m_bgId; ///< DB ID of the BunchGroups settings which was loaded last
 
-      int m_maxBunchSpacing; ///< The maximum bunch spacing that the tool should consider
-      std::vector< std::string > m_filledBunchNames; ///< Possible names for filled bunch groups
-      int m_frontLength; ///< Length of the "front" of a bunch train
-      int m_tailLength; ///< Length of the "tail" of a bunch train
+      /// Possible names for filled bunch groups
+      std::vector< std::string > m_filledBunchNames;
 
       ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc; ///< The config service handle
       ServiceHandle< IIncidentSvc > m_incidentSvc; ///< The incident service handle

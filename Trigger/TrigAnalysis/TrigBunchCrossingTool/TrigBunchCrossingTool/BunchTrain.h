@@ -4,16 +4,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchTrain.h 457114 2011-09-05 09:35:49Z krasznaa $
+// $Id: BunchTrain.h 618129 2014-09-23 11:37:00Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_BUNCHTRAIN_H
 #define TRIGBUNCHCROSSINGTOOL_BUNCHTRAIN_H
 
-// STL include(s):
+// System include(s):
 #include <set>
+#include <iosfwd>
+
+// Gaudi/Athena include(s):
+#include "AsgTools/MsgStream.h"
 
 // Local include(s):
-#include "BunchCrossing.h"
-#include "LogWriter.h"
+#include "TrigBunchCrossingTool/BunchCrossing.h"
 
 namespace Trig {
 
@@ -26,17 +29,19 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 457114 $
-    * $Date: 2011-09-05 11:35:49 +0200 (Mon, 05 Sep 2011) $
+    * $Revision: 618129 $
+    * $Date: 2014-09-23 13:37:00 +0200 (Tue, 23 Sep 2014) $
     */
-   class BunchTrain : public std::set< BunchCrossing >,
-                      public LogWriter {
+   class BunchTrain : public std::set< BunchCrossing > {
 
    public:
       /// Default constructor
       BunchTrain();
       /// Copy constructor
       BunchTrain( const BunchTrain& parent );
+
+      /// Assignment operator
+      BunchTrain& operator= ( const BunchTrain& rhs );
 
       /// Spacing of the bunches in this train in nanoseconds
       int spacing() const;
@@ -61,11 +66,14 @@ namespace Trig {
 
    }; // class BunchTrain
 
-   /// Output operator for BunchTrain objects
-   MsgLogger& operator<< ( MsgLogger& stream, const BunchTrain& bt );
    /// Comparison operator for BunchTrain objects
    bool operator< ( const BunchTrain& bt1, const BunchTrain& bt2 );
 
 } // namespace Trig
+
+/// Output operator for BunchTrain objects
+std::ostream& operator<< ( std::ostream& stream, const Trig::BunchTrain& bt );
+/// Output operator for BunchTrain objects
+MsgStream& operator<< ( MsgStream& stream, const Trig::BunchTrain& bt );
 
 #endif // TRIGBUNCHCROSSINGTOOL_BUNCHTRAIN_H

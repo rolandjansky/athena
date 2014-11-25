@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: reader.inl 326907 2010-10-13 13:02:33Z krasznaa $
+// $Id: reader.inl 630796 2014-11-25 04:05:57Z ssnyder $
 /**********************************************
 
 License: BSD
@@ -67,8 +67,8 @@ namespace json {
    inline char Reader::InputStream::Get() {
 
       assert(m_iStr.eof() == false); // enforce reading of only valid stream data 
-      char c = m_iStr.get();
-   
+      int c = m_iStr.get();
+      
       ++m_Location.m_nDocOffset;
       if (c == '\n') {
          ++m_Location.m_nLine;
@@ -298,7 +298,8 @@ namespace json {
                case 't':      string.push_back('\t');    break;
                case 'u':      // TODO: what do we do with this?
                default: {
-                  std::string sMessage = "Unrecognized escape sequence found in string: \\" + c;
+                  std::string sMessage = "Unrecognized escape sequence found in string: \\";
+                  sMessage.push_back( c );
                   throw ScanException(sMessage, inputStream.GetLocation());
                }
                }
@@ -468,7 +469,8 @@ namespace json {
       // did we consume all characters in the token?
       if (iStr.eof() == false)
          {
-            std::string sMessage = "Unexpected character in NUMBER token: " + iStr.peek();
+            std::string sMessage = "Unexpected character in NUMBER token: ";
+            sMessage.push_back( iStr.peek() );
             throw ParseException(sMessage, currentToken.locBegin, currentToken.locEnd);
          }
 

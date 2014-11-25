@@ -6,6 +6,6 @@ PACKAGE          = TrigBunchCrossingTool
 PACKAGE_PRELOAD  = Net Tree
 PACKAGE_CXXFLAGS =
 PACKAGE_LDFLAGS  =
-PACKAGE_DEP      = TrigAnalysisInterfaces
+PACKAGE_DEP      = AsgTools TrigAnalysisInterfaces xAODRootAccess xAODEventInfo xAODTrigger
 
 include $(ROOTCOREDIR)/Makefile-common

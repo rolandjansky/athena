@@ -2,11 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossing.cxx 523551 2012-10-29 10:39:19Z krasznaa $
+// $Id: BunchCrossing.cxx 618129 2014-09-23 11:37:00Z krasznaa $
+
+// System include(s):
+#include <iostream>
+
+// Gaudi/Athena include(s):
+#include "AsgTools/AsgMessaging.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossing.h"
-#include "TrigBunchCrossingTool/MsgLogger.h"
 
 namespace Trig {
 
@@ -38,8 +43,9 @@ namespace Trig {
    }
 
    /**
-    * The EventID objects store the BCIDs as unsigned integers, so this other version
-    * has to exist as well. (In order to define clearly what the compiler should do.)
+    * The EventID objects store the BCIDs as unsigned integers, so this other
+    * version has to exist as well. (In order to define clearly what the
+    * compiler should do.)
     *
     * @param bcid The bunch crossing ID of the bunch crossing
     * @param intBeam1 The intensity of beam 1, or the intensity/luminosity
@@ -296,9 +302,10 @@ namespace Trig {
       if( intensity >= 0.0 ) {
          m_intensityBeam1 = intensity;
       } else {
-         MsgLogger logger( "BunchCrossing" );
-         logger << ERROR << "Trying to set beam 1 intensity to negative number ("
-                << intensity << "). Using 0.0 instead." << MsgLogger::endmsg;
+         asg::AsgMessaging logger( "Trig::BunchCrossing" );
+         logger.msg() << MSG::ERROR
+                      << "Trying to set beam 1 intensity to negative number ("
+                      << intensity << "). Using 0.0 instead." << endmsg;
          m_intensityBeam1 = 0.0;
       }
       return;
@@ -325,9 +332,10 @@ namespace Trig {
       if( intensity >= 0.0 ) {
          m_intensityBeam2 = intensity;
       } else {
-         MsgLogger logger( "BunchCrossing" );
-         logger << ERROR << "Trying to set beam 2 intensity to negative number ("
-                << intensity << "). Using 0.0 instead." << MsgLogger::endmsg;
+         asg::AsgMessaging logger( "Trig::BunchCrossing" );
+         logger.msg() << MSG::ERROR
+                      << "Trying to set beam 2 intensity to negative number ("
+                      << intensity << "). Using 0.0 instead." << endmsg;
          m_intensityBeam2 = 0.0;
       }
       return;
@@ -396,20 +404,36 @@ namespace Trig {
       return bc1.distance( bc2 );
    }
 
-   /**
-    * This operator is used to print the configuration of a BunchCrossing object
-    * in a nice way.
-    *
-    * @param out A MsgLogger object
-    * @param bc The BunchCrossing object that we want to display
-    * @returns The same MsgLogger object to be able to chain output statements together
-    */
-   MsgLogger& operator<< ( MsgLogger& out, const BunchCrossing& bc ) {
-
-      out << "[id:" << bc.bcid() << ";int1:" << bc.intensityBeam1()
-          << ";int2:" << bc.intensityBeam2() << "]";
-
-      return out;
-   }
-
 } // namespace Trig
+
+/**
+ * This operator is used to print the configuration of a BunchCrossing object
+ * in a nice way.
+ *
+ * @param out A standard std::ostream object
+ * @param bc The BunchCrossing object that we want to display
+ * @returns The same stream object to be able to chain output statements together
+ */
+std::ostream& operator<< ( std::ostream& out, const Trig::BunchCrossing& bc ) {
+
+   out << "[id:" << bc.bcid() << ";int1:" << bc.intensityBeam1()
+       << ";int2:" << bc.intensityBeam2() << "]";
+
+   return out;
+}
+
+/**
+ * This operator is used to print the configuration of a BunchCrossing object
+ * in a nice way.
+ *
+ * @param out A functional MsgStream object
+ * @param bc The BunchCrossing object that we want to display
+ * @returns The same stream object to be able to chain output statements together
+ */
+MsgStream& operator<< ( MsgStream& out, const Trig::BunchCrossing& bc ) {
+
+   out << "[id:" << bc.bcid() << ";int1:" << bc.intensityBeam1()
+       << ";int2:" << bc.intensityBeam2() << "]";
+
+   return out;
+}

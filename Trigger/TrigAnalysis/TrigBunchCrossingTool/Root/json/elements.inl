@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: elements.inl 326907 2010-10-13 13:02:33Z krasznaa $
+// $Id: elements.inl 630796 2014-11-25 04:05:57Z ssnyder $
 /**********************************************
 
 License: BSD
@@ -198,8 +198,10 @@ namespace json {
    inline UnknownElement::operator Null& ()      { return ConvertTo<Null>(); }
 
    inline UnknownElement& UnknownElement::operator = ( const UnknownElement& unknown ) {
-      delete m_pImp;
-      m_pImp = unknown.m_pImp->Clone();
+     if (this != &unknown) {
+       delete m_pImp;
+       m_pImp = unknown.m_pImp->Clone();
+     }
       return *this;
    }
 

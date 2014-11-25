@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MCBunchCrossingTool.h 511865 2012-07-31 08:44:12Z krasznaa $
+// $Id: MCBunchCrossingTool.h 618331 2014-09-24 11:55:26Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_MCBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_MCBUNCHCROSSINGTOOL_H
 
@@ -12,10 +12,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
-// Interface include(s):
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
@@ -24,24 +20,22 @@
 namespace Trig {
 
    /**
-    *  @short The MC implementation of Trig::IBunchCrossingTool
+    * @short The MC implementation of Trig::IBunchCrossingTool
     *
-    *         This implementation of the IBunchCrossingTool interface can read the
-    *         metadata from pileup MC samples, and present the information to the
-    *         analyst in the same way as the other tools represent the information
-    *         for real data.
+    * This implementation of the IBunchCrossingTool interface can read the
+    * metadata from pileup MC samples, and present the information to the
+    * analyst in the same way as the other tools represent the information
+    * for real data.
     *
-    *         It also acts as a bunch crossing configuration provider, implementing the
-    *         Trig::IBunchCrossingConfProvider interface.
+    * It also acts as a bunch crossing configuration provider, implementing the
+    * Trig::IBunchCrossingConfProvider interface.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511865 $
-    * $Date: 2012-07-31 10:44:12 +0200 (Tue, 31 Jul 2012) $
+    * $Revision: 618331 $
+    * $Date: 2014-09-24 13:55:26 +0200 (Wed, 24 Sep 2014) $
     */
-   class MCBunchCrossingTool : public AthAlgTool,
-                               public virtual IBunchCrossingTool,
-                               public virtual BunchCrossingToolBase,
+   class MCBunchCrossingTool : public virtual BunchCrossingToolBase,
                                public virtual BunchCrossingConfProviderBase {
 
    public:
@@ -51,8 +45,6 @@ namespace Trig {
 
       /// Regular AlgTool initialization function
       virtual StatusCode initialize();
-      /// Regular AlgTool finalization function
-      virtual StatusCode finalize();
 
       /// The simplest query: Is the bunch crossing filled or not?
       virtual bool isFilled( bcid_type bcid ) const;
@@ -106,18 +98,19 @@ namespace Trig {
       /// Convert an std::string into a vector of floats
       static std::vector< float > tokenize( const std::string& pattern );
 
-      int m_maxBunchSpacing; ///< The maximum bunch spacing that the tool should consider
-      int m_frontLength; ///< Length of the "front" of a bunch train
-      int m_tailLength; ///< Length of the "tail" of a bunch train
-      float m_minBunchIntensity; ///< Minimum intensity for a bunch crossing to be filled
+      /// Minimum intensity for a bunch crossing to be considered filled
+      float m_minBunchIntensity;
 
-      bool m_isConfigured; ///< Flag specifying if the configuration could be read
-      configid_type m_id; ///< ID of the current configuration
+      /// Flag specifying if the configuration could be read
+      bool m_isConfigured;
+      /// ID of the current configuration
+      configid_type m_id;
 
-      ServiceHandle< IIncidentSvc > m_incidentSvc; ///< The incident service handle
+      /// The incident service handle
+      ServiceHandle< IIncidentSvc > m_incidentSvc;
 
    }; // class MCBunchCrossingTool
 
-}
+} // namespace Trig
 
 #endif // TRIGBUNCHCROSSINGTOOL_MCBUNCHCROSSINGTOOL_H

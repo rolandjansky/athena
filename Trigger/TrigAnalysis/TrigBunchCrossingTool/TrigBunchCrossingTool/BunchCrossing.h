@@ -4,14 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossing.h 520130 2012-10-04 07:14:13Z krasznaa $
+// $Id: BunchCrossing.h 618129 2014-09-23 11:37:00Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_BUNCHCROSSING_H
 #define TRIGBUNCHCROSSINGTOOL_BUNCHCROSSING_H
 
-namespace Trig {
+// System include(s):
+#include <iosfwd>
 
-   // Forward declaration(s):
-   class MsgLogger;
+// Gaudi/Athena include(s):
+#include "AsgTools/MsgStream.h"
+
+namespace Trig {
 
    /**
     *  @short A smart integer class representing bunch crossings
@@ -24,8 +27,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 520130 $
-    * $Date: 2012-10-04 09:14:13 +0200 (Thu, 04 Oct 2012) $
+    * $Revision: 618129 $
+    * $Date: 2014-09-23 13:37:00 +0200 (Tue, 23 Sep 2014) $
     */
    class BunchCrossing {
 
@@ -93,8 +96,10 @@ namespace Trig {
 
    private:
       int m_bcid; ///< The BCID of this bunch crossing
-      float m_intensityBeam1; ///< Intensity of the bunch in "beam 1" some measure
-      float m_intensityBeam2; ///< Intensity of the bunch in "beam 2" some measure
+      /// Intensity of the bunch in "beam 1" some measure
+      float m_intensityBeam1;
+      /// Intensity of the bunch in "beam 2" some measure
+      float m_intensityBeam2;
 
    }; // class BunchCrossing
 
@@ -106,9 +111,11 @@ namespace Trig {
    /// Function calculating the distance of two bunch crossings
    int distance( const BunchCrossing bc1, const BunchCrossing bc2 );
 
-   /// Output operator for printing BunchCrossing objects
-   MsgLogger& operator<< ( MsgLogger& out, const BunchCrossing& bc );
-
 } // namespace Trig
+
+/// Output operator for printing BunchCrossing objects
+std::ostream& operator<< ( std::ostream& out, const Trig::BunchCrossing& bc );
+/// Output operator for printing BunchCrossing objects
+MsgStream& operator<< ( MsgStream& out, const Trig::BunchCrossing& bc );
 
 #endif // TRIGBUNCHCROSSINGTOOL_BUNCHCROSSING_H

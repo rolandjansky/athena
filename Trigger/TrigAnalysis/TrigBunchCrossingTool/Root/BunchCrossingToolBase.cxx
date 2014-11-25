@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingToolBase.cxx 513570 2012-08-14 07:56:42Z krasznaa $
+// $Id: BunchCrossingToolBase.cxx 618313 2014-09-24 10:05:46Z krasznaa $
 
 // STL include(s):
 #include <algorithm>
@@ -12,6 +12,7 @@
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
 #include "unary_compose.h"
+#include "SetPrint.h"
 
 namespace Trig {
 
@@ -19,11 +20,15 @@ namespace Trig {
     * The class needs an explicit constructor because some of the member variables
     * really need to be initialized at construction.
     */
-   BunchCrossingToolBase::BunchCrossingToolBase()
-      : LogWriter( "BunchCrossingToolBase" ),
-        m_filledBunches(), m_singleBunches(), m_unpairedBunches(), m_bunchTrains(),
-        m_maxBunchSpacing( 150 ), m_frontLength( 100 ), m_tailLength( 100 ) {
+   BunchCrossingToolBase::BunchCrossingToolBase( const std::string& name )
+      : asg::AsgMetadataTool( name ),
+        m_filledBunches(), m_singleBunches(), m_unpairedBunches(),
+        m_bunchTrains() {
 
+      /// Declare the properties of the tool:
+      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 150 );
+      declareProperty( "FrontLength", m_frontLength = 300 );
+      declareProperty( "TailLength", m_tailLength = 300 );
    }
 
    bool BunchCrossingToolBase::isFilled( bcid_type bcid ) const {
@@ -109,16 +114,16 @@ namespace Trig {
          switch( type ) {
          case Crossing:
             if( itr->intensityBeam2() > 0.001 ) {
-               log() << WARNING << "Crossing intensity not available, ask for "
-                     << "separate beam intensities instead" << MsgLogger::endmsg;
+               ATH_MSG_WARNING( "Crossing intensity not available, ask for "
+                                << "separate beam intensities instead" );
                return 0.0;
             } else {
                return itr->intensityBeam1();
             }
          case Beam1:
             if( std::abs( itr->intensityBeam2() ) < 0.001 ) {
-               log() << WARNING << "Separate beam intensities not available, ask "
-                     << "for the crossing intensity instead" << MsgLogger::endmsg;
+               ATH_MSG_WARNING( "Separate beam intensities not available, ask "
+                                << "for the crossing intensity instead" );
                return 0.0;
             } else {
                return itr->intensityBeam1();
@@ -128,13 +133,15 @@ namespace Trig {
             return itr->intensityBeam2();
             break;
          default:
-            REPORT_ERROR_MSG( "Unknown intensity type requested (" << type << ")" );
+            ATH_MSG_ERROR( "Unknown intensity type requested (" << type
+                           << ")" );
             return -1.0;
          }
       }
 
       // Check if this is an unpaired bunch:
-      if( ( itr = m_unpairedBunches.find( bcid ) ) != m_unpairedBunches.end() ) {
+      if( ( itr = m_unpairedBunches.find( bcid ) ) !=
+          m_unpairedBunches.end() ) {
          switch( type ) {
          case Beam1:
             return itr->intensityBeam1();
@@ -143,11 +150,12 @@ namespace Trig {
             return itr->intensityBeam2();
             break;
          case Crossing:
-            log() << WARNING << "Crossing intensity requested for unpaired bunch ("
-                  << "bcid=" << bcid << ")" << MsgLogger::endmsg;
+            ATH_MSG_WARNING( "Crossing intensity requested for unpaired bunch ("
+                             << "bcid=" << bcid << ")" );
             return 0.0;
          default:
-            REPORT_ERROR_MSG( "Unknown intensity type requested (" << type << ")" );
+            ATH_MSG_ERROR( "Unknown intensity type requested (" << type
+                           << ")" );
             return -1.0;
          }
       }
@@ -156,7 +164,7 @@ namespace Trig {
       return 0.0;
    }
 
-   IIBunchCrossingTool::BunchCrossingType
+   IBunchCrossingTool::BunchCrossingType
    BunchCrossingToolBase::bcType( bcid_type bcid ) const {
 
       // First the obvious check:
@@ -206,29 +214,32 @@ namespace Trig {
     *
     * When the user wants to ask the distance of a bunch crossing from the front
     * of its train in units of nano seconds or bunch crossings, the main part of
-    * the logic is propagated to the algebra defined for the BunchCrossing class.
+    * the logic is propagated to the algebra defined for the BunchCrossing
+    * class.
     *
-    * But when the user wants to know the distance in terms of filled bunches, the
-    * code has to treat 3 different bunch train configurations:
+    * But when the user wants to know the distance in terms of filled bunches,
+    * the code has to treat 3 different bunch train configurations:
     *
-    *  - First is when the bunch train doesn't spread across the "BCID turnover".
-    *    The code in this case just has to see how many steps it is from
-    *    <code>bunchtrain->begin()</code>.
+    *  - First is when the bunch train doesn't spread across the "BCID
+    *    turnover". The code in this case just has to see how many steps it is
+    *    from <code>bunchtrain->begin()</code>.
     *  - If the bunch train spreads across the "BCID turnover", and the bcid is
     *    after BCID==0, the code has to count the filled bunches from
-    *    <code>bunchtrain->train_front()</code> to <code>bunchtrain->end()</code>,
-    *    plus the filled bunches from <code>bunchtrain->begin()</code> to
-    *    the bcid in question.
+    *    <code>bunchtrain->train_front()</code> to
+    *    <code>bunchtrain->end()</code>, plus the filled bunches from
+    *    <code>bunchtrain->begin()</code> to the bcid in question.
     *  - If the bunch train spreads across the "BCID turnover", and the bcid is
     *    "before" BCID==0, the code has to count the filled bunches from
     *    <code>bunchtrain->train_front()</code> to the bcid in question.
     *
     * @param bcid The bcid that should be checked
     * @param type The type of the requested return value
-    * @returns The distance of the bcid in question from the front of its bunch train
+    * @returns The distance of the bcid in question from the front of its bunch
+    *          train
     */
-   int BunchCrossingToolBase::distanceFromFront( bcid_type bcid,
-                                                 BunchDistanceType type ) const {
+   int
+   BunchCrossingToolBase::distanceFromFront( bcid_type bcid,
+                                             BunchDistanceType type ) const {
 
       // Look for this BCID in the list of bunch trains:
       std::set< BunchTrain >::const_iterator itr = m_bunchTrains.begin();
@@ -266,7 +277,7 @@ namespace Trig {
                }
                break;
             default:
-               REPORT_ERROR_MSG( "BunchDistanceType not understood!" );
+               ATH_MSG_ERROR( "BunchDistanceType not understood!" );
                return -1;
             }
          }
@@ -281,14 +292,15 @@ namespace Trig {
     *
     * When the user wants to ask the distance of a bunch crossing from the tail
     * of its train in units of nano seconds or bunch crossings, the main part of
-    * the logic is propagated to the algebra defined for the BunchCrossing class.
+    * the logic is propagated to the algebra defined for the BunchCrossing
+    * class.
     *
-    * But when the user wants to know the distance in terms of filled bunches, the
-    * code has to treat 3 different bunch train configurations:
+    * But when the user wants to know the distance in terms of filled bunches,
+    * the code has to treat 3 different bunch train configurations:
     *
-    *  - First is when the bunch train doesn't spread across the "BCID turnover".
-    *    The code in this case just has to see how many steps it is from
-    *    <code>bunchtrain->end()</code>.
+    *  - First is when the bunch train doesn't spread across the "BCID
+    *    turnover". The code in this case just has to see how many steps it is
+    *    from <code>bunchtrain->end()</code>.
     *  - If the bunch train spreads across the "BCID turnover", and the bcid is
     *    "before" BCID==0, the code has to count the filled bunches from
     *    the bcid in question to <code>bunchtrain->end()</code>,
@@ -300,7 +312,8 @@ namespace Trig {
     *
     * @param bcid The bcid that should be checked
     * @param type The type of the requested return value
-    * @returns The distance of the bcid in question from the tail of its bunch train
+    * @returns The distance of the bcid in question from the tail of its bunch
+    *          train
     */
    int BunchCrossingToolBase::distanceFromTail( bcid_type bcid,
                                                 BunchDistanceType type ) const {
@@ -341,7 +354,7 @@ namespace Trig {
                }
                break;
             default:
-               REPORT_ERROR_MSG( "BunchDistanceType not understood!" );
+               ATH_MSG_ERROR( "BunchDistanceType not understood!" );
                return -1;
             }
          }
@@ -397,8 +410,8 @@ namespace Trig {
          return train->train_front()->distance( train_tail );
          break;
       default:
-         REPORT_ERROR_MSG( "You can only use NanoSec or BunchCrossings for type "
-                           "for gapBeforeTrain" );
+         ATH_MSG_ERROR( "You can only use NanoSec or BunchCrossings for type "
+                        "for gapBeforeTrain" );
          return -1;
       }
 
@@ -452,8 +465,8 @@ namespace Trig {
          return train_front.distance( *( train->train_back() ) );
          break;
       default:
-         REPORT_ERROR_MSG( "You can only use NanoSec or BunchCrossings for type "
-                           "for gapAfterTrain" );
+         ATH_MSG_ERROR( "You can only use NanoSec or BunchCrossings for type "
+                        "for gapAfterTrain" );
          return -1;
       }
 
@@ -463,10 +476,10 @@ namespace Trig {
 
    /**
     * The function creates a smart BunchCrossing out of the BCID provided, then
-    * it goes looking for the previous bunch crossing of the specified type. Finally
-    * it just calculates the distance between the two bunch crossings in the requested
-    * units. It can return the size of the gap either in nanoseconds or in
-    * BCIDs (25 ns steps).
+    * it goes looking for the previous bunch crossing of the specified type.
+    * Finally it just calculates the distance between the two bunch crossings in
+    * the requested units. It can return the size of the gap either in
+    * nanoseconds or in BCIDs (25 ns steps).
     *
     * @param bcid The bcid that should be investigated
     * @param dtype The type of the requested return value
@@ -487,23 +500,23 @@ namespace Trig {
       switch( ftype ) {
 
       case CollidingBunch:
-         // There should always be filled bunches in the configuration, but let's
-         // make sure that we don't get into an endless loop:
+         // There should always be filled bunches in the configuration, but
+         // let's make sure that we don't get into an endless loop:
          while( ( ! isFilled( prev_bunch ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             --prev_bunch;
             ++loop_counter;
          }
          if( loop_counter == BunchCrossing::MAX_BCID ) {
-            REPORT_ERROR_MSG( "Failed to calculate gap before BCID "
-                              << bcid << " to a filled bunch! This shouldn't have "
-                              << "happened!" );
+            ATH_MSG_ERROR( "Failed to calculate gap before BCID "
+                           << bcid << " to a filled bunch! This shouldn't have "
+                           << "happened!" );
             return -1;
          }
          break;
       case UnpairedBunch:
-         // There are no unpaired bunches in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches in every configuration, so make sure
+         // we don't get into an endless loop:
          while( ( ! isUnpaired( prev_bunch ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             --prev_bunch;
@@ -515,27 +528,29 @@ namespace Trig {
          }
          break;
       case UnpairedBeam1:
-         // There are no unpaired bunches from beam 1 in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches from beam 1 in every configuration, so
+         // make sure we don't get into an endless loop:
          while( ( ! ( isUnpaired( prev_bunch ) && isBeam1( prev_bunch ) ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             --prev_bunch;
             ++loop_counter;
          }
-         // Return "-1" if there are no unpaired bunches from beam 1 in the configuration:
+         // Return "-1" if there are no unpaired bunches from beam 1 in the
+         // configuration:
          if( loop_counter == BunchCrossing::MAX_BCID ) {
             return -1;
          }
          break;
       case UnpairedBeam2:
-         // There are no unpaired bunches from beam 2 in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches from beam 2 in every configuration, so
+         // make sure we don't get into an endless loop:
          while( ( ! ( isUnpaired( prev_bunch ) && isBeam2( prev_bunch ) ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             --prev_bunch;
             ++loop_counter;
          }
-         // Return "-1" if there are no unpaired bunches from beam 2 in the configuration:
+         // Return "-1" if there are no unpaired bunches from beam 2 in the
+         // configuration:
          if( loop_counter == BunchCrossing::MAX_BCID ) {
             return -1;
          }
@@ -549,15 +564,15 @@ namespace Trig {
             ++loop_counter;
          }
          if( loop_counter == BunchCrossing::MAX_BCID ) {
-            REPORT_ERROR_MSG( "Failed to calculate gap before BCID "
-                              << bcid << " to an empty bunch! This shouldn't have "
-                              << "happened!" );
+            ATH_MSG_ERROR( "Failed to calculate gap before BCID "
+                           << bcid << " to an empty bunch! This shouldn't have "
+                           << "happened!" );
             return -1;
          }
          break;
       default:
-         REPORT_ERROR_MSG( "Unknown bunch fill type specified: "
-                           << ftype );
+         ATH_MSG_ERROR( "Unknown bunch fill type specified: "
+                        << ftype );
          return -1;
       }
 
@@ -571,8 +586,8 @@ namespace Trig {
          return bunch.gapFrom( prev_bunch );
          break;
       default:
-         REPORT_ERROR_MSG( "You can only use NanoSec or BunchCrossings for type "
-                           "for gapBeforeBunch" );
+         ATH_MSG_ERROR( "You can only use NanoSec or BunchCrossings for type "
+                        "for gapBeforeBunch" );
          return -1;
       }
 
@@ -583,9 +598,9 @@ namespace Trig {
    /**
     * The function creates a smart BunchCrossing out of the BCID provided, then
     * it goes looking for the next bunch crossing of the specified type. Finally
-    * it just calculates the distance between the two bunch crossings in the requested
-    * units. It can return the size of the gap either in nanoseconds or in
-    * BCIDs (25 ns steps).
+    * it just calculates the distance between the two bunch crossings in the
+    * requested units. It can return the size of the gap either in nanoseconds
+    * or in BCIDs (25 ns steps).
     *
     * @param bcid The bcid that should be investigated
     * @param dtype The type of the requested return value
@@ -606,23 +621,23 @@ namespace Trig {
       switch( ftype ) {
 
       case CollidingBunch:
-         // There should always be filled bunches in the configuration, but let's
-         // make sure that we don't get into an endless loop:
+         // There should always be filled bunches in the configuration, but
+         // let's make sure that we don't get into an endless loop:
          while( ( ! isFilled( next_bunch ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             ++next_bunch;
             ++loop_counter;
          }
          if( loop_counter == BunchCrossing::MAX_BCID ) {
-            REPORT_ERROR_MSG( "Failed to calculate gap after BCID "
-                              << bcid << " to a filled bunch! This shouldn't have "
-                              << "happened!" );
+            ATH_MSG_ERROR( "Failed to calculate gap after BCID "
+                           << bcid << " to a filled bunch! This shouldn't have "
+                           << "happened!" );
             return -1;
          }
          break;
       case UnpairedBunch:
-         // There are no unpaired bunches in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches in every configuration, so make sure
+         // we don't get into an endless loop:
          while( ( ! isUnpaired( next_bunch ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             ++next_bunch;
@@ -634,27 +649,29 @@ namespace Trig {
          }
          break;
       case UnpairedBeam1:
-         // There are no unpaired bunches from beam 1 in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches from beam 1 in every configuration, so
+         // make sure we don't get into an endless loop:
          while( ( ! ( isUnpaired( next_bunch ) && isBeam1( next_bunch ) ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             ++next_bunch;
             ++loop_counter;
          }
-         // Return "-1" if there are no unpaired bunches from beam 1 in the configuration:
+         // Return "-1" if there are no unpaired bunches from beam 1 in the
+         // configuration:
          if( loop_counter == BunchCrossing::MAX_BCID ) {
             return -1;
          }
          break;
       case UnpairedBeam2:
-         // There are no unpaired bunches from beam 2 in every configuration, so make sure we
-         // don't get into an endless loop:
+         // There are no unpaired bunches from beam 2 in every configuration, so
+         // make sure we don't get into an endless loop:
          while( ( ! ( isUnpaired( next_bunch ) && isBeam2( next_bunch ) ) ) &&
                 ( loop_counter < BunchCrossing::MAX_BCID ) ) {
             ++next_bunch;
             ++loop_counter;
          }
-         // Return "-1" if there are no unpaired bunches from beam 2 in the configuration:
+         // Return "-1" if there are no unpaired bunches from beam 2 in the
+         // configuration:
          if( loop_counter == BunchCrossing::MAX_BCID ) {
             return -1;
          }
@@ -668,15 +685,15 @@ namespace Trig {
             ++loop_counter;
          }
          if( loop_counter == BunchCrossing::MAX_BCID ) {
-            REPORT_ERROR_MSG( "Failed to calculate gap after BCID "
-                              << bcid << " to an empty bunch! This shouldn't have "
-                              << "happened!" );
+            ATH_MSG_ERROR( "Failed to calculate gap after BCID "
+                           << bcid << " to an empty bunch! This shouldn't have "
+                           << "happened!" );
             return -1;
          }
          break;
       default:
-         REPORT_ERROR_MSG( "Unknown bunch fill type specified: "
-                           << ftype );
+         ATH_MSG_ERROR( "Unknown bunch fill type specified: "
+                        << ftype );
          return -1;
       }
 
@@ -690,8 +707,8 @@ namespace Trig {
          return bunch.gapTo( next_bunch );
          break;
       default:
-         REPORT_ERROR_MSG( "You can only use NanoSec or BunchCrossings for type "
-                           "for gapBeforeBunch" );
+         ATH_MSG_ERROR( "You can only use NanoSec or BunchCrossings for type "
+                        "for gapBeforeBunch" );
          return -1;
       }
 
@@ -699,37 +716,42 @@ namespace Trig {
       return -1;
    }
 
-   std::vector< bool > BunchCrossingToolBase::bunchesInFront( bcid_type bcid,
-                                                              int bunches ) const {
+   std::vector< bool >
+   BunchCrossingToolBase::bunchesInFront( bcid_type bcid,
+                                          int bunches ) const {
 
       // The only thing we have to be careful about is the bunches near the
       // "turnover" region of the BCIDs. That's why I use the BunchCrossing
       // class here:
       std::vector< bool > result;
       for( int i = 0; i < bunches; ++i ) {
-         result.push_back( isFilled( BunchCrossing( bcid ) - BunchCrossing( i ) ) );
+         result.push_back( isFilled( BunchCrossing( bcid ) -
+                                     BunchCrossing( i ) ) );
       }
 
       return result;
    }
 
-   std::vector< bool > BunchCrossingToolBase::bunchesAfter( bcid_type bcid,
-                                                            int bunches ) const {
+   std::vector< bool >
+   BunchCrossingToolBase::bunchesAfter( bcid_type bcid,
+                                        int bunches ) const {
 
       // The only thing we have to be careful about is the bunches near the
       // "turnover" region of the BCIDs. That's why I use the BunchCrossing
       // class here:
       std::vector< bool > result;
       for( int i = 0; i < bunches; ++i ) {
-         result.push_back( isFilled( BunchCrossing( bcid ) + BunchCrossing( i ) ) );
+         result.push_back( isFilled( BunchCrossing( bcid ) +
+                                     BunchCrossing( i ) ) );
       }
 
       return result;
    }
 
-   std::vector< float > BunchCrossingToolBase::bunchIntInFront( bcid_type bcid,
-                                                                int bunches,
-                                                                BeamType type ) const {
+   std::vector< float >
+   BunchCrossingToolBase::bunchIntInFront( bcid_type bcid,
+                                           int bunches,
+                                           BeamType type ) const {
 
       std::vector< float > result;
       for( int i = 0; i < bunches; ++i ) {
@@ -745,8 +767,8 @@ namespace Trig {
                result.push_back( itr->intensityBeam2() );
                break;
             default:
-               REPORT_ERROR_MSG( "Unknown intensity type requested ("
-                                 << type << ")" );
+               ATH_MSG_ERROR( "Unknown intensity type requested ("
+                              << type << ")" );
                return result;
             }
          } else {
@@ -757,9 +779,10 @@ namespace Trig {
       return result;
    }
 
-   std::vector< float > BunchCrossingToolBase::bunchIntAfter( bcid_type bcid,
-                                                              int bunches,
-                                                              BeamType type ) const {
+   std::vector< float >
+   BunchCrossingToolBase::bunchIntAfter( bcid_type bcid,
+                                         int bunches,
+                                         BeamType type ) const {
 
       std::vector< float > result;
       for( int i = 0; i < bunches; ++i ) {
@@ -775,8 +798,8 @@ namespace Trig {
                result.push_back( itr->intensityBeam2() );
                break;
             default:
-               REPORT_ERROR_MSG( "Unknown intensity type requested ("
-                                 << type << ")" );
+               ATH_MSG_ERROR( "Unknown intensity type requested ("
+                              << type << ")" );
                return result;
             }
          } else {
@@ -802,7 +825,8 @@ namespace Trig {
       return m_bunchTrains.size();
    }
 
-   int BunchCrossingToolBase::bunchTrainSpacing( BunchDistanceType type ) const {
+   int
+   BunchCrossingToolBase::bunchTrainSpacing( BunchDistanceType type ) const {
 
       // Check if there are bunch trains in the current configurations:
       if( m_bunchTrains.size() ) {
@@ -811,14 +835,16 @@ namespace Trig {
             return m_bunchTrains.begin()->spacing();
             break;
          case BunchCrossings:
-            return m_bunchTrains.begin()->spacing() / BunchCrossing::BUNCH_SPACING;
+            return ( m_bunchTrains.begin()->spacing() / 
+                     BunchCrossing::BUNCH_SPACING );
             break;
          case FilledBunches:
-            REPORT_ERROR_MSG( "Function should not be called with argument: FilledBunches" );
+            ATH_MSG_ERROR( "Function should not be called with argument: "
+                           "FilledBunches" );
             return -1;
             break;
          default:
-            REPORT_ERROR_MSG( "Function called with unknown argument: " << type );
+            ATH_MSG_ERROR( "Function called with unknown argument: " << type );
             return -1;
          }
       } else {
@@ -826,7 +852,7 @@ namespace Trig {
          return -1;
       }
 
-      REPORT_FATAL_MSG( "The code should never reach this line. Check the code!" );
+      ATH_MSG_FATAL( "The code should never reach this line. Check the code!" );
       return -1;
    }
 
@@ -840,29 +866,28 @@ namespace Trig {
     *
     * @param bunches The paired bunches
     * @param bunch_int The "intensities" of the paired bunches
-    * @returns <code>true</code> if the interpretation wa successful,
-    *          <code>false</code> otherwise
+    * @returns <code>StatusCode::SUCCESS</code> if the interpretation was
+    *          successful, <code>StatusCode::FAILURE</code> otherwise
     */
-   bool
-   BunchCrossingToolBase::loadSingleBunches( const std::vector< int >& bunches,
-                                             const std::vector< float >& bunch_int1,
-                                             const std::vector< float >& bunch_int2 ) {
+   StatusCode BunchCrossingToolBase::
+   loadSingleBunches( const std::vector< int >& bunches,
+                      const std::vector< float >& bunch_int1,
+                      const std::vector< float >& bunch_int2 ) {
 
       // Do a small sanity check:
       if( ( ( bunches.size() != bunch_int1.size() ) && bunch_int1.size() ) ||
           ( ( bunches.size() != bunch_int2.size() ) && bunch_int2.size() ) ) {
-         REPORT_ERROR_MSG( "Received vectors of different sizes for the bunch IDs and "
-                           "bunch intensities\n"
-                           "Function can not work like this..." );
-         return false;
+         ATH_MSG_ERROR( "Received vectors of different sizes for the bunch "
+                        "IDs and bunch intensities\n"
+                        "Function can not work like this..." );
+         return StatusCode::FAILURE;
       }
       if( ! bunch_int1.size() ) {
-         log() << DEBUG << "Not using bunch intensity for the calculation"
-               << MsgLogger::endmsg;
+         ATH_MSG_DEBUG( "Not using bunch intensity for the calculation" );
       }
       if( ( ! bunch_int2.size() ) && bunch_int1.size() ) {
-         log() << DEBUG << "Using 'bunch crossing intensity' for the calculation"
-               << MsgLogger::endmsg;
+         ATH_MSG_DEBUG( "Using 'bunch crossing intensity' for the "
+                        "calculation" );
       }
 
       //
@@ -891,7 +916,7 @@ namespace Trig {
          m_filledBunches.insert( BunchCrossing( *b_itr, intensity1,
                                                 intensity2 ) );
 
-         REPORT_VERBOSE_MSG( "Evaluating bunch crossing: " << *b_itr );
+         ATH_MSG_VERBOSE( "Evaluating bunch crossing: " << *b_itr );
 
          //
          // This is some STL magic. This expression counts how many of the
@@ -899,14 +924,15 @@ namespace Trig {
          //
          //      distance( ref_bcid,  bcid ) <= maxBCSpacing
          //
-         // Since the calculation takes the reference bcid into account as well, the
-         // count is always >= 1. I have to use the specialised distance(...) function,
-         // because a regular
+         // Since the calculation takes the reference bcid into account as well,
+         // the count is always >= 1. I have to use the specialised
+         // distance(...) function, because a regular
          //
          //      bcid - maxBCSpacing <= ref_bcid <= bcid + maxBCSpacing
          //
          // expression wouldn't give the correct answer at the "turnover" of the
-         // bcid numbering. (When evaluating bcid 1 and BunchCrossing::MAX_BCID.)
+         // bcid numbering. (When evaluating bcid 1 and
+         // BunchCrossing::MAX_BCID.)
          //
          int neighbours =
             std::count_if( bunches.begin(), bunches.end(),
@@ -919,10 +945,10 @@ namespace Trig {
          // Now decide if we want to consider this bunch crossing as a single
          // bunch or not:
          //
-         REPORT_VERBOSE_MSG( "  Bunch neighbours: " << neighbours );
+         ATH_MSG_VERBOSE( "  Bunch neighbours: " << neighbours );
          if( neighbours == 1 ) {
-            REPORT_VERBOSE_MSG( "  Bunch crossing " << *b_itr
-                                << " seems to be a single bunch" );
+            ATH_MSG_VERBOSE( "  Bunch crossing " << *b_itr
+                             << " seems to be a single bunch" );
             m_singleBunches.insert( BunchCrossing( *b_itr, intensity1,
                                                    intensity2 ) );
          }
@@ -935,51 +961,50 @@ namespace Trig {
       //
       // Finally some debugging message for the end:
       //
-      log() << DEBUG << "Single bunches found: " << m_singleBunches
-            << MsgLogger::endmsg;
+      ATH_MSG_DEBUG( "Single bunches found: " << m_singleBunches );
 
-      return true;
+      return StatusCode::SUCCESS;
    }
 
    /**
-    * This function takes care of identifying the bunch trains in the configuration.
-    * The algorithm is quite simple. It starts off with all the filled bunches that
-    * have not been identified as single bunches by the loadSingleBunches(...)
-    * function. It takes the first available bunch crossing, then loops over the rest
-    * of them. When it finds a BC that's "close enough" to the current bunch train,
-    * then the bunch train is extended. From there on the algorithm continues with this
-    * extended bunch train. When the loop reaches the end of the available bunches,
-    * the created bunch train is added to the cache, and the algorithms starts again
-    * with the first still available bunch crossing.
+    * This function takes care of identifying the bunch trains in the
+    * configuration. The algorithm is quite simple. It starts off with all the
+    * filled bunches that have not been identified as single bunches by the
+    * loadSingleBunches(...) function. It takes the first available bunch
+    * crossing, then loops over the rest of them. When it finds a BC that's
+    * "close enough" to the current bunch train, then the bunch train is
+    * extended. From there on the algorithm continues with this extended bunch
+    * train. When the loop reaches the end of the available bunches, the created
+    * bunch train is added to the cache, and the algorithms starts again with
+    * the first still available bunch crossing.
     *
     * The bunch intensity parameter is optional. If it's not specified, the code
     * will assign an intensity of "1.0" to all the bunch crossings.
     *
     * @param bunches The filled bunch crossings
     * @param bunch_int The "intensities" of the paired bunches
-    * @returns <code>true</code> if the interpretation wa successful,
-    *          <code>false</code> otherwise
+    * @returns <code>StatusCode::SUCCESS</code> if the interpretation was
+    *          successful, <code>StatusCode::FAILURE</code> otherwise
     */
-   bool
-   BunchCrossingToolBase::loadBunchTrains( const std::vector< int >& bunches,
-                                           const std::vector< float >& bunch_int1,
-                                           const std::vector< float >& bunch_int2 ) {
+   StatusCode BunchCrossingToolBase::
+   loadBunchTrains( const std::vector< int >& bunches,
+                    const std::vector< float >& bunch_int1,
+                    const std::vector< float >& bunch_int2 ) {
 
       // Do a small sanity check:
       if( ( ( bunches.size() != bunch_int1.size() ) && bunch_int1.size() ) ||
           ( ( bunches.size() != bunch_int2.size() ) && bunch_int2.size() ) ) {
-         REPORT_ERROR_MSG( "Received vectors of different sizes for the bunch IDs and "
-                           "bunch intensities\n"
-                           "Function can not work like this..." );
-         return false;
+         ATH_MSG_ERROR( "Received vectors of different sizes for the bunch "
+                        "IDs and bunch intensities\n"
+                        "Function can not work like this..." );
+         return StatusCode::FAILURE;
       }
       if( ! bunch_int1.size() ) {
-         log() << DEBUG << "Not using bunch intensity for the calculation"
-               << MsgLogger::endmsg;
+         ATH_MSG_DEBUG( "Not using bunch intensity for the calculation" );
       }
       if( ( ! bunch_int2.size() ) && bunch_int1.size() ) {
-         log() << DEBUG << "Using 'bunch crossing intensity' for the calculation"
-               << MsgLogger::endmsg;
+         ATH_MSG_DEBUG( "Using 'bunch crossing intensity' for the "
+                        "calculation" );
       }
 
       //
@@ -991,7 +1016,8 @@ namespace Trig {
       m_bunchTrains.clear();
 
       //
-      // Create a cache of the bunches which have not been identified as a single bunch:
+      // Create a cache of the bunches which have not been identified as a
+      // single bunch:
       //
       std::set< BunchCrossing > cache;
       std::vector< int >::const_iterator b_itr = bunches.begin();
@@ -1011,7 +1037,7 @@ namespace Trig {
          if( bunch_int2.size() ) ++i2_itr;
       }
 
-      REPORT_VERBOSE_MSG( "Bunches considered for trains: " << cache );
+      ATH_MSG_VERBOSE( "Bunches considered for trains: " << cache );
 
       //
       // Continue the loop until we have unassigned bunches:
@@ -1035,8 +1061,8 @@ namespace Trig {
             std::set< BunchCrossing >::const_iterator c_end = cache.end();
             for( ; c_itr != c_end; ++c_itr ) {
                if( bt.distance( *c_itr ) <= maxBCSpacing ) {
-                  REPORT_VERBOSE_MSG( "Adding BunchCrossing " << *c_itr
-                                      << " to Bunch Train " << bt );
+                  ATH_MSG_VERBOSE( "Adding BunchCrossing " << *c_itr
+                                   << " to Bunch Train " << bt );
                   bt.insert( *c_itr );
                }
             }
@@ -1051,15 +1077,15 @@ namespace Trig {
 
          // Finally, remember this train:
          if( ! bt.validate() ) {
-            REPORT_ERROR_MSG( "Found a strange bunch train: " << bt );
-            REPORT_ERROR_MSG( "Keeping in it the list of trains!" );
+            ATH_MSG_ERROR( "Found a strange bunch train: " << bt );
+            ATH_MSG_ERROR( "Keeping in it the list of trains!" );
          }
          m_bunchTrains.insert( bt );
       }
 
       //
-      // Check if the spacing in the bunch trains is the same. (It should be for all
-      // real configurations.)
+      // Check if the spacing in the bunch trains is the same. (It should be for
+      // all real configurations.)
       //
       std::set< BunchTrain >::const_iterator train_itr = m_bunchTrains.begin();
       std::set< BunchTrain >::const_iterator train_end = m_bunchTrains.end();
@@ -1070,46 +1096,43 @@ namespace Trig {
             continue;
          }
          if( train_itr->spacing() != spacing ) {
-            log() << WARNING << "The spacing seems to be different between the trains"
-                  << MsgLogger::endmsg;
-            log() << WARNING << "This should probably not happen"
-                  << MsgLogger::endmsg;
+            ATH_MSG_WARNING( "The spacing seems to be different between the "
+                             "trains" );
+            ATH_MSG_WARNING( "This should probably not happen" );
          }
       }
 
-      log() << DEBUG << "Bunch trains found: " << m_bunchTrains
-            << MsgLogger::endmsg;
+      ATH_MSG_DEBUG( "Bunch trains found: " << m_bunchTrains );
 
-      return true;
+      return StatusCode::SUCCESS;
    }
 
    /**
-    * This function just caches the unpaired bunches internally. It doesn't have to do
-    * anything as fancy as the other two load functions, it just takes the BCIDs as
-    * they are.
+    * This function just caches the unpaired bunches internally. It doesn't have
+    * to do anything as fancy as the other two load functions, it just takes the
+    * BCIDs as they are.
     *
     * @param bunches The unpaired bunch crossings
     * @param bunch_int The "intensities" of the unpaired bunches
-    * @returns <code>true</code> if the caching was successful,
-    *          <code>false</code> otherwise
+    * @returns <code>StatusCode::SUCCESS</code> if the caching was successful,
+    *          <code>StatusCode::FAILURE</code> otherwise
     */
-   bool
-   BunchCrossingToolBase::loadUnpairedBunches( const std::vector< int >& beam1,
-                                               const std::vector< int >& beam2,
-                                               const std::vector< float >& bunch_int1,
-                                               const std::vector< float >& bunch_int2 ) {
+   StatusCode BunchCrossingToolBase::
+   loadUnpairedBunches( const std::vector< int >& beam1,
+                        const std::vector< int >& beam2,
+                        const std::vector< float >& bunch_int1,
+                        const std::vector< float >& bunch_int2 ) {
 
       // Do a small sanity check:
       if( ( ( beam1.size() != bunch_int1.size() ) && bunch_int1.size() ) ||
           ( ( beam2.size() != bunch_int2.size() ) && bunch_int2.size() ) ) {
-         REPORT_ERROR_MSG( "Received vectors of different sizes for the bunch IDs and "
-                           "bunch intensities\n"
-                           "Function can not work like this..." );
-         return false;
+         ATH_MSG_ERROR( "Received vectors of different sizes for the bunch "
+                        "IDs and bunch intensities\n"
+                        "Function can not work like this..." );
+         return StatusCode::FAILURE;
       }
       if( ( ! bunch_int1.size() ) && ( ! bunch_int2.size() ) ) {
-         log() << DEBUG << "Not using bunch intensity for the calculation"
-               << MsgLogger::endmsg;
+         ATH_MSG_DEBUG( "Not using bunch intensity for the calculation" );
       }
 
       // Reset the cache:
@@ -1145,7 +1168,8 @@ namespace Trig {
          const float intensity = bunch_int2.size() ? *i_itr : 1.0;
 
          // Check if this BCID is already known as an unpaired BCID:
-         std::set< BunchCrossing >::iterator itr = m_unpairedBunches.find( *b_itr );
+         std::set< BunchCrossing >::iterator itr =
+            m_unpairedBunches.find( *b_itr );
          if( itr != m_unpairedBunches.end() ) {
             // Modify the BCID not to correspond to a particular beam. Most
             // implementations don't treat beam 1 and beam 2 separately.
@@ -1165,61 +1189,25 @@ namespace Trig {
       //
       // Finally some debugging message for the end:
       //
-      log() << DEBUG << "Unpaired bunches found: " << m_unpairedBunches
-            << MsgLogger::endmsg;
+      ATH_MSG_DEBUG( "Unpaired bunches found: " << m_unpairedBunches );
 
-      return true;
-   }
-
-   void BunchCrossingToolBase::setMaxBunchSpacing( int spacing ) {
-
-      m_maxBunchSpacing = spacing;
-      return;
-   }
-
-   int BunchCrossingToolBase::maxBunchSpacing() const {
-
-      return m_maxBunchSpacing;
-   }
-
-   void BunchCrossingToolBase::setFrontLength( int length ) {
-
-      m_frontLength = length;
-      return;
-   }
-
-   int BunchCrossingToolBase::frontLength() const {
-
-      return m_frontLength;
-   }
-
-   void BunchCrossingToolBase::setTailLength( int length ) {
-
-      m_tailLength = length;
-      return;
-   }
-
-   int BunchCrossingToolBase::tailLength() const {
-
-      return m_tailLength;
+      return StatusCode::SUCCESS;
    }
 
    /**
-    * This function is used to print the overall configuration in a format very similar to
-    * how atlas-runqery.cern.ch started showing this information recently.
+    * This function is used to print the overall configuration in a format
+    * very similar to how atlas-runqery.cern.ch started showing this information
+    * recently.
     */
    void BunchCrossingToolBase::printConfig() const {
 
-      log() << INFO << "No. of coll. bunches   : " << m_filledBunches.size()
-            << MsgLogger::endmsg;
-      log() << INFO << "No. of unpaired bunches: " << m_unpairedBunches.size()
-            << MsgLogger::endmsg;
-      log() << INFO << "No. of bunch trains    : " << m_bunchTrains.size()
-            << MsgLogger::endmsg;
+      ATH_MSG_INFO( "No. of coll. bunches   : " << m_filledBunches.size() );
+      ATH_MSG_INFO( "No. of unpaired bunches: " << m_unpairedBunches.size() );
+      ATH_MSG_INFO( "No. of bunch trains    : " << m_bunchTrains.size() );
       if( m_bunchTrains.size() ) {
-         log() << INFO << "Bunch spacing in trains: "
-               << m_bunchTrains.begin()->spacing()
-               << " ns" << MsgLogger::endmsg;
+         ATH_MSG_INFO( "Bunch spacing in trains: "
+                       << m_bunchTrains.begin()->spacing()
+                       << " ns" );
       }
 
       return;

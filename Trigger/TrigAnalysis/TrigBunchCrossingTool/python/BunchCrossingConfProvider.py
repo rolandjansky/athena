@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingConfProvider.py 346409 2011-02-17 16:17:53Z krasznaa $
+# $Id: BunchCrossingConfProvider.py 586922 2014-03-10 14:56:39Z krasznaa $
 
 ## @package BunchCrossingConfProvider
 #
@@ -10,8 +10,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 346409 $
-# $Date: 2011-02-17 17:17:53 +0100 (Thu, 17 Feb 2011) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 
 ##
 # @short Function creating an instance of Trig::IBunchCrossingConfProvider
@@ -25,8 +25,8 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 346409 $
-# $Date: 2011-02-17 17:17:53 +0100 (Thu, 17 Feb 2011) $
+# $Revision: 586922 $
+# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def BunchCrossingConfProvider( type = "" ):
 
     # Get ourselves a logger:
@@ -53,6 +53,10 @@ def BunchCrossingConfProvider( type = "" ):
 
     # Decide which tool to use based on the global flags:
     from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        __logger.info( "Selecting LHCBunchCrossingTool for overlay job" )
+        from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
+        return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
         from RecExConfig.RecAlgsFlags import recAlgs
@@ -66,8 +70,6 @@ def BunchCrossingConfProvider( type = "" ):
             from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
             return LHCBunchCrossingTool()
     else:
-        if globalflags.isOverlay():
-            __logger.warning( "Overlay jobs are not handled necessarily correctly by this tool" )
         __logger.info( "Selecting MCBunchCrossingTool for this job" )
         from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
         return MCBunchCrossingTool()

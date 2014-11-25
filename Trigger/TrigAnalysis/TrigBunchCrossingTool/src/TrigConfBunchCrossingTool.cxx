@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfBunchCrossingTool.cxx 511865 2012-07-31 08:44:12Z krasznaa $
+// $Id: TrigConfBunchCrossingTool.cxx 628934 2014-11-17 16:42:54Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
@@ -16,7 +16,6 @@
 
 // Local include(s):
 #include "TrigConfBunchCrossingTool.h"
-#include "TrigBunchCrossingTool/MsgWriter.h"
 
 namespace Trig {
 
@@ -28,10 +27,10 @@ namespace Trig {
     */
    static const std::string TRIGCONF_INCIDENT_NAME = "TrigConf";
 
-   TrigConfBunchCrossingTool::TrigConfBunchCrossingTool( const std::string& type,
+   TrigConfBunchCrossingTool::TrigConfBunchCrossingTool( const std::string&,
                                                          const std::string& name,
-                                                         const IInterface* parent )
-      : AthAlgTool( type, name, parent ), m_bgId( -1 ),
+                                                         const IInterface* )
+      : BunchCrossingToolBase( name ), m_bgId( -1 ),
         m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
         m_incidentSvc( "IncidentSvc", name ) {
 
@@ -41,15 +40,8 @@ namespace Trig {
       declareInterface< IIncidentListener >( this );
 
       // Declare the properties of the tool:
-      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 500,
-                       "Maximum bunch spacing in the trains in nanoseconds" );
       declareProperty( "FilledBunchNames", m_filledBunchNames,
                        "Possible names for the filled bunch groups (DEPRECATED)" );
-
-      declareProperty( "FrontLength", m_frontLength = 300,
-                       "Length of the front part of a train in nanoseconds" );
-      declareProperty( "TailLength", m_tailLength = 300,
-                       "Length of the tail part of a train in nanoseconds" );
 
       declareProperty( "ConfigSvc", m_configSvc );
    }
@@ -60,10 +52,6 @@ namespace Trig {
       // load a new configuration:
       m_bgId = -1;
 
-      // Configure the underlying logger:
-      MsgWriter::instance()->setMinType( msg().level() );
-      MsgWriter::instance()->setSource( name() );
-
       // Report about the initialization:
       ATH_MSG_INFO( "Initializing TrigConfBunchCrossingTool - package version: "
                     << PACKAGE_VERSION );
@@ -73,11 +61,6 @@ namespace Trig {
       ATH_MSG_DEBUG( "  Filled bunch names   : " << m_filledBunchNames );
       ATH_MSG_DEBUG( "  LVL1 config service  : " << m_configSvc );
 
-      // Configure the base class:
-      setMaxBunchSpacing( m_maxBunchSpacing );
-      setFrontLength( m_frontLength );
-      setTailLength( m_tailLength );
-
       // Retrieve the incident service, and register the tool for the trigger
       // configuration incidents:
       CHECK( m_incidentSvc.retrieve() );
@@ -85,14 +68,6 @@ namespace Trig {
 
       // Retrieve the trigger configuration service:
       CHECK( m_configSvc.retrieve() );
-
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TrigConfBunchCrossingTool::finalize() {
-
-      ATH_MSG_INFO( "Finalizing TrigConfBunchCrossingTool - package version: "
-                    << PACKAGE_VERSION );
 
       return StatusCode::SUCCESS;
    }
@@ -239,14 +214,8 @@ namespace Trig {
       //
       // Now interpret the information:
       //
-      if( ! loadSingleBunches( filled_bg->bunches() ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to interpret single bunches";
-         return StatusCode::FAILURE;
-      }
-      if( ! loadBunchTrains( filled_bg->bunches() ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to interpret bunch trains";
-         return StatusCode::FAILURE;
-      }
+      ATH_CHECK( loadSingleBunches( filled_bg->bunches() ) );
+      ATH_CHECK( loadBunchTrains( filled_bg->bunches() ) );
 
       //
       // Select the unpaired bunches. The overlaps are taken care of by the
@@ -271,10 +240,7 @@ namespace Trig {
       //
       // Now interpret the information:
       //
-      if( ! loadUnpairedBunches( unpaired, unpaired ) ) {
-         REPORT_ERROR( StatusCode::FAILURE ) << "Failed to interpret unpaired bunches";
-         return StatusCode::FAILURE;
-      }
+      ATH_CHECK( loadUnpairedBunches( unpaired, unpaired ) );
 
       // Print the configuration to give some feedback to the user:
       printConfig();
@@ -291,6 +257,9 @@ namespace Trig {
     * configuration information that the tool has to work with.
     */
    void TrigConfBunchCrossingTool::printBunchGroups() const {
+
+      // Skip the rest if nothing will be printed anyway:
+      if( ! msgLvl( MSG::VERBOSE ) ) return;
 
       REPORT_MESSAGE( MSG::VERBOSE ) << "Printing BunchGroup configuration:";
       const std::vector< TrigConf::BunchGroup >& bgs =
