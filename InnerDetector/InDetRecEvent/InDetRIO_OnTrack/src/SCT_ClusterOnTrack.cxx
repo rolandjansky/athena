@@ -12,6 +12,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
+#include <limits>
 
 
 
@@ -24,7 +25,8 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
   SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(),isbroad) //call base class constructor
 {
   //m_rio = ElementLinkToIDCSCT_ClusterContainer("SCT_Clusters", RIO->getHashAndIndex().hashAndIndex(), RIO);
- 
+  m_detEl=nullptr;
+  m_positionAlongStrip=std::numeric_limits<double>::quiet_NaN();
   m_rio.setElement(RIO);
 }
 
@@ -38,7 +40,6 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
   SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(), globalPosition, isbroad), //call base class constructor
   m_detEl( RIO->detectorElement() )
 {
-  //m_rio = ElementLinkToIDCSCT_ClusterContainer("SCT_Clusters", RIO->getHashAndIndex().hashAndIndex(), RIO);
   m_rio.setElement(RIO);
   
 //constructing local position provided a global one  
@@ -58,7 +59,8 @@ InDet::SCT_ClusterOnTrack::~SCT_ClusterOnTrack()
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack():
   SiClusterOnTrack(),
   m_rio(),
-  m_detEl(0)
+  m_detEl(0),
+  m_positionAlongStrip(std::numeric_limits<double>::quiet_NaN())
 {}
 
 // copy constructor:

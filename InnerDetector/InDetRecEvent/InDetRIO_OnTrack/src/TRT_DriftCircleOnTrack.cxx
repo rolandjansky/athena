@@ -16,6 +16,7 @@
 #include <cassert>
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
+#include<limits>
 
 
 // Constructor with parameters:
@@ -37,25 +38,13 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_timeOverThreshold(RIO->timeOverThreshold()),
   m_detEl( RIO->detectorElement() )
 {
-// m_rio = ElementLinkToIDCTRT_DriftCircleContainer("TRT_DriftCircles", RIO->getHashAndIndex().hashAndIndex(), RIO);
   m_rio.setElement(RIO);
-  
   const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
-
-//  const Trk::StraightLineSurface* slsf =&(m_detEl->surface(RIO->identify()));
   if(slsf) m_globalPosition = slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ);
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
-  
-//scaling the direction with drift radius   
-  if(dr !=0.)
-  { 
-    /*
-   loc_gDirection.setPerp(dr); 
-   float ratio = loc_gDirection.x()/dr;
-   float calc_angle = (ratio == 1.) ?  0. : acos(ratio);
-   m_localAngle = (loc_gDirection.y()<0.)? 2*3.1415926 - calc_angle : calc_angle;
-    */
+  //scaling the direction with drift radius   
+  if(dr !=0.){ 
    m_localAngle = atan2(loc_gDirection.y(),loc_gDirection.x());
   } else m_localAngle = 0.;
  
@@ -70,6 +59,8 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack()
 	:
   Trk::RIO_OnTrack(),
   m_globalPosition(0),
+  m_localAngle(std::numeric_limits<float>::quiet_NaN()),
+  m_positionAlongWire(std::numeric_limits<float>::quiet_NaN()),
   m_rio(),
   m_idDE(),
   m_status(Trk::UNDECIDED),
@@ -111,8 +102,7 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
   return *this;
 }
 
-Trk::DriftCircleSide InDet::TRT_DriftCircleOnTrack::side() const
-{ 
+Trk::DriftCircleSide InDet::TRT_DriftCircleOnTrack::side() const{ 
   if (m_status == Trk::UNDECIDED) return Trk::NONE;
   if (localParameters()[Trk::driftRadius] < 0. ) return Trk::LEFT;
   return Trk::RIGHT; 
@@ -125,12 +115,10 @@ const Trk::Surface& InDet::TRT_DriftCircleOnTrack::associatedSurface() const
     return (m_detEl->surface(identify())); 
 }
   
-void InDet::TRT_DriftCircleOnTrack::setGlobalPosition(Amg::Vector3D& loc3Dframe) const
-  {
+void InDet::TRT_DriftCircleOnTrack::setGlobalPosition(Amg::Vector3D& loc3Dframe) const{
    const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>( &(associatedSurface()) );
-   if(slsf) 
-   {
-    m_globalPosition = new  Amg::Vector3D(slsf->transform() * loc3Dframe);
+   if(slsf) {
+     m_globalPosition = new  Amg::Vector3D(slsf->transform() * loc3Dframe);
    }else{
     throw GaudiException("Dynamic_cast to StraightLineSurface failed!",             
                     	 "TRT_DriftCircleOnTrack::setGlobalPosition()", 
