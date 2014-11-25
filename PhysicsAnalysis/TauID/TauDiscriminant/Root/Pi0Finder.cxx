@@ -18,8 +18,29 @@
 //---------------------------------------------------------
 // Default Constructor
 //---------------------------------------------------------
-Pi0Finder::Pi0Finder()
-{}
+Pi0Finder::Pi0Finder() 
+{
+	m_noMatch = 1;
+	m_twoPi0s = 1;
+m_usePseudoHADF = 0; 
+m_resImportance = 0.4;
+m_turnOnPoint = 0.5;
+m_turnOnRate = 0.9;
+m_PSSFactor = 0.5; 
+m_EM2Factor= 0.5;
+m_twoPi0Strength = 0.4;
+m_caloE = 1;
+m_caloHADE = 1;
+m_trkE = 1;
+m_trkHADF = 0.2;
+m_doubleCountingE = 1;
+m_applyCorrCluster1 = 1; 
+m_applyCorrCluster2 = 1;
+m_keepCluster1 = 1; 
+m_keepCluster2 = 1;
+
+
+}
 
 
 
@@ -190,7 +211,7 @@ void Pi0Finder::preSelParameters()
 void Pi0Finder::select()
 {
     double pi0ScoreMin  = 0.0;
-    EMFCluster cl1;
+    EMFCluster cl1(0);
     int nclusters = (int)m_EMFClusters.size();
 
     for(int i = 0; i < nclusters; ++i)
@@ -222,8 +243,8 @@ void Pi0Finder::select()
 void Pi0Finder::select2()
 {
     double pi0ScoreMin  = 0.0;
-    EMFCluster cl1;
-    EMFCluster cl2;
+    EMFCluster cl1(0);
+    EMFCluster cl2(0);
 
     int nclusters = (int)m_EMFClusters.size();
 

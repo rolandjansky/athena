@@ -72,6 +72,7 @@ class CommonLikelihood{
             this->verbose = _verbose;
             //	  DEBUG=2;
             m_smooth = false;
+	    m_nvtx = 0;
         }
         ~CommonLikelihood(){
 		if(m_tauFile) m_tauFile->Close();

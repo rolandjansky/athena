@@ -14,7 +14,8 @@ use AthenaBaseComps     AthenaBaseComps-*    Control
 apply_tag ROOTBasicLibs
 apply_tag ROOTMathLibs
 
-macro_append TauDiscriminant_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
+# not needed
+# macro_append TauDiscriminant_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
 
 # suggested by RootCore
 #library TauDiscriminantLib "../Root/*.cxx"
@@ -50,5 +51,7 @@ use CaloGeoHelpers	CaloGeoHelpers-*	Calorimeter
 
 apply_pattern lcgdict dict=TauDiscriminant selectionfile=selection.xml headerfiles="../TauDiscriminant/TauDiscriminantDict.h"
 
-macro_append ROOT_linkopts " -lPyROOT"
+use AtlasPyROOT         AtlasPyROOT-*            External
+# should be package name itself
+macro_append TauDiscriminant_linkopts " -lPyROOT"
 end_private

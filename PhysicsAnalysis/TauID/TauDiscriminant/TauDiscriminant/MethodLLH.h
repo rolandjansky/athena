@@ -37,7 +37,8 @@ namespace TauID
                 MethodBase(_name,_verbose),
                 isBuilt(false),
                 nLevels(0),
-                llh(NULL)
+                llh(NULL),
+		m_option(0)
             {}
             #else
             MethodLLH(const string& _name = ""):

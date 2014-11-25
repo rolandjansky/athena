@@ -17,7 +17,7 @@
 //---------------------------------------------------------
 // Default Constructor
 //---------------------------------------------------------
-NoiseCorrIsol::NoiseCorrIsol()
+NoiseCorrIsol::NoiseCorrIsol() : m_innerDR(0), m_outerDR(0), m_areaRatio(0), m_eff(0)
 {}
 
 

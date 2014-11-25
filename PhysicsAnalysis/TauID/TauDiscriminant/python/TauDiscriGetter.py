@@ -30,7 +30,7 @@ def singleton(cls):
 class TauDiscriGetter(Configured):
 
     def __init__(self, name = "TauDiscriminant",
-                       container = "TauRecContainer",
+                       container = "TauJets",
                        sequence = None,
                        do_upstream_algs = False,
                        do_only_fakebits = False,

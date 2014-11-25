@@ -28,6 +28,12 @@ EMFCluster::EMFCluster(double pt)
     m_PSSF = 0.0;
     m_EM2F = 0.0;
     m_EM3F = 0.0;
+    m_pseudoHADE = 0.;
+    m_HADF = 0.;
+    m_PSSE  = 0.;
+    m_EM2E = 0.;
+    m_EM3E = 0.;
+    m_HADE = 0.0;
 }
 
 
@@ -45,6 +51,12 @@ EMFCluster::EMFCluster(const TLorentzVector& inCluster,
     m_PSSF = inPSSF;
     m_EM2F = inEM2F;
     m_EM3F = inEM3F;
+    m_pseudoHADE = 0;
+    m_HADF = 0.;
+    m_PSSE  = 0.;
+    m_EM2E = 0.;
+    m_EM3E = 0.;
+    m_HADE = 0.0;
 
     update();
 }
