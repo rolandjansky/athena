@@ -10,6 +10,8 @@
 // David Adams
 // January 2014
 
+#include <string>
+#include <vector>
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
 
@@ -25,14 +27,19 @@ ASG_TOOL_INTERFACE(IJetFromPseudojet)
 
 public:
 
+  /// Type for ghost labels.
+  typedef std::vector<std::string> NameList;
+
   /// Destructor.
   virtual ~IJetFromPseudojet() { };
 
-  /// Method to construct an ATLAS jet from a pseudojet and input type.
+  /// Method to construct an ATLAS jet from a pseudojet, input type and 
+  /// vector of ghost labels.
   /// The new jet is put in the supplied container and is returned.
   /// Returns null for failure.
   virtual xAOD::Jet* add(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
-                         xAOD::JetInput::Type inputtype) const =0;
+                         xAOD::JetInput::Type inputtype,
+                         const NameList& ghostlabs) const =0;
 
   /// Method to construct an ATLAS jet from a pseudojet and parent jet.
   /// The new jet is put in the supplied container and is returned.

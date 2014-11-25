@@ -2,35 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// IJetModifier.cxx
+// IJetGroomer.cxx
 
-#include "JetInterface/IJetModifier.h"
-
-//**********************************************************************
-
-IJetModifier::IJetModifier() : m_ppjr(nullptr) { }
+#include "JetInterface/IJetGroomer.h"
 
 //**********************************************************************
 
-IJetModifier::~IJetModifier() {
+IJetGroomer::IJetGroomer() : m_ppjr(nullptr) { }
+
+//**********************************************************************
+
+IJetGroomer::~IJetGroomer() {
   m_ppjr = nullptr;
 }
 
 //**********************************************************************
 
-int IJetModifier::inputContainerNames(std::vector<std::string>&) {
-  return 0;
-}
-
-//**********************************************************************
-
-const IJetPseudojetRetriever* IJetModifier::pseudojetRetriever() const {
+const IJetPseudojetRetriever* IJetGroomer::pseudojetRetriever() const {
   return m_ppjr;
 }
 
 //**********************************************************************
 
-void IJetModifier::setPseudojetRetriever(const IJetPseudojetRetriever* ppjr) {
+void IJetGroomer::setPseudojetRetriever(const IJetPseudojetRetriever* ppjr) {
   m_ppjr = ppjr;
 }
 

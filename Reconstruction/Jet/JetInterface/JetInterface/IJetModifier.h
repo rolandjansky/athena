@@ -15,14 +15,18 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
+#include "JetInterface/IJetPseudojetRetriever.h"
 
 class IJetModifier : virtual public asg::IAsgTool {
 ASG_TOOL_INTERFACE(IJetModifier)
 
 public:
 
+  /// Cosntructor.
+  IJetModifier();
+
   /// Destructor.
-  virtual ~IJetModifier() { };
+  virtual ~IJetModifier();
 
   /// Method to modify a jet collection.
   /// Returns 0 for success.
@@ -33,6 +37,17 @@ public:
   /// Returns nonzero for error.
   /// Default returns 0 and adds no names.
   virtual int inputContainerNames(std::vector<std::string>& connames);
+
+  /// Return the pseudojet retriever associated with this tool.
+  virtual const IJetPseudojetRetriever* pseudojetRetriever() const;
+
+  /// Set the pseudojet retriever associated with this tool.
+  virtual void setPseudojetRetriever(const IJetPseudojetRetriever* ppjr);
+
+private:
+
+  /// Pseudojet retriever.
+  const IJetPseudojetRetriever* m_ppjr;
 
 };
 

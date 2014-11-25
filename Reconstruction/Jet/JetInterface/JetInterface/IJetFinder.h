@@ -14,12 +14,15 @@
 /// IJetFinder is a dual-use tool interface for for a tool that
 /// modifies a jet collection.
 
+#include <string>
+#include <vector>
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
 
 namespace fastjet {
 class PseudoJet;
 }
+
 /// Typedef for a vector of pseudojets.
 typedef std::vector<fastjet::PseudoJet> PseudoJetVector;
 
@@ -28,14 +31,18 @@ ASG_TOOL_INTERFACE(IJetFinder)
 
 public:
 
+  /// Type for ghost labels.
+  typedef std::vector<std::string> NameList;
+
   /// Destructor.
   virtual ~IJetFinder() { };
 
   /// Method to find jets from a vector of pseudojet inputs.
-  /// The last argument is used to set the input type for the found jets.
+  /// The last arguments are the input type for the found jets and
+  /// the list of ghost constituent labels.
   /// Returns 0 for success.
   virtual int find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-                   xAOD::JetInput::Type =xAOD::JetInput::Uncategorized) const =0;
+                   xAOD::JetInput::Type contype, const NameList& ghostlabs) const =0;
 
 };
 
