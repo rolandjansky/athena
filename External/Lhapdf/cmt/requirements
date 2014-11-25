@@ -7,8 +7,10 @@ use AtlasPolicy AtlasPolicy-*
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
+macro LCG_config_version "67c"
 macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)"
-macro Lhapdf_home "$(Genser_home)/lhapdf6"
+#macro Genser_home "$(LCG_external)/MCGenerators_lcgcmt61g"
+macro Lhapdf_home "$(Genser_home)/lhapdf"
 macro Lhapdf_version "6.1.4"
 macro Lhapdf_native_version "$(Lhapdf_version)_lcgcmt$(LCG_config_version)"
 macro Lhapdf_system "$(LCG_ext_system)"
@@ -38,10 +40,14 @@ path_prepend PYTHONPATH "$(Lhapdf_python)"
 # versioned (and maintained) collection of standard PDFs is probably needed.
 macro_append Lhapdf_export_paths "$(Lhapdf_datadir)/lhapdf.conf "
 macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/pdfsets.index "
+macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/CT10 "
 macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/CT10nlo "
 macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/cteq6l1 "
 macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/MSTW2008lo68cl "
 macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/MSTW2008nlo68cl "
+macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/NNPDF30_nlo_as_0118 "
+macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/NNPDF23_lo_as_0130_qed "
+macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/MRSTMCal "
 #macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/HERAPDF15NLO_EIG "
 #macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/HERAPDF15NLO_VAR "
 #macro_append Lhapdf_export_paths "$(Lhapdf_setsdir)/HERAPDF15NLO_ALPHAS "
