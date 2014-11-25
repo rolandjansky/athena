@@ -10,6 +10,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assign/std/vector.hpp>
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -17,6 +18,8 @@
 
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
+
+using boost::assign::operator+=;
 
 /**
  * author: James Monk (jmonk@cern.ch)
@@ -33,6 +36,8 @@ m_procPtr(0),
 m_userHookPtr(0)
 {
   declareProperty("Commands", m_commands);
+  declareProperty("UserParams", m_userParams);
+  declareProperty("UserModes", m_userModes);
   declareProperty("CollisionEnergy", m_collisionEnergy = 14000.0);
   declareProperty("useRndmGenSvc", m_useRndmGenSvc = true);
   declareProperty("Beam1", m_beam1 = "PROTON");
@@ -80,12 +85,6 @@ StatusCode Pythia8_i::genInitialize() {
   }
   
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
-
-  // Default LEP tune is LEP 1 (previously Tune:ee = 3).
-  // Not setting it should be identical, so we don't anymore!
-  
-  // LEP1 tune for hadronisation.  Default from version 8.125 anyway
-  //  m_pythia.readString("Tune:ee = 3");
   
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
   // Tune 4C for pp collisions (default from 8.150 anyway)
@@ -99,6 +98,34 @@ StatusCode Pythia8_i::genInitialize() {
     m_pythia.readString("PDF:useLHAPDF = off");
   }
     
+  for(vector<string>::const_iterator param = m_userParams.begin();
+      param != m_userParams.end(); ++param){
+    vector<string> splits;
+    boost::split(splits, *param, boost::is_any_of("="));
+    if(splits.size() != 2){
+      ATH_MSG_ERROR("Cannot interpret user param command: " + *param);
+      return StatusCode::FAILURE;
+    }
+    
+    boost::erase_all(splits[0], " ");
+    m_pythia.settings.addParm(splits[0], 0., false, false, 0., 0.);
+    m_commands+=*param;
+  }
+
+  for(vector<string>::const_iterator mode = m_userModes.begin();
+      mode != m_userModes.end(); ++mode){
+    vector<string> splits;
+    boost::split(splits, *mode, boost::is_any_of("="));
+    if(splits.size() != 2){
+      ATH_MSG_ERROR("Cannot interpret user mode command: " + *mode);
+      return StatusCode::FAILURE;
+    }
+    
+    boost::erase_all(splits[0], " ");
+    m_pythia.settings.addMode(splits[0], 0, false, false, 0, 0);
+    m_commands+=*mode;
+  }
+  
   // Now apply the settings from the JO
   for(vector<string>::const_iterator cmd = m_commands.begin();
       cmd != m_commands.end(); ++cmd){
@@ -286,8 +313,9 @@ StatusCode Pythia8_i::callGenerator(){
   
   // some CKKWL merged events have zero weight (or unfilled event). 
   // start again with such events
-  if(fabs(m_pythia.info.mergingWeight()*m_pythia.info.weight()) < 1.e-18 ||
-     m_pythia.event.size() < 2) 
+  if(returnCode != StatusCode::FAILURE &&
+     (fabs(m_pythia.info.mergingWeight()*m_pythia.info.weight()) < 1.e-18 ||
+      m_pythia.event.size() < 2))
     returnCode = this->callGenerator(); 
   
   ++m_internal_event_number;
