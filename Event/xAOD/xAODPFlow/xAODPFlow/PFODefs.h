@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFODefs.h 601670 2014-06-13 13:27:35Z mhodgkin $
+// $Id: PFODefs.h 625439 2014-10-31 15:02:45Z mhodgkin $
 #ifndef XAODPFLOW_PFODEFS_H
 #define XAODPFLOW_PFODEFS_H
 
@@ -54,6 +54,8 @@ namespace PFODetails
     eflowRec_LAYERENERGY_EM3,
     eflowRec_LAYERENERGY_HEC0,
     eflowRec_LAYERENERGY_Tile0,
+    eflowRec_LAYERENERGY_HEC,
+    eflowRec_TIMING,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
@@ -108,7 +110,8 @@ namespace PFODetails
   enum PFOParticleType{
     CaloCluster = 0,
     Track,
-    TauShot
+    TauShot,
+    HadronicCalo
   };
 
   /** This enum is used to label the lepton type of the neutral PFO */

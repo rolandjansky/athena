@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAuxContainer_v1.h 595979 2014-05-08 09:37:35Z mhodgkin $
+// $Id: PFOAuxContainer_v1.h 630853 2014-11-25 11:15:03Z mhodgkin $
 #ifndef XAODPFLOW_VERSIONS_PFOAUXCONTAINER_V1_H
 #define XAODPFLOW_VERSIONS_PFOAUXCONTAINER_V1_H
 
@@ -54,8 +54,6 @@ namespace xAOD {
     std::vector<float> m;
     /** 4-vector of PFO at EM scale */
     std::vector<float> ptEM;
-    std::vector<float> etaEM;
-    std::vector<float> phiEM;
     std::vector<float> mEM;
     /** Vectors of links to constiuents - see PFODetails::PFOParticleType for valid types */
     std::vector<std::vector<ElementLink<IParticleContainer> > > pfo_ClusterLinks;
@@ -66,10 +64,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::PFOAuxContainer_v1 , 1222686486 , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::PFOAuxContainer_v1, xAOD::AuxContainerBase );
 #endif // not XAOD_STANDALONE

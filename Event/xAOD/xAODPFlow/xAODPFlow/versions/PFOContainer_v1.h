@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOContainer_v1.h 582152 2014-02-07 13:09:21Z krasznaa $
+// $Id: PFOContainer_v1.h 630853 2014-11-25 11:15:03Z mhodgkin $
 #ifndef XAODPFLOW_VERSIONS_PFOCONTAINER_V1_H
 #define XAODPFLOW_VERSIONS_PFOCONTAINER_V1_H
 
@@ -18,11 +18,5 @@ namespace xAOD {
    /// The container is a simple typedef for now
    typedef DataVector< xAOD::PFO_v1 > PFOContainer_v1;
 }
-
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::PFOContainer_v1, 1177172577, 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODPFLOW_VERSIONS_PFOCONTAINER_V1_H

@@ -14,11 +14,11 @@
 namespace xAOD {
 
    PFO_v1::PFO_v1()
-     : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
+     : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
 
    }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
+  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
     this->makePrivateStore(other);
   }
 
@@ -131,12 +131,14 @@ namespace xAOD {
 
   const PFO_v1::FourMom_t& PFO_v1::p4EM() const { 
     
+    if (0.0 != this->charge()) return this->p4();
+
     if (!m_p4EMCached){
 
       //change to use pt, eta, phi ,e 
       static Accessor<float> accPt("ptEM");
-      static Accessor<float> accEta("etaEM");
-      static Accessor<float> accPhi("phiEM");
+      static Accessor<float> accEta("eta");
+      static Accessor<float> accPhi("phi");
       static Accessor<float> accM("mEM");
 
       m_p4EM.SetPtEtaPhiM(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
@@ -150,10 +152,10 @@ namespace xAOD {
     static Accessor<float> accPt("ptEM");
     accPt(*this) = p4EM.Pt();
 
-    static Accessor<float> accEta("etaEM");
+    static Accessor<float> accEta("eta");
     accEta(*this) = p4EM.Eta();
 
-    static Accessor<float> accPhi("phiEM");
+    static Accessor<float> accPhi("phi");
     accPhi(*this) = p4EM.Phi();
 
     static Accessor<float> accM("mEM");
@@ -168,10 +170,10 @@ namespace xAOD {
     static Accessor<float> accPt("ptEM");
     accPt(*this) = pt;
 
-    static Accessor<float> accEta("etaEM");
+    static Accessor<float> accEta("eta");
     accEta(*this) = eta;
 
-    static Accessor<float> accPhi("phiEM");
+    static Accessor<float> accPhi("phi");
     accPhi(*this) = phi;
 
     static Accessor<float> accM("mEM");
@@ -182,6 +184,8 @@ namespace xAOD {
 
    double PFO_v1::ptEM() const {
 
+     if (0.0 != this->charge()) return this->pt();
+
      static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
 
@@ -190,20 +194,28 @@ namespace xAOD {
 
    double PFO_v1::etaEM() const {
 
+     if (0.0 != this->charge()) return this->eta();
+
      return p4EM().Eta();
    }
 
    double PFO_v1::phiEM() const {
+
+     if (0.0 != this->charge()) return this->phi();
 
      return p4EM().Phi();
    }
 
    double PFO_v1::mEM() const {
 
+     if (0.0 != this->charge()) return this->m();
+
      return p4EM().M();
    }
 
    double PFO_v1::eEM() const {
+
+     if (0.0 != this->charge()) return this->e();
 
      static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -217,7 +229,75 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
-  /** special implementations of the above 6 functions for doubles to prevent user from putting doubles in the aux store - convert to float in this case */
+  /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
+
+  template<> void PFO_v1::setAttribute(const std::string& AttributeType, const xAOD::PFODetails::PFOLeptonType& anAttribute){
+    uint16_t uint16_variable = static_cast<uint16_t>(anAttribute);
+    this->setAttribute<uint16_t>(AttributeType, uint16_variable);
+  }
+
+  template<> bool PFO_v1::attribute(const std::string& AttributeType, xAOD::PFODetails::PFOLeptonType& anAttribute) const {
+    bool isValid = false;
+    uint16_t internalAttribute;
+    isValid = attribute<uint16_t>(AttributeType,internalAttribute);
+    if (false == isValid) return false;
+    else{
+      anAttribute = static_cast<xAOD::PFODetails::PFOLeptonType>(internalAttribute);
+      return true;
+    }
+    
+  }
+
+  template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const float& anAttribute) {
+    if (this->isJetETMissFloatForCompression(AttributeType)){
+      float dummy = anAttribute*m_floatCompressionFactor;
+      int maxIntSize = 1000000000;
+      int internalAttribute = maxIntSize;
+      if (dummy < maxIntSize) internalAttribute = static_cast<int>(dummy);
+      setAttribute<int>(AttributeType, internalAttribute);
+    }
+    else {
+      float internalAttribute = anAttribute;
+      (*(PFOAttributesAccessor_v1<float>::accessor(AttributeType)))(*this) = internalAttribute;
+    }
+  }
+
+  template<> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, float& anAttribute) const {
+    bool isValid = false;
+    if (this->isJetETMissFloatForCompression(AttributeType)){
+      int internalAttribute;
+      isValid = attribute<int>(AttributeType,internalAttribute);
+      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/m_floatCompressionFactor;
+      else anAttribute = 0.0;
+      return isValid;
+    }
+    else{
+      Accessor<float>* acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
+      //check if accessor pointer is NULL
+      if( ! acc ) {  return false ;}
+      //check if variable is avaialable
+      if( ! acc->isAvailable( *this ) ) return false;
+      //set variable and return true
+      anAttribute =( *acc )( *this );
+      return true;
+       
+    }
+    return isValid;
+  }
+  
+  bool PFO_v1::isJetETMissFloatForCompression(PFODetails::PFOAttributes AttributeType) const{
+    if (PFODetails::PFOAttributes::eflowRec_LATERAL == AttributeType || PFODetails::PFOAttributes::eflowRec_LONGITUDINAL == AttributeType || PFODetails::PFOAttributes::eflowRec_SECOND_R == AttributeType || PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA == AttributeType || PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX == AttributeType || PFODetails::PFOAttributes::eflowRec_ISOLATION == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS == AttributeType || PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS == AttributeType || PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_POS == AttributeType || PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE == AttributeType || PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q == AttributeType || PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM3 == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0 == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_Tile0 == AttributeType || PFODetails::PFOAttributes::eflowRec_TIMING == AttributeType ) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+
+  /** special implementations for doubles to prevent user from putting doubles in the aux store - convert to float in this case */
+
+  
 
   template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const double& anAttribute) {
     float internalAttribute = static_cast<float>(anAttribute);
@@ -534,15 +614,18 @@ namespace xAOD {
 
     float radius = centerMag/cosh(clusterEta);
 
-    float EtaVertexCorr = 0.0, PhiVertexCorr = 0.0;
+    float EtaVertexCorrection = 0.0, PhiVertexCorrection = 0.0;
     float clusterPhi = theFourVector.Phi();
 
     if (radius > 1.0 && centerMag > 1e-3){
-      EtaVertexCorr = (-vertexToCorrectTo.Z()/cosh(clusterEta) + (vertexToCorrectTo.X()*cos(clusterPhi) + vertexToCorrectTo.Y()*sin(clusterPhi))*tanh(clusterEta))/radius;
-      PhiVertexCorr = (vertexToCorrectTo.X()*sin(clusterPhi) - vertexToCorrectTo.Y()*cos(clusterPhi))/radius;
+      EtaVertexCorrection = (-vertexToCorrectTo.Z()/cosh(clusterEta) + (vertexToCorrectTo.X()*cos(clusterPhi) + vertexToCorrectTo.Y()*sin(clusterPhi))*tanh(clusterEta))/radius;
+      PhiVertexCorrection = (vertexToCorrectTo.X()*sin(clusterPhi) - vertexToCorrectTo.Y()*cos(clusterPhi))/radius;
     }
-     
-    theFourVector.SetPtEtaPhiM(theFourVector.Pt(), clusterEta + EtaVertexCorr, clusterPhi + PhiVertexCorr, theFourVector.M());
+
+    float etaVertexCorrected = clusterEta + EtaVertexCorrection;
+    float p = std::sqrt(theFourVector.E()*theFourVector.E()-theFourVector.M()*theFourVector.M());
+    float ptVertexCorrected = p/cosh(etaVertexCorrected); 
+    theFourVector.SetPtEtaPhiM(ptVertexCorrected, etaVertexCorrected, clusterPhi + PhiVertexCorrection, theFourVector.M());
 
   }
 

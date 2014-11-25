@@ -20,6 +20,8 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODPFlow/versions/PFOContainer_v1.h"
 #include "xAODPFlow/versions/PFOAuxContainer_v1.h"
 #include "xAODPFlow/PFODefs.h"

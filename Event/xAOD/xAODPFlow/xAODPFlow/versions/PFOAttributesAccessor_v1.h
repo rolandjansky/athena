@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAttributesAccessor_v1.h 601670 2014-06-13 13:27:35Z mhodgkin $
+// $Id: PFOAttributesAccessor_v1.h 625439 2014-10-31 15:02:45Z mhodgkin $
 #ifndef PFOATTRIBUTESACCESSOR_H
 #define PFOATTRIBUTESACCESSOR_H
 
@@ -58,6 +58,8 @@ namespace xAOD{
 	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_EM3);
 	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_HEC0);
 	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_Tile0);
+	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_HEC);
+	DEFINE_PFO_ACCESSOR(eflowRec_TIMING);
 	DEFINE_PFO_ACCESSOR(cellBased_FIRST_ETA); 
 	DEFINE_PFO_ACCESSOR(cellBased_SECOND_R); 
 	DEFINE_PFO_ACCESSOR(cellBased_SECOND_LAMBDA); 
@@ -120,9 +122,12 @@ namespace xAOD{
       case PFODetails::Track:
 	stringName = "pfo_TrackLinks";
 	return true;
+	// Note - clients should NEVER set both links to TauShot and HadroniCaloCluster - Tau WG agreed they NEVER will do such a thing (and they are only client)
       case PFODetails::TauShot:
 	stringName = "pfo_TauShotLinks";
 	return true;
+      case PFODetails::HadronicCalo:
+        stringName = "pfo_TauShotLinks";
       }//switch
       return false;
     }//getValue

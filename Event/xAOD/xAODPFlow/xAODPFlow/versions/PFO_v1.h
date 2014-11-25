@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFO_v1.h 604803 2014-07-03 15:49:39Z mhodgkin $
+// $Id: PFO_v1.h 624626 2014-10-28 14:55:06Z mhodgkin $
 #ifndef XAODPFLOW_VERSIONS_PFO_V1_H
 #define XAODPFLOW_VERSIONS_PFO_V1_H
 
@@ -164,6 +164,9 @@ namespace xAOD {
     /** Map from cluster moment name onto PFOAttribute name */
     bool getAttributeName_FromClusterMoment(xAOD::PFODetails::PFOAttributes& myAttribute, xAOD::CaloCluster::MomentType& momentType) const;
 
+    /** Performs a check as to whether a variable should be compressed */
+    bool isJetETMissFloatForCompression(xAOD::PFODetails::PFOAttributes AttributeType) const;
+
     /// Cached 4-momentum object
     mutable FourMom_t m_p4;
     /// Cache state of the internal 4-momentum (reset from the streamer)
@@ -172,6 +175,8 @@ namespace xAOD {
     mutable FourMom_t m_p4EM;
     /** bool to track whether we have cached EM 4-vector - mutable so it can be set in non-const getter function */
     mutable bool m_p4EMCached;
+    /** this defines the factor to compress floats by */
+    int m_floatCompressionFactor;
 
   }; // class PFO
 
