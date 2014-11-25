@@ -57,9 +57,10 @@ StatusCode MemoryAlg::execute()
     }
   int a(-1);
   FILE *proc = fopen("/proc/self/statm","r");
-  if (proc)
-    fscanf(proc, "%d", &a);
-  fclose(proc);
+  if (proc) {
+    (void)fscanf(proc, "%d", &a);
+    fclose(proc);
+  }
   float f=float(a) - f0;
   t->push_back(f);
   ATH_MSG_DEBUG("Memory and delta memory for this event now is: " << f << " (" << f0 << ")" );
@@ -76,9 +77,12 @@ StatusCode MemoryAlg::execute()
   malloc_stats ();
   // when running under valgrind malloc_stats is a no-op, so reading from the pipe will stall
   fprintf(stderr,"\n");
-  read (out_pipe[0], buffer, 2047);
+  int len = read (out_pipe[0], buffer, 2047);
+  if (len >= 0)
+    buffer[len] = '\0'; // Redundant, but keeps coverity happy.
   // close (STDERR_FILENO);
-  dup2 (saved_stderr, STDERR_FILENO);
+  if (saved_stderr >= 0)
+    dup2 (saved_stderr, STDERR_FILENO);
   close (out_pipe[0]);
   close (saved_stderr);
   

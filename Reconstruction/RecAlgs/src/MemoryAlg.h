@@ -44,8 +44,6 @@ class MemoryAlg : public AthAlgorithm
   /** member variables for algorithm properties: */
   std::string  m_memoryObjOutputName;
 
-  struct mallinfo mi;
-
   bool m_usetcmalloc;
   };
 

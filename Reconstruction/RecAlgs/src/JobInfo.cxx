@@ -5,23 +5,30 @@
 
 #include "JobInfo.h"
 
+#include "TROOT.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 #include "Cintex/Cintex.h"
 #include "Api.h"
 #include "G__ci.h"
 #include "Class.h"
+#endif
 
 //================ Constructor =================================================
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 namespace G__functionscope {
   extern int sm_tagdefining;
 }
+#endif
 
 JobInfo::JobInfo(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthAlgorithm(name,pSvcLocator),
   m_events(0),
   m_last_entries(0),
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   m_max_entries(G__functionscope::sm_tagdefining),
+#endif
   m_no_warnings(true),
   m_printFATAL(false)
 {
@@ -30,6 +37,7 @@ JobInfo::JobInfo(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode JobInfo::execute()
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
   int nc=Cint::G__ClassInfo::GetNumClasses();
   if ( m_events < 2 || nc != m_last_entries )
     {
@@ -55,6 +63,6 @@ StatusCode JobInfo::execute()
 	m_last_entries=nc;
     }
   ++m_events;
-  
+#endif  
   return StatusCode::SUCCESS;
 }

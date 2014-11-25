@@ -15,7 +15,9 @@ TimingAlg::TimingAlg(const std::string& name, ISvcLocator* pSvcLocator)
   :
   AthAlgorithm(name,pSvcLocator),
   m_timingObjOutputName("unspecified"),
-  m_determineCPUID(true)
+  m_determineCPUID(true),
+  m_CPUID_a(0),
+  m_CPUID_b(0)
 {
   //  template for property declaration
   declareProperty("TimingObjOutputName", m_timingObjOutputName, "storegate key of output object");
@@ -139,6 +141,7 @@ StatusCode TimingAlg::execute()
       evtStore()->record(t,m_timingObjOutputName).ignore();
     }
   
+  struct rusage r;
   getrusage(RUSAGE_SELF, &r);
   float f=float(r.ru_utime.tv_sec+r.ru_stime.tv_sec) + float(r.ru_utime.tv_usec+r.ru_stime.tv_usec)/1000000-f0;
   t->push_back(f);

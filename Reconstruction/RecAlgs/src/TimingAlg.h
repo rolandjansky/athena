@@ -45,7 +45,6 @@ class TimingAlg : public AthAlgorithm
   std::string  m_timingObjOutputName;
   
   bool m_determineCPUID;
-  struct rusage r;
   
   static unsigned int m_CPUID;
   unsigned int m_CPUID_a;
