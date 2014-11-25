@@ -69,30 +69,6 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack()
   m_detEl(0)
 {}
 
-InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
-   ( const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
-     const Trk::LocalParameters& driftRadius,
-     const Amg::MatrixX& errDriftRadius, 
-     IdentifierHash idDE,
-     const Identifier& id,
-     double predictedLocZ,
-     float localAngle,
-     const Trk::DriftCircleStatus status,
-     bool highLevel,
-     double timeOverThreshold)
-     : Trk::RIO_OnTrack (driftRadius, errDriftRadius, id),
-       m_globalPosition(nullptr),
-       m_localAngle(localAngle),
-       m_positionAlongWire(predictedLocZ),
-       m_rio(RIO),
-       m_idDE(idDE),
-       m_status(status),
-       m_highLevel(highLevel),
-       m_timeOverThreshold(timeOverThreshold),
-       m_detEl( nullptr)
-{
-}
-
 //copy constructor:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
 	Trk::RIO_OnTrack(rot),
@@ -196,13 +172,13 @@ MsgStream& InDet::TRT_DriftCircleOnTrack::dump( MsgStream& sl ) const
 {
     Trk::RIO_OnTrack::dump(sl); 
 	std::string name("TRT_DriftCircleOnTrack: ");
-	sl <<name<< "\t  identifier  = "<< identify()<<endmsg;
+	sl <<name<< "\t  identifier  = "<< identify()<<endreq;
         sl <<name<< "\t  time-over-threshold = " << timeOverThreshold()
-           << (highLevel() ? " with TR flag ON":" with TR flag OFF") << endmsg;
+           << (highLevel() ? " with TR flag ON":" with TR flag OFF") << endreq;
 	sl <<name<< "\t  driftradius = (" 
-		 << (localParameters())[Trk::loc1] << ") " <<endmsg;
-	sl <<name<< "\t  has Error Matrix: "<<endmsg;
-	sl<<localCovariance()<<endmsg; 
+		 << (localParameters())[Trk::loc1] << ") " <<endreq;
+	sl <<name<< "\t  has Error Matrix: "<<endreq;
+	sl<<localCovariance()<<endreq; 
 	return sl;
 }
 
@@ -213,8 +189,7 @@ std::ostream& InDet::TRT_DriftCircleOnTrack::dump( std::ostream& sl ) const
     Trk::RIO_OnTrack::dump(sl); 
 
     sl << "Global position (x,y,z) = (";
-    this->globalPosition();
-    if ( m_globalPosition !=0 )
+    if ( &(this->globalPosition() )!=0 )
     {
         sl  <<this->globalPosition().x()<<", "
             <<this->globalPosition().y()<<", "

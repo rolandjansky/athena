@@ -56,28 +56,6 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack(
   m_rio.setElement(RIO);
 }
 
-
-InDet::PixelClusterOnTrack::PixelClusterOnTrack
-  ( const ElementLinkToIDCPixelClusterContainer& RIO,
-    const Trk::LocalParameters& locpars, 
-    const Amg::MatrixX& locerr, 
-    const IdentifierHash& idDE,
-    const Identifier& id,
-    float energyLoss,
-    bool isFake,
-    bool hasClusterAmbiguity,
-    bool isbroad)
- : InDet::SiClusterOnTrack(locpars, locerr, idDE, id, isbroad),
-  m_rio (RIO),
-  m_hasClusterAmbiguity (hasClusterAmbiguity),
-  m_isFake (isFake),
-  m_energyLoss (energyLoss),
-  m_detEl (nullptr)
-{
-}
-    
-
-
 // Destructor:
 InDet::PixelClusterOnTrack::~PixelClusterOnTrack()
 {}
@@ -132,13 +110,13 @@ void InDet::PixelClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, 
 
 MsgStream& InDet::PixelClusterOnTrack::dump( MsgStream& sl ) const
 {
-    sl<<"PixelClusterOnTrack {"<<endmsg;
+    sl<<"PixelClusterOnTrack {"<<endreq;
     InDet::SiClusterOnTrack::dump(sl); // use common dump(...) from SiClusterOnTrack
     sl<<"Ganged cluster ambiguity: "<<hasClusterAmbiguity()
       <<", fake: " << isFake()
       <<", dedX: " << energyLoss()
-      <<endmsg;
-    sl<<"}"<<endmsg;
+      <<endreq;
+    sl<<"}"<<endreq;
     return sl;
 }
 

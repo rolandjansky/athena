@@ -91,14 +91,6 @@ namespace InDet{
                           const Amg::Vector3D& globalPosition,
                           bool isbroad=false); 
       
-      SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,
-                          const Trk::LocalParameters& locpars, 
-                          const Amg::MatrixX& locerr, 
-                          IdentifierHash idDE,
-                          const Identifier& id,
-                          bool isbroad,
-                          double positionAlongStrip);
-
       /**Assignment operator*/
       SCT_ClusterOnTrack &operator=(const SCT_ClusterOnTrack &);
 
@@ -108,7 +100,7 @@ namespace InDet{
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface
         Overload of the method in parent class */
-      virtual const Amg::Vector3D& globalPosition() const final;
+      virtual const Amg::Vector3D& globalPosition() const;
      
       /** Pseudo-constructor */
       SCT_ClusterOnTrack* clone() const ;
@@ -123,8 +115,6 @@ namespace InDet{
       - fullfills the Trk::RIO_OnTrack interface
      */
       virtual const InDet::SCT_Cluster* prepRawData() const;
-
-    const ElementLinkToIDCSCT_ClusterContainer& prepRawDataLink() const;
      
   
     /** returns the detector element, assoicated with the PRD of this class
@@ -137,8 +127,6 @@ namespace InDet{
 	
       /**returns some information about this RIO_OnTrack.*/
       virtual std::ostream& dump( std::ostream& out ) const;
-
-      double positionAlongStrip() const;
 
     private:
     /** ONLY for use in custom convertor
@@ -167,20 +155,9 @@ namespace InDet{
     else return 0;
   }  
   
-  inline const ElementLinkToIDCSCT_ClusterContainer&
-  SCT_ClusterOnTrack::prepRawDataLink() const
-  {
-    return m_rio;
-  }
-    
   inline const InDetDD::SiDetectorElement* SCT_ClusterOnTrack::detectorElement() const
   { 
     return m_detEl; 
-  }
-
-  inline double SCT_ClusterOnTrack::positionAlongStrip() const
-  {
-    return m_positionAlongStrip;
   }
       
 
