@@ -88,6 +88,7 @@ include("Digitization/Digitization.py")
 if digitizationFlags.doXingByXingPileUp():
     job = AlgSequence()
     puAlg = job.StandardPileUpToolsAlg
+    #puAlg = job.StandardInTimeOnlyTruthPileUpToolsAlg
     puAlg.OutputLevel=DEBUG
     from AthenaCommon.CfgGetter import getPublicTool
     puAlg.PileUpTools += [ getPublicTool("TestPileUpTool", tryDefaultConfigurable=True) ]
