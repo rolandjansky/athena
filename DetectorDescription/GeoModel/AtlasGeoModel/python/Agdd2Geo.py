@@ -3,10 +3,16 @@
 from AthenaCommon.DetFlags      import DetFlags
 
 if ( DetFlags.detdescr.Muon_on() ):
-    from AthenaCommon.AppMgr import ServiceMgr
-    from AthenaCommon.AppMgr import theApp
-    from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-    agdd2GeoSvc = AGDD2GeoSvc()
-    agdd2GeoSvc.Locked = True
-    theApp.CreateSvc += ["AGDD2GeoSvc"]
-    ServiceMgr += agdd2GeoSvc
+    from AthenaCommon.AppMgr import ToolSvc,ServiceMgr,theApp
+
+    from MuonAGDD.MuonAGDDConf import MuonAGDDTool
+    MuonAGDDTool = MuonAGDDTool('MuonSpectrometer')
+    MuonAGDDTool.BuildNSW = False
+    ToolSvc += MuonAGDDTool
+
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    ServiceMgr += AGDD2Geo
