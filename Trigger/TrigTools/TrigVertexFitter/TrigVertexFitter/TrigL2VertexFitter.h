@@ -5,7 +5,7 @@
 #ifndef __TRIG_L2_VERTEX_FITTER__
 #define __TRIG_L2_VERTEX_FITTER__
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
@@ -30,7 +30,7 @@ class ITrigVertexingTool;
 */
 
 
-class TrigL2VertexFitter: public AlgTool, virtual public ITrigL2VertexFitter
+class TrigL2VertexFitter: public AthAlgTool, virtual public ITrigL2VertexFitter
 {
 
  public:

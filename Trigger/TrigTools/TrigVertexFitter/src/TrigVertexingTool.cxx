@@ -23,14 +23,9 @@
 #include <cmath>
 #include <iostream>
 
-#include "GaudiKernel/ToolFactory.h"
-
-#include "StoreGate/DataHandle.h"
-
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-//#include "TrkParameters/TrackParameters.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"

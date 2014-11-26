@@ -16,18 +16,12 @@
 #include <cmath>
 #include <iostream>
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
-
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "TrigVertexFitter/TrigVertexFitter.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Matrix/SymMatrix.h"
 
 
 TrigVertexFitter::TrigVertexFitter(const std::string& t, 
@@ -47,13 +41,6 @@ StatusCode TrigVertexFitter::initialize()
   StatusCode sc = AlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if(sc.isFailure()) 
-    { 
-      athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-      return StatusCode::FAILURE; 
-    }
   athenaLog << MSG::INFO << "Number of iterations is set to " << m_numIter << endreq; 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);

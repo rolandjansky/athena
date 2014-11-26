@@ -22,9 +22,6 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -32,14 +29,10 @@
 
 #include "TrigVertexFitter/ITrigVertexingTool.h"
 #include "TrigVertexFitter/TrigL2VertexFitter.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-
-
 
 TrigL2VertexFitter::TrigL2VertexFitter(const std::string& t, 
 				       const std::string& n,
-				       const IInterface*  p ): AlgTool(t,n,p), 
+				       const IInterface*  p ): AthAlgTool(t,n,p), 
 							       m_vertexingTool("TrigVertexingTool")
 {
   declareInterface< ITrigL2VertexFitter >( this );
@@ -54,13 +47,6 @@ StatusCode TrigL2VertexFitter::initialize()
 
   MsgStream athenaLog(msgSvc(), name());
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if(sc.isFailure()) 
-    { 
-      athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-      return StatusCode::FAILURE; 
-    }
   sc = m_vertexingTool.retrieve();
   if ( sc.isFailure() ) {
     athenaLog << MSG::FATAL << "Unable to locate " <<m_vertexingTool<<endreq;
@@ -151,8 +137,10 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 
   if (outputLevel <= MSG::DEBUG) 
     {
-      athenaLog<<MSG::DEBUG<<"Track 1 AlgId="<<(*it1)->m_getTrigTrack()->algorithmId()<<endreq;
-      athenaLog<<MSG::DEBUG<<"Track 2 AlgId="<<(*it2)->m_getTrigTrack()->algorithmId()<<endreq;
+      if ((*it1)->m_getTrigTrack() && (*it2)->m_getTrigTrack()) {
+        athenaLog<<MSG::DEBUG<<"Track 1 AlgId="<<(*it1)->m_getTrigTrack()->algorithmId()<<endreq;
+        athenaLog<<MSG::DEBUG<<"Track 2 AlgId="<<(*it2)->m_getTrigTrack()->algorithmId()<<endreq;
+      }
       athenaLog<<MSG::DEBUG<<"Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2]<<endreq;
     }
 

@@ -11,6 +11,7 @@ use TrigInDetEvent		TrigInDetEvent-*	  Trigger/TrigEvent
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
 use TrkTrack                    TrkTrack-*                Tracking/TrkEvent
 use TrkEventPrimitives          TrkEventPrimitives-*      Tracking/TrkEvent
+use AthenaBaseComps							AthenaBaseComps-*				Control
 
 library TrigVertexFitter "*.cxx components/*.cxx"
     
@@ -21,7 +22,5 @@ apply_pattern declare_joboptions files="*.py"
 
 private
 
-use StoreGate			StoreGate-*		Control
-use AtlasCLHEP 			AtlasCLHEP-*     	External
 use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
 use TrkParameters	        TrkParameters-* 	Tracking/TrkEvent

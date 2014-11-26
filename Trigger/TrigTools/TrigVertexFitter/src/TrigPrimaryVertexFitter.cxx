@@ -16,9 +16,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -27,8 +25,6 @@
 #include "TrigVertexFitter/ITrigPrimaryVertexFitter.h"
 #include "TrigVertexFitter/TrigPrimaryVertexFitter.h"
 #include "TrigVertexFitter/TrigPrimaryVertexTrack.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Matrix/SymMatrix.h"
 
 
 TrigPrimaryVertexFitter::TrigPrimaryVertexFitter(const std::string& t, 
@@ -53,13 +49,6 @@ StatusCode TrigPrimaryVertexFitter::initialize()
   StatusCode sc = AlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if(sc.isFailure()) 
-    { 
-      athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-      return StatusCode::FAILURE; 
-    }
   athenaLog << MSG::INFO << "Number of iterations is set to " << m_numIter << endreq;
   athenaLog << MSG::INFO << "Accuracy of starting z-position is " << m_zVariance<<" mm" << endreq;
   athenaLog << MSG::INFO << "Track lists created ? " << std::boolalpha<<m_createTrackLists<< endreq;
