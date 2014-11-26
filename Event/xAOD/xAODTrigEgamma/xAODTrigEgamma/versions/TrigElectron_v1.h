@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigElectron_v1.h 604156 2014-06-30 10:01:56Z krasznaa $
+// $Id: TrigElectron_v1.h 631115 2014-11-26 08:34:25Z gwatts $
 #ifndef XAODTRIGEGAMMA_VERSIONS_TRIGELECTRON_V1_H
 #define XAODTRIGEGAMMA_VERSIONS_TRIGELECTRON_V1_H
 
@@ -30,8 +30,8 @@ namespace xAOD {
    /// @author Fabrizio Salvatore <Fabrizio.Salvatore@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 604156 $
-   /// $Date: 2014-06-30 12:01:56 +0200 (Mon, 30 Jun 2014) $
+   /// $Revision: 631115 $
+   /// $Date: 2014-11-26 09:34:25 +0100 (Wed, 26 Nov 2014) $
    ///
    class TrigElectron_v1 : public IParticle {
 
@@ -211,11 +211,5 @@ namespace xAOD {
    }; // class TrigElectron_v1
 
 } // namespace xAOD
-
-// Setup a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigElectron_v1 , 148889201 , 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // not XAODTRIGEGAMMA_VERSIONS_TRIGELECTRON_V1_H

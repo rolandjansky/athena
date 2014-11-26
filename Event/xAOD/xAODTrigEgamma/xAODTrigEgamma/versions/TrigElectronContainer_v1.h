@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigElectronContainer_v1.h 602861 2014-06-20 09:33:48Z krasznaa $
+// $Id: TrigElectronContainer_v1.h 631115 2014-11-26 08:34:25Z gwatts $
 #ifndef XAODTRIGEGAMMA_VERSIONS_TRIGELECTRONCONTAINER_V1_H
 #define XAODTRIGEGAMMA_VERSIONS_TRIGELECTRONCONTAINER_V1_H
 
@@ -21,11 +21,5 @@ namespace xAOD {
    /// Declare the container as a simple type definition
    typedef DataVector< xAOD::TrigElectron_v1 > TrigElectronContainer_v1;
 }
-
-// Setup a CLID for the container
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigElectronContainer_v1 , 1119645201 , 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // not XAODTRIGEGAMMA_VERSIONS_TRIGELECTRONCONTAINER_V1_H
