@@ -61,51 +61,56 @@ class MissingETPerformance : public AthAlgorithm {
    StatusCode execute();
 
  private:
+   MsgStream *mLog;
+
    std::string m_folderName;
 
    //missing et data
-   ToolHandle<MissingETData>                       m_data;
+   ToolHandle<MissingETData>                       _data;
    /** get a handle on the tools */
-   ToolHandle<ResolutionTool>                      m_resolutionTool;
-   ToolHandle<BasicPlotsTool>                      m_basicPlotsTool;
-   ToolHandle<LinearityTool>                       m_linearityTool;
-   ToolHandle<EtaRingsTool>                        m_etaRingsTool;
-   ToolHandle<TrigMissingETTool>                   m_trigMissingETTool;
-   ToolHandle<TrigVsOfflineMissingETTool>          m_trigVsOfflineMissingETTool;
-   ToolHandle<FakeMissingETTool>                   m_fakeMissingETTool;
-   ToolHandle<ZMuMuTool>                           m_zMuMuTool;
-   ToolHandle<ZeeTool>                             m_zeeTool;
-   ToolHandle<MuonTool>                            m_muonTool;
-   ToolHandle<ContainerComparatorTool>             m_containerComparatorTool;
-   ToolHandle<PileUpTool>                          m_pileUpTool;
+   ToolHandle<ResolutionTool>                      _resolutionTool;
+   ToolHandle<BasicPlotsTool>                      _basicPlotsTool;
+   ToolHandle<LinearityTool>                       _linearityTool;
+   ToolHandle<EtaRingsTool>                        _etaRingsTool;
+   ToolHandle<TrigMissingETTool>                   _trigMissingETTool;
+   ToolHandle<TrigVsOfflineMissingETTool>          _trigVsOfflineMissingETTool;
+   ToolHandle<FakeMissingETTool>                   _fakeMissingETTool;
+   ToolHandle<ZMuMuTool>                           _zMuMuTool;
+   ToolHandle<ZeeTool>                             _zeeTool;
+   ToolHandle<MuonTool>                            _muonTool;
+   ToolHandle<ContainerComparatorTool>             _containerComparatorTool;
+   ToolHandle<PileUpTool>                          _pileUpTool;
    ToolHandle<Trig::TrigDecisionTool>           m_trigDec;
-   ToolHandle<MissingETMuonData>                   m_muonData;
-   ToolHandle<MissingETScaleTool>                  m_MissingETScaleTool;
-   ToolHandle<MissingETEventSelector>              m_eventSelector;
-   ToolHandle<MissingETCompositionTool>            m_metCompositionTool;
+   ToolHandle<MissingETMuonData>                   _muonData;
+   ToolHandle<MissingETScaleTool>                  _MissingETScaleTool;
+   ToolHandle<MissingETEventSelector>              _eventSelector;
+   ToolHandle<MissingETCompositionTool>            _metCompositionTool;
 
-   bool m_doBasicPlotsTool;
-   bool m_doResolution;
-   bool m_doLinearity;
-   bool m_doEtaRingsTool;
-   bool m_doTrigMissingETTool;
-   bool m_doTrigVsOfflineMissingETTool;
-   bool m_doFakeMissingETTool;
-   bool m_doZMuMuTool;
-   bool m_doZeeTool;
-   bool m_doMuonTool;
-   bool m_doContainerComparatorTool;
-   bool m_doPileUpTool;
-   bool m_doEventSelector;
-   bool m_doMissingETScaleTool;
-   bool m_doMETCompositionTool;
+   bool _doBasicPlotsTool;
+   bool _doResolution;
+   bool _doLinearity;
+   bool _doEtaRingsTool;
+   bool _doTrigMissingETTool;
+   bool _doTrigVsOfflineMissingETTool;
+   bool _doFakeMissingETTool;
+   bool _doZMuMuTool;
+   bool _doZeeTool;
+   bool _doMuonTool;
+   bool _doContainerComparatorTool;
+   bool _doPileUpTool;
+   bool _doEventSelector;
+   bool _doMissingETScaleTool;
+   bool _doMETCompositionTool;
 
    //whether to require a trigger from the list to have fired
-   bool m_filterOnTrigger;
+   bool _filterOnTrigger;
    //list of triggers to require to have fired, use the OR of all
-   std::vector<std::string> m_trigger_names;
+   std::vector<std::string> trigger_names;
    //did a trigger fire?
    bool triggerFired();
+
+   /** a handle on Store Gate for access to the Event Store */
+   StoreGateSvc* m_storeGate;
 };
 
 #endif // MISSINGETPERFORMANCE_H

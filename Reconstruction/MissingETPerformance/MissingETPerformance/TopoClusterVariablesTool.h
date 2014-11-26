@@ -30,18 +30,18 @@ public:
   /** finalization */
   virtual StatusCode finalize();
 
-  void setCaloClusterContainer(const CaloClusterContainer *cl) {m_clusterCont = cl;}
-  const CaloClusterContainer *clusterContainer() {return m_clusterCont;}
+  void setCaloClusterContainer(const CaloClusterContainer *cl) {_clusterCont = cl;}
+  const CaloClusterContainer *clusterContainer() {return _clusterCont;}
 
   StatusCode retrieveContainers();
 
  private:
   //storegate key names
-  std::string m_caloClusterContainerKey;
+  std::string _caloClusterContainerKey;
 
   //pointers to cluster containers
-  const CaloClusterContainer *m_dummyClusterCont;
-  const CaloClusterContainer *m_clusterCont;
+  const CaloClusterContainer *_dummyClusterCont;
+  const CaloClusterContainer *_clusterCont;
 };
 
 #endif // TOPOCLUSTERVARIABLESTOOL_H

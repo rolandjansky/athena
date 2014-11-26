@@ -23,13 +23,13 @@ MissingETMuonData::MissingETMuonData( const std::string& type,
     const IInterface* parent ) : AthAlgTool( type, name, parent ) {
   declareInterface<MissingETMuonData>( this );
 
-  declareProperty("McEventCollectionKey",         m_mcEventColKey           = "GEN_AOD");
-  declareProperty("MuonContainerKey",             m_MuonContainerKey        = "StacoMuonCollection");
-  declareProperty("CaloMuonContainerKey",         m_CaloMuonContainerKey    = "CaloMuonCollection");
-  declareProperty("JetKey",                       m_JetKey                  = "Cone4H1TopoJets");
+  declareProperty("McEventCollectionKey",         _mcEventColKey           = "GEN_AOD");
+  declareProperty("MuonContainerKey",             _MuonContainerKey        = "StacoMuonCollection");
+  declareProperty("CaloMuonContainerKey",         _CaloMuonContainerKey    = "CaloMuonCollection");
+  declareProperty("JetKey",                       _JetKey                  = "Cone4H1TopoJets");
 
-  m_MET_MuonBoy_v1510 = new MissingET;
-  m_MET_MuonBoy_standalone_fix = new MissingET;
+  _MET_MuonBoy_v1510 = new MissingET;
+  _MET_MuonBoy_standalone_fix = new MissingET;
 }
 
 MissingETMuonData::~MissingETMuonData() {}
@@ -46,64 +46,64 @@ StatusCode MissingETMuonData::retrieveMuons() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  m_truth_Muons.clear();
-  m_crack_Muons.clear();
-  m_MuonBoy_Spectro_Muons.clear();
-  m_MuonBoy_Track_Muons.clear();
-  m_all_used_muons.clear();
+  _truth_Muons.clear();
+  _crack_Muons.clear();
+  _MuonBoy_Spectro_Muons.clear();
+  _MuonBoy_Track_Muons.clear();
+  _all_used_muons.clear();
 
-  m_MuonBoy_Spectro_Muons_standalone_fix.clear();
-  m_MuonBoy_Track_Muons_standalone_fix.clear();
-  m_all_used_muons_standalone_fix.clear();
+  _MuonBoy_Spectro_Muons_standalone_fix.clear();
+  _MuonBoy_Track_Muons_standalone_fix.clear();
+  _all_used_muons_standalone_fix.clear();
 
-  m_MET_MuonBoy_v1510->setEx(0.);
-  m_MET_MuonBoy_v1510->setEy(0.);
-  m_MET_MuonBoy_v1510->setEtSum(0.);
+  _MET_MuonBoy_v1510->setEx(0.);
+  _MET_MuonBoy_v1510->setEy(0.);
+  _MET_MuonBoy_v1510->setEtSum(0.);
 
-  m_MET_MuonBoy_standalone_fix->setEx(0.);
-  m_MET_MuonBoy_standalone_fix->setEy(0.);
-  m_MET_MuonBoy_standalone_fix->setEtSum(0.);
+  _MET_MuonBoy_standalone_fix->setEx(0.);
+  _MET_MuonBoy_standalone_fix->setEy(0.);
+  _MET_MuonBoy_standalone_fix->setEtSum(0.);
 
   const Analysis::MuonContainer *muons = 0;
-  if (evtStore()->contains<Analysis::MuonContainer>(m_MuonContainerKey)) {
-    sc = evtStore()->retrieve( muons, m_MuonContainerKey );
+  if (evtStore()->contains<Analysis::MuonContainer>(_MuonContainerKey)) {
+    sc = evtStore()->retrieve( muons, _MuonContainerKey );
     if ( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_MuonContainerKey << endmsg;
+    msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _MuonContainerKey << endreq;
     return StatusCode::FAILURE;
   }
 
   const Analysis::MuonContainer *calo_muons = 0;
-  if (evtStore()->contains<Analysis::MuonContainer>(m_CaloMuonContainerKey)) {
-    sc = evtStore()->retrieve( calo_muons, m_CaloMuonContainerKey );
+  if (evtStore()->contains<Analysis::MuonContainer>(_CaloMuonContainerKey)) {
+    sc = evtStore()->retrieve( calo_muons, _CaloMuonContainerKey );
     if ( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_CaloMuonContainerKey << endmsg;
+    msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _CaloMuonContainerKey << endreq;
     return StatusCode::FAILURE;
   }
 
   const JetCollection *jets = 0;
-  if (evtStore()->contains<JetCollection>(m_JetKey)) {
-    sc=evtStore()->retrieve( jets, m_JetKey );
+  if (evtStore()->contains<JetCollection>(_JetKey)) {
+    sc=evtStore()->retrieve( jets, _JetKey );
     if( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No JetCollection found in StoreGate, key:" << m_JetKey << endmsg; 
+    msg() << MSG::WARNING << "No JetCollection found in StoreGate, key:" << _JetKey << endreq; 
     return StatusCode::FAILURE;
   }
 
-  if (m_mcEventColKey != "") {
+  if (_mcEventColKey != "") {
     bool foundMCCOLL = false;
     const McEventCollection * mcEventCol=0;
-    if (evtStore()->contains<McEventCollection>(m_mcEventColKey)) {
-      sc = evtStore()->retrieve(mcEventCol, m_mcEventColKey);
+    if (evtStore()->contains<McEventCollection>(_mcEventColKey)) {
+      sc = evtStore()->retrieve(mcEventCol, _mcEventColKey);
       if (sc.isFailure() ) { return sc; }
       foundMCCOLL = true;
     }
     else {
-      //msg() << MSG::WARNING << "No McEventCollection found in StoreGate, key:" << m_mcEventColKey << endmsg; 
+      //msg() << MSG::WARNING << "No McEventCollection found in StoreGate, key:" << _mcEventColKey << endreq; 
       foundMCCOLL = false;
       //return StatusCode::FAILURE;
     }
@@ -112,7 +112,7 @@ StatusCode MissingETMuonData::retrieveMuons() {
       IsGenStable istab;
       for (HepMC::GenEvent::particle_const_iterator it = (mcEventCol->at(0))->particles_begin(); it != (mcEventCol->at(0))->particles_end(); ++it) {
 	if ( istab(*it) && abs((*it)->pdg_id()) == 13) {
-	  m_truth_Muons.push_back(*it);
+	  _truth_Muons.push_back(*it);
 	}//found truth muon
       }//loop over mc parts
     }//if foundMCCOLL
@@ -121,9 +121,9 @@ StatusCode MissingETMuonData::retrieveMuons() {
   for (Analysis::MuonContainer::const_iterator it = muons->begin(); it!= muons->end(); ++it) {
     if ((*it)->isCombinedMuon() || (*it)->isStandAloneMuon() ) {	
       if (isIsolated(*it,jets)) {
-	m_MuonBoy_Track_Muons.push_back(*it);
+	_MuonBoy_Track_Muons.push_back(*it);
       } else {
-	m_MuonBoy_Spectro_Muons.push_back(*it);
+	_MuonBoy_Spectro_Muons.push_back(*it);
       }
     }
   }//loop over muons
@@ -136,41 +136,41 @@ StatusCode MissingETMuonData::retrieveMuons() {
   double standalone_fix_y = 0.;
   double standalone_fix_sum = 0.;
 
-  for (std::vector<const Analysis::Muon*>::const_iterator it = m_MuonBoy_Track_Muons.begin(); it != m_MuonBoy_Track_Muons.end(); ++it ) {
+  for (std::vector<const Analysis::Muon*>::const_iterator it = _MuonBoy_Track_Muons.begin(); it != _MuonBoy_Track_Muons.end(); ++it ) {
     if ((*it)->isCombinedMuon() || ( (*it)->isStandAloneMuon()  &&  fabs((*it)->eta())>2.5) ) {
       standalone_fix_x -= (*it)->px();
       standalone_fix_y -= (*it)->py();
       standalone_fix_sum += (*it)->pt();
 
-      m_MuonBoy_Track_Muons_standalone_fix.push_back((*it));
-      m_all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->hlv()));
+      _MuonBoy_Track_Muons_standalone_fix.push_back((*it));
+      _all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->hlv()));
     }
   }
 
-  findCrackMuons(&m_crack_Muons,muons,calo_muons);
-  for (std::vector<const Analysis::Muon*>::iterator it = m_crack_Muons.begin(); it!= m_crack_Muons.end(); ++it) {
-    m_MuonBoy_Track_Muons.push_back(*it);
+  findCrackMuons(&_crack_Muons,muons,calo_muons);
+  for (std::vector<const Analysis::Muon*>::iterator it = _crack_Muons.begin(); it!= _crack_Muons.end(); ++it) {
+    _MuonBoy_Track_Muons.push_back(*it);
 
     standalone_fix_x -= (*it)->px();
     standalone_fix_y -= (*it)->py();
     standalone_fix_sum += (*it)->pt();
 
-    m_MuonBoy_Track_Muons_standalone_fix.push_back((*it));
-    m_all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->hlv()));
+    _MuonBoy_Track_Muons_standalone_fix.push_back((*it));
+    _all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->hlv()));
   }
 
-  for (std::vector<const Analysis::Muon*>::const_iterator it = m_MuonBoy_Track_Muons.begin(); it != m_MuonBoy_Track_Muons.end(); ++it ) {
+  for (std::vector<const Analysis::Muon*>::const_iterator it = _MuonBoy_Track_Muons.begin(); it != _MuonBoy_Track_Muons.end(); ++it ) {
     v1510_x -= (*it)->px();
     v1510_y -= (*it)->py();
     v1510_sum += (*it)->pt();
-    m_all_used_muons.push_back(new HepLorentzVector((*it)->hlv()));
+    _all_used_muons.push_back(new HepLorentzVector((*it)->hlv()));
   }
 
-  for (std::vector<const Analysis::Muon*>::const_iterator it = m_MuonBoy_Spectro_Muons.begin(); it != m_MuonBoy_Spectro_Muons.end(); ++it ) {
+  for (std::vector<const Analysis::Muon*>::const_iterator it = _MuonBoy_Spectro_Muons.begin(); it != _MuonBoy_Spectro_Muons.end(); ++it ) {
 
     if (!(*it)->muonSpectrometerTrackParticle()) continue;
 
-    m_all_used_muons.push_back(new HepLorentzVector((*it)->muonSpectrometerTrackParticle()->px(),(*it)->muonSpectrometerTrackParticle()->py(),
+    _all_used_muons.push_back(new HepLorentzVector((*it)->muonSpectrometerTrackParticle()->px(),(*it)->muonSpectrometerTrackParticle()->py(),
 						   (*it)->muonSpectrometerTrackParticle()->pz(),(*it)->muonSpectrometerTrackParticle()->e()));
     v1510_x -= (*it)->muonSpectrometerTrackParticle()->px();
     v1510_y -= (*it)->muonSpectrometerTrackParticle()->py();
@@ -181,24 +181,24 @@ StatusCode MissingETMuonData::retrieveMuons() {
       standalone_fix_y -= (*it)->muonSpectrometerTrackParticle()->py();
       standalone_fix_sum += (*it)->muonSpectrometerTrackParticle()->pt();
 
-      m_MuonBoy_Spectro_Muons_standalone_fix.push_back((*it));
-      m_all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->muonSpectrometerTrackParticle()->px(),(*it)->muonSpectrometerTrackParticle()->py(),
+      _MuonBoy_Spectro_Muons_standalone_fix.push_back((*it));
+      _all_used_muons_standalone_fix.push_back(new HepLorentzVector((*it)->muonSpectrometerTrackParticle()->px(),(*it)->muonSpectrometerTrackParticle()->py(),
 								    (*it)->muonSpectrometerTrackParticle()->pz(),(*it)->muonSpectrometerTrackParticle()->e()));
     }
   }
 
-  m_MET_MuonBoy_v1510->setEx(v1510_x);
-  m_MET_MuonBoy_v1510->setEy(v1510_y);
-  m_MET_MuonBoy_v1510->setEtSum(v1510_sum);
+  _MET_MuonBoy_v1510->setEx(v1510_x);
+  _MET_MuonBoy_v1510->setEy(v1510_y);
+  _MET_MuonBoy_v1510->setEtSum(v1510_sum);
 
-  m_MET_MuonBoy_standalone_fix->setEx(standalone_fix_x);
-  m_MET_MuonBoy_standalone_fix->setEy(standalone_fix_y);
-  m_MET_MuonBoy_standalone_fix->setEtSum(standalone_fix_sum);
+  _MET_MuonBoy_standalone_fix->setEx(standalone_fix_x);
+  _MET_MuonBoy_standalone_fix->setEy(standalone_fix_y);
+  _MET_MuonBoy_standalone_fix->setEtSum(standalone_fix_sum);
 
   return sc;
 }//end retrieveMuons()
 
-void MissingETMuonData::findCrackMuons(std::vector<const Analysis::Muon*> *crack_Muons,const Analysis::MuonContainer *muonContainer,const Analysis::MuonContainer *calomuonContainer) {
+void MissingETMuonData::findCrackMuons(std::vector<const Analysis::Muon*> *_crack_Muons,const Analysis::MuonContainer *muonContainer,const Analysis::MuonContainer *calomuonContainer) {
 
   // Loop on the CaloMuonIdContainer							  
   Analysis::MuonContainer::const_iterator cm_it = calomuonContainer->begin();		  
@@ -230,7 +230,7 @@ void MissingETMuonData::findCrackMuons(std::vector<const Analysis::Muon*> *crack
             } // combined muon or standalone muon					  
           } //loop over muons								  
           if (!hasmatch) {
-	    crack_Muons->push_back(*cm_it);
+	    _crack_Muons->push_back(*cm_it);
           }										  
       }//eta calo muon < 0.1		
     }
@@ -247,7 +247,7 @@ void MissingETMuonData::findCrackMuons(std::vector<const Analysis::Muon*> *crack
     if ( (*mt_it)->isSegmentTaggedMuon() && (*mt_it)->inDetTrackParticle()!=0) {
       double eta_mutag = (*mt_it)->eta();					     
       if ( fabs(eta_mutag) > 1.0 && fabs(eta_mutag) < 1.3) {			     
-	crack_Muons->push_back(*mt_it);
+	_crack_Muons->push_back(*mt_it);
       }
     }
   }//loop over mutag

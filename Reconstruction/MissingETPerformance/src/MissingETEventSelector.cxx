@@ -19,10 +19,9 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenNonInteracting.h"
 #include "TruthHelper/GenAccessIO.h"
-#include "AthenaKernel/Units.h"
 
 using namespace TruthHelper; 
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 #include <algorithm>
 
@@ -31,46 +30,46 @@ MissingETEventSelector::MissingETEventSelector( const std::string& type,
     const IInterface* parent ) : AthAlgTool( type, name, parent ),
 				 //				 m_mbtsfilter("MBTSTimeFilterTool"),
 				 //				 m_calofilter("CaloTimeFilterTool"),
-				 m_jetVariables ("JetVariablesTool"),
+				 _jetVariables ("JetVariablesTool"),
 				 m_analysisTools( "AnalysisTools", this ){
   declareInterface<MissingETEventSelector>( this );
 
-  declareProperty("ElectronContainer",            m_electronContainerName   = "ElectronAODCollection");
-  declareProperty("MuonContainerKey",             m_muonContainerKey        = "StacoMuonCollection");
-  declareProperty("JetKey",                       m_jetKey                  = "Cone4H1TopoJets");
+  declareProperty("ElectronContainer",            _electronContainerName   = "ElectronAODCollection");
+  declareProperty("MuonContainerKey",             _muonContainerKey        = "StacoMuonCollection");
+  declareProperty("JetKey",                       _jetKey                  = "Cone4H1TopoJets");
 
-  declareProperty("JetPtCut",                     m_jetPtCut                = 20.*GeV);
-  declareProperty("JetElecOverlapDeltaR",         m_jetElDeltaR             = 0.2);
-  declareProperty("MinNJets",                     m_minNjets                = 0);
-  declareProperty("MaxNJets",                     m_maxNjets                = 100);
-  declareProperty("ElecPtCut",                    m_elecPtCut               = 20.*GeV);
-  declareProperty("MaxElecIsolCone",              m_maxelecIsolCone         = 10.*GeV);
-  declareProperty("MaxMuonIsolCone",              m_maxmuonIsolCone         = 10.*GeV);
-  declareProperty("isEM",                         m_isEM                    = 0);
-  declareProperty("MuonPtCut",                    m_muonPtCut               = 20.*GeV);
-  declareProperty("minRefFinalMET",               m_minRefFinalMET          = 20.*GeV);
-  declareProperty("minNonIntMET",                 m_minNonIntMET            = 20.*GeV);
-  declareProperty("minInvMass",                   m_minInvMass              = 0.);
-  declareProperty("maxInvMass",                   m_maxInvMass              = 999.*GeV);
-  declareProperty("selectionList",                m_selectionList);
-  declareProperty("minEventEMfraction",           m_minEventEMfraction      = 0.);
-  declareProperty("minPerJetEMfraction",          m_minPerJetEMfraction= 0.);
-  declareProperty("N90CellsCut",                  m_N90CellsCut             = 5);
+  declareProperty("JetPtCut",                     _jetPtCut                = 20.*GeV);
+  declareProperty("JetElecOverlapDeltaR",         _jetElDeltaR             = 0.2);
+  declareProperty("MinNJets",                     _minNjets                = 0);
+  declareProperty("MaxNJets",                     _maxNjets                = 100);
+  declareProperty("ElecPtCut",                    _elecPtCut               = 20.*GeV);
+  declareProperty("MaxElecIsolCone",              _maxelecIsolCone         = 10.*GeV);
+  declareProperty("MaxMuonIsolCone",              _maxmuonIsolCone         = 10.*GeV);
+  declareProperty("isEM",                         _isEM                    = 0);
+  declareProperty("MuonPtCut",                    _muonPtCut               = 20.*GeV);
+  declareProperty("minRefFinalMET",               _minRefFinalMET          = 20.*GeV);
+  declareProperty("minNonIntMET",                 _minNonIntMET            = 20.*GeV);
+  declareProperty("minInvMass",                   _minInvMass              = 0.);
+  declareProperty("maxInvMass",                   _maxInvMass              = 999.*GeV);
+  declareProperty("selectionList",                _selectionList);
+  declareProperty("minEventEMfraction",           _minEventEMfraction      = 0.);
+  declareProperty("minPerJetEMfraction",          _minPerJetEMfraction= 0.);
+  declareProperty("N90CellsCut",                  _N90CellsCut             = 5);
 
-  declareProperty("SelectionType",                m_selectionType           = "none");
-  declareProperty("selectedMuonKey",              m_selectedMuonKey         = "SelectedMuons");
-  declareProperty("selectedElectronKey",          m_selectedElectronKey     = "SelectedElectrons");
-  declareProperty("GoodnessConfig",               m_goodnessConfig          = "All");
+  declareProperty("SelectionType",                _selectionType           = "none");
+  declareProperty("selectedMuonKey",              _selectedMuonKey         = "SelectedMuons");
+  declareProperty("selectedElectronKey",          _selectedElectronKey     = "SelectedElectrons");
+  declareProperty("GoodnessConfig",               _goodnessConfig          = "All");
   
-  declareProperty("SelectionZtautau",             m_selectionZtautau        = "PassedInvMassAnalysis");    
-  declareProperty("PassflagZtautau",              m_passflagZtautau         = "ZToTwoTausPassedInvMassAnalysis");    
-  declareProperty("tau_container",                m_tau_container           = "ZToTwoTausChosenTauJets" );
-  declareProperty("lepton_container",             m_lepton_container        = "ZToTwoTausChosenLepton" );
+  declareProperty("SelectionZtautau",             _selectionZtautau        = "PassedInvMassAnalysis");    
+  declareProperty("PassflagZtautau",              _passflagZtautau         = "ZToTwoTausPassedInvMassAnalysis");    
+  declareProperty("tau_container",                _tau_container           = "ZToTwoTausChosenTauJets" );
+  declareProperty("lepton_container",             _lepton_container        = "ZToTwoTausChosenLepton" );
 
   declareProperty("FolderName",           m_folderName="");
 
   declareProperty( "AnalysisTools", m_analysisTools );
-  m_METdata = 0;
+  _METdata = 0;
 }
 
 MissingETEventSelector::~MissingETEventSelector() {}
@@ -79,113 +78,113 @@ StatusCode MissingETEventSelector::initialize() {
   /// get a handle on the analysis tools                                                                                    
   StatusCode sc = m_analysisTools.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Can't get handle on analysis tools" << endmsg;
+    msg() << MSG::ERROR << "Can't get handle on analysis tools" << endreq;
     return sc;
   }
 
   sc = service("THistSvc", m_thistSvc);
 
 //   if (
-//       (m_selectionType == "passesMBTSCut") ||
-//       (m_selectionType == "ANDedSelection" && find(m_selectionList.begin(), m_selectionList.end(), "passesMBTSCut") != m_selectionList.end())
+//       (_selectionType == "passesMBTSCut") ||
+//       (_selectionType == "ANDedSelection" && find(_selectionList.begin(), _selectionList.end(), "passesMBTSCut") != _selectionList.end())
 //       ) {
 //     sc = m_mbtsfilter.retrieve();
 //     if ( sc.isFailure() ) {
-//       msg() << MSG::ERROR << "Can't get handle on MBTSTimeFilterTool in MissingETEventSelector" << endmsg;
+//       msg() << MSG::ERROR << "Can't get handle on MBTSTimeFilterTool in MissingETEventSelector" << endreq;
 //       return sc;
 //     }
 //   }//retrieve MBTS tool if necessary
 
 //   if (
-//       (m_selectionType == "passesCALOCut") ||
-//       (m_selectionType == "ANDedSelection" &&  find(m_selectionList.begin(), m_selectionList.end(), "passesCALOCut") != m_selectionList.end())
+//       (_selectionType == "passesCALOCut") ||
+//       (_selectionType == "ANDedSelection" &&  find(_selectionList.begin(), _selectionList.end(), "passesCALOCut") != _selectionList.end())
 //       ) {
 //     sc = m_calofilter.retrieve();
 //     if ( sc.isFailure() ) {
-//       msg() << MSG::ERROR << "Can't get handle on CaloTimeFilterTool in MissingETEventSelector" << endmsg;
+//       msg() << MSG::ERROR << "Can't get handle on CaloTimeFilterTool in MissingETEventSelector" << endreq;
 //       return sc;
 //     }
 //   }//retrieve Calo tool if necessary
 
-  sc = m_jetVariables.retrieve();
+  sc = _jetVariables.retrieve();
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Can't get handle on JetVariablesTool in MissingETEventSelector" << endmsg;
+    msg() << MSG::ERROR << "Can't get handle on JetVariablesTool in MissingETEventSelector" << endreq;
     return sc;
   }
 
-  if (m_selectionType == "hasZboson_mumu") {
-    m_hasZboson_mumu_nmuons = new TH1D("hasZboson_mumu_nmuons","hasZboson_mumu_nmuons",10,0,10);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_nmuons",m_hasZboson_mumu_nmuons);
+  if (_selectionType == "hasZboson_mumu") {
+    hasZboson_mumu_nmuons = new TH1D("hasZboson_mumu_nmuons","hasZboson_mumu_nmuons",10,0,10);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_nmuons",hasZboson_mumu_nmuons);
 
-    m_hasZboson_mumu_leadpt = new TH1D("hasZboson_mumu_leadpt","hasZboson_mumu_leadpt",100,0.,100.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_leadpt",m_hasZboson_mumu_leadpt);
+    hasZboson_mumu_leadpt = new TH1D("hasZboson_mumu_leadpt","hasZboson_mumu_leadpt",100,0.,100.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_leadpt",hasZboson_mumu_leadpt);
 
-    m_hasZboson_mumu_secondpt = new TH1D("hasZboson_mumu_secondpt","hasZboson_mumu_secondpt",100,0.,100.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_secondpt",m_hasZboson_mumu_secondpt);
+    hasZboson_mumu_secondpt = new TH1D("hasZboson_mumu_secondpt","hasZboson_mumu_secondpt",100,0.,100.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_secondpt",hasZboson_mumu_secondpt);
 
-    m_hasZboson_mumu_InvMass = new TH1D("hasZboson_mumu_InvMass","hasZboson_mumu_InvMass",2000,0.,200.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_InvMass",m_hasZboson_mumu_InvMass);
+    hasZboson_mumu_InvMass = new TH1D("hasZboson_mumu_InvMass","hasZboson_mumu_InvMass",2000,0.,200.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_mumu_InvMass",hasZboson_mumu_InvMass);
   }
 
-  if (m_selectionType == "hasZboson_ee") {
-    m_hasZboson_ee_nelecs = new TH1D("hasZboson_ee_nelecs","hasZboson_ee_nelecs",10,0,10);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_nelecs",m_hasZboson_ee_nelecs);
+  if (_selectionType == "hasZboson_ee") {
+    hasZboson_ee_nelecs = new TH1D("hasZboson_ee_nelecs","hasZboson_ee_nelecs",10,0,10);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_nelecs",hasZboson_ee_nelecs);
 
-    m_hasZboson_ee_leadpt = new TH1D("hasZboson_ee_leadpt","hasZboson_ee_leadpt",100,0.,100.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_leadpt",m_hasZboson_ee_leadpt);
+    hasZboson_ee_leadpt = new TH1D("hasZboson_ee_leadpt","hasZboson_ee_leadpt",100,0.,100.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_leadpt",hasZboson_ee_leadpt);
 
-    m_hasZboson_ee_secondpt = new TH1D("hasZboson_ee_secondpt","hasZboson_ee_secondpt",100,0.,100.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_secondpt",m_hasZboson_ee_secondpt);
+    hasZboson_ee_secondpt = new TH1D("hasZboson_ee_secondpt","hasZboson_ee_secondpt",100,0.,100.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_secondpt",hasZboson_ee_secondpt);
 
-    m_hasZboson_ee_InvMass = new TH1D("hasZboson_ee_InvMass","hasZboson_ee_InvMass",2000,0.,200.);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_InvMass",m_hasZboson_ee_InvMass);
+    hasZboson_ee_InvMass = new TH1D("hasZboson_ee_InvMass","hasZboson_ee_InvMass",2000,0.,200.);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName +"EventSelector/hasZboson_ee_InvMass",hasZboson_ee_InvMass);
   }
 
   return sc;
 }
 
 StatusCode MissingETEventSelector::finalize() {
-  msg() << MSG::DEBUG << "MissingETEventSelector Tool finalize() has been called" << endmsg;
+  msg() << MSG::DEBUG << "MissingETEventSelector Tool finalize() has been called" << endreq;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode MissingETEventSelector::retrieveContainers() {
-  msg() << MSG::DEBUG << "in MissingETEventSelector::retrieveContainers() " << endmsg;
+  msg() << MSG::DEBUG << "in MissingETEventSelector::retrieveContainers() " << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  m_electrons = 0;
-  if (evtStore()->contains<ElectronContainer>(m_electronContainerName)) {
-    sc=evtStore()->retrieve( m_electrons, m_electronContainerName);
+  electrons = 0;
+  if (evtStore()->contains<ElectronContainer>(_electronContainerName)) {
+    sc=evtStore()->retrieve( electrons, _electronContainerName);
     if ( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No ElectronContainer found in StoreGate, key:" << m_electronContainerName << endmsg; 
+    msg() << MSG::WARNING << "No ElectronContainer found in StoreGate, key:" << _electronContainerName << endreq; 
     return StatusCode::FAILURE;
   }
 
-  m_jet = 0;
-  if (evtStore()->contains<JetCollection>(m_jetKey)) {
-    sc=evtStore()->retrieve( m_jet, m_jetKey );
+  jet = 0;
+  if (evtStore()->contains<JetCollection>(_jetKey)) {
+    sc=evtStore()->retrieve( jet, _jetKey );
     if ( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No JetCollection found in StoreGate, key:" << m_jetKey << endmsg; 
+    msg() << MSG::WARNING << "No JetCollection found in StoreGate, key:" << _jetKey << endreq; 
     return StatusCode::FAILURE;
   }
 
-  m_muons = 0;
-  if (evtStore()->contains<Analysis::MuonContainer>(m_muonContainerKey)) {
-    sc = evtStore()->retrieve( m_muons, m_muonContainerKey );
+  muons = 0;
+  if (evtStore()->contains<Analysis::MuonContainer>(_muonContainerKey)) {
+    sc = evtStore()->retrieve( muons, _muonContainerKey );
     if ( sc.isFailure() ) { return sc; }
   }
   else {
-    msg() << MSG::WARNING << "No MuonContainer found in StoreGate key: " << m_muonContainerKey << endmsg;
+    msg() << MSG::WARNING << "No MuonContainer found in StoreGate key: " << _muonContainerKey << endreq;
     return StatusCode::FAILURE;
   }
 
-  m_jetVariables->retrieveContainers();
+  _jetVariables->retrieveContainers();
 
   return sc;
 }//end retrieveContainers()
@@ -193,52 +192,52 @@ StatusCode MissingETEventSelector::retrieveContainers() {
 bool MissingETEventSelector::isSelectedEvent() {
   bool isSelected = true;
 
-  if (m_selectionType == "ANDedSelection") {
+  if (_selectionType == "ANDedSelection") {
     isSelected = ANDedSelection();
   }
-  if (m_selectionType == "hasOneElectron") {
+  if (_selectionType == "hasOneElectron") {
     isSelected = hasOneElectron();
   }
-  if (m_selectionType == "hasOneMuon") {
+  if (_selectionType == "hasOneMuon") {
     isSelected = hasOneMuon();
   }
-  if (m_selectionType == "hasOneJet") {
+  if (_selectionType == "hasOneJet") {
     isSelected = hasOneJet();
   }
-  if (m_selectionType == "hasNJets") {
+  if (_selectionType == "hasNJets") {
     isSelected = hasNJets();
   }
-  if (m_selectionType == "hasMinMETRefFinal") {
+  if (_selectionType == "hasMinMETRefFinal") {
     isSelected = hasMinMissingETRefFinal();
   }
-  if (m_selectionType == "hasMinMETNonInt") {
+  if (_selectionType == "hasMinMETNonInt") {
     isSelected = hasMinMissingETNonInt();
   }
-  if (m_selectionType == "hasZboson_mumu") {
+  if (_selectionType == "hasZboson_mumu") {
     isSelected = hasZboson_mumu();
   }
-  if (m_selectionType == "hasZboson_ee") {
+  if (_selectionType == "hasZboson_ee") {
     isSelected = hasZboson_ee();
   }
-//   if (m_selectionType == "passesMBTSCut") {
+//   if (_selectionType == "passesMBTSCut") {
 //     isSelected = passesMBTSCut();
 //   }
-//   if (m_selectionType == "passesCALOCut") {
+//   if (_selectionType == "passesCALOCut") {
 //     isSelected = passesCALOCut();
 //   }
-  if (m_selectionType == "passesMETGoodness") {
+  if (_selectionType == "passesMETGoodness") {
     isSelected = passesMETGoodness();
   }
-  if (m_selectionType == "hasMinEventEMfraction") {
+  if (_selectionType == "hasMinEventEMfraction") {
     isSelected = hasMinEventEMfraction();
   }
-  if (m_selectionType == "hasMinPerJetEMfraction") {
+  if (_selectionType == "hasMinPerJetEMfraction") {
     isSelected = hasMinPerJetEMfraction();
   }
-  if (m_selectionType == "passesN90CellsCut") {
+  if (_selectionType == "passesN90CellsCut") {
     isSelected = passesN90CellsCut();
   }
-  if (m_selectionType == "hasgoodZ_tautau") {
+  if (_selectionType == "hasgoodZ_tautau") {
     isSelected = hasgoodZ_tautau();
   }
 
@@ -247,7 +246,7 @@ bool MissingETEventSelector::isSelectedEvent() {
 
 
 bool MissingETEventSelector::ANDedSelection() {
-  for (std::vector<std::string>::iterator it = m_selectionList.begin(); it != m_selectionList.end(); ++it) {
+  for (std::vector<std::string>::iterator it = _selectionList.begin(); it != _selectionList.end(); ++it) {
     if ((*it) == "hasOneElectron") {if (!hasOneElectron()) return false;}
     else if ((*it) == "hasOneMuon") {if (!hasOneMuon()) return false;}
     else if ((*it) == "hasOneJet") {if (!hasOneJet()) return false;}
@@ -261,7 +260,7 @@ bool MissingETEventSelector::ANDedSelection() {
     else if ((*it) == "passesN90CellsCut") {if (!passesN90CellsCut()) return false;}
     else if ((*it) == "passesMETGoodness") {if (!passesMETGoodness()) return false;}
     else {
-     msg() << MSG::WARNING << "ANDed selection function doesn't know about requested selection function: " << *it << ", event fails!" << endmsg;
+     msg() << MSG::WARNING << "ANDed selection function doesn't know about requested selection function: " << *it << ", event fails!" << endreq;
      return false;
     }
   }//loop over selection names
@@ -270,8 +269,8 @@ bool MissingETEventSelector::ANDedSelection() {
 }//end ANDedSelection()
 
 bool MissingETEventSelector::hasOneJet() {
-  for (JetCollection::const_iterator it = m_jet->begin(); it != m_jet->end(); ++it) {
-    if ( (*it)->pt() < m_jetPtCut ) continue;
+  for (JetCollection::const_iterator it = jet->begin(); it != jet->end(); ++it) {
+    if ( (*it)->pt() < _jetPtCut ) continue;
     return true;
   }
   return false;
@@ -280,19 +279,19 @@ bool MissingETEventSelector::hasOneJet() {
 
 bool MissingETEventSelector::hasNJets() {
   int njets = 0;
-  for (JetCollection::const_iterator it = m_jet->begin(); it != m_jet->end(); ++it) {
-    if ( (*it)->pt() < m_jetPtCut ) continue;
+  for (JetCollection::const_iterator it = jet->begin(); it != jet->end(); ++it) {
+    if ( (*it)->pt() < _jetPtCut ) continue;
     njets++;
   }
   std::cout<<"njets: "<<njets<<std::endl;
-  if (njets >= m_minNjets && njets <=m_maxNjets) {return true;}
+  if (njets >= _minNjets && njets <=_maxNjets) {return true;}
   return false;
 }
 
 bool MissingETEventSelector::hasMinPerJetEMfraction() {
-  float leastJetEMfrac = m_jetVariables->leastJetEMfraction();
+  float leastJetEMfrac = _jetVariables->leastJetEMfraction();
 
-  if (leastJetEMfrac > m_minPerJetEMfraction) return true;
+  if (leastJetEMfrac > _minPerJetEMfraction) return true;
   return false;
 }
 
@@ -300,32 +299,32 @@ bool MissingETEventSelector::hasMinEventEMfraction() {
 
   float evtemfrac = 0.;
 
-  evtemfrac = m_jetVariables->JetPtWeightedEventEMfraction();
+  evtemfrac = _jetVariables->JetPtWeightedEventEMfraction();
 
   if (evtemfrac == -9999.) {return true;}
 
-  if ( evtemfrac >= m_minEventEMfraction) {return true;}
+  if ( evtemfrac >= _minEventEMfraction) {return true;}
   return false;
 }//end hasMinEventEMfraction()
 
 bool MissingETEventSelector::passesN90CellsCut() {
 
-  int lowestn90 = m_jetVariables->lowestN90CellsJet();
-  if (lowestn90 < m_N90CellsCut) return false;
+  int lowestn90 = _jetVariables->lowestN90CellsJet();
+  if (lowestn90 < _N90CellsCut) return false;
   return true;
 }
 
 //With Overlap removal
 bool MissingETEventSelector::hasNJetsOverlapRemoval(){
   int njets =0;
-  for (JetCollection::const_iterator j_it = m_jet->begin(); j_it != m_jet->end(); ++j_it) {
-    if ( (*j_it)->pt() < m_jetPtCut ) continue;
+  for (JetCollection::const_iterator j_it = jet->begin(); j_it != jet->end(); ++j_it) {
+    if ( (*j_it)->pt() < _jetPtCut ) continue;
     bool overlap=false;
-    for (ElectronContainer::const_iterator el_it = m_electrons->begin(); el_it != m_electrons->end(); ++el_it ) {
+    for (ElectronContainer::const_iterator el_it = electrons->begin(); el_it != electrons->end(); ++el_it ) {
       bool author = (*el_it)->author(egammaParameters::AuthorElectron);
       if(!author) continue;
       double deltaR = m_analysisTools->deltaR( *j_it, *el_it );
-      if( deltaR < m_jetElDeltaR) {
+      if( deltaR < _jetElDeltaR) {
 	overlap=true;
 	break;
       }
@@ -333,19 +332,19 @@ bool MissingETEventSelector::hasNJetsOverlapRemoval(){
     if(!overlap) ++njets;
   }
 
-  if (njets >= m_minNjets && njets <=m_maxNjets) {return true;}
+  if (njets >= _minNjets && njets <=_maxNjets) {return true;}
   return false;
 }
 
 
 
 bool MissingETEventSelector::hasOneElectron() {
-  for (ElectronContainer::const_iterator it = m_electrons->begin(); it != m_electrons->end(); ++it) {
+  for (ElectronContainer::const_iterator it = electrons->begin(); it != electrons->end(); ++it) {
     bool author = (*it)->author(egammaParameters::AuthorElectron);
-    if ( !author || (*it)->pt() < m_elecPtCut ) continue;
+    if ( !author || (*it)->pt() < _elecPtCut ) continue;
 
     const EMShower* shower = (*it)->detail<EMShower>("egDetailAOD");
-    if (!shower || shower->parameter(egammaParameters::etcone20) > m_maxelecIsolCone) continue;
+    if (!shower || shower->parameter(egammaParameters::etcone20) > _maxelecIsolCone) continue;
 
     return true;
   }
@@ -353,10 +352,10 @@ bool MissingETEventSelector::hasOneElectron() {
 }
 
 bool MissingETEventSelector::hasOneMuon() {
-  for (Analysis::MuonContainer::const_iterator it = m_muons->begin(); it != m_muons->end(); ++it ) {
-    if ((*it)->pt() < m_muonPtCut ) continue;
+  for (Analysis::MuonContainer::const_iterator it = muons->begin(); it != muons->end(); ++it ) {
+    if ((*it)->pt() < _muonPtCut ) continue;
 
-    if ((*it)->parameter(MuonParameters::etcone20) > m_maxmuonIsolCone) continue;
+    if ((*it)->parameter(MuonParameters::etcone20) > _maxmuonIsolCone) continue;
 
     return true;
   }
@@ -386,14 +385,14 @@ bool MissingETEventSelector::hasOneMuon() {
 // }
 
 bool MissingETEventSelector::passesMETGoodness() {
-  return m_metgoodness.IsGood(m_goodnessConfig.c_str());
+  return m_metgoodness.IsGood(_goodnessConfig.c_str());
 }
 
 bool MissingETEventSelector::hasMinMissingETRefFinal() {
   MissingETData *data = METData();
   if (data != 0) {
     float MET = sqrt(pow(data->refFinal()->etx(),2)+pow(data->refFinal()->ety(),2));
-    if (MET >= m_minRefFinalMET) {
+    if (MET >= _minRefFinalMET) {
       return true;
     }
   }
@@ -404,7 +403,7 @@ bool MissingETEventSelector::hasMinMissingETNonInt() {
   MissingETData *data = METData();
   if (data != 0) {
     float MET = sqrt(pow(data->truth_nonInt()->etx(),2)+pow(data->truth_nonInt()->ety(),2));
-    if (MET >= m_minNonIntMET) {
+    if (MET >= _minNonIntMET) {
       return true;
     }
   }
@@ -413,22 +412,22 @@ bool MissingETEventSelector::hasMinMissingETNonInt() {
 
 bool MissingETEventSelector::hasZboson_mumu() {
 
-  Analysis::MuonContainer *passedMuons = new Analysis::MuonContainer;
-  StatusCode sc = evtStore()->record ( passedMuons, m_selectedMuonKey);
+  Analysis::MuonContainer *_passedMuons = new Analysis::MuonContainer;
+  StatusCode sc = evtStore()->record ( _passedMuons, _selectedMuonKey);
   if ( sc.isFailure() ) {
-    msg() << MSG::WARNING << "Not able to store " << m_selectedMuonKey << endmsg;
+    msg() << MSG::WARNING << "Not able to store " << _selectedMuonKey << endreq;
     return false;
   }
 
-  m_hasZboson_mumu_nmuons->Fill(m_muons->size());
-  if (m_muons->size() < 2) { return false; }
+  hasZboson_mumu_nmuons->Fill(muons->size());
+  if (muons->size() < 2) { return false; }
 
   //min and max n jet requirement
   if (!hasNJetsOverlapRemoval()) {return false;}
 
   double leadPt = 0;
   double secondPt = 0;
-  for (Analysis::MuonContainer::const_iterator it = m_muons->begin(); it != m_muons->end(); ++it ) {
+  for (Analysis::MuonContainer::const_iterator it = muons->begin(); it != muons->end(); ++it ) {
     if ((*it)->pt() > leadPt) {
       secondPt = leadPt;
       leadPt = (*it)->pt();
@@ -438,20 +437,20 @@ bool MissingETEventSelector::hasZboson_mumu() {
     }
   }//loop over muons
 
-  m_hasZboson_mumu_leadpt->Fill(leadPt/GeV);
-  m_hasZboson_mumu_secondpt->Fill(secondPt/GeV);
+  hasZboson_mumu_leadpt->Fill(leadPt/1000.);
+  hasZboson_mumu_secondpt->Fill(secondPt/1000.);
 
-  for (Analysis::MuonContainer::const_iterator it = m_muons->begin(); it != m_muons->end(); ++it ) {
-    for (Analysis::MuonContainer::const_iterator it2 = it + 1; it2 != m_muons->end(); ++it2 ) {
-      if ( ((*it)->pt() < m_muonPtCut ) || ((*it2)->pt() < m_muonPtCut ) ) continue;
+  for (Analysis::MuonContainer::const_iterator it = muons->begin(); it != muons->end(); ++it ) {
+    for (Analysis::MuonContainer::const_iterator it2 = it + 1; it2 != muons->end(); ++it2 ) {
+      if ( ((*it)->pt() < _muonPtCut ) || ((*it2)->pt() < _muonPtCut ) ) continue;
 
       float invariantMass = ((*it)->hlv() + (*it2)->hlv()).m();
-      m_hasZboson_mumu_InvMass->Fill(invariantMass/GeV);
-      if (invariantMass > m_minInvMass && invariantMass < m_maxInvMass) {
+      hasZboson_mumu_InvMass->Fill(invariantMass/1000.);
+      if (invariantMass > _minInvMass && invariantMass < _maxInvMass) {
 	Analysis::Muon *mu1 = new Analysis::Muon(**it);
 	Analysis::Muon *mu2 = new Analysis::Muon(**it2);
-	passedMuons->push_back(mu1);
-	passedMuons->push_back(mu2);
+	_passedMuons->push_back(mu1);
+	_passedMuons->push_back(mu2);
 	return true;
       }
     }
@@ -462,22 +461,22 @@ bool MissingETEventSelector::hasZboson_mumu() {
 
 bool MissingETEventSelector::hasZboson_ee() {
 
-  ElectronContainer *passedElectrons = new ElectronContainer;
-  StatusCode sc = evtStore()->record ( passedElectrons, m_selectedElectronKey);
+  ElectronContainer *_passedElectrons = new ElectronContainer;
+  StatusCode sc = evtStore()->record ( _passedElectrons, _selectedElectronKey);
   if ( sc.isFailure() ) {
-    msg() << MSG::WARNING << "Not able to store " << m_selectedElectronKey << endmsg;
+    msg() << MSG::WARNING << "Not able to store " << _selectedElectronKey << endreq;
     return false;
   }
 
-  m_hasZboson_ee_nelecs->Fill(m_electrons->size());
-  if (m_electrons->size() < 2) { return false; }
+  hasZboson_ee_nelecs->Fill(electrons->size());
+  if (electrons->size() < 2) { return false; }
 
   //min and max n jet requirement
   if (!hasNJetsOverlapRemoval()) {return false;}
 
   double leadPt = 0;
   double secondPt = 0;
-  for (ElectronContainer::const_iterator it = m_electrons->begin(); it != m_electrons->end(); ++it ) {
+  for (ElectronContainer::const_iterator it = electrons->begin(); it != electrons->end(); ++it ) {
     if ((*it)->pt() > leadPt) {
       secondPt = leadPt;
       leadPt = (*it)->pt();
@@ -487,21 +486,21 @@ bool MissingETEventSelector::hasZboson_ee() {
     }
   }//loop over electrons
 
-  m_hasZboson_ee_leadpt->Fill(leadPt/GeV);
-  m_hasZboson_ee_secondpt->Fill(secondPt/GeV);
+  hasZboson_ee_leadpt->Fill(leadPt/1000.);
+  hasZboson_ee_secondpt->Fill(secondPt/1000.);
 
-  for (ElectronContainer::const_iterator it = m_electrons->begin(); it != m_electrons->end(); ++it ) {
-    for (ElectronContainer::const_iterator it2 = it + 1; it2 != m_electrons->end(); ++it2 ) {
-      if ( ((*it)->pt() < m_elecPtCut ) || ((*it2)->pt() < m_elecPtCut )  ||
-	   ((int)(*it)->isem()%16 != (int) m_isEM || (int)(*it2)->isem()%16 != (int) m_isEM )) continue;
+  for (ElectronContainer::const_iterator it = electrons->begin(); it != electrons->end(); ++it ) {
+    for (ElectronContainer::const_iterator it2 = it + 1; it2 != electrons->end(); ++it2 ) {
+      if ( ((*it)->pt() < _elecPtCut ) || ((*it2)->pt() < _elecPtCut )  ||
+	   ((int)(*it)->isem()%16 != (int) _isEM || (int)(*it2)->isem()%16 != (int) _isEM )) continue;
 
       float invariantMass = ((*it)->hlv() + (*it2)->hlv()).m();
-      m_hasZboson_ee_InvMass->Fill(invariantMass/GeV);
-      if (invariantMass > m_minInvMass && invariantMass < m_maxInvMass) {
+      hasZboson_ee_InvMass->Fill(invariantMass/1000.);
+      if (invariantMass > _minInvMass && invariantMass < _maxInvMass) {
 	Analysis::Electron *el1 = new Analysis::Electron(**it);
 	Analysis::Electron *el2 = new Analysis::Electron(**it2);
-	passedElectrons->push_back(el1);
-	passedElectrons->push_back(el2);
+	_passedElectrons->push_back(el1);
+	_passedElectrons->push_back(el2);
 	return true;
       }
     }
@@ -512,45 +511,45 @@ bool MissingETEventSelector::hasZboson_ee() {
 
 bool MissingETEventSelector::hasgoodZ_tautau(){           
   
- if (m_selectionZtautau == "PassedInvMassAnalysis") {
+ if (_selectionZtautau == "PassedInvMassAnalysis") {
     // getting passflag from SG
     int* flag = 0;
-    if (evtStore()->retrieve(flag, m_passflagZtautau).isFailure() || !flag){ 
-        msg() << MSG::DEBUG <<"Failed to retrieve " << m_passflagZtautau <<endmsg;
+    if (evtStore()->retrieve(flag, _passflagZtautau).isFailure() || !flag){ 
+        msg() << MSG::DEBUG <<"Failed to retrieve " << _passflagZtautau <<endreq;
         return StatusCode::FAILURE;
     }	
     if (*flag!=0){
-        msg() << MSG::WARNING << "Event ok = flag " << *flag << endmsg;
+        msg() << MSG::WARNING << "Event ok = flag " << *flag << endreq;
         return true;
     }
     return false;	
  }   
    
- if (m_selectionZtautau == "PassedLooseSelection") { 
+ if (_selectionZtautau == "PassedLooseSelection") { 
     const INavigable4MomentumCollection* tau_cont = 0;
    
     
-    if(evtStore()->retrieve(tau_cont, m_tau_container).isFailure() || !tau_cont )
+    if(evtStore()->retrieve(tau_cont, _tau_container).isFailure() || !tau_cont )
     {
-        msg() << MSG::DEBUG <<"Failed to retrieve " << m_tau_container <<endmsg;
+        msg() << MSG::DEBUG <<"Failed to retrieve " << _tau_container <<endreq;
         return StatusCode::FAILURE;
     }
     if(tau_cont->size() == 0)
     {
-        msg() << MSG::DEBUG <<"Event does not have any chosen tau-jets."<<endmsg; 
+        msg() << MSG::DEBUG <<"Event does not have any chosen tau-jets."<<endreq; 
 	 return  false;
     }
 
     // getting lepton container from SG
 	const INavigable4MomentumCollection* lepton_cont = 0;
-    if(evtStore()->retrieve(lepton_cont, m_lepton_container).isFailure() || !lepton_cont )
+    if(evtStore()->retrieve(lepton_cont, _lepton_container).isFailure() || !lepton_cont )
     {
-         msg() << MSG::DEBUG <<"Failed to retrieve " << m_lepton_container<<endmsg; 
+         msg() << MSG::DEBUG <<"Failed to retrieve " << _lepton_container<<endreq; 
         return StatusCode::FAILURE;
     }
     if(lepton_cont->size() != 1)
     {
-        msg() << MSG::DEBUG <<"Event does not have a single chosen lepton. lepton_cont->size() = " << lepton_cont->size()<< endmsg; 
+        msg() << MSG::DEBUG <<"Event does not have a single chosen lepton. lepton_cont->size() = " << lepton_cont->size()<< endreq; 
 	       return false;
     }
   return true;

@@ -3,10 +3,11 @@
 */
 
 #include "MissingETPerformance/MissingETData.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 // MB: reference to MET Goodies map for storing derived quantities
-MET::Goodies& MissingETData::s_goodies(MET::Goodies::instance());
+MET::Goodies& MissingETData::goodies(MET::Goodies::instance());
 
 
 MissingETData::MissingETData( const std::string& type,
@@ -18,59 +19,59 @@ MissingETData::MissingETData( const std::string& type,
 {
   declareInterface<MissingETData>( this );
 
-  declareProperty("METL1ROIKey",              m_HLTL1ROIKey             = "LVL1_ROI");
-  declareProperty("METL2Key",                 m_HLTMETL2Key             = "HLT_T2MissingET");
-  declareProperty("METEF_FEBHeaderKey",       m_HLTMETEF_FEBHeaderKey   = "HLT_TrigEFMissingET_FEB");
-  declareProperty("METEF_noiseSuppKey",       m_HLTMETEF_noiseSuppKey   = "HLT_TrigEFMissingET_noiseSupp");
-  declareProperty("METEF_defaultKey",         m_HLTMETEF_defaultKey     = "HLT_TrigEFMissingET");
+  declareProperty("METL1ROIKey",              _HLTL1ROIKey             = "LVL1_ROI");
+  declareProperty("METL2Key",                 _HLTMETL2Key             = "HLT_T2MissingET");
+  declareProperty("METEF_FEBHeaderKey",       _HLTMETEF_FEBHeaderKey   = "HLT_TrigEFMissingET_FEB");
+  declareProperty("METEF_noiseSuppKey",       _HLTMETEF_noiseSuppKey   = "HLT_TrigEFMissingET_noiseSupp");
+  declareProperty("METEF_defaultKey",         _HLTMETEF_defaultKey     = "HLT_TrigEFMissingET");
 
-  declareProperty("METTruthKey",              m_METTruthKey             = "MET_Truth");
+  declareProperty("METTruthKey",              _METTruthKey             = "MET_Truth");
 
-  declareProperty("METCorrTopoKey",           m_METCorrTopoKey          = "MET_CorrTopo");
-  declareProperty("METCalibKey",              m_METCalibKey             = "MET_Calib");
-  declareProperty("METCryoConeKey",           m_METCryoConeKey          = "MET_CryoCone");
-  declareProperty("METBaseKey",               m_METBaseKey              = "MET_Base");
-  declareProperty("METCryoKey",               m_METCryoKey              = "MET_Cryo");
-  declareProperty("METDM_AllKey",             m_METDM_AllKey            = "MET_DM_All");
-  declareProperty("METDM_Crack1Key",          m_METDM_Crack1Key         = "MET_DM_Crack1");
-  declareProperty("METDM_Crack2Key",          m_METDM_Crack2Key         = "MET_DM_Crack2");
-  declareProperty("METDM_CryoKey",            m_METDM_CryoKey           = "MET_DM_Cryo");
-  declareProperty("METFinalKey",              m_METFinalKey             = "MET_Final");
-  declareProperty("METLocHadTopoObjKey",      m_METLocHadTopoObjKey     = "MET_LocHadTopoObj");
-  declareProperty("METTopoObjKey",            m_METTopoObjKey           = "MET_TopoObj");
-  declareProperty("METMuonBoy_SpectroKey",    m_METMuonBoy_SpectroKey   = "MET_MuonBoy_Spectro");
-  declareProperty("METMuonBoy_TrackKey",      m_METMuonBoy_TrackKey     = "MET_MuonBoy_Track");
-  declareProperty("METMuonKey",               m_METMuonKey              = "MET_Muon");
-  declareProperty("METMuonMuonsKey",          m_METMuonMuonsKey         = "MET_MuonMuons");
-  declareProperty("METBase0Key",              m_METBase0Key             = "MET_Base0");
-  declareProperty("METTopoKey",               m_METTopoKey              = "MET_Topo");
-  declareProperty("METLocHadTopoKey",         m_METLocHadTopoKey        = "MET_LocHadTopo");
-  declareProperty("METRefFinalKey",           m_METRefFinalKey          = "MET_RefFinal");
-  declareProperty("METRefEleKey",             m_METRefEleKey            = "MET_RefEle");
-  declareProperty("METRefGammaKey",           m_METRefGammaKey          = "MET_RefGamma");
-  declareProperty("METRefJetKey",             m_METRefJetKey            = "MET_RefJet");
-  declareProperty("METSoftJetsKey",           m_METSoftJetsKey          = "MET_SoftJets");
-  declareProperty("METRefMuonKey",            m_METRefMuonKey           = "MET_RefMuon");
-  declareProperty("METRefMuon_TrackKey",      m_METRefMuon_TrackKey     = "MET_RefMuon_Track");
-  declareProperty("METRefTauKey",             m_METRefTauKey            = "MET_RefTau");
-  declareProperty("METMuonBoyKey",            m_METMuonBoyKey           = "MET_MuonBoy");
-  declareProperty("METMuIDKey",               m_METMuIDKey              = "MET_MuID");
-  declareProperty("METCellOutKey",            m_METCellOutKey           = "MET_CellOut");
-  declareProperty("METCellOutEFlowKey",       m_METCellOutEFlowKey      = "MET_CellOut_EFlow");
+  declareProperty("METCorrTopoKey",           _METCorrTopoKey          = "MET_CorrTopo");
+  declareProperty("METCalibKey",              _METCalibKey             = "MET_Calib");
+  declareProperty("METCryoConeKey",           _METCryoConeKey          = "MET_CryoCone");
+  declareProperty("METBaseKey",               _METBaseKey              = "MET_Base");
+  declareProperty("METCryoKey",               _METCryoKey              = "MET_Cryo");
+  declareProperty("METDM_AllKey",             _METDM_AllKey            = "MET_DM_All");
+  declareProperty("METDM_Crack1Key",          _METDM_Crack1Key         = "MET_DM_Crack1");
+  declareProperty("METDM_Crack2Key",          _METDM_Crack2Key         = "MET_DM_Crack2");
+  declareProperty("METDM_CryoKey",            _METDM_CryoKey           = "MET_DM_Cryo");
+  declareProperty("METFinalKey",              _METFinalKey             = "MET_Final");
+  declareProperty("METLocHadTopoObjKey",      _METLocHadTopoObjKey     = "MET_LocHadTopoObj");
+  declareProperty("METTopoObjKey",            _METTopoObjKey           = "MET_TopoObj");
+  declareProperty("METMuonBoy_SpectroKey",    _METMuonBoy_SpectroKey   = "MET_MuonBoy_Spectro");
+  declareProperty("METMuonBoy_TrackKey",      _METMuonBoy_TrackKey     = "MET_MuonBoy_Track");
+  declareProperty("METMuonKey",               _METMuonKey              = "MET_Muon");
+  declareProperty("METMuonMuonsKey",          _METMuonMuonsKey         = "MET_MuonMuons");
+  declareProperty("METBase0Key",              _METBase0Key             = "MET_Base0");
+  declareProperty("METTopoKey",               _METTopoKey              = "MET_Topo");
+  declareProperty("METLocHadTopoKey",         _METLocHadTopoKey        = "MET_LocHadTopo");
+  declareProperty("METRefFinalKey",           _METRefFinalKey          = "MET_RefFinal");
+  declareProperty("METRefEleKey",             _METRefEleKey            = "MET_RefEle");
+  declareProperty("METRefGammaKey",           _METRefGammaKey          = "MET_RefGamma");
+  declareProperty("METRefJetKey",             _METRefJetKey            = "MET_RefJet");
+  declareProperty("METSoftJetsKey",           _METSoftJetsKey          = "MET_SoftJets");
+  declareProperty("METRefMuonKey",            _METRefMuonKey           = "MET_RefMuon");
+  declareProperty("METRefMuon_TrackKey",      _METRefMuon_TrackKey     = "MET_RefMuon_Track");
+  declareProperty("METRefTauKey",             _METRefTauKey            = "MET_RefTau");
+  declareProperty("METMuonBoyKey",            _METMuonBoyKey           = "MET_MuonBoy");
+  declareProperty("METMuIDKey",               _METMuIDKey              = "MET_MuID");
+  declareProperty("METCellOutKey",            _METCellOutKey           = "MET_CellOut");
+  declareProperty("METCellOutEFlowKey",       _METCellOutEFlowKey      = "MET_CellOut_EFlow");
 
-  declareProperty("METCompositionKey",        m_metCompositionKey       = "MET_RefComposition");
+  declareProperty("METCompositionKey",        _metCompositionKey       = "MET_RefComposition");
 
-  declareProperty("IgnoreMissingContainers",  m_ignoreMissingContainers = false);
+  declareProperty("IgnoreMissingContainers",  _ignoreMissingContainers = false);
 
-  declareProperty("AllCaloKey",               m_allCaloCellsKey         = "AllCalo");
-  declareProperty("getCaloCells",             m_getCaloCells            = false);
+  declareProperty("AllCaloKey",               _allCaloCellsKey         = "AllCalo");
+  declareProperty("getCaloCells",             _getCaloCells            = false);
 
   // Use NoiseTool?
   declareProperty("UseCaloNoiseTool", m_useNoiseTool);
   // NoiseTool
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
   //N sigma cut for noise tool
-  declareProperty("NSigmaCut", m_n_sigma=2.0);
+  declareProperty("NSigmaCut", n_sigma=2.0);
 
   //Use BadChannel Tool?
   declareProperty("UseBadChannelTool", m_useBadChannelTool);
@@ -82,40 +83,40 @@ MissingETData::MissingETData( const std::string& type,
   //BadChannelMasker
   declareProperty("BadChannelMasker",m_badChannelMasker,"Tool Handle for BadChannelMasker");
 
-  m_met_zero = new MissingEtCalo;
-  m_met_truth_int = new MissingET;
-  m_met_truth_nonInt = new MissingET;
-  m_met_truth_muons = new MissingET;
-  m_hlt_met_l1roi_zero = new LVL1_ROI;
-  m_hlt_met_cont_zero = new TrigMissingETContainer;
-  m_hlt_met_cont_zero->push_back(new TrigMissingET(25));
+  _met_zero = new MissingEtCalo;
+  _met_truth_int = new MissingET;
+  _met_truth_nonInt = new MissingET;
+  _met_truth_muons = new MissingET;
+  _hlt_met_l1roi_zero = new LVL1_ROI;
+  _hlt_met_cont_zero = new TrigMissingETContainer;
+  _hlt_met_cont_zero->push_back(new TrigMissingET(25));
 
-  m_met_composition_zero = new MissingETComposition;
+  _met_composition_zero = new MissingETComposition;
 }
 
 MissingETData::~MissingETData() {
 
-  if (m_met_zero) delete m_met_zero;
-  if (m_met_truth_int) delete m_met_truth_int;
-  if (m_met_truth_nonInt) delete m_met_truth_nonInt;
-  if (m_met_truth_muons) delete m_met_truth_muons;
-  if (m_hlt_met_l1roi_zero) delete m_hlt_met_l1roi_zero;
-  if (m_hlt_met_cont_zero) {
-    TrigMissingETContainer::const_iterator hltFirst  = m_hlt_met_cont_zero->begin();
-    TrigMissingETContainer::const_iterator hltLast = m_hlt_met_cont_zero->end();
-    for ( ; hltFirst != hltLast; hltFirst++ ) {
-      const TrigMissingET *hltzero = *hltFirst;
-      if(hltzero) delete hltzero;
+  if (_met_zero) delete _met_zero;
+  if (_met_truth_int) delete _met_truth_int;
+  if (_met_truth_nonInt) delete _met_truth_nonInt;
+  if (_met_truth_muons) delete _met_truth_muons;
+  if (_hlt_met_l1roi_zero) delete _hlt_met_l1roi_zero;
+  if (_hlt_met_cont_zero) {
+    TrigMissingETContainer::const_iterator _hltFirst  = _hlt_met_cont_zero->begin();
+    TrigMissingETContainer::const_iterator _hltLast = _hlt_met_cont_zero->end();
+    for ( ; _hltFirst != _hltLast; _hltFirst++ ) {
+      const TrigMissingET *_hltzero = *_hltFirst;
+      if(_hltzero) delete _hltzero;
     }
   }
 }
 
 StatusCode MissingETData::initialize() {
-  msg() << MSG::DEBUG << "MissingETData Tool initialize() has been called" << endmsg;
+  msg() << MSG::DEBUG << "MissingETData Tool initialize() has been called" << endreq;
 
-  m_met_zero->setEx(0.);
-  m_met_zero->setEy(0.);
-  m_met_zero->setEtSum(0.);
+  _met_zero->setEx(0.);
+  _met_zero->setEy(0.);
+  _met_zero->setEtSum(0.);
   truth_int()->setEx(0.);
   truth_int()->setEy(0.);
   truth_int()->setEtSum(0.);
@@ -139,7 +140,7 @@ StatusCode MissingETData::initialize() {
     StatusCode sc = m_badChannelTool.retrieve();
 
     if( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Unable to find bad channel tool" << endmsg;
+      msg() << MSG::ERROR << "Unable to find bad channel tool" << endreq;
       //      return sc;
     }
   }//if use bad channel tool
@@ -150,7 +151,7 @@ StatusCode MissingETData::initialize() {
     StatusCode sc = m_badChannelMasker.retrieve();
 
     if( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Unable to find bad channel masker" << endmsg;
+      msg() << MSG::ERROR << "Unable to find bad channel masker" << endreq;
       //      return sc;
     }
   }//if use bad channel masker
@@ -161,7 +162,7 @@ StatusCode MissingETData::initialize() {
     StatusCode sc = m_noiseTool.retrieve();
 
     if( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Unable to find noise tool" << endmsg;
+      msg() << MSG::ERROR << "Unable to find noise tool" << endreq;
       //      return sc;
     }
   }//if use noise tool
@@ -170,24 +171,24 @@ StatusCode MissingETData::initialize() {
 }
 
 StatusCode MissingETData::finalize() {
-  msg() << MSG::DEBUG << "MissingETData Tool finalize() has been called" << endmsg;
+  msg() << MSG::DEBUG << "MissingETData Tool finalize() has been called" << endreq;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode MissingETData::retrieveContainers() {
 
-  msg() << MSG::DEBUG << "in MissingETData::retrieveContainers() " << endmsg;
+  msg() << MSG::DEBUG << "in MissingETData::retrieveContainers() " << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
   //get calo cells - this is both liquid argon and tile cells
-  if (m_getCaloCells) {
+  if (_getCaloCells) {
     const CaloCellContainer *allCaloCells;
-    sc = evtStore()->retrieve( allCaloCells, m_allCaloCellsKey );
+    sc = evtStore()->retrieve( allCaloCells, _allCaloCellsKey );
 
     if ( sc.isFailure() ) {
-      msg() << MSG::WARNING << "No CaloCellContainer found: key = " << m_allCaloCellsKey << endmsg;
+      msg() << MSG::WARNING << "No CaloCellContainer found: key = " << _allCaloCellsKey << endreq;
       return sc;
     }
     setAllCaloCells(allCaloCells);
@@ -196,564 +197,564 @@ StatusCode MissingETData::retrieveContainers() {
   }//getcalocells
 
   // get L1 ROI 
-  if (!evtStore()->contains<LVL1_ROI>(m_HLTL1ROIKey) || m_HLTL1ROIKey == "" ) {
-    setL1ROI(m_hlt_met_l1roi_zero);
+  if (!evtStore()->contains<LVL1_ROI>(_HLTL1ROIKey) || _HLTL1ROIKey == "" ) {
+    setL1ROI(_hlt_met_l1roi_zero);
   } else {
-    const LVL1_ROI *L1EsumROI;
-    sc = evtStore()->retrieve(L1EsumROI, m_HLTL1ROIKey);
+    const LVL1_ROI *m_L1EsumROI;
+    sc = evtStore()->retrieve(m_L1EsumROI, _HLTL1ROIKey);
     if( sc.isFailure() ) {
       msg() << MSG::WARNING << "No ESD/AOD/DPD TrigMissingETContainer found: key = "
-        << m_HLTL1ROIKey << endmsg;
+        << _HLTL1ROIKey << endreq;
       return sc;
     }
-    setL1ROI(L1EsumROI);
+    setL1ROI(m_L1EsumROI);
   }
 
   // get L2 MET
-  if (!evtStore()->contains<TrigMissingETContainer>(m_HLTMETL2Key) || m_HLTMETL2Key == "") {
-    setL2MET(m_hlt_met_cont_zero);
+  if (!evtStore()->contains<TrigMissingETContainer>(_HLTMETL2Key) || _HLTMETL2Key == "") {
+    setL2MET(_hlt_met_cont_zero);
   } else {
-    const TrigMissingETContainer *L2MET;
-    sc = evtStore()->retrieve(L2MET, m_HLTMETL2Key);
+    const TrigMissingETContainer *m_L2MET;
+    sc = evtStore()->retrieve(m_L2MET, _HLTMETL2Key);
     if( sc.isFailure() ) {
       msg() << MSG::WARNING << "No ESD/AOD/DPD TrigMissingETContainer found: key = "
-        << m_HLTMETL2Key << endmsg;
+        << _HLTMETL2Key << endreq;
       return sc;
     }
-    setL2MET(L2MET);
+    setL2MET(m_L2MET);
   }
 
   // get EF MET - computed from FEB Header
-  if (!evtStore()->contains<TrigMissingETContainer>(m_HLTMETEF_FEBHeaderKey) || m_HLTMETEF_FEBHeaderKey == "") {
-    setEFMET_FEBHeader(m_hlt_met_cont_zero);
+  if (!evtStore()->contains<TrigMissingETContainer>(_HLTMETEF_FEBHeaderKey) || _HLTMETEF_FEBHeaderKey == "") {
+    setEFMET_FEBHeader(_hlt_met_cont_zero);
   } else {
-    const TrigMissingETContainer *EFMET_FEBHeader;
-    sc = evtStore()->retrieve(EFMET_FEBHeader, m_HLTMETEF_FEBHeaderKey);
+    const TrigMissingETContainer *m_EFMET_FEBHeader;
+    sc = evtStore()->retrieve(m_EFMET_FEBHeader, _HLTMETEF_FEBHeaderKey);
     if( sc.isFailure() ) {
       msg() << MSG::WARNING << "No ESD/AOD/DPD TrigMissingETContainer found: key = "
-        << m_HLTMETEF_FEBHeaderKey << endmsg;
+        << _HLTMETEF_FEBHeaderKey << endreq;
       return sc;
     }
-    setEFMET_FEBHeader(EFMET_FEBHeader);
+    setEFMET_FEBHeader(m_EFMET_FEBHeader);
   }
 
   // get EF MET - computed from FEB Header
-  if (!evtStore()->contains<TrigMissingETContainer>(m_HLTMETEF_noiseSuppKey) || m_HLTMETEF_noiseSuppKey == "") {
-    setEFMET_noiseSupp(m_hlt_met_cont_zero);
+  if (!evtStore()->contains<TrigMissingETContainer>(_HLTMETEF_noiseSuppKey) || _HLTMETEF_noiseSuppKey == "") {
+    setEFMET_noiseSupp(_hlt_met_cont_zero);
   } else {
-    const TrigMissingETContainer *EFMET_noiseSupp;
-    sc = evtStore()->retrieve(EFMET_noiseSupp, m_HLTMETEF_noiseSuppKey);
+    const TrigMissingETContainer *m_EFMET_noiseSupp;
+    sc = evtStore()->retrieve(m_EFMET_noiseSupp, _HLTMETEF_noiseSuppKey);
     if( sc.isFailure() ) {
       msg() << MSG::WARNING << "No ESD/AOD/DPD TrigMissingETContainer found: key = "
-        << m_HLTMETEF_noiseSuppKey << endmsg;
+        << _HLTMETEF_noiseSuppKey << endreq;
       return sc;
     }
-    setEFMET_noiseSupp(EFMET_noiseSupp);
+    setEFMET_noiseSupp(m_EFMET_noiseSupp);
   }
 
   // get EF MET - default
-  if (!evtStore()->contains<TrigMissingETContainer>(m_HLTMETEF_defaultKey) || m_HLTMETEF_defaultKey == "" ) {
-    setEFMET_default(m_hlt_met_cont_zero);
+  if (!evtStore()->contains<TrigMissingETContainer>(_HLTMETEF_defaultKey) || _HLTMETEF_defaultKey == "" ) {
+    setEFMET_default(_hlt_met_cont_zero);
   } else {
-    const TrigMissingETContainer *EFMET_default;
-    sc = evtStore()->retrieve(EFMET_default, m_HLTMETEF_defaultKey);
+    const TrigMissingETContainer *m_EFMET_default;
+    sc = evtStore()->retrieve(m_EFMET_default, _HLTMETEF_defaultKey);
     if( sc.isFailure() ) {
       msg() << MSG::WARNING << "No ESD/AOD/DPD TrigMissingETContainer found: key = "
-        << m_HLTMETEF_defaultKey << endmsg;
+        << _HLTMETEF_defaultKey << endreq;
       return sc;
     }
-    setEFMET_default(EFMET_default);
+    setEFMET_default(m_EFMET_default);
   }
 
-  if (m_metCompositionKey == "") {setMETComposition(m_met_composition_zero); } else {
+  if (_metCompositionKey == "") {setMETComposition(_met_composition_zero); } else {
     const MissingETComposition *metcomp;
-    if (evtStore()->contains<MissingETComposition>(m_metCompositionKey)) {
-      sc = evtStore()->retrieve( metcomp, m_metCompositionKey);
+    if (evtStore()->contains<MissingETComposition>(_metCompositionKey)) {
+      sc = evtStore()->retrieve( metcomp, _metCompositionKey);
       if ( sc.isFailure() ) { return sc; }
     }
     else {
-      if (ignoreMissingContainers()) {metcomp = m_met_composition_zero; } else {
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_metCompositionKey << endmsg;
+      if (ignoreMissingContainers()) {metcomp = _met_composition_zero; } else {
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _metCompositionKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMETComposition(metcomp);
   }
 
-  if (m_METBaseKey == "") {setBase(m_met_zero); } else {
+  if (_METBaseKey == "") {setBase(_met_zero); } else {
     const MissingEtCalo *MET_base;
-    if (evtStore()->contains<MissingEtCalo>(m_METBaseKey)) {
-      sc = evtStore()->retrieve( MET_base, m_METBaseKey );
+    if (evtStore()->contains<MissingEtCalo>(_METBaseKey)) {
+      sc = evtStore()->retrieve( MET_base, _METBaseKey );
       if ( sc.isFailure() ) { return sc; }
     }
     else {
-      if (ignoreMissingContainers()) {MET_base = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METBaseKey << endmsg;
+      if (ignoreMissingContainers()) {MET_base = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METBaseKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setBase(MET_base);
   }
 
-  if (m_METRefFinalKey == "") {setRefFinal(m_met_zero); } else {
+  if (_METRefFinalKey == "") {setRefFinal(_met_zero); } else {
     const MissingET *MET_refFinal;
-    if (evtStore()->contains<MissingET>(m_METRefFinalKey)) {
-      sc = evtStore()->retrieve( MET_refFinal, m_METRefFinalKey );
+    if (evtStore()->contains<MissingET>(_METRefFinalKey)) {
+      sc = evtStore()->retrieve( MET_refFinal, _METRefFinalKey );
       if ( sc.isFailure() ) { return sc; }
     }
     else {
-      if (ignoreMissingContainers()) {MET_refFinal = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefFinalKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refFinal = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefFinalKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefFinal(MET_refFinal);
   }
 
-  if (m_METCorrTopoKey == "") {setCorrTopo(m_met_zero); } else {
+  if (_METCorrTopoKey == "") {setCorrTopo(_met_zero); } else {
     const MissingEtCalo *MET_corrTopo;
-    if (evtStore()->contains<MissingEtCalo>(m_METCorrTopoKey)) {
-      sc = evtStore()->retrieve( MET_corrTopo, m_METCorrTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METCorrTopoKey)) {
+      sc = evtStore()->retrieve( MET_corrTopo, _METCorrTopoKey );
       if ( sc.isFailure() ) { return sc;} 
     }
     else {
-      if (ignoreMissingContainers()) {MET_corrTopo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCorrTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_corrTopo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCorrTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCorrTopo(MET_corrTopo);
   }
 
-  if (m_METCalibKey == "") {setCalib(m_met_zero); } else {
+  if (_METCalibKey == "") {setCalib(_met_zero); } else {
     const MissingEtCalo *MET_calib;
-    if (evtStore()->contains<MissingEtCalo>(m_METCalibKey)) {
-      sc = evtStore()->retrieve( MET_calib, m_METCalibKey );
+    if (evtStore()->contains<MissingEtCalo>(_METCalibKey)) {
+      sc = evtStore()->retrieve( MET_calib, _METCalibKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_calib = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCalibKey << endmsg;
+      if (ignoreMissingContainers()) {MET_calib = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCalibKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCalib(MET_calib);
   }
 
-  if (m_METCryoConeKey == "") {setCryoCone(m_met_zero); } else {
+  if (_METCryoConeKey == "") {setCryoCone(_met_zero); } else {
     const MissingET *MET_cryoCone;
-    if (evtStore()->contains<MissingET>(m_METCryoConeKey)) {
-      sc = evtStore()->retrieve( MET_cryoCone, m_METCryoConeKey );
+    if (evtStore()->contains<MissingET>(_METCryoConeKey)) {
+      sc = evtStore()->retrieve( MET_cryoCone, _METCryoConeKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cryoCone = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCryoConeKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cryoCone = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCryoConeKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCryoCone(MET_cryoCone);
   }
 
-  if (m_METCellOutKey == "") {setCellOut(m_met_zero); } else {
+  if (_METCellOutKey == "") {setCellOut(_met_zero); } else {
     const MissingET *MET_cellOut;
-    if (evtStore()->contains<MissingET>(m_METCellOutKey)) {
-      sc = evtStore()->retrieve( MET_cellOut, m_METCellOutKey );
+    if (evtStore()->contains<MissingET>(_METCellOutKey)) {
+      sc = evtStore()->retrieve( MET_cellOut, _METCellOutKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cellOut = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCellOutKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cellOut = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCellOutKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCellOut(MET_cellOut);
   }
 
-  if (m_METCellOutEFlowKey == "") {setCellOutEFlow(m_met_zero); } else {
+  if (_METCellOutEFlowKey == "") {setCellOutEFlow(_met_zero); } else {
     const MissingET *MET_cellOutEFlow;
-    if (evtStore()->contains<MissingET>(m_METCellOutEFlowKey)) {
-      sc = evtStore()->retrieve( MET_cellOutEFlow, m_METCellOutEFlowKey );
+    if (evtStore()->contains<MissingET>(_METCellOutEFlowKey)) {
+      sc = evtStore()->retrieve( MET_cellOutEFlow, _METCellOutEFlowKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cellOutEFlow = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCellOutEFlowKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cellOutEFlow = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCellOutEFlowKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCellOutEFlow(MET_cellOutEFlow);
   }
 
-  if (m_METRefEleKey == "") {setRefEle(m_met_zero); } else {
+  if (_METRefEleKey == "") {setRefEle(_met_zero); } else {
     const MissingET *MET_refEle;
-    if (evtStore()->contains<MissingET>(m_METRefEleKey)) {
-      sc = evtStore()->retrieve( MET_refEle, m_METRefEleKey );
+    if (evtStore()->contains<MissingET>(_METRefEleKey)) {
+      sc = evtStore()->retrieve( MET_refEle, _METRefEleKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refEle = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefEleKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refEle = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefEleKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefEle(MET_refEle);
   }
 
-  if (m_METRefGammaKey == "") {setRefGamma(m_met_zero); } else {
+  if (_METRefGammaKey == "") {setRefGamma(_met_zero); } else {
     const MissingET *MET_refGamma;
-    if (evtStore()->contains<MissingET>(m_METRefGammaKey)) {
-      sc = evtStore()->retrieve( MET_refGamma, m_METRefGammaKey );
+    if (evtStore()->contains<MissingET>(_METRefGammaKey)) {
+      sc = evtStore()->retrieve( MET_refGamma, _METRefGammaKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refGamma = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefGammaKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refGamma = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefGammaKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefGamma(MET_refGamma);
   }
 
-  if (m_METRefJetKey == "") {setRefJet(m_met_zero); } else {
+  if (_METRefJetKey == "") {setRefJet(_met_zero); } else {
     const MissingET *MET_refJet;
-    if (evtStore()->contains<MissingET>(m_METRefJetKey)) {
-      sc = evtStore()->retrieve( MET_refJet, m_METRefJetKey );
+    if (evtStore()->contains<MissingET>(_METRefJetKey)) {
+      sc = evtStore()->retrieve( MET_refJet, _METRefJetKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refJet = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefJetKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refJet = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefJetKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefJet(MET_refJet);
   }
 
-  if (m_METSoftJetsKey == "") {setSoftJets(m_met_zero); } else {
+  if (_METSoftJetsKey == "") {setSoftJets(_met_zero); } else {
     const MissingET *MET_softJets;
-    if (evtStore()->contains<MissingET>(m_METSoftJetsKey)) {
-      sc = evtStore()->retrieve( MET_softJets, m_METSoftJetsKey );
+    if (evtStore()->contains<MissingET>(_METSoftJetsKey)) {
+      sc = evtStore()->retrieve( MET_softJets, _METSoftJetsKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_softJets = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METSoftJetsKey << endmsg;
+      if (ignoreMissingContainers()) {MET_softJets = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METSoftJetsKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setSoftJets(MET_softJets);
   }
 
-  if (m_METMuonBoyKey == "") {setMuonBoy(m_met_zero); } else {
+  if (_METMuonBoyKey == "") {setMuonBoy(_met_zero); } else {
     const MissingET *MET_MuonBoy;
-    if (evtStore()->contains<MissingET>(m_METMuonBoyKey)) {
-      sc = evtStore()->retrieve( MET_MuonBoy, m_METMuonBoyKey );
+    if (evtStore()->contains<MissingET>(_METMuonBoyKey)) {
+      sc = evtStore()->retrieve( MET_MuonBoy, _METMuonBoyKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonBoy = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonBoyKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonBoy = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonBoyKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonBoy(MET_MuonBoy);
   }
 
-  if (m_METMuIDKey == "") {setMuID(m_met_zero); } else {
+  if (_METMuIDKey == "") {setMuID(_met_zero); } else {
     const MissingET *MET_MuID;
-    if (evtStore()->contains<MissingET>(m_METMuIDKey)) {
-      sc = evtStore()->retrieve( MET_MuID, m_METMuIDKey );
+    if (evtStore()->contains<MissingET>(_METMuIDKey)) {
+      sc = evtStore()->retrieve( MET_MuID, _METMuIDKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuID = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuIDKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuID = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuIDKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuID(MET_MuID);
   }
 
-  if (m_METRefMuonKey == "") {setRefMuon(m_met_zero); } else {
+  if (_METRefMuonKey == "") {setRefMuon(_met_zero); } else {
     const MissingET *MET_refMuon;
-    if (evtStore()->contains<MissingET>(m_METRefMuonKey)) {
-      sc = evtStore()->retrieve( MET_refMuon, m_METRefMuonKey );
+    if (evtStore()->contains<MissingET>(_METRefMuonKey)) {
+      sc = evtStore()->retrieve( MET_refMuon, _METRefMuonKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refMuon = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefMuonKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refMuon = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefMuonKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefMuon(MET_refMuon);
   }
 
-  if (m_METRefMuon_TrackKey == "") {setRefMuon_Track(m_met_zero); } else {
+  if (_METRefMuon_TrackKey == "") {setRefMuon_Track(_met_zero); } else {
     const MissingET *MET_refMuon_Track;
-    if (evtStore()->contains<MissingET>(m_METRefMuon_TrackKey)) {
-      sc = evtStore()->retrieve( MET_refMuon_Track, m_METRefMuon_TrackKey );
+    if (evtStore()->contains<MissingET>(_METRefMuon_TrackKey)) {
+      sc = evtStore()->retrieve( MET_refMuon_Track, _METRefMuon_TrackKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refMuon_Track = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefMuon_TrackKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refMuon_Track = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefMuon_TrackKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefMuon_Track(MET_refMuon_Track);
   }
 
-  if (m_METRefTauKey == "") {setRefTau(m_met_zero); } else {
+  if (_METRefTauKey == "") {setRefTau(_met_zero); } else {
     const MissingET *MET_refTau;
-    if (evtStore()->contains<MissingET>(m_METRefTauKey)) {
-      sc = evtStore()->retrieve( MET_refTau, m_METRefTauKey );
+    if (evtStore()->contains<MissingET>(_METRefTauKey)) {
+      sc = evtStore()->retrieve( MET_refTau, _METRefTauKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refTau = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefTauKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refTau = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefTauKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefTau(MET_refTau);
   }
 
-  if (m_METCryoKey == "") {setCryo(m_met_zero); } else {
+  if (_METCryoKey == "") {setCryo(_met_zero); } else {
     const MissingET *MET_Cryo;
-    if (evtStore()->contains<MissingET>(m_METCryoKey)) {
-      sc = evtStore()->retrieve( MET_Cryo, m_METCryoKey );
+    if (evtStore()->contains<MissingET>(_METCryoKey)) {
+      sc = evtStore()->retrieve( MET_Cryo, _METCryoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Cryo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCryoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Cryo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCryoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCryo(MET_Cryo);
   }
 
-  if (m_METDM_AllKey == "") {setDM_All(m_met_zero); } else {
+  if (_METDM_AllKey == "") {setDM_All(_met_zero); } else {
     const MissingET *MET_DM_All;
-    if (evtStore()->contains<MissingET>(m_METDM_AllKey)) {
-      sc = evtStore()->retrieve( MET_DM_All, m_METDM_AllKey );
+    if (evtStore()->contains<MissingET>(_METDM_AllKey)) {
+      sc = evtStore()->retrieve( MET_DM_All, _METDM_AllKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_DM_All = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METDM_AllKey << endmsg;
+      if (ignoreMissingContainers()) {MET_DM_All = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METDM_AllKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setDM_All(MET_DM_All);
   }
 
-  if (m_METDM_Crack1Key == "") {setDM_Crack1(m_met_zero); } else {
+  if (_METDM_Crack1Key == "") {setDM_Crack1(_met_zero); } else {
     const MissingET *MET_DM_Crack1;
-    if (evtStore()->contains<MissingET>(m_METDM_Crack1Key)) {
-      sc = evtStore()->retrieve( MET_DM_Crack1, m_METDM_Crack1Key );
+    if (evtStore()->contains<MissingET>(_METDM_Crack1Key)) {
+      sc = evtStore()->retrieve( MET_DM_Crack1, _METDM_Crack1Key );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_DM_Crack1 = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METDM_Crack1Key << endmsg;
+      if (ignoreMissingContainers()) {MET_DM_Crack1 = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METDM_Crack1Key << endreq;
         return StatusCode::FAILURE;
       }
     }
     setDM_Crack1(MET_DM_Crack1);
   }
 
-  if (m_METDM_Crack2Key == "") {setDM_Crack2(m_met_zero); } else {
+  if (_METDM_Crack2Key == "") {setDM_Crack2(_met_zero); } else {
     const MissingET *MET_DM_Crack2;
-    if (evtStore()->contains<MissingET>(m_METDM_Crack2Key)) {
-      sc = evtStore()->retrieve( MET_DM_Crack2, m_METDM_Crack2Key );
+    if (evtStore()->contains<MissingET>(_METDM_Crack2Key)) {
+      sc = evtStore()->retrieve( MET_DM_Crack2, _METDM_Crack2Key );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_DM_Crack2 = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METDM_Crack2Key << endmsg;
+      if (ignoreMissingContainers()) {MET_DM_Crack2 = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METDM_Crack2Key << endreq;
         return StatusCode::FAILURE;
       }
     }
     setDM_Crack2(MET_DM_Crack2);
   }
 
-  if (m_METDM_CryoKey == "") {setDM_Cryo(m_met_zero); } else {
+  if (_METDM_CryoKey == "") {setDM_Cryo(_met_zero); } else {
     const MissingET *MET_DM_Cryo;
-    if (evtStore()->contains<MissingET>(m_METDM_CryoKey)) {
-      sc = evtStore()->retrieve( MET_DM_Cryo, m_METDM_CryoKey );
+    if (evtStore()->contains<MissingET>(_METDM_CryoKey)) {
+      sc = evtStore()->retrieve( MET_DM_Cryo, _METDM_CryoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_DM_Cryo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METDM_CryoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_DM_Cryo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METDM_CryoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setDM_Cryo(MET_DM_Cryo);
   }
 
-  if (m_METFinalKey == "") {setFinal(m_met_zero); } else {
+  if (_METFinalKey == "") {setFinal(_met_zero); } else {
     const MissingET *MET_Final;
-    if (evtStore()->contains<MissingET>(m_METFinalKey)) {
-      sc = evtStore()->retrieve( MET_Final, m_METFinalKey );
+    if (evtStore()->contains<MissingET>(_METFinalKey)) {
+      sc = evtStore()->retrieve( MET_Final, _METFinalKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Final = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METFinalKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Final = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METFinalKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setFinal(MET_Final);
   }
 
-  if (m_METLocHadTopoObjKey == "") {setLocHadTopoObj(m_met_zero); } else {
+  if (_METLocHadTopoObjKey == "") {setLocHadTopoObj(_met_zero); } else {
     const MissingET *MET_LocHadTopoObj;
-    if (evtStore()->contains<MissingET>(m_METLocHadTopoObjKey)) {
-      sc = evtStore()->retrieve( MET_LocHadTopoObj, m_METLocHadTopoObjKey );
+    if (evtStore()->contains<MissingET>(_METLocHadTopoObjKey)) {
+      sc = evtStore()->retrieve( MET_LocHadTopoObj, _METLocHadTopoObjKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_LocHadTopoObj = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METLocHadTopoObjKey << endmsg;
+      if (ignoreMissingContainers()) {MET_LocHadTopoObj = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METLocHadTopoObjKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setLocHadTopoObj(MET_LocHadTopoObj);
   }
 
-  if (m_METTopoObjKey == "") {setTopoObj(m_met_zero); } else {
+  if (_METTopoObjKey == "") {setTopoObj(_met_zero); } else {
     const MissingET *MET_TopoObj;
-    if (evtStore()->contains<MissingET>(m_METTopoObjKey)) {
-      sc = evtStore()->retrieve( MET_TopoObj, m_METTopoObjKey );
+    if (evtStore()->contains<MissingET>(_METTopoObjKey)) {
+      sc = evtStore()->retrieve( MET_TopoObj, _METTopoObjKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_TopoObj = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METTopoObjKey << endmsg;
+      if (ignoreMissingContainers()) {MET_TopoObj = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METTopoObjKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setTopoObj(MET_TopoObj);
   }
 
-  if (m_METMuonBoy_SpectroKey == "") {setMuonBoy_Spectro(m_met_zero); } else {
+  if (_METMuonBoy_SpectroKey == "") {setMuonBoy_Spectro(_met_zero); } else {
     const MissingET *MET_MuonBoy_Spectro;
-    if (evtStore()->contains<MissingET>(m_METMuonBoy_SpectroKey)) {
-      sc = evtStore()->retrieve( MET_MuonBoy_Spectro, m_METMuonBoy_SpectroKey );
+    if (evtStore()->contains<MissingET>(_METMuonBoy_SpectroKey)) {
+      sc = evtStore()->retrieve( MET_MuonBoy_Spectro, _METMuonBoy_SpectroKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonBoy_Spectro = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonBoy_SpectroKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonBoy_Spectro = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonBoy_SpectroKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonBoy_Spectro(MET_MuonBoy_Spectro);
   }
 
-  if (m_METMuonBoy_TrackKey == "") {setMuonBoy_Track(m_met_zero); } else {
+  if (_METMuonBoy_TrackKey == "") {setMuonBoy_Track(_met_zero); } else {
     const MissingET *MET_MuonBoy_Track;
-    if (evtStore()->contains<MissingET>(m_METMuonBoy_TrackKey)) {
-      sc = evtStore()->retrieve( MET_MuonBoy_Track, m_METMuonBoy_TrackKey );
+    if (evtStore()->contains<MissingET>(_METMuonBoy_TrackKey)) {
+      sc = evtStore()->retrieve( MET_MuonBoy_Track, _METMuonBoy_TrackKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonBoy_Track = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonBoy_TrackKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonBoy_Track = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonBoy_TrackKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonBoy_Track(MET_MuonBoy_Track);
   }
 
-  if (m_METMuonKey == "") {setMuon(m_met_zero); } else {
+  if (_METMuonKey == "") {setMuon(_met_zero); } else {
     const MissingET *MET_Muon;
-    if (evtStore()->contains<MissingET>(m_METMuonKey)) {
-      sc = evtStore()->retrieve( MET_Muon, m_METMuonKey );
+    if (evtStore()->contains<MissingET>(_METMuonKey)) {
+      sc = evtStore()->retrieve( MET_Muon, _METMuonKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Muon = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Muon = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuon(MET_Muon);
   }
 
-  if (m_METMuonMuonsKey == "") {setMuonMuons(m_met_zero); } else {
+  if (_METMuonMuonsKey == "") {setMuonMuons(_met_zero); } else {
     const MissingET *MET_MuonMuons;
-    if (evtStore()->contains<MissingET>(m_METMuonMuonsKey)) {
-      sc = evtStore()->retrieve( MET_MuonMuons, m_METMuonMuonsKey );
+    if (evtStore()->contains<MissingET>(_METMuonMuonsKey)) {
+      sc = evtStore()->retrieve( MET_MuonMuons, _METMuonMuonsKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonMuons = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonMuonsKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonMuons = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonMuonsKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonMuons(MET_MuonMuons);
   }
 
-  if (m_METBase0Key == "") {setBase0(m_met_zero); } else {
+  if (_METBase0Key == "") {setBase0(_met_zero); } else {
     const MissingEtCalo *MET_Base0;
-    if (evtStore()->contains<MissingEtCalo>(m_METBase0Key)) {
-      sc = evtStore()->retrieve( MET_Base0, m_METBase0Key );
+    if (evtStore()->contains<MissingEtCalo>(_METBase0Key)) {
+      sc = evtStore()->retrieve( MET_Base0, _METBase0Key );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Base0 = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METBase0Key << endmsg;
+      if (ignoreMissingContainers()) {MET_Base0 = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METBase0Key << endreq;
         return StatusCode::FAILURE;
       }
     }
     setBase0(MET_Base0);
   }
 
-  if (m_METTopoKey == "") {setTopo(m_met_zero); } else {
+  if (_METTopoKey == "") {setTopo(_met_zero); } else {
     const MissingEtCalo *MET_Topo;
-    if (evtStore()->contains<MissingEtCalo>(m_METTopoKey)) {
-      sc = evtStore()->retrieve( MET_Topo, m_METTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METTopoKey)) {
+      sc = evtStore()->retrieve( MET_Topo, _METTopoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Topo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Topo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setTopo(MET_Topo);
   }
 
-  if (m_METLocHadTopoKey == "") {setLocHadTopo(m_met_zero); } else {
+  if (_METLocHadTopoKey == "") {setLocHadTopo(_met_zero); } else {
     const MissingEtCalo *MET_LocHadTopo;
-    if (evtStore()->contains<MissingEtCalo>(m_METLocHadTopoKey)) {
-      sc = evtStore()->retrieve( MET_LocHadTopo, m_METLocHadTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METLocHadTopoKey)) {
+      sc = evtStore()->retrieve( MET_LocHadTopo, _METLocHadTopoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_LocHadTopo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METLocHadTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_LocHadTopo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METLocHadTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setLocHadTopo(MET_LocHadTopo);
   }
 
-  const DataHandle<xAOD::EventInfo> evt = 0;  
-  sc = evtStore()->retrieve<xAOD::EventInfo>( evt );      
+  const DataHandle<EventInfo> evt = 0;  
+  sc = evtStore()->retrieve<EventInfo>( evt );      
   if ( sc.isFailure() ) { return sc;}
-  if(evt){
-    setBCID (evt->bcid());
+  if(evt && evt->event_ID()){
+    setBCID (evt->event_ID()->bunch_crossing_id());
     setMU (evt->averageInteractionsPerCrossing());
   }
 
-  if (m_METTruthKey == "") {
+  if (_METTruthKey == "") {
     truth_int()->setEx(0.);
     truth_int()->setEy(0.);
     truth_int()->setEtSum(0.);
@@ -769,7 +770,7 @@ StatusCode MissingETData::retrieveContainers() {
     const DataHandle<MissingET> lastMET;
 
     if ( (evtStore()->retrieve(firstMET,lastMET)).isFailure() ) {
-      msg() << MSG::ERROR << "Could not retrieve iterators for MissingET objects" << endmsg;
+      msg() << MSG::ERROR << "Could not retrieve iterators for MissingET objects" << endreq;
       return sc; 
     }
     for ( ; firstMET != lastMET; firstMET++ ) {
@@ -780,8 +781,8 @@ StatusCode MissingETData::retrieveContainers() {
       //////////////////////////////////////////////////////
       if ( theObject->getSource() == MissingET::Truth ) {
         const MissingEtTruth* truthObject;
-        if ( (evtStore()->retrieve(truthObject, m_METTruthKey)).isFailure() ) {
-          msg() << MSG::ERROR << "Could not retrieve Truth term" << endmsg;
+        if ( (evtStore()->retrieve(truthObject, _METTruthKey)).isFailure() ) {
+          msg() << MSG::ERROR << "Could not retrieve Truth term" << endreq;
         } else {
           for ( unsigned int i=0; i<m_truthIndices.size(); i++ ) {
             switch ( m_truthIndices[i] ) {
@@ -814,110 +815,110 @@ StatusCode MissingETData::retrieveContainers() {
 
 StatusCode MissingETData::retrieveLevel1Containers() {
 
-  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel1Containers() " << endmsg;
+  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel1Containers() " << endreq;
   
   StatusCode sc = StatusCode::SUCCESS;
 
 
- if (m_METCellOutKey == "") {setCellOut(m_met_zero); } else {
+ if (_METCellOutKey == "") {setCellOut(_met_zero); } else {
     const MissingET *MET_cellOut;
-    if (evtStore()->contains<MissingET>(m_METCellOutKey)) {
-      sc = evtStore()->retrieve( MET_cellOut, m_METCellOutKey );
+    if (evtStore()->contains<MissingET>(_METCellOutKey)) {
+      sc = evtStore()->retrieve( MET_cellOut, _METCellOutKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cellOut = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCellOutKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cellOut = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCellOutKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCellOut(MET_cellOut);
   }
 
- if (m_METCellOutEFlowKey == "") {setCellOutEFlow(m_met_zero); } else {
+ if (_METCellOutEFlowKey == "") {setCellOutEFlow(_met_zero); } else {
     const MissingET *MET_cellOutEFlow;
-    if (evtStore()->contains<MissingET>(m_METCellOutEFlowKey)) {
-      sc = evtStore()->retrieve( MET_cellOutEFlow, m_METCellOutEFlowKey );
+    if (evtStore()->contains<MissingET>(_METCellOutEFlowKey)) {
+      sc = evtStore()->retrieve( MET_cellOutEFlow, _METCellOutEFlowKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cellOutEFlow = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCellOutEFlowKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cellOutEFlow = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCellOutEFlowKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCellOutEFlow(MET_cellOutEFlow);
   }
 
-  if (m_METRefEleKey == "") {setRefEle(m_met_zero); } else {
+  if (_METRefEleKey == "") {setRefEle(_met_zero); } else {
     const MissingET *MET_refEle;
-    if (evtStore()->contains<MissingET>(m_METRefEleKey)) {
-      sc = evtStore()->retrieve( MET_refEle, m_METRefEleKey );
+    if (evtStore()->contains<MissingET>(_METRefEleKey)) {
+      sc = evtStore()->retrieve( MET_refEle, _METRefEleKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refEle = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefEleKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refEle = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefEleKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefEle(MET_refEle);
   }
 
-  if (m_METRefGammaKey == "") {setRefGamma(m_met_zero); } else {
+  if (_METRefGammaKey == "") {setRefGamma(_met_zero); } else {
     const MissingET *MET_refGamma;
-    if (evtStore()->contains<MissingET>(m_METRefGammaKey)) {
-      sc = evtStore()->retrieve( MET_refGamma, m_METRefGammaKey );
+    if (evtStore()->contains<MissingET>(_METRefGammaKey)) {
+      sc = evtStore()->retrieve( MET_refGamma, _METRefGammaKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refGamma = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefGammaKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refGamma = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefGammaKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefGamma(MET_refGamma);
   }
 
-  if (m_METRefJetKey == "") {setRefJet(m_met_zero); } else {
+  if (_METRefJetKey == "") {setRefJet(_met_zero); } else {
     const MissingET *MET_refJet;
-    if (evtStore()->contains<MissingET>(m_METRefJetKey)) {
-      sc = evtStore()->retrieve( MET_refJet, m_METRefJetKey );
+    if (evtStore()->contains<MissingET>(_METRefJetKey)) {
+      sc = evtStore()->retrieve( MET_refJet, _METRefJetKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refJet = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefJetKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refJet = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefJetKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setRefJet(MET_refJet);
   }
 
-  if (m_METSoftJetsKey == "") {setSoftJets(m_met_zero); } else {
+  if (_METSoftJetsKey == "") {setSoftJets(_met_zero); } else {
     const MissingET *MET_softJets;
-    if (evtStore()->contains<MissingET>(m_METSoftJetsKey)) {
-      sc = evtStore()->retrieve( MET_softJets, m_METSoftJetsKey );
+    if (evtStore()->contains<MissingET>(_METSoftJetsKey)) {
+      sc = evtStore()->retrieve( MET_softJets, _METSoftJetsKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_softJets = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METSoftJetsKey << endmsg;
+      if (ignoreMissingContainers()) {MET_softJets = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METSoftJetsKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setSoftJets(MET_softJets);
   }
 
- if (m_METCryoKey == "") {setCryo(m_met_zero); } else {
+ if (_METCryoKey == "") {setCryo(_met_zero); } else {
     const MissingET *MET_Cryo;
-    if (evtStore()->contains<MissingET>(m_METCryoKey)) {
-      sc = evtStore()->retrieve( MET_Cryo, m_METCryoKey );
+    if (evtStore()->contains<MissingET>(_METCryoKey)) {
+      sc = evtStore()->retrieve( MET_Cryo, _METCryoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Cryo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCryoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Cryo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCryoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -926,15 +927,15 @@ StatusCode MissingETData::retrieveLevel1Containers() {
 
 
 
-  if (m_METRefTauKey == "") {setRefTau(m_met_zero); } else {
+  if (_METRefTauKey == "") {setRefTau(_met_zero); } else {
     const MissingET *MET_refTau;
-    if (evtStore()->contains<MissingET>(m_METRefTauKey)) {
-      sc = evtStore()->retrieve( MET_refTau, m_METRefTauKey );
+    if (evtStore()->contains<MissingET>(_METRefTauKey)) {
+      sc = evtStore()->retrieve( MET_refTau, _METRefTauKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_refTau = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METRefTauKey << endmsg;
+      if (ignoreMissingContainers()) {MET_refTau = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METRefTauKey << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -946,19 +947,19 @@ StatusCode MissingETData::retrieveLevel1Containers() {
 
 StatusCode MissingETData::retrieveLevel2Containers() {
 
-  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel2Containers() " << endmsg;
+  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel2Containers() " << endreq;
   
   StatusCode sc = StatusCode::SUCCESS;
 
-  if (m_METFinalKey == "") {setFinal(m_met_zero); } else {
+  if (_METFinalKey == "") {setFinal(_met_zero); } else {
     const MissingET *MET_Final;
-    if (evtStore()->contains<MissingET>(m_METFinalKey)) {
-      sc = evtStore()->retrieve( MET_Final, m_METFinalKey );
+    if (evtStore()->contains<MissingET>(_METFinalKey)) {
+      sc = evtStore()->retrieve( MET_Final, _METFinalKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Final = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METFinalKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Final = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METFinalKey << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -966,75 +967,75 @@ StatusCode MissingETData::retrieveLevel2Containers() {
   }
 
 
- if (m_METMuonBoy_SpectroKey == "") {setMuonBoy_Spectro(m_met_zero); } else {
+ if (_METMuonBoy_SpectroKey == "") {setMuonBoy_Spectro(_met_zero); } else {
     const MissingET *MET_MuonBoy_Spectro;
-    if (evtStore()->contains<MissingET>(m_METMuonBoy_SpectroKey)) {
-      sc = evtStore()->retrieve( MET_MuonBoy_Spectro, m_METMuonBoy_SpectroKey );
+    if (evtStore()->contains<MissingET>(_METMuonBoy_SpectroKey)) {
+      sc = evtStore()->retrieve( MET_MuonBoy_Spectro, _METMuonBoy_SpectroKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonBoy_Spectro = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonBoy_SpectroKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonBoy_Spectro = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonBoy_SpectroKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonBoy_Spectro(MET_MuonBoy_Spectro);
   }
 
-  if (m_METMuonBoy_TrackKey == "") {setMuonBoy_Track(m_met_zero); } else {
+  if (_METMuonBoy_TrackKey == "") {setMuonBoy_Track(_met_zero); } else {
     const MissingET *MET_MuonBoy_Track;
-    if (evtStore()->contains<MissingET>(m_METMuonBoy_TrackKey)) {
-      sc = evtStore()->retrieve( MET_MuonBoy_Track, m_METMuonBoy_TrackKey );
+    if (evtStore()->contains<MissingET>(_METMuonBoy_TrackKey)) {
+      sc = evtStore()->retrieve( MET_MuonBoy_Track, _METMuonBoy_TrackKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonBoy_Track = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonBoy_TrackKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonBoy_Track = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonBoy_TrackKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonBoy_Track(MET_MuonBoy_Track);
   }
 
-  if (m_METMuonKey == "") {setMuon(m_met_zero); } else {
+  if (_METMuonKey == "") {setMuon(_met_zero); } else {
     const MissingET *MET_Muon;
-    if (evtStore()->contains<MissingET>(m_METMuonKey)) {
-      sc = evtStore()->retrieve( MET_Muon, m_METMuonKey );
+    if (evtStore()->contains<MissingET>(_METMuonKey)) {
+      sc = evtStore()->retrieve( MET_Muon, _METMuonKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Muon = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Muon = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuon(MET_Muon);
   }
 
-  if (m_METMuonMuonsKey == "") {setMuonMuons(m_met_zero); } else {
+  if (_METMuonMuonsKey == "") {setMuonMuons(_met_zero); } else {
     const MissingET *MET_MuonMuons;
-    if (evtStore()->contains<MissingET>(m_METMuonMuonsKey)) {
-      sc = evtStore()->retrieve( MET_MuonMuons, m_METMuonMuonsKey );
+    if (evtStore()->contains<MissingET>(_METMuonMuonsKey)) {
+      sc = evtStore()->retrieve( MET_MuonMuons, _METMuonMuonsKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_MuonMuons = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METMuonMuonsKey << endmsg;
+      if (ignoreMissingContainers()) {MET_MuonMuons = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METMuonMuonsKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setMuonMuons(MET_MuonMuons);
   }
 
- if (m_METCryoConeKey == "") {setCryoCone(m_met_zero); } else {
+ if (_METCryoConeKey == "") {setCryoCone(_met_zero); } else {
     const MissingET *MET_cryoCone;
-    if (evtStore()->contains<MissingET>(m_METCryoConeKey)) {
-      sc = evtStore()->retrieve( MET_cryoCone, m_METCryoConeKey );
+    if (evtStore()->contains<MissingET>(_METCryoConeKey)) {
+      sc = evtStore()->retrieve( MET_cryoCone, _METCryoConeKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_cryoCone = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCryoConeKey << endmsg;
+      if (ignoreMissingContainers()) {MET_cryoCone = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCryoConeKey << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -1047,124 +1048,124 @@ StatusCode MissingETData::retrieveLevel2Containers() {
 
 StatusCode MissingETData::retrieveLevel3Containers() {
   
-  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel3Containers() " << endmsg;
+  msg() << MSG::DEBUG << "in MissingETData::retrieveLevel3Containers() " << endreq;
   
   StatusCode sc = StatusCode::SUCCESS;
   
-  if (m_METBase0Key == "") {setBase0(m_met_zero); } else {
+  if (_METBase0Key == "") {setBase0(_met_zero); } else {
     const MissingEtCalo *MET_Base0;
-    if (evtStore()->contains<MissingEtCalo>(m_METBase0Key)) {
-      sc = evtStore()->retrieve( MET_Base0, m_METBase0Key );
+    if (evtStore()->contains<MissingEtCalo>(_METBase0Key)) {
+      sc = evtStore()->retrieve( MET_Base0, _METBase0Key );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Base0 = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METBase0Key << endmsg;
+      if (ignoreMissingContainers()) {MET_Base0 = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METBase0Key << endreq;
         return StatusCode::FAILURE;
       }
     }
     setBase0(MET_Base0);
   }
 
-  if (m_METTopoKey == "") {setTopo(m_met_zero); } else {
+  if (_METTopoKey == "") {setTopo(_met_zero); } else {
     const MissingEtCalo *MET_Topo;
-    if (evtStore()->contains<MissingEtCalo>(m_METTopoKey)) {
-      sc = evtStore()->retrieve( MET_Topo, m_METTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METTopoKey)) {
+      sc = evtStore()->retrieve( MET_Topo, _METTopoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_Topo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_Topo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setTopo(MET_Topo);
   }
 
-  if (m_METLocHadTopoKey == "") {setLocHadTopo(m_met_zero); } else {
+  if (_METLocHadTopoKey == "") {setLocHadTopo(_met_zero); } else {
     const MissingEtCalo *MET_LocHadTopo;
-    if (evtStore()->contains<MissingEtCalo>(m_METLocHadTopoKey)) {
-      sc = evtStore()->retrieve( MET_LocHadTopo, m_METLocHadTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METLocHadTopoKey)) {
+      sc = evtStore()->retrieve( MET_LocHadTopo, _METLocHadTopoKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_LocHadTopo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METLocHadTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_LocHadTopo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METLocHadTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setLocHadTopo(MET_LocHadTopo);
   }
 
- if (m_METCorrTopoKey == "") {setCorrTopo(m_met_zero); } else {
+ if (_METCorrTopoKey == "") {setCorrTopo(_met_zero); } else {
     const MissingEtCalo *MET_corrTopo;
-    if (evtStore()->contains<MissingEtCalo>(m_METCorrTopoKey)) {
-      sc = evtStore()->retrieve( MET_corrTopo, m_METCorrTopoKey );
+    if (evtStore()->contains<MissingEtCalo>(_METCorrTopoKey)) {
+      sc = evtStore()->retrieve( MET_corrTopo, _METCorrTopoKey );
       if ( sc.isFailure() ) { return sc;} 
     }
     else {
-      if (ignoreMissingContainers()) {MET_corrTopo = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCorrTopoKey << endmsg;
+      if (ignoreMissingContainers()) {MET_corrTopo = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCorrTopoKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCorrTopo(MET_corrTopo);
   }
 
-  if (m_METCalibKey == "") {setCalib(m_met_zero); } else {
+  if (_METCalibKey == "") {setCalib(_met_zero); } else {
     const MissingEtCalo *MET_calib;
-    if (evtStore()->contains<MissingEtCalo>(m_METCalibKey)) {
-      sc = evtStore()->retrieve( MET_calib, m_METCalibKey );
+    if (evtStore()->contains<MissingEtCalo>(_METCalibKey)) {
+      sc = evtStore()->retrieve( MET_calib, _METCalibKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_calib = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METCalibKey << endmsg;
+      if (ignoreMissingContainers()) {MET_calib = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METCalibKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setCalib(MET_calib);
   }
 
- if (m_METBaseKey == "") {setBase(m_met_zero); } else {
+ if (_METBaseKey == "") {setBase(_met_zero); } else {
     const MissingEtCalo *MET_base;
-    if (evtStore()->contains<MissingEtCalo>(m_METBaseKey)) {
-      sc = evtStore()->retrieve( MET_base, m_METBaseKey );
+    if (evtStore()->contains<MissingEtCalo>(_METBaseKey)) {
+      sc = evtStore()->retrieve( MET_base, _METBaseKey );
       if ( sc.isFailure() ) { return sc; }
     }
     else {
-      if (ignoreMissingContainers()) {MET_base = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METBaseKey << endmsg;
+      if (ignoreMissingContainers()) {MET_base = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METBaseKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setBase(MET_base);
   }
 
-  if (m_METLocHadTopoObjKey == "") {setLocHadTopoObj(m_met_zero); } else {
+  if (_METLocHadTopoObjKey == "") {setLocHadTopoObj(_met_zero); } else {
     const MissingET *MET_LocHadTopoObj;
-    if (evtStore()->contains<MissingET>(m_METLocHadTopoObjKey)) {
-      sc = evtStore()->retrieve( MET_LocHadTopoObj, m_METLocHadTopoObjKey );
+    if (evtStore()->contains<MissingET>(_METLocHadTopoObjKey)) {
+      sc = evtStore()->retrieve( MET_LocHadTopoObj, _METLocHadTopoObjKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_LocHadTopoObj = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METLocHadTopoObjKey << endmsg;
+      if (ignoreMissingContainers()) {MET_LocHadTopoObj = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METLocHadTopoObjKey << endreq;
         return StatusCode::FAILURE;
       }
     }
     setLocHadTopoObj(MET_LocHadTopoObj);
   }
 
-  if (m_METTopoObjKey == "") {setTopoObj(m_met_zero); } else {
+  if (_METTopoObjKey == "") {setTopoObj(_met_zero); } else {
     const MissingET *MET_TopoObj;
-    if (evtStore()->contains<MissingET>(m_METTopoObjKey)) {
-      sc = evtStore()->retrieve( MET_TopoObj, m_METTopoObjKey );
+    if (evtStore()->contains<MissingET>(_METTopoObjKey)) {
+      sc = evtStore()->retrieve( MET_TopoObj, _METTopoObjKey );
       if ( sc.isFailure() ) { return sc;}
     }
     else {
-      if (ignoreMissingContainers()) {MET_TopoObj = m_met_zero; } else { 
-        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_METTopoObjKey << endmsg;
+      if (ignoreMissingContainers()) {MET_TopoObj = _met_zero; } else { 
+        msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << _METTopoObjKey << endreq;
         return StatusCode::FAILURE;
       }
     }
@@ -1178,36 +1179,36 @@ StatusCode MissingETData::retrieveLevel3Containers() {
 void MissingETData::fillEtaRings() {
 
   const CaloCellContainer *cells = allCaloCells();
-  m_met_cells_x=0.;
-  m_met_cells_y=0.;
-  m_met_cells_x_nsigma=0.;
-  m_met_cells_y_nsigma=0.;
+  met_cells_x=0.;
+  met_cells_y=0.;
+  met_cells_x_nsigma=0.;
+  met_cells_y_nsigma=0.;
 
   for (unsigned int i = 0; i < 24; ++i) {
-    m_met_cells_x_by_layer[i] = 0.;
-    m_met_cells_y_by_layer[i] = 0.;
-    m_met_cells_x_by_layer_nsigma[i] = 0.;
-    m_met_cells_y_by_layer_nsigma[i] = 0.;
+    met_cells_x_by_layer[i] = 0.;
+    met_cells_y_by_layer[i] = 0.;
+    met_cells_x_by_layer_nsigma[i] = 0.;
+    met_cells_y_by_layer_nsigma[i] = 0.;
   }
 
   for (unsigned int j= 0;j<24;++j) {
     for (unsigned int i= 0;i<100;++i) {
 
-      m_eta_rings_by_sample[j][i].setEx(0.);
-      m_eta_rings_by_sample[j][i].setEy(0.);
-      m_eta_rings_by_sample[j][i].setEtSum(0.);
+      _eta_rings_by_sample[j][i].setEx(0.);
+      _eta_rings_by_sample[j][i].setEy(0.);
+      _eta_rings_by_sample[j][i].setEtSum(0.);
 
-      m_eta_rings_all_samples[i].setEx(0.);
-      m_eta_rings_all_samples[i].setEy(0.);
-      m_eta_rings_all_samples[i].setEtSum(0.);
+      _eta_rings_all_samples[i].setEx(0.);
+      _eta_rings_all_samples[i].setEy(0.);
+      _eta_rings_all_samples[i].setEtSum(0.);
 
-      m_eta_rings_by_sample_nsigma[j][i].setEx(0.);
-      m_eta_rings_by_sample_nsigma[j][i].setEy(0.);
-      m_eta_rings_by_sample_nsigma[j][i].setEtSum(0.);
+      _eta_rings_by_sample_nsigma[j][i].setEx(0.);
+      _eta_rings_by_sample_nsigma[j][i].setEy(0.);
+      _eta_rings_by_sample_nsigma[j][i].setEtSum(0.);
 
-      m_eta_rings_all_samples_nsigma[i].setEx(0.);
-      m_eta_rings_all_samples_nsigma[i].setEy(0.);
-      m_eta_rings_all_samples_nsigma[i].setEtSum(0.);
+      _eta_rings_all_samples_nsigma[i].setEx(0.);
+      _eta_rings_all_samples_nsigma[i].setEy(0.);
+      _eta_rings_all_samples_nsigma[i].setEtSum(0.);
     }
   }
 
@@ -1237,7 +1238,7 @@ void MissingETData::fillEtaRings() {
     //0->23, 24 layers
 
     if (sample > 23) { 
-      msg() << MSG::ERROR << "EtaRingsTool, cell sample > 23, sample=" << sample << endmsg; 
+      msg() << MSG::ERROR << "EtaRingsTool, cell sample > 23, sample=" << sample << endreq; 
       continue;
     }
 
@@ -1260,44 +1261,44 @@ void MissingETData::fillEtaRings() {
       }//..if its a lar cell
     }//use bad channel masker
 
-    m_met_cells_x -= ex;
-    m_met_cells_y -= ey;
+    met_cells_x -= ex;
+    met_cells_y -= ey;
 
-    m_met_cells_x_by_layer[sample] -= ex;
-    m_met_cells_y_by_layer[sample] -= ey;
+    met_cells_x_by_layer[sample] -= ex;
+    met_cells_y_by_layer[sample] -= ey;
 
     float noiseSigma = 0.;
     if ( m_useNoiseTool ) {
       noiseSigma = m_noiseTool->getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
 
-      if (std::abs(cell->energy()) >= m_n_sigma*noiseSigma) {
-	m_met_cells_x_nsigma -= ex;
-	m_met_cells_y_nsigma -= ey;
+      if (std::abs(cell->energy()) >= n_sigma*noiseSigma) {
+	met_cells_x_nsigma -= ex;
+	met_cells_y_nsigma -= ey;
 
-	m_met_cells_x_by_layer_nsigma[sample] -= ex;
-	m_met_cells_y_by_layer_nsigma[sample] -= ey;
+	met_cells_x_by_layer_nsigma[sample] -= ex;
+	met_cells_y_by_layer_nsigma[sample] -= ey;
       }
     }//use noisetool
 
     if (fabs(eta_cell) < 5.0) {
       int i = (int)((5.0 + eta_cell)*10.0);
 
-      m_eta_rings_by_sample[sample][i].setEx(m_eta_rings_by_sample[sample][i].etx() - ex);
-      m_eta_rings_by_sample[sample][i].setEy(m_eta_rings_by_sample[sample][i].ety() - ey);
-      m_eta_rings_by_sample[sample][i].setEtSum(m_eta_rings_by_sample[sample][i].sumet() + et_cell);
+      _eta_rings_by_sample[sample][i].setEx(_eta_rings_by_sample[sample][i].etx() - ex);
+      _eta_rings_by_sample[sample][i].setEy(_eta_rings_by_sample[sample][i].ety() - ey);
+      _eta_rings_by_sample[sample][i].setEtSum(_eta_rings_by_sample[sample][i].sumet() + et_cell);
 
-      m_eta_rings_all_samples[i].setEx(m_eta_rings_all_samples[i].etx() - ex);
-      m_eta_rings_all_samples[i].setEy(m_eta_rings_all_samples[i].ety() - ey);
-      m_eta_rings_all_samples[i].setEtSum(m_eta_rings_all_samples[i].sumet() - et_cell);
+      _eta_rings_all_samples[i].setEx(_eta_rings_all_samples[i].etx() - ex);
+      _eta_rings_all_samples[i].setEy(_eta_rings_all_samples[i].ety() - ey);
+      _eta_rings_all_samples[i].setEtSum(_eta_rings_all_samples[i].sumet() - et_cell);
 
-      if ( m_useNoiseTool && (std::abs(cell->energy()) >= m_n_sigma*noiseSigma) ) {
-	m_eta_rings_by_sample_nsigma[sample][i].setEx(m_eta_rings_by_sample_nsigma[sample][i].etx() - ex);
-	m_eta_rings_by_sample_nsigma[sample][i].setEy(m_eta_rings_by_sample_nsigma[sample][i].ety() - ey);
-	m_eta_rings_by_sample_nsigma[sample][i].setEtSum(m_eta_rings_by_sample_nsigma[sample][i].sumet() + et_cell);
+      if ( m_useNoiseTool && (std::abs(cell->energy()) >= n_sigma*noiseSigma) ) {
+	_eta_rings_by_sample_nsigma[sample][i].setEx(_eta_rings_by_sample_nsigma[sample][i].etx() - ex);
+	_eta_rings_by_sample_nsigma[sample][i].setEy(_eta_rings_by_sample_nsigma[sample][i].ety() - ey);
+	_eta_rings_by_sample_nsigma[sample][i].setEtSum(_eta_rings_by_sample_nsigma[sample][i].sumet() + et_cell);
 
-	m_eta_rings_all_samples_nsigma[i].setEx(m_eta_rings_all_samples_nsigma[i].etx() - ex);
-	m_eta_rings_all_samples_nsigma[i].setEy(m_eta_rings_all_samples_nsigma[i].ety() - ey);
-	m_eta_rings_all_samples_nsigma[i].setEtSum(m_eta_rings_all_samples_nsigma[i].sumet() - et_cell);
+	_eta_rings_all_samples_nsigma[i].setEx(_eta_rings_all_samples_nsigma[i].etx() - ex);
+	_eta_rings_all_samples_nsigma[i].setEy(_eta_rings_all_samples_nsigma[i].ety() - ey);
+	_eta_rings_all_samples_nsigma[i].setEtSum(_eta_rings_all_samples_nsigma[i].sumet() - et_cell);
 
       }//use noisetool
     }//eta up to 5
@@ -1321,19 +1322,19 @@ float MissingETData::sumet_MissingET_Base_EMfraction() {
     return SUMET_BASE_EMfrac;
 }
 
-const MissingET* MissingETData::getMissingETbyName( const std::string& contName ) {
+const MissingET* MissingETData::getMissingETbyName( const std::string& m_contName ) {
 
-  const MissingET *met_ret = m_met_zero;
+  const MissingET *m_met_ret = _met_zero;
 
-  if (evtStore()->contains<MissingET>(contName)) {
-    StatusCode sc = evtStore()->retrieve( met_ret, contName );
-    if ( sc.isFailure() ) { return met_ret;}
+  if (evtStore()->contains<MissingET>(m_contName)) {
+    StatusCode sc = evtStore()->retrieve( m_met_ret, m_contName );
+    if ( sc.isFailure() ) { return m_met_ret;}
   }
   else {
-    if (ignoreMissingContainers()) {met_ret = m_met_zero; } else { 
-      msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << contName << endmsg;
-      return met_ret;
+    if (ignoreMissingContainers()) {m_met_ret = _met_zero; } else { 
+      msg() << MSG::WARNING << "No ESD/AOD/DPD container found: key = " << m_contName << endreq;
+      return m_met_ret;
     }
   }
-  return met_ret;
+  return m_met_ret;
 }

@@ -27,7 +27,7 @@ class ZeeSequencer : public AthAlgorithm {
   StatusCode execute();
 
  private:
-  ToolHandle<MissingETEventSelector> m_eventSelector;
+  ToolHandle<MissingETEventSelector> _eventSelector;
 };
 
 #endif // ZEESEQUENCER_H

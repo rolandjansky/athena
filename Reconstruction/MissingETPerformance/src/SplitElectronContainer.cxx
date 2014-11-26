@@ -14,7 +14,8 @@
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "FourMom/P4PtEtaPhiM.h"
 
@@ -64,7 +65,7 @@ StatusCode SplitElectronContainer::execute()
 {
   msg() << MSG::INFO 
 	  << "in execute()" 
-	  << endmsg;
+	  << endreq;
 
   StatusCode sc;
   // Retrieve the container of electrons from Zee decay
@@ -77,7 +78,7 @@ StatusCode SplitElectronContainer::execute()
 	    << "Couldn't retrieve <"
 	    << m_ZeeCollName
 	    << "> container from StoreGateSvc"
-	    << endmsg;
+	    << endreq;
     
     return sc;
 
@@ -87,7 +88,7 @@ StatusCode SplitElectronContainer::execute()
 	    << "Retrieved <"
 	    << m_ZeeCollName
 	    << "> container from StoreGateSvc"
-	    << endmsg;
+	    << endreq;
   }
 
   // Check the Zelectrons size
@@ -97,7 +98,7 @@ StatusCode SplitElectronContainer::execute()
 	    << "Found "
 	    << Zelectrons->size()
 	    << "electrons in Zee Container"
-	    << endmsg;
+	    << endreq;
   }
 
   // Retrieve Electron Container from Storegate
@@ -110,7 +111,7 @@ StatusCode SplitElectronContainer::execute()
 	    << "cannot allocate Electron Collection with key <"
 	    << m_eleContName 
 	    << ">"
-	    << endmsg;
+	    << endreq;
 
     return sc;
     
@@ -122,12 +123,12 @@ StatusCode SplitElectronContainer::execute()
 	    << ">"
 	    << "and size "
 	    << elecColl->size()
-	    << endmsg;
+	    << endreq;
   }
 
   // Retrieve Event INFO
   m_event = -1;
-  const xAOD::EventInfo* pevt;
+  const EventInfo* pevt;
   
   sc = evtStore()->retrieve(pevt, m_evtInfoKey);
   
@@ -137,12 +138,12 @@ StatusCode SplitElectronContainer::execute()
 
   } else {
 
-    m_event = pevt->eventNumber();
+    m_event = pevt->event_ID()->event_number();
     
     msg() << MSG::DEBUG 
 	    << "Event #: "
 	    << m_event
-	    << endmsg;
+	    << endreq;
   }
   
   // Select the electron to remove/rescale 
@@ -165,30 +166,30 @@ StatusCode SplitElectronContainer::execute()
   }
 
   // Output truth container
-  ElectronContainer* remEleTruthCont = new ElectronContainer(SG::VIEW_ELEMENTS);
-  sc = evtStore()->record(remEleTruthCont, m_remEleTruthContName, false);
+  ElectronContainer* m_remEleTruthCont = new ElectronContainer(SG::VIEW_ELEMENTS);
+  sc = evtStore()->record(m_remEleTruthCont, m_remEleTruthContName, false);
   
   if( sc.isFailure() ) {
     
     msg() << MSG::ERROR
 	    << "Unable to register particle Truth Container with name "
 	    << m_remEleTruthContName
-	    << endmsg;
+	    << endreq;
     
     return StatusCode::FAILURE;
   }
   
   // Output truth container
   // TruthParticleContainer* m_selEleTruthCont = new TruthParticleContainer(SG::VIEW_ELEMENTS);
-  ElectronContainer* selEleTruthCont = new ElectronContainer(SG::VIEW_ELEMENTS);
-  sc = evtStore()->record(selEleTruthCont, m_selEleTruthContName, false);
+  ElectronContainer* m_selEleTruthCont = new ElectronContainer(SG::VIEW_ELEMENTS);
+  sc = evtStore()->record(m_selEleTruthCont, m_selEleTruthContName, false);
   
   if( sc.isFailure() ) {
     
     msg() << MSG::ERROR
 	    << "Unable to register particle Truth Container with name "
 	    << m_selEleTruthContName
-	    << endmsg;
+	    << endreq;
     
     return StatusCode::FAILURE;
   }
@@ -217,7 +218,7 @@ StatusCode SplitElectronContainer::execute()
       msg() << MSG::ERROR
 	      << "Unable to retrieve particle Truth Container with name "
 	      << m_truthContainerName
-	      << endmsg;
+	      << endreq;
     
       return StatusCode::FAILURE;
     }
@@ -225,25 +226,25 @@ StatusCode SplitElectronContainer::execute()
     // match truth with removed electron
     if( MatchTruthElectron(remEle, truthCont) ){
 
-      remEleTruthCont->push_back( m_matchedElectron );
+      m_remEleTruthCont->push_back( m_matchedElectron );
 
     } else {
 
       msg() << MSG::WARNING
 	      << "NOT FOUND truth matching REMOVED electron!!!"
-	      << endmsg;
+	      << endreq;
     }
 
     // match truth with selected electron
     if( MatchTruthElectron(selEle, truthCont) ){
       
-      selEleTruthCont->push_back( m_matchedElectron );
+      m_selEleTruthCont->push_back( m_matchedElectron );
 
     } else {
 
       msg() << MSG::WARNING
 	      << "NOT FOUND truth matching SELECTED electron!!!"
-	      << endmsg;
+	      << endreq;
     }
     
   }// end if(m_doTruth)
@@ -257,7 +258,7 @@ StatusCode SplitElectronContainer::execute()
   msg() << MSG::DEBUG
           << "Electron Collection size: "
           << elecColl->size()
-          << endmsg;
+          << endreq;
 
   for (; fEle != lEle; fEle++ ){
     
@@ -268,7 +269,7 @@ StatusCode SplitElectronContainer::execute()
       msg() << MSG::DEBUG
               << "Removed "
            // << (**fEle)
-              << endmsg;
+              << endreq;
 
       remEleCont->push_back(*fEle);
 
@@ -278,7 +279,7 @@ StatusCode SplitElectronContainer::execute()
       msg() << MSG::DEBUG
               << "Inserted in standard container "
            // << (**fEle)
-              << endmsg;
+              << endreq;
 
       modEleCont->push_back(*fEle);
 
@@ -289,7 +290,7 @@ StatusCode SplitElectronContainer::execute()
 	msg() << MSG::DEBUG
 		<< "Selcted "
 	     //	<< (**fEle)
-		<< endmsg;
+		<< endreq;
       
 	selEleCont->push_back(*fEle);
 
@@ -332,21 +333,21 @@ bool SplitElectronContainer::MatchTruthElectron(const Analysis::Electron* recoEl
 	  
 	  // msg() << MSG::DEBUG
 	  // 		  << "Removed electron"
-	  // 		  << endmsg;
+	  // 		  << endreq;
 	  
 	  // 	  msg() << MSG::DEBUG
 	  // 		  << "Matched reco ele: ("
 	  // 		  << recoEle->eta() << ", "
 	  // 		  << recoEle->phi() << ", "
 	  // 		  << recoEle->pt()  << ")"
-	  // 		  << endmsg;
+	  // 		  << endreq;
 	  
 	  // 	  msg() << MSG::DEBUG
 	  // 		  << "WITH truth ele  : ("
 	  // 		  << (*pItr)->eta() << ", "
 	  // 		  << (*pItr)->phi() << ", "
 	  // 		  << (*pItr)->pt()  << ")"
-	  // 		  << endmsg;
+	  // 		  << endreq;
 	  
 	  if(!m_isMatched){
 	   
