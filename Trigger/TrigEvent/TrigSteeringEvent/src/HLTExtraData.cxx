@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 /**
  * @file   HLTExtraData.cxx
  * @brief  Definition of the HLT extra data in the HLTResult payload
@@ -53,4 +55,6 @@ void HLTExtraData::deserialize(const std::vector<uint32_t>& storage)
     anonymous.insert(anonymous.begin(), storage.begin()+offset, storage.end());
   }
 }
+#endif //XAOD_ANALYSIS
+
 

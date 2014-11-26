@@ -80,6 +80,20 @@ HLT::ErrorCode Chain::serialize( std::vector<uint32_t>& output ) const
   return HLT::OK;
 }
 
+HLT::ErrorCode Chain::setDecisions(bool passedraw, bool passedthrough, bool prescaled, bool resurrected)
+{
+  m_status = ChainOK;
+  m_passedRaw = passedraw;
+  m_passThrough    = passedthrough;
+  m_prescaled      = prescaled;
+  m_resurrected    = resurrected;
+
+  // can't deduce the following
+  // m_currentStep    = 0; // can't deduce
+  // m_chain_counter  = ( chainWord >> (3+7)) & 0x0000ffff;
+  // m_errorCode      = static_cast<HLT::ErrorCode>(( chainWord >> (3+7+16)) & 0x0000003f);
+  return HLT::OK;
+}
 
 
 HLT::ErrorCode Chain::deserialize(uint32_t chainWord)

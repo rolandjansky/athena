@@ -7,8 +7,8 @@
 #ifndef TrigSteeringEvent_TrigPassBitsCollection_h
 #define TrigSteeringEvent_TrigPassBitsCollection_h
 
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "xAODCore/BaseInfo.h"
 
 #ifndef TrigSteeringEvent_TrigPassBits_h
 #include "TrigSteeringEvent/TrigPassBits.h"

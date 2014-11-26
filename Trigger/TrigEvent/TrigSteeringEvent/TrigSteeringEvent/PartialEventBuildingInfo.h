@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #pragma once
 #ifndef TRIGSTEERINGEVENT_PARTIALEVENTBUILDINGINFO_H
 #define TRIGSTEERINGEVENT_PARTIALEVENTBUILDINGINFO_H
@@ -9,7 +10,6 @@
 #include <vector>
 #include "CLIDSvc/CLASS_DEF.h"
 #include "eformat/SourceIdentifier.h"
-
 
 class PartialEventBuildingInfo {
 public:
@@ -92,3 +92,4 @@ private:
 //CLASS_DEF( PartialEventBuildingInfo , 257191353 , 1 )
 
 #endif
+#endif //XAOD_ANALYSIS

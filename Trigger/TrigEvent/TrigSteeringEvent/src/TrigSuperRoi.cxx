@@ -1,3 +1,4 @@
+#ifndef XAOD_ANALYSIS
 //
 //   @file    TrigSuperRoi.cxx         
 //   
@@ -33,3 +34,4 @@ TrigSuperRoi::TrigSuperRoi(double eta, double etaMinus, double etaPlus,
 TrigSuperRoi::~TrigSuperRoi() { }
 
 
+#endif //XAOD_ANALYSIS

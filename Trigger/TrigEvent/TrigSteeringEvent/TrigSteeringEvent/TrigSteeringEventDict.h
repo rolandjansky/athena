@@ -14,6 +14,7 @@
 #include "TrigSteeringEvent/HLTExtraData.h"
 #include "TrigSteeringEvent/GenericResult.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
@@ -55,8 +56,7 @@ void dummy_function_for_TrigSteeringEvent_which_forces_dictionaries_generation (
   //  nav.attachFeature(0,(TrigRoiDescriptor*)0, HLT::Navigation::ObjectInStoreGate, key);
   //  nav.attachFeature(0,(TrigOperationalInfo*)0, HLT::Navigation::ObjectInStoreGate, key);
   //  nav.registerObject<TrigRoiDescriptor, DataVector<TrigRoiDescriptor> >();
-  //  nav.registerObject<TrigOperationalInfo, DataVector<TrigOperationalInfo> >();
- 
+  //  nav.registerObject<TrigOperationalInfo, DataVector<TrigOperationalInfo> >(); 
 }
 
 

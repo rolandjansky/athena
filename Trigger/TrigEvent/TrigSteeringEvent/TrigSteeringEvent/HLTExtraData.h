@@ -3,7 +3,8 @@
 */
 
 #pragma once
-#ifndef TRIGSTEERINGEVENT_HLTEXTRADATA_H
+#ifndef XAOD_ANALYSIS
+#if !defined(TRIGSTEERINGEVENT_HLTEXTRADATA_H)  && !defined(XAOD_STANDALONE)
 #define TRIGSTEERINGEVENT_HLTEXTRADATA_H
 
 /**
@@ -73,3 +74,5 @@ namespace HLT {
 } // namespace HLT
 
 #endif
+
+#endif //XAOD_ANALYSIS

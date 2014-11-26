@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
@@ -663,3 +664,4 @@ HLTExtraData& HLTResult::getExtraData()
 }
 
 
+#endif //XAOD_ANALYSIS

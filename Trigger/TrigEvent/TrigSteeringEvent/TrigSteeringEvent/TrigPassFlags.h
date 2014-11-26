@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 // TrigPassFlagsCollection is included at the end (required by Trigger EDM schema)
 
 /**

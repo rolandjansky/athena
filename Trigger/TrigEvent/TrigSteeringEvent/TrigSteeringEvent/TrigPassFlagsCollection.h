@@ -6,8 +6,8 @@
 #ifndef TrigSteeringEvent_TrigPassFlagsCollection_h
 #define TrigSteeringEvent_TrigPassFlagsCollection_h
 
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "xAODCore/BaseInfo.h"
 
 #ifndef TrigSteeringEvent_TrigPassFlags_h
 #include "TrigSteeringEvent/TrigPassFlags.h"

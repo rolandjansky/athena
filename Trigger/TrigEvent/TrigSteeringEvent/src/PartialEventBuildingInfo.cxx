@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 
 
@@ -159,3 +160,4 @@ void PartialEventBuildingInfo::merge(const PartialEventBuildingInfo& peb) {
   m_robs.insert(peb.m_robs.begin(), peb.m_robs.end());
   m_subDetectors.insert(peb.m_subDetectors.begin(), peb.m_subDetectors.end());
 }
+#endif //XAOD_ANALYSIS

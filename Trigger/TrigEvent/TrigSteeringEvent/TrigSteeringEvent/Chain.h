@@ -23,9 +23,21 @@
 
 #include <vector>
 #include <stdint.h>
+#include <iostream>
+#include <iomanip> 
+
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigConfHLTData/HLTChain.h"
+
+#include "AsgTools/AsgToolsConf.h"
+#ifdef ASGTOOL_STANDALONE
+#include "AsgTools/MsgStream.h"
+#include "AsgTools/MsgStreamMacros.h"
+#endif
+#ifdef ASGTOOL_ATHENA
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#endif
 
 //#include "TrigSteeringEvent/GenericResult.h"
 
@@ -83,7 +95,7 @@ namespace HLT {
     std::string  getChainName()      const { return (m_configChain ? m_configChain->chain_name(): "no config"); }    //!< return the Chain name (string)
     std::string  getLowerChainName() const { return (m_configChain ? m_configChain->lower_chain_name(): "no config"); }    //!< return the Chain name (string)
     int  getEBAfterStep()            const { return (m_configChain ? m_configChain->EB_after_step() : -1.); }    //!< get EB_after_step  
-    bool nextStepAfterEB()           const { return ((getChainStep()+1) > getEBAfterStep()); }                   //!< return whether next step requires EB 
+    bool nextStepAfterEB()           const { return ((getChainStep()+1) > getEBAfterStep()) && (getEBAfterStep()>0.); } //!< return whether next step requires EB (-1 means no EB called)
     bool isMerged()                  const { return (m_configChain ? (m_configChain->level()=="HLT") : false);}; //!<< return whether is a merged L2+EF chain 
 
     unsigned int getChainHashId()  const { return (m_configChain ? m_configChain->chain_hash_id() : 0); } //!< return the Chain name's hash ID
@@ -101,6 +113,7 @@ namespace HLT {
     {
       os << "Counter = " << std::setw(4) <<getChainCounter()
 	 << " success (raw) = " << chainPassedRaw()
+	 << " EBstep = " << getEBAfterStep()
 	 << " pass-through = " << isPassedThrough()
 	 << " prescaled = " << isPrescaled()
 	 << " rerun = " << isResurrected()
@@ -112,6 +125,9 @@ namespace HLT {
     ErrorCode serialize( std::vector<uint32_t>& output ) const; //!< serialize this Chain into the given vector of uint's
 
     ErrorCode deserialize(uint32_t chainWord); //!< deserialize this Chain from given vector of uint's
+
+    ErrorCode setDecisions(bool passedraw, bool passedthrough, bool prescaled, bool resurrected); //!< set bool decisions directly
+
 
     static unsigned int inquireChainCounter(uint32_t chainWord); //!< unpack chain counter from the serialized word
 

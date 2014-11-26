@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "TrigSteeringEvent/TrigPassFlags.h"
+
 TrigPassFlags::TrigPassFlags()
    : m_container_ptr(0) {}
 

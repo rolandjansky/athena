@@ -3,6 +3,7 @@
 */
 
 #pragma once
+#ifndef XAOD_ANALYSIS
 // #ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
 // #define TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
 
@@ -14,6 +15,11 @@
 #endif
 
 class TrigRoiDescriptorCollection : public DataVector<TrigRoiDescriptor> {
+ public:
+  TrigRoiDescriptorCollection() {};
+
+  TrigRoiDescriptorCollection(SG::OwnershipPolicy pl) 
+    : DataVector<TrigRoiDescriptor>(pl){};
 };
 
 CLASS_DEF( TrigRoiDescriptorCollection , 1097199488 , 1 )
@@ -22,3 +28,4 @@ SG_BASE(TrigRoiDescriptorCollection, DataVector<TrigRoiDescriptor>);
 
 // #endif /// #ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
 
+#endif //XAOD_ANALYSIS

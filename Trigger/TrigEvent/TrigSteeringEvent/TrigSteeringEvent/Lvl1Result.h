@@ -24,55 +24,9 @@
 
 #include <stdint.h>
 #include "CLIDSvc/CLASS_DEF.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
 
 namespace LVL1CTP {
-
-  /**
-   * \brief
-   *
-   */
-
-  class Lvl1Item {
-
-  public:
-
-    Lvl1Item( std::string n, unsigned int hash, bool passBP = false,
-              bool passAP = true, bool passAV = true, int factor = 1) :
-      m_name(n), m_hashId(hash), m_passBP(passBP), m_passAP(passAP), m_passAV(passAV),
-      m_prescaleFactor(factor) {}
-
-    Lvl1Item( const Lvl1Item& other) :
-      m_name(other.name()), m_hashId(other.hashId()),
-      m_passBP(other.isPassedBeforePrescale()),
-      m_passAP(other.isPassedAfterPrescale()),
-      m_passAV(other.isPassedAfterVeto()),
-      m_prescaleFactor(other.prescaleFactor()) {}
-
-    std::string  name()   const { return m_name; }
-    unsigned int hashId() const { return m_hashId; }
-
-    bool isPassedBeforePrescale() const    { return m_passBP; }
-    bool isPassedAfterPrescale()  const    { return m_passAP; }
-    bool isPassedAfterVeto()      const    { return m_passAV; }
-
-    bool isPassed()      const    { return isPassedAfterVeto(); }
-
-    bool isPrescaled() const { return isPassedBeforePrescale() && ! isPassedAfterPrescale(); }
-    bool isVeto() const      { return isPassedAfterPrescale()  && ! isPassedAfterVeto();     }
-
-    int prescaleFactor() const { return m_prescaleFactor; }
-
-    void setName  (std::string name) { m_name = name; }
-    void setHashId(unsigned int hash) { m_hashId = hash; }
-    void setPrescaleFactor(int factor) { m_prescaleFactor = factor; }
-
-  private:
-
-    std::string m_name;
-    unsigned int m_hashId;
-    bool m_passBP, m_passAP, m_passAV;
-    int m_prescaleFactor;
-  };
 
   class Lvl1Result
   {

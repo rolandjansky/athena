@@ -2,6 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef XAOD_STANDALONE
+int main(){return 0;}
+#endif
+
+#ifndef XAOD_STANDALONE
+
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
@@ -130,3 +136,4 @@ int main() {
 
   return 0;
 }
+#endif

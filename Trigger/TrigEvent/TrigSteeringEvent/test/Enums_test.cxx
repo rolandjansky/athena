@@ -2,6 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef XAOD_STANDALONE
+int main(){return 0;}
+#endif
+#ifndef XAOD_STANDALONE
+
 #include <iostream>
 #include "TrigSteeringEvent/Enums.h"
 using namespace HLT;
@@ -84,3 +89,4 @@ int main () {
   cout << "tesint member function for printing " << ErrorCode(Action::CONTINUE, Reason::TIMEOUT, SteeringInternalReason::TIMEOUT).str() << endl;
   return 0;
 }
+#endif

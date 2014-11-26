@@ -7,6 +7,13 @@
  *
  * @author Frank Winklmeier
  */
+#ifdef XAOD_STANDALONE
+int main(){return 0;}
+#endif
+
+
+#ifndef XAOD_STANDALONE
+
 
 #include "TrigSteeringEvent/HLTExtraData.h"
 #include <vector>
@@ -96,3 +103,4 @@ int main()
   
   return rc;
 }
+#endif
