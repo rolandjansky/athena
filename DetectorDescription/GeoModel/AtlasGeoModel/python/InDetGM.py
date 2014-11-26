@@ -8,7 +8,8 @@ from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
 from AthenaCommon.AppMgr        import ServiceMgr as svcMgr
 
-if "ATLAS-SLHC" in globalflags.DetDescrVersion():
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags 
+if GeometryFlags.isSLHC():
     #SLHC specific code 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -23,7 +24,7 @@ elif ( DetFlags.detdescr.ID_on() ):
     if not hasattr(svcMgr,'InDetGeometryDBSvc'):
         from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
         svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
-        if "ATLAS-SLHC" in globalflags.DetDescrVersion():
+        if GeometryFlags.isSLHC():
            #SLHC specific code 
            # General service builder tool for SLHC
            from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
@@ -34,7 +35,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
         pixelTool =  PixelDetectorTool()
         GeoModelSvc.DetectorTools += [ pixelTool ]
-        if "ATLAS-SLHC" in globalflags.DetDescrVersion():
+        if GeometryFlags.isSLHC():
            #SLHC specific code 
            pixelTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
 
@@ -59,7 +60,7 @@ elif ( DetFlags.detdescr.ID_on() ):
             pixelTool.BLM_Tool = blmTool
 
     if ( DetFlags.detdescr.SCT_on() ):
-        if "ATLAS-SLHC" in globalflags.DetDescrVersion():
+        if GeometryFlags.isSLHC():
            #SLHC specific code 
            from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
            sctSLHCTool = SCT_SLHC_DetectorTool()
@@ -83,7 +84,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         GeoModelSvc.DetectorTools += [ TRT_DetectorTool() ]
 
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
-    if "ATLAS-SLHC" in globalflags.DetDescrVersion():
+    if GeometryFlags.isSLHC():
         #SLHC specific code 
         servMatTool = InDetServMatTool()
         GeoModelSvc.DetectorTools += [ servMatTool ]
