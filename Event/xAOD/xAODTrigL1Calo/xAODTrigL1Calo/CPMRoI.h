@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CPMRoI_v1 CPMRoI;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMRoI, 5414895 , 1 )
+
 #endif // XAODTRIGL1CALO_CPMROI_H

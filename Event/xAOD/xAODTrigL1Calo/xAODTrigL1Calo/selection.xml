@@ -50,11 +50,6 @@
          id="8826CC48-CD08-4FD7-9AC4-358A4888271F" />
   <class name="xAOD::CMMCPHitsAuxContainer_v1"
          id="1951D4B4-D471-4256-8F0D-D666043E2889" />
-<!--  <class name="DataLink<xAOD::CMMCPHitsContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::CMMCPHitsContainer_v1> >" />
-  <class name="ElementLink<xAOD::CMMCPHitsContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::CMMCPHitsContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::CMMCPHitsContainer_v1> > >" />-->
 
   <!--   CMMEtSums -->
   <class name="xAOD::CMMEtSums_v1" />
@@ -97,6 +92,21 @@
          id="DE2A7891-B5FE-4811-8178-EF106743312C" />
   <class name="xAOD::TriggerTowerAuxContainer_v1"
          id="3C5D20CF-6F77-4E67-B182-674EDFD2FE38" />  
+  
+  <class name="xAOD::TriggerTower_v2" />
+  <class name="xAOD::TriggerTowerContainer_v2"
+         id="730DE7B8-C24A-4567-A66D-0386DC50E9AC" />
+  <class name="xAOD::TriggerTowerAuxContainer_v2"
+         id="07FF691A-A920-43B2-A4E7-637D335E6929" />  
+  
+   
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+  </exclusion>
 
 </lcgdict>
 

@@ -14,4 +14,7 @@ namespace xAOD {
    typedef JetElementContainer_v1 JetElementContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::JetElementContainer, 1256167516 , 1 )
+
 #endif // XAODTRIGL1CALO_JETELEMENTCONTAINER_H

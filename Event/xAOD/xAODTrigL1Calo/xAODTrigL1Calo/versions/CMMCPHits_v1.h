@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMCPHits_v1.h 576279 2013-12-19 14:35:54Z morrisj $
+// $Id: CMMCPHits_v1.h 631127 2014-11-26 09:54:48Z gwatts $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMMCPHITS_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMMCPHITS_V1_H
 
@@ -18,8 +18,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 576279 $
-  /// $Date: 2013-12-19 15:35:54 +0100 (Thu, 19 Dec 2013) $
+  /// $Revision: 631127 $
+  /// $Date: 2014-11-26 10:54:48 +0100 (Wed, 26 Nov 2014) $
 
   class CMMCPHits_v1 : public SG::AuxElement{
     public:
@@ -91,9 +91,4 @@ namespace xAOD {
   }; // class CMMCPHits_v1
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-  CLASS_DEF( xAOD::CMMCPHits_v1 , 1938820 , 1 )
-#endif // not XAOD_STANDALONE
 #endif // XAODTRIGL1CALO_VERSIONS_CMMCPHITS_V1_H

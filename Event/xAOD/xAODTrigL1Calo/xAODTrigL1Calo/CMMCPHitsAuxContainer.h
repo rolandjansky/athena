@@ -13,4 +13,7 @@ namespace xAOD {
    typedef CMMCPHitsAuxContainer_v1 CMMCPHitsAuxContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CMMCPHitsAuxContainer , 1316880349 , 1 ) 
+
 #endif // XAODTRIGL1CALO_CMMCPHITSAUXCONTAINER_H

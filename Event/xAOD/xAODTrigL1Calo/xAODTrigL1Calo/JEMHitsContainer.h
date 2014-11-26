@@ -14,4 +14,7 @@ namespace xAOD {
    typedef JEMHitsContainer_v1 JEMHitsContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::JEMHitsContainer, 1251848444 , 1 )
+
 #endif // XAODTRIGL1CALO_JEMHITSCONTAINER_H

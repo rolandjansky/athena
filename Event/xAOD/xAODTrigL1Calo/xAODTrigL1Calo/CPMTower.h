@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CPMTower_v1 CPMTower;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMTower, 14223686 , 1 )
+
 #endif // XAODTRIGL1CALO_CPMTOWER_H

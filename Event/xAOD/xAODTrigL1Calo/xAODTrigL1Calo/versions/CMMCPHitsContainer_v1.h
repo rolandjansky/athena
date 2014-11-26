@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMCPHitsContainer_v1.h 576243 2013-12-19 11:24:27Z morrisj $
+// $Id: CMMCPHitsContainer_v1.h 631127 2014-11-26 09:54:48Z gwatts $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMMCPHITSCONTAINER_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMMCPHITSCONTAINER_V1_H
 
@@ -19,9 +19,4 @@ namespace xAOD {
    typedef DataVector< xAOD::CMMCPHits_v1 > CMMCPHitsContainer_v1;
 }
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-  CLASS_DEF( xAOD::CMMCPHitsContainer_v1 , 1296557234 , 1 )
-#endif // not XAOD_STANDALONE
 #endif // XAODTRIGL1CALO_VERSIONS_CMMCPHITSCONTAINER_V1_H

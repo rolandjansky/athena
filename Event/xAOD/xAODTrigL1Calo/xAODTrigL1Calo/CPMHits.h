@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CPMHits_v1 CPMHits;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMHits , 39223308 , 1 )
+
 #endif // XAODTRIGL1CALO_CPMHITS_H

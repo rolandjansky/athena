@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CMMEtSumsContainer_v1 CMMEtSumsContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CMMEtSumsContainer, 1175845346 , 1 )
+
 #endif // XAODTRIGL1CALO_CMMETSUMSCONTAINER_H

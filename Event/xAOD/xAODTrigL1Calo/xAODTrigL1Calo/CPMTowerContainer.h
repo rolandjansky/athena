@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CPMTowerContainer_v1 CPMTowerContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMTowerContainer, 1267839700 , 1 )
+
 #endif // XAODTRIGL1CALO_CPMTOWERCONTAINER_H

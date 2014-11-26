@@ -14,4 +14,7 @@ namespace xAOD {
    typedef JEMRoI_v1 JEMRoI;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::JEMRoI , 9883081 , 1 )
+
 #endif // XAODTRIGL1CALO_JEMROI_H

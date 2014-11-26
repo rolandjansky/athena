@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CMMEtSums_v1 CMMEtSums;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CMMEtSums , 19676884 , 1 )
+
 #endif // XAODTRIGL1CALO_CMMETSUMS_H

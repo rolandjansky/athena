@@ -14,4 +14,7 @@ namespace xAOD {
    typedef RODHeaderContainer_v1 RODHeaderContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::RODHeaderContainer, 1152973036 , 1 )
+
 #endif // XAODTRIGL1CALO_RODHEADERCONTAINER_H

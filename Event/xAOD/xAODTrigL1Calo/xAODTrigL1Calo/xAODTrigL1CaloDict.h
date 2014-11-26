@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigL1CaloDict.h 576243 2013-12-19 11:24:27Z morrisj $
+// $Id: xAODTrigL1CaloDict.h 608592 2014-07-25 13:16:23Z morrisj $
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 
@@ -68,9 +68,12 @@
 #include "xAODTrigL1Calo/versions/TriggerTowerContainer_v1.h"
 #include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v1.h"
 
-#ifdef __GCCXML__
+#include "xAODTrigL1Calo/versions/TriggerTower_v2.h"
+#include "xAODTrigL1Calo/versions/TriggerTowerContainer_v2.h"
+#include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v2.h"
+
 namespace {
-   struct GCCXML_DUMMY_INSTANTIATION {
+   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGL1CALO {
       
       // JEMHits    
       // Container(s):
@@ -193,9 +196,18 @@ namespace {
       std::vector< ElementLink< xAOD::TriggerTowerContainer_v1 > > TriggerTower_el2;
       // Element link vector(s):
       ElementLinkVector< xAOD::TriggerTowerContainer_v1 > TriggerTower_elv1;
-      std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v1 > > TriggerTower_elv2;        
+      std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v1 > > TriggerTower_elv2; 
+      
+      // Container(s):
+      xAOD::TriggerTowerContainer_v2 TriggerTower_v2_c1;
+      // Element link(s):
+      ElementLink< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_el1;
+      std::vector< ElementLink< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_el2;
+      // Element link vector(s):
+      ElementLinkVector< xAOD::TriggerTowerContainer_v2 > TriggerTower_v2_elv1;
+      std::vector< ElementLinkVector< xAOD::TriggerTowerContainer_v2 > > TriggerTower_v2_elv2;        
      
    };
 }
-#endif // __GCCXML__
+
 #endif // XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H

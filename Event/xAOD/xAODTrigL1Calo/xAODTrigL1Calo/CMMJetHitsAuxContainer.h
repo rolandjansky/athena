@@ -13,4 +13,7 @@ namespace xAOD {
    typedef CMMJetHitsAuxContainer_v1 CMMJetHitsAuxContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CMMJetHitsAuxContainer , 1273190538 , 1 ) 
+
 #endif // XAODTRIGL1CALO_CMMJETHITSAUXCONTAINER_H

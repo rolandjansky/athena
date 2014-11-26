@@ -13,4 +13,7 @@ namespace xAOD {
    typedef CPMRoIAuxContainer_v1 CPMRoIAuxContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMRoIAuxContainer , 1321216362 , 1 ) 
+
 #endif // XAODTRIGL1CALO_CPMROIAUXCONTAINER_H

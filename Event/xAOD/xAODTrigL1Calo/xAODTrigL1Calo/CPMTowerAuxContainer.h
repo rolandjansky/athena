@@ -13,4 +13,7 @@ namespace xAOD {
    typedef CPMTowerAuxContainer_v1 CPMTowerAuxContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CPMTowerAuxContainer, 1095086643 , 1 ) 
+
 #endif // XAODTRIGL1CALO_CPMTOWERAUXCONTAINER_H

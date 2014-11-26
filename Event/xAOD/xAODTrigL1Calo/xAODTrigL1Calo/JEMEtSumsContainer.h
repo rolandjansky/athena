@@ -14,4 +14,7 @@ namespace xAOD {
    typedef JEMEtSumsContainer_v1 JEMEtSumsContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::JEMEtSumsContainer, 1236231083 , 1 )
+
 #endif // XAODTRIGL1CALO_JEMETSUMSCONTAINER_H

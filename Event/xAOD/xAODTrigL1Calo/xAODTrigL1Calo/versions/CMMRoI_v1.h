@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMRoI_v1.h 580422 2014-01-28 10:15:11Z krasznaa $
+// $Id: CMMRoI_v1.h 631127 2014-11-26 09:54:48Z gwatts $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMMROI_V1_H
 #define XAODTRIGL1CALO_VERSIONS_CMMROI_V1_H
 
@@ -21,8 +21,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 580422 $
-  /// $Date: 2014-01-28 11:15:11 +0100 (Tue, 28 Jan 2014) $  
+  /// $Revision: 631127 $
+  /// $Date: 2014-11-26 10:54:48 +0100 (Wed, 26 Nov 2014) $  
   
   class CMMRoI_v1 : public SG::AuxElement{
     public:
@@ -115,9 +115,4 @@ namespace xAOD {
   };
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-  CLASS_DEF( xAOD::CMMRoI_v1 , 260993336 , 1 )
-#endif // not XAOD_STANDALONE
 #endif // XAODTRIGL1CALO_VERSIONS_CMMROI_V1_H

@@ -14,4 +14,7 @@ namespace xAOD {
    typedef CMMCPHits_v1 CMMCPHits;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::CMMCPHits, 1938820 , 1 )
+
 #endif // XAODTRIGL1CALO_CMMCPHITS_H

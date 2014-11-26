@@ -7,10 +7,14 @@
 
 // Local include(s):
 #include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v1.h"
+#include "xAODTrigL1Calo/versions/TriggerTowerAuxContainer_v2.h"
 
 namespace xAOD {
    /// Define the latest version of the TriggerTower auxiliary container
-   typedef TriggerTowerAuxContainer_v1 TriggerTowerAuxContainer;
+   typedef TriggerTowerAuxContainer_v2 TriggerTowerAuxContainer;
 }
+
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TriggerTowerAuxContainer, 1086692909 , 1 ) 
 
 #endif // XAODTRIGL1CALO_TRIGGERTOWERAUXCONTAINER_H
