@@ -74,15 +74,20 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
 electronMonTool::electronMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  :  egammaMonToolBase(type,name,parent)
+  :  egammaMonToolBase(type,name,parent),
+     m_hN (nullptr),
+     m_hEt (nullptr),
+     m_hPhi (nullptr),
+     m_hEtaPhi (nullptr),
+     m_hTightN (nullptr),
+     m_hTightEt (nullptr),
+     m_hTightEtaPhi (nullptr)
 {
   // Name of the electron collection
   declareProperty("ElectronContainer", m_ElectronContainer = "ElectronCollection", "Name of the electron collection" );
@@ -95,6 +100,10 @@ electronMonTool::~electronMonTool()
 StatusCode electronMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("electronMonTool::bookHistograms()");
+  int start, end;
+  start = 0;
+  end = ENDCAP;
+
   // Create groups
   MonGroup electronGroup(this,"egamma/electrons",run); // to be re-booked every new run
   
@@ -103,47 +112,50 @@ StatusCode electronMonTool::bookHistograms()
   MonGroup electronIdGroup       (this,"egamma/electrons/ID",               run); // to be re-booked every new run
 
   // MAIN PANEL
-  bookTH1F(m_hN,      electronGroup,"electronN", "Number of LOOSE electrons",40, 0.0, 40.0);
-  bookTH1F(m_hEt,     electronGroup,"electronEt", "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH1F(m_hTightN, electronGroup,"electronTightN", "Number of TIGHT electrons",40, 0.0, 40.0);
-  bookTH1F(m_hTightEt,electronGroup,"electronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi, electronGroup, "electronEtaPhi", "LOOSE electron eta,phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,    electronGroup,  "electronPhi",  "LOOSE electron #phi", 64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvEt, electronGroup,"electronEt", "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0,ENDCAP); // Don't book for forward electrons
+  bookTH1F(m_hN,          electronGroup,"electronN",          "Number of LOOSE electrons",40, 0.0, 40.0);
+  bookTH1F(m_hEt,         electronGroup,"electronEt",         "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH2F(m_hEtaPhi,     electronGroup,"electronEtaPhi",     "LOOSE electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hEta,        electronGroup,"electronEta",        "LOOSE electron #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hPhi,        electronGroup,"electronPhi",        "LOOSE electron #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hTightN,     electronGroup,"electronTightN",     "Number of TIGHT electrons",40, 0.0, 40.0);
+  bookTH1F(m_hTightEt,    electronGroup,"electronTightEt",    "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH2F(m_hTightEtaPhi,electronGroup,"electronTightEtaPhi","TIGHT electron #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hTightEta,   electronGroup,"electronTightEta",   "TIGHT electron #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hTightPhi,   electronGroup,"electronTightPhi",   "TIGHT electron #phi", 64, -3.2, 3.2);
+  bookTH1FperRegion(m_hvEt, electronGroup,"electronEt", "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
 
   // TRACK PANEL
-  bookTH2F(m_hTightEtaPhi,                   electronGroup,"electronTightEtaPhi",         "TIGHT electron eta,phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvTightNOfBLayerHits , electronTrkGroup,"electronTightNOfBLayerHits",  "TIGHT electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,ENDCAP);
-  bookTH1FperRegion(m_hvTightNOfSiHits,      electronTrkGroup,"electronTightNOfSiHits", "TIGHT electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,ENDCAP);
-  bookTH1FperRegion(m_hvTightNOfTRTHits    , electronTrkGroup,"electronTightNOfTRTHits",     "TIGHT electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,ENDCAP);
+  bookTH1FperRegion(m_hvTightNOfBLayerHits , electronTrkGroup,"electronTightNOfBLayerHits",  "TIGHT electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);
+  bookTH1FperRegion(m_hvTightNOfSiHits,      electronTrkGroup,"electronTightNOfSiHits", "TIGHT electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
+  bookTH1FperRegion(m_hvTightNOfTRTHits    , electronTrkGroup,"electronTightNOfTRTHits",     "TIGHT electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
 
   // ID PANEL
-  bookTH1FperRegion(m_hvEhad1         , electronIdGroup,"electronEhad1",          "LOOSE electron energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,ENDCAP);
-  bookTH1FperRegion(m_hvEoverP        , electronIdGroup,"electronEoverP",         "LOOSE electron match track E over P ;E/p;Nevents", 50,0,5,ENDCAP);
-  bookTH1FperRegion(m_hvCoreEM        , electronIdGroup,"electronCoreEM",         "LOOSE electron core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,ENDCAP);
-  bookTH1FperRegion(m_hvF1            , electronIdGroup,"electronF1",             "LOOSE electron fractional energy in 1st sampling;F1; Nevents", 50, -0.2,1.0,ENDCAP);
-  bookTH1FperRegion(m_hvF2            , electronIdGroup,"electronF2",             "LOOSE electron fractional energy in 2nd sampling;F2; Nevents", 50, -0.2,1.0,ENDCAP);
-  bookTH1FperRegion(m_hvF3            , electronIdGroup,"electronF3",             "LOOSE electron fractional energy in 3rd sampling;F3; Nevents", 50, -0.2,1.0,ENDCAP);
-  bookTH1FperRegion(m_hvRe233e237     , electronIdGroup,"electronRe233e237",      "LOOSE electron uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents", 50, 0., 2.,ENDCAP);
-  bookTH1FperRegion(m_hvRe237e277     , electronIdGroup,"electronRe237e277",      "LOOSE electron uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, 0., 2.,ENDCAP);
+  bookTH1FperRegion(m_hvEhad1         , electronIdGroup,"electronEhad1",          "LOOSE electron energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,start,end);
+  bookTH1FperRegion(m_hvEoverP        , electronIdGroup,"electronEoverP",         "LOOSE electron match track E over P ;E/p;Nevents", 50,0,5,start,end);
+  bookTH1FperRegion(m_hvCoreEM        , electronIdGroup,"electronCoreEM",         "LOOSE electron core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,start,end);
+  bookTH1FperRegion(m_hvF1            , electronIdGroup,"electronF1",             "LOOSE electron fractional energy in 1st sampling;F1; Nevents", 50, -0.2,1.0,start,end);
+  bookTH1FperRegion(m_hvF2            , electronIdGroup,"electronF2",             "LOOSE electron fractional energy in 2nd sampling;F2; Nevents", 50, -0.2,1.0,start,end);
+  bookTH1FperRegion(m_hvF3            , electronIdGroup,"electronF3",             "LOOSE electron fractional energy in 3rd sampling;F3; Nevents", 50, -0.2,1.0,start,end);
+  bookTH1FperRegion(m_hvRe233e237     , electronIdGroup,"electronRe233e237",      "LOOSE electron uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents", 50, 0., 2.,start,end);
+  bookTH1FperRegion(m_hvRe237e277     , electronIdGroup,"electronRe237e277",      "LOOSE electron uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, 0., 2.,start,end);
 
   // EXPERT PER REGION PANEL
-  bookTH1FperRegion(m_hvN,       electronGroup,"electronN",  "Number of LOOSE electrons",40, 0.0, 40.0,ENDCAP);
-  bookTH1FperRegion(m_hvEta,     electronGroup,"electronEta","LOOSE electron #eta",64, -3.2, 3.2,ENDCAP);
-  bookTH1FperRegion(m_hvPhi,     electronGroup,"electronPhi","LOOSE electron #phi",64, -3.2, 3.2,ENDCAP);
-  bookTH1FperRegion(m_hvTightN,  electronGroup,"electronTightN",  "Number of TIGHT electrons",40, 0.0, 40.0,ENDCAP);
-  bookTH1FperRegion(m_hvTightEt, electronGroup,"electronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0,ENDCAP);
-  bookTH1FperRegion(m_hvTightEta,electronGroup,"electronTightEta","TIGHT electron #eta",64, -3.2, 3.2,ENDCAP);
-  bookTH1FperRegion(m_hvTightPhi,electronGroup,"electronTightPhi","TIGHT electron #phi",64, -3.2, 3.2,ENDCAP);
+  bookTH1FperRegion(m_hvN,       electronGroup,"electronN",  "Number of LOOSE electrons",40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(m_hvEta,     electronGroup,"electronEta","LOOSE electron #eta",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvPhi,     electronGroup,"electronPhi","LOOSE electron #phi",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvTightN,  electronGroup,"electronTightN",  "Number of TIGHT electrons",40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(m_hvTightEt, electronGroup,"electronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
+  bookTH1FperRegion(m_hvTightEta,electronGroup,"electronTightEta","TIGHT electron #eta",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvTightPhi,electronGroup,"electronTightPhi","TIGHT electron #phi",64, -3.2, 3.2,start,end);
 
   // EXPERT TRACK PANEL
-  bookTH1FperRegion(m_hvNOfBLayerHits ,      electronTrkGroup,"electronNOfBLayerHits",  "LOOSE electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,ENDCAP);
-  bookTH1FperRegion(m_hvNOfSiHits,           electronTrkGroup,"electronNOfSiHits", "LOOSE electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,ENDCAP);
-  bookTH1FperRegion(m_hvNOfTRTHits    ,      electronTrkGroup,"electronNOfTRTHits",     "LOOSE electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,ENDCAP);
-  bookTH1FperRegion(m_hvDeltaEta1     ,      electronTrkGroup,"electronDeltaEta1",      "LOOSE electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,ENDCAP);
-  bookTH1FperRegion(m_hvDeltaPhi2     ,      electronTrkGroup,"electronDeltaPhi2",      "LOOSE electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,ENDCAP);
-  bookTH1FperRegion(m_hvTightDeltaEta1     , electronTrkGroup,"electronTightDeltaEta1",      "TIGHT electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,ENDCAP);
-  bookTH1FperRegion(m_hvTightDeltaPhi2     , electronTrkGroup,"electronTightDeltaPhi2",      "TIGHT electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,ENDCAP);
+  bookTH1FperRegion(m_hvNOfBLayerHits ,      electronTrkGroup,"electronNOfBLayerHits",  "LOOSE electron number of track B-Layer Hits ;N B layer hits;Nevents", 6,-0.5,5.5,start,end);
+  bookTH1FperRegion(m_hvNOfSiHits,           electronTrkGroup,"electronNOfSiHits", "LOOSE electron number of track precision Hits ;N Si hits;Nevents", 26,-0.5,25.5,start,end);
+  bookTH1FperRegion(m_hvNOfTRTHits    ,      electronTrkGroup,"electronNOfTRTHits",     "LOOSE electron number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
+  bookTH1FperRegion(m_hvDeltaEta1     ,      electronTrkGroup,"electronDeltaEta1",      "LOOSE electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
+  bookTH1FperRegion(m_hvDeltaPhi2     ,      electronTrkGroup,"electronDeltaPhi2",      "LOOSE electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,start,end);
+  bookTH1FperRegion(m_hvTightDeltaEta1     , electronTrkGroup,"electronTightDeltaEta1",      "TIGHT electron track match #Delta #eta (1st sampling) ;#Delta #eta;Nevents", 50,-0.05,0.05,start,end);
+  bookTH1FperRegion(m_hvTightDeltaPhi2     , electronTrkGroup,"electronTightDeltaPhi2",      "TIGHT electron track match #Delta #phi (2st sampling) ;#Delta #phi;Nevents", 50,-0.15,0.1,start,end);
 
   return StatusCode::SUCCESS;
 }
@@ -191,6 +203,7 @@ StatusCode electronMonTool::fillHistograms()
     ++(n_el[ir]);
     if(m_hEt)     m_hEt->Fill(et);
     if(m_hEtaPhi) m_hEtaPhi->Fill(eta,phi);
+    if(m_hEta)    m_hEta->Fill(eta);
     if(m_hPhi)    m_hPhi->Fill(phi);
     fillTH1FperRegion(m_hvEt,ir,et);
     fillTH1FperRegion(m_hvEta,ir,eta);
@@ -280,6 +293,8 @@ StatusCode electronMonTool::fillHistograms()
 	++(n_el_tight[ir]);
 	if(m_hTightEt)     m_hTightEt->Fill(et);
 	if(m_hTightEtaPhi) m_hTightEtaPhi->Fill(eta,phi);
+	if(m_hTightEta)    m_hTightEta->Fill(eta);
+	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
 	fillTH1FperRegion(m_hvTightEt,ir,et);
 	fillTH1FperRegion(m_hvTightEta,ir,eta);
 	fillTH1FperRegion(m_hvTightPhi,ir,phi);

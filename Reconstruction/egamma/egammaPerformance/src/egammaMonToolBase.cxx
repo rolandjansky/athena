@@ -21,6 +21,7 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 
 egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string & name, const IInterface* parent)
   :  ManagedMonitorToolBase(type,name,parent)
@@ -71,12 +72,18 @@ void egammaMonToolBase::bookTH2F(TH2* &h, MonGroup& mygroup, const std::string h
   regHist(h,mygroup).ignore();
 }
 
-void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high, unsigned int max_region)
+void egammaMonToolBase::bookTProfile(TProfile* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float xlow, float xhigh, float ylow, float yhigh)
+{
+  h = new TProfile(hname.c_str(),htitle.c_str(),nbins,xlow,xhigh,ylow,yhigh);
+  regHist(h,mygroup).ignore();
+}
+
+void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high, unsigned int min_region, unsigned int max_region)
 {
   std::string name, title;
   
   vhist.resize(NREGION,0);
-  for(unsigned int ir=0;ir<=max_region;ir++) {
+  for(unsigned int ir=min_region;ir<=max_region;ir++) {
     // Create histograms
     name  = hname+"_"+m_region[ir];
     title = htitle+" "+m_region[ir];
@@ -88,12 +95,12 @@ void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& my
   }
 }
 
-void egammaMonToolBase::bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int max_region)
+void egammaMonToolBase::bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int min_region, unsigned int max_region)
 {
   std::string name, title;
   
   vhist.resize(NREGION,0);
-  for(unsigned int ir=0;ir<=max_region;ir++) {
+  for(unsigned int ir=min_region;ir<=max_region;ir++) {
     // Create histograms
     name  = hname+"_"+m_region[ir];
     title = htitle+" "+m_region[ir];
@@ -109,7 +116,6 @@ void egammaMonToolBase::fillTH1FperRegion(std::vector<TH1*> &vhist, unsigned int
   unsigned int size = vhist.size();
   if(ir>=size) return;
   TH1 *h = vhist[ir];
-  //ATH_MSG_DEBUG("Histo: " << h);
   if(h) h->Fill(x);
  }
 
@@ -117,9 +123,16 @@ void egammaMonToolBase::fillTH2FperRegion(std::vector<TH2*> &vhist, unsigned int
 {
   unsigned int size = vhist.size();
   if(ir>=size) return;
-  TH2 *h = vhist[ir];  if(h) h->Fill(x,y);
+  TH2 *h = vhist[ir];  
+  if(h) h->Fill(x,y);
 }
 
+int egammaMonToolBase::GetForwardRegion(float eta)
+{
+  float aeta = fabs(eta);
+  if( aeta < 3.2 ) return ENDCAP;
+  return FORWARD;
+}
 
 int egammaMonToolBase::GetRegion(float eta)
 {
@@ -131,7 +144,7 @@ int egammaMonToolBase::GetRegion(float eta)
   // check if object is in crack region
   //if( aeta > 1.37 && aeta < 1.52 ) 
   return CRACK;
-  // Forward region needs to be checked differently! return FORWARD;
+  // Forward region not checked here! See GetForwardRegion()
 }
 
 StatusCode egammaMonToolBase::fillHistograms()
@@ -176,4 +189,35 @@ StatusCode egammaMonToolBase::procHistograms()
   }
 
   return StatusCode::SUCCESS;
+}
+
+void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
+{
+  int nbins = h->GetNbinsX();
+  if(href->GetNbinsX()!=nbins) {
+    ATH_MSG_WARNING("egammaMonToolBase::FillEfficiencies(): histograms have different number of bins, can not divide!");
+    return;
+  }
+
+  for(int i=0;i<=nbins+1;i++){
+    double eps     = 0;
+    double err     = 0;
+    double Yref    = href->GetBinContent(i);
+    if(Yref>0) {
+      double A   = h->GetBinContent(i);
+      double dA  = sqrt(A);
+      double B   = Yref;
+      double dB  = sqrt(B);
+      eps = A/Yref;
+      // eps = A/(A+B) -> d(A/(A+B))/dA=B/(A+B)^2 & d(A/(A+B))/dB=-1/(A+B)^2
+      // err = sqrt( (dA*B/(A+B)^2)^2 + (dB*-1/(A+B)^2)^2 )
+      double AB2 = Yref*Yref;
+      double wA  =  dA*B/AB2;
+      double wB  = -dB/AB2;
+      err = sqrt( wA*wA + wB*wB);
+    }
+    h->SetBinContent(i,eps);
+    h->SetBinError(i,err);
+  }
+  return;
 }

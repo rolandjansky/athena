@@ -9,32 +9,20 @@ private
 apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 use TestPolicy TestPolicy-*
-use VxVertex VxVertex-* Tracking/TrkEvent
-use AthenaKernel            AthenaKernel-*          Control
-use AtlasBoost           AtlasBoost-*           External
 use xAODEventInfo            xAODEventInfo-*             Event/xAOD
-use xAODEgamma          xAODEgamma-*            Event/xAOD 
-use JetEvent                 JetEvent-*                      Reconstruction/Jet
-use JetTagInfo                  JetTagInfo-*                    PhysicsAnalysis/JetTagging
-use LumiBlockData            LumiBlockData-*         LumiBlock
+use StoreGate                  StoreGate-*                Control
 #use MissingETEvent           MissingETEvent-*          Reconstruction
-use CaloGeoHelpers             CaloGeoHelpers-*          Calorimeter
 apply_pattern validate_xml
 end_private
 
 use AthenaMonitoring           AthenaMonitoring-*            Control
-use CaloEvent                  CaloEvent-*                   Calorimeter
-use egammaEvent                egammaEvent-*                 Reconstruction/egamma
 use GaudiInterface             GaudiInterface-*           External
-use StoreGate                  StoreGate-*                Control
 use AtlasROOT                  AtlasROOT-*                External
+use xAODEgamma          xAODEgamma-*            Event/xAOD 
 
 use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigParticle         TrigParticle-*          Trigger/TrigEvent
-use TrigConfL1Data             TrigConfL1Data-*           Trigger/TrigConfiguration
-use TrigDecisionTool            TrigDecisionTool-*              Trigger/TrigAnalysis
 
-use LumiBlockComps          LumiBlockComps-*        LumiBlock
 use CoraCool                CoraCool-*              Database -no_auto_imports
 
 

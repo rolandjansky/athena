@@ -32,12 +32,15 @@ class photonMonTool : public egammaMonToolBase
   // Global panel histograms
   TH1 * m_hN;       // Histogram for number of photons
   TH1 * m_hEt;      // Histogram for photon transverse energies
+  TH1 * m_hEta;     // Histogram for photon eta
   TH1 * m_hPhi;     // Histogram for photon phi
   TH2 * m_hEtaPhi;  // Histogram for photon eta,phi
 
   // Track panel histograms
   TH1 * m_hTightN;       // Histogram for number of electrons
   TH1 * m_hTightEt;      // Histogram for electron transverse energies
+  TH1 * m_hTightEta;     // Histogram for photon eta
+  TH1 * m_hTightPhi;     // Histogram for photon phi
   TH2 * m_hTightEtaPhi;  // Histogram for photon eta,phi
   std::vector<TH1*> m_hvTightNOfTRTHits;    
   std::vector<TH1*> m_hvTightConvType;

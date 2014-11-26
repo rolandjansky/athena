@@ -4,22 +4,22 @@
 
 /////////////////////////////////////////////////////////////
 //
-//      2014-05-21 Author: Remi Lafaye (Annecy) 
+//      2014-10-22 Author: Remi Lafaye (Annecy) 
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef electronMonTool_H
-#define electronMonTool_H
+#ifndef forwardElectronMonTool_H
+#define forwardElectronMonTool_H
 
 #include "egammaPerformance/egammaMonToolBase.h"
 
-class electronMonTool : public egammaMonToolBase
+class forwardElectronMonTool : public egammaMonToolBase
 {
  public:
   
-  electronMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
+  forwardElectronMonTool(const std::string& type, const std::string& name, const IInterface* parent); 
   
-  virtual ~electronMonTool();
+  virtual ~forwardElectronMonTool();
   
   virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
@@ -28,7 +28,7 @@ class electronMonTool : public egammaMonToolBase
 
  protected:
   // Properties
-  std::string m_ElectronContainer; // Container name for electrons
+  std::string m_ForwardElectronContainer; // Container name for forwardElectrons
 
   // Loose electrons histograms
   TH1 * m_hN;       // Histogram for number of electrons
@@ -42,11 +42,6 @@ class electronMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvEt;  // Histograms for electron transverse energies
   std::vector<TH1*> m_hvEta; // Histograms for electron transverse eta
   std::vector<TH1*> m_hvPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvDeltaEta1;   // electron track histograms
-  std::vector<TH1*> m_hvDeltaPhi2;     
-  std::vector<TH1*> m_hvNOfBLayerHits; 
-  std::vector<TH1*> m_hvNOfSiHits;
-  std::vector<TH1*> m_hvNOfTRTHits;    
 
   // Tight electrons histograms
   TH1 * m_hTightN;       // Histogram for number of electrons
@@ -60,22 +55,15 @@ class electronMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvTightEt;  // Histograms for electron transverse energies
   std::vector<TH1*> m_hvTightEta; // Histograms for electron transverse eta
   std::vector<TH1*> m_hvTightPhi; // Histograms for electron transverse phi
-  std::vector<TH1*> m_hvTightDeltaEta1;   // electron track histograms
-  std::vector<TH1*> m_hvTightDeltaPhi2;     
-  std::vector<TH1*> m_hvTightNOfBLayerHits; 
-  std::vector<TH1*> m_hvTightNOfSiHits;
-  std::vector<TH1*> m_hvTightNOfTRTHits;    
 
-  // electron ID per region histograms
-  std::vector<TH1*> m_hvEhad1;         
-  std::vector<TH1*> m_hvEoverP;        
-  std::vector<TH1*> m_hvCoreEM;        
-  std::vector<TH1*> m_hvF1;            
-  std::vector<TH1*> m_hvF2;            
-  std::vector<TH1*> m_hvF3;            
-  std::vector<TH1*> m_hvRe233e237;     
-  std::vector<TH1*> m_hvRe237e277;     
-
+  // electron ID histograms
+  std::vector<TH1*> m_hvDensity; // energy density
+  std::vector<TH1*> m_hvFrac;    // max energy fraction
+  std::vector<TH1*> m_hvLongitu; // longitudinal moment
+  std::vector<TH1*> m_hvLambda;  // second lambda
+  std::vector<TH1*> m_hvLateral; // lateral moment
+  std::vector<TH1*> m_hvSecondR; // second R
+  std::vector<TH1*> m_hvCenterL; // center lambda
 };
 
 #endif

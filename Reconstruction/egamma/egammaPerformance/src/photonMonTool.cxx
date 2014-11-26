@@ -74,8 +74,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/PhotonxAODHelpers.h"
@@ -83,7 +81,14 @@
 #include "TH2F.h"
 
 photonMonTool::photonMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  :  egammaMonToolBase(type,name,parent)
+  :  egammaMonToolBase(type,name,parent),
+     m_hN (nullptr),
+     m_hEt (nullptr),
+     m_hPhi (nullptr),
+     m_hEtaPhi (nullptr),
+     m_hTightN (nullptr),
+     m_hTightEt (nullptr),
+     m_hTightEtaPhi (nullptr)
 {
   // Name of the photon collection
   declareProperty("PhotonContainer", m_PhotonContainer = "PhotonCollection", "Name of the photon collection");
@@ -96,6 +101,10 @@ photonMonTool::~photonMonTool()
 StatusCode photonMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("photonMonTool::bookHistograms()");
+  int start, end;
+  start = 0;
+  end = ENDCAP;
+
   // Create groups
   MonGroup photonGroup(this,"egamma/photons",run);     // to be re-booked every new run
 
@@ -105,44 +114,47 @@ StatusCode photonMonTool::bookHistograms()
 
   // MAIN PANEL
   // Number of photons
-  bookTH1F(m_hN,  photonGroup,"photonN", "Number of LOOSE photons",40, 0.0, 40.0);
-  bookTH1F(m_hEt, photonGroup,"photonEt", "LOOSE photon transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH1F(m_hTightN, photonGroup,"photonTightN", "Number of TIGHT photons",40, 0.0, 40.0);
-  bookTH1F(m_hTightEt,photonGroup,"photonTightEt", "TIGHT photon transverse energy [MeV]",100, -1000.0, 250000.0);
-  bookTH2F(m_hEtaPhi, photonGroup, "photonEtaPhi", "LOOSE photon eta,phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1F(m_hPhi,photonGroup,  "photonPhi",  "LOOSE photon #phi", 64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvEt, photonGroup,  "photonEt",   "LOOSE photon transverse energy [MeV]",  100, -1000.0, 250000.0, ENDCAP); // Don't make plots for forward photons
+  bookTH1F(m_hN,          photonGroup,"photonN", "Number of LOOSE photons",40, 0.0, 40.0);
+  bookTH1F(m_hEt,         photonGroup,"photonEt", "LOOSE photon transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH2F(m_hEtaPhi,     photonGroup, "photonEtaPhi", "LOOSE photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1F(m_hEta,        photonGroup,"photonEta",        "LOOSE photon #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hPhi,        photonGroup,  "photonPhi",  "LOOSE photon #phi", 64, -3.2, 3.2);
+  bookTH1F(m_hTightN,     photonGroup,"photonTightN", "Number of TIGHT photons",40, 0.0, 40.0);
+  bookTH1F(m_hTightEt,    photonGroup,"photonTightEt", "TIGHT photon transverse energy [MeV]",100, -1000.0, 250000.0);
+  bookTH1F(m_hTightEta,   photonGroup,"photonTightEta",   "TIGHT photon #eta", 64, -3.2, 3.2);
+  bookTH1F(m_hTightPhi,   photonGroup,"photonTightPhi",   "TIGHT photon #phi", 64, -3.2, 3.2);
+  bookTH2F(m_hTightEtaPhi,photonGroup,"photonTightEtaPhi",     "TIGHT photon #eta,#phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
+  bookTH1FperRegion(m_hvEt, photonGroup,  "photonEt",   "LOOSE photon transverse energy [MeV]",  100, -1000.0, 250000.0,start,end); // Don't make plots for forward photons
 
   // TRACK PANEL
-  bookTH2F(m_hTightEtaPhi,                   photonGroup, "photonTightEtaPhi",     "TIGHT photon eta,phi map", 64, -3.2, 3.2, 64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvTightConvType,       photonTrkGroup, "photonTightConvType",   "TIGHT photon conv type; Nevents",4, 0, 4);
-  bookTH1FperRegion(m_hvTightNOfTRTHits    , photonTrkGroup, "photonTightNOfTRTHits", "TIGHT photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5);
+  bookTH1FperRegion(m_hvTightConvType,       photonTrkGroup, "photonTightConvType",   "TIGHT photon conv type; Nevents",4, 0, 4,start,end);
+  bookTH1FperRegion(m_hvTightNOfTRTHits    , photonTrkGroup, "photonTightNOfTRTHits", "TIGHT photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
 
   // ID PANEL
-  bookTH1FperRegion(m_hvEhad1,    photonIdGroup,"photonEhad1", "LOOSE photon energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.);
-  bookTH1FperRegion(m_hvCoreEM,   photonIdGroup,"photonCoreEM","LOOSE photon core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000., ENDCAP);
-  bookTH1FperRegion(m_hvF1,       photonIdGroup, "photonF1",         "LOOSE photon fractional energy in 1st sampling;F1; Nevents", 50, -1.0,1.0, ENDCAP);
-  bookTH1FperRegion(m_hvF2,       photonIdGroup, "photonF2",         "LOOSE photon fractional energy in 2nd sampling;F2; Nevents", 50, -1.0,1.0, ENDCAP);
-  bookTH1FperRegion(m_hvF3,       photonIdGroup, "photonF3",         "LOOSE photon fractional energy in 3rd sampling;F3; Nevents", 50, -1.0,1.0, ENDCAP);
-  bookTH1FperRegion(m_hvRe233e237,photonIdGroup, "photonRe233e237",  "LOOSE photon uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents", 50, -4., 4., ENDCAP);
-  bookTH1FperRegion(m_hvRe237e277,photonIdGroup, "photonRe237e277",  "LOOSE photon uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, -4., 4., ENDCAP);
+  bookTH1FperRegion(m_hvEhad1,    photonIdGroup,"photonEhad1", "LOOSE photon energy leakage in 1st sampling of hadronic cal. ;E had1; Nevents", 50, -1000., 10000.,start,end);
+  bookTH1FperRegion(m_hvCoreEM,   photonIdGroup,"photonCoreEM","LOOSE photon core energy in EM calorimeter ;E [MeV]; Nevents",50, -5000., 250000.,start,end);
+  bookTH1FperRegion(m_hvF1,       photonIdGroup, "photonF1",         "LOOSE photon fractional energy in 1st sampling;F1; Nevents", 50, -1.0,1.0,start,end);
+  bookTH1FperRegion(m_hvF2,       photonIdGroup, "photonF2",         "LOOSE photon fractional energy in 2nd sampling;F2; Nevents", 50, -1.0,1.0,start,end);
+  bookTH1FperRegion(m_hvF3,       photonIdGroup, "photonF3",         "LOOSE photon fractional energy in 3rd sampling;F3; Nevents", 50, -1.0,1.0,start,end);
+  bookTH1FperRegion(m_hvRe233e237,photonIdGroup, "photonRe233e237",  "LOOSE photon uncor. energy fraction in 3x3/3x7 cells in em sampling 2 ;R 3x3/3x7; Nevents", 50, -4., 4.,start,end);
+  bookTH1FperRegion(m_hvRe237e277,photonIdGroup, "photonRe237e277",  "LOOSE photon uncor. energy fraction in 3x7/7x7 cells in em sampling 2 ;R 3x7/7x7; Nevents", 50, -4., 4.,start,end);
 
   // EXPERT PER REGION PANEL
-  bookTH1FperRegion(m_hvN,       photonGroup,  "photonN",    "Number of LOOSE photons",40, 0.0, 40.0);
-  bookTH1FperRegion(m_hvEta,     photonGroup,  "photonEta",  "LOOSE photon #eta", 64, -3.2, 3.2, ENDCAP); // Don't make plots for forward photons
-  bookTH1FperRegion(m_hvPhi,     photonGroup,  "photonPhi",  "LOOSE photon #phi", 64, -3.2, 3.2, ENDCAP); // Don't make plots for forward photons
-  bookTH1FperRegion(m_hvTightN,  photonGroup,  "photonTightN",    "Number of TIGHT photons",40, 0.0, 40.0);
-  bookTH1FperRegion(m_hvTightEt, photonGroup,  "photonTightEt",   "TIGHT photon transverse energy [MeV]",  100, -1000.0, 250000.0, ENDCAP); // Don't make plots for forward photons
-  bookTH1FperRegion(m_hvTightEta,photonGroup,  "photonTightEta",  "TIGHT photon #eta", 64, -3.2, 3.2, ENDCAP); // Don't make plots for forward photons
-  bookTH1FperRegion(m_hvTightPhi,photonGroup,  "photonTightPhi",  "TIGHT photon #phi", 64, -3.2, 3.2, ENDCAP); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvN,       photonGroup,  "photonN",    "Number of LOOSE photons",40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(m_hvEta,     photonGroup,  "photonEta",  "LOOSE photon #eta", 64, -3.2, 3.2,start,end); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvPhi,     photonGroup,  "photonPhi",  "LOOSE photon #phi", 64, -3.2, 3.2,start,end); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvTightN,  photonGroup,  "photonTightN",    "Number of TIGHT photons",40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(m_hvTightEt, photonGroup,  "photonTightEt",   "TIGHT photon transverse energy [MeV]",  100, -1000.0, 250000.0,start,end); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvTightEta,photonGroup,  "photonTightEta",  "TIGHT photon #eta", 64, -3.2, 3.2,start,end); // Don't make plots for forward photons
+  bookTH1FperRegion(m_hvTightPhi,photonGroup,  "photonTightPhi",  "TIGHT photon #phi", 64, -3.2, 3.2,start,end); // Don't make plots for forward photons
 
   // Photon track histograms
-  bookTH1FperRegion(m_hvNOfTRTHits    ,     photonTrkGroup, "photonNOfTRTHits",   "LOOSE photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5);
-  bookTH1FperRegion(m_hvConvType,           photonTrkGroup, "photonConvType",     "LOOSE photon conv type; Nevents",4, 0, 4);
-  bookTH1FperRegion(m_hvConvTrkMatch1,      photonTrkGroup, "photonConvTrkMatch1","LOOSE photon convTrackMatch deltaPhi1; Nevents",64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvConvTrkMatch1,      photonTrkGroup, "photonConvTrkMatch2","LOOSE photon convTrackMatch deltaPhi2; Nevents",64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvTightConvTrkMatch1, photonTrkGroup, "photonTightConvTrkMatch1","TIGHT photon convTrackMatch deltaPhi1; Nevents",64, -3.2, 3.2);
-  bookTH1FperRegion(m_hvTightConvTrkMatch1, photonTrkGroup, "photonTightConvTrkMatch2","TIGHT photon convTrackMatch deltaPhi2; Nevents",64, -3.2, 3.2);
+  bookTH1FperRegion(m_hvNOfTRTHits    ,     photonTrkGroup, "photonNOfTRTHits",   "LOOSE photon number of TRT Hits ;N TRT hits;Nevents", 51,-0.5,50.5,start,end);
+  bookTH1FperRegion(m_hvConvType,           photonTrkGroup, "photonConvType",     "LOOSE photon conv type; Nevents",4, 0, 4,start,end);
+  bookTH1FperRegion(m_hvConvTrkMatch1,      photonTrkGroup, "photonConvTrkMatch1","LOOSE photon convTrackMatch deltaPhi1; Nevents",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvConvTrkMatch1,      photonTrkGroup, "photonConvTrkMatch2","LOOSE photon convTrackMatch deltaPhi2; Nevents",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvTightConvTrkMatch1, photonTrkGroup, "photonTightConvTrkMatch1","TIGHT photon convTrackMatch deltaPhi1; Nevents",64, -3.2, 3.2,start,end);
+  bookTH1FperRegion(m_hvTightConvTrkMatch1, photonTrkGroup, "photonTightConvTrkMatch2","TIGHT photon convTrackMatch deltaPhi2; Nevents",64, -3.2, 3.2,start,end);
 
   return StatusCode::SUCCESS;
 }
@@ -189,6 +201,7 @@ StatusCode photonMonTool::fillHistograms()
     ++(n_ph[ir]);
     if(m_hEt)     m_hEt->Fill(et);
     if(m_hEtaPhi) m_hEtaPhi->Fill(eta,phi);
+    if(m_hEta)    m_hEta->Fill(eta);
     if(m_hPhi)    m_hPhi->Fill(phi);
 
     fillTH1FperRegion(m_hvEt,ir,et);
@@ -255,6 +268,8 @@ StatusCode photonMonTool::fillHistograms()
 	++(n_ph_tight[ir]);
 	if(m_hTightEt)     m_hTightEt->Fill(et);
 	if(m_hTightEtaPhi) m_hTightEtaPhi->Fill(eta,phi);
+	if(m_hTightEta)    m_hTightEta->Fill(eta);
+	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
 	fillTH1FperRegion(m_hvTightEt,ir,et);
 	fillTH1FperRegion(m_hvTightEta,ir,eta);
 	fillTH1FperRegion(m_hvTightPhi,ir,phi);
