@@ -18,10 +18,4 @@ namespace xAOD {
 
 }
 
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF (xAOD::TrigMissingETContainer_v1, 1134334, 1)
-#endif
-
 #endif

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETAuxContainer_v1.h 606381 2014-07-14 18:01:32Z florianb $
+// $Id: TrigMissingETAuxContainer_v1.h 631405 2014-11-26 21:52:57Z gwatts $
 #ifndef xAODTrigMissingET_TrigMissingETAUXCONTAINTER_V1_H
 #define xAODTrigMissingET_TrigMissingETAUXCONTAINTER_V1_H
 
@@ -14,7 +14,7 @@ extern "C" {
 #   include <stdint.h>
 }
 
-// EDM include(s):
+// EDM include(s): 
 #include "xAODCore/AuxContainerBase.h"
 
 namespace xAOD {
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author Gordon Watts <gwatts@uw.edu>
   ///
-  /// $Revision: 606381 $
-  /// $Date: 2014-07-14 20:01:32 +0200 (Mon, 14 Jul 2014) $
+  /// $Revision: 631405 $
+  /// $Date: 2014-11-26 22:52:57 +0100 (Wed, 26 Nov 2014) $
   ///
   class TrigMissingETAuxContainer_v1 : public AuxContainerBase {
 
@@ -51,21 +51,25 @@ namespace xAOD {
     std::vector<uint32_t> roiWord;
     /// @}
 
-    /// @name Storage for Component data
+    /// @name Storage for Component data  
     /// @{
     std::vector<std::vector<std::string> > nameOfComponent;
     std::vector<std::vector<float> > exComponent;
     std::vector<std::vector<float> > eyComponent;
-    /// @}
+    std::vector<std::vector<float> > ezComponent;
+    std::vector<std::vector<float> > sumEtComponent;
+    std::vector<std::vector<float> > sumEComponent;
+    std::vector<std::vector<float> > calib0Component;
+    std::vector<std::vector<float> > calib1Component;
+    std::vector<std::vector<float> > sumOfSignsComponent; 
+    std::vector<std::vector<short> > statusComponent; 
+    std::vector<std::vector< unsigned short> > usedChannelsComponent;     
+    /// @} 
   };
 
 }
-// SET UP A CLID AND STOREGATE INHERITANCE FOR THE CLASS:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigMissingETAuxContainer_v1, 1292357238, 1 )
+
 #include "SGTools/BaseInfo.h"
 SG_BASE(   xAOD::TrigMissingETAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif

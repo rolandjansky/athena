@@ -12,4 +12,8 @@ namespace xAOD {
   typedef TrigMissingET_v1 TrigMissingET;
 }
 
+
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigMissingET, 76717345, 1 )
+
 #endif

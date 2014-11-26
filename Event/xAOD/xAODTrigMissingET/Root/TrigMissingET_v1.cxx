@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingET_v1.cxx 615412 2014-09-06 12:55:36Z florianb $
+// $Id: TrigMissingET_v1.cxx 624795 2014-10-29 09:23:42Z florianb $
 
 // Implement the MissingET trigger object.
 
@@ -46,7 +46,22 @@ namespace xAOD {
       exAcc( "exComponent" );
    static SG::AuxElement::Accessor< std::vector< float > >
       eyAcc( "eyComponent" );
-
+   static SG::AuxElement::Accessor< std::vector< float > >
+      ezAcc( "ezComponent" );
+   static SG::AuxElement::Accessor< std::vector< float > >
+      sumEtAcc( "sumEtComponent" );
+   static SG::AuxElement::Accessor< std::vector< float > >
+      sumEAcc( "sumEComponent" );
+   static SG::AuxElement::Accessor< std::vector< float > >
+      calib0Acc( "calib0Component" );
+   static SG::AuxElement::Accessor< std::vector< float > >
+      calib1Acc( "calib1Component" );
+   static SG::AuxElement::Accessor< std::vector< float > >
+      sumOfSignsAcc( "sumOfSignsComponent" );
+   static SG::AuxElement::Accessor< std::vector< short > >
+      statusAcc( "statusComponent" );
+   static SG::AuxElement::Accessor< std::vector< unsigned short > >
+      usedchannelsAcc( "usedChannelsComponent" );      
 
    // Define a component name
    void TrigMissingET_v1::
@@ -64,6 +79,15 @@ namespace xAOD {
       // Initialise all the variables:
       exAcc( *this ).resize( componentNames.size(), 0.0 );
       eyAcc( *this ).resize( componentNames.size(), 0.0 );
+      ezAcc( *this ).resize( componentNames.size(), 0.0 );
+      sumEtAcc( *this ).resize( componentNames.size(), 0.0 );
+      sumEAcc( *this ).resize( componentNames.size(), 0.0 );
+      calib0Acc( *this ).resize( componentNames.size(), 0.0 );
+      calib1Acc( *this ).resize( componentNames.size(), 1.0 );
+      sumOfSignsAcc( *this ).resize( componentNames.size(), 1.0 );
+      statusAcc( *this ).resize( componentNames.size(), 0 );
+      usedchannelsAcc( *this ).resize( componentNames.size(), 1 );
+      
 
       return;
    }
@@ -107,6 +131,95 @@ namespace xAOD {
    float TrigMissingET_v1::eyComponent( unsigned int index ) const {
 
       return eyAcc( *this ).at( index );
+   }  
+
+   void TrigMissingET_v1::setEzComponent( unsigned int index, float val ) {
+
+      ezAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::ezComponent( unsigned int index ) const {
+
+      return ezAcc( *this ).at( index );
+   }  
+
+   void TrigMissingET_v1::setSumEtComponent( unsigned int index, float val ) {
+
+      sumEtAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::sumEtComponent( unsigned int index ) const {
+
+      return sumEtAcc( *this ).at( index );
+   }  
+   
+   void TrigMissingET_v1::setSumEComponent( unsigned int index, float val ) {
+
+      sumEAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::sumEComponent( unsigned int index ) const {
+
+      return sumEAcc( *this ).at( index );
+   }     
+
+   void TrigMissingET_v1::setCalib0Component( unsigned int index, float val ) {
+
+      calib0Acc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::calib0Component( unsigned int index ) const {
+
+      return calib0Acc( *this ).at( index );
    }   
+ 
+   void TrigMissingET_v1::setCalib1Component( unsigned int index, float val ) {
+
+      calib1Acc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::calib1Component( unsigned int index ) const {
+
+      return calib1Acc( *this ).at( index );
+   }     
+ 
+   void TrigMissingET_v1::setSumOfSignsComponent( unsigned int index, float val ) {
+
+      sumOfSignsAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   float TrigMissingET_v1::sumOfSignsComponent( unsigned int index ) const {
+
+      return sumOfSignsAcc( *this ).at( index );
+   } 
+   
+   void TrigMissingET_v1::setStatusComponent( unsigned int index, float val ) {
+
+      statusAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   short TrigMissingET_v1::statusComponent( unsigned int index ) const {
+
+      return statusAcc( *this ).at( index );
+   }        
+
+   void TrigMissingET_v1::setUsedChannelsComponent( unsigned int index, float val ) {
+
+      usedchannelsAcc( *this ).at( index ) = val;
+      return;
+   }
+
+   unsigned short TrigMissingET_v1::usedChannelsComponent( unsigned int index ) const {
+
+      return usedchannelsAcc( *this ).at( index );
+   }      
+
 
 } // namespace xAOD

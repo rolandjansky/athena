@@ -13,4 +13,7 @@ namespace xAOD {
   typedef TrigMissingETContainer_v1 TrigMissingETContainer;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF (xAOD::TrigMissingETContainer, 1134334, 1)
+
 #endif

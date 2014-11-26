@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingET_v1.h 615398 2014-09-06 06:37:02Z florianb $
+// $Id: TrigMissingET_v1.h 630930 2014-11-25 14:57:49Z gwatts $
 #ifndef xAODTrigMissingET_TrigMissingET_V1_H
 #define xAODTrigMissingET_TrigMissingET_V1_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author Gordon Watts <gwatts@uw.edu>
   ///
-  /// $Revision: 615398 $
-  /// $Date: 2014-09-06 08:37:02 +0200 (Sat, 06 Sep 2014) $
+  /// $Revision: 630930 $
+  /// $Date: 2014-11-25 15:57:49 +0100 (Tue, 25 Nov 2014) $
   ///
   class TrigMissingET_v1 : public SG::AuxElement {
   public:
@@ -104,16 +104,42 @@ namespace xAOD {
     void setEyComponent(unsigned int index, float value);
     /// Get the y component fo the energy of a component
     float eyComponent(unsigned int index) const;
-
-
+    /// Set the z component fo the energy of a component
+    void setEzComponent(unsigned int index, float value);
+    /// Get the z component fo the energy of a component
+    float ezComponent(unsigned int index) const;
+    /// Set SumEt
+    void setSumEtComponent(unsigned int index, float value);
+    /// Get SumEt
+    float sumEtComponent(unsigned int index) const;
+    /// Set SumE
+    void setSumEComponent(unsigned int index, float value);
+    /// Get SumE
+    float sumEComponent(unsigned int index) const;
+    /// Set Calib0
+    void setCalib0Component(unsigned int index, float value);
+    /// Get Calib0
+    float calib0Component(unsigned int index) const;
+    /// Set Calib1
+    void setCalib1Component(unsigned int index, float value);
+    /// Get Calib1
+    float calib1Component(unsigned int index) const;
+    /// Set SumOfSigns
+    void setSumOfSignsComponent(unsigned int index, float value);
+    /// Get SumOfSigns
+    float sumOfSignsComponent(unsigned int index) const;
+    /// Set Status
+    void setStatusComponent(unsigned int index, float value);
+    /// Get Status
+    short statusComponent(unsigned int index) const;
+    /// Set used Channels
+    void setUsedChannelsComponent(unsigned int index, float value);
+    /// Get used Channels
+    unsigned short usedChannelsComponent(unsigned int index) const;
+    
     /// @}
   };
 
 }
-
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigMissingET_v1, 76717345, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif

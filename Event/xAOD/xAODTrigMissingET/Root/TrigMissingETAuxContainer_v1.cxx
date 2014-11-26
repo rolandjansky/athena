@@ -20,6 +20,15 @@ namespace xAOD {
     AUX_VARIABLE ( nameOfComponent );
     AUX_VARIABLE ( exComponent );
     AUX_VARIABLE ( eyComponent );
+    AUX_VARIABLE ( ezComponent );
+    AUX_VARIABLE ( sumEtComponent );
+    AUX_VARIABLE ( sumEComponent );
+    AUX_VARIABLE ( calib0Component );
+    AUX_VARIABLE ( calib1Component );
+    AUX_VARIABLE ( sumOfSignsComponent );   
+    AUX_VARIABLE ( statusComponent );   
+    AUX_VARIABLE ( usedChannelsComponent );   
+    
   }
 
 }

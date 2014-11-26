@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigMissingETDict.h 592495 2014-04-11 08:47:29Z krasznaa $
+// $Id: xAODTrigMissingETDict.h 630930 2014-11-25 14:57:49Z gwatts $
 #ifndef xAODTrigMissingET_xAODTrigMissingET_DICT_H
 #define xAODTrigMissingET_xAODTrigMissingET_DICT_H
 
@@ -16,6 +16,8 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
+#include "xAODTrigMissingET/TrigMissingET.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "xAODTrigMissingET/versions/TrigMissingET_v1.h"
 #include "xAODTrigMissingET/versions/TrigMissingETContainer_v1.h"
 #include "xAODTrigMissingET/versions/TrigMissingETAuxContainer_v1.h"
