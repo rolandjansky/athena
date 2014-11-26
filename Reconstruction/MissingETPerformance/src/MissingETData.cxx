@@ -847,7 +847,7 @@ StatusCode MissingETData::retrieveLevel1Containers() {
         return StatusCode::FAILURE;
       }
     }
-    setCellOut(MET_cellOutEFlow);
+    setCellOutEFlow(MET_cellOutEFlow);
   }
 
   if (_METRefEleKey == "") {setRefEle(_met_zero); } else {

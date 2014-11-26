@@ -69,6 +69,8 @@ use tauEvent			tauEvent-*			Reconstruction
 
 public
 
+# Specify the required ROOT componetns for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)"
 
 ## MB: Create a component library, dual-use not allowed.
 #library MissingETPerformance "../src/*.cxx ../components/*.cxx"
