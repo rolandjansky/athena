@@ -15,4 +15,7 @@ namespace xAOD {
   typedef L2IsoMuon_v1 L2IsoMuon;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::L2IsoMuon, 249627886, 1 )
+
 #endif // XAODTRIGMUON_L2ISOMUON_H

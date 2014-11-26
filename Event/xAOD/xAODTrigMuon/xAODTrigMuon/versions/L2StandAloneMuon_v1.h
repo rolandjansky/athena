@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.h 615851 2014-09-10 07:56:31Z mishitsu $
+// $Id: L2StandAloneMuon_v1.h 631108 2014-11-26 07:47:24Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H
 #define XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H
 
@@ -27,8 +27,8 @@ namespace xAOD {
    /// @author Masaki Ishitsuka <ishitsuka@phys.titech.ac.jp>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 615851 $
-   /// $Date: 2014-09-10 09:56:31 +0200 (Wed, 10 Sep 2014) $
+   /// $Revision: 631108 $
+   /// $Date: 2014-11-26 08:47:24 +0100 (Wed, 26 Nov 2014) $
    ///
    class L2StandAloneMuon_v1 : public IParticle {
 
@@ -193,6 +193,11 @@ namespace xAOD {
       /// Set flag to record if RPC is properly read
       void    setIsRpcFailure( int value );
 
+      /// Get error of pT
+      float   deltaPt() const;
+      /// Set error of pT
+      void    setDeltaPt( float value );
+
       /// Get error of eta
       float   deltaEta() const;
       /// Set error of eta
@@ -215,6 +220,19 @@ namespace xAOD {
       float superPointChi2( int chamber ) const;
       /// Set the properties of one particular super point measurement
       void  setSuperPoint( int chamber, float r, float z, float slope, float intercept=0., float chi2=0. );
+
+      /// Number of track positions stored
+      uint32_t nTrackPositions() const;
+      /// Get R postion of track
+      float    trackPositionR( unsigned int n ) const;
+      /// Get Z postion of track
+      float    trackPositionZ( unsigned int n ) const;
+      /// Get eta postion of track
+      float    trackPositionEta( unsigned int n ) const;
+      /// Get phi postion of track
+      float    trackPositionPhi( unsigned int n ) const;
+      /// Set position of muon track
+      void     setTrackPosition( float r, float z, float eta, float phi );
 
       /// Get and set L2 muon algorithm ID (defined above)
       int      algoId() const;
@@ -479,7 +497,7 @@ namespace xAOD {
       uint32_t     nMdtHits() const;
       uint32_t     mdtHitOnlineId( unsigned int tube ) const;
       uint32_t     mdtHitOfflineId( unsigned int tube ) const;
-      int          mdtHitChamber( unsigned int tube ) const;
+      uint32_t     mdtHitChamber( unsigned int tube ) const;
       float        mdtHitR( unsigned int tube ) const;
       float        mdtHitZ( unsigned int tube ) const;
       float        mdtHitResidual( unsigned int tube ) const;
@@ -505,11 +523,5 @@ namespace xAOD {
 /// Operator for printing the contents of a LVL2 muon
 std::ostream& operator<< ( std::ostream& out,
                            const xAOD::L2StandAloneMuon_v1& mu );
-
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::L2StandAloneMuon_v1, 65772484, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H

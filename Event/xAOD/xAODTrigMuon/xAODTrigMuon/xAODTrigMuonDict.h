@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigMuonDict.h 604163 2014-06-30 10:30:46Z giagu $
+// $Id: xAODTrigMuonDict.h 631108 2014-11-26 07:47:24Z gwatts $
 #ifndef XAODTRIGMUON_XAODTRIGMUONDICT_H
 #define XAODTRIGMUON_XAODTRIGMUONDICT_H
 
@@ -16,6 +16,9 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2IsoMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuon_v1.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuonContainer_v1.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v1.h"

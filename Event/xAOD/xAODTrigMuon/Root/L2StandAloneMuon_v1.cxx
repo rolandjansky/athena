@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 616091 2014-09-11 11:00:02Z mishitsu $
+// $Id: L2StandAloneMuon_v1.cxx 628331 2014-11-14 09:09:36Z mishitsu $
 
 // System include(s):
 #include <iostream>
@@ -158,6 +158,8 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, int,
                                          isRpcFailure, setIsRpcFailure )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
+                                         deltaPt, setDeltaPt )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
                                          deltaEta, setDeltaEta )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
                                          deltaPhi, setDeltaPhi )
@@ -253,6 +255,65 @@ namespace xAOD {
    }
 
    ///
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   ///
+   /// Object for accessing track position variables
+   static SG::AuxElement::Accessor< std::vector< float > >    trkrAcc( "trackPositionR" );
+   static SG::AuxElement::Accessor< std::vector< float > >    trkzAcc( "trackPositionZ" );
+   static SG::AuxElement::Accessor< std::vector< float > >    trketaAcc( "trackPositionEta" );
+   static SG::AuxElement::Accessor< std::vector< float > >    trkphiAcc( "trackPositionPhi" );
+
+   /// Get and set track positions
+   uint32_t L2StandAloneMuon_v1::nTrackPositions() const {
+     return trkrAcc( *this ).size();
+   }
+
+   float L2StandAloneMuon_v1::trackPositionR( unsigned int n ) const {
+     if( trkrAcc( *this ).size() > n ) {
+       return trkrAcc( *this ).at( n );
+     } else {
+       return 0.;
+     }
+   }
+
+   float L2StandAloneMuon_v1::trackPositionZ( unsigned int n ) const {
+     if( trkzAcc( *this ).size() > n ) {
+       return trkzAcc( *this ).at( n );
+     } else {
+       return 0.;
+     }
+   }
+
+   float L2StandAloneMuon_v1::trackPositionEta( unsigned int n ) const {
+     if( trketaAcc( *this ).size() > n ) {
+       return trketaAcc( *this ).at( n );
+     } else {
+       return 0.;
+     }
+   }
+
+   float L2StandAloneMuon_v1::trackPositionPhi( unsigned int n ) const {
+     if( trkphiAcc( *this ).size() > n ) {
+       return trkphiAcc( *this ).at( n );
+     } else {
+       return 0.;
+     }
+   }
+
+
+   void L2StandAloneMuon_v1::setTrackPosition( float r, float z, float eta, float phi ) {
+
+      // Set the variables:
+      trkrAcc( *this ).push_back( r );
+      trkzAcc( *this ).push_back( z );
+      trketaAcc( *this ).push_back( eta );
+      trkphiAcc( *this ).push_back( phi );
+
+      return;
+   }
+   //
    /////////////////////////////////////////////////////////////////////////////
 
    /////////////////////////////////////////////////////////////////////////////
@@ -1090,7 +1151,7 @@ namespace xAOD {
    /// Object for accessing the MDT tube variables
    static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtonAcc( "mdtHitOnlineId" );
    static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtoffAcc( "mdtHitOfflineId" );
-   static SG::AuxElement::Accessor< std::vector< int > >      mdtcAcc( "mdtHitChamber" );
+   static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtcAcc( "mdtHitChamber" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtrAcc( "mdtHitR" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtzAcc( "mdtHitZ" );
    static SG::AuxElement::Accessor< std::vector< float > >    mdtresAcc( "mdtHitResidual" );
@@ -1633,7 +1694,7 @@ namespace xAOD {
      }
    }
 
-   int L2StandAloneMuon_v1::mdtHitChamber( unsigned int tube ) const {
+   uint32_t L2StandAloneMuon_v1::mdtHitChamber( unsigned int tube ) const {
      if( mdtcAcc( *this ).size() > tube ) {
        return mdtcAcc( *this ).at( tube );
      } else {
@@ -1742,8 +1803,9 @@ std::ostream& operator<< ( std::ostream& out,
    out << "phiBin: "        << mu.phiBin()        << "; ";
    out << "isTgcFailure: "  << mu.isTgcFailure()  << "; ";
    out << "isRpcFailure: "  << mu.isRpcFailure()  << "; ";
-   out << "deltaPhi: "      << mu.deltaPhi()      << "; ";
+   out << "deltaPt: "       << mu.deltaPt()       << "; ";
    out << "deltaEta: "      << mu.deltaEta()      << "; ";
+   out << "deltaPhi: "      << mu.deltaPhi()      << "; ";
    out << "algoId: "        << mu.algoId()        << "; ";
    out << "teId: "          << mu.teId()          << "; ";
    out << "lvl1Id: "        << mu.lvl1Id()        << "; ";

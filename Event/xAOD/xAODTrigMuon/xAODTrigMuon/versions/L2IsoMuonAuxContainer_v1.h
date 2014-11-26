@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2IsoMuonAuxContainer_v1.h 605591 2014-07-09 12:07:31Z krasznaa $
+// $Id: L2IsoMuonAuxContainer_v1.h 631391 2014-11-26 21:43:36Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2ISOMUONAUXCONTAINER_V1_H
 #define XAODTRIGMUON_VERSIONS_L2ISOMUONAUXCONTAINER_V1_H
 
@@ -60,12 +60,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
 #include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::L2IsoMuonAuxContainer_v1, 1128059587, 1 )
-#include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::L2IsoMuonAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGMUON_VERSIONS_L2ISOMUONAUXCONTAINER_V1_H

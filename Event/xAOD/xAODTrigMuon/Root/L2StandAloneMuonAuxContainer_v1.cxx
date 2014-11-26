@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonAuxContainer_v1.cxx 613775 2014-08-28 07:56:49Z mishitsu $
+// $Id: L2StandAloneMuonAuxContainer_v1.cxx 628331 2014-11-14 09:09:36Z mishitsu $
 
 // Local include(s):
 #include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v1.h"
@@ -45,6 +45,7 @@ namespace xAOD {
       AUX_VARIABLE( isTgcFailure );
       AUX_VARIABLE( isRpcFailure );
 
+      AUX_VARIABLE( deltaPt );
       AUX_VARIABLE( deltaEta );
       AUX_VARIABLE( deltaPhi );
 
@@ -53,6 +54,11 @@ namespace xAOD {
       AUX_VARIABLE( superPointSlope );
       AUX_VARIABLE( superPointIntercept );
       AUX_VARIABLE( superPointChi2 );
+
+      AUX_VARIABLE( trackPositionR );
+      AUX_VARIABLE( trackPositionZ );
+      AUX_VARIABLE( trackPositionEta );
+      AUX_VARIABLE( trackPositionPhi );
 
       AUX_VARIABLE( algoId );
       AUX_VARIABLE( teId );
@@ -199,6 +205,7 @@ namespace xAOD {
 
       AUX_VARIABLE( mdtHitOnlineId );
       AUX_VARIABLE( mdtHitOfflineId );
+      AUX_VARIABLE( mdtHitChamber );
       AUX_VARIABLE( mdtHitR );
       AUX_VARIABLE( mdtHitZ );
       AUX_VARIABLE( mdtHitResidual );

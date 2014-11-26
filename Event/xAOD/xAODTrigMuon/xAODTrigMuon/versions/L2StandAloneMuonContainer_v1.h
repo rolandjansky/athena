@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonContainer_v1.h 592605 2014-04-11 14:24:04Z krasznaa $
+// $Id: L2StandAloneMuonContainer_v1.h 631108 2014-11-26 07:47:24Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUONCONTAINER_V1_H
 #define XAODTRIGMUON_VERSIONS_L2STANDALONEMUONCONTAINER_V1_H
 
@@ -21,11 +21,5 @@ namespace xAOD {
    /// Define the trigger calorimeter cluster container as a simple DataVector
    typedef DataVector< L2StandAloneMuon_v1 > L2StandAloneMuonContainer_v1;
 }
-
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::L2StandAloneMuonContainer_v1, 1307619630, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUONCONTAINER_V1_H

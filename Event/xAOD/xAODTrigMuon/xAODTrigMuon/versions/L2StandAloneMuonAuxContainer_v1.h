@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonAuxContainer_v1.h 613775 2014-08-28 07:56:49Z mishitsu $
+// $Id: L2StandAloneMuonAuxContainer_v1.h 631391 2014-11-26 21:43:36Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
 #define XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
 
@@ -27,7 +27,7 @@ namespace xAOD {
    /// @author Masaki Ishitsuka <ishitsuka@phys.titech.ac.jp>
    ///
    /// $Revsision$
-   /// $Date: 2014-08-28 09:56:49 +0200 (Thu, 28 Aug 2014) $
+   /// $Date: 2014-11-26 22:43:36 +0100 (Wed, 26 Nov 2014) $
    ///
    class L2StandAloneMuonAuxContainer_v1 : public AuxContainerBase {
 
@@ -75,7 +75,8 @@ namespace xAOD {
       /// Flag for RGC and RPC availabilities
       std::vector< int >      isTgcFailure;
       std::vector< int >      isRpcFailure;
-      /// Error of eta and phi
+      /// Error of pt, eta and phi
+      std::vector< float >    deltaPt;
       std::vector< float >    deltaEta;
       std::vector< float >    deltaPhi;
 
@@ -85,6 +86,12 @@ namespace xAOD {
       std::vector< std::vector< float > > superPointSlope;
       std::vector< std::vector< float > > superPointIntercept;
       std::vector< std::vector< float > > superPointChi2;
+
+      /// Track positions
+      std::vector< std::vector< float > > trackPositionR;
+      std::vector< std::vector< float > > trackPositionZ;
+      std::vector< std::vector< float > > trackPositionEta;
+      std::vector< std::vector< float > > trackPositionPhi;
 
       /// Detailed information
       std::vector< int >      algoId;
@@ -259,12 +266,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::L2StandAloneMuonAuxContainer_v1, 1207804085, 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::L2StandAloneMuonAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H

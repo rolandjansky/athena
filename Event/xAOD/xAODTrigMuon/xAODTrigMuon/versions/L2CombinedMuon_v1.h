@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2CombinedMuon_v1.h 605591 2014-07-09 12:07:31Z krasznaa $
+// $Id: L2CombinedMuon_v1.h 631108 2014-11-26 07:47:24Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H
 #define XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H
 
@@ -137,11 +137,5 @@ namespace xAOD {
 /// Operator for printing the contents of a LVL2 muon
 std::ostream& operator<< ( std::ostream& out,
                            const xAOD::L2CombinedMuon_v1& mu );
-
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::L2CombinedMuon_v1 , 221697629 , 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H
