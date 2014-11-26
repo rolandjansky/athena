@@ -11,9 +11,17 @@ namespace Egamma{
 
 
 PhotonCnvPlots::PhotonCnvPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
-m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"), 
-m_sParticleType(sParticleType)
+											       m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
+											       m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"), 
+											       m_sParticleType(sParticleType),
+											       nParticles(0),
+											       nVtx(0),
+											       convR(0),
+											       convType(0),
+											       convDeltaEta(0),
+											       convDeltaPhi(0)
+
+
 {}	
 
 void PhotonCnvPlots::initializePlots(){

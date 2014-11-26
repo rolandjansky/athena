@@ -9,12 +9,14 @@
 namespace Egamma{
 
 ElectronFrwdPlots::ElectronFrwdPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),
-m_oKinFrwdAllRecoPlots(this, "All/KinPlots/", "Reco Electron"),
-m_oKinFrwdIsoRecoPlots(this, "Iso/KinPlots/", "Reco Electron"),
-m_oKinFrwdTightPlots(this, "FrwdTight/KinPlots/", "FrwdTight Electron"),
-m_oClustMomAllRecoPlots(this, "All/ClusMomentPlots/", sParticleType ),
-m_oClustMomIsoRecoPlots(this, "Iso/ClusMomentPlots/", sParticleType ),
-m_sParticleType(sParticleType)
+												     m_oKinFrwdAllRecoPlots(this, "All/KinPlots/", "Reco Electron"),
+												     m_oKinFrwdIsoRecoPlots(this, "Iso/KinPlots/", "Reco Electron"),
+												     m_oKinFrwdTightPlots(this, "FrwdTight/KinPlots/", "FrwdTight Electron"),
+												     m_oClustMomAllRecoPlots(this, "All/ClusMomentPlots/", sParticleType ),
+												     m_oClustMomIsoRecoPlots(this, "Iso/ClusMomentPlots/", sParticleType ),
+												     nParticles(0),
+												     m_sParticleType(sParticleType)
+
 {}	
 
 void ElectronFrwdPlots::initializePlots(){

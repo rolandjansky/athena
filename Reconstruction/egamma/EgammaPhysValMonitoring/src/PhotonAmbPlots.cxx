@@ -9,9 +9,10 @@ namespace Egamma{
 
 
 PhotonAmbPlots::PhotonAmbPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
-m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
-m_sParticleType(sParticleType)
+											       m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
+											       m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
+											       m_sParticleType(sParticleType),
+											       nParticles(0)
 {}	
 
 void PhotonAmbPlots::initializePlots(){

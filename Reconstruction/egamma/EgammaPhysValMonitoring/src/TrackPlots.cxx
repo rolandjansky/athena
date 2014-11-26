@@ -8,7 +8,16 @@
 namespace Egamma{
 
 TrackPlots::TrackPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-m_sParticleType(sParticleType)
+										       m_sParticleType(sParticleType),
+										       deta(0),
+										       dphi(0),
+										       blayer(0), 
+										       pixel(0),
+										       sct(0),
+										       si(0),
+										       trt(0),
+										       trtratio(0)
+
 {}	
 
 void TrackPlots::initializePlots(){
@@ -25,19 +34,17 @@ void TrackPlots::initializePlots(){
 
 void TrackPlots::fill(const xAOD::Electron& electron){
 
-  float deta1,dphi2/*,charge*/;
-  electron.trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 );
-  electron.trackCaloMatchValue(dphi2, xAOD::EgammaParameters::deltaPhi2 );
-  //electron.trackParticle(charge, xAOD::EgammaParameters::charge );
-//std::cout<<"deta 1"<<deta1<<"    "<<"dphi2 "<<dphi2;
-//std::cout<<"deltaEta "<<xAOD::EgammaParameters::deltaEta1;
-
-  deta->Fill(deta1);
-  dphi->Fill(dphi2*electron.trackParticle()->charge());
+  float deta1(0), dphi2 (0);
+  if(electron.trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 )){
+    deta->Fill(deta1);
+  }
+  if(electron.trackCaloMatchValue(dphi2, xAOD::EgammaParameters::deltaPhi2 )){
+    dphi->Fill(dphi2*electron.trackParticle()->charge());
+  }
 
   if(!electron.trackParticle())  return;
 
-  blayer->Fill(RetrieveHitInfo(electron, xAOD::numberOfBLayerHits));
+  blayer->Fill(RetrieveHitInfo(electron, xAOD::numberOfInnermostPixelLayerHits));
   pixel->Fill(RetrieveHitInfo(electron, xAOD::numberOfPixelHits));
   sct->Fill(RetrieveHitInfo(electron, xAOD::numberOfSCTHits));
   si->Fill(RetrieveHitInfo(electron, xAOD::numberOfPixelHits) + RetrieveHitInfo(electron, xAOD::numberOfSCTHits));

@@ -43,9 +43,11 @@ EgammaPhysValMonitoringTool::EgammaPhysValMonitoringTool( const std::string& typ
 			  const std::string& name, 
 			  const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent ),
+  m_truthParticleContainerName("TruthParticle"),
   m_oElectronValidationPlots(0, "Electron/"),
   m_oPhotonValidationPlots(0, "Photon/"),
-  m_truthClassifier("MCTruthClassifier/MCTruthClassifier")
+  m_truthClassifier("MCTruthClassifier/MCTruthClassifier"),
+  m_truthParticles(0)
 {    
   declareProperty( "ElectronContainerName", m_electronContainerName = "ElectronCollection" ); 
   declareProperty( "ElectronContainerFrwdName", m_electronContainerFrwdName = "FwdElectrons" ); 
@@ -121,9 +123,12 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
       
       if(truthParticle->isAvailable <int>("type")) {
 	type   = (MCTruthPartClassifier::ParticleType) truthParticle->auxdata< int >("type");
-      } else m_oElectronValidationPlots.m_oTruthPlots.fill(*truthParticle); 
+      } else m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthParticle); 
       
-      if(type==IsoElectron) m_oElectronValidationPlots.m_oTruthPlots.fill(*truthParticle);
+    if(type!=IsoElectron) continue;
+      m_oElectronValidationPlots.m_oTruthAllPlots.fill(*truthParticle);
+      if(abs(truthParticle->eta())<2.47) m_oElectronValidationPlots.m_oTruthCentralPlots.fill(*truthParticle);
+      else m_oElectronValidationPlots.m_oTruthFrwdPlots.fill(*truthParticle);   
     	
   } //-- end electrons
 

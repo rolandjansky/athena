@@ -6,15 +6,16 @@
 #include "xAODEgamma/EgammaDefs.h"
 
 PhotonValidationPlots::PhotonValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
-m_oAllPlots(this, "PhotAll/", "Reco All"),
-m_oPhotPlots(this, "Phot/", "Reco Phot"),
-m_oTopoPhotPlots(this, "PhotTopo/", "Reco Topo Phot"),
-m_oAmbPhotPlots(this, "PhotAmb/", "Reco Ambig Phot"),
-m_oConvPhotPlots(this, "Conv/", "Reco Converted"),
-m_oTruthPlots(this, "Truth/All/", "Truth Photon"),
-m_oTruthIsoPlots(this, "Truth/Iso/all/", "Truth Iso photon"),
-m_oTruthIsoConvPlots(this, "Truth/Iso/Conv/", "Truth Iso Conv"),
-m_oTruthIsoUncPlots(this, "Truth/Iso/Unc/",  "Truth Iso Unc")
+										  m_oAllPlots(this, "PhotAll/", "Reco All"),
+										  m_oPhotPlots(this, "Phot/", "Reco Phot"),
+										  m_oTopoPhotPlots(this, "PhotTopo/", "Reco Topo Phot"),
+										  m_oAmbPhotPlots(this, "PhotAmb/", "Reco Ambig Phot"),
+										  m_oConvPhotPlots(this, "Conv/", "Reco Converted"),
+										  m_oTruthPlots(this, "Truth/All/", "Truth Photon"),
+										  m_oTruthIsoPlots(this, "Truth/Iso/all/", "Truth Iso photon"),
+										  m_oTruthIsoConvPlots(this, "Truth/Iso/Conv/", "Truth Iso Conv"),
+										  m_oTruthIsoUncPlots(this, "Truth/Iso/Unc/",  "Truth Iso Unc"),
+										  author(0)
 {}	
 
 void PhotonValidationPlots::initializePlots(){

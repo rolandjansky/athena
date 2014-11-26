@@ -6,9 +6,12 @@
 #include "xAODEgamma/EgammaDefs.h"
 
 ElectronValidationPlots::ElectronValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
-m_oCentralElecPlots(this,"Central/", "Central"),
-m_oFrwdElecPlots(this, "Frwd/", "Forward"),
-m_oTruthPlots(this, "Truth/", "Truth Electron")
+										      m_oCentralElecPlots(this,"Central/", "Central"),
+										      m_oFrwdElecPlots(this, "Frwd/", "Forward"),
+										      m_oTruthAllPlots(this, "Truth/All/", "Truth Electron All"),
+										      m_oTruthCentralPlots(this, "Truth/Central/", "Truth Electron Central"),
+										      m_oTruthFrwdPlots(this, "Truth/Frwd/", "Truth Electron Frwd"),
+										      author(0)
 {}	
 
 void ElectronValidationPlots::initializePlots(){

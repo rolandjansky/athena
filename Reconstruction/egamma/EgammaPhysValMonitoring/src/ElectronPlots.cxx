@@ -18,19 +18,22 @@ using namespace MCTruthPartClassifier;
 
 namespace Egamma{
 
-ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),
-m_oKinAllRecoPlots(this, "All/KinPlots/", "All Reco "+ sParticleType +" Electron"),
-m_oShowerShapesAllRecoPlots(this, "All/ShowerShapesPlots/","All Reco "+ sParticleType +" Electron"  ),
-m_oIsolationAllRecoPlots(this, "All/IsolationPlots/", "All Reco "+ sParticleType +"  Electron" ),
-m_oTrackAllRecoPlots(this, "All/TrackPlots/", "All Reco "+ sParticleType +"  Electron"  ),
-m_oKinIsoRecoPlots(this, "Iso/KinPlots/", "Iso Reco "+ sParticleType +"  Electron"),
-m_oShowerShapesIsoRecoPlots(this, "Iso/ShowerShapesPlots/","Iso Reco "+ sParticleType +"  Electron" ),
-m_oIsolationIsoRecoPlots(this, "Iso/IsolationPlots/", "Iso Reco "+ sParticleType +"  Electron" ),
-m_oTrackIsoRecoPlots(this, "Iso/TrackPlots/", "Iso Reco "+ sParticleType +"  Electron" ),
-m_oKinIsoLoosePPPlots(this, "IsoLoosePP/KinPlots/", "LoosePP "+ sParticleType +"   Electron"),
-m_oKinIsoMediumPPPlots(this, "IsoMediumPP/KinPlots/", "MediumPP "+ sParticleType +"   Electron"),
-m_oKinIsoTightPPPlots(this, "IsoTightPP/KinPlots/", "TightPP "+ sParticleType +"   Electron"),
-m_sParticleType(sParticleType)
+ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir, 
+			     std::string sParticleType):PlotBase(pParent, sDir),
+							m_oKinAllRecoPlots(this, "All/KinPlots/", "All Reco "+ sParticleType +" Electron"),
+							m_oShowerShapesAllRecoPlots(this, "All/ShowerShapesPlots/","All Reco "+ sParticleType +" Electron"  ),
+							m_oIsolationAllRecoPlots(this, "All/IsolationPlots/", "All Reco "+ sParticleType +"  Electron" ),
+							m_oTrackAllRecoPlots(this, "All/TrackPlots/", "All Reco "+ sParticleType +"  Electron"  ),
+							m_oKinIsoRecoPlots(this, "Iso/KinPlots/", "Iso Reco "+ sParticleType +"  Electron"),
+							m_oShowerShapesIsoRecoPlots(this, "Iso/ShowerShapesPlots/","Iso Reco "+ sParticleType +"  Electron" ),
+							m_oIsolationIsoRecoPlots(this, "Iso/IsolationPlots/", "Iso Reco "+ sParticleType +"  Electron" ),
+							m_oTrackIsoRecoPlots(this, "Iso/TrackPlots/", "Iso Reco "+ sParticleType +"  Electron" ),
+							m_oKinIsoLoosePPPlots(this, "IsoLoosePP/KinPlots/", "LoosePP "+ sParticleType +"   Electron"),
+							m_oKinIsoMediumPPPlots(this, "IsoMediumPP/KinPlots/", "MediumPP "+ sParticleType +"   Electron"),
+							m_oKinIsoTightPPPlots(this, "IsoTightPP/KinPlots/", "TightPP "+ sParticleType +"   Electron"),
+						        nParticles(0),
+							nTypeParticles(0),
+							m_sParticleType(sParticleType)
 {}	
 
 void ElectronPlots::initializePlots(){

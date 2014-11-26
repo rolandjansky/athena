@@ -12,22 +12,23 @@ namespace Egamma{
 
 
 PhotonPlots::PhotonPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
-m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
+											 m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
+											 m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
 //
-m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"),
-m_oShowerShapesIsoPlots(this, "Iso/ShowerShapesPlots/", sParticleType  +" Photon"),
-m_oKinIsoUncPlots(this, "Iso/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
-m_oKinIsoConvPlots(this, "Iso/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
-//
-m_oKinIsoLoosePlots(this, "IsoLoose/KinPlots/", "Reco " + sParticleType +" Photon"),
-m_oKinIsoLooseUncPlots(this, "IsoLoose/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
-m_oKinIsoLooseConvPlots(this, "IsoLoose/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
-//
-m_oKinIsoTightPlots(this, "IsoTight/KinPlots/", "Reco " + sParticleType +" Photon"),
-m_oKinIsoTightUncPlots(this, "IsoTight/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
-m_oKinIsoTightConvPlots(this, "IsoTight/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
-m_sParticleType(sParticleType)
+											 m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"),
+											 m_oShowerShapesIsoPlots(this, "Iso/ShowerShapesPlots/", sParticleType  +" Photon"),
+											 m_oKinIsoUncPlots(this, "Iso/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
+											 m_oKinIsoConvPlots(this, "Iso/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
+											 //
+											 m_oKinIsoLoosePlots(this, "IsoLoose/KinPlots/", "Reco " + sParticleType +" Photon"),
+											 m_oKinIsoLooseUncPlots(this, "IsoLoose/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
+											 m_oKinIsoLooseConvPlots(this, "IsoLoose/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
+											 //
+											 m_oKinIsoTightPlots(this, "IsoTight/KinPlots/", "Reco " + sParticleType +" Photon"),
+											 m_oKinIsoTightUncPlots(this, "IsoTight/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
+											 m_oKinIsoTightConvPlots(this, "IsoTight/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
+											 m_sParticleType(sParticleType),
+											 nParticles(0)
 {}	
 
 void PhotonPlots::initializePlots(){

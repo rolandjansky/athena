@@ -5,11 +5,11 @@
 #include "EgammaValidationPlots.h"
 
 EgammaValidationPlots::EgammaValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
-// Reco only information
-m_oElectronAllPlots(this, "Electron/All/", "Reco Electron"),
-m_oElectronTruthPlots(this, "Electron/Truth/", "Truth Electron"),
-m_oPhotonAllPlots(this, "Photon/All/", "Reco Photon"),
-m_oPhotonTruthPlots(this, "Photon/Truth/", "Truth Photon")
+										  // Reco only information
+										  m_oElectronAllPlots(this, "Electron/All/", "Reco Electron"),
+										  m_oElectronTruthPlots(this, "Electron/Truth/", "Truth Electron"),
+										  m_oPhotonAllPlots(this, "Photon/All/", "Reco Photon"),
+										  m_oPhotonTruthPlots(this, "Photon/Truth/", "Truth Photon")
 {}	
 
 void EgammaValidationPlots::fill(const xAOD::Electron& electron) {
