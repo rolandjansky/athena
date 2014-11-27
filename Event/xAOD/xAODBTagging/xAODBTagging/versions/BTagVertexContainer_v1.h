@@ -19,10 +19,4 @@ namespace xAOD {
    typedef DataVector< xAOD::BTagVertex_v1 > BTagVertexContainer_v1;
 }
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BTagVertexContainer_v1, 1158124735, 1 )
-#endif // XAOD_STANDALONE
-
 #endif // XAODBTAGGING_VERSIONS_BTAGGINGCONTAINER_V1_H

@@ -17,4 +17,8 @@ namespace xAOD {
    typedef BTagVertexContainer_v1 BTagVertexContainer;
 }
 
+// Set up a CLID for the container for Athena
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BTagVertexContainer, 1158124735, 1 )
+
 #endif // XAODBTAGGING_BTAGGINGCONTAINER_H

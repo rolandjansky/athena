@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTaggingAuxContainer.h 569109 2013-11-07 14:59:42Z krasznaa $
+// $Id: BTaggingAuxContainer.h 631475 2014-11-27 11:53:05Z filthaut $
 #ifndef XAODBTAGGING_BTAGGINGAUXCONTAINER_H
 #define XAODBTAGGING_BTAGGINGAUXCONTAINER_H
 
@@ -21,5 +21,9 @@ namespace xAOD {
    ///
    typedef BTaggingAuxContainer_v1 BTaggingAuxContainer;
 }
+
+// Set up a CLID and StoreGate inheritance for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BTaggingAuxContainer, 1243532533, 1 )
 
 #endif // XAODBTAGGING_BTAGGINGAUXCONTAINER_H

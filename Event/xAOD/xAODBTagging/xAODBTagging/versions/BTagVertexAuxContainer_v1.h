@@ -58,12 +58,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BTagVertexAuxContainer_v1, 1083866246, 1 )
-#include "SGTools/BaseInfo.h"
+// Set up StoreGate inheritance for the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::BTagVertexAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODBTAGGING_VERSIONS_BTAGGINGAUXCONTAINER_V1_H

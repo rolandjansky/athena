@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODBTaggingDict.h 602916 2014-06-20 15:08:25Z vacavant $
+// $Id: xAODBTaggingDict.h 631475 2014-11-27 11:53:05Z filthaut $
 #ifndef XAODBTAGGING_XAODBTAGGINGDICT_H
 #define XAODBTAGGING_XAODBTAGGINGDICT_H
 
@@ -21,10 +21,14 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
-#include "xAODBTagging/versions/BTaggingContainer_v1.h"
-#include "xAODBTagging/versions/BTaggingAuxContainer_v1.h"
-#include "xAODBTagging/versions/BTagVertexContainer_v1.h" 
-#include "xAODBTagging/versions/BTagVertexAuxContainer_v1.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTagVertexContainer.h" 
+#include "xAODBTagging/BTagVertexAuxContainer.h"
+// #include "xAODBTagging/versions/BTaggingContainer_v1.h"
+// #include "xAODBTagging/versions/BTaggingAuxContainer_v1.h"
+// #include "xAODBTagging/versions/BTagVertexContainer_v1.h" 
+// #include "xAODBTagging/versions/BTagVertexAuxContainer_v1.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODBTAGGING {

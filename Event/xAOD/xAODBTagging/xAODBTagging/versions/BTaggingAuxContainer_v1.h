@@ -26,8 +26,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 602796 $
-   /// $Date: 2014-06-19 23:49:07 +0200 (Thu, 19 Jun 2014) $
+   /// $Revision: 631475 $
+   /// $Date: 2014-11-27 12:53:05 +0100 (Thu, 27 Nov 2014) $
    ///
    class BTaggingAuxContainer_v1 : public AuxContainerBase {
 
@@ -69,12 +69,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BTaggingAuxContainer_v1, 1243532533, 1 )
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::BTaggingAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODBTAGGING_VERSIONS_BTAGGINGAUXCONTAINER_V1_H

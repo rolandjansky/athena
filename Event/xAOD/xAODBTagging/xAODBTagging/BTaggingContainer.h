@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTaggingContainer.h 569109 2013-11-07 14:59:42Z krasznaa $
+// $Id: BTaggingContainer.h 631475 2014-11-27 11:53:05Z filthaut $
 #ifndef XAODBTAGGING_BTAGGINGCONTAINER_H
 #define XAODBTAGGING_BTAGGINGCONTAINER_H
 
@@ -16,5 +16,9 @@ namespace xAOD {
    /// Definition of the current "BTagging container version"
    typedef BTaggingContainer_v1 BTaggingContainer;
 }
+
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BTaggingContainer, 1264356158, 1 )
 
 #endif // XAODBTAGGING_BTAGGINGCONTAINER_H

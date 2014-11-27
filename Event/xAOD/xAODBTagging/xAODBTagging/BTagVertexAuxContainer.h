@@ -22,4 +22,8 @@ namespace xAOD {
    typedef BTagVertexAuxContainer_v1 BTagVertexAuxContainer;
 }
 
+// Set up a CLID and StoreGate inheritance for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BTagVertexAuxContainer, 1083866246, 1 )
+
 #endif // XAODBTAGGING_BTAGGINGAUXCONTAINER_H
