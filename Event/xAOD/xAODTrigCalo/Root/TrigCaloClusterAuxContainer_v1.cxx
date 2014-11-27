@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloClusterAuxContainer_v1.cxx 639154 2015-01-13 14:35:02Z wigleswt $
+// $Id: TrigCaloClusterAuxContainer_v1.cxx 592214 2014-04-09 19:27:48Z krasznaa $
 
 // Local include(s):
 #include "xAODTrigCalo/versions/TrigCaloClusterAuxContainer_v1.h"
@@ -12,11 +12,15 @@ namespace xAOD {
    TrigCaloClusterAuxContainer_v1::TrigCaloClusterAuxContainer_v1()
       : AuxContainerBase() {
 
-     /// Include the TrigCaloCluster variables:
-#define TRIGCALOCLUSTER_AUX_VARIABLE( TYPE, NAME ) AUX_VARIABLE( NAME )
-#include "xAODTrigCalo/versions/TrigCaloClusterAuxVariables_v1.def"
-#undef TRIGCALOCLUSTER_AUX_VARIABLE
-     
+      AUX_VARIABLE( rawEnergy );
+      AUX_VARIABLE( rawEnergySample );
+      AUX_VARIABLE( rawEt );
+      AUX_VARIABLE( rawEta );
+      AUX_VARIABLE( rawPhi );
+      AUX_VARIABLE( RoIword );
+      AUX_VARIABLE( nCells );
+      AUX_VARIABLE( clusterQuality );
+
    }
 
 } // namespace xAOD
