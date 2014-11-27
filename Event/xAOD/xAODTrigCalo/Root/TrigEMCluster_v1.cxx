@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigEMCluster_v1.cxx 592326 2014-04-10 10:55:31Z krasznaa $
+// $Id: TrigEMCluster_v1.cxx 596561 2014-05-12 12:10:42Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -15,7 +15,12 @@
 
 namespace xAOD {
 
-  static const size_t SIZE = 25; // CaloSampling::CaloSample::UNKNOWN
+  static const size_t SIZE =
+#if __cplusplus >= 201100
+     CaloSampling::CaloSample::Unknown;
+#else
+     CaloSampling::Unknown;
+#endif // C++11
 
   // Constructor
   TrigEMCluster_v1::TrigEMCluster_v1() : TrigCaloCluster() {}

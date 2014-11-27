@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloCluster_v1.h 592326 2014-04-10 10:55:31Z krasznaa $
+// $Id: TrigCaloCluster_v1.h 631628 2014-11-27 17:34:49Z gwatts $
 #ifndef XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTER_V1_H
 #define XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTER_V1_H
 
@@ -22,8 +22,8 @@ namespace xAOD {
    /// @author Aranzazu Ruiz Martinez <Aranzazu.Ruiz.Martinez@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 592326 $
-   /// $Date: 2014-04-10 12:55:31 +0200 (Thu, 10 Apr 2014) $
+   /// $Revision: 631628 $
+   /// $Date: 2014-11-27 18:34:49 +0100 (Thu, 27 Nov 2014) $
    ///
    class TrigCaloCluster_v1 : public SG::AuxElement {
 
@@ -80,10 +80,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigCaloCluster_v1, 114069001, 1 )
-#endif // not XAOD_STANDALONE
+#include "xAODCore/BaseInfo.h"
+SG_BASE( xAOD::TrigCaloCluster_v1, SG::AuxElement );
 
 #endif // XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTER_V1_H

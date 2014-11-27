@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigCaloDict.h 592214 2014-04-09 19:27:48Z krasznaa $
+// $Id: xAODTrigCaloDict.h 631117 2014-11-26 08:48:22Z gwatts $
 #ifndef XAODTRIGCALO_XAODTRIGCALODICT_H
 #define XAODTRIGCALO_XAODTRIGCALODICT_H
 
@@ -16,6 +16,8 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
+#include "xAODTrigCalo/TrigCaloClusterContainer.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/versions/TrigCaloCluster_v1.h"
 #include "xAODTrigCalo/versions/TrigCaloClusterContainer_v1.h"
 #include "xAODTrigCalo/versions/TrigCaloClusterAuxContainer_v1.h"

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloClusterAuxContainer_v1.h 592214 2014-04-09 19:27:48Z krasznaa $
+// $Id: TrigCaloClusterAuxContainer_v1.h 631412 2014-11-26 21:59:17Z gwatts $
 #ifndef XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTERAUXCONTAINER_V1_H
 #define XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTERAUXCONTAINER_V1_H
 
@@ -26,7 +26,7 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
    /// $Revsision$
-   /// $Date: 2014-04-09 21:27:48 +0200 (Wed, 09 Apr 2014) $
+   /// $Date: 2014-11-26 22:59:17 +0100 (Wed, 26 Nov 2014) $
    ///
    class TrigCaloClusterAuxContainer_v1 : public AuxContainerBase {
 
@@ -48,12 +48,6 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigCaloClusterAuxContainer_v1, 1130546378, 1 )
-#include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::TrigCaloClusterAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTERAUXCONTAINER_V1_H
