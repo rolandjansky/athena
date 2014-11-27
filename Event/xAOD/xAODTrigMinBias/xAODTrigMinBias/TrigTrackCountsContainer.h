@@ -12,7 +12,7 @@ namespace xAOD {
 }
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigTrackCountsContainer, 1327042225 , 1 )
 
 #endif

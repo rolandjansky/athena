@@ -31,7 +31,7 @@ namespace xAOD {
   
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE(   xAOD::TrigHisto2DAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif

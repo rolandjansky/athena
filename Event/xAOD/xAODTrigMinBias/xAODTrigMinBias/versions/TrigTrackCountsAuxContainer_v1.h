@@ -40,7 +40,7 @@ namespace xAOD {
 
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE(   xAOD::TrigTrackCountsAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif

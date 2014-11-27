@@ -11,7 +11,7 @@ namespace xAOD {
   typedef TrigHisto2DAuxContainer_v1 TrigHisto2DAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigHisto2DAuxContainer, 1227849540 , 1 )
 
 #endif

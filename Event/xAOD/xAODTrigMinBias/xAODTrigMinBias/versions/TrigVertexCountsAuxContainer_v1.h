@@ -26,7 +26,7 @@ namespace xAOD {
 
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE(   xAOD::TrigVertexCountsAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif

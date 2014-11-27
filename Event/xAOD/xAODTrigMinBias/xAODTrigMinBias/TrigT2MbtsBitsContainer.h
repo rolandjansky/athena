@@ -11,7 +11,7 @@ namespace xAOD {
   typedef TrigT2MbtsBitsContainer_v1 TrigT2MbtsBitsContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigT2MbtsBitsContainer, 1119932133 , 1 )
 
 #endif
