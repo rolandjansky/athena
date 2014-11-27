@@ -9,7 +9,7 @@ use AtlasPolicy             AtlasPolicy-*
 use AthContainers	    AthContainers-*	Control
 use SGTools                 SGTools-*                 Control
 use xAODCore		    xAODCore-*		Event/xAOD
-use GaudiInterface 	    GaudiInterface-*    External		
+#use GaudiInterface 	    GaudiInterface-*    External		
 library xAODTrigMinBias ../Root/*.cxx
 apply_pattern installed_library
 

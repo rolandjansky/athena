@@ -33,26 +33,18 @@ namespace xAOD {
     void print(void) const;
    
     /**  Prints out data members to MsgStream */
-    void print(MsgStream& log) const;
+//    void print(MsgStream& log) const;
  
     /** A data member to contain the number of MBTS counters */
     static const unsigned int NUM_MBTS = 32;
   };
 
   /// Helper function for printing the object
-  std::string str(const TrigT2MbtsBits_v1& trigT2MbtsBits);
+//   std::string str(const TrigT2MbtsBits_v1& trigT2MbtsBits);
  
   ///Helper operator for printing the object
-  MsgStream& operator<< (MsgStream& m, const TrigT2MbtsBits_v1& trigT2MbtsBits);
+//  MsgStream& operator<< (MsgStream& m, const TrigT2MbtsBits_v1& trigT2MbtsBits);
 
 }
-
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigT2MbtsBits_v1 , 178962869 , 1 )
-
-#endif
-
 
 #endif

@@ -6,6 +6,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 #include "xAODTrigMinBias/versions/TrigSpacePointCounts_v1.h"
+#include "xAODTrigMinBias/xAODTrigMinBiasHelperFunc.h"
 
 namespace xAOD {
 
@@ -32,4 +33,29 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigSpacePointCounts_v1, unsigned int, sctSpEndcapC, setSctSpEndcapC)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigSpacePointCounts_v1, unsigned int, sctSpBarrel, setSctSpBarrel)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigSpacePointCounts_v1, unsigned int, sctSpEndcapA, setSctSpEndcapA)
+  
+  double TrigSpacePointCounts_v1::pixelClusBarrelSumEntries(float value_x, float value_y, int cutType) const{
+    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusBarrel" );
+    return xAOD::sumEntries(acc_contents(*this),
+			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
+			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
+			    value_x,value_y,cutType);
+  }
+    //
+  double TrigSpacePointCounts_v1::pixelClusEndcapASumEntries(float value_x, float value_y, int cutType) const{
+    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapA" );
+    return xAOD::sumEntries(acc_contents(*this),
+			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
+			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
+			    value_x,value_y,cutType);
+  }
+    //
+  double TrigSpacePointCounts_v1::pixelClusEndcapCSumEntries(float value_x, float value_y, int cutType) const{
+    static Accessor< std::vector<float> > acc_contents( "contentsPixelClusEndcapC" );
+    return xAOD::sumEntries(acc_contents(*this),
+			    pixelClusTotBins(),pixelClusTotMin(),pixelClusTotMax(),
+			    pixelClusSizeBins(),pixelClusSizeMin(),pixelClusSizeMax(),
+			    value_x,value_y,cutType);
+  }
+  
 }

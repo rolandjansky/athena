@@ -13,11 +13,4 @@ namespace xAOD {
 
 }
 
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigTrackCountsContainer_v1 , 1327042225 , 1 )
-
-#endif
-
 #endif

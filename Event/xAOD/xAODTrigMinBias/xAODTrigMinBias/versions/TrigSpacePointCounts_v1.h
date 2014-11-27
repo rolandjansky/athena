@@ -66,17 +66,15 @@ namespace xAOD {
     
     void setSctSpEndcapA( unsigned int setEA);
     
+    //some functions for monitoring
+    double pixelClusBarrelSumEntries(float value_x, float value_y, int cutType) const;
+    //
+    double pixelClusEndcapASumEntries(float value_x, float value_y, int cutType) const;
+    //
+    double pixelClusEndcapCSumEntries(float value_x, float value_y, int cutType) const;
   };
   
 }
-
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigSpacePointCounts_v1 , 231210679 , 1 )
-
-#endif
-
 
 #endif
 

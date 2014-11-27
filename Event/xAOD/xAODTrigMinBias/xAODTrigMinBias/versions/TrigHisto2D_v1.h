@@ -116,10 +116,4 @@ namespace xAOD {
   
 }
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigHisto2D_v1 , 147969269 , 1 )
-#endif
-
-
 #endif

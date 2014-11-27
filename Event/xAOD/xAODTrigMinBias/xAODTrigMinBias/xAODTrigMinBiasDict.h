@@ -32,6 +32,10 @@
 #include "xAODTrigMinBias/versions/TrigTrackCountsContainer_v1.h"
 #include "xAODTrigMinBias/versions/TrigTrackCountsAuxContainer_v1.h"
 
+#include "xAODTrigMinBias/versions/TrigT2ZdcSignals_v1.h"
+#include "xAODTrigMinBias/versions/TrigT2ZdcSignalsContainer_v1.h"
+#include "xAODTrigMinBias/versions/TrigT2ZdcSignalsAuxContainer_v1.h"
+
 //i don't know what for
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGMINBIAS {
@@ -62,6 +66,14 @@ namespace {
       ElementLink< xAOD::TrigTrackCountsContainer_v1 > eltt1;
       std::vector< ElementLink< xAOD::TrigTrackCountsContainer_v1 > > eltt2;
       std::vector< std::vector< ElementLink< xAOD::TrigTrackCountsContainer_v1 > > > eltt3;
+
+      xAOD::TrigT2ZdcSignalsContainer_v1 czdct1;
+      DataLink< xAOD::TrigT2ZdcSignalsContainer_v1 > dlzdct1;
+      std::vector< DataLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > dlzdct2;
+      ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > elzdct1;
+      std::vector< ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > elzdct2;
+      std::vector< std::vector< ElementLink< xAOD::TrigT2ZdcSignalsContainer_v1 > > > elzdct3;
+
    };
 } // private namespace
 

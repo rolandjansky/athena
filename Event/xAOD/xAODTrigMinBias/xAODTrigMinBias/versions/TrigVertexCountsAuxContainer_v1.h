@@ -25,13 +25,8 @@ namespace xAOD {
   };
 
 }
-// SET UP A CLID AND STOREGATE INHERITANCE FOR THE CLASS:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigVertexCountsAuxContainer_v1 , 1318703172 , 1 )
 
 #include "SGTools/BaseInfo.h"
 SG_BASE(   xAOD::TrigVertexCountsAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif

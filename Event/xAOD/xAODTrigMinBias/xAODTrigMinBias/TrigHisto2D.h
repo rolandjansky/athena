@@ -11,4 +11,7 @@ namespace xAOD {
   typedef TrigHisto2D_v1 TrigHisto2D;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigHisto2D, 147969269 , 1 )
+
 #endif

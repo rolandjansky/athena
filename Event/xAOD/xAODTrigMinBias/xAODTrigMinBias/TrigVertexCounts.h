@@ -11,4 +11,7 @@ namespace xAOD {
   typedef TrigVertexCounts_v1 TrigVertexCounts;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigVertexCounts, 27498249 , 1 )
+
 #endif

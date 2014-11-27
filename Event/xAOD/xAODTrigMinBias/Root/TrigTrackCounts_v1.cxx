@@ -6,6 +6,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 #include "xAODTrigMinBias/versions/TrigTrackCounts_v1.h"
+#include "xAODTrigMinBias/xAODTrigMinBiasHelperFunc.h"
 
 namespace xAOD {
 
@@ -35,4 +36,20 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrigTrackCounts_v1, unsigned int, phiBins, setPhiBins)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrigTrackCounts_v1, float, phiMin, setPhiMin)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrigTrackCounts_v1, float, phiMax, setPhiMax)
+  
+  double TrigTrackCounts_v1:: z0_ptSumEntries(float value_x, float value_y, int cutType) const {
+    static Accessor< std::vector<float> > acc_contents( "z0_pt" );
+    return xAOD::sumEntries(acc_contents(*this),
+			    z0Bins(),z0Min(),z0Max(),
+			    ptBins(),ptMin(),ptMax(),
+			    value_x,value_y,cutType);
+  }
+  
+  double TrigTrackCounts_v1:: eta_phiSumEntries(float value_x, float value_y, int cutType) const {
+    static Accessor< std::vector<float> > acc_contents( "eta_phi" );
+    return xAOD::sumEntries(acc_contents(*this),
+			    etaBins(),etaMin(),etaMax(),
+			    phiBins(),phiMin(),phiMax(),
+			    value_x,value_y,cutType);
+  }
 }

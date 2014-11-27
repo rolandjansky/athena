@@ -11,4 +11,7 @@ namespace xAOD {
   typedef TrigSpacePointCounts_v1 TrigSpacePointCounts;
 }
 
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigSpacePointCounts, 231210679 , 1 )
+
 #endif

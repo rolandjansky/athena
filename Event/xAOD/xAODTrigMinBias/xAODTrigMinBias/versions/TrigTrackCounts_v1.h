@@ -46,9 +46,9 @@ namespace xAOD {
   float phiMax() const;
   /*setters*/
   
-  void setZ0_pt(const std::vector<float> &z0pt);
+  void setZ0_pt(const std::vector<float> &z0_pt);
 
-  void setEta_phi(const std::vector<float> &z0pt);
+  void setEta_phi(const std::vector<float> &eta_phi);
 
   void setZ0Bins(unsigned int);
   
@@ -73,17 +73,13 @@ namespace xAOD {
   void setPhiMin(float);
   
   void setPhiMax(float);
+  
+  double z0_ptSumEntries(float value_x, float value_y, int cutType) const;
+  
+  double eta_phiSumEntries(float value_x, float value_y, int cutType) const;
   };
 
 }
-
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigTrackCounts_v1 , 7994217 , 1 )
-
-#endif
-
 
 #endif
 

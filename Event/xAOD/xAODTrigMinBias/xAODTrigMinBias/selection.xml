@@ -14,4 +14,14 @@
   <class name="xAOD::TrigVertexCounts_v1" />
   <class name="xAOD::TrigVertexCountsContainer_v1" id="07EE6B72-1207-11E4-8B69-02163E00A892" />
   <class name="xAOD::TrigVertexCountsAuxContainer_v1" id="70E7BDFE-1207-11E4-ACEF-02163E00A892" />
+  <class name="xAOD::TrigT2ZdcSignals_v1" id="7DBA0C1E-5E27-11E4-8802-02163E00A82C" />
+  <class name="xAOD::TrigT2ZdcSignalsContainer_v1" id="8313279A-5E27-11E4-A635-02163E00A82C" />
+  <class naem="xAOD::TrigT2ZdcSignalsAuxContainer_v1" id="83B9F174-5E27-11E4-98C2-02163E00A82" />
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+  </exclusion>
 </lcgdict>

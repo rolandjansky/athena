@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef xAODTrigMinBias_TrigT2MbtsBitsAUXCONTAINTER_V1_H
-#define xAODTrigMinBias_TrigT2MbtsBitsAUXCONTAINTER_V1_H
+#ifndef xAODTrigMinBias_TrigT2ZdcSignalsAUXCONTAINTER_V1_H
+#define xAODTrigMinBias_TrigT2ZdcSignalsAUXCONTAINTER_V1_H
 
 #include "xAODCore/AuxContainerBase.h"
 
@@ -11,10 +11,10 @@
 
 namespace xAOD {
 
-  class TrigT2MbtsBitsAuxContainer_v1 : public AuxContainerBase {
+  class TrigT2ZdcSignalsAuxContainer_v1 : public AuxContainerBase {
 
   public:
-    TrigT2MbtsBitsAuxContainer_v1();
+    TrigT2ZdcSignalsAuxContainer_v1();
 
   private:
     std::vector<std::vector<float> > triggerEnergies;
@@ -24,6 +24,6 @@ namespace xAOD {
 }
 
 #include "SGTools/BaseInfo.h"
-SG_BASE(   xAOD::TrigT2MbtsBitsAuxContainer_v1, xAOD::AuxContainerBase );
+SG_BASE(   xAOD::TrigT2ZdcSignalsAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif

@@ -11,4 +11,8 @@ namespace xAOD {
   typedef TrigTrackCounts_v1 TrigTrackCounts;
 }
 
+
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigTrackCounts, 7994217 , 1 )
+
 #endif

@@ -13,11 +13,4 @@ namespace xAOD {
 
 }
 
-// Setup a CLID for the container... not sure what this is for.
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigSpacePointCountsContainer_v1 , 1208170683 , 1 )
-
-#endif
-
 #endif
