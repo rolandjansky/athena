@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMenuWriter.cxx 589118 2014-03-24 16:20:19Z krasznaa $
+// $Id: xAODMenuWriter.cxx 631651 2014-11-27 18:33:16Z lheinric $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -16,6 +16,9 @@
 #include "TrigConfL1Data/BunchGroup.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTChain.h"
+#include "TrigConfHLTData/HLTSignature.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
+#include "TrigConfHLTData/HLTSequenceList.h"
 
 // EDM include(s):
 #include "xAODTrigger/TrigConfKeys.h"
@@ -183,6 +186,12 @@ namespace TrigConf {
       std::vector< std::string > chainNames, chainParentNames;
       std::vector< float > chainPrescales, chainRerunPrescales,
          chainPassthroughPrescales;
+
+      std::vector< std::vector< uint32_t > > chainSignatureCounters;
+      std::vector< std::vector< int > > chainSignatureLogics;
+      std::vector< std::vector< std::vector< std::string > > > chainSignatureOutputTEs;
+      std::vector< std::vector< std::string > > chainSignatureLabels;
+
       TrigConf::HLTChainList::const_iterator chain_itr =
          m_trigConf->chains().begin();
       TrigConf::HLTChainList::const_iterator chain_end =
@@ -197,6 +206,29 @@ namespace TrigConf {
          chainRerunPrescales.push_back(
               ( *chain_itr )->prescales().getRerunPrescale("").second );
          chainPassthroughPrescales.push_back( ( *chain_itr )->pass_through() );
+
+	 std::vector<uint32_t> counters;
+	 std::vector<int> logics;
+	 std::vector<std::vector<std::string> > outputTEs;
+         std::vector<std::string> labels;
+
+	 ATH_MSG_VERBOSE((*chain_itr)->chain_name() << " has " << (*chain_itr)->signatureList().size() << " signatures");
+	 for(auto& signature : (*chain_itr)->signatureList() ){
+	   uint32_t cntr = signature->signature_counter();
+	   counters.push_back(cntr);
+	   logics.push_back(signature->logic());
+	   labels.push_back(signature->label());
+	   std::vector<std::string> outputTEids;
+	   for(auto& outputTE : signature->outputTEs()){
+	     outputTEids.push_back(outputTE->name());
+	   }
+	   outputTEs.push_back(outputTEids);
+	   ATH_MSG_VERBOSE("converted this signature: " << *signature);
+	 }
+	 chainSignatureCounters.push_back(counters);
+	 chainSignatureLogics.push_back(logics);
+	 chainSignatureOutputTEs.push_back(outputTEs);
+	 chainSignatureLabels.push_back(labels);
 
          // Some verbose information:
          ATH_MSG_VERBOSE( "  \"" << chainNames.back() << "\" Chain Id = "
@@ -213,6 +245,40 @@ namespace TrigConf {
       menu->setChainPrescales( chainPrescales );
       menu->setChainRerunPrescales( chainRerunPrescales );
       menu->setChainPassthroughPrescales( chainPassthroughPrescales );
+      menu->setChainSignatureCounters(chainSignatureCounters);
+
+      menu->setChainSignatureCounters(chainSignatureCounters);
+      menu->setChainSignatureLogics(chainSignatureLogics);
+      menu->setChainSignatureOutputTEs(chainSignatureOutputTEs);
+      menu->setChainSignatureLabels(chainSignatureLabels);
+
+      //
+      // Set its sequence information:
+      //
+      ATH_MSG_DEBUG( "Filling sequence information" );
+      auto sequenceList = m_trigConf->sequences();
+      std::vector<std::vector<std::string> > sequenceInputTEs;
+      std::vector<std::string> sequenceOutputTE;
+      std::vector<std::vector<std::string> > sequenceAlgorithms;
+
+      for(auto& seq : sequenceList){
+	std::vector<std::string> inputTEs;
+	for(auto& input : seq->inputTEs()) inputTEs.push_back(input->name());
+	sequenceInputTEs.push_back(inputTEs);
+	sequenceAlgorithms.push_back(seq->algorithms());
+	sequenceOutputTE.push_back(seq->outputTE()->name());
+
+	ATH_MSG_VERBOSE("original sequence: \n" << *seq);
+	
+	ATH_MSG_VERBOSE("added sequence with: ");
+	ATH_MSG_VERBOSE("  inputTEs: " << sequenceInputTEs.back());
+	ATH_MSG_VERBOSE("     algos: " << sequenceAlgorithms.back());
+	ATH_MSG_VERBOSE("  outputTE: " << sequenceOutputTE.back());
+     }
+
+      menu->setSequenceInputTEs(sequenceInputTEs);
+      menu->setSequenceOutputTEs(sequenceOutputTE);
+      menu->setSequenceAlgorithms(sequenceAlgorithms);
 
       //
       // Set its bunch-group information:

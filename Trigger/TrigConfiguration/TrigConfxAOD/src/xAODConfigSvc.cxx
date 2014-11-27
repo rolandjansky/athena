@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigSvc.cxx 583271 2014-02-14 12:44:39Z krasznaa $
+// $Id: xAODConfigSvc.cxx 631651 2014-11-27 18:33:16Z lheinric $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Incident.h"
@@ -19,19 +19,8 @@
 
 // Local include(s):
 #include "xAODConfigSvc.h"
-
-namespace {
-
-   /// Helper function for finding configurations with given keys
-   bool keysMatch( const xAOD::TrigConfKeys* keys,
-                   const xAOD::TriggerMenu* menu ) {
-
-      return ( ( keys->smk() == menu->smk() ) &&
-               ( keys->l1psk() == menu->l1psk() ) &&
-               ( keys->hltpsk() == menu->hltpsk() ) );
-   }
-
-} // private namespace
+#include "TrigConfxAOD/tools/prepareTriggerMenu.h"
+#include "TrigConfxAOD/tools/xAODKeysMatch.h"
 
 namespace TrigConf {
 
@@ -157,15 +146,34 @@ namespace TrigConf {
       return m_chainList;
    }
 
+   const HLTSequenceList* xAODConfigSvc::sequenceList() const {
+
+      // Check if the object is well prepared:
+      if( m_isInFailure ) {
+         REPORT_MESSAGE( MSG::FATAL )
+            << "Trigger menu not loaded";
+         throw GaudiException( "Service not initialised correctly",
+                               "TrigConf::xAODConfigSvc::chainList",
+                               StatusCode::FAILURE );
+      }
+
+      // Return the pointer:
+      return &m_sequenceList;
+   }
+
    const HLTSequenceList& xAODConfigSvc::sequences() const {
 
-      // Let the user know that something bad is happening:
-      ATH_MSG_WARNING( "HLT sequences are not available from xAOD input" );
+      // Check if the object is well prepared:
+      if( m_isInFailure ) {
+         REPORT_MESSAGE( MSG::FATAL )
+            << "Trigger menu not loaded";
+         throw GaudiException( "Service not initialised correctly",
+                               "TrigConf::xAODConfigSvc::chains",
+                               StatusCode::FAILURE );
+      }
 
-      // Create a dummy object:
-      static const HLTSequenceList dummy;
-      // And return this one...
-      return dummy;
+      // Return the object:
+      return m_sequenceList;
    }
 
    uint32_t xAODConfigSvc::masterKey() const {
@@ -300,13 +308,26 @@ namespace TrigConf {
          }
       }
 
+      // A little sanity check:
+      if( ! m_tmc->size() ) {
+         if( m_stopOnFailure ) {
+            REPORT_MESSAGE( MSG::FATAL )
+               << "No trigger configurations are available on the input";
+            return StatusCode::FAILURE;
+         } else {
+            ATH_MSG_INFO( "No valid xAOD::TriggerMenuContainer is available" );
+            return StatusCode::SUCCESS;
+         }
+      }
+
       // Let the user know what happened:
       ATH_MSG_INFO( "Loaded trigger configuration metadata container" );
 
       // Point the menu pointer to the first element by default:
       m_menu = m_tmc->at( 0 );
       // Cache the menu's configuration:
-      CHECK( prepareMenu( m_menu ) );
+      CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
+                                 m_bgSet, msg() ) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -331,7 +352,7 @@ namespace TrigConf {
       }
 
       // Check if we have the correct menu already:
-      if( keysMatch( keys, m_menu ) ) {
+      if( xAODKeysMatch( keys, m_menu ) ) {
          return StatusCode::SUCCESS;
       }
 
@@ -340,11 +361,12 @@ namespace TrigConf {
       xAOD::TriggerMenuContainer::const_iterator menu_end = m_tmc->end();
       for( ; menu_itr != menu_end; ++menu_itr ) {
          // Check if this is the menu we're looking for:
-         if( ! keysMatch( keys, *menu_itr ) ) continue;
+         if( ! xAODKeysMatch( keys, *menu_itr ) ) continue;
          // Remember it's pointer:
          m_menu = *menu_itr;
          // Cache the menu's configuration:
-         CHECK( prepareMenu( m_menu ) );
+         CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
+                                    m_bgSet, msg() ) );
          // We're done:
          return StatusCode::SUCCESS;
       }
@@ -355,111 +377,6 @@ namespace TrigConf {
          << keys->smk() << ", L1PSK:" << keys->l1psk()
          << ", HLTPSK:" << keys->hltpsk() << ")";
       return StatusCode::FAILURE;
-   }
-
-   StatusCode xAODConfigSvc::prepareMenu( const xAOD::TriggerMenu* menu ) {
-
-      // Clear the current LVL1 configuration:
-      m_ctpConfig.menu().clear();
-      m_ctpConfig.clearPrescaleSets();
-
-      // Fill the LVL1 configuration:
-      for( size_t i = 0; i < menu->itemCtpIds().size(); ++i ) {
-         TriggerItem* item = new TriggerItem();
-         item->setName( menu->itemNames()[ i ] );
-         item->setCtpId( menu->itemCtpIds()[ i ] );
-         m_ctpConfig.menu().addTriggerItem( item );
-         if( menu->itemPrescalesAvailable() ) {
-            m_ctpConfig.prescaleSet().setPrescale( menu->itemCtpIds()[ i ],
-               static_cast< int >( menu->itemPrescales()[ i ] ) );
-         }
-      }
-
-      // Clear the current HLT configuration:
-      m_chainList.clear();
-
-      // Fill the HLT configuration:
-      for( size_t i = 0; i < menu->chainIds().size(); ++i ) {
-
-         // Figure out which level this chain is from:
-         std::string level = "";
-         if( menu->chainNames()[ i ].find( "L2_" ) == 0 ) {
-            level = "L2";
-         } else if( menu->chainNames()[ i ].find( "EF_" ) == 0 ) {
-            level = "EF";
-         } else if( menu->chainNames()[ i ].find( "HLT_" ) == 0 ) {
-            level = "HLT";
-         } else {
-            ATH_MSG_WARNING( "Couldn't figure out 'level' for chain: "
-                             << menu->chainNames()[ i ] );
-         }
-         // An empty signature list for the chain:
-         const std::vector< HLTSignature* > dummySignatures;
-         // Create the chain object:
-         HLTChain* chain = new HLTChain( menu->chainNames()[ i ],
-                                         menu->chainIds()[ i ],
-                                         1, // Chain version not important
-                                         level,
-                                         menu->chainParentNames()[ i ],
-                                         -1, // Lower chain ID not important
-                                         dummySignatures );
-         if( menu->chainRerunPrescalesAvailable() ) {
-            chain->set_rerun_prescale( menu->chainRerunPrescales()[ i ] );
-         }
-         if( menu->chainPassthroughPrescalesAvailable() ) {
-            chain->set_pass_through( menu->chainPassthroughPrescales()[ i ] );
-         }
-         // Add it to the list of chains:
-         if( ! m_chainList.addHLTChain( chain ) ) {
-            REPORT_MESSAGE( MSG::FATAL )
-               << "Couldn't add chain \"" << chain->name()
-               << "\"";
-            delete chain;
-            return StatusCode::FAILURE;
-         }
-      }
-
-      // Check if bunch-groups are available:
-      if( menu->bunchGroupBunchesAvailable() ) {
-
-         // Create a new BunchGroupSet object, since an existing one can't be
-         // modified... :-/
-         BunchGroupSet bgSet;
-
-         // Fill it with info:
-         for( size_t i = 0; i < menu->bunchGroupBunches().size(); ++i ) {
-
-            // Create a BunchGroup object:
-            BunchGroup bg;
-            bg.setInternalNumber( i );
-            std::vector< uint16_t >::const_iterator b_itr =
-               menu->bunchGroupBunches()[ i ].begin();
-            std::vector< uint16_t >::const_iterator b_end =
-               menu->bunchGroupBunches()[ i ].end();
-            for( ; b_itr != b_end; ++b_itr ) {
-               bg.addBunch( *b_itr );
-            }
-
-            // Add it to the set:
-            bgSet.addBunchGroup( bg );
-         }
-
-         // Replace the current bunch-group set with the new one:
-         m_bgSet = bgSet;
-
-      } else {
-         ATH_MSG_WARNING( "Bunch-group information not available on the "
-                          "input" );
-      }
-
-      // Let the user know what happened:
-      ATH_MSG_INFO( "Loaded configuration:" );
-      ATH_MSG_INFO( "  SMK = " << m_menu->smk()
-                    << ", L1PSK = " << m_menu->l1psk()
-                    << ", HLTPSK = " << m_menu->hltpsk() );
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
    }
 
 } // namespace TrigConf

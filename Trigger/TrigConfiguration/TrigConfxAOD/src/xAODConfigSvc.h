@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigSvc.h 583271 2014-02-14 12:44:39Z krasznaa $
+// $Id: xAODConfigSvc.h 631651 2014-11-27 18:33:16Z lheinric $
 #ifndef TRIGCONFXAOD_XAODCONFIGSVC_H
 #define TRIGCONFXAOD_XAODCONFIGSVC_H
 
@@ -19,6 +19,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
 #include "TrigConfHLTData/HLTChainList.h"
+#include "TrigConfHLTData/HLTSequenceList.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TriggerMenu.h"
@@ -35,8 +36,8 @@ namespace TrigConf {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 583271 $
-    * $Date: 2014-02-14 13:44:39 +0100 (Fri, 14 Feb 2014) $
+    * $Revision: 631651 $
+    * $Date: 2014-11-27 19:33:16 +0100 (Thu, 27 Nov 2014) $
     */
    class xAODConfigSvc : public AthService,
                          public virtual ITrigConfigSvc,
@@ -78,11 +79,9 @@ namespace TrigConf {
       /// Get the HLT chains
       virtual const HLTChainList& chains() const;
 
-      /// Get the HLT sequences (not available from xAOD)
-      virtual const HLTSequenceList* sequenceList() const {
-         return 0;
-      }
-      /// Get the HLT sequences (not available from xAOD)
+      /// Get the HLT sequences
+      virtual const HLTSequenceList* sequenceList() const;
+      /// Get the HLT sequences
       virtual const HLTSequenceList& sequences() const;
 
       /// Get the Super Master Key
@@ -140,8 +139,6 @@ namespace TrigConf {
       StatusCode readMetadata();
       /// Function setting up the service for a new event
       StatusCode prepareEvent();
-      /// Function caching the information about one particular menu
-      StatusCode prepareMenu( const xAOD::TriggerMenu* menu );
 
       /// Key for the event-level configuration identifier object
       std::string m_eventName;
@@ -162,6 +159,8 @@ namespace TrigConf {
       CTPConfig m_ctpConfig;
       /// The "translated" HLT configuration object
       HLTChainList m_chainList;
+      /// The "translated" HLT configuration object
+      HLTSequenceList m_sequenceList;
       /// The "translated" bunch group set object
       BunchGroupSet m_bgSet;
 
