@@ -38,6 +38,8 @@ CscRawDataCollectionIdHash::CscRawDataCollectionIdHash()
       // map
       m_lookup[id]=m_size;
       m_int2id.push_back(id);
+      // ROD ID
+      m_int2rodId.push_back( id%m_cabling->nROD() );
       ++m_size;
 
       // SubDetectorID
@@ -46,8 +48,6 @@ CscRawDataCollectionIdHash::CscRawDataCollectionIdHash()
       else                                      // A-side
 	m_int2subDetectorId.push_back(0x69);
 
-      // ROD ID
-      m_int2rodId.push_back( id%m_cabling->nROD() );
     }
 }
 
@@ -75,11 +75,13 @@ uint16_t CscRawDataCollectionIdHash::subDetectorId(int index) const
 
 
 /** reverse conversion : ROD ID */
-uint16_t CscRawDataCollectionIdHash::rodId(int index) const
+uint16_t CscRawDataCollectionIdHash::rodId(unsigned int index) const
 {
-  if (index>=0 && index < m_size)
-    return m_int2rodId[index]; 
+  //if (index>=0 && index < m_size)
+  //  return m_int2rodId[index]; 
   
+  if(index < m_int2rodId.size())
+     return m_int2rodId.at(index);
   // if invalid index 
   return INVALID_ID; 
 }
@@ -90,7 +92,7 @@ int CscRawDataCollectionIdHash::operator() (const ID& id) const
 {
   std::map<ID,int>::const_iterator it = m_lookup.find(id); 
   if(it!=m_lookup.end())
-    return (*it).second; 
+    return it->second; 
 
  // if invalid ID
  return INVALID_ID; 

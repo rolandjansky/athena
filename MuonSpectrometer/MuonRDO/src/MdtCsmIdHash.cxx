@@ -49,6 +49,11 @@ MdtCsmIdHash::MdtCsmIdHash( )
   unsigned int used = mdtHelper->module_hash_max();
   IdContext context = mdtHelper->module_context();
 
+  if( mdtHelper->stationNameIndex("BME") != -1 ) {
+    used = mdtHelper->detectorElement_hash_max();
+    context = mdtHelper->detectorElement_context();
+  }
+
   for(unsigned int hash=0; hash < used; ++hash){
     Identifier id;
     if (!mdtHelper->get_id(hash,id,&context)) {
