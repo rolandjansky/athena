@@ -37,7 +37,7 @@ public:
 
   /** reverse conversion for SubDetectorID and ROD ID*/
   uint16_t subDetectorId(int i) const;
-  uint16_t rodId(int i) const;
+  uint16_t rodId(unsigned int i) const;
 
   // return value definition
   enum {INVALID_ID = 0xFFFF};
