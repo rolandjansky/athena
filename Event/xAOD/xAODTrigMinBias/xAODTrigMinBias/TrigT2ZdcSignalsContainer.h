@@ -11,7 +11,7 @@ namespace xAOD {
   typedef TrigT2ZdcSignalsContainer_v1 TrigT2ZdcSignalsContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigT2ZdcSignalsContainer, 1092578609 , 1 )
 
 #endif

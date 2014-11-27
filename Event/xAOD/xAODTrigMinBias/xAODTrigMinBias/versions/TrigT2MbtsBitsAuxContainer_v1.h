@@ -23,7 +23,7 @@ namespace xAOD {
 
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE(   xAOD::TrigT2MbtsBitsAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif
