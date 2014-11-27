@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/MufastStauHypo.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -115,33 +115,30 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
       msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
   }
   
-
-  // Get vector of pointers to all MuonFeatures linked to the outputTE 
-  //   by label "uses":
-  std::vector<const MuonFeature*> vectorOfMuons; 
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfMuons);
-  if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no MuonFeatures found" << endreq;
-      return status;
+  // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
+  const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
+  HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
+  if (status!=HLT::OK) {
+     msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+     return status;
   }
-  // Check that there is only one MuonFeature
-  if (vectorOfMuons.size() != 1){
-    msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons.size()
-          << endreq;
-    return HLT::NAV_ERROR;
+
+  // Check that there is only one L2StandAloneMuon
+  if (vectorOfMuons->size() != 1){
+     msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+     return HLT::NAV_ERROR;
   }
 
   // Get first (and only) RoI:
-  const MuonFeature* pMuon = vectorOfMuons.front();
+  const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
   if(!pMuon){
-    msg() << MSG::ERROR << "Retrieval of MuonFeature from vector failed"
-          << endreq;
+    msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
     return HLT::NAV_ERROR;
   }
 
   m_fex_pt  = (pMuon->pt())? pMuon->pt()  : -9999.;
-  m_fex_eta = (pMuon->eta())? pMuon->eta() : -9999.;
-  m_fex_phi = (pMuon->eta())? pMuon->phi() : -9999.;
+  m_fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999.;
+  m_fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999.;
 
 
   //Get the Pt cut for that eta bin
@@ -156,15 +153,15 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // convert units since Muonfeature is in GeV
  double mCand = 0;
  double BetaCand = pMuon->beta();
- if (fabsf(pMuon->eta())>1.5 && fabsf(pMuon->eta())<1.8 && m_etaCut==true) 
+ if (fabsf(pMuon->etaMS())>1.5 && fabsf(pMuon->etaMS())<1.8 && m_etaCut==true) 
     result = false; 
- else if (fabsf(pMuon->eta())<=1.05)
+ else if (fabsf(pMuon->etaMS())<=1.05)
  {
     
 	//if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax && BetaCand>0)
 	if ( fabsf(pMuon->pt()) > (threshold/CLHEP::GeV)&& BetaCand < m_betaMax && BetaCand>0)
 	{
-		double theta = 2.*atan(exp(-pMuon->eta())); //should be turned into codes
+		double theta = 2.*atan(exp(-pMuon->etaMS())); //should be turned into codes
 		double pCand = fabsf(pMuon->pt())/sin(theta)*CLHEP::GeV;
 		mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; // should be turned into code
 		if (mCand > m_mMin) result = true;

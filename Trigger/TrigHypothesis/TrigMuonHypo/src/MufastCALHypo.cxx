@@ -8,7 +8,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/MufastCALHypo.h"
 
 
@@ -83,39 +83,34 @@ HLT::ErrorCode MufastCALHypo::hltExecute(const HLT::TriggerElement* outputTE,
       msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
   }
   
-
-  // Get vector of pointers to all MuonFeatures linked to the outputTE 
-  //   by label "uses":
-  std::vector<const MuonFeature*> vectorOfMuons; 
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfMuons);
-  if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no MuonFeatures found" << endreq;
+   // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
+   const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
+   HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
+   if (status!=HLT::OK) {
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
       return status;
-  }
-  // Check that there is only one MuonFeature
-  if (vectorOfMuons.size() != 1){
-    msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons.size()
-          << endreq;
-    return HLT::NAV_ERROR;
-  }
+   }
 
-  // Get first (and only) RoI:
-  const MuonFeature* pMuon = vectorOfMuons.front();
-  if(!pMuon){
-    msg() << MSG::ERROR << "Retrieval of MuonFeature from vector failed"
-          << endreq;
-    return HLT::NAV_ERROR;
-  }
+   // Check that there is only one L2StandAloneMuon
+   if (vectorOfMuons->size() != 1){
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
+      return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
+   }
+
+   // Get first (and only) RoI:
+   const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
+   if(!pMuon){
+      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
+      return HLT::NAV_ERROR;
+   }
+
 
   // fill Monitoring histos
   m_fex_pt  = (pMuon->pt())? pMuon->pt()  : -9999;
-  m_fex_eta = (pMuon->eta())? pMuon->eta() : -9999;
-  m_fex_phi = (pMuon->eta())? pMuon->phi() : -9999; 
+  m_fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999;
+  m_fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999; 
 
   if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << " Super Point 1, z = " << pMuon->sp1_z() <<endreq; 
-      msg() << MSG::DEBUG << " Super Point 2, z = " << pMuon->sp2_z() <<endreq; 
-      msg() << MSG::DEBUG << " Super Point 3, z = " << pMuon->sp3_z() <<endreq; 
       msg() << MSG::DEBUG << " Result of L2 Muon Calibration Hypothesis is " 
             << (result?"true":"false") << endreq;
   }

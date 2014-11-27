@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/StauHypo.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -86,39 +86,38 @@ HLT::ErrorCode StauHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   // Get vector of pointers to all MuonFeatures linked to the outputTE 
   //   by label "uses":
-  std::vector<const MuonFeature*> vectorOfMuons; 
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfMuons);
-  if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no MuonFeatures found" << endreq;
-      return status;
+  const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
+  HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
+  if (status!=HLT::OK) {
+    msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
+    return status;
   }
-  // Check that there is only one MuonFeature
-  if (vectorOfMuons.size() != 1){
-    msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons.size()
+
+  // Check that there is only one L2StandAloneMuon
+  if (vectorOfMuons->size() != 1){
+    msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size()
           << endreq;
     return HLT::NAV_ERROR;
   }
 
   // Get first (and only) RoI:
-  const MuonFeature* pMuon = vectorOfMuons.front();
+  const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
   if(!pMuon){
-    msg() << MSG::ERROR << "Retrieval of MuonFeature from vector failed"
-          << endreq;
+    msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
     return HLT::NAV_ERROR;
   }
-
+  
   // Check pt threshold for hypothesis, 
   // convert units since Muonfeature is in GeV
-	double mCand = 0;
-	double BetaCand = pMuon->beta();
-	if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax)
-	{
-		double theta = 2.*atan(exp(-pMuon->eta())); //should be turned into codes
-		double pCand = fabsf(pMuon->pt())/sin(theta)*CLHEP::GeV;
-		mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; // should be turned into code
-		if (mCand > m_mMin) result = true;
-	}
-	  
+  double mCand = 0;
+  double BetaCand = pMuon->beta();
+  if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax) {
+    double theta = 2.*atan(exp(-pMuon->etaMS())); //should be turned into codes
+    double pCand = fabsf(pMuon->pt())/sin(theta)*CLHEP::GeV;
+    mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; // should be turned into code
+    if (mCand > m_mMin) result = true;
+  }
+  
   if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " REGTEST muon mass is " << mCand << " GeV" 
             << " and threshold cut is " << m_mMin/CLHEP::GeV << " GeV" 

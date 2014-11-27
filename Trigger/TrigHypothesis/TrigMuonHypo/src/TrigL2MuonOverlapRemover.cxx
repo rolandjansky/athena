@@ -9,11 +9,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/MuonFeatureContainer.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
-#include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
-
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
@@ -195,33 +190,34 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltBeginRun()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>& mfLink1,
-					 const ElementLink<MuonFeatureContainer>& mfLink2)
+bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<xAOD::L2StandAloneMuonContainer>& mfLink1,
+					 const ElementLink<xAOD::L2StandAloneMuonContainer>& mfLink2)
 {
+
    if( ! mfLink1.isValid() ) {
-      msg() << MSG::INFO << "mF ELink (#1) broken" << endreq;
+      msg() << MSG::INFO << "L2StandAloneMuonContainer does not contain object (#1)" << endreq;
       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF link (#1) broken. cannot judge overlap -> return with false" << endreq;
       if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
       return false;
    }
    if( ! mfLink2.isValid() ) {
-      msg() << MSG::INFO << "mF ELink (#2) broken" << endreq;
+      msg() << MSG::INFO << "L2StandAloneMuonContainer does not contain object (#2)" << endreq;
       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF link (#2) broken. cannot judge overlap -> return with false" << endreq;
       if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
       return false;
    }
 
-   const MuonFeature *mf1 = *mfLink1;
-   const MuonFeature *mf2 = *mfLink2;
+   const xAOD::L2StandAloneMuon *mf1 = *mfLink1;
+   const xAOD::L2StandAloneMuon *mf2 = *mfLink2;
 
-   if(m_doDebug) msg() << MSG::DEBUG << "   ...mF1: pt/eta/phi=" << mf1->pt() << " / " << mf1->eta() << " / " << mf1->phi() << endreq;
-   if(m_doDebug) msg() << MSG::DEBUG << "   ...mF2: pt/eta/phi=" << mf2->pt() << " / " << mf2->eta() << " / " << mf2->phi() << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "   ...mF1: pt/eta/phi=" << mf1->pt() << " / " << mf1->etaMS() << " / " << mf1->phiMS() << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "   ...mF2: pt/eta/phi=" << mf2->pt() << " / " << mf2->etaMS() << " / " << mf2->phiMS() << endreq;
 
    // if dR or invMass is necessary but (eta,phi) info is not avaiable
    // (i.e. eta,phi=0,0; rec failed)
    const double ZERO_LIMIT_FOR_ETAPHI = 1e-4;
-   if( (fabs(mf1->eta()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf1->phi()) < ZERO_LIMIT_FOR_ETAPHI) ||
-       (fabs(mf2->eta()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf2->phi()) < ZERO_LIMIT_FOR_ETAPHI) ) {
+   if( (fabs(mf1->etaMS()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf1->phiMS()) < ZERO_LIMIT_FOR_ETAPHI) ||
+       (fabs(mf2->etaMS()) <ZERO_LIMIT_FOR_ETAPHI && fabs(mf2->phiMS()) < ZERO_LIMIT_FOR_ETAPHI) ) {
       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> (eta,phi) info not available (rec at (eta,phi)=(0,0))" << endreq;
       if( m_muFastRequireDR || m_muFastRequireMass ) {
 	 if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but dR of invMass check is required. cannot judge overlap -> return with false" << endreq;
@@ -245,8 +241,8 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>
 
    if( m_muFastRequireDR || m_muFastRequireMass ) {
       const int SADDRESS_EC = -1;
-      bool isBarrel1 = (mf1->saddress() != SADDRESS_EC ) ? true : false;
-      bool isBarrel2 = (mf2->saddress() != SADDRESS_EC ) ? true : false;
+      bool isBarrel1 = (mf1->sAddress() != SADDRESS_EC ) ? true : false;
+      bool isBarrel2 = (mf2->sAddress() != SADDRESS_EC ) ? true : false;
       if(  isBarrel1 && isBarrel2 ) { // BB
 	 if(m_doDebug)  msg() << MSG::DEBUG << "   ...B-B" << endreq;
 	 dRThres  =m_muFastDRThresBB; 
@@ -259,7 +255,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>
       }
       else { // EE
 	 if(m_doDebug)  msg() << MSG::DEBUG << "   ...E-E" << endreq;
-	 double absEta = (fabs(mf1->pt()) > fabs(mf2->pt())) ? fabs(mf1->eta()) : fabs(mf2->eta());
+	 double absEta = (fabs(mf1->pt()) > fabs(mf2->pt())) ? fabs(mf1->etaMS()) : fabs(mf2->etaMS());
 	 unsigned int iThres=0;
 	 for(unsigned int i=0; i<(m_muFastEtaBinsEC.size()-1); i++) {
 	    if ( m_muFastEtaBinsEC[i] <= absEta && absEta < m_muFastEtaBinsEC[i+1] ) iThres = i;
@@ -281,7 +277,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>
 
    // dR cut
    bool dRisClose = false;
-   double dr = dR(mf1->eta(),mf1->phi(),mf2->eta(),mf2->phi());
+   double dr = dR(mf1->etaMS(),mf1->phiMS(),mf2->etaMS(),mf2->phiMS());
    if(m_doMonitor) {
       m_mnt_mufastDR.push_back(dr);
       const double monitor_limit = 1e-4;
@@ -296,7 +292,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>
    // mass cut
    const double TRACK_MASS = 0;  // just assume zero mass
    bool massIsClose = false;
-   double mass = invMass(TRACK_MASS,mf1->pt(),mf1->eta(),mf1->phi(),TRACK_MASS,mf2->pt(),mf2->eta(),mf2->phi());
+   double mass = invMass(TRACK_MASS,mf1->pt(),mf1->etaMS(),mf1->phiMS(),TRACK_MASS,mf2->pt(),mf2->etaMS(),mf2->phiMS());
    if(m_doMonitor) {
       m_mnt_mufastMass.push_back(mass);
       const double monitor_limit = 1e-4;
@@ -324,27 +320,27 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<MuonFeatureContainer>
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<CombinedMuonFeatureContainer>& combMfLink1,
-					 const ElementLink<CombinedMuonFeatureContainer>& combMfLink2)
+bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<xAOD::L2CombinedMuonContainer>& combMfLink1,
+					 const ElementLink<xAOD::L2CombinedMuonContainer>& combMfLink2)
 {
-   if( ! combMfLink1.isValid() ) {
-      msg() << MSG::INFO << "combMf ELink (#1) broken" << endreq;
-      if(m_doDebug) msg() << MSG::DEBUG << "   ...-> combMf link (#1) broken. cannot judge overlap -> return with false" << endreq;
-      if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
+   if( combMfLink1.isValid() == 0) {
+      msg() << MSG::INFO << "L2SConminedMuonContainer does not contain object (#1)" << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF link (#1) broken. cannot judge overlap -> return with false" << endreq;
+      if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
       return false;
    }
-   if( ! combMfLink2.isValid() ) {
-      msg() << MSG::INFO << "combMf ELink (#2) broken" << endreq;
-      if(m_doDebug) msg() << MSG::DEBUG << "   ...-> combMf link (#2) broken. cannot judge overlap -> return with false" << endreq;
-      if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
+   if( combMfLink2.isValid() == 0) {
+      msg() << MSG::INFO << "L2CombinedMuonContainer does not contain object (#2)" << endreq;
+      if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF link (#2) broken. cannot judge overlap -> return with false" << endreq;
+      if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
       return false;
    }
 
-   const CombinedMuonFeature *combMf1 = *combMfLink1;
-   const CombinedMuonFeature *combMf2 = *combMfLink2;
+   const xAOD::L2CombinedMuon *combMf1 = *combMfLink1;
+   const xAOD::L2CombinedMuon *combMf2 = *combMfLink2;
 
-   if(m_doDebug) msg() << MSG::DEBUG << "   ...combMF1: pt/eta/phi=" << combMf1->ptq()/CLHEP::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() << endreq;
-   if(m_doDebug) msg() << MSG::DEBUG << "   ...combMF2: pt/eta/phi=" << combMf2->ptq()/CLHEP::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "   ...combMF1: pt/eta/phi=" << combMf1->pt()/CLHEP::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() << endreq;
+   if(m_doDebug) msg() << MSG::DEBUG << "   ...combMF2: pt/eta/phi=" << combMf2->pt()/CLHEP::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() << endreq;
 
    // if dR or invMass is necessary but (eta,phi) info is not avaiable
    // (i.e. eta,phi=0,0; rec failed)
@@ -360,7 +356,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<CombinedMuonFeatureCo
 
    // if charge or invMass is necessary but charge(=pT) info is not avaiable
    const double ZERO_LIMIT_FOR_PT = 1e-4;
-   if( (fabs(combMf1->ptq()) <ZERO_LIMIT_FOR_PT) || (fabs(combMf2->ptq()) < ZERO_LIMIT_FOR_PT) ) {
+   if( (fabs(combMf1->pt()) <ZERO_LIMIT_FOR_PT) || (fabs(combMf2->pt()) < ZERO_LIMIT_FOR_PT) ) {
       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> pT info not available (rec at pT=0)" << endreq;
       if( m_muCombRequireSameSign || m_muCombRequireMass ) {
 	 if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but same sign or invMass check is required. cannot judge overlap -> return with false" << endreq;
@@ -369,7 +365,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<CombinedMuonFeatureCo
    }
 
    // determine etabin and thresholds
-   double absEta = (fabs(combMf1->ptq()) > fabs(combMf2->ptq())) ? fabs(combMf1->eta()) : fabs(combMf2->eta());
+   double absEta = (fabs(combMf1->pt()) > fabs(combMf2->pt())) ? fabs(combMf1->eta()) : fabs(combMf2->eta());
    unsigned int iThres = 0;
    for(unsigned int i=0; i<(m_muCombEtaBins.size()-1); i++) {
       if ( m_muCombEtaBins[i] <= absEta && absEta < m_muCombEtaBins[i+1] ) iThres = i;
@@ -387,7 +383,7 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<CombinedMuonFeatureCo
    // same sign cut
    bool sameSign = false;
    if( m_muCombRequireSameSign ) {
-      sameSign = ((combMf1->ptq()*combMf2->ptq()) > 0) ? true : false;
+      sameSign = ((combMf1->pt()*combMf2->pt()) > 0) ? true : false;
       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> sameSign=" << sameSign << endreq;
    }
 
@@ -408,26 +404,26 @@ bool TrigL2MuonOverlapRemover::isOverlap(const ElementLink<CombinedMuonFeatureCo
    // dR(by MF) cut
    bool dRbyMFisClose = false;
    if( m_muCombRequireMufastDR ) {
-      const MuonFeature* mf1 = combMf1->muFastTrack();
-      const MuonFeature* mf2 = combMf2->muFastTrack();
-      if( mf1 == 0 || mf2 == 0 ) {
-	 msg() << MSG::INFO << "mF link from combinedMF broken" << endreq;
-	 if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF dR is required but mF link broken. cannot judge overlap -> return with false" << endreq;
-	 return false;
-      }
-      else {
-	 // here, we do not check (eta,phi) of mF is not (0,0)
-	 // (i.e. we apply muComb based cut even if muFast rec is failed)
-	 double dRByMF = dR(mf1->eta(),mf1->phi(),mf2->eta(),mf2->phi());
-	 if( dRByMF < dRbyMFThres ) dRbyMFisClose = true;
-	 if(m_doDebug) msg() << MSG::DEBUG << "   ...-> dR(by MF)=" << dRByMF << " : dRbyMFisClose=" << dRbyMFisClose << endreq;
-      }
+     const xAOD::L2StandAloneMuon* mf1 = combMf1->muSATrack();
+     const xAOD::L2StandAloneMuon* mf2 = combMf2->muSATrack();
+     if( mf1 == 0 || mf2 == 0 ) {
+       msg() << MSG::INFO << "mF link from combinedMF broken" << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> mF dR is required but mF link broken. cannot judge overlap -> return with false" << endreq;
+       return false;
+     }
+     else {
+       // here, we do not check (eta,phi) of mF is not (0,0)
+       // (i.e. we apply muComb based cut even if muFast rec is failed)
+       double dRByMF = dR(mf1->etaMS(),mf1->phiMS(),mf2->etaMS(),mf2->phiMS());
+       if( dRByMF < dRbyMFThres ) dRbyMFisClose = true;
+       if(m_doDebug) msg() << MSG::DEBUG << "   ...-> dR(by MF)=" << dRByMF << " : dRbyMFisClose=" << dRbyMFisClose << endreq;
+     }
    }
-
+   
    // mass cut
    const double TRACK_MASS = 0;  // just assume zero mass
    bool massIsClose = false;
-   double mass = invMass(TRACK_MASS,combMf1->ptq()/CLHEP::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->ptq()/CLHEP::GeV,combMf2->eta(),combMf2->phi());
+   double mass = invMass(TRACK_MASS,combMf1->pt()/CLHEP::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/CLHEP::GeV,combMf2->eta(),combMf2->phi());
    if(m_doMonitor) {
       m_mnt_mucombMass.push_back(mass);
       const double monitor_limit = 1e-4;
@@ -624,47 +620,56 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    }
 
    // ---
-   // get all muonFeature and combinedMuonFeature elementLinks
+   // get all L2StandAloneMuon and L2CombinedMuon elementLinks
    // ---
 
    bool errorWhenGettingELs = false;
    
-   ElementLinkVector<MuonFeatureContainer>                 muonFeatureELvec;
-   ElementLinkVector<CombinedMuonFeatureContainer> combinedMuonFeatureELvec;
+   typedef  ElementLinkVector<xAOD::L2StandAloneMuonContainer>  ELVMuonsSA;
+   typedef  ElementLinkVector<xAOD::L2CombinedMuonContainer>  ELVMuonsComb;
+
+   std::vector<ELVMuonsSA>    standaloneMuonELVvec;
+   std::vector<ELVMuonsComb>  combinedMuonELVvec;
 
    for(i_te=0; i_te<n_allTEs; i_te++) {
-      ElementLink<MuonFeatureContainer>                 muonFeatureEL;
-      ElementLink<CombinedMuonFeatureContainer> combinedMuonFeatureEL;
-      HLT::ErrorCode isMufastOK = (m_doMufastBasedRemoval) ? getFeatureLink<MuonFeatureContainer,                MuonFeature>(vec_allTEs[i_te],         muonFeatureEL) : HLT::OK;
-      HLT::ErrorCode isMucombOK = (m_doMucombBasedRemoval) ? getFeatureLink<CombinedMuonFeatureContainer,CombinedMuonFeature>(vec_allTEs[i_te], combinedMuonFeatureEL) : HLT::OK;
+
+     ELVMuonsSA    standaloneMuonELV;
+     ELVMuonsComb  combinedMuonELV;
+
+     HLT::ErrorCode isMufastOK = (m_doMufastBasedRemoval) ?
+       getFeaturesLinks<xAOD::L2StandAloneMuonContainer,  xAOD::L2StandAloneMuonContainer>(vec_allTEs[i_te], standaloneMuonELV) : HLT::OK;
+
+     HLT::ErrorCode isMucombOK = (m_doMucombBasedRemoval) ?
+       getFeaturesLinks<xAOD::L2CombinedMuonContainer, xAOD::L2CombinedMuonContainer>(vec_allTEs[i_te], combinedMuonELV) : HLT::OK;
+
       if( (m_doMufastBasedRemoval && (isMufastOK != HLT::OK)) || (m_doMucombBasedRemoval && (isMucombOK != HLT::OK)) ) {
 	 errorWhenGettingELs = true;
 	 if( isMufastOK != HLT::OK ) {
 	    if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_cannot_get_EL);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: muonFeature" << endreq;
+	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: L2StandAloneMuon" << endreq;
 	 }
 	 if( isMucombOK != HLT::OK ) {
 	    if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_cannot_get_EL);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: combinedMuonFeature" << endreq;
+	    msg() << MSG::WARNING << "i_te=" << i_te << ": fails to find EL for: L2CombinedMuon" << endreq;
 	 }
 	 continue;
       }
-      bool isMufastELOK = (m_doMufastBasedRemoval) ?         muonFeatureEL.isValid() : true;
-      bool isMucombELOK = (m_doMucombBasedRemoval) ? combinedMuonFeatureEL.isValid() : true;
+      bool isMufastELOK = (m_doMufastBasedRemoval && standaloneMuonELV.size()==0) ? false : true;
+      bool isMucombELOK = (m_doMucombBasedRemoval && combinedMuonELV.size()==0) ? false : true;
       if( (m_doMufastBasedRemoval && ! isMufastELOK) || (m_doMucombBasedRemoval && ! isMucombELOK) ) {
-	 errorWhenGettingELs = true;
-	 if( ! isMufastELOK ) {
-	    if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: muonFeature" << endreq;
-	 }
-	 if( ! isMucombELOK ) {
-	    if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
-	    msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: combinedMuonFeature" << endreq;
-	 }
-	 continue;
+	errorWhenGettingELs = true;
+	if( ! isMufastELOK ) {
+	  if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
+	  msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: L2StandAloneMuon" << endreq;
+	}
+	if( ! isMucombELOK ) {
+	  if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_EL_not_valid);
+	  msg() << MSG::WARNING << "i_te=" << i_te << ": EL not valid for: L2CombinedMuon" << endreq;
+	}
+	continue;
       }
-      if( m_doMufastBasedRemoval ) muonFeatureELvec.push_back(muonFeatureEL);
-      if( m_doMucombBasedRemoval ) combinedMuonFeatureELvec.push_back(combinedMuonFeatureEL);
+      if( m_doMufastBasedRemoval ) standaloneMuonELVvec.push_back(standaloneMuonELV);
+      if( m_doMucombBasedRemoval ) combinedMuonELVvec.push_back(combinedMuonELV);
    }
 
    if( errorWhenGettingELs ) {
@@ -683,99 +688,101 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    bool errorWhenIdentifyingOverlap = false;
 
    if( m_doMufastBasedRemoval ) {
-      if(m_doDebug) msg() << MSG::DEBUG << "--- muFast based overlap identification ---" << endreq;
-      for(i_te=0; i_te<n_allTEs; i_te++) { mufastResult.push_back(i_te); }
-      for(i_te=0; i_te<n_allTEs-1; i_te++) {
-	 for(j_te=i_te+1; j_te<n_allTEs; j_te++) {
-	    if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endreq;
-	    bool overlapped = isOverlap(muonFeatureELvec[i_te],muonFeatureELvec[j_te]);
-	    if( ! overlapped ) { // judged as different
-	       if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endreq; 
-	       if( mufastResult[i_te] == mufastResult[j_te] ) { // but marked as same by someone
-		  msg() << MSG::INFO << "inconsistentency in muFast based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "two objects are judged as different but both were already marked as identical by someone else as: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mufastResult[i_te] << " / "  << mufastResult[j_te] << endreq;
-		  errorWhenIdentifyingOverlap = true;
-		  if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap1);
-	       }
-	    }
-	    else { // judged as overlap
-	       if( (mufastResult[j_te] != j_te && mufastResult[i_te] != mufastResult[j_te]) ||
-		   (mufastResult[j_te] == j_te && mufastResult[i_te] != i_te) ) {
-		  msg() << MSG::INFO << "inconsistentency in muFast based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "two objects are judged as overlap but only either was already marked as overlap to someone else: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mufastResult[i_te] << " / "  << mufastResult[j_te] << endreq;
-		  errorWhenIdentifyingOverlap = true;
-		  if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap2);
-	       }
-	       else {
-		  if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endreq;
-		  if( mufastResult[i_te] == i_te ) {
-		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endreq;
-			msg() << MSG::DEBUG << "   -> marking mufastResult[j_te] as i_te..." << endreq;
-		     }
-		     mufastResult[j_te] = i_te;
-		  }
-		  else {
-		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: mufastResult[i_te]=" << mufastResult[i_te] << endreq;
-			msg() << MSG::DEBUG << "   -> do nothing..." << endreq;
-		     }
-		  }
-	       }
-	    }
+     if(m_doDebug) msg() << MSG::DEBUG << "--- muFast based overlap identification ---" << endreq;
+     for(i_te=0; i_te<n_allTEs; i_te++) { mufastResult.push_back(i_te); }
+     for(i_te=0; i_te<n_allTEs-1; i_te++) {
+       for(j_te=i_te+1; j_te<n_allTEs; j_te++) {
+	 if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endreq;
+	 bool overlapped = (standaloneMuonELVvec[i_te].size() > 0 && standaloneMuonELVvec[j_te].size() > 0) ?
+	   isOverlap((standaloneMuonELVvec[i_te])[0], (standaloneMuonELVvec[j_te])[0]) : false;
+	 if( ! overlapped ) { // judged as different
+	   if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endreq; 
+	   if( mufastResult[i_te] == mufastResult[j_te] ) { // but marked as same by someone
+	     msg() << MSG::INFO << "inconsistentency in muFast based overlap removal for more than two objects" << endreq;
+	     msg() << MSG::INFO << "two objects are judged as different but both were already marked as identical by someone else as: " << endreq;
+	     msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mufastResult[i_te] << " / "  << mufastResult[j_te] << endreq;
+	     errorWhenIdentifyingOverlap = true;
+	     if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap1);
+	   }
 	 }
-      }
+	 else { // judged as overlap
+	   if( (mufastResult[j_te] != j_te && mufastResult[i_te] != mufastResult[j_te]) ||
+	       (mufastResult[j_te] == j_te && mufastResult[i_te] != i_te) ) {
+	     msg() << MSG::INFO << "inconsistentency in muFast based overlap removal for more than two objects" << endreq;
+	     msg() << MSG::INFO << "two objects are judged as overlap but only either was already marked as overlap to someone else: " << endreq;
+	     msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mufastResult[i_te] << " / "  << mufastResult[j_te] << endreq;
+	     errorWhenIdentifyingOverlap = true;
+	     if(m_doMonitor) m_mnt_mufastError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap2);
+	   }
+	   else {
+	     if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endreq;
+	     if( mufastResult[i_te] == i_te ) {
+	       if(m_doDebug) {
+		 msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endreq;
+		 msg() << MSG::DEBUG << "   -> marking mufastResult[j_te] as i_te..." << endreq;
+	       }
+	       mufastResult[j_te] = i_te;
+	     }
+	     else {
+	       if(m_doDebug) {
+		 msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: mufastResult[i_te]=" << mufastResult[i_te] << endreq;
+		 msg() << MSG::DEBUG << "   -> do nothing..." << endreq;
+	       }
+	     }
+	   }
+	 }
+       }
+     }
    }
-
+   
    if( m_doMucombBasedRemoval ) {
-      if(m_doDebug) msg() << MSG::DEBUG << "--- muComb based overlap identification ---" << endreq;
-      for(i_te=0; i_te<n_allTEs; i_te++) { mucombResult.push_back(i_te); }
-      for(i_te=0; i_te<n_allTEs-1; i_te++) {
-	 for(j_te=i_te+1; j_te<n_allTEs; j_te++) {
-	    if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endreq;
-	    bool overlapped = isOverlap(combinedMuonFeatureELvec[i_te],combinedMuonFeatureELvec[j_te]);
-	    if( ! overlapped ) { // judged as different
-	       if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endreq; 
-	       if( mucombResult[i_te] == mucombResult[j_te] ) { // but marked as same by someone
-		  msg() << MSG::INFO << "inconsistent in muComb based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "judged as different objects but both are already marked as identical by someone else as: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mucombResult[i_te] << " / "  << mucombResult[j_te] << endreq;
-		  errorWhenIdentifyingOverlap = true;
-		  if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap1);
-	       }
-	    }
-	    else { // judged as overlap
-	       if( (mucombResult[j_te] != j_te && mucombResult[i_te] != mucombResult[j_te]) ||
-		   (mucombResult[j_te] == j_te && mucombResult[i_te] != i_te) ) {
-		  msg() << MSG::INFO << "inconsistent in muComb based overlap removal for more than two objects" << endreq;
-		  msg() << MSG::INFO << "judged as overlap but only either is already marked as overlap to someone else: " << endreq;
-		  msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mucombResult[i_te] << " / "  << mucombResult[j_te] << endreq;
-		  errorWhenIdentifyingOverlap = true;
-		  if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap2);
-	       }
-	       else {
-		  if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endreq;
-		  if( mucombResult[i_te] == i_te ) {
-		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endreq;
-			msg() << MSG::DEBUG << "   -> marking mucombResult[j_te] as i_te..." << endreq;
-		     }
-		     mucombResult[j_te] = i_te;
-		  }
-		  else {
-		     if(m_doDebug) {
-			msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: mucombResult[i_te]=" << mucombResult[i_te] << endreq;
-			msg() << MSG::DEBUG << "   -> do nothing..." << endreq;
-		     }
-		  }
-	       }
-	    }
+     if(m_doDebug) msg() << MSG::DEBUG << "--- muComb based overlap identification ---" << endreq;
+     for(i_te=0; i_te<n_allTEs; i_te++) { mucombResult.push_back(i_te); }
+     for(i_te=0; i_te<n_allTEs-1; i_te++) {
+       for(j_te=i_te+1; j_te<n_allTEs; j_te++) {
+	 if(m_doDebug) msg() << MSG::DEBUG << "++ i_te=" << i_te << " vs j_te=" << j_te << endreq;
+	 bool overlapped = (combinedMuonELVvec[i_te].size() > 0 && combinedMuonELVvec[j_te].size() > 0) ?
+	   isOverlap((combinedMuonELVvec[i_te])[0], (combinedMuonELVvec[j_te])[0]) : false;
+	 if( ! overlapped ) { // judged as different
+	   if(m_doDebug) msg() << MSG::DEBUG << "   judged as: different objects" << endreq; 
+	   if( mucombResult[i_te] == mucombResult[j_te] ) { // but marked as same by someone
+	     msg() << MSG::INFO << "inconsistent in muComb based overlap removal for more than two objects" << endreq;
+	     msg() << MSG::INFO << "judged as different objects but both are already marked as identical by someone else as: " << endreq;
+	     msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mucombResult[i_te] << " / "  << mucombResult[j_te] << endreq;
+	     errorWhenIdentifyingOverlap = true;
+	     if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap1);
+	   }
 	 }
-      }
+	 else { // judged as overlap
+	   if( (mucombResult[j_te] != j_te && mucombResult[i_te] != mucombResult[j_te]) ||
+	       (mucombResult[j_te] == j_te && mucombResult[i_te] != i_te) ) {
+	     msg() << MSG::INFO << "inconsistent in muComb based overlap removal for more than two objects" << endreq;
+	     msg() << MSG::INFO << "judged as overlap but only either is already marked as overlap to someone else: " << endreq;
+	     msg() << MSG::INFO << "i_te/j_te/result[i_te]/result[j_te]=" << i_te << " / " << j_te << " / " << mucombResult[i_te] << " / "  << mucombResult[j_te] << endreq;
+	     errorWhenIdentifyingOverlap = true;
+	     if(m_doMonitor) m_mnt_mucombError.push_back(TrigL2MuonOverlapRemoverConsts::errorCode_inconsistent_overlap2);
+	       }
+	   else {
+	     if(m_doDebug) msg() << MSG::DEBUG << "   judged as: overlapped objects" << endreq;
+	     if( mucombResult[i_te] == i_te ) {
+	       if(m_doDebug) {
+		 msg() << MSG::DEBUG << "   i_te is not yet marked as overlap. so, it is a newly found overlap" << endreq;
+		 msg() << MSG::DEBUG << "   -> marking mucombResult[j_te] as i_te..." << endreq;
+	       }
+	       mucombResult[j_te] = i_te;
+	     }
+	     else {
+	       if(m_doDebug) {
+		 msg() << MSG::DEBUG << "   both i_te/j_te already marked as overlap by: mucombResult[i_te]=" << mucombResult[i_te] << endreq;
+		 msg() << MSG::DEBUG << "   -> do nothing..." << endreq;
+	       }
+	     }
+	   }
+	 }
+       }
+     }
    }
-
+   
    if( errorWhenIdentifyingOverlap ) {
       msg() << MSG::WARNING << "error when resolving overlap. exitting with all TEs active..." << endreq;
       if(m_doMonitor) afterExecMonitors().ignore();
@@ -854,8 +861,11 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 		  continue;
 	       }
 	       float ptRoI = muonRoI->getThresholdValue();
-	       const MuonFeature* mf = *muonFeatureELvec[j_te];
-	       float ptMf  = fabs(mf->pt());
+	       float ptMf  = 0.;
+	       if (standaloneMuonELVvec[j_te].size() > 0) {
+		 const xAOD::L2StandAloneMuon* mf = *((standaloneMuonELVvec[j_te])[0]);
+		 ptMf  = fabs(mf->pt());
+	       }
 	       if( (ptRoI-maxPtRoI) > 0.1 ) {
 		  maxPtRoI = ptRoI;
 		  maxPtMf  = ptMf;
@@ -877,11 +887,13 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 		  vec_outputTEs[j_te]->setActiveState(false);
 		  // monitoring
 		  if(m_doMonitor) {
-		     const MuonFeature* mf = *muonFeatureELvec[j_te];
-		     m_mnt_mufastNrOverlapped++;
-		     m_mnt_mufastOverlappedPt.push_back(mf->pt());
-		     m_mnt_mufastOverlappedEta.push_back(mf->eta());
-		     m_mnt_mufastOverlappedPhi.push_back(mf->phi());
+		    if (standaloneMuonELVvec[j_te].size() > 0) {
+		      const xAOD::L2StandAloneMuon* mf = *((standaloneMuonELVvec[j_te])[0]);
+		      m_mnt_mufastNrOverlapped++;
+		      m_mnt_mufastOverlappedPt.push_back(mf->pt());
+		      m_mnt_mufastOverlappedEta.push_back(mf->etaMS());
+		      m_mnt_mufastOverlappedPhi.push_back(mf->phiMS());
+		    }
 		  }
 	       }
 	    }
@@ -930,19 +942,22 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 		  continue;
 	       }
 	       float ptRoI    = muonRoI->getThresholdValue();
-	       const CombinedMuonFeature* combMf =* combinedMuonFeatureELvec[j_te];
-	       float ptCombMf = fabs(combMf->ptq()/CLHEP::GeV);
+	       float ptCombMf = 0.;
+	       if (combinedMuonELVvec[j_te].size() > 0) {
+		 const xAOD::L2CombinedMuon* combMf = *((combinedMuonELVvec[j_te])[0]);
+		 ptCombMf = fabs(combMf->pt()/CLHEP::GeV);
+	       }
 	       if( (ptRoI-maxPtRoI) > 0.1 ) {
-		  maxPtRoI    = ptRoI;
-		  maxPtCombMf = ptCombMf;
-		  best_te     = j_te;
+		 maxPtRoI    = ptRoI;
+		 maxPtCombMf = ptCombMf;
+		 best_te     = j_te;
 	       }
 	       else if( fabs(ptRoI-maxPtRoI) < 0.1 ) {
-		  if( ptCombMf > maxPtCombMf ) {
-		     maxPtRoI    = ptRoI;
-		     maxPtCombMf = ptCombMf;
-		     best_te     = j_te;
-		  }
+		 if( ptCombMf > maxPtCombMf ) {
+		   maxPtRoI    = ptRoI;
+		   maxPtCombMf = ptCombMf;
+		   best_te     = j_te;
+		 }
 	       }
 	    }
 	    if(m_doDebug) msg() << MSG::DEBUG << "      best is: best_te/maxPtRoI/maxPtCombMf=" << best_te << " / " << maxPtRoI << " / " << maxPtCombMf << endreq;
@@ -953,11 +968,13 @@ HLT::ErrorCode TrigL2MuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
 		  vec_outputTEs[j_te]->setActiveState(false);
 		  // monitoring
 		  if(m_doMonitor) {
-		     const CombinedMuonFeature* combMf = *combinedMuonFeatureELvec[j_te];
-		     m_mnt_mucombNrOverlapped++;
-		     m_mnt_mucombOverlappedPt.push_back(combMf->ptq()/CLHEP::GeV);
-		     m_mnt_mucombOverlappedEta.push_back(combMf->eta());
-		     m_mnt_mucombOverlappedPhi.push_back(combMf->phi());
+		     if (combinedMuonELVvec[j_te].size() > 0) {
+		       const xAOD::L2CombinedMuon* combMf = *((combinedMuonELVvec[j_te])[0]);
+		       m_mnt_mucombNrOverlapped++;
+		       m_mnt_mucombOverlappedPt.push_back(combMf->pt()/CLHEP::GeV);
+		       m_mnt_mucombOverlappedEta.push_back(combMf->eta());
+		       m_mnt_mucombOverlappedPhi.push_back(combMf->phi());
+		     }
 		  }
 	       }
 	    }

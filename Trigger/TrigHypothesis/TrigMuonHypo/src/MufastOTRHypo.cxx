@@ -7,7 +7,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigMuonHypo/MufastOTRHypo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -152,29 +153,30 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
 
-  std::vector<const MuonFeature*> vectorOfMuons; 
-  status = getFeatures(outputTE, vectorOfMuons);
-  if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no MuonFeatures found" << endreq;
+   // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
+   const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
+   status = getFeature(outputTE, vectorOfMuons);
+   if (status!=HLT::OK) {
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
       return status;
-  }
-  // Check that there at least one MuonFeature
-  if (vectorOfMuons.size() == 0){
-      msg() << MSG::ERROR << "Couldn't find any MuonFeature" << endreq;
+   }
+
+  // Check that there at least one L2StandAloneMuon
+  if (vectorOfMuons->size() == 0){
+      msg() << MSG::ERROR << "Couldn't find any L2StandAloneMuon" << endreq;
       return HLT::NAV_ERROR;
   }
-  
 
-  msg() << MSG::DEBUG << "Found n. " << vectorOfMuons.size()
-                      << " Muon Features" << endreq;
+  msg() << MSG::DEBUG << "Found n. " << vectorOfMuons->size()
+                      << " L2StandAloneMuon" << endreq;
 
   
   bool result = false;
 
-  for ( std::vector<const MuonFeature*>::const_iterator ft =
-        vectorOfMuons.begin(); ft !=vectorOfMuons.end();  ++ft) {
+  for ( xAOD::L2StandAloneMuonContainer::const_iterator ft =
+        vectorOfMuons->begin(); ft !=vectorOfMuons->end();  ++ft) {
   
-      const MuonFeature* pMuon = *ft;
+    const xAOD::L2StandAloneMuon* pMuon = *ft;
       for ( std::vector<const TrigRoiDescriptor*>::const_iterator it =
                     vectorOfRoIs.begin(); it!=vectorOfRoIs.end(); ++it) {
           if ((unsigned int)pMuon->roiId() == (*it)->roiId()) {
@@ -194,8 +196,8 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
           pass = true;
           // fill Monitoring histos
           m_fex_pt.push_back( (pMuon->pt())? pMuon->pt()  : -9999 );
-          m_fex_eta.push_back( (pMuon->eta())? pMuon->eta() : -9999);
-          m_fex_phi.push_back( (pMuon->eta())? pMuon->phi() : -9999);
+          m_fex_eta.push_back( (pMuon->etaMS())? pMuon->etaMS() : -9999);
+          m_fex_phi.push_back( (pMuon->phiMS())? pMuon->phiMS() : -9999);
       
           if ( sysID == 0 ) m_RpcOutOfTimeOut.push_back(BCID_diff);
           else              m_TgcOutOfTimeOut.push_back(BCID_diff);
@@ -214,9 +216,17 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
       }
     
       int num_of_segments = 0;
-      if (pMuon->sp1_z() != 0)  ++num_of_segments;
-      if (pMuon->sp2_z() != 0)  ++num_of_segments;
-      if (pMuon->sp3_z() != 0)  ++num_of_segments;
+
+      int inner  = (pMuon->sAddress()==-1)?
+        xAOD::L2MuonParameters::Chamber::EndcapInner: xAOD::L2MuonParameters::Chamber::BarrelInner;
+      int middle = (pMuon->sAddress()==-1)?
+        xAOD::L2MuonParameters::Chamber::EndcapMiddle: xAOD::L2MuonParameters::Chamber::BarrelMiddle;
+      int outer  = (pMuon->sAddress()==-1)?
+        xAOD::L2MuonParameters::Chamber::EndcapOuter: xAOD::L2MuonParameters::Chamber::BarrelOuter;
+
+      if (pMuon->superPointZ(inner) != 0)  ++num_of_segments;
+      if (pMuon->superPointZ(middle) != 0)  ++num_of_segments;
+      if (pMuon->superPointZ(outer) != 0)  ++num_of_segments;
   
       // Some debug output:
       if(msgLvl() <= MSG::DEBUG) {
@@ -229,8 +239,8 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
           result = true;
           // fill Monitoring histos
           m_fex_pt.push_back( (pMuon->pt())? pMuon->pt()  : -9999);
-          m_fex_eta.push_back( (pMuon->eta())? pMuon->eta() : -9999);
-          m_fex_phi.push_back( (pMuon->eta())? pMuon->phi() : -9999);
+          m_fex_eta.push_back( (pMuon->etaMS())? pMuon->etaMS() : -9999);
+          m_fex_phi.push_back( (pMuon->etaMS())? pMuon->phiMS() : -9999);
           if ( sysID == 0 ) m_RpcOutOfTimeOut.push_back(BCID_diff);
           else              m_TgcOutOfTimeOut.push_back(BCID_diff);
       } else {
@@ -243,9 +253,9 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
       }
 
       if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << " Super Point 1, z = " << pMuon->sp1_z() <<endreq; 
-          msg() << MSG::DEBUG << " Super Point 2, z = " << pMuon->sp2_z() <<endreq; 
-          msg() << MSG::DEBUG << " Super Point 3, z = " << pMuon->sp3_z() <<endreq; 
+          msg() << MSG::DEBUG << " Super Point I, z = " << pMuon->superPointZ(inner) <<endreq; 
+          msg() << MSG::DEBUG << " Super Point M, z = " << pMuon->superPointZ(middle) <<endreq; 
+          msg() << MSG::DEBUG << " Super Point O, z = " << pMuon->superPointZ(outer) <<endreq; 
           msg() << MSG::DEBUG << " Result of Out of Time RoI Hypothesis is " 
                 << (result?"true":"false") << endreq;
       }

@@ -7,8 +7,9 @@
 
 #include <vector>
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "TrigMuonEvent/MuonFeatureContainer.h"
-#include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
+
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -41,11 +42,11 @@ class TrigL2MuonOverlapRemover : public HLT::AllTEAlgo
       HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
 				unsigned int output);
 
-      bool isOverlap(const ElementLink<MuonFeatureContainer>& mfLink1,
-		     const ElementLink<MuonFeatureContainer>& mfLink2);
+      bool isOverlap(const ElementLink<xAOD::L2StandAloneMuonContainer>& mfLink1,
+		     const ElementLink<xAOD::L2StandAloneMuonContainer>& mfLink2);
 
-      bool isOverlap(const ElementLink<CombinedMuonFeatureContainer>& combMfLink1,
-		     const ElementLink<CombinedMuonFeatureContainer>& combMfLink2);
+      bool isOverlap(const ElementLink<xAOD::L2CombinedMuonContainer>& combMfLink1,
+		     const ElementLink<xAOD::L2CombinedMuonContainer>& combMfLink2);
 
       double invMass(double m1, double pt1, double eta1, double phi1,
 		     double m2, double pt2, double eta2, double phi2);

@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/MufastHypo.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -124,40 +124,40 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
    // Some debug output:
    if(doDebug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
   
-   // Get vector of pointers to all MuonFeatures linked to the outputTE 
-   std::vector<const MuonFeature*> vectorOfMuons; 
-   HLT::ErrorCode status = getFeatures(outputTE, vectorOfMuons);
-   if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no MuonFeatures found" << endreq;
+   // Get vector of pointers to L2StandAloneMuon linked to the outputTE 
+   const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
+   HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
+   if (status!=HLT::OK) {
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
       return status;
    }
 
-   // Check that there is only one MuonFeature
-   if (vectorOfMuons.size() != 1){
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons.size() << endreq;
+   // Check that there is only one L2StandAloneMuon
+   if (vectorOfMuons->size() != 1){
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) RoI:
-   const MuonFeature* pMuon = vectorOfMuons.front();
+   const xAOD::L2StandAloneMuon* pMuon = vectorOfMuons->front();
    if(!pMuon){
-      msg() << MSG::ERROR << "Retrieval of MuonFeature from vector failed" << endreq;
+      msg() << MSG::ERROR << "Retrieval of L2StandAloneMuon from vector failed" << endreq;
       return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
    }
 
    // fill Monitoring histos
    m_fex_pt  = (pMuon->pt())?  pMuon->pt()  : -9999.;
-   m_fex_eta = (pMuon->eta())? pMuon->eta() : -9999.;
-   m_fex_phi = (pMuon->eta())? pMuon->phi() : -9999.;
+   m_fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999.;
+   m_fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999.;
 
-   if( pMuon->eta() ) {
-      float localPhi = getLocalPhi(pMuon->eta(),pMuon->phi(),pMuon->radius());
-      float radius = pMuon->radius()/cos(fabs(localPhi));
-      float DirZ = (pMuon->dir_zeta())? pMuon->dir_zeta() : .000001;
-      float DirF = (pMuon->dir_phi())?  pMuon->dir_phi()  : .000001;
-      m_x_at_station = radius * cos(pMuon->phi());
-      m_y_at_station = radius * sin(pMuon->phi());
-      m_z_at_station = pMuon->zeta();
+   if( pMuon->etaMS() ) {
+      float localPhi = getLocalPhi(pMuon->etaMS(),pMuon->phiMS(),pMuon->rMS());
+      float radius = pMuon->rMS()/cos(fabs(localPhi));
+      float DirZ = (pMuon->dirZMS())? pMuon->dirZMS() : .000001;
+      float DirF = (pMuon->dirPhiMS())?  pMuon->dirPhiMS()  : .000001;
+      m_x_at_station = radius * cos(pMuon->phiMS());
+      m_y_at_station = radius * sin(pMuon->phiMS());
+      m_z_at_station = pMuon->zMS();
       float xb = m_x_at_station - m_y_at_station/DirF;
       float de = m_x_at_station - xb;
       float ds = sqrt(m_y_at_station*m_y_at_station+de*de);

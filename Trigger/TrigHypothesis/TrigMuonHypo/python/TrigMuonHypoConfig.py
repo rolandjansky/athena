@@ -434,7 +434,9 @@ class MucombHypoConfig(MucombHypo) :
             self.PtThresholds = [ x * GeV for x in values[1] ]
         except LookupError:
             if (threshold=='passthrough'):
-                self.AcceptAll = True
+                #self.AcceptAll = True
+                #self.PtBins = [-10000.,10000.]
+                #self.PtThresholds = [ -1. * GeV ]
                 self.PtBins = [-10000.,10000.]
                 self.PtThresholds = [ -1. * GeV ]
                 self.ApplyStrategyDependentCuts = True
@@ -447,8 +449,6 @@ class MucombHypoConfig(MucombHypo) :
             self.Apply_pik_Cuts        = True
             self.MaxPtToApply_pik      = 25.
             self.MaxChi2ID_pik         = 3.5
-
-        self.StrategyDependentPtCuts = [0.0,-3.0,-3.0,-3.0,0.0,-3.0,-3.0,-3.0]
 
         validation = MucombHypoValidationMonitoring()
         online     = MucombHypoOnlineMonitoring()
