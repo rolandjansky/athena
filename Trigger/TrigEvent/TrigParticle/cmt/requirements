@@ -51,6 +51,8 @@ use xAODTau             xAODTau-*               Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTrigEgamma      xAODTrigEgamma-*        Event/xAOD
 use xAODEgamma		xAODEgamma-*		Event/xAOD
+use xAODBTagging        xAODBTagging-*          Event/xAOD
+
 
 apply_pattern lcgdict dict=TrigParticle selectionfile=selection.xml headerfiles="../TrigParticle/TrigParticleDict.h" \
     dataLinks="TrigTau TrigPhotonContainer TrigEFBjetContainer TrigL2BjetContainer" \
@@ -82,13 +84,16 @@ typesWithNamespace="xAOD::TauJetContainer xAOD::TauJetAuxContainer \
                     xAOD::TrigElectronContainer xAOD::TrigElectronAuxContainer \
                     xAOD::ElectronContainer xAOD::ElectronAuxContainer \
                     xAOD::PhotonContainer xAOD::PhotonAuxContainer \
-		    " \
+		    xAOD::BTaggingContainer xAOD::BTaggingAuxContainer \
+                    xAOD::BTagVertexContainer xAOD::BTagVertexAuxContainer" \
     files="-s=${xAODTau_root}/xAODTau TauJetContainer.h TauJetAuxContainer.h \
            -s=${xAODJet_root}/xAODJet JetContainer.h JetTrigAuxContainer.h \
            -s=${xAODTrigEgamma_root}/xAODTrigEgamma TrigPhotonContainer.h TrigPhotonAuxContainer.h \
 	   					    TrigElectronContainer.h TrigElectronAuxContainer.h \
            -s=${xAODEgamma_root}/xAODEgamma ElectronContainer.h ElectronAuxContainer.h \
-	   				    PhotonContainer.h PhotonAuxContainer.h"
+	   				    PhotonContainer.h PhotonAuxContainer.h \
+           -s=${xAODBTagging_root}/xAODBTagging BTaggingContainer.h BTaggingAuxContainer.h \
+						BTagVertexContainer.h BTagVertexAuxContainer.h"
 
 
 #Storage has also  DataVector<INavigable4Momentum>
