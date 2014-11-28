@@ -46,6 +46,7 @@ public:
     virtual StatusCode convert(const ROBFragmentList& vecRobs);
     virtual StatusCode convert(const std::vector<IdentifierHash>& collections);
     virtual StatusCode convert();
+    virtual StatusCode convert(const std::vector<uint32_t>&) {return StatusCode::FAILURE;}
 
 private:
 

@@ -102,8 +102,11 @@ void Muon::CscROD_Decoder::fillCollection(const ROBFragment& robFrag,  CscRawDat
   ATH_MSG_DEBUG ( "in CscROD_Decoder::fillCollection :ROD version "
       << MSG::hex << rodMinorVersion << MSG::dec );
 
-  if ( rodMinorVersion == 0x0200 ) 
+  if ( rodMinorVersion == 0x0200 )
      this->rodVersion2(robFrag, rdoIDC, log);
+  else if ( (rodMinorVersion >> 8) == 4){ // minor ver. 0400 Oct. 2014
+     this->rodVersion2(robFrag, rdoIDC, log);
+  }
   else if (rodMinorVersion == 0x1 || // ROD version for CTB and DC3 - for backward compatibility
            m_eventInfo->event_type()->test(EventType::IS_TESTBEAM) || 
            m_geoVersion == "CTB2004") 

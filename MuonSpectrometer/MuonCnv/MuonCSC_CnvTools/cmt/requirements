@@ -32,6 +32,9 @@ use  StoreGate                StoreGate-*                   Control
 use  EventPrimitives          EventPrimitives-*             Event
 use  TrkSurfaces              TrkSurfaces-*                 Tracking/TrkDetDescr
 
+# Specify for cmake the required tdaq-common components (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
 apply_pattern component_library
 library MuonCSC_CnvTools *.cxx components/*.cxx
 apply_pattern declare_joboptions files="*.py"

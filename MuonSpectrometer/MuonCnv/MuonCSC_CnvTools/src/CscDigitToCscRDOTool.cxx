@@ -239,8 +239,15 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       int measuresPhi  = m_cscHelper->measuresPhi(offlineChannelId);
       int eta = m_cscHelper->stationEta(offlineChannelId);
       int phi = m_cscHelper->stationPhi(offlineChannelId);
+      int stationId = m_cscHelper->stationName(offlineChannelId);
       uint16_t subDetectorId = (eta==-1) ? 0x6A : 0x69;
-      uint16_t rodId         = uint16_t (phi-1);
+      uint16_t rodId         = 0xFFFF;
+      if(m_cscCablingSvc->nROD()==16){
+         if(stationId==0x33) rodId = (0x10 | (phi-1));
+         if(stationId==0x32) rodId = (0x18 | (phi-1));
+      } else {
+         rodId = uint16_t (phi-1);
+      }
       CscRawDataCollection * cscRdoCollection = this->cscRdo(subDetectorId,rodId);
       
       if (IsNewEDM) {
@@ -557,12 +564,13 @@ CscRawDataCollection * CscDigitToCscRDOTool::cscRdo(uint16_t subDetectorId,
   uint16_t onlineColId = m_cscCablingSvc->collectionId(subDetectorId, rodId);
   ATH_MSG_DEBUG ( "This collection online identifier is " << onlineColId );
 
-  assert (onlineColId <= 15);
+  //assert (onlineColId <= 15);
 
   std::map<uint16_t, CscRawDataCollection *>::iterator it = 
     m_cscRdoMap.find(onlineColId);
-  if (it != m_cscRdoMap.end())
+  if (it != m_cscRdoMap.end()){
     return (*it).second;
+  }
 
   /** create new CscRdo */
   CscRawDataCollection *rdo = new CscRawDataCollection (onlineColId);

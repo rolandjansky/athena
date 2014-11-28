@@ -66,7 +66,7 @@ namespace Muon {
 			std::vector<IdentifierHash>& decodedIdhs);
     StatusCode decode(const CscRawDataContainer* rdo, 
 		      std::vector<IdentifierHash>& decodedIdhs);
-
+    virtual StatusCode decode( const std::vector<uint32_t>& ) {return StatusCode::FAILURE;}
     
   private:
     
