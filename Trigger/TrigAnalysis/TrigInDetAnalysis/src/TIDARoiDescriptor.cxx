@@ -18,7 +18,7 @@ ClassImp( TIDARoiDescriptor )
 
 TIDARoiDescriptor::TIDARoiDescriptor()
   : m_phi0(phicheck(0)), m_eta0(etacheck(0)), m_zed0(zedcheck(0)), 
-    m_phiHalfWidth(M_PI), m_etaHalfWidth(5), m_zedHalfWidth(168), 
+    m_phiHalfWidth(M_PI), m_etaHalfWidth(5), m_zedHalfWidth(225), 
     m_etaPlus(0), m_etaMinus(0), m_l1Id(0), m_roiId(0), m_roiWord(0)
 { }
 

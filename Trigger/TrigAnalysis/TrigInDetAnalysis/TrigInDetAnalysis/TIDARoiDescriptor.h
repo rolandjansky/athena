@@ -131,17 +131,19 @@ public:
 
   /// operators
   TIDARoiDescriptor& operator=(const TIDARoiDescriptor& a) {
-    m_phi0 = a.m_phi0;
-    m_eta0 = a.m_eta0;
-    m_zed0 = a.m_zed0;
-    m_phiHalfWidth = a.m_phiHalfWidth;
-    m_etaHalfWidth = a.m_etaHalfWidth;
-    m_zedHalfWidth = a.m_zedHalfWidth;
-    m_etaPlus  = a.m_etaPlus;
-    m_etaMinus = a.m_etaMinus; 
-    m_l1Id    = a.m_l1Id;
-    m_roiId   = a.m_roiId;
-    m_roiWord = a.m_roiWord;
+    if (this != &a) {
+      m_phi0 = a.m_phi0;
+      m_eta0 = a.m_eta0;
+      m_zed0 = a.m_zed0;
+      m_phiHalfWidth = a.m_phiHalfWidth;
+      m_etaHalfWidth = a.m_etaHalfWidth;
+      m_zedHalfWidth = a.m_zedHalfWidth;
+      m_etaPlus  = a.m_etaPlus;
+      m_etaMinus = a.m_etaMinus; 
+      m_l1Id    = a.m_l1Id;
+      m_roiId   = a.m_roiId;
+      m_roiWord = a.m_roiWord;
+    }
     return *this;
   }
 
