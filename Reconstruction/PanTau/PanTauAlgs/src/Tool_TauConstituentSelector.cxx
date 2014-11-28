@@ -74,7 +74,6 @@ double PanTau::Tool_TauConstituentSelector::getEtCut(double eta, PanTau::TauCons
                 default:
                     return 9999999.;
             }
-            
         }
     }
     
@@ -155,10 +154,13 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_NeutralConstituent(
     double curEta       = hlv_Constituent.eta();
     double cut_MinEt    = getEtCut(fabs(curEta), PanTau::TauConstituent::t_Neutral);
     double curEt        = hlv_Constituent.et();
+    ATH_MSG_DEBUG("curEt (" << curEt << ") < cut_MinEt (" << cut_MinEt << ") ?");
     if(curEt < cut_MinEt) {
         ATH_MSG_DEBUG("\tNot using constituent at eta " << curEta << " with et of " << curEt);
         return false;
     }
+
+    ATH_MSG_DEBUG("Passed!");
     
     return true;
 }

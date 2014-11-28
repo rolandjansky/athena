@@ -162,9 +162,9 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent(xAOD::PFO* pfo,
     itsTypeFlags[(int)PanTau::TauConstituent::t_NoType] = 1;
     
     double mvaValue         = PanTau::TauConstituent::DefaultBDTValue();
-    double dEta             = tauJet->etaIntermediateAxis() - pfo->eta();
-    double dPhi             = tauJet->phiIntermediateAxis() - pfo->phi();
-    double deltaR_toTauJet  = sqrt( dEta*dEta + dPhi*dPhi );
+
+    TLorentzVector hlv_intAxis = tauJet->p4(xAOD::TauJetParameters::IntermediateAxis);
+    double deltaR_toTauJet = hlv_intAxis.DeltaR( pfo->p4() );
     
     if(deltaR_toTauJet > m_Config_TauConstituents_Types_DeltaRCore) {
         if(pfoCharge != 0) {
@@ -192,24 +192,62 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent(xAOD::PFO* pfo,
             bool isThreeProng = false;
             if(tauJet->nTracks() == 3) isThreeProng = true;
 //             ATH_MSG_DEBUG("numTrack = " << tauJet->nTracks() << ", is Threeprong = " << isThreeProng);
+
+/*            
+// original code by Christian; allows to configure the BDT cuts in a
+// config file - might give more flexibility than the cell-based code
+// below!
+
+	    int etaBinIndex = -1;
+	    if(algName == "CellBased")  etaBinIndex = m_Tool_HelperFunctions->getBinIndex(m_Config_CellBased_BinEdges_Eta, fabs(pfo->eta()) );
+	    if(algName == "eflowRec")   etaBinIndex = m_Tool_HelperFunctions->getBinIndex(m_Config_eflowRec_BinEdges_Eta, fabs(pfo->eta()) );
+	    
+	    if(isThreeProng == false) {
+	      double  minMVAValue = -5;
+	      if(algName == "CellBased")  minMVAValue = m_Config_CellBased_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex);
+	      if(algName == "eflowRec")   minMVAValue = m_Config_eflowRec_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex);
+	      if(mvaValue > minMVAValue)  itsTypeFlags[(int)PanTau::TauConstituent::t_Pi0Neut] = 1;
+	    }
+	             
+	    if(isThreeProng == true) {
+	      double  minMVAValue = -5;
+	      if(algName == "CellBased")  minMVAValue = m_Config_CellBased_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex);
+	      if(algName == "eflowRec")   minMVAValue = m_Config_eflowRec_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex);
+	      if(mvaValue > minMVAValue)  itsTypeFlags[(int)PanTau::TauConstituent::t_Pi0Neut] = 1;
+	    }
+
+// end: original code
+*/
+
+	    if(algName == "CellBased"){
+
+	      int nPi0sPerCluster = 0;
+	      if( !pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0sPerCluster) ) {
+		ATH_MSG_WARNING("WARNING: Could not retrieve nPi0Proto. Will set it to 1.");
+		nPi0sPerCluster = 1;
+	      }
+	      if(nPi0sPerCluster > 0)  itsTypeFlags[(int)PanTau::TauConstituent::t_Pi0Neut] = 1;
+
+	    }
+
+	    if(algName == "eflowRec"){
+
+	      int etaBinIndex = -1;
+	      etaBinIndex = m_Tool_HelperFunctions->getBinIndex(m_Config_eflowRec_BinEdges_Eta, fabs(pfo->eta()) );
             
-            int etaBinIndex = -1;
-            if(algName == "CellBased")  etaBinIndex = m_Tool_HelperFunctions->getBinIndex(m_Config_CellBased_BinEdges_Eta, fabs(pfo->eta()) );
-            if(algName == "eflowRec")   etaBinIndex = m_Tool_HelperFunctions->getBinIndex(m_Config_eflowRec_BinEdges_Eta, fabs(pfo->eta()) );
-            
-            if(isThreeProng == false) {
+	      if(isThreeProng == false) {
                 double  minMVAValue = -5;
-                if(algName == "CellBased")  minMVAValue = m_Config_CellBased_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex);
-                if(algName == "eflowRec")   minMVAValue = m_Config_eflowRec_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex);
+		minMVAValue = m_Config_eflowRec_EtaBinned_Pi0MVACut_1prong.at(etaBinIndex);
                 if(mvaValue > minMVAValue)  itsTypeFlags[(int)PanTau::TauConstituent::t_Pi0Neut] = 1;
-            }
+	      }
             
-            if(isThreeProng == true) {
+	      if(isThreeProng == true) {
                 double  minMVAValue = -5;
-                if(algName == "CellBased")  minMVAValue = m_Config_CellBased_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex);
                 if(algName == "eflowRec")   minMVAValue = m_Config_eflowRec_EtaBinned_Pi0MVACut_3prong.at(etaBinIndex);
                 if(mvaValue > minMVAValue)  itsTypeFlags[(int)PanTau::TauConstituent::t_Pi0Neut] = 1;
-            }
+	      }
+
+	    }
             
         }
     }//end if pfo is in core

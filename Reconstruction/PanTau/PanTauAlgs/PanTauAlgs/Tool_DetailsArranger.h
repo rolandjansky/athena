@@ -30,6 +30,7 @@
 #include "PanTauInterfaces/ITool_DetailsArranger.h"
 #include "PanTauInterfaces/ITool_InformationStore.h"
 
+#include "PanTauEvent/TauConstituent.h"
 
 namespace PanTau {
     class PanTauSeed;
@@ -82,10 +83,31 @@ namespace PanTau {
         void                        arrangeScalarDetail(PanTau::PanTauDetails* targetDetails, std::string featName, int featEnumFromPanTauDetails) const;
         void                        arrangeVectorDetail(PanTau::PanTauDetails* targetDetails, std::string featName, int featEnumFromPanTauDetails) const;
         void                        arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet);
-        std::vector<unsigned int>   helper_IndicesOfNeutralsToBePi0( std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, int nMaxPi0s);
-        int                         helper_CopyNeutralsAndSetPi0(xAOD::TauJet* tauJet, int nMaxPi0s, bool isSpecialCase_1pXnTo1p1n);
+
+	std::vector< ElementLink< xAOD::PFOContainer > > PreselectNeutralLinks(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, xAOD::TauJet* tauJet);
+
+	void StripPi0ConstsFromNeutralConsts(std::vector< ElementLink< xAOD::PFOContainer > > &neutralPFOLinks, std::vector< ElementLink< xAOD::PFOContainer > > pi0PFOLinks);
+
+	bool HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, TString inputAlg);
+
+	void SetNeutralConstituentMass(xAOD::PFO* neutral_pfo, double mass);
+
+	void SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, double mass);
+
+	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent::Type type );
+
+        /* std::vector<unsigned int>   helper_IndicesOfNeutralsToBePi0(xAOD::TauJet* tauJet,  */
+        /*                                                             std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks,  */
+        /*                                                             int nMaxPi0s); */
+        /* int                         helper_CopyNeutralsAndSetPi0(xAOD::TauJet* tauJet, int nMaxPi0s, bool isSpecialCase_1pXnTo1p1n); */
         
         bool        m_expectInvalidFeatures;
+        
+	const float MASS_PI0 = 134.98; // in MeV
+        
+        double      m_CoreCone;
+        std::vector<double> m_EtaBinEdges;
+        std::vector<double> m_EtaBinnedEtCuts;
         
         std::string m_varTypeName_Sum;
         std::string m_varTypeName_Ratio;

@@ -110,14 +110,14 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(//const Analysi
     //loop over chared PFOs
     ATH_MSG_DEBUG("Get charged ones...");
     unsigned int nChargedPFO = 0;
-    if(algName == "eflowRec")  nChargedPFO = tauJet->nEflowRec_Charged_PFOs();
-    if(algName == "CellBased") nChargedPFO = tauJet->nCellBased_Charged_PFOs();
+    if(algName == "eflowRec")  nChargedPFO = tauJet->nProtoChargedPFOs();
+    if(algName == "CellBased") nChargedPFO = tauJet->nProtoChargedPFOs();
     ATH_MSG_DEBUG("Charged PFOs: " << nChargedPFO);
     
     for(unsigned int iChrgPFO=0; iChrgPFO<nChargedPFO; iChrgPFO++) {
         xAOD::PFO* curChrgPFO = 0;
-        if(algName == "eflowRec")  curChrgPFO = const_cast<xAOD::PFO*>(tauJet->eflowRec_Charged_PFO( iChrgPFO ));
-        if(algName == "CellBased") curChrgPFO = const_cast<xAOD::PFO*>(tauJet->cellBased_Charged_PFO( iChrgPFO ));
+        if(algName == "eflowRec")  curChrgPFO = const_cast<xAOD::PFO*>(tauJet->protoChargedPFO( iChrgPFO ));
+        if(algName == "CellBased") curChrgPFO = const_cast<xAOD::PFO*>(tauJet->protoChargedPFO( iChrgPFO ));
         
         if(enableXAODHacks == 1) {
             ATH_MSG_DEBUG("EnableXAODMigrationHacks is true -> call vertex correctio for charged PFOs to check whether it runs & does something");
@@ -149,14 +149,14 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(//const Analysi
     
 //     ATH_MSG_DEBUG("Get pi0 ones...");
     unsigned int nPi0PFO = 0;
-    if(algName == "eflowRec")  nPi0PFO = tauJet->nEflowRec_Pi0_PFOs();
-    if(algName == "CellBased") nPi0PFO = tauJet->nCellBased_Pi0_PFOs();
+    if(algName == "eflowRec")  nPi0PFO = tauJet->nProtoPi0PFOs();
+    if(algName == "CellBased") nPi0PFO = tauJet->nProtoPi0PFOs();
     ATH_MSG_DEBUG("Pi0 tagged PFOs in neutral PFOs: " << nPi0PFO);
 //     
 //     for(unsigned int iPi0PFO=0; iPi0PFO<nPi0PFO; iPi0PFO++) {
 //         xAOD::PFO* curPi0PFO = 0;
-//         if(algName == "eflowRec")  curPi0PFO = const_cast<xAOD::PFO*>(tauJet->eflowRec_pi0_PFO( iPi0PFO ));
-//         if(algName == "CellBased") curPi0PFO = const_cast<xAOD::PFO*>(tauJet->cellbased_pi0_PFO( iPi0PFO ));
+//         if(algName == "eflowRec")  curPi0PFO = const_cast<xAOD::PFO*>(tauJet->protopi0PFO( iPi0PFO ));
+//         if(algName == "CellBased") curPi0PFO = const_cast<xAOD::PFO*>(tauJet->protopi0PFO( iPi0PFO ));
 //         
 //         // Call vertex correction here
 //         m_Tool_HelperFunctions->vertexCorrection_PFOs(tauJet, curPi0PFO);
@@ -180,14 +180,14 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(//const Analysi
     //loop over neutral PFOs
     ATH_MSG_DEBUG("Get neutral ones...");
     unsigned int nNeutPFO = 0;
-    if(algName == "eflowRec")  nNeutPFO = tauJet->nEflowRec_Neutral_PFOs();
-    if(algName == "CellBased") nNeutPFO = tauJet->nCellBased_Neutral_PFOs();
+    if(algName == "eflowRec")  nNeutPFO = tauJet->nProtoNeutralPFOs();
+    if(algName == "CellBased") nNeutPFO = tauJet->nProtoNeutralPFOs();
     ATH_MSG_DEBUG("Neutral PFOs: " << nNeutPFO);
     
     for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++) {
         xAOD::PFO* curNeutPFO = 0;
-        if(algName == "eflowRec")  curNeutPFO = const_cast<xAOD::PFO*>(tauJet->eflowRec_Neutral_PFO( iNeutPFO ));
-        if(algName == "CellBased") curNeutPFO = const_cast<xAOD::PFO*>(tauJet->cellBased_Neutral_PFO( iNeutPFO ));
+        if(algName == "eflowRec")  curNeutPFO = const_cast<xAOD::PFO*>(tauJet->protoNeutralPFO( iNeutPFO ));
+        if(algName == "CellBased") curNeutPFO = const_cast<xAOD::PFO*>(tauJet->protoNeutralPFO( iNeutPFO ));
         
         // Call vertex correction here
         m_Tool_HelperFunctions->vertexCorrection_PFOs(tauJet, curNeutPFO);

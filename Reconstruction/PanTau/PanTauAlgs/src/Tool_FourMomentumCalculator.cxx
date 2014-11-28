@@ -166,7 +166,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
             consts_Pi0NeutralUpdate.push_back(hlv_SumPi0);
 //             nPi0AfterPanTau = 1;
             
-        } else if(mode_PanTau != PanTau::PanTauSeed::t_Mode_3pXn) {
+        } else if(mode_PanTau != PanTau::PanTauSeed::Mode_3pXn) {
             ATH_MSG_DEBUG("Non 3pXn mode");
             //Just use the same objects as CellBased if the mode was not altered (and is not 3pXn)
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
@@ -196,7 +196,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         bool updatedMomentum = false;
         
         // 1p0n -> 1p1n
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_1p0n && mode_PanTau == PanTau::PanTauSeed::t_Mode_1p1n) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_1p0n && mode_PanTau == PanTau::PanTauSeed::Mode_1p1n) {
             ATH_MSG_DEBUG("\t1p0n -> 1p1n: Use tracks & highest pi0 score neutral");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
             if(consts_Neutral.size() > 0) {
@@ -209,7 +209,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         }
         
         // 1p1n -> 1p0n
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_1p1n && mode_PanTau == PanTau::PanTauSeed::t_Mode_1p0n) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_1p1n && mode_PanTau == PanTau::PanTauSeed::Mode_1p0n) {
             ATH_MSG_DEBUG("\t1p1n -> 1p0n: Use tracks only");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
 //             nPi0AfterPanTau = 0;
@@ -217,7 +217,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         }
         
         // 1p1n -> 1pXn
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_1p1n && mode_PanTau == PanTau::PanTauSeed::t_Mode_1pXn) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_1p1n && mode_PanTau == PanTau::PanTauSeed::Mode_1pXn) {
             ATH_MSG_DEBUG("\t1p1n -> 1pXn: Use tracks, the pi0 from sub alg and highest pi0 score neutral");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
             
@@ -236,7 +236,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         }
         
         // 1pXn -> 1p1n
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_1pXn && mode_PanTau == PanTau::PanTauSeed::t_Mode_1p1n) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_1pXn && mode_PanTau == PanTau::PanTauSeed::Mode_1p1n) {
             ATH_MSG_DEBUG("\t1pXn -> 1p1n: Use tracks & both pi0 from sub alg with mass 0");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
             
@@ -263,7 +263,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         }
         
         // 3p0n -> 3pXn
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_3p0n && mode_PanTau == PanTau::PanTauSeed::t_Mode_3pXn) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_3p0n && mode_PanTau == PanTau::PanTauSeed::Mode_3pXn) {
             ATH_MSG_DEBUG("\t3p0n -> 3pXn: Use tracks & best pi0 score neutral");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
             
@@ -277,7 +277,7 @@ StatusCode PanTau::Tool_FourMomentumCalculator::calculateFourMomentum(PanTau::Pa
         }
         
         // 3pXn -> 3p0n
-        if(mode_SubAlg == PanTau::PanTauSeed::t_Mode_3pXn && mode_PanTau == PanTau::PanTauSeed::t_Mode_3p0n) {
+        if(mode_SubAlg == PanTau::PanTauSeed::Mode_3pXn && mode_PanTau == PanTau::PanTauSeed::Mode_3p0n) {
             ATH_MSG_DEBUG("\t3pXn -> 3p0n: Use tracks only");
             for(unsigned int iChrg=0; iChrg<subAlg_NCharged; iChrg++)    hlv_PanTau_Final += consts_Charged.at(iChrg)->hlv();
 //             nPi0AfterPanTau = 0;

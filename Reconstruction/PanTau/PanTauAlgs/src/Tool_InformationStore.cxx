@@ -19,6 +19,9 @@
 //! PanTau includes
 #include "PanTauAlgs/Tool_InformationStore.h"
 
+// ROOT includes
+#include "TVector2.h"
+
 // #include "tauEvent/TauJetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
@@ -73,7 +76,7 @@ StatusCode PanTau::Tool_InformationStore::initialize() {
 // }
 
 
-StatusCode PanTau::Tool_InformationStore::updateInformation(std::string inputAlg) {
+StatusCode PanTau::Tool_InformationStore::updateInformation(std::string /*inputAlg*/) {
     
     //get the tauRec container
     StatusCode sc = m_sgSvc->retrieve(m_Container_TauRec, m_Name_Container_TauRec);
@@ -231,7 +234,8 @@ void PanTau::Tool_InformationStore::checkEFOContainer(const eflowObjectContainer
             const eflowObject* goodEFO = outputContainer->at(jEFO);
             double diff_Et  = fabs(goodEFO->et()  - cur_Et);
             double diff_Eta = fabs(goodEFO->eta() - cur_Eta);
-            double diff_Phi = fabs(goodEFO->phi() - cur_Phi);
+            //double diff_Phi = fabs(goodEFO->phi() - cur_Phi); // bug! shouldn't matter much but nevertheless...
+	    double diff_Phi = fabs( TVector2::Phi_mpi_pi( goodEFO->phi() - cur_Phi ) );
             double diff_m   = fabs(goodEFO->m()   - cur_M);
             
             if(diff_Et < 0.000001 && diff_Eta < 0.000001  && diff_Phi < 0.000001  && diff_m < 0.000001 ) {

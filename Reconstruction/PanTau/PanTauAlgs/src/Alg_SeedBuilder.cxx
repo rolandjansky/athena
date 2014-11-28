@@ -251,7 +251,7 @@ StatusCode      PanTau::Alg_SeedBuilder::execute() {
                                                                    l_List_SelectedTauConstituents,
                                                                    l_List_TauConstituents, pantauSeed_TechnicalQuality);
         
-        unsigned int nPi0LinksCellBased = curTauJet->cellBased_Pi0_PFOLinks().size();
+        unsigned int nPi0LinksCellBased = curTauJet->protoPi0PFOLinks().size();
         ATH_MSG_DEBUG("Created new PanTauSeed at " << curPanTauSeed << " with proto mode " << curPanTauSeed->getDecayModeBySubAlg() << " and nPi0 CellBased = " << nPi0LinksCellBased);
         
         // Get the features for this PanTauSeed
@@ -300,6 +300,8 @@ StatusCode      PanTau::Alg_SeedBuilder::execute() {
         ATH_MSG_DEBUG("===> PanTauSeed " << iPanTau+1 << " / " << l_Number_InputSeeds << " will be finalized now...");
         PanTau::PanTauSeed* curPanTauSeed       = l_Container_PanTauSeeds->at(iPanTau);
         
+        
+        
         // 1. call decay mode determinator for this seed
         ATH_MSG_DEBUG("calling decay mode determinator for valid seed ");
         CHECK( m_Tool_DecayModeDeterminator->determineDecayMode(curPanTauSeed) );
@@ -345,26 +347,24 @@ void PanTau::Alg_SeedBuilder::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
     
     
     if(m_Name_InputAlg == "CellBased") {
-        tauJet->setP4(xAOD::TauJetParameters::PanTauCellBasedProto, -1111., -1111., -1111., -1111.);
         tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased,      -1111., -1111., -1111., -1111.);
         
         //
         //charged
-        std::vector< ElementLink< xAOD::PFOContainer > > chrgPFOLinks = tauJet->cellBased_Charged_PFOLinks();
-        tauJet->setCharged_PFOLinks(chrgPFOLinks);
+        std::vector< ElementLink< xAOD::PFOContainer > > chrgPFOLinks = tauJet->protoChargedPFOLinks();
+        tauJet->setChargedPFOLinks(chrgPFOLinks);
         
         //pi0
-        std::vector< ElementLink< xAOD::PFOContainer > > pi0PFOLinks = tauJet->cellBased_Pi0_PFOLinks();
-        tauJet->setPi0_PFOLinks(pi0PFOLinks);
+        std::vector< ElementLink< xAOD::PFOContainer > > pi0PFOLinks = tauJet->protoPi0PFOLinks();
+        tauJet->setPi0PFOLinks(pi0PFOLinks);
         
         //neutrals
-        std::vector< ElementLink< xAOD::PFOContainer > > neutralPFOLinks = tauJet->cellBased_Neutral_PFOLinks();
-        tauJet->setNeutral_PFOLinks(neutralPFOLinks);
+        std::vector< ElementLink< xAOD::PFOContainer > > neutralPFOLinks = tauJet->protoNeutralPFOLinks();
+        tauJet->setNeutralPFOLinks(neutralPFOLinks);
     }
     
     
     if(m_Name_InputAlg == "eflowRec") {
-        tauJet->setP4(xAOD::TauJetParameters::PanTauEFlowRecProto,  -1111., -1111., -1111., -1111.);
         tauJet->setP4(xAOD::TauJetParameters::PanTauEFlowRec,       -1111., -1111., -1111., -1111.);
     }
     

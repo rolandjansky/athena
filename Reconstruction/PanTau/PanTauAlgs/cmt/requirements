@@ -42,6 +42,8 @@ use GeoPrimitives               GeoPrimitives-*                 DetectorDescript
 
 public
 
+# Specify required ROOT components to cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore MathMore Matrix TMVA)"
 
 apply_pattern declare_runtime files="../data/*.root ../data/weights/*.txt ../data/weights/*.xml"
 
@@ -52,5 +54,4 @@ library PanTauAlgs *.cxx components/*.cxx
 private
 apply_tag ROOTBasicLibs
 apply_tag ROOTMathLibs
-
-macro_append ROOT_linkopts " -lTMVA"
+apply_tag ROOTTMVALibs

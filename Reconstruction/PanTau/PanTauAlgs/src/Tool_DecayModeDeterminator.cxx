@@ -99,15 +99,15 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     bool    noSelConstituents   = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed::t_NoSelectedConstituents);
     bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents);
     if(invalidForDecayMode) {
-        ATH_MSG_DEBUG("Seed has no constituents assigned and/or input seed has no substructure info - use default mode for this");
-        features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode", PanTau::TauClassificationTypes::Reco_InvalidInSeed);
+        ATH_MSG_DEBUG("Seed has no constituents assigned and/or input seed has no substructure info - use NotSet mode for this");
+        features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTau", PanTau::PanTauSeed::Mode_NotSet);
         return StatusCode::SUCCESS;
     }
     
     
     //get the mode as it was determined by the subalgorithm
     int decayMode_SubAlg = inSeed->getDecayModeBySubAlg();
-    int decayMode_PanTau = PanTau::PanTauSeed::t_Mode_NotSet;
+    int decayMode_PanTau = PanTau::PanTauSeed::Mode_NotSet;
     
     //and calc the number of additional neutrals, not tagged as pi0
     int nCharged_SubAlg     = inSeed->getNumberOfConstituentsOfType(PanTau::TauConstituent::t_Charged);
@@ -146,14 +146,14 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     double          bdtResponse = -5;
     DecayModeTest   bdtTest     = t_UnknownTest;
     // 1p0n mode
-    if(decayMode_SubAlg == PanTauSeed::t_Mode_1p0n) {
+    if(decayMode_SubAlg == PanTau::PanTauSeed::Mode_1p0n) {
         
         
         //1 prong, and no other objects at all -> use 1p0n
         if(AdditionalNeutrals == 0) {
             ATH_MSG_DEBUG("Set 1p0n because there is only one object");
-            decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p0n;
-            
+            decayMode_PanTau = PanTau::PanTauSeed::Mode_1p0n;
+            bdtResponse = -3.;
             
         //if there are neutrals which are not pi0-tagged, check BDT to maybe set 1p1n
         } else {
@@ -164,8 +164,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
                 ATH_MSG_DEBUG("WARNING: problems getting bdt response for 1p0n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R10X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p0n;
-                if(bdtResponse <= BDTCutValue_R10X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p1n;
+                if(bdtResponse >  BDTCutValue_R10X) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p0n;
+                if(bdtResponse <= BDTCutValue_R10X) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p1n;
                 ATH_MSG_DEBUG("R10X: Response is: " << bdtResponse << "  Use 1p0n if > " << BDTCutValue_R10X << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
             }
         }
@@ -177,7 +177,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     
     
     //1p1n mode
-    else if (decayMode_SubAlg == PanTau::PanTauSeed::t_Mode_1p1n) {
+    else if (decayMode_SubAlg == PanTau::PanTauSeed::Mode_1p1n) {
         
         
         //1prong, 1pi0 and no other neutrals. check 1p0n-vs-1p1n
@@ -189,8 +189,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
                 ATH_MSG_DEBUG("WARNING problems getting bdt response for 1p1n + 0-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse <= BDTCutValue_R110) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p1n;
-                if(bdtResponse >  BDTCutValue_R110) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p0n;
+                if(bdtResponse <= BDTCutValue_R110) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p1n;
+                if(bdtResponse >  BDTCutValue_R110) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p0n;
                 ATH_MSG_DEBUG("R110: Response is: " << bdtResponse << "  Use 1p0n if > " << BDTCutValue_R110 << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
             }
         
@@ -205,8 +205,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
                 ATH_MSG_DEBUG("WARNING problems getting bdt response for 1p1n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R11X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p1n;
-                if(bdtResponse <= BDTCutValue_R11X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1pXn;
+                if(bdtResponse >  BDTCutValue_R11X) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p1n;
+                if(bdtResponse <= BDTCutValue_R11X) decayMode_PanTau = PanTau::PanTauSeed::Mode_1pXn;
                 ATH_MSG_DEBUG("R11X: Response is: " << bdtResponse << "  Use 1p1n if > " << BDTCutValue_R11X << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
             }
         }
@@ -217,7 +217,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     
     
     //1pXn mode
-    else if (decayMode_SubAlg == PanTau::PanTauSeed::t_Mode_1pXn) {
+    else if (decayMode_SubAlg == PanTau::PanTauSeed::Mode_1pXn) {
         
         //1prong, Xpi0. check 1p1n-vs-1pXn
         bool    isOK        = false;
@@ -227,8 +227,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
             ATH_MSG_DEBUG("WARNING problems getting bdt response for 1p1n + X-neutrals. use subAlg mode");
             decayMode_PanTau = decayMode_SubAlg;
         } else {
-            if(bdtResponse >  BDTCutValue_R1XX) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1p1n;
-            if(bdtResponse <= BDTCutValue_R1XX) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1pXn;
+            if(bdtResponse >  BDTCutValue_R1XX) decayMode_PanTau = PanTau::PanTauSeed::Mode_1p1n;
+            if(bdtResponse <= BDTCutValue_R1XX) decayMode_PanTau = PanTau::PanTauSeed::Mode_1pXn;
             ATH_MSG_DEBUG("R1XX: Response is: " << bdtResponse << "  Use 1p1n if > " << BDTCutValue_R1XX << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
         }
         
@@ -238,13 +238,13 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     
     
     //3p0n mode
-    else if (decayMode_SubAlg == PanTau::PanTauSeed::t_Mode_3p0n) {
+    else if (decayMode_SubAlg == PanTau::PanTauSeed::Mode_3p0n) {
         
         //no additional neutrals. 
         if(AdditionalNeutrals == 0) {
             ATH_MSG_DEBUG("Set 3p0n because there are only charged objects");
-            decayMode_PanTau = PanTau::PanTauSeed::t_Mode_3p0n;
-            
+            decayMode_PanTau = PanTau::PanTauSeed::Mode_3p0n;
+            bdtResponse = -2.5;
             
         //additional neutrals
         } else {
@@ -256,8 +256,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
                 ATH_MSG_DEBUG("WARNING problems getting bdt response for 3p0n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R30X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_3p0n;
-                if(bdtResponse <= BDTCutValue_R30X) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_3pXn;
+                if(bdtResponse >  BDTCutValue_R30X) decayMode_PanTau = PanTau::PanTauSeed::Mode_3p0n;
+                if(bdtResponse <= BDTCutValue_R30X) decayMode_PanTau = PanTau::PanTauSeed::Mode_3pXn;
                 ATH_MSG_DEBUG("R30X: Response is: " << bdtResponse << "  Use 3p0n if > " << BDTCutValue_R30X << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
             }
             
@@ -269,7 +269,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     
     
     //3pXn mode
-    else if (decayMode_SubAlg == PanTau::PanTauSeed::t_Mode_3pXn) {
+    else if (decayMode_SubAlg == PanTau::PanTauSeed::Mode_3pXn) {
         
         //3prong, Xpi0. check 3p0n-vs-3pXn
         bool    isOK        = false;
@@ -279,8 +279,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
             ATH_MSG_DEBUG("WARNING problems getting bdt response for 3p0n + X-neutrals. use subAlg mode");
             decayMode_PanTau = decayMode_SubAlg;
         } else {
-            if(bdtResponse >  BDTCutValue_R3XX) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_3p0n;
-            if(bdtResponse <= BDTCutValue_R3XX) decayMode_PanTau = PanTau::PanTauSeed::t_Mode_3pXn;
+            if(bdtResponse >  BDTCutValue_R3XX) decayMode_PanTau = PanTau::PanTauSeed::Mode_3p0n;
+            if(bdtResponse <= BDTCutValue_R3XX) decayMode_PanTau = PanTau::PanTauSeed::Mode_3pXn;
             ATH_MSG_DEBUG("R3XX: Response is: " << bdtResponse << "  Use 3p0n if > " << BDTCutValue_R3XX << " -- decision: " << PanTau::PanTauSeed::getDecayModeName(decayMode_PanTau) );
         }
         
@@ -292,8 +292,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
     //it's none of 1p0n, 1p1n, 1pXn, 3p0n, 3pXn -> set other mode
     else {
         ATH_MSG_DEBUG("WARNING SubAlg mode of tau is not known. set the 'other' mode");
-        decayMode_PanTau = PanTau::PanTauSeed::t_Mode_Other;
-        bdtResponse = -5;
+        decayMode_PanTau = PanTau::PanTauSeed::Mode_Other;
+        bdtResponse = -4;
         bdtTest     = t_UnknownTest;
     }
 
@@ -321,9 +321,10 @@ StatusCode PanTau::Tool_DecayModeDeterminator::determineDecayMode(PanTau::PanTau
                 }
                 ATH_MSG_DEBUG("Counted " << nPhotons << " photons in the pi0 neutral");
                 if(nPhotons > 2) {
-                    decayMode_SubAlg = PanTau::PanTauSeed::t_Mode_1pXn;
-                    decayMode_PanTau = PanTau::PanTauSeed::t_Mode_1pXn;
+                    decayMode_SubAlg = PanTau::PanTauSeed::Mode_1pXn;
+                    decayMode_PanTau = PanTau::PanTauSeed::Mode_1pXn;
                     inSeed->setModeHackedByCellBased(true);
+                    bdtResponse = -2.;
                 }
                 
             //end check for pi0 neutrals were found
