@@ -44,6 +44,7 @@ uint32_t CSC_Hid2RESrcID::getRodID(const Identifier& offlineId)
   int phi                = m_cscIdHelper->stationPhi(offlineId);
   uint16_t subDetectorId = (eta == -1) ? eformat::MUON_CSC_ENDCAP_C_SIDE : eformat::MUON_CSC_ENDCAP_A_SIDE ;
   uint16_t rodId         = uint16_t (phi-1);
+  //if(offlineId >= 0x10 && offlineId <= 0x1F) rodId = 0x10 + 
   uint16_t onlineRodId   = 0x0;
   bool check = m_cabling->onlineId(rodId, onlineRodId);
   assert ( check );
@@ -73,23 +74,26 @@ void CSC_Hid2RESrcID::fillAllRobIds()
 
   m_robIDs.clear();
 
-  for (uint16_t i=0; i<2; ++i) {
-    for (uint16_t rodId=0; rodId<8; ++rodId) {
+  for (uint16_t i=0; i<m_cabling->nSide(); ++i) {
+    uint16_t rodId = (m_cabling->nROD() == 8) ? 0 : 16; 
+    //for (uint16_t rodId=0; rodId<m_cabling->nROD(); ++rodId) {
+    for (unsigned int j=0; j<m_cabling->nROD(); ++j) {
        uint16_t onlineRodId   = 0x0;
        bool check = m_cabling->onlineId(rodId, onlineRodId);
        assert ( check );
        if ( !check ) onlineRodId = 0xFFFF;
        uint32_t theROD = this->getRodID(sub_detector[i], onlineRodId);
 
-        if ( m_isCosmic ) {
-           int j= i*8+rodId;
-           if ( j==8 )      theROD = 0x0069000a;
-           else if ( j==9 ) theROD = 0x0069000c;
-        }
+       if ( m_isCosmic ) {
+           int jj= i*8+rodId;
+           if ( jj==8 )      theROD = 0x0069000a;
+           else if ( jj==9 ) theROD = 0x0069000c;
+       }
 
-        uint32_t theROB = this->getRobID( theROD );
+       uint32_t theROB = this->getRobID( theROD );
 
        m_robIDs.push_back( theROB );
+       ++rodId;
     }
   }
 }
