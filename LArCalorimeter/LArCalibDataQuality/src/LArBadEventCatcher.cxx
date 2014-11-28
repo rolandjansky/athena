@@ -8,14 +8,17 @@
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h" 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "LArTools/LArCablingService.h"
 
 LArBadEventCatcher::LArBadEventCatcher(const std::string & name, ISvcLocator * pSvcLocator) : 
-  Algorithm(name,pSvcLocator), m_log(new MsgStream(msgSvc(),name)), m_larCablingSvc("LArCablingService") {
+  AthAlgorithm(name,pSvcLocator), 
+  m_onlineID(0),
+  m_larCablingSvc("LArCablingService"),
+  m_thisSize(0)
+{
   m_keyList.push_back("HIGH");
   m_keyList.push_back("MEDIUM");
   m_keyList.push_back("LOW");
@@ -34,42 +37,28 @@ LArBadEventCatcher::LArBadEventCatcher(const std::string & name, ISvcLocator * p
   m_nEvent=0;
   m_BSErrFailMask=0;
   m_stopJob=false;
+  m_thisSize=0;
 }
 
 
 LArBadEventCatcher::~LArBadEventCatcher() {
-  delete m_log;
 }
 				     
 
 StatusCode LArBadEventCatcher::initialize() {
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())  {
-      (*m_log) << MSG::ERROR << " StoreGate service not found " << std::endl;
-      sc = StatusCode::FAILURE; 
-      return sc;
-    }
-
   if (!m_checkDigits && !m_checkAccCalibDigits && !m_checkFebHeaders && !m_checkBSErrors) 
-    (*m_log) << MSG::WARNING << "All checks switched off ?!" << endreq;
+    ATH_MSG_WARNING ("All checks switched off ?!");
 
-  (*m_log) << MSG::INFO << "LArBadEventChacher initialized" << endreq;
+  ATH_MSG_INFO ("LArBadEventChacher initialized");
 
 
   m_BSErrFailMask=(1<< LArFebErrorSummary::CheckSum);
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   /// Get LAr Online ID helper class
-  sc = detStore->retrieve(m_onlineID, "LArOnlineID");
+  StatusCode sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    ATH_MSG_ERROR ("Could not get LArOnlineID helper !");
     return StatusCode::FAILURE;
   }
   
@@ -77,7 +66,7 @@ StatusCode LArBadEventCatcher::initialize() {
 
   sc=m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-     (*m_log) << MSG::ERROR << "Failed to retrieve LArCablingService" << std::endl;
+    ATH_MSG_ERROR ("Failed to retrieve LArCablingService");
       return sc;
   }
 
@@ -93,11 +82,11 @@ StatusCode LArBadEventCatcher::execute() {
 
   if (m_checkDigits) {
     for (size_t i=0;i<m_keyList.size();++i) {	   
-      if (m_storeGate->contains<LArDigitContainer>(m_keyList[i])) {
+      if (evtStore()->contains<LArDigitContainer>(m_keyList[i])) {
 	const LArDigitContainer* cont;
-	StatusCode sc=m_storeGate->retrieve(cont,m_keyList[i]);
+	StatusCode sc=evtStore()->retrieve(cont,m_keyList[i]);
 	if (sc.isFailure()) {
-	  (*m_log) << MSG::ERROR << "Can't retrieve LArDigitContainer with key " << m_keyList[i] << endreq;
+	  ATH_MSG_ERROR ("Can't retrieve LArDigitContainer with key " << m_keyList[i]);
 	  return StatusCode::FAILURE;
 	}
 	const size_t currSize=cont->size();
@@ -105,7 +94,7 @@ StatusCode LArBadEventCatcher::execute() {
 	if (currSize>0) { //We ignore emtpy containers
 	  if (m_nDigits==0)  m_nDigits=currSize; //Apparently the first event with an non-empty container
 	  if (m_nDigits!=currSize) {
-	    (*m_log) << MSG::FATAL << eventDetails() <<"Mismatch in size of LArDigitContainer: Have " << currSize << " elements, expected " << m_nDigits << endreq;
+	    ATH_MSG_FATAL (eventDetails() <<"Mismatch in size of LArDigitContainer: Have " << currSize << " elements, expected " << m_nDigits);
 	    m_stopJob=true;
 	    if (m_stopOnError)
 	      return StatusCode::FAILURE;
@@ -118,18 +107,18 @@ StatusCode LArBadEventCatcher::execute() {
 
    if (m_checkFebHeaders) {
     for (size_t i=0;i<m_keyList.size();++i) {	   
-      if (m_storeGate->contains<LArFebHeaderContainer>(m_keyList[i])) {
+      if (evtStore()->contains<LArFebHeaderContainer>(m_keyList[i])) {
 	const LArFebHeaderContainer* cont;
-	StatusCode sc=m_storeGate->retrieve(cont,m_keyList[i]);
+	StatusCode sc=evtStore()->retrieve(cont,m_keyList[i]);
 	if (sc.isFailure()) {
-	  (*m_log) << MSG::ERROR << "Can't retrieve LArFebHeaderContainer with key " << m_keyList[i] << endreq;
+	  ATH_MSG_ERROR ("Can't retrieve LArFebHeaderContainer with key " << m_keyList[i]);
 	  return StatusCode::FAILURE;
 	}
 	const size_t currSize=cont->size();
 	if (currSize>0) { //We ignore emtpy containers
 	  if (m_nFebheaders==0)  m_nFebheaders=currSize; //Apparently the first event with an non-empty container
 	  if (m_nFebheaders!=currSize) {
-	    (*m_log) << MSG::FATAL << eventDetails() << "Mismatch in size of LArFebHeaderContainer: Have " << currSize << " elements, expected " << m_nFebheaders << endreq;
+	    ATH_MSG_FATAL (eventDetails() << "Mismatch in size of LArFebHeaderContainer: Have " << currSize << " elements, expected " << m_nFebheaders);
 	    m_stopJob=true;
 	    if (m_stopOnError)
 	      return StatusCode::FAILURE;
@@ -143,11 +132,11 @@ StatusCode LArBadEventCatcher::execute() {
 
   if (m_checkAccCalibDigits) {
     for (size_t i=0;i<m_keyList.size();++i) {
-      if (m_storeGate->contains<LArAccumulatedCalibDigitContainer>(m_keyList[i])) {
+      if (evtStore()->contains<LArAccumulatedCalibDigitContainer>(m_keyList[i])) {
 	const LArAccumulatedCalibDigitContainer* cont;
-	StatusCode sc=m_storeGate->retrieve(cont,m_keyList[i]);
+	StatusCode sc=evtStore()->retrieve(cont,m_keyList[i]);
 	if (sc.isFailure()) {
-	  (*m_log) << MSG::ERROR << "Can't retrieve LArAccumulatedCalibDigitContainer with key " << m_keyList[i] << endreq;
+	  ATH_MSG_ERROR ("Can't retrieve LArAccumulatedCalibDigitContainer with key " << m_keyList[i]);
 	  return StatusCode::FAILURE;
 	}
 	const size_t currSize=cont->size();
@@ -155,7 +144,7 @@ StatusCode LArBadEventCatcher::execute() {
 	if (currSize>0) { //We ignore emtpy containers
 	  if (m_nAccCalibDigits==0)  m_nAccCalibDigits=currSize; //Apparently the first event with an non-empty container
 	  if (m_nAccCalibDigits!=currSize) {
-	    (*m_log) << MSG::FATAL << eventDetails() << "Mismatch in size of LArAccCalibDigitContainer: Have " << currSize << " elements, expected " << m_nAccCalibDigits << endreq;
+	    ATH_MSG_FATAL (eventDetails() << "Mismatch in size of LArAccCalibDigitContainer: Have " << currSize << " elements, expected " << m_nAccCalibDigits);
 	    m_stopJob=true;
 	    if (m_stopOnError)
 	      return StatusCode::FAILURE;
@@ -168,9 +157,9 @@ StatusCode LArBadEventCatcher::execute() {
 
  if (m_checkBSErrors) {
     const LArFebErrorSummary* febErrSum;
-    StatusCode sc=m_storeGate->retrieve(febErrSum);
+    StatusCode sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Can't retrieve LArFEBErrorSummary" << endreq;
+      ATH_MSG_ERROR ("Can't retrieve LArFEBErrorSummary");
       return sc;
     }
     
@@ -187,11 +176,11 @@ StatusCode LArBadEventCatcher::execute() {
 	  if (m_stopOnError) msglvl=MSG::FATAL; else msglvl=MSG::ERROR;
 	}
 	const HWIdentifier fId(it->first);
-	(*m_log) << msglvl << eventDetails() << "FEB 0x" << std::hex << it->first << " reports the following error(s): " 
+	msg() << msglvl << eventDetails() << "FEB 0x" << std::hex << it->first << " reports the following error(s): " 
 		 << decipherFebError(it->second) << endreq; 
-	(*m_log) << msglvl << "Feb location: " << m_onlineID->channel_name(fId) << endreq;
+	msg() << msglvl << "Feb location: " << m_onlineID->channel_name(fId) << endreq;
 
-	if (m_thisSize>0) (*m_log) << msglvl << "This event carries data" << endreq;
+	if (m_thisSize>0) msg() << msglvl << "This event carries data" << endreq;
 	
 	if (m_stopJob && m_stopOnError)
 	  return StatusCode::FAILURE;
@@ -208,14 +197,13 @@ StatusCode LArBadEventCatcher::execute() {
 std::string LArBadEventCatcher::eventDetails() const {
   std::stringstream result;
 
-  const EventInfo* eventInfo;
-  StatusCode sc = m_storeGate->retrieve(eventInfo);
+  const xAOD::EventInfo* eventInfo;
+  StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
     result << "[No EventInfo]";
   else {
-    EventID* eventID = eventInfo->event_ID();
-    unsigned int evtNum = eventID->event_number();
-    unsigned int runNum = eventID->run_number();
+    unsigned int evtNum = eventInfo->eventNumber();
+    unsigned int runNum = eventInfo->runNumber();
     result << "Run " << runNum << ", Evt " << evtNum;
   }
   result << ", Idx " << m_nEvent << ": ";
@@ -225,7 +213,7 @@ std::string LArBadEventCatcher::eventDetails() const {
 
 StatusCode LArBadEventCatcher::stop() {
   if (m_stopJob && m_stopOnError) {
-    (*m_log) << MSG::FATAL << "Fatal error found during execute" << endreq;
+    ATH_MSG_FATAL ("Fatal error found during execute");
     return StatusCode::FAILURE;
   }
   else

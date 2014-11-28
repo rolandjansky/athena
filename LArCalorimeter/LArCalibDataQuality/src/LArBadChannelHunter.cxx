@@ -19,7 +19,7 @@
 #include <cmath>
 
 LArBadChannelHunter::LArBadChannelHunter(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
   m_onlineId(0),
   m_caloId(0),
   m_badChannelTool("LArBadChanTool"),
@@ -95,19 +95,18 @@ LArBadChannelHunter::LArBadChannelHunter(const std::string& name, ISvcLocator* p
 
 //////
 StatusCode LArBadChannelHunter::initialize() {
-  MsgStream log(msgSvc(),name());
   if (m_avgTypeProp=="FEB") 
     m_avgType=FEB;
   else if (m_avgTypeProp=="PHI") 
     m_avgType=PHI;
   else {
-    log << MSG::ERROR << "Unknown AverageType " << m_avgTypeProp << ". Allowed values are 'FEB' or 'PHI'" << endreq;
+    ATH_MSG_ERROR ( "Unknown AverageType " << m_avgTypeProp << ". Allowed values are 'FEB' or 'PHI'" ) ;
     return StatusCode::FAILURE;
   }
 
   if (m_lowNoiseTh>=m_highNoiseTh) {
-    log << MSG::ERROR << "Low noise threshold (" << m_lowNoiseTh << ") is supposed to lower than the high noise threshold (" 
-	<< m_highNoiseTh << ")" << endreq;
+    ATH_MSG_ERROR ( "Low noise threshold (" << m_lowNoiseTh << ") is supposed to lower than the high noise threshold (" 
+                    << m_highNoiseTh << ")" ) ;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -115,61 +114,20 @@ StatusCode LArBadChannelHunter::initialize() {
 
 //////
 StatusCode LArBadChannelHunter::stop() {
-  MsgStream log(msgSvc(),name());
-  StoreGateSvc* detStore;
-  StatusCode sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_onlineId, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
+  ATH_CHECK( m_badChannelTool.retrieve() );
+  ATH_CHECK( m_larCablingSvc.retrieve() );
 
-  /// Get LAr Online ID helper class
-  sc = detStore->retrieve(m_onlineId, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  /// Get helper class for generic CaloCell_ID
-  sc = detStore->retrieve(m_caloId, "CaloCell_ID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get CaloCell_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  /// Get bad channel service  
-  sc=m_badChannelTool.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not retrieve BadChannelTool "
-	<< m_badChannelTool << endreq;
-    return StatusCode::FAILURE;
-  }
- 
-  /// Get LAr Calbling Service
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not retrieve LArCablingService" << endreq;
-    return StatusCode::FAILURE;
-  }
+  const ILArPedestal* pedestal = nullptr;
+  ATH_CHECK( detStore()->retrieve(pedestal,m_pedKey) );
 
-  ////
-  const ILArPedestal* pedestal;
-  sc=detStore->retrieve(pedestal,m_pedKey);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to retrieve pedestal container with key " << m_pedKey << endreq;
-    return sc;
-  }
-
-  const LArCaliWaveContainer* caliwave;
-  sc=detStore->retrieve(caliwave,m_caliWaveKey);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to retrieve CaliWave container with key " << m_caliWaveKey << endreq;
-    return sc;
-  }
+  const LArCaliWaveContainer* caliwave = nullptr;
+  ATH_CHECK( detStore()->retrieve(caliwave,m_caliWaveKey) );
 
   if (m_undoCorr) {
     LArCaliWaveContainer* caliwavecomplete= const_cast<LArCaliWaveContainer*>(caliwave);
-    log << MSG::INFO << "Undo caliwave corrections now." << endreq;
+    ATH_MSG_INFO ( "Undo caliwave corrections now." ) ;
     caliwavecomplete->undoCorrections();
   }
 
@@ -274,7 +232,7 @@ StatusCode LArBadChannelHunter::stop() {
     const HWIdentifier chid = thisCellData.m_chid;
 
     unsigned regId=getSymId(chid);
-    log << MSG::VERBOSE << "Checking " << channelDescription(chid) << endreq;
+    ATH_MSG_VERBOSE ( "Checking " << channelDescription(chid) ) ;
     std::map<unsigned,Average>::const_iterator febit=averageMap.find(regId);
     if (febit==averageMap.end()) continue;
     const Average& avreg=febit->second;
@@ -297,10 +255,10 @@ StatusCode LArBadChannelHunter::stop() {
 	  }
 	    
 	  if (rms==-1)
-	    log << MSG::ERROR << "No Pedestal found for " << channelDescription(chid,igain) << endreq;
+	    ATH_MSG_ERROR ( "No Pedestal found for " << channelDescription(chid,igain) ) ;
 	  else {
-	    log << MSG::VERBOSE << "PedRMS, gain: " << igain << ":" << rms << " Average: " 
-	        << avreg.m_avPedRMS[igain] << " Median: " << avreg.m_medPedRMS << endreq; 
+	    ATH_MSG_VERBOSE ( "PedRMS, gain: " << igain << ":" << rms << " Average: " 
+                              << avreg.m_avPedRMS[igain] << " Median: " << avreg.m_medPedRMS ) ; 
 	    //// channels ABOVE threshold, NOT fabs()!
 	    if ( (rms-avreg.m_avPedRMS[igain]) > higCut_rms ) {
 	      packing.setBit(highnoiseProb[igain],problem);
@@ -316,11 +274,11 @@ StatusCode LArBadChannelHunter::stop() {
 	      else		
 	        my_status=(bc.lowNoiseHG()||bc.highNoiseHG()) ? "BC " : "NEW ";
 
-	      log << MSG::INFO<< my_status << channelDescription(chid,igain) 
-	      	  << " RMS: " << rms << " ( " << avreg.m_avPedRMS[igain] << " , " 
-		  << float(int(10000*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMS[igain]))/100 <<" %) " << ", #Sig: " 
-		  << float(int(100*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMSSD[igain]))/100 
-		  << " ( " << avreg.m_avPedRMSSD[igain] << " ) " <<  endreq;	    
+	      ATH_MSG_INFO( my_status << channelDescription(chid,igain) 
+                            << " RMS: " << rms << " ( " << avreg.m_avPedRMS[igain] << " , " 
+                            << float(int(10000*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMS[igain]))/100 <<" %) " << ", #Sig: " 
+                            << float(int(100*(rms-avreg.m_avPedRMS[igain])/avreg.m_avPedRMSSD[igain]))/100 
+                            << " ( " << avreg.m_avPedRMSSD[igain] << " ) " ) ;	    
 	    }// end bad channels information output
 	  } //end if(rms==-1)
 	}//end if have ped rms for this cell & gain
@@ -355,11 +313,11 @@ StatusCode LArBadChannelHunter::stop() {
 	
 
 	if (ampl==-1 || wid==-1) {
-	  log << MSG::INFO << "No Amplitude or Width found for " << channelDescription(chid,0) << endreq;
+	  ATH_MSG_INFO ( "No Amplitude or Width found for " << channelDescription(chid,0) ) ;
 	  packing.setBit(LArBadChannelEnum::deadReadoutBit,problem);
 	}
 	else {
-	  log << MSG::VERBOSE << "Ampl gain: "<< 0<< ":"<< ampl<< " Average: " << avreg.m_avAmpl[0]<< endreq; 
+	  ATH_MSG_VERBOSE ( "Ampl gain: "<< 0<< ":"<< ampl<< " Average: " << avreg.m_avAmpl[0]) ; 
 	  //// larger deviation: dead
 	  if (fabs(ampl-avreg.m_avAmpl[0])>higCut_amp || fabs(wid-avreg.m_avWid[0])>higCut_wid) { 
 	    packing.setBit(LArBadChannelEnum::deadReadoutBit,problem);
@@ -388,7 +346,7 @@ StatusCode LArBadChannelHunter::stop() {
 	    else	
 		my_status=(bc.deadReadout()||bc.deadCalib()||bc.deadPhys()||bc.distorted()||bc.shortProblem()) ? "BC " : "NEW ";
 		
-	    log << MSG::INFO << my_status << channelDescription(chid,0) 
+	    ATH_MSG_INFO ( my_status << channelDescription(chid,0) 
 	        << " Amp: " << ampl << " ( " << avreg.m_avAmpl[0] << " , " 
 	    	<< float(int(10000*(ampl-avreg.m_avAmpl[0])/avreg.m_avAmpl[0]))/100 << " %) " << " #Sig: " 
 		<< float(int(100*(ampl-avreg.m_avAmpl[0])/avreg.m_avAmplSD[0]))/100 << " ( " << avreg.m_avAmplSD[0] <<" ) "
@@ -399,7 +357,7 @@ StatusCode LArBadChannelHunter::stop() {
 		<< " Tmax: " << tmax << " ( " << avreg.m_avTmax[0] << " , " 
 		<< float(int(10000*(tmax-avreg.m_avTmax[0])/avreg.m_avTmax[0]))/100 << " %) " << " #Sig:" 
 		<< float(int(100*(tmax-avreg.m_avTmax[0])/avreg.m_avTmaxSD[0]))/100 
-		<< endreq;
+                           ) ;
 	  }
 	}
       }//end if have amplitude for this cell
@@ -425,8 +383,8 @@ StatusCode LArBadChannelHunter::stop() {
     const goodAndBad_t& gb=itCalib->second;
     for (unsigned i=0;i<gb.second.size();i++) {
     if (gb.first==0) {
-      log << MSG::INFO << "All channels belonging to calibLine " << channelDescription(badChanVec[gb.second[i]].first) 
-	  << " don't respond to pluses. Assume bad calib line." << endreq;
+      ATH_MSG_INFO ( "All channels belonging to calibLine " << channelDescription(badChanVec[gb.second[i]].first) 
+                     << " don't respond to pulses. Assume bad calib line." ) ;
 	packing.setBit(LArBadChannelEnum::deadReadoutBit,badChanVec[gb.second[i]].second,false);
 	packing.setBit(LArBadChannelEnum::distortedBit,badChanVec[gb.second[i]].second,false);
 	packing.setBit(LArBadChannelEnum::deadCalibBit,badChanVec[gb.second[i]].second,true);
@@ -437,8 +395,7 @@ StatusCode LArBadChannelHunter::stop() {
   if (m_outFileName.size()) {
     std::ofstream outfile(m_outFileName.c_str());
     if (!outfile.is_open()) {
-      log << MSG::ERROR << "Failed to open output file " << m_outFileName << ". No output will be written." 
-	  << endreq;
+      ATH_MSG_ERROR ( "Failed to open output file " << m_outFileName << ". No output will be written." ) ;
     }
     else {
       BCV_t::const_iterator bcvit=badChanVec.begin();

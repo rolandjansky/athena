@@ -8,9 +8,8 @@
 
 template<class CONDITIONSCONTAINER>
 LArCalibValidationAlg<CONDITIONSCONTAINER>::LArCalibValidationAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
-  m_log(NULL),m_myMsgLvl(MSG::ERROR),
-  m_detStore(0),
+  AthAlgorithm(name,pSvcLocator),
+  m_myMsgLvl(MSG::ERROR),
   //m_badChannelTool("LArBadChanTool"),
   m_badChannelTool("LArBadChanTool"),
   m_badChanMaskingTool("LArBadChannelMasker"),
@@ -69,13 +68,11 @@ LArCalibValidationAlg<CONDITIONSCONTAINER>::LArCalibValidationAlg (const std::st
 
 template<class CONDITIONSCONTAINER>
 LArCalibValidationAlg<CONDITIONSCONTAINER>::~LArCalibValidationAlg() {
-  delete m_log;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::initialize() {
-  m_log=new MsgStream(msgSvc(),name());
   m_myMsgLvl=MSG::Level(m_myMsgLvlProp);
   if (m_patchMissingFEBs) m_checkCompleteness=true;
   return StatusCode::SUCCESS; 
@@ -83,121 +80,52 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::initialize() {
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
-  (*m_log) << MSG::INFO << "Entering LArCalibValidationAlg/"<<name() << endreq; 
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_MSG_INFO ( "Entering LArCalibValidationAlg/"<<name() ) ; 
 
-  /// Get LAr Online ID helper class
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  /// Get helper class for EM_ID
-  sc = m_detStore->retrieve(m_emId, "LArEM_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArEM_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  /// Get helper class for HEC_ID
-  sc = m_detStore->retrieve(m_hecId, "LArHEC_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArHEC_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  /// Get helper class for FCAL_ID
-  sc = m_detStore->retrieve(m_fcalId, "LArFCAL_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArFCAL_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  /// Get helper class for generic CaloCell_ID
-  sc = m_detStore->retrieve(m_caloId, "CaloCell_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get CaloCell_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_emId, "LArEM_ID") );
+  ATH_CHECK (detStore()->retrieve(m_hecId, "LArHEC_ID") );
+  ATH_CHECK( detStore()->retrieve(m_fcalId, "LArFCAL_ID") );
+  ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
   /// Get bad-channel tool 
   if (m_useBCInfo) {
-    sc=m_badChanMaskingTool.retrieve();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Could not retrieve BadChannelMaskingTool"
-	       << m_badChanMaskingTool << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=m_badChannelTool.retrieve();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Could not retrieve BadChannelTool "
-	       << m_badChannelTool << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_badChanMaskingTool.retrieve() );
+    ATH_CHECK( m_badChannelTool.retrieve() );
   }
 
-  /// Get LAr Cabling Service
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not retrieve LArCablingService" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_larCablingSvc.retrieve() );
 
 
   /// Open files for text output
   if (m_chanFileName.size()>0) {
     m_chanFile.open(m_chanFileName.c_str());
     if (!m_chanFile.is_open()) 
-      (*m_log) << MSG::ERROR << "Failed to open output file " << m_chanFileName << ". No output will be written." 
-	       << endreq;
+      ATH_MSG_ERROR ( "Failed to open output file " << m_chanFileName << ". No output will be written." ) ;
   }
 
   if (m_febFileName.size()>0) {
     m_febFile.open(m_febFileName.c_str());
     if (!m_febFile.is_open()) 
-      (*m_log) << MSG::ERROR << "Failed to open output file " << m_febFileName << ". No output will be written." 
-	       << endreq;
+      ATH_MSG_ERROR ( "Failed to open output file " << m_febFileName << ". No output will be written." ) ;
     else
       m_febFile << "barelEC side FT slot gain (coolChannel) : bad/total" <<std::endl;
   }
 
 
-  /// Retrieve reference container
-  sc=m_detStore->retrieve(m_reference,m_referenceKey);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to retrieve reference LArConditionsContainer with key " << m_referenceKey 
-	     << " from DetectorStore." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_reference,m_referenceKey) );
 
   /// Retrieve container to be validated
   if (m_patchMissingFEBs) { //want to patch -> non-const container needed
-    sc=m_detStore->retrieve(m_nc_validation,m_validationKey);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve non-const validation LArConditionsContainer with key " << m_validationKey 
-	       << " from DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_nc_validation,m_validationKey) );
     m_validation=m_nc_validation;
   }
   else { //no patching -> need only non-const container
     m_nc_validation=NULL;
-    sc=m_detStore->retrieve(m_validation,m_validationKey);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve validation LArConditionsContainer with key " << m_validationKey 
-	     << " from DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_validation,m_validationKey) );
   }
   if (m_validation==m_reference) //compare pointers
-    (*m_log) << MSG::WARNING << "The same container is used as reference!" << endreq; 
-
-
+    ATH_MSG_WARNING ( "The same container is used as reference!" ) ; 
 
   CONDITIONSCONTAINER* thinValCont=NULL;
   CONDITIONSCONTAINER* thinRefCont=NULL;
@@ -205,34 +133,19 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
   if (m_thinValContKey.size()) {
     thinValCont=new CONDITIONSCONTAINER;
     thinValCont->setGroupingType(CONDITIONSCONTAINER::SingleGroup);
-    sc=thinValCont->initialize();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to initialize output container with key " << m_thinValContKey << endreq;
-      return sc;
-    }
-    sc=m_detStore->record(thinValCont,m_thinValContKey);
-    if (sc.isFailure())
-      (*m_log) << MSG::ERROR << "Failed to register container with key " << m_thinValContKey << endreq;
+    ATH_CHECK( thinValCont->initialize() );
+    ATH_CHECK( detStore()->record(thinValCont,m_thinValContKey) );
   }
 
   if (m_thinRefContKey.size()) {
     thinRefCont=new CONDITIONSCONTAINER;
     thinRefCont->setGroupingType(CONDITIONSCONTAINER::SingleGroup);
-    sc=thinRefCont->initialize();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to initialize reference container with key " << m_thinRefContKey << endreq;
-      return sc;
-    }
-    sc=m_detStore->record(thinRefCont,m_thinRefContKey);
-    if (sc.isFailure())
-      (*m_log) << MSG::ERROR << "Failed to register container with key " << m_thinRefContKey << endreq;
+    ATH_CHECK( thinRefCont->initialize() );
+    ATH_CHECK( detStore()->record(thinRefCont,m_thinRefContKey) );
   }
 
 
-
-  sc=preLoop(); // Call preLoop method of derived algorithm
-  if (sc.isFailure())
-    return sc;
+  ATH_CHECK( preLoop() ); // Call preLoop method of derived algorithm
 
   /// Reset counters:
   m_nChecked=0;
@@ -255,7 +168,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
 
       if (m_useBCInfo) {
 	if (m_badChanMaskingTool->cellShouldBeMasked(chid,igain)) {
-	  (*m_log) << MSG::DEBUG << channelDescription(chid,igain) << " known to be bad by bad-channel tool. Ignore." << endreq;
+	  ATH_MSG_DEBUG ( channelDescription(chid,igain) << " known to be bad by bad-channel tool. Ignore." ) ;
 	  ++m_nBad;
 	  continue;
 	}
@@ -266,7 +179,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
       //Check if we actually got a reference channel. 
       //If not: Consider as an error because we can't validate!
      if (ref.isEmpty()) {
-	(*m_log) << MSG::ERROR << "Reference for " << channelDescription(chid,igain) << " is empty!" << endreq;
+       ATH_MSG_ERROR ( "Reference for " << channelDescription(chid,igain) << " is empty!" ) ;
 	//Report als missing reference as 'bad' for feb-summary
 	m_checkedIds[igain].push_back(std::make_pair(chid,false));
 	++m_nNoReference;
@@ -291,7 +204,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
 
   //call summary method
   findFailedPatterns();
-  sc=summary();
+  StatusCode sc=summary();
 
   if (m_febFile.is_open()) m_febFile.close();
   if (m_chanFile.is_open()) m_chanFile.close();
@@ -310,23 +223,23 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::preLoop() {
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::summary() {
 
-  (*m_log) << MSG::INFO << "Checked " << m_nChecked << " channels from container \"" << m_validationKey 
-	   << "\" against container \"" <<  m_referenceKey << "\"" << endreq;
+  ATH_MSG_INFO ( "Checked " << m_nChecked << " channels from container \"" << m_validationKey 
+                 << "\" against container \"" <<  m_referenceKey << "\"" ) ;
 
   if (m_useBCInfo)
-    (*m_log) << MSG::INFO << "Number of channels skipped according to masking tool " << m_badChanMaskingTool.name()
-	     <<": " << m_nBad <<endreq;
+    ATH_MSG_INFO ( "Number of channels skipped according to masking tool " << m_badChanMaskingTool.name()
+                   <<": " << m_nBad ) ;
 
   if (m_nNoReference)
-    (*m_log) << MSG::ERROR << "No reference found for " << m_nNoReference << " channels" << endreq;
+    ATH_MSG_ERROR ( "No reference found for " << m_nNoReference << " channels" ) ;
 
   if (m_nFailedValidation) 
-    (*m_log) << m_myMsgLvl << "Found " << m_nFailedValidation << " channels with calibration deviating significantly from reference" << endreq;
+    msg() << m_myMsgLvl << "Found " << m_nFailedValidation << " channels with calibration deviating significantly from reference" << endreq;
 
   if (m_nNoReference==0 && m_nFailedValidation==0)
-    (*m_log) << MSG::INFO << "All " << m_nValidated << " Channels passed the validation criteria" << endreq;
+    ATH_MSG_INFO ( "All " << m_nValidated << " Channels passed the validation criteria" ) ;
   else
-    (*m_log) << MSG::INFO << "Found " << m_nValidated << " Channels that passed the validation criteria" << endreq;
+    ATH_MSG_INFO ( "Found " << m_nValidated << " Channels that passed the validation criteria" ) ;
   
  
   if (m_nFailedValidation || m_nNoReference)
@@ -380,7 +293,7 @@ void LArCalibValidationAlg<CONDITIONSCONTAINER>::findFailedPatterns() {
       const float badFrac=float(itFEB->second.second)/(itFEB->second.first+itFEB->second.second);
       febOutput(itFEB->first,gain, itFEB->second.first,itFEB->second.second);
       if (m_printFailedPattern && badFrac>0.2)
-	(*m_log) <<  m_myMsgLvl << channelDescription(itFEB->first,gain,true) << " has " << badFrac*100 << "% suspicious channels" << endreq;
+	msg() <<  m_myMsgLvl << channelDescription(itFEB->first,gain,true) << " has " << badFrac*100 << "% suspicious channels" << endreq;
     }
     
 
@@ -515,16 +428,16 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkCoolChannelCompleteness() 
     for (;febIt!=febIt_e;++febIt) {
       const HWIdentifier febId(febIt->first);
       const typename SUBSET::ChannelVector& data=febIt->second;
-      (*m_log) << MSG::DEBUG << "Subset #" << subsetIndex << " " << channelDescription(febId,gain,true) << " has " << data.size() << " channels" << endreq;
+      ATH_MSG_DEBUG ( "Subset #" << subsetIndex << " " << channelDescription(febId,gain,true) << " has " << data.size() << " channels" ) ;
       if (data.size()==0) {
 	if (m_patchMissingFEBs) {
-	  (*m_log) << MSG::WARNING << "Found incomplete COOL channel!"
-	      << channelDescription(febId,gain,true) << " missing! Will try to patch..." << endreq;
+	  ATH_MSG_WARNING ( "Found incomplete COOL channel!"
+                            << channelDescription(febId,gain,true) << " missing! Will try to patch..." ) ;
 	  missing.push_back(FEBANDGAIN_t::value_type(febId,gain)); //remember missing FEB/gain pair
 	}
 	else {
 	  retVal=false;
-	  (*m_log) << MSG::ERROR << "Found incomplete COOL channel! " << channelDescription(febId,gain,true) << " missing!" << endreq;
+	  ATH_MSG_ERROR ( "Found incomplete COOL channel! " << channelDescription(febId,gain,true) << " missing!" ) ;
 	}
       }
     }//End loop over FEBs in subset
@@ -536,16 +449,16 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkCoolChannelCompleteness() 
   if (m_patchMissingFEBs && m_useCorrChannel) {
     const std::vector<unsigned> completedChans = m_nc_validation->completeCorrectionChannels();
     if (completedChans.size()>0) {
-      (*m_log) << MSG::INFO << "Artificially inserted correction subsets in COOL channels";
+      msg() << MSG::INFO <<  "Artificially inserted correction subsets in COOL channels" ;
       for(size_t j=0;j<completedChans.size();++j) 
-	(*m_log) << MSG::INFO << " " << completedChans[j];
-      (*m_log) << MSG::INFO << endreq;
+	msg() << MSG::INFO << " " << completedChans[j];
+      msg() << MSG::INFO << endreq;
     }
   }
   if (retVal) 
-    (*m_log) << MSG::INFO << "All Cool channel completly filled (" << multiChanColl->size() << " subsets)"  << endreq;
+    ATH_MSG_INFO ( "All Cool channel completly filled (" << multiChanColl->size() << " subsets)"  ) ;
   else
-    (*m_log) << MSG::ERROR << "Not all COOL channnels completely filled" << endreq;
+    ATH_MSG_ERROR ( "Not all COOL channnels completely filled" ) ;
   return retVal;
 }
 
@@ -573,8 +486,8 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingFEBs(const FEBANDGA
       const LArCondObj& obj =m_reference->get(chid,gain);
       if (obj.isEmpty()) { //Can't get reference object
 	if (m_larCablingSvc->isOnlineConnected(chid)) { //Don't care if not connected
-	  (*m_log) << MSG::ERROR << "Channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
-		   << " can't be found in reference container either." << endreq;
+	  ATH_MSG_ERROR ( "Channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
+                          << " can't be found in reference container either." ) ;
 	  ++nMissing;
 	}//end if isConnected
       }//end if isEmpty
@@ -582,19 +495,19 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingFEBs(const FEBANDGA
 	StatusCode sc=m_nc_validation->insertCorrection(chid,obj,gain,m_useCorrChannel);
 	if (sc.isFailure()) {
 	  ++nMissing;
-	  (*m_log) << MSG::ERROR << "Failed to insert correction for channel " << ch << " of missing " <<  channelDescription(febId,gain,true) << endreq;
+	  ATH_MSG_ERROR ( "Failed to insert correction for channel " << ch << " of missing " <<  channelDescription(febId,gain,true) ) ;
 	}
 	else {
-	  (*m_log) << MSG::DEBUG << "Copied channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
-		   << " from reference container" << endreq;
+	  ATH_MSG_DEBUG ( "Copied channel " << ch << " of missing " <<  channelDescription(febId,gain,true) 
+                          << " from reference container" ) ;
 	}
       ++nGood;
       }
     }//end loop over channels of feb
     if (nMissing==0)
-      (*m_log) << MSG::INFO << "Sucessfully patched " << channelDescription(febId,gain,true) << " using values from the reference container." << endreq; 
+      ATH_MSG_INFO ( "Sucessfully patched " << channelDescription(febId,gain,true) << " using values from the reference container." ) ; 
     else 
-      (*m_log) << MSG::ERROR << "Failed to patch all channels of FEB" << channelDescription(febId,gain,true) << endreq; 
+      ATH_MSG_ERROR ( "Failed to patch all channels of FEB" << channelDescription(febId,gain,true) ) ; 
       
   }//end loop over all pairs of missing febid and gain
 
@@ -661,7 +574,7 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkNumberOfCoolChannels() con
 
   //Now report discrepancies:
   if (cc_val.size()==0 && cc_ref.size()==0) {
-    *m_log << MSG::INFO << "Same number of COOL channels in validation and in reference container" << endreq;
+    ATH_MSG_INFO ( "Same number of COOL channels in validation and in reference container" ) ;
     return 0;
   }
  
@@ -669,20 +582,20 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkNumberOfCoolChannels() con
   CHANMAP::const_iterator cit;
   for (cit=cc_val.begin();cit!=cc_val.end();++cit) {
     const HWIdentifier fId=cit->second.second;
-    *m_log << MSG::ERROR  << "COOL Channel " << cit->first << " not part of the reference container! ";
+    ATH_MSG_ERROR  ( "COOL Channel " << cit->first << " not part of the reference container! ") ;
     if (fId.is_valid())
-      *m_log << MSG::ERROR << "Example:" << channelDescription(fId,cit->second.first,true) << endreq;
+      ATH_MSG_ERROR ( "Example:" << channelDescription(fId,cit->second.first,true) ) ;
     else  //Correction channel
-      *m_log << MSG::ERROR  << "Correction Gain=" << cit->second.first << endreq;
+      ATH_MSG_ERROR  ( "Correction Gain=" << cit->second.first ) ;
   }
 
   for (cit=cc_ref.begin();cit!=cc_ref.end();++cit) {
     const HWIdentifier fId=cit->second.second;
-    *m_log << MSG::ERROR << "COOL Channel " << cit->first << " missing! ";
+    ATH_MSG_ERROR ( "COOL Channel " << cit->first << " missing! ") ;
     if (fId.is_valid())
-      *m_log << MSG::ERROR << "Example: " << channelDescription(fId,cit->second.first,true) << endreq;
+      ATH_MSG_ERROR ( "Example: " << channelDescription(fId,cit->second.first,true) ) ;
     else
-      *m_log << MSG::ERROR  << "Correction Gain=" << cit->second.first << endreq;
+      ATH_MSG_ERROR  ( "Correction Gain=" << cit->second.first ) ;
   }
 
   return false;

@@ -21,7 +21,6 @@
 #include <vector>
 #include <string>
  
-#include "GaudiKernel/Algorithm.h"
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRawConditions/LArRawRampContainer.h"
 #include "LArCalibDataQuality/LArCalibValidationAlg.h"

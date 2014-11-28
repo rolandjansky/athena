@@ -35,61 +35,59 @@ StatusCode LArPedestalValidationAlg::preLoop() {
   bool stat;
   
   
-  (*m_log) << MSG::INFO << "Initialize Pedestal Tolerances (CaloCellGroup)" << endreq;
-  stat=m_pedTolerance.setDefinition(m_caloId,m_pedToleranceInit,*m_log);
+  ATH_MSG_INFO ( "Initialize Pedestal Tolerances (CaloCellGroup)" ) ;
+  stat=m_pedTolerance.setDefinition(m_caloId,m_pedToleranceInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of pedestal tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of pedestal tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_pedTolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three pedestal tolerance values (one per gain), got " 
-	     << m_pedTolerance.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three pedestal tolerance values (one per gain), got " 
+                    << m_pedTolerance.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_pedTolerance.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_pedTolerance.printDef();//for debugging....
   
   
-  (*m_log) << MSG::INFO << "Initialize Pedestal RMS Tolerances (CaloCellGroup)" << endreq;
-  stat=m_rmsTolerance.setDefinition(m_caloId,m_rmsToleranceInit,*m_log);
+  ATH_MSG_INFO ( "Initialize Pedestal RMS Tolerances (CaloCellGroup)" ) ;
+  stat=m_rmsTolerance.setDefinition(m_caloId,m_rmsToleranceInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of rms tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of rms tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_rmsTolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three rms tolerance values (one per gain), got " 
-	     << m_rmsTolerance.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three rms tolerance values (one per gain), got " 
+                    << m_rmsTolerance.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_rmsTolerance.printDef();//for debugging...
-  
+  if (this->msgLvl(MSG::DEBUG)) m_rmsTolerance.printDef();//for debugging...
 
 
-
-  (*m_log) << MSG::INFO << "Initialize FEB Pedestal Tolerances (CaloCellGroup)" << endreq;
-  stat=m_pedToleranceFEB.setDefinition(m_caloId,m_pedToleranceFEBInit,*m_log);
+  ATH_MSG_INFO ( "Initialize FEB Pedestal Tolerances (CaloCellGroup)" ) ;
+  stat=m_pedToleranceFEB.setDefinition(m_caloId,m_pedToleranceFEBInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of pedestal tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of pedestal tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_pedToleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three pedestal tolerance values (one per gain), got " 
-	     << m_pedToleranceFEB.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three pedestal tolerance values (one per gain), got " 
+                    << m_pedToleranceFEB.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
- if (this->outputLevel()<=MSG::DEBUG) m_pedToleranceFEB.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_pedToleranceFEB.printDef();//for debugging....
   
-  (*m_log) << MSG::INFO << "Initialize FEB Pedestal RMS Tolerances (CaloCellGroup)" << endreq;
-  stat=m_rmsToleranceFEB.setDefinition(m_caloId,m_rmsToleranceFEBInit,*m_log);
+  ATH_MSG_INFO ( "Initialize FEB Pedestal RMS Tolerances (CaloCellGroup)" ) ;
+  stat=m_rmsToleranceFEB.setDefinition(m_caloId,m_rmsToleranceFEBInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of rms tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of rms tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_rmsToleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three rms tolerance values (one per gain), got " 
-	     << m_rmsToleranceFEB.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three rms tolerance values (one per gain), got " 
+                    << m_rmsToleranceFEB.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
- if (this->outputLevel()<=MSG::DEBUG) m_rmsToleranceFEB.printDef();//for debugging...
+  if (this->msgLvl(MSG::DEBUG)) m_rmsToleranceFEB.printDef();//for debugging...
 
   return StatusCode::SUCCESS;
 }
@@ -97,7 +95,7 @@ StatusCode LArPedestalValidationAlg::preLoop() {
 bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
 
   if (gain<0 || gain>2) {
-    (*m_log) << MSG::ERROR << "Unexpected gain value " << gain << endreq;
+     ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
      return false;
   }
 
@@ -138,17 +136,17 @@ bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   if (fabs(pedVal-pedRef)> pedTolerance ||
       fabs(rmsVal-rmsRef)> rmsTolerance){
     if (m_nFailedValidation<m_maxmessages) {
-      m_log->precision(2);
-      m_log->setf(std::ios::fixed,std::ios::floatfield); 
-      (*m_log) <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Ped: " << val.m_Pedestal 
-	       << " (" << ref.m_Pedestal << ", " << val.m_Pedestal-ref.m_Pedestal  << " ADC)" 
-	       << " RMS: " << val.m_PedestalRMS << " (" << ref.m_PedestalRMS << ", " 
-	       << ((val.m_PedestalRMS-ref.m_PedestalRMS)/ref.m_PedestalRMS)*100 << "%)" << endreq;
+      msg().precision(2);
+      msg().setf(std::ios::fixed,std::ios::floatfield); 
+      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Ped: " << val.m_Pedestal 
+            << " (" << ref.m_Pedestal << ", " << val.m_Pedestal-ref.m_Pedestal  << " ADC)" 
+            << " RMS: " << val.m_PedestalRMS << " (" << ref.m_PedestalRMS << ", " 
+            << ((val.m_PedestalRMS-ref.m_PedestalRMS)/ref.m_PedestalRMS)*100 << "%)" << endreq;
     
-      (*m_log) << MSG::DEBUG << "Pedestal Tolerance: " <<  pedTolerance << " RMS Tolerance:" <<  rmsTolerance << endreq;
+      ATH_MSG_DEBUG ( "Pedestal Tolerance: " <<  pedTolerance << " RMS Tolerance:" <<  rmsTolerance ) ;
     }
     if (m_nFailedValidation==m_maxmessages)
-      (*m_log) <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
     return false;
   }
   else
@@ -160,8 +158,8 @@ bool LArPedestalValidationAlg::febSummary() {
 
   unsigned nBadFebs=0;
 
-  m_log->precision(3);
-  m_log->setf(std::ios::fixed,std::ios::floatfield); 
+  msg().precision(3);
+  msg().setf(std::ios::fixed,std::ios::floatfield); 
 
   std::vector<DataPerFEB>::iterator it=m_vDataPerFEB.begin();
   std::vector<DataPerFEB>::iterator it_e=m_vDataPerFEB.end();
@@ -180,20 +178,20 @@ bool LArPedestalValidationAlg::febSummary() {
     if (fabs(dataPerFeb.pedVal-dataPerFeb.pedRef)>pedToleranceFEB ||
 	fabs(dataPerFeb.rmsVal-dataPerFeb.rmsRef)>rmsToleranceFEB) {
    
-      (*m_log) <<  m_myMsgLvl << "Deviating!" <<channelDescription(dataPerFeb.febid, dataPerFeb.gain, true)
-	       << "Average Ped: " << dataPerFeb.pedVal << " (" << dataPerFeb.pedRef << ")" 
-	       << " RMS: " << dataPerFeb.rmsVal << " (" << dataPerFeb.rmsRef << ")" << endreq;
-      (*m_log) << MSG::DEBUG << "Pdestal FEB Tolerance: " <<  pedToleranceFEB << " RMS FEB Tolerance:" <<  rmsToleranceFEB << endreq;
+      msg() <<  m_myMsgLvl << "Deviating!" <<channelDescription(dataPerFeb.febid, dataPerFeb.gain, true)
+            << "Average Ped: " << dataPerFeb.pedVal << " (" << dataPerFeb.pedRef << ")" 
+            << " RMS: " << dataPerFeb.rmsVal << " (" << dataPerFeb.rmsRef << ")" << endreq;
+      ATH_MSG_DEBUG ( "Pdestal FEB Tolerance: " <<  pedToleranceFEB << " RMS FEB Tolerance:" <<  rmsToleranceFEB ) ;
       ++nBadFebs;
     }
   }
 
   if (nBadFebs) {
-    (*m_log) <<  m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
+    msg() <<  m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
     return false;
   }
   else {
-    (*m_log) << MSG::INFO << "All " << m_vDataPerFEB.size() << " FEBs withing given tolerance." << endreq;
+    ATH_MSG_INFO ( "All " << m_vDataPerFEB.size() << " FEBs withing given tolerance." ) ;
     return true;
   }
 }
@@ -214,11 +212,11 @@ StatusCode LArPedestalValidationAlg::summary() {
     m_rmsGlobalVal/=m_nEntriesGlobal;
     m_rmsGlobalRef/=m_nEntriesGlobal;
   }
-  m_log->precision(3);
-  m_log->setf(std::ios::fixed,std::ios::floatfield); 
-  (*m_log) << MSG::INFO << "Global pedestal average: " << m_pedGlobalVal << " Reference:" << m_pedGlobalRef
-	   << " Deviation:" << m_pedGlobalVal-m_pedGlobalRef << endreq;
-  (*m_log) << MSG::INFO << "Global elec noise average: " << m_rmsGlobalVal << " Reference:" << m_rmsGlobalRef
-	   << " Deviation:" << m_rmsGlobalVal-m_rmsGlobalRef << endreq;
+  msg().precision(3);
+  msg().setf(std::ios::fixed,std::ios::floatfield); 
+  ATH_MSG_INFO ( "Global pedestal average: " << m_pedGlobalVal << " Reference:" << m_pedGlobalRef
+                 << " Deviation:" << m_pedGlobalVal-m_pedGlobalRef ) ;
+  ATH_MSG_INFO ( "Global elec noise average: " << m_rmsGlobalVal << " Reference:" << m_rmsGlobalRef
+                 << " Deviation:" << m_rmsGlobalVal-m_rmsGlobalRef ) ;
   return sc;
 }

@@ -21,7 +21,7 @@
 #include <sstream> 
 #include <fstream>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
@@ -41,7 +41,7 @@
   */
 
 template<class CONDITIONSCONTAINER>
-class LArCalibValidationAlg:public Algorithm {
+class LArCalibValidationAlg:public AthAlgorithm {
  
 public:
   /** 
@@ -147,14 +147,9 @@ private:
   std::vector<std::string> m_gainMap;
 
 protected:
-  /** Pointer to MsgSvc, can be also used by deriving algorithm */
-  MsgStream* m_log;
-
   /** Message level for reporting deviations */
   MSG::Level m_myMsgLvl;
   int m_myMsgLvlProp;
-  /** Pointer to DetectorStore, can be also used by deriving algorithm */
-  StoreGateSvc* m_detStore;  
 
 
   /** Handle to bad-channel tool (job-Propety */

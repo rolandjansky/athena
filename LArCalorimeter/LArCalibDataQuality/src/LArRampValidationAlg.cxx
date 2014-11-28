@@ -30,33 +30,29 @@ LArRampValidationAlg::LArRampValidationAlg(const std::string& name, ISvcLocator*
 StatusCode LArRampValidationAlg::preLoop() {
 
   //Initialize CellGroup object storing the threhsolds:
-  if (m_tolerance.setDefinition(m_caloId,m_toleranceInit,*m_log)==false) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of thresholds!" << endreq;
+  if (m_tolerance.setDefinition(m_caloId,m_toleranceInit,msg())==false) {
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of thresholds!" ) ;
     return StatusCode::FAILURE;
   }
 
   if (m_tolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Expected three values in CaloCellGroup of thresholds for three gains!" << endreq;
+    ATH_MSG_ERROR ( "Expected three values in CaloCellGroup of thresholds for three gains!" ) ;
      return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_tolerance.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_tolerance.printDef();//for debugging....
 
 
   //Initialize CellGroup object storing the threhsolds:
-  if (m_toleranceFEB.setDefinition(m_caloId,m_toleranceInitFEB,*m_log)==false) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of thresholds!" << endreq;
+  if (m_toleranceFEB.setDefinition(m_caloId,m_toleranceInitFEB,msg())==false) {
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of thresholds!" ) ;
     return StatusCode::FAILURE;
   }
 
   if (m_toleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Expected three values in CaloCellGroup of thresholds for three gains!" << endreq;
+    ATH_MSG_ERROR ( "Expected three values in CaloCellGroup of thresholds for three gains!" ) ;
      return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_toleranceFEB.printDef();//for debugging....
-
-
-
-
+  if (this->msgLvl(MSG::DEBUG)) m_toleranceFEB.printDef();//for debugging....
 
 
   m_rampGlobalRef=0.;
@@ -69,22 +65,22 @@ StatusCode LArRampValidationAlg::preLoop() {
   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
   m_hasRawRampContainer = false;
   for (;key_it!=key_it_e;key_it++) {
-    StatusCode sc=m_detStore->retrieve(m_rawRampContainer,*key_it);
+    StatusCode sc=detStore()->retrieve(m_rawRampContainer,*key_it);
     if (sc!=StatusCode::SUCCESS || !m_rawRampContainer) {
-      (*m_log) << MSG::WARNING << "Unable to retrieve LArRawRampContainer with key " << *key_it << endreq;
+      ATH_MSG_WARNING ( "Unable to retrieve LArRawRampContainer with key " << *key_it ) ;
     } 
     else {
-      (*m_log) << MSG::DEBUG << "Got LArRawRampContainer with key " << *key_it << endreq;
+      ATH_MSG_DEBUG ( "Got LArRawRampContainer with key " << *key_it ) ;
       m_hasRawRampContainer = true;
     }
   }
   if (!m_hasRawRampContainer) 
-    (*m_log) << MSG::WARNING << "No LArRawRampContainer found. Only fitted ramp will be tested " << endreq;
+    ATH_MSG_WARNING ( "No LArRawRampContainer found. Only fitted ramp will be tested " ) ;
   
   // Check Raw Ramps
   if(m_hasRawRampContainer){
 
-    (*m_log) << MSG::DEBUG << "Checking LArRawRampContainer with key " << *key_it << endreq;
+    ATH_MSG_DEBUG ( "Checking LArRawRampContainer with key " << *key_it ) ;
 
     LArRawRampContainer::const_iterator cont_it=m_rawRampContainer->begin();
     LArRawRampContainer::const_iterator cont_it_e=m_rawRampContainer->end();
@@ -92,17 +88,17 @@ StatusCode LArRampValidationAlg::preLoop() {
       const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=(*cont_it)->theRamp(); 
       for (unsigned int DACIndex=0; DACIndex<singleRamp.size(); DACIndex++) {
 
-        (*m_log) << MSG::DEBUG << "DAC Index:" << DACIndex 
-		 << " DAC value : " << singleRamp[DACIndex].DAC 
-		 << " ADC value : " << singleRamp[DACIndex].ADC 
-		 << " Time " << singleRamp[DACIndex].TimeMax << endreq ;
+        ATH_MSG_DEBUG ( "DAC Index:" << DACIndex 
+                        << " DAC value : " << singleRamp[DACIndex].DAC 
+                        << " ADC value : " << singleRamp[DACIndex].ADC 
+                        << " Time " << singleRamp[DACIndex].TimeMax )  ;
 
 	// Check point with DAC > m_rawrampTimeDAC where DeltaT is meaningful
 	if(singleRamp[DACIndex].ADC > m_rawrampTimeADC){
 	  if (fabs(singleRamp[DACIndex].TimeMax) > m_rawrampTimeTolerance){ 
-	    m_log->setf(std::ios::fixed,std::ios::floatfield); 
-	    m_log->precision(2);
-	    (*m_log) << m_myMsgLvl << "Deviating! " << channelDescription((*cont_it)->channelID(),(*cont_it)->gain()) << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endreq;
+	    msg().setf(std::ios::fixed,std::ios::floatfield); 
+	    msg().precision(2);
+	    msg() << m_myMsgLvl << "Deviating! " << channelDescription((*cont_it)->channelID(),(*cont_it)->gain()) << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endreq;
 	  }
 	  break; //Stop loop after testing the m_rawrampTimeDAC DAC point
 	}
@@ -181,11 +177,11 @@ bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondO
       devMsg << "Deviating! " << channelDescription(chid,gain) << " Ramp: " << val.m_vRamp[1] << " (" << ref.m_vRamp[1] << ", ";
       devMsg.precision(2);
       devMsg << 100*(val.m_vRamp[1]-ref.m_vRamp[1])/ref.m_vRamp[1] << "%)";
-      (*m_log) << this->m_myMsgLvl << devMsg.str() << endreq;
-      (*m_log) << MSG::DEBUG << "Ramp Tolerance: " << tolerance << endreq;
+      msg() << this->m_myMsgLvl << devMsg.str() << endreq;
+      ATH_MSG_DEBUG ( "Ramp Tolerance: " << tolerance ) ;
     }
     else if ( m_nFailedValidation==m_maxmessages)
-      (*m_log) <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
     
     return false;
   } 
@@ -206,30 +202,30 @@ bool LArRampValidationAlg::febSummary() {
     dataPerFeb.rampVal/=dataPerFeb.nEntries;
     dataPerFeb.rampRef/=dataPerFeb.nEntries;
 
-    (*m_log) << MSG::DEBUG << " nb of channels = "  << dataPerFeb.nEntries 
-	     << " for FEB " << channelDescription(dataPerFeb.febid,true) << endreq;  
+    ATH_MSG_DEBUG ( " nb of channels = "  << dataPerFeb.nEntries 
+                    << " for FEB " << channelDescription(dataPerFeb.febid,true) ) ;  
 
     //Get offline identifier of channel 0 of this FEB, should be good enough ...
     const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.febid);
     const float& tolerance=m_toleranceFEB.valuesForCell(id)[dataPerFeb.gain];
     
     if (fabs(dataPerFeb.rampVal-dataPerFeb.rampRef)/dataPerFeb.rampRef > tolerance){
-      m_log->precision(3);
-      m_log->setf(std::ios::fixed,std::ios::floatfield); 
-      (*m_log) << m_myMsgLvl << "Deviating! " << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average Ramp: " 
-	       << dataPerFeb.rampVal << " (reference: " << dataPerFeb.rampRef << ")" << endreq;
-      (*m_log) << MSG::DEBUG << "Ramp FEB average tolerance: " << tolerance << endreq;
+      msg().precision(3);
+      msg().setf(std::ios::fixed,std::ios::floatfield); 
+      msg() << m_myMsgLvl << "Deviating! " << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average Ramp: " 
+            << dataPerFeb.rampVal << " (reference: " << dataPerFeb.rampRef << ")" << endreq;
+      ATH_MSG_DEBUG ( "Ramp FEB average tolerance: " << tolerance ) ;
       ++nBadFebs;
     }
   }
   
   if (nBadFebs) {
-    (*m_log) << MSG::ERROR << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() 
-	     << " FEBs deviating from reference" << endreq;
+    ATH_MSG_ERROR ( "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() 
+                    << " FEBs deviating from reference" ) ;
     return false;
   } else {
-    (*m_log) << MSG::INFO << "All " << m_vDataPerFEB.size() 
-	     << " FEBs withing given tolerance." << endreq;
+    ATH_MSG_INFO ( "All " << m_vDataPerFEB.size() 
+                   << " FEBs withing given tolerance." ) ;
     return true;
   }
   /*
@@ -289,14 +285,14 @@ bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentif
 	dataPerSector.gain!=gain) continue;
 
     if (dataPerSector.rampVal == 0 ){
-      (*m_log) << MSG::ERROR << "Found Sector with Ramp Average equals to zero" << endreq;
-      (*m_log) << MSG::ERROR << "Sector : pos_neg " <<  dataPerSector.pos_neg << " region " << dataPerSector.region
-	       << " layer " << dataPerSector.layer << " eta " << dataPerSector.eta << endreq;     
+      ATH_MSG_ERROR ( "Found Sector with Ramp Average equals to zero" ) ;
+      ATH_MSG_ERROR ( "Sector : pos_neg " <<  dataPerSector.pos_neg << " region " << dataPerSector.region
+                      << " layer " << dataPerSector.layer << " eta " << dataPerSector.eta ) ;     
       return false;
     }else{
       float ratio = val.m_vRamp[1]/dataPerSector.rampVal;      
       if ( ratio > 2.){
-	(*m_log) << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endreq;
+	msg() << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endreq;
 	return false;
       }
     }
@@ -320,8 +316,8 @@ StatusCode LArRampValidationAlg::summary() {
     m_rmsGlobalVal/=m_nEntriesGlobal;
     m_rmsGlobalRef/=m_nEntriesGlobal;
   }
-  (*m_log) << MSG::INFO << "Gobal ramp average: " << m_rampGlobalVal << " Reference: " << m_rampGlobalRef
-	   << " Deviation: " << m_rampGlobalVal-m_rampGlobalRef << endreq;
+  ATH_MSG_INFO ( "Gobal ramp average: " << m_rampGlobalVal << " Reference: " << m_rampGlobalRef
+                 << " Deviation: " << m_rampGlobalVal-m_rampGlobalRef ) ;
 
   return sc;
 }

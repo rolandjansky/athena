@@ -14,7 +14,7 @@
 #ifndef LARCALIBUTILS_LARBADEVENTCATCHER
 #define LARCALIBUTILS_LARBADEVENTCATCHER
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,7 +34,7 @@ class LArOnlineID;
   * in the execute as well as in the finalize and causes athena to exit without any delay.
   */
 
-class LArBadEventCatcher: public Algorithm {
+class LArBadEventCatcher: public AthAlgorithm {
 public:
 
   // Constructor
@@ -62,12 +62,8 @@ public:
  
   //Online ID helper
   const LArOnlineID* m_onlineID;
-  // Message Stream
-  MsgStream* m_log;
   //Cabling Service  
   ToolHandle<LArCablingService> m_larCablingSvc;
-  // StoreGate service
-  StoreGateSvc * m_storeGate;
 
   
   //jobProperties

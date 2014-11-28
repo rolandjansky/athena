@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -28,7 +28,7 @@ class LArCablingService;
 class LArOnlineID;
 class CaloCell_ID;
 
-class LArBadChannelHunter:public Algorithm {
+class LArBadChannelHunter:public AthAlgorithm {
  
 public:
   /** 

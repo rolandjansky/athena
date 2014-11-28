@@ -30,33 +30,33 @@ StatusCode LArAutoCorrValidationAlg::preLoop() {
 
   bool stat;
 
-  (*m_log) << MSG::INFO << "Initialize covariance tolerances (CaloCellGroup)" << endreq;
-  stat=m_covTolerance.setDefinition(m_caloId,m_covToleranceInit,*m_log);
+  ATH_MSG_INFO ( "Initialize covariance tolerances (CaloCellGroup)" ) ;
+  stat=m_covTolerance.setDefinition(m_caloId,m_covToleranceInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of covariance tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of covariance tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_covTolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three covariance tolerance values (one per gain), got " 
-	     << m_covTolerance.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three covariance tolerance values (one per gain), got " 
+                    << m_covTolerance.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-   if (this->outputLevel()<=MSG::DEBUG) m_covTolerance.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_covTolerance.printDef();//for debugging....
 
 
   
-  (*m_log) << MSG::INFO << "Initialize covariance FEB tolerances (CaloCellGroup)" << endreq;
-  stat=m_covToleranceFEB.setDefinition(m_caloId,m_covToleranceFEBInit,*m_log);
+  ATH_MSG_INFO ( "Initialize covariance FEB tolerances (CaloCellGroup)" ) ;
+  stat=m_covToleranceFEB.setDefinition(m_caloId,m_covToleranceFEBInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of covariance tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of covariance tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_covToleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three covariance tolerance values (one per gain), got " 
-	     << m_covToleranceFEB.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three covariance tolerance values (one per gain), got " 
+                    << m_covToleranceFEB.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-   if (this->outputLevel()<=MSG::DEBUG) m_covToleranceFEB.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_covToleranceFEB.printDef();//for debugging....
 
 
   return StatusCode::SUCCESS;
@@ -66,16 +66,16 @@ StatusCode LArAutoCorrValidationAlg::preLoop() {
 bool LArAutoCorrValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
   
 if (gain<0 || gain>2) {
-    (*m_log) << MSG::ERROR << "Unexpected gain value " << gain << endreq;
+     ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
      return false;
   }
 
   if (val.m_vAutoCorr.size()==0) {
-    (*m_log) <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,gain) << endreq;
+    msg() <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,gain) << endreq;
     return false;
   }
   if (ref.m_vAutoCorr.size()==0) {
-    (*m_log) << MSG::WARNING << "No reference value found for " << channelDescription(chid,gain) << endreq;
+    ATH_MSG_WARNING ( "No reference value found for " << channelDescription(chid,gain) ) ;
     return false;
   }
 
@@ -106,12 +106,12 @@ if (gain<0 || gain>2) {
   for (size_t i=0;i<s;++i) {
     const float covVal_i=val.m_vAutoCorr[i];
     if (fabs(covVal_i)>1.0) {
-      (*m_log) <<  this->m_myMsgLvl << "Unphysical! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " 
+      msg() <<  this->m_myMsgLvl << "Unphysical! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " 
 	       <<  std::setprecision(4) << covVal_i << endreq;
       return false;
     }
     if (m_checkFifthSample and i==5 and fabs(covVal_i)>0.13) {
-      (*m_log) <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << covVal_i << endreq;
+      msg() <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << covVal_i << endreq;
       return false;
     }
     if (i<m_nSamplesToCheck && i<sr) {
@@ -122,11 +122,11 @@ if (gain<0 || gain>2) {
 	  devMsg.setf(std::ios::fixed,std::ios::floatfield);
 	  devMsg <<  "Deviating! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << std::setprecision(4) << covVal_i
 		 <<" (" << covRef_i << ", " << std::setprecision(2) << ((covVal_i-covRef_i)/covRef_i)*100 << "%)";
-	  (*m_log) << this->m_myMsgLvl << devMsg.str() << endreq;
-	  (*m_log) << MSG::DEBUG << "Covariance Tolerance: " <<  covTolerance << endreq;
+	  msg() << this->m_myMsgLvl << devMsg.str() << endreq;
+	  ATH_MSG_DEBUG ( "Covariance Tolerance: " <<  covTolerance ) ;
 	}
 	if (m_nFailedValidation==m_maxmessages)
-	  (*m_log) <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+	  msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
 	return false;
       }//end if > tolerance
     }//end if nSamplesToCheck
@@ -137,8 +137,8 @@ if (gain<0 || gain>2) {
 
 bool LArAutoCorrValidationAlg::febSummary() {
   unsigned nBadFebs=0;
-  m_log->precision(3);
-  m_log->setf(std::ios::fixed,std::ios::floatfield); 
+  msg().precision(3);
+  msg().setf(std::ios::fixed,std::ios::floatfield); 
 
   std::vector<DataPerFEB>::iterator it=m_vDataPerFEB.begin();
   std::vector<DataPerFEB>::iterator it_e=m_vDataPerFEB.end();
@@ -152,18 +152,18 @@ bool LArAutoCorrValidationAlg::febSummary() {
     const float& covToleranceFEB=m_covToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
 
     if (fabs(dataPerFeb.covVal-dataPerFeb.covRef)>covToleranceFEB){
-      (*m_log) << m_myMsgLvl << "Deviating!" << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average AutoCorr: " 
-	       << dataPerFeb.covVal << " (" << dataPerFeb.covRef << ")" << endreq;
-            ++nBadFebs;
+      msg() << m_myMsgLvl << "Deviating!" << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average AutoCorr: " 
+            << dataPerFeb.covVal << " (" << dataPerFeb.covRef << ")" << endreq;
+      ++nBadFebs;
     }
   }
 
   if (nBadFebs) {
-    (*m_log) << m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
+    msg() << m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
     return false;
   }
   else {
-    (*m_log) << MSG::INFO << "All" << m_vDataPerFEB.size() << " FEBs withing given tolerance." << endreq;
+    ATH_MSG_INFO ( "All" << m_vDataPerFEB.size() << " FEBs withing given tolerance." ) ;
     return true;
   }
 }
@@ -180,7 +180,7 @@ StatusCode LArAutoCorrValidationAlg::summary() {
     m_covGlobalVal/=m_nEntriesGlobal;
     m_covGlobalRef/=m_nEntriesGlobal;
   }
-  (*m_log) << MSG::INFO << "Global autocorr average: " << m_covGlobalVal << " Referecence:" << m_covGlobalRef
-	   << " Deviation:" << m_covGlobalVal-m_covGlobalRef << endreq;
+  ATH_MSG_INFO ( "Global autocorr average: " << m_covGlobalVal << " Referecence:" << m_covGlobalRef
+                 << " Deviation:" << m_covGlobalVal-m_covGlobalRef ) ;
   return sc;
 }

@@ -17,7 +17,6 @@
 #include <vector>
 #include <string>
  
-#include "GaudiKernel/Algorithm.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArCalibDataQuality/LArCalibValidationAlg.h"
 #include "LArRawConditions/LArWaveHelper.h"

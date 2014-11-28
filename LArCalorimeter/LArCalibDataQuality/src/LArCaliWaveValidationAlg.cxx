@@ -37,63 +37,63 @@ StatusCode LArCaliWaveValidationAlg::preLoop() {
 
   //Initialize CaloCellGroups:
 
-  (*m_log) << MSG::INFO << "Initialize Amplitude Tolerances (CaloCellGroup)" << endreq;
-  stat=m_ampTolerance.setDefinition(m_caloId,m_ampToleranceInit,*m_log);
+  ATH_MSG_INFO ( "Initialize Amplitude Tolerances (CaloCellGroup)" ) ;
+  stat=m_ampTolerance.setDefinition(m_caloId,m_ampToleranceInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of amplitude tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of amplitude tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_ampTolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three amplitude tolerance values (one per gain), got " 
-	     << m_ampTolerance.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three amplitude tolerance values (one per gain), got " 
+                    << m_ampTolerance.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_ampTolerance.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_ampTolerance.printDef();//for debugging....
 
 
   
-  (*m_log) << MSG::INFO << "Initialize FWHM Tolerances (CaloCellGroup)" << endreq;
-  stat=m_fwhmTolerance.setDefinition(m_caloId,m_fwhmToleranceInit,*m_log);
+  ATH_MSG_INFO ( "Initialize FWHM Tolerances (CaloCellGroup)" ) ;
+  stat=m_fwhmTolerance.setDefinition(m_caloId,m_fwhmToleranceInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of FWHM tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of FWHM tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_fwhmTolerance.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three FWHM tolerance values (one per gain), got " 
-	     << m_fwhmTolerance.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three FWHM tolerance values (one per gain), got " 
+                    << m_fwhmTolerance.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_fwhmTolerance.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_fwhmTolerance.printDef();//for debugging....
 
 
   
-  (*m_log) << MSG::INFO << "Initialize FEB Amplitude Tolerances (CaloCellGroup)" << endreq;
-  stat=m_ampToleranceFEB.setDefinition(m_caloId,m_ampToleranceFEBInit,*m_log);
+  ATH_MSG_INFO ( "Initialize FEB Amplitude Tolerances (CaloCellGroup)" ) ;
+  stat=m_ampToleranceFEB.setDefinition(m_caloId,m_ampToleranceFEBInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of FEB amplitude tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of FEB amplitude tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_ampToleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three FEB amplitude tolerance values (one per gain), got " 
-	     << m_ampToleranceFEB.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three FEB amplitude tolerance values (one per gain), got " 
+                    << m_ampToleranceFEB.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG)  m_ampToleranceFEB.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG))  m_ampToleranceFEB.printDef();//for debugging....
 
 
   
-  (*m_log) << MSG::INFO << "Initialize FEB FWHM Tolerances (CaloCellGroup)" << endreq;
-  stat=m_fwhmToleranceFEB.setDefinition(m_caloId,m_fwhmToleranceFEBInit,*m_log);
+  ATH_MSG_INFO ( "Initialize FEB FWHM Tolerances (CaloCellGroup)" ) ;
+  stat=m_fwhmToleranceFEB.setDefinition(m_caloId,m_fwhmToleranceFEBInit,msg());
   if (!stat) {
-    (*m_log) << MSG::ERROR << "Failed to initialize CaloCellGroup of FEB FWHM tolerances!" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize CaloCellGroup of FEB FWHM tolerances!" ) ;
     return StatusCode::FAILURE;
   }
   if (m_fwhmToleranceFEB.getDefaults().size()!=3) {
-    (*m_log) << MSG::ERROR << "Configuration error: Expected three FEB FWHM tolerance values (one per gain), got " 
-	     << m_fwhmToleranceFEB.getDefaults().size() << endreq;
+    ATH_MSG_ERROR ( "Configuration error: Expected three FEB FWHM tolerance values (one per gain), got " 
+                    << m_fwhmToleranceFEB.getDefaults().size() ) ;
     return StatusCode::FAILURE;
   }
-  if (this->outputLevel()<=MSG::DEBUG) m_fwhmToleranceFEB.printDef();//for debugging....
+  if (this->msgLvl(MSG::DEBUG)) m_fwhmToleranceFEB.printDef();//for debugging....
 
   return StatusCode::SUCCESS;
 }
@@ -101,7 +101,7 @@ StatusCode LArCaliWaveValidationAlg::preLoop() {
 bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArCondObj& val, const HWIdentifier chid, const int gain) {
 
   if (gain<0 || gain>2) {
-    (*m_log) << MSG::ERROR << "Unexpected gain value " << gain << endreq;
+     ATH_MSG_ERROR ( "Unexpected gain value " << gain ) ;
      return false;
   }
 
@@ -161,7 +161,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   if (fabs(TmaxVal-TmaxRef)> TMaxshift && m_timeShift==true) {
     retval=false;
     if (m_nFailedValidation<m_maxmessages)
-      (*m_log) << m_myMsgLvl << "Shifted! " << channelDescription(chid,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endreq;
+      msg() << m_myMsgLvl << "Shifted! " << channelDescription(chid,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endreq;
 
   }
 
@@ -169,16 +169,16 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   if (1000*fabs(ampVal-ampRef)/ampRef > ampTolerance || 1000*fabs(fwhmVal-fwhmRef)/fwhmRef > fwhmTolerance) {
     retval=false;
     if (m_nFailedValidation<m_maxmessages) {
-      m_log->precision(2);
-      m_log->setf(std::ios::fixed,std::ios::floatfield); 
-      (*m_log) <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Amp: " << ampVal << "( " << ampRef 
+      msg().precision(2);
+      msg().setf(std::ios::fixed,std::ios::floatfield); 
+      msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Amp: " << ampVal << "( " << ampRef 
 	       << ", " << 100.*(ampVal-ampRef)/ampRef << " %)" 
 	       << " FWHM: " << fwhmVal << " ( " << fwhmRef << ", " << 100*(fwhmVal-fwhmRef)/fwhmVal << " %)" << endreq;
-      (*m_log) << MSG::DEBUG << "Amplitude FEB tolerance: " << ampTolerance << ", FWHM FEB tolerance: " << fwhmTolerance << endreq;
+      ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampTolerance << ", FWHM FEB tolerance: " << fwhmTolerance ) ;
     }
   }
   if (!retval && m_nFailedValidation==m_maxmessages)
-    (*m_log) <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+    msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
   
   return retval;
 }
@@ -188,8 +188,8 @@ bool LArCaliWaveValidationAlg::febSummary() {
 
   unsigned nBadFebs=0;
 
-  m_log->precision(3);
-  m_log->setf(std::ios::fixed,std::ios::floatfield); 
+  msg().precision(3);
+  msg().setf(std::ios::fixed,std::ios::floatfield); 
 
   std::vector<DataPerFEB>::iterator it=m_vDataPerFEB.begin();
   std::vector<DataPerFEB>::iterator it_e=m_vDataPerFEB.end();
@@ -206,19 +206,19 @@ bool LArCaliWaveValidationAlg::febSummary() {
     
     if (fabs(dataPerFeb.ampVal-dataPerFeb.ampRef)/dataPerFeb.ampRef*1000>ampToleranceFEB  ||  
 	fabs(dataPerFeb.fwhmVal-dataPerFeb.fwhmRef)/dataPerFeb.fwhmRef*1000>fwhmToleranceFEB) {
-      (*m_log) << m_myMsgLvl << "Deviating! " <<channelDescription(dataPerFeb.febid,dataPerFeb.gain,true)<< "Average Amp: " << dataPerFeb.ampVal << " (" << dataPerFeb.ampRef << ")" 
+      msg() << m_myMsgLvl << "Deviating! " <<channelDescription(dataPerFeb.febid,dataPerFeb.gain,true)<< "Average Amp: " << dataPerFeb.ampVal << " (" << dataPerFeb.ampRef << ")" 
 	       << " FWHM: " << dataPerFeb.fwhmVal << " (" << dataPerFeb.fwhmRef << ")" << endreq;
       ++nBadFebs;
-      (*m_log) << MSG::DEBUG << "Amplitude FEB tolerance: " << ampToleranceFEB << ", FWHM FEB tolerance: " << fwhmToleranceFEB << endreq;
+      ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampToleranceFEB << ", FWHM FEB tolerance: " << fwhmToleranceFEB ) ;
     }
   }
 
   if (nBadFebs) {
-    (*m_log) << MSG::ERROR << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs deviating from reference" << endreq;
+    ATH_MSG_ERROR ( "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs deviating from reference" ) ;
     return false;
   }
   else {
-    (*m_log) << MSG::INFO << "All " << m_vDataPerFEB.size() << " FEBs withing given tolerance." << endreq;
+    ATH_MSG_INFO ( "All " << m_vDataPerFEB.size() << " FEBs withing given tolerance." ) ;
     return true;
   }
 }
@@ -237,9 +237,9 @@ StatusCode LArCaliWaveValidationAlg::summary() {
     m_fwhmGlobalVal/=m_nEntriesGlobal;
     m_fwhmGlobalRef/=m_nEntriesGlobal;
   }
-  (*m_log) << MSG::INFO << "Global amplitude average: " << m_ampGlobalVal << " Reference:" << m_ampGlobalRef
-	   << " Deviation:" << (m_ampGlobalVal-m_ampGlobalRef)/m_ampGlobalRef*1000 <<" permille" << endreq;
-  (*m_log) << MSG::INFO << "Gobal FWHM average: " << m_fwhmGlobalVal << " Reference:" << m_fwhmGlobalRef
-	   << " Deviation:" << (m_fwhmGlobalVal-m_fwhmGlobalRef)/m_fwhmGlobalRef*1000 <<" permille" << endreq;
+  ATH_MSG_INFO ( "Global amplitude average: " << m_ampGlobalVal << " Reference:" << m_ampGlobalRef
+                 << " Deviation:" << (m_ampGlobalVal-m_ampGlobalRef)/m_ampGlobalRef*1000 <<" permille" ) ;
+  ATH_MSG_INFO ( "Gobal FWHM average: " << m_fwhmGlobalVal << " Reference:" << m_fwhmGlobalRef
+                 << " Deviation:" << (m_fwhmGlobalVal-m_fwhmGlobalRef)/m_fwhmGlobalRef*1000 <<" permille" ) ;
   return sc;
 }
