@@ -1,0 +1,34 @@
+<!-- $Id$ -->
+<lcgdict>
+
+  <!-- CutBookkeeper_v1 dictionaries: -->
+  <class name="xAOD::CutBookkeeper_v1" >
+    <!-- <field name="m_declaredChildFilter" transient="true"/> -->
+    <!-- <field name="m_declaredTopFilter" transient="true"/> -->
+  </class>
+  <!-- <read sourceClass="xAOD::CutBookkeeper_v1" version="[1-]" > -->
+    <!-- targetClass="xAOD::CutBookkeeper_v1" source="" target="" > -->
+    <!-- <![CDATA[
+       newObj->resetCache();
+     ]]> -->
+  <!-- </read> -->
+
+  <class name="DataVector<xAOD::CutBookkeeper_v1>" />
+
+  <class name="xAOD::CutBookkeeperContainer_v1"
+         id="F2F90B2F-B879-43B8-AF9B-0F843E299A87" />
+  <class name="xAOD::CutBookkeeperAuxContainer_v1"
+         id="AF612BAA-20B8-40A3-A418-894A9FB8A61B" />
+
+  <!-- CutBookkeeperContainer_v1 links: -->
+  <class name="DataLink<xAOD::CutBookkeeperContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::CutBookkeeperContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::CutBookkeeperContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::CutBookkeeperContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::CutBookkeeperContainer_v1> > >" />
+
+  <class name="ElementLinkVector<xAOD::CutBookkeeperContainer_v1>" />
+  <class name="std::vector<ElementLinkVector<xAOD::CutBookkeeperContainer_v1> >" />
+
+</lcgdict>
