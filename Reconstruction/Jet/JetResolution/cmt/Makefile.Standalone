@@ -73,6 +73,7 @@ default: shlib
 # Rule to make ROOTCINT output file
 $(CINTOBJ) : $(HLIST) $(LDEFFILE)
 	@echo "Running rootcint"
+	@mkdir -p $(OUTPUTDIR)
 	@$(ROOTSYS)/bin/rootcint -f $(CINTFILE) -c -p  $(CXXFLAGS) $(INCLUDES) $(HLIST) $(LDEFFILE)
 	@echo "Compiling $(CINTFILE)"
 	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $(CINTFILE) -o $@
