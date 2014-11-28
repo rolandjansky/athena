@@ -196,7 +196,6 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
     float eloss_offl  = m_RecMuonCB_eloss[i_offl];
     float etcone_offl = m_RecMuonCB_etcone[i_offl];
     float ptcone_offl = m_RecMuonCB_ptcone[i_offl];
-    float nucone_offl = m_RecMuonCB_nucone[i_offl];
 
     float etcone_offl_corr = etcone_offl + eloss_offl;
 
@@ -210,7 +209,6 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
     float  phi_iso = 0.; 
     float  etcone_iso = 0.; 
     float  ptcone_iso = 0.; 
-    int    nucone_iso = 0; 
     for(itIso=vec_isoMuonFeatures.begin(); itIso != vec_isoMuonFeatures.end(); itIso++) {
       float pt         = (*itIso)->getPtMu();
       float eta        = (*itIso)->getEtaMu();
@@ -228,7 +226,6 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
 	phi_iso = phi;
 	etcone_iso = EtOutEC-EtOutEC + EtOutHC-EtOutHC;
 	ptcone_iso = sumPtTrack-PtMu;
-	nucone_iso = numTrack;
       }
     }
 
@@ -239,11 +236,10 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
 
     float etcone_diff = etcone_iso - etcone_offl_corr;
     float ptcone_diff = ptcone_iso - ptcone_offl;
-    float nucone_diff = static_cast<float>(nucone_iso) - nucone_offl;
      
     hist("muIso_etcone_toOffl", histdirmuiso )->Fill(etcone_diff);
     hist("muIso_ptcone_toOffl", histdirmuiso )->Fill(ptcone_diff);
-    hist("muIso_nucone_toOffl", histdirmuiso )->Fill(nucone_diff);
+    hist("muIso_nucone_toOffl", histdirmuiso )->Fill(0);
   }
 
   // -----------------------------

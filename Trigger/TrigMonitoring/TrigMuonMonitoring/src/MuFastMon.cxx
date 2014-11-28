@@ -29,6 +29,9 @@
 #include <fstream>
 #include <cmath>
 
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -222,8 +225,11 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   // Retrieve MuonFeatureContainer
   // -----------------------------
 
-  const DataHandle<MuonFeatureContainer> mfContainer;
-  const DataHandle<MuonFeatureContainer> lastmfContainer;
+  //const DataHandle<MuonFeatureContainer> mfContainer;  //attention
+  //const DataHandle<MuonFeatureContainer> lastmfContainer;  //attention
+  //
+  const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
+  const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
   StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
     ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast container" );
@@ -236,11 +242,11 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   // Dump muonFeature info
   // -----------------------------
 
-  std::vector<const MuonFeature*> vec_muonFeatures;
+  std::vector<const xAOD::L2StandAloneMuon*> vec_muonFeatures;
 
   for(; mfContainer != lastmfContainer; mfContainer++) {
-    MuonFeatureContainer::const_iterator mf     = mfContainer->begin();
-    MuonFeatureContainer::const_iterator lastmf = mfContainer->end();
+    xAOD::L2StandAloneMuonContainer::const_iterator mf     = mfContainer->begin();
+    xAOD::L2StandAloneMuonContainer::const_iterator lastmf = mfContainer->end();
     for(; mf != lastmf; mf++) {
       if( (*mf) == 0 ) continue;
       vec_muonFeatures.push_back( *mf );
@@ -249,7 +255,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
   int nMuFast = vec_muonFeatures.size();
 
-  std::vector<const MuonFeature*>::const_iterator itMf;
+  std::vector<const xAOD::L2StandAloneMuon*>::const_iterator itMf;
 
   //int nmf=0;
   for(itMf=vec_muonFeatures.begin(); itMf != vec_muonFeatures.end(); itMf++) {
@@ -260,7 +266,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     float pt     = (*itMf)->pt();
     float eta    = (*itMf)->eta();
     float phi    = (*itMf)->phi();
-    int   saddr  = (*itMf)->saddress();
+    int   saddr  = (*itMf)->sAddress();
     int   roiId  = (*itMf)->roiId();
     //ATH_MSG_DEBUG( " nmf  " << nmf );
     ATH_MSG_DEBUG( " id  " << id );
@@ -314,17 +320,17 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     hist("muFast_saddr", histdirmufast )->Fill(saddr+0.01);
     std::vector<float> sp_r;
     std::vector<float> sp_z;
-    if( fabs((*itMf)->sp1_r()) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->sp1_r() );    sp_z.push_back( (*itMf)->sp1_z() ); }
-      else           { sp_r.push_back( (*itMf)->sp1_r()*10 ); sp_z.push_back( (*itMf)->sp1_z()*10 ); }
+    if( fabs((*itMf)->superPointR(1)) > ZERO_LIMIT ) {
+      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(1) );    sp_z.push_back( (*itMf)->superPointZ(1) ); }
+      else           { sp_r.push_back( (*itMf)->superPointR(1)*10 ); sp_z.push_back( (*itMf)->superPointZ(1)*10 ); }
     }
-    if( fabs((*itMf)->sp2_r()) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->sp2_r() );    sp_z.push_back( (*itMf)->sp2_z() ); }
-      else           { sp_r.push_back( (*itMf)->sp2_r()*10 ); sp_z.push_back( (*itMf)->sp2_z()*10 ); }
+    if( fabs((*itMf)->superPointR(2)) > ZERO_LIMIT ) {
+      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(2) );    sp_z.push_back( (*itMf)->superPointZ(2) ); }
+      else           { sp_r.push_back( (*itMf)->superPointR(2)*10 ); sp_z.push_back( (*itMf)->superPointZ(2)*10 ); }
     }
-    if( fabs((*itMf)->sp3_r()) > ZERO_LIMIT ) {
-      if( isEndcap ) { sp_r.push_back( (*itMf)->sp3_r() );    sp_z.push_back( (*itMf)->sp3_z() ); }
-      else           { sp_r.push_back( (*itMf)->sp3_r()*10 ); sp_z.push_back( (*itMf)->sp3_z()*10 ); }
+    if( fabs((*itMf)->superPointR(3)) > ZERO_LIMIT ) {
+      if( isEndcap ) { sp_r.push_back( (*itMf)->superPointR(3) );    sp_z.push_back( (*itMf)->superPointZ(3) ); }
+      else           { sp_r.push_back( (*itMf)->superPointR(3)*10 ); sp_z.push_back( (*itMf)->superPointZ(3)*10 ); }
     }
     float sign = 1;
     if( phi < 0 ) sign = -1;
@@ -343,7 +349,8 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   const DataHandle<MuonFeatureDetailsContainer> lastmfdContainer;
   StatusCode sc_mfd = m_storeGate->retrieve(mfdContainer,lastmfdContainer);
   if ( sc_mfd.isFailure() ) {
-    ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast details container" );
+    //ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast details container" );  // attention
+    ATH_MSG_INFO( "Failed to retrieve HLT muFast details container" );  // attention
     return StatusCode::SUCCESS;    
   }
   
@@ -379,9 +386,9 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     bool off_match = false;
     //nmfd++;
     int id = (*itMfd)->id();
-    if( id != 0 ) continue;//muFast_900GeV
-    // if( id != 1 ) continue;//muFast_Muon
-    //if( id < 10 ) nmfd10++;
+    if( id != 0 ) continue;//muFast_900GeV    
+    //if( id != 1 ) continue;//muFast_Muon   
+    //if( id < 10 ) nmfd10++; 
     int systemID = (*itMfd)->roi_system();//0:barrel,1:endcap,2:forward
     // (YY commented out for suppressing warning) float pt = (*itMfd)->Pt();
     float eta = (*itMfd)->Eta();
@@ -594,11 +601,11 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   // Get mu6 and mu10 chains using TDT
   // ---------------------------------
 
-  Trig::FeatureContainer fc_mu6 = getTDT()->features("L2_mu6");
+  Trig::FeatureContainer fc_mu6 = getTDT()->features("HLT_mu6");
   std::vector<Trig::Combination> combs_mu6 = fc_mu6.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb_mu6;
 
-  ATH_MSG_DEBUG("isPassed mu6="  << getTDT()->isPassed("EF_mu6",  TrigDefs::Physics));
+  ATH_MSG_DEBUG("isPassed mu6="  << getTDT()->isPassed("HLT_mu6",  TrigDefs::Physics));
 
   // -----------------------------
   // Comparison wrt Offline
@@ -632,8 +639,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     // check whether matching muonFeature is there
     float dRmin  = 1000.;
     float pt_mf  = 0.; 
-    float eta_mf = 0.; 
-    float phi_mf = 0.; 
+
     for(itMf=vec_muonFeatures.begin(); itMf != vec_muonFeatures.end(); itMf++) {
        float pt   = (*itMf)->pt();
        if( fabs(pt) < ZERO_LIMIT )  continue;
@@ -643,11 +649,10 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
        if( dR < dRmin ) {
 	  dRmin = dR;
 	  pt_mf = (*itMf)->pt();
-	  eta_mf = eta;
-	  phi_mf = phi;
        }
     }
-     
+
+ 
     hist("muFast_dR_toRecMuonCB", histdirmufast)->Fill(dRmin);
     if( dRmin > DR_MATCHED ) continue; // not matched to muFast
 
@@ -777,11 +782,12 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     float forIDroi_eta_mu6 = 0;
     float forIDroi_phi_mu6 = 0;
 	 for(p_comb_mu6=combs_mu6.begin();p_comb_mu6!=combs_mu6.end();++p_comb_mu6) {
-       std::vector<Trig::Feature<MuonFeature> > fs_MF = 
-	      p_comb_mu6->get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);	
+       std::vector<Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
+	      (*p_comb_mu6).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);	
        if(!fs_MF.size()) continue;
-		 float eta_mf = fs_MF.at(0).cptr()->eta();
-       float phi_mf = fs_MF.at(0).cptr()->phi();
+       const xAOD::L2StandAloneMuonContainer* mf_cont = fs_MF[0];
+       float eta_mf = mf_cont->at(0)->eta();
+       float phi_mf = mf_cont->at(0)->phi();
        float dR = calc_dR(eta_mf, phi_mf, eta_offl, phi_offl);
        if( dR < dRmin_mu6 ) {
 	      dRmin_mu6 = dR;

@@ -70,6 +70,8 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of common parameters
   //declareProperty("foobar",     m_foobar=false);
   //  declareProperty("MuonSelectorTool",m_muonSelectorTool);  // YY added -> removed
+  declareProperty("chainsGeneric", m_chainsGeneric);
+  declareProperty("chainsMSonly", m_chainsMSonly);
   
   //construction of muFast parameters
 
@@ -85,8 +87,9 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of MuGirl parameters
 
   //construction of MuZTP parameters
-  declareProperty("ChainsForZTP", m_ztp_isomap);
+  //declareProperty("ChainsForZTP", m_ztp_isomap);
   declareProperty("ZTPPtCone20RelCut",m_ztp_ptcone20rel_cut=0.1);
+  declareProperty("ZTP_EFPtCone20RelCut",m_ztp_EF_ptcone20rel_cut=0.12);
   declareProperty("BCTool", m_bunchTool);
 }
 
@@ -158,21 +161,40 @@ StatusCode HLTMuonMonTool::init()
   // m_chainsGeneric.push_back("mu24_medium"); // for testing 22.02.12
   // m_chainsGeneric.push_back("mu24_MG_medium"); // for testing 22.02.12
   //  m_chainsGeneric.push_back("mu36_tight");             // v4 primary
-  m_chainsGeneric.push_back("mu4_cosmic_L1MU4_EMPTY");   // LS1
-  m_chainsGeneric.push_back("mu4_cosmic_L1MU11_EMPTY");  // LS1
+  //
+  //m_chainsGeneric.push_back("mu4_cosmic_L1MU4_EMPTY");   // LS1 sept25
+  //m_chainsGeneric.push_back("mu4_cosmic_L1MU11_EMPTY");  // LS1 sept25
+  //m_chainsGeneric.push_back("mu24_imedium"); // sept25
+  //m_chainsGeneric.push_back("mu26_imedium"); // sept25
+  //m_chainsGeneric.push_back("mu50"); // sept25
+  for(unsigned int ich = 0; ich < m_chainsGeneric.size(); ich++){
+	m_histChainGeneric.push_back("muChain"+std::to_string(ich+1));
+	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsGeneric[ich], 0));
+	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsGeneric[ich], "muChain"+std::to_string(ich+1)));
+  }
   
   // Generic (Isolated muons)
   // m_chainsEFiso.push_back("mu20i"); // for testing 22.02.12
   // m_chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
 
-  // m_chainsEF_L2_map["mu36_tight"] = "L2_mu36_tight";
-  // m_chainsEF_L2_map["mu24i_tight"] = "L2_mu24_tight";
+  for(unsigned int ich = 0; ich < m_chainsEFiso.size(); ich++){
+	m_histChainEFiso.push_back("muChainIso"+std::to_string(ich+1));
+	m_ztp_isomap.insert(std::pair<std::string, int>(m_chainsEFiso[ich], 1));
+	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsEFiso[ich], "muChainIso"+std::to_string(ich+1)));
+  }
+ 
 
   // MSonly
   // m_chainsMSonly.push_back("mu40_MSonly_barrel"); // YY for 2011, _tight may have to be monitored too
   // m_chainsMSonly.push_back("mu40_MSonly_barrel_medium"); // YY for 2e33, added
   // m_chainsMSonly.push_back("mu50_MSonly_barrel_tight");    // v4 primary
-  m_chainsMSonly.push_back("mu4_msonly_cosmic_L1MU11_EMPTY");    // LS1
+  //m_chainsMSonly.push_back("mu4_msonly_cosmic_L1MU11_EMPTY");    // LS1
+  //
+  for(unsigned int ich = 0; ich < m_chainsMSonly.size(); ich++){
+	m_histChainMSonly.push_back("muChainMSonly"+std::to_string(ich+1));
+	m_ztpmap.insert(std::pair<std::string, std::string>(m_chainsMSonly[ich], "muChainMSonly"+std::to_string(ich+1)));
+  }
+
 
   // EFFS triggers (L. Yuan)
   
@@ -233,69 +255,62 @@ StatusCode HLTMuonMonTool::init()
 
 
   //trigger rate monitored chains v4
-  m_chains.push_back("L2_mu24_tight");  
-  m_chains.push_back("L2_mu24_tight_MG");  
-  m_chains.push_back("L2_mu24_tight_MuonEF");  
-  m_chains.push_back("L2_mu24i_tight");  
-  m_chains.push_back("L2_mu36_tight");  
-  m_chains.push_back("L2_mu50_MSonly_barrel_tight"); 
-
-  m_chains.push_back("EF_mu24_tight");  
-  m_chains.push_back("EF_mu24_tight_MG");  
-  m_chains.push_back("EF_mu24_tight_MuonEF");  
-  m_chains.push_back("EF_mu24i_tight");  
-  m_chains.push_back("EF_mu36_tight");  
-  m_chains.push_back("EF_mu50_MSonly_barrel_tight"); 
+  m_chainsRate.push_back("HLT_mu24_tight");  
+  m_chainsRate.push_back("HLT_mu24_tight_MG");  
+  m_chainsRate.push_back("HLT_mu24_tight_MuonEF");  
+  m_chainsRate.push_back("HLT_mu24i_tight");  
+  m_chainsRate.push_back("HLT_mu36_tight");  
+  m_chainsRate.push_back("HLT_mu50_MSonly_barrel_tight"); 
 
 
   //chains for overlap counting
   //MU0/mu4
-  m_chainsOverlap.push_back("EF_mu4_MSonly");
-  m_chainsOverlap.push_back("EF_mu4");
-  m_chainsOverlap.push_back("EF_mu4_MG");
-  m_chainsOverlap.push_back("EF_mu4_tile");
-  m_chainsOverlap.push_back("EF_mu4_muCombTag");
-  m_chainsOverlap.push_back("EF_mu4_MSonly_EFFS_passL2");
-  m_chainsOverlap.push_back("EF_mu4_L2MSonly_EFFS_passL2");
+  m_chainsOverlap.push_back("HLT_mu4_MSonly");
+  m_chainsOverlap.push_back("HLT_mu4");
+  m_chainsOverlap.push_back("HLT_mu4_MG");
+  m_chainsOverlap.push_back("HLT_mu4_tile");
+  m_chainsOverlap.push_back("HLT_mu4_muCombTag");
+  m_chainsOverlap.push_back("HLT_mu4_MSonly_EFFS_passL2");
+  m_chainsOverlap.push_back("HLT_mu4_L2MSonly_EFFS_passL2");
 
   //MU6/mu6
-  m_chainsOverlap.push_back("EF_mu6_MSonly");
-  m_chainsOverlap.push_back("EF_mu6");
-  m_chainsOverlap.push_back("EF_mu6_MG");
-  m_chainsOverlap.push_back("EF_mu6_muCombTag");
+  m_chainsOverlap.push_back("HLT_mu6_MSonly");
+  m_chainsOverlap.push_back("HLT_mu6");
+  m_chainsOverlap.push_back("HLT_mu6_MG");
+  m_chainsOverlap.push_back("HLT_mu6_muCombTag");
 
   //MU10/mu10
-  m_chainsOverlap.push_back("EF_mu10_MSonly");
-  m_chainsOverlap.push_back("EF_mu10_MSonly_tight");
-  m_chainsOverlap.push_back("EF_mu10");
-  m_chainsOverlap.push_back("EF_mu10_MG");
-  m_chainsOverlap.push_back("EF_mu10i_loose");
+  m_chainsOverlap.push_back("HLT_mu10_MSonly");
+  m_chainsOverlap.push_back("HLT_mu10_MSonly_tight");
+  m_chainsOverlap.push_back("HLT_mu10");
+  m_chainsOverlap.push_back("HLT_mu10_MG");
+  m_chainsOverlap.push_back("HLT_mu10i_loose");
 
   //mu13
-  m_chainsOverlap.push_back("EF_mu13");
+  m_chainsOverlap.push_back("HLT_mu13");
 
   //MU11
 
   //MU15/mu15
-  m_chainsOverlap.push_back("EF_mu15_NoAlg");
-  m_chainsOverlap.push_back("EF_mu15");
+  m_chainsOverlap.push_back("HLT_mu15_NoAlg");
+  m_chainsOverlap.push_back("HLT_mu15");
 
   //MU20/mu20
-  m_chainsOverlap.push_back("EF_mu20_NoAlg");
-  m_chainsOverlap.push_back("EF_mu20_passHLT");
-  m_chainsOverlap.push_back("EF_mu20_MSonly");
-  m_chainsOverlap.push_back("EF_mu20");
-  m_chainsOverlap.push_back("EF_mu20_slow");
+  m_chainsOverlap.push_back("HLT_mu20_NoAlg");
+  m_chainsOverlap.push_back("HLT_mu20_passHLT");
+  m_chainsOverlap.push_back("HLT_mu20_MSonly");
+  m_chainsOverlap.push_back("HLT_mu20");
+  m_chainsOverlap.push_back("HLT_mu20_slow");
 
   //mu30
-  m_chainsOverlap.push_back("EF_mu30_MSonly");
+  m_chainsOverlap.push_back("HLT_mu30_MSonly");
 
   // dimuon
-  m_chainsOverlap.push_back("EF_2mu4");
-  m_chainsOverlap.push_back("EF_2MUL1_j40_HV");
-  m_chainsOverlap.push_back("EF_mu4_mu6");
-  m_chainsOverlap.push_back("EF_2mu6");
-  m_chainsOverlap.push_back("EF_2mu10");
+  m_chainsOverlap.push_back("HLT_2mu4");
+  m_chainsOverlap.push_back("HLT_2MUL1_j40_HV");
+  m_chainsOverlap.push_back("HLT_mu4_mu6");
+  m_chainsOverlap.push_back("HLT_2mu6");
+  m_chainsOverlap.push_back("HLT_2mu10");
 
   //trigger rate in events taken by indepedent triggers
   m_chains2.push_back("L2_mu4");
@@ -363,7 +378,7 @@ StatusCode HLTMuonMonTool::init()
   CB_mon_ESbr[ESSTD] = 0;
   CB_mon_ESbr[ESTAG] = 0;
   CB_mon_ESbr[ESID] = 1;
-  CB_mon_ESbr[ESINDEP] = 1;
+  CB_mon_ESbr[ESINDEP] = 0;
   CB_mon_ESbr[ESHIL1] = 0;
   CB_mon_ESbr[ESHIID] = 0;
   CB_mon_ESbr[ESHIINDEP] = 0;
@@ -371,7 +386,7 @@ StatusCode HLTMuonMonTool::init()
   MS_mon_ESbr[ESSTD] = 0;
   MS_mon_ESbr[ESTAG] = 1;
   MS_mon_ESbr[ESID] = 0;
-  MS_mon_ESbr[ESINDEP] = 1;
+  MS_mon_ESbr[ESINDEP] = 0;
   MS_mon_ESbr[ESHIL1] = 0;
   MS_mon_ESbr[ESHIID] = 0;
   MS_mon_ESbr[ESHIINDEP] = 0;
@@ -387,14 +402,14 @@ StatusCode HLTMuonMonTool::init()
   
   // AI 20100824 - for rate monitoring:
   // Primary chain is mu6
-  m_allESchain.push_back("EF_mu4");
-  m_allESchain.push_back("EF_mu6_IDTrkNoCut");
-  m_allESchain.push_back("EF_2mu4");
-  m_allESchain.push_back("EF_2mu10");
-  m_allESchain.push_back("EF_mu10");
-  m_allESchain.push_back("EF_mu10_MG");  // added 27.10.2010
-  m_allESchain.push_back("EF_mu20");  // added 27.10.2010
-  m_allESchain.push_back("EF_mu20_MSonly");
+  m_allESchain.push_back("HLT_mu4");
+  m_allESchain.push_back("HLT_mu6_IDTrkNoCut");
+  m_allESchain.push_back("HLT_2mu4");
+  m_allESchain.push_back("HLT_2mu10");
+  m_allESchain.push_back("HLT_mu10");
+  m_allESchain.push_back("HLT_mu10_MG");  // added 27.10.2010
+  m_allESchain.push_back("HLT_mu20");  // added 27.10.2010
+  m_allESchain.push_back("HLT_mu20_MSonly");
 
   // Primary chain is mu10
   m_allESchain.push_back("EF_mu6");
@@ -579,7 +594,7 @@ StatusCode HLTMuonMonTool::book()
 
   //added by marx
   for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();itmap++){ 
-    histdirmuztp="HLT/MuonMon/MuZTP/" + itmap->first;
+    histdirmuztp="HLT/MuonMon/MuZTP/" + itmap->second;
     addMonGroup( new MonGroup(this, histdirmuztp, run, ATTRIB_UNMANAGED) );
   }
 

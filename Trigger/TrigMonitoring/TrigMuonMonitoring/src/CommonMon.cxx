@@ -51,6 +51,9 @@
 
 #include "xAODPrimitives/IsolationType.h"
 
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+
 // YY: adding vertex information
 #include "VxVertex/Vertex.h"
 #include "VxVertex/VxContainer.h"
@@ -165,7 +168,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     for(int i=0; i < (int)m_chainsOverlap.size(); i++ ){
 
       TString s = m_chainsOverlap[i];
-      s.ReplaceAll("EF_","");
+      s.ReplaceAll("HLT_","");
       hist2( "Trigger_Overlap", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
       hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
       hist2( "Trigger_Overlap_Fraction", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
@@ -206,7 +209,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->SetMarkerSize(0.6);
 
     //Trigger aware
-    for(std::vector<std::string>::const_iterator it=m_chains.begin(); it != m_chains.end() ; it++ ){
+    for(std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
 
       std::string name     = "Number_Of_"+ (*it) + "_Passed_Events" ;
       std::string nameaxis = name + "; LB ; Events" ;
@@ -229,37 +232,11 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     for(int i=0; i < (int)m_allESchain.size(); i++ ){
 
       TString s = m_allESchain[i];
-      s.ReplaceAll("EF_","");
+      s.ReplaceAll("HLT_","");
       hist( "Number_Of_ES_Triggers", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
      
     }
 
-    //Independent trigger
-
-    // for(int trg=0;trg<6;trg++){
-    for(int trg=0;trg < m_maxindep;trg++){
-
-      std::string name     = "Number_Of_Selected_"+ m_trigger[trg] + "_Triggered_Events";
-      std::string nameaxis = name + "; LB ; Events" ;
-
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
-      hist( name, histdirrate ) -> Sumw2(); 
-
-      for(std::vector<std::string>::const_iterator it=m_chains2.begin(); it != m_chains2.end() ; it++ ){
-
-        name     = "Number_Of_"+ (*it) + "_Passed_Events_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-        nameaxis = name + "; LB ; Events" ;
-
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
-        hist( name, histdirrate ) -> Sumw2(); 
-
-        name     = (*it) + "_Triggers_Per_Event_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-        nameaxis = name + "; LB ; Triggers per Event" ;
-        
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrateratio );
-        hist( name, histdirrateratio ) -> Sumw2(); 
-      }
-    }
 
     std::string name     = "L1_MUB_L1_MUE_match_muon_RoIs";
     std::string nameaxis = name + "; category(1-4 good) ; Events" ;
@@ -275,15 +252,13 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
 StatusCode HLTMuonMonTool::bookChainDQA()
 {
-  // ATH_MSG_INFO("bookChainDQA");
 
   StatusCode retval = StatusCode::SUCCESS;
 
   std::vector<std::string>::const_iterator it;
 
-  for(it=m_chainsMSonly.begin(); it != m_chainsMSonly.end() ; it++ ){
+  for(it=m_histChainMSonly.begin(); it != m_histChainMSonly.end() ; it++ ){
     StatusCode sc = bookChainDQA_MSonly(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("bookChainDQA_MSonly failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
@@ -292,24 +267,15 @@ StatusCode HLTMuonMonTool::bookChainDQA()
 
   for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
     StatusCode sc = bookChainDQA_standard(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("bookChainDQA_standard failed for chain=" << *it ); 
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  for(it=m_chainsMG.begin(); it != m_chainsMG.end() ; it++ ){
-    StatusCode sc = bookChainDQA_MuGirl(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("bookChainDQA_MuGirl failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
 
   // YY adding Generic monitoring (using only TDT information for muFast, muComb and an EF algorithm)
-  for (it = m_chainsGeneric.begin(); it != m_chainsGeneric.end(); it++) {
+  for (it = m_histChainGeneric.begin(); it != m_histChainGeneric.end(); it++) {
     StatusCode sc = bookChainDQA_generic(*it,false);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("bookChainDQA_generic: failed for chain=" << *it );
@@ -317,25 +283,13 @@ StatusCode HLTMuonMonTool::bookChainDQA()
     }
   }
 
-    for (it = m_chainsEFiso.begin(); it != m_chainsEFiso.end(); it++) {
+    for (it = m_histChainEFiso.begin(); it != m_histChainEFiso.end(); it++) {
       StatusCode sc = bookChainDQA_generic(*it,true);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("bookChainDQA_generic: failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
-
-  
-  for(it=m_chainsMI.begin(); it != m_chainsMI.end() ; it++ ){
-    StatusCode sc = bookChainDQA_MuIso(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("bookChainDQA_MuIso failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
-
-  // ATH_MSG_INFO("end bookChainDQA");
 
   return retval;
 
@@ -368,7 +322,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       else if( bin <= 32+27+16+25 ) boundary += 1.0;
       else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
       lopt_bins[bin] = boundary;
-      //std:: cout << " bin " << bin << " " <<  lopt_bins[bin] << std::endl;
     }
 
     float *pt_bins;
@@ -414,36 +367,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
 
-    //independent triggers
-    // for( int trg = 0 ; trg < 6 ; trg++ ){
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      name     = chainName + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Denominator";
-      nameaxis = name + "; Muid SA pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      for( int alg=0;alg<3;alg++){
-
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Numerator";
-        nameaxis = name + "; Muid SA pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
-        
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered";
-        nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        // added for base release <- uncommented by YY 20.04.10
-        TGraphAsymmErrors* g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
-        // YY end
-
-      }//alg
-    }//trg
 
     //ES, trigger not-aware
     for (int i = 0; i <= m_maxESbr; i++) {
@@ -765,7 +688,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
       else if( bin <= 32+27+16+25 ) boundary += 1.0;
       else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
       lopt_bins[bin] = boundary;
-      //std:: cout << " bin " << bin << " " <<  lopt_bins[bin] << std::endl;
     }
 
     float pt_bins[lopt_nbins+1];
@@ -775,21 +697,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     int pt_nbins = lopt_nbins;
     for (int i = 0; i < pt_nbins + 1; i++) {
       pt_bins[i] = lopt_bins[i];
-    }
-    
-    // High-pt binning 0-300 GeV
-    // 5 GeV for 0-100 GeV     : 20 bins
-    // 10 GeV for 100-150 GeV  : 5 bins
-    // 50 GeV for 150-300 GeV  : 3 bins
-    const int hipt_nbins = 20 + 5 + 3;
-    float hipt_bins[hipt_nbins + 1];
-    hipt_bins[0] = 0.;
-    boundary = 0.;
-    for (int ibin = 1; ibin <= hipt_nbins; ibin++) {
-      if (ibin <= 20) { boundary += 5.; }
-      else if (ibin <= 25) { boundary += 10.; }
-      else if (ibin <= 28) { boundary += 50.; }
-      hipt_bins[ibin] = boundary;
     }
     
 
@@ -1021,399 +928,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 }
 
 
-StatusCode HLTMuonMonTool::bookChainDQA_MuGirl(const std::string& cName )
-{
-
-  std::string chainName = cName;  // YY modified 26.06.2011
-  
-  if( newRun ) {
-      
-    ATH_MSG_DEBUG("bookChainDQA_MuGirl for chain=" << chainName ); 
-
-    std::string name;
-    std::string nameaxis;
-
-    // 0.25 for <  8GeV : 32bins
-    // 0.33 for < 17GeV : 27bins
-    // 0.50 for < 25GeV : 16bins
-    // 1.00 for >=25GeV : 25bins
-    // 2.50 for >=50GeV : 20bins
-    const int lopt_nbins = 32 + 27 + 16 + 25 + 20;
-    float lopt_bins[lopt_nbins+1];
-    lopt_bins[0]=0.;
-    float boundary=0.;
-    for( int bin = 1; bin <= lopt_nbins ; bin ++) {
-      if( bin <= 32 )               boundary += 0.25;
-      else if( bin <= 32+27 )       boundary += 1./3.;
-      else if( bin <= 32+27+16 )    boundary += 0.5;
-      else if( bin <= 32+27+16+25 ) boundary += 1.0;
-      else if( bin <= 32+27+16+25+20 ) boundary += 2.5;
-      lopt_bins[bin] = boundary;
-      //std:: cout << " bin " << bin << " " <<  lopt_bins[bin] << std::endl;
-    }
-
-    float pt_bins[lopt_nbins+1];
-
-    // initialising pt_bins[] 
-    std::string chainName = cName;  // YY modified 26.06.2011
-    int pt_nbins = lopt_nbins;
-    for (int i = 0; i < pt_nbins + 1; i++) {
-      pt_bins[i] = lopt_bins[i];
-    }
-    
-    // High-pt binning 0-300 GeV
-    // 5 GeV for 0-100 GeV     : 20 bins
-    // 10 GeV for 100-150 GeV  : 5 bins
-    // 50 GeV for 150-300 GeV  : 3 bins
-    const int hipt_nbins = 20 + 5 + 3;
-    float hipt_bins[hipt_nbins + 1];
-    hipt_bins[0] = 0.;
-    boundary = 0.;
-    for (int ibin = 1; ibin <= hipt_nbins; ibin++) {
-      if (ibin <= 20) { boundary += 5.; }
-      else if (ibin <= 25) { boundary += 10.; }
-      else if (ibin <= 28) { boundary += 50.; }
-      hipt_bins[ibin] = boundary;
-    }
-    
-
-    /*
-      const float pt_min   =  0;
-      const float pt_max   = 50;
-      const int   pt_nbins = 100;
-    */
-
-    /*
-      const float dr_min   = 0.0;
-      const float dr_max   = 1.0;
-      const int   dr_nbins = 100;
-    */
-
-    int eta_nbins = 108;
-    float eta_range = 2.7;
-    int phi_bins = 96;
-    float phi_range = CLHEP::pi;
-    
-    std::string monalg[2]={"_MuGirlL2", "_MuGirlEF"};
-    //independent triggers
-    // for( int trg = 0 ; trg < 6 ; trg++ ){
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      ATH_MSG_DEBUG( name << " booked" );
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      for( int alg=0; alg<2; alg++){
-
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-        nameaxis = name + "; Muid CB pT (GeV); Events";
-        ATH_MSG_DEBUG( name << " booked" );
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
-        
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered";
-        nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        ATH_MSG_DEBUG( name << " booked" );
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        // added for base release <- uncommented by YY 12.04.10
-        TGraphAsymmErrors* g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
-        // YY end
-
-      }//alg
-    }//trg
-
-
-    // for ES
-    for (int i = 0; i <= m_maxESbr; i++) {
-      name     = chainName + m_triggerES[i]+ "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-    }
-
-    std::string wrtalg[2]={"_L1", "_MuGirlL2"};
-    std::string bestr[2] = {"_Barrel", "_Endcap"};
-
-    for (int ihpt = 0; ihpt < 3; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline and b/e
-      //trigger not-aware = wrt offline
-      if (ihpt == 0) {
-	chainName = cName;
-	pt_nbins = lopt_nbins;
-	for (int i = 0; i < pt_nbins + 1; i++) {
-	  pt_bins[i] = lopt_bins[i];
-	}
-      } else if (ihpt == 1) {
-	chainName = cName + m_hptName;
-	pt_nbins = hipt_nbins;
-	for (int i = 0; i < pt_nbins + 1; i++) {
-	  pt_bins[i] = hipt_bins[i];
-	}
-      } else { // ihpt == 3 i.e. MSb histos
-	chainName = cName + m_MSchainName;
-	pt_nbins = hipt_nbins;
-	for (int i = 0; i < pt_nbins + 1; i++) {
-	  pt_bins[i] = hipt_bins[i];
-	}
-      }	
-
-      if(ihpt==1)continue;
-      // remove hpt histograms (Li Yuan 27.02.13)
-
-      //trigger not-aware
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      // Barrel/endcap (YY 20.05.10) - Monitoring MuFast, MuComb, MuonEFCB wrt offline
-      for (int be = 0; be < 2; be++) {
-	name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-      }
-    }
-
-    for(int alg=0; alg<2;alg++){
-
-      for (int ihpt = 0; ihpt < 3; ihpt++) {  // reserving also high-pt and MSb histograms for wrt upstream
-	//trigger not-aware = wrt offline
-	if (ihpt == 0) {
-	  chainName = cName;
-	  pt_nbins = lopt_nbins;
-	  for (int i = 0; i < pt_nbins + 1; i++) {
-	    pt_bins[i] = lopt_bins[i];
-	  }
-	} else if (ihpt == 1) {
-	  chainName = cName + m_hptName;
-	  pt_nbins = hipt_nbins;
-	  for (int i = 0; i < pt_nbins + 1; i++) {
-	    pt_bins[i] = hipt_bins[i];
-	  }
-	} else { // ihpt == 3 i.e. MSb histos
-	  chainName = cName + m_MSchainName;
-	  pt_nbins = hipt_nbins;
-	  for (int i = 0; i < pt_nbins + 1; i++) {
-	    pt_bins[i] = hipt_bins[i];
-	  }
-	}	
-
-	if(ihpt==1)continue;
-	// remove hpt histograms (Li Yuan 27.02.13)
-
-	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-
-	// YY 20.05.10 - booking histos below, which been perhaps missing?
-	// name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	// nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	// addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	// hist(name, histdireff)->Sumw2();
-
-	name     = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-
-	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-
-	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-      
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-      }
-
-      // Reset necessary inside the loop ....
-      chainName = cName;
-      pt_nbins = lopt_nbins;
-      for (int i = 0; i < pt_nbins + 1; i++) {
-	pt_bins[i] = lopt_bins[i];
-      }
-
-      // for ES
-      for (int i = 0; i <= m_maxESbr; i++) {
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-	
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-	
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-      }
-
-      for (int i = 0; i <= m_maxESbr; i++) {
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-      }
-      
-
-      // Barrel/endcap (YY 02.10.10) - Monitoring MuGirlL2, MuGirlEF wrt upstream / offline
-      // monalg[] = {"_MuGirlL2", "_MuGirlEF"}; -> select {0, 1}
-      if (0 == alg || 1 == alg) {
-	for (int ihpt = 0; ihpt < 3; ihpt++) {  // reserving also high-pt and MSb histograms for wrt upstream
-	  //trigger not-aware = wrt offline
-	  if (ihpt == 0) {
-	    chainName = cName;
-	    pt_nbins = lopt_nbins;
-	    for (int i = 0; i < pt_nbins + 1; i++) {
-	      pt_bins[i] = lopt_bins[i];
-	    }
-	  } else if (ihpt == 1) {
-	    chainName = cName + m_hptName;
-	    pt_nbins = hipt_nbins;
-	    for (int i = 0; i < pt_nbins + 1; i++) {
-	      pt_bins[i] = hipt_bins[i];
-	    }
-	  } else { // ihpt == 3 i.e. MSb histos
-	    chainName = cName + m_MSchainName;
-	    pt_nbins = hipt_nbins;
-	    for (int i = 0; i < pt_nbins + 1; i++) {
-	      pt_bins[i] = hipt_bins[i];
-	    }
-	  }	
-
-	  if(ihpt==1)continue;
-	  // remove hpt histograms (Li Yuan 27.02.13)
-
-	  for (int be = 0; be < 2; be++) {
-	    name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-	    nameaxis = name + "; Muid CB pT (GeV); Events";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	    hist(name, histdireffnumdenom)->Sumw2();
-
-	    name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	    nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	    hist(name, histdireff)->Sumw2();
-
-	    TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, histdireff );
-      
-	    name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	    nameaxis = name + "; Muid CB pT (GeV); Events";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	    hist(name, histdireffnumdenom)->Sumw2();
-      
-	    name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	    nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	    hist(name, histdireff)->Sumw2();
-
-	    g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, histdireff );
-
-	  }
-	}
-      }
-
-      chainName = cName;
-      pt_nbins = lopt_nbins;
-      for (int i = 0; i < pt_nbins + 1; i++) {
-	pt_bins[i] = lopt_bins[i];
-      }
-      
-      
-      // 2D eta-phi histograms for 
-      name     = chainName + monalg[alg] + "_etaphi_wrt_MuidCB";
-      nameaxis = name + "; #eta; #phi";
-      addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
-
-      name     = chainName + monalg[alg] + "_etaphi_coarse_wrt_MuidCB";
-      nameaxis = name + "; #eta; #phi";
-      addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins, bins_eta, phi_cnbins, bins_phi), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
-      name     = chainName + monalg[alg] + "_etaphi_coarse1d_wrt_MuidCB";
-      nameaxis = name + "; (i_bin#phi * N_#eta + i_bin#eta); Number of events / area";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins * phi_cnbins, 0., (Double_t)(eta_cnbins * eta_cnbins)), histdirdist2d);
-      hist(name, histdirdist2d)->Sumw2();
-
-      
-      //      if (alg == 0) { // yy modified for muGirl, not sure if it makes sense so removed for the moment
-      //    name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg[alg];
-      //    nameaxis = name + "; deltaR; Events";
-      //    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), dr_nbins, dr_min, dr_max ), histdireffnumdenom );
-      //      }
-    }
-
-    // High-pt 3-bin summary:
-    name = chainName + "_highpt3bins_effwrtL1";
-    nameaxis = name + "; pt bins; efficiency";
-    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 2.5), histdireff);
-    TH1 *h = hist(name, histdireff);
-    h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(3, "100-300 GeV MSonly_barrel-tagged");
-    
-    ATH_MSG_DEBUG("end bookChainDQA_MuGirl for chain=" << chainName );
-
-  } else if( newLumiBlock ){
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool isIsoOffline)
 {
@@ -1471,10 +985,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       hipt_bins[ibin] = boundary;
     }
     
-    //for( int bin = 1 ; bin <= 32 ; bin++){ pt_bins[bin]    = float(bin)*0.25; std:: cout << " bin " << bin << pt_bins[bin] << std::endl;}
-    //for( int bin = 1 ; bin <= 27 ; bin++){ pt_bins[bin+32] = 32.*0.25 + float(bin)*0.25;; std:: cout << " bin " << bin+32 << pt_bins[bin+32] << std::endl;}
-    //for( int bin = 1 ; bin <= 16 ; bin++){ pt_bins[bin+32+27] = 32.*0.25 + 27.*0.33 + float(bin)*0.50;; std:: cout << " bin " << bin+32+27 << pt_bins[bin+32+27] << std::endl;}
-    //for( int bin = 1 ; bin <= 26 ; bin++){ pt_bins[bin+32+27+16] = 32.*0.25 + 27.*0.33 + 16.*0.50 + float(bin)*1.00;; std:: cout << " bin " << bin+32+27+16 << pt_bins[bin+32+27+16] << std::endl;}
 
     /*
       const float pt_min   =  0;
@@ -1494,7 +1004,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
 
-    //independent triggers: taken out
 
     // for ES
     for (int i = 0; i <= m_maxESbr; i++) {
@@ -1894,245 +1403,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 }
 
 
-StatusCode HLTMuonMonTool::bookChainDQA_MuIso(const std::string& chainName )
-{
-
-  if( newRun ) {
-      
-    ATH_MSG_DEBUG("bookChainDQA_standard for chain=" << chainName );
-
-    std::string name;
-    std::string nameaxis;
-
-    // 0.25 for <  8GeV : 32bins
-    // 0.33 for < 17GeV : 27bins
-    // 0.50 for < 25GeV : 16bins
-    // 1.00 for >=25GeV : 25bins
-    const int pt_nbins = 32 + 27 + 16 + 25;
-    float pt_bins[pt_nbins+1];
-    pt_bins[0]=0.;
-    float boundary=0.;
-    for( int bin = 1; bin <= 32 + 27 + 16 + 25 ; bin ++) {
-      if( bin <= 32 )               boundary += 0.25;
-      else if( bin <= 32+27 )       boundary += 1./3.;
-      else if( bin <= 32+27+16 )    boundary += 0.5;
-      else if( bin <= 32+27+16+25 ) boundary += 1.0;
-      pt_bins[bin] = boundary;
-      //std:: cout << " bin " << bin << " " <<  pt_bins[bin] << std::endl;
-    }
-    
-    //for( int bin = 1 ; bin <= 32 ; bin++){ pt_bins[bin]    = float(bin)*0.25; std:: cout << " bin " << bin << pt_bins[bin] << std::endl;}
-    //for( int bin = 1 ; bin <= 27 ; bin++){ pt_bins[bin+32] = 32.*0.25 + float(bin)*0.25;; std:: cout << " bin " << bin+32 << pt_bins[bin+32] << std::endl;}
-    //for( int bin = 1 ; bin <= 16 ; bin++){ pt_bins[bin+32+27] = 32.*0.25 + 27.*0.33 + float(bin)*0.50;; std:: cout << " bin " << bin+32+27 << pt_bins[bin+32+27] << std::endl;}
-    //for( int bin = 1 ; bin <= 26 ; bin++){ pt_bins[bin+32+27+16] = 32.*0.25 + 27.*0.33 + 16.*0.50 + float(bin)*1.00;; std:: cout << " bin " << bin+32+27+16 << pt_bins[bin+32+27+16] << std::endl;}
-
-    /*
-      const float pt_min   =  0;
-      const float pt_max   = 50;
-      const int   pt_nbins = 100;
-    */
-
-    std::string monalg[2]={"_MuIso", "_MuonEFCB"};
-    //independent triggers
-    // for( int trg = 0 ; trg < 6 ; trg++ ){
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      ATH_MSG_DEBUG( name << " booked" );
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      for( int alg=0;alg<2;alg++){
-
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-        nameaxis = name + "; Muid CB pT (GeV); Events";
-        ATH_MSG_DEBUG( name << " booked" );
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
-        
-        name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered";
-        nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        ATH_MSG_DEBUG( name << " booked" );
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        // added for base release <- uncommented by YY 12.04.10
-        TGraphAsymmErrors* g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
-        // YY end
-
-      }//alg
-    }//trg
-
-
-    //trigger not-aware
-    name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-    nameaxis = name + "; Muid CB pT (GeV); Events";
-    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-    hist(name, histdireffnumdenom)->Sumw2();
-
-    // for ES
-    for (int i = 0; i <= m_maxESbr; i++) {
-      name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-    }
-    
-    // muIso-specific efficiency as a function of ptcone40 and etcone40
-    name     = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_ptcone40";
-    nameaxis = name + "; ptcone40 (GeV); Events";
-    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-    hist(name, histdireffnumdenom)->Sumw2();
-
-    name     = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_etcone40";
-    nameaxis = name + "; etcone40 (GeV); Events";
-    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-    hist(name, histdireffnumdenom)->Sumw2();
-
-    //    std::string wrtalg[5]={"_L1", "_L1", "_MuComb", "_MuComb", "_MuComb"};
-    std::string wrtalg[2]={"_MuComb", "_MuIso"};
-
-
-    for(int alg=0; alg<2;alg++){
-
-      name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      // YY 20.05.10 - booking histos below, which been perhaps missing?
-      // name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      // nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-      // addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      // hist(name, histdireff)->Sumw2();
-
-      name     = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
-
-      name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
-
-      // added for base release <- uncommented by YY 12.04.10
-      TGraphAsymmErrors* g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-      // YY end
-
-      name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
-      
-      // added for base release <- uncommented by YY 12.04.10
-      g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-      // YY enda
-
-      // for ES
-      for (int i = 0; i <= m_maxESbr; i++) {
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-	
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
-	
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-
-      }
-
-      for (int i = 0; i <= m_maxESbr; i++) {
-	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-      }
-
-      // muIso specific
-      name     = chainName + monalg[alg] + "_Efficiency_Curve_Numerator_vs_ptcone40";
-      nameaxis = name + "; ptcone40 (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
- 
-      name     = chainName + monalg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_ptcone40";
-      nameaxis = name + "; ptcone40 (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
-
-      g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-
-      name     = chainName + monalg[alg] + "_Efficiency_Curve_Numerator_vs_etcone40";
-      nameaxis = name + "; etcone40 (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
- 
-      name     = chainName + monalg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_etcone40";
-      nameaxis = name + "; etcone40 (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
-
-      g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-    }
-
-    ATH_MSG_DEBUG("end bookChainDQA_standard for chain=" << chainName );
-
-    // High-pt 3-bin summary:
-    name = chainName + "_highpt3bins_effwrtL1";
-    nameaxis = name + "; pt bins; efficiency";
-    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-    TH1 *h = hist(name, histdireff);
-    h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
-    // h->GetXaxis()->SetBinLabel(3, "100-300 GeV: not monitored");
-
-  } else if( newLumiBlock ){
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode HLTMuonMonTool::fillCommonDQA()
 {
@@ -2192,7 +1462,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
 
   //Trigger aware
-  for( std::vector<std::string>::const_iterator it=m_chains.begin(); it != m_chains.end() ; it++ ){
+  for( std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
     ATH_MSG_DEBUG( *it );
     
     if( getTDT()->isPassed( *it )  ){
@@ -2211,102 +1481,53 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   }//chains
 
 
-  //independet triggers for 10^33??
-  // YY : switched to 2e33 trigger 26.06.2011
-  //
-  // YY : not for 2012 run 20.1.2012
-//   std::string eg_primary  = "EF_e22_medium1|EF_g80_loose|EF_e35_medium|EF_g40_loose_EFxe40_noMu"; // 2e33
-//   std::string eg_support  = "EF_e22_medium2|EF_g60_loose|EF_e33_medium"; // 2e33
-//   std::string eg_trigger  = "(" + eg_primary + "|" + eg_support + ")";
-
-//   std::string jet_primary = "EF_L1J250_NoAlg|EF_j80_a4tc_EFFS_xe60_loose_noMu|EF_j75_a4tc_EFFS_xe55_noMu";  // pp_v2_16.1.2.14
-//   std::string jet_support = "EF_te1000";  // pp_v2_16.1.2.14
-//   std::string jet_trigger = "(" + jet_primary + "|" + jet_support + ")";
-
-//   std::string met_primary = "EF_xs100_noMu|EF_xe90_noMu";       // pp_v2_16.1.2.14
-//   std::string met_support = "EF_xe60_tight_noMu|EF_xe70_noMu";                    // pp_v2_16.1.2.14
-//   std::string met_trigger = "(" + met_primary + "|" + met_support + ")";
-
-//   if( getTDT()->isPassed( eg_trigger  ) ) m_passed[1] = true;
-//   if( getTDT()->isPassed( met_trigger ) ) m_passed[2] = true;
-//   if( getTDT()->isPassed( jet_trigger ) ) m_passed[3] = true;
-//   m_passed[0] = ( m_passed[1] || m_passed[2] ||  m_passed[3]); //all
-
-  // for(int trg=0;trg<6;trg++){
-  for(int trg=0;trg < m_maxindep;trg++){
-
-    if( m_passed[trg] == false ) continue;
-
-    std::string name     = "Number_Of_Selected_"+ m_trigger[trg] + "_Triggered_Events";
-    hist( name, histdirrate ) -> Fill(m_lumiblock);
-
-    //Trigger aware
-    for( std::vector<std::string>::const_iterator it=m_chains2.begin(); it != m_chains2.end() ; it++ ){
-      ATH_MSG_DEBUG( *it );
-      
-      if( getTDT()->isPassed( *it )  ){
-        //ATH_MSG_FATAL(" pass" << *it );
-        name     = "Number_Of_"+ (*it) + "_Passed_Events_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-        hist( name, histdirrate )->Fill( m_lumiblock );
-      
-      }
-      //cosmic
-      if( getTDT()->isPassed( (*it + "_cosmic") )  ){
-        //ATH_MSG_FATAL(" pass" << *it <<"_cosmic");
-        name     = "Number_Of_"+ (*it) + "_Passed_Events_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-        hist( name, histdirrate )->Fill( m_lumiblock );
-      
-      }
-    }//chains
-  }//trg
 
   //Express stream trigger bits: YY 21.01.11
   // updated for real config: 15.02.11
   std::vector<std::string> vs_ESstd;
-  vs_ESstd.push_back("EF_mu18it_tight"); // for release
-  vs_ESstd.push_back("EF_mu24i_tight"); // increasing stat for muZTP, which requests now ES bits
-  // vs_ESstd.push_back("EF_mu18i4_tight"); // for test
-  // vs_ESstd.push_back("EF_mu22_medium"); // for test
+  vs_ESstd.push_back("HLT_mu18it_tight"); // for release
+  vs_ESstd.push_back("HLT_mu24i_tight"); // increasing stat for muZTP, which requests now ES bits
+  // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
+  // vs_ESstd.push_back("HLT_mu22_medium"); // for test
 
   std::vector<std::string> vs_EStag;
-  vs_EStag.push_back("EF_mu24_muCombTag_NoEF_tight");
+  vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight");
 
   std::vector<std::string> vs_ESid;
-  vs_ESid.push_back("EF_mu18_IDTrkNoCut_tight");
-  vs_ESid.push_back("EF_mu22_IDTrkNoCut_tight");
+  vs_ESid.push_back("HLT_mu18_IDTrkNoCut_tight");
+  vs_ESid.push_back("HLT_mu22_IDTrkNoCut_tight");
   
   // independent chains for L1 monitor
   std::vector<std::string> vs_ESindep;
-  vs_ESindep.push_back("EF_e24vh_medium1");
-  vs_ESindep.push_back("EF_e24vh_medium1_IDTrkNoCut");
+  vs_ESindep.push_back("HLT_e24vh_medium1");
+  vs_ESindep.push_back("HLT_e24vh_medium1_IDTrkNoCut");
 
-  vs_ESindep.push_back("EF_tau20_medium1");
-  vs_ESindep.push_back("EF_tau29_IDTrkNoCut");
+  vs_ESindep.push_back("HLT_tau20_medium1");
+  vs_ESindep.push_back("HLT_tau29_IDTrkNoCut");
 
-  vs_ESindep.push_back("EF_j35_a4tchad");
-  vs_ESindep.push_back("EF_j180_a4tchad");
-  vs_ESindep.push_back("EF_b55_NoCut_j55_a4tchad");
+  vs_ESindep.push_back("HLT_j35_a4tchad");
+  vs_ESindep.push_back("HLT_j180_a4tchad");
+  vs_ESindep.push_back("HLT_b55_NoCut_j55_a4tchad");
   
-  vs_ESindep.push_back("EF_xe30");
-  vs_ESindep.push_back("EF_xe80");
-  vs_ESindep.push_back("EF_te1200");
+  vs_ESindep.push_back("HLT_xe30");
+  vs_ESindep.push_back("HLT_xe80");
+  vs_ESindep.push_back("HLT_te1200");
 
   // for HI: three ES streams - names to be checked again
   std::vector<std::string> vs_ESHIL1;
-  vs_ESHIL1.push_back("EF_L1MU0_NoAlg");
-  vs_ESHIL1.push_back("EF_L1MU4_NoAlg");
+  vs_ESHIL1.push_back("HLT_L1MU0_NoAlg");
+  vs_ESHIL1.push_back("HLT_L1MU4_NoAlg");
   std::vector<std::string> vs_ESHIid;
-  vs_ESHIid.push_back("EF_mu4_MSonly_L1TE50");
-  vs_ESHIid.push_back("EF_mu4_IDTrkNoCut");
-  vs_ESHIid.push_back("EF_mu4T_IDTrkNoCut");
+  vs_ESHIid.push_back("HLT_mu4_MSonly_L1TE50");
+  vs_ESHIid.push_back("HLT_mu4_IDTrkNoCut");
+  vs_ESHIid.push_back("HLT_mu4T_IDTrkNoCut");
   std::vector<std::string> vs_ESHIindep;
-  // vs_ESHIindep.push_back("EF_j15_a2hi_EFFS_L1ZDC");
-  vs_ESHIindep.push_back("EF_j20_a2hi_EFFS_L1ZDC");
-  vs_ESHIindep.push_back("EF_j75_a2hi_EFFS_L1ZDC");
-  vs_ESHIindep.push_back("EF_L1EM16_NoAlg");
-  vs_ESHIindep.push_back("EF_g10_loose");
-  vs_ESHIindep.push_back("EF_2g5_loose");
-  // vs_ESHIindep.push_back("EF_L1_EM3");
+  // vs_ESHIindep.push_back("HLT_j15_a2hi_EFFS_L1ZDC");
+  vs_ESHIindep.push_back("HLT_j20_a2hi_EFFS_L1ZDC");
+  vs_ESHIindep.push_back("HLT_j75_a2hi_EFFS_L1ZDC");
+  vs_ESHIindep.push_back("HLT_L1EM16_NoAlg");
+  vs_ESHIindep.push_back("HLT_g10_loose");
+  vs_ESHIindep.push_back("HLT_2g5_loose");
 
   for (int i = 0; i <= m_maxESbr; i++) {
     m_passedES[i] = false;
@@ -2372,13 +1593,11 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   fillTriggerOverlap();
 
   //new check L1 flag
-  //  if (getTDT()->isPassed("L1_MU15")) { // one of the L1 RoI should be active
     sc = fillL1MuRoI();
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR(" Cannot retrieve MuonRoIInfo ");
       return StatusCode::FAILURE;
     }
-    // }
   
   return StatusCode::SUCCESS;
 }
@@ -2386,7 +1605,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
 StatusCode HLTMuonMonTool::fillChainDQA()
 {
 
-  ATH_MSG_DEBUG("fillChainDQA"); // attenion
+  ATH_MSG_DEBUG("fillChainDQA"); 
 
   StatusCode retval = StatusCode::SUCCESS;
   // YY: 25.05.10 to clear m_checked:
@@ -2403,9 +1622,9 @@ StatusCode HLTMuonMonTool::fillChainDQA()
 
   if( !checkOfflineSAdR() || !checkOfflineCBdR() ) return retval;
   
-  for(it=m_chainsMSonly.begin(); it != m_chainsMSonly.end() ; it++ ){
-    StatusCode sc = fillChainDQA_MSonly(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
+  int itr;
+  for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ){
+    StatusCode sc = fillChainDQA_MSonly(*it, m_histChainMSonly[itr]);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_MSonly failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
@@ -2414,48 +1633,29 @@ StatusCode HLTMuonMonTool::fillChainDQA()
 
   for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
     StatusCode sc = fillChainDQA_standard(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_standard failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  for (it = m_chainsMG.begin(); it != m_chainsMG.end() ; it++ ){
-    StatusCode sc = fillChainDQA_MuGirl(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("fillChainDQA_MuGirl failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
 
-  for(it=m_chainsGeneric.begin(); it != m_chainsGeneric.end() ; it++ ){
-    StatusCode sc = fillChainDQA_generic(*it, false);
-    //    if( sc != StatusCode::SUCCESS ) {
+  for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++,itr++ ){
+    StatusCode sc = fillChainDQA_generic(*it, m_histChainGeneric[itr], false);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_generic failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  for(it=m_chainsEFiso.begin(); it != m_chainsEFiso.end() ; it++ ){
-    StatusCode sc = fillChainDQA_generic(*it, true);
-    //    if( sc != StatusCode::SUCCESS ) {
+  for(it=m_chainsEFiso.begin(), itr=0; it != m_chainsEFiso.end() ; it++, itr++ ){
+    StatusCode sc = fillChainDQA_generic(*it, m_histChainEFiso[itr], true);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("fillChainDQA_generic failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  for (it = m_chainsMI.begin(); it != m_chainsMI.end() ; it++ ){
-    StatusCode sc = fillChainDQA_MuIso(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("fillChainDQA_MuIso failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
 
   return retval;
 }
@@ -2625,9 +1825,9 @@ float HLTMuonMonTool::getPtThresTrigMuonEFSA(const int thres, const float eta)
   return pt_thres;
 }
 
-StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
+StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, const std::string & histcName)
 {
-  ATH_MSG_DEBUG("----- fillChainDQA_MSonly: chain=" << chainName << " -----");
+  ATH_MSG_DEBUG("----- fillChainDQA_MSonly: chain=" << chainName << " ----- histchain=" << histcName);
 
   using namespace Trig;
   bool isBarrelChain = false;
@@ -2649,17 +1849,11 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
   // YY: 25.05.10 to clear m_checked:
   retval.getCode();
 
-  FeatureContainer fL2 = getTDT()->features("L2_"+chainName,TrigDefs::alsoDeactivateTEs);
-  FeatureContainer fEF = getTDT()->features("EF_"+chainName,TrigDefs::alsoDeactivateTEs);
+  FeatureContainer fHLT = getTDT()->features("HLT_"+chainName,TrigDefs::alsoDeactivateTEs);
 
-  std::vector<Combination> combsL2 = fL2.getCombinations();
-  std::vector<Combination> combsEF = fEF.getCombinations();
-  ATH_MSG_DEBUG("nr combsL2=" << combsL2.size());
-  for(std::vector<Combination>::const_iterator it=combsL2.begin(); it!=combsL2.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-  ATH_MSG_DEBUG("nr combsEF=" << combsEF.size());
-  for(std::vector<Combination>::const_iterator it=combsEF.begin(); it!=combsEF.end(); it++) {
+  std::vector<Combination> combsHLT = fHLT.getCombinations();
+  ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());
+  for(std::vector<Combination>::const_iterator it=combsHLT.begin(); it!=combsHLT.end(); it++) {
     ATH_MSG_DEBUG("..." << *it );
   }
 
@@ -2679,7 +1873,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
        << m_RecMuonSA_hasCB[i_rec] << " pt " << m_RecMuonSA_pt[i_rec]); */
     if (!m_RecMuonSA_isGoodCB[i_rec]) {
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_MSonly: not a good combined muon" << i_rec);
-      continue;
+      // continue;  //for LS1, remove requirements on Hits and impact parameter
     }
     
     float rec_eta = m_RecMuonSA_eta[i_rec];
@@ -2704,38 +1898,27 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
     }
 
     if (EF_lower_passed) {
-      name     = chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
+      name     = histcName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
       hist(name, histdireffnumdenom)->Fill(rec_pt);
       
       // Barrel/Endcap (YY 27.05.10) Denominator for "wrtOffline"
-      name     = chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
+      name     = histcName + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
       hist(name, histdireffnumdenom)->Fill(rec_pt);
     }
     
-    { //no lower chains requested for independent trigger efficiency  
-      //independent trigger
-      for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-    
-	if( m_passed[trg] == false ) continue;
-	name     = chainName + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-    
-      }
-    }
 
-    // if (ES_lower_passed) {
+    // if (ES_lower_passed) 
     // ES trigger-aware
     for (int i = 0; i <= m_maxESbr; i++) {
       if(!MS_mon_ESbr[i])continue; 
       if (m_passedES[i]) {
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
+	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	// New Barrel/endcap for ES L1
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
+	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
@@ -2747,15 +1930,15 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
     std::string monalg = "_MuFast";
     std::string wrtalg = "_L1";
     
-    for(int iL2=0; iL2<(int)combsL2.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+    for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {
+      std::vector< Feature<TrigRoiDescriptor> > initRois = combsHLT[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
       if( initRois.size() != 1 ) {
         ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
         retval = StatusCode::RECOVERABLE;
       }
       else {
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidSA_For" + monalg;
+        name     = histcName + "_deltaR_btw_L1_MuidSA_For" + monalg;
         ATH_MSG_DEBUG( name << " filling" );
         hist(name, histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_l2 ) { 
@@ -2765,29 +1948,29 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       }
     }
 
-    //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
+    //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
     if( dr_min_l2 < DR_CUT ) {
       if (EF_lower_passed) {
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	
 	// Barrel/Endcap
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
+	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
-      // if (ES_lower_passed) {
+      // if (ES_lower_passed) 
       for (int i = 0; i <= m_maxESbr; i++) {
         if(!MS_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
 	  ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
+	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
@@ -2795,62 +1978,45 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
     
       //
       bool mf_active = false;
-      std::vector< Feature<MuonFeature> > mf = combsL2[id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
+      std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = combsHLT[id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
       if( mf.size() == 1 ) {
         mf_active = mf[0].te()->getActiveState();
         ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
       }
       if( mf_active ) {
 	// float mf_pt = mf[0].cptr()->pt();
-	float mf_eta = mf[0].cptr()->eta();
-	float mf_phi = mf[0].cptr()->phi();
+	const xAOD::L2StandAloneMuonContainer* mf_cont = mf[0];
+
+	float mf_eta = mf_cont->at(0)->eta();
+	float mf_phi = mf_cont->at(0)->phi();
+
 	if (EF_lower_passed) {
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
+	  name     = histcName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
-	  name     = chainName + monalg + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
+	  name     = histcName + monalg + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // 2D coverage hist
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
+	  name     = histcName + monalg + "_etaphi_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
+	  name     = histcName + monalg + "_etaphi_coarse_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
 	}
-	{ // no condition applied for independent trigger
-	  //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-        
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-	// if (ES_lower_passed) {
+
+	// if (ES_lower_passed) 
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
+	    name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
       }
-      // - now removed (savannah # 70091)
-      /*      if( combsL2.size() == 1 ) { // consistency check
-	      const ChainGroup *cL2 = getTDT()->getChainGroup("L2_"+chainName);    
-	      if( cL2->isPassed() != mf_active ) {
-	      ATH_MSG_WARNING("chain and feature active inconsistent for chain=L2_" << chainName);
-	      ATH_MSG_WARNING("... chainGroup isPassed=" << cL2->isPassed());
-	      ATH_MSG_WARNING("... feature TE active=" << mf_active);
-	      retval = StatusCode::RECOVERABLE;
-	      }
-	      }
-      */
     }
 
     // EF TrigMuonEF SA
@@ -2862,7 +2028,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
     std::string monalg2 = "_MuonEFSA";
 
 
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName);
+    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("HLT_" + chainName);
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
       configChain = chainDetail->getConfigChain();
@@ -2876,8 +2042,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
 
     if (configChain) siglist = configChain->signatureList();
 
-    for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+    for(int iEF=0; iEF<(int)combsHLT.size(); iEF++) {
+      std::vector< Feature<TrigRoiDescriptor> > initRois = combsHLT[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
       ATH_MSG_DEBUG("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName << " RoI # " << initRois.size());
       if( initRois.size() != 1 ) {
         // ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
@@ -2887,7 +2053,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       }
       else {
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidSA_For" + monalg;
+        name     = histcName + "_deltaR_btw_L1_MuidSA_For" + monalg;
         ATH_MSG_DEBUG( name << " filling" );
         hist(name, histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_ef ) { 
@@ -2897,7 +2063,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
 
           //get last step 
           //loop over TE
-          const std::vector<const HLT::TriggerElement*>& tes = combsEF[iEF].tes();
+          const std::vector<const HLT::TriggerElement*>& tes = combsHLT[iEF].tes();
           for (p_te1=tes.begin(); p_te1!=tes.end(); ++p_te1) {
             bool s = false;
     
@@ -2922,35 +2088,35 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       }
     }
 
-    //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
+    //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
     if( dr_min_ef < DR_CUT ) {  // 20.11.11: now it also means that the ROI is not found, which is indicated as dr being negative
                                 // but this condition is not fulfilled if EF feature does not exist in this event
       ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
 
       if (EF_lower_passed) {
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
     
-	name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	name     = histcName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	
 	// Barrel/Endcap
-	name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
+	name     = histcName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
-      // if (ES_lower_passed) {
+      // if (ES_lower_passed) 
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
         if(!MS_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
     
-	  name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = histcName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
@@ -2974,127 +2140,132 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       int id_min_saef = -1;
       bool ef_active = false;
       
-      /*      bool isPassed_chain  = getTDT()->getChainGroup("EF_"+chainName)->isPassed(); */
       if (dr_min_ef >= 0.) {
 	ef_ms_match = true; // YY for full-scan coding
 	ef_sa_match = true; // YY for full-scan coding
 
-	ef_active       = combsEF[id_min_ef].active();
+
+	ef_active       = combsHLT[id_min_ef].active();
 	ATH_MSG_DEBUG("...comb active=" << ef_active ); //i
-	std::vector< Feature<TrigMuonEFInfoContainer> > ef = combsEF[id_min_ef].get<TrigMuonEFInfoContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
+	std::vector< Feature<xAOD::MuonContainer> > ef = combsHLT[id_min_ef].get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
 	ATH_MSG_DEBUG("...ef size=" << ef.size() ); //i
 	if( ef.size() == 1 ) {
 
 	  ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState()); //i
 
-	  const TrigMuonEFInfoContainer *ef_cont = ef[0].cptr();
-	  for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-	    TrigMuonEFInfoTrackContainer *ef_tc = ef_cont->at(iCont)->TrackContainer();
-	    for(TrigMuonEFInfoTrackContainer::const_iterator efItr=ef_tc->begin(); efItr!=ef_tc->end(); efItr++) {
+	  std::vector<Feature<xAOD::MuonContainer> >::const_iterator fIt = ef.begin();
+	  for ( ; fIt != ef.end() ; ++fIt) {
+	    const xAOD::MuonContainer* ef_cont = (*fIt);
+	    if (ef_cont) {
+	      ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	      
+	      for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
+		const xAOD::TrackParticle *ef_ms_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
 
-	      TrigMuonEFInfoTrack *t = (*efItr);
-	      TrigMuonEFTrack *ef_ms_trk = t->SpectrometerTrack();
-	      if( ef_ms_trk ){
-		if( ef_ms_trk->iPt() == 0.){
-		  ef_ms_pt  = -1.;
-		  ef_ms_eta = 0.;
-		  ef_ms_phi = 0.; // YY
-		}else if( ef_ms_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
-		  ef_ms_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
-		  ef_ms_eta = ef_ms_trk->eta();
-		  ef_ms_phi = ef_ms_trk->phi();  // YY
-		}
-		ATH_MSG_DEBUG("           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); //i
-		ATH_MSG_DEBUG("MS track found for last_step " << last_step); //i
-	      }else{
-		ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
-	      }
+	        if( ef_ms_trk ){
+	          if( ef_ms_trk->pt() <= 0.){
+	            ef_ms_pt  = -1.;
+	            ef_ms_eta = 0.;
+	            ef_ms_phi = 0.; // YY
+	          }else if( ef_ms_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
+	            ef_ms_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
+	            ef_ms_eta = ef_ms_trk->eta();
+	            ef_ms_phi = ef_ms_trk->phi();  // YY
+	          }
+	          ATH_MSG_DEBUG("           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); //i
+	          ATH_MSG_DEBUG("MS track found for last_step " << last_step); //i
+	        }else{
+	          ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
+	        }
 
-	      TrigMuonEFTrack *ef_sa_trk = t->ExtrapolatedTrack();
-	      if( ef_sa_trk->iPt() == 0.){
-		ef_sa_pt  = -1.;
-		ef_sa_eta = 0.;
-		ef_sa_phi = 0.; // YY
-	      }else if( ef_sa_trk){
-		if( ef_sa_pt < fabs(ef_sa_trk->pt()) / CLHEP::GeV ){
-		  ef_sa_pt  = fabs(ef_sa_trk->pt()) / CLHEP::GeV;
-		  ef_sa_eta = ef_sa_trk->eta();
-		  ef_sa_phi = ef_sa_trk->phi(); // YY
-		}
-		ATH_MSG_DEBUG("           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
-		ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
-	      }else{
-		ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
+	        if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone){
+	          ef_sa_pt  = -1.;
+	          ef_sa_eta = 0.;
+	          ef_sa_phi = 0.; // YY
+	        }else if( ef_ms_trk){
+	          if( ef_sa_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
+	            ef_sa_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
+	            ef_sa_eta = ef_ms_trk->eta();
+	            ef_sa_phi = ef_ms_trk->phi(); // YY
+	          }
+	          ATH_MSG_DEBUG("           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
+	          ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
+	        }else{
+	          ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
+	        }
 	      }
 	    }
 	  }
 	}
       } else { // full-scan chain
 	
-	for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
+	for(int iEF=0; iEF<(int)combsHLT.size(); iEF++) {
 	  ATH_MSG_DEBUG("...comb active=" << ef_active ); //i
-	  std::vector< Feature<TrigMuonEFInfoContainer> > ef = combsEF[iEF].get<TrigMuonEFInfoContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
+	  std::vector< Feature<xAOD::MuonContainer> > ef = combsHLT[id_min_ef].get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
 	  ATH_MSG_DEBUG("...ef size=" << ef.size() ); //i
 	  if( ef.size() == 1 ) {
 	    float dltr;
 	    ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState()); //i
 
-	    const TrigMuonEFInfoContainer *ef_cont = ef[0].cptr();
-	    for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-	      TrigMuonEFInfoTrackContainer *ef_tc = ef_cont->at(iCont)->TrackContainer();
-	      for(TrigMuonEFInfoTrackContainer::const_iterator efItr=ef_tc->begin(); efItr!=ef_tc->end(); efItr++) {
-		
-		TrigMuonEFInfoTrack *t = (*efItr);
-		TrigMuonEFTrack *ef_ms_trk = t->SpectrometerTrack();
-		if( ef_ms_trk ){
-		  if( ef_ms_trk->iPt() == 0.){
-		    ef_ms_pt  = -1.;
-		    ef_ms_eta = 0.;
-		    ef_ms_phi = 0.; // YY
-		  }else if( ef_ms_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
-		    ef_ms_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
-		    float ef_ms_eta_tmp = ef_ms_trk->eta();
-		    float ef_ms_phi_tmp = ef_ms_trk->phi();  // YY
-		    dltr = CalculateDeltaR(rec_eta, rec_phi, ef_ms_eta_tmp, ef_ms_phi_tmp);
-		    if (dltr < ms_min_dltr) {
-		      ms_min_dltr = dltr;
-		      id_min_msef = iEF;
-		      ef_ms_eta = ef_ms_eta_tmp;
-		      ef_ms_phi = ef_ms_phi_tmp;
-		    }      
-		  }
-		  ATH_MSG_DEBUG("FS           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); //i
-		  ATH_MSG_DEBUG("MS track found for last_step " << last_step); //i
-		}else{
-		  ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
-		}
-		
-		TrigMuonEFTrack *ef_sa_trk = t->ExtrapolatedTrack();
-		if( ef_sa_trk->iPt() == 0.){
-		  ef_sa_pt  = -1.;
-		  ef_sa_eta = 0.;
-		  ef_sa_phi = 0.; // YY
-		}else if( ef_sa_trk){
-		  if( ef_sa_pt < fabs(ef_sa_trk->pt()) / CLHEP::GeV ){
-		    ef_sa_pt  = fabs(ef_sa_trk->pt()) / CLHEP::GeV;
-		    float ef_sa_eta_tmp = ef_sa_trk->eta();
-		    float ef_sa_phi_tmp = ef_sa_trk->phi(); // YY
-		    dltr = CalculateDeltaR(rec_eta, rec_phi, ef_sa_eta_tmp, ef_sa_phi_tmp);
-		    if (dltr < sa_min_dltr) {
-		      sa_min_dltr = dltr;
-		      id_min_saef = iEF;
-		      ef_sa_eta = ef_sa_eta_tmp;
-		      ef_sa_phi = ef_sa_phi_tmp;
-		    }      
-		  }
-		  ATH_MSG_DEBUG("FS           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
-		  ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
-		}else{
-		  ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
-		}
+	    std::vector<Feature<xAOD::MuonContainer> >::const_iterator fIt = ef.begin();
+	    for ( ; fIt != ef.end() ; ++fIt) {
+	      const xAOD::MuonContainer* ef_cont = (*fIt);
+	      if (ef_cont) {
+	        ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	        
+	        for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
+	          const xAOD::TrackParticle *ef_ms_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::MuonSpectrometerTrackParticle);
+
+
+	          if( ef_ms_trk ){
+	            if( ef_ms_trk->pt() <= 0.){
+	              ef_ms_pt  = -1.;
+	              ef_ms_eta = 0.;
+	              ef_ms_phi = 0.; // YY
+	            }else if( ef_ms_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
+	              ef_ms_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
+	              float ef_ms_eta_tmp = ef_ms_trk->eta();
+	              float ef_ms_phi_tmp = ef_ms_trk->phi();  // YY
+	              dltr = CalculateDeltaR(rec_eta, rec_phi, ef_ms_eta_tmp, ef_ms_phi_tmp);
+	              if (dltr < ms_min_dltr) {
+	                ms_min_dltr = dltr;
+	                id_min_msef = iEF;
+	                ef_ms_eta = ef_ms_eta_tmp;
+	                ef_ms_phi = ef_ms_phi_tmp;
+	              }      
+	            }
+	            ATH_MSG_DEBUG("FS           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV ); //i
+	            ATH_MSG_DEBUG("MS track found for last_step " << last_step); //i
+	          }else{
+	            ATH_MSG_DEBUG("No MS track found for last_step " << last_step); //i
+	          }
+	          
+	          if( ef_cont->at(iCont)->muonType()!=xAOD::Muon::MuonStandAlone){
+	            ef_sa_pt  = -1.;
+	            ef_sa_eta = 0.;
+	            ef_sa_phi = 0.; // YY
+	          }else if( ef_ms_trk){
+	            if( ef_sa_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
+	              ef_sa_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
+	              float ef_sa_eta_tmp = ef_ms_trk->eta();
+	              float ef_sa_phi_tmp = ef_ms_trk->phi(); // YY
+	              dltr = CalculateDeltaR(rec_eta, rec_phi, ef_sa_eta_tmp, ef_sa_phi_tmp);
+	              if (dltr < sa_min_dltr) {
+	                sa_min_dltr = dltr;
+	                id_min_saef = iEF;
+	                ef_sa_eta = ef_sa_eta_tmp;
+	                ef_sa_phi = ef_sa_phi_tmp;
+	              }      
+	            }
+	            ATH_MSG_DEBUG("FS           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV ); //i
+	            ATH_MSG_DEBUG("SA track found for last_step " << last_step); //i
+	          }else{
+	            ATH_MSG_DEBUG("No SA track found for last_step " << last_step); //i
+	          }
+	        }
 	      }
 	    }
-	  }
+          }
 	} // loop over MSonly EF TEs
 	if (ms_min_dltr < DR_CUT) {
 	  ef_ms_match = true;
@@ -3105,7 +2276,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
 	  if (id_min_saef < 0) {
 	    ATH_MSG_WARNING("inconsistency in SA matching");
 	  } else {
-	    ef_active = combsEF[id_min_saef].active();
+	    ef_active = combsHLT[id_min_saef].active();
 	    ATH_MSG_DEBUG("SA Delta R, flag " << sa_min_dltr << " " << id_min_saef); //i
 	  }
 	}
@@ -3115,31 +2286,22 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       if( ef_ms_match && ef_ms_pt > getPtThresTrigMuonEFSA(thresh, ef_ms_eta) ){ // matching required only for full-scan chains
 	if (EF_lower_passed) {
 	  ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
+	  name     = histcName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  // 2D coverage hist
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
+	  name     = histcName + monalg + "_etaphi_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
+	  name     = histcName + monalg + "_etaphi_coarse_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
 	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-        
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-        }
-	// if (ES_lower_passed) {
+	// if (ES_lower_passed) 
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
+	    name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
@@ -3148,41 +2310,32 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
 
       //SA pt/eta checks
       //if( ef_ms_pt > getPtThresTrigMuonEFSA(thresh, ef_ms_eta) &&
-      //  ef_sa_pt > getPtThresTrigMuonEFSA(thresh, ef_sa_eta) ){
+      //  ef_sa_pt > getPtThresTrigMuonEFSA(thresh, ef_sa_eta) )
       if( ef_sa_match && ef_active ) { // matching required only for full-scan triggers
 	if (EF_lower_passed) {
 	  ATH_MSG_DEBUG("MSonly last step " << last_step );
-	  name     = chainName + monalg2 + "_Turn_On_Curve_Numerator";
+	  name     = histcName + monalg2 + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
-	  name     = chainName + monalg2 + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
+	  name     = histcName + monalg2 + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 
 	  // 2D coverage hist
-	  name     = chainName + monalg2 + "_etaphi_wrt_MuidCB";
+	  name     = histcName + monalg2 + "_etaphi_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
-	  name     = chainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
+	  name     = histcName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
 	}
-	//independent trigger
-	{
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg2 + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-        }
-	// if (ES_lower_passed) {
+	// if (ES_lower_passed) 
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("MSonly last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
+	    name     = histcName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
@@ -3190,15 +2343,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName)
       }else{
         ATH_MSG_DEBUG("MSonly not active last step " << last_step );
       }
-      // consistency check - now removed (savannah # 70091)
-      /*      if( combsEF.size() == 1 ) {
-	      if( isPassed_chain != ef_active ) {
-	      ATH_MSG_WARNING("chain and comb active inconsistent for chain=EF_" << chainName );
-	      ATH_MSG_WARNING("... chain isPassed=" << isPassed_chain);
-	      ATH_MSG_WARNING("... comb active=" << ef_active);
-	      retval = StatusCode::RECOVERABLE;
-	      }
-	      } */
     }
     
   } // end of SA loop
@@ -3585,723 +2729,17 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName)
                 }
         }
 
-        return StatusCode::SUCCESS;
 
   }
   //*****************************************//
+  return StatusCode::SUCCESS;
 
-
-  // 19.07.10 enabling request for lower chain
-  //bool EF_lower_passed = getTDT()->isPassed( m_lowerChains[chainName] );
-  bool EF_lower_passed = true;
-
-  bool MS_lower_passed = false;
-  std::vector<std::string>::iterator it;
-  for (it = m_MSchain.begin(); it != m_MSchain.end(); it++) {
-    if (getTDT()->isPassed(*it)) {
-      MS_lower_passed = true;
-      // ATH_MSG_WARNING(chainName << " " << *it << " " << MS_lower_passed);
-    }
-  }
-  
-  StatusCode retval = StatusCode::SUCCESS;
-  // YY: 25.05.10 to clear m_checked:
-  retval.getCode();
-
-  //int thres = atoi(chainName.substr(chainName.find("mu")+2).c_str());
-
-  FeatureContainer fL2 = getTDT()->features("L2_"+chainName,TrigDefs::alsoDeactivateTEs);
-  FeatureContainer fEF = getTDT()->features("EF_"+chainName,TrigDefs::alsoDeactivateTEs);
-
-  std::vector<Combination> combsL2 = fL2.getCombinations();
-  std::vector<Combination> combsEF = fEF.getCombinations();
-  ATH_MSG_DEBUG("nr combsL2=" << combsL2.size());
-  for(std::vector<Combination>::const_iterator it=combsL2.begin(); it!=combsL2.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-  ATH_MSG_DEBUG("nr combsEF=" << combsEF.size());
-  for(std::vector<Combination>::const_iterator it=combsEF.begin(); it!=combsEF.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-
-
-  std::string name;
-  int thresh = m_thresh[chainName];
-  
-  std::string bestr[2] = {"_Barrel", "_Endcap"};
-
-  // loop on each CB probe
-
-  for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
-
-    if (!m_RecMuonCB_isGoodCB[i_rec]) {
-      ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;
-    }
-
-    float rec_eta = m_RecMuonCB_eta[i_rec];
-    float rec_phi = m_RecMuonCB_phi[i_rec];
-    float rec_pt  = m_RecMuonCB_pt[i_rec];
-
-    float rec_ptcone40 = m_RecMuonCB_ptcone40[i_rec];
-    if ((rec_ptcone40*0.001) / rec_pt > 0.5) continue; // tomoe added 09/06/2011
-
-    ATH_MSG_DEBUG("++ i_rec=" << i_rec);
-    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
-    // if( rec_pt > 50. ) rec_pt = 50.;
-    // if( rec_pt > 100. ) rec_pt = 100.;
-
-    // index for Barrel/Endcap
-    int iBarrelCB = (fabs(rec_eta) < 1.05) ? 0 : 1;
-
-    if (EF_lower_passed) {
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
-      if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-
-    
-      // Barrel/Endcap (YY 20.05.10) Denominator for "wrtOffline"
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
-      if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-
-    { //no condition applied for independenet trigger
-      //independent trigger
-      for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-    
-	if( m_passed[trg] == false ) continue;
-	name     = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	if( !hist(name, histdireffnumdenom) ) ATH_MSG_ERROR("no such hist " << name );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-    // if (ES_lower_passed) {
-    // ES trigger-aware
-    for (int i = 0; i <= m_maxESbr; i++) {
-      if (m_passedES[i]) {
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	// New Barrel/endcap for ES L1
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-      
-    // L2 muFast and muComb
-    float dr_min_l2 = 9999;
-    int   id_min_l2 = -1;
-    std::string monalg  = "_MuFast";
-    std::string monalg2 = "_MuComb";
-    std::string wrtalg = "_L1";
-    std::string wrtalg2 = "_MuFast";
-
-    for(int iL2=0; iL2<(int)combsL2.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
-        ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(dr);
-        if( dr < dr_min_l2 ) {
-          dr_min_l2 = dr; 
-          id_min_l2 = iL2;
-        }
-      }
-    }
-    if( dr_min_l2 < DR_CUT ) {
-      if (EF_lower_passed) {
-	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-	// Barrel/Endcap
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-      // if (ES_lower_passed) {
-      // ES trigger-aware
-      for (int i = 0; i <= m_maxESbr; i++) {
-	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-      
-      // MuFast
-      bool mf_active = false;
-      std::vector< Feature<MuonFeature> > mf = combsL2[id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
-      if( mf.size() == 1 ) {
-        mf_active = mf[0].te()->getActiveState();
-        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
-      }
-      if( mf_active ) {
-	float mf_pt = mf[0].cptr()->pt();
-	float mf_eta = mf[0].cptr()->eta();
-	float mf_phi = mf[0].cptr()->phi();
-
-	if (EF_lower_passed) { // if EF_lower_passed is always true, it is a catch-all branch.
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed ) {
-	    name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	  
-	  // Barrel/Endcap
-	  name     = chainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	  
-	  // 2D coverage hist
-	  ATH_MSG_DEBUG ( "Offline/muFast pt" << rec_pt << ", " << mf_pt );
-	  ATH_MSG_DEBUG ( "Offline/muFast eta" << rec_eta << ", " << mf_eta );
-	  ATH_MSG_DEBUG ( "Offline/muFast phi" << rec_phi << ", " << mf_phi );
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
-	  // 1D covarage: muFast only
-	  name     = chainName + monalg + "_eta_wrt_MuidCB";
-	  hist(name, histdirdist2d)->Fill(mf_eta);
-	  name     = chainName + monalg + "_phi_wrt_MuidCB";
-	  hist(name, histdirdist2d)->Fill(mf_phi);
-	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-	// if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-      
-      }
-      // MuComb
-      bool combMf_active = false;
-      if( mf_active ) {
-	if (EF_lower_passed) {
-	  name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	  // Barrel/Endcap
-	  name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-	// if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-
-	//
-        std::vector< Feature<CombinedMuonFeature> > combMf = combsL2[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-        if( combMf.size() == 1 ) {
-          combMf_active = combMf[0].te()->getActiveState();
-          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
-        }
-        if( combMf_active ) {
-	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
-	  float combMf_eta = combMf[0].cptr()->eta();
-	  float combMf_phi = combMf[0].cptr()->phi();
-	  
-	  if (EF_lower_passed) {
-	    name     = chainName + monalg2 + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	    
-	    // Barrel/Endcap
-	    name     = chainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	    
-	    // 2D coverage hist
-	    ATH_MSG_DEBUG ( "Offline/muComb pt" << rec_pt << ", " << combMf_pt );
-	    ATH_MSG_DEBUG ( "Offline/muComb eta" << rec_eta << ", " << combMf_eta );
-	    ATH_MSG_DEBUG ( "Offline/muComb phi" << rec_phi << ", " << combMf_phi );
-	    name     = chainName + monalg2 + "_etaphi_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
-	    name     = chainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
-	  }
-	  { //independent trigger
-	    for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	      if( m_passed[trg] == false ) continue;
-	      name     = chainName + monalg2 + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }
-	  // if (ES_lower_passed) {
-	  // ES trigger-aware
-	  for (int i = 0; i <= m_maxESbr; i++) {
-	    if (m_passedES[i]) {
-	      name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }     
-        }
-      }
-      /*
-	if( combsL2.size() == 1 ) { // consistency check - now removed (savannah # 70091)
-        const ChainGroup *cL2 = getTDT()->getChainGroup("L2_"+chainName);    
-        if( cL2->isPassed() != combMf_active ) {
-	ATH_MSG_WARNING("chain and feature active inconsistent for chain=L2_" << chainName);
-	ATH_MSG_WARNING("... chainGroup isPassed=" << cL2->isPassed());
-	ATH_MSG_WARNING("... feature TE active=" << combMf_active);
-	retval = StatusCode::RECOVERABLE;
-        }
-	}
-      */ 
-    }
-      
-    // EF TrigMuonEF CB
-    float dr_min_ef = 9999;
-    int   id_min_ef = -1;
-    int   last_step = -1;
-    monalg = "_MuonEFMS";
-    wrtalg = "_MuComb";
-    monalg2 = "_MuonEFSA";
-    std::string monalg3 = "_MuonEFCB";
-
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName);
-    const TrigConf::HLTChain* configChain = 0;
-    if (chainDetail) {
-      configChain = chainDetail->getConfigChain();
-      //lastStep = chainDetail->getChainStep();
-    }
-    std::vector<const HLT::TriggerElement*>::const_iterator p_te1;
-    std::vector<TrigConf::HLTTriggerElement*>::const_iterator p_te2;
-    std::vector<TrigConf::HLTSignature*>::const_iterator p_sig;
-    std::vector<TrigConf::HLTSignature*> dummylist;
-    std::vector<TrigConf::HLTSignature*>& siglist = dummylist;
-
-    if (configChain) siglist = configChain->signatureList();
-
-    for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
-        ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(dr);
-        if( dr < dr_min_ef ) {
-          dr_min_ef = dr; 
-          id_min_ef = iEF;
-          last_step = 0;
-
-          //get last step 
-          //loop over TE
-          const std::vector<const HLT::TriggerElement*>& tes = combsEF[iEF].tes();
-          for (p_te1=tes.begin(); p_te1!=tes.end(); ++p_te1) {
-            bool s = false;
-    
-            //loop over signature list
-            for (p_sig=siglist.begin(); p_sig!=siglist.end(); ++p_sig) {
-              vector<TrigConf::HLTTriggerElement*>& tes2 = (*p_sig)->outputTEs();
-              for (p_te2=tes2.begin(); p_te2!=tes2.end(); ++p_te2) {
-                if ( (*p_te1)->getId() == 
-                     TrigConf::HLTUtils::string2hash( (*p_te2)->name(), "TE")) {
-                  s = true;
-                  break;
-                }
-              }
-              if (s) {
-                if ( (int) (*p_sig)->signature_counter() > last_step) 
-                  last_step = (int) (*p_sig)->signature_counter();
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-    if( dr_min_ef < DR_CUT ) {
-      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
-      
-      if (EF_lower_passed) {
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	name     = chainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	// Barrel/Endcap
-	name     = chainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	// repeating, with highPT range
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  
-	  // Barrel/Endcap
-	  name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-
-      }
-      // if (ES_lower_passed) {
-      // ES trigger-aware
-      for (int i = 0; i <= m_maxESbr; i++) {
-	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  
-	  name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  
-	  name     = chainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-    
-      //
-      float ef_ms_pt  = 0.;
-      float ef_ms_eta = 0.;
-      float ef_sa_pt  = 0.;
-      float ef_sa_eta = 0.;
-      float ef_cb_pt  = 0.;
-      float ef_cb_eta = 0.;
-
-      // YY added:
-      float ef_ms_phi = 0.;
-      float ef_sa_phi = 0.;
-      float ef_cb_phi = 0.;
-
-      /*      bool isPassed_chain  = getTDT()->getChainGroup("EF_"+chainName)->isPassed(); */
-      bool ef_active       = combsEF[id_min_ef].active();
-      ATH_MSG_DEBUG("...comb active=" << ef_active );
-      std::vector< Feature<TrigMuonEFInfoContainer> > ef = combsEF[id_min_ef].get<TrigMuonEFInfoContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
-      ATH_MSG_DEBUG("...ef size=" << ef.size() );
-      if( ef.size() == 1 ) {
-
-        ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState());
-
-        const TrigMuonEFInfoContainer *ef_cont = ef[0].cptr();
-        for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-          TrigMuonEFInfoTrackContainer *ef_tc = ef_cont->at(iCont)->TrackContainer();
-          for(TrigMuonEFInfoTrackContainer::const_iterator efItr=ef_tc->begin(); efItr!=ef_tc->end(); efItr++) {
-
-            TrigMuonEFInfoTrack *t = (*efItr);
-            TrigMuonEFTrack *ef_ms_trk = t->SpectrometerTrack();
-            if( ef_ms_trk ){
-              if( ef_ms_trk->iPt() == 0.){
-                ef_ms_pt  = -1.;
-                ef_ms_eta = 0.;
-                ef_ms_phi = 0.; // YY
-              }else if( ef_ms_pt < fabs(ef_ms_trk->pt()) / CLHEP::GeV ){
-                ef_ms_pt  = fabs(ef_ms_trk->pt()) / CLHEP::GeV;
-                ef_ms_eta = ef_ms_trk->eta();
-                ef_ms_phi = ef_ms_trk->phi();  // YY
-              }
-              ATH_MSG_DEBUG("           MS eta/pt=" << ef_ms_eta << " / " << ef_ms_pt/CLHEP::GeV );
-              ATH_MSG_DEBUG("MS track found for last_step " << last_step);
-            }else{
-              ATH_MSG_DEBUG("No MS track found for last_step " << last_step);
-            }
-
-            TrigMuonEFTrack *ef_sa_trk = t->ExtrapolatedTrack();
-            if( ef_sa_trk){
-              if( ef_sa_trk->iPt() == 0.){
-                ef_sa_pt  = -1.;
-                ef_sa_eta = 0.;
-                ef_sa_phi = 0.; // YY
-              }else if( ef_sa_pt < fabs(ef_sa_trk->pt()) / CLHEP::GeV ){
-                ef_sa_pt  = fabs(ef_sa_trk->pt()) / CLHEP::GeV;
-                ef_sa_eta = ef_sa_trk->eta();
-                ef_sa_phi = ef_sa_trk->phi(); // YY
-              }
-              ATH_MSG_DEBUG("           SA eta/pt=" << ef_sa_eta << " / " << ef_sa_pt/CLHEP::GeV );
-              ATH_MSG_DEBUG("SA track found for last_step " << last_step);
-            }else{
-              ATH_MSG_DEBUG("No SA track found for last_step " << last_step);
-            }
-
-            TrigMuonEFCbTrack* ef_cb_trk = t->CombinedTrack();
-            //TrigMuonEFTrack *ef_cb_trk = t->CombinedTrack();
-            if( ef_cb_trk){
-              if( ef_cb_trk->iPt() == 0.){
-                ef_cb_pt  = -1.;
-                ef_cb_eta = 0.;
-                ef_cb_phi = 0.;  // YY
-              }else if( ef_cb_pt < fabs(ef_cb_trk->pt()) / CLHEP::GeV ){
-                ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
-                ef_cb_eta = ef_cb_trk->eta();
-                ef_cb_phi = ef_cb_trk->phi(); // YY
-              }
-              ATH_MSG_DEBUG("           CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
-              ATH_MSG_DEBUG("CB track found for last_step " << last_step);
-            }else{
-              ATH_MSG_DEBUG("No CB track found for last_step " << last_step);
-            }
-          }
-        }
-      }
-
-      //MS pt/eta checks
-      if( ef_ms_pt > getPtThresTrigMuonEFSA(thresh, ef_ms_eta) ){
-	
-        if (EF_lower_passed) { // catch-all if EF_lower_passed is true
-	  ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-
-	  // 2D coverage hist
-	  ATH_MSG_DEBUG ( "Offline/EFMS pt" << rec_pt << ", " << ef_ms_pt );
-	  ATH_MSG_DEBUG ( "Offline/EFMS eta" << rec_eta << ", " << ef_ms_eta );
-	  ATH_MSG_DEBUG ( "Offline/EFMS phi" << rec_phi << ", " << ef_ms_phi );
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
-	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-    
-        // if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-      }
-
-      //SA pt/eta checks
-      if( ef_sa_pt > getPtThresTrigMuonEFSA(thresh, ef_sa_eta) ){
-	
-	if (EF_lower_passed) {
-	  ATH_MSG_DEBUG("MSonly SA passed last step " << last_step );
-	  name     = chainName + monalg2 + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-
-	  // 2D coverage hist
-	  ATH_MSG_DEBUG ( "Offline/EFSA pt" << rec_pt << ", " << ef_sa_pt );
-	  ATH_MSG_DEBUG ( "Offline/EFSA eta" << rec_eta << ", " << ef_sa_eta );
-	  ATH_MSG_DEBUG ( "Offline/EFSA phi" << rec_phi << ", " << ef_sa_phi );
-	  name     = chainName + monalg2 + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
-	  name     = chainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
-	}
-	{  //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-        
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg2 + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-        }
-	// if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    ATH_MSG_DEBUG("MSonly SA passed last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-      }
-
-      //CB pt/eta checks
-      //bool pt_cut = ( ef_ms_pt > getPtThresTrigMuonEFSA(thresh, ef_ms_eta) &&
-      //              ef_sa_pt > getPtThresTrigMuonEFSA(thresh, ef_sa_eta) &&
-      //              ef_cb_pt > getPtThresTrigMuonEFCB(thresh, ef_cb_eta) );
-
-      if( ef_active ){
-	//if( pt_cut ){
-	if (EF_lower_passed) {
-	  ATH_MSG_DEBUG("last step " << last_step );
-	  
-	  name     = chainName + monalg3 + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	  // Barrel/Endcap
-	  name     = chainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	  
-	  // 2D coverage hist
-	  ATH_MSG_DEBUG ( "Offline/EFCB pt" << rec_pt << ", " << ef_cb_pt );
-	  ATH_MSG_DEBUG ( "Offline/EFCB eta" << rec_eta << ", " << ef_cb_eta );
-	  ATH_MSG_DEBUG ( "Offline/EFCB phi" << rec_phi << ", " << ef_cb_phi );
-	  name     = chainName + monalg3 + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
-	  name     = chainName + monalg3 + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
-	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg3 + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-
-	// if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    ATH_MSG_DEBUG("last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-    
-      }else{
-        ATH_MSG_DEBUG("not active last step " << last_step );
-      }
-
-      /*
-	if( ef_active != pt_cut ) {
-
-        ATH_MSG_WARNING("pt and feature active inconsistent for chain=EF_" << chainName );
-        ATH_MSG_WARNING("ef_active " << ef_active );
-        ATH_MSG_WARNING("ef_ms_pt/ef_ms_eta/bool " << ef_ms_pt << "/" << ef_ms_eta << "/" << (ef_ms_pt > getPtThresTrigMuonEFSA(thresh, ef_ms_eta)) );
-        ATH_MSG_WARNING("ef_sa_pt/ef_sa_eta/bool " << ef_sa_pt << "/" << ef_sa_eta << "/" << (ef_sa_pt > getPtThresTrigMuonEFSA(thresh, ef_sa_eta)) );
-        ATH_MSG_WARNING("ef_cb_pt/ef_cb_eta/bool " << ef_cb_pt << "/" << ef_cb_eta << "/" << (ef_cb_pt > getPtThresTrigMuonEFCB(thresh, ef_cb_eta)) );
-        
-
-	}
-      */
-
-      // consistency check - now removed (savannah # 70091)
-      /* if( combsEF.size() == 1 ) {
-	 if( isPassed_chain != ef_active ) {
-	 ATH_MSG_WARNING("chain and feature active inconsistent for chain=EF_" << chainName );
-	 ATH_MSG_WARNING("... chain  isPassed=" << isPassed_chain);
-	 ATH_MSG_WARNING("... feature  active=" << ef_active);
-	 retval = StatusCode::RECOVERABLE;
-	 }
-	 } */
-    }
-
-  } // end of CB loop
-
-  //
-  return retval;
 }
 
 
-StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bool isIsolOffline)
+StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, const std::string& HistchainName,  bool isIsolOffline)
 {
-  ATH_MSG_DEBUG("----- fillChainDQA_generic: chain=" << chainName << " -----");
+  ATH_MSG_DEBUG("----- fillChainDQA_generic: chain=" << chainName << " histChain:  "<<HistchainName);
 
   using namespace Trig;
 
@@ -4311,7 +2749,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
   for (it = m_MSchain.begin(); it != m_MSchain.end(); it++) {
     if (getTDT()->isPassed(*it)) {
       MS_lower_passed = true;
-      // ATH_MSG_WARNING(chainName << " " << *it << " " << MS_lower_passed);
     }
   }
   
@@ -4319,23 +2756,16 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
   // YY: 25.05.10 to clear m_checked:
   retval.getCode();
 
-  //int thres = atoi(chainName.substr(chainName.find("mu")+2).c_str());
-  std::string L2_chainName = m_chainsEF_L2_map[chainName];     // add by Yuan 
-  if(strcmp(L2_chainName.c_str(),"")==0) L2_chainName = "L2_"+chainName;   // add by Yuan
 
-  FeatureContainer fL2 = getTDT()->features(L2_chainName,TrigDefs::alsoDeactivateTEs);
-  FeatureContainer fEF = getTDT()->features("EF_"+chainName,TrigDefs::alsoDeactivateTEs);
+  FeatureContainer fHLT = getTDT()->features("HLT_"+chainName,TrigDefs::alsoDeactivateTEs);  
 
-  std::vector<Combination> combsL2 = fL2.getCombinations();
-  std::vector<Combination> combsEF = fEF.getCombinations();
-  ATH_MSG_DEBUG("nr combsL2=" << combsL2.size());
-  for(std::vector<Combination>::const_iterator it=combsL2.begin(); it!=combsL2.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
+
+  std::vector<Combination> combsHLT = fHLT.getCombinations();
+  ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());  
+  for(std::vector<Combination>::const_iterator it=combsHLT.begin(); it!=combsHLT.end(); it++) {
+    ATH_MSG_DEBUG("..." << *it );  
   }
-  ATH_MSG_DEBUG("nr combsEF=" << combsEF.size());
-  for(std::vector<Combination>::const_iterator it=combsEF.begin(); it!=combsEF.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
+
 
   const float DR_CUT = 0.2; // YY 2012 setting
 
@@ -4348,9 +2778,9 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
   
   for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
 
-    if (!m_RecMuonCB_isGoodCB[i_rec]) {
+    if (!m_RecMuonCB_isGoodCB[i_rec]) {  
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;
+//      continue;  // for LS1, remove cuts on Hits and impact parameter, uncomment for collision
     }
 
     float rec_eta = m_RecMuonCB_eta[i_rec];
@@ -4371,34 +2801,34 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
     int iBarrelCB = (fabs(rec_eta) < 1.05) ? 0 : 1;
 
     if (EF_lower_passed) {
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+      name     = HistchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
       hist(name, histdireffnumdenom)->Fill(rec_pt);
       if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+	name     = HistchainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
 
       // Barrel/Endcap (YY 20.05.10) Denominator for "wrtOffline"
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
+      name     = HistchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
       hist(name, histdireffnumdenom)->Fill(rec_pt);
       if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
+	name     = HistchainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
     }
 
-    // if (ES_lower_passed) {
+    // if (ES_lower_passed) {}
     // ES trigger-aware
     for (int i = 0; i <= m_maxESbr; i++) {
       if(!CB_mon_ESbr[i])continue; 
       if (m_passedES[i]) {
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+	name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	// New Barrel/endcap for ES L1
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
+	name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
       }
@@ -4412,16 +2842,17 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
     std::string wrtalg = "_L1";
     std::string wrtalg2 = "_MuFast";
 
-    for(int iL2=0; iL2<(int)combsL2.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+    for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {
+      std::vector< Feature<TrigRoiDescriptor> > initRois = fHLT.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+      ATH_MSG_DEBUG("TrigRoiDescriptorCollection size: "<<initRois.size());
       if( initRois.size() != 1 ) {
         ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
         retval = StatusCode::RECOVERABLE;
       }
       else {
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
-        ATH_MSG_DEBUG( name << " filling" );
+        name     = HistchainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
+        ATH_MSG_DEBUG( name << " filling" ); 
         hist(name, histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_l2 ) {
           dr_min_l2 = dr; 
@@ -4432,19 +2863,19 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
     if( dr_min_l2 < DR_CUT ) {
       if (EF_lower_passed) {
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	name     = HistchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
 	// Barrel/Endcap
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
+	name     = HistchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
+	  name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
       }
@@ -4454,11 +2885,11 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
         if(!CB_mon_ESbr[i])continue; 
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
 	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
+	  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
@@ -4466,31 +2897,37 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
       
       // === MuFast ===
       bool mf_active = false;
-      std::vector< Feature<MuonFeature> > mf = combsL2[id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
+      std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = fHLT.get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
+
+	ATH_MSG_DEBUG(" MuFast container size: "<< mf.size());  
       if( mf.size() == 1 ) {
         mf_active = mf[0].te()->getActiveState();
-        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
+        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
       }
+
+
       if( mf_active ) {
-	float mf_pt = mf[0].cptr()->pt();
-	float mf_eta = mf[0].cptr()->eta();
-	float mf_phi = mf[0].cptr()->phi();
+        const xAOD::L2StandAloneMuonContainer* mf_cont = mf[0];
+
+	float mf_pt  = mf_cont->at(0)->pt();
+	float mf_eta = mf_cont->at(0)->eta();
+	float mf_phi = mf_cont->at(0)->phi();
 
 	if (EF_lower_passed) { // if EF_lower_passed is always true, it is a catch-all branch.
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
+	  name     = HistchainName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed ) {
-	    name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
 	  // Barrel/Endcap
-	  name     = chainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	  name     = HistchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
@@ -4498,14 +2935,14 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 	  ATH_MSG_DEBUG ( "Offline/muFast pt" << rec_pt << ", " << mf_pt );
 	  ATH_MSG_DEBUG ( "Offline/muFast eta" << rec_eta << ", " << mf_eta );
 	  ATH_MSG_DEBUG ( "Offline/muFast phi" << rec_phi << ", " << mf_phi );
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
+	  name     = HistchainName + monalg + "_etaphi_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
+	  name     = HistchainName + monalg + "_etaphi_coarse_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
 	  // 1D covarage: muFast only
-	  name     = chainName + monalg + "_eta_wrt_MuidCB";
+	  name     = HistchainName + monalg + "_eta_wrt_MuidCB";
 	  hist(name, histdirdist2d)->Fill(mf_eta);
-	  name     = chainName + monalg + "_phi_wrt_MuidCB";
+	  name     = HistchainName + monalg + "_phi_wrt_MuidCB";
 	  hist(name, histdirdist2d)->Fill(mf_phi);
 	}
 
@@ -4513,50 +2950,49 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
-      
       }
 
       // === MuComb ===
       bool combMf_active = false;
       if( mf_active ) {
 	if (EF_lower_passed) {
-	  name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
+	  name     = HistchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
+	    name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  // Barrel/Endcap
-	  name     = chainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
+	  name     = HistchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
+	    name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
-	// if (ES_lower_passed) {
+	// if (ES_lower_passed) {}
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
+	    name     = HistchainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
 
 	//
-        std::vector< Feature<CombinedMuonFeature> > combMf = combsL2[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
+        std::vector< Feature<CombinedMuonFeature> > combMf = combsHLT[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
         if( combMf.size() == 1 ) {
           combMf_active = combMf[0].te()->getActiveState();
-          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
+          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
         }
         if( combMf_active ) {
 	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
@@ -4564,20 +3000,20 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 	  float combMf_phi = combMf[0].cptr()->phi();
 	  
 	  if (EF_lower_passed) {
-	    name     = chainName + monalg2 + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + monalg2 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg2 + "_Turn_On_Curve_Numerator";
+	      name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_Numerator";
 	      hist(name, histdireffnumdenom)->Fill(rec_pt);
 	    }
 	    
 	    // Barrel/Endcap
-	    name     = chainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	      name     = HistchainName + m_MSchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	      hist(name, histdireffnumdenom)->Fill(rec_pt);
 	    }
 	    
@@ -4585,16 +3021,16 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 	    ATH_MSG_DEBUG ( "Offline/muComb pt" << rec_pt << ", " << combMf_pt );
 	    ATH_MSG_DEBUG ( "Offline/muComb eta" << rec_eta << ", " << combMf_eta );
 	    ATH_MSG_DEBUG ( "Offline/muComb phi" << rec_phi << ", " << combMf_phi );
-	    name     = chainName + monalg2 + "_etaphi_wrt_MuidCB";
+	    name     = HistchainName + monalg2 + "_etaphi_wrt_MuidCB";
 	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
-	    name     = chainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
+	    name     = HistchainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
 	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
 	  }
 	  // ES trigger-aware
 	  for (int i = 0; i <= m_maxESbr; i++) {
             if(!CB_mon_ESbr[i])continue; 
 	    if (m_passedES[i]) {
-	      name     = chainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
+	      name     = HistchainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
 	      ATH_MSG_DEBUG( name << " filling" );
 	      hist(name, histdireffnumdenom)->Fill(rec_pt);
 	    }
@@ -4602,7 +3038,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
         }
       }
     }
-      
+     
     // == an EF chain ==
     float dr_min_ef = 9999;
     int   id_min_ef = -1;
@@ -4610,7 +3046,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
     wrtalg = "_MuComb";
     std::string monalg3 = "_EFmuon";
 
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName);
+    //const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName); // sept25
+    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("HLT_" + chainName); // sept25
     const TrigConf::HLTChain* configChain = 0;
     if (chainDetail) {
       configChain = chainDetail->getConfigChain();
@@ -4624,8 +3061,8 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 
     if (configChain) siglist = configChain->signatureList();
 
-    for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+    for(int iEF=0; iEF<(int)combsHLT.size(); iEF++) {
+      std::vector< Feature<TrigRoiDescriptor> > initRois = combsHLT[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
       if( initRois.size() != 1 ) {
         ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
         retval = StatusCode::RECOVERABLE;
@@ -4633,7 +3070,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
       else {
 	// check RoI <-> rec matching
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg3; // YY changed from monalg -> monalg3
+        name     = HistchainName + "_deltaR_btw_L1_MuidCB_For" + monalg3; // YY changed from monalg -> monalg3
         ATH_MSG_DEBUG( name << " filling" );
         hist(name, histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_ef ) {
@@ -4643,7 +3080,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 
           //get last step 
           //loop over TE
-          const std::vector<const HLT::TriggerElement*>& tes = combsEF[iEF].tes();
+          const std::vector<const HLT::TriggerElement*>& tes = combsHLT[iEF].tes();
           for (p_te1=tes.begin(); p_te1!=tes.end(); ++p_te1) {
             bool s = false;
     
@@ -4671,22 +3108,22 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
       ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
       
       if (EF_lower_passed) {
-	name     = chainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	name     = HistchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 
 	// Barrel/Endcap
-	name     = chainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
+	name     = HistchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
 	hist(name, histdireffnumdenom)->Fill(rec_pt);
 
 	// repeating, with highPT range
 	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
-	  name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
+	  name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
 
@@ -4696,7 +3133,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
       for (int i = 0; i <= m_maxESbr; i++) {
         if(!CB_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
+	  name     = HistchainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
@@ -4708,47 +3145,47 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
       int ef_cb_mtype = 0;
       
       /*      bool isPassed_chain  = getTDT()->getChainGroup("EF_"+chainName)->isPassed(); */
-      bool ef_active       = combsEF[id_min_ef].active();
+      bool ef_active       = combsHLT[id_min_ef].active();
       ATH_MSG_DEBUG("...comb active=" << ef_active );
-      std::vector< Feature<TrigMuonEFInfoContainer> > efarr[2];
-      efarr[0] = combsEF[id_min_ef].get<TrigMuonEFInfoContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
-      ATH_MSG_DEBUG("...ef size=" << efarr[0].size() );
-      efarr[1] = combsEF[id_min_ef].get<TrigMuonEFInfoContainer>("eMuonEFInfo",TrigDefs::alsoDeactivateTEs);    
-      ATH_MSG_DEBUG("...ef size=" << efarr[1].size() );
+
+      std::vector< Feature<xAOD::MuonContainer> > efarr[2]; 
+      efarr[0] = fHLT.get<xAOD::MuonContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);
+      ATH_MSG_DEBUG("...MuonEFInfo size=" << efarr[0].size() );
+      efarr[1] = fHLT.get<xAOD::MuonContainer>("eMuonEFInfo",TrigDefs::alsoDeactivateTEs);
+      ATH_MSG_DEBUG("...eMuonEFInfo size=" << efarr[1].size() );
+
       for (int ief = 0; ief < 2; ief++) {
-	if( efarr[ief].size() == 1 ) {
-	  std::vector< Feature<TrigMuonEFInfoContainer> > ef = efarr[ief]; // does it work?
+	if( efarr[ief].size() >= 1 ) {
+	  std::vector< Feature<xAOD::MuonContainer> > ef = efarr[ief]; 
 	
-	  ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState());
+	  ATH_MSG_DEBUG("...xAOD EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState());
 
-	  const TrigMuonEFInfoContainer *ef_cont = ef[0].cptr();
-	  for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-	    TrigMuonEFInfoTrackContainer *ef_tc = ef_cont->at(iCont)->TrackContainer();
-	    for(TrigMuonEFInfoTrackContainer::const_iterator efItr=ef_tc->begin(); efItr!=ef_tc->end(); efItr++) {
-
-	      // YY 22.02.12 Commenting out Spectrometer/Extrapolated tracks
-	    
-	      TrigMuonEFInfoTrack *t = (*efItr);
-	      // author-dependent distribution monitor
-	      int mtype = t->MuonType();
-	      ATH_MSG_DEBUG("Chain/Muon type " << chainName << " " << mtype);
-	      TrigMuonEFCbTrack* ef_cb_trk = t->CombinedTrack();
-	      if( ef_cb_trk){
-		if( ef_cb_trk->iPt() == 0.){
-		  ef_cb_pt  = -1.;
-		  ef_cb_eta = 0.;
-		  ef_cb_phi = 0.;  // YY
-		  ef_cb_mtype = 0;
-		}else if( ef_cb_pt < fabs(ef_cb_trk->pt()) / CLHEP::GeV ){
-		  ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
-		  ef_cb_eta = ef_cb_trk->eta();
-		  ef_cb_phi = ef_cb_trk->phi(); // YY
-		  ef_cb_mtype = mtype;
+	  std::vector<Feature<xAOD::MuonContainer> >::const_iterator fIt = ef.begin();
+	  for ( ; fIt != ef.end() ; ++fIt) {
+	    const xAOD::MuonContainer* ef_cont = (*fIt);
+	    if (ef_cont) {
+	      ATH_MSG_DEBUG(" ef_contContainter size:"<<ef_cont->size());
+	      
+	      for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
+		const xAOD::TrackParticle *ef_cb_trk = ef_cont->at(iCont)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+		
+		if( ef_cb_trk){
+		  if( ef_cb_trk->pt() == 0.){
+		    ef_cb_pt  = -1.;
+		    ef_cb_eta = 0.;
+		    ef_cb_phi = 0.;  // YY
+		    ef_cb_mtype = 0;
+		  }else if( ef_cb_pt < fabs(ef_cb_trk->pt()) / CLHEP::GeV ){
+		    ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
+		    ef_cb_eta = ef_cb_trk->eta();
+		    ef_cb_phi = ef_cb_trk->phi(); // YY
+		    ef_cb_mtype = ef_cont->at(iCont)->type();
+		  }
+		  ATH_MSG_DEBUG("CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
+		  ATH_MSG_DEBUG("CB track found for last_step " << last_step);
+		}else{
+		  ATH_MSG_DEBUG("No CB track found for last_step " << last_step);
 		}
-		ATH_MSG_DEBUG("           CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
-		ATH_MSG_DEBUG("CB track found for last_step " << last_step);
-	      }else{
-		ATH_MSG_DEBUG("No CB track found for last_step " << last_step);
 	      }
 	    }
 	  }
@@ -4761,51 +3198,51 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
 	if (EF_lower_passed) {
 	  ATH_MSG_DEBUG("last step " << last_step );
 	  
-	  name     = chainName + monalg3 + "_Turn_On_Curve_Numerator";
+	  name     = HistchainName + monalg3 + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg3 + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_Numerator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  // Barrel/Endcap
-	  name     = chainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	  name     = HistchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_MSchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
 	  // 2D coverage hist
-	  ATH_MSG_DEBUG ( "Offline/EFCB pt" << rec_pt << ", " << ef_cb_pt );
-	  ATH_MSG_DEBUG ( "Offline/EFCB eta" << rec_eta << ", " << ef_cb_eta );
-	  ATH_MSG_DEBUG ( "Offline/EFCB phi" << rec_phi << ", " << ef_cb_phi );
-	  name     = chainName + monalg3 + "_etaphi_wrt_MuidCB";
+	  ATH_MSG_DEBUG( "Offline/EFCB pt" << rec_pt << ", " << ef_cb_pt ); 
+	  ATH_MSG_DEBUG( "Offline/EFCB eta" << rec_eta << ", " << ef_cb_eta );
+	  ATH_MSG_DEBUG( "Offline/EFCB phi" << rec_phi << ", " << ef_cb_phi );
+	  name     = HistchainName + monalg3 + "_etaphi_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
-	  name     = chainName + monalg3 + "_etaphi_coarse_wrt_MuidCB";
+	  name     = HistchainName + monalg3 + "_etaphi_coarse_wrt_MuidCB";
 	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
 
 	  if (ef_cb_mtype > 0 and ef_cb_mtype <= 3) {
 	    // MuonType-dependent distribution histos, inclusive
-	    name     = chainName + m_EFAlgName[ef_cb_mtype - 1] + "_pt_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_pt_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_pt);
-	    name     = chainName + m_EFAlgName[ef_cb_mtype - 1] + "_eta_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_eta_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_eta);
-	    name     = chainName + m_EFAlgName[ef_cb_mtype - 1] + "_phi_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_phi_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_phi);
-	    name     = chainName + m_EFAlgName[3] + "_pt_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[3] + "_pt_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_pt);
-	    name     = chainName + m_EFAlgName[3] + "_eta_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[3] + "_eta_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_eta);
-	    name     = chainName + m_EFAlgName[3] + "_phi_wrt_MuidCB";
+	    name     = HistchainName + m_EFAlgName[3] + "_phi_wrt_MuidCB";
 	    hist(name, histdirdist2d)->Fill(ef_cb_phi);
 	  } else {
 	    ATH_MSG_DEBUG("ef_cb_mtype " << ef_cb_mtype);
 	  }
 
 	  // stat info on MuonType
-	  name = chainName + "_EFMuonType_wrt_MuidCB";
+	  name = HistchainName + "_EFMuonType_wrt_MuidCB";
 	  hist(name, histdirdist2d)->Fill(float(ef_cb_mtype));
 	  
 	}
@@ -4816,7 +3253,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
           if(!CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_Numerator";
+	    name     = HistchainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
 	    hist(name, histdireffnumdenom)->Fill(rec_pt);
 	  }
@@ -4835,751 +3272,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, bo
   return retval;
 }
 
-
-StatusCode HLTMuonMonTool::fillChainDQA_MuGirl(const std::string& chainName)
-{
-  ATH_MSG_DEBUG("----- fillChainDQA_MuGirl: chain=" << chainName << " -----");
-
-  using namespace Trig;
-
-  // 19.07.10 enabling request for lower chain
-  // -> No requirement for MuGirl as a start.
-  //bool EF_lower_passed = getTDT()->isPassed( m_lowerChains[chainName] );
-  bool EF_lower_passed = true;
-
-  bool MS_lower_passed = false;
-  std::vector<std::string>::iterator it;
-  for (it = m_MSchain.begin(); it != m_MSchain.end(); it++) {
-    if (getTDT()->isPassed(*it)) {
-      MS_lower_passed = true;
-    }
-  }
-  
-  StatusCode retval = StatusCode::SUCCESS;
-  // YY: 25.05.10 to clear m_checked:
-  retval.getCode();
-
-  // For muGirl, but stays the same
-  FeatureContainer fL2 = getTDT()->features("L2_"+chainName,TrigDefs::alsoDeactivateTEs);
-  FeatureContainer fEF = getTDT()->features("EF_"+chainName,TrigDefs::alsoDeactivateTEs);
-
-  std::vector<Combination> combsL2 = fL2.getCombinations();
-  std::vector<Combination> combsEF = fEF.getCombinations();
-  ATH_MSG_DEBUG("nr combsL2=" << combsL2.size());
-  for(std::vector<Combination>::const_iterator it=combsL2.begin(); it!=combsL2.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-  ATH_MSG_DEBUG("nr combsEF=" << combsEF.size());
-  for(std::vector<Combination>::const_iterator it=combsEF.begin(); it!=combsEF.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-
-  const float DR_CUT = 0.2; // 2012
-
-  std::string name;
-  //  int thresh = m_thresh[chainName]; // not in use for MuGirl as it is combined only
-  
-  std::string bestr[2] = {"_Barrel", "_Endcap"};
-
-  // loop on each CB probe
-
-  for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
-
-    if (!m_RecMuonCB_isGoodCB[i_rec]) {
-      ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;
-    }
-
-    float rec_eta = m_RecMuonCB_eta[i_rec];
-    float rec_phi = m_RecMuonCB_phi[i_rec];
-    float rec_pt  = m_RecMuonCB_pt[i_rec];
-
-    float rec_ptcone40 = m_RecMuonCB_ptcone40[i_rec];
-    if ((rec_ptcone40*0.001) / rec_pt > 0.5) continue; // tomoe added 09/06/2011
-
-    ATH_MSG_DEBUG("++ i_rec=" << i_rec);
-    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
-    // if( rec_pt > 50. ) rec_pt = 50.;
-    // if( rec_pt > 100. ) rec_pt = 100.;
-
-    // index for Barrel/Endcap
-    int iBarrelCB = (fabs(rec_eta) < 1.05) ? 0 : 1;
-
-    if (EF_lower_passed) {
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
-      if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    
-      // Barrel/Endcap (YY 20.05.10) Denominator for "wrtOffline"
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
-      if (MS_lower_passed) {
-	name     = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-    { //no condition applied for independenet trigger
-      //independent trigger
-      for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-    
-	if( m_passed[trg] == false ) continue;
-	name     = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	if( !hist(name, histdireffnumdenom) ) ATH_MSG_ERROR("no such hist " << name );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-    // if (ES_lower_passed) {
-    for (int i = 0; i <= m_maxESbr; i++) {
-      if (m_passedES[i]) {
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-      
-    // L2 muFast and muComb(MuGirlL2)
-    float dr_min_l2 = 9999;
-    int   id_min_l2 = -1;
-    //    std::string monalg  = "_MuFast";
-    std::string monalg = "_MuGirlL2";
-    std::string wrtalg = "_L1";
-
-    for(int iL2=0; iL2<(int)combsL2.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        // name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
-        // ATH_MSG_DEBUG( name << " filling" );
-        // hist(name, histdireffnumdenom)->Fill(dr);
-        if( dr < dr_min_l2 ) {
-          dr_min_l2 = dr; 
-          id_min_l2 = iL2;
-        }
-      }
-    }
-    //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
-    if( dr_min_l2 < DR_CUT ) {
-      if (EF_lower_passed) {
-	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-
-	// Barrel/Endcap
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-      // if (ES_lower_passed) {
-      // ES trigger-aware
-      for (int i = 0; i <= m_maxESbr; i++) {
-	if (m_passedES[i]) {
-	  ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-      
-      // L2MuGirl = MuComb
-      bool mf_active = false;
-      std::vector< Feature<MuonFeature> > mf = combsL2[id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
-      if( mf.size() == 1 ) {
-        mf_active = mf[0].te()->getActiveState();
-        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
-      }
-
-      bool combMf_active = false;
-      if( mf_active ) {
-
-	std::vector< Feature<CombinedMuonFeature> > combMf = combsL2[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-	if( combMf.size() == 1 ) {
-	  combMf_active = combMf[0].te()->getActiveState();
-	  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
-	}
-	if( combMf_active ) {
-	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
-	  float combMf_eta = combMf[0].cptr()->eta();
-	  float combMf_phi = combMf[0].cptr()->phi();
-	  
-	  if (EF_lower_passed) {
-	    name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	    
-	    // Barrel/Endcap
-	    name     = chainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    if (MS_lower_passed) {
-	      name     = chainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	    
-	    // 2D coverage hist
-	    ATH_MSG_DEBUG ( "Offline/muGirlL2 pt" << rec_pt << ", " << combMf_pt );
-	    ATH_MSG_DEBUG ( "Offline/muGirlL2 eta" << rec_eta << ", " << combMf_eta );
-	    ATH_MSG_DEBUG ( "Offline/muGirlL2 phi" << rec_phi << ", " << combMf_phi );
-	    name     = chainName + monalg + "_etaphi_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
-	    name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
-	  }
-	  { //independent trigger
-	    for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	      if( m_passed[trg] == false ) continue;
-	      name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }
-	  // if (ES_lower_passed) {
-	  for (int i = 0; i <= m_maxESbr; i++) {
-	    if (m_passedES[i]) {
-	      name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }     
-	}
-      }
-    }
-    
-    // EF MuGirlEF
-    float dr_min_ef = 9999;
-    int   id_min_ef = -1;
-    int   last_step = -1;
-    monalg = "_MuGirlEF";
-    wrtalg = "_MuGirlL2";
-
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName);
-    const TrigConf::HLTChain* configChain = 0;
-    if (chainDetail) {
-      configChain = chainDetail->getConfigChain();
-      //lastStep = chainDetail->getChainStep();
-    }
-    std::vector<const HLT::TriggerElement*>::const_iterator p_te1;
-    std::vector<TrigConf::HLTTriggerElement*>::const_iterator p_te2;
-    std::vector<TrigConf::HLTSignature*>::const_iterator p_sig;
-    std::vector<TrigConf::HLTSignature*> dummylist;
-    std::vector<TrigConf::HLTSignature*>& siglist = dummylist;
-
-    if (configChain) siglist = configChain->signatureList();
-
-    for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-	//        name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
-	//        ATH_MSG_DEBUG( name << " filling" );
-        //        hist(name, histdireffnumdenom)->Fill(dr);
-        if( dr < dr_min_ef ) {
-          dr_min_ef = dr; 
-          id_min_ef = iEF;
-          last_step = 0;
-
-          //get last step 
-          //loop over TE
-          const std::vector<const HLT::TriggerElement*>& tes = combsEF[iEF].tes();
-          for (p_te1=tes.begin(); p_te1!=tes.end(); ++p_te1) {
-            bool s = false;
-    
-            //loop over signature list
-            for (p_sig=siglist.begin(); p_sig!=siglist.end(); ++p_sig) {
-              vector<TrigConf::HLTTriggerElement*>& tes2 = (*p_sig)->outputTEs();
-              for (p_te2=tes2.begin(); p_te2!=tes2.end(); ++p_te2) {
-                if ( (*p_te1)->getId() == 
-                     TrigConf::HLTUtils::string2hash( (*p_te2)->name(), "TE")) {
-                  s = true;
-                  break;
-                }
-              }
-              if (s) {
-                if ( (int) (*p_sig)->signature_counter() > last_step) 
-                  last_step = (int) (*p_sig)->signature_counter();
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-    //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
-    if( dr_min_ef < DR_CUT ) {
-      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
-      
-      if (EF_lower_passed) {
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-
-	// Barrel/Endcap
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-	if (MS_lower_passed) {
-	  name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-      // if (ES_lower_passed) {
-      // ES trigger-aware
-      for (int i = 0; i <= m_maxESbr; i++) {
-	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-    
-      bool ef_active       = combsEF[id_min_ef].active();
-      ATH_MSG_DEBUG("...comb active=" << ef_active );
-
-      if( ef_active ){
-	if (EF_lower_passed) {
-	  ATH_MSG_DEBUG("last step " << last_step );
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-
-	  // Barrel/Endcap
-	  name     = chainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  if (MS_lower_passed) {
-	    name     = chainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-
-	  /* // 2D coverage hist - this is going to be tough. We need to dig into containers.
-	  ATH_MSG_DEBUG ( "Offline/MuGirlEF pt" << rec_pt << ", " << ef_cb_pt );
-	  ATH_MSG_DEBUG ( "Offline/MuGirlEF eta" << rec_eta << ", " << ef_cb_eta );
-	  ATH_MSG_DEBUG ( "Offline/MuGirlEF phi" << rec_phi << ", " << ef_cb_phi );
-	  name     = chainName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
-	  name     = chainName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
-	  */ 
-	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-
-	// if (ES_lower_passed) {
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    ATH_MSG_DEBUG("last step " << last_step );
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-	
-      }else{
-        ATH_MSG_DEBUG("not active last step " << last_step );
-      }
-      
-    }
-    
-  } // end of CB loop
-
-  //
-  return retval;
-}
-
-StatusCode HLTMuonMonTool::fillChainDQA_MuIso(const std::string& chainName)
-{
-  ATH_MSG_DEBUG("----- fillChainDQA_MuIso: chain=" << chainName << " -----");
-
-  using namespace Trig;
-
-  // 19.07.10 enabling request for lower chain
-  //bool EF_lower_passed = getTDT()->isPassed( m_lowerChains[chainName] );
-  bool EF_lower_passed = true;
-
-  StatusCode retval = StatusCode::SUCCESS;
-  // YY: 25.05.10 to clear m_checked:
-  retval.getCode();
-
-  FeatureContainer fL2 = getTDT()->features("L2_"+chainName,TrigDefs::alsoDeactivateTEs);
-  FeatureContainer fEF = getTDT()->features("EF_"+chainName,TrigDefs::alsoDeactivateTEs);
-
-  std::vector<Combination> combsL2 = fL2.getCombinations();
-  std::vector<Combination> combsEF = fEF.getCombinations();
-  ATH_MSG_DEBUG("nr combsL2=" << combsL2.size());
-  for(std::vector<Combination>::const_iterator it=combsL2.begin(); it!=combsL2.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-  ATH_MSG_DEBUG("nr combsEF=" << combsEF.size());
-  for(std::vector<Combination>::const_iterator it=combsEF.begin(); it!=combsEF.end(); it++) {
-    ATH_MSG_DEBUG("..." << *it );
-  }
-
-  const float DR_CUT = 0.2; // 2012
-  std::string name;
-
-  // loop on each CB probe
-
-  for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
-
-    if (!m_RecMuonCB_isGoodCB[i_rec]) {
-      ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_Standard: not a good combined muon" << i_rec);
-      continue;
-    }
-
-    float rec_eta = m_RecMuonCB_eta[i_rec];
-    float rec_phi = m_RecMuonCB_phi[i_rec];
-    float rec_pt  = m_RecMuonCB_pt[i_rec];
-   
-    float rec_ptcone40 = m_RecMuonCB_ptcone40[i_rec];
-    float rec_etcone40 = m_RecMuonCB_etcone40[i_rec];
-    bool thre_cut = false;
-    if (rec_pt > m_thresh[chainName]) thre_cut = true;
-    if ((rec_ptcone40*0.001) / rec_pt > 0.2) continue; // tomoe added 09/06/2011
-
-    ATH_MSG_DEBUG("++ i_rec=" << i_rec);
-    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
-    // if( rec_pt > 50. ) rec_pt = 50.;
-
-    if (EF_lower_passed) {
-      name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-      if (thre_cut) {
-        name     = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_ptcone40";
-        ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(rec_ptcone40*0.001);
-
-        name     = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_etcone40";
-        ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(rec_etcone40*0.001);
-      }
-    } 
-    { //no condition applied for independenet trigger
-      //independent trigger
-      for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-    
-	if( m_passed[trg] == false ) continue;
-	name     = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	if( !hist(name, histdireffnumdenom) ) ATH_MSG_ERROR("no such hist " << name );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-    // ES trigger aware
-    for (int i = 0; i <= m_maxESbr; i++) {
-      if (m_passedES[i]) {
-	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-    }
-
-    //muIso 
-    float dr_min_l2 = 9999;
-    int   id_min_l2 = -1;
-    std::string monalg = "_MuIso";
-    std::string wrtalg = "_MuComb";
-
-    for(int iL2=0; iL2<(int)combsL2.size(); iL2++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsL2[iL2].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=L2_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        if( dr < dr_min_l2 ) {
-          dr_min_l2 = dr; 
-          id_min_l2 = iL2;
-        }
-      }
-    }
-    //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
-    if( dr_min_l2 < DR_CUT ) {
-      
-      // MuFast
-      bool mf_active = false;
-      std::vector< Feature<MuonFeature> > mf = combsL2[id_min_l2].get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);
-      if( mf.size() == 1 ) {
-        mf_active = mf[0].te()->getActiveState();
-        ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
-      }
-
-      // MuComb
-      bool combMf_active = false;
-      if( mf_active ) {
-        std::vector< Feature<CombinedMuonFeature> > combMf = combsL2[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-        if( combMf.size() == 1 ) {
-          combMf_active = combMf[0].te()->getActiveState();
-          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
-        }
-      }
-
-      // MuIso
-      bool isoMf_active = false;
-      if( combMf_active ) {
-	if (EF_lower_passed) {
-	  name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-	// ES trigger-aware
-	for (int i = 0; i <= m_maxESbr; i++) {
-	  if (m_passedES[i]) {
-	    name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-
-	//
-        std::vector< Feature<IsoMuonFeature> > isoMf = combsL2[id_min_l2].get<IsoMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-        if( isoMf.size() == 1 ) {
-          isoMf_active = isoMf[0].te()->getActiveState();
-          ATH_MSG_DEBUG("...isoMF: label/active=" << getTEName(*isoMf[0].te()) << " / " << isoMf_active);
-        }
-        if( isoMf_active ) {
-	  if (EF_lower_passed) {
-	    name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	    if (thre_cut) {
-	      name     = chainName + monalg + "_Efficiency_Curve_Numerator_vs_ptcone40";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_ptcone40*0.001);
-
-	      name     = chainName + monalg + "_Efficiency_Curve_Numerator_vs_etcone40";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_etcone40*0.001);
-	    }
-	  }
-	  { //independent trigger
-	    for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	      if( m_passed[trg] == false ) continue;
-	      name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }
-	  { // ESchains
-	    for (int i = 0; i <= m_maxESbr; i++) {
-	      if (m_passedES[i]) {
-		name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-		ATH_MSG_DEBUG( name << " filling" );
-		hist(name, histdireffnumdenom)->Fill(rec_pt);
-		}
-	    }
-	  }
-        }
-      }
-    }
-      
-    // EF TrigMuonEF CB
-    float dr_min_ef = 9999;
-    int   id_min_ef = -1;
-    int   last_step = -1;
-    monalg = "_MuonEFCB";
-    wrtalg = "_MuIso";
-
-    const HLT::Chain* chainDetail = m_ExpertMethods->getChainDetails("EF_" + chainName);
-    const TrigConf::HLTChain* configChain = 0;
-    if (chainDetail) {
-      configChain = chainDetail->getConfigChain();
-      //lastStep = chainDetail->getChainStep();
-    }
-    std::vector<const HLT::TriggerElement*>::const_iterator p_te1;
-    std::vector<TrigConf::HLTTriggerElement*>::const_iterator p_te2;
-    std::vector<TrigConf::HLTSignature*>::const_iterator p_sig;
-    std::vector<TrigConf::HLTSignature*> dummylist;
-    std::vector<TrigConf::HLTSignature*>& siglist = dummylist;
-
-    if (configChain) siglist = configChain->signatureList();
-
-    for(int iEF=0; iEF<(int)combsEF.size(); iEF++) {
-      std::vector< Feature<TrigRoiDescriptor> > initRois = combsEF[iEF].get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-      if( initRois.size() != 1 ) {
-        ATH_MSG_WARNING("nr TrigRoiDescriptor is not 1 for chain=EF_" << chainName);
-        retval = StatusCode::RECOVERABLE;
-      }
-      else {
-        float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
-        if( dr < dr_min_ef ) {
-          dr_min_ef = dr; 
-          id_min_ef = iEF;
-          last_step = 0;
-
-          //get last step 
-          //loop over TE
-          const std::vector<const HLT::TriggerElement*>& tes = combsEF[iEF].tes();
-          for (p_te1=tes.begin(); p_te1!=tes.end(); ++p_te1) {
-            bool s = false;
-    
-            //loop over signature list
-            for (p_sig=siglist.begin(); p_sig!=siglist.end(); ++p_sig) {
-              vector<TrigConf::HLTTriggerElement*>& tes2 = (*p_sig)->outputTEs();
-              for (p_te2=tes2.begin(); p_te2!=tes2.end(); ++p_te2) {
-                if ( (*p_te1)->getId() == 
-                     TrigConf::HLTUtils::string2hash( (*p_te2)->name(), "TE")) {
-                  s = true;
-                  break;
-                }
-              }
-              if (s) {
-                if ( (int) (*p_sig)->signature_counter() > last_step) 
-                  last_step = (int) (*p_sig)->signature_counter();
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-    //    if( dr_min_ef < DR_CUT && (EF_lower_passed || ES_lower_passed)) {
-    if( dr_min_ef < DR_CUT ) {
-      ATH_MSG_DEBUG("EF: dRmin=" << dr_min_ef);
-      
-      if (EF_lower_passed) {
-	name     = chainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
-      }
-      // ES trigger-aware
-      for (int i = 0; i <= m_maxESbr; i++) {
-	if (m_passedES[i]) {
-	  name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-	}
-      }
-    
-      //
-      float ef_cb_pt  = 0.;
-      float ef_cb_eta = 0.;
-
-
-      /*      bool isPassed_chain  = getTDT()->getChainGroup("EF_"+chainName)->isPassed(); */
-      bool ef_active       = combsEF[id_min_ef].active();
-      ATH_MSG_DEBUG("...comb active=" << ef_active );
-      std::vector< Feature<TrigMuonEFInfoContainer> > ef = combsEF[id_min_ef].get<TrigMuonEFInfoContainer>("MuonEFInfo",TrigDefs::alsoDeactivateTEs);    
-      ATH_MSG_DEBUG("...ef size=" << ef.size() );
-      if( ef.size() == 1 ) {
-
-        ATH_MSG_DEBUG("...EFInfo: label/active=" << getTEName(*ef[0].te()) << " / " << ef[0].te()->getActiveState());
-
-        const TrigMuonEFInfoContainer *ef_cont = ef[0].cptr();
-        for(int iCont=0; iCont<(int)ef_cont->size(); iCont++) {
-          TrigMuonEFInfoTrackContainer *ef_tc = ef_cont->at(iCont)->TrackContainer();
-          for(TrigMuonEFInfoTrackContainer::const_iterator efItr=ef_tc->begin(); efItr!=ef_tc->end(); efItr++) {
-
-            TrigMuonEFInfoTrack *t = (*efItr);
-            TrigMuonEFCbTrack* ef_cb_trk = t->CombinedTrack();
-            if( ef_cb_trk){
-              if( ef_cb_trk->iPt() == 0.){
-                ef_cb_pt  = -1.;
-                ef_cb_eta = 0.;
-              }else if( ef_cb_pt < fabs(ef_cb_trk->pt()) / CLHEP::GeV ){
-                ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
-                ef_cb_eta = ef_cb_trk->eta();
-              }
-              ATH_MSG_DEBUG("           CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
-              ATH_MSG_DEBUG("CB track found for last_step " << last_step);
-            }else{
-              ATH_MSG_DEBUG("No CB track found for last_step " << last_step);
-            }
-          }
-        }
-      }
-
-
-      if(ef_active){
-	if (EF_lower_passed) {
-	  ATH_MSG_DEBUG("last step " << last_step );
-	  name     = chainName + monalg + "_Turn_On_Curve_Numerator";
-	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
-
-	  if (thre_cut) {
-	    name     = chainName + monalg + "_Efficiency_Curve_Numerator_vs_ptcone40";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_ptcone40*0.001);
-
-	    name     = chainName + monalg + "_Efficiency_Curve_Numerator_vs_etcone40";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_etcone40*0.001);
-	  }
-	}
-	{ //independent trigger
-	  for(int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    if( m_passed[trg] == false ) continue;
-	    name     = chainName + monalg + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
-	  }
-	}
-	{
-	  // ES trigger-aware
-	  for (int i = 0; i <= m_maxESbr; i++) {
-	    if (m_passedES[i]) {
-	      ATH_MSG_DEBUG("last step " << last_step );
-	      name     = chainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
-	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
-	    }
-	  }
-	}
-
-      }else{
-        ATH_MSG_DEBUG("not active last step " << last_step );
-      }
-    }
-  } // end of CB loop
-
-  //
-  return retval;
-}
 
 
 StatusCode HLTMuonMonTool::procChainDQA()
@@ -5594,9 +3286,8 @@ StatusCode HLTMuonMonTool::procChainDQA()
   procTriggerOverlap();
 
   std::vector<std::string>::const_iterator it;
-  for(it=m_chainsMSonly.begin(); it != m_chainsMSonly.end() ; it++ ){
+  for(it=m_histChainMSonly.begin(); it != m_histChainMSonly.end() ; it++ ){
     StatusCode sc = procChainDQA_MSonly(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if(sc.isFailure()) {
       ATH_MSG_VERBOSE("procChainDQA_MSonly failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
@@ -5605,89 +3296,47 @@ StatusCode HLTMuonMonTool::procChainDQA()
 
   for(it=m_chainsStandard.begin(); it != m_chainsStandard.end() ; it++ ){
     StatusCode sc = procChainDQA_standard(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("procChainDQA_standard failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  for(it=m_chainsMG.begin(); it != m_chainsMG.end() ; it++ ){
-    StatusCode sc = procChainDQA_MuGirl(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("procChainDQA_MuGirl failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
 
-  for(it=m_chainsMI.begin(); it != m_chainsMI.end() ; it++ ){
-    StatusCode sc = procChainDQA_MuIso(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
-    if (sc.isFailure()) {
-      ATH_MSG_VERBOSE("procChainDQA_MuIso failed for chain=" << *it );
-      retval = StatusCode::RECOVERABLE;
-    }
-  }
-
-  // ATH_MSG_DEBUG("Point 1");
-
-  for(it=m_chainsGeneric.begin(); it != m_chainsGeneric.end() ; it++ ){
+  for(it=m_histChainGeneric.begin(); it != m_histChainGeneric.end() ; it++ ){
     StatusCode sc = procChainDQA_generic(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("procChainDQA_generic failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  // ATH_MSG_DEBUG("Point 2");
 
-  for(it=m_chainsEFiso.begin(); it != m_chainsEFiso.end() ; it++ ){
+  for(it=m_histChainEFiso.begin(); it != m_histChainEFiso.end() ; it++ ){
     StatusCode sc = procChainDQA_generic(*it);
-    //    if( sc != StatusCode::SUCCESS ) {
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE("procChainDQA_generic failed for chain=" << *it );
       retval = StatusCode::RECOVERABLE;
     }
   }
 
-  // ATH_MSG_DEBUG("Point 3");
   
   StatusCode sc = procChainDQA_HighPt();
-  //    if( sc != StatusCode::SUCCESS ) {
   if (sc.isFailure()) {
     ATH_MSG_VERBOSE("procChainDQA_HighPt failed");
     retval = StatusCode::RECOVERABLE;
   }
 
-  // ATH_MSG_DEBUG("Point 4");
 
   if(endOfRun){
     //triggers/event
-    for(std::vector<std::string>::const_iterator it=m_chains.begin(); it != m_chains.end() ; it++ ){
+    for(std::vector<std::string>::const_iterator it=m_chainsRate.begin(); it != m_chainsRate.end() ; it++ ){
       
       std::string name1     = "Number_Of_"+ (*it) + "_Passed_Events" ;
       std::string name2     = (*it) + "_Triggers_Per_Event" ;
      
       hist( name2, histdirrateratio ) -> Divide ( hist(name1, histdirrate), hist("Number_Of_Events", histdirrate));
       
-    }
-
-    // ATH_MSG_DEBUG("Point 5");
-
-    //triggers/event in independent trigger
-    for(int trg=0;trg < m_maxindep;trg++){
-      std::string name     = "Number_Of_Selected_"+ m_trigger[trg] + "_Triggered_Events";
-      
-      for(std::vector<std::string>::const_iterator it=m_chains2.begin(); it != m_chains2.end() ; it++ ){
-      
-        std::string name1     = "Number_Of_"+ (*it) + "_Passed_Events_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-        std::string name2     = (*it) + "_Triggers_Per_Event_In_Selected_" + m_trigger[trg] + "_Triggered_Events" ;
-     
-        hist( name2, histdirrateratio ) -> Divide ( hist(name1, histdirrate), hist(name, histdirrate));
-
-      }
     }
   }
 
@@ -5705,48 +3354,6 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
   if( endOfRun ){
 
     std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
-    // wrt SA Muon && independent trigger
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Denominator";
-
-      for( int alg = 0 ; alg < 3 ; alg++ ){
-        numer = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered_Numerator";
-        effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA_" + m_trigger[trg] + "_Triggered";
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-        // Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	// summary for jet trigger
-	if (3 == trg) { // jet
-	  double sumeff, sumerr;
-	  double sumn = hist(numer, histdireffnumdenom)->Integral(iMSL, iMSH);
-	  double sumd = hist(denom, histdireffnumdenom)->Integral(iMSL, iMSH);
-	  if (sumd == 0.) {
-	    sumeff = 0.;
-	    sumerr = 0.;
-	  } else {
-	    sumeff = (double)sumn / (double)sumd;
-	    sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	  }
-	  int iholx = -1;
-	  if (0 == alg) {
-	    iholx = iMuFast;
-	  } else if (2 == alg) {
-	    iholx = iEFSA;
-	  }
-
-	  if (iholx >= 0) {
-	    std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(2);
-	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-	  }
-	}
-
-	
-      }
-    }
 
     std::string wrtalg[3]={"_L1", "_MuFast", "_MuFast"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
@@ -6063,271 +3670,13 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
 
 
-        return StatusCode::SUCCESS;
 
     }
-        //*****************************************//
 
-
-    std::string monalg[5]={"_MuFast", "_MuComb", "_MuonEFMS", "_MuonEFSA", "_MuonEFCB"};
-    // wrt CB Muon && independent trigger
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-
-      for( int alg = 0 ; alg < 5 ; alg++ ){
-        numer = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-        effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered";
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-        // Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	// Summary indep jet
-	if (0 == alg || 1 == alg || 4 == alg) {
-	  if (3 == trg) { // jet
-	    double sumeff, sumerr;
-	    double sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    double sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    if (sumd == 0.) {
-	      sumeff = 0.;
-	      sumerr = 0.;
-	    } else {
-	      sumeff = (double)sumn / (double)sumd;
-	      sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	    }
-	    int iholx = -1;
-	    if (0 == alg) {
-	      iholx = iMuFast;
-	    } else if (1 == alg) {
-	      iholx = iMuComb;
-	    } else if (4 == alg) {
-	      iholx = iEFCB;
-	    }
-	    
-	    std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(2);
-	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-	  }
-	}
-	
-      }
-    }
-
-    std::string wrtalg[5]={"_L1", "_MuFast", "_MuComb", "_MuComb", "_MuComb"};
-    std::string bestr[2] = {"_Barrel", "_Endcap"};
-    
-    //wrt CB muon && Upstream trigger
-    for( int alg = 0 ; alg < 5 ;alg ++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
-      denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi  = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      
-      // Summary all
-      if (0 == alg || 1 == alg || 4 == alg) {
-	double sumeff, sumerr;
-	double sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	double sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	if (sumd == 0.) {
-	  sumeff = 0.;
-	  sumerr = 0.;
-	} else {
-	  sumeff = (double)sumn / (double)sumd;
-	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	}
-	int iholx = -1;
-	if (0 == alg) {
-	  iholx = iMuFast;
-	} else if (1 == alg) {
-	  iholx = iMuComb;
-	} else if (4 == alg) {
-	  iholx = iEFCB;
-	}
-	
-	std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(3);
-	ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-      }
-      
-      denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
-      denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      //  for ES ------------------------------------------------------------------------------------
-      for (int i = 0; i <= m_maxESbr; i++) {
-
-	if (0 == alg) {
-	  // L1 efficiency: new for 2011 HI runs and afterward
-	  // only division once since it is "the zero-th" algorithm
-	  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
-	  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	  // Need to implement barrel and endcap ...
-	  for (int be = 0; be < 2; be++) {
-	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
-	    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	    hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	    dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	    if (ESINDEP == i) {
-	      // integrating over and fill in a summary histogram
-	      double sumeff, sumerr;
-	      double sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH); // 30-50 GeV
-	      double sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	      if (sumd == 0.) {
-		sumeff = 0.;
-		sumerr = 0.;
-	      } else {
-		sumeff = (double)sumn / (double)sumd;
-		sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	      }
-	      
-	      std::string s = chainName + "_L1plateau_wrtOffline_by_ESindep";
-	      ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	      hist(s, histdireff)->SetBinContent(be+1, sumeff);
-	      hist(s, histdireff)->SetBinError(be+1, sumerr);
-	    }
-	  }	  
-	}
-	
-	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	// Summary ESid and ESindep
-	if (0 == alg || 1 == alg || 4 == alg) {
-	  if (ESID == i || ESINDEP == i) {
-	    double sumd, sumn, sumeff, sumerr;
-	    sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    if (sumd == 0.) {
-	      sumeff = 0.;
-	      sumerr = 0.;
-	    } else {
-	      sumeff = (double)sumn / (double)sumd;
-	      sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	    }
-	    int iholx = -1;
-	    if (0 == alg) {
-	      iholx = iMuFast;
-	    } else if (1 == alg) {
-	      iholx = iMuComb;
-	    } else if (4 == alg) {
-	      iholx = iEFCB;
-	    }
-	    
-	    std::string s = chainName + "_highpt_effsummary_by" + m_triggerES[i];
-	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-	  }
-	}
-	
-	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      }
-      //  for ES : END ------------------------------------------------------------------------------
-
-      // Barrel/Endcap
-      if (0 == alg || 1 == alg || 4 == alg) {
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi  = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-      }
-
-    }
-    for (int ialg = 0; ialg < 3; ialg++) {
-      denom = chainName + monalg[ialg] + "_etaphi_coarse_wrt_MuidCB";
-      numer = chainName + monalg[ialg] + "_etaphi_coarse1d_wrt_MuidCB";
-      // ATH_MSG_INFO("denom " << denom << " numer " << numer);
-      TH2F *h2d = (TH2F *)hist2(denom, histdirdist2d);
-      TH1F *h1d = (TH1F *)hist(numer, histdirdist2d);
-      refill_2d1d_coarse(h2d, h1d);
-    }
   } else if( endOfLumiBlock ){
   }
-
   return StatusCode::SUCCESS;
+        //*****************************************//
 }
 
 
@@ -6341,7 +3690,6 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 
   if( endOfRun ){
     std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
-    // wrt CB Muon && independent trigger - taken out
 
     std::string wrtalg[3]={"_L1", "_MuFast", "_MuComb"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
@@ -6532,307 +3880,6 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode HLTMuonMonTool::procChainDQA_MuGirl(const std::string& chainName )
-{
-  ATH_MSG_DEBUG("procChainDQA_MuGirl");
-
-  std::string denom;
-  std::string numer;
-  std::string effi;
-
-  std::string chainName_std = chainName;
-  int nnn = chainName_std.find("_MG");
-  if (0 == nnn) {
-    ATH_MSG_DEBUG("ChainName does not look like muGirl chain" << chainName);
-    return StatusCode::RECOVERABLE;
-  }
-  chainName_std.replace(nnn, 3, "");
-  ATH_MSG_DEBUG("hist summary chain name: " << chainName_std);
-
-  if( endOfRun ){
-    std::string monalg[2]={"_MuGirlL2", "_MuGirlEF"};
-    // wrt CB Muon && independent trigger
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-
-      for( int alg = 0 ; alg < 2 ; alg++ ){
-        numer = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-        effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered";
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-        // Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	if (1 == alg) {  // MuGirlEF
-	  if (3 == trg) { // jet
-	    double sumd, sumn, sumeff, sumerr;
-	    sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    if (sumd == 0.) {
-	      sumeff = 0.;
-	      sumerr = 0.;
-	    } else {
-	      sumeff = (double)sumn / (double)sumd;
-	      sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	    }
-	    int iholx = iMuGirl;
-	  
-	    std::string s = chainName_std + "_highpt_effsummary_by" + m_vectkwd.at(2);
-	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-	  }
-	}
-      }
-    }
-
-    std::string wrtalg[2]={"_L1", "_MuGirlL2"};
-    std::string bestr[2] = {"_Barrel", "_Endcap"};
-    
-    //wrt CB muon && Upstream trigger
-    for( int alg = 0 ; alg < 2 ;alg ++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
-      denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi  = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      if (1 == alg) {  // MuGirlEF
-	double sumd, sumn, sumeff, sumerr;
-	sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	if (sumd == 0.) {
-	  sumeff = 0.;
-	  sumerr = 0.;
-	} else {
-	  sumeff = (double)sumn / (double)sumd;
-	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	}
-	int iholx = iMuGirl;
-	
-	std::string s = chainName_std + "_highpt_effsummary_by" + m_vectkwd.at(3);
-	ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-      }
-
-      denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
-      denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      //  for ES ------------------------------------------------------------------------------------
-      for (int i = 0; i <= m_maxESbr; i++) {
-	
-	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	
-	// Summary ESid
-	if (1 == alg) {  // MuGirlEF
-	  if (ESID == i || ESINDEP == i) {
-	    double sumd, sumn, sumeff, sumerr;
-	    sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
-	    if (sumd == 0.) {
-	      sumeff = 0.;
-	      sumerr = 0.;
-	    } else {
-	      sumeff = (double)sumn / (double)sumd;
-	      sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	    }
-	    int iholx = iMuGirl;
-	    
-	    std::string s = chainName_std + "_highpt_effsummary_by" + m_triggerES[i];
-	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(iholx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(iholx+1, sumerr);
-	  }
-	}
-	
-	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-      }
-
-      //  for ES : END ------------------------------------------------------------------------------
-
-      // Barrel/Endcap
-      if (0 == alg || 1 == alg) {
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi  = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-
-	for (int be = 0; be < 2; be++) {
-	  denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	  effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	}
-      }
-
-    }
-    for (int ialg = 0; ialg < 3; ialg++) {
-      denom = chainName + monalg[ialg] + "_etaphi_coarse_wrt_MuidCB";
-      numer = chainName + monalg[ialg] + "_etaphi_coarse1d_wrt_MuidCB";
-      // ATH_MSG_INFO("denom " << denom << " numer " << numer);
-      TH2F *h2d = (TH2F *)hist2(denom, histdirdist2d);
-      TH1F *h1d = (TH1F *)hist(numer, histdirdist2d);
-      refill_2d1d_coarse(h2d, h1d);
-    }
-  } else if( endOfLumiBlock ){
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode HLTMuonMonTool::procChainDQA_MuIso(const std::string& chainName )
-{
-  ATH_MSG_DEBUG("procChainDQA_MuIso");
-
-  std::string denom;
-  std::string numer;
-  std::string effi;
-
-  if( endOfRun ){
-    std::string monalg[2]={"_MuIso", "_MuonEFCB"};
-    // wrt CB Muon && independent trigger
-    for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Denominator";
-
-      for( int alg = 0 ; alg < 2 ; alg++ ){
-        numer = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered_Numerator";
-        effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB_" + m_trigger[trg] + "_Triggered";
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-        
-        dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      }
-    }
-
-    std::string wrtalg[2]={"_MuComb", "_MuIso"};
-    
-    //wrt CB muon && Upstream trigger
-    for( int alg = 0 ; alg < 2 ;alg ++ ){
-      denom = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-      numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-      effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
-      denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-      effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      denom = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_ptcone40";
-      numer = chainName + monalg[alg] + "_Efficiency_Curve_Numerator_vs_ptcone40";
-      effi  = chainName + monalg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_ptcone40";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      denom = chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_etcone40";
-      numer = chainName + monalg[alg] + "_Efficiency_Curve_Numerator_vs_etcone40";
-      effi  = chainName + monalg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_etcone40";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-      //  for ES ------------------------------------------------------------------------------------
-      for (int i = 0; i <= m_maxESbr; i++) {
-	
-	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	
-	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-	
-      }
-      //  for ES : END ------------------------------------------------------------------------------
-      
-    }
-    
-  } else if( endOfLumiBlock ){
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 {
@@ -7025,7 +4072,7 @@ bool HLTMuonMonTool::checkOfflineCBdR()
 
 StatusCode HLTMuonMonTool::fillRecMuon()
 {
-  ATH_MSG_DEBUG("entering fillRecMuon");
+  ATH_MSG_DEBUG("entering fillRecMuon");  
 
   int nOFL=0;
   int nOFLMS=0;
@@ -7050,7 +4097,6 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   m_RecMuonCB_eloss.clear();   //for muIso
   m_RecMuonCB_etcone.clear();  //for muIso
   m_RecMuonCB_ptcone.clear();  //for muIso
-  m_RecMuonCB_nucone.clear();  //for muIso
   m_RecMuonCB_ptcone40.clear();  //for muIso tomoe added
   m_RecMuonCB_etcone40.clear();  //for muIso tomoe added
 
@@ -7066,12 +4112,12 @@ StatusCode HLTMuonMonTool::fillRecMuon()
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_VERBOSE("Container of muon particle with key " << muonKey << " found in Store Gate with size " << muonCont->size());
+  ATH_MSG_DEBUG("Container of muon particle with key " << muonKey << " found in Store Gate with size " << muonCont->size()); 
 
   // get vertex
   //std::string vxKey = "VxPrimaryCandidate";  // attention
-  std::string vxKey = "HLT_VxContainer_PrimVx";
-  const VxContainer* vxCont = 0;
+  std::string vxKey = "HLT_xAOD__VertexContainer_xPrimVx";  // May change to Offline Vx container key if possible
+  const xAOD::VertexContainer* vxCont = 0;
   sc = m_storeGate->retrieve(vxCont, vxKey);
   if (sc.isFailure()) {
     ATH_MSG_INFO("Container of muon particle with key " << vxKey << " not found in Store Gate");
@@ -7079,18 +4125,19 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   }
 
   // need to select vertex!!!
-  VxContainer::const_iterator p;
-  Trk::Vertex* vtx = 0;
+  xAOD::VertexContainer::const_iterator p;
+  xAOD::Vertex* vtx = 0;
   for (p = vxCont->begin(); p != vxCont->end(); ++p) {
     //reject dummy vertex.
     //note1: Trk::NoVtx(=0) means dummy vertex.
     //note2: There are mainly Trk::PriVtx(=1) but also there may be
     //       other type of vertex (like Trk::PileUp(=3)).
     //       Keep these vertex stored.
-    if ((*p)->vertexType() == Trk::NoVtx) {
+    if ((*p)->vertexType() == xAOD::VxType::NoVtx) {
       continue;
     } else {
-      vtx = &((*p)->recVertex());
+      //vtx = &((*p)->recVertex());
+      vtx = (*p);
       ATH_MSG_DEBUG("MuonHLTMon: vertex found" << (vtx->position()).x()
 		    << " " << (vtx->position()).y() << " " << (vtx->position()).z());
       break;
@@ -7117,7 +4164,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   int isCombined=0;
   for ( ; muonItr != muonItrE; ++muonItr) {
     nOFL++;
-    ATH_MSG_DEBUG("Muon : "
+    ATH_MSG_DEBUG("Muon : "  
                   << " eta = " << (*muonItr)->eta()
                   << " phi = " << (*muonItr)->phi()
                   << " pt  = " << fabs((*muonItr)->pt())/CLHEP::GeV
@@ -7129,35 +4176,37 @@ StatusCode HLTMuonMonTool::fillRecMuon()
     if( (*muonItr)->muonSpectrometerTrackParticleLink().isValid() ){
       ATH_MSG_DEBUG(" count MS muon");
       nOFLMS++;
-      const xAOD::TrackParticle* muon=0;
-      muon = *((*muonItr)->muonSpectrometerTrackParticleLink());
-      float pt = muon->pt() / CLHEP::GeV ;
+      const xAOD::TrackParticle* ms_trk=0;
+      ms_trk = *((*muonItr)->muonSpectrometerTrackParticleLink());
+      float pt = ms_trk->pt() / CLHEP::GeV ;
       if( pt > 4 )
 	      hist("Number_Of_Moore_MS_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
 	      hist("Number_Of_Moore_MS_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
     }
 
-/*  // attention
-    if((*muonItr)->muonExtrapolatedTrackParticle()){
+    if((*muonItr)->muonType()==xAOD::Muon::MuonStandAlone){
       ATH_MSG_DEBUG(" count SA muon");
       nOFLSA++;
-      float pt = (*muonItr)->muonExtrapolatedTrackParticle()->pt() / CLHEP::GeV ;
+      const xAOD::TrackParticle* ms_trk=0;
+      ms_trk = *((*muonItr)->muonSpectrometerTrackParticleLink());
+      float pt = ms_trk->pt() / CLHEP::GeV ;
       if( pt > 4 )
         hist("Number_Of_Moore_SA_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
         hist("Number_Of_Moore_SA_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
-      float eta = (*muonItr)->muonExtrapolatedTrackParticle()->eta();
-      float phi = (*muonItr)->muonExtrapolatedTrackParticle()->phi();
+      float eta = ms_trk->eta();
+      float phi = ms_trk->phi();
       float d0 = 0.;
       float z0 = 0.;
-      float charge = (*muonItr)->muonExtrapolatedTrackParticle()->charge();
-      if((*muonItr)->muonExtrapolatedTrackParticle()->measuredPerigee()) {
-        d0  = (*muonItr)->muonExtrapolatedTrackParticle()->measuredPerigee()->parameters()[Trk::d0];
-        z0  = (*muonItr)->muonExtrapolatedTrackParticle()->measuredPerigee()->parameters()[Trk::z0];
-      }else{
-        ATH_MSG_WARNING(" no measuredPerigee pointer for SA muon");
-      }
+      float charge = ms_trk->charge();
+      //const  Trk::Perigee ms_measPerigee = ms_trk->perigeeParameters();
+      //if(ms_measPerigee.size()!=NULL) {
+      //  d0  = ms_measPerigee.parameters()[Trk::d0];
+      //  z0  = ms_measPerigee.parameters()[Trk::z0];
+      //}else{
+      //  ATH_MSG_WARNING(" no measuredPerigee pointer for SA muon");
+      //}
 
       // YY: CB, isGoodCB;
       bool hasCB = ((*muonItr)->muonType()==xAOD::Muon::Combined);
@@ -7171,11 +4220,6 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	const  Trk::Perigee measPerigee = comb->perigeeParameters();
 	float d0comb = measPerigee.parameters()[Trk::d0];
 	float z0comb = measPerigee.parameters()[Trk::z0];
-	//float d0comb = comb->perigeeParameters()->parameters()[Trk::d0];
-	//float z0comb = comb->perigeeParameters()->parameters()[Trk::z0];
-	//const Trk::TrackSummary* trksummary = comb->trackSummary();
-	//int nPixcomb = trksummary->get(Trk::numberOfPixelHits);
-	//int nSCTcomb = trksummary->get(Trk::numberOfSCTHits);
 	float nPixcomb = 0; 
 	comb->summaryValue(nPixcomb, xAOD::numberOfPixelHits);
 	float nSCTcomb = 0;
@@ -7199,11 +4243,10 @@ StatusCode HLTMuonMonTool::fillRecMuon()
           m_RecMuonSA_charge.push_back(charge);
 	  m_RecMuonSA_hasCB.push_back(hasCB);
 	  m_RecMuonSA_isGoodCB.push_back(isGoodCB);
-	  ATH_MSG_DEBUG("HLTMuonMon: SA: isgood " << isGoodCB << " pt " << pt);
+	  ATH_MSG_DEBUG("HLTMuonMon: SA: isgood " << isGoodCB << " pt " << pt);  
         }
       }
     }
-	*/
 		  
     // if((*muonItr)->isLowPtReconstructedMuon()) nOFLLPT++;  // YY method deprecated
     if ((*muonItr)->muonType()==xAOD::Muon::SegmentTagged && (*muonItr)->inDetTrackParticleLink()!=0) nOFLLPT++;
@@ -7226,10 +4269,10 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       const  Trk::Perigee measPerigee = comb->perigeeParameters();
       float d0comb = measPerigee.parameters()[Trk::d0];
       float z0comb = measPerigee.parameters()[Trk::z0];
-      float nPixcomb = 0; 
+      uint8_t nPixcomb = 0; 
       comb->summaryValue(nPixcomb, xAOD::numberOfPixelHits);
-      float nSCTcomb = 0;
-      comb->summaryValue(nPixcomb, xAOD::numberOfSCTHits);
+      uint8_t nSCTcomb = 0;
+      comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
 
       if (vtx != 0) {
 	if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
@@ -7245,26 +4288,19 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	m_RecMuonCB_phi.push_back(phi);
 	m_RecMuonCB_charge.push_back(charge);
 	m_RecMuonCB_isGoodCB.push_back(isGoodCB);
-	ATH_MSG_DEBUG("HLTMuonMon: CB: isgood " << isGoodCB << " pt " << pt);
+	ATH_MSG_DEBUG("HLTMuonMon: CB: isgood " << isGoodCB << " pt " << pt); 
 	//m_RecMuonCB_eloss.push_back( (*muonItr)->energyLoss().first );
 	m_RecMuonCB_eloss.push_back( (*muonItr)->energyLossType() );
 	float m_ptcone20;
 	(*muonItr)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
-	m_RecMuonCB_etcone.push_back( m_ptcone20 );
-	float m_nucone20;
-	(*muonItr)->isolation(m_nucone20, xAOD::Iso::nucone20);
-	m_RecMuonCB_etcone.push_back( m_nucone20 );
+	m_RecMuonCB_ptcone.push_back( m_ptcone20 );
 	float m_etcone40;
 	(*muonItr)->isolation(m_etcone40, xAOD::Iso::etcone40);
-	m_RecMuonCB_etcone.push_back( m_etcone40 );
+	m_RecMuonCB_etcone40.push_back( m_etcone40 );
 	float m_ptcone40;
 	(*muonItr)->isolation(m_ptcone40, xAOD::Iso::ptcone40);
-	m_RecMuonCB_etcone.push_back( m_ptcone40 );
+	m_RecMuonCB_ptcone40.push_back( m_ptcone40 );
 
-	//m_RecMuonCB_ptcone.push_back( (*muonItr)->parameter(MuonParameters::ptcone20) );
-	//m_RecMuonCB_nucone.push_back( (*muonItr)->parameter(MuonParameters::nucone20) );
-	//m_RecMuonCB_etcone40.push_back( (*muonItr)->parameter(MuonParameters::etcone40) );  //tomoe added
-	//m_RecMuonCB_ptcone40.push_back( (*muonItr)->parameter(MuonParameters::ptcone40) );  //tomoe added
 	isCombined++;
       }
     }
@@ -7295,7 +4331,6 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 
   return StatusCode::SUCCESS;
 }
-// <<<<<<< .mine
 
 //---------------------------------------------------------------------------------------
 bool HLTMuonMonTool::isPassedES(std::vector<std::string>& vectES, std::string& ESChainName)
@@ -7390,9 +4425,6 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
       return retvect;
     }
   }
-  
-  /*  log() << MSG::INFO << "Found TrigOperationalInfoCollectionwith key=" << key 
-      << " and size=" << opi->size() << endreq; */
 
   std::vector<std::string> resvect;
   if (opi->begin() == opi->end()) {
@@ -7410,17 +4442,12 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
       const std::pair<std::vector<std::string>, std::vector<float> > infos = ptr->infos();
       resvect.insert(resvect.end(), infos.first.begin(), infos.first.end());
 
-      /* 
-	 for(unsigned i = 0; i < infos.first.size(); ++i) {
-	 ATH_MSG_WARNING("Chain with express stream bit: " << infos.first.at(i) << endreq);
-	 }
-      */ 
     }
   }
 
   return resvect;
 }
-// =======
+
 
 void
 HLTMuonMonTool::fillTriggerOverlap()
@@ -7459,7 +4486,6 @@ void
 HLTMuonMonTool::procTriggerOverlap()
 {
 
-  // ATH_MSG_INFO("procTriggerOverlap called");
 
 
   TH2* h_ol     = hist2( "Trigger_Overlap", histdir   );

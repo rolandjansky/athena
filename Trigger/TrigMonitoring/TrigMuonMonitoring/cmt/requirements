@@ -20,6 +20,11 @@ use EventInfo            EventInfo-*             Event
 use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 use AnalysisTriggerEvent AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use VxVertex             VxVertex-*              Tracking/TrkEvent
+use xAODTrigger			xAODTrigger-*            	Event/xAOD 
+use xAODMuon			xAODMuon-*            		Event/xAOD 
+use xAODTrigMuon			xAODTrigMuon-*            		Event/xAOD 
+use xAODPrimitives		xAODPrimitives-*            		Event/xAOD 
+use xAODTracking			xAODTracking-*            		Event/xAOD 
 end_private
 
 use AtlasROOT            AtlasROOT-*             External
@@ -31,10 +36,6 @@ use TrigInDetEvent        TrigInDetEvent-*        Trigger/TrigEvent
 use TrigAnalysisInterfaces   TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 
 use TrigHLTMonitoring           TrigHLTMonitoring-*             Trigger/TrigMonitoring
-use xAODTrigger			xAODTrigger-*            	Event/xAOD 
-use xAODMuon			xAODMuon-*            		Event/xAOD 
-use xAODPrimitives		xAODPrimitives-*            		Event/xAOD 
-use xAODTracking			xAODTracking-*            		Event/xAOD 
 #use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*    Reconstruction/MuonIdentification
 # use MuonCombinedSelectorTools   MuonCombinedSelectorTools-*     Reconstruction/MuonIdentification
 

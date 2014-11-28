@@ -344,24 +344,27 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   // Loop for each chain (Domae)
   // -----------------------------
   //For standard chains
-  for(unsigned int nchain=0;nchain<m_chainsL2Standard.size();nchain++) {
-	 Trig::FeatureContainer fc = getTDT()->features(m_chainsL2Standard[nchain]);
+  for(unsigned int nchain=0;nchain<m_chainsGeneric.size();nchain++) {
+	 Trig::FeatureContainer fc = getTDT()->features("HLT_" + m_chainsGeneric[nchain]);
 	 std::vector<Trig::Combination> combs = fc.getCombinations();
     std::vector<Trig::Combination>::const_iterator p_comb;
 	 for(p_comb=combs.begin();p_comb!=combs.end();++p_comb) {
-	   std::vector<Trig::Feature<MuonFeature> > fs_MF = 
-		  p_comb->get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);	
+	   std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
+		  (*p_comb).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 		std::vector<Trig::Feature<CombinedMuonFeature> > fs_CB = 
 		  p_comb->get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
       if(!fs_MF.size() || !fs_CB.size()) continue;
 		
 		//muComb Error
-		float mf_pt = fs_MF.at(0).cptr()->pt();
-		float mf_eta = fs_MF.at(0).cptr()->eta();
-		float mf_phi = fs_MF.at(0).cptr()->phi();
+                const xAOD::L2StandAloneMuonContainer* mf_cont = fs_MF[0];
+
+                float mf_pt  = mf_cont->at(0)->pt();
+                float mf_eta = mf_cont->at(0)->eta();
+                float mf_phi = mf_cont->at(0)->phi();
+
 		bool error = false;
-		if(fs_CB.size() == 1){
-		  if(fs_MF.at(0).cptr() != fs_CB.at(0).cptr()->muFastTrack()){
+		if(fs_CB.size() == 1 && fs_MF.size()>0){
+		  if(mf_pt != fs_CB.at(0).cptr()->muFastTrack()->pt()){
 		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
 		     error = true;
 		  }
@@ -394,43 +397,50 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       for(int i_offl=0;i_offl<(int)m_RecMuonCB_pt.size();i_offl++) {
         float eta_offl = m_RecMuonCB_eta[i_offl];
         float phi_offl = m_RecMuonCB_phi[i_offl];
-		  float mf_dR = calc_dR(mf_eta,mf_phi,eta_offl,phi_offl);
+	float mf_dR = calc_dR(mf_eta,mf_phi,eta_offl,phi_offl);
         float mc_dR = calc_dR(mc_eta,mc_phi,eta_offl,phi_offl);
-		  if(mf_dR < 0.5 && mf_success) off_mf_match = true;
-		  if(mc_dR < 0.05 && mc_success) off_mc_match = true;
-		}
-		if(mc_eta != 0 && mc_phi != 0) {  //tomoe added 10/06/2011
+	if(mf_dR < 0.5 && mf_success) off_mf_match = true;
+	if(mc_dR < 0.05 && mc_success) off_mc_match = true;
+      }
+      if(mc_eta != 0 && mc_phi != 0) {  //tomoe added 10/06/2011
 	  if(mc_success){
 		  hist2("muComb_eta_vs_phi_MCmatching_success", histdirmucomb)->Fill(mc_eta,mc_phi);
 	   }
-		if(mc_success && !off_mc_match){
+	  if(mc_success && !off_mc_match){
 		  hist2("muComb_eta_vs_phi_OFFmatching_failure", histdirmucomb)->Fill(mc_eta,mc_phi);
-	   }
-		} 
-		if(mf_eta != 0 && mf_phi != 0) {  //tomoe added 10/06/2011
-		if(!mc_success && off_mf_match){
-		  hist2("muFast_eta_vs_phi_MCmatching_failure", histdirmucomb)->Fill(mf_eta,mf_phi);
+	  }
       } 
-		} 
-	 }
+      if(mf_eta != 0 && mf_phi != 0) {  //tomoe added 10/06/2011
+	      if(!mc_success && off_mf_match){
+		      hist2("muFast_eta_vs_phi_MCmatching_failure", histdirmucomb)->Fill(mf_eta,mf_phi);
+	      } 
+      } 
+    }
   }
 
 
   //For passHLT chains
   for(unsigned int nchain=0;nchain<m_chainsL2passHLT.size();nchain++) {
-	 Trig::FeatureContainer fc = getTDT()->features(m_chainsL2passHLT[nchain]);
+	 Trig::FeatureContainer fc = getTDT()->features("HLT_" + m_chainsL2passHLT[nchain]);
 	 std::vector<Trig::Combination> combs = fc.getCombinations();
     std::vector<Trig::Combination>::const_iterator p_comb;
       
 	 for(p_comb=combs.begin();p_comb!=combs.end();++p_comb) {
-	   std::vector<Trig::Feature<MuonFeature> > fs_MF = 
-		  p_comb->get<MuonFeature>("",TrigDefs::alsoDeactivateTEs);	
+
+	   std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > fs_MF = 
+		(*p_comb).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 		std::vector<Trig::Feature<CombinedMuonFeature> > fs_CB = 
 		  p_comb->get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-	   
+
+                float mf_pt  = 0;
+		if( fs_MF.size()>0){
+			const xAOD::L2StandAloneMuonContainer* mf_cont = fs_MF[0];
+			mf_pt  = mf_cont->at(0)->pt();
+		}
+   
 		bool error = false;
-		if(fs_CB.size() == 1){
-		  if(fs_MF.at(0).cptr() != fs_CB.at(0).cptr()->muFastTrack()){
+		if(fs_CB.size() == 1 && fs_MF.size()>0){
+		  if(mf_pt != fs_CB.at(0).cptr()->muFastTrack()->pt()){
 		     hist("muComb_MF_error", histdirmucomb)->Fill(1);
 		     error = true;
 		  }

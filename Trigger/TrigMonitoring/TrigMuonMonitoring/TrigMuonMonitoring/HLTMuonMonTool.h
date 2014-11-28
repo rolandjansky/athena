@@ -99,8 +99,6 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode bookChainDQA();
   StatusCode bookChainDQA_MSonly(const std::string& chainName );
   StatusCode bookChainDQA_standard(const std::string& chainName );
-  StatusCode bookChainDQA_MuGirl(const std::string& chainName );
-  StatusCode bookChainDQA_MuIso(const std::string& chainName );
   StatusCode bookChainDQA_generic(const std::string& chainName, bool isdIsoOffline);
   StatusCode bookMuFastDQA();
   StatusCode bookMuCombDQA();
@@ -113,11 +111,9 @@ class HLTMuonMonTool : public IHLTMonTool
   //fill() for each HLT Algorithm
   StatusCode fillCommonDQA();
   StatusCode fillChainDQA();
-  StatusCode fillChainDQA_MSonly(const std::string& chainName);
+  StatusCode fillChainDQA_MSonly(const std::string& chainName, const std::string & histcName);
   StatusCode fillChainDQA_standard(const std::string& chainName);
-  StatusCode fillChainDQA_MuGirl(const std::string& chainName);
-  StatusCode fillChainDQA_MuIso(const std::string& chainName);
-  StatusCode fillChainDQA_generic(const std::string& chainName, bool isIsolOffline);
+  StatusCode fillChainDQA_generic(const std::string& chainName, const std::string & histcName,  bool isIsolOffline);
   StatusCode fillMuFastDQA();
   StatusCode fillMuCombDQA();
   StatusCode fillMuIsoDQA();
@@ -131,8 +127,6 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode procChainDQA();
   StatusCode procChainDQA_MSonly( const std::string& chainName );
   StatusCode procChainDQA_standard( const std::string& chainName );
-  StatusCode procChainDQA_MuGirl( const std::string& chainName );
-  StatusCode procChainDQA_MuIso( const std::string& chainName );
   StatusCode procChainDQA_generic( const std::string& chainName );
   StatusCode procChainDQA_HighPt();
   StatusCode procMuFastDQA();
@@ -179,19 +173,23 @@ class HLTMuonMonTool : public IHLTMonTool
   int m_event;
 
   //flags for trigger decision
-  std::vector<std::string> m_chains;
+  std::vector<std::string> m_chainsRate;
 
   std::vector<std::string> m_chainsMSonly;
   std::vector<std::string> m_chainsStandard;
   std::vector<std::string> m_chainsMG;  // added YY 2 Oct 2010
   std::vector<std::string> m_chainsMI;  // added tomoe
   std::vector<std::string> m_chainsGeneric;  // added YY 21 Feb 2012
+  std::vector<std::string> m_histChainGeneric;  // added YY 21 Feb 2012
+  std::vector<std::string> m_histChainEFiso;  // added YY 21 Feb 2012
+  std::vector<std::string> m_histChainMSonly;  // added YY 21 Feb 2012
   std::vector<std::string> m_chainsEFiso;  // added YY 21 Feb 2012
   std::vector<std::string> m_chainsL2Standard;
   std::vector<std::string> m_chainsL2passHLT;
   std::map<std::string, std::string> m_ztpmap; // added marx
   std::map<std::string, int> m_ztp_isomap; // added MO 28 March 2012
   std::map<std::string, std::string> m_ztp_l2map; // added MO 28 March 2012
+  std::map<std::string, std::string> m_ztp_l1map; // added MO 28 March 2012
   std::map<std::string, double> m_ztpptcut; // added marx
   std::map<std::string, std::string> m_lowerChains;
   std::map<std::string, int>  m_thresh;
@@ -267,7 +265,6 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<double> m_RecMuonCB_eloss;
   std::vector<double> m_RecMuonCB_etcone;
   std::vector<double> m_RecMuonCB_ptcone;
-  std::vector<double> m_RecMuonCB_nucone;
   std::vector<double> m_RecMuonCB_etcone40;
   std::vector<double> m_RecMuonCB_ptcone40;
   
@@ -379,6 +376,7 @@ class HLTMuonMonTool : public IHLTMonTool
   bool m_ztp_newrun;
   // isolation cut for ztp
   double m_ztp_ptcone20rel_cut;
+  double m_ztp_EF_ptcone20rel_cut;
 
   //2d histos parameter
 
