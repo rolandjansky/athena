@@ -18,13 +18,11 @@ use GaudiInterface		GaudiInterface-*	External
 use AtlasCLHEP			AtlasCLHEP-*		External
 
 use xAODCaloEvent       	xAODCaloEvent-*         Event/xAOD
-use xAODEgamma          	xAODEgamma-*            Event/xAOD
 
 use CaloGeoHelpers              CaloGeoHelpers-*        Calorimeter	
 use CaloUtils                   CaloUtils-*     	Calorimeter	
 use CaloEvent                   CaloEvent-*          	Calorimeter
 use CaloDetDescr                CaloDetDescr-*       	Calorimeter
-use CaloInterface               CaloInterface-*      	Calorimeter
 use CaloIdentifier              CaloIdentifier-*     	Calorimeter
 
 

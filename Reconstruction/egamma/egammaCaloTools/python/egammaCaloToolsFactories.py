@@ -29,14 +29,9 @@ CaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
                                           cells_name = egammaKeys.caloCellKey() )
 
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-CaloNoiseTool = ToolFactory(CaloNoiseToolDefault)
 
 
-egammaIso = ToolFactory(egammaCaloToolsConf.egammaIso,
-              CaloNoiseTool = CaloNoiseTool)
+egammaIso = ToolFactory(egammaCaloToolsConf.egammaIso)
 
 #---------------------------------------
 
-# Import the factories that are not defined here
-from egammaIsoPtCorrection import egammaIsoPtCorrection
