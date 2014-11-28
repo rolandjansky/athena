@@ -22,7 +22,7 @@ class TrigEFPhotonMuonAngleHypo_tau ( TrigEFElectronMuonAngleHypo ):
         self.AcceptAll=False
                 
         # require invariant mass within window
-        self.LowerMassCut=1.*GeV
+        self.LowerMassCut=0.*GeV
         self.UpperMassCut=2.5*GeV
         self.CommonVertex=False
         self.OppositeSign=False

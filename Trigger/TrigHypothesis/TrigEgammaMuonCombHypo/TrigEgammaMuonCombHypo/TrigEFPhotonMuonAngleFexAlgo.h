@@ -13,6 +13,7 @@
  **   Author: Pavel Jez <pavel.jez@cern.ch>, Olya Igonkina
  **
  **   Created:  Nov 21, 2011
+ **   Migrated to xAOD Nov 28 2014
  **
  **************************************************************************/
 
@@ -32,12 +33,6 @@
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 
-// trigger EDM
-#include "egammaEvent/egammaContainer.h"
-
-
-/* class StoreGateSvc; */
-/* class TriggerElement; */
 
 /**
  * \class TrigEFPhotonMuonAngleFexAlgo

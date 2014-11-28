@@ -13,6 +13,7 @@
  **   Author: Olya Igonkina,
  **
  **   Created:  Nov 24 , 2011
+ **   Migrated to xAOD Nov 28, 2014
  **
  **************************************************************************/ 
 
@@ -21,15 +22,18 @@
 
 #include "TrigEgammaMuonCombHypo/TrigEFPhotonMuonAngleFexAlgo.h"
 
+// Notice that the only function from ElectronMuonTopoInfo used is invariantMass(floats..)
+// so old TrigTopoEvent is just fine..
+
 #include "TrigTopoEvent/ElectronMuonTopoInfo.h"
 #include "TrigTopoEvent/ElectronMuonTopoInfoContainer.h"
 
+// trigger EDM
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/PhotonContainer.h"
 
-#include "TrigMuonEvent/TrigMuonEFInfo.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-#include "MuidEvent/MuidTrackContainer.h"
 
 #include <math.h>
 
@@ -77,9 +81,10 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   m_monDPhi= 3.14;
   m_monDR= 5;
 
+  bool debug =  msgLvl() <= MSG::DEBUG;
+
   // sanity checks
-  if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigEFPhotonMuonAngleFexAlgo" << endreq;
+  if ( debug )  msg() << MSG::DEBUG << "Running TrigEFPhotonMuonAngleFexAlgo" << endreq;
   
   if ( inputTE.size() != 2 ) {
     msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
@@ -91,7 +96,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   const HLT::TriggerElement* te2 = inputTE[1];
 
   // for debugging purpose look into RoIDescriptors
-  if ( msgLvl() <= MSG::DEBUG ){
+  if (debug ){
     const TrigRoiDescriptor* roiDescriptor1 = 0;
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
@@ -99,54 +104,60 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
 	msg() <<  MSG::DEBUG << "No RoIDescriptors for this Trigger Elements! " << endreq;
       }
     } else {
-      if ( msgLvl() <= MSG::DEBUG )
+      if ( debug )
 	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
     }
   }
   
   // retrieve TrigPhotonContainers from this TE
-  const egammaContainer* photonContainer1(0);
-  const MuidTrackContainer* MuEFTracksEF(0);
+  std::vector<const xAOD::PhotonContainer*> vectorEgammaContainers;  
 
   
-  if ( getFeature(te1, photonContainer1) != HLT::OK || photonContainer1 == 0)
+  if ( getFeatures(te1, vectorEgammaContainers) != HLT::OK )
     { 
-      if(getFeature(te2, photonContainer1) != HLT::OK  || photonContainer1 == 0) 
+      if(getFeatures(te2, vectorEgammaContainers) != HLT::OK )
         {
 	  
-	  if ( msgLvl() <= MSG::WARNING) {
-	    msg() << MSG::WARNING << "Failed to get EF egamma collection" << endreq;
-	  }
+	  if ( msgLvl() <= MSG::WARNING) 
+	    msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer collection" << endreq;	  
 	  return HLT::MISSING_FEATURE;
 	}
       else{
-	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq; 	
+	if ( debug )
+	  msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endreq; 	
       } 
       
     }else{
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq; 	
+    if ( debug )
+      msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endreq; 	
   }
- 
+
+  if (vectorEgammaContainers.size() < 1) {
+    msg() << MSG::DEBUG << " empty xAOD::PhotonContainer from the trigger element" << endreq;
+    return HLT::OK;
+  }  
+  const xAOD::PhotonContainer* photonContainer1 = vectorEgammaContainers.back();;
+
+
+  // Now get muons
+  const xAOD::MuonContainer* MuEFTracksEF(0);
+
   
-  if ( getFeature(te1, MuEFTracksEF, "MuonCombEF") != HLT::OK || MuEFTracksEF == 0)
+  if ( getFeature(te1, MuEFTracksEF) != HLT::OK || MuEFTracksEF == 0)
     { 
-      if(getFeature(te2, MuEFTracksEF, "MuonCombEF") != HLT::OK  || MuEFTracksEF == 0) 
-        {
-	  
-	  if ( msgLvl() <= MSG::WARNING) {
+      if(getFeature(te2, MuEFTracksEF) != HLT::OK  || MuEFTracksEF == 0) 
+        {	  
+	  if ( msgLvl() <= MSG::WARNING) 
 	    msg() << MSG::WARNING << "Failed to get EF MuidTrackContainer" << endreq;
-	  }
 	  return HLT::MISSING_FEATURE;
 	}
       else{
-	if ( msgLvl() <= MSG::DEBUG )
+	if ( debug )
 	  msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
       } 
       
     }else{
-    if ( msgLvl() <= MSG::DEBUG )
+    if ( debug )
       msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
   }	
   
@@ -155,8 +166,8 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
 
   // now we have bunch of photons and muons and we need to find out whether they can form topological combination
   // loop over all combinations
-  egammaContainer::const_iterator photon1;
-  MuidTrackContainer::const_iterator tr;
+  xAOD::PhotonContainer::const_iterator photon1;
+  xAOD::MuonContainer::const_iterator muon;
   if(msgLvl() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE << "Size of photon container: " << photonContainer1->size() << " size of muon container " << MuEFTracksEF->size() << endreq; 
    }
@@ -176,42 +187,34 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
 	msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endreq;
 	continue;	
       }
-    const CaloCluster* clus = (*photon1)->cluster();
+    const xAOD::CaloCluster* clus = (*photon1)->caloCluster();
     if(!clus) {
-      if(msgLvl() <= MSG::DEBUG)
+      if(debug)
 	msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endreq;
       continue;
     }
 
-    for ( tr = MuEFTracksEF->begin(); tr != MuEFTracksEF->end(); ++tr ) {
-      if((*tr)==0)
+    for (muon = MuEFTracksEF->begin(); muon != MuEFTracksEF->end(); ++muon ) {
+      mu_count++;
+      if((*muon)==0)
 	{
-	  msg() << MSG::WARNING << "Null pointer in MuidTrackContainer. Skipping." << endreq;
+	  msg() << MSG::WARNING << "Null pointer in MuonContainer. Skipping." << endreq;
 	  continue;	
 	}
-      if((*tr)->indetTrack()==0)
-	{
-	  if(msgLvl() <= MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "No indetTrack attached to muon. Skipping" << endreq; 
-	  }
-	  continue;
-	}
-      
+      const xAOD::TrackParticle* muon1 = (*muon)->trackParticle(xAOD::Muon::CombinedTrackParticle);
+      if (!muon1) {
+	if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endreq;
+	continue;
+      }
       if(msgLvl() <= MSG::VERBOSE) {
 	mu_count++;
 	msg() << MSG::VERBOSE << "Processing photon no. " << el_count << " and muon no. " << mu_count << endreq; 
       }
       
 
-      const Trk::Perigee* muon1 = (*tr)->indetTrack()->perigeeParameters();            
-
-      // selection is done here
-      //
-      // debug dump 
-      
       ElectronMuonTopoInfo* EgMuTopoInfo = new ElectronMuonTopoInfo();
       
-      float mu_phi =  muon1->parameters()[Trk::phi];
+      float mu_phi =  muon1->phi();
       
       if(msgLvl() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE << "New combination:" << endreq; 
@@ -221,7 +224,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
 	      << "; phi="   << clus->phi() 
 	      << endreq;	      
 	msg() << MSG::VERBOSE << "muon: addr=" << muon1 
-	      << "  et="    << muon1->pT()  
+	      << "  et="    << muon1->pt()  
 	      << "; eta="   << muon1->eta()                 
 	      << "; phi="   << mu_phi
 	      << "; charge=" << muon1->charge()
@@ -242,13 +245,13 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
       double dEta = geta - muon1->eta();
       m_monDR = sqrt(dEta*dEta + dPhi*dPhi);
       m_monMass = EgMuTopoInfo->invariantMass( fabs(gpt), geta, gphi, 0.,
-					       fabs(muon1->pT()),muon1->eta(), mu_phi,105.6);
+					       fabs(muon1->pt()),muon1->eta(), mu_phi,105.6);
       
       EgMuTopoInfo->SetDeltaPhi(m_monDPhi);
       EgMuTopoInfo->SetDeltaR(m_monDR); 		
       EgMuTopoInfo->SetInvMass(m_monMass);
     
-      if(msgLvl() <= MSG::DEBUG){
+      if(debug){
 	msg() << MSG::DEBUG << "Created following object: "
 	      << (*EgMuTopoInfo)
 	      << endreq;
@@ -260,7 +263,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   } // photons1 container loop end
 
   
-  HLT::ErrorCode hltStatus =  attachFeature(outputTE, egMuTopoColl, "EF_PhotonMuonTopoFEX"); 
+  HLT::ErrorCode hltStatus =  attachFeature(outputTE, egMuTopoColl, "HLT_PhotonMuonTopoFEX"); 
   if (hltStatus != HLT::OK ){
     msg() << MSG::WARNING << "Write of ElectronMuonTopoInfo container to  outputTE failed" << endreq;
     for(ElectronMuonTopoInfoContainer::iterator itr = egMuTopoColl->begin(); itr!=egMuTopoColl->end() ; ++itr)
@@ -268,7 +271,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
     delete egMuTopoColl;
     return hltStatus;
   }else{
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "successfully recorded EF_PhotonMuonTopoFEX" << endreq;
+    if(debug) msg() << MSG::DEBUG << "successfully recorded EF_PhotonMuonTopoFEX" << endreq;
   }
   
   return HLT::OK;    

@@ -105,7 +105,7 @@ HLT::ErrorCode TrigEFElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
   
   
   
-   if ( getFeature(outputTE, EgMuTopoInfoColl, m_inputLabel) != HLT::OK || EgMuTopoInfoColl==0) {
+   if ( getFeature(outputTE, EgMuTopoInfoColl) != HLT::OK || EgMuTopoInfoColl==0) {
     if ( msgLvl() <= MSG::WARNING) {
       msg() <<  MSG::WARNING << "No mass information found for this trigger element! " << endreq;
     }
