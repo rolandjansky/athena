@@ -27,7 +27,6 @@
 
 
 class MsgStream;
-class TrackParticleBaseCnv_p1;
 
 namespace Trk
 {
@@ -70,21 +69,11 @@ namespace Trk
                         const TrackParameters*                   definingParameter,
                         const FitQuality*                       fitQuality);
     
-    TrackParticleBase (const ElementLink<TrackCollection>& trackLink,
-                       const Trk::TrackParticleOrigin trkPrtOrigin, 
-                       const ElementLink<VxContainer>& vxCandidate,
-                       std::unique_ptr<Trk::TrackSummary> trkSummary,
-                       // passes ownership of elements.
-                       std::vector<const Trk::TrackParameters*>&&  parameters,
-                       std::unique_ptr<Trk::FitQuality> fitQuality,
-                       const TrackInfo& info);
-
     /** Copy constructor */
     TrackParticleBase(const TrackParticleBase &);
 
     /** Assignement operator */
     TrackParticleBase &operator= (const TrackParticleBase &);
-    TrackParticleBase &operator= (TrackParticleBase &&);
     
     /** Destructor */
     virtual ~TrackParticleBase();
@@ -157,8 +146,6 @@ namespace Trk
     const TrackInfo& info() const;	
     
   protected:
-    friend class ::TrackParticleBaseCnv_p1;
-
     /** ElementLink to the Track used to create this TrackParticleBase object
     Before writing to disk, should be made valid using setStorableObject(const VxContainer* vxColl).*/
     ElementLink< TrackCollection >              m_originalTrack; 
@@ -180,7 +167,7 @@ namespace Trk
     
     
    /**									   
-    * This is a class which stores the identity of where the track 	   
+    * This is aclass which stores the identity of where the track 	   
     * was created, fitted, which properties the reconstruction had								   
     */									   
      TrackInfo  m_trackInfo;	
