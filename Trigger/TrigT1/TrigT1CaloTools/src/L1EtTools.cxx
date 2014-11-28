@@ -174,12 +174,25 @@ void L1EtTools::moduleSums(const std::map<int, JetElement*>* jemap,
 
 //=====================Form JE Crate ET sums ====================
 
-void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates) {
+void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates, float etaMax) {
 
   crates->clear();
   // Loop over crates and create set of CrateEnergy objects
   for (int crate = 0; crate < 2; ++crate) {
-    crates->push_back( new CrateEnergy(crate, modules) );
+    crates->push_back( new CrateEnergy(crate, modules, etaMax) );
+  }
+  
+  return;
+}
+
+//=====================Form JE Crate ET sums ====================
+
+void L1EtTools::crateSums(const DataVector<EnergyCMXData>* modules, DataVector<CrateEnergy>* crates, float etaMax) {
+
+  crates->clear();
+  // Loop over crates and create set of CrateEnergy objects
+  for (int crate = 0; crate < 2; ++crate) {
+    crates->push_back( new CrateEnergy(crate, modules, etaMax) );
   }
   
   return;

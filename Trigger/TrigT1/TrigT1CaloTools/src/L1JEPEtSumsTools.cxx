@@ -344,6 +344,7 @@ void L1JEPEtSumsTools::etSumsToSystemEnergy(
                        MultiSliceSystemEnergy& systemVec, int& peak) const
 {
   peak = 0;
+  int restricted = 0;
   DataVector<CMMEtSums>::const_iterator pos  = etSums->begin();
   DataVector<CMMEtSums>::const_iterator pose = etSums->end();
   for (; pos != pose; ++pos) {
@@ -366,6 +367,7 @@ void L1JEPEtSumsTools::etSumsToSystemEnergy(
                                            etErr.get(DataError::Overflow),
                                            exErr.get(DataError::Overflow),
                                            eyErr.get(DataError::Overflow),
+                                           restricted,
 					   m_configSvc));
     }
   }
@@ -386,9 +388,9 @@ void L1JEPEtSumsTools::moduleEnergyToEtSums(
     DataVector<ModuleEnergy>::const_iterator pose = modules->end();
     for (; pos != pose; ++pos) {
       ModuleEnergy* energy = *pos;
-      unsigned int ex = energy->exCompressed();
-      unsigned int ey = energy->eyCompressed();
-      unsigned int et = energy->etCompressed();
+      unsigned int ex = energy->ex();
+      unsigned int ey = energy->ey();
+      unsigned int et = energy->et();
       if (ex == 0 && ey == 0 && et == 0) continue;
       int crate = energy->crate();
       int module = energy->module();

@@ -56,6 +56,84 @@ StatusCode L1JetElementTools::finalize()
 }
 
 /** Fill DataVector of JetElements from user-supplied vector of TriggerTowers */
+void L1JetElementTools::makeJetElements(const DataVector<xAOD::TriggerTower>* tts, DataVector<JetElement>* jetElements){
+
+  // Clear collection before filling
+  jetElements->clear();
+  
+  /** Need to get pointers to the TriggerTowers corresponding to each JetElement <br>
+      Store these in a vector for each JetElement                                <br>
+      Keep vectors of pointers in a std::map so can easily locate and add more   <br>
+      towers to correct element */
+  std::map< int, std::vector<xAOD::TriggerTower*> > Sums;
+
+  // Step over all TriggerTowers, and put into map
+  xAODTTCollection::const_iterator it ;
+  JetElementKey testKey(0.0, 0.0);
+
+  for ( it = tts->begin(); it != tts->end(); ++it ) {
+    // Find JetElementKey for this TriggerTower
+    int key = testKey.jeKey((*it)->phi(),(*it)->eta());
+    // Does the map already contain an entry for this JetElement?
+    std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt=Sums.find(key);
+    if (mapIt != Sums.end()) {
+      // Add pointer to this tower to the list
+      (mapIt->second).push_back((*it));
+    }
+    else {
+      // New entry in map.
+      std::vector<xAOD::TriggerTower*> vec;
+      vec.push_back((*it));
+      Sums.insert(std::map< int, std::vector<xAOD::TriggerTower*> >::value_type(key,vec));
+    }
+  } // end of loop over towers
+
+  /** Each entry in the "Sums" map should now be a std::vector of pointers <br>
+      to all of the towers in the collection making up each JetElement.    <br>
+      Now we need to go through them, add their energies, and form the     <br>
+      actual JetElement objects.                                           <br>
+      The complication is that the EM and Had vectors may not always have  <br>
+      the same lengths. In this case, we need to be careful how we combine <br>
+      them. */
+
+    for (std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt = Sums.begin();
+         mapIt != Sums.end(); ++mapIt) {
+
+      // Get first TT for this JE
+      std::vector<xAOD::TriggerTower*>::iterator it = (mapIt->second).begin();
+      if (it != (mapIt->second).end()) {
+        // Get JE eta, phi using first tower in vector (any tower in JE should do)
+        unsigned int key = testKey.jeKey((*it)->phi(),(*it)->eta());
+        double phi = testKey.phi();
+        double eta = testKey.eta();
+        // peak position in ET vectors
+        int peak = 0;
+        // create empty ET vectors with 1 element each
+        std::vector<int> emET(1);
+        std::vector<int> hadET(1);
+        // now loop through all TT present and add their ET values
+        // if tower saturated, saturate corresponding sum also
+        // Note that this version will only create 1 time sample per JE
+        for (; it != (mapIt->second).end(); ++it) {
+          int layer = (*it)->layer();
+          int et = (*it)->jepET();
+          if (layer == 0) emET[peak] += ( et < m_ttSat ? et : m_layerSat );
+          else           hadET[peak] += ( et < m_ttSat ? et : m_layerSat );
+        }        
+
+        /** Create JetElement */
+        std::vector<int> Dummy(emET.size());
+        JetElement* jetElement = new JetElement(phi, eta, emET, hadET, key, Dummy, Dummy, Dummy, peak);
+        jetElements->push_back(jetElement);
+
+      } // end of check that first element of vector present
+      
+    } // end of loop through Sums map
+     
+  return;
+}
+
+/** Fill DataVector of JetElements from user-supplied vector of TriggerTowers */
 void L1JetElementTools::makeJetElements(const DataVector<TriggerTower>* tts, DataVector<JetElement>* jetElements){
 
   // Clear collection before filling

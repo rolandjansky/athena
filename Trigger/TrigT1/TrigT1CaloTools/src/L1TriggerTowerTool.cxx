@@ -12,7 +12,8 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannel.h"
 #include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefs.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
-#include "LumiBlockComps/ILumiBlockMuTool.h"
+
+#include <cstdint>
 
 namespace LVL1 
 {
@@ -46,7 +47,6 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
 
   declareProperty( "BaselineCorrection", m_correctFir );
   declareProperty( "L1DynamicPedestalProvider", m_dynamicPedestalProvider );
-  declareProperty( "LumiBlockMuTool", m_lumiBlockMuTool );
 }
 
 //================ Destructor =================================================
@@ -138,14 +138,6 @@ StatusCode L1TriggerTowerTool::initialize()
           return StatusCode::FAILURE;
       } else {
           m_log << MSG::INFO << "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider << endreq; 
-      }
-
-      sc = m_lumiBlockMuTool.retrieve();
-      if (sc.isFailure()) { 
-          m_log << MSG::WARNING << "Failed to retrieve LumiBlockMuTool: " << m_lumiBlockMuTool << endreq; 
-          return StatusCode::FAILURE;
-      } else {
-          m_log << MSG::INFO << "Retrieved LumiBlockMuTool: " << m_lumiBlockMuTool << endreq; 
       }
   }
 
@@ -296,6 +288,7 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
   satBcid(digits, channelId, sat);
 
   output.clear();
+  output.reserve(sat.size()); // avoid frequent reallocations
 
   std::vector<int>::iterator itpeak = peak.begin();
   std::vector<int>::iterator itsat = sat.begin();
@@ -322,6 +315,7 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
   satBcid(digits, satLow, satHigh, satLevel, sat);
 
   output.clear();
+  output.reserve(sat.size()); // avoid frequent reallocations
 
   std::vector<int>::iterator itpeak = peak.begin();
   std::vector<int>::iterator itsat = sat.begin();
@@ -348,6 +342,7 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
   satBcid(digits, satLow, satHigh, satLevel, sat);
 
   result.clear();
+  result.reserve(sat.size()); // avoid frequent reallocations
   decision.clear();
 
   std::vector<int>::iterator itpeak = peak.begin();
@@ -389,6 +384,7 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const L1CaloCoolCha
       /** Ordering of coeffs in hw makes sense for hw implementation, but is
           not most natural for processing vectors in software. So reverse order
           here before using */
+      firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
       for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
 
     } else if (m_debug) m_log << MSG::VERBOSE << "::fir: No L1CaloPprConditions found" << endreq;
@@ -403,14 +399,14 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const L1CaloCoolCha
   fir(digits, firCoeffs, output);
 }
 
-/** This FIR simulation produces a vector of same length as digit vector,
-    with peak positions corresponding. However, first 2 and last 2 FIR
-    sums will be incomplete, and so are zeroed here */
-
+/** This FIR simulation produces a vector of same length as digit vector, with
+    peak positions corresponding. However, since there are less FIR coefficients
+    than digits the first and last few sums will be incomplete, and so are
+    zeroed here */
 void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, std::vector<int> &output)
-{   
+{
   output.clear();
-
+  output.reserve(digits.size()); // avoid frequent reallocations
   /** need to know first and last non-zero coefficient to know how which
       outputs can be calculated from supplied input digits */
   int firstFIR = -1;
@@ -438,9 +434,7 @@ void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<i
     m_log << MSG::VERBOSE << endreq;
   }
 }
-
 /** Peak finder BCID */
-
 void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, const L1CaloCoolChannelId& /*channelId*/, std::vector<int> &output)
 {
   unsigned int strategy = 0;
@@ -454,10 +448,10 @@ void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, const L1CaloCoolC
 }
 
 /** Peak finder BCID */
-
 void L1TriggerTowerTool::peakBcid(const std::vector<int> &fir, unsigned int strategy, std::vector<int> &output)
 {
   output.clear();
+  output.reserve(fir.size()); // avoid frequent reallocations
 
   for (unsigned int i = 0; i < fir.size(); i++) {
     int result = 0;
@@ -509,6 +503,7 @@ void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, const L1CaloCoo
 void L1TriggerTowerTool::satBcid(const std::vector<int> &digits, int satLow, int satHigh, int satLevel, std::vector<int> &output)
 {
   output.clear();
+  output.reserve(digits.size()); // avoid frequent reallocations
   
   bool enabled = true;
   int flag[2] = {0,0};
@@ -582,10 +577,7 @@ void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const
   } else if (m_debug) m_log << MSG::VERBOSE << "::bcidDecision: No Conditions Container retrieved" << endreq;
 
   // Reverse the order! (see elog 97082 9/06/10)
-  std::vector<unsigned int> mask;
-  mask.push_back(decision3);
-  mask.push_back(decision2);
-  mask.push_back(decision1);
+  std::vector<unsigned int> mask = { decision3, decision2, decision1 };
   if (m_debug) {
    m_log << MSG::VERBOSE << "::bcidDecision: masks: " << MSG::hex
          << decision3 << " " << decision2 << " " << decision1 << MSG::dec << endreq;
@@ -599,6 +591,7 @@ void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const
 void L1TriggerTowerTool::bcidDecision(const std::vector<int> &bcidResults, const std::vector<int> &range, const std::vector<unsigned int> &mask, std::vector<int> &output)
 {
   output.clear();
+  output.reserve(bcidResults.size()); // avoid frequent reallocations
 
   std::vector<int>::const_iterator itBcid  = bcidResults.begin();
   std::vector<int>::const_iterator itRange = range.begin();
@@ -651,6 +644,7 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
 void L1TriggerTowerTool::lut(const std::vector<int> &fir, int slope, int offset, int cut, int /*ped*/, int strategy, bool disabled, std::vector<int> &output)
 {
   output.clear();
+  output.reserve(fir.size()); // avoid frequent reallocations
   
   std::vector<int>::const_iterator it = fir.begin();
   for ( ; it != fir.end(); ++it) {
@@ -722,6 +716,7 @@ void L1TriggerTowerTool::etRange(const std::vector<int> &et, const L1CaloCoolCha
 void L1TriggerTowerTool::etRange(const std::vector<int> &et, int energyLow, int energyHigh, std::vector<int> &output)
 {
   output.clear();
+  output.reserve(et.size()); // avoid frequent reallocations
   for (std::vector<int>::const_iterator it = et.begin(); it != et.end(); ++it) {
     if ((*it) <= energyLow)       output.push_back(0);
     else if ((*it) <= energyHigh) output.push_back(1);
@@ -755,7 +750,8 @@ void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, const L1CaloCoolC
 void L1TriggerTowerTool::dropBits(const std::vector<int> &fir, unsigned int start, std::vector<int> &output)
 {
   output.clear();
-  
+  output.reserve(fir.size()); // avoid frequent reallocations
+
   /// mask to select appropriate 10 bit range
   unsigned int mask = (0x3ff<<start);
 
@@ -787,6 +783,7 @@ void L1TriggerTowerTool::firParams(const L1CaloCoolChannelId& channelId, std::ve
       /** Ordering of coeffs in hw makes sense for hw implementation, but is
           not most natural for processing vectors in software. So reverse order
           here before using */
+      firCoeffs.reserve(hwCoeffs.size()); // avoid frequent reallocations
       for (int i = hwCoeffs.size()-1; i >= 0; --i) firCoeffs.push_back(hwCoeffs[i]);
 
     } else if (m_debug) m_log << MSG::VERBOSE << "::firParams: No L1CaloPprConditions found" << endreq;
@@ -817,9 +814,7 @@ void L1TriggerTowerTool::bcidParams(const L1CaloCoolChannelId& channelId, int &e
     unsigned int decision1 = m_conditionsContainer->bcidDecision1();
     unsigned int decision2 = m_conditionsContainer->bcidDecision2();
     unsigned int decision3 = m_conditionsContainer->bcidDecision3();
-    decisionConditions.push_back(decision3); // reverse order
-    decisionConditions.push_back(decision2);
-    decisionConditions.push_back(decision1);
+    decisionConditions = { decision3, decision2, decision1 }; // reverse order
     peakFinderStrategy = m_conditionsContainer->peakFinderCond();
     decisionSource = m_conditionsContainer->decisionSource();
     const L1CaloPprConditions* settings = m_conditionsContainer->pprConditions(channelId.id());
@@ -1088,15 +1083,14 @@ double L1TriggerTowerTool::FCalTTeta(const L1CaloCoolChannelId& channelId)
 }
 
 /** Print a vector to debug */
-void L1TriggerTowerTool::printVec(const std::vector<int>& vec)
+template <typename T>
+void L1TriggerTowerTool::printVec(const std::vector<T>& vec)
 {
   if (m_debug) {
     if (vec.empty()) m_log << MSG::VERBOSE << " empty ";
     else {
-      std::vector<int>::const_iterator iter  = vec.begin();
-      std::vector<int>::const_iterator iterE = vec.end();
-      for (; iter != iterE; ++iter) {
-        m_log << MSG::VERBOSE << *iter << " ";
+      for(auto v : vec) {
+        m_log << MSG::VERBOSE << v << " ";
       }
     }
   }
@@ -1164,55 +1158,23 @@ std::pair<double, double> L1TriggerTowerTool::refValues(const L1CaloCoolChannelI
   return std::make_pair(reference, calib);
 }
 
-// Fir method with pedestal Correction
-void L1TriggerTowerTool::fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, int firPed, int iEta, int iBCID, int layer, std::vector<int> &output)
-{
-  output.clear();
+void L1TriggerTowerTool::pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer, int bcid, float mu, std::vector<int_least16_t>& correctionOut) {
+  unsigned nFIR = firInOut.size();
+  correctionOut.assign(nFIR, 0u);
 
-  /** need to know first and last non-zero coefficient to know how which
-      outputs can be calculated from supplied input digits */
-  int firstFIR = -1;
-  int lastFIR = 0;
-  for (unsigned int i = 0; i < firCoeffs.size(); ++i) {
-    if (firstFIR < 0 && firCoeffs[i] != 0) firstFIR = i;
-    if (firCoeffs[i] != 0) lastFIR = i;
+  if(!m_correctFir) return;
+
+  // apply the pedestal correction
+  for(unsigned i = 0; i != nFIR; ++i) {
+    correctionOut[i] = (m_dynamicPedestalProvider->dynamicPedestal(iElement, layer, firPed, bcid + i - nFIR/2, mu) - firPed);
+    firInOut[i] -= correctionOut[i];
+
+    if(firInOut[i] < 0) firInOut[i] = 0;
   }
-  if (firstFIR < 0) firstFIR = lastFIR + 1;
 
-  float mu = m_lumiBlockMuTool->actualInteractionsPerCrossing();
-  int bcid = iBCID;
-  if(m_debug) { m_log << MSG::VERBOSE << "::eventBCID = " << iBCID << endreq; }
-  for (int i = 0; i < (int)digits.size(); i++) {
-    int sum = 0;
-    /// Only calculate where enough informations
-    if (i >= 2-firstFIR && i < (int)digits.size()+2-lastFIR) {
-      for (int j = firstFIR; j <= lastFIR; ++j) {
-        sum += digits[i+j-2]*firCoeffs[j];
-      }
-    }
-    if (digits[i] == 0) sum = 0; /// If central ADC = 0 set FIRout = 0
-    if (sum < 0) sum = 0;
-
-    // Pedestal Correction
-    if (m_correctFir) {
-      int dynamicPed = m_dynamicPedestalProvider->dynamicPedestal(iEta, layer, firPed, bcid+i-3, mu);
-      if(m_debug) {
-        m_log << MSG::VERBOSE
-              << "::dynamicPedestal("
-              << iEta << ", " << bcid+i-3 << ", " << layer << ", " << mu
-              << "): " << dynamicPed << endreq;
-        m_log << MSG::VERBOSE
-              << "::pedestalCorrection: " << (dynamicPed - firPed) << endreq;
-      }
-      sum -= (dynamicPed - firPed);
-    }
-    if (sum < 0) sum = 0;
-    output.push_back(sum);
-    //std::cout << "IRH l1-tool sum " << sum << std::endl;
-  }
-  if (m_debug) {
-    m_log << MSG::VERBOSE << "::fir: output: ";
-    printVec(output);
+  if(m_debug) {
+    m_log << MSG::VERBOSE << "::pedestalCorrection(BCID=" << bcid << ", mu = " << mu << "): ";
+    printVec(correctionOut);
     m_log << MSG::VERBOSE << endreq;
   }
 }

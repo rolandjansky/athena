@@ -4,10 +4,23 @@
 
 #include "TrigT1CaloTools/L1DynamicPedestalProviderTxt.h"
 
-#include "PathResolver/PathResolver.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "TrigBunchCrossingTool/BunchCrossing.h"
 
+#include "PathResolver/PathResolver.h"
+#include "CxxUtils/make_unique.h"
+#include "GaudiKernel/IIncidentSvc.h"
+
+#include <algorithm>
 #include <cmath>
 #include <fstream>
+
+using CxxUtils::make_unique;
+
+namespace {
+using bcid_t = Trig::IBunchCrossingTool::bcid_type;
+static const bcid_t MAX_BCID = 3564;
+}
 
 namespace LVL1 
 {
@@ -17,20 +30,23 @@ L1DynamicPedestalProviderTxt::L1DynamicPedestalProviderTxt(const std::string& t,
                                                            const std::string& n,
                                                            const IInterface*  p)
   : AthAlgTool(t, n, p)
-  , m_emParameterizations(s_nEtaSlices, 0)
-  , m_hadParameterizations(s_nEtaSlices, 0)
+  , m_bunchCrossingTool("Trig::MCBunchCrossingTool/BunchCrossingTool")
 {
   declareInterface<IL1DynamicPedestalProvider>(this);
 
-  // The pattern of filled BCIDs. In future this should be retrieved from
-  // the "/Digitization/Parameters" container of the MetaDataStore. For now
-  // this is passed as an property.
-  declareProperty("BeamIntensityPattern", m_beamIntensityPattern);
+  m_emParameterizations[0].assign(s_nElements, nullptr);
+  m_emParameterizations[1].assign(s_nElements, nullptr);
+  m_hadParameterizations[0].assign(s_nElements, nullptr);
+  m_hadParameterizations[1].assign(s_nElements, nullptr);
+
+  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
 
   // Input files containing the parameters for the electromagnetic and hadronic
   // layer, respectively.
-  declareProperty("InputFileEM", m_inputFileEM);
-  declareProperty("InputFileHAD", m_inputFileHAD);
+  declareProperty("InputFileEM_ShortGap", m_inputFileEMShort);
+  declareProperty("InputFileHAD_ShortGap", m_inputFileHADShort);
+  declareProperty("InputFileEM_LongGap", m_inputFileEMLong);
+  declareProperty("InputFileHAD_LongGap", m_inputFileHADLong);
 }
 
 //================ Destructor =================================================
@@ -45,86 +61,131 @@ L1DynamicPedestalProviderTxt::~L1DynamicPedestalProviderTxt()
 //================ Initialisation =============================================
 StatusCode L1DynamicPedestalProviderTxt::initialize()
 {
+  CHECK( m_bunchCrossingTool.retrieve() );
+
   // parse parameterization for the electromagnetic layer
-  std::string fileNameEM = PathResolver::find_file(m_inputFileEM, "DATAPATH");
-  if(fileNameEM.empty()) {
-    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileEM);
+  std::string fileNameEMShort = PathResolver::find_file(m_inputFileEMShort, "DATAPATH");
+  if(fileNameEMShort.empty()) {
+    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileEMShort);
     return StatusCode::FAILURE;
   }
-  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameEM);
+  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameEMShort);
 
   try {
-    parseInputFile(fileNameEM, m_emParameterizations);
+    parseInputFile(fileNameEMShort, m_emParameterizations[0]);
   } catch (const ParseException& e) {
-    ATH_MSG_FATAL("Could not parse input file: " << fileNameEM << "; error: " << e.what());
+    ATH_MSG_FATAL("Could not parse input file: " << fileNameEMShort << "; error: " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  std::string fileNameEMLong = PathResolver::find_file(m_inputFileEMLong, "DATAPATH");
+  if(fileNameEMLong.empty()) {
+    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileEMLong);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameEMLong);
+
+  try {
+    parseInputFile(fileNameEMLong, m_emParameterizations[1]);
+  } catch (const ParseException& e) {
+    ATH_MSG_FATAL("Could not parse input file: " << fileNameEMLong << "; error: " << e.what());
     return StatusCode::FAILURE;
   }
 
   // parse parameterization for the hadronic layer
-  std::string fileNameHAD = PathResolver::find_file(m_inputFileHAD, "DATAPATH");
-  if(fileNameHAD.empty()) {
-    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileHAD);
+  std::string fileNameHADShort = PathResolver::find_file(m_inputFileHADShort, "DATAPATH");
+  if(fileNameHADShort.empty()) {
+    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileHADShort);
     return StatusCode::FAILURE;
   }
-  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameHAD);
+  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameHADShort);
 
   try {
-    parseInputFile(fileNameHAD, m_hadParameterizations);
+    parseInputFile(fileNameHADShort, m_hadParameterizations[0]);
   } catch (const ParseException& e) {
-    ATH_MSG_FATAL("Could not parse input file: " << fileNameHAD << "; error: " << e.what());
+    ATH_MSG_FATAL("Could not parse input file: " << fileNameHADShort << "; error: " << e.what());
     return StatusCode::FAILURE;
   }
 
-  fillDistanceFromHeadOfTrain();
+  std::string fileNameHADLong = PathResolver::find_file(m_inputFileHADLong, "DATAPATH");
+  if(fileNameHADLong.empty()) {
+    ATH_MSG_FATAL("Could not resolve input file: " << m_inputFileHADLong);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_VERBOSE("::initialize: resolved input file: " << fileNameHADLong);
+
+  try {
+    parseInputFile(fileNameHADLong, m_hadParameterizations[1]);
+  } catch (const ParseException& e) {
+    ATH_MSG_FATAL("Could not parse input file: " << fileNameHADLong << "; error: " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  CHECK(incSvc.retrieve());
+  incSvc->addListener(this, "BunchConfig");
 
   return StatusCode::SUCCESS;
 }
 
-// "Parse" the beam intensity pattern to get the bunch train structure.
-// Assumptions: -) 25ns bunch spacing
-//              -) Relative intensity per filled bunch: > 0.1
-// A more clever implementation exists at TrigBunchCrossingTool/MCBunchCrossingTool
-// but at the time of writing, the implementation doesn't work anymore.
-void L1DynamicPedestalProviderTxt::fillDistanceFromHeadOfTrain()
+void L1DynamicPedestalProviderTxt::handle(const Incident& inc)
 {
-  const int nBCID = m_beamIntensityPattern.size();
-  m_distanceFromHeadOfTrain.resize(nBCID, -10); // store -10 as default in each slot
+  if(inc.type() != "BunchConfig") return;
 
-  int trainHeadBCID = -1; // index of the current head of train
-  for(int iBCID = 0; iBCID < nBCID; ++iBCID) {
-    if(m_beamIntensityPattern[iBCID] < 0.1) {
-        // Unfilled bunch. Consider two special cases:
-        // i) the next bunch is filled -> store -1
-        // ii) the previous bunch was filled -> store train length + 1
-        // Otherwise store -10 as no dynamic pedestal value is available
-        if(iBCID + 1 < nBCID && m_beamIntensityPattern[iBCID+1] > 0.1) {
-          ATH_MSG_VERBOSE("Found unfilled bunch before train BCID=" << iBCID);
-          // case i)
-          m_distanceFromHeadOfTrain[iBCID] = -1;
-        } else if(iBCID > 0 && m_beamIntensityPattern[iBCID-1] > 0.1) {
-          ATH_MSG_VERBOSE("Found unfilled bunch after train BCID=" << iBCID);
-          m_distanceFromHeadOfTrain[iBCID] = iBCID - trainHeadBCID;
+  parseBeamIntensityPattern();
+}
 
-          // consistency check: the number of bunches per train should be the same as s_nBCIDPerTrain - 2
-          if(iBCID - trainHeadBCID != s_nBCIDPerTrain - 2) {
-            ATH_MSG_WARNING("Train length is not matching compile-time value"
-                            "of L1DynamicPedestalProviderTxt::s_nBCIDperTrain!");
-          }
+namespace {
 
-          // after last bunch of train, train ended
-          trainHeadBCID = -1;
-        }
-        // nothing to do here since -10 is the default
+// Display results of the parsing for debugging purposes
+template<typename Log, typename Tool, typename ResultVector>
+void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& result) {
+  for(bcid_t bcid = 0; bcid < MAX_BCID; bcid += 20) {
+    // print 20 items at once
+
+    log << MSG::VERBOSE << "Filled      ";
+    for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
+    log << endreq;
+
+    log << MSG::VERBOSE << "Distance    ";
+    for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log << std::setw(3) << result[j].second << " ";
+    log << endreq;
+
+    log << MSG::VERBOSE << "LongGap?    ";
+    for(bcid_t j = bcid; j != std::min(MAX_BCID, bcid+20); ++j) log <<  std::setw(3) << result[j].first << " ";
+    log << endreq;
+  }
+}
+
+} // namespace [anonymous]
+
+// "Parse" the beam intensity pattern to get the bunch train structure.
+void L1DynamicPedestalProviderTxt::parseBeamIntensityPattern()
+{
+  //  using bcid_t = Trig::IBunchCrossingTool::bcid_type;
+  auto BC = Trig::IBunchCrossingTool::BunchCrossings;
+
+  m_distanceFromHeadOfTrain.assign(MAX_BCID, std::make_pair(false, -10));
+
+  for(bcid_t bcid = 0; bcid != MAX_BCID; ++bcid) {
+    if(m_bunchCrossingTool->isFilled(bcid)) {
+      m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(bcid) > 250,
+                                                       m_bunchCrossingTool->distanceFromFront(bcid, BC));
     } else {
-      // Filled bunch.
-      if(trainHeadBCID < 0) {
-        // found new train
-        trainHeadBCID = iBCID; 
-        ATH_MSG_VERBOSE("Found new train BCID=" << iBCID);
+      if(m_bunchCrossingTool->gapAfterBunch(bcid, BC) == 1) {
+        bcid_t head = ((bcid + 1) == MAX_BCID ? 0 : bcid + 1); // wrap around
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(head) > 250,
+                                                         -1);
+      } else if(m_bunchCrossingTool->gapBeforeBunch(bcid, BC) == 1) {
+        bcid_t tail = bcid ? bcid - 1 : MAX_BCID - 1; // wrap around
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(m_bunchCrossingTool->gapBeforeTrain(tail) > 250,
+                                                         m_bunchCrossingTool->distanceFromFront(tail, BC) + 1);
+      } else {
+        m_distanceFromHeadOfTrain[bcid] = std::make_pair(false, -10);
       }
-      m_distanceFromHeadOfTrain[iBCID] = iBCID - trainHeadBCID;
     }
   }
+  if(msgLvl(MSG::VERBOSE)) printPatternParsingInfo(msg(), m_bunchCrossingTool, m_distanceFromHeadOfTrain);
 }
 
 //================ dynamic pedestal ==============================================
@@ -138,13 +199,14 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   // Only one bunch train is parameterized. Thus the BCID needs to be mapped
   // to the first train. The train starts at bcid = 1, thus the '+ 1'.
   // Bunches without available parameterization will have a value of -9 and a value of 0 is returned.
-  int bcid = m_distanceFromHeadOfTrain[iBCID] + 1;
+  auto bcidInfo = m_distanceFromHeadOfTrain[iBCID];
+  bool longGap = bcidInfo.first;
+  int bcid = bcidInfo.second + 1;
   
   if(bcid < 0) return pedestal;
 
   // iEta is given (despite its name) as element index
   int iEta = 33 - iElement - 1;
-  ATH_MSG_VERBOSE("iEta transformed to " << iEta << " from " << iElement);
 
   // The parameterization is done for the dynamic pedestal correction,
   // i.e. correction = (dynamic_pedestal - pedestal).
@@ -152,9 +214,9 @@ int L1DynamicPedestalProviderTxt::dynamicPedestal(int iElement, int layer, int p
   // pedestal is added to the value obtained from the parameterization.
   int correction = 0;
   if(layer == 0) {
-    correction = std::round((m_emParameterizations[iEta])->get(iEta, bcid, mu));
+    correction = std::round(m_emParameterizations[longGap][iElement]->get(iEta, bcid, mu));
   } else if(layer == 1) {
-    correction = std::round((m_hadParameterizations[iEta])->get(iEta, bcid, mu));
+    correction = std::round(m_hadParameterizations[longGap][iElement]->get(iEta, bcid, mu));
   } else {
     ATH_MSG_ERROR("Wrong layer index. Give 0 for Em, 1 for Had.");
   }
@@ -240,7 +302,7 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName, s
       SecondParameterization *param = new SecondParameterization(q0, q1, q2);
       m_allocatedParameterizations.push_back(param);
       for(unsigned iSlice = 0; iSlice < etaSlices.size(); ++iSlice) {
-        if(etaSlices[iSlice] < 0 || (unsigned)etaSlices[iSlice] >= s_nEtaSlices) {
+        if(etaSlices[iSlice] < 0 || (unsigned)etaSlices[iSlice] >= s_nElements) {
           throw ParseException("Eta out of range");
         }
         if(params[etaSlices[iSlice]] != 0) {
@@ -256,7 +318,7 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName, s
       std::vector<float> p; // holds the parameter values per BCID
       int etaSlice = parseLine<int, float>(line, p);
 
-      if(etaSlice < 0 || (unsigned)etaSlice >= s_nEtaSlices) {
+      if(etaSlice < 0 || (unsigned)etaSlice >= s_nElements) {
         throw ParseException("Eta out of range.");
       }
 
@@ -279,7 +341,7 @@ void L1DynamicPedestalProviderTxt::parseInputFile(const std::string& fileName, s
   }
 
   // one last consistency check: see if every slice has a parameterization
-  for(unsigned etaSlice = 0; etaSlice < s_nEtaSlices; ++etaSlice) {
+  for(unsigned etaSlice = 0; etaSlice < s_nElements; ++etaSlice) {
     if(!params[etaSlice]) {
       throw ParseException("Not all slices are configured.");
     }
@@ -297,7 +359,7 @@ float L1DynamicPedestalProviderTxt::SecondParameterization::get(int iEta,
                                                                 int iBCID, float mu) const
 {
   if(iBCID < 0 || (unsigned)iBCID >= s_nBCIDPerTrain) return 0.0f;
-  if(iEta < 0 || (unsigned)iEta >= s_nEtaSlices) return 0.0f;
+  if(iEta < 0 || (unsigned)iEta >= s_nElements) return 0.0f;
 
   // p is parameterized as a 2nd order polynomial of eta
   float p = m_q0[iBCID] + m_q1[iBCID] * iEta + m_q2[iBCID] * iEta * iEta;

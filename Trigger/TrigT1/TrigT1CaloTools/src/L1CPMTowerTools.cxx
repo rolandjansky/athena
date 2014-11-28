@@ -1,0 +1,237 @@
+///////////////////////////////////////////////////////////////////
+// L1CPMTowerTools.cxx, (c) Alan Watson (see header file for license)
+///////////////////////////////////////////////////////////////////
+
+#include "TrigT1CaloTools/L1CPMTowerTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
+#include "TrigT1CaloUtils/TriggerTowerKey.h"
+#include <vector>
+
+namespace LVL1 {
+
+/** Constructor */
+
+L1CPMTowerTools::L1CPMTowerTools(const std::string& t,
+			  const std::string& n,
+			  const IInterface*  p )
+  :
+  AlgTool(t,n,p),
+  m_log(msgSvc(),n)
+{
+  declareInterface<IL1CPMTowerTools>(this);
+
+}
+
+/** Destructor */
+
+L1CPMTowerTools::~L1CPMTowerTools()
+{       
+}
+
+
+/** Initialisation */
+
+StatusCode L1CPMTowerTools::initialize()
+{
+  m_log.setLevel(outputLevel());
+  
+  StatusCode sc = AlgTool::initialize();
+  if (sc.isFailure()) {
+    m_log << MSG::ERROR << "Problem initializing AlgTool " <<  endreq;
+    return sc;
+  }
+    
+  m_log << MSG::INFO << "Initialization completed" << endreq;
+  
+  return sc;
+}
+
+/** Finalisation */
+
+StatusCode L1CPMTowerTools::finalize()
+{
+  StatusCode sc = AlgTool::finalize();
+  return sc;
+}
+
+/** Fill DataVector of CPMTowers from user-supplied vector of TriggerTowers */
+void L1CPMTowerTools::makeCPMTowers(const DataVector<TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress){
+
+  // Clear collection before filling
+  cpmTowers->clear();
+  
+  /** Need to get pointers to the TriggerTowers corresponding to each CPMTower <br>
+      Store these in a vector for each CPMTower                                <br>
+      Keep vectors of pointers in a std::map so can easily locate and add more   <br>
+      towers to correct element
+      Right now this is redundant, but when TT becomes a single-layer object  <br>
+      we'll need this bit */
+  std::map< int, std::vector<TriggerTower*> > Sums;
+
+  // Step over all TriggerTowers, and put into map
+  TTCollection::const_iterator it ;
+  TriggerTowerKey testKey(0.0, 0.0);
+
+  for( it = triggerTowers->begin(); it != triggerTowers->end(); ++it ) {
+    // Check within CPM tower coverage
+    if (fabs((*it)->eta()) > 2.5) continue;
+    
+    // Find TriggerTowerKey for this TriggerTower
+    int key = testKey.ttKey((*it)->phi(),(*it)->eta());
+    // Does the map already contain an entry for this CPMTower?
+    std::map< int, std::vector<TriggerTower*> >::iterator mapIt=Sums.find(key);
+    if (mapIt != Sums.end()) {
+      // Add pointer to this tower to the list
+      (mapIt->second).push_back((*it));
+    }
+    else {
+      // New entry in map.
+      std::vector<TriggerTower*> vec;
+      vec.push_back((*it));
+      Sums.insert(std::map< int, std::vector<TriggerTower*> >::value_type(key,vec));
+    }
+  } // end of loop over towers
+
+  /** Each entry in the "Sums" map should now be a std::vector of pointers <br>
+      to all of the towers in the collection making up each CPMTower.    <br>
+      Now we need to go through them and add their energies to the appropriate <br>
+      layer to form the actual CPMTower objects.                           <br>
+      The complication is that the EM and Had vectors may not always have  <br>
+      the same lengths. In this case, we need to be careful how we combine <br>
+      them. */
+
+    for (std::map< int, std::vector<TriggerTower*> >::iterator mapIt = Sums.begin();
+         mapIt != Sums.end(); ++mapIt) {
+
+      // Get first TT for this CPMT
+      std::vector<TriggerTower*>::iterator it = (mapIt->second).begin();
+      if (it != (mapIt->second).end()) {
+        // Get CPMT eta, phi using first tower in vector (either tower in CPMT should do)
+        double phi = (*it)->phi();
+        double eta = (*it)->eta();
+        // create empty result vectors 
+        std::vector<int> emET;
+        std::vector<int> hadET;
+        std::vector<int> emError;
+        std::vector<int> hadError;
+        // Both should contain same number of samples, and same peak position
+        int Peak = 0;
+        // now loop through all TT present and add their ET values to CPMT
+        for (; it != (mapIt->second).end(); ++it) {
+          // Right now there should only be one TT. Add logic for dual layers later.
+          Peak = (*it)->emPeak();
+          emET = (*it)->emLUT();
+          hadET = (*it)->hadLUT();
+          emError.assign(emET.size(),(*it)->emError());
+          hadError.assign(hadET.size(),(*it)->hadError());
+        }
+        
+        /** May not have signals in both layers. If not, fill empty layer with null data.
+            TODO when have single-layer TriggerTower as input*/
+        
+        /** Now we can create the tower object */
+        if (!zeroSuppress || emET[Peak] > 0 || hadET[Peak] > 0) {
+          CPMTower* cpmTower = new CPMTower(phi, eta, emET, emError, hadET, hadError, Peak);
+          cpmTowers->push_back(cpmTower);
+        }
+      } // end of check that first element of vector present
+      
+    } // end of loop through Sums map
+     
+  return;
+}
+
+
+/** Fill DataVector of CPMTowers from user-supplied vector of TriggerTowers */
+void L1CPMTowerTools::makeCPMTowers(const DataVector<xAOD::TriggerTower>* triggerTowers, DataVector<CPMTower>* cpmTowers, bool zeroSuppress){
+
+  // Clear collection before filling
+  cpmTowers->clear();
+  
+  /** Need to get pointers to the TriggerTowers corresponding to each CPMTower <br>
+      Store these in a vector for each CPMTower                                <br>
+      Keep vectors of pointers in a std::map so can easily locate and add more   <br>
+      towers to correct element
+      Right now this is redundant, but when TT becomes a single-layer object  <br>
+      we'll need this bit */
+  std::map< int, std::vector<xAOD::TriggerTower*> > Sums;
+
+  // Step over all TriggerTowers, and put into map
+  xAODTTCollection::const_iterator it ;
+  TriggerTowerKey testKey(0.0, 0.0);
+
+  for( it = triggerTowers->begin(); it != triggerTowers->end(); ++it ) {
+    // Check within CPM tower coverage
+    if (fabs((*it)->eta()) > 2.5) continue;
+    
+    // Find TriggerTowerKey for this TriggerTower
+    int key = testKey.ttKey((*it)->phi(),(*it)->eta());
+    // Does the map already contain an entry for this CPMTower?
+    std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt=Sums.find(key);
+    if (mapIt != Sums.end()) {
+      // Add pointer to this tower to the list
+      (mapIt->second).push_back((*it));
+    }
+    else {
+      // New entry in map.
+      std::vector<xAOD::TriggerTower*> vec;
+      vec.push_back((*it));
+      Sums.insert(std::map< int, std::vector<xAOD::TriggerTower*> >::value_type(key,vec));
+    }
+  } // end of loop over towers
+
+  /** Each entry in the "Sums" map should now be a std::vector of pointers <br>
+      to all of the towers in the collection making up each CPMTower.    <br>
+      Now we need to go through them and add their energies to the appropriate <br>
+      layer to form the actual CPMTower objects.                           <br>
+      The complication is that the EM and Had vectors may not always have  <br>
+      the same lengths. In this case, we need to be careful how we combine <br>
+      them. */
+
+    for (std::map< int, std::vector<xAOD::TriggerTower*> >::iterator mapIt = Sums.begin();
+         mapIt != Sums.end(); ++mapIt) {
+
+      // create empty result vectors containing a single element
+      // That way if one layer is missing from TT collection we have a 0 entered already
+      std::vector<int> emET(1);
+      std::vector<int> hadET(1);
+      std::vector<int> emError(1);
+      std::vector<int> hadError(1);
+      // Both should contain same number of samples, and same peak position
+      int Peak = 0;
+      
+      // Get first TT for this CPMT
+      std::vector<xAOD::TriggerTower*>::iterator it = (mapIt->second).begin();
+      if (it != (mapIt->second).end()) {
+        // Get CPMT eta, phi using first tower in vector (either tower in CPMT should do)
+        double phi = (*it)->phi();
+        double eta = (*it)->eta();
+        // now loop through all TT present and add their ET values to CPMT
+        for (; it != (mapIt->second).end(); ++it) {
+          // Going to play safe and fill just one entry into each vector
+          // Avoids potential problem of different vector lengths in EM and Had
+          if ((*it)->layer() == 0) {
+            emET[Peak] = (*it)->cpET();
+            emError[Peak] = (*it)->error();
+          }
+          else {
+            hadET[Peak] = (*it)->cpET();
+            hadError[Peak] = (*it)->error();
+          }
+          
+        } // Loop through TT for this CPMT
+       
+        /** Now we can create the tower object */
+        if (!zeroSuppress || emET[Peak] > 0 || hadET[Peak] > 0) {
+          CPMTower* cpmTower = new CPMTower(phi, eta, emET, emError, hadET, hadError, Peak);
+          cpmTowers->push_back(cpmTower);
+        }
+        
+      } // Check vector has non-zero length
+    } // end of loop through Sums map
+    
+  return;
+}
+
+} // end of namespace

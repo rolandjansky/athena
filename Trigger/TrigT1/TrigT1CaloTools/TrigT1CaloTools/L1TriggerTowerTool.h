@@ -36,8 +36,6 @@
 
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 
-class ILumiBlockMuTool;
-
 namespace LVL1
 {
   class IL1DynamicPedestalProvider;
@@ -81,9 +79,10 @@ namespace LVL1
                            std::vector<int> &et, std::vector<int> &bcidResults,
                            std::vector<int> &bcidDecisions);
 
+      virtual void pedestalCorrection(std::vector<int>& firInOut, int firPed, int iElement, int layer,
+                                      int bcid, float mu, std::vector<int_least16_t>& correctionOut);
       virtual void fir(const std::vector<int> &digits, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, std::vector<int> &output);
-      virtual void fir(const std::vector<int> &digits, const std::vector<int> &firCoeffs, int firPed, int iEta, int iBCID, int layer, std::vector<int> &output);
       virtual void dropBits(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void dropBits(const std::vector<int> &fir, unsigned int first, std::vector<int> &output);
       virtual void etRange(const std::vector<int> &et, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
@@ -122,7 +121,8 @@ namespace LVL1
     private:
   
       /** Print a vector to debug */
-      void printVec(const std::vector<int>& vec);
+      template <typename T>
+      void printVec(const std::vector<T>& vec);
 
       /** Get extra noise cut with disabled channel */
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
@@ -160,9 +160,6 @@ namespace LVL1
       /// Baseline correction Tool
       bool m_correctFir;
       ToolHandle<LVL1::IL1DynamicPedestalProvider> m_dynamicPedestalProvider;
-
-      // LumiBlockMuTool
-      ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
       ///Parameters
       static const int s_saturationValue = 255;

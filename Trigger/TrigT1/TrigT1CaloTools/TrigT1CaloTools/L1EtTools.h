@@ -22,6 +22,7 @@
 #include "TrigT1CaloUtils/ModuleEnergy.h"
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
+#include "TrigT1CaloEvent/EnergyCMXData.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 namespace LVL1 
@@ -78,7 +79,9 @@ namespace LVL1
                               DataVector<ModuleEnergy>* modules, int slice = -1) ;
       /** Returns a vector of LVL1::CrateEnergy objects */
       virtual void crateSums(const DataVector<ModuleEnergy>* modules,
-                             DataVector<CrateEnergy>* crates) ;
+                             DataVector<CrateEnergy>* crates, float etaMax = 5.) ;
+      virtual void crateSums(const DataVector<EnergyCMXData>* modules,
+                             DataVector<CrateEnergy>* crates, float etaMax = 5.) ;
       /** Directly obtain LVL1::CrateEnergy objects */
       virtual void crateSums(const DataVector<JetElement>* jetelements,
                              DataVector<CrateEnergy>* crates, int slice = -1) ;

@@ -13,10 +13,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include <array>
+#include <cstdint> // for guaranteed size-types
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility> // std::pair
 #include <vector>
+
+namespace Trig { class IBunchCrossingTool; }
 
 namespace LVL1
 {
@@ -41,7 +46,9 @@ namespace LVL1
    * for large parts of the detector.
    * The parameters are read from a text file.
    */  
-  class L1DynamicPedestalProviderTxt : virtual public IL1DynamicPedestalProvider, public AthAlgTool
+  class L1DynamicPedestalProviderTxt : public AthAlgTool,
+                                       virtual public IL1DynamicPedestalProvider,
+                                       virtual public IIncidentListener
   {
   public:
     /** constructor */
@@ -52,6 +59,8 @@ namespace LVL1
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
+
+    void handle(const Incident&) override;
 
     /** retrieve the bcidCorrection value */
     virtual int dynamicPedestal(int iEta, int layer, int pedestal, int iBCID, float mu);
@@ -96,25 +105,29 @@ namespace LVL1
     // A lot of the eta-slices will share the same SecondParameterization object.
     // However, storing pointers to identical objects multiple times comes at the cost of ~ 2 * 50 * 4 Byte = 400 Bytes
     // of duplicated pointers in memory and saves expensive look-ups.
-    std::vector<IParameterization*> m_emParameterizations;
-    std::vector<IParameterization*> m_hadParameterizations;
+    // The first entry of the array is for trains after short gaps, the second for trains after long gaps.
+    std::array<std::vector<IParameterization*>, 2> m_emParameterizations;
+    std::array<std::vector<IParameterization*>, 2> m_hadParameterizations;
 
     // Since the above vectors store some pointer twice or more often, we need to keep track of the
     // objects that were genuinely allocated to avoid double-freeing memory
     std::vector<IParameterization*> m_allocatedParameterizations;
     
   private:
-    // the pattern of filled bcids from the file metadata
-    std::vector<float> m_beamIntensityPattern;
-    
-    std::string m_inputFileEM;
-    std::string m_inputFileHAD;
+    //// properties ////
+    ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
-    // maps the BCID (index) to the distance from the head of the train
-    std::vector<int> m_distanceFromHeadOfTrain;
+    std::string m_inputFileEMShort;
+    std::string m_inputFileHADShort;
+    std::string m_inputFileEMLong;
+    std::string m_inputFileHADLong;
+
+    // maps the BCID (index) to the distance from the head of the train (after short or long gap)
+    // bool: long-gap train (true); short-gap train (false)
+    std::vector<std::pair<bool, int16_t>> m_distanceFromHeadOfTrain;
 
     // fills the vector above with data from the BeamIntensityPattern
-    void fillDistanceFromHeadOfTrain();
+    void parseBeamIntensityPattern();
 
     // parses the input file
     void parseInputFile(const std::string& fileName, std::vector<IParameterization*>& params);
@@ -123,7 +136,7 @@ namespace LVL1
     template <typename T1, typename T2>
     T1 parseLine(const std::string& line, std::vector<T2>& output);
 
-    static const unsigned s_nEtaSlices = 66;
+    static const unsigned s_nElements = 33;
     static const unsigned s_nBCIDPerTrain = 74; // actually 72 filled BCIDs + one before and one after
   }; // end of class L1DynamicPedestalProviderTxt
 

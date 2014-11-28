@@ -31,9 +31,11 @@ apply_pattern component_library
 library TrigT1CaloTools *.cxx components/*.cxx
 
 private
+use CxxUtils CxxUtils-* Control
 use PathResolver PathResolver-* Tools
-use LumiBlockComps LumiBlockComps-* LumiBlock
 use TrigConfL1Data  TrigConfL1Data-* Trigger/TrigConfiguration
+use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+use TrigBunchCrossingTool TrigBunchCrossingTool-* Trigger/TrigAnalysis
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
