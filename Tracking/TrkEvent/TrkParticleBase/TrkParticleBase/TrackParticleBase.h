@@ -93,6 +93,8 @@ namespace Trk
     @return Returns a pointer to the primary vertex.*/
     const VxCandidate*                         reconstructedVertex() const;
 
+    const ElementLink<VxContainer>&            reconstructedVertexLink() const;
+
     /** Get the particle origin type.
     @return A TrackParticleOrigin enum (see TrkEventPrimitives/VertexType.h for definitions)
     */
@@ -196,7 +198,8 @@ namespace Trk
     } 
   }
 
-  inline const VxCandidate* TrackParticleBase::reconstructedVertex() const
+  inline
+  const VxCandidate* TrackParticleBase::reconstructedVertex() const
   {
     if (m_elVxCandidate.isValid()) {
       return *m_elVxCandidate;
@@ -204,6 +207,11 @@ namespace Trk
     {
       return 0;
     }
+  }
+
+  inline const ElementLink<VxContainer>& TrackParticleBase::reconstructedVertexLink() const
+  {
+    return m_elVxCandidate;
   }
 
  inline const ElementLink< TrackCollection >*  TrackParticleBase::trackElementLink() const

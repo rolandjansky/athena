@@ -28,6 +28,9 @@ namespace Trk
    
     /** return the track parameters of the track (to which the EL< TrackParticleBaseCollection > points) */
     const TrackParameters * parameters() const;
+
+    /** return the neutral parameters of the NeutralParticle) */
+    const NeutralParameters* neutralParameters() const {return NULL;};
     
     /** method to clone the LinkToTrack object */
     LinkToTrackParticleBase * clone() const ;
