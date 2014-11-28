@@ -49,6 +49,7 @@ namespace Athena {
    */
   void reportMessage(IMessageSvc* ims, const std::string &source, int type, const std::string &message);
   int outputLevel(IMessageSvc* ims, const std::string &source);
+  void setOutputLevel(IMessageSvc* ims, const std::string &source, int level);
   //@}
 
   /** @class IMessageSvcHolder

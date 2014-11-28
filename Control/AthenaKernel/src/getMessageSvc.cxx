@@ -38,6 +38,10 @@ int Athena::outputLevel(IMessageSvc* ims, const std::string &source) {
   else return MSG::INFO;
 }
 
+void Athena::setOutputLevel(IMessageSvc* ims, const std::string &source, int level) {
+  if(ims) ims->setOutputLevel(source, level);
+}
+
 IMessageSvcHolder::IMessageSvcHolder(IMessageSvc *ims) : m_ims(ims) {
   assert(m_ims);
   m_ims->addRef(); //take ownership till we go out of scope

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TPCnvFactory.h 613920 2014-08-28 18:32:54Z ssnyder $
+// $Id: TPCnvFactory.h 622053 2014-10-15 19:01:19Z ssnyder $
 
 /**
  * @file  AthenaKernel/TPCnvFactory.h
@@ -127,6 +127,11 @@ namespace Athena {
   _register_ ## _ ## serial
 
 
+#ifdef __COVERITY__
+// Disable this in coverity --- otherwise, coverity warns about
+// 'same value on both sides' in the if statements.
+#define _ATHTPCNV_PLUGINSVC_FACTORY_WITH_ID(type, id, trans_type, pers_type, is_last_version, is_ara_cnv, signature, serial) 
+#else
 #define _ATHTPCNV_PLUGINSVC_FACTORY_WITH_ID(type, id, trans_type, pers_type, is_last_version, is_ara_cnv, signature, serial) \
   namespace { \
     class _ATHTPCNV_FACTORY_REGISTER_CNAME(type, serial) { \
@@ -146,6 +151,7 @@ namespace Athena {
       } \
     } _ATHTPCNV_FACTORY_REGISTER_CNAME(s_ ## type, serial); \
   }
+#endif
 
 #define _ATHTPCNV_PLUGINSVC_FACTORY(type, trans_type, pers_type, is_last_version, is_ara_cnv, signature, serial) \
   _ATHTPCNV_PLUGINSVC_FACTORY_WITH_ID(type, ::Gaudi::PluginService::Details::demangle<type>(), trans_type, pers_type, is_last_version, is_ara_cnv, signature, serial)

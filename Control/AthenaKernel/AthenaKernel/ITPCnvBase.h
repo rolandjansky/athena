@@ -12,6 +12,7 @@
 #define ATHENAKERNEL_ITPCNVBASE_H 1
 
 #include "Gaudi/PluginService.h"
+#include "GAUDI_VERSION.h"
 #include <typeinfo>
 
 // Forward declaration
@@ -25,8 +26,11 @@ class ITPCnvBase
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+  typedef Gaudi::PluginService::Factory<ITPCnvBase*> Factory;
+#else  
   typedef Gaudi::PluginService::Factory0<ITPCnvBase*> Factory;
-
+#endif
   /// Destructor: 
   virtual ~ITPCnvBase(); 
 
