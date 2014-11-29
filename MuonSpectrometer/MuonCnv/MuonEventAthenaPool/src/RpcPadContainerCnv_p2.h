@@ -34,6 +34,7 @@ private:
 
     const IRPCcablingSvc *m_rpcCabling;
     bool m_isInitialized;
+    unsigned int m_padhashmax;
     unsigned int m_errorCount;
     unsigned int m_maxNumberOfErrors;
 };
