@@ -36,7 +36,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
     AlgTool( type, name, parent ) {
 
   /** Electron AOD Container Name */
-  declareProperty("Container",     m_containerName = "ElectronCollection");
+  declareProperty("Container",     m_containerNames);
 
   /** selection cut of Pt */
   declareProperty("EtCut",         m_cut_Et = 7.0*CLHEP::GeV);
@@ -126,170 +126,204 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 
   MsgStream mLog(msgSvc(), name());
   mLog << MSG::DEBUG << "in execute()" << endreq;
-
-  /** retrieve the AOD electron container */
-  const xAOD::ElectronContainer *electronContainer;
-  StatusCode sc = m_storeGate->retrieve( electronContainer, m_containerName);
-  if (sc.isFailure()) {
-    mLog << MSG::WARNING << "No AOD Electron container found in SG" << endreq;
-    return StatusCode::SUCCESS;
-  }
-  mLog << MSG::DEBUG << "AOD Electron container successfully retrieved" << endreq;
-
-  xAOD::ElectronContainer userContainer( SG::VIEW_ELEMENTS );
-  userContainer = *electronContainer;
-  AnalysisUtils::Sort::pT( &userContainer );// sorting missing
-
-  /** make the selection */
-  int i=0;
-  xAOD::ElectronContainer::const_iterator elecItr  = userContainer.begin();
-    //userContainer.begin();
-  xAOD::ElectronContainer::const_iterator elecItrE = userContainer.end();
-  //    userContainer.end();
  
-  for (; elecItr != elecItrE; ++elecItr) { 
+  std::vector<const xAOD::Electron*> unique_electrons;
 
-    bool value_loose=0;
+  for ( unsigned int cont=0; cont<m_containerNames.size(); ++cont ) {
     
-    if(!((*elecItr)->passSelection(value_loose,"Loose"))){
-      mLog << MSG::ERROR << "No loose selection exits" << endreq;
-      // ATH_MSG_ERROR( "No loose selection exits" );
+    /** retrieve the xAOD electron container */
+    const xAOD::ElectronContainer *electronContainer=0;
+    StatusCode sc = m_storeGate->retrieve( electronContainer, m_containerNames[cont]);
+    if (sc.isFailure()) {
+      mLog << MSG::WARNING << "No AOD Electron container found in SG" << endreq;
+      return StatusCode::SUCCESS;
     }
+    mLog << MSG::INFO << "AOD Electron container successfully retrieved = " << m_containerNames[cont] << endreq;
     
-    if(value_loose!=1)continue;
+    xAOD::ElectronContainer userContainer( SG::VIEW_ELEMENTS );
+    userContainer = *electronContainer;
+    AnalysisUtils::Sort::pT( &userContainer );
     
-    bool select = (*elecItr)->author(xAOD::EgammaParameters::AuthorElectron) && (*elecItr)->pt()>m_cut_Et;
+    /** make a preselection */
     
-    if ( select ) { 
+    xAOD::ElectronContainer::const_iterator elecItr  = userContainer.begin();
+    xAOD::ElectronContainer::const_iterator elecItrE = userContainer.end();
+    
+    
+    int k=0;
+    
+    for (; elecItr != elecItrE; ++elecItr) { 
       
-       if ( i<max ) {
-
-          /** pt */
-          if ( (*elecItr)->charge() < 0 ) eTagColl.insert( m_ptStr[i], (*elecItr)->pt() * (*elecItr)->charge() );
-          else eTagColl.insert( m_ptStr[i], (*elecItr)->pt() );
-
-          /** eta */
-          eTagColl.insert( m_etaStr[i], (*elecItr)->eta() );
-
-          /** phi */
-          eTagColl.insert( m_phiStr[i], (*elecItr)->phi() );
-
-	  /** tightness control variables*/
-	  bool val_medium=0;
-	  bool val_tight=0;
-	
-	  if(!((*elecItr)->passSelection(val_medium,"Medium"))){
-	    mLog << MSG::ERROR << "No medium selection exits" << endreq;	   
-	    // ATH_MSG_ERROR( "No medium selection exits" );
-	  }
-	 
-	  if(!((*elecItr)->passSelection(val_tight,"Tight"))){
-	    mLog << MSG::ERROR << "No tight selection exits" << endreq;
-	    // ATH_MSG_ERROR( "No tightse lection exits" );
-	  }
-	 
-	  
-	  
-	  
-
-          /** varying levels of tighness cuts */
-          unsigned int tightness = 0x0; 
-	  //    if ( val_loose == 1 )       tightness |= (1 << 0);//Loose
-          if ( value_loose == 1 )       tightness |= (1 << 0);//LoosePP
-	  // if ( val_medium == 1 )      tightness |= (1 << 2);//Medium
-          if ( val_medium == 1 )    tightness |= (1 << 1);//MediumPP
-          //if ( val_tight == 1 )       tightness |= (1 << 4);//Tight
-          if ( val_tight == 1 )     tightness |= (1 << 2);//TightPP
-          eTagColl.insert( m_tightStr[i], tightness ); 
-          
-          /** Forward electron */
-          bool isForward = ((*elecItr)->charge() == 0) ;
-          eTagColl.insert( m_fwdStr[i], isForward );
-
-          /**  Isolation electron */
-	  
-	  //          const EMShower* shower = (*elecItr)->detail<EMShower>("egDetailAOD");
-          unsigned int iso = 0x0;
-	  // if (shower) {
-            /* Calo Isolation in bits from 0 to 23 */ 
-            float elEt = (*elecItr)->pt();//et before
-	    float etcone=0;
-	    
-	    // bool iso_20_ptcorr = 
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::etcone20_ptcorrected))){
-	     mLog << MSG::INFO << "No isolation etcone20pt_corrected defined" << endreq;	  
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
-		}
-	    }
-	    //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone20);
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::topoetcone20))){
-	      mLog << MSG::INFO << "No isolation topoetcone20 defined" << endreq;	  
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
-		}
-	    }
-	    //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone40_corrected);
-	    if(!((*elecItr)->isolationValue(etcone,xAOD::Iso::topoetcone40_corrected))){	
-	      mLog << MSG::INFO << "No isolation topoetcone40_corrected defined" << endreq;	  
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
-		{
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = etcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-                    if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
-		    }
-		  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
-		}
-	    }
-            /* Track Isolation in bits from 16 to 31 */ 
-            float ptcone = 0;
-	    if(!((*elecItr)->isolationValue(ptcone,xAOD::Iso::ptcone20))){
-	      mLog << MSG::INFO << "No isolation ptcone20 defined" << endreq;	  
-	    }
-	    else{
-	      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
-		{ 
-		  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
-		    {
-		      float relIso = ptcone;
-		      if ( elEt != 0.0 ) relIso = relIso/elEt;
-		      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
-		    }
-		  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
-		}
-	    }
-	    eTagColl.insert( m_isoStr[i], iso );
-	    
-       }
-       
-       /** count the total number of accepted electrons */
-       i++;
+      mLog<< MSG::INFO<< "Electron " << k << ", pt = " << (*elecItr)->pt() << endreq;
+      k++;  
+      
+      bool value_loose=0;
+      
+      if(!((*elecItr)->passSelection(value_loose,"Loose"))){
+	mLog << MSG::INFO << "No loose selection exits" << endreq;
+	// ATH_MSG_ERROR( "No loose selection exits" );
+      }
+      
+      //    std::cout<<"Loose value = "<<value_loose<< std::endl;
+      
+      if(value_loose!=1)continue;
+      
+      bool select = (*elecItr)->pt()>m_cut_Et;
+      
+      if ( !select )continue; 
+      
+      //assign the electron to a general container
+      unique_electrons.push_back( *elecItr );
+      
     }
   }
   
-  /** insert the number of loose electrons */
+  if ( unique_electrons.size() > 1) {
+    mLog<< MSG::INFO << "sorting electron file" << endreq;
+    AnalysisUtils::Sort::pT( &unique_electrons );
+  }      
+  
+  int i=0;
+  std::vector<const xAOD::Electron*>::const_iterator EleItr  = unique_electrons.begin();
+  for (; EleItr != unique_electrons.end() && i < max; ++EleItr, ++i) {
+    
+    mLog<< MSG::INFO<< "Electron " << i << ", pt = " << (*EleItr)->pt() << endreq;
+   
+    /** pt */
+    if ( (*EleItr)->charge() < 0 ) eTagColl.insert( m_ptStr[i], (*EleItr)->pt() * (*EleItr)->charge() );
+    else eTagColl.insert( m_ptStr[i], (*EleItr)->pt() );
+    
+    /** eta */
+    eTagColl.insert( m_etaStr[i], (*EleItr)->eta() );
+    
+    /** phi */
+    eTagColl.insert( m_phiStr[i], (*EleItr)->phi() );
+    
+    /** tightness control variables*/
+    bool val_loose = 0;
+    bool val_medium=0;
+    bool val_tight=0;
+    
+    if(!((*EleItr)->passSelection(val_loose,"Loose"))){
+      mLog << MSG::INFO << "No loose selection exits" << endreq;
+      // ATH_MSG_ERROR( "No loose selection exits" );
+    }
+
+    if(!((*EleItr)->passSelection(val_medium,"Medium"))){
+      mLog << MSG::INFO << "No medium selection exits" << endreq;	   
+      // ATH_MSG_ERROR( "No medium selection exits" );
+    }
+    
+    if(!((*EleItr)->passSelection(val_tight,"Tight"))){
+      mLog << MSG::INFO << "No tight selection exits" << endreq;
+      // ATH_MSG_ERROR( "No tightse lection exits" );
+    }
+    
+    
+    
+    
+    
+    /** varying levels of tighness cuts */
+    unsigned int tightness = 0x0; 
+    //    if ( val_loose == 1 )       tightness |= (1 << 0);//Loose
+    if ( val_loose == 1 )       tightness |= (1 << 0);//LoosePP
+    // if ( val_medium == 1 )      tightness |= (1 << 2);//Medium
+    if ( val_medium == 1 )    tightness |= (1 << 2);//MediumPP
+    //if ( val_tight == 1 )       tightness |= (1 << 4);//Tight
+    if ( val_tight == 1 )     tightness |= (1 << 4);//TightPP
+    eTagColl.insert( m_tightStr[i], tightness ); 
+    
+    /** Forward electron */
+    bool isForward = ((*EleItr)->charge() == 0) ;
+    eTagColl.insert( m_fwdStr[i], isForward );
+    
+    /**  Isolation electron */
+    
+    //          const EMShower* shower = (*elecItr)->detail<EMShower>("egDetailAOD");
+    unsigned int iso = 0x0;
+    // if (shower) {
+    /* Calo Isolation in bits from 0 to 23 */ 
+    float elEt = (*EleItr)->pt();//et before
+    float etcone=0;
+    
+    // bool iso_20_ptcorr = 
+    if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::etcone20))){
+      mLog << MSG::INFO << "No isolation etcone20pt defined" << endreq;	  
+    }
+    else{
+      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+	{
+	  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+	    {
+	      float relIso = etcone;
+	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << j;
+	    }
+	  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
+	}
+    }
+    //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone20);
+    if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
+      mLog << MSG::INFO << "No isolation topoetcone20 defined" << endreq;	  
+    }
+    else{
+      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+	{
+	  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+	    {
+	      float relIso = etcone;
+	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (8+j);
+	    }
+	  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
+	}
+    }
+    if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){	
+      mLog << MSG::INFO << "No isolation topoetcone40 defined" << endreq;	  
+    }
+    else{
+      for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
+	{
+	  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+	    {
+	      float relIso = etcone;
+	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (16+j);
+	    }
+	  else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (16+j); // absolute isolation
+	}
+    }
+    /* Track Isolation in bits from 16 to 31 */ 
+    float ptcone = 0;
+    if(!((*EleItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
+      mLog << MSG::INFO << "No isolation ptcone20 defined" << endreq;	  
+    }
+    else{
+      for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
+	{ 
+	  if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
+	    {
+	      float relIso = ptcone;
+	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      if ( relIso < m_caloisocutvalues[j] ) iso |= 1 << (24+j);
+	    }
+	  else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
+	}
+    }
+    eTagColl.insert( m_isoStr[i], iso );
+	
+  }
+      
+      /** count the total number of accepted electrons */
+      //i++;
+      //removed the selection }
+      //      mLog << MSG::INFO << "Number of Loose Electron " << i << endreq;
+  // }
+    
+    /** insert the number of loose electrons */
+// mLog << MSG::INFO << "Number of Loose Electron for Container " << m_containerNames[cont] << " = " << i << endreq;  
+//}
+  mLog << MSG::INFO << "Number of Total Loose Electron " << i << endreq;
   eTagColl.insert(ElectronAttributeNames[ElectronID::NElectron], i);
   
   return StatusCode::SUCCESS;

@@ -50,7 +50,7 @@ protected:
 private:
 
   /** Properties */
-  std::string m_containerName;
+  std::vector<std::string> m_containerNames;
   double m_cut_Et;
   std::vector<float> m_caloisocutvalues;
   std::vector<float> m_trackisocutvalues;

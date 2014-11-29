@@ -195,11 +195,6 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
             /* Calo Isolation in bits from 0 to 23 */
             float elEt = (*photonItr)->pt();
             float etcone = 0;
-	    //if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::etcone20_ptcorrected))){
-	    //mLog << MSG::ERROR << "No isolation etcone20pt_corrected defined" << endreq;
-            //}
-
-	      //	    shower->parameter(EgammaParameters::etcone20_ptcorrected);
             for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
               {
                 if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
@@ -210,10 +205,6 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
                   }
                 else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << j; // absolute isolation
               }
-	    //            etcone = shower->parameter(egammaParameters::topoetcone20);
-            //if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::topoetcone20))){
-	    //mLog << MSG::ERROR << "No isolation topoetcone20 defined" << endreq;
-            //}
 
 	    for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
               {
@@ -225,10 +216,7 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
                   }
                 else if ( etcone < m_caloisocutvalues[j] ) iso |= 1 << (8+j); // absolute isolation
               }
-	    // etcone = shower->parameter(egammaParameters::topoetcone40_corrected);
-	    //if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::topoetcone40_corrected))){
-	    //mLog << MSG::ERROR << "No isolation topoetcone40_corrected defined" << endreq;
-            //}
+
             for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
               {
                 if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
@@ -242,10 +230,6 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
             
             /* Track Isolation in bits from 24 to 29 (note only 6 bits!)*/
             float ptcone =0;
-	    //shower->parameter(egammaParameters::ptcone20);
-	    //if(!((*photonItr)->isolationValue(ptcone,xAOD::Iso::ptcone20))){
-	    //mLog << MSG::ERROR << "No isolation ptcone20 defined" << endreq;
-            //}
 	    for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
               {
                 if ( m_caloisocutvalues[j] < 1.0 ) // relative isolation
@@ -257,11 +241,6 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
                 else if ( ptcone < m_trackisocutvalues[j] ) iso |= 1 << (24+j);
               }
 	    
-            /* HtoGamGam specific isolation in bits from 30 to 31 */
-            //etcone = shower->parameter(egammaParameters::topoetcone40_ptcorrected);
-	    //if(!((*photonItr)->isolationValue(etcone,xAOD::Iso::topoetcone40_corrected))){
-	    //mLog << MSG::ERROR << "No isolation topoetcone40_corrected defined" << endreq;
-            //}
 	    if (etcone < 4000. ) iso |= 1 << 30;
 	    if (etcone < 5000. ) iso |= 1 << 31;
 
