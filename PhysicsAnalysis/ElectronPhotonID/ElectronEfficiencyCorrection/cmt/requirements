@@ -9,9 +9,9 @@ use AtlasPolicy 	AtlasPolicy-*
 use AtlasPyROOT                 AtlasPyROOT-*           External
 use AtlasROOT                   AtlasROOT-*             External
 use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
+use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 use AsgTools                    AsgTools-*              Control/AthToolSupport
-use xAODBase                    xAODBase-*              Event/xAOD
-use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use xAODEgamma                  xAODEgamma-*            Event/xAOD
 
 ## put here your package dependencies...
 private
@@ -29,7 +29,7 @@ apply_tag       ROOTMathLibs
 
 
 ## declare the directories CMT should know about
-branches ElectronEfficiencyCorrection python share src Root data
+branches ElectronEfficiencyCorrection python src Root share data
 
 # Create a dual-use library
 apply_pattern dual_use_library files="../Root/*.cxx"
@@ -40,8 +40,8 @@ apply_pattern declare_python_modules files="*.py"
 ## install our job options files
 apply_pattern declare_joboptions files="*.py"
 
-## install the xml files (in the data/ directory)
-apply_pattern declare_xmls extras="-s=../data *.root"
+## install the ROOT files (in the data/ directory)
+apply_pattern declare_calib files="../data/*.root" 
 
 ## For reflex dictionary generation
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports

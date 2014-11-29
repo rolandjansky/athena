@@ -24,21 +24,20 @@
 
 //xAOD includes
 #include "AsgTools/AsgTool.h"
+#include "PATInterfaces/SystematicsTool.h"
+#include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 
-#include "xAODEgamma/Egamma.h"
-
-
-
+#include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
   : virtual public IAsgElectronEfficiencyCorrectionTool,
- // : virtual public IAthCalculatorTool,
- //   virtual public IUserDataCalcTool,
-            public asg::AsgTool
+    public CP::SystematicsTool,
+    public asg::AsgTool
 {
-  ASG_TOOL_CLASS2(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool, IAsgTool )
+  ASG_TOOL_CLASS(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
 
 public:
   /// Standard constructor
@@ -55,34 +54,47 @@ public:
   /// Gaudi Service Interface method implementations
   virtual StatusCode finalize();
 
-
   // Main methods from IUserDataCalcTool
 public:
   /// The main calculate method: the actual correction factors are determined here
   const Root::TResult& calculate( const xAOD::IParticle* part ) const;
-  const Root::TResult& calculate( const xAOD::Egamma* egam ) const;
+  const Root::TResult& calculate( const xAOD::Electron* egam ) const;
+  const Root::TResult& calculate( const xAOD::Electron& egam ) const{ 
+    return calculate(&egam); 
+  }
+
+  CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const;
+
+  CP::CorrectionCode applyEfficiencyScaleFactor(xAOD::Electron& inputObject) const;
 
 
-  // Public methods
-public:
-  /// Method to get the underlying ROOT tool
- // inline Root::TElectronEfficiencyCorrectionTool* getRootTool() {return m_rootTool;};
 
+  /// returns: whether this tool is affected by the given systematis
+  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const ;
+  
+  /// returns: the list of all systematics this tool can be affected by
+  virtual CP::SystematicSet affectingSystematics() const ;
+  
+  /// returns: the list of all systematics this tool recommends to use
+  virtual CP::SystematicSet recommendedSystematics() const ;
+
+  virtual CP::SystematicCode sysApplySystematicVariation ( const CP::SystematicSet& systConfig ) ;
+
+  CP::SystematicCode registerSystematics();
 
   /// Method to get the plain TResult
-  virtual const Root::TResult& getTResult() const
-  {
+  virtual const Root::TResult& getTResult() const{
     return m_rootTool->getTResult();
   }
 
   // Private member variables
 private:
+ 
   /// Pointer to the underlying ROOT based tool
   Root::TElectronEfficiencyCorrectionTool* m_rootTool;
 
   /// A dummy return TResult object
   Root::TResult m_resultDummy;
-
 
   // Properties
 
@@ -103,19 +115,6 @@ private:
 }; // End: class definition
 
 
-inline const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
-{
-  const xAOD::Egamma* egam = dynamic_cast<const xAOD::Egamma*>(part);
-  if ( egam )
-    {
-      return calculate(egam);
-    } 
-  else
-    {
-      ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
-      return m_resultDummy;
-    }
-}
 
 #endif
 

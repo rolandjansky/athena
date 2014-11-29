@@ -49,6 +49,8 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
   m_uncorrToyMCSystFast(0),
   m_nSys(0),
   m_nSysMax(0),
+  m_runNumBegin(0),
+  m_runNumEnd(0),
   m_resultPrefix("efficiencySF_"),
   m_resultName(""),
   m_position_eff(0),
@@ -62,8 +64,11 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
   sysObjsFull(0),
   sysObjsFast(0),
   m_runnumberIndex(-1),
+  m_last_runnumber(0),
+  m_last_dataType(PATCore::ParticleDataType::Data),
   m_last_hist(0),
   m_last_hists(0)
+
 {
 }
 
