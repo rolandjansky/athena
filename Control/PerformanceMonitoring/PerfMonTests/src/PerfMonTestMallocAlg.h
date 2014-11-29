@@ -17,14 +17,13 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 // Forward declaration
 
 namespace PerfMonTest {
 
-class MallocAlg : public Algorithm
+class MallocAlg : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -61,11 +60,10 @@ class MallocAlg : public Algorithm
   /////////////////////////////////////////////////////////////////// 
  private: 
 
+  virtual void isUsed(const void*) {}
+
   /// Default constructor: 
   MallocAlg();
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
 
   /// event number at which to actually do stuff
   unsigned int m_evtNbr;

@@ -19,16 +19,12 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// Forward declaration
-class StoreGateSvc;
 
 namespace PerfMonTest {
 
-class LeakyAlg : public Algorithm
+class LeakyAlg : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -67,13 +63,6 @@ class LeakyAlg : public Algorithm
 
   /// Default constructor: 
   LeakyAlg();
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to StoreGate
-  StoreGateSvc_t m_storeGate;
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
 
   /// Property to setup the size of the leak
   int m_leakSize;

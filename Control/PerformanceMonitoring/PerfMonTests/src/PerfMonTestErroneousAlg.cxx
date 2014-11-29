@@ -31,15 +31,14 @@ using namespace PerfMonTest;
 ////////////////
 ErroneousAlg::ErroneousAlg( const std::string& name, 
 			    ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_msg       ( msgSvc(),       name )
+  AthAlgorithm( name,    pSvcLocator )
 { }
 
 // Destructor
 ///////////////
 ErroneousAlg::~ErroneousAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 // Athena Algorithm's Hooks
@@ -47,37 +46,31 @@ ErroneousAlg::~ErroneousAlg()
 StatusCode ErroneousAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
-  
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode ErroneousAlg::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode ErroneousAlg::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
   
   if ( this->jumpOnUninitializedValue() )
-    m_msg << MSG::INFO << " jumpOnUninitializedValue() returned false !" << endreq;
+    ATH_MSG_INFO ( " jumpOnUninitializedValue() returned false !" ) ;
   
   if ( this->invalidRead() )
-    m_msg << MSG::INFO << " jumpOnUninitializedValue() returned false !" << endreq;
+    ATH_MSG_INFO ( " jumpOnUninitializedValue() returned false !" ) ;
   
   if ( this->mismatchedFree() )
-    m_msg << MSG::INFO << " jumpOnUninitializedValue() returned false !" << endreq;
+    ATH_MSG_INFO ( " jumpOnUninitializedValue() returned false !" ) ;
   
   return StatusCode::SUCCESS;
 }
@@ -96,7 +89,7 @@ bool ErroneousAlg::jumpOnUninitializedValue()
     else
       yesNo[1]++;
   
-  m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endreq;
+  //m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endreq;
   
   return (yesNo[1]==0);
 }
@@ -109,13 +102,13 @@ bool ErroneousAlg::invalidRead()
   // fill with something
   for ( unsigned int i=1; i<=maximum; ++i )
     invalidReadPointer[i] = double(i);
-  m_msg << MSG::INFO << "Found, that last element contains " << invalidReadPointer[maximum] << endreq;
+  ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum] ) ;
   
   // and delete
   delete [] invalidReadPointer;
   
   // and print out element 10 !
-  m_msg << MSG::INFO << "Found, that last element contains " << invalidReadPointer[maximum] << endreq;
+  ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum] ) ;
   
   return true;
 }
@@ -128,7 +121,7 @@ bool ErroneousAlg::mismatchedFree()
   // fill with something
   for ( unsigned int i=1; i<maximum; ++i )
     invalidReadPointer[i] = double(i);
-  m_msg << MSG::INFO << "Found, that last element contains " << invalidReadPointer[maximum-1] << endreq;
+  ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum-1] ) ;
   
   // and delete
   delete invalidReadPointer;

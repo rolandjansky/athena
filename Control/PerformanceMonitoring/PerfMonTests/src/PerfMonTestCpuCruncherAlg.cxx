@@ -33,8 +33,7 @@ using namespace PerfMonTest;
 ////////////////
 CpuCruncherAlg::CpuCruncherAlg( const std::string& name, 
 				ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_msg       ( msgSvc(),       name ),
+  AthAlgorithm( name,    pSvcLocator ),
   m_rndmSvc   ( "AtRndmGenSvc", name ),
   m_rndmEngine( 0 )
 {
@@ -56,7 +55,7 @@ CpuCruncherAlg::CpuCruncherAlg( const std::string& name,
 ///////////////
 CpuCruncherAlg::~CpuCruncherAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 // Athena Algorithm's Hooks
@@ -64,46 +63,29 @@ CpuCruncherAlg::~CpuCruncherAlg()
 StatusCode CpuCruncherAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   // retrieve random number svc
-  if ( !m_rndmSvc.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR
-	  << "Could not retrieve svc [" << m_rndmSvc.typeAndName() << "] !!"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
-  // retrieve engine
-  //m_rndmEngine = m_rndmSvc->GetEngine( "somename" );
+  ATH_CHECK( m_rndmSvc.retrieve() );
 
-  m_msg << MSG::INFO << "CPU usage configuration: <" 
-	<< m_meanCpuTime << "> +/- "
-	<< m_rmsCpuTime << " seconds"
-	<< endreq;
+  ATH_MSG_INFO ( "CPU usage configuration: <" 
+                 << m_meanCpuTime << "> +/- "
+                 << m_rmsCpuTime << " seconds" ) ;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode CpuCruncherAlg::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode CpuCruncherAlg::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
-
-  // spend CPU time here...
-  
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 

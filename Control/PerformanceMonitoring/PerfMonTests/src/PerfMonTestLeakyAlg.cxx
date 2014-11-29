@@ -15,9 +15,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
 // PerfMonTests includes
 #include "PerfMonTestLeakyAlg.h"
 
@@ -31,9 +28,7 @@ using namespace PerfMonTest;
 ////////////////
 LeakyAlg::LeakyAlg( const std::string& name, 
 		  ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_storeGate ( "StoreGateSvc", name ),
-  m_msg       ( msgSvc(),       name )
+  AthAlgorithm   ( name,    pSvcLocator )
 {
   //
   // Property declaration
@@ -53,7 +48,7 @@ LeakyAlg::LeakyAlg( const std::string& name,
 ///////////////
 LeakyAlg::~LeakyAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
   // finally deleting our leaked objects...
   for ( std::list<Leak*>::iterator i = m_leaks.begin(), iEnd = m_leaks.end();
 	i != iEnd;
@@ -67,36 +62,25 @@ LeakyAlg::~LeakyAlg()
 StatusCode LeakyAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-        << "Initializing " << name() << "..." 
-        << endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
 
   // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR 	
-          << "Unable to retrieve pointer to StoreGateSvc"
-          << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore().retrieve() );
   
   return StatusCode::SUCCESS;
 }
 
 StatusCode LeakyAlg::finalize()
 {
-  m_msg << MSG::INFO 
-        << "Finalizing " << name() << "..." 
-        << endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode LeakyAlg::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-        << endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
 
   if ( 0 == m_leakSize ) {
     return StatusCode::SUCCESS;

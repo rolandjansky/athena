@@ -33,9 +33,8 @@ using namespace PerfMonTest;
 // Constructors
 ////////////////
 MallocAlg::MallocAlg( const std::string& name, 
-				ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_msg       ( msgSvc(),       name )
+                      ISvcLocator* pSvcLocator ) : 
+  AthAlgorithm( name,    pSvcLocator )
 {
   //
   // Property declaration
@@ -55,7 +54,7 @@ MallocAlg::MallocAlg( const std::string& name,
 ///////////////
 MallocAlg::~MallocAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 // Athena Algorithm's Hooks
@@ -63,28 +62,23 @@ MallocAlg::~MallocAlg()
 StatusCode MallocAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-        << "Initializing " << name() << "..." 
-        << endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   return StatusCode::SUCCESS;
 }
 
 StatusCode MallocAlg::finalize()
 {
-  m_msg << MSG::INFO 
-        << "Finalizing " << name() << "..." 
-        << endreq;
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode MallocAlg::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-        << endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
 
   static unsigned int evtnbr = 0;
   evtnbr += 1;
@@ -113,6 +107,7 @@ StatusCode MallocAlg::execute()
       for ( std::size_t i = 0; i!=nmax; ++i ) {
         c1_array[i] =  i;
       }
+      isUsed (&c1_array);
 
       if ( evtnbr >= 2*m_evtNbr ) {
         ElemType c2_array[nmax];

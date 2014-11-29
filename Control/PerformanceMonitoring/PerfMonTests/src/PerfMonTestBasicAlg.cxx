@@ -42,9 +42,7 @@ using namespace PerfMonTest;
 ////////////////
 BasicAlg::BasicAlg( const std::string& name, 
 		  ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_storeGate ( "StoreGateSvc", name ),
-  m_msg       ( msgSvc(),       name )
+  AthAlgorithm   ( name,    pSvcLocator )
 {
   //
   // Property declaration
@@ -84,7 +82,7 @@ BasicAlg::BasicAlg( const std::string& name,
 ///////////////
 BasicAlg::~BasicAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 // Athena Algorithm's Hooks
@@ -92,30 +90,18 @@ BasicAlg::~BasicAlg()
 StatusCode BasicAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
 
   // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR 	
-	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore().retrieve() );
   
   m_dataOutputName = "PerfMonTest_Data_" + name();
 
   // retrieve a handle to the IPerfMonSvc
   ServiceHandle<IPerfMonSvc> svc( "PerfMonSvc", this->name() );
-  if ( !svc.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR
-	  << "Could not retrieve [" << svc << "] !!" 
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( svc.retrieve() );
 
   svc->declareInfo( "my_bool",   m_my_bool,   "a boolean",         this );
   svc->declareInfo( "my_int",    m_my_int,    "an integer",        this );
@@ -129,35 +115,29 @@ StatusCode BasicAlg::initialize()
 
 StatusCode BasicAlg::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode BasicAlg::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
 
   if ( 0 == m_dataSize ) {
     return StatusCode::SUCCESS;
   }
 
   Data * data = new Data;
-  if ( !m_storeGate->record(data, m_dataOutputName).isSuccess() ) {
-    m_msg << MSG::ERROR
-          << "Could not store data at [" << m_dataOutputName << "] !!"
-          << endreq;
+  if ( !evtStore()->record(data, m_dataOutputName).isSuccess() ) {
+    ATH_MSG_ERROR ( "Could not store data at [" << m_dataOutputName << "] !!") ;
     delete data;
     data = 0;
     return StatusCode::RECOVERABLE;
   }
-  if ( !m_storeGate->setConst(data).isSuccess() ) {
-    m_msg << MSG::WARNING << "Could not setConst data at ["
-	  << m_dataOutputName << "] !!"
-          << endreq;
+  if ( !evtStore()->setConst(data).isSuccess() ) {
+    ATH_MSG_WARNING ( "Could not setConst data at ["
+                      << m_dataOutputName << "] !!" ) ;
   }  
 
   // testing scoped-monitoring
