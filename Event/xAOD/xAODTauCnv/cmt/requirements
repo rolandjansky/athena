@@ -17,13 +17,14 @@ branches src src/components doc python share
 	 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
+use  DataModel                  DataModel-*                     Control
+use  xAODTau                    xAODTau-*                       Event/xAOD
+use  tauEvent                   tauEvent-*                      Reconstruction
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  GaudiInterface             GaudiInterface-*                External
 use  PanTauEvent                PanTauEvent-*                   Reconstruction/PanTau
-use  tauEvent                   tauEvent-*                      Reconstruction
-use  xAODTau                    xAODTau-*                       Event/xAOD
 end_private
 
 

@@ -16,22 +16,8 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-//old tau EDM includes
-#include "tauEvent/TauJetContainer.h"
-#include "tauEvent/TauJet.h"
-#include "tauEvent/TauCommonDetails.h"
-#include "tauEvent/TauJetParameters.h"
-
-//panTau EDM includes
-#include "PanTauEvent/PanTauDetails.h"
-
-//xAOD tau EDM includes
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-
+#include "GaudiKernel/ToolHandle.h"
+#include "xAODTauCnv/ITauJetCnvTool.h"
 
 
 namespace xAODMaker {
@@ -76,17 +62,13 @@ namespace xAODMaker {
     /// Default constructor: 
     TauJetCnvAlg();
 
-    void setLinks(const Analysis::TauJet& aodtau, xAOD::TauJet& xaodtau) const;
-    ElementLink<xAOD::TrackParticleContainer> getNewTrackLink(const ElementLink<Rec::TrackParticleContainer>& oldLink, const std::string& name) const;
-    ElementLink<xAOD::JetContainer> getNewJetLink(const ElementLink<JetCollection>& oldLink, const std::string& name) const;
-    void copyPanTauDetails(const Analysis::TauJet& aodtau, xAOD::TauJet& xaodtau) const ;
-
-
     /// Containers
     std::string m_inputTauJetContainerName;
     std::string m_xaodTauJetContainerName;
-    std::string m_inDetTrackParticles; //!< Location/Key for TrackParticles from ID. 
-    std::string m_jets; //!< Location/Key for jets. 
+
+    /** @brief Tool to perform taujet container conversion*/
+    ToolHandle<ITauJetCnvTool>                 m_cnvTool;
+    
   }; 
 
   // I/O operators
