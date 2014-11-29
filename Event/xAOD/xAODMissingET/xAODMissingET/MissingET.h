@@ -15,4 +15,7 @@ namespace xAOD
   typedef MissingET_v1 MissingET;
 }
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF(xAOD::MissingET,88166603,1)
+
 #endif

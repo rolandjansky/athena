@@ -36,18 +36,16 @@ namespace xAOD
      *         exactly the same spelling as the variable names.
      */
     /*!@{*/
-    std::vector<double>                          mpx;     /*!< @brief @f$ p_{x,{\rm miss}} = -\sum p_{x} @f$*/
-    std::vector<double>                          mpy;     /*!< @brief @f$ p_{y,{\rm miss}} = -\sum p_{x} @f$*/
-    std::vector<double>                          sumet;  /*!< @brief @f$ \sigma E_{\rm T} = \sum p_{\rm T} @f$*/
-    std::vector<std::string>                     name;   /*!< @brief Name of MET contribution */
-    std::vector<MissingETBase::Types::bitmask_t> source; /*!< @brief Source of MET contribution */
+    std::vector<double>                          mpx;    ///< @brief @f$ p_{x,{\rm miss}} = -\sum p_{x} @f$
+    std::vector<double>                          mpy;    ///< @brief @f$ p_{y,{\rm miss}} = -\sum p_{x} @f$
+    std::vector<double>                          sumet;  ///< @brief @f$ \sigma E_{\rm T} = \sum p_{\rm T} @f$
+    std::vector<std::string>                     name;   ///< @brief Name of MET contribution
+    std::vector<MissingETBase::Types::bitmask_t> source; ///< @brief Source of MET contribution
     /*!@}*/
   };
 }
 
-#ifndef XAOD_STANDALONE
-CLASS_DEF(xAOD::MissingETAuxContainer_v1,1231193010,1)
 #include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::MissingETAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
+
 #endif // XAODMISSINGET_VERSIONS_MISSINGETAUXCONTAINER_V1_H

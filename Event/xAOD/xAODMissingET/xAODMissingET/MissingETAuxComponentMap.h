@@ -14,4 +14,8 @@ namespace xAOD
   /*! @brief Version control by type definition */
   typedef MissingETAuxComponentMap_v1 MissingETAuxComponentMap;
 }
+
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::MissingETAuxComponentMap,238293243,1 )
+
 #endif

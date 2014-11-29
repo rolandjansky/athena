@@ -1,0 +1,345 @@
+// -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+////////////////////////////////////////////////////
+// Inlined Methods for MissingETAssociation::ConstVec //
+////////////////////////////////////////////////////
+
+inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec()
+  : m_cpx(MissingETBase::Numerical::cpxDefault())
+  , m_cpy(MissingETBase::Numerical::cpyDefault())
+  , m_cpz(MissingETBase::Numerical::cpzDefault())
+  , m_ce(MissingETBase::Numerical::ceDefault())
+  , m_sumpt(MissingETBase::Numerical::sumptDefault())
+{ }
+
+inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(double cpx,double cpy,double cpz,double ce,double sumpt)
+  : m_cpx(cpx), m_cpy(cpy), m_cpz(cpz), m_ce(ce), m_sumpt(sumpt)
+{}
+
+inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(const IParticle& ipar)
+  : m_cpx(ipar.p4().Px()), m_cpy(ipar.p4().Py()), m_cpz(ipar.p4().Pz()), m_ce(ipar.e()), m_sumpt(ipar.pt())
+{ }
+
+inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(const ConstVec& cvec)
+  : m_cpx(cvec.cpx()), m_cpy(cvec.cpy()), m_cpz(cvec.cpz()), m_ce(cvec.ce()), m_sumpt(cvec.sumpt())
+{ }
+
+inline xAOD::MissingETAssociation_v1::ConstVec::~ConstVec()
+{ }
+
+inline bool xAOD::MissingETAssociation_v1::ConstVec::operator!=(const ConstVec& cvec) const
+{ return !this->operator==(cvec); }
+
+// ------------------------------------------------------------------ Accessors
+inline double  xAOD::MissingETAssociation_v1::ConstVec::cpx() const { return m_cpx; }
+inline double  xAOD::MissingETAssociation_v1::ConstVec::cpy() const { return m_cpy; }
+inline double  xAOD::MissingETAssociation_v1::ConstVec::cpz() const { return m_cpz; }
+inline double  xAOD::MissingETAssociation_v1::ConstVec::ce() const { return m_ce; }
+inline double  xAOD::MissingETAssociation_v1::ConstVec::sumpt() const { return m_sumpt; }
+inline double& xAOD::MissingETAssociation_v1::ConstVec::cpx() { return m_cpx; }
+inline double& xAOD::MissingETAssociation_v1::ConstVec::cpy() { return m_cpy; }
+inline double& xAOD::MissingETAssociation_v1::ConstVec::cpz() { return m_cpz; }
+inline double& xAOD::MissingETAssociation_v1::ConstVec::ce() { return m_ce; }
+inline double& xAOD::MissingETAssociation_v1::ConstVec::sumpt() { return m_sumpt; }
+
+// -------------------------------------------------------------------- Setters 
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpx(double cpx) { this->cpx() = cpx; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpy(double cpy) { this->cpy() = cpy; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCpz(double cpz) { this->cpz() = cpz; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setCe(double ce) { this->ce() = ce; }
+inline void xAOD::MissingETAssociation_v1::ConstVec::setSumpt(double sumpt) { this->sumpt() = sumpt; }
+
+////////////////////////////////////////////
+// Inlined Methods for MissingETAssociation //
+////////////////////////////////////////////
+
+template<class POBJ,class LINK> 
+void xAOD::MissingETAssociation_v1::f_setObject(const POBJ* pObj,LINK& elemLink)
+{
+  if ( pObj == 0 ) { return; /* FIXME throw some kind of exception */ }
+  typename LINK::BaseConstPointer pCont = 
+    dynamic_cast<typename LINK::BaseConstPointer>(pObj->container());
+  // valid pointer to container of (storable) object
+  if ( pCont != 0 ) { elemLink.toIndexedElement(*pCont,pObj->index()); }
+  // POD, not storable - we still use ElementLink to hold the pointer
+  else { elemLink.setElement(pObj); }
+}
+
+
+template<class LINK>
+bool xAOD::MissingETAssociation_v1::f_setLink(LINK& elemLink)
+{ 
+  // no object linked
+  if ( *(elemLink) == 0 ) { return false; }
+  // check if object is storable 
+  else 
+    {
+      typename LINK::BaseConstPointer pCont = dynamic_cast<typename LINK::BaseConstPointer>((*(elemLink))->container()); 
+      // complete link
+      if ( pCont != 0 ) { elemLink.toIndexedElement(*pCont,(*(elemLink))->index()); return true; }
+      else { return false; }
+    }
+}
+
+inline bool xAOD::MissingETAssociation_v1::addObject(const IParticle* pPart,const std::vector<const IParticle*>& constlist,const MissingETBase::Types::constvec_t& calvec,const MissingETBase::Types::constvec_t& trkvec)
+{ return this->addObject(pPart,constlist,
+			 calvec.cpx(),calvec.cpy(),calvec.cpz(),calvec.ce(),calvec.sumpt(),
+			 trkvec.cpx(),trkvec.cpy(),trkvec.cpz(),trkvec.ce(),trkvec.sumpt());
+}
+
+// --------------------------------------------------------- reference jet link
+inline const MissingETBase::Types::jetlink_t& xAOD::MissingETAssociation_v1::jetLink() const 
+{ static SG::AuxElement::Accessor<MissingETBase::Types::jetlink_t> acc("jetLink"); return acc(*this); }
+inline MissingETBase::Types::jetlink_t& xAOD::MissingETAssociation_v1::f_jetLink()           
+{ static SG::AuxElement::Accessor<MissingETBase::Types::jetlink_t> acc("jetLink"); return acc(*this); }
+
+// ---------------------------------------------------------------- object link
+inline const MissingETBase::Types::objlink_vector_t& xAOD::MissingETAssociation_v1::objectLinks() const 
+{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+inline MissingETBase::Types::objlink_vector_t& xAOD::MissingETAssociation_v1::f_objectLinks()
+{ static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
+
+// ---------------------------------------------------------- constituent vectors
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpx() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::calpx(const IParticle* pPart) const
+{ return this->calpx(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpy() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpy"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::calpy(const IParticle* pPart) const
+{ return this->calpy(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpz() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpz"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::calpz(const IParticle* pPart) const
+{ return this->calpz(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::cale() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("cale"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::cale(const IParticle* pPart) const
+{ return this->cale(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::calsumpt() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calsumpt"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::calsumpt(const IParticle* pPart) const
+{ return this->calsumpt(this->findIndex(pPart)); }
+
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpx() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpy() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpy"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpz() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calpz"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_cale() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("cale"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calsumpt() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("calsumpt"); return acc(*this); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpx() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::trkpx(const IParticle* pPart) const
+{ return this->trkpx(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpy() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpy"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::trkpy(const IParticle* pPart) const
+{ return this->trkpy(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpz() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpz"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::trkpz(const IParticle* pPart) const
+{ return this->trkpz(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::trke() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trke"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::trke(const IParticle* pPart) const
+{ return this->trke(this->findIndex(pPart)); }
+
+inline const std::vector<double>& xAOD::MissingETAssociation_v1::trksumpt() const
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trksumpt"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::trksumpt(const IParticle* pPart) const
+{ return this->trksumpt(this->findIndex(pPart)); }
+
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpx() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpy() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpy"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpz() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trkpz"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trke() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trke"); return acc(*this); }
+inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trksumpt() 
+{ static SG::AuxElement::Accessor<std::vector<double> > acc("trksumpt"); return acc(*this); }
+
+inline double xAOD::MissingETAssociation_v1::jettrkpx() const
+{ static SG::AuxElement::Accessor<double > acc("jettrkpx"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::jettrkpy() const
+{ static SG::AuxElement::Accessor<double > acc("jettrkpy"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::jettrkpz() const
+{ static SG::AuxElement::Accessor<double > acc("jettrkpz"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::jettrke() const
+{ static SG::AuxElement::Accessor<double > acc("jettrke"); return acc(*this); }
+inline double xAOD::MissingETAssociation_v1::jettrksumpt() const
+{ static SG::AuxElement::Accessor<double > acc("jettrksumpt"); return acc(*this); }
+
+inline double& xAOD::MissingETAssociation_v1::f_jettrkpx() 
+{ static SG::AuxElement::Accessor<double > acc("jettrkpx"); return acc(*this); }
+inline double& xAOD::MissingETAssociation_v1::f_jettrkpy() 
+{ static SG::AuxElement::Accessor<double > acc("jettrkpy"); return acc(*this); }
+inline double& xAOD::MissingETAssociation_v1::f_jettrkpz() 
+{ static SG::AuxElement::Accessor<double > acc("jettrkpz"); return acc(*this); }
+inline double& xAOD::MissingETAssociation_v1::f_jettrke() 
+{ static SG::AuxElement::Accessor<double > acc("jettrke"); return acc(*this); }
+inline double& xAOD::MissingETAssociation_v1::f_jettrksumpt() 
+{ static SG::AuxElement::Accessor<double > acc("jettrksumpt"); return acc(*this); }
+
+// --------------------------------------------------------- misc association flag
+inline bool xAOD::MissingETAssociation_v1::isMisc() const 
+{ static SG::AuxElement::Accessor<char> acc("isMisc"); return acc(*this)!=0; }
+inline char& xAOD::MissingETAssociation_v1::f_isMisc()           
+{ static SG::AuxElement::Accessor<char> acc("isMisc"); return acc(*this); }
+
+// -- non-conventional MissingETBase::Types::constvec_t generator
+inline MissingETBase::Types::constvec_t xAOD::MissingETAssociation_v1::calVec(const IParticle* pPart) const
+{ return this->calVec(this->findIndex(pPart)); } 
+
+inline MissingETBase::Types::constvec_t xAOD::MissingETAssociation_v1::trkVec(const IParticle* pPart) const
+{ return this->trkVec(this->findIndex(pPart)); } 
+
+// -------------------------------------------------------------- overlap indices
+
+inline const std::vector<std::vector<size_t> >& xAOD::MissingETAssociation_v1::overlapIndices() const
+{ static SG::AuxElement::Accessor<std::vector<std::vector<size_t> > > acc("overlapIndices"); return acc(*this); }
+inline std::vector<size_t> xAOD::MissingETAssociation_v1::overlapIndices(const IParticle* pPart) const
+{ return this->overlapIndices(this->findIndex(pPart)); }
+
+inline std::vector<std::vector<size_t> >& xAOD::MissingETAssociation_v1::f_overlapIndices()
+{static SG::AuxElement::Accessor<std::vector<std::vector<size_t> > > acc("overlapIndices"); return acc(*this); }
+
+inline const std::vector<std::vector<unsigned char> >& xAOD::MissingETAssociation_v1::overlapTypes() const
+{ static SG::AuxElement::Accessor<std::vector<std::vector<unsigned char> > > acc("overlapTypes"); return acc(*this); }
+inline std::vector<unsigned char> xAOD::MissingETAssociation_v1::overlapTypes(const IParticle* pPart) const
+{ return this->overlapTypes(this->findIndex(pPart)); }
+
+inline std::vector<std::vector<unsigned char> >& xAOD::MissingETAssociation_v1::f_overlapTypes()
+{static SG::AuxElement::Accessor<std::vector<std::vector<unsigned char> > > acc("overlapTypes"); return acc(*this); }
+
+// ------------------------------------------------ Reference jet and container
+inline const xAOD::Jet* xAOD::MissingETAssociation_v1::refJet() const
+{ return (!this->jetLink().isDefault() ? *this->jetLink() : (const xAOD::Jet*)0); }
+
+inline const xAOD::JetContainer* xAOD::MissingETAssociation_v1::refJetContainer() const 
+{ return this->refJet() != 0 ? this->jetLink().getStorableObjectPointer() : (const JetContainer*)0; }
+
+inline size_t xAOD::MissingETAssociation_v1::refJetIndex() const
+{ return this->refJet() != 0 ? this->jetLink().index() : MissingETBase::Numerical::invalidIndex(); }
+// ------------------------------------------------------------ List management
+inline size_t xAOD::MissingETAssociation_v1::size() const { return this->objectLinks().size(); }
+inline bool xAOD::MissingETAssociation_v1::empty() const  { return this->objectLinks().empty(); }
+inline bool xAOD::MissingETAssociation_v1::removeContrib(size_t pIdx)
+{ return ( pIdx != MissingETBase::Numerical::invalidIndex() && pIdx < this->size() ) ? this->f_removeContrib(pIdx) : false; }
+inline bool xAOD::MissingETAssociation_v1::removeContrib(const IParticle* pPart) { return this->removeContrib(this->findIndex(pPart)); }
+inline bool xAOD::MissingETAssociation_v1::resetContrib(const IParticle* pPart)  { return this->resetContrib(this->findIndex(pPart)); }
+// ---------------------------------------------------------------- Comparators
+inline bool xAOD::MissingETAssociation_v1::operator!=(const xAOD::MissingETAssociation_v1& assocDescr) const
+{ return !this->operator==(assocDescr); }
+// ------------------------------------------------ Set contribution parameters
+inline bool xAOD::MissingETAssociation_v1::setCalPx(const IParticle* pPart,double calpx)
+{ return this->setCalPx(this->findIndex(pPart),calpx); }
+inline bool xAOD::MissingETAssociation_v1::setCalPy(const IParticle* pPart,double calpy)
+{ return this->setCalPy(this->findIndex(pPart),calpy); }
+inline bool xAOD::MissingETAssociation_v1::setCalPz(const IParticle* pPart,double calpz)
+{ return this->setCalPz(this->findIndex(pPart),calpz); }
+inline bool xAOD::MissingETAssociation_v1::setCalE(const IParticle* pPart,double cale)
+{ return this->setCalE(this->findIndex(pPart),cale); }
+inline bool xAOD::MissingETAssociation_v1::setCalSumpt(const IParticle* pPart,double calsumpt)
+{ return this->setCalSumpt(this->findIndex(pPart),calsumpt); }
+inline bool xAOD::MissingETAssociation_v1::setCalVec(const IParticle* pPart,const MissingETBase::Types::constvec_t& cvec)
+{ return this->setCalVec(this->findIndex(pPart),cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+inline bool xAOD::MissingETAssociation_v1::setCalVec(const IParticle* pPart,double calpx,double calpy,double calpz,double cale,double sumpt)
+{ return this->setCalVec(this->findIndex(pPart),calpx,calpy,calpz,cale,sumpt); }
+inline bool xAOD::MissingETAssociation_v1::setCalVec(size_t pIdx,const MissingETBase::Types::constvec_t& cvec)
+{ return this->setCalVec(pIdx,cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+
+inline bool xAOD::MissingETAssociation_v1::setTrkPx(const IParticle* pPart,double trkpx)
+{ return this->setTrkPx(this->findIndex(pPart),trkpx); }
+inline bool xAOD::MissingETAssociation_v1::setTrkPy(const IParticle* pPart,double trkpy)
+{ return this->setTrkPy(this->findIndex(pPart),trkpy); }
+inline bool xAOD::MissingETAssociation_v1::setTrkPz(const IParticle* pPart,double trkpz)
+{ return this->setTrkPz(this->findIndex(pPart),trkpz); }
+inline bool xAOD::MissingETAssociation_v1::setTrkE(const IParticle* pPart,double trke)
+{ return this->setTrkE(this->findIndex(pPart),trke); }
+inline bool xAOD::MissingETAssociation_v1::setTrkSumpt(const IParticle* pPart,double trksumpt)
+{ return this->setTrkSumpt(this->findIndex(pPart),trksumpt); }
+inline bool xAOD::MissingETAssociation_v1::setTrkVec(const IParticle* pPart,const MissingETBase::Types::constvec_t& cvec)
+{ return this->setTrkVec(this->findIndex(pPart),cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+inline bool xAOD::MissingETAssociation_v1::setTrkVec(const IParticle* pPart,double trkpx,double trkpy,double trkpz,double trke,double sumpt)
+{ return this->setTrkVec(this->findIndex(pPart),trkpx,trkpy,trkpz,trke,sumpt); }
+inline bool xAOD::MissingETAssociation_v1::setTrkVec(size_t pIdx,const MissingETBase::Types::constvec_t& cvec)
+{ return this->setTrkVec(pIdx,cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+
+inline void xAOD::MissingETAssociation_v1::setJetTrkVec(const MissingETBase::Types::constvec_t& cvec)
+{ this->setJetTrkVec(cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+
+inline bool xAOD::MissingETAssociation_v1::setOverlaps(const IParticle* pPart,const std::vector<size_t>& overlapIndices,
+						       const std::vector<unsigned char>& overlapTypes)
+{ return this->setOverlaps(this->findIndex(pPart),overlapIndices,overlapTypes); }
+
+inline void xAOD::MissingETAssociation_v1::setObjSelectionFlag(const IParticle* pPart, bool status) const
+{ this->setObjSelectionFlag(this->findIndex(pPart),status); }
+
+inline bool xAOD::MissingETAssociation_v1::objSelected(const IParticle* pPart) const
+{ return this->objSelected(this->findIndex(pPart)); }
+
+inline bool xAOD::MissingETAssociation_v1::identifyOverlaps(const IParticle* pPart)
+{ return this->identifyOverlaps(this->findIndex(pPart)); }
+
+inline bool xAOD::MissingETAssociation_v1::hasOverlaps(const IParticle* pPart,MissingETBase::UsageHandler::Policy p) const
+{ return this->hasOverlaps(this->findIndex(pPart),p); }
+
+inline bool xAOD::MissingETAssociation_v1::addOverlap(const IParticle* pPart,size_t overlapIndex,unsigned char overlapType)
+{ return this->addOverlap(this->findIndex(pPart),overlapIndex,overlapType); }
+
+////////////////////////////////////////
+// Inlined Global Namespace Operators //
+////////////////////////////////////////
+
+inline MissingETBase::Types::constvec_t operator+(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v1)
+{ MissingETBase::Types::constvec_t v(v0); v += v1; return v; }
+
+inline MissingETBase::Types::constvec_t operator-(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v1)
+{ MissingETBase::Types::constvec_t v(v0); v -= v1; return v; }
+
+inline MissingETBase::Types::constvec_t operator*(const MissingETBase::Types::constvec_t& cvec,double scale)
+{ MissingETBase::Types::constvec_t v(cvec); v *= scale; return v; }
+
+inline MissingETBase::Types::constvec_t operator*(double scale,const MissingETBase::Types::constvec_t& cvec)
+{ MissingETBase::Types::constvec_t v(cvec); v *= scale; return v; }
+
+inline MissingETBase::Types::constvec_t operator/(const MissingETBase::Types::constvec_t& cvec,double scale)
+{ MissingETBase::Types::constvec_t v(cvec); v /= scale; return v; } 
+
+///////////////////////////////////////////////////////////////
+// The rest of the file contains doxygen documentation only! //
+/////////////////////////////////////////////////////////////// 
+/*
+ *  (4) subtraction vectors
+ * 
+ *  The subtraction vectors @f$ (c_{x},c_{y},E) @f$ vectors to be subtracted from the object kinematics @f$ (p_{x},p_{y},p_{z},e) @f$ such that 
+ *  the contribution to the corresponding MET variables 
+ *  @f$ (p_{x}^{\rm miss}, p_{y}^{\rm miss}, \Sigma E_{\rm T}) @f$ is given by @f$ (p_{x} - c_{x}, p_{y} - c_{y}, e_{\rm T} - c_{e,\rm T}) @f$. The overall MET contribution 
+ *  of all @f$ i = 1 \ldots N @f$ objects of the same type (e.g., electrons, photons, jets,...) is then given by 
+ *  @f{eqnarray}{
+ *     p_{x}^{\rm miss} & = & - \sum_{i = 1}^{N} p_{x,i} - c_{x,i} \	\
+ *     p_{y}^{\rm miss} & = & - \sum_{i = 1}^{N} p_{y,i} - c_{y,i} \	\
+ *     \Sigma E_{\rm T} & = & \sum_{i = 1}^{N} e_{\rm T} - c_{e,i}
+ *  @f}
+ *  The individual constVecs are stored in vectors index-parallel to the link vector.  
+ *
+ */

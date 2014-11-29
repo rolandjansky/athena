@@ -80,7 +80,7 @@ inline xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale)
 ////////////////////////////////////////////////
 
 inline bool xAOD::MissingET_v1::operator==(const MissingET_v1& met) const
-{ return MissingETBase::Numerical::isEqual(met.met(),this->met()) && MissingETBase::Numerical::isEqual(met.sumet(),this->sumet()); }
+{ return MissingETBase::Numerical::isEqual(met.mpx(),this->mpx()) && MissingETBase::Numerical::isEqual(met.mpy(),this->mpy()) && MissingETBase::Numerical::isEqual(met.sumet(),this->sumet()); }
 
 inline bool xAOD::MissingET_v1::operator!=(const MissingET_v1& met) const
 { return !this->operator==(met); }
@@ -294,13 +294,12 @@ inline void xAOD::MissingET_v1::clear()
  *        has to be explicitly done by the user. 
  */
 
-/*! @fn virtual void xAOD::MissingET_v1::add(double px,double py,double pt)
+/*! @fn virtual void xAOD::MissingET_v1::add(double px,double py)
  *
  *  The given kinematic quantities are added to MET.
  *
  *  @param[in] px  momentum component @f$ p_{x} @f$
  *  @param[in] py  momentum component @f$ p_{y} @f$
- *  @param[in] pt  transverse momentum @f$ p_{\rm T} @f$
  * 
  *  This method updates the internal data stores. 
  */

@@ -14,4 +14,8 @@ namespace xAOD
   /*! @brief Version control by type definition */
   typedef MissingETComponent_v1 MissingETComponent;
 }
+
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::MissingETComponent , 104135848 , 1 )
+
 #endif

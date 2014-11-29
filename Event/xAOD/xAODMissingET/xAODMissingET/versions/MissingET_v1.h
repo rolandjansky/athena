@@ -29,7 +29,7 @@ namespace xAOD
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with identifiers */
     MissingET_v1(const IParticle* particle, const std::string& name="MissingET",
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with particle */
-    MissingET_v1(double mpx,double mpy,double pt,const std::string& name="MissingET",
+    MissingET_v1(double mpx,double mpy,double sumet,const std::string& name="MissingET",
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with initial kinematics */
     MissingET_v1(const MissingET_v1& met);                                              /*!< @brief Copy constructor */
     ~MissingET_v1();                                                                    /*!< @brief Implementation class destructor */
@@ -119,11 +119,6 @@ xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,double scale);       
 xAOD::MissingET_v1 operator*(double scale,const xAOD::MissingET_v1& met);                    /*!< @brief Create new MET object from source with scaled (weighted) kinematics */
 xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale);                    /*!< @brief Create new MET object from source with scaled kinematics */
 /*!@}*/
-
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF(xAOD::MissingET_v1,88166603,1)
-#endif
 
 #include "xAODMissingET/versions/MissingET_v1.icc"
 

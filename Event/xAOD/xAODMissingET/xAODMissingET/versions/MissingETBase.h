@@ -49,6 +49,22 @@ namespace MissingETBase
       constexpr
 #endif // C++11
       double precision  = 0.00001;      /*!< @brief Maximum numerical distance up to which two double precision variables are considered to be identical. */
+
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      size_t invalidIndex = size_t(-1); /*!< @brief Invalid index indicator */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      size_t unknownIndex = size_t(-1); /*!< @brief Unknown index indicator */
+
       static
 #if __cplusplus < 201100
       const
@@ -91,20 +107,78 @@ namespace MissingETBase
       constexpr
 #endif // C++11
       double wetError   = 0.0;          /*!< @brief Error return value for kinematic weight @f$ w_{\rm T} @f$ */
+
       static
 #if __cplusplus < 201100
       const
 #else
       constexpr
 #endif // C++11
-      size_t invalidIndex = size_t(-1); /*!< @brief Invalid index indicator */
+      double cpxDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{x} @f$ */
       static
 #if __cplusplus < 201100
       const
 #else
       constexpr
 #endif // C++11
-      size_t unknownIndex = size_t(-1); /*!< @brief Unknown index indicator */
+      double cpyDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{y} @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double cpzDefault = 0.0;          /*!< @brief Default constituent vector @f$ P_{z} @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double ceDefault = 0.0;           /*!< @brief Default constituent vector @f$ E @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double sumptDefault = 0.0;           /*!< @brief Default constituent sumpt */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double cpxError = -9999999;          /*!< @brief Error constituent vector @f$ P_{x} @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double cpyError = -9999999;          /*!< @brief Error constituent vector @f$ P_{y} @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double cpzError = -9999999;          /*!< @brief Error constituent vector @f$ P_{z} @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double ceError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
+      static
+#if __cplusplus < 201100
+      const
+#else
+      constexpr
+#endif // C++11
+      double sumptError = -9999999;           /*!< @brief Error constituent vector @f$ E @f$ */
+
       /*!@}*/
       /*! @name String constants */
       /*!@{*/
@@ -127,6 +201,16 @@ namespace MissingETBase
       static double               wpxError()     { return Constants::wpxError; }      /*!< @brief Access error return value for kinematic weight @f$ w_{x} @f$ */
       static double               wpyError()     { return Constants::wpyError; }      /*!< @brief Access error return value for kinematic weight @f$ w_{y} @f$ */
       static double               wetError()     { return Constants::wetError; }      /*!< @brief Access error return value for kinematic weight @f$ w_{\rm T} @f$ */
+      static double               cpxDefault()   { return Constants::cpxDefault; }    /*!< @brief Access default constituent vector @f$ P_{x} @f$ */
+      static double               cpyDefault()   { return Constants::cpyDefault; }    /*!< @brief Access default constituent vector @f$ P_{y} @f$ */
+      static double               cpzDefault()   { return Constants::cpzDefault; }    /*!< @brief Access default constituent vector @f$ P_{z} @f$ */
+      static double               ceDefault()    { return Constants::ceDefault; }     /*!< @brief Access default constituent vector @f$ E @f$ */
+      static double               sumptDefault() { return Constants::sumptDefault; }  /*!< @brief Access default constituent vector sumpt */
+      static double               cpxError()     { return Constants::cpxError; }      /*!< @brief Access error return value for constituent vector @f$ P_{x} @f$ */
+      static double               cpyError()     { return Constants::cpyError; }      /*!< @brief Access error return value for constituent vector @f$ P_{y} @f$ */
+      static double               cpzError()     { return Constants::cpzError; }      /*!< @brief Access error return value for constituent vector @f$ P_{z} @f$ */
+      static double               ceError()      { return Constants::ceError; }       /*!< @brief Access error return value for constituent vector @f$ E @f$ */
+      static double               sumptError()   { return Constants::sumptError; }       /*!< @brief Access error return value for constituent vector sumpt */
       static size_t               invalidIndex() { return Constants::invalidIndex; }  /*!< @brief Access invalid index indicator */
       static size_t               unknownIndex() { return Constants::unknownIndex; }  /*!< @brief Access unknown index indicator */
       static Types::indexedlink_t invalidLink()  { return Types::indexedlink_t(Constants::invalidIndex,Constants::invalidIndex); } /*!< @brief Access invaalid link tag */

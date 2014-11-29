@@ -61,7 +61,7 @@ MissingETComponent_v1::MissingETComponent_v1( bool createStore )
    if( createStore ) createPrivateStore();
 }
 
-MissingETComponent_v1::MissingETComponent_v1( const MissingET_v1* pmetObj,
+MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               MissingETBase::Types::bitmask_t sw )
    : SG::AuxElement(),
      m_lastObjectPointer( 0 ),
@@ -72,7 +72,7 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET_v1* pmetObj,
    setStatusWord( sw );
 }
 
-MissingETComponent_v1::MissingETComponent_v1( const MissingET_v1* pmetObj,
+MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               const IParticle* pPart,
                                               double wpx, double wpy, double wet,
                                               MissingETBase::Types::bitmask_t sw )
@@ -86,7 +86,7 @@ MissingETComponent_v1::MissingETComponent_v1( const MissingET_v1* pmetObj,
    addObject( pPart, wpx, wpy, wet );
 }
 
-MissingETComponent_v1::MissingETComponent_v1( const MissingET_v1* pmetObj,
+MissingETComponent_v1::MissingETComponent_v1( const MissingET* pmetObj,
                                               const IParticle* pPart,
                                               const Weight& wght,
                                               MissingETBase::Types::bitmask_t sw )
@@ -144,7 +144,8 @@ bool MissingETComponent_v1::addObject(const IParticle* pPart,double wpx,double w
       MissingETBase::Types::objlink_t oLnk; f_setObject<IParticle,MissingETBase::Types::objlink_t>(pPart,oLnk); 
       // add to stores
       this->f_objectLinks().push_back(oLnk);this->f_wpx().push_back(wpx);this->f_wpy().push_back(wpy);this->f_wet().push_back(wet);
-      return true;
+      bool linkset = f_setLink<MissingETBase::Types::objlink_t>(oLnk);
+      return linkset;
     }
 }
 
@@ -156,9 +157,10 @@ void MissingETComponent_v1::updateLinks()
     MissingETBase::Types::objlink_vector_t::iterator fLnk(this->f_objectLinks().begin());
     MissingETBase::Types::objlink_vector_t::iterator lLnk(this->f_objectLinks().end());
     for ( ; fLnk != lLnk; ++fLnk ) { 
-      if(f_setLink<MissingETBase::Types::objlink_t>(*fLnk)){
-	fLnk->toPersistent();
-      }
+      // avoid validity check to prevent crashes due to thinning
+      //     if(f_setLink<MissingETBase::Types::objlink_t>(*fLnk)){      
+      fLnk->toPersistent();
+      //      }
     } 
   }
 }
@@ -261,10 +263,10 @@ bool MissingETComponent_v1::setWeight(size_t pIdx,double wpx,double wpy,double w
     { return false; }
 }
 
-bool MissingETComponent_v1::setMET(const MissingET_v1* pmetObj,MissingETBase::Types::bitmask_t sw)
+bool MissingETComponent_v1::setMET(const MissingET* pmetObj,MissingETBase::Types::bitmask_t sw)
 { 
   bool wasSet(this->f_metLink().getStorableObjectPointer() != 0);
-  f_setObject<MissingET_v1,MissingETBase::Types::metlink_t>(pmetObj,this->f_metLink());
+  f_setObject<MissingET,MissingETBase::Types::metlink_t>(pmetObj,this->f_metLink());
   this->f_statusWord() = sw;
   return wasSet;
 }
@@ -285,7 +287,13 @@ bool MissingETComponent_v1::setMetLink(const MissingETBase::Types::metlink_t& me
 bool MissingETComponent_v1::setObjectLinks(const MissingETBase::Types::objlink_vector_t& objLnks)
 { 
   bool wasSet(!this->f_objectLinks().empty()); 
-  if ( wasSet ) {  this->f_objectLinks().clear(); this->f_objectLinks().insert(this->f_objectLinks().end(),objLnks.begin(),objLnks.end()); }
+  if ( wasSet ) {
+    this->f_objectLinks().clear(); this->f_objectLinks().insert(this->f_objectLinks().end(),objLnks.begin(),objLnks.end());
+    for(MissingETBase::Types::objlink_vector_t::iterator iLink=this->f_objectLinks().begin();
+	iLink!=this->f_objectLinks().end(); ++iLink) {
+      this->f_setLink<MissingETBase::Types::objlink_t>(*iLink);
+    }
+  }
   return wasSet;
 }
 

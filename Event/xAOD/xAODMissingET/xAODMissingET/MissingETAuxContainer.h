@@ -16,4 +16,7 @@ namespace xAOD
   typedef MissingETAuxContainer_v1 MissingETAuxContainer;
 }
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF(xAOD::MissingETAuxContainer,1231193010,1)
+
 #endif

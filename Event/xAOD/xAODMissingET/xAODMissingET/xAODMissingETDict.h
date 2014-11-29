@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETDict.h 595403 2014-05-05 12:58:53Z krasznaa $
+// $Id: xAODMissingETDict.h 630852 2014-11-25 11:14:23Z khoo $
 #ifndef XAODMISSINGET_XAODMISSINGETDICT_H
 #define XAODMISSINGET_XAODMISSINGETDICT_H
 
@@ -16,11 +16,12 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
-#include "xAODMissingET/versions/MissingETContainer_v1.h"
-#include "xAODMissingET/versions/MissingETAuxContainer_v1.h"
-#include "xAODMissingET/versions/MissingETComponent_v1.h"
-#include "xAODMissingET/versions/MissingETComponentMap_v1.h"
-#include "xAODMissingET/versions/MissingETAuxComponentMap_v1.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODMissingET/MissingETComponentMap.h"
+#include "xAODMissingET/MissingETAuxComponentMap.h"
+#include "xAODMissingET/MissingETAssociationMap.h"
+#include "xAODMissingET/MissingETAuxAssociationMap.h"
 #include "xAODMissingET/versions/MissingETBase.h"
 
 namespace {
@@ -30,6 +31,8 @@ namespace {
       xAOD::MissingETContainer_v1 c2;
       DataVector< xAOD::MissingETComponent_v1 > c3;
       xAOD::MissingETComponentMap_v1 c4;
+      DataVector< xAOD::MissingETAssociation_v1 > c5;
+      xAOD::MissingETAssociationMap_v1 c6;
       // Smart pointer(s):
       DataLink< xAOD::MissingETContainer_v1 > dl1;
       std::vector< DataLink< xAOD::MissingETContainer_v1 > > dl2;
@@ -41,14 +44,21 @@ namespace {
       ElementLink< xAOD::MissingETComponentMap_v1 > el4;
       std::vector< ElementLink< xAOD::MissingETComponentMap_v1 > > el5;
       std::vector< std::vector< ElementLink< xAOD::MissingETComponentMap_v1 > > > el6;
+      DataLink< xAOD::MissingETAssociationMap_v1 > dl5;
+      std::vector< DataLink< xAOD::MissingETAssociationMap_v1 > > dl6;
+      ElementLink< xAOD::MissingETAssociationMap_v1 > el7;
+      std::vector< ElementLink< xAOD::MissingETAssociationMap_v1 > > el8;
+      std::vector< std::vector< ElementLink< xAOD::MissingETAssociationMap_v1 > > > el9;
 
       // Smart pointers needed for the correct generation of the auxiliary
       // class dictionaries:
-      ElementLink< xAOD::IParticleContainer > el7;
-      std::vector< ElementLink< xAOD::IParticleContainer > > el8;
-      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > el9;
+      ElementLink< xAOD::IParticleContainer > el10;
+      std::vector< ElementLink< xAOD::IParticleContainer > > el11;
+      std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > el12;
       std::vector< MissingETBase::Types::bitmask_t > vec1;
       std::vector< unsigned long long > vec2;
+      std::vector< std::vector< size_t > > vec3;
+      std::vector< std::vector< unsigned char > > vec4;
    };
 }
 

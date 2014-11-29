@@ -13,7 +13,7 @@
 #include "xAODBase/IParticleContainer.h"
 
 #include "xAODMissingET/versions/MissingETCompositionBase.h"
-#include "xAODMissingET/versions/MissingET_v1.h"
+#include "xAODMissingET/MissingETContainer.h"
 
 #include <vector>
 
@@ -70,11 +70,11 @@ namespace xAOD
     }; // MissingETComponent_v1::Weight
 
     MissingETComponent_v1(bool createStore=false);                                                                                /*!< @brief Default constructor */
-    MissingETComponent_v1(const MissingET_v1* pmetObj,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus()); /*!< @brief Construct with a link to a MissingET_v1 object */
-    /*! @brief Construct with a link to a MissingET_v1 and a link to an IParticle object, and a @c Weight */
-    MissingETComponent_v1(const MissingET_v1* pmetObj,const IParticle* pPart,const Weight& wght=Weight(),MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
-    /*! @brief Construct with a link to a MissingET_v1 and a link to an IParticle object, and indivdual numerical weight components */
-    MissingETComponent_v1(const MissingET_v1* pmetObj,const IParticle* pPart,double wpx,double wpy,double wet,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
+    MissingETComponent_v1(const MissingET* pmetObj,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus()); /*!< @brief Construct with a link to a MissingET object */
+    /*! @brief Construct with a link to a MissingET and a link to an IParticle object, and a @c Weight */
+    MissingETComponent_v1(const MissingET* pmetObj,const IParticle* pPart,const Weight& wght=Weight(),MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
+    /*! @brief Construct with a link to a MissingET and a link to an IParticle object, and indivdual numerical weight components */
+    MissingETComponent_v1(const MissingET* pmetObj,const IParticle* pPart,double wpx,double wpy,double wet,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
     MissingETComponent_v1(const MissingETComponent_v1& compDescr);                                    /*!< @brief Copy constructor */
     MissingETComponent_v1(const MissingETComponent_v1& compDescr,MissingETBase::Types::bitmask_t sw); /*!< @brief Copy constructor with new status word */
     MissingETComponent_v1& operator=(const MissingETComponent_v1& compDescr);                         /*! @brief Assignment operator */
@@ -85,7 +85,7 @@ namespace xAOD
      */
     /*!@{*/
     /*! @brief Set MET object by object pointer reference */
-    bool setMET(const MissingET_v1* pmetObj,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
+    bool setMET(const MissingET* pmetObj,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
     /*! @brief Set MET object by container pointer and index reference */
     bool setMET(const MissingETContainer_v1* pmetCont,size_t pmedIdx,MissingETBase::Types::bitmask_t sw=MissingETBase::Status::clearedStatus());
     /*!@}*/
@@ -154,7 +154,7 @@ namespace xAOD
 
     /*! @name Dedicated accessors for linked objects */
     /*!@{*/
-    const MissingET_v1* metObject() const;                                      /*!< @brief Access MET object */
+    const MissingET* metObject() const;                                      /*!< @brief Access MET object */
     const MissingETContainer_v1* metObjectContainer() const;                    /*!< @brief Access MET object container holding MET object */
     size_t metObjectIndex() const;                                              /*!< @brief Access index of MET object in its container */
     std::vector<const IParticle*> objects() const;                              /*!< @brief Access contributing objects */
@@ -198,7 +198,7 @@ namespace xAOD
      *        MissingETComponent_v1::updateMETLink internally.
      */
     void updateLinks();
-    /*! @brief Update link MissingET_v1 object only */
+    /*! @brief Update link MissingET object only */
     void updateMETLink();
     size_t size() const;
     /*! @brief Empty list of contributing objects indicator */

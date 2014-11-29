@@ -4,7 +4,6 @@
 
 
 #include "xAODMissingET/versions/MissingET_v1.h"
-
 #include "xAODMissingET/versions/MissingETBase.h"
 
 using namespace xAOD;
@@ -26,7 +25,7 @@ MissingET_v1::MissingET_v1( const std::string& name,
    setSource( src );
 }
 
-MissingET_v1::MissingET_v1( double px, double py, double pt,
+MissingET_v1::MissingET_v1( double mpx, double mpy, double sumet,
                             const std::string& name,
                             MissingETBase::Types::bitmask_t src )
    : SG::AuxElement() {
@@ -34,7 +33,9 @@ MissingET_v1::MissingET_v1( double px, double py, double pt,
    createPrivateStore();
    setName( name );
    setSource( src );
-   add( px, py, pt );
+   this->f_mpx() = mpx;
+   this->f_mpy() = mpy;
+   this->f_sumet() = sumet;
 }
 
 MissingET_v1::MissingET_v1( const IParticle* particle, const std::string& name,
@@ -78,7 +79,7 @@ void MissingET_v1::add(const IParticle* particle,double scale)
   this->add(px,py,pt);
 }
 
-void xAOD::MissingET_v1::add(double px,double py,double pt) 
+void xAOD::MissingET_v1::add(double px,double py, double pt) 
 { this->f_mpx() -= px; this->f_mpy() -= py; this->f_sumet() += pt; }
 
 MissingET_v1& MissingET_v1::operator-=(const IParticle* particle)

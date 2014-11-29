@@ -45,10 +45,7 @@ namespace xAOD
   };
 }
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF(xAOD::MissingETContainer_v1,1103569747,1)
-#endif
+SG_BASE(xAOD::MissingETContainer_v1, DataVector<xAOD::MissingET_v1>);
 
 #include "xAODMissingET/versions/MissingETContainer_v1.icc"
 

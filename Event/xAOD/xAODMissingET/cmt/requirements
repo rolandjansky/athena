@@ -12,6 +12,7 @@ use AthLinks      AthLinks-*      Control
 # EDM package(s):
 use xAODBase      xAODBase-*      Event/xAOD
 use xAODCore      xAODCore-*      Event/xAOD
+use xAODJet       xAODJet-*       Event/xAOD
 
 use AtlasROOT     AtlasROOT-*     External
 

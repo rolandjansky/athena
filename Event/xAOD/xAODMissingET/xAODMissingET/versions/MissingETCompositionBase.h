@@ -12,8 +12,12 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 
+#include "AthContainers/ConstDataVector.h"
 #include "AthLinks/ElementLink.h"
-#include "xAODMissingET/versions/MissingETContainer_v1.h"
+
+#include "xAODMissingET/MissingETContainer.h"
+
+#include "xAODJet/JetContainer.h"
 
 #include <vector>
 #include <iterator>
@@ -25,17 +29,24 @@ namespace MissingETBase
   {
     /*! @name Link data types */
     /*!@{*/
-    /*! @brief Link to @link MissingET_v1 MissingET @endlink object 
+    /*! @brief Link to @link MissingET MissingET @endlink object 
      *
-     *  This is the link to the MET object the signal or physics objects in a @link MissingETContribution_v1 MissingETContribution @endlink contributes to.
+     *  This is the link to the MET object the signal or physics objects in a @link MissingETContribution MissingETContribution @endlink contributes to.
      */
-    typedef ElementLink<xAOD::MissingETContainer_v1> metlink_t;
+    typedef ElementLink<xAOD::MissingETContainer> metlink_t;
+    /*! @brief Link to @link Jet Jet @endlink object 
+     *
+     *  This is the link to the jet used to build overlap removal decisions in a @link MissingETAssociation MissingETAssociation @endlink object.
+     */
+    typedef ElementLink<xAOD::JetContainer> jetlink_t;
     /*! @brief Link to contributing object
      *
-     *  This is the link to an object contributing to a specific @link MissingET_v1  MissingET @endlink object in the @link MissingETContribution_v1 MissingETContribution @endlink.
+     *  This is the link to an object contributing to a specific @link MissingET  MissingET @endlink object in the @link MissingETContribution MissingETContribution @endlink.
      */
     typedef ElementLink<xAOD::IParticleContainer> objlink_t;
     /*@}*/
+
+    typedef ConstDataVector<xAOD::IParticleContainer> const_signal_vector_t;
     
     /*! @names Vector of links  and object types */
     /*!@{*/
@@ -50,7 +61,7 @@ namespace MissingETBase
 
   /*! @brief Namespace for status word tags
    *
-   *  This namespace collects bit patterns for three different categories characterizing the status of a contribution to a given @link MissingET_v1  MissingET @endlink object.
+   *  This namespace collects bit patterns for three different categories characterizing the status of a contribution to a given @link MissingET  MissingET @endlink object.
    *  MissingETBase::Status::Reco has bit patterns tagging the reconstruction status:
    *  <ul>
    *  MissingETBase::Status::Total indcates 
@@ -165,6 +176,7 @@ namespace MissingETBase
       OnlyTrack     = 0x0012, /*!< @brief Track based only */
       TrackCluster  = 0x0014, /*!< @brief Both cluster and track based */
       PhysicsObject = 0x0020, /*!< @brief Physics object based*/
+      ParticleFlow  = 0x0040, /*!< @brief Particle Flow Object based */
       UnknownPolicy = 0x0000  /*!< @brief Unknown policy */};
   } // namespace MissingETBase::OverlapHandler
 } // namespace MissingETBase
