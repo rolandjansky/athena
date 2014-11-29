@@ -25,8 +25,8 @@
 #include "tauEvent/TauCommonDetails.h"
 #include "tauEvent/TauJetParameters.h"
 
-// //panTau EDM includes
-// #include "PanTauEvent/PanTauDetails.h"
+//panTau EDM includes
+#include "PanTauEvent/PanTauDetails.h"
 
 //xAOD tau EDM includes
 #include "xAODTau/TauJetContainer.h"
@@ -38,8 +38,7 @@
 
 namespace xAODMaker {
   class TauJetCnvTool
-    : public ::AthAlgTool,
-      public virtual ITauJetCnvTool
+    : public ::AthAlgTool
   { 
     
     /////////////////////////////////////////////////////////////////// 
@@ -55,15 +54,15 @@ namespace xAODMaker {
 		   const IInterface* parent );
 
     /// Destructor: 
-    virtual ~TauJetCnvTool() override;
+    virtual ~TauJetCnvTool(); 
 
     // Assignment operator: 
     //TauJetCnvTool &operator=(const TauJetCnvTool &alg); 
 
     // initializationa nd execution
-    virtual StatusCode  initialize() override;
+    virtual StatusCode  initialize();
     virtual StatusCode  convert(const Analysis::TauJetContainer* inputTaus,
-				xAOD::TauJetContainer* xaodTauJets) const override;
+				xAOD::TauJetContainer* xaodTauJets);
     // virtual StatusCode  finalize();
 
     /////////////////////////////////////////////////////////////////// 

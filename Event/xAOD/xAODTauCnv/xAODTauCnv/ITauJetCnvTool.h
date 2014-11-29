@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITauJetCnvTool.h 785754 2016-11-22 15:16:29Z ssnyder $
+// $Id: ITauJetCnvTool.h 632184 2014-11-29 16:07:43Z janus $
 #ifndef XAODTAUJETCNV_ITAUJETCNVTOOL_H
 #define XAODTAUJETCNV_ITAUJETCNVTOOL_H
 
@@ -33,8 +33,8 @@ namespace xAODMaker {
     *
     * @author Michel Janus <janus@cern.ch>
     *
-    * $Revision: 785754 $
-    * $Date: 2016-11-22 16:16:29 +0100 (Tue, 22 Nov 2016) $
+    * $Revision: 632184 $
+    * $Date: 2014-11-29 17:07:43 +0100 (Sat, 29 Nov 2014) $
     */
    class ITauJetCnvTool : public virtual IAlgTool {
 
