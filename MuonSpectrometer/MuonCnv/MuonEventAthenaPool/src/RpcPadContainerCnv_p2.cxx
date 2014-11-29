@@ -57,7 +57,9 @@ StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log) {
         return StatusCode::FAILURE;
     }
     else {
-        if (log.level() <= MSG::VERBOSE) log <<MSG::VERBOSE << " RPCcablingSvc obtained " << endreq;
+      m_padhashmax = m_rpcCabling->padHashFunction()->max();
+      if (log.level() <= MSG::INFO)    log <<MSG::INFO    << " RPCcablingSvc obtained - hashmax  = "<<m_padhashmax << endreq;
+      //      if (log.level() <= MSG::VERBOSE) log <<MSG::VERBOSE << " RPCcablingSvc obtained " << endreq;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
@@ -128,7 +130,8 @@ RpcPadContainer* RpcPadContainerCnv_p2::createTransient(const RpcPadContainer_p2
     // log<<MSG::INFO<<"creating new pad container with hashmax= "<<m_rpcCabling->padHashFunction()->max()<<endreq;
     
     // std::auto_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcCabling->padHashFunction()->max() ));
-    std::auto_ptr<RpcPadContainer> trans(new RpcPadContainer(404 ))  ; // hardcoded number from above. FIXME!
+    // std::auto_ptr<RpcPadContainer> trans(new RpcPadContainer(404 ))  ; // hardcoded number from above. FIXME!
+    std::auto_ptr<RpcPadContainer> trans(new RpcPadContainer(m_padhashmax))  ; // hardcoded number from above. FIXME!
     
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
