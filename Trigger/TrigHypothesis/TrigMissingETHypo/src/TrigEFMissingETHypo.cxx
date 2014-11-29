@@ -7,7 +7,7 @@
 // NAME:     TrigEFMissingETHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigEFMissingETHypo
 //
-// AUTHOR:  Kyle Cranmer
+// AUTHOR:  Kyle Cranmer, Florian Bernlochner
 //
 //  $Id: TrigEFMissingETHypo.cxx,v 1.26 2009-03-25 17:04:03 casadei Exp $
 // ********************************************************************
@@ -25,6 +25,7 @@
 
 //#include "TrigCaloEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
+#include "xAODTrigMissingET/TrigMissingET.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -199,7 +200,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   pass = false;
   bool accepted = false;
 
-  std::vector<const TrigMissingET*> vectorMissingET;
+  std::vector<const xAOD::TrigMissingET*> vectorMissingET;
 
   HLT::ErrorCode stat = getFeatures(outputTE, vectorMissingET, m_featureLabel);
 
@@ -228,7 +229,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     }
   }
 
-  const TrigMissingET* met = vectorMissingET.front();
+  const xAOD::TrigMissingET* met = vectorMissingET.front();
 
   if (met==0){
     if(msgLvl() <= MSG::DEBUG) {
@@ -243,7 +244,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 
 
   // early rejection based on status flag
-  if ( m_bitMask & met->getFlag() ) {
+  if ( m_bitMask & met->flag() ) {
     pass = false;
     m_rejected++;
     return HLT::OK;
@@ -253,7 +254,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   m_cutCounter = 0; // monitoring the decision
 
   // Fex result:
-  float MET=met->et();    // MeV
+  float MET=sqrt(met->ex()*met->ex()+met->ey()*met->ey());    // MeV
   float SET=met->sumEt(); // MeV
   float Ex=met->ex();     // MeV
   float Ey=met->ey();     // MeV
@@ -289,16 +290,16 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   float muonEy=0;
   float muonEz=0;
 
-  unsigned int muIndex = met->getNumOfComponents()-1; // muons in last component
+  unsigned int muIndex = met->getNumberOfComponents()-1; // muons in last component
   
-  if( (met->getNameOfComponent(muIndex)).substr(0,4)=="Muon") { // Fetch Muon Components
-    float muEx = met->getExComponent(muIndex);
-    float muEy = met->getEyComponent(muIndex);
-    float muEz = met->getEzComponent(muIndex);
-    float muSumEt = met->getSumEtComponent(muIndex);
-    float sumOfSigns = met->getSumOfSigns(muIndex);
-    float c0 = met->getComponentCalib0(muIndex);
-    float c1 = met->getComponentCalib1(muIndex);
+  if( (met->nameOfComponent(muIndex)).substr(0,4)=="Muon") { // Fetch Muon Components
+    float muEx = met->exComponent(muIndex);
+    float muEy = met->eyComponent(muIndex);
+    float muEz = met->ezComponent(muIndex);
+    float muSumEt = met->sumEtComponent(muIndex);
+    float sumOfSigns = met->sumOfSignsComponent(muIndex);
+    float c0 = met->calib0Component(muIndex);
+    float c1 = met->calib1Component(muIndex);
     // (check TrigEFMissingET/EFMissingETFromHelper) //
     muonEx  = sumOfSigns * c0 + c1 * muEx;
     muonEy  = sumOfSigns * c0 + c1 * muEy;
@@ -319,15 +320,15 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
    // clear Fex result
    MET = SET = Ex = Ey = Ez = 0;
    
-   unsigned int lowTCIndex  =  met->getNumOfComponents()-5;
-   unsigned int highTCIndex =  met->getNumOfComponents()-1;
+   unsigned int lowTCIndex  =  met->getNumberOfComponents()-5;
+   unsigned int highTCIndex =  met->getNumberOfComponents()-1;
    
    for(unsigned int i = lowTCIndex; i < highTCIndex; i++) {
    	   	
-   	Ex += met->getExComponent(i);
-   	Ey += met->getEyComponent(i);
-   	Ez += met->getEzComponent(i);   	
-   	SET += met->getSumEtComponent(i);
+   	Ex += met->exComponent(i);
+   	Ey += met->eyComponent(i);
+   	Ez += met->ezComponent(i);   	
+   	SET += met->sumEtComponent(i);
    } 
    
     centralEx = caloEx = caloCentralEx = Ex;
@@ -341,16 +342,16 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   
   if ( m_doL1L2FEBTest ) {
   
-   float L1MET =  sqrt( pow(met->getExComponent(0),2.0) +  pow(met->getEyComponent(0),2.0) );
+   float L1MET =  sqrt( pow(met->exComponent(0),2.0) +  pow(met->eyComponent(0),2.0) );
     	
    if(MET - L1MET > m_L1L2FEBTolerance ) {    
     	
      MET = SET = Ex = Ey = Ez = 0; // clear Fex result
     
-     Ex += met->getExComponent(0);
-     Ey += met->getEyComponent(0);
-     Ez += met->getEzComponent(0);
-     SET +=  met->getSumEtComponent(0);
+     Ex += met->exComponent(0);
+     Ey += met->eyComponent(0);
+     Ez += met->ezComponent(0);
+     SET +=  met->sumEtComponent(0);
 
      centralEx = caloEx = caloCentralEx = Ex;
      centralEy = caloEy = caloCentralEy = Ey;
@@ -390,10 +391,10 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 
   if ( fabs(m_central) > epsilon || fabs(m_forward) > epsilon ) { // subtract FCAL?
     // address the 3 FCAL samplings:
-    unsigned int Imin = met->getNumOfComponents()-4;
-    unsigned int Imax = met->getNumOfComponents()-2;
+    unsigned int Imin = met->getNumberOfComponents()-4;
+    unsigned int Imax = met->getNumberOfComponents()-2;
     for (unsigned int i=Imin; i<=Imax; ++i) {
-      if( (met->getNameOfComponent(i)).substr(0,4)!="FCal") {
+      if( (met->nameOfComponent(i)).substr(0,4)!="FCal") {
 	if(msgLvl() <= MSG::WARNING) {
 	  msg() << MSG::WARNING << 
 	    "ERROR: cannot find 'FCal' in component name - FCal not subtracted!"
@@ -401,13 +402,13 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 	}
 	break;
       }
-      float ex = met->getExComponent(i);
-      float ey = met->getEyComponent(i);
-      float ez = met->getEzComponent(i);
-      float SumEt = met->getSumEtComponent(i);
-      float sumOfSigns = met->getSumOfSigns(i);
-      float c0 = met->getComponentCalib0(i);
-      float c1 = met->getComponentCalib1(i);
+      float ex = met->exComponent(i);
+      float ey = met->eyComponent(i);
+      float ez = met->ezComponent(i);
+      float SumEt = met->sumEtComponent(i);
+      float sumOfSigns = met->sumOfSignsComponent(i);
+      float c0 = met->calib0Component(i);
+      float c1 = met->calib1Component(i);
       // (check TrigEFMissingET/EFMissingETFromHelper) //
       fcalEx  += sumOfSigns * c0 + c1 * ex;
       fcalEy  += sumOfSigns * c0 + c1 * ey;
@@ -546,19 +547,19 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   
 
   // If the L1 overflow bits are set, 
-  // automatically accept
+  // automatically accept 
 
   // Check num components to determine
   // if HYPO is L2 or EF
   unsigned int componentCutoff = 5;
 
-  if( !accepted && met->getNumOfComponents() < componentCutoff ) {
+  if( !accepted && met->getNumberOfComponents() < componentCutoff ) {
 
     unsigned short maskL1OverflowExEy     = 0x0010; // bit  4
     unsigned short maskL1OverflowSumEt    = 0x0020; // bit  5
     unsigned short overflowMask = maskL1OverflowExEy | maskL1OverflowSumEt;
     
-    if( met->getFlag() & overflowMask ) {
+    if( met->flag() & overflowMask ) {
       m_cutCounter = 3;
       accepted = true;
     }
@@ -663,3 +664,4 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 
   return HLT::OK;
 }
+ 

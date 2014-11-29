@@ -225,6 +225,56 @@ class EFMetHypoTCPSXE (EFMissingETHypoBase):
         if 'xe30' in name:
             self.onlineMonitoring(True)
 
+class EFMetHypoJetsXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_mhtxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoJetsXE, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_mht'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=False 
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
+class EFMetHypoTCPUCXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_tcpucxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoTCPUCXE, self ).__init__( name )
+        
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_topocl_PUC'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=True
+        if 'tchad' in name:
+            self.doEMScaleTC = False
+        if 'tclcw' in name:
+            self.doEMScaleTC = False
+        if 'tcem' in name:
+            self.doEMScaleTC = True
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
 class L2MetHypoTE (EFMissingETHypoBase):
     __slots__ = []
     def __init__(self, name = "L2MetHypo_te1000",l2_thr=1000*GeV):
@@ -438,4 +488,7 @@ class EFMetHypoTCPSXS (EFMissingETHypoBase):
             self.SumETCut=-100*GeV
         if 'xs30' in name:
             self.onlineMonitoring(True)
+
+
+
 

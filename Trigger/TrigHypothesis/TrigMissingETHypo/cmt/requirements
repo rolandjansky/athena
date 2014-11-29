@@ -11,6 +11,8 @@ private
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  GaudiInterface             GaudiInterface-*                External
 use  TrigMissingEtEvent         TrigMissingEtEvent-*            Trigger/TrigEvent
+use  xAODTrigMissingET	        xAODTrigMissingET-*	            Event/xAOD
+
 end_private
 
 
