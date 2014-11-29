@@ -60,15 +60,19 @@ StatusCode VectorAlg::execute()
   vhit.reserve(m_2bReserved.value());
   int vcap(vhit.capacity());
   int vold;
+#ifdef DEBUG_ME
   IHit* p1(0);
   IHit* p2(0);
+#endif
   IHit* p3(0);
   cout << "initial capacity " << vcap << endl;
   int size(m_vectorSize.value());
   for(int i(0); i<size; ++i) {
     vold=vcap;
+#ifdef DEBUG_ME
     p1=p2;
     p2=p3;
+#endif
     vhit.push_back(DHit(i,i,i));
     vcap=vhit.capacity();
     p3=&vhit[i];

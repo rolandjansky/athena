@@ -19,16 +19,13 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// Forward declaration
-class StoreGateSvc;
-
 namespace PerfMonTest {
 
-class BasicAlg : public Algorithm
+class BasicAlg : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -67,13 +64,6 @@ class BasicAlg : public Algorithm
 
   /// Default constructor: 
   BasicAlg();
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to StoreGate
-  StoreGateSvc_t m_storeGate;
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
 
   /// Property to setup the size of the @c PerfMonTest::Data
   int m_dataSize;

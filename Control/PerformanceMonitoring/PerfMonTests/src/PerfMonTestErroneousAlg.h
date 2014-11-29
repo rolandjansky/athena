@@ -19,16 +19,12 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// Forward declaration
-class StoreGateSvc;
 
 namespace PerfMonTest {
 
-class ErroneousAlg : public Algorithm
+class ErroneousAlg : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -67,9 +63,6 @@ class ErroneousAlg : public Algorithm
 
   /// Default constructor: 
   ErroneousAlg();
-  
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
   
   /// three member functions which will exhibit faulty behaviour
   bool jumpOnUninitializedValue();

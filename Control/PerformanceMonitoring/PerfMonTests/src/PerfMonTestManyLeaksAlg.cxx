@@ -15,9 +15,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
 // PerfMonTests includes
 #include "PerfMonTestManyLeaksAlg.h"
 
@@ -32,9 +29,8 @@ long** ManyLeaksAlg::m_pointers = NULL;
 // Constructors
 ////////////////
 ManyLeaksAlg::ManyLeaksAlg( const std::string& name, 
-		  ISvcLocator* pSvcLocator ) : 
-  Algorithm   ( name,    pSvcLocator ),
-  m_msg       ( msgSvc(),       name ),
+                            ISvcLocator* pSvcLocator ) : 
+  AthAlgorithm( name,    pSvcLocator ),
   m_stillReachable ( NULL ),
   m_possibleLost   ( NULL ),
   m_indirectlyLost ( NULL ),
@@ -57,7 +53,7 @@ ManyLeaksAlg::ManyLeaksAlg( const std::string& name,
 ///////////////
 ManyLeaksAlg::~ManyLeaksAlg()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 // Athena Algorithm's Hooks
@@ -65,11 +61,9 @@ ManyLeaksAlg::~ManyLeaksAlg()
 StatusCode ManyLeaksAlg::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   // in m_pointers, we'll store the pointers to the allocated space
   // they need to exist beyond the lifetime of this algorithm
@@ -85,17 +79,14 @@ StatusCode ManyLeaksAlg::initialize()
 
 StatusCode ManyLeaksAlg::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode ManyLeaksAlg::execute()
 {
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
   
   if ( 0 == m_leakSize ) {
     return StatusCode::SUCCESS;

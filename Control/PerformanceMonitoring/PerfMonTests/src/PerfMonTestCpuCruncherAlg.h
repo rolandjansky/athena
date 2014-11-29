@@ -17,8 +17,7 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Forward declaration
@@ -27,7 +26,7 @@ namespace CLHEP { class HepRandomEngine; }
 
 namespace PerfMonTest {
 
-class CpuCruncherAlg : public Algorithm
+class CpuCruncherAlg : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -66,9 +65,6 @@ class CpuCruncherAlg : public Algorithm
 
   /// Default constructor: 
   CpuCruncherAlg();
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
 
   /// Property to setup the mean (in ms) of CPU time to consume
   float m_meanCpuTime;

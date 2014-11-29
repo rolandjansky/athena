@@ -19,13 +19,11 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace PerfMonTest {
 
-class ManyLeaksAlg : public Algorithm
+class ManyLeaksAlg : public AthAlgorithm
 {
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -78,9 +76,6 @@ class ManyLeaksAlg : public Algorithm
   /// this one's definitely lost
   void leakAll();
   
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
-
   /// Property to setup the size of the leak
   int m_leakSize;
   

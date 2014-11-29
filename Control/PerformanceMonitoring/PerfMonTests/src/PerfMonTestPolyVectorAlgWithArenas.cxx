@@ -62,15 +62,19 @@ StatusCode PolyVectorAlgWithArenas::execute()
   vptr.reserve(m_2bReserved.value());
   int vcap(vptr.capacity());
   int vold;
+#ifdef DEBUG_ME
   IHit* p1(0);
   IHit* p2(0);
+#endif
   IHit* p3(0);
   cout << "initial capacity " << vcap << endl;
   int size(m_vectorSize.value());
   for(int i(0); i<size; ++i) {
     vold=vcap;
+#ifdef DEBUG_ME
     p1=p2;
     p2=p3;
+#endif
     p3=(i % m_mixture.value()) ? 
       (IHit*) new(fhitPool.nextElementPtr()) FHit(i, i, i): 
       (IHit*) new(dhitPool.nextElementPtr()) DHit(i, i, i);   //<<< NEW
