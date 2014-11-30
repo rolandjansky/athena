@@ -13,14 +13,9 @@
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/Feature.h"
 
-
-
-
 #include "TrigCaloEvent/TrigT2JetContainer.h"
 #include "JetEvent/JetCollection.h"
 
-// Temporary fix - must replace JetCaloHelper --- LS
-////#include "JetUtils/JetCaloHelper.h"
 #include "JetUtils/JetCaloQualityUtils.h"
 
 #include "EventKernel/SignalStateHelper.h"
@@ -52,22 +47,22 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("JetMonBase",         m_monBase = "/HLT/JetMon");
 
   declareProperty("DoL1Efficiency",     m_doL1TrigEff = true);
-  declareProperty("DoL2Efficiency",     m_doL2TrigEff = true);
+  declareProperty("DoOfflineJets",      m_doOFJets = true);
   declareProperty("DoEFEfficiency",     m_doEFTrigEff = true);
 
   declareProperty("DoEventSelection",   m_doEvtSel = true );
   declareProperty("EvtSelTriggers",     m_sampSelTriggers );
-  declareProperty("L1JetKey",           m_L1JetKey = "LVL1_ROI");
+  declareProperty("L1xAODJetKey",       m_L1xAODJetKey = "LVL1JetRoIs");
   declareProperty("L2JetKey",           m_L2JetKey = "HLT_TrigT2CaloJet");
   declareProperty("EFJetKey",           m_EFJetKey = "HLT_TrigJetRec");
   declareProperty("OFJetKeys",          m_OFJetKeys, "SG Keys to access offline Jet Collections" );
 
-  declareProperty("L2JetDir",           m_L2dir = "/L2CaloJet_Fex" );
+  declareProperty("L1JetDir",           m_L1dir = "/L1CaloJet_Fex" );
   declareProperty("EFJetDir",           m_EFdir = "/EFJetRec_Fex" );
   declareProperty("EfficiencyDir",      m_Effdir = "/JetTrigEff" );
   declareProperty("OFJetDirPrefix",     m_OFpfx = "OFAlg" );
   
-  declareProperty("BasicL2Chains",      m_basicL2Trig, "L2 Chains for Basic Jet Trigger Histograms");
+  declareProperty("BasicL1Chains",      m_basicL1Trig, "L1 Chains for Basic Jet Trigger Histograms");
   declareProperty("BasicEFChains",      m_basicEFTrig, "EF Chains for Basic Jet Trigger Histograms");
   
   // Jet Multiplicity bins
@@ -103,11 +98,7 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("L1EffNBinsEt",        m_l1nbinsEt );
   declareProperty("L1EffBinLoEtGeV",     m_l1binloEt );
   declareProperty("L1EffBinHiEtGeV",     m_l1binhiEt );
-  
-  declareProperty("L2EffNBinsEt",        m_l2nbinsEt );
-  declareProperty("L2EffBinLoEtGeV",     m_l2binloEt );
-  declareProperty("L2EffBinHiEtGeV",     m_l2binhiEt );
-  
+    
   declareProperty("EFEffNBinsEt",        m_efnbinsEt );
   declareProperty("EFEffBinLoEtGeV",     m_efbinloEt );
   declareProperty("EFEffBinHiEtGeV",     m_efbinhiEt );
@@ -170,7 +161,7 @@ void HLTJetMonTool::clearVectors() {
   //m_ofemfracCut.clear();
   m_OFJetC.clear();
 
-  m_basicL2Trig.clear();
+  m_basicL1Trig.clear();
   m_basicEFTrig.clear();
 
   m_l1EtThres.clear();
@@ -209,13 +200,10 @@ void HLTJetMonTool::clearVectors() {
   m_jDepbinhi.clear();
 
   m_l1nbinsEt.clear();
-  m_l2nbinsEt.clear();
   m_efnbinsEt.clear();
   m_l1binloEt.clear();
-  m_l2binloEt.clear();
   m_efbinloEt.clear();
   m_l1binhiEt.clear();
-  m_l2binhiEt.clear();
   m_efbinhiEt.clear();
 }
 // ------------------------------------------------------------------------------------
@@ -241,26 +229,26 @@ StatusCode HLTJetMonTool::init() {
     }
   }
 
-  // defaults for L2 basic plots
-  if(m_basicL2Trig.empty()) {
-    m_basicL2Trig.insert(std::pair<std::string,std::string>("L2_j25","L2_j25_jetNoCut"));
-    m_basicL2Trig.insert(std::pair<std::string,std::string>("L2_j70","L2_j70_jetNoCut"));
-    m_basicL2Trig.insert(std::pair<std::string,std::string>("L2_fj25","L2_fj25_jetNoCut"));
+  // defaults for L1 basic plots. String pairs of the form ("MonGroup name","L1 Trigger Name")
+  if(m_basicL1Trig.empty()) {
+    m_basicL1Trig.insert(std::pair<std::string,std::string>("L1_J100","L1_J100"));
+    m_basicL1Trig.insert(std::pair<std::string,std::string>("L1_FJ100","L1_FJ100"));
+    m_basicL1Trig.insert(std::pair<std::string,std::string>("L1_3J50","L1_3J50"));
   }
  
 
-  // defaults for EF basic plots
+  // defaults for EF basic plots. String pairs of the form ("MonGroup name","EF Filter Name")
   if(m_basicEFTrig.empty()) {
-    m_basicEFTrig.insert(std::pair<std::string,std::string>("EF_j30","EF_j30_jetNoCut"));
-    m_basicEFTrig.insert(std::pair<std::string,std::string>("EF_j75","EF_j75_jetNoCut"));
-    m_basicEFTrig.insert(std::pair<std::string,std::string>("EF_fj30","EF_fj30_jetNoCut"));
+    m_basicEFTrig.insert(std::pair<std::string,std::string>("HLT_j200","HLT_j200_320eta490"));
+    m_basicEFTrig.insert(std::pair<std::string,std::string>("HLT_j460","HLT_j460_a10_L1J100"));
+    m_basicEFTrig.insert(std::pair<std::string,std::string>("HLT_3j175","HLT_3j175"));
   }
   
   // defaults for bins
   // Jet Multiplicity bins
-  if(m_njnbins.empty()){m_njnbins.push_back(21);}
+  if(m_njnbins.empty()){m_njnbins.push_back(51);}
   if(m_njbinlo.empty()){m_njbinlo.push_back(-0.5);}
-  if(m_njbinhi.empty()){m_njbinhi.push_back(20.5);}
+  if(m_njbinhi.empty()){m_njbinhi.push_back(50.5);}
 
   // Jet ET bins
   if(m_jEtnbins.empty()){m_jEtnbins.push_back(110);}
@@ -289,7 +277,7 @@ StatusCode HLTJetMonTool::init() {
 
   // defaults for offline jet keys
   if(m_OFJetKeys.empty()) { 
-    m_OFJetKeys.insert(std::pair<std::string,std::string>("AntiKt4TopoJets","AntiKt4H1TopoJets"));
+    m_OFJetKeys.insert(std::pair<std::string,std::string>("AntiKt4EMTopoJets","AntiKt4EMTopoJets"));
   }
   // defaults for L1 items
   if(m_L1Items.empty()) {
@@ -323,30 +311,6 @@ StatusCode HLTJetMonTool::init() {
     }
   }*/
 
-  // defaults for L2 chains
-  if(m_L2Chains.empty()) {
-    m_L2Chains.insert(std::pair<std::string,std::string>("L2_j30","L2_j30"));
-    m_L2Chains.insert(std::pair<std::string,std::string>("L2_j90","L2_j90"));
-    
-    // defaults for L2 ET Thresholds
-    m_l2EtThres.insert(std::pair<std::string,double>("L2_J30",30.));
-    m_l2EtThres.insert(std::pair<std::string,double>("L2_J90",90.));
-    m_ofEtThres.insert(std::pair<std::string,double>("L2_J30",30.));
-    m_ofEtThres.insert(std::pair<std::string,double>("L2_J90",90.));
-
-      // bins, binlo, binhi
-    m_l2nbinsEt.clear();
-    m_l2nbinsEt.push_back(25); 
-    m_l2nbinsEt.push_back(25); 
-    m_l2binloEt.clear();
-    m_l2binloEt.push_back(20.);
-    m_l2binloEt.push_back(40.);
-    m_l2binhiEt.clear();
-    m_l2binhiEt.push_back(120.);
-    m_l2binhiEt.push_back(140.);
-  
-  }
-
   // defaults for EF chains
   if(m_EFChains.empty()) {
     m_EFChains.insert(std::pair<std::string,std::string>("EF_j30","EF_j30"));
@@ -375,11 +339,6 @@ StatusCode HLTJetMonTool::init() {
     for(JetSigIter it = m_L1Items.begin(); it != m_L1Items.end(); ++it, ich++) {
       ATH_MSG_DEBUG( (*it).first << "\tThr: " 
           << m_l1EtThres[(*it).first] << "\t\tEtBins(" << m_l1nbinsEt[ich] << "," << m_l1binloEt[ich] << "," << m_l1binhiEt[ich] << ")" );
-    }
-    ich = 0;
-    for(JetSigIter it = m_L2Chains.begin(); it != m_L2Chains.end(); ++it, ich++) {
-      ATH_MSG_DEBUG( (*it).first << "\tThr: " 
-          << m_l2EtThres[(*it).first] << "\t\tEtBins(" << m_l2nbinsEt[ich] << "," << m_l2binloEt[ich] << "," << m_l2binhiEt[ich] << ")" );
     }
     ich = 0;
     for(JetSigIter it = m_EFChains.begin(); it != m_EFChains.end(); ++it, ich++) {
@@ -421,7 +380,7 @@ StatusCode HLTJetMonTool::book( ) {
   if (m_debuglevel) 
     ATH_MSG_INFO( "in HLTJetMonTool::book()" );
   
-  // look for configured L2/EF chains
+  // look for configured HLT chains
   for( std::vector<std::string>::const_iterator it = m_chainsByRegexp.begin(); it != m_chainsByRegexp.end(); ++it ) {
     std::ostringstream chainsRun;
     std::string theRegExp = *it;
@@ -442,7 +401,6 @@ StatusCode HLTJetMonTool::book( ) {
 //  if (isNewRun) {
 
     const unsigned int l1v_num = m_L1Items.size();
-    const unsigned int l2v_num = m_L2Chains.size();
     const unsigned int efv_num = m_EFChains.size();
 
 
@@ -451,12 +409,6 @@ StatusCode HLTJetMonTool::book( ) {
       m_l1nbinsEt.clear();
       for(unsigned int k = 0; k < l1v_num; k++) 
         m_l1nbinsEt.push_back(m_jEtnbins[0]);
-    }
-
-    if(m_l2nbinsEt.size() != l2v_num) {
-      m_l2nbinsEt.clear();
-      for(unsigned int k = 0; k < l2v_num; k++) 
-        m_l2nbinsEt.push_back(m_jEtnbins[0]);
     }
 
     if(m_efnbinsEt.size() != efv_num) {
@@ -472,12 +424,6 @@ StatusCode HLTJetMonTool::book( ) {
         m_l1binloEt.push_back(m_jEtbinlo[0]);
     }
 
-    if(m_l2binloEt.size() != l2v_num) {
-      m_l2binloEt.clear();
-      for(unsigned int k = 0; k < l2v_num; k++) 
-        m_l2binloEt.push_back(m_jEtbinlo[0]);
-    }
-
     if(m_efbinloEt.size() != efv_num) {
       m_efbinloEt.clear();
       for(unsigned int k = 0; k < efv_num; k++) 
@@ -489,12 +435,6 @@ StatusCode HLTJetMonTool::book( ) {
       m_l1binhiEt.clear();
       for(unsigned int k = 0; k < l1v_num; k++) 
         m_l1binhiEt.push_back(m_jEtbinhi[0]);
-    }
-
-    if(m_l2binhiEt.size() != l2v_num) {
-      m_l2binhiEt.clear();
-      for(unsigned int k = 0; k < l2v_num; k++) 
-        m_l2binhiEt.push_back(m_jEtbinhi[0]);
     }
 
     if(m_efbinhiEt.size() != efv_num) {
@@ -560,29 +500,27 @@ void HLTJetMonTool::bookJetHists() {
 
   //typedef std::vector<std::string>::const_iterator VectIter;
   // define levels and choose to plot additional histograms
-  // Levels = "L1", "L2", "EF" + offline
+  // Levels = "L1", "EF" + offline
   std::vector<std::string> levels;
   std::vector<std::string> bookvars;
   std::string varlist = "n;et;eta;phi;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar";
 
-  // L1 and L2 histograms in m_L2dir
+  // L1 histograms in m_L1dir
   levels.push_back("L1");
-  levels.push_back("L2");
 
-  // create path to L1/2 dirs
-  std::string L2dir = m_monBase + m_L2dir;
+  // create path to L1 and EF dirs
+  std::string L1dir = m_monBase + m_L1dir;
   std::string EFdir = m_monBase + m_EFdir;
-  addMonGroup (new MonGroup(this, L2dir.c_str(), run));
+  addMonGroup (new MonGroup(this, L1dir.c_str(), run));
   addMonGroup (new MonGroup(this, EFdir.c_str(), run));
 
   // add mongroup to list
-  m_monGroups["L1"] = L2dir;
-  m_monGroups["L2"] = L2dir;
+  m_monGroups["L1"] = L1dir;
   m_monGroups["EF"] = EFdir;
 
-  // create a new mongroup for L1, L2 and make it current
-  setCurrentMonGroup(L2dir);
-  // book L1,L2 histograms
+  // create a new mongroup for L1 and make it current
+  setCurrentMonGroup(L1dir);
+  // book L1 histograms
   int nvar = basicKineVar(varlist,bookvars);
   bookBasicHists(levels,bookvars);
   
@@ -590,20 +528,17 @@ void HLTJetMonTool::bookJetHists() {
   setCurrentMonGroup(EFdir);
   levels.clear(); levels.push_back("EF");
   bookBasicHists(levels,bookvars);
-  
+
   // fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
   //                     - "et;eta;phi;phi_vs_eta;"; // all with L1 prefix
   //
-  // fillBasicL2forChain - "l1et_vs_l2et;l1eta_vs_l2eta;l1phi_vs_l2phi"; // no L1/L2 prefix (book once)
-  //                     - "et;eta;phi;phi_vs_eta;et_EffRelL1;eta_EffRelL1;phi_EffRelL1" // with L2 prefix
 
-  // L2 Chains
-  // L1/L2 common
+  // L1 Chains
   varlist="et;eta;phi;phi_vs_eta;";
   nvar = basicKineVar(varlist,bookvars);
-  levels.clear(); levels.push_back("L1"); levels.push_back("L2");
-  for(JetSigIter k= m_basicL2Trig.begin(); k != m_basicL2Trig.end(); ++k ) {
-    const std::string theDir = L2dir + "/" + (*k).first;
+  levels.clear(); levels.push_back("L1");
+  for(JetSigIter k= m_basicL1Trig.begin(); k != m_basicL1Trig.end(); ++k ) {
+    const std::string theDir = L1dir + "/" + (*k).first;
     ATH_MSG_INFO("Booking histograms for " << theDir);
     m_monGroups[(*k).first] = theDir;
     addMonGroup (new MonGroup(this, theDir,run));
@@ -615,21 +550,11 @@ void HLTJetMonTool::bookJetHists() {
   varlist="roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;eta_unmatched;";  // L1 prefix
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("L1");
-  for(JetSigIter k= m_basicL2Trig.begin(); k != m_basicL2Trig.end(); ++k ) {
+  for(JetSigIter k= m_basicL1Trig.begin(); k != m_basicL1Trig.end(); ++k ) {
     setCurrentMonGroup(m_monGroups[(*k).first]);
     bookBasicHists(levels,bookvars);
   }
-  
-  // correlation/efficiency histograms for each L2 chain
-  varlist ="l1et_vs_l2et;l1eta_vs_l2eta;l1phi_vs_l2phi;"; // no prefix (book only once)
-  varlist += "et_EffRelL1;eta_EffRelL1;phi_EffRelL1"; // L2 prefix
-  nvar = basicKineVar(varlist,bookvars);
-  levels.clear(); levels.push_back("L2");
-  for(JetSigIter k= m_basicL2Trig.begin(); k != m_basicL2Trig.end(); ++k ) {
-    setCurrentMonGroup(m_monGroups[(*k).first]);
-    bookBasicHists(levels,bookvars);
-  }
-  
+    
   //
   // fillBasicEFforChain - "l2et_vs_efet;l2eta_vs_efeta;l2phi_vs_efphi;"; // no L1/L2 prefix (book once)
   //                     - "l1et_vs_efet;l1eta_vs_efeta;l1phi_vs_efphi;"
@@ -639,7 +564,7 @@ void HLTJetMonTool::bookJetHists() {
   // EF basic histograms
   varlist="et;eta;phi;phi_vs_eta;";
   nvar = basicKineVar(varlist,bookvars);
-  levels.clear(); levels.push_back("EF"); levels.push_back("L2"); levels.push_back("L1");
+  levels.clear(); levels.push_back("EF"); levels.push_back("L1");
   for(JetSigIter k= m_basicEFTrig.begin(); k != m_basicEFTrig.end(); ++k ) {
     const std::string theDir = EFdir + "/" + (*k).first;
     m_monGroups[(*k).first] = theDir;
@@ -659,9 +584,6 @@ void HLTJetMonTool::bookJetHists() {
   } 
   // correlation/relative efficiency histograms for EF chains
   varlist =  "l1et_vs_efet;l1eta_vs_efeta;l1phi_vs_efphi;";
-  varlist += "l2et_vs_efet;l2eta_vs_efeta;l2phi_vs_efphi;";
-  varlist += "l1et_vs_l2et;l1eta_vs_l2eta;l1phi_vs_l2phi;";
-  varlist += "et_EffRelL2;eta_EffRelL2;phi_EffRelL2";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("EF");
   for(JetSigIter k= m_basicEFTrig.begin(); k != m_basicEFTrig.end(); ++k ) {
@@ -706,31 +628,6 @@ void HLTJetMonTool::bookJetHists() {
 
     varlist = "et;eta;phi;phi_vs_eta";
     nvar = basicKineVar(varlist,bookvars);
-    /*for(JetSigIter efi= m_basicEFTrig.begin(); efi != m_basicEFTrig.end(); ++efi ) {
-      const std::string theDir = OFdir + "/" + (*efi).first;
-      std::string OFdir_chain = Form("%s_%s",OFpfx_short.c_str(), ((*efi).first).c_str());
-      m_monGroups[OFdir_chain] = theDir;
-      addMonGroup (new MonGroup(this, theDir, shift, run));
-      setCurrentMonGroup(theDir);
-      //bookCorrHists(OFpfx_short,"EF", (*ofj).first / *k * /);
-      //bookCorrHists(OFpfx_short,"EF",k);
-      //bookCorrHists("L2","L1",k);
-      //bookCorrHists("EF","L2",k);
-      //bookBasicHists(levels,bookvars);
-    }
-    for(JetSigIter l2i= m_basicL2Trig.begin(); l2i != m_basicL2Trig.end(); ++l2i ) {
-      const std::string theDir = OFdir + "/" + (*l2i).first;
-      std::string OFdir_chain = Form("%s_%s",OFpfx_short.c_str(), ((*l2i).first).c_str());
-      m_monGroups[OFdir_chain] = theDir;
-      addMonGroup (new MonGroup(this, theDir, shift, run));
-      setCurrentMonGroup(theDir);
-      //bookCorrHists(OFpfx_short,"L2", (*ofj).first / *k* /);
-      //bookCorrHists(OFpfx_short,"L2",k);
-      //bookCorrHists("L2","L1",k);
-      //bookCorrHists("EF","L2",k);
-      //bookBasicHists(levels,bookvars);
-    } */
-
 
     setCurrentMonGroup(OFdir); 
     // create path to Efficiency dir
@@ -746,12 +643,6 @@ void HLTJetMonTool::bookJetHists() {
     if(m_doL1TrigEff) {
       bookOfflineHists(m_L1Items, (*ofj).second /*m_OFJetKeys[k]*/);
       //bookOfflineHists(m_L1Items,m_OFJetKeys[k]);
-    }
-
-    // L2
-    if(m_doL2TrigEff) {
-      bookOfflineHists(m_L2Chains, (*ofj).second /*m_OFJetKeys[k]*/);
-      //bookOfflineHists(m_L2Chains,m_OFJetKeys[k]);
     }
 
     // EF
@@ -779,39 +670,37 @@ StatusCode HLTJetMonTool::retrieveContainers() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-
-  // retrieve L1 ROI 
-  m_L1RoiC = 0;
-  sc = m_storeGate->retrieve(m_L1RoiC, m_L1JetKey);
-  if(sc.isFailure() || !m_L1RoiC) {
-    ATH_MSG_DEBUG ("Could not retrieve LVL1_ROI with key \"" << m_L1JetKey << "\" from TDS"  );
+  // retrieve xAOD L1 ROI 
+  m_L1JetRoIC = 0;
+  sc = m_storeGate->retrieve(m_L1JetRoIC, m_L1xAODJetKey);
+  if(sc.isFailure() || !m_L1JetRoIC) {
+    ATH_MSG_DEBUG ("Could not retrieve LVL1JetRoIs with key \"" << m_L1xAODJetKey << "\" from TDS"  );
   }
-
-  // retrieve L2 Jet 
-  m_L2JetC = 0;
-  sc = m_storeGate->retrieve(m_L2JetC, m_L2JetKey);
-  if(sc.isFailure() || !m_L2JetC) {
-    ATH_MSG_DEBUG ("Could not retrieve TrigT2JetContainter with key \"" << m_L2JetKey << "\" from TDS"  );
+  else {
+    ATH_MSG_INFO(" Retrieved LVL1JetROIs with key \"" << m_L1xAODJetKey << "\" from TDS" );
   }
-
+  
   // retrieve EF Jet 
   m_EFJetC = 0;
   sc = m_storeGate->retrieve(m_EFJetC, m_EFJetKey);
   if(sc.isFailure() || !m_EFJetC) {
     ATH_MSG_DEBUG ( "Could not retrieve JetCollection with key \"" << m_EFJetKey << "\" from TDS"  );
   }
+  else {
+    ATH_MSG_INFO(" Retrieved JetCollection with key \"" << m_EFJetKey << "\" from TDS" );
+  }
 
+  if(!m_doOFJets) return sc;
   // retrieve OF Jets 
   // clear before retrieving containers
   m_OFJetC.clear();
   //for( unsigned int k = 0; k < m_OFJetKeys.size(); k++ ) {
   for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj ) {
-    const JetCollection *jetcoll = 0;
+    const xAOD::JetContainer *jetcoll = 0;
     //sc = m_storeGate->retrieve(jetcoll, m_OFJetKeys[k]);
     sc = m_storeGate->retrieve(jetcoll, (*ofj).second /*m_OFJetKeys[k]*/);
     if(sc.isFailure() || !jetcoll) {
       ATH_MSG_DEBUG ("Could not retrieve JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
-      //ATH_MSG_DEBUG ("Could not retrieve JetCollection with key \"" << m_OFJetKeys[k] << "\" from TDS"  );
     }
     m_OFJetC.push_back(jetcoll);
   } // end for
@@ -835,29 +724,20 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
   unsigned int k = 0;
   for(JetSigIter it = item.begin(); it != item.end(); ++it, k++) {
 
-    int nbinsEt = (  itlvl == "L1") ? m_l1nbinsEt[k] : 
-      ( (itlvl == "L2") ? m_l2nbinsEt[k] : 
+    int nbinsEt = (  (itlvl == "L1") ? m_l1nbinsEt[k] : 
+      //( (itlvl == "L2") ? m_l2nbinsEt[k] : 
         ( (itlvl == "EF") ? m_efnbinsEt[k] : m_jEtnbins[0] ));
 
-    float binloEt = (  itlvl == "L1") ? m_l1binloEt[k] : 
-      ( (itlvl == "L2") ? m_l2binloEt[k] : 
+    float binloEt = ( (itlvl == "L1") ? m_l1binloEt[k] : 
+      //( (itlvl == "L2") ? m_l2binloEt[k] : 
         ( (itlvl == "EF") ? m_efbinloEt[k] : m_jEtbinlo[0] ));
 
-    float binhiEt = (  itlvl == "L1") ? m_l1binhiEt[k] : 
-      ( (itlvl == "L2") ? m_l2binhiEt[k] : 
+    float binhiEt = (  (itlvl == "L1") ? m_l1binhiEt[k] : 
+      //( (itlvl == "L2") ? m_l2binhiEt[k] : 
         ( (itlvl == "EF") ? m_efbinhiEt[k] : m_jEtbinhi[0] ));
 
     TString trigItem = (*it).second;
     TString trigName = (*it).first;
-
-    // eff vs. Et
-    //TString htitle = Form("%s Efficiency w.r.t %s vs. E_{T}; E_{T} [GeV]; Efficiency",trigItem.Data(), ofjet.c_str());
-    //TString hname = Form("%s_Eff_vs_Et_num",trigName.Data());
-
-    //addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
-
-    //hname = Form("%s_Eff_vs_Et_den",trigName.Data());
-    //addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
 
     // eff vs. pt
     TString htitle = Form("%s Efficiency w.r.t %s vs. p_{T}; p_{T}^{jet} [GeV]; Efficiency",trigItem.Data(), ofjet.c_str());
@@ -891,9 +771,10 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
 
 } // end bookTrigEffHist
 
+/*
 // ------------------------------------------------------------------------------------
 
-void HLTJetMonTool::bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg /*, const unsigned int& k*/) {
+void HLTJetMonTool::bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg ) {
 
   //if(k >= m_OFJetKeys.size()) return;
 
@@ -948,10 +829,12 @@ void HLTJetMonTool::bookCorrHists(const std::string& level2, const std::string& 
 
 
 } // end bookCorrHist
+*/
 
 // ------------------------------------------------------------------------------------
 
 void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<std::string>& bookvars) {
+  ATH_MSG_DEBUG("bookBasicHists for level: " << level );
   for( unsigned int i = 0; i < level.size(); i++ ) {
     int nbins_eta = m_jetanbins[0];
     double binlo_eta = m_jetabinlo[0];
@@ -1223,10 +1106,12 @@ StatusCode HLTJetMonTool::fillJetHists() {
   if(evtSelTriggersPassed()) {
 
     // fill trigger eff hists
-    sc = fillOfflineHists();
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING ( "HLTJetMonTool::fillOfflineHists() failed" );
-      return StatusCode::SUCCESS;
+    if(m_doOFJets) {
+      sc = fillOfflineHists();
+      if (sc.isFailure()) {
+        ATH_MSG_WARNING ( "HLTJetMonTool::fillOfflineHists() failed" );
+        return StatusCode::SUCCESS;
+      }
     }
   } // end if evtSel
 
@@ -1243,30 +1128,22 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
   // Get Jet RoI
   // L1 begin filling basic histograms
-  if(m_L1RoiC) {
+  ATH_MSG_DEBUG ("Filling L1 Jets");
+  if(m_L1JetRoIC) {
     setCurrentMonGroup(m_monGroups["L1"]);
     if(m_debuglevel)
       ATH_MSG_DEBUG( "Mon group set to " << m_monGroups["L1"] );
-    LVL1_ROI::jets_type L1JetROI;
     unsigned int L1Roi_num = 0;
-    if (m_L1RoiC) {
-      L1JetROI = m_L1RoiC->getJetROIs();
-      L1Roi_num = L1JetROI.size();
-      if (m_debuglevel) {
-        ATH_MSG_DEBUG( " Number of L1JetROI's " << L1Roi_num );
-      }
-    } // end if m_L1RoiC
 
-    if((h = hist("L1Jet_n")))  h->Fill(L1Roi_num);
-
-    LVL1_ROI::jets_type::const_iterator it_L1 = L1JetROI.begin();
-    LVL1_ROI::jets_type::const_iterator it_e_L1 = L1JetROI.end();
+    xAOD::JetRoIContainer::const_iterator it_L1 = m_L1JetRoIC->begin();
+    xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
     for ( ; it_L1 != it_e_L1; it_L1++) {
-      double et = (it_L1->getET4x4())/CLHEP::GeV;
+      L1Roi_num++;
+      double et = ( (*it_L1)->et4x4())/CLHEP::GeV;
       if(et < 1.e-3) et = 0.;
-      double eta = it_L1->getEta();
+      double eta = (*it_L1)->eta();
       double ene = et * cosh(eta);
-      double phi = it_L1->getPhi();
+      double phi = (*it_L1)->phi();
       if(m_debuglevel)
         ATH_MSG_DEBUG( "et =  " << et <<  "\teta = " << eta << "\tene = " << ene );
 
@@ -1280,124 +1157,92 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       if((h2 = hist2("L1Jet_E_vs_eta")))  h2->Fill(eta,ene);
       if((h2 = hist2("L1Jet_E_vs_phi")))  h2->Fill(phi,ene);
       if((h2 = hist2("L1Jet_phi_vs_eta")))  h2->Fill(eta,phi);
+    } // end for it_L1
+
+    if((h = hist("L1Jet_n"))) {
+      if (m_debuglevel)
+         ATH_MSG_DEBUG( " Number of L1JetROI's " << L1Roi_num );  
+      h->Fill(L1Roi_num);
     }
 
-    // fill per chain -- will be filled in L2/EF by using ancestor methods
-    for(JetSigIter l2 = m_basicL2Trig.begin(); l2 != m_basicL2Trig.end(); ++l2) {
-      setCurrentMonGroup(m_monGroups[(*l2).first]);
-      /*if(m_debuglevel)*/ ATH_MSG_DEBUG("Calling fillBasicL1forChain(" << (*l2).second << ", " << m_l2EtThres[(*l2).second] << ")" );
-      fillBasicL1forChain((*l2).second, L1JetROI, m_l2EtThres[(*l2).second]);
+    // fill per chain -- will be filled in L1/EF by using ancestor methods
+    /* Test without for now
+    for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) {
+      setCurrentMonGroup(m_monGroups[(*l1).first]);
+      ATH_MSG_DEBUG("Calling fillBasicL1forChain(" << (*l1).second << ", " << m_l1EtThres[(*l1).second] << ")" );
+      fillBasicL1forChain((*l1).second, m_l1EtThres[(*l1).second]);
     }
+    */
 
+    /* Test without for now
     for(JetSigIter ef = m_basicEFTrig.begin(); ef != m_basicEFTrig.end(); ++ef) {
       setCurrentMonGroup(m_monGroups[(*ef).first]);
-      /*if(m_debuglevel)*/ ATH_MSG_DEBUG("Calling fillBasicL!forChain(" << (*ef).second << ", " << m_efEtThres[(*ef).second] << ")" );
-      fillBasicL1forChain((*ef).second, L1JetROI, m_efEtThres[(*ef).second]);
+      ATH_MSG_DEBUG("Calling fillBasicL!forChain(" << (*ef).second << ", " << m_efEtThres[(*ef).second] << ")" );
+      fillBasicL1forChain((*ef).second, m_efEtThres[(*ef).second]);
     }
+    */
 
   } // end if m_L1RoiC
 
-  // L2 begin filling basic histograms
-  if(m_L2JetC) {
-
-    setCurrentMonGroup(m_monGroups["L2"]);
-    TrigT2JetContainer::const_iterator it_L2 = m_L2JetC->begin();
-    TrigT2JetContainer::const_iterator it_e_L2 = m_L2JetC->end();
-    unsigned int n_L2Jet = 0;
-    double epsilon = 1.e-3;
-    for ( ; it_L2 != it_e_L2; it_L2++, n_L2Jet++) {
-      const TrigT2Jet *L2Jet = *it_L2;
-      // bug fix
-      if(!L2Jet) continue;
-      double e = (L2Jet->e())/CLHEP::GeV;
-      double eta = L2Jet->eta();
-      double phi = L2Jet->phi();
-      double et = e/cosh(eta);
-      if(et < 1.e-3) et = 0;
-      double emfrac = L2Jet->eem0();
-      double emphad = emfrac + L2Jet->ehad0();
-      if(emphad > epsilon) 
-        emfrac = emfrac/emphad;
-      else emfrac = -9e9;
-      if(m_debuglevel)
-        ATH_MSG_DEBUG( "L2et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac );
-
-      if((h = hist("L2Jet_Et"))) { 
-        if(m_debuglevel)
-          ATH_MSG_DEBUG( "found L2Jet_Et in " << m_monGroups["L2"] ); 
-        h->Fill(et);
-      }
-      if((h = hist("L2Jet_eta")))  h->Fill(eta);
-      if((h = hist("L2Jet_phi")))  h->Fill(phi);
-
-      if((h2 = hist2("L2Jet_phi_vs_eta")))  h2->Fill(eta,phi);
-      if((h2 = hist2("L2Jet_E_vs_eta")))  h2->Fill(eta,e);
-      if((h2 = hist2("L2Jet_E_vs_phi")))  h2->Fill(phi,e);
-      if (emfrac > m_emfracCut) {
-        if((h2 = hist2("L2Jet_phi_vs_eta_LAr")))  h2->Fill(eta,phi);
-      }
-
-    } // end for
-    if((h = hist("L2Jet_n")))  h->Fill(n_L2Jet);
-
-
-    // fill per chain -- begin
-    for(JetSigIter l2it = m_L2Chains.begin(); l2it != m_L2Chains.end(); ++l2it ) {
-      setCurrentMonGroup(m_monGroups[(*l2it).first]);
-      /*if(m_debuglevel)*/ ATH_MSG_DEBUG("Calling fillBasicL2forChain(" << (*l2it).second << ", " << m_l2EtThres[(*l2it).second] << ")" );
-      fillBasicL2forChain( (*l2it).second, m_l2EtThres[(*l2it).second] );
-    }
-    // fill per chain -- end
-
-  } // end if m_L2JetC 
-
-
-  // fill offline jets and EF jets in one loop
-  // offline jets are in (0, 1, ..., N-1)th elements 
-  // and EF is the Nth element of vector
-  unsigned int Nelem = m_OFJetC.size();
-  ATH_MSG_DEBUG ("m_OFJetC size = " << Nelem );
-  for(unsigned int k = 0; k <= Nelem; k++ ) {
-    const JetCollection *jetcoll = 0;
-    jetcoll = (k == Nelem) ? m_EFJetC : m_OFJetC[k];
-    if(jetcoll) {
-      std::string lvl = (k == Nelem) ? "EF" : m_OFpfx; //Form("%s%s",m_OFpfx.c_str(),m_OFJetKeys[k].c_str());
-      std::string mgrp = (k == Nelem) ? m_monGroups["EF"] : m_monGroups[Form("%s%d",m_OFpfx.c_str(),k)];
+  // fill EF jets
+  ATH_MSG_DEBUG ("Filling EF Jets");
+  if(m_EFJetC) {
+      std::string lvl = "EF"; 
+      std::string mgrp = m_monGroups["EF"];
       if(m_debuglevel)
         ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
       setCurrentMonGroup(mgrp);
 
-      JetCollection::const_iterator it = jetcoll->begin();
-      JetCollection::const_iterator ite = jetcoll->end();
+      xAOD::JetContainer::const_iterator jet_itr = m_EFJetC->begin();
+      xAOD::JetContainer::const_iterator jet_end = m_EFJetC->end();
       unsigned int n_EFJet = 0;
-      for ( ; it != ite; it++, n_EFJet++) {
-        const Jet* jet = *it;
-        if(!jet) continue;
-        // for basic hists, don't cut eta/pt
-        if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
 
+      for( int i = 0; jet_itr != jet_end; ++jet_itr, ++i ) {
+          if(m_debuglevel) {
+	        //checks jet variables
+	        ATH_MSG_INFO( "REGTEST Looking at jet " << i);
+	        ATH_MSG_INFO( "REGTEST    pt: " << (*jet_itr)->pt() );
+	        ATH_MSG_INFO( "REGTEST    eta: " << (*jet_itr)->eta() );
+	        ATH_MSG_INFO( "REGTEST    phi: " << (*jet_itr)->phi() );
+	        ATH_MSG_INFO( "REGTEST    m: " << (*jet_itr)->m() );
+	        ATH_MSG_INFO( "REGTEST    e: " << (*jet_itr)->e() );
+	        ATH_MSG_INFO( "REGTEST    px: " << (*jet_itr)->px() );
+	        ATH_MSG_INFO( "REGTEST    py: " << (*jet_itr)->py() );
+	        ATH_MSG_INFO( "REGTEST    pz: " << (*jet_itr)->pz() );
+	        ATH_MSG_INFO( "REGTEST    type: " << (*jet_itr)->type() );
+	        ATH_MSG_INFO( "REGTEST    algorithm (kt: 0, cam: 1, antikt: 2, ...): " << (*jet_itr)->getAlgorithmType() );
+	        ATH_MSG_INFO( "REGTEST    size parameter: " << (*jet_itr)->getSizeParameter() );
+	        ATH_MSG_INFO( "REGTEST    input (LCTopo: 0, EMTopo: 1, ...): " << (*jet_itr)->getInputType() );
+	        ATH_MSG_INFO( "REGTEST    constituents signal state (uncalibrated: 0, calibrated: 1): " << (*jet_itr)->getConstituentsSignalState() );
+	        ATH_MSG_INFO( "REGTEST    number of constituents: " << (*jet_itr)->numConstituents() );      
+	  }
+
+        n_EFJet++;
+        // for basic hists, don't cut eta/pt
+        //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
+
+        
+        // COME BACK TO THIS - LS //
         // note: only valid signal state for EF jets is JETFINAL
         // so set signal state only for offline collection. otherwise
         // it causes FPE when jet->et() is called (#73533)
-        SignalStateHelper sigstateH(jet);
-        if(m_reqP4State && lvl != "EF" ) { 
-          if( m_p4State == "JETEMSCALE"     ) sigstateH.setSignalState(P4SignalState::JETEMSCALE);
-          if( m_p4State == "JETFINAL"       ) sigstateH.setSignalState(P4SignalState::JETFINAL);
-          if( m_p4State == "CALIBRATED"     ) sigstateH.setSignalState(P4SignalState::CALIBRATED);
-          if( m_p4State == "UNCALIBRATED"   ) sigstateH.setSignalState(P4SignalState::UNCALIBRATED);
-        }
-        double e = (jet->e())/CLHEP::GeV;
+        //SignalStateHelper sigstateH(jet);
+        //if(m_reqP4State && lvl != "EF" ) { 
+        //  if( m_p4State == "JETEMSCALE"     ) sigstateH.setSignalState(P4SignalState::JETEMSCALE);
+        //  if( m_p4State == "JETFINAL"       ) sigstateH.setSignalState(P4SignalState::JETFINAL);
+        //  if( m_p4State == "CALIBRATED"     ) sigstateH.setSignalState(P4SignalState::CALIBRATED);
+        //  if( m_p4State == "UNCALIBRATED"   ) sigstateH.setSignalState(P4SignalState::UNCALIBRATED);
+        //}
+
+        double e = ((*jet_itr)->e())/CLHEP::GeV;
         double et = 0., epsilon = 1.e-3;
-        if(jet->pt() > epsilon) et = (jet->hlv()).et()/CLHEP::GeV;
+        if((*jet_itr)->pt() > epsilon) et = ((*jet_itr)->pt())/CLHEP::GeV;
         if(et < epsilon) et = 0;
-        ATH_MSG_VERBOSE( lvl << " jet->et() =  " << et );
-        double eta = jet->eta();
-        double phi = jet->phi();
-// Temporary fix - must replace JetCaloHelper --- LS
-//       double emfrac = JetCaloHelper::jetEMFraction(jet);
- 	double emfrac = 0.0;
-        if(m_debuglevel)
-          ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac );
+        double eta = (*jet_itr)->eta();
+        double phi = (*jet_itr)->phi();
+ 	//float  emfrac = (*jet_itr)->getAttribute<float>("EMfrac"); ?? Throws an error 
+        float emfrac = 0.0;
+        if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac );
 
         if((h = hist( Form("%sJet_Et",lvl.c_str()))))  h->Fill(et);
         if((h = hist(Form("%sJet_eta",lvl.c_str()))))  h->Fill(eta);
@@ -1413,25 +1258,99 @@ StatusCode HLTJetMonTool::fillBasicHists() {
           if((h2 = hist2(Form("%sJet_phi_vs_eta_LAr",lvl.c_str()))))  h2->Fill(eta,phi);
         }
         // restore signal state
-        // done automatically by sigstateH
-      } // for it
+        // done automatically by sigstateH ??
+      } // end for  jet_itr
+
       if((h = hist(Form("%sJet_n",lvl.c_str()))))  h->Fill(n_EFJet);
 
-
       // fill per chain -- begin
-      if(k == Nelem && lvl == "EF" ) {
-        for(JetSigIter efit = m_EFChains.begin(); efit != m_EFChains.end(); ++efit) {
-          setCurrentMonGroup(m_monGroups[(*efit).first]);
-          /*if(m_debuglevel)*/ ATH_MSG_DEBUG("Calling fillBasicEFforChain(" << (*efit).second << ", " << m_efEtThres[(*efit).second] << ")" );
-          fillBasicEFforChain( (*efit).second, m_efEtThres[(*efit).second]);
-        } // for all ef
-      } // if k == Nelem
-      // fill per chain -- end
+      /* Test without for now
+      for(JetSigIter efit = m_EFChains.begin(); efit != m_EFChains.end(); ++efit) {
+         setCurrentMonGroup(m_monGroups[(*efit).first]);
+         ATH_MSG_DEBUG("Calling fillBasicEFforChain(" << (*efit).second << ", " << m_efEtThres[(*efit).second] << ")" );
+         fillBasicEFforChain( (*efit).second, m_efEtThres[(*efit).second]);
+      } // fill per chain -- end
+      */
       setCurrentMonGroup(mgrp);
 
-    } // if jetcoll
+  } // end if m_EFJetC
 
-  } // end for k
+  // fill offline jets in one loop
+  // offline jets are in (0, 1, ..., N-1)th elements 
+  if(m_doOFJets) {
+    ATH_MSG_DEBUG ("Filling OF Jets");
+    unsigned int Nelem = m_OFJetC.size();
+    ATH_MSG_DEBUG ("m_OFJetC size = " << Nelem );
+    ATH_MSG_INFO ("m_OFJetC size = " << Nelem );
+    for(unsigned int k = 0; k < Nelem; k++ ) {
+      const xAOD::JetContainer *jetcoll = 0;
+      jetcoll = m_OFJetC[k];
+      if(jetcoll) {
+	std::string lvl = m_OFpfx; //Form("%s%s",m_OFpfx.c_str(),m_OFJetKeys[k].c_str());
+	std::string mgrp = m_monGroups[Form("%s%d",m_OFpfx.c_str(),k)];
+	if(m_debuglevel)
+          ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
+	setCurrentMonGroup(mgrp);
+
+	//xAOD::JetContainer::const_iterator it = jetcoll->begin();
+	//xAOD::JetContainer::const_iterator ite = jetcoll->end();
+	unsigned int n_OFJet = 0;
+	for(const auto & thisjet : *jetcoll) {
+          n_OFJet++;
+          //for ( ; it != ite; it++, n_EFJet++) {
+          //  const xAOD::JetContainer* jet = *it;
+          if(!thisjet) continue;
+          // for basic hists, don't cut eta/pt
+          //come back to this - LS//if(m_doselOFBasicHists) if(!selectJet(jet)) continue;
+
+
+          // COME BACK TO THIS - LS //
+          // note: only valid signal state for EF jets is JETFINAL
+          // so set signal state only for offline collection. otherwise
+          // it causes FPE when jet->et() is called (#73533)
+          //SignalStateHelper sigstateH(jet);
+          //if(m_reqP4State && lvl != "EF" ) { 
+          //  if( m_p4State == "JETEMSCALE"     ) sigstateH.setSignalState(P4SignalState::JETEMSCALE);
+          //  if( m_p4State == "JETFINAL"       ) sigstateH.setSignalState(P4SignalState::JETFINAL);
+          //  if( m_p4State == "CALIBRATED"     ) sigstateH.setSignalState(P4SignalState::CALIBRATED);
+          //  if( m_p4State == "UNCALIBRATED"   ) sigstateH.setSignalState(P4SignalState::UNCALIBRATED);
+          //}
+
+          double e = (thisjet->e())/CLHEP::GeV;
+          double et = 0., epsilon = 1.e-3;
+          if(thisjet->pt() > epsilon) et = (thisjet->pt())/CLHEP::GeV;
+          if(et < epsilon) et = 0;
+          ATH_MSG_VERBOSE( lvl << " thisjet->pt() =  " << et );
+          double eta = thisjet->eta();
+          double phi = thisjet->phi();
+ 	  float  emfrac = thisjet->getAttribute<float>("EMfrac");
+	  //double emfrac = 0.0;
+          if(m_debuglevel)
+            ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac );
+
+          if((h = hist( Form("%sJet_Et",lvl.c_str()))))  h->Fill(et);
+          if((h = hist(Form("%sJet_eta",lvl.c_str()))))  h->Fill(eta);
+          if((h = hist(Form("%sJet_phi",lvl.c_str()))))  h->Fill(phi);
+          if((h2 = hist2(Form("%sJet_phi_vs_eta",lvl.c_str()))))  h2->Fill(eta,phi);
+          if((h2 = hist2(Form("%sJet_E_vs_eta",lvl.c_str()))))  h2->Fill(eta,e);
+          if((h2 = hist2(Form("%sJet_E_vs_phi",lvl.c_str()))))  h2->Fill(phi,e);
+
+          // note: if this histogram turns out to be empty, it means:
+          // emfraction is alwasy 0 because the energies for different 
+          // samplings are not filled at EF
+          if (emfrac > m_emfracCut) {
+            if((h2 = hist2(Form("%sJet_phi_vs_eta_LAr",lvl.c_str()))))  h2->Fill(eta,phi);
+          }
+          // restore signal state
+          // done automatically by sigstateH
+	} // for it
+	if((h = hist(Form("%sJet_n",lvl.c_str()))))  h->Fill(n_OFJet);
+	setCurrentMonGroup(mgrp);
+
+      } // if jetcoll
+
+    } // end for k
+  } // if(m_doOFJets)
 
   return StatusCode::SUCCESS;
 
@@ -1553,74 +1472,14 @@ void HLTJetMonTool::fillBasicEFforChain( const std::string& theChain, double thr
 }
 
 // ------------------------------------------------------------------------------------
-void HLTJetMonTool::fillBasicL2forChain( const std::string& theChain, double thrL2 ) {
-  // fillBasicL2forChain - "l1et_vs_l2et;l1eta_vs_l2eta;l1phi_vs_l2phi"; // no L1/L2 prefix (book once)
-  //                     - "et;eta;phi;phi_vs_eta;et_EffRelL1;eta_EffRelL1;phi_EffRelL1" // with L2 prefix
 
-  TH1 *h(0); 
-  TH2 *h2(0); 
-  ATH_MSG_DEBUG("fillBasicL2forChain: CHAIN: " << theChain << " passed TDT: " << getTDT()->isPassed(theChain));
-  if (getTDT()->isPassed(theChain)) {
-    const std::vector<Trig::Feature<TrigT2Jet> > l2jet_vec = (getTDT()->features(theChain)).get<TrigT2Jet>();
-    for(std::vector<Trig::Feature<TrigT2Jet> >::const_iterator L2jIt = l2jet_vec.begin(); L2jIt != l2jet_vec.end(); ++L2jIt ) {
-      if(!L2jIt->cptr()) continue;
-      const TrigT2Jet *L2Jet = L2jIt->cptr();
-      if(!L2Jet) continue;
-      double e = (L2Jet->e())/CLHEP::GeV;
-      double eta = L2Jet->eta();
-      double phi = L2Jet->phi();
-      double et = e/cosh(eta);
-      if(et < 1.e-3) et = 0;
-      bool l2_thr_pass = ( et > thrL2 );
-      if(l2_thr_pass) {
-        if((h = hist("L2Jet_Et")))   h->Fill(et);
-        if((h = hist("L2Jet_eta")))  h->Fill(eta);
-        if((h = hist("L2Jet_phi")))  h->Fill(phi);
-        if((h2 = hist2("L2Jet_phi_vs_eta")))  h2->Fill(eta,phi);
-      }
+void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrEt ) {
 
-      // get ancestor (L1RoI) and fill L1 histograms corresponding to this chain
-      // L1 and L2 are in the same mongroup, no need to change mongroup
-      //std::vector< Trig::Feature<TrigRoiDescriptor> > theRoIdesc = L2jIt->get<TrigRoiDescriptor>("initialRoI");
-      Trig::Feature<Jet_ROI> jRoI =  getTDT()->ancestor<Jet_ROI>(*L2jIt);
-      if ( !jRoI.empty() ) {
-        if(!jRoI.cptr()) continue;
-        const Jet_ROI *L1_Roi = jRoI.cptr();
-        if(!L1_Roi) continue;
-        double l1et = (L1_Roi->getET4x4())/CLHEP::GeV;
-        if(l1et < 1.e-3) l1et = 0;
-        double l1eta = L1_Roi->getEta();
-        double l1phi = L1_Roi->getPhi();
-        double dr = delta_r(l1eta,l1phi,eta,phi);
-        bool id_match_found = (dr < m_deltaRCut);
-        if(id_match_found && l2_thr_pass) {
-          if((h2 = hist2("Jet_l1et_vs_l2et")))   h2->Fill(et,l1et);
-          if((h2 = hist2("Jet_l1eta_vs_l2eta")))  h2->Fill(eta,l1eta);
-          if((h2 = hist2("Jet_l1phi_vs_l2phi")))  h2->Fill(phi,l1phi);
-          std::string suffix = "_EffRelL1";
-          const std::string eff_et = "L2Jet_Et" + suffix, 
-                eff_eta = "L2Jet_eta" + suffix,
-                eff_phi = "L2Jet_phi" + suffix;
-          if((h = hist(eff_et)))   h->Fill(et);
-          if((h = hist(eff_eta)))  h->Fill(eta);
-          if((h = hist(eff_phi)))  h->Fill(phi);
-        }
-      } // if jRoI
+  if( !m_L1JetRoIC ) return; // TEMPORARY - Should issue a warning  
 
-    } // for feature
-  } // if chain
-
-}
-
-// ------------------------------------------------------------------------------------
-
-void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, LVL1_ROI::jets_type& L1JetROI, double thrEt ) {
-  
   // fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;et;eta;phi;phi_vs_eta;unmatched_eta"; // all with L1 prefix
   TH1 *h(0); 
   TH2 *h2(0); 
-  LVL1_ROI::jets_type::const_iterator it_L1 = L1JetROI.begin();
-  LVL1_ROI::jets_type::const_iterator it_e_L1 = L1JetROI.end();
   if (getTDT()->isPassed(theChain)){
 
     ATH_MSG_DEBUG("fillBasicL1forChain: ITEM: " << theChain << " passed TDT");
@@ -1639,16 +1498,19 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, LVL1_ROI::j
 
         unsigned int id =   combIt->cptr()->roiWord();
         bool id_match_found = false;
-        for (it_L1 = L1JetROI.begin(); it_L1 != L1JetROI.end(); ++it_L1) {
-          double et = (it_L1->getET4x4())/CLHEP::GeV;
+        xAOD::JetRoIContainer::const_iterator it_L1 = m_L1JetRoIC->begin();
+        xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
+
+        for (; it_L1 != it_e_L1; ++it_L1) {
+          double et = ((*it_L1)->et4x4())/CLHEP::GeV;
           if(et < 1.e-3) et = 0;
-          double eta = it_L1->getEta();
-          double phi = it_L1->getPhi();
+          double eta = (*it_L1)->eta();
+          double phi = (*it_L1)->phi();
           if(m_debuglevel) {
-            const Jet_ROI::thresholds_type thrVec = it_L1->getThresholdNames();
-            const Jet_ROI::thr_value_type thrVal = it_L1->getThresholdValues();
-            double et6 = (it_L1->getET6x6())/CLHEP::GeV;
-            double et8 = (it_L1->getET8x8())/CLHEP::GeV;
+            const Jet_ROI::thresholds_type thrVec = (*it_L1)->thrNames();
+            const Jet_ROI::thr_value_type thrVal = (*it_L1)->thrValues();
+            double et6 = ((*it_L1)->et6x6())/CLHEP::GeV;
+            double et8 = ((*it_L1)->et8x8())/CLHEP::GeV;
             std::ostringstream thrv; 
             unsigned int kk = 0;
             for(Jet_ROI::thresholds_type::const_iterator l1i = thrVec.begin(); l1i != thrVec.end(); ++l1i,kk++ ) {
@@ -1657,7 +1519,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, LVL1_ROI::j
             ATH_MSG_DEBUG( "CHAIN: " << theChain << " " << et << " GeV " << eta << " " 
                 << phi << " rad " << et6 << " " << et8 << " " << thrv.str());
           }
-          if(id == it_L1->getROIWord() ) {
+          if(id == (*it_L1)->roiWord() ) {
             id_match_found = true;
             bool l1_thr_pass = (et > thrEt);
             ATH_MSG_DEBUG("CHAIN: " << theChain << " " << et << "\tthreshold = " << thrEt << "\tpass = " << l1_thr_pass);
@@ -1783,17 +1645,17 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
   TH1 *h(0);
   //TH2 *h2(0);
-  // fill offline jets and EF jets in one loop
+  // fill offline jets in one loop
   unsigned int Nelem = m_OFJetC.size();
   for(unsigned int k = 0; k < Nelem; k++ ) {
-    const JetCollection *jetcoll = m_OFJetC[k];
+    const xAOD::JetContainer *jetcoll = m_OFJetC[k];
     if(jetcoll) {
       std::string malg = Form("%s%d",m_OFpfx.c_str(),k);
       std::string mgrp = m_monGroups[malg];
       std::string mgrp_eff = m_monGroups[Form("%s%dEff",m_OFpfx.c_str(),k)];
 
-      JetCollection::const_iterator it = jetcoll->begin();
-      JetCollection::const_iterator ite = jetcoll->end();
+      //JetCollection::const_iterator it = jetcoll->begin();
+      //JetCollection::const_iterator ite = jetcoll->end();
       std::vector<ChainMatch> mFoundL1, mFoundL2, mFoundEF; 
       std::vector<ChainMatch>::iterator mIt;
       JetSigIter lIt;
@@ -1803,22 +1665,25 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
       if(m_doselOFJets) {
         if(m_reqMaxNJetCut)  if(m_MaxNJet > 0) njmax = m_MaxNJet;
       }
-      for (unsigned int numj = 0; (numj < njmax); numj++ ) {
-        const Jet* jet = jetcoll->at(numj);
+      for(const auto & jet : *jetcoll) {
+      //for (unsigned int numj = 0; (numj < njmax); numj++ ) {
+        //const Jet* jet = jetcoll->at(numj);
         if(!jet) continue;
-        SignalStateHelper sigstateH(jet);
-        if(m_reqP4State) { 
-          if( m_p4State == "JETEMSCALE"     ) sigstateH.setSignalState(P4SignalState::JETEMSCALE);
-          if( m_p4State == "JETFINAL"       ) sigstateH.setSignalState(P4SignalState::JETFINAL);
-          if( m_p4State == "CALIBRATED"     ) sigstateH.setSignalState(P4SignalState::CALIBRATED);
-          if( m_p4State == "UNCALIBRATED"   ) sigstateH.setSignalState(P4SignalState::UNCALIBRATED);
-        }
 
-        if(m_doselOFJets) if(!selectJet(jet)) {
-          // if jet fails selection, restore signal state
-            sigstateH.releaseObject();
-            continue;
-        }
+        // COME BACK TO THIS -- LS //
+        //SignalStateHelper sigstateH(jet);
+        //if(m_reqP4State) { 
+        //  if( m_p4State == "JETEMSCALE"     ) sigstateH.setSignalState(P4SignalState::JETEMSCALE);
+        //  if( m_p4State == "JETFINAL"       ) sigstateH.setSignalState(P4SignalState::JETFINAL);
+        //  if( m_p4State == "CALIBRATED"     ) sigstateH.setSignalState(P4SignalState::CALIBRATED);
+        //  if( m_p4State == "UNCALIBRATED"   ) sigstateH.setSignalState(P4SignalState::UNCALIBRATED);
+        //}
+
+        //if(m_doselOFJets) if(!selectJet(jet)) {
+        //  // if jet fails selection, restore signal state
+        //    sigstateH.releaseObject();
+        //    continue;
+        //}
 
         bool l1pass = false; // = passedChain(jet,mFoundL1,"L1");
         bool l2pass = false; // = passedChain(jet,mFoundL2,"L2");
@@ -1840,7 +1705,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
           std::string itemName = (*lIt).first;
           bool passed_eta_cut = !m_reqEtaCut;
           double thrGeVItem = m_ofEtThres[itemName];
-          passL1thr = (jet->et()/CLHEP::GeV > thrGeVItem);
+          passL1thr = (jet->pt()/CLHEP::GeV > thrGeVItem);
           ATH_MSG_DEBUG("L1ITEM: " << itemName << "\t: thr = " << thrGeVItem << "\tpass = " << passL1thr);
           if(m_reqEtaCut) {
             TString fjsig = itemName;
@@ -1890,7 +1755,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
           std::string chainName = (*lIt).first;
           bool passed_eta_cut = !m_reqEtaCut;
           double thrGeVItem = m_ofEtThres[(*lIt).second];
-          passL2thr = (jet->et()/CLHEP::GeV > thrGeVItem);
+          passL2thr = (jet->pt()/CLHEP::GeV > thrGeVItem);
           ATH_MSG_DEBUG("L2CHAIN: " << chainName << "\t: " << (*lIt).second << "\t thr = " << thrGeVItem << "\tpass = " << passL2thr);
           if(m_reqEtaCut) {
             TString fjsig = chainName;
@@ -1964,7 +1829,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
           std::string chainName = (*lIt).first;
           bool passed_eta_cut = !m_reqEtaCut;
           double thrGeVItem = m_ofEtThres[(*lIt).second];
-          passEFthr = (jet->et()/CLHEP::GeV > thrGeVItem);
+          passEFthr = (jet->pt()/CLHEP::GeV > thrGeVItem);
           ATH_MSG_DEBUG("EFCHAIN: " << chainName << "\t: " << (*lIt).second << "\t thr = " << thrGeVItem << "\tpass = " << passEFthr);
           if(m_reqEtaCut) {
             TString fjsig = chainName;
@@ -1976,7 +1841,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
           if(m_doEFTrigEff) {
             if(getTDT()->isPassed((*lIt).second) && passed_eta_cut) {
               if(passEFthr) {
-                ATH_MSG_DEBUG("CHAIN: " << chainName << "ofjet_et = " << jet->et()/CLHEP::GeV << "\tthr= " << m_ofEtThres[(*lIt).second]);
+                ATH_MSG_DEBUG("CHAIN: " << chainName << "ofjet_et = " << jet->pt()/CLHEP::GeV << "\tthr= " << m_ofEtThres[(*lIt).second]);
                 //if((h = hist(Form("%s_Eff_vs_Et_den",chainName.c_str())))) h->Fill(jet->et()/CLHEP::GeV);
                 if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str())))) h->Fill(jet->pt()/CLHEP::GeV);
                 if((h = hist(Form("%s_Eff_vs_eta_den",chainName.c_str())))) h->Fill(jet->eta());
@@ -2051,26 +1916,27 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 // ------------------------------------------------------------------------------------
 
-bool HLTJetMonTool::passedChain( const Jet *jet, std::vector<ChainMatch>& mFound, const std::string& level) {
+bool HLTJetMonTool::passedChain( const xAOD::Jet *jet, std::vector<ChainMatch>& mFound, const std::string& level) {
 
   if(!mFound.empty()) mFound.clear();
   JetSigIter chIt, chItB, chItE;
   const TrigMatch::TrigJetL1 *matchL1 = 0;
-  const TrigMatch::TrigJetL2 *matchL2 = 0;
+  //const TrigMatch::TrigJetL2 *matchL2 = 0;
   const TrigMatch::TrigJetEF *matchEF = 0;
 
   chItB = ( (level == "L1") ? m_L1Items.begin()  : 
-      ( (level == "L2") ? m_L2Chains.begin() :
-        (level == "EF") ? m_EFChains.begin() : m_L1Items.end() ));
+      //( (level == "L2") ? m_L2Chains.begin() :
+        (level == "EF") ? m_EFChains.begin() : m_L1Items.end() );
 
   chItE = ( (level == "L1") ? m_L1Items.end()  : 
-      ( (level == "L2") ? m_L2Chains.end() :
-        (level == "EF") ? m_EFChains.end() : m_L1Items.end() ));
+      //( (level == "L2") ? m_L2Chains.end() :
+        (level == "EF") ? m_EFChains.end() : m_L1Items.end() );
 
   // loop over all items(or chains)
   bool passAny = false;
   for(chIt = chItB; chIt != chItE; chIt++ ) {
-    matchL1 = 0; matchL2 = 0; matchEF = 0;
+    matchL1 = 0; //matchL2 = 0; 
+    matchEF = 0;
     ChainMatch obj;
     obj.m_cname = (*chIt).first;
     obj.m_ctrigname = (*chIt).second;
@@ -2085,17 +1951,17 @@ bool HLTJetMonTool::passedChain( const Jet *jet, std::vector<ChainMatch>& mFound
         //mFound.push_back(obj);
       }
       ATH_MSG_DEBUG( "matching offline jet to L1 for item " << (*chIt).second << " match = " << matchL1 ); 
-    } else if (level == "L2") {
-      matchL2 = m_trigMatchTool->matchToTriggerObject<TrigMatch::TrigJetL2>(jet, (*chIt).second, m_deltaRCut );
-      if(matchL2) {
-        obj.m_chpass = true;
-        passAny = true;
-        double et = matchL2->et();
-        if(et < 1.e-3) et = 0;
-        obj.m_eta = matchL2->eta(); obj.m_phi = matchL2->phi(); obj.m_pt = matchL2->pt(); obj.m_et = et;
-        //mFound.push_back(obj);
-      }
-      ATH_MSG_DEBUG( "matching offline jet to L2 for chain " << *chIt << " match = " << matchL2 ); 
+    //} else if (level == "L2") {
+      //matchL2 = m_trigMatchTool->matchToTriggerObject<TrigMatch::TrigJetL2>(jet, (*chIt).second, m_deltaRCut );
+      //if(matchL2) {
+      //  obj.m_chpass = true;
+      //  passAny = true;
+      //  double et = matchL2->et();
+      //  if(et < 1.e-3) et = 0;
+      //  obj.m_eta = matchL2->eta(); obj.m_phi = matchL2->phi(); obj.m_pt = matchL2->pt(); obj.m_et = et;
+      //  //mFound.push_back(obj);
+      //}
+      //ATH_MSG_DEBUG( "matching offline jet to L2 for chain " << *chIt << " match = " << matchL2 ); 
     } else if (level == "EF") {
       matchEF = m_trigMatchTool->matchToTriggerObject<TrigMatch::TrigJetEF>(jet, (*chIt).second, m_deltaRCut );
       if(matchEF) {

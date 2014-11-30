@@ -5,18 +5,20 @@ author Venkatesh Kaushik <venkat.kaushik@cern.ch>
 author Xiaowen Lei <Xiaowen.Lei@cern.ch>
 
 use AtlasPolicy                 AtlasPolicy-*
-use GaudiInterface              GaudiInterface-*        External
+use GaudiInterface              GaudiInterface-*            External
 
 use TrigHLTMonitoring           TrigHLTMonitoring-*         Trigger/TrigMonitoring
-use TrigCaloEvent	            TrigCaloEvent-*	            Trigger/TrigEvent
+use TrigCaloEvent	        TrigCaloEvent-*	            Trigger/TrigEvent
 use AnalysisTriggerEvent        AnalysisTriggerEvent-*      PhysicsAnalysis/AnalysisTrigger
+use xAODJet                     xAODJet-*                   Event/xAOD
+use xAODTrigger			xAODTrigger-*               Event/xAOD
 
 private
 use EventKernel                 EventKernel-*               Event
 use AtlasBoost                  AtlasBoost-*                External
 use AtlasROOT                   AtlasROOT-*                 External
 use StoreGate                   StoreGate-*                 Control
-use JetUtils		            JetUtils-*		            Reconstruction/Jet
+use JetUtils		        JetUtils-*		            Reconstruction/Jet
 use JetEvent                    JetEvent-*                  Reconstruction/Jet
 use TrigDecisionTool            TrigDecisionTool-*          Trigger/TrigAnalysis
 use TrigObjectMatching          TrigObjectMatching-*        Trigger/TrigAnalysis

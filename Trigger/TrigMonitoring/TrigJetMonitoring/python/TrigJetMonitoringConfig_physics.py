@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
-#  file: TrigJetMonitoring_cosmics.py
+#  file: TrigJetMonitoring.py
 #  purpose : configure TrigJetMonitoring for 
 #            a) Monitoring histograms per chain
 #               Basic Quantities, Correlations
@@ -10,7 +10,7 @@
 #            d) Jet / HLT trigger object matching
 #            e) Trigger efficiency estimation 
 #
-#  author(s) : Lee Sawyer (lee.sawyer@cern.ch)
+#  author(s) : Venkatesh Kaushik (venkat.kaushik@cern.ch)
 #################################################################################################
 
 import math
@@ -21,14 +21,14 @@ hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets", "AntiKt4EMTopo
 
 
 ## sample selection (orthogonal) triggers
-hlt_eventSelectionTriggers = [ "L1_MU10", "L1RD0_EMPTY" ]
+hlt_eventSelectionTriggers = [ "L1_MU0", "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU20", "L1_MBTS_1_1", "L1_RD0_FILLED" ]
 
 ## Triggers for basic plots
 ## "Internal:Physical"
 
 ## monitoring triggers 
-hlt_basicL1Triggers = { 'L1_J10':'L1_J10','L1RD0_EMPTY':'L1RD0_EMPTY' }
-hlt_basicEFTriggers  = { 'HLT_j0_perf_prescld':'HLT_j0_perf_L1J10_prescaled','HLT_j0_perf_raw':'HLT_j0_perf_L1J10_raw','HLT_j0_perf_out':'HLT_j0_perf_L1J10_output' } 
+hlt_basicL1Triggers = { 'L1_J100':'L1_J100','L1_FJ100':'L1_FJ100' }
+hlt_basicEFTriggers  = { 'HLT_j460':'HLT_j460_a10_L1J100','HLT_j200':'HLT_j200_320eta490','HLT_3j175':'HLT_3j175','HLT_4j100':'HLT_4j100','HLT_5j85':'HLT_5j85' } 
 
 # Binning for NJets
 hlt_njetbins = [ 55 ]
@@ -68,32 +68,21 @@ hlt_jetDepbinhi = [ 6.0 ]
 # NB3: python lists are alphabetically ordered
 
 ## L1 items   
-hlt_level1ItemNames           = { 'L1_J10':'L1_J10', 'L1RD0_EMPTY':'L1RD0_EMPTY' }
-hlt_level1EtThresholds        = { 'L1_J10':1.0 }
+hlt_level1ItemNames           = { 'L1_J100':'L1_J100' }
+hlt_level1EtThresholds        = { 'L1_J100':100. }
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]
-hlt_level1EtBinsHigh          = [ 40. ]
-hlt_level1EtThresholds        = { 'L1RD0_EMPTY':1.0 }
-hlt_level1EtNBins             = [ 40 ]
-hlt_level1EtBinsLow           = [ 0. ]
-hlt_level1EtBinsHigh          = [ 40. ]
+hlt_level1EtBinsHigh          = [ 400. ]
 
-## EF chains
-#hlt_efChainNames              = {  }
-#hlt_efEtThresholds            = { 'EF_j180_a4tchad':180. }
-#hlt_efEtNBins                 = [ 30]
-#hlt_efEtBinsLow               = [ 150.]
-#hlt_efEtBinsHigh              = [ 600. ]
-
-# M-week chains
-hlt_efChainNames              = { 'HLT_j0_perf_prescld':'HLT_j0_perf_L1J10_prescaled','HLT_j0_perf_raw':'HLT_j0_perf_L1J10_raw','HLT_j0_perf_out':'HLT_j0_perf_L1J10_output' } 
-hlt_efEtThresholds            = { 'HLT_j0_perf_prescld':0.0, 'HLT_j0_perf_raw':0.0, 'HLT_j0_perf_out':0.0 }
-hlt_efEtNBins                 = [ 100, 100, 100 ]
+# DC14 jet menu items
+hlt_efChainNames              = { 'HLT_j460':'HLT_j460_a10_L1J100','HLT_j200':'HLT_j200_320eta490','HLT_3j175':'HLT_3j175','HLT_4j100':'HLT_4j100','HLT_5j85':'HLT_5j85' } 
+hlt_efEtThresholds            = { 'HLT_j460_a10_L1J100':150., 'HLT_j200_a4hi_320eta490':150., 'HLT_3j175':100. }
+hlt_efEtNBins                 = [ 50, 50, 50 ]
 hlt_efEtBinsLow               = [ 0., 0., 0. ]
-hlt_efEtBinsHigh              = [ 50., 50., 50.]
+hlt_efEtBinsHigh              = [ 500., 500., 500.]
 
 
-hlt_offlineEtThresholds        = { 'L1_J10':1., 'HLT_j0_perf_prescld':1., 'HLT_j0_perf_raw':1., 'HLT_j0_perf_out':1. }
+hlt_offlineEtThresholds        = { 'L1_J100':100., 'L2_FJ100':100., 'HLT_j460_a10_L1J100':150., 'HLT_j200_a4hi_320eta490':150., 'HLT_3j175':100. }
             
 ## implemented but not being used [todo]
 hlt_jetchainsbyregexp         = [ "(L2|EF)_[0-9]?[jJ][0-9]+", "(L2|EF)_[0-9]+[fj][j0-9]+"]
@@ -105,19 +94,17 @@ def TrigJetMonitoringTool():
             name                 = 'HLTJetMon',
             histoPathBase        = "/Trigger/HLT",
             JetMonBase           = "/HLT/JetMon",
-            DoL1Efficiency       = False,         # w.r.t offline
-	    DoOfflineJets        = False,         # fill offline jet plots
-            DoEFEfficiency       = False,         # w.r.t offline (EF eff = L1 & L2 & EF)
+            DoL1Efficiency       = True,         # w.r.t offline
+	    DoOfflineJets        = True,         # fill offline jet plots
+            DoEFEfficiency       = True,         # w.r.t offline (EF eff = L1 & L2 & EF)
 
             # Select events based on any of these passing EvtSelTriggers 
             DoEventSelection     = False,
             EvtSelTriggers       = hlt_eventSelectionTriggers,
                                    
-            # SG Keys for L1, HLT, OF Jets
+            # SG Keys for L1, EF, OF Jets
             L1xAODJetKey         = "LVL1JetRoIs",
-            L2JetKey             = "HLT_TrigT2CaloJet",
             EFJetKey             = "HLT_xAOD__JetContainer_TrigHLTJetRec",
-            ##EFJetKey             = "HLT_xAOD__JetContainer_TrigCosmicJetRec",
             OFJetKeys            = hlt_offlineJetKeys,
 
             # Directories for histograms 
@@ -172,7 +159,6 @@ def TrigJetMonitoringTool():
             JetDepBinHi               = hlt_jetDepbinhi,
             
             L1EtThresGeV            = hlt_level1EtThresholds,
-            #L2EtThresGeV            = hlt_level2EtThresholds,
             EFEtThresGeV            = hlt_efEtThresholds,
 
             # L1 Items for trigger efficiency
@@ -197,7 +183,7 @@ def TrigJetMonitoringTool():
             ## HLT Jet EMFraction > X 
             EMFractionCut        = 0.9,
                                    
-            # for matching offline jet to L1,EF
+            # for matching offline jet to L1,L2,EF
             DeltaRCut            = 0.3,
             
             # Selection cuts for OF jets used for basic histograms

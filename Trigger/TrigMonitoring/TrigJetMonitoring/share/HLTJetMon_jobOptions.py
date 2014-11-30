@@ -35,10 +35,12 @@ def getInputFiles(dir, AODHLTP):
 
 AODir2011 = ['/raid01/venkat/dataset/data/csc/2011/mcpskim/data10_7TeV.*.phys*', 'data10_7TeV*DESD_ZMUMU*']
 AODir2012 = ['/raid01/venkat/dataset/hlt-met/2012', 'AOD*pool*']
+AODir2014 = ['/afs/cern.ch/work/s/sawyer/data','data12_8TeV*.pool.root']
+TestDir   = ['/afs/cern.ch/atlas/offline/ReleaseData/v3/testfile/','valid1.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s488_d151_tid039414_RDO.039414._00001_extract_10evt.pool.root']
 
 HLTJetInputFiles = []
 if doLocal:
-  getInputFiles(AODir2012, HLTJetInputFiles)
+  getInputFiles(TestDir, HLTJetInputFiles)
   print HLTJetInputFiles
   if len(HLTJetInputFiles) < 1:
     print "No input files specified yet! Cannot do anything."

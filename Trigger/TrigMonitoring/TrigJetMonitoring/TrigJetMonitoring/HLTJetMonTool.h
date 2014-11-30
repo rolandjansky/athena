@@ -18,6 +18,14 @@
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
+#include "AnalysisTriggerEvent/Jet_ROI.h"
+
+#include "xAODTrigger/JetRoI.h"
+#include "xAODTrigger/JetRoIContainer.h"
+
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetConstituentVector.h"
 
 // STL includes
 #include <string>
@@ -55,7 +63,6 @@ class HLTJetMonTool : public IHLTMonTool {
     ~HLTJetMonTool();
 
     // from HLTMonTool
-    // LS 24 Jan 2014 - Modified for new AthenaMonitoring base classes, managed monitor histograms
     StatusCode init();
     StatusCode book();
     StatusCode fill();
@@ -75,31 +82,31 @@ class HLTJetMonTool : public IHLTMonTool {
     // binning for trigger efficiency 
     std::vector<float> /*m_binlo, m_binhi, m_nperbin, */
                        m_l1binloEt, m_l1binhiEt, m_l1nperbinEt,    // for L1 trigger eff vs. Et
-                       m_l2binloEt, m_l2binhiEt, m_l2nperbinEt,    // for L2 trigger eff vs. Et
+                       //m_l2binloEt, m_l2binhiEt, m_l2nperbinEt,    // for L2 trigger eff vs. Et
                        m_efbinloEt, m_efbinhiEt, m_efnperbinEt;    // for EF trigger eff vs. Et
 
     JetThrestype m_l1EtThres, m_l2EtThres, m_efEtThres, m_ofEtThres;
 
     std::vector<int> /*m_nbins, */
       m_l1nbinsEt, // for L1 trigger eff vs. Et
-      m_l2nbinsEt, // for L2 trigger eff vs. Et
+      //m_l2nbinsEt, // for L2 trigger eff vs. Et
       m_efnbinsEt; // for EF trigger eff vs. Et
 
 
     // keep track of monitoring groups
     JetSigtype m_monGroups;
 
-    std::string m_monBase, m_L2dir, m_EFdir, m_OFpfx, m_Effdir;
-    std::string m_L1JetKey, m_L2JetKey, m_EFJetKey;
+    std::string m_monBase, m_L1dir, m_EFdir, m_OFpfx, m_Effdir;
+    std::string m_L1xAODJetKey, m_L2JetKey, m_EFJetKey;
     
     JetSigtype m_L1Items, m_L2Chains, m_EFChains;
-    JetSigtype m_basicL2Trig, m_basicEFTrig;
+    JetSigtype m_basicL1Trig, m_basicEFTrig;
 
     std::vector<std::string> /*m_OFJetKeys,*/ m_sampSelTriggers, m_chainsByRegexp;
     JetSigtype m_OFJetKeys;
 
     // jet selection, matching
-    bool m_doL1TrigEff, m_doL2TrigEff, m_doEFTrigEff, m_doEvtSel, m_debuglevel;
+    bool m_doL1TrigEff, m_doL2TrigEff, m_doEFTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
@@ -116,10 +123,12 @@ class HLTJetMonTool : public IHLTMonTool {
     //const Trig::ChainGroup *m_trjetL1Items, *m_trjetL2Chain, *m_trjetEFChain;
 
     // containers
-    const LVL1_ROI *m_L1RoiC;
-    const TrigT2JetContainer *m_L2JetC;
-    const JetCollection *m_EFJetC;
-    std::vector<const JetCollection *> m_OFJetC;
+    //const LVL1_ROI *m_L1RoiC;
+    const xAOD::JetRoIContainer* m_L1JetRoIC;
+    const TrigT2JetContainer* m_L2JetC;
+    const xAOD::JetContainer* m_EFJetC;
+    //std::vector<const JetCollection *> m_OFJetC;
+    std::vector<const xAOD::JetContainer* > m_OFJetC;
 
     // fill methods
     StatusCode fillJetHists();        // this method calls all other fill methods
@@ -127,8 +136,8 @@ class HLTJetMonTool : public IHLTMonTool {
     StatusCode fillOfflineHists();    // offline jet + trigger efficiency hists
 
     // helpers for fill method
-    void fillBasicL1forChain(const std::string& theChain, LVL1_ROI::jets_type& L1JetROI, double L1thr );
-    void fillBasicL2forChain(const std::string& theChain, double L2thr );
+    void fillBasicL1forChain(const std::string& theChain, double L1thr ); // No need to pass JetRoI - it is known Khaleesi
+    //void fillBasicL2forChain(const std::string& theChain, double L2thr );
     void fillBasicEFforChain(const std::string& theChain, double EFthr );
 
     // SG retrieval method
@@ -137,8 +146,7 @@ class HLTJetMonTool : public IHLTMonTool {
     // book methods
     void bookJetHists();  // this method calls all other book methods
     void bookOfflineHists(JetSigtype& items, const std::string& ofjet);     // trigger efficiency hists
-    //void bookCorrHists(const std::string& level2, const std::string& level1, const size_t& k ); // correlation hists
-    void bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg);
+    //void bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg);
     void bookBasicHists(std::vector<std::string>& level, std::vector<std::string>& hists);     // basic hists
 
     void setHistProperties(TH1* h);
@@ -180,7 +188,7 @@ class HLTJetMonTool : public IHLTMonTool {
         double m_eta, m_phi, m_pt, m_et;
         bool m_chpass;
     };
-    bool passedChain( const Jet *jet, std::vector<ChainMatch>& mFound, const std::string& level);
+    bool passedChain( const xAOD::Jet *jet, std::vector<ChainMatch>& mFound, const std::string& level);
     bool evtSelTriggersPassed();
     bool isChainActive(const std::string& theChain );
     double signed_delta_phi(double ph11, double phi2);
