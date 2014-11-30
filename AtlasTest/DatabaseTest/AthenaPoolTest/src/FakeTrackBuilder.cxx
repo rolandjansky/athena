@@ -5,7 +5,11 @@
 #include "FakeTrackBuilder.h"
 #include <iostream>
 
+#define private public
+#define protected public
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#undef protected
+#undef private
 
 // include Tracking EDM
 #include "TrkTrack/Track.h"

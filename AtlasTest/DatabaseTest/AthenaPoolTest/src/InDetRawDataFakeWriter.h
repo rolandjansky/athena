@@ -25,16 +25,17 @@
  *
  */
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Algorithm.h"
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/TRT_RDO_Container.h"
 
+class StoreGateSvc;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
 
-class InDetRawDataFakeWriter : public AthAlgorithm {
+class InDetRawDataFakeWriter : public Algorithm {
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -83,6 +84,9 @@ private:
 
     /// Print out RDOs
     StatusCode printRDOs() const;
+
+    /// Access to event store
+    StoreGateSvc *m_storeGate;
 
     /// Identifiable containers are created only once
     PixelRDO_Container* m_pixCont ;

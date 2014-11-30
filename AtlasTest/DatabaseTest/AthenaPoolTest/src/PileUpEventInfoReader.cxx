@@ -13,6 +13,8 @@
  *
  */
 
+//<<<<<< INCLUDES                                                       >>>>>>
+
 #include "PileUpEventInfoReader.h"
 
 // Event includes
@@ -21,61 +23,118 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/PileUpEventInfo.h"
 
+// TES include
+#include "StoreGate/StoreGateSvc.h"
+
+// Gaudi includes
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/AlgFactory.h"
+
 // Constructor with parameters:
 PileUpEventInfoReader::PileUpEventInfoReader(const std::string &name, 
 				 ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name,pSvcLocator)
+    Algorithm(name,pSvcLocator),
+    m_storeGate(0)
 {}
 
 // Initialize method:
 StatusCode PileUpEventInfoReader::initialize()
 {
-    ATH_MSG_INFO("PileUpEventInfoReader::initialize()" );
+    // Get the messaging service, print where you are
+    MsgStream log(msgSvc(), name());
+    log << MSG::INFO << "PileUpEventInfoReader::initialize()" << endreq;
+
+    // get StoreGate service
+    StatusCode sc = service("StoreGateSvc",m_storeGate);
+    if (sc.isFailure()) {
+	log << MSG::ERROR << "StoreGate service not found !" << endreq;
+	return StatusCode::FAILURE;
+    } else {}
+
     return StatusCode::SUCCESS;
 }
 
 // Execute method:
 StatusCode PileUpEventInfoReader::execute() 
 {
+    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), name());
-    ATH_MSG_DEBUG("PileUpEventInfoReader::execute()" );
+    log << MSG::DEBUG << "PileUpEventInfoReader::execute()" << endreq;
+
+    // Read PileupEventInfo
+
+    // PileupInfo as EventInfo
+//    const EventInfo * evt = 0;
+    //StatusCode sc = m_storeGate->retrieve( evt, "OverlayEvent" );
+    StatusCode sc;
+//     StatusCode sc = m_storeGate->retrieve( evt );
+//     if ( sc.isFailure() ) {
+//  	log << MSG::ERROR << "  Could not get pileup event info as event info" << endreq;      
+//  	return StatusCode::FAILURE;
+//     }
+//     else {
+//  	log << MSG::DEBUG << "PileUpEventInfo as EventInfo"
+//  	    << endreq;
+//  	log << MSG::DEBUG << "Event ID: ["
+//  	    << evt->event_ID()->run_number()   << ","
+//  	    << evt->event_ID()->event_number() << ":"
+//  	    << evt->event_ID()->time_stamp() << "] "
+//  	    << endreq;
+//  	log << MSG::DEBUG << "Event type: user type "
+//  	    << evt->event_type()->user_type()
+//  	    << endreq;
+//     }
+
 
     // PileupEventInfo as itself
     const PileUpEventInfo* pevt = 0;
     //sc = m_storeGate->retrieve( pevt, "OverlayEvent" );
-    ATH_CHECK( evtStore()->retrieve( pevt ) );
-
-    ATH_MSG_DEBUG( "PileUpEventInfo" );
-    ATH_MSG_DEBUG( "Event ID: ["
-                   << pevt->event_ID()->run_number()   << ","
-                   << pevt->event_ID()->event_number() << ":"
-                   << pevt->event_ID()->time_stamp() << "] " );
-    ATH_MSG_DEBUG( "Event type: user type "
-                   << pevt->event_type()->user_type() );
-
-
-    // Get normal event info as a sub-event info
-    ATH_MSG_DEBUG( "SubEventInfos" );
-    PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
-    PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
-    if (it == end) {
-      ATH_MSG_DEBUG( "None found"  );
+    sc = m_storeGate->retrieve( pevt );
+    if ( sc.isFailure() ) {
+ 	log << MSG::ERROR << "  Could not get pileup event info" << endreq;      
+ 	return StatusCode::FAILURE;
     }
-    for (; it != end; ++it) {
-      const EventInfo* sevt = (*it).pSubEvt;
-      ATH_MSG_DEBUG( "Time, index " 
-                     << (*it).time() << " " << (*it).index() );
-      if (sevt) {
-        ATH_MSG_DEBUG( "Event ID: ["
-                       << sevt->event_ID()->run_number()   << ","
-                       << sevt->event_ID()->event_number() << ":"
-                       << sevt->event_ID()->time_stamp() << "] " );
-        ATH_MSG_DEBUG( "Event type: user type "
-                       << sevt->event_type()->user_type() );
-      }
-      else {
-        ATH_MSG_DEBUG( "Subevent is null ptr " );
-      }
+    else {
+ 	log << MSG::DEBUG << "PileUpEventInfo"
+ 	    << endreq;
+ 	log << MSG::DEBUG << "Event ID: ["
+ 	    << pevt->event_ID()->run_number()   << ","
+            << pevt->event_ID()->event_number() << ":"
+ 	    << pevt->event_ID()->time_stamp() << "] "
+ 	    << endreq;
+ 	log << MSG::DEBUG << "Event type: user type "
+ 	    << pevt->event_type()->user_type()
+ 	    << endreq;
+
+
+	// Get normal event info as a sub-event info
+ 	log << MSG::DEBUG << "SubEventInfos"
+ 	    << endreq;
+	PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
+	PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
+	if (it == end) {
+	    log << MSG::DEBUG << "None found" << endreq;
+	}
+	for (; it != end; ++it) {
+	    const EventInfo* sevt = (*it).pSubEvt;
+	    log << MSG::DEBUG << "Time, index " 
+		<< (*it).time() << " " << (*it).index()
+		<< endreq;
+	    if (sevt) {
+		log << MSG::DEBUG << "Event ID: ["
+		    << sevt->event_ID()->run_number()   << ","
+                    << sevt->event_ID()->event_number() << ":"
+		    << sevt->event_ID()->time_stamp() << "] "
+		    << endreq;
+		log << MSG::DEBUG << "Event type: user type "
+		    << sevt->event_type()->user_type()
+		    << endreq;
+	    }
+	    else {
+		log << MSG::DEBUG << "Subevent is null ptr "
+		    << endreq;
+	    }
+	}
     }
     
     return StatusCode::SUCCESS;
@@ -85,7 +144,9 @@ StatusCode PileUpEventInfoReader::execute()
 // Finalize method:
 StatusCode PileUpEventInfoReader::finalize() 
 {
-    ATH_MSG_INFO("PileUpEventInfoReader::finalize()" );
+    // Get the messaging service, print where you are
+    MsgStream log(msgSvc(), name());
+    log << MSG::INFO << "PileUpEventInfoReader::finalize()" << endreq;
 
     return StatusCode::SUCCESS;
 }

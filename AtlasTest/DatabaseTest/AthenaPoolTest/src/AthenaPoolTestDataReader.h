@@ -29,9 +29,10 @@ class StoreGateSvc;
 
 // INCLUDE HEADER FILES:
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/AlgFactory.h"
 
-class AthenaPoolTestDataReader : public AthAlgorithm
+class AthenaPoolTestDataReader : public Algorithm
 {
 
  public:
@@ -51,5 +52,10 @@ class AthenaPoolTestDataReader : public AthAlgorithm
     /// Algorithm finalize at end of job
     virtual StatusCode finalize();
 
+private:
+
+    /// Access to event store
+    StoreGateSvc* m_storeGate;
 };
 #endif
+     

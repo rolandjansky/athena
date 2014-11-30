@@ -14,7 +14,12 @@
 *
 */
 
+#define private public
+#define protected public
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#undef protected
+#undef private
+
 #include "TrkTrackFakeWriter.h"
 
 
@@ -24,6 +29,7 @@
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 // include Tracking EDM
@@ -64,7 +70,8 @@
 TrkTrackFakeWriter::TrkTrackFakeWriter(const std::string &name, 
 ISvcLocator *pSvcLocator) 
 :
-AthAlgorithm(name,pSvcLocator),
+Algorithm(name,pSvcLocator),
+  m_storeGate(0),
   m_pixMgrLocation("Pixel"),
   m_pixMgr(0),
   m_eventcounter(0),
@@ -79,10 +86,32 @@ AthAlgorithm(name,pSvcLocator),
 StatusCode TrkTrackFakeWriter::initialize()
 {
   // Get the messaging service, print where you are
-  ATH_MSG_INFO( "TrkTrackFakeWriter::initialize()"  );
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << "TrkTrackFakeWriter::initialize()" << endreq;
+
+  // get StoreGate service
+  StatusCode sc=service("StoreGateSvc",m_storeGate);
+  if (sc.isFailure()) {
+    log << MSG::ERROR << "StoreGate service not found !" << endreq;
+    return StatusCode::FAILURE;
+  }
 
   if (m_doInDet){
-    ATH_CHECK( detStore()->retrieve(m_pixMgr, m_pixMgrLocation) );
+      // get DetectorStore service
+    StoreGateSvc* detStore;
+    sc=service("DetectorStore",detStore);
+    if (sc.isFailure()) {
+      log << MSG::ERROR << "DetectorStore service not found !" << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      log << MSG::DEBUG << " Found DetectorStore " << endreq;
+    }
+
+    sc = detStore->retrieve(m_pixMgr, m_pixMgrLocation);
+    if (sc.isFailure()) {
+      log<<MSG::ERROR<<"Could not get PixelDetectorDescription"<<endreq;
+      return sc;
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -91,8 +120,10 @@ StatusCode TrkTrackFakeWriter::initialize()
 // Execute method:
 StatusCode TrkTrackFakeWriter::execute() 
 {
+// Get the messaging service, print where you are
+  MsgStream log(msgSvc(), name());
   ++m_eventcounter;
-  ATH_MSG_DEBUG( "TrkTrackFakeWriter::execute()"  );
+  log << MSG::DEBUG << "TrkTrackFakeWriter::execute()" << endreq;
 
   using namespace Trk;
   using namespace InDet;
@@ -101,15 +132,19 @@ StatusCode TrkTrackFakeWriter::execute()
 
   Trk::Track* track = FakeTrackBuilder::buildTrack(m_pixMgr);
   newTracks->push_back(track);
-  ATH_MSG_VERBOSE((*track) );
+  log<<MSG::VERBOSE<<(*track)<<endreq;
   
   if (m_addBrokenTracks) {
     Trk::Track* track = FakeTrackBuilder::buildBrokenTrack(m_pixMgr);
     newTracks->push_back(track);
   }
 
-  ATH_CHECK( evtStore()->record(newTracks, "Tracks", false) );
-  ATH_MSG_DEBUG( "TrkTrackFakeWriter::execute() ended"  );
+  StatusCode sc = m_storeGate->record(newTracks, "Tracks", false);
+  if ( sc.isFailure() )
+  {
+    log << MSG::ERROR << "Could not save tracks!!! " <<endreq;
+  }
+  log << MSG::DEBUG << "TrkTrackFakeWriter::execute() ended" << endreq;
 
 //now try PRD collections
   return StatusCode::SUCCESS;
@@ -118,7 +153,10 @@ StatusCode TrkTrackFakeWriter::execute()
 // Finalize method:
 StatusCode TrkTrackFakeWriter::finalize() 
 {
-  ATH_MSG_INFO( "TrkTrackFakeWriter::finalize()"  );
+  // Get the messaging service, print where you are
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << "TrkTrackFakeWriter::finalize()" << endreq;
+
   return StatusCode::SUCCESS;
 }
 

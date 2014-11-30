@@ -25,14 +25,18 @@
  *
  */
 
-#include "GaudiKernel/ServiceHandle.h"
+//<<<<<< INCLUDES                                                       >>>>>>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Algorithm.h"
+
+//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class StoreGateSvc;
 class IGeoModelSvc;
 
-class EventInfoReader : public AthAlgorithm {
+//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
+class EventInfoReader : public Algorithm {
 public:
 
     /// Algorithm constructor
@@ -65,9 +69,19 @@ private:
     // Private data:
     ///////////////////////////////////////////////////////////////////
 private:
+
+    /// Access to event store
+    StoreGateSvc* m_storeGate;
+
+    /// Access to detector store
+    StoreGateSvc* m_detStore;
+
     /// Access to GeoModelSvc for tags
-    ServiceHandle<IGeoModelSvc> m_geoModel;
+    IGeoModelSvc* m_geoModel;
 };
 
+
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // SRC_EVENTINFOREADER_H

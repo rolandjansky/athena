@@ -25,6 +25,13 @@
 #include "EventInfo/TagInfo.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
+// TES include
+#include "StoreGate/StoreGateSvc.h"
+
+// Gaudi includes
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/AlgFactory.h"
+
 // Constructor with parameters:
 EventInfoWriter::EventInfoWriter(const std::string &name, 
 				 ISvcLocator *pSvcLocator) :
@@ -43,16 +50,20 @@ EventInfoWriter::EventInfoWriter(const std::string &name,
 StatusCode EventInfoWriter::initialize()
 {
     // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::initialize()");
+    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "EventInfoWriter::initialize()" << endreq;
 
-    ATH_MSG_DEBUG("CreateDummyTags         " << m_createDummyTags);
-    ATH_MSG_DEBUG("RemoveDummyTags         " << m_removeDummyTags);
-    ATH_MSG_DEBUG("CreateDummyOverrideTags " << m_createDummyOverrideTags);
+    log << MSG::DEBUG << "CreateDummyTags         " << m_createDummyTags
+	<< endreq;
+    log << MSG::DEBUG << "RemoveDummyTags         " << m_removeDummyTags
+	<< endreq;
+    log << MSG::DEBUG << "CreateDummyOverrideTags " << m_createDummyOverrideTags
+	<< endreq;
 
 
     // get TagInfoMgr service
     if (service("TagInfoMgr", m_tagInfoMgr).isFailure()) {
-	ATH_MSG_FATAL("TagInfoMgr service not found !");
+	log << MSG::FATAL << "TagInfoMgr service not found !" << endreq;
 	return StatusCode::FAILURE;
     } 
 
@@ -61,31 +72,31 @@ StatusCode EventInfoWriter::initialize()
 //     std::string key = m_tagInfoMgr->tagInfoKey();
 //     if (m_detStore->regFcn(&EventInfoWriter::checkTagInfo,
 // 			     this, tagInfoH, key).isFailure()) {
-// 	ATH_MSG_ERROR("Cannot register checkTagInfo function for key " 
+// 	log << MSG::ERROR << "Cannot register checkTagInfo function for key " 
 // 	    << key
-// 	   );
+// 	    << endreq;
 // 	return sc;
 //     } else {
-// 	ATH_MSG_DEBUG("Registered checkTagInfo callback for key: " 
+// 	log << MSG::DEBUG << "Registered checkTagInfo callback for key: " 
 // 	    << key
-// 	   );
+// 	    << endreq;
 //     }
 
     // Insert a dummy tag into the TagInfoMgr
     if (m_tagInfoMgr->addTag("EventInfoWriterTag", "EIW-00-00-01").isFailure()) {
-	ATH_MSG_FATAL("Unable to add tag to TagInfoMgr !");
+	log << MSG::FATAL << "Unable to add tag to TagInfoMgr !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	ATH_MSG_DEBUG("Added tag to TagInfoMgr");
+	log << MSG::DEBUG << "Added tag to TagInfoMgr" << endreq;
     }
 
     if (fillTagInfo().isFailure()) {
-	ATH_MSG_FATAL("Unable to to call fillTagInfo !");
+	log << MSG::FATAL << "Unable to to call fillTagInfo !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	ATH_MSG_DEBUG("Called fillTagInfo");
+	log << MSG::DEBUG << "Called fillTagInfo" << endreq;
     }
 
     return StatusCode::SUCCESS;
@@ -95,62 +106,63 @@ StatusCode EventInfoWriter::initialize()
 StatusCode EventInfoWriter::execute() 
 {
     // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::execute()");
+    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "EventInfoWriter::execute()" << endreq;
 
     const EventInfo * evt = 0;
     if (evtStore()->retrieve( evt ).isFailure() ) {
- 	ATH_MSG_ERROR("  Could not get event info");      
+ 	log << MSG::ERROR << "  Could not get event info" << endreq;      
  	return StatusCode::FAILURE;
     }
     else {
- 	ATH_MSG_DEBUG("Event ID: ["
+ 	log << MSG::DEBUG << "Event ID: ["
  	    << evt->event_ID()->run_number()   << ","
             << evt->event_ID()->event_number() << ":"
  	    << evt->event_ID()->time_stamp() << "] "
- 	   );
- 	ATH_MSG_DEBUG("Event type: user type "
+ 	    << endreq;
+ 	log << MSG::DEBUG << "Event type: user type "
  	    << evt->event_type()->user_type()
- 	   );
+ 	    << endreq;
     }
  
     // Set new dummy tags only at the first event of run 2
     static bool setDummyTags = false; // flag to set tags only once
     if (!setDummyTags && evt->event_ID()->run_number() == 2 && m_createDummyOverrideTags) {
         setDummyTags = true;
-        ATH_MSG_DEBUG("Create dummy tags, A2-D2");
+	msg(MSG::DEBUG) << "Create dummy tags, A2-D2" << endreq;
 	// New/different tags
         if (m_tagInfoMgr->addTag("TagA1", "A2").isFailure()) {
-            ATH_MSG_WARNING("TagA1 NOT added");
+            msg(MSG::WARNING) << "TagA1 NOT added" << endreq;
         } 
         if (m_tagInfoMgr->addTag("TagB1", "B2").isFailure()) {
-            ATH_MSG_WARNING("TagB1 NOT added");
+	    msg(MSG::WARNING) << "TagB1 NOT added" << endreq;
 	} 
         if (m_tagInfoMgr->addTag("TagC1", "C2").isFailure()) {
-            ATH_MSG_WARNING("TagC1 NOT added");
+	    msg(MSG::WARNING) << "TagC1 NOT added" << endreq;
 	} 
         if (m_tagInfoMgr->addTag("TagD1", "D2").isFailure()) {
-            ATH_MSG_WARNING("TagD1 NOT added");
+	    msg(MSG::WARNING) << "TagD1 NOT added" << endreq;
 	} 
 
-ATH_MSG_DEBUG("execute: reset TagInfo proxy");
+        msg (MSG::DEBUG) << "execute: reset TagInfo proxy" << endreq;
 
         SG::DataProxy* tagInfoProxy = 
             detStore()->proxy( ClassID_traits<TagInfo>::ID() );
 
         if (0 == tagInfoProxy) {
-            ATH_MSG_ERROR("execute: Unable to retrieve TagInfo object with clid/key: " 
-                            << ClassID_traits<TagInfo>::ID());
+            msg(MSG::ERROR) << "execute: Unable to retrieve TagInfo object with clid/key: " 
+                            << ClassID_traits<TagInfo>::ID() << endreq;
             return StatusCode::FAILURE;
         }
         // reset and retrieve
         tagInfoProxy->reset();
         const TagInfo* tagInfo = 0;
         if (detStore()->retrieve( tagInfo ).isFailure() ) {
-            ATH_MSG_ERROR("execute: Could not retrieve TagInfo object from the detector store");      
+            msg(MSG::ERROR) << "execute: Could not retrieve TagInfo object from the detector store" << endreq;      
             return StatusCode::FAILURE;
         }
         else {
-            ATH_MSG_DEBUG("execute: retrieved TagInfo");
+            msg(MSG::DEBUG) << "execute: retrieved TagInfo" << endreq;
         }
 
     }
@@ -161,23 +173,22 @@ ATH_MSG_DEBUG("execute: reset TagInfo proxy");
     const TagInfo* tagInfo = 0;
     // Try to get tagInfo if there, otherwise create
     if (detStore()->retrieve( tagInfo ).isFailure()) {
-	ATH_MSG_DEBUG("No TagInfo in DetectorStore - creating one");
+	log << MSG::DEBUG << "No TagInfo in DetectorStore - creating one" << endreq;
 	tagInfo = new TagInfo();
     } 
     else {
-	ATH_MSG_DEBUG("Retrieved TagInfo");
+	log << MSG::DEBUG << "Retrieved TagInfo" << endreq;
     } 
 
     // Dump out contents of TagInfo
-    ATH_MSG_DEBUG("Tags from  TagInfo:");
-    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "Tags from  TagInfo:" << endreq;
     tagInfo->printTags(log);
     
     // Print out current Release version 
     std::string releaseVersion;
     tagInfo->findTag("AtlasRelease", releaseVersion);
-    ATH_MSG_DEBUG("Found Release version from TagInfo: " 
-	<< releaseVersion);
+    log << MSG::DEBUG << "Found Release version from TagInfo: " 
+	<< releaseVersion << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -187,7 +198,8 @@ ATH_MSG_DEBUG("execute: reset TagInfo proxy");
 StatusCode EventInfoWriter::finalize() 
 {
     // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::finalize()");
+    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "EventInfoWriter::finalize()" << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -197,33 +209,34 @@ EventInfoWriter::fillTagInfo    () const
 {
 
     // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::fillTagInfo()");
+    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "EventInfoWriter::fillTagInfo()" << endreq;
 
     //
     //  For tests, add in dummy tags
     //
     if(m_createDummyTags) {
-	ATH_MSG_DEBUG("Create dummy tags, A1-D1");
+	log << MSG::DEBUG << "Create dummy tags, A1-D1" << endreq;
 	// New/different tags
         if (m_tagInfoMgr->addTag("TagA1", "A1").isFailure()) {
-	    ATH_MSG_WARNING("TagA1 NOT added");
+	    log << MSG::WARNING << "TagA1 NOT added" << endreq;
         } 
         if (m_tagInfoMgr->addTag("TagB1", "B1").isFailure()) {
-	    ATH_MSG_WARNING("TagB1 NOT added");
+	    log << MSG::WARNING << "TagB1 NOT added" << endreq;
 	} 
         if (m_tagInfoMgr->addTag("TagC1", "C1").isFailure()) {
-	    ATH_MSG_WARNING("TagC1 NOT added");
+	    log << MSG::WARNING << "TagC1 NOT added" << endreq;
 	} 
         if (m_tagInfoMgr->addTag("TagD1", "D1").isFailure()) {
-	    ATH_MSG_WARNING("TagD1 NOT added");
+	    log << MSG::WARNING << "TagD1 NOT added" << endreq;
 	} 
     }
 
     // Remove incoming dummy tag
     if (m_removeDummyTags) {
-	ATH_MSG_DEBUG("Create dummy tags, A1-D1");
+	log << MSG::DEBUG << "Create dummy tags, A1-D1" << endreq;
         if (m_tagInfoMgr->removeTagFromInput("TagC1").isFailure()) {
-	    ATH_MSG_WARNING("TagC1 NOT removed");
+	    log << MSG::WARNING << "TagC1 NOT removed" << endreq;
 	} 
     }
         
@@ -237,7 +250,8 @@ StatusCode
 EventInfoWriter::checkTagInfo(IOVSVC_CALLBACK_ARGS)
 {
     // Get the messaging service, print where you are
-    ATH_MSG_DEBUG("EventInfoWriter::checkTagInfo - called by IOVSvc");
+    MsgStream log(msgSvc(), name());
+    log << MSG::DEBUG << "EventInfoWriter::checkTagInfo - called by IOVSvc" << endreq;
     return (fillTagInfo());
 }
 

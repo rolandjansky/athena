@@ -26,13 +26,20 @@
  */
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+//<<<<<< INCLUDES                                                       >>>>>>
 
+#include "GaudiKernel/Algorithm.h"
+
+//<<<<<< PUBLIC TYPES                                                   >>>>>>
+
+class StoreGateSvc;
 class LArEM_ID;
 class CaloCellContainer;
 class CaloClusterContainer;
 
-class CaloClusterFakeWriter : public AthAlgorithm {
+//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
+class CaloClusterFakeWriter : public Algorithm {
 public:
 
     /// Algorithm constructor
@@ -75,9 +82,15 @@ private:
     /// Print method for CaloClusterContainer
     void printCells(const CaloClusterContainer* clusCont) const;
 
+    /// Access to event store
+    StoreGateSvc *              m_storeGate;
+
     /// IDhelper for LAr needed for identifiable container
     const LArEM_ID*             m_laremId;
 };
 
+
+//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
+//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // SRC_CALOCLUSTERFAKEWRITE_H

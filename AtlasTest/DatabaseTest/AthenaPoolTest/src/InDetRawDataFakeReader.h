@@ -26,13 +26,14 @@
  */
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Algorithm.h"
 
+class StoreGateSvc;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
 
-class InDetRawDataFakeReader : public AthAlgorithm {
+class InDetRawDataFakeReader : public Algorithm {
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -78,6 +79,10 @@ private:
 
     /// Compare objects read with newly created ones
     StatusCode checkTRT() const;
+
+
+    /// Access to event store
+    StoreGateSvc *m_storeGate;
 
     /// IDhelper for creating objects
     const PixelID* m_pixelId;

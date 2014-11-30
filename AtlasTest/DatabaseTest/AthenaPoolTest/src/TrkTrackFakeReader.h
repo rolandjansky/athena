@@ -25,15 +25,16 @@
  */
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Algorithm.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <string>
 
+class StoreGateSvc;
 
 namespace Trk {
   class Track;
 }
-class TrkTrackFakeReader : public AthAlgorithm {
+class TrkTrackFakeReader : public Algorithm {
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -65,6 +66,7 @@ private:
     void compareTracks(const Trk::Track* ref, const Trk::Track* readTrk);
  
     /// Access to event store
+    StoreGateSvc *m_storeGate;
     std::string  m_pixMgrLocation;                    //!< Location of pixel Manager 
     const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< Detector Manager
 };
