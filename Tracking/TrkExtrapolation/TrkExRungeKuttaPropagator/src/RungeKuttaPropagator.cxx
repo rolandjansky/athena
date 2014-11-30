@@ -108,6 +108,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
  const TrackingVolume*           ) const 
 {
   double J[25];
+  m_maxPath = 10000.;
   return propagateRungeKutta(true,Tp,Su,D,B,M,J,returnCurv);
 }
 
@@ -123,13 +124,15 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
  Trk::BoundaryCheck             B  ,
  const MagneticFieldProperties& M  , 
  TransportJacobian           *& Jac,
+ double&                 pathLength,
  ParticleHypothesis                ,
  bool                    returnCurv,
  const TrackingVolume*             ) const 
 {
   double J[25];
-
+  pathLength < 0. ?  m_maxPath = 10000. : m_maxPath = pathLength; 
   const Trk::TrackParameters* Tpn = propagateRungeKutta(true,Tp,Su,D,B,M,J,returnCurv);
+  pathLength = m_step;  
   
   if(Tpn) { 
     J[24]=J[20]; J[23]=0.; J[22]=0.; J[21]=0.; J[20]=0.;
@@ -289,6 +292,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
  const TrackingVolume*           ) const 
 {
   double J[25];
+  m_maxPath = 10000.;
   return propagateRungeKutta(false,Tp,Su,D,B,M,J,returnCurv);
 }
 
@@ -309,6 +313,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
  const TrackingVolume*              ) const 
 {
   double J[25];
+  m_maxPath = 10000.;
   const Trk::TrackParameters* Tpn = propagateRungeKutta   (true,Tp,Su,D,B,M,J,returnCurv);
   
   if(Tpn) {
@@ -403,6 +408,8 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
     double p=1./P[6]; P[35]*=p; P[36]*=p; P[37]*=p; P[38]*=p; P[39]*=p; P[40]*=p;
   }
 
+  if(m_maxPathLimit)  returnCurv = true;
+
   bool uJ = useJac; if(returnCurv) uJ = false;
 
   double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
@@ -445,6 +452,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 /////////////////////////////////////////////////////////////////////////////////
 // Main function for charged track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
+
 const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 (bool                           useJac,
  const Trk::TrackParameters   & Tp    ,
@@ -522,13 +530,15 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   }
   else return 0;
 
-  if(m_direction && (m_direction*Step)<0.) {return 0;}
+  if(m_direction && (m_direction*Step)<0.) {return 0;} m_step = Step;
 
   // Common transformation for all surfaces (angles and momentum)
   //
   if(useJac) {
     double p=1./P[6]; P[35]*=p; P[36]*=p; P[37]*=p; P[38]*=p; P[39]*=p; P[40]*=p;
   }
+
+  if(m_maxPathLimit)  returnCurv = true;
 
   bool uJ = useJac; if(returnCurv) uJ = false;
   double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
@@ -665,6 +675,8 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   }
   else return 0;
 
+  if(m_maxPathLimit) return 0;
+
   Amg::Vector3D Glo(P[0],P[1],P[2]);
   Amg::Vector3D Dir(P[3],P[4],P[5]);
   Trk::IntersectionSolution* Int = new Trk::IntersectionSolution();
@@ -684,11 +696,12 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
  double                       & W ) const
 {
   const double Smax   = 1000.     ;  // max. step allowed
-  double       Wmax   = 100000.   ;  // Max way allowed
+  double       Wmax   = m_maxPath ;  // Max way allowed
   double       Wwrong = 500.      ;  // Max way with wrong direction
   double*      R      = &P[ 0]    ;  // Start coordinates
   double*      A      = &P[ 3]    ;  // Start directions
   double*      SA     = &P[42]    ; SA[0]=SA[1]=SA[2]=0.;
+  m_maxPathLimit      = false     ;  
 
   if(m_mcondition && fabs(P[6]) > .1) return false; 
 
@@ -737,7 +750,10 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
     if     (    aS > aStep             )  S = Step;
     else if(!iS && InS && aS*2. < aStep)  S*=2.   ;
     if(!dir && fabs(W) > Wwrong              ) return false;
-    if(iS > 10 || (iS>3 && fabs(S)>=So) || fabs(W)>Wmax ) {if(!kind) break; return false;}
+
+    if(iS > 10 || (iS>3 && fabs(S)>=So)) {if(!kind) break; return false;}
+    double dW =  Wmax-fabs(W);
+    if(fabs(S) > dW) {S > 0. ? S = dW : S = -dW; Step = S; m_maxPathLimit = true;}
     So=fabs(S);
   }
   
@@ -1132,6 +1148,7 @@ bool Trk::RungeKuttaPropagator::propagate
  ParticleHypothesis               ) const 
 {
   double S;
+  m_maxPath = 10000.;
   return propagateRungeKutta(true,Ta,Su,Tb,D,M,S);
 }
 
@@ -1149,6 +1166,7 @@ bool Trk::RungeKuttaPropagator::propagate
  double                       & S , 
  ParticleHypothesis               ) const 
 {
+  m_maxPath = 10000.;
   return propagateRungeKutta(true,Ta,Su,Tb,D,M,S);
 }
 
@@ -1166,6 +1184,7 @@ bool Trk::RungeKuttaPropagator::propagateParameters
  ParticleHypothesis               ) const 
 {
   double S;
+  m_maxPath = 10000.;
   return propagateRungeKutta(false,Ta,Su,Tb,D,M,S);
 }
 
@@ -1183,6 +1202,7 @@ bool Trk::RungeKuttaPropagator::propagateParameters
  double                       & S , 
  ParticleHypothesis               ) const 
 {
+  m_maxPath = 10000.;
   return propagateRungeKutta(false,Ta,Su,Tb,D,M,S);
 }
 
@@ -1219,9 +1239,9 @@ void Trk::RungeKuttaPropagator::globalPositions
  const Trk::MagneticFieldProperties           & M ,
  ParticleHypothesis                               ) const
 {
-  m_direction               = 0.   ;
-  m_mcondition              = false;
-
+  m_direction               = 0.    ;
+  m_mcondition              = false ;
+  m_maxPath                 = 10000.;
   m_needgradient = false;
   M.magneticFieldMode()==2 ? m_solenoid     = true : m_solenoid     = false;  
   M.magneticFieldMode()!=0 ? m_mcondition   = true : m_mcondition   = false;
@@ -1287,6 +1307,8 @@ void Trk::RungeKuttaPropagator::globalPositions
     }
     else return;
 
+    if(m_maxPathLimit) return;
+
     Amg::Vector3D gp(P[0],P[1],P[2]); GP.push_back(std::make_pair(gp,Step));
   }
 }
@@ -1295,6 +1317,7 @@ void Trk::RungeKuttaPropagator::globalPositions
 // Main function for simple track propagation with or without jacobian
 // Ta->Su = Tb for pattern track parameters
 /////////////////////////////////////////////////////////////////////////////////
+
 bool Trk::RungeKuttaPropagator::propagateRungeKutta
 (bool                           useJac,
  Trk::PatternTrackParameters  & Ta    ,
@@ -1330,7 +1353,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
     if(!propagateWithJacobian(useJac,1,s,P,Step)) return false;
   }
-  else if (ty == Trk::Surface::Line     ) {
+    else if (ty == Trk::Surface::Line     ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if(!propagateWithJacobian(useJac,0,s,P,Step)) return false;
@@ -1371,7 +1394,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   }
   else return false;
 
-  if(m_direction && (m_direction*Step)<0.) return false;
+  if(m_maxPathLimit || (m_direction && (m_direction*Step)<0.)) return false;
 
   // Common transformation for all surfaces (angles and momentum)
   //
@@ -1726,4 +1749,50 @@ double Trk::RungeKuttaPropagator::stepReduction(const double* E) const
   if(cS < .25) cS = .25; 
   if((dR2 > 16.*dlt2 && cS < 1.) || cS >=3.) return cS;
   return 1.;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Simple propagation on Step 
+// Ri and Pi - initial coordinate and momentum
+// Ro and Po - output  coordinate and momentum after propagation
+/////////////////////////////////////////////////////////////////////////////////
+
+void Trk::RungeKuttaPropagator::propagateStep
+(const Amg::Vector3D& Ri,const  Amg::Vector3D& Pi,
+ double Charge,double Step,
+ Amg::Vector3D& Ro, Amg::Vector3D& Po, 
+ const MagneticFieldProperties& Mag)
+{
+
+  // Magnetic field information preparation
+  //
+  Mag.magneticFieldMode()==2 ? m_solenoid   = true : m_solenoid   = false;  
+  Mag.magneticFieldMode()!=0 ? m_mcondition = true : m_mcondition = false;
+
+  double M  = sqrt(Pi[0]*Pi[0]+Pi[1]*Pi[1]+Pi[2]*Pi[2]); if(M < .00001) {Ro = Ri; Po = Pi; return;}
+  double Mi = 1./M;
+  
+  double P[45];
+  P[0] =    Ri[0]; P[1]=    Ri[1]; P[2] =    Ri[2];
+  P[3] = Mi*Pi[0]; P[4]= Mi*Pi[1]; P[5] = Mi*Pi[2]; P[6] = Charge*Mi;
+
+  bool  In = false;
+  double S = Step ;
+  double W = 0.   ;
+  
+  while (true) {
+
+    if(m_mcondition) {W+=(S=rungeKuttaStep  (false,S,P,In));}
+    else             {W+=(S=straightLineStep(false,S,P   ));}
+
+    double ws  = Step-W  ;
+    double wsa = fabs(ws);
+    if(wsa < .0001 || ws*Step < 0.) break;
+
+    double Sa = fabs(S);
+    if     (Sa  > wsa          ) S = ws;
+    else if(In && wsa >= 2.*Sa ) S*= 2.; 
+  }
+  Ro[0] =   P[0];  Ro[1] =   P[1];  Ro[2] =   P[2];
+  Po[0] = M*P[3];  Po[1] = M*P[4];  Po[2] = M*P[5];
 }

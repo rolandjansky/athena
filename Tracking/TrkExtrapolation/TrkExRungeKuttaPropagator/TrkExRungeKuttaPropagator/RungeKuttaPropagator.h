@@ -153,6 +153,7 @@ namespace Trk {
 	 BoundaryCheck                   ,
 	 const MagneticFieldProperties  &, 
          TransportJacobian             *&,
+	 double                         &,
 	 ParticleHypothesis              ,
 	 bool                            ,
 	 const TrackingVolume*            ) const;
@@ -288,6 +289,16 @@ namespace Trk {
 	 std::list< std::pair<Amg::Vector3D,double> > &,
 	 const MagneticFieldProperties                &,
 	 ParticleHypothesis particle=pion              ) const;
+
+     /** a very simple propagation along a given path length */
+
+      virtual void propagateStep(const Amg::Vector3D& inputPosition, 
+				 const Amg::Vector3D& inputMomentum, 
+				 double charge, 
+				 double step,
+				 Amg::Vector3D& outputPosition, 
+				 Amg::Vector3D& outputMomentum,
+				 const MagneticFieldProperties& mprop);
       
     private:
 
@@ -407,8 +418,7 @@ namespace Trk {
 
       void getField        (double*,double*        ) const;
       void getFieldGradient(double*,double*,double*) const;
-
-
+      
       /////////////////////////////////////////////////////////////////////////////////
       // Private data members: 
       /////////////////////////////////////////////////////////////////////////////////
@@ -418,9 +428,12 @@ namespace Trk {
       double m_straightStep                                      ;  // max step whith srtaight line model
       bool   m_usegradient                                       ;  // use magnetif field gradient
       mutable double  m_direction                                ;
+      mutable double  m_step                                     ;
+      mutable double  m_maxPath                                  ;
+      mutable bool    m_maxPathLimit                             ;
       mutable bool    m_mcondition                               ;
       mutable bool    m_solenoid                                 ;
-      mutable bool   m_needgradient                              ;  
+      mutable bool    m_needgradient                             ;  
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       MagField::IMagFieldSvc*                m_fieldService      ;
    };
