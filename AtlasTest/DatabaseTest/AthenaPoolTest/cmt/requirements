@@ -15,7 +15,7 @@ use AthenaBaseComps      AthenaBaseComps-*      Control
 # Track test
 use Identifier           Identifier-*           DetectorDescription
 use TrkParameters        TrkParameters-*        Tracking/TrkEvent
-use TrkParametersBase    TrkParametersBase-*    Tracking/TrkEvent
+# use TrkParametersBase    TrkParametersBase-*    Tracking/TrkEvent
 use TrkTrack             TrkTrack-*             Tracking/TrkEvent
 use TrkMaterialOnTrack   TrkMaterialOnTrack-*   Tracking/TrkEvent
 use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent

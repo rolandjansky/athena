@@ -183,7 +183,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::PixelDetectorManager* pi
   return new Trk::Track(info,  trackStateOnSurfaces, fitQuality);
 }
 
-Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::PixelDetectorManager* pixMgr) {
+Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::PixelDetectorManager* /*pixMgr*/) {
   // using namespace Trk;
   // 
   // DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
@@ -223,6 +223,7 @@ Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::PixelDetectorManag
   // Trk::TrackInfo info( TrackInfo::Unknown, Trk::undefined);
   //         //  Trk::Track* track = new Trk::Track(Track::unknown,  trackStateOnSurfaces, fitQuality);
   // return new Trk::Track(info,  trackStateOnSurfaces, fitQuality);
+    return 0;
 }
 
 Rec::TrackParticle* FakeTrackBuilder::buildTrackParticle(const InDetDD::PixelDetectorManager* /*pixMgr*/) {
