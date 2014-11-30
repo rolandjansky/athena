@@ -229,9 +229,8 @@ namespace Trk {
       // Public methods for Trk::PatternTrackParameters (from IPattern'Propagator)
       /////////////////////////////////////////////////////////////////////////////////
 
-      /** Main propagation method */
+      /** Main propagation mehtod */
 
-      using IPropagator::propagate;
       bool propagate
 	(PatternTrackParameters         &,
 	 const Surface                  &,
@@ -419,13 +418,6 @@ namespace Trk {
 
       void getField        (double*,double*        ) const;
       void getFieldGradient(double*,double*,double*) const;
-
-      //placeholder for compatibility with new interface
-      const TrackSurfaceIntersection* intersectSurface(const Surface&,
-						       const TrackSurfaceIntersection*,
-						       const double,
-						       const MagneticFieldProperties&,
-						       ParticleHypothesis) const {return 0;}
       
       /////////////////////////////////////////////////////////////////////////////////
       // Private data members: 
@@ -442,8 +434,6 @@ namespace Trk {
       mutable bool    m_mcondition                               ;
       mutable bool    m_solenoid                                 ;
       mutable bool    m_needgradient                             ;  
-      mutable bool    m_newfield                                 ;
-      mutable double  m_field[3]                                 ;
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       MagField::IMagFieldSvc*                m_fieldService      ;
    };
