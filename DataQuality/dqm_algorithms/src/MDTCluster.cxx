@@ -231,7 +231,7 @@ MDTCluster::execute( const std::string& name, const TObject& object, const dqm_c
   result->tags_["00-N_clusters"] = clusters.size();
 
   std::string Cluster="Cluster_";
-  char num[2];
+  char num[3];
   std::string Size="_info_1_size";
   std::string start_at_bin="_info_2_start_at_bin";
   std::string finish_at_bin="_info_3_finish_at_bin";

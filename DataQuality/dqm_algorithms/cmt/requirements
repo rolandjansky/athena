@@ -12,6 +12,10 @@ use		AtlasROOT		AtlasROOT-*		External
 use		AtlasBoost		AtlasBoost-*		External
 use		DQM_Core		DQM_Core-*		External
 
+# Specify the required Boost and ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options)"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore Hist)"
+
 # online options (only when building against AtlasHLT)
 macro online_use "" AtlasHLT_scripts "HLTtdaq HLTtdaq-* HLT/HLTExternal"
 use $(online_use)

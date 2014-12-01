@@ -17,7 +17,7 @@ namespace dqm_algorithms
 {
   namespace tools
     {
-      class DumpConfig{ 
+      class DumpConfig {
 	public:
 	DumpConfig(std::string ParameterName,dqm_core::test::DummyAlgorithmConfig & config, std::string algorithmname, std::string histogramname, std::string reffilename="", std::string refhistogramname="", float weight=1.,std::string regionname="" );
 	~DumpConfig();
@@ -32,7 +32,7 @@ namespace dqm_algorithms
 	void DumpRegion();
 	void DumpAgent();
 
-        ofstream _myfile;
+        std::ofstream _myfile;
 	std::map<std::string,double> params;
 	std::map<std::string,double> gthresh;
 	std::map<std::string,double> rthresh;
