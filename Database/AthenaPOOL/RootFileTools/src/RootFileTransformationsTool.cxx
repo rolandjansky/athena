@@ -51,21 +51,21 @@ StatusCode RootFileTransformationsTool::reorderBaskets(std::string fileName, std
 
    if (option=="SortBasketsByOffset") {    
      if (mcobs->order(1))
-         rename(optFileName.c_str(), fileName.c_str());
+         (void)rename(optFileName.c_str(), fileName.c_str());
      else 
-         remove(optFileName.c_str());
+         (void)remove(optFileName.c_str());
    } 
    else if(option=="SortBasketsByEntry") {    
      if (mcobs->order(2))
-         rename(optFileName.c_str(), fileName.c_str());
-      else 
-          remove(optFileName.c_str());
+         (void)rename(optFileName.c_str(), fileName.c_str());
+     else 
+         (void)remove(optFileName.c_str());
    }  
    else if(option=="SortBasketsByBranch") {    
      if (mcobs->order(3))
-         rename(optFileName.c_str(), fileName.c_str());
+         (void)rename(optFileName.c_str(), fileName.c_str());
       else 
-          remove(optFileName.c_str());
+          (void)remove(optFileName.c_str());
    }
    else {
       ATH_MSG_WARNING("Unsupported ordering option " << option << ". Not ordering file " << fileName);
@@ -96,9 +96,9 @@ StatusCode RootFileTransformationsTool::resizeBaskets(std::string fileName, std:
    
    if (algo=="1") { // currently only one method exists.
        if (mcobs->resizeBaskets())
-           rename(optFileName.c_str(), fileName.c_str());
+           (void)rename(optFileName.c_str(), fileName.c_str());
        else 
-           remove(optFileName.c_str());
+           (void)remove(optFileName.c_str());
    } 
    else {
      ATH_MSG_WARNING("Unsupported resizing option " << algo << ". Not resizing baskets on file " << fileName);

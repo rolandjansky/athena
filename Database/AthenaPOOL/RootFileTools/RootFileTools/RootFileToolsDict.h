@@ -6,6 +6,5 @@
 #define ROOTFILETOOLSDICT_H
 
 #include "src/cobs.h"
-#include "src/DumpAll.h"
 
 #endif 

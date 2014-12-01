@@ -27,7 +27,14 @@ int main(int argc, char *argv[]) {
     size_t page_index;
 
     fd = open(argv[1],0);
-    fstat(fd, &file_stat);
+    if (fd < 0) {
+      perror ("open");
+      return 1;
+    }
+    if (fstat(fd, &file_stat) < 0) {
+      perror ("ftsat");
+      return 1;
+    }
     file_mmap = mmap((void *)0, file_stat.st_size, PROT_NONE, MAP_SHARED, fd, 0);
 #ifndef __APPLE__
     mincore_vec = (unsigned char *) calloc(1, (file_stat.st_size+page_size-1)/page_size);

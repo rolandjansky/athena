@@ -207,7 +207,11 @@ bool cobs::order(short orderBy){
         if (orderBy==1)      T2 = T->CloneTree(-1,"SortBasketsByOffset fast");
         else if (orderBy==2) T2 = T->CloneTree(-1,"SortBasketsByEntry fast");
         else if (orderBy==3) T2 = T->CloneTree(-1,"SortBasketsByBranch fast");
-                
+
+        if (!T2) {
+          cout << "Did't get tree; bad orderBy? " << orderBy << "\n";
+          return false;
+        }
         int s=T2->Write("",TObject::kOverwrite);
         if (!s) {
             cout<<" WARNING FILE IS NOT OPTIMIZED. MAYBE NOT ENOUGH DISK SPACE? "<<endl;
