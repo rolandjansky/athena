@@ -7,18 +7,18 @@
 
 #include "LumiBlockTPCnv/LumiBlockRange_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "AthenaKernel/IOVRange.h"
+#include "LumiBlockData/LB_IOVRange.h"
 
 class MsgStream;
-class LumiBlockRangeCnv_p1  : public T_AthenaPoolTPCnvBase<IOVRange, LumiBlockRange_p1> {
+class LumiBlockRangeCnv_p1  : public T_AthenaPoolTPCnvBase<LB_IOVRange, LumiBlockRange_p1> {
  public:
   LumiBlockRangeCnv_p1() {}
-  virtual void   persToTrans(const LumiBlockRange_p1* persObj, IOVRange* transObj, MsgStream &log);
-  virtual void   transToPers(const IOVRange* transObj, LumiBlockRange_p1* persObj, MsgStream &log);
+  virtual void   persToTrans(const LumiBlockRange_p1* persObj, LB_IOVRange* transObj, MsgStream &log);
+  virtual void   transToPers(const LB_IOVRange* transObj, LumiBlockRange_p1* persObj, MsgStream &log);
 };
 
 template<>
-class T_TPCnv<IOVRange, LumiBlockRange_p1>
+class T_TPCnv<LB_IOVRange, LumiBlockRange_p1>
   : public LumiBlockRangeCnv_p1
 {
 public:
