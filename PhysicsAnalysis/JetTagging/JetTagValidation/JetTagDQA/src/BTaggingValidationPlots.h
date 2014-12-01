@@ -5,11 +5,12 @@
 #ifndef JETTAGDQA_BTagPLOTS_H
 #define JETTAGDQA_BTagPLOTS_H
 	
+#include "xAODBase/IParticle.h"
 #include "TrkValHistUtils/PlotBase.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBTagging/BTagging.h" 
-//#include "../../Event/xAOD/xAODBTagging/xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"
+//#include "GAFlavourLabel.h"
 	
 namespace JetTagDQA{
  
@@ -33,6 +34,14 @@ namespace JetTagDQA{
 		std::string m_sParticleType;
 
 		TH1* m_truthLabel;
+//		TH1* m_GAFinalHadronLabel;
+//		TH1* m_GAInitialHadronLabel;
+//		TH1* m_GAFinalPartonLabel;
+
+//		TH1* m_GAFinalHadronC_dR;
+//		TH1* m_GAInitialHadronC_dR;
+//		TH1* m_GAFinalPartonC_dR;
+//		TH1* m_GAFinalHadronTau_dR;
 
 		TH1* m_truthPt_b;
 		TH1* m_truthPt_u;
