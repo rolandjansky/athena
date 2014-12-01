@@ -33,6 +33,13 @@
 
 using CLHEP::micrometer;
 
+namespace {
+	inline double square(const double x){
+		return x*x;
+	}
+	const double ONE_TWELFTH = 1./12.;
+}
+
 
 namespace InDet {
 
@@ -152,7 +159,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                          int errorStrategy,
                          const float omegax,
                          const float omegay,
-         			     bool split,
+         			           bool split,
                          double splitProb1,
                          double splitProb2) const{
   // Add protection in case m_offlineCalibSvc is not configured
@@ -183,9 +190,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       float charge;
       float A = m_calibSvc->getQ2TotA(pixid);
       if ( A>0. && (ToT/A)<1. ) {
-	float E = m_calibSvc->getQ2TotE(pixid);
-	float C = m_calibSvc->getQ2TotC(pixid);
-	charge = (C*ToT/A-E)/(1-ToT/A);
+				float E = m_calibSvc->getQ2TotE(pixid);
+				float C = m_calibSvc->getQ2TotC(pixid);
+				charge = (C*ToT/A-E)/(1-ToT/A);
       } else charge=0.;
       chargeList.push_back(charge);
     }
@@ -197,12 +204,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
           InDetDD::SiLocalPosition(localPos[Trk::locY],
                           localPos[Trk::locX]+shift,0);
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
-// find global position of element
+  // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-// //   const Amg::Vector3D* globalPosition = 
-// //                         new Amg::Vector3D(globalPos);
-  //     double r = globalPos.perp();
-        
+
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -217,53 +221,51 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   
   const AtlasDetectorID* aid = element->getIdHelper();
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
+  if (not pid){
+  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  	delete errorMatrix;errorMatrix=nullptr;
+  	return nullptr;
+  }
+  
   int layer = pid->layer_disk(clusterID);
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){
   case 0:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
     break;
   case 1:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   case 2:                  
     // use parameterization only if the cluster does not 
     // contain long pixels or ganged pixels
     // Also require calibration service is available....
     if(!ganged && zPitch > 399*micrometer && zPitch < 401*micrometer && m_offlineCalibSvc != 0){
-	    
       if(element->isBarrel()){
-	
-	errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
-									       int(colRow.x())),2) );  
-	errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getBarrelErrorEta(eta,
-									       int(colRow.y()),int(colRow.x())),2) ); 
-
-      }
-      else{
-	errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2)); 
-	errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2)); 
-				  				  }
-
-
-    }
-    // cluster with ganged and/or long pixels
-    else{
-      errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-      errorMatrix->fillSymmetric(1,1,pow(zPitch,2)/12);
+	      errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
+									       int(colRow.x()))) );  
+	      errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getBarrelErrorEta(eta,
+									       int(colRow.y()),int(colRow.x()))) ); 
+      }else{
+	      errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())))); 
+	      errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())))); 
+			}
+    }else{// cluster with ganged and/or long pixels
+      errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+      errorMatrix->fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
     }
     break;
     
   case 10:
-    errorMatrix->fillSymmetric(0,0,pow( getPixelCTBPhiError(layer,phimod,int(colRow.x())), 2));
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
     
   default:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   }
  PixelCluster* newCluster = 
@@ -308,7 +310,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                          bool  ganged,
                          int errorStrategy,
                          const PixelID& pixelID,
-			 bool split,
+			 									 bool split,
                          double splitProb1,
                          double splitProb2) const{
 	
@@ -333,8 +335,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
 
   // Fill vector of charges and compute charge balance
-  const InDetDD::PixelModuleDesign* design =
-	(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+  const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+  if (not design){
+  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  	return nullptr;
+  }
   int rowMin = design->rows();
   int rowMax = 0;
   int colMin = design->columns();
@@ -351,38 +356,37 @@ PixelCluster* ClusterMakerTool::pixelCluster(
      if (m_calibrateCharge){
        float A = m_calibSvc->getQ2TotA(pixid);
        if ( A>0. && (ToT/A)<1. ) {
-	  float E = m_calibSvc->getQ2TotE(pixid);
-	  float C = m_calibSvc->getQ2TotC(pixid);
-	  charge = (C*ToT/A-E)/(1-ToT/A);
-        } else charge=0.;
-        chargeList.push_back(charge);
+	       float E = m_calibSvc->getQ2TotE(pixid);
+	       float C = m_calibSvc->getQ2TotC(pixid);
+	       charge = (C*ToT/A-E)/(1-ToT/A);
+       } else charge=0.;
+       chargeList.push_back(charge);
      }
      //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
      int row = pixelID.phi_index(pixid);
      int col = pixelID.eta_index(pixid);
      if (row == rowMin) qRowMin += charge;
-	if (row < rowMin){ 
-           rowMin = row; 
-           qRowMin = charge;
-	}
+	   if (row < rowMin){ 
+       rowMin = row; 
+       qRowMin = charge;
+	   }
 	
-        if (row == rowMax) qRowMax += charge;
-	if (row > rowMax){
-           rowMax = row;
-	   qRowMax = charge;
-	}
-        if (col == colMin) qColMin += charge;
-	if (col < colMin){
-           colMin = col;
-           qColMin = charge;
-	}
+     if (row == rowMax) qRowMax += charge;
+	   if (row > rowMax){
+       rowMax = row;
+	     qRowMax = charge;
+	   }
+     if (col == colMin) qColMin += charge;
+	   if (col < colMin){
+       colMin = col;
+       qColMin = charge;
+	   }
 
-        if (col == colMax) qColMax += charge;
-	if (col > colMax){
-           colMax = col;
-	   qColMax = charge;
-	}
-	
+     if (col == colMax) qColMax += charge;
+	   if (col > colMax){
+       colMax = col;
+	     qColMax = charge;
+	   }
   }
   Identifier newClusterID = pixelID.pixel_id(pixelID.wafer_id(clusterID),rowMin,colMin);
   // Compute omega for charge interpolation correction (if required)
@@ -392,13 +396,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if(qRowMin+qRowMax > 0) omegax = qRowMax/float(qRowMin+qRowMax);
   if(qColMin+qColMax > 0) omegay = qColMax/float(qColMin+qColMax);   
     
-  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " 
-				<< omegax << " " << omegay << endreq;
-  //std::cout << "omega =  " << omegax << " " << omegay << " cal = " 
-  //    << m_calibrateCharge << std::endl;;
+  if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endreq;
 
 // ask for Lorentz correction, get global position
- 
   double shift = element->getLorentzCorrection();
   const InDetDD::SiLocalPosition& localPosition = 
     InDetDD::SiLocalPosition(localPos[Trk::locY],
@@ -406,9 +406,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
 // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-// //   const Amg::Vector3D* globalPosition = 
-// //                         new Amg::Vector3D(globalPos);
-  //     double r = globalPos.perp();
         
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
@@ -424,16 +421,21 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   
   const AtlasDetectorID* aid = element->getIdHelper();
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
+  if (not pid){
+  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  	delete errorMatrix;errorMatrix=nullptr;
+  	return nullptr;
+  }
   int layer = pid->layer_disk(clusterID);
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){
   case 0:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
     break;
   case 1:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   case 2:                  
     // use parameterization only if the cluster does not 
@@ -442,35 +444,28 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     if(!ganged && zPitch > 399*micrometer && zPitch < 401*micrometer && m_offlineCalibSvc != 0){
 	    
       if(element->isBarrel()){
-	
-	errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
+				errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),
 									       int(colRow.x())),2) );  
-	errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getBarrelErrorEta(eta,
+				errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getBarrelErrorEta(eta,
 									       int(colRow.y()),int(colRow.x())),2) ); 
-
-      }
-      else{
-	errorMatrix->fillSymmetric(0,0,pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2)); 
-	errorMatrix->fillSymmetric(1,1,pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2)); 
-				  				  }
-
-
-    }
-    // cluster with ganged and/or long pixels
-    else{
-      errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-      errorMatrix->fillSymmetric(1,1,pow(zPitch,2)/12);
+      }else{
+				errorMatrix->fillSymmetric(0,0,square(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())))); 
+				errorMatrix->fillSymmetric(1,1,square(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())))); 
+			}
+    }else{// cluster with ganged and/or long pixels
+      errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+      errorMatrix->fillSymmetric(1,1,square(zPitch)*ONE_TWELFTH);
     }
     break;
     
   case 10:
-    errorMatrix->fillSymmetric(0,0,pow( getPixelCTBPhiError(layer,phimod,int(colRow.x())), 2));
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square( getPixelCTBPhiError(layer,phimod,int(colRow.x()))));
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
     
   default:
-    errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12);
-    errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+    errorMatrix->fillSymmetric(0,0,square(width.phiR()/colRow.x())*ONE_TWELFTH);
+    errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
     break;
   }
  PixelCluster* newCluster = 
@@ -519,11 +514,6 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 //                        InDetDD::SiLocalPosition(localPos[Trk::locY),
 //                                        localPos[Trk::locX)+shift,0);
         Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
-        // find global position of element
-// //         Amg::Vector3D globalPos = element->globalPosition(localPosition);
-// //         const Amg::Vector3D* globalPosition = 
-// //                 new Amg::Vector3D(globalPos);
-        //       double r = globalPos.perp();
 
 	// error matrix
 	const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
@@ -538,38 +528,37 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
     
 	switch (errorStrategy){
 	case 0:
-	  errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
-	  errorMatrix->fillSymmetric(1,1,pow(width.z(),2)/12);
+	  errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
+	  errorMatrix->fillSymmetric(1,1,square(width.z())*ONE_TWELFTH);
 	  break;
 	case 1:
 	  // mat(1,1) = pow(width.phiR()/colRow.x(),2)/12;
 	  // single strip - resolution close to pitch/sqrt(12)
 	  // two-strip hits: better resolution, approx. 40% lower
 	  if(colRow.x() == 1){
-	    errorMatrix->fillSymmetric(0,0,pow(1.05*width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(1.05*width.phiR())*ONE_TWELFTH);
 	  }
 	  else if(colRow.x() == 2){
-	    errorMatrix->fillSymmetric(0,0,pow(0.27*width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
 	  }
 	  else{
-	    errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
-	  errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+	  errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
 	  break;
 	default:
-	  //errorMatrix->fillSymmetric(0,0,pow(width.phiR()/colRow.x(),2)/12;
 	  // single strip - resolution close to pitch/sqrt(12)
 	  // two-strip hits: better resolution, approx. 40% lower
 	  if(colRow.x() == 1){
-	    errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
 	  else if(colRow.x() == 2){
-	    errorMatrix->fillSymmetric(0,0,pow(0.27*width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(0.27*width.phiR())*ONE_TWELFTH);
 	  }
 	  else{
-	    errorMatrix->fillSymmetric(0,0,pow(width.phiR(),2)/12);
+	    errorMatrix->fillSymmetric(0,0,square(width.phiR())*ONE_TWELFTH);
 	  }
-	  errorMatrix->fillSymmetric(1,1,pow(width.z()/colRow.y(),2)/12);
+	  errorMatrix->fillSymmetric(1,1,square(width.z()/colRow.y())*ONE_TWELFTH);
 	  break;
 	}
 

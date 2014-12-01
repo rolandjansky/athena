@@ -87,18 +87,12 @@ namespace InDet
   //   = 1: clusters larger than expected (in Rphi and/or z) are rejected
   //   = 2: no clustering at all along columns! 
 
-bool PixelClusteringToolBase::areNeighbours
-(const std::vector<Identifier>& group, 
- const Identifier& rdoID,
- InDetDD::SiDetectorElement* /*element*/,
- const PixelID& pixelID) const
-{
-
+bool 
+PixelClusteringToolBase::areNeighbours(const std::vector<Identifier>& group, const Identifier& rdoID,
+   InDetDD::SiDetectorElement* /*element*/,
+   const PixelID& pixelID) const{
     std::vector<Identifier>::const_iterator groupBegin = group.begin();
     std::vector<Identifier>::const_iterator groupEnd = group.end();
-    
-    //Identifier elementID = element->identify();
-
     int row2 = pixelID.phi_index(rdoID);
     int col2 = pixelID.eta_index(rdoID);
     int maxZsize=999;
@@ -110,12 +104,8 @@ bool PixelClusteringToolBase::areNeighbours
           int dz = abs(etamodule-6);
           if(dz<4){ maxZsize=2; }
           else{ maxZsize=3; }
-       }
-       else{
+       }else{
           maxZsize = 2;
-       }
-       if(maxZsize > 3){
-          ATH_MSG_WARNING (" areNeighbours - problems ");
        }
     }
     if(m_splitClusters == 2) maxZsize = 2;

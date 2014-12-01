@@ -71,12 +71,17 @@ void PixelGangedAmbiguitiesFinder::execute(
     // Find detector element for these RDOs
 
     SiDetectorElement* element = manager.getDetectorElement(elementID);
-    const InDetDD::PixelModuleDesign* design =
-	(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+    const InDetDD::PixelModuleDesign* design =(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+	  if (not design){
+			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");
+			return;
+	  }
     int rowsPerFE = design->rows()/2;
-    const PixelID* pixelID =
-	(dynamic_cast<const PixelID*>(element->getIdHelper()));
-   
+    const PixelID* pixelID =(dynamic_cast<const PixelID*>(element->getIdHelper()));
+    if (not pixelID){
+			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");
+			return;
+	  }
     //Pointer list of clusters to be removed
     std::vector<PixelClusterCollection::iterator> rmList;
 

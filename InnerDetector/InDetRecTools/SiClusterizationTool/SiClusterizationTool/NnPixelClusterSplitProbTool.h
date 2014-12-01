@@ -24,6 +24,7 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 //Beam Spot Condition
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "TrkParameters/TrackParameters.h"
 
 class IBeamCondSvc;
 
@@ -43,7 +44,12 @@ namespace InDet {
 
     virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster ) const;
 
+    virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const;
+
+
   private:
+    
+    InDet::PixelClusterSplitProb compileSplitProbability(std::vector<double>& vectorOfProbs ) const;
     
     ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory;
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;

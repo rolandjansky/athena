@@ -177,7 +177,10 @@ namespace InDet {
         InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
 
         const Trk::RectangleBounds *mybounds=dynamic_cast<const Trk::RectangleBounds *>(&element->surface().bounds());
-
+				if (not mybounds){
+  				ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
+  				return nullptr;
+  			}
     // RDOs will be accumulated as a vector of Identifier, which will
     // be added to a vector of groups.
 
@@ -494,7 +497,10 @@ namespace InDet {
                        }
                        const InDetDD::PixelModuleDesign* design
                            (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-                       
+                       if (not design){
+  										 		ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
+  												return nullptr;
+  											}
                        int colWidth = colMax-colMin+1;
                        int rowWidth = rowMax-rowMin+1;
                        double etaWidth = design->widthFromColumnRange(colMin, colMax);
@@ -637,7 +643,10 @@ PixelCluster* MergedPixelsTool::makeCluster
     Identifier elementID = element->identify();
     const InDetDD::PixelModuleDesign* design
         (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-
+		if (not design){
+			ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.");
+			return nullptr;
+		}
     int rowMin = int(2*(design->width()/design->phiPitch()))+1;;
     int rowMax = 0;
     int colMin = int(2*(design->length()/design->etaPitch()))+1;

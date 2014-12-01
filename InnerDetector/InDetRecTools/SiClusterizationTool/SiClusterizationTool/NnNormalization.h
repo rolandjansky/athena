@@ -5,195 +5,64 @@
 #ifndef NnNormalization_H
 #define NnNormalization_H
 
-#include <cmath>
+double norm_rawToT(const double input);
 
-double norm_rawToT(double input)
-{
-  return (input-21.)/12.;
-}
+double back_rawToT(const double input);
 
-double back_rawToT(double input)
-{
-  return input*12.+21.;
-}
+double norm_ToT(const double input);
 
-double norm_ToT(double input)
-{
-  return (input-15000.)/15000.;
-}
+double back_ToT(const double input);
 
-double back_ToT(double input)
-{
-  return input*15000.+15000.;
-}
+double norm_pitch(const double input,bool addIBL=false);
 
-double norm_pitch(double input,bool addIBL=false)
-{
-  
-  if (!addIBL)
-  {
-    if (fabs(input-0.4)<0.001)
-    {
-      return -0.5;
-    }
-    if (fabs(input-0.6)<0.001)
-    {
-      return +0.5;
-    }
-    std::cout << " WARNING inpus is: " << input << std::endl;
-    throw;
-    return -1;
-  }
-  else
-  {
-    return (input-0.37)/0.10;
-  }
-}
+double back_pitch(const double input,const bool addIBL=false);
 
+double norm_layerNumber(const double input);
 
+double back_layerNumber(const double input);
 
-double back_pitch(double input,bool addIBL=false)
-{
-  if (!addIBL)
-  {
-    if (fabs(input-(-0.5))<0.001)
-    {
-      return 0.4;
-    }
-    if (fabs(input-0.5)<0.001)
-    {
-      return 0.6;
-    }
-    std::cout << " WARNING inpus is: " << input << std::endl;
-    throw;
-    return 0;
-  }
-  else
-  {
-    return input*0.10+0.37;
-  }
-}
+double norm_layerType(const double input);
 
-double norm_layerNumber(double input)
-{
-  return (input-0.95)/0.8;
-}
+double back_layerType(const double input);
 
-double back_layerNumber(double input)
-{
-  return input*0.8+0.95;
-}
-double norm_layerType(double input)
-{
-  return input/0.65;
-}
-double back_layerType(double input)
-{
-  return input*0.65;
-}
+double norm_phi(const double input);
 
-double norm_phi(double input)
-{
-  return (input-0.1)/0.1;
-}
+double back_phi(const double input);
 
-double back_phi(double input)
-{
-  return input*0.1+0.1;
-}
+double norm_theta(const double input);
 
-double norm_theta(double input)
-{
-  return (input)/0.8;
-}
+double back_theta(const double input);
 
-double back_theta(double input)
-{
-  return input*0.8;
-}
-double norm_phiBS(double input)
-{
-  return (input-0.1)/0.1;
-}
+double norm_phiBS(const double input);
 
-double back_phiBS(double input)
-{
-  return input*0.1+0.1;
-}
+double back_phiBS(const double input);
 
-double norm_thetaBS(double input)
-{
-  return (input)/0.8;
-}
+double norm_thetaBS(const double input);
 
-double back_thetaBS(double input)
-{
-  return input*0.8;
-}
-double norm_etaModule(double input)
-{
-  return input/2.;
-}
-double back_etaModule(double input)
-{
-  return input*2.;
-}
+double back_thetaBS(const double input);
 
-double norm_posX(double input,bool recenter=false)
-{
-  if (recenter) return (input)/0.41;
-  return (input-(-0.58))/0.41;
-}
-double back_posX(double input,bool recenter=false)
-{
-  if (recenter) return input*0.41;
-  return input*0.41+(-0.58);
-}
-double norm_posY(double input)
-{
-  return (input-0.)/0.34;
-}
-double back_posY(double input)
-{
-  return input*0.34+0.;
-}
-double norm_errorX(double input)
-{
-  return (input-0.0005)/0.001;
-}
-double back_errorX(double input)
-{
-  return input*0.001+0.0005;
-}
-double norm_errorY(double input)
-{
-  return (input-0.018)/0.048;
-}
-double back_errorY(double input)
-{
-  return input*0.048+0.018;
-}
-double errorHalfIntervalX(int nParticles)
-{
-  if (nParticles==1)
-  {
-    return 0.03;
-  }
-  else
-  {
-    return 0.05;
-  }
-}
-double errorHalfIntervalY(int nParticles)
-{
-  if (nParticles==1)
-  {
-    return 0.3;
-  }
-  else
-  {
-    return 0.4;
-  }
-}
+double norm_etaModule(const double input);
+
+double back_etaModule(const double input);
+
+double norm_posX(const double input,const bool recenter=false);
+
+double back_posX(const double input,const bool recenter=false);
+
+double norm_posY(const double input);
+
+double back_posY(const double input);
+
+double norm_errorX(const double input);
+
+double back_errorX(const double input);
+
+double norm_errorY(const double input);
+
+double back_errorY(const double input);
+
+double errorHalfIntervalX(const int nParticles);
+
+double errorHalfIntervalY(const int nParticles);
 
 #endif

@@ -94,10 +94,52 @@ namespace InDet
     }
      
 
-   ATH_MSG_VERBOSE( 
+    ATH_MSG_VERBOSE( 
         " P(1): " << vectorOfProbs[0] << 
         " P(2): " << vectorOfProbs[1] << 
         " P(>=3): " << vectorOfProbs[2] );
+
+
+    return compileSplitProbability(vectorOfProbs); 
+  }
+
+  InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const
+  {
+    
+    Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
+    Amg::Vector3D beamSpotPosition(beamposition.position()[0],
+                                beamposition.position()[1],
+                                beamposition.position()[2]);
+
+    if (!m_useBeamSpotInfo) beamSpotPosition=Amg::Vector3D(0,0,0);
+
+    std::vector<double> vectorOfProbs=m_NnClusterizationFactory->estimateNumberOfParticles(origCluster, trackParameters.associatedSurface(), trackParameters);
+
+    ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );
+
+    if (vectorOfProbs.size()==0)
+    {
+      std::vector<double> vectorOfSplitProbs;
+      vectorOfSplitProbs.push_back(-100);
+      PixelClusterSplitProb  clusterSplitProb(vectorOfSplitProbs);
+      ATH_MSG_VERBOSE(" Returning single split prob equal to -100 " );
+      return clusterSplitProb;
+    }
+     
+
+    ATH_MSG_VERBOSE( 
+        " P(1): " << vectorOfProbs[0] << 
+        " P(2): " << vectorOfProbs[1] << 
+        " P(>=3): " << vectorOfProbs[2] );
+
+
+    return compileSplitProbability(vectorOfProbs); 
+  }
+
+
+
+  InDet::PixelClusterSplitProb NnPixelClusterSplitProbTool::compileSplitProbability(std::vector<double>& vectorOfProbs ) const
+  {
 
 
     double sum=0;
@@ -110,6 +152,7 @@ namespace InDet
       sum+=*iter;
     }
 
+    
     ATH_MSG_VERBOSE(" Sum of cluster probabilities is: "<<sum);
 
     std::vector<double> vectorOfSplitProbs;
@@ -164,6 +207,9 @@ namespace InDet
     
     return clusterSplitProb;
   }
+
+
+
   
   
 }//end namespace

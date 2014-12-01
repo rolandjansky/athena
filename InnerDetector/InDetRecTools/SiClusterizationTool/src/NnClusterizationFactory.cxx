@@ -790,18 +790,17 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
                                                                                   int /* sizeX */,
                                                                                   int /* sizeY */)
   {
-      
+    std::vector<Amg::Vector2D> invalidResult;
     ATH_MSG_VERBOSE(" Translating output back into a position " );
-
     const InDetDD::SiDetectorElement* element=pCluster.detectorElement();//DEFINE
-    //Identifier elementID = element->identify();
     const InDetDD::PixelModuleDesign* design
         (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-
+		if (not design){
+			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
+			return invalidResult;
+		}
     int numParticles=output.size()/2;
 
-    //int centralIndexX=(sizeX-1)/2;
-    //int centralIndexY=(sizeY-1)/2;
 
     int columnWeightedPosition=input.columnWeightedPosition;
     int rowWeightedPosition=input.rowWeightedPosition;
@@ -952,10 +951,9 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return 0;
   }
   const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-  if (!pixelIDp)
-  {
+  if (!pixelIDp){
     ATH_MSG_ERROR("Could not get PixelID pointer");
-    return 0;
+    return nullptr;
   } 
   const PixelID& pixelID = *pixelIDp;
   
@@ -964,7 +962,11 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   //Identifier elementID = element->identify();
   const InDetDD::PixelModuleDesign* design
       (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-  
+  if (not design){
+    ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
+    delete input;input=nullptr;
+    return nullptr;
+  }
 
 //  const InDet::PixelCluster* pCluster  = pcot->prepRawData();
   const std::vector<Identifier>& rdos  = pCluster.rdoList();  
@@ -1067,11 +1069,9 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   }
   sumOfWeightedPositions /= sumOfTot;
   
-  //ATH_MSG_DEBUG(" Weighted position: " << sumOfWeightedPositions );
   //what you want to know is simple:
   //just the row and column of this average position!
 
-//  InDetDD::SiLocalPosition w = design->positionFromColumnRow(colMin,rowMin);
   InDetDD::SiCellId cellIdWeightedPosition=design->cellIdOfPosition(sumOfWeightedPositions);
 
   if (!cellIdWeightedPosition.isValid())
