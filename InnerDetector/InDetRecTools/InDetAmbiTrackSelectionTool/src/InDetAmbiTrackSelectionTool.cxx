@@ -22,6 +22,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 
 #include <ext/functional>
 //================ Constructor =================================================
@@ -32,7 +33,8 @@ InDet::InDetAmbiTrackSelectionTool::InDetAmbiTrackSelectionTool(const std::strin
   :
   AthAlgTool(t,n,p),
   m_assoTool("Trk::PRD_AssociationTool/PRD_AssociationTool"),
-  m_selectortool("InDet::InDetTrtDriftCircleCutTool"       )
+  m_selectortool("InDet::InDetTrtDriftCircleCutTool"       ),
+  m_IBLParameterSvc("IBLParameterSvc",n)
 
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
@@ -71,6 +73,12 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
   
   StatusCode sc = AlgTool::initialize();
   if (sc.isFailure()) return sc;
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+       ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+  }
+  else {
+	m_IBLParameterSvc->setBoolParameters(m_doPixelClusterSplitting,"doPixelClusterSplitting");
+  }
 
   sc =  m_assoTool.retrieve();
   if (sc.isFailure()) 

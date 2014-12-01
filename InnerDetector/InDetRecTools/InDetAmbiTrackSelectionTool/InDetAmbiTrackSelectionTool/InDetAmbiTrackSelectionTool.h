@@ -20,6 +20,7 @@
 
 class SiliconID;
 class Identifier;
+class IBLParameterSvc;
 namespace Trk {
   class Track;
 }
@@ -67,6 +68,7 @@ namespace InDet
       ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
       /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
       ToolHandle<ITrtDriftCircleCutTool>    m_selectortool;
+      ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc; 
       
       /**atlas id helper*/
       const SiliconID* m_detID;
