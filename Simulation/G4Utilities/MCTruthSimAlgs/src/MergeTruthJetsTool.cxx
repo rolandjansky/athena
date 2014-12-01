@@ -53,40 +53,48 @@ StatusCode MergeTruthJetsTool::processBunchXing(int bunchXing,
     StoreGateSvc& seStore(*iEvt->pSubEvtSG);
     const xAOD::JetContainer* inputJetContainer = 0;
     if (seStore.contains<xAOD::JetContainer>(m_inputJetCollKey)) {
+      ATH_MSG_VERBOSE("Found an xAOD::JetContainer in storeGate.");
       inputJetContainer = seStore.retrieve<const xAOD::JetContainer>(m_inputJetCollKey);
-      if ( inputJetContainer==0 && !m_intool.empty() ) {
-        ATH_MSG_DEBUG("Excuting input tool.");
-        if ( m_intool->execute() ) { //NEED TO BE ABLE TO SET THE STOREGATE FOR m_intool AT THIS POINT.
-          ATH_MSG_WARNING("Input tool execution failed.");
+      //Back-compatibility with inputs which contain old JetCollections
+      if ( inputJetContainer==0 ) {
+        if (!m_intool.empty() ) {
+          ATH_MSG_VERBOSE("Excuting input tool.");
+          if ( m_intool->execute() ) { //NEED TO BE ABLE TO SET THE STOREGATE FOR m_intool AT THIS POINT.
+            ATH_MSG_WARNING("Input tool execution failed.");
+          }
+          inputJetContainer = seStore.retrieve<const xAOD::JetContainer>(m_inputJetCollKey);
         }
-        inputJetContainer = seStore.retrieve<const xAOD::JetContainer>(m_inputJetCollKey);
         if(inputJetContainer == 0) {
           ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_inputJetCollKey);
           return StatusCode::FAILURE;
         }
-        ATH_MSG_DEBUG ( "processBunchXing: bunch Crossing = " << bunchXing << " JetContainer size = " << inputJetContainer->size());
-        double pileup_this_pT=-1.;
-        if (bunchXing==0) {
-          if (m_first_event) {//FIXME this may not be robust in the case that there is no TruthJet container from the signal event.
-            m_signal_max_pT = processJetContainer(&(*inputJetContainer), 0, m_inTimePtCut, 0.0);
-            m_first_event=false;
-            if (!m_includeSignalJets) {
-              continue;
-            }
-          }
-          pileup_this_pT=processJetContainer(&(*inputJetContainer), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
-        }
-        else {
-          const float timeOfBCID(static_cast<float>(iEvt->time()));
-          pileup_this_pT=processJetContainer(&(*inputJetContainer), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
-        }
-        if (pileup_this_pT>m_pileup_max_pT) m_pileup_max_pT=pileup_this_pT;
       }
+      ATH_MSG_DEBUG ( "processBunchXing: bunch Crossing = " << bunchXing << " JetContainer size = " << inputJetContainer->size());
+      double pileup_this_pT=-1.;
+      if (bunchXing==0) {
+        if (m_first_event) {//FIXME this may not be robust in the case that there is no TruthJet container from the signal event.
+          m_signal_max_pT = processJetContainer(&(*inputJetContainer), 0, 0.0, 0.0);
+          ATH_MSG_DEBUG ( "Setting m_signal_max_pT = " << m_signal_max_pT);
+          m_first_event=false;
+          if (!m_includeSignalJets) {
+            ATH_MSG_VERBOSE ( "Don't include signal events in output Truth Jet Containers.");
+            ++iEvt;
+            continue;
+          }
+        }
+        pileup_this_pT=processJetContainer(&(*inputJetContainer), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
+      }
+      else {
+        const float timeOfBCID(static_cast<float>(iEvt->time()));
+        pileup_this_pT=processJetContainer(&(*inputJetContainer), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
+      }
+      if (pileup_this_pT>m_pileup_max_pT) m_pileup_max_pT=pileup_this_pT;
     } else {
       ATH_MSG_DEBUG ( "processBunchXing: No JetContainers found." );
     }
     ++iEvt;
   }
+  if(m_first_event) {m_first_event=false;}//signal is always the first event, so even if we didn't see anything should set this to false here.
   return StatusCode::SUCCESS;
 }
 
@@ -160,19 +168,25 @@ StatusCode MergeTruthJetsTool::processAllSubEvents()
         //FIXME we are forced to do a deep copy
         if (static_cast<int>((jetColl_iter)->first.time())==0) {
           if (m_first_event) {//FIXME this may not be robust in the case that there is no TruthJet container from the signal event.
-            m_signal_max_pT = processJetContainer(&(*((jetColl_iter)->second)), 0, m_inTimePtCut, 0.0);
+            m_signal_max_pT = this->processJetContainer(&(*((jetColl_iter)->second)), 0, 0.0, 0.0);
             m_first_event=false;
             if (!m_includeSignalJets) {
+              ATH_MSG_VERBOSE ( "Don't include signal events in output Truth Jet Containers.");
+              ++jetColl_iter;
               continue;
             }
           }
-          pileup_this_pT=processJetContainer(&(*((jetColl_iter)->second)), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
+          pileup_this_pT=this->processJetContainer(&(*((jetColl_iter)->second)), m_inTimeOutputJetContainer, m_inTimePtCut, 0.0);
         }
         else {
           const float timeOfBCID(static_cast<float>((jetColl_iter)->first.time()));
-          pileup_this_pT=processJetContainer(&(*((jetColl_iter)->second)), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
+          pileup_this_pT=this->processJetContainer(&(*((jetColl_iter)->second)), m_outOfTimeOutputJetContainer, m_outOfTimePtCut, timeOfBCID);
         }
         if (pileup_this_pT>m_pileup_max_pT) m_pileup_max_pT=pileup_this_pT;
+        //signal is always the first event, so if the first event
+        //wasn't in-time, then the signal collection was missing and
+        //we should skip further checks.
+        if(m_first_event) {m_first_event=false;}
         ++jetColl_iter;
       }
 
@@ -207,13 +221,18 @@ double MergeTruthJetsTool::processJetContainer(const xAOD::JetContainer* inputJe
   double max_pT=-1.;
   const xAOD::JetContainer::const_iterator endOfJets(inputJetContainer->end());
   for (xAOD::JetContainer::const_iterator jetIter(inputJetContainer->begin()); jetIter != endOfJets; ++jetIter) {
-    if (!(*jetIter) || (*jetIter)->pt()<ptCut) {
-      ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV failed ptCut of " << ptCut << "GeV." );
-      continue;
+    try {
+      if (!(*jetIter) || (*jetIter)->pt()<ptCut) {
+        ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV failed ptCut of " << ptCut << "GeV." );
+        continue;
+      }
+      if (max_pT<(*jetIter)->pt()) max_pT=(*jetIter)->pt();
+      if (!outputJetContainer) continue;
+      ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV passed ptCut of " << ptCut << "GeV." );
     }
-    if (max_pT<(*jetIter)->pt()) max_pT=(*jetIter)->pt();
-    if (!outputJetContainer) continue;
-    ATH_MSG_VERBOSE( "processJetContainer: Jet with pT = " << (*jetIter)->pt() << " GeV passed ptCut of " << ptCut << "GeV." );
+    catch (...) {
+      ATH_MSG_ERROR ( "Failed to find Truth jet pT for Jet in a BCID at time = " << timeOfBCID );
+    }
     xAOD::Jet* pjet = new xAOD::Jet();
     outputJetContainer->push_back(pjet);
     *pjet = **jetIter;
