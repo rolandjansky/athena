@@ -22,6 +22,8 @@
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "TrigCaloEvent/TrigRNNOutput.h"
 
+#include "xAODTrigRinger/TrigRNNOutput.h"
+
 #include "TMath.h"
 #include "GeoPrimitives/GeoPrimitives.h"
  
@@ -178,6 +180,21 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 
   //    
   TrigRNNOutput *out = new TrigRNNOutput;
+
+  // Adding xAOD information 
+  msg() << MSG::VERBOSE << "Attempting to get xAOD::RNNOutput" << endreq;
+
+  xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
+  //xAOD::TrigRingerRings *ringsOut = new xAOD::TrigRingerRings();
+  msg() << MSG::VERBOSE << "Successfully got xAOD::RNNOutput " << endreq;
+
+  rnnOutput->makePrivateStore();
+  rnnOutput->setDecision(m_trththits);
+
+  //  ringsOut->makePrivateStore();
+  msg() << MSG::VERBOSE << "Got makePrivateStore " << name() << endreq;
+
+
 //   msg() << MSG::INFO << "ROI Eta: " << roi->eta0() << endreq;
 //   msg() << MSG::INFO << "ROI Phi: " << roi->phi0() << endreq;
  
@@ -237,8 +254,8 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
       return HLT::TOOL_FAILURE;
     }
     else {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Successfully retrieved trt data from SG. " << endreq; 
+      if (msgLvl() <= MSG::VERBOSE)
+	msg() << MSG::VERBOSE << " Successfully retrieved trt data from SG. " << endreq; 
     }
   
     InDet::TRT_DriftCircleContainer::const_iterator trtdriftContainerItr  = driftCircleContainer->begin();
@@ -285,7 +302,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 		countbin++;
 		}
 	   }
-	if (msgLvl()<= MSG::DEBUG) msg() <<  MSG::DEBUG
+	if (msgLvl()<= MSG::VERBOSE) msg() <<  MSG::VERBOSE
 					 << "timeOverThreshold=" << (*trtItr)->timeOverThreshold()
 					 << "  highLevel=" << (*trtItr)->highLevel()
 					 << " rawDriftTime=" << (*trtItr)->rawDriftTime()
@@ -349,9 +366,19 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     if (m_trthits[iw])
       m_trththits[iw] = m_trththits[iw] + (m_trththits[iw]/m_trthits[iw]);
    
-    if (msgLvl()<= MSG::DEBUG) msg() <<  MSG::DEBUG << "trththits at "<< iw << ": " << m_trththits[iw] << endreq;
+    if (msgLvl()<= MSG::VERBOSE) msg() <<  MSG::VERBOSE << "trththits at "<< iw << ": " << m_trththits[iw] << endreq;
   }
   out->output(m_trththits);
+  //Writing to xAOD
+  msg() << MSG::VERBOSE << "Before setDecision "<< endreq;
+
+  // std::vector<float> testVec; 
+  //  testVec.push_back(1.0);
+
+  rnnOutput->setDecision(m_trththits);
+  //rnnOutput->setDecision(testVec);
+  //ringsOut->setRings(m_trththits);
+  msg() << MSG::VERBOSE << " After setDecision"  << endreq;
 
   std::string key="";
   std::string label="TrigTRTHTCounts";
@@ -359,7 +386,19 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
     return HLT::NAV_ERROR;
 
   }
+  //Write and attach for xAOD
+  HLT::ErrorCode hitStatus = recordAndAttachFeature<xAOD::TrigRNNOutput>(outputTE, rnnOutput, key, label) ;
+  //HLT::ErrorCode hitStatus = recordAndAttachFeature<xAOD::TrigRingerRings>(outputTE, ringsOut, key, label) ;
+
+   if (hitStatus != HLT::OK)
+   {
+     msg() <<  MSG::ERROR << "Writing to xAODs failed" << endreq;
+    return HLT::NAV_ERROR;
+  }
+  
   return HLT::OK;
+
+  
 
 }
 

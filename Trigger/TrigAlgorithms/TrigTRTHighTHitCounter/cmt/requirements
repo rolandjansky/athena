@@ -14,6 +14,9 @@ use GaudiInterface 	GaudiInterface-* 	External
 
 branches src src/components doc python share
 
+# Inform cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(src)"
+
 private
 
 use TrigInterfaces              TrigInterfaces-*        Trigger/TrigSteer
@@ -25,7 +28,7 @@ use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
 use AtlasROOT                   AtlasROOT-*             External
 use GeoPrimitives               GeoPrimitives-* DetectorDescription
-
+use xAODTrigRinger     xAODTrigRinger-*     Event/xAOD
 ## default is to make component library
 apply_pattern component_library
 library TrigTRTHighTHitCounter *.cxx components/*.cxx
