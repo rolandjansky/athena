@@ -27,8 +27,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include "Reflex/Reflex.h"
-using ROOT::Reflex::Type;
 using std::map;
 using std::string;
 
