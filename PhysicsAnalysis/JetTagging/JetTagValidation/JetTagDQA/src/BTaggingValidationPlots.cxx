@@ -17,6 +17,14 @@ namespace JetTagDQA{
 		bookEffHistos();		
 
 		m_truthLabel = Book1D("truthLabel", "truthLabel of "+ m_sParticleType +"; truthLabel ;Events", 17, -1., 16);
+//		m_GAFinalHadronLabel = Book1D("GAFinalHadronLabel", "GAFinalHadronLabel of "+ m_sParticleType +"; GAFinalHadronLabel ;Events", 17, -1., 16);
+//		m_GAInitialHadronLabel = Book1D("GAInitialHadronLabel", "GAInitialHadronLabel of "+ m_sParticleType +"; GAInitialHadronLabel ;Events", 17, -1., 16);
+//		m_GAFinalPartonLabel = Book1D("GAFinalPartonLabel", "GAFinalPartonLabel of "+ m_sParticleType +"; GAFinalPartonLabel ;Events", 17, -1., 16);
+
+//		m_GAFinalHadronC_dR = Book1D("GAFinalHadronC_dR", "DeltaR between final hadron C and "+ m_sParticleType +"; dR ;Events", 50, 0, 1);
+//		m_GAInitialHadronC_dR = Book1D("GAInitialHadronC_dR", "DeltaR between initial hadron C and "+ m_sParticleType +"; dR ;Events", 50, 0, 1);
+//		m_GAFinalPartonC_dR = Book1D("GAFinalPartonC_dR", "DeltaR between final parton C and "+ m_sParticleType +"; dR ;Events", 50, 0, 1);
+//		m_GAFinalHadronTau_dR = Book1D("GAFinalHadronTau_dR", "DeltaR between final hadron tau and "+ m_sParticleType +"; dR ;Events", 50, 0, 1);
 
 		m_truthPt_b  = Book1D("TruthBpt", "p_{T} of truth"+ m_sParticleType +"; p_{T} (GeV) ;Events", 100, 0., 1000);
 		m_truthPt_u  = Book1D("TruthLpt", "p_{T} of truth"+ m_sParticleType +", light jets; p_{T} (GeV) ;Events", 100, 0., 1000);
@@ -89,7 +97,14 @@ namespace JetTagDQA{
 		m_e->Fill(jet->e()/GeV);
 		m_pt->Fill(jet->pt()/GeV);
 		m_eta->Fill(jet->eta());
-		m_phi->Fill(jet->phi());	
+		m_phi->Fill(jet->phi());
+//		m_GAFinalHadronLabel->Fill(xAOD::GAFinalHadronFlavourLabel(jet));	
+//		m_GAInitialHadronLabel->Fill(xAOD::GAInitialHadronFlavourLabel(jet));	
+//		m_GAFinalPartonLabel->Fill(xAOD::GAFinalPartonFlavourLabel(jet));	
+//		m_GAFinalHadronC_dR->Fill(xAOD::deltaR(jet, "GhostCHadronsFinal"));
+//		m_GAInitialHadronC_dR->Fill(xAOD::deltaR(jet, "GhostCHadronsInitial"));
+//		m_GAFinalPartonC_dR->Fill(xAOD::deltaR(jet, "GhostCQuarksFinal"));
+//		m_GAFinalHadronTau_dR->Fill(xAOD::deltaR(jet, "GhostTausFinal"));
 	}
 
 	void BTaggingValidationPlots::fill(const xAOD::Jet* jet, const xAOD::BTagging* btag){
@@ -338,10 +353,11 @@ namespace JetTagDQA{
   	}
 
 	void BTaggingValidationPlots::makeEfficiencyPlot(TH1* hReco, TProfile* pEff){
-		double Ntrue = hReco->Integral();
+//		double Ntrue = hReco->Integral();		
+		double Ntrue = hReco->Integral(0,hReco->GetNbinsX()+1);
 		std::string recoName =  hReco->GetName();
 		if(Ntrue == 0) return;
-		for (int bin_i=1; bin_i<= hReco->GetNbinsX(); ++bin_i){ 
+		for (int bin_i=0; bin_i<= hReco->GetNbinsX()+1; ++bin_i){ 
 			double eff = hReco->Integral(bin_i, hReco->GetNbinsX())/Ntrue;
 			//double eff_err = sqrt(hReco->GetBinContent(bin_i)*(1-eff))/Ntrue;
 			double weight = hReco->GetBinCenter(bin_i);	
@@ -351,16 +367,21 @@ namespace JetTagDQA{
 
 	void BTaggingValidationPlots::makeEfficiencyRejectionPlot(TProfile* pLEff, TProfile* pEffRej){	
 		TProfile* pBEff=NULL;
+		//std::cout << "HIER NAME " << pEffRej->GetName() << std::endl;
 		std::string bEffName = pEffRej->GetName();
+		//std::cout << "name of rej vs eff histo " << pEffRej->GetName() << std::endl;
 		for(std::vector<std::string>::const_iterator tag_iter = m_taggers.begin(); tag_iter != m_taggers.end(); 
 			  ++tag_iter){
 		  if(bEffName.find(*tag_iter+"_") < 1) pBEff = (TProfile *) (m_eff_profiles.find(*tag_iter+"_b_eff_weight")->second)->Clone();
+			//std::cout << "name of used b-eff histo " << pBEff->GetName() << "\t name of used l-eff histo " << pLEff->GetName() << std::endl; }
 		}
 		if (pBEff->GetNbinsX() != pLEff->GetNbinsX()) return;
 		else{
 			for (int bin_i=1; bin_i<= pBEff->GetNbinsX(); ++bin_i){ 
 				double eff = pBEff->GetBinContent(bin_i);
 				double rej = 1/(pLEff->GetBinContent(bin_i));
+				//std::cout << "bin no.: " << bin_i << "\t b-bin: " << pBEff->GetBinCenter(bin_i) << "\t l-bin: " << pLEff->GetBinCenter(bin_i) << std::endl; 
+				//std::cout << "b-eff: " << eff << "\t l-eff: " << 1/rej << "\t rej: " << rej << std::endl;
 				pEffRej->Fill(eff,rej);
 			}		
 		}
@@ -429,12 +450,12 @@ namespace JetTagDQA{
 			  ++label_iter){
 
 				std::string name_effRej = *tag_iter+"_"+label_iter->first+"_eff_rej";
-				TProfile* profile_effRej = PlotBase::BookTProfile(name_effRej, "rejection of "+label_iter->first+"-jets vs. b-efficiency; efficiency; rejection", 50, 0., 1, 0, 1000000., false);
+				TProfile* profile_effRej = PlotBase::BookTProfile(name_effRej, "rejection of "+label_iter->first+"-jets vs. b-efficiency; efficiency; rejection", 100, 0., 1, 0, 1000000., false);
 				m_eff_profiles.insert(std::make_pair(name_effRej, profile_effRej));
 
 				if((*tag_iter).find("MV") < 1){
 					std::string name_matched = *tag_iter+"_"+label_iter->first+"_matched_weight";
-					TH1* histo_matched = Book1D(name_matched, *tag_iter+" loglikelihoodratio of matched "+ m_sParticleType + " "+label_iter->first + "-jets; "+*tag_iter+"_loglikelihoodRatio;Events", 100, 0, 1.);	
+					TH1* histo_matched = Book1D(name_matched, *tag_iter+" loglikelihoodratio of matched "+ m_sParticleType + " "+label_iter->first + "-jets; "+*tag_iter+"_loglikelihoodRatio;Events", 250, -1, 1.);	
 					m_weight_histos.insert(std::make_pair(name_matched, histo_matched));
 				}
 				else{
@@ -449,7 +470,7 @@ namespace JetTagDQA{
 				
 				if((*tag_iter).find("MV") < 1){
 					std::string name_eff = *tag_iter+"_"+label_iter->first+"_eff_weight";
-					TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. "+*tag_iter+" loglikelihoodratio of "+ m_sParticleType + " " + label_iter->first + "-jets; "+*tag_iter+"_loglikelihoodRatio;efficiency", 100, 0, 1, 0., 1., false);	
+					TProfile* profile_eff = BookTProfile(name_eff, "efficiency vs. "+*tag_iter+" loglikelihoodratio of "+ m_sParticleType + " " + label_iter->first + "-jets; "+*tag_iter+"_loglikelihoodRatio;efficiency", 250, -1, 1, 0., 1., false);	
 					m_eff_profiles.insert(std::make_pair(name_eff, profile_eff));
 				}
 				else{

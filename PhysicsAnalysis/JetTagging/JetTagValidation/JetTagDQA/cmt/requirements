@@ -19,7 +19,7 @@ use AthenaMonitoring    AthenaMonitoring-*      Control
 use AtlasROOT           AtlasROOT-*             External
 use AtlasCLHEP          AtlasCLHEP-*            External
 #use StoreGate          StoreGate-*             Control
-#use xAODBase            xAODBase-*               Event/xAOD
+use xAODBase            xAODBase-*               Event/xAOD
 use xAODJet            xAODJet-*               Event/xAOD
 #use xAODCaloEvent      xAODCaloEvent-*         Event/xAOD
 #use xAODEgamma          xAODEgamma-*            Event/xAOD
