@@ -10,7 +10,8 @@ CaloESDList += [ "CaloCellContainer#AllCalo" ]
 from CaloTools.CaloToolsConf import CaloCompactCellTool
 svcMgr.ToolSvc += CaloCompactCellTool()
 
-# add explicitly MBTS cells and trigger output to ESD
+# add explicitly E4', MBTS cells and trigger output to ESD
+CaloESDList += [ "TileCellContainer#E4prContainer" ]
 CaloESDList += [ "TileCellContainer#MBTSContainer" ]
 CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
 
@@ -18,7 +19,7 @@ CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
 CaloClusterItemList=[]
 CaloClusterKeys=[]
 
-CaloClusterKeys+=["CaloCalTopoCluster"]
+CaloClusterKeys+=["CaloCalTopoClusters"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -35,8 +36,8 @@ if rec.Commissioning():
     CaloClusterKeys += ["MuonClusterCollection"]    
 
 for theKey in CaloClusterKeys:
-    CaloClusterItemList+=["xAOD::CaloClusterContainer_v1#"+theKey]
-    CaloClusterItemList+=["xAOD::CaloClusterAuxContainer_v1#"+theKey+"Aux."]
+    CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
+    CaloClusterItemList+=["xAOD::CaloClusterAuxContainer#"+theKey+"Aux."]
     CaloClusterItemList+=["CaloClusterCellLinkContainer#"+theKey+"_links"]
 
 CaloESDList+=CaloClusterItemList
@@ -110,7 +111,7 @@ CaloClusterItemList=[]
 CaloClusterKeys=[]
 
 
-CaloClusterKeys+=["CaloCalTopoCluster"]
+CaloClusterKeys+=["CaloCalTopoClusters"]
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -121,8 +122,8 @@ CaloClusterKeys+=["EMTopoSW35"]
 
 
 for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
-     CaloClusterItemList+=["xAOD::CaloClusterContainer_v1#"+theKey]
-     AuxListItem="xAOD::CaloClusterAuxContainer_v1#"+theKey+"Aux"
+     CaloClusterItemList+=["xAOD::CaloClusterContainer#"+theKey]
+     AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"
      for moment in AODMoments:
          AuxListItem+="."+moment
          pass
@@ -136,6 +137,9 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 CaloAODList+=CaloClusterItemList
 
 CaloAODList+=["CaloClusterContainer#Tau1P3PPi0ClusterContainer"]
+
+# E4' cells
+CaloAODList+=["TileCellContainer#E4prContainer"]
 
 # MBTS cells
 CaloAODList+=["TileCellContainer#MBTSContainer"]
