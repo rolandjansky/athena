@@ -30,6 +30,7 @@
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 
 class CaloClusterCellLinkContainer;
+class IChronoStatSvc;
 
 class CaloClusterMaker : public AthAlgorithm
 {
@@ -74,8 +75,8 @@ class CaloClusterMaker : public AthAlgorithm
   //std::vector<std::string> m_clusterCorrectionNames; 
   ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools; 
 
-  /** @brief the actual list of tools corresponding to above names */
-  //std::vector<CaloClusterCollectionProcessor*>  m_clusterCorrectionPointers; 
+  //Handle to the ChronoStatSvc
+  ServiceHandle<IChronoStatSvc> m_chrono;
 
   /** @brief Keep the individual results of each correction.
    *
@@ -101,6 +102,9 @@ class CaloClusterMaker : public AthAlgorithm
    * property with default value @c true.
    */
   bool m_saveSignalState;
+
+  ///Use ChronotStatSvc to monitor each tool
+  bool m_chronoTools;
 
 };
 #endif // CALOREC_CALOCLUSTERMAKER_H

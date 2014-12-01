@@ -17,6 +17,7 @@
 //-----------------------------------------------------------------------
 
 
+#include "CaloRec/CaloProtoCluster.h"
 #include "CaloRec/CaloTopoClusterSplitter.h"
 #include "CaloRec/CaloTopoSplitterClusterCell.h"
 #include "CaloRec/CaloTopoSplitterHashCluster.h"
@@ -1077,9 +1078,9 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   
   // create cluster list for the purpose of sorting in E_t before storing 
   // in the cluster collection
-  std::vector<xAOD::CaloCluster*> myCaloClusters;
+  std::vector<CaloProtoCluster*> myCaloClusters;
   myCaloClusters.reserve (500);
-  std::vector<xAOD::CaloCluster*> myRestClusters;
+  std::vector<CaloProtoCluster*> myRestClusters;
   myRestClusters.resize(clusColl->size(),0);  // this has a 0 pointer as default!
   std::vector<HashCluster *>::iterator hashClusIter = myHashClusters.begin();
   std::vector<HashCluster *>::iterator hashClusIterEnd=myHashClusters.end();
@@ -1088,7 +1089,8 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
     if ( tmpCluster->size() > 1 ) {
       // local maximum implies at least 2 cells are in the cluster ...
       //      CaloCluster *myCluster = new CaloCluster();
-      xAOD::CaloCluster *myCluster = CaloClusterStoreHelper::makeCluster(myCellColl);
+      //xAOD::CaloCluster *myCluster = CaloClusterStoreHelper::makeCluster(myCellColl);
+      CaloProtoCluster* myCluster=new CaloProtoCluster(myCellColl);
 
       ATH_MSG_DEBUG("[CaloCluster@" << myCluster << "] created in <myCaloClusters>.");
       HashCluster::iterator clusCellIter=tmpCluster->begin();
@@ -1106,9 +1108,9 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	}	
 	myCluster->addCell(itrCell.index(),myWeight);
       }
-      CaloClusterKineHelper::calculateKine(myCluster);
+      //CaloClusterKineHelper::calculateKine(myCluster);
       ATH_MSG_DEBUG("[CaloCluster@" << myCluster << "] size: " << myCluster->size());
-      myCluster->setClusterSize(clusterSize);
+      //myCluster->setClusterSize(clusterSize);
       myCaloClusters.push_back(myCluster);
     }
     else if ( tmpCluster->size() == 1 ) {
@@ -1119,8 +1121,9 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
       if ( hasLocalMaxVector[tmpCluster->getParentClusterIndex()]) {
 	// need to take care only of those with local max, as clusters without
 	// any local max are copied anyways
+	
 	if (!myRestClusters[tmpCluster->getParentClusterIndex()]) {
-	  myRestClusters[tmpCluster->getParentClusterIndex()] = CaloClusterStoreHelper::makeCluster(myCellColl);
+	  myRestClusters[tmpCluster->getParentClusterIndex()] = new CaloProtoCluster(myCellColl);
 	}
 	ATH_MSG_DEBUG("[CaloCluster@" << myRestClusters[tmpCluster->getParentClusterIndex()]  
 		      << "] created in <myRestClusters>");
@@ -1130,14 +1133,13 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
 	for(;clusCellIter!=clusCellIterEnd;clusCellIter++) {
 	  CaloTopoSplitterClusterCell *pClusCell =  *clusCellIter;
 	  xAOD::CaloCluster::cell_iterator itrCell = pClusCell->getCellIterator();
-	  //double myWeight = pClusCell->getParentCluster()->getCellWeight(itrCell);
 	  const double myWeight = itrCell.weight();
 	  myRestClusters[tmpCluster->getParentClusterIndex()]->addCell(itrCell.index(),myWeight);
 	}
-	CaloClusterKineHelper::calculateKine(myRestClusters[tmpCluster->getParentClusterIndex()]);
+	//CaloClusterKineHelper::calculateKine(myRestClusters[tmpCluster->getParentClusterIndex()]);
 	ATH_MSG_DEBUG("[CaloCluster@" << myRestClusters[tmpCluster->getParentClusterIndex()] 
 		      << "] size: " << myRestClusters[tmpCluster->getParentClusterIndex()]->size());
-	myRestClusters[tmpCluster->getParentClusterIndex()]->setClusterSize(clusterSize);
+	//myRestClusters[tmpCluster->getParentClusterIndex()]->setClusterSize(clusterSize);
       }
     }
   }
@@ -1149,9 +1151,9 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   for (; clusCollIter != clusCollIterEnd; clusCollIter++,iClusterNumber++){
     const xAOD::CaloCluster* parentCluster = (*clusCollIter);
     if ( !hasLocalMaxVector[iClusterNumber] ) {
-      xAOD::CaloCluster *myClone = new xAOD::CaloCluster(*parentCluster);
-      myCaloClusters.push_back(myClone);
-      ATH_MSG_DEBUG("[CaloCluster@" << myClone << "] with " << myClone->size() 
+      //xAOD::CaloCluster *myClone = new xAOD::CaloCluster(*parentCluster);
+      myCaloClusters.push_back(new CaloProtoCluster(parentCluster->getCellLinks()));
+      ATH_MSG_DEBUG("[CaloProtoCluster@" << myCaloClusters.back() << "] with " << myCaloClusters.back()->size() 
 		    << "cells cloned from " << parentCluster << " with " << parentCluster->size()
 		    <<" cells");
     }
@@ -1164,9 +1166,15 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   }
 
   // Sort the clusters according to Et 
-  CaloClusterEtSort::compare compareEt;
-  std::sort(myCaloClusters.begin(),myCaloClusters.end(),compareEt); 
-
+  //CaloClusterEtSort::compare compareEt;
+  std::sort(myCaloClusters.begin(),myCaloClusters.end(),[](CaloProtoCluster* pc1, CaloProtoCluster* pc2) {
+      //As in CaloUtils/CaloClusterEtSort. 
+      //assign to volatile to avoid excess precison on in FP unit on x386 machines
+      volatile double et1(pc1->et());
+      volatile double et2(pc2->et());
+      return (et1 > et2);
+    }
+    );
   // remove all original clusters from the cluster container
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "erase " << clusColl->size() << " clusters";
   clusColl->clear();
@@ -1177,22 +1185,25 @@ StatusCode CaloTopoClusterSplitter::execute(xAOD::CaloClusterContainer* clusColl
   int nTot(0);
   float eMax(0.);
   // add to cluster container.
-  std::vector<xAOD::CaloCluster*>::iterator myCaloClusIter=myCaloClusters.begin();
-  std::vector<xAOD::CaloCluster*>::iterator myCaloClusIterEnd=myCaloClusters.end();
-  for(;myCaloClusIter!=myCaloClusIterEnd;myCaloClusIter++) {
-    xAOD::CaloCluster* myCluster = *myCaloClusIter;
-    ATH_MSG_DEBUG("CaloCluster@" << myCluster << " to be pushed into "
+  for(CaloProtoCluster* protoCluster : myCaloClusters) {
+    xAOD::CaloCluster* xAODCluster=new xAOD::CaloCluster();
+    clusColl->push_back(xAODCluster);
+    xAODCluster->addCellLink(protoCluster->releaseCellLinks());//Hand over ownership to xAOD::CaloCluster
+    delete protoCluster;
+    xAODCluster->setClusterSize(clusterSize);
+    CaloClusterKineHelper::calculateKine(xAODCluster);
+    ATH_MSG_DEBUG("CaloCluster@" << xAODCluster << " pushed into "
 		  << "CaloClusterContainer@" << clusColl);
-    clusColl->push_back(myCluster);
+  
     ATH_MSG_DEBUG("CaloClusterContainer@" << clusColl 
 		  << "->size() = " << clusColl->size());
-    ATH_MSG_DEBUG("CaloCluster E = " << myCluster->e() 
-		  << " MeV, Et = " << myCluster->et() 
-		  << " MeV, NCells = " << myCluster->size());
-    eTot+=myCluster->e();
-    nTot+=myCluster->size();
-    if ( fabs(myCluster->e()) > eMax )
-      eMax = fabs(myCluster->e());
+    ATH_MSG_DEBUG("CaloCluster E = " << xAODCluster->e() 
+		  << " MeV, Et = " << xAODCluster->et() 
+		  << " MeV, NCells = " << xAODCluster->size());
+    eTot+=xAODCluster->e();
+    nTot+=xAODCluster->size();
+    if ( fabs(xAODCluster->e()) > eMax )
+      eMax = fabs(xAODCluster->e());
   }
   ATH_MSG_DEBUG("Sum of all CaloClusters E = " << eTot
 		<< " MeV, NCells = " << nTot 

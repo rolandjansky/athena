@@ -46,10 +46,13 @@
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
+#include "CaloRec/CaloProtoCluster.h"
+
 using CLHEP::MeV;
 
 namespace {
 
+  /*
 struct CaloClusterSort
 {
   CaloClusterSort (xAOD::CaloCluster* cl, float et)
@@ -61,7 +64,7 @@ struct CaloClusterSort
   float m_et;
   xAOD::CaloCluster* m_cl;
 };
-
+  */
 
 } // anonymous namespace
 
@@ -706,12 +709,13 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
     mySeedCells.swap (myNextCells);
   }
 
-  // create cluster list for the purpose of sorting in E_t before storing 
-  // in the cluster collection
-  //unsigned int clustersize = getClusterSize();
-  //  unsigned int clusterType = clustersize == CaloCluster::Topo_420 ? 0x80000001 : 0x80000000;
-  std::vector<CaloClusterSort> sortClusters;
+
+  //Create temporary list of proto-clusters 
+  //Clusters below Et cut will be dropped. 
+  //The remaining clusters will be sorted in E_t before storing 
+  std::vector<CaloProtoCluster*> sortClusters;
   sortClusters.reserve (myHashClusters.size());
+
   for (HashCluster* tmpCluster : myHashClusters) {
     bool addCluster(false);
     if ( tmpCluster->size() > 1 )
@@ -723,43 +727,46 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	addCluster = true;
     }
     if ( addCluster) {
-
-      // //Make the cluster:
-      xAOD::CaloCluster* myCluster=CaloClusterStoreHelper::makeCluster(cellColl);
-      // xAOD::CaloCluster* myCluster=new xAOD::CaloCluster();
-      // //Cluster lives standalone until we decide to add it to the cluster container;
-      // myCluster->makePrivateStore();
-      // CaloClusterCellLink* cellLinks=new CaloClusterCellLink(cellColl); 
-      // myCluster->addCellLink(cellLinks); //CellLinks now owned by CaloCluster
-
+      CaloProtoCluster* myCluster = new CaloProtoCluster(cellColl);
       myCluster->getCellLinks()->reserve(tmpCluster->size());
-      //CaloClusterStoreHelper::makeCluster(0.,0.,clusterType);
-      //ATH_MSG_DEBUG( "cluster size = " << clustersize);
-      myCluster->setClusterSize(m_clusterSize);
+
       for (CaloTopoTmpClusterCell* cell : *tmpCluster) {
 	size_t iCell = cell->getCaloCell();
 	myCluster->addCell(iCell,1.);
-	//myCluster->addUniqueCellNoKine(myCellColl,iCell,1.,tmpCluster->size());
       }
-      CaloClusterKineHelper::calculateKine(myCluster,false,true); //No weight at this point! 
-      //myCluster->calculateKine (false);
+
       float cl_et = myCluster->et();
-      if ( (m_seedCutsInAbsE ? std::abs(cl_et) : cl_et) > m_clusterEtorAbsEtCut )
-	sortClusters.emplace_back(myCluster, cl_et);
-      else
+      if ( (m_seedCutsInAbsE ? std::abs(cl_et) : cl_et) > m_clusterEtorAbsEtCut ) {
+	sortClusters.push_back(myCluster);
+      } 
+      else {
 	delete myCluster;
+      }
     }
   }
 
   // Sort the clusters according to Et 
-  std::sort (sortClusters.begin(), sortClusters.end());
-   
+  std::sort(sortClusters.begin(),sortClusters.end(),[](CaloProtoCluster* pc1, CaloProtoCluster* pc2) {
+      //As in CaloUtils/CaloClusterEtSort. 
+      //assign to volatile to avoid excess precison on in FP unit on x386 machines
+      volatile double et1(pc1->et());
+      volatile double et2(pc2->et());
+      //return (et1 < et2);  //This is the order we had from CaloRec-02-13-11 to  CaloRec-03-00-31
+      return (et1 > et2); //This is the order we should have
+    }
+    );
+
   // add to cluster container
   clusColl->reserve(sortClusters.size());
-  for (CaloClusterSort& ccs : sortClusters) {
-    clusColl->push_back(ccs.m_cl);
+
+  for (CaloProtoCluster* protoCluster: sortClusters) {
+    xAOD::CaloCluster* xAODCluster=new xAOD::CaloCluster();
+    clusColl->push_back(xAODCluster);
+    xAODCluster->addCellLink(protoCluster->releaseCellLinks());//Hand over ownership to xAOD::CaloCluster
+    delete protoCluster;
+    xAODCluster->setClusterSize(m_clusterSize);
+    CaloClusterKineHelper::calculateKine(xAODCluster,false,true); //No weight at this point! 
   }
-  //clusColl->assign (sortClusters.begin(), sortClusters.end());
   
   if ( m_doALotOfPrintoutInFirstEvent ) 
     m_doALotOfPrintoutInFirstEvent = false;
@@ -785,6 +792,6 @@ void CaloTopoClusterMaker::getClusterSize(){
     
     m_clusterSize = xAOD::CaloCluster::Topo_420;    
   }
-  //ATH_MSG_DEBUG( "Cluster size = " << clusterSize);  
+  ATH_MSG_DEBUG( "Cluster size = " << m_clusterSize);  
   return;
 }

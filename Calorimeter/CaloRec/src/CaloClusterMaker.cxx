@@ -41,8 +41,7 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "AthenaKernel/errorcheck.h"
 
-
-
+#include "GaudiKernel/IChronoStatSvc.h"
 
 /*
 namespace {
@@ -66,7 +65,9 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
   : AthAlgorithm(name, pSvcLocator)
   , m_clusterMakerTools(this)
   , m_clusterCorrectionTools(this)
+  , m_chrono("ChronoStatSvc", name)
   , m_saveSignalState(true)
+  , m_chronoTools(false)
 {
 
   // Name of Cluster Container to be registered in TDS
@@ -90,6 +91,8 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
   // save uncalibrated cluster signal state 
   declareProperty("SaveUncalibratedSignalState",m_saveSignalState);
 
+  //Make Chrono Auditors for Cluster maker and correction tools
+  declareProperty("ChronoTools", m_chronoTools);
 }
 
 //###############################################################################
@@ -148,6 +151,11 @@ StatusCode CaloClusterMaker::initialize()
       ATH_MSG_DEBUG("Successfully retrieved correction tool " << tool);
   }//end loop over correction tools
 
+  if (m_chronoTools) {
+    msg(MSG::INFO) << "Will use ChronoStatSvc to monitor ClusterMaker and ClusterCorrection tools" << endreq;
+    CHECK( m_chrono.retrieve() );
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -193,7 +201,10 @@ StatusCode CaloClusterMaker::execute() {
   //Make Clusters: Execute each maker tool
   //for (CaloClusterCollectionProcessor& tool :  m_clusterMakerTools) {  //Doesn't work because CaloClusterCollectionProcessor is a base class
   for(;toolIt!=toolIt_e;++toolIt) {
+    const std::string chronoName = this->name() + "_" +toolIt->name();
+    if (m_chronoTools) m_chrono->chronoStart(chronoName);
     CHECK((*toolIt)->execute(clusColl));
+    if (m_chronoTools) m_chrono->chronoStop(chronoName);
   } //End loop over maker tools
 
   // PL set calibrated state
@@ -235,7 +246,10 @@ StatusCode CaloClusterMaker::execute() {
     }
     
     ATH_MSG_DEBUG(" Applying correction = " << toolname);
+    const std::string chronoName = this->name() + "_" + toolname;
+    if (m_chronoTools) m_chrono->chronoStart(chronoName);
     CHECK((*toolIt)->execute(clusColl));
+    if (m_chronoTools) m_chrono->chronoStop(chronoName);
   }//End loop over correction tools
 
 

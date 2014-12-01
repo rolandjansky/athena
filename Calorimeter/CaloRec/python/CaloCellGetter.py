@@ -319,7 +319,7 @@ class CaloCellGetter (Configured)  :
         #
 
         doLArMerge = False
-        if jobproperties.CaloCellFlags.doLArRawChannelMerge.statusOn and jobproperties.CaloCellFlags.doLArRawChannelMerge():
+        if  globalflags.DataSource() == 'data'  and jobproperties.CaloCellFlags.doLArRawChannelMerge.statusOn and jobproperties.CaloCellFlags.doLArRawChannelMerge():
             from LArROD.LArRODFlags import larRODFlags
             if larRODFlags.readDigits() and larRODFlags.keepDSPRaw():
                 doLArMerge = True

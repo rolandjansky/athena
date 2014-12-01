@@ -40,10 +40,10 @@ ToolSvc += theCaloNoiseTool
 class CaloClusterTopoGetter ( Configured )  :
     _outputType = "CaloClusterContainer" # the main (AOD) object type
     if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib() or jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
-        _outputKey = "CaloCalTopoCluster" # the main (AOD) object key
-        _output = { _outputType : ["CaloCalTopoCluster","CaloTopoCluster"],
-                    "CaloClusterAuxContainer" : ["CaloTopoClusterAux.","CaloCalTopoClusterAux."],
-                    "CaloClusterCellLinkContainer" : ["CaloCalTopoCluster_links","CaloTopoCluster_links"]
+        _outputKey = "CaloCalTopoClusters" # the main (AOD) object key
+        _output = { _outputType : ["CaloCalTopoClusters","CaloTopoCluster"],
+                    "CaloClusterAuxContainer" : ["CaloTopoClusterAux.","CaloCalTopoClustersAux."],
+                    "CaloClusterCellLinkContainer" : ["CaloCalTopoClusters_links","CaloTopoCluster_links"]
                     }
     else:
         _outputKey = "CaloTopoCluster" # the main (AOD) object key
@@ -334,7 +334,7 @@ class CaloClusterTopoGetter ( Configured )  :
         # cluster maker
         CaloTopoCluster = CaloClusterMaker ("CaloTopoCluster")
         if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
-            CaloTopoCluster.ClustersOutputName="CaloCalTopoCluster"
+            CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"
         else:
             CaloTopoCluster.ClustersOutputName="CaloTopoCluster"
         CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]

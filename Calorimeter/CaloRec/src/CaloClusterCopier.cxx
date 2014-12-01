@@ -67,8 +67,6 @@ StatusCode CaloClusterCopier::initialize() {
 StatusCode CaloClusterCopier::execute(xAOD::CaloClusterContainer* clusColl) {
   ATH_MSG_DEBUG("Executing CaloClusterCopier");
 
-  xAOD::CaloClusterContainer& outputContainer = *clusColl;
-
   const xAOD::CaloClusterContainer* inputContainer; 
   CHECK(evtStore()->retrieve(inputContainer,m_clustersName));
 
@@ -76,10 +74,9 @@ StatusCode CaloClusterCopier::execute(xAOD::CaloClusterContainer* clusColl) {
   xAOD::CaloClusterContainer::const_iterator it_e = inputContainer->end();
   for(; it!=it_e;++it) {
     const xAOD::CaloCluster* old = *it; 
-    if (std::fabs(old->p4().Et()) > m_etCut || m_etCut<0.) {
+    if (m_etCut < 0 || std::fabs(old->et()) > m_etCut) {
       // make the cluster
-      xAOD::CaloCluster* cluster_ptr = CaloClusterStoreHelper::makeCluster(old->getCellLinks()->getCellContainer());
-      outputContainer.push_back(cluster_ptr); 
+      xAOD::CaloCluster* cluster_ptr = CaloClusterStoreHelper::makeCluster(clusColl,old->getCellLinks()->getCellContainer());
       if (m_useClusterPosition) {
 	cluster_ptr->setEta0(old->eta());
 	cluster_ptr->setPhi0(old->phi());
@@ -110,7 +107,7 @@ StatusCode CaloClusterCopier::execute(xAOD::CaloClusterContainer* clusColl) {
     }//end if et cut
   }//end loop over input clusters
 
-  ATH_MSG_DEBUG("Done with copying clusters, number of clusters= " << outputContainer.size());
+  ATH_MSG_DEBUG("Done with copying clusters, number of clusters= " << clusColl->size());
   return StatusCode::SUCCESS;
 }
 
