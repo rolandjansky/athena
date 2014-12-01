@@ -85,12 +85,12 @@ public:
   //  Methods using the localEngine to shoot random values, by-passing
   //  the static generator.
 
-  inline float fire() {return fire(defaultMean);};
-  inline float fire( float mean ) {return ziggurat_REXP(localEngine)*mean;};
+  inline float fire() {return fire(m_defaultMean);};
+  inline float fire( float mean ) {return ziggurat_REXP(m_localEngine)*mean;};
   
   /* ENGINE IS INTRINSIC FLOAT
-  inline double fire() {return fire(defaultMean);};
-  inline double fire( double mean ) {return ziggurat_REXP(localEngine)*mean;};
+  inline double fire() {return fire(m_defaultMean);};
+  inline double fire( double mean ) {return ziggurat_REXP(m_localEngine)*mean;};
   */
   
   void fireArray ( const int size, float* vect );
@@ -133,7 +133,7 @@ protected:
   static unsigned long kn[128], ke[256];
   static float wn[128],fn[128], we[256],fe[256];
 
-  static bool ziggurat_is_init;
+  static bool s_ziggurat_is_init;
 
   static inline unsigned long ziggurat_SHR3(HepRandomEngine* anEngine) {return (unsigned int)(*anEngine);};
   static inline float ziggurat_UNI(HepRandomEngine* anEngine) {return anEngine->flat();};
@@ -146,12 +146,12 @@ protected:
 
 private:
 
-  // Private copy constructor. Defining it here disallows use.
-  RandExpZiggurat(const RandExpZiggurat& d);
+  // Delete copy constructor.
+  RandExpZiggurat(const RandExpZiggurat& d) = delete;
 
-  HepRandomEngine* localEngine;
-  bool deleteEngine;
-  double defaultMean;
+  HepRandomEngine* m_localEngine;
+  bool m_deleteEngine;
+  double m_defaultMean;
 };
 
 }  // namespace CLHEP
@@ -163,14 +163,14 @@ using namespace CLHEP;
 
 namespace CLHEP {
 
-inline RandExpZiggurat::RandExpZiggurat(HepRandomEngine & anEngine, double mean ) : localEngine(&anEngine), deleteEngine(false), defaultMean(mean) 
+inline RandExpZiggurat::RandExpZiggurat(HepRandomEngine & anEngine, double mean ) : m_localEngine(&anEngine), m_deleteEngine(false), m_defaultMean(mean) 
 {
-  if(!ziggurat_is_init) ziggurat_init();
+  if(!s_ziggurat_is_init) ziggurat_init();
 }
 
-inline RandExpZiggurat::RandExpZiggurat(HepRandomEngine * anEngine, double mean ) : localEngine(anEngine), deleteEngine(true), defaultMean(mean) 
+inline RandExpZiggurat::RandExpZiggurat(HepRandomEngine * anEngine, double mean ) : m_localEngine(anEngine), m_deleteEngine(true), m_defaultMean(mean) 
 {
-  if(!ziggurat_is_init) ziggurat_init();
+  if(!s_ziggurat_is_init) ziggurat_init();
 }
 
 }  // namespace CLHEP
