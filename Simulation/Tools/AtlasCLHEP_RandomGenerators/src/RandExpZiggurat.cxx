@@ -12,26 +12,21 @@
 
 namespace CLHEP {
 
-bool RandExpZiggurat::ziggurat_is_init=RandExpZiggurat::ziggurat_init();
+bool RandExpZiggurat::s_ziggurat_is_init=RandExpZiggurat::ziggurat_init();
 unsigned long RandExpZiggurat::kn[128], RandExpZiggurat::ke[256];
 float RandExpZiggurat::wn[128],RandExpZiggurat::fn[128],RandExpZiggurat::we[256],RandExpZiggurat::fe[256];
 
 std::string RandExpZiggurat::name() const {return "RandExpZiggurat";}
 
-HepRandomEngine & RandExpZiggurat::engine() {return *localEngine;}
+HepRandomEngine & RandExpZiggurat::engine() {return *m_localEngine;}
 
 RandExpZiggurat::~RandExpZiggurat() {
-  if ( deleteEngine ) delete localEngine;
-}
-
-RandExpZiggurat::RandExpZiggurat(const RandExpZiggurat& right) : HepRandom(right),defaultMean(right.defaultMean)
-{
-  if(!ziggurat_is_init) ziggurat_init();
+  if ( m_deleteEngine ) delete m_localEngine;
 }
 
 double RandExpZiggurat::operator()()
 {
-  return fire( defaultMean );
+  return fire( m_defaultMean );
 }
 
 void RandExpZiggurat::shootArray( const int size, float* vect, float mean )
@@ -56,12 +51,12 @@ void RandExpZiggurat::shootArray(HepRandomEngine* anEngine, const int size, doub
 
 void RandExpZiggurat::fireArray( const int size, float* vect)
 {
-   for (int i=0; i<size; ++i) vect[i] = fire( defaultMean );
+    for (int i=0; i<size; ++i) vect[i] = fire( m_defaultMean );
 }
 
 void RandExpZiggurat::fireArray( const int size, double* vect)
 {
-   for (int i=0; i<size; ++i) vect[i] = fire( defaultMean );
+   for (int i=0; i<size; ++i) vect[i] = fire( m_defaultMean );
 }
 
 void RandExpZiggurat::fireArray( const int size, float* vect, float mean )
@@ -79,14 +74,14 @@ std::ostream & RandExpZiggurat::put ( std::ostream & os ) const {
   std::vector<unsigned long> t(2);
   os << " " << name() << "\n";
   os << "Uvec" << "\n";
-  t = DoubConv::dto2longs(defaultMean);
-  os << defaultMean << " " << t[0] << " " << t[1] << "\n";
+  t = DoubConv::dto2longs(m_defaultMean);
+  os << m_defaultMean << " " << t[0] << " " << t[1] << "\n";
   os.precision(pr);
   return os;
 #ifdef REMOVED
   int pr=os.precision(20);
   os << " " << name() << "\n";
-  os << defaultMean << "\n";
+  os << m_defaultMean << "\n";
   os.precision(pr);
   return os;
 #endif
@@ -103,12 +98,12 @@ std::istream & RandExpZiggurat::get ( std::istream & is ) {
 	      << "\nistream is left in the badbit state\n";
     return is;
   }
-  if (possibleKeywordInput(is, "Uvec", defaultMean)) {
+  if (possibleKeywordInput(is, "Uvec", m_defaultMean)) {
     std::vector<unsigned long> t(2);
-    is >> defaultMean >> t[0] >> t[1]; defaultMean = DoubConv::longs2double(t); 
+    is >> m_defaultMean >> t[0] >> t[1]; m_defaultMean = DoubConv::longs2double(t); 
     return is;
   }
-  // is >> defaultMean encompassed by possibleKeywordInput
+  // is >> m_defaultMean encompassed by possibleKeywordInput
   return is;
 }
 
@@ -175,7 +170,7 @@ bool RandExpZiggurat::ziggurat_init()
     fe[i]=exp(-de);
     we[i]=de/m2;
   }
-  ziggurat_is_init=true;
+  s_ziggurat_is_init=true;
   return true;
 }
 

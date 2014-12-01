@@ -49,9 +49,9 @@ namespace AtlasCLHEP_RandomGenerators {
       return StatusCode::FAILURE;
     }
     
-    m_ranlux64=new Ranlux64Engine();
-    m_ranecu=new RanecuEngine();
-    m_mtwist=new MTwistEngine();
+    m_ranlux64=new CLHEP::Ranlux64Engine();
+    m_ranecu=new CLHEP::RanecuEngine();
+    m_mtwist=new CLHEP::MTwistEngine();
     
     // Random number service
     if ( m_rndmSvc1.retrieve().isFailure() ) {

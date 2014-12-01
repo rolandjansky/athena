@@ -32,16 +32,16 @@ namespace AtlasCLHEP_RandomGenerators {
     /**  central crono service*/
     IChronoStatSvc*                     m_chrono;
 
-    HepRandomEngine*                    m_ranlux64;
-    HepRandomEngine*                    m_ranecu;
-    HepRandomEngine*                    m_mtwist;
+    CLHEP::HepRandomEngine*             m_ranlux64;
+    CLHEP::HepRandomEngine*             m_ranecu;
+    CLHEP::HepRandomEngine*             m_mtwist;
     ITHistSvc*                          m_histSvc;
     
     ServiceHandle<IAtRndmGenSvc>        m_rndmSvc1;
-    HepRandomEngine*                    m_randomEngine1;
+    CLHEP::HepRandomEngine*             m_randomEngine1;
     std::string                         m_randomEngineName1;   
     ServiceHandle<IAtRndmGenSvc>        m_rndmSvc2;
-    HepRandomEngine*                    m_randomEngine2;
+    CLHEP::HepRandomEngine*             m_randomEngine2;
     std::string                         m_randomEngineName2; 
     
     TH1* m_hflat;

@@ -6,6 +6,7 @@
 #include "CLHEP/Random/Random.h"
 #include "AtlasCLHEP_RandomGenerators/dSFMTEngine.h"
 #include "CLHEP/Random/engineIDulong.h"
+#include "boost/io/ios_state.hpp"
 #include <string.h>
 #include <sstream>
 #include <cmath>	// for ldexp()
@@ -168,6 +169,7 @@ void dSFMTEngine::restoreStatus( const char filename[] )
 
 void dSFMTEngine::showStatus() const
 {
+   boost::io::ios_all_saver saver (std::cout);
    std::cout << std::endl;
    std::cout << "--------- dSFMT engine status ---------" << std::endl;
    std::cout << std::setprecision(20);

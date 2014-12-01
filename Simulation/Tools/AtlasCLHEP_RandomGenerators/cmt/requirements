@@ -9,7 +9,7 @@ use AtlasPolicy          AtlasPolicy-*
 ## Use this for standard compilation
 #####
 apply_pattern installed_library
-library AtlasCLHEP_RandomGenerators ../src/*.cxx
+library AtlasCLHEP_RandomGenerators ../src/*.cxx src/ValidationTests/*.cxx
 
 #####
 ## Use this if you want to run the rnd generator testing code with the JO in share
@@ -23,5 +23,7 @@ use AthenaKernel         AthenaKernel-*         Control
 use AtlasDSFMT           AtlasDSFMT-*           External
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use AtlasROOT            AtlasROOT-*            External
+use AtlasBoost           AtlasBoost-*           External
+
 
 
