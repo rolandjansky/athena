@@ -134,7 +134,6 @@ def TrackD3PDObject(_label='trkTrack',
         TruthAssociationTool         = TrackD3PDMaker.TrkTrackTruthAssociationTool
         DetailedTruthAssociationTool = TrackD3PDMaker.TrkTrackDetailedTruthAssociationTool
         ParametersAtBLFillerTool     = TrackD3PDMaker.TrkTrackParametersAtBLFillerTool
-        ParametersAtCaloFillerTool   = TrackD3PDMaker.TrkTrackParametersAtCaloFillerTool
         
     if typeName=='Rec::TrackParticleContainer':
         PerigeeAssociationTool       = TrackD3PDMaker.TrackParticlePerigeeAtOOAssociationTool
@@ -148,7 +147,6 @@ def TrackD3PDObject(_label='trkTrack',
         TruthAssociationTool         = TrackD3PDMaker.TrackParticleTruthAssociationTool
         DetailedTruthAssociationTool = TrackD3PDMaker.TrackParticleDetailedTruthAssociationTool
         ParametersAtBLFillerTool     = TrackD3PDMaker.TrackParticleParametersAtBLFillerTool
-        ParametersAtCaloFillerTool   = TrackD3PDMaker.TrackParticleParametersAtCaloFillerTool
 
     # This generates ERROR messages.  Disabled for now.
     #object.defineBlock(1, "Isolation", TrackD3PDMaker.TrackIsolationFillerTool)

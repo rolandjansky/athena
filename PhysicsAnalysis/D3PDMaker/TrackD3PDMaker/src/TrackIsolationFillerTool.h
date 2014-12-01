@@ -19,13 +19,14 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "xAODPrimitives/IsolationType.h"
+#include "xAODPrimitives/IsolationFlavour.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 
 namespace xAOD {
 class IParticle;
 class ITrackIsolationTool;
-class ICaloIsolationTool;
+class ICaloCellIsolationTool;
 }
 
 
@@ -78,9 +79,6 @@ private:
   std::vector<xAOD::Iso::IsolationType>
   cones (xAOD::Iso::IsolationFlavour f) const;
 
-  /// Isolation tool types representing cone sizes.
-  std::vector<int> m_coneSizeTypes;
-
   /// Parameters: Names for the tuple variables.
   /// If blank, the variables won't be filled.
   /// If it contains a `%%', this will be replaced by the
@@ -91,7 +89,6 @@ private:
   /// multiple different naming conventions.
   std::string m_trackIsoVar;
   std::string m_caloIsoVar;
-  std::string m_nTrackIsoVar;
 
   /// Parameter: List of isolation cone sizes.
   std::vector<double> m_coneSizes;
@@ -104,14 +101,12 @@ private:
   ToolHandle<xAOD::ITrackIsolationTool> m_trackIsoTool;
 
   /// Parameter: Calorimeter isolation tool.
-  ToolHandle<xAOD::ICaloIsolationTool> m_caloIsoTool;
+  ToolHandle<xAOD::ICaloCellIsolationTool> m_caloIsoTool;
 
   /// Variable: Tracking isolation parameter.
   std::vector<float*> m_trackIso;
   /// Variable: Calorimeter isolation parameter.
   std::vector<float*> m_caloIso;
-  /// Variable: Number of tracks in isolation cone.
-  std::vector<int*> m_nTrackIso;
 
   /// Helper to book isolation variables.
   template <class T>

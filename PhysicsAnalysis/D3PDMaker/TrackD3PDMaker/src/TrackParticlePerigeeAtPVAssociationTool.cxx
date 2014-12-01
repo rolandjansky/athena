@@ -31,9 +31,12 @@ TrackParticlePerigeeAtPVAssociationTool::TrackParticlePerigeeAtPVAssociationTool
    const std::string& name,
    const IInterface* parent)
     : Base (type, name, parent),
-      m_trackToVertexTool("Reco::TrackToVertex")
+      m_trackToVertexTool("Reco::TrackToVertex"),
+      m_resolver ("TrackParticlePerigeeAtPVAssociationTool",
+                  evtStore(),
+                  m_vxCandidate)
 {
-  declareProperty ("SGKey", m_vxCandidate = "VxPrimaryCandidate");
+  declareProperty ("SGKey", m_vxCandidate = "PrimaryVertices,VxPrimaryCandidate");
   declareProperty ("TrackToVertexTool", m_trackToVertexTool);
 }
 
@@ -55,9 +58,9 @@ StatusCode TrackParticlePerigeeAtPVAssociationTool::initialize(){
 const Trk::TrackParameters*
 TrackParticlePerigeeAtPVAssociationTool::get (const Rec::TrackParticle& track)
 {
-
+  m_resolver.initialize<VxContainer>().ignore();
   const VxContainer* vxContainer = 0;
-  StatusCode sc = evtStore()->retrieve(vxContainer, m_vxCandidate);
+  StatusCode sc = evtStore()->retrieve(vxContainer, m_resolver.key());
   if (sc.isFailure() || !vxContainer) {
     REPORT_MESSAGE (MSG::WARNING) << "Could not retrieve primary vertex container: " << m_vxCandidate;
     return 0;
@@ -93,9 +96,9 @@ TrackParticlePerigeeAtPVAssociationTool::get (const Rec::TrackParticle& track)
 const Trk::TrackParameters*
 TrackParticlePerigeeAtPVAssociationTool::get (const xAOD::TrackParticle& track)
 {
-
+  m_resolver.initialize<xAOD::VertexContainer>().ignore();
   const xAOD::VertexContainer* vxContainer = 0;
-  StatusCode sc = evtStore()->retrieve(vxContainer, m_vxCandidate);
+  StatusCode sc = evtStore()->retrieve(vxContainer, m_resolver.key());
   if (sc.isFailure() || !vxContainer) {
     REPORT_MESSAGE (MSG::WARNING) << "Could not retrieve primary vertex container: " << m_vxCandidate;
     return 0;

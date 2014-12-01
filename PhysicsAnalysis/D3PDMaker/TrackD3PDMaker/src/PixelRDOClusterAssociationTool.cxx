@@ -17,8 +17,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "InDetIdentifier/PixelID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 namespace D3PD {
@@ -70,14 +69,14 @@ namespace D3PD {
       return 0;
     }
 
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     StatusCode sc = evtStore()->retrieve(eventInfo);
     if (sc.isFailure())
       {
 	REPORT_MESSAGE  (MSG::ERROR) << "Could not retrieve event info" << endreq;
 	return 0;
       }
-    int eventNumber = (int)eventInfo->event_ID()->event_number();
+    int eventNumber = (int)eventInfo->eventNumber();
 
     if ( m_eventNumber != eventNumber ) {
 

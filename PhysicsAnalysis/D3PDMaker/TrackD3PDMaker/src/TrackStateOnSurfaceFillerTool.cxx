@@ -366,9 +366,9 @@ StatusCode TrackStateOnSurfaceFillerTool::fill (const Trk::TrackStateOnSurface& 
           }
           if(getFillVariable("phiModule")) *m_phiModule = (int)m_trtId->phi_module(id);
           const InDet::TRT_DriftCircle *driftCircle = dynamic_cast<const InDet::TRT_DriftCircle *>(rio->prepRawData());
-          unsigned int word = driftCircle->getWord();
 
           if(driftCircle){
+            unsigned int word = driftCircle->getWord();
             Identifier surfaceID = rio->identify();
             TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
             double tot = driftCircle->timeOverThreshold();

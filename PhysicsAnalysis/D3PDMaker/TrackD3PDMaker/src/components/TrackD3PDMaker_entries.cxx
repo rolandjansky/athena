@@ -66,7 +66,6 @@
 
 // Rec::TrackParticle fillers
 #include "../TrackParticleParametersAtBLFillerTool.h"
-#include "../TrackParticleParametersAtCaloFillerTool.h"
 
 // Trk::Track associators
 #include "../TrkTrackFitQualityAssociationTool.h"
@@ -82,7 +81,6 @@
 
 // Trk::Track fillers
 #include "../TrkTrackParametersAtBLFillerTool.h"
-#include "../TrkTrackParametersAtCaloFillerTool.h"
 
 // Vertex associators
 #include "../VertexFitQualityAssociationTool.h"
@@ -184,7 +182,6 @@ DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleTruthAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleDetailedTruthAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleLastParametersAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleParametersAtBLFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleParametersAtCaloFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackFitQualityAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackPerigeeAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackPerigeeAtPVAssociationTool)
@@ -209,7 +206,6 @@ DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PixelClusterCollectionGetterTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, BeamSpotGetterTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackParticleDetailedTruthAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackParametersAtBLFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackParametersAtCaloFillerTool)
 
 // SCT tools
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TRTPhaseFillerTool)
@@ -297,7 +293,6 @@ DECLARE_FACTORY_ENTRIES(TrackD3PDMaker) {
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleDetailedTruthAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleLastParametersAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleParametersAtBLFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleParametersAtCaloFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackFitQualityAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackPerigeeAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackPerigeeAtPVAssociationTool)
@@ -320,7 +315,6 @@ DECLARE_FACTORY_ENTRIES(TrackD3PDMaker) {
   DECLARE_NAMESPACE_TOOL   (D3PD, BeamSpotGetterTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleDetailedTruthAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackParametersAtBLFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackParametersAtCaloFillerTool)
 
 // SCT tools
   DECLARE_NAMESPACE_TOOL   (D3PD, TRTPhaseFillerTool)

@@ -23,8 +23,7 @@
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 namespace D3PD {
@@ -91,14 +90,14 @@ StatusCode PixelClusterPixelRDOAssociationTool::reset (const  InDet::PixelCluste
   pixelClusterIdentifier.insert(pixelClusterIdentifier.end(),rdoList.begin(),rdoList.end());
 
 
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure())
     {
       REPORT_MESSAGE  (MSG::ERROR) << "Could not retrieve event info";
       return StatusCode::FAILURE;
     }
-  int eventNumber = (int)eventInfo->event_ID()->event_number();
+  int eventNumber = (int)eventInfo->eventNumber();
 
   if (m_eventNumber != eventNumber ){
     // For each event

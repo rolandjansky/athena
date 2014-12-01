@@ -15,6 +15,7 @@
 #define TRACKD3PDMAKER_TRACKPARTICLEPERIGEEATPVASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
+#include "D3PDMakerUtils/SGKeyResolver.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -78,6 +79,8 @@ public:
   /* Track to vertex extrapolator **/
   ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
 
+  /* Key resolver. */
+  SGKeyResolver m_resolver;
 };
 
 

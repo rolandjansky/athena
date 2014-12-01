@@ -31,7 +31,7 @@ StdDev        = 'StdDev'
 
 sumvars = [
     # ID hits
-    [  IDHits,                'nBLHits  = numberOfBLayerHits'],
+    [  IDHits,                'nBLHits  = numberOfInnermostPixelLayerHits'],
     [ [IDHits, HitSum],       'nPixHits = numberOfPixelHits'],
     [ [IDHits, HitSum],       'nSCTHits = numberOfSCTHits'],
     [ [IDHits, HitSum],       'nTRTHits = numberOfTRTHits'],
@@ -46,14 +46,14 @@ sumvars = [
     [  IDHoles,               'nSCTDeadSensors = numberOfSCTDeadSensors'],
 
     # ID shared & Split hits
-    [  IDSharedHits,          'nBLSharedHits = numberOfBLayerSharedHits'],
+    [  IDSharedHits,          'nBLSharedHits = numberOfInnermostPixelLayerSharedHits'],
     [  IDSharedHits,          'nPixSharedHits = numberOfPixelSharedHits'],
     [  IDSharedHits,          'nSCTSharedHits = numberOfSCTSharedHits'],
-    [  IDSharedHits,          'nBLayerSplitHits = numberOfBLayerSplitHits'],
+    [  IDSharedHits,          'nBLayerSplitHits = numberOfInnermostPixelLayerSplitHits'],
     [  IDSharedHits,          'nPixSplitHits = numberOfPixelSplitHits'],
 
     # ID outliers
-    [  IDOutliers,            'nBLayerOutliers = numberOfBLayerOutliers'],
+    [  IDOutliers,            'nBLayerOutliers = numberOfInnermostPixelLayerOutliers'],
     [  IDOutliers,            'nPixelOutliers = numberOfPixelOutliers'],
     [  IDOutliers,            'nSCTOutliers =  numberOfSCTOutliers'],
     [  IDOutliers,            'nTRTOutliers = numberOfTRTOutliers'],
@@ -78,7 +78,7 @@ sumvars = [
     [  InfoPlus,              'standardDeviationOfChi2OS =standardDeviationOfChi2OS'],
 
     # Expect BLayer hit
-    [  ExpectBLayer,          'expectBLayerHit = expectBLayerHit'],
+    [  ExpectBLayer,          'expectBLayerHit = expectInnermostPixelLayerHit'],
 
     # Muon hits
     [ [MuonHits, HitSum],     'nprecisionLayers  = numberOfPrecisionLayers'],

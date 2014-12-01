@@ -13,10 +13,13 @@
 
 #include "TrackIsolationFillerTool.h"
 #include "xAODBase/IParticle.h"
-#include "IsolationTool/ITrackIsolationTool.h"
-#include "IsolationTool/ICaloIsolationTool.h"
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
+#include "xAODPrimitives/IsolationFlavour.h"
+#include "xAODPrimitives/IsolationCorrection.h"
+#include "xAODPrimitives/IsolationHelpers.h"
 
 
 namespace D3PD {
@@ -49,13 +52,6 @@ TrackIsolationFillerTool::TrackIsolationFillerTool (const std::string& type,
                    "cone size.  Otherwise, if more than one cone size is "
                    "requested, the the cone size will be appended to the "
                    "variable name.");
-  declareProperty ("NTrackIsoVar", m_nTrackIsoVar = "nTrackIso",
-                   "Name to use for isolation track count tuple variable. "
-                   "If blank, the variable will not be filled. "
-                   "If it contains a `%%', this will be replaced by the "
-                   "cone size.  Otherwise, if more than one cone size is "
-                   "requested, the the cone size will be appended to the "
-                   "variable name.");
 
   declareProperty ("ConeSizes", m_coneSizes,
                    "List of isolation cone sizes.");
@@ -77,11 +73,6 @@ StatusCode TrackIsolationFillerTool::initialize()
 {
   if (m_coneSizes.empty())
     m_coneSizes.push_back (m_coneSize);
-
-  m_coneSizeTypes.reserve (m_coneSizes.size());
-  for (float conesz : m_coneSizes) {
-    m_coneSizeTypes.push_back ( (conesz-0.1) / 0.05 + 0.5 );
-  }
 
   CHECK( m_trackIsoTool.retrieve() );
   CHECK( m_caloIsoTool.retrieve() );
@@ -133,10 +124,6 @@ StatusCode TrackIsolationFillerTool::book()
     CHECK( bookIsoVar (m_caloIsoVar,   m_caloIso,
                        "Calorimeter isolation parameter") );
 
-  if (!m_nTrackIsoVar.empty())
-    CHECK( bookIsoVar (m_nTrackIsoVar, m_nTrackIso,
-                       "Number of tracks in isolation cone") );
-
   return StatusCode::SUCCESS;
 }
 
@@ -153,24 +140,25 @@ StatusCode TrackIsolationFillerTool::fill (const xAOD::IParticle& p)
 {
   size_t ncones = m_coneSizes.size();
   std::vector<double> energies (ncones);
-
+  xAOD::TrackCorrection corrlist; 
+  corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr)); 
+  
   xAOD::TrackIsolation trk_res;
-  if ((!m_trackIso.empty() || !m_nTrackIso.empty()) &&
-      m_trackIsoTool->trackIsolation (trk_res, p, cones(xAOD::Iso::ptcone)))
+  if (!m_trackIso.empty() &&
+      m_trackIsoTool->trackIsolation (trk_res, p, cones(xAOD::Iso::IsolationFlavour::ptcone), corrlist) ) 
   {
     assert (trk_res.ptcones.size() == ncones);
-    assert (trk_res.nucones.size() == ncones);
     for (size_t i = 0; i < ncones; i++) {
       if (!m_trackIso.empty())
         *m_trackIso[i] = trk_res.ptcones[i];
-      if (!m_nTrackIso.empty())
-      *m_nTrackIso[i] = trk_res.nucones[i];
     }
   }
 
+  xAOD::CaloCorrection calocorrlist; 
+  calocorrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::coreMuon)); 
   xAOD::CaloIsolation calo_res;
   if (!m_caloIsoVar.empty() &&
-      m_caloIsoTool->caloIsolation (calo_res, p, cones(xAOD::Iso::etcone)))
+      m_caloIsoTool->caloCellIsolation (calo_res, p, cones(xAOD::Iso::IsolationFlavour::etcone),calocorrlist))
   {
     assert (calo_res.etcones.size() == ncones);
     for (size_t i = 0; i < ncones; i++)
@@ -189,10 +177,13 @@ StatusCode TrackIsolationFillerTool::fill (const xAOD::IParticle& p)
 std::vector<xAOD::Iso::IsolationType>
 TrackIsolationFillerTool::cones (xAOD::Iso::IsolationFlavour f) const
 {
-  size_t ncones = m_coneSizeTypes.size();
+  size_t ncones = m_coneSizes.size();
   std::vector<xAOD::Iso::IsolationType> out (ncones);
-  for (size_t i = 0; i < ncones; i++)
-    out[i] = static_cast<xAOD::Iso::IsolationType> (m_coneSizeTypes[i] + f*10);
+  for (size_t i = 0; i < ncones; i++){
+    // out[i] = static_cast<xAOD::Iso::IsolationType> (m_coneSizeTypes[i] + f*10);
+    float tmp = m_coneSizes[i];
+    out[i] = xAOD::Iso::isolationType( f , xAOD::Iso::coneSize(tmp));
+  }
   return out;
 }
 

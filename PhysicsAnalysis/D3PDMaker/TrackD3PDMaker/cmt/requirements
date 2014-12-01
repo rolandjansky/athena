@@ -48,12 +48,9 @@ use TrkCompetingRIOsOnTrack    	TrkCompetingRIOsOnTrack-*       Tracking/TrkEven
 use TrkPrepRawData              TrkPrepRawData-*                Tracking/TrkEvent
 use TrkRIO_OnTrack              TrkRIO_OnTrack-*                Tracking/TrkEvent
 #use TrkVertexAnalysisUtils   	TrkVertexAnalysisUtils-*	Tracking/TrkVertexFitter
-use IsolationTool               IsolationTool-*                 Reconstruction/RecoTools
-use CaloIdentifier              CaloIdentifier-*                Calorimeter
-use CaloDetDescr		CaloDetDescr-*			Calorimeter
+use RecoToolInterfaces          RecoToolInterfaces-*            Reconstruction/RecoTools
 
 use ITrackToVertex             	ITrackToVertex-*        	Reconstruction/RecoTools
-use RecoToolInterfaces RecoToolInterfaces-*			Reconstruction/RecoTools
 use InDetTestBLayer        	InDetTestBLayer-*     		InnerDetector/InDetRecTools
 use InDetIdentifier             InDetIdentifier-*       	InnerDetector/InDetDetDescr
 use InDetReadoutGeometry        InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
@@ -79,7 +76,6 @@ use TrkVertexFitterInterfaces		TrkVertexFitterInterfaces-* 		Tracking/TrkVertexF
 
 # SCT tools
 use CommissionEvent                	CommissionEvent-*               	Commission
-use EventInfo				EventInfo-*				Event
 use SCT_ConditionsServices		SCT_ConditionsServices-*		InnerDetector/InDetConditions
 use SCT_Cabling                 	SCT_Cabling-*                   	InnerDetector/InDetDetDescr
 use InDetRawData                	InDetRawData-*               	   InnerDetector/InDetRawEvent

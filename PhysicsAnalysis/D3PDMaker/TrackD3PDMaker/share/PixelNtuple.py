@@ -252,7 +252,7 @@ if TrackD3PDPixelFlags.storeTriggerInfo:
 ###################################################################################################################
 
 if globalflags.InputFormat() == 'bytestream':
-    from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+    from AnalysisTools.AnalysisToolsConf import AANTupleStream
     AANTupleStream('D3PD').ExistDataHeader = False
 
 
