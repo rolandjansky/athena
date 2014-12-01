@@ -50,6 +50,7 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
 
 
   m_nusedhits=-1;
+  m_nUsedIBLOverflowHits=0;
   float energyPair = 3.68e-6; // Energy in MeV to create an electron-hole pair in silicon
   float sidensity = 2.329; // silicon density in g cm^-3
   float sensorthickness = .025; // 250 microns
@@ -122,6 +123,11 @@ int InDet::PixelToTPIDTool::numberOfUsedHitsdEdx()
   return m_nusedhits;
 }
 
+int InDet::PixelToTPIDTool::numberOfUsedIBLOverflowHits()
+{
+  return m_nUsedIBLOverflowHits;
+}
+
 float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 {
  
@@ -132,9 +138,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 
   unsigned int pixelhits       = 0;
   m_nusedhits=0;
-  float totcharge=0;
-  std::vector<float> charges; 
-  charges.reserve(6);
+  std::multimap<float,int> chargesMap; //second value keeps track if the cluster is in IBL and has at least an overflow hit
   //if (track.perigeeParameters()) std::cout << "pT: " << track.perigeeParameters()->pT() << std::endl;
   // Check for track states:
   const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = track.trackStateOnSurfaces();
@@ -164,6 +168,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
           double locx=pixclus->localParameters()[Trk::locX];
 	  double locy=pixclus->localParameters()[Trk::locY];
 	  int bec=m_pixelid->barrel_ec(pixclus->identify());
+	  int layer=m_pixelid->layer_disk(pixclus->identify());
 	  if ( ( bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ) ||
                ( std::abs(bec) == 2 && fabs(locy)<30. && ( ( locx > -8.15 && locx < -0.55 ) || ( locx > 0.55 && locx < 8.15 ) ) ) ) isok=true;
           
@@ -185,37 +190,51 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
           if (std::abs(cosalpha)<.16) continue;
           float charge=pixclus->prepRawData()->totalCharge()*cosalpha;
           //std::cout << "pixel charge: " << charge << std::endl;
-          charges.push_back(charge);       
-          totcharge+=charge;   
 	  // ------------------------------------------------------------------------------------
 	  // Get the necessary input for the probability calculations:
 	  // ------------------------------------------------------------------------------------
 	  pixelhits++;
-
+	  //keep track if this is an ibl cluster with overflow
+	  int iblOverflow=0;
+	  if ((bec==0) and (layer==0)) {
+	    //this is IBL layer -- @todo: check using proper service (safe against geometries)
+	    //loop over ToT and check if anyone is overflow (ToT==14)
+	    const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
+	    for (int pixToT : ToTs) {
+	      if (pixToT == 14) {
+		//overflow pixel hit -- flag cluster
+		iblOverflow = 1;
+		break; //no need to check other hits of this cluster
+	      }
+	    }
+	  } // end check for IBL cluster overflow
+	  chargesMap.insert(std::pair<float,int>(charge, iblOverflow)); //add hit, see if IBL overflow below
 	}
       }
     }
   }
 
-  // Now calculate dEdx
-  std::sort(charges.begin(),charges.end());
-  int ncharges=(int)charges.size();
-
-  float avcharge=-1;
-  if (pixelhits >= 1) {
-    m_nusedhits=pixelhits;
-    if (pixelhits==1) avcharge=totcharge;
-    else if (pixelhits<5) {
-      totcharge-=charges[ncharges-1];
-      avcharge=totcharge/(pixelhits-1);
-    } 
-    else {
-      totcharge-=charges[ncharges-1];
-      totcharge-=charges[ncharges-2];
-      avcharge=totcharge/(pixelhits-2);
-    }
-    return avcharge*m_conversionfactor; // dE/dx in MeV g^-1 cm^2  
+  //Now calculate dEdx, multimap is already sorted in ascending order
+  float averageCharge=-1;
+  m_nusedhits=0;
+  m_nUsedIBLOverflowHits=0;
+  
+  for (std::pair<float,int> itCharge : chargesMap) {
+    averageCharge += itCharge.first;
+    m_nusedhits++;
+    if (itCharge.second > 0) m_nUsedIBLOverflowHits++;
+    //break, skipping last or the two last elements depending on total measurements
+    if ((pixelhits >= 5) and (m_nusedhits >= pixelhits-2)) break;
+    if ((pixelhits > 1) and (m_nusedhits >= pixelhits-1)) break;    
   }
+  if (m_nusedhits > 0) {
+    averageCharge = averageCharge / m_nusedhits;
+    ATH_MSG_DEBUG("NEW dEdx = " << averageCharge << " -> " << averageCharge*m_conversionfactor);
+    ATH_MSG_DEBUG(" Used hits: " << m_nusedhits << ", IBL overflows: " << m_nUsedIBLOverflowHits );
+    ATH_MSG_DEBUG(" Original number of measurements = " << pixelhits << "( map size = " << chargesMap.size() << ") " );
+    return averageCharge*m_conversionfactor;
+  }
+
   return -1;
 }
 

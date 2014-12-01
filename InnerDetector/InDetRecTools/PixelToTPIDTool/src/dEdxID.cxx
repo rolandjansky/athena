@@ -101,16 +101,16 @@ double dEdxID::dEdxPdf(double dedx, double p, double mass, double *par, int offs
 
   p = fabs(p);
 
-  double x0pi  = m_mydEdx(p,.13957,par);
+  //double x0pi  = m_mydEdx(p,.13957,par);
   double x0    = m_mydEdx(p,mass,par);
-  double xx0pi;
-  double xx0;
+  //double xx0pi;
+  //double xx0;
 
   double pLG[4]={1,1,1,1};
 
   if (m_fun=="AG") {
-    xx0    = log(x0);
-    xx0pi  = log(x0pi);
+    //xx0    = log(x0);
+    //xx0pi  = log(x0pi);
     x0     = log(x0)   - 9.4;
     pLG[1] = x0;
     pLG[0] = par[offset]+par[offset+2];

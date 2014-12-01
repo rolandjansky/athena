@@ -44,6 +44,9 @@ use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
 
 # ---------------------------------------------------------------------------
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore)"
+
 public
 apply_pattern component_library
 apply_pattern declare_runtime files="*.txt"

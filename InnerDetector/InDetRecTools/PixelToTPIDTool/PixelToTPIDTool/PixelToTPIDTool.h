@@ -48,8 +48,12 @@ namespace InDet
       
       /** dE/dx to be returned */
       float dEdx(const Trk::Track& track);
-      
+
+      /** Number of hits selected for dE/dx track measurement */
       int numberOfUsedHitsdEdx();
+
+      /** Number of IBL hits with at least one hit in overflow used for Track dEdx measurement */
+      int numberOfUsedIBLOverflowHits();
 
       std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels);
       float getMass(double dedx, double p, int nGoodPixels);
@@ -61,6 +65,7 @@ namespace InDet
       Trk::ParticleMasses        m_particlemasses;      // Particle masses.
       const PixelID* m_pixelid;
       int m_nusedhits;      
+      int m_nUsedIBLOverflowHits;
       int m_slimwarn;
       double m_conversionfactor;
       bool m_readfromcool;
