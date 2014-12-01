@@ -21,40 +21,9 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "Identifier/HWIdentifier.h"
 
-/// GENERIC INCLUDES
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-
-/// PHYSICS INCLUDES
-#include "muonEvent/Muon.h"
-#include "muonEvent/MuonContainer.h"
-//#include "TrackIsolationTools/TrackIsolationTool.h"
-#include "IsolationTool/ITrackIsolationTool.h"
-
-/// TRACK INCLUDES
-#include "Particle/TrackParticleContainer.h"
-#include "Particle/TrackParticle.h"
-#include "TrkTrack/Track.h"
-#include "TrkEventPrimitives/PropDirection.h"
-#include "ITrackToVertex/ITrackToVertex.h"
-
 /// TRACK TOOL INCLUDES
-#include "ITrackTools.h"
 #include "TrackTools.h"
-#include "ITrackInCaloTools/ITrackExtrapolatorToCalo.h"
-#include "TrackToVertex/TrackToVertex.h"
 
-
-/// CALORIMETER INCLUDES
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloEvent/CaloCell.h"
-#include "TileEvent/TileCell.h"
-#include "CaloEvent/CaloCell.h"
 
 // MONTE CARLO (TRUTH) INFORMATION
 #include "GeneratorObjects/McEventCollection.h"
@@ -69,17 +38,16 @@
 // FORWARD DECLARATIONS
 class ITrackTools;
 
-namespace Rec{
-class TrackParticle;
-}
-namespace Trk{
-class Track;
-}
-//class TrackParticle;
 
-// TYPE DEFINITIONS
-typedef Rec::TrackParticleContainer TRACKCONTAINER;
-typedef Rec::TrackParticle TRACKPARTICLE;
+//xAOD tools
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+
+//Type definitions
+typedef xAOD::TrackParticle TRACK;
+typedef xAOD::TrackParticleContainer TRACKCONTAINER;
+typedef xAOD::TrackParticleAuxContainer TRACKAUXCONTAINER;
+
 
 //================================================
 class TileTrackFilterAlg : public AthAlgorithm{
@@ -94,7 +62,7 @@ class TileTrackFilterAlg : public AthAlgorithm{
         virtual StatusCode execute();                // EXECUTED FOR EACH EVENT
         virtual StatusCode finalize();               // EXECUTED AFTER EVENT LOOP
         
-        bool accept(const TRACKPARTICLE* p);         // CHECK WHETHER TRACKPARTICLE IS OK
+        bool accept(const TRACK* p);         // CHECK WHETHER TRACKPARTICLE IS OK
 
     private:
         StoreGateSvc* m_storeGate;

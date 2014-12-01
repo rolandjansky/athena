@@ -18,6 +18,14 @@ if 'monitor_performance' not in dir():
     monitor_performance = False           # WHETHER (MEMORY) MONITORING SHOULD BE ENABLED
 if "outputFile" not in dir():
     outputFile          = "output.root"   # OUTPUT FILE
+if 'track_type' not in dir():
+    track_type           = 1              # 0 combined; 1 inDetTrack; -1 
+
+
+
+CellsContainer = "AODCellContainer"
+if input_format=="ESD":
+  CellsContainer = "AllCalo"
 
 
 if "inputFiles" not in dir():             # INPUT FILES
@@ -29,12 +37,11 @@ if "inputFiles" not in dir():             # INPUT FILES
         else:
             inputFiles = [inputFile]
 
-
-CellsContainer = "AODCellContainer"
-if input_format=="ESD":
-  CellsContainer = "AllCalo"
-
 #######################################################
 # ATHENA CONFIGURATION FILE(S)
 #######################################################
-include("TileD3PDMaker/configurator_Ep.py")
+if beam_type=="collisions":
+  include("TileD3PDMaker/configurator_muons.py")
+if beam_type=="cosmics":
+  include("TileD3PDMaker/configurator_cosmics.py")
+

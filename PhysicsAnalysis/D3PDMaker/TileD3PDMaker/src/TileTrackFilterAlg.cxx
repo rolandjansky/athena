@@ -17,7 +17,8 @@ TileTrackFilterAlg::TileTrackFilterAlg( const std::string& name,ISvcLocator* pSv
     AthAlgorithm( name, pSvcLocator ),
     m_track_iso_tool("TrackIsolationTool"){
 //==============================================================================================
-
+    m_storeGate = 0;
+    m_outputCont = 0;
     declareProperty("track_iso_tool", m_track_iso_tool );
     declareProperty("InputTracksName", m_trackContainerName = "TrackParticleCandidate"); // INPUT TRACK CONTAINER
     declareProperty("OutputTracksName", m_outputTracksName = "SelectedTracks"); // OUTPUT TRACK CONTAINER
@@ -55,7 +56,7 @@ StatusCode TileTrackFilterAlg::execute(){
     //bool debug = false;
 
     // GET HANDLE ON TRACKPARTICLE CONTAINER AND RETRIEVE FROM STOREGATE
-    const TRACKCONTAINER* trackcoll;
+    const TRACKCONTAINER* trackcoll = 0;
     CHECK( m_storeGate->retrieve( trackcoll, m_trackContainerName ) );
 
     // ALLOW FOR MULTIPLE TRACKPARTICLE TYPES
@@ -70,7 +71,7 @@ StatusCode TileTrackFilterAlg::execute(){
         TRACKCONTAINER::const_iterator l_track = stop[i];
         // LOOP OVER TRACKS 
         for( ; f_track != l_track; ++f_track ){
-            const TRACKPARTICLE* trackPointer = ( *f_track);
+            const TRACK* trackPointer = ( *f_track);
             if(!trackPointer){
                 ATH_MSG_INFO("NO TRACK FOUND.");
                 continue;
@@ -78,7 +79,7 @@ StatusCode TileTrackFilterAlg::execute(){
             // CHECK WHETHER TRACK SHOULD BE ACCEPTED
             if(accept(trackPointer)){
                 if(std::find(m_outputCont->begin(),m_outputCont->end(),trackPointer) == m_outputCont->end()){
-                    m_outputCont->push_back(const_cast<TRACKPARTICLE*>(trackPointer));
+                    m_outputCont->push_back(const_cast<TRACK*>(trackPointer));
                     ++counter;
                 } // IF
             } // IF
@@ -89,11 +90,11 @@ StatusCode TileTrackFilterAlg::execute(){
 } // TileTrackFilterAlg::execute()
 
 //=====================================================
-bool TileTrackFilterAlg::accept(const TRACKPARTICLE* p){
+bool TileTrackFilterAlg::accept(const TRACK* p){
 //=====================================================
    int nucone     = 0; // FIXME: NEED TO USE xAOD tool m_track_iso_tool->trackIsolationNumberOfTrack(p, m_cutSizeOfCone);
-   //float momentum = p->p4().P(); // for xAOD::TrackParticle
-   float momentum = p->p();
+   float momentum = p->p4().P(); // for xAOD::TrackParticle
+   //float momentum = p->p();
    float eta      = p->eta();
    // cout<<"num de trazas "<<nucone<<endl;
    //  if( nucone != 1 || momentum < m_cutP || fabs(eta) > m_cutEta ){

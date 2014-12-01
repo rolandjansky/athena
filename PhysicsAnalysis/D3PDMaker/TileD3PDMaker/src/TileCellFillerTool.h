@@ -22,62 +22,19 @@
 
 /// D3PD INCLUDES
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "Identifier/HWIdentifier.h"
-#include "Identifier/Identifier.h"
-
-/// GENERIC INCLUDES
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolHandle.h"
-
-/// PHYSICS INCLUDES
-#include "muonEvent/Muon.h"
-#include "muonEvent/MuonContainer.h"
-
-/// TRACK INCLUDES
-#include "Particle/TrackParticle.h"
-#include "TrkTrack/Track.h"
-#include "TrkEventPrimitives/PropDirection.h"
 
 /// TRACK TOOL INCLUDES
-#include "Extrapolator.h"
-#include "IExtrapolator.h"
-#include "ITrackTools.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+#include "TrackTools.h"
 
-/// CALORIMETER INCLUDES
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloEvent/CaloCell.h"
-#include "CaloIdentifier/CaloID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/TileID.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileEvent/TileCell.h"
-
-/// UTILITIES INCLUDES
-#include "Scintillator.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
-/// C++ INCLUDES
-#include <vector>
-#include <algorithm>
-#include <math.h>
-#include <string>
-#include <cmath>
+//xAOD tools
+#include "xAODMuon/MuonContainer.h"
 
-class StoreGateSvc;
-class TileID;
-class TileTBID;
-class TileHWID;
-class HWIdentifier;
-class TileCablingService;
+//Type definitions
+typedef xAOD::Muon MUON;
+typedef xAOD::MuonContainer     MUONCONTAINER;
 
-using namespace TICT;
 using namespace std;
 
 // ADD TILEMUONCELLFILLERTOOL TO D3PD NAMESPACE
@@ -103,6 +60,8 @@ class TileCellFillerTool:public BlockFillerTool<CaloCell>{
         short m_LevelOfDetails;
         std::string m_standalone;
         short m_trackType;
+        std::string          m_muonContainerName;
+
 
         // DEPOSITED ENERGY
         float *m_cellEnergy;
@@ -153,13 +112,15 @@ class TileCellFillerTool:public BlockFillerTool<CaloCell>{
         float *m_celldEta;
 
         // ASSOCIATED MUON TO CELL VARIABLES
-        std::vector<float>* m_to_staco_dx;
-        std::vector<float>* m_to_staco_dy;
-        std::vector<float>* m_to_staco_dz;
-        std::vector<float>* m_to_staco_dEta;
-        std::vector<float>* m_to_staco_dPhi;
+        unsigned short *m_muN;
+        std::vector<float>* m_to_muon_dx;
+        std::vector<float>* m_to_muon_dy;
+        std::vector<float>* m_to_muon_dz;
+        std::vector<float>* m_to_muon_dEta;
+        std::vector<float>* m_to_muon_dPhi;
 
         std::vector<short>* m_mutype;
+        std::vector<short>* m_muonAuthor;
         std::vector<float>* m_muptcone40;
         std::vector<float>* m_mularcone40;
         std::vector<float>* m_mup;
@@ -172,10 +133,8 @@ class TileCellFillerTool:public BlockFillerTool<CaloCell>{
         std::vector<float>* m_muonPhi;
 
         // PATH LENGTH AND CELL RESPONSE
-        unsigned short *m_muN;
-
-        std::vector<float>* m_dx_staco;
-        std::vector<float>* m_celldEdx_staco;
+        std::vector<float>* m_dx;
+        std::vector<float>* m_dEdx;
 
         // CELL STATUS INFORMATION
         int *m_cellGain;
@@ -187,11 +146,9 @@ class TileCellFillerTool:public BlockFillerTool<CaloCell>{
         float *m_subcalo;
 
         // TOOLHANDLES
-        ToolHandle<ITrackTools> m_inCalo;
-        IExtrapolator *m_exCalo;
+        ToolHandle<ITrackTools> m_trackInCalo;
 
         StoreGateSvc* m_storeGate;
-        StoreGateSvc* m_detStore;
 
         // CELL POSITIONING
         const TileID * m_tileID;
@@ -202,9 +159,6 @@ class TileCellFillerTool:public BlockFillerTool<CaloCell>{
         short *m_tower;
         short *m_sample;
         short *m_eta_index;
-
-        // UTILITY
-        double phidiff(double phi1, double phi2);
 
 }; // TileCellFillerTool:BlockFillerTool<CaloCell>
 

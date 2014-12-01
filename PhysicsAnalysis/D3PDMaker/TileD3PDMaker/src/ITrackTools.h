@@ -4,49 +4,127 @@
 
 /* 
  * File:   ITrackTools.h
- * Author: Marco van Woerden <mvanwoer@cern.ch>
+ * Author: Marco van Woerden <mvanwoer@cern.ch>, Archil Durglishvili <archil.durglishvili@cern.ch>
  * Description: Track tools interface.
  *
- * Created in February 2013, based on TrackInCaloTools.
+ * Created in February 2013
+ * updated in November 2014
  */
 
 #ifndef ITrackTools_H
 #define ITrackTools_H
-//
-#include "GaudiKernel/AlgTool.h"
+//C++
 #include <vector>
-#include "Scintillator.h"
+#include <string>
+#include <algorithm>
+#include <math.h>
+#include <map>
 
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloEvent/CaloCell.h"
-#include "CaloIdentifier/CaloID.h"
+/// DATABASE INCLUDES
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+
+//Base algorithm
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/MsgStream.h"
 #include "AthContainers/ConstDataVector.h"
 
+/// GEOMODEL INCLUDES
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/GeoModelExperiment.h"
+
 /// CALORIMETER INCLUDES
-#include "CaloEvent/CaloClusterContainer.h"
-#include "CaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloCell.h"
+#include "TileEvent/TileCell.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "TileIdentifier/TileHWID.h"
+#include "Identifier/HWIdentifier.h"
+#include "Identifier/Identifier.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
+
+#include "TrackToVertex/TrackToVertex.h"
+
+// xAOD tracks and clusters
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
 #include "TrkParameters/TrackParameters.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 
 
-class CaloCell;
-class P4EEtaPhiM;
-class CaloCell_ID;
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+#include "RecoToolInterfaces/INeutralEFlowIsolationTool.h"
 
-namespace Trk{
-    class Track;
-} // NAMESPACE
-class INavigable4Momentum;
-namespace Rec{
-class TrackParticle;
+
+
+namespace Trk
+{
+  class IParticleCaloExtensionTool;
+  class TrackParametersIdentificationHelper;
 }
 
-static const InterfaceID IID_ITrackTools("ITrackTools", 1, 0);
+namespace Rec
+{ class IParticleCaloCellAssociationTool; }
 
-namespace TICT { enum CaloLayer {ps=0,em1=1,em2=2,em3=3,tile1=4,tile2=5,tile3=6,hec0=7,hec1=8,hec2=9,hec3=10}; }
-using namespace TICT;
+
+//Type definitions
+typedef CaloCell CELL;
+typedef CaloCellContainer CELLCONTAINER;
+typedef xAOD::TrackParticle TRACK;
+typedef xAOD::TrackParticleContainer TRACKCONTAINER;
+typedef xAOD::TrackParticleAuxContainer TRACKAUXCONTAINER;
+typedef xAOD::CaloCluster CLUSTER;
+typedef xAOD::CaloClusterContainer CLUSTERCONTAINER;
+typedef xAOD::CaloClusterAuxContainer CLUSTERAUXCONTAINER;
+
+
+#ifndef KinematicUtils
+#define KinematicUtils
+namespace KinematicUtils {
+  void EnsurePhiInMinusPiToPi(double& phi) {
+    phi = fmod(phi, (2*M_PI));
+    if (phi < -M_PI) phi += 2*M_PI;
+    if (phi > M_PI)  phi -= 2*M_PI;
+    return;
+  }
+
+  double deltaPhi(double phi1, double phi2) {
+    EnsurePhiInMinusPiToPi(phi1);
+    EnsurePhiInMinusPiToPi(phi2);
+    double dPhi=phi1-phi2;
+    if (dPhi>M_PI) dPhi=2*M_PI-dPhi;
+    else if(dPhi<-M_PI) dPhi=2*M_PI+dPhi;
+    return dPhi;
+  }
+
+  double deltaR(double eta1, double eta2, double phi1, double phi2) {
+    double dPhi=KinematicUtils::deltaPhi(phi1,phi2);
+    double dEta=std::fabs(eta1-eta2);
+    double dR=std::sqrt(std::pow(dEta,2)+std::pow(dPhi,2));
+    return dR;
+  }
+}
+#endif
 using namespace std;
+using namespace xAOD;
 
-class ConeDefinition;
+
+static const InterfaceID IID_ITrackTools("ITrackTools", 1, 0);
 
 //========================================
 class ITrackTools:virtual public IAlgTool{
@@ -56,186 +134,30 @@ class ITrackTools:virtual public IAlgTool{
         virtual ~ITrackTools(){}
         static const InterfaceID& interfaceID(){ return IID_ITrackTools; };
 
-        typedef std::vector<const CaloCell*> ListOfCells;
-
         // METHOD FOR FILTERING ALGORITHM
-        virtual void getCellsWithinConeAroundTrack(const Trk::Track* track, 
+        virtual void getCellsWithinConeAroundTrack(const xAOD::TrackParticle* track, 
                                                    const CaloCellContainer* input,
                                                    ConstDataVector<CaloCellContainer>* output, 
                                                    double cone,
                                                    bool includelar) = 0;
-        virtual void getCellsWithinConeAroundTrack(const Rec::TrackParticle* track, 
-                                                   const CaloCellContainer* input,
-                                                   ConstDataVector<CaloCellContainer>* output, 
-                                                   double cone,
-                                                   bool includelar) = 0;
-        virtual std::vector< double > getXYZEtaPhiInCellSampling(const Trk::Track* track, const CaloCell *cell) = 0;
-        virtual std::vector< double > getXYZEtaPhiInCellSampling(double exit[], const Trk::Track* track, const CaloCell *cell) = 0;
-        virtual std::vector< double > getXYZEtaPhiInCellSampling(const Trk::Track* track, int sampling) = 0;
-
-        // OTHER METHODS
-        virtual std::vector< std::pair<double, double> > getEtaPhiPerLayer(const Trk::TrackParameters* track) = 0;
-        virtual std::vector< std::pair<double, double> > getEtaPhiPerLayer(const Trk::Track* track) = 0;
-        virtual std::vector< std::pair<double, double> > getEtaPhiPerLayer(const INavigable4Momentum* track) = 0;
-
-        virtual std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const Trk::TrackParameters* track) = 0;
-        virtual std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const Trk::Track* track) = 0;
-        virtual std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const INavigable4Momentum* track) = 0;
-
-        virtual std::vector<const Trk::TrackParameters*> getExit(const Trk::TrackParameters *track) = 0;
-        virtual std::vector<const Trk::TrackParameters*> getEntrance(const Trk::TrackParameters *track) = 0;
-
-        virtual std::vector<const Trk::TrackParameters*> getExit(const Trk::Track *track) = 0;
-        virtual std::vector<const Trk::TrackParameters*> getEntrance(const Trk::Track *track) = 0;
-
-        virtual std::vector<const Trk::TrackParameters*> getExit(const INavigable4Momentum *track) = 0;
-        virtual std::vector<const Trk::TrackParameters*> getEntrance(const INavigable4Momentum *track) = 0;
-
-        virtual const Trk::TrackParameters* getExit(const Trk::TrackParameters *track, int layer) = 0;
-        virtual const Trk::TrackParameters* getEntrance(const Trk::TrackParameters *track, int layer) = 0;
-
-        virtual const Trk::TrackParameters* getExit(const Trk::Track *track, int layer) = 0;
-        virtual const Trk::TrackParameters* getEntrance(const Trk::Track *track, int layer) = 0;
-
-        virtual const Trk::TrackParameters* getExit(const INavigable4Momentum *track, int layer) = 0;
-        virtual const Trk::TrackParameters* getEntrance(const INavigable4Momentum *track, int layer) = 0;
-
-        virtual double getExit(const Trk::TrackParameters *track, int layer, int pos) = 0;
-        virtual double getEntrance(const Trk::TrackParameters *track, int layer, int pos) = 0;
-
-        virtual double getExit(const Trk::Track *track, int layer, int pos) = 0;
-        virtual double getEntrance(const Trk::Track *track, int layer, int pos) = 0;
-
-        virtual double getExit(const INavigable4Momentum *track, int layer, int pos) = 0;
-        virtual double getEntrance(const INavigable4Momentum *track, int layer, int pos) = 0;
-
-        virtual double getPathFromExtra(const CaloCell* cell, std::vector<Trk::TrackParameters*> track_extrapolations) = 0;
-        virtual double getPathFromExtra(const Trk::Track* i_trk, const CaloCell* i_cell) = 0;
-
-        //====================
-        // INavigable4Momentum
-        //====================
-        virtual double getIsolationEnergy(const INavigable4Momentum* track, const double dR,
-                                  CaloLayer first_layer, CaloLayer last_layer, bool useLooseCut) = 0;
-        virtual double getMeasuredEnergy(const INavigable4Momentum* track, const double dR,
-                                 CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                 bool useLooseCut = false, bool isEt = true) = 0;
-        virtual bool getMeasuredEnergy(const INavigable4Momentum* track, const std::vector<double>& dR, std::vector<double>& energies,
-                               CaloLayer first_layer = ps, CaloLayer last_layer = hec3, bool useLooseCut = false, bool isEt = true) = 0;
-        virtual double getEcore(const INavigable4Momentum* track, CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                        bool useLooseCut = false, bool isEt = true) = 0;
-        virtual std::vector< std::vector<const CaloCell*> > getCellsForIsolation(const INavigable4Momentum* track,const double dR, 
-                                                                         CaloLayer first_layer, CaloLayer last_layer,
-                                                                         bool useLooseCut) = 0;
-        virtual std::vector<const CaloCell*> getCellsForEcore(const INavigable4Momentum* track,
-                                                      CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                      bool useLooseCut = false) = 0;
-        virtual std::vector<std::vector<const CaloCell*> > getCellsAroundTrack(const INavigable4Momentum* track, const double dR,
-                                                                       CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                                       bool useLooseCut = false) = 0;
-        virtual std::vector<std::vector<const CaloCell*> > getCellsAroundTrack(const INavigable4Momentum* track, const double deta, const double dphi, 
-                                                                       CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                                       bool useLooseCut = false) = 0;
-
-	//virtual std::vector<const CaloCluster*> getClustersAroundTrack(double cone, const INavigable4Momentum* track);
-	virtual std::vector<const CaloCluster*> getClustersAroundTrack(double cone, const Rec::TrackParticle* track) = 0;
-	virtual bool isClusterAroundTrack(double cone, const CaloCluster* cluster, const Rec::TrackParticle* track) = 0;
-	//virtual bool isClusterAroundTrack(double cone, const CaloCluster* cluster, const INavigable4Momentum* track);
-        virtual std::vector<const CaloCell*> getCellsAroundTrackOnLayer(const INavigable4Momentum *track,
-                                                                CaloLayer layer, int neta, int nphi, int dir_eta = 0, int dir_phi = 0,
-                                                                bool useLooseCut = false) = 0;
-        virtual std::vector<const CaloCell*> getCellsOnTrack(const INavigable4Momentum* track,
-                                                     CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                     bool useLooseCut = false) = 0;
-        virtual std::vector<const CaloCell*> getCellsCrossedByTrack(const INavigable4Momentum* track,
-                                                            CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                            bool useLooseCut = false) = 0;
-        virtual std::vector<double> getWeightsForCellsCrossed(const INavigable4Momentum* track, bool useLooseCut) = 0;
-        virtual double getPathInsideCell(const INavigable4Momentum *track, const CaloCell *cell) = 0;
-
-//         virtual double getCBNTActivePathInsideCell(const INavigable4Momentum *track, const CaloCell *cell) = 0;
-        virtual double getCBNTPathInsideCell(const Trk::Track *track, const CaloCell *cell) = 0;
-//         virtual double getCBNTActivePathInsideCell(const Trk::Track *track, const CaloCell *cell) = 0;
-        virtual double getIsolationWidth(const INavigable4Momentum* track,
-                                 const double dR, const double EtExp, const double dRExp, bool negRemoval = true,
-                                 CaloLayer first_layer = ps, CaloLayer last_layer = hec3, bool useLooseCut = false) = 0;
-
-        //=======================
-        // METHODS FOR Trk::Track
-        //=======================
-        virtual std::vector<const CaloCell*> getAssociatedCells(const Trk::Track* track, CaloLayer first_layer, CaloLayer last_layer) = 0;
-        virtual double getIsolationEnergy(const Trk::Track* track, const double dR,
-                                  CaloLayer first_layer, CaloLayer last_layer,
-                                  bool useLooseCut) = 0;
-        virtual double getMeasuredEnergy(const Trk::Track* track, const double dR,
-                                 CaloLayer first_layer = ps,  CaloLayer last_layer = hec3,
-                                 bool useLooseCut = false, bool isEt = true) = 0;
-        virtual bool getMeasuredEnergy(const Trk::Track* track,const std::vector<double>& dR, std::vector<double>& energies,
-                               CaloLayer first_layer = ps,  CaloLayer last_layer = hec3,
-                               bool useLooseCut = false, bool isEt = true) = 0;
-        virtual double getEcore(const Trk::Track* track,
-                        CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                        bool useLooseCut = false, bool isEt = true) = 0;
-        virtual std::vector< std::vector<const CaloCell*> > getCellsForIsolation(const Trk::Track* track, const double dR,
-                                                                         CaloLayer first_layer, CaloLayer last_layer,
-                                                                         bool useLooseCut) = 0;
-        virtual std::vector<const CaloCell*> getCellsForEcore(const Trk::Track* track,
-                                                      CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                      bool useLooseCut = false) = 0;
-        virtual std::vector<std::vector<const CaloCell*> > getCellsAroundTrack(const Trk::Track* track, const double dR, 
-                                                                       CaloLayer first_layer = ps, CaloLayer last_layer = hec3, 
-                                                                       bool useLooseCut = false) = 0;
-        virtual std::vector<std::vector<const CaloCell*> > getCellsAroundTrack(const Trk::Track* track, const double deta,const double dphi,
-                                                                       CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                                       bool useLooseCut = false) = 0;
-        virtual std::vector<const CaloCell*> getCellsAroundTrackOnLayer(const Trk::Track *track,
-                                                                CaloLayer layer, int neta, int nphi, int dir_eta = 0, int dir_phi = 0,
-                                                                bool useLooseCut = false) = 0;
-        virtual std::vector<const CaloCell*> getCellsOnTrack(const Trk::Track* track,
-                                                     CaloLayer first_layer = ps, CaloLayer last_layer = hec3, bool useLooseCut = false) = 0;
-        virtual std::vector<const CaloCell*> getCellsCrossedByTrack(const Trk::Track* track,
-                                                             CaloLayer first_layer = ps, CaloLayer last_layer = hec3,
-                                                             bool useLooseCut = false) = 0;
-        virtual std::vector<double> getWeightsForCellsCrossed(const Trk::Track* track, bool useLooseCut) = 0;
-        virtual double getPathInsideCell(const Trk::Track *track, const CaloCell *cell) = 0;
-        virtual double getIsolationWidth(const Trk::Track* track,const double dR, const double EtExp, const double dRExp, bool negRemoval = true,
-                                 CaloLayer first_layer = ps, CaloLayer last_layer = hec3, bool useLooseCut = false) = 0;
-
-        //=====================
-        // SCINTILLATOR METHODS
-        //=====================
-//         virtual float getActivePath(const Trk::Track* i_trk, const CaloCell* i_cell) = 0;
-//         virtual float getActivePath(const Trk::Track* i_trk, const CaloCell* i_cell, 
-//                                     std::vector<const Scintillator*> scintillators, short& N_scint) = 0;
+        virtual double getPathInsideCell(const TRACK *track, const CaloCell *cell) = 0;
+        virtual double getPath(const CaloCell* cell, const Trk::TrackParameters *entrance, const Trk::TrackParameters *exit) = 0;
+	virtual std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, const CaloCell *cell) = 0;
+        virtual std::vector< double > getXYZEtaPhiInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling) = 0;
+        virtual const Trk::TrackParameters* getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling) = 0;
+        virtual std::vector< std::vector<double> > getXYZEtaPhiPerLayer(const TRACK* track) = 0;
+        virtual std::vector< std::vector<double> > getXYZEtaPhiPerSampling(const TRACK* track) = 0;
         virtual int retrieveIndex(int sampling, float eta) = 0;
-        virtual int retrieveIndex(const CaloCell* cell) = 0;
-//         virtual void getScintCoordinates(const CaloCell* cell, std::vector<const Scintillator*>& scintillators) = 0;
 
-        //==================
-        // REMAINING METHODS
-        //==================
-        // GET ISOLATION ENERGY
-        virtual std::vector<double> getIsolationEnergy(std::vector<const INavigable4Momentum *> tracks, double dR,
-                                               CaloLayer first_layer, CaloLayer last_layer, bool useLooseCut) = 0;
-
-//         // MEASURE ENERGY MEASUREMENT
-//         virtual std::pair<double,double> measurement(CaloCell_ID::CaloSample sample, const Trk::TrackParameters& parm) = 0;
-// 
-//         // COMPUTE E, ET, ASSOCIATED CELLS AND CELLS ON TRACK
-//         virtual StatusCode getEnergyAndCells(const Trk::TrackParameters* track,
-//                                      std::vector<double> conesize,
-//                                      std::vector< std::vector<double> > &etot,
-//                                      std::vector< std::vector<ListOfCells> > &usedCells, 
-//                                      bool useLooseCut = false, bool isEt = true) = 0;
-
-        // UTILITIES
-        virtual int getLayer(const CaloCell *cell) = 0;
-        virtual void setNoiseThreshold(double threshold) = 0;
-        virtual double getNoiseThreshold() = 0;
-
-
-        //Get Energy from LAr cone; Added by Archil
-        virtual double getEnergyLArCone(const Trk::Track* track, double cone)=0;
-
+        virtual bool trackIsolation( xAOD::TrackIsolation& result, const xAOD::TrackParticle &tp,
+                                     const std::vector<Iso::IsolationType>& cones ) = 0;
+/*THIS IS GOING TO BE USED
+        virtual bool caloTopoClusterIsolation( xAOD::CaloIsolation& result, const xAOD::TrackParticle& tp,
+                                               const std::vector<xAOD::Iso::IsolationType>& cones, xAOD::CaloIso::SubtractionStrategy strategy) = 0; 
+        virtual bool caloCellIsolation( xAOD::CaloIsolation& result, const xAOD::TrackParticle& tp, 
+                                               const std::vector<xAOD::Iso::IsolationType>& cones, xAOD::CaloIso::SubtractionStrategy strategy) = 0;
+        virtual bool neutralEflowIsolation( xAOD::CaloIsolation& result, const xAOD::TrackParticle& tp,
+                                               const std::vector<xAOD::Iso::IsolationType>& cones, xAOD::CaloIso::SubtractionStrategy strategy) = 0;
+*/
 };
 #endif //ITrackTools_H

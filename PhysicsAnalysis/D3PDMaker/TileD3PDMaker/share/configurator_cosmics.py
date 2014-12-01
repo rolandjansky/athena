@@ -121,6 +121,7 @@ jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
 ### PRE-DEFINED JOBOPTIONS ###
 ##############################
 include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+
 #############
 ### TOOLS ###
 #############
@@ -157,7 +158,6 @@ TrackTools.TrackIsolationTool = TrackIsoTool
 ToolSvc += TrackTools
 
 print "==============> TOOL ATTRIBUTES SET <=============="
-
 ##################
 ### D3PD Stuff ###
 ##################
@@ -173,23 +173,21 @@ import TileD3PDMaker
 
 # FILTERS #####################
 
-from TileD3PDMaker.TileD3PDMakerConf import TileEopFilterAlg
-tileEopFilter                   = TileEopFilterAlg("TileTrackFilter")
-tileEopFilter.InputTracks       = "InDetTrackParticles"
-tileEopFilter.OutputTracks      = "SelectedTracks"
-tileEopFilter.InputClusters     = "CaloCalTopoCluster"
-tileEopFilter.OutputClusters    = "SelectedClusters"
-tileEopFilter.InputCells        = CellsContainer
-tileEopFilter.OutputCells       = "SelectedCells"
-tileEopFilter.TrackMomCut       = 2000
-tileEopFilter.TrackEtaCut       = 2.
-tileEopFilter.TrackIsoCut       = 0.4
-tileEopFilter.TrackPtrelCut     = 0.15
-tileEopFilter.TrackClusterR     = 0.6
-tileEopFilter.TrackCellR        = 0.2
-tileEopFilter.TrackTools        = TrackTools
-tileEopFilter.DumpLArCells      = False
-algSequence += tileEopFilter
+from TileD3PDMaker.TileD3PDMakerConf import TileCosmicMuonFilterAlg
+tileCosmicMuonFilter                   = TileCosmicMuonFilterAlg("TileCosmicMuonFilter")
+tileCosmicMuonFilter.InputMuons        = "Muons"
+tileCosmicMuonFilter.OutputMuons       = "SelectedMuons"
+tileCosmicMuonFilter.OutputTracks      = "SelectedTracks"
+tileCosmicMuonFilter.InputCells        = CellsContainer
+tileCosmicMuonFilter.OutputCells       = "SelectedCells"
+tileCosmicMuonFilter.TrackType         = track_type    	    # 0 combinedTrack; 1 inDetTrack; -1 default (); IT SHOULD BE 1 !!!
+tileCosmicMuonFilter.UseCuts           = False
+tileCosmicMuonFilter.MuonPtCut         = 10000.  #10 GeV
+tileCosmicMuonFilter.MuonEtaCut        = 1.7
+tileCosmicMuonFilter.MuonCellR         = 0.4
+tileCosmicMuonFilter.TrackTools        = TrackTools
+tileCosmicMuonFilter.DumpLArCells      = False
+algSequence += tileCosmicMuonFilter
 
 # FILLERS #####################
 
@@ -201,13 +199,13 @@ from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 TileEventD3PDObject = make_SG_D3PDObject( "xAOD::EventInfo_v1", D3PDMakerFlags.EventInfoSGKey(), 'evt_', "TileEventD3PDObject" )
 TileEventD3PDObject.defineBlock(0, 'EventDump', TileD3PDMaker.TileEventFillerTool)
 
+
 # Track Filler
 from TileD3PDMaker import TileTrackFillerTool
 TileTrackFillerTool.LevelOfDetails        = 1
 TileTrackFillerTool.TrackTools            = TrackTools
-TileTrackFillerTool.TrackParType          = 1 ;	 #track parameters per 0: sampling 1: layer
+TileTrackFillerTool.TrackParType          = 0 ;  #track parameters per 0: sampling 1: layer
 TileTrackFillerTool.TrackToVertexTool     = TrackToVertexTool
-
 def tileTrackFiller(name, prefix, object_name):
     tileTrackGetter = SGDataVectorGetterTool('track_getter',
                                              TypeName = 'xAOD::TrackParticleContainer_v1',
@@ -220,24 +218,12 @@ def tileTrackFiller(name, prefix, object_name):
 TileTrackD3PDObject = D3PDObject(tileTrackFiller, 'tracks_' , 'TracksD3PDObject')
 TileTrackD3PDObject.defineBlock(0, 'TrackParticleDump', TileTrackFillerTool)
 
-# Cluster Filler
-from TileD3PDMaker import TileClusterFillerTool
-def caloClusterFiller(name, prefix, object_name):
-    caloClusterGetter = SGDataVectorGetterTool('cluster_getter',
-                                               TypeName = 'xAOD::CaloClusterContainer_v1',
-                                               SGKey = 'SelectedClusters')
-    return VectorFillerTool(name,
-                            Prefix = prefix,
-                            Getter = caloClusterGetter,
-                            ObjectName = 'caloclusters',
-                            SaveMetadata = D3PDMakerFlags.SaveObjectMetadata())
-TileClusterD3PDObject = D3PDObject(caloClusterFiller, 'clusters_' , 'ClustersD3PDObject')
-TileClusterD3PDObject.defineBlock(0, 'CaloClusterDump', TileClusterFillerTool)
-
 #Define cell filler
 from TileD3PDMaker import TileCellFillerTool
-TileCellFillerTool.TrackTools             = TrackTools
-TileCellFillerTool.LevelOfDetails         = 2
+TileCellFillerTool.TrackTools            = TrackTools
+TileCellFillerTool.LevelOfDetails         = 5
+TileCellFillerTool.MuonContainerName      = "SelectedMuons"  
+TileCellFillerTool.TrackType              = track_type
 def tileCellFiller(name, prefix, object_name):
     tilecell_getter = SGDataVectorGetterTool('cell_getter',
                                              TypeName = 'CaloCellContainer',
@@ -250,31 +236,37 @@ def tileCellFiller(name, prefix, object_name):
 TileCellD3PDObject = D3PDObject(tileCellFiller, 'cells_' , 'CellsD3PDObject')
 TileCellD3PDObject.defineBlock(0, 'CaloCellDump', TileCellFillerTool)
 
+# Muon Filler
+from TileD3PDMaker import TileMuonFillerTool
+TileMuonFillerTool.TrackTools            = TrackTools
+TileMuonFillerTool.TrackToVertexTool     = TrackToVertexTool
+TileMuonFillerTool.LevelOfDetails        = 3
+TileMuonFillerTool.TrackType             = track_type
+def tileMuonFiller(name, prefix, object_name):
+    tileMuonGetter = SGDataVectorGetterTool('Muon_getter',
+                                             TypeName = 'xAOD::MuonContainer_v1',
+                                             SGKey = 'SelectedMuons')
+    return VectorFillerTool(name,
+                            Prefix = prefix,
+                            Getter = tileMuonGetter,
+                            ObjectName = 'muons',
+                            SaveMetadata = D3PDMakerFlags.SaveObjectMetadata())
+TileMuonD3PDObject = D3PDObject(tileMuonFiller, 'muons_' , 'MuonsD3PDObject')
+TileMuonD3PDObject.defineBlock(0, 'MuonsDump', TileMuonFillerTool)
+
+
 # Index associations ###################################
 
 from D3PDMakerCoreComps.D3PDObject import make_Void_D3PDObject
 from TileD3PDMaker import TileAssocFillerTool
 
-def trackClusterFiller(name):
+def MuonCellFiller(name):
     return TileAssocFillerTool(name,
-                                  ContainerName = 'TrackClusters',
+                                  ContainerName = 'muonCells',
                                   BranchName = '_index')
-trackClusterD3PDObject = make_Void_D3PDObject( 'tracks_trackclusters', 'TrackClusterD3PDObject' )
-trackClusterD3PDObject.defineBlock(0, 'TrackClusterDump', trackClusterFiller)
+MuonCellD3PDObject = make_Void_D3PDObject( 'muons_muonCells', 'MuonCellD3PDObject' )
+MuonCellD3PDObject.defineBlock(0, 'MuonCellDump', MuonCellFiller)
 
-def trackCellFiller(name):
-    return TileAssocFillerTool(name,
-                                  ContainerName = 'TrackCells',
-                                  BranchName = '_index')
-trackCellD3PDObject = make_Void_D3PDObject( 'tracks_trackcells', 'TrackCellD3PDObject' )
-trackCellD3PDObject.defineBlock(0, 'TrackCellDump', trackCellFiller)
-
-def clusterCellFiller(name):
-    return TileAssocFillerTool(name,
-                                  ContainerName = "ClusterCells",
-                                  BranchName = "_index")
-clusterCellD3PDObject = make_Void_D3PDObject( 'clusters_clustercells', 'ClusterCellD3PDObject' )
-clusterCellD3PDObject.defineBlock(0, 'ClusterCellDump', clusterCellFiller)
 
 # Finally create an output stream and specify what is dumped
 
@@ -283,16 +275,14 @@ alg = MSMgr.NewRootStream( 'tileD3PD', outputFile )
 alg += TileEventD3PDObject(10)
 alg += TileTrackD3PDObject(10)
 alg += TileCellD3PDObject(10)
-alg += TileClusterD3PDObject(10)
-alg += trackClusterD3PDObject(10)
-alg += trackCellD3PDObject(10)
-alg += clusterCellD3PDObject(10)
+alg += MuonCellD3PDObject(10)
+alg += TileMuonD3PDObject(10)
 
 
 print "==============> D3PD ATTRIBUTES SET <=============="
 
 ###################
-### OTHER STUFF ###
+###OTHER STUFF ###
 ###################
 
 ## TRIGGER
