@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.h 621909 2014-10-15 13:48:56Z jwalder $
+// $Id: TrigBphys_v1.h 630850 2014-11-25 11:11:05Z jwalder $
 #ifndef XAODTRIGBPHYS_VERSIONS_TRIGBPHYS_V1_H
 #define XAODTRIGBPHYS_VERSIONS_TRIGBPHYS_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
     /// @author James Walder <jwalder@cern.ch>
     /// Based on the previous TrigL2Bphys and TrigEFBphys classes
     ///
-    /// $Revision: 621909 $
-    /// $Date: 2014-10-15 15:48:56 +0200 (Wed, 15 Oct 2014) $
+    /// $Revision: 630850 $
+    /// $Date: 2014-11-25 12:11:05 +0100 (Tue, 25 Nov 2014) $
     ///
     class TrigBphys_v1 : public SG::AuxElement {
 
@@ -162,6 +162,36 @@ namespace xAOD {
         /** set method: link to secondary decay particle  **/
         void setSecondaryDecayLink(const ElementLink<xAOD::TrigBphysContainer_v1> & link);
 
+        
+        /** accessor method:vector of tracks used to make particle */
+        const std::vector< uint32_t > & vecRoiIds() const;
+        /** Set the track particle links on the object */
+        void setVecRoiIds(const std::vector< uint32_t >& roiIds );
+        /** Number of tracks used to make particle */
+        size_t nVecRoiIds() const;
+        /** Get the Nth roiId */
+        uint32_t vecRoiId( size_t i ) const;
+        void addVecRoiId(uint32_t roiId);
+
+        
+        
+        /** accessor method: lowerChain decay particle */
+        const TrigBphys_v1* lowerChain() const;
+        /** accessor method: lowerChain decay particle */
+        const ElementLink< TrigBphysContainer_v1 >& lowerChainLink() const;
+        /** set method: link to lowerChain decay particle  **/
+        void setLowerChainLink(const ElementLink<xAOD::TrigBphysContainer_v1> & link);
+        
+        /** accessor method:vector of tracks used to make particle */
+        const std::vector< ElementLink< xAOD::IParticleContainer > >&
+        particleLinks() const;
+        /** Set the track particle links on the object */
+        void setParticleLinks(const std::vector< ElementLink< IParticleContainer > >& links );
+        /** Number of tracks used to make particle */
+        size_t nParticles() const;
+        /** Get the Nth track's pointer */
+        const xAOD::IParticle* particle( size_t i ) const;
+        void addParticleLink(const ElementLink<xAOD::IParticleContainer>& particle);
         
     private:
         //** Copy constructor */

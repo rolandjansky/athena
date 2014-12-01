@@ -17,4 +17,8 @@
 namespace xAOD{
     typedef TrigBphys_v1 TrigBphys ;
 }
+
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigBphys, 52725123, 1 )
+
 #endif

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphysAuxContainer_v1.h 600800 2014-06-08 12:57:36Z jwalder $
+// $Id: TrigBphysAuxContainer_v1.h 631623 2014-11-27 17:13:40Z gwatts $
 #ifndef XAODTRIGBPHYS_VERSIONS_TRIGBPHYSAUXCONTAINER_V1_H
 #define XAODTRIGBPHYS_VERSIONS_TRIGBPHYSAUXCONTAINER_V1_H
 
@@ -30,8 +30,8 @@ namespace xAOD {
     ///
     /// @author James Walder <jwalder@cern.ch>
     ///
-    /// $Revision: 600800 $
-    /// $Date: 2014-06-08 14:57:36 +0200 (Sun, 08 Jun 2014) $
+    /// $Revision: 631623 $
+    /// $Date: 2014-11-27 18:13:40 +0100 (Thu, 27 Nov 2014) $
 
     class TrigBphysAuxContainer_v1 : public AuxContainerBase {
         
@@ -55,21 +55,18 @@ namespace xAOD {
         std::vector<float> fitz;
 
         std::vector<ElementLink< xAOD::TrigBphysContainer_v1 > > secondaryDecayLink;
-        // @todo update to IParticles
         std::vector<std::vector<ElementLink<xAOD::TrackParticleContainer> > > trackParticleLinks;
+
+        std::vector<std::vector<uint32_t> >   vecRoiIds;
+        std::vector<ElementLink< xAOD::TrigBphysContainer_v1 > > lowerChainLink;
+        std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > > particleLinks;
+                
 
     }; // TrigBphysAuxContainer_v1
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigBphysAuxContainer_v1, 1093324651, 1 ) // FIXME - JW what clid to use?
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TrigBphysAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
-
-
 
 #endif // XAODTRIGBPHYS_VERSIONS_TRIGBPHYSAUXCONTAINER_V1_H

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigBphysDict.h 604721 2014-07-03 09:55:39Z jwalder $
+// $Id: xAODTrigBphysDict.h 632753 2014-12-01 17:04:27Z jwalder $
 #ifndef XAODTRIGBPHYS_AODTRIGBPHYSDICT_H
 #define XAODTRIGBPHYS_AODTRIGBPHYSDICT_H
 
@@ -21,6 +21,7 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
+#include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/versions/TrigBphys_v1.h"
 #include "xAODTrigBphys/versions/TrigBphysContainer_v1.h"
 #include "xAODTrigBphys/versions/TrigBphysAuxContainer_v1.h"
@@ -44,6 +45,9 @@ namespace{
      std::vector< ElementLink< xAOD::TrackParticleContainer > > auxlink2;
      std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > auxlink3;
 
+     ElementLink< xAOD::IParticleContainer > auxlink4;
+     std::vector< ElementLink< xAOD::IParticleContainer > > auxlink5;
+     std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > auxlink6;
   };
 }
 

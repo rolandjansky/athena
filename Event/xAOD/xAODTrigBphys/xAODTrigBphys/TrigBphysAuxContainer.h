@@ -11,4 +11,8 @@
 namespace xAOD{
     typedef TrigBphysAuxContainer_v1 TrigBphysAuxContainer ;
 }
+
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrigBphysAuxContainer, 1093324651, 1 ) 
+
 #endif

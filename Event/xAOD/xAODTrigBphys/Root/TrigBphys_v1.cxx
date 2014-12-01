@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.cxx 621909 2014-10-15 13:48:56Z jwalder $
+// $Id: TrigBphys_v1.cxx 631136 2014-11-26 11:22:46Z gwatts $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
 #include "xAODTrigBphys/versions/TrigBphys_v1.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/versions/TrigBphysContainer_v1.h"
 
 namespace xAOD {
@@ -59,6 +60,9 @@ namespace xAOD {
         setSecondaryDecayLink(rhs.secondaryDecayLink());
         setTrackParticleLinks(rhs.trackParticleLinks());
         
+        setVecRoiIds(rhs.vecRoiIds());
+        setLowerChainLink(rhs.lowerChainLink());
+        setParticleLinks(rhs.particleLinks());
     }
 
 
@@ -201,4 +205,94 @@ namespace xAOD {
         return true;
     }
 
+
+    
+    AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigBphys_v1, ElementLink< TrigBphysContainer_v1 >,
+                                       lowerChainLink, setLowerChainLink )
+
+    /** accessor method: lower chain particle */
+    const TrigBphys_v1* TrigBphys_v1::lowerChain() const {
+        static Accessor< ElementLink< TrigBphysContainer_v1 > > acc( "lowerChainLink" );
+        if( ! acc.isAvailable( *this ) ) {
+           return nullptr;
+        }
+        const ElementLink< TrigBphysContainer_v1 > & sd = acc( *this );
+        if (sd.isValid()) {
+            return *sd;
+        } else {
+            return nullptr;
+        }
+    } //pLowerChain
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigBphys_v1,
+                                      std::vector< ElementLink< IParticleContainer > >,
+                                      particleLinks, setParticleLinks )
+    
+    /// Accessor for the track particle links variable
+    static SG::AuxElement::Accessor< std::vector< ElementLink< IParticleContainer > > >
+    particleAcc( "particleLinks" );
+    
+    size_t TrigBphys_v1::nParticles() const {
+        
+        if( ! particleAcc.isAvailable( *this ) ) {
+            return 0;
+        }
+        return particleAcc( *this ).size();
+    }
+
+    const IParticle * TrigBphys_v1::particle( size_t i ) const {
+        
+        if( ! particleAcc.isAvailable( *this ) ) {
+            return 0;
+        }
+        if( i >= nParticles() ) {
+            return 0;
+        }
+        if( ! particleAcc( *this )[ i ].isValid() ) {
+            return 0;
+        }
+        return *( particleAcc( *this )[ i ] );
+    }
+    
+    /** add a track to the vector of particles */
+    void TrigBphys_v1::addParticleLink(const ElementLink<xAOD::IParticleContainer>& particle) {
+        particleAcc( *this ).push_back( particle );
+        return;
+    } //addTrack
+
+
+    AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigBphys_v1,
+                                      std::vector< uint32_t >,
+                                      vecRoiIds, setVecRoiIds )
+
+    /// Accessor for the vecRoiId variable
+    static SG::AuxElement::Accessor< std::vector< uint32_t > >
+    vRoiAcc( "vecRoiIds" );
+    
+    size_t TrigBphys_v1::nVecRoiIds() const {
+        
+        if( ! vRoiAcc.isAvailable( *this ) ) {
+            return 0;
+        }
+        return vRoiAcc( *this ).size();
+    }
+    
+    uint32_t TrigBphys_v1::vecRoiId( size_t i ) const {
+        
+        if( ! vRoiAcc.isAvailable( *this ) ) {
+            return ~0;
+        }
+        if( i >= nVecRoiIds() ) {
+            return ~0;
+        }
+        return vRoiAcc( *this )[ i ];
+    }
+    
+    /** add a roiId to the vector */
+    void TrigBphys_v1::addVecRoiId(uint32_t roiId) {
+        vRoiAcc( *this ).push_back( roiId );
+        return;
+    } //addTrack
+
+    
 } // namespace xAOD
