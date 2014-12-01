@@ -22,15 +22,15 @@ namespace Tau{
       +++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
-	m_eflowRec_charPFO_Pt      = Book1D("eflowRec_PFO_c_Pt",m_sTauJetContainerName + " Charged PFO pt; pt; # PFO",200,0.,200000.);
-	m_eflowRec_charPFO_Eta      = Book1D("eflowRec_PFO_c_Eta",m_sTauJetContainerName + " Charged PFO eta; eta; # PFO",128,-3.2,3.2);
-	m_eflowRec_charPFO_Phi      = Book1D("eflowRec_PFO_c_Phi",m_sTauJetContainerName + " Charged PFO phi; phi; # PFO",128,-3.2,3.2);
-	m_eflowRec_charPFO_E      = Book1D("eflowRec_PFO_c_E",m_sTauJetContainerName + " Charged PFO E; E; # PFO",200,0.,200000.);
-	m_eflowRec_neuPFO_Pt      = Book1D("eflowRec_PFO_n_Pt",m_sTauJetContainerName + " Neutral PFO pt; pt; # PFO",200,0.,200000.);
-	m_eflowRec_neuPFO_Eta      = Book1D("eflowRec_PFO_n_Eta",m_sTauJetContainerName + " Neutral PFO eta; eta; # PFO",128,-3.2,3.2);
-	m_eflowRec_neuPFO_Phi      = Book1D("eflowRec_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",128,-3.2,3.2);
-	m_eflowRec_neuPFO_E      = Book1D("eflowRec_PFO_n_E",m_sTauJetContainerName + " Neutral PFO E; E; # PFO",200,0.,200000.);
-	m_eflowRec_neuPFO_bdtPi0Score = Book1D("eflowRec_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-.6,.6);
+	// m_eflowRec_charPFO_Pt      = Book1D("eflowRec_PFO_c_Pt",m_sTauJetContainerName + " Charged PFO pt; pt; # PFO",200,0.,200000.);
+	// m_eflowRec_charPFO_Eta      = Book1D("eflowRec_PFO_c_Eta",m_sTauJetContainerName + " Charged PFO eta; eta; # PFO",128,-3.2,3.2);
+	// m_eflowRec_charPFO_Phi      = Book1D("eflowRec_PFO_c_Phi",m_sTauJetContainerName + " Charged PFO phi; phi; # PFO",128,-3.2,3.2);
+	// m_eflowRec_charPFO_E      = Book1D("eflowRec_PFO_c_E",m_sTauJetContainerName + " Charged PFO E; E; # PFO",200,0.,200000.);
+	// m_eflowRec_neuPFO_Pt      = Book1D("eflowRec_PFO_n_Pt",m_sTauJetContainerName + " Neutral PFO pt; pt; # PFO",200,0.,200000.);
+	// m_eflowRec_neuPFO_Eta      = Book1D("eflowRec_PFO_n_Eta",m_sTauJetContainerName + " Neutral PFO eta; eta; # PFO",128,-3.2,3.2);
+	// m_eflowRec_neuPFO_Phi      = Book1D("eflowRec_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",128,-3.2,3.2);
+	// m_eflowRec_neuPFO_E      = Book1D("eflowRec_PFO_n_E",m_sTauJetContainerName + " Neutral PFO E; E; # PFO",200,0.,200000.);
+	// m_eflowRec_neuPFO_bdtPi0Score = Book1D("eflowRec_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-.6,.6);
 
 
     /*+++++++++++++++++++++++++++++++++++++++++++++++++
@@ -92,39 +92,39 @@ namespace Tau{
       +++++++++++++++++++++++++++++++++++++++++++++++++*/
 
     //Charged Pions
-    std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_chargedPFO = thisTau.eflowRec_Charged_PFOLinks();
-    std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_eflowRec_chargedPFO = eflowRec_chargedPFO.begin();
-    std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_eflowRec_chargedPFO = eflowRec_chargedPFO.end();
+    // std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_chargedPFO = thisTau.eflowRec_Charged_PFOLinks();
+    // std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_eflowRec_chargedPFO = eflowRec_chargedPFO.begin();
+    // std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_eflowRec_chargedPFO = eflowRec_chargedPFO.end();
 
-    for (; first_eflowRec_chargedPFO != last_eflowRec_chargedPFO; ++first_eflowRec_chargedPFO){
-      ElementLink<xAOD::PFOContainer> thisLink = *first_eflowRec_chargedPFO;
-      const xAOD::PFO* thisPFO = *thisLink;
-      m_eflowRec_charPFO_Pt->Fill( thisPFO->pt()); 
-      m_eflowRec_charPFO_Eta->Fill( thisPFO->eta()); 
-      m_eflowRec_charPFO_Phi->Fill( thisPFO->phi()); 
-      m_eflowRec_charPFO_E->Fill( thisPFO->e());  
-    } 
+    // for (; first_eflowRec_chargedPFO != last_eflowRec_chargedPFO; ++first_eflowRec_chargedPFO){
+    //   ElementLink<xAOD::PFOContainer> thisLink = *first_eflowRec_chargedPFO;
+    //   const xAOD::PFO* thisPFO = *thisLink;
+    //   m_eflowRec_charPFO_Pt->Fill( thisPFO->pt()); 
+    //   m_eflowRec_charPFO_Eta->Fill( thisPFO->eta()); 
+    //   m_eflowRec_charPFO_Phi->Fill( thisPFO->phi()); 
+    //   m_eflowRec_charPFO_E->Fill( thisPFO->e());  
+    // } 
     
-    //Neutral Pions
-    std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_neutralPFO = thisTau.eflowRec_Neutral_PFOLinks();
-    std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_eflowRec_neutralPFO = eflowRec_neutralPFO.begin();
-    std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_eflowRec_neutralPFO = eflowRec_neutralPFO.end();
-    for (; first_eflowRec_neutralPFO != last_eflowRec_neutralPFO; ++first_eflowRec_neutralPFO){
-      ElementLink<xAOD::PFOContainer> thisLink = *first_eflowRec_neutralPFO;
-      const xAOD::PFO* thisPFO = *thisLink;
-      m_eflowRec_neuPFO_Pt->Fill( thisPFO->pt()); 
-      m_eflowRec_neuPFO_Eta->Fill( thisPFO->eta()); 
-      m_eflowRec_neuPFO_Phi->Fill( thisPFO->phi()); 
-      m_eflowRec_neuPFO_E->Fill( thisPFO->e());  
-      m_eflowRec_neuPFO_bdtPi0Score->Fill(thisPFO->bdtPi0Score());
-    } 
+    // //Neutral Pions
+    // std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_neutralPFO = thisTau.eflowRec_Neutral_PFOLinks();
+    // std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_eflowRec_neutralPFO = eflowRec_neutralPFO.begin();
+    // std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_eflowRec_neutralPFO = eflowRec_neutralPFO.end();
+    // for (; first_eflowRec_neutralPFO != last_eflowRec_neutralPFO; ++first_eflowRec_neutralPFO){
+    //   ElementLink<xAOD::PFOContainer> thisLink = *first_eflowRec_neutralPFO;
+    //   const xAOD::PFO* thisPFO = *thisLink;
+    //   m_eflowRec_neuPFO_Pt->Fill( thisPFO->pt()); 
+    //   m_eflowRec_neuPFO_Eta->Fill( thisPFO->eta()); 
+    //   m_eflowRec_neuPFO_Phi->Fill( thisPFO->phi()); 
+    //   m_eflowRec_neuPFO_E->Fill( thisPFO->e());  
+    //   m_eflowRec_neuPFO_bdtPi0Score->Fill(thisPFO->bdtPi0Score());
+    // } 
 
     /*+++++++++++++++++++++++++++++++++++++++++++++++++
       +++++++++++++++++++CellBased+++++++++++++++++++++
       +++++++++++++++++++++++++++++++++++++++++++++++++*/
 
     //Charged Pions
-    std::vector< ElementLink< xAOD::PFOContainer > > cellBased_chargedPFO = thisTau.cellBased_Charged_PFOLinks();
+    std::vector< ElementLink< xAOD::PFOContainer > > cellBased_chargedPFO = thisTau.protoChargedPFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_cellBased_chargedPFO = cellBased_chargedPFO.begin();
     std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_cellBased_chargedPFO = cellBased_chargedPFO.end();
 
@@ -138,7 +138,7 @@ namespace Tau{
     } 
     
     //Neutral Pions
-    std::vector< ElementLink< xAOD::PFOContainer > > cellBased_neutralPFO = thisTau.cellBased_Neutral_PFOLinks();
+    std::vector< ElementLink< xAOD::PFOContainer > > cellBased_neutralPFO = thisTau.protoNeutralPFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_cellBased_neutralPFO = cellBased_neutralPFO.begin();
     std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_cellBased_neutralPFO = cellBased_neutralPFO.end();
     for (; first_cellBased_neutralPFO != last_cellBased_neutralPFO; ++first_cellBased_neutralPFO){

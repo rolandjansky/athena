@@ -39,7 +39,7 @@ namespace Tau{
 	
 	//	Trk::ParamPlots m_oParamPlots;
 	
-	char *m_lable[DECAYSIZE] = {
+	const char *m_lable[DECAYSIZE] = {
 	    "t10r10",
 	    "t11r11",
 	    "t1xr1x",

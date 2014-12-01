@@ -33,24 +33,25 @@ namespace Tau{
 	  +++++++++++++++++++++++++++++++++++++++++++++++++*/
 	
 	//Charged Pions
-	std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_chargedPFO = thisTau.eflowRec_Charged_PFOLinks();
-	int efP = eflowRec_chargedPFO.size();
-	//Neutral Pions
-	std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_neutralPFO = thisTau.eflowRec_Pi0_PFOLinks();
-	int efN = eflowRec_neutralPFO.size();
-	decayModeFill(nProng,nNeu,efP,efN,m_migration_eflow);
+      // FIXME!!! taujet v2 does no longer have eflowrec pfos
+	// std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_chargedPFO = thisTau.eflowRec_Charged_PFOLinks();
+	// int efP = eflowRec_chargedPFO.size();
+	// //Neutral Pions
+	// std::vector< ElementLink< xAOD::PFOContainer > > eflowRec_neutralPFO = thisTau.eflowRec_Pi0_PFOLinks();
+	// int efN = eflowRec_neutralPFO.size();
+	// decayModeFill(nProng,nNeu,efP,efN,m_migration_eflow);
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++
 	  +++++++++++++++++++CellBased+++++++++++++++++++++
 	  +++++++++++++++++++++++++++++++++++++++++++++++++*/
 	
 	//Charged Pions
-	std::vector< ElementLink< xAOD::PFOContainer > > cellBased_chargedPFO = thisTau.cellBased_Charged_PFOLinks();
+	std::vector< ElementLink< xAOD::PFOContainer > > cellBased_chargedPFO = thisTau.protoChargedPFOLinks();
 	int cellP = cellBased_chargedPFO.size();
 
 	
 	//Neutral Pions
 	int nPi0_tau = 0;
-	std::vector< ElementLink< xAOD::PFOContainer > > cellBased_neutralPFO = thisTau.cellBased_Neutral_PFOLinks();
+	std::vector< ElementLink< xAOD::PFOContainer > > cellBased_neutralPFO = thisTau.protoNeutralPFOLinks();
 	std::vector< ElementLink< xAOD::PFOContainer > >::iterator first_cellBased_neutralPFO = cellBased_neutralPFO.begin();
 	std::vector< ElementLink< xAOD::PFOContainer > >::iterator last_cellBased_neutralPFO = cellBased_neutralPFO.end();
 	for (; first_cellBased_neutralPFO != last_cellBased_neutralPFO; ++first_cellBased_neutralPFO){

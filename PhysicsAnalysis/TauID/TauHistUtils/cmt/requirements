@@ -15,7 +15,7 @@ use xAODPFlow             xAODPFlow-*              Event/xAOD
 use TrkValHistUtils     TrkValHistUtils-*      Tracking/TrkValidation
 
 private
-use xAODTracking        xAODTracking-*         Event/xAOD
+#use xAODTracking        xAODTracking-*         Event/xAOD
 
 
 ##
