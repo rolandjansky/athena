@@ -4,9 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Hide this #include from checkreq so that it doesn't keep giving us warnings.
-#define PYTHON_INC "Python.h"
-#include PYTHON_INC
+#include "Python.h"
 
 #include "StoreGateBindingsDict.h"
 

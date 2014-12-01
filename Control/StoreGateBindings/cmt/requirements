@@ -8,13 +8,13 @@ author Sebastien Binet <binet@cern.ch>
 use AtlasPolicy 	AtlasPolicy-*
 
 ## Put here your package dependencies...
-use AtlasPython		AtlasPython-*		External 
 use AtlasPyROOT		AtlasPyROOT-*		External -no_auto_imports
 
 ##
 
 private
 use GaudiInterface 	GaudiInterface-* 	External
+use AtlasPython		AtlasPython-*		External 
 use AtlasROOT	 	AtlasROOT-*		External
 use AtlasReflex  	AtlasReflex-*  		External
 use CxxUtils            CxxUtils-*              Control

@@ -16,6 +16,8 @@ typedef _object PyObject;
 
 namespace AthenaInternal {
 
+  class ROOT6_StoreGateBindings_WorkAround_Dummy {};
+
   PyObject*
   retrieveObjectFromStore( PyObject* storeGateSvc, 
                            PyObject* tp, PyObject* key );

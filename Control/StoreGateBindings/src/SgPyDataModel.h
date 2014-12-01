@@ -7,9 +7,7 @@
 #ifndef STOREGATEBINDINGS_SGPYDATAMODEL_H
 #define STOREGATEBINDINGS_SGPYDATAMODEL_H 1
 
-// Hide this #include from checkreq so that it doesn't keep giving us warnings.
-#define PYTHON_INC "Python.h"
-#include PYTHON_INC
+#include "Python.h"
 
 #include "StoreGateBindingsDict.h"
 #include "SgPyMsg.h"

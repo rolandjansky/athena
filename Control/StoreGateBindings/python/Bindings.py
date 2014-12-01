@@ -15,31 +15,37 @@ from PyUtils.Decorators import memoize
 
 ### pythonizations for StoreGateSvc
 def _setup():
-    import PyCintex
+    import cppyy
     # StoreGate bindings from dictionary
-    PyCintex.loadDictionary( "libAthenaPythonDict" )      # for clidsvc
-    PyCintex.loadDictionary( "libStoreGateBindingsDict" ) # for storegatesvc
+    cppyy.loadDictionary( "libAthenaPythonDict" )      # for clidsvc
+    cppyy.loadDictionary( "libStoreGateBindingsDict" ) # for storegatesvc
+    cppyy.loadDictionary( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
     # make sure the global C++ namespace has been created
-    gbl = PyCintex.makeNamespace('')
-    _ath= PyCintex.makeNamespace('AthenaInternal')
+    gbl = cppyy.makeNamespace('')
+    _ath= cppyy.makeNamespace('AthenaInternal')
+
+    # ROOT6 workaround, kick the loading of headers
+    _ath.ROOT6_AthenaPython_WorkAround_Dummy
+    _ath.ROOT6_StoreGateBindings_WorkAround_Dummy
+    # end workaround
     
     global py_retrieve
-    py_retrieve = PyCintex.gbl.AthenaInternal.retrieveObjectFromStore
+    py_retrieve = cppyy.gbl.AthenaInternal.retrieveObjectFromStore
 
     global py_record
-    py_record   = PyCintex.gbl.AthenaInternal.recordObjectToStore
+    py_record   = cppyy.gbl.AthenaInternal.recordObjectToStore
 
     global py_sg_contains
-    py_sg_contains = PyCintex.gbl.AthenaInternal.py_sg_contains
+    py_sg_contains = cppyy.gbl.AthenaInternal.py_sg_contains
 
     global py_sg_getitem
-    py_sg_getitem = PyCintex.gbl.AthenaInternal.py_sg_getitem
+    py_sg_getitem = cppyy.gbl.AthenaInternal.py_sg_getitem
 
     # retrieve the StoreGateSvc class
     global StoreGate, StoreGateSvc
-    StoreGateSvc = PyCintex.gbl.StoreGateSvc
-    StoreGate    = PyCintex.gbl.StoreGate
+    StoreGateSvc = cppyy.gbl.StoreGateSvc
+    StoreGate    = cppyy.gbl.StoreGate
 
     # add specialized retrieve method
     def retrieve( self, klass, key = None ):
@@ -59,6 +65,7 @@ def _setup():
 
     # add specialized contains method
     def contains( self, klass_or_clid, key ):
+        print "---- StoreGateSvc.contains() ",  klass_or_clid, key
         if isinstance(klass_or_clid, str):
             try:
                 clid = int(klass_or_clid)

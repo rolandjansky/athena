@@ -2,7 +2,8 @@
    <class name="StoreGate"/>
    <class name="StoreGateSvc"/>
 
-   <!-- <namespace name="AthenaInternal"/> -->
+   <namespace name="AthenaInternal"/>
+   <class name="AthenaInternal::ROOT6_StoreGateBindings_WorkAround_Dummy"/>
    <function name="AthenaInternal::retrieveObjectFromStore"/>
    <function name="AthenaInternal::recordObjectToStore"/>
    <function name="AthenaInternal::py_sg_contains"/>
