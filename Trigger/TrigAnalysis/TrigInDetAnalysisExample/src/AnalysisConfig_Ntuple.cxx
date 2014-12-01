@@ -31,7 +31,7 @@
 #include "TrigInDetAnalysisUtils/Filters.h"
 
 #include "TrigInDetAnalysisExample/AnalysisConfig_Ntuple.h"
-#include "TrigInDetAnalysisExample/OfflineObjectSelection.h"
+// #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
@@ -97,6 +97,8 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
   return 0;
 }
   
+
+
 
 
 
@@ -665,10 +667,10 @@ void AnalysisConfig_Ntuple::loop() {
 
 	/// offline object counters 
 
-	int Noff = 0;
-	int Nmu  = 0;
-	int Nel = 0;
-	int Ntau = 0;
+	int Noff  = 0;
+	int Nmu   = 0;
+	int Nel   = 0;
+	int Ntau  = 0;
 	int Ntau3 = 0;
 
 
@@ -752,188 +754,47 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 	/// get electrons
-	if (m_doElectrons) {
-		m_provider->msg(MSG::INFO) << " Offline electrons " << endreq;
-		const ElectronContainer *myElectronContainer = 0;
-		std::string electronContainerName = "ElectronAODCollection";
-
-		bool eCont=false;
-		if( m_provider->evtStore()->contains<ElectronContainer>(electronContainerName) ) {
-			StatusCode sc=m_provider->evtStore()->retrieve(myElectronContainer, electronContainerName);
-			if( sc.isFailure()  || !myElectronContainer ) {
-				m_provider->msg(MSG::WARNING) << "Error retrieving " << electronContainerName
-					<< " after contains" << endreq;
-			} else {
-				eCont=true;
-			}
-		} else {
-			m_provider->msg(MSG::WARNING) << "Error retrieving " << electronContainerName
-				<< " !" << endreq;
-		}
-
-		selectorRef.clear();
-
-		if (eCont) {
-			ElectronContainer::const_iterator elec = myElectronContainer->begin();
-			ElectronContainer::const_iterator elec_end = myElectronContainer->end();
-
-			m_provider->msg(MSG::INFO) << "Event with " <<  myElectronContainer->size()
-				<< " Electron object(s) " << endreq;
-
-			for(; elec !=elec_end; ++elec){
-				m_provider->msg(MSG::INFO) << " Electron "       << (*elec) 
-							   << ",  cluster "      << (*elec)->cluster() 
-							   << ",  eta "          << (*elec)->eta() 
-							   << ",  phi "          << (*elec)->phi() 
-							   << ",  ET "           << (*elec)->et() 
-							   << ",  author "       << (*elec)->author() 
-							   << ",  trackParticle " << (*elec)->trackParticle()
-							   << ",  conversion "    << (*elec)->conversion()
-							   << ",  mediumPP "      << ((*elec)->isem(egammaPID::ElectronMediumPP)==0) 
-							   << endreq;
-
-				if (TrigInDetAnalysis::IsGoodOffline(*(*elec))) {
-					selectorRef.selectTrack( (*elec)->trackParticle());
-				}
-			}
-
-			m_event->addChain( "Electrons");
-			m_event->back().addRoi(TIDARoiDescriptor());
-			m_event->back().back().addTracks(selectorRef.tracks());
-
-			Nel = selectorRef.tracks().size();
-
-		}
+	if (m_doElectrons)  { 
+	  Nel = processElectrons( selectorRef );
+	  m_event->addChain( "Electrons");
+	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().back().addTracks(selectorRef.tracks());
 	}
 
 	/// get muons 
-
-	if ( m_doMuons ) {
-
-		m_provider->msg(MSG::INFO) << " Offline muons " << endreq;
-		const Analysis::MuonContainer *myMuonContainer = 0;
-		if( m_provider->evtStore()->contains<Analysis::MuonContainer>("StacoMuonCollection") ) {
-			StatusCode sc=m_provider->evtStore()->retrieve(myMuonContainer, "StacoMuonCollection");
-			if( sc.isFailure()  || !myMuonContainer ) {
-				m_provider->msg(MSG::WARNING) << "Error retrieving " << "StacoMuonCollection"
-					<< " after contains" << endreq;
-			} else {
-				selectorRef.clear();
-				Analysis::MuonContainer::const_iterator muon = myMuonContainer->begin();
-				Analysis::MuonContainer::const_iterator muon_end = myMuonContainer->end();
-				for(; muon !=muon_end; ++muon){
-					if (TrigInDetAnalysis::IsGoodOffline(*(*muon))) {
-						selectorRef.selectTrack((*muon)->inDetTrackParticle());
-						Nmu++;
-					}
-				}
-				m_event->addChain("Muons");
-				m_event->back().addRoi(TIDARoiDescriptor());
-				m_event->back().back().addTracks(selectorRef.tracks());
-
-				Nmu = selectorRef.tracks().size();
-			}
-		} else {
-			m_provider->msg(MSG::WARNING) << "Error retrieving " << "StacoMuonCollection"
-				<< " !" << endreq;
-		}
-
-	}
-	else {
-		m_provider->msg(MSG::WARNING) << " Offline muons not found" << endreq;
+	if ( m_doMuons ) { 
+	  Nmu   = processMuons( selectorRef );
+	  m_event->addChain("Muons");
+	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().back().addTracks(selectorRef.tracks());
+	  
+	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
+	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
 
 
-	m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
-	for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
-	
-	
-	
 	/// get one prong taus 
 	if ( m_doTaus ) {
-	  std::cout << " in do tau selection " << std::endl;
-	  selectorRef.clear();
-	  
-	  m_provider->msg(MSG::INFO) << " Offline taus " << endreq;
-
-	  if (m_provider->evtStore()->contains<Analysis::TauJetContainer>("TauRecContainer")) {
-
-	    Analysis::TauJetContainer* tauCollection;
-
-	    StatusCode sc = m_provider->evtStore()->retrieve(tauCollection, "TauRecContainer");
-	    if (sc != StatusCode::SUCCESS) {
-	      m_provider->msg(MSG::WARNING) << " Offline tau retrieval not successful" << endreq;
-	    }
-	    else {
-
-	      Analysis::TauJetContainer::const_iterator tau     = tauCollection->begin();
-	      Analysis::TauJetContainer::const_iterator tau_end = tauCollection->end();
-
-	      for (; tau != tau_end; ++tau) {
-
-		bool tau3=false;
-		if (TrigInDetAnalysis::IsGoodOffline(*(*tau),tau3,20000)) {
-				  
-		  for (unsigned int i  = 0; i < (*tau)->numTrack(); i++) {
-		    selectorRef.selectTrack((*tau)->track(i));
-		    Ntau++;
-		  }
-		}
-	      }
-	      m_event->addChain( "Taus" );
-	      m_event->back().addRoi(TIDARoiDescriptor());
-	      m_event->back().back().addTracks(selectorRef.tracks());
-	      for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
-	    }
-	  }
-	  else {
-			m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
-	  }       
+	  Ntau = processTaus( selectorRef,false);
+	  m_event->addChain( "Taus" );
+	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().back().addTracks(selectorRef.tracks());
+	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
-	
+
 	//so three prong taus
-	
-	if ( m_doTauThreeProng ) {
-
-		selectorRef.clear();
-
-		m_provider->msg(MSG::INFO) << " Offline three prong taus " << endreq;
-		if (m_provider->evtStore()->contains<Analysis::TauJetContainer>("TauRecContainer")) {
-			Analysis::TauJetContainer* tau3Collection;
-			StatusCode sc = m_provider->evtStore()->retrieve(tau3Collection, "TauRecContainer");
-			if (sc != StatusCode::SUCCESS) {
-				m_provider->msg(MSG::WARNING) << " Offline (three prong) tau retrieval not successful" << endreq;
-			}
-			else {
-	
-				Analysis::TauJetContainer::const_iterator tau3     = tau3Collection->begin();
-				Analysis::TauJetContainer::const_iterator tau3_end = tau3Collection->end();
-				for (; tau3 != tau3_end; ++tau3) {
-	
-				  if (TrigInDetAnalysis::IsGoodOffline(*(*tau3),m_doTauThreeProng,20000)) {
-				    //m_provider->msg(MSG::INFO) << "Zara tau selected: " << *(*tau3) << endreq;
-				    //std::cout << "number of tracks in 3 prong " << (*tau3)->numTrack() << std::endl;
-				    
-				    for (unsigned int i  = 0; i < (*tau3)->numTrack(); i++) {
-				      selectorRef.selectTrack((*tau3)->track(i));
-				      Ntau3++;
-				    }
-				  }
-				}
-				m_event->addChain( "Taus3" );
-				m_event->back().addRoi(TIDARoiDescriptor());
-				m_event->back().back().addTracks(selectorRef.tracks());
-				for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
-			}
-		}
-		else {
-			m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
-		}       
-	}
+	if ( m_doTauThreeProng ) { 
+	  Ntau3 = processTaus( selectorRef, true);
+ 	  m_event->addChain( "Taus3" );
+	  m_event->back().addRoi(TIDARoiDescriptor());
+	  m_event->back().back().addTracks(selectorRef.tracks());
+    	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
+    	}	  
 
 
-	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau3==0) { 
-		m_provider->msg(MSG::INFO) << "No offline tracks found " << endreq;
+
+	if ( Nmu==0 && Noff==0 && Nel==0 && Ntau==0 && Ntau3==0 ) { 
+	  m_provider->msg(MSG::INFO) << "No offline objects found " << endreq;
 	}
 
 

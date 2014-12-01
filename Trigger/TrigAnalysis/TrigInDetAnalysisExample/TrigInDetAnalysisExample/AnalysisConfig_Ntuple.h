@@ -4,8 +4,6 @@
 #ifndef TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 #define TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 
-
-
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 // #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -15,6 +13,9 @@
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
 
 #include "TrigInDetAnalysisExample/ChainString.h"
+
+#include "TrkParticleCreator/TrackParticleCreatorTool.h"
+
 
 #include "TTree.h"
 #include "TFile.h"
@@ -33,7 +34,7 @@ public:
     // - all standard operations are performed in loops over 0=test 1=reference 2=selection
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents=false) : 
+			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
     T_AnalysisConfig<IHLTMonTool>( "Ntple",
 				   "", "", "",
 				   "", "", "",
@@ -56,9 +57,10 @@ public:
     m_tauEtCutOffline(tauEtCutOffline),
     m_TruthPdgId(TruthPdgId),
     m_finalised(true),
-    m_keepAllEvents(keepAllEvents),
     m_printInfo(true)
   {  
+    this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
+
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
       if ( chainNames[i] != "Offline" &&
 	   chainNames[i] != "Electrons" &&
@@ -84,6 +86,7 @@ public:
     if ( !m_finalised ) finalize();
     delete m_event;
   }
+
 
 protected:
 
@@ -121,7 +124,7 @@ protected:
   
   bool m_finalised;
 
-  bool m_keepAllEvents;
+  //  bool m_keepAllEvents; // nw in base class
 
   bool m_printInfo;
 

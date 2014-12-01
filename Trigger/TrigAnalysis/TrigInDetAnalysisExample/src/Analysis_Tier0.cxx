@@ -13,11 +13,11 @@ Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double eta
 void Analysis_Tier0::initialise() {
 
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
-  h_pTeff = new TProfile ("Eff_pT",  "pT efficiency",  100, 0., 100.);
-  h_etaeff = new TProfile("Eff_Eta", "eta efficiency",  100, -2.5, 2.5);
-  h_phieff = new TProfile("Eff_Phi", "phi  efficiency",  100, -3.142, 3.142);
-  h_d0eff = new TProfile ("Eff_d0",  "d0 efficiency",  100, -5., 5.);
-  h_z0eff = new TProfile ("Eff_z0",  "z0 efficiency",  100, -200., 200.);
+  h_pTeff   = new TProfile ("Eff_pT",  "pT efficiency",  100, 0., 100.);
+  h_etaeff  = new TProfile("Eff_Eta", "eta efficiency",  100, -2.5, 2.5);
+  h_phieff  = new TProfile("Eff_Phi", "phi  efficiency",  100, -3.142, 3.142);
+  h_d0eff   = new TProfile ("Eff_d0",  "d0 efficiency",  100, -5., 5.);
+  h_z0eff   = new TProfile ("Eff_z0",  "z0 efficiency",  100, -200., 200.);
   h_nVtxeff = new TProfile ("Eff_nVtx",  "nVtx efficiency",  30, 0., 30.);
   addHistogram(h_total_efficiency);
   addHistogram(h_pTeff);
@@ -27,11 +27,11 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_d0eff);
   addHistogram(h_nVtxeff);
 
-  h_pTres = new TProfile("Res_pT", "pT residual", 100, 0., 100.);
+  h_pTres  = new TProfile("Res_pT", "pT residual", 100, 0., 100.);
   h_etares = new TProfile("Res_eta", "Eta residual", 100, -2.5, 2.5);
   h_phires = new TProfile("Res_phi", "Phi residual", 100, -3.142, 3.142);
-  h_d0res = new TProfile("Res_d0", "d0 residual", 100, -5., 5.);
-  h_z0res = new TProfile("Res_z0", "z0 residual", 100, -200., 200.);
+  h_d0res  = new TProfile("Res_d0", "d0 residual", 100, -5., 5.);
+  h_z0res  = new TProfile("Res_z0", "z0 residual", 100, -200., 200.);
   addHistogram(h_pTres);
   addHistogram(h_etares);
   addHistogram(h_phires);
@@ -56,11 +56,13 @@ void Analysis_Tier0::initialise() {
 
 void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
 			     const std::vector<TrigInDetAnalysis::Track*>& /*testTracks*/,
-				  TrackAssociator* associator) {
+			     TrackAssociator* associator) {
   
   // Loop over reference tracks
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
-  for(reference=referenceTracks.begin(); reference!=referenceEnd; reference++) {
+  std::vector<TrigInDetAnalysis::Track*>::const_iterator  reference    = referenceTracks.begin();
+  std::vector<TrigInDetAnalysis::Track*>::const_iterator  referenceEnd = referenceTracks.end();
+
+  for( ; reference!=referenceEnd ; reference++ ) {
     
     // Get reference parameters
     double referenceEta = (*reference)->eta();
@@ -72,10 +74,11 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
     // Find matched tracks
     const TrigInDetAnalysis::Track* test = associator->matched(*reference);
 
-    double eff_weight(0.);
-    if(test) eff_weight = 1.0;
+    double    eff_weight = 0;
+    if (test) eff_weight = 1;
 
     h_total_efficiency->Fill(0.5, eff_weight);
+
     h_pTeff->Fill(referencePT/1000., eff_weight);
     h_z0eff->Fill(referenceZ0, eff_weight);
     h_d0eff->Fill(referenceD0, eff_weight);
@@ -90,11 +93,11 @@ void Analysis_Tier0::execute(const std::vector<TrigInDetAnalysis::Track*>& refer
     h_trkz0->Fill(referenceZ0);
     
     if(test){
-      h_pTres->Fill(referencePT/1000.,(referencePT/1000.)-(fabs(test->pT()/1000.)));
-      h_etares->Fill(referenceEta,referenceEta-test->eta() );
-      h_phires->Fill(referencePhi,referencePhi-test->phi() );
-      h_d0res->Fill(referenceD0,referenceD0-test->a0() );
-      h_z0res->Fill(referenceZ0,referenceZ0-test->z0() );
+      h_pTres->Fill( referencePT*0.001, (referencePT - test->pT())*0.001 );
+      h_etares->Fill( referenceEta, referenceEta - test->eta() );
+      h_phires->Fill( referencePhi, referencePhi - test->phi() );
+      h_d0res->Fill( referenceD0, referenceD0 - test->a0() );
+      h_z0res->Fill( referenceZ0, referenceZ0 - test->z0() );
     }
 
   }
