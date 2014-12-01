@@ -29,8 +29,9 @@
 
 #include "TrigJetHypo/TrigEFJetMassDEta.h"
 
-#include "JetEvent/JetCollection.h"
-#include "JetEvent/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/Jet.h"
+
 #include "FourMomUtils/P4DescendingSorters.h"
 #include "JetUtils/JetCaloQualityUtils.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -127,6 +128,13 @@ HLT::ErrorCode TrigEFJetMassDEta::hltFinalize(){
 
 }
 
+struct DescendingEta:std::binary_function<const xAOD::Jet*,
+                                         const xAOD::Jet*,
+                                         bool> {
+  bool operator()(const xAOD::Jet* l, const xAOD::Jet* r)  const {
+    return fabs(l->eta()) > fabs(r->eta());
+  }
+};
 
 // ----------------------------------------------------------------------
 HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
@@ -151,7 +159,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
   
 
 
-  const JetCollection* outJets(0);
+  const xAOD::JetContainer* outJets(0);
   HLT::ErrorCode ec = getFeature(outputTE, outJets);
 
   if(ec!=HLT::OK) {
@@ -168,8 +176,8 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
     return HLT::OK;
   }
 
-  std::vector<const Jet*> theJets(outJets->begin(), outJets->end());
-  std::vector<const Jet*> theSelectedJets;
+  std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
+  std::vector<const xAOD::Jet*> theSelectedJets;
 
  //check size of JetCollection
   if( theJets.size() == 0 ){
@@ -181,13 +189,13 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
     return HLT::OK;
   }
 
-  theSelectedJets.reserve (theJets.size());
-  for (const Jet* j : theJets) {
-    if(j->et() < m_EtCut) continue;
+  theSelectedJets.reserve (theJets.size()); 
+  for (const xAOD::Jet* j : theJets) {
+    if(j->p4().Et() < m_EtCut) continue;
     if(fabs(j->eta()) > m_etaMaxCut) continue;
     theSelectedJets.push_back(j);
     //monitoring
-    m_pt.push_back(j->pt());
+    m_pt.push_back(j->p4().Et());
     m_eta.push_back(j->eta());
   }
 
@@ -200,8 +208,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
     return HLT::OK;
   }
  
-
-  std::sort (theJets.begin(), theJets.end(), P4Sorters::Descending::Eta());
+  std::sort (theJets.begin(), theJets.end(), DescendingEta());
 
   ///  now add the TrigPassBits for the jets to specify whether each jet
   ///  passes the hypo etc
@@ -216,10 +223,10 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
 
   bool clean_break(0);
   for(; firstJet!=lastJet && !clean_break; firstJet++) {
-    const Jet *aJet = *firstJet;
+    const xAOD::Jet *aJet = *firstJet;
     for(auto nthJet = theSelectedJets.rbegin();
 	(*nthJet) != (*firstJet); ++nthJet){
-      const Jet *aJet2 = *nthJet;
+      const xAOD::Jet *aJet2 = *nthJet;
 
       float deta = fabs(aJet->eta() - aJet2->eta());
       //monitoring
@@ -233,7 +240,7 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
       }
       if(deta > m_deta) m_deta = deta;
       
-      float mjj=(aJet->hlv() + aJet2->hlv()).m();
+      float mjj=(aJet->p4() + aJet2->p4()).M(); 
       //monitoring
       if(mjj > m_mjj) m_mjj = mjj;
       if(mjj>m_MjjCut&&deta>m_dEtaCut){	
@@ -265,3 +272,5 @@ HLT::ErrorCode TrigEFJetMassDEta::hltExecute(const HLT::TriggerElement* outputTE
   return HLT::OK;
 
 }
+
+
