@@ -7,7 +7,7 @@
  * @brief Base class for the utility to list the file GUIDs used by a POOL collection and split the
  * collection into sub-collections by GUID
  * @author K. Karr <Kristo.Karr@cern.ch>, C. Nicholson <Caitriana.Nicholson@cern.ch>, Marcin.Nowak@cern.ch
- * $Id: CollSplitByGUIDBase.cpp 527111 2012-11-21 21:11:08Z gemmeren $
+ * $Id: CollSplitByGUIDBase.cpp 632516 2014-12-01 12:14:37Z ssnyder $
  */
 
 #include "PersistentDataModel/Token.h"
@@ -68,6 +68,7 @@ CollSplitByGUIDBase::CollSplitByGUIDBase(const std::string& name) :
 CollSplitByGUIDBase::~CollSplitByGUIDBase()
 {
    delete m_collectionPool;
+   delete m_collectionService;
 }
 
 
@@ -147,10 +148,10 @@ CollSplitByGUIDBase::init( std::vector<std::string> argv_v )
    if( !m_argsVec.evalArgs(argv_v) ) return false;
    if( !m_argsVec.checkValid() )     return false;
 
-   cmdLineArgs.getOpt("-splitref", m_splitRef);
-   cmdLineArgs.getOpt("-minevents", m_minEvents);
-   cmdLineArgs.getOpt("-rowscached", m_rowsCached);
-   cmdLineArgs.getOpt("-maxsplit", m_maxSplit);
+   (void)cmdLineArgs.getOpt("-splitref", m_splitRef);
+   (void)cmdLineArgs.getOpt("-minevents", m_minEvents);
+   (void)cmdLineArgs.getOpt("-rowscached", m_rowsCached);
+   (void)cmdLineArgs.getOpt("-maxsplit", m_maxSplit);
    if( m_maxSplit < 1 )  m_maxSplit = 1;
    string guidfile;
    if( cmdLineArgs.getOpt("-guidfile", guidfile) ) {
@@ -162,8 +163,8 @@ CollSplitByGUIDBase::init( std::vector<std::string> argv_v )
    // EXPERT OPTIONS
    // For tuning purposes the number of events between commits can be specified
    // ---
-   cmdLineArgs.getOpt("-nevtpercommit", m_numEventsPerCommit);
-   cmdLineArgs.getOpt("-nevtcached", m_numRowsCached);
+   (void)cmdLineArgs.getOpt("-nevtpercommit", m_numEventsPerCommit);
+   (void)cmdLineArgs.getOpt("-nevtcached", m_numRowsCached);
 
    m_catinfo.setCatalogs( m_collectionService );
    if( !m_collectionPool ) m_collectionPool = new CollectionPool(50, m_rowsCached); 

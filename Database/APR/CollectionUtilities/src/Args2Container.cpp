@@ -253,7 +253,7 @@ bool Args2Container::evalArgs(const std::string cliarg, std::vector<std::string>
          for (Args2Container::const_iterator ait = this->begin(); ait != this->end(); ++ait) { 
             if ( cliarg=="ALL" || (*ait)->name()==cliarg) { 
                //bool disregardMe = (*ait)->evalArgs(argv); 
-               (*ait)->evalArgs(argv); 
+               (void) (*ait)->evalArgs(argv); 
             } 
          } 
  
@@ -583,10 +583,10 @@ void Args2Container::writeXMLContent(std::vector<std::string>& argv)
       theSerializer->write(newDocument, theOutput);
 
       // clean up the mess
-      if (theSerializer!=NULL && theSerializer!=0) delete theSerializer;
-      if (theOutput!=NULL && theOutput!=0) delete theOutput;
-      if (myFormTarget!=NULL && myFormTarget!=0)   delete myFormTarget;
-      if (newDocument!=NULL && newDocument!=0)     delete newDocument;
+      delete theSerializer;
+      delete theOutput;
+      delete myFormTarget;
+      delete newDocument;
 #endif
    }
    catch (const SAXException& e) {

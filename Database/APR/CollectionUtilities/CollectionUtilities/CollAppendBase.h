@@ -46,6 +46,7 @@
 namespace pool
 {
    class MetaInfo;
+   class CollectionService;
    
    class CollAppendBase
    {
@@ -53,6 +54,9 @@ namespace pool
 
      CollAppendBase(std::string name="CollAppend");
      virtual ~CollAppendBase();
+
+     CollAppendBase (const CollAppendBase&) = delete;
+     CollAppendBase& operator= (const CollAppendBase&) = delete;
 
      virtual int  execute( std::vector<std::string> argv_v );
 
@@ -133,7 +137,7 @@ namespace pool
      Progress    	m_progress; 
 
      bool		m_committed;
-     pool::ICollectionService* m_collectionService;
+     pool::CollectionService* m_collectionService;
      mutable coral::MessageStream m_log;
 
      // Vector of args

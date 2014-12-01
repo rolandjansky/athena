@@ -22,6 +22,8 @@
 namespace pool
 {
 
+   class CollectionService;
+
    class CollSplitByGUIDBase
    {
   public:
@@ -68,7 +70,7 @@ namespace pool
      SrcInfo     	m_srcinfo; 
      MetaInfo    	m_metainfo;
     
-     pool::ICollectionService* m_collectionService;
+     pool::CollectionService* m_collectionService;
      mutable coral::MessageStream m_log;
 
      // Vector of args

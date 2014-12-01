@@ -70,8 +70,8 @@ QueryInfo::evalArgs(std::vector<std::string>& argv)
 {
    if( !CmdLineArgs2::evalArgs(argv) ) return false;
 
-   getOpts("-query", m_queries);
-   getOpt("-queryopt", m_queryOptions);
+   (void)getOpts("-query", m_queries);
+   (void)getOpt("-queryopt", m_queryOptions);
 
    return true;
 }
