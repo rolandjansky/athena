@@ -5,8 +5,8 @@
 #ifndef TAUHISTUTILS_RECOTAUPLOTS_H
 #define TAUHISTUTILS_RECOTAUPLOTS_H
 
-#include "TauHistUtils/PlotBase.h"
-#include "TauHistUtils/ParamPlots.h"
+#include "TrkValHistUtils/PlotBase.h"
+#include "TrkValHistUtils/ParamPlots.h"
 #include "xAODTau/TauDefs.h" 
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/versions/PFO_v1.h"
@@ -16,11 +16,10 @@ namespace Tau{
 class RecoTauPlots: public PlotBase {
   public:
     RecoTauPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
-    virtual ~RecoTauPlots();
 
     void fill(const xAOD::TauJet& tau);
 
-    Tau::ParamPlots m_oParamPlots;
+    Trk::ParamPlots m_oParamPlots;
 
     //Here I try to include eflowRec substructure variables, from the Particle FLow Object (PFO), begining with basic charged and neutral PFO 4-vector.
     TH1* m_eflowRec_charPFO_Pt;

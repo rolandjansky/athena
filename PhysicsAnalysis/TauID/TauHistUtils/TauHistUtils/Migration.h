@@ -5,8 +5,8 @@
 #ifndef TAUHISTUTILS_MIGRATION_H
 #define TAUHISTUTILS_MIGRATION_H
 
-#include "TauHistUtils/PlotBase.h"
-#include "TauHistUtils/ParamPlots.h"
+#include "TrkValHistUtils/PlotBase.h"
+#include "TrkValHistUtils/ParamPlots.h"
 #include "xAODTau/TauDefs.h" 
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/versions/PFO_v1.h"
@@ -34,11 +34,10 @@ namespace Tau{
     class Migration: public PlotBase {
     public:
 	Migration(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
-	virtual ~Migration();
-
+	
 	void fill(const xAOD::TauJet& tau,int nProng, int nNeu);
 	
-	//Tau::ParamPlots m_oParamPlots;
+	//	Trk::ParamPlots m_oParamPlots;
 	
 	const char *m_lable[DECAYSIZE] = {
 	    "t10r10",
