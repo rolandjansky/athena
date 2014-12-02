@@ -163,7 +163,10 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
 	{
           try 
 	    {
-              m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
+              if(m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1)
+                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->detectorElement_hash_max());
+              else
+                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
 	    } 
           catch(std::bad_alloc) 
 	    {
