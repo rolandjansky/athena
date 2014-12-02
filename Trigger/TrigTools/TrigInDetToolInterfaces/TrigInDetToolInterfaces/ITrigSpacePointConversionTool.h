@@ -26,7 +26,6 @@ class ITrigSpacePointConversionTool : virtual public IAlgTool {
     return IID_ITrigSpacePointConversionTool; 
   }  	
   
-  virtual StatusCode getSpacePoints(std::vector<TrigSiSpacePointBase>&, int&, int&) = 0;
   virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) = 0;
 
 };
