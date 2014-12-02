@@ -13,6 +13,7 @@ using namespace JetSubStructureUtils;
 double ZCut::result(const fastjet::PseudoJet &jet) const
 {
   vector<fastjet::PseudoJet> constit_pseudojets = jet.constituents();
+  if(constit_pseudojets.size() == 0) return -1;
 
   fastjet::JetDefinition jet_def = fastjet::JetDefinition(fastjet::kt_algorithm, 1.5,
                                                           fastjet::E_scheme, fastjet::Best);

@@ -15,6 +15,7 @@ double PlanarFlow::result(const fastjet::PseudoJet &jet) const
 
   double PF=-1.;
   if(jet.m() == 0.0 ) return PF;
+  if(jet.constituents().size() == 0 ) return PF;
  
   vector<fastjet::PseudoJet> constit_pseudojets = jet.constituents();
 

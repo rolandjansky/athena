@@ -10,6 +10,7 @@ using namespace JetSubStructureUtils;
 
 double Angularity::result(const fastjet::PseudoJet &jet) const
 {
+  if(jet.constituents().size() == 0) return -1;
   if(jet.m()==0.0) return -1;
 
   vector<fastjet::PseudoJet> constit_pseudojets = jet.constituents();

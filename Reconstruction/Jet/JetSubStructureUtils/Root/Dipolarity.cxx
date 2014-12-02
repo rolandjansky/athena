@@ -26,6 +26,8 @@ Dipolarity::Dipolarity(unsigned int m_n1, unsigned int m_n2, bool exclusive, dou
 double Dipolarity::result(const fastjet::PseudoJet &jet) const
 {
   vector<fastjet::PseudoJet> constit_pseudojets = jet.constituents();
+  if(constit_pseudojets.size() == 0) return -1;
+
   vector<fastjet::PseudoJet> kt_subjets;
   fastjet::PseudoJet jet1, jet2;
 

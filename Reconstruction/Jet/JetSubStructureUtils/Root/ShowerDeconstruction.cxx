@@ -93,6 +93,8 @@ double ShowerDeconstruction::result(const xAOD::Jet &jet)
 double ShowerDeconstruction::result(const fastjet::PseudoJet &jet, const float R)
 {
 #if defined(ROOTCORE_PACKAGE_AtlasShowerDeconstructionRootCore) || !defined(ROOTCORE)
+  if(jet.constituents().size() == 0) return -999;
+
   (*m_param)["R"] = R;
   fastjet::JetDefinition microjet_def(fastjet::cambridge_algorithm, 0.2);
   fastjet::ClusterSequence microjet_cs(jet.constituents(), microjet_def);
