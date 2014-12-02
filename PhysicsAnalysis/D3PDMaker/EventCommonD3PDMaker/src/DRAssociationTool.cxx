@@ -43,6 +43,8 @@ DRAssociationTool::DRAssociationTool (const std::string& type,
                    "the target collection");
   declareProperty ("DRCut", m_drcut = 999,
                    "DR cut for the association");
+
+  book().ignore();  // Avoid coverity warnings.
 }
 
 

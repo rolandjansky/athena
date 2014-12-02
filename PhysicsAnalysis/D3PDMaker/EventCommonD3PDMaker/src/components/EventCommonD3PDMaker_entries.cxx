@@ -25,7 +25,6 @@
 #include "../IParticleLinksCollectionGetterTool.h"
 #include "../SkimDecisionFillerTool.h"
 #include "../SkimDecisionVectorFillerTool.h"
-#include "../CutFlowMetadataTool.h"
 #include "../LumiBlockLengthFillerTool.h"
 #include "../LeadingPtAssociationTool.h"
 
@@ -50,7 +49,6 @@ DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, SimMetadataTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, IParticleLinksCollectionGetterTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, SkimDecisionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, SkimDecisionVectorFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, CutFlowMetadataTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, LumiBlockLengthFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, LeadingPtAssociationTool)
 
@@ -73,7 +71,6 @@ DECLARE_FACTORY_ENTRIES(EventCommonD3PDMaker) {
   DECLARE_NAMESPACE_TOOL   (D3PD, IParticleLinksCollectionGetterTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, SkimDecisionFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, SkimDecisionVectorFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, CutFlowMetadataTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, LumiBlockLengthFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, LeadingPtAssociationTool)
 }
