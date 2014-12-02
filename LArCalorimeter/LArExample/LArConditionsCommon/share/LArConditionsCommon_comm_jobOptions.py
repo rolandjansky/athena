@@ -70,10 +70,10 @@ if larCondFlags.LoadElecCalib():
 
 
   if (haveElecCalibInline): # Run 2 case:
+
       #This service creates a objects in the DetectorStore that wrap the AttributeListCollections 
       #with the inline representation of the electronic calibration and makes them accessible through the
       #ILArRamp, ILArOFC, etc. abstract interfaces
-
       from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
       theLArCondSvc=LArFlatConditionSvc()
       svcMgr+=theLArCondSvc
@@ -136,6 +136,20 @@ if larCondFlags.LoadElecCalib():
       pass
 
   else: #Run 1 case, no COOL-inline electronic calibration
+
+      #For run 1 we read some electronic calibration constants from the offline DB:
+      if not larCondFlags.ua2MeVFolder.is_locked():
+          larCondFlags.ua2MeVFolder="uA2MeV/Symmetry"
+          pass
+      if not larCondFlags.MphysOverMcalFolder.is_locked():
+          larCondFlags.MphysOverMcalFolder="MphysOverMcal/RTM"
+          pass
+      if not larCondFlags.OFCShapeFolder.is_locked():
+          larCondFlags.OFCShapeFolder="5samples1phase"
+          pass
+
+
+
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
           conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/uA2MeV"+forceRN)

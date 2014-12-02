@@ -44,7 +44,7 @@ tag=None
 sv=True
 geo=False
 dspth=False
-detdescrtag="ATLAS-GEO-18-00-00"
+detdescrtag="ATLAS-GEO-20-00-00"
 detdescrset=False
 sqlite=""
 
@@ -67,15 +67,6 @@ for o,a in opts:
 import readline
 
 try:
-    if tag is None:
-        defTag="COMCOND-BLKPA-RUN1-05"
-        prompt= "Enter conditions tag [%s]:" % defTag
-        tagIn=raw_input(prompt).strip()
-        if tagIn=="":
-            tag=defTag
-        else:
-            tag=tagIn
-
     if run is None:
         defRun=0x7fffffff
         prompt= "Enter run number [%i]:" % defRun
@@ -89,6 +80,23 @@ try:
                 usage()
                 print "Expect numerical parameter for run, got",runIn
                 sys.exit(0)
+                pass
+            pass
+        pass
+
+    if tag is None:
+        if (run>222222):
+            defTag="CONDBR2-BLKPA-2014-00"
+        else:
+            defTag="COMCOND-BLKPA-RUN1-06"
+            pass
+        prompt= "Enter conditions tag [%s]:" % defTag
+        tagIn=raw_input(prompt).strip()
+        if tagIn=="":
+            tag=defTag
+        else:
+            tag=tagIn
+
 
     if geo and not detdescrset:
         prompt="Enter DetectorDescripton tag [%s]:" % detdescrtag
@@ -140,7 +148,10 @@ globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 try:
-    globalflags.DatabaseInstance.set_Value_and_Lock('COMP200')
+    if (run>222222): 
+        globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+    else:
+        globalflags.DatabaseInstance.set_Value_and_Lock('COMP200')
 except: 
     #flag doesn't exist in older releases
     pass
@@ -175,9 +186,8 @@ include ("AthenaSealSvc/AthenaSealSvc_joboptions.py")
 
 include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 
-if dspth:
-    conddb.addFolder("","<db>COOLONL_LAR/COMP200</db>/LAR/Configuration/DSPThreshold/Thresholds")
-    #conddb.addFolder("","<db>COOLONL_LAR/COMP200</db>/LAR/Configuration/DSPThreshold/Templates<tag>LARConfigurationDSPThresholdTemplates-Qt5sigma-samp5sigma</tag>")
+#if dspth:
+#    conddb.addFolder("LAR_ONL","/LAR/Configuration/DSPThreshold/Templates<tag>LARConfigurationDSPThresholdTemplates-Qt5sigma-samp5sigma</tag>")
 
 
 

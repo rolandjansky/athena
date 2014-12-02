@@ -26,6 +26,8 @@ from string import *
 #from cmath import pi
 from time import clock
 
+import os
+
 class LArCellConditionsAlg(PyAthena.Alg):
     """
     This class is an Athena algorithm although it doesn't quite behave like one.
@@ -171,7 +173,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
         #print "Check Validity.. (and thus initialize the LArCablingSvc)"
         #self.larCablingSvc.isLArOnOffIdValid()
         #self.larCablingSvc.readOnlOffMap()
-        
+
+        #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
+        garbagedump = open(os.devnull, 'w')
+        self._detStore.dump(garbagedump)
+        garbagedump.close()
+
         if self.includeConditions:
             try:
                 self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
@@ -326,8 +333,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 try:
                     #idHash=self.offlineID.calo_cell_hash(id)
                     theDDE=self.caloDDM.get_element(id)
-                    print "Eta= %.3f, Phi=%.3f r=%.3f" % (theDDE.eta(),theDDE.phi(),theDDE.r())
-                    print "x=%.3f, y=%.3f, z=%.3f" % (theDDE.x(),theDDE.y(),theDDE.z())
+                    print "raw Eta= %.3f, Phi=%.3f r=%.3f" % (theDDE.eta_raw(),theDDE.phi_raw(),theDDE.r_raw())
+                    print "raw x=%.3f, y=%.3f, z=%.3f" % (theDDE.x(),theDDE.y(),theDDE.z_raw())
                 except Exception,e:
                     print e
                
@@ -629,6 +636,11 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self._onlErrStr="Can't interpret hexadecimal online identifier, got "+input
                 return None
 
+            if (id_int < 0x38000000 or id_int > 0x3bc68000):
+                self._onlErrStr="Outside of numerical range of online identifiers"
+                return None
+
+
             id=HWIdentifier(id_int<<32)
             if not self.onlineID.is_lar(id):
                 self._onlErrStr="Not a LAR identifier:" + input
@@ -641,6 +653,10 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self._onlErrStr="Can't interpret decimal online identifier, got "+input
                 return None
             
+            if (id_int < 0x38000000 or id_int > 0x3bc68000):
+                self._onlErrStr="Outside of numerical range of online identifiers"
+                return None
+
             id=HWIdentifier(id_int<<32)
             if not self.onlineID.is_lar(id):
                 self._onlErrStr="Not a LAR identifier:" + input
@@ -868,9 +884,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 outname=None
                 
           
-        for idH in range(self.offlineID.calo_cell_hash_max()):
+        #for idH in range(self.offlineID.calo_cell_hash_max()): //This one includes also tile cells
+        for idH in range(182468):
             idHash=IdentifierHash(idH)
             chid=self.larCablingSvc.createSignalChannelIDFromHash(idHash)
+            
+            #print "Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact())
 
             #Check Bad-Channel Status
             if bctypes!=0:

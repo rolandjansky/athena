@@ -120,7 +120,7 @@ class OFCShapeFolder(JobProperty):
     ###
     statusOn=True
     allowedTypes=['str']
-    StoredValue="5samples1phase"
+    StoredValue=""
 
 class hasMphys(JobProperty):
     ### flag for including Mphys folder or not
@@ -286,13 +286,13 @@ class ua2MeVFolder(JobProperty):
     ###  Allows to overwrite folder for ua2MeV, base path name is /LAR/ElecCalibOfl
     statusOn=True
     allowedType=['string']
-    StoredValue="uA2MeV/Symmetry"
+    StoredValue=""
 
 class MphysOverMcalFolder(JobProperty):
     ###  Allows to overwrite folder for MphysOverMcalFolder, base path name is /LAR/ElecCalibOfl
     statusOn=True
     allowedType=['string']
-    StoredValue="MphysOverMcal/RTM"
+    StoredValue=""
 
 
 
