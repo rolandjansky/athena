@@ -8,7 +8,7 @@
 #include "JetSubStructureUtils/KtDeltaR.h"
 
 KtDeltaRTool::KtDeltaRTool(const std::string& myname)
-: JetModifierBase(myname) {
+: JetSubStructureMomentToolsBase(myname) {
   declareProperty("JetRadius", m_jetrad =0.4);
 }
 
@@ -17,6 +17,8 @@ StatusCode KtDeltaRTool::initialize() {
 }
 
 int KtDeltaRTool::modifyJet(xAOD::Jet& jet) const {
+  if(checkForConstituents(jet) == false) return 1;
+
   JetSubStructureUtils::KtDeltaR ktdr(m_jetrad);
   jet.setAttribute("KtDR", ktdr.result(jet));
   return 0;

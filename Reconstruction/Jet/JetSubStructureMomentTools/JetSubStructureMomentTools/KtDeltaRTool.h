@@ -5,10 +5,9 @@
 #ifndef JETSUBSTRUCTURE_KTDELTARTOOL_H
 #define JETSUBSTRUCTURE_KTDELTARTOOL_H
 
-#include "JetRec/JetModifierBase.h"
-#include "AsgTools/ToolHandle.h"
+#include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 
-class KtDeltaRTool : public JetModifierBase {
+class KtDeltaRTool : public JetSubStructureMomentToolsBase {
   ASG_TOOL_CLASS(KtDeltaRTool, IJetModifier)
 
 public:

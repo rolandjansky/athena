@@ -16,6 +16,8 @@ EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) :
 }
 
 int EnergyCorrelatorTool::modifyJet(xAOD::Jet &jet) const {
+  if(checkForConstituents(jet) == false) return 1;
+
   JetSubStructureUtils::EnergyCorrelator ECF1(1, m_Beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
   JetSubStructureUtils::EnergyCorrelator ECF2(2, m_Beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
   JetSubStructureUtils::EnergyCorrelator ECF3(3, m_Beta, JetSubStructureUtils::EnergyCorrelator::pt_R);

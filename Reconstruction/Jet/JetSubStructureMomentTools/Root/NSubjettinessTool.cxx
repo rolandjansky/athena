@@ -20,6 +20,8 @@ NSubjettinessTool::NSubjettinessTool(std::string name) :
 }
 
 int NSubjettinessTool::modifyJet(xAOD::Jet &jet) const {
+  if(checkForConstituents(jet) == false) return 1;
+
   fastjet::contrib::NormalizedCutoffMeasure normalized_measure(m_Alpha, jet.getSizeParameter(), 1000000);
 
   fastjet::contrib::KT_Axes kt_axes;
