@@ -31,7 +31,6 @@ use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDe
 
 #Needed for MuonFilterAlg
 use EventKernel                 EventKernel-*           Event
-use NavFourMom                  NavFourMom-*            Event
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 #use TrkEventPrimitives          TrkEventPrimitives-*    Tracking/TrkEvent
 
@@ -41,13 +40,14 @@ use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
 
 #Needed for RegSelSvc
 use IRegionSelector             IRegionSelector-*       DetectorDescription
-use RoiDescriptor               RoiDescriptor-*         DetectorDescription       
 
 private
+use NavFourMom                  NavFourMom-*            Event
 use  AtlasROOT                  AtlasROOT-*                     External
-use  EventInfo                  EventInfo-*                     Event
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  SGTools                    SGTools-*                       Control
 
+use RoiDescriptor               RoiDescriptor-*         DetectorDescription
 use FourMomUtils                FourMomUtils-*          Event
 #use NavFourMom                  NavFourMom-*            Event
 use muonEvent                   muonEvent-*             Reconstruction/MuonIdentification
@@ -67,12 +67,6 @@ use VxVertex                    VxVertex-*              Tracking/TrkEvent
 use egammaEvent                 egammaEvent-*           Reconstruction/egamma
 use tauEvent                    tauEvent-*              Reconstruction
 
-## SingleTracks
-use ITrackToVertex              ITrackToVertex-*        Reconstruction/RecoTools
-use RecoToolInterfaces          RecoToolInterfaces-*    Reconstruction/RecoTools
-## SingleTracks end
-
-#use IsolationTool               IsolationTool-*         Reconstruction/RecoTools
 
 end_private
 

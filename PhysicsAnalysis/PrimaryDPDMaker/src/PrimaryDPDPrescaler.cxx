@@ -20,8 +20,7 @@
 
 #include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TRandom3.h"
 #include "SGTools/crc64.h"
@@ -78,13 +77,13 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_MSG_DEBUG( "Accept Algs, Size: "  <<  m_theAcceptAlgs.size()  <<  " Empty: " << m_theAcceptAlgs.empty() );
   for(std::vector<Algorithm*>::iterator i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG( (*i)->name() );
-    cutFlowSvc()->declareChildFilter((*i)->name(),cutID());
+    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
   ATH_MSG_DEBUG( "Require Algs, Size: " <<  m_theRequireAlgs.size()  <<  " Empty: " << m_theRequireAlgs.empty() );
   for(std::vector<Algorithm*>::iterator i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG(  (*i)->name() );
-    cutFlowSvc()->declareChildFilter((*i)->name(),cutID());
+    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
 
@@ -171,10 +170,10 @@ StatusCode PrimaryDPDPrescaler::execute()
       if ( m_prescale > 1.00001 )
         {
           // Get the EventInfo object
-          const EventInfo* eventInfo(NULL);
+          const xAOD::EventInfo* eventInfo(NULL);
           ATH_CHECK( evtStore()->retrieve(eventInfo) );
-          unsigned int runNum = eventInfo->event_ID()->run_number();
-          unsigned int evtNum = eventInfo->event_ID()->event_number();
+          unsigned int runNum = eventInfo->runNumber();
+          unsigned int evtNum = eventInfo->eventNumber();
 
           // re-seed the random number generator for this event
           unsigned int seed = runNum + evtNum + m_nameHash;
