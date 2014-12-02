@@ -82,14 +82,14 @@ namespace JiveXML {
     if (!evtStore()->retrieve(cellContainer,m_sgKey)) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  <<
         "Could not retrieve Calorimeter Cells for Tile " << endreq;
-//        return StatusCode::SUCCESS;
+      return StatusCode::SUCCESS;
     }
 
     if (m_tile) {
       DataMap data = getCaloTileData(cellContainer);
       if ( FormatTool->AddToEvent("TILE", m_sgKey, &data).isFailure()) {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endreq;
-//        return StatusCode::SUCCESS;
+        return StatusCode::SUCCESS;
       } else {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endreq;
       }
