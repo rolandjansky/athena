@@ -6,79 +6,56 @@
 #define HLTMETMONTOOL_H
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
-//#include "TrigDecision/TrigDecisionTool.h"
-#include "AnalysisTriggerEvent/LVL1_ROI.h"
-//#include "TrigCaloEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "MissingETEvent/MissingET.h"
+
+#include "xAODTrigger/EnergySumRoI.h"
+#include "xAODTrigMissingET/TrigMissingET.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 #include <string>
 #include <vector>
 
 
 class HLTMETMonTool: public IHLTMonTool {
-  public:
 
+  public:
+  
     HLTMETMonTool(const std::string & type, const std::string & name, const IInterface* parent);
     ~HLTMETMonTool();
 
     StatusCode init();
-
     StatusCode book();
     StatusCode fill();
     StatusCode proc();
-
 
   private:
 
     /** methods called by book() */
     void bookHistograms_allStats();
     void bookL1Histograms();
-    void bookL2Histograms();
-    void bookEFHistograms();
+    void bookHLTHistograms();
     void bookEfficHistograms();
 
     /** methods to make booking easier */
     void addBasicL1Histograms();
-    void addBasicL2Histograms();
-    void addMoreL2Histograms();
-    void addL2FEBHistograms();
-    void addL2StatusHistogram();
-    void addBasicEFHistograms();
-    void addMoreEFHistograms();
-    void addEFStatusHistogram();
-    void addBasicRecHistograms();
-    void addL1vsL2Histograms();
-    void addL1vsEFHistograms();
-    void addL2vsEFHistograms();
-    void addL1vsRecHistograms();
-    void addL2vsRecHistograms();
-    void addEFvsRecHistograms();
+    void addBasicHLTHistograms();
+    void addMoreHLTHistograms();
+    void addHLTStatusHistogram();
+    void addBasicOffHistograms();
+    void addL1vsHLTHistograms();
+    void addL1vsOffHistograms();
+    void addHLTvsOffHistograms();
     void addDQFlagHistograms();
 
     void bookXSCalibHistograms(int level);
     void trigger_decision();
 
     StatusCode fillMETHistos();
-
-    StatusCode fillL1ShiftHistos(const LVL1_ROI::energysums_type & L1METROI);
-    StatusCode fillL2ShiftHistos(const LVL1_ROI::energysums_type & L1METROI,
-        const TrigMissingET *& missETL2);
-    
-    StatusCode fillL2FEBShiftHistos(const TrigMissingET *& missL2FEB);
-
-    StatusCode fillEFShiftHistos(const LVL1_ROI::energysums_type & L1METROI,
-        const TrigMissingET *& missETL2,
-        const TrigMissingET *& missETEF);
-    StatusCode fillRecShiftHistos(const LVL1_ROI::energysums_type & L1METROI,
-        const TrigMissingET *& missETL2,
-        const TrigMissingET *& missETEF,
-        const MissingET *& missETRec);
-
-    StatusCode fillExpertHistos(const LVL1_ROI::energysums_type & L1METROI,
-        const TrigMissingET *& missETL2,
-        const TrigMissingET *& missETEF,
-        const MissingET *& missETRec);
+    StatusCode fillL1ShiftHistos(); 
+    StatusCode fillHLTShiftHistos();
+    StatusCode fillOffShiftHistos();
+    StatusCode fillExpertHistos();
 
     void getAllMETTriggers();
     void checkTriggers(std::vector<std::string>& m_triggers,
@@ -98,19 +75,15 @@ class HLTMETMonTool: public IHLTMonTool {
     bool m_debuglevel; //!< private member to control debug messages
 
     std::map<std::string,int> m_all_l1_met_triggers;
-    std::map<std::string,int> m_all_l2_met_triggers;
-    std::map<std::string,int> m_all_ef_met_triggers;
+    std::map<std::string,int> m_all_hlt_met_triggers;
 
     std::map<std::string,int> m_l1_met_signatures;
-    std::map<std::string,int> m_l2_met_signatures;
-    std::map<std::string,int> m_ef_met_signatures;   
+    std::map<std::string,int> m_hlt_met_signatures;   
 
     std::map<std::string, int> *m_l1_met_signatures_tolook;
-    std::map<std::string, int> *m_l2_met_signatures_tolook;
-    std::map<std::string, int> *m_ef_met_signatures_tolook;
+    std::map<std::string, int> *m_hlt_met_signatures_tolook;
 
     std::map<std::string, int> m_sample_selection_signatures;
-
 
     bool m_is_print_met_trig_stats; 
     bool m_is_make_histos_for_all_met_trig;
@@ -120,20 +93,19 @@ class HLTMETMonTool: public IHLTMonTool {
     bool m_is_do_trigger_effic;
 
     std::vector<std::string> m_met_triggers;
-
     std::vector<std::string> m_sample_selection_triggers;
 
-    std::string m_lvl1_roi_key;
-    std::string m_l2met_key, m_l2feb_key;
-    std::string m_efmet_key;
-    std::string m_recmet_key;
-    std::string m_recmetcalo_key;
+    std::string m_lvl1_roi_key, m_hlt_met_key, m_hlt_met_feb_key, m_hlt_met_topocl_key;
+    std::string m_recmet_key, m_recmetcalo_key;
 
-    const LVL1_ROI * m_lvl1_roi; 
+    const xAOD::EnergySumRoI *m_l1_roi_cont;
+    const xAOD::TrigMissingET           *m_hlt_met;
+    const xAOD::TrigMissingETContainer  *m_hlt_met_cont;
+    const xAOD::TrigMissingETContainer  *m_hlt_met_feb_cont;
+    const xAOD::TrigMissingETContainer  *m_hlt_met_topocl_cont;
 
   private:
-
-    std::vector<std::string> m_compNamesL2,  m_compNamesEF, m_bitNamesL2, m_bitNamesEF;
+    std::vector<std::string> m_compNames, m_bitNames;
 };
 
 #endif // HLTMETMONTOOL_H

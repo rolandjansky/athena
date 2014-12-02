@@ -9,7 +9,8 @@ use TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigMissingEtEvent      TrigMissingEtEvent-*    Trigger/TrigEvent
 use MissingETEvent          MissingETEvent-*        Reconstruction
 use TrigHLTMonitoring	    TrigHLTMonitoring-*	    Trigger/TrigMonitoring
-use AnalysisTriggerEvent    AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use xAODTrigger  			xAODTrigger-*           Event/xAOD
+use xAODTrigMissingET    	xAODTrigMissingET-*           Event/xAOD
 
 private
 apply_tag ROOTGraphicsLibs
