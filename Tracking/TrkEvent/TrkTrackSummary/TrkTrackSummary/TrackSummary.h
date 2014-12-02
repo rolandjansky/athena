@@ -41,7 +41,17 @@ enum SummaryType {
         numberOfBLayerOutliers          =31,  //!< number of blayer outliers  
         numberOfBLayerSharedHits        =16,  //!< number of Pixel b-layer hits shared by several tracks.
         numberOfBLayerSplitHits         =43,  //!< number of Pixel b-layer hits split by cluster splitting 
-        expectBLayerHit                 =42,  //!< Do we expect a b-layer hit for this track?
+	expectBLayerHit                 =42,  //!< Do we expect a b-layer hit for this track?
+        expectInnermostPixelLayerHit                 =52,  //!< Do we expect a 0th-layer hit for this track?
+	numberOfInnermostPixelLayerHits              =53,  //!< these are the hits in the 0th pixel layer?
+        numberOfInnermostPixelLayerOutliers          =54,  //!< number of 0th layer outliers  
+        numberOfInnermostPixelLayerSharedHits        =55,  //!< number of Pixel 0th layer hits shared by several tracks.
+        numberOfInnermostLayerSplitHits         =56,  //!< number of Pixel 0th layer hits split by cluster splitting 
+	expectNextToInnermostPixelLayerHit                 =57,  //!< Do we expect a 1st-layer hit for this track?
+	numberOfNextToInnermostPixelLayerHits              = 58,  //!< these are the hits in the 1st pixel layer
+        numberOfNextToInnermostPixelLayerOutliers          =59,  //!< number of 1st pixel layer outliers  
+        numberOfNextToInnermostPixelLayerSharedHits        =60,  //!< number of Pixel 1st layer hits shared by several tracks.
+        numberOfNextToInnermostLayerSplitHits         =61,  //!< number of Pixel 1st layer hits split by cluster splitting 
         numberOfPixelHits               = 2,  //!< these are the pixel hits, including the b-layer
         numberOfPixelOutliers           =41,  //!< these are the pixel outliers, including the b-layer
         numberOfPixelHoles              = 1,  //!< number of pixel layers on track with absence of hits
@@ -86,8 +96,17 @@ enum SummaryType {
     // --- all
         numberOfOutliersOnTrack =15,       //!< number of measurements flaged as outliers in TSOS
         standardDeviationOfChi2OS = 30,    //!< 100 times the standard deviation of the chi2 from the surfaces
-    // -- numbers...
-        numberOfTrackSummaryTypes = 47
+	
+	//reserved: added to keep synchronisation with xAOD::TrackSummary in anticipation of the two being merged
+ 
+	eProbabilityComb_res                = 47, //!< Electron probability from combining the below probabilities [float].
+	eProbabilityHT_res                  = 48, //!< Electron probability from  High Threshold (HT) information [float].   
+	eProbabilityToT_res                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].   
+	eProbabilityBrem_res                = 50, //!< Electron probability from Brem fitting (DNA) [float]. 
+	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+
+ // -- numbers...
+        numberOfTrackSummaryTypes = 62
     };
 
 // Troels.Petersen@cern.ch:
@@ -102,7 +121,7 @@ enum SummaryType {
 /** enumerates the various detector types currently accessible from the isHit() method.
 \todo work out how to add muons to this*/
 enum DetectorType {
-        pixelBarrel0 = 0, //!< there are three pixel barrel layers
+        pixelBarrel0 = 0, //!< there are three or four pixel barrel layers (R1/R2)
         pixelBarrel1 = 1,
         pixelBarrel2 = 2,
 	pixelBarrel3 = 3,
@@ -170,7 +189,8 @@ public:
         const std::vector<float>& eProbability, 
         std::bitset<numberOfDetectorTypes>& hitPattern,
         float dedx=-1,
-        int nhitsuseddedx=-1 
+        int nhitsuseddedx=-1,
+	int nhitsoverflowdedx=-1
     );
 
     /** copy ctor*/
@@ -195,6 +215,10 @@ public:
     float getPixeldEdx() const;
 
     int numberOfUsedHitsdEdx() const;
+
+    int numberOfOverflowHitsdEdx() const;
+
+    unsigned long getHitPattern() const;
 
     /** returns true if the detector type 'type' is hit. 
     @param type Please use the DetectorType enum to access the information  (the internal
@@ -233,6 +257,8 @@ private: // data members
 
     int m_nhitsdedx;
 
+    int m_nhitsoverflowdedx;
+
     /**contains the 'hit pattern'*/
     unsigned long m_idHitPattern;
 
@@ -267,6 +293,11 @@ inline int Trk::TrackSummary::numberOfUsedHitsdEdx() const
     return m_nhitsdedx;
 }
 
+inline int Trk::TrackSummary::numberOfOverflowHitsdEdx() const
+{
+    return m_nhitsoverflowdedx;
+}
+
 inline bool Trk::TrackSummary::isHit(const Trk::DetectorType& type) const 
 {
     // no range checking because people should be using enums
@@ -287,6 +318,11 @@ MsgStream& operator<<(MsgStream& out, const TrackSummary& trackSum);
 /**output. This dumps the values of each of the possible summary enums*/
 std::ostream& operator<<(std::ostream& out, const TrackSummary& trackSum);
 
+}
+
+inline unsigned long Trk::TrackSummary::getHitPattern() const
+{
+  return m_idHitPattern;
 }
 
 #endif

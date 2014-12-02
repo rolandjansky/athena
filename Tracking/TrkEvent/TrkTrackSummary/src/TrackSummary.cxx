@@ -20,6 +20,7 @@ Trk::TrackSummary::TrackSummary()
     m_eProbability(numberOfeProbabilityTypes, 0.5),
     m_dedx(-1),
     m_nhitsdedx(-1),
+    m_nhitsoverflowdedx(-1),
     m_idHitPattern(0),m_indetTrackSummary(0),m_muonTrackSummary(0)
 {
 #ifndef NDEBUG
@@ -27,12 +28,13 @@ Trk::TrackSummary::TrackSummary()
 #endif        
 }
 
-Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern, float dedx, int nhitsdedx)
+Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern, float dedx, int nhitsdedx, int noverflowdedx)
     :
     m_information( information ),
     m_eProbability( eProbability ),
     m_dedx(dedx),
     m_nhitsdedx(nhitsdedx),
+    m_nhitsoverflowdedx(noverflowdedx),
     m_idHitPattern( hitPattern.to_ulong() ),m_indetTrackSummary(0),m_muonTrackSummary(0)
 {
 #ifndef NDEBUG
@@ -46,6 +48,7 @@ Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
     m_eProbability(rhs.m_eProbability),
     m_dedx(rhs.m_dedx),
     m_nhitsdedx(rhs.m_nhitsdedx),
+    m_nhitsoverflowdedx(rhs.m_nhitsoverflowdedx),
     m_idHitPattern(rhs.m_idHitPattern)
 {
 #ifndef NDEBUG
@@ -65,6 +68,7 @@ Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
     m_eProbability = rhs.m_eProbability;
     m_dedx         = rhs.m_dedx;
     m_nhitsdedx    = rhs.m_nhitsdedx;
+    m_nhitsoverflowdedx = rhs.m_nhitsoverflowdedx;
     m_idHitPattern = rhs.m_idHitPattern;
     delete m_indetTrackSummary;
     m_indetTrackSummary = rhs.m_indetTrackSummary ? new InDetTrackSummary(*rhs.m_indetTrackSummary) : 0;
@@ -99,6 +103,7 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
         if (m_dedx<0 && ts.m_dedx>=0) {
           m_dedx=ts.m_dedx;
           m_nhitsdedx=ts.m_nhitsdedx;
+	  m_nhitsoverflowdedx = ts.m_nhitsoverflowdedx;
         }
         if (!m_muonTrackSummary)  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : 0; 
         if (!m_indetTrackSummary) m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :0;
@@ -112,10 +117,14 @@ std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
 {
   out << "Persistant track summary information:"<<std::endl;
   out << " * Number of contrib. Pixel Layer: "<<trackSum.get(numberOfContribPixelLayers)<<std::endl;
-  out << " * Number of B layer hits        : "<<trackSum.get(numberOfBLayerHits)<<std::endl;
-  out << " * Number of B layer shared hits : "<<trackSum.get(numberOfBLayerSharedHits)<<std::endl;
-  out << " * Number of B layer outliers    : "<<trackSum.get(numberOfBLayerOutliers)<<std::endl;
-  out << " * Expect B layer hits (0/1)     : "<<trackSum.get(expectBLayerHit)<<endreq;
+  out << " * Number of Innermost Pixel layer hits        : "<<trackSum.get(numberOfInnermostPixelLayerHits)<<std::endl;
+  out << " * Number of Innermost Pixel layer shared hits : "<<trackSum.get(numberOfInnermostPixelLayerSharedHits)<<std::endl;
+  out << " * Number of Innermost Pixel layer outliers    : "<<trackSum.get(numberOfInnermostPixelLayerOutliers)<<std::endl;
+  out << " * Expect Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectInnermostPixelLayerHit)<<endreq;
+  out << " * Number of Next-To-Innermost Pixel layer hits        : "<<trackSum.get(numberOfNextToInnermostPixelLayerHits)<<std::endl;
+  out << " * Number of Next-To-Innermost Pixel layer shared hits : "<<trackSum.get(numberOfNextToInnermostPixelLayerSharedHits)<<std::endl;
+  out << " * Number of Next-To-Innermost Pixel layer outliers    : "<<trackSum.get(numberOfNextToInnermostPixelLayerOutliers)<<std::endl;
+  out << " * Expect Next-To-Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectNextToInnermostPixelLayerHit)<<endreq;
   out << " * Number of pixel hits          : "<<trackSum.get(numberOfPixelHits)<<std::endl;
   out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<std::endl;
   out << " * Number of spoilt pixel hits   : "<<trackSum.get(numberOfPixelSpoiltHits)<<std::endl;
@@ -167,7 +176,7 @@ std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
 
   out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << std::endl;
   out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << std::endl;
-    
+  out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << std::endl;
   //this is a bit nasty, but I don't have access to internal data members
   out << " Hit pattern (see DetectorType enum for meaning) : ";
   for (int i=0; i<Trk::numberOfDetectorTypes; ++i) 
@@ -247,7 +256,7 @@ MsgStream& Trk::operator<<( MsgStream& out, const TrackSummary& trackSum )
 
   out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << endreq;
   out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << endreq;
-
+  out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << std::endl;
     
   //this is a bit nasty, but I don't have access to internal data members
   out << " Hit pattern (see DetectorType enum for meaning) : ";
