@@ -17,7 +17,7 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   AthAlgorithm(name, pSvcLocator),
   m_toolSvc("ToolSvc",name),
   m_bcTool( "Trig::TrigConfBunchCrossingTool/BunchCrossingTool" ),
-  m_root_vtxName("Vertices"),m_bcid(0),m_useForcedRun(false)
+  m_root_vtxName("Vertices"),m_bcid(0),m_pileup(0),m_useForcedRun(false)
 {
   declareProperty("ToolSvc", m_toolSvc);
   declareProperty("BeamSpotToolList",m_beamSpotToolList);
@@ -62,6 +62,8 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   declareProperty("SeparateByBCID",m_separateByBCID=false);
   declareProperty("UseFilledBCIDsOnly",m_useFilledBCIDsOnly=true);
 
+  declareProperty("SeparateByPileup",m_separateByPileup=false);
+
   //declareProperty("VertexContainer",m_containerName = "VxPrimaryCandidate");
   declareProperty("VertexContainer",m_containerName = "PrimaryVertices");
   // selection criteria
@@ -74,6 +76,10 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   declareProperty( "MinVertexProb", m_minVtxProb=0.001); // min prob(chi2,ndf)
   declareProperty( "VertexNtuple", m_VertexNtuple );
   declareProperty( "WriteAllVertices",m_writeAllVertices=false);
+  declareProperty( "PileupMin", m_pileupMin = 0 );
+  declareProperty( "PileupMax", m_pileupMax = 0 );
+  declareProperty( "UseTruth", m_useTruth = false );
+  
 }
 
 StatusCode InDet::InDetBeamSpotFinder::initialize() {
@@ -126,7 +132,7 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
       msg(MSG::WARNING) << "Forcing run number to value " << m_forcedRunNumber << endreq;     
       m_useForcedRun = true;
     }
-    m_eventCount = 0;
+    //m_eventCount = 0;
   
     if (m_useLumiBlocks || m_lumiBlockRanges.size() != 0) {
       m_useLumiBlocks = true;
@@ -195,6 +201,13 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
   unsigned int lb = eventInfo->lumiBlock();
   unsigned int run = eventInfo->runNumber();
   unsigned int bcid = eventInfo->bcid();
+  unsigned int pileup = eventInfo->actualInteractionsPerCrossing();
+
+  //Skip events outside of pileup range, if a max pileup value is set
+  if( m_pileupMax && ( pileup > m_pileupMax || pileup < m_pileupMin) ){
+    if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "event pileup outside range, skipping" <<endreq;
+    return StatusCode::SUCCESS;
+  }
 
   // Skip empty BCIDs
   if(m_useFilledBCIDsOnly) {
@@ -219,11 +232,21 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
   }
 
   uint64_t idnum(0);
-
+  
   unsigned int runStart(0), runR(0), lumiStart(0), lumiR(0);
 
-  m_eventCount++;
+  //m_eventCount++;
 
+  //If separating by pileup, and the count for this pileup doesn't exist yet, set it to zero
+  //Otherwise, we only have one entry in the map, whose key is zero
+
+  unsigned int pileupVar = m_separateByPileup ? pileup : 0;
+  if( m_eventCountByPileup.find( pileupVar ) == m_eventCountByPileup.end() ) m_eventCountByPileup[ pileupVar ] = 0;
+  m_eventCountByPileup[ pileupVar ]++;
+  
+  std::map< unsigned int, long> idnumByPileup;
+  if( idnumByPileup.find( pileupVar ) == idnumByPileup.end() ) idnumByPileup[ pileupVar ] = 0;
+ 
   //simple options
   if ( m_lumiRange > 0) {
     //normal case - maintain run integrity
@@ -275,10 +298,13 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
 
   if (m_eventRange > 0){
     static int lumiBlockStart(0);
-    static int previousIDNum(0);
-    if ( lumiBlockStart == 0 || (previousIDNum != m_eventCount/m_eventRange)) {
-      // implies starting a new beamspot, store and hold onto the lumiblock number
-      lumiBlockStart = m_eventCount/m_eventRange;
+    //static int previousIDNum(0);
+    std::map< unsigned int, long > previousIDNumByPileup;
+    if( previousIDNumByPileup.find( pileupVar ) == previousIDNumByPileup.end() ) previousIDNumByPileup[ pileupVar ] = 0;
+
+    if ( lumiBlockStart == 0 || (previousIDNumByPileup[ pileupVar ] != m_eventCountByPileup[ pileupVar ]/m_eventRange)) {
+      //Implies starting a new beamspot. lumiBlockStart is a counter of the number of beamspots started so far.
+      lumiBlockStart = m_eventCountByPileup[ pileupVar ]/m_eventRange;
       //      lumiBlockStart = lb;
     }
 
@@ -287,8 +313,10 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
     runR   = 1;
     lumiStart = lumiBlockStart;
     lumiR   = ~0 - lumiStart; 
-    idnum = m_eventCount/m_eventRange;
-    previousIDNum = idnum;
+    //idnum = m_eventCountByPileup[ pileupVar ]/m_eventRange;
+    idnumByPileup[ pileupVar ] = m_eventCountByPileup[ pileupVar ]/m_eventRange;
+    //previousIDNum = idnum;
+    previousIDNumByPileup[ pileupVar ] = idnumByPileup[ pileupVar ];
   }
  if (m_eventRange > 0){
     //overrides run and lb values
@@ -296,8 +324,9 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
     runR   = 1;
     lumiStart = 0;
     lumiR   = 1; 
-    idnum = m_eventCount/m_eventRange;
-  }
+    //idnum = m_eventCountByPileup[ pileupVar ]/m_eventRange;
+    idnumByPileup[ pileupVar ] = m_eventCountByPileup[ pileupVar ]/m_eventRange;
+ }
 
  if (m_useLumiBlocks) {
    // use user-defined ranges of lumi-blocks.
@@ -332,26 +361,31 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
   //Set the run min and run max to [runBegin, runEnd]
   //and the lumiRange to [lumiMin,lumiMax)
   //set the bcid if m_separateByBCID is true to distinguish results
+  //also set pileup if m_separateByPileup is true
   std::vector<BeamSpot::ID> ids;
   ids.resize(m_beamSpotToolList.size());
   for(unsigned int i = 0; i < ids.size(); i ++){
     ids[i].run(runStart);
-    ids[i].id(idnum);
+    ids[i].id( m_separateByPileup ? idnumByPileup[ pileupVar ] : idnum);
     ids[i].lumiStart(lumiStart);
     ids[i].lumiEnd(lumiStart + lumiR);
     ids[i].setRunRange(runR);
     ids[i].bcid( (m_separateByBCID ? bcid: 0) );
     ids[i].setBSTool(i);
+    ids[i].pileup( (m_separateByPileup ? pileup : 0) );
   }
   //const VxContainer* importedVxContainer =0;
   const xAOD::VertexContainer* importedVxContainer = 0;
 
-  //get PV vertex container - can this go in initialise?
-
+  //  if (m_useTruth) {
+  //  ATH_CHECK( evtStore()->retrieve( importedVxContainer, "TruthVertex" ));
+  //	       }
+  //  else{
   ATH_CHECK( evtStore()->retrieve( importedVxContainer, m_containerName) );
+      //  }
+  
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "There are " << importedVxContainer->size() 
-					      << " vertices in "<< m_containerName << endreq;
-
+					      << " vertices in "<<  m_containerName << endreq;
   bool eventUsed(false);
   //get list of PVs
 
@@ -359,12 +393,12 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
   xAOD::VertexContainer::const_iterator vtxItr;
 
   for(unsigned int i = 0; i < ids.size(); i++){
-    
     if( m_nEvents.find(ids[i]) == m_nEvents.end() ) m_nEvents[ids[i]] = 0;
     m_nEvents[ids[i]]++;
   }
   for(vtxItr=importedVxContainer->begin(); 
     vtxItr!=importedVxContainer->end(); ++vtxItr) {
+    
     if ((*vtxItr)->vertexType() == xAOD::VxType::NoVtx) continue; // ignore dummy vertex
 
     for(unsigned int i = 0; i < ids.size(); i++){
@@ -387,7 +421,6 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
     else m_root_par.passed = false;
     
     addToVertexTree(*vtxItr, *eventInfo );
-
 
     if (m_VertexNtuple && (m_root_par.passed || m_writeAllVertices)) {
       m_root_vrt->Fill();
@@ -548,7 +581,11 @@ StatusCode InDet::InDetBeamSpotFinder::finalize() {
     if (m_separateByBCID) {
       msg(MSG::INFO) << "Beamspot with BCID: " << it->first.bcid() << endreq;
     }
-    
+
+    if (m_separateByPileup){
+      msg(MSG::INFO) << "Beamspot with pileup: " << it->first.pileup() << endreq;
+    }    
+
     IInDetBeamSpotTool::FitStatus bsFitStatus;
     if(m_vertexDataMap[ it->first ].size() >= m_minVertexNum)
       bsFitStatus = it->second->fit(m_vertexDataMap[ it->first ]);
@@ -560,6 +597,10 @@ StatusCode InDet::InDetBeamSpotFinder::finalize() {
 		   << "["<< it->first.lumiStart() << ", " <<it->first.lumiEnd() <<  ") " ;
     if (m_separateByBCID) {
       msg(MSG::INFO) << ", BCID: " << it->first.bcid() << " ";
+    }
+
+    if (m_separateByPileup){
+      msg(MSG::INFO) << ", pileup: "<<it->first.pileup() << " ";
     }
     msg(MSG::INFO) << ( (bsFitStatus == IInDetBeamSpotTool::successful) ? " solved. " : " had problems. ") << "\n"<<endreq;
     
@@ -630,7 +671,7 @@ StatusCode InDet::InDetBeamSpotFinder::finalize() {
       m_beamSpotNtuple.run = it->first.run();
       m_beamSpotNtuple.bcid = it->first.bcid();
       m_beamSpotNtuple.runEnd = it->first.runEnd();
-      //m_beamSpotNtuple.Word = m_BeamStatusCode.getWord();
+      m_beamSpotNtuple.pileup = it->first.pileup();
 
       if (m_setLBwithAcceptedEvents ) {
 	m_beamSpotNtuple.lbStart = it->first.firstAcceptedLB();
@@ -655,9 +696,11 @@ StatusCode InDet::InDetBeamSpotFinder::finalize() {
       if (msgLvl(MSG::DEBUG)) {
         msg(MSG::DEBUG) << "run:  " << m_beamSpotNtuple.run << endreq;
 	msg(MSG::DEBUG) << "bcid: " << m_beamSpotNtuple.bcid << endreq;
-        msg(MSG::DEBUG) << "lbStart:  " << m_beamSpotNtuple.lbStart << endreq;
+	msg(MSG::DEBUG) << "pileup: " << m_beamSpotNtuple.pileup << endreq;
+	msg(MSG::DEBUG) << "lbStart:  " << m_beamSpotNtuple.lbStart << endreq;
         msg(MSG::DEBUG) << "lbRange:  " << m_beamSpotNtuple.lbEnd - m_beamSpotNtuple.lbStart + 1 << endreq;
         msg(MSG::DEBUG) << "nVertices:  " << m_beamSpotNtuple.nEvents << endreq;
+     
       }
       
       setRootValues(it->second);
@@ -685,7 +728,6 @@ StatusCode InDet::InDetBeamSpotFinder::finalize() {
 InDet::IInDetBeamSpotTool* InDet::InDetBeamSpotFinder::cloneTool(int i) {
   IInDetBeamSpotTool  * orig = &(*m_beamSpotToolList[i]);
   IInDetBeamSpotTool * temp = orig->Clone();
-  temp = orig->Clone();
   return temp;
 }
 
@@ -704,7 +746,6 @@ std::string InDet::InDetBeamSpotFinder::getAlgorithmName(int status) {
   default:
     return "unknown";
   }
-  return "unknown";
 }
 
 std::string InDet::InDetBeamSpotFinder::getFitStatusName(int status) {
@@ -737,8 +778,8 @@ void InDet::InDetBeamSpotFinder::printBeamspot(const BeamSpot::ID* id , const II
 		   << "\n*   " << "ID:        " << id->id()
 		   << "\n*   " << "lumStart:  " << id->lumiStart()
 		   << "\n*   " << "lumEnd:    " << id->lumiEnd();
-    if (m_separateByBCID)
-      msg(MSG::INFO)  << "\n*   " << "BCID:   " << id->bcid();
+    if (m_separateByBCID) msg(MSG::INFO)  << "\n*   " << "BCID:   " << id->bcid();
+    if (m_separateByPileup) msg(MSG::INFO) << "\n*  " << "Pileup: " << id->pileup();
     msg(MSG::INFO) << endreq;
     
     
@@ -751,6 +792,7 @@ void InDet::InDetBeamSpotFinder::setupBeamspotTree(){
   
   m_root_bs = new TTree(sbs.data(),"Beamspot Solutions");
   m_root_bs->Branch("bcid",&m_beamSpotNtuple.bcid,"bcid/I");
+  m_root_bs->Branch("pileup",&m_beamSpotNtuple.pileup,"pileup/I");
   m_root_bs->Branch("defectWord",    &m_beamSpotNtuple.defectWord, "defectWord/I");
   m_root_bs->Branch("fill",          &m_beamSpotNtuple.fill,       "fill/I");
   m_root_bs->Branch("lbEnd",         &m_beamSpotNtuple.lbEnd,      "lbEnd/I");
@@ -778,11 +820,10 @@ void InDet::InDetBeamSpotFinder::setupVertexTree(){
   const std::string inRootID = "/INDETBEAMSPOTFINDER/";
   const std::string svrts       = m_root_vtxName;
   m_root_vrt = new TTree(svrts.data(),"Primary Vertices");
-  //m_root_vrt->Branch("event",m_root_event,"run/i:event:lb:bcid");
   m_root_vrt->Branch("bcid",&m_bcid,"bcid/I");
   m_root_vrt->Branch("vrt",&m_root_vtx,"x/D:y:z:vxx:vxy:vyy:vxz:vyz:vzz:chi2:ndf:vType/I:valid:run:evt:lb:bcid");
   m_root_vrt->Branch("qual",&m_root_par,"nTracks/I:passed");
-
+  m_root_vrt->Branch("pileup",&m_pileup, "pileup/I");
   if (StatusCode::SUCCESS==m_thistSvc->regTree(inRootID+svrts,m_root_vrt)) {
     msg(MSG::INFO) << "Booked module ntuple " << inRootID <<svrts << endreq;
   } else {
@@ -813,15 +854,18 @@ void InDet::InDetBeamSpotFinder::addToVertexTree(const xAOD::Vertex *vtx, const 
   m_root_vtx.tck = eventInfo.bcid();
 
   m_root_par.nTracks = vtx->nTrackParticles();
+  m_pileup = eventInfo.actualInteractionsPerCrossing();
 }
 
 //This is the function returns true if the vertex passes all cuts, and false otherwise
 bool InDet::InDetBeamSpotFinder::applySelection(const xAOD::Vertex * vtx ) {
   if (!vtx) return false;
+  
   //  return false;
   bool passed = true;
 
-  //ignore vertices with Chi2 < m_maxChi2Vertex
+
+  // vertices with Chi2 < m_maxChi2Vertex
   if (  vtx->chiSquared()/vtx->numberDoF() > m_maxChi2Vertex ) {
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Vertex not included in fit; failed chi2 cut: " 
 						<< endreq;

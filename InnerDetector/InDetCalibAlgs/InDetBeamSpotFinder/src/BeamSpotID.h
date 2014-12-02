@@ -11,7 +11,7 @@
 
 namespace BeamSpot {
   /** Class holding meta-data about a beamspot entry.
-      Uses run, id, luminosity block start and one-past lumiEnd.
+      Uses run, id, luminosity block start, one-past lumiEnd
    */
   class ID {
   public:
@@ -19,13 +19,13 @@ namespace BeamSpot {
     ID():m_run(0), m_id(0),m_lumiStart(0),m_lumiEnd(0),m_runRange(1)
       ,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
       m_timeStampOffset(0)
-      ,m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_bcid(0),m_beamSpotTool(0)
+      ,m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_firstLB(0),m_lastLB(0),m_bcid(0),m_beamSpotTool(0),m_pileup(0)
       {}
     /** Constructor with run and id (usually id is combined 64bit run+lumi)*/
     ID(unsigned int run ,uint64_t id):
       m_run(run), m_id(id),m_lumiStart(0),m_lumiEnd(0),
       m_runRange(1) ,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
-	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_bcid(0),m_beamSpotTool(0)
+	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_bcid(0),m_beamSpotTool(0),m_pileup(0)
       {}
     /** Full constructor with run, id, lumiStart and lumirRange */
     ID(unsigned int run ,uint64_t id,
@@ -33,7 +33,7 @@ namespace BeamSpot {
       m_run(run), m_id(id),m_lumiStart(lumiStart),
       m_lumiEnd(lumiStart+lumiRange),m_runRange(1) 
       ,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
-	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_bcid(0),m_beamSpotTool(0)
+	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),m_bcid(0),m_beamSpotTool(0),m_pileup(0)
       {}
     //Important: lumiEnd is defined to be 'one-past-the-end' for consitency with DB.
     //E.G. for lumiblock == 1, with lumiRange of 1, lumiEnd would be 2.
@@ -44,7 +44,7 @@ namespace BeamSpot {
       m_lumiEnd(lumiStart+lumiRange),m_runRange(runRange) 
       ,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
       m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),
-	m_bcid(0),m_beamSpotTool(0){}
+	m_bcid(0),m_beamSpotTool(0),m_pileup(0){}
 
       // as above, but includes the bcid as well
       ID(unsigned int run ,uint64_t id,
@@ -53,7 +53,16 @@ namespace BeamSpot {
 	m_lumiEnd(lumiStart+lumiRange),m_runRange(runRange) 
 	,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
 	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),
-	m_bcid(bcid),m_beamSpotTool(0){} 
+	m_bcid(bcid),m_beamSpotTool(0),m_pileup(0){} 
+
+      ID(unsigned int run ,uint64_t id,
+	 unsigned int lumiStart, unsigned int lumiRange,
+	 unsigned int runRange, unsigned int bcid, unsigned int pileup): m_run(run), m_id(id),m_lumiStart(lumiStart),
+	m_lumiEnd(lumiStart+lumiRange),m_runRange(runRange) 
+	,m_eventFirst(0),m_eventLast(0),m_timeStampBegin(0), m_timeStampLast(0),
+	m_timeStampOffset(0),m_firstAcceptedLB(0), m_lastAcceptedLB(0),
+	m_bcid(bcid),m_beamSpotTool(0),m_pileup(pileup){} 
+
 
     void setRunRange(unsigned int rr){m_runRange = rr;}
     unsigned int getBSTool() const {return m_beamSpotTool;}
@@ -73,21 +82,15 @@ namespace BeamSpot {
     // runEnd gives [begin,end], ie if runRange = 1, runBegin = runEnd.
     /** Final run position. Set as the final value - not one-past-the-end.*/
     unsigned int runEnd() const { return m_run + m_runRange -1; } 
-    
     void runEnd(unsigned int end) { m_runRange = end - m_run +1;}//!< Set the runEnd value.
+
+    unsigned int pileup() const { return m_pileup; }
+    void pileup(unsigned int pileup) { m_pileup = pileup; }
   
     /** Comparison operator compares only the values of the member @c id. and the bcid*/
-    bool operator==( const ID & rhs)const { return ((m_id == rhs.m_id) && (m_bcid == rhs.m_bcid) && (m_beamSpotTool == rhs.m_beamSpotTool));}
+    bool operator==( const ID & rhs)const { return ((m_id == rhs.m_id) && (m_bcid == rhs.m_bcid) && (m_beamSpotTool == rhs.m_beamSpotTool) && (m_pileup == rhs.m_pileup));}
     bool operator!=( const ID & rhs)const { return !(operator==(rhs));}
     /** Comparison operator compares only the values of the member @c id.and the bcid*/
-    /*  bool operator<( const ID & rhs) const { 
-      if ( m_id > rhs.m_id) return false;
-      else if ( m_id < rhs.m_id) return true;
-      else 
-	return m_bcid < rhs.m_bcid;
-        }
-    */
-
     bool operator<( const ID & rhs) const { 
       if ( m_id < rhs.m_id) return true;
       if ( m_id > rhs.m_id) return false;
@@ -95,6 +98,8 @@ namespace BeamSpot {
       if ( m_bcid > rhs.m_bcid ) return false;
       if ( m_beamSpotTool < rhs.m_beamSpotTool ) return true;
       if ( m_beamSpotTool > rhs.m_beamSpotTool ) return false;
+      if ( m_pileup < rhs.m_pileup ) return true;
+      if ( m_pileup > rhs.m_pileup) return false;
       return false;
     }
   
@@ -143,6 +148,7 @@ namespace BeamSpot {
     unsigned int m_bcid;
     //ToolHandle<InDet::IInDetBeamSpotTool> m_beamSpotTool;
     unsigned int m_beamSpotTool;
+    unsigned int m_pileup;
   };
 }
 std::ostream & operator<<(std::ostream & os,const BeamSpot::ID & rhs) ;

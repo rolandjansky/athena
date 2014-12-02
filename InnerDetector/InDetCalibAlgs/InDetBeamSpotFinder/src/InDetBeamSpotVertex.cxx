@@ -43,7 +43,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type,
   m_p(4), m_V(4,0),
   m_zSolved(0.), m_zErrSolved(0.),
   m_NPARS(10), m_pLL(m_NPARS,0),m_VLL(m_NPARS,0),
-  m_vertexCount(0),
+  m_vertexCount(0),m_getLLres(false),
   m_fitStatus(unsolved),m_nUsed(0)
 
 {
@@ -128,7 +128,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const InDetBeamSpotVertex& rhs) :
   m_p(4), m_V(4,0),
   m_zSolved(0.), m_zErrSolved(0.),
   m_NPARS(10), m_pLL(m_NPARS,0),m_VLL(m_NPARS,0),
-  m_vertexCount(0),
+  m_vertexCount(0),m_getLLres(false),
   m_fitStatus(unsolved),m_nUsed(0)
 {
   m_useLL = rhs.m_useLL;
@@ -201,6 +201,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const InDetBeamSpotVertex& rhs) :
   m_truncatedRMS = rhs.m_truncatedRMS;
   m_fractionRMS = rhs.m_fractionRMS;
   m_setInitialRMS = rhs.m_setInitialRMS;
+  m_minVtxProb = rhs.m_minVtxProb;
 }
 
 StatusCode InDetBeamSpotVertex::initialize() {

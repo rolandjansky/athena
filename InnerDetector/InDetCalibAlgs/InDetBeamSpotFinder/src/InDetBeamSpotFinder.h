@@ -70,7 +70,9 @@ namespace InDet {
     int m_runRange;  // runRange
     int m_eventRange; //eventRange
     int m_skipNevents; // skip every N number of events
-    int m_eventCount;
+    //int m_eventCount;
+    std::map< unsigned int, long> m_eventCountByPileup;//m_separateByPileup ? counts num events with each value of pileup : counts total num of events
+    //std::map< unsigned int, long> m_idnumByPileup;
     //std::map<unsigned int,long> m_vertexCountPrim;
     //std::map<unsigned int,long> m_vertexCountAll;
 
@@ -91,13 +93,14 @@ namespace InDet {
     // ----- Histogramming ----- //
     bool m_doHists; //do histogramming?
     bool m_VertexNtuple;//Write Vertex Ntuple?
-    ITHistSvc * m_thistSvc;
+    ITHistSvc * m_thistSvc=0;
     std::string m_root_beamspotName;
-    TTree * m_root_bs;
+    TTree * m_root_bs=0;
 
     /** Interal storage of IOV and fitstatus for ROOT plots
      */
     struct beamSpotNtuple_struct{
+      int pileup;
       int bcid;
       int defectWord;
       int fill;
@@ -122,7 +125,7 @@ namespace InDet {
     void setupVertexTree();
     void setRootValues(const IInDetBeamSpotTool * );
     void addExtraBranches(const IInDetBeamSpotTool *);
-    TTree * m_root_vrt;
+    TTree * m_root_vrt=0;
     bool addVertex(const xAOD::Vertex * , BeamSpot::ID  );
     void addToVertexTree(const xAOD::Vertex *, const xAOD::EventInfo &);
     void convertVtxTypeNames();
@@ -131,9 +134,11 @@ namespace InDet {
     unsigned int m_bcid; 
     //unsigned int m_root_event[4];
     struct vrtPar {
-      int nTracks, passed;
+      int nTracks=0;
+      bool passed=false;
     };
     /*static*/ vrtPar m_root_par;
+    int m_pileup;
     std::vector<BeamSpot::VrtHolder> m_vertexDataVec;
     
     std::map<BeamSpot::ID, std::vector<BeamSpot::VrtHolder> > m_vertexDataMap;
@@ -169,9 +174,15 @@ namespace InDet {
 
     bool m_separateByBCID; // each bcid is fitted separately
     bool m_useFilledBCIDsOnly; // Only use filled BCIDs not empty ones (data)
+
+    bool m_separateByPileup;
+
     bool m_writeAllVertices;
     //std::map<unsigned int,long> m_nEvents;
     std::map<BeamSpot::ID, long> m_nEvents;
+    unsigned int m_pileupMin;
+    unsigned int m_pileupMax;
+    bool m_useTruth;
    };
     
 }//end namespace 

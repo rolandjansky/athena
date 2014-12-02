@@ -52,7 +52,7 @@ namespace InDet {
     virtual FitID getFitID() const { return RooFitLL; }
     virtual FitStatus fit(std::vector< BeamSpot::VrtHolder >&);
     IInDetBeamSpotTool *Clone() { return new InDetBeamSpotRooFit(*this); }
-
+    //std::string combineCuts( RooDataSet & );
 
     private:
     //m_cov is the covariance matrix from the fit
@@ -73,6 +73,9 @@ namespace InDet {
     long m_vertexCount;
     FitStatus m_fitStatus;
     std::string m_vtxCut;
+    double m_kStart;
+    double m_rmsCutNum;
+    bool m_fixInputK;
   };
 }
 

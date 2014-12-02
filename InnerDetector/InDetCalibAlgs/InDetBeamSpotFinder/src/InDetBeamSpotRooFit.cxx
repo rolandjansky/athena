@@ -24,14 +24,17 @@ InDetBeamSpotRooFit::InDetBeamSpotRooFit( const std::string& type,
   m_mx(0),m_my(0),m_mz(0),m_rho(0),
   m_sx(0),m_sy(0),m_sz(0),m_nUsed(0),
   m_vertexCount(0),
-  m_fitStatus(unsolved),
-  m_vtxCut("vxx < .0025 && vyy< .0025 && abs(x) < 2 && abs(y) < 2 && abs(z) < 300")
+  m_fitStatus(unsolved)
 {
   declareInterface<IInDetBeamSpotTool>(this);
-  declareProperty("VtxCut",m_vtxCut);
+  declareProperty("VtxCut", m_vtxCut="vxx < .0025 && vyy< .0025 && abs(x) < 2 && abs(y) < 2 && abs(z) < 300");
+  declareProperty("kStart", m_kStart=1.0);
+  declareProperty("RMSCut", m_rmsCutNum = 16);
+  declareProperty("FixParK", m_fixInputK = false);
+  //  declareProperty("UseTruth", m_useTruth = false);
 }
 
-//Copy constructor
+//Copy constructor: any variables that can be set with job options should be copied here
 InDetBeamSpotRooFit::InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs ) : 
   IInDetBeamSpotTool(rhs), 
   AthAlgTool(rhs.type(), rhs.name(), rhs.parent()),
@@ -40,7 +43,10 @@ InDetBeamSpotRooFit::InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs ) :
   m_sx(0),m_sy(0),m_sz(0),m_nUsed(0),
   m_vertexCount(0),
   m_fitStatus(unsolved),
-  m_vtxCut(rhs.m_vtxCut)
+  m_vtxCut(rhs.m_vtxCut),
+  m_kStart(rhs.m_kStart),
+  m_rmsCutNum(rhs.m_rmsCutNum),
+  m_fixInputK(rhs.m_fixInputK)
 {}
 
 StatusCode InDetBeamSpotRooFit::initialize() {
@@ -56,9 +62,7 @@ StatusCode InDetBeamSpotRooFit::finalize() {
 
 InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::VrtHolder > &vtxData){ 
   m_vertexData = vtxData;
-  m_vertexCount = m_vertexData.size();
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "There are " << m_vertexCount 
-					  << " vertices for the fit." << endreq;
+
   //This is to determine the min and max values of the data for setting up the RooDataSet
   double xMin = m_vertexData[0].x ;
   double xMax = m_vertexData[0].x;
@@ -101,28 +105,30 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
 
   //Declare the RooDataSet and add data to it
   RooDataSet rfData("rfData","RooFit data",RooArgSet(x,y,z,vxx,vyy,vxy));
-  for( unsigned int j = 0; j < m_vertexData.size(); j++){
-    x = m_vertexData[j].x;
-    y = m_vertexData[j].y;
-    z = m_vertexData[j].z;
-    vxx = m_vertexData[j].vxx;
-    vyy = m_vertexData[j].vyy;
-    vxy = m_vertexData[j].vxy;
+
+  m_vertexCount = m_vertexData.size();
+ 
+  for( unsigned int j = 0; j < m_vertexCount; j++){
+    x.setVal(m_vertexData[j].x);
+    y.setVal(m_vertexData[j].y);
+    z.setVal(m_vertexData[j].z);
+    vxx.setVal(m_vertexData[j].vxx);
+    vyy.setVal(m_vertexData[j].vyy);
+    vxy.setVal(m_vertexData[j].vxy);
     rfData.add(RooArgSet(x,y,z,vxx,vyy,vxy));
   }
 
-  //Declare the parameters
-  Double_t vxxMean = rfData.mean(vxx,vtxCut);
-  Double_t vyyMean = rfData.mean(vyy,vtxCut);
-  Double_t axStart = 0, ayStart = 0, kStart = 1.25;
-  Double_t wxxStart = rfData.sigma(x,vtxCut);
-  Double_t wyyStart = rfData.sigma(y,vtxCut);
+  Double_t vxxMean = rfData.reduce(Cut(vtxCut))->mean(vxx);
+  Double_t vyyMean = rfData.reduce(Cut(vtxCut))->mean(vyy);
+  Double_t axStart = 0, ayStart = 0, kStart = m_kStart;
+  Double_t wxxStart = rfData.reduce(Cut(vtxCut))->sigma(x);
+  Double_t wyyStart = rfData.reduce(Cut(vtxCut))->sigma(y);
   Double_t sxStart = sqrt(wxxStart*wxxStart - kStart*kStart*vxxMean);
   Double_t syStart = sqrt(wyyStart*wyyStart - kStart*kStart*vyyMean);
-  Double_t szStart = rfData.sigma(z,vtxCut);
-  Double_t mxStart = rfData.mean(x,vtxCut);
-  Double_t myStart = rfData.mean(y,vtxCut);
-  Double_t mzStart = rfData.mean(z,vtxCut);
+  Double_t szStart = rfData.reduce(Cut(vtxCut))->sigma(z);
+  Double_t mxStart = rfData.reduce(Cut(vtxCut))->mean(x);
+  Double_t myStart = rfData.reduce(Cut(vtxCut))->mean(y);
+  Double_t mzStart = rfData.reduce(Cut(vtxCut))->mean(z);
   Double_t rhoStart = 0;
 
   RooRealVar ax("ax","Tilt x",axStart,-1e-3,1e-3);
@@ -136,13 +142,52 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   RooRealVar sy("sy","Width y",syStart,0,0.1);
   RooRealVar sz("sz","Width z",szStart,1,200);
 
+
   //Perform the fit and add results to member variables   
+  
   BeamSpotPdf fitModel("fitModel","BeamSpot PDF",x,y,z,vxx,vyy,vxy,mx,sx,ax,my,sy,ay,mz,sz,k,rho);
-   
-  RooFitResult *r = fitModel.fitTo( *(rfData.reduce(Cut(vtxCut))) ,ConditionalObservables(RooArgSet(vxx,vyy,vxy)),Save(),PrintLevel(-1));
+
+  //Apply the specified cut on position and vertex resolution
+  //RooDataSet *reducedData = (RooDataSet*)rfData.reduce( Cut(vtxCut) );
+  //We now need to combine the vtx resolution cut with the rms cut
+  //std::string combinedCutString = combineCuts(rfData);
+  //const char *combinedCut = (const char*)combinedCutString.c_str();
+
+  double rmsCutXLow = mxStart - m_rmsCutNum * wxxStart;
+  double rmsCutXHigh = mxStart + m_rmsCutNum * wxxStart;
+  double rmsCutYLow = myStart - m_rmsCutNum * wyyStart;
+  double rmsCutYHigh = myStart + m_rmsCutNum * wyyStart;
+  double rmsCutZLow = mzStart - m_rmsCutNum * szStart;
+  double rmsCutZHigh = mzStart + m_rmsCutNum * szStart;
+
+  std::string rmsCutString = static_cast<std::ostringstream*>( & (std::ostringstream() << "x > " << rmsCutXLow << " && "
+							     << "x < " << rmsCutXHigh << " && "
+							     << "y > " << rmsCutYLow  << " && "
+							     << "y < " << rmsCutYHigh << " && "
+							     << "z > " << rmsCutZLow  << " && "
+							     << "z < " << rmsCutZHigh) ) -> str();
+
+  std::string combinedCutString = m_vtxCut + std::string(" && ") + rmsCutString;
+  const char *combinedCut = (const char*)combinedCutString.c_str();
+
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"combinedCut = "<<combinedCut<<endreq;
+  
+
+  //Convert these numbers to strings, then concatenate the strings
+  //rmsCutX = x > rmsCutLow && x < rmsCutXHigh;
+  //repeat for y and z
+
+
+  RooFitResult *r = fitModel.fitTo( *(rfData.reduce(Cut(combinedCut))) ,ConditionalObservables(RooArgSet(vxx,vyy,vxy)),Save(),PrintLevel(-1));
 
   r->Print();
-  m_nUsed = rfData.reduce(Cut(vtxCut))->numEntries();
+  m_nUsed = rfData.reduce(Cut(combinedCut))->numEntries();
+
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) 
+			   << "A total of " << m_vertexCount << " vertices passed pre-selection. Of which "
+			   << rfData.reduce(Cut(combinedCut))->numEntries()<<" vertices will be used in the ML fit."<<endreq;
+
+
   if ( r->edm() <= 10e-04 && r->covQual() == 3){
     m_fitStatus = successful;
   }
