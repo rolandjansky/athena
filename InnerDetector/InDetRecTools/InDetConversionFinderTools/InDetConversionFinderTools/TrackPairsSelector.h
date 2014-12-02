@@ -44,6 +44,10 @@ namespace InDet {
     bool selectTrackParticlePair(const xAOD::TrackParticle* trkPpos, const xAOD::TrackParticle* trkPneg);
     bool selectTrackPair(const Trk::Track* trkpos, const Trk::Track* trkneg);
     
+    /** Return a map with the values calculated for the last pair
+      * to decorate the vertex once it is created **/
+    std::map<std::string, float> getLastValues();
+    
   private:
     ToolHandle <InDet::ConversionFinderUtils> m_helpertool; /**Conversion helper tool.  */
     ToolHandle<Trk::ITrkDistanceFinder> m_distanceTool;  /** Distance of minimum approach tool   */
@@ -54,6 +58,12 @@ namespace InDet {
     std::vector<double> m_maxDist; /** Maximum allowed distance of minimum approach */
     std::vector<double> m_etaCut;  /** Maximum eta difference between tracks in pair. */
     std::vector<double> m_initCut; /** Maximum distance difference between initial hits of tracks in pair. */
+
+    /** Values we cut on, to be returned later **/
+    float m_distance;              /** Distance of closest approach between the tracks **/
+    float m_deltaCotTheta;         /** Delta cot theta between the tracks **/
+    float m_deltaInit;             /** Distance difference between initial hits of tracks */
+
   };
   
 }

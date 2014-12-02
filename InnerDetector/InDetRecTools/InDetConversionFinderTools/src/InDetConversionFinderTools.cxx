@@ -73,6 +73,7 @@ namespace InDet
     declareProperty("TrackParticleCollection",    m_TrkParticleCollection); //Input track particle collection
     declareProperty("RemoveTrtTracks",            m_removeTrt); //Remove standalone TRT tracks
     declareProperty("IsConversion",               m_isConversion); //Conversion or V0s
+    declareProperty("DecorateVertices",           m_decorateVertices=true); //Decorate vertices with values used for vertex selection  
     declareProperty("TrackSelectorTool",          m_trkSelector);
     declareProperty("MinDistVtxHit",              m_mindR);
     declareProperty("MaxDistVtxHit",              m_maxdR);
@@ -471,6 +472,17 @@ namespace InDet
               (!m_isConversion && m_postSelector->selectSecVtxCandidate(myVertex, flag, positionList, type))){
             ATH_MSG_DEBUG(" Conversion passed postselection cuts");
             
+            if (m_decorateVertices)
+            {
+              ATH_MSG_DEBUG("Decorating vertex with values used in track pair selector");
+                for (auto kv : m_trackPairsSelector->getLastValues())
+                  myVertex->auxdata<float>(kv.first) = kv.second;
+
+              ATH_MSG_DEBUG("Decorating vertex with values used in vertex point estimator");
+                for (auto kv : m_vertexEstimator->getLastValues())
+                  myVertex->auxdata<float>(kv.first) = kv.second;
+            }
+            
             //Really need to check that this correct.
             //Remove old element links
             myVertex->clearTracks();
@@ -490,7 +502,7 @@ namespace InDet
             if (m_isConversion)
             {
               myVertex->setVertexType(xAOD::VxType::ConvVtx);
-              if (myVertex->vxTrackAtVertexAvailable()) myVertex->vxTrackAtVertex().clear();
+//               if (myVertex->vxTrackAtVertexAvailable()) myVertex->vxTrackAtVertex().clear();
               InDetConversionContainer->push_back(myVertex);
             }
             else if (type==101 || type==110 || type==11) // V0
@@ -539,12 +551,28 @@ namespace InDet
             sConver->addTrackAtVertex(newLink);
             sConver->setVertexType(xAOD::VxType::ConvVtx);
             numSingle++;
+            
+            if (m_decorateVertices)
+            {
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in track pair selector");
+              for (auto kv : m_trackPairsSelector->getLastValues())
+                sConver->auxdata<float>(kv.first) = 0.;
+
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in vertex point estimator");
+              for (auto kv : m_vertexEstimator->getLastValues())
+                sConver->auxdata<float>(kv.first) = 0.;
+              
+              ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in post selector");
+              m_postSelector->decorateVertex(*sConver, 0., 0., 0., 0., 0.);
+            }
+
+            
           }
         }
       }
       ATH_MSG_DEBUG("Number successful reconstructed single track conversion: "<<numSingle);
     }
-    
+        
     return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
   } 
 

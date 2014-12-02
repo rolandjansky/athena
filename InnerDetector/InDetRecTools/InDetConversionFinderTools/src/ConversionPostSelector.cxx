@@ -64,6 +64,7 @@ namespace InDet {
     declareProperty("MaxdR",            m_maxdR       );
     declareProperty("MaxPhiVtxTrk",     m_maxPhiVtxTrk);
     declareProperty("NSigma",           m_nsig        );
+    declareProperty("DecorateVertices", m_decorateVertices=true);
   }
   
   ConversionPostSelector::~ConversionPostSelector() {}
@@ -90,19 +91,19 @@ namespace InDet {
     double fitMomentum = 0.;
     double radius      = 1000.;
     
-    if(flag==0) {
+    if(flag==0) { // Si+Si
       maxChi2     = m_maxChi2[0]    ; //Vertex fit chi2 cut
       invMassCut  = m_invMassCut[0] ; //Fit invariant mass cut
       fitMomentum = m_fitMomentum[0]; //Photon fitted momentum
       radius      = m_minRadius[0]  ; //Minimum acceptable radius of conversion vertex
     }
-    if(flag==1) {
+    if(flag==1) { // Si+TRT
       maxChi2     = m_maxChi2[1]    ; //Vertex fit chi2 cut
       invMassCut  = m_invMassCut[1] ; //Fit invariant mass cut
       fitMomentum = m_fitMomentum[1]; //Photon fitted momentum
       radius      = m_minRadius[1]  ; //Minimum acceptable radius of conversion vertex
     }
-    if(flag==2) {
+    if(flag==2) { // TRT+TRT
       maxChi2     = m_maxChi2[2]    ; //Vertex fit chi2 cut
       invMassCut  = m_invMassCut[2] ; //Fit invariant mass cut
       fitMomentum = m_fitMomentum[2]; //Photon fitted momentum
@@ -122,12 +123,20 @@ namespace InDet {
       //Minimum radius cut
       double vtxR = vertex->position().perp();
       if(vtxR < radius) pass = false;
+
+      // Parameters at vertex
+      std::vector< Trk::VxTrackAtVertex >& trkAtVx = vertex->vxTrackAtVertex();
+      if (trkAtVx.size() != 2 || 
+          !trkAtVx[0].perigeeAtVertex() || 
+          !trkAtVx[1].perigeeAtVertex())
+      {
+        ATH_MSG_DEBUG("VxTrackAtVertex or perigeeAtVertex not available");
+        return false;
+      }         
+      const Trk::TrackParameters& perigee1 = *(trkAtVx[0].perigeeAtVertex());
+      const Trk::TrackParameters& perigee2 = *(trkAtVx[1].perigeeAtVertex());
       
       //invariant mass
-      const Trk::TrackParameters& perigee1 = vertex->trackParticle(0)->perigeeParameters();
-      const Trk::TrackParameters& perigee2 = vertex->trackParticle(1)->perigeeParameters();
-      //if(!perigee1 || ! perigee2) {pass=false; return pass;}
-      
       HepLorentzVector momentum;
       Amg::Vector3D sum_mom = perigee1.momentum() + perigee2.momentum();
       double m2 = pow(ConversionPostSelector::s_particleMasses.mass[Trk::electron],2);
@@ -150,10 +159,17 @@ namespace InDet {
       }
       if(flag==1 && fR-vtxR<m_maxdR) pass = false;
       
-      double PhiVtxTrk = fabs(vertex->position().phi() - perigee1.parameters()[Trk::phi0]);
+      double PhiVtxTrk = vertex->position().phi() - perigee1.parameters()[Trk::phi0];
       if (PhiVtxTrk < -pi) PhiVtxTrk += twopi;
       if (PhiVtxTrk >  pi) PhiVtxTrk -= twopi;
-      if (PhiVtxTrk>m_maxPhiVtxTrk) pass = false;
+      if (fabs(PhiVtxTrk)>m_maxPhiVtxTrk) pass = false;
+      
+      if (pass && m_decorateVertices)
+      {
+        ATH_MSG_DEBUG("Decorating vertex with values used in post selector");
+        decorateVertex(*vertex, inv_mass, pt1, pt2, fR, fabs(PhiVtxTrk) );
+      }
+      
     }
     return pass;
   }
@@ -200,11 +216,18 @@ namespace InDet {
       double vtxR = vertex->position().perp();
       if(vtxR < radius) pass = false;
       
-      // Not correct  fix in the future  -- should be track parameters at the vertex
-      const Trk::TrackParameters& perigee1 = vertex->trackParticle(0)->perigeeParameters();
-      const Trk::TrackParameters& perigee2 = vertex->trackParticle(1)->perigeeParameters();
-      //if(!perigee1 || ! perigee2) {pass=false; return pass;}
-      
+      // Parameters at vertex
+      std::vector< Trk::VxTrackAtVertex >& trkAtVx = vertex->vxTrackAtVertex();
+      if (trkAtVx.size() != 2 || 
+          !trkAtVx[0].perigeeAtVertex() || 
+          !trkAtVx[1].perigeeAtVertex())
+      {
+        ATH_MSG_DEBUG("VxTrackAtVertex or perigeeAtVertex not available");
+        return false;
+      }         
+      const Trk::TrackParameters& perigee1 = *(trkAtVx[0].perigeeAtVertex());
+      const Trk::TrackParameters& perigee2 = *(trkAtVx[1].perigeeAtVertex());
+            
       double pt1 = perigee1.pT(); double pt2 = perigee2.pT();
       if (pt1<m_minPt || pt2<m_minPt) pass = false;
       
@@ -273,4 +296,15 @@ namespace InDet {
     momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
     return momentum;
   }
-}
+
+void ConversionPostSelector::decorateVertex(xAOD::Vertex &vertex, float inv_mass, float pt1, float pt2, float fR, float deltaPhiVtxTrk)
+  {
+    vertex.auxdata<float>("mass") = inv_mass;
+    vertex.auxdata<float>("pt1") = pt1;
+    vertex.auxdata<float>("pt2") = pt2;
+    vertex.auxdata<float>("minRfirstHit") = fR;
+    vertex.auxdata<float>("deltaPhiVtxTrk") = deltaPhiVtxTrk;
+  }
+
+} // namespace InDet
+

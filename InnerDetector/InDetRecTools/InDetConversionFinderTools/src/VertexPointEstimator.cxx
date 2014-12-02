@@ -28,7 +28,9 @@ namespace InDet {
   // ----------------------------------
   VertexPointEstimator::VertexPointEstimator(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_maxChi2(20.)
+    m_maxChi2(20.),
+    m_deltaPhi(0.),
+    m_deltaR(0.)
   {
     declareInterface<VertexPointEstimator>(this);
     /// Cuts for selecting track pairs
@@ -233,7 +235,7 @@ namespace InDet {
     //  rotate, translate to a system, where the two circle centres lie on the X axis
 
     //New cut from Mauro
-    double MDdr = U; double PHI = -99999.;
+    double m_deltaR = U; double PHI = -99999.;
     double hl = areaVar(XC[0], YC[0], RA[0], XC[1], YC[1], RA[1], PHI);
     
     double COST = DX/D;
@@ -343,7 +345,7 @@ namespace InDet {
     Z = ZSVI[J];
     intPoint(0)=X;	intPoint(1)=Y;	intPoint(2)=Z;
     
-    if(MDdr>maxDr || MDdr<minDr){
+    if(m_deltaR>maxDr || m_deltaR<minDr){
       ATH_MSG_DEBUG("Unaceptable circle distance");
       errorcode = 6;
     }
@@ -795,6 +797,13 @@ namespace InDet {
     double f = 1;
     double i = 1;
     return fabs(0.5* ( (a*e*i + d*h*c + b*f*g)  - (g*e*c + d*b*i + a*f*h) ) );  
+  }
+
+  // -------------------------------------------------------------
+  std::map<std::string, float> VertexPointEstimator::getLastValues()
+  {
+    return {{"deltaPhiTracks", m_deltaPhi},
+            {"DR1R2", m_deltaR} };
   }
   
 }

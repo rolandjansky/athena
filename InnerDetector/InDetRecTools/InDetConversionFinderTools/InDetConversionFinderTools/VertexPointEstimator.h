@@ -37,6 +37,10 @@ namespace InDet {
     /** Get intersection point of two track helices.Based on pure geometric arguments.Return error flag if problems. */
     void   getStartingPoint(const Trk::Perigee *, const Trk::Perigee *, Amg::Vector3D &, int &, int, 
 			    double&, double&, double&, double&, double&, double&, double&, double&, double& );
+    /** Return a map with the values calculated for the last pair
+      * to decorate the vertex once it is created **/
+    std::map<std::string, float> getLastValues();
+		
   private:
     
     double areaVar(double, double, double, double, double, double, double&);
@@ -59,6 +63,8 @@ namespace InDet {
     std::vector<double> m_maxHl;         /**maximum ratio H/l */
     std::vector<double> m_maxPhi;        /**maximum DPhi at the estimated vertex position */
     double m_maxChi2;                    /** max chi2 of the estimated vertex position*/
+    float m_deltaPhi;                    /** deltaPhi between tracks **/
+    float m_deltaR;                      /** Distance between helix centers minus the radii of each of them (D - R1 - R2) **/
   };
   
 }

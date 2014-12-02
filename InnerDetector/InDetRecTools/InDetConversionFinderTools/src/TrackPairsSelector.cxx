@@ -29,7 +29,10 @@ namespace InDet {
     m_helpertool("InDet::ConversionFinderUtils"),
     m_distanceTool("Trk::SeedNewtonDistanceFinder/InDetConversionTrkDistanceFinder"),
     m_maxR(500.),
-    m_MinTrkAngle(0.)
+    m_MinTrkAngle(0.),
+    m_distance(9999.),
+    m_deltaCotTheta(9999.),
+    m_deltaInit(9999.)
   {
     m_etaCut.push_back(0.8);
     m_etaCut.push_back(1.2);
@@ -172,7 +175,8 @@ namespace InDet {
       else                                                   detaCut = m_etaCut[2];
     }
 
-    if(fabs(1./tan(perPos->parameters()[Trk::theta]) - 1./tan(perNeg->parameters()[Trk::theta])) > detaCut) pass = false;
+    m_deltaCotTheta = fabs(1./tan(perPos->parameters()[Trk::theta]) - 1./tan(perNeg->parameters()[Trk::theta]));
+    if (m_deltaCotTheta > detaCut) return false;
     
     //Cut on distance between the initial hit position of the two tracks.
     double dinit = 1000.;
@@ -183,8 +187,9 @@ namespace InDet {
     } else if(sCase == 2) {
       dinit = m_initCut[2];
     }
-
-    if(fabs(firstRpos - firstRneg) > dinit) pass = false;
+    
+    m_deltaInit = fabs(firstRpos - firstRneg);
+    if (m_deltaInit > dinit) return false;
     
     //Cut on distance of minimum approach between the two tracks.
     double maxDist = 1000.;
@@ -196,10 +201,10 @@ namespace InDet {
       maxDist = m_maxDist[2];
     }
 
-    bool gotDistance = false; double newDistance = 1000000.;
+    bool gotDistance = false; m_distance = 1000000.;
     gotDistance = m_distanceTool->CalculateMinimumDistance(trkPneg->perigeeParameters(),trkPpos->perigeeParameters() );
-    if (gotDistance) newDistance = m_distanceTool->GetDistance();
-    if (!gotDistance || (newDistance>maxDist)) pass = false;
+    if (gotDistance) m_distance = m_distanceTool->GetDistance();
+    if (!gotDistance || (m_distance>maxDist)) return false;
     
     //3D angle cut in the case of V0s, not used in the case of conversions
     double d_beta = (perPos->momentum().dot(perNeg->momentum()))/(perPos->momentum().mag()*perNeg->momentum().mag());
@@ -274,5 +279,17 @@ namespace InDet {
     
     return pass;
   }
-}
+
+  // -------------------------------------------------------------
+  std::map<std::string, float> TrackPairsSelector::getLastValues()
+  {
+    return {{"minimumDistanceTrk", m_distance},
+            {"deltaCotThetaTrk", m_deltaCotTheta},
+            {"deltaInitRadius", m_deltaInit} };
+  }
+
+} // namespace InDet
+
+
+
 

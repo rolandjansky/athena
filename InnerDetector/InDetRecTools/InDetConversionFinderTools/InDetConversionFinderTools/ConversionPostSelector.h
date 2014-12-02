@@ -32,6 +32,9 @@ namespace InDet {
     bool selectConversionCandidate(xAOD::Vertex * myCandidate, int flag, std::vector<Amg::Vector3D>& trkL); 
     bool selectSecVtxCandidate(xAOD::Vertex * myCandidate, int flag, std::vector<Amg::Vector3D>& trkL, int&);
     
+    /** Decorate vertices with values used in post selector **/
+    void decorateVertex(xAOD::Vertex &vertex, float inv_mass, float pt1, float pt2, float fR, float deltaPhiVtxTrk);
+    
   private:
     /** Properties for track selection: 
 	all cuts are ANDed */
@@ -42,6 +45,8 @@ namespace InDet {
     double              m_minPt;       /** Pt of the two participating tracks at the vertex. */
     double              m_maxdR;       /** Distance of first track hit- reconstructed vertex radial position.  */
     double              m_maxPhiVtxTrk;/** Maximum difference in phi between reconstructed vertex and track at vertex. */
+    bool                m_decorateVertices;/** Decorate vertices with values used for vertex selection */
+
     
     /** Masses and mass ranges for different V0 hypotheses */
     double m_massK0      ;

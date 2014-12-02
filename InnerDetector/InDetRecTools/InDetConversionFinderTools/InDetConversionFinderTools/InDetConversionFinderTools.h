@@ -64,6 +64,7 @@ namespace InDet{
     std::string                       m_TrkParticleCollection ;  //!< Name of input track particle collection
     bool                              m_removeTrt             ;  //!< Remove standalone TRT tracks
     bool                              m_isConversion          ;  //!< Conversions or V0s
+    bool                              m_decorateVertices      ;  //!< Decorate vertices with values used for vertex selection
     
     VxContainer* findVertex(const TrackCollection* trk_coll);    //!< Conversion candidate reconstruction for Trk::Tracks.
   
