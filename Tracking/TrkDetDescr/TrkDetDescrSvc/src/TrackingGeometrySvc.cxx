@@ -11,7 +11,6 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkDetDescrSvc/TrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
@@ -61,9 +60,7 @@ Trk::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name,ISvcLocato
   declareProperty( "CallbackStringForced",         m_callbackStringForced);
   declareProperty( "CallbackString",               m_callbackString);
   declareProperty( "CallbackStringCheck",          m_callbackStringCheck);
-  declareProperty( "RerunOnCallback",              m_rerunOnCallback);
-
-  
+  declareProperty( "RerunOnCallback",              m_rerunOnCallback);  
 }
 
 

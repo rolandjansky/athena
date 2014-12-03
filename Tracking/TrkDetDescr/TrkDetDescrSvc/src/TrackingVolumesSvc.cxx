@@ -13,7 +13,6 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkDetDescrSvc/TrackingVolumesSvc.h"
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/BinnedArray.h"

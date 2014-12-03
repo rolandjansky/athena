@@ -62,7 +62,13 @@ class MaterialVersion(JobProperty) :
     """ Material Steering """
     statusOn     = True
     allowedTypes = ['int']
-    StoredValue = 18
+    StoredValue = 19
+
+class MaterialSubVersion(JobProperty) :          
+    """ Material Steering """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue = 's0'
 
 # Magnetic field section
 class MagneticFieldMode(JobProperty) :
@@ -106,12 +112,6 @@ class MaterialDatabaseLocalName(JobProperty) :
     allowedTypes = ['str']
     StoredValue  = 'mylocaldb.db'
 
-class MaterialIgnoreLayerIndex(JobProperty):
-    """ A Layer index to be skipped """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = -1
-
 # Material Validation
 class MaterialValidation(JobProperty) :
     """Material Validation output """
@@ -123,6 +123,13 @@ class MaterialValidation(JobProperty) :
 # switch to sLHC version
 class SLHC_Geometry(JobProperty) :
     """ Boolean switch to a local material database """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+# switch to sLHC version
+class ISF_FatrasCustomGeometry(JobProperty) :
+    """ Boolean switch to a fatras custom geometry """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -456,48 +463,18 @@ class InDetPassiveLayerMaterialBinsRz(JobProperty):
     allowedTypes = ['int']
     StoredValue  = 1
 
-class InDetEntryLayerThickness(JobProperty):
-    """ Material Thicknes ID entry in Phi """
+class InDetBuildMaterialBoundaries(JobProperty):
+    """ Boolean steering to build material boundary layers """
     statusOn     = True
-    allowedTypes = ['float']
-    StoredValue  = 1.*mm
+    allowedTypes = ['bool']
+    StoredValue  = True
 
-class InDetEntryLayerMaterialBinsPhi(JobProperty):
-    """ Material Binning ID entry in Phi """
+class InDetBuildJointBoundaries(JobProperty):
+    """ Boolean steering to build joint boundary layers """
     statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
+    allowedTypes = ['bool']
+    StoredValue  = True
 
-class InDetEntryLayerMaterialBinsRz(JobProperty):
-    """ Material Binning ID entry in Z/eta """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-    
-class InDetEnvelopeCoverInnerR(JobProperty):
-    """ Envelope steering """
-    statusOn     = True
-    allowedTypes = ['float']
-    StoredValue  = 1.*mm
-
-class InDetEnvelopeCoverOuterR(JobProperty):
-    """ Envelope steering """
-    statusOn     = True
-    allowedTypes = ['float']
-    StoredValue  = 1.*mm
- 
-class InDetEnvelopeCoverMinZ(JobProperty):
-    """ Envelope steering"""
-    statusOn     = True
-    allowedTypes = ['float']
-    StoredValue  = 1.*mm
-
-class InDetEnvelopeCoverMaxZ(JobProperty):
-    """Envelope steering """
-    statusOn     = True
-    allowedTypes = ['float']
-    StoredValue  = 1.*mm
-           
 class InDetContainerName(JobProperty) :
     """Name of the InnerDetector Envelope """
     statusOn     = True
@@ -513,11 +490,6 @@ class InDetBuildingOutputLevel(JobProperty):
 ######################### CALORIMETER SECTION ##################################
 
 # LAr    
-class LArUseMaterialEffectsOnTrackProvider(JobProperty):
-    """Envelope steering """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
     
 class LArUseCaloSurfBuilder(JobProperty):
     """Envelope steering """
@@ -543,73 +515,7 @@ class LArEndcapEnvelopeCover(JobProperty):
     allowedTypes = ['float']
     StoredValue  = 5.
 
-class LArBarrelLayerMaterialBinsRz(JobProperty):
-    """ Material Bin in R/Z for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
-class LArBarrelLayerMaterialBinsPhi(JobProperty):
-    """ Material Bin in Phi for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-    
-class LArEndcapLayerMaterialBinsRz(JobProperty):
-    """ Material Bin in R/Z for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
-class LArEndcapLayerMaterialBinsPhi(JobProperty):
-    """ Material Bin in Phi for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-    
-class LArEndcapHecLayerMaterialBinsRz(JobProperty):
-    """ Material Bin in R/Z for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
-class LArEndcapHecLayerMaterialBinsPhi(JobProperty):
-    """ Material Bin in Phi for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-    
-class LArEndcapFcalLayerMaterialBinsRz(JobProperty):
-    """ Material Bin in R/Z for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
-class LArEndcapFcalLayerMaterialBinsPhi(JobProperty):
-    """ Material Bin in Phi for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-        
-class LArEndcapGapLayerMaterialBinsRz(JobProperty):
-    """ Material Bin in R/Z for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
-class LArEndcapGapLayerMaterialBinsPhi(JobProperty):
-    """ Material Bin in Phi for the LAr Volume Builder """
-    statusOn     = True
-    allowedTypes = ['int']
-    StoredValue  = 1
-
 # Tile
-class TileUseMaterialEffectsOnTrackProvider(JobProperty):
-    """Envelope steering """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-
 class TileUseCaloSurfBuilder(JobProperty):
     """Envelope steering """
     statusOn     = True
@@ -784,6 +690,7 @@ jobproperties.add_Container(TrkDetDescrJobProperties)
 # general trk det descr
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialSource)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialVersion)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialSubVersion)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialTagBase)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialMagicTag)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialStoreGateKey)
@@ -794,8 +701,8 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialValidation)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldMode)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldSynchronisation)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldCallbackEnforced)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(MaterialIgnoreLayerIndex)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SLHC_Geometry)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(ISF_FatrasCustomGeometry)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(ConfigurationOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(AssignSurfaceOwnership)
 # the sub detector specifications
@@ -850,50 +757,20 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(TRT_BuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetPassiveLayerThickness)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetPassiveLayerMaterialBinsPhi)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetPassiveLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEntryLayerThickness)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEntryLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEntryLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEnvelopeCoverInnerR)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEnvelopeCoverOuterR)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEnvelopeCoverMinZ)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetEnvelopeCoverMaxZ)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildMaterialBoundaries)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildJointBoundaries)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetContainerName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildingOutputLevel)
 # Calorimeter setting
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArUseMaterialEffectsOnTrackProvider)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArUseCaloSurfBuilder)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArBuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArBarrelEnvelopeCover)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapEnvelopeCover)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArBarrelLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArBarrelLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapHecLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapHecLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapFcalLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapFcalLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapGapLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArEndcapGapLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileUseMaterialEffectsOnTrackProvider)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileUseCaloSurfBuilder)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileBuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileBarrelEnvelopeCover)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileBarrelLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileBarrelLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileGirderLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileGirderLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileFingerLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileFingerLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileExtendedBarrelLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileExtendedBarrelLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileGapLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(TileGapLayerMaterialBinsPhi)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloRecordLayerIndexCaloSampleMap)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloLayerIndexCaloSampleMapName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloEnvelopeCover)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloLayerMaterialBinsRz)
-jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloLayerMaterialBinsPhi)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloEntryVolumeName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloContainerName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(CaloBuildingOutputLevel)

@@ -57,10 +57,13 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         # (ID) 
         if DetFlags.ID_on() :
           # get hand on the ID Tracking Geometry Builder
-          if not TrkDetFlags.SLHC_Geometry() :
-            from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+          if TrkDetFlags.ISF_FatrasCustomGeometry() :
+              from ISF_FatrasDetDescrTools.CustomInDetTrackingGeometryBuilder import CustomInDetTrackingGeometryBuilder as IDGeometryBuilder
           else :
-            from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+              if not TrkDetFlags.SLHC_Geometry() :
+                  from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+              else :
+                  from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
           InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
@@ -101,8 +104,11 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         # check whether the material retrieval is ment to be from COOL
         if TrkDetFlags.MaterialSource() is 'COOL':
             # the material provider
-            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider
-            AtlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider')
+            if TrkDetFlags.ISF_FatrasCustomGeometry() :
+                from ISF_FatrasDetDescrTools.ISF_FatrasDetDescrToolsConf import iFatras__LayerMaterialProvider as LayerMaterialProvider
+            else:
+                from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
+            AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
             AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
             ToolSvc += AtlasMaterialProvider
@@ -111,11 +117,10 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         
             # the tag names
             CoolDataBaseFolder = TrkDetFlags.MaterialStoreGateKey()
-            AtlasMaterialTag   = TrkDetFlags.MaterialTagBase()+str(TrkDetFlags.MaterialVersion())+'_'
+            AtlasMaterialTag = TrkDetFlags.MaterialTagBase()+str(TrkDetFlags.MaterialVersion())+TrkDetFlags.MaterialSubVersion()+'_'
         
             if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-               print '[ TrackingGeometrySvc ] Associating DB folder : ',CoolDataBaseFolder
-               print '[ TrackingGeometrySvc ]     base material tag : ',AtlasMaterialTag
+               print '[ TrackingGeometrySvc ] Associating DB folder : ', CoolDataBaseFolder
         
             # we need the conditions interface
             from IOVDbSvc.CondDB import conddb
@@ -133,13 +138,15 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 # make sure that the pool files are in the catalog
             elif TrkDetFlags.SLHC_Geometry() :
                 # set the folder to the SLHC location        
-                CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
+                CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialITK'
                 ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
                 conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
             else :
-                # load the right folders (preparation for calo inclusion)
+                print '[ TrackingGeometrySvc ]     base material tag : ', AtlasMaterialTag
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
+                print '[ TrackingGeometrySvc ]     translated to COOL: ', cfolder
+                # load the right folders (preparation for calo inclusion)
                 conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
 
         elif TrkDetFlags.MaterialSource() is 'Input' :
@@ -147,7 +154,6 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__InputLayerMaterialProvider
             AtlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
-            AtlasMaterialProvider.IgnoreLayerIndex      = TrkDetFlags.MaterialIgnoreLayerIndex()
             ToolSvc += AtlasMaterialProvider
             AtlasGeometryProcessors += [ AtlasMaterialProvider ]            
 
