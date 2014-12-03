@@ -32,6 +32,7 @@ typedef HitVector::iterator HitIt;
 /*******************************************************************************/	 
 class MmSortedHitVector : public HitVector {
  public:
+  MmSortedHitVector() : m_isSorted(false) {};
   void insert(const micromegas_hit_info& hit);
   void sort();
   bool isSorted() { return m_isSorted; }

@@ -432,8 +432,7 @@ StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
  
     // Read hits from this collection
     for (; i!=e; ++i){ 
-      GenericMuonSimHit mmhit(*i);
-      MMHitColl->Insert(mmhit);
+      MMHitColl->Emplace(*i);
     }
     m_thpcMM->insert(thisEventIndex, MMHitColl);
     
@@ -641,10 +640,10 @@ StatusCode MmDigitizationTool::doDigitization() {
   }
  
   // Perform null check on m_thpcCSC
-  //   if(!m_thpcMM) {
-  //     ATH_MSG_ERROR ( "m_thpcMM is null" );
-  //     return StatusCode::FAILURE;
-  //   }
+  if(!m_thpcMM) {
+    ATH_MSG_ERROR ( "m_thpcMM is null" );
+    return StatusCode::FAILURE;
+  }
 
   //iterate over hits and fill id-keyed drift time map
   TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;

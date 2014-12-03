@@ -71,6 +71,8 @@ private:
 
   TF1 *intFn;
   StripsResponse* stripObject ;  
+  ElectronicsResponse & operator=(const ElectronicsResponse &right);
+  ElectronicsResponse(const ElectronicsResponse&);
 public :
 
   ElectronicsResponse();
