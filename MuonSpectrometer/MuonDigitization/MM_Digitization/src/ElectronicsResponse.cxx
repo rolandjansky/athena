@@ -14,6 +14,9 @@
  
 /*******************************************************************************/
 ElectronicsResponse::ElectronicsResponse()
+ : tMinFromIntegration(-1),
+   tminFromIntegrationAboveThreshold(-1),
+   tMinFromFirstPeak(-1)
 {
   //stripObject = 0;
   stripObject = new StripsResponse();
