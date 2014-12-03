@@ -42,7 +42,7 @@ JetTrackTruthMatching::JetTrackTruthMatching(const std::string& t, const std::st
   m_storeGate(0),
   m_trackParticlesName("TrackParticleCandidate"),
   m_trackParticleTruthMapName("TrackParticleTruthCollection"),
-  m_mcEventCollection("TruthEvent"),
+  m_mcEventCollection("TruthEvents"),
   m_jetLabel(0)
 {
     declareInterface<IJetTruthMatching>(this);  

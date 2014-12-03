@@ -17,7 +17,7 @@
 #define PARTICLEJETTOOLS_PARTICLETOJETASSOCIATOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/ToolHandle.h"
 #include "AnalysisTools/AnalysisTools.h"
 // #include "JetEvent/JetCollection.h"
 // #include "JetEvent/JetAssociationBase.h"

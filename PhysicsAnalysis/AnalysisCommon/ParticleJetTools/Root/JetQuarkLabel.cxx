@@ -30,7 +30,7 @@ namespace Analysis {
 
 JetQuarkLabel::JetQuarkLabel(const std::string& t, const std::string& n, const IInterface* p) :
         AthAlgTool(t,n,p),
-        m_mcEventCollection("TruthEvent"),
+        m_mcEventCollection("TruthEvents"),
         m_deltaRCut(0.3),
         m_ptCut(5.*Gaudi::Units::GeV),
 	m_noDoc(true),

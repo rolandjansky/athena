@@ -3,37 +3,43 @@ package ParticleJetTools
 author Andreas Wildauer <andreas.wildauer@cern.ch>
 manager Andreas Wildauer <andreas.wildauer@cern.ch>
 
-use AtlasPolicy          AtlasPolicy-*
-use GaudiInterface       GaudiInterface-*        External
-use AthenaBaseComps      AthenaBaseComps-*       Control
-use AnalysisTools        AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
-use JetTagInfo           JetTagInfo-*            PhysicsAnalysis/JetTagging
-use EventPrimitives      EventPrimitives-*       Event
-use FourMomUtils         FourMomUtils-*          Event
-use xAODJet              xAODJet-*               Event/xAOD
-use xAODTruth            xAODTruth-*             Event/xAOD
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use JetRec		JetRec-*		Reconstruction/Jet
+use JetInterface	JetInterface-*	        Reconstruction/Jet
+use AnalysisTools       AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
+use JetTagInfo          JetTagInfo-*            PhysicsAnalysis/JetTagging
+use EventPrimitives     EventPrimitives-*       Event
+use FourMomUtils        FourMomUtils-*          Event
+use xAODJet             xAODJet-*               Event/xAOD
+use xAODTruth           xAODTruth-*             Event/xAOD
+use AsgTools            AsgTools-*              Control/AthToolSupport
+use AtlasReflex         AtlasReflex-*           External
 
 private
-use AthenaKernel         AthenaKernel-*          Control
-use AthContainers        AthContainers-*         Control
-use JetEvent             JetEvent-*              Reconstruction/Jet
-use TruthUtils           TruthUtils-*            Generators
-#use xAODBase             xAODBase-*              Event/xAOD
-#use AtlasHepMC           AtlasHepMC-*            External
-#use DataModel            DataModel-*             Control
-#use GeneratorObjects     GeneratorObjects-*      Generators
-#use Particle             Particle-*              Reconstruction
-#use ParticleTruth        ParticleTruth-*         Reconstruction
-#use StoreGate            StoreGate-*             Control
-#use TruthHelper          TruthHelper-*           Generators/GenAnalysisTools
-#use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
+use AthContainers       AthContainers-*         Control
+use JetEvent            JetEvent-*              Reconstruction/Jet
+use TruthUtils          TruthUtils-*            Generators
+#use xAODBase            xAODBase-*              Event/xAOD
+#use AtlasHepMC          AtlasHepMC-*            External
+#use DataModel           DataModel-*             Control
+#use GeneratorObjects    GeneratorObjects-*      Generators
+#use Particle            Particle-*              Reconstruction
+#use ParticleTruth       ParticleTruth-*         Reconstruction
+#use StoreGate           StoreGate-*             Control
+#use TruthHelper         TruthHelper-*           Generators/GenAnalysisTools
+#use JetTagEvent         JetTagEvent-*           PhysicsAnalysis/JetTagging
 end_private
 
 
 #library ParticleJetTools *.cxx components/*.cxx
-#apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="HadronUtils.cxx JetQuarkLabel.cxx ParticleToJetAssociator.cxx CopyTruthParticles.cxx"
+apply_pattern dual_use_library files="HadronUtils.cxx ../Root/JetQuarkLabel.cxx ../Root/JetConeLabeling.cxx ParticleToJetAssociator.cxx ../Root/JetPartonTruthLabel.cxx ../Root/CopyTruthParticles.cxx ../Root/CopyFlavorLabelTruthParticles.cxx ../Root/CopyBosonTopLabelTruthParticles.cxx ../Root/CopyTruthPartons.cxx ../Root/CopyTruthJetParticles.cxx ../Root/JetFlavourInfo.cxx"
+apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
+apply_pattern lcgdict dict=ParticleJetTools \
+    selectionfile=selection.xml \
+    headerfiles="../ParticleJetTools/ParticleJetToolsDict.h"
 
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'

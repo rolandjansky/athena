@@ -25,7 +25,7 @@ FindLeptonTruth::FindLeptonTruth(const std::string& t, const std::string& n, con
         AthAlgTool(t,n,p)
 {  
   declareInterface<FindLeptonTruth>(this);
-  declareProperty("McEventCollection", m_mcEventCollection = "TruthEvent");
+  declareProperty("McEventCollection", m_mcEventCollection = "TruthEvents");
   declareProperty("mudeltaRCut",       m_deltaRCutMu       = 1.0);
   declareProperty("muPTmin",           m_ptCutMu           = 0.*Gaudi::Units::GeV);
   declareProperty("muPmin",            m_pCutMu            = 3.*Gaudi::Units::GeV);

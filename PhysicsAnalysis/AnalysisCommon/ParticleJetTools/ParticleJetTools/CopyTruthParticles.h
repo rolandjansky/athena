@@ -2,36 +2,37 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRUTHTAGINPUTS_COPYTRUTHPARTICLES_H
-#define TRUTHTAGINPUTS_COPYTRUTHPARTICLES_H
+#ifndef COPYTRUTHPARTICLES_H
+#define COPYTRUTHPARTICLES_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetExecuteTool.h"
 #include "xAODTruth/TruthParticle.h"
 
 
-class CopyTruthParticles : public AthAlgorithm {
+// Do I need IAsgTool? I need AsgTool for the eventStore()
+class CopyTruthParticles : public IJetExecuteTool, public asg::AsgTool {
+ASG_TOOL_INTERFACE(CopyTruthParticles)
+ASG_TOOL_CLASS(CopyTruthParticles, IJetExecuteTool)
 public:
 
   /// Constructor
-  CopyTruthParticles(const std::string& name, ISvcLocator* pSvcLocator);
+  CopyTruthParticles(const std::string& name);
 
   /// @name Event loop algorithm methods
   //@{
-  StatusCode initialize() { return StatusCode::SUCCESS; }
-  StatusCode execute();
-  StatusCode finalize() { return StatusCode::SUCCESS; }
+  int execute() const;
   //@}
 
   /// Classifier function(s)
-  bool classify(const xAOD::TruthParticle* tp);
+  virtual bool classify(const xAOD::TruthParticle* tp) const = 0;
 
 
-private:
+protected:
 
   /// Name of output collection
   std::string m_outputname;
-  /// Particle selection mode
-  std::string m_ptype;
+
   /// Minimum pT for particle selection (in MeV)
   double m_ptmin;
 
