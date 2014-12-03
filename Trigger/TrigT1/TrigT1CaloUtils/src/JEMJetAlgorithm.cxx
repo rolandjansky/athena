@@ -219,16 +219,17 @@ void LVL1::JEMJetAlgorithm::passesTrigger() {
   
   // Does this pass min TOB pT cut?
   TrigConf::CaloInfo caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-  
+  float scale = caloInfo.globalJetScale(); 
+ 
   unsigned int sizeLarge = caloInfo.jetWindowSizeLarge();
-  int threshLarge = caloInfo.minTobJetLarge().ptmin;
+  int threshLarge = caloInfo.minTobJetLarge().ptmin*scale;
 
   int etLarge = m_ET8x8;
   if (sizeLarge == 6)      etLarge = m_ET6x6;
   else if (sizeLarge == 4) etLarge = m_ET4x4;
 
   unsigned int sizeSmall = caloInfo.jetWindowSizeSmall();  
-  int threshSmall = caloInfo.minTobJetSmall().ptmin;
+  int threshSmall = caloInfo.minTobJetSmall().ptmin*scale;
 
   int etSmall = m_ET4x4;
   if (sizeSmall == 6)      etLarge = m_ET6x6;

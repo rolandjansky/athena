@@ -44,7 +44,7 @@ public:
   SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<TrigConf::ITrigConfigSvc> config);
   SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC,
                unsigned int overflowT, unsigned int overflowX,
-	       unsigned int overflowY,
+	       unsigned int overflowY, unsigned int restricted,
 	       ServiceHandle<TrigConf::ITrigConfigSvc> config);
   ~SystemEnergy();
 
@@ -80,6 +80,7 @@ private:
   unsigned int m_overflowX;
   unsigned int m_overflowY;
   unsigned int m_overflowT;
+  unsigned int m_restricted;
   unsigned int m_etMissHits;
   unsigned int m_etSumHits;
   unsigned int m_metSigHits;

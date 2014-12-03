@@ -21,6 +21,7 @@
 #define CRATEENERGY_H
 
 #include "TrigT1CaloUtils/ModuleEnergy.h"
+#include "TrigT1CaloEvent/EnergyCMXData.h"
 
 
 /**LVL1 namespace.
@@ -34,7 +35,8 @@ System CMM logic is done in EnergyTrigger*/
 class CrateEnergy {
 
 public:
-  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules);
+  CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* modules, float etaMax = 5.);
+  CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* modules, float etaMax = 5.);
   CrateEnergy(unsigned int crate, unsigned int et, unsigned int exTC,
               unsigned int eyTC, unsigned int overflowT, unsigned int overflowX,
 	      unsigned int overflowY);
@@ -53,6 +55,8 @@ public:
   unsigned int exOverflow();
   unsigned int eyOverflow();
   unsigned int etOverflow();
+  /** Full or restricted eta range? */
+  bool restricted();
 private:
   unsigned int m_crate;
   unsigned int m_crateEt;
@@ -61,6 +65,7 @@ private:
   unsigned int m_overflowT;
   unsigned int m_overflowX;
   unsigned int m_overflowY;
+  bool m_restricted;
   bool m_debug;
   static const unsigned int m_sumBitsTC=15;
   static const unsigned int m_sumBits=14;

@@ -217,9 +217,9 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   // Does this pass min TOB pT cut?
   // Need to worry about digit scale not being GeV
   TrigConf::CaloInfo caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-  float scale = caloInfo.globalScale();
-  unsigned int thresh = caloInfo.minTobEM().ptmin/scale;
-  
+  float scale = caloInfo.globalEmScale();
+  unsigned int thresh = caloInfo.minTobEM().ptmin*scale;
+
   if (m_EMClus <= thresh) return;
   
   // Passed, so there is a TOB here
@@ -243,11 +243,11 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   emisolcuts.assign(5,m_noIsol);
   
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-    if ((*it).isDefined()) {
-      int offset = (*it).offset()/scale;
-      int slope  = (*it).slope()/scale;
-      int mincut = (*it).mincut()/scale;
-      int upperlimit = (*it).upperlimit()/scale;
+    //if ((*it).isDefined()) {
+      float offset = (*it).offset()/10.*scale;
+      float slope  = (*it).slope()/10.*scale;
+      float mincut = (*it).mincut()/10.*scale;
+      int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
@@ -255,7 +255,7 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
         if (cut < mincut) cut = mincut;
         emisolcuts[bit-1] = cut;
       }
-    }
+    //}
   }
   
   std::vector<IsolationParam> hadIsolParams = caloInfo.isolationHAIsoForEMthr();  
@@ -263,11 +263,11 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   hadisolcuts.assign(5,m_noIsol); 
   
   for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
-    if ((*it).isDefined()) {
-      int offset = (*it).offset()/scale;
-      int slope  = (*it).slope()/scale;
-      int mincut = (*it).mincut()/scale;
-      int upperlimit = (*it).upperlimit()/scale;
+    //if ((*it).isDefined()) {
+      float offset = (*it).offset()/10.*scale;
+      float slope  = (*it).slope()/10.*scale;
+      float mincut = (*it).mincut()/10.*scale;
+      int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
@@ -275,13 +275,29 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
         if (cut < mincut) cut = mincut;
         hadisolcuts[bit-1] = cut;
       }
-    }
+    //}
   }
 
   // Set isolation bits
   for (unsigned int isol = 0; isol < 5; ++isol) 
     if (emIsol <= emisolcuts[isol] && hadVeto <= hadisolcuts[isol]) m_EMIsolWord += (1 << isol);
     
+  // Temporary: some debug/analystic printout
+  /*
+  std::cout << "CPMTobAlgorithm: TOB parameter printout:" << std::endl
+            << "  EM MinTobPt = " << caloInfo.minTobEM().ptmin << std::endl
+            << "  EM MinTobPt range " << caloInfo.minTobEM().etamin << " -> " << caloInfo.minTobEM().etamax
+            << ", Priority = " << caloInfo.minTobEM().priority << std::endl;
+  std::cout << "EM Isolation parameters:" << std::endl;
+  for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {
+    std::cout << "  Defined " << (*it).isDefined() << "; Slope " << (*it).slope() << "; Offset " << (*it).offset()
+              << "; MinCut " << (*it).mincut() << "; UpperLimit " << (*it).upperlimit() << "; isoBit " << (*it).isobit()
+              << "; Range " << (*it).etamin() << " -> " << (*it).etamax()
+              << "; Priority = " << (*it).priority() << std::endl;
+  }
+  */
+            
+
 }
 
 
@@ -298,9 +314,9 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   // Does this pass min TOB pT cut?
   // Need to worry about digit scale not being GeV
   TrigConf::CaloInfo caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-  float scale = caloInfo.globalScale();
-  unsigned int thresh = caloInfo.minTobTau().ptmin/scale;
-  
+  float scale = caloInfo.globalEmScale();
+  unsigned int thresh = caloInfo.minTobTau().ptmin*scale;
+ 
   if (m_TauClus <= thresh) return;
   
   // Passed, so there is a TOB here
@@ -321,10 +337,10 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   
   for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
     if ((*it).isDefined()) {
-      int offset = (*it).offset()/scale;
-      int slope  = (*it).slope()/scale;
-      int mincut = (*it).mincut()/scale;
-      int upperlimit = (*it).upperlimit()/scale;
+      float offset = (*it).offset()/10.*scale;
+      float slope  = (*it).slope()/10.*scale;
+      float mincut = (*it).mincut()/10.*scale;
+      int upperlimit = (*it).upperlimit()*scale;
       int bit = (*it).isobit();
       
       if (clus < upperlimit && bit >= 1 && bit <= 5) {

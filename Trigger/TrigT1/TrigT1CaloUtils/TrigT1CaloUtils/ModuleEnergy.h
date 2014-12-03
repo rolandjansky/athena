@@ -49,8 +49,8 @@ public:
   ModuleEnergy(const std::map<int, JetElement *>* JEContainer,  unsigned int crate, unsigned int module,
                int JEThresholdEtSum, int JEThresholdEtMiss, const std::map<int, int>* TEMasks = 0, int slice = -1);
 
-  ModuleEnergy(unsigned int crate, unsigned int module, unsigned int etComp,
-               unsigned int exComp, unsigned int eyComp);
+  ModuleEnergy(unsigned int crate, unsigned int module, unsigned int et,
+               unsigned int ex, unsigned int ey);
 
   ~ModuleEnergy();
   
@@ -64,9 +64,6 @@ public:
   unsigned int ey();
   int signX();
   int signY();
-  unsigned int etCompressed();
-  unsigned int exCompressed();
-  unsigned int eyCompressed();
   
 private: //atribs
   int m_jetElementThresholdEtSum;
@@ -74,16 +71,12 @@ private: //atribs
   unsigned int m_Et;
   unsigned int m_Ex;
   unsigned int m_Ey;
-  unsigned int m_EtComp;
-  unsigned int m_ExComp;
-  unsigned int m_EyComp;
   int m_signX;
   int m_signY;
   unsigned int m_crate;
   unsigned int m_module;
   bool m_debug;
-  static const unsigned int m_EtBits = 12;
-  static const unsigned int m_ExyBits = 24;
+  static const unsigned int m_EtBits = 14;
 
   void getSinCos(double eta, double phi, int& cosPhi, int& sinPhi);
 

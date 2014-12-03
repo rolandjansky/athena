@@ -31,6 +31,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
   m_overflowX(0),
   m_overflowY(0),
   m_overflowT(0),
+  m_restricted(0),
   m_etMissHits(0),
   m_etSumHits(0),
   m_metSigHits(0),
@@ -56,6 +57,8 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
     m_overflowX = m_overflowX|(*it)->exOverflow();
     m_overflowY = m_overflowY|(*it)->eyOverflow();
     m_overflowT = m_overflowT|(*it)->etOverflow();
+    
+    if ((*it)->restricted()) m_restricted = 1;
   }
   
   /** Check for EtSum overflow */
@@ -89,7 +92,7 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<
 
 SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC,
                            unsigned int overflowT, unsigned int overflowX,
-			   unsigned int overflowY,
+			   unsigned int overflowY, unsigned int restricted,
 			   ServiceHandle<TrigConf::ITrigConfigSvc> config):
   m_configSvc(config),
   m_systemEx(0),
@@ -98,6 +101,7 @@ SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC
   m_overflowX(overflowX),
   m_overflowY(overflowY),
   m_overflowT(overflowT),
+  m_restricted(restricted),
   m_etMissHits(0),
   m_etSumHits(0),
   m_metSigHits(0),
@@ -190,6 +194,8 @@ unsigned int SystemEnergy::roiWord0() {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType<<30 ;
   word += TrigT1CaloDefs::energyRoI0<<28;
+  // set full/restricted eta range flag
+  word += (m_restricted&1)<<26;
   // add MET Significance hits
   word += metSigHits()<<16;
   // add Ex overflow bit
@@ -204,6 +210,8 @@ unsigned int SystemEnergy::roiWord1() {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType<<30 ;
   word += TrigT1CaloDefs::energyRoI1<<28;
+  // set full/restricted eta range flag
+  word += (m_restricted&1)<<26;
   // add EtSum hits
   word += etSumHits()<<16;
   // add Ey overflow bit
@@ -218,6 +226,8 @@ unsigned int SystemEnergy::roiWord2() {
   // Start by setting up header
   unsigned int word = TrigT1CaloDefs::energyRoIType<<30 ;
   word += TrigT1CaloDefs::energyRoI2<<28;
+  // set full/restricted eta range flag
+  word += (m_restricted&1)<<26;
   // add EtMiss hits
   word += etMissHits()<<16;
   // add Et overflow bit
@@ -262,13 +272,14 @@ void SystemEnergy::etMissTrigger() {
   // Get thresholds
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
+  float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
   
   // get Threshold values and test
   L1DataDef def;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.xeType() ) {
       TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0);       
-      int thresholdValue = (*tv).thresholdValueCount();
+      int thresholdValue = (*tv).ptcut()*etScale;
       int threshNumber = (*it)->thresholdNumber();
       if (missingET > thresholdValue )
            m_etMissHits = m_etMissHits|(1<<threshNumber);
@@ -293,6 +304,7 @@ void SystemEnergy::etSumTrigger() {
   // Get thresholds
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
+  float etScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
   
   // get Threshold values and test
   // Since eta-dependent values are being used to disable TE in regions, must find lowest value for each threshold
@@ -303,7 +315,7 @@ void SystemEnergy::etSumTrigger() {
       int thresholdValue = m_maxEtSumThr;
       std::vector<TriggerThresholdValue*> tvv = (*it)->thresholdValueVector();
       for (std::vector<TriggerThresholdValue*>::const_iterator ittvv = tvv.begin(); ittvv != tvv.end(); ++ittvv) 
-	if ((*ittvv)->thresholdValueCount() < thresholdValue) thresholdValue = (*ittvv)->thresholdValueCount();
+	if ((*ittvv)->ptcut()*etScale < thresholdValue) thresholdValue = (*ittvv)->ptcut()*etScale;
       if (static_cast<int>(m_systemEt) > thresholdValue ) m_etSumHits = m_etSumHits|(1<<threshNumber);
     }
   }
@@ -376,7 +388,9 @@ int SystemEnergy::decodeTC(unsigned int input) {
   int value = input&mask;
 
   if ((value >> (m_sumBits - 1))) {
-    value += (-1) << m_sumBits;
+    int complement = ~value;
+    value = -( (complement+1) & mask );
+
   }
 
   return value;

@@ -29,9 +29,6 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
   m_Et(0),
   m_Ex(0),
   m_Ey(0),
-  m_EtComp(0),
-  m_ExComp(0),
-  m_EyComp(0),
   m_signX(1),
   m_signY(1),
   m_crate(crate),
@@ -46,6 +43,7 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
     m_signY = ( (module < 8) ? 1 : -1 );
     m_signX = ( (crate == 0) ? m_signY : -m_signY );
     /** Look for the JetElements associated with this module */
+    bool saturated = false;
     JetEnergyModuleKey get;
     std::vector<unsigned int> keys = get.jeKeys(crate, module);
     std::vector<unsigned int>::const_iterator it = keys.begin();
@@ -59,9 +57,7 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
 	if (TEMasks == 0 || TEMasks->find(ieta) == TEMasks->end()) {
           /** Test for saturation */
           if (test->second->isSaturated()) {
-            m_Ex += (1<<m_ExyBits)-1;
-            m_Ey += (1<<m_ExyBits)-1;
-            m_Et += (1<<m_EtBits)-1;
+	    saturated = true;
           }
           else {
             /** Get ET for requested time slice */
@@ -91,18 +87,18 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
       } // End check for end of container
     } // End loop through keys
 
-    /** Compressed results */
-    m_EtComp = QuadLinear::Compress(m_Et);
-    /** Convert Ex, Ey back to 1 GeV/count integers and compress */
-    m_ExComp = QuadLinear::Compress(m_Ex>>12);
-    m_EyComp = QuadLinear::Compress(m_Ey>>12);
-    /** Uncompress results to give right precision in outputs */
-    m_Et = QuadLinear::Expand(m_EtComp);
-    m_Ex = QuadLinear::Expand(m_ExComp);
-    m_Ey = QuadLinear::Expand(m_EyComp);
+    /** Convert Ex, Ey back to 1 GeV/count integers*/
+    m_Ex = m_Ex>>12;
+    m_Ey = m_Ey>>12;
+    
+    /** Check for overflows. Set ET to full scale if these occur */
+    if (saturated || (m_Ex > (1<<m_EtBits)-1)) m_Ex = (1<<m_EtBits)-1;
+    if (saturated || (m_Ey > (1<<m_EtBits)-1)) m_Ey = (1<<m_EtBits)-1;
+    if (saturated || (m_Et > (1<<m_EtBits)-1)) m_Et = (1<<m_EtBits)-1;
+
     if (m_debug) {
       std::cout << "Crate " << crate << " Module " << module <<
-                   " uncompressed sums: " << std::endl;
+                   " sums: " << std::endl;
       std::cout << "  Ex = " << static_cast<int>(m_Ex)*m_signX << std::endl; 
       std::cout << "  Ey = " << static_cast<int>(m_Ey)*m_signY << std::endl;
       std::cout << "  Et = " << m_Et << std::endl;
@@ -111,16 +107,13 @@ ModuleEnergy::ModuleEnergy(const std::map<int, JetElement *>* JEContainer, unsig
 }
 
 ModuleEnergy::ModuleEnergy(unsigned int crate, unsigned int module,
-                           unsigned int etComp, unsigned int exComp,
-			   unsigned int eyComp) :
+                           unsigned int et, unsigned int ex,
+			   unsigned int ey) :
   m_jetElementThresholdEtSum(0),
   m_jetElementThresholdEtMiss(0),
-  m_Et(0),
-  m_Ex(0),
-  m_Ey(0),
-  m_EtComp(0),
-  m_ExComp(0),
-  m_EyComp(0),
+  m_Et(et),
+  m_Ex(ex),
+  m_Ey(ey),
   m_signX(1),
   m_signY(1),
   m_crate(crate),
@@ -134,17 +127,15 @@ ModuleEnergy::ModuleEnergy(unsigned int crate, unsigned int module,
     /** Set up Ex, Ey signs for this module */
     m_signY = ( (module < 8) ? 1 : -1 );
     m_signX = ( (crate == 0) ? m_signY : -m_signY );
-    /** Uncompressed results */
-    m_Et = QuadLinear::Expand(etComp);
-    m_Ex = QuadLinear::Expand(exComp);
-    m_Ey = QuadLinear::Expand(eyComp);
-    /** Compressed results */
-    m_EtComp = etComp;
-    m_ExComp = exComp;
-    m_EyComp = eyComp;
+    
+    /** Check for overflows. Set ET to full scale if these occur */
+    if (m_Ex > (1<<m_EtBits)-1) m_Ex = (1<<m_EtBits)-1;
+    if (m_Ey > (1<<m_EtBits)-1) m_Ey = (1<<m_EtBits)-1;
+    if (m_Et > (1<<m_EtBits)-1) m_Et = (1<<m_EtBits)-1;
+    
     if (m_debug) {
       std::cout << "Crate " << crate << " Module " << module <<
-                   " uncompressed sums: " << std::endl;
+                   " sums: " << std::endl;
       std::cout << "  Ex = " << static_cast<int>(m_Ex)*m_signX << std::endl; 
       std::cout << "  Ey = " << static_cast<int>(m_Ey)*m_signY << std::endl;
       std::cout << "  Et = " << m_Et << std::endl;
@@ -174,17 +165,6 @@ unsigned int ModuleEnergy::ex(){
 }
 unsigned int ModuleEnergy::ey(){
   return m_Ey;
-}
-
-/** return 8 bit compressed Et, Ex, Ey sums */
-unsigned int ModuleEnergy::etCompressed(){
-  return m_EtComp;
-}
-unsigned int ModuleEnergy::exCompressed(){
-  return m_ExComp;
-}
-unsigned int ModuleEnergy::eyCompressed(){
-  return m_EyComp;
 }
 
 /** return signs of Ex and Ey for this module */
