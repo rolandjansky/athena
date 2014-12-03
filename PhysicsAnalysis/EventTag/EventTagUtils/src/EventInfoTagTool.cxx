@@ -22,6 +22,9 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 #include "CLHEP/Random/RandFlat.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -33,7 +36,7 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 #include "DBDataModel/CollectionMetadata.h"
 
 
-using xAOD::EventInfo;
+//using xAOD::EventInfo;
 
 /** the constructor */
 EventInfoTagTool::EventInfoTagTool (const std::string& type, const
@@ -135,25 +138,46 @@ StatusCode  EventInfoTagTool::execute(TagFragmentCollection& eventTag) {
   ATH_MSG_DEBUG("in execute()");
 
   /** retrieve event info */
-  //const EventInfo* eventInfo;
-  const DataHandle<EventInfo> eventInfo;
-  StatusCode sc = evtStore()->retrieve( eventInfo );
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot get event info.");
-      return StatusCode::SUCCESS;
-  }
-  // set monte carlo flag
-  m_isMC  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  const DataHandle<xAOD::EventInfo> eventInfo;
+  StatusCode sc = evtStore()->retrieve(eventInfo);
+  if (sc.isFailure()) 
+  {
+    const DataHandle<EventInfo> oeventInfo;
+    sc = evtStore()->retrieve(oeventInfo);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve event info from TDS.");
+    }
+    else {
+      // set monte carlo flag
+      m_isMC  = oeventInfo->event_type()->test(xAOD::EventInfo::IS_SIMULATION);
 
-  sc = this->eventTag (eventTag, eventInfo);
-  if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
-  if ( m_includeEventFlag )  {
-    StatusCode sc = eventTagFlags (eventTag, eventInfo);
-    if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Flags");
+      sc = this->eventTag (eventTag, oeventInfo);
+      if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
+      if ( m_includeEventFlag )  {
+        StatusCode sc = eventTagFlags (eventTag, oeventInfo);
+        if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Flags");
+      }
+      if ( m_includeExtras )  {
+        StatusCode sc = eventExtrasTag (eventTag, oeventInfo);
+        if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Extras");
+      }
+    }
   }
-  if ( m_includeExtras )  {
-    StatusCode sc = eventExtrasTag (eventTag, eventInfo);
-    if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Extras");
+  else {
+
+    // set monte carlo flag
+    m_isMC  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+
+    sc = this->eventTag (eventTag, eventInfo);
+    if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
+    if ( m_includeEventFlag )  {
+      StatusCode sc = eventTagFlags (eventTag, eventInfo);
+      if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Flags");
+    }
+    if ( m_includeExtras )  {
+      StatusCode sc = eventExtrasTag (eventTag, eventInfo);
+      if (sc.isFailure()) ATH_MSG_WARNING("Unable to build Tag Fragments for the Extras");
+    }
   }
 
   ATH_MSG_DEBUG("EventInfoTagTool - execute() return success");
@@ -163,7 +187,8 @@ StatusCode  EventInfoTagTool::execute(TagFragmentCollection& eventTag) {
 
 /** build the tag associate to the event information */
 StatusCode EventInfoTagTool::eventTag(TagFragmentCollection& eventTag, 
-                                      const DataHandle<EventInfo> eventInfo) {
+                                      const DataHandle<xAOD::EventInfo> eventInfo) 
+{
 
   ATH_MSG_DEBUG("in execute() - eventTag");
 
@@ -205,7 +230,94 @@ StatusCode EventInfoTagTool::eventTag(TagFragmentCollection& eventTag,
 }
 
 StatusCode EventInfoTagTool::eventTagFlags(TagFragmentCollection& eventTag, 
-                                           const DataHandle<EventInfo> eventInfo) {
+                                           const DataHandle<xAOD::EventInfo> eventInfo) 
+{
+
+  ATH_MSG_DEBUG("in execute() - eventTag");
+
+  //Fill Detector status: Pixel, SCT, TRT, LAr, Tile, Muon, ForwardDet, Core
+  for (unsigned int i = 0; i < EventInfo::nDets; ++i) {
+    unsigned int  result = 0x0;
+    result = eventInfo->eventFlags(xAOD::EventInfo::EventFlagSubDet(i));
+    xAOD::EventInfo::EventFlagErrorState error = eventInfo->errorState(xAOD::EventInfo::EventFlagSubDet(i));
+    result = result | (error << 28);
+    eventTag.insert(EventAttributeSpecs[Evt::Pixel+i].name(), result);
+  }
+   
+  return StatusCode::SUCCESS;
+
+}
+
+/** build the tag associate to the event information */
+StatusCode EventInfoTagTool::eventExtrasTag(TagFragmentCollection& eventTag, 
+                                            const DataHandle<xAOD::EventInfo> eventInfo) 
+{
+
+  ATH_MSG_DEBUG("in execute() - eventTag");
+
+  /** Event Type */
+  bool isSimulation  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  m_isMC = isSimulation;
+  bool isTestBeam    = eventInfo->eventType(xAOD::EventInfo::IS_TESTBEAM);
+  bool isCalibration = eventInfo->eventType(xAOD::EventInfo::IS_CALIBRATION);
+  eventTag.insert(EventAttributeSpecs[Evt::Simu].name(), isSimulation );
+  eventTag.insert(EventAttributeSpecs[Evt::Test].name(), isTestBeam );
+  eventTag.insert(EventAttributeSpecs[Evt::Calib].name(), isCalibration );
+
+  double rand = CLHEP::RandFlat::shoot();
+  eventTag.insert(EventAttributeSpecs[Evt::Random].name(), rand);
+
+  return StatusCode::SUCCESS;
+
+}
+
+/** build the tag associate to the event information */
+StatusCode EventInfoTagTool::eventTag(TagFragmentCollection& eventTag, 
+                                      const DataHandle<EventInfo> eventInfo) 
+{
+
+  ATH_MSG_DEBUG("in execute() - eventTag");
+
+  /** run number and Event number */
+  m_runNumber   = eventInfo->event_ID()->run_number();
+  m_condRunNumber = m_runNumber;
+  m_lumiBlock   = eventInfo->event_ID()->lumi_block();
+  m_eventNumber = eventInfo->event_ID()->event_number();
+  eventTag.insert (EventAttributeSpecs[Evt::Run].name(), m_runNumber );
+  eventTag.insert (EventAttributeSpecs[Evt::ConditionsRun].name(), m_condRunNumber );
+  eventTag.insert (EventAttributeSpecs[Evt::NLumiBlock].name(), m_lumiBlock );
+  eventTag.insert (EventAttributeSpecs[Evt::Event].name(), m_eventNumber );
+
+  unsigned long timeStamp   = eventInfo->event_ID()->time_stamp();
+  unsigned long timeStampNS = eventInfo->event_ID()->time_stamp_ns_offset();
+  unsigned long bunchId     = eventInfo->event_ID()->bunch_crossing_id();
+  eventTag.insert (EventAttributeSpecs[Evt::Time].name(), timeStamp );
+  eventTag.insert (EventAttributeSpecs[Evt::TimeNS].name(), timeStampNS );
+  eventTag.insert (EventAttributeSpecs[Evt::BunchId].name(), bunchId );
+
+  
+  // event weight 
+  // used for event weighting in monte carlo or just an event count in data
+  double evweight = 1;
+  bool isSimulation  = eventInfo->event_type()->test(EventType::IS_SIMULATION);
+  if (isSimulation) evweight = eventInfo->event_type()->mc_event_weight();
+  if (isSimulation) m_runNumber = eventInfo->event_type()->mc_channel_number();
+  m_weightSum += evweight;
+  eventTag.insert (EventAttributeSpecs[Evt::Weight].name(), evweight );
+
+  // interaction counts
+  float actualInt = eventInfo->actualInteractionsPerCrossing();
+  float avgInt    = eventInfo->averageInteractionsPerCrossing();
+  eventTag.insert (EventAttributeSpecs[Evt::ActualInt].name(), actualInt );
+  eventTag.insert (EventAttributeSpecs[Evt::AvgInt].name()   , avgInt );
+
+  return StatusCode::SUCCESS;
+
+}
+
+StatusCode EventInfoTagTool::eventTagFlags(TagFragmentCollection& eventTag, 
+                                           const DataHandle<EventInfo> eventInfo) 
+{
 
   ATH_MSG_DEBUG("in execute() - eventTag");
 
@@ -224,15 +336,16 @@ StatusCode EventInfoTagTool::eventTagFlags(TagFragmentCollection& eventTag,
 
 /** build the tag associate to the event information */
 StatusCode EventInfoTagTool::eventExtrasTag(TagFragmentCollection& eventTag, 
-                                            const DataHandle<EventInfo> eventInfo) {
+                                            const DataHandle<EventInfo> eventInfo) 
+{
 
   ATH_MSG_DEBUG("in execute() - eventTag");
 
   /** Event Type */
-  bool isSimulation  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  bool isSimulation  = eventInfo->event_type()->test(xAOD::EventInfo::IS_SIMULATION);
   m_isMC = isSimulation;
-  bool isTestBeam    = eventInfo->eventType(xAOD::EventInfo::IS_TESTBEAM);
-  bool isCalibration = eventInfo->eventType(xAOD::EventInfo::IS_CALIBRATION);
+  bool isTestBeam    = eventInfo->event_type()->test(xAOD::EventInfo::IS_TESTBEAM);
+  bool isCalibration = eventInfo->event_type()->test(xAOD::EventInfo::IS_CALIBRATION);
   eventTag.insert(EventAttributeSpecs[Evt::Simu].name(), isSimulation );
   eventTag.insert(EventAttributeSpecs[Evt::Test].name(), isTestBeam );
   eventTag.insert(EventAttributeSpecs[Evt::Calib].name(), isCalibration );

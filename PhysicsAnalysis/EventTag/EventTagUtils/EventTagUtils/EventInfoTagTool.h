@@ -22,6 +22,7 @@ Purpose : Tool to buid the Global Event Tags
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
 #include <map>
 #include <vector>
@@ -62,7 +63,12 @@ protected:
    StatusCode eventTagFlags  (TagFragmentCollection& eventTagCol, const DataHandle<xAOD::EventInfo> eventInfo);
    StatusCode eventExtrasTag (TagFragmentCollection& eventTagCol, const DataHandle<xAOD::EventInfo> eventInfo);
 
-   unsigned int m_runNumber,m_condRunNumber,m_eventNumber,m_lumiBlock;
+   StatusCode eventTag       (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
+   StatusCode eventTagFlags  (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
+   StatusCode eventExtrasTag (TagFragmentCollection& eventTagCol, const DataHandle<EventInfo> eventInfo);
+
+   unsigned int m_runNumber,m_condRunNumber,m_lumiBlock;
+   unsigned long long m_eventNumber; 
 
    /** Properties */
    bool m_includeEventFlag;

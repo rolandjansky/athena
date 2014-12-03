@@ -21,9 +21,7 @@ Purpose : create a GlobalTriggerTag - The Tag information associated to the even
 
 #include "xAODEventInfo/EventInfo.h"
 
-/*
 #include "EventInfo/TriggerInfo.h"
-*/
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventIncident.h"
@@ -243,10 +241,50 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   const xAOD::EventInfo* eventInfo;
   StatusCode sc = evtStore()->retrieve( eventInfo );
   if (sc.isFailure()) {
-    ATH_MSG_DEBUG("Cannot get event info.");
-    return StatusCode::SUCCESS;
+    const EventInfo* oeventInfo;
+    sc = evtStore()->retrieve( oeventInfo );
+    if (sc.isFailure()) {
+      ATH_MSG_DEBUG("Cannot get event info.");
+      return StatusCode::FAILURE;
+    }
+    else {
+      globalTriggerTag.insert( m_lv1StrType[0], oeventInfo->trigger_info()->level1TriggerType() );
+      // Put stream decisions into a bit mask
+      unsigned int stream = 0;
+
+      for (const auto& STit :  oeventInfo->trigger_info()->streamTags()) {
+        // check if stream is in list, if not add it, otherwise increment it
+        std::map<std::string,unsigned int>::const_iterator bitshift = m_TDTstreamMap.find(STit.name());
+        if (bitshift != m_TDTstreamMap.end()) {
+          ATH_MSG_DEBUG("Insertting for " << STit.name());
+          stream += 1 << bitshift->second;
+        }
+        else {
+          ATH_MSG_WARNING("StreamTag " << STit.name() << " not found in StreamMap from TDT");
+        }
+      }
+      globalTriggerTag.insert(TriggerAttributeNames[Trg::Stream], stream );
+    }
   }
-  globalTriggerTag.insert( m_lv1StrType[0], eventInfo->level1TriggerType() );
+  else {
+    globalTriggerTag.insert( m_lv1StrType[0], eventInfo->level1TriggerType() );
+    // Put stream decisions into a bit mask
+    unsigned int stream = 0;
+
+    for (const auto& STit :  eventInfo->streamTags()) {
+      // check if stream is in list, if not add it, otherwise increment it
+      std::map<std::string,unsigned int>::const_iterator bitshift = m_TDTstreamMap.find(STit.name());
+      if (bitshift != m_TDTstreamMap.end()) {
+         ATH_MSG_DEBUG("Insertting for " << STit.name());
+         stream += 1 << bitshift->second;
+      }
+      else {
+        ATH_MSG_WARNING("StreamTag " << STit.name() << " not found in StreamMap from TDT");
+      }
+    }
+  
+    globalTriggerTag.insert(TriggerAttributeNames[Trg::Stream], stream );
+  }
 
 
   /** Level 1 */

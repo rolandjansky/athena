@@ -19,7 +19,7 @@
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
-#include "LumiBlockComps/LumiBlockCollectionConverter.h"
+#include "LumiCalc/LumiBlockCollectionConverter.h"
 #include "LumiBlockData/LumiBlockCollection.h"
 #include "DBDataModel/CollectionMetadata.h"
 #include "GoodRunsLists/TGoodRunsList.h"

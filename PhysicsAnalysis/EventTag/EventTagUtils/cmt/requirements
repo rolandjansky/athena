@@ -14,6 +14,7 @@ use AthenaBaseComps             AthenaBaseComps-*               Control
 
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
 
+use EventInfo                   EventInfo-*                     Event
 use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 use TagEvent                    TagEvent-*                      PhysicsAnalysis/EventTag
 
@@ -31,7 +32,7 @@ use Particle                    Particle-*                      Reconstruction
 use VxVertex                    VxVertex-*                      Tracking/TrkEvent
 use CaloEvent                   CaloEvent-*                     Calorimeter
 
-use LumiBlockComps              LumiBlockComps-*                LumiBlock 
+use LumiCalc              LumiCalc-*                LumiBlock 
 use LumiBlockData   	           LumiBlockData-*                 LumiBlock 
 use GoodRunsLists               GoodRunsLists-*                 DataQuality
 
