@@ -118,6 +118,10 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   /** Pointer to the MdtIdHelper */
   const MdtIdHelper* m_mdtIdHelper;
 
+  /** assignment and copy constructor operator (hidden) */
+  MuonMDT_CablingMap & operator=(const  MuonMDT_CablingMap &right);
+  MuonMDT_CablingMap(const  MuonMDT_CablingMap&);
+
 };
 
 CLASS_DEF( MuonMDT_CablingMap , 51038731 , 1 )
