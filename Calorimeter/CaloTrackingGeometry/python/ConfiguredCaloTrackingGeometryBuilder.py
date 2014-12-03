@@ -46,8 +46,6 @@ class ConfiguredCaloTrackingGeometryBuilder( Calo__CaloTrackingGeometryBuilder )
                                                    TileVolumeBuilder = ConfTileVolumeBuilder,\
                                                    TrackingVolumeHelper = CaloTrackingVolumeHelper,\
                                                    GapLayerEnvelope    = TrkDetFlags.CaloEnvelopeCover(),\
-                                                   LayerMaterialBinsRz = TrkDetFlags.CaloLayerMaterialBinsRz(),\
-                                                   LayerMaterialBinsPhi = TrkDetFlags.CaloLayerMaterialBinsPhi(),\
                                                    EntryVolumeName = TrkDetFlags.CaloEntryVolumeName(),\
                                                    ExitVolumeName  = TrkDetFlags.CaloContainerName(),
                                                    MagneticFieldMode = TrkDetFlags.MagneticFieldMode())

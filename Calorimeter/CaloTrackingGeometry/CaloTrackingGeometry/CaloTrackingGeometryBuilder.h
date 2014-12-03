@@ -91,9 +91,6 @@ namespace Calo {
       double                                        m_caloEnvelope;                  //!< Envelope cover for Gap Layers
       //enclosing endcap/cylindervolume
       ServiceHandle<IEnvelopeDefSvc>                m_enclosingEnvelopeSvc;
-
-      unsigned int                                  m_caloGapMaterialBinsRz;         //!< the material bins in Rz
-      unsigned int                                  m_caloGapMaterialBinsPhi;        //!< the material bins in phi
                                                                                      
       mutable double                                m_caloDefaultRadius;             //!< the radius if not built from GeoModel
       mutable double                                m_caloDefaultHalflengthZ;        //!< the halflength in z if not built from GeoModel

@@ -81,23 +81,23 @@ class ICaloSurfaceBuilder : virtual public IAlgTool {
       clients should not need to use them */
   
   virtual bool get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
-                             Amg::Transform3D*& htrans, 
+                             Amg::Transform3D* htrans, 
 			     double& radius,  double& hphi, 
 			     double& hlength, double& depth) = 0;
   
   virtual bool get_disk_surface (CaloCell_ID::CaloSample sample, int side,
-                         Amg::Transform3D*& htrans, double& z, 
+                         Amg::Transform3D* htrans, double& z, 
 			 double& rmin, 
 			 double& rmax, double& hphisec, double& depth) = 0;   
   
   virtual bool get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
-                             Amg::Transform3D*& htrans,double& hphi,
+                             Amg::Transform3D* htrans,double& hphi,
                              std::vector<double>& radius,  
                              std::vector<double>& depth, 
                              std::vector<double>& hlength ) = 0;
   
   virtual bool get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
-                         Amg::Transform3D*& htrans,double& hphi, 
+                         Amg::Transform3D* htrans,double& hphi, 
                          std::vector<double>& z, 
                          std::vector<double>& depth,
                          std::vector<double>& rmin, std::vector<double>& rmax) = 0;

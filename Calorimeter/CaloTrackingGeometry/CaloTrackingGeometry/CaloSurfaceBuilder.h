@@ -101,23 +101,23 @@ public:
       clients should not need to use them */
   
   bool get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
-			                 Amg::Transform3D*& htrans, 
-			                 double& radius,  double& hphi, 
-			                 double& hlength, double& depth);
+                             Amg::Transform3D* htrans, 
+                             double& radius,  double& hphi, 
+                             double& hlength, double& depth);
   
   bool get_disk_surface (CaloCell_ID::CaloSample sample, int side,
-			             Amg::Transform3D*& htrans, double& z, 
-			             double& rmin, 
-			             double& rmax, double& hphisec, double& depth);   
+                         Amg::Transform3D* htrans, double& z, 
+                         double& rmin, 
+                         double& rmax, double& hphisec, double& depth);   
   
   bool get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
-                             Amg::Transform3D*& htrans,double& hphi,
+                             Amg::Transform3D* htrans,double& hphi,
                              std::vector<double>& radius,  
                              std::vector<double>& depth, 
                              std::vector<double>& hlength );
   
   bool get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
-                         Amg::Transform3D*& htrans,double& hphi, 
+                         Amg::Transform3D* htrans,double& hphi, 
                          std::vector<double>& z, 
                          std::vector<double>& depth,
                          std::vector<double>& rmin, std::vector<double>& rmax);

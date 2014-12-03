@@ -60,8 +60,6 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   m_caloMaterial(0),
   m_caloEnvelope(25*mm),
   m_enclosingEnvelopeSvc("AtlasGeometry_EnvelopeDefSvc", n),
-  m_caloGapMaterialBinsRz(25),
-  m_caloGapMaterialBinsPhi(25),  
   m_caloDefaultRadius(4250.),
   m_caloDefaultHalflengthZ(6500.),
   m_indexStaticLayers(true),
@@ -80,11 +78,8 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   declareProperty("TrackingVolumeHelper",             m_trackingVolumeHelper);
   declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
   declareProperty("GapLayerEnvelope",                 m_caloEnvelope);
-    // envelope definition service
+  // envelope definition service
   declareProperty("EnvelopeDefinitionSvc",            m_enclosingEnvelopeSvc );
-// material binning
-  declareProperty("LayerMaterialBinsRz",              m_caloGapMaterialBinsRz);  
-  declareProperty("LayerMaterialBinsPhi",             m_caloGapMaterialBinsPhi);    
   // empty calorimeter to be built
   declareProperty("CalorimeterRadius",                m_caloDefaultRadius);
   declareProperty("CalorimeterHalflengthZ",           m_caloDefaultHalflengthZ);
@@ -488,30 +483,37 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
 												       keyDim.back().second,
 												       "InnerGap", rInnerGapBP);
 
-   Trk::CylinderVolumeBounds* lArG1Bounds = new Trk::CylinderVolumeBounds( rInnerGapBP,
-									   //lArPositiveEndcapBounds->outerRadius(),
-									   keyDim[0].first,
-									   0.5*(keyDim.back().second-keyDim[0].second));
-   
    double z = 0.5*(keyDim.back().second+keyDim[0].second);
-   Amg::Transform3D* lArG1P = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
    
-   
-   lArPositiveSectorInnerGap  = m_buildMBTS ? 0 : new Trk::TrackingVolume(lArG1P, lArG1Bounds,
-									  lArSectorInnerGapMaterial, 
-									  dummyLayers, dummyVolumes, 
-									  "Calo::GapVolumes::LAr::PositiveSectorInnerGap");
 
-   Amg::Transform3D* lArG1N = new  Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-z)));
-      
-   lArNegativeSectorInnerGap  = m_buildMBTS ? 0 : new Trk::TrackingVolume(lArG1N, lArG1Bounds->clone(),
-									  lArSectorInnerGapMaterial, 
-									  dummyLayers, dummyVolumes, 
-									  "Calo::GapVolumes::LAr::NegativeSectorInnerGap");
+   if (!m_buildMBTS) {
+     Trk::CylinderVolumeBounds* lArG1Bounds =
+       new Trk::CylinderVolumeBounds( rInnerGapBP,
+                                      //lArPositiveEndcapBounds->outerRadius(),
+                                      keyDim[0].first,
+                                      0.5*(keyDim.back().second-keyDim[0].second));
 
-   // MBTS layers ?
-   // build the MBTS surfaces in the LAr::InnerSector gaps
-   if (m_buildMBTS){
+     Amg::Transform3D* lArG1P =
+       new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
+     lArPositiveSectorInnerGap  = new Trk::TrackingVolume(lArG1P,
+                                                          lArG1Bounds,
+                                                          lArSectorInnerGapMaterial, 
+                                                          dummyLayers,
+                                                          dummyVolumes, 
+                                                          "Calo::GapVolumes::LAr::PositiveSectorInnerGap");
+
+     Amg::Transform3D* lArG1N =
+       new  Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-z)));
+     lArNegativeSectorInnerGap  = new Trk::TrackingVolume(lArG1N,
+                                                          lArG1Bounds->clone(),
+                                                          lArSectorInnerGapMaterial, 
+                                                          dummyLayers,
+                                                          dummyVolumes, 
+                                                          "Calo::GapVolumes::LAr::NegativeSectorInnerGap");
+   }
+   else {
+     // m_buildMBTS true
+     // build the MBTS surfaces in the LAr::InnerSector gaps
      
      // sort the radii
      std::sort(m_mbtsRadii.begin(),m_mbtsRadii.end());
@@ -655,7 +657,6 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
                                                                 keyDim[0].first,
                                                                 keyDim[0].second,
                                                                 keyDim.back().second,
-                                                                0,
                                                                 "Calo::GapVolumes::LAr::PositiveMBTSVolume",
                                                                 Trk::arbitrary);
                                                                 
@@ -666,7 +667,6 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
                                                                  keyDim[0].first,
                                                                  -keyDim.back().second,
                                                                  -keyDim[0].second,
-                                                                 0,
                                                                  "Calo::GapVolumes::LAr::NegativeMBTSVolume",
                                                                  Trk::arbitrary);                                                                
    }
@@ -713,7 +713,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> endcapBP = createBeamPipeVolumes( 
 							  keyDim.back().second,
 							  lArPositiveEndcap->center().z()+lArPositiveEndcapBounds->halflengthZ(),
-												       "Endcap", rEndcapBP);
+							  "Endcap", rEndcapBP);
 
    // build lAr vessel around EC Presampler
    const Trk::CylinderVolumeBounds* ecpBounds 
@@ -1206,11 +1206,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
      indexP.push_back(indx);
    } 
 
-   std::vector<Trk::BinUtility*>* laycp = new std::vector<Trk::BinUtility*>(layUP);     
-   const std::vector<std::vector<size_t> >* layidcp = new  std::vector<std::vector<size_t> >(indexP);
-   const std::vector<const Trk::IdentifiedMaterial* >* laymat = new  std::vector<const Trk::IdentifiedMaterial*>(matCrack);
-   
-   const Trk::BinnedMaterial* crackBinPos = new Trk::BinnedMaterial(crackMaterial,bup,*laycp,*layidcp,*laymat);
+   const Trk::BinnedMaterial* crackBinPos = new Trk::BinnedMaterial(crackMaterial,bup,layUP,indexP,matCrack);
    
    Amg::Transform3D* align=0;
    
@@ -1239,10 +1235,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
      indexN.push_back(indx);
    } 
 
-   std::vector<Trk::BinUtility*>* laycn = new std::vector<Trk::BinUtility*>(layDN);     
-   const std::vector<std::vector<size_t> >* layidcn = new  std::vector<std::vector<size_t> >(indexN);
-   
-   const Trk::BinnedMaterial* crackBinNeg = new Trk::BinnedMaterial(crackMaterial,bun,*laycn,*layidcn,*laymat);
+   const Trk::BinnedMaterial* crackBinNeg = new Trk::BinnedMaterial(crackMaterial,bun,layDN,indexN,matCrack);
    
    align=0;
    
@@ -1435,7 +1428,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
        // get beam pipe volumes
        float rCutOutBP = 0.;
        std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> cutOutBP = createBeamPipeVolumes(zlow,zup,  
-												       "CutOuts", rCutOutBP);
+												       "CutOuts"+ss.str(), rCutOutBP);
 
        // build inner part ( -> Calo )
        unsigned int mindex = i>1 ? 1 : i;
@@ -1638,8 +1631,6 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
   
   if (dim.back().second < zmax) dim.push_back(RZPair(rOut,zmax));
 
-  //for (unsigned int i=0; i<dim.size(); i++) std::cout <<"beam pipe dimensions to process:"<< dim[i].second <<","<< dim[i].first << std::endl;
-
   if (dim.size()==2) {   // simple case
     
     outerRadius = dim[0].first;
@@ -1740,16 +1731,16 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
   
   for (unsigned int i=0; i<dim.size()-1; i++) {
     
-    float zmax = -1.* (dim[i].second);
-    float zmin = -1.* (dim[i+1].second);
+    float zmax2 = -1.* (dim[i].second);
+    float zmin2 = -1.* (dim[i+1].second);
 
-    if (zmin == zmax) continue;
+    if (zmin2 == zmax2) continue;
     
     // beam pipe volume 
     Trk::CylinderVolumeBounds* bpBounds = new Trk::CylinderVolumeBounds( 0., dim[i].first,
-									 0.5*(zmax-zmin));
+									 0.5*(zmax2-zmin2));
     
-    Amg::Transform3D* bpNeg = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,0.5*(zmin+zmax))));
+    Amg::Transform3D* bpNeg = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,0.5*(zmin2+zmax2))));
     
     const Trk::TrackingVolume* bpVolNeg = new Trk::TrackingVolume(bpNeg, bpBounds,
 								  *m_caloMaterial, 
@@ -1760,7 +1751,7 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
     const Trk::TrackingVolume* bpVolGap = dim[i].first < outerRadius ?
       new Trk::TrackingVolume(new Amg::Transform3D(*bpNeg),
 			      new Trk::CylinderVolumeBounds( dim[i].first, outerRadius,
-							     0.5*(zmax - zmin)),
+							     0.5*(zmax2 - zmin2)),
 			      *m_caloMaterial, 
 			      dummyLayers, dummyVolumes, 
 			      "Calo::GapVolumes::Negative"+name)  : 0 ;

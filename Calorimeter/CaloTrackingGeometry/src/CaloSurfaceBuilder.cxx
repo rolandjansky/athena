@@ -535,7 +535,7 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
   bool result = false;
   thelayer->clear();
 
-  Amg::Transform3D* htrans = new Amg::Transform3D(Trk::s_idTransform);
+  Amg::Transform3D htrans(Trk::s_idTransform);
   double hphi;
   std::vector<double> radius;
   std::vector<double> depth;
@@ -546,9 +546,8 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
   result = m_lar_mat->get_material(alvol, mass, volume, x0, dEdx, aveA, aveZ);
 
   // the layers
-  result = this->get_cylinder_surface(alvol, htrans, hphi, radius, depth, hlength);
+  result = this->get_cylinder_surface(alvol, &htrans, hphi, radius, depth, hlength);
   if (!result){
-      delete htrans;
       return 0;
     }
 
@@ -560,7 +559,9 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
     Trk::CylinderBounds* objectBounds    = new Trk::CylinderBounds(radius[i], hlength[i]);
 
     // log << MSG::DEBUG << "DD barrel Layer constructed with material-properties: " << objectMaterial << endreq;
-    thelayer->push_back(new Trk::CylinderLayer(htrans, objectBounds, objectLayerMaterial));
+    // CylinderLayer takes ownership of the transformation.
+    thelayer->push_back(new Trk::CylinderLayer(new Amg::Transform3D(htrans),
+                                               objectBounds, objectLayerMaterial));
   }
 
   return result;
@@ -637,7 +638,7 @@ CaloSurfaceBuilder::getCaloDepth()
 
 bool
 CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int side,
-					  Amg::Transform3D*& htrans,
+					  Amg::Transform3D* htrans,
 					  double& radius, double& hphi,
 					  double& hlength, double& depth)
 {
@@ -732,7 +733,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
 
 bool
 CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
-				      Amg::Transform3D*& htrans, double& z,
+				      Amg::Transform3D* htrans, double& z,
 				      double& rmin,
 				      double& rmax, double& hphisec, double& depth)
 {
@@ -821,7 +822,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
 
 bool
 CaloSurfaceBuilder::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
-                      Amg::Transform3D*& htrans,double& hphi,
+                                          Amg::Transform3D* htrans,double& hphi,
 					  std::vector<double>& radius,
 					  std::vector<double>& depth,
 					  std::vector<double>& hlength )
@@ -849,7 +850,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
 bool
 CaloSurfaceBuilder::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
-                      Amg::Transform3D*& htrans,
+                                      Amg::Transform3D* htrans,
 				      double& hphi,
 				      std::vector<double>& z,
 				      std::vector<double>& depth,
