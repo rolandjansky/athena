@@ -12,6 +12,7 @@ use AtlasCLHEP           AtlasCLHEP-*           External
 use EventPrimitives      EventPrimitives-*      Event
 use EventKernel          EventKernel-*          Event
 use GeoPrimitives	 GeoPrimitives-*        DetectorDescription
+use xAODTracking         xAODTracking-*         Event/xAOD
 
 private
 #use TrkParameters        TrkParameters-*        Tracking/TrkEvent
@@ -22,6 +23,7 @@ use TrkParametersBase    TrkParametersBase-*    Tracking/TrkEvent
 #use TrkNeutralParameters TrkNeutralParameters-* Tracking/TrkEvent
 use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
 use Particle             Particle-*             Reconstruction
+
 
 public
 apply_pattern dual_use_library files="*.cxx"

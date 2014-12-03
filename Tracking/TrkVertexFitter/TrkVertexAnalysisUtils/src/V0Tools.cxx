@@ -28,8 +28,10 @@
 #include "Particle/TrackParticle.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "EventPrimitives/AmgMatrixPlugin.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Trk
 {
@@ -92,14 +94,52 @@ namespace Trk
     return (found ? hypo : 0);
   }
 
-  double V0Tools::invariantMass(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  xAOD::Vertex * V0Tools::v0Link(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
+    xAOD::Vertex* v0(0);
+    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
+    if ((acc(*vxCandidate)).isValid()) {
+      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
+      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
     }
+    return v0;
+  }
+
+  xAOD::Vertex * V0Tools::kshortLink(xAOD::Vertex * vxCandidate) const
+  {
+    xAOD::Vertex* v0(0);
+    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
+    if ((acc(*vxCandidate)).isValid()) {
+      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
+      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+    }
+    return v0;
+  }
+
+  xAOD::Vertex * V0Tools::lambdaLink(xAOD::Vertex * vxCandidate) const
+  {
+    xAOD::Vertex* v0(0);
+    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
+    if ((acc(*vxCandidate)).isValid()) {
+      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
+      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+    }
+    return v0;
+  }
+
+  xAOD::Vertex * V0Tools::lambdabarLink(xAOD::Vertex * vxCandidate) const
+  {
+    xAOD::Vertex* v0(0);
+    static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
+    if ((acc(*vxCandidate)).isValid()) {
+      const xAOD::Vertex* v0_linked = *(acc(*vxCandidate));
+      if (v0_linked) v0 = const_cast<xAOD::Vertex*>(v0_linked);
+    }
+    return v0;
+  }
+
+  double V0Tools::invariantMass(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  {
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -107,38 +147,27 @@ namespace Trk
     return invariantMass(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMass(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMass(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     double px = 0., py = 0., pz = 0., e = 0.;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      CLHEP::HepLorentzVector lorentz_trk = track4Momentum(vxCandidate,it,masses[it]);
-      px += lorentz_trk.x();
-      py += lorentz_trk.y();
-      pz += lorentz_trk.z();
-       e += lorentz_trk.e();
+      xAOD::TrackParticle::FourMom_t lorentz_trk = track4Momentum(vxCandidate,it,masses[it]);
+      px += lorentz_trk.Px();
+      py += lorentz_trk.Py();
+      pz += lorentz_trk.Pz();
+       e += lorentz_trk.E();
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassError(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassError(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -146,35 +175,33 @@ namespace Trk
     return invariantMassError(vxCandidate,masses);
   }
  
-  double V0Tools::invariantMassError(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassError(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     double error = -999999.;
-    if (vxCandidate->fullCovariance() != 0) {
-      unsigned int ndim = (vxCandidate->fullCovariance())->rows();
-      if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
-        error = massErrorV0Fitter(vxCandidate,masses);
-      } else if (ndim == 3*NTrk+3) {
-        error = massErrorVKalVrt(vxCandidate,masses);
-      }
-    } else {
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    if (fullCov == 0) {
       ATH_MSG_DEBUG("0 pointer for full covariance. Making-up one from the vertex and tracks covariances");
       error = massErrorVxCandidate(vxCandidate,masses);
+    } else {
+      unsigned int ndim = fullCov->rows();
+      if (ndim != 0) {
+        if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
+          error = massErrorV0Fitter(vxCandidate,masses);
+        } else if (ndim == 3*NTrk+3) {
+          error = massErrorVKalVrt(vxCandidate,masses);
+        }
+      }
     }
+    delete fullCov;
     return error;
   }
  
-  double V0Tools::massErrorV0Fitter(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorV0Fitter(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     std::vector<double> masses;
     masses.push_back(posTrackMass);
@@ -183,24 +210,20 @@ namespace Trk
     return massErrorV0Fitter(vxCandidate,masses);
   }
 
-  double V0Tools::massErrorV0Fitter(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorV0Fitter(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    unsigned int ndim = fullCov->rows();
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector d0(NTrk,0), z0(NTrk,0), phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dm2dphi(NTrk,0), dm2dtheta(NTrk,0), dm2dqOverP(NTrk,0);
+    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -228,13 +251,14 @@ namespace Trk
 
     Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      D_vec(5*it)  = 0.;
-      D_vec(5*it)  = 0.;
-      D_vec(5*it)  = dm2dphi[it];
-      D_vec(5*it)  = dm2dtheta[it];
-      D_vec(5*it)  = dm2dqOverP[it];
+      D_vec(5*it+0,0)  = 0.;
+      D_vec(5*it+1,0)  = 0.;
+      D_vec(5*it+2,0)  = dm2dphi[it];
+      D_vec(5*it+3,0)  = dm2dtheta[it];
+      D_vec(5*it+4,0)  = dm2dqOverP[it];
     }
-    Amg::MatrixX V0_merr = D_vec.transpose() * (vxCandidate->fullCovariance()->block(0,0,5,5)) * D_vec;
+    Amg::MatrixX V0_merr = D_vec.transpose() * fullCov->block(0,0,ndim-3,ndim-3) * D_vec;
+    delete fullCov;
 
     double massVarsq = V0_merr(0,0);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
@@ -242,7 +266,7 @@ namespace Trk
     return massErr;
   }
  
-  double V0Tools::massErrorVKalVrt(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorVKalVrt(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     std::vector<double> masses;
     masses.push_back(posTrackMass);
@@ -251,77 +275,73 @@ namespace Trk
     return massErrorVKalVrt(vxCandidate,masses);
   }
 
-  double V0Tools::massErrorVKalVrt(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorVKalVrt(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    std::vector<CLHEP::HepLorentzVector> particleMom(NTrk);
-    std::vector<CLHEP::HepMatrix> particleDeriv(NTrk);
-    CLHEP::HepLorentzVector totalMom;
-    CLHEP::HepMatrix tmpDeriv(3,3);
+    std::vector<xAOD::TrackParticle::FourMom_t> particleMom(NTrk);
+    std::vector<Amg::MatrixX> particleDeriv(NTrk);
+    xAOD::TrackParticle::FourMom_t totalMom;
+    Amg::MatrixX tmpDeriv(3,3); tmpDeriv.setZero();
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
   
     double phi=0.,theta=0.,invP=0.;
     for( unsigned int it=0; it<NTrk; it++){
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       phi   =  bPer->parameters()[Trk::phi];
       theta =  bPer->parameters()[Trk::theta];
       invP  =  bPer->parameters()[Trk::qOverP];
-      CLHEP::HepLorentzVector tmp( cos(phi)*sin(theta)/fabs(invP),
-                            sin(phi)*sin(theta)/fabs(invP),
-                                     cos(theta)/fabs(invP) );
-      double esq = tmp.px()*tmp.px() + tmp.py()*tmp.py() + tmp.pz()*tmp.pz() + masses[it]*masses[it];
+      double px = cos(phi)*sin(theta)/fabs(invP);
+      double py = sin(phi)*sin(theta)/fabs(invP);
+      double pz = cos(theta)/fabs(invP);
+      double esq = px*px + py*py + pz*pz + masses[it]*masses[it];
       double e = (esq>0.) ? sqrt(esq) : 0.;
-      tmp.setE(e);
+      xAOD::TrackParticle::FourMom_t tmp(0,0,0,0);
+      tmp.SetPxPyPzE(px,py,pz,e);
       particleMom[it] = tmp;
       totalMom += tmp;
 
 //  d(Px,Py,Pz)/d(Phi,Theta,InvP)
-      tmpDeriv(1,1) = - tmp.py();
-      tmpDeriv(2,1) =   tmp.px();
-      tmpDeriv(3,1) =   0.;
-      tmpDeriv(1,2) =   cos(phi) * tmp.pz();
-      tmpDeriv(2,2) =   sin(phi) * tmp.pz();
-      tmpDeriv(3,2) = - sin(theta)/fabs(invP);
-      tmpDeriv(1,3) = - tmp.px()/invP;
-      tmpDeriv(2,3) = - tmp.py()/invP;
-      tmpDeriv(3,3) = - tmp.pz()/invP;
+      tmpDeriv(0,0) = - tmp.Py();
+      tmpDeriv(1,0) =   tmp.Px();
+      tmpDeriv(2,0) =   0.;
+      tmpDeriv(0,1) =   cos(phi) * tmp.Pz();
+      tmpDeriv(1,1) =   sin(phi) * tmp.Pz();
+      tmpDeriv(2,1) = - sin(theta)/fabs(invP);
+      tmpDeriv(0,2) = - tmp.Px()/invP;
+      tmpDeriv(1,2) = - tmp.Py()/invP;
+      tmpDeriv(2,2) = - tmp.Pz()/invP;
       particleDeriv[it] = tmpDeriv;
     }
   
     double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
     std::vector<double> Deriv(3*NTrk+3, 0.);
     for(unsigned int it=0; it<NTrk; it++){
-      dMdPx = ( totalMom.e() * particleMom[it].px()/particleMom[it].e() - totalMom.px() ) / totalMom.m();
-      dMdPy = ( totalMom.e() * particleMom[it].py()/particleMom[it].e() - totalMom.py() ) / totalMom.m();
-      dMdPz = ( totalMom.e() * particleMom[it].pz()/particleMom[it].e() - totalMom.pz() ) / totalMom.m();
+      dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
+      dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
+      dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
   
-      dMdPhi   = dMdPx*particleDeriv[it](1,1) + dMdPy*particleDeriv[it](2,1) + dMdPz*particleDeriv[it](3,1);
-      dMdTheta = dMdPx*particleDeriv[it](1,2) + dMdPy*particleDeriv[it](2,2) + dMdPz*particleDeriv[it](3,2);
-      dMdInvP  = dMdPx*particleDeriv[it](1,3) + dMdPy*particleDeriv[it](2,3) + dMdPz*particleDeriv[it](3,3);
+      dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
+      dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
+      dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
   
       Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
     }
 
-    const Amg::MatrixX* fullCov = vxCandidate->fullCovariance();
     double err = 0;
     for(unsigned int i=0; i<3*NTrk+3; i++){
       for(unsigned int j=0; j<3*NTrk+3; j++){
-        err += Deriv[i]*( (*fullCov)(i,j))*Deriv[j];
+        err += Deriv[i]*( (*fullCov))(i,j)*Deriv[j];
       }
     }
+    delete fullCov;
     return (err>0.) ? sqrt(err) : 0.;
   }
 
-  double V0Tools::massErrorVxCandidate(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorVxCandidate(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     std::vector<double> masses;
     masses.push_back(posTrackMass);
@@ -330,32 +350,29 @@ namespace Trk
     return massErrorVxCandidate(vxCandidate,masses);
   }
  
-  double V0Tools::massErrorVxCandidate(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorVxCandidate(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector d0(NTrk,0), z0(NTrk,0), phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dm2dphi(NTrk,0), dm2dtheta(NTrk,0), dm2dqOverP(NTrk,0);
-    CLHEP::HepSymMatrix V0_cor(5*NTrk,0);
+    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
+    Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(1,1);
-      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(1,2);
-      V0_cor(5*it+3,5*it+5) = (*cov_tmp)(1,3);
-      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(2,2);
-      V0_cor(5*it+4,5*it+5) = (*cov_tmp)(2,3);
-      V0_cor(5*it+5,5*it+5) = (*cov_tmp)(3,3);
+      V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+      V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+      V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+      V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+      V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+      V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
       double trkCharge = 1.;
       if (bPer->parameters()(Trk::qOverP) < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -381,30 +398,25 @@ namespace Trk
       dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
     }
 
-    CLHEP::HepVector D_vec(5*NTrk,0);
+    Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      D_vec(5*it+1) = 0.;
-      D_vec(5*it+2) = 0.;
-      D_vec(5*it+3) = dm2dphi[it];
-      D_vec(5*it+4) = dm2dtheta[it];
-      D_vec(5*it+5) = dm2dqOverP[it];
+      D_vec(5*it+0,0)  = 0.;
+      D_vec(5*it+1,0)  = 0.;
+      D_vec(5*it+2,0)  = dm2dphi[it];
+      D_vec(5*it+3,0)  = dm2dtheta[it];
+      D_vec(5*it+4,0)  = dm2dqOverP[it];
     }
-    CLHEP::HepMatrix V0_merr = D_vec.T() * V0_cor * D_vec;
 
-    double massVarsq = V0_merr(1,1);
+    Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
+
+    double massVarsq = V0_merr(0,0);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
   }
 
-  double V0Tools::invariantMassProbability(const ExtendedVxCandidate * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass probability for non-existing vxCandidate requested");
-      return -1.;
-    }
-
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -412,13 +424,8 @@ namespace Trk
     return invariantMassProbability(vxCandidate,V0Mass,masses);
   }
  
-  double V0Tools::invariantMassProbability(const ExtendedVxCandidate * vxCandidate, double V0Mass, std::vector<double> masses) const
+  double V0Tools::invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass probability for non-existing vxCandidate requested");
-      return -1.;
-    }
     double mass = invariantMass(vxCandidate, masses);
     double massErr = invariantMassError(vxCandidate, masses);
     if(massErr > 0.)
@@ -460,46 +467,46 @@ namespace Trk
       return -1.;
     }
   }
- 
-  Amg::Vector3D V0Tools::trackMomentum(const ExtendedVxCandidate * vxCandidate, int trkIndex) const
+
+  Amg::Vector3D V0Tools::trackMomentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex) const
   {
     double px = 0., py = 0., pz = 0.;
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    if (0 != vxCandidate) {
-      const Trk::TrackParameters* aPerigee = (*(vxCandidate->vxTrackAtVertex()))[trkIndex]->perigeeAtVertex();
-      px = aPerigee->momentum()[Trk::px];
-      py = aPerigee->momentum()[Trk::py];
-      pz = aPerigee->momentum()[Trk::pz];
-    }
+    const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
+    px = aPerigee->momentum()[Trk::px];
+    py = aPerigee->momentum()[Trk::py];
+    pz = aPerigee->momentum()[Trk::pz];
     Amg::Vector3D mom(px,py,pz);
     return mom;
   }
 
-  Amg::Vector3D V0Tools::positiveTrackMomentum(const ExtendedVxCandidate * vxCandidate) const
+  Amg::Vector3D V0Tools::positiveTrackMomentum(xAOD::Vertex * vxCandidate) const
   {
     Amg::Vector3D mom;
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    mom = trackMomentum(vxCandidate,0);
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (NTrk != 2) return mom;
+    for( unsigned int it=0; it<NTrk; it++) {
+      float trkCharge = vxCandidate->trackParticle(it)->charge();
+      if (trkCharge > 0) mom = trackMomentum(vxCandidate,it);
+    }
     return mom;
   }
 
-  Amg::Vector3D V0Tools::negativeTrackMomentum(const ExtendedVxCandidate * vxCandidate) const
+  Amg::Vector3D V0Tools::negativeTrackMomentum(xAOD::Vertex * vxCandidate) const
   {
     Amg::Vector3D mom;
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    mom = trackMomentum(vxCandidate,1);
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (NTrk != 2) return mom;
+    for( unsigned int it=0; it<NTrk; it++) {
+      float trkCharge = vxCandidate->trackParticle(it)->charge();
+      if (trkCharge < 0) mom = trackMomentum(vxCandidate,it);
+    }
     return mom;
   }
 
-  Amg::Vector3D V0Tools::V0Momentum(const ExtendedVxCandidate * vxCandidate) const
+  Amg::Vector3D V0Tools::V0Momentum(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
     double px = 0., py = 0., pz = 0.;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     for( unsigned int it=0; it<NTrk; it++) {
       Amg::Vector3D mom_trk = trackMomentum(vxCandidate,it);
       px += mom_trk.x();
@@ -510,78 +517,62 @@ namespace Trk
     return mom;
   }
 
-  CLHEP::HepLorentzVector V0Tools::track4Momentum(const ExtendedVxCandidate * vxCandidate, int trkIndex, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::track4Momentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex, double mass) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
     Amg::Vector3D mom = trackMomentum(vxCandidate, trkIndex);
+    xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
     double tmp = mass*mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
     double e = (tmp>0.) ? sqrt(tmp) : 0.;
-    CLHEP::HepLorentzVector lorentz(mom.x(), mom.y(), mom.z(), e);
+    lorentz.SetPxPyPzE(mom.x(), mom.y(), mom.z(), e);
     return lorentz;
   }
 
-  CLHEP::HepLorentzVector V0Tools::positiveTrack4Momentum(const ExtendedVxCandidate * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::positiveTrack4Momentum(xAOD::Vertex * vxCandidate, double mass) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
     Amg::Vector3D mom = positiveTrackMomentum(vxCandidate);
+    xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
     double tmp = mass*mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
     double e = (tmp>0.) ? sqrt(tmp) : 0.;
-    CLHEP::HepLorentzVector lorentz(mom.x(), mom.y(), mom.z(), e);
+    lorentz.SetPxPyPzE(mom.x(), mom.y(), mom.z(), e);
     return lorentz;
   }
 
-  CLHEP::HepLorentzVector V0Tools::negativeTrack4Momentum(const ExtendedVxCandidate * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::negativeTrack4Momentum(xAOD::Vertex * vxCandidate, double mass) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
     Amg::Vector3D mom = negativeTrackMomentum(vxCandidate);
+    xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
     double tmp = mass*mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
     double e = (tmp>0.) ? sqrt(tmp) : 0.;
-    CLHEP::HepLorentzVector lorentz(mom.x(), mom.y(), mom.z(), e);
+    lorentz.SetPxPyPzE(mom.x(), mom.y(), mom.z(), e);
     return lorentz;
   }
 
-  CLHEP::HepLorentzVector V0Tools::V04Momentum(const ExtendedVxCandidate * vxCandidate, double V0Mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::V04Momentum(xAOD::Vertex * vxCandidate, double V0Mass) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
     Amg::Vector3D mom = V0Momentum(vxCandidate);
     double tmp = V0Mass*V0Mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
     double e = (tmp>0.) ? sqrt(tmp) : 0.;
-    CLHEP::HepLorentzVector lorentz(mom.x(), mom.y(), mom.z(), e);
+    xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
+    lorentz.SetPxPyPzE(mom.x(), mom.y(), mom.z(), e);
     return lorentz;
   }
 
-  int V0Tools::ndof(const ExtendedVxCandidate * vxCandidate) const
+  float V0Tools::ndof(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("NDoF for non-existing vxCandidate requested");
-      return -1;
-    }
-    return vxCandidate->recVertex().fitQuality().numberDoF();
+    return vxCandidate->numberDoF();
   }
 
-  double V0Tools::chisq(const ExtendedVxCandidate * vxCandidate) const
+  float V0Tools::chisq(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Chi2 for non-existing vxCandidate requested");
-      return -1.;
-    }
-    return vxCandidate->recVertex().fitQuality().chiSquared();
+    return vxCandidate->chiSquared();
   }
 
-  double V0Tools::vertexProbability(const ExtendedVxCandidate * vxCandidate) const
+  double V0Tools::vertexProbability(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    int dof = ndof(vxCandidate);
+    float dof = ndof(vxCandidate);
     if (dof > 0.) {
       Genfun::CumulativeChiSquare myCumulativeChiSquare(dof);
-      double chi = chisq(vxCandidate);
+      float chi = chisq(vxCandidate);
       if (chi > 0.) {
         double chi2prob = 1.-myCumulativeChiSquare(chi);
         return chi2prob;
@@ -597,56 +588,25 @@ namespace Trk
 
   }
 
-  Amg::Vector3D V0Tools::vtx(const ExtendedVxCandidate * vxCandidate) const
+  Amg::Vector3D V0Tools::vtx(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Vertex position for non-existing vxCandidate requested");
-      Amg::Vector3D vertex; vertex.setZero();
-      return vertex;
-    }
-    Amg::Vector3D vertex(vxCandidate->recVertex().position()[0],vxCandidate->recVertex().position()[1],vxCandidate->recVertex().position()[2]);
+    Amg::Vector3D vertex(vxCandidate->position().x(),vxCandidate->position().y(),vxCandidate->position().z());
     return vertex;
   }
 
-  double V0Tools::rxy(const ExtendedVxCandidate * vxCandidate) const
+  double V0Tools::rxy(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    return vxCandidate->recVertex().position().perp();
+    return vxCandidate->position().perp();
   }
 
-  double V0Tools::rxy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::rxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    return (vxCandidate->recVertex().position() - vertex.position()).perp();
+    return (vxCandidate->position() - vertex->position()).perp();
   }
 
-  double V0Tools::rxy(const ExtendedVxCandidate * vxCandidate, Trk::Vertex& vertex) const
+  double V0Tools::rxy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    return (vxCandidate->recVertex().position() - vertex.position()).perp();
-  }
-
-  double V0Tools::rxy(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const
-  {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    return (vxCandidate->recVertex().position() - vertex).perp();
+    return (vxCandidate->position() - vertex).perp();
   }
 
   double V0Tools::rxy_var(double dx, double dy, const Amg::MatrixX& cov) const
@@ -655,99 +615,59 @@ namespace Trk
     double rxy = (rxysq>0.) ? sqrt(rxysq) : 0.;
     double drdx = dx/rxy;
     double drdy = dy/rxy;
-    CLHEP::HepVector D_vec(2,0);
-    D_vec(1)  = drdx;
-    D_vec(2)  = drdy;
-    CLHEP::HepSymMatrix rxy_cov(2,0);
-    rxy_cov(1,1) = cov(0,0);
-    rxy_cov(1,2) = cov(0,1);
-    rxy_cov(2,2) = cov(1,1);
-    CLHEP::HepMatrix rxy_err = D_vec.T() * rxy_cov * D_vec;
-    double rxyVar = rxy_err(1,1);
+    Amg::MatrixX D_vec(2,1); D_vec.setZero();
+    D_vec(0,0)  = drdx;
+    D_vec(1,0)  = drdy;
+    Amg::MatrixX rxy_err = D_vec.transpose() * cov.block(0,0,2,2) * D_vec;
+    double rxyVar = rxy_err(0,0);
     return rxyVar;
   }
 
-  double V0Tools::rxyError(const ExtendedVxCandidate * vxCandidate) const
+  double V0Tools::rxyError(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    const Amg::MatrixX& cov = vxCandidate->recVertex().covariancePosition();
-    double dx = vxCandidate->recVertex().position().x();
-    double dy = vxCandidate->recVertex().position().y();
+    const Amg::MatrixX& cov = vxCandidate->covariancePosition();
+    double dx = vxCandidate->position().x();
+    double dy = vxCandidate->position().y();
     double rxyVar = rxy_var(dx,dy,cov);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::rxyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::rxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    const Amg::MatrixX& cov = vxCandidate->recVertex().covariancePosition() + vertex.covariancePosition();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    const Amg::MatrixX& cov = vxCandidate->covariancePosition() + vertex->covariancePosition();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
     double rxyVar = rxy_var(dx,dy,cov);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::rxyError(const ExtendedVxCandidate * vxCandidate, Trk::Vertex& vertex) const
+  double V0Tools::rxyError(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    const Amg::MatrixX cov = vxCandidate->recVertex().covariancePosition();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    const Amg::MatrixX& cov = vxCandidate->covariancePosition();
+    double dx = (vxCandidate->position() - vertex).x();
+    double dy = (vxCandidate->position() - vertex).y();
     double rxyVar = rxy_var(dx,dy,cov);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::rxyError(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::pT(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Rxy error for non-existing vxCandidate requested");
-      return -999999.;
-    }
-    const Amg::MatrixX& cov = vxCandidate->recVertex().covariancePosition();
-    double dx = (vxCandidate->recVertex().position() - vertex).x();
-    double dy = (vxCandidate->recVertex().position() - vertex).y();
-    double rxyVar = rxy_var(dx,dy,cov);
-    return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
-  }
-
-  double V0Tools::pT(const ExtendedVxCandidate * vxCandidate) const
-  {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     return V0Momentum(vxCandidate).perp();
   }
 
-  double V0Tools::pTError(const ExtendedVxCandidate * vxCandidate) const
+  double V0Tools::pTError(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero(); // no full covariance
     double Px=0., Py=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -762,7 +682,18 @@ namespace Trk
       dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+      if (fullCov == 0) {
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double PTsq = Px*Px+Py*Py;
     double PT = (PTsq>0.) ? sqrt(PTsq) : 0.;
@@ -774,49 +705,48 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
-    } else {
-      ndim = 5*NTrk+3;
-    }
+    if (fullCov == 0) ndim = 5*NTrk+3;
+    if (fullCov != 0) ndim = fullCov->rows();
 
-    Amg::MatrixX V0_err;
+    Amg::MatrixX PtErrSq(1,1);
+    double PtErrsq = 0.;
     if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
-      Amg::VectorX D_vec(5*NTrk); D_vec.setZero();
+      Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
       for( unsigned int it=0; it<NTrk; it++) {
-        D_vec(5*it)  = 0.;
-        D_vec(5*it+1)  = 0.;
-        D_vec(5*it+2)  = dPTdphi[it];
-        D_vec(5*it+3)  = dPTdtheta[it];
-        D_vec(5*it+4)  = dPTdqOverP[it];
+        D_vec(5*it+0,0)  = 0.;
+        D_vec(5*it+1,0)  = 0.;
+        D_vec(5*it+2,0)  = dPTdphi[it];
+        D_vec(5*it+3,0)  = dPTdtheta[it];
+        D_vec(5*it+4,0)  = dPTdqOverP[it];
       }
-      if (vxCandidate->fullCovariance() != 0) {
-        V0_err = D_vec.transpose() * (vxCandidate->fullCovariance()->block(0,0,5,5)) * D_vec;
+      if (fullCov == 0) {
+        PtErrSq = D_vec.transpose() * V0_cov * D_vec;
       } else {
-        V0_err = D_vec.transpose() * V0_cov * D_vec;
+        PtErrSq = D_vec.transpose() * fullCov->block(0,0,5*NTrk-1,5*NTrk-1) * D_vec;
       }
     } else if (ndim == 3*NTrk+3) {
-      Amg::VectorX D_vec(3*NTrk); D_vec.setZero();
+      Amg::MatrixX D_vec(3*NTrk,1); D_vec.setZero();
       for( unsigned int it=0; it<NTrk; it++) {
-        D_vec(3*it)  = dPTdphi[it];
-        D_vec(3*it+1)  = dPTdtheta[it];
-        D_vec(3*it+2)  = dPTdqOverP[it];
+        D_vec(3*it+0,0)  = dPTdphi[it];
+        D_vec(3*it+1,0)  = dPTdtheta[it];
+        D_vec(3*it+2,0)  = dPTdqOverP[it];
       }
-      V0_err = D_vec.transpose() * (vxCandidate->fullCovariance()->block(2,2,3,3)) * D_vec;
+      PtErrSq = D_vec.transpose() * fullCov->block(3,3,ndim-3,ndim-3) * D_vec;
     }
+    delete fullCov;
 
-    double PtErrsq = V0_err(1,1);
+    PtErrsq = PtErrSq(0,0);
     return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
   }
 
-  Amg::Vector3D V0Tools::pca(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  Amg::Vector3D V0Tools::pca(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
     assert(vxCandidate!=0);
     if(0 == vxCandidate) {
       Amg::Vector3D p; p.setZero();
       return p;
     }
-    Amg::Vector3D pv = vertex.position();
+    Amg::Vector3D pv = vertex->position();
     Amg::Vector3D sv = vtx(vxCandidate);
     Amg::Vector3D P = V0Momentum(vxCandidate);
     double p2 = P.mag2();
@@ -824,118 +754,76 @@ namespace Trk
     return sv - P*pdr/p2;
   }
 
-  double V0Tools::separation(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::separation(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    const Amg::MatrixX& cov = vxCandidate->recVertex().covariancePosition()+vertex.covariancePosition();
-    cov.inverse();  
-    Amg::MatrixX dr(1,3);
-    dr(0,0) = (vxCandidate->recVertex().position() - vertex.position()).x();
-    dr(0,1) = (vxCandidate->recVertex().position() - vertex.position()).y();
-    dr(0,2) = (vxCandidate->recVertex().position() - vertex.position()).z();
-    Amg::MatrixX sep = cov.similarity( dr );
-    return (sep(0,0)>0.) ? sqrt(sep(0,0)) : 0.;
+    const Amg::MatrixX& cov = (vxCandidate->covariancePosition() + vertex->covariancePosition()).inverse().eval();
     Amg::Vector3D D_vec; D_vec.setZero();
-    D_vec(0) = (vxCandidate->recVertex().position() - vertex.position()).x();
-    D_vec(1) = (vxCandidate->recVertex().position() - vertex.position()).y();
-    D_vec(2) = (vxCandidate->recVertex().position() - vertex.position()).z();
-    Amg::MatrixX sepVarsqMat = cov.similarity( D_vec ); 
+    D_vec(0) = (vxCandidate->position() - vertex->position()).x();
+    D_vec(1) = (vxCandidate->position() - vertex->position()).y();
+    D_vec(2) = (vxCandidate->position() - vertex->position()).z();
+    Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
     double sepVarsq = sepVarsqMat(0,0); 
     if (sepVarsq <= 0.) ATH_MSG_INFO("separation: negative sqrt sepVarsq " << sepVarsq);
     double sepVar = (sepVarsq>0.) ? sqrt(sepVarsq) : 0.;
     return sepVar;
   }
 
-  double V0Tools::separation(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::separation(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    const Amg::MatrixX& cov = vxCandidate->recVertex().covariancePosition();
-    //int fail=0;
-    cov.inverse();
-    //if (fail!=0) {
-    //  ATH_MSG_DEBUG("Failed to invert covariance matrix!");
-    //  return -999999.;
-    //}
-    Amg::MatrixX dr(1,3);
-    dr(0,0) = (vxCandidate->recVertex().position() - vertex).x();
-    dr(0,1) = (vxCandidate->recVertex().position() - vertex).y();
-    dr(0,2) = (vxCandidate->recVertex().position() - vertex).z();
-    Amg::MatrixX sep = cov.similarity( dr );
-    return (sep(0,0)>0.) ? sqrt(sep(0,0)) : 0.;
+    const Amg::SymMatrixX& cov = vxCandidate->covariancePosition().inverse().eval();
     Amg::Vector3D D_vec; D_vec.setZero();
-    D_vec(0) = (vxCandidate->recVertex().position() - vertex).x();
-    D_vec(1) = (vxCandidate->recVertex().position() - vertex).y();
-    D_vec(2) = (vxCandidate->recVertex().position() - vertex).z();
-    Amg::MatrixX sepVarsqM = cov.similarity( D_vec ); 
-    double sepVarsq = sepVarsqM(0,0);
+    D_vec(0) = (vxCandidate->position() - vertex).x();
+    D_vec(1) = (vxCandidate->position() - vertex).y();
+    D_vec(2) = (vxCandidate->position() - vertex).z();
+    Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
+    double sepVarsq = sepVarsqMat(0,0);
     if (sepVarsq <= 0.) ATH_MSG_INFO("separation: negative sqrt sepVarsq " << sepVarsq);
     double sepVar = (sepVarsq>0.) ? sqrt(sepVarsq) : 0.;
     return sepVar;
   }
 
-  double V0Tools::a0xy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::a0xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     double cosineTheta_xy = cosTheta_xy(vxCandidate,vertex);
     double sinTheta_xy = ((1.-cosineTheta_xy*cosineTheta_xy)>0.) ? sqrt((1.-cosineTheta_xy*cosineTheta_xy)) : 0.;
-    return (vtx(vxCandidate)-vertex.position()).perp() * sinTheta_xy;
-    //return (vtx(vxCandidate)-vertex.position()).perp() * sqrt(1.-cosineTheta_xy*cosineTheta_xy);
+    return (vtx(vxCandidate)-vertex->position()).perp() * sinTheta_xy;
+    //return (vtx(vxCandidate)-vertex->position()).perp() * sqrt(1.-cosineTheta_xy*cosineTheta_xy);
   }
 
-  double V0Tools::a0z(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::a0z(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    Amg::Vector3D pv = vertex.position();
+    Amg::Vector3D pv = vertex->position();
     Amg::Vector3D ca_point = pca(vxCandidate,vertex);
     Amg::Vector3D a0_vec = pv - ca_point;
     return a0_vec.z();
   }
 
-  double V0Tools::a0(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::a0(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     double cosineTheta = cosTheta(vxCandidate,vertex);
     double sinTheta = ((1.-cosineTheta*cosineTheta)>0.) ? sqrt((1.-cosineTheta*cosineTheta)) : 0.;
-    return (vtx(vxCandidate)-vertex.position()).mag() * sinTheta;
-    //return (vtx(vxCandidate)-vertex.position()).mag() * sqrt(1.-cosineTheta*cosineTheta);
+    return (vtx(vxCandidate)-vertex->position()).mag() * sinTheta;
+    //return (vtx(vxCandidate)-vertex->position()).mag() * sqrt(1.-cosineTheta*cosineTheta);
   }
 
-  double V0Tools::a0zError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::a0zError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
-    double dz = (vxCandidate->recVertex().position() - vertex.position()).z();
-    Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
+    double dz = (vxCandidate->position() - vertex->position()).z();
+    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dpzdqOverP(NTrk,0), dpzdtheta(NTrk,0);
-    CLHEP::HepVector dP2dqOverP(NTrk,0), dP2dtheta(NTrk,0), dP2dphi(NTrk,0);
-    CLHEP::HepVector da0dqOverP(NTrk,0), da0dtheta(NTrk,0), da0dphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
+    std::vector<double>dP2dqOverP(NTrk), dP2dtheta(NTrk), dP2dphi(NTrk);
+    std::vector<double>da0dqOverP(NTrk), da0dtheta(NTrk), da0dphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -953,7 +841,19 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double P2 = Px*Px+Py*Py+Pz*Pz;
     double B = Px*dx+Py*dy+Pz*dz;
@@ -977,11 +877,12 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
+
     Amg::MatrixX V0_err;
     if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
       Amg::MatrixX D_vec(5*NTrk+6,1); D_vec.setZero();
@@ -999,16 +900,14 @@ namespace Trk
       D_vec(5*NTrk+4) = da0dy0;
       D_vec(5*NTrk+5) = da0dz0;
 
-      Amg::MatrixX W_mat(5*NTrk+6,1); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        unsigned int nDimTmp = vxCandidate->fullCovariance()->rows();
-	W_mat.block(0,0,nDimTmp,nDimTmp) = *(vxCandidate->fullCovariance());  
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
-	unsigned int nDimTmp = V0_cov.rows();
-        W_mat.block(0,0,nDimTmp,nDimTmp) =  V0_cov;
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) =  vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
@@ -1025,42 +924,39 @@ namespace Trk
       D_vec(3*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex.covariancePosition();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double a0Errsq = V0_err(0,0);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
+    delete fullCov;
     return a0Err;
   }
 
-  double V0Tools::a0xyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::a0xyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
     return a0Error(vxCandidate, vertex, false);
   }
 
-  double V0Tools::a0Error(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, bool in3D) const
+  double V0Tools::a0Error(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, bool in3D) const
   {
-
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
-    double dz = (vxCandidate->recVertex().position() - vertex.position()).z();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
+    double dz = (vxCandidate->position() - vertex->position()).z();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dpzdqOverP(NTrk,0), dpzdtheta(NTrk,0);
-    CLHEP::HepVector da0dqOverP(NTrk,0), da0dtheta(NTrk,0), da0dphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
+    std::vector<double>da0dqOverP(NTrk), da0dtheta(NTrk), da0dphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -1080,7 +976,19 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5*it+4,5*it+4) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5*it+4,5*it+4) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double cosineTheta;
     double a0val;
@@ -1109,8 +1017,8 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1132,14 +1040,14 @@ namespace Trk
       D_vec(5*NTrk+4) = da0dy0;
       D_vec(5*NTrk+5) = da0dz0;
 
-      Amg::MatrixX W_mat(5*NTrk+6,1); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) =  *(vxCandidate->fullCovariance());
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
@@ -1155,48 +1063,42 @@ namespace Trk
       D_vec(3*NTrk+4) = da0dy0;
       D_vec(3*NTrk+5) = da0dz0;
 
-      Amg::MatrixX W_mat(3*NTrk+6,1); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) =  *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex.covariancePosition();
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double a0Errsq = V0_err(0,0);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
+    delete fullCov;
     return a0Err;
   }
 
-  double V0Tools::lxy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::lxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
     double dxy = (V0Momentum(vxCandidate).x()*dx + V0Momentum(vxCandidate).y()*dy)/V0Momentum(vxCandidate).perp();
     return dxy;
   }
 
-  double V0Tools::lxyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::lxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
-    CLHEP::HepVector dLxydqOverP(NTrk,0), dLxydtheta(NTrk,0), dLxydphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLxydqOverP(NTrk), dLxydtheta(NTrk), dLxydphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -1211,7 +1113,19 @@ namespace Trk
       dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double PTsq = Px*Px+Py*Py;
     double PT = (PTsq>0.) ? sqrt(PTsq) : 0.;
@@ -1231,8 +1145,8 @@ namespace Trk
     double dLxydy0 = -dLxydy;
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1254,14 +1168,14 @@ namespace Trk
       D_vec(5*NTrk+4) = dLxydy0;
       D_vec(5*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(5*NTrk+6,1); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
@@ -1277,22 +1191,19 @@ namespace Trk
       D_vec(3*NTrk+4) = dLxydy0;
       D_vec(3*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(3*NTrk+6,1); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex.covariancePosition();
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double LxyErrsq = V0_err(0,0);
+    delete fullCov;
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
   }
 
-  double V0Tools::tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -1300,30 +1211,23 @@ namespace Trk
     return tau(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const
+  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double M = invariantMass(vxCandidate, masses);
     double LXY = lxy(vxCandidate,vertex);
     double PT = V0Momentum(vxCandidate).perp();
     return CONST*M*LXY/PT;
   }
 
-  double V0Tools::tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass, double massV0) const
+  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -1331,9 +1235,9 @@ namespace Trk
     return tau(vxCandidate,vertex,masses,massV0);
   }
 
-  double V0Tools::tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses, double massV0) const
+  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double massV0) const
   {
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
@@ -1348,25 +1252,18 @@ namespace Trk
     return Tau + deltaTau;
   }
 
-  double V0Tools::tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double M) const
+  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double M) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double LXY = lxy(vxCandidate,vertex);
     double PT = V0Momentum(vxCandidate).perp();
     return CONST*M*LXY/PT;
   }
 
-  double V0Tools::tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -1374,36 +1271,34 @@ namespace Trk
     return tauError(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const
+  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
     double M = invariantMass(vxCandidate, masses);
-    Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
+    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dpzdqOverP(NTrk,0), dpzdtheta(NTrk,0), dedqOverP(NTrk,0);
-    CLHEP::HepVector dMdqOverP(NTrk,0), dMdtheta(NTrk,0), dMdphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
-    CLHEP::HepVector dLXYdqOverP(NTrk,0), dLXYdtheta(NTrk,0), dLXYdphi(NTrk,0);
-    CLHEP::HepVector dTaudqOverP(NTrk,0), dTaudtheta(NTrk,0), dTaudphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
+    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -1426,7 +1321,19 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -1450,8 +1357,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1473,14 +1380,14 @@ namespace Trk
       D_vec(5*NTrk+4) = dTaudy0;
       D_vec(5*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(5*NTrk+6,1); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
-        W_mat.block(5*NTrk,5*NTrk,3,3) =  vxCandidate->recVertex().covariancePosition();
+        W_mat.block(5*NTrk,5*NTrk,3,3) =  vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
@@ -1496,23 +1403,20 @@ namespace Trk
       D_vec(3*NTrk+4) = dTaudy0;
       D_vec(3*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(3*NTrk+6,1); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex.covariancePosition();
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double tauErrsq = V0_err(0,0);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
+    delete fullCov;
     return CONST*tauErr;
   }
 
-  double V0Tools::tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass, double massV0) const
+  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -1520,9 +1424,9 @@ namespace Trk
     return tauError(vxCandidate,vertex,masses,massV0);
   }
 
-  double V0Tools::tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses, double ) const
+  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double ) const
   {
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
@@ -1535,29 +1439,27 @@ namespace Trk
     return error;
   }
 
-  double V0Tools::tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double M) const
+  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double M) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
-    CLHEP::HepVector dLXYdqOverP(NTrk,0), dLXYdtheta(NTrk,0), dLXYdphi(NTrk,0);
-    CLHEP::HepVector dTaudqOverP(NTrk,0), dTaudtheta(NTrk,0), dTaudphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -1572,7 +1474,19 @@ namespace Trk
       dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) =  *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) =  *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -1593,8 +1507,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1616,14 +1530,14 @@ namespace Trk
       D_vec(5*NTrk+4) = dTaudy0;
       D_vec(5*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(5*NTrk+6,1); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
@@ -1639,26 +1553,25 @@ namespace Trk
       D_vec(3*NTrk+4) = dTaudy0;
       D_vec(3*NTrk+5) = 0.;
 
-      Amg::MatrixX W_mat(3*NTrk+6,1); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex.covariancePosition();
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double tauErrsq = V0_err(0,0);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
+    delete fullCov;
     return CONST*tauErr;
   }
 
-  double V0Tools::thetaStar(const ExtendedVxCandidate * vxCandidate, double mass1, double mass2) const
+  double V0Tools::thetaStar(xAOD::Vertex * vxCandidate, double mass1, double mass2) const
   {
     double theta = 0.;
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    CLHEP::HepLorentzVector v1 = track4Momentum(vxCandidate,0,mass1);
-    CLHEP::HepLorentzVector v2 = track4Momentum(vxCandidate,1,mass2);
+    xAOD::TrackParticle::FourMom_t V1 = positiveTrack4Momentum(vxCandidate, mass1);
+    xAOD::TrackParticle::FourMom_t V2 = negativeTrack4Momentum(vxCandidate, mass2);
+    CLHEP::HepLorentzVector v1(V1.Px(),V1.Py(),V1.Pz(),V1.E());
+    CLHEP::HepLorentzVector v2(V2.Px(),V2.Py(),V2.Pz(),V2.E());
     CLHEP::HepLorentzVector v0 = v1 + v2;
     CLHEP::Hep3Vector boost_v0 = v0.boostVector();
     boost_v0 *= -1.0;
@@ -1668,14 +1581,12 @@ namespace Trk
     return theta;
   }
 
-  double V0Tools::cosThetaStar(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::cosThetaStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    CLHEP::HepLorentzVector posMom = positiveTrack4Momentum(vxCandidate, posTrackMass);
-    CLHEP::HepLorentzVector negMom = negativeTrack4Momentum(vxCandidate, negTrackMass);
+    xAOD::TrackParticle::FourMom_t PosMom = positiveTrack4Momentum(vxCandidate, posTrackMass);
+    xAOD::TrackParticle::FourMom_t NegMom = negativeTrack4Momentum(vxCandidate, negTrackMass);
+    CLHEP::HepLorentzVector posMom(PosMom.Px(),PosMom.Py(),PosMom.Pz(),PosMom.E());
+    CLHEP::HepLorentzVector negMom(NegMom.Px(),NegMom.Py(),NegMom.Pz(),NegMom.E());
     return cosThetaStar(posMom, negMom);
   }
 
@@ -1693,195 +1604,97 @@ namespace Trk
     return ( v0.e()*pp - Pv0*Pv0*posTrack.e())/( Mv0*ps*Pv0);
   }
 
-//  double V0Tools::phiStar(const ExtendedVxCandidate * vxCandidate) const
-//  {
-//    assert(vxCandidate!=0);
-//    if(0 == vxCandidate) {
-//      return -999999.;
-//    }
-//    CLHEP::HepLorentzVector posMom = positiveTrack4Momentum(vxCandidate,0.);
-//    CLHEP::HepLorentzVector negMom = negativeTrack4Momentum(vxCandidate,0.);
-//    return phiStar(posMom, negMom);
-//  }
-//
-//  double V0Tools::phiStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) const
-//  {
-//    CLHEP::HepLorentzVector v0(posTrack + negTrack);
-//    double p1   = posTrack.rho();
-//    double p2   = negTrack.rho();
-//    double p1p2 = posTrack.px()*negTrack.px() + posTrack.py()*negTrack.py() + posTrack.pz()*negTrack.pz();
-//    double c12 = p1p2 / ( p1*p2 );
-//    double s12sq = 1. -c12*c12;
-//    double s12 = (s12sq>0.) ? sqrt(s12sq) : 0.;
-//    double num = (posTrack.py()*negTrack.pz() - posTrack.pz()*negTrack.py()) * v0.py() -
-//                 (posTrack.pz()*negTrack.px() - posTrack.px()*negTrack.pz()) * v0.px();
-//    return acos(num / ( p1*p2*s12*v0.perp()));
-//  }
-//
-//  double V0Tools::phiStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) const
-//  {
-//    CLHEP::HepLorentzVector v0(posTrack + negTrack);
-//    CLHEP::Hep3Vector N1(v0.py(),-v0.px(),0.);
-//    double X = posTrack.py()*negTrack.pz() - posTrack.pz()*negTrack.py();
-//    double Y = posTrack.pz()*negTrack.px() - posTrack.px()*negTrack.pz();
-//    double Z = posTrack.px()*negTrack.py() - posTrack.py()*negTrack.px();
-//    CLHEP::Hep3Vector N2(X,Y,Z);
-//    ////double normsq = X*X+Y*Y+Z*Z;
-//    ////double norm = (normsq>0.) ? sqrt(normsq) : 0.;
-//    ////return acos((N1*N2)/(norm*v0.perp()));
-//    //return acos((N1*N2)/(N1.mag()*N2.mag()));
-//    double x = -v0.px()*Z;
-//    double y = -v0.py()*Z;
-//    double z = v0.px()*X + v0.py()*Y;
-//    CLHEP::Hep3Vector N3(x,y,z);
-//    return asin(N3.mag()/(N1.mag()*N2.mag()));
-//  }
-
-  double V0Tools::phiStar(const ExtendedVxCandidate * vxCandidate) const
+  //double V0Tools::phiStar(xAOD::Vertex * vxCandidate) const
+  double V0Tools::phiStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    return phiStar(positiveTrack4Momentum(vxCandidate,0.)+negativeTrack4Momentum(vxCandidate,0.),positiveTrack4Momentum(vxCandidate,0.));
+    xAOD::TrackParticle::FourMom_t V_pos = positiveTrack4Momentum(vxCandidate,posTrackMass);
+    xAOD::TrackParticle::FourMom_t V_neg = negativeTrack4Momentum(vxCandidate,negTrackMass);
+    CLHEP::HepLorentzVector v_pos(V_pos.Px(),V_pos.Py(),V_pos.Pz(),V_pos.E());
+    CLHEP::HepLorentzVector v_neg(V_neg.Px(),V_neg.Py(),V_neg.Pz(),V_neg.E());
+    return phiStar(v_pos+v_neg,v_pos);
   }
 
   double V0Tools::phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) const
   {
+    double phiStar = -999999.;
     CLHEP::Hep3Vector V0 = v0.getV();;
     CLHEP::Hep3Vector trk = track.getV();;
+    //double v0_rapidity = v0.rapidity();
     trk.rotateZ(-V0.phi());
     trk.rotateY(-V0.theta());
-    return atan2(trk.y(),trk.x());
+    //if (v0_rapidity < 0.) {
+    //  trk.rotateZ(-M_PI);
+    //  phiStar = -atan2(trk.y(),trk.x());
+    //} else {
+    //  phiStar = atan2(trk.y(),trk.x());
+    //}
+    phiStar = atan2(trk.y(),trk.x());
+    return phiStar;
   }
 
-  double V0Tools::cosTheta(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     return (V0Momentum(vxCandidate).dot((vtx(vxCandidate)-vertex)))/
            (V0Momentum(vxCandidate).mag()*(vtx(vxCandidate)-vertex).mag());
   }
 
-  double V0Tools::cosTheta(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::cosTheta(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    return (V0Momentum(vxCandidate).dot((vtx(vxCandidate)-vertex.position())))/
-           (V0Momentum(vxCandidate).mag()*(vtx(vxCandidate)-vertex.position()).mag());
+    return (V0Momentum(vxCandidate).dot((vtx(vxCandidate)-vertex->position())))/
+           (V0Momentum(vxCandidate).mag()*(vtx(vxCandidate)-vertex->position()).mag());
   }
 
-  double V0Tools::cosTheta_xy(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta_xy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     return (V0Momentum(vxCandidate).x()*(vtx(vxCandidate)-vertex).x()+
             V0Momentum(vxCandidate).y()*(vtx(vxCandidate)-vertex).y())/
            (pT(vxCandidate)*(vtx(vxCandidate)-vertex).perp());
   }
 
-  double V0Tools::cosTheta_xy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const
+  double V0Tools::cosTheta_xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    return (V0Momentum(vxCandidate).x()*(vtx(vxCandidate)-vertex.position()).x()+
-            V0Momentum(vxCandidate).y()*(vtx(vxCandidate)-vertex.position()).y())/
-           (pT(vxCandidate)*(vtx(vxCandidate)-vertex.position()).perp());
+    return (V0Momentum(vxCandidate).x()*(vtx(vxCandidate)-vertex->position()).x()+
+            V0Momentum(vxCandidate).y()*(vtx(vxCandidate)-vertex->position()).y())/
+           (pT(vxCandidate)*(vtx(vxCandidate)-vertex->position()).perp());
   }
 
-  int V0Tools::charge(const ExtendedVxCandidate * vxCandidate) const
+  float V0Tools::charge(xAOD::Vertex * vxCandidate) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999;
-    }
-    int ch = 0;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    float ch = 0.;
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* pb = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* tp = dynamic_cast<const Rec::TrackParticle*>(pb);
-      if (tp == 0) return -999999;
-      ch += tp->charge();
+      float trkCharge = vxCandidate->trackParticle(it)->charge();
+      //const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+      //float trkCharge = 1.;
+      //if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
+      ch += trkCharge;
     }
     return ch;
   }
 
-  const Trk::TrackParticleBase* V0Tools::origTrackPB(const VxCandidate * vxCandidate, int trkIndex) const
+  const xAOD::TrackParticle* V0Tools::origTrack(xAOD::Vertex * vxCandidate, int trkIndex) const
   {
-    const Trk::TrackParticleBase* origTrk(0);
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    if (0 != vxCandidate) {
-      const Trk::ITrackLink* tmpLink = (*(vxCandidate->vxTrackAtVertex()))[trkIndex]->trackOrParticleLink();
-      if (!tmpLink) return origTrk;
-      const Trk::LinkToTrackParticleBase* tmpTPB = dynamic_cast<const Trk::LinkToTrackParticleBase*>(tmpLink);
-      if (tmpTPB && tmpTPB->isValid()) origTrk = tmpTPB->cachedElement();
+    return vxCandidate->trackParticle(trkIndex);
+  }
+
+  const xAOD::TrackParticle* V0Tools::positiveOrigTrack(xAOD::Vertex * vxCandidate) const
+  {
+    const xAOD::TrackParticle* origTrk(0);
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (NTrk != 2) return origTrk;
+    for( unsigned int it=0; it<NTrk; it++) {
+      if(vxCandidate->trackParticle(it)->charge() > 0) origTrk = vxCandidate->trackParticle(it);
     }
     return origTrk;
   }
 
-  const Trk::TrackParticleBase* V0Tools::origTrackPB(const ExtendedVxCandidate * vxCandidate, int trkIndex) const
+  const xAOD::TrackParticle* V0Tools::negativeOrigTrack(xAOD::Vertex * vxCandidate) const
   {
-    const Trk::TrackParticleBase* origTrk(0);
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    if ( 0 != vxCandidate &&
-        (static_cast<int>(vxCandidate->vxTrackAtVertex()->size())>trkIndex) &&
-        (*(vxCandidate->vxTrackAtVertex()))[trkIndex] ) {
-      const Trk::ITrackLink* tmpLink = (*(vxCandidate->vxTrackAtVertex()))[trkIndex]->trackOrParticleLink();
-      if (!tmpLink) return origTrk;
-      const Trk::LinkToTrackParticleBase* tmpTPB = dynamic_cast<const Trk::LinkToTrackParticleBase*>(tmpLink);
-      if (tmpTPB && tmpTPB->isValid()) origTrk = tmpTPB->cachedElement();
-    }
-    return origTrk;
-  }
-
-  const Trk::TrackParticleBase* V0Tools::positiveOrigTrackPB(const ExtendedVxCandidate * vxCandidate) const
-  {
-    const Trk::TrackParticleBase* origTrk(0);
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    if(0 != vxCandidate) {
-      const Trk::TrackParticleBase* orgPB0 = origTrackPB(vxCandidate,0);
-      const Rec::TrackParticle* orgTP0 = dynamic_cast<const Rec::TrackParticle*>(orgPB0);
-      if (orgTP0) {
-        double qOverP = orgTP0->measuredPerigee()->parameters()[Trk::qOverP];
-        const Trk::TrackParticleBase* orgPB1 = origTrackPB(vxCandidate,1);
-        if(qOverP >= 0.) {
-          origTrk = orgPB0;
-        } else {
-          origTrk = orgPB1;
-        }
-      }
-    }
-    return origTrk;
-  }
-
-  const Trk::TrackParticleBase* V0Tools::negativeOrigTrackPB(const ExtendedVxCandidate * vxCandidate) const
-  {
-    const Trk::TrackParticleBase* origTrk(0);
-    assert(vxCandidate!=0);
-    //if(0 == vxCandidate) { ATH_MSG_DEBUG("Non-existing vxCandidate"); }
-    if(0 != vxCandidate) {
-      const Trk::TrackParticleBase* orgPB0 = origTrackPB(vxCandidate,0);
-      const Rec::TrackParticle* orgTP0 = dynamic_cast<const Rec::TrackParticle*>(orgPB0);
-      if (orgTP0) {
-        double qOverP = orgTP0->measuredPerigee()->parameters()[Trk::qOverP];
-        const Trk::TrackParticleBase* orgPB1 = origTrackPB(vxCandidate,1);
-        if(qOverP >= 0.) {
-          origTrk = orgPB1;
-        } else {
-          origTrk = orgPB0;
-        }
-      }
+    const xAOD::TrackParticle* origTrk(0);
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (NTrk != 2) return origTrk;
+    for( unsigned int it=0; it<NTrk; it++) {
+      if(vxCandidate->trackParticle(it)->charge() < 0) origTrk = vxCandidate->trackParticle(it);
     }
     return origTrk;
   }
@@ -2127,14 +1940,8 @@ namespace Trk
   }
   */  
 
-  double V0Tools::invariantMassBeforeFitIP(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2142,28 +1949,21 @@ namespace Trk
     return invariantMassBeforeFitIP(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassBeforeFitIP(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     double px = 0., py = 0., pz = 0., e = 0.;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
+      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
       if (TP == 0) return -999999.;
-      px += TP->measuredPerigee()->momentum().x();
-      py += TP->measuredPerigee()->momentum().y();
-      pz += TP->measuredPerigee()->momentum().z();
-      double pesq = TP->measuredPerigee()->momentum().mag2() + masses[it]*masses[it];
+      px += TP->p4().Px();
+      py += TP->p4().Py();
+      pz += TP->p4().Pz();
+      double pesq = 1./(TP->qOverP()*TP->qOverP()) + masses[it]*masses[it];
       double pe = (pesq>0.) ? sqrt(pesq) : 0.;
       e += pe;
     }
@@ -2171,14 +1971,8 @@ namespace Trk
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2186,26 +1980,19 @@ namespace Trk
     return invariantMassBeforeFit(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
-    Trk::PerigeeSurface perigeeSurface(vxCandidate->recVertex().position());
+    Trk::PerigeeSurface perigeeSurface(vxCandidate->position());
     double px = 0., py = 0., pz = 0., e = 0.;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
+      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
       if (TP == 0) return -999999.;
-      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolateDirectly(*TP->measuredPerigee(), perigeeSurface);
+      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
       if (extrPer == 0) return -999999.;
       px += extrPer->momentum().x();
       py += extrPer->momentum().y();
@@ -2213,19 +2000,14 @@ namespace Trk
       double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
       double pe = (pesq>0.) ? sqrt(pesq) : 0.;
       e += pe;
+      delete extrPer;
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2233,26 +2015,19 @@ namespace Trk
     return invariantMassBeforeFit(vxCandidate,masses,vertex);
   }
 
-  double V0Tools::invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass for non-existing vxCandidate requested");
-      //throw std::runtime_error("non-existing vxCandidate");
-      return -999999.;
-    }
     Trk::PerigeeSurface perigeeSurface(vertex);
     double px = 0., py = 0., pz = 0., e = 0.;
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
+      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
       if (TP == 0) return -999999.;
-      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolateDirectly(*TP->measuredPerigee(), perigeeSurface);
+      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
       if (extrPer == 0) return -999999.;
       px += extrPer->momentum().x();
       py += extrPer->momentum().y();
@@ -2260,69 +2035,59 @@ namespace Trk
       double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
       double pe = (pesq>0.) ? sqrt(pesq) : 0.;
       e += pe;
+      delete extrPer;
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  // JRC - not sure how to achieve this with the new tracking model - no more MeasuredPerigee
-  /*
-  double V0Tools::invariantMassErrorBeforeFitIP(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
 
     return invariantMassErrorBeforeFitIP(vxCandidate,masses);
   }
-  */
 
-  // JRC - not sure how to achieve this with the new tracking model - no more MeasuredPerigee
-  /*   
-  double V0Tools::invariantMassErrorBeforeFitIP(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     double mass = invariantMassBeforeFitIP(vxCandidate, masses);
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector d0(NTrk,0), z0(NTrk,0), phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dm2dphi(NTrk,0), dm2dtheta(NTrk,0), dm2dqOverP(NTrk,0);
-    CLHEP::HepSymMatrix V0_cor(5*NTrk,0);
+    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
+    Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
+      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
       if (TP == 0) return -999999.;
-      const Trk::MeasuredPerigee* mPer = TP->measuredPerigee();
-      Trk::CovarianceMatrix cov_tmp = mPer->localErrorMatrix().covariance();
-      V0_cor(5*it+3,5*it+3) = cov_tmp(2,2);
-      V0_cor(5*it+3,5*it+4) = cov_tmp(2,3);
-      V0_cor(5*it+3,5*it+5) = cov_tmp(2,4);
-      V0_cor(5*it+4,5*it+4) = cov_tmp(3,3);
-      V0_cor(5*it+4,5*it+5) = cov_tmp(3,4);
-      V0_cor(5*it+5,5*it+5) = cov_tmp(4,4);
-      double trkCharge = 1.;
-      if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      d0[it]     = bPer->parameters()[Trk::d0];
-      z0[it]     = bPer->parameters()[Trk::z0];
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
+      const xAOD::ParametersCovMatrix_t cov_tmp = TP->definingParametersCovMatrix();
+      V0_cor(5*it+2,5*it+2) = cov_tmp(2,2);
+      V0_cor(5*it+2,5*it+3) = cov_tmp(2,3);
+      V0_cor(5*it+2,5*it+4) = cov_tmp(2,4);
+      V0_cor(5*it+3,5*it+3) = cov_tmp(3,3);
+      V0_cor(5*it+3,5*it+4) = cov_tmp(3,4);
+      V0_cor(5*it+4,5*it+4) = cov_tmp(4,4);
+      V0_cor(5*it+3,5*it+2) = cov_tmp(2,3);
+      V0_cor(5*it+4,5*it+2) = cov_tmp(2,4);
+      V0_cor(5*it+4,5*it+3) = cov_tmp(3,4);
+      charge[it] = TP->charge();
+      d0[it]     = TP->d0();
+      z0[it]     = TP->z0();
+      phi[it]    = TP->phi();
+      theta[it]  = TP->theta();
+      qOverP[it] = TP->qOverP();
       double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
       e[it] = pe;
       E  += e[it];
-      Px += bPer->momentum().x();
-      Py += bPer->momentum().y();
-      Pz += bPer->momentum().z();
+      Px += TP->p4().Px();
+      Py += TP->p4().Py();
+      Pz += TP->p4().Pz();
     }
 
     for( unsigned int it=0; it<NTrk; it++) {
@@ -2331,30 +2096,24 @@ namespace Trk
       dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
     }
 
-    CLHEP::HepVector D_vec(5*NTrk,0);
+    Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      D_vec(5*it+1) = 0.;
-      D_vec(5*it+2) = 0.;
-      D_vec(5*it+3) = dm2dphi[it];
-      D_vec(5*it+4) = dm2dtheta[it];
-      D_vec(5*it+5) = dm2dqOverP[it];
+      D_vec(5*it+0,0)  = 0.;
+      D_vec(5*it+1,0)  = 0.;
+      D_vec(5*it+2,0)  = dm2dphi[it];
+      D_vec(5*it+3,0)  = dm2dtheta[it];
+      D_vec(5*it+4,0)  = dm2dqOverP[it];
     }
-    CLHEP::HepMatrix V0_merr = D_vec.T() * V0_cor * D_vec;
+    Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
 
-    double massVarsq = V0_merr(1,1);
+    double massVarsq = V0_merr(0,0);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
   }
-  */ 
 
-  double V0Tools::invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2362,80 +2121,19 @@ namespace Trk
     return invariantMassErrorBeforeFit(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
   {
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    Trk::PerigeeSurface perigeeSurface(vxCandidate->recVertex().position());
-    double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector d0(NTrk,0), z0(NTrk,0), phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dm2dphi(NTrk,0), dm2dtheta(NTrk,0), dm2dqOverP(NTrk,0);
-    CLHEP::HepSymMatrix V0_cor(5*NTrk,0);
-    for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
-      if (TP == 0) return -999999.;
-      const Trk::TrackParameters* maybeP = m_extrapolator->extrapolateDirectly(*TP->measuredPerigee(), perigeeSurface);
-      if (maybeP == 0) return -999999.;
-      const AmgSymMatrix(5)* cov_tmp = maybeP->covariance();
-      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(2,2);
-      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(2,3);
-      V0_cor(5*it+3,5*it+5) = (*cov_tmp)(2,4);
-      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(3,3);
-      V0_cor(5*it+4,5*it+5) = (*cov_tmp)(3,4);
-      V0_cor(5*it+5,5*it+5) = (*cov_tmp)(4,4);
-      double trkCharge = 1.;
-      if (maybeP->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      d0[it]     = maybeP->parameters()[Trk::d0];
-      z0[it]     = maybeP->parameters()[Trk::z0];
-      phi[it]    = maybeP->parameters()[Trk::phi];
-      theta[it]  = maybeP->parameters()[Trk::theta];
-      qOverP[it] = maybeP->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
-      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      E  += e[it];
-      Px += maybeP->momentum().x();
-      Py += maybeP->momentum().y();
-      Pz += maybeP->momentum().z();
-      delete maybeP;
-    }
-    double msq = E*E - Px*Px - Py*Py - Pz*Pz;
-    double mass = (msq>0.) ? sqrt(msq) : 0.;
-
-    for( unsigned int it=0; it<NTrk; it++) {
-      dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
-      dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
-      dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
-    }
-
-    CLHEP::HepVector D_vec(5*NTrk,0);
-    for( unsigned int it=0; it<NTrk; it++) {
-      D_vec(5*it+1) = 0.;
-      D_vec(5*it+2) = 0.;
-      D_vec(5*it+3) = dm2dphi[it];
-      D_vec(5*it+4) = dm2dtheta[it];
-      D_vec(5*it+5) = dm2dqOverP[it];
-    }
-    CLHEP::HepMatrix V0_merr = D_vec.T() * V0_cor * D_vec;
-
-    double massVarsq = V0_merr(1,1);
-    double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
-    double massErr = massVar/(2.*mass);
-    return massErr;
+    Amg::Vector3D vertex = vxCandidate->position();
+    return invariantMassErrorBeforeFit(vxCandidate,masses,vertex);
   }
  
-  double V0Tools::invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      //ATH_MSG_DEBUG("Invariant mass error for non-existing vxCandidate requested");
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2443,47 +2141,47 @@ namespace Trk
     return invariantMassErrorBeforeFit(vxCandidate,masses,vertex);
   }
 
-  double V0Tools::invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
   {
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
     Trk::PerigeeSurface perigeeSurface(vertex);
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector d0(NTrk,0), z0(NTrk,0), phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dm2dphi(NTrk,0), dm2dtheta(NTrk,0), dm2dqOverP(NTrk,0);
-    CLHEP::HepSymMatrix V0_cor(5*NTrk,0);
+    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
+    Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParticleBase* PB = origTrackPB(vxCandidate,it);
-      const Rec::TrackParticle* TP = dynamic_cast<const Rec::TrackParticle*>(PB);
+      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
       if (TP == 0) return -999999.;
-      const Trk::TrackParameters* maybeP = m_extrapolator->extrapolateDirectly(*TP->measuredPerigee(), perigeeSurface);
-      if (maybeP == 0 ) return -999999.;
-      const AmgSymMatrix(5)* cov_tmp = maybeP->covariance();
-      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(2,2);
-      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(2,3);
-      V0_cor(5*it+3,5*it+5) = (*cov_tmp)(2,4);
-      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(3,3);
-      V0_cor(5*it+4,5*it+5) = (*cov_tmp)(3,4);
-      V0_cor(5*it+5,5*it+5) = (*cov_tmp)(4,4);
-      double trkCharge = 1.;
-      if (maybeP->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      d0[it]     = maybeP->parameters()[Trk::d0];
-      z0[it]     = maybeP->parameters()[Trk::z0];
-      phi[it]    = maybeP->parameters()[Trk::phi];
-      theta[it]  = maybeP->parameters()[Trk::theta];
-      qOverP[it] = maybeP->parameters()[Trk::qOverP];
+      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+      if (extrPer == 0) return -999999.;
+      const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
+      V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+      V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+      V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+      V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+      V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+      V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      charge[it] = TP->charge();
+      d0[it]     = extrPer->parameters()[Trk::d0];
+      z0[it]     = extrPer->parameters()[Trk::z0];
+      phi[it]    = extrPer->parameters()[Trk::phi];
+      theta[it]  = extrPer->parameters()[Trk::theta];
+      qOverP[it] = extrPer->parameters()[Trk::qOverP];
       double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
       e[it] = pe;
       E  += e[it];
-      Px += maybeP->momentum().x();
-      Py += maybeP->momentum().y();
-      Pz += maybeP->momentum().z();
-      delete maybeP;
+      Px += extrPer->momentum().x();
+      Py += extrPer->momentum().y();
+      Pz += extrPer->momentum().z();
+      delete extrPer;
     }
     double msq = E*E - Px*Px - Py*Py - Pz*Pz;
     double mass = (msq>0.) ? sqrt(msq) : 0.;
@@ -2494,28 +2192,24 @@ namespace Trk
       dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
     }
 
-    CLHEP::HepVector D_vec(5*NTrk,0);
+    Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      D_vec(5*it+1) = 0.;
-      D_vec(5*it+2) = 0.;
-      D_vec(5*it+3) = dm2dphi[it];
-      D_vec(5*it+4) = dm2dtheta[it];
-      D_vec(5*it+5) = dm2dqOverP[it];
+      D_vec(5*it+0,0)  = 0.;
+      D_vec(5*it+1,0)  = 0.;
+      D_vec(5*it+2,0)  = dm2dphi[it];
+      D_vec(5*it+3,0)  = dm2dtheta[it];
+      D_vec(5*it+4,0)  = dm2dqOverP[it];
     }
-    CLHEP::HepMatrix V0_merr = D_vec.T() * V0_cor * D_vec;
+    Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
 
-    double massVarsq = V0_merr(1,1);
+    double massVarsq = V0_merr(0,0);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
   }
 
-  double V0Tools::massTauCov(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
     std::vector<double> masses;
     masses.push_back(posTrackMass);
     masses.push_back(negTrackMass);
@@ -2523,36 +2217,34 @@ namespace Trk
     return massTauCov(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::massTauCov(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const
+  double V0Tools::massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return -999999.;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dpzdqOverP(NTrk,0), dpzdtheta(NTrk,0), dedqOverP(NTrk,0);
-    CLHEP::HepVector dMdqOverP(NTrk,0), dMdtheta(NTrk,0), dMdphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
-    CLHEP::HepVector dLXYdqOverP(NTrk,0), dLXYdtheta(NTrk,0), dLXYdphi(NTrk,0);
-    CLHEP::HepVector dTaudqOverP(NTrk,0), dTaudtheta(NTrk,0), dTaudphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
+    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -2575,7 +2267,19 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -2599,8 +2303,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -2627,13 +2331,13 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
-        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows());
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) =  vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_mat(3*NTrk+6,2); D_mat.setZero();
@@ -2652,44 +2356,43 @@ namespace Trk
       D_mat(3*NTrk+4,0) = CONST*dTaudy0;
       D_mat(3*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     }
+    delete fullCov;
     return V0_err(0,1);
   }
 
-  Amg::MatrixX V0Tools::tauMassCovariance(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const
+  Amg::MatrixX V0Tools::tauMassCovariance(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
     Amg::MatrixX V0_err;
-    assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
-      return V0_err;
-    }
-    unsigned int NTrk = vxCandidate->vxTrackAtVertex()->size();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return V0_err;
     }
-    double CONST = 1000./CLHEP::c_light;
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->recVertex().position() - vertex.position()).x();
-    double dy = (vxCandidate->recVertex().position() - vertex.position()).y();
+    double dx = (vxCandidate->position() - vertex->position()).x();
+    double dy = (vxCandidate->position() - vertex->position()).y();
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0), charge(NTrk,0), e(NTrk,0);
-    CLHEP::HepVector dpxdqOverP(NTrk,0), dpxdtheta(NTrk,0), dpxdphi(NTrk,0);
-    CLHEP::HepVector dpydqOverP(NTrk,0), dpydtheta(NTrk,0), dpydphi(NTrk,0);
-    CLHEP::HepVector dpzdqOverP(NTrk,0), dpzdtheta(NTrk,0), dedqOverP(NTrk,0);
-    CLHEP::HepVector dMdqOverP(NTrk,0), dMdtheta(NTrk,0), dMdphi(NTrk,0);
-    CLHEP::HepVector dPTdqOverP(NTrk,0), dPTdtheta(NTrk,0), dPTdphi(NTrk,0);
-    CLHEP::HepVector dLXYdqOverP(NTrk,0), dLXYdtheta(NTrk,0), dLXYdphi(NTrk,0);
-    CLHEP::HepVector dTaudqOverP(NTrk,0), dTaudtheta(NTrk,0), dTaudphi(NTrk,0);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
+    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
+    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters*  bPer = (*(vxCandidate->vxTrackAtVertex()))[it]->perigeeAtVertex();
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
       charge[it] = trkCharge;
@@ -2712,7 +2415,19 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (vxCandidate->fullCovariance() == 0) V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -2736,8 +2451,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (vxCandidate->fullCovariance() != 0) {
-      ndim = (vxCandidate->fullCovariance())->rows();
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -2763,13 +2478,13 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (vxCandidate->fullCovariance() != 0) {
-        W_mat.block(0,0,ndim,ndim) = *(vxCandidate->fullCovariance());
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
-        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows());
-        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->recVertex().covariancePosition();
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
-      W_mat.block(5*NTrk+3,5*NTrk,3,3) = vertex.covariancePosition();
+      W_mat.block(5*NTrk+3,5*NTrk,3,3) = vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_mat(3*NTrk+6,2); D_mat.setZero();
@@ -2788,12 +2503,49 @@ namespace Trk
       D_mat(3*NTrk+4,0) = CONST*dTaudy0;
       D_mat(3*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = (*vxCandidate->fullCovariance());
-      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex.covariancePosition();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     }
+    delete fullCov;
     return V0_err;
   }
 
+  Amg::MatrixX * V0Tools::convertCovMatrix(xAOD::Vertex * vxCandidate) const
+  {
+    //assert(vxCandidate->covariance() != 0);
+
+    unsigned int NTrk = vxCandidate->nTrackParticles();
+    std::vector<float> matrix;
+    matrix = vxCandidate->covariance();
+
+    int ndim = 0;
+
+    if ( matrix.size() == (3*NTrk+3)*(3*NTrk+3+1)/2) {
+      ndim = 3*NTrk+3;
+    } else if (matrix.size() == (5*NTrk+3)*(5*NTrk+3+1)/2) {
+      ndim = 5*NTrk+3;
+    } else {
+      return NULL;
+    }
+
+    Amg::MatrixX* mtx = new Amg::MatrixX(ndim,ndim);
+
+    long int ij=0;
+    for (int i=1; i<= ndim; i++) {
+      for (int j=1; j<=i; j++){
+        if (i==j) {
+          (*mtx)(i-1,j-1)=matrix[ij];
+        } else {
+          (*mtx).fillSymmetric(i-1,j-1,matrix[ij]);
+        }
+        ij++;
+       }
+    }
+
+    // NOTE: mtx is a pointer! Take care of deleting it after you do not
+    // need it anymore!!!!
+    return mtx;
+  }
 
 }//end of namespace definitions

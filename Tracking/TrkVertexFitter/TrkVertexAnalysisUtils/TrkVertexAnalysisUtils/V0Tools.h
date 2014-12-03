@@ -14,6 +14,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 /**
  *  @class V0Tools
  *  A simple tool to calculate a number of properties of a given V0 candidate.
@@ -84,74 +87,69 @@ namespace Trk
  
 /**
  *  Methods, returning the invariant mass, error on the invariant mass and 
- *  Chi2 probability of the invariant mass of a V0Hypothesis
+ *  Chi2 probability of the invariant mass of an xAOD::Vertex
  *  for a given hypothesis for the masses of the input tracks and the V0 mass.
  */
-  double invariantMass(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double invariantMass(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double invariantMassError(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double invariantMassError(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double invariantMassProbability(const ExtendedVxCandidate * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const;   
-  double invariantMassProbability(const ExtendedVxCandidate * vxCandidate, double V0Mass, std::vector<double> masses) const;   
+  double invariantMass(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMass(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassError(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMassError(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const;   
+  double invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, std::vector<double> masses) const;   
   double massProbability(double V0Mass, double mass, double massErr) const;
 
 /**
  *  Methods, returning the refitted 3-momenta of the positive and negative tracks
- *  and the V0
+ *  and the V0 (for more than one track with the same charge, the first one is returned)
  */ 
-  Amg::Vector3D trackMomentum(const ExtendedVxCandidate * vxCandidate, int trkIndex) const;
-  Amg::Vector3D positiveTrackMomentum(const ExtendedVxCandidate * vxCandidate) const;
-  Amg::Vector3D negativeTrackMomentum(const ExtendedVxCandidate * vxCandidate) const;
-  Amg::Vector3D V0Momentum(const ExtendedVxCandidate * vxCandidate) const;
+  Amg::Vector3D trackMomentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex) const;
+  Amg::Vector3D positiveTrackMomentum(xAOD::Vertex * vxCandidate) const;
+  Amg::Vector3D negativeTrackMomentum(xAOD::Vertex * vxCandidate) const;
+  Amg::Vector3D V0Momentum(xAOD::Vertex * vxCandidate) const;
 
 /**
  *  Methods, returning the refitted 4-momenta of the positive and negative tracks
  *  and the V0 for a given hypothesis for the masses of the input tracks and the V0 mass.
  */
-  CLHEP::HepLorentzVector track4Momentum(const ExtendedVxCandidate * vxCandidate, int trkIndex, double trackMass) const;
-  CLHEP::HepLorentzVector positiveTrack4Momentum(const ExtendedVxCandidate * vxCandidate, double posTrackMass) const;
-  CLHEP::HepLorentzVector negativeTrack4Momentum(const ExtendedVxCandidate * vxCandidate, double negTrackMass) const;
-  CLHEP::HepLorentzVector V04Momentum(const ExtendedVxCandidate * vxCandidate, double V0Mass) const;
+  xAOD::TrackParticle::FourMom_t track4Momentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex, double trackMass) const;
+  xAOD::TrackParticle::FourMom_t positiveTrack4Momentum(xAOD::Vertex * vxCandidate, double posTrackMass) const;
+  xAOD::TrackParticle::FourMom_t negativeTrack4Momentum(xAOD::Vertex * vxCandidate, double negTrackMass) const;
+  xAOD::TrackParticle::FourMom_t V04Momentum(xAOD::Vertex * vxCandidate, double V0Mass) const;
 
 /**
  *  NDoF of the vertex fit
  */
-  int ndof(const ExtendedVxCandidate * vxCandidate) const;
+  float ndof(xAOD::Vertex * vxCandidate) const;
 
 /**
  *  Chisq of the vertex fit
  */
-  double chisq(const ExtendedVxCandidate * vxCandidate) const;
+  float chisq(xAOD::Vertex * vxCandidate) const;
 
 /**
  *  Probability of the vertex fit
  */
-  double vertexProbability(const ExtendedVxCandidate * vxCandidate) const;
+  double vertexProbability(xAOD::Vertex * vxCandidate) const;
 
 /**
  *  vertex position
  */
-  Amg::Vector3D vtx(const ExtendedVxCandidate * vxCandidate) const;
+  Amg::Vector3D vtx(xAOD::Vertex * vxCandidate) const;
 
 /**
  *  Rxy of the vertex
  */
-  double rxy(const ExtendedVxCandidate * vxCandidate) const;
+  double rxy(xAOD::Vertex * vxCandidate) const;
 
 /**
- * wrt a Trk::RecVertex vertex
+ * wrt an xAOD::Vertex vertex
  */
-  double rxy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double rxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
- * wrt a Trk::Vertex vertex
+ * wrt an Amg::Vector3D vertex
  */
-  double rxy(const ExtendedVxCandidate * vxCandidate, Trk::Vertex& vertex) const;
-
-/**
- * wrt a Hep3Vector vertex
- */
-  double rxy(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const;
+  double rxy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const;
 
 /**
  * rxy_var
@@ -161,188 +159,182 @@ namespace Trk
 /**
  * error on Rxy
  */
-  double rxyError(const ExtendedVxCandidate * vxCandidate) const;
+  double rxyError(xAOD::Vertex * vxCandidate) const;
 
 /**
- * wrt a Trk::RecVertex vertex
+ * wrt an xAOD::Vertex vertex
  */
-  double rxyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double rxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
- * (wrt a Trk::Vertex vertex
+ * wrt an Amg::Vector3D vertex
  */
-  double rxyError(const ExtendedVxCandidate * vxCandidate, Trk::Vertex& vertex) const;
-
-/**
- * wrt a Hep3Vector vertex
- */
-  double rxyError(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const;
+  double rxyError(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const;
 
 /**
  * transverse momentum of the V0
  */
-  double pT(const ExtendedVxCandidate * vxCandidate) const;
+  double pT(xAOD::Vertex * vxCandidate) const;
 
 /**
  * error on the transverse momentum of the V0
  */
-  double pTError(const ExtendedVxCandidate * vxCandidate) const;
+  double pTError(xAOD::Vertex * vxCandidate) const;
 
 /**
   * statistical separation (Mahalanobis distance)
   */
-  double separation(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
-  double separation(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const;
+  double separation(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
+  double separation(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const;
 
 /**
-  * closest distance in Z and the transverse plane of the momentum vector to a Trk::RecVertex
+  * closest distance in Z and the transverse plane of the momentum vector to an xAOD::Vertex
   * a0xy using transverse measurements only
   * a0z using the point of closest approach (3D)
   */
-  double a0xy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
-  double a0z(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double a0xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
+  double a0z(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
-  * closest distance of the momentum vector to a Trk::RecVertex
+  * closest distance of the momentum vector to an xAOD::Vertex
   */
-  double a0(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double a0(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
-  * point of closest approach of the momentum vector to a Trk::RecVertex
+  * point of closest approach of the momentum vector to an xAOD::Vertex
   */
-  Amg::Vector3D pca(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  Amg::Vector3D pca(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
   * errors on a0xy and a0z
   */
-  double a0xyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
-  double a0zError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double a0xyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
+  double a0zError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
   * error on a0
   */
-  double a0Error(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, bool in3D=true) const;
+  double a0Error(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, bool in3D=true) const;
 
 /**
- * projection of distance in xy of the vertex wrt a Trk::RecVertex vertex along the momentum direction
+ * projection of distance in xy of the vertex wrt an xAOD::Vertex vertex along the momentum direction
  * (Px*dx+Py*dy)/pT
  */
-  double lxy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double lxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
  * error on lxy
  */
-  double lxyError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double lxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
- * proper time wrt a Trk::RecVertex vertex assuming posTrackMass and negTrackMass
+ * proper time wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass
  * tau = CONST*M*lxy/pT
  */
-  double tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const;
+  double tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const;
 
 /**
- * proper time wrt a Trk::RecVertex vertex assuming track masses
+ * proper time wrt an xAOD::Vertex vertex assuming track masses
  */
-  double tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const;
+  double tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const;
 
 /**
- * proper time wrt a Trk::RecVertex vertex assuming posTrackMass and negTrackMass (imposing massV0)
+ * proper time wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass (imposing massV0)
  * making a correction to the proper time consistent with the imposed V0 mass
  */
-  double tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass, double massV0) const;
+  double tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const;
 
 /**
- * proper time wrt a Trk::RecVertex vertex assuming track masses (imposing massV0)
+ * proper time wrt an xAOD::Vertex vertex assuming track masses (imposing massV0)
  * making a correction to the proper time consistent with the imposed V0 mass
  */
-  double tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses, double massV0) const;
+  double tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double massV0) const;
 
 /**
- * proper time wrt a Trk::RecVertex vertex assuming massV0
+ * proper time wrt an xAOD::Vertex vertex assuming massV0
  * imposing a V0 mass without making an adjustment 
  */
-  double tau(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double massV0) const;
+  double tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double massV0) const;
 
 /**
- * proper time error wrt a Trk::RecVertex vertex assuming posTrackMass and negTrackMass
+ * proper time error wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass
  * tau = CONST*M*lxy/pT
  */
-  double tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const;
+  double tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const;
 
 /**
- * proper time error wrt a Trk::RecVertex vertex assuming track masses
+ * proper time error wrt an xAOD::Vertex vertex assuming track masses
  */
-  double tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const;
+  double tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const;
 
 /**
- * proper time error wrt a Trk::RecVertex vertex assuming posTrackMass and negTrackMass (imposing massV0) 
+ * proper time error wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass (imposing massV0) 
  * independent of massV0, variable included to match the corresponding proper time method
  */
-  double tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass, double massV0) const;
+  double tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const;
 
 /**
- * proper time error wrt a Trk::RecVertex vertex assuming track masses (imposing massV0)
+ * proper time error wrt an xAOD::Vertex vertex assuming track masses (imposing massV0)
  * independent of massV0, variable included to match the corresponding proper time method
  */
-  double tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses, double massV0) const;
+  double tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double massV0) const;
 
 /**
- * proper time error wrt a Trk::RecVertex vertex assuming massV0
+ * proper time error wrt an xAOD::Vertex vertex assuming massV0
  * imposing a V0 mass without making an adjustment 
  */
-  double tauError(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double massV0) const;
+  double tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double massV0) const;
 
 /**
  * mass-proper time covariance
  */
-  Amg::MatrixX tauMassCovariance(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const;
-  double massTauCov(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, double posTrackMass, double negTrackMass) const;
-  double massTauCov(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex, std::vector<double> masses) const;
+  Amg::MatrixX tauMassCovariance(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const;
+  double massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const;
+  double massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const;
 
 /**
- * Polarization angles in helicity frame (assume positive track to be the first one in vxCandidate):
+ * Polarization angles in helicity frame (using positive track):
  *
  * thetaStar (in rad)
  */
-  double thetaStar(const ExtendedVxCandidate * vxCandidate, double mass1, double mass2) const;
+  double thetaStar(xAOD::Vertex * vxCandidate, double mass1, double mass2) const;
 
 /**
  * cosThetaStar
  */
-  double cosThetaStar(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double cosThetaStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
   double cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) const;
 
 /**
  * phiStar
  */
-  double phiStar(const ExtendedVxCandidate * vxCandidate) const;
+  //double phiStar(xAOD::Vertex * vxCandidate) const;
+  double phiStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
   double phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) const;
-  //double phiStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) const;
 
 /**
- * cosTheta (pointing angle to a Hep3Vector or a RecVertex)
+ * cosTheta (pointing angle to an Amg::Vector3D or an xAOD::Vertex)
  */
-  double cosTheta(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const;
-  double cosTheta(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double cosTheta(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const;
+  double cosTheta(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
- * cosTheta (pointing angle to a RecVertex in transverse plane)
+ * cosTheta (pointing angle to an Amg::Vector3D or an xAOD::Vertex in transverse plane)
  */
-  double cosTheta_xy(const ExtendedVxCandidate * vxCandidate, Amg::Vector3D& vertex) const;
-  double cosTheta_xy(const ExtendedVxCandidate * vxCandidate, Trk::RecVertex& vertex) const;
+  double cosTheta_xy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const;
+  double cosTheta_xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const;
 
 /**
  * sum of the charges of the tracks in the vertex
  */
-  int charge(const ExtendedVxCandidate * vxCandidate) const;
+  float charge(xAOD::Vertex * vxCandidate) const;
 
 /**
  * pointers to original tracks
  */
-  const Trk::TrackParticleBase* origTrackPB(const VxCandidate * vxCandidate, int trkIndex) const;
-  const Trk::TrackParticleBase* origTrackPB(const ExtendedVxCandidate * vxCandidate, int trkIndex) const;
-  const Trk::TrackParticleBase* positiveOrigTrackPB(const ExtendedVxCandidate * vxCandidate) const;
-  const Trk::TrackParticleBase* negativeOrigTrackPB(const ExtendedVxCandidate * vxCandidate) const;
+  const xAOD::TrackParticle* origTrack(xAOD::Vertex * vxCandidate, int trkIndex) const;
+  const xAOD::TrackParticle* positiveOrigTrack(xAOD::Vertex * vxCandidate) const;
+  const xAOD::TrackParticle* negativeOrigTrack(xAOD::Vertex * vxCandidate) const;
 
 /**
  * create neutral TrackParticle from vxCandidate
@@ -356,28 +348,41 @@ namespace Trk
  *  calculated from the original track parameters (at the perigee (IP) or at a given vertex position
  *  if no vertex is specified, the reconstructed vertex position is used
  */
-  double invariantMassBeforeFitIP(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double invariantMassBeforeFitIP(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  //double invariantMassErrorBeforeFitIP(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  //double invariantMassErrorBeforeFitIP(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const;
-  double invariantMassBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const;
-  double invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const;
-  double invariantMassErrorBeforeFit(const ExtendedVxCandidate * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const;
+  double invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const;
+  double invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const;
+  double invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const;
+  double invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const;
 
+  Amg::MatrixX * convertCovMatrix(xAOD::Vertex * vxCandidate) const;
+
+/**
+ * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one
+ */
+  xAOD::Vertex* v0Link(xAOD::Vertex * vxCandidate) const;
+
+/**
+ * pointers to Kshort, Lambda or Lambdabar mass constrained V0s, if they exist, from the unconstrained one
+ */
+  xAOD::Vertex* kshortLink(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdaLink(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdabarLink(xAOD::Vertex * vxCandidate) const;
  
   private:
 
-  double massErrorV0Fitter(const Trk::ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double massErrorV0Fitter(const Trk::ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double massErrorVKalVrt(const Trk::ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double massErrorVKalVrt(const Trk::ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
-  double massErrorVxCandidate(const Trk::ExtendedVxCandidate * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double massErrorVxCandidate(const Trk::ExtendedVxCandidate * vxCandidate, std::vector<double> masses) const;
+  double massErrorV0Fitter(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double massErrorV0Fitter(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double massErrorVKalVrt(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double massErrorVKalVrt(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double massErrorVxCandidate(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
+  double massErrorVxCandidate(xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
 
   ToolHandle < Trk::IExtrapolator > m_extrapolator;
  
