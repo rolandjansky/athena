@@ -68,58 +68,48 @@ class HLTBjetMonTool : public IHLTMonTool {
 
   ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
 
-  BjetLikelihoodMon *m_likelihood_L2, *m_likelihood_EF;
-  BjetProbabilityMon *m_probability_L2, *m_probability_EF;
+  BjetLikelihoodMon *m_likelihood_EF;
+  BjetProbabilityMon *m_probability_EF;
 
-  TuningLikelihood *m_tuningLikelihoodIP1D_L2, *m_tuningLikelihoodIP2D_L2, *m_tuningLikelihoodIP3D_L2;
   TuningLikelihood *m_tuningLikelihoodIP1D_EF, *m_tuningLikelihoodIP2D_EF, *m_tuningLikelihoodIP3D_EF;
 
-  const BjetLikelihoodMon *m_constLikelihood_L2, *m_constLikelihood_EF;
-  const BjetProbabilityMon *m_constProbability_L2, *m_constProbability_EF;
+  const BjetLikelihoodMon *m_constLikelihood_EF;
+  const BjetProbabilityMon *m_constProbability_EF;
 
   float m_xBeamSpot,m_yBeamSpot,m_zBeamSpot;
   float m_sigmaX, m_sigmaY, m_sigmaZ;
-  float m_prmVtxL2Bj,m_prmVtxEFBj;
+  float m_prmVtxEFBj;
 
-  std::vector<std::string> m_taggers, m_TriggerChainBjet, m_TriggerChainL2Bjet, m_TriggerChainMujet,m_TriggerChainMujet_phys ;
+  std::vector<std::string> m_taggers, m_TriggerChainBjet, m_TriggerChainMujet,m_TriggerChainMujet_phys ;
   int m_Menu_ppV0;
 
-  bool m_useErrIPParam, m_jetDirection, m_l2PrmVtxAtEF, m_useEtaPhiTrackSel;
+  bool m_useErrIPParam, m_jetDirection, m_useEtaPhiTrackSel;
   float m_setBeamSpotWidth;
   
-  float m_l2TrkSelChi2;
-  int   m_l2TrkSelBLayer, m_l2TrkSelSiHits;
-  float m_l2TrkSelD0, m_l2TrkSelZ0, m_l2TrkSelPt, m_efTrkSelChi2;
+  float m_efTrkSelChi2;
 
   int   m_efTrkSelBLayer, m_efTrkSelPixHits, m_efTrkSelSiHits;
   float m_efTrkSelD0, m_efTrkSelZ0, m_efTrkSelPt;
 
   std::vector<float> m_listCutAppliedLikelihood;
-  std::vector<float> m_listCutAppliedLikelihood_L2;
   std::vector<float> m_listCutAppliedLikelihood_EF;
 
   std::vector<float> m_listCutAppliedProbability;
-  std::vector<float> m_listCutAppliedProbability_L2;
   std::vector<float> m_listCutAppliedProbability_EF;
-
-  std::vector<float> m_mon_l2_trk_a0, m_mon_l2_trk_a0_sel, m_mon_l2_trk_Sa0_sel;
-  std::vector<float> m_mon_l2_trk_z0, m_mon_l2_trk_z0_sel, m_mon_l2_trk_z0_sel_PV, m_mon_l2_trk_Sz0_sel;
-  std::vector<float> m_mon_l2_trk_prob;
 
   std::vector<float> m_mon_ef_trk_a0, m_mon_ef_trk_a0_sel, m_mon_ef_trk_Sa0_sel;
   std::vector<float> m_mon_ef_trk_z0, m_mon_ef_trk_z0_sel, m_mon_ef_trk_z0_sel_PV, m_mon_ef_trk_Sz0_sel;
   std::vector<float> m_mon_ef_trk_prob;
 
-  std::vector<float> m_sizeIP1D_L2, m_bIP1D_L2, m_uIP1D_L2;  
-  std::vector<float> m_sizeIP2D_L2, m_bIP2D_L2, m_uIP2D_L2;
-  std::vector<float> m_sizeIP3D_L2, m_bIP3D_L2, m_uIP3D_L2;
+  std::vector<int> m_sizeIP1D_EF;
+  std::vector<float> m_bIP1D_EF, m_uIP1D_EF;
+  std::vector<int> m_sizeIP2D_EF;
+  std::vector<float> m_bIP2D_EF, m_uIP2D_EF;
+  std::vector<int> m_sizeIP3D_EF;
+  std::vector<float> m_bIP3D_EF, m_uIP3D_EF;
 
-  std::vector<float> m_sizeIP1D_EF, m_bIP1D_EF, m_uIP1D_EF;
-  std::vector<float> m_sizeIP2D_EF, m_bIP2D_EF, m_uIP2D_EF;
-  std::vector<float> m_sizeIP3D_EF, m_bIP3D_EF, m_uIP3D_EF;
-
-  std::vector<float> m_par_L2Si0, m_par_L2Id0, m_par_EF0;
-  std::vector<float> m_par_L2Si1, m_par_L2Id1, m_par_EF1;
+  std::vector<float> m_par_EF0;
+  std::vector<float> m_par_EF1;
 
   /** @brief Pointer to TaggerHelper class. */ 
   TaggerHelper* m_taggerHelper;

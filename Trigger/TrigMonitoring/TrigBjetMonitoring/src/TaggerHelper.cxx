@@ -36,26 +36,6 @@ TaggerHelper::TaggerHelper(MsgStream* log) :
 TaggerHelper::~TaggerHelper() {}
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-void TaggerHelper::showParam(const TrigInDetTrack*& track, unsigned int i) {
-
-  //* Print track impact parameters at L2 *//
-  *m_log << MSG::VERBOSE << "Print track impact parameters at L2:" << endreq;
-  *m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
-  *m_log << MSG::VERBOSE << "  d0 = " << track->param()->a0() 
-	<< "  z0 = " << track->param()->z0() 
-	<< "  eta = " << track->param()->eta() 
-	<< "  phi0 = " << track->param()->phi0()
-	<< "  pT = " << track->param()->pT() << endreq;
-  *m_log << MSG::VERBOSE << "  errd0 = " << track->param()->ea0() 
-	<< "  errz0 = " << track->param()->ez0() 
-	<< "  errphi0 = " << track->param()->ephi0()
-	<< "  erreta = " << track->param()->eeta() 
-	<< "  errpT = " << track->param()->epT() << endreq;  
-
-}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -83,23 +63,6 @@ void TaggerHelper::showParam(const Rec::TrackParticle*& track, unsigned int i) {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-unsigned int TaggerHelper::getTrackNumber(const TrigInDetTrackCollection* pointerToL2TrackCollections) {
-
-  unsigned int nTracks;
-
-  if (pointerToL2TrackCollections) {
-    nTracks = pointerToL2TrackCollections->size();
-    *m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endreq;
-  } else {
-    nTracks = 0;
-    *m_log << MSG::DEBUG << "No tracks in the RoI" << endreq;
-  }
-  
-  return nTracks;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
 
 
 unsigned int TaggerHelper::getTrackNumber(const Rec::TrackParticleContainer* pointerToEFTrackCollections) {
@@ -118,23 +81,6 @@ unsigned int TaggerHelper::getTrackNumber(const Rec::TrackParticleContainer* poi
 }
 
 		      
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-unsigned int TaggerHelper::getVerticesNumber(const TrigVertexCollection*& pointerToPrmVtxCollections) {
-
-  unsigned int nVertices;
-
-  if (pointerToPrmVtxCollections) {
-    nVertices = pointerToPrmVtxCollections->size();
-    *m_log << MSG::DEBUG << "Found " << nVertices << " vertices in the RoI" << endreq;
-  } else {
-    nVertices = 0;
-    *m_log << MSG::DEBUG << "No vertices in the RoI" << endreq;
-  }
-
-  return nVertices;
-}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//

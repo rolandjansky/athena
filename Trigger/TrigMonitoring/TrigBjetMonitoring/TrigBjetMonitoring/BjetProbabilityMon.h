@@ -54,9 +54,6 @@ class BjetProbabilityMon {
 
   /** @brief To set chi2 probability to default value (when beam spot doesn't allow b-jet triggers to fire). */
   void getProbabilityTag();
-  /** @brief To compute chi2 probability weight at LVL2. */  
-  void getProbabilityTag(const TrigInDetTrackCollection*&, const TrigVertexCollection*&, const ToolHandle<ITrigTrackJetFinderTool>);
-  void getProbabilityTag(const TrigInDetTrackCollection*&, float , const ToolHandle<ITrigTrackJetFinderTool>);
   /** @brief To compute chi2 probability weight at EF. */  
   void getProbabilityTag(const Rec::TrackParticleContainer*&, const TrigVertexCollection*&, const ToolHandle<ITrigTrackJetFinderTool>);
   void getProbabilityTag(const Rec::TrackParticleContainer*&, float , const ToolHandle<ITrigTrackJetFinderTool>);
@@ -72,8 +69,6 @@ class BjetProbabilityMon {
   /** @brief To retrieve CHI2 tagger distribution (for monitoring). */
   float getXCHI2() const {return m_taggersXMap.find("CHI2")->second;};
 
-  /** @brief To properly use a selected LVL2 track. */
-  void addTrack(const TrigInDetTrack*&);
   /** @brief To properly use a selected EF track. */
   void addTrack(const Rec::TrackParticle*&);
   /** @brief To set the phi position of the track-jet. */
@@ -89,20 +84,6 @@ class BjetProbabilityMon {
 
  private:
 
-  /**
-   * @brief To perform track selection at LVL2 in order to evaluate the likelihood weight.
-   * @return boolean variable set to true if the track has been selected
-   *
-   * This tagger is called for all the tracks in a certain collection and perform track selection
-   * with the following default criteria (different selection criteria can be set through declareProperty):
-   *
-   * - chi square > 50 
-   * - number of space points in the silicon detectors >= 4
-   * - transverse impact parameter >= 1mm
-   * - longitudinal impact parameter >= 2mm
-   *
-   */
-  bool l2TrackSel(const TrigInDetTrack*&, unsigned int, float);
   /**
    * @brief To perform track selection at EF in order to evaluate the likelihood weight.
    * @return boolean variable set to true if the track has been selected

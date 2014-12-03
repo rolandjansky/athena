@@ -19,7 +19,8 @@
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TuningLikelihood::TuningLikelihood(const float *sizeLikelihood, const float *bLikelihood,
+//TuningLikelihood::TuningLikelihood(const float *sizeLikelihood, const float *bLikelihood, 
+TuningLikelihood::TuningLikelihood(const int *sizeLikelihood, const float *bLikelihood,
 				   const float *uLikelihood, const int dimensionLikelihood) :
   m_bLikelihood(&bLikelihood[0]),
   m_uLikelihood(&uLikelihood[0]),

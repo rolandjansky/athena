@@ -50,17 +50,11 @@ class TaggerHelper
   TaggerHelper(MsgStream*);
   ~TaggerHelper();
 
-  /** @brief To print track parameters and track parameter errors for reconstructed tracks at LVL2 */
-  void showParam(const TrigInDetTrack*&, unsigned int);
   /** @brief To print track parameters and track parameter errors for reconstructed tracks at EF */
   void showParam(const Rec::TrackParticle*&, unsigned int);
 
-  /** @brief To get the number of tracks in a track collection at LVL2. */
-  unsigned int getTrackNumber(const TrigInDetTrackCollection*);
   /** @brief To get the number of tracks in a track collection at EF. */
   unsigned int getTrackNumber(const Rec::TrackParticleContainer*);
-  /** @brief To get the number of vertices in a vertex collection at LVL2. */
-  unsigned int getVerticesNumber(const TrigVertexCollection*&);
   /** @brief To get the number of vertices in a vertex collection at EF. */
   unsigned int getVerticesNumber(const VxContainer*&);
 

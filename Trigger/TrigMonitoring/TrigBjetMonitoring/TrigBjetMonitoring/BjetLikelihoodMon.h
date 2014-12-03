@@ -93,8 +93,6 @@ class BjetLikelihoodMon {
 
   /** @brief To set likelihood weights to default values (when beam spot doesn't allow b-jet triggers to fire). */
   void getLikelihoodTag();
-  /** @brief To compute likelihood weights at LVL2. */  
-  void getLikelihoodTag(const TrigInDetTrackCollection*&, float ,const ToolHandle<ITrigTrackJetFinderTool>);
 
   /** @brief To compute likelihood weights based on impact parameters of reconstructed tracks at EF. */  
   void getLikelihoodTag(const Rec::TrackParticleContainer*&, float, const ToolHandle<ITrigTrackJetFinderTool>);
@@ -103,23 +101,6 @@ class BjetLikelihoodMon {
 
  private:
 
-  /**
-   * @brief To perform track selection at LVL2 in order to evaluate the likelihood weight.
-   * @return boolean variable set to true if the track has been selected
-   *
-   * This tagger is called for all the tracks in a certain collection and perform track selection
-   * with the following default criteria (different selection criteria can be set through declareProperty):
-   *
-   * - chi square > 50 
-   * - number of space points in the silicon detectors >= 4
-   * - transverse impact parameter >= 1mm
-   * - longitudinal impact parameter >= 2mm
-   *
-   */
-  //TrigInDetTrackCollection
-  
-  bool l2TrackSel(const TrigInDetTrack*&, unsigned int, float);
-  // bool l2TrackSel(const TrigInDetTrackCollection*&, unsigned int, float);
 
   /**
    * @brief To perform track selection at EF in order to evaluate the likelihood weight.
