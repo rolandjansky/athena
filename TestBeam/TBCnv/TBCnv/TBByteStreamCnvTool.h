@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <string>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "EventInfo/EventInfo.h"
@@ -46,7 +46,7 @@ class LArOnlineID;
 
 
         
-class TBByteStreamCnvTool: public AlgTool {
+class TBByteStreamCnvTool: public AthAlgTool {
 public:
 
   /** constructor
@@ -90,7 +90,6 @@ private:
 
   static const eformat::SubDetector m_DontCheckRodSubDetID; //==0xff
 
-  StoreGateSvc* m_storeGate; 
   ByteStreamCnvSvc* m_ByteStreamEventAccess;
   IROBDataProviderSvc *m_rdpSvc;
   EventID m_lastEventID;

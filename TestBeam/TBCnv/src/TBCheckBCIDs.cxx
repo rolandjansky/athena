@@ -16,9 +16,13 @@
 #include <map> 
 
 
-TBCheckBCIDs::TBCheckBCIDs(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+TBCheckBCIDs::TBCheckBCIDs(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_count(0),
+    m_ByteStreamEventAccess(0),
+    m_rdpSvc(0),
+    m_ntuplePtr(0)
 {
-  m_count=0;
 }
 
 TBCheckBCIDs::~TBCheckBCIDs() {}

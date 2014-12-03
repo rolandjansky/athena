@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBCnv/TBDataCnv.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/CnvFactory.h"
 
@@ -12,7 +11,8 @@
 
 template< class DATATYPE >
 TBDataCnv<DATATYPE>::TBDataCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc)
+  Converter(ByteStream_StorageType, classID(),svcloc),
+  m_tool(nullptr)
 {
 }
 
@@ -50,12 +50,14 @@ StatusCode TBDataCnv<DATATYPE>::createObj(IOpaqueAddress* pAddr, DataObject*& pO
     {logstr << MSG::ERROR << "dynamic_cast of IOpaqueAdress to ByteStreamAddress failed!" << endreq;
      return StatusCode::FAILURE;
     }
-  DATATYPE* tbdata; 
+  DATATYPE* tbdata = 0;
   const std::string& key = *(pAddr->par()); // Get key used in the 
                                             // StoreGateSvc::retrieve function
   StatusCode sc=m_tool->ReadFragment(tbdata,key);
-  if (sc!=StatusCode::SUCCESS)
+  if (sc!=StatusCode::SUCCESS) {
+    delete tbdata;
     return sc;
+  }
   pObj = SG::asStorable(tbdata) ;
   return StatusCode::SUCCESS;
 }

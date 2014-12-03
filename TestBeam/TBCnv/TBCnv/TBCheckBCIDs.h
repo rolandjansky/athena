@@ -14,7 +14,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 //#include  "StoreGate/StoreGateSvc.h"
 
@@ -23,7 +23,7 @@
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
-class TBCheckBCIDs : public Algorithm
+class TBCheckBCIDs : public AthAlgorithm
 {
  public:
   TBCheckBCIDs(const std::string & name, ISvcLocator * pSvcLocator);

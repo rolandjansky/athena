@@ -7,7 +7,10 @@
 #include "GaudiKernel/AlgFactory.h"
 #include <vector>
 
-ReadTBLArCalibDigits::ReadTBLArCalibDigits(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+ReadTBLArCalibDigits::ReadTBLArCalibDigits(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_count(0),
+    m_onlineHelper(0)
 {
   declareProperty("ContainerKey",m_containerKey="");
   declareProperty("DumpFile",m_dumpFile="");
@@ -21,20 +24,8 @@ StatusCode ReadTBLArCalibDigits::initialize()
 {
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initialize" << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure())  {
-    log << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-    return StatusCode::FAILURE;
-  } 
   
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure())  {
-    log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
+  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     log << MSG::ERROR << "Could not get LArOnlineID helper" << endreq;
     return StatusCode::FAILURE;
@@ -62,7 +53,7 @@ StatusCode ReadTBLArCalibDigits::execute() {
   log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endreq;
   log << MSG::DEBUG << "Retrieving TBLArCalibDigitContainer. Key= " << m_containerKey << endreq; 
   TBLArCalibDigitContainer* larCalibDigitCont;
-  sc = m_storeGateSvc->retrieve(larCalibDigitCont ,m_containerKey);
+  sc = evtStore()->retrieve(larCalibDigitCont ,m_containerKey);
 
   if (sc.isFailure()) {
     log << MSG::FATAL << " Cannot read TBLArCalibDigitContainer from StoreGate! key=" << m_containerKey << endreq;

@@ -7,7 +7,7 @@
 
 #ifndef READLARDIGITS_H
 #define READLARDIGITS_H
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include  "StoreGate/StoreGateSvc.h"
 #include "TBEvent/TBLArDigitContainer.h"
@@ -24,7 +24,7 @@
 #include <fstream>
 #include "LArIdentifier/LArOnlineID.h"
 
-class ReadTBLArDigits : public Algorithm
+class ReadTBLArDigits : public AthAlgorithm
 {
  public:
   ReadTBLArDigits(const std::string & name, ISvcLocator * pSvcLocator);
@@ -38,7 +38,6 @@ class ReadTBLArDigits : public Algorithm
 
  private:
   int m_count;
-  StoreGateSvc *m_storeGateSvc;
   LArCablingService *m_larCablingSvc;
   const LArEM_ID*   m_emId;
   const LArFCAL_ID* m_fcalId;

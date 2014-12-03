@@ -37,7 +37,7 @@ const InterfaceID& TBByteStreamCnvTool::interfaceID( )
  
 TBByteStreamCnvTool::TBByteStreamCnvTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AlgTool(type,name,parent), m_lastEventID(0, UINT_MAX), m_subdet_id(eformat::TDAQ_BEAM_CRATE),
+  :  AthAlgTool(type,name,parent), m_lastEventID(0, UINT_MAX), m_subdet_id(eformat::TDAQ_BEAM_CRATE),
      m_theRodBlock(0), m_theROB(0)
 { 
   declareInterface< TBByteStreamCnvTool  >( this );
@@ -53,26 +53,14 @@ TBByteStreamCnvTool::TBByteStreamCnvTool
 }
  
 StatusCode TBByteStreamCnvTool::initialize()
-{StatusCode sc=AlgTool::initialize();
+{StatusCode sc=AthAlgTool::initialize();
  if (sc!=StatusCode::SUCCESS)
    return sc;
  MsgStream logstr(msgSvc(), name());
  logstr << MSG::DEBUG << "Initialize" << endreq;
 
- sc=service("StoreGateSvc", m_storeGate); 
- if (sc!=StatusCode::SUCCESS) {
-   logstr << MSG::ERROR << "Can't get StoreGateSvc" << endreq;
-   return sc;
- }
-
- sc=service("DetectorStore", m_detectorStore);
- if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
-   return StatusCode::FAILURE;
- }
-
  const LArOnlineID* online_id;
- sc = m_detectorStore->retrieve(online_id, "LArOnlineID");
+ sc = detStore()->retrieve(online_id, "LArOnlineID");
  if (sc.isFailure()) {
    logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
@@ -184,7 +172,7 @@ StatusCode TBByteStreamCnvTool::WriteFragment()
  //Check if Fragment is already written
  EventID *thisEvent;           //EventID is a part of EventInfo
  const DataHandle<EventInfo> thisEventInfo;
-   StatusCode sc=m_storeGate->retrieve(thisEventInfo);
+   StatusCode sc=evtStore()->retrieve(thisEventInfo);
    if (sc!=StatusCode::SUCCESS)
      {logstr << MSG::WARNING << "No EventInfo object found!" << endreq;
       return sc;
@@ -245,7 +233,7 @@ StatusCode TBByteStreamCnvTool::BuildRODBlock(std::vector<uint32_t> *theRodBlock
   // TBTDCRaw part of the block : 
   const TBTDC* tbtdc;
   std::string tbtdc_Key("TBTDC");
-  sc=m_storeGate->retrieve(tbtdc,tbtdc_Key);
+  sc=evtStore()->retrieve(tbtdc,tbtdc_Key);
   if (sc!=StatusCode::SUCCESS)
     {logstr << MSG::ERROR << "Can't retrieve TBTDC with key "<< tbtdc_Key << " from StoreGate" << endreq;
      return sc;
@@ -1906,7 +1894,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 
   if(unrec_code!=5){ //  If object was not requested by the converter, store it in SG
-    sc = m_storeGate->record(m_bpcrawCont,m_keys[5]);
+    sc = evtStore()->record(m_bpcrawCont,m_keys[5]);
     if ( sc.isFailure( ) ) {recordfailure=true;
       logstr << MSG::FATAL << "Cannot record BPCRawCont" << endreq;
     }
@@ -1914,7 +1902,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 
   if(unrec_code!=6){ //  If object was not requested by the converter, store it in SG
-    sc = m_storeGate->record(m_scintrawCont,m_keys[6]);
+    sc = evtStore()->record(m_scintrawCont,m_keys[6]);
     if ( sc.isFailure( ) ) {recordfailure=true;
       logstr << MSG::FATAL << "Cannot record ScintRawCont " << endreq;
     }
@@ -1922,14 +1910,14 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 
   if(unrec_code!=2){ //  If object was not requested by the converter, store it in SG
-    sc = m_storeGate->record(m_tdcrawCont,m_keys[2]);
+    sc = evtStore()->record(m_tdcrawCont,m_keys[2]);
     if ( sc.isFailure( ) ) {recordfailure=true;
       logstr << MSG::FATAL << "Cannot record TDCCont " << endreq;
     }  
   }else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
   
   if(unrec_code!=3){ //  If object was not requested by the converter, store it in SG
-    sc = m_storeGate->record(m_adcrawCont,m_keys[3]);
+    sc = evtStore()->record(m_adcrawCont,m_keys[3]);
     if ( sc.isFailure( ) ) {recordfailure=true;
       logstr << MSG::FATAL << "Cannot record ADCCont " << endreq;
     }  
@@ -1940,8 +1928,8 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   m_trigpat->setTriggerWord(m_h8_triggword);
   if(unrec_code!=1) { //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endreq;
-    //    if(! m_storeGate->contains<TBTriggerPatternUnit>(m_keys[1])) {
-    sc = m_storeGate->record(m_trigpat,m_keys[1]);
+    //    if(! evtStore()->contains<TBTriggerPatternUnit>(m_keys[1])) {
+    sc = evtStore()->record(m_trigpat,m_keys[1]);
     if ( sc.isFailure( ) ) {
       logstr << MSG::ERROR << "Cannot record TBTrigPat " << endreq;
     }
@@ -1973,7 +1961,7 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   
   if(unrec_code!=1) { //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endreq;
-    sc = m_storeGate->record(m_trigpat,m_keys[1]);
+    sc = evtStore()->record(m_trigpat,m_keys[1]);
     if ( sc.isFailure( ) ) {
       logstr << MSG::ERROR << "Cannot record TBTrigPat " << endreq;
     }
@@ -1981,7 +1969,7 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
 
   if(unrec_code!=4){ //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "Recording TBTailCatcherRaw with key " << m_keys[4] << endreq;
-    sc = m_storeGate->record(m_tailcatchraw,m_keys[4]);
+    sc = evtStore()->record(m_tailcatchraw,m_keys[4]);
     if ( sc.isFailure( ) ) {
       logstr << MSG::ERROR << "Cannot record TailCatcherRaw " << endreq;
     }
@@ -1989,8 +1977,8 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
     
   if(unrec_code!=5) { //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "Recording TBBPCRawCont with key " << m_keys[5] << endreq;
-    //    if(! m_storeGate->contains<TBBPCRawCont>(m_keys[5])) {
-      sc = m_storeGate->record(m_bpcrawCont,m_keys[5]);
+    //    if(! evtStore()->contains<TBBPCRawCont>(m_keys[5])) {
+      sc = evtStore()->record(m_bpcrawCont,m_keys[5]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::ERROR << "Cannot record BPCRawCont" << endreq;
       }
@@ -2001,8 +1989,8 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   
   if(unrec_code!=6){ //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "Recording TBScintillatorRawCont with key " << m_keys[6] << endreq;
-    //    if(! m_storeGate->contains<TBScintillatorRawCont>(m_keys[6])) {
-      sc = m_storeGate->record(m_scintrawCont,m_keys[6]);
+    //    if(! evtStore()->contains<TBScintillatorRawCont>(m_keys[6])) {
+      sc = evtStore()->record(m_scintrawCont,m_keys[6]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::ERROR << "Cannot record ScintRawCont " << endreq;
       }
@@ -2012,9 +2000,9 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   }
   
   if(unrec_code!=7){ //  If object was not requested by the converter, store it in SG
-    //    if(! m_storeGate->contains<TBMWPCRawCont>(m_keys[7])) {
+    //    if(! evtStore()->contains<TBMWPCRawCont>(m_keys[7])) {
       logstr << MSG::DEBUG << "record TBMWPCRawCont with key " << m_keys[7] <<endreq;
-      sc = m_storeGate->record(m_mwpcrawCont,m_keys[7]);
+      sc = evtStore()->record(m_mwpcrawCont,m_keys[7]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::ERROR << "Cannot record MWPCRawCont " << endreq;
       }
@@ -2028,8 +2016,8 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   
   if(unrec_code!=2){ //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "record TDC cont with key " << m_keys[2] << endreq;
-    //    if(! m_storeGate->contains<TBTDCRawCont>(m_keys[2])) {
-      sc = m_storeGate->record(m_tdcrawCont,m_keys[2]);
+    //    if(! evtStore()->contains<TBTDCRawCont>(m_keys[2])) {
+      sc = evtStore()->record(m_tdcrawCont,m_keys[2]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::ERROR << "Cannot record TDCCont " << endreq;
       }
@@ -2041,8 +2029,8 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   
   if(unrec_code!=3){ //  If object was not requested by the converter, store it in SG
     logstr << MSG::DEBUG << "record ADC cont with key " << m_keys[3] << endreq;
-    //    if(! m_storeGate->contains<TBADCRawCont>(m_keys[3])) {
-      sc = m_storeGate->record(m_adcrawCont,m_keys[3]);
+    //    if(! evtStore()->contains<TBADCRawCont>(m_keys[3])) {
+      sc = evtStore()->record(m_adcrawCont,m_keys[3]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::FATAL << "Cannot record ADCCont " << endreq;
       }
@@ -2055,7 +2043,7 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
     if(unrec_code!=c){ //  If object was not requested by the converter, store it in SG
       
       logstr << MSG::DEBUG << "record TBLArDigitContainer with key " << m_keys[c] << " and size " << m_tblardigitcont[c-10]->size() << endreq;
-      sc = m_storeGate->record(m_tblardigitcont[c-10],m_keys[c]);
+      sc = evtStore()->record(m_tblardigitcont[c-10],m_keys[c]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endreq;
       }
@@ -2066,7 +2054,7 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
     if(unrec_code!=c){ //  If object was not requested by the converter, store it in SG
       
       logstr << MSG::DEBUG << "record TBLArCalibDigitContainer with key " << m_keys[c] << " and size " << m_tblarcalibdigitcont[c-10]->size() << endreq;
-      sc = m_storeGate->record(m_tblarcalibdigitcont[c-10],m_keys[c]);
+      sc = evtStore()->record(m_tblarcalibdigitcont[c-10],m_keys[c]);
       if ( sc.isFailure( ) ) {
         logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endreq;
       }
@@ -2074,7 +2062,7 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   }
   
   if(unrec_code!=30){ //  If object was not requested by the converter, store it in SG
-    sc = m_storeGate->record(m_eventinfo,"TBEventInfo");
+    sc = evtStore()->record(m_eventinfo,"TBEventInfo");
     if ( sc.isFailure( ) ) {
       logstr << MSG::FATAL << "Cannot record TBEventInfo "<< endreq;
     }

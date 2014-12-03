@@ -5,7 +5,7 @@
 #ifndef READLARCALIBDIGITS_H
 #define READLARCALIBDIGITS_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include  "StoreGate/StoreGateSvc.h"
 #include "TBEvent/TBLArCalibDigitContainer.h"
@@ -14,7 +14,7 @@
 
 class LArOnlineID;
 
-class ReadTBLArCalibDigits : public Algorithm
+class ReadTBLArCalibDigits : public AthAlgorithm
 {
  public:
   ReadTBLArCalibDigits(const std::string & name, ISvcLocator * pSvcLocator);
@@ -28,7 +28,6 @@ class ReadTBLArCalibDigits : public Algorithm
 
  private:
   int m_count;
-  StoreGateSvc *m_storeGateSvc;
   const LArOnlineID* m_onlineHelper;
   std::ofstream m_outfile;
   std::string m_containerKey;

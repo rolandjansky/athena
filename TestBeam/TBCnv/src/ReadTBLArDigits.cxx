@@ -10,11 +10,20 @@
 #include "CaloIdentifier/CaloIdManager.h"
 
 ReadTBLArDigits::SortDigits::SortDigits(const LArOnlineID* onlineHelper)
-{m_onlineHelper=onlineHelper;
+{
+  m_onlineHelper = onlineHelper;
 }
 
-ReadTBLArDigits::ReadTBLArDigits(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
-{m_count=0;
+ReadTBLArDigits::ReadTBLArDigits(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_count(0),
+    m_larCablingSvc(nullptr),
+    m_emId(0),
+    m_fcalId(0),
+    m_hecId(0),
+    m_onlineHelper(0),
+    m_ntuplePtr(0)
+{
  declareProperty("ContainerKey",m_containerKey="");
  declareProperty("DumpFile",m_dumpFile="");
  declareProperty("PrintCellLocation",m_printCellLoc=false);
@@ -29,18 +38,12 @@ ReadTBLArDigits::~ReadTBLArDigits()
 StatusCode ReadTBLArDigits::initialize()
 { MsgStream log(msgSvc(), name());
   log << MSG::INFO << "Initialize" << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    } 
-
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
   IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
+  StatusCode sc=service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
       log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
       return StatusCode::FAILURE;
@@ -51,14 +54,8 @@ StatusCode ReadTBLArDigits::initialize()
       log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
       return StatusCode::FAILURE;
     }
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-     return StatusCode::FAILURE;
-    } 
 
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
+  sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
@@ -173,9 +170,9 @@ StatusCode ReadTBLArDigits::execute()
  log << MSG::DEBUG << "Retrieving TBLArDigitContainer. Key= " << m_containerKey << endreq; 
  TBLArDigitContainer* larDigitCont;
  if (m_containerKey.size())
-   sc = m_storeGateSvc->retrieve(larDigitCont ,m_containerKey);
+   sc = evtStore()->retrieve(larDigitCont ,m_containerKey);
  else
-   sc = m_storeGateSvc->retrieve(larDigitCont);
+   sc = evtStore()->retrieve(larDigitCont);
  if (sc.isFailure()) 
    {log << MSG::FATAL << " Cannot read TBLArDigitContainer from StoreGate! key=" << m_containerKey << endreq;
     return StatusCode::FAILURE;
