@@ -8,14 +8,46 @@
 #include "TrigBSExtraction/ITrigBStoxAODTool.h"
 #include "TrigSerializeCnvSvc/ITrigSerConvHelper.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrigNavigation/Navigation.h"
+
+
+// conversion tool includes
+
+// needs newer pkg tag
+// #include "xAODTauCnv/ITauJetCnvTool.h"
+
+#include "xAODTrigMuonCnv/ICombinedMuonFeatureContainerCnvTool.h"
+#include "xAODTrigMuonCnv/IIsoMuonFeatureContainerCnvTool.h"
+#include "xAODTrigMuonCnv/ITrigMuonEFInfoToMuonCnvTool.h"
 
 #include "xAODJetCnv/IJetCnvTool.h"
-#include "xAODTrigMissingETCnv/ITrigMissingETCnvTool.h"
-#include "xAODTrigMuonCnv/ITrigMuonEFInfoToMuonCnvTool.h"
-// #include "xAODCaloEventCnv/ICaloClusterCnvTool.h"
-// #include "xAODTrigEgammaCnv/ITrigPhotonCnvTool.h"
 
-#include "TrigNavigation/Navigation.h"
+// not configurable algtools
+// #include "xAODTrigRingerCnv/ITrigRingerRingsCnvTool.h"
+// #include "xAODTrigRingerCnv/ITrigRNNOutputCnvTool.h"
+
+#include "xAODTrigCaloCnv/ITrigCaloClusterCnvTool.h"
+#include "xAODTrigCaloCnv/ITrigEMClusterCnvTool.h"
+
+//not in devval yet
+//#include "xAODBTaggingCnv/ITrigBjetCnvTool.h"
+
+#include "xAODTrigBphysCnv/ITrigEFBphysContainerCnvTool.h"
+#include "xAODTrigBphysCnv/ITrigL2BphysContainerCnvTool.h"
+
+//not in devval yet
+//#include "xAODTrigEgammaCnv/ITrigElectronCnvTool.h"
+//#include "xAODTrigEgammaCnv/ITrigPhotonCnvTool.h"
+
+#include "xAODTrigMissingETCnv/ITrigMissingETCnvTool.h"
+
+#include "xAODTrigMinBiasCnv/ITrigSpacePointCountsCnvTool.h"
+#include "xAODTrigMinBiasCnv/ITrigT2MbtsBitsCnvTool.h"
+#include "xAODTrigMinBiasCnv/ITrigTrackCountsCnvTool.h"
+#include "xAODTrigMinBiasCnv/ITrigVertexCountsCnvTool.h"
+
+
+
 
 /**
  * @brief Tool used by TrigBSExtraction to convert to xAOD
@@ -30,7 +62,7 @@ public:
   TrigBStoxAODTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~TrigBStoxAODTool();   
   virtual StatusCode initialize();
-  StatusCode convert(); 
+  StatusCode convert(HLT::Navigation* nav); 
   StatusCode rewireNavigation(HLT::Navigation* nav);
 
  private:  
@@ -46,10 +78,44 @@ public:
 
   std::vector<std::pair<CLID,std::string> > m_clid_labels;
 
-  //ToolHandle<xAODMaker::ITrigPhotonCnvTool> m_trigphotontool;
-  ToolHandle<xAODMaker::ITrigMissingETCnvTool> m_trigmettool;
-  ToolHandle<ITrigMuonEFInfoToMuonCnvTool> m_trigmuontool;
-  ToolHandle<xAODMaker::IJetCnvTool> m_jettool;
+  // xAODTauCnv (needs newer pkg tag)
+  // ToolHandle<xAODMaker::ITauJetCnvTool> m_tauJetTool;
+
+  // xAODTrigMuonCnv
+  ToolHandle<xAODMaker::ICombinedMuonFeatureContainerCnvTool> m_combMuonTool;
+  ToolHandle<xAODMaker::IIsoMuonFeatureContainerCnvTool> m_isoMuonTool;
+  ToolHandle<ITrigMuonEFInfoToMuonCnvTool> m_trigMuonTool;
+
+  // xAODJetCnv
+  ToolHandle<xAODMaker::IJetCnvTool> m_jetCnvTool;
+
+  // xAODTrigRingerCnv (not configurable algtool)
+  // ToolHandle<xAODMaker::ITrigRingerRingsCnvTool> m_ringerRingsTool;
+  // ToolHandle<xAODMaker::ITrigRNNOutputCnvTool> m_trigRNNTool;
+
+  // xAODTrigCaloCnv
+  ToolHandle<xAODMaker::ITrigCaloClusterCnvTool> m_caloClusterTool;
+  ToolHandle<xAODMaker::ITrigEMClusterCnvTool> m_emClusterTool;
+
+  // xAODBTaggingCnv (not in devval yet)
+  // ToolHandle<xAODMaker::ITrigBjetCnvTool> m_bjetTool;
+
+  // xAODTrigBphysCnv
+  ToolHandle<xAODMaker::ITrigEFBphysContainerCnvTool> m_efBphysTool;
+  ToolHandle<xAODMaker::ITrigL2BphysContainerCnvTool> m_l2BphysTool;
+
+  // xAODTrigEgammaCnv (not in devval yet)
+  // ToolHandle<xAODMaker::ITrigElectronCnvTool> m_trigElectronTool;
+  // ToolHandle<xAODMaker::ITrigPhotonCnvTool> m_trigPhotonTool;
+
+  // xAODTrigMissingETCnv
+  ToolHandle<xAODMaker::ITrigMissingETCnvTool> m_trigMetTool;
+
+  // xAODTrigMinBiasCnv
+  ToolHandle<xAODMaker::ITrigSpacePointCountsCnvTool> m_trigSpacePtsTool;
+  ToolHandle<xAODMaker::ITrigT2MbtsBitsCnvTool> m_trigMbtsBitsTool;
+  ToolHandle<xAODMaker::ITrigTrackCountsCnvTool> m_trigTrackCtsTool;
+  ToolHandle<xAODMaker::ITrigVertexCountsCnvTool> m_trigVtxCtsTool;
 
 
   std::map<CLID,BStoXAODHelper::IHelper*> m_helpers; //collection clid -> helper

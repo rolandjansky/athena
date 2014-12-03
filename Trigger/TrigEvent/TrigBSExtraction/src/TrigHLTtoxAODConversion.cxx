@@ -33,7 +33,8 @@ StatusCode TrigHLTtoxAODConversion::finalize() {
 
 StatusCode TrigHLTtoxAODConversion::execute() {
   //convert all of the present AOD containers to xAOD
-  CHECK(m_xAODTool->convert());
+
+
     
   ATH_MSG_INFO(evtStore()->dump());
   //we need to const cast b/c we want to change it later
@@ -48,6 +49,8 @@ StatusCode TrigHLTtoxAODConversion::execute() {
   
   ATH_MSG_DEBUG("serialized navigation has size " << navData.size());
   m_navigation->deserialize( navData );
+  m_navigation->prepare();
+  CHECK(m_xAODTool->convert(&*m_navigation));
 
   //this will redirect all Features to the xAOD converters
   //Note: &* is not a no-op in the following. m_navigation is toolhandle

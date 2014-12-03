@@ -11,30 +11,44 @@ use TrigSteeringEvent     TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigSerializeCnvSvc	  TrigSerializeCnvSvc-*	  Trigger/TrigDataAccess
 
 public
-use xAODJetCnv		  xAODJetCnv-*		  Event/xAOD
-#use xAODTrigEgammaCnv	  xAODTrigEgammaCnv-*	  Event/xAOD
-use xAODTrigMuonCnv	  xAODTrigMuonCnv-*	  Event/xAOD
-#use xAODCaloEventCnv	  xAODCaloEventCnv-*	  Event/xAOD	 
-use xAODTrigMissingETCnv  xAODTrigMissingETCnv-*  Event/xAOD
+
+# use xAODTauCnv		xAODTauCnv-*		Event/xAOD # needs newer pkg tag
+use xAODTrigMuonCnv		xAODTrigMuonCnv-*	Event/xAOD
+use xAODJetCnv			xAODJetCnv-*		Event/xAOD
+# use xAODTrigRingerCnv		xAODTrigRingerCnv-*	Event/xAOD # not configurable algtool
+use xAODTrigCaloCnv		xAODTrigCaloCnv-*	Event/xAOD
+# use xAODBTaggingCnv		xAODBTaggingCnv-*	Event/xAOD # not in devval yet
+use xAODTrigBphysCnv		xAODTrigBphysCnv-*	Event/xAOD
+# use xAODTrigEgammaCnv		xAODTrigEgammaCnv-*	Event/xAOD # not in devval yet
+use xAODTrigMissingETCnv	xAODTrigMissingETCnv-*	Event/xAOD
+use xAODTrigMinBiasCnv		xAODTrigMinBiasCnv-*	Event/xAOD
 
 private
+
+
 use Particle		  Particle-*		  Reconstruction
 
 use JetEvent		  JetEvent-*		  Reconstruction/Jet
+
 use xAODJet		  xAODJet-*		  Event/xAOD
-
-use TrigMissingEtEvent	  TrigMissingEtEvent-*	  Trigger/TrigEvent
+use xAODTrigCalo	  xAODTrigCalo-*	  Event/xAOD
 use xAODTrigMissingET	  xAODTrigMissingET-*	  Event/xAOD
-
-#use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
 #use xAODTrigEgamma	  xAODTrigEgamma-*	  Event/xAOD
-
-use TrigMuonEvent	  TrigMuonEvent-*	  Trigger/TrigEvent
 use xAODMuon		  xAODMuon-*		  Event/xAOD
 use xAODTracking	  xAODTracking-*	  Event/xAOD
+use xAODTrigMuon	  xAODTrigMuon-*	  Event/xAOD
+use xAODTrigBphys	  xAODTrigBphys-*	  Event/xAOD
+use xAODTrigMinBias	  xAODTrigMinBias-*	  Event/xAOD
+#use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
+
+use TrigStorageDefinitions TrigStorageDefinitions-* Trigger/TrigEvent
+use TrigMissingEtEvent	  TrigMissingEtEvent-*	  Trigger/TrigEvent
+use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
+use TrigCaloEvent	  TrigCaloEvent-*	  Trigger/TrigEvent
+use TrigMuonEvent	  TrigMuonEvent-*	  Trigger/TrigEvent
+use TrigInDetEvent	  TrigInDetEvent-*	  Trigger/TrigEvent
 
 #use CaloEvent		  CaloEvent-*		  Calorimeter
-#use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
 
 use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
 
@@ -43,3 +57,4 @@ library TrigBSExtraction *.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
+
