@@ -33,6 +33,7 @@ typedef HitVector::iterator HitIt;
   
 class MDT_SortedHitVector : public HitVector {
  public:
+  MDT_SortedHitVector() : m_isSorted(false) {};
   void insert(const mdt_hit_info& hit);
   void sort();
   bool isSorted() { return m_isSorted; }

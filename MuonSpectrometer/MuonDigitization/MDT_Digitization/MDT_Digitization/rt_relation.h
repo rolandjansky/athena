@@ -41,6 +41,7 @@ private:
 	double r_err[600]; // pointer to the array of the errors of r
 	double t_err[600]; // pointer to the array of the errors of t
 	inline void copy(const Rt_relation & rt); // copy routine
+	Rt_relation & operator=(const Rt_relation &right); // assignment operator
 	
 public:
 // constructors
