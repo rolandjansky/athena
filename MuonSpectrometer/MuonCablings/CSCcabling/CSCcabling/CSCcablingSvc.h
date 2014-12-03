@@ -11,6 +11,7 @@
  *---------------------------------------------------*/
 
 #include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 
 #include <inttypes.h>
@@ -19,7 +20,7 @@ class MsgStream;
 
 const InterfaceID IID_ICSCcablingSvc("CSCcablingSvc", 1, 0);
 
-class CSCcablingSvc : public Service, virtual public IInterface {
+class CSCcablingSvc : public AthService, virtual public IInterface {
 public:
    
   CSCcablingSvc(const std::string& name,ISvcLocator* sl);
@@ -53,9 +54,10 @@ public:
 
  private:
 
-  unsigned int m_side;
-  unsigned int m_rod;
-  unsigned int m_max;
+  mutable unsigned int m_side;
+  mutable unsigned int m_rod;
+  mutable unsigned int m_max;
+  mutable bool m_run1;
 
   MsgStream* m_log;
   bool m_debug;
