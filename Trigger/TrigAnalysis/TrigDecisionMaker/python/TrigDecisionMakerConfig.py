@@ -149,8 +149,13 @@ class WriteTrigDecision ( object ) :
         if doxAOD:
             from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
             alg = xAODMaker__TrigDecisionCnvAlg()
+
             alg.xAODKey = "xTrigDecision"
             TopAlg += alg
+
+            from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
+            TopAlg += xAODMaker__TrigNavigationCnvAlg()
+
 
         log.info('TrigDecision writing enabled')
 

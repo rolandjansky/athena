@@ -42,16 +42,19 @@
 using namespace TrigDec;
 
 TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_log(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", this),
-    m_storeGate("StoreGateSvc", name),
     m_nEvents(0),
-    m_l1_error(0), m_l2_error(0), m_ef_error(0), m_td_error(0), m_td_skip(0),
+    m_l1_error(0), m_l2_error(0), m_ef_error(0), 
+    m_hlt_error(0),
+    m_td_error(0), m_td_skip(0),
     m_l1_notFound(0), m_l2_notFound(0), m_ef_notFound(0),
+    m_hlt_notFound(0),
     m_l1_notReq(0), m_l2_notReq(0), m_ef_notReq(0),
-    m_l1_passed(0), m_l2_passed(0), m_ef_passed(0)
+    m_hlt_notReq(0),
+    m_l1_passed(0), m_l2_passed(0), m_ef_passed(0),
+    m_hlt_passed(0)
 {
   declareProperty("TrigConfigSvc", m_trigConfigSvc, "Trigger config service");
 
@@ -66,7 +69,6 @@ TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcL
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
   declareProperty("EFResultKey",     m_efResultKey = "HLTResult_EF");
   declareProperty("HLTResultKey",    m_hltResultKey = "HLTResult_HLT");
-  declareProperty("EvtStore", m_storeGate);
 //  declareProperty("EventInfoKey",    m_evtInfoKey  = "McEventInfo");
 //  declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
 }
@@ -97,47 +99,20 @@ StatusCode TrigDecisionMaker::initialize()
   m_ef_passed = 0;
   m_hlt_passed = 0;
 
-  // get message service and print out properties
-  m_log = new MsgStream(messageService(), name());
+  ATH_MSG_DEBUG ( "Initializing TrigDecisionMaker..." ) ;
+  ATH_MSG_DEBUG ( "Properties:" ) ;
+  ATH_MSG_DEBUG ( " doL1            = " << (m_doL1 ? "True":"False") ) ;
+  ATH_MSG_DEBUG ( " doL2            = " << (m_doL2 ? "True":"False") ) ;
+  ATH_MSG_DEBUG ( " doEF            = " << (m_doEF ? "True":"False") ) ;
+  ATH_MSG_DEBUG ( " doHLT           = " << (m_doHLT ? "True":"False") ) ;
+  ATH_MSG_DEBUG ( " TrigDecisionKey = " << m_trigDecisionKey ) ;
+  ATH_MSG_DEBUG ( " TrigL1ResultKey = " << m_l1ResultKey ) ;
+  ATH_MSG_DEBUG ( " TrigL2ResultKey = " << m_l2ResultKey ) ;
+  ATH_MSG_DEBUG ( " TrigEFResultKey = " << m_efResultKey ) ;
+  ATH_MSG_DEBUG ( " TrigHLTResultKey= " << m_hltResultKey ) ;
 
-  StatusCode sc;
-
-  if (outputLevel() <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << "Initializing TrigDecisionMaker..." << endreq;
-    (*m_log) << MSG::DEBUG << "Properties:" << endreq;
-    (*m_log) << MSG::DEBUG << " doL1            = " << (m_doL1 ? "True":"False") << endreq;
-    (*m_log) << MSG::DEBUG << " doL2            = " << (m_doL2 ? "True":"False") << endreq;
-    (*m_log) << MSG::DEBUG << " doEF            = " << (m_doEF ? "True":"False") << endreq;
-    (*m_log) << MSG::DEBUG << " doHLT           = " << (m_doHLT ? "True":"False") << endreq;
-    (*m_log) << MSG::DEBUG << " TrigDecisionKey = " << m_trigDecisionKey << endreq;
-    (*m_log) << MSG::DEBUG << " TrigL1ResultKey = " << m_l1ResultKey << endreq;
-    (*m_log) << MSG::DEBUG << " TrigL2ResultKey = " << m_l2ResultKey << endreq;
-    (*m_log) << MSG::DEBUG << " TrigEFResultKey = " << m_efResultKey << endreq;
-    (*m_log) << MSG::DEBUG << " TrigHLTResultKey= " << m_hltResultKey << endreq;
-  }
-
-  // get StoreGate
-  sc = m_storeGate.retrieve();
-
-  if( sc.isFailure() ) {
-    if (outputLevel() <= MSG::ERROR) {
-      (*m_log) << MSG::ERROR << "Unable to locate Service StoreGate!" << endreq;
-    }
-    return sc;
-  }
-
-  sc = m_lvl1Tool.retrieve();
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve lvl1 result access tool: " << m_lvl1Tool << endreq;
-    return sc;
-  }
-
-  sc = m_trigConfigSvc.retrieve();
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve trigger config service " << m_trigConfigSvc << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( m_lvl1Tool.retrieve() );
+  ATH_CHECK( m_trigConfigSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -147,37 +122,33 @@ StatusCode TrigDecisionMaker::initialize()
 StatusCode TrigDecisionMaker::finalize()
 {
   // print out stats: use also to do regression tests
-  if (outputLevel() <= MSG::DEBUG) {
-    (*m_log) <<MSG::DEBUG <<"=============================================" <<endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST Run summary:"            << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Events processed    : " << m_nEvents << endreq;
+  ATH_MSG_DEBUG ("=============================================" ) ;
+  ATH_MSG_DEBUG ("REGTEST Run summary:"            ) ;
+  ATH_MSG_DEBUG ("REGTEST  Events processed    : " << m_nEvents ) ;
 
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 1  : passed        = " << m_l1_passed << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 1  : not found     = " << m_l1_notFound << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 1  : not requested = " << m_l1_notReq << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 1  : SG errors     = " << m_l1_error << endreq;
+  ATH_MSG_DEBUG ("REGTEST  Level 1  : passed        = " << m_l1_passed ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 1  : not found     = " << m_l1_notFound ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 1  : not requested = " << m_l1_notReq ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 1  : SG errors     = " << m_l1_error ) ;
 
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 2  : passed        = " << m_l2_passed << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 2  : not found     = " << m_l2_notFound << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 2  : not requested = " << m_l2_notReq << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  Level 2  : SG errors     = " << m_l2_error << endreq;
+  ATH_MSG_DEBUG ("REGTEST  Level 2  : passed        = " << m_l2_passed ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 2  : not found     = " << m_l2_notFound ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 2  : not requested = " << m_l2_notReq ) ;
+  ATH_MSG_DEBUG ("REGTEST  Level 2  : SG errors     = " << m_l2_error ) ;
 
-    (*m_log) <<MSG::DEBUG <<"REGTEST  EvFilter : passed        = " << m_ef_passed << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  EvFilter : not found     = " << m_ef_notFound << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  EvFilter : not requested = " << m_ef_notReq << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  EvFilter : SG errors     = " << m_ef_error << endreq;
+  ATH_MSG_DEBUG ("REGTEST  EvFilter : passed        = " << m_ef_passed ) ;
+  ATH_MSG_DEBUG ("REGTEST  EvFilter : not found     = " << m_ef_notFound ) ;
+  ATH_MSG_DEBUG ("REGTEST  EvFilter : not requested = " << m_ef_notReq ) ;
+  ATH_MSG_DEBUG ("REGTEST  EvFilter : SG errors     = " << m_ef_error ) ;
 
-    (*m_log) <<MSG::DEBUG <<"REGTEST  HLT : passed        = " << m_hlt_passed << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  HLT : not found     = " << m_hlt_notFound << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  HLT : not requested = " << m_hlt_notReq << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  HLT : SG errors     = " << m_hlt_error << endreq;
+  ATH_MSG_DEBUG ("REGTEST  HLT : passed        = " << m_hlt_passed ) ;
+  ATH_MSG_DEBUG ("REGTEST  HLT : not found     = " << m_hlt_notFound ) ;
+  ATH_MSG_DEBUG ("REGTEST  HLT : not requested = " << m_hlt_notReq ) ;
+  ATH_MSG_DEBUG ("REGTEST  HLT : SG errors     = " << m_hlt_error ) ;
 
-    (*m_log) <<MSG::DEBUG <<"REGTEST  TrigDecision not written : " << m_td_skip  << endreq;
-    (*m_log) <<MSG::DEBUG <<"REGTEST  SG errors in storing TD  : " << m_td_error << endreq;
-    (*m_log) <<MSG::DEBUG <<"=============================================" <<endreq;
-  }
-
-  delete m_log; m_log = 0;
+  ATH_MSG_DEBUG ("REGTEST  TrigDecision not written : " << m_td_skip  ) ;
+  ATH_MSG_DEBUG ("REGTEST  SG errors in storing TD  : " << m_td_error ) ;
+  ATH_MSG_DEBUG ("=============================================" ) ;
 
   return StatusCode::SUCCESS;
 }
@@ -229,7 +200,7 @@ StatusCode TrigDecisionMaker::execute()
 
 
   if (!l1Result && !l2Result && !efResult && !hltResult) {
-    (*m_log) << "The whole trigger seems off for this event (no L1/L2/EF/HLT results) - no TrigDecision produced" << endreq;
+    ATH_MSG_ERROR ("The whole trigger seems off for this event (no L1/L2/EF/HLT results) - no TrigDecision produced");
     m_td_skip++;
     return StatusCode::SUCCESS;
   }
@@ -249,39 +220,31 @@ StatusCode TrigDecisionMaker::execute()
 
   // get the bunch crossing id
   const EventInfo* eventInfo = 0;  
-  if ( m_storeGate->retrieve(eventInfo).isFailure() ) {
-    if (outputLevel() <= MSG::WARNING) {
-      (*m_log) << MSG::WARNING << "Failed to retrieve event info"
-               << endreq;
-    }
+  if ( evtStore()->retrieve(eventInfo).isFailure() ) {
+    ATH_MSG_WARNING ( "Failed to retrieve event info" ) ;
   } else {
     EventID* myEventID = eventInfo->event_ID();
-    if (outputLevel() <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "Run " << myEventID->run_number()
-               << "; Event " << myEventID->event_number()
-               << "; BC-ID " << myEventID->bunch_crossing_id()
-               << endreq;
-    }
+    ATH_MSG_DEBUG ( "Run " << myEventID->run_number()
+                    << "; Event " << myEventID->event_number()
+                    << "; BC-ID " << myEventID->bunch_crossing_id() ) ;
     char x = getBGByte(myEventID->bunch_crossing_id());
     trigDec->m_bgCode = x;
   }
   
 
   std::string tdKey = updatedDecisionKey();
-  StatusCode sc = m_storeGate->record(trigDec, tdKey, true);
+  StatusCode sc = evtStore()->record(trigDec, tdKey, true);
 
   if (sc.isFailure()) {
-    if (outputLevel() <= MSG::ERROR) {
-      (*m_log) << MSG::ERROR << "Failed to record TrigDecision to StoreGate with key " << tdKey << "!"
-	       << endreq;
-    }
+    ATH_MSG_ERROR ( "Failed to record TrigDecision to StoreGate with key "
+                    << tdKey << "!" ) ;
 
     m_td_error++;
     return StatusCode::FAILURE;
   }
 
-  (*m_log) << MSG::DEBUG << "Recorded TrigDecision to StoreGate with key = "
-      << tdKey << "." << endreq;
+  ATH_MSG_DEBUG ( "Recorded TrigDecision to StoreGate with key = "
+                  << tdKey << "." ) ;
   
 
   return StatusCode::SUCCESS;
@@ -292,26 +255,25 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
   result = 0;
   if (!m_doL1) return NotRequested;
 
-  if ( m_storeGate->contains<LVL1CTP::Lvl1Result>("Lvl1Result") ) {
-    if ( m_storeGate->retrieve(result, "Lvl1Result").isFailure() ) {
+  if ( evtStore()->contains<LVL1CTP::Lvl1Result>("Lvl1Result") ) {
+    if ( evtStore()->retrieve(result, "Lvl1Result").isFailure() ) {
       return SGError;
     }
     return OK;
   }
 
 
-  if (!m_storeGate->contains<ROIB::RoIBResult>(m_l1ResultKey)) {
-    (*m_log) << MSG::WARNING << "Trying to do L1, but RoIBResult not found" << endreq;
+  if (!evtStore()->contains<ROIB::RoIBResult>(m_l1ResultKey)) {
+    ATH_MSG_WARNING ( "Trying to do L1, but RoIBResult not found" ) ;
     return NotFound;
   }
 
   const ROIB::RoIBResult* roIBResult = 0;
 
-  StatusCode sc = m_storeGate->retrieve(roIBResult, m_l1ResultKey);
+  StatusCode sc = evtStore()->retrieve(roIBResult, m_l1ResultKey);
 
   if (sc.isFailure() || !roIBResult) {
-    (*m_log) << MSG::ERROR << "Error retrieving RoIBResult from StoreGate" << endreq;
-
+    ATH_MSG_ERROR ( "Error retrieving RoIBResult from StoreGate" ) ;
     result = 0;
     return SGError;
   }
@@ -322,8 +284,7 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
   m_lvl1Tool->createL1Items(*roIBResult, true);
   result = m_lvl1Tool->getLvl1Result();
 
-  (*m_log) << MSG::DEBUG << "Got ROIBResult from StoreGate with key "
-           << m_l1ResultKey << endreq;
+  ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
 
   return OK;
 }
@@ -336,7 +297,7 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTRe
   result = 0;
 
   if (level != L2 && level != EF  && level != HLT) {
-    (*m_log) << "Level must be either L2 or EF or HLT in getHLTResult!" << endreq;
+    ATH_MSG_ERROR ("Level must be either L2 or EF or HLT in getHLTResult!");
     return Unknown;
   }
 
@@ -344,20 +305,20 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTRe
   
   const std::string& key = (level == L2 ? m_l2ResultKey : (level == EF) ? m_efResultKey : m_hltResultKey);
 
-  if (!m_storeGate->contains<HLT::HLTResult>(key)) {
-    (*m_log) << MSG::WARNING << "Trying to get HLT result, but not found with key "
-             << key << endreq;
+  if (!evtStore()->contains<HLT::HLTResult>(key)) {
+    ATH_MSG_WARNING ( "Trying to get HLT result, but not found with key "
+                      << key ) ;
     return NotFound;
   }
 
-  StatusCode sc = m_storeGate->retrieve(result, key);
+  StatusCode sc = evtStore()->retrieve(result, key);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Error retrieving HLTResult from StoreGate" << endreq;
+    ATH_MSG_ERROR ( "Error retrieving HLTResult from StoreGate" ) ;
     result = 0;
     return SGError;
   }
 
-  (*m_log) << MSG::DEBUG << "Got HLTResult from StoreGate with key " << key << endreq;
+  ATH_MSG_DEBUG ( "Got HLTResult from StoreGate with key " << key ) ;
 
   return OK;
 }
@@ -369,10 +330,10 @@ std::string TrigDecisionMaker::updatedDecisionKey()
   bool alreadyThere = true;
 
   while (alreadyThere) {
-    if (m_storeGate->contains<TrigDecision>( key )) {
+    if (evtStore()->contains<TrigDecision>( key )) {
       if (outputLevel() <= MSG::WARNING)
-        (*m_log) << MSG::WARNING << key << " already exists: "
-                 << " using new key " << key << "+." << endreq;
+        ATH_MSG_WARNING ( key << " already exists: "
+                          << " using new key " << key << "+." ) ;
       key += "+";
     }
     else alreadyThere = false;
@@ -386,7 +347,7 @@ char TrigDecisionMaker::getBGByte(int BCId) {
 
    const TrigConf::BunchGroupSet* bgs = m_trigConfigSvc->bunchGroupSet();
    if(!bgs) {
-      (*m_log) << MSG::WARNING << " Could not get BunchGroupSet to calculate BGByte" << endreq;
+     ATH_MSG_WARNING ( " Could not get BunchGroupSet to calculate BGByte" ) ;
       return 0;
    }
    
@@ -398,7 +359,7 @@ char TrigDecisionMaker::getBGByte(int BCId) {
    //   }
    
    if((unsigned int)BCId>=bgs->bgPattern().size()) {
-      (*m_log) << MSG::WARNING << " Could not return BGCode for BCid " << BCId << ", since size of BGpattern is " <<  bgs->bgPattern().size() << endreq;
+     ATH_MSG_WARNING ( " Could not return BGCode for BCid " << BCId << ", since size of BGpattern is " <<  bgs->bgPattern().size() ) ;
       return 0;
    }
 

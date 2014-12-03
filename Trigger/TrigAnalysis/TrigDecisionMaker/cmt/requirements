@@ -8,6 +8,7 @@ use AtlasPolicy	 	AtlasPolicy-*
 private
 use GaudiInterface     	GaudiInterface-*   	External
 use StoreGate      	StoreGate-*  		Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
 use EventInfo        	EventInfo-*        	Event
 
 # Trigger-specific: level 1...

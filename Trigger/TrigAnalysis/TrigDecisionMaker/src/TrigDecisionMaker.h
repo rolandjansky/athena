@@ -27,7 +27,7 @@
 #define TrigDecisionMaker_TrigDecisionMaker_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // core stuff
@@ -78,7 +78,7 @@ namespace TrigDec {
    * @author Ricardo Goncalo <Jose.Goncalo@cern.ch>    - Royal Holloway, U. of London
    * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - UC Irvine - AGH-UST Krakow
    */
-  class TrigDecisionMaker : public Algorithm
+  class TrigDecisionMaker : public AthAlgorithm
   {
 
     enum ResultStatus { Unknown, OK, NotRequested, NotFound, SGError, ProcError }; //!< errorCode of trigger result retrieval
@@ -106,8 +106,6 @@ namespace TrigDec {
 
   private:
 
-    MsgStream* m_log; //!< std message stream for printouts
-
     bool m_doL1; //!< flag whether or not to consider L1 trigger information
     bool m_doL2; //!< flag whether or not to consider L2 trigger information
     bool m_doEF; //!< flag whether or not to consider L3 (EF) trigger information
@@ -123,7 +121,6 @@ namespace TrigDec {
 
     ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc; //!< handle to the full (L1 & HLT) trigger config service
     ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool;  //!< tool to ease the access to the L1 results (RoIs, items, etc)
-    ServiceHandle<StoreGateSvc> m_storeGate; //!< hadle to std SG service
 
     // For statistics
     unsigned int m_nEvents; //!< statistics: number of processed events
