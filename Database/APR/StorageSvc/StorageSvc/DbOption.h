@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbOption.h 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbOption.h 622329 2014-10-17 14:06:49Z ssnyder $
 //====================================================================
 //  DbOption class definitions
 //--------------------------------------------------------------------
@@ -73,8 +73,7 @@ namespace pool  {
     { i_setValue(typeid(T), &value);                        }
     /// Initializing constructor with type definition
     DbOption(const std::string& nam, const std::string& opt="");
-    /// Copy constructor
-    DbOption(const DbOption& c);
+    /// Default copy constructor
     /// Standard destructor
     virtual ~DbOption()                 {                   }
     /// Access to column name

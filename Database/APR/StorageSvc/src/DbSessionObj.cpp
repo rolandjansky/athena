@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbSessionObj.cpp 596902 2014-05-13 19:38:13Z gemmeren $
+// $Id: DbSessionObj.cpp 619067 2014-09-30 03:58:11Z dquarrie $
 //====================================================================
 //  DbSessionObj object implementation
 //--------------------------------------------------------------------
@@ -25,6 +25,7 @@
 #else
 #include "Reflex/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 // C++ include files
 #include <memory>
@@ -77,7 +78,11 @@ IOODatabase* DbSessionObj::db(const DbType& typ)  const   {
   if ( 0 == (*types)[typ] )   {
     const std::string nam = typ.storageName();
 #ifdef HAVE_GAUDI_PLUGINSVC
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*, void*>::create(nam, m_ctxt);
+#else  
     IOODatabase* imp = Gaudi::PluginService::Factory1<IOODatabase*, void*>::create(nam, m_ctxt);
+#endif
 #else
     IOODatabase* imp = ROOT::Reflex::PluginService::Create<IOODatabase*>(nam, m_ctxt);
 #endif

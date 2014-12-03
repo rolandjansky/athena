@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbType.h 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbType.h 633389 2014-12-03 15:50:13Z gemmeren $
 //====================================================================
 //  DbType definition file
 //--------------------------------------------------------------------
@@ -46,14 +46,15 @@ namespace pool    {
     /// Standard constructor
     DbType() : m_type(0)                {                         }
     /// Constructor with initializer from 
-    DbType(int value) : m_type(value)  {                         }
-    /// Copy constructor
-    DbType(const DbType& typ) : m_type(typ.type()) {              }
+    DbType(int value) : m_type(value)   {                         }
+    /// Default copy constructor
     /// Standard destructor
     ~DbType()                           {                         }
     /// Assignment operator
     DbType& operator=(const DbType& typ) {
-      m_type = typ.type();
+      if ( this != &typ ) {
+        m_type = typ.type();
+      }
       return *this;
     }
     /// Equal operator

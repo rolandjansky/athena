@@ -9,10 +9,11 @@
   <class pattern="pool::DbHandleBase*"   rootmap="false"/>
   <class pattern="pool::IDb*"            rootmap="false"/>
   <class pattern="pool::IStorage*"       rootmap="false"/>
-  <class pattern="pool::IClass*"         rootmap="false"/>
+
+  <class name="pool::IClassHandler" 	 rootmap="false"/>
+  <class name="pool::IClassLoader"	 rootmap="false"/>
 
   <!-- package: StorageSvc                   -->
-  <!--  <class name="Ath::RootType"           rootmap="false"/>  -->
   <class name="std::pair<long long,long long>"       rootmap="false"/>
   <class name="pool::IOODatabase"        rootmap="false"/>
 

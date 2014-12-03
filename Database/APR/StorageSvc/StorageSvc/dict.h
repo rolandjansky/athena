@@ -35,7 +35,7 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbToken.h"
-#include "src/DbString.h"
+#include "StorageSvc/DbString.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
 
@@ -43,14 +43,11 @@ namespace pool {
   class StorageSvc {
     StorageSvc() {}
     virtual ~StorageSvc() {}
-    std::string package()  const { return "StorageSvc"; }
-    std::string author()  const  { return "M.Frank CERN/LHCb"; }
   };
 }
 
 namespace {
-  class dummy {
-  public:
+  struct GCCXML_DUMMY_INSTANTIATION_STORAGESVC {
     pool::DbArray<char>            m__c_array;
     pool::DbArray<unsigned char>   m_uc_array;
     pool::DbArray<short>           m__s_array;
@@ -61,6 +58,5 @@ namespace {
     pool::DbArray<unsigned long>   m_ul_array;
     pool::DbArray<float>           m__f_array;
     pool::DbArray<double>          m__d_array;
-    //pool::DatabaseConnectionPolicy m_policy;
   };
 }

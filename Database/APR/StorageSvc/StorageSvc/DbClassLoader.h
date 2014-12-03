@@ -43,6 +43,9 @@ namespace pool  {
     /// Release resource
     virtual void release();
 
+    DbClassLoader (const DbClassLoader&) = delete;
+    DbClassLoader& operator= (const DbClassLoader&) = delete;
+
     /// Load the class unconditionally. To be overloaded in a real implementation
     virtual DbStatus loadClass(const std::string& name);
     

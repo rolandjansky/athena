@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainerImp.h 616512 2014-09-12 15:34:10Z ssnyder $
+// $Id: DbContainerImp.h 622329 2014-10-17 14:06:49Z ssnyder $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -62,6 +62,7 @@ namespace pool    {
       : objH(o), call(c), link(l), action(a) {}
       _Transaction(const _Transaction& c)
       : objH(c.objH), call(c.call), link(c.link), action(c.action) { c.objH = 0; }
+      _Transaction& operator= (const _Transaction& c) = delete;
       ~_Transaction() {}
       void assign(DbObject* o, DataCallBack* c, const Token::OID_t& l, AccessMode a) {
         objH = o; call = c; link = l; action = a;

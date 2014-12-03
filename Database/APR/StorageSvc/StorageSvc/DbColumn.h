@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbColumn.h 616512 2014-09-12 15:34:10Z ssnyder $
+// $Id: DbColumn.h 622329 2014-10-17 14:06:49Z ssnyder $
 //====================================================================
 //  DbColumn class definitions
 //--------------------------------------------------------------------
@@ -77,16 +77,7 @@ namespace pool  {
         m_type(0)
     {}
   public:
-    /// Copy constructor
-    DbColumn(const DbColumn& copy)
-    : m_typeName(copy.m_typeName),
-      m_colName(copy.m_colName), 
-      m_offset(copy.m_offset),
-      m_nElem(copy.m_nElem),
-      m_opts(copy.m_opts), 
-      m_size(copy.m_size),
-      m_type(copy.m_type)
-    {    }
+    /// Default copy constructor
     /// Initializing constructor for fixed size arrays
     DbColumn(  const std::string& column_name, 
                int   object_type,

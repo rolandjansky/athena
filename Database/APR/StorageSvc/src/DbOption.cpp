@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbOption.cpp 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbOption.cpp 633389 2014-12-03 15:50:13Z gemmeren $
 //====================================================================
 //  Implementation file of a Database options
 //--------------------------------------------------------------------
@@ -17,9 +17,8 @@
 #include "StorageSvc/DbOption.h"
 
 // C++ include files
-#include <stdexcept>
+#include <iostream>
 
-using namespace std;
 using namespace pool;
 
 namespace {
@@ -37,24 +36,18 @@ namespace {
 }
 
 /// Initializing constructor with type definition
-DbOption::DbOption(const string& nam, const string& opt)
+DbOption::DbOption(const std::string& nam, const std::string& opt)
 : m_type(DbColumn::UNKNOWN), m_name(nam), m_opt(opt)
 {
 }
 
-/// Copy constructor
-DbOption::DbOption(const DbOption& c)
-: m_type(c.type()), m_name(c.name()), m_opt(c.m_opt)
-{
-}
-
 /// Access to OS independent type name
-string DbOption::typeName() const  {
+std::string DbOption::typeName() const  {
   return DbColumn::typeName(m_type);
 }
 
 /// Set the option value
-DbStatus DbOption::i_setValue(const type_info& typ, void* value)  {
+DbStatus DbOption::i_setValue(const std::type_info& typ, void* value)  {
   if ( typ == typeid(bool) )
     return setValue(DbColumn::BOOL, value);
   else if ( typ == typeid(char) )
@@ -97,15 +90,13 @@ DbStatus DbOption::i_setValue(const type_info& typ, void* value)  {
     return setValue(DbColumn::NTCHAR, value);
   else if ( typ == typeid(const char*) )
     return setValue(DbColumn::NTCHAR, value);
-  else  {
-    string msg = "DbOption::setValue> unknown data type.";
-    throw runtime_error(msg);
-  }
+  else
+    std::cout << "DbOption::getValue> unknown data type" << std::endl;
   return Error;
 }
 
 /// Set the option value
-DbStatus DbOption::i_getValue(const type_info& typ, void* value) const {
+DbStatus DbOption::i_getValue(const std::type_info& typ, void* value) const {
   //const char* n = typ.name();
   if ( typ == typeid(bool) )
     return getValue(DbColumn::BOOL, value);
@@ -150,7 +141,7 @@ DbStatus DbOption::i_getValue(const type_info& typ, void* value) const {
   else if ( typ == typeid(const char*) )
     return getValue(DbColumn::NTCHAR, value);
   else
-    throw runtime_error("DbOption::getValue> unknown data type");
+    std::cout << "DbOption::getValue> unknown data type" << std::endl;
   return Error;
 }
 
@@ -194,7 +185,7 @@ DbStatus DbOption::setValue(DbColumn::Type typ, void* value) {
     return Success;
   case DbColumn::UNKNOWN:
   default:
-    throw runtime_error("DbOption::setValue> unknown data type");
+    std::cout << "DbOption::setValue> unknown data type" << std::endl;
   }
   return Error;
 }
@@ -236,7 +227,7 @@ DbStatus DbOption::getValue(DbColumn::Type /*typ*/, void* value) const  {
     return Success;
   case DbColumn::UNKNOWN:
   default:
-    throw runtime_error("DbOption::setValue> unknown data type");
+    std::cout << "DbOption::getValue> unknown data type" << std::endl;
   }
   return Error;
 }

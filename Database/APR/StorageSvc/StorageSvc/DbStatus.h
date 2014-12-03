@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbStatus.h 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbStatus.h 622329 2014-10-17 14:06:49Z ssnyder $
 //====================================================================
 //  Storage Service DbStatus definition file
 //--------------------------------------------------------------------
@@ -77,8 +77,7 @@ namespace pool {
     };
     /// Standard Constructor. Defaults to Error
     DbStatus() : m_code(Error)                          {                     }
-    /// Standard Copy constructor
-    DbStatus(const DbStatus& st)   : m_code(st.m_code)  {                     }
+    /// Default copy constructor
     /// Standard constructor with initialization from long  value.
     DbStatus(unsigned int code) : m_code(code)  {                        }
     /// Constructor with initialization from Error level, facility and code.

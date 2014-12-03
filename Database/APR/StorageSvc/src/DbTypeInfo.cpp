@@ -3,7 +3,7 @@
 */
 
 
-// $Id: DbTypeInfo.cpp 601961 2014-06-16 14:49:09Z mnowak $
+// $Id: DbTypeInfo.cpp 619703 2014-10-02 18:11:53Z gemmeren $
 //====================================================================
 //  DbTypeInfo implementation
 //--------------------------------------------------------------------
@@ -23,8 +23,7 @@
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbTransform.h"
 #include "StorageSvc/DbInstanceCount.h"
-
-#include "DbString.h"
+#include "StorageSvc/DbString.h"
 
 // STL include files
 #include <stdexcept>
@@ -332,7 +331,6 @@ TypeH DbTypeInfo::clazz()  const  {
       }
       catch(...)  {
       }
-      convert = false;
     }
     return m_class;
   }

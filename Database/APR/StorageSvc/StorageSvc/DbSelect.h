@@ -3,7 +3,7 @@
 */
 
 //====================================================================
-// $Id: DbSelect.h 533732 2013-01-18 17:21:33Z gemmeren $
+// $Id: DbSelect.h 622329 2014-10-17 14:06:49Z ssnyder $
 //
 //  Package    : pool/StorageSvc (The pool framework)
 //
@@ -62,7 +62,8 @@ namespace pool    {
     /// No default constructor
     DbSelect() : m_context(0) {}
     /// No copy constructor
-    DbSelect(const DbSelect& /* c */ ) : m_context(0) {}
+    DbSelect(const DbSelect&) = delete;
+    DbSelect& operator= (const DbSelect&) = delete;
   public:
     /// Constructor taking selection criteria
     DbSelect(const std::string& crit);

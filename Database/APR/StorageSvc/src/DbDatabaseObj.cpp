@@ -13,7 +13,7 @@
 //  @author      M.Frank
 //====================================================================
 
-#include "DbString.h"
+#include "StorageSvc/DbString.h"
 #include "DbDatabaseObj.h"
 #include "DbContainerObj.h"
 
@@ -365,10 +365,12 @@ DbStatus DbDatabaseObj::open()   {
             log << "--->Reading Shape[" << m_shapeMap.size() << " , "
                 << pShape->shapeID().toString() << "]: ";
             log << "[" << cols.size() << " Column(s)]" << DbPrint::endmsg;
+/*
             if ( pShape->clazz() )
               log << "---->Class:" << DbReflex::fullTypeName(pShape->clazz()) << DbPrint::endmsg;
             else
               log << "---->Class:" << "<not availible>" << DbPrint::endmsg;
+*/
             for (size_t ic=0; ic < cols.size();++ic)  {
               const DbColumn* c = cols[ic];
               log << "---->[" << ic << "]:" << c->name()
@@ -380,9 +382,11 @@ DbStatus DbDatabaseObj::open()   {
             }
             // Update the transient list of links
             if ( m_shapeMap.insert(ShapeMap::value_type(pShape->shapeID(), pShape) ).second ) pShape->addRef();
+/*
             if ( pShape->clazz() )  {
               m_classMap.insert(make_pair(pShape->clazz(), pShape));
             }
+*/
             it.object()->~DbString(); m_shapes.free(it.object());
           }
         }

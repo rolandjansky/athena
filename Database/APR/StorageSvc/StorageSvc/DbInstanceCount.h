@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbInstanceCount.h 458019 2011-09-09 10:11:57Z mnowak $
+// $Id: DbInstanceCount.h 622329 2014-10-17 14:06:49Z ssnyder $
 //====================================================================
 //  DbInstanceCount definition file
 //====================================================================
@@ -49,9 +49,7 @@ namespace pool   {
     public:
       /// Default constructor
       Counter() : m_count(0), m_tot(0)    {                       }
-      /// Copy constructor
-      Counter(const Counter& c) 
-      : m_count(c.m_count), m_tot(c.m_tot){                       }
+      /// Default copy constructor
       /// Destructor
       ~Counter()                          {                       }
       /// Increment counter

@@ -37,15 +37,13 @@
 #include <memory>
 #include <map>
 
-#include "POOLCore/win32/stl_hash.h"
-
 using namespace std;
 using namespace pool;
 
 namespace STDEXT   {
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  template<> struct hash<const TypeH> 
-  {size_t operator()(const TypeH& s) const{return size_t(s.ToTypeBase());}}; //FIXME
+  //template<> struct hash<const TypeH> 
+  //{size_t operator()(const TypeH& s) const{return size_t(s.ToTypeBase());}}; //FIXME
   //{size_t operator()(const TypeH& s) const{return size_t(s.Dict());}};
 #endif   
 }

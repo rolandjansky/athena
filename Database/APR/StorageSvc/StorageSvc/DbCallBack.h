@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbCallBack.h 616512 2014-09-12 15:34:10Z ssnyder $
+// $Id: DbCallBack.h 633389 2014-12-03 15:50:13Z gemmeren $
 //====================================================================
 //  DbCallBack call back class definitions
 //--------------------------------------------------------------------
@@ -30,13 +30,18 @@ namespace pool  {
   struct DbObjectEnv    {
     const DbContainer*              cntH;
     const DbTypeInfo*               typH;
-    /// Standard Destructor
+    /// Constructor with initializing arguments
     DbObjectEnv(const DbContainer* pCntH, 
                 const DbTypeInfo* pType)
     : cntH(pCntH), typH(pType) {}
-    /// Standard Destructor
+    /// Copy Constructor.
     DbObjectEnv(const DbObjectEnv& c) 
     : cntH(c.cntH), typH(c.typH) {}
+    /// Standard Destructor
+    virtual ~DbObjectEnv() {}
+
+    DbObjectEnv& operator= (const DbObjectEnv&) = delete;
+
   };
 
   /** @class DbCallBack DbCallBack.h StorageSvc/DbCallBack.h

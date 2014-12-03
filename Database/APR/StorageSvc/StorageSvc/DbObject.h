@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObject.h 616512 2014-09-12 15:34:10Z ssnyder $
+// $Id: DbObject.h 633389 2014-12-03 15:50:13Z gemmeren $
 //====================================================================
 //  DbObject definition
 //--------------------------------------------------------------------
@@ -170,6 +170,11 @@ namespace pool {
     /// Copy constructor
     DbHandle(const DbHandle<USER>& c) : DbObjectHandle<USER>()
     { Handle::_set(c.ptr(),c.type());                                       }
+    /// Generic assignment operator
+    DbHandle<USER>& operator=(const DbHandle<USER>& c) {
+      if ( this != &c ) Handle::_set(c.ptr(),c.type());
+      return *this;
+    }
     /// Generic assignment operator
     DbHandle<USER>& operator=(const USER* obj) {
       if ( Handle::ptr() != obj ) Handle::_setObject(obj);
