@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetDict.h 615417 2014-09-06 13:36:06Z delsart $
+// $Id: xAODJetDict.h 631914 2014-11-28 16:08:50Z krasznaa $
 #ifndef XAODJET_XAODJETDICT_H
 #define XAODJET_XAODJETDICT_H
 
@@ -22,6 +22,7 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
+#include "xAODJet/JetContainer.h"
 #include "xAODJet/versions/JetContainer_v1.h"
 #include "xAODJet/versions/JetAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"

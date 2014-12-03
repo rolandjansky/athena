@@ -51,8 +51,8 @@ namespace xAOD {
   /// @author Pierre-Antoine Delsart <delsart@in2p3.fr>
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   ///
-  /// $Revision: 615162 $
-  /// $Date: 2014-09-04 22:57:39 +0200 (Thu, 04 Sep 2014) $
+  /// $Revision: 631914 $
+  /// $Date: 2014-11-28 17:08:50 +0100 (Fri, 28 Nov 2014) $
   ///
   class Jet_v1 : public IParticle {
 
@@ -369,17 +369,6 @@ namespace xAOD {
 
 
 } // namespace xAOD
-
-
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::Jet_v1, 147270755, 1 )
-#endif // not XAOD_STANDALONE
-
-// Declare IParticle as a base class of Jet_v1:
-#include "AthContainers/DataVector.h"
-DATAVECTOR_BASE( xAOD::Jet_v1, xAOD::IParticle );
 
 #include "xAODJet/versions/Jet_v1.icc"
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetAuxContainer.h 562132 2013-09-19 07:13:30Z krasznaa $
+// $Id: JetAuxContainer.h 631914 2014-11-28 16:08:50Z krasznaa $
 #ifndef XAODJET_JETAUXCONTAINER_H
 #define XAODJET_JETAUXCONTAINER_H
 
@@ -21,5 +21,9 @@ namespace xAOD {
    ///
    typedef JetAuxContainer_v1 JetAuxContainer;
 }
+
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::JetAuxContainer, 1294631886, 1 )
 
 #endif // XAODJET_JETAUXCONTAINER_H

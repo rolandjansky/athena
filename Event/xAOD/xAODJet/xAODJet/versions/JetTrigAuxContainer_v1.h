@@ -57,12 +57,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::JetTrigAuxContainer_v1, 1285854532, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetTrigAuxContainer_v1, xAOD::ByteStreamAuxContainer_v1 );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODJET_VERSIONS_JETAUXCONTAINER_V1_H

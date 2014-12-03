@@ -5,6 +5,8 @@
 #include <cmath>
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODPFlow/PFO.h"
+
 
 namespace xAOD {
 
@@ -42,10 +44,16 @@ namespace xAOD {
                                   cl->rawPhi(),
                                   cl->rawM() );
           return;
-        } // else fall back on default kinematics
+        } 
+      }
+      case Type::ParticleFlow: {
+        const xAOD::PFO *pfo = dynamic_cast<const xAOD::PFO*>(part);
+        if(pfo->ptEM()!=0) constit.SetCoordinates( pfo->ptEM(), pfo->etaEM(), pfo->phiEM(), pfo->mEM() );
+        else constit.SetCoordinates( 0, 1, 1, 0 ); // To avoid Warnings from root.
+        return;
       }
       default: 
-        break;
+        break;// fall back on default kinematics
       }
     }
     // if we have not returned above, the fall back  is using the default scale :

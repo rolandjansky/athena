@@ -7,7 +7,6 @@ public
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
-use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AthLinks      AthLinks-*      Control
 use AtlasROOT     AtlasROOT-*     External
@@ -31,6 +30,9 @@ private
 
 use AtlasReflex   AtlasReflex-*   External
 use xAODCaloEvent   xAODCaloEvent-*      Event/xAOD
+use xAODPFlow       xAODPFlow-*          Event/xAOD
+use CxxUtils        CxxUtils-*           Control
+use SGTools        SGTools-*           Control
 
 apply_pattern lcgdict dict=xAODJet selectionfile=selection.xml \
                       headerfiles="../xAODJet/xAODJetDict.h" \

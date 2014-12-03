@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetAuxContainer_v1.h 596642 2014-05-12 16:54:56Z delsart $
+// $Id: JetAuxContainer_v1.h 631914 2014-11-28 16:08:50Z krasznaa $
 #ifndef XAODJET_VERSIONS_JETAUXCONTAINER_V1_H
 #define XAODJET_VERSIONS_JETAUXCONTAINER_V1_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
   ///
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   ///
-  /// $Revision: 596642 $
-  /// $Date: 2014-05-12 18:54:56 +0200 (Mon, 12 May 2014) $
+  /// $Revision: 631914 $
+  /// $Date: 2014-11-28 17:08:50 +0100 (Fri, 28 Nov 2014) $
   ///
   class JetAuxContainer_v1 : public AuxContainerBase {
 
@@ -58,12 +58,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::JetAuxContainer_v1, 1294631886, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODJET_VERSIONS_JETAUXCONTAINER_V1_H

@@ -62,6 +62,8 @@ namespace xAOD {
       LCPFlow,      // LC PFlow
       EMPFlow,      // EM Pflow at EM scale
       EMCPFlow,     // EM Pflow calibrated to LC scale
+      Jet,
+      Other = 100,
       Uncategorized= 1000
     };
     

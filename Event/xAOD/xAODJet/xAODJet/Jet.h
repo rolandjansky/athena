@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Jet.h 561982 2013-09-18 07:54:10Z krasznaa $
+// $Id: Jet.h 631914 2014-11-28 16:08:50Z krasznaa $
 #ifndef XAODJET_JET_H
 #define XAODJET_JET_H
 
@@ -16,5 +16,9 @@ namespace xAOD {
    /// Definition of the current "jet version"
    typedef Jet_v1 Jet;
 }
+
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::Jet, 147270755, 1 )
 
 #endif // XAODJET_JET_H

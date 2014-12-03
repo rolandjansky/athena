@@ -16,6 +16,11 @@
 #include <iostream>
 #include <cassert>
 
+#ifndef XAOD_STANDALONE
+// allows to test EL 
+#include "TestStore.icc" 
+#endif
+
 
 ////////////////////////////////////////////////////////////////
 // Helper functions 
@@ -226,9 +231,19 @@ int testLink(){
   jet->setAssociatedObject("MyJet", jetL);
   TESTMACRO( jetL == jet->getAssociatedObject<xAOD::Jet>("MyJet"), "jet retrieved from asso identical");
   TESTMACRO( jetL == jet->getAssociatedObject<xAOD::IParticle>("MyJet"), "jet retrieved  from as IParticle asso identical");
+  const xAOD::Jet* jetL2 ; 
+  TESTMACRO( jet->getAssociatedObject("MyJet",jetL2), "getAssociatedObject(id,o) returned true");
+  TESTMACRO( jetL == jetL2 , "getAssociatedObject(id,o) retrieved identical");
 
   ElementLink<xAOD::IParticleContainer> el = jet->getAttribute< ElementLink<xAOD::IParticleContainer> >("MyJet");
-  TESTMACRO( *el == jetL ,"jet retrieved as EL identical");
+  TESTMACRO( *el == jetL ,"jet retrieved as EL identical"); 
+  // test setting vector of objects :
+  std::vector< const xAOD::Jet* > vecJets = {jetL, jetTestContainer[2] };
+  jet->setAssociatedObjects("VecJets", vecJets); 
+  std::vector< const xAOD::Jet* > retrievedJets;
+  bool r = jet->getAssociatedObjects( "VecJets", retrievedJets);
+  TESTMACRO( r, "retrieval of VecJets done" );
+  TESTMACRO( vecJets == retrievedJets , "Retrieved vector jets identical");
 
   return 0;
 }
@@ -348,7 +363,9 @@ int testShallowCopy( ){
 
 int main () {
   TEST_MSG("start");
-
+#ifndef XAOD_STANDALONE
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+#endif
   assert( testJetCreation() == 0);
   assert( testKinematicChange() == 0 );
 
@@ -356,7 +373,12 @@ int main () {
   assert( testJetCopy() == 0);
   assert( testConstituents() == 0);
   assert( testAttributes() == 0) ;
+
+#ifndef XAOD_STANDALONE
+  xAOD::IParticleContainer * jetAsIP = &jetTestContainer;
+  store.record(jetAsIP, "JetCont");  // store the container as an IParticleContainer
   assert( testLink() == 0) ;
+#endif
 
   fillClusterContainer();
   assert( testClusterConstituents()== 0 );

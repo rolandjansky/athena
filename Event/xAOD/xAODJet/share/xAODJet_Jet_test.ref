@@ -57,7 +57,11 @@ TEST SUCCEEDED : Scale momentum set as attribute identical when retrived as scal
  ---------------- testLink  
 TEST SUCCEEDED : jet retrieved from asso identical
 TEST SUCCEEDED : jet retrieved  from as IParticle asso identical
+TEST SUCCEEDED : getAssociatedObject(id,o) returned true
+TEST SUCCEEDED : getAssociatedObject(id,o) retrieved identical
 TEST SUCCEEDED : jet retrieved as EL identical
+TEST SUCCEEDED : retrieval of VecJets done
+TEST SUCCEEDED : Retrieved vector jets identical
 
  ---------------- testClusterConstituents  
  contit energy  500  cluster energy 500

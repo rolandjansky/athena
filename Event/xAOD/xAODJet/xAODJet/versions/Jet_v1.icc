@@ -77,20 +77,6 @@ namespace xAOD {
 
   //////////////////////////////////////////////////
 
-  // define a helper function to convert vector<IPart*> to vector<EL<IPart>>
-  namespace Jet_v1_helper {
-    template<class T>
-    void vector2vectorEL(const std::vector<const T*> & vec, std::vector< ElementLink< IParticleContainer > > & elv) {
-      
-      for(size_t i=0; i< vec.size() ; i++) { 
-        ElementLink<IParticleContainer> el;
-        el.toIndexedElement( *( dynamic_cast< const IParticleContainer* >( vec[i]->container() ) ), vec[i]->index() );      
-        elv.push_back(el); 
-        elv.back().toPersistent(); // The EL will not change anymore since it is purely internal. We can call toPersistent() to be sure it will be saved as expected.
-      }
-    }
-  }
-
   
     template<typename T>
     std::vector<const T*> Jet_v1::getAssociatedObjects( const std::string &name) const {
@@ -113,7 +99,8 @@ namespace xAOD {
     bool Jet_v1::getAssociatedObjects( const std::string &name, std::vector<const T*>& vec) const {
       JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > a(name);
       if(! a.isAvailable(*this) ) return false;
-      return a.getAttribute(*this, vec );
+      a.getAttribute(*this, vec );
+      return true;
     }
 
     template<typename T>
@@ -121,7 +108,8 @@ namespace xAOD {
       JetAttributeAccessor::ObjectAccessorWrapper<std::vector<const T*> > * acc = JetAttributeAccessor::ObjectAccessorMap_v1< std::vector<const T*> >::accessor(type) ;
       if(!acc) return false;
       if(! acc->isAvailable(*this) ) return false;      
-      return acc->getAttribute(*this, vec );
+      acc->getAttribute(*this, vec );
+      return true;
     }
 
 

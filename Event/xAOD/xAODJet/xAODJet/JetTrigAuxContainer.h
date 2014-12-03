@@ -21,4 +21,8 @@ namespace xAOD {
    typedef JetTrigAuxContainer_v1 JetTrigAuxContainer;
 }
 
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::JetTrigAuxContainer, 1285854532, 1 )
+
 #endif // XAODJET_JETAUXCONTAINER_H

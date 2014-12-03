@@ -287,11 +287,16 @@ namespace xAOD {
       void setAttribute(AuxElement& p, const TYPE* o){
         LinkType &el = a(p);
         el.toIndexedElement( *( dynamic_cast< const ContainerType* >( o->container() ) ), o->index() );  
+        el.toPersistent();
       }
       
 
       const TYPE * getAttribute(const AuxElement& p){
         return InternalType::fromEL(  a(p) );
+      }
+
+      void getAttribute(const AuxElement& p, const TYPE *& att){
+        att= InternalType::fromEL(  a(p) );
       }
       
       bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
@@ -323,28 +328,26 @@ namespace xAOD {
 
       ObjectAccessorWrapper(const std::string & n) : Named(n), a(n) {}
 
-
-      void vector2vectorEL(const std::vector<const TYPE*> & vec, std::vector< LinkType > & elv) {
       
-      for(size_t i=0; i< vec.size() ; i++) { 
-        LinkType el;
-        el.toIndexedElement( *( dynamic_cast< const ContainerType* >( vec[i]->container() ) ), vec[i]->index() );      
-        elv.push_back(el); 
-        elv.back().toPersistent(); // The EL will not change anymore since it is purely internal. We can call toPersistent() to be sure it will be saved as expected.
+      void vector2vectorEL(const std::vector<const TYPE*> & vec, std::vector< LinkType > & elv) {
+        
+        for(size_t i=0; i< vec.size() ; i++) { 
+          LinkType el;
+          el.toIndexedElement( *( dynamic_cast< const ContainerType* >( vec[i]->container() ) ), vec[i]->index() );      
+          elv.push_back(el); 
+          elv.back().toPersistent(); // The EL will not change anymore since it is purely internal. We can call toPersistent() to be sure it will be saved as expected.
+        }
       }
-    }
       
       void setAttribute(AuxElement& p, const std::vector<const TYPE*> &vec){
         std::vector<LinkType> &elv = a(p); elv.clear();elv.reserve(vec.size());
         this->vector2vectorEL(vec, elv);
       }
       
-      bool getAttribute(const AuxElement& p,  std::vector<const TYPE*>& v){
+      void getAttribute(const AuxElement& p,  std::vector<const TYPE*>& v){
         const std::vector<LinkType> &elv = a(p); 
         v.resize(elv.size());
-        bool allValid=true;
-        for(size_t i=0;i<elv.size(); i++) {v[i] = InternalType::fromEL(elv[i]) ;   allValid &= (v[i] != NULL) ;}
-        return allValid;
+        for(size_t i=0;i<elv.size(); i++) {v[i] = InternalType::fromEL(elv[i]) ; }
       }
 
       std::vector<const TYPE *> getAttribute(const AuxElement& p){
