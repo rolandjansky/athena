@@ -19,10 +19,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArTools/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloGain.h"
 
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArROD/LArRawChannelBuilderParams.h"
 #include "LArROD/ILArRawChannelBuilderToolBase.h"
@@ -82,7 +82,7 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   StoreGateSvc*               m_detStore;
   IToolSvc*                   m_toolSvc;
   
-  const LArOnlineID*          m_onlineHelper;
+  const LArOnline_SuperCellID*          m_onlineHelper;
   
   std::string m_DataLocation, m_ChannelContainerName;
   
@@ -97,13 +97,14 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   
   int                         m_checkSamples;
   
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  ToolHandle<LArSuperCellCablingTool> m_larCablingSvc;
   
   std::vector<float>          m_ramps;
   
   bool		              m_buildDiscChannel ; 
   int			      m_defaultShiftTimeSamples;
   int			      m_bcs;
+  int			      m_counter;
 };
 
 #include "LArROD/LArSuperCellBuilderDriver.icc"

@@ -40,7 +40,7 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   m_adc2eTools(),
   m_pedestalTools(),
   m_oldPedestal(0.),
-  m_larCablingSvc("LArCablingService")
+  m_larCablingSvc("LArSuperCellCablingTool")
 {
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
   declareProperty("DataLocation",                 m_DataLocation );
@@ -66,7 +66,7 @@ StatusCode LArSuperCellBuilderDriver::initialize()
   
   //StatusCode sc;
   
-  if (this->retrieveDetectorStore(m_onlineHelper, "LArOnlineID").isFailure())
+  if (this->retrieveDetectorStore(m_onlineHelper, "LArOnline_SuperCellID").isFailure())
     {
       m_log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
       return StatusCode::FAILURE;
@@ -190,6 +190,8 @@ StatusCode LArSuperCellBuilderDriver::execute() {
 
   initEventTools();
 
+  int ii=0;
+  m_counter = 0;
   for (LArDigitContainer::const_iterator cont_it=digitContainer->begin();
        cont_it!=digitContainer->end(); cont_it++){
        int energy=0;
@@ -197,6 +199,7 @@ StatusCode LArSuperCellBuilderDriver::execute() {
        int prov=0;
        CaloGain::CaloGain gain;
        if ( buildLArCell( (*cont_it), energy, time, gain, prov, &msg ) ){
+	   ii++;
 	   Identifier id = cabling->cnvToIdentifier((*cont_it)->channelID());
 	   IdentifierHash idhash = m_sem_mgr->getCaloCell_ID()->calo_cell_hash(id);
 	   const CaloDetDescrElement* dde = m_sem_mgr->get_element (idhash);
@@ -235,8 +238,10 @@ bool LArSuperCellBuilderDriver::buildLArCell(const LArDigit* digit,
       m_params->curr_chid=digit->channelID();
       m_params->curr_gain=digit->gain();
       
-      if(!m_buildDiscChannel && !m_larCablingSvc->isOnlineConnected(m_params->curr_chid))
+      if(!m_buildDiscChannel && !m_larCablingSvc->isOnlineConnected(m_params->curr_chid)){
+	  m_counter++;
   	  return false;
+      }
 
       m_params->curr_sample0   = digit->samples()[0];
       m_params->curr_maximum   = m_params->curr_sample0;

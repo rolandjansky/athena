@@ -40,7 +40,6 @@ class LArRawChannelBuilderADC2EConstants
 
   LArRawChannelBuilderADC2EConstants(const LArRawChannelBuilderADC2EConstants&);
   LArRawChannelBuilderADC2EConstants& operator=(const LArRawChannelBuilderADC2EConstants&);
-  bool m_isSC;
 };
 
 #endif

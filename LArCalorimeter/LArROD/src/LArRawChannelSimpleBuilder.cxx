@@ -281,6 +281,9 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
         // Probably yes, so do so.  RMcP 9 June 2006
         continue;
       }
+      // In the unrealistic case, that pSum is still not defined
+      if(!pSum) continue;
+
       // Find peak time sample and scaled average for selected sample range 
       // (i.e. poor man's digital filter)
 
@@ -294,6 +297,11 @@ StatusCode LArRawChannelSimpleBuilder::execute() {
 
 
       if ( iloop == 0 ) {
+
+        if (pSum == 0) {
+          MSG::hex(log) << MSG::ERROR << " don't have pSum pointer." << endreq;
+          continue;
+        }
   
 	if ( pSum->size() == 0) 
 //	  pSum->resize(nSamples-nAverage+1,0);

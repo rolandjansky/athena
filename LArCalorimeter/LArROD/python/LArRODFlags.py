@@ -50,7 +50,7 @@ class keepDSPRaw(JobProperty):
      ### and copy energies from ADC reco into different container
      statusOn=True
      allowedTypes=['bool']
-     StoredValue=False
+     StoredValue=True
 
 class RawChannelFromDigitsContainerName(JobProperty):
      ### Name of the raw channel container make from digits if keepDSPRaw is true

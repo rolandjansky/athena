@@ -203,14 +203,13 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     ipeak = pParent->curr_shiftTimeSamples + 2 ; 
   }
 
-  if (ipeak < 2) ipeak = 2; 
+
   if (ipeak > sampsize - 3) ipeak = sampsize - 3 ; 
+  if (ipeak < 2) ipeak = 2; 
+
 
   unsigned int peak_min = ipeak - 1 ; 
-  if (peak_min < 2) peak_min = 2; 
-
   unsigned int peak_max = ipeak + 1 ; 
-  if (peak_max > sampsize - 3) peak_max = sampsize - 3 ; 
 
   float ADCPeak=0;
   float time=0.;
