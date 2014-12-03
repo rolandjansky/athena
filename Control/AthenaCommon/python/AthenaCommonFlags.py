@@ -161,6 +161,13 @@ class PoolInputQuery(JobProperty):
     allowedTypes = ['str']
     StoredValue  = ""
 
+class DoFullChain(JobProperty):
+    """ If True does full chain: simulation + digitisation + reconstruction
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 class AllowIgnoreExistingDataObject(JobProperty):
     """Allow an algorithm to ignore wether an input object is available or not.
     """
@@ -275,6 +282,7 @@ jobproperties.AthenaCommonFlags.add_JobProperty(AllowIgnoreConfigError)
 jobproperties.AthenaCommonFlags.add_JobProperty(isOnline)
 jobproperties.AthenaCommonFlags.add_JobProperty(isOnlineStateless)
 jobproperties.AthenaCommonFlags.add_JobProperty(RuntimeStrictness)
+jobproperties.AthenaCommonFlags.add_JobProperty(DoFullChain)
 
 ##-----------------------------------------------------------------------------
 ## 5th step

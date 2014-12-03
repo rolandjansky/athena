@@ -112,7 +112,7 @@ def _bootstrap_env(options):
     os.environ['_ATHENA_APP_FROZEN'] = '1'
     if options.use_tcmalloc:
         tcmalloc_dir = os.environ.get('TCMALLOCDIR', None)
-        if tcmalloc_dir is None:
+        if tcmalloc_dir is None and "ManaCore" not in os.environ.get("CMTEXTRATAGS",""):
             print "WARNING: $TCMALLOCDIR not defined, will use libc malloc"
         else:
             dso = os.path.join(tcmalloc_dir, 'libtcmalloc.so')
