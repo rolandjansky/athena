@@ -22,6 +22,8 @@
 #include "../ElectronL2TriggerObjectAssociationTool.h"
 #include "../PhotonL2TriggerObjectAssociationTool.h"
 #include "../egammaObjectDecisionFillerTool.h"
+#include "../xAODElectronObjectDecisionFillerTool.h"
+#include "../xAODPhotonObjectDecisionFillerTool.h"
 #include "../ConversionVertexAssociationTool.h"
 #include "../egammaTraversedMaterialFillerTool.h"
 
@@ -43,28 +45,11 @@ DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ElectronJetDRAssociator)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ElectronL2TriggerObjectAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, PhotonL2TriggerObjectAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, egammaObjectDecisionFillerTool)
+DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, xAODElectronObjectDecisionFillerTool)
+DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, xAODPhotonObjectDecisionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, ConversionVertexAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, egammaTraversedMaterialFillerTool)
 
 
 
 
-DECLARE_FACTORY_ENTRIES(egammaD3PDMaker) {
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaLayer1ExtraFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaRetaphiFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaConversionFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaConversion0FillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaTruthClassificationFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, ElectronTrackParticleAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaClusterAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaGenParticleAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaL1TriggerObjectAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaEFElectronTriggerObjectAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaEFPhotonTriggerObjectAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, ElectronJetDRAssociator)
-  DECLARE_NAMESPACE_TOOL      (D3PD, ElectronL2TriggerObjectAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, PhotonL2TriggerObjectAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaObjectDecisionFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, ConversionVertexAssociationTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, egammaTraversedMaterialFillerTool)
-}

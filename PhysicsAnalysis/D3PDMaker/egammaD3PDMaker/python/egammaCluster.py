@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: egammaCluster.py 604537 2014-07-02 03:57:16Z ssnyder $
+# $Id: egammaCluster.py 633849 2014-12-04 19:54:54Z ssnyder $
 #
 # @file egammaD3PDMaker/python/egammaCluster.py
 # @author scott snyder <snyder@bnl.gov>
@@ -51,13 +51,13 @@ def egammaCluster (egamma, allSamplings = False, fwdEVars = False):
         ClusterAssoc.defineBlock (
             1, 'FwdEVars',
             D3PDMakerCoreComps.AuxDataFillerTool,
-            Vars = ['firstEdens = FIRST_ENG_DENS < 0',
-                    'cellmaxfrac = ENG_FRAC_MAX < 0',
-                    'longitudinal = LONGITUDINAL < 0',
-                    'secondlambda = SECOND_LAMBDA < 0',
-                    'lateral = LATERAL < 0',
-                    'secondR = SECOND_R < 0',
-                    'centerlambda = CENTER_LAMBDA < 0',
+            Vars = ['firstEdens = FIRST_ENG_DENS < float: 0',
+                    'cellmaxfrac = ENG_FRAC_MAX < float: 0',
+                    'longitudinal = LONGITUDINAL < float: 0',
+                    'secondlambda = SECOND_LAMBDA < float: 0',
+                    'lateral = LATERAL < float: 0',
+                    'secondR = SECOND_R < float: 0',
+                    'centerlambda = CENTER_LAMBDA < float: 0',
                     ])
 
     # Allow writing cluster cells.

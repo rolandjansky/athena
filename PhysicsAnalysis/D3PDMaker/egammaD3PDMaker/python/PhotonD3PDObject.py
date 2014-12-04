@@ -37,7 +37,7 @@ import TrackD3PDMaker
 
 
 PhotonD3PDObject = \
-           make_SGDataVector_D3PDObject ('xAOD::PhotonContainer_v1',
+           make_SGDataVector_D3PDObject ('xAOD::PhotonContainer',
                                          D3PDMakerFlags.PhotonSGKey(),
                                          'ph_', 'PhotonD3PDObject')
 
@@ -214,29 +214,19 @@ PhotonD3PDObject.defineBlock (
     1, 'Iso',
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['rphiallcalo = r33over37allcalo',
-            'Etcone45 = etcone',
-            'Etcone15 = etcone15',
             'Etcone20 = etcone20',
-            'Etcone25 = etcone25',
             'Etcone30 = etcone30',
-            'Etcone35 = etcone35',
             'Etcone40 = etcone40',
             'ptcone20',
             'ptcone30',
             'ptcone40',
-            'nucone20',
-            'nucone30',
-            'nucone40',
         ])
 PhotonD3PDObject.defineBlock (
     2, 'IsoPtCorrected',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['Etcone15_pt_corrected = etcone15_ptcorrected #pt-corrected isolation energy within DR=0.15 cone',
-            'Etcone20_pt_corrected = etcone20_ptcorrected #pt-corrected isolation energy within DR=0.20 cone',
-            'Etcone25_pt_corrected = etcone25_ptcorrected #pt-corrected isolation energy within DR=0.25 cone',
-            'Etcone30_pt_corrected = etcone30_ptcorrected #pt-corrected isolation energy within DR=0.30 cone',
-            'Etcone35_pt_corrected = etcone35_ptcorrected #pt-corrected isolation energy within DR=0.35 cone',
-            'Etcone40_pt_corrected = etcone40_ptcorrected #pt-corrected isolation energy within DR=0.40 cone',
+    Vars = ['Etcone20_pt_corrected = etcone20_ptcorrected < float: 0 #pt-corrected isolation energy within DR=0.20 cone',
+            'Etcone30_pt_corrected = etcone30_ptcorrected < float: 0 #pt-corrected isolation energy within DR=0.30 cone',
+            'Etcone40_pt_corrected = etcone40_ptcorrected < float: 0 #pt-corrected isolation energy within DR=0.40 cone',
             ])
 PhotonD3PDObject.defineBlock (1, 'Conversion',
                               egammaD3PDMaker.egammaConversionFillerTool)
@@ -248,9 +238,9 @@ PhotonD3PDObject.defineBlock (1, 'Retaphi',
 PhotonD3PDObject.defineBlock (
     1, 'TopoClusterIsolationCones',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['topoEtcone20 = topoetcone20',
-            'topoEtcone30 = topoetcone30',
-            'topoEtcone40 = topoetcone40',
+    Vars = ['topoEtcone20 = topoetcone20_core57cells,topoetcone20',
+            'topoEtcone30 = topoetcone30_core57cells,topoetcone30',
+            'topoEtcone40 = topoetcone40_core57cells,topoetcone40',
             ])
 PhotonD3PDObject.defineBlock (2, 'TraversedMaterial',
                               egammaD3PDMaker.egammaTraversedMaterialFillerTool )
@@ -259,7 +249,10 @@ PhotonD3PDObject.defineBlock (2, 'TraversedMaterial',
 PhotonD3PDObject.defineBlock (
     2, 'Pointing',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['zvertex', 'errz', 'etap', 'depth'])
+    Vars = ['zvertex < float:0 ',
+            'errz < float:0 ',
+            'etap < float: 0',
+            'depth < float: 0'])
 
 from egammaD3PDMaker.egammaCluster import egammaCluster
 PhotonClusterAssoc = egammaCluster (PhotonD3PDObject)
@@ -289,7 +282,7 @@ ConversionVertexAssociation = ContainedVectorMultiAssociation (
 ConversionVertexAssociation.defineBlock (
     10, 'ConversionVertexPosition',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['x', 'y', 'z'])
+    Vars = ['x < float:0 ', 'y < float:0', 'z < float:0'])
 ConversionVertexAssociation.defineBlock (
     10, 'ConversionVertexKinematics',
     TrackD3PDMaker.VertexKineFillerTool)
@@ -399,13 +392,6 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
        Vars = ['calibHitsShowerDepth #Shower depth as defined by the calib hits cluster correction',
                ])
 
-    defineBlockAndAlg (PhotonD3PDObject,
-                       2, 'UDTopoCones',
-                       D3PDMakerCoreComps.AuxDataFillerTool,
-                       'egammaTopoIsoConfig',
-                       AuxPrefix = auxprefix,
-                       Vars = ['topoEtcone60',
-                               ])
         
 
 ############################################################################
@@ -455,16 +441,16 @@ PhotonTopoD3PDAssoc.defineBlock (2, 'TopoKinematics',
                                  EventCommonD3PDMaker.FourMomFillerTool,
                                  WriteM = False)
 
-PhotonTopoEMD3PDAssoc = DRAssociation (PhotonD3PDObject,
-                                       'DataVector<xAOD::CaloCluster_v1>',
-                                       D3PDMakerFlags.EMTopoClusterSGKey(),
-                                       0.1,
-                                       'topoEM',
-                                       level = 2,
-                                       blockname = 'TopoEMMatch')
-PhotonTopoEMD3PDAssoc.defineBlock (2, 'TopoEMKinematics',
-                                   EventCommonD3PDMaker.FourMomFillerTool,
-                                   WriteM = False)
+# PhotonTopoEMD3PDAssoc = DRAssociation (PhotonD3PDObject,
+#                                        'DataVector<xAOD::CaloCluster_v1>',
+#                                        D3PDMakerFlags.EMTopoClusterSGKey(),
+#                                        0.1,
+#                                        'topoEM',
+#                                        level = 2,
+#                                        blockname = 'TopoEMMatch')
+# PhotonTopoEMD3PDAssoc.defineBlock (2, 'TopoEMKinematics',
+#                                    EventCommonD3PDMaker.FourMomFillerTool,
+#                                    WriteM = False)
 
 
 ############################################################################

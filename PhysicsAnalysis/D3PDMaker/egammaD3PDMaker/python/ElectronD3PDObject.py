@@ -29,7 +29,7 @@ import D3PDMakerCoreComps
 
 
 ElectronD3PDObject = \
-           make_SGDataVector_D3PDObject ('xAOD::ElectronContainer_v1',
+           make_SGDataVector_D3PDObject ('xAOD::ElectronContainer',
                                          D3PDMakerFlags.ElectronSGKey(),
                                          'el_', 'ElectronD3PDObject')
 
@@ -177,27 +177,27 @@ if rec.doTruth():
 ElectronD3PDObject.defineBlock (
     1, 'HadLeakage',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['Ethad = ethad',
-            'Ethad1 = ethad1'])
+    Vars = ['Ethad = ethad < float: 0',
+            'Ethad1 = ethad1 < float: 0'])
 ElectronD3PDObject.defineBlock (
     1, 'Layer1Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['f1',
             'f1core',
-            'Emins1 = emins1',
+            'Emins1 = emins1 < float: 0',
             'fside = fracs1',
-            'Emax2 = e2tsts1',
+            'Emax2 = e2tsts1 < float: 0',
             'ws3 = weta1',
             'wstot = wtots1',
-            'emaxs1'])
+            'emaxs1 < float: 0'])
 ElectronD3PDObject.defineBlock (1, 'Layer1ShapeExtra',
                                 egammaD3PDMaker.egammaLayer1ExtraFillerTool)
 ElectronD3PDObject.defineBlock (
     1, 'Layer2Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['E233 = e233',
-            'E237 = e237',
-            'E277 = e277',
+    Vars = ['E233 = e233 < float: 0',
+            'E237 = e237 < float: 0',
+            'E277 = e277 < float: 0',
             'weta2'])
 ElectronD3PDObject.defineBlock (
     1, 'Layer3Shape',
@@ -206,35 +206,25 @@ ElectronD3PDObject.defineBlock (
 ElectronD3PDObject.defineBlock (
     1, 'Iso',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['rphiallcalo = r33over37allcalo',
-            'Etcone45 = etcone',
-            'Etcone15 = etcone15',
-            'Etcone20 = etcone20',
-            'Etcone25 = etcone25',
-            'Etcone30 = etcone30',
-            'Etcone35 = etcone35',
-            'Etcone40 = etcone40',
-            'ptcone20',
-            'ptcone30',
-            'ptcone40',
-            'nucone20',
-            'nucone30',
-            'nucone40',
+    Vars = ['rphiallcalo = r33over37allcalo < float: 0',
+            'Etcone20 = etcone20 < float: 0',
+            'Etcone30 = etcone30 < float: 0',
+            'Etcone40 = etcone40 < float: 0',
+            'ptcone20 < float: 0',
+            'ptcone30 < float: 0',
+            'ptcone40 < float: 0',
         ])
 ElectronD3PDObject.defineBlock (
     2, 'IsoPtCorrected',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['Etcone15_pt_corrected = etcone15_ptcorrected #pt-corrected isolation energy within DR=0.15 cone',
-            'Etcone20_pt_corrected = etcone20_ptcorrected #pt-corrected isolation energy within DR=0.20 cone',
-            'Etcone25_pt_corrected = etcone25_ptcorrected #pt-corrected isolation energy within DR=0.25 cone',
-            'Etcone30_pt_corrected = etcone30_ptcorrected #pt-corrected isolation energy within DR=0.30 cone',
-            'Etcone35_pt_corrected = etcone35_ptcorrected #pt-corrected isolation energy within DR=0.35 cone',
-            'Etcone40_pt_corrected = etcone40_ptcorrected #pt-corrected isolation energy within DR=0.40 cone',
+    Vars = ['Etcone20_pt_corrected = etcone20_ptcorrected  < float: 0 #pt-corrected isolation energy within DR=0.20 cone',
+            'Etcone30_pt_corrected = etcone30_ptcorrected  < float: 0 #pt-corrected isolation energy within DR=0.30 cone',
+            'Etcone40_pt_corrected = etcone40_ptcorrected  < float: 0 #pt-corrected isolation energy within DR=0.40 cone',
             ])
 ElectronD3PDObject.defineBlock (
     1, 'TrkMatch',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['pos7',
+    Vars = ['pos7 < float: 0',
             'deltaeta1 = deltaEta1',
             'deltaeta2 = deltaEta2',
             'deltaphi2 = deltaPhi2',
@@ -247,9 +237,9 @@ ElectronD3PDObject.defineBlock (1, 'Retaphi',
 ElectronD3PDObject.defineBlock (
     1, 'TopoClusterIsolationCones',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['topoEtcone20 = topoetcone20',
-            'topoEtcone30 = topoetcone30',
-            'topoEtcone40 = topoetcone40',
+    Vars = ['topoEtcone20 = topoetcone20 < float: 0',
+            'topoEtcone30 = topoetcone30 < float: 0',
+            'topoEtcone40 = topoetcone40 < float: 0',
             ])
 
 ElectronD3PDObject.defineBlock (2, 'TraversedMaterial',
@@ -258,7 +248,10 @@ ElectronD3PDObject.defineBlock (2, 'TraversedMaterial',
 ElectronD3PDObject.defineBlock (
     2, 'PointingShape',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['zvertex', 'errz', 'etap', 'depth'])
+    Vars = ['zvertex < float: 0',
+            'errz < float: 0',
+            'etap < float: 0',
+            'depth < float: 0'])
 
 
 from egammaD3PDMaker.egammaCluster import egammaCluster
@@ -334,7 +327,7 @@ ElectronVertAssoc = SimpleAssociation \
 ElectronVertAssoc.defineBlock (
     2, 'Vertex',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['x', 'y', 'z'])
+    Vars = ['x < float:0 ', 'y < float:0', 'z < float:0'])
 
 
 from TrackD3PDMaker.TrackParticleImpactParameters \
@@ -427,14 +420,6 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
            EventCommonD3PDMaker.FourMomFillerTool,
            WriteE = True)
 
-
-    defineBlockAndAlg (ElectronD3PDObject,
-                       2, 'UDTopoCones',
-                       D3PDMakerCoreComps.AuxDataFillerTool,
-                       'egammaTopoIsoConfig',
-                       AuxPrefix = auxprefix,
-                       Vars = ['topoEtcone60',
-                               ])
 
    
 
