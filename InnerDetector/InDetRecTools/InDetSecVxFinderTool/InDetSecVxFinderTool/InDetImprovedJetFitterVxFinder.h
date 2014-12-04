@@ -202,6 +202,17 @@ namespace InDet {
 
     int m_maxTracksForDetailedClustering;
 
+    /*
+     * sum pT dependent cuts on track pT
+     * pT(track)< pTMinOffset + pTsum * m_pTMinSlope
+     * OR pTsum
+     */
+    bool m_usepTDepTrackSel;
+    double m_pTMinOffset;
+    double m_pTMinSlope;
+    double m_pTMax;
+
+
   };//end class declaration
 
 }//end namespace Rec

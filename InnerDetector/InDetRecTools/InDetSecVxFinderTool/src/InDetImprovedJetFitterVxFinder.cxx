@@ -148,7 +148,11 @@ namespace InDet
     m_maxR(1150.),//max R of ID
     m_maxZ(2727.),//max Z of ID
     m_VxContainerName("PrimaryVertices"),
-    m_maxTracksForDetailedClustering(25)
+    m_maxTracksForDetailedClustering(25),
+    m_usepTDepTrackSel(false),
+    m_pTMinOffset(800),//MeV
+    m_pTMinSlope(120),//MeV(track cut)/MeV(sum of track pT)
+    m_pTMax(600e3)//MeV--> stop at 600 GeV sum of track pT
   { 
     //JetFitter tools
     declareProperty("JetFitterHelper",m_helper);
@@ -228,6 +232,12 @@ namespace InDet
     declareProperty("ConversionUtils", m_convUtils,"Name of conversion utility");
  
     declareProperty("VertexEdmFactory", m_VertexEdmFactory);
+
+    declareProperty("usepTDepTrackSel",m_usepTDepTrackSel);
+    declareProperty("pTMinOffset",m_usepTDepTrackSel);
+    declareProperty("pTMinSlope",m_pTMinSlope);
+    declareProperty("pTMax",m_pTMax);
+    
    
     declareInterface< ISecVertexInJetFinder >(this) ;
 
@@ -337,6 +347,8 @@ namespace InDet
     std::vector<const xAOD::IParticle*>::const_iterator   trk_end=inputTracks.end();
 
 
+    double sumpT=0;
+
     for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter)
     {
       
@@ -347,12 +359,48 @@ namespace InDet
         continue;
       }
 
-      ElementLink<xAOD::TrackParticleContainer> linkTP;
-      linkTP.setElement(const_cast<xAOD::TrackParticle*>(tmp));
+      if (!m_usepTDepTrackSel)
+      {
+
+        ElementLink<xAOD::TrackParticleContainer> linkTP;
+        linkTP.setElement(const_cast<xAOD::TrackParticle*>(tmp));
       
-      Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle(linkTP);
-      selectedTracks.push_back(link);
-            
+        Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle(linkTP);
+        selectedTracks.push_back(link);
+        
+      }
+      else
+      {
+        sumpT+=tmp->pt();
+      }
+    }
+    
+    if (m_usepTDepTrackSel)
+    {
+      for (trk_iter= inputTracks.begin(); trk_iter != inputTracks.end(); ++trk_iter)
+      {
+
+        const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*trk_iter));
+       
+        if (!m_trkFilter->decision(*tmp,&primaryVertex)) 
+        {
+          continue;
+        }
+        
+        if (!((tmp->pt()>m_pTMinOffset + sumpT * m_pTMinSlope) 
+              || 
+              (sumpT > m_pTMax && tmp->pt()>m_pTMinOffset+m_pTMax* m_pTMinSlope)))
+        {
+          continue;
+        }
+        
+        ElementLink<xAOD::TrackParticleContainer> linkTP;
+        linkTP.setElement(const_cast<xAOD::TrackParticle*>(tmp));
+      
+        Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle(linkTP);
+        selectedTracks.push_back(link);
+
+      }
     }
 
     Trk::RecVertex dummy;
@@ -605,7 +653,7 @@ namespace InDet
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
           if ((trkCastedLinkTPBase&&vtxCastedLinkTPxAOD)||(trkCastedLinkTPxAOD&&vtxCastedLinkTPBase))
           {
-            if (countDebug%50000==0)
+            if (countDebug%500==0)
             {
               if (msgLvl(MSG::DEBUG)) msg() <<  " Jet Fitter Vertex Finding is done on TrackParticleBase, primary vertex information is stored based on xAOD::TrackParticleBase or viceversa." << endreq;
               if (msgLvl(MSG::DEBUG)) msg() <<  " Cannot use the fit of primary vertex for estimating the compatibility to the primary vertex. No correlation between primary vertex fit and track will be considered. Please activate PV REFITTING on AOD..." << endreq;
