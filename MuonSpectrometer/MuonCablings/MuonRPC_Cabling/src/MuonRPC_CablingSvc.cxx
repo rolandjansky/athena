@@ -293,11 +293,15 @@ bool MuonRPC_CablingSvc::give_RoI_borders_id (unsigned short int SubsystemId,
 						     EtaLowBorder,EtaHighBorder,
 						     PhiLowBorder,PhiHighBorder);  
   if (ok){
-    EtaLowBorder_id  =  this->strip_OffId_fromCode( EtaLowBorder);
-    EtaHighBorder_id =  this->strip_OffId_fromCode( EtaHighBorder);
-    PhiLowBorder_id  =  this->strip_OffId_fromCode( PhiLowBorder);
-    PhiHighBorder_id =  this->strip_OffId_fromCode( PhiHighBorder);
+    //    std::cout<<"in give_RoI_borders_id:: subsystemId/SectorId/RoIId = "<<SubsystemId<<"/"<<SectorId<<"/"<<RoIId<<std::endl;
+    //    std::cout<<" since give_RoI_borders is ok, EtaLowBorder/EtaHighBorder/PhiLowBorder/PhiHighBorder "<<EtaLowBorder<<"/"<<EtaHighBorder<<"/"<<PhiLowBorder<<"/"<<PhiHighBorder<<std::endl;
+    EtaLowBorder_id  =  this->protected_strip_OffId_fromCode( EtaLowBorder);
+    EtaHighBorder_id =  this->protected_strip_OffId_fromCode( EtaHighBorder);
+    PhiLowBorder_id  =  this->protected_strip_OffId_fromCode( PhiLowBorder);
+    PhiHighBorder_id =  this->protected_strip_OffId_fromCode( PhiHighBorder);
+    //    std::cout<<"id of borders = "<<m_pRpcIdHelper->show_to_string(EtaLowBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(EtaHighBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(PhiLowBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(PhiHighBorder_id)<<"/"<<std::endl;
   }
+  //  else {std::cout<<" since give_RoI_borders is not ok"<<std::endl;}
   return ok;
 }
 
@@ -403,6 +407,34 @@ unsigned long int MuonRPC_CablingSvc::strip_code_fromOffId (std::string stationN
 Identifier MuonRPC_CablingSvc::strip_OffId_fromCode (unsigned long int strip_code) const 
 {
   RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
+  Identifier rpcId = m_pRpcIdHelper->channelID(rpc_strip.stationName,
+					       rpc_strip.stationEta,
+					       rpc_strip.stationPhi,
+					       rpc_strip.doubletR,
+					       rpc_strip.doubletZ,
+					       rpc_strip.doubletPhi,
+					       rpc_strip.gasGap,
+					       rpc_strip.measuresPhi,
+					       rpc_strip.strip);
+  return rpcId;
+}
+Identifier MuonRPC_CablingSvc::protected_strip_OffId_fromCode (unsigned long int strip_code) const 
+{
+  RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
+  if (rpc_strip.stationName=="BOG")
+    {
+      if (fabs(rpc_strip.stationEta)==4 && rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+	{
+	  if (rpc_strip.strip>48) rpc_strip.strip=48;
+	}
+    }
+  if (rpc_strip.stationName=="BME")
+    {
+      if (rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+	{
+	  if (rpc_strip.strip>36) rpc_strip.strip=36;
+	}
+    }
   Identifier rpcId = m_pRpcIdHelper->channelID(rpc_strip.stationName,
 					       rpc_strip.stationEta,
 					       rpc_strip.stationPhi,

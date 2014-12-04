@@ -122,6 +122,7 @@ public:
 
 
     virtual Identifier  strip_OffId_fromCode (unsigned long int strip_code_cab) const; 
+    Identifier  protected_strip_OffId_fromCode (unsigned long int strip_code_cab) const; 
 
     virtual std::list<unsigned int> give_strip_code
                                            (unsigned short int SubsystemId,
