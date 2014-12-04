@@ -1,0 +1,916 @@
+Thu Dec  4 22:50:27 CET 2014
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [AtlasOffline-20.0.0] [x86_64-slc6-gcc47-dbg] [20.X.0/rel_1] -- built on [2014-11-30 22:07]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Root.ErrorIgnoreLevel=Print> for level 1; ignored
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthExStoreGateExample/dflow_jobo.py"
+Py:ConfigurableDb    INFO Read module info for 4659 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -RPCStandaloneTracksMon: MuonTrackMonitoring.MuonTrackMonitoringConf - ['RpcRawDataMonitoring.RpcRawDataMonitoringConf']
+Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
+                                          running on lxplus0040.cern.ch on Thu Dec  4 22:50:32 2014
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-13-01
+ClassIDSvc           INFO  getRegistryEntries: read 2114 CLIDRegistry entries for module ALL
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-18
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: AthEx::DFlowAlg1/dflow_alg1, AthEx::DFlowAlg2/dflow_alg2, AthEx::DFlowAlg3/dflow_alg3
+dflow_alg1           INFO Initializing dflow_alg1...
+dflow_alg2           INFO Initializing dflow_alg2...
+dflow_alg3           INFO Initializing dflow_alg3...
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-45-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-09
+HistogramPersis...WARNING Histograms saving not required.
+EventSelector        INFO  Enter McEventSelector Initialization 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-00
+ApplicationMgr       INFO Application Manager Initialized successfully
+StoreGateSvc         INFO Start StoreGateSvc
+ApplicationMgr       INFO Application Manager Started successfully
+EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 0
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 0
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 20
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 20
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 20
+dflow_alg2           INFO val: 120
+dflow_alg2           INFO cptr: 0x53fd130
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 120
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd130
+dflow_alg3           INFO val: 120
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 120
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 120
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 120
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 1
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 1
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 21
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 21
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 21
+dflow_alg2           INFO val: 121
+dflow_alg2           INFO cptr: 0x53fd120
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 121
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd120
+dflow_alg3           INFO val: 121
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 121
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 121
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 121
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 2
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 2
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 22
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 22
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 22
+dflow_alg2           INFO val: 122
+dflow_alg2           INFO cptr: 0x53fd130
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 122
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd130
+dflow_alg3           INFO val: 122
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 122
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 122
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 122
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 3
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 3
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 23
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 23
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 23
+dflow_alg2           INFO val: 123
+dflow_alg2           INFO cptr: 0x53fd120
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 123
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd120
+dflow_alg3           INFO val: 123
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 123
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 123
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 123
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 4
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 4
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 24
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 24
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 24
+dflow_alg2           INFO val: 124
+dflow_alg2           INFO cptr: 0x53fd130
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 124
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd130
+dflow_alg3           INFO val: 124
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 124
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 124
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 124
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 5
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 5
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 25
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 25
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 25
+dflow_alg2           INFO val: 125
+dflow_alg2           INFO cptr: 0x53fd120
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 125
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd120
+dflow_alg3           INFO val: 125
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 125
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 125
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 125
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 6
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 6
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 26
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 26
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 26
+dflow_alg2           INFO val: 126
+dflow_alg2           INFO cptr: 0x53fd130
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 126
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd130
+dflow_alg3           INFO val: 126
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 126
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 126
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 126
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 7
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 7
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 27
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 27
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 27
+dflow_alg2           INFO val: 127
+dflow_alg2           INFO cptr: 0x53fd120
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 127
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd120
+dflow_alg3           INFO val: 127
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 127
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 127
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 127
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 8
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 8
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd130
+dflow_alg1           INFO val: 28
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 28
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd130
+dflow_alg2           INFO val: 28
+dflow_alg2           INFO val: 128
+dflow_alg2           INFO cptr: 0x53fd130
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 128
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd130
+dflow_alg3           INFO val: 128
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 128
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 128
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 128
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+dflow_alg1           INFO evtinfo handle...
+dflow_alg1           INFO name: [McEventInfo]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [2101]
+dflow_alg1           INFO ei: 0x54721c0
+dflow_alg1           INFO retrieving event-info...
+dflow_alg1           INFO evt-info.runnbr: 0
+dflow_alg1           INFO evt-info.evtnbr: 9
+dflow_alg1           INFO myint handle...
+dflow_alg1           INFO name: [dflow_int]
+dflow_alg1           INFO store [StoreGateSvc]
+dflow_alg1           INFO clid: [244260744]
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 9
+dflow_alg1           INFO modify myint by value...
+dflow_alg1           INFO ptr: 0x53fd120
+dflow_alg1           INFO val: 29
+dflow_alg2           INFO ================================
+dflow_alg2           INFO myint r-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 29
+dflow_alg2           INFO myint rw-handle...
+dflow_alg2           INFO name: [dflow_int]
+dflow_alg2           INFO store [StoreGateSvc]
+dflow_alg2           INFO clid: [244260744]
+dflow_alg2           INFO ptr: 0x53fd120
+dflow_alg2           INFO val: 29
+dflow_alg2           INFO val: 129
+dflow_alg2           INFO cptr: 0x53fd120
+dflow_alg2           INFO ints w-handle...
+dflow_alg2           INFO size:2
+dflow_alg2           INFO val[0]= 10
+dflow_alg2           INFO val[1]= 129
+dflow_alg3           INFO ================================
+dflow_alg3           INFO myint r-handle...
+dflow_alg3           INFO name: [dflow_int]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [244260744]
+dflow_alg3           INFO ptr: 0x53fd120
+dflow_alg3           INFO val: 129
+dflow_alg3           INFO ints r-handle...
+dflow_alg3           INFO name: [dflow_ints]
+dflow_alg3           INFO store [StoreGateSvc]
+dflow_alg3           INFO clid: [22592129]
+dflow_alg3           INFO ptr: 0x5451b80
+dflow_alg3           INFO ints rw-handle...
+dflow_alg3           INFO size:4
+dflow_alg3           INFO val[0]= 10
+dflow_alg3           INFO val[1]= 129
+dflow_alg3           INFO val[2]= 10
+dflow_alg3           INFO val[3]= 129
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO compare pointers: ok=1
+dflow_alg3           INFO temporary r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 0
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 0
+dflow_alg3           INFO --restore--
+dflow_alg3           INFO temporary r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr  r-handle[ints] - size: 4
+dflow_alg3           INFO data mbr rw-handle[ints] - size: 4
+dflow_alg3           INFO -- testing inexistant proxies --
+dflow_alg3           INFO name: --r-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --w-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO name: --rw-not-there--
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO temporary r/w-int: 129
+dflow_alg3           INFO -- testing WVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [WriteHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO -- testing RWVar<T> semantics...
+dflow_alg3           INFO name: dflow_int
+dflow_alg3           INFO valid:0
+dflow_alg3           INFO good, caught: [UpdateHandle<T>::operator=(const T& data) called while invalid]
+dflow_alg3           INFO valid:0
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
+StoreGateSvc         INFO Stop StoreGateSvc
+StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
+ApplicationMgr       INFO Application Manager Stopped successfully
+dflow_alg1           INFO Finalizing dflow_alg1...
+dflow_alg2           INFO Finalizing dflow_alg2...
+dflow_alg3           INFO Finalizing dflow_alg3...
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-00
+EventSelector        INFO finalize
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+AthenaSealSvc::...   INFO Time User   : Tot=   90 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=  205 [ms]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
