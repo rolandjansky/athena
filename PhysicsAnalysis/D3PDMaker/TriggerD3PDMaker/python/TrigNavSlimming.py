@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigNavSlimming.py 472954 2011-12-07 12:48:58Z krasznaa $
+# $Id: TrigNavSlimming.py 632512 2014-12-01 11:57:51Z ssnyder $
 #
 # The singleton in this module can be used to slim the trigger navigation
 # in jobs running on MC AODs. MC AODs of the future (R18) will have their
@@ -50,8 +50,8 @@ def singleton( cls ):
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 472954 $
-# $Date: 2011-12-07 13:48:58 +0100 (Wed, 07 Dec 2011) $
+# $Revision: 632512 $
+# $Date: 2014-12-01 12:57:51 +0100 (Mon, 01 Dec 2014) $
 @singleton
 class TrigNavSlimming( Configured ):
 
@@ -88,10 +88,11 @@ class TrigNavSlimming( Configured ):
 
         # Construct the object/container names for which the navigation
         # should have references:
-        from TrigEDMConfig.TriggerEDM import getAODList
+        from TrigEDMConfig.TriggerEDM import getTriggerObjList, TriggerL2List, TriggerEFList, TriggerHLTList, TriggerResultsList
+        tlist = getTriggerObjList('AODFULL', [TriggerL2List, TriggerEFList, TriggerHLTList, TriggerResultsList])
         from RecExConfig.ObjKeyStore import cfgKeyStore
         objlist = []
-        for t,kset in getAODList( "AODFULL" ).iteritems():
+        for t,kset in tlist.iteritems():
             for k in kset:
                 __log.debug( "Checking for object %s#%s" % ( t, k ) )
                 # Notice that we can't use the isInInput(...) function.
@@ -107,11 +108,27 @@ class TrigNavSlimming( Configured ):
         __log.info( "Will retain references for objects: %s" % objlist )
 
         # Set up the slimming algorithm:
-        from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming
-        slimmer = HLT__TrigNavigationSlimming()
-        slimmer.ReloadNavigation = True
-        slimmer.FeatureInclusionList = objlist
+        from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming, TrigNavigationThinningTool, HLT__TrigNavigationSlimmingTool
 
+        from AthenaServices.AthenaServicesConf import ThinningSvc
+        from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+        thinningSvc = ThinningSvc()
+        ServiceMgr += thinningSvc
+        navSlimmingTool = HLT__TrigNavigationSlimmingTool()
+        navSlimmingTool.Actions = ['DropFeatures', 'SyncThinning', 'Reload']
+        navSlimmingTool.ThinningSvc = thinningSvc
+        navSlimmingTool.FeatureInclusionList = objlist
+
+        
+        navThinningTool =  TrigNavigationThinningTool()
+        navThinningTool.ActInPlace=True
+        navThinningTool.SlimmingTool = navSlimmingTool;
+        navThinningTool.ThinningSvc = thinningSvc
+        ToolSvc += navThinningTool
+
+        slimmer = HLT__TrigNavigationSlimming()                
+        slimmer.ThinningTool = navThinningTool        
+                                        
         # Add it to the beginning of the algorithm sequence:
         self.__sequence.insert( 0, slimmer )
 

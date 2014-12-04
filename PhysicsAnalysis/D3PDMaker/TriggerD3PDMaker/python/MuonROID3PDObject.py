@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: MuonROID3PDObject.py 500205 2012-05-11 10:17:25Z krasznaa $
+# $Id: MuonROID3PDObject.py 620244 2014-10-06 19:02:48Z ssnyder $
 #
 # D3PD object saving the LVL1 muon RoI information into the D3PD
 #
@@ -8,24 +8,26 @@
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 import TriggerD3PDMaker
 import EventCommonD3PDMaker
+import D3PDMakerCoreComps
 
 MuonROID3PDObject = \
-     make_SGDataVector_D3PDObject( "LVL1_ROI", "LVL1_ROI",
-                                   "trig_L1_mu_", "MuonROID3PDObject",
-                                   default_getterClass = \
-                                   TriggerD3PDMaker.Muon_ROIGetterTool )
+     make_SGDataVector_D3PDObject( "xAOD::MuonRoIContainer_v1",
+                                   "LVL1MuonRoIs",
+                                   "trig_L1_mu_", "MuonROID3PDObject")
 
-MuonROID3PDObject.defineBlock( 0, "Kinematics",
-                               EventCommonD3PDMaker.FourMomFillerTool,
-                               WriteM = False )
-MuonROID3PDObject.defineBlock( 0, "ThrInfo",
-                               TriggerD3PDMaker.Muon_ROIFillerTool,
-                               WriteThrInfo = True )
+MuonROID3PDObject.defineBlock (
+    0, 'Kinematics',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['eta', 'phi'])
+MuonROID3PDObject.defineBlock (
+    0, 'ThrInfo',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['thrName', 'thrValue'])
+MuonROID3PDObject.defineBlock (
+    2, 'RoIWord',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['RoIWord = roiWord'])
 
 MuonROID3PDObject.defineBlock( 1, "DecodedInfo",
-                               TriggerD3PDMaker.Muon_ROIFillerTool,
-                               WriteDecodedInfo = True )
+                               TriggerD3PDMaker.Muon_ROIFillerTool )
 
-MuonROID3PDObject.defineBlock( 2, "RoIWord",
-                               TriggerD3PDMaker.Muon_ROIFillerTool,
-                               WriteRoIWord = True )

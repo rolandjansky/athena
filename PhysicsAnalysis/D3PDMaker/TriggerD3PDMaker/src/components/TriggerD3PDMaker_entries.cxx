@@ -22,7 +22,7 @@
 // LVL1 filler tools:
 #include "../Muon_ROIFillerTool.h"
 #include "../Jet_ROIFillerTool.h"
-#include "../EmTau_ROIFillerTool.h"
+#include "../EmTau_ROIthrPatternFillerTool.h"
 #include "../EmTau_ROIObjectDecisionFillerTool.h"
 #include "../JetET_ROIFillerTool.h"
 #include "../EnergySum_ROIFillerTool.h"
@@ -53,7 +53,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, EnergySum_ROIGetterTool )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, Muon_ROIFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, Jet_ROIFillerTool )
-DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, EmTau_ROIFillerTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, EmTau_ROIthrPatternFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, EmTau_ROIObjectDecisionFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, JetET_ROIFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, EnergySum_ROIFillerTool )
@@ -71,33 +71,3 @@ DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, BunchStructureMetadataTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, BunchConfigIDFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TriggerKeyTool )
 
-DECLARE_FACTORY_ENTRIES( TriggerD3PDMaker ) {
-   DECLARE_NAMESPACE_TOOL( D3PD, TriggerBitFillerTool )
-
-   DECLARE_NAMESPACE_TOOL( D3PD, Muon_ROIGetterTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, Jet_ROIGetterTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, EmTau_ROIGetterTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, JetET_ROIGetterTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, EnergySum_ROIGetterTool )
-
-   DECLARE_NAMESPACE_TOOL( D3PD, Muon_ROIFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, Jet_ROIFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, EmTau_ROIFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, EmTau_ROIObjectDecisionFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, JetET_ROIFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, EnergySum_ROIFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, MuCTPI_RDOFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, CTP_RDOFillerTool )
-
-   DECLARE_NAMESPACE_TOOL( D3PD, ChainEntryFillerTool)
-   DECLARE_NAMESPACE_TOOL( D3PD, CombLinksFillerTool)
-
-   DECLARE_NAMESPACE_TOOL( D3PD, TrigConfMetadataTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, TrigDecisionFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, TrigRoiDescriptorFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, TrigDBKeysFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, TrigOperationalInfoFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, BunchStructureMetadataTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, BunchConfigIDFillerTool )
-   DECLARE_NAMESPACE_TOOL( D3PD, TriggerKeyTool )
-}

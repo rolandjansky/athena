@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 603934 2014-06-27 11:30:32Z ssnyder $
+// $Id: TrigConfMetadataTool.cxx 626801 2014-11-07 06:28:07Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -52,7 +52,48 @@ namespace D3PD {
         m_lvl1ConfigNameMap( 0 ), m_lvl1ConfigPSKMap( 0 ),
         m_hltConfigNameMap( 0 ), m_hltConfigPSKMap( 0 ),
         m_hltConfigRPSKMap( 0 ), m_hltConfigPTMap( 0 ),
-        m_hltConfigLowerChainNameMap( 0 ) {
+        m_hltConfigLowerChainNameMap( 0 ),
+
+        m_chainN (nullptr),
+        m_chainID (nullptr),
+        m_chainCounter (nullptr),
+        m_chainName (nullptr),
+        m_chainLowerID (nullptr),
+        m_chainLowerIDs (nullptr),
+        m_chainLowerName (nullptr),
+        m_chainLowerCounter (nullptr),
+        m_chainLevel (nullptr),
+        m_chainPrescale (nullptr),
+        m_chainPassthrough (nullptr),
+        m_chainStreamNames (nullptr),
+        m_chainStreamPrescales (nullptr),
+        m_chainGroupNames (nullptr),
+        m_chainEBHypoNames (nullptr),
+        m_chainSigN (nullptr),
+        m_chainSigCounter (nullptr),
+        m_chainSigLogic (nullptr),
+        m_chainSigLabel (nullptr),
+        m_chainSigOutputTEn (nullptr),
+        m_chainSigOutputTEIndex (nullptr),
+        m_chainSigOutputTEs (nullptr),
+        m_seqN (nullptr),
+        m_seqID (nullptr),
+        m_seqIndex (nullptr),
+        m_seqName (nullptr),
+        m_seqTopoTEID (nullptr),
+        m_seqInputTEs (nullptr),
+        m_seqAlgN (nullptr),
+        m_seqAlgIndex (nullptr),
+        m_seqAlgPosition (nullptr),
+        m_seqAlgNameID (nullptr),
+        m_seqAlgTypeID (nullptr),
+        m_seqAlgName (nullptr),
+        m_seqAlgTypeName (nullptr),
+        m_confVarKey (nullptr),
+        m_confVarVal (nullptr),
+        m_confStringKey (nullptr),
+        m_confStringVal (nullptr)
+   {
 
       declareProperty( "ConfigDir", m_configDir = "/D3PD/d3pdMeta" );
       declareProperty( "TrigConfigSvc", m_trigConfSvc );

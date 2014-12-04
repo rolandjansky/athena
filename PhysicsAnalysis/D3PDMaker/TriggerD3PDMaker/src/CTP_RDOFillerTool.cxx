@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CTP_RDOFillerTool.cxx 504000 2012-06-05 16:28:50Z ssnyder $
+// $Id: CTP_RDOFillerTool.cxx 621771 2014-10-14 16:50:32Z stelzer $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -48,7 +48,7 @@ namespace D3PD {
       *m_timeNanoSec = rdo.getTimeNanoSec();
       *m_numberOfBunches = rdo.getNumberOfBunches();
       *m_l1AcceptBunchPosition = rdo.getL1AcceptBunchPosition();
-      *m_pitWords = rdo.getPITWords();
+      *m_pitWords = rdo.getTIPWords(); // this was changed from PIT (Run1 = 160 internal trigger lines) to TIP (Run2 = 320 internal trigger lines + 192 direct inputs from L1Topo + ALFA) // joerg
       *m_tbpWords = rdo.getTBPWords();
       *m_tapWords = rdo.getTAPWords();
       *m_tavWords = rdo.getTAVWords();

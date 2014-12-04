@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigConfMetadata.py 610590 2014-08-06 16:01:01Z tamartin $
+# $Id: TrigConfMetadata.py 618376 2014-09-24 15:33:35Z tamartin $
 #
 # This module holds the code that should be used to add trigger configuration
 # metadata to the D3PD.
 #
 
-def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCostL2 = False, doCostEF = False, doCostHLT = False ):
+def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCostL2 = False, doCostEF = False, doCostHLT = False, saveKeys = True, tuplePath = "" ):
 
     """Helper function that adds the necessary tool(s) and service(s) to the
        job to save the trigger configuration metadata to the output D3PD
@@ -56,9 +56,11 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
     _d3pdToolName = "TrigConfMetadataTool"
     if not _d3pdToolName in [ t.name() for t in d3pdalg.MetadataTools ]:
         import TriggerD3PDMaker
+        if (tuplePath == ""):
+          tuplePath = d3pdalg.TuplePath
         _trigConfTool = TriggerD3PDMaker.TrigConfMetadataTool( _d3pdToolName,
                                                                D3PDSvc = _d3pdSvc,
-                                                               ConfigDir = d3pdalg.TuplePath + "Meta" )
+                                                               ConfigDir = tuplePath + "Meta" )
         _trigConfTool.UseTrigConfEventSummaries = useTrigConfEventSummaries
         if useTrigConfEventSummaries:
             # Figure out if old or new style HLT if using CostMon to get correct storegate key
@@ -82,12 +84,13 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
       logger.info( "TrigConfMetadataTool was already added to the D3PD::MakerAlg" )
 
     # Add the DB key filler object:
-    _dbKeysFillerName = "TrigDBKeysFiller"
-    if not hasattr( d3pdalg, _dbKeysFillerName ):
-        from TriggerD3PDMaker.TrigDBKeysD3PDObject import TrigDBKeysD3PDObject
-        d3pdalg += TrigDBKeysD3PDObject( 0 )
-    else:
-        logger.info( "TrigDBKeysD3PDObject already added to the D3PD::MakerAlg" )
+    if saveKeys == True:
+      _dbKeysFillerName = "TrigDBKeysFiller"
+      if not hasattr( d3pdalg, _dbKeysFillerName ):
+          from TriggerD3PDMaker.TrigDBKeysD3PDObject import TrigDBKeysD3PDObject
+          d3pdalg += TrigDBKeysD3PDObject( 0 )
+      else:
+          logger.info( "TrigDBKeysD3PDObject already added to the D3PD::MakerAlg" )
 
     # Restore the original logger if necessary:
     if "orig_logger" in dir(): logger = orig_logger

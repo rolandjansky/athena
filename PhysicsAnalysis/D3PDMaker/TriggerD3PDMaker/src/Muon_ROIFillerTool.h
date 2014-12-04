@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_ROIFillerTool.h 364692 2011-05-09 17:07:07Z krasznaa $
+// $Id: Muon_ROIFillerTool.h 620244 2014-10-06 19:02:48Z ssnyder $
 #ifndef TRIGGERD3PDMAKER_MUON_ROIFILLERTOOL_H
 #define TRIGGERD3PDMAKER_MUON_ROIFILLERTOOL_H
 
@@ -12,7 +12,7 @@
 #include <string>
 
 // EDM include(s):
-#include "AnalysisTriggerEvent/Muon_ROI.h"
+#include "xAODTrigger/MuonRoI.h"
 
 // D3PD include(s):
 #include "D3PDMakerUtils/BlockFillerTool.h"
@@ -27,10 +27,10 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay Jr.
     *
-    * $Revision: 364692 $
-    * $Date: 2011-05-09 19:07:07 +0200 (Mon, 09 May 2011) $
+    * $Revision: 620244 $
+    * $Date: 2014-10-06 21:02:48 +0200 (Mon, 06 Oct 2014) $
     */
-   class Muon_ROIFillerTool : public BlockFillerTool< Muon_ROI > {
+   class Muon_ROIFillerTool : public BlockFillerTool< xAOD::MuonRoI > {
 
    public:
       /// Regular AlgTool constructor
@@ -40,17 +40,9 @@ namespace D3PD {
       /// Function booking the variables in the output
       virtual StatusCode book();
       /// Function filling the variables for the output
-      virtual StatusCode fill( const Muon_ROI& roi );
+      virtual StatusCode fill( const xAOD::MuonRoI& roi );
 
    private:
-      bool m_writeThrInfo;
-      bool m_writeRoIWord;
-      bool m_writeDecodedInfo;
-
-      std::string* m_thrName; ///< The name of the highest threshold this RoI passed
-
-      uint32_t* m_roiWord; ///< The original 32-bit RoI word given by the LVL1 muon trigger
-
       short* m_thrNumber; ///< The value of the highest threshold this RoI passed
       short* m_roi; ///< The "RoI number" (position inside the sector)
       short* m_sectorAddress; ///< The full sector address

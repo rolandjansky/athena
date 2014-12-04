@@ -24,6 +24,7 @@ use D3PDMakerUtils             D3PDMakerUtils-*         PhysicsAnalysis/D3PDMake
 private
 use StoreGate                  StoreGate-*              Control
 use SGTools                    SGTools-*                Control
+use xAODTrigger                xAODTrigger-*            Event/xAOD
 use TrigT1Interfaces           TrigT1Interfaces-*       Trigger/TrigT1
 use TrigT1Result               TrigT1Result-*           Trigger/TrigT1
 use TrigConfInterfaces         TrigConfInterfaces-*     Trigger/TrigConfiguration
