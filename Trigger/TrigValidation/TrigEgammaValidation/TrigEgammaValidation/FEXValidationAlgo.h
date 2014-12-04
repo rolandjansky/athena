@@ -43,8 +43,6 @@ namespace Rec {
   class TrackParticle;
 }
 
-class IExtrapolateToCaloTool; //NDEH
-class CaloDepthTool;//NDEH
 
 class FEXValidationAlgo : public IValidationAlgo
 {
@@ -77,10 +75,6 @@ class FEXValidationAlgo : public IValidationAlgo
   void FillEFSiTrackHistos();
 
   void FillTable();
-
-  // Extrapolation 
-  IExtrapolateToCaloTool* m_toCalo;
-  CaloDepthTool* m_calodepth;
 
   std::string m_rootDir;
 

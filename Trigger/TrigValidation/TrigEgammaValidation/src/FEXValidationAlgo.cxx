@@ -24,10 +24,6 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-//#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 
 //Conflict in public requirements, egammaPID resides in AsgTools now!
 //#include "egammaEvent/egammaContainer.h"
@@ -89,25 +85,6 @@ StatusCode FEXValidationAlgo::prepare() {
 
   addTree(new TNtuple("EffTable", "Total Efficiencies", "sL:Total:L1:L2:L2IDScan:L2IDSi:EFScanCalo:EFSiCalo:EFScanTrack:EFSiTrack"));
   addTree(new TNtuple("CutTable", "Cuts", "L1EmClus:L1EmIsol:L1HadCore:L1HadIsol:L2Rcore:L2Rstrip:L2Et:L2Ehad:L2IDPt:L2IDDeta:L2IDDphi:L2IDEP:EFCaloEt:EFCaloDphi:EFCaloDeta:EFTrackeCalibFactor:EFTrackDeta:EFTrackDphi:EFTrackEtaCut:EFTrackLowEoPHighEta:EFTrackHighEoPHighEta:EFTrackLowEoPLowEta:EFTrackHighEoPLowEta"));
-
-  // extrapolation
-  IAlgTool* algtool;
-    
-  sc = m_toolSvc->retrieveTool("ExtrapolateToCaloTool/extrapolTrackToCaloTool", algtool, this );
-  if(sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get extrapolTrackToCaloTool" << endreq;
-    return StatusCode::FAILURE;
-  }
-   
-  m_toCalo=dynamic_cast<IExtrapolateToCaloTool*>(algtool);         
-
-  // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
-  m_calodepth = &(*(m_toCalo->getCaloDepth() ) );
-  if (!m_calodepth) {
-    (*m_log) << MSG::ERROR << "Cannot get CaloDepthTool" << endreq;
-       
-    return StatusCode::FAILURE; 
-  }
 
   addHistogram(new TH1F("L1EmClus", "Level 1 EM Cluster Energy ; L1 EM Cluster Energy [GeV] ; Probability", 80, 0., 80.));
   addHistogram(new TH1F("L1EmIsol", "Level 1 EM Isolation Energy ; L1 EM Isolation Energy [GeV] ; Probability", 15, 0., 15.));
@@ -249,26 +226,11 @@ void FEXValidationAlgo::extrapolateToFirstSurface(const Rec::TrackParticle* m_tr
   double distec = 0.;
   double offset = 0.;
 //  bool result = false;
-  CaloCell_ID::CaloSample sample;
-  distbar = m_calodepth->deta(CaloCell_ID::EMB1,trketa);
-  distec = m_calodepth->deta(CaloCell_ID::EME1,trketa);
-  
-  if (distbar < 0 ) sample = CaloCell_ID::EMB1;
-  else if (distec < 0 ) sample = CaloCell_ID::EME1;
-  else if ( distbar < distec) sample = CaloCell_ID::EMB1;
-  else sample = CaloCell_ID::EME1;
-  
-  (*m_log) << MSG::DEBUG << "Calculating track seen by Calo ..." << endreq;
-  const Trk::TrackParameters* SeenByCalo = m_toCalo->extrapolate(*(m_track->originalTrack()),sample,offset);
-
-  if (SeenByCalo!=NULL) {
-    //got_a_track=true;
-    caloeta = SeenByCalo->eta();
-    calophi = SeenByCalo->momentum().phi();
-  } else {
-    caloeta = -1111.;
-    calophi = -1111.;
-  }
+//  Removing extrapolation
+//  See TrigL2ElectronFex for new extrapolation
+//  CaloCell_ID::CaloSample sample;
+  caloeta = -1111.;
+  calophi = -1111.;
   //delete pt_calo_ctb;
   //delete pt_calo_local;
 }

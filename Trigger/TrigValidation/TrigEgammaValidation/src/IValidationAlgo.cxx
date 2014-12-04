@@ -252,7 +252,7 @@ StatusCode IValidationAlgo::initialize() {
 }
 
 StatusCode IValidationAlgo::execute() {
-  StatusCode sc;
+  StatusCode sc = StatusCode::FAILURE;
   try {
     *m_log << MSG::INFO << "Running execute() for " << name() << endreq;
     sc = childExecute();
@@ -260,6 +260,7 @@ StatusCode IValidationAlgo::execute() {
     *m_log << MSG::ERROR << "Exception thrown: " << e.msg() << endreq;
     return StatusCode::FAILURE;
   } catch(...) {
+    sc.ignore();
     *m_log << MSG::ERROR << "Unknown exception caught, while filling histograms" << endreq;
     return StatusCode::FAILURE;
   }

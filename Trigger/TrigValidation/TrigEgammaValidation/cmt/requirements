@@ -36,10 +36,7 @@ use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/El
 private
 apply_tag ROOTMathLibs
 use AtlasTriggerRunTime            AtlasTriggerRunTime-*
-use CaloDetDescr                CaloDetDescr-*                  Calorimeter
 use GeneratorObjects            GeneratorObjects-*		Generators
-#use ITrackToCalo        ITrackToCalo-*          Reconstruction/RecoTools
-use RecoToolInterfaces		RecoToolInterfaces-*		Reconstruction/RecoTools
 use Particle                    Particle-*                      Reconstruction
 use EventInfo                   EventInfo-*                     Event
 use FourMom                     FourMom-*                       Event

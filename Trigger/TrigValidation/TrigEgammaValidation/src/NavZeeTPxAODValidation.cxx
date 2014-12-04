@@ -360,6 +360,7 @@ StatusCode NavZeeTPxAODValidation::childExecute()
     m_ProbesLV.clear();
     //for(unsigned int i=0;i<32;i++) m_NProbesIsEM[i]=0;
     //for(unsigned int i=0;i<32;i++) m_NFailedIsEM[i]=0;
+    std::cout << "Starting up" << std::endl;
     for(const auto& elTag : *electrons){
         if(isTagElectron(elTag).isFailure()) continue; 
         //All offline electron and online electron efficiency
@@ -372,6 +373,8 @@ StatusCode NavZeeTPxAODValidation::childExecute()
             hist1("ZeeTagPt")->Fill(elTag->pt()/1.e3);
             if(!isMatchEF(elTag,m_chain).isFailure()) hist1("ZeeMatchTagPt")->Fill(elTag->pt()/1.e3);
         }
+	std::cout << "Tag electron features : " << elTag->pt() << " " << elTag->trackParticle()->eta();
+	std::cout << " " << elTag->trackParticle()->phi() << std::endl;
         for(const auto& elProbe : *electrons){
             if(elProbe==elTag) continue;
             //ATH_MSG_DEBUG("Found different T&P pair");
@@ -479,11 +482,11 @@ StatusCode NavZeeTPxAODValidation::fillIsEM(const xAOD::Electron *egoff, const x
     unsigned int isEMhlt;
     if (m_chain.find("loose") != string::npos){
         (*m_log) << MSG::DEBUG << "In fillIsEM Loose" << endreq;    
-        if(m_electronLoosePPCutIDTool->execute(egoff, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
+        if(m_electronLoosePPCutIDTool->execute(egoff).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
         isEMoff = m_electronLoosePPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Probe IsEM " << std::hex << isEMoff << endreq;
 
-        if(m_electronLoosePPCutIDTool->execute(eghlt, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Loose HLT Object Fails " << endreq;
+        if(m_electronLoosePPCutIDTool->execute(eghlt).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Loose HLT Object Fails " << endreq;
         isEMhlt = m_electronLoosePPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Failed IsEM " << std::hex << isEMhlt << endreq;
         
@@ -494,10 +497,10 @@ StatusCode NavZeeTPxAODValidation::fillIsEM(const xAOD::Electron *egoff, const x
     }
     else if (m_chain.find("medium") != string::npos){
         (*m_log) << MSG::DEBUG << "In fillIsEM Medium" << endreq;    
-        if(m_electronMediumPPCutIDTool->execute(egoff, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
+        if(m_electronMediumPPCutIDTool->execute(egoff).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
         isEMoff = m_electronMediumPPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Probe IsEM " << std::hex << isEMoff << endreq;
-        if(m_electronMediumPPCutIDTool->execute(eghlt, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEMM Medium HLT Object Fails " << endreq;
+        if(m_electronMediumPPCutIDTool->execute(eghlt).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEMM Medium HLT Object Fails " << endreq;
         isEMhlt = m_electronMediumPPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Failed IsEM " << std::hex << isEMhlt << endreq;
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
@@ -507,10 +510,10 @@ StatusCode NavZeeTPxAODValidation::fillIsEM(const xAOD::Electron *egoff, const x
     }
     else if (m_chain.find("tight") != string::npos){
         (*m_log) << MSG::DEBUG << "In fillIsEM Tight" << endreq;    
-        if(m_electronTightPPCutIDTool->execute(egoff, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
+        if(m_electronTightPPCutIDTool->execute(egoff).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Probe Must Pass " << endreq;
         isEMoff = m_electronTightPPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Probe IsEM " << std::hex << isEMoff << endreq;
-        if(m_electronTightPPCutIDTool->execute(eghlt, 20000, false).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Tight HLT Object Fails " << endreq;
+        if(m_electronTightPPCutIDTool->execute(eghlt).isFailure()) (*m_log) << MSG::DEBUG << "REGTEST::fillIsEM Tight HLT Object Fails " << endreq;
         isEMhlt = m_electronTightPPCutIDTool->IsemValue();
         (*m_log) << MSG::DEBUG << "REGTEST::Failed IsEM " << std::hex << isEMhlt << endreq;
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton

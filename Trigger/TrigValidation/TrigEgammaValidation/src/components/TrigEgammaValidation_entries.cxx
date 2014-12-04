@@ -12,6 +12,10 @@
 #include "TrigEgammaValidation/NavZeeTPxAODValidation.h"
 #include "TrigEgammaValidation/NavRateValidation.h"
 #include "TrigEgammaValidation/NavRateExpert.h"
+#include "TrigEgammaValidation/NavZeeTPCounts.h"
+#include "TrigEgammaValidation/NavZeeTPEff.h"
+#include "TrigEgammaValidation/NavZeeTPRes.h"
+#include "TrigEgammaValidation/NavZeeTPIneff.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -29,6 +33,10 @@ DECLARE_ALGORITHM_FACTORY( NavZeeValidation)
 DECLARE_ALGORITHM_FACTORY( NavZeeTPxAODValidation )
 DECLARE_ALGORITHM_FACTORY( NavRateValidation)
 DECLARE_ALGORITHM_FACTORY( NavRateExpert)
+DECLARE_ALGORITHM_FACTORY( NavZeeTPCounts)
+DECLARE_ALGORITHM_FACTORY( NavZeeTPEff)
+DECLARE_ALGORITHM_FACTORY( NavZeeTPRes)
+DECLARE_ALGORITHM_FACTORY( NavZeeTPIneff)
 
 DECLARE_FACTORY_ENTRIES( TrigEgammaValidation ) {
   DECLARE_ALGORITHM( ZeeValidation )
@@ -45,5 +53,9 @@ DECLARE_FACTORY_ENTRIES( TrigEgammaValidation ) {
   DECLARE_ALGORITHM( NavZeeTPxAODValidation )
   DECLARE_ALGORITHM( NavRateValidation)
   DECLARE_ALGORITHM( NavRateExpert)
+  DECLARE_ALGORITHM( NavZeeTPCounts)
+  DECLARE_ALGORITHM( NavZeeTPEff)
+  DECLARE_ALGORITHM( NavZeeTPRes)
+  DECLARE_ALGORITHM( NavZeeTPIneff)
 }
 
