@@ -7,6 +7,7 @@
 //#include "JetUtils/JetCaloHelper.h"
 #include "Particle/TrackParticleContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
+#include "CaloEvent/CaloSamplingHelper.h"
 #include "TileEvent/TileCell.h"
 
 
@@ -84,133 +85,82 @@ int nLeadingCells(const Jet* jet,double threshold)
 
 JetVarTool::JetVarTool( const std::string& type,
 			      const std::string& name,
-			      const IInterface* parent ) : AlgTool( type, name, parent ) {
+			      const IInterface* parent ) :
+  AthAlgTool( type, name, parent ),
+  m_jetColl(nullptr),
+  m_jetTruthColl(nullptr),
+  m_trackParticles(nullptr)
+{
   declareInterface<JetVarTool>( this );
 
-  declareProperty("JetCollectionKey",           _JetCollectionKey          = "Cone4H1TopoJets" );
-  declareProperty("JetTruthCollectionKey",      _JetTruthCollectionKey     = "Cone4TruthJets" );
-  declareProperty("TrackParticleContainerKey",  _TrackParticleKey          = "TrackParticleCandidate" );
-
-  mLog = 0;
+  declareProperty("JetCollectionKey",           m_JetCollectionKey          = "Cone4H1TopoJets" );
+  declareProperty("JetTruthCollectionKey",      m_JetTruthCollectionKey     = "Cone4TruthJets" );
+  declareProperty("TrackParticleContainerKey",  m_TrackParticleKey          = "TrackParticleCandidate" );
 }
 
 JetVarTool::~JetVarTool() {
 }
 
 StatusCode JetVarTool::initialize() {
-  if (!mLog) mLog = new MsgStream(msgSvc(), name() );
-  _dummyJetColl = new JetCollection;
-  _dummyTracks = new Rec::TrackParticleContainer;
+  ATH_MSG_DEBUG ( "JetVarTool Tool initialize() has been called" ) ;
 
-  *mLog << MSG::DEBUG << "JetVarTool Tool initialize() has been called" << endreq;
-
-  /** get a handle of StoreGate for access to the Event Store */
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     *mLog << MSG::ERROR
-          << "Unable to retrieve pointer to StoreGateSvc"
-          << endreq;
-     return sc;
-  }
   IClassIDSvc* clidsvc = 0;
-  if (service("ClassIDSvc", clidsvc).isFailure()) {
-     *mLog << MSG::ERROR
-          << "Unable to retrieve pointer to ClassIDSvc"
-          << endreq;
-     return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service("ClassIDSvc", clidsvc) );
   if (!clidsvc->isIDInUse (1118613496)) {
-    sc = clidsvc->setTypePackageForID (1118613496,
-                                       "ParticleJetContainer",
-                                       Athena::PackageInfo("dummy-00-00-00"));
+    ATH_CHECK( clidsvc->setTypePackageForID (1118613496,
+                                             "ParticleJetContainer",
+                                             Athena::PackageInfo("dummy-00-00-00")) );
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode JetVarTool::finalize() {
-  *mLog << MSG::DEBUG << "JetVarTool Tool finalize() has been called" << endreq;
-  if (_dummyJetColl) delete _dummyJetColl;
-  if (_dummyTracks) delete _dummyTracks;
-
+  ATH_MSG_DEBUG ( "JetVarTool Tool finalize() has been called" ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode JetVarTool::retrieveContainers() {
 
-  *mLog << MSG::DEBUG << "in JetVarTool::retrieveContainers() " << endreq;
+  ATH_MSG_DEBUG ( "in JetVarTool::retrieveContainers() " ) ;
 
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_CHECK( retrieveJetContainer(m_JetCollectionKey) );
+  ATH_CHECK( retrieveTrackContainer(m_TrackParticleKey) );
+  ATH_CHECK( retrieveTruthJetContainer(m_JetTruthCollectionKey) );
 
-  sc = retrieveJetContainer(_JetCollectionKey);
-  if (sc.isFailure()) {
-    *mLog << MSG::WARNING << "JetVarTool: failed retrieving " << _JetCollectionKey << endreq; 
-    return sc;
-  }
-
-  sc = retrieveTrackContainer(_TrackParticleKey);
-  if (sc.isFailure()) {
-    *mLog << MSG::WARNING << "JetVarTool: failed retrieving " << _TrackParticleKey << endreq; 
-    return sc;
-  }
-
-  sc = retrieveTruthJetContainer(_JetTruthCollectionKey);
-  if (sc.isFailure()) {
-    *mLog << MSG::WARNING << "JetVarTool: failed retrieving " << _JetTruthCollectionKey << endreq; 
-    return sc;
-  }
-
-  return sc;
+  return StatusCode::SUCCESS;
 }//end retrieveContainers()
 
 StatusCode JetVarTool::retrieveJetContainer(std::string jetContainerKey) {
   const JetCollection*  jet = 0;
-  StatusCode sc = StatusCode::SUCCESS;
-
-  if (m_storeGate->contains<JetCollection>(jetContainerKey)) {
-    sc=m_storeGate->retrieve( jet, jetContainerKey );
-    if( sc.isFailure()  ||  !jet ) {
-      *mLog << MSG::WARNING << "JetVarTool: No JetCollection found in StoreGate, key:" << jetContainerKey << endreq; 
-      return sc;
-    }
-  } else {jet = _dummyJetColl;}
+  if (evtStore()->contains<JetCollection>(jetContainerKey)) {
+    ATH_CHECK( evtStore()->retrieve( jet, jetContainerKey ) );
+  } else {jet = &m_dummyJetColl;}
   setJetCollection(jet);
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }//end of retrieveJetContainer
 
 StatusCode JetVarTool::retrieveTrackContainer(std::string trackContainerKey) {
   const Rec::TrackParticleContainer *tracks = 0;
-  StatusCode sc = StatusCode::SUCCESS;
-
-  if (m_storeGate->contains<Rec::TrackParticleContainer>(trackContainerKey)) {
-    sc=m_storeGate->retrieve( tracks, trackContainerKey );
-    if( sc.isFailure()  ||  !tracks ) {
-      *mLog << MSG::DEBUG << "JetVarTool: No TrackParticleContainer found in StoreGate, key:" << trackContainerKey << endreq;
-      return sc;
-    }
-  } else { tracks = _dummyTracks;}
+  if (evtStore()->contains<Rec::TrackParticleContainer>(trackContainerKey)) {
+    ATH_CHECK( evtStore()->retrieve( tracks, trackContainerKey ) );
+  } else { tracks = &m_dummyTracks;}
   setTrackParticleCollection(tracks);
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }//end of retrieveTrackContainer
 
 StatusCode JetVarTool::retrieveTruthJetContainer(std::string truthJetContainerKey) {
   const JetCollection*  jetTruth = 0;
-  StatusCode sc = StatusCode::SUCCESS;
-
-  if (m_storeGate->contains<JetCollection>(truthJetContainerKey)) {
-    sc=m_storeGate->retrieve( jetTruth, truthJetContainerKey );
-    if( sc.isFailure()  ||  !jetTruth ) {
-      *mLog << MSG::DEBUG << "JetVarTool: No Truth JetCollection found in StoreGate, key:" << truthJetContainerKey << endreq;
-      return sc;
-    }
-  } else { jetTruth = _dummyJetColl;}
+  if (evtStore()->contains<JetCollection>(truthJetContainerKey)) {
+    ATH_CHECK( evtStore()->retrieve( jetTruth, truthJetContainerKey ) );
+  } else { jetTruth = &m_dummyJetColl;}
   setJetTruthCollection(jetTruth);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 float JetVarTool::leastJetEMfraction(const JetCollection *jetcoll) {
@@ -227,7 +177,7 @@ float JetVarTool::leastJetEMfraction(const JetCollection *jetcoll) {
 }//end leastJetEMfraction()
 
 float JetVarTool::leastJetEMfraction() {
-  return leastJetEMfraction(_jetColl);
+  return leastJetEMfraction(m_jetColl);
 }
 
 float JetVarTool::EventEMFraction()
@@ -236,8 +186,8 @@ float JetVarTool::EventEMFraction()
    // implementation from Reyhaneh Rezvani, Hugo Beauchemin
    //
    const CaloClusterContainer* clusters;   
-   if ( m_storeGate->retrieve(clusters,"CaloCalTopoCluster").isFailure() ) {
-      *mLog << MSG::WARNING << " Could not get pointer to CaloClusterContainer " << endreq;
+   if ( evtStore()->retrieve(clusters,"CaloCalTopoCluster").isFailure() ) {
+     ATH_MSG_WARNING ( " Could not get pointer to CaloClusterContainer " ) ;
       return StatusCode::SUCCESS;
    }
    
@@ -401,11 +351,11 @@ float JetVarTool::JetPtWeightedEventEMfraction(const JetCollection *jetcoll) {
 }
 
 float JetVarTool::JetPtWeightedEventEMfraction() {
-  return JetPtWeightedEventEMfraction(_jetColl);
+  return JetPtWeightedEventEMfraction(m_jetColl);
 }
 
 float JetVarTool::JetChargeFraction(const Jet *jet) {
-   return JetChargeFraction(jet, _trackParticles);
+   return JetChargeFraction(jet, m_trackParticles);
 }
 
 float JetVarTool::JetChargeFraction(const Jet *jet, const Rec::TrackParticleContainer *trackParticles) {
@@ -431,7 +381,7 @@ float JetVarTool::JetChargeFraction(const Jet *jet, const Rec::TrackParticleCont
 }
 
 int JetVarTool::JetNumAssociatedTracks(const Jet *jet) {
-   return JetNumAssociatedTracks(jet, _trackParticles);
+   return JetNumAssociatedTracks(jet, m_trackParticles);
 }
 
 int JetVarTool::JetNumAssociatedTracks(const Jet *jet, const Rec::TrackParticleContainer *trackParticles) {
@@ -474,7 +424,7 @@ float JetVarTool::JetPtWeightedNumAssociatedTracks(const JetCollection *jetcoll,
 }
 
 float JetVarTool::JetPtWeightedNumAssociatedTracks() {
-  return JetPtWeightedNumAssociatedTracks(_jetColl, _trackParticles);
+  return JetPtWeightedNumAssociatedTracks(m_jetColl, m_trackParticles);
 }
 
 float JetVarTool::JetPtWeightedSize(const JetCollection *jetcoll) {
@@ -495,7 +445,7 @@ float JetVarTool::JetPtWeightedSize(const JetCollection *jetcoll) {
 }
 
 int JetVarTool::lowestN90CellsJet() {
-  return lowestN90CellsJet(_jetColl);
+  return lowestN90CellsJet(m_jetColl);
 }
 
 int JetVarTool::lowestN90CellsJet(const JetCollection *jetcoll) {
@@ -514,7 +464,7 @@ int JetVarTool::lowestN90CellsJet(const JetCollection *jetcoll) {
 }
 
 float JetVarTool::JetPtWeightedSize() {
-  return JetPtWeightedSize(_jetColl);
+  return JetPtWeightedSize(m_jetColl);
 }
 
 float JetVarTool::leadingJetEt(const JetCollection *jetcoll) {
@@ -554,11 +504,11 @@ float JetVarTool::secondJetPhi(const JetCollection *jetcoll) {
 
 bool JetVarTool::leadingJet() const {
   const Jet *leadJet = 0; 
-  return leadingJet(leadJet ,_jetColl);
+  return leadingJet(leadJet ,m_jetColl);
 }
 
 bool JetVarTool::leadingJet(const Jet * & leadJet ) const {
-   return leadingJet(leadJet ,_jetColl);
+   return leadingJet(leadJet ,m_jetColl);
 }
 
 bool JetVarTool::leadingJet(const Jet * & leadJet ,const JetCollection *jetcoll) const {
@@ -580,7 +530,7 @@ bool JetVarTool::leadingJet(const Jet * & leadJet ,const JetCollection *jetcoll)
 Jet JetVarTool::GetLeadingJet() const {
   float leadingJetEt = 0;
   const Jet *leadJet=0;
-  for (JetCollection::const_iterator jetItr = _jetColl->begin(); jetItr != _jetColl->end(); ++jetItr) {
+  for (JetCollection::const_iterator jetItr = m_jetColl->begin(); jetItr != m_jetColl->end(); ++jetItr) {
     if ((*jetItr)->et() > leadingJetEt) {
       leadingJetEt = (*jetItr)->et();
       leadJet=(*jetItr);
@@ -592,11 +542,11 @@ Jet JetVarTool::GetLeadingJet() const {
 
 bool JetVarTool::secondJet() const{
   const Jet *secjet=0;
-  return secondJet(secjet, _jetColl);
+  return secondJet(secjet, m_jetColl);
 }
 
 bool JetVarTool::secondJet(const Jet * & secJet) const {
-   return secondJet(secJet ,_jetColl) ;
+   return secondJet(secJet ,m_jetColl) ;
 }
 
 bool JetVarTool::secondJet(const Jet * & secJet ,const JetCollection *jetcoll) const {
@@ -627,27 +577,27 @@ bool JetVarTool::secondJet(const Jet * & secJet ,const JetCollection *jetcoll) c
 }
 
 float JetVarTool::leadingJetEt() {
-  return leadingJetEt(_jetColl);
+  return leadingJetEt(m_jetColl);
 }
 
 float JetVarTool::leadingJetEta() {
-  return leadingJetEta(_jetColl);
+  return leadingJetEta(m_jetColl);
 }
 
 float JetVarTool::leadingJetPhi() {
-  return leadingJetPhi(_jetColl);
+  return leadingJetPhi(m_jetColl);
 }
 
 float JetVarTool::secondJetEt() {
-  return secondJetEt(_jetColl);
+  return secondJetEt(m_jetColl);
 }
 
 float JetVarTool::secondJetEta() {
-  return secondJetEta(_jetColl);
+  return secondJetEta(m_jetColl);
 }
 
 float JetVarTool::secondJetPhi() {
-  return secondJetPhi(_jetColl);
+  return secondJetPhi(m_jetColl);
 }
 
 

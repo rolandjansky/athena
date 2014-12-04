@@ -226,17 +226,19 @@ double jetTimeClusters(const Jet* jet)
         {
 	  // We perform a naive e^2 weighting over the cluster times and energies
 	  const CaloCluster* theClus = dynamic_cast<const CaloCluster*>(firstClus.get_real_constit());
+          if (theClus) {
 
-	  // For the moment, we have to force the weight to be 1, because of navigation
-	  // difficulties with the JetConstituentIterator
-	  //double weight(firstClus.get_real_constit().getParameter());
-	  double weight(1);
+            // For the moment, we have to force the weight to be 1, because of navigation
+            // difficulties with the JetConstituentIterator
+            //double weight(firstClus.get_real_constit().getParameter());
+            double weight(1);
 
-	  double thisNorm = weight * fabs(weight) * firstClus.e() * firstClus.e();
-	  double thisTime = thisNorm * theClus->getTime();
-
-	  time += thisTime;
-	  norm += thisNorm;
+            double thisNorm = weight * fabs(weight) * firstClus.e() * firstClus.e();
+            double thisTime = thisNorm * theClus->getTime();
+          
+            time += thisTime;
+            norm += thisNorm;
+          }
 	  
 	}
     }

@@ -196,7 +196,7 @@ METCollisionFilter::execute()
 
   //////////////////////////////////////////////
 
-  if (m_doMBTSTimeFilter && m_doMBTSTimeFilter) {
+  if (m_doCaloTimeFilter && m_doMBTSTimeFilter) {
     pass = passCalo && passMBTS;
     ATH_MSG_DEBUG ("Event accepted as collision ? " << pass);
     //this->setFilterPassed (pass); // This skips the execution of following algs for this event

@@ -5,7 +5,7 @@
 #ifndef JETVARTOOL_H
 #define JETVARTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -18,7 +18,7 @@
 
 static const InterfaceID IID_JetVarTool("JetVarTool", 1, 0);
 
-class JetVarTool : public AlgTool {
+class JetVarTool : public AthAlgTool {
 public:
   JetVarTool(const std::string& type, const std::string& name,
                    const IInterface* parent);
@@ -34,14 +34,14 @@ public:
   /** finalization */
   virtual StatusCode finalize();
 
-  void setJetTruthCollection(const JetCollection *j) {_jetTruthColl = j;}
-  void setJetCollection(const JetCollection *j) {_jetColl = j;}
-  void setTrackParticleCollection(const Rec::TrackParticleContainer *t) {_trackParticles = t;}
+  void setJetTruthCollection(const JetCollection *j) {m_jetTruthColl = j;}
+  void setJetCollection(const JetCollection *j) {m_jetColl = j;}
+  void setTrackParticleCollection(const Rec::TrackParticleContainer *t) {m_trackParticles = t;}
 
-  const JetCollection *jetTruthCollection() {return _jetTruthColl;}
-  const JetCollection *jetCollection() {return _jetColl;}
+  const JetCollection *jetTruthCollection() {return m_jetTruthColl;}
+  const JetCollection *jetCollection() {return m_jetColl;}
 
-  const Rec::TrackParticleContainer *trackParticleCollection() {return _trackParticles;}
+  const Rec::TrackParticleContainer *trackParticleCollection() {return m_trackParticles;}
 
   StatusCode retrieveContainers();
   StatusCode retrieveJetContainer(std::string jetContainerKey);
@@ -126,23 +126,19 @@ public:
   double jetWLArQuality(const Jet* jet);
 
  private:
-  /** a handle on Store Gate for access to the Event Store */
-  StoreGateSvc* m_storeGate;
-  MsgStream *mLog;
-
   //storegate key names
-  std::string _JetCollectionKey;
-  std::string _JetTruthCollectionKey;
-  std::string _TrackParticleKey;
+  std::string m_JetCollectionKey;
+  std::string m_JetTruthCollectionKey;
+  std::string m_TrackParticleKey;
 
   //pointers to jet collections
-  const JetCollection *_dummyJetColl;
-  const JetCollection *_jetColl;
-  const JetCollection *_jetTruthColl;
+  const JetCollection m_dummyJetColl;
+  const JetCollection *m_jetColl;
+  const JetCollection *m_jetTruthColl;
 
   //pointers to tracks
-  const Rec::TrackParticleContainer *_dummyTracks;
-  const Rec::TrackParticleContainer *_trackParticles;
+  const Rec::TrackParticleContainer m_dummyTracks;
+  const Rec::TrackParticleContainer *m_trackParticles;
 };
 
 #endif // JETVARTOOL_H

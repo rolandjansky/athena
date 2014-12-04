@@ -6,8 +6,7 @@
 #include "MissingETGoodness/EtmissGoodnessManagerAlg.h"
 
 #include "StoreGate/StoreGate.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "MissingETGoodness/EtmissGoodnessManager.h"
 #include "MissingETGoodness/TMsgLogger.h"
@@ -74,7 +73,7 @@ EtmissGoodnessManagerAlg::execute()
   MET::EtmissGoodnessManager::instance().ClearEvent();
 
   // get event number here ...
-  const EventInfo*  _evt = 0;
+  const xAOD::EventInfo*  _evt = 0;
   StatusCode status = StatusCode::SUCCESS;
   // retrieve event info
   status = m_storeGate->retrieve(_evt);
@@ -83,8 +82,8 @@ EtmissGoodnessManagerAlg::execute()
     return status;
   } 
 
-  int m_eventNumber = _evt->event_ID()->event_number();
-  int m_runNumber = _evt->event_ID()->run_number();
+  int m_eventNumber = _evt->eventNumber();
+  int m_runNumber = _evt->runNumber();
   //int m_lumiBlock = _evt->event_ID()->lumi_block();
   //int m_timeStamp = _evt->event_ID()->time_stamp();
   ATH_MSG_DEBUG ("Got run number = " << m_runNumber << ", event number = " << m_eventNumber);
