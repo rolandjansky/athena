@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
         }
         else {
           std::cerr << "main(): test file " << arg << " does not exist" << std::endl;
-          return -1;
+          return -2;
         }
       }
       else if (fref == 0) {
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
         }
         else {
           std::cerr << "main(): ref file " << arg << " does not exist" << std::endl;
-          return -1;
+          return -3;
         }
       }
       else {
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
   }
 
   if (ftest == 0 || fref == 0 ) {
-    return usage(argv[0], -1);
+    return usage(argv[0], -4);
   }
 
 

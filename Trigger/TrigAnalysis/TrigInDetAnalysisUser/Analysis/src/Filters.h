@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 610317 2014-08-05 12:49:01Z sutt $
+//   $Id: Filters.h 629270 2014-11-18 19:38:16Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -154,12 +154,15 @@ public:
     for (unsigned int i=0 ; i<m_v.size() ; i++ ) { 
 	
       double* v = m_v[i].position();
-      double a0 = t->a0() + v[0]*std::sin( t->phi() ) - v[1]*std::cos( t->phi() );
+      /// tracks should already be corrected to the beam line now
+      //     double a0 = t->a0() + v[0]*std::sin( t->phi() ) - v[1]*std::cos( t->phi() );
+      double a0 = t->a0(); 
 	
       /// calculate z
 	
       double theta = 2*std::atan(std::exp( -t->eta() ));
-      double z = t->z0() + ( v[0]*std::cos( t->phi() ) + v[1]*std::sin( t->phi() ) )/std::atan(theta);
+      //      double z = t->z0() + ( v[0]*std::cos( t->phi() ) + v[1]*std::sin( t->phi() ) )/std::atan(theta);
+      double z = t->z0();
       double z0sin = (z-v[2])*std::sin(theta);
 
 

@@ -6,13 +6,14 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 617092 2014-09-17 07:26:46Z sutt $
+//   $Id: ConfAnalysis.cxx 633751 2014-12-04 16:27:10Z openc $
 
 
 #include "ConfAnalysis.h"
 
 #include "TrigInDetAnalysis/TrackFilter.h"
 #include "TrigInDetAnalysis/TrackEvent.h"
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 
 #include "BinConfig.h"
@@ -29,6 +30,8 @@ extern double a0;
 extern bool hipt;
 
 extern TrackEvent* event;
+
+extern TIDARoiDescriptor* groi;
 
 
 /// these are all definied on rmain.cxx
@@ -140,10 +143,6 @@ void ConfAnalysis::initialiseInternal() {
   double  pt_a = 1;
   double  pt_b = 1;
 
-  /// grrr, why these customisations?
-  //  if ( name().find("L2_e")!=std::string::npos ||
-  //      name().find("Muon")!=std::string::npos ) { 
-  //  Npt = 40;
     Npt = int(30*_binConfig.pt_NScale);
     pt_a = 3.5;
     pt_b = 2;
@@ -254,9 +253,6 @@ void ConfAnalysis::initialiseInternal() {
   delete effpt2d;
   delete effeta2d;
 
-  Efficiency* heff[9];  
-  Efficiency* hpurity[6]; 
-
   //  addHistogram( hchi2=new TH1F("chi2", "chi2", 100, 0, 20) );
 
   // "reference" quantities
@@ -275,47 +271,64 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(  new TH1F( "dd0",  "dd0",  50, 0, 0.5  ) );
   addHistogram(  new TH1F( "da0",  "da0",  50, 0, 0.5  ) );
 
+  addHistogram(  new TH1F( "roi_deta", "roi_deta", 100, -1, 1  ) );
+  addHistogram(  new TH1F( "roi_dphi", "roi_dphi", 100, -1, 1  ) );
+  addHistogram(  new TH1F( "roi_dR", "roi_dR", 50, 0, 1  ) );
+
   // efficiencies and purities
-  heff[0]    = new Efficiency( find("pT"),  "pT_eff"  );
-  heff[1]    = new Efficiency( find("eta"), "eta_eff" );
-  heff[2]    = new Efficiency( find("phi"), "phi_eff" );
-  heff[3]    = new Efficiency( find("z0"),  "z0_eff"  );
-  heff[4]    = new Efficiency( find("d0"),  "d0_eff"  );
-  heff[5]    = new Efficiency( find("a0"),  "a0_eff"  );
+  eff_pt  = new Efficiency( find("pT"),  "pT_eff"  );
+  eff_pt->Hist()->GetXaxis()->SetTitle("P_{T} [GeV]");
+  eff_pt->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
-  heff[6]    = new Efficiency( find("pT"), "pTm_eff" );
-  heff[7]    = new Efficiency( find("pT"), "pTp_eff" );
+  eff_eta = new Efficiency( find("eta"), "eta_eff" );
+  eff_eta->Hist()->GetXaxis()->SetTitle("#eta");
+  eff_eta->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
-  heff[8]    = new Efficiency( find("pT"), "pTroi_eff" );
+  eff_phi = new Efficiency( find("phi"), "phi_eff" );
+  eff_phi->Hist()->GetXaxis()->SetTitle("#phi");
+  eff_phi->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
-  eff_pt  = heff[0];
-  eff_eta = heff[1];
-  eff_phi = heff[2];
-  eff_z0  = heff[3];
-  eff_d0  = heff[4];
-  eff_a0  = heff[5];
+  eff_z0  = new Efficiency( find("z0"),  "z0_eff"  );
+  eff_z0->Hist()->GetXaxis()->SetTitle("z0");
+  eff_z0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
-  eff_ptm = heff[6];
-  eff_ptp = heff[7];
+  eff_d0  = new Efficiency( find("d0"),  "d0_eff"  );
+  eff_d0->Hist()->GetXaxis()->SetTitle("d0");
+  eff_d0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
-  eff_roi_pt = heff[8];
+  eff_a0  = new Efficiency( find("a0"),  "a0_eff"  );
+  eff_a0->Hist()->GetXaxis()->SetTitle("a0");
+  eff_a0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+          
+  eff_ptm = new Efficiency( find("pT"), "pTm_eff" );
+  eff_ptm->Hist()->GetXaxis()->SetTitle("Negative P_{T} [GeV]");
+  eff_ptm->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+
+  eff_ptp = new Efficiency( find("pT"), "pTp_eff" );
+  eff_ptp->Hist()->GetXaxis()->SetTitle("Positive P_{T} [GeV]");
+  eff_ptp->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+
+  eff_roi_deta = new Efficiency( find("roi_deta"), "roi_deta_eff" );
+  eff_roi_deta->Hist()->GetXaxis()->SetTitle("RoI #Delta#eta");
+  eff_roi_deta->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+
+  eff_roi_dphi = new Efficiency( find("roi_dphi"), "roi_dphi_eff" );
+  eff_roi_dphi->Hist()->GetXaxis()->SetTitle("RoI #Delta#phi");
+  eff_roi_dphi->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+
+  eff_roi_dR = new Efficiency( find("roi_dR"), "roi_dR_eff" );
+  eff_roi_dR->Hist()->GetXaxis()->SetTitle("RoI #Delta R");
+  eff_roi_dR->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
 
   // addHistogram ( hDeltaR = new TH1F("DeltaR", "DeltaR", 100, 0, 0.1 ) );
   addHistogram ( hDeltaR = new TH1F("DeltaR", "DeltaR", 100, 0, 0.2 ) );
 
-  hpurity[0] = new Efficiency( find("pT"),  "pT_pur"  );
-  hpurity[1] = new Efficiency( find("eta"), "eta_pur" );
-  hpurity[2] = new Efficiency( find("phi"), "phi_pur" );
-  hpurity[3] = new Efficiency( find("z0"),  "z0_pur"  );
-  hpurity[4] = new Efficiency( find("d0"),  "d0_pur"  );
-  hpurity[5] = new Efficiency( find("a0"),  "a0_pur"  );
-
-  purity_pt  = hpurity[0];
-  purity_eta = hpurity[1];
-  purity_phi = hpurity[2];
-  purity_z0  = hpurity[3];
-  purity_d0  = hpurity[4];
-  purity_a0  = hpurity[5];
+  purity_pt  = new Efficiency( find("pT"),  "pT_pur"  );
+  purity_eta = new Efficiency( find("eta"), "eta_pur" );
+  purity_phi = new Efficiency( find("phi"), "phi_pur" );
+  purity_z0  = new Efficiency( find("z0"),  "z0_pur"  );
+  purity_d0  = new Efficiency( find("d0"),  "d0_pur"  );
+  purity_a0  = new Efficiency( find("a0"),  "a0_pur"  );
 
   // "test" quantities
   addHistogram(    new TH1F(  "pT_rec",   "pT_rec",   ptnbins,    ptbinlims ) );
@@ -584,6 +597,9 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram( new TH1F( "npix",     "npix",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "npix_rec", "npix_rec", NHits, -0.5, float(NHits-0.5) ) );
 
+  addHistogram( new TH1F( "nsi",     "nsi",     NHits, -0.5, float(NHits-0.5) ) );
+  addHistogram( new TH1F( "nsi_rec", "nsi_rec", NHits, -0.5, float(NHits-0.5) ) );
+
   addHistogram( new TH1F( "ntrt",     "ntrt",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "ntrt_rec", "ntrt_rec", NHits, -0.5, float(NHits-0.5) ) );
 
@@ -730,10 +746,15 @@ void ConfAnalysis::finalise() {
 
   if ( !m_initialised ) return;
 
-  std::cout << "ConfAnalysis::finalise() " << name() 
-	    << "\tNreco "    << Nreco  
+  std::cout << "ConfAnalysis::finalise() " << name();
+  if ( name().size()<19 ) std::cout << "\t";
+  if ( name().size()<30 ) std::cout << "\t";
+  if ( name().size()<41 ) std::cout << "\t";
+  if ( name().size()<52 ) std::cout << "\t";
+  std::cout << "\tNreco "    << Nreco  
 	    << "\tNref "     << Nref
 	    << "\tNmatched " << Nmatched;
+
   if (Nref) {
     std::cout << " tracks approx " << (100*Nmatched)/Nref << "%" ;
   }
@@ -748,12 +769,23 @@ void ConfAnalysis::finalise() {
 
   std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
   std::map<std::string, TH1F*>::iterator hend=m_histos.end();
-  //  for ( ; hitr!=hend ; hitr++ ) hitr->second->Write();     
+  for ( ; hitr!=hend ; hitr++ ) hitr->second->Write();     
 
   //  std::cout << "DBG >" << eff_pt->Hist()->GetName() << "< DBG" << std::endl;
 
-  Efficiency* heff[9] = { eff_pt, eff_eta, eff_phi, eff_z0, eff_d0, eff_a0, eff_ptm, eff_ptp };
-  for ( int i=8 ; i-- ; ) { 
+  std::vector<Efficiency*> heff = { eff_pt,
+                                    eff_eta,
+                                    eff_phi,
+                                    eff_z0,
+                                    eff_d0,
+                                    eff_a0,
+                                    eff_ptm,
+                                    eff_ptp,
+                                    eff_roi_deta,
+                                    eff_roi_dphi,
+                                    eff_roi_dR
+                                  };
+  for (unsigned int i=0; i < heff.size(); i++) {
     heff[i]->finalise();  
     heff[i]->Bayes()->Write( ( heff[i]->name()+"_tg" ).c_str() );
   } // heff[i]->Hist()->Write(); } 
@@ -782,8 +814,8 @@ void ConfAnalysis::finalise() {
   eff_vs_nvtx->finalise();
   eff_vs_mu->finalise();
 
-  Efficiency* hpurity[6] = { purity_pt, purity_eta, purity_phi, purity_z0, purity_d0, purity_a0 };
-  for ( int i=6 ; i-- ; ) { hpurity[i]->finalise(); } //  hpurity[i]->Hist()->Write(); } 
+  std::vector<Efficiency*> hpurity = { purity_pt, purity_eta, purity_phi, purity_z0, purity_d0, purity_a0 };
+  for ( unsigned int i = 0; i <hpurity.size(); i++) { hpurity[i]->finalise(); }
 
   for ( int i=mres.size() ; i-- ; ) { mres[i]->Finalise(Resplot::FitNull) ; mres[i]->Write();}
 
@@ -914,23 +946,27 @@ extern int NvtxCount;
 
 /// fill all the histograms - matched histograms, efficiencies etc
 
+
+
 void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
 			   const std::vector<TrigInDetAnalysis::Track*>& testtracks,
-			   TrackAssociator* matcher ) 
-{
+			   TrackAssociator* matcher ) { 
 
 
   if ( !m_initialised ) initialiseInternal();
     
-
-  if ( m_print ) std::cout << "ConfAnalysis::execute() \t " << name() 
-			   << "\tref "  <<  reftracks.size() 
-			   << "\ttest " << testtracks.size() << std::endl;
+  if ( m_print ) { 
+    std::cout << "ConfAnalysis::execute() \t " << name() 
+	      << "\tref "  <<  reftracks.size() 
+	      << "\ttest " << testtracks.size();
+    if ( groi ) std::cout << "\tgroi "  << groi << " " << *groi;
+    std::cout << std::endl;
+  }    
 
   //  std::cout << "ConfAnalysis (resolutions really) filling " << std::endl;
 
   // should have these as a class variable   
-  static std::string  varName[15] = { "pT", "eta", "phi", "z0", "d0", "a0", "nsct", "npix", "ntrt", "nstraw", "dd0", "da0", "dz0", "deta", "dphi" };  
+  static std::string  varName[16] = { "pT", "eta", "phi", "z0", "d0", "a0", "nsct", "npix", "nsi", "ntrt", "nstraw", "dd0", "da0", "dz0", "deta", "dphi" };  
 
   std::map<std::string, TH1F*>::iterator hmitr = m_histos.find("ntracks");
   if ( hmitr!=m_histos.end() )   hmitr->second->Fill( reftracks.size() );
@@ -987,6 +1023,14 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     double dpTt  = reftracks[i]->dpT()/1000;
     double detat = reftracks[i]->deta();
     double dphit = reftracks[i]->dphi();
+
+    //RoI variables
+    float droi_detat = groi->eta() - reftracks[i]->eta();
+    float droi_dphit = groi->phi() - reftracks[i]->phi();
+    if ( droi_dphit<-M_PI ) droi_dphit +=2*M_PI;
+    if ( droi_dphit>M_PI )  droi_dphit -=2*M_PI;
+    float droi_dRt = std::sqrt(droi_dphit*droi_dphit + droi_detat*droi_detat);
+
     
     //    double dz0t = reftracks[i]->dz0()+((std::cos(phit)*m_xBeamReference + std::sin(phit)*m_yBeamReference)/std::tan(thetat));
     //    double dd0t = reftracks[i]->da0();
@@ -1013,6 +1057,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
     double nsctt = reftracks[i]->sctHits(); 
     double npixt = reftracks[i]->pixelHits(); 
+    double nsit = reftracks[i]->pixelHits() + reftracks[i]->sctHits(); 
 
     double ntrtt   = reftracks[i]->trHits(); 
     double nstrawt = reftracks[i]->strawHits(); 
@@ -1029,11 +1074,11 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
     //    std::cout << "\t\tConfAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
 
     // raw reference track distributions 
-    double vpart[15] = { std::fabs(pTt), etat, phit, z0t, d0t, a0t, nsctt, npixt, ntrtt, nstrawt, dd0t, da0t, dz0t, detat, dphit };  
+    double vpart[16] = { std::fabs(pTt), etat, phit, z0t, d0t, a0t, nsctt, npixt, nsctt, nsit, nstrawt, dd0t, da0t, dz0t, detat, dphit };  
   
     /// NB: the dd0, da0 etc plots will be filled only for ref tracks 
     ///     with *matched* test tracks 
-    for ( int it=0 ; it<10 ; it++ ) { 
+    for ( int it=0 ; it<11 ; it++ ) { 
       // std::string hname = varName[it];
       // std::map<std::string, TH1F*>::iterator hmitr = m_histos.find(hname);
       //  if ( hmitr!=m_histos.end() )   hmitr->second->Fill( vpart[it] );
@@ -1046,23 +1091,14 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
       // efficiency histos
       eff_pt->Fill(std::fabs(pTt));
-      eff_pt->Hist()->GetXaxis()->SetTitle("P_{T} [GeV]");
-      eff_pt->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
       eff_z0->Fill(z0t);
-      eff_z0->Hist()->GetXaxis()->SetTitle("z0");
-      eff_z0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
       eff_eta->Fill(etat);
-      eff_eta->Hist()->GetXaxis()->SetTitle("#eta");
-      eff_eta->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
       eff_phi->Fill(phit);
-      eff_phi->Hist()->GetXaxis()->SetTitle("#phi");
-      eff_phi->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
       eff_d0->Fill(d0t);
-      eff_d0->Hist()->GetXaxis()->SetTitle("d0");
-      eff_d0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
       eff_a0->Fill(a0t);
-      eff_a0->Hist()->GetXaxis()->SetTitle("a0");
-      eff_a0->Hist()->GetYaxis()->SetTitle("Efficiency [%]");
+      eff_roi_deta->Fill(droi_detat);
+      eff_roi_dphi->Fill(droi_dphit);
+      eff_roi_dR->Fill(droi_dRt);
 
       // signed pT
       if ( pTt<0 ) eff_ptm->Fill(std::fabs(pTt));
@@ -1106,7 +1142,6 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       //double ntrtr   = matchedreco->trHits(); 
       double nstrawr = matchedreco->strawHits(); 
 
-
       /// kinematic error estimates
 
       double dpTr  = matchedreco->dpT()/1000;
@@ -1137,21 +1172,21 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       /// fill them all the resplots from a loop ...
       double resfiller[6] = { ipTt, pTt, etat, z0t, static_cast<double>(NvtxCount), static_cast<double>(Nvtx) };
 
-	for ( int irfill=0 ; irfill<6 ; irfill++ ) { 
-	  rphires[irfill]->Fill( resfiller[irfill],  phir-phit );
-	  riptres[irfill]->Fill( resfiller[irfill],  1/pTr-1/pTt );
-	  retares[irfill]->Fill( resfiller[irfill],  etar-etat );
-	  rptres[irfill]->Fill(  resfiller[irfill],  pTr-pTt );
-	  rzedres[irfill]->Fill( resfiller[irfill],  z0r-z0t );
-	  rd0res[irfill]->Fill(  resfiller[irfill],  a0r-a0t );
+      for ( int irfill=0 ; irfill<6 ; irfill++ ) { 
+        rphires[irfill]->Fill( resfiller[irfill],  phir-phit );
+        riptres[irfill]->Fill( resfiller[irfill],  1/pTr-1/pTt );
+        retares[irfill]->Fill( resfiller[irfill],  etar-etat );
+        rptres[irfill]->Fill(  resfiller[irfill],  pTr-pTt );
+        rzedres[irfill]->Fill( resfiller[irfill],  z0r-z0t );
+        rd0res[irfill]->Fill(  resfiller[irfill],  a0r-a0t );
 
-          rphiresPull[irfill]->Fill( resfiller[irfill], (phir - phit) / sqrt( (dphit*dphit) + (dphir*dphir) ) );
-          retaresPull[irfill]->Fill( resfiller[irfill], (etar - etat) / sqrt( (detat*detat) + (detar*detar) ) );
-          rptresPull[irfill]->Fill(  resfiller[irfill], (pTr - pTt) / sqrt( (dpTt*dpTt) + (dpTr*dpTr) ) );
-          rzedresPull[irfill]->Fill( resfiller[irfill], (z0r - z0t) / sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
-          rd0resPull[irfill]->Fill(  resfiller[irfill], (a0r - a0t) / sqrt( (da0t*da0t) + (da0r*da0r) ) );	
-	  
-	}
+        rphiresPull[irfill]->Fill( resfiller[irfill], (phir - phit) / sqrt( (dphit*dphit) + (dphir*dphir) ) );
+        retaresPull[irfill]->Fill( resfiller[irfill], (etar - etat) / sqrt( (detat*detat) + (detar*detar) ) );
+        rptresPull[irfill]->Fill(  resfiller[irfill], (pTr - pTt) / sqrt( (dpTt*dpTt) + (dpTr*dpTr) ) );
+        rzedresPull[irfill]->Fill( resfiller[irfill], (z0r - z0t) / sqrt( (dz0t*dz0t) + (dz0r*dz0r) ) );
+        rd0resPull[irfill]->Fill(  resfiller[irfill], (a0r - a0t) / sqrt( (da0t*da0t) + (da0r*da0r) ) );	
+
+      }
 	
 
 
@@ -1279,8 +1314,8 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
         hptr->GetYaxis()->SetTitle("d_{0} [mm]");
         //hptr->SetFillStyle("COLZ");                                                                                                                             
       }
+    
 
-#if 1
       // raw matched test track errors                                                                                                                            
       if ( TH1F* hptr = find("dpT_rec") ) hptr->Fill(dpTr);
       if ( TH1F* hptr =find("deta_rec"))  hptr->Fill(detar);
@@ -1378,9 +1413,6 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       if ( TH1F* hptr = find("a0_pull_simple"))  hptr->Fill(pull_a0_simp);
 
 
-#endif
-
-
       if ( TH1F* hptr = find("etai_res") ) hptr->Fill( etat-etar ); 
 
 
@@ -1424,6 +1456,10 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
       if ( pTt<0 ) eff_ptm->FillDenom(std::fabs(pTt));
       else         eff_ptp->FillDenom(std::fabs(pTt));
 
+      eff_roi_deta->FillDenom(droi_detat);
+      eff_roi_dphi->FillDenom(droi_dphit);
+      eff_roi_dR->FillDenom(droi_dRt);
+
       eff_vs_mult->FillDenom( Nref );
 
       dump = false; 
@@ -1448,13 +1484,14 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
 	  hipt = true;
 	  std::cout << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
-		    << "\tlb " << lb << "\tNvtx " << NvtxCount << "\t" << *reftracks[i];
-
+		    << "\tlb " << lb << "\tNvtx " << NvtxCount << std::endl;
+	  std::cout << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
+	  std::cout << mname << "\tMISSING TRACK Track " << *reftracks[i];
 	  if ( std::fabs(pTt)>=30 ) std::cout << "\tvery high pt";
 	  if ( std::fabs(pTt)>4 &&
 	       std::fabs(pTt)<30  ) std::cout << "\t     high pt";
-
 	  std::cout << std::endl;
+
 	  if ( std::fabs(pTt)>=20 ){
 	    std::cout << "Test tracks " << std::endl;
 	    for (unsigned int ii=0; ii<testtracks.size(); ii++){
@@ -1508,6 +1545,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
     double nsctr = testtracks[i]->sctHits(); 
     double npixr = testtracks[i]->pixelHits(); 
+    double nsir = testtracks[i]->pixelHits() + testtracks[i]->sctHits(); 
 
     double ntrtr   = testtracks[i]->trHits(); 
     double nstrawr = testtracks[i]->strawHits(); 
@@ -1546,8 +1584,8 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
 #if 1       
     // raw test track distributions 
-    double vpart[10] = { std::fabs(pTr), etar, phir, z0r, d0r, a0r, nsctr, npixr, ntrtr, nstrawr };
-    for ( int it=0 ; it<10 ; it++ ) { 
+    double vpart[11] = { std::fabs(pTr), etar, phir, z0r, d0r, a0r, nsctr, npixr, nsir, ntrtr, nstrawr };
+    for ( int it=0 ; it<11 ; it++ ) { 
       // std::string hname = name()+"_"+varName[it]+"_rec";
       //      std::string hname = varName[it]+"_rec";
       //      std::map<std::string, TH1F*>::iterator hmitr = m_histos.find(hname);
@@ -1624,6 +1662,8 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
   if ( m_print ) std::cout << "ConfAnalysis::execute() exiting" << std::endl;
 
 }
+
+
 
 
 

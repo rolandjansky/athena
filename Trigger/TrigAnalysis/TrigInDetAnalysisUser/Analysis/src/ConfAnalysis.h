@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 617098 2014-09-17 07:41:21Z smh $
+//   $Id: ConfAnalysis.h 623908 2014-10-24 14:25:15Z smh $
 
 
 #ifndef __CONFANALYSIS_H
@@ -31,6 +31,7 @@
 // #include "Reflex/Reflex.h"
 
 // using namespace ROOT::Reflex;
+
 
 inline const std::string clean( std::string s) { 
   while (true ){ 
@@ -57,7 +58,7 @@ public:
   }  
 
   ~ConfAnalysis() {
-    std::cout << "ConfAnalysis::~ConfAnalysis() " << name() << std::endl;
+    // std::cout << "ConfAnalysis::~ConfAnalysis() " << name() << std::endl;
     std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
     std::map<std::string, TH1F*>::iterator hend=m_histos.end();
     for ( ; hitr!=hend ; hitr++ ) delete hitr->second;     
@@ -65,15 +66,6 @@ public:
     std::map<std::string, TH2F*>::iterator hitr2D=m_histos2D.begin();                                                                                           
     std::map<std::string, TH2F*>::iterator hend2D=m_histos2D.end();                                                                                             
     for ( ; hitr2D!=hend2D ; hitr2D++ ) delete hitr2D->second;     
-
-    //Efficiency* heff[4]    = {    eff_pt,    eff_eta,    eff_phi,    eff_z0 };
-    //Efficiency* hpurity[4] = { purity_pt, purity_eta, purity_phi, purity_z0 };
-
-    //for ( int i=4 ; i-- ; ) { delete heff[i]; delete hpurity[i]; } 
-
-    //delete eff_ptp;
-    //delete eff_ptm;
-
   }  
   
   virtual void initialise();
@@ -82,6 +74,13 @@ public:
   virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
                        const std::vector<TrigInDetAnalysis::Track*>& testtracks,
                        TrackAssociator* matcher );
+
+#if 0
+  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
+                       const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+                       TrackAssociator* matcher, 
+		       TIDARoiDescriptor* roi );
+#endif
 
   virtual void finalise();
   
@@ -122,8 +121,6 @@ private:
   std::map<std::string, TH1F*> m_histos;
   std::map<std::string, TH2F*> m_histos2D;  
 
-  Efficiency* eff_roi_pt;
-
   Efficiency* eff_pt;
   Efficiency* eff_ptp;
   Efficiency* eff_ptm;
@@ -133,6 +130,10 @@ private:
   Efficiency* eff_z0;
   Efficiency* eff_d0;
   Efficiency* eff_a0;
+
+  Efficiency* eff_roi_deta;
+  Efficiency* eff_roi_dphi;
+  Efficiency* eff_roi_dR;
 
   Efficiency* purity_pt;
   Efficiency* purity_eta;

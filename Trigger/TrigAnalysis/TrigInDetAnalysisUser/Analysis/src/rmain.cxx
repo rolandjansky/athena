@@ -26,6 +26,8 @@
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+
 
 #include "ConfAnalysis.h"
 #include "PurityAnalysis.h"
@@ -178,6 +180,8 @@ int usage(const std::string& name, int status) {
 }
 
 
+/// global to grant access to the roi descriptor
+TIDARoiDescriptor* groi = 0;
 
 
 extern BinConfig binConfig;
@@ -304,30 +308,7 @@ int main(int argc, char** argv)
 
   std::cout << "writing output to " << histofilename << std::endl;
 
-
-  //	TH1D* hroi_eta = new TH1D("roi_eta", "roi_eta", 20, -0.5, 0.5);
-  //	TH1D* hroi_phi = new TH1D("roi_phi", "roi_phi", 20, -0.5, 0.5);
-  //	TH1D* hroi_zed = new TH1D("roi_zed", "roi_zed", 20, -200, 200);
-  //
-  //	TH1D* hroi_pt = new TH1D("roi_pt", "roi_pt", 20, 1, 20);
-
-  Resplot rroi_eta("roi_eta_vs_eta", 20, -2.5, 2.5, 40, -0.5, 0.5);
-  Resplot rroi_phi("roi_phi_vs_eta", 20, -2.5, 2.5, 40, -0.5, 0.5);
-  Resplot rroi_zed("roi_zed_vs_eta", 20, -2.5, 2.5, 40, -200, 200);
-
-  Resplot rhroi_eta("hipt_roi_eta_vs_eta", 20, -2.5, 2.5, 40, -0.5, 0.5);
-  Resplot rhroi_phi("hipt_roi_phi_vs_eta", 20, -2.5, 2.5, 40, -0.5, 0.5);
-  Resplot rhroi_zed("hipt_roi_zed_vs_eta", 20, -2.5, 2.5, 40, -200, 200);
-
-  //  Efficiency  eroi_eta( new TH1F("heff_eta", "heff_eta", 12, -2.5, 2.5 ), "hroi_eta_eff" ); 
-  //  Efficiency  eroi_phi( new TH1F("heff_phi", "heff_phi", 12, -2.5, 2.5 ), "hroi_phi_eff" ); 
-
   TH1D* hevent = new TH1D( "event", "event", 1000, 10000, 80000 );
-
-  Resplot  rhroiwidth_eta("roiwidth_eta", 20,  -2.5, 2.5, 100, -1, 1);
-  Resplot  rhroiwidth_phi("roiwidth_phi", 20,  -2.5, 2.5, 100, -1, 1);
-
-  //  TH2D* hcorr = new TH2D( "correlation", "correlation", 21, -0.5, 20.5, 75, 0, 600); 
   Resplot* hcorr = new Resplot( "correlation", 21, -0.5, 20.5, 75, 0, 600); 
 
   /// set up the filters etc
@@ -413,34 +394,6 @@ int main(int argc, char** argv)
 
   /// print soime debugging output
   //if ( inputdata.isTagDefined("printflag") )  printflag = ( inputdata.GetValue("printflag") ? 1 : 0 );  // JK removed (unused)
-
-  /// set egamma roi size 
-  std::vector<double> eGammaSize;
-  if ( inputdata.isTagDefined("eGammaSize") )  { 
-    eGammaSize = inputdata.GetVector("eGammaSize");
-    std::cout << "setting eGammaSize eta " << eGammaSize[0] << "\tphi " << eGammaSize[1] << std::endl; 
-  }
-
-  /// set muon roi size - in principle should be obtained from the roi itself
-  std::vector<double> MuonSize;
-  if ( inputdata.isTagDefined("MuonSize") )  { 
-    MuonSize = inputdata.GetVector("MuonSize");
-    std::cout << "setting MuonSize eta " << MuonSize[0] << "\tphi " << MuonSize[1] << std::endl; 
-  }
-
-  /// set tau roi size
-  std::vector<double> TauSize;
-  if ( inputdata.isTagDefined("TauSize") )  { 
-    TauSize = inputdata.GetVector("TauSize");
-    std::cout << "setting TauSize eta " << TauSize[0] << "\tphi " << TauSize[1] << std::endl; 
-  }
-
-  /// set bjet roi size
-  std::vector<double> BjetSize;
-  if ( inputdata.isTagDefined("BjetSize") )  { 
-    BjetSize = inputdata.GetVector("BjetSize");
-    std::cout << "setting BjetSize eta " << BjetSize[0] << "\tphi " << BjetSize[1] << std::endl; 
-  }
 
   /// select only tracks within the roi?
   bool select_roi = true;
@@ -1160,44 +1113,6 @@ int main(int argc, char** argv)
 
 	testTracks.selectTracks( troi.tracks() );
 
-	/// if only *all* rois had the correct size included as it should be - sigh
-	if ( chain.name().find("_e") != std::string::npos ) { 
-	  if (eGammaSize.size() > 0) {
-	    roi.etaHalfWidth( eGammaSize[0] );
-	    roi.phiHalfWidth( eGammaSize[1] );
-	  }
-	  // std::cout << "egamma roi " << r << std::endl;
-	}
-	else if ( chain.name().find("_mu") != std::string::npos ||
-		  chain.name().find("_Zmumu_IDTrkNoCut")!= std::string::npos) { 
-	  //do not overwrite the RoI size from TrigRoIDescriptor
-	  /*
-	  if (MuonSize.size() > 0) {
-	    roi.etaHalfWidth( MuonSize[0] );
-	    roi.phiHalfWidth( MuonSize[1] );
-	  }
-	  */
-
-	  // std::cout << "muon roi " << r << std::endl;
-	}
-	else if (chain.name().find("_tau")!= std::string::npos){
-	  if (TauSize.size() > 0) {
-	    roi.etaHalfWidth( TauSize[0] );
-	    roi.phiHalfWidth( TauSize[1] );
-	  }
-	}
-	else if (chain.name().find("_Jet")!=std::string::npos || chain.name().find("_Bjet")!=std::string::npos){
-	  if (BjetSize.size() > 0) {
-	    roi.etaHalfWidth( BjetSize[0] );
-	    roi.phiHalfWidth( BjetSize[1] );
-	  }
-	}					
-	else { 
-	  roi.etaHalfWidth( 5 );
-	  roi.phiHalfWidth( M_PI );
-	  // std::cout << "default roi " << r << std::endl;
-	}
-
 	/// trigger tracks already restricted by roi 
 	std::vector<TrigInDetAnalysis::Track*> testp = testTracks.tracks();
 
@@ -1211,7 +1126,7 @@ int main(int argc, char** argv)
 	//	  std::cout << "filter with roi " << roi << std::endl; 
 	//	}	    
 
-        const std::vector<TrigInDetAnalysis::Track*>&  refp  = refTracks.tracks( refFilter );
+  const std::vector<TrigInDetAnalysis::Track*>&  refp  = refTracks.tracks( refFilter );
 
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
@@ -1221,16 +1136,8 @@ int main(int argc, char** argv)
 	//	std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
 	//	std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
-        //dump tracks
-        //        std::cout <<"BP "<< *track_ev << std::endl;   
-        //        cout<<"BP number of reftracks "<<refp.size()<<"\t testtracks "<<testp.size() <<endl;
+	groi = &roi;
 
-        // for (int i = 0; i < refp.size(); i++) {
-	//           std::cout << "BP Reference tracks after roi selection " << chain.name() << " smh: " << *(refp[i]) << endl;
-	//         }
-	//         for (int i = 0; i < testp.size(); i++) {
-	//           std::cout << "BP Test tracks  after roi selection" << chain.name() << " smh: " << *(testp[i]) << endl;
-	//         }
 	if (truthMatch) {
 	  truthMatcher.match( refp, testp );
 	  analitr->second->execute( refp, testp, &truthMatcher );
@@ -1245,26 +1152,26 @@ int main(int argc, char** argv)
 	}
 
 
-      if ( debugPrintout ) { 
-	//	std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
-	std::cout << "\nselected tracks:" << chain.name() << std::endl;
-	std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
-	std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
+  if ( debugPrintout ) { 
+    //	std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
+    std::cout << "\nselected tracks:" << chain.name() << std::endl;
+    std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
+    std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
-	TrackAssociator::track_map::const_iterator titr = dRmatcher.TrackAssociator::matched().begin();
-	TrackAssociator::track_map::const_iterator tend = dRmatcher.TrackAssociator::matched().end();
-	int im=0;
-	std::cout << "track matches:\n";
-	while (titr!=tend) { 
-	  std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
-	  ++titr;
-	}
+    TrackAssociator::track_map::const_iterator titr = dRmatcher.TrackAssociator::matched().begin();
+    TrackAssociator::track_map::const_iterator tend = dRmatcher.TrackAssociator::matched().end();
+    int im=0;
+    std::cout << "track matches:\n";
+    while (titr!=tend) { 
+      std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
+      ++titr;
+    }
 
 
-	std::cout << "completed : " << chain.name() << "\n";
-	std::cout << "-----------------------------------" << std::endl;
+    std::cout << "completed : " << chain.name() << "\n";
+    std::cout << "-----------------------------------" << std::endl;
 
-      }
+  }
 
 #if 0
 	if ( dRmatcher.size()<refp.size() ) { 
@@ -1325,10 +1232,6 @@ int main(int argc, char** argv)
     }
   }
 
-  //  TObjString* metaData = new TObjString(*releaseMetaData);
-  //  metaData->Write(); 
-
-
 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
 
@@ -1338,39 +1241,10 @@ int main(int argc, char** argv)
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 
-    std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
+    // std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
     delete analyses[i];
   }
-  
-
-
-  //rroi_eta.Finalise(Resplot::FitNull95);
-  //rroi_phi.Finalise(Resplot::FitNull95);
-  //rroi_zed.Finalise(Resplot::FitNull95);
-
-  rhroi_eta.Finalise(Resplot::FitNull95);
-  rhroi_phi.Finalise(Resplot::FitNull95);
-  rhroi_zed.Finalise(Resplot::FitNull95);
-  rhroiwidth_eta.Finalise(Resplot::FitNull95);
-  rhroiwidth_phi.Finalise(Resplot::FitNull95);
-  rhroiwidth_eta.Write();
-  rhroiwidth_phi.Write();
-
-  rroi_eta.Finalise();
-  rroi_phi.Finalise();
-  rroi_zed.Finalise();
-
-  rroi_eta.Write();
-  rroi_phi.Write();
-  rroi_zed.Write();
-
-
-  rhroi_eta.Write();
-  rhroi_phi.Write();
-  rhroi_zed.Write();
-
-
   /// write out the histograms
   foutput.Write();
   foutput.Close();

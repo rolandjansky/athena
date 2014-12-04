@@ -1,5 +1,10 @@
 // emacs: this is -*- c++ -*-
 
+UseMatcher = "DeltaRZ";
+Matcher_deta = 0.02;
+Matcher_dphi = 0.03;
+Matcher_dzed = 5;
+
 pT     = 3000;
 eta    = 2.5;
 // npix   = 1;

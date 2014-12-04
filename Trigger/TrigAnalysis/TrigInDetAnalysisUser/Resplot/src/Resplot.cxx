@@ -38,7 +38,8 @@ ClassImp(Resplot)
 bool Resplot::mAddDirectoryStatus = true;
 bool Resplot::interpolate_flag = true;
 
-bool Resplot::oldrms95   = false;
+// bool Resplot::oldrms95   = false;
+bool Resplot::oldrms95   = true;
 bool Resplot::scalerms95 = true;
 
 
@@ -393,7 +394,7 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
     return -1;
   }
 
-  std::cout << "Resplot::Finalise() " << m_name << std::endl;
+  //  std::cout << "Resplot::Finalise() " << m_name << std::endl;
 
   clear();
 
@@ -404,7 +405,7 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
 
   for ( int i=1 ; i<=n_primary ; i++ ) {    
 
-    if ( i%100==0 ) std::cout << "slice " << i << " of " << n_primary << std::endl;
+    if ( i%1000==0 ) std::cout << "slice " << i << " of " << n_primary << std::endl;
 
     //    std::string projname = tagname(m_name,i).c_str();
     double pllim = m_mean->GetBinLowEdge(i);
@@ -1439,7 +1440,7 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
   //  double entries = s->GetEntries() + s->GetBinContent(0) + s->GetBinContent(s->GetNbinsX()+1);
   double entries = generate::GetEntries(s,0,(s->GetNbinsX()+1));
 
-  std::cout << "entries: " << entries << "\t" << generate::GetEntries(s) << "\t" << generate::GetEntries(s,0,s->GetNbinsX()+1) << std::endl;
+  //  std::cout << "entries: " << entries << "\t" << generate::GetEntries(s) << "\t" << generate::GetEntries(s,0,s->GetNbinsX()+1) << std::endl;
 
   //  double sumx  = s->GetBinContent(imax)*s->GetBinCenter(imax);
   //  double sumx2 = s->GetBinContent(imax)*s->GetBinCenter(imax)*s->GetBinCenter(imax);
@@ -1632,7 +1633,7 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 
 
 TF1* Resplot::FitNull95(TH1D* s, double , double  ) {
-  if ( oldrms95 ) return Resplot::FitNull95Obsolete(s);
+  if ( oldrms95 ) return Resplot::FitNull95Obsolete(s); /// use approximate root errors for speed
   else            return Resplot::FitNull95New(s);
 } 
 

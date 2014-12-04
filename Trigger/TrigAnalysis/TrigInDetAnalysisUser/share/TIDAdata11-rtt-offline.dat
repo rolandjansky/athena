@@ -25,8 +25,12 @@ z0v = 10.5;
 /// Fixme: should add a flag to enable/disable this
 ///        what if we want all final state particles
 ///        independent of pdgID?
-refChain = "Truth";
+refChain = "Offline";
 //pdgId=11; // electron --entered in command line now
+
+TauSize = {0.2,0.2};
+BjetSize = {0.2,0.2};
+eGammaSize = {0.1,0.1};
 
 MinVertices = 0;
 

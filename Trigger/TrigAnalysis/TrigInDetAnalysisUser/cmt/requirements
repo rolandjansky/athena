@@ -17,6 +17,11 @@ use     TrigInDetAnalysisExample  TrigInDetAnalysisExample-*    Trigger/TrigAnal
 # ============================================================================================
 public
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)"
+
+# Inform cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(Resplot/src Readcards/src)"
 
 library Resplot   " ../Resplot/src/Resplot.cxx       ../Resplot/src/generate.cxx    ../Resplot/src/rmsFrac.cxx" "
 apply_pattern have_root_headers root_headers="../Resplot/src/Resplot.h" headers_lib="Resplot"
@@ -24,7 +29,11 @@ apply_pattern have_root_headers root_headers="../Resplot/src/Resplot.h" headers_
 library Readcards " ../Readcards/src/IReadCards.cxx  ../Readcards/src/ReadCards.cxx ../Readcards/src/Value.cxx ../Readcards/src/utils.cxx"
 macro_append Readcards_cppflags    "-D_DIR_=$(shell pwd)/../Analysis/run "
 
+# Extend the files in the TIDA library in order to satisfy the unresolved references
+apply_pattern cmake_add_generated_files library=TIDA files=Analysis/src/rmain.cxx
+
 library TIDA      " ../Analysis/src/ConfAnalysis.cxx ../Analysis/src/PurityAnalysis.cxx"
+
 macro_append TIDA_cppflags      " -I../Readcards/src -I../Resplot/src "
 
 
@@ -59,7 +68,7 @@ macro_append TIDAcpucostlinkopts       " -lReadcards -lTIDA "
 macro_append TIDAcpucost_dependencies  " Readcards TIDA "
 
 
-apply_pattern declare_runtime extras="../share/TIDAdata11-rtt.dat ../share/TIDAcosmic-rtt.dat ../share/TIDAindex.html ../share/TIDAindex-lowpt.html  ../share/TIDAindex-EFID.html ../share/Test_bin.dat"
+apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/Test_bin.dat"
 
 
 

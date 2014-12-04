@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
   NeventTest = htestev->GetEntries();
   NeventRef  = hrefev->GetEntries();
 
-  const int Nhistos = 33;
+  const int Nhistos = 36;
   std::string histos[Nhistos] = { 
     "pT",
    /// efficiencies
@@ -192,6 +192,9 @@ int main(int argc, char** argv) {
     "a0_eff", 
     "z0_eff", 
     "eff_vs_mu", 
+    "roi_dphi_eff",
+    "roi_deta_eff",
+    "roi_dR_eff",
     /// standard residuals
     "ipT_res", 
     "eta_res", 
@@ -230,6 +233,9 @@ int main(int argc, char** argv) {
     "Efficiency a0", 
     "Efficiency z0", 
     "Efficiency <#mu>", 
+    "Efficiency #Delta#phi(RoI)",
+    "Efficiency #Delta#eta(RoI)",
+    "Efficiency #DeltaR(RoI)",
     
     "Residual 1/P_{T}", 
     "Residual #eta", 
@@ -430,6 +436,7 @@ int main(int argc, char** argv) {
     bool power_set = false;;
     
 
+    bool uselogx = false;
  
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
@@ -565,6 +572,7 @@ int main(int argc, char** argv) {
 	  href->GetXaxis()->SetRangeUser(1,100);
 	  htest->GetXaxis()->SetRangeUser(1,100);
 	  c1->SetLogx();
+	  uselogx = true;
 	}
 	if(histos[i]=="eff_vs_mu") { 
 	  //	  href->SetMinimum(60);
@@ -637,6 +645,8 @@ int main(int argc, char** argv) {
       
       if(contains(histos[i],"_res"))  {
 	
+	/// resolutions 
+
 	TF1* d95 = Resplot::FitNull95( htest );
 	
 	double   mean_95 = d95->GetParameter(1);
@@ -764,8 +774,6 @@ int main(int argc, char** argv) {
       
     }  
 
-    //    std::cout << __LINE__ << std::endl;
-
     if ( contains(histos[i],"_res")) {
       /// use 20 times the max from any of the plots as the upper limit so there's room for the key 
       /// (as all residual plots are on a log scale)   
@@ -774,8 +782,6 @@ int main(int argc, char** argv) {
       if ( contains(histos[i],"ipT")) plots.xrange(false);   // sets the xrange to something sensible (and symmetric)
       else                            plots.xrange(true);  // sets the xrange to something sensible
     }
-
-    //    std::cout << __LINE__ << std::endl;
 
 
     if ( contains(histos[i],"_vs_") && !contains(histos[i],"eff") ) { 
@@ -790,7 +796,6 @@ int main(int argc, char** argv) {
       plots.Min(0); 
     }
 
-    //    std::cout << __LINE__ << std::endl;
 
     plots.Draw( legend );
     /*if ( histos[i],"eff")) {
@@ -805,19 +810,16 @@ int main(int argc, char** argv) {
       }
     */
     
-    //    std::cout << __LINE__ << std::endl;
+    if ( uselogx ) c1->SetLogx(true);
+
 
     if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-      // std::cout << __LINE__ << std::endl;
       c1->SetLogy(true);
 
-      // std::cout << __LINE__ << std::endl;
       if ( contains(histos[i],"_res") ){
 	for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
-	  // std::cout << __LINE__ << std::endl;
 	  if ( j<MeanRef.size() ) { 
 	    DrawLabel( 0.13, (0.6-j*0.035), MeanRef[j], colours[j%6] );
-	    //    std::cout << __LINE__ << std::endl;
 	    DrawLabel( 0.13, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
 	    DrawLabel( 0.62, (0.6-j*0.035), Mean[j],  colours[j%6] );
 	    DrawLabel( 0.62, (0.6-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
@@ -826,17 +828,7 @@ int main(int argc, char** argv) {
       }
 
     }
-    //    else if ( contains(histos[i],"rd0_vs_eta" ) )  {
-    //    else if ( contains(histos[i],"sigma" ) )  {
-    //      c1->SetLogy(true);
-    //    }
-    //    else c1->SetLogy(false);
 
-   
-
-    //    if ( contains(histos[i],"rzed") ) c1->SetLogy(true);
-
-    //    std::cout << __LINE__ << std::endl;
 
     if ( plotname!="" ) { 
       plots.back().Print( dir+plotname+tag+".pdf" );
@@ -851,11 +843,17 @@ int main(int argc, char** argv) {
 
       plots_eff.Draw( legend_eff );
 
+      if ( contains(plotname,"pT") && contains(plotname,"eff") ) { 
+	gPad->SetLogx(true);
+      }
+
       if ( plotname!="" ) { 
 	plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
 	plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
+	gPad->SetLogx(true);
       }    
 
+      
     }
 
     //    std::cout << "delete c1 " << c1 << std::endl;
