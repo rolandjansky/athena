@@ -31,10 +31,10 @@ public:
   StatusCode initialize();
 
   // overload base class function to add technology specific information
-  void addPRD_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::TgcPrepData& prd ) const;
+  void addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd ) const;
 
   // overload base class function to add technology specific information
-  void addSDO_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::TgcPrepData& prd, const MuonSimData& sdo ) const;
+  void addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd, const MuonSimData* sdo ) const;
 
 private:
   ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator;

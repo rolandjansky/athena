@@ -19,7 +19,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "Identifier/Identifier.h"
 
-#include "xAODTracking/PrepRawData.h"
+#include "xAODTracking/TrackMeasurementValidation.h"
 
 class CSC_PrepDataToxAOD : public AthAlgorithm  {
 

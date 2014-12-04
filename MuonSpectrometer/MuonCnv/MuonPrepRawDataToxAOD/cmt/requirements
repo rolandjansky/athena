@@ -23,6 +23,9 @@ use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer
 use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+
+use  MuonRDO                    MuonRDO-*                       MuonSpectrometer
+
 public
 apply_pattern component_library
 library MuonPrepRawDataToxAOD *.cxx components/*.cxx

@@ -38,20 +38,22 @@ StatusCode RPC_PrepDataToxAOD::execute()
   return StatusCode::SUCCESS;
 }
 
-void RPC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::RpcPrepData& prd ) const {
+void RPC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::RpcPrepData& prd ) const {
   xprd.auxdata<float>("time") = prd.time();
   xprd.auxdata<int>("triggerInfo") = prd.triggerInfo();
   xprd.auxdata<int>("ambiguityFlag") = prd.ambiguityFlag();
   xprd.auxdata<unsigned int>("collectionHash") = prd.collectionHash();
   xprd.auxdata<uint16_t>("measPhi") = m_idHelper->measuresPhi(prd.identify());
-  xprd.auxdata<uint16_t>("clusterSize") = prd.rdoList().size();
+  xprd.auxdata<uint16_t>("muonClusterSize") = (uint16_t)prd.rdoList().size();
 }
 
-void RPC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::RpcPrepData& prd, const MuonSimData& sdo ) const {
+void RPC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::RpcPrepData& prd, const MuonSimData* sdo ) const {
 
   float& propagationTime = xprd.auxdata<float>("propagationTime");
   propagationTime = invalid_value;
-  Amg::Vector3D gpos = sdo.globalPosition();
+  if( !sdo ) return;
+
+  Amg::Vector3D gpos = sdo->globalPosition();
   if( gpos.mag() > 1000 ){
     double distToReadout = 0.;
     if( m_idHelper->measuresPhi(prd.identify()) ) {

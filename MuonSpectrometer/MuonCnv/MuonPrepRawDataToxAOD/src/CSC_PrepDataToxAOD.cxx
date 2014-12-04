@@ -12,9 +12,9 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "xAODTracking/PrepRawData.h"
-#include "xAODTracking/PrepRawDataContainer.h"
-#include "xAODTracking/PrepRawDataAuxContainer.h"
+#include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 // Constructor with parameters:
 CSC_PrepDataToxAOD::CSC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -42,9 +42,9 @@ StatusCode CSC_PrepDataToxAOD::execute()
   }
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::PrepRawDataContainer* xaod = new xAOD::PrepRawDataContainer();
+  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
   CHECK( evtStore()->record( xaod, key ) );
-  xAOD::PrepRawDataAuxContainer* aux = new xAOD::PrepRawDataAuxContainer();
+  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
   CHECK( evtStore()->record( aux, key + "Aux." ) );
   xaod->setStore( aux );
 	
@@ -59,7 +59,7 @@ StatusCode CSC_PrepDataToxAOD::execute()
     for( const auto& prd : **it ){
       
       // create and add xAOD object
-      xAOD::PrepRawData* xprd = new xAOD::PrepRawData();
+      xAOD::TrackMeasurementValidation* xprd = new xAOD::TrackMeasurementValidation();
       xaod->push_back(xprd);
       
       xprd->setIdentifier(prd->identify().get_compact());
@@ -69,7 +69,7 @@ StatusCode CSC_PrepDataToxAOD::execute()
       xprd->setGlobalPosition(gpos.x(),gpos.y(),gpos.z());
 
       xprd->auxdata<float>("time") = static_cast<float>(prd->time());
-      xprd->auxdata<int>("charge") = prd->charge();
+      xprd->auxdata<float>("charge") = prd->charge();
       xprd->auxdata<int>("status") = prd->status();
       xprd->auxdata<int>("timeStatus") = prd->timeStatus();
     }

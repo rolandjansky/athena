@@ -38,10 +38,10 @@ StatusCode TGC_PrepDataToxAOD::initialize()
   return StatusCode::SUCCESS;
 }
 
-void TGC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::TgcPrepData& prd ) const {
+void TGC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd ) const {
   xprd.auxdata<uint16_t>("bctag") = prd.getBcBitMap();
   xprd.auxdata<uint16_t>("measPhi") = m_idHelper->measuresPhi(prd.identify());
-  xprd.auxdata<uint16_t>("clusterSize") = prd.rdoList().size();
+  xprd.auxdata<uint16_t>("muonClusterSize") = (uint16_t)prd.rdoList().size();
   ATH_MSG_DEBUG(m_idHelper->toString(prd.identify()) << "bctag " 
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) << " "  
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) << " " 
@@ -49,13 +49,15 @@ void TGC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::PrepRawData& xprd, 
                 << " xaod " << xprd.auxdata<uint16_t>("bctag"));
 }
 
-void TGC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::TgcPrepData& prd, const MuonSimData& sdo ) const {
+void TGC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd, const MuonSimData* sdo ) const {
 
   float& residual = xprd.auxdata<float>("residual");
   float& pull = xprd.auxdata<float>("pull");
   residual = invalid_value;
   pull = invalid_value;
-  Amg::Vector3D gpos = sdo.globalPosition();
+  if( !sdo ) return;
+
+  Amg::Vector3D gpos = sdo->globalPosition();
   if( gpos.mag() > 1000 ){
     Amg::Transform3D gToL = prd.detectorElement()->transform(prd.identify()).inverse();
     Amg::Vector3D lpos = gToL*gpos;

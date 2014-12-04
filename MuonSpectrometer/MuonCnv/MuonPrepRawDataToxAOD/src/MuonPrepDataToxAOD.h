@@ -14,9 +14,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 
-#include "xAODTracking/PrepRawData.h"
-#include "xAODTracking/PrepRawDataContainer.h"
-#include "xAODTracking/PrepRawDataAuxContainer.h"
+#include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -48,12 +48,12 @@ public:
   StatusCode finalize()  { return StatusCode::SUCCESS; }
 
   // overload this function to add detector specific information 
-  virtual void addPRD_TechnologyInformation( xAOD::PrepRawData&, const typename PRDCOL::IDENTIFIABLE::base_value_type& ) const {
+  virtual void addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation&, const typename PRDCOL::IDENTIFIABLE::base_value_type& ) const {
   }
 
   // overload this function to add detector specific information 
-  virtual void addSDO_TechnologyInformation( xAOD::PrepRawData&, const typename PRDCOL::IDENTIFIABLE::base_value_type&, 
-                                             const typename SDOCOL::mapped_type& ) const {
+  virtual void addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation&, const typename PRDCOL::IDENTIFIABLE::base_value_type&, 
+                                             const typename SDOCOL::mapped_type* ) const {
     
   }
 
@@ -66,14 +66,15 @@ public:
     }
 
     // Create the xAOD container and its auxiliary store:
-    xAOD::PrepRawDataContainer* xaod = new xAOD::PrepRawDataContainer();
+    xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
     CHECK( evtStore()->record( xaod, m_inputContainerName ) );
-    xAOD::PrepRawDataAuxContainer* aux = new xAOD::PrepRawDataAuxContainer();
+    xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
     CHECK( evtStore()->record( aux, m_inputContainerName + "Aux." ) );
     xaod->setStore( aux );
 	
     const SDOCOL* sdoCollection = 0;
     //if(evtStore()->contains<SdoCollectionType>(m_sdoContainerName)) // for some reason this does not compile as it is not picking up the template type correctly..
+    if(evtStore()->template contains<SDOCOL>(m_sdoContainerName)) // MK : this should compile instead of lign above
     ATH_CHECK(evtStore()->retrieve(sdoCollection,m_sdoContainerName));
 
     typename PRDCOL::const_iterator it = prds->begin();
@@ -86,7 +87,7 @@ public:
       for( const auto& prd : **it ){
       
         // create and add xAOD object
-        xAOD::PrepRawData* xprd = new xAOD::PrepRawData();
+        xAOD::TrackMeasurementValidation* xprd = new xAOD::TrackMeasurementValidation();
         xaod->push_back(xprd);
       
         xprd->setIdentifier(prd->identify().get_compact());
@@ -103,6 +104,7 @@ public:
         xprd->setGlobalPosition(gpos.x(),gpos.y(),gpos.z());
         ATH_MSG_DEBUG( " PRD:  " << m_idHelper->toString(prd->identify()) << " global position: r " << gpos.perp() << " z " << gpos.z() );
       
+        const typename SDOCOL::mapped_type* sdo = 0;
         if( sdoCollection ){
         
           // find hit
@@ -134,6 +136,7 @@ public:
             }
             ATH_MSG_DEBUG( " found SDO: global pos: r " << tgpos.perp() << " z " << tgpos.z() << " pdgId " << pdgId
                            << " local position (" <<tlpos.x() << "," << tlpos.y() << "," << tlpos.z() << ")" );
+            sdo = &pos->second;
           }
 
           xprd->auxdata<int>("pdgId")         = pdgId;
@@ -147,13 +150,13 @@ public:
           xprd->auxdata<float>("truth_ly")    = tlpos.y();
           xprd->auxdata<float>("truth_lz")    = tlpos.z();
           
-          addSDO_TechnologyInformation(*xprd,*prd,pos->second);
+          addSDO_TechnologyInformation(*xprd,*prd,sdo);
         }
         
         addPRD_TechnologyInformation(*xprd,*prd);
       }
     }
-    ATH_MSG_DEBUG( " recorded xAOD::PrepRawData obejcts: size " << xaod->size() << " at " << m_inputContainerName );
+    ATH_MSG_DEBUG( " recorded xAOD::TrackMeasurementValidation obejcts: size " << xaod->size() << " at " << m_inputContainerName );
 
     return true;
   }

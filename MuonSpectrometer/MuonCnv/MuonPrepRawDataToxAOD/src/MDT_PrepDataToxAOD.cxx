@@ -32,29 +32,31 @@ StatusCode MDT_PrepDataToxAOD::execute()
   return StatusCode::SUCCESS;
 }
 
-void MDT_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::MdtPrepData& prd ) const {
+void MDT_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::MdtPrepData& prd ) const {
   xprd.auxdata<int>("tdc") = prd.tdc();
   xprd.auxdata<int>("adc") = prd.adc();
   xprd.auxdata<int>("status") = prd.status();
   xprd.auxdata<unsigned int>("collectionHash") = prd.collectionHash();
 }
 
-void MDT_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::PrepRawData& xprd, const Muon::MdtPrepData& prd, const MuonSimData& sdo ) const {
+void MDT_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::MdtPrepData& prd, const MuonSimData* sdo ) const {
 
   xprd.auxdata<float>("driftTime")   = invalid_value;
   xprd.auxdata<float>("driftRadius") = invalid_value;
   xprd.auxdata<float>("driftError")  = invalid_value;
   xprd.auxdata<int>("driftStatus")   = invalid_value;
 
+  if( !sdo ) return;
+
   // calibrate MDT hit
-  Amg::Vector3D gpos = sdo.globalPosition();
+  Amg::Vector3D gpos = sdo->globalPosition();
   bool recalculated = false;
   // recover global position from deposit
   if( gpos.mag() < 1000 ){
     float firstEntry  = invalid_value;
     float secondEntry = invalid_value;
     /// loop over hits, check for muons and extract additional info
-    for( const auto& deposit : sdo.getdeposits() ){
+    for( const auto& deposit : sdo->getdeposits() ){
       if( !deposit.first.cptr() || !abs(deposit.first.cptr()->pdg_id()) == 13 ) continue;
       firstEntry = deposit.second.firstEntry();
       secondEntry = deposit.second.secondEntry();
