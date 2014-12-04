@@ -19,6 +19,7 @@ use  TrkSegment                 TrkSegment-*                    Tracking/TrkEven
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  TrigMuonToolInterfaces     TrigMuonToolInterfaces-*        Trigger/TrigTools
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+use  TrkCaloExtension           TrkCaloExtension-*              Tracking/TrkEvent
 
 private
 use  AtlasCLHEP                 AtlasCLHEP-*                    External

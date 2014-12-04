@@ -42,7 +42,6 @@ namespace HLT {
 }
 
 class StoreGateSvc;
-class IExtrapolateToCaloTool;
 class ICaloMuonLikelihoodTool;
 class CaloClusterContainer;
 
@@ -87,6 +86,7 @@ class SegmentManager;
 
 namespace Trk
 {
+  class IParticleCaloExtensionTool;
 class IIntersector;
 class Surface;
 // 2008-12-13 downgrade
@@ -250,7 +250,6 @@ class TrigMuGirl : public HLT::FexAlgo {
     // didn't compaile trying "old ver"
     ServiceHandle<StoreGateSvc>                         m_pEventStore;      //< The event store  
     ToolHandle<MuGirlNS::ICandidateTool>                m_pCandidate;       //< The Muon candidate  
-    ToolHandle<IExtrapolateToCaloTool>                  m_pToCalo;
     ToolHandle<ICaloMuonLikelihoodTool>                 m_pMuLHR;
     ToolHandle<MuGirlNS::IPerformanceTruthTool>         m_pTruthTool;
     // 2008-12-13 downgrade
@@ -262,6 +261,7 @@ class TrigMuGirl : public HLT::FexAlgo {
     ToolHandle<MuGirlNS::IGlobalFitTool>                m_pMuonFeatureGlobalFitTool;
     ToolHandle<MuGirlNS::IANNSelectionTool>             m_pANNSelectionTool;
     ToolHandle<MuGirlNS::IMuGirlParticleCreatorTool>    m_pParticleCreatorTool;
+    ToolHandle <Trk::IParticleCaloExtensionTool>        m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     //<S>
     ToolHandle<MuGirlNS::IStauTool>                     m_pStauTool;        //< The Stau tool  
 

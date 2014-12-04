@@ -46,7 +46,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
 #include "CaloEvent/CaloClusterContainer.h"
 
@@ -60,6 +59,9 @@
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
+
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkCaloExtension/CaloExtension.h"
 
 // for performance 
 #include "TrigMuGirl/TrigMuGirlNtuple.h"
@@ -110,7 +112,6 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
     m_pEventInfo(NULL),
     m_pEventStore("StoreGateSvc", name),
     m_pCandidate("MuGirlNS::CandidateTool"),
-    m_pToCalo("ExtrapolateToCaloTool/ExtrapolateToCaloTool"),
     m_pMuLHR("CaloMuonLikelihoodTool"),
     m_pTruthTool("MuGirlNS::PerformanceTruthTool",0),                 // make this a public tool
     m_pGlobalFitTool("MuGirlNS::GlobalFitTool",0),                    // make this a public tool
@@ -125,7 +126,9 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
     m_ntupleNamePerformance("/NTUPLES/TRIGMUGIRL/TRIGMUGIRL"),
     m_ntupleTitlePerformance("TrigMuGirlPer"),
     m_doNTuplePerformance(false),
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
     m_roi(0) 
+
 {
 
   declareInterface<ITrigMuGirlTool>(this);
@@ -162,9 +165,9 @@ TrigMuGirlTool::TrigMuGirlTool(const std::string& type,
   declareProperty("MuGirlGlobalFIT",              m_pGlobalFitTool);
   declareProperty("MuGirlGlobalStauFIT",          m_pStauGlobalFitTool);
   declareProperty("MuGirlGlobalMuonFeatureFIT",   m_pMuonFeatureGlobalFitTool);
-  declareProperty("ExtrapolTrackToCaloTool",      m_pToCalo);
   declareProperty("CaloMuonLikelihoodTool",       m_pMuLHR);
   //    declareProperty("TrackParticleCreatorTool", m_particleCreatorTool);
+  declareProperty("ParticleCaloExtensionTool",m_caloExtensionTool );    
   //<S>
   declareProperty("MuGirlStauTool",               m_pStauTool);
   declareProperty("PerformanceTruthTool",         m_pTruthTool);
@@ -210,11 +213,11 @@ StatusCode TrigMuGirlTool::initialize()
     msg() << MSG::DEBUG << "Failed to get the StoreGate" << endreq;    
   
   // Initialize tools
-  if (retrieve(m_pToCalo, false).isFailure())
-    {
-      msg() << MSG::DEBUG << "Failed to get pToCalo" << endreq;    
-      m_pToCalo = NULL;
-    }
+
+  if (retrieve(m_caloExtensionTool).isFailure())
+    msg() << MSG::DEBUG << "Failed to get the CaloExtensionTool" << endreq;    
+
+
   
   if (m_doTruth)
     {
@@ -481,13 +484,13 @@ HLT::ErrorCode TrigMuGirlTool::processMuonFeatures(const std::vector<const MuonF
 		}
 	    }
 	  
-	  
-          if (m_pCandidate->fillMF(iMuF, pMuonFeature, true,has_combined).isFailure()) 
-	    {
-	      msg()<< MSG::DEBUG << "MuonFeature Cannot fill CANDIDATE" << endreq;
-	      continue;
-	    }
-          fillMuonSegmentColl(m_pCandidate->vectorMuonSegments());
+          //// please fix me	  
+          // if (m_pCandidate->fillMF(iMuF, pMuonFeature, true,has_combined).isFailure()) 
+	  //   {
+	  //     msg()<< MSG::DEBUG << "MuonFeature Cannot fill CANDIDATE" << endreq;
+	  //     continue;
+	  //   }
+          // fillMuonSegmentColl(m_pCandidate->vectorMuonSegments());
 
           MuGirlNS::CandidateSummary* summary_mf = new MuGirlNS::CandidateSummary();
           if ( msgLvl(MSG::DEBUG) ) 
@@ -567,8 +570,9 @@ HLT::ErrorCode TrigMuGirlTool::processMuonFeatures(const std::vector<const MuonF
 
 	      MuGirlNS::CandidateSummary* stauSummary = new MuGirlNS::CandidateSummary();
 
-	      if (m_pStauTool->fillStauSummary(summary_mf,stauSummary).isFailure())
-		msg() << MSG::DEBUG << "MuonFeature::execute Cannot fill stausummary" << endreq;
+              //// please fix me
+	      // if (m_pStauTool->fillStauSummary(summary_mf,stauSummary).isFailure())
+	      //   msg() << MSG::DEBUG << "MuonFeature::execute Cannot fill stausummary" << endreq;
 	      stauSummary->qOverP = summary_mf->qOverP;
 	      stauSummary->startFromMF = 1;
 	      bool ANNstau = generateMuGirl(stauSummary);
@@ -820,8 +824,9 @@ HLT::ErrorCode TrigMuGirlTool::processTrackCollections(	const ElementLinkVector<
               else
 		{
 	          MuGirlNS::CandidateSummary* stauSummary = new MuGirlNS::CandidateSummary();
-	          if (m_pStauTool->fillStauSummary(summary,stauSummary).isFailure())
-		    msg() << MSG::DEBUG << "TrigMuGirlTool::execute Cannot fill stausummary" << endreq;
+                  //// please fix me
+	          // if (m_pStauTool->fillStauSummary(summary,stauSummary).isFailure())
+		  //   msg() << MSG::DEBUG << "TrigMuGirlTool::execute Cannot fill stausummary" << endreq;
 
                   bool ANNstau = generateMuGirl(stauSummary);
                   if (stauSummary->nnBarrel >0.2 || stauSummary->nnEndCap >0.2) ANNstau = true;
@@ -1268,18 +1273,21 @@ void TrigMuGirlTool::createCaloParticles()
   //    if (msg().level() <= MSG::DEBUG)
   //        msg() << MSG::DEBUG << "createCaloParticles: Pre-selection from " << m_inDetTrackParticleLinks.size() << " particles." << endreq;
 
+  
   for (ElementLinkVector<xAOD::TrackParticleContainer>::const_iterator ipIt = m_inDetTrackParticleLinks.begin();
        ipIt != m_inDetTrackParticleLinks.end();
        ++ipIt)
     {
       if ( !ipIt->isValid() )
-        {
-          ATH_MSG_WARNING("Invalid EF ID TrackParticle ElementLink");
-          continue;
-        }
+	{
+	  ATH_MSG_WARNING("Invalid EF ID TrackParticle ElementLink");
+	  continue;
+	}
 
       const xAOD::TrackParticle* tp_id = **ipIt;
       const Trk::Perigee pPerigee = tp_id->perigeeParameters();
+      const xAOD::TrackParticle& tp = ***ipIt;
+
 /*
       if (pPerigee == NULL)
         {
@@ -1291,6 +1299,9 @@ void TrigMuGirlTool::createCaloParticles()
       double px = pPerigee.momentum()[Trk::px];
       double py = pPerigee.momentum()[Trk::py];
       double pt = sqrt(px * px + py * py);
+
+      msg() << MSG::DEBUG << "Perigee "<<px<<endreq;
+
 
       if (pt < m_ptLowerLimit)
         {
@@ -1322,29 +1333,27 @@ void TrigMuGirlTool::createCaloParticles()
 	  continue;
         }
 
-      bool seenByCalo = false;
-      if (m_pToCalo)
-        {
-            double offset = 0.;
-            const Trk::TrackParameters* calo_local = 0;
-            for (unsigned i = 0; i < m_caloLayers.size(); ++i)
-            {
-                if ( (calo_local = m_pToCalo->extrapolate(*(tp_id->track()), m_caloLayers[i],offset))!=0 ) {
-                    seenByCalo=true;
-                    pt_calo_local = calo_local->position();
-                }
-                //seenByCalo = m_pToCalo->TrackSeenByCalo(tp_id->originalTrack(), m_caloLayers[i], offset, &pt_calo_ctb, &pt_calo_local);
-                if (seenByCalo)
-                    break;
-            }
+        const Trk::TrackParameters* extrParameters = NULL;
+
+        /**
+           get the extrapolation to the MS entry
+          */
+        const Trk::CaloExtension* extension = 0;
+
+	if( !m_caloExtensionTool.empty() && 
+	    (!m_caloExtensionTool->caloExtension( tp,extension ) ||
+	    extension->caloLayerIntersections().empty() ) ) {
+          ATH_MSG_DEBUG("Not seen by calo");
+          continue;
         }
-      else
-	seenByCalo = true;
-      if (!seenByCalo)
-        {
-	  if (msg().level() <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "Not seen by calo" << endreq;
-	  continue;
+        
+        // if available use muon entry intersection
+        if( extension->muonEntryLayerIntersection() ){
+          extrParameters = extension->muonEntryLayerIntersection();
+          pt_calo_local = extrParameters->position();
+        }else{
+          // use last calo layer
+          pt_calo_local = extension->caloLayerIntersections().back()->position();
         }
 
       // out for timing
