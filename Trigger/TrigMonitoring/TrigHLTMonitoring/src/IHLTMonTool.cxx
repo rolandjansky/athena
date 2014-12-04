@@ -34,7 +34,7 @@
 #include "TrigHLTMonitoring/HLTMonException.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "LumiBlockComps/CoolQuery.h"   
+#include "LumiCalc/CoolQuery.h"   
                                         
 using namespace std;
 

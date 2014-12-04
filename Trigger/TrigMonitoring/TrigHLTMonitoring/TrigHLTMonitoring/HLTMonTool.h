@@ -23,7 +23,7 @@
 
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "LumiBlockComps/CoolQuery.h"   
+#include "LumiCalc/CoolQuery.h"   
 
 //#include "TrigDecision/TrigDecisionTool.h"
 

@@ -89,10 +89,8 @@ StatusCode HLTMonTool::book( ) //suppress 'unused' compiler warning
       
       sc = GetL1SummaryAndLBInfo();
       if(sc.isFailure()) ATH_MSG_WARNING("failed getting necessary info for booking");
-      sc = bookResultAndConsistencyHistograms("L2");
-      if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos L2");
-      sc = bookResultAndConsistencyHistograms("EF");
-      if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos EF");
+      sc = bookResultAndConsistencyHistograms("HLT");
+      if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos HLT");
       sc = bookLvl1Histograms();
       if(sc.isFailure()) ATH_MSG_WARNING("failed booking LVL1 histos");
       sc = bookHLTHistograms();
@@ -111,15 +109,13 @@ StatusCode HLTMonTool::fill()
 
   //go to original MonGroup
   setCurrentMonGroup("HLT/ResultMon");  
-  sc = fillResultAndConsistencyHistograms("HLTResult_L2", hist("ConfigConsistency_L2"), hist("HLTResultL2"));
-  if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for L2");
-  sc = fillResultAndConsistencyHistograms("HLTResult_EF", hist("ConfigConsistency_EF"), hist("HLTResultEF"));
-  if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for EF");
-  
+  sc = fillResultAndConsistencyHistograms("HLTResult_HLT", hist("ConfigConsistency_HLT"), hist("HLTResultHLT"));
+  if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for HLT");
+
   fillLvl1Histograms();
   if(sc.isFailure()) ATH_MSG_WARNING("Filling Level 1 histograms failed");
   
-  std::vector<std::string> myChains = getTDT()->getListOfTriggers("L2_.*|EF_.*");
+  std::vector<std::string> myChains = getTDT()->getListOfTriggers("HLT_.*");
   if (!(myChains.empty())) {
     std::vector<std::string>::const_iterator chIt;
     for (chIt=myChains.begin(); chIt!=myChains.end(); ++chIt) {
@@ -128,7 +124,7 @@ StatusCode HLTMonTool::fill()
     }
   }
   else {
-    ATH_MSG_WARNING("No L2 and/or EF chains found using TDT");
+    ATH_MSG_WARNING("No HLT chains found using TDT");
     sc = StatusCode::FAILURE;
   }
   return sc;
@@ -139,7 +135,7 @@ StatusCode  HLTMonTool::proc(){//suppress 'unused' compiler warning
 }
 
 StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
-  StatusCode sc = StatusCode::SUCCESS;
+  StatusCode sc = StatusCode::SUCCESS; 
   ATH_MSG_DEBUG("getting Level 1 triggers and Lumiblock information.");
   m_L1_summary = getTDT()->getChainGroup("L1_.*")->getListOfTriggers();    
 
@@ -191,7 +187,6 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 
 StatusCode HLTMonTool::bookResultAndConsistencyHistograms(const std::string& lvl){
   StatusCode sc = StatusCode::SUCCESS; 
-
   std::string resultname = "HLTResult"+lvl;
   std::string consistname = "ConfigConsistency_"+lvl;
 
@@ -238,27 +233,25 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
   std::vector<std::string>::iterator chItr;
 
   addMonGroup(new MonGroup(this,monpath,run));
-  std::vector<std::string> seplvl[] = {getTDT()->getListOfTriggers("L2_"+regex.substr(8,regex.length()-8)),
-				       getTDT()->getListOfTriggers("EF_"+regex.substr(8,regex.length()-8))
+  std::vector<std::string> lvl = {getTDT()->getListOfTriggers("HLT_"+regex.substr(8,regex.length()-8))
   };                                 //^^^ MAGIC NUMBERS AT WORK HERE ^^^
   
   //create helper strings
   std::stringstream tmp_histname;  
   const char* triggerstatus[]={"RAW","PS","PT"};
-  const char* levels[]={"L2","EF"};
+  const char* level = "HLT";
   
-  for(uint i=0;i<sizeof(levels)/sizeof(levels[0]);++i)
-    for (uint j=0; j<sizeof(triggerstatus)/sizeof(triggerstatus[0]); ++j)
-      if(seplvl[i].size()>0) {
-	tmp_histname.str("");//reset
-	tmp_histname << levels[i] << "_" << name << triggerstatus[j];
-	ATH_MSG_DEBUG("\tbooking --> " << tmp_histname.str());
-	addHistogram(new TH1F(tmp_histname.str().c_str(),name.c_str(),seplvl[i].size(),0.5,seplvl[i].size()+0.5),monpath);
-	
-	for (chItr=seplvl[i].begin(); chItr!=seplvl[i].end(); chItr++)
-	  hist(tmp_histname.str(),monpath)->GetXaxis()->SetBinLabel(chItr-(seplvl[i]).begin()+1,chItr->c_str());
-      }
-
+  for (uint j=0; j<sizeof(triggerstatus)/sizeof(triggerstatus[0]); ++j)
+    if(lvl.size()>0) {
+      tmp_histname.str("");//reset
+      tmp_histname << level << "_" << name << triggerstatus[j];
+      ATH_MSG_DEBUG("\tbooking --> " << tmp_histname.str());
+      addHistogram(new TH1F(tmp_histname.str().c_str(),name.c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
+      
+      for (chItr=lvl.begin(); chItr!=lvl.end(); chItr++)
+	hist(tmp_histname.str(),monpath)->GetXaxis()->SetBinLabel(chItr-lvl.begin()+1,chItr->c_str());
+    }
+  
   //add a roi histo
   addHistogram(new TH2F(std::string(name+"RoIs").c_str(),tmp_histname.str().c_str(),100,-5,5,64,-3.2,3.2),monpath);
   
@@ -319,17 +312,16 @@ StatusCode HLTMonTool::fillLvl1Histograms(){
 
 StatusCode HLTMonTool::fillForChain(const std::string& chain){
   StatusCode sc = StatusCode::SUCCESS;
-  
   //get results
   std::map<std::string,bool> results;
-  bool isEFChain = !(chain.compare(0,2,"EF"));
-  bool isL2Chain = !(chain.compare(0,2,"L2"));
-  if(!(isEFChain||isL2Chain)){
-    ATH_MSG_DEBUG(chain << "is neither EF nor L2 chain");
+  bool isHLTChain = !(chain.compare(0,3,"HLT"));
+  if(!(isHLTChain)){
+    ATH_MSG_DEBUG(chain << "is not an HLT chain");
     return StatusCode::FAILURE;
   }
  
-  unsigned int cond = isEFChain ? TrigDefs::EF_passedRaw : TrigDefs::L2_passedRaw;
+  // christos (Nov-14): is there a reason to still check these flags???
+  unsigned int cond = isHLTChain ? TrigDefs::EF_passedRaw : TrigDefs::L2_passedRaw;
   results["RAW"] = getTDT()->isPassed(chain, cond);
   results["PS"] = results["RAW"] && (getTDT()->getPrescale(chain) != 1);
   results["PT"] = getTDT()->isPassed(chain, TrigDefs::eventAccepted);
@@ -372,7 +364,7 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
 	  }
 	  
 	  // ------------ Fill RoI Histograms ---------------
-	  if (rsIt->first=="RAW" && isEFChain) {
+	  if (rsIt->first=="RAW" && isHLTChain) {
 	    std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roiIt;
 	    const std::vector<Trig::Feature<TrigRoiDescriptor> > rois = (getTDT()->features(chain)).get<TrigRoiDescriptor>("initialRoI"); 
 	    for (roiIt=rois.begin(); roiIt!=rois.end(); ++roiIt) {
