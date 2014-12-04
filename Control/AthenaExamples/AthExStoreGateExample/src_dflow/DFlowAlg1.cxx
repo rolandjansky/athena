@@ -33,8 +33,8 @@ namespace AthEx {
 DFlowAlg1::DFlowAlg1( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_evtinfo("EventInfo"),
-  m_int("dflow_int")
+  m_r_evtInfo("EventInfo"),
+  m_w_int("dflow_int")
 {
   //
   // Property declaration
@@ -42,11 +42,11 @@ DFlowAlg1::DFlowAlg1( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty("IntFlow", 
-                  m_int,
+                  m_w_int,
                   "Data flow of int");
 
   declareProperty("EvtInfo",
-                  m_evtinfo,
+                  m_r_evtInfo,
                   "event info handle");
 }
 
@@ -75,17 +75,16 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  ATH_MSG_INFO("================================");
-  ATH_MSG_INFO("evtinfo handle...");
-  ATH_MSG_INFO("name: [" << m_evtinfo.name() << "]");
-  ATH_MSG_INFO("store [" << m_evtinfo.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_evtinfo.clid() << "]");
-  const EventInfo* ei = &*m_evtinfo;
-  ATH_MSG_INFO("ei: " << ei);
-  if (0 == ei) {
+  if (m_r_evtInfo.isValid()) {
     ATH_MSG_ERROR("Could not get the EventInfo object. Going to next event");
     return StatusCode::RECOVERABLE;
   }
+  ATH_MSG_INFO("evtinfo handle...");
+  ATH_MSG_INFO("name: [" << m_r_evtInfo.name() << "]");
+  ATH_MSG_INFO("store [" << m_r_evtInfo.store() << "]");
+  ATH_MSG_INFO("clid: [" << m_r_evtInfo.clid() << "]");
+  const EventInfo* ei = &*m_r_evtInfo;
+  ATH_MSG_INFO("ei: " << ei);
   const EventID* eid = ei->event_ID();    
   ATH_MSG_INFO("retrieving event-info...");
   unsigned int runnbr = eid->run_number();
@@ -93,20 +92,23 @@ StatusCode DFlowAlg1::execute()
   ATH_MSG_INFO("evt-info.evtnbr: " << eid->event_number());
   
   ATH_MSG_INFO("myint handle...");
-  ATH_MSG_INFO("name: [" << m_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_int.clid() << "]");
+  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
+  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
+  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
   
-  m_int = CxxUtils::make_unique<int>(m_evtinfo->event_ID()->event_number());
-  
-  ATH_MSG_INFO("ptr: " << m_int.cptr());
-  ATH_MSG_INFO("val: " << *m_int);
-  
-  ATH_MSG_INFO("modify myint by value...");
-  m_int = m_evtinfo->event_ID()->event_number() + 20;
-  ATH_MSG_INFO("ptr: " << m_int.cptr());
-  ATH_MSG_INFO("val: " << *m_int);
+  m_w_int = CxxUtils::make_unique<int>(m_r_evtInfo->event_ID()->event_number());
 
+  //redundant check as op = would throw if m_w_int was not valid (e.g. because if clid/key combo was duplicated)
+  if (m_w_int.isValid()) {
+    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
+    ATH_MSG_INFO("val: " << *m_w_int);
+    
+    ATH_MSG_INFO("modify myint by value...");
+    m_w_int = m_r_evtInfo->event_ID()->event_number() + 20;
+
+    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
+    ATH_MSG_INFO("val: " << *m_w_int);
+  }
   return StatusCode::SUCCESS;
 }
 

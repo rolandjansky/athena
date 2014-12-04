@@ -40,15 +40,15 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty("RIntFlow", 
-                  m_r_int = SG::RVar<int>("dflow_int"),
+                  m_r_int = SG::ReadHandle<int>("dflow_int"),
                   "Data flow of int");
 
   declareProperty("RWIntFlow", 
-                  m_rw_int = SG::RWVar<int>("dflow_int"),
+                  m_rw_int = SG::UpdateHandle<int>("dflow_int"),
                   "Data flow of int");
 
   declareProperty("IntsFlow", 
-                  m_ints = SG::WVar<std::vector<int> >("dflow_ints"),
+                  m_ints = SG::WriteHandle<std::vector<int> >("dflow_ints"),
                   "Data flow of integers");
 
 }
@@ -84,25 +84,28 @@ StatusCode DFlowAlg2::execute()
   ATH_MSG_INFO("clid: [" << m_r_int.clid() << "]");
 
   ATH_MSG_INFO("ptr: " << m_r_int.cptr());
-  ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
-
+  if (m_r_int.isValid()) {
+    ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
+  }
   ATH_MSG_INFO("myint rw-handle...");
   ATH_MSG_INFO("name: [" << m_rw_int.name() << "]");
   ATH_MSG_INFO("store [" << m_rw_int.store() << "]");
   ATH_MSG_INFO("clid: [" << m_rw_int.clid() << "]");
 
   ATH_MSG_INFO("ptr: " << m_rw_int.ptr());
-  ATH_MSG_INFO("val: " << *(m_rw_int.cptr()));
+  if (m_rw_int.isValid()) {
+    ATH_MSG_INFO("val: " << *(m_rw_int.cptr()));
+    *m_rw_int += 100;
 
-  *m_rw_int += 100;
-
-  ATH_MSG_INFO("val: " << *m_rw_int);
-  ATH_MSG_INFO("ptr: " << m_rw_int.cptr());
+    ATH_MSG_INFO("val: " << *m_rw_int);
+  }
+  ATH_MSG_INFO("cptr: " << m_rw_int.cptr());
 
   ATH_MSG_INFO("ints w-handle...");
   m_ints = CxxUtils::make_unique<std::vector<int> >();
   m_ints->push_back(10);
-  m_ints->push_back(*m_r_int);
+  //would be nice if it worked...  if (0 != m_r_int) m_ints->push_back(*m_r_int);
+  if (m_r_int.isValid()) m_ints->push_back(*m_r_int);
   ATH_MSG_INFO("size:" << m_ints->size());
   for (int i = 0, imax = m_ints->size();
        i!=imax;

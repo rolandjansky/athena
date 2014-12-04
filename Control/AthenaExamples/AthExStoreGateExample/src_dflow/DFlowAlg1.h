@@ -17,8 +17,8 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "SGTools/BuiltinsClids.h"
-#include "StoreGate/RVar.h"
-#include "StoreGate/WVar.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 // eventinfo
 #include "EventInfo/EventInfo.h"
@@ -69,8 +69,8 @@ class DFlowAlg1
   /// Containers
   
   // vars
-  SG::RVar<EventInfo> m_evtinfo;
-  SG::WVar<int> m_int;
+  SG::ReadHandle<EventInfo> m_r_evtInfo;
+  SG::WriteHandle<int> m_w_int;
 
 }; 
 

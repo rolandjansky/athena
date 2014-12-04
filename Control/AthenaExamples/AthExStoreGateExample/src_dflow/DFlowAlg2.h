@@ -16,9 +16,9 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/RVar.h"
-#include "StoreGate/WVar.h"
-#include "StoreGate/RWVar.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/UpdateHandle.h"
 
 namespace AthEx {
 
@@ -66,9 +66,9 @@ class DFlowAlg2
   /// Containers
   
   // vars
-  SG::RVar<int>  m_r_int;
-  SG::RWVar<int> m_rw_int;
-  SG::WVar<std::vector<int> > m_ints;
+  SG::ReadHandle<int>  m_r_int;
+  SG::UpdateHandle<int> m_rw_int;
+  SG::WriteHandle<std::vector<int> > m_ints;
 }; 
 
 // I/O operators
