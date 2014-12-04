@@ -17,6 +17,7 @@
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigInDetTrackHelper.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -26,15 +27,12 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMTrackMatch.h"
 
 #include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <EventInfo/EventID.h>
 
 //for LAr Cleaning
@@ -71,10 +69,10 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
   declareProperty("egammaContainer", m_electronContainerName="ElectronCollection");
   declareProperty("egammaContainer", m_photonContainerName="PhotonCollection");
   declareProperty("DoOffline", m_doOfflineComparisons=true);
-  declareProperty("OfflineEleMinPTCut", m_offEle_minptcut= 25.);//GeV
-  declareProperty("OfflinePhoMinPTCut", m_offPho_minptcut= 25.);//GeV
+  declareProperty("OfflineEleMinPTCut", m_offEle_minptcut= 2.);//GeV
+  declareProperty("OfflinePhoMinPTCut", m_offPho_minptcut= 2.);//GeV
   declareProperty("DRmatchToOffline", m_dR_off= 0.15);//GeV
-  declareProperty("DoLumiCalc", m_doLumiCalc = true);//Lumi  
+  declareProperty("DoLumiCalc", m_doLumiCalc = false);//Lumi  
   declareProperty("PayloadName",m_payload = "LBAvInstLumi");//Lumi
   declareProperty("DatabaseName", m_database =  "COOLOFL_TRIGGER/COMP200");
   /* "COOLONL_TRIGGER/COMP200" //Online for data commissioning
@@ -97,10 +95,6 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
   //initialise pointers to egamma collections
   m_elecTES = NULL;
   m_photTES = NULL;
-
-  //initialise pointers to extrapolation tool and interface
-  m_toCalo = NULL;
-  m_calodepth = NULL;
 
   //reset timestamps
   m_firstTimeStamp = m_lastTimeStamp = 0;
@@ -135,30 +129,9 @@ StatusCode HLTEgammaNavSigTEMonTool::init()
     return(StatusCode::FAILURE);
   }
 
-  //fetch extrapolation tool if requested
-  if(m_doExtrapol){
-
-    //set up generic interface pointer
-    IAlgTool* algtool = NULL;
-
-    //try to fetch tool
-    sc = m_toolSvc->retrieveTool("ExtrapolTrackToCaloTool/extrapolTrackToCaloTool", algtool, this);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot get ExtrapolTrackToCaloTool");
-      return(StatusCode::FAILURE);
-    }
-
-    //cast to correct interface pointer species
-    m_toCalo=dynamic_cast<IExtrapolateToCaloTool*>(algtool);
-
-    //retrieve calo depth tool through interface
-    m_calodepth = &(*m_toCalo->getCaloDepth());
-    if (!m_calodepth) {
-      ATH_MSG_ERROR("Cannot get CaloDepthTool");
-      return(StatusCode::FAILURE);
-    }
-
-  }//done fetching extrapolation tool
+  // Remove extrapolation tools
+  // See TrigL2ElectronFex
+  m_doExtrapol = false;
 
   //setup fill/rate condiftions
   //TODO might not be needed anymore
@@ -207,7 +180,7 @@ StatusCode HLTEgammaNavSigTEMonTool::book()
     for(; monSigIt!=m_signatures.end();){
 
       //form EF-item name of chain
-      string efItemName = "EF_" + *monSigIt; 
+      string efItemName = "HLT_" + *monSigIt; 
       bool signatureFound = false;
 
       //loop through running signatures
@@ -305,7 +278,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
   //         but the rest is working fine.
   // - note: we might also try and use the run/LB/event numbers already
   //         supplied by IHLTMonTool, but would still need to read timestamps.
-  const EventInfo *eventInfo = NULL;
+  const xAOD::EventInfo *eventInfo = NULL;
   if((m_storeGate->retrieve(eventInfo)).isFailure()) {
     ATH_MSG_ERROR("Cannot retrieve EventInfo container for this event.");
   }else if(!eventInfo){
@@ -313,10 +286,14 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
   }else{
 
     //fetch run/LB/event numbers and timestamp
-    m_runnbr = eventInfo->event_ID()->run_number() ;
-    m_lumiblocknbr  = eventInfo->event_ID()->lumi_block();
-    m_eventnbr  = eventInfo->event_ID()->event_number();
-    unsigned int timeStamp = eventInfo->event_ID()->time_stamp();
+    //m_runnbr = eventInfo->event_ID()->run_number() ;
+    m_runnbr = eventInfo->runNumber() ;
+    //m_lumiblocknbr  = eventInfo->event_ID()->lumi_block();
+    m_lumiblocknbr  = eventInfo->lumiBlock();
+    //m_eventnbr  = eventInfo->event_ID()->event_number();
+    m_eventnbr  = eventInfo->eventNumber();
+    //unsigned int timeStamp = eventInfo->event_ID()->time_stamp();
+    unsigned int timeStamp = eventInfo->timeStamp();
     ATH_MSG_DEBUG("EventInfo: Run "<<m_runnbr<<", LB "<<m_lumiblocknbr<<", event "<<m_eventnbr
 		  <<", timestamp "<<timeStamp);
 
@@ -324,7 +301,8 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
     if(!m_firstTimeStamp){ m_firstTimeStamp = timeStamp; }
 
     //update last timestamp
-    m_lastTimeStamp = eventInfo->event_ID()->time_stamp();
+    //m_lastTimeStamp = eventInfo->event_ID()->time_stamp();
+    m_lastTimeStamp = eventInfo->timeStamp();
 
     //add LB to list of processed LBs
     // - first need to check whether we've seen it already
@@ -339,7 +317,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
   }//done fetching event info
 
   //apply LAr cleaning
-  if ( eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS) ){
+  if ( eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS) ){
     ATH_MSG_DEBUG("Event rejected by LAr Cleaning");
     return(StatusCode::SUCCESS);
   }
@@ -355,9 +333,8 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
     ATH_MSG_DEBUG("Retrieving offline egamma containers.");
 
     //first check that Electron and Photon Container exist in Storegate, if not quit
-    if(!m_storeGate->contains<egammaContainer>(m_electronContainerName) ||
-       !m_storeGate->contains<egammaContainer>(m_photonContainerName)){
-      ATH_MSG_WARNING("Electron or photon containers not found in TDS.");
+    if(!m_storeGate->contains<xAOD::ElectronContainer>(m_electronContainerName) ){
+      ATH_MSG_WARNING("Electron containers not found in TDS.");
       return(StatusCode::SUCCESS);
     }
 
@@ -368,19 +345,22 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
       ATH_MSG_WARNING("Couldn't retrieve offline electron container.");
     }     
 
+#ifdef PHOTON
     //retrieve offline photon container
     if (m_storeGate->retrieve( m_photTES, m_photonContainerName).isSuccess()  &&  m_photTES ) {
       ATH_MSG_DEBUG("Successfully retrieved offline photon container."); 
     }else{
       ATH_MSG_WARNING("Couldn't retrieve offline photon container.");
     }
+#endif
 
     //fill from containers
     fillOfflineEgammas(m_elecTES);
-    fillOfflineEgammas(m_photTES);
+    //fillOfflineEgammas(m_photTES);
 
   }//done filling offline egamma info
 
+#ifdef DONTDO
   //OVERLAPTEST
   // - collect chains that sent this event to express stream
   tmp_chainsToEs.clear();
@@ -411,6 +391,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fill()
   
   }
   //OVERLAPTEST
+#endif
 
   ////////////////////////
   // Fill Per Signature //
@@ -482,6 +463,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fill_per_signature(const string signature)
     unsigned int condition = conditions.at(i_passStates);
     bool onlyActiveTe = activeTeSwitches.at(i_passStates);
 
+#ifdef DONTDO
     //get L2 chains
     // - note: this can be skipped for ActiveChain filling, because by definition
     //         the chain must have made it through to EF and we can pick up the L2 part
@@ -489,7 +471,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fill_per_signature(const string signature)
     if(condition!=TrigDefs::Physics){
 
       //get chain groups for signatures
-      const Trig::ChainGroup* L2_Chains  = getTDT()->getChainGroup("L2_"+signature);
+      const Trig::ChainGroup* L2_Chains  = getTDT()->getChainGroup("HLT_"+signature);
 
       //get features for this chain group
       Trig::FeatureContainer L2_features = getTDT()->features(L2_Chains,condition);
@@ -518,9 +500,10 @@ StatusCode HLTEgammaNavSigTEMonTool::fill_per_signature(const string signature)
       }//done looping over l2 combinations
 
     }//finished with L2 chains
+#endif
 
 
-    const Trig::ChainGroup* EF_Chains  = getTDT()->getChainGroup("EF_"+signature);
+    const Trig::ChainGroup* EF_Chains  = getTDT()->getChainGroup("HLT_"+signature);
     const Trig::ChainGroup* SelChains = EF_Chains;  
 
 
@@ -884,6 +867,42 @@ void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const egammaContainer* egCont)
   ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
 }
 
+void HLTEgammaNavSigTEMonTool::fillOfflineEgammas(const xAOD::ElectronContainer* egCont)
+{
+  ATH_MSG_DEBUG("Filling offline egamma histograms.");
+
+  //loop over container
+  ATH_MSG_VERBOSE("Looping over offline egamma container.");
+  xAOD::ElectronContainer::const_iterator egIt = egCont->begin();
+  for (; egIt != egCont->end() ; ++egIt) {
+
+    //decide on electron/photon based on permitted authors & ID
+    // - note: it's not either/or, because egamma can fail our author selection
+    //          that's also why we can't just check the first object in the container
+    bool isElectron = (*egIt)->author(egammaParameters::AuthorElectron);
+    bool isPhoton(false);
+/*
+    bool isPhoton = (*egIt)->author(egammaParameters::AuthorPhoton) ||
+      (*egIt)->author(egammaParameters::AuthorRConv);
+*/
+
+    bool isMediumPPElectron(false);
+    (*egIt)->passSelection(isMediumPPElectron,"Medium");
+    //bool isTightPhoton = (*egIt)->passID(egammaPID::PhotonIDTight);
+
+    //now apply appropriate pt cut and call egamma filling function
+    if(isElectron && isMediumPPElectron){
+      fillOfflineEgamma((*egIt), isPhoton, "", m_offEle_minptcut, m_offPho_minptcut);
+    }
+/*
+    }else if(isPhoton && isTightPhoton){
+      fillOfflineEgamma((*egIt), isPhoton, "", m_offEle_minptcut, m_offPho_minptcut);
+    }
+*/
+  }//done looping over container
+  //all done
+  ATH_MSG_DEBUG("Finished filling offline egamma histograms.");
+}
 
 
 
@@ -906,8 +925,12 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   ATH_MSG_VERBOSE("Path set to "<<path);
   ATH_MSG_VERBOSE("Filling combination "<<comb);
 
+
   //find out whether this is a photon signature
-  bool isPhoton = isPhotonSignature(signature);
+
+  //bool isPhoton = isPhotonSignature(signature);
+  bool isPhoton = false;
+
 
   //abort if we require a passthrough chain to have passed and it didn't
   //TODO find out what effect an active passThroughChain would have
@@ -946,7 +969,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   bool chainToEs = false;
   if(condition==TrigDefs::Physics){
     for(unsigned int iChainsToEs=0; iChainsToEs<tmp_chainsToEs.size(); iChainsToEs++){
-      if(tmp_chainsToEs.at(iChainsToEs)=="EF_"+signature){
+      if(tmp_chainsToEs.at(iChainsToEs)=="HLT_"+signature){
         chainToEs = true;
         break;
       }
@@ -967,16 +990,16 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 		  <<Trig::getTEName(*te));
 
     //get EMTAU ROI associated to this initial ROI
-    Trig::Feature<EmTau_ROI> emTauRoi = getTDT()->ancestor<EmTau_ROI>(*initRoiIt);
+    Trig::Feature<xAOD::EmTauRoI> emTauRoi = getTDT()->ancestor<xAOD::EmTauRoI>(*initRoiIt);
     if (emTauRoi.empty()){
       ATH_MSG_DEBUG("No EmTau_ROI for this TrigRoiDescriptor. Aborting L2 filling.");
       return(StatusCode::SUCCESS);
     }
 
     //store kinematic info
-    m_roi_et.push_back((emTauRoi.cptr())->getEMClus());
-    m_roi_eta.push_back((emTauRoi.cptr())->getEta());
-    m_roi_phi.push_back((emTauRoi.cptr())->getPhi());
+    m_roi_et.push_back((emTauRoi.cptr())->emClus());
+    m_roi_eta.push_back((emTauRoi.cptr())->eta());
+    m_roi_phi.push_back((emTauRoi.cptr())->phi());
 
     
     //OVERLAPTEST
@@ -985,9 +1008,9 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       string overlapTestPath = m_histoBasePath+"/"+signature+"/OverlapTest";
       ATH_MSG_VERBOSE("Filling OVERLAPTEST histograms at path "<<overlapTestPath);
       if(chainToEs){
-	hist("l1pt_this",overlapTestPath)->Fill((emTauRoi.cptr())->getEMClus()/CLHEP::GeV);
+	hist("l1pt_this",overlapTestPath)->Fill((emTauRoi.cptr())->emClus()/CLHEP::GeV);
       }else{
-	hist("l1pt_other",overlapTestPath)->Fill((emTauRoi.cptr())->getEMClus()/CLHEP::GeV);
+	hist("l1pt_other",overlapTestPath)->Fill((emTauRoi.cptr())->emClus()/CLHEP::GeV);
       }
     }
     //OVERLAPTEST
@@ -998,8 +1021,8 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     //if we are only filling for active trigger elements (enforce a pass decision later on)
     //fill PreRejection histograms using this ROI
     if(onlyActiveTe){
-      if(!skipActiveTE) FillRates((emTauRoi.cptr())->getEMClus(),(emTauRoi.cptr())->getEta(),
-		(emTauRoi.cptr())->getPhi(), "L1" ,path+"/PreRejection");
+      if(!skipActiveTE) FillRates((emTauRoi.cptr())->emClus(),(emTauRoi.cptr())->eta(),
+		(emTauRoi.cptr())->phi(), "L1" ,path+"/PreRejection");
 
       //if we are not requiring a passed chain, also fill L1 counter
       //this is so we won't loose L1 counts by only looking at chains
@@ -1016,13 +1039,13 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     }
 
     //print kinematic info
-    ATH_MSG_VERBOSE("L1 ROI info: thresholdname "<<(emTauRoi.cptr())->getThresholdNames()
-		    <<", et "<<(emTauRoi.cptr())->getEMClus() / CLHEP::GeV<<", eta "<< (emTauRoi.cptr())->getEta()
-		    <<", phi "<<(emTauRoi.cptr())->getPhi());
+    ATH_MSG_VERBOSE("L1 ROI info: thresholdname "<<(emTauRoi.cptr())->thrNames()
+		    <<", et "<<(emTauRoi.cptr())->emClus() / CLHEP::GeV<<", eta "<< (emTauRoi.cptr())->eta()
+		    <<", phi "<<(emTauRoi.cptr())->phi());
 
     //match to offline using calo information
     ATH_MSG_VERBOSE("- Trying to match L1 to offline");
-    const egamma* matchedEgamma = matchOffline((emTauRoi.cptr())->getEta(),(emTauRoi.cptr())->getPhi(),
+    const xAOD::Egamma* matchedEgamma = matchOffline((emTauRoi.cptr())->eta(),(emTauRoi.cptr())->phi(),
 					       true, isPhoton);
     if(matchedEgamma){
 
@@ -1036,7 +1059,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
 
   //get L2 clusters
-  vector< Trig::Feature<TrigEMCluster> > L2Calo = comb.get<TrigEMCluster>("",condition);
+  vector< Trig::Feature<xAOD::TrigEMCluster> > L2Calo = comb.get<xAOD::TrigEMCluster>("",condition);
   ATH_MSG_VERBOSE("- Number of L2Calo Clusters "<<L2Calo.size());
   if(L2Calo.size() < 1){
     ATH_MSG_DEBUG("- No TrigEMClusters found. Aborting L2 combination filling.");
@@ -1048,13 +1071,13 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   // - reused during L2ID filling (dEta/dPhi etc.)
   // - reused during EFCalo filling
   // TODO: find out whether picking the last cluster in the loop is appropriate
-  const TrigEMCluster* l2CaloCluster = NULL;
+  const xAOD::TrigEMCluster* l2CaloCluster = NULL;
 
   //create set of offline matches;
-  set<const egamma*> L2CalomatchedEgamma;
+  set<const xAOD::Egamma*> L2CalomatchedEgamma;
 
   //loop over clusters
-  vector< Trig::Feature<TrigEMCluster> >::const_iterator clusIt = L2Calo.begin();
+  vector< Trig::Feature<xAOD::TrigEMCluster> >::const_iterator clusIt = L2Calo.begin();
   for(; clusIt!= L2Calo.end(); ++clusIt){
 
     //fetch pointer to cluster and print kinematic info
@@ -1090,7 +1113,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
     //match to Offline using calorimeter info
     ATH_MSG_VERBOSE(" - Trying to match L2Calo to offline");
-    const egamma* matchedEgamma = matchOffline(l2CaloCluster->eta(),l2CaloCluster->phi(), true, isPhoton);
+    const xAOD::Egamma* matchedEgamma = matchOffline(l2CaloCluster->eta(),l2CaloCluster->phi(), true, isPhoton);
 
     //fill L2Calo resolutions if a match was found, insert pointer in set
     if(matchedEgamma){
@@ -1102,7 +1125,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   
   //fill matches for efficiencies L2Calo
   if(L2CalomatchedEgamma.size() > 0){
-    set<const egamma*>::const_iterator L2CalomatchIt = L2CalomatchedEgamma.begin();
+    set<const xAOD::Egamma*>::const_iterator L2CalomatchIt = L2CalomatchedEgamma.begin();
     for(; L2CalomatchIt != L2CalomatchedEgamma.end(); ++L2CalomatchIt){
       if(!skipActiveTE) fillOfflineMatches(*L2CalomatchIt, isPhoton, path+"/L2Calo", m_offEle_minptcut, m_offPho_minptcut);
     }
@@ -1111,7 +1134,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
   //get TrigInDetTrackCollections and check their number
   // - we will bail out if processing an electron chain but no track collections have been found
-  vector< Trig::Feature<TrigInDetTrackCollection> > L2ID = comb.get<TrigInDetTrackCollection>("",condition);
+  vector< Trig::Feature<xAOD::TrackParticleContainer> > L2ID = comb.get<xAOD::TrackParticleContainer>("",condition);
   ATH_MSG_VERBOSE(" - Number of L2ID Collections = "<<L2ID.size());
   if (!isPhoton && !L2ID.size()){
     ATH_MSG_DEBUG(" - No L2ID Collections. Skipping L2 combination.");
@@ -1119,14 +1142,16 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   }
 
   //create set of offline matches for L2Track
-  set<const egamma*> L2TrackmatchedEgamma;
+  set<const xAOD::Egamma*> L2TrackmatchedEgamma;
+
 
   //loop over track collections
   // - skipped in its entirety for photon chains, regardless of whether we do have track collections
   //   in this combination or not (we probably shouldn't anyway, but let's be on the safe side)
   // -- this is done in the "continue if"-part of the foor loop
-  vector< Trig::Feature<TrigInDetTrackCollection> >::const_iterator trackCollIt =  L2ID.begin();
+  vector< Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator trackCollIt =  L2ID.begin();
   for(; !isPhoton && trackCollIt!= L2ID.end(); ++ trackCollIt ){
+    if ( (trackCollIt->label().find("xAODCnv_Electron_FTF")==std::string::npos) && ( trackCollIt->label().find("xAODCnv_Electron_L2ID")==std::string::npos) ) continue;
 
     //skip collection if it's not active and we only look at active ones
     if (!(trackCollIt->te()->getActiveState()) && onlyActiveTe){
@@ -1144,7 +1169,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     }
 
     //loop over tracks in collection
-    TrigInDetTrackCollection::const_iterator trackIt = trackCollIt->cptr()->begin();
+    xAOD::TrackParticleContainer::const_iterator trackIt = trackCollIt->cptr()->begin();
     for(; trackIt != trackCollIt->cptr()->end(); ++trackIt ){
 
 
@@ -1158,10 +1183,12 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
         //extrapolate (again, after the L2ID filler already did it) to find eta/phi for L1 match
         float etac(-999), phic(-999);
+        /*
         if(extrapolateTrackToCalo(*trackIt)){
           etac = m_extrapolatedEta;
           phic = m_extrapolatedPhi;
         }
+	*/
 
         //match to L1 using calo position and fill rejection histograms
         bool l1Matched = matchL1(etac, phic);
@@ -1177,7 +1204,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       }
 
       //match to offline using track eta/phi for both l2 track and offline
-      const egamma* matchedEgamma = matchOffline((*trackIt)->param()->eta(), (*trackIt)->param()->phi0(),
+      const xAOD::Electron* matchedEgamma = matchOffline((*trackIt)->eta(), (*trackIt)->phi(),
 						 false, isPhoton);
 
       //fill L2 Track resolution histos if a match was found, insert pointer in L2 Track set
@@ -1192,7 +1219,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
   //fill L2Track matched objects in efficiency histos
   if(!L2TrackmatchedEgamma.empty()){
-    set<const egamma*>::iterator L2TrackmatchIt;
+    set<const xAOD::Egamma*>::iterator L2TrackmatchIt;
      for(L2TrackmatchIt = L2TrackmatchedEgamma.begin(); L2TrackmatchIt!=L2TrackmatchedEgamma.end(); ++L2TrackmatchIt){
        if(!skipActiveTE) fillOfflineMatches(*L2TrackmatchIt, isPhoton, path+"/L2ID", m_offEle_minptcut, m_offPho_minptcut);
     }
@@ -1215,7 +1242,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   }
 
   //fetch EFCalo containers
-  vector< Trig::Feature<CaloClusterContainer> > EFCalo = comb.get<CaloClusterContainer>("",condition); 
+  vector< Trig::Feature<xAOD::CaloClusterContainer> > EFCalo = comb.get<xAOD::CaloClusterContainer>("",condition); 
   ATH_MSG_VERBOSE("- Number of EFCalo ClusterContainers "<<EFCalo.size());
   if(!EFCalo.size()){
     ATH_MSG_DEBUG("- No CaloClusterContainers found. Aborting combination filling.");
@@ -1223,10 +1250,12 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
   }
 
   //loop over EFCalo containers
-  vector< Trig::Feature<CaloClusterContainer> >::const_iterator clusContIt =  EFCalo.begin();
+  vector< Trig::Feature<xAOD::CaloClusterContainer> >::const_iterator clusContIt =  EFCalo.begin();
+  int clusternumber=0;
   for(; clusContIt!= EFCalo.end(); ++ clusContIt){
 
     //check if CaloCluster is active and skip it if we're only looking at active TEs and it's not
+    clusternumber++;
     if(onlyActiveTe && !clusContIt->te()->getActiveState()) { 
       ATH_MSG_VERBOSE(" - EFCalo ClusterContainer not active. Skipping.");
       continue;
@@ -1235,10 +1264,10 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     //report on number of clusters in container
     ATH_MSG_VERBOSE(" - Number of CaloClusters in EFCalo container = "<<clusContIt->cptr()->size());
 
-    set<const egamma*> EFCalomatchedEgamma;
+    set<const xAOD::Egamma*> EFCalomatchedEgamma;
 
     //loop over clusters
-    CaloClusterContainer::const_iterator clusIt = clusContIt->cptr()->begin();
+    xAOD::CaloClusterContainer::const_iterator clusIt = clusContIt->cptr()->begin();
     for(; clusIt != clusContIt->cptr()->end(); ++clusIt ){
 
       //---Fill EFCalo Plots
@@ -1261,7 +1290,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
       //match to offline using calorimeter info
       ATH_MSG_VERBOSE("Trying to match EFCalo to offline");
-      const egamma* matchedEgamma = matchOffline((*clusIt)->eta(),(*clusIt)->phi(), true, isPhoton);
+      const xAOD::Egamma* matchedEgamma = matchOffline((*clusIt)->eta(),(*clusIt)->phi(), true, isPhoton);
 
       //fill EFCalo resolutions and offline efficiency if a match was found
       if(matchedEgamma){
@@ -1273,25 +1302,86 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
     //fill EFCalo matched objects in efficiency histos 
     if(!EFCalomatchedEgamma.empty()){ 
-      set<const egamma*>::iterator EFCalomatchIt; 
+      set<const xAOD::Egamma*>::iterator EFCalomatchIt; 
       for(EFCalomatchIt = EFCalomatchedEgamma.begin(); EFCalomatchIt!=EFCalomatchedEgamma.end(); ++EFCalomatchIt){ 
 	if(!skipActiveTE) fillOfflineMatches(*EFCalomatchIt, isPhoton, path+"/EFCalo", m_offEle_minptcut, m_offPho_minptcut); 
+#ifdef TEST
+	std::cout << "Passed cluster : " << signature << " : " << (*EFCalomatchIt)->caloCluster()->et() << " " << (*EFCalomatchIt)->caloCluster()->eta() << " " << (*EFCalomatchIt)->caloCluster()->phi() << std::endl;
+#endif
       } 
     } 
 
   }//done looping over ClusterContainers
 
 
+  //fetch EFID containers
+  vector< Trig::Feature<xAOD::TrackParticleContainer> > EFtrk = comb.get<xAOD::TrackParticleContainer>("",condition);
+  ATH_MSG_VERBOSE("- Number of EFtrk "<<EFtrk.size());
+  if(!EFtrk.size()){
+    ATH_MSG_DEBUG("- No TrackParticleContainers found. Aborting combination filling.");
+    return(StatusCode::SUCCESS);
+  }
+
+  vector< Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator trkContIt =  EFtrk.begin();
+  for(; trkContIt!= EFtrk.end(); ++ trkContIt){
+
+    //check if CaloCluster is active and skip it if we're only looking at active TEs and it's not
+    if(onlyActiveTe && !trkContIt->te()->getActiveState()) {
+         ATH_MSG_VERBOSE(" - EFtrk ClusterContainer not active. Skipping.");
+         continue;
+    }
+
+    ATH_MSG_VERBOSE(" - Number of CaloClusters in EFtrk container = "<<trkContIt->cptr()->size());
+
+    set<const xAOD::Egamma*> EFtrkmatchedEgamma;
+    xAOD::TrackParticleContainer::const_iterator trkIt = trkContIt->cptr()->begin();
+    for(; trkIt != trkContIt->cptr()->end(); ++trkIt ){
+
+      //if(!skipActiveTE) fillEFID(*trkIt, path+"/EFID");
+
+      if(onlyActiveTe){
+
+        bool l1Matched = matchL1((*trkIt)->eta(), (*trkIt)->phi());
+        if(l1Matched && !skipActiveTE){ FillRates(m_roiMatch_et,m_roiMatch_eta,m_roiMatch_phi, "EFID" ,path+"/PreRejection"); }
+
+        if(condition== TrigDefs::alsoDeactivateTEs){ m_counters_perLB_activeTE[signature][4]++; }
+        if(condition== TrigDefs::Physics){
+          m_counters[signature][4]++;
+          m_counters_perLB[signature][4]++;
+        }
+
+      }
+
+      ATH_MSG_VERBOSE("Trying to match EFID to offline");
+      const xAOD::Egamma* matchedEgamma = matchOffline((*trkIt)->eta(),(*trkIt)->phi(), true, isPhoton);
+
+      if(matchedEgamma){
+        //if(!skipActiveTE) fillEFIDOffRes(*trkIt, matchedEgamma, path+"/EFID/Resolution");
+        EFtrkmatchedEgamma.insert(matchedEgamma);
+      }
+
+    }//done looping over TrackParticle
+
+    if(!EFtrkmatchedEgamma.empty()){
+      set<const xAOD::Egamma*>::iterator EFIDmatchIt;
+      for(EFIDmatchIt = EFtrkmatchedEgamma.begin(); EFIDmatchIt!=EFtrkmatchedEgamma.end(); ++EFIDmatchIt){
+        if(!skipActiveTE) fillOfflineMatches(*EFIDmatchIt, isPhoton, path+"/EFID", m_offEle_minptcut, m_offPho_minptcut);
+      }
+    }
+
+  }//done looping over TrackParticleContainers
+
   //get EF egamma containers
-  vector< Trig::Feature<egammaContainer> > EFeg = comb.get<egammaContainer>("",condition);
+  vector< Trig::Feature<xAOD::ElectronContainer> > EFeg = comb.get<xAOD::ElectronContainer>("",condition);
   ATH_MSG_VERBOSE(" - Number of EFeg Collections = "<<EFeg.size());
   if (!EFeg.size()){
-    ATH_MSG_DEBUG(" - No EFeg Collections. Aborting combination filling.");
+	//std::cout << "Passed cluster : " << signature << " : " << (*clusIt)->et() << " " << (*clusIt)->eta() << " " << (*clusIt)->phi() << std::endl;
     return(StatusCode::SUCCESS);
   }
 
   //loop over EF egammaContainers
-  vector< Trig::Feature<egammaContainer> >::const_iterator egContIt = EFeg.begin();
+  vector< Trig::Feature<xAOD::ElectronContainer> >::const_iterator egContIt = EFeg.begin();
+  int electronnumber=0;
   for(; egContIt != EFeg.end() ; ++egContIt){
 
     //skip container if it's not active and we only look at active ones
@@ -1299,6 +1389,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     //     it looks like we might allow conversions without asking them to be active
     //     unless this is checked later on somewhere, which raises the question why we
     //     aren't checking it here
+    electronnumber++;
     if(onlyActiveTe && !egContIt->te()->getActiveState() &&
        ((egContIt->label().find("Electron") != string::npos ||
 	 (egContIt->label().find("Photon") != string::npos)))) { 
@@ -1308,9 +1399,11 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
     //loop over EFegamma objects
     ATH_MSG_VERBOSE(" - Number of objects in EFeg container = "<<egContIt->cptr()->size());
-    egammaContainer::const_iterator egIt = egContIt->cptr()->begin();
+    xAOD::ElectronContainer::const_iterator egIt = egContIt->cptr()->begin();
 
-    set<const egamma*> EFegmatchedEgamma;
+    set<const xAOD::Electron*> EFegmatchedEgamma;
+
+   // bool foundTrack (false);
 
     for(; egIt != egContIt->cptr()->end(); ++egIt){
 
@@ -1333,7 +1426,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
       //match to offline using track directions and fill EFeg resolution and efficiency
       ATH_MSG_VERBOSE("Trying to match EFeg to offline.");
-      const egamma* matchedEgamma = matchOffline((*egIt)->eta(),(*egIt)->phi(), false, isPhoton);
+      const xAOD::Electron* matchedEgamma = matchOffline((*egIt)->eta(),(*egIt)->phi(), false, isPhoton);
       if(matchedEgamma){
 
         if(!skipActiveTE) fillEFegOffRes(*egIt,matchedEgamma, path+"/EFeg/Resolution" );
@@ -1341,19 +1434,19 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
       } 
 
-      set<const egamma*> EFIDmatchedEgamma;
+      set<const xAOD::Electron*> EFIDmatchedEgamma;
 
       //try getting associated track
       // - note: this relies on the compiler skipping the "if"'ed instructions as
       //         soon as no trackParticle pointer is returned. is this always safe?
-      if((*egIt)->trackParticle() && (*egIt)->trackParticle()->measuredPerigee() ) {
+      if((*egIt)->trackParticle() ) {
 
         //fetch track directions for matching 
-        float trk_eta = calcEta((*egIt)->trackParticle()->measuredPerigee()->parameters()[Trk::theta]);
-        float trk_phi = (*egIt)->trackParticle()->measuredPerigee()->parameters()[Trk::phi];
+        float trk_eta = (*egIt)->trackParticle()->eta();
+        float trk_phi = (*egIt)->trackParticle()->phi();
 
         //fill EFID histograms
-        if(!skipActiveTE) fillEFID(*egIt, path+"/EFID");
+        //if(!skipActiveTE) fillEFID(*egIt, path+"/EFID");
 
         //if we're only looking at active TEs fill rejection histograms and update pointers
         // - note: are we not active by definition?
@@ -1369,7 +1462,7 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
         //---Match to Offline and fill resolutions/efficiencies
         ATH_MSG_VERBOSE("Trying to match EFID to offline using track directions.");
-        const egamma* matchedEgamma = matchOffline(trk_eta,trk_phi, false, isPhoton);
+        const xAOD::Electron* matchedEgamma = matchOffline(trk_eta,trk_phi, false, isPhoton);
         if(matchedEgamma){
           if(!skipActiveTE) fillEFIDOffRes(*egIt, matchedEgamma, path+"/EFID/Resolution");
 	  EFIDmatchedEgamma.insert(matchedEgamma);
@@ -1378,18 +1471,22 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
       }//done processing track
 
       //fill EFCalo matched objects in efficiency histos  
+      /*
       if(!EFIDmatchedEgamma.empty()){  
-	set<const egamma*>::iterator EFIDmatchIt;  
+	set<const xAOD::Electron*>::iterator EFIDmatchIt;  
 	for(EFIDmatchIt = EFIDmatchedEgamma.begin(); EFIDmatchIt!=EFIDmatchedEgamma.end(); ++EFIDmatchIt){  
 	  if(!skipActiveTE) fillOfflineMatches(*EFIDmatchIt, isPhoton, path+"/EFID", m_offEle_minptcut, m_offPho_minptcut);  
+	  foundTrack=true;
 	}  
+      } else {
       }
+	*/
       
     }//done looping over egamma objects
 
     //fill EFeg matched objects in efficiency histos  
     if(!EFegmatchedEgamma.empty()){  
-      set<const egamma*>::iterator EFegmatchIt;  
+      set<const xAOD::Electron*>::iterator EFegmatchIt;  
       for(EFegmatchIt = EFegmatchedEgamma.begin(); EFegmatchIt!=EFegmatchedEgamma.end(); ++EFegmatchIt){  
         if(!skipActiveTE) fillOfflineMatches(*EFegmatchIt, isPhoton, path+"/EFeg", m_offEle_minptcut, m_offPho_minptcut);  
       }  
@@ -1466,22 +1563,22 @@ bool HLTEgammaNavSigTEMonTool::matchL1(const float eta, const float phi)
  *  - returns pointer to closest object within dR < 0.15 (configurable in JOs)
  *            or NULL in case no suitable match is found
  */
-const egamma* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton)
+const xAOD::Electron* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton)
 {
   ATH_MSG_DEBUG("Starting to match eta/phi to offline egamma object.");
   //initialise pointer to return object
-  const egamma* match = NULL;
+  const xAOD::Electron* match = NULL;
   //initialise distance of current match to maximum allowed (in job options)
   float match_dr = m_dR_off;
 
   //set egammaContainer based on isPhoton
-  egammaContainer const* cont = NULL;
-  if(isPhoton){ cont = m_photTES; }
-  else{ cont = m_elecTES; }
+  if(isPhoton) return NULL;
+  xAOD::ElectronContainer const* cont = NULL;
+  cont = m_elecTES; 
 
   //set up container iterators
-  egammaContainer::const_iterator egIt = cont->begin();
-  egammaContainer::const_iterator egItE = cont->end();
+  xAOD::ElectronContainer::const_iterator egIt = cont->begin();
+  xAOD::ElectronContainer::const_iterator egItE = cont->end();
 
   //loop over container
   for(; egIt != egItE ; ++egIt){
@@ -1492,9 +1589,9 @@ const egamma* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const floa
     float eg_phi = -999;
 
     //try getting handle on cluster if we are going to use it
-    const CaloCluster* clus = NULL;
+    const xAOD::CaloCluster* clus = NULL;
     if(useCalo){
-      clus = (*egIt)->cluster();
+      clus = (*egIt)->caloCluster();
       if(!clus){ ATH_MSG_DEBUG(" - cluster use requested but no cluster found. falling back to egamma info"); }
     }
 
@@ -1515,14 +1612,16 @@ const egamma* HLTEgammaNavSigTEMonTool::matchOffline(const float eta, const floa
 
     //apply author / minimum pt cuts
     bool pass_author(false), pass_ID(false);
+/*
     if(isPhoton){
       pass_author = ((*egIt)->author(egammaParameters::AuthorPhoton) ||
 		     (*egIt)->author(egammaParameters::AuthorRConv));
-      pass_ID = (*egIt)->passID(egammaPID::PhotonIDTight);
+      //pass_ID = (*egIt)->passID(egammaPID::PhotonIDTight);
     }else{
+*/
       pass_author = (*egIt)->author(egammaParameters::AuthorElectron);
-      pass_ID = (*egIt)->passID(egammaPID::ElectronIDMediumPP); 
-    }
+      (*egIt)->passSelection(pass_ID,"Medium"); 
+//    }
     if(!pass_author || !pass_ID){ continue; }
     ATH_MSG_VERBOSE(" -- egamma object passes author and ID cuts.");
 

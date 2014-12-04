@@ -29,10 +29,6 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMTrackMatch.h"
@@ -54,11 +50,9 @@ std::string rtti_real_name() {
 */
 
 HLTEgammaNavMonTool::HLTEgammaNavMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : HLTEgammaFEXBaseTool(type,name,parent),
-    m_trackExtrapolator("IExtrapolateToCaloTool/ExtrapolateToCaloTool") {
+  : HLTEgammaFEXBaseTool(type,name,parent){
   m_firstTimeStamp = m_lastTimeStamp = 0;
   declareProperty("signatures",m_signatures);
-  declareProperty( "TrackExtrapolator",    m_trackExtrapolator);
 }
 
 StatusCode HLTEgammaNavMonTool::init() {
@@ -69,33 +63,8 @@ StatusCode HLTEgammaNavMonTool::init() {
     return StatusCode::FAILURE;
   }
   
-#ifdef DONTDO
-  // extrapolation
-  IAlgTool* algtool;
-  if (m_doExtrapol) {
-    sc = m_toolSvc->retrieveTool("ExtrapolTrackToCaloTool/extrapolTrackToCaloTool", algtool, this );
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Cannot get ExtrapolTrackToCaloTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-    
-    m_toCalo=dynamic_cast<IExtrapolateToCaloTool*>(algtool);
-
-    // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
-    m_calodepth = &(*m_toCalo->getCaloDepth()) ;
-    if (!m_calodepth) {
-      (*m_log) << MSG::ERROR << "Cannot get CaloDepthTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    m_toCalo = 0;
-    m_calodepth = 0;
-  }
-#endif
-  if ( (m_trackExtrapolator.retrieve()).isFailure() ) {
-    (*m_log) << MSG::FATAL << "Unable to locate TrackExtrapolator tool " << endreq;
-    return StatusCode::FAILURE;
-  }
+  // extrapolation -- removed
+  m_doExtrapol = false;
 
   m_fill_condition=TrigDefs::alsoDeactivateTEs;
   m_rate_condition=TrigDefs::Physics;
@@ -357,19 +326,11 @@ StatusCode HLTEgammaNavMonTool::fill_per_signature(const std::string signature) 
 	     float pt = (float)trk->param()->pT();
 */
 	//     ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator("IExtrapolateToCaloTool/ExtrapolateToCaloTool");
-	     const Trk::TrackParameters* parametersInCalo (0);
-	     float offset=0.0;
-	     if ( mL2->energy( CaloSampling::CaloSample::EMB2 ) > mL2->energy( CaloSampling::CaloSample::EMB2 ) ) {
-	     parametersInCalo = m_trackExtrapolator->extrapolate( *(trk), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EMB2,offset);
-	     }  else {
-	     parametersInCalo = m_trackExtrapolator->extrapolate( *(trk), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EME2,offset);
-	     }
+	     // Removing extrapolator -- requires migration to new tools
+	     // See TrigL2ElectronFex
+             float offset=0.0;
 	     float etacf = 999.0;
 	     float phicf = 999.0;
-	     if ( parametersInCalo ) {
-		etacf = parametersInCalo->position().eta();
-		phicf = parametersInCalo->position().phi();
-	     }
 	     float pt = trk->pt();
 	     float ll=0; float jj=0;
 	     std::cout << "Track pt : " << trk->pt();
@@ -396,18 +357,10 @@ StatusCode HLTEgammaNavMonTool::fill_per_signature(const std::string signature) 
   bool passSiTrk = false;
   float etacf = 999.0;
   float phicf = 999.0;
-  const Trk::TrackParameters* parametersInCalo (0);
-  float offset=0.0;
+  // Removing extrapolator -- requires migration to new tools
+  // See TrigL2ElectronFex
+  // float offset=0.0;
   const xAOD::TrackParticle* trk = ((myL2->trackParticle()));
-  if ( mL2->energy( CaloSampling::CaloSample::EMB2 ) > mL2->energy( CaloSampling::CaloSample::EMB2 ) ) {
-     parametersInCalo = m_trackExtrapolator->extrapolate( *(trk), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EMB2,offset);
-  }  else {
-     parametersInCalo = m_trackExtrapolator->extrapolate( *(trk), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EME2,offset);
-  }
-  if ( parametersInCalo ) {
-     etacf = parametersInCalo->position().eta();
-     phicf = parametersInCalo->position().phi();
-  }
   float pt = trk->pt();
   float ll=0; float jj=0;
   if ( trk->patternRecoInfo()[xAOD::TrackPatternRecoInfo::FastTrackFinderSeed] ){

@@ -25,10 +25,6 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMTrackMatch.h"
@@ -243,45 +239,29 @@ void HLTEgammaFEXBaseTool::FillEFCalo(const xAOD::CaloCluster *matchedEFCalo, fl
 void HLTEgammaFEXBaseTool::extrapolateToFirstSurface(const Rec::TrackParticle* m_track, double &caloeta, double &calophi ) {
   //bool got_a_track = false;
 
+    // Removing extrapolator -- need to migrate to new extrapolation
   if (!m_track) {
     (*m_log) << MSG::DEBUG << "m_track is NULL!!" << endreq;
     caloeta = -1111.;
     calophi = -1111.;
     return;
   }
+    caloeta = -1111.;
+    calophi = -1111.;
+
   
 //  HepGeom::Point3D<double> *pt_calo_ctb = new HepGeom::Point3D<double>;
 //  HepGeom::Point3D<double> *pt_calo_local = new HepGeom::Point3D<double>;
 
-  double trketa = -std::log(tan(((m_track)->perigee())->parameters()[Trk::theta]/2.));
+  // double trketa = -std::log(tan(((m_track)->perigee())->parameters()[Trk::theta]/2.));
 
-  double distbar = 0.;
-  double distec = 0.;
-  double offset = 0.;
-  bool result = false;
-  CaloCell_ID::CaloSample sample;
-  distbar = m_calodepth->deta(CaloCell_ID::EMB1,trketa);
-  distec = m_calodepth->deta(CaloCell_ID::EME1,trketa);
-  if (distbar < 0 ) sample = CaloCell_ID::EMB1;
-  else if (distec < 0 ) sample = CaloCell_ID::EME1;
-  else if ( distbar < distec) sample = CaloCell_ID::EMB1;
-  else sample = CaloCell_ID::EME1;
-
-  (*m_log) << MSG::DEBUG << "Calculating track seen by Calo ..." << endreq;
-  const Trk::TrackParameters * SeenByCalo = m_toCalo->extrapolate(*(m_track->originalTrack()),sample,offset) ;
-  result =  ( SeenByCalo != NULL );
-
-  if (result) {
-    //got_a_track=true;
-    caloeta = SeenByCalo->eta();
-    calophi = SeenByCalo->momentum().phi();
-  } else {
-    caloeta = -1111.;
-    calophi = -1111.;
-  }
+  // double distbar = 0.;
+  // double distec = 0.;
+  // double offset = 0.;
+  // bool result = false;
   
-  //delete pt_calo_ctb;
-  //delete pt_calo_local;
+  // delete pt_calo_ctb;
+  // delete pt_calo_local;
 }
 
 bool HLTEgammaFEXBaseTool::runTrack(const DataHandle<TrigInDetTrackCollection> lvl2t_first, const DataHandle<TrigInDetTrackCollection> lvl2t_last, float l2eta, float l2phi, \

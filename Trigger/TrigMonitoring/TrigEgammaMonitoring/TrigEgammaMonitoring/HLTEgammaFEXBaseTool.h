@@ -41,9 +41,6 @@ namespace Rec {
   class TrackParticle;
 }
 
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
-
 class HLTEgammaFEXBaseTool : public IHLTMonTool {
 
   public:
@@ -84,8 +81,6 @@ class HLTEgammaFEXBaseTool : public IHLTMonTool {
   virtual void divide(TH1 *num, TH1 *den, TH1 *quo);
 
   IToolSvc* m_toolSvc;
-  IExtrapolateToCaloTool* m_toCalo;
-  CaloDepthTool* m_calodepth;
   bool m_doExtrapol;
 
   std::string m_EMClusterKey;

@@ -38,6 +38,8 @@
 #include "egammaEvent/PhotonContainer.h"
 #include "egammaEvent/Photon.h"
 
+#include "xAODEgamma/ElectronContainer.h"
+
 //ROOT and STL
 #include <map>
 #include <set>
@@ -46,7 +48,7 @@
 //Lumi
 #include "GaudiKernel/ServiceHandle.h"
 #include "LumiBlockComps/ILumiCalcSvc.h"
-#include "LumiBlockComps/CoolQuery.h"
+#include "LumiCalc/CoolQuery.h"
 
 //for convenience (TODO find out whether this is allowed in ATLAS software)
 using std::string;
@@ -57,9 +59,6 @@ using std::set;
 class TrigInDetTrackCollection;
 namespace Rec { class TrackParticle; }
 
-//forward declare classes needed for track->calo extrapolation
-class IExtrapolTrackToCaloTool;
-class CaloDepthTool;
 
 /**
  * HLTEgammaNavSigTEMonTool
@@ -118,6 +117,7 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
    * - survivors are filled using offline filler derived from base class
    */
   void fillOfflineEgammas(const egammaContainer* egCont);
+  void fillOfflineEgammas(const xAOD::ElectronContainer* egCont);
   
 
   
@@ -152,7 +152,7 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
    * - applies author and minimum pt cuts (the latter are set in joboptions)
    * - returns best match
    */
-  const egamma* matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton);
+  const xAOD::Electron* matchOffline(const float eta, const float phi, bool useCalo, bool isPhoton);
   
 
   /**
@@ -200,8 +200,8 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
   bool m_doOfflineComparisons; 
   string m_electronContainerName; 
   string m_photonContainerName; 
-  egammaContainer const* m_elecTES;
-  egammaContainer const* m_photTES;
+  xAOD::ElectronContainer const* m_elecTES;
+  xAOD::ElectronContainer const* m_photTES;
   float m_offEle_minptcut;
   float m_offPho_minptcut;
   float m_dR_off;

@@ -13,9 +13,13 @@
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
+#include "xAODTrigger/EmTauRoI.h"
 
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
+
+#include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -34,6 +38,11 @@
 #include "egammaEvent/ElectronContainer.h"
 #include "egammaEvent/Electron.h"
 
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "xAODEgamma/Egamma.h"
+
 class TrigInDetTrackCollection;
 class TrigInDetTrack;
 
@@ -43,8 +52,6 @@ namespace Reco { class ITrackToVertex; }
 using std::vector;
 using std::string;
 
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
 
 /**
  *  class HLTEgammaFEXNavSigTEBaseTool
@@ -165,84 +172,101 @@ class HLTEgammaFEXNavSigTEBaseTool : public IHLTMonTool {
      * Fills histograms corresponding to L1 quantities
      */
     void fillL1(const EmTau_ROI &itEMTau, const string &grp);
+    void fillL1(const xAOD::EmTauRoI &itEMTau, const string &grp);
     
     /**
      * Fills resolution L1<->Offline
      * - ratios L1/offline for et, eta, and phi 
      */
     void fillL1OffRes(const EmTau_ROI &itEMTau, const egamma* matchedEgamma, const string &grp);
+    void fillL1OffRes(const xAOD::EmTauRoI &itEMTau, const xAOD::Egamma* matchedEgamma, const string &grp);
     
     /**
      * Fills L2 calo observables
      */
     void fillL2Calo(const TrigEMCluster *matchedL2, const string &grp);  
+    void fillL2Calo(const xAOD::TrigEMCluster *matchedL2, const string &grp);  
+    
     
     /**
      *  Fills resolution L2Calo<-> Offline
      */
     void fillL2CaloOffRes(const TrigEMCluster *matchedL2, const egamma* matchedEgamma, const string &grp);
+    void fillL2CaloOffRes(const xAOD::TrigEMCluster *matchedL2, const xAOD::Egamma* matchedEgamma, const string &grp);
    
     /**
      * Fills L2 track observable histograms
      */
     void fillL2ID(const TrigInDetTrack* track,  const TrigEMCluster* cluster, const string &grp);
+    void fillL2ID(const xAOD::TrackParticle* track,  const xAOD::TrigEMCluster* cluster, const string &grp);
     
     /**
      * Fills L2 track resolution histograms
      */
     void fillL2IDOffRes(const TrigInDetTrack* track, const egamma* matchedEgamma, const string &grp);
+    void fillL2IDOffRes(const xAOD::TrackParticle* track, const xAOD::Electron* matchedEgamma, const string &grp);
 
     /**
      * Fills EF calo observables
      */
     void fillEFCalo(const CaloCluster* cluster, const TrigEMCluster* l2Cluster, const string &grp);
+    void fillEFCalo(const xAOD::CaloCluster* cluster, const xAOD::TrigEMCluster* l2Cluster, const string &grp);
 
     /**
      * Fills EF calo shower observables
      */
     void fillEFCaloShower(const egamma* EFeg, const string &grp);
+    void fillEFCaloShower(const xAOD::Egamma* EFeg, const string &grp);
 
     /**
      * Fills EF Calo resolution histograms
      */
     void fillEFCaloOffRes(const CaloCluster* cluster, const egamma* offline, const string &grp);
+    void fillEFCaloOffRes(const xAOD::CaloCluster* cluster, const xAOD::Egamma* offline, const string &grp);
    
     /**
      * Fills event filter/offline track information
      */
     void fillEFID(const egamma *matchedEFTrk, const string &grp);
+    void fillEFID(const xAOD::Electron *matchedEFTrk, const string &grp);
     
     /**
      * Fills EF track resolutions
      */
     void fillEFIDOffRes(const egamma *matchedEFTrk, const egamma *matchedEgamma, const string &grp);
+    void fillEFIDOffRes(const xAOD::Electron *matchedEFTrk, const xAOD::Electron *matchedEgamma, const string &grp);
 
     /**
      * Fills event filter/offline egamma information
      */
     void fillEFeg(const egamma* matchedEFeg, const string &grp, const double pt_cut);
+    void fillEFeg(const xAOD::Egamma* matchedEFeg, const string &grp, const double pt_cut);
     
     /**
      * Fills event match offline egamma information for efficiencies
      */
     void fillEFMatch(const egamma* matchedEFeg, const string &grp, const double pt_cut);
+    void fillEFMatch(const xAOD::Egamma* matchedEFeg, const string &grp, const double pt_cut);
 
     /**
      * Fills EF egamma resolutions
      */
     void fillEFegOffRes(const egamma* matchedEFeg, const egamma* matchedEgamma, const string &grp);
+    void fillEFegOffRes(const xAOD::Egamma* matchedEFeg, const xAOD::Egamma* matchedEgamma, const string &grp);
     
     /**
      *  Fills offline egamma histograms
      *  - calls event filter egamma filler (and track filler for electrons)
      */
     void fillOfflineEgamma(const egamma* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
+    void fillOfflineEgamma(const xAOD::Electron* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
     
     /**
      *  Fills offline egamma histograms
      *  - calls event match efficiency egamma filler
      */
     void fillOfflineMatches(const egamma* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
+    void fillOfflineMatches(const xAOD::Egamma* eg, bool isPhoton, const string path, const double elec_cut, const double phot_cut);
     
 
     /**
@@ -371,8 +395,6 @@ class HLTEgammaFEXNavSigTEBaseTool : public IHLTMonTool {
 
 
   IToolSvc* m_toolSvc; //!< Central tool service
-  IExtrapolateToCaloTool* m_toCalo; //!< Interface to calo depth tool
-  CaloDepthTool* m_calodepth; //!< Calo depth tool
   bool m_doExtrapol; //!< Switch for track->calo extrapolation
 
   //storegate keys

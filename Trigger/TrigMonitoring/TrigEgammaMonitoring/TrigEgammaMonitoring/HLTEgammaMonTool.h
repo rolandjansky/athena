@@ -35,9 +35,6 @@ namespace Rec {
   class TrackParticle;
 }
 
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
-
 class HLTEgammaMonTool : public HLTEgammaFEXBaseTool {
 
   public:

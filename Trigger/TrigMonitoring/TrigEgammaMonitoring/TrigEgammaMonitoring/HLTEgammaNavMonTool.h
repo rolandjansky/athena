@@ -40,9 +40,6 @@ namespace Rec {
   class TrackParticle;
 }
 
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
-
 class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
 
   public:
@@ -74,7 +71,6 @@ class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
   unsigned int m_fill_condition;
   unsigned int m_rate_condition;
   std::map< std::string, std::vector<unsigned int> > m_counters;
-  ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
 };
 
 #endif

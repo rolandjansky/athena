@@ -10,19 +10,17 @@ use ITrackToVertex       ITrackToVertex-*        Reconstruction/RecoTools
 use xAODTrigCalo		xAODTrigCalo-*		Event/xAOD
 use xAODTrigger		xAODTrigger-*		Event/xAOD
 use xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
+use xAODEgamma		xAODEgamma-*	Event/xAOD
 
 private
 # xAOD material
 use xAODTracking		xAODTracking-*		Event/xAOD
 use xAODTrigEgamma		xAODTrigEgamma-*	Event/xAOD
-use xAODEgamma		xAODEgamma-*	Event/xAOD
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
 use EventInfo            EventInfo-*             Event
+use xAODEventInfo        xAODEventInfo-*         Event/xAOD
 use LArRecEvent         LArRecEvent-*       LArCalorimeter
-use CaloDetDescr         CaloDetDescr-*          Calorimeter
-#use ITrackToCalo         ITrackToCalo-*          Reconstruction/RecoTools
-use RecoToolInterfaces    RecoToolInterfaces-*    Reconstruction/RecoTools
 use Particle             Particle-*              Reconstruction
 use AtlasBoost          AtlasBoost-*            External
 end_private
@@ -44,6 +42,7 @@ use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
 
 #AT: To access Lumi
 use LumiBlockComps	 LumiBlockComps-*	LumiBlock
+use LumiCalc             LumiCalc-*		LumiBlock
 #use AtlasCOOL            AtlasCOOL-*            External
 #use AtlasCORAL           AtlasCORAL-*           External
 #use CoraCool             CoraCool-*             Database

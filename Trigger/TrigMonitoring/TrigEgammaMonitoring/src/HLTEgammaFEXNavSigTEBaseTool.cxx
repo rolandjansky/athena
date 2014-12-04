@@ -32,10 +32,6 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMTrackMatch.h"
@@ -93,7 +89,7 @@ HLTEgammaFEXNavSigTEBaseTool::HLTEgammaFEXNavSigTEBaseTool(const string & type, 
     declareProperty("lowEtCut", m_lowEtCut = 3.*CLHEP::GeV);
     declareProperty("maxEtaCut", m_maxEtaCut = 2.5);
 
-    declareProperty("doExtrapol", m_doExtrapol = true);
+    declareProperty("doExtrapol", m_doExtrapol = false);
 
     declareProperty("TrigEMClusterKey", m_EMClusterKey = "HLT_TrigT2CaloEgamma");
     declareProperty("egDetailKey", m_egDetailKey = "egDetailContainer");//for AOD: egDetailAOD
@@ -330,13 +326,13 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_res(const string sig
 
     //---L1
     addMonGroup(new MonGroup(this,*pathIt+"/L1/Resolution",run));
-    addHistogram(new TH1F("EmClus", "L1 EM Cluster Energy Resolution; L1 E_{T} / Off CaloCluster E_{T}; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Eta", "L1 \\eta Resolution; L1 \\eta / Off CaloCluster \\eta ; Entries", 21, -0.05, 2.05));
-    addHistogram(new TH1F("Phi", "L1 \\phi Resolution; L1 \\phi / Off CaloCluster \\phi; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("EmClus", "L1 EM Cluster Energy Resolution; L1 E_{T} / Off CaloCluster E_{T}; Entries", 63, -0.05, 2.05));
+    addHistogram(new TH1F("Eta", "L1 \\eta Resolution; L1 \\eta / Off CaloCluster \\eta ; Entries", 63, -0.05, 2.05));
+    addHistogram(new TH1F("Phi", "L1 \\phi Resolution; L1 \\phi / Off CaloCluster \\phi; Entries", 63, -0.05, 2.05));
 
     //---L2Calo
     addMonGroup(new MonGroup(this,*pathIt+"/L2Calo/Resolution",run));
-    addHistogram(new TH1F("Rcore", "L2 Calo R\\eta Resolution; L2 Calo R\\eta / Off R\\eta; Entries", 21, -0.05, 2.05));
+    addHistogram(new TH1F("Rcore", "L2 Calo R\\eta Resolution; L2 Calo R\\eta / Off R\\eta; Entries", 63, -0.05, 2.05));
     addHistogram(new TH1F("Rstrip", "L2 Calo E_{ratio} Resolution; L2 Calo E_{ratio} / Off E_{ratio} ; Entries", 21, -0.05, 2.05));   
     addHistogram(new TH1F("HadEt", "L2 Hadronic Calo E_{T} Resolution; L2 Hadronic Calo E_{T} / Off Hadronic Calo E_{T}; Entries", 51, -0.05, 5.05));
     addHistogram(new TH1F("Et", "L2 EM Calo E_{T} Resolution; L2 EM Calo E_{T} / Off CaloCluster E_{T}; Entries", 21, -0.05, 2.05));
@@ -748,6 +744,17 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL1(const EmTau_ROI &itEMTau, const std::s
   hist("Phi", grp)->Fill(itEMTau.getPhi());    
   hist2("EtaPhiMap", grp)->Fill(itEMTau.getEta(),itEMTau.getPhi(),1.);
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillL1(const xAOD::EmTauRoI &itEMTau, const std::string &grp)
+{
+  hist("EmClus", grp)->Fill(itEMTau.emClus() / CLHEP::GeV);
+  hist("EmIsol", grp)->Fill(itEMTau.emIsol() / CLHEP::GeV);
+  hist("HadCore", grp)->Fill(itEMTau.hadCore() / CLHEP::GeV);
+  hist("HadIsol", grp)->Fill(itEMTau.hadIsol() / CLHEP::GeV);
+  hist("ECore", grp)->Fill(itEMTau.core() / CLHEP::GeV);
+  hist("Eta", grp)->Fill(itEMTau.eta());
+  hist("Phi", grp)->Fill(itEMTau.phi());
+  hist2("EtaPhiMap", grp)->Fill(itEMTau.eta(),itEMTau.phi(),1.);
+}
 //END OF LEVEL 1 OBSERVABLE HISTOGRAM FILLING
 
 
@@ -777,6 +784,27 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL1OffRes(const EmTau_ROI &itEMTau,
   hist("Phi", grp)->Fill(egamma_clus_phi);
 
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillL1OffRes(const xAOD::EmTauRoI &itEMTau,
+    const xAOD::Egamma* matchedEgamma, const std::string &grp) {
+
+  //check a valid offline match was supplied
+  if(!matchedEgamma){ return; }
+
+  //fetch associated CaloCluster and make sure it's valid
+  const xAOD::CaloCluster* cluster = matchedEgamma->caloCluster();
+  if(!cluster){
+    ATH_MSG_WARNING("Couldn't fetch CaloCluster for filling histograms in group "<<grp);
+    return;
+  }
+  
+  //calculate and fill resolutions
+  float egamma_clus_et   = calcRatio(itEMTau.emClus(), calcEt(cluster->e(), cluster->eta()));
+  float egamma_clus_eta  = calcRatio(itEMTau.eta(), cluster->eta());
+  float egamma_clus_phi  = calcRatio(itEMTau.phi(), cluster->phi());
+  hist("EmClus", grp)->Fill(egamma_clus_et);
+  hist("Eta", grp)->Fill(egamma_clus_eta );
+  hist("Phi", grp)->Fill(egamma_clus_phi);
+}
 //END OF LEVEL 1 RESOLUTION FILLING
 
 
@@ -801,6 +829,29 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL2Calo(const TrigEMCluster *matchedL2, co
   hist("eta", grp)->Fill(matchedL2->eta());
   hist("phi", grp)->Fill(matchedL2->phi());
   hist("Et", grp)->Fill(et / CLHEP::GeV); 
+  hist("HadEt", grp)->Fill(hadEt / CLHEP::GeV);
+  hist("HadLeak", grp)->Fill(hadEt / et);
+  hist("f1", grp)->Fill(ES1 / Etotal);
+  hist2("EtaPhiMap", grp)->Fill(matchedL2->eta(),matchedL2->phi(),1.);
+}
+
+void HLTEgammaFEXNavSigTEBaseTool::fillL2Calo(const xAOD::TrigEMCluster *matchedL2, const string &grp) {
+  //check if were given a valid cluster
+  if(!matchedL2){ return; }
+  
+  //calculate and fill quantities
+  float rcore = calcRatio(matchedL2->e237(), matchedL2->e277());
+  float rstrip = calcRStrips(matchedL2->emaxs1(), matchedL2->e2tsts1());
+  float et = calcEt(matchedL2->energy(), matchedL2->eta());
+  float hadEt = calcEt(matchedL2->ehad1(), matchedL2->eta());
+  float ES1 = matchedL2->energy(CaloSampling::EMB1) + matchedL2->energy(CaloSampling::EME1);
+  float Etotal = matchedL2->energy();
+
+  hist("Rcore", grp)->Fill(rcore);
+  hist("Rstrip", grp)->Fill(rstrip);
+  hist("eta", grp)->Fill(matchedL2->eta());
+  hist("phi", grp)->Fill(matchedL2->phi());
+  hist("Et", grp)->Fill(et / CLHEP::GeV);
   hist("HadEt", grp)->Fill(hadEt / CLHEP::GeV);
   hist("HadLeak", grp)->Fill(hadEt / et);
   hist("f1", grp)->Fill(ES1 / Etotal);
@@ -866,6 +917,60 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL2CaloOffRes(const TrigEMCluster *matched
   hist("HadEt", grp)->Fill(ratio_ethad1);
 
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillL2CaloOffRes(const xAOD::TrigEMCluster *matchedL2,
+    const xAOD::Egamma* matchedEgamma, const string &grp) {
+
+  //skip if we don't have valid pointers to offline or L2 cluster
+  if(!matchedL2 || !matchedEgamma){
+    ATH_MSG_WARNING("Cannot fill L2Calo resolutions.");
+    return;
+  }
+
+  float egamma_ethad1 = 0;
+  float egamma_rcore  = 0;
+  float egamma_rstrip = 0;
+  matchedEgamma->showerShapeValue(egamma_ethad1,xAOD::EgammaParameters::ethad1);
+  float egamma_e237,egamma_e277;
+  matchedEgamma->showerShapeValue(egamma_e237,xAOD::EgammaParameters::e237);
+  matchedEgamma->showerShapeValue(egamma_e277,xAOD::EgammaParameters::e277);
+
+  egamma_rcore  = calcRatio(egamma_e237, egamma_e277);
+  float egamma_emaxs1,egamma_etsts1;
+  matchedEgamma->showerShapeValue(egamma_emaxs1,xAOD::EgammaParameters::emaxs1);
+  matchedEgamma->showerShapeValue(egamma_etsts1,xAOD::EgammaParameters::e2tsts1);
+  egamma_rstrip = calcRStrips(egamma_emaxs1, egamma_etsts1);
+
+  const xAOD::CaloCluster*  cluster = matchedEgamma->caloCluster();
+  float egamma_clus_et = 0;
+  float egamma_clus_eta = 0;
+  float egamma_clus_phi = 0;
+  if(cluster) {
+    egamma_clus_et = calcEt(cluster->e(), cluster->eta());
+    egamma_clus_eta = cluster->eta();
+    egamma_clus_phi = cluster->phi();
+  }  else {
+    ATH_MSG_WARNING("Couldn't fetch CaloCluster for filling histograms in group "<<grp);
+  }
+  float matchedL2_rcore = calcRatio(matchedL2->e237(), matchedL2->e277());
+  float matchedL2_rstrip = calcRStrips(matchedL2->emaxs1(), matchedL2->e2tsts1());
+  float matchedL2_et = calcEt(matchedL2->energy(), matchedL2->eta());
+  float matchedL2_ethad1 = calcEt(matchedL2->ehad1(), matchedL2->eta());
+
+  float ratio_rcore = calcRatio(matchedL2_rcore, egamma_rcore);
+  float ratio_rstrip = calcRatio(matchedL2_rstrip, egamma_rstrip);
+  float ratio_eta = calcRatio(matchedL2->eta(), egamma_clus_eta);
+  float ratio_phi = calcRatio(matchedL2->phi(), egamma_clus_phi);
+  float ratio_et = calcRatio(matchedL2_et, egamma_clus_et);
+  float ratio_ethad1 = calcRatio(matchedL2_ethad1, egamma_ethad1);
+  hist("Rcore", grp)->Fill(ratio_rcore);
+  hist("Rstrip", grp)->Fill(ratio_rstrip);
+  hist("eta", grp)->Fill(ratio_eta);// eg-cluster eta
+  hist("phi", grp)->Fill(ratio_phi);// eg-cluster phi
+  hist("Et", grp)->Fill(ratio_et); //eg-cluster Et
+  hist("HadEt", grp)->Fill(ratio_ethad1);
+
+}
+
 //END OF LEVEL 2 CALORIMETER RESOLUTION FILLING
 
 
@@ -918,6 +1023,64 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL2ID(const TrigInDetTrack* trk, const Tri
   hist("AlgoId", grp)->Fill(algoId);    
   hist2("EtaPhiAtCaloMap", grp)->Fill(etac, phic, 1.);
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillL2ID(const xAOD::TrackParticle* trk, const xAOD::TrigEMCluster* clus,
+    const string& grp)
+{
+  //skip if the object pointers are no good
+  if(!clus || !trk){
+    ATH_MSG_DEBUG("fillL2ID(...) got bad input. Skipping.");
+    return;
+  }
+
+  //fetch variables
+  //  - note: only reading magnitude of pT
+  //  - note: eta/phi are at perigee, must be extrapolated to calo for dEta/dPhi
+  int algoId = 0; //(*trkIter)->algorithmId();
+  if ( trk->patternRecoInfo()[xAOD::TrackPatternRecoInfo::FastTrackFinderSeed] ) algoId=9;
+  if ( trk->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyA] ) algoId=5;
+  if ( trk->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyB] ) algoId=6;
+  if ( trk->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyC] ) algoId=7;
+  //unsigned int algoId = (unsigned int)trk->algorithmId();
+  float pt  = fabsf((float)trk->pt());
+  float eta = (float)trk->eta();
+  float phi = (float)trk->phi0();
+  float eOverP = calcRatio(calcEt(clus->energy(), clus->eta()), pt);
+//  float n_trt = (float)trk->NStrawHits();
+//  float n_httrt = (float)trk->NTRHits();
+  uint8_t number=0;
+  trk->summaryValue(number,xAOD::numberOfTRTHits);
+  float n_trt = (float) number;
+  trk->summaryValue(number,xAOD::numberOfTRTHighThresholdHits );
+  float n_httrt = (float) number;
+
+  //calc R_trt, prevent division by zero for 0 hits
+  float rtrt = 0;
+  if(n_trt > 0){rtrt = n_httrt/n_trt;}
+
+  //extrapolate eta/phi to calo
+  // - note: if this fails we are filling -999 to histograms
+  float etac(-999), phic(-999);
+/*
+  if(extrapolateTrackToCalo(trk)){
+    etac = m_extrapolatedEta;
+    phic = m_extrapolatedPhi;
+  }
+*/
+
+  //fill histograms
+  hist("Eta_AtPeri", grp)->Fill(eta);
+  hist("Phi_AtPeri", grp)->Fill(phi);
+  hist("Pt", grp)->Fill(pt / CLHEP::GeV);
+  hist("Deta", grp)->Fill(calcDeltaEta(etac, clus->eta()));
+  hist("Dphi", grp)->Fill(calcDeltaPhi(phic, clus->phi()));
+  hist("EP", grp)->Fill(eOverP);
+  hist("RTRT", grp)->Fill(rtrt); //prevent div-by-0
+  hist("AlgoId", grp)->Fill(algoId);
+  hist2("EtaPhiAtCaloMap", grp)->Fill(etac, phic, 1.);
+}
+
+
 //END OF LEVEL2 TRACK OBSERVABLE HISTOGRAM FILLING
 
 
@@ -963,6 +1126,46 @@ void HLTEgammaFEXNavSigTEBaseTool::fillL2IDOffRes(const TrigInDetTrack* track, c
   hist("Eta", grp)->Fill(ratio_eta);
   hist("Phi", grp)->Fill(ratio_phi);
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillL2IDOffRes(const xAOD::TrackParticle* track, const xAOD::Electron* matchedEgamma,
+    const string &grp)
+{
+  //skip if we got bad pointers
+  if(!track || !matchedEgamma){
+    ATH_MSG_WARNING("fillL2IDOffRes(...) got bad pointers. Skipping.");
+    return;
+  }
+
+  //try to fetch offline egamma track particle and perigee
+  // - note: the protections might not be necessary, since the matching should have done this
+  if(!matchedEgamma->trackParticle()){
+    ATH_MSG_WARNING("fillL2IDOffRes(...) cannot fetch track associated with egamma. Skipping.");
+    return;
+  }
+
+  //try to fetch perigee
+  const xAOD::TrackParticle* matchedTrack = matchedEgamma->trackParticle();
+  if(!matchedTrack){
+    ATH_MSG_WARNING("fillL2IDOffRes(...) cannot fetch track associated with egamma. Skipping.");
+    return;
+  }
+
+  //fetch offline values
+  float pt_matchedEgamma  = matchedTrack->pt();
+  float phi_matchedEgamma = matchedTrack->phi();
+  float eta_matchedEgamma = matchedTrack->eta() ;
+
+  //calculate ratios
+  float ratio_pt = calcRatio(fabsf(track->pt()), pt_matchedEgamma);
+  float ratio_eta = calcRatio(track->eta(), eta_matchedEgamma);
+  float ratio_phi = calcRatio(track->phi(), phi_matchedEgamma);
+
+  //fill histograms
+  hist("Pt", grp)->Fill(ratio_pt);
+  hist("Eta", grp)->Fill(ratio_eta);
+  hist("Phi", grp)->Fill(ratio_phi);
+}
+
 //END OF L2 TRACK RESOLUTION HISTOGRAM FILLING
 
 
@@ -991,6 +1194,29 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFCalo(const CaloCluster* cluster, const 
   hist("Deta", grp)->Fill(dEta);
   hist2("EtaPhiMap", grp)->Fill(cluster->eta(), cluster->phi(), 1.);
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillEFCalo(const xAOD::CaloCluster* cluster, const xAOD::TrigEMCluster *l2Cluster,
+  const string &grp) {
+
+  //check pointers
+  if(!cluster || !l2Cluster){
+    ATH_MSG_DEBUG("fillEFCalo(...) got bad pointers. Skipping.");
+    return;
+  }
+
+  //calculate L2<->EF resolutions
+  float dEta = calcDeltaEta(cluster->eta(), l2Cluster->eta());
+  float dPhi = calcDeltaPhi(cluster->phi(), l2Cluster->phi());
+
+  //fill histograms
+  hist("Et", grp)->Fill(cluster->et() / CLHEP::GeV);
+  hist("Eta", grp)->Fill(cluster->eta());
+  hist("Phi", grp)->Fill(cluster->phi());
+  hist("Dphi", grp)->Fill(dPhi);
+  hist("Deta", grp)->Fill(dEta);
+  hist2("EtaPhiMap", grp)->Fill(cluster->eta(), cluster->phi(), 1.);
+}
+
 //END OF EVENT FILTER CALORIMETER OBSERVABLE HISTOGRAM FILLING
 
 /*  FILL EVENT FILTER CALORIMETER SHOWER OBSERVABLE HISTOGRAMS
@@ -1059,6 +1285,89 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFCaloShower(const egamma* EFeg, const st
   hist("CaloIso", grp)->Fill(caloiso20);
 
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillEFCaloShower(const xAOD::Egamma* EFeg, const string &grp)
+{
+
+  //check pointer
+  if(!EFeg){
+    ATH_MSG_WARNING("fillEFCaloShower(...) got bad pointer. Skipping.");
+    return;
+  }
+
+
+  //check whether we get the shower & cluster, otherwise get out
+  if(!(EFeg->caloCluster())){
+    ATH_MSG_DEBUG("Cannot fill EFCalo shower histograms: EMShower (or cluster) not found!");
+    return;
+  }
+
+
+  //try and load shower
+
+
+  //get transverse energy from cluster
+  float et = 0;
+  et = EFeg->caloCluster()->et();
+
+  //calculate eratio
+  float shower_emaxs1,shower_e2tsts1;
+  EFeg->showerShapeValue(shower_emaxs1,xAOD::EgammaParameters::emaxs1);
+  EFeg->showerShapeValue(shower_e2tsts1,xAOD::EgammaParameters::e2tsts1);
+  float emax1plus2 = shower_emaxs1 + shower_e2tsts1;
+  float emax1minus2 = shower_emaxs1 - shower_e2tsts1;
+  float eratio = 0;
+  if(emax1plus2 > 0){
+    eratio = emax1minus2 / emax1plus2;
+  }
+
+  //calculate et-based ratios, catch E_T of 0
+  float caloiso20 = 0;
+  float hadleak = 0;
+  float hadleak1 = 0;
+  float demax2 = 0;
+  float shower_ethad,shower_ethad1,shower_etcone20;
+  if(et > 0){
+    EFeg->showerShapeValue(shower_ethad,xAOD::EgammaParameters::ethad);
+    EFeg->showerShapeValue(shower_ethad1,xAOD::EgammaParameters::ethad1);
+    EFeg->isolationValue(shower_etcone20,xAOD::Iso::etcone20);
+    hadleak = shower_ethad / et;
+    hadleak1 = shower_ethad1 / et;
+    demax2 = shower_e2tsts1 / (1000 + 0.009 * et);
+    caloiso20 = shower_etcone20/et;
+  }
+  else{
+    demax2 = shower_e2tsts1 / 1000;
+  }
+
+  //fill histograms
+  setCurrentMonGroup(grp);
+  float shower_e277,shower_weta1,shower_wtots1,shower_weta2,shower_emins1,
+        shower_f1,shower_fracs1;
+  EFeg->showerShapeValue(shower_e277,xAOD::EgammaParameters::e277);
+  EFeg->showerShapeValue(shower_weta1,xAOD::EgammaParameters::weta1);
+  EFeg->showerShapeValue(shower_wtots1,xAOD::EgammaParameters::wtots1);
+  EFeg->showerShapeValue(shower_weta2,xAOD::EgammaParameters::weta2);
+  EFeg->showerShapeValue(shower_emins1,xAOD::EgammaParameters::emins1);
+  EFeg->showerShapeValue(shower_f1,xAOD::EgammaParameters::f1);
+  EFeg->showerShapeValue(shower_fracs1,xAOD::EgammaParameters::fracs1);
+  hist("f1", grp)->Fill(shower_f1);
+  hist("raphad", grp)->Fill(hadleak);
+  hist("raphad1", grp)->Fill(hadleak1);
+  hist("E277", grp)->Fill(shower_e277 / CLHEP::GeV);
+  hist("wetas1", grp)->Fill(shower_weta1);
+  hist("wtots1", grp)->Fill(shower_wtots1);
+  hist("wetas2", grp)->Fill(shower_weta2);
+  hist("DES1", grp)->Fill((shower_e2tsts1 - shower_emins1) / CLHEP::GeV);
+  hist("DEmax2", grp)->Fill(demax2);
+  hist("fracs1", grp)->Fill(shower_fracs1);
+  hist("Eratio", grp)->Fill(eratio);
+  hist("CaloIso", grp)->Fill(caloiso20);
+
+}
+
+
+
 //END OF EVENT FILTER EGAMMA CALORIMETER SHOWER OBSERVABLE FILLING
 
 
@@ -1097,6 +1406,41 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFCaloOffRes(const CaloCluster* cluster, 
   hist("Phi", grp)->Fill(ratio_phi);//eg-cluster info
 
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillEFCaloOffRes(const xAOD::CaloCluster* cluster, const xAOD::Egamma* offline,
+    const std::string &grp)
+{
+
+  //check pointers
+  if(!cluster || !offline){
+    ATH_MSG_DEBUG("fillEFCaloOffRes(...) got bad pointers. Skipping.");
+    return;
+  }
+
+  //fetch offline cluster
+  const xAOD::CaloCluster* offCluster = offline->caloCluster();
+  if(!offCluster){
+    ATH_MSG_DEBUG("fillEFCaloOffRes(...) couldn't retrieve offline cluster. Skipping.");
+    return;
+  }
+
+  //fetch offline variables
+  float offEt = calcEt(offCluster->e(), offCluster->eta());
+  float offEta = offCluster->eta();
+  float offPhi = offCluster->phi();
+
+  //calculate ratios
+  float ratio_et = calcRatio(cluster->et(), offEt);
+  float ratio_eta = calcRatio(cluster->eta(), offEta);
+  float ratio_phi = calcRatio(cluster->phi(), offPhi);
+
+  //fill histograms
+  hist("Et", grp)->Fill(ratio_et);//eg-cluster info
+  hist("Eta", grp)->Fill(ratio_eta);//eg-cluster info
+  hist("Phi", grp)->Fill(ratio_phi);//eg-cluster info
+
+}
+
 //END OF EVENT FILTER CALORIMETER RESOLUTION HISTOGRAM FILLING
 
 
@@ -1167,6 +1511,76 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const egamma *eg, const string &grp)
 
   return;
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const xAOD::Electron *eg, const string &grp)
+{
+  //check we have access to track and bail out if not
+  if(!eg || !(eg->trackParticle())){
+    ATH_MSG_DEBUG("Cannot fill EF/Offline track histograms: TrackParticle not found.");
+    return;
+  }
+
+  //load track and perigee, check perigee, load match
+  const xAOD::TrackParticle* track = eg->trackParticle();
+
+  //fetch track directions
+  float phi = track->phi();
+  float eta = track->eta();
+
+  //fetch impact parameter
+  float a0 = -999;
+/*
+  if(m_doExtrapol){
+    const Trk::Perigee* bsPrg = m_trackToVertexTool->perigeeAtBeamspot(*track);
+    if(bsPrg){
+      a0 = bsPrg->parameters()[Trk::d0];
+      delete bsPrg;
+    }
+  }
+*/
+
+
+  //intermediate TRT hit observables
+  float rtottrt = 0;
+  float nTRTht=0;
+  float nTRTtotal= 0;
+/*
+  float nTRTht = (float)track->trackSummary()->get(Trk::numberOfTRTHighThresholdHits)
+    + (float)track->trackSummary()->get(Trk::numberOfTRTHighThresholdOutliers);
+  float nTRTtotal = (float)track->trackSummary()->get(Trk::numberOfTRTOutliers)
+    + (float)track->trackSummary()->get(Trk::numberOfTRTHits);
+*/
+
+  //calc R_tot_trt, prevent division by zero for 0 hits
+  if(nTRTtotal > 0){rtottrt = nTRTht / nTRTtotal;}
+
+  //fill histograms
+  setCurrentMonGroup(grp);
+  hist("trkPhi")->Fill(phi);
+  hist("trkEta")->Fill(eta);
+  hist("trkPt")->Fill(track->pt() / CLHEP::GeV);
+  hist2("trkEtaPhiMap")->Fill(eta, phi, 1.);
+/*
+  hist("Deta")->Fill(match->deltaEta(1));
+  hist("Dphi")->Fill(match->deltaPhi(2));
+*/
+  hist("EoverP")->Fill( fabsf( eg->caloCluster()->et() / track->pt() ) );
+  hist("Qual")->Fill(track->chiSquared());
+/*
+  hist("Pixel")->Fill(track->trackSummary()->get(Trk::numberOfPixelHits));
+  hist("SCT")->Fill(track->trackSummary()->get(Trk::numberOfSCTHits));
+  hist("TRT")->Fill(track->trackSummary()->get(Trk::numberOfTRTHits));
+*/
+  hist("TRTtotal")->Fill(nTRTtotal);
+  hist("TRTHT")->Fill(nTRTht);
+  //hist("BLayer")->Fill(track->trackSummary()->get(Trk::numberOfBLayerHits));
+  hist("A0")->Fill(a0);
+  hist("RtotTRT")->Fill(rtottrt); //prevent div-by-0
+
+  return;
+}
+
+
 //END OF EVENT FILTER/OFFLINE TRACK HISTOGRAM FILLING
 
 
@@ -1174,6 +1588,7 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFID(const egamma *eg, const string &grp)
 
 /*  FILL EVENT FILTER TRACK RESOLUTION HISTOGRAMS
 */
+
 void HLTEgammaFEXNavSigTEBaseTool::fillEFIDOffRes(const egamma* egEF, const egamma* egOff, const string &grp)
 {
   //check input pointers
@@ -1215,8 +1630,44 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFIDOffRes(const egamma* egEF, const egam
   hist("Pt", grp)->Fill(ratio_pt);
 
 }
-//END OF EVENT FILTER TRACK RESOLUTION HISTOGRAM FILLING
+void HLTEgammaFEXNavSigTEBaseTool::fillEFIDOffRes(const xAOD::Electron* egEF, const xAOD::Electron* egOff, const string &grp)
+{
+  //check input pointers
+  if(!egEF || !egOff){
+    ATH_MSG_WARNING("fillEFIDOffRes(...) got bad pointers. Skipping.");
+    return;
+  }
 
+  //try and fetch track particles
+  if ( !(egEF->trackParticle()) || !(egOff->trackParticle())){
+    ATH_MSG_DEBUG("fillEFIDOffRes(...) couldn't retrieve TrackParticle(s). Skipping."); 
+    return;
+  }
+  const xAOD::TrackParticle *ef, *off;
+  ef = egEF->trackParticle();
+  off = egOff->trackParticle();
+
+
+  //fetch variables
+  float phi_egEF  = ef->phi();
+  float phi_egOff = off->phi();
+  float eta_egEF  = ef->eta();
+  float eta_egOff = off->eta();
+  float pt_egEF  = ef->pt();
+  float pt_egOff = off->pt();
+
+  //calculate ratios
+  float ratio_phi = calcRatio(phi_egEF, phi_egOff);
+  float ratio_eta = calcRatio(eta_egEF, eta_egOff);
+  float ratio_pt = calcRatio(pt_egEF, pt_egOff);
+
+  //fill histograms
+  hist("Phi", grp)->Fill(ratio_phi);
+  hist("Eta", grp)->Fill(ratio_eta );
+  hist("Pt", grp)->Fill(ratio_pt);
+
+}
+//END OF EVENT FILTER TRACK RESOLUTION HISTOGRAM FILLING
 
 
 
@@ -1240,6 +1691,25 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFeg(const egamma* eg, const string &grp,
   hist2("egEtaPhiMap", grp)->Fill(eg->eta(), eg->phi(), 1.);
 
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillEFeg(const xAOD::Egamma* eg, const string &grp, const double pt_cut)
+{
+  //check pointer
+  if(!eg){
+    ATH_MSG_WARNING("fillEFeg(...) got bad pointer. Skipping.");
+    return;
+  }
+
+  //fill histograms
+  setCurrentMonGroup(grp);
+  hist("egEt")->Fill(eg->caloCluster()->et() / CLHEP::GeV);
+  if(eg->pt()/CLHEP::GeV > pt_cut){
+    hist("egEta")->Fill(eg->eta());
+    hist("egPhi")->Fill(eg->phi());
+  }
+  hist2("egEtaPhiMap", grp)->Fill(eg->eta(), eg->phi(), 1.);
+
+}
 //END OF EVENT FILTER/OFFLINE EGAMMA HISTOGRAM FILLING
 
 
@@ -1256,6 +1726,23 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFMatch(const egamma* eg, const string &g
   //fill histograms
   setCurrentMonGroup(grp);
   hist("egEt")->Fill(eg->et() / CLHEP::GeV);
+  if(eg->pt()/CLHEP::GeV > pt_cut){
+    hist("egEta")->Fill(eg->eta());
+    hist("egPhi")->Fill(eg->phi());
+  }
+
+}
+void HLTEgammaFEXNavSigTEBaseTool::fillEFMatch(const xAOD::Egamma* eg, const string &grp, const double pt_cut)
+{
+  //check pointer
+  if(!eg){
+    ATH_MSG_WARNING("fillEFMatch(...) got bad pointer. Skipping.");
+    return;
+  }
+
+  //fill histograms
+  setCurrentMonGroup(grp);
+  hist("egEt")->Fill(eg->caloCluster()->et() / CLHEP::GeV);
   if(eg->pt()/CLHEP::GeV > pt_cut){
     hist("egEta")->Fill(eg->eta());
     hist("egPhi")->Fill(eg->phi());
@@ -1286,6 +1773,26 @@ void HLTEgammaFEXNavSigTEBaseTool::fillEFegOffRes(const egamma* egEF, const egam
   hist("Phi", grp)->Fill(ratio_phi); 
 
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillEFegOffRes(const xAOD::Egamma* egEF, const xAOD::Egamma* egOff, const string &grp)
+{
+  //check pointers 
+  if(!egEF && !egOff){
+    ATH_MSG_WARNING("fillEFefOffRes(...) got bad pointers. Skipping.");
+    return;
+  }
+
+  //calculate ratios
+  float ratio_et = calcRatio(egEF->caloCluster()->et(), egOff->pt());
+  float ratio_eta = calcRatio(egEF->eta(), egOff->eta());
+  float ratio_phi = calcRatio(egEF->phi(), egOff->phi());
+
+  //fill histos
+  hist("Et", grp)->Fill(ratio_et);
+  hist("Eta", grp)->Fill(ratio_eta);
+  hist("Phi", grp)->Fill(ratio_phi);
+
+}
+
 //END OF EVENT FILTER EGAMMA RESOLUTION HISTOGRAM FILLING
 
 
@@ -1312,6 +1819,21 @@ void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const egamma* eg, bool isPh
   else fillEFeg(eg, path, phot_cut);
   if(!isPhoton){ fillEFID(eg, path); }
 }
+void HLTEgammaFEXNavSigTEBaseTool::fillOfflineEgamma(const xAOD::Electron* eg, bool isPhoton, string path="", const double elec_cut=0., const double phot_cut=0.)
+{
+  //set path if none was supplied
+  if(path==""){path = m_histoBasePath + "/" + (isPhoton ? m_offPhoPath : m_offElePath); }
+  //otherwise append match foldername
+  else{ path += "/" + (isPhoton ? m_matchedOffPhoPath : m_matchedOffElePath); }
+  ATH_MSG_DEBUG("Filling offline "<<(isPhoton ? "photon" : "electron")<<" histograms to path "<<path);
+
+  //call event filter filling functions
+  if(!isPhoton) fillEFeg(eg, path, elec_cut);
+  else fillEFeg(eg, path, phot_cut);
+  if(!isPhoton){ fillEFID(eg, path); }
+}
+
+
 void HLTEgammaFEXNavSigTEBaseTool::fillOfflineMatches(const egamma* eg, bool isPhoton, string path="", const double elec_cut=0., const double phot_cut=0.)
 {
   //set path if none was supplied
@@ -1324,6 +1846,20 @@ void HLTEgammaFEXNavSigTEBaseTool::fillOfflineMatches(const egamma* eg, bool isP
   if(!isPhoton) fillEFMatch(eg, path, elec_cut);
   else fillEFMatch(eg, path, phot_cut);
 }
+
+void HLTEgammaFEXNavSigTEBaseTool::fillOfflineMatches(const xAOD::Egamma* eg, bool isPhoton, string path="", const double elec_cut=0., const double phot_cut=0.)
+{
+  //set path if none was supplied
+  if(path==""){path = m_histoBasePath + "/" + (isPhoton ? m_offPhoPath : m_offElePath); }
+  //otherwise append match foldername
+  else{ path += "/" + (isPhoton ? m_matchedOffPhoPath : m_matchedOffElePath); }
+  ATH_MSG_DEBUG("Filling offline "<<(isPhoton ? "photon" : "electron")<<" histograms to path "<<path);
+
+  //call event filter filling functions
+  if(!isPhoton) fillEFMatch(eg, path, elec_cut);
+  else fillEFMatch(eg, path, phot_cut);
+}
+
 //END OF OFFLINE EGAMMA HISTOGRAM FILLING
 
 
@@ -1536,6 +2072,8 @@ void HLTEgammaFEXNavSigTEBaseTool::scaleError(float factor, TH1 *h) {
 */
 void HLTEgammaFEXNavSigTEBaseTool::histDivide(TH1* num, TH1* den, TH1* quo, bool scale)
 {
+  num->Sumw2();
+  den->Sumw2();
   quo->Divide(num, den, 1., 1., "b");
   if(scale){ quo->Scale(100.); }
 }

@@ -24,10 +24,6 @@
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 
-//for extrapolation
-#include "CaloDetDescr/CaloDepthTool.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "egammaEvent/egammaContainer.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMTrackMatch.h"
@@ -51,27 +47,8 @@ StatusCode HLTEgammaMonTool::init() {
     return StatusCode::FAILURE;
   }
   
-  // extrapolation
-  IAlgTool* algtool;
-  if (m_doExtrapol) {
-    sc = m_toolSvc->retrieveTool("ExtrapolTrackToCaloTool/extrapolTrackToCaloTool", algtool, this );
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Cannot get ExtrapolTrackToCaloTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-    
-    m_toCalo=dynamic_cast<IExtrapolateToCaloTool*>(algtool);
-
-    // retrived via the Extrapolator to make sure that jobOpt setting is consistent.
-    m_calodepth = &(*m_toCalo->getCaloDepth());
-    if (!m_calodepth) {
-      (*m_log) << MSG::ERROR << "Cannot get CaloDepthTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    m_toCalo = 0;
-    m_calodepth = 0;
-  }
+  // extrapolation -- removed 
+  m_doExtrapol = false;
 
   return StatusCode::SUCCESS;
 }
