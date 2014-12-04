@@ -128,6 +128,9 @@ class TileCalibUtils{
   static unsigned int noisy_definition_chan() {return NOISY_DEFINITION_CHAN;}
   /** @brief Python compatibility function */
   static unsigned int nogainl1_definition_chan() {return NOGAINL1_DEFINITION_CHAN;}
+  /** @brief Python compatibility function */
+  static unsigned int badtiming_definition_chan() {return BADTIMING_DEFINITION_CHAN;}
+
 
   static const unsigned int MAX_ROS      ;  /**< @brief Number of ROSs               */
   static const unsigned int MAX_DRAWER   ;  /**< @brief Number of drawers in ROS 1-4 */
@@ -143,6 +146,7 @@ class TileCalibUtils{
   static const unsigned int BAD_DEFINITION_CHAN;   /**< @brief Channel used for storing of bad channel definitions */
   static const unsigned int NOISY_DEFINITION_CHAN;   /**< @brief Channel used for storing of noisy channel definitions */
   static const unsigned int NOGAINL1_DEFINITION_CHAN;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
+  static const unsigned int BADTIMING_DEFINITION_CHAN;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
 
 };
 

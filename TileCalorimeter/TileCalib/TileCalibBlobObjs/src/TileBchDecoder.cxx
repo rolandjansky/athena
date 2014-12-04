@@ -12,7 +12,7 @@ TileBchDecoder::TileBchDecoder(BitPatVer bitPatVer)
   if(     bitPatVer==TileBchDecoder::BitPat_ofl01){ init_BitPat_ofl01(); }
   else if(bitPatVer==TileBchDecoder::BitPat_onl01){ init_BitPat_onl01(); }
   else{
-    throw TileCalib::InvalidBitPattern("TileBchDecoder::Ctor",bitPatVer);
+    throw TileCalib::InvalidBitPattern("TileBchDecoder::Ctor", bitPatVer);
   }
 }
 
@@ -22,11 +22,11 @@ TileBchStatus
 TileBchDecoder::decode(uint32_t status_channel, uint32_t status_adc) const 
 {
   TileBchStatus status;
-  for(unsigned int i=0; i<32; ++i){
+  for(unsigned int i = 0; i < 32; ++i){
     //=== decode channel problems
-    if(status_channel & 0x00000001){ status+=m_bitToPrbChn[i]; }
+    if(status_channel & 0x00000001){ status += m_bitToPrbChn[i]; }
     //=== decode adc problems
-    if(status_adc     & 0x00000001){ status+=m_bitToPrbAdc[i]; }
+    if(status_adc     & 0x00000001){ status += m_bitToPrbAdc[i]; }
     //=== shift the status words by one bit
     status_channel >>= 1;
     status_adc     >>= 1;
@@ -46,7 +46,7 @@ TileBchDecoder::encode(const TileBchStatus& status) const
     {
       std::map<TileBchPrbs::Prb,std::pair<unsigned int,unsigned int> >::const_iterator 
 	iMap = m_prbToBit.find(*iPrb);
-      if(iMap==m_prbToBit.end()){
+      if(iMap == m_prbToBit.end()){
 	//=== throw an exception if we can not encode the problem
 	throw TileCalib::InvalidBchProblem("TileBchDecoder::encode", *iPrb);
       }
@@ -120,6 +120,7 @@ TileBchDecoder::init_BitPat_onl01()
   m_bitToPrbChn[ 4] = TileBchPrbs::TrigNoGain;
   m_bitToPrbChn[ 5] = TileBchPrbs::TrigHalfGain;
   m_bitToPrbChn[ 6] = TileBchPrbs::TrigNoisy;
+  m_bitToPrbChn[ 7] = TileBchPrbs::OnlineBadTiming;
   
   //=== assign decoder to adc problems
   m_bitToPrbAdc.clear();
@@ -137,25 +138,25 @@ TileBchDecoder::initPrbToBit()
 {
   m_prbToBit.clear();
   //=== init channel problems
-  for(unsigned int i=0; i<32; ++i){
+  for(unsigned int i = 0; i < 32; ++i){
     TileBchPrbs::Prb prb = m_bitToPrbChn[i];
     if(prb==TileBchPrbs::Invalid) continue;
     //=== check for duplicates
-    if(m_prbToBit.find(prb)!=m_prbToBit.end()){
+    if(m_prbToBit.find(prb) != m_prbToBit.end()){
       throw TileCalib::InvalidBitPattern("TileBchDecoder::initPrbToBit(Chn)",i);
     }
     m_prbToBit[prb] = std::make_pair(0,i);
   }
 
   //=== init adc problems
-  for(unsigned int i=0; i<32; ++i){
+  for(unsigned int i = 0; i < 32; ++i){
     TileBchPrbs::Prb prb = m_bitToPrbAdc[i];
     if(prb==TileBchPrbs::Invalid) continue;
     //=== check for duplicates
     if(m_prbToBit.find(prb)!=m_prbToBit.end()){
       throw TileCalib::InvalidBitPattern("TileBchDecoder::initPrbToBit(Adc)",i);
     }
-    m_prbToBit[prb] = std::make_pair(1,i);
+    m_prbToBit[prb] = std::make_pair(1, i);
   }
 }
 
@@ -167,13 +168,13 @@ TileBchDecoder::printBitAssignment(std::ostream& stm) const
   stm << "Current bit to problem assignment" << std::endl;
   stm << "---------------------------------" << std::endl;
   stm << "Channel:"                          << std::endl;
-  for(unsigned int i=0; i<32; ++i){
+  for(unsigned int i = 0; i < 32; ++i){
     TileBchPrbs::Prb prb = m_bitToPrbChn[i];
     std::string desc = TileBchPrbs::getDescription(prb);
     stm << "bit "<<i<<"\t:\t" << desc << std::endl;
   }
   stm << "Adc:"                              << std::endl;
-  for(unsigned int i=0; i<32; ++i){
+  for(unsigned int i = 0; i < 32; ++i){
     TileBchPrbs::Prb prb = m_bitToPrbAdc[i];
     std::string desc = TileBchPrbs::getDescription(prb);
     stm << "bit "<<i<<"\t:\t" << desc << std::endl;

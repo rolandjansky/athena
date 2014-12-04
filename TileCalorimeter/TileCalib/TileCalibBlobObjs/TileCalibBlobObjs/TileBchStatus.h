@@ -39,9 +39,11 @@ class TileBchStatus
   static void defineBad(  const TileBchStatus& status);
   static void defineNoisy(const TileBchStatus& status);
   static void defineNoGainL1(const TileBchStatus& status);
+  static void defineBadTiming(const TileBchStatus& status);
   static TileBchStatus getDefinitionBad();
   static TileBchStatus getDefinitionNoisy();
   static TileBchStatus getDefinitionNoGainL1();
+  static TileBchStatus getDefinitionBadTiming();
 
   bool isGood() const;
   bool isBad() const;
@@ -59,6 +61,7 @@ class TileBchStatus
   static PrbSet m_refBad;
   static PrbSet m_refNoisy;
   static PrbSet m_refNoGainL1;
+  static PrbSet m_refBadTiming;
 };
 
 //
@@ -74,7 +77,7 @@ TileBchStatus::getPrbs() const
 inline bool
 TileBchStatus::contains(const Prb& prb) const
 {
-  return (m_prbSet.find(prb)!=m_prbSet.end());
+  return (m_prbSet.find(prb) != m_prbSet.end());
 }
 
 //
@@ -82,7 +85,7 @@ TileBchStatus::contains(const Prb& prb) const
 inline bool
 TileBchStatus::isGood() const
 {
-  return (m_prbSet.size()==0);
+  return (m_prbSet.size() == 0);
 }
 
 //
@@ -98,7 +101,7 @@ TileBchStatus::isAffected() const
 inline bool
 TileBchStatus::isBad() const
 {
-  return m_prbSet.size() ? (testFor(m_refBad).size()!=0) : false;
+  return m_prbSet.size() ? (testFor(m_refBad).size() != 0) : false;
 }
 
 //
@@ -106,7 +109,7 @@ TileBchStatus::isBad() const
 inline bool
 TileBchStatus::isNoisy() const
 {
-  return m_prbSet.size() ? (testFor(m_refNoisy).size()!=0) : false;
+  return m_prbSet.size() ? (testFor(m_refNoisy).size() != 0) : false;
 }
 
 //
@@ -146,7 +149,7 @@ TileBchStatus::isHalfGainL1() const
 inline bool
 TileBchStatus::isBadTiming() const
 {
-  return m_prbSet.size() ? contains(TileBchPrbs::BadTiming) : false; 
+  return m_prbSet.size() ? (testFor(m_refBadTiming).size() != 0) : false;
 }
 
 #endif

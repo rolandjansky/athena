@@ -81,6 +81,7 @@ class TileBchPrbs
     IgnoredInDsp               = 4000,
     IgnoredInHlt               = 4001,
     DisableForL1               = 4002,
+    OnlineBadTiming            = 4105,
 
     //================================
     //=== Other ONLINE ADC

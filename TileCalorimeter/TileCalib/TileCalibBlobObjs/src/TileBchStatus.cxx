@@ -9,6 +9,7 @@
 TileBchStatus::PrbSet TileBchStatus::m_refBad;
 TileBchStatus::PrbSet TileBchStatus::m_refNoisy;
 TileBchStatus::PrbSet TileBchStatus::m_refNoGainL1;
+TileBchStatus::PrbSet TileBchStatus::m_refBadTiming;
 
 //
 //_________________________________________________________
@@ -32,9 +33,7 @@ TileBchStatus::operator+=(const TileBchStatus& rhs)
 {
   //  PrbSet overlapp;
   std::insert_iterator<PrbSet> insItr(m_prbSet, m_prbSet.begin()); 
-  std::set_union(m_prbSet.begin(),m_prbSet.end(),
-		 rhs.getPrbs().begin(),  rhs.getPrbs().end(),
-		 insItr);
+  std::set_union(m_prbSet.begin(),m_prbSet.end(), rhs.getPrbs().begin(), rhs.getPrbs().end(), insItr);
   return *this;
 }
 
@@ -120,6 +119,8 @@ TileBchStatus::initClassifierDefinitions()
   m_refNoGainL1.insert(TileBchPrbs::TrigNoisy);
   m_refNoGainL1.insert(TileBchPrbs::DisableForL1);
 
+  m_refBadTiming.insert(TileBchPrbs::BadTiming);
+
 }
 
 //
@@ -148,6 +149,15 @@ TileBchStatus::defineNoGainL1(const TileBchStatus& status)
 
 //
 //_________________________________________________________
+void 
+TileBchStatus::defineBadTiming(const TileBchStatus& status)
+{
+  m_refBadTiming = status.getPrbs();
+}
+
+
+//
+//_________________________________________________________
 TileBchStatus 
 TileBchStatus::getDefinitionBad()
 {
@@ -172,14 +182,21 @@ TileBchStatus::getDefinitionNoGainL1()
 
 //
 //_________________________________________________________
+TileBchStatus
+TileBchStatus::getDefinitionBadTiming()
+{
+  return TileBchStatus(m_refBadTiming);
+}
+
+
+//
+//_________________________________________________________
 TileBchStatus::PrbSet
 TileBchStatus::testFor(const PrbSet& prbSet) const
 {
   PrbSet overlapp;
   std::insert_iterator<PrbSet> insItr(overlapp, overlapp.begin()); 
-  std::set_intersection(m_prbSet.begin(),m_prbSet.end(),
-			  prbSet.begin(),  prbSet.end(),
-                        insItr);
+  std::set_intersection(m_prbSet.begin(),m_prbSet.end(), prbSet.begin(),  prbSet.end(), insItr);
   return overlapp;
 }
 
@@ -189,7 +206,7 @@ std::string
 TileBchStatus::getString() const
 {
   std::string prbStr("");
-  for(PrbSet::const_iterator iPrb = m_prbSet.begin(); iPrb!=m_prbSet.end(); ++iPrb){
+  for(PrbSet::const_iterator iPrb = m_prbSet.begin(); iPrb != m_prbSet.end(); ++iPrb){
     prbStr += TileBchPrbs::getDescription(*iPrb) + "; ";
   } 
   return prbStr;

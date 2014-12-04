@@ -70,6 +70,9 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::TrigHalfGain           ] = "LV1 channel half gain";
   m_prbNames[TileBchPrbs::TrigNoisy              ] = "LV1 channel noisy";
 
+  //=== online channel
+  m_prbNames[TileBchPrbs::OnlineBadTiming        ] = "Online bad timing";
+
   //=== online adc
   m_prbNames[TileBchPrbs::OnlineGeneralMaskAdc   ] = "Online ADC masked (unspecified)";
 }
