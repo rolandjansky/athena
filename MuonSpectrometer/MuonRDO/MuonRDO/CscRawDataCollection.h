@@ -82,6 +82,8 @@ public:
     m_spuCount.resize(10,0);
     m_scaAddress     = 0x0;
     m_idHash         = m_id;
+    m_rodId           = 0;
+    m_subDetectorId   = 0;
   }
 
   CscRawDataCollection ()
@@ -95,6 +97,8 @@ public:
     m_dataType.clear();
     m_spuCount.resize(10,0);
     m_scaAddress      = 0x0;
+    m_rodId           = 0;
+    m_subDetectorId   = 0;
   }
 
   virtual ~CscRawDataCollection() {}

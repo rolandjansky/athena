@@ -41,6 +41,9 @@ class MdtAmtHit
   // All the datawords (no headers and footers) coming from this channel 
   // to be decoded on demand using MdtReadOut methods
   std::vector<uint32_t>* p_dataWords;
+
+  MdtAmtHit & operator=(const MdtAmtHit &right);
+  MdtAmtHit(const MdtAmtHit&);
   
  public:
   
