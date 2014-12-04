@@ -9,8 +9,6 @@ use TestPolicy                 TestPolicy-*
 
 use GaudiInterface GaudiInterface-*  External 
 
-use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
-
 library InDetGeometryValidation *.cxx components/*.cxx
 
 branches run share
