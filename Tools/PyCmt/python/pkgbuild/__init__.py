@@ -18,6 +18,7 @@ import os
 import os.path as osp
 import imp
 import inspect
+import re
 
 from PyCmt.Logging import logging
 
@@ -175,10 +176,15 @@ def _cmt_to_autoconf(cmt):
                         .replace("-Woverloaded-virtual ", " ")\
                         .replace("-Wno-deprecated ", " ")\
                         .replace("--ccache-skip ", " ")\
-                        .replace("-shared ", " ")
+                        .replace("-shared ", " ")\
+                        .replace("`checker_gccplugins_args`", " ")
 
     cfg_env['CXXFLAGS'] = cfg_env['CXXFLAGS']\
-                        .replace("-shared ", " ")
+                        .replace("-shared ", " ")\
+                        .replace("`checker_gccplugins_args`", " ")
+
+    cfg_env['CFLAGS'] = re.sub ('-fplugin=[^ ]+', '', cfg_env['CFLAGS'])
+    cfg_env['CXXFLAGS'] = re.sub ('-fplugin=[^ ]+', '', cfg_env['CXXFLAGS'])
 
     # hack: remove -Werror as many 3rd-party packages won't compile with it
     cfg_env['CFLAGS'] = cfg_env['CFLAGS']\
