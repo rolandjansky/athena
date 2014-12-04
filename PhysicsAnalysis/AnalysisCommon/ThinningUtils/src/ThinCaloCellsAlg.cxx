@@ -31,11 +31,11 @@ ThinCaloCellsAlg::ThinCaloCellsAlg( const std::string& name,
 																	  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
-	m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
+  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_thinTool("ThinCaloCellsTool/ThinCaloCellsTool", this),
-	m_setCaloCellKey(false),
-	m_setInCollKey(false),
-	m_nEventsProcessed(0)
+  m_setCaloCellKey(false),
+  m_setInCollKey(false),
+  m_nEventsProcessed(0)
 {
   declareProperty("JobOptionsSvc",        m_jos, "The JobOptionService instance.");
 
@@ -93,7 +93,7 @@ StatusCode ThinCaloCellsAlg::initialize()
 	ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
                  << " of private tool with name: '" << fullToolName << "'" );
   ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-																						 StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
+                                             StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
 
   if (m_setCaloCellKey) {
     ATH_MSG_DEBUG( "Setting property" << m_caloCellKey

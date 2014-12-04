@@ -18,7 +18,10 @@ Created:     July 2014
 
 // FrameWork includes
 #include "ExpressionEvaluation/ExpressionParser.h"
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#endif
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
@@ -40,7 +43,10 @@ ThinIParticlesTool::ThinIParticlesTool( const std::string& type,
                       						      const std::string& name,
                                         const IInterface* parent ) :
   ::AthAlgTool( type, name, parent ),
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 	m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+#endif
 	m_parser(0),
   m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_nTotalIParticles(0),
@@ -96,7 +102,10 @@ StatusCode ThinIParticlesTool::initialize()
 
   // initialize proxy loaders for expression parsing
 	ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 	proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
 	proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 

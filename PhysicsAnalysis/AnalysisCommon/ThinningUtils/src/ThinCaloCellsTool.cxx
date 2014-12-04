@@ -9,6 +9,9 @@ Author:      Karsten Koeneke
 Created:     July 2014
 ******************************************************************************/
 
+// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
+#ifndef XAOD_ANALYSIS
+
 // This class' header
 #include "ThinCaloCellsTool.h"
 
@@ -550,3 +553,7 @@ ThinCaloCellsTool::selectFromCompositeParticle( std::vector<bool>& mask,
 
   return StatusCode::SUCCESS;
 }
+
+
+#endif
+

@@ -28,7 +28,10 @@
 #include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#endif
 
 // EDM includes
 #include "xAODTracking/TrackParticleContainerFwd.h"
@@ -135,7 +138,10 @@ private:
 
 
   /// The trigger decision tool
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
   ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+#endif
 
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;

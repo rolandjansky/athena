@@ -18,7 +18,10 @@ Created:     July 2013
 
 // FrameWork includes
 #include "ExpressionEvaluation/ExpressionParser.h"
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#endif
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
@@ -56,8 +59,11 @@ ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
                           						          const std::string& name,
                                                 const IInterface* parent ) :
   ::AthAlgTool( type, name, parent ),
-	m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-	m_parser(0),
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+#endif
+  m_parser(0),
   m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_tauConversion(false),
   m_tauWide(false),
@@ -120,7 +126,10 @@ StatusCode ThinTrackParticlesTool::initialize()
 
   // initialize proxy loaders for expression parsing
 	ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+// AthAnalysisBase doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 	proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
 	proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 
@@ -672,32 +681,33 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
     mask[index] = true;
   } // End: loop over all TrackParticles from this tau
 
-  // If requested, also get other types of TrackParticles from the Tau
-  if ( m_tauConversion ) {
-    const auto& tpLinks = part->conversionTrackLinks();
-    for ( const auto& partLink : tpLinks ) {
-      if ( !(partLink.isValid()) ) {
-        ATH_MSG_WARNING("Got an invalid element link. Continuing...");
-        continue;
-      }
+  // FIXME!!! taus no longer have conversion track link vector after schema evolution to taujet_v2
+  // // If requested, also get other types of TrackParticles from the Tau
+  // if ( m_tauConversion ) {
+  //   const auto& tpLinks = part->conversionTrackLinks();
+  //   for ( const auto& partLink : tpLinks ) {
+  //     if ( !(partLink.isValid()) ) {
+  //       ATH_MSG_WARNING("Got an invalid element link. Continuing...");
+  //       continue;
+  //     }
 
-      const xAOD::TrackParticleContainer* ptrTrkPartCont = partLink.getStorableObjectPointer();
-      if ( ptrTrkPartCont != trackParticleContainer ) {
-        ATH_MSG_DEBUG("The current ElementLink doesn't point to the TrackParticleContainer");
-        continue;
-      }
+  //     const xAOD::TrackParticleContainer* ptrTrkPartCont = partLink.getStorableObjectPointer();
+  //     if ( ptrTrkPartCont != trackParticleContainer ) {
+  //       ATH_MSG_DEBUG("The current ElementLink doesn't point to the TrackParticleContainer");
+  //       continue;
+  //     }
 
-      // Get the index of the current element link
-      std::size_t index = partLink.index();
+  //     // Get the index of the current element link
+  //     std::size_t index = partLink.index();
 
-      // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalTrackParts ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
-        continue;
-      }
-      mask[index] = true;
-    } // End: loop over all TrackParticles from this tau
-  } // End: if ( m_tauConversion )
+  //     // Fill the thinning mask at this place and increment the counter
+  //     if ( index >= m_nTotalTrackParts ) {
+  //       ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+  //       continue;
+  //     }
+  //     mask[index] = true;
+  //   } // End: loop over all TrackParticles from this tau
+  // } // End: if ( m_tauConversion )
 
   // If requested, also get other types of TrackParticles from the Tau
   if ( m_tauWide ) {

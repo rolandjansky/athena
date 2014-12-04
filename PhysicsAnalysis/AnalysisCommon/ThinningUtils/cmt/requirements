@@ -9,12 +9,14 @@ private
 use  AthLinks                   AthLinks-*                      Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
-use  CaloEvent                  CaloEvent-*                     Calorimeter
+#use  CaloEvent                  CaloEvent-*                     Calorimeter
+use_unless pkg=CaloEvent tag=ManaCore ver=* root=Calorimeter
 use  DerivationFrameworkInterfaces                              DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
 use  EventInfo                  EventInfo-*                     Event
 use  ExpressionEvaluation       ExpressionEvaluation-*          PhysicsAnalysis/CommonTools
 use  GaudiInterface             GaudiInterface-*                External
-use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use_unless pkg=TrigDecisionTool tag=ManaCore ver=* root=Trigger/TrigAnalysis
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODEgamma                 xAODEgamma-*                    Event/xAOD

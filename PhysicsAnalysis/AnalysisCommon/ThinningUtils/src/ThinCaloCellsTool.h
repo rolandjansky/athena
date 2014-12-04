@@ -5,6 +5,9 @@
 */
 
 
+// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
+#ifndef XAOD_ANALYSIS
+
 #ifndef THINNINGUTILS_THINCALOCELLSTOOL_H
 #define THINNINGUTILS_THINCALOCELLSTOOL_H
 
@@ -147,5 +150,7 @@ private:
   mutable unsigned long m_nEventsProcessed;
 
 };
+
+#endif
 
 #endif
