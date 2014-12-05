@@ -22,8 +22,9 @@ using eformat::helper::SourceIdentifier;
 // adapted for MdtCms by Michela Biglietti <biglietti@na.infn.it>
 
 
-MDT_Hid2RESrcID::MDT_Hid2RESrcID() {
-
+MDT_Hid2RESrcID::MDT_Hid2RESrcID() :
+  m_cabling(0), m_mdtIdHelper(0), m_specialROBNumber(0)
+{
 
 }
 

@@ -11,7 +11,17 @@
 
 MdtCsmReadOut::MdtCsmReadOut():
   m_dataWord(0),
-  m_wordHeader(0)
+  m_wordHeader(0),
+  m_lvl1Id(0),
+  m_clwc(0),
+  m_ftyp(0),
+  m_flags(0),
+  m_ecnt(0),
+  m_ctwc(0),
+  m_mrodId(0),
+  m_csmId(0),
+  m_error(0),
+  m_zeroSupp(0)
 { }
 
 

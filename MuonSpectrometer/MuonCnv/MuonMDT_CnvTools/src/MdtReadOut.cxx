@@ -8,7 +8,8 @@
 
 //using std::cout;
 
-MdtReadOut::MdtReadOut()
+MdtReadOut::MdtReadOut() :
+  m_word(0)
 { }
 
 MdtReadOut::~MdtReadOut()

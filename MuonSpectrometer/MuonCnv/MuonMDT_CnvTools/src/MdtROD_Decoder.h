@@ -92,6 +92,8 @@ private:
         MdtCsmReadOut * m_csmReadOut;
         MdtAmtReadOut * m_amtReadOut;
         
+        bool m_BMEpresent;
+        
 	//        bool    m_debug; //!< If true, output debugging information
         //MsgStream       m_log;
 }; 

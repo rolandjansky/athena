@@ -15,7 +15,13 @@ const uint32_t MdtRODReadOut::RODstart = 0xee1234ee;
 const uint32_t MdtRODReadOut::RODheadersize = 0x8;
 const uint32_t MdtRODReadOut::RODversion  = 0;      // ??
 
-MdtRODReadOut::MdtRODReadOut()
+MdtRODReadOut::MdtRODReadOut() :
+  m_dataWord(0),
+  m_subdetId(0),
+  m_mrodId(0),
+  m_lvl1Id(0),
+  m_bcId(0),
+  m_triggerTypeId(0)
 { }
 
 MdtRODReadOut::~MdtRODReadOut()

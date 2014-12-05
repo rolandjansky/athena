@@ -163,7 +163,10 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
 	{
           try 
 	    {
-              m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
+              if(m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1)
+                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->detectorElement_hash_max());
+              else
+                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
 	    } 
           catch(std::bad_alloc) 
 	    {
@@ -273,9 +276,6 @@ StatusCode Muon::MDT_RawDataProviderTool::convert( const std::vector<const OFFLI
 	}
     }
   //in presence of errors return FAILURE
-  return StatusCode::SUCCESS;
-  
-  
   ATH_MSG_DEBUG("After processing numColls="<<m_rdoContainer->numberOfCollections());
   return StatusCode::SUCCESS;
 }

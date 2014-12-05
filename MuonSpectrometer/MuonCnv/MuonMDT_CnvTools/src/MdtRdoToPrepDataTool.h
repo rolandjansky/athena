@@ -145,6 +145,8 @@ namespace Muon
 
         bool m_isTestBeam; //!< Support for test beam data (twin tubes)
 
+        bool m_BMEpresent;
+
         // + TWIN TUBE
         bool   m_useTwin;
         bool   m_useAllBOLTwin;
