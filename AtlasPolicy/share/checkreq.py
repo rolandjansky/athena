@@ -180,6 +180,10 @@
 #                - updated translations to HLTtdaqcommon and HLTtdaq (see 20131023)
 #  20140312 hvds - improved diagnostic for HLTtdaq/HLTtdaqcommon
 #  20140819 mnowak - added use_if and use_unless parsing
+#  20140902 sss  - Handle Gaudi/ include directory provided by GaudiPluginSvc.
+#  20140910 sss  - Skip checks for Hephaestus.
+#  20140930 obreshko - replaced ManaCore with AthAnalysisBase
+#  20141110 sss  - Handle Pythia8Plugins directory from Pythia8.
 #
 ###################################################################################################################################
 
@@ -224,7 +228,7 @@ class checker:
 # list of projects
     self.projmap={"AtlasCore":None, "AtlasConditions":None, "AtlasEvent":None, "AtlasReconstruction":None, \
       "AtlasTrigger":None, "AtlasAnalysis":None, "AtlasSimulation":None, "AtlasOffline":None, \
-      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, "ManaCore":None}
+      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, "AthAnalysisBase":None}
 # per project, setup list of non-accessible projects
     self.projmap["AtlasProduction"]=[]
     self.projmap["AtlasOffline"]=["AtlasProduction"]
@@ -238,7 +242,7 @@ class checker:
     self.projmap["DetCommon"]=self.projmap["AtlasCore"]
     self.projmap["AtlasHLT"]=[]
     self.projmap["GAUDI"]=[]
-    self.projmap["ManaCore"]=[]
+    self.projmap["AthAnalysisBase"]=[]
 
     self.policy1 = ["AtlasPolicy", "GaudiPolicy", "DetCommonPolicy", "AtlasHLTPolicy", "ExternalPolicy", "TestPolicy", \
                     "TDAQPolicy", "AtlasFortranPolicy", "AtlasCommonPolicy", "AtlasCxxPolicy"]
@@ -952,6 +956,7 @@ def inc2pac(c, p, st):
   "pudummy":"HLTtdaq",
   "pudummydal":"HLTtdaq",
   "pvss2cool":"HLTtdaq",
+  "Pythia8Plugins":"Pythia8",
   "QTUtils":"HLTtdaq",
   "queues":"HLTtdaq",
   "racksdal":"HLTtdaq",
@@ -1613,7 +1618,7 @@ def chk_files(c, p, ftocheck):
                 incpl+=[mm]
 # treat includes from <package>Dict_gen as if there was a use stmt for them
 # caution - side effect on p.ulike !!
-            if ftc.endswith(p.thispac + "Dict_gen.h") and ifip != "":
+            if ( ftc.endswith(p.thispac + "Dict_gen.h") or ftc.endswith("_gen.cpp") ) and ifip != "":
               p.ulike+=[ifip]
               detail(c, "Imply use stmt for include from Dict_gen: " + ifip)
       else:
@@ -2716,6 +2721,7 @@ def do_checks(c, p):
       for pi in [p, p1]:
         pi.upacks, pi.utrans, pi.ulike, pi.lpacks, pi.ltrans = do_check_3(c, pi)
         pi.ipacks, pi.itrans, pi.ilike, pi.imap, pi.rpacks, pi.rmap = do_check_4(c, pi)
+
 #!#      for inpu in needpub:    #!#
 #!#        if inpu in p.ipacks:  #!#
 #!#          p1.ipacks+=[inpu]   #!#
