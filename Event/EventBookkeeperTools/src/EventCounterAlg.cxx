@@ -4,34 +4,34 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// EventCounterAlg.cxx 
+// EventCounterAlg.cxx
 // Implementation file for class EventCounterAlg
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // EventBookkeeperTools includes
 #include "EventCounterAlg.h"
 
 // STL includes
 
-// FrameWork includes
-#include "GaudiKernel/Property.h"
+// EDM includes
+#include "xAODCutFlow/CutBookkeeper.h"
 
 
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Public methods:
+///////////////////////////////////////////////////////////////////
 
 // Constructors
 ////////////////
-EventCounterAlg::EventCounterAlg( const std::string& name, 
-                                  ISvcLocator* pSvcLocator ) : 
+EventCounterAlg::EventCounterAlg( const std::string& name,
+                                  ISvcLocator* pSvcLocator ) :
   ::AthFilterAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
-  // 
+  //
   //declareProperty( "Property", m_nProperty );
 
 }
@@ -47,9 +47,10 @@ StatusCode EventCounterAlg::initialize()
 {
   ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
-  cutFlowSvc()->declareTopFilter(name(), "AllEvents", "AllStreams");
-  cutFlowSvc()->setFilterDescription( cutID(), 
-                                      "Nb of executed events before any cut");
+  cutFlowSvc()->registerTopFilter( name(),
+                                   "Number of processed events before any cut",
+                                   xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
+                                   "AllStreams");
   return StatusCode::SUCCESS;
 }
 
@@ -61,31 +62,9 @@ StatusCode EventCounterAlg::finalize()
 }
 
 StatusCode EventCounterAlg::execute()
-{  
+{
   ATH_MSG_VERBOSE ("Executing " << name() << "...");
 
   setFilterPassed(true);
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-

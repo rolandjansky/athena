@@ -20,6 +20,6 @@ void countEvents(){
   bookBr->SetAddress(&bookCollection);
   bookBr->GetEntry(0);
   std::cout << "Number of processed events was " << bookCollection->at(0)->getNAcceptedEvents() << std::endl;
-  std::cout << "Number of weighted processed events was " << bookCollection->at(0)->getNWeightedAcceptedEvents() << std::endl;
+  std::cout << "Number of weighted processed events was " << bookCollection->at(0)->getSumOfWeights() << std::endl;
 
 }

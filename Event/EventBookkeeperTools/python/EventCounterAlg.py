@@ -28,8 +28,11 @@ class PyEventCounterAlg( PyAthena.AthFilterAlgorithm ):
         return
 
     def initialize(self):
-        self.cutFlowSvc().declareTopFilter(self.name(),"AllEvents","AllStreams")
-        self.cutFlowSvc().setFilterDescription(self.ebk,"Nb of executed events before any cut")
+        self.cutFlowSvc().registerTopFilter( self.name(),
+                                             "Number of processed events before any cut",
+                                             #xAOD::EventBookkeeper::CutLogic::ALLEVENTSPROCESSED,
+                                             1,
+                                             "AllStreams" )
         return StatusCode.Success
 
     def execute(self):
@@ -38,4 +41,3 @@ class PyEventCounterAlg( PyAthena.AthFilterAlgorithm ):
 
     def finalize(self):
         return StatusCode.Success
-

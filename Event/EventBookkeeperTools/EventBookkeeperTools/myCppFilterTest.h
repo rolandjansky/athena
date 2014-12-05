@@ -17,8 +17,6 @@
 #include <string>
 #include <stdint.h>
 #include <fstream>
-#include "EventBookkeeperMetaData/EventBookkeeperCollection.h"
-#include "EventBookkeeperMetaData/EventBookkeeper.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -37,18 +35,6 @@ public:
 protected:
   virtual ~myCppFilterTest();
 
-
-public:
-
-
-
-protected:
-
-  ServiceHandle<ICutFlowSvc> m_cutflowSvc; // for CutFlowSvc 
-  //  StoreGateSvc* m_storeGate;    //cache the StoreGateSvc ptr for efficiency
-  //  StoreGateSvc* m_metaStore;    //cache the StoreGateSvc ptr for efficiency
-  StringProperty m_EvtBookCollName;
-  StringProperty m_InputStreamName;  // input File name
 
 
 private:
