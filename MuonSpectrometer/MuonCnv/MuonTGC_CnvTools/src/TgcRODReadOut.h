@@ -151,6 +151,9 @@ namespace Muon
 
       /** Message stream */
       mutable MsgStream* m_log;
+
+      TgcRODReadOut & operator=(const TgcRODReadOut &right);
+      TgcRODReadOut(const TgcRODReadOut&);
     };   
 
 } // end of namespace 

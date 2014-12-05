@@ -28,6 +28,9 @@ use TGCcablingInterface		TGCcablingInterface-*		MuonSpectrometer/MuonCablings
 use EventPrimitives             EventPrimitives-*               Event
 use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
 
+# Declare the tdaq-common components that are required (only relevant for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
 public
 library MuonTGC_CnvTools *.cxx components/*.cxx
 apply_pattern component_library 
