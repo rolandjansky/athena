@@ -21,16 +21,26 @@ CaloEnergy::CaloEnergy (void)
         m_caloMuonIdTag         (0),
         m_fsrCandidateEnergy    (0),
         m_deposits              (),
-        m_etCore                (0.0)         
+        m_etCore                (0.0),
+	m_deltaE_param           (0.0),
+	m_sigmaMinusDeltaE_param (0.0),
+	m_sigmaPlusDeltaE_param  (0.0),
+	m_deltaE_meas            (0.0),
+	m_sigmaDeltaE_meas       (0.0)
 { m_energyLossType = static_cast<CaloEnergy::EnergyLossType>(0); }
 
 CaloEnergy::CaloEnergy (const Trk::EnergyLoss& eloss)
-   :  EnergyLoss( eloss ),
-        m_caloLRLikelihood      (0),
-        m_caloMuonIdTag         (0),
-        m_fsrCandidateEnergy    (0),
-        m_deposits              (),
-        m_etCore                (0.0)
+  :  EnergyLoss( eloss ),
+     m_caloLRLikelihood      (0),
+     m_caloMuonIdTag         (0),
+     m_fsrCandidateEnergy    (0),
+     m_deposits              (),
+     m_etCore                (0.0),
+     m_deltaE_param           (0.0),
+     m_sigmaMinusDeltaE_param (0.0),
+     m_sigmaPlusDeltaE_param  (0.0),
+     m_deltaE_meas            (0.0),
+     m_sigmaDeltaE_meas       (0.0)
 { m_energyLossType = static_cast<CaloEnergy::EnergyLossType>(0); }
 
 CaloEnergy::CaloEnergy (float   deltaE,
@@ -45,7 +55,12 @@ CaloEnergy::CaloEnergy (float   deltaE,
         m_caloLRLikelihood      (likelihood),
         m_caloMuonIdTag         (tag),
         m_deposits              (),
-        m_etCore                (0.0)         
+        m_etCore                (0.0),
+	m_deltaE_param           (0.0),
+	m_sigmaMinusDeltaE_param (0.0),
+	m_sigmaPlusDeltaE_param  (0.0),
+	m_deltaE_meas            (0.0),
+	m_sigmaDeltaE_meas       (0.0)
 {
 	m_energyLossType = static_cast<CaloEnergy::EnergyLossType>(energyLossType);
         m_fsrCandidateEnergy = 0.0;
@@ -63,7 +78,12 @@ CaloEnergy::CaloEnergy (float   deltaE,
     :   EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),	
         m_caloLRLikelihood      (likelihood),
         m_caloMuonIdTag         (tag),
-        m_etCore                (0.0)  
+        m_etCore                (0.0), 
+	m_deltaE_param           (0.0),
+	m_sigmaMinusDeltaE_param (0.0),
+	m_sigmaPlusDeltaE_param  (0.0),
+	m_deltaE_meas            (0.0),
+	m_sigmaDeltaE_meas       (0.0)
 {
 	m_energyLossType = static_cast<CaloEnergy::EnergyLossType>(energyLossType);
 	m_fsrCandidateEnergy = 0.0;
@@ -78,7 +98,12 @@ CaloEnergy::CaloEnergy (const CaloEnergy& caloEnergy)
         m_caloMuonIdTag         (caloEnergy.m_caloMuonIdTag),
         m_fsrCandidateEnergy    (caloEnergy.m_fsrCandidateEnergy),
         m_deposits              (caloEnergy.m_deposits),
-        m_etCore                (caloEnergy.m_etCore)         
+        m_etCore                (caloEnergy.m_etCore),
+	m_deltaE_param          (caloEnergy.m_deltaE_param),
+	m_sigmaMinusDeltaE_param (caloEnergy.m_sigmaMinusDeltaE_param),
+	m_sigmaPlusDeltaE_param (caloEnergy.m_sigmaPlusDeltaE_param),
+	m_deltaE_meas           (caloEnergy.m_deltaE_meas),
+	m_sigmaDeltaE_meas      (caloEnergy.m_sigmaDeltaE_meas)         
 {}
 
 /** destructor */
@@ -94,6 +119,11 @@ CaloEnergy& CaloEnergy::operator=(const CaloEnergy& rhs) {
      m_fsrCandidateEnergy = rhs.m_fsrCandidateEnergy;
      m_deposits           = rhs.m_deposits; 
      m_etCore             = rhs.m_etCore;
+     m_deltaE_param           = rhs.m_deltaE_param;
+     m_sigmaMinusDeltaE_param = rhs.m_sigmaMinusDeltaE_param;
+     m_sigmaPlusDeltaE_param  = rhs.m_sigmaPlusDeltaE_param;
+     m_deltaE_meas            = rhs.m_deltaE_meas;
+     m_sigmaDeltaE_meas       = rhs.m_sigmaDeltaE_meas;
   }
   return *this;
 }

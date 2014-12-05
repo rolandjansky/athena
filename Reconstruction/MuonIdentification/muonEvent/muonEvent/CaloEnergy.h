@@ -118,6 +118,28 @@ public:
     /** isolation ET in core deltaR */ 
     void set_etCore ( const float etcore ) { m_etCore=etcore; }
 
+    /** set measured energy loss*/
+    void set_measEnergyLoss(const double deltaE, const double sigmaDeltaE) { m_deltaE_meas=deltaE; m_sigmaDeltaE_meas=sigmaDeltaE;}
+
+    /** get measured energy loss*/
+    double deltaEMeas() const { return m_deltaE_meas; }
+    
+    /** get measured energy loss error*/
+    double sigmaDeltaEMeas() const { return m_sigmaDeltaE_meas; }
+    
+    /** set parametrised energy loss*/
+    void set_paramEnergyLoss(const double deltaE, const double sigmaMinusDeltaE, const double sigmaPlusDeltaE) 
+    { m_deltaE_param=deltaE; m_sigmaMinusDeltaE_param=sigmaMinusDeltaE; m_sigmaPlusDeltaE_param=sigmaPlusDeltaE;}
+    
+    /** get parametrised energy loss*/
+    double deltaEParam() const { return m_deltaE_param; }
+    
+    /** get parametrised energy loss minus error*/
+    double sigmaMinusDeltaEParam() const { return m_sigmaMinusDeltaE_param; }
+
+    /** get parametrised energy loss plus error*/
+    double sigmaPlusDeltaEParam() const { return m_sigmaPlusDeltaE_param; }
+    
 private:
 
     EnergyLossType m_energyLossType;
@@ -127,6 +149,12 @@ private:
     std::vector<DepositInCalo> m_deposits; 
     float          m_etCore;  // summed cell ET in core DeltaR 
 
+    double         m_deltaE_param;
+    double         m_sigmaMinusDeltaE_param;
+    double         m_sigmaPlusDeltaE_param;
+    double         m_deltaE_meas;
+    double         m_sigmaDeltaE_meas;
+
 };
 
 inline CaloEnergy::EnergyLossType CaloEnergy::energyLossType (void) const
@@ -134,6 +162,8 @@ inline CaloEnergy::EnergyLossType CaloEnergy::energyLossType (void) const
 
 inline CaloEnergy* CaloEnergy::clone() const
 { return new CaloEnergy(*this); }
+
+
 
 #endif // MUONEVENT_CALOENERGY_H
 
