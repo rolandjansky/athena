@@ -1,0 +1,44 @@
+## automatically generated CMT requirements file
+package METUtilities
+author  Teng Jian Khoo
+
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+
+## for gaudi tools, services and objects
+use GaudiInterface  	GaudiInterface-* 	External
+
+## framework dependencies
+use AsgTools            AsgTools-*              Control/AthToolSupport
+
+## put here your package dependencies...
+use METInterface	METInterface-*		Reconstruction/MET
+use xAODJet             xAODJet-*               Event/xAOD
+
+use xAODTracking        xAODTracking-*          Event/xAOD
+
+private
+use xAODMissingET	xAODMissingET-*		Event/xAOD
+use xAODEgamma          xAODEgamma-*            Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+use xAODTau             xAODTau-*               Event/xAOD
+
+# needed for track momentum errors
+use EventPrimitives	EventPrimitives-*	Event
+
+## Algorithm def
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
+##
+
+public
+branches src src/components doc python share METUtilities Root
+
+private
+library METUtilities *.cxx ../Root/*.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+end_private
