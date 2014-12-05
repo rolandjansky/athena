@@ -73,8 +73,8 @@ namespace jet {
       virtual ~IsolationCalculator() {}
 
       
-      virtual std::string baseName() {return "";}
-      virtual IsolationCalculator * clone(const xAOD::Jet* ){return NULL;}
+      virtual std::string baseName() const {return "";}
+      virtual IsolationCalculator * clone(const xAOD::Jet* ) const {return NULL;}
       virtual void copyFrom( const IsolationCalculator* o, const xAOD::Jet*){
         m_attNames = o->m_attNames;
         m_kinematics = o->m_kinematics;
@@ -165,20 +165,21 @@ namespace jet {
         return result;
       }
       
-      virtual std::string baseName() {return m_iso.name();}
+      virtual std::string baseName() const {return m_iso.name();}
 
       
       
-      virtual IsolationCalculator * clone(const xAOD::Jet* j){
+      virtual IsolationCalculator * clone(const xAOD::Jet* j) const {
         IsolationCalculator* iso;
-        m_iso.setup(j);
         if( j->getInputType() == xAOD::JetInput::EMTopo) {
           auto* isoT = new IsolationCalculatorT<ISOCRITERIA, EMClusterKinematicGetter >();
           isoT->m_iso = m_iso;
+          isoT->m_iso.setup(j);
           iso = isoT;
         } else  {
           auto* isoT= new IsolationCalculatorT();
           isoT->m_iso = m_iso;
+          isoT->m_iso.setup(j);
           isoT->m_kine = m_kine;
           iso = isoT;
         }
@@ -204,7 +205,7 @@ namespace jet {
         return dr2< m_deltaRmax2;
       }
       
-      std::string name(){
+      std::string name() const {
         std::ostringstream oss; oss << m_name << int(10*m_parameter);
         return oss.str();        
       }
@@ -225,7 +226,8 @@ namespace jet {
     /// See below for example
 #define ISOAREA( calcName, deltaRcode , additionalDecl )  struct calcName : public IsolationAreaBase { \
         calcName(double p) : IsolationAreaBase(p, #calcName){}          \
-        virtual void setup(const xAOD::Jet* j){double jetRadius=j->getSizeParameter();  double param = m_parameter; m_deltaRmax2=deltaRcode ; m_deltaRmax2*=m_deltaRmax2; param=jetRadius*param;}  additionalDecl }
+        virtual void setup(const xAOD::Jet* j)  {double jetRadius=j->getSizeParameter();  double param = m_parameter; m_deltaRmax2=deltaRcode ; m_deltaRmax2*=m_deltaRmax2; param=jetRadius*param;}  additionalDecl }
+
 
 
     ISOAREA( IsoKR , jetRadius*param, )  ;
@@ -248,7 +250,6 @@ namespace jet {
       if( n == "IsoFixedCone" ) return new  IsolationCalculatorT<IsoFixedCone>( parameter);      
       if( n == "IsoFixedArea" ) return new  IsolationCalculatorT<IsoFixedArea>( parameter);      
       if( n == "Iso6To8" )      return new  IsolationCalculatorT<Iso6To8>( parameter);
-      //if( n == "IsoCluster" )   return new  IsoCluster(baseDr, parameter);
 
       return NULL;
     }
@@ -363,14 +364,15 @@ int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   ATH_MSG_DEBUG("modify : retrieved map");
 
   // adapt the calculators to these jets (radius, input type, etc...)
+  // Since we're in a const method, we must create a copy of the calculators we own.
   // We use the 1st jet, assuming all others in the container are similar.
   std::vector<IsolationCalculator*> calculators; // the adapted calculators.
-  for( auto * calc : m_isoCalculators ){
-    calculators.push_back( calc->clone( jets[0] ) );
+  for( const IsolationCalculator * calc : m_isoCalculators ){
+    IsolationCalculator * cloned = calc->clone( jets[0] );
+    calculators.push_back( cloned );
   }
 
-
-  /// Loop over jets in this collection.
+  // Loop over jets in this collection.
   for( xAOD::Jet* jet: jets ){
 
     jet::ParticlePosition jetPos(jet);
@@ -391,12 +393,17 @@ int JetIsolationTool::modify(xAOD::JetContainer& jets) const {
     ATH_MSG_DEBUG( " Found nearbyC constit. All : "<< all_nearbyC.size() << "  nearbyC :"<< nearbyC.size() << " in jet "<< jet->numConstituents() << "  total "<< inputMap->size() );
 
     // loop over calculators, calculate isolation given the close-by particles not part of the jet.
-    for( auto * calc : calculators ){
+    for( IsolationCalculator * calc : calculators ){
       calc->setIsolationAttributes( jet, nearbyC );
     }
-
-
+    
   }
+
+  // clear calculators :
+  for( IsolationCalculator * calc : calculators ){
+    delete calc;
+  }
+
   ATH_MSG_DEBUG("done");
   return 0;
 }

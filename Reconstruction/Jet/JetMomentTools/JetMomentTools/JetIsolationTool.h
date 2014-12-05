@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////// 
 /// \class JetIsolationTool
 ///
-/// This JetModifier calculates isolation variables for jets.
+/// Calculate isolation variables for jets and set them as jet attributes.
 ///
 /// The isolation variables are calculated from a list of input particles
 /// which are close to the jet but not part of its constituents.
@@ -30,10 +30,13 @@
 ///  IsolationCalculations = ["IsoKR:11:Perp","IsoKR:11:Par", "IsoFixedCone:10:SumPt",]
 ///
 /// where the strings have the form "ISOCRITERIA:NN:VAR"
-///  - ISOCRITERIA : encode the method used to find isolation particles (IsoKR, IsoDelta, IsoFixedCone, IsoFixedArea, Iso6To8)
+///  - ISOCRITERIA : encode the method used to find isolation particles (IsoKR, IsoDelta, IsoFixedCone, IsoFixedArea, Iso6To8, signification detailed below)
 ///  - NN : encode the value of the main parameter of ISOCRITERIA : the actual parameter used is NN/10. (same convetion as jet radius in JetContainer names)
-///  - VAR : encode the variable to be calculated (Per, Par, SumPt, P)
+///  - VAR : encode the variable to be calculated (Per, Par, SumPt, P, significations detailed below)
 ///
+/// The resulting attribute name is simply the identifier string with ':' removed. 
+/// Example "IsoKR:11:Perp" -> "IsoKR11Perp"
+/// 
 /// The input particles container from which constituents come from must be specified 
 /// in the ConstituentContainer property. This must correspond to an IParticleContainer in the event store.
 /// (longer term : make it possible to pass PseudoJetContainer)
@@ -43,10 +46,23 @@
 ///  - the multiplicity of possible variables
 ///  - the dependency on the calibration state of the constituents
 ///  - the calculation time (looking up the full input container for each jet constituents can be *very* slow)
-/// These are solved at the cost of increased multiplicity (internal helper classes, usage of a special fast lookup map) 
+/// These are solved at the cost of increased complexity (internal helper classes, usage of a special fast lookup map), details in the .cxx file.
 ///
 /// WARNING : currently works well only for LCTopoJets, TrackJets, TruthJets AND small R jets (R ~<0.8)
 ///
+/// 
+/// Isolation Criteria ("param" below is the main parameter) :
+///  - IsoKR    : iso area == cone of size __jetRadius*param__
+///  - IsoDelta : iso area == cone of size __jetRadius+param__
+///  - IsoFixedCone : iso are == cone of size __param__
+///  - IsoFixedArea : iso are == cone of size __sqrt(jetRadius*jetRadius+param/M_PI)__
+///  - Iso6To8 : iso area == annulus between R=0.6 and R=0.8
+///
+/// Isolation Variables (iso4vec = sum of 4-vec in isolation area, not part of jet)
+///  - Perp : iso4Vec.Perp( jetDirection )
+///  - Par  : iso4Vec.Dot( jetDirection )
+///  - SumPt : sum Pt of 4-vec contibuting to iso4Vec
+///  - P : iso4Vec.Vect().Mag()
 ///////////////////////////////////////////////////////////////////////
 
 namespace jet {
@@ -133,6 +149,8 @@ protected:
   float m_deltaRmax;
   std::string m_inputPseudoJets;
 
+  /// the list of isolation calculation object (they are actually used only as template objects
+  ///  from which the actual calculators are build & adapted to the jet object, see implementation)
   std::vector<jet::JetIsolation::IsolationCalculator*> m_isoCalculators;
 
 

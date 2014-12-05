@@ -108,6 +108,7 @@ defaultMoments = {
     'ktDeltaR'     : lambda *l : getsubJetsMomentTool(),
     'isolation'    : lambda *l : getJetIsolationTool("JetIsolation"),
     'jvf'          : lambda jetcollname,*l : getJetVertexAssociationTool(toolName=jetcollname+'JVAtool')    ,
+    'jvt'          : lambda jetcollname,*l : getJetVertexAssociationTool(toolName=jetcollname+'JVAtool')    ,
     'trackMoments' : lambda *l : getJetTracksMomentTool(),
     'truthMF'      : lambda *l : scheduleMFTool("Truth",*l) ,
     'trackMF'      : lambda *l : scheduleMFTool("Track",*l) ,

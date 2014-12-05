@@ -21,8 +21,6 @@
 #include "AsgTools/ToolHandle.h"
 
 
-#include "LArElecCalib/ILArHVCorrTool.h"
-
 class JetLArHVTool: public JetModifierBase {
   ASG_TOOL_CLASS0(JetLArHVTool);
 
@@ -35,13 +33,6 @@ public:
 
  private:
 
-  bool m_useCells;
-  std::string m_channelKey;
-  std::string m_keyHVScaleCorr;
-
-#ifdef ASGTOOL_ATHENA  
-  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
-#endif
 
 };
 

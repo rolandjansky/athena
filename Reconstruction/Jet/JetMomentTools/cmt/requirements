@@ -4,6 +4,8 @@ author P-A Delsart <delsart at in2p3 fr>
 
 private
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+
 use CaloDetDescr        CaloDetDescr-*          Calorimeter
 use CaloEvent           CaloEvent-*             Calorimeter
 use PathResolver        PathResolver-*          Tools
@@ -12,16 +14,20 @@ use AthenaKernel        AthenaKernel-*          Control
 public
 use AtlasPolicy		AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*             External
-use GaudiInterface	GaudiInterface-* 	External
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
+use GaudiInterface	    GaudiInterface-* 	    External
+use AsgTools            AsgTools-*              Control/AthToolSupport
+
 use xAODJet             xAODJet-*               Event/xAOD
+use xAODTracking        xAODTracking-*          Event/xAOD
+
+use CaloIdentifier      CaloIdentifier-*        Calorimeter
+use LArElecCalib        LArElecCalib-*          LArCalorimeter
+
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetRec              JetRec-*                Reconstruction/Jet
 use JetUtils            JetUtils-*              Reconstruction/Jet
 use JetRecTools         JetRecTools-*           Reconstruction/Jet
-use xAODTracking        xAODTracking-*          Event/xAOD
-use AsgTools            AsgTools-*              Control/AthToolSupport
-use LArElecCalib        LArElecCalib-*          LArCalorimeter
+use JetInterface        JetInterface-*          Reconstruction/Jet
 
 library JetMomentTools *.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library
