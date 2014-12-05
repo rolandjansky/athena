@@ -50,6 +50,10 @@ namespace pool {
     /// Default destructor.
     virtual ~CatalogCollectionCursor();
 
+    /// Disable copy ctor, assignment.
+    CatalogCollectionCursor (const CatalogCollectionCursor&) = delete;
+    CatalogCollectionCursor& operator= (const CatalogCollectionCursor&) = delete;
+
     /// Advances the cursor to the next row of the query result set of the current collection.
     virtual bool next();
 

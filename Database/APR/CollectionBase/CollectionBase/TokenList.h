@@ -128,10 +128,13 @@ namespace pool {
        iterator_base( const TokenList* list, size_t idx = 0 ) 
 	     : m_list( list ), m_index( idx ) {}
        iterator_base( const iterator_base& rhs ) { *this = rhs; }
-       iterator_base& operator=( const iterator_base& rhs ) { 
-	  m_index = rhs.m_index;
-	  m_list = rhs.m_list;
-	  return *this; 
+       iterator_base& operator=( const iterator_base& rhs )
+       { 
+         if (this != &rhs) {
+           m_index = rhs.m_index;
+           m_list = rhs.m_list;
+         }
+         return *this; 
        }
        virtual ~iterator_base() {}
 

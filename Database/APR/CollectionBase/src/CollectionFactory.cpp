@@ -20,6 +20,7 @@
 #else
 #include "Reflex/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 #include "PersistencySvc/ISession.h"
 #include "POOLCore/Exception.h"
@@ -66,7 +67,11 @@ pool::CollectionFactory::create_callPlugin( const pool::ICollectionDescription& 
 {
    std::string type( description.type() );
 #ifdef HAVE_GAUDI_PLUGINSVC
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+   ICollection *coll = Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session );
+#else  
    ICollection *coll = Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session );
+#endif
 #else
    ICollection *coll = Reflex::PluginService::CreateWithId<ICollection*>( type, &description, openMode, session );
 #endif
@@ -513,8 +518,8 @@ pool::ICollectionCursor*
 pool::CollectionFactory::getCatalogCollectionCursor( pool::IFileCatalog* collectionCatalog,
                                                      std::string collectionLevelQuery,
                                                      std::string rowLevelQuery,
-                                                     std::vector<std::string>* attribOutputList,
                                                      std::vector<std::string>* tokenOutputList,
+                                                     std::vector<std::string>* attribOutputList,
                                                      int rowCacheSize,
                                                      pool::ISession* session ) const
 {
@@ -522,8 +527,8 @@ pool::CollectionFactory::getCatalogCollectionCursor( pool::IFileCatalog* collect
   return new pool::CatalogCollectionCursor( *collectionCatalog,
                                             collectionLevelQuery,
                                             rowLevelQuery,
-                                            attribOutputList,
                                             tokenOutputList,
+                                            attribOutputList,
                                             rowCacheSize,
                                             session );
 }

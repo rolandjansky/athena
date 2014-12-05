@@ -74,7 +74,7 @@ namespace pool {
      * @param rhs source CollectionDescription object to copy.
      */ 
     CollectionDescription& operator=( const CollectionDescription& rhs )
-    { return operator=( (const ICollectionDescription&) rhs ); }
+    { operator=( (const ICollectionDescription&) rhs ); return *this; }
 
     /**
      * Equality operator.

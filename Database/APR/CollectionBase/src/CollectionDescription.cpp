@@ -15,6 +15,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 pool::CollectionDescription::CollectionDescription( const std::string& name,
@@ -892,7 +893,7 @@ pool::CollectionDescription::dropIndex( const std::vector<std::string>& columnNa
 {
    const std::string& methodName("dropIndex");
   // Check if index already exists for input columns.
-  for ( std::vector< pool::CollectionIndex* >::iterator iIndex = m_indices.begin(); iIndex != m_indices.end(); ++iIndex ) 
+  for ( std::vector< pool::CollectionIndex* >::iterator iIndex = m_indices.begin(); iIndex != m_indices.end();  ) 
   {
     const pool::CollectionIndex& index = **iIndex;
 
@@ -908,7 +909,7 @@ pool::CollectionDescription::dropIndex( const std::vector<std::string>& columnNa
 
       // Drop the index from the collection description.
       delete *iIndex;
-      m_indices.erase( iIndex );
+      iIndex = m_indices.erase( iIndex );
     }
     else
     {
@@ -1049,7 +1050,7 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::string& columnNam
   // Unset unique constraint on column.
   bool constraintFound = false;
   for ( std::vector< pool::CollectionUniqueConstraint* >::iterator iConstraint = 
-        m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end(); ++iConstraint )
+        m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end(); )
   {
     pool::CollectionUniqueConstraint* constraint = *iConstraint;
 
@@ -1058,9 +1059,11 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::string& columnNam
     {
       constraintFound = true;
       delete constraint;
-      m_uniqueConstraints.erase( iConstraint );
+      iConstraint = m_uniqueConstraints.erase( iConstraint );
       column->setIsUnique( false );
     }
+    else
+      ++iConstraint;
   }
 
   // Unique constraint not found.
@@ -1093,7 +1096,7 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::vector< std::stri
   // Find the constraint and drop it and unset uniqueness on columns of constraint.
   bool constraintFound = false;
   for ( std::vector< pool::CollectionUniqueConstraint* >::iterator iConstraint = 
-        m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end(); ++iConstraint ) 
+        m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end(); ) 
   {
     const pool::CollectionUniqueConstraint& constraint = **iConstraint;
 
@@ -1104,13 +1107,15 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::vector< std::stri
     {
       constraintFound = true;
       delete *iConstraint;
-      m_uniqueConstraints.erase( iConstraint );
+      iConstraint = m_uniqueConstraints.erase( iConstraint );
       for ( std::map< std::string, pool::CollectionColumn* >::iterator iColumn = columnForColumnName.begin();
             iColumn != columnForColumnName.end(); iColumn++ )
       {
         iColumn->second->setIsUnique( false );
       }
     }
+    else
+      ++iConstraint;
   }
 
   if ( ! constraintFound )  {
@@ -1230,39 +1235,39 @@ pool::CollectionDescription::dropCollectionFragment( const std::string& fragment
        iColumn != columns.end(); ++iColumn )
   {
     for ( std::vector< pool::CollectionIndex* >::iterator iIndex = m_indices.begin(); 
-          iIndex != m_indices.end(); ++iIndex ) 
+          iIndex != m_indices.end(); ) 
     {
       pool::CollectionIndex* index = *iIndex;
+      bool deleted = false;
       for ( std::vector< std::string >::const_iterator iName = index->columnNames().begin();
             iName != index->columnNames().end(); ++iName )
       {
         if ( *iName == (*iColumn)->name() ) {
           delete index;
-          m_indices.erase( iIndex );
+          iIndex = m_indices.erase( iIndex );
+          deleted = true;
           break;
         }
       }
+      if (!deleted)
+        ++iIndex;
     }
   }
 
   // Drop description objects of all associated unique constraints.
-  for( std::vector< pool::CollectionColumn* >::iterator iColumn = columns.begin(); 
-       iColumn != columns.end(); ++iColumn )
+  for (pool::CollectionColumn* column  : columns)
   {
     for ( std::vector< pool::CollectionUniqueConstraint* >::iterator iConstraint = 
-          m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end(); ++iConstraint ) 
+          m_uniqueConstraints.begin(); iConstraint != m_uniqueConstraints.end();  ) 
     {
       pool::CollectionUniqueConstraint* constraint = *iConstraint;
-      for ( std::vector< std::string >::const_iterator iName = constraint->columnNames().begin();
-            iName != constraint->columnNames().end(); ++iName )
-      {
-        if ( *iName == (*iColumn)->name() ) 
-        {
-          delete constraint;
-          m_uniqueConstraints.erase( iConstraint );
-          break;
-        }
+      std::vector<std::string>& names = constraint->columnNames();
+      if (std::find (names.begin(), names.end(), column->name()) != names.end()) {
+        delete constraint;
+        iConstraint = m_uniqueConstraints.erase( iConstraint );
       }
+      else
+        ++iConstraint;
     }
   }
 
