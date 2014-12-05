@@ -117,8 +117,10 @@ private:
   MapType fMap;
 
   /// Streamer converters.
+#ifndef __CLING__
   typedef std::map<std::string, TMemberStreamer*> SMapType;
   SMapType fSMap;
+#endif
 };
 
 

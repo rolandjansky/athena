@@ -1111,11 +1111,11 @@ void TConvertingBranchElement::ReadLeavesMemberBranchCountConverting(TBuffer& b)
    // ReadSequence doesn't work here, since it gets structure offsets
    // from TConfiguration, and those haven't been adjusted to take
    // into account the use of the temporary conversion objects.
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,1,0)
-   info->ReadBuffer (b, (char**)&fObject, fID);
-#else
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
    // FIXME!
    std::abort();
+#else
+   info->ReadBuffer (b, (char**)&fObject, fID);
 #endif
 }
 
@@ -1325,13 +1325,13 @@ void TConvertingBranchElement::InitializeOffsets()
   TClass* cl_orig = 0;
   if (fConvClass && fID > -1) {
     TStreamerInfo* si = GetInfo();
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,1,0)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+    branchElem = si->GetElem(fID);
+    if (branchElem) {
+#else
     ULong_t* elems = si->GetElems();
     if (elems) {
       branchElem = (TStreamerElement*) elems[fID];
-#else
-    branchElem = si->GetElem(fID);
-    if (branchElem) {
 #endif
       if (branchElem && branchElem->IsBase()) {
         cl_orig = branchElem->GetClassPointer();

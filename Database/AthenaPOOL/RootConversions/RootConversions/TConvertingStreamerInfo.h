@@ -35,9 +35,11 @@
  */
 class TConvertingStreamerInfo
 #ifndef __REFLEX__
+#ifndef __CLING__
   : public TStreamerInfo
-  // Need to hide the base class from reflex so that it doesn't
+  // Need to hide the base class from reflex and cling so that it doesn't
   // insist on generating the ClassDef functions.
+#endif
 #endif
 {
 public:

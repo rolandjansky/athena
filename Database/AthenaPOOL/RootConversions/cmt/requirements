@@ -47,13 +47,13 @@ pattern test_run \
 
 
 # Declare our three tests.
-apply_pattern test_run unit_test=twrite test_library=TestRootConversions1Dict \
-  extrapatterns="Entries :"
-apply_pattern test_run unit_test=tread_noconv test_library=TestRootConversions1Dict
-apply_pattern test_run unit_test=tread test_library=TestRootConversions2Dict
+#apply_pattern test_run unit_test=twrite test_library=TestRootConversions1Dict \
+#  extrapatterns="Entries :"
+#apply_pattern test_run unit_test=tread_noconv test_library=TestRootConversions1Dict
+#apply_pattern test_run unit_test=tread test_library=TestRootConversions2Dict
 
-macro_append tread_noconv_utest_dependencies " twrite_utest "
-macro_append tread_utest_dependencies " tread_noconv_utest "
+#macro_append tread_noconv_utest_dependencies " twrite_utest "
+#macro_append tread_utest_dependencies " tread_noconv_utest "
 
 private
 

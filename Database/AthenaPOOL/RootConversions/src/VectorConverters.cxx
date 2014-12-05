@@ -17,6 +17,10 @@
 #include "RootConversions/VectorConverter.h"
 #include "RootConversions/TConverterRegistry.h"
 
+#ifdef XAOD_ANALYSIS
+#include "TError.h"
+#endif
+
 
 namespace RootConversions {
 
@@ -26,6 +30,10 @@ namespace RootConversions {
  */
 void VectorConverters::initialize()
 {
+#ifdef XAOD_ANALYSIS
+long tmpError = gErrorIgnoreLevel;
+gErrorIgnoreLevel=kError; //silences the warnings about duplicate entries from vector.dll and vector-bool.dll
+#endif
   TConverterRegistry::Instance()->AddStreamerConverter
     ("vector<double>", "vector<float>",
      new RootConversions::VectorConverter<double,float> ("double"));
@@ -59,6 +67,9 @@ void VectorConverters::initialize()
     ("vector<unsigned int>", "vector<ULong64_t>",
      new RootConversions::VectorConverter<unsigned int,ULong64_t>
        ("unsigned int"));
+#ifdef XAOD_ANALYSIS
+gErrorIgnoreLevel=tmpError;
+#endif
 }
 
 
