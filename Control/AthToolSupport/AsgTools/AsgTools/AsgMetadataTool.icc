@@ -1,0 +1,69 @@
+// Dear emacs, this is -*- c++ -*-
+// $Id: AsgMetadataTool.icc 628138 2014-11-13 11:51:41Z krasznaa $
+#ifndef ASGTOOLS_ASGMETADATATOOL_ICC
+#define ASGTOOLS_ASGMETADATATOOL_ICC
+
+#ifdef ASGTOOL_ATHENA
+
+// Athena EDM include(s):
+#include "IOVDbDataModel/IOVMetaDataContainer.h"
+
+namespace asg {
+
+   template< typename T >
+   StatusCode AsgMetadataTool::retrieveMetadata( const std::string& folder,
+                                                 const std::string& key,
+                                                 T& out ) {
+
+      // Retrieve the metadata container:
+      const IOVMetaDataContainer* cont = 0;
+      ATH_CHECK( inputMetaStore()->retrieve( cont, folder ) );
+
+      // Payload is a collection of condattrlistcollections
+      // Only look a the first one, assuming it exists, and within that only
+      // look at the first channel;
+      if( ( cont->payloadContainer()->size() > 0 ) &&
+          ( cont->payloadContainer()->at( 0 )->size() > 0 ) ) {
+
+         // Just try to retrieve the requested key from the attributelist -
+         // we will let it throw the AttributeListException if it fails
+         // If the typeName is std::string, we will try to use the gaudi parsers
+         // to parse it, otherwise we try to do a straight assignment
+         const coral::Attribute& attr =
+            cont->payloadContainer()->at( 0 )->attributeList( cont->payloadContainer()->at( 0 )->chanNum( 0 ) )[ key ];
+         if( attr.specification().typeName() == "string" ) {
+            ATH_CHECK( Gaudi::Parsers::parse( out,
+                                              attr.data< std::string >() ) );
+         } else {
+            // Do a straight conversion, and just hope its ok
+            // (FIXME: should probably do a check of typeid(T) vs typeName)
+            out = attr.data< T >();
+         }
+         // We were apparently successful:
+         return StatusCode::SUCCESS;
+      }
+
+      // We failed...
+      return StatusCode::FAILURE;
+   }
+
+} // namespace asg
+
+#elif defined(ASGTOOL_STANDALONE)
+
+namespace asg {
+
+   template< typename T >
+   StatusCode AsgMetadataTool::retrieveMetadata( const std::string&,
+                                                 const std::string&, T& ) {
+
+      ATH_MSG_WARNING( "retrieveMetadata currently unimplemented outside of "
+                       "athena" );
+      return StatusCode::FAILURE;
+   }
+
+} // namespace asg
+
+#endif // Environment selection
+
+#endif // not ASGTOOLS_ASGMETADATATOOL_ICC

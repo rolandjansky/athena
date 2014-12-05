@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgToolsAthena.h 615228 2014-09-05 10:19:06Z krasznaa $
+// $Id: AsgToolsAthena.h 628154 2014-11-13 12:30:13Z krasznaa $
 /// @file AsgTools/AsgToolsAthena.h
 /// @short File making it clear to checkreq.py that the requirements file is OK
 ///
@@ -9,8 +9,8 @@
 /// to make it clear to checkreq.py that some of the Athena packages do get
 /// used publicly by the code.
 ///
-/// $Revision: 615228 $
-/// $Date: 2014-09-05 12:19:06 +0200 (Fri, 05 Sep 2014) $
+/// $Revision: 628154 $
+/// $Date: 2014-11-13 13:30:13 +0100 (Thu, 13 Nov 2014) $
 ///
 #ifndef ASGTOOLS_ASGTOOLSATHENA_H
 #define ASGTOOLS_ASGTOOLSATHENA_H
@@ -22,5 +22,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SGTools/CLASS_DEF.h"
+#include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #endif // ASGTOOLS_ASGTOOLSATHENA_H

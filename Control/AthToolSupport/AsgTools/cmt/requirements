@@ -1,5 +1,5 @@
 package AsgTools
-# $Id$
+# $Id: requirements 628154 2014-11-13 12:30:13Z krasznaa $
 
 author David Adams
 
@@ -12,8 +12,17 @@ use GaudiInterface   GaudiInterface-*   External
 use AthenaBaseComps  AthenaBaseComps-*  Control
 use SGTools          SGTools-*          Control
 
+use IOVDbDataModel IOVDbDataModel-* Database
+
 # Build a library:
 library AsgTools "../Root/MsgLevel.cxx ../Root/AsgTool.cxx \
                   ../Root/AsgMetadataTool.cxx ../Root/AsgMessaging.cxx \
                   *.cxx"
 apply_pattern installed_library
+
+private
+
+# Generate a dictionary:
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+apply_pattern lcgdict dict=AsgTools selectionfile=selection.xml \
+              headerfiles="../AsgTools/AsgToolsDict.h"

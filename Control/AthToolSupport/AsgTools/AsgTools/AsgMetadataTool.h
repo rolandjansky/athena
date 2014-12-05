@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.h 611950 2014-08-15 08:52:15Z krasznaa $
+// $Id: AsgMetadataTool.h 628138 2014-11-13 11:51:41Z krasznaa $
 #ifndef ASGTOOLS_ASGMETADATATOOL_H
 #define ASGTOOLS_ASGMETADATATOOL_H
 
@@ -41,8 +41,8 @@ namespace asg {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611950 $
-   /// $Date: 2014-08-15 10:52:15 +0200 (Fri, 15 Aug 2014) $
+   /// $Revision: 628138 $
+   /// $Date: 2014-11-13 12:51:41 +0100 (Thu, 13 Nov 2014) $
    ///
    class AsgMetadataTool : public AsgTool,
                            public virtual IIncidentListener {
@@ -83,6 +83,20 @@ namespace asg {
       /// Function initialising the tool in the correct way in Athena
       virtual StatusCode sysInitialize();
 
+
+      /// Helper function to access IOVMetaDataContainer information held in
+      /// the MetaDataStore
+      /// For non athena environments, this will just return StatusCode::FAILURE
+      ///
+      /// Note that having this function here is very bad design. :-( For now
+      /// it's marked as deprecated, but Will needs to put replacement code into
+      /// AthenaBaseComps to replace this...
+      ///
+      template< typename T >
+      StatusCode retrieveMetadata( const std::string& folder,
+                                   const std::string& key,
+                                   T& out ) __attribute__ ((deprecated));
+
    protected:
       /// @name Callback functions helping in metadata reading
       /// @{
@@ -107,5 +121,8 @@ namespace asg {
    }; // class AsgMetadataTool
 
 } // namespace asg
+
+// Include the template implementation(s):
+#include "AsgTools/AsgMetadataTool.icc"
 
 #endif // ASGTOOLS_ASGMETADATATOOL_H

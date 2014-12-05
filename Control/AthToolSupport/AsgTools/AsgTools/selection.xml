@@ -1,0 +1,9 @@
+<!-- $Id: selection.xml 628138 2014-11-13 11:51:41Z krasznaa $ -->
+<lcgdict>
+
+   <!-- The basic tool types: -->
+   <class name="asg::IAsgTool" />
+   <class name="asg::AsgTool" />
+   <class name="asg::AsgMetadataTool" />
+
+</lcgdict>
