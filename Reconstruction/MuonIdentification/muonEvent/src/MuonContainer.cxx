@@ -14,8 +14,13 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 #include "muonEvent/MuonContainer.h"
-#include <iomanip>
-#include <iostream>
+#ifdef HAVE_NEW_IOSTREAMS
+  #include <iomanip>
+  #include <iostream>
+#else
+  #include <iomanip.h>
+  #include <iostream.h>
+#endif
 
 namespace Analysis {
 
