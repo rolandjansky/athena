@@ -9,25 +9,24 @@ use AtlasPolicy              AtlasPolicy-*
 use AthenaBaseComps          AthenaBaseComps-*           Control
 use AtlasROOT                AtlasROOT-*                 External
 use GaudiInterface           GaudiInterface-*            External
-use TrkDetDescrUtils         TrkDetDescrUtils-*          Tracking/TrkDetDescr
-use TrkGeometry              TrkGeometry-*               Tracking/TrkDetDescr
 use GeoPrimitives            GeoPrimitives-*             DetectorDescription
+use TrkDetDescrUtils         TrkDetDescrUtils-*          Tracking/TrkDetDescr
 
 
 #################################################################
 # private use statements
 private
 use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*     Tracking/TrkDetDescr
-use TrkSurfaces              TrkSurfaces-*               Tracking/TrkDetDescr
 use TrkVolumes               TrkVolumes-*                Tracking/TrkDetDescr
-
+use TrkGeometry              TrkGeometry-*               Tracking/TrkDetDescr
+use TrkNeutralParameters     TrkNeutralParameters-*      Tracking/TrkEvent
 
 public
 library TrkDetDescrAlgs *.cxx components/*.cxx
 apply_pattern component_library 
 
 # uncomment this line if you do want to build the memory monitoring lines
-# apply_tag  use_trkdetdescr_memmon
+apply_tag  use_trkdetdescr_memmon
 
 macro_append TrkDetDescrMemMonMacro "-DTRKDETDESCR_MEMUSAGE"
 

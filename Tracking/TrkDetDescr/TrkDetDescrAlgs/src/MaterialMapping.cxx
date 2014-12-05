@@ -8,16 +8,18 @@
 
 // Gaudi Units
 #include "GaudiKernel/SystemOfUnits.h"
-//TrkDetDescrAlgs
+//TrkDetDescr Algs, Interfaces, Utils
 #include "TrkDetDescrAlgs/MaterialMapping.h"
-#include "TrkDetDescrAlgs/LayerMaterialRecord.h"
-// Trk
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/IMaterialMapper.h"
+#include "TrkDetDescrInterfaces/ILayerMaterialCreator.h"
+#include "TrkDetDescrInterfaces/ILayerMaterialAnalyser.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
 #include "TrkDetDescrUtils/BinUtility.h"
-#include "TrkGeometry/EntryLayerProvider.h"
+// TrkGeometry
+#include "TrkGeometry/LayerMaterialRecord.h"
+//#include "TrkGeometry/ElementTable.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MaterialStep.h"
@@ -34,7 +36,6 @@
 #include <unistd.h>
 #endif
 
-
 Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
@@ -42,42 +43,48 @@ Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvc
   m_mappingVolumeName("Atlas"),
   m_mappingVolume(0),
   m_inputMaterialStepCollection("MaterialStepRecords"),
-  m_outputLayerMaterialSetName("AtlasTrackingMaterial"),
   m_etaCutOff(6.0),
+  m_useLayerThickness(false),
   m_associationType(1),
+  m_layerMaterialRecordAnalyser(""),
   m_mapMaterial(true),
-  m_materialMapper("Trk::MaterialMapper/MappingMaterialMapper"),
-  m_materialMappingEvents(0),
-  m_maxMaterialMappingEvents(25000),
+  m_materialMapper(""),
+  m_mapComposition(true),
+  m_minCompositionFraction(0.005),
+  m_elementTable(0),
+  m_inputEventElementTable("ElementTable"),
   m_mapped(0),
   m_unmapped(0),
   m_skippedOutside(0),
-  m_mappedEvents(0),
-  m_maxMappedEvents(-1),
   m_layerMaterialScreenOutput(0)
+#ifdef TRKDETDESCR_MEMUSAGE      
+  ,m_memoryLogger()
+#endif 
 {
     // the name of the TrackingGeometry to be retrieved
     declareProperty("TrackingGeometrySvc"         , m_trackingGeometrySvc);
     declareProperty("MappingVolumeName"           , m_mappingVolumeName);
     // general steering
     declareProperty("EtaCutOff"                   , m_etaCutOff);
+    // for the analysis of the material 
+    declareProperty("LayerMaterialRecordAnalyser" , m_layerMaterialRecordAnalyser);
+    // for the creation of the material 
+    declareProperty("LayerMaterialCreators"       , m_layerMaterialCreators);
+    declareProperty("LayerMaterialAnalysers"      , m_layerMaterialAnalysers);
     // the toolhandle of the MaterialMapper to be used
-    declareProperty("MapMaterial"                  , m_mapMaterial);
-    declareProperty("MaterialMapper"               , m_materialMapper);
-    declareProperty("MaximumMappingEvents"         , m_maxMaterialMappingEvents);
-    // Compression section
-    declareProperty("CompressMaterial"             , m_compressMaterial);
-    declareProperty("CompressMaterialThickness"    , m_compressedMaterialThickness);
-    declareProperty("CompressMaterialBinsX0"       , m_compressedMaterialX0Bins);
-    declareProperty("CompressMaterialBinsZARho"    , m_compressedMaterialZARhoBins);
+    declareProperty("MapMaterial"                 , m_mapMaterial);
+    declareProperty("MaterialMapper"              , m_materialMapper);
+	// Composition related parameters
+    declareProperty("MapComposition"              , m_mapComposition);	
+    declareProperty("MinCompositionFraction"      , m_minCompositionFraction);	
+    // Steer the layer thickness
+    declareProperty("UseActualLayerThicknesss"    , m_useLayerThickness);
     // some job setup
-    declareProperty("MaterialAssociationType"      , m_associationType);
-    declareProperty("InputMaterialStepCollection"  , m_inputMaterialStepCollection);
-    declareProperty("OutputLayerMaterialSetName"   , m_outputLayerMaterialSetName);
-    // Maximum of mapped events
-    declareProperty("MaximumMappedEvents"          , m_maxMappedEvents);
+    declareProperty("MaterialAssociationType"     , m_associationType);
+    declareProperty("InputMaterialStepCollection" , m_inputMaterialStepCollection);
+    declareProperty("InputElementTable"           , m_inputEventElementTable);
     // Output screen stuff
-    declareProperty("MaterialScreenOutputLevel"    , m_layerMaterialScreenOutput);
+    declareProperty("MaterialScreenOutputLevel"   , m_layerMaterialScreenOutput);
     
 }
 
@@ -88,13 +95,22 @@ Trk::MaterialMapping::~MaterialMapping()
 StatusCode Trk::MaterialMapping::initialize()
 {
 
-    ATH_MSG_INFO( "initialize()" );
+    ATH_MSG_INFO("initialize()");
 
     if ( (m_trackingGeometrySvc.retrieve()).isFailure() )
         ATH_MSG_WARNING("Could not retrieve TrackingGeometrySvc");
 
-    if ( (m_materialMapper.retrieve()).isFailure() )
+    if (!m_materialMapper.empty() &&  (m_materialMapper.retrieve()).isFailure() )
         ATH_MSG_WARNING("Could not retrieve MaterialMapper");
+     
+    if ( !m_layerMaterialRecordAnalyser.empty() && m_layerMaterialRecordAnalyser.retrieve().isFailure() )  
+        ATH_MSG_WARNING("Could not retrieve LayerMaterialAnalyser");
+        
+    if ( m_layerMaterialCreators.size() && m_layerMaterialCreators.retrieve().isFailure() )        
+        ATH_MSG_WARNING("Could not retrieve any LayerMaterialCreators");
+
+    if ( m_layerMaterialAnalysers.size() && m_layerMaterialAnalysers.retrieve().isFailure() )        
+        ATH_MSG_WARNING("Could not retrieve any LayerMaterialAnalysers");
         
     return StatusCode::SUCCESS;
 }
@@ -102,122 +118,79 @@ StatusCode Trk::MaterialMapping::initialize()
 
 StatusCode Trk::MaterialMapping::execute()
 {
-    ATH_MSG_VERBOSE( "MaterialMapping execute() start" );
+    ATH_MSG_VERBOSE("MaterialMapping execute() start");
 
     // ------------------------------- get the trackingGeometry at first place
     if (!m_trackingGeometry) {
         StatusCode retrieveCode = retrieveTrackingGeometry();
         if (retrieveCode.isFailure()){
-            ATH_MSG_INFO( "Could not retrieve TrackingGeometry. Exiting." );
+            ATH_MSG_INFO("Could not retrieve TrackingGeometry. Exiting.");
             return retrieveCode;
         }
-    }
+    } 
+    if (m_trackingGeometry)
+        ATH_MSG_VERBOSE("TrackingGeometry sucessfully retrieved");  
 
     // get the material step vector
     const MaterialStepCollection* materialSteps = 0;
-
-    // try this
     StatusCode retrieveCode = evtStore()->retrieve(materialSteps,m_inputMaterialStepCollection);
     if (retrieveCode.isFailure()) {
-
-        ATH_MSG_WARNING( "[!] Could not retrieve the step vector!");
+        ATH_MSG_WARNING("[!] Could not retrieve the step vector!");
         return retrieveCode;
-
-    } else if (m_maxMappedEvents > 0 && m_mappedEvents >= m_maxMappedEvents ) {
-
-        ATH_MSG_VERBOSE( "Maximunm mapped events already reached. Skipping.");
-        return StatusCode::SUCCESS;
-        
     } else {   // successful retrieval
 
-        // average numbers for the weighting
-        int    associatedSteps  = 0 ;
-        double av_eta           = 0.;
-        double av_phi           = 0.;
-
-        double eta              = 0.;
-        double phi              = 0.;
-
-        ATH_MSG_VERBOSE( "[+] Successfully read  " <<  materialSteps->size() << " geantino steps" );
-
-        auto stepIter = materialSteps->begin();
-        auto stepIterEnd = materialSteps->end();
+        const Trk::ElementTable* eTableEvent = 0;
+        if (evtStore()->contains<Trk::ElementTable>(m_inputEventElementTable) && evtStore()->retrieve(eTableEvent,m_inputEventElementTable).isFailure()){
+            ATH_MSG_WARNING("No ElementTable coud be retrieved. Switching composition recording off.");
+        } else if (eTableEvent)
+            (*m_elementTable) += (*eTableEvent);  // accummulate the table 
+        m_mapComposition = eTableEvent ? true : false;
+        
+        ATH_MSG_DEBUG("[+] Successfully read  "<<  materialSteps->size() << " geantino steps");
+        int associatedSteps = 0;
 
         // loop over the hits and associate that to the layers
-        for ( ; stepIter != stepIterEnd; ++stepIter) {
+        for ( auto& step : (*materialSteps) ) {
 
-            double hitX  = (*stepIter)->hitX();
-            double hitY  = (*stepIter)->hitY();
-            double hitZ  = (*stepIter)->hitZ();
-
-            double t     = (*stepIter)->steplength();
-            double x0    = (*stepIter)->x0();
-            double l0    = (*stepIter)->l0();
-            double a     = (*stepIter)->A();
-            double z     = (*stepIter)->Z();
-            double rho   = (*stepIter)->rho();
-            
-            Amg::Vector3D pos(hitX,hitY,hitZ);
-            
-            // skip if outside the mapping volume 
-            if (m_mappingVolume && !m_mappingVolume->inside(pos)){
+            // step length and position
+            double t     = step->steplength();
+            Amg::Vector3D pos(step->hitX(), step->hitY(), step->hitZ());
+            // skip if : 
+            // -- 0) no mapping volume exists
+            // -- 1) outside the mapping volume 
+            // -- 2) outside the eta acceptance
+            if (!m_mappingVolume || !(m_mappingVolume->inside(pos)) || fabs(pos.eta()) > m_etaCutOff ){
                 ++m_skippedOutside;
                 continue;
             }
             
-            // go ahead 
-            eta = pos.eta();
-            phi = pos.phi();
-
             // get the lowest TrackingVolume
             const Trk::TrackingVolume* associatedVolume = m_trackingGeometry->lowestTrackingVolume(pos);
             // add associated volume to volumes map
-            if (!associatedVolume) 
+            if (!associatedVolume) {
+                ATH_MSG_FATAL("No associated TrackingVolume found. Aborting.");
                 return StatusCode::FAILURE;
-
-            // ------ CUT ------ (e.g. dummy/giant steps, non-physical atomic numbers, high eta ...)
-            if (pos.mag() > 1. * Gaudi::Units::mm && t > 10e-10 && t < 10000. && a < 252. && a > 0. && fabs(eta) < m_etaCutOff) {
-                if (associateHit(*associatedVolume, pos,t,x0,l0,a,z,rho)) {
-                    // average over eta, phi, theta
-                    av_eta   += eta;
-                    av_phi   += phi;
-                    ++associatedSteps;
-                }
             }
+            // associate the hit 
+            if (associateHit(*associatedVolume, pos, t, step->fullMaterial()))
+                ++associatedSteps;
+            
         } // end of loop over steps
 
-        ATH_MSG_VERBOSE(" Loop over Material steps done, now finalizing event ...");
+        ATH_MSG_VERBOSE("Loop over Material steps done, now finalizing event ...");
 
         // check whether the event was good for at least one hit
         if (associatedSteps) {
-
-            // at least one step was associated -> thus the event counts
-            ++m_mappedEvents;
-
-            ATH_MSG_VERBOSE(" There are associated steps, need to call finalizeEvent() & record to the MaterialMapper.");
-            // accepted hits
-            av_eta   /= associatedSteps;
-            av_phi   /= associatedSteps;
-
+            ATH_MSG_VERBOSE("There are associated steps, need to call finalizeEvent() & record to the MaterialMapper.");
             // finalize the event   --------------------- Layers ---------------------------------------------
-            auto lIter = m_layerRecords.begin();
-            for ( ; lIter != m_layerRecords.end(); ++lIter) {
-
-                const Trk::Layer* layer = lIter->first;
-                if (!layer) continue;
-
-                Trk::AssociatedMaterial* assMatHit = (lIter->second).finalizeEvent(*layer, m_layerMaterialScreenOutput);
-                if (assMatHit)
-                    m_materialMapper->recordFullLayerHit(*assMatHit);
+            for (auto& lRecord : m_layerRecords ) {
+                // associated material
+                Trk::AssociatedMaterial* assMatHit = lRecord.second.finalizeEvent((*lRecord.first));
+                // record the full layer hit 
+                if (assMatHit && !m_materialMapper.empty()) m_materialMapper->recordLayerHit(*assMatHit, true);
                 delete assMatHit;
-                
                 // call the material mapper finalize method
-                ATH_MSG_VERBOSE( " Calling finalizeEvent on the MaterialMapper ..." );
-                // increase the number
-                ++m_materialMappingEvents;
-                // material mapper 
-                m_materialMapper->finalizeEvent(av_eta,av_phi);
-
+                ATH_MSG_VERBOSE("Calling finalizeEvent on the MaterialMapper ...");
             } 
         } // the event had at least one associated hit
     }
@@ -229,61 +202,31 @@ StatusCode Trk::MaterialMapping::execute()
 bool Trk::MaterialMapping::associateHit( const Trk::TrackingVolume& associatedVolume, 
                                          const Amg::Vector3D& pos,
                                          double stepl,
-                                         double x0,
-                                         double l0,
-                                         double a,
-                                         double z,
-                                         double rho)
-{
-
-   
-   
+                                         const Trk::Material& mat)
+{   
    // get the intersection with the layer
    Amg::Vector3D dir = pos.normalized();
-   const Trk::LayerIntersection lIntersect = associatedVolume.closestMaterialLayer(pos, dir, Trk::mappingMode, true);
-   if (lIntersect.sIntersection.valid){
+   const Trk::LayerIntersection<Amg::Vector3D> lIntersect = associatedVolume.closestMaterialLayer(pos, dir, Trk::mappingMode, true);
+   if (lIntersect.intersection.valid){
        ++m_mapped;
        // try to find the layer material record
-       auto clIter = m_layerRecords.find(lIntersect.layer);
+       auto clIter = m_layerRecords.find(lIntersect.object);              
        if (clIter != m_layerRecords.end() ){
             // record the plain information w/o correction & intersection
-           if (m_mapMaterial)
-               m_materialMapper->recordMaterialHit(Trk::AssociatedMaterial(pos,
-                                                                           stepl,
-                                                                           x0,
-                                                                           l0,
-                                                                           a,
-                                                                           z,
-                                                                           rho,
-                                                                           1.,
-                                                                           &associatedVolume,
-                                                                           lIntersect.layer),
-                                                                           lIntersect.sIntersection.intersection);
+           if (m_mapMaterial && !m_materialMapper.empty())
+               m_materialMapper->recordMaterialHit(Trk::AssociatedMaterial(pos, stepl, mat, 1., &associatedVolume, lIntersect.object), lIntersect.intersection.position);
            // LayerMaterialRecord found, add the hit
-           (*clIter).second.associateGeantinoHit(lIntersect.sIntersection.intersection, stepl, x0, l0, a, z, rho, m_layerMaterialScreenOutput);
-           ATH_MSG_VERBOSE(" - associate Geantino Information ( s/x0 , x0 , l0, a, z, rho ) = " 
-                                << stepl/x0 << ", " << x0 << " , " << l0 << ", " << a << ", " <<  z << ", " << rho );
-           ATH_MSG_VERBOSE(" - to layer with index " << lIntersect.layer->layerIndex().value() << " in '" << associatedVolume.volumeName() << "'.");
+           (*clIter).second.associateGeantinoHit(lIntersect.intersection.position, stepl, mat);
+           ATH_MSG_VERBOSE("- associate Geantino Information at intersection [r/z] = "<< lIntersect.intersection.position.perp() << "/"<< lIntersect.intersection.position.z() );
+           ATH_MSG_VERBOSE("- associate Geantino Information ( s, s/x0 , x0 , l0, a, z, rho ) = "
+                               << stepl << ", "<< stepl/mat.X0 << ", "<< mat.X0 << ", "<< mat.L0 << ", "<< mat.A << ", "<<  mat.Z << ", "<< mat.rho );
+           ATH_MSG_VERBOSE("- to layer with index "<< lIntersect.object->layerIndex().value() << "in '"<< associatedVolume.volumeName() << "'.");
        } else {
            ATH_MSG_WARNING("No Layer found in the associated map! Should not happen.");
            return false;    
        }
-    } else {
-        // unmapped - record for validation
+    } else 
         ++m_unmapped;
-        if (m_mapMaterial)
-               m_materialMapper->recordMaterialHit(Trk::AssociatedMaterial(pos,
-                                                                           stepl,
-                                                                           x0,
-                                                                           l0,
-                                                                           a,
-                                                                           z,
-                                                                           rho,
-                                                                           1.,
-                                                                           &associatedVolume,
-                                                                           0), Amg::Vector3D(0.,0.,0.));
-    
-        }
     // return 
     return true;
 }
@@ -295,60 +238,28 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
 
     if (!propSet) return;
 
-    ATH_MSG_INFO( "Processing TrackingVolume: " << tvol.volumeName() );
+    ATH_MSG_INFO("Processing TrackingVolume: "<< tvol.volumeName() );
 
-    // ----------------------------------- loop over the entry layers ----------------------------
-    const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-    if (entryLayerProvider) {
-        // get the objects in a vector-like format
-        const std::vector<const Trk::Layer*>& elayers = entryLayerProvider->layers();
-        ATH_MSG_INFO( " --> found : " << elayers.size() << " entry Layers" );
-        // iterator
-        auto elayerIter = elayers.begin();
-        // loop over layers
-        for ( ; elayerIter != elayers.end(); ++elayerIter) {
-            // check if the layer has material properties
-            if (*elayerIter) {
-                ATH_MSG_INFO( "   > LayerIndex: " << (**elayerIter).layerIndex() );
-                // set the material!
-                if (propSet) {
-                    // find the pair
-                    auto curIt = propSet->find((**elayerIter).layerIndex());
-                    if (curIt != propSet->end()) {
-                        ATH_MSG_INFO( "LayerMaterial assigned for Layer with index: " << (**elayerIter).layerIndex() );
-                        // set it to the layer
-                        (**elayerIter).assignMaterialProperties(*((*curIt).second), 1.);
-
-                    }
-                }
-            }
-        }
-    }
-    // -------------------------------------- END OF ENTRY LAYER SECTION --------------------------------------
-
-
-    // ----------------------------------- loop over confined layers -----------------------------
+    // ----------------------------------- loop over confined layers ------------------------------------------
     const Trk::BinnedArray< Trk::Layer >* confinedLayers = tvol.confinedLayers();
     if (confinedLayers) {
         // get the objects in a vector-like format
         const std::vector<const Trk::Layer*>& layers = confinedLayers->arrayObjects();
-        ATH_MSG_INFO( " --> found : " << layers.size() << " confined Layers" );
+        ATH_MSG_INFO("--> found : "<< layers.size() << "confined Layers");
         // the iterator over the vector
-        auto layerIter = layers.begin();
         // loop over layers
-        for ( ; layerIter != layers.end(); ++layerIter) {
+        for (auto& layer : layers) {
             // assign the material and output
-            if (*layerIter && (**layerIter).layerIndex().value() ) {
-                ATH_MSG_INFO( "   > LayerIndex: " << (**layerIter).layerIndex() );
+            if (layer && (*layer).layerIndex().value() ) {
+                ATH_MSG_INFO("  > LayerIndex: "<< (*layer).layerIndex() );
                 // set the material!
                 if (propSet) {
                     // find the pair
-                    auto curIt = propSet->find((**layerIter).layerIndex());
+                    auto curIt = propSet->find((*layer).layerIndex());
                     if (curIt != propSet->end()) {
-                        ATH_MSG_INFO( "LayerMaterial assigned for Layer with index: " << (**layerIter).layerIndex() );
+                        ATH_MSG_INFO("LayerMaterial assigned for Layer with index: "<< (*layer).layerIndex() );
                         // set it to the layer
-                        (**layerIter).assignMaterialProperties(*((*curIt).second), 1.);
-
+                        (*layer).assignMaterialProperties(*((*curIt).second), 1.);
                     }
                 }
             }
@@ -360,14 +271,12 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
     if (confinedVolumes) {
         // get the objects in a vector-like format
         const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
-        ATH_MSG_INFO( " --> found : " << volumes.size() << " confined TrackingVolumes" );
-        // the iterator over the vector
-        auto volumeIter = volumes.begin();
+        ATH_MSG_INFO("--> found : "<< volumes.size() << "confined TrackingVolumes");
         // loop over volumes
-        for ( ; volumeIter != volumes.end(); ++volumeIter) {
+        for (auto& volume : volumes) {
             // assing the material and output
-            if (*volumeIter)
-                assignLayerMaterialProperties(**volumeIter, propSet); // call itself recursively
+            if (volume)
+                assignLayerMaterialProperties(*volume, propSet); // call itself recursively
         }
     }
 }
@@ -376,76 +285,101 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
 StatusCode Trk::MaterialMapping::finalize()
 {
 
-    ATH_MSG_INFO( "========================================================================================= " );
-    ATH_MSG_INFO( "finalize() starts ...");
-
-    // record the final map to be written to POOL
-    Trk::LayerMaterialMap* associatedLayerMaterialProperties  = new Trk::LayerMaterialMap();
-
-    ATH_MSG_INFO( m_layerRecords.size() << " LayerMaterialRecords to be finalized for this material mapping run." );
-
+    ATH_MSG_INFO("========================================================================================= ");
+    ATH_MSG_INFO("finalize() starts ...");
+    
+#ifdef TRKDETDESCR_MEMUSAGE       
+    m_memoryLogger.refresh(getpid());
+    ATH_MSG_INFO("[ memory usage ] Start building of material maps: " );    
+    ATH_MSG_INFO( m_memoryLogger );                     
+#endif  
+        
+    // create a dedicated LayerMaterialMap by layerMaterialCreator;
+    std::map< std::string, Trk::LayerMaterialMap* > layerMaterialMaps;
+    for (  auto& lmcIter : m_layerMaterialCreators  ){
+        ATH_MSG_INFO("-> Creating material map '"<< lmcIter->layerMaterialName() << "' from creator "<<  lmcIter.typeAndName() );
+        layerMaterialMaps[lmcIter->layerMaterialName()] = new Trk::LayerMaterialMap(); 
+    }
+    
+    ATH_MSG_INFO( m_layerRecords.size() << "LayerMaterialRecords to be finalized for this material mapping run.");
+    
     // loop over the layers and output the stuff --- fill the associatedLayerMaterialProperties
-    auto lIter = m_layerRecords.begin();
-    for ( ; lIter != m_layerRecords.end(); ++lIter) {
+    for ( auto& lIter :  m_layerRecords ) {
         // Get the key map, the layer & the volume name
-        const Trk::Layer*  layer = (lIter->first);
-        Trk::LayerIndex layerKey = (layer->layerIndex());
+        const Trk::Layer*  layer = lIter.first;
+        Trk::LayerIndex layerKey = layer->layerIndex();
         // get the enclosing tracking volume
         const Trk::TrackingVolume* eVolume = layer->enclosingTrackingVolume();
         // assign the string
-        std::string vName = eVolume ? (eVolume->volumeName()) : "Unknown";
-
-        ATH_MSG_INFO( "Finalize MaterialAssociation for Layer " << layerKey.value() << " in " << eVolume->volumeName() );
+        std::string vName = eVolume ? (eVolume->volumeName()) : " BoundaryCollection ";
+        ATH_MSG_INFO("Finalize MaterialAssociation for Layer "<< layerKey.value() << " in " << vName );
         // normalize - use m_finalizeRunDebug
-        (lIter->second).finalizeRun(m_layerMaterialScreenOutput);
-
-        // the new ones to create
-        Trk::LayerMaterialProperties* layerMaterialProperties = 0;
-        // get the vector of MaterialProperties
-        const Trk::MaterialPropertiesMatrix& recordedLayerMaterialProperties = (lIter->second).associatedLayerMaterial();
-        if (recordedLayerMaterialProperties.size()==1 && recordedLayerMaterialProperties[0].size()==1) {
-            // create homogeneous
-            const Trk::MaterialProperties* singleProperties = (recordedLayerMaterialProperties[0][0]) ?
-                    (recordedLayerMaterialProperties[0][0]) : new Trk::MaterialProperties();
-            layerMaterialProperties = new Trk::HomogeneousLayerMaterial(*singleProperties,1.);
-            delete singleProperties;
-        } else if (recordedLayerMaterialProperties.size()) {
-            // get the BinUtility
-            const Trk::BinUtility& recordLayerMaterialBinUtil = (*(lIter->second).binUtility());
-            // create the new BinnedMaterial
-            Trk::BinnedLayerMaterial* binnedMaterial = new Trk::BinnedLayerMaterial(recordLayerMaterialBinUtil,
-                                                                                    recordedLayerMaterialProperties,
-                                                                                    1.);
-            // the compress option for 2D material - simple gif algorithm
-            if (m_compressMaterial && recordLayerMaterialBinUtil.max(1) > 1) {
-                layerMaterialProperties = compressMaterial(*binnedMaterial);
-                delete binnedMaterial;
-            } else // this is the option for 1D -> don't compress
-                layerMaterialProperties = binnedMaterial;
+        (lIter.second).finalizeRun(m_mapComposition);
+        // output the material to the analyser if registered
+        if (!m_layerMaterialRecordAnalyser.empty() && m_layerMaterialRecordAnalyser->analyseLayerMaterial(*layer, lIter.second).isFailure() )
+            ATH_MSG_WARNING("Could not analyse the LayerMaterialRecord  for layer "<< layerKey.value() );
+        // check if we have analysers per creator
+        bool analyse = (m_layerMaterialCreators.size() == m_layerMaterialAnalysers.size());
+        // and now use the creators to make the maps out of the LayerMaterialRecord
+        size_t ilmc = 0;
+        for ( auto& lmcIter : m_layerMaterialCreators ){
+            // call the creator and register in the according map
+#ifdef TRKDETDESCR_MEMUSAGE       
+            m_memoryLogger.refresh(getpid());
+            ATH_MSG_INFO("[ memory usage ] Before building the map for Layer "<< layerKey.value()  );    
+            ATH_MSG_INFO( m_memoryLogger );                     
+#endif  
+            const Trk::LayerMaterialProperties* lMaterial = lmcIter->createLayerMaterial(*layer, lIter.second);
+#ifdef TRKDETDESCR_MEMUSAGE       
+            m_memoryLogger.refresh(getpid());
+            ATH_MSG_INFO("[ memory usage ] After building the map for Layer "<< layerKey.value()  );    
+            ATH_MSG_INFO( m_memoryLogger );                     
+#endif  
+            if (lMaterial)
+                ATH_MSG_VERBOSE("LayerMaterial map created as "<< *lMaterial );
+            // insert the created map for the given layer
+            (*layerMaterialMaps[lmcIter->layerMaterialName()])[layerKey.value()] = lMaterial;
+            // analyse the it if configured
+            if (analyse && lMaterial && (m_layerMaterialAnalysers[ilmc]->analyseLayerMaterial(*layer, *lMaterial)).isFailure() )
+                ATH_MSG_WARNING("Could not analyse created LayerMaterialProperties for layer "<< layerKey.value() );
+            ++ilmc;
         }
-        // fill them into the map that is written to POOL
-        (*associatedLayerMaterialProperties)[layerKey] =  layerMaterialProperties;
     }
 
-    ATH_MSG_INFO( " LayerMaterialProperties for " << associatedLayerMaterialProperties->size() << " layers recorded." );
-
-    // write output to detector store
-    if ( (detStore()->record(associatedLayerMaterialProperties, m_outputLayerMaterialSetName, false)).isFailure())
-        ATH_MSG_ERROR( "Writing to DetectorStore was not successful!" );
-    else {
-        ATH_MSG_INFO( "LayerMaterialPropertiesMap: " << m_outputLayerMaterialSetName << " written to the DetectorStore!" );
+    ATH_MSG_INFO("Finalize map synchronization and write the maps to the DetectorStore.");
+   
+    for (auto& ilmIter : layerMaterialMaps ){
+      // elementTable handling - if existent
+      if (m_mapComposition){
+          Trk::SharedObject<const Trk::ElementTable> tElementTable(new Trk::ElementTable(*m_elementTable));
+          ilmIter.second->updateElementTable(tElementTable);
+          if (ilmIter.second->elementTable()){
+              ATH_MSG_INFO("ElementTable for LayerMaterialMap '" << ilmIter.first << "' found and syncrhonized." );
+              ATH_MSG_INFO( *(ilmIter.second->elementTable()) );
+          }
+      }
+      // detector store writing        
+      if ( (detStore()->record(ilmIter.second, ilmIter.first, false)).isFailure()){
+          ATH_MSG_ERROR( "Writing of LayerMaterialMap with name '" << ilmIter.first << "' was not successful." );
+          delete ilmIter.second;
+      } else ATH_MSG_INFO( "LayerMaterialMap: " << ilmIter.first << " written to the DetectorStore!" );
     }
+    delete m_elementTable;
+
+#ifdef TRKDETDESCR_MEMUSAGE       
+    m_memoryLogger.refresh(getpid());
+    ATH_MSG_INFO( "[ memory usage ] At the end of the material map creation.");    
+    ATH_MSG_INFO( m_memoryLogger );                     
+#endif  
 
     ATH_MSG_INFO( "========================================================================================= " );
     ATH_MSG_INFO( "    ->  Total mapped hits                  : "  << m_mapped         );
     double unmapped = (m_unmapped+m_mapped) ? double(m_unmapped)/double(m_unmapped+m_mapped) : 0.;
     ATH_MSG_INFO( "    ->  Total (rel.) unmapped hits         : "  << m_unmapped << " (" <<  unmapped << ")" );
-    ATH_MSG_INFO("     ->  Skipped (outisde)                  : "  << m_skippedOutside );
+    ATH_MSG_INFO( "    ->  Skipped (outisde)                  : "  << m_skippedOutside );
     ATH_MSG_INFO( "========================================================================================= " );
     ATH_MSG_INFO( "finalize() successful");
-
     return StatusCode::SUCCESS;
-
 }
 
 
@@ -454,19 +388,28 @@ StatusCode Trk::MaterialMapping::retrieveTrackingGeometry()
 
     // Retrieve the TrackingGeometry from the DetectorStore
     if ((detStore()->retrieve(m_trackingGeometry, m_trackingGeometrySvc->trackingGeometryName())).isFailure()) {
-        ATH_MSG_FATAL( "Could not retrieve TrackingGeometry from DetectorStore!" );
+        ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore!");
         return StatusCode::FAILURE;
     }
+    
     // either get a string volume or the highest one
-
     const Trk::TrackingVolume* trackingVolume = m_trackingGeometry->highestTrackingVolume();
     
     // prepare the mapping volume
     m_mappingVolume = m_trackingGeometry->trackingVolume(m_mappingVolumeName);
     
+    // register the confined layers from the TrackingVolume
     registerVolume(*trackingVolume, 0);
+    
+    ATH_MSG_INFO("Add "<< m_layerRecords.size() << " confined volume layers to mapping setup.");
+    ATH_MSG_INFO("Add "<< m_trackingGeometry->boundaryLayers().size() << " boundary layers to mapping setup.");
+    
+    // register the layers from boundary surfaces
+    auto bLayerIter = m_trackingGeometry->boundaryLayers().begin();
+    for (; bLayerIter != m_trackingGeometry->boundaryLayers().end(); ++bLayerIter)
+        insertLayerMaterialRecord(*bLayerIter->first);
 
-    ATH_MSG_INFO( "Map for " << m_layerRecords.size() << " Layers booked & prepared" );
+    ATH_MSG_INFO("Map for "<< m_layerRecords.size() << " layers booked & prepared for mapping procedure");
 
     return StatusCode::SUCCESS;
 
@@ -478,8 +421,8 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
     int sublevel = lvl+1;
 
     for (int indent=0; indent<sublevel; ++indent)
-        std::cout << "  ";
-    std::cout << "TrackingVolume name: " << tvol.volumeName() << std::endl;
+        std::cout << " ";
+    std::cout << "TrackingVolume name: "<< tvol.volumeName() << std::endl;
 
     // all those to be processed
     std::vector<const Trk::Layer*> volumeLayers;
@@ -490,8 +433,8 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
          // this go ahead with the layers
          const std::vector<const Trk::Layer*>& layers = confinedLayers->arrayObjects();
          for (int indent=0; indent<sublevel; ++indent)
-             std::cout << "  ";
-         std::cout << "- found : " << layers.size() << " confined Layers" << std::endl;
+             std::cout << " ";
+         std::cout << "- found : "<< layers.size() << "confined Layers"<< std::endl;
          // loop over and fill them
          auto clIter  = layers.begin();
          auto clIterE = layers.end();
@@ -503,58 +446,19 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
                 volumeLayers.push_back((*clIter));
         }
     }        
-         
     
-    // collect all entry layers treatment
-    const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-    if (entryLayerProvider) {
-        // -------------------------
-        const std::vector<const Trk::Layer*>& entryLayers = entryLayerProvider->layers();
-        for (int indent=0; indent<sublevel; ++indent)
-            std::cout << "  ";
-        std::cout << "- found : " << entryLayers.size() << " entry Layers" << std::endl;
-        auto elIter  = entryLayers.begin();
-        auto elIterE = entryLayers.end();
-        for ( ; elIter != elIterE; ++elIter ) {
-           const Amg::Vector3D& sReferencePoint = (*elIter)->surfaceRepresentation().globalReferencePoint(); 
-           bool insideMappingVolume = m_mappingVolume ? m_mappingVolume->inside(sReferencePoint) : true;
-           if ((*elIter)->layerMaterialProperties() && insideMappingVolume)
-               volumeLayers.push_back((*elIter));
-        }
-   }
-
    // now create LayerMaterialRecords for all
-   auto lIter  = volumeLayers.begin();
-   auto lIterE = volumeLayers.end();
-   for ( ; lIter != lIterE; ++lIter ){
-           // first occurrance, create a new LayerMaterialRecord
-           // - get the bin utility for the binned material (if necessary)
-           // - get the material first
-           const Trk::LayerMaterialProperties* layerMaterialProperties = (*lIter)->layerMaterialProperties();
-           // - dynamic cast to the BinnedLayerMaterial
-           const Trk::BinnedLayerMaterial* layerBinnedMaterial
-           = dynamic_cast<const Trk::BinnedLayerMaterial*>(layerMaterialProperties);
-           // get the binned array
-           const Trk::BinUtility* layerMaterialBinUtility = (layerBinnedMaterial) ? layerBinnedMaterial->binUtility() : 0;
-           // now fill the layer material record
-           if (layerMaterialBinUtility){
-               // create a new Layer Material record in the map
-               Trk::LayerMaterialRecord  lmr((*lIter)->thickness(),
-                                             layerMaterialBinUtility,
-                                             (Trk::MaterialAssociationType)m_associationType);
-              // and fill it into the map
-              m_layerRecords[(*lIter)] = lmr;                        
-          }
-    }
-
+   for ( auto& lIter : volumeLayers )
+           insertLayerMaterialRecord(*lIter);
+   
     // step dopwn the navigation tree to reach the confined volumes
     const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
     if (confinedVolumes) {
         const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
 
         for (int indent=0; indent<sublevel; ++indent)
-            std::cout << "  ";
-        std::cout << "- found : " << volumes.size() << " confined TrackingVolumes" << std::endl;
+            std::cout << " ";
+        std::cout << "- found : "<< volumes.size() << "confined TrackingVolumes"<< std::endl;
         // loop over the confined volumes
         auto volumesIter = volumes.begin();
         for (; volumesIter != volumes.end(); ++volumesIter)
@@ -565,146 +469,25 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
 
 }
 
-Trk::CompressedLayerMaterial* Trk::MaterialMapping::compressMaterial(const Trk::BinnedLayerMaterial& binnedMaterial) {
-    // get the matrix
-    const Trk::MaterialPropertiesMatrix& materialProperties = binnedMaterial.fullMaterial();
-    // the vector to be created and reserve the maximum
-    Trk::MaterialPropertiesVector materialVector;
-    materialVector.reserve(m_compressedMaterialZARhoBins*m_compressedMaterialX0Bins);
-    // this method creates a compressed representation of the BinnedLayerMaterial
-    const Trk::BinUtility* cbinutil = binnedMaterial.binUtility();
-    // nF x nS
-    size_t nFirstBins  = cbinutil->max(0)+1;
-    size_t nSecondBins = cbinutil->max(1)+1;
-    // low, high boundaries
-    double x0min        = 10e10;
-    double x0max        = 0.;
-    double avZArhoMin   = 10e10;
-    double avZArhoMax   = 0.;
-    // create two maps, the compression map and the index map
-    std::vector< std::vector<unsigned short int> > materialBins;
-    // (1) FIRST LOOP, get boundaries
-    materialBins.reserve(nSecondBins);
-    for (size_t isec = 0; isec < nSecondBins; ++isec) {
-        std::vector<unsigned short int> firstbins(nFirstBins,0);
-        materialBins.push_back(firstbins);
-        // loop over the bins
-        for (size_t ifir = 0; ifir < nFirstBins; ++ifir) {
-            // get the current material properties
-            const Trk::MaterialProperties* matProp = materialProperties[isec][ifir];
-            if (matProp) {
-                double tinX0   = matProp->thicknessInX0();
-                double avZArho = matProp->zOverAtimesRho();
-                x0min = tinX0 < x0min ? tinX0 : x0min;
-                x0max = tinX0 > x0max ? tinX0 : x0max;
-                avZArhoMin = avZArho < avZArhoMin ? avZArho : avZArhoMin;
-                avZArhoMax = avZArho > avZArhoMax ? avZArho : avZArhoMax;
-            }
-        }
-    }
-    // min / max is defined, find step size
-    double stepX0    = (x0max-x0min)/m_compressedMaterialX0Bins;
-    double stepZArho = (avZArhoMax-avZArhoMin)/m_compressedMaterialZARhoBins;
-    // get the material histogram
-    std::vector< std::vector< std::vector< Trk::IndexedMaterial> > > materialHistogram;
-    materialHistogram.reserve(m_compressedMaterialZARhoBins);
-    // prepare the histogram
-    for (size_t izarho = 0; izarho < m_compressedMaterialZARhoBins; ++izarho) {
-        std::vector< std::vector < Trk::IndexedMaterial > > x0materialbins;
-        x0materialbins.reserve(m_compressedMaterialX0Bins);
-        for (size_t ix0 = 0; ix0 < m_compressedMaterialX0Bins; ++ix0) {
-            std::vector < Trk::IndexedMaterial > materialBin;
-            x0materialbins.push_back( materialBin );
-        }
-        materialHistogram.push_back(x0materialbins);
-    }
-    // fill the histogram
-    for (size_t isec = 0; isec < nSecondBins; ++isec) {
-        for (size_t ifir = 0; ifir < nFirstBins; ++ifir) {
-            // get the material properties
-            const Trk::MaterialProperties* matProp = dynamic_cast<const Trk::MaterialProperties*>(materialProperties[isec][ifir]);
-            if (matProp) {
-                // calculate the bins of the material histogram
-                double tinX0   = matProp->thicknessInX0();
-                double avZArho = matProp->zOverAtimesRho();
-                int x0bin    =  int(  (tinX0-x0min)/stepX0 );
-                int zarhobin =  int(  (avZArho-avZArhoMin)/stepZArho );
-                // range protection
-                x0bin    = ( (size_t)x0bin >= m_compressedMaterialX0Bins) ? m_compressedMaterialX0Bins-1 : x0bin;
-                x0bin    = x0bin < 0 ? 0 : x0bin;
-                zarhobin = ( (size_t)zarhobin >= m_compressedMaterialZARhoBins) ? m_compressedMaterialZARhoBins-1 : zarhobin;
-                zarhobin = zarhobin < 0 ? 0 : zarhobin;
-                // create indexed material
-                Trk::IndexedMaterial idxMaterial;
-                idxMaterial.materialProperties = matProp;
-                idxMaterial.firstBin  = ifir;
-                idxMaterial.secondBin = isec;
-                // fill into the material histogram
-                materialHistogram[zarhobin][x0bin].push_back(idxMaterial);
-            }
-        }
-    }
-    // merge the bins and ready
-    materialVector.push_back(0);
-    // prepare the histogram
-    for (size_t izarho = 0; izarho < m_compressedMaterialZARhoBins; ++izarho) {
-        for (size_t ix0 = 0; ix0 < m_compressedMaterialX0Bins; ++ix0) {
-            // get the indexed material properties
-            std::vector< Trk::IndexedMaterial > indexedMaterial = materialHistogram[izarho][ix0];
-            if (indexedMaterial.size()) {
-                double avT          = 0.; // thickness: by default on one layer it should be the same !
-                double tinX0        = 0.;
-                double tinL0        = 0.;
-                double avA          = 0.;
-                double avZ          = 0.;
-                double avRho        = 0.;
-                std::vector< Trk::IndexedMaterial >::iterator idmIter = indexedMaterial.begin();
-                std::vector< Trk::IndexedMaterial >::iterator idmIterEnd = indexedMaterial.end();
-                for ( ; idmIter != idmIterEnd; ++idmIter ) {
-                    tinX0 += (*idmIter).materialProperties->thicknessInX0();
-                    tinL0 += (*idmIter).materialProperties->thicknessInL0();
-                    avA   += (*idmIter).materialProperties->averageA();
-                    avZ   += (*idmIter).materialProperties->averageZ();
-                    avRho += (*idmIter).materialProperties->averageRho();
-                }
-                double measure = 1./(indexedMaterial.size());
-                // average it
-                tinX0 *= measure;
-                tinL0 *= measure;
-                avA   *= measure;
-                avZ   *= measure;
-                avRho *= measure;
-                avT   *= measure;
-                // compress to a model thickness [ rho affected ]
-                avRho *= avT/m_compressedMaterialThickness;
-                materialVector.push_back(new Trk::MaterialProperties(m_compressedMaterialThickness,
-                                                                             m_compressedMaterialThickness/tinX0,
-                                                                             m_compressedMaterialThickness/tinL0,
-                                                                             avA,
-                                                                             avZ,
-                                                                             avRho));
-                // now set the index
-                int matindex = int(materialVector.size()-1);
-                idmIter = indexedMaterial.begin();
-                for ( ; idmIter != idmIterEnd; ++idmIter )
-                    materialBins[(*idmIter).secondBin][(*idmIter).firstBin] = matindex;
-            }
-        }
-    }
 
-    // change the 2bin matrix to a 1bin vector (better for persistency)
-    std::vector<unsigned short int> materialBinsVector;
-    materialBinsVector.reserve( (cbinutil->max(0)+1)*(cbinutil->max(1)+1) );
-    std::vector< std::vector<unsigned short int> >::iterator binVecIter    = materialBins.begin();
-    std::vector< std::vector<unsigned short int> >::iterator binVecIterEnd = materialBins.end();
-    for ( ; binVecIter != binVecIterEnd; ++binVecIter) {
-        std::vector<unsigned short int>::iterator binIter    = (*binVecIter).begin();
-        std::vector<unsigned short int>::iterator binIterEnd = (*binVecIter).end();
-        for ( ; binIter != binIterEnd; ++binIter )
-            materialBinsVector.push_back(*binIter);
-    }
-    // create the compressed material
-    return new Trk::CompressedLayerMaterial(*cbinutil,materialVector,materialBinsVector);
-
+void Trk::MaterialMapping::insertLayerMaterialRecord(const Trk::Layer& lay){
+ // first occurrance, create a new LayerMaterialRecord
+ // - get the bin utility for the binned material (if necessary)
+ // - get the material first
+ const Trk::LayerMaterialProperties* layerMaterialProperties = lay.layerMaterialProperties();
+ // - dynamic cast to the BinnedLayerMaterial
+ const Trk::BinnedLayerMaterial* layerBinnedMaterial
+ = dynamic_cast<const Trk::BinnedLayerMaterial*>(layerMaterialProperties);
+ // get the binned array
+ const Trk::BinUtility* layerMaterialBinUtility = (layerBinnedMaterial) ? layerBinnedMaterial->binUtility() : 0;
+ // now fill the layer material record
+ if (layerMaterialBinUtility){
+     // create a new Layer Material record in the map
+     Trk::LayerMaterialRecord  lmr((m_useLayerThickness ? lay.thickness() : 1.),
+                                   layerMaterialBinUtility,
+                                   (Trk::MaterialAssociationType)m_associationType);
+     // and fill it into the map
+     m_layerRecords[&lay] = lmr;                        
+ }
 }
 

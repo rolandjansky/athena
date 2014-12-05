@@ -20,6 +20,20 @@
 #include <map>
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#ifdef TRKDETDESCR_MEMUSAGE   
+#include "TrkDetDescrUtils/MemoryLogger.h"
+#endif  
+
+#ifndef UCHARCONV
+#define UCHARCONV
+#define ucharbin 0.00392157 // 1./double(1.*UCHAR_MAX)
+// int to unsigned char and vv
+#define uchar2uint(uchar) static_cast<unsigned int>(uchar)
+#define uint2uchar(unint) static_cast<unsigned char>(unint) 
+// double to unsigned char and vv
+#define uchar2dfrac(uchar) double(uchar*ucharbin)
+#define dfrac2uchar(dfrac) lrint(dfrac*UCHAR_MAX)
+#endif
 
 class TTree;
 
@@ -31,18 +45,15 @@ namespace Trk {
     class SurfaceMaterialRecord;
     class LayerMaterialRecord;
     class LayerMaterialMap;
+    class Material;
     class MaterialProperties;
     class BinnedLayerMaterial;
     class CompressedLayerMaterial;
-    class IMaterialMapper;    
+    class ElementTable;
+    class IMaterialMapper;
+    class ILayerMaterialAnalyser;
+    class ILayerMaterialCreator;
     class ITrackingGeometrySvc;
-    
-    struct IndexedMaterial {
-        unsigned short int firstBin;
-        unsigned short int secondBin;
-        const Trk::MaterialProperties* materialProperties;
-    };
-
 
     /** @class MaterialMapping
 
@@ -59,6 +70,7 @@ namespace Trk {
 
     	/** Standard Athena-Algorithm Constructor */
         MaterialMapping(const std::string& name, ISvcLocator* pSvcLocator);
+
         /** Default Destructor */
         ~MaterialMapping();
 
@@ -77,11 +89,7 @@ namespace Trk {
         bool associateHit(const Trk::TrackingVolume& tvol,
                           const Amg::Vector3D& pos,
                           double stepl,
-                          double x0,
-                          double l0,
-                          double a,
-                          double z,
-                          double rho);
+                          const Trk::Material& mat);
 
         /** Output information with Level */
         void registerVolume(const Trk::TrackingVolume& tvol, int lvl);
@@ -89,8 +97,8 @@ namespace Trk {
         //!< private void Method to map the layer material
         void assignLayerMaterialProperties(const Trk::TrackingVolume& tvol, Trk::LayerMaterialMap* propSet);
 
-        //!< private method to compress material
-        Trk::CompressedLayerMaterial* compressMaterial(const Trk::BinnedLayerMaterial& binnedLayerMaterial);
+        //!< create the LayerMaterialRecord */
+        void insertLayerMaterialRecord(const Trk::Layer& lay);
 
         /** Retrieve the TrackingGeometry */
         StatusCode retrieveTrackingGeometry();
@@ -108,33 +116,36 @@ namespace Trk {
                                                              
         /** general steering */                              
         double                                               m_etaCutOff;
+        bool                                                 m_useLayerThickness;             //!< use the actual layer thickness
         int                                                  m_associationType;
+
+        ToolHandle<ILayerMaterialAnalyser>                   m_layerMaterialRecordAnalyser;   //!< the layer material analyser for the layer material record
+        ToolHandleArray<ILayerMaterialAnalyser>              m_layerMaterialAnalysers;        //!< the layer material analysers per creator (if wanted)
+        ToolHandleArray<ILayerMaterialCreator>               m_layerMaterialCreators;         //!< the layer material creators
                                                              
         /** Mapper and Inspector */                          
         bool                                                 m_mapMaterial;
-        ToolHandle<IMaterialMapper>                          m_materialMapper;            //!< Pointer to an IMaterialMapper algTool
-        int                                                  m_materialMappingEvents;     //!< count the number of validation records to avoid 2G files
-        int                                                  m_maxMaterialMappingEvents;  //!< limit the number of validation records to avoid 2G files
-
+        ToolHandle<IMaterialMapper>                          m_materialMapper;                //!< Pointer to an IMaterialMapper algTool
+        bool                                                 m_mapComposition;                //!< map the composition of the material
+        double                                               m_minCompositionFraction;        //!< minimal fraction to be accounted for the composition recording
+        
+        
+        Trk::ElementTable*                                   m_elementTable;                  //!< the accumulated element table
+        std::string                                          m_inputEventElementTable;        //!< input event table
+        
         // the material maps ordered with layer keys
         std::map<const Layer*,  LayerMaterialRecord >        m_layerRecords;
-
-        // compression                      
-        bool                                                 m_compressMaterial;
-        double                                               m_compressedMaterialThickness;
-        size_t                                               m_compressedMaterialX0Bins;
-        size_t                                               m_compressedMaterialZARhoBins;
         
-        // statistics
+        // statistics for steps
         size_t                                               m_mapped;
         size_t                                               m_unmapped;
         size_t                                               m_skippedOutside;
         
-        // break for validation
-        size_t                                               m_mappedEvents;
-        size_t                                               m_maxMappedEvents;
-        
         int                                                  m_layerMaterialScreenOutput;
+        
+#ifdef TRKDETDESCR_MEMUSAGE      
+        MemoryLogger                                         m_memoryLogger;                //!< in case the memory is logged        
+#endif 
         
 
     };

@@ -26,6 +26,7 @@ namespace Trk {
     class IMaterialMapper;
     class TrackingGeometry;
     class TrackingVolume;
+    class Surface;
 
     typedef std::pair<Amg::Vector3D, const Trk::TrackingVolume*> PositionAtBoundary;
 
@@ -33,6 +34,23 @@ namespace Trk {
 
       @author Andreas.Salzburger@cern.ch      
      */
+
+
+    // exit the volume
+    struct VolumeExit {
+        // the triple struct
+        const Trk::TrackingVolume* nVolume;
+        const Trk::Surface*        bSurface;
+        Amg::Vector3D              vExit;
+        
+        VolumeExit( const Trk::TrackingVolume* itv = 0,
+                    const Trk::Surface* ibs = 0,
+                    Amg::Vector3D iexit = Amg::Vector3D(0.,0.,0.)) :
+          nVolume(itv),
+          bSurface(ibs),
+          vExit(iexit){}
+    
+    };
 
     class MaterialValidation : public AthAlgorithm {
 
@@ -70,9 +88,13 @@ namespace Trk {
         int                                                  m_maxMaterialMappingEvents;  //!< limit the number of validation records to avoid 2G files
         
 
-        Rndm::Numbers*                                       m_flatDist;                 //!< Random generator for flat distribution
-        double                                               m_etaMin;
-        double                                               m_etaMax;
+        Rndm::Numbers*                                       m_flatDist;                   //!< Random generator for flat distribution
+        double                                               m_etaMin;                     //!< eta boundary
+        double                                               m_etaMax;                     //!< eta boundary
+        bool                                                 m_runNativeNavigation;        //!< validate the native TG navigation
+        
+        double                                               m_accTinX0;                   //!< accumulated t in X0
+        
 
 
     };
