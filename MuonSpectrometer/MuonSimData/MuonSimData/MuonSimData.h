@@ -87,6 +87,7 @@ private:
     float x;
     float y;
     float z;
+    MuonSimData & operator=(const MuonSimData &right);
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

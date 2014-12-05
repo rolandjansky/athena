@@ -65,6 +65,7 @@ public:
 private:
   int m_word;  
   std::vector<Deposit> m_deposits;
+  CscSimData & operator=(const CscSimData &right);
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
