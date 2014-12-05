@@ -118,14 +118,17 @@ class ParameterDbFiller(object):
             spec.extend(key, cool.StorageType.String64k)
 
         # folder meta-data - note for Athena this has a special meaning
-        desc='<timeStamp>run-event</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>'
+        desc = '<timeStamp>run-event</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>'
         # create the folder - single version
         # last argument is createParents - if true, automatically creates parent
         # folders if needed
         # note this will not work if the database already exists - delete mycool.db first
-        myfolder=db.createFolder(folderPath, spec, desc, cool.FolderVersioning.SINGLE_VERSION,True)
+        # myfolder=db.createFolder(folderPath, spec, desc, cool.FolderVersioning.SINGLE_VERSION,True)
+        folderSpec = cool.FolderSpecification(cool.FolderVersioning.SINGLE_VERSION, spec)
+        myfolder   = db.createFolder(folderPath, folderSpec, desc, True)
+
         # now fill in parameters
-        data=cool.Record(spec)
+        data = cool.Record(spec)
         for k, v in params.iteritems():
             data[k] = v
         for k, v in params64.iteritems():
@@ -159,6 +162,8 @@ class ParameterDbFiller(object):
         folders = db.listAllNodes()
         for ff in folders:
             # Get Folder
+            if (not db.existsFolder(ff)):
+                continue
             try:
                 f = db.getFolder(ff)
                 print "ParameterDbFiller.dumpDb:  Dumping folder " + str(ff)
