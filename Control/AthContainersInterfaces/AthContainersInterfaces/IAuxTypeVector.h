@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAuxTypeVector.h 627925 2014-11-12 16:36:20Z ssnyder $
+// $Id: IAuxTypeVector.h 633937 2014-12-05 09:36:07Z krasznaa $
 /**
  * @file AthContainersInterfaces/IAuxTypeVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +18,7 @@
 
 
 #include <cstddef>
+#include <typeinfo>
 
 
 namespace SG {
