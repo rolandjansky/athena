@@ -2386,12 +2386,10 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                     Idv[3] = p_MdtIdHelper->channelID(Id, 1, ntlay, ntubesl1);
                     _mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
                 }
-                else
-                {
+            }
+            if (_mdt == NULL) {
                     std::cout<<" Skipping element; i = "<<i<<" ----- "<<std::endl;
                     continue;
-                }
-                
             }            
             Amg::Vector3D mdtPos = _mdt->tubePos(Idv[i]);
             std::cout<<p_MdtIdHelper->show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp()<<std::endl;
@@ -3299,7 +3297,7 @@ void MuonGMCheck::testMdtDetectorElementHash()
         else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<" for Id "<<extid<<endreq;
 
         std::string new_extid="";
-        int aux0, aux1, aux2, aux3, aux4, aux5, aux6;
+        int aux0 = 0, aux1 = 0, aux2 = 0, aux3 = 0, aux4 = 0, aux5 = 0, aux6 = 0;
         char _dot[6];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
@@ -3314,7 +3312,13 @@ void MuonGMCheck::testMdtDetectorElementHash()
                 std::ostringstream mdtid_nstr;
                 mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6 ;
                 new_extid = mdtid_nstr.str();
+            } else {
+                log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+                continue;
             }
+        } else {
+            log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+            continue;
         }
         log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
 
