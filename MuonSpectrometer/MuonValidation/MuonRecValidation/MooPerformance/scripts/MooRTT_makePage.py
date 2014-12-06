@@ -47,9 +47,8 @@ class MooRTT_makePage:
       output.write("</h2>")
       
       # output the relevant text files
-      txtFiles = ["MuidStatistics.txt",
-                  "trkPerformance_MuidCBTracksFromMuidStatistics.txt",
-                  "trkPerformance_MuGirlTracksFromMuidStatistics.txt",
+      txtFiles = ["trkPerformance_CombinedMuonTracks.txt",
+                  "trkPerformance_ExtrapolatedMuonTracks.txt",
                   "trkSummary.txt"]
       for fileName in txtFiles:
          strArray = glob.glob(fileName)
@@ -80,14 +79,14 @@ class MooRTT_makePage:
                    "Theta resolution",  "pull Theta",  "SA Theta resolution",  "SA Theta pull",        "CB Theta pull",
                    "MuGirl - combined", "CombinedMuonFit - combined",  "Indet - combined",  "Indet - CombinedMuonFit",   "qOverP ratio"]
       
-      for i in range(len(gifFiles)):
-         # print i
-         path = str(gifFiles[i]).strip('\n') + ".gif"
-         if os.path.isfile(str(path)):
-            # print "File exists at path ",path
-            output.write("<h3>" + str(gifTitle[i]).strip() + "</h3>")
-            line = "<img src=\""+ path + "\">"
-            output.write(line+'\n')
+      #for i in range(len(gifFiles)):
+      #   # print i
+      #   path = str(gifFiles[i]).strip('\n') + ".gif"
+      #   if os.path.isfile(str(path)):
+      #      # print "File exists at path ",path
+      #      output.write("<h3>" + str(gifTitle[i]).strip() + "</h3>")
+      #      line = "<img src=\""+ path + "\">"
+      #      output.write(line+'\n')
 
       output.close()
       return 0

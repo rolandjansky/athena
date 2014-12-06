@@ -50,7 +50,7 @@
       <athena userJobId="SingleMuons-mc12-Pt500GeV">
          <doc>combined muon reconstruction with unified muon chain, standard production</doc>
          <displayName>MooPerformance-mc12-Pt500GeV</displayName>
-         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
+         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=10000</commandLineFlags>
          <options>MooPerformance_topOptions.py</options>
          <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MooPerformance</package>
          <group>MooPerformance-Muid</group>
@@ -81,7 +81,7 @@
       <athena userJobId="SingleMuons-mc12-Pt100GeV">
          <doc>combined muon reconstruction with unified muon chain, standard production</doc>
          <displayName>MooPerformance-mc12-Pt100GeV</displayName>
-         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
+         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=10000</commandLineFlags>
          <options>MooPerformance_topOptions.py</options>
          <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MooPerformance</package>
          <group>MooPerformance-Muid</group>
@@ -174,7 +174,7 @@
       <athena userJobId="SingleMuons-mc12-Pt10GeV">
          <doc>combined muon reconstruction with unified muon chain, standard production</doc>
          <displayName>MooPerformance-mc12-Pt10GeV</displayName>
-         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
+         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=10000</commandLineFlags>
          <options>MooPerformance_topOptions.py</options>
          <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MooPerformance</package>
          <group>MooPerformance-Muid</group>
@@ -204,7 +204,7 @@
 
       <athena userJobId="SingleMuons-mc12-Pt5GeV">
          <displayName>MooPerformance-mc12-Pt5GeV</displayName>
-         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
+         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=10000</commandLineFlags>
          <options>MooPerformance_topOptions.py</options>
          <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MooPerformance</package>
          <group>MooPerformance-Muid</group>
@@ -234,7 +234,7 @@
 
       <athena userJobId="SingleMuons-mc12-Pt3GeV">
          <displayName>MooPerformance-mc12-Pt3GeV</displayName>
-         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
+         <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=10000</commandLineFlags>
          <options>MooPerformance_topOptions.py</options>
          <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MooPerformance</package>
          <group>MooPerformance-Muid</group>
@@ -262,7 +262,7 @@
       <athenaCommonFlags />
       </athena>
 
-         <athena userJobId="SingleMuons-mc12-Pt50GeV-parametrizedCalo">
+<!--          <athena userJobId="SingleMuons-mc12-Pt50GeV-parametrizedCalo">
          <doc>combined muon reconstruction with parametrized calorimeter material</doc>
          <displayName>CombinedMuon-SingleMuons-Pt50GeV-ParamCalo</displayName>
          <commandLineFlags>from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.EvtMax=20000</commandLineFlags>
@@ -353,7 +353,7 @@
 	 <dataset>/eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_5GeV/group.phys-beauty.144581_005688.EXT0._00019.RDO.pool.root</dataset>
 	 <dataset>/eos/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/noPileUp/SingleMu_5GeV/group.phys-beauty.144581_005688.EXT0._00020.RDO.pool.root</dataset>
       <athenaCommonFlags />
-      </athena>
+      </athena> -->
 
       <athena userJobId="CombinedMuon-Jpsi">
          <displayName>CombinedMuon-Jpsi</displayName>
@@ -426,21 +426,21 @@
           <keepFilePattern>*.gif</keepFilePattern>
           <keepFilePattern>./*.gif</keepFilePattern>
           <keepFilePattern>*.log</keepFilePattern>
-          <keepFilePattern>Moore_topOptions.py</keepFilePattern>
+          <keepFilePattern>MooPerformance_topOptions.py</keepFilePattern>
           <auxFilePattern>IterativeGaussFit.C</auxFilePattern>
           <auxFilePattern>MuonPlot.C</auxFilePattern>
           <auxFilePattern>MooRTT_*.py</auxFilePattern>
 <!--           <auxFilePattern>ALL_MooPerformanceResults.html</auxFilePattern> -->
-          <test position="1">
+<!--          <test position="1">
               <modulename>RttLibraryTools</modulename>
               <testname>ROOTMacroRunner</testname>
               <arg>
                   <argname>macro</argname>
                   <argvalue>MuonPlot.C</argvalue>
               </arg>
-          </test>
+          </test> -->
 
-          <test position="2">
+          <test position="1">
               <modulename>MooRTT_makePage</modulename>
               <testname>MooRTT_makePage</testname>
           </test>

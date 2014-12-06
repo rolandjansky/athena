@@ -2,7 +2,7 @@
 # FPE check
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import theApp
-theApp.CreateSvc += ["FPEControlSvc"]
+### !!!!theApp.CreateSvc += ["FPEControlSvc"]
 
 #--------------------------------------------------------------------------------
 # configure required detector flags for combined reco of simulated muons 
@@ -80,20 +80,28 @@ recFlags.doFileMetaData                            = False
 # muon reco flags (non-default values)
 #--------------------------------------------------------------------------------
 
+import MagFieldServices.SetupField
 from MuonRecExample.MuonRecFlags import muonRecFlags
-muonRecFlags.enableErrorTuning                     = False
-muonRecFlags.doTrackPerformance                    = False
 muonRecFlags.doCalibNtuple                         = False
+muonRecFlags.doMSVertex                            = False
+muonRecFlags.doTrackPerformance                    = False
+# muonRecFlags.enableErrorTuning                     = False
+
+print 'muonRecFlags:::'
+print muonRecFlags
 
 #--------------------------------------------------------------------------------
 # combined muon reco flags (non-default values)
 #--------------------------------------------------------------------------------
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-muonCombinedRecFlags.doCaloMuonCollection          = False
+#muonCombinedRecFlags.doCaloMuonCollection          = False
 muonCombinedRecFlags.doMuGirlLowBetaMuonCollection = False
-muonCombinedRecFlags.doMuGirl                      = True
+muonCombinedRecFlags.doMuGirl                      = False
 muonCombinedRecFlags.printConfigurables            = True
+muonCombinedRecFlags.doTrackPerformance            = False
+print 'muonCombinedRecFlags:::'
+print muonCombinedRecFlags
 
 # eliminate annoying messages from StoreGateSvc (clogging up log file)
 ServiceMgr.MessageSvc.setError +=  [ "StoreGateSvc"]
@@ -106,7 +114,7 @@ try:
     ## suppress annoying WARNING (clogging up log file)
     topSequence.BeamBackgroundFiller.Enable        = False
     topSequence.BackgroundWordFiller.Enable        = False
-    ToolSvc.LArCellDeadOTXCorr.OutputLevel         = ERROR
+    # ToolSvc.LArCellDeadOTXCorr.OutputLevel         = ERROR
 
     ## stuff for Thijs
     #MuonReFitTrack.DummyMode = False
@@ -116,14 +124,14 @@ try:
     ServiceMgr += THistSvc()
     ServiceMgr.THistSvc.Output = ["HIST DATAFILE='" + "ntuple.root" + "' OPT='RECREATE'"]
 
-    ## configure MuidStatistics for new unified chain
+    ## configure MuidStatistics for new unified chain (but no longer in release)
     from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
-    from MuidStatistics.MuidStatisticsConf import MuidStatistics
-    MuidStatistics = MuidStatistics()
-    MuidStatistics.HistSvc              = ServiceMgr.THistSvc
-    MuidStatistics.CombinedMuonLocation = MuonCbKeys.FinalMuons() ## "Muons"
-    MuidStatistics.OutputLevel          = DEBUG
-    topSequence += MuidStatistics
+    #from MuidStatistics.MuidStatisticsConf import MuidStatistics
+    #MuidStatistics = MuidStatistics()
+    #MuidStatistics.HistSvc              = ServiceMgr.THistSvc
+    #MuidStatistics.CombinedMuonLocation = MuonCbKeys.FinalMuons() ## "Muons"
+    #MuidStatistics.OutputLevel          = DEBUG
+    #topSequence += MuidStatistics
 
     from MuonTrackPerformance.MuonTrackPerformanceConf import MuonTrackStatisticsTool
     MuonTrackStatisticsTool = MuonTrackStatisticsTool("MuonTrackStatisticsTool")
@@ -136,21 +144,22 @@ try:
     MuonTrackStatistics.doTruth           = False
     MuonTrackStatistics.writeToFile       = True
     MuonTrackStatistics.FileName          = "trkSummary.txt"
-    MuonTrackStatistics.TrackLocationList =  ["MuidCBTracksFromMuidStatistics",
-                                              "MuGirlTracksFromMuidStatistics"]
+    MuonTrackStatistics.TrackLocationList =  ["CombinedMuonTracks",
+                                              "ExtrapolatedMuonTracks"]
     topSequence += MuonTrackStatistics
 
     from MuonTrackPerformance.MuonTrackPerformanceConf import MuonTrackPerformanceAlg
     topSequence += MuonTrackPerformanceAlg("MuidCombinedPerformanceAlg",
-                                           TrackInputLocation = "MuidCBTracksFromMuidStatistics",
-                                           DoTruth      = True,
+                                           TrackInputLocation = "CombinedMuonTracks",
                                            IsCombined   = True )
-    topSequence += MuonTrackPerformanceAlg("MuGirlPerformanceAlg",
-                                           TrackInputLocation = "MuGirlTracksFromMuidStatistics",
-                                           DoTruth      = True,
+    
+    from MuonTrackPerformance.MuonTrackPerformanceConf import MuonTrackPerformanceAlg
+    topSequence += MuonTrackPerformanceAlg("MuidExtrapolatedPerformanceAlg",
+                                           TrackInputLocation = "ExtrapolatedMuonTracks",
                                            IsCombined   = True )
-    #topSequence += MuonTrackPerformanceAlg("MuonCombinedRefitPerformanceAlg",
-    #                                       TrackInputLocation = "Combined_Tracks",
+    # MuGirl off for now
+    #topSequence += MuonTrackPerformanceAlg("MuGirlPerformanceAlg",
+    #                                       TrackInputLocation = "MuGirlTracksFromMuidStatistics",
     #                                       DoTruth      = True,
     #                                       IsCombined   = True )
 
@@ -172,10 +181,10 @@ except:
     # but still exit with error
     import sys
     sys.exit(10)
-else:
+#else:
     # and write config to include user changes after topOptions
-    from AthenaCommon.ConfigurationShelve import saveToAscii
-    saveToAscii("config.txt")
+    #from AthenaCommon.ConfigurationShelve import saveToAscii
+    #saveToAscii("config.txt")
     # add DetFlags
-    from MuonRecExample.MuonRecUtils import dumpDetFlags
-    dumpDetFlags("config.txt")
+    #from MuonRecExample.MuonRecUtils import dumpDetFlags
+    #dumpDetFlags("config.txt")
