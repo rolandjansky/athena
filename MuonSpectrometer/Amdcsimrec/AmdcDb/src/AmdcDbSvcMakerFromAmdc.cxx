@@ -786,7 +786,7 @@ void AmdcDbSvcMakerFromAmdc::DBAM(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   }
   pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-  int DB_MTYP = iDbVal ;
+  int DB_MTYP = iDbVal = iDbVal ;
   for (int DB_Item=1; DB_Item<=DB_MTYP ; DB_Item++){
     DbVar = "NAME" ;
     DbVar = DbVar+"_";
