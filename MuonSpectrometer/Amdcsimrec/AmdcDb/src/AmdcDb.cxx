@@ -20,7 +20,6 @@
 
 //----------------------------------------------------------------//
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
-#include "MboySvcInterfaces/IMboySvc.h"
 
 #include "AmdcDb/AmdcDbSvc.h"
 #include "AmdcDb/AmdcDbRecordset.h"
@@ -30,8 +29,7 @@
 /// Standard Constructor
 AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc):
   AthService(name,svc) ,
-p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name ) ,
-p_IMboySvc ( "MboySvc",name ) 
+p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 {
 
   p_AmdcDbRecordsetEmptyOne = 0 ;
@@ -54,7 +52,6 @@ p_IMboySvc ( "MboySvc",name )
   m_FromRDBEpsAngle    = 6 ;
 
   m_AmdcsimrecAthenaSvcUpdatedSvcDONE = false ;
-  m_MboySvcUpdatedSvcDONE      = false ;
 
   std::string DummyString = "AAAA" ;
   m_TabFromAmdcEpsLengthMM.push_back(DummyString) ; m_TabFromAmdcEpsLengthMM.clear() ;
@@ -100,7 +97,6 @@ p_IMboySvc ( "MboySvc",name )
    
 
   declareProperty("AmdcsimrecAthenaSvc", p_AmdcsimrecAthenaSvc);
-  declareProperty("MboySvc", p_IMboySvc);
   
   p_detStore = 0 ;
 
@@ -181,42 +177,14 @@ StatusCode AmdcDb::initialize() {
 
   }
 
-
-//Retrieve p_IMboySvc and set up call back
-  if ( p_IMboySvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << p_IMboySvc ) ;
-    return StatusCode::FAILURE;
-  } 
-  ATH_MSG_INFO( "Retrieved service " << p_IMboySvc ) ;
-
-  if (p_IMboySvc->InitializedSvc()) {
-    ATH_MSG_INFO( "p_IMboySvc->InitializedSvc() is true " ) ;
-    m_MboySvcUpdatedSvcDONE = true ; 
-
-  }else{
-    ATH_MSG_INFO( "p_IMboySvc->InitializedSvc() is false " ) ;
-
-    sc=regFcnMboySvcUpdatedSvc();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("regFcnMboySvcUpdatedSvc failed" ) ;
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO( "Done: regFcnMboySvcUpdatedSvc " ) ;
-
-  }
-
-
 //Do something now if possible
   if ( m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
     ATH_MSG_INFO( "m_AmdcsimrecAthenaSvcUpdatedSvcDONE found true in initialize " ) ;
-    if ( m_MboySvcUpdatedSvcDONE ){
-      ATH_MSG_INFO( "m_MboySvcUpdatedSvcDONE found true in initialize " ) ;
       StatusCode sc = DoUpdatedSvc() ;
       if ( sc.isFailure() ) {
         ATH_MSG_FATAL( "DoUpdatedSvc failed" ) ; 
         return StatusCode::FAILURE;
       }
-    }
   }
   
   ATH_MSG_INFO( "Initialisation ended     " ) ;
@@ -261,10 +229,6 @@ StatusCode AmdcDb::AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
     ATH_MSG_INFO( "AND p_AmdcsimrecAthenaSvc found usable   " ) ;  
   }
 
-  if ( !(p_IMboySvc->UsableSvc()) ) {
-    ATH_MSG_INFO( "BUT p_IMboySvc NOT usable yet " ) ;  
-    return StatusCode::SUCCESS;
-  }
 
   StatusCode sc = DoUpdatedSvc() ;
   if ( sc.isFailure() ) {
@@ -274,56 +238,6 @@ StatusCode AmdcDb::AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
 
   return StatusCode::SUCCESS;
 
-}
-StatusCode AmdcDb::regFcnMboySvcUpdatedSvc()
-{
-
-  StatusCode sc =p_detStore->regFcn(
-             &IMboySvc::UpdatedSvc,(&*p_IMboySvc),
-             &AmdcDb::MboySvcUpdatedSvc,this,true
-             );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on on AmdcDb::MboySvcUpdatedSvc from IMboySvc::UpdatedSvc " ) ;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO( "Done: Register callback on AmdcDb::MboySvcUpdatedSvc from IMboySvc::UpdatedSvc" ) ;
-  sc = p_detStore->regFcn(
-              &AmdcDb::MboySvcUpdatedSvc,this,
-              &IRDBAccessSvcWithUpdate::UpdatedSvc,dynamic_cast<IRDBAccessSvcWithUpdate*>(this),true
-              );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcDb::UpdatedSvc from AmdcDb::MboySvcUpdatedSvc " ) ;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO( "Done: Register callback on AmdcDb::UpdatedSvc from AmdcDb::MboySvcUpdatedSvc " ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-StatusCode AmdcDb::MboySvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO( "MboySvcUpdatedSvc called     " ) ;  
-
-  if ( !(p_IMboySvc->UsableSvc()) ) {
-    ATH_MSG_INFO( "BUT p_IMboySvc found NOT usable yet  " ) ;  
-    return StatusCode::SUCCESS;
-  }else{
-    m_MboySvcUpdatedSvcDONE = true ;
-    ATH_MSG_INFO( "AND p_IMboySvc found usable   " ) ;  
-  }
-
-  if ( !(p_AmdcsimrecAthenaSvc->UsableSvc()) ) {
-    ATH_MSG_INFO( "BUT p_AmdcsimrecAthenaSvc NOT usable yet " ) ;  
-    return StatusCode::SUCCESS;
-  }
-  
-  StatusCode sc = DoUpdatedSvc() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "DoUpdatedSvc failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
 }
 StatusCode AmdcDb::DoUpdatedSvc()
 {
@@ -362,7 +276,7 @@ StatusCode AmdcDb::DoUpdatedSvc()
   ItemMax =  m_TabFromAmdcEpsAngle.size()    ; for (int Item=0; Item<ItemMax ; Item++) aAmdcDbSvcMakerFromAmdc.SetEpsAngle   ( m_TabFromAmdcEpsAngle[Item]    , m_ValFromAmdcEpsAngle[Item]    ) ; 
   
   
-  aAmdcDbSvcMakerFromAmdc.Set(pAmdcsimrec,(&*p_IMboySvc),p_AmdcDbSvcFromAmdc);
+  aAmdcDbSvcMakerFromAmdc.Set(pAmdcsimrec,p_AmdcDbSvcFromAmdc);
  
 //Set p_AmdcDbSvcFromRDB
   delete p_AmdcDbSvcFromRDB  ;
@@ -376,25 +290,6 @@ StatusCode AmdcDb::DoUpdatedSvc()
   ItemMax =  m_TabFromRDBEpsLengthCM.size() ; for (int Item=0; Item<ItemMax ; Item++) aAmdcDbSvcMakerFromRDB.SetEpsLengthCM( m_TabFromRDBEpsLengthCM[Item] , m_ValFromRDBEpsLengthCM[Item] ) ;
   ItemMax =  m_TabFromRDBEpsAngle.size()    ; for (int Item=0; Item<ItemMax ; Item++) aAmdcDbSvcMakerFromRDB.SetEpsAngle   ( m_TabFromRDBEpsAngle[Item]    , m_ValFromRDBEpsAngle[Item]    ) ; 
 
-//TEST
-  int NbVar;
-  p_IMboySvc->GetAgddXmlVarNb(NbVar);
-  ATH_MSG_INFO( " NbVar " << NbVar 
-      ) ;
-  for (int Ivar= 1; Ivar <NbVar; Ivar++){
-    std::string NameVar ;
-    p_IMboySvc->GetAgddXmlVarName(Ivar,NameVar);
-    ATH_MSG_INFO( " Ivar    " << Ivar 
-        << " NameVar " << NameVar 
-        ) ;
-    int    Iok   ;
-    double Value ;
-    p_IMboySvc->GetAgddXmlVarValue(NameVar,Iok,Value);
-    ATH_MSG_INFO( "   Iok   " << Iok 
-        << "   Value " << Value 
-        ) ;
-  }
-  
   m_IsUsable      = true ;
   
   return StatusCode::SUCCESS;
@@ -456,12 +351,14 @@ IRDBQuery* AmdcDb::getQuery(const std::string& /*node*/     ,
                             const std::string& /*tag*/      ,
                             const std::string& /*tag2node*/ ,
                             const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return 0; }
-IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& /*node*/,
+IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& node,
                                           const std::string& /*tag*/,
                                           const std::string& /*tag2node*/ ,
                                           const std::string& /*connName*/)
 {
-    return IRDBRecordset_ptr();
+    IRDBRecordset* c_ptr = const_cast<IRDBRecordset*>((this)->getRecordset(node,"Amdc"));
+    IRDBRecordset_ptr rec = IRDBRecordset_ptr(c_ptr);
+    return rec;
 }
 RDBTagDetails AmdcDb::getTagDetails(const std::string& /*tag*/,
    	                                    const std::string& /*connName*/ )

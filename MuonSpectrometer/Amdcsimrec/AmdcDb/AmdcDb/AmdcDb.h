@@ -19,7 +19,6 @@ class StoreGateSvc;
 #include "AmdcDb/IRDBAccessSvcWithUpdate.h"
 
 class AmdcsimrecAthenaSvc;
-class IMboySvc;
 
 class AmdcDbSvc;
 class AmdcDbRecordset;
@@ -53,7 +52,6 @@ public:
   virtual StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS);
 
   virtual StatusCode AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode MboySvcUpdatedSvc(IOVSVC_CALLBACK_ARGS);
   
   virtual const IRDBRecordset* getRecordset(const std::string& node,
 					    const std::string& tag,
@@ -132,17 +130,14 @@ private:
    AmdcDbRecordset* p_AmdcDbRecordsetEmptyOne ; //!< Pointer on an empty AmdcDbRecordset
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
-   ServiceHandle<IMboySvc> p_IMboySvc;  //!< Pointer On IMboySvc
 
 //Db Keys
   std::string m_detectorKey  ;
   std::string m_detectorNode ;
 
   virtual StatusCode regFcnAmdcsimrecAthenaSvcUpdatedSvc();
-  virtual StatusCode regFcnMboySvcUpdatedSvc();
   StatusCode DoUpdatedSvc();
   int m_AmdcsimrecAthenaSvcUpdatedSvcDONE ;
-  int m_MboySvcUpdatedSvcDONE ;
 
 };
 

@@ -17,8 +17,6 @@ private
 
 use StoreGate      StoreGate-*         Control
 
-use MboySvcInterfaces     MboySvcInterfaces-*     MuonSpectrometer/Muonboy
-
 use AmdcAth   AmdcAth-*   MuonSpectrometer/Amdcsimrec 
 use AmdcCore  AmdcCore-*  MuonSpectrometer/Amdcsimrec
 

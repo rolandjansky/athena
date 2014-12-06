@@ -10,7 +10,6 @@ class Amdcsimrec;
 class AmdcDbSvc;
 class AmdcDbRecordset;
 class AmdcDbRecord;
-class IMboySvc;
 
   /**
    @class AmdcDbSvcMakerFromAmdc
@@ -37,7 +36,7 @@ public:
    void SetEpsLengthMM(std::string NameOfTheSet, int EpsLengthMM);
    void SetEpsLengthCM(std::string NameOfTheSet, int EpsLengthCM);
    void SetEpsAngle   (std::string NameOfTheSet, int EpsAngle   );
-   void Set(Amdcsimrec* pAmdcsimrec,IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
+   void Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
 
 private:
 ///////////////////////////////////
@@ -83,33 +82,10 @@ private:
    void ASZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void ISZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
 
-   void ABRT(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void AECT(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void ECST(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void FEET(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void GENV(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void JDSH(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void JFSH(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void JTSH(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   void MBAP(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-   
-   void AgddXMLVariables(IMboySvc* pIMboySvc,AmdcDbSvc* pAmdcDbSvc);
-
    void HwSwIdMapping(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    
    void XtomoData(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    
-   void AddXmlDble(
-                   IMboySvc* pIMboySvc,
-                   std::string DbVar,
-                   std::string DbVarComment,
-                   std::string NameVar,
-                   int& Iok, 
-                   AmdcDbRecordset* pAmdcDbRecordset , 
-                   AmdcDbRecord*    pAmdcDbRecord,
-                   int TheEps 
-                  );
-
    std::map< std::string, int> m_Map_Set_EpsLengthMM  ;  
    std::map< std::string, int> m_Map_Set_EpsLengthCM  ;  
    std::map< std::string, int> m_Map_Set_EpsAngle     ;  
