@@ -744,7 +744,7 @@ inline int MuonFixedId::stationStringToFixedStationNumber(const std::string& sta
   // not found
   return -1;
 
-  // old stuff
+/*// old stuff
   if(station == "BIL" ) return 1;
   if(station == "BIS" ) return 2;
   if(station == "BML" ) return 3;
@@ -780,7 +780,7 @@ inline int MuonFixedId::stationStringToFixedStationNumber(const std::string& sta
   if(station == "CSS" ) return 33;
   if(station == "CSL" ) return 34;
   if(station == "XXX" ) return -1;
-  return -1;
+  return -1; */
 }
 
 inline std::string MuonFixedId::stationNumberToFixedStationString(const int station)
@@ -792,7 +792,7 @@ inline std::string MuonFixedId::stationNumberToFixedStationString(const int stat
     return kStationNameStrings[index];
   }
 
-  // old stuff
+/*// old stuff
   if(station ==  1 ) return "BIL" ;
   if(station ==  2 ) return "BIS" ;
   if(station ==  3 ) return "BML" ;
@@ -827,7 +827,7 @@ inline std::string MuonFixedId::stationNumberToFixedStationString(const int stat
   if(station == 32 ) return "T4E" ;
   if(station == 33 ) return "CSS" ;
   if(station == 34 ) return "CSL" ;
-  else return "XXX" ;
+  else return "XXX" ; */
 }
 
 // Mdt specific methods

@@ -32,7 +32,7 @@ std::ostream& MuonFixedId::dump(std::ostream& os) const
 
 const char MuonFixedId::kStationNameStrings[MuonFixedId::kNumberOfStationNames][4] = { 
      // 1      2      3      4      5      6      7      8      9     10     11     12     13
-     "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BOH", "BIM",
+     "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BME", "BIM",
      //14     15      16    17     18     19     20     21     22     23     24
      "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS",
      //25     26     27     28     29     30     31     32     33     34
