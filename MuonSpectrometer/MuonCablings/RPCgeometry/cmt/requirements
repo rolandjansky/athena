@@ -17,6 +17,7 @@ private
 use AtlasCLHEP          AtlasCLHEP-*          External
 use AtlasROOT           AtlasROOT-*           External
 use StoreGate           StoreGate-*           Control
+use AtlasBoost          AtlasBoost-*          External
 
 #use AmdcAth             AmdcAth-*             MuonSpectrometer/Amdcsimrec
 #use RPCcablingInterface RPCcablingInterface-* MuonSpectrometer/MuonCablings

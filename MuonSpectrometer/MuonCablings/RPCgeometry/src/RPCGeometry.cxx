@@ -7,6 +7,7 @@
 //#include <string>             // for strcmp()
 #include <math.h>
 #include <iomanip>
+#include <boost/io/ios_state.hpp>
 
 #include "RPCgeometry/RPCGeometry.h"
 #include "MuonCablingTools/RPCdecoder.h"
@@ -765,6 +766,7 @@ RPCGeometry::dump_pack_id (__osstream *disp,
 			      int station,
 			      int z_index)
 {
+    boost::io::ios_all_saver ias(*disp);
     for(int i=0;i<offset;++i) *disp << " ";
     *disp << "|";
     for(int i=0;i<(width-4)/2;++i) *disp << " ";
@@ -772,6 +774,7 @@ RPCGeometry::dump_pack_id (__osstream *disp,
           << std::setfill('0')<<z_index;
     for(int i=0;i<(width-4)/2;++i) *disp << " ";
     *disp << "|";
+    ias.restore();
 }
 
 
@@ -1586,11 +1589,11 @@ RPCGeometry::add_proj(encodeProj* item)
     encodeProj* tmp = projMap;
     while(tmp)
     {
-    if(tmp->Jobj==item->Jobj && tmp->proj==tmp->proj) {
+    if(tmp->Jobj==item->Jobj && tmp->proj==item->proj) {
         delete item;
     	return;
     }    
-	if(tmp->Jobj==item->Jobj && tmp->proj!=tmp->proj)
+	if(tmp->Jobj==item->Jobj && tmp->proj!=item->proj)
 	{
 	    std::cout << "RPCGeometry ERROR in projMap:" 
 	              << " try to insert Jobj=" << item->Jobj

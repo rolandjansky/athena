@@ -39,7 +39,8 @@ RPCgeometrySvc::RPCgeometrySvc(const std::string& name,ISvcLocator* sl) :
     m_hist_alignCorrOnZ(0),
     m_hist_alignCorrOnMeanX(0),
     m_hist_alignCorrOnMeanY(0),
-    m_hist_alignCorrOnMeanZ(0)
+    m_hist_alignCorrOnMeanZ(0),
+    m_rpcCabling(0)
 {
     declareProperty( "DumpRPCGeometry", m_dump_RPC_geometry=false, 
           "Switch for dumping the chamber geometry on the standard outpu" );
