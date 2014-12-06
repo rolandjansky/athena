@@ -29,7 +29,8 @@ const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 
 // Constructor
 
-MuonIdHelper::MuonIdHelper(): m_Log(NULL) {
+MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
+  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL) {
 
   m_MUON_INDEX           =  0;
   m_GROUP_INDEX           =  6500;

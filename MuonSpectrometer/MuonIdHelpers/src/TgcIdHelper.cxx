@@ -29,7 +29,8 @@ inline void TgcIdHelper::create_mlog() const
 
 // Constructor/Destructor
 
-TgcIdHelper::TgcIdHelper() : MuonIdHelper() {}
+TgcIdHelper::TgcIdHelper() : MuonIdHelper(), m_GASGAP_INDEX(0),
+  m_ISSTRIP_INDEX(0) {}
 
 // Destructor
 

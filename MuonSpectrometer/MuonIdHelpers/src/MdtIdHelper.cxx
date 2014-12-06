@@ -29,7 +29,7 @@ inline void MdtIdHelper::create_mlog() const
 
 /// Constructor
 
-MdtIdHelper::MdtIdHelper() : MuonIdHelper() {}
+MdtIdHelper::MdtIdHelper() : MuonIdHelper(), m_TUBELAYER_INDEX(0) {}
 
 /// Destructor
 

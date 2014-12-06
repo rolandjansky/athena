@@ -30,7 +30,8 @@ inline void CscIdHelper::create_mlog() const
 
 /// Constructor/Destructor
 
-CscIdHelper::CscIdHelper() : MuonIdHelper(), m_etaStripMax(0), m_phiStripMax(0) {}
+CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
+  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0) {}
 
 /// Destructor
 

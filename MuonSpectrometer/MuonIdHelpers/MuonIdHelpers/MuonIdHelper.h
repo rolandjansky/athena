@@ -320,6 +320,7 @@ class MuonIdHelper : public AtlasDetectorID
 
   //Copy construcor - do not use!
   inline MuonIdHelper(const MuonIdHelper & other) : AtlasDetectorID(other) {}
+  inline MuonIdHelper & operator=(const MuonIdHelper &right);
 
   // vectors for stationNames and technologies
 
