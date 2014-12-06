@@ -7,6 +7,9 @@
 /*modified 27/5/2008 changes in PLC methods ==> adding the methods for the new class TilaLaser PLC*/
 /*renato.febbraro@cern.ch*/
 
+/*modified 23/08/2014 to accommodate LASERII system*/
+/*Marco van Woerden <mvanwoer@cern.ch>*/
+
 #ifndef TILELASEROBJECT_H
 #define TILELASEROBJECT_H
 
@@ -18,30 +21,40 @@
 #include "TileEvent/TileLaserDiode.h"
 #include "TileEvent/TileLaserPmt.h"
 #include "TileEvent/TileLaserPLC.h"
+#include "TileEvent/TileLasCalib.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
 
 
 /*static const CLID CLID_TileLaser = 2940;*/
 
- class TileLaserObject{
-
- public:
-
+class TileLaserObject{
+  
+public:
+  
   TileLaserObject();
   
-/*   static const CLID& classID() {return CLID_TileLaser;} */
-/*   virtual const CLID& classID() {return CLID_TileLaser;} */
+  /*   static const CLID& classID() {return CLID_TileLaser;} */
+  /*   virtual const CLID& classID() {return CLID_TileLaser;} */
   ~TileLaserObject() {}
   
-  static const unsigned int nbDiodes;
-  static const unsigned int nbPmts;
-
+  /** @brief max size of diode and pmt vectors  */
+  enum MAX_SIZE {
+    nbGains=2,     // LG/HG
+    nbPmts=2,      // LASERI/LASERII MONITORING PMTS
+    nbDiodes=14,   // LASERII MONITORING DIODES
+    nbTypes=4,     // LASERII CALIBRATION TYPES
+    firstType=0    // LASERII VALUE OF FIRST CALIBRATION TYPE
+  };
+  
+  int getVersion() const;
+  bool isLASERII() const;
+  
   int getCounter() const;
   double getDiodeCurrOrd() const;
   double getDiodeCurrMeas() const;
   int getFiltNumber() const;
-
+  
   double getPumpDiodeTemp() const;
   int getTimeLastMeasP() const;
   double getDiodeBoxTemp() const;
@@ -53,77 +66,102 @@
   time_t getLastPedMeas() const;
   time_t getLastAlphaMeas() const;
   
-  int getDiodeADC( const unsigned int i) const;
-  double getDiodePedestal(const unsigned int i) const;
-  double getDiodeSigmaPedestal(const unsigned int i) const;
-  double getAlpha(const unsigned int i) const;
-  double getSigmaAlpha(const unsigned int i) const;
-  double getPedestalAlpha(const unsigned int i) const;
-  double getSigmaPedAlpha(const unsigned int i) const;
-
-  int getPMADC(const unsigned int j) const; 
-  int getTDC(const unsigned int j) const;
-  double getPMPedestal(const unsigned int j) const;
-  double getPMSigmaPedestal(const unsigned int j) const;
-
-  int getBCID() const; 
-  void setBCID(const int BCID);  
-
+  double getMean(int chan, int gain, int type) const;
+  double getSigma(int chan, int gain, int type) const;
+  int getN(int chan, int gain, int type) const;
+  int getType(int chan, int gain, int type) const;
+  bool isSet(int chan, int gain, int type) const;
+  void setCalib(int chan, int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain);
+  int getDaqType() const;
+  
+  int getDiodeADC( const unsigned int i, const unsigned int gain=0 ) const;
+  double getDiodePedestal(const unsigned int i, const unsigned int gain=0 ) const;
+  double getDiodeSigmaPedestal(const unsigned int i, const unsigned int gain=0 ) const;
+  double getAlpha(const unsigned int i, const unsigned int gain=0 ) const;
+  double getSigmaAlpha(const unsigned int i, const unsigned int gain=0 ) const;
+  double getPedestalAlpha(const unsigned int i, const unsigned int gain=0 ) const;
+  double getSigmaPedAlpha(const unsigned int i, const unsigned int gain=0 ) const;
+  
+  int getPMADC(const unsigned int j, const unsigned int gain=0 ) const;
+  int getTDC(const unsigned int j, const unsigned int gain=0 ) const;
+  double getPMPedestal(const unsigned int j, const unsigned int gain=0 ) const;
+  double getPMSigmaPedestal(const unsigned int j, const unsigned int gain=0 ) const;
+  
+  int getBCID() const;
+  void setBCID(const int BCID);
+  
   int getAlphaPos() const;
   double getLVdiodes() const;
   double getHVpmts() const;
   int getShutter() const;
   int getInterlock() const;
   int getAlarm() const;
-
+  
   void setLaser(const int Counter,
-		const int diodeCurrOrd, 
-		const int diodeCurrMeas, 
-		const int filtNumber,
-		const int SlamaDelay);
-
-  void setControl(const double pumpDiodeTemp, 
-                  const int timeLastMeasP, 
-                  const double diodeBoxTemp, 
-		  const int timeLastMeasD,
-                  const double gasFlux, 
-		  const int timeLastMeasG,
-                  const double humidity, 
-		  const int timeLastMeasH,
-		  const time_t lastPedMeas,
-		  const time_t lastAlphaMeas);
-
-  void setDiode(const unsigned int diode, 
-                const int diodeAdc, 
-                const double diodePedestal, 
-                const double diodeSigmaPedestal, 
-                const double alpha, 
+                const int diodeCurrOrd,
+                const int diodeCurrMeas,
+                const int filtNumber,
+                const int timingDelay,
+                const int version);
+  
+  void setControl(const double pumpDiodeTemp,
+                  const int timeLastMeasP,
+                  const double diodeBoxTemp,
+                  const int timeLastMeasD,
+                  const double gasFlux,
+                  const int timeLastMeasG,
+                  const double humidity,
+                  const int timeLastMeasH,
+                  const time_t lastPedMeas,
+                  const time_t lastAlphaMeas);
+  
+  void setDiode(const unsigned int diode,
+                const int diodeAdc,
+                const double diodePedestal,
+                const double diodeSigmaPedestal,
+                const double alpha,
                 const double sigmaAlpha,
-                const double pedestalAlpha, 
-                const double sigmaPedAlpha);
-
+                const double pedestalAlpha,
+                const double sigmaPedAlpha,
+                const unsigned int gain);
+  
   void setPmt(const unsigned int pmt,
-	      const int pmAdc, 
-	      const int tdc, 
-	      const double pmPedestal, 
-	      const double pmSigmaPedestal);
-	      
+              const int pmAdc,
+              const int tdc,
+              const double pmPedestal,
+              const double pmSigmaPedestal,
+              const unsigned int gain);
+  
   void setPLC(const int alphaPos,
-	      const double LVdiodes,
-	      const double HVpmts,
-	      const int shutter,
-	      const int interlock,
-	      const int alarm);
-
- private:
-
+              const double LVdiodes,
+              const double HVpmts,
+              const int shutter,
+              const int interlock,
+              const int alarm);
+  
+  // DAQ TYPES ARE RELEVANT FOR LASERII
+  // DAQ TYPE   HEX   DEC
+  // Pedestal   0x10  16
+  // Alpha      0x11  17
+  // Led        0x12  18
+  // Linearity  0x13  19
+  // Laser      0x14  20
+  void setDaqType(const unsigned int daqtype);
+  
+private:
+  
   TileLaser::TileLaserControl m_slowCtrl;
   TileLaser::TileLaser m_laserParameter;
-  std::vector<TileLaser::TileLaserDiode> m_diodes; 
-  std::vector<TileLaser::TileLaserPmt> m_pmts;
+  std::vector<TileLaser::TileLaserDiode> m_diodesLG;
+  std::vector<TileLaser::TileLaserDiode> m_diodesHG;
+  std::vector<TileLaser::TileLaserPmt> m_pmtsLG;
+  std::vector<TileLaser::TileLaserPmt> m_pmtsHG;
+  std::vector<TileLaser::TileLasCalib> m_lascalib;
   TileLaser::TileLaserPLC m_plc;
-
+  
+  int m_daqtype;
   int m_BCID;
+  int m_version;
 };
 
 CLASS_DEF(TileLaserObject, 2940, 0)
@@ -131,6 +169,16 @@ CLASS_DEF(TileLaserObject, 2940, 0)
 inline int TileLaserObject::getCounter() const
 {
   return m_laserParameter.getCounter();
+}
+
+inline int TileLaserObject::getVersion() const
+{
+  return m_version;
+}
+
+inline bool TileLaserObject::isLASERII() const
+{
+  return (m_version==2);
 }
 
 inline double TileLaserObject::getDiodeCurrOrd() const
@@ -226,6 +274,11 @@ inline int TileLaserObject::getInterlock() const
 inline int TileLaserObject::getAlarm() const
 {
   return m_plc.getAlarm();
+}
+
+inline int TileLaserObject::getDaqType() const
+{
+  return m_daqtype;
 }
 
 inline void TileLaserObject::setBCID(const int BCID)

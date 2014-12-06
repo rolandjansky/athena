@@ -145,6 +145,8 @@ public:
   virtual void scaleEnergy(float scale);
   /** @brief set energy and gain for one PMT */
   virtual void addEnergy(float e, int pmt, int gain);
+  /** @brief set the same gain for two PMTs and set energy diff to zero */
+  void setEqual_nonvirt(int gain);
 
   /** @brief set cell time, reset timeDiff */
   virtual void setTime(float t);
@@ -253,6 +255,12 @@ inline
 void TileCell::setQuality_nonvirt(unsigned char qual, unsigned char qbit, int pmt) {
   m_tileQual[0+pmt] = qual;
   m_tileQual[2+pmt] = qbit;
+}
+
+inline
+void TileCell::setEqual_nonvirt(int gain) {
+   m_eneDiff = 0;
+   m_gain = (CaloGain::CaloGain) ( 0xFFFFFFF0 | (gain << 2) | (gain & 3) );
 }
 
 #endif  // TILEEVENT_TILECELL_H

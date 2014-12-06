@@ -26,7 +26,7 @@ class TileLaserDiode {
   double getAlpha() const              { return m_alpha; }
   double getSigmaAlpha() const         { return m_sigmaAlpha; }        
   double getPedestalAlpha() const      { return m_pedestalAlpha; }     
-  double getSigmaPedAlpha() const      { return m_sigmaAlpha; }        
+  double getSigmaPedAlpha() const      { return m_sigmaPedAlpha; }        
 
 
   void setDiode(const int diodeAdc, 

@@ -7,120 +7,221 @@
 /*modified 27/5/2008 adding methods for PLC*/
 /*renato.febbraro@cern.ch*/
 
+/*modified 23/08/2014 to accommodate LASERII system*/
+/*Marco van Woerden <mvanwoer@cern.ch>*/
+
 #include "TileEvent/TileLaserObject.h"
 
 using namespace TileLaser;
 
-const unsigned int TileLaserObject::nbDiodes=4;
-const unsigned int TileLaserObject::nbPmts=2;
-
-
 TileLaserObject::TileLaserObject() :
-  m_slowCtrl(),
-  m_laserParameter(),
-  m_diodes(nbDiodes,TileLaserDiode()),
-  m_pmts(nbPmts,TileLaserPmt()),
-  m_plc(),
-  m_BCID(0)
+m_slowCtrl(),
+m_laserParameter(),
+m_diodesLG(nbDiodes,TileLaserDiode()),
+m_diodesHG(nbDiodes,TileLaserDiode()),
+m_pmtsLG(nbPmts,TileLaserPmt()),
+m_pmtsHG(nbPmts,TileLaserPmt()),
+m_lascalib(nbDiodes+nbPmts,TileLasCalib()),
+m_plc(),
+m_BCID(0),
+m_version(0)
 {
-}
+} // TileLaserObject::TileLaserObject
 
-int TileLaserObject::getDiodeADC(const unsigned int i) const
+double TileLaserObject::getMean(int chan, int gain, int type) const{
+  if(type-firstType<0 || type-firstType>=nbTypes) return -1.;
+  if(chan<0 || chan>=nbDiodes+nbPmts) return -1.;
+  if(gain!=0 && gain!=1) return -1.;
+  if(m_lascalib[chan].getType() == type) return m_lascalib[chan].getMean(gain);
+  return -99.;
+} // getMean
+
+double TileLaserObject::getSigma(int chan, int gain, int type) const{
+  if(type-firstType<0 || type-firstType>=nbTypes) return -1.;
+  if(chan<0 || chan>=nbDiodes+nbPmts) return -1.;
+  if(gain!=0 && gain!=1) return -1.;
+  if(m_lascalib[chan].getType() == type) return m_lascalib[chan].getSigma(gain);
+  return -99.;
+} // getSigma
+
+int TileLaserObject::getType(int chan, int gain, int type) const{
+  if(type-firstType<0 || type-firstType>=nbTypes) return -1;
+  if(chan<0 || chan>=nbDiodes+nbPmts) return -1;
+  if(gain!=0 && gain!=1) return -1;
+  return m_lascalib[chan].getType();
+} // getMean
+
+int TileLaserObject::getN(int chan, int gain, int type) const{
+  if(type-firstType<0 || type-firstType>=nbTypes) return -1;
+  if(chan<0 || chan>=nbDiodes+nbPmts) return -1;
+  if(gain!=0 && gain!=1) return -1;
+  return m_lascalib[chan].getN();
+} // getN
+
+bool TileLaserObject::isSet(int chan, int gain, int type) const{
+  if(type-firstType<0 || type-firstType>=nbTypes) return false;
+  if(chan<0 || chan>=nbDiodes+nbPmts) return false;
+  if(gain!=0 && gain!=1) return false;
+  return m_lascalib[chan].isSet(gain);
+} // getSigma
+
+void TileLaserObject::setCalib(int chan, int type, double sumXinQDC, double sumX2inQDC, int nevts, int gain){
+  if(!m_lascalib[chan].isSet(gain)){
+    m_lascalib[chan].setCalib(type,sumXinQDC,sumX2inQDC,nevts,gain);
+  } // IF
+} // setCalib
+
+int TileLaserObject::getDiodeADC(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-    return m_diodes[i].getDiodeADC();
+    if(gain==0){
+      return m_diodesLG[i].getDiodeADC();
+    } // IF
+    else{
+      return m_diodesHG[i].getDiodeADC();
+    } // IF
   } else {
     return 0;
   }
 }
 
-double TileLaserObject::getDiodePedestal(const unsigned int i) const
+double TileLaserObject::getDiodePedestal(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-  return m_diodes[i].getDiodePedestal();
+    if(gain==0){
+      return m_diodesLG[i].getDiodePedestal();
+    } // IF
+    else{
+      return m_diodesHG[i].getDiodePedestal();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
-double TileLaserObject::getDiodeSigmaPedestal(const unsigned int i) const
+double TileLaserObject::getDiodeSigmaPedestal(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-  return m_diodes[i].getDiodeSigmaPedestal();
+    if(gain==0){
+      return m_diodesLG[i].getDiodeSigmaPedestal();
+    } // IF
+    else{
+      return m_diodesHG[i].getDiodeSigmaPedestal();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
 
-double TileLaserObject::getAlpha(const unsigned int i) const
+double TileLaserObject::getAlpha(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-  return m_diodes[i].getAlpha();
+    if(gain==0){
+      return m_diodesLG[i].getAlpha();
+    } // IF
+    else{
+      return m_diodesHG[i].getAlpha();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
-double TileLaserObject::getSigmaAlpha(const unsigned int i) const
-{
-  if(i<nbDiodes){  
-  return m_diodes[i].getSigmaAlpha();
-  }else{
-    return 0.0;
-  }
-}
-
-double TileLaserObject::getPedestalAlpha(const unsigned int i) const
+double TileLaserObject::getSigmaAlpha(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-  return m_diodes[i].getPedestalAlpha();
+    if(gain==0){
+      return m_diodesLG[i].getSigmaAlpha();
+    } // IF
+    else{
+      return m_diodesHG[i].getSigmaAlpha();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
-double TileLaserObject::getSigmaPedAlpha(const unsigned int i) const
+double TileLaserObject::getPedestalAlpha(const unsigned int i, const unsigned int gain) const
 {
   if(i<nbDiodes){
-  return m_diodes[i].getSigmaPedAlpha();
+    if(gain==0){
+      return m_diodesLG[i].getPedestalAlpha();
+    } // IF
+    else{
+      return m_diodesHG[i].getPedestalAlpha();
+    } // IF
+  }else{
+    return 0.0;
+  }
+}
+
+double TileLaserObject::getSigmaPedAlpha(const unsigned int i, const unsigned int gain) const
+{
+  if(i<nbDiodes){
+    if(gain==0){
+      return m_diodesLG[i].getSigmaPedAlpha();
+    } // IF
+    else{
+      return m_diodesHG[i].getSigmaPedAlpha();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
 
-int TileLaserObject::getPMADC(const unsigned int j) const
+int TileLaserObject::getPMADC(const unsigned int j, const unsigned int gain ) const
 {
   if(j<nbPmts){
-  return m_pmts[j].getPMADC();
+    if(gain==0){
+      return m_pmtsLG[j].getPMADC();
+    } // IF
+    else{
+      return m_pmtsHG[j].getPMADC();
+    } // IF
   }else{
     return 0;
   }
- }
+}
 
-int TileLaserObject::getTDC(const unsigned int j) const
+int TileLaserObject::getTDC(const unsigned int j, const unsigned int gain ) const
 {
   if(j<nbPmts){
-  return m_pmts[j].getTDC();
+    if(gain==0){
+      return m_pmtsLG[j].getTDC();
+    } // IF
+    else{
+      return m_pmtsHG[j].getTDC();
+    } // IF
   }else{
     return 0;
   }
- }
+}
 
-double TileLaserObject::getPMPedestal(const unsigned int j) const
+double TileLaserObject::getPMPedestal(const unsigned int j, const unsigned int gain ) const
 {
   if(j<nbPmts){
-  return m_pmts[j].getPMPedestal();
+    if(gain==0){
+      return m_pmtsLG[j].getPMPedestal();
+    } // IF
+    else{
+      return m_pmtsHG[j].getPMPedestal();
+    } // IF
   }else{
     return 0.0;
   }
 }
 
-double TileLaserObject::getPMSigmaPedestal(const unsigned int j) const
+double TileLaserObject::getPMSigmaPedestal(const unsigned int j, const unsigned int gain) const
 {
   if(j<nbPmts){
-  return m_pmts[j].getPMSigmaPedestal();
+    if(gain==0){
+      return m_pmtsLG[j].getPMSigmaPedestal();
+    } // IF
+    else{
+      return m_pmtsHG[j].getPMSigmaPedestal();
+    } // IF
   }else{
     return 0.0;
   }
@@ -129,52 +230,62 @@ double TileLaserObject::getPMSigmaPedestal(const unsigned int j) const
 
 
 void TileLaserObject::setLaser(const int Counter,
-			       const int diodeCurrOrd, 
-			       const int diodeCurrMeas, 
-			       const int filtNumber,
-			       const int SlamaDelay)
+                               const int diodeCurrOrd,
+                               const int diodeCurrMeas,
+                               const int filtNumber,
+                               const int timingDelay,
+                               const int version)
 {
-  m_laserParameter.setLaser(Counter, diodeCurrOrd, diodeCurrMeas, filtNumber, SlamaDelay);
+  m_laserParameter.setLaser(Counter, diodeCurrOrd, diodeCurrMeas, filtNumber, timingDelay);
+  m_version = version;
+  //ATH_MSG_ERROR("TileLaserObject::setLASER " << version);
 }
 
-void TileLaserObject::setControl(const double pumpDiodeTemp, 
-                                 const int timeLastMeasP, 
+void TileLaserObject::setControl(const double pumpDiodeTemp,
+                                 const int timeLastMeasP,
                                  const double diodeBoxTemp,
-				 const int timeLastMeasD, 
+                                 const int timeLastMeasD,
                                  const double gasFlux,
-				 const int timeLastMeasF, 
-                                 const double humidity, 
-				 const int timeLastMeasH, 
-                         	 const time_t lastPedMeas,
-				 const time_t lastAlphaMeas) 
+                                 const int timeLastMeasF,
+                                 const double humidity,
+                                 const int timeLastMeasH,
+                                 const time_t lastPedMeas,
+                                 const time_t lastAlphaMeas)
 {
   m_slowCtrl.setControl(pumpDiodeTemp, timeLastMeasP, diodeBoxTemp,timeLastMeasD, gasFlux, timeLastMeasF, humidity, timeLastMeasH, lastPedMeas, lastAlphaMeas);
 }
 
 
 void TileLaserObject::setPLC(const int alphaPos,
-			     const double LVdiodes,
-			     const double HVpmts,
-			     const int shutter,
-			     const int interlock,
-			     const int alarm)
+                             const double LVdiodes,
+                             const double HVpmts,
+                             const int shutter,
+                             const int interlock,
+                             const int alarm)
 {
-
+  
   m_plc.setPLC(alphaPos, LVdiodes, HVpmts, shutter, interlock, alarm);
-
+  
 }
 
 void TileLaserObject::setDiode(const unsigned int diode,
-                               const int diodeAdc, 
-                               const double diodePedestal, 
+                               const int diodeAdc,
+                               const double diodePedestal,
                                const double diodeSigmaPedestal,
                                const double alpha,
                                const double sigmaAlpha,
-                               const double pedestalAlpha, 
-                               const double sigmaPedAlpha)
+                               const double pedestalAlpha,
+                               const double sigmaPedAlpha,
+                               const unsigned int gain)
 {
+  //ATH_MSG_ERROR("TileLaserObject::setDiode " << diode);
   if(diode<nbDiodes){
-    m_diodes[diode].setDiode(diodeAdc, diodePedestal, diodeSigmaPedestal, alpha, sigmaAlpha, pedestalAlpha, sigmaPedAlpha);
+    if(gain==0){
+      m_diodesLG[diode].setDiode(diodeAdc, diodePedestal, diodeSigmaPedestal, alpha, sigmaAlpha, pedestalAlpha, sigmaPedAlpha);
+    } // IF
+    else{
+      m_diodesHG[diode].setDiode(diodeAdc, diodePedestal, diodeSigmaPedestal, alpha, sigmaAlpha, pedestalAlpha, sigmaPedAlpha);
+    } // IF
   }else{
     //   log<<MSG::ERROR<<"Exit code in method TileLaserObject::setDiode"<<endreq;
     exit(0);
@@ -182,19 +293,26 @@ void TileLaserObject::setDiode(const unsigned int diode,
 }
 
 void TileLaserObject::setPmt(const unsigned int pmt,
-                             const int pmAdc, 
-                             const int tdc, 
-                             const double pmPedestal, 
-                             const double pmSigmaPedestal)
-{ 
+                             const int pmAdc,
+                             const int tdc,
+                             const double pmPedestal,
+                             const double pmSigmaPedestal,
+                             const unsigned int gain)
+{
   if(pmt<nbPmts){
-    m_pmts[pmt].setPmt(pmAdc, tdc, pmPedestal, pmSigmaPedestal);
+    if(gain==0){
+      m_pmtsLG[pmt].setPmt(pmAdc, tdc, pmPedestal, pmSigmaPedestal);
+    } // IF
+    else{
+      m_pmtsHG[pmt].setPmt(pmAdc, tdc, pmPedestal, pmSigmaPedestal);
+    } // IF
   }else{
     //    log<<MSG::ERROR<<"Exit code in method TileLaserObject::setPmt"<<endreq;
     exit(0);
   }
 }
 
-
-
+void TileLaserObject::setDaqType(const unsigned int daqtype){
+  m_daqtype = daqtype;
+}
 
