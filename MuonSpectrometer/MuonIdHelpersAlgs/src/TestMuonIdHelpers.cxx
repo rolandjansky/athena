@@ -46,7 +46,8 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  Algorithm(name, pSvcLocator), m_activeStore(0), m_EvtStore(0), m_mdtId(0), m_cscId(0),
+  m_rpcId(0), m_tgcId(0), m_muon_mgr(0),
   m_deltaUser(0), m_deltaKernel(0), m_deltaElapsed(0), m_nTries(0)
   
    {
