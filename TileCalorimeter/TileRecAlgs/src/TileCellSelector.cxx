@@ -176,9 +176,9 @@ StatusCode TileCellSelector::initialize() {
     ATH_MSG_INFO( "MaxVerboseCnt " << m_max_verbose_cnt);
   }
 
-  ATH_MSG_INFO( "CheckWarning" << (("CheckWarning")? "true" : "false"));
-  ATH_MSG_INFO( "CheckError" << (("CheckError") ? "true" : "false"));
-  ATH_MSG_INFO( "PrintOnly" << (("PrintOnly") ? "true" : "false"));
+  ATH_MSG_INFO( "CheckWarning " << (("CheckWarning")? "true" : "false"));
+  ATH_MSG_INFO( "CheckError " << (("CheckError") ? "true" : "false"));
+  ATH_MSG_INFO( "PrintOnly " << (("PrintOnly") ? "true" : "false"));
 
   n_drawer_off.resize(TileCalibUtils::getDrawerIdx(4, 63) + 1);
 
@@ -685,6 +685,31 @@ StatusCode TileCellSelector::execute() {
           if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
             ATH_MSG_VERBOSE( evtnum.str()
                 << "  drw " << drwname(coll->identify()) << " is OFF - skipping");
+
+            if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+              ATH_MSG_VERBOSE( nevtnum.str()
+                  << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
+                  << std::dec << " being bad");
+          }
+          continue;
+        }
+
+        if (DSPBCID == 0
+            && GlobalCRCErr == 0 
+            && FE_DMUmask == 0
+            && ROD_DMUmask == 0
+            && BCIDErr == 0
+            && MemoryParityErr == 0
+            && HeaderFormatErr == 0
+            && HeaderParityErr == 0
+            && SampleFormatErr == 0
+            && SampleParityErr == 0
+            && SingleStrobeErr == 0
+            && DoubleStrobeErr == 0) {
+
+          if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+            ATH_MSG_VERBOSE( evtnum.str()
+                << "  drw " << drwname(coll->identify()) << " is MISSING - skipping");
 
             if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
               ATH_MSG_VERBOSE( nevtnum.str()
