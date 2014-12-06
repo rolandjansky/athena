@@ -199,8 +199,16 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
         dhwlbi = new DblQ00Wlbi(dbdata);
 	delete dbdata;
         wlbi= dhwlbi->data();
-    }
-
+    } else {
+        dhwchv = NULL;
+        wchv = NULL;
+        dhwcro = NULL;
+        wcro = NULL;
+        dhwcmi = NULL;
+        wcmi = NULL;
+        dhwlbi = NULL;
+        wlbi = NULL;
+    } 
     
     
     // everything fetched 

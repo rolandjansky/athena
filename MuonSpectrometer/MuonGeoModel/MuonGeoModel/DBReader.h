@@ -972,12 +972,12 @@ namespace MuonGM {
             }
 
             Station* stat = mysql->GetStation(name);
-            bool hasMdts = stat->hasMdts();
             if (stat == NULL) {
                 log<<MSG::ERROR<<" station "
                    <<name<<" not found; no "<<name<<" element will be located at iz "<<aptp[ipos].iz<<std::endl;
                 continue;
             }
+            bool hasMdts = stat->hasMdts();
                             
             Position p;
             p.zindex=aptp[ipos].iz;
@@ -1591,8 +1591,9 @@ namespace MuonGM {
             }
             //if (cartec == "CRO") std::cerr<<"at the end --- station "<<name<<" comp. CRO "
             //<< c->dx1<<" "<<c->dx2<<" "<<c->dy<<std::endl;
-            if (known_comp) stat->SetComponent(c);
-            if (cartec=="MDT") stat->setHasMdts(true);
+            if (known_comp && stat != NULL) stat->SetComponent(c);
+            else { if( c != NULL ) { delete c; c=NULL; } }
+            if (cartec=="MDT" && stat != NULL) stat->setHasMdts(true);
             // here is the end - define the previous stuff
             previous_jtyp = almn[icomp].jtyp;
             previous_subt = almn[icomp].indx;
@@ -1692,6 +1693,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		      Station* stat = mysql->GetStation(name);
 		      if (stat == NULL)
 			{
+			if( c!= NULL ) delete c; c = NULL;
 			log<<MSG::ERROR<<" station "
 			   <<name<<" not found! "<<endreq;
 			continue;
@@ -1710,6 +1712,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		    }
 		  else
 		    {
+		      if( c!= NULL ) delete c; c = NULL;
 		      log<<MSG::ERROR
 			 <<" ProcessCutouts station-name not well defined "
 			 <<atyp[type_ind].type<<endreq;

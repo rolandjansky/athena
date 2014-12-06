@@ -17,7 +17,8 @@
 
 namespace MuonGM {
 
-DriftTube::DriftTube(std::string n): DetectorElement(n)
+DriftTube::DriftTube(std::string n): DetectorElement(n),
+  length(0.) // length is set in MultiLayer.cxx
 {
     //    std::cout<<" drift tube is in "<<name<<" "<<n<<std::endl;
     gasMaterial="muo::ArCO2";

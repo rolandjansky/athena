@@ -278,6 +278,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     DataHandle<GeoModelExperiment> theExpt; 
     if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" ))
     { 
+        if( altAsciiDBMap != NULL ) { delete altAsciiDBMap; altAsciiDBMap = NULL; }
         msg(MSG::ERROR) 
             << "Could not find GeoModelExperiment ATLAS" 
             << endreq; 

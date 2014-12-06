@@ -277,6 +277,8 @@ double Station::GetExtraTopThickness() const
     if (name[0] != 'B') return 0.;
 
     return 0.;
+/* COMMENTING IS JUST TO MAKE COVERITY HAPPY 
+   WHY THIS CODE WAS NEVER ENTERED HAS TO BE FIGURED OUT
     double xupsup = 0.;
     double deltaup = 0.;
     int nsup=0;
@@ -309,6 +311,7 @@ double Station::GetExtraTopThickness() const
     }
     
     return 0.;
+*/
 }
 double Station::GetExtraBottomThickness() const
 {
@@ -317,6 +320,8 @@ double Station::GetExtraBottomThickness() const
     if (name[0] != 'B') return 0.;
 
     return 0.;
+/* COMMENTING IS JUST TO MAKE COVERITY HAPPY 
+   WHY THIS CODE WAS NEVER ENTERED HAS TO BE FIGURED OUT
     double xdownsup = 0.;
     double deltadown = 0.;
     int nsup =0;
@@ -347,6 +352,7 @@ double Station::GetExtraBottomThickness() const
         return dbottom;
     }
     return 0.;
+*/
 }
 double Station::GetLength() const 
 {

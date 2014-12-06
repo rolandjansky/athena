@@ -17,7 +17,7 @@ public:
 	double excent;
 };
 
-CHV::CHV(std::string s): Technology(s)
+CHV::CHV(std::string s): Technology(s), largeness(0.), height(0.), excent(0.)
 {
 }
 } // namespace MuonGM

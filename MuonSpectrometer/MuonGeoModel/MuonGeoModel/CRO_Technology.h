@@ -17,7 +17,7 @@ public:
 	double excent;
 };
 
-CRO::CRO(std::string s): Technology(s)
+CRO::CRO(std::string s): Technology(s), largeness(0.), height(0.), excent(0.)
 {
 }
 } // namespace MuonGM

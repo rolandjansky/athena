@@ -35,7 +35,9 @@ public:
 	inline TGC(std::string s);
 };
 
-TGC::TGC(std::string s): Technology(s)
+TGC::TGC(std::string s): Technology(s), nlayers(0), frame_h(0.), frame_ab(0.),
+  widthWireSupport(0.), widthGasChannel(0.), distanceWireSupport(0.),
+  angleTilt(0.), radiusButton(0.), angleButton(0.)
 {
 }
 } // namespace MuonGM

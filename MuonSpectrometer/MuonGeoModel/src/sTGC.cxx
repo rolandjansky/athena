@@ -37,6 +37,8 @@ sTGC::sTGC(Component* ss): DetectorElement(ss->name)
   yCutout= s->yCutout;
   length = s->dy;
   name=s->name;
+  thickness = s->GetThickness();
+  index = s->index;
 }
 
 

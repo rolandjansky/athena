@@ -1968,7 +1968,9 @@ MuonChamber::setTgcReadoutGeom(TgcReadoutElement* re, const TgcComponent* cc,
       re->m_nwiregangs_per_plane[Nwireplanes-1] = 0;
       re->m_strippitch[Nstripplanes-1] = 0.;
       re->m_stripwidth[Nstripplanes-1] = 0.;
-      re->m_wirepitch[Nwireplanes-1] = re->m_readoutParams->wirePitch();
+      if (re->m_readoutParams != 0)
+        re->m_wirepitch[Nwireplanes-1] = re->m_readoutParams->wirePitch();
+      else re->m_wirepitch[Nwireplanes-1] = 0;
       re->m_stripoffset[Nstripplanes-1] = 0.;
       re->m_wireoffset[Nwireplanes-1] = 0.;
       re->m_stripplanez[Nstripplanes-1] = newpos;

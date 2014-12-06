@@ -29,13 +29,16 @@
 
 namespace MuonGM {
 
-Tgc::Tgc(Component* ss): DetectorElement(ss->name)
+Tgc::Tgc(Component* ss): DetectorElement(ss->name),
+  irad(0.), orad(0.), dphi(0.)
 {
   TgcComponent* s = (TgcComponent*)ss;
   component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;
+  thickness = s->GetThickness();
+  index = s->index;
 }
 
 

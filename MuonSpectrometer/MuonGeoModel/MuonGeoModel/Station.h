@@ -106,6 +106,7 @@ private:
 	PositionMap positions;
 	AlignPosMap alignpositions;
 	IMessageSvc*    m_msgSvc;
+	Station & operator=(const Station &right);
 };
 } // namespace MuonGM
 

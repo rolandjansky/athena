@@ -22,6 +22,7 @@ StandardComponent::StandardComponent():Component()
     excent = 0.;
     iswap = 0;
     index = 0;
+    dead3 = 0.;
 }
 
 StandardComponent::StandardComponent(const StandardComponent& c):Component(c)
@@ -34,6 +35,7 @@ StandardComponent::StandardComponent(const StandardComponent& c):Component(c)
 	excent=c.excent;
         iswap=c.iswap;
 	index=c.index;
+	dead3=c.dead3;
 }
 
 std::ostream& operator<<(std::ostream& os,const StandardComponent& c)

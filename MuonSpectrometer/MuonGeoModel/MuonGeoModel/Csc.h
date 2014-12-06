@@ -38,6 +38,8 @@ public:
 
 private:
   CscComponent* component;
+  Csc & operator=(const Csc &right);
+  Csc(const Csc&);
 };
 
 } // namespace MuonGM

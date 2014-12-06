@@ -12,6 +12,7 @@ namespace MuonGM {
     
 DBReader::DBReader(StoreGateSvc *pDetStore)
     :
+    _mgr(0),
     _pDetStore(pDetStore)
 {
     SCdbaccess = StatusCode::SUCCESS;

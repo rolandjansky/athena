@@ -39,6 +39,8 @@ public:
 private:
    MdtComponent* component;
    int m_geo_version;
+   Mdt & operator=(const Mdt &right);
+   Mdt(const Mdt&);
 
 };
 

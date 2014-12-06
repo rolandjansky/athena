@@ -95,7 +95,8 @@ private:
     IMessageSvc*      m_msgSvc;
     bool              m_useICSCAlines;
 
-    
+    RDBReaderAtlas & operator=(const RDBReaderAtlas &right);
+    RDBReaderAtlas(const RDBReaderAtlas&);
 };
  
 } // namespace MuonGM

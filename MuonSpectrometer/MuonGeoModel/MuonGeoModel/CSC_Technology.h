@@ -27,7 +27,14 @@ public:
     int nEtastrips, nPhistrips;
 };
 
-CSC::CSC(std::string s): Technology(s)
+CSC::CSC(std::string s): Technology(s), numOfLayers(0),
+  innerRadius(0.), totalThickness(0.), nonsisa(0.), honeycombthick(0.),
+  g10thick(0.), wirespacing(0.), anocathodist(0.), gapbetwcathstrips(0.),
+  readoutstripswidth(0.), phistripwidth(0.), floatingstripswidth(0.),
+  rectwasherthick(0.), roxacellwith(0.), roxwirebargap(0.),
+  fullgasgapwirewidth(0.), fullwirefixbarwidth(0.), wirebarposx(0.),
+  wirebarposy(0.), wirebarposz(0.), cathreadoutpitch(0.),
+  phireadoutpitch(0.), nEtastrips(0), nPhistrips(0)
 {
 }
 } // namespace MuonGM

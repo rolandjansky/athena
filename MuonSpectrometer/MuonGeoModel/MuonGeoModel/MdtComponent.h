@@ -18,6 +18,9 @@ public:
  
   double tubelenStepSize;  // step size for tube length in endcap chambers
   double cutoutTubeXShift; // distance along tube length to shift tube center
+
+private:
+  MdtComponent & operator=(const MdtComponent &right);
 };
 } // namespace MuonGM
 

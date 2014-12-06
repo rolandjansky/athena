@@ -17,7 +17,7 @@ public:
     float yShift;
 };
 
-LBI::LBI(std::string s): Technology(s)
+LBI::LBI(std::string s): Technology(s), height(0.), lowerThickness(0.), yShift(0.)
 {
 }
 } // namespace MuonGM

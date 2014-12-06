@@ -16,7 +16,7 @@ namespace MuonGM {
 
 MYSQL* MYSQL::thePointer=0;
 
-MYSQL::MYSQL()
+MYSQL::MYSQL() : m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
 {
     m_geometry_version = "unknown";
     m_layout_name      = "unknown";

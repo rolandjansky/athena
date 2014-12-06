@@ -104,7 +104,15 @@ public:
 
 
 
-    RPC(std::string s):Technology(s) {}
+    RPC(std::string s):Technology(s), foamSpacerThickness(0.), xx(0.),
+      lowerHoneycombLayerThickness(0.), yy(0.), totalThickness(0.),
+      pitchs(0.), pitchz(0.), deadSeparation(0.), gazGapThickness(0.),
+      stripsSupportThickness(0.), stripsThickness(0.), internalMidchamberDeadRegion(0.),
+      firstStripsOffset(0.), secondStripsOffset(0.), numberOfStripsReadouts(0.),
+      centralalThickness(0.), petUpperThickness(0.), petLowerThickness(0.),
+      sInternalMidchamberDeadRegion(0.), zInternalMidchamberDeadRegion(0.),
+      sStripsOffset(0.), zFirstStripsOffset(0.), zSecondStripsOffset(0.),
+      sNumberOfStripsReadouts(0.), zNumberOfStripsReadouts(0.), sGasGapsNumber(0.) {}
     
 
     double GetCentralalThickness(){return centralalThickness;};

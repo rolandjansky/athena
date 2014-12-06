@@ -23,7 +23,8 @@ public:
     double y[4];
     double x[4];
 
-    MDT(std::string s):Technology(s) {}
+    MDT(std::string s): Technology(s), numOfLayers(0), pitch(0.), innerRadius(0.),
+      totalThickness(0.), tubeDeadLength(0.), tubeEndPlugLength(0.), tubeWallThickness(0.) {}
 };
 } // namespace MuonGM
 

@@ -35,6 +35,8 @@ Micromegas::Micromegas(Component* ss): DetectorElement(ss->name)
   longWidth = s->dx2;
   length = s->dy;
   name=s->name;
+  thickness = s->GetThickness();
+  index = s->index;
 }
 
 
