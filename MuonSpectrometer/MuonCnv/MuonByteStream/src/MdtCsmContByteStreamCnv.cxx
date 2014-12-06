@@ -101,5 +101,4 @@ MdtCsmContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    pAddr = addr; 
 
    return m_tool->convert(cont, re, log); 
-   return StatusCode::SUCCESS;
 }
