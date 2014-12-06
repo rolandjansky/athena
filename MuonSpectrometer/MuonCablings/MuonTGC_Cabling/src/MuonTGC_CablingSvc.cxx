@@ -31,6 +31,8 @@
 ///////////////////////////////////////////////////////////////
 MuonTGC_CablingSvc::MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc)
   : ITGCcablingSvc(name, svc),
+    m_idHelper(0),
+    m_cabling(0),
     m_log(msgSvc(), name),
     m_debuglevel(false),
     m_condDataTool("TGCCablingDbTool")
