@@ -4,7 +4,8 @@
 
 #include "MuonAlignmentData/MuonAlignmentPar.h"
 
-MuonAlignmentPar::MuonAlignmentPar() 
+MuonAlignmentPar::MuonAlignmentPar() :
+  m_Jff(0), m_Jzz(0), m_Job(0), m_isNew(false)
 { }
 
 MuonAlignmentPar::~MuonAlignmentPar() 
