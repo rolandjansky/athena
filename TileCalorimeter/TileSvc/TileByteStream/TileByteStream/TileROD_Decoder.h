@@ -328,8 +328,12 @@ class TileROD_Decoder: public AthAlgTool {
     bool unpack_frag5L2(uint32_t version, const uint32_t* p, TileL2Container & v) const;
 
     /** unpack_frag16 decodes tile subfragment type 0x16 or 0x20. This subfragment contains
-     informations coming from the Laser box */
-    void unpack_frag16(uint32_t version, const uint32_t* p, TileLaserObject & v);
+     informations coming from the Laser box [calibration run] */
+    void unpack_frag16(uint32_t version, const uint32_t* p, TileLaserObject & v); // LASERI
+
+    /** unpack_frag17 decodes tile subfragment type 0x17 or 0x20. This subfragment contains
+     informations coming from the Laser box [calibration run] */
+    void unpack_frag17(uint32_t version, const uint32_t* p, TileLaserObject & v); // LASERII
 
     /** unpack_brod decodes all ancillary tile subfragments coming from beam ROD
      at the testbeam or LASTROD in normal ATLAS configuration */
@@ -450,6 +454,18 @@ class TileROD_Decoder: public AthAlgTool {
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
 
+    const uint32_t * get_data(const ROBData * rob) {
+
+      const uint32_t * p;
+      if (rob->rod_status_position()==0 && 
+          rob->rod_nstatus() + rob->rod_header_size_word() + rob->rod_trailer_size_word() >= rob->rod_fragment_size_word()) {
+        rob->rod_status(p);
+      } else {
+        rob->rod_data(p);
+      }
+      return p;
+    }
+    
     uint32_t data_size(const ROBData * rob) {
       uint32_t size = rob->rod_ndata();
       uint32_t max_allowed_size = rob->rod_fragment_size_word();
@@ -567,6 +583,12 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setDetEvType(rob->rod_detev_type());
   v.setRODBCID(rob->rod_bc_id());
 
+  for (unsigned int i = 0; i < 6; ++i) {
+    for (size_t j=m_rawchannelMetaData[i]->size(); j<2; ++j) {
+      m_rawchannelMetaData[i]->push_back(0);
+    }
+  }
+
   v.setFragGlobalCRC((*(m_rawchannelMetaData[0]))[0]);
   v.setFragDSPBCID((*(m_rawchannelMetaData[0]))[1]);
   v.setFragBCID((*(m_rawchannelMetaData[1]))[0]);
@@ -671,18 +693,19 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
   uint32_t wc = 0;
   uint32_t size = data_size(rob);
-  const uint32_t * p;
-  rob->rod_data(p);
+  const uint32_t * p = get_data(rob);
 
   // bool skipWords = ( ! isBeamROD && version == 0x1 );
   // std::cout << " *(p) = 0x" << std::hex << (*(p)) << std::dec << std::endl;
-  bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
-  V3format |= (*(p) == 0x00123400); // additional frag marker since Sep 2005 (can appear in buggy ROD frags)
-  if (V3format) {
-    ++p; // skip frag marker
-    m_sizeOverhead = 3;
-  } else {
-    m_sizeOverhead = 2;
+  if (size) {
+    bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
+    V3format |= (*(p) == 0x00123400); // additional frag marker since Sep 2005 (can appear in buggy ROD frags)
+    if (V3format) {
+      ++p; // skip frag marker
+      m_sizeOverhead = 3;
+    } else {
+      m_sizeOverhead = 2;
+    }
   }
 
   //std::cout << std::hex << " frag_id " << frag_id << " mask " << mask

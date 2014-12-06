@@ -122,7 +122,7 @@ TileCellCont::initialize() {
           m_mbts_rods.push_back(src.getRodID(frag));
           m_mbts_IDs.push_back(((section-1)*64+drawer));
           CaloDetDescrElement * caloDDE = (mbtsMgr) ? mbtsMgr->get_element(cell_id) : NULL;
-          TileCell* myMBTSCell = new TileCell(caloDDE,cell_id,0.0,0.0);
+          TileCell* myMBTSCell = new TileCell(caloDDE,cell_id,0.0,0.0,0,0,CaloGain::TILEONELOW);
           m_MBTS->push_back(myMBTSCell);
           m_mapMBTS[frag]=mbts_count;
           mbts_count++;
@@ -152,7 +152,7 @@ TileCellCont::initialize() {
             cell_hash = tmp[i].second;
             ++index;
             CaloDetDescrElement * caloDDE = tileMgr->get_cell_element((IdentifierHash)cell_hash);
-            TileCell * pCell = new TileCell(caloDDE,0.0,0.0);
+            TileCell * pCell = new TileCell(caloDDE,0.0,0.0,0,0,CaloGain::TILELOWLOW);
             newColl->push_back(pCell);
           }
           Rw2Cell[tmp[i].first]=index;

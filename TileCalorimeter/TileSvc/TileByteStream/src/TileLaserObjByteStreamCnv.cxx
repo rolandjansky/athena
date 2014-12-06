@@ -9,6 +9,7 @@
 #include "TileByteStream/TileLaserObjByteStreamCnv.h"
 #include "TileByteStream/TileLaserObjByteStreamTool.h"
 #include "TileByteStream/TileROD_Decoder.h"
+#include "TileByteStream/TileHid2RESrcID.h"
 
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h" 
@@ -23,6 +24,7 @@
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/IToolSvc.h"
 
+#include "TileIdentifier/TileTBFrag.h"
 #include "TileEvent/TileLaserObject.h"
 
 #include "StoreGate/StoreGate.h"
@@ -106,8 +108,10 @@ TileLaserObjByteStreamCnv::initialize()
   }
 
   m_ROBID.clear();
-  //  m_ROBID.push_back( 0x500000 );
-  m_ROBID.push_back( 0x520010 );
+  // m_ROBID.push_back( 0x500000 );
+  // m_ROBID.push_back( 0x520010 );
+  const TileHid2RESrcID * hid2re = m_decoder->getHid2re();
+  m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
 
   return service("StoreGateSvc",m_storeGate) ;
 }

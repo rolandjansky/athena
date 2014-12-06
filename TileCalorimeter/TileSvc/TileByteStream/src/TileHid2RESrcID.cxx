@@ -145,7 +145,12 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
         if ( size > 0 ) {
 
           const uint32_t * data;
-          robf.rod_data(data);
+          if (robf.rod_status_position()==0 && 
+            robf.rod_nstatus() + robf.rod_header_size_word() + robf.rod_trailer_size_word() >= robf.rod_fragment_size_word()) {
+            robf.rod_status(data);
+          } else {
+            robf.rod_data(data);
+          }
 
           switch ( subdet_id ) {
           case TILE_BEAM_ID:   // TILE BEAM ROD
