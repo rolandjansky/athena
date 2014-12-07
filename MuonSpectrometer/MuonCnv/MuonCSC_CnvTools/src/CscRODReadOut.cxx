@@ -5,7 +5,9 @@
 #include "CscRODReadOut.h"
 
 // constructor
-CscRODReadOut::CscRODReadOut() {  
+CscRODReadOut::CscRODReadOut() : m_cscHelper(0), m_sourceID(0),
+   m_moduleType(0), m_rodId(0), m_subDetectorId(0), m_amp1(0), m_amp2(0),
+   m_address(0), m_chamberBitValue(0) {  
 
   TIME_OFFSET     = 46.825;  // ns
   SIGNAL_WIDTH    = 16.08;   // ns
@@ -45,7 +47,9 @@ CscRODReadOut::CscRODReadOut() {
 }
 
 CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
-                             double signalWidth, uint16_t numIntegration) {
+                             double signalWidth, uint16_t numIntegration)
+ : m_cscHelper(0), m_sourceID(0), m_moduleType(0), m_rodId(0),
+   m_subDetectorId(0), m_amp1(0), m_amp2(0), m_address(0), m_chamberBitValue(0) {
 
   TIME_OFFSET     = startTime;            // ns
   SIGNAL_WIDTH    = signalWidth;          // ns

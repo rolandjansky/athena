@@ -17,7 +17,7 @@
 
 /** constructor 
 */ 
-CscROD_Encoder::CscROD_Encoder() 
+CscROD_Encoder::CscROD_Encoder() : m_cscRdo(0), m_cscHelper(0)
 {}
 
 

@@ -94,8 +94,7 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
                      << svc->name() );
     } else {
       ATH_MSG_ERROR ( " Tool = " << name() 
-                     << " is failed to be connected to JobOptionsSvc Service = "
-                     << svc->name() );
+                     << " is failed to be connected to JobOptionsSvc Service." );
       return StatusCode::FAILURE;
     }
   }
@@ -108,12 +107,11 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
     IService* svc = dynamic_cast<IService*>(TrigConfSvc);
     if(svc != 0 ) {
       ATH_MSG_INFO ( " Tool = " << name() 
-                     << " is connected to JobOptionsSvc Service = "
+                     << " is connected to HLTJobOptionsSvc Service = "
                      << svc->name() );
     } else {
       ATH_MSG_ERROR ( " Tool = " << name() 
-                     << " is failed to be connected to JobOptionsSvc Service = "
-                     << svc->name() );
+                     << " is failed to be connected to HLTJobOptionsSvc Service." );
       return StatusCode::FAILURE;
     }
   }

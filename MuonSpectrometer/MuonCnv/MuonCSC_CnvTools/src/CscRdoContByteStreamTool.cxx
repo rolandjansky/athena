@@ -91,7 +91,8 @@ StatusCode Muon::CscRdoContByteStreamTool::convert(const CONTAINER* cont, RawEve
 {
   m_fea.clear();
   m_fea.idMap().set( m_cabling, m_cscHelper );
-  m_fea.setRodMinorVersion(m_rodVersion);
+  if(m_cabling->nROD()==16) m_fea.setRodMinorVersion(0x400);
+  else m_fea.setRodMinorVersion(m_rodVersion);
 
   StatusCode sc = StatusCode::SUCCESS;
 
