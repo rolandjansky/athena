@@ -300,6 +300,10 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
       if  ((*iter)->type(Trk::TrackStateOnSurface::Measurement)||(*iter)->type(Trk::TrackStateOnSurface::Outlier)) {
 	
 	const Trk::RIO_OnTrack* hit = dynamic_cast<const Trk::RIO_OnTrack*> ((*iter)->measurementOnTrack());
+	if  ( hit == NULL) {
+	  log<<MSG::WARNING<< "The measurementOnTrack is not a RIO_OnTrack ... skipping" <<endreq;
+	  continue;
+	}
 	const Identifier idHit = hit->identify();
 	
 	const Trk::TrackParameters* par=(*iter)->trackParameters();
