@@ -104,15 +104,16 @@ StatusCode egammaTruthAssociationAlg::execute()
 
   // Decorate containers with truth info, including links to truth particles
   // Decorate the truth particles with links to the reco ones
-  if (m_matchClusters){ 
+  CHECK( match<xAOD::Electron>(m_electronContainerName, "Electron") );
+  CHECK( match<xAOD::Photon>(m_photonContainerName, "Photon") );
+  if (m_matchClusters) {
     CHECK( match<xAOD::CaloCluster>(m_clusterContainerName, "Cluster") );
   }
-  CHECK( match<xAOD::Electron>(m_electronContainerName, "Electron") );
+
   if (m_matchForwardElectrons){
     CHECK( match<xAOD::Electron>(m_fwdElectronContainerName, "Electron") );
   }
-  CHECK( match<xAOD::Photon>(m_photonContainerName, "Photon") );
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -157,6 +158,21 @@ bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle
   if (type.first == MCTruthPartClassifier::NonIsoPhoton && 
       type.second == MCTruthPartClassifier::FSRPhot) return true;
   
+  // Electron from photon conversion
+//   if(type.first==BkgElectron&&type.second==PhotonConv)
+//   {
+//     type=m_mcTruthClassifier->checkOrigOfBkgElec(m_mcTruthClassifier->getGenPart());
+//     if((type.first==IsoElectron)||(type.first==NonIsoPhoton&&type.second==FSRPhot))
+//       return true;
+//   }
+//   
+//   std::vector <const xAOD::TruthParticle*> theParts = m_mcTruthClassifier->getCnvPhotTrkToTruthPart();
+//   std::vector<MCTruthPartClassifier::ParticleType>   cnvType = m_mcTruthClassifier->getCnvPhotPartType();
+//   std::vector<MCTruthPartClassifier::ParticleOrigin> cnvOrig = m_mcTruthClassifier->getCnvPhotPartOrig();
+//   for(unsigned int i=0; i<theParts.size(); i++){
+//     if(cnvType[i]==BkgElectron&&cnvOrig[i]==PhotonConv){
+//       std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> bkgType=m_mcTruthClassifier->checkOrigOfBkgElec(theParts[i]);
+//       if(bkgType.first==IsoPhoton){ return true; }
 //   
   return false;
 }

@@ -434,41 +434,66 @@ StatusCode egammaBuilder::execute()
   }
 
   if (m_doBremCollection){ 
+   
     ATH_MSG_DEBUG("Running BremCollectionBuilder");  
-    // Run the builders on egammaRec objects
+    //
+    std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
     if (m_BremCollectionBuilderTool->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
       return StatusCode::FAILURE;  
     }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
   
   if (m_doConversions){
+
     ATH_MSG_DEBUG("Running VertexBuilder");  
+    //
+    std::string chronoName = this->name()+"_"+m_vertexBuilder->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
     if (m_vertexBuilder->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_vertexBuilder);
       return StatusCode::FAILURE;  
     }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   
     ATH_MSG_DEBUG("Running ConversionBuilder");  
+    //
+    chronoName = this->name()+"_"+m_conversionBuilder->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
     if (m_conversionBuilder->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
       return StatusCode::FAILURE;  
     }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
   
   if (m_doTrackMatching){
+   
     ATH_MSG_DEBUG("Running TrackMatchBuilder");  
+    //
+    std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
     for (auto egRec : *egammaRecs){
       if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
         ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
         return StatusCode::FAILURE;
       }
     }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
   
   // Run the ambiguity resolving to decide if we should create electron and/or photon
-  for (const auto& egRec : *egammaRecs)
-  {
+  for (const auto& egRec : *egammaRecs){
     ATH_MSG_DEBUG("Running AmbiguityTool");
     unsigned int author = m_ambiguityTool->ambiguityResolve(egRec);
     
@@ -477,18 +502,18 @@ StatusCode egammaBuilder::execute()
     
     if (author == xAOD::EgammaParameters::AuthorElectron || 
         author == xAOD::EgammaParameters::AuthorAmbiguous)
-    {
-      ATH_MSG_DEBUG("getElectron");
-      if ( !getElectron(egRec, electronContainer, author) )
-        return StatusCode::FAILURE;
-    }
+      {
+	ATH_MSG_DEBUG("getElectron");
+	if ( !getElectron(egRec, electronContainer, author) )
+	  return StatusCode::FAILURE;
+      }
     if (author == xAOD::EgammaParameters::AuthorPhoton || 
         author == xAOD::EgammaParameters::AuthorAmbiguous)
-    {
-      ATH_MSG_DEBUG("getPhoton");
-      if ( !getPhoton(egRec, photonContainer, author) )
-        return StatusCode::FAILURE;
-    }
+      {
+	ATH_MSG_DEBUG("getPhoton");
+	if ( !getPhoton(egRec, photonContainer, author) )
+	  return StatusCode::FAILURE;
+      }
   }
   
   // Add topo-seeded clusters to the photon collection

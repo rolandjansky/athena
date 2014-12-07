@@ -2,35 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/********************************************************************
-
-NAME:     egammaForwardBuilder.cxx
-PACKAGE:  offline/Reconstruction/egamma/egammaRec
-
-AUTHORS:  M. Aharrouche, N. Zhou
-CREATED:  July 01, 2008
-
-PURPOSE:  Algorithm which makes a egammaObjectCollection for forward electrons.
-          egammaForwardBuilder, is dedicated to the reconstruction and 
-          identification of electrons in the forward region of ATLAS 
-          (2.5<|eta|<4.9). In contrast to the softe and egamma builders the 
-          algorithm can use only the information from the calorimeters, as the 
-          tracking system is limited to |eta|<2.5, and the topological 
-          clusters (instead of SW clusters). The pre-selection and ID are 
-          done in the same algorithm. The variables used to discriminant 
-          between electron and hadrons are defined as the topo cluster moments 
-          or combination of them. This is done separately in two eta bins: 
-          the EMEC IW and the FCal using a cut based technic. 
-          The forward electron AUTHOR is 8. 
-
-UPDATED:
-         Oct. 20 2008 (FD) change names of algo + 
-                      names of instance for printouts
-         Dec 09, 2008 (FD) move header to src + use of AthenaBaseComps
-         Jul 07, 2010 (FD) add call to egammaOQFlagsBuilder
-         Jul 08, 2010 (FD) fix for call to egammaOQFlagsBuilder
-********************************************************************/
-
 #include "egammaRec/egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
@@ -67,12 +38,12 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 { 
   // Name of Electron Container to be created
   declareProperty("ElectronOutputName",
-		  m_electronOutputName="EgammaForwardCollection",
+		  m_electronOutputName="",
 		  "Name of Electron Container to be created");
 
   // Name of the input cluster collection
   declareProperty("TopoClusterName",
-		  m_topoClusterName="CaloCalTopoCluster",
+		  m_topoClusterName="",
 		  "Name of the input cluster collection");
 
   // Value of the ET cut
@@ -92,7 +63,7 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 
   // Name of the output EM cluster container
   declareProperty("ClusterContainerName",
-		  m_outClusterContainerName="LArClusterEMFrwd",
+		  m_outClusterContainerName="",
 		  "Name of the output EM cluster container");
 
   // 
@@ -127,7 +98,7 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 		  "Cut for Centre lambda moment");
   // Name of the object quality tool
   declareProperty("ObjectQualityToolName", 
-		  m_ObjectQualityToolName,
+		  m_ObjectQualityToolName="",
 		  "Name of the object quality Tool");
 
 

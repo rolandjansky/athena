@@ -8,6 +8,7 @@ def addToToolSvc( tool ):
   from AthenaCommon.AppMgr import ToolSvc
   if not hasattr(ToolSvc, tool.getName()):
     ToolSvc += tool
+    print tool
   return tool
 
 def addToTopSequence( alg ):
@@ -15,6 +16,7 @@ def addToTopSequence( alg ):
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   topSequence += alg
+  print alg
   return alg
 
 def getPropertyValue(tool, property):
@@ -113,7 +115,7 @@ class Factory:
         raise
     
     # Call FcnWrapper or ToolFactory parameters
-    for paramName, value in params.iteritems():
+    for paramName, value in params.items():
       if isinstance(value, (FcnWrapper, ToolFactory)):
         try:
           params[paramName] = value()

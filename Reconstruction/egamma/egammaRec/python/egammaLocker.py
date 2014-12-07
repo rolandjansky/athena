@@ -19,7 +19,7 @@ class egammaLocker( PyAthena.Alg ):
                                       doTruth=doTruth,
                                       doEgammaForwardSeeded=doEgammaForwardSeeded, 
                                       doEgammaCaloSeeded=doEgammaCaloSeeded,
-                                      outputClusterKey=outputClusterKey,
+                                      outputClusterKey= outputClusterKey,
                                       egammakeys=egammakeys)             
     self.keys = {}
   

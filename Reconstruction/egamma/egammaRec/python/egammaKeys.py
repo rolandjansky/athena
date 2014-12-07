@@ -6,38 +6,38 @@ __author__ = "Bruno Lenzi"
 # Temporary solution just to emulate what was being done in egammaGetter.py
 from InDetRecExample.InDetKeys import InDetKeys
 
-# type, key, option for aux container
-inputs = dict(
-  Cluster  =      [ "xAOD::CaloClusterContainer_v1", "LArClusterEM", "" ],
-  TopoCluster =   [ "xAOD::CaloClusterContainer_v1", "EMTopoCluster430", "" ],
-  TrackParticle = [ "xAOD::TrackParticleContainer_v1", "", "" ]
-)
-
-outputs = dict(
-  Conversion =    [ "xAOD::VertexContainer_v1", "GSFConversionVertices",
-                    "-vxTrackAtVertex" ],
-  Cluster  =      [ "xAOD::CaloClusterContainer_v1", "egClusterCollection", "" ],
-  Electron =      [ "xAOD::ElectronContainer", "ElectronCollection", "" ],
-  EgammaRec =     [ "egammaRecContainer", "egammaRecCollection", "" ],
-  FwdElectron =   [ "xAOD::ElectronContainer", "FwdElectrons", "" ],
-  FwdCluster  =   [ "xAOD::CaloClusterContainer_v1", "LArClusterEMFrwd", "" ],
-  Photon   =      [ "xAOD::PhotonContainer", "PhotonCollection", "" ],
-  TrackParticle = [ "xAOD::TrackParticleContainer_v1", "GSFTrackParticles", "" ],
-  Track         = [ "TrackCollection", "GSFTracks", "" ],
-  Truth         = [ "xAOD::TruthParticleContainer_v1", "egammaTruthParticles", ""]
-)  
-
-inputs['TrackParticle'][1] = InDetKeys.xAODTrackParticleContainer()
-outputs['CellLink'] = ["CaloClusterCellLinkContainer", outputs["Cluster"][1] + '_links', ""]
+class egammaKeysDict:
+  # type, key, option for aux container
+  inputs = dict(
+    Cluster  =      [ 'xAOD::CaloClusterContainer', 'LArClusterEM', '' ],
+    TopoCluster =   [ 'xAOD::CaloClusterContainer', 'EMTopoCluster430', '' ],
+    TrackParticle = [ 'xAOD::TrackParticleContainer', '', '' ]
+    )
+  
+  outputs = dict(
+    Conversion =    [ 'xAOD::VertexContainer', 'GSFConversionVertices','-vxTrackAtVertex' ],
+    Cluster  =      [ 'xAOD::CaloClusterContainer', 'egammaClusters', '' ],
+    Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '' ],
+    EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '' ],
+    FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '' ],
+    FwdCluster  =   [ 'xAOD::CaloClusterContainer', 'ForwardElectronClusters', '' ],
+    Photon   =      [ 'xAOD::PhotonContainer', 'Photons', '' ],
+    TrackParticle = [ 'xAOD::TrackParticleContainer', 'GSFTrackParticles', '-caloExtension.-cellAssociation'],
+    Track         = [ 'TrackCollection', 'GSFTracks', ''],
+    Truth         = [ 'xAOD::TruthParticleContainer', 'egammaTruthParticles', '-caloExtension']
+    )  
+  inputs['TrackParticle'][1] = InDetKeys.xAODTrackParticleContainer()
+  outputs['CellLink'] = ['CaloClusterCellLinkContainer', outputs['Cluster'][1] + '_links', '']
+  
 
 # Create methods to return the types and keys in inputs and outputs
 # e.g. egammaKeys.outputElectronKey()
 
-for i,j in inputs.iteritems():
+for i,j in egammaKeysDict.inputs.items():
   exec "def input%sType(): return '%s'" % (i, j[0])
   exec "def input%sKey(): return '%s'" % (i, j[1])
 
-for i,j in outputs.iteritems():
+for i,j in egammaKeysDict.outputs.items():
   exec "def output%sType(): return '%s'" % (i, j[0])
   exec "def output%sKey(): return '%s'" % (i, j[1])
   exec "def %sKey(): return '%s'" % (i, j[1])
@@ -56,6 +56,5 @@ def caloCellKey():
   else: 
     return "AllCalo"
 
-
 def truthParticleKey():
-  return 'TruthParticle'
+  return 'TruthParticles'

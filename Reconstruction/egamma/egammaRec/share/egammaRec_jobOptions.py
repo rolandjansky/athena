@@ -6,6 +6,7 @@ from RecExConfig.RecAlgsFlags  import recAlgs
 from AthenaCommon.Resilience import treatException
 from AthenaCommon.DetFlags import DetFlags
 from egammaRec import egammaKeys
+from egammaRec.egammaKeys import egammaKeysDict
 
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -67,24 +68,24 @@ if not rec.doTruth():
 
 if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.egammaRecFlags.doEgammaCaloSeeded() :
     try:
-        from egammaRec.egammaTruthAssociationAlg import egammaTruthAssociationAlg
-        egammaTruthAssociationAlg(MatchForwardElectrons= jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
-                                  MatchClusters=False)
+        from egammaRec.egammaTruthAssociationAlg import egammaTruthAssociationGetter
+        egammaTruthAssociationGetter(ignoreExistingDataObject=True)
     except Exception:
         treatException("Could not set up egammaTruthAssociationAlg. Switched off !")
+        egammaTruthAssociationGetter(disable=True)
 
 ####################################################################
 # Lock egamma containers
-if rec.doESD():
-    try:
-        from egammaRec.egammaLocker import egammaLocker
-        topSequence +=egammaLocker(name= "egLocker",
-                                   doTruth=rec.doTruth(),
-                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
-                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   outputClusterKey=egammaKeys.outputClusterKey(),
-                                   egammakeys=egammaKeys.outputs.items())
-    except:
-        treatException("Could not set up egammaLocker. Switched off !")
+#if rec.doESD():
+#    try:
+#        from egammaRec.egammaLocker import egammaLocker
+#        topSequence +=egammaLocker(name= "egLocker",
+#                                   doTruth=rec.doTruth(),
+#                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+#                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
+#                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+#                                   outputClusterKey=egammaKeys.outputClusterKey(),
+#                                   egammakeys=egammaKeysDict.outputs.items())
+#    except:
+#        treatException("Could not set up egammaLocker. Switched off !")
 

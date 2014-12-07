@@ -51,24 +51,24 @@ egammaTrackSlimmer::egammaTrackSlimmer(const std::string& name,
 
   // Name of the input electron container
   declareProperty("InputElectronContainerName",   
-		  m_InputElectronContainerName  = "ElectronCollection",
+		  m_InputElectronContainerName="",
 		  "Name of the input electron container");
 
   // Name of the input photon container
   declareProperty("InputPhotonContainerName",   
-		  m_InputPhotonContainerName  = "PhotonCollection",
+		  m_InputPhotonContainerName="",
 		  "Name of the input photon container");
 
 
   
   // Name of the FSF track particle container
   declareProperty("TrackParticleContainerName", 
-		  m_TrackParticlesName="GSFTrackParticles",
+		  m_TrackParticlesName="",
 		  "Name of the Track Particle container");  
 
   // Name of the  GSF Vertex container
   declareProperty("VertexContainerName", 
-		  m_VertexName="GSFConversionVertices",
+		  m_VertexName="",
 		  "Name of the Vertex container");  
 
   // Bool to decide if we actually do the Thinning

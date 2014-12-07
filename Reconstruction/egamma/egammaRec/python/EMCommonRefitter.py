@@ -129,9 +129,11 @@ if not conddb.folderRequested('Indet/TrkErrorScaling'):
 #
 # declare the extrapolator
 # set up geometry
-#
-#from AthenaCommon.Include import include
-#include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+
+if not hasattr(ToolSvc,'AtlasExtrapolator'):
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    ToolSvc += AtlasExtrapolator()
+
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
 #
@@ -249,90 +251,6 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                         OutputLevel =5)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
-
-
-
-###############################################################################
-###############################################################################
-#######                     DNA Related Packaages                      ########
-###############################################################################
-###############################################################################
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
-     import InDet__CompetingPixelClustersOnTrackTool as IDCPCOTT
-egCompetingPixelTool = IDCPCOTT(name='egKalmanCompetingPixelClustersTool',
-                                WeightCutValueBarrel = 5.5,
-                                WeightCutValueEndCap = 5.5)
-ToolSvc+=egCompetingPixelTool
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
-     import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
-egCompetingSctTool = IDCSCOTT(name='egKalmanCompetingSCT_ClustersTool',
-                              WeightCutValueBarrel = 5.5,
-                              WeightCutValueEndCap = 5.5)
-ToolSvc+=egCompetingSctTool
-
-from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf \
-     import Trk__CompetingRIOsOnTrackTool as CompRotTool
-egKalmanCompetingROT_Tool = CompRotTool(name='egKalmanCompetingRIOsTool',
-                                        ToolForCompPixelClusters = egCompetingPixelTool,
-                                        ToolForCompSCT_Clusters = egCompetingSctTool)
-ToolSvc += egKalmanCompetingROT_Tool
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
-egKalmanInternalDAF = KPAF(name = 'egKalmanInternalDAF',
-                           CompetingRIOsOnTrackCreator = egKalmanCompetingROT_Tool)
-ToolSvc += egKalmanInternalDAF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
-egMeasRecalibST = Trk__MeasRecalibSteeringTool(name='egMeasRecalibST')
-ToolSvc += egMeasRecalibST
-
-from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
-egDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'egDNAdjustor')
-                                                #signifmin  = 0,
-                                                #lambdaxmin = 0)
-ToolSvc += egDNAdjustor
-#print      egDNAdjustor
-
-# Load Kalman Filter tools
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
-egFKF = PublicFKF(name                  = 'egFKF',
-                  StateChi2PerNDFPreCut = 30.0)
-ToolSvc += egFKF
-#print      egFKF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
-egBKS = PublicBKS(name                        = 'egBKS',
-                  InitialCovarianceSeedFactor = 200.)
-ToolSvc += egBKS
-#print      egBKS
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
-egKOL = PublicKOL(name               = 'egKOL',
-                  TrackChi2PerNDFCut = 17.0,
-                  StateChi2PerNDFCut = 12.5,
-                  #BroadPixelClusterHandle = BroadPixelClusterOnTrackTool
-                  )
-ToolSvc += egKOL
-#print      egKOL
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
-DNATrackFitter = ConfiguredKalmanFitter(name                             = 'DNATrackFitter',
-                                        ExtrapolatorHandle             = egTrkExtrapolator,
-                                        MeasurementUpdatorHandle       = egTrkUpdator,
-                                        ForwardKalmanFitterHandle      = egFKF,
-                                        KalmanSmootherHandle           = egBKS,
-                                        KalmanOutlierLogicHandle       = egKOL,
-                                        DynamicNoiseAdjustorHandle     = egDNAdjustor,
-                                        BrempointAnalyserHandle        = None,
-                                        AlignableSurfaceProviderHandle = None,
-                                        RIO_OnTrackCreatorHandle       = egRotCreator,
-                                        RecalibratorHandle             = egMeasRecalibST,
-                                        InternalDAFHandle              = egKalmanInternalDAF
-                                        )
-
-ToolSvc += DNATrackFitter
 
 
 ###############################################################################
