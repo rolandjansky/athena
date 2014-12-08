@@ -142,11 +142,20 @@ void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
 	    extendingConverters = extCnvMapIter->second;
 	 }
 	 // load the remaining "pieces" of this object
-	 for( TPCnvTokenList_p1::const_iterator it = tokens->begin();
-	      it != tokens->end(); it++ ) {
+	 for( TPCnvTokenList_p1::const_iterator it = tokens->begin(); it != tokens->end(); it++ ) {
+            if( it->token().size() < 36 ) {
+               ostringstream err;
+               err << "Corrupted Token in the list of extensions. Token='" << it->token() << "'"
+                   << " CnvID=" << it->converterID() << ", Token list size=" << tokens->size();
+ 	       throw std::runtime_error(err.str());
+            }              
 	    extCnvMap_t::const_iterator cnv = extendingConverters->find( it->converterID() );
 	    if( cnv == extendingConverters->end() ) {
-	       throw std::runtime_error("Extending TP converter not loaded");
+               ostringstream err;
+               err << "Extending TP converter not loaded! "
+                   << "missing ExtCnvID=" << it->converterID()
+                   << " corresponding POOL token: " << it->token();
+	       throw std::runtime_error(err.str());
 	    }
 //	    std::cout << "--->>---  readExtendingObjects: "
 //		      << " converter ID=" <<  it->converterID()
