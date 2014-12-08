@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigElectronAuxContainer.h 631414 2014-11-26 22:03:16Z gwatts $
+// $Id: TrigElectronAuxContainer.h 631633 2014-11-27 17:47:44Z gwatts $
 #ifndef XAODTRIGEGAMMA_TRIGELECTRONAUXCONTAINER_H
 #define XAODTRIGEGAMMA_TRIGELECTRONAUXCONTAINER_H
 
@@ -16,7 +16,7 @@ namespace xAOD {
    typedef TrigElectronAuxContainer_v1 TrigElectronAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigElectronAuxContainer, 1180743572, 1 )
 
 #endif // not XAODTRIGEGAMMA_TRIGELECTRONAUXCONTAINER_H

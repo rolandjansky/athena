@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigEgammaDict.h 631115 2014-11-26 08:34:25Z gwatts $
+// $Id: xAODTrigEgammaDict.h 634417 2014-12-08 13:31:27Z krasznaa $
 #ifndef XAODTRIGEGAMMA_XAODTRIGEGAMMADICT_H
 #define XAODTRIGEGAMMA_XAODTRIGEGAMMADICT_H
 
@@ -47,6 +47,13 @@ namespace{
       ElementLink< xAOD::TrigPhotonContainer_v1 > photon_el1;
       std::vector< ElementLink< xAOD::TrigPhotonContainer_v1 > > photon_el2;
       std::vector< std::vector< ElementLink< xAOD::TrigPhotonContainer_v1 > > > photon_el3;
+
+      // Declarations needed in order to generate the dictionaries of the
+      // auxiliary containers correctly:
+      ElementLink< xAOD::TrigEMClusterContainer > dummy1;
+      std::vector< ElementLink< xAOD::TrigEMClusterContainer > > dummy2;
+      ElementLink< xAOD::TrackParticleContainer > dummy3;
+      std::vector< ElementLink< xAOD::TrackParticleContainer > > dummy4;
 
    };
 } // private namespace
