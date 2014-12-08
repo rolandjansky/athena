@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigPhotonAuxContainer.h 631414 2014-11-26 22:03:16Z gwatts $
+// $Id: TrigPhotonAuxContainer.h 631633 2014-11-27 17:47:44Z gwatts $
 #ifndef XAODTRIGEGAMMA_TRIGPHOTONAUXCONTAINER_H
 #define XAODTRIGEGAMMA_TRIGPHOTONAUXCONTAINER_H
 
@@ -16,7 +16,7 @@ namespace xAOD {
    typedef TrigPhotonAuxContainer_v1 TrigPhotonAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigPhotonAuxContainer, 1313537382, 1 )
 
 #endif // not XAODTRIGEGAMMA_TRIGPHOTONAUXCONTAINER_H
