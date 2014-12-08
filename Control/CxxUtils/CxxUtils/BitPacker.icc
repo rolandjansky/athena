@@ -1,0 +1,195 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CxxUtils/BitPacker.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2014
+ * @brief Helper to pack a set of values bitwise into a stream.
+ */
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Number of bits per item to use in the packed representation.
+ * @param stream Output stream object.
+ */
+template <class STREAM>
+inline
+BitPacker<STREAM>::BitPacker (uint8_t nbits, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_nbits(nbits),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * This may flush buffered data to the output stream.
+ */
+template <class STREAM>
+inline
+BitPacker<STREAM>::~BitPacker()
+{
+  if (m_nbuf > 0)
+    m_stream << m_buf;
+}
+
+
+/**
+ * @brief Pack one value to the stream.
+ * @param x The value to pack.
+ *          The upper bits should all be clear.
+ */
+template <class STREAM>
+inline
+void BitPacker<STREAM>::pack (uint32_t dat)
+{
+  const uint8_t totbits = 8*sizeof(m_buf);
+
+  m_buf |= (dat << m_nbuf);
+  m_nbuf += m_nbits;
+  if (m_nbuf >= totbits) {
+    m_stream << m_buf;
+    m_nbuf -= totbits;
+    if (m_nbuf == 0)
+      m_buf = 0;
+    else
+      m_buf = dat >> (m_nbits - m_nbuf);
+  }
+}
+
+
+/**
+ * @brief Constructor.
+ * @param stream Output stream object.
+ */
+template <class STREAM>
+inline
+BitPacker8<STREAM>::BitPacker8 (STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Must be 8.
+ * @param stream Output stream object.
+ */
+template <class STREAM>
+inline
+BitPacker8<STREAM>::BitPacker8 (uint8_t /*nbits*/, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * This may flush buffered data to the output stream.
+ */
+template <class STREAM>
+inline
+BitPacker8<STREAM>::~BitPacker8()
+{
+  if (m_nbuf > 0)
+    m_stream << m_buf;
+}
+
+
+/**
+ * @brief Pack one value to the stream.
+ * @param x The value to pack.
+ *          The upper bits should all be clear.
+ */
+template <class STREAM>
+inline
+void BitPacker8<STREAM>::pack (uint32_t dat)
+{
+  m_buf |= (dat << m_nbuf);
+  m_nbuf += 8;
+  if (m_nbuf == 32) {
+    m_stream << m_buf;
+    m_buf = 0;
+    m_nbuf = 0;
+  }
+}
+
+
+/**
+ * @brief Constructor.
+ * @param stream Output stream object.
+ */
+template <class STREAM>
+inline
+BitPacker16<STREAM>::BitPacker16 (STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Must be 16.
+ * @param stream Output stream object.
+ */
+template <class STREAM>
+inline
+BitPacker16<STREAM>::BitPacker16 (uint8_t /*nbits*/, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * This may flush buffered data to the output stream.
+ */
+template <class STREAM>
+inline
+BitPacker16<STREAM>::~BitPacker16()
+{
+  if (m_nbuf > 0)
+    m_stream << m_buf;
+}
+
+
+/**
+ * @brief Pack one value to the stream.
+ * @param x The value to pack.
+ *          The upper bits should all be clear.
+ */
+template <class STREAM>
+inline
+void BitPacker16<STREAM>::pack (uint32_t dat)
+{
+  m_buf |= (dat << m_nbuf);
+  m_nbuf += 16;
+  if (m_nbuf == 32) {
+    m_stream << m_buf;
+    m_buf = 0;
+    m_nbuf = 0;
+  }
+}
+
+
+} // namespace CxxUtils

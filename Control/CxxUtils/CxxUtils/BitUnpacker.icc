@@ -1,0 +1,166 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CxxUtils/BitUnpacker.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2014
+ * @brief Helper to unpack a set of values bitwise from a stream.
+ */
+
+
+#include "CxxUtils/ones.h"
+
+
+namespace CxxUtils {
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Number of bits per item to use in the packed representation.
+ * @param stream Input stream object.
+ */
+template <class STREAM>
+inline
+BitUnpacker<STREAM>::BitUnpacker (uint8_t nbits, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_nbits(nbits),
+    m_stream (stream),
+    m_mask (CxxUtils::ones<uint32_t>(nbits))
+{
+}
+
+
+/**
+ * @brief Unpack one value from the stream.
+ */
+template <class STREAM>
+inline
+uint32_t BitUnpacker<STREAM>::unpack()
+{
+  const uint8_t totbits = 8*sizeof(m_buf);
+
+  if (m_nbuf == 0) {
+    m_stream >> m_buf;
+    m_nbuf = totbits;
+  }
+
+  uint32_t out = m_buf & m_mask;
+  if (m_nbits > m_nbuf) {
+    uint8_t nleft = m_nbits - m_nbuf;
+    m_stream >> m_buf;
+    out |= (m_buf & CxxUtils::ones<uint32_t>(nleft)) << m_nbuf;
+    m_buf >>= nleft;
+    m_nbuf = totbits - nleft;
+  }
+  else {
+    m_buf >>= m_nbits;
+    m_nbuf -= m_nbits;
+  }
+
+  return out;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param stream Input stream object.
+ */
+template <class STREAM>
+inline
+BitUnpacker8<STREAM>::BitUnpacker8 (STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Must be 8.
+ * @param stream Input stream object.
+ */
+template <class STREAM>
+inline
+BitUnpacker8<STREAM>::BitUnpacker8 (uint8_t /*nbits*/, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Unpack one value from the stream.
+ */
+template <class STREAM>
+inline
+uint32_t BitUnpacker8<STREAM>::unpack() 
+{
+  if (m_nbuf == 0) {
+    m_stream >> m_buf;
+    m_nbuf = 4;
+  }
+
+  uint8_t ret = m_buf & 0xff;
+  m_buf >>= 8;
+  --m_nbuf;
+  return ret;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param stream Input stream object.
+ */
+template <class STREAM>
+inline
+BitUnpacker16<STREAM>::BitUnpacker16 (STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param nbits Must be 16.
+ * @param stream Input stream object.
+ */
+template <class STREAM>
+inline
+BitUnpacker16<STREAM>::BitUnpacker16 (uint8_t /*nbits*/, STREAM& stream)
+  : m_buf(0),
+    m_nbuf(0),
+    m_stream (stream)
+{
+}
+
+
+/**
+ * @brief Unpack one value from the stream.
+ */
+template <class STREAM>
+inline
+uint32_t BitUnpacker16<STREAM>::unpack() 
+{
+  if (m_nbuf == 0) {
+    m_stream >> m_buf;
+    m_nbuf = 2;
+  }
+
+  uint16_t ret = m_buf & 0xffff;
+  m_buf >>= 16;
+  --m_nbuf;
+  return ret;
+}
+
+
+} // namespace CxxUtils
+
+

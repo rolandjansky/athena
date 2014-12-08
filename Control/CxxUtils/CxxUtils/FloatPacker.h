@@ -111,6 +111,9 @@ private:
   /// Scale factor for stored numbers.
   double m_scale;
 
+  /// Inverse of scale.
+  double m_invscale;
+
   /// Should we use a sign bit?
   bool m_is_signed;
 

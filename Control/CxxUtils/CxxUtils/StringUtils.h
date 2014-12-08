@@ -40,6 +40,8 @@ namespace CxxUtils {
 
   namespace StringUtils {
 
+    typedef std::string::size_type size_type;
+
     const std::string beginNormal     = "\033[0m";
     const std::string beginBoldWhite  = "\033[1m";
     const std::string beginBoldPink   = "\033[1;35m";
@@ -77,18 +79,44 @@ namespace CxxUtils {
     size_t getStringWidth(const std::string& str);
     void   writeFixedWidth(std::ostream& os, const std::string& input, size_t width, const std::string& align);
 
-    size_t findParenthesisMatch (const std::string& str, size_t nextpos, const std::string& paropen, const std::string& parclose);
-    size_t rfindParenthesisMatch(const std::string& str, size_t nextpos, const std::string& paropen, const std::string& parclose);
+    size_type findParenthesisMatch (const std::string& str,
+                                    size_type nextpos,
+                                    const std::string& paropen,
+                                    const std::string& parclose);
+    size_type rfindParenthesisMatch(const std::string& str,
+                                    size_type nextpos,
+                                    const std::string& paropen,
+                                    const std::string& parclose);
 
-    size_t findFree (const std::string& haystack, const std::string& needle, const std::string& paropen, const std::string& parclose, size_t startpos = 0);
-    size_t rfindFree(const std::string& haystack, const std::string& needle, const std::string& paropen, const std::string& parclose, size_t startpos);
+    size_type findFree (const std::string& haystack,
+                        const std::string& needle,
+                        const std::string& paropen,
+                        const std::string& parclose,
+                        size_type startpos = 0);
+    size_type rfindFree(const std::string& haystack,
+                        const std::string& needle,
+                        const std::string& paropen,
+                        const std::string& parclose,
+                        size_type startpos);
 
-    size_t findFreeOf (const std::string& haystack, const std::string& needles, const std::string& paropen, const std::string& parclose, size_t startpos = 0);
-    size_t rfindFreeOf(const std::string& haystack, const std::string& needles, const std::string& paropen, const std::string& parclose, size_t startpos);
+    size_type findFreeOf (const std::string& haystack,
+                          const std::string& needles,
+                          const std::string& paropen,
+                          const std::string& parclose,
+                          size_type startpos = 0);
+    size_type rfindFreeOf(const std::string& haystack, 
+                          const std::string& needles, 
+                          const std::string& paropen,
+                          const std::string& parclose,
+                          size_type startpos);
 
     std::string replaceSymbols(const std::string& str, StringUtils::FORMAT inputFormat, StringUtils::FORMAT outputFormat);
-    size_t findBeginSpecialScript(const std::string& str, StringUtils::SPECIALSCRIPT scripttype, size_t pos = 0);
-    size_t findEndSpecialScript(const std::string& str, StringUtils::SPECIALSCRIPT scripttype, size_t pos = 0);
+    size_type findBeginSpecialScript(const std::string& str,
+                                     StringUtils::SPECIALSCRIPT scripttype,
+                                     size_type pos = 0);
+    size_type findEndSpecialScript(const std::string& str,
+                                   StringUtils::SPECIALSCRIPT scripttype,
+                                   size_type pos = 0);
 
     StringUtils::FORMAT guessFormat(const std::string& input);
     std::string convertText(const std::string& input, StringUtils::FORMAT inputFormat, StringUtils::FORMAT outputFormat);

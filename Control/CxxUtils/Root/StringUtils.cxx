@@ -190,10 +190,14 @@ namespace CxxUtils {
        \param parclose closing parenthesis (arbitrary string)
        \return position of matching parenthesis close in the string
     */
-    size_t findParenthesisMatch(const std::string& str, size_t nextpos, const std::string& paropen, const std::string& parclose){
-      size_t openbrace = 0;
-      size_t closebrace = 0;
-      size_t bracestack = 1;
+    size_type findParenthesisMatch(const std::string& str,
+                                   size_type nextpos,
+                                   const std::string& paropen,
+                                   const std::string& parclose)
+    {
+      size_type openbrace = 0;
+      size_type closebrace = 0;
+      size_type bracestack = 1;
       while((bracestack > 0) && (nextpos < str.size())){
 	openbrace = str.find(paropen, nextpos+1);
 	closebrace = str.find(parclose, nextpos+1);
@@ -217,10 +221,14 @@ namespace CxxUtils {
        \param parclose closing parenthesis (arbitrary string)
        \return position of matching parenthesis close in the string
     */
-    size_t rfindParenthesisMatch(const std::string& str, size_t nextpos, const std::string& paropen, const std::string& parclose){
-      size_t openbrace = 0;
-      size_t closebrace = 0;
-      size_t bracestack = 1;
+    size_type rfindParenthesisMatch(const std::string& str,
+                                    size_type nextpos,
+                                    const std::string& paropen,
+                                    const std::string& parclose)
+    {
+      size_type openbrace = 0;
+      size_type closebrace = 0;
+      size_type bracestack = 1;
       while((bracestack > 0) && (nextpos < str.size())){
 	openbrace = str.rfind(paropen, nextpos-1);
 	closebrace = str.rfind(parclose, nextpos-1);
@@ -248,10 +256,15 @@ namespace CxxUtils {
        \param startpos position to start searching at
        \return position of the next free occurrence
     */
-    size_t findFree(const std::string& haystack, const std::string& needle, const std::string& paropen, const std::string& parclose, size_t startpos){
-      size_t needlepos = haystack.find(needle, startpos);
-      size_t nextparopen = haystack.find(paropen, startpos);
-      while(needlepos > nextparopen){
+    size_type findFree(const std::string& haystack,
+                       const std::string& needle,
+                       const std::string& paropen,
+                       const std::string& parclose,
+                       size_type startpos)
+    {
+      size_type needlepos = haystack.find(needle, startpos);
+      size_type nextparopen = haystack.find(paropen, startpos);
+      while(needlepos != std::string::npos && needlepos > nextparopen){
 	startpos = findParenthesisMatch(haystack, nextparopen, paropen, parclose)+1;
 	needlepos = haystack.find(needle, startpos);
 	nextparopen = haystack.find(paropen, startpos);
@@ -268,10 +281,15 @@ namespace CxxUtils {
        \param startpos position to start searching at
        \return position of the previous free occurrence
     */
-    size_t rfindFree(const std::string& haystack, const std::string& needle, const std::string& paropen, const std::string& parclose, size_t startpos){
-      size_t needlepos = haystack.rfind(needle, startpos);
-      size_t nextparclose = haystack.rfind(parclose, startpos);
-      while(needlepos < nextparclose){
+    size_type rfindFree(const std::string& haystack,
+                        const std::string& needle,
+                        const std::string& paropen,
+                        const std::string& parclose,
+                        size_type startpos)
+    {
+      size_type needlepos = haystack.rfind(needle, startpos);
+      size_type nextparclose = haystack.rfind(parclose, startpos);
+      while(needlepos != std::string::npos && needlepos < nextparclose){
 	startpos = rfindParenthesisMatch(haystack, nextparclose, paropen, parclose)-1;
 	// this line is correct and important! 
 	startpos = std::min(startpos+1, startpos-1); 
@@ -291,10 +309,15 @@ namespace CxxUtils {
        \param startpos position to start searching at
        \return position of the next free occurrence
     */
-    size_t findFreeOf(const std::string& haystack, const std::string& needles, const std::string& paropen, const std::string& parclose, size_t startpos){
-      size_t needlepos = haystack.find_first_of(needles, startpos);
-      size_t nextparopen = haystack.find(paropen, startpos);
-      while(needlepos > nextparopen){
+    size_type findFreeOf(const std::string& haystack,
+                         const std::string& needles,
+                         const std::string& paropen,
+                         const std::string& parclose,
+                         size_type startpos)
+    {
+      size_type needlepos = haystack.find_first_of(needles, startpos);
+      size_type nextparopen = haystack.find(paropen, startpos);
+      while(needlepos != std::string::npos && needlepos > nextparopen){
 	startpos = findParenthesisMatch(haystack, nextparopen, paropen, parclose)+1;
 	needlepos = haystack.find_first_of(needles, startpos);
 	nextparopen = haystack.find(paropen, startpos);
@@ -311,10 +334,15 @@ namespace CxxUtils {
        \param startpos position to start searching at
        \return position of the previous free occurrence
     */
-    size_t rfindFreeOf(const std::string& haystack, const std::string& needles, const std::string& paropen, const std::string& parclose, size_t startpos){
-      size_t needlepos = haystack.find_last_of(needles, startpos);
-      size_t nextparclose = haystack.rfind(parclose, startpos);
-      while(needlepos < nextparclose){
+    size_type rfindFreeOf(const std::string& haystack,
+                          const std::string& needles,
+                          const std::string& paropen,
+                          const std::string& parclose,
+                          size_type startpos)
+    {
+      size_type needlepos = haystack.find_last_of(needles, startpos);
+      size_type nextparclose = haystack.rfind(parclose, startpos);
+      while(needlepos != std::string::npos && needlepos < nextparclose){
 	startpos = rfindParenthesisMatch(haystack, nextparclose, paropen, parclose);
 	// this line is correct and important! 
 	startpos = std::min(startpos+1, startpos-1); 
@@ -435,7 +463,10 @@ namespace CxxUtils {
        \param pos starting position for the search
        \return position of next special script entity of the given type
     */
-    size_t findBeginSpecialScript(const std::string& str, StringUtils::SPECIALSCRIPT scripttype, size_t pos){
+    size_type findBeginSpecialScript(const std::string& str,
+                                     StringUtils::SPECIALSCRIPT scripttype,
+                                     size_type pos)
+    {
       while(pos < str.size()){
 	for(size_t i=0; i<STRINGUTILS__N_MAP_SPECIALSCRIPT; ++i){
 	  if(str.find(map_specialscript[i][scripttype]) != std::string::npos) return pos;
@@ -451,7 +482,10 @@ namespace CxxUtils {
        \param pos starting position for the search
        \return position of next entity not belonging to the given type of special script
     */
-    size_t findEndSpecialScript(const std::string& str, StringUtils::SPECIALSCRIPT scripttype, size_t pos){
+    size_type findEndSpecialScript(const std::string& str,
+                                   StringUtils::SPECIALSCRIPT scripttype,
+                                   size_type pos)
+    {
       while(pos < str.size()){
 	bool ok = false;
 	for(size_t i=0; i<STRINGUTILS__N_MAP_SPECIALSCRIPT; ++i){
@@ -529,7 +563,7 @@ namespace CxxUtils {
       token.clear();
       if(start+2 > latex.size()) return std::string::npos;
       if(latex[start] == '{'){
-	size_t endgrp = StringUtils::findParenthesisMatch(latex,start,"{","}");
+	size_type endgrp = StringUtils::findParenthesisMatch(latex,start,"{","}");
 	token = latex.substr(start+1,endgrp-start-1);
 	return endgrp+1;
       } else {
@@ -557,8 +591,8 @@ namespace CxxUtils {
 	scriptreplaced.reserve(2*input.size());
 	size_t pos = 0;
 	while(pos < input.size()){
-	  size_t startSuperScript = findBeginSpecialScript(input,StringUtils::SUPERSCRIPT,pos);
-	  size_t startSubScript   = findBeginSpecialScript(input,StringUtils::SUBSCRIPT,pos);
+	  size_type startSuperScript = findBeginSpecialScript(input,StringUtils::SUPERSCRIPT,pos);
+	  size_type startSubScript   = findBeginSpecialScript(input,StringUtils::SUBSCRIPT,pos);
 	  if(startSuperScript == std::string::npos && startSubScript == std::string::npos){
 	    scriptreplaced += input.substr(pos);
 	    break;
@@ -645,9 +679,13 @@ namespace CxxUtils {
 	  case '\\':
 	    { 
 	      // isolate the command
-	      size_t endpos = latex.find_first_not_of(StringUtils::letters,nextpos+1);
+              size_type endpos = latex.find_first_not_of(StringUtils::letters,nextpos+1);
+              if (endpos == std::string::npos)
+                endpos = latex.size();
 	      std::string cmd(latex.substr(nextpos+1,endpos-nextpos-1));
-	      size_t opengrp = latex.find_first_not_of(StringUtils::whitespace,endpos);
+              size_type opengrp = latex.find_first_not_of(StringUtils::whitespace,endpos);
+              if (opengrp == std::string::npos)
+                opengrp = latex.size();
 	      std::string token;
 	      // read the token (argument of the command)
 	      size_t endtok = readLaTeXToken(latex,token,opengrp);

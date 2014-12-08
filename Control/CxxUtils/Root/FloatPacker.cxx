@@ -11,6 +11,7 @@
  */
 
 #include "CxxUtils/FloatPacker.h"
+#include "CxxUtils/ones.h"
 #include <limits>
 #include <string>
 #include <sstream>
@@ -102,18 +103,6 @@ inline
 int min_int (int nbits)
 {
   return ((-1 << nbits) >> 1);
-}
-
-
-/**
- * @brief Return a word with the low NBITS bits set.
- * @param nbits Number of bits.
- */
-Packdest ones (int nbits)
-{
-  if (nbits == packdest_bits)
-    return ~ static_cast<Packdest> (0);
-  return (static_cast<Packdest> (1) << nbits) - 1;
 }
 
 
@@ -234,12 +223,17 @@ FloatPacker::FloatPacker (int nbits,
   if (scale == 1)
     scale = 0;
 
+  if (scale == 0)
+    m_invscale = 0;
+  else
+    m_invscale = 1. / m_scale;
+
   // Set up other cached values.
   m_npack = m_nmantissa;
   if (m_is_signed)
     --m_npack;
 
-  m_npack_ones = ones (m_npack);
+  m_npack_ones = ones<Packdest> (m_npack);
 
   // Sign bit mask.
   if (m_is_signed)
@@ -249,7 +243,7 @@ FloatPacker::FloatPacker (int nbits,
 
   // Number of exponent bits.
   m_nexp = nbits - m_nmantissa;
-  m_nexp_ones = ones (m_nexp);
+  m_nexp_ones = ones<Packdest> (m_nexp);
 
   // Minimum exponent value.
   m_min_exp = min_int (m_nexp);
@@ -305,8 +299,8 @@ FloatPacker::Packdest FloatPacker::pack (double src) const
     d.d.d = 0;
   }
 
-  if (m_scale)
-    d.d.d /= m_scale;
+  if (m_invscale)
+    d.d.d *= m_invscale;
 
   bool was_negative = false;
   if (d.d.ieee.negative != 0) {
