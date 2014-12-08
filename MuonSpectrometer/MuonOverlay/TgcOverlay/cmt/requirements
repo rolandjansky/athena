@@ -10,7 +10,6 @@ use MuonOverlayBase	MuonOverlayBase-*	MuonSpectrometer/MuonOverlay
 
 private
 use AthenaKernel	AthenaKernel-*		Control
-use EventInfo		EventInfo-*		Event
 use GeneratorObjects	GeneratorObjects-*	Generators
 use MuonDigToolInterfaces       MuonDigToolInterfaces-* MuonSpectrometer/MuonDigitization
 use MuonIdHelpers	MuonIdHelpers-*		MuonSpectrometer
