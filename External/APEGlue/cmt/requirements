@@ -6,13 +6,12 @@ manager sami.kama@cern.ch
 use ExternalPolicy ExternalPolicy-* External
 
 use yampl	   yampl-*	    External
-# Version to be kept in sync with the CMake configuration:
-macro APE_native_version "1.2.0"
+
+macro APE_native_version "1.0.1"
 # macro mandatory for distribution kit building
 macro APEGlue_native_version "$(APE_native_version)"
 
 macro APE_home "${ATLAS_EXTERNAL}/APE/${APE_native_version}/${CMTCONFIG}"
-#macro APE_home "${CMTINSTALLAREA}/${CMTCONFIG}"
 
 include_dirs "$(APE_home)/include"
 macro APE_libs "${APE_home}/lib"
@@ -26,4 +25,3 @@ path_remove PATH "/APE/"
 path_append PATH "${APE_bin}"
 
 macro APEGlue_export_paths "${APE_home}"
-
