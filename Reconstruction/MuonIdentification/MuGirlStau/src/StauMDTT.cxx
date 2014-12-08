@@ -19,29 +19,20 @@
 
 using namespace MuGirlNS;
 
-double StauMDTT::m_inverseSpeedOfLight = 1./299.792458;
+double StauMDTT::m_inverseSpeedOfLight = 1. / 299.792458;
 
-StauMDTT::MDTT::MDTT(StauTool* pStau,
-                     MsgStream&,
-                     const Muon::MdtDriftCircleOnTrack* mdcot,
-                     double locR,
-                     double t0Shift,
-                     double error,
-                     std::string stype) :
-pos(mdcot->globalPosition()),
-locR(locR),
-t0Shift(t0Shift),
-error(error),
-stype(stype)
+StauMDTT::MDTT::MDTT(StauTool* pStau, MsgStream&, const Muon::MdtDriftCircleOnTrack* mdcot,
+        double locR, double t0Shift, double error, std::string stype) :
+        pos(mdcot->globalPosition()), locR(locR), t0Shift(t0Shift), error(error), stype(stype)
 {
     status = mdcot->status();
     mag = mdcot->globalPosition().mag();
     driftRadius = mdcot->driftRadius();
     driftTime = mdcot->driftTime();
-    const MuonGM::MdtReadoutElement* detEl = mdcot->detectorElement();
-    MuonCalib::MdtFullCalibData data =
-        pStau->mdtCalibrationDbSvc()->getCalibration(detEl->collectionHash(), detEl->detectorElementHash()); 
-    const MuonCalib::MdtRtRelation* rtRelation = data.rtRelation;
+    auto detEl = mdcot->detectorElement();
+    auto data = pStau->mdtCalibrationDbSvc()->getCalibration(detEl->collectionHash(),
+            detEl->detectorElementHash());
+    auto rtRelation = data.rtRelation;
     bool out_of_bound_flag = false;
     TlocR = rtRelation->tr()->tFromR(fabs(locR), out_of_bound_flag);
     origTOF = mag * m_inverseSpeedOfLight;
@@ -51,13 +42,9 @@ stype(stype)
 }
 
 StauMDTT::StauMDTT(StauTool* pStau, MsgStream& log) :
-m_pStau(pStau),
-m_log(log),
-m_pTrack(NULL),
-m_avgBeta(StauBetaDefault),
-m_rmsBeta(-1.)
+        m_pStau(pStau), m_log(log), m_pTrack(NULL), m_avgBeta(StauBetaDefault), m_rmsBeta(-1.)
 {
-   if(m_pStau->doCalibration()) m_pCalibration = m_pStau->calibration().getMdtCalibration();
+    if (m_pStau->doCalibration()) m_pCalibration = m_pStau->calibration().getMdtCalibration();
 }
 
 StauMDTT::~StauMDTT()
@@ -67,83 +54,70 @@ StauMDTT::~StauMDTT()
 bool StauMDTT::initialize(const Trk::Track* pTrack)
 {
     clear();
-    if (pTrack == NULL) 
-    {
-        return false;
-    }
+    if (pTrack == NULL) return false;
     m_pTrack = pTrack;
-    const DataVector<const Trk::TrackStateOnSurface>* pTSoSs = pTrack->trackStateOnSurfaces();
-    if (pTSoSs == NULL){ return(false);} 
-
-
+    auto pTSoSs = pTrack->trackStateOnSurfaces();
+    if (pTSoSs == NULL) return false;
 
     m_pStau->tofTool()->setBeta(1.0);
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = pTSoSs->begin();
-        it != pTSoSs->end(); ++it)
-    {   
-        const Trk::TrackStateOnSurface* pTSoS = *it;
+    for (auto pTSoS : *pTSoSs)
+    {
         if (pTSoS->type(Trk::TrackStateOnSurface::Outlier)) continue;
-        const Trk::MeasurementBase* hit = pTSoS->measurementOnTrack();
+        auto hit = pTSoS->measurementOnTrack();
         if (hit == NULL) continue;
-        const Muon::MdtDriftCircleOnTrack* mdcot_orig = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(hit);
-
+        auto mdcot_orig = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(hit);
         if (mdcot_orig == NULL) continue;
-         
 
-        const Muon::MdtDriftCircleOnTrack* mdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(
-            m_pStau->driftCircleCreator()->correct(*(mdcot_orig->prepRawData()), *(pTSoS->trackParameters()))
-        );
-        if (mdcot == NULL) 
-        {
-             continue; 
-        }
-        
-        m_log << MSG::VERBOSE <<"MDTT::initialize after correct "<< mdcot->globalPosition()<<" time "<<mdcot->driftTime()<<endreq; 
+        auto mdcot =
+                dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(m_pStau->driftCircleCreator()->correct(
+                        *(mdcot_orig->prepRawData()), *(pTSoS->trackParameters())));
+        if (mdcot == NULL) continue;
+
+        LOG_VERBOSE << "after correct " << mdcot->globalPosition()
+                    << " time " << mdcot->driftTime()
+                    << endreq;
         //calibration
         double t0Shift = 0;
         double error = MDTTRESOLUTION;
-        if(m_pStau->doCalibration())
+        if (m_pStau->doCalibration())
         {
-             int id =  mdcot->detectorElement()->identify().get_identifier32().get_compact() & 0xFFFF0000;
-             std::map<int, StauCalibrationParameters >::iterator itCalib = m_pCalibration->find(id);
-             if(itCalib == m_pCalibration->end())
-             {
-		continue; //don't use the hit if it doesn't have calibration
-             }else
-             {
-                 error = itCalib->second.error;
-                 if(m_pStau->isData()) t0Shift = itCalib->second.timeShift;//shift
-                 else
-                 {//smear
-                      double error = itCalib->second.error;
-                      TRandom3 rand(0);
-                      t0Shift = m_pStau->mdtSmearFactor() * rand.Gaus(0,error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
-                 }
-             }
+            int id = mdcot->detectorElement()->identify().get_identifier32().get_compact()
+                    & 0xFFFF0000;
+            auto itCalib = m_pCalibration->find(id);
+            if (itCalib == m_pCalibration->end())
+                continue; //don't use the hit if it doesn't have calibration
+            else
+            {
+                error = itCalib->second.error;
+                if (m_pStau->isData())
+                    t0Shift = itCalib->second.timeShift; //shift
+                else
+                { //smear
+                    TRandom3 rand(0);
+                    t0Shift = m_pStau->mdtSmearFactor() * rand.Gaus(0, error); //Sofia: Low 0.5 MID 0.9 HIGH 1.4
+                }
+            }
         }
-        MDTT* pMdtt = new MDTT(m_pStau,
-                               m_log,
-                               mdcot,
-                               pTSoS->trackParameters()->parameters()[Trk::locR],
-                               t0Shift,
-			       error,	
-                               pTSoS->dumpType());
-        StauHit stauhit(MDTT_SP_TECH, pMdtt->TOF, mdcot->globalPosition().x(), mdcot->globalPosition().y(), mdcot->globalPosition().z(),
-                       mdcot->prepRawData()->identify(),-1,error,t0Shift);//E.K. change to tube id  
+        MDTT* pMdtt = new MDTT(m_pStau, m_log, mdcot,
+                pTSoS->trackParameters()->parameters()[Trk::locR], t0Shift, error,
+                pTSoS->dumpType());
+        StauHit stauhit(MDTT_STAU_HIT, pMdtt->TOF, mdcot->globalPosition().x(),
+                mdcot->globalPosition().y(), mdcot->globalPosition().z(),
+                mdcot->prepRawData()->identify(), -1, error, t0Shift); //E.K. change to tube id
         m_hits.push_back(stauhit);
         delete mdcot;
         m_mdtts.push_back(pMdtt);
     }
- 
-    if(m_mdtts.size()>0) averageBeta();
-    return(true);
+
+    if (!m_mdtts.empty()) averageBeta();
+    return (true);
 }
 
 void StauMDTT::clear()
 {
     m_pTrack = NULL;
-    for (std::vector<MDTT*>::iterator it = m_mdtts.begin(); it != m_mdtts.end(); ++it)
-        delete *it;
+    for (auto pMdtt : m_mdtts)
+        delete pMdtt;
     m_mdtts.clear();
     m_hits.clear();
     m_avgBeta = StauBetaDefault;
@@ -156,14 +130,14 @@ std::string StauMDTT::toString() const
     oss << "hits[" << m_mdtts.size() << "]:\n";
     for (size_t iMdtt = 0; iMdtt < m_mdtts.size(); ++iMdtt)
     {
-        const MDTT* pMdtt = m_mdtts[iMdtt];
-        oss << "  " << iMdtt+1 << ": status=" << pMdtt->status << " mag=" << pMdtt->mag
-        << " driftRadius=" << pMdtt->driftRadius << " driftTime=" << pMdtt->driftTime
-        << " locR=" << pMdtt->locR << " TlocR=" << pMdtt->TlocR << " origTOF="
-        << pMdtt->origTOF << " TOF=" << pMdtt->TOF << " error=" << pMdtt->error
-        << " TSoSType=" << pMdtt->stype << "\n";
+        auto pMdtt = m_mdtts[iMdtt];
+        oss << "  " << iMdtt + 1 << ": status=" << pMdtt->status << " mag=" << pMdtt->mag
+                << " driftRadius=" << pMdtt->driftRadius << " driftTime=" << pMdtt->driftTime
+                << " locR=" << pMdtt->locR << " TlocR=" << pMdtt->TlocR << " origTOF="
+                << pMdtt->origTOF << " TOF=" << pMdtt->TOF << " error=" << pMdtt->error
+                << " TSoSType=" << pMdtt->stype << "\n";
     }
-    return(oss.str());
+    return (oss.str());
 }
 
 void StauMDTT::initStepData(MdttStepData* mdttData, double beta)
@@ -174,36 +148,36 @@ void StauMDTT::initStepData(MdttStepData* mdttData, double beta)
 
 void StauMDTT::clearStepData(MdttStepData* mdttData)
 {
-    if (NULL == mdttData) return;
+    if (mdttData == NULL) return;
     mdttData->chi2 = 0.0;
     mdttData->dof = 0;
 }
 
 void StauMDTT::printStepData(MdttStepData* mdttData)
 {
-    if (NULL == mdttData) return;
-    m_log << MSG::VERBOSE << "mdtt data:"
-    << " beta=" << mdttData->beta
-    << " chi2=" << mdttData->chi2
-    << " dof=" << mdttData->dof << endreq;
+    if (mdttData != NULL)
+        LOG_VERBOSE << "mdtt data:"
+                    << " beta=" << mdttData->beta
+                    << " chi2=" << mdttData->chi2
+                    << " dof=" << mdttData->dof
+                    << endreq;
 }
 
 void StauMDTT::processWithBeta(double currentBeta, MdttStepData* mdttData)
 {
-    if (NULL == mdttData) return;
-    m_log << MSG::VERBOSE << "StauMDTT::processWithBeta( beta=" << currentBeta << " )" << endreq;
+    if (mdttData == NULL) return;
+    LOG_VERBOSE << "beta=" << currentBeta << endreq;
 
     mdttData->chi2 = 0.0;
-    for (std::vector<MDTT*>::iterator it = m_mdtts.begin(); it != m_mdtts.end(); ++it)
+    for (auto pMdtt : m_mdtts)
     {
-        const MDTT* pMdtt = *it;
         double betaTOF = pMdtt->mag * m_inverseSpeedOfLight / currentBeta;
         double diff = pMdtt->TOF - betaTOF;
         mdttData->chi2 += diff * diff / pMdtt->error2;
     }
     mdttData->dof = m_mdtts.size();
 
-    m_log << MSG::VERBOSE << "StauMDTT::processWithBeta done: chi2=" << mdttData->chi2 << " dof=" << mdttData->dof << endreq;
+    LOG_VERBOSE << "done chi2=" << mdttData->chi2 << " dof=" << mdttData->dof << endreq;
 }
 
 void MuGirlNS::StauMDTT::averageBeta()
@@ -211,37 +185,35 @@ void MuGirlNS::StauMDTT::averageBeta()
     //Average
     double up = 0;
     double dwn = 0;
-    for (std::vector<MDTT*>::iterator it = m_mdtts.begin(); it != m_mdtts.end(); ++it)
+    for (auto pMdtt : m_mdtts)
     {
-        const MDTT* pMdtt = *it;
         double measureToF = pMdtt->TOF;
         double distance = pMdtt->mag;
         double invBeta = CLHEP::c_light * measureToF / distance; //distance / measureToF * m_inverseSpeedOfLight;
         double tofError = pMdtt->error;
-	double invBetaError = tofError * CLHEP::c_light / distance;
+        double invBetaError = tofError * CLHEP::c_light / distance;
         //double measuredBetaError = distance * m_inverseSpeedOfLight  * (1 / (measureToF * measureToF)) * tofError;
-        up += ( invBeta / (invBetaError * invBetaError) );
-        dwn += ( 1. / (invBetaError * invBetaError) );
+        up += (invBeta / (invBetaError * invBetaError));
+        dwn += (1. / (invBetaError * invBetaError));
     }
-    double avgInvBeta = ( 0 != dwn) ?  up/dwn : 1./StauBetaDefault;
-    m_avgBeta = 1./ avgInvBeta; // 1/(up/dwn)
+    double avgInvBeta = (dwn != 0) ? up / dwn : 1. / StauBetaDefault;
+    m_avgBeta = 1. / avgInvBeta; // 1/(up/dwn)
 
     //RMS
     up = 0;
     dwn = 0;
-    for (std::vector<MDTT*>::iterator it = m_mdtts.begin(); it != m_mdtts.end(); ++it)
+    for (auto pMdtt : m_mdtts)
     {
-        const MDTT* pMdtt = *it;
         double measureToF = pMdtt->TOF;
         double distance = pMdtt->mag;
-        double invBeta = CLHEP::c_light * measureToF / distance; 
-	double deltaInvBeta = invBeta - avgInvBeta; 
+        double invBeta = CLHEP::c_light * measureToF / distance;
+        double deltaInvBeta = invBeta - avgInvBeta;
         double tofError = pMdtt->error;
         double invBetaError = tofError * CLHEP::c_light / distance;
         //double measuredBetaError = distance * m_inverseSpeedOfLight * (1. / (measureToF * measureToF)) * tofError;
-        up +=   deltaInvBeta *  deltaInvBeta / (invBetaError * invBetaError);
-        dwn += ( 1. / (invBetaError * invBetaError) );
+        up += deltaInvBeta * deltaInvBeta / (invBetaError * invBetaError);
+        dwn += (1. / (invBetaError * invBetaError));
     }
-    double rmsInvBeta = (0 != dwn) ? sqrt(up/dwn) : -1; 	
-    m_rmsBeta = (0 != dwn) ?  m_avgBeta * m_avgBeta * rmsInvBeta : -1;
+    double rmsInvBeta = (dwn != 0) ? sqrt(up / dwn) : -1;
+    m_rmsBeta = (dwn != 0) ? m_avgBeta * m_avgBeta * rmsInvBeta : -1;
 }

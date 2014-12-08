@@ -9,7 +9,7 @@
 #include "TrkEventPrimitives/DriftCircleStatus.h"
 #include "MuGirlStau/StauToolDefinitions.h"
 #include "MuGirlStau/StauCalibration.h"
-#include <vector>
+#include "MuGirlInterfaces/CandidateSummary.h"
 
 class MsgStream;
 
@@ -44,11 +44,23 @@ namespace MuGirlNS
         void clearStepData(MdttStepData* mdttData);
         void printStepData(MdttStepData* mdttData);
         void processWithBeta(double currentBeta, MdttStepData* mdttData);
-        inline StauHits getHits() { return m_hits; }
+        inline StauHits getHits()
+        {
+            return m_hits;
+        }
         void averageBeta();
-        double avgBeta() { return m_avgBeta; }
-        double rmsBeta() { return m_rmsBeta; }
-         
+        double avgBeta()
+        {
+            return m_avgBeta;
+        }
+        double rmsBeta()
+        {
+            return m_rmsBeta;
+        }
+        bool hasHits()
+        {
+            return !m_mdtts.empty();
+        }
 
     private:
         struct MDTT
@@ -66,29 +78,25 @@ namespace MuGirlNS
             double error;
             double error2;
             std::string stype;
-            MDTT(StauTool* pStau,
-                 MsgStream& log,
-                 const Muon::MdtDriftCircleOnTrack* mdcot,
-                 double locR,
-                 double t0Shift,
-                 double error,
-                 std::string stype);
+            MDTT(StauTool* pStau, MsgStream& log, const Muon::MdtDriftCircleOnTrack* mdcot,
+                    double locR, double t0Shift, double error, std::string stype);
             double StationT0Shift(const MuonGM::MdtReadoutElement* detEl);
         }; // class MDTT
 
-        StauTool*           m_pStau;
-        MsgStream&          m_log;
-        const Trk::Track*   m_pTrack;
-        double              m_baseBeta;
-        std::vector<MDTT*>  m_mdtts;
-        static double       m_inverseSpeedOfLight;
-        StauHits            m_hits;
+        StauTool* m_pStau;
+        MsgStream& m_log;
+        const Trk::Track* m_pTrack;
+        double m_baseBeta;
+        std::vector<MDTT*> m_mdtts;
+        static double m_inverseSpeedOfLight;
+        StauHits m_hits;
         double m_avgBeta; //
         double m_rmsBeta; //
 
-        std::map<int, StauCalibrationParameters >* m_pCalibration;
-    }; // class StauMDTT
-} // namespace MuGirlsNS
+        StauCalibration::id_calibration_map* m_pCalibration;
+    };
+// class StauMDTT
+}// namespace MuGirlsNS
 
 #endif // MUGIRLNSSTAUMDTT_H
 

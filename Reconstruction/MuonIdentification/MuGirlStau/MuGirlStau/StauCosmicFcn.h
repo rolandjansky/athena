@@ -11,24 +11,23 @@
 
 namespace MuGirlNS
 {
+    class StauTool;
 
-class StauTool;
+    class StauCosmicFcn: public IObjective
+    {
+    public:
+        StauCosmicFcn(StauTool* pStauTool, MsgStream& log, double beta = 1.0);
+        virtual ~StauCosmicFcn();
+        virtual double function(double a, StauTechnology eTech);
+        bool selectRange(double& min, double& max);
+        void singleTTrack(double tTrack);
 
-class StauCosmicFcn : public IObjective
-{
-public:
-    StauCosmicFcn(StauTool* pStauTool, MsgStream& log, double beta = 1.0);
-    virtual ~StauCosmicFcn();
-    virtual double function(double a, StauTechnology eTech);
-    bool selectRange(double& min, double& max) ;
-    void singleTTrack(double tTrack);
-    
-private:
-    StauTool* m_pStau;
-    MsgStream& m_log;
-    double m_beta;
+    private:
+        StauTool* m_pStau;
+        MsgStream& m_log;
+        double m_beta;
 
-};
+    };
 
 } // end of namespace MuGirlNS
 

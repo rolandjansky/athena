@@ -53,6 +53,11 @@ class MuGirlNS__StauToolConfig(MuGirlNS__StauTool):
         #GlobalFitTool_stau.TrackFitter = CombinedMuonTrackBuilder_stau
         #ToolSvc += GlobalFitTool_stau
         
+#         from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
+#         caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool("MuGirlStauCaloCellAssociationTool")
+#         ToolSvc += caloCellAssociationTool
+#         self.ParticleCaloCellAssociationTool = caloCellAssociationTool
+        
         self.StauMdtDriftCircleCreator = DriftCircleOnTrack_stau
         self.StauMdtSegmentMaker = maker_stau
         self.StauBetaTofTool = BetaTofTool_stau
@@ -64,12 +69,11 @@ class MuGirlNS__StauToolConfig(MuGirlNS__StauTool):
             self.rpcTimeShift=88.
         else:
             self.isData=False
-             
-  
-    def __setattr__(self, name, value):
-        super(MuGirlNS__StauTool, self).__setattr__(name, value)
-        if name in ['doConsistency'] :
-            from MuGirl.MuGirlConfig import MuGirl
-            print "MuGirlStauConfig: MuGirl.%s=%s" % (name, str(value))
-            MuGirl.__setattr__(name, value)
+
+        from AthenaCommon.Utils.unixtools import find_datafile
+        self.doCalibration = True
+        self.mdtCalibFile = find_datafile("mdt_calibration.data")
+        self.rpcCalibFile = find_datafile("rpc_calibration.data")
+        self.caloCalibFile = find_datafile("calo_calibration.data")
+
 #print MuGirlNS__StauTool

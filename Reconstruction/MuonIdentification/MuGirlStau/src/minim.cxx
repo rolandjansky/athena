@@ -3,16 +3,21 @@
 */
 
 #include "MuGirlStau/minim.h"
-#include <math.h>
+#include <cmath>
+#include <utility>
 
 using namespace MuGirlNS;
 
-const double GOLD2 = (sqrt(5.0) - 1.0) / 2.0;
-const double GOLD1 = 1.0 - GOLD2;
+constexpr double GOLD2 = (sqrt(5.0) - 1.0) / 2.0;
+constexpr double GOLD1 = 1.0 - GOLD2;
 
-double Minimizer::minimize(IObjective& obj, StauTechnology eTech,  double& amin, double& amax, double tolerance)
+std::pair<double, double> Minimizer::minimize(
+        IObjective& obj,
+        StauTechnology eTech,
+        double& amin,
+        double& amax,
+        double tolerance)
 {
-     
     double a0 = amin;
     obj.function(a0, eTech);
     double a3 = amax;
@@ -20,7 +25,7 @@ double Minimizer::minimize(IObjective& obj, StauTechnology eTech,  double& amin,
     double a1 = GOLD2 * a0 + GOLD1 * a3, f1 = obj.function(a1, eTech);
     double a2 = GOLD1 * a0 + GOLD2 * a3, f2 = obj.function(a2, eTech);
     double tol = tolerance * (a3 - a0);
-    
+
     while (a3 - a0 > tol)
     {
         if (f1 > f2)
@@ -40,21 +45,29 @@ double Minimizer::minimize(IObjective& obj, StauTechnology eTech,  double& amin,
             f1 = obj.function(a1, eTech);
         }
     }
-    a1 = (a1 + a2) / 2.0; minF = obj.function(a1, eTech);
+    a1 = (a1 + a2) / 2.0;
+    minF = obj.function(a1, eTech);
 //     amin = a0;
 //     amax = a3;
-    return a1;
+    return std::make_pair(a1, minF);
 }
 
-void Minimizer::createGrid(IObjective& obj, StauTechnology eTech, double& amin, double& amax, double tolerance)
+void Minimizer::createGrid(
+        IObjective& obj,
+        StauTechnology eTech,
+        double& amin,
+        double& amax,
+        double tolerance)
 {
-    double currentPoint = amin;
-    
-    while(currentPoint <= amax)
-    {
+//    double currentPoint = amin;
+//
+//    while (currentPoint <= amax)
+//    {
+//        obj.function(currentPoint, eTech);
+//        currentPoint += tolerance;
+//    }
+    for (double currentPoint = amin; currentPoint <= amax; currentPoint += tolerance)
         obj.function(currentPoint, eTech);
-	currentPoint += tolerance;
-    }
 }
 
 // To use the following test code, compile this module with -DTESTING

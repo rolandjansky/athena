@@ -8,14 +8,14 @@
 #include "MuGirlStau/StauContainer.h"
 #include "MuGirlStau/StauCollection.h"
 
-
-void dummy_function_for_MuGirlStau_which_forces_dictionaries_generation ( DataVector<MuGirlNS::StauContainer> stc,
-                                                                          DataVector<StauCollection> stcoll)
+void dummy_function_for_MuGirlStau_which_forces_dictionaries_generation(
+        DataVector<MuGirlNS::StauContainer> stc, DataVector<StauCollection> stcoll)
 {
-  DataVector<MuGirlNS::StauContainer> aastc = stc;
-  DataVector<StauCollection> aastcol = stcoll;
+    DataVector<MuGirlNS::StauContainer> aastc = stc;
+    DataVector<StauCollection> aastcol = stcoll;
 
-  std::vector<const MuGirlNS::StauContainer*> stauContainer; stauContainer.size();
+    std::vector<const MuGirlNS::StauContainer*> stauContainer;
+    stauContainer.size();
 }
 
 #endif // MUGIRLSTAU_MUGIRLSTAUDICT_H
