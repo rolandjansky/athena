@@ -1,0 +1,18 @@
+package AGDDKernel
+
+author ADA <Andrea.DellAcqua@cern.ch>
+manager ADA <Andrea.DellAcqua@cern.ch>
+
+
+use AtlasPolicy         AtlasPolicy-*
+
+library AGDDKernel *.cxx components/*.cxx handlers/*.cxx AGDD_model/*.cxx
+apply_pattern installed_library
+
+apply_pattern install_runtime
+
+public
+use AtlasCLHEP          AtlasCLHEP-*            External
+use GeoModelKernel      GeoModelKernel-*        DetectorDescription/GeoModel
+
+private
