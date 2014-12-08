@@ -325,7 +325,7 @@ std::ostream& InDet::operator <<
 void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX;
-  m_sct          = SCT; if(m_nclusmin < 6) m_sct = false;
+  m_sct          = SCT;
   m_simpleTrack  = false;
 
   setTrackQualityCuts();
@@ -396,7 +396,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX;
-  m_sct          = SCT; if(m_nclusmin < 5) m_sct = false;
+  m_sct          = SCT;
   m_simpleTrack  = true;
 
   setTrackQualityCuts();
@@ -694,6 +694,7 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
+
 StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
 {
   // Build MagneticFieldProperties 
@@ -790,7 +791,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
      if(n==40) break;
   }
 
-  if(!nc || (!m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43.)) return true; 
+  if(!nc || (!m_cosmicTrack && n==3)) return true; 
   if(n==nc) {
 
     int m = 0;
@@ -815,9 +816,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     }
     if(i==n) return false;
   }
-
-  if(n==3) return true;
-
+  
   int h = 0;
   for(int i=0; i!=n; ++i) {
 
