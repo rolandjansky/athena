@@ -209,21 +209,6 @@ if DQMonFlags.doMonitoring():
      except Exception:
         treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon detector monitoring")
   
-   #--------------------------#
-   # Combined muon monitoring #
-   #--------------------------#
-   if DQMonFlags.doMuonCombinedMon():
-      try:
-         monManMuonCombined = AthenaMonManager(name="MuonCombinedMonManager",
-                                  FileKey             = DQMonFlags.monManFileKey(),
-                                  Environment         = DQMonFlags.monManEnvironment(),
-                                  ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
-                                  DataType            = DQMonFlags.monManDataType())
-         topSequence += monManMuonCombined
-         include("MuonCombinedDQA/MuonCombinedMonitoring_jobOptions.py")
-      except Exception:
-         treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon combined performance monitoring")
-
    #------------------#
    # LUCID monitoring #
    #------------------#

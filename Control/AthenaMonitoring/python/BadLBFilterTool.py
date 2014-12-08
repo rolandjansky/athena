@@ -9,7 +9,23 @@ def _resolve_db_tag(origDbTag):
     else:
         dbtag = globalflags.ConditionsTag()
         dbtag = dbtag if dbtag != '' else 'HEAD'
+    print "RESOLVED AS TAG", dbtag
     return dbtag
+
+#decide database instance based on project tag dataXX_
+def _InstanceFromProjectName():
+    from RecExConfig.RecFlags import rec
+    projectName=rec.projectName()
+    try:
+        year=int(projectName[4:6]);
+    except:
+        self.msg.error("Failed to extract year from project tag "+ projectName+". Guessing run1")
+        return "COMP200"
+       
+    if (year>13):
+        return "CONDBR2"
+    else:
+        return "COMP200"
 
 # Set up the bad lb filter tool
 # Cache instances that are already created
@@ -46,7 +62,8 @@ def GetBadLBFilterTool(name, defects, alwaysReturnTrue=False, ignoreRecoverable=
     from AthenaMonitoring.AthenaMonitoringConf import DQBadLBFilterTool
     from DQDefects import DefectsDB
     dbtag = _resolve_db_tag(origDbTag)
-    ddb = DefectsDB('COOLOFL_GLOBAL/COMP200', tag=dbtag)
+    dbname=_InstanceFromProjectName()
+    ddb = DefectsDB('COOLOFL_GLOBAL/' + dbname, tag=dbtag)
 
     primary_defects = set()
     for defect in defects:
@@ -96,7 +113,8 @@ def GetLArBadLBFilterTool(origDbTag=None):
     else:
         from DQDefects import DefectsDB
         dbtag = _resolve_db_tag(origDbTag)
-        ddb = DefectsDB('COOLOFL_GLOBAL/COMP200', tag=dbtag)
+        dbname = _InstanceFromProjectName()
+        ddb = DefectsDB('COOLOFL_GLOBAL/'+dbname, tag=dbtag)
         defects = ddb.defect_names
         defectliststr = []
         defectlist = []

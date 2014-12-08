@@ -12,6 +12,8 @@ if not 'DQMonFlags' in dir():
 if not 'rec' in dir():
    from RecExConfig.RecFlags import rec
 
+from RecExConfig.RecAlgsFlags import recAlgs
+
 if rec.doTrigger() == False:
    DQMonFlags.useTrigger=False     # steers trigger-awareness
    DQMonFlags.doLVL1CaloMon=False
@@ -193,8 +195,9 @@ if rec.readRDO():
    from MuonRecExample.MuonRecFlags import muonRecFlags
    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
    from egammaRec.egammaRecFlags import jobproperties
-   from JetRec.JetRecFlags import jobproperties
    from tauRec.tauRecFlags import jobproperties
+
+from JetRec.JetRecFlags import jobproperties
 
 if (not rec.doCalo()) or (rec.readRDO() and not jobproperties.CaloRecFlags.Enabled()):
    DQMonFlags.doCaloMon=False
@@ -226,12 +229,18 @@ if (not rec.doEgamma()) or (rec.readRDO() and not jobproperties.egammaRecFlags.E
    DQMonFlags.doEgammaMon=False
 
 #if (not rec.doJetRec()) or (rec.readRDO() and not jobproperties.JetRecFlags.Enabled()):
-if (rec.readRDO() and not jobproperties.JetRecFlags.Enabled()):
+if (not rec.doJetMissingETTag() or (rec.readRDO() and not jobproperties.JetRecFlags.Enabled())):
    DQMonFlags.doJetMon=False
+   DQMonFlags.doMissingEtMon=False
+   DQMonFlags.doJetTagMon=False
 
 #if (not rec.doTau()) or (rec.readRDO() and not jobproperties.TauRecFlags.Enabled()):
 if (not rec.doTau()):
    DQMonFlags.doTauMon=False
+
+# covered now by doJetMissingETTag
+#if (not recAlgs.doMissingET()):
+#   DQMonFlags.doMissingEtMon=False
 
 #
 # Stream Aware Monitoring
@@ -315,22 +324,12 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doJetMon=False
       DQMonFlags.doMissingEtMon=False
       DQMonFlags.doTauMon=False
-      HLTMonFlags.doBjet=False
-      HLTMonFlags.doEgamma=False
-      HLTMonFlags.doTau=False
-      HLTMonFlags.doJet=False
-      HLTMonFlags.doCalo=False
-      HLTMonFlags.doMuon=False
       DQMonFlags.doTileMon=False
-      DQMonFlags.doPixelMon=False
-      DQMonFlags.doSCTMon=False
       DQMonFlags.doMuonRawMon=False
       DQMonFlags.doMuonTrackMon=False
       DQMonFlags.doMuonAlignMon=False
-      DQMonFlags.doMuonCombinedMon=False
       DQMonFlags.doMuonSegmentMon=False
       DQMonFlags.doMuonPhysicsMon=False
-      DQMonFlags.doMuonTrkPhysMon=False
       DQMonFlags.doCaloMon=False
       DQMonFlags.doJetTagMon=False
       LArMonFlags.doLArRawChannelMon=False
@@ -392,7 +391,7 @@ else:
    local_logger.info("Stream-Aware monitoring is turned OFF")
 
 # disabled until further notice 20140401 - PUEO
-DQMonFlags.doMuonRawMon=False
+# DQMonFlags.doMuonRawMon=False
 
 DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
