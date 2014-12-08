@@ -9,7 +9,6 @@ use MuonDigitContainer	MuonDigitContainer-*	MuonSpectrometer
 use MuonOverlayBase	MuonOverlayBase-*	MuonSpectrometer/MuonOverlay
 
 private
-use EventInfo		EventInfo-*		Event
 use GeneratorObjects	GeneratorObjects-*	Generators
 use MuonDigToolInterfaces       MuonDigToolInterfaces-* MuonSpectrometer/MuonDigitization
 use MuonIdHelpers	MuonIdHelpers-*		MuonSpectrometer

@@ -13,9 +13,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 
@@ -85,6 +82,7 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonOverlayBase(name, pSvcLocator),
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
   m_storeGateTempBkg("StoreGateSvc/BkgEvent_2_SG", name),
+  m_mdtHelper(0),
   m_digTool("MdtDigitizationTool", this ),
   m_rdoTool("MuonRdoToMuonDigitTool", this )
 {
@@ -100,6 +98,7 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("ConvertRDOToDigitTool", m_rdoTool);
   declareProperty("MDTSDO", m_sdo="MDT_SDO");
   declareProperty("CopyObject", m_copyObjects=false);
+  declareProperty("CleanOverlayData", m_clean_overlay_data=false);//clean out the overlay data before doing overlay, so you only get MC hits in the output overlay
 
 }
 
@@ -205,6 +204,13 @@ StatusCode MdtOverlay::overlayExecute() {
      msg( MSG::WARNING ) << "Failed to record background MdtDigitContainer to temporary background store " << endreq;
   }
 
+  msg( MSG::INFO ) << "Before cleanup: mdt data has digit_size "<<mdt->digit_size()<<endreq;
+  if (m_clean_overlay_data) {
+    mdt->cleanup();//ACH
+    msg( MSG::INFO ) << " After cleanup: mdt data has digit_size "<<mdt->digit_size()<<endreq;
+  }
+
+  //Do the actual overlay
   this->overlayContainer(mdt, ovl_input_MDT);
 
   if ( m_storeGateOutput->record(mdt, m_mainInputMDT_Name).isFailure() ) {
