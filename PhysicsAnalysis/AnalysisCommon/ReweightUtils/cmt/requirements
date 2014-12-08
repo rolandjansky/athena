@@ -2,11 +2,12 @@ package ReweightUtils
 
 author Fabian Kohn (fkohn@cern.ch)
 
-use AtlasPolicy                 AtlasPolicy-01-*
-use GaudiInterface              GaudiInterface-01-*             External
-use AthenaBaseComps             AthenaBaseComps-*               Control
+use AtlasPolicy                 AtlasPolicy-*
 
 use AtlasROOT			AtlasROOT-*			External
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist MathCore)"
 
 library ReweightUtils "../Root/*.cxx"
 apply_pattern installed_library
@@ -15,9 +16,5 @@ apply_tag  ROOTBasicLibs
 apply_tag  ROOTMathLibs
 apply_tag  ROOTGraphicsLibs
 
-apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h"          headers_lib=ReweightUtils
+apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h ../Root/LinkDef.h"          headers_lib=ReweightUtils
 
-####To be removed once ROOT 5.32.00 gets patched
-private
-  macro_remove cppflags "-pedantic"
-end_private

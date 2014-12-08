@@ -12,7 +12,13 @@
 
 using namespace std;
 
-APReweight::APReweight() : APReweightBase() {
+APReweight::APReweight() :
+  APReweightBase(),
+  _denominator_hist(0),
+  _numerator_hist(0),
+  _n_bins(0),
+  _axis(0)
+{
   _isQuiet = false;
 }
 

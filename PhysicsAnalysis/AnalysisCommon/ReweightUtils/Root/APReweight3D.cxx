@@ -12,7 +12,17 @@
 
 using namespace std;
 
-APReweight3D::APReweight3D() : APReweightBase() {
+APReweight3D::APReweight3D() :
+  APReweightBase(),
+  _denominator_hist(0),
+  _numerator_hist(0),
+  _n_bins_x(0),
+  _n_bins_y(0),
+  _n_bins_z(0),
+  _axis_x(0),
+  _axis_y(0),
+  _axis_z(0)
+{
   _isQuiet = false;
 }
 

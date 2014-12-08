@@ -54,6 +54,9 @@ public:
   void SetID(unsigned int id);                                                   /*!< Set the internal ID (used by APReweight/APReweight2D/APReweight3D/APReweightND). */
 
 private:
+  APWeightEntry (const APWeightEntry&);
+  APWeightEntry& operator= (const APWeightEntry&);
+
   void _CreateHist();                                                            /*!< Creates a TH1F instance from the arrays if necessary. */
   void _ComputeCum();                                                            /*!< Calculates the cumulative function of the pdf if necessary. */
 

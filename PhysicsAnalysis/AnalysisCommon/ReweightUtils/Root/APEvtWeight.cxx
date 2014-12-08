@@ -10,7 +10,11 @@
 
 using namespace std;
 
-APEvtWeight::APEvtWeight(ObjType type) {
+APEvtWeight::APEvtWeight(ObjType type)
+  : _k_evt_weight(0),
+    _variance(0),
+    _variance_sys(0)
+{
   _n_entries = 0;
   _current_evt_weights = vector< vector< APWeightEntry* > >(12);
   if (type > APEvtWeight::kDiJet) _isComputed = true;

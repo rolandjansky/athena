@@ -15,7 +15,10 @@ ClassImp(APWeightHist)
 
 using namespace std;
 
-APWeightHist::APWeightHist(const char *name, const char *title, const int n_bins, const float x_min, const float x_max) : TH1D(name, title, n_bins, x_min, x_max) {
+APWeightHist::APWeightHist(const char *name, const char *title, const int n_bins, const float x_min, const float x_max)
+  : TH1D(name, title, n_bins, x_min, x_max),
+    _prec(0)
+{
   _graph_stat = new TGraphAsymmErrors();
   _graph_stat->GetXaxis()->SetTitle(GetXaxis()->GetTitle());
   _graph_stat->GetYaxis()->SetTitle(GetYaxis()->GetTitle());
@@ -28,7 +31,11 @@ APWeightHist::APWeightHist(const char *name, const char *title, const int n_bins
   _computed_entries = 0.;
 }
 
-APWeightHist::APWeightHist() {
+APWeightHist::APWeightHist()
+  : _graph_stat(0),
+    _graph_syst(0),
+    _prec(0)
+{
   _computed_entries = 0.;
 }
 

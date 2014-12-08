@@ -14,7 +14,19 @@
 
 using namespace std;
 
-APWeightEntry::APWeightEntry() {
+APWeightEntry::APWeightEntry()
+  : _val_denominator(0),
+    _val_numerator(0),
+    _expectancy_val(0),
+    _variance(0),
+    _stat_uncert_low(0),
+    _stat_uncert_high(0),
+    _sys_uncert(0),
+    _sys_uncert2(0),
+    _is_trig(0),
+    _is_nan(0),
+    _integral(0)
+{
   _hist = 0;
   _cumul = 0;
   _pdf = 0;
@@ -23,7 +35,10 @@ APWeightEntry::APWeightEntry() {
   //_coords = 0;
 }
 
-APWeightEntry::APWeightEntry(unsigned int val_denominator, unsigned int val_numerator, double scale, bool isTrig) {
+APWeightEntry::APWeightEntry(unsigned int val_denominator, unsigned int val_numerator, double scale, bool isTrig)
+  : _stat_uncert_low(0),
+    _stat_uncert_high(0)
+{
   _val_denominator = val_denominator;
   double val_denominator_f = (double) val_denominator;
   _val_numerator = val_numerator;
