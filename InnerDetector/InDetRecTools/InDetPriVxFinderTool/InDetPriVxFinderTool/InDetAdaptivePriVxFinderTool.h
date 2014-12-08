@@ -62,12 +62,12 @@ namespace Trk
  class VxCandidate;
  class Track;
  class TrackParticleBase;
- class ITrackSelectorTool;
  class IVxCandidateXAODVertex;
 }
 
 namespace InDet
 {
+  class IInDetTrackSelectionTool;
   
  class InDetAdaptivePriVxFinderTool : public AthAlgTool, virtual public IVertexFinder
  {
@@ -106,7 +106,7 @@ public:
    VxContainer* m_findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
 
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
-   ToolHandle<Trk::ITrackSelectorTool> m_trkFilter;
+   ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
    ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
    
    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service

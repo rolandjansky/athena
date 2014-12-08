@@ -80,7 +80,6 @@ namespace Trk
   class VxCandidate;
   class Track;
   class ITrackLink;
-  class ITrackSelectorTool;
   class TrkQuality;
   class Vertex;
   class IVxCandidateXAODVertex;
@@ -89,7 +88,8 @@ namespace Trk
 
 namespace InDet
 {
-  
+  class IInDetTrackSelectionTool;
+
  class InDetAdaptiveMultiPriVxFinderTool : public AthAlgTool, virtual public IVertexFinder
  {
  
@@ -126,7 +126,7 @@ namespace InDet
 
     ToolHandle< Trk::AdaptiveMultiVertexFitter > m_MultiVertexFitter;
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-    ToolHandle<Trk::ITrackSelectorTool> m_trkFilter;
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
 
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service

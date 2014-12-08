@@ -27,7 +27,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -64,7 +64,7 @@ void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & What
 InDetAdaptivePriVxFinderTool::InDetAdaptivePriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p)
         : AthAlgTool(t,n,p),
           m_iVertexFitter("Trk::AdaptiveVertexFitter"),
-	  m_trkFilter("InDet::InDetDetailedTrackSelector"),
+	  m_trkFilter("InDet::InDetTrackSelection"),
 	  m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
           m_iBeamCondSvc("BeamCondSvc",n)
 {
@@ -123,7 +123,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
     origParameters.clear();
     for ( TrackCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++ )
     {
-      if ( m_trkFilter->decision(**itr,&beamposition)==false ) continue;
+      if ( m_trkFilter->accept(**itr,&beamposition)==false ) continue;
       origParameters.push_back ( ( *itr )->perigeeParameters() );
     }
     if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks " << origParameters.size() << " survived the preselection." << endreq;
@@ -176,7 +176,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 //     if (msgLvl(MSG::VERBOSE)) msg() << "Size of the container: " << size << endreq;
     for ( Trk::TrackParticleBaseCollection::const_iterator itr  = trackTES->begin(); itr != trackTES->end(); itr++ )
     {
-      if ( m_trkFilter->decision(**itr,&beamposition) == false ) continue;
+      if ( m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition) == false ) continue;
       origParameters.push_back ( & ( *itr )->definingParameters() );
       //       std::cout << "originalPerigee at " << & ( *itr )->definingParameters() << std::endl;
     }
@@ -236,7 +236,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
     for (TrackParticleDataVecIter itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
-      if ( m_trkFilter->decision(**itr,&beamposition) == false ) continue;
+      if ( m_trkFilter->accept(**itr,&beamposition) == false ) continue;
       origParameters.push_back ( & ( *itr )->perigeeParameters() );
       ATH_MSG_DEBUG("originalPerigee at " << & ( *itr )->perigeeParameters());
     }

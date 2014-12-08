@@ -25,7 +25,6 @@ use DataModel                 DataModel-*                  Control
 use TrkEventPrimitives        TrkEventPrimitives-*         Tracking/TrkEvent
 use TrkSurfaces               TrkSurfaces-*                Tracking/TrkDetDescr
 use TrkTrackSummary           TrkTrackSummary-*            Tracking/TrkEvent
-use TrkToolInterfaces         TrkToolInterfaces-*          Tracking/TrkTools
 use TrkVertexFitters          TrkVertexFitters-*	   Tracking/TrkVertexFitter
 use TrkTrackLink              TrkTrackLink-*               Tracking/TrkEvent
 use TrkLinks		      TrkLinks-*		   Tracking/TrkEvent
@@ -34,10 +33,10 @@ use InDetBeamSpotService      InDetBeamSpotService-*       InnerDetector/InDetCo
 use VxVertex                  VxVertex-*                   Tracking/TrkEvent
 use VxMultiVertex             VxMultiVertex-*              Tracking/TrkEvent
 use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
-#use TrkVertexFitterUtils   TrkVertexFitterUtils-*  Tracking/TrkVertexFitter
 use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
 use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
 
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
 library InDetPriVxFinderTool *.cxx components/*.cxx
 apply_pattern component_library

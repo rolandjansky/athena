@@ -92,13 +92,13 @@ class IVertexFitter;
 class VxCandidate;
 class Track;
 class TrackParticleBase;
-class ITrackSelectorTool;
 class IVxCandidateXAODVertex;
 }
 
 namespace InDet
 {
   class IMultiPVSeedFinder;
+  class IInDetTrackSelectionTool;
   
   class InDetPriVxFinderTool : public AthAlgTool, virtual public IVertexFinder
 {
@@ -113,7 +113,7 @@ public:
 private:
     ToolHandle < InDet::IMultiPVSeedFinder > m_iPriVxSeedFinder;
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
-    ToolHandle<Trk::ITrackSelectorTool> m_trkFilter;
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
 
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service

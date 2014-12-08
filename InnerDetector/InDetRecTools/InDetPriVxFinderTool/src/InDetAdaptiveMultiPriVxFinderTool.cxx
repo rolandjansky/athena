@@ -32,7 +32,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "NN.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "VxVertex/VxContainer.h"
@@ -67,7 +67,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
   : AthAlgTool(t,n,p),
     m_MultiVertexFitter("Trk::AdaptiveMultiVertexFitter"),
     m_SeedFinder("Trk::ZScanSeedFinder"),
-    m_trkFilter("InDet::InDetDetailedTrackSelector"),
+    m_trkFilter("InDet::InDetTrackSelection"),
     m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_iBeamCondSvc("BeamCondSvc",n),
     m_useBeamConstraint(true),
@@ -180,15 +180,16 @@ VxContainer* InDetAdaptiveMultiPriVxFinderTool::findVertex(const TrackCollection
   std::vector<const Trk::ITrackLink*> selectedTracks;
 
   typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
+
+  Root::TAccept selectionPassed;
   for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-    bool selectionPassed(false);
     if (m_useBeamConstraint) {
-      selectionPassed=m_trkFilter->decision(**itr,&beamposition);
+      selectionPassed=m_trkFilter->accept(**itr,&beamposition);
     }
     else
     {
       Trk::Vertex null(Amg::Vector3D(0,0,0));
-      selectionPassed=m_trkFilter->decision(**itr,&null);
+      selectionPassed=m_trkFilter->accept(**itr,&null);
     }
     if (selectionPassed)
     {
@@ -226,15 +227,16 @@ VxContainer* InDetAdaptiveMultiPriVxFinderTool::findVertex(const Trk::TrackParti
   Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
 
   typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
+
+  Root::TAccept selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-    bool selectionPassed(false);
     if (m_useBeamConstraint) {
-      selectionPassed=m_trkFilter->decision(**itr,&beamposition);
+      selectionPassed=m_trkFilter->accept(*((*itr)->originalTrack()),&beamposition);
     }
     else
     {
       Trk::Vertex null(Amg::Vector3D(0,0,0));
-      selectionPassed=m_trkFilter->decision(**itr,&null);
+      selectionPassed=m_trkFilter->accept(*((*itr)->originalTrack()),&null);
     }
     
     if (selectionPassed)
@@ -275,10 +277,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
+
+  Root::TAccept selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
-    bool selectionPassed(false);
     if (m_useBeamConstraint) {
-      selectionPassed=m_trkFilter->decision(**itr,&beamposition);
+      selectionPassed=m_trkFilter->accept(**itr,&beamposition);
     }
     else
     {
@@ -287,7 +290,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       AmgSymMatrix(3) vertexError;
       vertexError.setZero();
       null.setCovariancePosition(vertexError);
-      selectionPassed=m_trkFilter->decision(**itr,&null);
+      selectionPassed=m_trkFilter->accept(**itr,&null);
     }
     
     if (selectionPassed)

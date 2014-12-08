@@ -29,7 +29,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
 
@@ -65,7 +65,7 @@ namespace InDet
       : AthAlgTool ( t,n,p ),
         m_iPriVxSeedFinder( "InDet::SlidingWindowMultiSeedFinder" ),
 	m_iVertexFitter ( "Trk::FastVertexFitter" ),
-        m_trkFilter( "InDet::InDetDetailedTrackSelector"),
+        m_trkFilter( "InDet::InDetTrackSelection"),
 	m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
 	m_iBeamCondSvc("BeamCondSvc",n),
 	m_useBeamConstraint ( false ),
@@ -163,7 +163,7 @@ namespace InDet
       // if it should not look for multiple vertices it needs to do the track cuts here
       if ( !m_enableMultipleVertices)
       {
-        if (m_trkFilter->decision(**itr,&beamposition)==false) continue;
+        if (m_trkFilter->accept(**itr,&beamposition)==false) continue;
       }
       origTracks.push_back ( *itr );
     }//end of loop over available tracks with pre-selection
@@ -288,7 +288,7 @@ namespace InDet
       if (!m_enableMultipleVertices)
       {
       
-        if (m_trkFilter->decision(**itr,&beamposition)==false) continue;
+        if (m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition)==false) continue;
       }
       origTrackParticles.push_back ( *itr );
     }//endo of loop over all available trajectories
@@ -408,6 +408,7 @@ namespace InDet
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
    
     xAOD::Vertex beamposition;
+    beamposition.makePrivateStore();
     beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
     beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());	  
 
@@ -421,13 +422,14 @@ namespace InDet
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
     for (TrackParticleDataVecIter itr  = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
       if (!m_enableMultipleVertices){
-	if (m_trkFilter->decision(**itr,&beamposition)==false) continue;
+	if (m_trkFilter->accept(**itr,&beamposition)==false) continue;
       }
       origTPs.push_back (*itr);
       origParameters.push_back ( & ( *itr )->perigeeParameters() );
       ATH_MSG_DEBUG("originalPerigee at " << & ( *itr )->perigeeParameters());
     }
     
+    beamposition.releasePrivateStore();
     std::vector< std::vector<const Trk::TrackParameters*> > seedsVector;
 
     if (!m_enableMultipleVertices)
