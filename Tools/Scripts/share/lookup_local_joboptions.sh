@@ -1,1 +1,3 @@
-find ${2}* -maxdepth 0 -name "*.py" -o -name "*.pyc" 2>/dev/null
+
+f=`pwd`
+if test -d ${f} ; then find ${f} -name '*.py' -o -name '*.pyc' | sed -e 's#'"${f}"'/##'; fi
