@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2CombinedMuonAuxContainer_v1.h 631391 2014-11-26 21:43:36Z gwatts $
+// $Id: L2CombinedMuonAuxContainer_v1.h 631524 2014-11-27 14:08:12Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2COMBINEDMUONAUXCONTAINER_V1_H
 #define XAODTRIGMUON_VERSIONS_L2COMBINEDMUONAUXCONTAINER_V1_H
 
@@ -60,7 +60,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::L2CombinedMuonAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif // XAODTRIGMUON_VERSIONS_L2COMBINEDMUONAUXCONTAINER_V1_H

@@ -4,9 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigMuonDict.h 631108 2014-11-26 07:47:24Z gwatts $
+// $Id: xAODTrigMuonDict.h 634415 2014-12-08 13:21:24Z krasznaa $
 #ifndef XAODTRIGMUON_XAODTRIGMUONDICT_H
 #define XAODTRIGMUON_XAODTRIGMUONDICT_H
+
+// Needed to successfully generate the dictionary in standalone mode:
+#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
+#   define EIGEN_DONT_VECTORIZE
+#endif // __GCCXML__
 
 // STL include(s):
 #include <vector>
