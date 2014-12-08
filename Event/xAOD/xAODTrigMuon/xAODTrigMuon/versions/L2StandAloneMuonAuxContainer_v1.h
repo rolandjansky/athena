@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonAuxContainer_v1.h 631391 2014-11-26 21:43:36Z gwatts $
+// $Id: L2StandAloneMuonAuxContainer_v1.h 631524 2014-11-27 14:08:12Z gwatts $
 #ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
 #define XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
 
@@ -27,7 +27,7 @@ namespace xAOD {
    /// @author Masaki Ishitsuka <ishitsuka@phys.titech.ac.jp>
    ///
    /// $Revsision$
-   /// $Date: 2014-11-26 22:43:36 +0100 (Wed, 26 Nov 2014) $
+   /// $Date: 2014-11-27 15:08:12 +0100 (Thu, 27 Nov 2014) $
    ///
    class L2StandAloneMuonAuxContainer_v1 : public AuxContainerBase {
 
@@ -266,7 +266,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::L2StandAloneMuonAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H

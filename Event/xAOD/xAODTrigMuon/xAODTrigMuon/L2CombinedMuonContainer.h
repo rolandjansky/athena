@@ -15,7 +15,7 @@ namespace xAOD {
   typedef L2CombinedMuonContainer_v1 L2CombinedMuonContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::L2CombinedMuonContainer, 1201561309, 1 )
 
 #endif // XAODTRIGMUON_L2COMBINEDMUONCONTAINER_H
