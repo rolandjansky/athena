@@ -13,9 +13,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 
@@ -33,6 +30,7 @@ RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_MultiHitOverlayBase(name, pSvcLocator),
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
   m_storeGateTempBkg("StoreGateSvc/BkgEvent_2_SG", name),
+  m_rpcHelper(0),
   m_digTool("MdtDigitizationTool", this ),
   m_rdoTool("MuonRdoToMuonDigitTool", this )
 
