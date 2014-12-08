@@ -14,7 +14,9 @@
 
 RPCcablingServerSvc::RPCcablingServerSvc(const std::string& name, ISvcLocator* sl) : 
   Service( name, sl ),
-  m_tagsCompared(false)
+  m_tagsCompared(false),
+  m_pDetStore(0),
+  m_tagInfoMgr(0)
 {
     declareProperty( "Atlas", m_atlas=false ); 
     // Atlas true/false will imply data-like cabling/RPCcablingSim otherwise
