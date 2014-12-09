@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 625768 2014-11-03 14:24:34Z graemes $
+#  @version $Id: test_trfArgClasses.py 630256 2014-11-21 18:04:42Z graemes $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -78,7 +78,7 @@ class trfArgStringTests(unittest.TestCase):
         self.assertEqual(self.d.isRunarg, False)
 
     def test_argStringprodsysDescription(self):
-        self.assertEqual(self.a.prodsysDescription['type'],'string')
+        self.assertEqual(self.a.prodsysDescription['type'],'str')
         
     def test_argStringChoices(self):
         self.assertEqual(self.veg.value, 'potato')
@@ -127,7 +127,7 @@ class trfArgIntTests(unittest.TestCase):
         self.assertRaises(trfExceptions.TransformArgException, argInt, '1.141')
 
     def test_argIntprodsysDescription(self):
-        self.assertEqual(self.a.prodsysDescription['type'],'INT') 
+        self.assertEqual(self.a.prodsysDescription['type'],'int') 
 
 class trfArgBoolTests(unittest.TestCase):
     
@@ -366,6 +366,11 @@ class argSteeringTests(unittest.TestCase):
         steer = argSubstepSteering(['RAWtoESD:out-RDO,out+RDO_TRIG', 'ESDtoAOD:in+JUNK'])
         self.assertEqual(len(steer.value), 2)
         self.assertEqual(steer.value, {'RAWtoESD': [('out', '-', 'RDO'), ('out', '+', 'RDO_TRIG')], 'ESDtoAOD': [('in', '+', 'JUNK')]})
+
+    def test_steeringAlias(self):
+        steer = argSubstepSteering('doRDO_TRIG')
+        self.assertEqual(len(steer.value), 1)
+        self.assertEqual(steer.value, {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]})
 
 
 class argFileTests(unittest.TestCase):

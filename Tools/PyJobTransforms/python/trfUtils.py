@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 625411 2014-10-31 14:06:03Z wbreaden $
+# @version $Id: trfUtils.py 634461 2014-12-08 15:00:36Z graemes $
 
 import os
 import os.path as path
@@ -306,11 +306,13 @@ def shQuoteStrings(strArray = sys.argv):
 #  @param filename: Filename to open and deliver lines from
 #  @param strip: If lines get stripped before being returned (default @c True)
 #  @note This is useful so that multiple parts of code can co-operatively take lines from the file
-def lineByLine(filename, strip = True):
+def lineByLine(filename, strip = True, removeTimestamp = True):
     linecounter = 0
     f = open(filename, 'r')
     for line in f:
         linecounter += 1
+        if removeTimestamp:
+            line = line.lstrip('0123456789:')
         if strip:
             line = line.strip()
         yield line, linecounter

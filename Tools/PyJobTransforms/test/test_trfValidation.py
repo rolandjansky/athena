@@ -5,7 +5,7 @@
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 614626 2014-09-02 14:22:48Z volkmer $
+#  @version $Id: test_trfValidation.py 634639 2014-12-09 08:56:18Z graemes $
 
 import unittest
 
@@ -205,16 +205,24 @@ class athenaLogFileReportTests(unittest.TestCase):
 16:00:59 srcFilePrefix = /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.0.3/AtlasSimulation/19.0.3/InstallArea/share, dirName =
 16:00:59 srcFilePrefix = /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.0.3/AtlasSimulation/19.0.3/InstallArea/share, dirName =        '''
 
+        testErrorExcerpt = '''
+09:36:22 Py:Athena            INFO including file "eflowRec/eflowRecESDList.py"
+09:36:22 Py:Athena            ERROR too many floobles'''
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
             print >> f2, testLogExcerpt
+        with open('file3', 'w') as f3:
+            print >> f3, testLogExcerpt
+            print >> f3, testErrorExcerpt
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
+        self.myFileReport3 = athenaLogFileReport('file3')
 
     def tearDown(self):
-        for f in 'file1', 'file2':
+        for f in 'file1', 'file2', 'file3':
             try:
                 os.unlink(f)
             except OSError:
@@ -232,6 +240,14 @@ class athenaLogFileReportTests(unittest.TestCase):
                       'contactPhysicist': 'MC group'
                       }
         self.assertEqual(self.myFileReport2._metaData, resultDict)
+        
+    def test_logscanError(self):
+        self.assertEqual(self.myFileReport3.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR, 
+                                                           'firstError': {'count': 1, 'firstLine': 15,
+                                                                          'message': 'Py:Athena            ERROR too many floobles'},})
+
+    ## TODO
+    # Special tests for G4 errors and core dumps
 
 ## Unittests for this module
 if __name__ == '__main__':

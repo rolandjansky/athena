@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 625768 2014-11-03 14:24:34Z graemes $
+# @version $Id: trfExe.py 634766 2014-12-09 15:18:50Z graemes $
 
 import copy
 import math
@@ -484,11 +484,10 @@ class scriptExecutor(transformExecutor):
 
         p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         while p.poll() is None:
-             line = p.stdout.readline()
-             if line:
-                 self._echologger.info(line.rstrip())
-       		
-	    # Hoover up remaining buffered output lines
+            line = p.stdout.readline()
+            if line:
+                self._echologger.info(line.rstrip())
+        # Hoover up remaining buffered output lines
         for line in p.stdout:
             self._echologger.info(line.rstrip())
 
@@ -507,12 +506,21 @@ class scriptExecutor(transformExecutor):
         
         ## Check rc
         if self._rc == 0:
-            msg.info('Executor %s validated successfully (return code %s)' % (self._name, self._rc))
+            msg.info('Executor {0} validated successfully (return code {1})'.format(self._name, self._rc))
             self._isValidated = True
             self._errMsg = ''
-        else:        
+        else:
+            # Want to learn as much as possible from the non-zero code
+            # this is a bit hard in general, although one can do signals.
+            # Probably need to be more specific per exe, i.e., athena non-zero codes
             self._isValidated = False
-            self._errMsg = 'Non-zero return code from %s (%d)' % (self._name, self._rc)
+            if self._rc < 0:
+                # Map return codes to what the shell gives (128 + SIGNUM)
+                self._rc = 128 - self._rc
+            if trfExit.codeToSignalname(self._rc) != "":
+                self._errMsg = '{0} got a {1} signal (exit code {2})'.format(self._name, trfExit.codeToSignalname(self._rc), self._rc)
+            else:
+                self._errMsg = 'Non-zero return code from %s (%d)' % (self._name, self._rc)
             raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_FAIL'), self._errMsg)
 
         ## Check event counts (always do this by default)
@@ -587,7 +595,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 625768 2014-11-03 14:24:34Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 634766 2014-12-09 15:18:50Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -769,6 +777,26 @@ class athenaExecutor(scriptExecutor):
             except Exception, e:
                 msg.warning('Failed to process expected perfMon stats file {0}: {1}'.format(self._perfMonFile, e))
             
+        if 'TXT_JIVEXMLTGZ' in self.conf.dataDictionary.keys():
+            #tgzipping JiveXML files
+            targetTGZName = self.conf.dataDictionary['TXT_JIVEXMLTGZ'].value[0]
+            if os.path.exists(targetTGZName):
+                os.remove(targetTGZName)
+
+            import tarfile
+            fNameRE = re.compile("JiveXML\_\d+\_\d+.xml")
+
+            # force gz compression
+            tar = tarfile.open(targetTGZName, "w:gz")
+            for fName in os.listdir('.'):
+                matches = fNameRE.findall(fName)
+                if len(matches) > 0:
+                    if fNameRE.findall(fName)[0] == fName:
+                        msg.info('adding %s to %s' % (fName, targetTGZName))
+                        tar.add(fName)
+
+            tar.close()
+            msg.info('JiveXML compression: %s has been written and closed.' % (targetTGZName))
 
     def validate(self):
         self._hasValidated = True
@@ -1391,7 +1419,7 @@ class bsMergeExecutor(scriptExecutor):
             self._outputFilename = self._outputFilename.split('._0001.data')[0]    
         elif self.conf.argdict['allowRename'].value == True:
             # OK, non-fatal, we go for a renaming
-            msg.warning('Output filename does not end in "._0001.data" will proceed, but be aware that the internal filename metadata will be wrong')
+            msg.info('Output filename does not end in "._0001.data" will proceed, but be aware that the internal filename metadata will be wrong')
             self._doRename = True
         else:
             # No rename allowed, so we are dead...

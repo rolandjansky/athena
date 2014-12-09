@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 625109 2014-10-30 13:15:18Z graemes $
+# @version $Id: trfValidation.py 634639 2014-12-09 08:56:18Z graemes $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -225,9 +225,9 @@ class athenaLogFileReport(logFileReport):
         # takes the next group of non-whitespace characters as the service, then
         # then matches from the list of known levels, then finally, ignores any last
         # pieces of whitespace prefix and takes the rest of the line as the message
-        self._regExp = re.compile(r'(?P<prefix>[\d\:]+)?\s+(?P<service>[^\s]+)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
+        self._regExp = re.compile(r'(?P<service>[^\s]+)\s+(?P<level>' + '|'.join(stdLogLevels) + r')\s+(?P<message>.*)')
 
-        self._metaPat = re.compile(r"^.*\sMetaData:\s+(.*?)\s*=\s*(.*)$")
+        self._metaPat = re.compile(r"MetaData:\s+(.*?)\s*=\s*(.*)$")
         self._metaData = {}
 
         self.resetReport()
@@ -668,9 +668,9 @@ class eventMatch(object):
         self._eventCountConf['EVNT_CAVERN'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_COSMICS'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
-        self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff}
+        self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
-        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_FILT": "filter"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}

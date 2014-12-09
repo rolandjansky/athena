@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 623865 2014-10-24 12:39:44Z graemes $
+# @version $Id: transform.py 630256 2014-11-21 18:04:42Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -83,7 +83,7 @@ class transform(object):
         
         # If we were passed executors at construction time then append them to the set:
         if executor is not None:
-            self.appendToExecutorSet(executor) 
+            self.appendToExecutorSet(executor)
         
         ## Transform exit code/message holders
         self._exitCode = None
@@ -244,6 +244,12 @@ class transform(object):
             self._report.fast = True
             self.generateReport()
             sys.exit(self._exitCode)
+            
+        except trfExceptions.TransformAMIException, e:
+            msg.critical('AMI failure: {0!s}'.format(e))
+            self._exitCode = e.errCode
+            self._exitMsg = e.errMsg
+            sys.exit(self._exitCode)
 
         self.setGlobalLogLevel()
         
@@ -345,6 +351,13 @@ class transform(object):
                 
             self.validateOutFiles()
             
+        except trfExceptions.TransformNeedCheckException as e:
+            msg.warning('Transform executor signaled NEEDCHECK condition: {0}'.format(e.errMsg))
+            self._exitCode = e.errCode
+            self._exitMsg = e.errMsg
+            self.generateReport(fast=False)
+            sys.exit(self._exitCode)
+
         except trfExceptions.TransformException as e:
             msg.critical('Transform executor raised %s: %s' % (e.__class__.__name__, e.errMsg))
             self._exitCode = e.errCode

@@ -5,20 +5,17 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: test_trfArgClassesATLAS.py 630256 2014-11-21 18:04:42Z graemes $
 #  @note Tests of ATLAS specific file formats (that thus rely on other
 #  parts of Athena) live here
 
-import os
 import sys
 import unittest
 
-import logging
-msg = logging.getLogger(__name__)
+from PyJobTransforms.trfLogger import msg
 
 # Allowable to import * from the package for which we are the test suite
 from PyJobTransforms.trfArgClasses import *
-from PyJobTransforms.trfUtils import cmpMetadata
 
 class argFileEOSTests(unittest.TestCase):
     def test_SimExpansion(self):
@@ -71,6 +68,19 @@ class argPOOLFiles(unittest.TestCase):
             # With python 2.7 this should call the self.skip() method
             print >>sys.stderr, 'WARNING Skipping test_argPOOLFileMetadata_AOD - stat on AFS test file failed'
 
+class argTAGFiles(unittest.TestCase):
+    def test_argTAGFileMetadata(self):
+        try:
+            testFile = '/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1'
+            os.stat(testFile)
+            tagFile = argTAGFile(testFile, io = 'input', type='tag')
+            print '+++', tagFile.getMetadata()
+            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'run_number': [207865L], 'beam_energy': [], 'file_type': 'tag', 'AODFixVersion': '', 'file_size': 12222088, 'geometry': None, 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'beam_type': [], 'lumi_block': [], 'conditions_tag': None, 'integrity': True, 'nentries': 38112L}})
+            self.assertEqual(tagFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'nentries': 38112L}})
+            self.assertEqual(tagFile.prodsysDescription['type'],'file')
+        except OSError:
+            # With python 2.7 this should call the self.skip() method
+            print >>sys.stderr, 'WARNING Skipping test_argTAGFileMetadata - stat on AFS test file failed'
 
 class argBSFiles(unittest.TestCase):
     def tearDown(self):

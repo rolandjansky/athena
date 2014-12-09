@@ -229,7 +229,7 @@
   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
     
     <rttContactPerson>Graeme Stewart</rttContactPerson>
-    <mailto>atlas-comp-transforms-dev@cern.ch@cern.ch</mailto>
+    <mailto>atlas-comp-transforms-dev@cern.ch</mailto>
     
     <jobList>
       
@@ -418,6 +418,17 @@
           <group>PyJobTransforms:TransformCoreTests</group>
           <queue>medium</queue>
         </jobTransform>
+
+        <jobTransform userJobId="SignatureTest">
+          <doc>Test transform signatures generate ok</doc>
+          <jobTransformJobName>makeTrfJSONSignatures</jobTransformJobName>
+          <jobTransformCmd>
+            TransformTestRunner.py test_trfSignatures.py 
+          </jobTransformCmd>
+          <group>PyJobTransforms:TransformCoreTests</group>
+          <queue>short</queue>
+        </jobTransform>
+
     </jobList>
     
 	<jobGroups>

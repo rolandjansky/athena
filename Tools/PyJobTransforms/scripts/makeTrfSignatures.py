@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: makeTrfSignatures.py 619492 2014-10-01 20:44:50Z graemes $
+# $Id: makeTrfSignatures.py 630256 2014-11-21 18:04:42Z graemes $
 #
 
 __doc__ = 'Dump job transform arguments into a file as a pickle'
@@ -56,7 +56,7 @@ def main():
         logging.debug('Trf %s: %s' % (trf, args))
         processedTrfs.append(trf)
         myTrfSigs[trf] = args
-        myTrfSigDesc[trf] = transform.parser.getProdsysDesc()
+        myTrfSigDesc[trf] = transform.parser.getProdsysDesc
     try:
         logging.info('Writing JSON signatures to {0}'.format(cliargs['output']))
         sigFile = open(cliargs['output'], 'wb')

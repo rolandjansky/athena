@@ -3,8 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 625001 2014-10-29 18:34:02Z wbreaden $
-
+# @version $Id: trfArgClasses.py 634461 2014-12-08 15:00:36Z graemes $
 
 import argparse
 import bz2
@@ -110,6 +109,7 @@ class argument(object):
 
     @property
     def prodsysDescription(self):
+        self._desc = {'type' : 'None'}
         return {}
         
     ## @brief String conversion of our value
@@ -170,7 +170,7 @@ class argString(argument):
     # prodsysDescription: human readable from of type plus possible values
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'string'}
+        self._desc = {'type' : 'str'}
         if self._choices:
             self._desc['choices'] = self._choices
         return self._desc
@@ -211,7 +211,7 @@ class argInt(argument):
     # prodsysDescription: human readable from of type plus possible values
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'INT'}
+        self._desc = {'type' : 'int'}
         return self._desc
 
                 
@@ -328,7 +328,7 @@ class argList(argument):
     # prodsysDescription: human readable from of type plus possible values
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'list'}
+        self._desc = {'type' : 'list', 'listtype': 'str'}
         if self._supressEmptyStrings:
             self._desc['supress Empty Strings'] = self._supressEmptyStrings
         return self._desc
@@ -410,7 +410,7 @@ class argIntList(argList):
 
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'list', 'subtype' : 'INT'}
+        self._desc = {'type' : 'list', 'listtype' : 'int'}
         return self._desc
                     
         
@@ -473,7 +473,7 @@ class argKeyFloatValueList(argList):
 
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'list', 'subtype' : 'key:floatValue'}
+        self._desc = {'type' : 'list', 'listtype' : 'str:float'}
         return self._desc
         
 
@@ -804,6 +804,10 @@ class argFile(argList):
     @property
     def dataset(self):
         return self._dataset
+    
+    @dataset.setter
+    def dataset(self, value):
+        self._dataset = value
     
     @property
     def type(self):
@@ -1404,9 +1408,9 @@ class argTAGFile(argPOOLFile):
             if eventCount != self.getSingleMetadata(fname, 'nentries'):
                 msg.error('Event count for {0} from POOLCollectionTree disagrees with AthFile:'
                           ' {1} != {2}'.format(fname, eventCount, self.getSingleMetadata(fname, 'nentries')))
-                self._fileMetadata[file]['integrity'] = False
+                self._fileMetadata[fname]['integrity'] = False
                 return
-            self._fileMetadata[file]['integrity'] = True
+            self._fileMetadata[fname]['integrity'] = True
             
     ## @brief Method which can be used to merge files of this type
     #  @param output Target filename for this merge
@@ -1746,7 +1750,7 @@ class argSubstep(argument):
 
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'Substep'}
+        self._desc = {'type': 'substep', 'substeptype': 'str'}
         return self._desc
     
 ## @brief Argument class for substep lists, suitable for preExec/postExec 
@@ -1770,6 +1774,10 @@ class argSubstepList(argSubstep):
     def value(self):
         return self._value
 
+    @property
+    def prodsysDescription(self):
+        self._desc = {'type': 'substep', 'substeptype': 'list', 'listtype': 'str'}
+        return self._desc
     @value.setter
     def value(self, value):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
@@ -1816,6 +1824,11 @@ class argSubstepBool(argSubstep):
     @property
     def value(self):
         return self._value
+
+    @property
+    def prodsysDescription(self):
+        self._desc = {'type': 'substep', 'substeptype': 'bool'}
+        return self._desc
     
     @value.setter
     def value(self, value):
@@ -1851,7 +1864,12 @@ class argSubstepInt(argSubstep):
     @property
     def value(self):
         return self._value
-    
+ 
+    @property
+    def prodsysDescription(self):
+        self._desc = {'type': 'substep', 'substeptype': 'int'}
+        return self._desc
+   
     @value.setter
     def value(self, value):
         msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
@@ -1894,7 +1912,7 @@ class argSubstepFloat(argSubstep):
         
     @property
     def prodsysDescription(self):
-        self._desc = {'type' : 'argSubstepFloat'}
+        self._desc = {'type': 'substep', 'substeptype': 'float'}     
         if self._min:
             self._desc['min'] = self._min
         if self._max:
@@ -1964,6 +1982,11 @@ class argSubstepSteering(argSubstep):
     def value(self):
         return self._value
 
+    @property
+    def prodsysDescription(self):
+        self._desc = {'type': 'substep', 'substeptype': 'steering', 'listtype': 'str'}
+        return self._desc
+    
     ## @details For strings passed to the setter we expect the format to be @c substep:{in/out}{+/-}DATATYPE
     #  or to be a steering alias, which is then expanded to the more complex format.
     #  This is then cast into a dictionary of tuples {substep: [('in/out', '+/-', DATATYPE), ...], ...}
@@ -1983,19 +2006,25 @@ class argSubstepSteering(argSubstep):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
             self._value = value
-        elif isinstance(value, str):
-            # Single string value case
-            subStep, subStepValue = self._parseStringAsSubstep(value)
-            self._value = {subStep: self._parseSteeringString(subStepValue)}
-        elif isinstance(value, (list, tuple)):
-            # This is a list of strings to parse
+        elif isinstance(value, (str, list, tuple)):
+            if isinstance(value, str):
+                value = [value,]
+            # Now we have a list of strings to parse
             self._value = {}
             for item in value:
                 if not isinstance(item, str):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                               'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                subStep, subStepValue = self._parseStringAsSubstep(item)
-                self._value.update({subStep: self._parseSteeringString(subStepValue)})
+                if item in argSubstepSteering.steeringAlises:
+                    msg.debug("Found value {0} in steeringAlises ({1})".format(item, argSubstepSteering.steeringAlises[item]))
+                    for substep, steerlist in argSubstepSteering.steeringAlises[item].iteritems():
+                        if substep in self._value:
+                            self._value[substep].extend(steerlist)
+                        else:
+                            self._value[substep] = steerlist
+                else:
+                    subStep, subStepValue = self._parseStringAsSubstep(item)
+                    self._value.update({subStep: self._parseSteeringString(subStepValue)})
         else:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                       'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
@@ -2068,6 +2097,7 @@ class trfArgParser(argparse.ArgumentParser):
             msg.debug('Adding argument: ({0}; {1})'.format(args, kwargs))
             super(trfArgParser, self).add_argument(*args, **kwargs)
 
+    @property
     def getProdsysDesc(self):
         desc = {}
         for name, argClass in self._argClass.iteritems():
