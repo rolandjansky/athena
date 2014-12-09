@@ -345,7 +345,9 @@ double Geo::phiSize(CaloId calo, short layer, short /*region*/, short /*iPhi*/)
 {
   if (layer > 3) return 0;
   if (Id::matchCalo(calo, FCAL) && layer == 0) return 0;
-  double nominal = TMath::TwoPi()/nPhi(calo, layer);
+  short nphi=nPhi(calo, layer);
+  double nominal = 0;
+  if (nphi!=0) nominal=TMath::TwoPi()/nphi;//nPhi(calo, layer);
   return nominal;
 }
 

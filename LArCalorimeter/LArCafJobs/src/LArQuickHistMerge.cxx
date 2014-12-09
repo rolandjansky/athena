@@ -415,7 +415,7 @@ std::vector<std::string> splitString(const std::string& in, const std::string& d
 
 bool readFromTextFile(const char* filename, std::vector<std::string>& out) {
 
-  ifstream ifs (filename,ifstream::in );
+  std::ifstream ifs (filename, std::ifstream::in );
   if (!ifs.good()) {
     std::cout << "Failed to open file " << filename << " for reading." << std::endl;
     return false;

@@ -26,8 +26,7 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArCafJobs/DataContainer.h"
 #include "LArCafJobs/ShapeInfo.h"
@@ -62,8 +61,7 @@ using namespace LArSamples;
 
 
 LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
-  m_log(0),
+  AthAlgorithm(name, pSvcLocator),
   m_count(0),
   m_dumperTool("LArShapeDumperTool"),
   m_larCablingSvc("LArCablingService"),
@@ -109,92 +107,28 @@ LArShapeDumper::~LArShapeDumper()
 
 StatusCode LArShapeDumper::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  (*m_log) << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG ("in initialize()");
 
   m_samples = new DataStore();
 
-  StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Unable to retrieve pointer to StoreGate Service" << endreq;
-    return sc;
-  }	
-  
-  sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to locate Service DetectorStore" << endreq;
-    return sc;
-  }
-
-  sc = m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to retrieve LArCablingService" << endreq;
-    return sc;
-  }
-  
-  sc = m_badChannelMasker.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Could not retrieve BadChannelMask " << m_badChannelMasker << endreq;
-    return sc;
-  }
-  
-  sc = m_adc2mevTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to find tool for LArADC2MeV" << endreq;
-    return sc;
-  }
-
-  sc = m_caloNoiseTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Could not retrieve CaloNoiseTool " << m_caloNoiseTool << endreq;
-    return sc;
-  }
-
-  sc = m_badChannelTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Could not retrieve Bad channel tool " << m_badChannelTool << endreq;
-    return sc;
-  }
-
-  sc = m_detectorStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure() || !m_onlineHelper) {
-    (*m_log) << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  }
-
-  sc = m_detectorStore->retrieve(m_caloDetDescrMgr);
-  if (sc.isFailure() || !m_caloDetDescrMgr) {
-    (*m_log) << MSG::FATAL << "Could not get CaloDetDescrMgr " << endl << m_detectorStore->dump() << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_badChannelMasker.retrieve() );
+  ATH_CHECK( m_adc2mevTool.retrieve() );
+  ATH_CHECK( m_caloNoiseTool.retrieve() );
+  ATH_CHECK( m_badChannelTool.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_caloDetDescrMgr) );
 
   if (m_doTrigger) {
-    sc = m_trigDec.retrieve();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::FATAL << "Could not retrieve TrigDecisionTool " << endreq;
-      return sc;
-    }
-
-    sc = m_configSvc.retrieve();
-    if ( sc.isFailure() ) {
-       (*m_log) << MSG::FATAL << "Unable to get pointer to TrigConfigSvc" << endreq;
-       return sc;
-    }
+    ATH_CHECK( m_trigDec.retrieve() );
+    ATH_CHECK( m_configSvc.retrieve() );
   }
 
-  sc = m_dumperTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Could not retrieve dumper tool " << m_dumperTool << endreq;
-    return sc;
-  }  
+  ATH_CHECK( m_dumperTool.retrieve() );
 
   if (m_dumperTool->doShape()) {
-    if (m_count == 1) (*m_log) << MSG::INFO << "Reading LArAutoCorr handle" << endreq;
-    sc = m_detectorStore->regHandle(m_autoCorr, "LArAutoCorr");
-    if (sc.isFailure()) {
-      (*m_log) << MSG::WARNING << "Cannot get register handle for LArAutoCorr" << endl << m_detectorStore->dump() << endreq;
-      return sc;
-    }
+    if (m_count == 1) ATH_MSG_INFO ( "Reading LArAutoCorr handle" );
+    ATH_CHECK( detStore()->regHandle(m_autoCorr, "LArAutoCorr") );
   }
   
   std::transform(m_caloType.begin(), m_caloType.end(), m_caloType.begin(), toupper);
@@ -217,7 +151,7 @@ StatusCode LArShapeDumper::beginRun()
   static unsigned int i = 0;
 
   if (m_doTrigger) {
-    ofstream xmlfile(Form("frame_%d.xml", i++));
+    std::ofstream xmlfile(Form("frame_%d.xml", i++));
     xmlfile << "      <SEQUENCE_LIST>" << std::endl; 
     for(TrigConf::HLTSequence *seq : m_configSvc->sequences())
        seq->writeXML(xmlfile);
@@ -240,19 +174,19 @@ StatusCode LArShapeDumper::beginRun()
     boost::cmatch match;
 
     for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++) {
-      (*m_log) << MSG::INFO << "Configured chain : " << *chain << endreq;
+      ATH_MSG_INFO ( "Configured chain : " << *chain );
       for (std::vector<boost::regex>::const_iterator regex = regexs.begin(); regex != regexs.end(); regex++)
         if (boost::regex_match(chain->c_str(), match, *regex)) myChains.push_back(*chain);
     }
     std::vector<std::string> groups = m_trigDec->getListOfGroups();
     for (std::vector<std::string>::const_iterator group = groups.begin(); group != groups.end(); group++)
-      (*m_log) << MSG::INFO << "Configured group : " << *group << endreq;
+      ATH_MSG_INFO ( "Configured group : " << *group );
     const Trig::ChainGroup* calibStreamGroup = m_trigDec->getChainGroup("Calibration"); 
     if (calibStreamGroup) {
       std::vector<std::string> chains = calibStreamGroup->getListOfTriggers();
-        (*m_log) << MSG::INFO << "Chains for Calibration group:" << endreq;
+      ATH_MSG_INFO ( "Chains for Calibration group:" );
       for (std::vector<std::string>::const_iterator chain = chains.begin(); chain != chains.end(); chain++)
-        (*m_log) << MSG::INFO << "Calib chain : " << *chain << endreq;
+        ATH_MSG_INFO ( "Calib chain : " << *chain );
     }
 
     unsigned int idx = 0;
@@ -265,33 +199,33 @@ StatusCode LArShapeDumper::beginRun()
            l1Item != l1Triggers.end(); l1Item++) {
         const TrigConf::TriggerItem* confItem = m_trigDec->ExperimentalAndExpertMethods()->getItemConfigurationDetails(*l1Item);
         if (!confItem) {
-          (*m_log) << MSG::WARNING << "LVL1 item " << *l1Item << ", obtained from TrigConfig, cannot be retrieved!" << endreq;
+          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << ", obtained from TrigConfig, cannot be retrieved!" );
           continue;
         }
         int pos = confItem->ctpId();
         if (pos < 0 || pos >= 256) {
-          (*m_log) << MSG::WARNING << "LVL1 item " << *l1Item << "has out-of-range ctpId " << pos << endreq;
+          ATH_MSG_WARNING ( "LVL1 item " << *l1Item << "has out-of-range ctpId " << pos );
           continue;
         }
         m_runData->addBit(l1Item->c_str(), pos);
-        (*m_log) << MSG::INFO << "Adding LVL1 trigger bit for " << *l1Item << " at position " << pos << endreq;
+        ATH_MSG_INFO ( "Adding LVL1 trigger bit for " << *l1Item << " at position " << pos );
       }
       idx = 256;
     }
   
     for (std::vector<std::string>::const_iterator name = myChains.begin(); name != myChains.end(); name++) {
       if (m_trigDec->getListOfTriggers(*name).empty()) {
-        (*m_log) << MSG::WARNING << "Requested trigger name " << *name << " is not configured in this run" << endreq;
+        ATH_MSG_WARNING ( "Requested trigger name " << *name << " is not configured in this run" );
         continue;
       }
       const Trig::ChainGroup* group = m_trigDec->getChainGroup(*name);
       if (!group) {
-        (*m_log) << MSG::WARNING << "Could not retrieve chain group for trigger " << *name << endreq;
+        ATH_MSG_WARNING ( "Could not retrieve chain group for trigger " << *name );
         continue;
       }
       m_runData->addBit(name->c_str(), idx++);
       m_triggerGroups.push_back(group);
-      (*m_log) << MSG::INFO << "Adding trigger bit for " << *name << " at position " << idx-1 << endreq;
+      ATH_MSG_INFO ( "Adding trigger bit for " << *name << " at position " << idx-1 );
     }
   }
   return StatusCode::SUCCESS;
@@ -301,24 +235,21 @@ StatusCode LArShapeDumper::beginRun()
 StatusCode LArShapeDumper::execute()
 {    
   if ((m_prescale > 1 && m_random.Rndm() > 1.0/m_prescale) || m_prescale <= 0) {
-    (*m_log) << MSG::VERBOSE << "======== prescaling event "<< m_count << " ========" << endreq;
+    ATH_MSG_VERBOSE ( "======== prescaling event "<< m_count << " ========" );
     return StatusCode::SUCCESS;
   }
+
   m_count++;
   StatusCode sc;
-  (*m_log) << MSG::VERBOSE << "======== executing event "<< m_count << " ========" << endreq;
+  ATH_MSG_VERBOSE ( "======== executing event "<< m_count << " ========" );
 
-  const EventInfo* eventInfo = 0;
-  sc = m_eventStore->retrieve(eventInfo);
-  if (!sc.isSuccess() || !eventInfo || !eventInfo->event_ID()) {
-    (*m_log) << MSG::FATAL << "Unable to retrieve Event info object" << endreq;
-    return sc;
-  }
+  const xAOD::EventInfo* eventInfo = 0;
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
   
-  int event     = eventInfo->event_ID()->event_number();
-  int run       = eventInfo->event_ID()->run_number();
-  int lumiBlock = eventInfo->event_ID()->lumi_block();
-  int bunchId   = eventInfo->event_ID()->bunch_crossing_id();
+  int event     = eventInfo->eventNumber();
+  int run       = eventInfo->runNumber();
+  int lumiBlock = eventInfo->lumiBlock();
+  int bunchId   = eventInfo->bcid();
 
   EventData* eventData = 0;
   int eventIndex = -1;
@@ -329,51 +260,30 @@ StatusCode LArShapeDumper::execute()
 
   const LArDigitContainer* larDigitContainer;
   if (m_digitsKey != "")
-    sc = m_eventStore->retrieve(larDigitContainer, m_digitsKey);
+    ATH_CHECK( evtStore()->retrieve(larDigitContainer, m_digitsKey) );
   else
-    sc = m_eventStore->retrieve(larDigitContainer);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << " Cannot read LArDigitContainer from StoreGate! key=" << m_digitsKey << endl << m_eventStore->dump() << endreq;
-    return sc;
-  }
+    ATH_CHECK( evtStore()->retrieve(larDigitContainer) );
 
   if (larDigitContainer->size() == 0) {
-    (*m_log) << MSG::WARNING << "LArDigitContainer with key=" << m_digitsKey << " is empty!" << endreq;
+    ATH_MSG_WARNING ( "LArDigitContainer with key=" << m_digitsKey << " is empty!" );
     return StatusCode::SUCCESS;
   }
 
   const LArRawChannelContainer* rawChannelContainer = 0;
-  sc = m_eventStore->retrieve(rawChannelContainer, m_channelsKey);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::WARNING << "LArRawChannelContainer not found with key"
-        << m_channelsKey << endl << m_eventStore->dump() << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(rawChannelContainer, m_channelsKey) );
   
-  if (m_count == 1) (*m_log) << MSG::INFO << "Reading pedestal" << endreq;
-  sc = m_detectorStore->retrieve(m_larPedestal);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Cannot retrieve pedestal(s) from Conditions Store!" << endl << m_detectorStore->dump()  << endreq;
-    return sc;
-  }   
+  if (m_count == 1) ATH_MSG_INFO ( "Reading pedestal" );
+  ATH_CHECK( detStore()->retrieve(m_larPedestal) );
 
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
-    if (m_count == 1) (*m_log) << MSG::INFO << "Reading LArOFIterResult" << endreq;
-    sc = m_eventStore->retrieve(ofIterResult, "LArOFIterResult");
-    if (sc.isFailure() || !ofIterResult) {
-      (*m_log) << MSG::FATAL << "Cannot retrieve OF Iter results from Event Store!" << endl << m_eventStore->dump() << endreq;
-      return sc;
-    }  
+    if (m_count == 1) ATH_MSG_INFO ( "Reading LArOFIterResult" );
+    ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
   }
 
-  if (m_count == 1) (*m_log) << MSG::INFO << "Reading LArFebErrorSummary" << endreq;
+  if (m_count == 1) ATH_MSG_INFO ( "Reading LArFebErrorSummary" );
   const LArFebErrorSummary* larFebErrorSummary = 0;
-  sc = m_eventStore->retrieve(larFebErrorSummary, "LArFebErrorSummary");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Cannot retrieve Feb error summary." << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(larFebErrorSummary, "LArFebErrorSummary") );
   const std::map<unsigned int,uint16_t>& febErrorMap = larFebErrorSummary->get_all_febs();
   std::map<unsigned int, const LArRawChannel*> channelsToKeep;
   
@@ -386,9 +296,8 @@ StatusCode LArShapeDumper::execute()
     IdentifierHash hash = m_onlineHelper->channel_Hash(channel->channelID());
     
     if (!hash.is_valid()) {
-      (*m_log) << MSG::FATAL << "Found a LArRawChannel whose HWIdentifier (" << channel->channelID()
-          << ") does not correspond to a valid hash -- returning StatusCode::FAILURE."
-          << endreq;
+      ATH_MSG_FATAL ( "Found a LArRawChannel whose HWIdentifier (" << channel->channelID()
+                      << ") does not correspond to a valid hash -- returning StatusCode::FAILURE." );
       return StatusCode::FAILURE;
     }    
     channelsToKeep[hash] = &*channel;
@@ -412,9 +321,9 @@ StatusCode LArShapeDumper::execute()
          ofResult != ofIterResult->end(); ++ofResult) 
       ofcResultPosition[ofResult->getChannelID()] = ofResult;
   
-  (*m_log) << MSG::INFO << "njpbSizes : " << larDigitContainer->size()
-           << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
-           << rawChannelContainer->size() << " " << channelsToKeep.size() << endreq;
+  ATH_MSG_INFO ( "njpbSizes : " << larDigitContainer->size()
+                 << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
+                 << rawChannelContainer->size() << " " << channelsToKeep.size() );
   
   for (LArDigitContainer::const_iterator digit = larDigitContainer->begin();
        digit != larDigitContainer->end(); ++digit) 
@@ -486,7 +395,7 @@ StatusCode LArShapeDumper::execute()
     if (m_dumperTool->doShape()) {
       const LArAutoCorrComplete* autoCorrObj = dynamic_cast<const LArAutoCorrComplete*>(m_autoCorr.cptr());
       if (!autoCorrObj)
-        (*m_log) << MSG::WARNING << "AutoCorr object is not of type LArAutoCorrComplete!" << endreq;
+        ATH_MSG_WARNING ( "AutoCorr object is not of type LArAutoCorrComplete!" );
       else
         autoCorr = autoCorrObj->autoCorr(channelID, gain);
     }
@@ -515,7 +424,7 @@ StatusCode LArShapeDumper::execute()
 //         data->setADCMax(ofResult->getAmplitude());
 //     }
 //     else
-//       (*m_log) << MSG::INFO << "OFResult for channel 0x" << MSG::hex << channelID << MSG::dec 
+//       msg() << MSG::INFO << "OFResult for channel 0x" << MSG::hex << channelID << MSG::dec 
 //           << " not found. (size was " << ofcResultPosition.size() << ")" << endreq;
     
    
@@ -526,7 +435,7 @@ StatusCode LArShapeDumper::execute()
     histCont->add(data);
   }
   
-  //(*m_log) << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endreq;
+  //msg() << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -540,40 +449,39 @@ StatusCode LArShapeDumper::endRun()
 
 StatusCode LArShapeDumper::finalize()
 {
-  (*m_log) << MSG::DEBUG << "in finalize() " << endreq;
+  ATH_MSG_DEBUG ("in finalize() ");
 
   int n = 0;
   for (unsigned int i = 0; i < m_samples->nChannels(); i++)
     if (m_samples->historyContainer(i)) {
       if (m_samples->historyContainer(i)->cellInfo() == 0)
-	(*m_log) << MSG::INFO << "Cell with no cellInfo at index " << i << " !!" << endreq;
+	ATH_MSG_INFO ( "Cell with no cellInfo at index " << i << " !!" );
       //else if (m_samples->historyContainer(i)->cellInfo()->shape() == 0)
-	//(*m_log) << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endreq;
-      //(*m_log) << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endreq;
+	//msg() << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endreq;
+      //msg() << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endreq;
       n++;
     }
 
   //for (unsigned int i = 0; i < m_samples->nEvents(); i++) {
-  //   (*m_log) << MSG::INFO << "Event " << i << " = " 
+  //   msg() << MSG::INFO << "Event " << i << " = " 
   //            << m_samples->eventData(i)->run() << " " << m_samples->eventData(i)->event()
   //            << "trigger = " << m_samples->eventData(i)->triggers() << ", nRoIs = " << m_samples->eventData(i)->nRoIs() << endreq;
   // }
-  (*m_log) << MSG::INFO << "Non-zero cells = " << n << ", footprint = " << m_samples->footprint() <<  endreq;
-  (*m_log) << MSG::INFO << "Writing..." << endreq;
+  ATH_MSG_INFO ( "Non-zero cells = " << n << ", footprint = " << m_samples->footprint() );
+  ATH_MSG_INFO ( "Writing..." );
 
   if (!m_doStream) {
     m_samples->writeTrees(m_fileName.c_str());
 /*    TFile* f = TFile::Open(m_fileName.c_str(), "RECREATE");
-    (*m_log) << MSG::INFO << "Writing (2)..." << endreq;
+    msg() << MSG::INFO << "Writing (2)..." << endreq;
     f->WriteObjectAny(m_samples, "Container", "LArSamples");
-    (*m_log) << MSG::INFO << "Closing..." << endreq;
+    msg() << MSG::INFO << "Closing..." << endreq;
     f->Close();
-    (*m_log) << MSG::INFO << "Deleting..." << endreq;
+    msg() << MSG::INFO << "Deleting..." << endreq;
     delete m_samples;*/
-    (*m_log) << MSG::INFO << "Done!" << endreq;
+    msg() << MSG::INFO << "Done!" << endreq;
   }
 
-  delete m_log;
   return StatusCode::SUCCESS;
 }
 
@@ -585,8 +493,8 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   std::vector<unsigned int> triggerWords;
   if (m_doTrigger) {
     const ROIB::RoIBResult* l1Result = 0;
-    if (m_eventStore->retrieve(l1Result).isFailure() || !l1Result) {
-      (*m_log) << MSG::FATAL << "Could not retrieve RoIBResult!" << endreq;
+    if (evtStore()->retrieve(l1Result).isFailure() || !l1Result) {
+      ATH_MSG_FATAL ( "Could not retrieve RoIBResult!" );
       return -1;
     }
     const std::vector<ROIB::CTPRoI> tav = l1Result->cTPResult().TAV();
@@ -598,12 +506,12 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
       while (triggerWords.size() <= bit->second/32) triggerWords.push_back(0);
       if (m_trigDec->isPassed(bit->first.Data())) {
 	triggerWords[bit->second/32] |= (0x1 << (bit->second % 32));
-      //(*m_log) << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endreq;
+      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endreq;
       }
     }
-    //(*m_log) << MSG::INFO << "Trigger words : ";
-    //for (unsigned int i = 0; i < triggerWords.size(); i++) (*m_log) << MSG::INFO << triggerWords[i] << " ";
-    //(*m_log) << MSG::INFO << endreq;
+    //msg() << MSG::INFO << "Trigger words : ";
+    //for (unsigned int i = 0; i < triggerWords.size(); i++) msg() << MSG::INFO << triggerWords[i] << " ";
+    //msg() << MSG::INFO << endreq;
   }
   
   eventData = new EventData(event, 0, lumiBlock, bunchXing);
@@ -611,17 +519,17 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   eventData->setRunData(m_runData);
   eventData->setTriggerData(triggerWords);
   if (m_doRoIs) {
-    //(*m_log) << MSG::INFO << "Filling RoI list" << endreq;
+    //msg() << MSG::INFO << "Filling RoI list" << endreq;
     for (std::vector<const Trig::ChainGroup*>::const_iterator group = m_triggerGroups.begin();
 	 group != m_triggerGroups.end(); group++) {
       std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = (*group)->features().get<TrigRoiDescriptor>();
       for (std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roI = roIs.begin(); roI != roIs.end(); roI++) {
-	//(*m_log) << MSG::INFO << "Found an roi for chain ";
+	//msg() << MSG::INFO << "Found an roi for chain ";
         //for (unsigned int i = 0; i < (*group)->getListOfTriggers().size(); i++) cout << (*group)->getListOfTriggers()[i] << " ";
         //cout << "@ " << roI->cptr()->eta() << ", " << roI->cptr()->phi() << ", TE = " 
 	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endreq;
 	eventData->addRoI(roI->cptr()->eta(), roI->cptr()->phi(), (*group)->getListOfTriggers()[0].c_str(), roI->label().c_str());
-	//(*m_log) << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endreq;
+	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endreq;
       }
     }
   }

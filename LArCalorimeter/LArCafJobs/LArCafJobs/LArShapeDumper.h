@@ -10,7 +10,7 @@
 #ifndef LArShapeDumper_H
 #define LArShapeDumper_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "LArRawEvent/LArDigitContainer.h"
@@ -58,7 +58,7 @@ namespace Trig {
   class ChainGroup;
 }
 
-class LArShapeDumper : public Algorithm
+class LArShapeDumper : public AthAlgorithm
 {
  public:
   LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocator);
@@ -76,7 +76,6 @@ class LArShapeDumper : public Algorithm
   
  private:
    
-  MsgStream* m_log;
   std::string m_fileName;
 
   int m_prescale;  
@@ -89,8 +88,6 @@ class LArShapeDumper : public Algorithm
   std::string m_gainSpec;
   bool m_dumpDisc;
   std::vector<std::string> m_triggerNames;
-  StoreGateSvc* m_detectorStore;
-  StoreGateSvc* m_eventStore;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool;
   ToolHandle<LArCablingService> m_larCablingSvc;

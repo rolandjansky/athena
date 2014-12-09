@@ -83,16 +83,15 @@ if __name__ == '__main__':
     #---------------------
     #Get pyAMI client
     try:
-        from pyAMI.pyAMI import AMI
+        import pyAMI.client
     except ImportError:
         print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-        print "Will manually add ZSI and 4suite, then try again..."
+        print "Will manually add pyAMI, then try again..."
         import sys
-        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
-        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')
-        from pyAMI.pyAMI import AMI
+        sys.path.insert(0,'/afs/cern.ch/atlas/software/tools/pyAMI/5.0.0/lib')
+        import pyAMI.client
     print "import pyAMI was succesful"
-    amiclient=AMI(False)
+    amiclient=pyAMI.client.Client('atlas')
 
     #------------------------
     #Build final AMI tag info

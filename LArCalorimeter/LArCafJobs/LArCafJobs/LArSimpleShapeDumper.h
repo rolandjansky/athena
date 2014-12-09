@@ -10,7 +10,7 @@
 #ifndef LArSimpleShapeDumper_H
 #define LArSimpleShapeDumper_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "LArTools/LArCablingService.h"
@@ -30,7 +30,7 @@ class HWIdentifier;
 class Identifier;
 class CaloDetDescrElement;
 
-class LArSimpleShapeDumper : public Algorithm
+class LArSimpleShapeDumper : public AthAlgorithm
 {
  public:
   LArSimpleShapeDumper(const std::string & name, ISvcLocator * pSvcLocator);
@@ -43,8 +43,6 @@ class LArSimpleShapeDumper : public Algorithm
   
  private:
    
-  MsgStream* m_log;
-  StoreGateSvc* m_detectorStore;
   const LArOnlineID* m_onlineHelper;
   const DataHandle<ILArShape> m_shape;
 };
