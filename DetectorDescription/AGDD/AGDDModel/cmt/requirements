@@ -1,0 +1,19 @@
+package AGDDModel
+
+author ADA <Andrea.DellAcqua@cern.ch>
+manager ADA <Andrea.DellAcqua@cern.ch>
+
+
+use AtlasPolicy         AtlasPolicy-*
+
+library AGDDModel *.cxx
+apply_pattern installed_library
+
+apply_pattern install_runtime
+
+public
+use AtlasCLHEP          AtlasCLHEP-*            External
+use AGDDKernel		    AGDDKernel-*		 	DetectorDescription/AGDD
+
+
+private
