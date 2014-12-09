@@ -3,10 +3,12 @@ package L1Common
 author ruth.poettgen@cern.ch
 
 #use TDAQCPolicy
-use DetCommonPolicy *
-use L1CommonCore L1CommonCore-* Trigger/TrigT1
+use  DetCommonPolicy   *
+use  L1CommonCore      L1CommonCore-*      Trigger/TrigT1
 
-document l1common_files L1Common FILEPATH=../schema/ FILENAME=L1Specifications.xml INC=../L1Common PY=../python LOC=../../../../InstallArea/scripts/L1CommonCore
+
+
+document l1common_files L1Common FILEPATH=../schema/ FILENAME=L1Specifications.xml INC=../L1Common PY=../python LOC=${L1CommonCore_cmtpath}/${cmt_installarea_prefix}/scripts/L1CommonCore
 
 apply_pattern detcommon_ignores
 
