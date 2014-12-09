@@ -246,6 +246,7 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float m_partExtrConePhi;
    float m_phtClasConePhi;
    float m_phtClasConeEta;
+   long  m_barcodeShift;
 
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
