@@ -54,7 +54,7 @@ if doMyAANT:
   svcMgr += THistSvc()
   svcMgr.THistSvc.Output = ["AANT DATAFILE='PileupDigiRTT.ntuple.root' OPT='RECREATE'"]
 
-  from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+  from AnalysisTools.AnalysisToolsConf import AANTupleStream
   topSequence                                    += AANTupleStream()
   topSequence.AANTupleStream.ExtraRefNames        = [ "StreamESD","StreamRDO" ]
   topSequence.AANTupleStream.OutputName           = 'PileupDigiRTT.ntuple.root'

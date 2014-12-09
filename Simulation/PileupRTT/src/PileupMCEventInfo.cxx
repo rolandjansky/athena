@@ -47,6 +47,9 @@ namespace PileupRTT
   PileupRTT::PileupMCEventInfo::PileupMCEventInfo(const std::string& name,ISvcLocator* pSvcLocator) : 
     AthAlgorithm(name, pSvcLocator),
 
+    m_pileupRTTTool(0),
+    m_storeGate(0),
+
     m_NHardPrimVertices(0),
     m_hardPrimVtxX(0),
     m_hardPrimVtxY(0),
@@ -216,7 +219,7 @@ namespace PileupRTT
     //+++ Outfile for MC GenTree info
     const char* out = m_outfile.c_str();
     std::ofstream outfile(out);
-    if (mcTruth) {
+    if (mcTruth->size()) {
       McEventCollection::const_iterator MCeventItr    = mcTruth->begin();
       McEventCollection::const_iterator MCeventItrEnd = mcTruth->end();
       for(; MCeventItr != MCeventItrEnd; ++MCeventItr) {

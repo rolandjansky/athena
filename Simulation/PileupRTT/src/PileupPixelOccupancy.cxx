@@ -45,18 +45,31 @@ namespace PileupRTT
   PileupRTT::PileupPixelOccupancy::PileupPixelOccupancy(const std::string& name,ISvcLocator* pSvcLocator) : 
     AthAlgorithm(name, pSvcLocator),
 
+    m_pileupRTTTool(0),
+    m_detStore(0),
+    m_storeGate(0),
+
+    m_pixelID(0),
+
     m_pix_BCID(0),
     m_pix_ToT(0),
     m_pix_Lvl1ID(0),
     m_pix_Lvl1A(0),
     m_pix_word(0),
     m_pix_num_hits(0),
-
+    
     m_theTree(0),
     m_thistSvc(0),
-    
-    m_Pixel_RDOName("PixelRDOs") 
-  
+
+    m_Pixel_RDOName("PixelRDOs"), 
+
+    h_ecA_occupancy(0),
+    h_ecC_occupancy(0),
+    h_bar_lay0_occupancy(0),
+    h_bar_lay1_occupancy(0),
+    h_bar_lay2_occupancy(0),
+    h_pix_occupancy(0)
+
   {
 
     //+++ Container Names
