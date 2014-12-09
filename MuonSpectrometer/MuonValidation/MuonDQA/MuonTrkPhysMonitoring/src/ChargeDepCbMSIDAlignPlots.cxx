@@ -6,7 +6,12 @@
 
 using namespace MuonTrkPhysMonUtils;
 
-ChargeDepCbMSIDAlignPlots::ChargeDepCbMSIDAlignPlots(PlotBase *pParent, const std::string& sChargeInfo):PlotBase(pParent),m_sChargeInfo(sChargeInfo){}
+ChargeDepCbMSIDAlignPlots::ChargeDepCbMSIDAlignPlots(PlotBase *pParent, const std::string& 
+sChargeInfo):PlotBase(pParent),m_QoPt_ms_id_sum(0),m_QoPt_ms_id_sum_weights(0),m_QoPt_ms_id_sum_entries(0),
+m_QoPt_ms_id_sum_mean(0),m_rel_p_ms_id_sum(0),m_rel_p_ms_id_sum_weights(0),
+m_rel_p_ms_id_sum_entries(0),m_rel_p_ms_id_sum_mean(0),m_oPt_sum(0),
+m_oPt_sum_weights(0),m_oPt_sum_entries(0),m_oPt_sum_mean(0),m_sChargeInfo(sChargeInfo)
+{}
 
 void ChargeDepCbMSIDAlignPlots::initializePlots(){
 

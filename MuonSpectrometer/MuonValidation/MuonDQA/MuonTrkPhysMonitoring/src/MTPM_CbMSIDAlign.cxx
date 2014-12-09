@@ -35,7 +35,7 @@ void MuonTrkPhysMonitoring::fillHistograms_CbMSIDAlign(const xAOD::Muon* Muon, c
   if(!InDetTrackParticle) return;
   const Trk::Perigee& measPerigeeID = InDetTrackParticle->perigeeParameters();
            
-  bool muonPassesTrackCriteria = passIDTrackQuality(InDetTrackParticle) && passMSTrackQuality(MSTrackParticle,2,2,2,8);  
+  bool muonPassesTrackCriteria = passIDTrackQuality(InDetTrackParticle) && passMSTrackQuality(Muon,2,2,2,8);  
   if (AthenaMonManager::dataType() == AthenaMonManager::heavyIonCollisions || AthenaMonManager::dataType() == AthenaMonManager::cosmics) {
     if(!muonPassesTrackCriteria) return;
     m_oCbMSIDAlignPlots.fill(Muon, &measPerigeeID, &measPerigeeMS);

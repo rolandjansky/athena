@@ -81,9 +81,14 @@ void ZSignalPlots::finalizePlots(){
   LabelSectorAxis(m_Z_EffNumerator->GetYaxis());
   LabelSectorAxis(m_Z_EffDenominator->GetYaxis());
   
-  // Potential bug, at least it is damn weird...
-  for(int jj = 1; jj < 180; jj++){
-    m_Z_Efficiency->SetBinContent(jj,(m_Z_EffNumerator->GetBinContent(jj)+1)/(m_Z_EffDenominator->GetBinContent(jj)+2));
+  for(int bin = 1; bin < m_Z_EffNumerator->GetSize(); bin++){
+    if(m_Z_EffDenominator->GetBinContent(bin) > 0)
+      m_Z_Efficiency->SetBinContent(bin, (m_Z_EffNumerator->GetBinContent(bin)) / (m_Z_EffDenominator->GetBinContent(bin)));
+  }
+
+  for(int bin = 1; bin < m_Z_Efficiency_eta->GetSize(); bin++) {
+    if(m_Z_EffDenominator_eta->GetBinContent(bin) > 0)
+      m_Z_Efficiency_eta->SetBinContent(bin, (m_Z_EffNumerator_eta->GetBinContent(bin)) / (m_Z_EffDenominator_eta->GetBinContent(bin)));
   }
 
   SetResultsBin( 1,m_M_Z_EC_EC);

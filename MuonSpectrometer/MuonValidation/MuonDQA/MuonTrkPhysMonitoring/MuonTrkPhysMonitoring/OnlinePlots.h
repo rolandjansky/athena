@@ -9,7 +9,7 @@
 
 class OnlinePlots: public PlotBase {
   public:
-    OnlinePlots(PlotBase *pParent):PlotBase(pParent){;}
+    OnlinePlots(PlotBase *pParent):PlotBase(pParent),m_Good_t0(0),m_Good_t0_EA(0),m_Good_t0_BA(0),m_Good_t0_BC(0),m_Good_t0_EC(0){;}
     void fill(int region, float t0);
 
     TH1F* m_Good_t0;

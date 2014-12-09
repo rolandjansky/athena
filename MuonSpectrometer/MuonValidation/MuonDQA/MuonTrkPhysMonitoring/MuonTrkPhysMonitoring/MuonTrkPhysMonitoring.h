@@ -192,7 +192,8 @@ class MuonTrkPhysMonitoring : public ManagedMonitorToolBase
   // GenTracking Monitoring
   int retrieveLumiBlock();
   bool passIDTrackQuality(const xAOD::TrackParticle *trackParticle);
-  bool passMSTrackQuality(const xAOD::TrackParticle *MSTrackParticle, int HitReqI=1, int HitReqM=1, int HitReqO=1, int HitReqTotal=3);
+//  bool passMSTrackQuality(const xAOD::TrackParticle *MSTrackParticle, int HitReqI=1, int HitReqM=1, int HitReqO=1, int HitReqTotal=3);
+  bool passMSTrackQuality(const xAOD::Muon *muon, int HitReqI=1, int HitReqM=1, int HitReqO=1, int HitReqTotal=3);
   void FillT02DPlots(TH1F* hist, TH2F* weightshist, TH2F* entrieshist, float xValue, float yValue, float info);
   
   // Specific Data Retrieval

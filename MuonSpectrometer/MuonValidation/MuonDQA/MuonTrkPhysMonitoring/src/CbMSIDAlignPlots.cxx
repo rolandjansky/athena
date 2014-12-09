@@ -5,9 +5,15 @@
 #include "MuonTrkPhysMonitoring/CbMSIDAlignPlots.h"
 #include "TMath.h"
 
-CbMSIDAlignPlots::CbMSIDAlignPlots(PlotBase *pParent):PlotBase(pParent),
+CbMSIDAlignPlots::CbMSIDAlignPlots(PlotBase *pParent):PlotBase(pParent),m_oPt_Diff(0),
 m_oPosCbMSIDAlignPlots(this, "pos"),
-m_oNegCbMSIDAlignPlots(this, "neg")
+m_oNegCbMSIDAlignPlots(this, "neg"),
+m_oPt_ms_id_sum(0),m_oPt_ms_id_sum_weights(0),m_oPt_ms_id_sum_entries(0),m_oPt_ms_id_sum_mean(0),
+m_chi2ndof_CB(0),m_chi2ndof_CB_weights(0),m_chi2ndof_CB_entries(0),m_chi2ndof_CB_mean(0),
+m_deltaZ0_CB_Eta_AllSectors(0),m_deltaZ0_CB_Eta_Phi(0),m_deltaZ0_CB_Eta_Phi_Width(0),m_deltaZ0_CB(0),
+m_deltaZ0_CB_S1(0),m_deltaZ0_CB_S2(0),m_deltaZ0_CB_S3(0),m_deltaZ0_CB_S4(0),m_deltaZ0_CB_S5(0),
+m_deltaZ0_CB_S6(0),m_deltaZ0_CB_S7(0),m_deltaZ0_CB_S8(0),m_deltaZ0_CB_S9(0),m_deltaZ0_CB_S10(0),
+m_deltaZ0_CB_S11(0),m_deltaZ0_CB_S12(0),m_deltaZ0_CB_S13(0),m_deltaZ0_CB_S14(0),m_deltaZ0_CB_S15(0),m_deltaZ0_CB_S16(0) 
 {;}
 
 using namespace MuonTrkPhysMonUtils;

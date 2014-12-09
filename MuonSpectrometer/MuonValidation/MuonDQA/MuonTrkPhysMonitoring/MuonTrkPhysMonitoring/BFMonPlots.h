@@ -10,7 +10,8 @@
 
 class BFMonPlots: public PlotBase {
   public:
-    BFMonPlots(PlotBase *pParent):PlotBase(pParent){;}
+    BFMonPlots(PlotBase *pParent):PlotBase(pParent),m_LSag(0),m_LSag_weights(0),m_LSag_entries(0),
+                                  m_LSag_mean(0),m_LSag_eta_phi_weights(0),m_LSag_eta_phi_entries(0),m_LSag_eta_phi_mean(0){;}
     void fill(const xAOD::Muon *Muon, float fSagitta );
     
     TH1F* m_LSag;

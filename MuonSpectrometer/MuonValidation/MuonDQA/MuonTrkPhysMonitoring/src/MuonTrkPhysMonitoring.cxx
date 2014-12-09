@@ -22,6 +22,8 @@ using namespace MuonTrkPhysMonUtils;
 MuonTrkPhysMonitoring::MuonTrkPhysMonitoring( const std::string & type, const std::string & name, const IInterface* parent )
 :ManagedMonitorToolBase( type, name, parent ),
 m_log( msgSvc(), name ),
+m_lumiblock(0),
+m_eventCounter(0),
 m_oOnlinePlots(0),
 m_oOccupancyPlots(0),
 m_oGenTrackingPlots(0),
@@ -84,7 +86,8 @@ StatusCode MuonTrkPhysMonitoring::bookHistogramsRecurrent()
 	m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Entry" << endreq;
 
 	// TODO Check where m_environment is set?
-	if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || AthenaMonManager::environment() == AthenaMonManager::online) {
+	if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || 
+            m_environment == AthenaMonManager::online || m_environment == AthenaMonManager::AOD) {
 
 		m_log << MSG::DEBUG << "MuonTrkPhysMonitoring::bookHistogramsRecurrent(): Envrionment [" << m_environment << "]" << endreq;
 
@@ -140,7 +143,8 @@ StatusCode MuonTrkPhysMonitoring::bookHistogramsRecurrent()
 StatusCode MuonTrkPhysMonitoring::fillHistograms()
 {
 	ATH_MSG_DEBUG("Inside fillHistograms()");
-	if( !(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online) ) return StatusCode::SUCCESS;
+	if( !(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || 
+              m_environment == AthenaMonManager::online || m_environment == AthenaMonManager::AOD) ) return StatusCode::SUCCESS;
 
 	m_lumiblock = retrieveLumiBlock();
 	if( !passTrigger() )  return StatusCode::SUCCESS;
@@ -152,7 +156,8 @@ StatusCode MuonTrkPhysMonitoring::fillHistograms()
 //---------------------------------------------------------------------------------------
 StatusCode MuonTrkPhysMonitoring::procHistograms()
 {
-	if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {
+	if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || 
+            m_environment == AthenaMonManager::online || m_environment == AthenaMonManager::AOD ) {
 		m_oOccupancyPlots.finalize();
 		ATH_MSG_DEBUG("MuonTrkPhysMonitoring finalize()");
 		if(endOfLumiBlock){
@@ -181,6 +186,7 @@ bool MuonTrkPhysMonitoring::handleMuonContainer( std::string collectionName) {
 	const xAOD::MuonSegmentContainer* SegmentContainer = nullptr;
 	if ( ( collectionName == "Muons" && evtStore()->retrieve(SegmentContainer,"MuonSegments").isFailure() ) ){
 		ATH_MSG_WARNING( "Unable to retrieve reconstructed segms!" );
+		return false;
 	}
 
 	//Gather IDTrack Container from StoreGate
@@ -216,9 +222,10 @@ void MuonTrkPhysMonitoring::handleMuon( const xAOD::Muon* muon, const xAOD::Muon
 	if (!InDetTrackParticle) return;
 
 	const xAOD::TrackParticle* MSTrackParticle = muon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+
 	if (!MSTrackParticle) return;
 
-	m_oOccupancyPlots.fill(muon, passIDTrackQuality(InDetTrackParticle), passMSTrackQuality(MSTrackParticle,3,3,3,9));
+	m_oOccupancyPlots.fill(muon, passIDTrackQuality(InDetTrackParticle), passMSTrackQuality(muon,3,3,3,9));
 
 	if( !passPtCut( muon->pt() ) ) return;
 
@@ -262,11 +269,12 @@ bool MuonTrkPhysMonitoring::passIDTrackQuality(const xAOD::TrackParticle *trackP
 	if(RetrieveHitInfo(trackParticle, xAOD::expectBLayerHit) && RetrieveHitInfo(trackParticle, xAOD::numberOfBLayerHits) == 0) return false;
 	if(RetrieveHitInfo(trackParticle, xAOD::numberOfPixelHits) + RetrieveHitInfo(trackParticle, xAOD::numberOfPixelDeadSensors) <= 1) return false;
 	if(RetrieveHitInfo(trackParticle, xAOD::numberOfSCTHits) + RetrieveHitInfo(trackParticle, xAOD::numberOfSCTDeadSensors) <= 5) return false;
-	if(RetrieveHitInfo(trackParticle, xAOD::numberOfPixelHoles) + RetrieveHitInfo(trackParticle, xAOD::numberOfSCTHoles) < 3) return false;
+	if(RetrieveHitInfo(trackParticle, xAOD::numberOfPixelHoles) + RetrieveHitInfo(trackParticle, xAOD::numberOfSCTHoles) > 3) return false;
 
 	int numTRTHits      = RetrieveHitInfo(trackParticle, xAOD::numberOfTRTHits);
 	int numTRTOutliers  = RetrieveHitInfo(trackParticle, xAOD::numberOfTRTOutliers);
 	int numTRTSum       = numTRTHits + numTRTOutliers;
+
 	if(fabs(trackParticle->eta()) < 1.9){
 		if(numTRTSum <=5 || numTRTOutliers >= 0.9*numTRTSum) return false;
 	}
@@ -279,23 +287,20 @@ bool MuonTrkPhysMonitoring::passIDTrackQuality(const xAOD::TrackParticle *trackP
 }
 
 //---------------------------------------------------------------------------------------
-bool MuonTrkPhysMonitoring::passMSTrackQuality(const xAOD::TrackParticle *MSTrackParticle, int HitReqI, int HitReqM, int HitReqO, int HitReqTotal)
+//bool MuonTrkPhysMonitoring::passMSTrackQuality(const xAOD::TrackParticle *MSTrackParticle, int HitReqI, int HitReqM, int HitReqO, int HitReqTotal)
+bool MuonTrkPhysMonitoring::passMSTrackQuality(const xAOD::Muon* muon, int HitReqI, int HitReqM, int HitReqO, int HitReqTotal)
 {
 	// // TODO this can be replaced with usage of selector tool
-	const Trk::Track* MuTrk = MSTrackParticle->track();
-	if (!MuTrk) return false;
 
-	Muon::IMuonHitSummaryTool::CompactSummary MS_HitSummary = m_muonHitSummaryTool->summary( *MuTrk );
-
-	int innerHits = (MS_HitSummary.stationLayers[Muon::MuonStationIndex::BI].nprecisionHits + MS_HitSummary.stationLayers[Muon::MuonStationIndex::EI].nprecisionHits);
-	int middlHits = (MS_HitSummary.stationLayers[Muon::MuonStationIndex::BM].nprecisionHits + MS_HitSummary.stationLayers[Muon::MuonStationIndex::EM].nprecisionHits);
-	int outerHits = (MS_HitSummary.stationLayers[Muon::MuonStationIndex::BO].nprecisionHits + MS_HitSummary.stationLayers[Muon::MuonStationIndex::EO].nprecisionHits);
+       int innerHits = int(RetrieveHitInfo(muon, xAOD::innerSmallHits)+RetrieveHitInfo(muon, xAOD::innerLargeHits));
+       int middleHits = int(RetrieveHitInfo(muon, xAOD::middleSmallHits)+RetrieveHitInfo(muon, xAOD::middleLargeHits));
+       int outerHits = int(RetrieveHitInfo(muon, xAOD::outerSmallHits)+RetrieveHitInfo(muon, xAOD::outerLargeHits));
 
 	if (innerHits < HitReqI) return false;
-	if (middlHits < HitReqM) return false;
+	if (middleHits < HitReqM) return false;
 	if (outerHits < HitReqO) return false;
 
-	if (innerHits+middlHits+outerHits < HitReqTotal) return false;
+	if (innerHits+middleHits+outerHits < HitReqTotal) return false;
 	return true;
 }
 

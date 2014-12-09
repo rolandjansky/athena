@@ -8,7 +8,23 @@
 
 using namespace MuonTrkPhysMonUtils;
 
-GenTrackingPlots::GenTrackingPlots(PlotBase *pParent):PlotBase(pParent){}
+GenTrackingPlots::GenTrackingPlots(PlotBase *pParent):PlotBase(pParent),
+m_N_Mu_LB_per_DRegion(0),m_N_HpT_pLB_CSC(0),m_N_HpT_pLB_CSC_Weights(0),m_N_HpT_pLB_CSC_Entries(0),
+m_N_HpT_pLB_TGC(0),m_N_HpT_pLB_TGC_Weights(0),m_N_HpT_pLB_TGC_Entries(0),m_N_HpT_pLB_MDT(0),
+m_N_HpT_pLB_MDT_Weights(0),m_N_HpT_pLB_MDT_Entries(0),m_N_HpT_pLB_RPC(0),m_N_HpT_pLB_RPC_Weights(0),
+m_N_HpT_pLB_RPC_Entries(0),m_N_Mu_Lumi(0),m_N_Mu_Lumi_Run(0),m_N_Mu_Lumi_LB(0),m_N_Precision(0),
+m_N_Precision_entries(0),m_N_Precision_weights(0),m_N_Precision_mean(0),m_N_Phi_Hits(0),
+m_N_Phi_Hits_entries(0),m_N_Phi_Hits_weights(0),m_N_Phi_Hits_mean(0),m_N_Hits_Segment(0),
+m_N_Hits_Segment_entries(0),m_N_Hits_Segment_weights(0),m_N_Hits_Segment_mean(0),m_N_Segment_Trk(0),
+m_N_Segment_Trk_entries(0),m_N_Segment_Trk_weights(0),m_N_Segment_Trk_mean(0),m_t0_eta_phi(0),
+m_t0_eta_phi_entries(0),m_t0_eta_phi_weights(0),m_t0_eta_phi_mean(0),m_t0_eta_phi_i(0),
+m_t0_eta_phi_i_entries(0),m_t0_eta_phi_i_weights(0),m_t0_eta_phi_i_mean(0),m_t0_eta_phi_m(0),
+m_t0_eta_phi_m_entries(0),m_t0_eta_phi_m_weights(0),m_t0_eta_phi_m_mean(0),m_t0_eta_phi_o(0),
+m_t0_eta_phi_o_entries(0),m_t0_eta_phi_o_weights(0),m_t0_eta_phi_o_mean(0),m_Good_t0(0),m_Good_t0_EA(0),
+m_Good_t0_BA(0),m_Good_t0_BC(0),m_Good_t0_EC(0),m_t0_LB_EA_entries(0),m_t0_LB_EA_weights(0),
+m_t0_LB_EA_mean(0),m_t0_LB_BA_entries(0),m_t0_LB_BA_weights(0),m_t0_LB_BA_mean(0),m_t0_LB_BC_entries(0),
+m_t0_LB_BC_weights(0),m_t0_LB_BC_mean(0),m_t0_LB_EC_entries(0),m_t0_LB_EC_weights(0),m_t0_LB_EC_mean(0),
+m_Buffer_Heap_Protection(0){}
 
 void GenTrackingPlots::initializePlots(){
 		

@@ -7,6 +7,11 @@
 using namespace MuonTrkPhysMonUtils;
 
 DetSpcfcPlots::DetSpcfcPlots(PlotBase *pParent):PlotBase(pParent),
+m_A_EE_UHitRes(0),m_C_EE_UHitRes(0),m_A_BEE_UHitRes(0),m_C_BEE_UHitRes(0),
+m_A_CSC_UHitRes(0),m_C_CSC_UHitRes(0),m_HitRes_Eta_Phi_Mean_I(0),
+m_HitRes_Eta_Phi_Width_I(0),m_HitRes_Eta_Phi_Mean_M(0),m_HitRes_Eta_Phi_Width_M(0),
+m_HitRes_Eta_Phi_Mean_O(0),m_HitRes_Eta_Phi_Width_O(0),m_MDT_TrackResiduals(0),
+m_MDT_TR_EC(0),m_MDT_TR_BC(0),m_MDT_TR_BA(0),m_MDT_TR_EA(0),m_MDT_TR_Residuals(0),
 m_oResidualPlotsAll(this, "all"),
 m_oResidualPlots_s1(this, "Sector 01"),
 m_oResidualPlots_s2(this, "Sector 02"),
@@ -100,13 +105,14 @@ void DetSpcfcPlots::fill(const Trk::Perigee* measPerigee, int imdtstationName, b
 
 void DetSpcfcPlots::finalizePlots(){
   for (unsigned int sector = 1; sector < m_vSubNodes.size(); ++sector ){
-    ResidualPlots* pSubNode = dynamic_cast<ResidualPlots*>(m_vSubNodes[sector]);
-    CalculateSectorResults(m_A_EE_UHitRes, pSubNode->m_A_EE_Residuals, sector);
-    CalculateSectorResults(m_C_EE_UHitRes, pSubNode->m_C_EE_Residuals, sector);
-    CalculateSectorResults(m_A_BEE_UHitRes, pSubNode->m_A_BEE_Residuals, sector);
-    CalculateSectorResults(m_C_BEE_UHitRes, pSubNode->m_C_BEE_Residuals, sector);
-    CalculateSectorResults(m_A_CSC_UHitRes, pSubNode->m_A_CSC_Residuals, sector);
-    CalculateSectorResults(m_C_CSC_UHitRes, pSubNode->m_C_CSC_Residuals, sector);
+    if(ResidualPlots* pSubNode = dynamic_cast<ResidualPlots*>(m_vSubNodes[sector])) {
+      CalculateSectorResults(m_A_EE_UHitRes, pSubNode->m_A_EE_Residuals, sector);
+      CalculateSectorResults(m_C_EE_UHitRes, pSubNode->m_C_EE_Residuals, sector);
+      CalculateSectorResults(m_A_BEE_UHitRes, pSubNode->m_A_BEE_Residuals, sector);
+      CalculateSectorResults(m_C_BEE_UHitRes, pSubNode->m_C_BEE_Residuals, sector);
+      CalculateSectorResults(m_A_CSC_UHitRes, pSubNode->m_A_CSC_Residuals, sector);
+      CalculateSectorResults(m_C_CSC_UHitRes, pSubNode->m_C_CSC_Residuals, sector);
+    }
   }
   
   FinalizeTrackResidualPlots(m_MDT_TR_EC, 1, "Endcap C");

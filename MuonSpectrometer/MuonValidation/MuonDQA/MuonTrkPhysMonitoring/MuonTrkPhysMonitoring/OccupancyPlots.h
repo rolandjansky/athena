@@ -10,7 +10,8 @@
 
 class OccupancyPlots: public PlotBase {
   public:
-    OccupancyPlots(PlotBase *pParent):PlotBase(pParent){;}
+    OccupancyPlots(PlotBase *pParent):PlotBase(pParent),m_all_trk_eta_phi(0),m_good_id_trk_eta_phi(0),m_good_cb_trk_eta_phi(0),
+                                      m_good_me_trk_eta_phi(0),m_all_trk_pt(0),m_good_id_trk_pt(0),m_good_cb_trk_pt(0),m_good_me_trk_pt(0){;}
     void fill( const xAOD::Muon* muon, bool bPassIDTrackQuality, bool bPassMSTrackQuality );
 
     TH2F* m_all_trk_eta_phi;

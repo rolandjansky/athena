@@ -86,7 +86,7 @@ void MuonTrkPhysMonitoring::fillHistograms_ZSignal( const xAOD::Muon* muon, cons
    m_oZSignalPlots.m_Z_Mass->Fill(IVmass*0.001); //GeV
                                    
    //Check mass window
-   if (DeltaIVmass > m_cut_diMuonMass) continue;
+   if (DeltaIVmass < m_cut_diMuonMass) continue;
                                    
    //choose Highest Pt Probe
    if (probe->pt() > pT_record) {
@@ -96,7 +96,7 @@ void MuonTrkPhysMonitoring::fillHistograms_ZSignal( const xAOD::Muon* muon, cons
   }
   
   ATH_MSG_DEBUG("Suitable Probe found");
-  if (!RecordProbe) return
+  if (RecordProbe) return
   fillTagAndProbe(muon,RecordProbe,MuonJar);
 }
 
@@ -105,7 +105,7 @@ bool MuonTrkPhysMonitoring::IsTagMuon(const xAOD::Muon* muon){
   ATH_MSG_DEBUG("Select Tag...");
   const xAOD::TrackParticle* IDTrackParticle = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if (!IDTrackParticle) return false;
-  if ( fabs((IDTrackParticle->eta()) < 0.05 )) return false;
+  if ( fabs(IDTrackParticle->eta()) < 0.05 ) return false;
   if (!MCPRecommendationsSatisfied(IDTrackParticle)) return false;                                
   float chi2 = 0;
   //if (!muon->parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
@@ -173,7 +173,7 @@ bool MuonTrkPhysMonitoring::MCPRecommendationsSatisfied(const xAOD::TrackParticl
 const xAOD::Muon* MuonTrkPhysMonitoring::ProbeToMuonMatching(const xAOD::TrackParticle* RecordProbe, const xAOD::MuonContainer* MuonJar){
    // can this be done with the elementlink only?
    for (const auto muon: *MuonJar ) {
-     if( !(muon->muonType() == xAOD::Muon::Combined)) continue;
+     if(muon->muonType() != xAOD::Muon::Combined) continue;
      const xAOD::TrackParticle* InDetTrackParticle = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
      if (!InDetTrackParticle) continue;
      double dr = DeltaR(RecordProbe->eta(), InDetTrackParticle->eta(), RecordProbe->phi(), InDetTrackParticle->phi());
