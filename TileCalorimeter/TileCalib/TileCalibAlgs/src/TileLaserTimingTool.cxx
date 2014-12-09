@@ -475,7 +475,8 @@ StatusCode TileLaserTimingTool::execute() {
               Nconnected++;
             }
           }
-          ddata->FarDigitizerMeanTime /= (float) Nconnected;
+          if (Nconnected) 
+            ddata->FarDigitizerMeanTime /= (float) Nconnected;
 
 #ifdef TileLaserTimingMon
           ddata->Digi0Time.Fill(ddata->FarDigitizerMeanTime);
@@ -606,6 +607,7 @@ StatusCode TileLaserTimingTool::finalizeCalculations() {
                                << " force timing residual same as PMT-1 " );
 
               // FittedMean=PreviousFittedMean;
+              fchi2 = -fchi2; // just to make Coverity happt
               fmean = -4711;
               fmeanerr = 0.0;
             }

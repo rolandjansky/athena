@@ -12,6 +12,8 @@
 #include "TileCalibAlgs/TileMuId2DBAlg.h"
 #include "TileCalibAlgs/TileTOFTool.h"
 #include "TileCalibAlgs/TileLaserTimingTool.h"
+#include "TileCalibAlgs/TileInfoDump.h"
+#include "TileCalibAlgs/TileExpertDump.h"
 
 DECLARE_ALGORITHM_FACTORY( TileTopCalibAlg )
 DECLARE_ALGORITHM_FACTORY( TileLaserCalibAlg )
@@ -19,6 +21,8 @@ DECLARE_ALGORITHM_FACTORY( TileDigiNoiseCalibAlg )
 DECLARE_ALGORITHM_FACTORY( TileRawChNoiseCalibAlg )
 DECLARE_ALGORITHM_FACTORY( TileOFC2DBAlg )
 DECLARE_ALGORITHM_FACTORY( TileMuId2DBAlg )
+DECLARE_ALGORITHM_FACTORY( TileInfoDump )
+DECLARE_ALGORITHM_FACTORY( TileExpertDump )
 
 DECLARE_TOOL_FACTORY( TileLaserDefaultCalibTool )
 DECLARE_TOOL_FACTORY( TileLaserLinearityCalibTool )
@@ -34,6 +38,8 @@ DECLARE_FACTORY_ENTRIES(TileCalibAlgs) {
   DECLARE_ALGORITHM( TileRawChNoiseCalibAlg )
   DECLARE_ALGORITHM( TileOFC2DBAlg )
   DECLARE_ALGORITHM( TileMuId2DBAlg )
+  DECLARE_ALGORITHM( TileInfoDump )
+  DECLARE_ALGORITHM( TileExpertDump )
   DECLARE_TOOL( TileLaserDefaultCalibTool )
   DECLARE_TOOL( TileLaserLinearityCalibTool )
   DECLARE_TOOL( TileCisDefaultCalibTool )

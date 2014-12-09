@@ -72,9 +72,11 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   m_flow         = 0; 
   m_head_temp    = 0;
   m_las_time     = 0;
-  m_PMT1_ADC_prev= 0;
-  m_PMT2_ADC_prev= 0;
-  
+  m_PMT1_ADC_prev[0]= 0;
+  m_PMT2_ADC_prev[0]= 0;
+  m_PMT1_ADC_prev[1]= 0;
+  m_PMT2_ADC_prev[1]= 0;
+
   last_evt_filter  = 0; 
   n_same_filt_evts = 0; 
 
@@ -82,9 +84,12 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   {
     for(int d=0; d<2; ++d) 
     {
-      m_PMT[f][d]      = 0;
-      m_PMT_S[f][d]    = 0;
-      PMT_signal[f][d] = new RunningStat();
+      m_LG_PMT[f][d]      = 0;
+      m_LG_PMT_S[f][d]    = 0;
+      LG_PMT_signal[f][d] = new RunningStat();
+      m_HG_PMT[f][d]      = 0;
+      m_HG_PMT_S[f][d]    = 0;
+      HG_PMT_signal[f][d] = new RunningStat();
     }
   }
 
@@ -92,9 +97,13 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   {
     for(int d=0; d<4; ++d) 
     {
-      m_diode[f][d]       = 0;    
-      m_diode_S[f][d]     = 0;  
-      diode_signal[f][d]  = new RunningStat();
+      m_LG_diode[f][d]       = 0;    
+      m_LG_diode_S[f][d]     = 0;  
+      LG_diode_signal[f][d]  = new RunningStat();
+
+      m_HG_diode[f][d]       = 0;    
+      m_HG_diode_S[f][d]     = 0;  
+      HG_diode_signal[f][d]  = new RunningStat();
     }
   }
 
@@ -112,12 +121,20 @@ StatusCode TileLaserLinearityCalibTool::initialize()
 	    m_mean[f][i][j][k][l]    = 0;
 	    m_mean_S[f][i][j][k][l]  = 0;
 	    
-	    ratio[f][i][j][k][l]     = new RunningStat();
-	    m_ratio[f][i][j][k][l]   = 0;
-	    m_ratio_S[f][i][j][k][l] = 0;
-	    ratio2[f][i][j][k][l]    = new RunningStat();
-	    m_ratio2[f][i][j][k][l]  = 0;
-	    m_ratio2_S[f][i][j][k][l]= 0;
+	    HG_ratio[f][i][j][k][l]     = new RunningStat();
+	    m_HG_ratio[f][i][j][k][l]   = 0;
+	    m_HG_ratio_S[f][i][j][k][l] = 0;
+	    HG_ratio2[f][i][j][k][l]    = new RunningStat();
+	    m_HG_ratio2[f][i][j][k][l]  = 0;
+	    m_HG_ratio2_S[f][i][j][k][l]= 0;
+
+	    LG_ratio[f][i][j][k][l]     = new RunningStat();
+	    m_LG_ratio[f][i][j][k][l]   = 0;
+	    m_LG_ratio_S[f][i][j][k][l] = 0;
+	    LG_ratio2[f][i][j][k][l]    = new RunningStat();
+	    m_LG_ratio2[f][i][j][k][l]  = 0;
+	    m_LG_ratio2_S[f][i][j][k][l]= 0;
+
 	    m_entries[f][i][j][k][l] = 0;	 
 	  }
 	}
@@ -270,33 +287,44 @@ StatusCode TileLaserLinearityCalibTool::execute()
   // Then we get the diodes signals and store them
   //
 
-  double diode[4];
+  double LG_diode[10];
+  double HG_diode[10];
     
-  for(int i=0; i<4; ++i) 
+  for(int i=0; i<10; ++i) 
   {
-    diode[i] = 0; 
-    if (laserObj->getDiodeADC(i) <= 2044) // Diode signal OK
-      diode[i]   = static_cast<double>(laserObj->getDiodeADC(i)-laserObj->getDiodePedestal(i));
-  }
+    LG_diode[i] = static_cast<double>(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0));
+    HG_diode[i] = static_cast<double>(laserObj->getDiodeADC(i,1)-laserObj->getDiodePedestal(i,1));
+  } // FOR
 
-  for(int i=0; i<4; ++i) 
-    diode_signal[m_las_filter][i]->Push(diode[i]);
+  for(int i=0; i<10; ++i){ 
+    LG_diode_signal[m_las_filter][i]->Push(LG_diode[i]);
+    HG_diode_signal[m_las_filter][i]->Push(HG_diode[i]);
+  } // FOR
 
-  for(int i=0; i<2; ++i) 
-    PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i)-laserObj->getPMPedestal(i));
-
+  for(int i=0; i<2; ++i){
+    LG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,0)-laserObj->getPMPedestal(i,0));
+    HG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,1)-laserObj->getPMPedestal(i,1));
+  } // FOR
 
   // Check that the ADC has really sent a new information 
 
-  if (laserObj->getPMADC(0) == m_PMT1_ADC_prev && 
-      laserObj->getPMADC(1) == m_PMT2_ADC_prev)
+  if (laserObj->getPMADC(0,0) == m_PMT1_ADC_prev[0] && 
+      laserObj->getPMADC(1,0) == m_PMT2_ADC_prev[0])
+  {
+    m_ADC_problem = 1;
+    log << MSG::WARNING << "There is perhaps an ADC problem with this event" << endreq;
+  }
+  if (laserObj->getPMADC(0,1) == m_PMT1_ADC_prev[1] && 
+      laserObj->getPMADC(1,1) == m_PMT2_ADC_prev[1])
   {
     m_ADC_problem = 1;
     log << MSG::WARNING << "There is perhaps an ADC problem with this event" << endreq;
   }
 
-  m_PMT1_ADC_prev = laserObj->getPMADC(0);
-  m_PMT2_ADC_prev = laserObj->getPMADC(1);
+  m_PMT1_ADC_prev[0] = laserObj->getPMADC(0,0);
+  m_PMT2_ADC_prev[0] = laserObj->getPMADC(1,0);
+  m_PMT1_ADC_prev[1] = laserObj->getPMADC(0,1);
+  m_PMT2_ADC_prev[1] = laserObj->getPMADC(1,1);
 
   // Next parameters are constants, don't need to update them more than once
 
@@ -318,7 +346,7 @@ StatusCode TileLaserLinearityCalibTool::execute()
   if (m_las_filter==first_filter) 
   {
     int previous_filter = (first_filter+7)%8;
-    if (PMT_signal[previous_filter][0]->NumDataValues()>400) 
+    if (HG_PMT_signal[previous_filter][0]->NumDataValues()>400 || LG_PMT_signal[previous_filter][0]->NumDataValues()>400) 
     {
       m_complete_turn=true; // Yes, stop here 
       log << MSG::INFO << "Filter wheel turn completed: stop here" << endreq;
@@ -386,10 +414,16 @@ StatusCode TileLaserLinearityCalibTool::execute()
 	{
 	  signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
 	  
-	  if (diode[0] != 0)
+	  if (HG_diode[0] != 0)
 	  {
-	    ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/diode[0]);
-	    ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0)-laserObj->getPMPedestal(0)));
+	    HG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
+	    HG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
+	  }
+
+	  if (LG_diode[0] != 0)
+	  {
+	    LG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
+	    LG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
 	  }
 
 	}
@@ -404,11 +438,18 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
 	signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
 
-	if (diode[0] != 0)
+	if (HG_diode[0] != 0)
 	{
-	  ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/diode[0]);
-	  ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0)-laserObj->getPMPedestal(0)));
+	  HG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
+	  HG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
 	}
+
+	if (LG_diode[0] != 0)
+	{
+	  LG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
+	  LG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
+	}
+
       }		
     } // End of the loop over the TileRawChannelCollection
   } // End of the loop over the TileRawChannelContainer
@@ -433,8 +474,11 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
   {
     for(int d=0; d<2; ++d) 
     {
-      m_PMT[f][d]      = PMT_signal[f][d]->Mean();    
-      m_PMT_S[f][d]    = PMT_signal[f][d]->StandardDeviation();  
+      m_LG_PMT[f][d]      = LG_PMT_signal[f][d]->Mean();    
+      m_LG_PMT_S[f][d]    = LG_PMT_signal[f][d]->StandardDeviation();  
+
+      m_HG_PMT[f][d]      = HG_PMT_signal[f][d]->Mean();    
+      m_HG_PMT_S[f][d]    = HG_PMT_signal[f][d]->StandardDeviation();  
     }
   }
 
@@ -442,8 +486,11 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
   {
     for(int d=0; d<4; ++d) 
     {
-      m_diode[f][d]       = diode_signal[f][d]->Mean();    
-      m_diode_S[f][d]     = diode_signal[f][d]->StandardDeviation();    
+      m_LG_diode[f][d]       = LG_diode_signal[f][d]->Mean();    
+      m_LG_diode_S[f][d]     = LG_diode_signal[f][d]->StandardDeviation();    
+
+      m_HG_diode[f][d]       = HG_diode_signal[f][d]->Mean();    
+      m_HG_diode_S[f][d]     = HG_diode_signal[f][d]->StandardDeviation();    
     }
   }
 
@@ -460,10 +507,14 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 	    m_mean[f][i][j][k][l]    = signal[f][i][j][k][l]->Mean();
 	    m_mean_S[f][i][j][k][l]  = signal[f][i][j][k][l]->StandardDeviation();
 	    
-	    m_ratio[f][i][j][k][l]   = ratio[f][i][j][k][l]->Mean();
-	    m_ratio_S[f][i][j][k][l] = ratio[f][i][j][k][l]->StandardDeviation();
-	    m_ratio2[f][i][j][k][l]   = ratio2[f][i][j][k][l]->Mean();
-	    m_ratio2_S[f][i][j][k][l] = ratio2[f][i][j][k][l]->StandardDeviation();
+	    m_LG_ratio[f][i][j][k][l]   = LG_ratio[f][i][j][k][l]->Mean();
+	    m_LG_ratio_S[f][i][j][k][l] = LG_ratio[f][i][j][k][l]->StandardDeviation();
+	    m_LG_ratio2[f][i][j][k][l]   = LG_ratio2[f][i][j][k][l]->Mean();
+	    m_LG_ratio2_S[f][i][j][k][l] = LG_ratio2[f][i][j][k][l]->StandardDeviation();
+	    m_HG_ratio[f][i][j][k][l]   = HG_ratio[f][i][j][k][l]->Mean();
+	    m_HG_ratio_S[f][i][j][k][l] = HG_ratio[f][i][j][k][l]->StandardDeviation();
+	    m_HG_ratio2[f][i][j][k][l]   = HG_ratio2[f][i][j][k][l]->Mean();
+	    m_HG_ratio2_S[f][i][j][k][l] = HG_ratio2[f][i][j][k][l]->StandardDeviation();
 	    m_entries[f][i][j][k][l] = signal[f][i][j][k][l]->NumDataValues();
 	  }
 	}
@@ -503,16 +554,26 @@ StatusCode TileLaserLinearityCalibTool::writeNtuple(int runNumber, int runType, 
   t->Branch("AirFlow",&m_flow,"flow/D"); 
   t->Branch("HeadTemp",&m_head_temp,"htemp/D");
   t->Branch("Time",&m_las_time, "timeofrun/D");
-  t->Branch("PMT_Signal",m_PMT, "PMT[8][2]/D");
-  t->Branch("PMT_Sigma_Signal",m_PMT_S, "PMT_s[8][2]/D"); 
-  t->Branch("Diode_Signal",m_diode, "diode[8][4]/D");
-  t->Branch("Diode_Sigma_Signal",m_diode_S, "diode_s[8][4]/D");
+  t->Branch("LG_PMT_Signal",m_LG_PMT, "LG_PMT1[8][2]/D");
+  t->Branch("LG_PMT_Sigma_Signal",m_LG_PMT_S, "LG_PMT1_s[8][2]/D");
+  t->Branch("HG_PMT_Signal",m_HG_PMT, "HG_PMT1[8][2]/D");
+  t->Branch("HG_PMT_Sigma_Signal",m_HG_PMT_S, "HG_PMT1_s[8][2]/D");
+ 
+  t->Branch("LG_Diode_Signal",m_LG_diode, "LG_diode[8][10]/D");
+  t->Branch("LG_Diode_Sigma_Signal",m_LG_diode_S, "LG_diode_s[8][10]/D");
+  t->Branch("HG_Diode_Signal",m_HG_diode, "HG_diode[8][10]/D");
+  t->Branch("HG_Diode_Sigma_Signal",m_HG_diode_S, "HG_diode_s[8][10]/D");
+
   t->Branch("Signal",*m_mean,"signal[8][4][64][48][2]/D");
   t->Branch("Sigma_Signal",*m_mean_S,"signal_s[8][4][64][48][2]/D");
-  t->Branch("Ratio",*m_ratio,"signal_cor[8][4][64][48][2]/D");
-  t->Branch("Sigma_Ratio",*m_ratio_S,"signal_cor_s[8][4][64][48][2]/D");
-  t->Branch("Ratio2",*m_ratio2,"signal_cor2[8][4][64][48][2]/D");
-  t->Branch("Sigma_Ratio2",*m_ratio2_S,"signal_cor2_s[8][4][64][48][2]/D");
+  t->Branch("LG_Ratio",*m_LG_ratio,"LG_signal_cor[8][4][64][48][2]/D");
+  t->Branch("LG_Sigma_Ratio",*m_LG_ratio_S,"LG_signal_cor_s[8][4][64][48][2]/D");
+  t->Branch("LG_Ratio2",*m_LG_ratio2,"LG_signal_cor2[8][4][64][48][2]/D");
+  t->Branch("LG_Sigma_Ratio2",*m_LG_ratio2_S,"LG_signal_cor2_s[8][4][64][48][2]/D");
+  t->Branch("HG_Ratio",*m_HG_ratio,"HG_signal_cor[8][4][64][48][2]/D");
+  t->Branch("HG_Sigma_Ratio",*m_HG_ratio_S,"HG_signal_cor_s[8][4][64][48][2]/D");
+  t->Branch("HG_Ratio2",*m_HG_ratio2,"HG_signal_cor2[8][4][64][48][2]/D");
+  t->Branch("HG_Sigma_Ratio2",*m_HG_ratio2_S,"HG_signal_cor2_s[8][4][64][48][2]/D");
   t->Branch("Entries",*m_entries,"n_LASER_entries[8][4][64][48][2]/I");  
 
      

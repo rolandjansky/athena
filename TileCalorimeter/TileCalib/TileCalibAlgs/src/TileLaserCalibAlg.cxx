@@ -73,7 +73,7 @@ StatusCode TileLaserCalibAlg::initialize() {
 
 StatusCode TileLaserCalibAlg::execute() {
 
-  ATH_MSG_DEBUG( "Running on execute" );
+  ATH_MSG_DEBUG( "Running on execute! TileLaserCalibAlg" );
 
   // Get the run number and type once for all 
 

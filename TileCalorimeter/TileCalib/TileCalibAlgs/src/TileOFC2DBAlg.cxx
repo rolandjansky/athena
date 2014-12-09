@@ -69,7 +69,7 @@ StatusCode TileOFC2DBAlg::execute() {
 
   //=== print run/evt/lbn/time info for each event
   const xAOD::EventInfo* eventInfo(0);
-  evtStore()->retrieve(eventInfo);
+  CHECK( evtStore()->retrieve(eventInfo) );
   ATH_MSG_DEBUG( "Event: ["
                 << eventInfo->runNumber() << ","
                 << eventInfo->eventNumber() << ":"
@@ -84,7 +84,8 @@ StatusCode TileOFC2DBAlg::execute() {
     ATH_MSG_DEBUG( "Creating conditions objects " );
   }
 
-  unsigned int objVersion = (m_of2) ? 3 : 1;
+  //unsigned int objVersion = (m_of2) ? 3 : 1;
+  unsigned int objVersion = 3; // non efficient, but allows to keep dG also for OF1
 
   //=== build the IOV range
   IOVRange range(IOVTime(m_runIOVSince, m_lbnIOVSince), IOVTime(m_runIOVUntil, m_lbnIOVUntil));
@@ -135,8 +136,10 @@ StatusCode TileOFC2DBAlg::execute() {
           drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, 0, gain, phase, isam, m_weights->w_a[isam]);
           drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, 0, gain, phase, isam, m_weights->w_b[isam]);
           drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, 0, gain, phase, isam, m_weights->g[isam]);
-          if (m_of2) drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, 0, gain, phase, isam, m_weights->w_c[isam]);
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, 0, gain, phase, isam, m_weights->dg[isam]);
+          if (objVersion == 3) {
+            drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, 0, gain, phase, isam, m_weights->w_c[isam]);
+            drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, 0, gain, phase, isam, m_weights->dg[isam]);
+          }
         }
 
 
