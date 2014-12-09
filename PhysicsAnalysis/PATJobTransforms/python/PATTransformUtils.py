@@ -3,7 +3,10 @@
 ## @brief Module with PAT transform options and substeps
 
 import logging
-msg = logging.getLogger(__name__)
+
+# Get the base logger for the transforms and extend it for us
+from PyJobTransforms.trfLogger import msg
+msg = msg.getChild(__name__)
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -45,12 +48,14 @@ def appendPhysValidationSubstep(trf):
 
 def addNTUPMergeSubsteps(executorSet):
     # Ye olde NTUPs
-    inDataList, outDataList = listKnownD3PDs()
-    for (inData, outData) in iter(zip(inDataList, outDataList)):
-        executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+inData.replace('_',''), exe='hadd', inData=[inData], outData=[outData], exeArgs=[]))
-    # Physics Validation NTUP
-    executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVAL', exe='hadd', inData=['NTUP_PHYSVAL'], outData=['NTUP_PHYSVAL_MRG'], exeArgs=[]))
-    
+    try:
+        inDataList, outDataList = listKnownD3PDs()
+        for (inData, outData) in iter(zip(inDataList, outDataList)):
+            executorSet.add(NTUPMergeExecutor(name='NTUPLEMerge'+inData.replace('_',''), exe='hadd', inData=[inData], outData=[outData], exeArgs=[]))
+        # Physics Validation NTUP
+        executorSet.add(NTUPMergeExecutor(name='NTUPLEMergePHYSVAL', exe='hadd', inData=['NTUP_PHYSVAL'], outData=['NTUP_PHYSVAL_MRG'], exeArgs=[]))
+    except ImportError, e:
+        msg.warning("Failed to get D3PD lists - probably D3PDs are broken in this release: {0}".format(e))
 
 
 ## @brief Import list of known DAODs from the derivation framework and 

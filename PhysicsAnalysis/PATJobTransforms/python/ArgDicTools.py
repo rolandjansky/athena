@@ -8,6 +8,7 @@
 
 import os
 import pickle
+import pprint
 from subprocess import Popen, STDOUT, PIPE, CalledProcessError
 import sys
 import time
@@ -99,22 +100,14 @@ def DicInputs(aDic):
     return ""
 
 
+## @brief Deprecate this now
 def GetAMIClient(useReplica=False):
-    # This version uses AMI4
-    from pyAMI.exceptions import AMI_Error
-    from pyAMI.client import AMIClient
-
-    if useReplica:
-        print "INFO: Using CERN AMI replica"
-        from pyAMI import endpoint
-        endpoint.TYPE = "replica"
-    else:
-        print "INFO: Using primary AMI"
-
-    amiclient=AMIClient()
-    
-    return amiclient
-
+    pprint.pprint(' '.join(["The old job transforms framework is now _deprecated_.",
+                            "There is no support for the use of AMI and the old transforms will be removed",
+                            "shortly from the release. Please migrate to the new transforms framework.",
+                            "https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/JobTransform#New_Style_Transforms"]),
+                  stream = sys.stderr) 
+    sys.exit(1)
 
 def BuildDicFromCommandLineIgnoreAMI(sysArgv):
     if SysArgsExceptionCatcher(sysArgv) is "Help":
@@ -157,8 +150,6 @@ def BuildDicFromCommandLineIgnoreAMI(sysArgv):
 
 
 def GetInfoFromAMIXML(amitag, suppressPass = True):
-    #get dics from AMI
-        #import pyAMI and luxml
     try:
         import Eowyn.luxml as luxml
     except ImportError:
@@ -197,7 +188,6 @@ def GetInfoFromAMIXML(amitag, suppressPass = True):
 
 
 def GetInfoFromAMIPython(amitag, suppressPass = True):
-    from pyAMI.exceptions import AMI_Error
     #get dics from AMI
     amiclient=GetAMIClient()
     l=['ListConfigurationTag','configTag={0}'.format(amitag)]

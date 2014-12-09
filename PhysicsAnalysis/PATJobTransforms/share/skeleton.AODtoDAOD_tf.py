@@ -1,6 +1,6 @@
 # Skeleton file for AOD to DAOD (Reduction framework) job
 #
-# $Id: skeleton.AODtoDAOD_tf.py 613107 2014-08-22 16:47:45Z kkoeneke $
+# $Id: skeleton.AODtoDAOD_tf.py 632134 2014-11-29 12:28:25Z graemes $
 #
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
@@ -22,6 +22,22 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readRDO.set_Value_and_Lock( False )
     rec.doDPD.set_Value_and_Lock(True)
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
+    # Assume that we're running from EVNT or straight through evgen
+    globalflags.InputFormat.set_Value_and_Lock('pool')
+    rec.readAOD.set_Value_and_Lock( True )
+    rec.readRDO.set_Value_and_Lock( False )
+    rec.AutoConfiguration.set_Value_and_Lock(['ProjectName','BeamType','RealOrSim','DoTruth','InputType'])
+    rec.doInDet.set_Value_and_Lock(False)
+    rec.doCalo.set_Value_and_Lock(False)
+    rec.doMuon.set_Value_and_Lock(False)
+    rec.doForwardDet.set_Value_and_Lock(False)
+    rec.doFileMetaData.set_Value_and_Lock(False)
+    rec.doTruth.set_Value_and_Lock( True )
+    from AthenaCommon.DetFlags      import DetFlags
+    DetFlags.detdescr.BField_setOff()
+    athenaCommonFlags.FilesInput = runArgs.inputEVNTFile
+    # Leave the remainder for the internal setup
 else:
     msg.error('AOD Reduction job started, but with no AOD inputs - aborting')
     raise RuntimeError, "No AOD input"
