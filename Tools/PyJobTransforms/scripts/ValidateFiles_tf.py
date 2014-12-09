@@ -39,7 +39,6 @@ def getTransform():
     
     # Mostly reco types...
     addArgs(trf.parser)
-    trfArgs.addFileValidationArguments(trf.parser)
     trfArgs.addParallelJobProcessorArguments(trf.parser)
 
     # Add all known D3PD types

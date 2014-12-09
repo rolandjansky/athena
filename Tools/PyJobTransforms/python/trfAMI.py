@@ -29,6 +29,7 @@ class TrfConfig:
         self.physics={}
         self.inFiles={}
         self.outFiles={}
+        self.outputs={}
         self.inDS=None
         self.outfmts=[]
         self.newTransform=False
@@ -53,6 +54,11 @@ class TrfConfig:
         string +='\nOutput file arguments:\n'
         if self.outFiles:
             string += self._str_to_dict(self.outFiles) + '\n'
+
+        string +='\nAMI outputs:\n'
+        if self.outputs != {}:
+            string += self.outputs + '\n'
+        
         if self.outfmts:    
             string += '\nPossible output data types: '+ str(self.outfmts) + '\n'
         return string
@@ -113,11 +119,8 @@ class TagInfo:
         for trf in self.trfs:
             string+='\n'+str(trf)+'\n'
 
-        return string    
+        return string
 
-    def  dump(self, file):
-        pass # not yet implemented
-        
 
 ## @brief Get AMI client
 #  @param useReplica If @c True CERN replica is used instead of primary AMI.
@@ -127,8 +130,6 @@ def getAMIClient(useReplica=False):
         
     try:
         from pyAMI.client import AMIClient
-        from pyAMI.auth import AMI_CONFIG
-        from pyAMI.exceptions import AMI_Error
         from pyAMI import endpoint
         from pyAMI.endpoint import get_endpoint, get_XSL_URL
     except ImportError:
@@ -350,8 +351,12 @@ def getTrfConfigFromAMI(tag):
         msg.warning('Got unexpected result from AMI: %s when asking for tag %s' % (result[0],tag))
         raise TransformAMIException(errCode, 'Getting tag info from AMI failed.')
 
+#     import pprint
+#     pprint.pprint(result)
+
     trf = TrfConfig()
     trf.name=result[1]['transformation']
+    trf.outputs=result[1].get('outputs', {})
     trf.release=result[1]['SWReleaseCache'].replace('AtlasProduction-','')
     trf.physics=dict( (k, str(v)) for (k,v) in ast.literal_eval(result[1]['phconfig']).iteritems() )
     trf.inFiles=dict( (k, getInputFileName(k)) for k in ast.literal_eval(result[1]['inputs']).iterkeys() )

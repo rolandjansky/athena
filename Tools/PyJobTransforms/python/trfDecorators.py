@@ -3,19 +3,18 @@
 ## @Package PyJobTrasforms.trfDecorators
 #  @brief Some useful decorators used by the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfDecorators.py 590263 2014-03-31 13:01:37Z graemes $
+#  @version $Id: trfDecorators.py 623865 2014-10-24 12:39:44Z graemes $
 
 import functools
 import os
-import Queue
 import sys
 import time
-import unittest
 
 import PyJobTransforms.trfUtils as trfUtils
 from PyJobTransforms.trfExitCodes import trfExit
 
 from PyJobTransforms.trfLogger import logging
+msg = logging.getLogger(__name__)
 
 
 ## @brief Redirect stdout/err to /dev/null
@@ -55,11 +54,8 @@ def stdTrfExceptionHandler(func):
         # Setup imports which the wrapper needs
         import signal
         import traceback
-        import logging
-        msg = logging.getLogger(__name__)
 
         import PyJobTransforms.trfExceptions as trfExceptions
-        from PyJobTransforms.trfExitCodes import trfExit
 
         try:
             return func(*args, **kwargs)
@@ -105,11 +101,8 @@ def stdTrfExceptionHandler(func):
 # Note that this decorator has to go inside the stdTrfExceptionHandler
 # Or the general exception catcher catches the SigUser exception.
 def sigUsrStackTrace(func):
-    import os
     import signal
     import traceback
-    import logging
-    msg = logging.getLogger(__name__)
     
     class SigUsr1(Exception):
         pass

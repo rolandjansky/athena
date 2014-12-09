@@ -4,12 +4,8 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 602496 2014-06-18 19:31:32Z graemes $
+# @version $Id: trfFileUtils.py 623865 2014-10-24 12:39:44Z graemes $
 # @todo make functions timelimited
-
-import unittest
-
-from subprocess import Popen,PIPE
 
 import logging
 msg = logging.getLogger(__name__)
@@ -26,8 +22,6 @@ from PyJobTransforms.trfDecorators import timelimited
 athFileInterestingKeys = ['beam_energy', 'beam_type', 'conditions_tag', 'file_size',
                           'file_guid', 'file_type', 'geometry', 'lumi_block', 'nentries', 'run_number', 
                           'AODFixVersion']
-
-
 
 ## @brief Determines metadata of BS, POOL or TAG file.
 #  @details Trivial wrapper around PyUtils.AthFile.
@@ -114,7 +108,78 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
     except ValueError, e:
         msg.error('Problem in getting AthFile metadata for {0}'.format(fileNames))
         return None
-        
+
+## @brief New lightweight interface to getting a single file's metadata
+#  @note Use this for now, but expect further evolution...
+def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys):
+    msg.debug('Calling AthenaLiteFileInfo for {0} (type {1})'.format(filename, filetype))
+
+    if filetype == 'POOL':
+        from PyUtils.AthFileLite import AthPoolFile as AthFileLite
+    elif filetype == 'BS':
+        from PyUtils.AthFileLite import AthBSFile as AthFileLite
+    elif filetype == 'TAG':
+        from PyUtils.AthFileLite import AthTagFile as AthFileLite
+    else:
+        msg.error('Unknown filetype for {0} - no lightweight metadata interface for type {1}'.format(filename, filetype))
+        return None
+    
+    metaDict = {}
+    try:
+        meta = AthFileLite(filename).fileinfo
+        msg.debug('AthFileLite came back for {0}'.format(filename))
+        metaDict[filename] = {}
+        for key in retrieveKeys:
+            msg.debug('Looking for key {0}'.format(key))
+            try:
+                # AODFix is tricky... it is absent in many files, but this is not an error
+                if key is 'AODFixVersion':
+                    if 'tag_info' in meta and isinstance('tag_info', dict) and 'AODFixVersion' in meta['tag_info']:
+                        metaDict[filename][key] = meta['tag_info'][key]
+                    else:
+                        metaDict[filename][key] = ''
+                # beam_type seems odd for RAW - typical values seem to be [1] instead of 'collisions' or 'cosmics'.
+                # So we use the same scheme as AutoConfiguration does, mapping project names to known values
+                # It would be nice to import this all from AutoConfiguration, but there is no suitable method at the moment.
+                # N.B. This is under discussion so this code is temporary fix (Captain's Log, Stardate 2012.11.28) 
+                elif key is 'beam_type':
+                    try:
+                        if isinstance(meta[key], list) and len(meta[key]) > 0 and meta[key][0] in ('cosmics' ,'singlebeam','collisions'):
+                            metaDict[filename][key] = meta[key]
+                        else:
+                            from RecExConfig.AutoConfiguration import KnownCosmicsProjects, Known1BeamProjects, KnownCollisionsProjects, KnownHeavyIonProjects
+                            if 'bs_metadata' in meta.keys() and isinstance(meta['bs_metadata'], dict) and 'Project' in meta['bs_metadata'].keys():
+                                project = meta['bs_metadata']['Project']
+                            elif 'tag_info' in meta.keys() and isinstance(meta['tag_info'], dict) and 'project_name' in meta['tag_info'].keys():
+                                project = meta['tag_info']['project_name']
+                            else:
+                                msg.info('AthFile beam_type was not a known value ({0}) and no project could be found for this file'.format(meta[key]))
+                                metaDict[filename][key] = meta[key]
+                                continue
+                            if project in KnownCollisionsProjects or project in KnownHeavyIonProjects:
+                                metaDict[filename][key] = ['collisions']
+                                continue
+                            if project in KnownCosmicsProjects:
+                                metaDict[filename][key] = ['cosmics']
+                                continue
+                            if project in Known1BeamProjects:
+                                metaDict[filename][key] = ['singlebeam']
+                                continue
+                            # Erm, so we don't know
+                            msg.info('AthFile beam_type was not a known value ({0}) and the file\'s project ({1}) did not map to a known beam type using AutoConfiguration'.format(meta[key], project))
+                            metaDict[filename][key] = meta[key]
+                    except Exception, e:
+                        msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
+                        metaDict[filename][key] = meta[key]
+                else:
+                    metaDict[filename][key] = meta[key]
+            except KeyError:
+                msg.warning('Missing key in athFile info: {0}'.format(key))
+    except ValueError, e:
+        msg.error('Problem in getting AthFile metadata for {0}'.format(filename))
+        return None
+    msg.debug('Returning {0}'.format(metaDict))
+    return metaDict    
 
 ## @brief Determines number of events in a HIST file.
 #  @details Basically taken from PyJobTransformsCore.trfutil.MonitorHistFile
@@ -130,13 +195,13 @@ def HISTEntries(fileName):
 
     root = import_root()
 
-    file = root.TFile.Open(fileName, 'READ')
+    fname = root.TFile.Open(fileName, 'READ')
     
-    if not (isinstance(file, root.TFile) and file.IsOpen()):
+    if not (isinstance(fname, root.TFile) and fname.IsOpen()):
         return None
 
     rundir = None
-    keys = file.GetListOfKeys()
+    keys = fname.GetListOfKeys()
     
     for key in keys:
         
@@ -154,7 +219,7 @@ def HISTEntries(fileName):
        
     if rundir is None:
         msg.warning( 'Unable to find run directory in HIST file %s' % fileName )
-        file.Close()
+        fname.Close()
         return None
     
     msg.info( 'Using run directory %s for event counting of HIST file %s. ' % ( rundir, fileName ) )
@@ -163,7 +228,7 @@ def HISTEntries(fileName):
     possibleLBs = []
     if 'tmp.HIST_' in fileName:
         msg.info( 'Special case for temporary HIST file {0}. '.format( fileName ) )
-        h = file.Get('{0}'.format(rundir))
+        h = fname.Get('{0}'.format(rundir))
         for directories in h.GetListOfKeys() :
             if 'lb' in directories.GetName():
                 msg.info( 'Using {0} in tmp HIST file {1}. '.format(directories.GetName(),  fileName ) )
@@ -175,14 +240,14 @@ def HISTEntries(fileName):
     nev = 0
     if len(possibleLBs) == 0:
         msg.warning( 'Unable to find events_lb histogram in HIST file %s' % fileName )
-        file.Close()
+        fname.Close()
         return None
     for hpath in possibleLBs:
-        h = file.Get(hpath)
+        h = fname.Get(hpath)
         
         if not isinstance( h, root.TH1 ):
             msg.warning( 'Unable to retrieve %s in HIST file %s.' % ( hpath, fileName ) )
-            file.Close()
+            fname.Close()
             return None
         
         nBinsX = h.GetNbinsX()
@@ -192,7 +257,7 @@ def HISTEntries(fileName):
             
             if h[i] < 0:
                 msg.warning( 'Negative number of events for step %s in HIST file %s.' %( h.GetXaxis().GetBinLabel(i), fileName ) )
-                file.Close()
+                fname.Close()
                 return None
             
             elif h[i] == 0:
@@ -204,10 +269,10 @@ def HISTEntries(fileName):
             else:
                 if nevLoc != h[i]:
                     msg.warning( 'Mismatch in events per step in HIST file %s; most recent step seen is %s.' % ( fileName, h.GetXaxis().GetBinLabel(i) ) )
-                    file.Close()
+                    fname.Close()
                     return None
         nev += nevLoc        
-    file.Close()
+    fname.Close()
     return nev
 
 
@@ -231,9 +296,9 @@ def NTUPEntries(fileName, treeNames):
         
     root = import_root()
     
-    file = root.TFile.Open(fileName, 'READ')
+    fname = root.TFile.Open(fileName, 'READ')
     
-    if not (isinstance(file, root.TFile) and file.IsOpen()):
+    if not (isinstance(fname, root.TFile) and fname.IsOpen()):
         return None
     
     prevNum=None
@@ -241,7 +306,7 @@ def NTUPEntries(fileName, treeNames):
                
     for treeName in treeNames:
             
-        tree = file.Get(treeName)
+        tree = fname.Get(treeName)
             
         if not isinstance(tree, root.TTree):
             return None
@@ -261,7 +326,7 @@ def NTUPEntries(fileName, treeNames):
         del num
         del tree
 
-    file.Close()
+    fname.Close()
 
     return numberOfEntries
 
@@ -281,14 +346,14 @@ def ROOTGetSize(filename):
     
     try:
         msg.debug('Calling TFile.Open for {0}'.format(filename))
-        file = root.TFile.Open(filename + '?filetype=raw', 'READ')
-        fsize = file.GetSize()
+        fname = root.TFile.Open(filename + '?filetype=raw', 'READ')
+        fsize = fname.GetSize()
         msg.debug('Got size {0} from TFile.GetSize'.format(fsize))
     except ReferenceError:
         msg.error('Failed to get size of {0}'.format(filename))
         return None
     
-    file.Close()
+    fname.Close()
     del root
     return fsize
     

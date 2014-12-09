@@ -70,7 +70,7 @@ def checkTreeEventWise(tree):
     return 0
 
 
-def checkDirectory(directory, type, requireTree):
+def checkDirectory(directory, the_type, requireTree):
 
     msg.debug('Checking directory %s...' % directory.GetName())
 
@@ -83,66 +83,66 @@ def checkDirectory(directory, type, requireTree):
         msg.debug('Looking at key %s...' % key.GetName())
         msg.debug('Key is of class %s.' % key.GetClassName())
 
-        object=directory.Get(key.GetName())
-        if not object:
+        the_object=directory.Get(key.GetName())
+        if not the_object:
             msg.warning("Can't get object of key %s." % key.GetName())
             return 1
 
-        if requireTree and not isinstance(object, TTree):
-            msg.warning("Object %s is not of class TTree!" % object.GetName())
+        if requireTree and not isinstance(the_object, TTree):
+            msg.warning("Object %s is not of class TTree!" % the_object.GetName())
             return 1
 
-        if isinstance(object,TTree):
+        if isinstance(the_object,TTree):
 
-            msg.debug('Checking tree %s ...' % object.GetName())
+            msg.debug('Checking tree %s ...' % the_object.GetName())
             
-            if type=='event':
-                if checkTreeEventWise(object)==1:
+            if the_type=='event':
+                if checkTreeEventWise(the_object)==1:
                     return 1
-            elif type=='basket':    
-                if checkTreeBasketWise(object)==1:
+            elif the_type=='basket':    
+                if checkTreeBasketWise(the_object)==1:
                     return 1
 
-            msg.debug('Tree %s looks ok.' % object.GetName())    
+            msg.debug('Tree %s looks ok.' % the_object.GetName())    
             
-        if isinstance(object, TDirectory):
-            if checkDirectory(object, type, requireTree)==1:
+        if isinstance(the_object, TDirectory):
+            if checkDirectory(the_object, the_type, requireTree)==1:
                 return 1
 
     msg.debug('Directory %s looks ok.' % directory.GetName())
     return 0
 
 
-def checkFile(fileName, type, requireTree):
+def checkFile(fileName, the_type, requireTree):
 
     msg.info('Checking file %s.' % fileName)
 
-    file=TFile.Open(fileName)
+    file_handle=TFile.Open(fileName)
 
-    if not file:
+    if not file_handle:
         msg.warning("Can't access file %s." % fileName)
         return 1
 
-    if not file.IsOpen():
+    if not file_handle.IsOpen():
         msg.warning("Can't open file %s." % fileName)
         return 1
 
-    if file.IsZombie():
+    if file_handle.IsZombie():
         msg.warning("File %s is a zombie." % fileName)
         file.Close()
         return 1
 
-    if file.TestBit(TFile.kRecovered):
+    if file_handle.TestBit(TFile.kRecovered):
         msg.warning("File %s needed to be recovered." % fileName)
-        file.Close()
+        file_handle.Close()
         return 1
 
-    if checkDirectory(file, type, requireTree)==1:
+    if checkDirectory(file_handle, the_type, requireTree)==1:
         msg.warning("File %s is corrupted." % fileName)
-        file.Close()
+        file_handle.Close()
         return 1
 
-    file.Close();
+    file_handle.Close();
     msg.info("File %s looks ok." % fileName)
     return 0
 
@@ -166,12 +166,12 @@ def main(argv):
         return usage()
 
     fileName=argv[1]
-    type=argv[2]
+    the_type=argv[2]
     requireTree=argv[3]
     verbosity=argv[4]
 
 
-    if type!="event" and type!="basket":
+    if the_type!="event" and the_type!="basket":
         return usage()
 
     if requireTree!="true" and requireTree!="false":
@@ -184,7 +184,7 @@ def main(argv):
     else:
         return usage()
   
-    rc=checkFile(fileName,type, requireTree)
+    rc=checkFile(fileName,the_type, requireTree)
     msg.debug('Returning %s' % rc)
     
     clock.Stop();
@@ -196,7 +196,6 @@ def main(argv):
 if __name__ == '__main__':                
 
     ch=logging.StreamHandler(sys.stdout)
-#    ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     msg.addHandler(ch)

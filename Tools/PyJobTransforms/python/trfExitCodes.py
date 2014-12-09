@@ -6,11 +6,10 @@
 # @details Define all transform exit codes with their acronymns
 # @remarks Usual usage is to import @c trfExit from this module
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExitCodes.py 609252 2014-07-29 16:20:33Z wbreaden $
+# @version $Id: trfExitCodes.py 634766 2014-12-09 15:18:50Z graemes $
 # 
 
 import signal
-import unittest
 
 import logging
 msg = logging.getLogger(__name__)
@@ -22,10 +21,12 @@ class trfExitCode(object):
     #  @param acronymn The internal transform acronymn for this error code
     #  @param numcode The numerical exit code for this error
     #  @param description A human comprehensible description of this error's meaning
-    def __init__(self, acronymn, numcode, description):
+    #  @param signame The original signal name (only relevant for signals)
+    def __init__(self, acronymn, numcode, description, signalname = ""):
         self._acronymn = acronymn
         self._numcode = numcode
         self._description = description
+        self._signalname = signalname
         
     @property
     def acronymn(self):
@@ -38,6 +39,10 @@ class trfExitCode(object):
     @property
     def description(self):
         return self._description
+
+    @property
+    def signalname(self):
+        return self._signalname
 
 ## @note Restructured exit codes to avoid clashes with the recognised exit codes from
 #  the old transforms. These are:
@@ -96,6 +101,7 @@ class trfExitCodes(object):
     ## @note Hold error codes in a list of trfExitCode objects
     _errorCodeList = list()
     _errorCodeList.append(trfExitCode('OK', 0, 'Successful exit'))
+    _errorCodeList.append(trfExitCode('NEEDCHECK', 1, 'Job needs manual intervention'))
     _errorCodeList.append(trfExitCode('TRF_SETUP', 3, 'Transform setup error'))
     _errorCodeList.append(trfExitCode('TRF_ARG_CONV_FAIL', 4, 'Failure to convert transform arguments to correct type'))
     _errorCodeList.append(trfExitCode('TRF_ARG_OUT_OF_RANGE', 5, 'Argument out of allowed range'))
@@ -135,17 +141,19 @@ class trfExitCodes(object):
     _errorCodeList.append(trfExitCode('TRF_UNKOWN', 253, 'Unknown error code'))
     
     # Add signaled exits
-    _errorCodeList.extend([trfExitCode('TRF_SIG_'+n, getattr(signal, n)+128, 'Transform received signal {0}'.format(n)) 
-                           for n in dir(signal) if n.startswith('SIG') and '_' not in n])
+    _errorCodeList.extend([trfExitCode('TRF_SIG_'+signalname, getattr(signal, signalname)+128, 'Transform received signal {0}'.format(signalname), signalname) 
+                           for signalname in dir(signal) if signalname.startswith('SIG') and '_' not in signalname])
 
     # Now map the entries to fast lookup dictionaries
     _nameToCodeDict = dict()
     _codeToNameDict = dict()
     _nameToDescDict = dict()
+    _codeToSignalnameDict = dict()
     for error in _errorCodeList:
         _nameToCodeDict[error.acronymn] = error.numcode
         _codeToNameDict[error.numcode] = error.acronymn
         _nameToDescDict[error.acronymn] = error.description
+        _codeToSignalnameDict[error.numcode] = error.signalname
     
 
     def __init__(self):
@@ -156,7 +164,7 @@ class trfExitCodes(object):
         if name in trfExitCodes._nameToCodeDict:
             return trfExitCodes._nameToCodeDict[name]
         else:
-            msg.error('Could not map exit name %s to an exit code' % str(name))
+            msg.error('Could not map exit name {0} to an exit code'.format(name))
             return trfExitCodes._nameToCodeDict['TRF_UNKOWN']
         
     @staticmethod
@@ -164,16 +172,24 @@ class trfExitCodes(object):
         if code in trfExitCodes._codeToNameDict:
             return trfExitCodes._codeToNameDict[code]
         else:
-            msg.error('Could not map exit code %s to an exit name' % str(code))
+            msg.error('Could not map exit code {0} to an exit name'.format(code))
             return 'TRF_UNKOWN'
 
-    @staticmethod    
+    @staticmethod
     def nameToDesc(name = None):
         if name in trfExitCodes._nameToDescDict:
             return trfExitCodes._nameToDescDict[name]
         else:
-            msg.error('Could not map exit name %s to a description' % str(name))
+            msg.error('Could not map exit name {0} to a description'.format(name))
             return 'No description available'
+
+    @staticmethod
+    def codeToSignalname(code = None):
+        if code in trfExitCodes._codeToSignalnameDict:
+            return trfExitCodes._codeToSignalnameDict[code]
+        else:
+            msg.error('Could not map exit code {0} to a signal name string'.format(code))
+            return ''
 
 
 trfExit = trfExitCodes()

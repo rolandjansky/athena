@@ -5,7 +5,7 @@
 ## @Package test_trfExitCodes.py
 #  @brief Unittests for trfExitCodes.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfExitCodes.py 542702 2013-03-27 10:49:10Z graemes $
+#  @version $Id: test_trfExitCodes.py 634766 2014-12-09 15:18:50Z graemes $
 
 import unittest
 
@@ -30,6 +30,10 @@ class trfExitTests(unittest.TestCase):
     def test_exitTestsNameToDesc(self):
         self.assertEqual(trfExit.nameToDesc('OK'), 'Successful exit')
         self.assertEqual(trfExit.nameToDesc('TRF_SETUP'), 'Transform setup error')
+        
+    def test_exitTestsCodeToSigname(self):
+        self.assertEqual(trfExit.codeToSignalname(137), 'SIGKILL')
+        self.assertEqual(trfExit.codeToSignalname(1), '')
         
 if __name__ == '__main__':
     unittest.main()

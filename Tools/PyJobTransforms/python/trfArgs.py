@@ -3,21 +3,15 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 613109 2014-08-22 16:55:12Z graemes $
+#  @version $Id: trfArgs.py 625246 2014-10-30 19:37:16Z graemes $
 
-import argparse
 import logging
 msg = logging.getLogger(__name__)
-import unittest
-import pickle
-import os
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 from PyJobTransforms.trfArgClasses import argFactory
 
 from PyJobTransforms.trfLogger import stdLogLevels
-from PyJobTransforms.trfDecorators import silent
-from PyJobTransforms.trfExitCodes import trfExit
 
 ## Add standard transform arguments to an argparse ArgumentParser
 def addStandardTrfArgs(parser):
@@ -65,7 +59,7 @@ def addStandardTrfArgs(parser):
 #  @param parser trfArgParser object
 #  @param maxEventsDefaultSubstep Special option which can change the default substep for maxEvents (needed by
 #  some special transforms).
-def addAthenaArguments(parser, maxEventsDefaultSubstep='first'):
+def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True):
     parser.defineArgGroup('Athena', 'General Athena Options')
     parser.add_argument('--athenaopts', group = 'Athena', type=argFactory(trfArgClasses.argList, splitter=' ', runarg=False), metavar='OPT1 OPT2 OPT3', 
                         help='Extra options to pass to athena. Will split on spaces. Options starting with "-" must be given as --athenaopts=\'--opt1 --opt2[=foo] ...\'') 
@@ -100,8 +94,52 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first'):
                         'Note that the special value 0 means do not merge this output file; negative values means '
                         'always merge to a single file. Note that the datatype "ALL" will be used as a default '
                         'for all datatypes not explicitly given their own value.')
+    if addValgrind:
+        addValgrindArguments(parser)
 
-    
+## @brief Add Valgrind options
+def addValgrindArguments(parser):
+    parser.defineArgGroup(
+        'Valgrind',
+        'General Valgrind Options'
+    )
+    parser.add_argument(
+        '--valgrind',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argBool,
+            runarg = False
+        ),
+        metavar = "substep:BOOL",
+        help = 'Enable Valgrind'
+    )
+    parser.add_argument(
+        '--valgrindbasicopts',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argList,
+            splitter = ',',
+            runarg = False
+        ),
+        metavar = 'OPT1,OPT2,OPT3', 
+        help = 'Basic options passed to Valgrind when running Athena. ' +
+        'Options starting with "-" must be given as ' +
+        '--valgrindopts=\'--opt1=foo,--opt2=bar,...\''
+    )
+    parser.add_argument(
+        '--valgrindextraopts',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argList,
+            splitter = ',',
+            runarg = False
+        ),
+        metavar = 'OPT1,OPT2,OPT3', 
+        help = 'Extra options passed to Valgrind when running Athena. ' +
+        'Options starting with "-" must be given as ' +
+        '--valgrindopts=\'--opt1=foo,--opt2=bar,...\''
+    )
+
 ## @brief Options related to the setup of the ATLAS detector (used in simulation and digitisation
 #  as well as reconstruction)
 #  @param parser trfArgParser object
@@ -214,11 +252,6 @@ def addD3PDArguments(parser, pick = None, transform = None, multipleOK=False, ad
                                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=dpdWriter.TreeNames),
                                         group='D3PD NTUPs',
                                         metavar=dpdName.upper(), help='D3PD merged output {0} file )'.format(dpdName))
-                    if transform:
-                        for executor in transform.executors:
-                            if executor.name == "NTUPLEMerge":
-                                executor.inDataUpdate([dpdName])                    
-                                executor.outDataUpdate([dpdName+"_MRG"])                    
                 else:
                     parser.add_argument('--output' + dpdName + 'File', 
                                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=dpdWriter.TreeNames, multipleOK=multipleOK),
@@ -267,7 +300,7 @@ class dpdType(object):
 
     ## @brief Class constructor for dpdType
     #  @param name The name of this datatype (e.g., @c DRAW_ZEE, @c NTUP_SCT)
-    #  @param type The argFile.type (should be the major datatype, e.g. @c bs, @c esd, @c aod, etc.)
+    #  @param type The argFile.type (should be the major datatype, e.g. @c BS, @c ESD, @c AOD, etc.)
     #  @param substeps The substeps or executor names where this data can be made
     #  @param argclass The argument class to be used for this data
     #  @param treeNames For DPD types only, the tree(s) used for event counting (if @c None then 
@@ -288,7 +321,7 @@ class dpdType(object):
             elif 'NTUP' in name:
                 self._type = 'ntup'
         else:
-            self._type = dataType
+            self._type = type
             
         ## @note If not given explictly apply some heuristics, watch out for this
         #  if your data is made in a non-standard step

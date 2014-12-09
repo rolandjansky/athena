@@ -4,7 +4,7 @@
 ## @brief Transform graph utilities
 #  @details Graph which represents transform executors (nodes) connected vis data types (edges)
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfGraph.py 604265 2014-06-30 14:53:32Z graemes $
+#  @version $Id: trfGraph.py 634461 2014-12-08 15:00:36Z graemes $
 #  @note  There are a few well established python graph implementations, but none seem to be in the ATLAS
 #  release (NetworkX, igraph). Our needs are so basic that we might well be able to just take a few well
 #  known routines and have them in this module. See, e.g., http://www.python.org/doc/essays/graphs.html
@@ -28,8 +28,6 @@
 
 import copy
 import os
-import sys
-import unittest
 
 import logging
 msg = logging.getLogger(__name__)
@@ -82,7 +80,7 @@ class executorGraph(object):
         # nodes for any intermediate data end nodes as well
         pseudoNodes = dict()
         pseudoNodes['_start'] = graphNode(name='_start', inData=[], outData=self._inputData, weight = 0)
-        for nodeName, node in self._nodeDict.iteritems():
+        for node in self._nodeDict.itervalues():
             for dataType in node.outputDataTypes:
                 endNodeName = '_end_{0}'.format(dataType)
                 pseudoNodes[endNodeName] = graphNode(name=endNodeName, inData=[dataType], outData=[], weight = 0)
@@ -107,7 +105,7 @@ class executorGraph(object):
     def outputData(self):
         return self._outputData
     
-    @inputData.setter
+    @outputData.setter
     def outputData(self, outputData):
         self._outputData = set(outputData)
         
@@ -163,8 +161,8 @@ class executorGraph(object):
                 dataIntersection = list(set(nodeA.outputDataTypes) & set(nodeB.inputDataTypes))
                 msg.debug('Data connections between {0} and {1}: {2}'.format(nodeNameA, nodeNameB, dataIntersection))
                 if len(dataIntersection) > 0:
-                    nodeA.addConnection(nodeNameB, dataIntersection, type='out')
-                    nodeB.addConnection(nodeNameA, dataIntersection, type='in')
+                    nodeA.addConnection(nodeNameB, dataIntersection, direction='out')
+                    nodeB.addConnection(nodeNameA, dataIntersection, direction='in')
                     
         msg.debug('Graph connections are: \n{0}'.format(self))
                     
@@ -197,7 +195,7 @@ class executorGraph(object):
             # Now delete the edges this node was a source for
             msg.debug('Considering connections from node {0}'.format(theNodeName))
             for connectedNodeName in theNode.connections['out']:
-                graphCopy[connectedNodeName].delConnection(toExe = theNodeName, type = 'in')
+                graphCopy[connectedNodeName].delConnection(toExe = theNodeName, direction = 'in')
                 # Look for nodes which now have their dependencies satisfied
                 if len(graphCopy[connectedNodeName].connections['in']) == 0:
                     startNodeNames.append(connectedNodeName)
@@ -306,6 +304,11 @@ class executorGraph(object):
         if endNodeName is None:
             endNodeName = '_end_{0}'.format(data)
         
+        if endNodeName not in self._nodeDict:
+            raise trfExceptions.TransformGraphException(trfExit.nameToCode('TRF_GRAPH_ERROR'), 
+                'Node {0} was not found - the transform data connection definition is broken'.format(endNodeName))
+
+        
         # Set of all considered paths
         # Initialise this with our endNode name - algorithm works back to the start
         pathSet = [graphPath(endNodeName, data),]
@@ -370,7 +373,6 @@ class executorGraph(object):
     #  @param path graphPath instance
     #  @param nextNodeName Node to connect to
     def _extendPath(self, path, currentNodeName, nextNodeName):
-        nextNode = self._nodeDict[nextNodeName]
         edgeData = self._nodeDict[currentNodeName].connections['in'][nextNodeName]
         msg.debug('Connecting {0} to {1} with data {2}'.format(currentNodeName, nextNodeName, edgeData))
         
@@ -495,15 +497,15 @@ class graphNode(object):
     ## @brief Add a new edge connection for this node
     #  @param @c toExe Other node for this edge
     #  @param @c data Data which connects these nodes (iterable), converted to set object
-    #  @param @c type If this is an incoming or outgoing edge for this node
-    def addConnection(self, toExe, data, type = 'out'):
-        self._connections[type][toExe] = set(data)
+    #  @param @c direction If this is an incoming or outgoing edge for this node
+    def addConnection(self, toExe, data, direction = 'out'):
+        self._connections[direction][toExe] = set(data)
     
     ## @brief Delete a connection from this node
     #  @param @c toExe Other node for this vertex
-    #  @param @c type If this is an incoming or outgoing edge for this node    
-    def delConnection(self, toExe, type = 'out'):
-        del self._connections[type][toExe]
+    #  @param @c direction If this is an incoming or outgoing edge for this node    
+    def delConnection(self, toExe, direction = 'out'):
+        del self._connections[direction][toExe]
         
     ## @brief Delete all connections
     def resetConnections(self):
