@@ -28,5 +28,6 @@ apply_pattern declare_joboptions files="*.py"
 
 private
 macro_append doPixelValidationlinkopts " -lPixelValidation -lPixelOfflineCalib"
-macro_append ROOT_linkopts " -lMatrix -lGpad -lCintex"
+apply_tag ROOTCintexLibs 
+macro_append ROOT_linkopts " -lMatrix -lGpad "
 macro_append doPixelValidation_dependencies " PixelValidation"
