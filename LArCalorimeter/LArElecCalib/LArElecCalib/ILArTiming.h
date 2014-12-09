@@ -21,6 +21,8 @@ class ILArTiming {
    */
   
  public: 
+  virtual ~ILArTiming() {};
+
   virtual float GlobalTime(const Identifier& id, int gain) const=0;
   virtual float Time(const Identifier& id, int gain)       const=0;
   virtual float Error(const Identifier& id, int gain)      const=0;

@@ -7,7 +7,6 @@
 #define LARELECCALIB_ILARAUTOCORRDECODERTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 class Identifier;
 class HWIdentifier;
 
@@ -25,8 +24,6 @@ class ILArAutoCorrDecoderTool : virtual public IAlgTool  {
 
   // offline ID
   virtual const Eigen::MatrixXd AutoCorr( const Identifier&  CellID, int gain, unsigned nSamples=5) const = 0 ;
-
-  virtual StatusCode LoadAutoCorr(IOVSVC_CALLBACK_ARGS) = 0;
 
   static const InterfaceID& interfaceID() { return IID_ILArAutoCorrDecoderTool; }
 
