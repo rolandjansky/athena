@@ -26,10 +26,13 @@
 #include "TrigInDetAnalysisUtils/RoI.h"
 // #include "TrigInDetAnalysisUtils/Converter.h"
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
+#include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
 
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
 
-
+#include "muonEvent/MuonContainer.h"
+#include "egammaEvent/ElectronContainer.h"
+#include "tauEvent/TauJetContainer.h"
 
 
 class MsgSvc;
@@ -38,8 +41,8 @@ class StoreGateSvc;
 class TrackAssociator;
 // class Converter;
 
-  // class RoI;
-  // class TrackFilter;
+// class RoI;
+// class TrackFilter;
 
 template<class Provider>
 class T_AnalysisConfig {
@@ -75,7 +78,8 @@ public:
     m_analysis(analysis),
     m_mcTruth(false),
     m_genericFlag(true),
-    m_releaseData("")
+    m_releaseData(""),
+    m_keepAllEvents(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -131,7 +135,8 @@ public:
     m_beamY(0),
     m_beamZ(0),
     m_genericFlag(true),
-    m_releaseData("")
+    m_releaseData(""),
+    m_keepAllEvents(false)
   {
       // Rearrange objects in vectors: chain names
       std::vector<std::string> testChainNames; testChainNames.push_back(testChainName);
@@ -250,6 +255,8 @@ public:
   void releaseData() const                { return m_releaseData; } 
   void releaseData(const std::string& s)  { m_releaseData = s; } 
 
+  void keepAllEvents( bool b ) { m_keepAllEvents = b; } 
+
 protected:
 
   virtual void loop() = 0;
@@ -282,41 +289,6 @@ protected:
     } 
   }
 
-  
-  //   template<class Collection> 
-  //   void readStoreGateTracks(const std::string& key) {
-  //     const Collection* collection=0;
-  //     StatusCode sc = m_provider->evtStore()->retrieve(collection, key);
-  //     if(sc.isSuccess() && collection) m_converter->selectTracks(collection);
-  //     else m_provider->msg(MSG::ERROR) << "unavailable track SG key " << key << endreq;
-  //   }
-  
-  
-    
-  // template<class Collection> 
-  //   bool readFeatureTracks(Trig::FeatureContainer::combination_const_iterator c,  const std::string& key="") {   
-  //     std::vector<Trig::Feature<Collection> > trackcollections=c->get<Collection>(key, TrigDefs::alsoDeactivateTEs);
-  //     if(!trackcollections.empty()) { 
-  //       // NB!! a combination should never have more than one entry for a track collection from a single algorithm chain 
-  //       for(unsigned ifeat=0; ifeat<trackcollections.size(); ifeat++) {
-  // 	std::cout << "readFeatureTracks() ifeat=" << ifeat << "\t(Carlos I beleieve)" << std::endl;    
-  // 	Trig::Feature<Collection> trackfeature = trackcollections.at(ifeat);
-  // 	if(!trackfeature.empty()) { 
-  // 	  // Select the tracks
-  // 	  const Collection* trigtracks = trackfeature.cptr();
-  // 	  m_converter->selectTracks(trigtracks);
-  // 	}
-  //       }
-  //       return true;
-  //     }
-  //     else {
-  //       m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection is empty " << key << endreq;
-  //       return false;
-  //     }
-  //   }
-
-
-  
 
   template<class Collection> 
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {   
@@ -402,13 +374,203 @@ protected:
   bool selectTracks( TrigTrackSelector* selector, const std::string& key ) {   
     const Collection* collection = 0;
     if ( key!="" ) { 
-      StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
-      m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endreq;
-      if( sc.isSuccess() && collection ) selector->selectTracks( collection );
-    }
-    return true; 
+      if ( m_provider->evtStore()->template contains<Collection>( key ) ) { 
+	StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
+	m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endreq;
+	if( sc.isSuccess() && collection ) { 
+	  selector->selectTracks( collection );
+	  return true;
+	}
+      }
+    } 
+    return false;
   }
   
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  /// select offline electrons
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  unsigned processElectrons( TrigTrackSelector& selectorRef, 
+#                            ifdef XAODTRACKING_TRACKPARTICLE_H
+			     const std::string& containerName = "Electrons"
+#                            else
+			     const std::string& containerName = "ElectronAODCollection"
+#                            endif
+			     )  {	
+    m_provider->msg(MSG::INFO) << " Offline electrons " << endreq;
+    
+    selectorRef.clear();
+    
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+    const xAOD::ElectronContainer* container = 0;
+#else
+    const ElectronContainer* container = 0;
+#endif
+    
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+    if( ! m_provider->evtStore()->template contains<xAOD::ElectronContainer>(containerName) ) {
+#else
+    if( ! m_provider->evtStore()->template contains<ElectronContainer>(containerName) ) {
+#endif
+      m_provider->msg(MSG::WARNING) << "Error No Electron Container " << containerName
+				    << " !" << endreq;
+      return 0;
+    }
+    
+    StatusCode sc=m_provider->evtStore()->retrieve( container, containerName);
+    if( sc.isFailure() || !container ) {
+      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName
+				    << " after contains" << endreq;
+      return 0;
+    } 
+    
+    auto elec = container->begin();
+    auto elec_end = container->end();
+    
+    m_provider->msg(MSG::INFO) << "Event with " <<  container->size()
+			       << " Electron object(s) " << endreq;
+    
+    for( ; elec!=elec_end ; ++elec ){
+      //m_provider->msg(MSG::DEBUG) << " Electron "       << (*elec) 
+      //	       << ",  eta "          << (*elec)->eta() 
+      //	       << ",  phi "          << (*elec)->phi() 
+      //	       << ",  ET "           << (*elec)->pt() 
+      //	       << ",  author "       << (*elec)->author() 
+      //	       << ",  trackParticle " << (*elec)->trackParticle()
+      //	       << ",  conversion "    << (*elec)->conversion()
+      //	       << ",  mediumPP "      << ((*elec)->isem(egammaPID::ElectronMediumPP)==0) 
+      //	       << endreq;
+      
+      
+      if (TrigInDetAnalysis::IsGoodOffline(*(*elec))) selectorRef.selectTrack( (*elec)->trackParticle() );
+      
+    }
+    
+    return selectorRef.tracks().size(); 
+  }
+  
+ 
+
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  /// select offline muons
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  unsigned processMuons(     TrigTrackSelector& selectorRef, 
+#                            ifdef XAODTRACKING_TRACKPARTICLE_H
+      const std::string& containerName = "Muons"
+#                            else
+                             const std::string& containerName = "StacoMuonCollection"
+#                            endif
+			     )  {
+
+    m_provider->msg(MSG::INFO) << " Offline muons " << endreq;
+    
+    selectorRef.clear();
+    
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+    const xAOD::MuonContainer* container = 0;
+#else
+    const Analysis::MuonContainer* container = 0;
+#endif
+    
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+    if( ! m_provider->evtStore()->template contains<Analysis::MuonContainer>(containerName) ) {
+#else
+    if( ! m_provider->evtStore()->template contains<xAOD::MuonContainer>(containerName) ) {
+#endif
+      m_provider->msg(MSG::WARNING) << "Error No MuonCollection" << containerName
+				    << " !" << endreq;
+      return 0;
+    } 
+    
+    StatusCode sc=m_provider->evtStore()->retrieve( container, containerName );
+    if( sc.isFailure() || !container ) {
+      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName
+				    << " !" << endreq;
+      return 0;
+    }
+    
+    
+    auto muon = container->begin();
+    auto muon_end = container->end();
+    for( ; muon!=muon_end ; ++muon ){
+      if (TrigInDetAnalysis::IsGoodOffline(*(*muon))) {
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+	selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+#     else
+	selectorRef.selectTrack((*muon)->inDetTrackParticle());
+#     endif
+      }
+    }
+    
+    return selectorRef.tracks().size();
+  }
+  
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    /// select offline one-prong taus
+    ////////////////////////////////////////////////////////////////////////////////////////////
+unsigned processTaus(      TrigTrackSelector& selectorRef, 
+    bool doThreeProng = true,
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+    const std::string& containerName = "Taus"
+#     else
+    const std::string& containerName = "TauRecContainer"
+#     endif
+    ) { 
+
+  selectorRef.clear();
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+  const xAOD::TauJetContainer* container = 0;
+#     else
+  const Analysis::TauJetContainer* container =0;
+#     endif
+
+  std::cout << " in do tau selection " << std::endl;
+
+  selectorRef.clear();
+
+  m_provider->msg(MSG::INFO) << " Offline taus " << endreq;
+
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+  if ( !m_provider->evtStore()->template contains<xAOD::TauJetContainer>(containerName)) {
+#     else
+  if ( !m_provider->evtStore()->template contains<Analysis::TauJetContainer>(containerName)) {
+#     endif
+    m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
+    return 0;
+  }   
+
+  StatusCode sc = m_provider->evtStore()->retrieve( container, containerName);
+  if (sc != StatusCode::SUCCESS) {
+    m_provider->msg(MSG::WARNING) << " Offline tau retrieval not successful" << endreq;
+    return 0;
+  }
+
+  auto tau     = container->begin();
+  auto tau_end = container->end();
+
+  unsigned Ntaus = 0;
+
+  for ( ; tau!=tau_end ; ++tau ) {
+
+    if (TrigInDetAnalysis::IsGoodOffline(*(*tau),doThreeProng,20000.0)) {
+
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+      for (unsigned int i  = 0; i < (*tau)->nTracks(); i++) {
+#     else
+      for (unsigned int i  = 0; i < (*tau)->numTrack(); i++) {
+#     endif
+        selectorRef.selectTrack((*tau)->track(i));
+        Ntaus++;
+      }
+    }
+  }
+
+  return selectorRef.tracks().size();
+
+}
 
 protected:
   
@@ -457,6 +619,8 @@ protected:
   
   int                    m_genericFlag;
   std::string            m_releaseData;
+
+  bool                   m_keepAllEvents;
 
 };
 

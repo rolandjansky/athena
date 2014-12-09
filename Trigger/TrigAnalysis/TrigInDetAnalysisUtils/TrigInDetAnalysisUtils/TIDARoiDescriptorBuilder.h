@@ -26,7 +26,10 @@ public:
   TIDARoiDescriptorBuilder( const TrigRoiDescriptor& r ) : 
     TIDARoiDescriptor( r.roiWord(), r.l1Id(), r.roiId(), r.eta(), r.phi(), r.zed() ) 
   {
-    m_phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi( r.phiPlus() - r.phiMinus() ) );
+
+    double dphi = r.phiPlus() - r.phiMinus();
+    if ( r.phiPlus() < r.phiMinus() ) dphi += 2*M_PI;
+    m_phiHalfWidth      = std::fabs( HLT::wrapPhi( 0.5*dphi ) );
     m_etaHalfWidth = 0.5*( r.etaPlus() - r.etaMinus() );
     m_zedHalfWidth = 0.5*( r.zedPlus() - r.zedMinus() );  
     m_etaPlus  = r.etaPlus();

@@ -8,11 +8,16 @@ use 	AtlasPolicy		AtlasPolicy-*
 use 	AtlasROOT            	AtlasROOT-*            		External
 use 	GaudiInterface		GaudiInterface-*		External
 
-use     AtlasHepMC   AtlasHepMC-*   External
-use     McParticleEvent         McParticleEvent-*            PhysicsAnalysis/TruthParticleID
+use     AtlasHepMC              AtlasHepMC-*                    External
+use     McParticleEvent         McParticleEvent-*               PhysicsAnalysis/TruthParticleID
 
 use 	StoreGate           	StoreGate-*                     Control
 use 	Particle		Particle-*			Reconstruction
+
+use  	egammaEvent         	egammaEvent-*                   Reconstruction/egamma
+use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
+use     tauEvent                tauEvent-*                      Reconstruction
+
 use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
 use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools   
 
@@ -20,14 +25,14 @@ use     TrigInDetAnalysis       TrigInDetAnalysis-*             Trigger/TrigAnal
 
 use 	TrigInDetEvent		TrigInDetEvent-*                Trigger/TrigEvent
 use     TrigInDetTruthEvent     TrigInDetTruthEvent-*           Trigger/TrigTruthEvent
-use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
 
-use  TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
-use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
-use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
-use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
-use  TrkToolInterfaces          TrkToolInterfaces-*		Tracking/TrkTools
-#use GaudiKernel v*
+use     TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
+use     TrkParameters           TrkParameters-*                 Tracking/TrkEvent
+use     TrkTrack                TrkTrack-*                      Tracking/TrkEvent
+use     TrkTrackSummary         TrkTrackSummary-*               Tracking/TrkEvent
+use     TrkToolInterfaces       TrkToolInterfaces-*		Tracking/TrkTools
+
+
 # ============================================================================================
 private
 
@@ -35,12 +40,10 @@ private
 # use     AthenaMonitoring        AthenaMonitoring-*              Control
 
 
-
-
 # ============================================================================================
 public
 
-# library TrigInDetAnalysisUtils *.cxx 
+library TrigInDetAnalysisUtils *.cxx 
 
 # apply_tag  ROOTBasicLibs
 # apply_tag  ROOTMathLibs
@@ -48,4 +51,4 @@ public
 # apply_tag  ROOTGraphicsLibs
 # apply_tag  ROOTTableLibs
 
-# apply_pattern installed_library
+apply_pattern installed_library

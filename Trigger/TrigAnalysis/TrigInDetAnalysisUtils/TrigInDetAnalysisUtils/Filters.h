@@ -1,3 +1,8 @@
+
+
+#ifndef TRIGINDETANALYSIS_FILTERS_H
+#define TRIGINDETANALYSIS_FILTERS_H
+
 #include "TrigInDetAnalysisUtils/Filter_Track.h"
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
 #include "TrigInDetAnalysisUtils/Filter_TrackQuality.h"
@@ -165,13 +170,16 @@ class Filter_Vertex : public TrackFilter {
 
       double* v = m_v[i].position();
 
-      double a0 = t->a0() + v[0]*std::sin( t->phi() ) - v[1]*std::cos( t->phi() );
+      /// NB: tracks now converted back to some reference (beamline) rather than 0,0 
+      //      double a0 = t->a0() + v[0]*std::sin( t->phi() ) - v[1]*std::cos( t->phi() );
+      double a0 = t->a0();
 
       /// calculate z
 
       double theta = 2*std::atan(std::exp( -t->eta() ));
 
-      double z = t->z0() + ( v[0]*std::cos( t->phi() ) + v[1]*std::sin( t->phi() ) )/std::atan(theta);
+      //      double z = t->z0() + ( v[0]*std::cos( t->phi() ) + v[1]*std::sin( t->phi() ) )/std::atan(theta);
+      double z = t->z0();
 
       double z0sin = (z-v[2])*std::sin(theta);
 
@@ -254,3 +262,6 @@ class Filter_Combined : public TrackFilter {
 //		TrackFilter* mf1;
 //
 //};
+
+
+#endif /// TRIGINDETANALYSIS_FILTERS_H
