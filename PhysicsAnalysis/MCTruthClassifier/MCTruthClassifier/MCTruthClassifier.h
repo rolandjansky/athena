@@ -8,12 +8,9 @@
 
 NAME:     MCTruthClassifier.h 
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
-
 AUTHORS:  O. Fedin
 CREATED:  Sep 2007
-
-PURPOSE:  
-          
+PURPOSE:            
 Updated:  
 ********************************************************************/
 
@@ -26,6 +23,8 @@ Updated:
 //
 // EDM includes
 #include "xAODTruth/TruthParticleContainer.h"
+//Truth PArticles in cone
+#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 
 namespace HepMC {
  class GenParticle;
@@ -33,8 +32,9 @@ namespace HepMC {
 // CLHEP
 #include "HepPDT/ParticleDataTable.hh"
 
-class IExtrapolateToCaloTool;
-class CaloDepthTool;
+namespace Trk {
+  class IParticleCaloExtensionTool;
+}
 
 class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
 
@@ -116,42 +116,40 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float detEta(float x, float y ) {return fabs(x-y);}
    float detPhi(float , float );
    float rCone (float x, float y ){return sqrt(x*x + y*y);}
-
+   //
    MCTruthPartClassifier::ParticleType    defTypeOfElectron(MCTruthPartClassifier::ParticleOrigin);
    MCTruthPartClassifier::ParticleOrigin  defOrigOfElectron(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfElectron(const xAOD::TruthParticle*);
-
+   //
    MCTruthPartClassifier::ParticleType    defTypeOfMuon(MCTruthPartClassifier::ParticleOrigin);
    MCTruthPartClassifier::ParticleOrigin  defOrigOfMuon(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfMuon(const xAOD::TruthParticle*);
-
+   //
    MCTruthPartClassifier::ParticleType    defTypeOfTau(MCTruthPartClassifier::ParticleOrigin);
    MCTruthPartClassifier::ParticleOrigin  defOrigOfTau(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfTau(const xAOD::TruthParticle*);
-
+   //
    MCTruthPartClassifier::ParticleType    defTypeOfPhoton(MCTruthPartClassifier::ParticleOrigin);
    MCTruthPartClassifier::ParticleOrigin  defOrigOfPhoton(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
-
-
+   //
    MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
    bool isHadron(const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleType    defTypeOfHadron(long);
-
    MCTruthPartClassifier::ParticleOrigin  convHadronTypeToOrig(MCTruthPartClassifier::ParticleType pType);
-
+   //
    const xAOD::TruthVertex* findEndVert(const xAOD::TruthParticle*);
    bool  isHardScatVrtx(const xAOD::TruthVertex* );
-
+   //
    std::vector<const xAOD::TruthParticle*> findFinalStatePart(const xAOD::TruthVertex*);
-
+   //
    double partCharge(const xAOD::TruthParticle*);
    bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& );
    const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool );
-
+   //
    void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&);
    MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>);
-
+   //
    inline double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) {
      double dphi = std::fabs(v1.phi()-v2.phi()) ;
      dphi = (dphi<=M_PI)? dphi : 2*M_PI-dphi;
@@ -161,7 +159,7 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
   
    /** Return true if genParticle and truthParticle have the same pdgId, barcode and status **/
    const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*,int );
-   
+  
    //for old EDM
    bool compareTruthParticles(const HepMC::GenParticle *genPart, const xAOD::TruthParticle *truthPart);
 
@@ -220,10 +218,8 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    const HepPDT::ParticleDataTable* m_particleTable;
    
 
-   ToolHandle<IExtrapolateToCaloTool>     m_extrapolateToCalo;
-   /** @brief Tool to retrieve the calorimeter depth (for track extrapolation)*/
-   ToolHandle<CaloDepthTool>              m_calodepth;     
-
+   ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
 //------------------------------------------------------------------------
 //      configurable data members
 //------------------------------------------------------------------------
@@ -246,6 +242,7 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    float m_partExtrConePhi;
    float m_phtClasConePhi;
    float m_phtClasConeEta;
+   long  m_barcodeShift;
 
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
@@ -256,6 +253,7 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    bool  m_inclEgammaFwrdEle;
    bool  m_LQpatch;
    bool  m_forceNotUseBremRefitTrk;
+   bool  m_useCaching;
 
 };
 #endif  // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H 

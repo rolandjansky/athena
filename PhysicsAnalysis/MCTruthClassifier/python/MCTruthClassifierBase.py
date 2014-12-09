@@ -10,7 +10,7 @@ import EventKernel.ParticleDataType
 from RecExConfig.Configured import Configured
 from InDetRecExample.InDetKeys import InDetKeys
 from AthenaCommon.DetFlags import DetFlags
-
+import AthenaCommon.CfgMgr as CfgMgr
 
 
 
@@ -18,10 +18,6 @@ mlog = logging.getLogger ('MCTruthCalssifierBase.py::configure:')
 mlog.info('entering')
 
 from AthenaCommon.AppMgr import ToolSvc
-
-
-# configure tools for ID on
-#if DetFlags.detdescr.ID_on() :
 	
 # Configure the extrapolator
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
@@ -54,14 +50,13 @@ theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
 theAtlasExtrapolator.SubMEUpdators = MySubUpdators
 ToolSvc+=theAtlasExtrapolator
 	           
-# add tool ExtrapolateTrackToCalo
-from TrackToCalo.TrackToCaloConf import ExtrapolateToCaloTool
-exToCalo = ExtrapolateToCaloTool(name         = "exToCalo",
-                                 Extrapolator = theAtlasExtrapolator)
-ToolSvc+=exToCalo
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+ClassifierParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(name="ClassifierParticleCaloExtensionTool",
+                                                                                Extrapolator = theAtlasExtrapolator)
+ToolSvc+=ClassifierParticleCaloExtensionTool
 
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 MCTruthClassifier = MCTruthClassifier(name = 'MCTruthClassifier',
-                                ExtrapolateToCaloTool = exToCalo)
+                                      ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
   
 ToolSvc += MCTruthClassifier
