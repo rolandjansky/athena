@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxInfoBase.h 611401 2014-08-12 12:24:53Z krasznaa $
+// $Id: AuxInfoBase.h 633004 2014-12-02 13:36:00Z ssnyder $
 #ifndef XAODCORE_AUXINFOBASE_H
 #define XAODCORE_AUXINFOBASE_H
 
@@ -26,6 +26,7 @@
 // Forward declaration(s):
 namespace SG {
    class IAuxTypeVector;
+   class AuxDataOption;
 }
 
 namespace xAOD {
@@ -38,8 +39,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611401 $
-   /// $Date: 2014-08-12 14:24:53 +0200 (Tue, 12 Aug 2014) $
+   /// $Revision: 633004 $
+   /// $Date: 2014-12-02 14:36:00 +0100 (Tue, 02 Dec 2014) $
    ///
    class AuxInfoBase : public SG::IAuxStore,
                        public SG::IAuxStoreIO,
@@ -88,6 +89,19 @@ namespace xAOD {
       /// Get the types(names) of variables handled by this container
       virtual const auxid_set_t& getAuxIDs() const;
 
+      /// Get a pointer to a given array, as a decoration
+      virtual void* getDecoration( auxid_t auxid, size_t size,
+                                   size_t capacity );
+
+      /// Lock the container
+      virtual void lock();
+
+      /// Clear all decorations
+      virtual void clearDecorations();
+
+      /// Get the size of the container
+      virtual size_t size() const;
+
       /// @}
 
       /// @name Functions implementing the SG::IAuxStore interface
@@ -106,6 +120,8 @@ namespace xAOD {
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
+      /// Make an option setting on an aux variable.
+      virtual bool setOption( auxid_t id, const SG::AuxDataOption& option );
 
       /// @}
 
@@ -127,17 +143,15 @@ namespace xAOD {
       /// Get the IDs of the selected dynamic Aux variables (for writing)
       virtual const SG::auxid_set_t& getSelectedAuxIDs() const;
 
-      /// Get a pointer to a given array, as a decoration.
-      virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity);
+      /// @}
 
-      /// Lock the container.
-      virtual void lock();
+      /// @name Functions managing the instance name of the container
+      /// @{
 
-      /// Clear all decorations.
-      virtual void clearDecorations();
-
-      /// Get the size of the container.
-      virtual size_t size() const;
+      /// Get the name of the container instance
+      const char* name() const;
+      /// Set the name of the container instance
+      void setName( const char* name );
 
       /// @}
 
@@ -169,18 +183,21 @@ namespace xAOD {
 
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;
-      typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
+      typedef AthContainers_detail::lock_guard< mutex_t > guard_t;
       mutable mutex_t m_mutex;
 
-      /// Thread-local versions of the auxid set.
-      struct TSAuxidSet
-      {
-        size_t m_tick;
-        auxid_set_t m_set;
-        TSAuxidSet (size_t tick, const auxid_set_t& set)
-          : m_tick (tick), m_set (set) {}
-      };
-      mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
+      /// Helper class for the thread-local auxid set implementation
+      struct TSAuxidSet {
+         size_t m_tick;
+         auxid_set_t m_set;
+         TSAuxidSet( size_t tick, const auxid_set_t& set )
+            : m_tick( tick ), m_set( set ) { }
+      }; // class TSAuxidSet
+      /// Thread-local versions of the auxid set
+      mutable AthContainers_detail::thread_specific_ptr< TSAuxidSet > m_tsAuxids;
+
+      /// Name of the container in memory. Set externally.
+      std::string m_name;
 
    }; // class AuxInfoBase
 

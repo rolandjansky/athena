@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CLASS_DEF.h 611401 2014-08-12 12:24:53Z krasznaa $
+// $Id: CLASS_DEF.h 613558 2014-08-26 17:16:16Z krasznaa $
 #ifndef XAODCORE_CLASS_DEF_H
 #define XAODCORE_CLASS_DEF_H
 
@@ -23,22 +23,52 @@
 ///    CLASS_DEF( xAOD::ClassName, 123456, 1 )
 /// </code>
 ///
-/// Since we don't need this infrastructure for ROOT (as there we just rely on
-/// the ROOT dictionaries of all the EDM classes), the macro only does anything
-/// meaningful in Athena. In the standalone build it evaluates to nothing.
+/// In a ROOT analysis we need much less information about the classes in such
+/// a ROOT-independent way. We mostly just make use of that information to
+/// decode the trigger navigation EDM.
 ///
 /// All xAOD packages should use this header for declaring class IDs for their
 /// EDM classes instead of using SGTools directly.
 ///
-/// $Revision: 611401 $
-/// $Date: 2014-08-12 14:24:53 +0200 (Tue, 12 Aug 2014) $
+/// $Revision: 613558 $
+/// $Date: 2014-08-26 19:16:16 +0200 (Tue, 26 Aug 2014) $
 
 #ifdef XAOD_STANDALONE
 
-// Dummy macro definition
-#ifndef CLASS_DEF
-#   define CLASS_DEF( CLASS, CLID, VERS )
-#endif // not CLASS_DEF
+// Include the ClassID_traits class:
+#include "xAODCore/ClassID_traits.h"
+
+// Make sure that we get rid of the definitions from other places.
+// From AsgTools for instance...
+#undef CLASS_DEF
+
+// Present a dummy macro to ROOT 6's dictionary generator. Otherwise
+// it becomes over-eager, and starts generating dictionaries for types
+// that it should just ignore.
+#ifdef __CLING__
+
+/// Dummy version of the macro
+#define CLASS_DEF( __type, __clid, __version )
+
+#else // __CLING__
+
+/// Macro defining a specialisation for the ClassID_traits type
+#define CLASS_DEF( __type, __clid, __version )                          \
+   template<>                                                           \
+   struct ClassID_traits< __type > {                                    \
+      static CLID ID() {                                                \
+         return __clid;                                                 \
+      }                                                                 \
+      static const std::string& typeName() {                            \
+         static std::string name( #__type );                            \
+         return name;                                                   \
+      }                                                                 \
+      static const std::type_info& typeId() {                           \
+         return typeid( __type );                                       \
+      }                                                                 \
+  };
+
+#endif // __CLING__
 
 #else // not XAOD_STANDALONE
 
@@ -46,5 +76,4 @@
 #include "SGTools/CLASS_DEF.h"
 
 #endif // not XAOD_STANDALONE
-
 #endif // not XAODCORE_CLASS_DEF_H

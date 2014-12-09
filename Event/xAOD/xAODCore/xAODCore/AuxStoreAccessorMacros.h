@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreAccessorMacros.h 574691 2013-12-09 20:16:15Z krasznaa $
+// $Id: AuxStoreAccessorMacros.h 633587 2014-12-04 09:09:41Z ssnyder $
 #ifndef XAODCORE_AUXSTOREACCESSORMACROS_H
 #define XAODCORE_AUXSTOREACCESSORMACROS_H
 
@@ -84,6 +84,31 @@
       acc( *this ) = value;                                       \
       return;                                                     \
    }
+
+
+/// Macro creating a move accessor for complex auxiliary properties.
+///
+/// This macro should be used in the same way as the
+/// AUXSTORE_OBJECT_SETTER_AND_GETTER one.  In C++11, this will create
+/// a setter that takes its argument using move semantics.
+/// It is a no-op in C++98.
+///
+/// @param CL The name of the xAOD class
+/// @param TYPE The (complex) type name
+/// @param NAME The name of the auxiliary variable
+/// @param SETTER The name of the "setter function"
+///
+#if __cplusplus < 201100
+# define AUXSTORE_OBJECT_MOVE(CL, TYPE, NAME, SETTER)
+#else
+# define AUXSTORE_OBJECT_MOVE(CL, TYPE, NAME, SETTER)             \
+   void CL::SETTER( typename SG::AuxDataTraits<TYPE>::element_type&& value ) { \
+      static Accessor< TYPE > acc( #NAME );                       \
+      acc( *this ) = std::move(value);                            \
+      return;                                                     \
+   }
+#endif
+
 
 /// Macro creating the reader function for a complex auxiliary property
 ///

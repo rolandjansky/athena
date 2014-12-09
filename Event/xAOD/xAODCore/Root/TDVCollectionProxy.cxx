@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDVCollectionProxy.cxx 591472 2014-04-05 11:23:29Z krasznaa $
+// $Id: TDVCollectionProxy.cxx 622935 2014-10-21 09:55:35Z krasznaa $
 
 // System include(s):
 #include <cassert>
@@ -438,14 +438,16 @@ namespace xAOD {
          ::Fatal( "xAOD::TDVCollectionProxy::InitializeEx",
                   "Couldn't find dictionary for class %s",
                   fName.Data() );
+         return 0;
       }
 
       // Check if it is a DataVector:
       const std::string eltname = findDVElement( cl );
       if( eltname.empty() ) {
-         Fatal( "xAOD::TDVCollectionProxy::InitializeEx",
-                "Class \"%s\" doesn't seem to be a DataVector",
-                cl->GetName() );
+         ::Fatal( "xAOD::TDVCollectionProxy::InitializeEx",
+                  "Class \"%s\" doesn't seem to be a DataVector",
+                  cl->GetName() );
+         return 0;
       }
 
       // Find the container and element offsets.
@@ -512,6 +514,7 @@ namespace xAOD {
       if( ! dvclass ) {
          ::Fatal( "xAOD::TDVCollectionProxy::FindOffsets",
                   "Cannot find class %s", conttype );
+         return;
       }
 
       // Find the TClass for the base DataVector class.
@@ -522,6 +525,7 @@ namespace xAOD {
             ::Fatal( "xAOD::TDVCollectionProxy::FindOffsets",
                      "Couldn't find element type of %s",
                      dvclass->GetName() );
+            return;
          }
          fEltBase = elclass;
          fEltType = fEltBase;
@@ -545,6 +549,7 @@ namespace xAOD {
          ::Fatal( "xAOD::TDVCollectionProxy::FindOffsets",
                   "Couldn't find dictionaries for DV element "
                   "type(s) for %s", conttype );
+         return;
       }
 
       // Get the offset needed for the pointer operations:

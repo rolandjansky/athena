@@ -4,12 +4,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCoreRflxDict.h 612174 2014-08-17 01:57:15Z ssnyder $
+// $Id: xAODCoreRflxDict.h 613030 2014-08-22 10:43:15Z krasznaa $
 #ifndef XAODCORE_XAODCORERFLXDICT_H
 #define XAODCORE_XAODCORERFLXDICT_H
 
 // System include(s):
 #include <vector>
+extern "C" {
+#   include <stdint.h>
+}
 
 // ROOT include(s):
 #include <Rtypes.h>
@@ -39,6 +42,8 @@ namespace {
       std::vector<signed char> root6;
       std::vector< std::vector<signed char> > root7;
       std::vector< std::vector<char> > root8;
+      std::vector< uint32_t > root9;
+      std::vector< std::vector< uint32_t > > root10;
    };
 } // private namespace
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PerfStats.h 591716 2014-04-07 11:31:25Z krasznaa $
+// $Id: PerfStats.h 634033 2014-12-05 14:46:38Z krasznaa $
 #ifndef XAODCORE_TOOLS_PERFSTATS_H
 #define XAODCORE_TOOLS_PERFSTATS_H
 
@@ -24,8 +24,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 591716 $
-   /// $Date: 2014-04-07 13:31:25 +0200 (Mon, 07 Apr 2014) $
+   /// $Revision: 634033 $
+   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
    ///
    class PerfStats : public ::TVirtualPerfStats {
 
@@ -64,7 +64,7 @@ namespace xAOD {
                                   ::Double_t start );
 
 #ifndef __CINT__
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
+#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
       /// Function called in general when a file unzipping operation happens
       virtual void FileUnzipEvent( ::TFile *file, ::Long64_t pos,
                                    ::Double_t start, ::Int_t complen,
@@ -95,9 +95,6 @@ namespace xAOD {
    protected:
       /// The constructor is protected, as it's a singleton
       PerfStats();
-
-      /// Function called when an I/O operation from a "new" file is detected
-      void newFileAccessed( ::TFile* file );
 
    private:
       /// The single instance of the object

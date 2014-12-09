@@ -4,12 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxPersVector.h 608260 2014-07-23 18:32:19Z ssnyder $
+// $Id: AuxPersVector.h 633627 2014-12-04 10:39:36Z ssnyder $
 #ifndef XAODCORE_AUXPERSVECTOR_H
 #define XAODCORE_AUXPERSVECTOR_H
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/tools/AuxTypeVector.h"
+#include "AthContainersInterfaces/IAuxSetOption.h"
 
 namespace xAOD {
 
@@ -21,24 +23,26 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 608260 $
-   /// $Date: 2014-07-23 20:32:19 +0200 (Wed, 23 Jul 2014) $
+   /// $Revision: 633627 $
+   /// $Date: 2014-12-04 11:39:36 +0100 (Thu, 04 Dec 2014) $
    ///
-   template< class T >
+   template< class T, class VEC=std::vector< T > >
    class AuxPersVector : public SG::IAuxTypeVector {
 
    public:
       /// Convenience type definition
-      typedef std::vector< T >& vector_type;
+      typedef VEC& vector_type;
 
       /// Constructor
       AuxPersVector( vector_type vec ) : m_vec( vec ) {}
 
       virtual SG::IAuxTypeVector* clone() const {
-        return new AuxPersVector<T>(*this);
+        return new AuxPersVector<T, VEC>(*this);
       }
 
       virtual void* toPtr() {
+         if (m_vec.empty())
+           return 0;
          return &*m_vec.begin();
       }
       virtual void* toVector() {
@@ -67,6 +71,20 @@ namespace xAOD {
             std::fill (m_vec.begin()+pos, m_vec.begin()+pos+offs, T());
          }
       }
+
+      virtual bool setOption (const SG::AuxDataOption& option) {
+         // Need to instantiate different functions depending on whether or not
+         // the payload implements @c SG::IAuxSetOption.
+         // From AuxTypeVector.icc
+         return DataModel_detail::setOptionHelper
+            (&m_vec,
+             option,
+             typename SG_STD_OR_BOOST::is_base_of<SG::IAuxSetOption,vector_type>::type());
+      }
+
+     virtual const std::type_info* objType() const {
+        return &typeid( VEC );
+     }
 
    private:
       /// Reference to the vector being handled

@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 611401 2014-08-12 12:24:53Z krasznaa $ -->
+<!-- $Id: selection.xml 624654 2014-10-28 16:41:01Z krasznaa $ -->
 <lcgdict>
 
    <!-- Auxiliary container base: -->
@@ -14,7 +14,15 @@
       <field name="m_mutex" transient="true" />
       <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
+      <field name="m_name" transiet="true" />
    </class>
+   <read sourceClass="xAOD::AuxContainerBase" version="[1-]"
+         targetClass="xAOD::AuxContainerBase" source="" target="" >
+      <![CDATA[
+         newObj->clearDecorations();
+         newObj->lock();
+      ]]>
+   </read>
 
    <!-- Auxiliary info base: -->
    <class name="xAOD::AuxInfoBase"
@@ -29,7 +37,15 @@
       <field name="m_mutex" transient="true" />
       <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
+      <field name="m_name" transiet="true" />
    </class>
+   <read sourceClass="xAOD::AuxInfoBase" version="[1-]"
+         targetClass="xAOD::AuxInfoBase" source="" target="" >
+      <![CDATA[
+         newObj->clearDecorations();
+         newObj->lock();
+      ]]>
+   </read>
 
    <!-- Shallow auxiliary container: -->
    <class name="xAOD::ShallowAuxContainer"
@@ -44,6 +60,13 @@
      <field name="m_mutex" transient="true" />
      <field name="m_tsAuxids" transient="true" />
    </class>
+   <read sourceClass="xAOD::ShallowAuxContainer" version="[1-]"
+         targetClass="xAOD::ShallowAuxContainer" source="" target="" >
+      <![CDATA[
+         newObj->clearDecorations();
+         newObj->lock();
+      ]]>
+   </read>
 
    <!-- Shallow auxiliary info: -->
    <class name="xAOD::ShallowAuxInfo"
@@ -62,6 +85,8 @@
    <class name="std::vector<std::vector<signed char> >" />
    <class name="std::vector<char>" />
    <class name="std::vector<std::vector<char> >" />
+   <class name="std::vector<uint32_t>" />
+   <class name="std::vector<std::vector<uint32_t> >" />
 
    <!-- Suppress the unwanted classes found by ROOT 6. -->
    <!-- Hopefully we can remove these extra lines at one point... -->

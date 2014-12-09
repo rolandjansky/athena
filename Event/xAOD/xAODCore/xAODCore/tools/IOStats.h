@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOStats.h 573109 2013-11-29 16:40:02Z krasznaa $
+// $Id: IOStats.h 621105 2014-10-10 12:34:11Z krasznaa $
 #ifndef XAODCORE_TOOLS_IOSTATS_H
 #define XAODCORE_TOOLS_IOSTATS_H
 
@@ -21,8 +21,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 573109 $
-   /// $Date: 2013-11-29 17:40:02 +0100 (Fri, 29 Nov 2013) $
+   /// $Revision: 621105 $
+   /// $Date: 2014-10-10 14:34:11 +0200 (Fri, 10 Oct 2014) $
    ///
    class IOStats {
 
@@ -41,9 +41,6 @@ namespace xAOD {
    private:
       /// The constructor of the object is made private
       IOStats();
-
-      /// Pointer to the only IOStats object in memory
-      static IOStats* m_instance;
 
       /// The object describing the file access pattern
       ReadStats* m_stats;

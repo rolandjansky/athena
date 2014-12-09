@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadStats.cxx 591470 2014-04-05 07:38:29Z krasznaa $
+// $Id: ReadStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -16,7 +16,7 @@
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
-#include "AthContainers/tools/error.h"
+#include "AthContainers/normalizedTypeinfoName.h"
 
 // Local include(s):
 #include "xAODCore/tools/ReadStats.h"
@@ -26,25 +26,6 @@ ClassImp( xAOD::BranchStats )
 ClassImp( xAOD::ReadStats )
 
 namespace {
-
-#if 0
-   /// Strict weak ordering based on the number of trees accessed by a branch
-   ///
-   /// This helper function is used together with the STL std::sort algorithm
-   /// to sort the xAOD branches based on how many trees they had to access
-   /// during an analysis.
-   ///
-   /// @param b1 The first branch's access statistics
-   /// @param b2 The second branch's access statistics
-   /// @returns <code>true</code> if the first branch accessed more trees
-   ///          than the second one. <code>false</code> otherwise.
-   ///
-   bool sortByTrees( const xAOD::BranchStats& b1,
-                     const xAOD::BranchStats& b2 ) {
-
-      return ( b1.treesAccessed() > b2.treesAccessed() );
-   }
-#endif // 0
 
    /// Strict weak ordering based on the number of entries read from a branch
    ///
@@ -62,27 +43,6 @@ namespace {
 
       return ( b1.readEntries() > b2.readEntries() );
    }
-
-#if 0
-   /// Strict weak ordering based on the number of bytes read from a branch
-   ///
-   /// This helper function is used together with the STL std::sort algorithm
-   /// to sort the xAOD branches based on how much data was read from them.
-   ///
-   /// The ordering is based on the amount of compressed data read from disk.
-   /// That is usually the more interesting one for disk access optimizations.
-   ///
-   /// @param b1 The first branch's access statistics
-   /// @param b2 The second branch's access statistics
-   /// @returns <code>true</code> if the first branch read more data
-   ///          than the second one. <code>false</code> otherwise.
-   ///
-   bool sortByZippedBytes( const xAOD::BranchStats& b1,
-                           const xAOD::BranchStats& b2 ) {
-
-      return ( b1.zippedBytesRead() > b2.zippedBytesRead() );
-   }
-#endif // 0
 
    /// Strict weak ordering based on the number of bytes unpacked from a branch
    ///
@@ -107,8 +67,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 591470 $
-   /// $Date: 2014-04-05 09:38:29 +0200 (Sat, 05 Apr 2014) $
+   /// $Revision: 634033 $
+   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
    ///
    class SelectByEntries :
       public std::unary_function< const xAOD::BranchStats&, bool > {
@@ -161,8 +121,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 591470 $
-   /// $Date: 2014-04-05 09:38:29 +0200 (Sat, 05 Apr 2014) $
+   /// $Revision: 634033 $
+   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
    ///
    class SelectByBytes :
       public std::unary_function< const xAOD::BranchStats&, bool > {
@@ -324,6 +284,11 @@ namespace xAOD {
    ///
    BranchStats& BranchStats::operator= ( const BranchStats& parent ) {
 
+      // Check for self-assignment:
+      if( &parent == this ) {
+         return *this;
+      }
+
       // Set the properties of TNamed:
       SetName( parent.GetName() );
       SetTitle( parent.GetTitle() );
@@ -448,8 +413,8 @@ namespace xAOD {
    void BranchStats::Print( ::Option_t* option ) const {
 
       // Print the most basic info:
-      Info( "Print", "Branch name \"%s\", type \"%s\"",
-            GetName(), GetTitle() );
+      Info( "Print", "Branch name \"%s\", type \"%s\", read %lli times",
+            GetName(), GetTitle(), m_readEntries );
 
       // Print the access statistics only if requested:
       if( ! ::strcmp( option, "All" ) ) {
@@ -474,10 +439,11 @@ namespace xAOD {
    /// @param title Optional title for the object (not used for anything)
    ///
    ReadStats::ReadStats( const char* name, const char* title )
-      : ::TNamed( name, title ), m_branches(),
+     : ::TNamed( name, title ), m_branches(), m_containers(),
         m_bytesRead( 0 ), m_branchNum( 0 ),
-        m_fileReads( 0 ), m_cacheSize( 0 ),
-        m_unzipTime( 0.0 ), m_processTime( 0.0 ) {
+        m_fileReads( 0 ), m_cacheSize( 0 ), m_readTime( 0.0 ),
+        m_unzipTime( 0.0 ), m_processTime( 0.0 ),
+        m_nEvents( 0 ), m_nEventsProcessed ( 0 ) {
 
    }
 
@@ -487,12 +453,33 @@ namespace xAOD {
    /// @param parent The object that's being copied
    ///
    ReadStats::ReadStats( const ReadStats& parent )
-      : ::TNamed( parent ), m_branches( parent.m_branches ),
+     : ::TNamed( parent ), m_branches( parent.m_branches ),
+        m_containers(parent.m_containers),
         m_bytesRead( parent.m_bytesRead ), m_branchNum( parent.m_branchNum ),
         m_fileReads( parent.m_fileReads ), m_cacheSize( parent.m_cacheSize ),
+        m_readTime( parent.m_readTime ),
         m_unzipTime( parent.m_unzipTime ),
-        m_processTime( parent.m_processTime ) {
+        m_processTime( parent.m_processTime ), 
+	     m_nEvents( parent.m_nEvents ),
+	     m_nEventsProcessed( parent.m_nEventsProcessed ){
 
+   }
+
+   /// The destructor needs to clean up all the BranchStats objects that were
+   /// created on the heap.
+   ///
+   ReadStats::~ReadStats() {
+
+      Map_t::iterator mitr = m_branches.begin();
+      Map_t::iterator mend = m_branches.end();
+      for( ; mitr != mend; ++mitr ) {
+         Vector_t::iterator vitr = mitr->second.begin();
+         Vector_t::iterator vend = mitr->second.end();
+         for( ; vitr != vend; ++vitr ) {
+            if( ! *vitr ) continue;
+            delete *vitr;
+         }
+      }
    }
 
    /// This is probably not needed either, but again, I wanted to be
@@ -503,18 +490,27 @@ namespace xAOD {
    ///
    ReadStats& ReadStats::operator= ( const ReadStats& parent ) {
 
+      // Check for self-assignment:
+      if( &parent == this ) {
+         return *this;
+      }
+
       // Set the properties of TNamed:
       SetName( parent.GetName() );
       SetTitle( parent.GetTitle() );
 
       // Set the properties of this class:
-      m_branches    = parent.m_branches;
-      m_bytesRead   = parent.m_bytesRead;
-      m_branchNum   = parent.m_branchNum;
-      m_fileReads   = parent.m_fileReads;
-      m_cacheSize   = parent.m_cacheSize;
-      m_unzipTime   = parent.m_unzipTime;
-      m_processTime = parent.m_processTime;
+      m_branches         = parent.m_branches;
+      m_containers       = parent.m_containers;
+      m_bytesRead        = parent.m_bytesRead;
+      m_branchNum        = parent.m_branchNum;
+      m_fileReads        = parent.m_fileReads;
+      m_cacheSize        = parent.m_cacheSize;
+      m_readTime         = parent.m_readTime;
+      m_unzipTime        = parent.m_unzipTime;
+      m_processTime      = parent.m_processTime;
+      m_nEvents          = parent.m_nEvents;
+      m_nEventsProcessed = parent.m_nEventsProcessed;
 
       return *this;
    }
@@ -523,12 +519,16 @@ namespace xAOD {
 
       // Clear all accumulated statistics:
       m_branches.clear();
+      m_containers.clear();
       m_bytesRead = 0;
       m_branchNum = 0;
       m_fileReads = 0;
       m_cacheSize = 0;
+      m_readTime  = 0.0;
       m_unzipTime = 0.0;
       m_processTime = 0.0;
+      m_nEvents = 0;
+      m_nEventsProcessed = 0;
 
       return;
    }
@@ -577,6 +577,17 @@ namespace xAOD {
       return m_cacheSize;
    }
 
+   void ReadStats::setReadTime( ::Double_t time ) {
+
+      m_readTime = time;
+      return;
+   }
+
+   ::Double_t ReadStats::readTime() const {
+
+      return m_readTime;
+   }
+
    void ReadStats::setUnzipTime( ::Double_t time ) {
 
       m_unzipTime = time;
@@ -609,7 +620,6 @@ namespace xAOD {
    BranchStats* ReadStats::branch( const std::string& prefix,
                                    SG::auxid_t auxid ) {
 
-      // Create the vector if necessary:
       Vector_t& vec = m_branches[ prefix ];
       // Check if it's big enough:
       if( vec.size() <= auxid ) {
@@ -617,15 +627,20 @@ namespace xAOD {
       }
       // Check if the object exists already:
       if( ! vec[ auxid ] ) {
-         // Construct its name:
+         // Construct its name, mangling needed for dynamic variables:
          const std::string brName = prefix +
             SG::AuxTypeRegistry::instance().getName( auxid );
          const std::type_info* brType =
             SG::AuxTypeRegistry::instance().getType( auxid );
-         const std::string brTypeName =
-            AthContainers_detail::typeinfoName( *brType );
-         vec[ auxid ] = new BranchStats( brName.c_str(),
-                                         brTypeName.c_str() );
+         if( ! brType ) {
+            Error( "branch", "Coudln't find type_info for aux ID %i",
+                   static_cast< int >( auxid ) );
+            return 0;
+         }
+         const std::string brTypeName = SG::normalizedTypeinfoName( *brType );
+
+         // Construct the new object:
+         vec[ auxid ] = new BranchStats( brName.c_str(), brTypeName.c_str() );
       }
 
       // Return the object:
@@ -655,9 +670,38 @@ namespace xAOD {
       return 0;
    }
 
+   BranchStats* ReadStats::container( const std::string& name ) {
+
+      // If it doesn't exist yet, create it now:
+      if( m_containers.find( name ) == m_containers.end() ) {
+         // Give it a starting value:
+         m_containers[ name ] = BranchStats( name.c_str(), "CONTAINER" );
+      }
+
+      // Return a pointer to the object:
+      return &( m_containers[ name ] );
+   }
+
+   const BranchStats* ReadStats::container( const std::string& name ) const {
+
+      // Try to find it:
+      MapC_t::const_iterator itr = m_containers.find( name );
+      if( itr != m_containers.end() ) {
+         return &( itr->second );
+      }
+
+      // We didn't find it:
+      return 0;
+   }
+
    const ReadStats::Map_t& ReadStats::branches() const {
 
       return m_branches;
+   }
+
+   const ReadStats::MapC_t& ReadStats::containers() const {
+      
+      return m_containers;
    }
 
    /// This function checks whether two objects are "compatible" with
@@ -707,6 +751,7 @@ namespace xAOD {
       // Sum up the simple statistics:
       m_bytesRead   += rh.m_bytesRead;
       m_fileReads   += rh.m_fileReads;
+      m_readTime    += rh.m_readTime;
       m_unzipTime   += rh.m_unzipTime;
       m_processTime += rh.m_processTime;
 
@@ -1117,10 +1162,20 @@ namespace xAOD {
    ///
    void ReadStats::Print( ::Option_t* option ) const {
 
-      Info( "Print", "Printing D3PD usage statistics" );
+      Info( "Print", "Printing xAOD I/O statistics" );
 
-      // Calculate how many bytes were used during the analysis:
-      ::Long64_t bytesUsed = 0;
+      // Create a temporary vector of the containers, so they can be ordered
+      // if necessary:
+      std::vector< BranchStats > conts;
+      MapC_t::const_iterator cont_itr = m_containers.begin();
+      MapC_t::const_iterator cont_end = m_containers.end();
+      for( ; cont_itr != cont_end; ++cont_itr ) {
+         conts.push_back( cont_itr->second );
+      }
+
+      // Create a temporary vector of the branches, so they can be ordered
+      // if necessary:
+      std::vector< BranchStats > vars;
       Vector_t::const_iterator vec_itr, vec_end;
       Map_t::const_iterator map_itr = m_branches.begin();
       Map_t::const_iterator map_end = m_branches.end();
@@ -1129,27 +1184,75 @@ namespace xAOD {
          vec_end = map_itr->second.end();
          for( ; vec_itr != vec_end; ++vec_itr ) {
             if( ! *vec_itr ) continue;
-            bytesUsed += ( *vec_itr )->zippedBytesRead();
+            vars.push_back( **vec_itr );
          }
       }
 
+      // Container and branch access summary
+      if( ! ::strcmp( option, "SmartSlimming" ) ) {
+
+         Info( "Print", " " );
+         Info( "Print", "Smart Slimming Statistics" );
+         Info( "Print", " " );
+
+         const Double_t proFrac = ( ( Double_t ) m_nEventsProcessed /
+                                    ( Double_t ) m_nEvents ) * 100.0;
+         Info( "Print", "  Processed %lli events from %lli (%g%%)",
+               m_nEventsProcessed, m_nEvents, proFrac );
+
+         Info( "Print", "  Number of containers in on the input: %i",
+               static_cast< int >( m_containers.size() ) );
+         Info( "Print", "  Number of branches on the input: %i",
+               static_cast< int >( vars.size() ) );
+
+         // Sort the containers by number of accesses:
+         std::sort( conts.begin(), conts.end(), sortByEntries );
+
+         // Print which containers got accessed:
+         Info( "Print", " " );
+         Info( "Print", "Accessed containers:" );
+         Info( "Print", " " );
+         std::vector< BranchStats >::const_iterator itr = conts.begin();
+         std::vector< BranchStats >::const_iterator end = conts.end();
+         for( ; itr != end; ++itr ) {
+            if( ! itr->readEntries() ) continue;
+            itr->Print( option );
+         }
+
+         // Sort the branches by number of accesses:
+         std::sort( vars.begin(), vars.end(), sortByEntries );
+
+         // Print which branches got accessed:
+         Info( "Print", " " );
+         Info( "Print", "Accessed branches:" );
+         Info( "Print", " " );
+         itr = vars.begin();
+         end = vars.end();
+         for( ; itr != end; ++itr ) {
+            if( ! itr->readEntries() ) continue;
+            itr->Print( option );
+         }
+         Info( "Print", " " );
+
+         // Let's exit at this point:
+         return;
+      }
+
       // Print the summary information:
-      Info( "Print", "  Number of variables in the input D3PD : %i",
+      Info( "Print", "  Number of variables in the input xAOD : %i",
             m_branchNum );
-      Info( "Print", "  Variables with D3PDReader objects     : %i",
-            static_cast< Int_t >( m_branches.size() ) );
+      const Double_t proFrac = ( ( Double_t ) m_nEventsProcessed /
+                                 ( Double_t ) m_nEvents ) * 100.0;
+      Info( "Print", "  Processed events                      : "
+            "%lli/%lli (%g%%)", m_nEventsProcessed, m_nEvents, proFrac );
       Info( "Print", "  TTreeCache size used                  : %s",
             Utils::sizeToString( m_cacheSize ).c_str() );
       Info( "Print", "  Total number of bytes read            : %s",
             Utils::sizeToString( m_bytesRead ).c_str() );
-      Info( "Print", "  Total number of bytes used            : %s (%g%%)",
-            Utils::sizeToString( bytesUsed ).c_str(),
-            ( ( ::Double_t ) bytesUsed /
-              ( ::Double_t ) m_bytesRead * 100.0 ) );
       Info( "Print", "  Data reading speed per process        : %s",
-            Utils::speedToString( m_bytesRead / m_processTime ).c_str() );
-      Info( "Print", "  Useful data processing speed per proc.: %s",
-            Utils::speedToString( bytesUsed / m_processTime ).c_str() );
+            ( std::abs( m_processTime ) > 0.0001 ?
+              Utils::speedToString( m_bytesRead / m_processTime ).c_str() :
+              "N/A" ) );
       Info( "Print", "  Total number of file read operations  : %i",
             m_fileReads );
       const ::Long64_t readInOneGo =
@@ -1157,28 +1260,43 @@ namespace xAOD {
                           ( ::Double_t ) m_fileReads );
       Info( "Print", "  Data read in one go (on average)      : %s",
             Utils::sizeToString( readInOneGo ).c_str() );
-      Info( "Print", "  Cumulative time spent processing data : %s",
-            Utils::timeToString( m_processTime ).c_str() );
-      Info( "Print", "  Cumulative time spent unzipping data  : %s",
-            Utils::timeToString( m_unzipTime ).c_str() );
+      Info( "Print", "  Cumulative time spent processing data : %s (%s/event)",
+            Utils::timeToString( m_processTime ).c_str(),
+            ( m_nEventsProcessed ?
+              Utils::timeToString( m_processTime / m_nEventsProcessed ).c_str() :
+              "N/A" ) );
+      Info( "Print", "  Cumulative time spent reading data    : %s (%s/event)",
+            Utils::timeToString( m_readTime ).c_str(),
+            ( m_nEventsProcessed ?
+              Utils::timeToString( m_readTime / m_nEventsProcessed ).c_str() :
+              "N/A" ) );
+      Info( "Print", "  Cumulative time spent unzipping data  : %s (%s/event)",
+            Utils::timeToString( m_unzipTime ).c_str(),
+            ( m_nEventsProcessed ?
+              Utils::timeToString( m_unzipTime / m_nEventsProcessed ).c_str() :
+              "N/A" ) );
 
       // If we just needed summary information, stop here:
       if( ! ::strcmp( option, "Summary" ) ) {
          return;
       }
 
-      // Create a temporary vector of the objects, so they can be ordered
-      // if necessary:
-      std::vector< BranchStats > vars;
-      map_itr = m_branches.begin();
-      map_end = m_branches.end();
-      for( ; map_itr != map_end; ++map_itr ) {
-         vec_itr = map_itr->second.begin();
-         vec_end = map_itr->second.end();
-         for( ; vec_itr != vec_end; ++vec_itr ) {
-            if( ! *vec_itr ) continue;
-            vars.push_back( **vec_itr );
-         }
+      // Select the kind of ordering for the containers:
+      if( ! ::strcmp( option, "ByEntries" ) ) {
+         Info( "Print", "Containers, sorted by number of accesses:" );
+         std::sort( conts.begin(), conts.end(), sortByEntries );
+      } else if( ! ::strcmp( option, "ByBytes" ) ) {
+         Info( "Print", "Containers, sorted by number of bytes read:" );
+         std::sort( conts.begin(), conts.end(), sortByUnzippedBytes );
+      } else {
+         Info( "Print", "Containers, sorted by name:" );
+      }
+
+      // Print the statistics from each container:
+      std::vector< BranchStats >::const_iterator itr = conts.begin();
+      std::vector< BranchStats >::const_iterator end = conts.end();
+      for( ; itr != end; ++itr ) {
+         itr->Print( option );
       }
 
       // Select the kind of ordering for the variables:
@@ -1193,14 +1311,118 @@ namespace xAOD {
       }
 
       // Print the statistics from each variable:
-      std::vector< BranchStats >::const_iterator itr =
-         vars.begin();
-      std::vector< BranchStats >::const_iterator end =
-         vars.end();
+      itr = vars.begin();
+      end = vars.end();
       for( ; itr != end; ++itr ) {
-         itr->Print();
+         itr->Print( option );
       }
 
+      return;
+   }
+
+   /// This is a tricky function. It prints the list of accessed variables in
+   /// a way that can be copy-pasted directly into the ItemList of a derivation
+   /// job. (Or into the C++ code of some analysis code.)
+   ///
+   void ReadStats::printSmartSlimmingBranchList() const {
+
+      /// Object used to collect the information
+      std::map< ::TString, ::TString > items;
+
+      // Collect all the containers that were accessed during the job:
+      MapC_t::const_iterator cont_itr = m_containers.begin();
+      MapC_t::const_iterator cont_end = m_containers.end();
+      for( ; cont_itr != cont_end; ++cont_itr ) {
+         // Skip non-accessed containers:
+         if( ! cont_itr->second.readEntries() ) continue;
+         // Remember the container:
+         items[ cont_itr->first ] = "";
+      }
+
+      // Now look for variables in all these containers:
+      Map_t::const_iterator br_itr = m_branches.begin();
+      Map_t::const_iterator br_end = m_branches.end();
+      for( ; br_itr != br_end; ++br_itr ) {
+         Vector_t::const_iterator itr = br_itr->second.begin();
+         Vector_t::const_iterator end = br_itr->second.end();
+         for( ; itr != end; ++itr ) {
+            // Skip non-existent, or non-accessed variables:
+            if( ( ! *itr ) || ( ! ( *itr )->readEntries() ) ) continue;
+            // Extract the name of the container and the variable from the
+            // branch's name:
+            const ::TString brname = ( *itr )->GetName();
+            const ::Size_t dotPos = brname.First( '.' );
+            if( dotPos == ::kNPOS ) {
+               // Ignore the unknown containers:
+               continue;
+            }
+            const ::TString cname = brname( 0, dotPos + 1 );
+            const ::TString vname = brname( dotPos + 1,
+                                            brname.Length() - dotPos );
+            // Access the current variable list:
+            ::TString& vars = items[ cname ];
+            // Add a dot if there are already variables defined:
+            if( vars.Length() ) {
+               vars.Append( '.' );
+            }
+            // Add this variable:
+            vars.Append( vname );
+         }
+      }
+
+      // Print the collected information:
+      Info( "printSmartSlimmingBranchList", "ItemList to use:" );
+      std::map< ::TString, ::TString >::const_iterator itr = items.begin();
+      std::map< ::TString, ::TString >::const_iterator end = items.end();
+      for( ; itr != end; ++itr ) {
+         if( itr->first.EndsWith( "Aux." ) ) {
+            Info( "printSmartSlimmingBranchList", "  %s%s",
+                  itr->first.Data(),
+                  ( itr->second.Length() ? itr->second.Data() : "-" ) );
+         } else {
+            Info( "printSmartSlimmingBranchList", "  %s",
+                  itr->first.Data() );
+         }
+      }
+
+      // Return gracefully:
+      return;
+   }
+
+   void ReadStats::nextEvent(){
+
+      // event counters
+      ++m_nEventsProcessed;
+      return;
+   }
+
+   ::Long64_t ReadStats::nEvents() const {
+
+      return m_nEvents;
+   }
+
+   void ReadStats::setNEvents( ::Long64_t nevents ) {
+
+      m_nEvents = nevents;
+      return;
+   }
+
+   void ReadStats::readBranch( const std::string& prefix,
+                               SG::auxid_t auxid ){
+
+      // Access the branch:
+      BranchStats* stat = branch( prefix, auxid );
+      // Increment its access counter:
+      stat->setReadEntries( stat->readEntries() + 1 );
+      return;
+   }
+
+   void ReadStats::readContainer( const std::string& name ){
+
+      // Access the branch:
+      BranchStats* stat = container( name );
+      // Increment its access counter:
+      stat->setReadEntries( stat->readEntries() + 1 );
       return;
    }
 

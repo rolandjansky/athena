@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.h 611401 2014-08-12 12:24:53Z krasznaa $
+// $Id: AuxContainerBase.h 633391 2014-12-03 15:58:38Z ssnyder $
 #ifndef XAODCORE_AUXCONTAINERBASE_H
 #define XAODCORE_AUXCONTAINERBASE_H
 
@@ -17,6 +17,7 @@
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/tools/threading.h"
+#include "AthContainers/PackedContainer.h"
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
 #endif // not XAOD_STANDALONE
@@ -41,8 +42,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611401 $
-   /// $Date: 2014-08-12 14:24:53 +0200 (Tue, 12 Aug 2014) $
+   /// $Revision: 633391 $
+   /// $Date: 2014-12-03 16:58:38 +0100 (Wed, 03 Dec 2014) $
    ///
    class AuxContainerBase : public SG::IAuxStore,
                             public SG::IAuxStoreIO,
@@ -92,7 +93,8 @@ namespace xAOD {
       virtual const auxid_set_t& getAuxIDs() const;
 
       /// Get a pointer to a given array, as a decoration.
-      virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity);
+      virtual void* getDecoration( auxid_t auxid, size_t size,
+                                   size_t capacity );
 
       /// Lock the container.
       virtual void lock();
@@ -121,6 +123,8 @@ namespace xAOD {
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
+      /// Make an option setting on an aux variable.
+      virtual bool setOption( auxid_t id, const SG::AuxDataOption& option );
 
       /// @}
 
@@ -144,13 +148,33 @@ namespace xAOD {
 
       /// @}
 
+      /// @name Functions managing the instance name of the container
+      /// @{
+
+      /// Get the name of the container instance
+      const char* name() const;
+      /// Set the name of the container instance
+      void setName( const char* name );
+
+      /// @}
+
    protected:
       /// Register one of the persistent variables internally
       template< typename T >
       void regAuxVar( const std::string& name,
                       std::vector< T >& vec );
 
+      /// Register one of the persistent variables internally
+      template< typename T >
+      void regAuxVar( const std::string& name,
+                      SG::PackedContainer< T >& vec );
+
    private:
+      /// Common code between regAuxVar cases.
+      template< typename ELT, typename CONT >
+      void regAuxVar1( const std::string& name,
+                       CONT& vec );
+
       /// Dynamic attributes selection implementation
       AuxSelection  m_selection;
       /// Internal list of all available variables
@@ -172,18 +196,21 @@ namespace xAOD {
 
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;
-      typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
+      typedef AthContainers_detail::lock_guard< mutex_t > guard_t;
       mutable mutex_t m_mutex;
 
-      /// Thread-local versions of the auxid set.
-      struct TSAuxidSet
-      {
-        size_t m_tick;
-        auxid_set_t m_set;
-        TSAuxidSet (size_t tick, const auxid_set_t& set)
-          : m_tick (tick), m_set (set) {}
-      };
-      mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
+      /// Helper class for the thread-local auxid set implementation
+      struct TSAuxidSet {
+         size_t m_tick;
+         auxid_set_t m_set;
+         TSAuxidSet( size_t tick, const auxid_set_t& set )
+            : m_tick( tick ), m_set( set ) { }
+      }; // struct TSAuxidSet
+      /// Thread-local versions of the auxid set
+      mutable AthContainers_detail::thread_specific_ptr< TSAuxidSet > m_tsAuxids;
+
+      /// Name of the container in memory. Set externally.
+      std::string m_name;
 
    }; // class AuxContainerBase
 

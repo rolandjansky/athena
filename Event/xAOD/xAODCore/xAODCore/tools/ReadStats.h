@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadStats.h 609462 2014-07-30 19:33:41Z gemmeren $
+// $Id: ReadStats.h 634033 2014-12-05 14:46:38Z krasznaa $
 #ifndef XAODCORE_TOOLS_READSTATS_H
 #define XAODCORE_TOOLS_READSTATS_H
 
@@ -19,7 +19,7 @@
 // EDM include(s):
 #ifndef __MAKECINT__
 #ifndef __ROOTCLING__
-#include "AthContainersInterfaces/AuxTypes.h"
+#   include "AthContainersInterfaces/AuxTypes.h"
 #endif // not __ROOTCLING__
 #endif // not __MAKECINT__
 
@@ -37,8 +37,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 609462 $
-   /// $Date: 2014-07-30 21:33:41 +0200 (Wed, 30 Jul 2014) $
+   /// $Revision: 634033 $
+   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
    ///
    class BranchStats : public ::TNamed {
 
@@ -117,22 +117,27 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 609462 $
-   /// $Date: 2014-07-30 21:33:41 +0200 (Wed, 30 Jul 2014) $
+   /// $Revision: 634033 $
+   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
    ///
    class ReadStats : public ::TNamed {
 
    public:
       /// Type of the internal vectors describing one auxiliary store
       typedef std::vector< BranchStats* > Vector_t;
-      /// Type of the internal object gathering information
+      /// Type of the internal object gathering information on aux branches
       typedef std::map< std::string, Vector_t > Map_t;
+
+      /// Type of the internal object gathering information on containers
+      typedef std::map< std::string, BranchStats > MapC_t;
 
       /// Constructor just specifying the name of the object
       ReadStats( const char* name = "xAODReadStats",
                  const char* title = "xAOD reading statistics" );
       /// Copy constructor
       ReadStats( const ReadStats& parent );
+      /// Destructor
+      ~ReadStats();
 
       /// Assignment operator
       ReadStats& operator= ( const ReadStats& parent );
@@ -163,6 +168,11 @@ namespace xAOD {
       /// Get the TTreeCache size used
       ::Int_t cacheSize() const;
 
+      /// Set the time spent in reading the data
+      void setReadTime( ::Double_t time );
+      /// Get the time spent in reading the data
+      ::Double_t readTime() const;
+
       /// Set the time spent in unzipping the data
       void setUnzipTime( ::Double_t time );
       /// Get the time spent in unzipping the data
@@ -188,8 +198,16 @@ namespace xAOD {
                                  SG::auxid_t auxid ) const;
 #endif // not __ROOTCLING__
 #endif // not __MAKECINT__
+
+      /// Access the description of a container. Creating it if necessary.
+      BranchStats* container( const std::string& name );
+      /// Access the description of a container.
+      const BranchStats* container( const std::string& name ) const;
+
       /// Get all variable information
       const Map_t& branches() const;
+      /// Get information about all the containers
+      const MapC_t& containers() const;
 
       /// @}
 
@@ -266,9 +284,34 @@ namespace xAOD {
       /// Print information about the collected statistics
       void Print( ::Option_t* option = "" ) const;
 
+      ///
+      void printSmartSlimmingBranchList() const;
+
+      /// Function incrementing the processed event counter
+      void nextEvent();
+
+      /// Function getting the total number of input event
+      ::Long64_t nEvents() const;
+      /// Function setting the total number of input events
+      void setNEvents( ::Long64_t nevents );
+
+#ifndef __MAKECINT__
+#ifndef __ROOTCLING__
+      /// Function incrementing the read counter on a specific branch
+      void readBranch( const std::string& prefix,
+                       SG::auxid_t auxid );
+#endif // not __ROOTCLING__
+#endif // not __MAKECINT__
+
+      /// Function incrementing the read counter on a specific container
+      void readContainer( const std::string& name );
+
    private:
-      /// Statistics about the branches
+      /// Full Statistics about the branches
       Map_t m_branches;
+      /// Statistics about the containers
+      MapC_t m_containers;
+
       /// Total number of bytes read
       ::Long64_t m_bytesRead;
       /// Total number of branches in the input xAOD TTree
@@ -277,10 +320,17 @@ namespace xAOD {
       ::Int_t m_fileReads;
       /// Cache size used in the analysis
       ::Int_t m_cacheSize;
+      /// Time spent reading the events
+      ::Double_t m_readTime;
       /// Time spent unzipping the events
       ::Double_t m_unzipTime;
       /// Time spent in processing the events
       ::Double_t m_processTime;
+
+      /// Total num events
+      ::Long64_t m_nEvents;
+      /// Total processed events
+      ::Long64_t m_nEventsProcessed;
 
       ClassDef( xAOD::ReadStats, 1 )
 

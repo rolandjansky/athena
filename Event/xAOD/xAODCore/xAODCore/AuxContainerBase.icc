@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.icc 600059 2014-06-03 09:55:09Z ssnyder $
+// $Id: AuxContainerBase.icc 633391 2014-12-03 15:58:38Z ssnyder $
 #ifndef XAODCORE_AUXCONTAINERBASE_ICC
 #define XAODCORE_AUXCONTAINERBASE_ICC
 
@@ -31,18 +31,14 @@
 
 namespace xAOD {
 
-   /// The user is expected to use this function inside the constructor of
-   /// the derived class.
-   ///
-   /// @param name The name of the variable. Same as the C++ variable's name.
-   /// @param vec A reference to the auxiliary variable inside the object
-   template< typename T >
-   void AuxContainerBase::regAuxVar( const std::string& name,
-                                     std::vector< T >& vec ) {
+   /// Common code between vector and PackedContainer cases.
+   template< typename ELT, typename CONT >
+   void AuxContainerBase::regAuxVar1( const std::string& name,
+                                      CONT& vec ) {
 
       // Ask the registry for the number of this variable:
       const auxid_t auxid =
-         SG::AuxTypeRegistry::instance().template getAuxID< T >( name );
+         SG::AuxTypeRegistry::instance().template getAuxID< ELT >( name );
 
       // Make sure that the internal vector is big enough:
       if( m_vecs.size() <= auxid ) {
@@ -58,13 +54,35 @@ namespace xAOD {
       }
 
       // Register the variable:
-      m_vecs[ auxid ] = new AuxPersVector< T >( vec );
+      m_vecs[ auxid ] = new AuxPersVector< ELT, CONT >( vec );
 
       // Remember that we are now handling this variable:
       m_auxids.insert( auxid );
       ++m_tick;
 
       return;
+   }
+
+   /// The user is expected to use this function inside the constructor of
+   /// the derived class.
+   ///
+   /// @param name The name of the variable. Same as the C++ variable's name.
+   /// @param vec A reference to the auxiliary variable inside the object
+   template< typename T >
+   void AuxContainerBase::regAuxVar( const std::string& name,
+                                     std::vector< T >& vec ) {
+     regAuxVar1<T> (name, vec);
+   }
+
+   /// The user is expected to use this function inside the constructor of
+   /// the derived class.
+   ///
+   /// @param name The name of the variable. Same as the C++ variable's name.
+   /// @param vec A reference to the auxiliary variable inside the object
+   template< typename T >
+   void AuxContainerBase::regAuxVar( const std::string& name,
+                                     SG::PackedContainer< T >& vec ) {
+     regAuxVar1<T> (name, vec);
    }
 
 } // namespace xAOD

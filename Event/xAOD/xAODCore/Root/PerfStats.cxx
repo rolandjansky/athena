@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PerfStats.cxx 590872 2014-04-02 13:51:47Z krasznaa $
+// $Id: PerfStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -168,16 +168,15 @@ namespace xAOD {
    void PerfStats::FileReadEvent( ::TFile* file, ::Int_t len,
                                   ::Double_t start ) {
 
-      // Do nothing if we're not running:
-      if( ! m_running ) return;
+      // Do the calculation without delay:
+      const ::Double_t tnow = TTimeStamp();
+      const ::Double_t dtime = tnow - start;
 
-      // Check if a new file is being used:
-      if( file != m_file ) {
-         newFileAccessed( file );
-      }
+      // Accumulate the reading time statistics:
+      ReadStats& stats = IOStats::instance().stats();
+      stats.setReadTime( stats.readTime() + dtime );
 
       // Accumulate the amount of read data:
-      ReadStats& stats = IOStats::instance().stats();
       stats.setBytesRead( stats.bytesRead() + len );
       stats.setFileReads( stats.fileReads() + 1 );
 
@@ -198,7 +197,7 @@ namespace xAOD {
    /// @param complen Not sure. (Not used.)
    /// @param objlen Not sure. (Not used.)
    ///
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
+#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
    void PerfStats::FileUnzipEvent( ::TFile* file, ::Long64_t pos,
                                    ::Double_t start, ::Int_t complen,
                                    ::Int_t objlen ) {
@@ -212,16 +211,23 @@ namespace xAOD {
       const ::Double_t tnow = TTimeStamp();
       const ::Double_t dtime = tnow - start;
 
-      // Do nothing if we're not running:
-      if( ! m_running ) return;
-
       // Just accumulate the zipping time statistics:
       ReadStats& stats = IOStats::instance().stats();
       stats.setUnzipTime( stats.unzipTime() + dtime );
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 5, 34, 19 )
+      // Get the cache size from the tree:
+      ::TTree* t = dynamic_cast< ::TTree* >( tree );
+      if( ! t ) {
+         Warning( "UnzipEvent", "Couldn't cast object to TTree" );
+      } else {
+         stats.setCacheSize( t->GetCacheSize() );
+      }
+#endif // ROOT_VERSION
+
       // Forward the call if possible:
       if( m_otherPerfStats ) {
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
+#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
          m_otherPerfStats->FileUnzipEvent( file, pos, start, complen, objlen );
 #else
          m_otherPerfStats->UnzipEvent( tree, pos, start, complen, objlen );
@@ -323,31 +329,6 @@ namespace xAOD {
 
       // This object is now the performance monitoring object:
       gPerfStats = this;
-   }
-
-   /// This function is called internally whenever an I/O operation happens
-   /// from a "new" file.
-   ///
-   /// @param file The file on which the current I/O operation happened
-   ///
-   void PerfStats::newFileAccessed( ::TFile* /*file*/ ) {
-
-      /*
-      // Check if this looks like an xAOD file:
-      ::TTree* tree = dynamic_cast< ::TTree* >( file->Get( "CollectionTree" ) );
-      if( ! tree ) {
-         // Nope, it doesn't look like an xAOD file.
-         return;
-      }
-
-      // Cache some information:
-      m_tree = tree;
-      m_file = file;
-      */
-
-      // Put in the actual code a little later...
-
-      return;
    }
 
 } // namespace xAOD

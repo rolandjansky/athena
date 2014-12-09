@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.cxx 608777 2014-07-26 19:39:38Z ssnyder $
+// $Id: ShallowAuxContainer.cxx 624020 2014-10-24 21:05:18Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -377,7 +377,6 @@ namespace xAOD {
    const ShallowAuxContainer::auxid_set_t&
    ShallowAuxContainer::getDynamicAuxIDs() const {
 
-      guard_t guard (m_mutex);
       if( m_shallowIO ) {
          if( m_storeIO ) {
             return m_store->getAuxIDs();

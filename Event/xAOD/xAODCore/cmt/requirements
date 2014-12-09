@@ -18,6 +18,9 @@ apply_tag ROOTCintexLibs
 macro_append xAODCore_shlibflags $(rootCintexLibs)
 macro_append xAODCore_linkopts   $(rootCintexLibs)
 
+# Add cmake support for specifying the ROOT components that are needed (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore GenVector Cintex RIO Hist)"
+
 library xAODCore ../Root/*.cxx
 apply_pattern installed_library
 
