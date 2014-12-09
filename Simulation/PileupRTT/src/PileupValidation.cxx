@@ -45,12 +45,29 @@ namespace PileupRTT
   PileupRTT::PileupValidation::PileupValidation(const std::string& name,ISvcLocator* pSvcLocator) : 
     AthAlgorithm(name, pSvcLocator),
 
+    m_storeGate(0),
+    m_pileupRTTTool(0),
+
+    m_NTotPileup(0),
+
     m_NPileupEvents(0),
     m_NPileupInTimeEvents(0),
     m_pileupEventTime(0),
 
     m_theTree(0),
-    m_thistSvc(0)
+    m_thistSvc(0),
+
+    h_eventPercent(0),
+    h_NMinBiasRepeat(0),
+    h_TimeMinBiasRepeat(0),
+    h_NCavernBckgRepeat(0),
+    h_TimeCavernBckgRepeat(0),
+    h_NBeamGasHaloRepeat(0),
+    h_TimeBeamGasHaloRepeat(0),
+    h_NZeroBiasRepeat(0),
+    h_TimeZeroBiasRepeat(0),
+    h_NUnknownRepeat(0),
+    h_TimeUnknownRepeat(0)
 
   {
     declareProperty("PileUpEventInfo",   m_pileupInfo    = "OverlayEvent");
@@ -148,14 +165,14 @@ namespace PileupRTT
             if ( ((*findEvtInner).first == (*findEvtOuter).first) && 
                  ((*findEvtInner).second == (*findEvtOuter).second) ) {
               Nrepeat++; 
-              m_OverlayEventsUsed.erase(findEvtInner);
+              findEvtInner = m_OverlayEventsUsed.erase(findEvtInner);
               findEvtInner--;                                                           
             }
           }
         } // End inner loop
         
         // Now erase this entry from the vector so we don't double count
-        m_OverlayEventsUsed.erase(findEvtOuter);
+        findEvtOuter = m_OverlayEventsUsed.erase(findEvtOuter);
         findEvtOuter--;
         
         if (Nrepeat > 0) h_eventPercent->Fill((100.*(double)Nrepeat/(double)m_NTotPileup));  // We use 50 instead of 100/2 

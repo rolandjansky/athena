@@ -31,6 +31,8 @@ using namespace PileupRTT;
 PileupSimpleEventInfo::PileupSimpleEventInfo(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   
+  m_iEvent(0),
+
   m_runNumber(0),
   m_eventNumber(0),
   m_eventTime(0),
@@ -45,7 +47,10 @@ PileupSimpleEventInfo::PileupSimpleEventInfo(const std::string& name, ISvcLocato
   m_lvl2TriggerInfo(0),
   m_evtFilterInfo(0),
   m_streamTagName(0),
-  m_streamTagType(0) {}
+  m_streamTagType(0),
+
+  m_theTree(0),
+  m_thistSvc(0) {}
 
 StatusCode PileupSimpleEventInfo::initialize(){
   

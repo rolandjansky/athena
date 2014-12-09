@@ -41,7 +41,20 @@ namespace PileupRTT
   /// CONSTRUCTOR
   ///=============
   PileupRTT::PileupSCTOccupancy::PileupSCTOccupancy(const std::string& name,ISvcLocator* pSvcLocator) : 
-    AthAlgorithm(name, pSvcLocator)
+    AthAlgorithm(name, pSvcLocator),
+
+    m_pileupRTTTool(0),
+
+    m_storeGate(0),
+    m_detStore(0),
+    m_sctID(0),
+
+    m_thistSvc(0),
+
+    h_sct_lay0_occupancy(0),
+    h_sct_lay1_occupancy(0),
+    h_sct_lay2_occupancy(0),
+    h_sct_lay3_occupancy(0)
 
   {
     //+++ Container Names
