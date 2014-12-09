@@ -50,13 +50,15 @@ runstring=raw_8LcIbl123_15x16x36Ibl_singleMuons
 INPUT="-n 100000 --nFilesPerJob 2 --inDS user.johnda.100kTestMuonsAfterFix_Aug_16_13 "'--match *.dat*'
 INPUT="$INPUT --express "
 inputs="0..120"
-baseDS=user.annovi.tdaqtdr_base_8LcIbl123_12LIbl_20130807v2/
+baseDS=user.annovi.tdaqtdr_base_8LcIbl123_12LIbl_20130807v2/ #TDAQ TDR
+baseDS=user.phchang.baseDS_8LextFrom12L_TruthFilter_20131122/ #pub note
 #bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_mc12IBL_40Mx125loops_autotuneFix_4NSubs_AM30x32x72Ibl.2013_08_26_11_15_00/ #TDAQ TDR
 bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_50Mx100loops_AM30x32x72Ibl_effCache.ftk.2013_11_17_22_03_00/ #TDAQ TDR cache
+bankDS=user.phchang.baseDS_8LextFrom12L_TruthFilter_20131122/ # for sectors as constants
 site=ANALY_MWT2_SL6
 MAXPATTERNS=4194304
-regions="0..63"
-m=4
+regions="0" #"0..63"
+m=1 #4
 
 # global extra options
 global_extra="${global_extra} -o N=64"
@@ -102,7 +104,8 @@ extra="${extra} -o ALLOW_EXTRA_MISS_IN_SUPEREXP=1"                              
 #extra="${extra} -o MAX_TRANSITION_ETA=1.4"                                                # SSFTRMaxEta
 #extra="${extra} -o MIN_TRANSITION_ETA=1.0"                                                # SSFTRMinEta
 #extra="${extra} -o CHECK_TRANSITION_BY=1"                                                 # SSFTRDefn
-extra="${extra} -o CACHEDBANK=1,_PATTDB=pcache.root"
+#extra="${extra} -o CACHEDBANK=1,_PATTDB=pcache.root"
+extra="${extra} -o SECTORSASPATTERNS=1,UNSPLIT_SECTORS=1"
 
 # Run simulation
 runTSP

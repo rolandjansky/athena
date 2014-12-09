@@ -33,7 +33,10 @@ private:
 
   // options
   bool m_DumpBadModules;
+  bool m_DumpModuleIDMap;
+  bool m_DumpGlobalToLocalMap;
 
+  int m_IBLMode;
 };
 
 #endif // FTKDumpCondAlgo_h

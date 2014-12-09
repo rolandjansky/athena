@@ -12,7 +12,7 @@ import subprocess
 from sets import Set
 
 # general settings
-GRID_SITES = ['ANALY_MWT2_SL6','ANALY_AGLT2','ANALY_SLAC','ANALY_SLAC_LMEM','ANALY_INFN-FRASCATI','ANALY_INFN-NAPOLI','ANALY_INFN-ROMA1','ANALY_INFN-MILANO-ATLASC','CERN-PROD','ANALY_CERN_XROOTD','ANALY_BNL_LONG','LOCAL','MWT2_UC_TRIG-DAQ','DESY-HH_LOCALGROUPDISK','ANALY_DESY-HH']
+GRID_SITES = ['ANALY_MWT2_SL6','ANALY_AGLT2','ANALY_SLAC','ANALY_SLAC_LMEM','ANALY_INFN-FRASCATI','ANALY_INFN-NAPOLI','ANALY_INFN-ROMA1','ANALY_INFN-MILANO-ATLASC','CERN-PROD','ANALY_CERN_XROOTD','ANALY_BNL_LONG','ANALY_CERN_SLC6','LOCAL','MWT2_UC_TRIG-DAQ','ANALY_DESY-HH','AUTO']
 CONFIG_SEPARATOR = ' '
 DEF_JOB_NAME = 'job.in'
 PBS_SCRIPT_NAME = 'ftk.pbs'
@@ -837,7 +837,7 @@ class TrackFitter711Job(BaseJob):
                 self.Add('OUT_DIR',self.OutputPath(label,2)%(self.Get('i'),self.Get('j')))
 
         if self.Get("TRACKFITTER_MODE")==None :
-            self.Add("TRACKFITTER_MODE",str(0))
+            self.Add("TRACKFITTER_MODE",str(3))
         # to ensure compatibility with TSP roadfinder
         if self.Get("amlabel")==None :
             self.Add("amlabel",self.Get("sslabel"))
@@ -3098,23 +3098,28 @@ class dq2_cache:
                 del s.date[ds]
                 del s.data[ds]
     def fill(s,ds,force=False):
-        from pandatools import Client
+        from dq2.clientapi.DQ2 import DQ2
+        dq2 = DQ2()
+        
         """ retrieves the list of files in dataset ds """
         # trust the cache if it's not older than _ndays days
         if force==False and ds in s.data and (datetime.datetime.now()-s.date[ds]).days < s._ndays:
             return
         s.data[ds] = []
         print 'Retrieving list of files in DS',ds
-        filesinfo = Client.queryFilesInDataset(ds)
-        try:
-            for file in filesinfo.keys() : # each file is a key in filesinfo fictionary
-                s.data[ds].append(file)
+        filesinfo, data = dq2.listFilesInDataset(ds)
+        if len(filesinfo)==0 :
+            print "WARNING: problem retrieving files for", ds
+            print filesinfo
+        
+        try :
+            for k, v in filesinfo.iteritems() : # each file is a key in filesinfo fictionary            
+                s.data[ds].append(v["lfn"])
             s.data[ds].sort()
             assert len(s.data[ds])>0
             s.date[ds] = datetime.datetime.now()
         except:
             print 'ERROR: failed to run dq2-ls on dataset',ds
-            print cmd
             sys.exit(3)
         # update pickle cache
         s.cleanup()
@@ -3575,6 +3580,7 @@ class SimpleOptions(DicBase):
                 a=[int(e) for e in elms[1:]]
         return a
     def ProcessGridXML(self,mode,opts):
+        PatMergeRoot = True if self.Get('PATMERGEROOT') else False
         """ Submits a grid job using the new xml interface to prun """
         os.chdir(self.Get('grid_dir'))
         print 'Changed working directory to:',os.getcwd()
@@ -3608,6 +3614,8 @@ class SimpleOptions(DicBase):
         # change output name to store the number of subregions into the output DS name
         if mode in ('merge_pconst','reduce','resub',):
             name=namebase+'.'+self.Get('runstring')+'_%sNSubs'%self.Get('M')+'.'+timestamp
+        if mode in ('merge_pconst_root',):
+            name=namebase+'.'+self.Get('runstring')+'_%sNSubs'%self.Get('factor')+'.'+timestamp
         if mode in ('makedc',):
             name=namebase+'.'+self.Get('runstring')+'_%sNSubs'%self.Get('M')+'_AM'+self.Get('amlabel')+'.'+timestamp
         # quote the arguments in the options string
@@ -3687,36 +3695,9 @@ class SimpleOptions(DicBase):
             # create a minidom submission descriptor
             # this object will describe input and output files and datasets
             # for each job spawned under this submission
-            import parsexml
-            submission = parsexml.dom_parser()
-            submission.command = "./prun_job.sh %s"%optstring
-            submission.title = submission.outds = name
-            # run a few consistency checks
-            if re.search('merge',mode):
-                assert self.Get('ftkDS'), 'ERROR: --ftkDS must be defined for all merge modes'
-            if mode == 'merge_ftk' or mode == "exp_ftk":
-                assert self.Get('ftkDS'), 'ERROR: --inDS must be defined for all FTK simulation modes'
-                submission.inds[self.Get('ftkDS')] = 'IN'
-                submission.primaryds = self.Get('ftkDS') # inputDS->ftkDS
-            elif not (re.search('pconst',mode) or mode in ('reduce','resub','makedc',)):
-                assert self.Get('inputDS'), 'ERROR: --inDS must be defined for all FTK simulation modes'
-                submission.inds[self.Get('inputDS')] = 'IN'
-                submission.primaryds = self.Get('inputDS') # inputDS->ftkDS
-            # decide which outputs to register
-            outputs=["out_files.tbz2"]
-            if mode in ('pconst',): # define extra output files and parameters for pconst mode
-                for kk in list(range( int(self.Geti('M')) )):
-                    # not that kk is different from the sub parameter in xml file, which is just a dummy
-                    outputs+=["patterns_sub%s.patt.bz2"%kk]
-            submission.global_outfiles = outputs
-            # Decide which tarball to ship off to the grid sites
-            extout=['TrigFTKSim.tar.bz2']
-            if mode in ('pconst',):
-                extout+=['TrigFTKLib.tar.bz2']
-            if ( re.search('reg',mode) or re.search('ana',mode)):
-                if os.path.exists('./TrigFTKAna.tar.bz2') and os.path.exists(self.Get('ftkana_dir')):
-                    extout+=['TrigFTKAna.tar.bz2']
-            extout = ','.join(extout)
+            from dq2.clientapi.DQ2 import DQ2
+            dq2 = DQ2()
+
             # Prepare the cache of all dq2 files for all input & bank datasets
             # Note that we wrap dq2_cache object around a local cache, because
             # some files are used in multiple grid subjobs
@@ -3740,7 +3721,52 @@ class SimpleOptions(DicBase):
                     if dsp not in s.cache:
                         s.cache[dsp]=s.fcache.findall(ds,pattern)
                     return s.cache[dsp]
+                def fullds(self,ds):
+                    vals = dq2.listDatasets(ds)
+                    if len(vals.keys())==1:
+                        return vals.keys()[0]
+                     
+                    for v in vals.keys() :
+                        if ds in v :
+                            return v
+                    return None
             fcache = loc_cache()
+             
+            import parsexml
+            submission = parsexml.dom_parser()
+            submission.command = "./prun_job.sh %s"%optstring
+            submission.title = submission.outds = name
+            # run a few consistency checks
+            if re.search('merge',mode):
+                assert self.Get('ftkDS'), 'ERROR: --ftkDS must be defined for all merge modes'
+            if mode == 'merge_ftk' or mode == "exp_ftk":
+                assert self.Get('ftkDS'), 'ERROR: --inDS must be defined for all FTK simulation modes'
+                fullds = fcache.fullds(self.Get('ftkDS'))
+                submission.inds[fullds] = 'IN'
+                submission.primaryds = fullds # inputDS->ftkDS
+            elif not (re.search('pconst',mode) or mode in ('reduce','resub','makedc',)):
+                assert self.Get('inputDS'), 'ERROR: --inDS must be defined for all FTK simulation modes'
+                fullds = fcache.fullds(self.Get('inputDS'))
+                submission.inds[fullds] = 'IN'
+                submission.primaryds = fullds # inputDS->ftkDS
+            # decide which outputs to register
+            outputs=["out_files.tbz2"]
+            if mode in ('pconst',): # define extra output files and parameters for pconst mode
+                 if PatMergeRoot :
+                     outputs+=["patterns.patt.root"] # for patmergeroot
+                 else:
+                     for kk in list(range( int(self.Geti('M')) )):
+                         # note that kk is different from the sub parameter in xml file, which is just a dummy
+                         outputs+=["patterns_sub%s.patt.bz2"%kk]
+            submission.global_outfiles = outputs
+            # Decide which tarball to ship off to the grid sites
+            extout=['TrigFTKSim.tar.bz2']
+            if mode in ('pconst',):
+                extout+=['TrigFTKLib.tar.bz2']
+            if ( re.search('reg',mode) or re.search('ana',mode)):
+                if os.path.exists('./TrigFTKAna.tar.bz2') and os.path.exists(self.Get('ftkana_dir')):
+                    extout+=['TrigFTKAna.tar.bz2']
+            extout = ','.join(extout)
 
             UnsplitSectors = True if self.Get('UNSPLIT_SECTORS') else False
             SectorsAsPatterns = True if self.Get('SECTORSASPATTERNS') else False
@@ -3756,10 +3782,15 @@ class SimpleOptions(DicBase):
                             job = parsexml.dom_job()
                             if mode in ("makedc",):
                                 job.outfiles+=["patterns_raw_%sL_%s_%sM_reg%s_sub%s.%s"%(self.Get('L'),self.Get('sslabel'),self.Get('M'),reg,sub,self.Get('_PATTDB'))]
-                            if mode in ('merge_pconst','reduce','resub'):
+                            if mode in ('merge_pconst','reduce','resub',):
                                 job.outfiles+=["patterns_raw_%sL_%s_%sM_reg%s_sub%s.patt.bz2"%(self.Get('L'),self.Get('sslabel'),self.Get('M'),reg,sub)]
                             if mode in ('ftk',) and self.Get('MAKECACHE')!=None:
                                 job.outfiles+=["patterns_raw_%sL_%s_%sM_reg%s_sub%s.pcache.root"%(self.Get('L'),self.Get('sslabel'),self.Get('M'),reg,sub)]
+                            if mode in ('merge_pconst_root',):
+                                for f in range(self.Geti('factor')):
+                                    job.outfiles+=["patterns_raw_%sL_%s_%sM_reg%s_sub%s.patt.bz2"%(self.Get('L'),self.Get('sslabel'),self.Get('factor'),reg,f)]
+                                job.outfiles+=["patterns_raw_%sL_%s_%sM_reg%s.patt.root"%(self.Get('L'),self.Get('sslabel'),self.Get('factor'),reg)]
+
                             # forward these options to prun_job.sh
                             job.forward.append(('inp',inp))
                             job.forward.append(('reg',reg))
@@ -3772,13 +3803,14 @@ class SimpleOptions(DicBase):
                             job.prepend.append(('sub',sub))
                             job.prepend.append(('loop',loop))
                             # bootstrap from --inDS (aka inputDS)
-                            if mode !="merge_ftk": # fixing for the 2nd stage merge jobs
+                            if mode !="merge_ftk": # fixing for the 2nd stage merge jobs                                
                              ds = self.Get('inputDS')
                              if ds:
-                                if ds not in job.infiles:
-                                    job.infiles[ds] = []
+                                fullds = fcache.fullds(ds)
+                                if fullds not in job.infiles:
+                                    job.infiles[fullds] = []
                                 for ff in self.dic['inputs'][inp]:
-                                    job.infiles[ds].append(ff)
+                                    job.infiles[fullds].append(ff)
                             # bootstrap from baseDS/baseDS4/baseDS8
                             for l in ('','4','8'):       #base label
                                 L = l or self.Get('L')   #actual number of layers
@@ -3792,15 +3824,17 @@ class SimpleOptions(DicBase):
                                 ds = self.Get('baseDS%s'%l)
                                 if ds and (not re.search('merge',mode) or not re.search('ana',mode) ):
                                     fcache.fill(ds)
-                                    if ds not in job.infiles:
-                                        job.infiles[ds] = []
+                                    fullds = fcache.fullds(ds)
+                                    #print fullds
+                                    if fullds not in job.infiles:
+                                        job.infiles[fullds] = []
                                     # pattern production mode (unsplit sectors/constants + slices)
                                     if re.search('pconst',mode):
-                                        job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.patt'%(L,reg)))
+                                        job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.patt'%(L,reg)))
                                         if l in ('','8'):
-                                            job.infiles[ds].append(fcache.find(ds,'corrgen_raw_%sL_reg%s.gcon'%(L,reg)))
+                                            job.infiles[fullds].append(fcache.find(ds,'corrgen_raw_%sL_reg%s.gcon'%(L,reg)))
                                         if l=='':
-                                            job.infiles[ds].append(fcache.find(ds,'slices_%sL_reg%s.root'%(L,reg)))
+                                            job.infiles[fullds].append(fcache.find(ds,'slices_%sL_reg%s.root'%(L,reg)))
                                     # FTK running mode (splitted sectors/constants etc)
                                     elif not mode in ("exp_ftk", "merge_ftk") :
                                         # avoid to ask for configuration files if they are not required
@@ -3813,32 +3847,32 @@ class SimpleOptions(DicBase):
                                             #job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
                                             if l=='4':
                                               if UnsplitRegions :
-                                                job.infiles[ds].append(fcache.find(ds,"corrgen_raw_%dL_reg%s.gcon"%(nLayersFinalFitOld,reg)))
+                                                job.infiles[fullds].append(fcache.find(ds,"corrgen_raw_%dL_reg%s.gcon"%(nLayersFinalFitOld,reg)))
                                               else :
-                                                job.infiles[ds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(nLayersFinalFitOld,M,reg,isub)))
+                                                job.infiles[fullds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(nLayersFinalFitOld,M,reg,isub)))
                                             else:
                                               if UnsplitSectors :
-                                                job.infiles[ds].append(fcache.find(ds,"corrgen_raw_%sL_reg%s.gcon"%(L,reg)))
+                                                job.infiles[fullds].append(fcache.find(ds,"corrgen_raw_%sL_reg%s.gcon"%(L,reg)))
                                                 # stage also the sector file in case UnsplitSectors is selected along with SECTORSASPATTERNS=1
                                                 if SectorsAsPatterns : 
-                                                    job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.patt'%(L,reg)))
+                                                    job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.patt'%(L,reg)))
                                               else :
-                                                job.infiles[ds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(L,M,reg,isub)))
+                                                job.infiles[fullds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(L,M,reg,isub)))
                                                 if SectorsAsPatterns : 
-                                                    job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
+                                                    job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
 
                                         # get matching 11L sectors/constants for option-A (only for baseDS):
                                         if (re.search('711',mode) or  self.Get("TFmode")=='trackfitter711') and not re.search('merge',mode) and l=='':
                                             #job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.patt'%(11,M,reg,sub)))
                                           if UnsplitSectors :
-                                            job.infiles[ds].append(fcache.find(ds,'corrgen_raw_%sL_reg%s.gcon'%(nLayersFinalFitOld,reg)))
-                                            job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.conn'%(8,reg)))
+                                            job.infiles[fullds].append(fcache.find(ds,'corrgen_raw_%sL_reg%s.gcon'%(nLayersFinalFitOld,reg)))
+                                            job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL_reg%s.conn'%(8,reg)))
                                           else :
-                                            job.infiles[ds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(nLayersFinalFitOld,M,reg,sub)))
-                                            job.infiles[ds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.conn'%(8,M,reg,sub))) ## TODO : 7/8 unhard code
+                                            job.infiles[fullds].append(fcache.find(ds,'corrgen_raw_%sL_%sM_reg%s_sub%s.gcon'%(nLayersFinalFitOld,M,reg,sub)))
+                                            job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL_%sM_reg%s_sub%s.conn'%(8,M,reg,sub))) ## TODO : 7/8 unhard code
                                         # get sector lookup maps for option-B:
                                         if re.search('split',mode) and l=='4':
-                                            job.infiles[ds].append(fcache.find(ds,'sectors_4_8_11_reg%s.dat'%(reg,)))
+                                            job.infiles[fullds].append(fcache.find(ds,'sectors_4_8_11_reg%s.dat'%(reg,)))
                             # bootstrap from -t/bankdir4/bankdir8. Note that -t is aliased to bankdirTMP
                             for l in ('TMP','4','8'):                    #bank label
                                 L = self.Get('L') if l=='TMP' else l     #actual number of layers
@@ -3848,8 +3882,9 @@ class SimpleOptions(DicBase):
                                 ds = self.Get('bankdir%s'%l)
                                 if ds and not re.search('pconst',mode) and (not re.search('merge',mode) or not re.search('ana_ftk',mode)):
                                     fcache.fill(ds)
-                                    if ds not in job.infiles:
-                                        job.infiles[ds] = []
+                                    fullds = fcache.fullds(ds)
+                                    if fullds not in job.infiles:
+                                        job.infiles[fullds] = []
                                     # usually, we need patterns just for current subregion
                                     subs = [sub,]
                                     # for per-region split runs, we need ALL subregions
@@ -3867,13 +3902,19 @@ class SimpleOptions(DicBase):
                                         # if grid-produced dataset (old format), we must match %05d.out_files.tbz2:
                                         if re.search('NSubsPerRegion',ds):
                                             code = reg*int(M) + isub + 1
-                                            job.infiles[ds].append(fcache.find(ds,'%05d.out_files*tbz2'%code))
+                                            job.infiles[fullds].append(fcache.find(ds,'%05d.out_files*tbz2'%code))
                                         # otherwise, we get the actual pattern file:
                                         else:
                                             if self.Get('CACHEDBANK')!=None: # use a cached pattern bank
-                                                job.infiles[ds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.pcache.root'%(L,M,reg,isub)))
+                                                job.infiles[fullds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.pcache.root'%(L,M,reg,isub)))
                                             else:
-                                                job.infiles[ds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
+                                                if SectorsAsPatterns : 
+                                                    if UnsplitSectors :
+                                                        job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL*_reg%s.patt'%(L,reg)))
+                                                    else :
+                                                        job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
+                                                else:
+                                                    job.infiles[fullds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
                             # bootstrap from ftkDS (output of a prior FTK job)
                             # recall that this is needed because we usually run everything in two stages:
                             # * bank production is followed by bank merging
@@ -3881,11 +3922,15 @@ class SimpleOptions(DicBase):
                             ds = self.Get("ftkDS")
                             if ds:
                                 fcache.fill(ds)
-                                if ds not in job.infiles:
-                                    job.infiles[ds] = []
+                                fullds = fcache.fullds(ds)
+                                if fullds not in job.infiles:
+                                    job.infiles[fullds] = []
                                 if mode=='merge_pconst':
                                     for ff in fcache.findall(ds,'reg%s_*patterns_sub%s.patt.bz2'%(reg,sub)):
-                                        job.infiles[ds].append(ff)
+                                        job.infiles[fullds].append(ff)
+                                elif mode=='merge_pconst_root':
+                                    for ff in fcache.findall(ds,'reg%s_*patterns.patt.root'%(reg)):
+                                        job.infiles[fullds].append(ff)
                                 #elif mode=='merge_ftk_eff':
                                 # currently we just do global merge across all regions/subregions:
                                 #    for ff in fcache.findall(ds,'inp%s_reg%s_*out_files.tbz2'%(inp,reg)):
@@ -3893,7 +3938,7 @@ class SimpleOptions(DicBase):
                                 elif re.search('merge',str(mode)) or re.search('ana',str(mode)) or str(mode)=="exp_ftk" :
                                     # currently we just do global merge across all regions/subregions:
                                     for ff in fcache.findall(ds,'inp%s_*out_files.tbz2'%inp):
-                                        job.infiles[ds].append(ff)
+                                        job.infiles[fullds].append(ff)
                                 else:
                                     print 'WARNING: found ftkDS, but it is not needed in mode',mode
                                     if self.Get('strict_error_check')=='1':
@@ -3932,6 +3977,8 @@ class SimpleOptions(DicBase):
             prun_cmd.append('--site %s'%self.Get('site'))
             if self.Get('express')!=None:
                 prun_cmd.append('--express') # --individualOutDS')
+            if self.Get('unlimitNumOutputs')!=None:
+                prun_cmd.append('--unlimitNumOutputs')
             if self.Get('maxCpuCount')!=None:
                 prun_cmd.append('--maxCpuCount %s'%self.Get('maxCpuCount'))
             if self.Get('memory')!=None:
@@ -3941,10 +3988,12 @@ class SimpleOptions(DicBase):
         
             prun_cmd.append('--maxFileSize=5000000')
             prun_cmd.append(' --buildInLastChunk ')
-            if('x86_64' in os.getenv("CMTCONFIG")):
+            if not False :
+              print "Using the current CMT configuration" 
+            elif 'x86_64' in os.getenv("CMTCONFIG"):
                 prun_cmd.append(" --cmtConfig=x86_64-slc5-gcc43-opt")
                 print "USING 64 BIT SLC5 RELEASE"
-            if('i686' in os.getenv("CMTCONFIG")):
+            elif 'i686' in os.getenv("CMTCONFIG"):
                 prun_cmd.append(" --cmtConfig=i686-slc5-gcc43-opt")
                 print "USING 32 BIT RELEASE"
             # which files to upload?
@@ -4070,6 +4119,7 @@ class SimpleOptions(DicBase):
         # input (wrapper) dataset specification
         self.dic['inputDS'] = get('--inDS',opts)
         self.dic['express'] = get('--express',opts)
+        self.dic['unlimitNumOutputs'] = get('--unlimitNumOutputs',opts)
         self.dic['maxCpuCount'] = get('--maxCpuCount',opts)
         self.dic['memory'] = get('--memory',opts)        
         self.dic['match'] = get('--match',opts) or '*dat.bz2*'

@@ -16,6 +16,7 @@
 #include "TrigFTKSim/FTKPMap.h"
 #include "TrigFTKSim/FTKRawHit.h"
 #include "TrigFTKSim/FTKHit.h"
+#include "TrigFTKSim/FTKRegionMap.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +30,7 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "InDetBeamSpotService/InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
@@ -95,6 +96,7 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   std::string    m_sctClustersName;
   std::string    m_FTK_BadModuleMapPath;
   std::string    m_ATLAS_BadModuleMapPath;
+  std::string   m_FTK_ModuleIDMapPath;
   bool      m_doBadModuleMap;
 
   std::string m_pmap_path;
@@ -103,6 +105,10 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   std::vector< std::set<int> > m_WCSS;
   std::list< FTKHit >  *m_bad_module_map;
   
+  // variable to create the module ID map
+  std::string m_global2local_path;
+  std::string m_rmap_path;
+  FTKRegionMap *m_rmap;
 public:
   
   
@@ -120,7 +126,11 @@ public:
   virtual void dumpDeadModuleSummary()  ;
   virtual void makeBadModuleMap()  ;
   
+  virtual void dumpModuleIDMap();
+
   virtual std::set<int> *getWildcardList(int plane) { return &m_WCSS[plane]; }
+
+  virtual void dumpGlobalToLocalModuleMap();
 };
 
 #endif // FTKDetectorTool_h

@@ -53,6 +53,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_SSF_check_TR_by(1),
   m_SSF_TR_min_eta(1.0),
   m_SSF_TR_max_eta(1.4),
+  m_save_1stStageTrks(false),
   m_doTrackFile(false),
   m_addRoads(false),
   m_trackfilepath("./"), 
@@ -99,6 +100,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("ssmap_path",m_ssmap_path);
   declareProperty("ssmapunused_path",m_ssmapunused_path);
   declareProperty("TRACKFITTER_MODE",m_SSF_TFMode);
+  declareProperty("Save1stStageTrks",m_save_1stStageTrks);
   declareProperty("SSFMultiConnection",m_SSF_multiconn);
   declareProperty("SSFNConnections",m_SSF_maxnconn);
   declareProperty("SSFAllowExtraMiss",m_SSF_allow_extramiss);
@@ -236,6 +238,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   // set Road Input Module
   //-- case 1 : input from I/O --
   FTKRoadInput *ftkinputmodule = m_roadMarketTool->inputReference();
+  m_roadMarketTool->setTrackFitterReference(m_tfpobj);
   m_tfpobj->setRoadInputModule(ftkinputmodule);
 
   // set Track Output Module
@@ -336,7 +339,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
     if (m_SSF_TFMode == 3)
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(true);
-    //dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(1);
+    if (m_save_1stStageTrks)
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(1);
+
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseSectorDB(true);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseMultipleConn(m_SSF_multiconn);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseNConn(m_SSF_maxnconn);

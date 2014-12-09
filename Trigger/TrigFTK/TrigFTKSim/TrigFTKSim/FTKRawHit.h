@@ -45,6 +45,23 @@ class FTKRawHit : public TObject {
   float m_dEta; /* float correction for distance from center */
 
   /* store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
+  unsigned int m_hw_word;
+  const static int row_coord_mask    = 0x00000FFF;
+  const static int phi_width_mask    = 0x00007000;
+  const static int split_mask        = 0x00008000;
+  const static int column_coord_mask = 0x0FFF0000;
+  const static int eta_width_mask    = 0x70000000;
+  const static int row_coord_bit     = 0;
+  const static int phi_width_bit     = 12;
+  const static int split_bit         = 15;
+  const static int column_coord_bit  = 16;
+  const static int eta_width_bit     = 28;
+
+  const static int strip_coord_mask = 0x07FF;
+  const static int strip_coord_bit = 0;
+  const static int strip_width_mask = 0x7000;
+  const static int strip_width_bit = 12;
+  
   unsigned int m_hw_row_coord; /* Pixel row coordinate or half strip coordinate for SCT */
   unsigned int m_hw_column_coord; /* Pixel column coordinate */
   
@@ -98,10 +115,27 @@ public:
   void setEtaStrip(int v) { m_ei_strip = v; }
   void setNStrips(int v) { m_n_strips = v; }
   void setTot(int v) { m_n_strips = v; }
-  void setEtaWidth(int v) { m_etaWidth = v; }
-  void setPhiWidth(int v) { m_phiWidth = v; }
-  void setRowStripCoordinate(int v) { m_hw_row_coord = v; }
-  void setColumnCoordinate(int v) { m_hw_column_coord = v; }
+  void setEtaWidth(int v) {
+      if (v <8) m_hw_word = (m_hw_word&~eta_width_mask) | (((v-1) << eta_width_bit)&eta_width_mask);
+      else if (v >= 8) m_hw_word = (m_hw_word&~eta_width_mask) | ((7 << eta_width_bit)&eta_width_mask);
+      m_etaWidth = v; 
+  }
+  void setPhiWidth(int v) { 
+      int mask(~0);
+      if (m_hitType == 0) mask = strip_width_mask;
+      else if (m_hitType == 1) mask = phi_width_mask;
+
+      if (v < 8) m_hw_word = (m_hw_word&~mask) | (((v-1) << phi_width_bit) & mask);
+      else m_hw_word = (m_hw_word&~mask) | ((7 << phi_width_bit) & mask);
+      m_phiWidth = v; 
+  }
+  void setSplit(bool b) { 
+      if (b) m_hw_word = (m_hw_word&~split_mask) | ((1 << split_bit)&split_mask);
+      else   m_hw_word = (m_hw_word&~split_mask) | ((0 << split_bit)&split_mask);
+  }
+  void setRowCoordinate(int v) { m_hw_word = (m_hw_word&~row_coord_mask) | ((v << row_coord_bit)&row_coord_mask); }
+  void setColumnCoordinate(int v) { m_hw_word = (m_hw_word&~column_coord_mask) | ((v << column_coord_bit)&column_coord_mask); }
+  void setStripCoordinate(int v) { m_hw_word = (m_hw_word &~ strip_coord_mask) | ((v << 0) & strip_coord_mask); }
   void setX(float v) { m_x = v; }
   void setY(float v) { m_y = v; }
   void setZ(float v) { m_z = v; }
@@ -125,8 +159,11 @@ public:
   int getTot() const { return m_n_strips; }
   int getEtaWidth() const { return m_etaWidth; }
   int getPhiWidth() const { return m_phiWidth; }
-  int getRowStripCoordinate() { return m_hw_row_coord; }
-  int getColumnCoordinate() { return m_hw_column_coord; }
+  int getRowCoordinate() const { return (m_hw_word & row_coord_mask) >> row_coord_bit; }
+  int getStripCoordinate() const { return (m_hw_word & strip_coord_mask) >> strip_coord_bit; }
+  int getColumnCoordinate()   const { return (m_hw_word & column_coord_mask) >> column_coord_bit; }
+  bool getSplit() const { return (m_hw_word & split_mask) >> split_bit; }
+  unsigned int getHWWord() const { return m_hw_word; }
   float getX() const { return m_x; }
   float getY() const { return m_y; }
   float getZ() const { return m_z; }

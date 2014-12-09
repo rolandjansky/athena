@@ -4,12 +4,14 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4_tf.py 581253 2014-02-03 17:15:23Z gvolpi $ 
+# @version $Id: TrigFTKSM4_tf.py 617233 2014-09-17 15:20:11Z ponyisi $ 
 
 import sys
 import time
 
 import logging
+
+import PyJobTransforms
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
@@ -174,6 +176,22 @@ def addFTKSimulationArgs(parser):
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKSim')
     parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKSim')
+    #JDC:	
+    parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Directory where input files are kept', group='TrigFTKSim')
+    parser.add_argument('--FitConstantsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of fit constants', group='TrigFTKSim')
+    parser.add_argument('--PatternsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of patterns', group='TrigFTKSim')
+    parser.add_argument('--separateSubRegFitConst', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Use separate fit constant for each subregion', group='TrigFTKSim')
+    parser.add_argument('--useDBPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Query the Data Base to get File Paths', group='TrigFTKSim')
+    parser.add_argument('--runNum', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Run Number', group='TrigFTKSim')
+    parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='COOL tag for a different version', group='TrigFTKSim')
+    #end JDC
 
     # Add named parameters for each subregion
     for subregion in range(subregions):
@@ -228,6 +246,8 @@ def addFTKSimulationArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
     
+
+#print PyJobTransforms.transform 
 
 if __name__ == '__main__':
     main()

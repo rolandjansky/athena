@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
+#include <boost/foreach.hpp>
 using namespace std;
 using namespace ftk;
 
@@ -32,10 +33,13 @@ FTKRegionMap::FTKRegionMap() :
 FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
   m_isok(false), m_old_format(false), m_path(path), m_pmap(pmap), m_nregions(0), m_nregions_phi(0)
 {
-
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
 
   FILE *infile = fopen(path,"r");
+  if (!infile) {
+    cerr << "*** error reading rmap file: " << path << endl;
+    return;
+  }
 
   // cmDebug was a variable used in the old version, here
   // redfined as a boolean true if the FTK verbosity level 
@@ -90,13 +94,16 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
     fgets(line, 100, infile); /* skip a line */
     fgets(line, 100, infile); /* check region number */
     sscanf(line, "%d", &region);
-    if(region != i)
+    if(region != i) // verify the regions are read in sequence
       FTKSetup::PrintMessage(sevr, "readRegionMap: syntax error in rmap file");
-    for(j = 0; j < m_pmap->getRLayers(); ++j) {
+    for(j = 0; j < m_pmap->getRLayers(); ++j) { // loop over the real layers
       if (cmDebug > 3) 
 	printf("i = %d, j = %d, m_pmap->rlayers = %d\n",i,j,m_pmap->getRLayers());
-      fgets(line,100,infile);
+      fgets(line,100,infile); // reading the line
+
       if (cmDebug) FTKSetup::PrintMessageFmt(debg,"read %s\n",line);
+
+      // initialize variables not mandatory in all the formats supported by this routine
       isEC = 0; phi_tot=-1; eta_min=-1; eta_max=-1; eta_tot=-1;
       if (m_old_format) {
 	const int nread = sscanf(line, "%d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot);
@@ -105,10 +112,12 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
       } else {
 	sscanf(line, "%d %d %d %d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot, &eta_min, &eta_max, &eta_tot);
       }
+
       if (isEC && m_pmap->getRLayers() == m_pmap->getNPlanes()) {
 	FTKSetup::PrintMessage(sevr, "readRegionMap: New rmap file format but old m_pmap format\n");
       }
 
+      // if the physical layer is used by the current pmap the information is read
       if((plane = m_pmap->getMap(type,isEC,layer).getPlane()) > -1) {
 	section = m_pmap->getMap(type,isEC,layer).getSection();
 	m_map[i][plane][section].setPhiMin(phi_min);
@@ -120,10 +129,11 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
 	if(cmDebug>3)  printf("map[reg=%d,plane=%d,sec=%d] = (%d/%d/%d:%d/%d/%d)\n",
 			      i,plane,section,phi_min,phi_max,phi_tot,eta_min,eta_max,eta_tot);
       }
-    }
+    } // end loop over the real layers
     if(cmDebug>3) printf("\n");
   } // end region loop
   if (cmDebug) FTKSetup::PrintMessage(debg,"\t\t...done\n");
+  
 
   m_nplanes = m_pmap->getNPlanes();
 
@@ -132,9 +142,99 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
   for (j = 0; j < MAXPLANES; j++) m_sections[j] = m_pmap->getNSections(j);
 
   if (cmDebug) FTKSetup::PrintMessage(debg,"Done with readRegionMap\n\n");
+  fclose(infile);
   
   m_isok = true;
 }
+
+// read module id LUT (defining global -> tower-local module IDs)
+void FTKRegionMap::loadModuleIDLUT(const char* path)
+{
+  // check that global->offline mapping is non-nil
+#if 0
+  if( m_global_to_offline_map.empty() ) {
+    FTKSetup::PrintMessage(sevr, "load_moduleid_lut: bug: read offline ID lookup table first\n");
+  }
+#endif
+
+  // read file
+  FILE *infile = fopen(path,"r");
+  if (!infile) {
+    FTKSetup::PrintMessage(sevr, "load_moduleid_lut: error reading module ID lookup table\n");
+    return;
+  }
+  FTKSetup &ftkset = FTKSetup::getFTKSetup();
+  const bool cmDebug = ftkset.getVerbosity()>1 ? true : false;
+
+  char line[256];
+  while( fgets(line, 256, infile) ) {
+    // format is: <tower id> <plane> <global id> <local id>
+    int towerid = -1;
+    int plane = -1;
+    int globalid = -1;
+    int localid = -1;
+    sscanf(line,"%d %d %d %d",&towerid,&plane,&globalid,&localid);
+    if (plane>=m_pmap->getNPlanes()) {
+        // error condition: the module ID map and the PMAP are not consistent
+        FTKSetup::PrintMessage(sevr,"Mismatch in the number of logical layer between the PMAP and Module ID map");
+    }
+    if(cmDebug) {
+      printf("line: %s defines tower:%d plane:%d global:%d local:%d\n",line,towerid,plane,globalid,localid);
+    }
+    if(towerid==-1 || plane==-1 || globalid==-1 || localid==-1) {
+      FTKSetup::PrintMessage(sevr, "load_moduleid_lut: error reading module ID lookup table\n");
+      continue;
+    }
+    m_tower_global_to_local_map[towerid][plane][globalid] = localid;
+  }
+  fclose(infile);
+  // assign module ids for each regionitem
+  
+  //   const int &phimin = m_map[TowerID][plane][section].getPhiMin();
+  /// int phimax = m_map[TowerID][plane][section].getPhiMax();
+
+}
+
+// read module id LUT (defining global -> tower-local module IDs)
+void FTKRegionMap::load_offline_lut(const char* path)
+{
+  FILE *infile = fopen(path,"r");
+  if (!infile) {
+    FTKSetup::PrintMessage(sevr, "load_offline_lut: error reading offline ID lookup table\n");
+    return;
+  }
+  FTKSetup &ftkset = FTKSetup::getFTKSetup();
+  const bool cmDebug = ftkset.getVerbosity()>1 ? true : false;
+  
+  char line[256];
+  while( fgets(line, 256, infile) ) {
+    // format is: <global id> <is pixel> <barrelEC> <layer> <etamod> <phimod>
+    int globalid;
+    int isPixel;
+    int barrelEC;
+    int layer=-1;
+    int etamod;
+    int phimod;
+    sscanf(line,"%d %d %d %d %d %d",&globalid,&isPixel,&barrelEC,&layer,&etamod,&phimod);
+    if(cmDebug) {
+      printf("line: %s defines id: %d pix:%d bec:%d ly:%d eta:%d phi:%d\n",line,globalid,isPixel,barrelEC,layer,etamod,phimod);
+    }
+    if(layer==-1) {
+      FTKSetup::PrintMessage(sevr, "load_offline_lut: error reading offline ID lookup table\n");
+      continue;
+    }
+    FTKRegionMapOfflineId off;
+    off.setIsPixel((bool)isPixel);
+    off.setBarrelEC(barrelEC);
+    off.setLayer(layer);
+    off.setEtaMod(etamod);
+    off.setPhiMod(phimod);
+    m_global_to_offline_map[globalid] = off;
+  }
+  fclose(infile);
+}
+
+
 
 // new version that supports 64-tower rmap geometry
 bool FTKRegionMap::isHitInRegion(const FTKHit &hit,int ID) const {
@@ -152,14 +252,20 @@ bool FTKRegionMap::isHitInRegion(const FTKHit &hit,int ID) const {
   const int reta = ID/m_nregions_phi;
   const int eta_min = m_map[ID][plane][section].getEtaMin();
   const int eta_max = m_map[ID][plane][section].getEtaMax();
-  if(cside && reta==0) res_eta=true;
-  if(aside && reta==3) res_eta=true;
-  if(!(aside||cside)) { // barrel
+  // it is aside (cside) module and the tower is on last (first) ring, indeed compatible in eta, other check based on phi
+  if((cside && reta==0) || (aside && reta==3)) res_eta=true;
+  // if is a aside (cside) the module but the tower is the barrel it may be accepted
+  else if ((aside && reta==2) || (cside && reta==1) ) {
+      if (eta_min!=-1) res_eta = true;
+  }
+  // if is a barrel module the eta compatibility has to be checked
+  else if(!(aside||cside)) { // barrel
     if(eta_min==-1) return false;
     if(eta >= eta_min && eta<=eta_max ) {
       res_eta=true;
     }
   }
+
   if(!res_eta) return false;
 
   // check phi
@@ -218,7 +324,7 @@ bool FTKRegionMap::isHitInRegion_old(const FTKHit &hit,int ID) const
 
 /** return  the element for a given (region,plane,section),
     -1 can be used to obtain the last element */
-FTKRegionMapItem &FTKRegionMap::getRegionMapItem(int ireg, int ipl, int isec) const
+const FTKRegionMapItem &FTKRegionMap::getRegionMapItem(int ireg, int ipl, int isec) const
 {
    if (ireg<0) {
       ireg = m_nregions+ireg;
@@ -298,3 +404,64 @@ void FTKRegionMap::convertLocalID(unsigned int localID, int TowerID, int plane, 
   if (modphi>=phimax) modphi-=phimax;
   modeta = localID/nphi+phimax;
 }
+
+
+//   (local id) == -1 => module is not in the tower
+int FTKRegionMap::getLocalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& globalModuleId) const
+{
+  tower_global_to_local_map_type::const_iterator imap = m_tower_global_to_local_map.find(towerId);
+  if( imap == m_tower_global_to_local_map.end() ) {
+    return -1;
+  }
+  const plane_global_to_local_map_type& plane_id_mapping( imap->second );
+  plane_global_to_local_map_type::const_iterator jmap = plane_id_mapping.find(planeId);
+  if( jmap == plane_id_mapping.end() ) {
+    return -1;
+  }
+  const global_to_local_map_type& id_mapping( jmap->second );
+  global_to_local_map_type::const_iterator i = id_mapping.find(globalModuleId);
+  if( i==id_mapping.end() ) {
+    return -1;
+  }
+  return i->second;
+}
+
+int FTKRegionMap::getGlobalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& localModuleId) const
+{
+  tower_global_to_local_map_type::const_iterator imap = m_tower_global_to_local_map.find(towerId);
+  if( imap == m_tower_global_to_local_map.end() ) {
+    return -1;
+  }
+  const plane_global_to_local_map_type& plane_id_mapping( imap->second );
+  plane_global_to_local_map_type::const_iterator jmap = plane_id_mapping.find(planeId);
+  if( jmap == plane_id_mapping.end() ) {
+    return -1;
+  }
+  const global_to_local_map_type& id_mapping( jmap->second );
+  BOOST_FOREACH( const global_to_local_map_type::value_type& thispair , id_mapping ) {
+    if( thispair.second==localModuleId ) {
+      return thispair.first;
+    }
+  }
+  return -1;
+}
+
+// construct total global to local mapping for ssmap hardware LUT
+std::map<unsigned int,unsigned int> FTKRegionMap::getGlobalToLocalMapping(const unsigned int& towerId,const unsigned int& planeId) const
+{
+  std::map<unsigned int,unsigned int> empty_result;
+  tower_global_to_local_map_type::const_iterator imap = m_tower_global_to_local_map.find(towerId);
+  if( imap == m_tower_global_to_local_map.end() ) {
+    FTKSetup::PrintMessage(warn,"getGlobalToLocalMapping: cannot find tower id\n");
+    return empty_result;
+}
+  const plane_global_to_local_map_type& plane_id_mapping( imap->second );
+  plane_global_to_local_map_type::const_iterator jmap = plane_id_mapping.find(planeId);
+  if( jmap == plane_id_mapping.end() ) {
+    FTKSetup::PrintMessage(warn,"getGlobalToLocalMapping: cannot find plane id\n");
+    return empty_result;
+  }
+  const global_to_local_map_type& id_mapping( jmap->second );
+  return id_mapping;
+}
+

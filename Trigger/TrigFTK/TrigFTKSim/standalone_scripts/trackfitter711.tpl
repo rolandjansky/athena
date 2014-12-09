@@ -11,9 +11,9 @@ SS_FILE_COMPLETE         ${ssdir}/raw_${sslabel}unused.ss
 # decide the track fitter work: 0 use synched sectors, 1 uses the connection files, 2 resolution mode
 TRACKFITTER_MODE ${TRACKFITTER_MODE}
 # multiple connection option
-MULTI_CONN_MODE 0
+MULTI_CONN_MODE 1
 # use up to N connections
-NCONN 1
+NCONN 4
 # set the algorithm used to extrapolate the stereo layers,
 # 1 use majority logic algorithm (default or not set), 0 geometric extrapolation
 USEGUESSING 1
@@ -62,7 +62,7 @@ OUT_DIR  ${trackdir}/${run_name}
 # 1 if there will an output file for each input file
 MULT_OUT 1
 # IBL?
-IBL_MODE 0
+IBL_MODE 1
 # Allow extra miss for TRACKFITTER_MODE=3 (i.e. super extrapolate)
 ALLOW_EXTRA_MISS_IN_SUPEREXP 1
 # Check if a track is in transition region or not by checking the moduleID of last SCT layer (option = 0) or the eta of 1st stage track (option = 1)

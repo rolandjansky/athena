@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef H_FTKPatternBySector
+#define H_FTKPatternBySector
+
 /* package FTKPatternBySector
  *
  * IO interface for reading and writing patterns to files
@@ -43,6 +46,7 @@ public:
    };
    inline CONTENT_TYPE GetContentType(void) const { return fContentType; }
    inline void SetContentType(CONTENT_TYPE type) { fContentType=type; }
+   inline TString const &GetSourceName(void) const { return fSourceName; }
 protected:
    int fNLayers;
    TString fSourceName;
@@ -58,7 +62,7 @@ public:
    Long64_t GetNPatterns(void) const;
    Long64_t GetNPatterns(int sector) const;
 
-   int WritePatternsToASCIIstream(std::ostream &out,int minCoverage,
+   int WritePatternsToASCIIstream(std::ostream &out,
                                   int iSub,int nSub); // export as ASCII
    // save data from one sector, ordered by coverage
 
@@ -106,8 +110,12 @@ public:
    int AppendMergedPatterns(int sector,
                             FTKPatternOneSectorOrdered const *ordered);
    int AppendPattern(int sector,FTKPatternWithCoverage const &pattern);
+   int AppendPattern(FTKPatternWithSector const &pattern) { return AppendPattern(pattern.GetSectorID(),pattern);}                                               TDirectory& GetTDirectoryAddress() { return fDir;}
+   
 protected:
    TDirectory &fDir;
    typedef std::map<int,FTKPatternRootTree *> PatternTreeBySector_t;
    PatternTreeBySector_t fPatterns;
 };
+
+#endif

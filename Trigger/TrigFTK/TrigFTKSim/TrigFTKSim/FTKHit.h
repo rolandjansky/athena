@@ -87,7 +87,7 @@ public:
   FTKCoord getCoord() const { return m_coord; }
   FTKCoord &getCoord() { return m_coord; }
   float getCoord(int i) const { return m_coord[i]; }
-  float getLocalCoord(int i) const;
+  float getLocalCoord(unsigned int i) const;
   const MultiTruth& getTruth() const;
 
   void setIdentifierHash(unsigned int val) { m_IdentifierHash = val; }

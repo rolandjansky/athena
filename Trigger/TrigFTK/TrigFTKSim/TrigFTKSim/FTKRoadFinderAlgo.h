@@ -119,6 +119,8 @@ private:
   std::string m_badmap_path;
   std::string m_badmap_path2;
 
+  std::string m_modulelut_path; // LUT to map global ID in local IDs for HWModeSS=2
+
   bool m_CachedBank;
   std::vector<std::string> m_patternbankpath;
   std::vector<int> m_bankregion;
@@ -134,6 +136,8 @@ private:
   std::string m_roadfilesdir;
   bool m_roadmarket;
   bool m_saveroads;
+
+  bool m_useMinimalAMIN; // flag to propagate to the FTK_AMBank to set the match method
 
   bool m_AutoDisable; // possibility to avoid internal algorithm execution in particular confitions
 };

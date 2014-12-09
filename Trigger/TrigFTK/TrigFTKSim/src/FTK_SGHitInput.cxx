@@ -30,7 +30,7 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "IdDictDetDescr/IdDictDetDescr/IdDictManager.h"
+#include "IdDictDetDescr/IdDictManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/SiClusterCollection.h"
 #include "InDetRawData/InDetRawDataCollection.h"

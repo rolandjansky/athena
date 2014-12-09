@@ -13,6 +13,8 @@ static const InterfaceID IID_FTK_RoadMarketToolI("FTK_RoadMarketToolI",1,0);
 
 class FTKRoadOutput;
 class FTKRoadInput;
+class RoadFinder;
+class TrackFitter;
 class TTree;
 
 class FTK_RoadMarketToolI : virtual public IAlgTool 
@@ -25,6 +27,10 @@ class FTK_RoadMarketToolI : virtual public IAlgTool
   virtual FTKRoadOutput* outputReference()=0; // get the reference to the FTKDataInput object
   virtual FTKRoadInput* inputReference()=0; // get the reference to the FTKDataInput object
   virtual void ConnectRoads(TTree*,const char *,const std::vector<int>&, int bs=0)=0;
+  virtual RoadFinder* roadFinderReference()=0;
+  virtual void setRoadFinderReference(RoadFinder* roadfinder) = 0;
+  virtual TrackFitter* trackFitterReference()=0;
+  virtual void setTrackFitterReference(TrackFitter* trackfitter) = 0;
 };
 
 inline const InterfaceID& FTK_RoadMarketToolI::interfaceID()

@@ -222,7 +222,7 @@ FTKPatternOneSector *FTKPatternBySectorReader::MergePatterns
 }
 
 int FTKPatternBySectorReader::WritePatternsToASCIIstream
-(std::ostream &out,int minCoverage,int iSub,int nSub) {
+(std::ostream &out,int iSub,int nSub) {
    // read all patterns from all sectors
    // write data ordered by
    //   coverage
@@ -258,7 +258,8 @@ int FTKPatternBySectorReader::WritePatternsToASCIIstream
       FTKPatternRootTreeReader *tree=(*oneSector).second;
       int sector=(*oneSector).first;
       int coverage=tree->GetPattern().GetCoverage();
-      if(coverage<minCoverage) break;
+      //if(coverage<minCoverage) break;
+      bool isEmpty=false;
       do {
          if(!(number %1000)) {
             ShowProgress(TString::Format("%d/%d/%d",number,sector,coverage));
@@ -275,12 +276,17 @@ int FTKPatternBySectorReader::WritePatternsToASCIIstream
             Error("WritePatternsToASCIIstream")<<"write operation failed\n";
             break;
          }
-         if(!tree->ReadNextPattern()) break;
+         if(!tree->ReadNextPattern()) {
+            isEmpty=true;
+            break;
+         }
       } while(tree->GetPattern().GetCoverage()==coverage);
-      if(tree->HasMorePatterns()) {
+      if(!isEmpty) {
          sectorByCoverage.insert(oneSector);
       }
    }
+   Info("WritePatternsToASCIIstream")
+      <<" total patterns written: "<<number<<"\n";
    return error;
 }
 
@@ -391,12 +397,15 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
    // sector index, to be saved as extra TTree
    map<int,map<int,Long64_t> > coverageSectorBeginEnd; 
    Info("AppendMergedPatterns")<<"loop over sectors\n";
+   int nTotal=0;
    for(int sector=source.GetFirstSector();sector>=0;
        sector=source.GetNextSector(sector)) {
-      ShowProgress(TString::Format("%d",sector));
+      //ShowProgress(TString::Format("%d",sector));
       FTKPatternOneSector *mergedPatterns=source.MergePatterns(sector);
-      ShowProgress(TString::Format("%d %d",sector,
-				   mergedPatterns->GetNumberOfPatterns()));
+      nTotal +=  mergedPatterns->GetNumberOfPatterns();
+      ShowProgress(TString::Format("%d %d %d",sector,
+				   mergedPatterns->GetNumberOfPatterns(),
+                                   nTotal));
       FTKPatternOneSectorOrdered *orderedByCoverage=
          mergedPatterns->OrderPatterns(FTKPatternOrderByCoverage(minCoverage));
       error=AppendMergedPatterns(sector,orderedByCoverage);

@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 574395 2013-12-07 10:13:16Z gvolpi $ 
+# @version $Id: TrigFTKSim_tf.py 617233 2014-09-17 15:20:11Z ponyisi $ 
 
 import argparse
 import sys
@@ -164,6 +164,23 @@ def addFTKSimulationArgs(parser):
     
     parser.add_argument('--FTKSetupTag', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Setup the FTK architecture tag, if specific values are also used they have priority', group='TrigFTKSim')
+    #JDC:	
+    parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Directory where input files are kept', group='TrigFTKSim')
+    parser.add_argument('--FitConstantsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of fit constants', group='TrigFTKSim')
+    parser.add_argument('--PatternsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of patterns', group='TrigFTKSim')
+    parser.add_argument('--separateSubRegFitConst', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Use separate fit constant for each subregion', group='TrigFTKSim')
+    parser.add_argument('--useDBPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Query the Data Base to get File Paths', group='TrigFTKSim')
+    parser.add_argument('--runNum', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Run Number', group='TrigFTKSim')
+    parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='COOL tag for a different version', group='TrigFTKSim')
+    #end JDC
+
 
 if __name__ == '__main__':
     main()

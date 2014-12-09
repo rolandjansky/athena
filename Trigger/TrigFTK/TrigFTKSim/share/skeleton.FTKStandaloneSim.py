@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 581257 2014-02-03 17:18:59Z gvolpi $
+# $Id: skeleton.FTKStandaloneSim.py 617783 2014-09-19 18:47:33Z ponyisi $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -31,11 +31,11 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from TrigFTKSim.TrigFTKSimConf import *
 import os
 import sys
+from TrigFTKSim.findInputs import findInputs
+from TrigFTKSim.QueryFTKdb import QueryDB
 
 # Helper function from transforms 
 from PyJobTransforms.trfUtils import findFile
-
-
 
 # control some general behavior
 FTKRoadMarket = FTK_RoadMarketTool()
@@ -99,6 +99,54 @@ runArgsFromTrfOptionalTF = {'IBLMode': 0,
                             'SSFTRMinEta': 1.0,
                             'SSFTRMaxEta': 1.4
                             }
+
+#JDC:Find files from ConstantsDir, use to set certain attributes
+
+attList = ["fit711constantspath","fitconstantspath","patternbankpath","sectorpath"]
+reg = runArgs.bankregion
+sub = runArgs.banksubregion
+
+#Set things to defaults
+if not hasattr(runArgs, "versionTag"):
+    runArgs.versionTag = ""
+
+#Use the databse to find the correct directory to look in
+if hasattr(runArgs, 'useDBPath') and runArgs.useDBPath:
+    print runArgs.useDBPath
+    runArgs.ConstantsDir = QueryDB(runArgs.runNum,runArgs.versionTag)
+	
+        
+    
+#For each region in the list reg and for each subregion in the list sub find each of the needed files (fit constants, sector path, pattern banks) using findInputs and save the paths to the write member or runArgs
+if hasattr(runArgs,"ConstantsDir") and runArgs.ConstantsDir:
+    #do we have specific version strings? then construct directory pattern
+    fitconstantsdir = 'FitConstants/%s/' % runArgs.FitConstantsVersion if hasattr(runArgs, 'FitConstantsVersion') else ''
+    patternsdir = 'Patterns/%s/' % runArgs.PatternsVersion if hasattr(runArgs, 'PatternsVersion') else ''
+    #For each kind of needed file, empty the associated variable
+    for i in range(0,len(attList)):
+        setattr(runArgs,attList[i],[])
+    #For each region in the region list
+    for i in range(0,len(reg)):
+        #For each subregion in the subregion list
+        for j in range(0,len(sub)):
+            print fitconstantsdir, patternsdir
+            patternList = [[fitconstantsdir, "1?L_*reg%s.*gcon.bz2" % (reg[i])],[fitconstantsdir, "8L_*reg%s.*gcon.bz2" % (reg[i])],[patternsdir, "pattern*reg%s_sub%s.*root" % (reg[i], sub[j])],[fitconstantsdir, "reg%s.*conn" % (reg[i])]]
+            try:
+                if runArgs.separateSubRegFitConst:
+                    patternList = [[fitconstantsdir, "11L_*reg%s.*sub%s.*bz2" % (reg[i], sub[j])],[fitconstantsdir, "8L_*reg%s.*sub%s.*bz2" % (reg[i], sub[j])],[patternsdir, "pattern*reg%s.*sub%s.*root" % (reg[i], sub[j])],[fitconstantsdir, "reg%s.*sub%s.%conn" % (reg[i], sub[j])]]
+            except AttributeError, e:
+                pass
+            #For each kind of file needed, add what you found to the list for that kind of file
+            for k in range(0,len(attList)) :
+                setattr(runArgs,attList[k],getattr(runArgs,attList[k])+findInputs(runArgs.ConstantsDir,patternList[k]))
+
+#Just to make sure everything is set correctly
+print
+print runArgs
+print
+
+#End JDC
+		
 
 # this dictionary describe the standard position for common files, this allow
 # a shorter command line when standard files are used

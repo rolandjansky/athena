@@ -5,6 +5,8 @@
 #ifndef FTKREGIONMAP_H
 #define FTKREGIONMAP_H
 
+#include <set>
+#include <map>
 #include "FTKPMap.h"
 #include "FTKHit.h"
 
@@ -16,10 +18,10 @@ private:
   int m_eta_min; // minimum eta ID
   int m_eta_max; // minimum eta ID
   int m_eta_tot; // total number of modules along eta
-
+  std::set<unsigned int> m_global_module_ids;
 public:
   FTKRegionMapItem();
-
+  
   int getPhiMin() const { return m_phi_min; }
   int getPhiMax() const { return m_phi_max; }
   int getPhiTot() const {return m_phi_tot; }
@@ -40,6 +42,46 @@ public:
   void setMin(int v) { setPhiMin(v); }
   void setMax(int v) { setPhiMax(v); }
   void setTotMod(int v) { setPhiTot(v); }
+  
+  std::set<unsigned int> getGlobalModuleIds() const { return m_global_module_ids; }
+  void addGlobalModuleId(const unsigned int& id) { m_global_module_ids.insert(id); }
+  void clearGlobalModuleIds() { m_global_module_ids.clear(); }
+  bool hasGlobalModuleId(const unsigned int& id) const { return(m_global_module_ids.find(id)!=m_global_module_ids.end()); }
+};
+
+class FTKRegionMapOfflineId {
+private:
+  bool m_isPixel;
+  int m_barrelEC;
+  int m_layer;
+  int m_etamod;
+  int m_phimod;
+public:
+  FTKRegionMapOfflineId()
+  : m_isPixel(false)
+  , m_barrelEC(-999)
+  , m_layer(-999)
+  , m_etamod(-999)
+  , m_phimod(-999) {}
+  
+  bool getIsPixel() const { return m_isPixel; }
+  void setIsPixel(const bool& isPixel) { m_isPixel = isPixel; }
+  int getBarrelEC() const { return m_barrelEC; }
+  void setBarrelEC(const int& barrelEC)  { m_barrelEC = barrelEC; }
+  int getLayer() const { return m_layer; }
+  void setLayer(const int& layer)  { m_layer = layer; }
+  int getEtaMod() const { return m_etamod; }
+  void setEtaMod(const int& etamod)  { m_etamod = etamod; }
+  int getPhiMod() const { return m_phimod; }
+  void setPhiMod(const int& phimod)  { m_phimod = phimod; }
+  
+  bool operator==(const FTKRegionMapOfflineId& rhs) const {
+    return( m_isPixel==rhs.m_isPixel &&
+           m_barrelEC==rhs.m_barrelEC &&
+           m_layer==rhs.m_layer &&
+           m_etamod==rhs.m_etamod &&
+           m_phimod==rhs.m_phimod );
+  }
 };
 
 
@@ -62,15 +104,30 @@ private:
 
   FTKRegionMapItem ***m_map;
 
+  // lookup table for local module ID within a tower:
+  //   m_tower_global_to_local_map[tower id][global id] = (local id)
+  typedef std::map<unsigned int,unsigned int> global_to_local_map_type;
+  typedef std::map<unsigned int,global_to_local_map_type> plane_global_to_local_map_type;
+  typedef std::map<unsigned int, plane_global_to_local_map_type > tower_global_to_local_map_type;
+  tower_global_to_local_map_type m_tower_global_to_local_map;
+  // conversion between global module IDs and offline
+  typedef std::map<unsigned int,FTKRegionMapOfflineId> global_to_offline_map_type;
+  global_to_offline_map_type m_global_to_offline_map;
+  
+  
+private:
+  void load_offline_lut(const char *path);
+  
 public:
   FTKRegionMap();
   FTKRegionMap(FTKPlaneMap *, const char *);
 
+  void loadModuleIDLUT(const char *);
   const char *getPath() const { return m_path.c_str(); }
 
   const FTKPlaneMap* getPlaneMap() const { return m_pmap; }
 
-  FTKRegionMapItem &getRegionMapItem(int, int, int) const;
+  const FTKRegionMapItem &getRegionMapItem(int, int, int) const;
   int getNumRegions() const { return m_nregions; }
   int getNumRegionsPhi() const { return m_nregions_phi; }
 
@@ -81,6 +138,11 @@ public:
 
   bool isHitInRegion(const FTKHit&,int) const;
   bool isHitInRegion_old(const FTKHit&,int) const;
+  
+  //   (local id) == -1 => module is not in the tower
+  int getLocalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& globalModuleId) const;
+  int getGlobalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& localModuleId) const;
+  std::map<unsigned int,unsigned int> getGlobalToLocalMapping(const unsigned int& towerId,const unsigned int& planeId) const;
 
   bool operator!() const { return !m_isok; }
 

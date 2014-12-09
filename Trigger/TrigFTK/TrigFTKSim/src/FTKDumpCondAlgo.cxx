@@ -11,6 +11,8 @@
 
 #include "GaudiKernel/MsgStream.h"
 
+#include "TrigFTKSim/FTKSetup.h"
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -21,10 +23,15 @@ using namespace std;
 FTKDumpCondAlgo::FTKDumpCondAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
   m_detectorTool("FTKDetectorTool/FTKDetectorTool"),
-  m_DumpBadModules(false)
+  m_DumpBadModules(false),
+  m_DumpModuleIDMap(false),
+  m_DumpGlobalToLocalMap(false),
+  m_IBLMode(1)
 {
-  // number of banks
-  declareProperty("DumpBadModules",m_DumpBadModules, "If true enable dump of bad modules for FTK");
+  declareProperty("DumpBadModules", m_DumpBadModules, "If true enable dump of bad modules for FTK");
+  declareProperty("DumpModuleIDMap", m_DumpModuleIDMap, "If true dumps the map of the modules in each tower");
+  declareProperty("DumpGlobalToLocalMap",m_DumpGlobalToLocalMap, "True if you want to produce the Global-to-Local map");
+  declareProperty("IBLMode",m_IBLMode);
 }
 
 FTKDumpCondAlgo::~FTKDumpCondAlgo()
@@ -36,8 +43,11 @@ StatusCode FTKDumpCondAlgo::initialize(){
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "FTKDumpCondAlgo::initialize()" << endreq;
   
+  // FTK library global setup variables
+  FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
+
   // select how the input is obtained
-  if (m_DumpBadModules) {
+  if (m_DumpBadModules || m_DumpGlobalToLocalMap) {
     // Use the SG to retrieve the hits, this also means other Athena tools can be used
     StatusCode scdet = m_detectorTool.retrieve();
     if (scdet.isFailure()) {
@@ -70,7 +80,12 @@ StatusCode FTKDumpCondAlgo::execute() {
   
   if (m_DumpBadModules) {
     m_detectorTool->makeBadModuleMap(); //Dump bad SS map
-    m_detectorTool->dumpDeadModuleSummary(); //Dump bad module map 
+    m_detectorTool->dumpDeadModuleSummary(); //Dump bad module map
+    m_DumpBadModules = false;
+  }
+
+  if (m_DumpGlobalToLocalMap) {
+	  m_detectorTool->dumpGlobalToLocalModuleMap(); // Dump the map of the module of each tower
   }
 
   return StatusCode::SUCCESS;

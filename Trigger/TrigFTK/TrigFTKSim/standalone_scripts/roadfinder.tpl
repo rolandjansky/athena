@@ -1,6 +1,7 @@
 PE2S_FILE	${patdir}/sectors_raw_${L}L_${M}M_reg${i}_sub${j}.${_PATT}
 PMAP_FILE       ${mapdir}/raw_${L}L${Lv}.pmap
 RMAP_FILE       ${mapdir}/raw_${L}L.rmap
+MODULE_LUT ${mapdir}/raw_${L}L${Lv}.moduleidmap
 BADMOD_FILE	${confdir}/bad_modules/${BMAP}.bmap
 BADMOD_FILE_FOR_HIT	${confdir}/bad_modules/${BMAP_FOR_HIT}.bmap
 

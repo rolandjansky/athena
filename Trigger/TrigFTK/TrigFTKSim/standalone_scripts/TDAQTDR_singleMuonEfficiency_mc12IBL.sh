@@ -49,11 +49,15 @@ site=ANALY_MWT2_SL6
 regions="0..63"                          # which regions to generate
 m=4   # number of subregions, this should be compatible with the bank!
 baseDS=user.annovi.tdaqtdr_base_8LcIbl123_12LIbl_20130807v2/
+baseDS=user.annovi.tomoya_phchang_multi_400MTracks_64reg.CONST_FTK.20140113cleanV3
 
 inputs="0..12" #inputs="0..39"
 MAXPATTERNS=4194304
 bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_mc12IBL_40Mx125loops_autotuneFix_4NSubs_AM30x32x72Ibl.2013_08_26_11_15_00/
+bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_singleMuons_pubnote400MTrkTraining.ftk.2013_12_12_16_31_24clean
 extra="${extra} -o amlabel=30x32x72Ibl,RAW_MODE=2,USETSP_SIM=2,TRACKFITTER_MODE=3,USETSP_SETAMSIZE=2,SAVE_INCOMPLETE=1" #,SAVE_CLUSTER_CONTENT=1 " # First try of trackfitting
+
+extra="$extra -o UNSPLIT_SECTORS,CACHEDBANK"
 
 # 1stStage
 #global_extra="${global_extra} -o N=64,RMAP_FILE=\${mapdir}/raw_12Libl.tmap,PMAP_FILE=\${mapdir}/raw_8LcIbl123.pmap,IBL_MODE=1,RFmode=roadfindertsp,TFmode=trackfitter,PMAP_FILE_COMPLETE=\${mapdir}/raw_8LcIbl123.pmap,HWSDEV_FILE=\${hwdir}/raw_8LcIbl123.hw,NCOORDS=11"

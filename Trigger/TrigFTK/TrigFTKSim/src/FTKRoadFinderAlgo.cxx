@@ -49,12 +49,14 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_pmap_path(), m_pmapunused_path(),
   m_rmap_path(), m_rmapunused_path(),
   m_ssmap_path(), m_ssmapunused_path(), m_ssmaptsp_path(), m_badmap_path(),m_badmap_path2(),
+  m_modulelut_path(),
   m_CachedBank(false),
   m_InputFromWrapper(true), m_RegionalWrapper(false),
   m_doroadfile(false), m_roadfilepath("ftkroads.root"),
   m_roadfilesdir("."),
   m_roadmarket(true),
   m_saveroads(true),
+  m_useMinimalAMIN(false),
   m_AutoDisable(false)
 {
   // number of banks
@@ -71,6 +73,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ssmaptsp_path",m_ssmaptsp_path);
   declareProperty("badmap_path",m_badmap_path);
   declareProperty("badmap_path_for_hit",m_badmap_path2);
+
+  declareProperty("ModuleLUTPath",m_modulelut_path);
   
   declareProperty("IBLMode",m_IBLMode);
 
@@ -99,6 +103,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("RoadFilesDir",m_roadfilesdir,"Path of the road output directory, old format");
   declareProperty("RoadMarket",m_roadmarket,"Enable the road exchange tool");
   declareProperty("SaveRoads",m_saveroads,"If true (default) the output roads are saved into the SG");
+
+  declareProperty("UseMinimalAMIN",m_useMinimalAMIN);
 
   declareProperty("HWModeSS",m_HWModeSS,"Enable the HW-like encoding for the SS");
 
@@ -136,6 +142,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
   ftkset.setIBLMode(m_IBLMode);
 
+  log << MSG::INFO << "HWModeSS value: " << m_HWModeSS << endreq;
+  ftkset.setHWModeSS(m_HWModeSS);
+
   log << MSG::INFO << "Read the logical layer definitions" << endreq;
   // Look for the main plane-map
   if (m_pmap_path.empty()) {
@@ -172,6 +181,18 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   if (!(*m_rmap)) {
     log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endreq;
     return StatusCode::FAILURE;
+  }
+
+  //In case the HWModeSS=2 the LUT to map global->local module ID is required
+  if (m_HWModeSS==2) {
+    if (m_modulelut_path.empty()) {
+      log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endreq;
+      return StatusCode::FAILURE;
+    }
+    else {
+      log << MSG::INFO << "Loading module map from: " << m_modulelut_path << endreq;
+      m_rmap->loadModuleIDLUT(m_modulelut_path.c_str());
+    }
   }
 
   if (m_pmap_unused) {
@@ -294,6 +315,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     FTKRoadOutput *ftkoutmodule = m_roadMarketTool->outputReference();
     //m_roadMarketTool->SaveRoads(m_saveroads);
     m_rfobj.setRoadOutputModule(ftkoutmodule); 
+    m_roadMarketTool->setRoadFinderReference(&m_rfobj);
   }
   else if (!m_doroadfile && m_saveroads) { // enable the Athena tool for the road output
     StatusCode scout = m_roadOutputTool.retrieve();
@@ -375,6 +397,8 @@ StatusCode FTKRoadFinderAlgo::initialize(){
        layers */
     curbank->setSaveAllRoads(m_SaveAllRoads);
     curbank->setRequireFirst(m_require_first);
+    curbank->setUseMinimalAMIN(m_useMinimalAMIN);
+
     // additional adjustments for SCTtrk mode
     if (ftkset.getSCTtrkMode()) {
       // always require SCTtrk layer in AM matching

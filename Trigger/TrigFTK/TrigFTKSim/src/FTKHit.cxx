@@ -87,7 +87,7 @@ bool operator==(const FTKCoord &left, const FTKCoord &right) {
   return true;
 }
 
-ostream &operator<<(std::ostream& out,const FTKCoord& coord)
+std::ostream &operator<<(std::ostream& out,const FTKCoord& coord)
 {
   out << '(';
   for (int i=0;i<coord.m_dim-1;++i)
@@ -157,7 +157,7 @@ bool operator==(const FTKHit &left, const FTKHit &right) {
   return left.getCoord()==right.getCoord();
 }
 
-ostream &operator<<(std::ostream& out,const FTKHit& hit)
+std::ostream &operator<<(std::ostream& out,const FTKHit& hit)
 {
   out << "Hit plane " << hit.getPlane() << " sector " << hit.getSector()
       << " barrel/EC " << (hit.getEtaCode() < 20 ? 0 : ( hit.getASide() ? 2 : -2 ))
@@ -185,22 +185,36 @@ void FTKHit::setTruth(const MultiTruth& v)
   m_truth = v;
 }
 
+float FTKHit::getLocalCoord(unsigned int i) const {
+  // Returns the i-th module local coordinate in millimiter units.
 
-
-float FTKHit::getLocalCoord(int i) const {
-  bool isIBL = m_plane==0; // Annovi: this is compatible only with IBL prod that uses IBL for FTK
-                           // It works correctly for 2nd stage tracks with IBL
-                           // It WON'T work for 1st stage tracks without IBL in the AM
-  if (isIBL) {
-    if (i==0) return (m_coord[i]-0.5*ftk::numberOfPhiPixelsInIblModule)*ftk::phiPitch/ftk::millimiter;
-    if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInIblModule)*ftk::etaPitchIbl/ftk::millimiter
-		* ftk::lengthOfIblModuleIn250umPixels / ftk::numberOfEtaPixelsInIblModule; // planar sensors 
-  } else {
-    if (i==0) return (m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule)*ftk::phiPitch/ftk::millimiter;
-    if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter
-                * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule; // planar sensors
+  unsigned int hitNCoords = this->getDim();
+  if (i>=hitNCoords) return -9999;
+  if (hitNCoords==2) { // Pixel case
+    bool isIBL = m_plane==0; // Annovi: this is compatible only with IBL prod that uses IBL for FTK
+                             // It works correctly for 2nd stage tracks with IBL
+                             // It WON'T work for 1st stage tracks without IBL in the AM
+    if (isIBL) {
+      if (i==0) return (m_coord[i]-0.5*ftk::numberOfPhiPixelsInIblModule + 0.5 - 0.14 ) // + half a pixel  - 7um  
+  		* ftk::phiPitch/ftk::millimiter;
+      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInIblModule)
+  		* ftk::etaPitchIbl/ftk::millimiter
+  		* ftk::lengthOfIblModuleIn250umPixels / ftk::numberOfEtaPixelsInIblModule; // planar sensors 
+    } else {
+      if (i==0) {
+        float localCoordIn400umUnits = m_coord[i]-0.5*ftk::numberOfPhiPixelsInPixelModule;
+        if (this->getIsBarrel()) localCoordIn400umUnits += 0.5; // + half a pixel for barrel layers  
+        return localCoordIn400umUnits*ftk::phiPitch/ftk::millimiter;
+      }
+      if (i==1) return (m_coord[i]-0.5*ftk::numberOfEtaPixelsInPixelModule)*ftk::etaPitchPixel/ftk::millimiter
+                  * ftk::lengthOfPixelModuleIn400umPixels / ftk::numberOfEtaPixelsInPixelModule; // planar sensors
+    }
+  } 
+  if (hitNCoords==1) { // SCT case
   }
 
-  // SCT case to be implemented!!!
+  // SCT case left to be implemented since it is not needed now (and tricky for endcaps)
+  // createSCT_Cluster uses strip number and Nstrips directly.
+
   return -999;
 }

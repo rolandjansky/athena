@@ -55,7 +55,8 @@ inputs="0" #..25"
 #baseDS=user.tomoya.FTKBase_SingleMuon_64reg_8Lextfrom12L_multi_400MTracks_20131206_ANALY_MWT2_SL6/ #8L only
 baseDS=user.annovi.tomoya_phchang_multi_400MTracks_64reg.CONST_FTK.20140113cleanV3/ # clean for production
 #bankDS=user.tomoya.raw_8LcIbl123_15x16x36Ibl_mc12IBL_40Mx125loops_autotuneFixv2_Region0to63_4NSubs_400MTracks_201301218/ # before makeDCBank
-#bankDS=user.tomoya.raw_8LcIbl123_15x16x36Ibl_mc12IBL_Region0to63_4NSubs_AM30x32x72Ibl_multimuons_400MTracks_20131209/ # not cached
+#bankDS=user.tomoya.raw_8LcIbl123_15x16x36Ibl_mc12IBL_Region0to63_4NSubs_AM30x32x72Ibl_multimuons_400MTracks_20131209/ # not cached (lost as of July 2014)
+#bankDS= TO BE FILLED WITH REPLACEMENT # not cached
 #bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_singleMuons_pubnote400MTrkTraining.ftk.2013_12_12_16_31_24/ #with cache
 bankDS=user.annovi.raw_8LcIbl123_15x16x36Ibl_singleMuons_pubnote400MTrkTraining.ftk.2013_12_12_16_31_24clean #with cache and cleaned
 

@@ -340,6 +340,12 @@ elif [ "${mode}" == "merge_pconst" ]; then
     runPCONST_MERGE ${site}
     set +x
 
+elif [ "${mode}" == "merge_pconst_root" ]; then
+    set -x
+    echo "Running PCONST_MERGE_ROOT at ${site}"
+    runPCONST_MERGE_ROOT ${site}
+    set +x
+
 else
     echo "Unsupported run mode: ${mode}"
 fi

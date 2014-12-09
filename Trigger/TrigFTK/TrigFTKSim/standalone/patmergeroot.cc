@@ -64,6 +64,13 @@ MINCOVERAGE 2
 #  by appending .root 
 OUT_FILE patterns.patt.bz2
 #
+# compression algortith (see Root software, Compression.h)
+COMPRESSION_TYPE Global 
+#COMPRESSION_TYPE ZLIB 
+#COMPRESSION_TYPE LZMA 
+#COMPRESSION_TYPE Old 
+COMPRESSION_LEVEL 1
+#
 # do not split output into sub-regions
 #
 NSUB 0
@@ -89,6 +96,7 @@ pattern3.root
 #include "TrigFTKSim/FTKRootFile.h"
 #include "TrigFTKSim/ftk_dcap.h"
 #include "TrigFTKSim/FTKMergeRoot.h"
+#include <Compression.h>
 
 using namespace std;
 
@@ -99,6 +107,8 @@ using namespace std;
 #define MINCOVERAGE "MINCOVERAGE"
 #define NSUB "NSUB"
 #define UNSPLIT_SECTORS "UNSPLIT_SECTORS" 
+#define COMPRESSION_TYPE "COMPRESSION_TYPE" 
+#define COMPRESSION_LEVEL "COMPRESSION_LEVEL" 
 
 class PatMergeSteering : public FTKSteering {
 public:
@@ -111,6 +121,8 @@ public:
          fSteering->AddIntPar(MINCOVERAGE);
          fSteering->AddIntPar(NSUB);
          fSteering->AddIntPar(UNSPLIT_SECTORS,1,1);
+         fSteering->AddStringPar(COMPRESSION_TYPE,1,"Global");
+         fSteering->AddIntPar(COMPRESSION_LEVEL,1,1);
          // the VMEM_LIMIT parameter is not used but is tolerated for
          //    backwards compatibility
          fSteering->AddIntPar("VMEM_LIMIT");
@@ -149,6 +161,27 @@ public:
    int GetUnsplitSectors(void) const {
       return (*this)[UNSPLIT_SECTORS][0];
    }
+   int GetCompressionLevel(void) const {
+      return (*this)[COMPRESSION_LEVEL][0];
+   }
+   const char *GetCompressionType(void) const {
+      return *(*this)[COMPRESSION_TYPE];
+   }
+   int GetCompression(void) const {
+      TString type(GetCompressionType());
+      int level=GetCompressionLevel();
+      if((level>=0)&&(level<=9)) {
+         if(type.EqualTo("ZLIB"))
+            return ROOT::CompressionSettings(ROOT::kZLIB, level);
+         if(type.EqualTo("LZMA"))
+            return ROOT::CompressionSettings(ROOT::kLZMA, level);
+         if(type.EqualTo("Old"))
+            return ROOT::CompressionSettings(ROOT::kOldCompressionAlgo, level);
+         if(type.EqualTo("Global"))
+            return ROOT::CompressionSettings(ROOT::kUseGlobalSetting, level);
+      }
+      return -1;
+   }
 private:
    static PatMergeSteering *fSteering;
 };
@@ -185,6 +218,17 @@ int main(int argc, char const *argv[]) {
    TString outName = PatMergeSteering::Instance()->GetOutputName();
    const int nInput = PatMergeSteering::Instance()->GetNInput();
    const int mincov = PatMergeSteering::Instance()->GetMinCoverage();
+   const int compression =
+      PatMergeSteering::Instance()->GetCompression();
+   if(compression<0) {
+      logging.Error("steering")
+         <<"undefined compression algorithm type="
+         <<PatMergeSteering::Instance()->GetCompressionType()
+         <<" level="
+         <<PatMergeSteering::Instance()->GetCompressionLevel()
+         <<"\n";
+   }
+
    FTKMergeRoot merger(outName.Data());
    // set text-import name if available
    if ( PatMergeSteering::Instance()->HaveTextImportName() ) 
@@ -193,9 +237,10 @@ int main(int argc, char const *argv[]) {
    for(int i=0;i<nInput;i++) 
       merger.AddFile(PatMergeSteering::Instance()->GetInput(i));
    // do merging
-   error += merger.DoMerge(mincov);
+   merger.SetNSubregions(PatMergeSteering::Instance()->GetNSub());
+   error += merger.DoMerge(mincov,compression);
    // write out in addition ascii-file if output file did not ended with '.root'
-   if ( !outName.EndsWith(".root") ) merger.DoTextExport(outName);
+   if ( !outName.EndsWith(".root") ) merger.DoTextExport(outName.Data());
    //done
    return error;
    

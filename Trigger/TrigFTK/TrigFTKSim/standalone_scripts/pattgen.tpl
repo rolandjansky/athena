@@ -28,6 +28,7 @@ RESTRICT_SCT_PAIR_MODULE 0
 
 PMAP_FILE       ${mapdir}/raw_${L}L${Lv}.pmap
 RMAP_FILE       ${mapdir}/raw_${L}L.rmap
+MODULE_LUT      ${mapdir}/raw_${L}L${Lv}.moduleidmap
 
 SS_FILE         ${ssdir}/raw_${sslabel}.ss
 # fraction by which ss are shifted. 0.5 means 1/2-ss shifted bank

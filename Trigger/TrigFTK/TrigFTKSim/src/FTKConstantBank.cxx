@@ -237,6 +237,7 @@ FTKConstantBank::~FTKConstantBank()
 
     delete [] m_maj_a;
     delete [] m_maj_kk;
+    delete [] m_isgood;
   }
 
   delete [] m_coordsmask;

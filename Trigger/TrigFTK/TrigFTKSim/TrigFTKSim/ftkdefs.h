@@ -32,7 +32,8 @@ namespace ftk {
   const float sensorThicknessPixel = 250*micrometer;
   const float sensorThicknessIbl = 200*micrometer;
   const float lengthOfPixelModuleIn400umPixels = 152.;
-  const float lengthOfIblModuleIn250umPixels = 162.+0.400/0.250;
+  const float lengthOfIblModuleIn250umPixels = 156.+2*2.+2*0.400/0.250;
+  // 156 pixels of 250um, plus 2 pixels of (2*250um) + 2 pixels of 400um
   const float numberOfEtaPixelsInPixelModule = 144.; // Pixels modules
   const float numberOfEtaPixelsInIblModule = 160.; // Pixels in IBL modules
   const float numberOfPhiPixelsInPixelModule = 328.; // Pixels modules

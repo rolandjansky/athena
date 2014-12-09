@@ -113,6 +113,26 @@ if FTKMerger.MergeRegion == -1 :
 else :
   pmjp.PerfMonFlags.OutputFile = 'ntuple_FTKMergeTower%d.pmon.gz' % FTKMerger.MergeRegion
 
+### truth output copying
+if hasattr(runArgs,'EvtInfoTreeName'):
+    FTKMerger.EvtInfoTreeName = runArgs.EvtInfoTreeName
+if hasattr(runArgs,'TruthTrackTreeName'):
+    FTKMerger.TruthTrackTreeName = runArgs.TruthTrackTreeName
+
+if hasattr(runArgs, 'SaveTruthTree'):
+    if runArgs.SaveTruthTree:
+      if hasattr(runArgs, 'inputNTUP_FTKIPFile'):
+        FTKMerger.TruthFileNames = runArgs.inputNTUP_FTKIPFile
+      else: ### be safe otherwise
+        FTKMerger.TruthTrackTreeName = ''
+        FTKMerger.EvtInfoTreeName = ''
+    else:
+      FTKMerger.TruthTrackTreeName = ''
+      FTKMerger.EvtInfoTreeName = ''
+else:
+    FTKMerger.TruthTrackTreeName = ''
+    FTKMerger.EvtInfoTreeName = ''
+
 # Set output file
 if hasattr(runArgs,'FTKUnmergedInputPath'):
     doGrid = False 
@@ -156,13 +176,47 @@ else:
 if hasattr(runArgs,'FTKForceAllInput'):
     FTKMerger.FTKForceAllInput = runArgs.FTKForceAllInput
 
+# enable an internal flag for grid jobs naming conventions
 if hasattr(runArgs,'FTKDoGrid'):
     FTKMerger.FTKDoGrid = runArgs.FTKDoGrid    
 
 if hasattr(runArgs,'outputNTUP_FTKFile') :
     FTKMerger.FTKMergedOutput = runArgs.outputNTUP_FTKFile
+    FTKMerger.GenerateRDO = False
 elif hasattr(runArgs,'outputNTUP_FTKTMPFile') :
     FTKMerger.FTKMergedOutput = runArgs.outputNTUP_FTKTMPFile
+    FTKMerger.GenerateRDO = False
+elif hasattr(runArgs,'outputRDO_FTKFile') :
+  if hasattr(runArgs, 'inputRDOFile') :
+    # Merge an existing RDO with the FTK tracks
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    # this initialize the input service
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    from RecJobTransforms.RDOFilePeeker import RDOFilePeeker
+    RDOFilePeeker(runArgs, ftkLog) # not sure what it does
+    # enable the detector flag
+    from AthenaCommon.DetFlags import DetFlags
+    DetFlags.all_setOn()
+    DetFlags.ALFA_setOff()
+    DetFlags.ZDC_setOff()
+    # other services
+    from AthenaCommon.AppMgr import ServiceMgr
+    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    ServiceMgr += AthenaPoolCnvSvc()
+    import AthenaPoolCnvSvc.ReadAthenaPool
+    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+    # Add the FTK collections to the RDO
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    StreamRDO = AthenaPoolOutputStream( "StreamRDO", runArgs.outputRDO_FTKFile) 
+    #StreamRDO.TakeItemsFromInput=True
+    StreamRDO.ForceRead=TRUE
+    StreamRDO.ItemList+=["FTK_RawTrackContainer#*"]
+  else :
+    # generate RDO file from scratch, this represents an RDO
+    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr  
+    StreamRDO=MSMgr.NewPoolStream("StreamRDO",runArgs.outputRDO_FTKFile)  
+    StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] ) 
+    StreamRDO.AddItem( ["TrigInDetTrackCollection#*"] )
 else:
     ftkLog.error('No output file for merge given')
     raise RuntimeError, 'No output file for merge given'

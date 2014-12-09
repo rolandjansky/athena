@@ -24,14 +24,13 @@ public:
    FTKMergeRoot(std::string outfilename);
    ~FTKMergeRoot();
    void DoTextImport();
-   void DoTextExport(TString TextOutFilename, int MinCoverage=1);
-   int DoMerge(int MinCoverage=1);
-   void AddFile(std::string filename);
-   void AddFiles(std::vector<std::string> filenames);
+   void DoTextExport(std::string const &TextOutFilename, int MinCoverage=1);
+   int DoMerge(int MinCoverage=1,int compression=1);
+   void AddFile(std::string const &filename);
+   void AddFiles(std::vector<std::string> const &filenames);
 
-   void SetOutputFile(std::string filename);
-   std::string SetOutputFile() { return m_OutFile;}
-   void SetTempRootFileName(std::string filename);
+   //std::string SetOutputFile() { return m_OutFile;}
+   void SetTempRootFileName(std::string const &filename);
    std::string GetTempRootFileName() const { return m_TempRootFile.Data();}
    int GetNInput() const { return m_InputFiles.size();}
    std::string GetInput(unsigned int i) const { return m_InputFiles[i];}
@@ -47,7 +46,8 @@ private:
 
 
 protected:
-   std::string m_OutFile;
+   std::string m_OutFile_basename;
+   TString m_OutFile_rootname;
    TString m_TempRootFile;
    std::vector<std::string > m_InputFiles;
    int m_NSubregions;

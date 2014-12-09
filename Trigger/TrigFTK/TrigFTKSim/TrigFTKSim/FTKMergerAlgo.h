@@ -30,6 +30,9 @@
 
 #include "TrigFTKPool/FTKAthTrack.h" 
 
+#include "TrigFTK_RawData/FTK_RawTrack.h"
+#include "TrigFTK_RawData/FTK_RawTrackContainer.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -141,6 +144,7 @@ private:
   StatusCode initStandaloneTracks();
   StatusCode mergeStandaloneTracks();
   StatusCode finalizeStandaloneTracks();
+  StatusCode finalizeCopyTruthTree();
 
   //remove track function
   std::list<FTKAthTrack>::iterator removeTrack(std::list<FTKAthTrack>&, std::list<FTKAthTrack>::iterator, FTKAthTrack&, const FTKAthTrack&,bool isnew=false);
@@ -181,6 +185,10 @@ private:
   std::string m_out_trktrack_Name;
   TrackCollection *m_out_trktrack;
 
+  bool m_GenerateRDO; // when true the raw track collection is generated during the merge
+  std::string m_ftk_raw_trackcollection_Name;
+  FTK_RawTrackContainer *m_ftk_raw_trackcollection;
+
   std::string m_out_ftktrackconv_Name;
   TrackCollection *m_out_ftktrackconv;
 
@@ -216,6 +224,10 @@ private:
   const VxContainer*                m_primcontainer;
   std::string m_vxCandidatesPrimaryName;
 
+  std::vector< std::string > m_truthFileNames; // if not blank, vector of paths of files with truth info in it, to store in output
+  std::string m_truthTrackTreeName; // if not = "", name of truth track tree, to store in output
+  std::string m_evtinfoTreeName; // if not = "", name of evtinfo tree, to store in output
+  int m_saveTruthTree;
   std::string                  m_out_convTrackPC_Name;
   Rec::TrackParticleContainer*      m_out_convTrackPC;
 
@@ -235,6 +247,11 @@ private:
   //
   double getSigmaQoverP(double invpt, double sigmaTwoInvPt, double eta,  double sigmaEta);
   double getSigmaTheta (double eta,   double sigmaEta);
+
+  // Convertor for RDO objects 
+  FTK_RawTrack SimToRaw(FTKAthTrack);
+  FTK_RawTrack* SimToRaw(const FTKTrack&);
+  void printBits(unsigned int num, unsigned int length);
 };
 
 #endif // FTKMergerAlgo_h

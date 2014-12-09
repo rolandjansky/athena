@@ -53,7 +53,11 @@ def getTransform():
     executorSet.add(athenaExecutor(name = 'FTKSimulationMerge', 
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
                                    inData = ['NTUP_FTKTMP'],
-                                   outData = ['NTUP_FTK'],))
+                                   outData = ['NTUP_FTK','RDO_FTK'],))
+    executorSet.add(athenaExecutor(name = 'FTKSimulationRDOMerge', 
+                                   skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
+                                   inData = [('NTUP_FTKTMP','RDO')],
+                                   outData = ['RDO_FTK'],))
     executorSet.add(athenaExecutor(name = 'FTKRecoRDOtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD.py',
                                    substep = 'r2e', inData = [('RDO', 'NTUP_FTK')], outData = ['DESD_FTK'], 
                                    perfMonFile = 'ntuple_RAWtoESD.pmon.gz',))
@@ -125,7 +129,9 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--outputDESD_FTKFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', runarg=True, type='ftk'),
                         help='Output FTK ESD file', group='TrigFTKReco')    
-
+    parser.add_argument('--outputRDO_FTKFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True, io='output', type='rdo'),
+                        help='RDO with FTK merged tracks file', group='TrigFTKReco')
         
     parser.add_argument('--FTKUnmergedInputPath', 
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),

@@ -57,6 +57,7 @@ FTKRawHit::FTKRawHit(const FTKRawHit &cpy) :
   m_phiWidth(cpy.m_phiWidth),
   m_dPhi(cpy.m_dPhi),
   m_dEta(cpy.m_dEta),
+  m_hw_word(cpy.m_hw_word),
   m_includesGangedHits(cpy.m_includesGangedHits),
   m_eventindex(cpy.m_eventindex),
   m_barcode(cpy.m_barcode),
@@ -99,6 +100,7 @@ FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
       m_barcode = cpy.m_barcode;
       m_barcode_pt = cpy.m_barcode_pt;
       m_parentage_mask = cpy.m_parentage_mask;
+      m_hw_word = cpy.m_hw_word;
       m_truth = 0;
       m_channels.assign(cpy.m_channels.begin(),cpy.m_channels.end());
     }
@@ -128,6 +130,7 @@ void FTKRawHit::reset()
   m_eventindex = -1;
   m_barcode_pt = 0.;
   m_parentage_mask = 0;
+  m_hw_word = 0;
   if( m_truth ) { 
      delete m_truth; 
      m_truth = 0;
@@ -182,6 +185,8 @@ istream& operator>>(istream &input, FTKRawHit &hit)
       }
     }
   }
+  
+    input >> hit.m_IdentifierHash;
   
   // change the layer id according the FTK use
   hit.normalizeLayerID();
@@ -322,12 +327,15 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
     sector = m_phi_module*1000+code;
   }
   else if (FTKSetup::getFTKSetup().getIBLMode()==1 && m_layer_disk==0 && m_hitType==ftk::PIXEL && m_barrel_ec==0 ){
-    // is the ibl layer
-    sector = m_phi_module*1000+m_eta_module+8; // ibl was 6
-//      printf("sector ibl: %d\n",sector);
+      // this is an IBL module, without 3d sensors, only possible case up to the TDAQ TDR
+      sector = m_phi_module*1000+m_eta_module+8; // ibl was 6
+  }
+  else if (FTKSetup::getFTKSetup().getIBLMode()==2 && m_layer_disk==0 && m_hitType==ftk::PIXEL && m_barrel_ec==0 ){
+      // this is an IBL module with 3d sensors, 20 modules in total instead of 16
+      sector = m_phi_module*1000+m_eta_module+10;
   }
   else {
-    // is the barrel region
+    // is a generic module of the barrel region
     sector = m_phi_module*1000+m_eta_module+6;
   }
 

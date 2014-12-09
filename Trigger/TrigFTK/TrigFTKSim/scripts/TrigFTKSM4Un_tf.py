@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4Un_tf.py 581253 2014-02-03 17:15:23Z gvolpi $ 
+# @version $Id: TrigFTKSM4Un_tf.py 624387 2014-10-27 17:37:30Z jahreda $ 
 
 import sys
 import time
@@ -26,7 +26,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 subregions = 4
 
-ListOfDefaultPositionalKeys=['--AMI', '--CachePath', '--CachedBank', '--DBBankLevel', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--execOnly', '--fit711constantspath', '--fitconstantspath', '--ignoreErrors', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--reportName', '--rmap_path', '--sectorpath', '--showGraph', '--showPath', '--showSteps', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation']
+ListOfDefaultPositionalKeys=['--AMI', '--CachePath', '--CachedBank', '--DBBankLevel', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--execOnly', '--fit711constantspath', '--fitconstantspath', '--ignoreErrors', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--reportName', '--rmap_path', '--sectorpath', '--showGraph', '--showPath', '--showSteps', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation', '--saveTruthTree']
 
 
 @stdTrfExceptionHandler
@@ -46,7 +46,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    
+
     executorSet = set()
     for subregion in range(subregions):
         executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion), 
@@ -58,11 +58,15 @@ def getTransform():
                                                          'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion)}))
     executorSet.add(athenaExecutor(name = 'FTKSimulationMerge', 
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-                                   inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])],
+                                   inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)],
                                    outData = ['NTUP_FTKTMP'],
                                    extraRunargs = {'inputNTUP_FTKTMPFile': [ 'tmp.NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions)]},
                                    runtimeRunargs = {'MergeRegion': 'runArgs.bankregion[0]',
-                                                     'FirstRegion': 'runArgs.bankregion[0]'},
+                                                     'FirstRegion': 'runArgs.bankregion[0]',
+													 'TruthTrackTreeName' : "'truthtracks'",
+													 'EvtInfoTreeName' : "'evtinfo'",
+                                                     'SaveTruthTree' : '1'
+													 },
                                    ))
     trf = transform(executor = executorSet, description = 'FTK Subregion simulate x {0} and merge.'.format(subregions))
 
@@ -169,6 +173,23 @@ def addFTKSimulationArgs(parser):
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKSim')
     parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKSim')
+    #JDC:	
+    parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Directory where input files are kept', group='TrigFTKSim')
+    parser.add_argument('--FitConstantsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of fit constants', group='TrigFTKSim')
+    parser.add_argument('--PatternsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='Version of patterns', group='TrigFTKSim')
+    parser.add_argument('--separateSubRegFitConst', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Use separate fit constant for each subregion', group='TrigFTKSim')
+    parser.add_argument('--useDBPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Query the Data Base to get File Paths', group='TrigFTKSim')
+    parser.add_argument('--runNum', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Run Number', group='TrigFTKSim')
+    parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='COOL tag for a different version', group='TrigFTKSim')
+    #end JDC
+
 
     # Add named parameters for each subregion
     for subregion in range(subregions):
@@ -192,6 +213,9 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--inputNTUP_FTKIPFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkhits'),
                         help='FTK RDO file in ROOT format'.format(subregion), group='TrigFTKSim', nargs='+')
+    parser.add_argument('--inputNTUP_FTKIPFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkhits'),
+                        help='FTK RDO file in ROOT format'.format(subregion), group='TrigFTKMerge', nargs='+')
     parser.add_argument('--inputTXT_FTKIPFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, runarg=True, io='input', type='txt_ftkip'), 
                         help='Wrapper files (in .dat.bz2 format)', group='TrigFTKSim', nargs='+')

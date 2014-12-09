@@ -1788,12 +1788,46 @@ function runPCONST () {
     done
     echo "Running..."
     # run patterns from constants
-    echo date before running pattern job
-    date
-    ./ftk.py "${extraArgs[@]}" ${NEWBANKDIR[@]} -q ${queue} -r ${OUTPUTDIR} -t ${PWD} -I `pwd`/ftk.py -a patterns${reg}_${sub}__${run}
-    echo date after running pattern job
-    date
-    checkReturn
+
+#    echo ./ftk.py "${extraArgs[@]}" ${NEWBANKDIR[@]} -q ${queue} -r ${OUTPUTDIR} -t ${PWD} -I `pwd`/ftk.py -a patterns${reg}_${sub}__${run}
+    INPUT_FILENAME=patt/patterns_raw_${bankNumLayers}_${SSname}_${nsubs}M_reg${reg}_sub${sub}_run${run}.patt;
+    if [ "$PATMERGEROOT" == "1" ]; then
+# execute several loops, collect input files in
+        for ((rep=0;rep<nsubs;rep++)) ; do
+            echo date before running pattern job
+            date
+            ./ftk.py "${extraArgs[@]}" ${NEWBANKDIR[@]} -q ${queue} -r ${OUTPUTDIR} -t ${PWD} -I `pwd`/ftk.py -a patterns${reg}_${sub}__${run}
+            echo date after running pattern job
+            date
+            checkReturn
+            echo ls -l ${INPUT_FILENAME}
+            ls -l ${INPUT_FILENAME}
+            echo mv ${INPUT_FILENAME} patt/patt${rep}.bz2
+            mv ${INPUT_FILENAME} patt/patt${rep}.bz2
+            echo "===================================="
+            echo "bzcat  patt/patt${rep}.bz2 | head -5"
+            echo "  ..."
+            echo "bzcat  patt/patt${rep}.bz2 |tail -5"
+            bzcat  patt/patt${rep}.bz2 | head -5
+            echo "  ..."
+            bzcat  patt/patt${rep}.bz2 |tail -5
+            echo "===================================="
+        done
+# create link
+#    patt/patterns_raw_*.patt -> sub0.bz2
+        ln -s patt0.bz2 ${INPUT_FILENAME}
+        echo "ls -l patt/"
+        echo "==========="
+        ls -l patt/
+        echp "==========="
+    else
+        echo date before running pattern job
+        date
+        ./ftk.py "${extraArgs[@]}" ${NEWBANKDIR[@]} -q ${queue} -r ${OUTPUTDIR} -t ${PWD} -I `pwd`/ftk.py -a patterns${reg}_${sub}__${run}
+        echo date after running pattern job
+        date
+        checkReturn
+    fi
     echo
     echo "Last 100 lines of stdout:"
     tail -n 100 ${OUTPUTDIR}/run/raw_*/patterns/${reg}/${sub}/${run}/stdout.*.log
@@ -1805,7 +1839,6 @@ function runPCONST () {
     done;
     echo "Directory listing:"
     find . -maxdepth 2 -exec ls -ld \{\} \;
-    INPUT_FILENAME=patt/patterns_raw_${bankNumLayers}_${SSname}_${nsubs}M_reg${reg}_sub${sub}_run${run}.patt;
 
     echo "Unsplit pattern file: ${INPUT_FILENAME} (already zipped)"
     if [ -s "${INPUT_FILENAME}" ]; then
@@ -1854,7 +1887,44 @@ function runPCONST () {
 	mv ${INPUT_FILENAME} ${INPUT_FILENAME_NEW}
 	INPUT_FILENAME=${INPUT_FILENAME_NEW}
     fi;
-    if [ $nsubs -gt 1 ]; then
+    if [ "$PATMERGEROOT" == "1" ]; then # use new tool: patmergeroot
+        echo "============= running patmergeroot ============"
+#        INPUT_BZ_FILENAME=patterns.bz2
+#        ln -s ${INPUT_FILENAME} ${INPUT_BZ_FILENAME}
+        set -a INPUTFILES
+        INPUTFILES=(patt/patt*.bz2)
+        NINPUTS=${#INPUTFILES[@]}
+        echo "NINPUTS="${NINPUTS}
+        echo "INPUTFILES="${INPUTFILES[@]}
+        OUTPUT_ROOT_FILENAME=patt/patterns.root
+        TMP_ROOT_FILENAME=patt/textimport.patt.root
+        cat <<EOF > patmergeroot.in
+LOGGING_PRINT_LEVEL 4
+LOGGING_ABORT_LEVEL 2
+MINCOVERAGE 0
+COMPRESSION_TYPE LZMA
+COMPRESSION_LEVEL 3
+NINPUTS ${NINPUTS} ${INPUTFILES[*]}
+TEXTIMPORT_ROOTFILE ${TMP_ROOT_FILENAME}
+OUT_FILE ${OUTPUT_ROOT_FILENAME}
+EOF
+        echo "cat patmergeroot.in"
+        echo "==================="
+        cat patmergeroot.in
+        echo "==================="
+        echo ../standalone/patmergeroot < patmergeroot.in
+        ../standalone/patmergeroot < patmergeroot.in
+
+        echo "=========== list of files in patt ============"
+        ls -l patt/
+        echo "=========== list of files in ROOTDIR ========="
+        ls ${ROOTDIR}/
+	echo mv ${INPUT_FILENAME} ${ROOTDIR}/patterns_sub0.patt.bz2
+	mv ${INPUT_FILENAME} ${ROOTDIR}/patterns_sub0.patt.bz2
+	echo mv ${OUTPUT_ROOT_FILENAME} ${ROOTDIR}/patterns.patt.root
+	mv ${OUTPUT_ROOT_FILENAME} ${ROOTDIR}/patterns.patt.root
+
+    elif [ $nsubs -gt 1 ]; then
 	echo
 	echo "Now splitting patterns"
 	echo
@@ -2105,3 +2175,169 @@ function runPCONST_MERGE () {
 }
 
 
+# Merges patt-from-const runs generated in mode=pconst
+# using root files 
+function runPCONST_MERGE_ROOT () {
+    runNum=`extractOption runNum`
+
+    if [ -n "${runNum}" ]; then
+	run=${runNum}
+    else
+	run=1
+    fi;
+    echo "Merging patterns from constants in region $reg, subregion $sub"
+
+    cd ${SCRIPTDIR}
+    myDSname=`extractOption ftkDS`;
+    NLoops=`extractNLoops ${myDSname}`
+    MINCOVERAGE=`extractOption MINCOVERAGE 0`;
+    echo "myDSname=$myDSname NLoops=$NLoops"
+    mkdir -p tmp patt
+
+    # get a list of mode-9 pattern files for current region/subregion
+    greppat1="patterns.patt.root"
+    greppat2="reg${reg}_sub0"
+    if [ -s $STAGED ]; then
+	echo "Looking for mode=pconst outputs with these patterns: |${greppat1}|, |${greppat2}|"
+	cat $STAGED_FILES | grep --color=never ${greppat1} | grep --color=never ${greppat2} > tmp/thisJobListFiles
+	echo "Matched `wc -l < tmp/thisJobListFiles` files"
+	cat tmp/thisJobListFiles
+    else
+	echo "Look for available replicas:"
+	DQ2_LS_CMD -L $DQ2_LOCAL_SITE_ID -r $myDSname
+	DQ2_LS_CMD -L $DQ2_LOCAL_SITE_ID -f $myDSname > tmp/list_dq2output
+	echo "tail tmp/list_dq2output"
+	tail tmp/list_dq2output
+	grep --color=never '\[.\]' tmp/list_dq2output | sed -e "s,.*user,user," | grep --color=never patt.bz2 | awk '{print $1}' | sort > tmp/listFiles;
+	echo "tmp/listFiles contains `wc -l tmp/listFiles` files. First and last 5 files are:"
+	head -n5 tmp/listFiles && echo "..." && tail -n5 tmp/listFiles
+	cat tmp/listFiles | grep --color=never ${greppat1} | grep --color=never ${greppat2} > tmp/thisJobListFiles
+	echo "tmp/thisJobListFiles contains `wc -l tmp/thisJobListFiles` files. First and last 5 files are:"
+	head -n5 tmp/thisJobListFiles && echo "..." && tail -n5 tmp/thisJobListFiles
+    fi;
+
+    # prepare the list of files to be downloaded from the mode9 output dataset:
+    set -a INPUTFILES
+    INPUTFILES=(`cat tmp/thisJobListFiles`)
+    NINPUTS=${#INPUTFILES[@]}
+    echo "NINPUTS="${NINPUTS}
+    if [ "${NINPUTS}" -eq "0" ]; then
+	echo
+	echo "ERROR: tmp/thisJobListFiles doesn't contain any files for reg=$reg and sub=$sub"
+	echo "Exiting..."
+	echo
+	exit -1
+    fi
+    getFilesFromDS $DQ2_LOCAL_SITE_ID $myDSname "${INPUTFILES[*]}"
+
+    echo "files have been copied to "$myDSname
+    absoluteDSpath=`readlink -f $myDSname`
+
+    echo "absolute path to input files: "$absoluteDSpath
+    ln -s $absoluteDSpath patt.input
+
+    echo
+    echo "list of all input files: "
+    echo
+    /bin/ls -l patt.input/
+    echo
+
+    # Extract pattern run files
+    mkdir -p ${SCRIPTDIR}/patt/
+
+    set -a INPUTFILES
+    INPUTFILES=(patt.input/*.root*)
+    NINPUTS=${#INPUTFILES[@]}
+    echo "NINPUTS="${NINPUTS}
+    echo "INPUTFILES="${INPUTFILES[@]}
+
+    # if there are no files at all, fail the job:
+    if [ "${NINPUTS}" -le "0" ]; then
+	echo ERROR: the number of downloaded pattern files is ZERO.
+	echo ERROR: exiting
+	exit -1;
+    fi
+    if [ $NINPUTS -ne $NLoops ]; then
+	echo DOWNLOAD_CHECK: $NINPUTS $NLoops
+	echo NLoops=$NLoops
+	if [ $NINPUTS -ge $(( $(( $NLoops - 1 )) * 90 / 100 )) ]; then
+	    echo WARNING: not leaving even if the number of downloaded pattern files does not match NLoops.
+	    echo WARNING: $NINPUTS -ge $(( $(( $NLoops - 1 )) * 90 / 100 ))  "passing the ($NLoops - 1)*90% threshold"
+	else
+	    echo ERROR: $NINPUTS -ge $(( $(( $NLoops - 1 )) * 90 / 100 ))  "NOT passing the ($NLoops - 1)*90% threshold"
+	    echo ERROR: exiting...
+	    exit -1;
+	fi;
+    else
+	echo DOWNLOAD_CHECK: passed $NINPUTS -ne $NLoops
+    fi
+
+    mFinal=`extractOption factor`
+    TMP_ROOT_FILENAME=patt/tmp.root
+    cat <<EOF > job_patmergeroot.in
+LOGGING_PRINT_LEVEL 4
+LOGGING_ABORT_LEVEL 2
+MINCOVERAGE ${MINCOVERAGE}
+NSUB ${mFinal}
+COMPRESSION_TYPE LZMA
+COMPRESSION_LEVEL 3
+OUT_FILE patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}
+TEXTIMPORT_ROOTFILE ${TMP_ROOT_FILENAME}
+NINPUTS ${NINPUTS} ${INPUTFILES[*]}
+EOF
+    echo "Running patmergeroot and printing steering file:"
+    cat job_patmergeroot.in
+    ../standalone/patmergeroot job_patmergeroot.in
+    RETCODE=$?
+    echo "========= ls patt/ ========="
+    ls -l patt/
+    echo
+    for ((isub=0;isub<mFinal;isub++)) ; do
+        echo mv patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${isub}.bz2 patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${isub}.patt.bz2
+        mv patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${isub}.bz2 patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${isub}.patt.bz2
+    done
+    echo mv patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}.root patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}.patt.root
+    mv patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}.root patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}.patt.root
+         ## remove temporary file, and remove files that have been copied
+    echo "deleting temporary merged patterns"
+	 ##/bin/rm patt/*patterns_*.patt* # input patterns (but NOT remove output pattern!)
+    rm -f ${TMP_ROOT_FILENAME}
+
+    echo merge RETCODE=$RETCODE
+
+    if [ $RETCODE -eq 0 ]; then
+	echo
+	echo pattern merge ran successfully
+	echo;
+    else
+	echo ERROR: merge RETCODE=$RETCODE;
+	exit -1;
+    fi
+
+    mkdir -p tmp
+    rm -f tmp/countPatternHits
+    for ((final=0;final<mFinal;final++)) ; do
+        OUT_FILE=patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${final}.patt.bz2
+        echo;
+        echo produced file $OUT_FILE;
+        echo;
+        ls -l $OUT_FILE;
+        bzip2 -dc $OUT_FILE | awk 'BEGIN{i=0;nhit[0]=0;npatt[0]=0;};NF==2{L=$2;TOTPATT=$1;printf "TOTPATT=%d L=%d\n",TOTPATT,L;};(NF==L+3){NHIT=$NF; if (0){printf "%d  \n", NHIT}; if (NHIT!=nhit[i]) { if (nhit[i]!=0) { npatt[i+1]=$1; if(0){printf "i=%d  nhit[i]=%d  npatt[i+1]=%d\n", i, nhit[i], npatt[i+1]}; i++; nhit[i]=NHIT; }; if (i==0) { nhit[i]=NHIT; };  }; };END{npatt[i+1]=TOTPATT; for (j=0;j<=i;j++) { printf "nhit=%4d\tnpatt=%8d\tdelta=%8d\tfrac=%f\n",nhit[j],npatt[j+1], npatt[j+1]-npatt[j], 1.*(npatt[j+1]-npatt[j])/TOTPATT };}' >> tmp/countPatternHits
+    done
+    cp tmp/countPatternHits ${ROOTDIR}
+    echo
+    tail -n 100 tmp/countPatternHits | sed -e "s,^,INFO: ,"
+
+    # save the results. we no longer tar them, so they can be tmp/countPatternHits
+    mkdir -p ${OUTPUTDIR}
+    mv ${ROOTDIR}/countPatternHits ${OUTPUTDIR}
+    for ((final=0;final<mFinal;final++)) ; do
+        OUT_FILE=patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}_sub${final}.patt.bz2
+        mv ${OUT_FILE} ${ROOTDIR}/
+    done
+    mv patt/patterns_raw_${bankNumLayers}_${SSname}_${mFinal}M_reg${reg}.patt.root ${ROOTDIR}/
+    echo
+    echo "Directory listing (before leaving):"
+    echo
+    find . -maxdepth 2 -exec ls -ld \{\} \; ;
+}

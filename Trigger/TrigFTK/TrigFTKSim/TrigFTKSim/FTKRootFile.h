@@ -33,7 +33,8 @@ class FTKRootFile {
 public:
    static FTKRootFile *Instance(void);
    virtual TDirectory *OpenRootFileReadonly(char const *path);
-   virtual TDirectory *CreateRootFile(char const *path);
+   virtual TDirectory *CreateRootFile(char const *path,int compression=1);
+   virtual bool IsRootFile(char const *path);
 protected:
    FTKRootFile(void);
 private:

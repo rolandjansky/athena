@@ -37,6 +37,9 @@ private:
   FTK_RoadMarketOutput m_roadoutput;
   FTK_RoadMarketInput m_roadinput;
 
+  RoadFinder*  m_roadFinder;
+  TrackFitter* m_trackFitter;
+
   mutable MsgStream m_log;
 
   bool m_SaveRoads; // if True the roads are saved in the SG
@@ -60,6 +63,12 @@ public:
   virtual FTKRoadOutput* outputReference() { return &m_roadoutput;}
   virtual FTKRoadInput* inputReference() { return &m_roadinput;}
 
+  virtual RoadFinder* roadFinderReference() { return m_roadFinder; }
+  virtual void setRoadFinderReference(RoadFinder* roadfinder) { m_roadFinder = roadfinder; }
+
+  virtual TrackFitter* trackFitterReference() { return m_trackFitter; }
+  virtual void setTrackFitterReference(TrackFitter* trackFitter) { m_trackFitter = trackFitter; }
+
   void initRoads();
 
   void setNBanks(int nbanks);
@@ -71,6 +80,7 @@ public:
   unsigned long eventNumber(const unsigned int& ibank) const { return( (m_data && (m_data[ibank])) ? (m_data[ibank])->eventNumber() : 0 ); }
   void setRunNumber(const unsigned int& ibank,const unsigned long& val) { if( m_data && (m_data[ibank]) ) { (m_data[ibank])->setRunNumber(val); } }
   void setEventNumber(const unsigned int& ibank,const unsigned long& val) { if( m_data && (m_data[ibank]) ) { (m_data[ibank])->setEventNumber(val); } }
+
 
 
   void clearRoads();

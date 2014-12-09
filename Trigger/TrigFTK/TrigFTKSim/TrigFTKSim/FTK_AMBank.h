@@ -17,7 +17,14 @@
 #include <map>
 #include <unordered_map>
 #include <set>
+#include <unordered_set>
+
 #define MAXSS 100000
+
+//#define TESTTBB
+#ifdef TESTTBB
+#include <tbb/tbb.h>
+#endif
 
 #define NEWSSLIST
 
@@ -44,7 +51,7 @@ protected:
    FTKSSMap *m_ssmap_unused; // ss convetion map used in this bank, for unused layers
    int m_nplanes; // number of the planes for this bank
    int m_npatterns; // number of patterns in this bank
-   int **m_patterns; // list of the patterns
+   int *m_patterns; // list of the patterns
    int *m_patternCoverage; // pattern coverage 
    std::map<int,int> *m_sectorCoverage; // sector coverage 
    int m_totalCoverage; // total coverage 
@@ -54,13 +61,13 @@ protected:
    unsigned int *m_patterns_matchstatus; // a single word representing the match status of a single pattern
 
    std::unordered_map<int,FTKSS> *m_fired_ssmap; // maps storing the fired SS
+   std::unordered_set<int> *m_fired_ss;
+
    long m_nroads; // number of roads found
    long *m_amout; // id found roads
 
    int m_do_pattern_stats; // flag for the pattern statistic
    int *m_pattern_stats;
-
-   unsigned int m_HWModeSS; // check the format of the SS-ID: 0 ì is global, 1 is local (tower based)
 
    bool m_StoreAllSS; // flag to ask to store all the fired SS in the output file
 
@@ -69,6 +76,8 @@ protected:
    std::set<int> **m_WCSS2; // the lists with the SS with wildards, set from outside the class
    void applyWildcard();
    
+   bool m_useMinimalAMIN; // if true the minimal amin is used, no LUT required
+
    // cluster/ss information for Naoki's timing simulation
  private:
    std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]
@@ -84,10 +93,12 @@ protected:
    const std::vector<int>& naoGetNss() { return m_nao_nss; }
    int naoGetNroadsAM() const { return m_nao_nroads_am; }
    int naoGetNroadsRW() const { return m_nao_nroads_rw; }
-
+   const int * getPatterns() const {return m_patterns; }// list of the patterns
  protected:
    // lookup table between ss and patterns:
    hash_map<int,std::vector<int> > *m_ss_patt_lookup_map;  /*[plane]*/
+   int m_lutsepplane;
+   bool m_upperindex;
 
    // additional parameters
    bool m_require_first; // require a hit in the first layer (usually Pixel B-layer)
@@ -104,20 +115,26 @@ protected:
    
    // STL internal structures to manage the hits
    std::vector<FTKHit> *m_stlhit_sort; // an array FTK hit vectors, one per plane
-   
-   // replicate old functions and structure to populate a single AM bank
-   ftk::hitlist_elm_t **hit_sort; // a list of hits for each plane
    void sort_hits(const std::vector<FTKHit> &);
-   int m_nhits_hf; // number of filtered hits
-   ftk::hitlist_elm_t *m_hf_out; // hit filter list
-   int *m_perplane_cnt; // counter used in readout_hits() to count the hits in a plane
-   void readout_hits();
-   long int *m_nhits_rout; //
-   ftk::hitlist_elm_t **m_rout_out; // one list per plane
-   void routing();
    virtual void am_in();
+   virtual void am_in_minimal();
+   virtual void am_in2();
    virtual void am_output();
    virtual void attach_SS();
+
+   inline int _SSPOS(int ip, int il) const { return ip*(m_nplanes+1)+il; }
+
+#ifdef TESTTBB
+   class DataOrganizer {
+   private:
+     FTK_AMBank *m_amobj;
+   public:
+     DataOrganizer(FTK_AMBank *);
+     void operator()(const tbb::blocked_range<unsigned int>&) const; // distribute the hits into the SS
+   };
+
+   friend class DataOrganizer;
+#endif
 
    int informationMatch(int,int);
    void road_warrior();
@@ -142,7 +159,7 @@ public:
    FTK_AMBank(int,int);
    virtual ~FTK_AMBank();
 
-   const int& getNPatterns() { return m_npatterns; }
+   const int& getNPatterns() const { return m_npatterns; }
    FTKPattern getPattern(int ipatt);
 
    int getSectorCoverage(int sector){return (*m_sectorCoverage)[sector];};
@@ -155,6 +172,7 @@ public:
    bool getRequireLast() const { return m_require_last; }
    
    void setSSMap(FTKSSMap *map) { m_ssmap = map; }
+   FTKSSMap* getSSMap() const { return m_ssmap; }
 
    void setSSMapUnused(FTKSSMap *map) { m_ssmap_unused = map; }
 
@@ -165,6 +183,12 @@ public:
    int getSubID() const { return m_SubID; }
 
    int getNPlanes() const { return m_nplanes; }
+
+   void setPatternLUTBreak(unsigned il) { m_lutsepplane = il; }
+   unsigned int getPatternLUTBrask() { return m_lutsepplane; }
+
+   void setPatternLUTOutIn(bool v) { m_upperindex = v; }
+   bool getPatternLUTOutIn() { return m_upperindex;}
 
    virtual void init();
    virtual void end();
@@ -192,13 +216,13 @@ public:
   void setBadSSMapPath(std::string s ){ m_badmap_path = s;  }
   void setBadSSMapPath2(std::string s ){ m_badmap_path2 = s;  }
 
-  void setHWModeSS(unsigned int val) { m_HWModeSS = val; }
-  const unsigned int &getHWModeSS() { return m_HWModeSS; }
-
   void setStoreAllSS(bool flag) { m_StoreAllSS = flag; }
   bool getStoreAllSS() { return m_StoreAllSS; }
 
   float getTotRoads() const { return m_stat_totroads; }
   float getTotEvents() const { return m_stat_nevents; }
+
+  void setUseMinimalAMIN(bool v) { m_useMinimalAMIN = v; }
+  bool getUseMinimalAMIN() const { return m_useMinimalAMIN; }
 };
 #endif // FTK_AMBANK_H

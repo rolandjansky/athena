@@ -64,14 +64,23 @@ public:
    inline FTKHitPattern const &GetHitPattern(void) const { return fPattern; }
    inline FTKHitPattern &GetHitPattern(void) { return fPattern; }
    inline void AddToCoverage(int c) { fCoverage += c; }
-   inline int * GetCoverageAddress(void) { return &fCoverage; }
-   inline int * GetHitPatternAddress(void) { return fPattern.GetAddress(); }
+   inline int* GetCoverageAddress(void) { return &fCoverage; }
+   inline int* GetHitPatternAddress(void) { return fPattern.GetAddress(); }
    inline void SetCoverage(int c) { fCoverage=c; }
    inline void SetHitPattern(FTKHitPattern const &p) { fPattern=p; }
    inline void SetHit(int layer,int data) { fPattern.SetHit(layer,data); }
 protected:
    FTKHitPattern fPattern;
    int fCoverage;
+};
+
+class FTKPatternWithSector : public FTKPatternWithCoverage {
+public:
+   FTKPatternWithSector(int nLayer) : FTKPatternWithCoverage(nLayer) {}
+   inline int GetSectorID() const {return m_sectorID;}
+   inline void SetSectorID(int sID) {m_sectorID=sID;}
+protected:
+   int m_sectorID;
 };
 
 #define INCREASING_ORDER

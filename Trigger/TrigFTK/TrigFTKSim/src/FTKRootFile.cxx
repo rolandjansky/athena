@@ -44,14 +44,21 @@ TDirectory *FTKRootFile::OpenRootFileReadonly(char const *path) {
    return r;
 }
 
-TDirectory *FTKRootFile::CreateRootFile(char const *path) {
-   TFile *r=new TFile(path,"RECREATE");
+TDirectory *FTKRootFile::CreateRootFile(char const *path,int compression) {
+   TFile *r=new TFile(path,"RECREATE","",compression);
    if(r && r->IsZombie()) {
       // if TFile can not be opened, return 0
       delete r;
       r=0;
    }
    return r;
+}
+
+bool FTKRootFile::IsRootFile(char const *path) {
+   TFile *r=new TFile(path,"READ");
+   bool test= r && !r->IsZombie();
+   delete r;
+   return test;
 }
 
 //================== class FTKRootFileChain =================

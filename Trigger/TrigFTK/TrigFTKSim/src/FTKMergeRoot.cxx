@@ -57,8 +57,9 @@ using namespace std;
 //================== class FTKMergeRoot =================
 
 
-FTKMergeRoot::FTKMergeRoot(string OutFile) : FTKLogging("FTKMergeRoot") {
-   SetOutputFile(OutFile);
+FTKMergeRoot::FTKMergeRoot(string OutFile)
+   : FTKLogging("FTKMergeRoot") {
+   m_OutFile_basename=OutFile;
    m_TempRootFile = "";
    m_NSubregions = 0;
    m_DeleteAfterMerging = false;
@@ -69,34 +70,19 @@ FTKMergeRoot::FTKMergeRoot(string OutFile) : FTKLogging("FTKMergeRoot") {
 FTKMergeRoot::~FTKMergeRoot() {
    if ( m_InputFiles.size()>1) {
       Info("~FTKMergeRoot")<<"There are remaining input files. "
-				   <<"Merging these files as well into file: "<<m_OutFile<<"\n";
+                           <<"Merging these files as well\n";
       DoMerge();
    }
 }
 
-
 //___________________________________________________________________________________________ //
-void FTKMergeRoot::SetOutputFile(std::string filename) { 
-   //! Set filename of output file
-   //! Do not use this function after merging patters. This may result on loss of text-input patterns.
-   TString out = filename;
-   if(!out.EndsWith(".root")) {
-      out+=".root";
-      Info("SetOutputFile")<<"Filename does not end with '.root'. Appending this necessary suffix and using output file: "
-			   <<out<<endl;
-   }
-   m_OutFile = out.Data();
-}
-
-
-//___________________________________________________________________________________________ //
-void FTKMergeRoot::AddFile(string filename){
+void FTKMergeRoot::AddFile(string const &filename){
    m_InputFiles.push_back(filename);
 }
 
 
 //___________________________________________________________________________________________ //
-void FTKMergeRoot::AddFiles(vector<string> filenames){
+void FTKMergeRoot::AddFiles(vector<string> const &filenames){
    for ( unsigned int i = 0 ; i < filenames.size() ; i++ ){
       AddFile(filenames[i]);
    }
@@ -104,7 +90,7 @@ void FTKMergeRoot::AddFiles(vector<string> filenames){
 
 
 //___________________________________________________________________________________________ //
-int FTKMergeRoot::DoMerge(int MinCoverage){
+int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
    //! Merge all input files into one root file
    //! Return number of merged files
 
@@ -116,8 +102,7 @@ int FTKMergeRoot::DoMerge(int MinCoverage){
    //    see class FTKThinPatternsRoot
    //==============================================================
    DoTextImport();
-
-
+ 
    //==============================================================
    // second step:
    //    read all sectors from the temporary file and other
@@ -131,21 +116,12 @@ int FTKMergeRoot::DoMerge(int MinCoverage){
       Info("DoMerge")<<"========== No input files given. Nothing to do.\n";
       return 0;
    }
-   
-   // create output file
-   TFile* rootOutputFile = (TFile*)FTKRootFile::Instance()->CreateRootFile(m_OutFile.c_str());
-   if(!rootOutputFile) {
-      Fatal("DoMerge")
-	 <<"could not create merged patterns file=\""
-	 <<m_OutFile<<"\"\n";
-      return 3;
-   } 
-      
+
    // looping over input files and adding to FTKRootFileChain
-   FTKRootFileChain chain;
+   FTKRootFileChain chain(120);
    for(int i=0;i<GetNInput();i++) {
       TString inputFileName = GetInput(i);
-      if(inputFileName.EndsWith(".root")) { // files MUST end with root because of previous call DoTextImport();
+      if(FTKRootFile::Instance()->IsRootFile(inputFileName)) {
 	 chain.AddFile(inputFileName);
       }
    }
@@ -153,66 +129,95 @@ int FTKMergeRoot::DoMerge(int MinCoverage){
    // Sector Reader
    FTKPatternBySectorReader* input = new FTKPatternBySectorReader(chain);
    if(!input->GetNLayers()) { // sanity check
-      Warning("DoMerge")<<"number of layers not set, output will be empty. Cannot merge patterns!\n";
+      Warning("DoMerge")<<"number of layers not set, cannot merge patterns!\n";
       return 2;
    }
-   if( input->GetContentType()!=FTKPatternBySectorBase::CONTENT_NOTMERGED ) { // nothing to do
-      Info("DoMerge")<<"========== skip this step (input chain already ordered)\n";
-   }
-   else {  // merge all regions
-      Info("DoMerge")<<"========== merge patterns (to root file)\n";
-      FTKPatternBySectorWriter* patternWriter = new FTKPatternBySectorWriter(*rootOutputFile);
+   if((input->GetContentType()!=FTKPatternBySectorBase::CONTENT_NOTMERGED )
+      &&(!MinCoverage)&&(chain.GetLength()==1)) { // nothing to do
+      Info("DoMerge")
+         <<"skip merging step: ordered input chain length=1, MinCoverage==0\n";
+   } else {  // merge all regions
+   // create output file
+      // problems:
+      //  (1) output file may not end with ".root"
+      //  (2) old output file may be part of the input file list
+      bool doRename=false;
+      if(m_OutFile_rootname.Length()==0) {
+         m_OutFile_rootname=m_OutFile_basename;
+         if(!m_OutFile_rootname.EndsWith(".root")) {
+            m_OutFile_rootname+=".root";
+            Info("FTKMergeRoot")
+               <<"Root output Filename does not end with '.root'."
+               " changed to: "<<m_OutFile_rootname<<"\n";
+         }
+      }
+      TString outFileName= m_OutFile_rootname;
+      bool match=false;
+      for(int cycle=0;cycle<1000;cycle++) {
+         for(int i=0;i<GetNInput();i++) {
+            if(GetInput(i)==m_OutFile_rootname) {
+               match=true;
+               break;
+            }
+         }
+         if(match) {
+            outFileName=TString::Format("%d_",cycle)+outFileName;
+            doRename=true;
+         }
+      } while(match);
+      TDirectory *rootOutputFile = FTKRootFile::Instance()
+         ->CreateRootFile(outFileName,compression);
+      if(!rootOutputFile) {
+         Fatal("DoMerge")<<"could not create merged patterns file=\""
+            <<rootOutputFile<<"\"\n";
+         return 3;
+      } 
+      Info("DoMerge")<<"merge patterns to root file "<<outFileName<<"\n";
+      FTKPatternBySectorWriter* patternWriter =
+         new FTKPatternBySectorWriter(*rootOutputFile);
       patternWriter->AppendMergedPatterns(*input,MinCoverage);
       delete patternWriter; // write to disk
       patternWriter=0;
-   }
-   
-   // cleanup
-   if(rootOutputFile) {
+
       delete rootOutputFile;
-      rootOutputFile=0;
+
+      // delete files if requested
+      if ( m_DeleteAfterMerging ) {
+         for(int i=0;i<GetNInput();i++) {
+            TString inputFileName = GetInput(i);
+            if(FTKRootFile::Instance()->IsRootFile(inputFileName)) {
+               remove(inputFileName);
+            }
+         }
+      }
+
+      if(doRename) {
+         rename(outFileName,m_OutFile_rootname);
+         Info("DoMerge")<<"rename "<<outFileName<<" to "
+                        <<m_OutFile_rootname<<"\n";
+      }
+      // reset intput files (add one output file as single remaining file).
+      m_InputFiles.clear();
+      m_InputFiles.push_back(string(m_OutFile_rootname));
    }
    if(input) {
       delete input;
       input=0;
    }
 
-   // delete files if requested
-   if ( m_DeleteAfterMerging ) {
-      for(int i=0;i<GetNInput();i++) {
-	 TString inputFileName = GetInput(i);
-	 if(inputFileName.EndsWith(".root") )
-	    remove(inputFileName);
-      }
-   }
-   // reset intput files (add one output file as single remaining file).
-   m_InputFiles.clear();
-   m_InputFiles.push_back(m_OutFile);
-
-   return 0;
+  return 0;
 }
 
 
 //___________________________________________________________________________________________ //
 void FTKMergeRoot::DoTextImport(){
-   //! import text-files into temporary root files
-   
-   if ( !m_TempRootFile.EndsWith(".root") && m_TempRootFile != "" ) {
-      Warning("DoTextImport")<<"Filename for temporary root-file must end with .root.\n";
-      m_TempRootFile += ".root";
-   }
-   else if ( m_TempRootFile == "" ) {
-      TString tempout = "textimport." + m_OutFile;
-      m_TempRootFile = tempout;
-   }
-
    TFile* tmpFile=0;
    FTKPatternBySectorWriter* patternWriter=0;
 
    // ============ loop over input files and dump all patterns to tmp file
    for( int i=0 ; i<GetNInput() ; i++) {
       TString inputFileName = GetInput(i);
-      if(inputFileName.EndsWith(".root"))
+      if(FTKRootFile::Instance()->IsRootFile(inputFileName))
 	 continue; // nothing todo. it's already a root-file
       else if ( inputFileName=="") 
 	 continue; // no file name specified
@@ -220,6 +225,18 @@ void FTKMergeRoot::DoTextImport(){
 	 if ( !patternWriter ) { 
 	    // first ascii file to be read in, then open root-file
 	    Info("DoTextImport")<<"========== import text file(s) to file "<< m_TempRootFile<<"\n";
+
+            //! import text-files into temporary root files
+            if ( m_TempRootFile == "" ) {
+               TString tempout = "textimport." + m_OutFile_basename;
+               m_TempRootFile = tempout;
+            }
+            if ( !m_TempRootFile.EndsWith(".root") && m_TempRootFile != "" ) {
+               Warning("DoTextImport")
+                  <<"Filename for temporary root-file must end with .root.\n";
+               m_TempRootFile += ".root";
+            }
+
 	    tmpFile=(TFile*)FTKRootFile::Instance()->CreateRootFile(m_TempRootFile.Data());
 	    if(!tmpFile) {
 	       Fatal("DoTextImport")
@@ -271,13 +288,13 @@ void FTKMergeRoot::DoTextImport(){
 
 
 //___________________________________________________________________________________________ //
-void FTKMergeRoot::SetTempRootFileName(std::string filename){
+void FTKMergeRoot::SetTempRootFileName(std::string const &filename){
     m_TempRootFile = TString(filename);
 }
 
 
 //___________________________________________________________________________________________ //
-void FTKMergeRoot::DoTextExport(TString TextOutFilename, int MinCoverage){
+void FTKMergeRoot::DoTextExport(std::string const &TextOutFilename, int /*MinCoverage*/){
    //! Save output file in compressed ASCII format
 
    Info("DoTextExport")
@@ -286,39 +303,48 @@ void FTKMergeRoot::DoTextExport(TString TextOutFilename, int MinCoverage){
    // Try to merge files, if not yet done so.
    //DoMerge();
 
-   // re-open everything if text-output is requested
-   TFile* rootOutputFile = (TFile*)FTKRootFile::Instance()->OpenRootFileReadonly(m_OutFile.c_str());
-   if(!rootOutputFile) {
-      Error("DoMerge") <<" can not open \""<<m_OutFile<<"\" for reading\n";
-      return;
+   // looping over input files and adding to FTKRootFileChain
+   FTKRootFileChain chain(120);
+   for(int i=0;i<GetNInput();i++) {
+      TString inputFileName = GetInput(i);
+      if(FTKRootFile::Instance()->IsRootFile(inputFileName)) {
+	 chain.AddFile(inputFileName);
+      }
    }
-
-   FTKPatternBySectorReader* input = new FTKPatternBySectorReader(*rootOutputFile);
+   FTKPatternBySectorReader* input = new FTKPatternBySectorReader(chain);
    if(!input) {
       Fatal("DoTextExport")<<"do not know where to read the pattern from\n";
       return;
-   } 
+   }
+   if(input->GetContentType()!=FTKPatternBySectorBase::CONTENT_MERGED) {
+      Fatal("DoTextExport")
+         <<"input chain "<<input->GetSourceName()<<"is not ordered\n";
+      return;
+   }
    
    int nSub = m_NSubregions;
+   vector<TString> nSubFiles;
    if(m_NSubregions<1) nSub=1;
    for(int iSub=0;iSub<nSub;iSub++) {
+      TString outputName(TextOutFilename);
       if(m_NSubregions>0) {
 	 //	 if ( TextOutFilename.EndsWith() ) {;
 	 Info("DoTextExport")<<"Appending subregion and .bz2 to output filename.\n";
-	 TextOutFilename += TString::Format("_sub%d.bz2",iSub);
+	 outputName += TString::Format("_sub%d.bz2",iSub);
+	 nSubFiles.push_back(outputName);
 	 //}
       }
-      ftk_dcap::ostream* out = ftk_dcap::open_for_write(TextOutFilename.Data());
+      ftk_dcap::ostream* out = ftk_dcap::open_for_write(outputName.Data());
       if(!out) {
-	 Fatal("DoTextExport")<<"could not create file \""<<TextOutFilename<<"\"\n";
+	 Fatal("DoTextExport")<<"could not create file \""<<outputName<<"\"\n";
 	 return;
       } 
       else {
-	 Info("DoTextExport")<<"writing to \""<<TextOutFilename<<"\"\n";
+	 Info("DoTextExport")<<"writing to \""<<outputName<<"\"\n";
 	 if(input->GetNLayers()==0) {
 	    Warning("DoTextExport")<<"number of layers is zero\n";
 	 }
-	 input->WritePatternsToASCIIstream(*out,MinCoverage,iSub,nSub);
+	 input->WritePatternsToASCIIstream(*out,iSub,nSub);
 	 out->flush();
 	 delete out;
       }
@@ -328,11 +354,16 @@ void FTKMergeRoot::DoTextExport(TString TextOutFilename, int MinCoverage){
       delete input; //writes output message: 
       input=0;
    }
-   if(rootOutputFile) {
-      delete rootOutputFile;
-      rootOutputFile=0;
+   if(m_NSubregions<1) {
+      Info("DoTextExport")
+         <<"Wrote patterns to ascii file: " <<TextOutFilename<<endl;
+   } else {
+      Info("DoTextExport")
+         <<"Wrote patterns to ascii files:"<<endl;
+      for(int iSub=0;iSub<m_NSubregions;iSub++) {
+	 Info("DoTextExport")<<"  - "<<nSubFiles[iSub]<<endl;
+      }
    }
-   Info("DoTextExport")<<"Wrote patterns to ascii file: " <<TextOutFilename<<endl;
 }
 
    

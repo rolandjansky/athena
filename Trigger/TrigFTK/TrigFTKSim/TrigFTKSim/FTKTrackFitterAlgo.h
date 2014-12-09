@@ -77,6 +77,8 @@ private:
   float m_SSF_TR_min_eta;
   float m_SSF_TR_max_eta;
 
+  bool m_save_1stStageTrks;
+
   //output
   bool m_doTrackFile;
   bool m_addRoads;

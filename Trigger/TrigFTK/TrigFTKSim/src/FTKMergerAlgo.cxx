@@ -9,7 +9,7 @@
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "IdDictDetDescr/IdDictDetDescr/IdDictManager.h"
+#include "IdDictDetDescr/IdDictManager.h"
 
 #include "TrigFTKSim/FTKMergerAlgo.h"
 #include "TrigFTKPool/FTKAthTrack.h"
@@ -35,6 +35,9 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+
+#define NINT(a) ((a) >= 0.0 ? (int)((a)+0.5) : (int)((a)-0.5))
+
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +47,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_useStandalone(true),
   m_singleProces(false),
   m_doMerging(false),
-  m_nregions(8), m_nsubregions(16),
+  m_nregions(64), m_nsubregions(4),
   m_neventsUnmergedFiles(0),
   m_neventsMerged(0),
   m_outputTree(0),
@@ -79,6 +82,9 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_FTKSCTCluContainer(0x0),
   m_out_trktrack_Name("FTK_Trk_Tracks"), // name of the collection used to store RAW Trk::Tracks
   m_out_trktrack(0x0),
+  m_GenerateRDO(false),
+  m_ftk_raw_trackcollection_Name("FTK_RDO_Tracks"),
+  m_ftk_raw_trackcollection(0x0), // JWH Added to test FTK RDO
   m_out_ftktrackconv_Name("FTK_Trk_Tracks_Refit"), // name of the collection used to store converted Trk::Tracks
   m_out_ftktrackconv(0x0), // collection used to store converted TrkTrack
   m_out_ftktrackparticleconv_Name("FTK_TrackParticles_Refit"), // name of the collection used to store converted TrackParticle
@@ -93,7 +99,11 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   //  m_particleCreatorTool(0x0),
   m_out_trackPC_Name("FTK_TrackParticles"),
   m_out_trackPC(0x0),
-  m_vxCandidatesPrimaryName("VxPrimaryCandidate")
+  m_vxCandidatesPrimaryName("VxPrimaryCandidate"),
+  m_truthFileNames(),
+  m_truthTrackTreeName(""),
+  m_evtinfoTreeName(""),
+  m_saveTruthTree(1)
 {
   declareProperty("useStandalone",m_useStandalone,"Use tracks produced from the standalone version");
   declareProperty("SingleProces",m_singleProces,"Assume in the same process with the TF");
@@ -138,6 +148,12 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("FTKTrackParticleContainerRefit",m_out_ftktrackparticleconv_Name);
   declareProperty("FTKLVL2ContainerRefit",m_out_indettrackconv_Name);
   declareProperty("FTKTrkTrackContainerRefit",m_out_ftktrackconv_Name);
+
+  declareProperty("GenerateRDO",m_GenerateRDO);
+  declareProperty("TruthFileNames",m_truthFileNames);
+  declareProperty("TruthTrackTreeName",m_truthTrackTreeName);
+  declareProperty("EvtInfoTreeName",m_evtinfoTreeName);
+  declareProperty("SaveTruthTree",m_saveTruthTree);
 }
 
 FTKMergerAlgo::~FTKMergerAlgo()
@@ -689,9 +705,10 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
   //
   // Create the merged file
   //
-  string ofname = Form("%s",m_ftktrack_mergeoutput.c_str());
-  m_outputFile = TFile::Open(ofname.c_str(),"recreate");
-
+  if (!m_GenerateRDO) {
+    string ofname = Form("%s",m_ftktrack_mergeoutput.c_str());
+    m_outputFile = TFile::Open(ofname.c_str(),"recreate");
+  }
   //
   // create the TTree and the branches
   //
@@ -726,6 +743,18 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
     return StatusCode::SUCCESS;    
   }
 
+  // JWH Testing adding to storegate ///
+  if (m_GenerateRDO) {
+    m_ftk_raw_trackcollection = new FTK_RawTrackContainer;
+
+    StatusCode scJ = m_StoreGate->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
+    if (scJ.isFailure()) {
+      log << MSG::FATAL << "Failure registering FTK_RawTrackContainer" << endreq;
+      return StatusCode::FAILURE;
+    } else{
+      log << MSG::DEBUG << "Setting FTK_RawTrackContainer registered" << endreq;
+    }
+  }
 
   //
   //  Set event index
@@ -753,7 +782,16 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
   merge_tracks(m_merged_bank, m_ftktrack_tomerge_stream);
       
   // fill the completed results
-  m_outputTree->Fill();
+  if (m_GenerateRDO) {
+      // copy the results in a RDO file
+      for (int itrk=0;itrk!=m_merged_bank->getNTracks();++itrk) {
+          const FTKTrack *cutrack = m_merged_bank->getTrack(itrk);
+          m_ftk_raw_trackcollection->push_back(SimToRaw(*cutrack));
+      }
+  }
+  else {
+      m_outputTree->Fill();
+  }
 
   //
   // Increment counters
@@ -775,12 +813,14 @@ StatusCode FTKMergerAlgo::finalizeStandaloneTracks()
   //
   // write, close, and destroy the output file
   //
-  log << MSG::DEBUG << "writing output " << m_outputFile << " " << m_MergeRegion << " " << m_neventsUnmergedFiles << endreq;
-  m_outputFile->Write();
-  log << MSG::DEBUG << "closing file " << endreq;
-  m_outputFile->Close();
-  log << MSG::DEBUG << "deleting output " << endreq;
-  delete m_outputFile;
+  if (!m_GenerateRDO) {
+    log << MSG::DEBUG << "writing output " << m_outputFile << " " << m_MergeRegion << " " << m_neventsUnmergedFiles << endreq;
+    m_outputFile->Write();
+    log << MSG::DEBUG << "closing file " << endreq;
+    m_outputFile->Close();
+    log << MSG::DEBUG << "deleting output " << endreq;
+    delete m_outputFile;
+  }
 
   //
   // close input files
@@ -863,7 +903,8 @@ StatusCode FTKMergerAlgo::mergeSGContent()
       log << MSG::DEBUG << "Number of tracks for region " << ibank << " : " << ftktracks_cont->size() << endreq;
 
       for (FTKAthTrackContainer::const_iterator itrack = ftktracks_cont->begin(); itrack != ftktracks_cont->end(); ++itrack) {
-	
+
+	/// Check you can actually make RDO tracks? ///
 	
 	/* TODO: before to insert this track in the SGMergedList the hit-warrior needs to be applied.
 	   To do that the current track has to be compared with all the tracks in the current list,
@@ -944,6 +985,17 @@ StatusCode FTKMergerAlgo::mergeSGContent()
     log << MSG::DEBUG << "Setting FTK Trk::Track registered" << endreq;
   }
 
+  // JWH Testing adding to storegate ///
+  m_ftk_raw_trackcollection = new FTK_RawTrackContainer;
+
+  StatusCode scJ = m_StoreGate->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
+  if (scJ.isFailure()) {
+    log << MSG::FATAL << "Failure registering FTK_RawTrackContainer" << endreq;
+    return StatusCode::FAILURE;
+  } else{
+    log << MSG::DEBUG << "Setting FTK_RawTrackContainer registered" << endreq;
+  }
+  
   m_out_trackPC = new Rec::TrackParticleContainer;
   StatusCode sc1 = m_StoreGate->record(m_out_trackPC , m_out_trackPC_Name);
   if (sc1.isFailure()) {
@@ -1030,7 +1082,15 @@ StatusCode FTKMergerAlgo::mergeSGContent()
     Trk::Track* trkTrack = new Trk::Track( *trkTrackInfo, &*trkTSoSVec, &*trkFitQuality);
     
     // add Trk::Track to container
+    m_out_trktrack = new TrackCollection;
     m_out_trktrack->push_back(trkTrack);
+
+    //JWH 
+    FTK_RawTrack* jay_track = new FTK_RawTrack();
+    jay_track->setD0(curtrk.getIP());
+    jay_track->setPhi(curtrk.getPhi());
+    jay_track->setZ0(curtrk.getZ0());
+    m_ftk_raw_trackcollection->push_back(jay_track);
 
     //TrackParticle container
     if(trkTrack != NULL){
@@ -1057,7 +1117,6 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   }
 
-  
   sc = m_StoreGate->record(SGFinalContainer,"FTKTracksFinal");
   if (sc.isFailure()) {
     log << MSG::FATAL << "Failure registering final FTK collection" << endreq;
@@ -1066,6 +1125,8 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   else {
     log << MSG::DEBUG << "Setting final FTK collection registered" << endreq;
   }
+
+  
 
 
   return StatusCode::SUCCESS;
@@ -1265,6 +1326,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
    m_out_trktrack = new TrackCollection;
    m_out_trackPC  = new Rec::TrackParticleContainer();
+   //m_ftk_raw_trackcollection = new FTK_RawTrackContainer();
 
    sc = m_StoreGate->record(m_out_trktrack , m_out_trktrack_Name);
    if (sc.isFailure()) {
@@ -1412,9 +1474,10 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
      // And finally the Trk::Track
      //
      Trk::Track* trkTrack = new Trk::Track( trkTrackInfo, trkTSoSVec, trkFitQuality);
-     m_out_trktrack->push_back(trkTrack);
+     //     m_out_trktrack->push_back(trkTrack);
 
-
+     //     FTK_RawTrack* jay_track = new FTK_RawTrack();
+     //     m_ftk_raw_trackcollection->push_back(jay_track);
      //
      //   Now we do the TrackParticles
      //
@@ -1534,15 +1597,64 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    return StatusCode::SUCCESS;
 }
 
+StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
+
+   MsgStream log(msgSvc(), name());
+   log << MSG::DEBUG << "about to copy truth tree " << endreq;
+
+   TChain *chain_truthtrack(0), *chain_evt(0);
+   if (m_truthTrackTreeName != "") {
+      chain_truthtrack = new TChain(m_truthTrackTreeName.c_str());
+   }
+   if (m_evtinfoTreeName != "") {
+      chain_evt = new TChain(m_evtinfoTreeName.c_str());
+   }
+
+   for (unsigned int ifile=0;ifile!=m_truthFileNames.size(); ++ifile) { // file loop
+      // get the current path
+      const string &curfilepath = m_truthFileNames[ifile];
+      if (m_truthTrackTreeName != "") {
+         chain_truthtrack->Add(curfilepath.c_str());
+      }
+      if (m_evtinfoTreeName != "") {
+         chain_evt->Add(curfilepath.c_str());
+      }
+   }
+
+   if (m_truthTrackTreeName != "") {
+      m_outputFile->cd();
+      chain_truthtrack->CloneTree()->Write();
+      delete chain_truthtrack;
+   }
+   if (m_evtinfoTreeName != "") {
+      m_outputFile->cd();
+      chain_evt->CloneTree()->Write();
+      delete chain_evt;
+   }
+   return StatusCode::SUCCESS;
+}
+ 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKMergerAlgo::finalize() {
     MsgStream log(msgSvc(), name());
     log << MSG::INFO << "finalize()" << endreq;
 
+    log << MSG::DEBUG << " truth tree = " << m_truthTrackTreeName << " and evtinfo tree = " << m_evtinfoTreeName << endreq;
+
+    // Copy over the output truth trees, if required
+    if (m_truthFileNames.size() > 0 && ((m_truthTrackTreeName != "") || (m_evtinfoTreeName != ""))) {
+       StatusCode sc = finalizeCopyTruthTree();
+       if (sc.isFailure()) {
+          log << MSG::FATAL << "Unable copy truth trees " <<  m_truthTrackTreeName << " and evtinfotree = " << m_evtinfoTreeName << endreq;
+          return sc;
+       }
+    }
+
     //
     //  Clean up output and input merged files 
     //
-    if (m_useStandalone && m_doMerging) {
+    if (m_useStandalone && m_doMerging && !m_GenerateRDO) {
       log << MSG::DEBUG << "finalize standalone tracks" << endreq;
       StatusCode sc = finalizeStandaloneTracks();
       if (sc.isFailure()) {
@@ -1893,10 +2005,16 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNFitsHWRejectedMajorityI(reg_tracks[ireg][isub]->getNFitsHWRejectedMajorityI());
       
       for (unsigned int itr=0;itr!=ntracks;++itr) { // track loop
+
 	// get the track from the bank
 	FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack(itr));
-	
-	
+
+	//	FTK_RawTrack* test;
+	//	std::cout << "JWH TEST TRACK BEFORE 2 " << std::endl;	
+	//	std::cout << "Track Collection =  " << m_ftk_raw_trackcollection << std::endl;	
+	//	m_ftk_raw_trackcollection->push_back(test);
+	//	std::cout << "JWH TEST TRACK AFTER 2" << std::endl;
+
 	// remains 0 if the track has to be added
 	// -1 means is worse than an old track (duplicated)
 	int accepted(0);
@@ -2019,4 +2137,231 @@ double FTKMergerAlgo::getSigmaTheta(double eta, double sigmaEta)
   double coshEta    = cosh(eta); 
   double sigmaTheta = coshEta ? sigmaEta/coshEta : 10;
   return sigmaTheta;
+}
+
+FTK_RawTrack* FTKMergerAlgo::SimToRaw(const FTKTrack &track)
+{
+  MsgStream log(msgSvc(), name());
+  log << MSG::DEBUG << "FTKMergerAlgo::SimToRaw()" << endreq;
+
+  // Words for Track Parameters and cluster objects//
+  uint32_t word_1(0), 
+    word_2(0), 
+    word_3(0), 
+    word_4(0), 
+    word_5(0);
+  /*  FTK_RawPixelCluster* pixel_cluster_1 = new FTK_RawPixelCluster(0);
+  FTK_RawPixelCluster* pixel_cluster_2 = new FTK_RawPixelCluster(1);
+  FTK_RawPixelCluster* pixel_cluster_3 = new FTK_RawPixelCluster(2);
+  FTK_RawPixelCluster* pixel_cluster_4 = new FTK_RawPixelCluster(3);*/
+  FTK_RawPixelCluster pixel_cluster_1(0), pixel_cluster_2(1), pixel_cluster_3(2), pixel_cluster_4(3);
+
+  FTK_RawSCT_Cluster  sct_cluster_1(4), 
+    sct_cluster_2(5), 
+    sct_cluster_3(6), 
+    sct_cluster_4(7), 
+    sct_cluster_5(8), 
+    sct_cluster_6(9), 
+    sct_cluster_7(10), 
+    sct_cluster_8(11);
+
+  //  std::vector<FTK_RawPixelCluster*> pixel_clusters;
+  std::vector<FTK_RawPixelCluster> pixel_clusters;
+  std::vector<FTK_RawSCT_Cluster>  sct_clusters;
+  bool p1(0), p2(0), p3(0), p4(0);
+  bool f1(0), f2(0), f3(0), f4(0), f5(0), f6(0), f7(0), f8(0);
+  for (int i = 0; i<track.getNPlanes(); ++i){
+    const FTKHit& hit = track.getFTKHit(i);
+    int type = hit.getDim();
+    if ( type == 1){ // SCT
+      if( i == 4 ){
+	f1 = true;
+	sct_cluster_1.setModuleID(hit.getIdentifierHash());
+	sct_cluster_1.setHitCoord(hit.getCoord(0)); // loc pos
+	sct_cluster_1.setHitWidth(hit.getNStrips()); // width
+      } else if( i == 5 ){
+	f2 = true;
+	sct_cluster_2.setModuleID(hit.getIdentifierHash());
+	sct_cluster_2.setHitCoord(hit.getCoord(0));
+	sct_cluster_2.setHitWidth(hit.getNStrips());
+      } else if( i == 6 ){
+	f3 = true;
+	sct_cluster_3.setModuleID(hit.getIdentifierHash());
+	sct_cluster_3.setHitCoord(hit.getCoord(0));
+	sct_cluster_3.setHitWidth(hit.getNStrips());
+      } else if( i == 7 ){
+	f4 = true;
+	sct_cluster_4.setModuleID(hit.getIdentifierHash());
+	sct_cluster_4.setHitCoord(hit.getCoord(0));
+	sct_cluster_4.setHitWidth(hit.getNStrips());
+      } else if( i == 8 ){
+	f5 = true;
+	sct_cluster_5.setModuleID(hit.getIdentifierHash());
+	sct_cluster_5.setHitCoord(hit.getCoord(0));
+	sct_cluster_5.setHitWidth(hit.getNStrips());
+      } else if( i == 9 ){
+	f6 = true;
+	sct_cluster_6.setModuleID(hit.getIdentifierHash());
+	sct_cluster_6.setHitCoord(hit.getCoord(0));
+	sct_cluster_6.setHitWidth(hit.getNStrips());
+      } else if( i == 10 ){
+	f7 = true;
+	sct_cluster_7.setModuleID(hit.getIdentifierHash());
+	sct_cluster_7.setHitCoord(hit.getCoord(0));
+	sct_cluster_7.setHitWidth(hit.getNStrips());
+      } else if( i == 11 ){
+	f8 = true;
+	sct_cluster_8.setModuleID(hit.getIdentifierHash());
+	sct_cluster_8.setHitCoord(hit.getCoord(0));
+	sct_cluster_8.setHitWidth(hit.getNStrips());
+      }
+    } else if ( type == 2){ // PIXEL //
+      if ( i == 0 ){
+	p1 = true;
+	pixel_cluster_1.setModuleID(hit.getIdentifierHash());
+	pixel_cluster_1.setRowCoord(hit.getCoord(0));
+	pixel_cluster_1.setRowWidth(hit.getPhiWidth());
+	pixel_cluster_1.setColCoord(hit.getCoord(1)); 
+	pixel_cluster_1.setColWidth(hit.getEtaWidth());
+      } else if (i == 1){
+	p2 = true;
+	pixel_cluster_2.setModuleID(hit.getIdentifierHash());
+	pixel_cluster_2.setRowCoord(hit.getCoord(0));
+	pixel_cluster_2.setRowWidth(hit.getPhiWidth());
+	pixel_cluster_2.setColCoord(hit.getCoord(1)); 
+	pixel_cluster_2.setColWidth(hit.getEtaWidth());
+      } else if (i == 2){
+	p3 = true;
+	pixel_cluster_3.setModuleID(hit.getIdentifierHash());
+	pixel_cluster_3.setRowCoord(hit.getCoord(0));
+	pixel_cluster_3.setRowWidth(hit.getPhiWidth());
+	pixel_cluster_3.setColCoord(hit.getCoord(1)); 
+	pixel_cluster_3.setColWidth(hit.getEtaWidth());
+      } else if (i == 3){
+	p4 = true;
+	pixel_cluster_4.setModuleID(hit.getIdentifierHash());
+	pixel_cluster_4.setRowCoord(hit.getCoord(0));
+	pixel_cluster_4.setRowWidth(hit.getPhiWidth());
+	pixel_cluster_4.setColCoord(hit.getCoord(1)); 
+	pixel_cluster_4.setColWidth(hit.getEtaWidth());
+      }
+    }
+  } // end of hit loop
+  
+  pixel_clusters.push_back(pixel_cluster_1);
+  pixel_clusters.push_back(pixel_cluster_2);
+  pixel_clusters.push_back(pixel_cluster_3);
+  pixel_clusters.push_back(pixel_cluster_4);
+  sct_clusters.push_back(sct_cluster_1);
+  sct_clusters.push_back(sct_cluster_2);
+  sct_clusters.push_back(sct_cluster_3);
+  sct_clusters.push_back(sct_cluster_4);
+  sct_clusters.push_back(sct_cluster_5);
+  sct_clusters.push_back(sct_cluster_6);
+  sct_clusters.push_back(sct_cluster_7);
+  sct_clusters.push_back(sct_cluster_8);
+
+  /// Road ID convert to 32 bit ///
+  unsigned int road_id = (unsigned int)track.getRoadID();
+  word_1 = road_id; 
+
+  /// Pack D0 and Z0 ///
+  uint32_t d0   = 0;
+  uint32_t z0   = 0;
+  uint32_t phi  = 0;
+  uint32_t cot  = 0;
+  uint32_t chi  = 0;
+  uint32_t curv = 0;
+
+  if(!(fabs(track.getIP())>32.767))
+    d0   = NINT( 10e2*track.getIP() + 32767);
+  if(!(fabs(track.getZ0())>327.67))
+    z0   = NINT( 100*track.getZ0() + 32767);
+  if(!(fabs(track.getPhi()>TMath::Pi())))
+    phi  = NINT( 10000*track.getPhi() + 32767);
+  if(!(fabs(track.getCotTheta())>6.5))
+    cot  = NINT( 5000*track.getCotTheta() + 32767);
+  if(!(fabs(track.getInvPt())>66))
+    curv = NINT( 5*10e6*track.getInvPt() + 32767);
+
+  d0 = d0 << 16;
+  d0 = d0 | z0;
+  word_2 = d0;
+
+  cot = cot << 16;
+  cot = cot | phi;
+  word_3 = cot;
+
+  chi = chi << 16;
+  chi = chi | curv;
+  word_4 = chi;
+
+  FTK_RawTrack *raw_track = new FTK_RawTrack(word_1, word_2, word_3, word_4, word_5, pixel_clusters, sct_clusters);
+//  FTK_RawTrack *raw_track = new FTK_RawTrack(word_1, word_2, word_3, word_4, word_5);
+  raw_track->setZ0(track.getZ0());
+  raw_track->setPhi(track.getPhi());
+  raw_track->setCotTh(track.getCotTheta());
+  raw_track->setCurv(track.getInvPt());
+  raw_track->setBarcode(track.getBarcode());
+
+  log << MSG::DEBUG << "FTK_RawTrack Parameter Summary: " << endreq;
+  log << MSG::DEBUG << " - Road ID = " << raw_track->getRoadID() << " " << track.getRoadID() << endreq;
+  log << MSG::DEBUG << " - Road ID = " << raw_track->getTH1() << " " << track.getRoadID() << endreq;
+  log << MSG::DEBUG << " - d0      = " << raw_track->getD0()     << " " << track.getIP() << endreq;
+  log << MSG::DEBUG << " - z0      = " << raw_track->getZ0()     << " " << track.getZ0() << endreq;
+  log << MSG::DEBUG << " - phi     = " << raw_track->getPhi()    << " " << track.getPhi() << endreq;
+  log << MSG::DEBUG << " - cot     = " << raw_track->getCotTh()  << " " << track.getCotTheta() << endreq;
+  log << MSG::DEBUG << " - ipt     = " << raw_track->getCurv()   << " " << track.getInvPt() << endreq;
+  log << MSG::DEBUG << " - barcode = " << raw_track->getBarcode()<< " " << track.getBarcode() << endreq;
+  for( unsigned int i = 0; i < raw_track->getPixelClusters().size(); ++i){
+    log << MSG::DEBUG << " PIXEL Cluster " << i << endreq;
+    log << MSG::DEBUG << "       Layer      = " << raw_track->getPixelClusters()[i].getLayer() << endreq;
+    log << MSG::DEBUG << "       Col Coord  = " << raw_track->getPixelClusters()[i].getColCoord() << endreq;
+    log << MSG::DEBUG << "       Col Width  = " << raw_track->getPixelClusters()[i].getColWidth() << endreq;
+    log << MSG::DEBUG << "       Row Coord  = " << raw_track->getPixelClusters()[i].getRowCoord() << endreq;
+    log << MSG::DEBUG << "       Row Width  = " << raw_track->getPixelClusters()[i].getRowWidth() << endreq;
+    log << MSG::DEBUG << "       Hash ID    = " << raw_track->getPixelClusters()[i].getModuleID() << endreq;
+    const FTKHit& hit = track.getFTKHit(i);
+    //    if (!raw_track->getPixelClusters()[i].getLayer() ==-1){
+    if ( (p1 && i == 0) ||
+	 (p2 && i == 1) ||
+	 (p3 && i == 2) ||
+	 (p4 && i == 3)){
+      log << MSG::DEBUG << "       t Col Coord    = " << hit.getCoord(1)   << endreq;
+      log << MSG::DEBUG << "       t Col Width    = " << hit.getEtaWidth() << endreq;
+      log << MSG::DEBUG << "       t Row Coord    = " << hit.getCoord(0)   << endreq;
+      log << MSG::DEBUG << "       t Row Width    = " << hit.getPhiWidth() << endreq;
+      log << MSG::DEBUG << "       t Hash ID      = " << hit.getIdentifierHash() << endreq;
+    }
+  }
+  for( unsigned int i = 0; i < raw_track->getSCTClusters().size(); ++i){
+    log << MSG::DEBUG << " SCT Cluster " << i << endreq;
+    log << MSG::DEBUG << "       Layer        = " << raw_track->getSCTClusters()[i].getLayer() << endreq;
+    log << MSG::DEBUG << "       Hit Coord    = " << raw_track->getSCTClusters()[i].getHitCoord() << endreq;
+    log << MSG::DEBUG << "       Hit Width    = " << raw_track->getSCTClusters()[i].getHitWidth() << endreq;
+    log << MSG::DEBUG << "       Module ID    = " << raw_track->getSCTClusters()[i].getModuleID() << endreq;
+    if ( (f1 && i == 0) ||
+	 (f2 && i == 1) ||
+	 (f3 && i == 2) ||
+	 (f4 && i == 3) ||
+	 (f5 && i == 4) ||
+	 (f6 && i == 5) ||
+	 (f7 && i == 6) ||
+	 (f8 && i == 7)){//!raw_track->getSCTClusters()[i].getLayer() ==-1){
+      const FTKHit& hit = track.getFTKHit(i+4);
+      log << MSG::DEBUG << "       a Coord     = " << hit.getCoord(0)  << endreq;
+      log << MSG::DEBUG << "       a NStrips   = " << hit.getNStrips() << endreq;
+      log << MSG::DEBUG << "       a Hash ID   = " << hit.getIdentifierHash() << endreq;
+    } 
+  }
+  log << MSG::DEBUG << endreq;
+  return raw_track;
+}
+
+void FTKMergerAlgo::printBits(unsigned int num, unsigned int length){
+  for(unsigned int bit=0;bit<(sizeof(unsigned int) * 8) && bit < length; bit++){
+    std::cout << int(num & 0x01);
+    num = num >> 1;
+  }
+  std::cout << std::endl;
 }

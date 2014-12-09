@@ -20,7 +20,7 @@
 //#include "TrigFTKSim/atlhit_rd.h"
 
 #define GRID_ROW_MAX 21
-#define GRID_COL_MAX 8 
+#define GRID_COL_MAX 8
 #define hitRowInGrid(gridCntRow, hit) ((hit->getPhiSide() <= gridCntRow + GRID_ROW_MAX/2) && \
         (hit->getPhiSide() >= gridCntRow - GRID_ROW_MAX / 2))? true : false
 #define hitColInGrid(gridStrCol, hit) (hit->getEtaStrip() < gridStrCol + GRID_COL_MAX)? true : false
@@ -52,8 +52,10 @@ int hitToModuleId(const FTKRawHit &hit);
 extern bool SAVE_CLUSTER_CONTENT;
 extern bool DIAG_CLUSTERING;
 extern int PIXEL_CLUSTERING_MODE;
-const int PIXEL_CLUSTERING_MODE_APRIL2014_FIX=2;
-const int REALISTIC_CLUSTERING_MODE=100;
+const int PIXEL_CLUSTERING_IDEAL=1;
+const int PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX=2;
+const int PIXEL_CLUSTERING_MIXED=100;
+const int PIXEL_CLUSTERING_REALISTIC=101;
 extern bool DUPLICATE_GANGED;
 extern bool GANGED_PATTERN_RECOGNITION;
 extern bool SPLIT_BLAYER_MODULES;

@@ -40,7 +40,7 @@ private:
 
   bool m_SCTtrkMode;  // if using PIXEL + SCTtrk configuration (Constantinos's 2nd stage)
 
-  bool m_IBLMode;  // if using IBL configuration
+  int m_IBLMode;  // if using IBL configuration
 
   int m_verbosity; /// verbosity level
 
@@ -59,6 +59,8 @@ private:
   int m_RoadWarrior; // a variable to check if the RW is enabled
 
   int m_KeepRemoved; // it's true if the RW rejeceted tracks are just falgged
+
+  unsigned int m_HWModeSS; // check the format of the SS-ID: 0 Ï is global, 1 is local (tower based)
 
   int m_event; // current event
 
@@ -98,8 +100,8 @@ public:
   void setSCTtrkMode(bool v) { m_SCTtrkMode = v; }
   bool getSCTtrkMode() const { return m_SCTtrkMode; }
 
-  void setIBLMode(bool v) { m_IBLMode = v; }
-  bool getIBLMode() const { return m_IBLMode; }
+  void setIBLMode(int v) { m_IBLMode = v; }
+  int getIBLMode() const { return m_IBLMode; }
 
   void setEnableFTKSim(int v) { m_EnableFTKSim = v; }
   int getEnableFTKSim() const { return m_EnableFTKSim; }
@@ -131,6 +133,9 @@ public:
   void setSectorsAsPatterns(int v) { m_SectorsAsPatterns = v; }
   int getSectorsAsPatterns() const { return m_SectorsAsPatterns; }
 
+  void setHWModeSS(unsigned int val) { m_HWModeSS = val; }
+  const unsigned int &getHWModeSS() { return m_HWModeSS; }
+  
   // Message printing operator
   static void  PrintMessage(ftk::message_level_t, const char *);
   static void  PrintMessageFmt(ftk::message_level_t, const char *,...);

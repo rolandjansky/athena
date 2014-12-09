@@ -7,7 +7,7 @@ eff_FLAG        0
 etaMINlim       0
 etaMAXlim       10
 
-IBL_MODE        0
+IBL_MODE        1
 
 BARREL_ONLY     0
 RAW_MODE	1
@@ -20,6 +20,7 @@ NUMBER_OF_PLANES	${L}
 # may need to add .ibl4 for ibl
 PMAP_FILE       ${mapdir}/raw_${L}L${Lv}.pmap
 RMAP_FILE       ${mapdir}/raw_${L}L.rmap
+MODULE_LUT      ${mapdir}/raw_${L}L${Lv}.moduleidmap
 # maximum number of missing planes to accept patterns
 MAX_MISSING_PLANES 0
 # Allow this many missing SCT pairs (stereo + axial) to be counted as
@@ -115,7 +116,7 @@ MAX_GEN_TRACKS   ${nevents}
 # an explicit chi2 cut on patt-from-const tracks. 0 means disabled
 PCONST_MAXCHI2   0
 # overlap removal in patt-from-const: 0=disabled, 1=barrel-only(old default), 2=everywhere (thx Joe!)
-PCONST_OVERLAP   1
+PCONST_OVERLAP   2
 # random seed for patt-from-const (0=bootstrap from system time)
 PCONST_RANDSEED   0
 

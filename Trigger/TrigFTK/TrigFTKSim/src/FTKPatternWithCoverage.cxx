@@ -115,9 +115,9 @@ bool FTKPatternRootTreeReader::CreateTree(TDirectory *dir,int nLayer) {
    if(fTTree) {
       // create branches
       fTTree->Branch("pattern",fPattern->GetHitPattern().GetAddress(),
-                     TString::Format("pattern[%d]/I",nLayer),1024);
+                     TString::Format("pattern[%d]/I",nLayer),32768);
       fTTree->Branch("coverage",fPattern->GetCoverageAddress(),
-                     "coverage/I",1024);
+                     "coverage/I",4096);
    }
    return fTTree!=0;
 }

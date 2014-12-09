@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef H_FTKPatternOneSector
+#define H_FTKPatternOneSector
+
 /* package FTKPatternOneSector
  *
  * Store all patterns of one sector in memory
@@ -89,3 +92,5 @@ public:
    int fSector;
    FTKPatternCoverageMap_t fPatterns;
 };
+
+#endif

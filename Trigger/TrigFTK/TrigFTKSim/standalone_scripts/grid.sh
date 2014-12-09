@@ -136,6 +136,14 @@ function mergeBank () {
     extra="-o ftkDS=${ftkDS} ${extra}"
     skeleton_bankprod
 }
+# merges patterns-from-const banks on the grid using root files
+function mergeBankRoot () {
+    check ftkDS
+    mode=merge_pconst_root
+    extra="-o ftkDS=${ftkDS} -o factor=${factor} ${extra}"
+    extra="-o runNum=1 -n${n} ${extra}"
+    skeleton
+}
 # reduces the size of a patterns-from-const bank on the grid
 function reduceBank () {
    check bankDS MAXPATTERNS

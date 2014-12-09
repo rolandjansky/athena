@@ -27,6 +27,10 @@ class FTKDetectorToolI : virtual public IAlgTool
   virtual void dumpDeadModuleSummary() = 0;
   virtual std::set<int> *getWildcardList(int) = 0;
   virtual void makeBadModuleMap() = 0;
+
+  virtual void dumpModuleIDMap() = 0;
+
+  virtual void dumpGlobalToLocalModuleMap() = 0;
 };
 
 inline const InterfaceID& FTKDetectorToolI::interfaceID()

@@ -1,7 +1,8 @@
 PE2S_FILE	${patdir}/sectors_raw_${L}L_${M}M_reg${i}_sub${j}.${_PATT}
 PMAP_FILE       ${mapdir}/raw_${L}L${Lv}.pmap
 PMAP_FILE_UNUSED       ${mapdir}/raw_${L}L${Lv}_unused.pmap
-RMAP_FILE       ${mapdir}/raw_${L}L.rmap
+RMAP_FILE       ${mapdir}/raw_${L}L.rmap3
+MODULE_LUT ${mapdir}/raw_${L}L${Lv}.moduleidmap
 BADMOD_FILE	${confdir}/bad_modules/${BMAP}.bmap
 BADMOD_FILE_FOR_HIT	${confdir}/bad_modules/${BMAP_FOR_HIT}.bmap
 
@@ -19,9 +20,17 @@ USETSP_BANK 1
 # 1: standard AM simulation, the AM patterns are selected applying a cut on TSP level
 # 2: applying the TSP selection the AM is generated and the DC bit are used
 # 3: AM and TSP simulations are performed
-USETSP_SIM 1
+USETSP_SIM 2
 # if USETSP_SIM=0 it is possibile to decide to load TSP patterns (1), or an AM level (2).
 USETSP_DBLEVEL 1
+# DC Bit Resplit
+# 0: No DC Split is performed, maximum grouping of thin patterns into AM patterns is done
+# 1: Use at most 1 DC bit for AM patterns after split
+# 2: Use at most 2 DC bit for AM patterns after split
+# ...
+# 99: Use at most 99 DC bit for AM patterns after split
+# 100: Complete-Linkage Clustering algorithm
+DCBITS_SPLIT 0
 # If the minimum coverage is >0 the AM bank is created using all
 # the TSP pattern with at least the asked coverage. Then the AM bank
 # is cutted as set by the loading parameter requirement

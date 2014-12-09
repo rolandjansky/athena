@@ -65,7 +65,7 @@ if __name__=='__main__':
     longopts=['mode=','site=','username=','preloadjob=','official=']
     longopts+=['inDS=','match=','nJobs=','nFilesPerJob=','nSkipFiles=']
     longopts+=['gridtest','maxNJobs=']
-    longopts+=['express','maxCpuCount=','memory=']
+    longopts+=['express','unlimitNumOutputs','maxCpuCount=','memory=']
     longopts+=['inputs=','regions=','subregions=','loops=',]
 
     try:

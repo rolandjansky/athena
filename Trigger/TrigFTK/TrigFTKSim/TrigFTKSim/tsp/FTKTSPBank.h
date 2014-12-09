@@ -8,7 +8,7 @@
 #include "TrigFTKSim/FTK_AMBank.h"
 #include "TrigFTKSim/tsp/TSPMap.h"
 #include "TrigFTKSim/tsp/TSPLevel.h"
-
+#include "TrigFTKSim/tsp/FTKAMSplit.h"
 #include <TFile.h>
 
 #include <string>
@@ -24,6 +24,7 @@ private:
   int m_npatternsTSP; // number of TSP patterns
   int m_TSPMinCoverage; // minimum coverage of the TSP patterns
   int m_setAMSize; // if 1 or 2 the number of patterns to load is at AM level, not TSP level
+  int m_AMSplit;
 
   FTKSSMap *m_ssmap_tsp; // this SS map describe the detector at TSP level
 
@@ -69,26 +70,38 @@ public:
 
   void setCachePath(const char *);
   const std::string& getCachePath() const { return m_cachepath; }
-
+  
+  void setAMSplit(int val){m_AMSplit = val;}
+  const int &getAMSplit(){return m_AMSplit;}
 };
 
 
 class AMSelection {
 private:
-  int m_AMID;
-  unsigned m_Coverage;
-  std::vector<int> m_TSPID;
-  
+    int m_AMID;
+    unsigned m_Coverage;
+    std::vector<int> m_TSPID;
+    std::vector<UInt_t> m_HalfPlaneMask;
+    std::vector<unsigned> m_TSPCoverage;
+    std::vector< std::vector<int> > m_DeltaVolumeOverDeltaAM;
+
 public:
-  AMSelection();
-  AMSelection(int amid, int tspid, unsigned coverage);
-  void addTSP(int,unsigned);
-  
-  int getAMID() const { return m_AMID; }
+    AMSelection();
+    AMSelection(int amid, int tspid, unsigned coverage, unsigned int hbmask = 0);
+    void addTSP(int, unsigned, unsigned int hbmask = 0);
 
-  const std::vector<int>& getTSPIDs() const { return m_TSPID; }
+    int getAMID() const{ return m_AMID; }
 
-  bool operator<(const AMSelection&) const;
+    const std::vector<int> &getTSPIDs() const{return m_TSPID;}
+
+    const std::vector<UInt_t> &getHalfPlaneMask() const{return m_HalfPlaneMask;}
+
+    bool operator<(const AMSelection &) const;
+
+    const std::vector<unsigned> &getTSPCoverage() const{return m_TSPCoverage;}
+
+    void addTSPCoverage(int TSPCoverage){m_TSPCoverage.push_back(TSPCoverage);}
+
 };
 
 #endif

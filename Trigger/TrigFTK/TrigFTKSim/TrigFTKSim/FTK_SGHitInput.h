@@ -28,7 +28,7 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "InDetBeamSpotService/InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
