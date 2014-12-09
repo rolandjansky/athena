@@ -76,7 +76,7 @@ struct ClassID_traits {
   }
 
   ///the type id of T
-  static const std::type_info& typeId() {
+  static const std::type_info& typeInfo() {
     MY_STATIC_ASSERT(s_isDataObject);
     return typeid(T);
   }

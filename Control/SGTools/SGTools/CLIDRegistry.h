@@ -52,7 +52,8 @@ public:
 
   ///to be called by the CLASS_DEFS
   template <unsigned long CLID>
-  static bool addEntry(const std::string& typeName, 
+  static bool addEntry(const std::type_info& ti,
+                       const std::string& typeName, 
 		       const Athena::PackageInfo& pkgInfo,
 		       const std::string& typeInfoName); 
   //    static bool addEntry(unsigned long id, const std::string& typeName);
@@ -74,7 +75,15 @@ public:
   static std::pair<const_iterator, const_iterator> newEntries();
   //@}
 
+  /// Translate between CLID and type_info.
+  static const std::type_info* CLIDToTypeinfo (unsigned long clid);
+  static unsigned long typeinfoToCLID (const std::type_info& ti);
+
+
 private:
+  /// Add a CLID <> type_info mapping.
+  static void addCLIDMapping (unsigned long clid, const std::type_info& ti);
+
   static CLIDRegistryImpl& registry();
 };
 
@@ -88,7 +97,8 @@ template <>       struct ERROR_CLID_out_of_CLIDRegistry_range<true>{};
 
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 template <unsigned long CLID>
-bool CLIDRegistry::addEntry(const std::string& typeName, 
+bool CLIDRegistry::addEntry(const std::type_info& ti,
+                            const std::string& typeName, 
 			    const Athena::PackageInfo& pkgInfo,
 			    const std::string& typeInfoName) {
   //more drudgery
@@ -107,6 +117,7 @@ bool CLIDRegistry::addEntry(const std::string& typeName,
 	    << CLID << '/' << typeName << " to registry " <<&registry() 
 	    <<std::endl;
 #endif		
+  addCLIDMapping (CLID, ti);
   return true;
 }
 

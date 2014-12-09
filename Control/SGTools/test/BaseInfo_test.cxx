@@ -123,6 +123,7 @@ int test1()
     (ClassID_traits<CC>::ID())
     (ClassID_traits<BB>::ID())
     (ClassID_traits<AA>::ID());
+  std::sort (clids.begin(), clids.end());
   std::sort (exp1.begin(), exp1.end());
   assert (clids == exp1);
 
@@ -132,6 +133,7 @@ int test1()
     (&typeid(CC))
     (&typeid(BB))
     (&typeid(AA));
+  std::sort (tinfos.begin(), tinfos.end());
   std::sort (exp1ti.begin(), exp1ti.end());
   assert (tinfos == exp1ti);
 
@@ -142,6 +144,7 @@ int test1()
     (ClassID_traits<O>::ID())
     (ClassID_traits<Q>::ID())
     (ClassID_traits<R>::ID());
+  std::sort (clids.begin(), clids.end());
   std::sort (exp2.begin(), exp2.end());
   assert (clids == exp2);
 
@@ -152,6 +155,7 @@ int test1()
     (&typeid(O))
     (&typeid(Q))
     (&typeid(R));
+  std::sort (tinfos.begin(), tinfos.end());
   std::sort (exp2ti.begin(), exp2ti.end());
   assert (tinfos == exp2ti);
 
@@ -215,18 +219,24 @@ int test1()
   assert (x2a == 0); // castTo doesn't work now for non-polymorphic classes.
 
   clids = SG::BaseInfoBase::find (ClassID_traits<CC>::ID())->get_bases();
+  std::sort (clids.begin(), clids.end());
   assert (clids == exp1);
   tinfos = SG::BaseInfoBase::find (ClassID_traits<CC>::ID())->get_ti_bases();
+  std::sort (tinfos.begin(), tinfos.end());
   assert (tinfos == exp1ti);
 
   clids = CC_C::baseinfo().get_bases();
+  std::sort (clids.begin(), clids.end());
   assert (clids == exp1);
   tinfos = CC_C::baseinfo().get_ti_bases();
+  std::sort (tinfos.begin(), tinfos.end());
   assert (tinfos == exp1ti);
 
   clids = SG::BaseInfoBase::find (typeid (CC))->get_bases();
+  std::sort (clids.begin(), clids.end());
   assert (clids == exp1);
   tinfos = SG::BaseInfoBase::find (typeid (CC))->get_ti_bases();
+  std::sort (tinfos.begin(), tinfos.end());
   assert (tinfos == exp1ti);
 
   assert (SG::BaseInfoBase::find (typeid(CC))->clid() ==
@@ -254,12 +264,14 @@ int test1()
     (&typeid (I1));
   std::sort (exp3ti.begin(), exp3ti.end());
   tinfos = SG::BaseInfoBase::find (typeid (I1))->get_ti_bases();
+  std::sort (tinfos.begin(), tinfos.end());
   assert (tinfos == exp3ti);
 
   std::vector<CLID> exp4 = list_of
     (ClassID_traits<AA>::ID())
     (ClassID_traits<I2>::ID());
   clids = SG::BaseInfoBase::find (ClassID_traits<I2>::ID())->get_bases();
+  std::sort (clids.begin(), clids.end());
   assert (clids == exp4);
 
   std::vector<const std::type_info*> exp4ti = list_of
@@ -267,6 +279,7 @@ int test1()
     (&typeid (I2));
   std::sort (exp4ti.begin(), exp4ti.end());
   tinfos = SG::BaseInfoBase::find (typeid (I2))->get_ti_bases();
+  std::sort (tinfos.begin(), tinfos.end());
   assert (tinfos == exp4ti);
 
   const SG::BaseInfoBase* jbib = SG::BaseInfoBase::find (typeid (J));

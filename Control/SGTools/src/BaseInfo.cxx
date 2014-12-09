@@ -13,8 +13,12 @@
  */
 
 #include "SGTools/BaseInfo.h"
+#include "SGTools/CLIDRegistry.h"
+#include "GaudiKernel/System.h"
 //#include "boost/thread/mutex.hpp"
 #include <map>
+#include <unordered_map>
+#include "string.h"
 
 
 namespace SG {
@@ -54,41 +58,34 @@ struct BaseInfoBaseImpl {
   const std::type_info* m_typeinfo;
 
 
-  /// Hold base information indexed by class ID.
-  typedef std::map<CLID, info> clid_map_type;
-  clid_map_type m_clidmap;
-
   /// Hold base information indexed by @a type_info.
-  typedef std::map<const std::type_info*, info> ti_map_type;
+  typedef std::pair<const std::type_info*, info> ti_map_pair_type;
+  typedef std::vector<ti_map_pair_type> ti_map_type;
   ti_map_type m_timap;
 
 
-  /// Map of all CLIDs to @c BaseInfoBase instances.
-  typedef std::map<CLID, BaseInfoBase*> bi_by_clid_map_type;
-  static bi_by_clid_map_type* s_bi_by_clid;
+  /// Hold copy conversion information indexed by @ type_info.
+  typedef std::pair<const std::type_info*, const CopyConversionBase*>
+  ti_copyconversion_pair_type;
+  typedef std::vector<ti_copyconversion_pair_type> ti_copyconversion_type;
+  ti_copyconversion_type m_ti_copyconversion_map;
 
-  /// Map of all @c type_info names to @c BaseInfoBase instances.
-  typedef std::map<const std::type_info*, BaseInfoBase*> bi_by_ti_map_type;
+
+  /// Map of all @c type_info pointers to @c BaseInfoBase instances.
+  typedef std::unordered_map<const std::type_info*, BaseInfoBase*> bi_by_ti_map_type;
   static bi_by_ti_map_type* s_bi_by_ti;
 
 
-  /// Hold copy conversion information indexed by class ID.
-  typedef std::map<CLID, const CopyConversionBase*> clid_copyconversion_type;
-  clid_copyconversion_type m_clid_copyconversion_map;
+  /// Used to canonicalize @c type_info instances.
+  typedef std::unordered_map<std::string, const std::type_info*> ti_by_name_map_type;
+  static ti_by_name_map_type* s_ti_by_name;
 
-  /// Hold copy conversion information indexed by @ type_info.
-  typedef std::map<const std::type_info*, const CopyConversionBase*> 
-    ti_copyconversion_type;
-  ti_copyconversion_type m_ti_copyconversion_map;
 
   /// Holds @c BaseInfo classes awaiting initialization.
   /// This is used to defer initialization until everything's loaded.
-  struct init_elem_t {
-    CLID m_clid;
-    const std::type_info* m_ti;
-    BaseInfoBase::init_func_t* m_init_func;
-  };
-  static std::vector<init_elem_t>* s_init_list;
+  typedef std::unordered_multimap<const std::type_info*,
+                                  BaseInfoBase::init_func_t*> init_list_t;
+  static init_list_t* s_init_list;
 
 
   // To make sure that the maps get deleted at program termination.
@@ -99,6 +96,31 @@ struct BaseInfoBaseImpl {
 
   /// For thread-safety.
   //static boost::mutex s_mutex;
+
+
+  /**
+   * @brief Find a base by @c type_info.
+   * @param tinfo The @c type_info to find.
+   *
+   * Returns the @c info pointer for the base corresponding
+   * to @c info, or nullptr if there is no match.
+   */
+  const info* findInfo (const std::type_info& tinfo) const
+  {
+    // We don't expect there to be many entries, so just use a linear search.
+    for (const auto& i : m_timap) {
+      if (i.first == &tinfo)
+        return &i.second;
+    }
+
+    // Sometimes type_info's are not actually unique, depending on how libraries
+    // get loaded.  Try again, comparing names.
+    for (const auto& i : m_timap) {
+      if (strcmp (i.first->name(), tinfo.name()) == 0)
+        return &i.second;
+    }
+    return nullptr;
+  }
 };
 
 
@@ -131,10 +153,9 @@ const std::type_info& BaseInfoBase::typeinfo() const
  */
 void* BaseInfoBase::cast (void* p, CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  if (i != map.end())
-    return i->second.m_converter (p);
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->cast (p, *ti);
   return 0;
 }
 
@@ -149,11 +170,10 @@ void* BaseInfoBase::cast (void* p, CLID clid) const
  */
 void* BaseInfoBase::cast (void* p, const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  if (i != map.end())
-    return i->second.m_converter (p);
-  return 0;
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  if (i)
+    return i->m_converter (p);
+  return nullptr;
 }
 
 
@@ -168,10 +188,9 @@ void* BaseInfoBase::cast (void* p, const std::type_info& tinfo) const
  */
 void* BaseInfoBase::castTo (void* p, CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  if (i != map.end() && i->second.m_converterTo)
-    return i->second.m_converterTo (p);
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->castTo (p, *ti);
   return 0;
 }
 
@@ -187,11 +206,10 @@ void* BaseInfoBase::castTo (void* p, CLID clid) const
  */
 void* BaseInfoBase::castTo (void* p, const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  if (i != map.end() && i->second.m_converterTo)
-    return i->second.m_converterTo (p);
-  return 0;
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  if (i)
+    return i->m_converterTo (p);
+  return nullptr;
 }
 
 
@@ -205,10 +223,9 @@ void* BaseInfoBase::castTo (void* p, const std::type_info& tinfo) const
  */
 BaseInfoBase::castfn_t* BaseInfoBase::castfn (CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  if (i != map.end())
-    return i->second.m_converter;
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->castfn (*ti);
   return 0;
 }
 
@@ -224,11 +241,10 @@ BaseInfoBase::castfn_t* BaseInfoBase::castfn (CLID clid) const
 BaseInfoBase::castfn_t*
 BaseInfoBase::castfn (const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  if (i != map.end())
-    return i->second.m_converter;
-  return 0;
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  if (i)
+    return i->m_converter;
+  return nullptr;
 }
 
 
@@ -242,10 +258,9 @@ BaseInfoBase::castfn (const std::type_info& tinfo) const
  */
 BaseInfoBase::castfn_t* BaseInfoBase::castfnTo (CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  if (i != map.end())
-    return i->second.m_converterTo;
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->castfnTo (*ti);
   return 0;
 }
 
@@ -261,11 +276,10 @@ BaseInfoBase::castfn_t* BaseInfoBase::castfnTo (CLID clid) const
 BaseInfoBase::castfn_t*
 BaseInfoBase::castfnTo (const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  if (i != map.end())
-    return i->second.m_converterTo;
-  return 0;
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  if (i)
+    return i->m_converterTo;
+  return nullptr;
 }
 
 
@@ -275,13 +289,14 @@ BaseInfoBase::castfnTo (const std::type_info& tinfo) const
  */
 std::vector<CLID> BaseInfoBase::get_bases() const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
+  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
   std::vector<CLID> v;
   v.reserve (map.size());
-  for (BaseInfoBaseImpl::clid_map_type::const_iterator i = map.begin();
-       i != map.end();
-       ++i)
-    v.push_back (i->first);
+  for (const auto& p : map) {
+    CLID clid = CLIDRegistry::typeinfoToCLID (*p.first);
+    if (clid != CLID_NULL)
+      v.push_back (clid);
+  }
   return v;
 }
 
@@ -295,10 +310,8 @@ std::vector<const std::type_info*> BaseInfoBase::get_ti_bases() const
   const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
   std::vector<const std::type_info*> v;
   v.reserve (map.size());
-  for (BaseInfoBaseImpl::ti_map_type::const_iterator i = map.begin();
-       i != map.end();
-       ++i)
-    v.push_back (i->first);
+  for (const auto& i : map)
+    v.push_back (i.first);
   return v;
 }
 
@@ -311,9 +324,10 @@ std::vector<const std::type_info*> BaseInfoBase::get_ti_bases() const
  */
 bool BaseInfoBase::is_base (CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  return i != map.end();
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->is_base (*ti);
+  return 0;
 }
 
 
@@ -325,9 +339,8 @@ bool BaseInfoBase::is_base (CLID clid) const
  */
 bool BaseInfoBase::is_base (const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  return i != map.end();
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  return i != 0;
 }
 
 
@@ -339,10 +352,9 @@ bool BaseInfoBase::is_base (const std::type_info& tinfo) const
  */
 bool BaseInfoBase::is_virtual (CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_map_type& map = m_impl->m_clidmap;
-  BaseInfoBaseImpl::clid_map_type::const_iterator i = map.find (clid);
-  if (i != map.end())
-    return i->second.m_is_virtual;
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->is_virtual (*ti);
   return false;
 }
 
@@ -355,10 +367,9 @@ bool BaseInfoBase::is_virtual (CLID clid) const
  */
 bool BaseInfoBase::is_virtual (const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
-  BaseInfoBaseImpl::ti_map_type::const_iterator i = map.find (&tinfo);
-  if (i != map.end())
-    return i->second.m_is_virtual;
+  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+  if (i)
+    return i->m_is_virtual;
   return false;
 }
 
@@ -372,12 +383,10 @@ bool BaseInfoBase::is_virtual (const std::type_info& tinfo) const
 const CopyConversionBase*
 BaseInfoBase::copy_conversion (const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::ti_copyconversion_type& map =
-    m_impl->m_ti_copyconversion_map;
-  BaseInfoBaseImpl::ti_copyconversion_type::const_iterator i =
-    map.find (&tinfo);
-  if (i != map.end())
-    return i->second;
+  for (const auto& p : m_impl->m_ti_copyconversion_map) {
+    if (p.first == &tinfo)
+      return p.second;
+  }
   return 0;
 }
 
@@ -391,32 +400,25 @@ BaseInfoBase::copy_conversion (const std::type_info& tinfo) const
 const CopyConversionBase*
 BaseInfoBase::copy_conversion (CLID clid) const
 {
-  const BaseInfoBaseImpl::clid_copyconversion_type& map =
-    m_impl->m_clid_copyconversion_map;
-  BaseInfoBaseImpl::clid_copyconversion_type::const_iterator i =
-    map.find (clid);
-  if (i != map.end())
-    return i->second;
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return this->copy_conversion (*ti);
   return 0;
 }
 
 
 /**
  * @brief Add a new copy conversion.
- * @param clid The @c CLID of the target class.
  * @param tinfo The @c std::type_info of the target class.
  * @param cnv A @c CopyConversionBase instance describing the conversion.
  *
  * The @c BaseInfoBase takes ownership of the @c cnv object.
  */
 void
-BaseInfoBase::add_copy_conversion (CLID clid,
-                                   const std::type_info& tinfo,
+BaseInfoBase::add_copy_conversion (const std::type_info& tinfo,
                                    const CopyConversionBase* cnv)
 {
-  if (clid != CLID_NULL)
-    m_impl->m_clid_copyconversion_map[clid] = cnv;
-  m_impl->m_ti_copyconversion_map[&tinfo] = cnv;
+  m_impl->m_ti_copyconversion_map.emplace_back (&tinfo, cnv);
 }
 
 
@@ -430,13 +432,11 @@ std::vector<CLID>
 BaseInfoBase::get_copy_conversions() const
 {
   std::vector<CLID> out;
-  out.reserve (m_impl->m_clid_copyconversion_map.size());
-  for (BaseInfoBaseImpl::clid_copyconversion_type::const_iterator it =
-         m_impl->m_clid_copyconversion_map.begin();
-       it != m_impl->m_clid_copyconversion_map.end();
-       ++it)
-  {
-    out.push_back (it->first);
+  out.reserve (m_impl->m_ti_copyconversion_map.size());
+  for (const auto& i : m_impl->m_ti_copyconversion_map) {
+    CLID clid = CLIDRegistry::typeinfoToCLID (*i.first);
+    if (clid != CLID_NULL)
+      out.push_back (clid);
   }
   return out;
 }
@@ -444,8 +444,6 @@ BaseInfoBase::get_copy_conversions() const
 
 /**
  * @brief Add information about one base class.
- * @param clid The class ID of the base.  May be @a CLID_NULL if no
- *             class ID is available.
  * @param tinfo The @a std::type_info of the base.
  * @param converter Converter function.  This should be able to
  *                  convert a @a T* to a pointer to this base.
@@ -454,20 +452,24 @@ BaseInfoBase::get_copy_conversions() const
  * @param is_virtual True if the derivation from this base to @a T
  *                   is via virtual derivation.
  */
-void BaseInfoBase::add_info (CLID clid,
-                             const std::type_info& tinfo,
+void BaseInfoBase::add_info (const std::type_info& tinfo,
                              castfn_t* converter,
                              castfn_t* converterTo,
                              bool is_virtual)
 {
-  if (clid == CLID_NULL)
-    clid = clid_from_initlist (tinfo);
-  if (m_impl->m_timap.find (&tinfo) == m_impl->m_timap.end()) {
-    if (clid != CLID_NULL)
-      m_impl->m_clidmap[clid] =
-        BaseInfoBaseImpl::info (converter, converterTo, is_virtual);
-    m_impl->m_timap[&tinfo] =
-      BaseInfoBaseImpl::info (converter, converterTo, is_virtual);
+  {
+    const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
+    if (!i) {
+      m_impl->m_timap.emplace_back (&tinfo,
+                                    BaseInfoBaseImpl::info (converter, converterTo, is_virtual));
+    }
+  }
+
+  auto i = BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
+  if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
+    BaseInfoBaseImpl& impl = *i->second->m_impl;
+    if (impl.m_clid == CLID_NULL)
+      impl.m_clid = CLIDRegistry::typeinfoToCLID (tinfo);
   }
 }
 
@@ -496,29 +498,24 @@ BaseInfoBaseImpl::info::info (BaseInfoBase::castfn_t* converter /*= 0*/,
 
 /**
  * @brief Constructor.
- * @param clid The class ID of this class.  May be @c CLID_NULL if no
- *             ID is available.
  * @param tinfo The @c std::type_info for this class.
  */
-BaseInfoBase::BaseInfoBase (CLID clid, const std::type_info& tinfo)
+BaseInfoBase::BaseInfoBase (const std::type_info& tinfo)
   : m_impl (new BaseInfoBaseImpl)
 {
-  if (clid == CLID_NULL)
-    clid = clid_from_initlist (tinfo);
-  m_impl->m_clid = clid;
+  m_impl->m_clid = CLIDRegistry::typeinfoToCLID (tinfo);
   m_impl->m_typeinfo = &tinfo;
   m_impl->m_needs_init = true;
 
   //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
-  if (!BaseInfoBaseImpl::s_bi_by_clid)
-    BaseInfoBaseImpl::s_bi_by_clid = new BaseInfoBaseImpl::bi_by_clid_map_type;
   if (!BaseInfoBaseImpl::s_bi_by_ti)
     BaseInfoBaseImpl::s_bi_by_ti   = new BaseInfoBaseImpl::bi_by_ti_map_type;
+  if (!BaseInfoBaseImpl::s_ti_by_name)
+    BaseInfoBaseImpl::s_ti_by_name   = new BaseInfoBaseImpl::ti_by_name_map_type;
 
   // Register this instance in the static maps.
-  if (clid != CLID_NULL)
-    (*BaseInfoBaseImpl::s_bi_by_clid)[clid] = this;
   (*BaseInfoBaseImpl::s_bi_by_ti)[&tinfo] = this;
+  (*BaseInfoBaseImpl::s_ti_by_name)[tinfo.name()] = &tinfo;
 }
 
 
@@ -547,10 +544,27 @@ BaseInfoBase::~BaseInfoBase()
 const BaseInfoBase* BaseInfoBase::find (CLID clid)
 {
   //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
-  if (!BaseInfoBaseImpl::s_bi_by_clid) return 0;
-  BaseInfoBaseImpl::bi_by_clid_map_type::iterator i =
-    BaseInfoBaseImpl::s_bi_by_clid->find (clid);
-  if (i != BaseInfoBaseImpl::s_bi_by_clid->end()) {
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return BaseInfoBase::find (*ti);
+  return 0;
+}
+
+
+/**
+ * @brief Helper for @c find.
+ * @param tinfo The @c std::type_info of the class
+ *              for which we want information.
+ *
+ * Returns 0 if no @c BaseInfoBase instance is available.
+ */
+const BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
+{
+  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
+  if (!BaseInfoBaseImpl::s_bi_by_ti) return 0;
+  BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
+    BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
+  if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
     if (!i->second->m_impl->m_needs_init)
       return i->second;
     i->second->m_impl->m_needs_init = false;
@@ -558,19 +572,17 @@ const BaseInfoBase* BaseInfoBase::find (CLID clid)
 
   // Try the initlist.
   if (BaseInfoBaseImpl::s_init_list) {
-    for (size_t j = 0; j < BaseInfoBaseImpl::s_init_list->size(); j++) {
-      if ((*BaseInfoBaseImpl::s_init_list)[j].m_clid == clid) {
-        BaseInfoBase::init_func_t* init = 
-          (*BaseInfoBaseImpl::s_init_list)[j].m_init_func;
-        BaseInfoBaseImpl::s_init_list->erase
-          (BaseInfoBaseImpl::s_init_list->begin() + j);
-        --j;
-        init();
-        i = BaseInfoBaseImpl::s_bi_by_clid->find (clid);
-      }
+    while (true) {
+      BaseInfoBaseImpl::init_list_t::iterator it = 
+        BaseInfoBaseImpl::s_init_list->find (&tinfo);
+      if (it == BaseInfoBaseImpl::s_init_list->end()) break;
+      BaseInfoBase::init_func_t* init = it->second;
+      BaseInfoBaseImpl::s_init_list->erase (it);
+      init();
+      i = BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
     }
   }
-  if (i != BaseInfoBaseImpl::s_bi_by_clid->end())
+  if (i != BaseInfoBaseImpl::s_bi_by_ti->end())
     return i->second;
 
   return 0;
@@ -586,63 +598,44 @@ const BaseInfoBase* BaseInfoBase::find (CLID clid)
  */
 const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
 {
-  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
-  if (!BaseInfoBaseImpl::s_bi_by_ti) return 0;
-  BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
-    BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
-  if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
-    if (!i->second->m_impl->m_needs_init)
-      return i->second;
-    i->second->m_impl->m_needs_init = false;
+  const BaseInfoBase* bib = find1 (tinfo);
+
+  // If we didn't find it, try looking up by name.
+  // This to deal with the issue of sometimes getting duplicate
+  // @c std::type_info instances.
+  if (!bib && BaseInfoBaseImpl::s_ti_by_name) {
+    BaseInfoBaseImpl::ti_by_name_map_type::iterator i = 
+      BaseInfoBaseImpl::s_ti_by_name->find (tinfo.name());
+    if (i != BaseInfoBaseImpl::s_ti_by_name->end() && i->second != &tinfo)
+      bib = find1 (*i->second);
   }
 
-  // Try the initlist.
-  if (BaseInfoBaseImpl::s_init_list) {
-    for (size_t j = 0; j < BaseInfoBaseImpl::s_init_list->size(); j++) {
-      if ((*BaseInfoBaseImpl::s_init_list)[j].m_ti == &tinfo) {
-        BaseInfoBase::init_func_t* init = 
-          (*BaseInfoBaseImpl::s_init_list)[j].m_init_func;
-        BaseInfoBaseImpl::s_init_list->erase
-          (BaseInfoBaseImpl::s_init_list->begin() + j);
-        --j;
-        init();
-        i = BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
-      }
-    }
-  }
-  if (i != BaseInfoBaseImpl::s_bi_by_ti->end())
-    return i->second;
-
-  return 0;
+  return bib;
 }
 
 
 /**
  * @brief Register an initialization function.
- * @param clid The class ID of the class being registered.
  * @param tinfo The @c std::type_info for the class being registered.
  * @param init_func Function to initialize @c BaseInfo for the class.
  */
-void BaseInfoBase::addInit (CLID clid,
-                            const std::type_info* tinfo,
+void BaseInfoBase::addInit (const std::type_info* tinfo,
                             init_func_t* init_func)
 {
   //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
   if (!BaseInfoBaseImpl::s_init_list)
     BaseInfoBaseImpl::s_init_list =
-      new std::vector<BaseInfoBaseImpl::init_elem_t>;
-  BaseInfoBaseImpl::init_elem_t elem;
-  elem.m_clid = clid;
-  elem.m_ti = tinfo;
-  elem.m_init_func = init_func;
-  BaseInfoBaseImpl::s_init_list->push_back (elem);
+      new BaseInfoBaseImpl::init_list_t;
+  BaseInfoBaseImpl::s_init_list->insert (std::make_pair (tinfo, init_func));
 
   if (BaseInfoBaseImpl::s_bi_by_ti) {
-    BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
-      BaseInfoBaseImpl::s_bi_by_ti->find (tinfo);
-    if (i != BaseInfoBaseImpl::s_bi_by_ti->end() && 
-        !i->second->m_impl->m_needs_init)
-      i->second->m_impl->m_needs_init = true;
+    auto i = BaseInfoBaseImpl::s_bi_by_ti->find (tinfo);
+    if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
+      BaseInfoBaseImpl& impl = *i->second->m_impl;
+      impl.m_needs_init = true;
+      if (impl.m_clid == CLID_NULL)
+        impl.m_clid = CLIDRegistry::typeinfoToCLID (*tinfo);
+    }
   }
 }
 
@@ -658,38 +651,46 @@ void BaseInfoBase::maybeInit()
 
 
 
-/**
- * @brief Try to translate a type_info to a CLID by looking in the initlist.
- * @param tinfo The type to translate.
- * @returns The corresponding CLID, or CLID_NULL.
- */
-CLID BaseInfoBase::clid_from_initlist (const std::type_info& tinfo)
-{
-  if (!BaseInfoBaseImpl::s_init_list) return CLID_NULL;
-  size_t sz = BaseInfoBaseImpl::s_init_list->size();
-  for (size_t i = 0; i < sz; i++) {
-    const BaseInfoBaseImpl::init_elem_t& elt =
-      (*BaseInfoBaseImpl::s_init_list)[i];
-    if (elt.m_ti == &tinfo)
-      return elt.m_clid;
-  }
-  return CLID_NULL;
-}
-
-
 /// Declare the static members of @c BaseInfoBaseImpl.
-BaseInfoBaseImpl::bi_by_clid_map_type*      BaseInfoBaseImpl::s_bi_by_clid = 0;
 BaseInfoBaseImpl::bi_by_ti_map_type*        BaseInfoBaseImpl::s_bi_by_ti = 0;
-std::vector<BaseInfoBaseImpl::init_elem_t>* BaseInfoBaseImpl::s_init_list = 0;
+BaseInfoBaseImpl::ti_by_name_map_type*        BaseInfoBaseImpl::s_ti_by_name = 0;
+BaseInfoBaseImpl::init_list_t*               BaseInfoBaseImpl::s_init_list = 0;
 //boost::mutex                                BaseInfoBaseImpl::s_mutex;
 
 // To get them deleted.
 BaseInfoBaseImpl::Deleter BaseInfoBaseImpl::s_deleter;
 BaseInfoBaseImpl::Deleter::~Deleter()
 {
-  delete s_bi_by_clid;
   delete s_bi_by_ti;
+  delete s_ti_by_name;
   delete s_init_list;
 }
+
+
+// Helper for dumping within the debugger.
+void dumpBaseInfo()
+{
+  std::cout << "map:\n";
+  if (BaseInfoBaseImpl::s_bi_by_ti) {
+    std::vector<const std::type_info*> vv;
+    for (const auto& x : *BaseInfoBaseImpl::s_bi_by_ti)
+      vv.push_back (x.first);
+    std::sort (vv.begin(), vv.end());
+    for (const std::type_info* ti : vv)
+    {
+      const BaseInfoBase* bib = (*BaseInfoBaseImpl::s_bi_by_ti)[ti];
+      std::cout << ti << " " << bib->clid() << " [" << System::typeinfoName (*ti)
+                << "]\n";
+    }
+  }
+
+  std::cout << "\ninitlist:\n";
+  if (BaseInfoBaseImpl::s_init_list) {
+    for (const auto& x : *BaseInfoBaseImpl::s_init_list)
+      std::cout << x.first << " " << x.second << " ["
+                << System::typeinfoName (*x.first) << "]\n";
+  }
+}
+
 
 } // namespace SG

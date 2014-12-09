@@ -3,6 +3,9 @@
 */
 
 #include "SGTools/CLIDRegistry.h"
+#include "CxxUtils/make_unique.h"
+#include <unordered_map>
+#include <memory>
 /* #include <algorithm> */
 using namespace std;
 
@@ -58,3 +61,64 @@ CLIDRegistry::CLIDRegistryImpl& CLIDRegistry::registry() {
   static CLIDRegistryImpl _reg;
   return _reg;
 }
+
+
+namespace {
+typedef std::unordered_map<unsigned long, const std::type_info*> clid_ti_map_t;
+std::unique_ptr<clid_ti_map_t> clid_ti_map;
+
+typedef std::unordered_map<const std::type_info*, unsigned long> ti_clid_map_t;
+std::unique_ptr<ti_clid_map_t> ti_clid_map;
+}
+
+
+/**
+ * @brief Add a new CLID <> type_info mapping.
+ * @param clid The CLID of the class.
+ * @param ti The @c type_info of the class.
+ */
+void CLIDRegistry::addCLIDMapping (unsigned long clid, const std::type_info& ti)
+{
+  if (!clid_ti_map)
+    clid_ti_map = CxxUtils::make_unique<clid_ti_map_t>();
+  if (!ti_clid_map)
+    ti_clid_map = CxxUtils::make_unique<ti_clid_map_t>();
+
+  (*clid_ti_map)[clid] = &ti;
+  (*ti_clid_map)[&ti] = clid;
+}
+
+
+/**
+ * @brief Return the @c type_info corresponding to a CLID.
+ * @param clid The CLID to find.
+ *
+ * Returns the corresponding @c type_info or nullptr.
+ */
+const std::type_info* CLIDRegistry::CLIDToTypeinfo (unsigned long clid)
+{
+  if (clid_ti_map) {
+    auto i = clid_ti_map->find (clid);
+    if (i != clid_ti_map->end())
+      return i->second;
+  }
+  return nullptr;
+}
+
+
+/**
+ * @brief Return the CLID corresponding to a @c type_info.
+ * @param ti The @c type_info to find.
+ *
+ * Returns the corresponding @c CLID or CLID_NULL.
+ */
+unsigned long CLIDRegistry::typeinfoToCLID (const std::type_info& ti)
+{
+  if (ti_clid_map) {
+    auto i = ti_clid_map->find (&ti);
+    if (i != ti_clid_map->end())
+      return i->second;
+  }
+  return 0;
+}
+

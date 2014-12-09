@@ -13,7 +13,6 @@
  */
 
 
-#include "SGTools/safe_clid.h"
 #include "boost/type_traits/is_polymorphic.hpp"
 
 
@@ -109,11 +108,11 @@ public:
   template <class B>
   void add_base (bool is_virtual)
   {
+    // Make sure the bib for the base class exists.
+    (void)BaseInfo<B>::baseinfo();
+
     // Add the information for this base.
-    // Note the use of @a safe_clid to allow this to work whether or not
-    // there is actually a class ID defined for @a B.
-    // We pass in the converter function and the virtual flag.
-    this->add_info (SG::safe_clid<B>(), typeid(B),
+    this->add_info (typeid(B),
                     converter<B>, converterTo<B>, is_virtual);
   }
 #endif
@@ -237,7 +236,7 @@ struct BaseInfo_init<Virtual<B> >
  */
 template <class T>
 BaseInfoImpl<T>::BaseInfoImpl ()
-  : BaseInfoBase (SG::safe_clid<T>(), typeid(T))
+  : BaseInfoBase (typeid(T))
 {
   // This starts the walk over the bases.
   // We start with @a T itself.
@@ -507,7 +506,7 @@ struct RegisterBaseInit
 template <class T>
 RegisterBaseInit<T>::RegisterBaseInit()
 {
-  BaseInfoBase::addInit(SG::safe_clid<T>(), &typeid(T), BaseInfo<T>::baseinfo);
+  BaseInfoBase::addInit(&typeid(T), BaseInfo<T>::baseinfo);
 }
 #endif
 
@@ -573,7 +572,7 @@ const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
 template <class D, class B>
 RegisterAddBaseInit<D, B>::RegisterAddBaseInit()
 {
-  BaseInfoBase::addInit(SG::safe_clid<D>(), &typeid(D), doinit);
+  BaseInfoBase::addInit(&typeid(D), doinit);
 }
 #endif
 
@@ -619,8 +618,7 @@ const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
     bib = const_cast<SG::BaseInfoBase*> (&BaseInfo<T>::baseinfo());
   if (bib) {
     typedef typename C::target_type target_type;
-    bib->add_copy_conversion (SG::safe_clid<target_type>(),
-                              typeid(target_type),
+    bib->add_copy_conversion (typeid(target_type),
                               new C);
   }
   return *bib;
@@ -633,7 +631,7 @@ const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
 template <class T, class C>
 RegisterAddCopyConversionInit<T, C>::RegisterAddCopyConversionInit()
 {
-  BaseInfoBase::addInit(SG::safe_clid<T>(), &typeid(T), doinit);
+  BaseInfoBase::addInit(&typeid(T), doinit);
 }
 #endif
 

@@ -607,14 +607,12 @@ public:
 
   /**
    * @brief Add a new copy conversion.
-   * @param clid The @c CLID of the target class.
    * @param tinfo The @c std::type_info of the target class.
    * @param cnv A @c CopyConversionBase instance describing the conversion.
    *
    * The @c BaseInfoBase takes ownership of the @c cnv object.
    */
-  void add_copy_conversion (CLID clid,
-                            const std::type_info& tinfo,
+  void add_copy_conversion (const std::type_info& tinfo,
                             const CopyConversionBase* cnv);
 
 
@@ -630,8 +628,6 @@ public:
 #ifndef __REFLEX__
   /**
    * @brief Add information about one base class.
-   * @param clid The class ID of the base.  May be @a CLID_NULL if no
-   *             class ID is available.
    * @param tinfo The @a std::type_info of the base.
    * @param converter Converter function.  This should be able to
    *                  convert a @a T* to a pointer to this base.
@@ -640,8 +636,7 @@ public:
    * @param is_virtual True if the derivation from this base to @a T
    *                   is via virtual derivation.
    */
-  void add_info (CLID clid,
-                 const std::type_info& tinfo,
+  void add_info (const std::type_info& tinfo,
                  castfn_t* converter,
                  castfn_t* converterTo,
                  bool is_virtual);
@@ -674,12 +669,10 @@ public:
 #ifndef __REFLEX__
   /**
    * @brief Register an initialization function.
-   * @param clid The class ID of the class being registered.
    * @param tinfo The @c std::type_info for the class being registered.
    * @param init_func Function to initialize @c BaseInfo for the class.
    */
-  static void addInit (CLID clid,
-                       const std::type_info* tinfo,
+  static void addInit (const std::type_info* tinfo,
                        init_func_t* init_func);
 #endif
 
@@ -693,11 +686,9 @@ public:
 protected:
   /**
    * @brief Constructor.
-   * @param clid The class ID of this class.  May be @c CLID_NULL if no
-   *             ID is available.
    * @param tinfo The @c std::type_info for this class.
    */
-  BaseInfoBase (CLID clid, const std::type_info& tinfo);
+  BaseInfoBase (const std::type_info& tinfo);
 
 
   /**
@@ -708,11 +699,13 @@ protected:
 
 private:
   /**
-   * @brief Try to translate a type_info to a CLID by looking in the initlist.
-   * @param tinfo The type to translate.
-   * @returns The corresponding CLID, or CLID_NULL.
+   * @brief Helper for @c find.
+   * @param tinfo The @c std::type_info of the class
+   *              for which we want information.
+   *
+   * Returns 0 if no @c BaseInfoBase instance is available.
    */
-  CLID clid_from_initlist (const std::type_info& tinfo);
+  static const BaseInfoBase* find1 (const std::type_info& tinfo);
 
 
   /// Pointer to internal state.

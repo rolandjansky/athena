@@ -50,7 +50,8 @@
   };									\
   namespace detail {							\
     const bool UNUSED(clidEntry_ ## CID) =                              \
-      CLIDRegistry::addEntry<CID>(ClassID_traits< NAME >::typeName(),	\
+      CLIDRegistry::addEntry<CID>(typeid(NAME),                         \
+                                  ClassID_traits< NAME >::typeName(),   \
 				  ClassID_traits< NAME >::packageInfo(), \
 				  ClassName< NAME >::name());		\
   } 
@@ -93,8 +94,9 @@
   };									\
   namespace detail {							\
     const bool UNUSED(clidEntry_ ## CID) =                              \
-      CLIDRegistry::addEntry<CID> \
-      (ClassID_traits< ARG1,ARG2 >::typeName(),				\
+      CLIDRegistry::addEntry<CID>                                       \
+      (typeid(ARG1,ARG2),                                               \
+       ClassID_traits< ARG1,ARG2 >::typeName(),                         \
        ClassID_traits< ARG1,ARG2 >::packageInfo(),			\
        ClassName< ARG1,ARG2 >::name());					\
   } 
