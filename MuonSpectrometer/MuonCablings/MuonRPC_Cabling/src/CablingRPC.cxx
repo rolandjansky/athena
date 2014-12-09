@@ -1163,6 +1163,8 @@ CablingRPC::give_LowPt_borders  (unsigned short int SubsystemId,
         }
             */
     }
+    if (EtaLowBorder==0||EtaHighBorder==0||
+        PhiLowBorder==0||PhiHighBorder==0) return false;
     
     EtaLowBorder  += logic_sector*1000000;
     EtaHighBorder += logic_sector*1000000;
@@ -1188,7 +1190,7 @@ CablingRPC::give_HighPt_borders  (unsigned short int SubsystemId,
     int PadRoI = (RoIId)%4;
     int PhiIxx = PadRoI/2;
     int EtaIxx = PadRoI%2;
-    
+        
     CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
     
     const SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
@@ -1212,12 +1214,14 @@ CablingRPC::give_HighPt_borders  (unsigned short int SubsystemId,
         }
         */
     }
+    if (EtaLowBorder==0||EtaHighBorder==0||
+        PhiLowBorder==0||PhiHighBorder==0) return false;
     
     EtaLowBorder  += logic_sector*1000000;
     EtaHighBorder += logic_sector*1000000;
     PhiLowBorder  += logic_sector*1000000;
     PhiHighBorder += logic_sector*1000000;
-
+    
     return true;
 }
 
