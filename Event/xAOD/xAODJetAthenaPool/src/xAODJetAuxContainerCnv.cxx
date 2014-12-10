@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODJetAuxContainerCnv.cxx 588765 2014-03-21 13:30:28Z delsart $
+// $Id: xAODJetAuxContainerCnv.cxx 635124 2014-12-10 17:42:28Z ssnyder $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODJetAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 #include <TClass.h>
 
@@ -37,11 +39,8 @@ createPersistent( xAOD::JetAuxContainer* trans ) {
     dictLoaded = true;
   }  
 
-  // Create a copy of the container:
-  xAOD::JetAuxContainer* result =
-    new xAOD::JetAuxContainer( *trans );
-  
-  return result;
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::JetAuxContainer* xAODJetAuxContainerCnv::createTransient() {

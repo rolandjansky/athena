@@ -1,5 +1,5 @@
 package xAODJetAthenaPool
-# $Id: requirements 603027 2014-06-21 20:45:10Z delsart $
+# $Id: requirements 635124 2014-12-10 17:42:28Z ssnyder $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -11,7 +11,9 @@ use AtlasPolicy         AtlasPolicy-*
 private
 
 # Base package(s):
-use GaudiInterface      GaudiInterface-*      External
+#use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 
 use AtlasROOT           AtlasROOT-*           External           
 

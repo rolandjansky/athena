@@ -9,6 +9,8 @@
 
 // Local include(s):
 #include "xAODJetTrigAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 #include <TClass.h>
 
@@ -37,11 +39,8 @@ createPersistent( xAOD::JetTrigAuxContainer* trans ) {
     dictLoaded = true;
   }  
 
-  // Create a copy of the container:
-  xAOD::JetTrigAuxContainer* result =
-    new xAOD::JetTrigAuxContainer( *trans );
-  
-  return result;
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::JetTrigAuxContainer* xAODJetTrigAuxContainerCnv::createTransient() {
