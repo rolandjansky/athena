@@ -569,6 +569,7 @@ namespace JiveXML {
       DataVect barcode; barcode.reserve(trackCollection->size());
       DataVect numHits; numHits.reserve(trackCollection->size());
       DataVect numPolyline; numPolyline.reserve(trackCollection->size());
+      DataVect nBLayerHits; nBLayerHits.reserve(trackCollection->size());
       DataVect nPixHits; nPixHits.reserve(trackCollection->size());
       DataVect nSCTHits; nSCTHits.reserve(trackCollection->size());
       DataVect nTRTHits; nTRTHits.reserve(trackCollection->size());
@@ -626,11 +627,13 @@ namespace JiveXML {
 
 	 if(summary==0){
 	   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track summary is NULL " << endreq;
+           nBLayerHits.push_back(DataType(0));
 	   nPixHits.push_back(DataType(0));
 	   nSCTHits.push_back(DataType(0));
 	   nTRTHits.push_back(DataType(0));
 	 }
 	 else{
+           nBLayerHits.push_back(DataType(summary->get(Trk::numberOfBLayerHits)));
 	   nPixHits.push_back(DataType(summary->get(Trk::numberOfPixelHits)));
 	   nSCTHits.push_back(DataType(summary->get(Trk::numberOfSCTHits)));
 	   nTRTHits.push_back(DataType(summary->get(Trk::numberOfTRTHits)));
@@ -709,6 +712,7 @@ namespace JiveXML {
       m_DataMap["trackAuthor"] = trackAuthor;
       m_DataMap["barcode"] = barcode;
       m_DataMap["numHits"] = numHits;
+      m_DataMap["nBLayerHits"] = nBLayerHits;
       m_DataMap["nPixHits"] = nPixHits;
       m_DataMap["nSCTHits"] = nSCTHits;
       m_DataMap["nTRTHits"] = nTRTHits;

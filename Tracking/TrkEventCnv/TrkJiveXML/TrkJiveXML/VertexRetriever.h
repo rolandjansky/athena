@@ -8,7 +8,6 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
-namespace Trk { class V0Tools; }
 
 namespace JiveXML{
 
@@ -44,8 +43,6 @@ namespace JiveXML{
 
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return typeName; };
-
-      ToolHandle<Trk::V0Tools> m_V0Tools;
 
     private:
 

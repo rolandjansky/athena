@@ -26,10 +26,8 @@ use TrkSegment            TrkSegment-*                  Tracking/TrkEvent
 use TrkTrackLink          TrkTrackLink-*                Tracking/TrkEvent 
 use VxVertex              VxVertex-* 	                Tracking/TrkEvent
 use TrkToolInterfaces     TrkToolInterfaces-*           Tracking/TrkTools
-use TrkVertexAnalysisUtils  TrkVertexAnalysisUtils-*    Tracking/TrkVertexFitter
 use TrkParticleBase       TrkParticleBase-*             Tracking/TrkEvent
 use TrkTrackSummary       TrkTrackSummary-*             Tracking/TrkEvent
-use TrkVertexAnalysisUtils      TrkVertexAnalysisUtils-*        Tracking/TrkVertexFitter
 
 use Particle            Particle-*            Reconstruction
 

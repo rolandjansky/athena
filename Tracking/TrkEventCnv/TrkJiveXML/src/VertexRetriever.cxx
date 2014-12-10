@@ -17,7 +17,7 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrackLink/ITrackLink.h"
 
-#include "TrkVertexAnalysisUtils/V0Tools.h"
+//#include "TrkVertexAnalysisUtils/V0Tools.h"
 
 #include "Particle/TrackParticleContainer.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -299,8 +299,6 @@ namespace JiveXML {
 //---- association from:
 //---- from http://alxr.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/tauRec/src/PhotonConversionPID.cxx
 
-    int countPerigee=0, countMatches=0;
-
     std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks at vertex: " << trklist->size() << endreq;
@@ -308,58 +306,8 @@ namespace JiveXML {
     numTracks.push_back(DataType( trklist->size() ) );
     sgkey.push_back(DataType( m_trackCollection )); // sgkey in current scheme is _not_ a multiple !
 
-     const Trk::Perigee* allPer = NULL;
-     for (unsigned int i=0; i< trklist->size() ; i++)
-       {
-         // these lines navigate from a VxCandidate to the track summary of each track at vertex
- 
-         Trk::VxTrackAtVertex* tmpVxAtVtx = (*trklist)[i];
-         Trk::ITrackLink* trkLink = tmpVxAtVtx->trackOrParticleLink();
-         Trk::LinkToTrackParticleBase * linkToTrack_part = dynamic_cast< Trk::LinkToTrackParticleBase * > (trkLink);
-         if (!linkToTrack_part) { // no valid link
-           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Dynamic_cast of LinkToTrackParticleBase failed" << endreq;
-//           sgkey.push_back(DataType( m_trackCollection ));
-           tracks.push_back(DataType( -1 )); 
-           continue; // skip to next track
-         }
-         const Trk::TrackParticleBase* TP_Base = m_V0Tools->origTrackPB((*vertexItr),i);
-         if (!TP_Base) {
-           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get TrackParticleBase from linkToTrack_part" << endreq;
-           tracks.push_back(DataType( -1 )); 
-           continue;
-         }else{
-         const Rec::TrackParticle* origTP = dynamic_cast<const Rec::TrackParticle*>(TP_Base);
-         if ((origTP) == NULL) continue;  
-//         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ITrackLink VALID, trackParticle " << j++ << ", pT= " << origTP->pt()/CLHEP::GeV 
-//	     << ", d0: " << origTP->perigee()->parameters()[Trk::d0]/10 << endreq;
-
-       for (unsigned int ii=0; ii<perigeeVector.size(); ii++) {
-//         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " perigee iterator at " 
-//	     << i << " with d0 " << perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endreq; }
-         if ( perigeeVector[ii] ){
-// manual match works for both track types !
-           bool permatched = false;
-           allPer = perigeeVector[ii];
-           manualPerigeeMatch(allPer,origTP->perigee(), permatched);
-
-////// direct match works only for pure TrackParticles, not with typecast !
-//         if ( perigeeVector[i] == origTP->perigee() ){
-//////
-         if ( permatched ){
-           countPerigee++;
-           countMatches++;
-           if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << "Track perigee match at index " << ii 
-	      << ", count is " << countPerigee << ", collection: " << m_trackCollection << ", chi2DOF: " << chi2 << endreq; }
-           tracks.push_back(DataType( ii ));
-	 } //perigee match
-/// key in current AtlantisJava scheme is _not_ a multiple !
-//           sgkey.push_back(DataType( m_trackCollection )); 
-       }// perigee exists condition
-
-          } // end perigee
-	 } // end track loop 
-       } // end vertex loop
-      } // loop over vertices
+    tracks.push_back(DataType( -1 ));
+      }
     } // loop over vertex containers
 
     //Finally add all retrieved data to the data map
