@@ -32,9 +32,9 @@ use TrkTrackSummary             TrkTrackSummary-*       Tracking/TrkEvent
 use PathResolver                PathResolver-*          Tools
 
 #for LorentzMonTool
-use Particle                    Particle-*              Reconstruction
-use VxVertex                    VxVertex-*              Tracking/TrkEvent
-use xAODTracking                xAODTracking-*          Event/xAOD
+#use Particle                    Particle-*              Reconstruction
+#use VxVertex                    VxVertex-*              Tracking/TrkEvent
+#use xAODTracking                xAODTracking-*          Event/xAOD
 
 #packages needed for Ratio noise monitoring
 use LWHists                     LWHists-*               Tools

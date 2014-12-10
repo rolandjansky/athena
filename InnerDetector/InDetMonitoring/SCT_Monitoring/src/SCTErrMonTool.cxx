@@ -6,6 +6,7 @@
  *
  *
  *
+ *
  *    @author Martin White, based on code by Luca Fiorini, Shaun Roe, Manuel Diaz & Rob McPherson
  *    Major tidying/restructuring by Martin Flechl
  */
@@ -146,16 +147,30 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
   declareProperty("DoPerLumiErrors",m_doPerLumiErrors=true);
   declareProperty("DoErr2DPerLumiHists",m_doErr2DPerLumiHists=false);
 
-  m_initialize=false;
+ 
+  FirstHit= nullptr;
+  FirstHit_ECp= nullptr;
+  FirstHit_ECm= nullptr;
+  SecondHit= nullptr;
+  SecondHit_ECp= nullptr;
+  SecondHit_ECm= nullptr;
+  m_nErrors = nullptr;
+  nErrors_buf = nullptr;
+  nErrors_pos = 0;
+  
+  m_MaskedLinks= nullptr;
   numberOfEvents=0;
   numberOfEventsLumi=0;
-  nErrors_buf = NULL;
-  nErrors_pos = 0;
+  m_initialize=false;
+  
   m_ConfEffOnline = 0;
   m_ConfNoiseOnline = 0;
   m_ConfNoiseOnlineRecent = 0;
   m_current_lb=0;
   m_last_reset_lb=0;
+  
+  m_pSCTHelper = nullptr;
+  m_DetailedConfiguration = nullptr;
 
   //c-style arrays are not default initialized, so we initialize here
   clear3D(m_allErrs);
@@ -304,7 +319,7 @@ StatusCode SCTErrMonTool::fillHistograms(){
     FirstHit_ECm->Fill( double(numFirstHit_ECm)*scale ,1.); SecondHit_ECm->Fill( double(numSecondHit_ECm)*scale ,1.);
   }
   if(m_environment==AthenaMonManager::online){
-    if ( numberOfEvents > 1 && (numberOfEvents % m_checkrate) == 0 ){
+    if ( numberOfEvents==1 or (numberOfEvents > 1 && (numberOfEvents % m_checkrate) == 0 )){
       if ( resetCondDBMaps().isFailure() )  msg(MSG::WARNING) << "Error in resetCondDBMaps()" << endreq;
       if ( fillCondDBMaps().isFailure() )  msg(MSG::WARNING) << "Error in fillCondDBMaps()" << endreq;
       if ( (numberOfEvents % (m_checkrate*10)) == 0 ) { 
@@ -409,7 +424,7 @@ bool endOfEventsBlock(endOfLumiBlock);
 //====================================================================================================
 //          SCTErrMonTool :: fillByteStreamErrorsHelper, Martin Flechl 10/09/2009                                                     
 //====================================================================================================
-int SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F* histo[N_REGIONS][N_DISKSx2], bool lumi2DHist, int err_type, bool b_MaskedLinks=false){
+int SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F* histo[NREGIONS_INC_GENERAL][N_DISKSx2], bool lumi2DHist, int err_type, bool b_MaskedLinks=false){
   int nerrors = 0;
   std::set<IdentifierHash>::iterator fit = errors->begin();
   std::set<IdentifierHash>::iterator fitEnd = errors->end();
@@ -508,11 +523,11 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     
   if(m_environment==AthenaMonManager::online){
     if( (m_current_lb % m_checkrecent == 0) && (m_current_lb>m_last_reset_lb) ) {
-      for (int reg=0; reg!=N_REGIONS;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_summaryErrsRecent[reg][i]) m_summaryErrsRecent[reg][i]->Reset();
+      for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_summaryErrsRecent[reg][i]) m_summaryErrsRecent[reg][i]->Reset();
     }
   }
   //reset histos
-  for (int reg=0; reg!=N_REGIONS;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrs[SUMMARY][reg][i]) m_pallErrs[SUMMARY][reg][i]->Reset();
+  for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrs[SUMMARY][reg][i]) m_pallErrs[SUMMARY][reg][i]->Reset();
   //set up which errors we get; the SCT_ByteStreamErrors indexing does not correspond to the numbering in this class, so we translate
   const int errorsToGet[N_ERRTYPES]={SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError,
     SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError, SCT_ByteStreamErrors::FormatterError,
@@ -526,7 +541,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
  
    
   if(m_doPerLumiErrors && m_doErr2DPerLumiHists) {
-    for (int reg=0; reg!=N_REGIONS;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrsPerLumi[SUMMARY][reg][i]) m_pallErrsPerLumi[SUMMARY][reg][i]->Reset();
+    for (int reg=0; reg!=NREGIONS_INC_GENERAL;++reg) for (int i=0; i!=N_DISKSx2;++i) if (m_pallErrsPerLumi[SUMMARY][reg][i]) m_pallErrsPerLumi[SUMMARY][reg][i]->Reset();
     for (int errType(0);errType!=SUMMARY;++errType){
       const bool mask=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
       total_errors += fillByteStreamErrorsHelper(m_byteStreamErrSvc->getErrorSet(errorsToGet[errType]), m_pallErrsPerLumi[errType], false,errType,mask);
@@ -700,14 +715,19 @@ StatusCode SCTErrMonTool::bookErrHistos(){
   MonGroup err(this,"SCT/SCTB/errors",run,ATTRIB_UNMANAGED );
   if(ManagedMonitorToolBase::newRun){
       MonGroup MaskErrs(this,"SCT/GENERAL/errors",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED );
-      //m_MaskedLinks = new TH1I("Masked Links","Number of Masked Links for SCT,ECA,B,ECC",4,-0.5,3.5);
       m_MaskedLinks = new TH1I("Masked Links","Number of Masked Links for SCT,ECA,B,ECC",4,-0.5,3.5); //should reorder to C,B,A, total
+      m_MaskedLinks->GetXaxis()->SetBinLabel(1,"All"); 
+      m_MaskedLinks->GetXaxis()->SetBinLabel(2,"EndCapA");
+      m_MaskedLinks->GetXaxis()->SetBinLabel(3,"Barrel"); 
+      m_MaskedLinks->GetXaxis()->SetBinLabel(4,"EndCapC");
       if(MaskErrs.regHist(m_MaskedLinks).isFailure())  msg(MSG::WARNING) << "Couldn't book MaskedLinks" << endreq;
       std::string stem=m_stream+"/SCT/SCTB/errors/" ;   
       int nbins=50;
       //Book errors vs event numbers
       MonGroup Errors(this,"SCT/GENERAL/errors",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED );
       m_nErrors = new TH1I("sct_errors_vs_en","Number of Errors vs Event Number",m_evtsbins,1,m_evtsbins+1);
+      m_nErrors->GetXaxis()->SetTitle("Event Number"); 
+      m_nErrors->GetYaxis()->SetTitle("Num of Errors"); 
       size_t nErrors_buf_size;
       nErrors_buf_size = m_evtsbins * sizeof (int);
       nErrors_buf = (int *) malloc (nErrors_buf_size);
@@ -715,10 +735,11 @@ StatusCode SCTErrMonTool::bookErrHistos(){
       if(Errors.regHist(m_nErrors).isFailure())    msg(MSG::WARNING) << "Couldn't book nErrors vs event number hist" << endreq;
       //Book percentage error histograms      
       FirstHit = new TH1F("FirstHit","Percentage of FirstHit errors", nbins,0.,100.);
+      FirstHit->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
       SecondHit = new TH1F("SecondHit","Percentage of SecondHit errors", nbins,0.,100.);
+      SecondHit->GetXaxis()->SetTitle("Percentage of SecondHit errors");
       if( err.regHist(FirstHit).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
       if( err.regHist(SecondHit).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "SecondHit" << endreq;
-      //int limit = 2*n_barrels;
       bool somethingFailed(false);
       for (int layer(0); layer!=N_BARRELSx2;++layer) {
         for (int errType(0);errType!=N_ERRTYPES;++errType){
@@ -726,6 +747,8 @@ StatusCode SCTErrMonTool::bookErrHistos(){
           std::string title = m_errorsNames[errType] + " errors layer ";
           std::string name2 = std::string("T") + m_errorsNames[errType] + "Errs_";
           somethingFailed |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iBARREL][layer],m_pallErrs[errType][iBARREL][layer],layer).isFailure();
+          m_allErrs[errType][iBARREL][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
+          m_allErrs[errType][iBARREL][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
         }
         if(m_environment==AthenaMonManager::online) somethingFailed |= bookErrHistosHelper(err,"summaryErrsRecent_","summary recent Layer ",m_summaryErrsRecent[iBARREL][layer],layer).isFailure();
       }
@@ -756,7 +779,6 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
         m_numErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin+1,m_layerNames[bin].c_str());
         m_rateErrorsPerLumi[iECp]->GetYaxis()->SetBinLabel(bin+1,m_layerNames[bin].c_str());
       }
-      //int limit = 2*n_disks;
       bool failedBooking(false);
       if(m_doErr2DPerLumiHists) {
         for (int layer(0); layer!=N_DISKSx2;++layer) {
@@ -776,21 +798,25 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
     std::string stem=m_stream+"/SCT/SCTEA/errors/" ;
     int nbins=50;
     FirstHit_ECp = new TH1F("FirstHit_ECp","Percentage of FirstHit errors in positive endcap", nbins,0.,100.);
+    FirstHit_ECp->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
     SecondHit_ECp = new TH1F("SecondHit_ECp","Percentage of SecondHit errors in positive endcap", nbins,0.,100.);
+    SecondHit_ECp->GetXaxis()->SetTitle("Percentage of SecondHit errors"); 
     if ( err.regHist(FirstHit_ECp).isFailure() )
       msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
     if ( err.regHist(SecondHit_ECp).isFailure() )
       msg(MSG::WARNING) << "Cannot book Histogram:" << "SecondHit" << endreq;
 
-    //int limit = 2*n_disks;
-    bool failedBooking(false);
+    bool failedBooking(false); 
     for (int layer(0); layer!=N_DISKSx2;++layer) {
       for (int errType(0);errType!=N_ERRTYPES;++errType){
         std::string name1 = m_errorsNames[errType] + "ErrsECp_";
         std::string title = m_errorsNames[errType] + " errors layer ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECp_";
         failedBooking |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iECp][layer],m_pallErrs[errType][iECp][layer],layer).isFailure();
+        m_allErrs[errType][iECp][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
+        m_allErrs[errType][iECp][layer]->GetYaxis()->SetTitle("Index in the direction of #phi"); 
       }
+
       if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECp_","summary recent Layer ",m_summaryErrsRecent[iECp][layer],layer,false).isFailure();
     }
     if(failedBooking) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Something went wrong in bookPositiveEndCapErrHistos" << endreq;
@@ -822,7 +848,6 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
         m_numErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin+1,m_layerNames[bin].c_str());
         m_rateErrorsPerLumi[iECm]->GetYaxis()->SetBinLabel(bin+1,m_layerNames[bin].c_str());
       }
-      //int limit = 2*n_disks;
       bool failedBooking(false);
       if(m_doErr2DPerLumiHists) {
         for (int layer(0); layer!=N_DISKSx2;++layer) {
@@ -842,7 +867,9 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
     std::string stem=m_stream+"/SCT/SCTEC/errors/" ;
     int nbins=50;
     FirstHit_ECm = new TH1F("FirstHit_ECm","Percentage of FirstHit errors in negative endcap", nbins,0.,100.);
+    FirstHit_ECm->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
     SecondHit_ECm = new TH1F("SecondHit_ECm","Percentage of SecondHit errors in negative endcap", nbins,0.,100.);
+    SecondHit_ECm->GetXaxis()->SetTitle("Percentage of SecondHit errors");
     if ( err.regHist(FirstHit_ECm).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "FirstHit" << endreq;
     if ( err.regHist(SecondHit_ECm).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << "SecondHit" << endreq;
 
@@ -854,10 +881,14 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
         std::string title = m_errorsNames[errType] + " errors layer ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECm_";
         failedBooking |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iECm][layer],m_pallErrs[errType][iECm][layer],layer).isFailure();
+        m_allErrs[errType][iECm][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
+        m_allErrs[errType][iECm][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
       }
       if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECm_","summary recent Layer ",m_summaryErrsRecent[iECm][layer],layer,false).isFailure();
     }
     if(failedBooking) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Something went wrong in bookNegativeEndCapErrHistos" << endreq;
+     
+
   }
   return StatusCode::SUCCESS;
 }
@@ -877,7 +908,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
     m_path = streamName.substr(0, streamName.rfind("SCT/GENERAL/Conf"));
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Global Path :" << m_path << endreq;
 
-    std::string m_SummaryBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors","Inefficient","Noisy"}; 
+    //std::string m_SummaryBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors","Inefficient","Noisy"}; 
     std::string m_ConfigurationBinNames[] = {"Modules","Link 0","Link 1","Chips","Strips (10^{2})"};
     std::string m_ConfigurationOnlineBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors"};
     std::string m_ConfigurationEffBinNames[] = {"Ineff B","Ineff EA","Ineff EC","ALL"};
@@ -893,15 +924,20 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
              Form("Module Out of Configuration : Layer %d Side %d",i/2,i%2),   // title
              N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,                
              N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);               
+      hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta"); 
+      hitsHisto_tmp->GetYaxis()->SetTitle("Index in the direction of #phi");
+
       if ( ConfMapsExpert.regHist(hitsHisto_tmp).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stream2dmap.str() << endreq;
       m_p2DmapHistoVectorAll[iBARREL].push_back(hitsHisto_tmp); 
     }
     if (m_makeConfHisto or testOffline) {
-      m_DetailedConfiguration = new TProfile("SCTConfDetails","Configuration Summary Histo",ConfbinsDetailed,-0.5,ConfbinsDetailed - 0.5);
+      m_DetailedConfiguration = new TProfile("SCTConfDetails","Exclusion from the Configuration",ConfbinsDetailed,-0.5,ConfbinsDetailed - 0.5);
       if ( ConfHist.regHist(m_DetailedConfiguration).isFailure() )
         msg(MSG::WARNING) << "Cannot book Histogram:SCTConfDetails" << endreq; 
 
         TString conftitle[4]={"SCTConfBarrel","SCTConfEndcapA","SCTConfEndcapC","SCTConf"};
+        TString conflabel[4]={"Num of Problematic Module in Barrel","Num of Problematic Module in EndcapA", 
+                                      "Num of Problematic Module in EndcapC","Num of Problematic Module in All Region"};//30.11.2014 
         TString confonlinetitle[4]={"SCTOnlineConfBarrel","SCTOnlineConfEndcapA","SCTOnlineConfEndcapC","SCTOnlineConf"};
         TString confefftitle="SCTEffConf";
 
@@ -912,28 +948,31 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString numerrors[4]={"SCTNumberOfErrorsBarrel","SCTNumberOfErrorsEndcapA","SCTNumberOfErrorsEndcapC","SCTNumberOfErrors"};
         TString moderrors[4]={"SCTModulesWithErrorsBarrel","SCTModulesWithErrorsEndcapA","SCTModulesWithErrorsEndcapC","SCTModulesWithErrors"};
         for(int reg=0; reg<4; reg++){
-          m_Conf[reg] = new TProfile(conftitle[reg],"Module Summary Histo",Confbins,-0.5,Confbins-0.5);
-          for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
+          m_Conf[reg] = new TProfile(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014           for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
           const int conf_online_bins = 4;
           if(m_environment==AthenaMonManager::online or testOffline){
-            m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],"Module Summary Histo",conf_online_bins,-0.5,conf_online_bins-0.5);
+            m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
             for (int bin = 0; bin<conf_online_bins; bin++) m_ConfOnline[reg]->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationOnlineBinNames[bin].c_str());
           }
           m_MaskedLinksVsLB[reg] = new TProfile(maskedlinktitle[reg],"Average number of masked link errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_ROBFragmentVsLB[reg] = new TProfile(robfragtitle[reg],"Average number of ROB fragment errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ROBFragmentVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Average number of errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
+          m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
           m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Average number of modules with errors per event vs. lumiblock",n_lumiBins,0.5,n_lumiBins+0.5);
-
+          m_ModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
         }
         const int conf_noise_bins = 4;
         const int conf_eff_bins = 4;
 
         if(m_environment==AthenaMonManager::online or testOffline){
-          m_ConfEffOnline = new TProfile(confefftitle,"Module Summary Histo",conf_eff_bins,-0.5,conf_eff_bins-0.5);
+          m_ConfEffOnline = new TProfile(confefftitle,"Number of Inefficient Modules Online",conf_eff_bins,-0.5,conf_eff_bins-0.5);
           for (int bin = 0; bin<conf_eff_bins; bin++) m_ConfEffOnline->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationEffBinNames[bin].c_str());
-          m_ConfNoiseOnline = new TProfile(confnoisetitle,"Module Summary Histo",conf_noise_bins,-0.5,conf_noise_bins-0.5);
+          m_ConfNoiseOnline = new TProfile(confnoisetitle,"Number of Noisy Modules Online",conf_noise_bins,-0.5,conf_noise_bins-0.5);
           for (int bin = 0; bin<conf_noise_bins; bin++) m_ConfNoiseOnline->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationNoiseBinNames[bin].c_str());
-          m_ConfNoiseOnlineRecent = new TProfile(confnoisetitle_recent,"Module Summary Histo",conf_noise_bins,-0.5,conf_noise_bins-0.5);
+          m_ConfNoiseOnlineRecent = new TProfile(confnoisetitle_recent,"Number of Noisy Modules Online Recent",conf_noise_bins,-0.5,conf_noise_bins-0.5); 
+
           for (int bin = 0; bin<conf_noise_bins; bin++) m_ConfNoiseOnlineRecent->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationNoiseBinNames[bin].c_str());
         }
         for (int bin = 0; bin<ConfbinsDetailed; bin++) m_DetailedConfiguration->GetXaxis()->SetBinLabel(bin+1,m_ConfigurationBinNames[bin].c_str());
@@ -989,7 +1028,9 @@ SCTErrMonTool::bookPositiveEndCapConfMaps() {
       TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
              Form("Module Out of Configuration : Disk %d Side +%d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,              // X num bins, X_lo, X_hi
-             N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);             // Y num bins, Y_lo, Y_hi     
+             N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);             // Y num bins, Y_lo, Y_hi  
+      hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta");
+      hitsHisto_tmp->GetYaxis()->SetTitle("Index in the direction of #phi");   
       if ( PlusEndCapConfMaps.regHist(hitsHisto_tmp).isFailure() )msg(MSG::WARNING) << "Cannot book Histogram:" << stream2dmap.str() << endreq;
       m_p2DmapHistoVectorAll[iECp].push_back(hitsHisto_tmp); 
     } 
@@ -1012,7 +1053,9 @@ SCTErrMonTool::bookNegativeEndCapConfMaps(){
       TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
              Form("Module Out of Configuration : Disk %d Side -%d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,               
-             N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);              
+             N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);  
+      hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta"); 
+      hitsHisto_tmp->GetYaxis()->SetTitle("Index in the direction of #phi");            
 
       if ( MinusEndCapConfMaps.regHist(hitsHisto_tmp).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stream2dmap.str() << endreq;
       m_p2DmapHistoVectorAll[iECm].push_back(hitsHisto_tmp); 

@@ -3,10 +3,10 @@
 */
 
 /**    @file SCTTracksMonTool.cxx
-*   
-*    @author Luca Fiorini, based on code from Shaun Roe, Manuel Diaz & Rob McPherson         
-*    Also uses code from InDet::SCT_ResidualPullCalculator     
-*/
+ *   
+ *    @author Luca Fiorini, based on code from Shaun Roe, Manuel Diaz & Rob McPherson         
+ *    Also uses code from InDet::SCT_ResidualPullCalculator     
+ */
 #include "SCT_Monitoring/SCTTracksMonTool.h"
 #include "deletePointers.h"
 #include "SCT_NameFormatter.h"
@@ -55,35 +55,35 @@ namespace {
  
   //format a square matrix to a string
   /**format a square matrix to a string
-  string 
-  matrixString(const CLHEP::HepSymMatrix &array){
-    string result("");
-    const int dim=array.num_col();
-    for(int row(0);row !=dim;++row){
-      for(int col(0);col !=dim;++col){
-        result+=(" "+boost::lexical_cast<string>(array[row][col]));
-      }
-      result += "\n";
-    }
-    return result;
-  }
+     string 
+     matrixString(const CLHEP::HepSymMatrix &array){
+     string result("");
+     const int dim=array.num_col();
+     for(int row(0);row !=dim;++row){
+     for(int col(0);col !=dim;++col){
+     result+=(" "+boost::lexical_cast<string>(array[row][col]));
+     }
+     result += "\n";
+     }
+     return result;
+     }
   **/
 }
 
 //====================================================================================================
 /** Constructor, calls base class constructor with parameters
-*
-*  several properties are "declared" here, allowing selection
-*  of the filepath for histograms, the first and second plane
-*  numbers to be used, and the timebin.
-*/
+ *
+ *  several properties are "declared" here, allowing selection
+ *  of the filepath for histograms, the first and second plane
+ *  numbers to be used, and the timebin.
+ */
 //====================================================================================================
 SCTTracksMonTool::SCTTracksMonTool(const string & type, 
-const string & name,
-const IInterface* parent)
-:SCTMotherTrigMonTool(type, name, parent),
-m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-m_updator("Trk::KalmanUpdator/TrkKalmanUpdator")
+				   const string & name,
+				   const IInterface* parent)
+ :SCTMotherTrigMonTool(type, name, parent),
+  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+  m_updator("Trk::KalmanUpdator/TrkKalmanUpdator")
 {
   declareProperty("histoPathBase", m_stream = "/stat");
   declareProperty("tracksName",m_tracksName="SCT_Cosmic_Tracks"); //"ExtendedTracks");
@@ -109,8 +109,8 @@ SCTTracksMonTool::~SCTTracksMonTool(){
 //====================================================================================================
 //                       SCTTracksMonTool :: bookHistograms
 //====================================================================================================
-//StatusCode SCTTracksMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun ) // hidetoshi 14.01.21 
-StatusCode SCTTracksMonTool::bookHistogramsRecurrent()                                                                  // hidetoshi 14.01.21 
+//StatusCode SCTTracksMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool isNewLumiBlock, bool isNewRun )  // hidetoshi 14.01.21 
+StatusCode SCTTracksMonTool::bookHistogramsRecurrent()                                                          // hidetoshi 14.01.21 
 {
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
@@ -141,8 +141,8 @@ StatusCode SCTTracksMonTool::bookHistograms()                                   
 {
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
-  //  if (newRun) m_numberOfEvents = 0;                                                                          // hidetoshi 14.01.21 
-  m_numberOfEvents = 0;                                                                                          // hidetoshi 14.01.21 
+  if (newRun) m_numberOfEvents = 0;                                                                            // hidetoshi 14.11.27 
+  //m_numberOfEvents = 0;                                                                                    // hidetoshi 14.01.21 
   CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_doUnbiasedCalc)
     CHECK(m_updator.retrieve());
@@ -166,6 +166,40 @@ StatusCode SCTTracksMonTool::bookHistograms()                                   
 /// This is the real workhorse, called for each event. It retrieves the data each time 
 //====================================================================================================
 StatusCode SCTTracksMonTool::fillHistograms(){
+
+  
+  if(newRun){
+    for(int m=0;m<N_DISKSx2;m++){
+      m_psctresiduals_summaryHistoVectorECm[m]->GetXaxis()->SetTitle("Residuals [mm]");
+      m_psctresiduals_summaryHistoVectorECp[m]->GetXaxis()->SetTitle("Residuals [mm]");
+      m_psctpulls_summaryHistoVectorECm[m]->GetXaxis()->SetTitle("Pull");
+      m_psctpulls_summaryHistoVectorECp[m]->GetXaxis()->SetTitle("Pull");
+    }
+    for(int n=0;n<N_BARRELSx2;n++){
+      m_psctresiduals_summaryHistoVector[n]->GetXaxis()->SetTitle("Residuals [mm]");
+      m_psctpulls_summaryHistoVector[n]->GetXaxis()->SetTitle("Pull");
+    }
+    if(m_environment != AthenaMonManager::online){ // 27.11.2014
+      for(int mm=0;mm<N_DISKSx2;mm++){
+	m_psctresidualsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctresidualsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+	m_psctresidualsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctresidualsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+	m_psctpullsHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctpullsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+	m_psctpullsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctpullsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+      }
+      for(int nn=0;nn<N_BARRELSx2;nn++){
+	m_psctresidualsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctresidualsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+	m_psctpullsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+	m_psctpullsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+      }
+    } 
+  }
+  
+
   ATH_MSG_DEBUG("SCTTracksMonTool::fillHistograms()");
   if (m_doTrigger)
     if ( SCTMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS )
@@ -224,7 +258,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
     m_trk_d0->Fill(track->perigeeParameters()->parameters()[Trk::d0]);
     m_trk_z0->Fill(track->perigeeParameters()->parameters()[Trk::z0]);
     m_trk_phi->Fill(track->perigeeParameters()->parameters()[Trk::phi]);
-
+    
     if (m_doTrigger)
       for (int trig(0); trig!=N_TRIGGER_TYPES ; ++trig)
         if (SCTMotherTrigMonTool::hasTriggerFired(trig)){
@@ -240,18 +274,28 @@ StatusCode SCTTracksMonTool::fillHistograms(){
       ATH_MSG_ERROR("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       break;
     }
+    
 
-    VecProf2_t * residualsHistogramArray[3] = {&m_psctresidualsHistoVectorECm, 
-					       &m_psctresidualsHistoVector, &m_psctresidualsHistoVectorECp};
+    VecProf2_t * residualsHistogramArray[3];
+    VecProf2_t * pullsHistogramArray[3];
+    Prof2_t residualsHistogram(0);
+    Prof2_t pullsHistogram(0);
+
+    if(m_environment != AthenaMonManager::online){ // 27.11.2014 
+      residualsHistogramArray[0]= &m_psctresidualsHistoVectorECm; 
+      residualsHistogramArray[1]= &m_psctresidualsHistoVector;
+      residualsHistogramArray[2]= &m_psctresidualsHistoVectorECp; 
+      pullsHistogramArray[0] = &m_psctpullsHistoVectorECm; 
+      pullsHistogramArray[1] = &m_psctpullsHistoVector; 
+      pullsHistogramArray[2] = &m_psctpullsHistoVectorECp;// 27.11.2014
+    }    
+    
     VecH1_t * residualsSummaryHistogramArray[3] = {&m_psctresiduals_summaryHistoVectorECm, 
 						   &m_psctresiduals_summaryHistoVector, &m_psctresiduals_summaryHistoVectorECp };
-    VecProf2_t * pullsHistogramArray[3] = {&m_psctpullsHistoVectorECm, 
-					   &m_psctpullsHistoVector, &m_psctpullsHistoVectorECp };
     VecH1_t * pullsSummaryHistogramArray[3] = {&m_psctpulls_summaryHistoVectorECm, 
 					       &m_psctpulls_summaryHistoVector, &m_psctpulls_summaryHistoVectorECp};
-    Prof2_t residualsHistogram(0);
+
     H1_t residualsSummaryHistogram(0);
-    Prof2_t pullsHistogram(0);
     H1_t pullsSummaryHistogram(0);
     
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit(trackStates->end());
@@ -308,14 +352,18 @@ StatusCode SCTTracksMonTool::fillHistograms(){
                   double local_pull(residualPull->pull()[Trk::locX]);
                   bool bigPull(local_pull < 10. and local_pull > -10.);
                   if (doThisDetector){
-                    residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; 
+
                     residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
-                    pullsHistogram = (*pullsHistogramArray[subsystemIndex])[element];
+
                     pullsSummaryHistogram = (*pullsSummaryHistogramArray[subsystemIndex])[element];
-#ifndef ONLINE 
-                    if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-                    if (bigPull and pullsHistogram) pullsHistogram->Fill(eta, phi, local_pull);
-#endif
+
+		    if(m_environment != AthenaMonManager::online){ // 27.11.2014 
+		      residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
+		      pullsHistogram = (*pullsHistogramArray[subsystemIndex])[element];//27.11.2014
+		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+		      if (bigPull and pullsHistogram) pullsHistogram->Fill(eta, phi, local_pull);
+		    } //27.11.2014
+
                     if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
 		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
 		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
@@ -339,11 +387,12 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 		if(clus->localParameters().parameterKey() == ONE_D_LOCATION){
 		  double local_residual(LocalTrackParameters[Trk::locX] - clus->localParameters()[Trk::locX]);
 		  if (doThisDetector){
-		    residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; 
+
 		    residualsSummaryHistogram = (*residualsSummaryHistogramArray[subsystemIndex])[element];
-#ifndef ONLINE
-		    if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-#endif
+		    if(m_environment != AthenaMonManager::online){ // 27.11.2014
+		      residualsHistogram = (*residualsHistogramArray[subsystemIndex])[element]; //27.11.2014
+		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+		    } //27.11.2014
 		    if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
 		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
 		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
@@ -356,11 +405,11 @@ StatusCode SCTTracksMonTool::fillHistograms(){
                     // Calculate Residual for hit: res = (vec(x_track) - vec(x_hit)) * vec(n_perpendicular)
 		    double local_residual((LocalTrackParameters[Trk::locX] -  clus->localParameters()[Trk::locX]) * cosAlpha
 					  + (LocalTrackParameters[Trk::locY] - clus->localParameters()[Trk::locY]) * sinAlpha);
-		    residualsHistogram = (bec == BARREL) ? 0 : (*residualsHistogramArray[subsystemIndex])[layer];//!!! this is 'layer' in the original code, others are elements
 		    residualsSummaryHistogram = (bec == BARREL) ? 0 : (*residualsSummaryHistogramArray[subsystemIndex])[element];
-#ifndef ONLINE
-		    if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
-#endif
+		    if(m_environment != AthenaMonManager::online){ // 27.11.2014
+		      residualsHistogram = (bec == BARREL) ? 0 : (*residualsHistogramArray[subsystemIndex])[layer];//!!! this is 'layer' in the original code, others are elements //27.11.2014
+		      if (residualsHistogram) residualsHistogram->Fill(eta, phi, local_residual);
+		    } //27.11.2014
 		    if (residualsSummaryHistogram) residualsSummaryHistogram->Fill(local_residual, 1.);
 		    if(bec == 0) m_totalBarrelResidual->Fill(local_residual, 1.);
 		    else if(bec > 0) m_totalEndCapAResidual->Fill(local_residual, 1.);
@@ -391,8 +440,11 @@ StatusCode SCTTracksMonTool::fillHistograms(){
   m_trk_N->Fill(m_goodTrks_N);
 
   m_trk_nclu_totHisto->Fill(local_tot_trkhits, 1.);
-  if(m_environment == AthenaMonManager::online){
-    if(m_numberOfEvents % m_checkrate == 0){
+
+  if(m_environment == AthenaMonManager::online){ 
+      //if(m_environment == AthenaMonManager::online)m_my_isOnline=true;//Fumiaki Ito
+    //if(m_my_isOnline){ //21.11.2014 Fumiaki Ito
+    if(m_numberOfEvents ==1 || (m_numberOfEvents > 1 && m_numberOfEvents % m_checkrate == 0)){//30.11.2014
       ATH_MSG_DEBUG("Calling checkHists(false); false := during run");
       if(checkHists(false).isFailure())
 	ATH_MSG_WARNING("Error in checkHists(false)");
@@ -419,7 +471,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 	if (latest_nTracks_pos == m_evtsbins) latest_nTracks_pos = 0;
       }
     }
-  }
+  } 
   m_numberOfEvents++; 
   return StatusCode::SUCCESS;
 }
@@ -428,17 +480,17 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 //                             SCTTracksMonTool :: procHistograms
 //====================================================================================================
 //    StatusCode  SCTTracksMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool isEndOfRun){   //  hidetoshi 14.01.21
-    StatusCode  SCTTracksMonTool::procHistograms(){                                                                            //  hidetoshi 14.01.21
-      //    if(isEndOfRun){                                                                                                     //  hidetoshi 14.01.21
-    if(endOfRun){                                                                                                               //  hidetoshi 14.01.21
-      ATH_MSG_DEBUG("SCTTracksMonTool::procHistograms");
-      ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
-      ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
-      if (checkHists(true).isFailure()) ATH_MSG_WARNING("Error in checkHists(true)");
-    }
-    ATH_MSG_DEBUG("Exiting finalHists");
-    return StatusCode::SUCCESS;
+StatusCode  SCTTracksMonTool::procHistograms(){                                                                            //  hidetoshi 14.01.21
+  //    if(isEndOfRun){                                                                                                     //  hidetoshi 14.01.21
+  if(endOfRun){                                                                                                               //  hidetoshi 14.01.21
+    ATH_MSG_DEBUG("SCTTracksMonTool::procHistograms");
+    ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
+    ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
+    if (checkHists(true).isFailure()) ATH_MSG_WARNING("Error in checkHists(true)");
   }
+  ATH_MSG_DEBUG("Exiting finalHists");
+  return StatusCode::SUCCESS;
+}
 
 //====================================================================================================
 //                           SCTTracksMonTool :: checkHists
@@ -454,33 +506,39 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 //  in THistSvc memory and we cannot pass that pointer in input to ProjectionXY.
 // Therefore the following lines pass the information of a tmp hist created by ProjectionXY
 //  to the hist which pointer is in THistSvc memory
-//====================================================================================================
+//===================================================================================================
 StatusCode  SCTTracksMonTool::checkHists(bool /*fromFinalize*/){
   const bool doDetector[3] = {m_doNegativeEndcap, true, m_doPositiveEndcap};
   const int numberOfHistograms[3] = {N_DISKSx2, N_BARRELSx2, N_DISKSx2}; 
-  const VecProf2_t * residuals[3] = {&m_psctresidualsHistoVectorECm, &m_psctresidualsHistoVector, &m_psctresidualsHistoVectorECp};
-  const VecH2_t * residualsRms[3] = {&m_psctresidualsRMSHistoVectorECm, &m_psctresidualsRMSHistoVector, &m_psctresidualsRMSHistoVectorECp}; 
-  const VecProf2_t * pulls[3] = {&m_psctpullsHistoVectorECm, &m_psctpullsHistoVector, &m_psctpullsHistoVectorECp};
-  const VecH2_t * pullsRms[3] = {&m_psctpullsRMSHistoVectorECm, &m_psctpullsRMSHistoVector, &m_psctpullsRMSHistoVectorECp};
+
   const int negativeEndCap(0);  
-#ifndef ONLINE
-  for (int thisDetector(negativeEndCap); thisDetector != N_REGIONS; ++thisDetector){ 
-    if (doDetector[thisDetector]){
-      const int lastElement(numberOfHistograms[thisDetector]); 
-      if(not (*residuals[thisDetector]).empty()){  /// added protection if vectors are not filled
-	for (int element(0); element != lastElement; ++element){ 
-	  const int nXbins((*residuals[thisDetector])[element]->GetNbinsX());
-	  const int nYbins((*residuals[thisDetector])[element]->GetNbinsY()); 
-	  for (int xbin(1); xbin <= nXbins; ++xbin)
-	    for (int ybin(1); ybin<=nYbins;++ybin){
-	      (*residualsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*residuals[thisDetector])[element]->GetBinError(xbin, ybin));
-	      (*pullsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*pulls[thisDetector])[element]->GetBinError(xbin, ybin));
-	    }
+
+
+  if(m_environment != AthenaMonManager::online){ // 27.11.2014
+
+    const VecProf2_t * residuals[3] = {&m_psctresidualsHistoVectorECm, &m_psctresidualsHistoVector, &m_psctresidualsHistoVectorECp};
+    const VecProf2_t * pulls[3] = {&m_psctpullsHistoVectorECm, &m_psctpullsHistoVector, &m_psctpullsHistoVectorECp};
+    const VecH2_t * pullsRms[3] = {&m_psctpullsRMSHistoVectorECm, &m_psctpullsRMSHistoVector, &m_psctpullsRMSHistoVectorECp};//27.11.2014
+    const VecH2_t * residualsRms[3] = {&m_psctresidualsRMSHistoVectorECm, &m_psctresidualsRMSHistoVector, &m_psctresidualsRMSHistoVectorECp};//27.11.2014 
+
+    for (int thisDetector(negativeEndCap); thisDetector != N_REGIONS; ++thisDetector){ 
+      if (doDetector[thisDetector]){
+	const int lastElement(numberOfHistograms[thisDetector]); 
+	if(not (*residuals[thisDetector]).empty()){  /// added protection if vectors are not filled
+	  for (int element(0); element != lastElement; ++element){ 
+	    const int nXbins((*residuals[thisDetector])[element]->GetNbinsX());
+	    const int nYbins((*residuals[thisDetector])[element]->GetNbinsY()); 
+	    for (int xbin(1); xbin <= nXbins; ++xbin)
+	      for (int ybin(1); ybin<=nYbins;++ybin){
+		(*residualsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*residuals[thisDetector])[element]->GetBinError(xbin, ybin));
+		(*pullsRms[thisDetector])[element]->SetBinContent(xbin, ybin, (*pulls[thisDetector])[element]->GetBinError(xbin, ybin));
+	      }
+	  }
 	}
       }
     }
-  }
-#endif
+    //  (*residualsRms[0])[0]->GetXaxis()->SetTitle("Index in the derection of #eta");
+  } //27.11.2014
   // Now checking RMS and Means of Pulls 1D Histos
   TF1 pullgaus("pullgaus","gaus");
   if(not m_psctpulls_summaryHistoVector.empty()){ 
@@ -534,90 +592,117 @@ double SCTTracksMonTool::calculatePull(const double residual, const double trkEr
 //                              SCTTracksMonTool :: bookGeneralHistos
 //====================================================================================================
 //  StatusCode SCTTracksMonTool::bookGeneralHistos(bool isNewRun,bool /*isNewLumiBlock*/){  // hidetoshi 14.01.22
-  StatusCode SCTTracksMonTool::bookGeneralHistos(){                                         // hidetoshi 14.01.22
+StatusCode SCTTracksMonTool::bookGeneralHistos(){                                         // hidetoshi 14.01.22
+
+  //    if(isNewRun){                                                            // hidetoshi 14.01.22
+  if(newRun){                                                                    // hidetoshi 14.11.27
+      
     using boost::lexical_cast;
     string stem(m_path+"/SCT/GENERAL/tracks/");
     //    MonGroup Tracks(this,m_path+"SCT/GENERAL/tracks",expert,run);          // hidetoshi 14.01.21
     MonGroup Tracks(this,m_path+"SCT/GENERAL/tracks",run,ATTRIB_UNMANAGED);      // hidetoshi 14.01.21
     //MonGroup TracksPerLB(this,m_path+"SCT/GENERAL/tracks",expert,lumiBlock);
-
-  //Book histogram of number of tracks per region
+      
+    //Book histogram of number of tracks per region
     m_tracksPerRegion = new TH1F("tracksPerRegion", "Number of tracks in eta regions", 3, 0, 3);
+    m_tracksPerRegion->GetXaxis()->SetBinLabel(1,"EndCapA");
+    m_tracksPerRegion->GetXaxis()->SetBinLabel(2,"Barrel");
+    m_tracksPerRegion->GetXaxis()->SetBinLabel(3,"EndCapC");
     CHECK(Tracks.regHist(m_tracksPerRegion));
     m_totalBarrelResidual = new TH1F("totalBarrelResidual","Overall Residual Distribution for the Barrel",100,-0.5,0.5);
+    m_totalBarrelResidual->GetXaxis()->SetTitle("Residual [mm]");
     CHECK(Tracks.regHist(m_totalBarrelResidual));
     m_totalEndCapAResidual = new TH1F("totalEndCapAResidual","Overall Residual Distribution for the EndCapA",100,-0.5,0.5);
+    m_totalEndCapAResidual->GetXaxis()->SetTitle("Residual [mm]");
     CHECK(Tracks.regHist(m_totalEndCapAResidual));
     m_totalEndCapCResidual = new TH1F("totalEndCapCResidual","Overall Residual Distribution for the EndCapC",100,-0.5,0.5);
+    m_totalEndCapCResidual->GetXaxis()->SetTitle("Residual [mm]");
     CHECK(Tracks.regHist(m_totalEndCapCResidual));
     m_totalBarrelPull = new TH1F("totalBarrelPull","Overall Pull Distribution for the Barrel",100,-5,5);
+    m_totalBarrelPull->GetXaxis()->SetTitle("Pull");
     CHECK(Tracks.regHist(m_totalBarrelPull));
     m_totalEndCapAPull = new TH1F("totalEndCapAPull","Overall Pull Distribution for the EndCapA",100,-5,5);
+    m_totalEndCapAPull->GetXaxis()->SetTitle("Pull");
     CHECK(Tracks.regHist(m_totalEndCapAPull));
     m_totalEndCapCPull = new TH1F("totalEndCapCPull","Overall Pull Distribution for the EndCapC",100,-5,5);
+    m_totalEndCapCPull->GetXaxis()->SetTitle("Pull");
     CHECK(Tracks.regHist(m_totalEndCapCPull));
    
-    //    if(isNewRun){                                                            // hidetoshi 14.01.22
-      if (m_doTrigger == true) {
-        trackTrigger = new TH1I("trackTriggers","Tracks for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
-        trackTriggerRate = new TProfile("trackTriggersRate","Track per event for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
-        for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
-          trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
-          trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
-        }
-        CHECK(Tracks.regHist(trackTrigger));
-        CHECK(Tracks.regHist(trackTriggerRate));
+    if (m_doTrigger == true) {
+      trackTrigger = new TH1I("trackTriggers","Tracks for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
+      trackTriggerRate = new TProfile("trackTriggersRate","Track per event for different trigger types",N_TRIGGER_TYPES,-0.5,7.5);            // first bin, last bin
+      for (int trig(0); trig != N_TRIGGER_TYPES; ++trig) {
+	trackTrigger->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
+	trackTriggerRate->GetXaxis()->SetBinLabel(trig + 1, SCTMotherTrigMonTool::m_triggerNames[trig].c_str());
       }
-      //Book histogram of track rate for different regions of the detector
-      m_trackRate = new TProfile("SCTTrackRate","Track per event for SCT regions",3,0.0,3.0);
-      m_trackRate->GetXaxis()->SetBinLabel(1, "EndcapC");
-      m_trackRate->GetXaxis()->SetBinLabel(2, "Barrel");
-      m_trackRate->GetXaxis()->SetBinLabel(3, "EndcapA");
+      CHECK(Tracks.regHist(trackTrigger));
+      CHECK(Tracks.regHist(trackTriggerRate));
+    }
+    //Book histogram of track rate for different regions of the detector
+    m_trackRate = new TProfile("SCTTrackRate","Track per event for SCT regions",3,0.0,3.0);
+    m_trackRate->GetXaxis()->SetBinLabel(1, "EndcapC");
+    m_trackRate->GetXaxis()->SetBinLabel(2, "Barrel");
+    m_trackRate->GetXaxis()->SetBinLabel(3, "EndcapA");
 
-      CHECK(Tracks.regHist(m_trackRate));
-  //
-      m_trk_ncluHisto = new TH1F("trk_sct_hits","SCT HITS per single Track", N_HIT_BINS, FIRST_HIT_BIN, LAST_HIT_BIN);
-      CHECK(Tracks.regHist(m_trk_ncluHisto));
+    CHECK(Tracks.regHist(m_trackRate));
+    //
+    m_trk_ncluHisto = new TH1F("trk_sct_hits","SCT HITS per single Track", N_HIT_BINS, FIRST_HIT_BIN, LAST_HIT_BIN);
+    m_trk_ncluHisto->GetXaxis()->SetTitle("Num of Hits");
+    CHECK(Tracks.regHist(m_trk_ncluHisto));
 
-      m_trk_nclu_totHisto = new TH1F("sct_hits_onall_tracks", "SCT HITS on all event Tracks", N_HIT_BINS, FIRST_HIT_BIN, LAST_HIT_BIN);
-      CHECK(Tracks.regHist(m_trk_nclu_totHisto));
+    m_trk_nclu_totHisto = new TH1F("sct_hits_onall_tracks", "SCT HITS on all event Tracks", N_HIT_BINS, FIRST_HIT_BIN, LAST_HIT_BIN);
+    m_trk_nclu_totHisto->GetXaxis()->SetTitle("Num of SCT Hits");
+    m_trk_nclu_totHisto->GetYaxis()->SetTitle("Num of Events");
+    CHECK(Tracks.regHist(m_trk_nclu_totHisto));
 
-      m_trk_chi2 = new TH1F("trk_chi2", "Track #chi^{2} div ndf", 150, 0., 150.);
-      CHECK(Tracks.regHist(m_trk_chi2));
+    m_trk_chi2 = new TH1F("trk_chi2", "Track #chi^{2} div ndf", 150, 0., 150.);
+    m_trk_chi2->GetXaxis()->SetTitle("Number of track #chi^{2}/NDF");
+    CHECK(Tracks.regHist(m_trk_chi2));
 
-      m_trk_N = new TH1F("trk_N","Number of tracks",400,0,400);
-      CHECK(Tracks.regHist(m_trk_N));
+    m_trk_N = new TH1F("trk_N","Number of tracks",400,0,400);
+    m_trk_N->GetXaxis()->SetTitle("Number of tracks");
+    CHECK(Tracks.regHist(m_trk_N));
 
-      m_trk_pt = new TH1F("trk_pt", "Track P_{T}", 150, 0., 150.);
-      CHECK(Tracks.regHist(m_trk_pt));
+
+    m_trk_pt = new TH1F("trk_pt", "Track P_{T}", 150, 0., 150.);
+    m_trk_pt->GetXaxis()->SetTitle("P_{T} [GeV]");
+    CHECK(Tracks.regHist(m_trk_pt));
       
-      m_trk_d0 = new TH1F("trk_d0", "Track d0", 160, -40., 40.);
-      CHECK(Tracks.regHist(m_trk_d0));
+    m_trk_d0 = new TH1F("trk_d0", "Track d0", 160, -40., 40.);
+    m_trk_d0->GetXaxis()->SetTitle("d0 [mm]");
+    CHECK(Tracks.regHist(m_trk_d0));
 
-      m_trk_z0 = new TH1F("trk_z0", "Track z0", 200, -200., 200.);
-      CHECK(Tracks.regHist(m_trk_z0));
+    m_trk_z0 = new TH1F("trk_z0", "Track z0", 200, -200., 200.);
+    m_trk_z0->GetXaxis()->SetTitle("z0 [mm]");
+    CHECK(Tracks.regHist(m_trk_z0));
 
-      m_trk_phi = new TH1F("trk_phi", "Track Phi", 160, -4, 4.);
-      CHECK(Tracks.regHist(m_trk_phi));
+    m_trk_phi = new TH1F("trk_phi", "Track Phi", 160, -4, 4.);
+    m_trk_phi->GetXaxis()->SetTitle("#phi [rad]");
+    CHECK(Tracks.regHist(m_trk_phi));
 
-      m_trk_eta = new TH1F("trk_eta", "Track Eta", 160, -4., 4.);
-      CHECK(Tracks.regHist(m_trk_eta));
+    m_trk_eta = new TH1F("trk_eta", "Track Eta", 160, -4., 4.);
+    m_trk_eta->GetXaxis()->SetTitle("#eta");
+    CHECK(Tracks.regHist(m_trk_eta));
 
-      if(m_environment == AthenaMonManager::online){
-	m_nTracks = new TH1I("sct_tracks_vs_en", "Number of Tracks vs Event Number", m_evtsbins, 1, m_evtsbins + 1);
-	size_t nTracks_buf_size;
-	nTracks_buf_size = m_evtsbins * sizeof(int);
-	nTracks_buf = (int *) malloc(nTracks_buf_size);
-	nTracks_pos = 0;
-	CHECK(Tracks.regHist(m_nTracks));
-      }
-      //    }                               // hidetoshi 14.01.22
-    return StatusCode::SUCCESS;
-  }
+    //m_psctresidualsRMSHistoVector[0]->GetXaxis()->SetTitle("Index in the derection of #eta"); test
+    if(m_environment == AthenaMonManager::online){
+      m_nTracks = new TH1I("sct_tracks_vs_en", "Number of Tracks vs Event Number", m_evtsbins, 1, m_evtsbins + 1);
+      m_nTracks->GetXaxis()->SetTitle("Event Number");
+      m_nTracks->GetYaxis()->SetTitle("Num of Tracks");
+      size_t nTracks_buf_size;
+      nTracks_buf_size = m_evtsbins * sizeof(int);
+      nTracks_buf = (int *) malloc(nTracks_buf_size);
+      nTracks_pos = 0;
+      CHECK(Tracks.regHist(m_nTracks));
+    }
+  }                               // hidetoshi 14.01.22
+  return StatusCode::SUCCESS;
+}
 
 //StatusCode SCTTracksMonTool::bookTrackHistos(const bool isNewRun, const SCT_Monitoring::Bec becVal){ // hidetoshi 14.01.22     
 StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){                        // hidetoshi 14.01.22     
   //  if(not isNewRun) return StatusCode::SUCCESS;                                                     // hidetoshi 14.01.22     
+  if(not newRun) return StatusCode::SUCCESS;                                                           // hidetoshi 14.11.27     
   using boost::lexical_cast;
   const string pathDelimiter("/");
   const string streamDelimiter("_");
@@ -626,58 +711,79 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
   const string localPaths[N_REGIONS] = {"SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"};
   const unsigned int limits[N_REGIONS] = {N_DISKSx2, N_BARRELSx2, N_DISKSx2};
   const unsigned int systemIndex(bec2Index(becVal));
-  VecProf2_t * residualsArray[] = {&m_psctresidualsHistoVectorECm, &m_psctresidualsHistoVector, &m_psctresidualsHistoVectorECp};
-  VecProf2_t * pullsArray[] = {&m_psctpullsHistoVectorECm, &m_psctpullsHistoVector, &m_psctpullsHistoVectorECp};
+
   VecH1_t * residualsSummaryArray[] = {&m_psctresiduals_summaryHistoVectorECm, &m_psctresiduals_summaryHistoVector, &m_psctresiduals_summaryHistoVectorECp};
   VecH1_t * pullsSummaryArray[] = {&m_psctpulls_summaryHistoVectorECm, &m_psctpulls_summaryHistoVector, &m_psctpulls_summaryHistoVectorECp};
-  VecH2_t * residualsRmsArray[] = {&m_psctresidualsRMSHistoVectorECm, &m_psctresidualsRMSHistoVector, &m_psctresidualsRMSHistoVectorECp};
-  VecH2_t * pullsRmsArray[] = {&m_psctpullsRMSHistoVectorECm, &m_psctpullsRMSHistoVector, &m_psctpullsRMSHistoVectorECp};
+
+
   const string polarityString(regionNames[systemIndex]);
   const string abbreviation(abbreviations[systemIndex]);
   const string localPath(localPaths[systemIndex]);
   const unsigned int limit(limits[systemIndex]);
-  VecProf2_t * p_residuals(residualsArray[systemIndex]);
-  VecProf2_t * p_pulls(pullsArray[systemIndex]);
   VecH1_t * p_residualsSummary(residualsSummaryArray[systemIndex]), * p_pullsSummary(pullsSummaryArray[systemIndex]);
-  VecH2_t * p_residualsRms(residualsRmsArray[systemIndex]), * p_pullsRms(pullsRmsArray[systemIndex]);
+
   //  MonGroup endCapTracks(this, m_path+localPath, expert, run);            // hidetoshi 14.01.21
   MonGroup endCapTracks(this, m_path+localPath, run, ATTRIB_UNMANAGED);      // hidetoshi 14.01.21
 
-  p_residuals->clear();
-  p_pulls->clear();
   p_residualsSummary->clear();
   p_pullsSummary->clear();
-  p_residualsRms->clear();
-  p_pullsRms->clear();
 
   string stem(m_stream + pathDelimiter + localPath + pathDelimiter);
   for (unsigned int i(0); i != limit; ++i){
     //const string layerString(lexical_cast<string>(i/2));
     //const string sideString(lexical_cast<string>(i%2));
-    LayerSideFormatter layerSide(i);
+    //    LayerSideFormatter layerSide(i);//30.11.2014
+    LayerSideFormatter layerSide(i,systemIndex);//30.11.2014
     string streamResidual(string("residuals")+abbreviation+streamDelimiter+layerSide.name());
     string streamPull(string("pulls")+abbreviation+streamDelimiter+layerSide.name());
     string titleResidual(string("SCT Residuals for ")+polarityString+": "+layerSide.title());
     string titlePull(string("SCT Pulls: ")+layerSide.title());
-#ifndef ONLINE
-    CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residuals));
-    CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracks, *p_pulls));
-#endif
     CHECK(h1Factory(streamResidual + "_summary", "Summary " + titleResidual, 0.5, endCapTracks, *p_residualsSummary));
     CHECK(h1Factory(streamPull + "_summary", "Summary " + titlePull, 5., endCapTracks, *p_pullsSummary));
   }
-#ifndef ONLINE
-  for (unsigned int i(0); i != limit; ++i) {
-    const string layerString(lexical_cast<string>(i / 2));
-    const string sideString(lexical_cast<string>(i % 2));
-    string streamResidual("residualsRMS" +abbreviation+streamDelimiter+ layerString + streamDelimiter + sideString);
-    string streamPull("pullsRMS"+abbreviation+streamDelimiter + layerString + streamDelimiter + sideString);
-    string titleResidual("SCT Residuals RMS for "+polarityString+": layer " + layerString + " side " + sideString);
-    string titlePull(string("SCT Pulls RMS for ")+polarityString+": layer " + layerString + " side " + sideString);
-    CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residualsRms));
-    CHECK(h2Factory(streamPull ,titlePull, becVal, endCapTracks, *p_pullsRms));
-  }
-#endif      
+
+
+  if(m_environment != AthenaMonManager::online){ // 27.11.2014
+  //if(1){//27.11
+    VecProf2_t * residualsArray[] = {&m_psctresidualsHistoVectorECm, &m_psctresidualsHistoVector, &m_psctresidualsHistoVectorECp};
+    VecH2_t * residualsRmsArray[] = {&m_psctresidualsRMSHistoVectorECm, &m_psctresidualsRMSHistoVector, &m_psctresidualsRMSHistoVectorECp};
+    
+    VecProf2_t * pullsArray[] = {&m_psctpullsHistoVectorECm, &m_psctpullsHistoVector, &m_psctpullsHistoVectorECp};
+    VecH2_t * pullsRmsArray[] = {&m_psctpullsRMSHistoVectorECm, &m_psctpullsRMSHistoVector, &m_psctpullsRMSHistoVectorECp};
+    
+    VecProf2_t * p_residuals(residualsArray[systemIndex]);
+    VecProf2_t * p_pulls(pullsArray[systemIndex]);
+    VecH2_t * p_residualsRms(residualsRmsArray[systemIndex]);
+    VecH2_t * p_pullsRms(pullsRmsArray[systemIndex]);
+    
+    p_residuals->clear();
+    p_pulls->clear();
+    p_residualsRms->clear();
+    p_pullsRms->clear();  
+    
+    for (unsigned int i(0); i != limit; ++i){
+      LayerSideFormatter layerSide(i);
+      string streamResidual(string("residuals")+abbreviation+streamDelimiter+layerSide.name());
+      string streamPull(string("pulls")+abbreviation+streamDelimiter+layerSide.name());
+      string titleResidual(string("SCT Residuals for ")+polarityString+": "+layerSide.title());
+      string titlePull(string("SCT Pulls: ")+layerSide.title());
+      
+      CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residuals));
+      CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracks, *p_pulls));
+    } //27.11.2014
+
+    for (unsigned int i(0); i != limit; ++i) {
+      const string layerString(lexical_cast<string>(i / 2));
+      const string sideString(lexical_cast<string>(i % 2));
+      string streamResidual("residualsRMS" +abbreviation+streamDelimiter+ layerString + streamDelimiter + sideString);
+      string streamPull("pullsRMS"+abbreviation+streamDelimiter + layerString + streamDelimiter + sideString);
+      string titleResidual("SCT Residuals RMS for "+polarityString+": layer " + layerString + " side " + sideString);
+      string titlePull(string("SCT Pulls RMS for ")+polarityString+": layer " + layerString + " side " + sideString);
+      CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residualsRms));
+      CHECK(h2Factory(streamPull ,titlePull, becVal, endCapTracks, *p_pullsRms));
+    }
+  } //27.11.2014      
+
   return StatusCode::SUCCESS;
 }
 
@@ -703,11 +809,11 @@ StatusCode SCTTracksMonTool::p2Factory(const std::string & name, const std::stri
   int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS), nPhi(N_PHI_BINS);
   if (bec != BARREL){
     firstEta = FIRST_ETA_BIN_EC;
-     lastEta = LAST_ETA_BIN_EC;
-     firstPhi = FIRST_PHI_BIN_EC;
-     lastPhi = LAST_PHI_BIN_EC;
-     nEta = N_ETA_BINS_EC;
-     nPhi = N_PHI_BINS_EC;
+    lastEta = LAST_ETA_BIN_EC;
+    firstPhi = FIRST_PHI_BIN_EC;
+    lastPhi = LAST_PHI_BIN_EC;
+    nEta = N_ETA_BINS_EC;
+    nPhi = N_PHI_BINS_EC;
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(title), nEta, firstEta - 0.5, lastEta + 0.5, nPhi, firstPhi - 0.5, lastPhi + 0.5, "s");
   CHECK(registry.regHist(tmp));

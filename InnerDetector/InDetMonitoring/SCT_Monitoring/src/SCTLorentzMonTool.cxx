@@ -28,15 +28,10 @@
 #include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
-//#include "TrkParameters/MeasuredPerigee.h"
 #include "TrkParameters/TrackParameters.h"
 
 // for sct residuals
-//#include "TrkParameters/MeasuredAtaPlane.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "Particle/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "VxVertex/VxCandidate.h"
 
 using namespace std;
 using namespace Rec;
@@ -69,7 +64,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string & type,const string & name,con
 m_trackToVertexTool("Reco::TrackToVertex") //for TrackToVertexTool
 {
   declareProperty("histoPathBase", m_stream = "/stat");
-  declareProperty("tracksName",m_tracksName="InDetTrackParticles"); //this recommended
+  declareProperty("tracksName",m_tracksName="CombinedInDetTracks"); //this recommended
   declareProperty("TrackToVertexTool",m_trackToVertexTool); //for TrackToVertexTool
   m_numberOfEvents=0;
   clear(m_phiVsNstrips);
@@ -97,7 +92,7 @@ StatusCode SCTLorentzMonTool::bookHistogramsRecurrent( )                        
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
 
    /* Retrieve TrackToVertex extrapolator tool */
   if ( m_trackToVertexTool.retrieve().isFailure() ) {
@@ -128,7 +123,7 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL)<< "SCT detector manager not found !" << endreq;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"" << endreq;
 
    /* Retrieve TrackToVertex extrapolator tool */
   if ( m_trackToVertexTool.retrieve().isFailure() ) {
@@ -150,46 +145,47 @@ StatusCode SCTLorentzMonTool::bookHistograms( )                                 
 //====================================================================================================
 StatusCode SCTLorentzMonTool::fillHistograms(){
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"enters fillHistograms"<< endreq;
-  //const Rec::TrackParticleContainer *tracks ( 0 );
-  const xAOD::TrackParticleContainer *tracks ( 0 );
-  m_tracksName = "InDetTrackParticles";//test;
-  if ( evtStore()->contains<xAOD::TrackParticleContainer> ( m_tracksName) ){ 
+
+  const TrackCollection *tracks (0);  
+  if ( evtStore()->contains<TrackCollection> ( m_tracksName) ){
     if(evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
-      msg(MSG::WARNING) <<tracks<<" Tracks not found: Exit SCTTracksMonTool" << m_tracksName << endreq;
+      msg(MSG::WARNING) <<" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName << endreq;
       return StatusCode::SUCCESS;
     }
   } else {
-    msg(MSG::WARNING) <<"m_tracksName not set: Exit SCTTracksMonTool" << endreq;
+    msg(MSG::WARNING) <<"Container "<<m_tracksName<<" not found.  Exit SCTLorentzMonTool" << endreq;
     return StatusCode::SUCCESS;
   }
+ 
 
-  msg(MSG::INFO) <<"track iterator retrieve start" << endreq;
-  xAOD::TrackParticleContainer::const_iterator trkitr  = tracks->begin();
-  xAOD::TrackParticleContainer::const_iterator trkend = tracks->end();
-  msg(MSG::INFO)  << "track iterator start " << endreq;
+  TrackCollection::const_iterator trkitr=tracks->begin();
+  TrackCollection::const_iterator trkend=tracks->end();
+  
 
   for ( ; trkitr != trkend; ++trkitr) {
-    // Get track                                                                                                                                                                                    
-    msg(MSG::INFO) << "xAOD::TrackParticle retrieve start." << endreq;
-    const xAOD::TrackParticle * trackParticle = (*trkitr);
-    if (not trackParticle) {
-      msg(MSG::ERROR) << "no pointer to trackParticle!!!" << endreq;
-      break;
-    }
-    
-    const Trk::Track *track= trackParticle->track();
-    if (not track) {
+    // Get track                                    
+    const Trk::Track * track = (*trkitr);
+
+    if (track == NULL) {
       msg(MSG::ERROR) << "no pointer to track!!!" << endreq;
-      break;
+      continue;
     }
 
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
-    if (not trackStates){
+    if (trackStates == NULL ) {
       msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" << endreq;
-      break;
+      continue;
     }
 
+    const Trk::TrackSummary* summary = track->trackSummary();
+    if (summary == NULL) 
+      {
+	msg(MSG::WARNING)<<" null trackSummary"<<endreq;
+	continue;
+	
+      }
+    
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit=trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin(); it!=endit; ++it) {
       if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
@@ -208,22 +204,14 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
             int nStrip = rdoList.size();
             const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters*>( (*it)->trackParameters() );
 	    //            const Trk::MeasuredTrackParameters *mtrkp = dynamic_cast<const Trk::MeasuredTrackParameters*>( (*it)->trackParameters() );
-            const Trk::TrackSummary* summary = track->trackSummary();
+	    if (trkp==NULL) {
+	      msg(MSG::WARNING)<<" Null pointer to MeasuredTrackParameters"<<endreq;
+	      continue;
+	    }
 
-            const xAOD::Vertex * vertex(0);
-            ElementLink<xAOD::VertexContainer> v_link = trackParticle->vertexLink();
-            if(v_link.isValid()) vertex = *v_link;
-            const Trk::Perigee* perigee = 0;
-            if (not vertex) {
-              msg(MSG::WARNING) << " cannot get Trk::VxCandidate * vertex " << endreq;
-            } else {
-              perigee = m_trackToVertexTool->perigeeAtVertex(*trackParticle, vertex->position());
-            }
-      //      const Trk::RecVertex vtx = vertex->recVertex();
-      //      const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(*trackParticle, vtx.position());
+	    const Trk::Perigee* perigee = track->perigeeParameters();
 
-	    //            if (mtrkp && perigee){
-            if (trkp && perigee){
+            if (perigee){
               //Get angle to wafer surface
               double phiToWafer(90.),thetaToWafer(90.);
               double sinAlpha = 0.; //for barrel, which is the only thing considered here
@@ -238,28 +226,34 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
               }
 
               bool passesCuts = true;
+
               if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                 (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-                (fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) &&  // d0 < 1mm
+		  //                (fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) &&  // d0 < 1mm
                 (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
                 (summary->get(Trk::numberOfSCTHits) > 6 ) && // #SCTHits >6
                 (summary->get(Trk::numberOfPixelHits) > 1 ) // #pixelHits >1
+		  
               ){
-                passesCuts=true;
+                passesCuts=true;	       
               }else{ 
                 passesCuts=false;
               }
+
               if(passesCuts){
               //Fill profile
                 m_phiVsNstrips[layer]->Fill(phiToWafer,nStrip,1.);
                 m_phiVsNstrips_Side[layer][side]->Fill(phiToWafer,nStrip,1.);
               }// end if passesCuts
             }// end if mtrkp
-            delete perigee;perigee = 0;
+	    //            delete perigee;perigee = 0;
           } // end if SCT..
         } // end if(clus)
       } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
-      }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
+
+      
+     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
+
     } // end of loop on tracks
 
     m_numberOfEvents++;
@@ -312,9 +306,13 @@ StatusCode SCTLorentzMonTool::bookLorentzHistos(){                              
     for(int l=0;l!=nLayers;++l){
       //granularity set to one profile/layer for now
       int iflag=0;
-      m_phiVsNstrips[l] = pFactory("h_phiVsNstrips"+hNum[l],"Inc. Angle vs nStrips for Layer "+hNum[l],nProfileBins,-90.,90.,Lorentz,iflag);
+      m_phiVsNstrips[l] = pFactory("h_phiVsNstrips"+hNum[l],"Inc. Angle vs nStrips for Layer"+hNum[l],nProfileBins,-90.,90.,Lorentz,iflag);
+      m_phiVsNstrips[l]->GetXaxis()->SetTitle("#phi to Wafer");
+      m_phiVsNstrips[l]->GetYaxis()->SetTitle("Num of Strips");
       for(int side=0;side<nSides;++side){
-        m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips"+hNum[l]+"Side"+hNumS[side],"Inc. Angle vs nStrips for Layer Side "+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
+        m_phiVsNstrips_Side[l][side] = pFactory("h_phiVsNstrips"+hNum[l]+"Side"+hNumS[side],"Inc. Angle vs nStrips for Layer Side"+hNum[l]+hNumS[side],nProfileBins,-90.,90.,Lorentz,iflag);
+	m_phiVsNstrips_Side[l][side]->GetXaxis()->SetTitle("#phi to Wafer");
+	m_phiVsNstrips_Side[l][side]->GetYaxis()->SetTitle("Num of Strips");
       }
       success*=iflag;
     }

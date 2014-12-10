@@ -21,8 +21,14 @@ namespace SCT_Monitoring{
     const unsigned int m_element;
     const std::string m_layerStr;
     const std::string m_sideStr;
+    unsigned int m_elementforDisk = 1;//30.11.2014
+
   public:
     LayerSideFormatter(const unsigned int i): m_element(i),m_layerStr(boost::lexical_cast<std::string>(i/2)), m_sideStr(boost::lexical_cast<std::string>(i%2)){
+      //nop
+    }
+  LayerSideFormatter(const unsigned int i,const unsigned int m): m_element(i),m_layerStr(boost::lexical_cast<std::string>(i/2)), 
+    m_sideStr(boost::lexical_cast<std::string>(i%2)),m_elementforDisk(m){//30.11.2014
       //nop
     }
     std::string layer() const{
@@ -35,12 +41,18 @@ namespace SCT_Monitoring{
       return boost::lexical_cast<std::string>((m_element/2) + 1);
     }
     std::string title() const{
-      return std::string("layer ")+m_layerStr+std::string(" side ")+m_sideStr;
+      if(m_elementforDisk==1){//30.11.2014
+	return std::string("Layer ")+m_layerStr+std::string(" Side ")+m_sideStr;
+      }
+      else {
+	return std::string("Disk ")+m_layerStr+std::string(" Side ")+m_sideStr;
+      }
     }
     std::string name(const std::string& delimiter="_") const{
       return m_layerStr+delimiter+m_sideStr;
     }
   };
+
 }//end of SCT_Monitoring namespace
 
 #endif

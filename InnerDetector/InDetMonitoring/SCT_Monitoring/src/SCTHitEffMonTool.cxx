@@ -138,6 +138,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   ManagedMonitorToolBase(type,name,parent),
   m_TrackName("ResolvedSCTTracks"),//original track collection
   m_tracks(0),//original tracks
+  m_badChips(nullptr),
   m_fieldServiceHandle("AtlasFieldSvc",name),
   m_DetectorMode(1), //Barrel = 1, endcap =2, both =3
   m_RunningMode(2),
@@ -170,8 +171,32 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_rotcreator("InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool"),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool") , 
   m_flaggedConditionSvc("SCT_FlaggedConditionSvc", name),
-  m_configConditions("InDetSCT_ConfigurationConditionsSvc", name)
-
+  m_configConditions("InDetSCT_ConfigurationConditionsSvc", name),
+  m_Eff_Total(nullptr),
+  m_Eff_hashCodeHisto(nullptr),
+  m_effHashLumiB(nullptr),
+  m_mNHitHisto(nullptr),
+  m_barrelNHitHisto(nullptr),
+  m_pNHitHisto(nullptr),
+  m_SCTNHitHisto(nullptr),
+  m_trtNHitHisto(nullptr),
+  m_pixelNHitHisto(nullptr),
+  m_PtTkHisto(nullptr),
+  m_etaTkHisto(nullptr),
+  m_d0TkHisto(nullptr),
+  m_d0PrecTkHisto(nullptr),
+  m_nTrkHisto(nullptr),
+  m_nTrkParsHisto(nullptr),
+  m_nTrkGoodHisto(nullptr),
+  m_LumiBlock(nullptr),
+  m_z0TkHisto(nullptr),
+  m_hashCodeHisto(nullptr),
+  m_badModFineMap(nullptr),
+  m_badModMap(nullptr),
+  m_badChipMap(nullptr),
+  m_pixelId(nullptr),
+  m_sctId(nullptr),
+  m_trtId(nullptr)
 {
   declareProperty("TrackName", m_TrackName);
   declareProperty("IsCosmic", m_isCosmic);
@@ -403,22 +428,27 @@ StatusCode SCTHitEffMonTool::bookHistograms()                                   
   array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
   for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
     for (Long_t i(0) ; i != n_layers[isub] ; ++i){
+      const int detIndex=becIdxLayer2Index(isub, i);
+      if (detIndex==-1) {
+        WARNING("Subdetector region (barrel, endcap A, endcap C) could not be determined");
+        continue;
+      }
       for(Long_t j(0) ; j != 2 ; ++j){
-
         // book inefficiency histogram
-        CHECK (bookEffHisto(m_ineffMap[becIdxLayer2Index(isub,i)][j], histGroupE[isub],
+        CHECK (bookEffHisto(m_ineffMap[detIndex][j], histGroupE[isub],
                             ineffMapName[isub] + i + "_" + j, "Hit inefficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub],
                             n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
                             n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
         //
 
-        CHECK (bookEffHisto(m_effMap[becIdxLayer2Index(isub, i)][j], histGroupE[isub], 
+        CHECK (bookEffHisto(m_effMap[detIndex][j], histGroupE[isub], 
           mapName[isub] + i + "_" + j, "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
           n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
           n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
       }
       if (m_superDetailed) {
-        CHECK (bookEffHisto(m_accMap[becIdxLayer2Index(isub, i)], histGroupE[isub], 
+        
+        CHECK (bookEffHisto(m_accMap[detIndex], histGroupE[isub], 
           "nDisabledChips_" + subDetNameShort[isub] + "_" + i, "Map of the acceptance for" + layerName[isub] + i + " in " + subDetName[isub], 
           n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
           n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
@@ -594,22 +624,27 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
   array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
   for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
     for (Long_t i(0) ; i != n_layers[isub] ; ++i){
+      const int detIndex(becIdxLayer2Index(isub,i));
+      if (detIndex==-1){
+        WARNING("Detector region (barrel, endcap A, endcap C) could not be determined");
+        continue;
+      }
       for(Long_t j(0) ; j != 2 ; ++j){
 
         // book inefficiency histogram
-        CHECK (bookEffHisto(m_ineffMap[becIdxLayer2Index(isub,i)][j], histGroupE[isub],
+        CHECK (bookEffHisto(m_ineffMap[detIndex][j], histGroupE[isub],
                             ineffMapName[isub] + i + "_" + j, "Hit inefficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub],
                             n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
                             n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
         //
 
-        CHECK (bookEffHisto(m_effMap[becIdxLayer2Index(isub, i)][j], histGroupE[isub], 
+        CHECK (bookEffHisto(m_effMap[detIndex][j], histGroupE[isub], 
           mapName[isub] + i + "_" + j, "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
           n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
           n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
       }
       if (m_superDetailed) {
-        CHECK (bookEffHisto(m_accMap[becIdxLayer2Index(isub, i)], histGroupE[isub], 
+        CHECK (bookEffHisto(m_accMap[detIndex], histGroupE[isub], 
           "nDisabledChips_" + subDetNameShort[isub] + "_" + i, "Map of the acceptance for" + layerName[isub] + i + " in " + subDetName[isub], 
           n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
           n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
@@ -722,13 +757,9 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
 StatusCode SCTHitEffMonTool::fillHistograms(){
   errorcheck::ReportMessage::hideErrorLocus (true);
   VERBOSE ("SCTHitEffMonTool::fillHistograms()");
-
   string m_comTimeName("TRT_Phase");
-
   Double_t timecor(-20.);
-
   const ComTime* theComTime;
-
   if (m_useTRTPhase or m_isCosmic) {
     if(evtStore()->contains<ComTime>(m_comTimeName)){
       if (StatusCode::SUCCESS == evtStore()->retrieve(theComTime, m_comTimeName)) {
@@ -790,13 +821,12 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
   for (TrackCollection::const_iterator itr(m_tracks->begin()); itr != endOfTracks; ++itr){
     nTrk++;
     const Trk::Track *pthisTrack(*itr);
-    
+    if (not pthisTrack) continue;
     if (failCut(pthisTrack and pthisTrack->trackParameters() and pthisTrack->trackParameters()->size(), "track cut: presence")) continue;
     nTrkPars++;
 
     if (m_insideOutOnly and failCut(pthisTrack->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder), "track cut: inside-out only")) continue;
     const Trk::Perigee* perigee = pthisTrack->perigeeParameters();
-    //    const CLHEP::HepVector & perigeeParameters(perigee->parameters());
     const AmgVector(5) & perigeeParameters(perigee->parameters()); 
     const double d0(perigeeParameters[Trk::d0]);
     const double z0(perigeeParameters[Trk::z0]);
@@ -813,12 +843,11 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
   for (TrackCollection::const_iterator itr(m_tracks->begin()); itr != endOfTracks; ++itr){
     VERBOSE("Starting new track");
     const Trk::Track *pthisTrack(*itr);
-    
+    if (not pthisTrack) continue;
     if (failCut(pthisTrack and pthisTrack->trackParameters() and pthisTrack->trackParameters()->size(), "track cut: presence")) continue;
 
     if (m_insideOutOnly and failCut(pthisTrack->info().patternRecoInfo(Trk::TrackInfo::SiSPSeededFinder), "track cut: inside-out only")) continue;
     const Trk::Perigee* perigee = pthisTrack->perigeeParameters();
-    //    const CLHEP::HepVector & perigeeParameters(perigee->parameters());
     const AmgVector(5) & perigeeParameters(perigee->parameters()); 
     const double d0(perigeeParameters[Trk::d0]);
     const double z0(perigeeParameters[Trk::z0]);
@@ -838,6 +867,10 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
     if (summary and summary->get(Trk::numberOfSCTHits) < 1) continue;
 
     const Trk::Track* trackWithHoles = m_holeSearchTool->getTrackWithHoles(*pthisTrack);
+    if (not trackWithHoles){
+    	WARNING ("trackWithHoles pointer is invalid");
+    	continue;
+    }
     VERBOSE ("Found " << trackWithHoles->trackStateOnSurfaces()->size() << " states on track");
     // loop over all hits on track
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = trackWithHoles->trackStateOnSurfaces()->begin();
@@ -912,7 +945,12 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
 
       Int_t side(m_sctId->side(surfaceID));
       Int_t layer(m_sctId->layer_disk(surfaceID));
-      Int_t histnumber(becIdxLayer2Index(isub, layer));
+      const int detIndex = becIdxLayer2Index(isub, layer);
+      if (detIndex==-1) {
+      	WARNING("The detector region (barrel, endcap A, endcap C) could not be determined");
+      	continue;
+      }
+      Int_t histnumber(detIndex);
       Int_t m_eff(0), m_unas(0);
       IdentifierHash sideHash(m_sctId->wafer_hash(surfaceID));
       Identifier module_id(m_sctId->module_id(surfaceID));
@@ -1231,10 +1269,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
         }
       }
     }
-    if (trackWithHoles) {
-      delete trackWithHoles; 
-      trackWithHoles = 0;
-    } else ERROR ("No track with holes found");
+    delete trackWithHoles; trackWithHoles = 0;
   }
   VERBOSE ("finished loop over tracks = "<<(*m_tracks).size());
   if (m_detailed) {
@@ -1269,7 +1304,6 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
       Int_t isub(bec2Index(m_sctId->barrel_ec(*wafItr)));
       Int_t layer(m_sctId->layer_disk(*wafItr));
       InDetDD::SiDetectorElement * element = mgr->getDetectorElement(*wafItr);
-      //      const HepGeom::Point3D<double> position = element->center();
       const Amg::Vector3D position = element->center(); 
       element->getEtaPhiRegion(0., etaMin, etaMax, phiMin, phiMax, rz);
       etabins[isub][layer].push_back(etaMin);
@@ -1293,8 +1327,7 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
         }
       }else {
         VERBOSE ("Bad module : " <<*wafItr<< " "<<m_sctId->wafer_hash(*wafItr));
-	//        m_badModMap->SetPoint(m_badModMap->GetN(), position.pseudoRapidity(), position.phi());
-	m_badModMap->SetPoint(m_badModMap->GetN(), amgPseudoRapidity(position), position.phi());
+	      m_badModMap->SetPoint(m_badModMap->GetN(), amgPseudoRapidity(position), position.phi());
         m_badModMap->SetPointError(m_badModMap->GetN() - 1, dEta/2, dPhi/2);
         m_badModMap->GetXaxis()->SetRangeUser(-3, 3);
         m_badModMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
@@ -1311,9 +1344,12 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
         if (eff == 1) continue;
         mapOfInEff[*wafItr] = eff;
         Int_t histnumber(becIdxLayer2Index(isub, layer));
+        if (histnumber==-1){
+         WARNING ("Barrel-or-endcap index is invalid");
+         return StatusCode::FAILURE;
+        }
         m_accMap[histnumber]->Fill(m_sctId->eta_module(*wafItr), m_sctId->phi_module(*wafItr), (1. - eff) * N_CHIPS * 2);
-	//        m_badChipMap->SetPoint(m_badChipMap->GetN(), position.pseudoRapidity(), position.phi());
-	m_badChipMap->SetPoint(m_badChipMap->GetN(), amgPseudoRapidity(position), position.phi());
+      	m_badChipMap->SetPoint(m_badChipMap->GetN(), amgPseudoRapidity(position), position.phi());
         m_badChipMap->SetPointError(m_badChipMap->GetN() - 1, dEta/2, dPhi/2);
         m_badChipMap->GetXaxis()->SetRangeUser(-3, 3);
         m_badChipMap->GetYaxis()->SetRangeUser(-3.4, 3.4);

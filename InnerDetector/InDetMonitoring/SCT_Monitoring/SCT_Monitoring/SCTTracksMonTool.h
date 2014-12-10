@@ -161,7 +161,8 @@ private:
   bool m_doNegativeEndcap;
   ToolHandle < Trk::IResidualPullCalculator >   m_residualPullCalculator;
   bool   m_doUnbiasedCalc;
-  
+
+
   //@name Service members
   //@{
   /// Kalman Updator for SCT Unbiased states in Residual calculation

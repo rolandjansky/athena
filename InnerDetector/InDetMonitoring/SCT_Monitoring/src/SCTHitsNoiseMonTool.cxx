@@ -237,6 +237,8 @@ SCTHitsNoiseMonTool::bookHistograms(){
     //book hits histogram
     MonGroup clu(this,"SCT/GENERAL/hits/summary",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED);
     m_ncluHisto = new TH1F("sct_hits","Total SCT Hits",N_HIT_BINS*4,FIRST_HIT_BIN,LAST_HIT_BIN*150);
+    m_ncluHisto->GetXaxis()->SetTitle("Event Number");
+    m_ncluHisto->GetYaxis()->SetTitle("Num of Total SCT Hits");
     if ( clu.regHist(m_ncluHisto).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"sct_hits" << endreq;
     if (m_booltxscan) {
       if( newEventsBlock ) {
@@ -302,6 +304,8 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent(){
     //book hits histogram
     MonGroup clu(this,"SCT/GENERAL/hits/summary",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED);
     m_ncluHisto = new TH1F("sct_hits","Total SCT Hits",N_HIT_BINS*4,FIRST_HIT_BIN,LAST_HIT_BIN*150);
+    m_ncluHisto->GetXaxis()->SetTitle("Event Number");
+    m_ncluHisto->GetYaxis()->SetTitle("Num of SCT Hits");
     if ( clu.regHist(m_ncluHisto).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"sct_hits" << endreq;
     if (m_booltxscan) {
       //      if( newEventsBlock ) {
@@ -490,12 +494,12 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
       //unsigned int SCT_Identifier_Int = (unsigned int)SCT_Identifier;
       const unsigned int firstStrip ((*p_rdo)->getStrip());
       const unsigned int numberOfStrips ((*p_rdo)->getGroupSize());
-      int thisBec = m_pSCTHelper->barrel_ec(SCT_Identifier);
+      int thisBec       = m_pSCTHelper->barrel_ec(SCT_Identifier);
       int thisLayerDisk = m_pSCTHelper->layer_disk(SCT_Identifier);
-      int thisPhi = m_pSCTHelper->phi_module(SCT_Identifier);
-      int thisEta = m_pSCTHelper->eta_module(SCT_Identifier);
-      int thisSide = m_pSCTHelper->side(SCT_Identifier);
-      int thisElement=(2 * thisLayerDisk) + thisSide;
+      int thisPhi       = m_pSCTHelper->phi_module(SCT_Identifier);
+      int thisEta       = m_pSCTHelper->eta_module(SCT_Identifier);
+      int thisSide      = m_pSCTHelper->side(SCT_Identifier);
+      int thisElement   =(2 * thisLayerDisk) + thisSide;
       //CAM adds mod id needed for map
       Identifier wafer_id =  m_pSCTHelper->wafer_id(SCT_Identifier);      
       unsigned int chan(firstStrip), limit (chan + numberOfStrips);
@@ -623,7 +627,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
     nminModule_buf[nHits_pos] = minhits_Id;
     nHits_pos++;
     if (nHits_pos == m_evtsbins) nHits_pos = 0;
-
+    
     if (m_numberOfEvents % m_checkrate == 0) {
       m_nHits->Reset(); m_nmaxHits->Reset(); Int_t latest_nHits_pos = nHits_pos;m_nminHits->Reset();
       // Check if the same module is the noisiest one for at least 10 events
@@ -642,7 +646,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
 	  if (nppos < 0) npos = m_evtsbins + nppos;
 	  if (nmaxModule_buf[npos] == nmaxModule_buf[nppos]) badmodule = true;
 	  else badmodule = false;
-      }
+	}
       }
       // Fill the histograms with the values from the buffer
       for (Int_t i=1; i != m_evtsbins; ++i) {
@@ -678,7 +682,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
       }
     }
   }
-
+  
 
   //if(m_environment!=AthenaMonManager::online){ // Uncomment this line to turn off cluster hists in online
   //Fill Cluster size histogram
@@ -714,7 +718,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
 	if(m_environment==AthenaMonManager::online) m_clusizeHistoVectorRecentECm[elementIndex]->Fill(GroupSize,1.);
       }
     }
-  }    
+  }
+
   //} // Uncomment this line as well to turn off cluster hists in online
   
   if ( (m_numberOfEvents% m_checkrate) == 0 ) {
@@ -782,17 +787,30 @@ SCTHitsNoiseMonTool::bookGeneralHits( const unsigned int systemIndex) {
     switch (bec){
      case ENDCAP_C:{
        m_numHitsPerLumiBlockECm = h1Factory("numHitsPerLBECm","Number of Endcap C hits in a luminosity block",lumiHits, 0., N_DISKS, N_DISKS);
+       m_numHitsPerLumiBlockECm -> GetXaxis()->SetTitle("Disk");
+       m_numHitsPerLumiBlockECm -> GetYaxis()->SetTitle("Num of Hits Per LumiBlock");
        m_numSPPerLumiBlockECm = h1Factory("numSPPerLBECm","Number of Endcap C spacepoints in a luminosity block",lumiHits,0., N_DISKS, N_DISKS);
+       m_numSPPerLumiBlockECm -> GetXaxis()->SetTitle("Disk");
+       m_numSPPerLumiBlockECm -> GetYaxis()->SetTitle("Num of SpacePoint Per LumiBlock");
        break;
      }
      case BARREL:{
        m_numBarrelHitsPerLumiBlock=h1Factory("numBarrelHitsPerLB","Number of barrel hits in a luminosity block", lumiHits, 0., N_BARRELS, N_BARRELS);
+       m_numBarrelHitsPerLumiBlock -> GetXaxis()->SetTitle("Layer");
+       m_numBarrelHitsPerLumiBlock -> GetYaxis()->SetTitle("Num of Hits Per LumiBlock");
        m_numBarrelSPPerLumiBlock=h1Factory("numBarrelSPPerLB","Number of barrel spacepoints in a luminosity block", lumiHits, 0., N_BARRELS, N_BARRELS);
+       m_numBarrelSPPerLumiBlock -> GetXaxis()->SetTitle("Layer");
+       m_numBarrelSPPerLumiBlock -> GetYaxis()->SetTitle("Num of SpacePoint Per LumiBlock");
        break;
      }
      case ENDCAP_A:{
        m_numHitsPerLumiBlockECp = h1Factory("numHitsPerLBECp","Number of Endcap A hits in a luminosity block",lumiHits,0., N_DISKS, N_DISKS);
+       m_numHitsPerLumiBlockECp -> GetXaxis()->SetTitle("Disk");
+       m_numHitsPerLumiBlockECp -> GetYaxis()->SetTitle("Num of Hits Per LumiBlock");
        m_numSPPerLumiBlockECp = h1Factory("numSPPerLBECp","Number of Endcap A spacepoints in a luminosity block",lumiHits,0., N_DISKS, N_DISKS);
+       m_numSPPerLumiBlockECp -> GetXaxis()->SetTitle("Disk");
+       m_numSPPerLumiBlockECp -> GetYaxis()->SetTitle("Num of SpacePoint Per LumiBlock");
+
        break;
      }
      default:{
@@ -812,7 +830,8 @@ SCTHitsNoiseMonTool::bookGeneralHits( const unsigned int systemIndex) {
     (nClustersArray[systemIndex])->clear();
     MonGroup hitHists( this,paths[systemIndex],run,ATTRIB_UNMANAGED);
     for (unsigned int i(0); i!=limits[systemIndex];++i) {
-        LayerSideFormatter layerSide(i);
+      //      LayerSideFormatter layerSide(i);//30.11.2014
+      LayerSideFormatter layerSide(i,systemIndex);//30.11.2014
         string streamhitmap ="hitsmap"+abbreviations[systemIndex]+"_"+ layerSide.name() ;
 	string streamhitmaprecent ="hitsmaprecent"+abbreviations[systemIndex]+"_"+ layerSide.name() ;
         string streamhits ="hits"+abbreviations[systemIndex]+"_"+ layerSide.name() ;
@@ -836,7 +855,35 @@ SCTHitsNoiseMonTool::bookClusterSize(){
     MonGroup BarrelCluSize(this,"SCT/GENERAL/hits",run,ATTRIB_UNMANAGED );
     //book Cluster width histogram for all SCT Detector
     m_clusize=h1DFactory("clu_size","SCT Cluster size",BarrelCluSize,0.,200.,200);
-    if(m_environment==AthenaMonManager::online) m_clusizeRecent=h1DFactory("clu_size_recent","SCT Cluster size from recent events",BarrelCluSize,0.,200.,200);
+    m_clusize->GetXaxis()->SetTitle("Cluster Size");
+    m_clusize->GetYaxis()->SetTitle("Num of Events");
+    for(int i=0;i<N_BARRELSx2;i++){
+      m_clusizeHistoVector[i]->GetXaxis()->SetTitle("Cluster Size");
+      m_clusizeHistoVector[i]->GetYaxis()->SetTitle("Num of Events");
+    }
+    for(int m=0;m<N_DISKSx2;m++){
+      m_clusizeHistoVectorECp[m]->GetXaxis()->SetTitle("Cluster Size");
+      m_clusizeHistoVectorECp[m]->GetYaxis()->SetTitle("Num of Events");
+      m_clusizeHistoVectorECm[m]->GetXaxis()->SetTitle("Cluster Size");
+      m_clusizeHistoVectorECm[m]->GetYaxis()->SetTitle("Num of Events");
+
+    }
+
+    if(m_environment==AthenaMonManager::online) {
+      m_clusizeRecent=h1DFactory("clu_size_recent","SCT Cluster size from recent events",BarrelCluSize,0.,200.,200);
+      m_clusizeRecent->GetXaxis()->SetTitle("Cluster Size");
+      m_clusizeRecent->GetYaxis()->SetTitle("Num of Events");
+      for(int ii=0;ii<N_BARRELSx2;ii++){
+	m_clusizeHistoVectorRecent[ii]->GetXaxis()->SetTitle("Cluster Size");
+	m_clusizeHistoVectorRecent[ii]->GetYaxis()->SetTitle("Num of Events");
+      }
+      for(int mm=0;mm<N_DISKSx2;mm++){
+	m_clusizeHistoVectorRecentECp[mm]->GetXaxis()->SetTitle("Cluster Size");
+	m_clusizeHistoVectorRecentECp[mm]->GetYaxis()->SetTitle("Num of Events");
+	m_clusizeHistoVectorRecentECm[mm]->GetXaxis()->SetTitle("Cluster Size");
+	m_clusizeHistoVectorRecentECm[mm]->GetYaxis()->SetTitle("Num of Events");
+      }
+    }
   }
   return m_clusize?(StatusCode::SUCCESS):(StatusCode::FAILURE);
 }
@@ -847,6 +894,10 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex){
   const SCT_Monitoring::Bec bec(index2Bec(systemIndex));
   VecH1D_t * clusterSizeArray[]={&m_clusizeHistoVectorECm, &m_clusizeHistoVector, &m_clusizeHistoVectorECp};
   VecH1D_t * clusterSizeArrayRecent[]={&m_clusizeHistoVectorRecentECm, &m_clusizeHistoVectorRecent, &m_clusizeHistoVectorRecentECp};
+
+  
+
+
   const string paths[]={"SCT/SCTEC/hits","SCT/SCTB/hits", "SCT/SCTEA/hits"};
   const unsigned int limits[]={N_DISKSx2, N_BARRELSx2, N_DISKSx2};
   if (bec==INVALID_SYSTEM){
@@ -858,18 +909,26 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex){
   //  if (isNewRun){
   if (newRun){
     clusterSizeVector.clear();
+    clusterSizeVectorRecent.clear();
     MonGroup clusterSize(this, paths[systemIndex], run,ATTRIB_UNMANAGED);
     for (unsigned int i(0); i!=limits[systemIndex];++i) {
       LayerSideFormatter layerSide(i);
       const string streamclusize ="clusize"+abbreviations[systemIndex]+"_"+layerSide.name();
       std::string histotitle="SCT "+names[systemIndex]+" Cluster size: "+layerSide.title();
       h1DFactory(streamclusize, histotitle, clusterSize, clusterSizeVector, 0., 200., 200);
+      //h1Factory(streamclusize,histotitle);
+      //clusterSizeVector[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
+      //clusterSizeVector[systemIndex]->GetYaxis()->SetTitle("Num of Events");
       if(m_environment==AthenaMonManager::online) {
 	const string streamclusizerecent ="clusize_recent"+abbreviations[systemIndex]+"_"+layerSide.name();
 	std::string histotitlerecent="SCT "+names[systemIndex]+" Cluster size from recent events: "+layerSide.title();
 	h1DFactory(streamclusizerecent, histotitlerecent, clusterSize, clusterSizeVectorRecent, 0., 200., 200);
+	//clusterSizeVectorRecent[systemIndex]->GetXaxis()->SetTitle("Cluster Size");
+	//clusterSizeVectorRecent[systemIndex]->GetYaxis()->SetTitle("Num of Events");
       }
     }
+
+    //m_clusizeHistoVector[1]->GetXaxis()->SetTitle("Cluster Size");
   }
   return StatusCode::SUCCESS;
 }
@@ -1198,38 +1257,54 @@ SCTHitsNoiseMonTool::bookNoiseDistributions(){
     }
 
     m_barrelNOdistribution = new TH1F("barrelNOdistribution","NO Distribution for the Barrel",bins,xmin,xmax);
+    m_barrelNOdistribution->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_barrelNOdistribution->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_barrelNOdistribution->SetBins(bins,xbins); 
     if(NoiseDistributions.regHist(m_barrelNOdistribution).isFailure()) msg(MSG::WARNING) << "Couldn't book barrelNOdistribution" << endreq;
 
     std::string barrelNO_title = "NO Distribution for the Barrel for "+m_NOTrigger+" trigger";
     m_barrelNOdistributionTrigger = new TH1F("barrelNOdistributionTrigger",TString(barrelNO_title),bins,xmin,xmax);
+    m_barrelNOdistributionTrigger->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_barrelNOdistributionTrigger->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_barrelNOdistributionTrigger->SetBins(bins,xbins);
     if(NoiseDistributions.regHist(m_barrelNOdistributionTrigger).isFailure()) msg(MSG::WARNING) << "Couldn't book barrelNOdistributionTrigger" << endreq;
 
     m_ECmNOdistribution = new TH1F("ECCNOdistribution","NO Distribution for the EndCap C",bins,xmin, xmax);
+    m_ECmNOdistribution->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_ECmNOdistribution->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_ECmNOdistribution->SetBins(bins,xbins);
     if(NoiseDistributions.regHist(m_ECmNOdistribution).isFailure()) msg(MSG::WARNING) << "Couldn't book ECmNOdistribution" << endreq;
 
     std::string ECmNO_title = "NO Distribution for the EndCap C for "+m_NOTrigger+" trigger";
     m_ECmNOdistributionTrigger = new TH1F("ECCNOdistributionTrigger",TString(ECmNO_title),bins,xmin, xmax);
+    m_ECmNOdistributionTrigger->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_ECmNOdistributionTrigger->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_ECmNOdistributionTrigger->SetBins(bins,xbins);
     if(NoiseDistributions.regHist(m_ECmNOdistributionTrigger).isFailure()) msg(MSG::WARNING) << "Couldn't book ECmNOdistributionTrigger" << endreq;
 
     m_ECpNOdistribution = new TH1F("ECANOdistribution","NO Distribution for the EndCap A",bins,xmin,xmax);
+    m_ECpNOdistribution->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_ECpNOdistribution->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_ECpNOdistribution->SetBins(bins,xbins); 
     if(NoiseDistributions.regHist(m_ECpNOdistribution).isFailure()) msg(MSG::WARNING) << "Couldn't book ECpNOdistribution" << endreq;
 
     std::string ECpNO_title = "NO Distribution for the EndCap A for "+m_NOTrigger+" trigger";
     m_ECpNOdistributionTrigger = new TH1F("ECANOdistributionTrigger",TString(ECpNO_title),bins,xmin,xmax);
+    m_ECpNOdistributionTrigger->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_ECpNOdistributionTrigger->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_ECpNOdistributionTrigger->SetBins(bins,xbins);
     if(NoiseDistributions.regHist(m_ECpNOdistributionTrigger).isFailure()) msg(MSG::WARNING) << "Couldn't book ECpNOdistributionTrigger" << endreq;
 
     m_SCTNOdistribution = new TH1F("SCTNOdistribution","NO Distribution for the SCT",bins,xmin,xmax);
+    m_SCTNOdistribution->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_SCTNOdistribution->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_SCTNOdistribution->SetBins(bins,xbins); 
     if(NoiseDistributions.regHist(m_SCTNOdistribution).isFailure()) msg(MSG::WARNING) << "Couldn't book SCTNOdistribution" << endreq;
 
     std::string SCTNO_title = "NO Distribution for the SCT for "+m_NOTrigger+" trigger";
     m_SCTNOdistributionTrigger = new TH1F("SCTNOdistributionTrigger",TString(SCTNO_title),bins,xmin,xmax);
+    m_SCTNOdistributionTrigger->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+    m_SCTNOdistributionTrigger->GetYaxis()->SetTitle("Modules");
     if(m_doLogXNoise) m_SCTNOdistributionTrigger->SetBins(bins,xbins);
     if(NoiseDistributions.regHist(m_SCTNOdistributionTrigger).isFailure()) msg(MSG::WARNING) << "Couldn't book SCTNOdistributionTrigger" << endreq;
   }
@@ -1254,18 +1329,24 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber(){
     MonGroup BarrelSPHist(this,"SCT/GENERAL/hits",ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     //Book a histogram
     m_nSP = h1DFactory("sct_sp_vs_en","Number of Spacepoints vs Event Number",BarrelSPHist,1,m_evtsbins+1,m_evtsbins);
+    m_nSP->GetXaxis()->SetTitle("Event Number");
+    m_nSP->GetYaxis()->SetTitle("Num of Spacepoints");
     size_t nSP_buf_size;
     nSP_buf_size = m_evtsbins * sizeof (int);
     nSP_buf = (int *) malloc (nSP_buf_size);
     nSP_pos = 0;
    
     m_nHits = h1DFactory("sct_av_hits_vs_en","Number of Average Hits vs Event Number",BarrelSPHist,1,m_evtsbins+1,m_evtsbins);
+    m_nHits->GetXaxis()->SetTitle("Event Number");
+    m_nHits->GetYaxis()->SetTitle("Num of Average Hits");
     size_t nHits_buf_size;
     nHits_buf_size = m_evtsbins * sizeof (int);
     nHits_buf = (int *) malloc (nHits_buf_size);
     nHits_pos = 0;
     
     m_nmaxHits = h1DFactory("sct_max_hits_vs_en","Max Number of Hits vs Event Number",BarrelSPHist,1,m_evtsbins+1,m_evtsbins);
+    m_nmaxHits->GetXaxis()->SetTitle("Event Number");
+    m_nmaxHits->GetYaxis()->SetTitle("Num of Max Hits");
     size_t nmaxHits_buf_size;
     nmaxHits_buf_size = m_evtsbins * sizeof (int);
     nmaxHits_buf = (int *) malloc (nmaxHits_buf_size);
@@ -1274,6 +1355,8 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber(){
     nmaxModule_buf = (Identifier *) malloc (nmaxModule_buf_size);
     
     m_nminHits = h1DFactory("sct_min_hits_vs_en","Min Number of Hits vs Event Number",BarrelSPHist,1,m_evtsbins+1,m_evtsbins);
+    m_nminHits->GetXaxis()->SetTitle("Event Number");
+    m_nminHits->GetYaxis()->SetTitle("Num of Min Hits");
     size_t nminHits_buf_size;
     nminHits_buf_size = m_evtsbins * sizeof (int);
     nminHits_buf = (int *) malloc (nminHits_buf_size);
@@ -1468,28 +1551,46 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
     switch(systemIndex){
       case 0:{
         m_tbinHistoECm=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
-	for (unsigned int bin(0); bin<nBins; bin++) m_tbinHistoECm->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	for (unsigned int bin(0); bin<nBins; bin++) {
+	  m_tbinHistoECm->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	}
+	m_tbinHistoECm->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
 	  m_tbinHistoRecentECm=h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5,7.5, nBins);
-	  for (unsigned int bin(0); bin<nBins; bin++) m_tbinHistoRecentECm->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  for (unsigned int bin(0); bin<nBins; bin++) {
+	    m_tbinHistoRecentECm->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  }
+	  m_tbinHistoRecentECm->GetXaxis()->SetTitle("TimeBin");
 	}
         break; 
       }
       case 1:{
         m_tbinHisto=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
-	for (unsigned int bin(0); bin<nBins; bin++) m_tbinHisto->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	for (unsigned int bin(0); bin<nBins; bin++) {
+	  m_tbinHisto->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	}
+	m_tbinHisto->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
 	  m_tbinHistoRecent=h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5,7.5, nBins);
-	  for (unsigned int bin(0); bin<nBins; bin++) m_tbinHistoRecent->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  for (unsigned int bin(0); bin<nBins; bin++) {
+	    m_tbinHistoRecent->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  }
+	  m_tbinHistoRecent->GetXaxis()->SetTitle("TimeBin");
 	}
         break; 
       }
       case 2:{
         m_tbinHistoECp=h1DFactory(histoName, histoTitle, timeGroup, -0.5,7.5, nBins);
-	for (unsigned int bin(0); bin<nBins; bin++) m_tbinHistoECp->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	for (unsigned int bin(0); bin<nBins; bin++) {
+	  m_tbinHistoECp->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	}
+	m_tbinHistoECp->GetXaxis()->SetTitle("TimeBin");
 	if(m_environment==AthenaMonManager::online) {
 	  m_tbinHistoRecentECp=h1DFactory(histoNameRecent, histoTitleRecent, timeGroup, -0.5,7.5, nBins);
-	  for (unsigned int bin(0); bin<nBins; bin++) m_tbinHistoRecentECp->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  for (unsigned int bin(0); bin<nBins; bin++) {
+	    m_tbinHistoRecentECp->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	  }
+	  m_tbinHistoRecentECp->GetXaxis()->SetTitle("TimeBin");
 	}
         break; 
       }
@@ -1504,9 +1605,11 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
       histoTitleRecent="RDO Track TimeBin form recent events: layer " +streamlayer;
       h1DFactory(streamhitmap, histoTitle,timeGroup, *(tbinHistoVectorArray[systemIndex]),-0.5, 7.5, nBins);
       for (unsigned int bin(0); bin<nBins; bin++) tbinHistoVector[i]->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+      tbinHistoVector[i]->GetXaxis()->SetTitle("TimeBin");
       if(m_environment==AthenaMonManager::online) {
 	h1DFactory(streamhitmaprecent, histoTitleRecent,timeGroup, *(tbinHistoVectorArrayRecent[systemIndex]),-0.5, 7.5, nBins);
 	for (unsigned int bin(0); bin<nBins; bin++) tbinHistoVectorRecent[i]->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
+	tbinHistoVectorRecent[i]->GetXaxis()->SetTitle("TimeBin");
       }
     }
   }
@@ -1516,6 +1619,8 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
 SCTHitsNoiseMonTool::H1D_t
 SCTHitsNoiseMonTool::h1DFactory(const std::string & name, const std::string & title, MonGroup & registry, VecH1D_t & storageVector, const float lo, const float hi, const unsigned int nbins){
   H1D_t tmp = new TH1D(TString(name), TString(title), nbins, lo, hi);
+  //  tmp->SetXTitle("Cluster Size");
+  //  tmp->SetYTitle("Num of Events");
   bool success( registry.regHist(tmp).isSuccess());
   if (not success) msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
   storageVector.push_back(tmp);
@@ -1542,6 +1647,8 @@ SCTHitsNoiseMonTool::h2Factory(const std::string & name, const std::string & tit
     nPhi=N_PHI_BINS_EC;
   }
   H2_t tmp = new TH2F(TString(name), TString(title), nEta, firstEta-0.5, lastEta+0.5, nPhi, firstPhi-0.5, lastPhi+0.5);
+  tmp->SetXTitle("Index in the direction of #eta");
+  tmp->SetYTitle("Index in the direction of #phi");
   bool success( registry.regHist(tmp).isSuccess());
   if (not success)  msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
   storageVector.push_back(tmp);
@@ -1560,8 +1667,8 @@ SCTHitsNoiseMonTool::prof2Factory(const std::string & name, const std::string & 
     nPhi=N_PHI_BINS_EC;
   }
   Prof2_t tmp = new TProfile2D(TString(name), TString(title), nEta, firstEta-0.5, lastEta+0.5, nPhi, firstPhi-0.5, lastPhi+0.5);
-  tmp->SetYTitle("phi");
-  tmp->SetXTitle("eta (Z)");
+  tmp->SetXTitle("Index in the direction of #eta");
+  tmp->SetYTitle("Index in the direction of #phi");
   bool success( registry.regHist(tmp).isSuccess());
   if (not success)  msg(MSG::WARNING) << "Cannot book SCT histogram: " << name << endreq;
   storageVector.push_back(tmp);
