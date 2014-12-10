@@ -49,6 +49,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultGeant4S
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultAFIIGeant4Selector"            , "ISF_DefaultAFIIGeant4Selector"           )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLongLivedGeant4Selector"       , "ISF_DefaultLongLivedGeant4Selector"      )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFullGeant4Selector"                   , "ISF_FullGeant4Selector"                  )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPassBackGeant4Selector"               , "ISF_PassBackGeant4Selector"                  )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector"                 , "ISF_FatrasPileupSelector"                )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasRandomSelector"                 , "ISF_FatrasRandomSelector"                )
 

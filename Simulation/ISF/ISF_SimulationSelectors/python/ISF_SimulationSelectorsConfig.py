@@ -49,6 +49,10 @@ def getFullGeant4Selector(name="ISF_FullGeant4Selector", **kwargs):
     kwargs.setdefault("Simulator"   , getService('ISF_FullGeant4SimSvc'))
     return getDefaultSimSelector(name, **kwargs )
 
+def getPassBackGeant4Selector(name="ISF_PassBackGeant4Selector", **kwargs):
+    kwargs.setdefault("Simulator"   , getService('ISF_PassBackGeant4SimSvc'))
+    return getDefaultSimSelector(name, **kwargs )
+
 def getDefaultFastCaloSimSelector(name="ISF_DefaultFastCaloSimSelector", **kwargs):
     kwargs.setdefault("Simulator"   , getService('ISF_FastCaloSimSvc'))
     return getDefaultSimSelector(name, **kwargs )
