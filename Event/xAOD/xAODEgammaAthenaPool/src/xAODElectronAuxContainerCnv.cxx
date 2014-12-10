@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODElectronAuxContainerCnv.cxx 619884 2014-10-03 15:00:40Z christos $
+// $Id: xAODElectronAuxContainerCnv.cxx 635116 2014-12-10 17:10:52Z ssnyder $
 
 // System include(s):
 #include <exception>
@@ -10,6 +10,8 @@
 
 // EDM include(s):
 #include "xAODEgamma/versions/ElectronAuxContainer_v1.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 // Local include(s):
 #include "xAODElectronAuxContainerCnv.h"
@@ -26,10 +28,7 @@ xAODElectronAuxContainerCnv::
 createPersistent( xAOD::ElectronAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::ElectronAuxContainer* result =
-      new xAOD::ElectronAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::ElectronAuxContainer* xAODElectronAuxContainerCnv::createTransient() {

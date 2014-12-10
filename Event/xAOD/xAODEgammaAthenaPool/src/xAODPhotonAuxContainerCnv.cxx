@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODPhotonAuxContainerCnv.cxx 619884 2014-10-03 15:00:40Z christos $
+// $Id: xAODPhotonAuxContainerCnv.cxx 635116 2014-12-10 17:10:52Z ssnyder $
 
 // System include(s):
 #include <exception>
@@ -10,6 +10,8 @@
 
 // EDM include(s):
 #include "xAODEgamma/versions/PhotonAuxContainer_v1.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 // Local include(s):
 #include "xAODPhotonAuxContainerCnv.h"
@@ -26,10 +28,7 @@ xAODPhotonAuxContainerCnv::
 createPersistent( xAOD::PhotonAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::PhotonAuxContainer* result =
-      new xAOD::PhotonAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::PhotonAuxContainer* xAODPhotonAuxContainerCnv::createTransient() {
