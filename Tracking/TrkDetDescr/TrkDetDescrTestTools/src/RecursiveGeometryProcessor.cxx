@@ -10,7 +10,6 @@
 #include <sstream>
 // Trk include
 #include "TrkDetDescrTestTools/RecursiveGeometryProcessor.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
@@ -71,53 +70,45 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
       ATH_MSG_FATAL("Failed to call processNode(const TrackingVolume&). Aborting.");
       return StatusCode::FAILURE;
   }
-  
-  // Process the entry layers if they exist
-  const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-  if (entryLayerProvider) {
-    // display output
-    const std::vector<const Trk::Layer*>& entryLayers = entryLayerProvider->layers();
-    std::vector<const Trk::Layer*>::const_iterator eLayIter  = entryLayers.begin();
-    std::vector<const Trk::Layer*>::const_iterator eLayIterE = entryLayers.end();    
-    ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << entryLayers.size() << " entry layers." ); 
-    for ( ; eLayIter != eLayIterE; ++eLayIter){
-        if (!(*eLayIter))
-             ATH_MSG_WARNING("Zero-pointer found in entry LayerArray - indicates problem !");    
-        if ((*eLayIter) && process(**eLayIter, level).isFailure()){
-            ATH_MSG_FATAL("Failed to call process(const Layer&) on entry layers. Aborting.");
-            return StatusCode::FAILURE;
-        }
-     }
-  }
-  
+
   // Process the contained layers if they exist
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {
       // display output
-      const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects();
-      std::vector<const Trk::Layer*>::const_iterator layIter  = layers.begin();
-      std::vector<const Trk::Layer*>::const_iterator layIterE = layers.end();    
+      auto& layers = layerArray->arrayObjects();
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
-      for ( ; layIter != layIterE; ++layIter){
-          if (!(*layIter))
+      for (auto& layIter : layers){
+          if (!layIter)
              ATH_MSG_WARNING("Zero-pointer found in LayerArray - indicates problem !");
-          if ((*layIter) && process(**layIter, level).isFailure()){
+          if ((layIter) && process(*layIter, level).isFailure()){
              ATH_MSG_FATAL("Failed to call process(const Layer&) on confined layers. Aborting.");
              return StatusCode::FAILURE;
           }
       }
    } 
 
+   // Process the boundary surface layers 
+   auto& bSurfaces = tvol.boundarySurfaces();
+   for (auto& bsIter : bSurfaces ){
+       if (bsIter->surfaceRepresentation().associatedLayer()){
+           ATH_MSG_VERBOSE(displayBuffer.str() << "--> has a boundary layer." ); 
+           if ( process(*bsIter->surfaceRepresentation().associatedLayer(), level).isFailure() ){
+              ATH_MSG_FATAL("Failed to call process(const Layer&) on boundary layer. Aborting.");
+              return StatusCode::FAILURE;
+           }
+       }
+   }
+
+
    // Process the contained TrackingVolumes (recursively) if they exist
    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    // register the next round
    if (confinedVolumes) {
-       const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
-       std::vector<const Trk::TrackingVolume*>::const_iterator volumesIter = volumes.begin();
-       for (; volumesIter != volumes.end(); ++volumesIter){
-           if (!(*volumesIter))
+       auto& volumes = confinedVolumes->arrayObjects();
+       for (auto& volumesIter : volumes){
+           if (!volumesIter)
               ATH_MSG_WARNING("Zero-pointer found in VolumeArray - indicates problem !");
-           if ((*volumesIter) && process(**volumesIter, ++level).isFailure() ){
+           if (volumesIter && process(*volumesIter, ++level).isFailure() ){
                ATH_MSG_FATAL("Failed to call process(const TrackingVolume&) on confined volumes. Aborting.");
                return StatusCode::FAILURE;  
            }

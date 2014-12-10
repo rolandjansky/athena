@@ -16,8 +16,9 @@ use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
 #################################################################
 # private use statements
 private
-use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+use EventPrimitives       EventPrimitives-*       Event
 use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
 use TrkVolumes            TrkVolumes-*            Tracking/TrkDetDescr
 use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
 use TrkDetDescrUtils      TrkDetDescrUtils-*      Tracking/TrkDetDescr

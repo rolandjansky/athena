@@ -18,10 +18,7 @@
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/CylinderLayer.h"
-#include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/BinnedLayerMaterial.h"
@@ -172,7 +169,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     ATH_MSG_VERBOSE("Writing display information for Layer.");
     // get the identifier
     int layerIndex = lay.layerIndex().value();
-    layerIndex = (layerIndex < 0) ? (-layerIndex)+1 : layerIndex;  
+    int layerIndexStr = (layerIndex < 0) ? (-layerIndex)+1 : layerIndex;  
     // the layer position
     const Amg::Vector3D& layerPosition  = lay.surfaceRepresentation().center();
     double               layerPositionZ = layerPosition.z();
@@ -180,7 +177,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     if (m_fileSurfaceOutputMode && m_fileSurfaceOutputSplit) {
         std::stringstream ss;
         std::string str;
-        ss << "Layer" << layerIndex << "_" << m_fileSurfaceOutputName; 
+        ss << "Layer" << layerIndexStr << "_" << m_fileSurfaceOutputName; 
         ss >> str;
         openFile(m_fileSurfaceOutput, str);
         m_fileSurfaceOutput<<"// Enclosing Volume: "<<lay.enclosingTrackingVolume()->volumeName()<<std::endl;
@@ -189,12 +186,10 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     if (m_fileSurfaceOutputMode) {
         const Trk::SurfaceArray* surfArray = lay.surfaceArray();
         if (surfArray) {
-            const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
-            std::vector<const Trk::Surface*>::const_iterator laySurfIter    = layerSurfaces.begin();
-            std::vector<const Trk::Surface*>::const_iterator laySurfIterEnd = layerSurfaces.end();
+            auto& layerSurfaces = surfArray->arrayObjects();
             // loop over the surfaces and draw them
-            for ( ; laySurfIter != laySurfIterEnd; ++laySurfIter) {
-                if ((*laySurfIter) && processNode(**laySurfIter).isFailure()){
+            for (auto& laySurfIter : layerSurfaces) {
+                if ( laySurfIter && processNode(*laySurfIter).isFailure()){
                     ATH_MSG_FATAL("Failed to call processNode(const Surface& sf) on sub surface. Abort.");
                     return StatusCode::FAILURE;
                 }
@@ -204,51 +199,58 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     if (m_fileSurfaceOutputMode && m_fileSurfaceOutputSplit)
         closeFile(m_fileSurfaceOutput);
 
-    // CYLINDER SECTION
-    const Trk::CylinderLayer* cylLay = dynamic_cast<const Trk::CylinderLayer*>(&lay);
-    if (cylLay) {
-        // get the Bounds
-        const Trk::CylinderBounds* cylBo = dynamic_cast<const Trk::CylinderBounds*>(&(cylLay->bounds()));
+    const Trk::Surface& lSurface = lay.surfaceRepresentation();
+    int layerColor = lay.enclosingTrackingVolume() ? lay.enclosingTrackingVolume()->colorCode() : 22;
 
+    // CYLINDER SECTION
+    if (lSurface.type() == Trk::Surface::Cylinder && layerIndex > 0) {
+        // get the Bounds
+        const Trk::CylinderBounds* cylBo = dynamic_cast<const Trk::CylinderBounds*>(&lSurface.bounds());
+        if (!cylBo) {
+          m_fileLayerOutput << "ERROR Cylinder surface without CylinderBounds\n";
+          return StatusCode::FAILURE;
+        }
+        else {
         // set the boundaries
         double radius  = cylBo->r();
         double halfZ   = cylBo->halflengthZ();
-
-        m_fileLayerOutput << "Cylinder" << layerIndex << " = new TTUBE(\"CylinderLayer";
-        m_fileLayerOutput << layerIndex << "\",\"CylinderLayer" << layerIndex << "\",\"void\",";
+        m_fileLayerOutput << "Cylinder" << layerIndexStr << " = new TTUBE(\"CylinderLayer";
+        m_fileLayerOutput << layerIndexStr << "\",\"CylinderLayer" << layerIndex << "\",\"void\",";
         m_fileLayerOutput << int(radius-5) << "," << int(radius+5) << "," << int(halfZ) << ");" << '\n';
         // get the line color 
-        int layerColor = lay.enclosingTrackingVolume()->colorCode();
-        m_fileLayerOutput << "Cylinder" << layerIndex << "->SetLineColor(" << layerColor << ");" << '\n';
+        m_fileLayerOutput << "Cylinder" << layerIndexStr << "->SetLineColor(" << layerColor << ");" << '\n';
         // write the node
-        m_fileLayerOutput <<"Node" << layerIndex << " = new TNode(\"CylinderNode" << layerIndex;
-        m_fileLayerOutput << "\",\"CylinderNode" << layerIndex << "\",\"CylinderLayer";
-        m_fileLayerOutput << layerIndex << "\"," << 0 << "," << 0 << "," << int(layerPositionZ) << ");" << '\n';
+        m_fileLayerOutput <<"Node" << layerIndexStr << " = new TNode(\"CylinderNode" << layerIndex;
+        m_fileLayerOutput << "\",\"CylinderNode" << layerIndexStr << "\",\"CylinderLayer";
+        m_fileLayerOutput << layerIndexStr << "\"," << 0 << "," << 0 << "," << int(layerPositionZ) << ");" << '\n';
         m_fileLayerOutput <<'\n';
-        return StatusCode::SUCCESS;
-    }
 
-    // DISC SECTION
-    const Trk::DiscLayer* discLay = dynamic_cast<const Trk::DiscLayer*>(&lay);
-    if (discLay) {
+        return StatusCode::SUCCESS;
+        }
+    } else if (lSurface.type() == Trk::Surface::Disc && layerIndex > 0) {
         // get the Bounds
-        const Trk::DiscBounds* discBo = dynamic_cast<const Trk::DiscBounds*>(&(discLay->bounds()));
+        const Trk::DiscBounds* discBo = dynamic_cast<const Trk::DiscBounds*>(&lSurface.bounds());
+        if (!discBo) {
+          m_fileLayerOutput << "ERROR Disc surface without DiscBounds\n";
+          return StatusCode::FAILURE;
+        }
+        else {
 
         // set the boundaries
         double rMin    = discBo->rMin();
         double rMax    = discBo->rMax();
 
-        m_fileLayerOutput << "Disc" << layerIndex << " = new TTUBE(\"DiscLayer" << layerIndex << "\",\"DiscLayer" << layerIndex << "\",\"void\",";
+        m_fileLayerOutput << "Disc" << layerIndexStr << " = new TTUBE(\"DiscLayer" << layerIndexStr << "\",\"DiscLayer" << layerIndex << "\",\"void\",";
         m_fileLayerOutput << int(rMin+1.) << "," << int(rMax-1.) << ",10);" << '\n';
         // get the line color 
-        int layerColor = lay.enclosingTrackingVolume()->colorCode();
-        m_fileLayerOutput << "Disc" << layerIndex << "->SetLineColor(" << layerColor << ");" << '\n';
+        m_fileLayerOutput << "Disc" << layerIndexStr << "->SetLineColor(" << layerColor << ");" << '\n';
         // write the node
-        m_fileLayerOutput << "DiscNode" << layerIndex << " = new TNode(\"DiscNode" << layerIndex;
-        m_fileLayerOutput << "\",\"DiscNode" << layerIndex << "\",\"DiscLayer";
-        m_fileLayerOutput << layerIndex << "\"," << 0 << "," << 0 << "," << int(layerPositionZ) << ");" << '\n';
+        m_fileLayerOutput << "DiscNode" << layerIndexStr << " = new TNode(\"DiscNode" << layerIndex;
+        m_fileLayerOutput << "\",\"DiscNode" << layerIndexStr << "\",\"DiscLayer";
+        m_fileLayerOutput << layerIndexStr << "\"," << 0 << "," << 0 << "," << int(layerPositionZ) << ");" << '\n';
         m_fileLayerOutput <<'\n';
         return StatusCode::SUCCESS;
+        }
     }
     return StatusCode::SUCCESS;    
 }

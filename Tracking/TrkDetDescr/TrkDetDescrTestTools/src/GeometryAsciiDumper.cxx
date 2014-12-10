@@ -10,7 +10,6 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // Trk include
 #include "TrkDetDescrTestTools/GeometryAsciiDumper.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
@@ -77,14 +76,7 @@ StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::TrackingVolume& tvol
          if ( processNode((**bSurfIter).surfaceRepresentation(), level+4).isFailure() )
          ATH_MSG_WARNING("Problem to write out the boundary surfaces of TrackingVolume '" << tvol.volumeName() << "'." );
    }
-         
-  // Process the entry layers if they exist
-  const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-  if (entryLayerProvider) {
-      m_outputFile << levelBuffer.str() << "  - contains " << entryLayerProvider->layers().size() << " entry Trk::Layer objecs." << std::endl;
-      m_outputFile << levelBuffer.str() << "  - listing Trk::Layer objects :" << std::endl;
-  }
-     
+
   // Process the contained layers if they exist
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {

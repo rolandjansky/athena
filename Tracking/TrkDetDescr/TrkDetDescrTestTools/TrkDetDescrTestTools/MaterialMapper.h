@@ -13,6 +13,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // Gaudi & Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IIncidentListener.h"
 // Trk
 #include "TrkDetDescrInterfaces/IMaterialMapper.h"
 // ROOT
@@ -41,11 +43,7 @@ namespace Trk {
         float path;
         float pathInX0;
         float pathInL0;
-        float A;
-        float Z;
-        float rho;
-        float measure;
-
+        float pathTimesRho;
         TTree* tree;
 
         VolumeTreeObject(TString name, TString title)
@@ -54,24 +52,17 @@ namespace Trk {
           path(0.),
           pathInX0(0.),
           pathInL0(0.),
-          A(0.),
-          Z(0.),
-          rho(0.),
-          measure(0.),
+          pathTimesRho(0.),
           tree(new TTree(name,title))
         {
-            tree->Branch("Eta",       &eta,        "eta/F");
-            tree->Branch("Phi",       &phi,        "phi/F");
-            tree->Branch("Path",      &path,       "path/F");
-            tree->Branch("PathInX0",  &pathInX0,   "pathX0/F");
-            tree->Branch("PathInL0",  &pathInL0,   "pathL0/F");
-            tree->Branch("A",         &A,          "a/F");
-            tree->Branch("Z",         &Z,          "z/F");
-            tree->Branch("Rho",       &rho,        "rho/F");
-            tree->Branch("Measure",   &measure,    "measure/F");
+            tree->Branch("Eta",             &eta,           "eta/F");
+            tree->Branch("Phi",             &phi,           "phi/F");
+            tree->Branch("Path",            &path,          "path/F");
+            tree->Branch("PathInX0",        &pathInX0,      "pathX0/F");
+            tree->Branch("PathInL0",        &pathInL0,      "pathL0/F");
+            tree->Branch("PathTimesRho",    &pathTimesRho,  "pathTimesRho/F");
         }
     };
-
 
     struct LayerTreeObject {
 
@@ -85,8 +76,11 @@ namespace Trk {
         int   densedHits;
 
         float correctionFactor;
+        float path;
         float pathInX0;
         float pathInL0;
+        float A;
+        float Z;
         float rho;
 
         int   layerHits;
@@ -107,7 +101,11 @@ namespace Trk {
           densedHitTheta(0.),
           densedHits(0),
           correctionFactor(0.),
+          path(0.),
           pathInX0(0.),
+          pathInL0(0.),
+          A(0.),
+          Z(0.),
           rho(0.),
           layerHits(0),
           tree(new TTree(name,title))
@@ -121,10 +119,12 @@ namespace Trk {
             tree->Branch("DensedHitTheta",   &densedHitTheta,    "densedHitTheta/F");
 
             tree->Branch("CorrFactor",       &correctionFactor,  "corrF/F");
+            tree->Branch("Path",             &path,              "pathInX0/F");
             tree->Branch("PathInX0",         &pathInX0,          "pathInX0/F");
             tree->Branch("PathInL0",         &pathInL0,          "pathInL0/F");
+            tree->Branch("A",                &A,                 "a/F");
+            tree->Branch("Z",                &Z,                 "z/F");            
             tree->Branch("Rho",              &rho,               "rho/F");
-
             tree->Branch("Hits",             &layerHits,         "layerhits/I");
             tree->Branch("HitPositionX",     &hitPositionX,      "layerhitsX[layerhits]/F");
             tree->Branch("HitPositionY",     &hitPositionY,      "layerhitsY[layerhits]/F");
@@ -143,9 +143,12 @@ namespace Trk {
         float loc1;
         float loc2;
         float eta;
+        float correctionFactor;
+        float path;
         float pathInX0;
         float pathInL0;
-        float correctionFactor;
+        float A;
+        float Z;
         float rho;
 
         int    surfaceHits;
@@ -155,8 +158,12 @@ namespace Trk {
         : loc1(0.),
           loc2(0.),
           eta(0.),
-          pathInX0(0.),
           correctionFactor(0.),
+          path(0.),
+          pathInX0(0.),
+          pathInL0(0.),
+          A(0.),
+          Z(0.),
           rho(0.),
           surfaceHits(0),
           tree(new TTree(name,title))
@@ -165,8 +172,11 @@ namespace Trk {
             tree->Branch("Local2",           &loc2,              "local2/F");
             tree->Branch("Eta",              &eta,               "eta/F");
             tree->Branch("CorrFactor",       &correctionFactor,  "corrF/F");
+            tree->Branch("Path",             &path,              "path/F");
             tree->Branch("PathInX0",         &pathInX0,          "pathInX0/F");
             tree->Branch("PathInL0",         &pathInL0,          "pathInL0/F");
+            tree->Branch("A",                &A,                 "a/F");
+            tree->Branch("Z",                &Z,                 "z/F");            
             tree->Branch("Rho",              &rho,               "rho/F");
         }
     };
@@ -182,7 +192,7 @@ namespace Trk {
 
      */
 
-    class MaterialMapper : public AthAlgTool, virtual public IMaterialMapper {
+    class MaterialMapper : public AthAlgTool, virtual public IMaterialMapper, virtual public IIncidentListener {
 
       public:
 
@@ -200,33 +210,20 @@ namespace Trk {
         /** AlgTool finalize method */
         StatusCode finalize();
 
-        /** Record navigation hit : 
-            - navigation hit position       
-         */
-        void record(const Amg::Vector3D& position, int type = 0) const;
-
-        /** Record material hit :
-         -> For pure Material validation only pathInX0, x0, A, Z, rho, can be filled,
-         -> For Material effects validation sigmaPhi, sigmaTheta, delta p and sigmaP
-         can be filled as well
-         */
+        /** Record material hit along the recording */
         void recordMaterialHit(const AssociatedMaterial& amhit, const Amg::Vector3D& projectedPosition) const;
 
-        /** Record material hit - if various hits per uniform layer are recorded */
-        void recordLayerHit(const AssociatedMaterial& amhit) const;
-
-        /** Record material hit - possibility to overwrite the single layer hit records */
-        void recordFullLayerHit(const AssociatedMaterial& amhit) const;
+        /** Record material hit - if various hits per uniform layer are recorded, or if you want to record one full hit */
+        void recordLayerHit(const AssociatedMaterial& amhit, bool full = false) const;
 
         /** Record material hit on a surface*/
-        void recordSurfaceHit(const Amg::Vector2D& locpos,
-                              const AssociatedMaterial& amhit) const;
+        void recordSurfaceHit(const Amg::Vector2D& locpos, const AssociatedMaterial& amhit) const;
 
-        /** FinalizeEvent */
-        void finalizeEvent(double eta, double phi) const;
+        /** Handle the incident from the incident service */
+        void handle( const Incident& inc );
 
       private:
-
+          
         /** Finalize the Volume Steps */
         void finalizeVolumeHits(bool mapped=true) const;
 
@@ -243,16 +240,16 @@ namespace Trk {
         VolumeTreeObject* volumeTreeObject(const Layer* lay=0, const TrackingVolume* tvol=0) const;
 
         /** find (&&,||) create the LayerTreeObject  */
-        LayerTreeObject* layerTreeObject(const Layer& lay) const;
+        LayerTreeObject* layerTreeObject(const Layer& lay, bool full = false) const;
 
         /** find (&&,||) create the LayerTreeObject  */
         SurfaceTreeObject* surfaceTreeObject(const Layer& lay) const;
 
 
+        /* Incident Service */ 
+        ServiceHandle<IIncidentSvc>          m_incidentSvc; 
 
         int                   m_materialAssociationType;
-        mutable double        m_eta;
-        mutable double        m_phi;
         mutable bool          m_recordDone;
 
         // (1) ------------------------- Tree name of the total material statistics
@@ -262,7 +259,6 @@ namespace Trk {
         std::string           m_totalMaterialTree;
 
         // (2) ------------------------  Ntuple output of material effects validation
-        bool                  m_validationMode;
         TTree*                m_validationTree;            //!< The validation tree
         std::string           m_validationTreeName;        //!< validation tree name - to be accessed by this from root
         std::string           m_validationTreeDescription; //!< validation tree description - second argument in TTree
@@ -270,29 +266,26 @@ namespace Trk {
 
 
         // Spatial information
-        mutable int           m_materialSteps;                                     //!< number of update positions
-        mutable float         m_averageEta;                                         //!< total path in x0 in these events
-        mutable float         m_averagePhi;                                         //!< total path in x0 in these events lost
-        mutable float         m_mappedPathInX0;                                    //!< total path in x0 in these events
-        mutable float         m_unmappedPathInX0;                                  //!< total path in x0 in these events lost
-        mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS];                 //!< mapped or not mapped
-        mutable float         m_materialStepPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];   //!< x position of the material recording
-        mutable float         m_materialStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS];  //!< x position of the material recording
-        mutable float         m_materialStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS];  //!< y position of the material recording
-        mutable float         m_materialStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];  //!< z position of the material recording
-        mutable float         m_materialStepPositionR[TRKDETDESCRTOOLS_MAXSTEPS];  //!< r value of the material recording
-        mutable float         m_materialProjPositionX[TRKDETDESCRTOOLS_MAXSTEPS];  //!< x position of the material recording
-        mutable float         m_materialProjPositionY[TRKDETDESCRTOOLS_MAXSTEPS];  //!< y position of the material recording
-        mutable float         m_materialProjPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];  //!< z position of the material recording
-        mutable float         m_materialProjPositionR[TRKDETDESCRTOOLS_MAXSTEPS];  //!< r value of the material recording
-
-        bool                  m_navigationValidation;
-        
-        mutable int           m_navigationSteps;
-        mutable float         m_navigationStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS];  //!< x position of a navigation step
-        mutable float         m_navigationStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS];  //!< y position of a navigation step
-        mutable float         m_navigationStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];  //!< z position of a navigation step
-        mutable float         m_navigationStepPositionR[TRKDETDESCRTOOLS_MAXSTEPS];  //!< r value of a navigation step
+        mutable int           m_materialSteps;                                          //!< number of update positions
+        mutable float         m_averageEta;                                             //!< average eta
+        mutable float         m_averagePhi;                                             //!< average ogu
+        mutable float         m_mappedPath;                                             //!< total mapped path
+        mutable float         m_mappedPathInX0;                                         //!< total mapped path in X0
+        mutable float         m_mappedPathInL0;                                         //!< total mapped path in L0
+        mutable float         m_mappedPathTimesRho;                                     //!< total mapped path * density
+        mutable float         m_unmappedPathInX0;                                       //!< total path in x0 in these events lost        
+        mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS];                      //!< mapped or not mapped
+        mutable float         m_materialStepPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in x0
+        mutable float         m_materialStepPathInL0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in l0
+        mutable float         m_materialStepPathTimesRho[TRKDETDESCRTOOLS_MAXSTEPS];    //!< step path times rho
+        mutable float         m_materialStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS];       //!< x position of the material recording
+        mutable float         m_materialStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording
+        mutable float         m_materialStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording
+        mutable float         m_materialStepPositionR[TRKDETDESCRTOOLS_MAXSTEPS];       //!< r value of the material recording
+        mutable float         m_materialProjPositionX[TRKDETDESCRTOOLS_MAXSTEPS];       //!< x position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording when assigned to layer
+        mutable float         m_materialProjPositionR[TRKDETDESCRTOOLS_MAXSTEPS];       //!< r value of the material recording when assigned to layer
 
         // Per Volume Validation
         bool                  m_volumeValidation;
@@ -304,16 +297,12 @@ namespace Trk {
         bool                  m_layerValidation;
         std::string           m_layerTreePrefix;
         mutable std::map< const Trk::Layer*, LayerTreeObject* >           m_layerTrees;
+        mutable std::map< const Trk::Layer*, LayerTreeObject* >           m_layerFullTrees;
 
         // Per Surface Validation
         bool                  m_surfaceValidation;
         std::string           m_surfaceTreePrefix;
         mutable std::map< const Trk::Layer*, SurfaceTreeObject* >         m_surfaceTrees;
-
-        // tolerance parameters
-        double                m_etaTolerance;
-        double                m_phiTolerance;
-        bool                  m_externalEtaPhi;
 
     };
 
