@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainedVectorMultiAssociationFillerTool.cxx 542173 2013-03-24 05:46:57Z ssnyder $
+// $Id: ContainedVectorMultiAssociationFillerTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ContainedVectorMultiAssociationFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -28,29 +28,11 @@ ContainedVectorMultiAssociationFillerTool::ContainedVectorMultiAssociationFiller
    (const std::string& type,
     const std::string& name,
     const IInterface* parent)
-     : VectorFillerToolBase (type, name, parent),
+     : base_class (type, name, parent),
        m_associator (this)
 {
   declareProperty ("Associator",   m_associator,
                    "The IMultiAssociationTool instance.");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-ContainedVectorMultiAssociationFillerTool::queryInterface
-  (const InterfaceID& riid,
-   void** ppvIf )
-{
-  if ( riid == IBlockFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IBlockFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 

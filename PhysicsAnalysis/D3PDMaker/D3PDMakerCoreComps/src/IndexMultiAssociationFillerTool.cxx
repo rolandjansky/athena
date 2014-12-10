@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IndexMultiAssociationFillerTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: IndexMultiAssociationFillerTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/IndexMultiAssociationFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -29,7 +29,7 @@ IndexMultiAssociationFillerTool::IndexMultiAssociationFillerTool
    (const std::string& type,
     const std::string& name,
     const IInterface* parent)
-     : AlgTool (type, name, parent),
+     : base_class (type, name, parent),
        AddVariable (m_prefix, m_blockName),
        m_associator (this),
        m_index (0),
@@ -53,23 +53,6 @@ IndexMultiAssociationFillerTool::IndexMultiAssociationFillerTool
 
 
 /**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-IndexMultiAssociationFillerTool::queryInterface( const InterfaceID& riid,
-                                                void** ppvIf )
-{
-  if ( riid == IBlockFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IBlockFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-
-
-/**
  * @brief Standard Gaudi @c initialize method.
  */
 StatusCode
@@ -80,7 +63,7 @@ IndexMultiAssociationFillerTool::initialize()
     << "ContainedVectorMultiAssociationFillerTool with IndexFillerTool. "
     << "IndexMultiAssociation.py should do that for you.";
 
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_associator.retrieve() );
   return StatusCode::SUCCESS;
 }

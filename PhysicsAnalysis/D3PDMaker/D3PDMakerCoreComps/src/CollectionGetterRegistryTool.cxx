@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CollectionGetterRegistryTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: CollectionGetterRegistryTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/CollectionGetterRegistryTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -31,7 +31,7 @@ CollectionGetterRegistryTool::CollectionGetterRegistryTool
   (const std::string& type,
    const std::string& name,
    const IInterface* parent)
-    : AthAlgTool (type, name, parent),
+    : base_class (type, name, parent),
       m_jos       ("JobOptionsSvc", name),
       m_toolsvc   ("ToolSvc",       name)
 {
@@ -39,23 +39,6 @@ CollectionGetterRegistryTool::CollectionGetterRegistryTool
                    "The JobOptionsSvc instance.");
   declareProperty ("ToolSvc",       m_toolsvc,
                    "The ToolSvc instance.");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-CollectionGetterRegistryTool::queryInterface( const InterfaceID& riid,
-                                              void** ppvIf )
-{
-  if ( riid == D3PD::ICollectionGetterRegistryTool::interfaceID() )  {
-    *ppvIf = static_cast<D3PD::ICollectionGetterRegistryTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 

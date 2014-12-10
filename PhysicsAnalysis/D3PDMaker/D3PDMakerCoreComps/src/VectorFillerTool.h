@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VectorFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: VectorFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/VectorFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -66,9 +66,7 @@ class ID3PD;
  * to each.
  */
 class VectorFillerTool
-  : public VectorFillerToolBase,
-    public IObjFillerTool,
-    public IIncidentListener
+  : public extends2<VectorFillerToolBase, IObjFillerTool, IIncidentListener>
 {
 public:
   /**
@@ -80,11 +78,6 @@ public:
   VectorFillerTool (const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

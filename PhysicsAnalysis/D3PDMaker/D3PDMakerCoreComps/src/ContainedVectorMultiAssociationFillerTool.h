@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainedVectorMultiAssociationFillerTool.h 542173 2013-03-24 05:46:57Z ssnyder $
+// $Id: ContainedVectorMultiAssociationFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ContainedVectorMultiAssociationFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -57,8 +57,7 @@ namespace  D3PD {
  *                  Omitted if empty (default).
  */
 class ContainedVectorMultiAssociationFillerTool
-  : public VectorFillerToolBase,
-    public IBlockFillerTool
+  : public extends1<VectorFillerToolBase, IBlockFillerTool>
 {
 public:
   /**
@@ -70,11 +69,6 @@ public:
   ContainedVectorMultiAssociationFillerTool (const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

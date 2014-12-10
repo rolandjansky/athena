@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: ObjFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ObjFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -22,7 +22,7 @@
 #include "D3PDMakerInterfaces/IObjGetterTool.h"
 #include "D3PDMakerUtils/AddVariable.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
@@ -47,10 +47,8 @@ class ID3PD;
  * to each.
  */
 class ObjFillerTool
-  : public AlgTool,
-    public IObjFillerTool,
-    public AddVariable,
-    public IIncidentListener
+  : public extends2<AthAlgTool, IObjFillerTool, IIncidentListener>,
+    public AddVariable
 {
 public:
   /**
@@ -62,11 +60,6 @@ public:
   ObjFillerTool (const std::string& type,
                  const std::string& name,
                  const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

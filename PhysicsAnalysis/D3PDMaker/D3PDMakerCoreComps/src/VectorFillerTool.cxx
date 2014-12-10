@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VectorFillerTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: VectorFillerTool.cxx 628034 2014-11-12 22:18:35Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/VectorFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -30,7 +30,7 @@ namespace D3PD {
 VectorFillerTool::VectorFillerTool (const std::string& type,
                                     const std::string& name,
                                     const IInterface* parent)
-  : VectorFillerToolBase (type, name, parent),
+  : base_class (type, name, parent),
     m_getter (this),
     m_tree (0)
 {
@@ -44,22 +44,6 @@ VectorFillerTool::VectorFillerTool (const std::string& type,
   declareProperty ("SaveMetadata", m_saveMetadata = false,
                    "Set to true to get metadata into the output D3PD "
                    "about the variables created by this tool");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-VectorFillerTool::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == IObjFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IObjFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 
@@ -109,6 +93,9 @@ VectorFillerTool::configureD3PD (IAddVariable* tree)
  */
 StatusCode VectorFillerTool::book()
 {
+  // Be sure aux variables are defined.
+  CHECK( m_getter->reset (m_allowMissing) );
+
   // Configure the metadata object correctly:
   m_metadata.setName( m_objectName );
   m_metadata.setPrefix( m_prefix );

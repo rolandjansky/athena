@@ -28,7 +28,7 @@ namespace D3PD {
 FirstAssociationTool::FirstAssociationTool (const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
-  : AthAlgTool (type, name, parent),
+  : base_class (type, name, parent),
     m_associator (this)
 {
   declareProperty ("Associator", m_associator,
@@ -44,23 +44,6 @@ StatusCode FirstAssociationTool::initialize()
   CHECK( AthAlgTool::initialize() );
   CHECK( m_associator.retrieve() );
   return StatusCode::SUCCESS;
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-FirstAssociationTool::queryInterface
-  ( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == ISingleAssociationTool::interfaceID() )  {
-    *ppvIf = static_cast<ISingleAssociationTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 

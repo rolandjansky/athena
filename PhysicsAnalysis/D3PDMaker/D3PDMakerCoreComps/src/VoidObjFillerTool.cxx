@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VoidObjFillerTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: VoidObjFillerTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file   D3PDMakerCoreComps/src/VoidObjFillerTool.cxx
  * @author Haifeng Li <Haifeng.Li@cern.ch>
@@ -30,7 +30,7 @@ VoidObjFillerTool::VoidObjFillerTool (const std::string& type,
 				      const std::string& name,
 				      const IInterface* parent
 				      )
-  : AlgTool (type, name, parent),
+  : base_class (type, name, parent),
     AddVariable (m_prefix, m_blockName),
     m_blockFillers (this),
     m_tree (0)
@@ -50,28 +50,12 @@ VoidObjFillerTool::VoidObjFillerTool (const std::string& type,
 
 
 /**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-VoidObjFillerTool::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == IObjFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IObjFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-
-
-/**
  * @brief Standard Gaudi @c initialize method.
  */
 StatusCode
 VoidObjFillerTool::initialize()
 {
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_blockFillers.retrieve() );
 
   // Listen to EndEvent and EndRun incidents:

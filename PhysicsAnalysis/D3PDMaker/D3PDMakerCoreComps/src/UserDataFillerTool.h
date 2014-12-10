@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: UserDataFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: UserDataFillerTool.h 635137 2014-12-10 18:34:44Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/UserDataFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,9 +18,8 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "AthenaKernel/IUserDataSvc.h"
+#include "RootUtils/Type.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "Reflex/Type.h"
-#include "Reflex/Member.h"
 #include <vector>
 #include <string>
 class IAthenaBarCode;
@@ -97,7 +96,7 @@ private:
     Var (const std::string& the_name,
          const std::string& the_docstring,
          const std::string& the_label,
-         const Reflex::Type& the_type);
+         const RootUtils::Type& the_type);
 
     /// Name of the variable.
     std::string name;
@@ -109,13 +108,7 @@ private:
     std::string label;
 
     /// Type of the variable.
-    Reflex::Type type;
-
-    /// Function to do assignment, if defined.
-    Reflex::Member assign;
-
-    /// Arg vector for calling assign.
-    std::vector<void*> args;
+    RootUtils::Type type;
 
     /// Pointer passed to @c ID3PD.
     void* ptr;

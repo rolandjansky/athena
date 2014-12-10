@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: UserDataFillerTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: UserDataFillerTool.cxx 635137 2014-12-10 18:34:44Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/UserDataFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,7 +14,6 @@
 #include "UserDataFillerTool.h"
 #include "Navigation/IAthenaBarCode.h"
 #include "AthenaKernel/errorcheck.h"
-#include "Reflex/Builder/TypeBuilder.h"
 #include "TROOT.h"
 #include "boost/foreach.hpp"
 
@@ -32,22 +31,13 @@ namespace D3PD {
 UserDataFillerTool::Var::Var (const std::string& the_name,
                               const std::string& the_docstring,
                               const std::string& the_label,
-                              const Reflex::Type& the_type)
+                              const RootUtils::Type& the_type)
   : name (the_name),
     docstring (the_docstring),
     label (the_label),
     type (the_type),
     ptr (0)
 {
-  // Look up the assign method.
-  // If it exists, reserve an argument vector for the call to it.
-  Reflex::Type sig =
-    Reflex::FunctionTypeBuilder (Reflex::ReferenceBuilder (type),
-                                 Reflex::ReferenceBuilder
-                                   (Reflex::ConstBuilder (type)));
-  assign = type.FunctionMemberByName ("operator=", sig);
-  if (assign)
-    args.resize (1);
 }
 
 
@@ -100,7 +90,7 @@ StatusCode UserDataFillerTool::book()
     docstring += v.label;
     docstring += "] ";
     docstring += v.docstring;
-    CHECK( addVariable (v.name, v.type.TypeInfo(), v.ptr, docstring) );
+    CHECK( addVariable (v.name, *v.type.getTypeInfo(), v.ptr, docstring) );
   }
   return StatusCode::SUCCESS;
 }
@@ -120,13 +110,13 @@ StatusCode UserDataFillerTool::fill (const IAthenaBarCode& p)
     void* ptr = 0;
     if (m_userDataSvc->vgetInMemElementDecoration (p,
                                                    v.label,
-                                                   v.type.TypeInfo(),
+                                                   *v.type.getTypeInfo(),
                                                    ptr,
                                                    true) != 0)
     {
       if (m_userDataSvc->vgetElementDecoration (p,
                                                 v.label,
-                                                v.type.TypeInfo(),
+                                                *v.type.getTypeInfo(),
                                                 ptr))
       {
         REPORT_MESSAGE(MSG::ERROR)
@@ -135,14 +125,7 @@ StatusCode UserDataFillerTool::fill (const IAthenaBarCode& p)
       }
     }
 
-    if (v.assign) {
-      Reflex::Object dst (v.type, v.ptr);
-      v.args[0] = ptr;
-      v.assign.Invoke (dst, 0, v.args);
-    }
-    else {
-      std::memcpy (v.ptr, ptr, v.type.SizeOf());
-    }
+    v.type.assign (v.ptr, ptr);
   }
 
   return StatusCode::SUCCESS;
@@ -167,15 +150,22 @@ StatusCode UserDataFillerTool::parseVars()
     std::string label = m_varString[i+1];
     if (label.empty())
       label = name;
-    Reflex::Type type = Reflex::Type::ByName (m_varString[i+2]);
-    if (!type)
-      gROOT->GetClass (m_varString[i+2].c_str());
-    type = Reflex::Type::ByName (m_varString[i+2]);
-    if (!type) {
-      REPORT_MESSAGE(MSG::ERROR) << "Can't find Reflex type for "
-                                 << m_varString[i+2];
-      return StatusCode::FAILURE;
+    RootUtils::Type type;
+    try {
+      type = RootUtils::Type (m_varString[i+2]);
     }
+    catch (std::runtime_error&) {
+      gROOT->GetClass (m_varString[i+2].c_str());
+      try {
+        type = RootUtils::Type (m_varString[i+2]);
+      }
+      catch (std::runtime_error&) {
+        REPORT_MESSAGE(MSG::ERROR) << "Can't find type "
+                                   << m_varString[i+2];
+        return StatusCode::FAILURE;
+      }
+    }
+
     m_vars.push_back (Var (name, docstring, m_udprefix + label, type));
   }
   return StatusCode::SUCCESS;

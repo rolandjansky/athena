@@ -6,7 +6,6 @@ use AtlasPolicy                AtlasPolicy-*
 private
 use GaudiInterface             GaudiInterface-*        External
 use AtlasBoost                 AtlasBoost-*            External
-use AtlasReflex                AtlasReflex-*           External
 use AtlasROOT                  AtlasROOT-*             External
 use CxxUtils                   CxxUtils-*              Control
 use RootUtils                  RootUtils-*             Control

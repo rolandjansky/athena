@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainedMultiAssociationFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: ContainedMultiAssociationFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ContainedMultiAssociationFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -20,7 +20,7 @@
 #include "D3PDMakerInterfaces/IBlockFillerTool.h"
 #include "D3PDMakerInterfaces/IMultiAssociationTool.h"
 #include "D3PDMakerUtils/AddVariable.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 
@@ -54,7 +54,7 @@ namespace  D3PD {
  *                  Omitted if empty.
  */
 class ContainedMultiAssociationFillerTool
-  : public AlgTool, public IBlockFillerTool, public AddVariable
+  : public extends1<AthAlgTool, IBlockFillerTool>, public AddVariable
 {
 public:
   /**
@@ -66,11 +66,6 @@ public:
   ContainedMultiAssociationFillerTool (const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

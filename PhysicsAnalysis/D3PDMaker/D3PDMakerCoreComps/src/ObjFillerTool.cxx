@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjFillerTool.cxx 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: ObjFillerTool.cxx 631247 2014-11-26 16:25:26Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ObjFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -30,7 +30,7 @@ namespace D3PD {
 ObjFillerTool::ObjFillerTool (const std::string& type,
                               const std::string& name,
                               const IInterface* parent)
-  : AlgTool (type, name, parent),
+  : base_class (type, name, parent),
     AddVariable (m_prefix, m_blockName),
     m_getter (this),
     m_blockFillers (this),
@@ -56,28 +56,12 @@ ObjFillerTool::ObjFillerTool (const std::string& type,
 
 
 /**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-ObjFillerTool::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == IObjFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IObjFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-
-
-/**
  * @brief Standard Gaudi @c initialize method.
  */
 StatusCode
 ObjFillerTool::initialize()
 {
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_getter.retrieve() );
   CHECK( m_blockFillers.retrieve() );
 
@@ -120,6 +104,9 @@ ObjFillerTool::configureD3PD (IAddVariable* tree)
  */
 StatusCode ObjFillerTool::book()
 {
+  // Be sure aux variables are defined.
+  (void)m_getter->getUntyped (m_allowMissing);
+
   // Configure the metadata object correctly:
   m_metadata.setPrefix( m_prefix );
   m_metadata.setName( m_objectName );

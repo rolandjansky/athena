@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainedAssociationFillerTool.cxx 499399 2012-05-07 09:07:06Z ssnyder $
+// $Id: ContainedAssociationFillerTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ContainedAssociationFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -28,8 +28,8 @@ ContainedAssociationFillerTool::ContainedAssociationFillerTool
    (const std::string& type,
     const std::string& name,
     const IInterface* parent)
-     : AlgTool (type, name, parent),
-       AddVariable2 (m_prefix, m_blockName, m_suffix),
+     : base_class (type, name, parent),
+       AddVariable (m_prefix, m_blockName, m_suffix),
        m_associator (this),
        m_blockFillers (this),
        m_matched (0)
@@ -51,29 +51,12 @@ ContainedAssociationFillerTool::ContainedAssociationFillerTool
 
 
 /**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-ContainedAssociationFillerTool::queryInterface( const InterfaceID& riid,
-                                                void** ppvIf )
-{
-  if ( riid == IBlockFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IBlockFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-
-
-/**
  * @brief Standard Gaudi @c initialize method.
  */
 StatusCode
 ContainedAssociationFillerTool::initialize()
 {
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_associator.retrieve() );
   CHECK( m_blockFillers.retrieve() );
   return StatusCode::SUCCESS;
@@ -92,7 +75,7 @@ StatusCode
 ContainedAssociationFillerTool::configureD3PD (IAddVariable* tree,
                                                const std::type_info& ti)
 {
-  CHECK( AddVariable2::configureD3PD (tree) );
+  CHECK( AddVariable::configureD3PD (tree) );
   CHECK( m_associator->configureD3PD (this, ti) );
   const std::type_info& ati = m_associator->typeinfo();
   for (size_t i = 0; i < m_blockFillers.size(); i++)

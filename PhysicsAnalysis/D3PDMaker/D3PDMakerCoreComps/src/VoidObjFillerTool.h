@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VoidObjFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: VoidObjFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file    D3PDMakerCoreComps/src/VoidObjFillerTool.h
  * @author  Haifeng Li <Haifeng.Li@cern.ch>
@@ -21,7 +21,7 @@
 #include "D3PDMakerInterfaces/IObjFillerTool.h"
 #include "D3PDMakerUtils/AddVariable.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
@@ -43,10 +43,8 @@ class ID3PD;
  * For each event, we loop over all block filler tools.
  */
 class VoidObjFillerTool
-  : public AlgTool,
-    public IObjFillerTool,
-    public AddVariable,
-    public IIncidentListener
+  : public extends2<AthAlgTool, IObjFillerTool, IIncidentListener>,
+    public AddVariable
 {
 public:
   /**
@@ -59,11 +57,6 @@ public:
 		     const std::string& name,
 		     const IInterface* parent
 		     );
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

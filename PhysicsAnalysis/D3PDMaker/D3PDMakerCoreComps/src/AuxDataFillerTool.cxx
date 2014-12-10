@@ -17,6 +17,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/make_unique.h"
 #include "boost/algorithm/string/trim.hpp"
+#include "boost/algorithm/string/split.hpp"
 #include "TROOT.h"
 
 
@@ -27,33 +28,77 @@ namespace D3PD {
  * @brief Constructor.
  * @param the_name Name of the variable.
  * @param the_docstring Docstring for the variable.
- * @param the_label Name of the aux data item.
- * @param the_label_class Class of the aux data item, or a blank string.
+ * @param the_labels Name of the aux data item(s).
+ * @param the_label_classes Class(es) of the aux data item(s),
+ *                          or blank strings.
+ * @param the_defstring String giving the default value.
+ * @param the_has_default Can this variable be defaulted?
  */
 AuxDataFillerTool::Var::Var (const std::string& the_name,
                              const std::string& the_docstring,
-                             const std::string& the_label,
-                             const std::string& the_label_class,
+                             const std::vector<std::string>& the_labels,
+                             const std::vector<std::string>& the_label_classes,
                              const std::string& the_defstring,
                              bool the_has_default)
   : name (the_name),
     docstring (the_docstring),
-    label (the_label),
     has_default (the_has_default),
-    accessor (the_label, the_label_class),
     ptr (0)
 {
-  // Find the type of the variable.
   const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
-  SG::auxid_t auxid = reg.findAuxID (the_label, the_label_class);
-  assert (auxid != SG::null_auxid); // otherwise accessor ctor would have thrown
-  ti = reg.getType (auxid);
-  type.init (reg.getTypeName (auxid));
+
+  std::string firstName;
+  SG::auxid_t firstId = SG::null_auxid;
+  ti = 0;
+  assert (the_labels.size() == the_label_classes.size());
+  for (size_t i = 0; i < the_labels.size(); i++) {
+    SG::auxid_t auxid = reg.findAuxID (the_labels[i], the_label_classes[i]);
+    if (auxid != SG::null_auxid) {
+      accessors.emplace_back (the_labels[i], the_label_classes[i]);
+
+      std::string name = the_label_classes[i] + "::" + the_labels[i];
+      if (!label.empty())
+        label += ",";
+      label += name;
+
+      // Find the type of the variable.
+      if (ti == 0) {
+        ti = reg.getType (auxid);
+        type.init (reg.getTypeName (auxid));
+        firstName = name;
+        firstId = auxid;
+      }
+      else {
+        if (ti != reg.getType (auxid)) {
+          std::string errstr = "Inconsistent types for aux data: " +
+            firstName + " (" + reg.getTypeName (firstId) +") vs " +
+            name + " (" + reg.getTypeName (auxid) + ")";
+          throw std::runtime_error (errstr);
+        }
+      }
+    }
+  }
 
   if (the_has_default && !the_defstring.empty()) {
     defobj = RootUtils::Type::unique_ptr (type.create(), type);
     type.fromString (defobj.get(), the_defstring);
   }
+}
+
+
+/**
+ * @brief Try to retrieve an aux data item from p.
+ * @param p The element to read from.
+ *
+ * Returns 0 if no alternatives are available.
+ */
+const void* AuxDataFillerTool::Var::access (const SG::AuxElement& p) const
+{
+  for (const auto& a : accessors) {
+    if (a.isAvailable(p))
+      return a(p);
+  }
+  return 0;
 }
 
 
@@ -77,6 +122,8 @@ AuxDataFillerTool::AuxDataFillerTool (const std::string& type,
                    "VAR is the D3PD variable name.  "
                    "AUXVAR is the aux data item name.  It may contain a class "
                    "name before a ::.  If omitted, it defaults to VAR. "
+                   "It may also be a comma-separated string of variable "
+                   "names; the first one found to be present will be used. "
                    "If the < is present, then it is not an error for this "
                    "variable to be missing.  If not empty, DEF specifies the "
                    "default value to use (works only for basic types). "
@@ -123,9 +170,15 @@ StatusCode AuxDataFillerTool::book()
  */
 StatusCode AuxDataFillerTool::fill (const SG::AuxElement& p)
 {
-  for (auto& v : m_vars)
-    if (!v->has_default || v->accessor.isAvailable (p))
-      v->type.assign (v->ptr, v->accessor (p));
+  for (auto& v : m_vars) {
+    const void* aux = v->access(p);
+    if (aux)
+      v->type.assign (v->ptr, aux);
+    else if (!v->has_default) {
+      // Trigger an exception.
+      v->accessors[0](p);
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -160,16 +213,23 @@ StatusCode AuxDataFillerTool::parseVars()
       label.erase (0, ipos+1);
     }
 
-    std::string label_class;
-    ipos = label.find ("::");
-    if (ipos != std::string::npos) {
-      label_class = label.substr (0, ipos);
-      label.erase (0, ipos+2);
+    std::vector<std::string> labels;
+    boost::algorithm::split (labels, label, boost::algorithm::is_any_of(","));
+    std::vector<std::string> label_classes;
+    for (std::string& l : labels) {
+      std::string label_class;
+      ipos = l.find ("::");
+      if (ipos != std::string::npos) {
+        label_class = l.substr (0, ipos);
+        l.erase (0, ipos+2);
+      }
+      boost::algorithm::trim (l);
+      l = m_auxprefix + l;
+      boost::algorithm::trim (label_class);
+      label_classes.push_back (label_class);
     }
 
     boost::algorithm::trim (name);
-    boost::algorithm::trim (label);
-    boost::algorithm::trim (label_class);
     boost::algorithm::trim (docstring);
     boost::algorithm::trim (defstring);
 
@@ -185,20 +245,28 @@ StatusCode AuxDataFillerTool::parseVars()
         RootUtils::Type typ (typname);
         SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
         const std::type_info* ti = typ.getTypeInfo();
-        if (ti)
-          reg.getAuxID (*ti, label, label_class);
+        if (ti) {
+          for (size_t i = 0; i < labels.size(); i++)
+            reg.getAuxID (*ti, labels[i], label_classes[i]);
+        }
       }
     }
 
     try {
       m_vars.push_back (CxxUtils::make_unique<Var>
-                        (name, docstring, m_auxprefix + label, label_class,
+                        (name, docstring, labels, label_classes,
                          defstring, has_default));
     }
     catch (const std::runtime_error& e) {
       REPORT_MESSAGE(MSG::ERROR)
-        << "Can't find aux data item " << m_auxprefix+label
+        << "Can't find aux data item(s) " << label
         << " [" << e.what() << "]";
+      return StatusCode::FAILURE;
+    }
+
+    if (m_vars.back()->accessors.empty()) {
+      REPORT_MESSAGE(MSG::ERROR)
+        << "Can't find aux data item(s) " << label;
       return StatusCode::FAILURE;
     }
   }

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IndexMultiAssociationFillerTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: IndexMultiAssociationFillerTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/IndexMultiAssociationFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -23,7 +23,7 @@
 #include "D3PDMakerUtils/AddVariable.h"
 #include "D3PDMakerUtils/TypeConverter.h"
 #include "D3PDMakerUtils/IndexMap.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
@@ -61,7 +61,7 @@ class ICollectionRegistryTool;
  *   CollectionGetterRegistry - The ICollectionGetterRegistryTool instance.
  */
 class IndexMultiAssociationFillerTool
-  : public AlgTool, public IBlockFillerTool, public AddVariable
+  : public extends1<AthAlgTool, IBlockFillerTool>, public AddVariable
 {
 public:
   /**
@@ -73,11 +73,6 @@ public:
   IndexMultiAssociationFillerTool (const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainedMultiAssociationFillerTool.cxx 507072 2012-06-22 20:59:13Z ssnyder $
+// $Id: ContainedMultiAssociationFillerTool.cxx 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ContainedMultiAssociationFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -28,7 +28,7 @@ ContainedMultiAssociationFillerTool::ContainedMultiAssociationFillerTool
    (const std::string& type,
     const std::string& name,
     const IInterface* parent)
-     : AlgTool (type, name, parent),
+     : base_class (type, name, parent),
        AddVariable (m_prefix, m_blockName),
        m_associator (this),
        m_blockFillers (this),
@@ -46,30 +46,12 @@ ContainedMultiAssociationFillerTool::ContainedMultiAssociationFillerTool
 
 
 /**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-ContainedMultiAssociationFillerTool::queryInterface
-  (const InterfaceID& riid,
-   void** ppvIf )
-{
-  if ( riid == IBlockFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IBlockFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-
-
-/**
  * @brief Standard Gaudi @c initialize method.
  */
 StatusCode
 ContainedMultiAssociationFillerTool::initialize()
 {
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_associator.retrieve() );
   CHECK( m_blockFillers.retrieve() );
   return StatusCode::SUCCESS;

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: reset_props.py 485961 2012-03-01 14:29:38Z krasznaa $
+# $Id: reset_props.py 618070 2014-09-22 19:05:34Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/reset_props.py
 # @author scott snyder <snyder@bnl.gov>
@@ -26,6 +26,7 @@ def reset_props (c):
 """
     
     for p in c.getValuedProperties().keys():
+        if p in ['EvtStore', 'DetStore', 'UserStore']: continue
         c.__delattr__ (p)
     c.removeAll()
     return

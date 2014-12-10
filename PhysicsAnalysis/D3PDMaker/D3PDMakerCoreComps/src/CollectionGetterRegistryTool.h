@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CollectionGetterRegistryTool.h 486128 2012-03-02 08:54:20Z krasznaa $
+// $Id: CollectionGetterRegistryTool.h 618070 2014-09-22 19:05:34Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/CollectionGetterRegistryTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -43,7 +43,7 @@ namespace D3PD {
  * collection getters are stateful.)
  */
 class CollectionGetterRegistryTool
-  : public AthAlgTool, public ICollectionGetterRegistryTool
+  : public extends1<AthAlgTool, ICollectionGetterRegistryTool>
 {
 public:
   /**
@@ -55,11 +55,6 @@ public:
   CollectionGetterRegistryTool (const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

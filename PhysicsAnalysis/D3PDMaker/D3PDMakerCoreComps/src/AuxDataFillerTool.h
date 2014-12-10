@@ -83,26 +83,33 @@ private:
      * @brief Constructor.
      * @param the_name Name of the variable.
      * @param the_docstring Docstring for the variable.
-     * @param the_label Name of the aux data item.
-     * @param the_label_class Class of the aux data item, or a blank string.
+     * @param the_labels Name of the aux data item(s).
+     * @param the_label_classes Class(es) of the aux data item(s),
+     *                          or blank strings.
      * @param the_defstring String giving the default value.
      * @param the_has_default Can this variable be defaulted?
      */
     Var (const std::string& the_name,
          const std::string& the_docstring,
-         const std::string& the_label,
-         const std::string& the_label_class,
+         const std::vector<std::string>& the_labels,
+         const std::vector<std::string>& the_label_classes,
          const std::string& the_defstring,
          bool the_has_default);
+
+
+    /**
+     * @brief Try to retrieve an aux data item from p.
+     * @param p The element to read from.
+     *
+     * Returns 0 if no alternatives are available.
+     */
+    const void* access (const SG::AuxElement& p) const;
 
     /// Name of the variable.
     std::string name;
 
     /// Docstring for the variable.
     std::string docstring;
-
-    /// Name of the aux data item.
-    std::string label;
 
     /// If present, a default object instance to use if the aux variable
     /// is not present.
@@ -117,11 +124,14 @@ private:
     /// Type of the variable, as @c type_info.
     const std::type_info* ti;
 
-    /// Aux data accessor for the item.
-    SG::AuxElement::TypelessConstAccessor accessor;
+    /// Aux data accessor(s) for the item.
+    std::vector<SG::AuxElement::TypelessConstAccessor> accessors;
 
     /// Pointer passed to @c ID3PD.
     void* ptr;
+
+    /// Name of the aux data item(s).
+    std::string label;
   };
 
 

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: MakerAlg.py 522892 2012-10-23 14:42:17Z ssnyder $
+# $Id: MakerAlg.py 618070 2014-09-22 19:05:34Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/MakerAlg.py
 # @author scott snyder <snyder@bnl.gov>
@@ -63,7 +63,7 @@ def _stream_from_file (file, seq, tuplename, streamNameRoot,
         istream += 1
 
     # Create the stream, and add it to the sequence.
-    from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+    from AnalysisTools.AnalysisToolsConf import AANTupleStream
     st = AANTupleStream (stream,
                          ExtraRefNames = ['StreamESD',
                                           'StreamRDO',

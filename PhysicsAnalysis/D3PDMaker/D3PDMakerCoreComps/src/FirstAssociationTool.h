@@ -35,7 +35,7 @@ class IMultiAssociationTool;
  * association tool by only using the first result from the association.
  */
 class FirstAssociationTool
-  : public AthAlgTool, ISingleAssociationTool
+  : public extends1<AthAlgTool, ISingleAssociationTool>
 {
 public:
   /**
@@ -53,11 +53,6 @@ public:
    * @brief Standard Gaudi @c initialize method.
    */
   virtual StatusCode initialize() override;
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf ) override;
 
 
   /**
