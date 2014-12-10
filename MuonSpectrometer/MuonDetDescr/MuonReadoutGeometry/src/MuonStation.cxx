@@ -277,6 +277,7 @@ MuonStation::addMuonReadoutElementWithAlTransf(const MuonReadoutElement* a, GeoA
   if (reLog().level()<=MSG::DEBUG) reLog()<<MSG::DEBUG<<"addMuonReadoutElementWithAlTransf for station "
 					  <<getStationName()<<" at zi/fi = "<<getEtaIndex()<<"/"<<getPhiIndex()
 					  <<" added new component - now size of map is  "<<m_REwithAlTransfInStation->size()<<endreq;
+  delete myPair;
 }
 
 void 

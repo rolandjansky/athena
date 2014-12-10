@@ -19,7 +19,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include <cassert>
 
 #define RpcReadout_verbose false
 
@@ -29,7 +28,13 @@ namespace MuonGM {
   RpcReadoutElement::RpcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 				       int zi, int fi, bool is_mirrored,
 				       MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+      m_hasDEDontop(false), m_nphigasgaps(-1), m_netagasgaps(-1),
+      m_gasgapssize(-9999.), m_gasgapzsize(-9999.), m_nphistrippanels(-1),
+      m_netastrippanels(-1), m_nphistripsperpanel(-1), m_netastripsperpanel(-1),
+      m_phistripwidth(-9999.), m_etastripwidth(-9999.), m_phistrippitch(-9999.),
+      m_etastrippitch(-9999.), m_phistriplength(-9999.), m_etastriplength(-9999.),
+      m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.)
   {
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcReadoutElement");
     //MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
@@ -103,8 +108,7 @@ namespace MuonGM {
       std::cerr<<"RpcReadoutElement::localStripSCoord "<<" stName/Eta/Phi/dbR/dbZ/dbPhi "
 	       <<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"<<getDoubletR()<<"/"<<getDoubletZ()<<"/"<<getDoubletPhi()
 	       <<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     bool notintheribs = !inTheRibs();
     //std::cout<<" notintheribs "<<notintheribs<<std::endl;
@@ -114,8 +118,7 @@ namespace MuonGM {
 	       <<doubletPhi<<" outside range 1-"<<m_nphistrippanels
 	       <<"/ created with m_dbPhi="<<m_dbPhi<<" for station "<<getStationName()
 	       <<" and RPC type "<<getTechnologyName()<<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     int maxstrip = 0;
     if (measphi==1) maxstrip = NphiStrips();
@@ -125,8 +128,7 @@ namespace MuonGM {
 	       <<strip<<" outside range 1-"<<maxstrip<<" for measphi="<<measphi<<" stName/Eta/Phi/dbR/dbZ/dbPhi "
 	       <<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"<<getDoubletR()<<"/"<<getDoubletZ()<<"/"<<getDoubletPhi()
 	       <<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     
     double local_s=0.;
@@ -154,8 +156,7 @@ namespace MuonGM {
       std::cerr<<"RpcReadoutElement::localStripZCoord  stName/Eta/Phi/dbR/dbZ/dbPhi "
 	       <<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"<<getDoubletR()<<"/"<<getDoubletZ()<<"/"<<getDoubletPhi()
 	       <<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     bool notintheribs = !inTheRibs();
     //std::cout<<" notintheribs "<<notintheribs<<std::endl;
@@ -166,8 +167,7 @@ namespace MuonGM {
 	       <<"/ created with m_dbPhi="<<m_dbPhi<<" stName/Eta/Phi/dbR/dbZ/dbPhi "
 	       <<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"<<getDoubletR()<<"/"<<getDoubletZ()<<"/"<<getDoubletPhi()
 	       <<" and RPC type "<<getTechnologyName()<<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     int maxstrip = 0;
     if (measphi==1) maxstrip = NphiStrips();
@@ -177,8 +177,7 @@ namespace MuonGM {
 	       <<strip<<" outside range 1-"<<maxstrip<<" for measphi="<<measphi
 	       <<" stName/Eta/Phi/dbR/dbZ/dbPhi "
 	       <<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"<<getDoubletR()<<"/"<<getDoubletZ()<<"/"<<getDoubletPhi()<<std::endl;
-      assert(0);
-      return 0.;
+      throw;
     }
     
     double local_z=0.;

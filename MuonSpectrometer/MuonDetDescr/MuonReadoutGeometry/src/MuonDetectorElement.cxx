@@ -13,15 +13,13 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <cassert>
-
 namespace MuonGM {
 
 MuonDetectorElement::MuonDetectorElement(GeoVFullPhysVol* pv, 
                                          MuonDetectorManager* mgr,
                                          Identifier id,
                                          IdentifierHash idHash)
-  : TrkDetElementBase(pv)
+  : TrkDetElementBase(pv), m_debug(0), m_verbose(0)
 {
   m_muon_mgr = mgr;
   m_id = id;

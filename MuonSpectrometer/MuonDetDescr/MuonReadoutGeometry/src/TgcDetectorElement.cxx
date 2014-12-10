@@ -22,7 +22,7 @@
 namespace MuonGM {
 
 TgcDetectorElement::TgcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
-idHash) : MuonDetectorElement(pv,mgr,id,idHash)
+idHash) : MuonDetectorElement(pv,mgr,id,idHash), _tgcre(NULL)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:TgcDetectorElement");
   _nREinDetectorElement=1; 

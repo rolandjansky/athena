@@ -30,14 +30,18 @@
 
 #define CscReadout_verbose false
 
-#include <cassert>
-
 namespace MuonGM {
 
 CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
-  : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+  : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+    m_excent(-9999.), m_roxacellwidth(-9999.), m_RlengthUpToMaxWidth(-9999.), 
+    m_anodecathode_distance(-9999.), m_chamberlayer(-1), m_ngasgaps(-1), 
+    m_nstriplayers(-1), m_nwirelayers(-1), m_nPhistripsperlayer(-1), 
+    m_nEtastripsperlayer(-1), m_nwiresperlayer(-1), m_Phistripwidth(-9999.), 
+    m_Phistrippitch(-9999.), m_Etastripwidth(-9999.), m_Etastrippitch(-9999.), 
+    m_wirepitch(-9999.), m_first_strip_localcoo(-9999.), m_first_wire_localcoo(-9999.)
 {
   // Set a few parameters here.  The rest are set in MuonChamber::setCscReadoutGeometry
 
@@ -614,7 +618,7 @@ CscReadoutElement::localStripLayerPos(int /*chamberLayer*/,
                                       int wireLayer, int measPhi,
                                       int /*strip*/) const
 {
-  assert (measPhi == 0 || measPhi == 1);
+  if( ! (measPhi == 0 || measPhi == 1) ) throw;
   Amg::Vector3D wireLayerPosition = localWireLayerPos(wireLayer);
   double anodeCathodeDis       = anodeCathodeDistance();
   double x                     = wireLayerPosition.x();
@@ -737,7 +741,8 @@ void CscReadoutElement::setCscInternalAlignmentParams()
   {
     if (reLog().level() <= MSG::DEBUG) 
       reLog()<<MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endreq;
-      return;
+
+    return;
   }
   
   // ask the manager for CSC internal alignment params for this CSC readoutElement 

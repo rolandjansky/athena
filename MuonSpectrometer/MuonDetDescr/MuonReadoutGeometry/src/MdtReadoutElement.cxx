@@ -28,7 +28,6 @@
 #include "MuonAlignmentData/BLinePar.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include <cassert>
 
 // From Dan Levin: MDT 
 // linear density of wire: lambda=wireLinearDensity=19.3 [gm/cm^3] * PI*
@@ -57,6 +56,9 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr),
+    m_nlayers(-1), m_tubepitch(-9999.), m_tubelayerpitch(-9999.), m_ntubesperlayer(-1),
+    m_nsteps(-1), m_ntubesinastep(-1), m_tubelenStepSize(-9999.), m_cutoutShift(-9999.),
+    m_endpluglength(-9999.), m_deadlength(-9999.),
     m_deformTransfs(0),
     m_BLinePar(0),
     m_elemNormal(0),
@@ -371,8 +373,9 @@ double MdtReadoutElement::RODistanceFromTubeCentre(int multilayer, int tubelayer
 {
     // it is a un-signed quantity:
     if (multilayer != m_multilayer) {
-        assert(0);
-        return -99999.;
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::RODistanceFromTubeCentre "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
     }
     
     return getWireLength(tubelayer, tube)/2.;
@@ -383,8 +386,9 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
     // the sign corresponds to the sign of the z coordinate of the RO endplug in the tube
     // reference frame 
     if (multilayer != m_multilayer) {
-        assert(0);
-        return -99999.;
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::signedRODistanceFromTubeCentre "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
     }
 
     int amdb_plus_minus1 = 1;
@@ -622,7 +626,11 @@ const Amg::Vector3D MdtReadoutElement::nodeform_localTubePos(Identifier id) cons
 const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tubelayer, int tube) const
 {
     //MsgStream log(m_msgSvc, "MuGM:MdtReadout");
-    if (multilayer != m_multilayer) assert(0);
+    if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::nodeform_tubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+    }
 
     //reLog()<<MSG::DEBUG<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endreq;
     const Amg::Vector3D lp = nodeform_localTubePos(multilayer, tubelayer, tube);
@@ -636,7 +644,11 @@ const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tube
 }
 const Amg::Vector3D MdtReadoutElement::tubePos(int multilayer, int tubelayer, int tube) const
 {
-    if (multilayer != m_multilayer) assert(0);
+    if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::tubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+    }
 
     if ( reLog().level() <= MSG::VERBOSE ) {
       reLog()<<MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
@@ -817,7 +829,11 @@ const Amg::Vector3D MdtReadoutElement::AmdbLRStubePos(int multilayer,
                                                    int tubelayer,
                                                    int tube) const
 {
-   if (multilayer != m_multilayer) assert(0);
+   if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::AmdbLRStubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+   }
    const Amg::Vector3D tp = localTubePos(multilayer, tubelayer, tube);
 
    //Have the position in local(GM) MDT coords.

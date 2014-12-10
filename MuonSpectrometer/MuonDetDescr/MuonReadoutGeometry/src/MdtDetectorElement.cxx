@@ -16,9 +16,6 @@
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 //#include "GaudiKernel/MsgStream.h"
 
-#include <cassert>
-
-
 namespace MuonGM {
 
 MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv, 

@@ -153,9 +153,12 @@ private:
 
 
    //std::map< int, const MuonReadoutElement* > *m_REinStation;  //!< keep track of the REs in this station 
-    typedef std::pair<const MuonReadoutElement*, GeoAlignableTransform*>  pairRE_AlignTransf;
-    std::map< int, pairRE_AlignTransf > *m_REwithAlTransfInStation;  //!< keep track of the REs in this station  
-    //std::vector<const MuonReadoutElement *> * m_REinStation;  //!< keep track of the REs in this station  
+   typedef std::pair<const MuonReadoutElement*, GeoAlignableTransform*>  pairRE_AlignTransf;
+   std::map< int, pairRE_AlignTransf > *m_REwithAlTransfInStation;  //!< keep track of the REs in this station  
+   //std::vector<const MuonReadoutElement *> * m_REinStation;  //!< keep track of the REs in this station  
+
+   MuonStation & operator=(const MuonStation &right);
+   MuonStation(const MuonStation&);
 };
 
 int MuonStation::getPhiIndex() const
