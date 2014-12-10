@@ -10,7 +10,6 @@
 #include <sstream>
 // Trk include
 #include "TrkDetDescrTools/InputLayerMaterialProvider.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
@@ -47,8 +46,8 @@ Trk::InputLayerMaterialProvider::~InputLayerMaterialProvider()
 StatusCode Trk::InputLayerMaterialProvider::initialize() {
 
   m_constantMaterialProperties = Trk::MaterialProperties(1.,
-							 m_constantThicknessInX0,      
-							 m_constantThicknessInL0,      
+							 1./m_constantThicknessInX0,      
+							 1./m_constantThicknessInL0,      
 							 m_constantAverageA,           
 							 m_constantAverageZ,           
 							 m_constantAverageRho);
@@ -78,24 +77,6 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& t
   for (size_t il = 0; il < level; ++il) displayBuffer << " ";
   // formatted screen output     
   ATH_MSG_VERBOSE(displayBuffer.str() << "TrackingVolume '" << tvol.volumeName() << "'");
-  
-  // Process the entry layers if they exist
-  const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-  if (entryLayerProvider) {
-    // display output
-    const std::vector<const Trk::Layer*>& entryLayers = entryLayerProvider->layers();
-    std::vector<const Trk::Layer*>::const_iterator eLayIter  = entryLayers.begin();
-    std::vector<const Trk::Layer*>::const_iterator eLayIterE = entryLayers.end();    
-    ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << entryLayers.size() << " entry layers." ); 
-    for ( ; eLayIter != eLayIterE; ++eLayIter){
-        if (!(*eLayIter))
-             ATH_MSG_WARNING("Zero-pointer found in entry LayerArray - indicates problem !");    
-        if ((*eLayIter) && process(**eLayIter, level).isFailure()){
-            ATH_MSG_FATAL("Failed to call process(const Layer&) on entry layers. Aborting.");
-            return StatusCode::FAILURE;
-        }
-     }
-  }
   
   // Process the contained layers if they exist
   const Trk::LayerArray* layerArray = tvol.confinedLayers();

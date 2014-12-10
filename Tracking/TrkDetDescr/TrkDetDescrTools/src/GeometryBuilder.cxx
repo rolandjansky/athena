@@ -63,8 +63,8 @@ Trk::GeometryBuilder::GeometryBuilder(const std::string& t, const std::string& n
     declareProperty("CaloTrackingGeometryBuilder",          m_caloGeometryBuilder);
     declareProperty("MuonTrackingGeometryBuilder",          m_muonGeometryBuilder);
     // optimize layer dimension & memory usage -------------------------------
-    declareProperty( "Compactify",                          m_compactify );
-    declareProperty( "SynchronizeLayers",                   m_synchronizeLayers );
+    declareProperty("Compactify",                           m_compactify );
+    declareProperty("SynchronizeLayers",                    m_synchronizeLayers );
 }
 
 // destructor
@@ -423,6 +423,13 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
 
         // job done -> create the TrackingGeometry
         atlasTrackingGeometry = new Trk::TrackingGeometry(atlasVolume);
+        
+        // detailed information about this tracking geometry
+        ATH_MSG_VERBOSE( "Atlas TrackingGeometry built with following parameters : ");
+        //ATH_MSG_VERBOSE( " - TrackingVolume containers            : " << atlasTrackingGeometry->numberOfContainerVolumes() );
+        //ATH_MSG_VERBOSE( " - TrackingVolume at navigation level   : " << atlasTrackingGeometry->numberOfContainerVolumes() );
+        //ATH_MSG_VERBOSE( " - Contained static layers              : " << atlasTrackingGeometry->boundaryLayers().size());        
+        ATH_MSG_VERBOSE( " - Unique material layers on boundaries : " << atlasTrackingGeometry->boundaryLayers().size());        
 
 #ifdef TRKDETDESCR_MEMUSAGE            
         m_memoryLogger.refresh(getpid());
@@ -445,10 +452,11 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
 #endif
 
     // synchronize the layers
+    if (atlasTrackingGeometry) {
     if (m_synchronizeLayers) atlasTrackingGeometry->synchronizeLayers(msg());
 
     // compactify if configured to do so
     if (m_compactify) atlasTrackingGeometry->compactify(msg());
-
+    }
     return atlasTrackingGeometry;
 } 

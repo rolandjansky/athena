@@ -9,6 +9,12 @@
 #ifndef TRKDETDESCRTOOLS_LAYERARRAYCREATOR_H
 #define TRKDETDESCRTOOLS_LAYERARRAYCREATOR_H
 
+#ifndef TRKDETDESCR_TAKESMALLERBIGGER
+#define TRKDETDESCR_TAKESMALLERBIGGER
+#define takeSmaller(current,test) current = current < test ? current : test
+#define takeBigger(current,test)  current = current > test ? current : test
+#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
+#endif
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
@@ -78,7 +84,9 @@ namespace Trk {
                                     double max,
                                     BinningType btype = arbitrary,
                                     Trk::BinningValue bv = Trk::binX) const;
-
+      private :
+        const Trk::Layer*       checkAndReplaceEmptyLayer(const Trk::Layer* lay) const;
+        int                     m_emptyLayerMode;       //!< 0 - do nothing, 1 - replace with navigation layer, 2 - delete
     };
 
 } // end of namespace

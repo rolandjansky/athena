@@ -10,7 +10,6 @@
 #include <sstream>
 // Trk include
 #include "TrkDetDescrTools/LayerMaterialProvider.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
@@ -22,16 +21,12 @@
 Trk::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_layerMaterialMap(0), 
-  m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2"),
-  m_ignoreLayer(-1)
+  m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2")
 {
     declareInterface<Trk::IGeometryProcessor>(this);
     
     // Name specification from outside
     declareProperty("LayerMaterialMapName", m_layerMaterialMapName);
-    // AS: hack for 19.1.1 to overwrite IBL
-    declareProperty("IgnoreLayerIndex",     m_ignoreLayer);
-    
     
 }
 
@@ -46,10 +41,39 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
   const Trk::TrackingVolume* worldVolume = tgeo.highestTrackingVolume();  
+  // check for the world volume
   if (worldVolume){
+      // TrackingVolume : confined layers
       ATH_MSG_VERBOSE("TrackingVolume '" << worldVolume->volumeName() << "' retrieved as highest level node.");
-      return process(*worldVolume, 0);
-  }
+      if (process(*worldVolume, 0).isFailure() ) {
+          ATH_MSG_FATAL("Could not load material maps for provided TrackingGeometry, abort job.");
+          return StatusCode::FAILURE;
+      }
+      // Boundary layers
+      if (tgeo.boundaryLayers().size()){
+          ATH_MSG_VERBOSE("TrackingGeometry has " <<  tgeo.boundaryLayers().size() << " unique bounday layers, loading material.");
+          auto bLayerIter = tgeo.boundaryLayers().begin();
+          auto bLayerE    = tgeo.boundaryLayers().end();
+          for ( ; bLayerIter != bLayerE; ++bLayerIter ){
+              const Trk::Layer* lay = (*bLayerIter).first;
+              int layCount = (*bLayerIter).second;
+              int layIndex = lay->layerIndex().value();  
+              // only move on if layer index is different from 0
+              if (layIndex){
+                  StatusCode sc = process(*lay, 0).isSuccess();
+                  if (sc.isSuccess())
+                      ATH_MSG_DEBUG("---[B] Boundary layer with " << layCount << " references : successfully loaded material map for layer " << layIndex );
+                  else if (sc.isRecoverable())
+                      ATH_MSG_WARNING("Failed to call process(const Layer&) on layers - but recoverable.");
+                  else {
+                      ATH_MSG_FATAL("Failed to call process(const Layer&) on layer. Aborting.");
+                      return StatusCode::FAILURE;            
+                  }
+              }
+           } // loop over layers
+       }// we have boundary layers
+       return StatusCode::SUCCESS;
+  } // we have a world volume
   // abort job
   ATH_MSG_FATAL("No highest level TrackingVolume found. Stopping recursive parsing, abort job.");
   return StatusCode::FAILURE;
@@ -71,30 +95,8 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
   // formatted screen output     
   ATH_MSG_VERBOSE(displayBuffer.str() << "TrackingVolume '" << tvol.volumeName() << "'");
   
-  // Process the entry layers if they exist
-  const Trk::EntryLayerProvider* entryLayerProvider = tvol.entryLayerProvider();
-  if (entryLayerProvider) {
-    // display output
-    const std::vector<const Trk::Layer*>& entryLayers = entryLayerProvider->layers();
-    ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << entryLayers.size() << " entry layers." ); 
-    // assign material to the entry layers
-    for ( auto& eLayIter : entryLayers ){
-        if (!eLayIter)
-          ATH_MSG_WARNING("Zero-pointer found in entry LayerArray - indicates problem !"); 
-        else {
-          StatusCode sc = process(*eLayIter, level);
-          if (sc.isSuccess())
-              ATH_MSG_DEBUG(displayBuffer.str() << "---[e] Entry layer: successfully loaded material map.");
-          else if (sc.isRecoverable())
-              ATH_MSG_WARNING("Failed to call process(const Layer&) on entry layer - but recoverable.");
-          else {
-              ATH_MSG_FATAL("Failed to call process(const Layer&) on entry layer. Aborting.");
-              return StatusCode::FAILURE;            
-          }
-        }        
-     }
-  }
-  
+  // @TODO add boundary surfaces
+   
   // Process the contained layers 
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {
@@ -103,7 +105,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
       for ( auto& layIter : layers ){
           if (!layIter)
-            ATH_MSG_WARNING("Zero-pointer found in LayerArray - indicates problem !");
+              ATH_MSG_WARNING("Zero-pointer found in LayerArray - indicates problem !");
           else {
             // get the layer index and only process if it's an indexed layer
             int layIndex = layIter->layerIndex().value();  
@@ -117,9 +119,8 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
                     ATH_MSG_FATAL("Failed to call process(const Layer&) on layer. Aborting.");
                     return StatusCode::FAILURE;            
                 }
-            } else {
-                ATH_MSG_DEBUG(displayBuffer.str() << "---[o] Naivation layer: skipping.");
-            }
+            } else 
+                ATH_MSG_DEBUG(displayBuffer.str() << "---[o] Navigation layer: skipping.");
         }
       }
    } 
@@ -167,24 +168,13 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t lev
     std::stringstream displayBuffer;
     for (size_t il = 0; il < level; ++il) displayBuffer << " ";
 
-    // hack for R2 19.1.X setup - skip IBL
-    Trk::LayerIndex searchIndex = lIndex;
-    if (lIndex.value() == m_ignoreLayer){
-        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] Detected IBL layer to be ignored from map with index: " << lIndex.value());
-        return StatusCode::SUCCESS;
-    } else if (lIndex.value() > m_ignoreLayer && m_ignoreLayer > 0){
-        int nlValue =  lIndex.value()-1;
-        ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] Layer is after IBL, index needs to be adjusted from : " << lIndex.value() << " to " << nlValue ) ;
-        searchIndex = Trk::LayerIndex(nlValue);
-    }
-
     // find the layer and assign the material properties 
-    auto lmIter= m_layerMaterialMap->find(searchIndex);
+    auto lmIter= m_layerMaterialMap->find(lIndex);
     if ( lmIter != m_layerMaterialMap->end() ){
         ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] found material for Layer with Index: " << lIndex.value());
         if ( lay.surfaceRepresentation().isFree() ) 
            ATH_MSG_VERBOSE(displayBuffer.str() << "---[!] the Layer is not owned by the TrackingGeometry, could indicate problem.");
-	else 
+	    else 
            ATH_MSG_VERBOSE(displayBuffer.str() << "---[+] the Layer is owned by the TrackingGeometry." ); 
         lay.assignMaterialProperties(*((*lmIter).second));
     } else {

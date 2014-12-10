@@ -148,7 +148,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
         Amg::Vector3D p1(envelopeDefs[0].second,envelopeDefs[0].first, 0.);
         Amg::Vector3D p2(envelopeDefs[1].second,envelopeDefs[1].first, 0.);
         int clockwise = p1.cross(p2).z() < 0. ? 1 : -1;
-        ATH_MSG_VERBOSE("       -> determined " << ( clockwise ? "clockwise" : "anti-clockwise") << " direction from (z1,r1) = " 
+        ATH_MSG_VERBOSE("       -> determined " << ( clockwise>0 ? "clockwise" : "anti-clockwise") << " direction from (z1,r1) = " 
             << envelopeDefs[0].second << ", " << envelopeDefs[0].first << " and " << envelopeDefs[1].second << ", " << envelopeDefs[1].first );
         // now parse for the extended barrel  
         size_t irz = 0;  
@@ -190,7 +190,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                          innerVolumeRadius, enclosingVolumeRadius,
                                                                                          -innerVolumeHalfZ, innerVolumeHalfZ,
                                                                                          m_barrelLayers,
-                                                                                         true, 0,
+                                                                                         true,
                                                                                          m_geometryName+"::Generic::Barrel");
     cSector->registerColorCode(m_geometryColorCode);
     // wrap the inner volume into a centralSector 
@@ -206,7 +206,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                          0., enclosingVolumeRadius,
                                                                                          -enclosingVolumeHalfZ, -innerVolumeHalfZ,
                                                                                          m_endcapLayers,
-                                                                                         false, 0,
+                                                                                         false,
                                                                                          m_geometryName+"::Generic::NegativeEndcap");
     nSector->registerColorCode(m_geometryColorCode);
     // create the two endcaps
@@ -214,7 +214,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                          0., enclosingVolumeRadius,
                                                                                          innerVolumeHalfZ, enclosingVolumeHalfZ,
                                                                                          m_endcapLayers,
-                                                                                         false, 0,
+                                                                                         false,
                                                                                          m_geometryName+"::Generic::PositiveEndcap");
     pSector->registerColorCode(m_geometryColorCode);
     
@@ -233,7 +233,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                 0., enclosingExtendedVolumeRadius,
                                                                                 minZ, maxZ,
                                                                                 m_extendedEndcapLayers,
-                                                                                false, 0,
+                                                                                false,
                                                                                 m_geometryName+"::Generic::Extended"+names[it]);
           exVolume->registerColorCode(m_geometryColorCode);
           // create the extended volume (ring part)
@@ -242,7 +242,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                 enclosingExtendedVolumeRadius, enclosingVolumeRadius,
                                                                                 minZ, maxZ,
                                                                                 m_extendedEndcapLayers,
-                                                                                false, 0,
+                                                                                false,
                                                                                 m_geometryName+"::Generic::RingExtended"+names[it]);
           // sign it with one higher volume id 
           exrVolume->sign( Trk::GeometrySignature(int(geometrySignature())+1) );
@@ -262,8 +262,10 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
                                                                                                 vacuum,
                                                                                                 m_geometryName+"::Container");                                                                                      
     // now create the TrackingGeometry from the highest volume
-    tGeometry = tVolume ? new Trk::TrackingGeometry(tVolume) : 0;
-    tGeometry->indexStaticLayers(geometrySignature());   
+    if (tVolume) {
+      tGeometry = new Trk::TrackingGeometry(tVolume);
+      tGeometry->indexStaticLayers(geometrySignature());   
+    }
     return tGeometry;
 
 }
