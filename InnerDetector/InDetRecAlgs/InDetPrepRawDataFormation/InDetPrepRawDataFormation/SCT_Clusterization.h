@@ -92,8 +92,6 @@ private:
   IdMap_t                                  m_status;
   IdentifierHash                           m_maxKey;
   SCT_ClusterContainer*                    m_clusterContainer;
-  bool                                     m_selectPixels;
-  bool                                     m_selectSCTs;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;

@@ -39,13 +39,15 @@ namespace InDet{
     m_managerName("SCT"),
     m_clustersName("SCT_Clusters"),
     m_page(0),                     
-    m_idHelper(0),
+    m_idHelper(nullptr),
     m_maxKey(0),
-    m_clusterContainer(0),
+    m_clusterContainer(nullptr),
+    m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
+    m_flaggedModules(),
     m_maxTotalOccupancyPercent(10)
   {  
   // Get parameter values from jobOptions file    
@@ -64,32 +66,27 @@ namespace InDet{
 
 // Initialize method:
   StatusCode SCT_Clusterization::initialize(){
-    msg(MSG::INFO) << "SCT_Clusterization::initialize()!" << endreq;
+    ATH_MSG_INFO( "SCT_Clusterization::initialize()!");
     static const StatusCode fail(StatusCode::FAILURE);
 
     // Get the conditions summary service (continue anyway, just check the pointer 
     // later and declare everything to be 'good' if it is NULL)
     if (m_checkBadModules){
-      msg(MSG::INFO) << "Clusterization has been asked to look at bad module info" << endreq;
-      if (m_pSummarySvc.retrieve().isFailure()) 
-        msg(MSG:: ERROR) << "Conditions summary service not found !" << endreq; 
+      ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
+      ATH_CHECK(m_pSummarySvc.retrieve());
     }
 
     // Get the flagged conditions service
-    if (m_flaggedConditionSvc.retrieve().isFailure()) 
-      return msg(MSG:: ERROR) << "Flagged conditions service not found !" << endreq, fail; 
+    ATH_CHECK(m_flaggedConditionSvc.retrieve());
 
     // Get the clustering tool
-    if (m_clusteringTool.retrieve().isFailure()) 
-      return (msg(MSG:: FATAL) << m_clusteringTool.propertyName() << ": Failed to retrieve tool " << m_clusteringTool.type() << endreq), fail;
+    ATH_CHECK (m_clusteringTool.retrieve());
 
     // Get the SCT manager
-    if (detStore()->retrieve(m_manager,"SCT").isFailure()) 
-      return (msg(MSG:: FATAL) << "Cannot retrieve detector manager!" << endreq), fail;
+    ATH_CHECK (detStore()->retrieve(m_manager,"SCT"));
 
     // Get the SCT ID helper
-    if (detStore()->retrieve(m_idHelper,"SCT_ID").isFailure()) 
-      return (msg(MSG:: FATAL) << "Cannot retrieve ID helper!" << endreq), fail;
+    ATH_CHECK (detStore()->retrieve(m_idHelper,"SCT_ID"));
 
     // Instantiate a cluster container to record later
     m_clusterContainer = new SCT_ClusterContainer(m_idHelper->wafer_hash_max()); 
@@ -116,9 +113,6 @@ namespace InDet{
   
 // Execute method:
   StatusCode SCT_Clusterization::execute(){
-#ifndef NDEBUG
-    ATH_MSG_DEBUG("SCT_Clusterization::execute()");
-#endif
     static const StatusCode fail(StatusCode::FAILURE);
   // Register the IdentifiableContainer into StoreGate
     m_clusterContainer->cleanup(); 
@@ -211,7 +205,7 @@ namespace InDet{
       msg(MSG::INFO) 
         << "Number of noisy modules killed by maximum RDO limit of " 
         << m_maxRDOs << " = " << m_flaggedModules.size() << endreq;
-      msg(MSG::INFO) << "Printing info on upto 10 modules:" << endreq;
+      msg(MSG::INFO) << "Printing info on up to 10 modules:" << endreq;
       std::set<IdentifierHash>::const_iterator itr(m_flaggedModules.begin());
       std::set<IdentifierHash>::const_iterator end(m_flaggedModules.end());
       for (int num(0); (itr != end) && (num < 10) ; ++itr, ++num) {
@@ -219,7 +213,6 @@ namespace InDet{
       }
     }
     m_clusterContainer->cleanup();   
-  //delete m_clusterContainer;
     m_clusterContainer->release();
     return StatusCode::SUCCESS;
   }
