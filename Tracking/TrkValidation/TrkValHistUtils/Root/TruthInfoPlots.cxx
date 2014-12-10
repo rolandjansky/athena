@@ -6,6 +6,11 @@
 
 namespace Trk{
 
+void TruthInfoPlots::init(){
+    truthType=NULL;
+    origin=NULL;
+}
+
 void TruthInfoPlots::initializePlots(){
   truthType = Book1D("truthType","truthType;truthType;Entries",50,-0.5,49.5); 
   origin    = Book1D("truthOrigin","truthOrigin;truthOrigin;Entries",40,-0.5,39.5);

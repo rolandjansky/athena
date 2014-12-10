@@ -13,7 +13,7 @@ namespace Trk{
 
 class TruthTrkExtrapolationPlots: public PlotBase {
   public:
-    TruthTrkExtrapolationPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){;}
+    TruthTrkExtrapolationPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
     void fill(const xAOD::TruthParticle& truthprt);
 
     TH1* CaloEntry_p;
@@ -21,6 +21,7 @@ class TruthTrkExtrapolationPlots: public PlotBase {
     TH1* MuonExit_p;
 
   private:
+    void init();
     void initializePlots();
     void FillPlots(TH1* hist, const xAOD::TruthParticle& truthprt,const std::string& sNom);
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRKVALHISTUTILS_RESOLUTIONPLOTS_H
-#define TRKVALHISTUTILS_RESOLUTIONPLOTS_H
+#ifndef TRKVALHISTUTILS_DEFPARAMPULLPLOTS_H
+#define TRKVALHISTUTILS_DEFPARAMPULLPLOTS_H
 
 #include "PlotBase.h"
 #include "xAODTracking/TrackParticle.h"
@@ -11,22 +11,22 @@
 
 namespace Trk{
 
-class ResolutionPlots: public PlotBase {
+class DefParamPullPlots: public PlotBase {
   public:
-    ResolutionPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
+    DefParamPullPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
     void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 
-    TH1* Res_pT;
-    TH1* Res_eta;
-    TH1* Res_phi;
+    TH1* Pull_d0;
+    TH1* Pull_z0;
+    TH1* Pull_theta;
+    TH1* Pull_phi0;
+    TH1* Pull_qOverP;
+    TH1* Pull_P;
+
   private:
     void init();
     void initializePlots();
-
-
 };
 
 }
-
 #endif
-

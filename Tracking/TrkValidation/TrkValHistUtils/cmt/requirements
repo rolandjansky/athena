@@ -11,8 +11,12 @@ use xAODBase            xAODBase-*             Event/xAOD
 use xAODTracking        xAODTracking-*         Event/xAOD
 use xAODTruth           xAODTruth-*            Event/xAOD
 
+private
+use EventPrimitives     EventPrimitives-*      Event
+
 ##
-library TrkValHistUtils ../src/*.cxx
+public
+library TrkValHistUtils ../Root/*.cxx
 apply_pattern installed_library
 
 

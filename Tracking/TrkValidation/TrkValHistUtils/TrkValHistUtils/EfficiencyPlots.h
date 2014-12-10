@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRKVALHISTUTILS_EFFICINCYPLOTS_H
+#ifndef TRKVALHISTUTILS_EFFICIENCYPLOTS_H
 #define TRKVALHISTUTILS_EFFICIENCYPLOTS_H
 
 #include "PlotBase.h"

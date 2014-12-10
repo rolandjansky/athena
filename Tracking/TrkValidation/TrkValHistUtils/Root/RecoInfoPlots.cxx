@@ -6,6 +6,12 @@
 
 namespace Trk{
 
+void RecoInfoPlots::init() {
+    trackfitchi2=NULL;
+    trackfitndof=NULL;
+    trackcon=NULL;
+}
+
 void RecoInfoPlots::initializePlots(){
   trackfitchi2 = Book1D("tchi2","Track fit chi2;Track Fit Chi2;Entries",100,0.,100.);
   trackfitndof = Book1D("tndof","Track fit ndof;Number of degrees of freedom;Entries",51,-0.5,50.5);

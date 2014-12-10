@@ -12,13 +12,14 @@ namespace Trk{
 
 class TruthInfoPlots: public PlotBase {
   public:
-    TruthInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){;}
+    TruthInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
     void fill(const xAOD::TruthParticle& truthprt);
  		
     TH1* truthType;
     TH1* origin;
 
   private:
+    void init();
     void initializePlots();
 			
 };

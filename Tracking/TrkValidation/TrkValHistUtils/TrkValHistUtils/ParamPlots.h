@@ -22,8 +22,8 @@ class ParamPlots:public PlotBase {
     TH1* eta_phi;
     TH1* eta_pt;
 
-	private:
-		void initializePlots();
+  private:
+    void initializePlots();
     std::string m_sParticleType;
 };
 

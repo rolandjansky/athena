@@ -17,8 +17,6 @@
 
 typedef std::pair<TH1*, std::string> HistData;
 
-class PlotManager;
-
 class PlotBase {
 public:
   PlotBase(PlotBase *parent, const std::string & sDir);

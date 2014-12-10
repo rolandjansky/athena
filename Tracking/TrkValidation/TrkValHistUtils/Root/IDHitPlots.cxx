@@ -9,6 +9,31 @@
 
 namespace Trk{
 
+  void IDHitPlots::init()  {
+    nBLayerHits=NULL;
+    nPixelHits=NULL;
+    nPixelHoles=NULL;
+    nSCTHits=NULL;
+    nSCTHoles=NULL;
+    nTRTHits=NULL;
+    nTRTHighThresholdHits=NULL;
+
+    nBLayerOutliers=NULL;
+    nBLayerSharedHits=NULL;
+    nBLayerSplitHits=NULL;
+    nPixelOutliers=NULL;
+    nPixelContribLayers=NULL;
+    nPixelSharedHits=NULL;
+    nPixelSplitHits=NULL;
+    nPixelGangedHits=NULL;
+    nSCTOutliers=NULL;
+    nSCTDoubleHoles=NULL;
+    nSCTSharedHits=NULL;
+    nTRTOutliers=NULL;
+    nTRTHighThresholdOutliers=NULL;
+    nPixelGangedHitsFlaggedFakes=NULL;
+  }
+
 void IDHitPlots::initializePlots(){  
   nBLayerHits = Book1D("HitContent_NBlayerHits", "Number of B-Layer clusters;Number of Clusters;Entries",5,-0.5,4.5,false);
   nPixelHits = Book1D("HitContent_NPixelHits","Number of Pixel clusters;Number of Clusters",10,-0.5,9.5,false);

@@ -7,6 +7,10 @@
 namespace Trk{
 HitTypePlots::HitTypePlots(PlotBase* pParent, std::string sHitType, std::string sHitLabel, int iMin, int iMax): PlotBase(pParent ,"" ),
 m_sHitType(sHitType), m_sHitLabel(sHitLabel),m_iMin(iMin), m_iMax(iMax){
+
+  Hits=NULL;
+  HitsVsEta=NULL;
+  HitsVsPhi=NULL;   
   
 }
 

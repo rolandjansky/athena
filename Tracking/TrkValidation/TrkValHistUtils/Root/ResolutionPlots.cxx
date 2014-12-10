@@ -6,6 +6,12 @@
 
 namespace Trk{
 
+void ResolutionPlots::init(){
+  Res_pT=NULL;
+  Res_eta=NULL;
+  Res_phi=NULL;
+}
+
 void ResolutionPlots::initializePlots(){
 
   Res_pT     = Book1D("Res_pT","Res_pT;(pT-pTtruth)/pTtruth;Entries",100,-0.5,0.5);

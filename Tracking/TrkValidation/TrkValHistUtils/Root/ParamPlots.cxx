@@ -6,7 +6,15 @@
 
 namespace Trk{
 
-ParamPlots::ParamPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),m_sParticleType(sParticleType){}
+ParamPlots::ParamPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),m_sParticleType(sParticleType)
+{
+  eta=NULL;
+  phi=NULL;
+  pt=NULL;
+
+  eta_phi=NULL;
+  eta_pt=NULL;
+}
 
 
 void ParamPlots::initializePlots() {

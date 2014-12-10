@@ -6,6 +6,12 @@
 
 namespace Trk{
 
+void TruthTrkExtrapolationPlots::init(){
+    CaloEntry_p=NULL;
+    MuonEntry_p=NULL;
+    MuonExit_p=NULL;
+}
+
 void TruthTrkExtrapolationPlots::initializePlots(){
   CaloEntry_p = Book1D("CaloEntry_p","CaloEntry_p;p_{nom}- p_{ext} @CaloEntry;Entries",100,-10,10);
   MuonEntry_p = Book1D("MuonEntry_p","MuonEntry_p;p_{nom}- p_{ext} @MuonEntry;Entries",100,-10,10);

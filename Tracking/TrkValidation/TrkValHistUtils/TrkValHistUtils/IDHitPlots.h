@@ -12,7 +12,7 @@ namespace Trk{
 
 class IDHitPlots: public PlotBase {
   public:
-    IDHitPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){;}
+    IDHitPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
     void fill(const xAOD::TrackParticle& trk);
 
     ///@name Basic hit content of xAOD::TrackParticle
@@ -45,6 +45,7 @@ class IDHitPlots: public PlotBase {
     ///@}
 
   private:
+    void init();
     void initializePlots();
 };
 
