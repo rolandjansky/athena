@@ -40,8 +40,8 @@ namespace Muon {
     m_trackRecordColletionNames.push_back("MuonExitLayer");
 
     // Get parameter values from jobOptions file
-    declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticle");
-    declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticle");
+    declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
+    declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
     declareProperty("TrackRecordCollectionNames"    , m_trackRecordColletionNames);
 
     m_PRD_TruthNames.push_back("CSC_TruthMap");
@@ -193,6 +193,7 @@ namespace Muon {
       truthParticle->setPz(truth->pz());
       truthParticle->setE(truth->e());
       truthParticle->setM(truth->m());
+      if (truth->hasProdVtx()) truthParticle->setProdVtxLink(truth->prodVtxLink());
       ElementLink< xAOD::TruthParticleContainer > truthLink(*muonTruthContainer,muonTruthContainer->size()-1);
       truthLink.toPersistent();
       MCTruthPartClassifier::ParticleType type = MCTruthPartClassifier::Unknown;
@@ -376,6 +377,7 @@ namespace Muon {
     std::vector< std::pair< Amg::Vector3D, Amg::Vector3D > > parameters; 
     if( vertex ) parameters.push_back( std::make_pair(Amg::Vector3D(vertex->x(),vertex->y(),vertex->z()), 
                                                       Amg::Vector3D(truthParticle.px(),truthParticle.py(),truthParticle.pz())) );
+
     for( const auto& col : trackRecords ){
       const std::string name = col.second;
       float& x   = truthParticle.auxdata<float>(name+"_x");
@@ -424,9 +426,13 @@ namespace Muon {
       }
     }
     
-    if( !m_extrapolator.empty() && m_extrapolator->trackingGeometry() ){
+    // second loop, extrapolate between the points
+    if( vertex &&  /// require vertex
+        parameters.size() == trackRecords.size()+1 && // logic assumes there is one more parameter than track records
+        parameters.size() > 1 && // we need at least two parameters
+        !m_extrapolator.empty() && m_extrapolator->trackingGeometry() // extrapolation needs to be setup correctly
+        ){
       const Trk::TrackingGeometry& trackingGeometry = *m_extrapolator->trackingGeometry();
-      // second loop, extrapolate between the points
       AmgSymMatrix(5) cov;
       cov.setIdentity();
       cov(0,0) = 1e-3;

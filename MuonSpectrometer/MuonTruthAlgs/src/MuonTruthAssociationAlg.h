@@ -30,6 +30,8 @@ private:
 
   std::string m_muonTruthParticleContainerName;
   std::string m_muonName;
+
+  bool m_associateWithInDetTP;
 };
 
 
