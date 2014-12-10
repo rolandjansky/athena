@@ -64,3 +64,8 @@ def getFullGeant4SimSvc(name="ISF_Geant4SimSvc", **kwargs):
     kwargs.setdefault('ParticleService'       , getService('ISF_ParticleBrokerSvcNoOrdering') )
     return getGeant4SimSvc(name, **kwargs)
 
+def getPassBackGeant4SimSvc(name="ISF_PassBackGeant4SimSvc", **kwargs):
+    kwargs.setdefault('FullGeant4'            , False                                          )
+    kwargs.setdefault('ParticleService'       , getService('ISF_ParticleBrokerSvcNoOrdering') )
+    return getGeant4SimSvc(name, **kwargs)
+
