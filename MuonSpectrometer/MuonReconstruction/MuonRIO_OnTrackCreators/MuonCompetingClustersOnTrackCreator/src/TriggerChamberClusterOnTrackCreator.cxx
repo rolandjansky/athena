@@ -400,7 +400,8 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
 	covariance	+= (**r).localCovariance();
 	*parameters	+= (**r).localParameters();
     }
-    double norm			= 1./static_cast<double>(limitingRots.size());
+    double norm			= 1.;
+    if(limitingRots.size()>0) norm /= static_cast<double>(limitingRots.size());
     std::list<int>::iterator l	= limitingChannels.begin();
     int firstChannel   		= *l;
     double width		= static_cast<double>(1 + abs(*(++l) - firstChannel));
@@ -433,21 +434,21 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
 	shape = " RPC rectangle ";
 	surface = new Trk::PlaneSurface(
 	    new Amg::Transform3D(rotation),
-	    dynamic_cast<const Trk::RectangleBounds*>(&surf.bounds())->clone());
+	    (dynamic_cast<const Trk::RectangleBounds*>(&surf.bounds()))->clone());
     }
     else if (dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds()))
     {
 	shape = " TGC trapezoid ";
 	surface = new Trk::PlaneSurface(
 	    new Amg::Transform3D(rotation),
-	    dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds())->clone());
+	    (dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds()))->clone());
     }
     else if (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds()))
     {
 	shape = " TGC rotatedTrapezoid ";
 	surface = new Trk::PlaneSurface(
 	    new Amg::Transform3D(rotation),
-	    dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds())->clone());
+	    (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds()))->clone());
     }
 
     // debug
