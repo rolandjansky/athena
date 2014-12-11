@@ -78,7 +78,7 @@ class AFP_SIDLocReco : public Algorithm
 		
 		// a handle on Store Gate
 		StoreGateSvc* m_storeGate;
-		StoreGateSvc* m_pDetStore;
+		//StoreGateSvc* m_pDetStore;
 
 		AFP_SIDLocRecoEvCollection*	m_pSIDLocRecoEvCollection;
 		AFP_SIDLocRecoEvent*			m_pSIDLocRecoEvent;

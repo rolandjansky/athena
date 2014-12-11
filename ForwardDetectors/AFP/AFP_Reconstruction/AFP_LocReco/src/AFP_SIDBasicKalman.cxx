@@ -13,7 +13,7 @@ AFP_SIDBasicKalman::AFP_SIDBasicKalman()
 	
 	m_listResults.clear();
 
-	m_AmpThresh = 0.;
+	m_AmpThresh = 0;
 	m_iDataType = 0;
 	
 	pTrkSeeds.clear();
@@ -37,7 +37,7 @@ AFP_SIDBasicKalman::AFP_SIDBasicKalman()
 	CkS.clear();
 	chikS.clear();
 	
-
+	z0 = 0;
 }
 
 AFP_SIDBasicKalman::~AFP_SIDBasicKalman()
@@ -618,7 +618,7 @@ void AFP_SIDBasicKalman::FilterTrkCollection()
 	list<SIDRESULT>::iterator iter2;
 	for (iter1=m_listResults.begin(); iter1!=m_listResults.end(); iter1++)
 	{
-		for (iter2=m_listResults.begin(); iter2!=m_listResults.end(); iter2++)
+		for (iter2=m_listResults.begin(); iter2!=m_listResults.end(); )
 		{
 			if ( GetSharedHits((*iter1).ListHitID, (*iter2).ListHitID) > MAXSHAREDHITS && iter1!=iter2 )
 			{
@@ -626,11 +626,12 @@ void AFP_SIDBasicKalman::FilterTrkCollection()
 				{
 					//m_listResults.erase(iter1);
 					//--iter1;
+					++iter2;
 				}
 				else
 				{
-					m_listResults.erase(iter2);
-					--iter2;
+					iter2 = m_listResults.erase(iter2);
+					//--iter2;
 				}		
 			}		
 		}

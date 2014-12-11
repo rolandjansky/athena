@@ -76,7 +76,7 @@ class AFP_TDLocReco : public Algorithm
 		//AFP_GeometryReader* m_pGeometryReader;
 		// a handle on Store Gate
 		StoreGateSvc* m_storeGate;
-		StoreGateSvc* m_pDetStore;
+		//StoreGateSvc* m_pDetStore;
 
 		AFP_TDLocRecoEvCollection*	m_pTDLocRecoEvCollection;
 		AFP_TDLocRecoEvent*			m_pTDLocRecoEvent;
