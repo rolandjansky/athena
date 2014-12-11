@@ -270,7 +270,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
       // replace tempLocOnWire with tempLocOnSaggedWire
       tempLocOnWire = tempLocOnSaggedWire;
     }
-    delete tempLocOnSaggedWire;
+    // PK not needed delete tempLocOnSaggedWire;
   }
   
   double positionAlongWire = (*tempLocOnWire)[Trk::locZ];
