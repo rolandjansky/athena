@@ -9,6 +9,10 @@ use StoreGate       StoreGate-*          Control
 use MuonAlignmentData MuonAlignmentData-* MuonSpectrometer/MuonAlignment
 use GeoPrimitives          GeoPrimitives-*            DetectorDescription
 
+# Declare this package as a cmake metalibrary in order to make the header fileas and libraries from
+# packages it depends on available to its clients. This is transparent to CMT.
+apply_pattern cmake_add_command command=metalibrary
+
 # to build in dbg mode this package while using an opt build
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
