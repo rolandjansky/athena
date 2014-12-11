@@ -552,6 +552,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
   for (unsigned int ih=0; ih < temp_holes->size(); ih++) holes->push_back((*temp_holes)[ih]);  
   for (unsigned int ih=0; ih < tSoS->size(); ih++) holes->push_back(new Trk::TrackStateOnSurface(*((*tSoS)[ih])));  
 
+  delete temp_holes;
   // order
   Muon::TrackStateOnSurfaceComparisonFunction fOrd(msEntry->momentum());
  
@@ -842,7 +843,8 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
 	  return outlier; 
 	} 
       }
-    }     
+    }
+    delete measOnLayer;     
   }      
 
   return 0;

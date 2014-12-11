@@ -123,7 +123,7 @@ class MuonTGHitNtuple : public Algorithm
   bool                             m_identifyHoles; 
   bool                             m_processFatras; 
 //  Max Nber of Hits in to save
-    int m_MaxNberOfHits;
+  int m_MaxNberOfHits;
 
   TFile* m_outFile;
   TTree* m_ptree;

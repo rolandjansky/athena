@@ -263,9 +263,11 @@ const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getEtaP
 	if ( m_tgcIdHelper->isStrip(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
       }
     } 
+    delete meas;
   } 
   
-  return new std::vector<const Trk::PrepRawData*>(*hitsOnLayer);
+//  return new std::vector<const Trk::PrepRawData*>(*hitsOnLayer);
+  return hitsOnLayer;
 }
 
 const Muon::MuonTGSegments* Muon::MuonTGMeasurementTool::getAllSegments() const
@@ -560,17 +562,16 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       Amg::VectorX locPar = (*pMx)*parm->parameters();
       log << MSG::DEBUG << "projected parameters (layer->TGC):" << m_tgcIdHelper->isStrip(id) <<"," << locPar <<"," << stripSurf << endreq; 
 
-      AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
+      AmgMatrix(5,5)* projEM = 0;
+      bool bcov = false;
 
       if (parm->covariance()) {
-
-	*projEM = parm->covariance()->similarity(*pMx);
-	
+ 	*projEM = parm->covariance()->similarity(*pMx);
+        bcov = true;	
 	log << MSG::DEBUG << "projected covariance (layer->TGC):" << (*projEM) << endreq;
 	projPar = new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf,projEM );
       
       } else {
-        projEM=0;
 	projPar = new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf);
       }
 
@@ -584,7 +585,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 	if (onSurface) {
           locPar[0]= locPos[0]; locPar[1]= locPos[1];
 	  delete projPar; projPar=0;
-	  projPar = projEM ? new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf,projEM) :
+	  projPar = bcov ? new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf,projEM) :
 	      new Trk::AtaPlane(locPar[0],locPar[1],locPar[2],locPar[3],locPar[4],*stripSurf);
 	} else {
 	  delete projPar;
@@ -770,10 +771,11 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       Amg::Vector3D corrLocPos = lay->surfaceRepresentation().center()-t*parm->momentum() + t*DN*layNormal;
       Amg::Vector2D locCorrLay;
       lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
-      parProj[0] += locCorrLay[Trk::locX]+csc_shift[Trk::locX];
-      parProj[1] += locCorrLay[Trk::locY]+csc_shift[Trk::locY];
-      log << MSG::DEBUG <<"back projected parameters(CSC->layer):"<<m_cscIdHelper->measuresPhi(id)<<"," << parProj<< endreq;
-
+      if(locCorrLay.size()>0) { 
+        parProj[0] += locCorrLay[Trk::locX]+csc_shift[Trk::locX];
+        parProj[1] += locCorrLay[Trk::locY]+csc_shift[Trk::locY];
+        log << MSG::DEBUG <<"back projected parameters(CSC->layer):"<<m_cscIdHelper->measuresPhi(id)<<"," << parProj<< endreq;
+      }
       AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
       *projEM = parm->covariance()->similarity(pMxInv);
 
@@ -786,6 +788,10 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 
     if ( hitType == 4) {
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
+      if(!laySurf) { 
+        return 0;
+        delete projPar;
+      }
       //projPar = new Trk::AtaPlane( *(laySurf->localToGlobal(*locLay)),parm->momentum(),parm->charge(),*laySurf);
       //
       AmgMatrix(5,5)* pMx = 0;
@@ -941,6 +947,9 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       Amg::Vector2D locCorrLay;
       lay->surfaceRepresentation().globalToLocal(corrLocPos, corrLocPos, locCorrLay);
       //
+      if(!locCorrLay.size()==2) {
+         return projRIO;
+      }
       double locPos; 
       if (m_cscIdHelper->measuresPhi(id)) {
          locPos = rio->localParameters()[Trk::locX]+locCorrLay[Trk::locX]+csc_shift[Trk::locX];
@@ -1533,7 +1542,10 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
     const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(id);
     if (cscROE) res = detElPar->localPosition()[Trk::locX] - (detElPar->associatedSurface().transform().inverse()*(cscROE->stripPos(id)))[0];
   } else if (m_tgcIdHelper->is_tgc(id)) {
-    if ( m_tgcIdHelper->isStrip(id) && m_tgcIdHelper->gasGap(id)==2 && m_tgcIdHelper->gasGapMax(id)==3 ) return res;  // no phi strips here
+    if ( m_tgcIdHelper->isStrip(id) && m_tgcIdHelper->gasGap(id)==2 && m_tgcIdHelper->gasGapMax(id)==3 ) {
+      delete detElPar;
+      return res;  // no phi strips here
+    }
     const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(id);
     if (tgcROE) {
       Amg::Vector2D locPos;

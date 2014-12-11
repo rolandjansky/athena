@@ -43,14 +43,25 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
 
-// Constructor with parameters:
 Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSvcLocator) :
   Algorithm(name,pSvcLocator),
+  m_mdtIdHelper(0),
+  m_rpcIdHelper(0),
+  m_tgcIdHelper(0),
+  m_cscIdHelper(0),
+  mdtHelper(0),
+  rpcHelper(0),
+  cscHelper(0),
+  tgcHelper(0),
+  m_muonMgr(0),
   m_holesTool("Muon::MuonHolesOnTrackTool/MuonHolesOnTrackTool"),
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
   m_trackingGeometry(0),
   m_trackingGeometryName("MuonStandaloneTrackingGeometry"),
   m_extrapolator(0),
+  m_detStore(0),
+  m_activeStore(0),
+  m_StoreGate(0),
   m_inputTracks(0),
   m_inputTrackCollection("ConvertedMBoyTracks"),
   m_inputFatrasTracks(0),
@@ -61,6 +72,8 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_processHoles(false),
   m_identifyHoles(false),
   m_processFatras(true),
+  m_outFile(0),
+  m_ptree(0),
   m_THistSvc(0),
   m_treeLocation("/tree/hits")
 
@@ -74,6 +87,16 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   declareProperty("IdentifyHoles",                 m_identifyHoles);
   declareProperty("ProcessFatrasTracks",           m_processFatras);
   declareProperty("Extrapolator",                  m_extrapolator);
+
+  m_MaxNberOfHits = 1000; // not used in code
+  m_nSim = 0;
+  m_nSimHit = 0;
+  m_nRec = 0;
+  m_nHit = 0;
+  m_nHole = 0;
+  m_nFSim = 0;
+  m_nFHit = 0;
+  
 }
 
 StatusCode Muon::MuonTGHitNtuple::initialize() 
@@ -1242,6 +1265,7 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
       }
       // create track
       htracks->push_back(new Trk::Track(Trk::TrackInfo(Trk::TrackInfo::Unknown,Trk::muon),holes, new Trk::FitQuality(0,0)));  
+      delete simLayers;
     }
   }
 
@@ -1425,27 +1449,27 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
   return id1;
 
   // identify channel
-  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id1);
-
-  int  nStrips = rpcROE->Nstrips(measPhi);  
-  const Identifier idN = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-                                                        doubletZ, doubletPhi,gasGap, measPhi, nStrips);
-
-  const Amg::Vector3D loc1 = rpcROE->globalToLocalCoords(rpcROE->stripPos(id1),id1);
-  const Amg::Vector3D locN = rpcROE->globalToLocalCoords(rpcROE->stripPos(idN),idN);
-
-  int strip = 0;
-  float pitch = measPhi ? (locN[1]-loc1[1])/fmax(1,nStrips-1) : (locN[2]-loc1[2])/fmax(1,nStrips-1); 
-  double dstrip = measPhi ? ((hit->localPosition()[1]-loc1[1])/pitch+0.5) :
-                            ((hit->localPosition()[2]-loc1[2])/pitch+0.5) ;
-  strip = dstrip>=0. ? int(dstrip)+1 : 0;  
-  
-  if (strip<1 || strip > nStrips) return Identifier(0);
-
-  const Identifier idHit = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
-						    doubletZ, doubletPhi,gasGap, measPhi, strip);
-
-  return idHit;
+//  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id1);
+//
+//  int  nStrips = rpcROE->Nstrips(measPhi);  
+//  const Identifier idN = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+//                                                        doubletZ, doubletPhi,gasGap, measPhi, nStrips);
+//
+//  const Amg::Vector3D loc1 = rpcROE->globalToLocalCoords(rpcROE->stripPos(id1),id1);
+//  const Amg::Vector3D locN = rpcROE->globalToLocalCoords(rpcROE->stripPos(idN),idN);
+//
+//  int strip = 0;
+//  float pitch = measPhi ? (locN[1]-loc1[1])/fmax(1,nStrips-1) : (locN[2]-loc1[2])/fmax(1,nStrips-1); 
+//  double dstrip = measPhi ? ((hit->localPosition()[1]-loc1[1])/pitch+0.5) :
+//                            ((hit->localPosition()[2]-loc1[2])/pitch+0.5) ;
+//  strip = dstrip>=0. ? int(dstrip)+1 : 0;  
+//  
+//  if (strip<1 || strip > nStrips) return Identifier(0);
+//
+//  const Identifier idHit = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+//						    doubletZ, doubletPhi,gasGap, measPhi, strip);
+//
+//  return idHit;
 }
 
 Identifier Muon::MuonTGHitNtuple::getCscId( const CSCSimHit* hit) const
