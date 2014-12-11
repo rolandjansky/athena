@@ -57,11 +57,11 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	
 	int run_number;
 	run_number = atoi( (run_dir.substr(4, run_dir.size()-4 )).c_str() );
- //       std::cout << "run_number  " << run_number <<std::endl;
+        std::cout << "run_number rpc monitoring " << run_number <<std::endl;
 	
 	std::string pathRawMon     = run_dir + "/Muon/MuonRawDataMonitoring/RPC/"                           ;
-	std::string pathTrackMon   = run_dir + "/Muon/MuonTrackMonitoring/NoTrigger/RPCStandAloneTrackMon/" ;
-	//std::string pathTrackMon   = run_dir + "/Muon/MuonTrackMonitoring/RPCStandaloneTracksMon/" ;
+	//std::string pathTrackMon   = run_dir + "/Muon/MuonTrackMonitoring/NoTrigger/RPCStandAloneTrackMon/" ;
+	std::string pathTrackMon   = run_dir + "/Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon/" ;
 	
 	std::string dir_ov_raw     = pathRawMon   + "Overview/" ;
 	std::string dir_sum_raw    = pathRawMon   + "Summary/"  ;

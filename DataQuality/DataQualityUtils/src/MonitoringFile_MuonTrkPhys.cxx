@@ -821,9 +821,8 @@ namespace dqutils {
       TH2F* m_HitRes_Eta_Phi_Width_M = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_M");
       TH2F* m_HitRes_Eta_Phi_Width_O = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_O");
       
-      TH1D* HitResProfile = 0;
       TH2F* HitResHist = 0;
-      
+
       for(int phi_itr = 0; phi_itr < m_HitRes_Eta_Phi_Mean_I->GetNbinsY(); phi_itr++){
         int j = phi_itr+1;
         
@@ -831,6 +830,7 @@ namespace dqutils {
           int i = eta_itr+1;
           
           if (m_HitRes_Eta_Phi_Mean_I && m_HitRes_Eta_Phi_Width_I) {
+	    TH1D* HitResProfile = 0;
             HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_I");
             if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
               
@@ -855,6 +855,7 @@ namespace dqutils {
           //------
           
           if (m_HitRes_Eta_Phi_Mean_M && m_HitRes_Eta_Phi_Width_M) {
+	    TH1D* HitResProfile = 0;
             HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_M");
             if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
             
@@ -878,6 +879,7 @@ namespace dqutils {
           
           //------
           if (m_HitRes_Eta_Phi_Mean_O && m_HitRes_Eta_Phi_Width_O) {
+	    TH1D* HitResProfile = 0;
             HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_O");
             if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
             
@@ -900,7 +902,7 @@ namespace dqutils {
           }
         }
       }
-      
+
       if(m_HitRes_Eta_Phi_Mean_I)  m_HitRes_Eta_Phi_Mean_I->Write("",TObject::kOverwrite);
       if(m_HitRes_Eta_Phi_Mean_M)  m_HitRes_Eta_Phi_Mean_M->Write("",TObject::kOverwrite);
       if(m_HitRes_Eta_Phi_Mean_O)  m_HitRes_Eta_Phi_Mean_O->Write("",TObject::kOverwrite);

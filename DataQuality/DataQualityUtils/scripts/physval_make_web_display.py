@@ -105,7 +105,7 @@ def paramcount(dqregion):
 
 def process(infname, confname, options, refs=None):
     import re
-    f = ROOT.TFile(infname, 'READ')
+    f = ROOT.TFile.Open(infname, 'READ')
     if not f.IsOpen():
         print 'ERROR: cannot open %s' % infname
         return

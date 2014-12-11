@@ -27,7 +27,7 @@ namespace dqutils_mdtdeadnoisy {
 
   double sqr( double x );
   void displayList( std::vector<int> & v );
-  void displayList( std::vector<int> & v, ofstream & outputfile );
+  void displayList( std::vector<int> & v, std::ofstream & outputfile );
   void getDeadList( TH1F* h, std::vector<int> & v );
   bool find( std::vector<int> & v, unsigned int x );
   void getSurelyDeadList( TH1F* h, std::vector<int> & v, std::vector<int> & betweenlist );

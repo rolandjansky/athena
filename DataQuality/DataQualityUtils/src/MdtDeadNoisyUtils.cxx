@@ -46,7 +46,7 @@ namespace dqutils_mdtdeadnoisy {
     std::cout << " }" << std::endl;
   }
 
-  void displayList( std::vector<int> & v, ofstream & outputfile ) {
+  void displayList( std::vector<int> & v, std::ofstream & outputfile ) {
     outputfile << "{ ";
     if(v.size()>1) {
       if( v.at(0)+1 != v.at(1) ) outputfile << v.at(0) << ", ";

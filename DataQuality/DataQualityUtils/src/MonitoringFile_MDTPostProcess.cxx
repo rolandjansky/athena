@@ -631,7 +631,7 @@ namespace dqutils {
 						   true, false, true, true, true, doAllPDF);	      
 	      }
 
-	      ofstream txtfile;
+	      std::ofstream txtfile;
 	      std::string textfilename = inFilename + ".Summary.txt";
 	      txtfile.open(textfilename.c_str(), std::ios::app);	
 	      if( txtfile.is_open() ) {
@@ -1009,7 +1009,7 @@ namespace dqutils {
       }
       // make corresponding summary text file
       if(txtFileOutputType > 0) {
-	ofstream txtfile;
+	std::ofstream txtfile;
 	std::string textfilename = inFilename + ".Summary.txt";
 	txtfile.open(textfilename.c_str(), std::ios::app);	
 	if( txtfile.is_open() ) {

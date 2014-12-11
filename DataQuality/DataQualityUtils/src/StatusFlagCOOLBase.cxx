@@ -188,9 +188,9 @@ StatusFlagCOOLBase::
 insert_helper(cool::ChannelId channelId, coral::AttributeList& payload,
 	      std::string& tag_name) {
   if (tag_name=="HEAD") {
-    coolFolder->storeObject(since, until, payload, channelId);
+    coolFolder->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payload), channelId);
   } else {
-    coolFolder->storeObject(since, until, payload, channelId, tag_name, true);
+    coolFolder->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payload), channelId, tag_name, true);
   }
 }
 

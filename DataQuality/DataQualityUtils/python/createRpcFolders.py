@@ -42,7 +42,9 @@ def createRPCDQMFDB():
       # last argument is createParents - if true, automatically creates parent
       # folders if needed
       # note this will not work if the database already exists - delete mycool.db first
-      myfolder=db.createFolder('/OFFLINE/OFFLINE_DQMF',spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+      # Deprecated/dropped:  myfolder=db.createFolder('/OFFLINE/OFFLINE_DQMF',spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+      folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec2)
+      myfolder=db.createFolder('/OFFLINE/OFFLINE_DQMF',folderSpec,desc,True)
       db.closeDatabase()
 
 
@@ -76,7 +78,9 @@ def createRPCConditionDB():
        # last argument is createParents - if true, automatically creates parent
        # folders if needed
        # note this will not work if the database already exists - delete mycool.db first
-       myfolder=db.createFolder('/OFFLINE/FINAL',spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       # Deprecated/dropped:  myfolder=db.createFolder('/OFFLINE/FINAL',spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec2)
+       myfolder=db.createFolder('/OFFLINE/FINAL',folderSpec,desc,True)
        db.closeDatabase()
 
 

@@ -45,7 +45,9 @@ def createMDTConditionDBDead():
        # last argument is createParents - if true, automatically creates parent
        # folders if needed
        # note this will not work if the database already exists - delete mycool.db first
-       myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_DEAD",spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       # Deprecated/dropped:  myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_DEAD",spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec2)
+       myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_DEAD",folderSpec,desc,True)
        db.closeDatabase()
 
 def createMDTConditionDBNoisy():
@@ -84,5 +86,7 @@ def createMDTConditionDBNoisy():
        # last argument is createParents - if true, automatically creates parent
        # folders if needed
        # note this will not work if the database already exists - delete mycool.db first
-       myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_NOISY",spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       # Deprecated/dropped:  myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_NOISY",spec2,desc,cool.FolderVersioning.MULTI_VERSION,True)
+       folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec2)
+       myfolder=db.createFolder("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_NOISY",folderSpec,desc,True)
        db.closeDatabase()

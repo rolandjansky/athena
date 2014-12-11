@@ -32,18 +32,20 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include "TGraph.h"
+#include "TString.h"
 #include "TGraphAsymmErrors.h"
 
 
 namespace dqutils {
 
-  static const bool fdbg = false;
-  // static const bool fdbg = true;
+   static const bool fdbg = false;
+   //static const bool fdbg = true;
+
 
   void
   MonitoringFile::HLTMuonHistogramDivision(std::string inFilename, TString& run_dir)
   {
-    
+   
     if (fdbg) std::cout << "  Start to Divide HLTMuon Histograms for Efficiency and Rate Ratio" << std::endl;
 
     PostProcessorFileWrapper mf( inFilename , "HLT Histogram Division");
@@ -101,7 +103,7 @@ namespace dqutils {
       TString mi_dir = muon_dir + "muIso/";
       TString tm_dir = muon_dir + "TileMu/";
       TString ef_dir = muon_dir + "MuonEF/";
-      TString mg_dir = muon_dir + "MuGirl/";
+      //TString mg_dir = muon_dir + "MuGirl/";  // removed, Yuan 
       // YY added
       TString ztp_dir = muon_dir + "MuZTP/";
 
@@ -383,9 +385,8 @@ namespace dqutils {
       }//effnames
       mf.Write();
 
-      //  MuGirl efficiency
       //==Turn on
-      std::vector<TString> m_chainsMSonly;
+      std::vector<TString> m_chainsMSonly;  
       std::vector<TString> m_chainsStandard;
       std::vector<TString> m_chainsMG;
       std::vector<TString> m_chainsMI;
@@ -394,16 +395,26 @@ namespace dqutils {
       std::vector<TString> m_chainsEFFS;
 
       // Generic (EFsuper etc.)
-      m_chainsGeneric.push_back("mu36_tight");             // v4 primary
+      // m_chainsGeneric.push_back("mu36_tight");             // v4 primary
+      //m_chainsGeneric.push_back("mu4_cosmic_L1MU4_EMPTY");   // LS1
+      //m_chainsGeneric.push_back("mu4_cosmic_L1MU11_EMPTY");  // LS1
+      m_chainsGeneric.push_back("muChain1");   // MAM 
+      m_chainsGeneric.push_back("muChain2");  // MAM
       
       // Generic (Isolated muons)
-      m_chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
+      // m_chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
+      m_chainsEFiso.push_back("muChainEFiso1")  ;            // MAM 
+      m_chainsEFiso.push_back("muChainEFiso2")  ;            // MAM 
       
       // MSonly
-      m_chainsMSonly.push_back("mu50_MSonly_barrel_tight");    // v4 primary
+      // m_chainsMSonly.push_back("mu50_MSonly_barrel_tight");    // v4 primary
+      //m_chainsMSonly.push_back("mu4_msonly_cosmic_L1MU11_EMPTY");    // LS1
+      m_chainsMSonly.push_back("muChainMSonly1");    // MAM 
+      m_chainsMSonly.push_back("muChainMSonly2");    // MAM 
 
       // EFFS triggers (L. Yuan)
-      m_chainsEFFS.push_back("mu18_tight_mu8_EFFS");
+      // m_chainsEFFS.push_back("mu18_tight_mu8_EFFS");
+      m_chainsEFFS.push_back("muChainEFFS");  // MAM
 
       enum indexINDEP { INDORTH, INDEGAMMA, INDMET, INDJET, INDTAU, INDMBIAS };
       TString m_trigger[INDMBIAS + 1];
@@ -432,7 +443,7 @@ namespace dqutils {
       CB_mon_ESbr[ESSTD] = 0;
       CB_mon_ESbr[ESTAG] = 0;
       CB_mon_ESbr[ESID] = 1;
-      CB_mon_ESbr[ESINDEP] = 1;
+      CB_mon_ESbr[ESINDEP] = 0;
       CB_mon_ESbr[ESHIL1] = 0;
       CB_mon_ESbr[ESHIID] = 0;
       CB_mon_ESbr[ESHIINDEP] = 0;
@@ -440,7 +451,7 @@ namespace dqutils {
       MS_mon_ESbr[ESSTD] = 0;
       MS_mon_ESbr[ESTAG] = 1;
       MS_mon_ESbr[ESID] = 0;
-      MS_mon_ESbr[ESINDEP] = 1;
+      MS_mon_ESbr[ESINDEP] = 0;
       MS_mon_ESbr[ESHIL1] = 0;
       MS_mon_ESbr[ESHIID] = 0;
       MS_mon_ESbr[ESHIINDEP] = 0;
@@ -478,23 +489,24 @@ namespace dqutils {
 
 	// ******************************************************//
 	// start the code add by Yuan //
-      TString FS_pre_trigger = "mu18it_tight";
+      //TString FS_pre_trigger = "mu18it_tight";
+      TString FS_pre_trigger = "EFFSpre";
       for(unsigned int i=0; i<m_chainsEFFS.size(); i++){
 	TString chainName = m_chainsEFFS.at(i);
 	
-	TString hists_str[9] = {chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB",
-				chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB_Barrel",
-				chainName + "_tagMu18it" + "_Turn_On_Curve_wrt_probe_MuidCB_Endcap",
-				chainName + "_tagMu18it_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB",
-				chainName + "_tagMu18it_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB",
-				chainName + "_tagMu18it_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB",
+	TString hists_str[9] = {chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB",
+				chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB_Barrel",
+				chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB_Endcap",
+				chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB",
+				chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB",
+				chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB",
 				chainName + "_Turn_On_Curve_wrt_subleading_MuidCB",
 				FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_probe_MuidCB",
 				FS_pre_trigger + "_dimuonTP" + "_Turn_On_Curve_wrt_L1_probe_MuidCB",
 				};
 
 
-	bool for_mydebug = true;
+	bool for_mydebug = false;
 	for(int iROI = 0; iROI < 9; iROI++){
 	    sden = nd_dir + hists_str[iROI] + "_Denominator";
 	    snum = nd_dir + hists_str[iROI] + "_Numerator";
@@ -611,10 +623,10 @@ namespace dqutils {
 
 	//**** summargy plot **********//
 
-	      TString histNumB = nd_dir + chainName +"_tagMu18it_Turn_On_Curve_wrt_probe_MuidCB_Barrel_Numerator";
-	      TString histDenB = nd_dir + chainName +"_tagMu18it_Turn_On_Curve_wrt_probe_MuidCB_Barrel_Denominator"; 
-	      TString histNumE = nd_dir + chainName +"_tagMu18it_Turn_On_Curve_wrt_probe_MuidCB_Endcap_Numerator"; 
-	      TString histDenE = nd_dir + chainName +"_tagMu18it_Turn_On_Curve_wrt_probe_MuidCB_Endcap_Denominator"; 
+	      TString histNumB = nd_dir + chainName +"_tagEFFSpre_Turn_On_Curve_wrt_probe_MuidCB_Barrel_Numerator";
+	      TString histDenB = nd_dir + chainName +"_tagEFFSpre_Turn_On_Curve_wrt_probe_MuidCB_Barrel_Denominator"; 
+	      TString histNumE = nd_dir + chainName +"_tagEFFSpre_Turn_On_Curve_wrt_probe_MuidCB_Endcap_Numerator"; 
+	      TString histDenE = nd_dir + chainName +"_tagEFFSpre_Turn_On_Curve_wrt_probe_MuidCB_Endcap_Denominator"; 
 	      TString histL1sum = eff_dir + chainName + "_EFplateau_wrtOffline";
 
 	      TH1F *h1numb = 0; mf.get(histNumB, h1numb);
@@ -684,12 +696,12 @@ namespace dqutils {
 	      dir->cd();
               h1sumL->Write("",TObject::kOverwrite);
 
-	      TString histNum_mu0_15 = nd_dir + chainName +"_tagMu18it_mu0_15_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
-	      TString histDen_mu0_15 = nd_dir + chainName +"_tagMu18it_mu0_15_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
-	      TString histNum_mu15_20 = nd_dir + chainName +"_tagMu18it_mu15_20_Turn_On_Curve_wrt_probe_MuidCB_Numerator"; 
-	      TString histDen_mu15_20 = nd_dir + chainName +"_tagMu18it_mu15_20_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
-	      TString histNum_mu20 = nd_dir + chainName +"_tagMu18it_mu20_Turn_On_Curve_wrt_probe_MuidCB_Numerator"; 
-	      TString histDen_mu20 = nd_dir + chainName +"_tagMu18it_mu20_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
+	      TString histNum_mu0_15 = nd_dir + chainName +"_tagEFFSpre_mu0_15_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
+	      TString histDen_mu0_15 = nd_dir + chainName +"_tagEFFSpre_mu0_15_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
+	      TString histNum_mu15_20 = nd_dir + chainName +"_tagEFFSpre_mu15_20_Turn_On_Curve_wrt_probe_MuidCB_Numerator"; 
+	      TString histDen_mu15_20 = nd_dir + chainName +"_tagEFFSpre_mu15_20_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
+	      TString histNum_mu20 = nd_dir + chainName +"_tagEFFSpre_mu20_Turn_On_Curve_wrt_probe_MuidCB_Numerator"; 
+	      TString histDen_mu20 = nd_dir + chainName +"_tagEFFSpre_mu20_Turn_On_Curve_wrt_probe_MuidCB_Denominator"; 
 	      TString histEFsum_mu = eff_dir + chainName + "_EFplateau_wrtOffline_mu_dependence";
 
 	      TH1F *h1num_mu0_15 = 0; mf.get(histNum_mu0_15, h1num_mu0_15);
@@ -795,1161 +807,6 @@ namespace dqutils {
 	// ******************************************************//
 
 
-      // ******************************************************//
-      // *********************  MuGirl  ***********************//
-      // ******************************************************//
-      for (unsigned int i=0 ; i < m_chainsMG.size() ; i++) {
-        TString chainName = m_chainsMG.at(i);
-	
-	std::string chainName_std = (std::string)chainName;
-	int nnn = chainName_std.find("_MG");
-	if (0 == nnn) {
-	  if (fdbg) {
-	    std::cerr << "ChainName does not look like muGirl chain" << chainName << std::endl;
-	  }
-	} else {
-	  chainName_std.replace(nnn, 3, "");
-	}
-
-	// MuGirl: begin
-	TString m_alg[2] = {"_MuGirlL2", "_MuGirlEF"};
-	TString m_wrtalg[2] = {"_L1", "_MuGirlL2"};
-
-	// wrt CB Muon && independent trigger
-	for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-	  sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered_Denominator";
-	  
-	  for( int alg=0; alg < 2; alg++){
-	    snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered_Numerator";
-	    seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered";
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-	    
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-	    
-	    if( h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	      if (1 == alg) {  // MuGirlEF
-		if (3 == trg) { // jet
-		  double sumd, sumn, sumeff, sumerr;
-		  sumn = h1num->Integral(iSTDL, iSTDH);
-		  sumd = h1den->Integral(iSTDL, iSTDH);
-		  if (sumd == 0.) {
-		    sumeff = 0.;
-		    sumerr = 0.;
-		  } else {
-		    sumeff = (double)sumn / (double)sumd;
-		    sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-		  }
-		  int iholx = static_cast<int>(iMuGirl);
-		    
-		    
-		  TString s = eff_dir + chainName_std + "_highpt_effsummary_by" + m_vectkwd.at(2);
-		  // std::cout << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
-		  mf.get(s, h1sumeff);
-		  if (!h1sumeff) {
-		    if (fdbg) {
-		      std::cerr << "HLTMuon PostProcessing: no such histogram!! " << s << std::endl;
-		    }
-		    continue;
-		  }
-		  h1sumeff->SetBinContent(iholx+1, sumeff);
-		  h1sumeff->SetBinError(iholx+1, sumerr);
-		  // saving
-		  dir->cd();
-		  h1sumeff->Write("", TObject::kOverwrite);
-		}
-	      }
-	    }
-
-	  }//alg
-	}//trg
-	mf.Write();
-
-	for (int alg = 0; alg < 2; alg++){
-	  //wrt MuidCB
-	  sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	  snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	  seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	  seffg = seff + "_Fit"; // YY added 20.04.10
-
-	  h1eff = 0;
-	  mf.get(seff, h1eff);
-	  if (!h1eff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	    }
-	    continue;
-	  }
-	  h1num = 0;
-	  mf.get(snum, h1num);
-	  if (!h1num) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	    }
-	    continue;
-	  }
-	  h1den = 0;
-	  mf.get(sden, h1den);
-	  if (!h1den) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	    }
-	    continue;
-	  }
-	  geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	  if (!geff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	    }
-	    continue;
-	  }
-
-	  if(h1eff && h1num && h1den){
-	    h1eff->Reset();
-	    h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	    dir->cd();
-	    h1eff->Write("",TObject::kOverwrite);
-
-	    if (geff) {  // YY added 20.04.10
-	      geff->SetMarkerStyle(20);
-	      geff->BayesDivide(h1num, h1den);
-	      
-	      // saving summary TGraph
-	      dir->cd();
-	      geff->Write("", TObject::kOverwrite);
-	    }
-
-	    if (1 == alg) {  // MuGirlEF, all events
-	      double sumd, sumn, sumeff, sumerr;
-	      sumn = h1num->Integral(iSTDL, iSTDH);
-	      sumd = h1den->Integral(iSTDL, iSTDH);
-	      if (sumd == 0.) {
-		sumeff = 0.;
-		sumerr = 0.;
-	      } else {
-		sumeff = (double)sumn / (double)sumd;
-		sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-	      }
-	      int iholx = static_cast<int>(iMuGirl);
-		
-	      TString s = eff_dir + chainName_std + "_highpt_effsummary_by" + m_vectkwd.at(3);
-	      // std::cerr << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
-	      mf.get(s, h1sumeff);
-	      if (!h1sumeff) {
-		if (fdbg) {
-		  std::cerr << "HLTMuon PostProcessing: no such histogram!! " << s << std::endl;
-		}
-		continue;
-	      }
-	      h1sumeff->SetBinContent(iholx+1, sumeff);
-	      h1sumeff->SetBinError(iholx+1, sumerr);
-	      // saving
-	      dir->cd();
-	      h1sumeff->Write("", TObject::kOverwrite);
-	    }
-	  }
-
-	  //wrt MuidCB + MSonly-based chain
-	  sden = nd_dir + chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	  snum = nd_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	  seff = eff_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	  seffg = seff + "_Fit"; // YY added 20.04.10
-
-	  h1eff = 0;
-	  mf.get(seff, h1eff);
-	  if (!h1eff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	    }
-	    continue;
-	  }
-	  h1num = 0;
-	  mf.get(snum, h1num);
-	  if (!h1num) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	    }
-	    continue;
-	  }
-	  h1den = 0;
-	  mf.get(sden, h1den);
-	  if (!h1den) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	    }
-	    continue;
-	  }
-	  geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	  if (!geff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	    }
-	    continue;
-	  }
-
-	  if(h1eff && h1num && h1den){
-	    h1eff->Reset();
-	    h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	    dir->cd();
-	    h1eff->Write("",TObject::kOverwrite);
-
-	    if (geff) {  // YY added 20.04.10
-	      geff->SetMarkerStyle(20);
-	      geff->BayesDivide(h1num, h1den);
-	      
-	      // saving summary TGraph
-	      dir->cd();
-	      geff->Write("", TObject::kOverwrite);
-	    }
-	  }
-
-	  // for ES ---------------------------------------------------------------------
-	  for (int ies = 0; ies <= m_maxESbr; ies++) {
-	    sden = nd_dir + chainName + m_triggerES[ies] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	    snum = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	    seff = eff_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-	      
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	      // Summary ESid
-	      if (1 == alg) {  // MuGirlEF
-		if (ESID == ies || ESINDEP == ies) {
-		  double sumd, sumn, sumeff, sumerr;
-		  sumn = h1num->Integral(iSTDL, iSTDH);
-		  sumd = h1den->Integral(iSTDL, iSTDH);
-		  if (sumd == 0.) {
-		    sumeff = 0.;
-		    sumerr = 0.;
-		  } else {
-		    sumeff = (double)sumn / (double)sumd;
-		    sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
-		  }
-		  int iholx = static_cast<int>(iMuGirl);
-		    
-		  TString s = eff_dir + chainName_std + "_highpt_effsummary_by" + m_triggerES[ies];
-		  // std::cerr << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
-		  mf.get(s, h1sumeff);
-		  if (!h1sumeff) {
-		    if (fdbg) {
-		      std::cerr << "HLTMuon PostProcessing: no such histogram!! " << s << std::endl;
-		    }
-		    continue;
-		  }
-		  h1sumeff->SetBinContent(iholx+1, sumeff);
-		  h1sumeff->SetBinError(iholx+1, sumerr);
-		  // saving
-		  dir->cd();
-		  h1sumeff->Write("", TObject::kOverwrite);
-		}
-	      }
-
-	    }
-	  }
-	  // for ES: end ---------------------------------------------------------------------
-
-	  if (0 == alg || 1 == alg) {
-	    for (int be = 0; be < 2; be++) {
-	      sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	      snum = nd_dir + chainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-	      // MSonly-based monitor
-	      sden = nd_dir + chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-	      snum = nd_dir + chainName + m_MSchainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_MSchainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-	    }
-	  }
-	  
-	  //wrt Upstream
-	  sden = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + "_Denominator";
-	  snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	  seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg];
-	  seffg = seff + "_Fit"; // YY added 20.04.10
-
-	  h1eff = 0;
-	  mf.get(seff, h1eff);
-	  if (!h1eff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	    }
-	    continue;
-	  }
-	  h1num = 0;
-	  mf.get(snum, h1num);
-	  if (!h1num) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	    }
-	    continue;
-	  }
-	  h1den = 0;
-	  mf.get(sden, h1den);
-	  if (!h1den) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	    }
-	    continue;
-	  }
-	  geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	  if (!geff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	    }
-	    continue;
-	  }
-
-	  if(h1eff && h1num && h1den){
-	    h1eff->Reset();
-	    h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	    dir->cd();
-	    h1eff->Write("",TObject::kOverwrite);
-
-	    if (geff) {  // YY added 20.04.10
-	      geff->SetMarkerStyle(20);
-	      geff->BayesDivide(h1num, h1den);
-	      
-	      // saving summary TGraph
-	      dir->cd();
-	      geff->Write("", TObject::kOverwrite);
-	    }
-	  }
-
-
-	  //wrt Upstream - MSonly-based
-	  sden = nd_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + "_Denominator";
-	  snum = nd_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	  seff = eff_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg];
-	  seffg = seff + "_Fit"; // YY added 20.04.10
-
-	  h1eff = 0;
-	  mf.get(seff, h1eff);
-	  if (!h1eff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	    }
-	    continue;
-	  }
-	  h1num = 0;
-	  mf.get(snum, h1num);
-	  if (!h1num) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	    }
-	    continue;
-	  }
-	  h1den = 0;
-	  mf.get(sden, h1den);
-	  if (!h1den) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	    }
-	    continue;
-	  }
-	  geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	  if (!geff) {
-	    if (fdbg) {
-	      std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	    }
-	    continue;
-	  }
-
-	  if(h1eff && h1num && h1den){
-	    h1eff->Reset();
-	    h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	    dir->cd();
-	    h1eff->Write("",TObject::kOverwrite);
-
-	    if (geff) {  // YY added 20.04.10
-	      geff->SetMarkerStyle(20);
-	      geff->BayesDivide(h1num, h1den);
-	      
-	      // saving summary TGraph
-	      dir->cd();
-	      geff->Write("", TObject::kOverwrite);
-	    }
-	  }
-
-	  // For ES --------------------------------------------------------------------------
-	  //wrt Upstream
-	  for (int ies = 0; ies <= m_maxESbr; ies++) {
-
-	    sden = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + "_Denominator";
-	    snum = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	    seff = eff_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg];
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-	      
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-		
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-		  
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	    }
-	  }
-	  // For ES --------------------------------------------------------------------------
-
-	  if (0 == alg || 1 == alg) {
-	    for (int be = 0; be < 2; be++) {
-	      //wrt Upstream
-	      sden = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + bestr[be] + "_Denominator";
-	      snum = nd_dir + chainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg] + bestr[be];
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-	      sden = nd_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + bestr[be] + "_Denominator";
-	      snum = nd_dir + chainName + m_MSchainName + m_alg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_MSchainName + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg] + bestr[be];
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-
-	    }
-	  }//alg
-	}//i
-	mf.Write();
-      }// MuGirl: end
-
-      // ******************************************************//
-      // *********** MuIso: no extention to high pt ***********//
-      // ******************************************************//
-      for (unsigned int i=0 ; i < m_chainsMI.size() ; i++) {
-	TString chainName = m_chainsMI.at(i);
-	
-	// MuIso: begin
-	TString m_alg[2] = {"_MuIso", "_MuonEFCB"};
-	TString m_wrtalg[2] = {"_MuComb", "_MuIso"};
-
-	for( unsigned int i=0 ; i < m_chainsMI.size() ; i++ ){
-	  TString chainName = m_chainsMI.at(i);
-
-	  // wrt CB Muon && independent trigger
-	  for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-	    sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered_Denominator";
-
-	    for( int alg=0; alg < 2; alg++){
-	      snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered_Numerator";
-	      seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB" + m_trigger[trg] + "_Triggered";
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-	    
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	    
-	      if( h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-
-	    }//alg
-	  }//trg
-	  mf.Write();
-
-	  for (int alg = 0; alg < 2; alg++){
-	    //wrt MuidCB
-	    sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	    snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	    seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-	      
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	    }
-	    
-	    //  for ES ------------------------------------------------------------------------------------
-	    for (int ies = 0; ies <= m_maxESbr; ies++) {
-	      sden = nd_dir + chainName + m_triggerES[ies] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	      snum = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-	    }
-	    //  for ES : END ------------------------------------------------------------------------------------
-	    
-	    sden = nd_dir + chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_etcone40";
-	    snum = nd_dir + chainName + m_alg[alg] + "_Efficiency_Curve_Numerator_vs_etcone40";
-	    seff = eff_dir + chainName + m_alg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_etcone40";
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-	      
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	    }
-	  
-	    sden = nd_dir + chainName + "_Efficiency_Curve_wrt_MuidCB_Denominator_vs_ptcone40";
-	    snum = nd_dir + chainName + m_alg[alg] + "_Efficiency_Curve_Numerator_vs_ptcone40";
-	    seff = eff_dir + chainName + m_alg[alg] + "_Efficiency_Curve_wrt_MuidCB_vs_ptcone40";
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-	      
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	    }
-
-	    //wrt Upstream
-	    sden = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + "_Denominator";
-	    snum = nd_dir + chainName + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	    seff = eff_dir + chainName + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg];
-	    seffg = seff + "_Fit"; // YY added 20.04.10
-
-	    h1eff = 0;
-	    mf.get(seff, h1eff);
-	    if (!h1eff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-	      }
-	      continue;
-	    }
-	    h1num = 0;
-	    mf.get(snum, h1num);
-	    if (!h1num) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-	      }
-	      continue;
-	    }
-	    h1den = 0;
-	    mf.get(sden, h1den);
-	    if (!h1den) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-	      }
-	      continue;
-	    }
-	    geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	    if (!geff) {
-	      if (fdbg) {
-		std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-	      }
-	      continue;
-	    }
-
-	    if(h1eff && h1num && h1den){
-	      h1eff->Reset();
-	      h1eff->Divide(h1num, h1den, 1., 1., "B");
-
-	      dir->cd();
-	      h1eff->Write("",TObject::kOverwrite);
-
-	      if (geff) {  // YY added 20.04.10
-		geff->SetMarkerStyle(20);
-		geff->BayesDivide(h1num, h1den);
-	      
-		// saving summary TGraph
-		dir->cd();
-		geff->Write("", TObject::kOverwrite);
-	      }
-	    }
-	    
-	    //  for ES ------------------------------------------------------------------------------------
-	    for (int ies = 0; ies <= m_maxESbr; ies++) {
-	      sden = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt"+ m_wrtalg[alg] + "_Denominator";
-	      snum = nd_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_Numerator";
-	      seff = eff_dir + chainName + m_triggerES[ies] + m_alg[alg] + "_Turn_On_Curve_wrt" + m_wrtalg[alg];
-	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      
-	      h1eff = 0;
-	      mf.get(seff, h1eff);
-	      if (!h1eff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seff << std::endl;
-		}
-		continue;
-	      }
-	      h1num = 0;
-	      mf.get(snum, h1num);
-	      if (!h1num) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< snum << std::endl;
-		}
-		continue;
-	      }
-	      h1den = 0;
-	      mf.get(sden, h1den);
-	      if (!h1den) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< sden << std::endl;
-		}
-		continue;
-	      }
-	      geff = (TGraphAsymmErrors*) mf.Get(seffg);
-	      if (!geff) {
-		if (fdbg) {
-		  std::cerr <<"HLTMuon PostProcessing: no such histogram!! "<< seffg << std::endl;
-		}
-		continue;
-	      }
-	      
-	      if(h1eff && h1num && h1den){
-		h1eff->Reset();
-		h1eff->Divide(h1num, h1den, 1., 1., "B");
-		
-		dir->cd();
-		h1eff->Write("",TObject::kOverwrite);
-		
-		if (geff) {  // YY added 20.04.10
-		  geff->SetMarkerStyle(20);
-		  geff->BayesDivide(h1num, h1den);
-		  
-		  // saving summary TGraph
-		  dir->cd();
-		  geff->Write("", TObject::kOverwrite);
-		}
-	      }
-	    }
-
-	  }//alg
-	  mf.Write();
-	}//i
-      }// MuIso: end
       
       TString m_alg2[3] = {"_MuFast", "_MuonEFMS", "_MuonEFSA"};
       TString m_wrtalg2[3] = {"_L1", "_MuFast", "_MuFast"};
@@ -2660,15 +1517,36 @@ namespace dqutils {
 
       {
 	std::map<std::string, std::string> m_ztpmap;
-	// pp_v4 menu items for ZTP
-	m_ztpmap["mu36_tight"] = "L1_MU15";
-	m_ztpmap["mu24i_tight"] = "L1_MU15";
-	m_ztpmap["mu50_MSonly_barrel_tight"] = "L1_MU15";
+
+	//// cosmic menu items for ZTP
+	//m_ztpmap["mu4_cosmic_L1MU4_EMPTY"] = "L1_MU4";  
+	//m_ztpmap["mu24_imedium"] = "L1_MU15";
+	m_ztpmap["muChain1"] = "L1_MU15";
+	m_ztpmap["muChain2"] = "L1_MU15";
+	m_ztpmap["muChainEFiso1"] = "L1_MU15";
+	m_ztpmap["muChainEFiso2"] = "L1_MU15";
+	m_ztpmap["muChainMSonly1"] = "L1_MU15";
+	m_ztpmap["muChainMSonly2"] = "L1_MU15";
 
 	std::map<std::string, int> m_ztp_isomap;
-	m_ztp_isomap["mu36_tight"] = 0;
-	m_ztp_isomap["mu24i_tight"] = 1;
-	m_ztp_isomap["mu50_MSonly_barrel_tight"] = 0;
+	//m_ztp_isomap["mu4_cosmic_L1MU4_EMPTY"] = 0;
+	//m_ztp_isomap["mu24_imedium"] = 1;
+	m_ztp_isomap["muChain1"] = 0;
+	m_ztp_isomap["muChain2"] = 0;
+	m_ztp_isomap["muChainEFiso1"] = 1;
+	m_ztp_isomap["muChainEFiso2"] = 1;
+	m_ztp_isomap["muChainMSonly1"] = 0;
+	m_ztp_isomap["muChainMSonly2"] = 0;
+
+	//// pp_v4 menu items for ZTP
+	//m_ztpmap["mu36_tight"] = "L1_MU15";
+	//m_ztpmap["mu24i_tight"] = "L1_MU15";
+	//m_ztpmap["mu50_MSonly_barrel_tight"] = "L1_MU15";
+
+	//std::map<std::string, int> m_ztp_isomap;
+	//m_ztp_isomap["mu36_tight"] = 0;
+	//m_ztp_isomap["mu24i_tight"] = 1;
+	//m_ztp_isomap["mu50_MSonly_barrel_tight"] = 0;
 
 	// old menu pp_v3 for ZTP
 	// m_ztpmap["mu15"]="L1_MU10";
@@ -3137,14 +2015,25 @@ namespace dqutils {
 
 	// procChainDQA_HighPt
 	// pp_v4
-	const int MAXARR = 3;
-	std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
-	std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
-	std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
-	bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
-	bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
-	bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
-	bool isefIsolation[MAXARR] = {false, true, false}; // EF isolation  add by Yuan
+	//const int MAXARR = 3;
+	//std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
+	//std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
+	//std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
+	//bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
+	//bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
+	//bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
+	//bool isefIsolation[MAXARR] = {false, true, false}; // EF isolation  add by Yuan
+
+	// MAM 
+	const int MAXARR = 6;
+	std::string charr[MAXARR] = {"muChain1", "muChain2", "muChainEFiso1", "muChainEFiso2","muChainMSonly1","muChainMSonly2"};
+	std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_EFmuon", "_EFmuon", "_MuonEFSA", "_MuonEFSA"};
+	std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast", "_MuFast", "_MuFast", "_MuFast"};
+	bool isBarrelMon[MAXARR] = {false, false, false, false, true, true}; // enable MSonly
+	bool isMSbMon[MAXARR] = {true, true,false, false,false, false}; // Skip isol and MSonly
+	bool monL1[MAXARR] = {true, true, true, true, false, false}; // Skip MSonly
+	bool isefIsolation[MAXARR] = {false, false, true, true, false, false}; // EF isolation  add by Yuan
+
 
 	// I need to prepare maps ... mu20_MG -> MuGirlEF etc.
 	for (int ialg = 0; ialg < MAXARR; ialg++) {
@@ -3344,8 +2233,8 @@ namespace dqutils {
 	return;
       }
 
-      // processing muIso histograms in the same manner
-      m_chainsGeneric.insert(m_chainsGeneric.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());
+      // processing Iso histograms in the same manner
+      m_chainsGeneric.insert(m_chainsGeneric.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());  
       
       for( unsigned int i=0 ; i < m_chainsGeneric.size() ; i++ ){
 	TString chainName = m_chainsGeneric.at(i);

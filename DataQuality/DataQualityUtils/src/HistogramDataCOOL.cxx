@@ -275,7 +275,7 @@ insertH(cool::ChannelId channelId, int code, std::string algo, int entries, floa
       coral::AttributeList payloadH = this->createPayloadH(code, algo, entries, par1, par2, par3, par4, par5, specH);	
       std::cout << "Trying to store payload histos [channel " << this->getCoolFolderH()->channelName(channelId)  <<" ("<< channelId  <<")]...";
       //      coolFolderH->storeObject(since, until, payloadH,  channelId, "DetStatusDQMFOFLH-FDR2-01", true);
-      coolFolderH->storeObject(since, until, payloadH,  channelId, tag_name, true);
+      coolFolderH->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payloadH),  channelId, tag_name, true);
       std::cout << "stored!" << std::endl;       	
     }
     catch (cool::Exception& e) {

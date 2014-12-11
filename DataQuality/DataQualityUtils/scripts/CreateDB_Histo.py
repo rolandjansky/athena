@@ -72,7 +72,9 @@ else:
 	spec.extend("deadFrac", cool.StorageType.Float)
 	spec.extend("Thrust",cool.StorageType.Float)
 	print "Creating folder", folderName, 
-	folder = db.createFolder(folderName, spec, "", cool.FolderVersioning.MULTI_VERSION, False)
+	# Deprecated/dropped:  folder = db.createFolder(folderName, spec, "", cool.FolderVersioning.MULTI_VERSION, False)
+	folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec)
+	folder = db.createFolder(folderName, folderSpec, "", False)
 	print "... Done"
 
 print "Creating channels."

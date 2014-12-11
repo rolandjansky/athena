@@ -39,6 +39,15 @@ use AtlasCOOL                 AtlasCOOL-*        External
 use AtlasCORAL                AtlasCORAL-*       External
 use AtlasBoost 		      AtlasBoost-* 	 External
 
+# Specify the required ROOT component for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Cint Graf Gpad MathCore RooFit RooFitCore Minuit)"
+
+# Generate the rootcint dictionary for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="athena_add_rootcint_dictionary(DataQualityUtilsDict ROOT_HEADERS DataQualityUtils/HanOutputFile.h DataQualityUtils/MonitoringFile.h DataQualityUtils/StatusFlagCOOL.h DataQualityUtils/StatusFlagCOOLBase.h DataQualityUtils/StatusFlagCommentCOOL.h DataQualityUtils/HistogramDataCOOL.h DataQualityUtils/CoolRpc.h DataQualityUtils/CoolMdt.h DataQualityUtils/CoolTgc.h DataQualityUtils/MdtDeadNoisyUtils.h DataQualityUtils/RootLinkDef.h EXTERNAL_PACKAGES CORAL COOL ROOT Boost)"
+
+# Add the generated rootcint file to the library for cmake (transparent to CMT)
+apply_pattern cmake_add_generated_files library=DataQualityUtils files=DataQualityUtilsDict.cxx
+
 
 ##############################################################################
 #	library: DataQualityUtils

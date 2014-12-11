@@ -83,7 +83,7 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
         if isProduction:
             import smtplib
             server = smtplib.SMTP('localhost')
-            mail_cc = ['ponyisi@hep.uchicago.edu', 'adrian.vogel@cern.ch']
+            mail_cc = ['ponyisi@utexas.edu', 'yuriy.ilchenko@cern.ch']
             msg = ['From: atlasdqm@cern.ch',
                    'To: %s' % ', '.join(mail_to),
                    'Cc: %s' % ', '.join(mail_cc),
@@ -175,7 +175,7 @@ def DQPostProcess( outFileName, isIncremental=False ):
                  (mf.SCTPostProcess,
                   ['masaki.endo@cern.ch']),
                  (mf.MuonTrkPhys,
-                  ['austin.basye@cern.ch', 'john.stakely.keller@cern.ch'])
+                  ['austin.basye@cern.ch', 'rcyooper@uw.edu'])
                ]
 
     for funcinfo in funclist:

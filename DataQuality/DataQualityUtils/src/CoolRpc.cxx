@@ -248,7 +248,7 @@ void
        coral::AttributeList payload = this->createPayloadData(recEta, detEta, recPhi1, recPhi2, detPhi1, detPhi2, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, payload, channelId, cool_tag);
+       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId, cool_tag);
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
@@ -267,7 +267,7 @@ void
        coral::AttributeList payload = this->createPayloadDataCondDB(PanelRes, StripStatus, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, payload, channelId, cool_tag);
+       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId, cool_tag);
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
@@ -286,7 +286,7 @@ void
        coral::AttributeList payload = this->createPayloadData(recEta, detEta, recPhi1, recPhi2, detPhi1, detPhi2, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, payload, channelId);
+       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId);
        std::cout << "stored! without Tag" << std::endl;
      }
      catch (cool::Exception& e) {
