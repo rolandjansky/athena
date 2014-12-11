@@ -26,7 +26,7 @@ class MuonCombinePatternTool : public AlgTool, virtual public Muon::IMuonCombine
 {
  private:
   struct ChamberInfo {
-    ChamberInfo() : neta(0),nphi(0),ninside(0),noutside(0),phiMin(1e9),phiMax(-1e9) {}
+    ChamberInfo() : neta(0),nphi(0),ninside(0),noutside(0),ninsidePat(0),noutsidePat(0),phiMin(1e9),phiMax(-1e9) {}
     int neta;
     int nphi;
     int ninside;
