@@ -23,8 +23,9 @@ namespace Muon {
       // prefer tracks with fit quality (always expected)
       const Trk::FitQuality* fq1 = tr1.fitQuality();
       const Trk::FitQuality* fq2 = tr2.fitQuality();
-      if( !fq1 && fq2 ) return false;
+      if( !fq1 && fq2 )  return false;
       if( fq1  && !fq2 ) return true;
+      if( !fq1 && !fq2 ) return false;
 
       if( fq1->numberDoF() > fq2->numberDoF() ) return true;
       if( fq1->numberDoF() < fq2->numberDoF() ) return false;
@@ -49,6 +50,7 @@ namespace Muon {
       const Trk::FitQuality* fq2 = tr2.fitQuality();
       if( !fq1 && fq2 ) return false;
       if( fq1  && !fq2 ) return true;
+      if( !fq1 && !fq2 ) return false;
 
       // select candidate with smallest chi2
       double chi2Ndof1 = fq1->chiSquared()/fq1->numberDoF();

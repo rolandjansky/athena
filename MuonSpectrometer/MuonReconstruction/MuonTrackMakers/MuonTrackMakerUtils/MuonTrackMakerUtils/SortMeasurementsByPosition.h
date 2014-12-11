@@ -101,7 +101,7 @@ namespace Muon {
 	  if(  okId1 && !okId2 ) return true;
 	  if( !okId1 &&  okId2 ) return false;
           // both invalid or non-muon: consider them equal
-          if ( !okId1 && !okId1 ) return false;
+          if ( !okId1 && !okId2 ) return false;
           // now we have 2 valid muon Ids
 	  bool measPhi1 = m_idHelperTool->measuresPhi(id1);
 	  bool measPhi2 = m_idHelperTool->measuresPhi(id2);
