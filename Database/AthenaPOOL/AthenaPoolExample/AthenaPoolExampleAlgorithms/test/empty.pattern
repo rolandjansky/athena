@@ -18,10 +18,6 @@
 > AthenaPoolCnvSvc    DEBUG setAttribute
 > AthenaPoolCnvSvc    DEBUG releasing all workers
 > AthenaPoolCnvSvc    DEBUG Calling destructor
-#> SG::fromStorable  WARNING can't convert stored DataObject 0x\?\?\?\? to type \(ExampleHitContainer\)
-#>  Unless you are following a symlink, it probably means you have a duplicate CLID = 1
-#DeprecationWarning: object.__new__\(\) takes no parameters
-#newobj = object.__new__\( cls, \*args, \*\*kwargs \)
 > AthenaPoolAddre...  DEBUG updateAddress: Cannot find DataHeader in StoreGate
 > [a-zA-Z0-9]*.root Info Database being retired...
 > [a-zA-Z0-9]*.root Debug --> Deaccess DbContainer
@@ -36,3 +32,7 @@
 < RootDbase: all good: 
 < evt no, per run
 < WARNING: TCMALLOCDIR not defined, will use libc malloc
+> PoolXMLFileCatalog Info File Catalog2.xml does not exist, a new one is created
+> Stream2             DEBUG Proxy name=Stream1
+< [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish
+> [a-zA-Z0-9_\(\)\/]* Debug endTransaction: go to finish

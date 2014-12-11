@@ -117,7 +117,6 @@ then
 	#catalogBytestreamFiles.sh test_defl.data
         guid=`strings ../run/test_defl.data | grep "GUID=" | cut -d= -f2`
 	FCregisterPFN -g ${guid} -t "BYTE_STREAM" -p "test_defl.data" # For now, as catalogBytestreamFiles.sh fails on gcc4.8
-#exit 1
 elif [ "${test}" == "AthenaPoolExample_ReadBNzip" ]
 then
 	zip -n root ArchiveFile EmptyPoolFile.root SimplePoolFile*
@@ -139,8 +138,7 @@ then
 	cat ./AthenaPoolExample_ReadBNzip.py | \
 	sed -e 's/ArchiveFile/root:\/\/castoratlas\/\/castor\/cern\.ch\/user\/g\/gemmeren\/ArchiveFile/g' > ${test}.py
 	xrdcp ArchiveFile.zip root://castoratlas//castor/cern.ch/user/g/gemmeren/ArchiveFile.zip
-	mv Catalog1.xml Catalog1.xml.old
-	mv ArchiveFile.zip ArchiveFile.zip.old
+	rm Catalog1.xml ArchiveFile.zip
 	pool_insertFileToCatalog -u xmlcatalog_file:Catalog1.xml root://castoratlas//castor/cern.ch/user/g/gemmeren/ArchiveFile.zip#EmptyPoolFile.root root://castoratlas//castor/cern.ch/user/g/gemmeren/ArchiveFile.zip#SimplePoolFile1.root root://castoratlas//castor/cern.ch/user/g/gemmeren/ArchiveFile.zip#SimplePoolFile2.root root://castoratlas//castor/cern.ch/user/g/gemmeren/ArchiveFile.zip#SimplePoolFile3.root
 fi
 # Turn off pool verbose printing

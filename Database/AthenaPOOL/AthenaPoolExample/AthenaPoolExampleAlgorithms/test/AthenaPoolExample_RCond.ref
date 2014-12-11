@@ -1,44 +1,43 @@
-Thu Jun 26 15:38:33 CEST 2014
+Wed Dec  3 18:16:21 CET 2014
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
-Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
-Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf - ['MboyEDMTool.MboyEDMToolConf']
+Py:ConfigurableDb WARNING   -RPCStandaloneTracksMon: MuonTrackMonitoring.MuonTrackMonitoringConf - ['RpcRawDataMonitoring.RpcRawDataMonitoringConf']
+Py:ConfigurableDb WARNING   -LArDigits2Ntuple: LArCalibTools.LArCalibToolsConf - ['LArEventTest.LArEventTestConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Athena               INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
 Athena               INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-02-01
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-27
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: AthPoolEx::ReadCond/ReadCond, AthPoolEx::ReadData/ReadData
 ReadCond             INFO in initialize()
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-41-13
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-07
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-58-02-01
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-41-13
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-41-13
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-13
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-44-00
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-58-27
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-02-44-00
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-02-44-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-16
 AthenaRootStrea...   INFO POOL/ROOT class loader initialized
 AthenaRootStrea...   INFO 9 ROOT streamers declared
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-02
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-24-06
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
@@ -54,11 +53,20 @@ PoolXMLFileCatalog Debug Xerces-c initialization Number 1
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Debug Xerces-c initialization Number 2
 PoolXMLFileCatalog Info File Catalog0.xml does not exist, a new one is created
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-31
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-41-13
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-35
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-02-44-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
+PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
+RootCollection Info Opening Collection File SimplePoolFile1.root in mode: READ
+RootCollection Debug File SimplePoolFile1.root exists.
+RootCollection Info File SimplePoolFile1.root opened
+RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile1.root ( POOL : "RootCollection::open" from "RootCollection" )
 PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
@@ -75,19 +83,14 @@ RootDatabase.open Success SimplePoolFile1.root File version:53413
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:EventInfo_p4
 SimplePoolFile1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:ExampleHitContainer_p1
 SimplePoolFile1.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:DataHeaderForm_p5
 SimplePoolFile1.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[3 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:DataHeader_p5
 SimplePoolFile1.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[4 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:EventStreamInfo_p3
 SimplePoolFile1.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
@@ -132,9 +135,17 @@ EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 ???? Debug Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-31
-CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-18-31
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-18-35
+CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-18-35
 CondProxyProvider   DEBUG Try item: "SimplePoolFile4.root" from the collection list.
+PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+RootCollection Info Opening Collection File SimplePoolFile4.root in mode: READ
+RootCollection Debug File SimplePoolFile4.root exists.
+RootCollection Info File SimplePoolFile4.root opened
+RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile4.root ( POOL : "RootCollection::open" from "RootCollection" )
 PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 PoolXMLFileCatalog Debug filename SimplePoolFile4.root does not exist
@@ -149,13 +160,10 @@ RootDatabase.open Success SimplePoolFile4.root File version:53413
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:ExampleHitContainer_p1
 SimplePoolFile4.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:DataHeaderForm_p5
 SimplePoolFile4.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:DataHeader_p5
 SimplePoolFile4.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 3 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
@@ -181,6 +189,7 @@ SimplePoolFile4.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 RootDatabase.onOpen Debug ???? File version:53413
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:SimplePoolFile4.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-09
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
 ???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
@@ -205,13 +214,10 @@ RootDatabase.open Success SimplePoolFile4.root File version:53413
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile4.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:ExampleHitContainer_p1
 SimplePoolFile4.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:DataHeaderForm_p5
 SimplePoolFile4.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile4.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile4.root Debug ---->Class:DataHeader_p5
 SimplePoolFile4.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 3 Entries in total.
 SimplePoolFile4.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
@@ -244,10 +250,10 @@ CondProxyProvider   DEBUG preLoadAddresses: DataObject address, clid = 9102, nam
 CondProxyProvider   DEBUG The current File contains: 2 objects
 CondProxyProvider   DEBUG preLoadAddresses: DataObject address, clid = 9102, name = PedestalAppendData
 ReadData             INFO in initialize()
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-41-13
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-44-00
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-41-13
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-44-00
 ApplicationMgr       INFO Application Manager Initialized successfully
 InputMetaDataStore   INFO Start InputMetaDataStore
 MetaDataStore        INFO Start MetaDataStore
@@ -268,6 +274,14 @@ PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+RootCollection Info Opening Collection File SimplePoolFile1.root in mode: READ
+RootCollection Debug File SimplePoolFile1.root exists.
+RootCollection Info File SimplePoolFile1.root opened
+RootCollection Debug Open() failed with expception: POOL Collection TTree not found in file SimplePoolFile1.root ( POOL : "RootCollection::open" from "RootCollection" )
+PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
+PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
+XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
 XMLFileCatalog Debug lookupFilebyPFN: Empty File ID found
 PoolXMLFileCatalog Debug filename SimplePoolFile1.root does not exist
@@ -278,19 +292,14 @@ RootDatabase.open Success SimplePoolFile1.root File version:53413
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ???? Debug Opened container ##Shapes of type ROOT_Tree
 SimplePoolFile1.root Debug --->Reading Shape[0 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:EventInfo_p4
 SimplePoolFile1.root Debug ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:ExampleHitContainer_p1
 SimplePoolFile1.root Debug ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:DataHeaderForm_p5
 SimplePoolFile1.root Debug ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[3 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:DataHeader_p5
 SimplePoolFile1.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1.root Debug --->Reading Shape[4 , ????]: [1 Column(s)]
-SimplePoolFile1.root Debug ---->Class:EventStreamInfo_p3
 SimplePoolFile1.root Debug ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 ##Shapes Debug No objects passing selection criteria... Container has 5 Entries in total.
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_All] ##Links
@@ -1064,9 +1073,9 @@ AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-41-13
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-41-13
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-41-13
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-02-44-00
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-02-44-00
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-02-44-00
 PoolSvc              INFO I/O finalization...
 XMLFileCatalog Debug There were no updates in the catalog
 XMLFileCatalog Debug There were no updates in the catalog
@@ -1074,17 +1083,17 @@ XMLFileCatalog Debug There were no updates in the catalog
 PoolXMLFileCatalog Debug XercesC termination number 2
 PoolXMLFileCatalog Debug XercesC termination number 1
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-41-13
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-41-13
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-02-44-00
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-02-44-00
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=   62 [ms] Ave/Min/Max=   31(+-    0)/   31/   31 [ms] #=  2
-AthenaSealSvc::...   INFO Time User   : Tot=   64 [ms] Ave/Min/Max=   16(+- 15.5)/    0/   32 [ms] #=  4
-AthenaSealSvc::...   INFO Time User   : Tot=   93 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot= 4.73  [s]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=  110 [ms] Ave/Min/Max=   55(+-    8)/   47/   63 [ms] #=  2
+AthenaSealSvc::...   INFO Time User   : Tot=  117 [ms] Ave/Min/Max= 29.2(+- 27.2)/    2/   63 [ms] #=  4
+AthenaSealSvc::...   INFO Time User   : Tot=  197 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=   13  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

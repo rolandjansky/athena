@@ -132,10 +132,10 @@ apply_pattern athenarun_test name="AthenaPoolExample_RCond" pre_script="../test/
 
 # Test zipping POOL files
 # AthenaPoolExample_Read_BNzip
-apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzip" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzip " options="./AthenaPoolExample_ReadBNzip.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzip AthenaPoolExample_ReadConcat "
+apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzip" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzip " options="./AthenaPoolExample_ReadBNzip.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzip "
 
 # AthenaPoolExample_Read_BNzipAgain
-#apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzipAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzipAgain " options="./AthenaPoolExample_ReadBNzipAgain.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzipAgain AthenaPoolExample_ReadConcat "
+#apply_pattern athenarun_test name="AthenaPoolExample_ReadBNzipAgain" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBNzipAgain " options="./AthenaPoolExample_ReadBNzipAgain.py" post_script="../test/post_check.sh AthenaPoolExample_ReadBNzipAgain AthenaPoolExample_ReadBNzip "
 
 # AthenaPoolExample_WMeta
 apply_pattern athenarun_test name="AthenaPoolExample_WMeta" pre_script="../test/pre_check.sh AthenaPoolExample_WMeta " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_WMeta "

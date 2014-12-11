@@ -1,13 +1,1 @@
-< SimplePoolFile2.root Debug -*>
-> SimplePoolFile2.root Debug -*>
-< ##Shapes Debug No objects passing selection criteria... Container has 12 Entries in total.
-< ##Links Debug No objects passing selection criteria... Container has 25 Entries in total.
-< ##Params Debug No objects passing selection criteria... Container has 9 Entries in total.
-< ##Sections Debug No objects passing selection criteria... Container has 28 Entries in total.
-< \?\?\?\? Debug Opened container MetaData\(EventStreamInfo_p3/Stream1\) of type ROOT_Tree
-< ##Sections Debug No objects passing selection criteria... Container has 30 Entries in total.
-< \?\?\?\? Debug Opened container ##Sections of type ROOT_Tree
-> ##Shapes Debug No objects passing selection criteria... Container has 6 Entries in total.
-> ##Links Debug No objects passing selection criteria... Container has 13 Entries in total.
-> ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
-> \?\?\?\? Debug Opened container MetaData\(EventStreamInfo_p3/Stream1\) of type ROOT_Tree
+
