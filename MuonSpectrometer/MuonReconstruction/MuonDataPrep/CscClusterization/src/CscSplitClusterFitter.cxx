@@ -358,8 +358,6 @@ Results CscSplitClusterFitter::fit(const StripFitList& sfits) const {
           res.clusterStatus = Muon::CscStatusSplitSkewed;
         else if ( oldclustatus == Muon::CscStatusQratInconsistent ) 
           res.clusterStatus = Muon::CscStatusSplitQratInconsistent;
-        else if ( oldclustatus == Muon::CscStatusQratInconsistent ) 
-          res.clusterStatus = Muon::CscStatusSplitQratInconsistent;
         else if ( oldclustatus == Muon::CscStatusStripFitFailed)
           res.clusterStatus = Muon::CscStatusSplitStripFitFailed;
         else if ( oldclustatus == Muon::CscStatusSaturated)

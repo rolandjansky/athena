@@ -54,7 +54,10 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
   double dzcut = da/25.0;
 
   int L = maxStrip;
-  
+ 
+  ithrL = 1;
+  ithrR = 1;
+ 
   if (first) {
     //i0    = L/2;
     first = false;
@@ -205,7 +208,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
           mainFit = true;
        }  
        log << MSG::DEBUG << "One Gaussing Main Fit: " << "Avg = " << z0 << " Mean = " 
-           << par[1] << " Error = " << fErr1 << " baseline = " << par[4] 
+           << par[1] << " Error = " << fErr1 << " baseline = " << par[3] 
            << " status = " << status << endreq;
     }
     delete func; 
