@@ -40,12 +40,14 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       ATH_MSG_FATAL("Cannot get DataModelCompatSvc.");
       return(StatusCode::FAILURE);
    }
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
    // Initialize AthenaRootStreamerSvc
    ServiceHandle<IService> arssvc("AthenaRootStreamerSvc", this->name());
    if (!arssvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get AthenaRootStreamerSvc.");
       return(StatusCode::FAILURE);
    }
+#endif
    // Retrieve ClassIDSvc
    if (!m_clidSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get ClassIDSvc.");
@@ -438,7 +440,12 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
 }
 //______________________________________________________________________________
 bool AthenaPoolCnvSvc::testDictionary(const std::string& className) const {
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
    return(m_poolSvc->testDictionary(className));
+#else
+   ATH_MSG_DEBUG("Skipping Dictionary check for: " << className);
+   return(true);
+#endif
 }
 //______________________________________________________________________________
 bool AthenaPoolCnvSvc::useDetailChronoStat() const {

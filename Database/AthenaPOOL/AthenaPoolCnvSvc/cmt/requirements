@@ -5,7 +5,6 @@ author Peter Van Gemmeren <gemmeren@bnl.gov>
 use AtlasPolicy           AtlasPolicy-*
 use AtlasPOOL             AtlasPOOL-*           External
 use GaudiInterface        GaudiInterface-*      External
-use AtlasReflex           AtlasReflex-*         External
 use AthenaBaseComps       AthenaBaseComps-*     Control
 use CLIDSvc               CLIDSvc-*             Control
 use DataModel             DataModel-*           Control
