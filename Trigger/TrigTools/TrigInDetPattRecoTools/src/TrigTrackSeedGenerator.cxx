@@ -19,22 +19,21 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
     m_minRadius(10.0),
     m_maxRadius(600.0), 
     m_radBinWidth(2.0),
-    m_nMaxPhiSlice(53),
     m_minDeltaRadius(10.0), 
     m_maxDeltaRadius(270.0),
     m_zTol(3.0), 
-    m_maxTripletBufferLength(3),
-    m_maxD0_mixed(1.7),
     m_pStore(NULL),
     m_pSoA(NULL) 
 {
   m_radLayers.clear();
   m_radLayers.resize(1+(int)(m_maxRadius/m_radBinWidth));
-  m_phiSliceWidth = 2*M_PI/m_nMaxPhiSlice;
-  m_phiSlices.resize(m_nMaxPhiSlice);
+  m_phiSliceWidth = 2*M_PI/m_settings.m_nMaxPhiSlice;
+  m_phiSlices.resize(m_settings.m_nMaxPhiSlice);
   m_nMaxRadBin = 1+(int)((m_maxRadius-m_minRadius)/m_radBinWidth);
-  m_pStore = new PHI_R_STORAGE(m_nMaxPhiSlice, m_nMaxRadBin);
+  m_pStore = new PHI_R_STORAGE(m_settings.m_nMaxPhiSlice, m_nMaxRadBin);
   m_pSoA = new INTERNAL_SOA(m_maxSoaSize);
+
+  //mult scatt. variance for doublet matching
   const double radLen = 0.036;
   m_CovMS = std::pow((13.6/m_settings.m_tripletPtMin),2)*radLen;
   m_ptCoeff = 0.29997*m_settings.m_magFieldZ/2;// ~0.3
@@ -72,7 +71,7 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
     if((*lIt).empty()) continue;
     for(std::vector<const TrigSiSpacePointBase*>::iterator rIt=(*lIt).begin();rIt!=(*lIt).end();++rIt) {
       int idx = ((*rIt)->phi()+M_PI)/m_phiSliceWidth;
-      if(idx<0 || idx>=m_nMaxPhiSlice) continue; 
+      if(idx<0 || idx>=m_settings.m_nMaxPhiSlice) continue; 
       m_phiSlices[idx].push_back(*rIt);
       nSP++;
     }
@@ -93,43 +92,33 @@ void TrigTrackSeedGenerator::createSeeds() {
 
   float zStart = -m_settings.m_doubletZ0Max - m_zTol;
   float zEnd = m_settings.m_doubletZ0Max + m_zTol;
-
-  ///  double expmin = std::exp(-(m_settings.roiDescriptor->eta()-m_settings.roiDescriptor->etaHalfWidth()));
-  ///  double expmax = std::exp(-(m_settings.roiDescriptor->eta()+m_settings.roiDescriptor->etaHalfWidth()));
-
-  double expmin = std::exp(-(m_settings.roiDescriptor->etaMinus()) );
-  double expmax = std::exp(-(m_settings.roiDescriptor->etaPlus()) );
-
-  double dzdrmin = 0.5*(1.0/expmin-expmin);
-  double dzdrmax = 0.5*(1.0/expmax-expmax);
-
-  double minOuterZ = -m_settings.m_doubletZ0Max + m_maxOuterRadius*dzdrmin;
-  double maxOuterZ =  m_settings.m_doubletZ0Max + m_maxOuterRadius*dzdrmax;
-
-  //mult scatt. variance for doublet matching
-
-
   
   for(INTERNAL_TRIPLET_BUFFER::reverse_iterator it=m_triplets.rbegin();it!=m_triplets.rend();++it) {
     delete (*it).second;
   }
   m_triplets.clear();
 
-  for(int phiIdx=0;phiIdx<m_nMaxPhiSlice;phiIdx++) {
+  for(int phiIdx=0;phiIdx<m_settings.m_nMaxPhiSlice;phiIdx++) {
 
     const PHI_SECTOR& S = m_pStore->m_phiSectors[phiIdx];
 
     if(S.m_nSP==0) continue;
 
-    std::set<int> phiSet;
+    std::vector<int> phiVec;
+    phiVec.reserve(4);
 
-    phiSet.insert(phiIdx);
+    phiVec.push_back(phiIdx);
 
-    if(phiIdx>0) phiSet.insert(phiIdx-1);
-    else phiSet.insert(m_nMaxPhiSlice-1);
+    if(phiIdx>0) phiVec.push_back(phiIdx-1);
+    else phiVec.push_back(m_settings.m_nMaxPhiSlice-1);
 
-    if(phiIdx<m_nMaxPhiSlice-1) phiSet.insert(phiIdx+1);
-    else phiSet.insert(0);
+    if(phiIdx<m_settings.m_nMaxPhiSlice-1) phiVec.push_back(phiIdx+1);
+    else phiVec.push_back(0);
+    
+    //Remove duplicates
+    std::sort(phiVec.begin(), phiVec.end());
+    phiVec.erase(std::unique(phiVec.begin(), phiVec.end()), phiVec.end());
+
 
     for(int radIdx=0;radIdx<m_nMaxRadBin;radIdx++) {
 
@@ -137,119 +126,118 @@ void TrigTrackSeedGenerator::createSeeds() {
 
       for(auto& spm : S.m_radBins[radIdx]) {//loop over middle spacepoint
 
-	float zm = spm->z();
-	float rm = spm->r();
-	bool isSct = (spm->offlineSpacePoint()->clusterList().second!=NULL);
+        float zm = spm->z();
+        float rm = spm->r();
+        bool isSct = (spm->isSCT());
 
-	const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
+        const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
 
-	int nSP=0;
-	int nInner=0;
-	int nOuter=0;
+        int nSP=0;
+        int nInner=0;
+        int nOuter=0;
 
-	for(int innRadIdx=radIdx-1;innRadIdx>=0;innRadIdx--) {
-       
-	  float refRad = m_minRadius +  m_radBinWidth*(0.5+innRadIdx);
-	  
-	  float dR = rm - refRad;
+        for(int innRadIdx=radIdx-1;innRadIdx>=0;innRadIdx--) {
 
-	  if(dR<m_minDeltaRadius) continue;
-	  if(dR>m_maxDeltaRadius) break;
+          float refRad = m_minRadius +  m_radBinWidth*(0.5+innRadIdx);
 
-	  float minZ = zStart + refRad*(zm - zStart)/rm;
-	  float maxZ = zEnd + refRad*(zm - zEnd)/rm;
- 
-	  for(auto innPhiIdx : phiSet) {
+          float dR = rm - refRad;
 
-	    const std::vector<const TrigSiSpacePointBase*>& spList = m_pStore->m_phiSectors[innPhiIdx].m_radBins[innRadIdx];
+          if(dR<m_minDeltaRadius) continue;
+          if(dR>m_maxDeltaRadius) break;
 
-	    if(spList.empty()) continue;
+          float minZ = zStart + refRad*(zm - zStart)/rm;
+          float maxZ = zEnd + refRad*(zm - zEnd)/rm;
 
-	    std::vector<const TrigSiSpacePointBase*>::const_iterator it1 = std::lower_bound(spList.begin(), spList.end(), minZ, PHI_SECTOR::smallerThanZ());
-	    std::vector<const TrigSiSpacePointBase*>::const_iterator it2 = std::upper_bound(spList.begin(), spList.end(), maxZ, PHI_SECTOR::greaterThanZ());
+          for(auto& innPhiIdx : phiVec) {
 
-	    //std::cout<<"distance="<<std::distance(it1, it2)<<std::endl;
+            const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_phiSectors[innPhiIdx].m_radBins[innRadIdx];
 
-	    if(std::distance(it1, it2)==0) continue;
+            if(spVec.empty()) continue;
 
-	    for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt= it1; spIt!=it2; ++spIt) {
+            std::vector<const TrigSiSpacePointBase*>::const_iterator it1 = std::lower_bound(spVec.begin(), spVec.end(), minZ, PHI_SECTOR::smallerThanZ());
+            std::vector<const TrigSiSpacePointBase*>::const_iterator it2 = std::upper_bound(spVec.begin(), spVec.end(), maxZ, PHI_SECTOR::greaterThanZ());
 
-	      if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
-	      
-	      if(isSct && ((*spIt)->offlineSpacePoint()->clusterList().second==NULL)) continue;//no PSS seeds allowed ???
+            if(std::distance(it1, it2)==0) continue;
 
-	      double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
-	      if(tau < dzdrmin || tau > dzdrmax) {
-		continue;
-	      }
-	      m_pSoA->m_sp[nSP++] = *spIt;
-	      if(nSP==m_maxSoaSize) break;
-	    }
-	  }
-	  if(nSP==m_maxSoaSize) break;
-	}
+            for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt= it1; spIt!=it2; ++spIt) {
 
-	nInner = nSP;
+              if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
 
-	//std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<innerSPs.size()<<" inner neighbours"<<std::endl;
+              if (!m_settings.m_tripletDoPSS) {//Allow PSS seeds?
+                if(isSct && ((*spIt)->isPixel())) continue;
+              }
 
-	for(int outRadIdx=radIdx+1;(outRadIdx<m_nMaxRadBin) && (nSP<m_maxSoaSize);outRadIdx++) {
-       
-	  float refRad = m_minRadius +  m_radBinWidth*(0.5+outRadIdx);
-	  
-	  float dR = refRad - rm;
+              double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
+              double z0  = zm - rm*tau;
 
-	  if(dR<m_minDeltaRadius) continue;
-	  if(dR>m_maxDeltaRadius) break;
+              if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                continue;
+              }
 
-	  float maxZ = zStart + refRad*(zm - zStart)/rm;
-	  float minZ = zEnd + refRad*(zm - zEnd)/rm;
- 
-	  for(auto outPhiIdx : phiSet) {
+              m_pSoA->m_sp[nSP++] = *spIt;
+              if(nSP==m_maxSoaSize) break;
+            }
+          }
+          if(nSP==m_maxSoaSize) break;
+        }
 
-	    const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_phiSectors[outPhiIdx].m_radBins[outRadIdx];
+        nInner = nSP;
 
-	    if(spVec.empty()) continue;
+        //std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<innerSPs.size()<<" inner neighbours"<<std::endl;
 
-	    std::vector<const TrigSiSpacePointBase*>::const_iterator it1 = std::lower_bound(spVec.begin(), spVec.end(), minZ, PHI_SECTOR::smallerThanZ());
-	    std::vector<const TrigSiSpacePointBase*>::const_iterator it2 = std::upper_bound(spVec.begin(), spVec.end(), maxZ, PHI_SECTOR::greaterThanZ());
+        for(int outRadIdx=radIdx+1;(outRadIdx<m_nMaxRadBin) && (nSP<m_maxSoaSize);outRadIdx++) {
 
-	    //std::cout<<"distance="<<std::distance(it1, it2)<<std::endl;
+          float refRad = m_minRadius +  m_radBinWidth*(0.5+outRadIdx);
 
-	    if(std::distance(it1, it2)==0) continue;
+          float dR = refRad - rm;
 
-	    for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt= it1; spIt!=it2; ++spIt) {
+          if(dR<m_minDeltaRadius) continue;
+          if(dR>m_maxDeltaRadius) break;
 
-	      if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
+          float maxZ = zStart + refRad*(zm - zStart)/rm;
+          float minZ = zEnd + refRad*(zm - zEnd)/rm;
 
-	      double tau = ((*spIt)->z() - zm)/((*spIt)->r() - rm);
-	      if(tau < dzdrmin || tau > dzdrmax) {
-		continue;
-	      }
+          for(auto& outPhiIdx : phiVec) {
 
-	      double outZ = (*spIt)->z() + (m_maxOuterRadius-(*spIt)->r())*tau;
+            const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_phiSectors[outPhiIdx].m_radBins[outRadIdx];
 
-	      if(outZ < minOuterZ || outZ > maxOuterZ) continue;
+            if(spVec.empty()) continue;
 
-	      m_pSoA->m_sp[nSP++] = *spIt;
-	      if(nSP==m_maxSoaSize) break;
-	    }
-	  }
-	  if(nSP==m_maxSoaSize) break;
-	}
+            std::vector<const TrigSiSpacePointBase*>::const_iterator it1 = std::lower_bound(spVec.begin(), spVec.end(), minZ, PHI_SECTOR::smallerThanZ());
+            std::vector<const TrigSiSpacePointBase*>::const_iterator it2 = std::upper_bound(spVec.begin(), spVec.end(), maxZ, PHI_SECTOR::greaterThanZ());
 
-	nOuter = nSP-nInner;
+            if(std::distance(it1, it2)==0) continue;
 
-	//std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<outerSPs.size()<<" outer neighbours"<<std::endl;
+            for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt= it1; spIt!=it2; ++spIt) {
 
-	if(nInner == 0 || nOuter == 0) continue;
+              if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
 
-	INTERNAL_TRIPLET_BUFFER tripletMap;
+              double tau = ((*spIt)->z() - zm)/((*spIt)->r() - rm);
+              double z0  = zm - rm*tau;
 
-	createTriplets(spm, nInner, nOuter, tripletMap);
+              if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                continue;
+              }
 
-	if(!tripletMap.empty()) storeTriplets(tripletMap);	
-	tripletMap.clear();
+              m_pSoA->m_sp[nSP++] = *spIt;
+              if(nSP==m_maxSoaSize) break;
+            }
+          }
+          if(nSP==m_maxSoaSize) break;
+        }
+
+        nOuter = nSP-nInner;
+
+        //std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<outerSPs.size()<<" outer neighbours"<<std::endl;
+
+        if(nInner == 0 || nOuter == 0) continue;
+
+        INTERNAL_TRIPLET_BUFFER tripletMap;
+
+        createTriplets(spm, nInner, nOuter, tripletMap);
+
+        if(!tripletMap.empty()) storeTriplets(tripletMap);	
+        tripletMap.clear();
 
 
       }//loop over spacepoints in phi-r bin
@@ -309,7 +297,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     m_pSoA->m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
   }
 
-  bool isPixel = (pS->offlineSpacePoint()->clusterList().second==NULL);
+  bool isPixel = (pS->isPixel());
 
   //double loop
 
@@ -362,10 +350,8 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       if(fabs(d0) > m_settings.m_tripletD0Max) continue;
       
-      bool isSct = (m_pSoA->m_sp[outIdx]->offlineSpacePoint()->clusterList().second!=NULL);
-
-      if(isSct && isPixel) {
-	if(fabs(d0) > m_maxD0_mixed) continue;
+      if (m_pSoA->m_sp[outIdx]->isSCT() && isPixel) {
+        if(fabs(d0) > m_settings.m_tripletD0_PPS_Max) continue;
       }
 
       //5. phi0 cut
@@ -374,13 +360,13 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
       double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
       if(!m_settings.roiDescriptor->containsPhi(phi0)) {
-	continue;
+        continue;
       }
 
       //6. add new triplet
 
       double Q = d0*d0;
-      if(output.size()>=m_maxTripletBufferLength) {
+      if(output.size()>=m_settings.m_maxTripletBufferLength) {
         INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
         if( Q >= (*it).first) continue;
         delete (*it).second;
@@ -400,8 +386,8 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 void TrigTrackSeedGenerator::storeTriplets(INTERNAL_TRIPLET_BUFFER& tripletMap) {
   for(INTERNAL_TRIPLET_BUFFER::iterator it=tripletMap.begin();it!=tripletMap.end();++it) {
     double Q = (*it).first;
-    if((*it).second->s3().offlineSpacePoint()->clusterList().second!=NULL) {
-      Q += (*it).second->s1().offlineSpacePoint()->clusterList().second!=NULL ? 1000.0 : 10000.0;
+    if((*it).second->s3().isSCT()) {
+      Q += (*it).second->s1().isSCT() ? 1000.0 : 10000.0;
     }
     m_triplets.insert(std::pair<double, TrigInDetTriplet*>(Q, (*it).second));
   }

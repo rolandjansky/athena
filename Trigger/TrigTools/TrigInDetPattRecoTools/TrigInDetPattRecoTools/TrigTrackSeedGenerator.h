@@ -161,12 +161,9 @@ private:
   int m_maxSoaSize;
   double m_maxOuterRadius;
   double m_minRadius, m_maxRadius, m_radBinWidth;
-  int m_nMaxPhiSlice;
   double m_phiSliceWidth;
   int m_nMaxRadBin;
   double m_minDeltaRadius, m_maxDeltaRadius, m_zTol;
-  unsigned int m_maxTripletBufferLength;
-  double m_maxD0_mixed;
 
   std::vector<std::vector<const TrigSiSpacePointBase*> > m_radLayers;
   std::vector<std::vector<const TrigSiSpacePointBase*> > m_phiSlices;

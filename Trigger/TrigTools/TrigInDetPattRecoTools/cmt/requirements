@@ -32,7 +32,6 @@ library TrigInDetPattRecoTools  *.cxx
 private 
 
 #use GeoPrimitives               GeoPrimitives-*              DetectorDescription 
-use AthenaKernel             AthenaKernel-*                  Control
 use IRegionSelector        IRegionSelector-*        DetectorDescription
 
 #use	DataModel			DataModel-*			Control
