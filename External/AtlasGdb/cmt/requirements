@@ -1,43 +1,69 @@
 package AtlasGdb
-author  Sebastien Binet <binet@cern.ch>
+author  Sebastien Binet
+author  Rolf Seuster (re-write w/o pkgbuild)
 
 ## For Athena policies: it has to be the first use statement
 use AtlasPolicy 	AtlasPolicy-*
-use PyCmt		    PyCmt-*             Tools -no_auto_imports
-use AtlasPython     AtlasPython-*       External
-use AtlasBzip2      AtlasBzip2-*        External
+use AtlasPython		AtlasPython-*       External
 
 apply_pattern declare_python_modules files="gdbhacks *.py"
 apply_pattern declare_scripts files="atlasAddress2Line"
 
 application resolveAtlasAddr2Line ../app/resolveAtlasAddr2Line.cpp
-macro_append resolveAtlasAddr2Line_dependencies "make_pkgbuild_gdb"
+macro_append resolveAtlasAddr2Line_dependencies " external_make_all "
+
+macro AtlasGdb_native_version "7.8.1"
+macro AtlasGdb_lib "$(AtlasGdb_root)/$(CMTCONFIG)/lib"
 
 private
 
-apply_pattern make_pkgbuild \
- name=gdb \
- file=pkgbuild_gdb.py
+# the usual, tar; configure; make; make install cycle implemented as actions
+#  here, one additional step is involved to get the include files installed
+#  into the location <package>_root
+
+action external_untar "(cd ../$(CMTCONFIG); tar xvfJ ../src/gdb-$(AtlasGdb_native_version).tar.xz )"
+
+# gdb is a standalone executable, independent of compiler flags used for the rest of the atlas software
+#  only exception is that we need to link against libiberty and bfd, so build and expose them
+action external_configure "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); ./configure --prefix=$(AtlasGdb_root)/$(CMTCONFIG) --with-python=$(Python_home) --enable-install-libiberty CXXFLAGS='$(cppflags) -fPIC' CFLAGS='-fPIC' LDFLAGS='-L$(Python_home)/lib')"
+
+action external_make_compile "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); make )"
+
+action external_make_preinstall "(cd ..; ln -sf $(CMTCONFIG)/include )"
+
+action external_make_install "(cd ../$(CMTCONFIG)/gdb-$(AtlasGdb_native_version); make install )"
+
+# dummy target to allow other actions needed by this package to depend on just a single target
+action external_make_all "echo done"
+
+# get dependencies of all actions correct, so all is done sequentially
+macro_append external_configure_dependencies " external_untar "
+macro_append external_make_compile_dependencies " external_configure "
+macro_append external_make_preinstall_dependencies " external_make_compile "
+macro_append external_make_install_dependencies " external_make_preinstall "
+
+# installation of non-standard directory structure for header files, here the structure
+#  is <package_root>/<package>/fastjet, it must be executed after the 'make install' step
+apply_pattern install_non_standard_includes name=include package=AtlasGdb
+macro_append install_include_includes_dependencies " external_make_install "
+
+macro_append external_make_all_dependencies " install_include_includes "
+
+# trigger the chain of actions
+macro_append constituents " external_make_all "
+
+macro_prepend includes ' $(ppcmd)"$(AtlasGdb_root)/$(CMTCONFIG)/include" '
 
 end_private
 
 macro_append AtlasGdb_linkopts "" \
-  slc5&64 \
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib64/libiberty.a -lz " \
-  slc5&32 \
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz "   \
   slc6&64&clang32 \ 
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \ 
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/x86_64/libiberty.a -lz " \
+ " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \ 
+   $(AtlasGdb_root)/$(tag)/lib/x86_64/libiberty.a -lz " \
   slc6&64&icc13 \ 
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \ 
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz " \
-  slc6&64 \
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib64/libiberty.a -lz " \
-  slc6&32 \
- " $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libbfd.a \
-   $(AtlasGdb_root)/$(tag)/pkg-build-install-gdb/lib/libiberty.a -lz "
+ " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \ 
+   $(AtlasGdb_root)/$(tag)/lib/libiberty.a -lz " \
+  slc6 \
+ " $(AtlasGdb_root)/$(tag)/lib/libbfd.a \
+   $(AtlasGdb_root)/$(tag)/lib64/libiberty.a -lz "
 
