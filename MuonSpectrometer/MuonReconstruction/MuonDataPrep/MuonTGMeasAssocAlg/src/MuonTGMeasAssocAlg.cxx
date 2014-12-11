@@ -581,6 +581,7 @@ std::vector<std::pair<const Trk::Layer*,std::vector<const Trk::PrepRawData*>*>*>
   StatusCode sc_read = m_StoreGate->retrieve(mdt_container, m_inputMdtPrdCollection);
   if (sc_read.isFailure()) {
     log << MSG::ERROR << " Cannot retrieve MDT PrepData Container " << endreq;
+    delete vec_alllayer;
     return NULL;
   }
 
