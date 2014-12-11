@@ -31,7 +31,7 @@ class blob_istream2(object):
         self.total_events = 0
         dr = EventStorage.pickDataReader(f)
         if dr is None:
-            raise IOError("Invalid file or format at '%s'" % f)
+            raise IOError("Invalid file or format at '{}'".format(f))
         self.total_events = dr.eventsInFile()
 
         self.file = f
@@ -52,10 +52,10 @@ class blob_istream2(object):
     
         if type(key) is int or type(key) is long:
             if key >= len(self):
-                raise IndexError, "Index (%d) is bigger than my length (%d)" % (key, self.total_events)
+                raise IndexError, "Index ({:d}) is bigger than my length ({:d})".format(key, self.total_events)
             if key < 0:
                 if (-key) > len(self):
-                    raise IndexError, "Index (%d) is too small for my length (%d)" % (key, self.total_events)
+                    raise IndexError, "Index ({:d}) is too small for my length ({:d})".format(key, self.total_events)
                 key = len(self) + key
         
             f = None
@@ -92,14 +92,14 @@ class istream2(blob_istream2):
             fragment_version = helper.Version(blob[3])
             if fragment_version.major_version() != helper.MAJOR_DEFAULT_VERSION:
                 current_version = helper.Version()
-                logging.debug("Converting from version %s to %s" % \
-                                  (fragment_version.human_major(), current_version.human_major()))
+                logging.debug("Converting from version {} to {}".format(
+                        fragment_version.human_major(), current_version.human_major()))
                 blob = convert_old(blob)
 
             if blob[0] == helper.HeaderMarker.FULL_EVENT:
                 yield (offset,FullEventFragment(blob))
             else:
-                raise SyntaxError, "Expecting event marker, not 0x%08x" % blob[0]
+                raise SyntaxError, "Expecting event marker, not 0x{:08x}".format(blob[0])
 
     def iter_raw(self):
         dr = EventStorage.pickDataReader(self.file)
@@ -109,34 +109,34 @@ class istream2(blob_istream2):
 
 def processRAW(input_file, eif, nfile, nfirst, evtmax):    
   
-    log.info("Opening data file: %s" % ( input_file))
-    eif['StartProcTime_%d'%nfile] = int(time.time() * 1000)
+    log.info("Opening data file: {}".format(input_file))
+    eif['StartProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
 
     dr = EventStorage.pickDataReader(input_file)
     if dr is None:
-        raise IOError("Invalid file or format at '%s'" % input_file)
+        raise IOError("Invalid file or format at '{}'".format(input_file))
 
-    log.info("total_events: %s",dr.eventsInFile())
-    log.debug("dataMB: %s", dr.dataMB_InFile())
-    log.debug("LumiBlock: %s", dr.lumiblockNumber())
-    log.debug("Stream: %s", dr.stream())
-    log.debug("App Name: %s", dr.appName())
-    log.debug("beamEnergy: %s", dr.beamEnergy())
-    log.debug("beamType: %s", dr.beamType())
-    log.debug("detectorMask: %s", dr.detectorMask())
-    log.debug("Core Name: %s", dr.fileNameCore())
-    log.debug("projectTag: %s", dr.projectTag())
-    log.debug("GUID: %s", dr.GUID())
-    log.debug("runNumber: %s", dr.runNumber())
-    log.debug("stream: %s", dr.stream())
-    log.debug("triggerType: %s", dr.triggerType())
+    log.info("total_events: {}".format(dr.eventsInFile()))
+    log.debug("dataMB: {}".format(dr.dataMB_InFile()))
+    log.debug("LumiBlock: {}".format(dr.lumiblockNumber()))
+    log.debug("Stream: {}".format(dr.stream()))
+    log.debug("App Name: {}".format(dr.appName()))
+    log.debug("beamEnergy: {}".format(dr.beamEnergy()))
+    log.debug("beamType: {}".format(dr.beamType()))
+    log.debug("detectorMask: {}".format(dr.detectorMask()))
+    log.debug("Core Name: {}".format(dr.fileNameCore()))
+    log.debug("projectTag: {}".format(dr.projectTag()))
+    log.debug("GUID: {}".format(dr.GUID()))
+    log.debug("runNumber: {}".format(dr.runNumber()))
+    log.debug("stream: {}".format(dr.stream()))
+    log.debug("triggerType: {}".format(dr.triggerType()))
 
     GUID = dr.GUID()
 
 
-    eif['ProjName_%d'%nfile] = dr.projectTag()
-    eif['TrigStream_%d'%nfile] = dr.stream()
-    eif['AMITag_%d'%nfile] = ""                  # no tag for RAW data
+    eif['ProjName_{:d}'.format(nfile)] = dr.projectTag()
+    eif['TrigStream_{:d}'.format(nfile)] = dr.stream()
+    eif['AMITag_{:d}'.format(nfile)] = ""                  # no tag for RAW data
     
     
 
@@ -159,20 +159,20 @@ def processRAW(input_file, eif, nfile, nfirst, evtmax):
         L1TAP=event.lvl1_trigger_info()[8:16]
         L1TAV=event.lvl1_trigger_info()[16:24]
         log.debug("--------------------------------")
-        log.debug('Event: %s',cntEvt)
-        log.debug('Offset: %s', offset)
-        log.debug('RunNumber: %s',event.run_no())
-        log.debug("EventNumber: %s", event.global_id())
-        log.debug('L1ID: %s',event.lvl1_id())
-        log.debug("EventTime: %s", event.bc_time_seconds())
-        log.debug("EventTimeNanoSec: %s", event.bc_time_nanoseconds())
-        log.debug("LumiBlockN: %s",event.lumi_block())
-        log.debug("BunchId: %s", event.bc_id())
-        log.debug('L1 type: 0x%02x' % event.lvl1_trigger_type())
-        log.debug('L1 Before Prescale: %s',L1TBP)
-        log.debug('L1 After  Prescale: %s', L1TAP)
-        log.debug('L1 After  Veto: %s',L1TAV)
-        log.debug("RunType: %s",event.run_type())
+        log.debug('Event: {}'.format(cntEvt))
+        log.debug('Offset: {}'.format(offset))
+        log.debug('RunNumber: {}'.format(event.run_no()))
+        log.debug("EventNumber: {}".format( event.global_id()))
+        log.debug('L1ID: {}'.format(event.lvl1_id()))
+        log.debug("EventTime: {}".format(event.bc_time_seconds()))
+        log.debug("EventTimeNanoSec: {}".format( event.bc_time_nanoseconds()))
+        log.debug("LumiBlockN: {}".format(event.lumi_block()))
+        log.debug("BunchId: {}".format(event.bc_id()))
+        log.debug('L1 type: 0x{:02x}'.format(event.lvl1_trigger_type()))
+        log.debug('L1 Before Prescale: {}'.format(L1TBP))
+        log.debug('L1 After  Prescale: {}'.format( L1TAP))
+        log.debug('L1 After  Veto: {}'.format(L1TAV))
+        log.debug("RunType: {}".format(event.run_type()))
         
 
         eirec['RunNumber'] = event.run_no()
@@ -212,8 +212,8 @@ def processRAW(input_file, eif, nfile, nfirst, evtmax):
         offset_str = "{0:016X}".format(offset)
         offset_str1 = offset_str[:8]
         offset_str2 = offset_str[8:]
-        tk_tmpl = "[DB=%s][CNT=00000000][CLID=00000000-0000-0000-0000-000000000000][TECH=00001000][OID=%s-%s]"
-        eirec['Sref0'] = tk_tmpl % (GUID,offset_str1,offset_str2)
+        tk_tmpl = "[DB={}][CNT=00000000][CLID=00000000-0000-0000-0000-000000000000][TECH=00001000][OID={}-{}]"
+        eirec['Sref0'] = tk_tmpl.format(GUID,offset_str1,offset_str2)
 
         L1=event.lvl1_trigger_info()
         trigL1=""
@@ -235,12 +235,12 @@ def processRAW(input_file, eif, nfile, nfirst, evtmax):
         eirec['EFPassedTrigMask'] = trigEF
 
         # write to db
-        eif['Entry_%d' % cntEvtEI] = eirec.getRec()
+        eif['Entry_{:d}'.format(cntEvtEI)] = eirec.getRec()
         cntEvt += 1
         cntEvtEI += 1
 
-    eif['Nentries_%d'%nfile] = cntEvt
-    eif['EndProcTime_%d'%nfile] = int(time.time() * 1000)
+    eif['Nentries_{:d}'.format(nfile)] = cntEvt
+    eif['EndProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
 
     return cntEvt
 
@@ -285,8 +285,8 @@ def main():
     eif['StartProcTime'] = int(time.time() * 1000)
     eif['Schema'] = EIrecord().getRecSchema()
     eif['Version'] = EIrecord().getVersion()
-    eif['PandaID'] = os.getenv('PandaID', 0)
-    eif['PanDA_TaskID'] = os.getenv('PanDA_TaskID', 0)
+    eif['TaskID'] = os.getenv('TaskID', 0)
+    eif['JobID'] = os.getenv('JobID', 0)
     
     #processing options
     eif['ProvenanceRef'] = False

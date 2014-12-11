@@ -33,13 +33,13 @@ class EIFile(object):
         try:
             self._db = dbsqlite.open(fname,flags='r')
         except:
-            log.error("Unable to open EI  file %s" % fname)
+            log.error("Unable to open Event Index file {}".format(fname))
             raise
 
         try:
             self._nentries=self._db['Nentries'] 
         except:
-            log.error("Unable to get nentries from EI file %s" % fname)
+            log.error("Unable to get nentries from Event Index file {}".format(fname))
             raise
 
     def __getitem__(self,key):
@@ -54,14 +54,14 @@ class EIFile(object):
             else:
                 step=1
             for i in range(start, stop, step):
-                l.append(self._db["Entry_%d"%i])
+                l.append(self._db["Entry_{:d}".format(i)])
             return l
         elif isinstance( key, int ) :
             if key < 0 : #Handle negative indices
                 key += self._nentries
             if key >= self._nentries :
-                raise IndexError, "The index (%d) is out of range."%key
-            return self._db["Entry_%d"%key]
+                raise IndexError, "The index ({:d}) is out of range.".format(key)
+            return self._db["Entry_{:d}".format(key)]
         else:
             if key in self._db:
                 return self._db[key]
@@ -105,7 +105,7 @@ class EIIterator(object):
             raise StopIteration
         else:
             #print "==", self.current
-            evt=self.db['Entry_%d'%self.current]
+            evt=self.db["Entry_{:d}".format(self.current)]
             self.current += 1
             return evt
 
@@ -127,6 +127,11 @@ class EI5(object):
         pass
 
     def _tk2components(self,tk):
+        # pool token has the format:
+        # [DB=dbID][CNT=cntID][CLID=classID][TECH=technology][OID=oid.first-oid.second]
+        # eg.:
+        #   [DB=FEAD2AD8-111F-11E2-8080-1CCD8E80BEEF][CNT=POOLContainer(DataHeader)]
+        #     [CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=00000123-00000008]
         pool_token = re.compile(r'[[]DB=(?P<db>.*?)[]]' \
                                     r'[[]CNT=(?P<cnt>.*?)[]]' \
                                     r'[[]CLID=(?P<clid>.*?)[]]' \
@@ -143,14 +148,14 @@ class EI5(object):
         r.append(d['db'].replace('-',''))
         r.append(d['cnt'])
         r.append(d['clid'].replace('-',''))
-        r.append("%x"%int(d['tech'],16))
-        r.append("%x"%int(d['oid1'],16))
-        r.append("%x"%int(d['oid2'],16))
+        r.append("{:x}".format(int(d['tech'],16)))
+        r.append("{:x}".format(int(d['oid1'],16)))
+        r.append("{:x}".format(int(d['oid2'],16)))
         return r
 
     
     def setEvtCommon(self,ec):
-        ecnames=[('PandaID','a'),('PanDA_TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e')]
+        ecnames=[('JobID','a'),('TaskID','b'),("AMITag",'c'),("ProjName",'d'),("TrigStream",'e'),('InputDsName','f')]
         ecn = dict(ecnames)
         self._ec_next={}              # valid starting from next append
         for k,v in ec.iteritems():
@@ -175,7 +180,6 @@ class EI5(object):
         e['w']=float(evt['EventWeight'])
         e['j']=int(evt['McChannelNumber'])
         e['i']=int(evt['BunchId'])
-        e['d']=int(evt['Lvl1ID'])
 
         e['i0']=int(evt['IsSimulation'])
         e['i1']=int(evt['IsCalibration'])
@@ -183,6 +187,7 @@ class EI5(object):
 
         # trigger
         if self._inctrigger:
+            e['d']=int(evt['Lvl1ID'])
             e["t1"]=evt['L1PassedTrigMask']
             e["t2"]=evt['L2PassedTrigMask']
             e["te"]=evt['EFPassedTrigMask']
@@ -202,15 +207,15 @@ class EI5(object):
         # get refrences from SnamN, SrefN
         for idx in range(4):   
             if idx == 0 or self._incprovenance:
-                ref="Sref%d"%idx
-                nam="Snam%d"%idx
+                ref="Sref{:d}".format(idx)
+                nam="Snam{:d}".format(idx)
                 if evt[ref] is not None:
                     tkc = self._tk2components(evt[ref])
                     if tkc is None:
                         continue
                     for letter,component in zip (['a','b','c','d','e','f'],tkc):
                         e[letter+str(idx)] = component
-                    e['x%d'%idx]=evt[nam]
+                    e['x{:d}'.format(idx)]=evt[nam]
 
 
         
@@ -306,7 +311,7 @@ class MSG(object):
 
         log.debug("Broker IPs and ports to connect:")
         for broker in self.brokers:
-            log.debug("   %15s   %s"%broker)
+            log.debug("   {:15s}   {}".format(*broker))
 
         conn=None
         # build options
@@ -343,9 +348,12 @@ class MSG(object):
 
     def sendMSGstats(self,msg):
 
-        log.debug("Sending stats message: %s", msg)
+        texp=int(time.time() * 1000) + 259200000   # 72 hours from now
+
+        log.debug("Sending stats message: {}".format(msg))
+
         if not self.dummy:
-            self.conn.send(message=msg, destination=self.queue2)
+            self.conn.send(message=msg, destination=self.queue2, JMSExpiration=texp)
         if self.verbose > 2:
             print >> sys.stderr, msg
         
@@ -374,13 +382,13 @@ class MSG(object):
 
 
         # send message
-        log.debug("Sending message: %s:%-5d  len: %d",self.seqid,self.seq,len(msg))
+        log.debug("Sending message: {}:{:<5d}  len: {:d}".format(self.seqid,self.seq,len(msg)))
 
         if not self.dummy:
             if self.seq == 0:
                 self.transactionID=self.conn.begin()   # start transaction before first message is sent
             self.conn.send(message=msg, destination=self.queue, transaction=self.transactionID, 
-                           JMSXGroupID=self.seq)
+                           JMSXGroupID=self.transactionID)
 
         if self.verbose > 2:
             print >> sys.stderr, msg
@@ -425,14 +433,14 @@ def endpointV(endpoint):
         try:
             port=int(port)
         except:
-            log.error("Invalid port %s",port)
+            log.error("Invalid port {}",port)
             continue
-            #raise Exception("Invalid port %s",port)
+            #raise Exception("Invalid port {}",port)
         try:
             (h, a, ip)=socket.gethostbyname_ex(host)
         except:
-            log.error("Host can not be resolved %s",host)
-            #raise Exception("Invalid host %s",host)
+            log.error("Host can not be resolved {}",host)
+            #raise Exception("Invalid host {}",host)
             continue
         for addr in ip:
             result.append((addr,port))
@@ -447,13 +455,13 @@ def options(argv):
                         help="broker name and port")
     parser.add_argument('-m','--evtmax', default=0, type=int, help='Max events to process')
     parser.add_argument('-s','--msize', default=10000, type=int, help='message size')
-    parser.add_argument('-q','--queue', default='/queue/atlas.eventindex', help="broker queue name")
-    parser.add_argument(     '--queue2', default=None, help="broker queue name for statistics")
+    parser.add_argument('-q','--queue',  default='/queue/atlas.eventindex', help="broker queue name")
+    parser.add_argument(     '--queue2', default='/topic/atlas.eventindex.stats', help="broker queue name for statistics")
     parser.add_argument('-u','--user',default=None, help="Stomp user name")
     parser.add_argument('-k','--passcode',default=None,help="Stomp passcode")
     parser.add_argument('-v','--verbose', action='count', help='Verbosity level')
     parser.add_argument('-d','--debug', action='count', help='Debug')
-    parser.add_argument("-t","--trigger", action='store_true', help="Include trigger information (default: false)")
+    parser.add_argument("-t","--trigger", action='store_true', help="Include trigger information (default: true)")
     parser.add_argument("-p","--provenance", action='store_true', help="Include provenance information (default: true)")
     parser.add_argument("--no-trigger", action='store_false', dest='trigger', help="Do not include trigger information")
     parser.add_argument("--no-provenance", action='store_false', dest='provenance', help="Do not include provenance information")
@@ -465,14 +473,11 @@ def options(argv):
     parser.add_argument('eifile', help="EventIndex file")
 
     # default for trigger and provenance
-    parser.set_defaults(trigger=False)
+    parser.set_defaults(trigger=True)
     parser.set_defaults(provenance=True)
 
     # parse args
-    opt=parser.parse_args()
-
-    if opt.queue2 is None:
-        opt.queue2 = opt.queue+"2"
+    opt=parser.parse_args(args=argv)
 
     if opt.ssl:
         if opt.keyfile is None or opt.certfile is None:
@@ -488,30 +493,38 @@ def options(argv):
 
 
 
-def main():    
+def main():
+
+    # logger
+    logger = logging.getLogger('sendEI.py')
+
+    # analyze options
+    opt = options(sys.argv[1:])
+
+    if opt.verbose > 0:
+        logger.setLevel(logging.INFO)
+
+    if opt.debug > 0:
+        logger.setLevel(logging.DEBUG)
+
+    eimrun(logger,opt)
+
+
+def eimrun(logger,opt):
 
     # logger
     global log
-    log = logging.getLogger('sendEI.py')
-
-    # analyze options
-    opt = options(sys.argv)
-
-    if opt.verbose > 0:
-        log.setLevel(logging.INFO)
-
-    if opt.debug > 0:
-        log.setLevel(logging.DEBUG)
+    log=logger
         
     # open EI file
     fname = opt.eifile
     if not (path.isfile(fname) and access(fname, R_OK)):
-        log.error("Event Index file %s does not exists or is not readble"%fname)
+        log.error("Event Index file {} does not exists or is not readble".format(fname))
         sys.exit(1)
     try:
         eif = EIFile(fname)
     except:
-        log.error("Unable to get info from EI file %s"%fname)
+        log.error("Unable to get info from EI file {}".format(fname))
         sys.exit(1)
 
 
@@ -524,42 +537,47 @@ def main():
 
     # check supported versions of EI file
     if  int(eif['Version']) > 1:
-        log.error("Unable to process EI file version %s" % eif['Version'])
+        log.error("Unable to process EI file version {}".format(eif['Version']))
         sys.exit(1)
 
 
     # dump info if verbose
-    if opt.verbose >0:
+    if opt.verbose > 0:
+        log.info("===================== sendEI ====================")
+        log.info(" endpoint: {}".format(opt.endpoint))
+        log.info(" queue: {}".format(opt.queue))
         log.info("Event Index file contents")
         log.info("-------------------------")
-        log.info(" Version: %s" % eif['Version'])
-        log.info(" Schema: %s" % eif['Schema'])
-        log.info(" #input files: %s" % eif['Nfiles'])
-        log.info(" Total number of events: %s" % eif['Nentries'])
-        log.info(" StartProcTime: %s" % eif['StartProcTime'])
-        log.info(" EndProcTime: %s" % eif['EndProcTime'])
-        log.info(" PandaID: %s" % eif['PandaID'])
-        log.info(" PanDA_TaskID: %s" % eif['PanDA_TaskID'])
-        log.info(" Includes Provenance: %s" % eif['ProvenanceRef'])
-        log.info(" Includes Trigger: %s" % eif['TriggerInfo'])
+        log.info(" Version: {}".format(eif['Version']))
+        log.info(" Schema: {}".format(eif['Schema']))
+        log.info(" #input files: {}".format(eif['Nfiles']))
+        log.info(" Total number of events: {}".format(eif['Nentries']))
+        log.info(" StartProcTime: {}".format(eif['StartProcTime']))
+        log.info(" EndProcTime: {}".format(eif['EndProcTime']))
+        log.info(" TaskID: {}".format(eif['TaskID']))
+        log.info(" JobID: {}".format(eif['JobID']))
+        log.info(" Includes Provenance: {}".format(eif['ProvenanceRef']))
+        log.info(" Includes Trigger: {}".format(eif['TriggerInfo']))
         
 
         for i in xrange(eif['Nfiles']):
             log.info("")
-            log.info("File %d"%i)
-            if 'Nentries_%d'%i in eif:
-                log.info("  Events in this file: %s" % eif['Nentries_%d'%i])
-            log.info("  StartProcTime: %s" % eif['StartProcTime_%d'%i])
-            if 'EndProcTime_%d'%i in eif:
-                log.info("  EndProcTime: %s" % eif['EndProcTime_%d'%i])
+            log.info("File {:d}".format(i))
+            if 'Nentries_{:d}'.format(i) in eif:
+                log.info("  Events in this file: {}".format(eif['Nentries_{:d}'.format(i)]))
+            log.info("  StartProcTime: {}".format(eif['StartProcTime_{:d}'.format(i)]))
+            if 'EndProcTime_{:d}'.format(i) in eif:
+                log.info("  EndProcTime: {}".format(eif['EndProcTime_{:d}'.format(i)]))
             else:
-                log.info("  EndProcTime: %s" % eif['EndProcTime'])
-            if "AMITag" in eif:
-                log.info("  AMITag: %s" % eif['AMITag_%d'%i])
-            if "TrigStream_%d"%i in eif:
-                log.info("  TrigStream: %s" % eif['TrigStream_%d'%i])
-            if "ProjName_%d"%i in eif:
-                log.info("  ProjName: %s" % eif['ProjName_%d'%i])
+                log.info("  EndProcTime: {}".format(eif['EndProcTime']))
+            if "AMITag_{:d}".format(i) in eif:
+                log.info("  AMITag: {}".format(eif['AMITag_{:d}'.format(i)]))
+            if "TrigStream_{:d}".format(i) in eif:
+                log.info("  TrigStream: {}".format(eif['TrigStream_{:d}'.format(i)]))
+            if "ProjName_{:d}".format(i) in eif:
+                log.info("  ProjName: {}".format(eif['ProjName_{:d}'.format(i)]))
+            if "GUID_{:d}".format(i) in eif:
+                log.info("  GUID: {}".format(eif['GUID_{:d}'.format(i)]))
 
         log.info("")
 
@@ -567,10 +585,11 @@ def main():
     # check compatibility of options
     if opt.provenance and not eif['ProvenanceRef']:
         log.error("Unable to send provenance information since it is missing from EI file")
-        sys.exit(1)
+        opt.provenance = False
+
     if opt.trigger and not eif['TriggerInfo']:
         log.error("Unable to send trigger information since it is missing from EI file")
-        sys.exit(1)
+        opt.trigger = False
 
 
     schema = eif['Schema']
@@ -605,27 +624,28 @@ def main():
     # get list of files
     fdata=[]
     for nf in xrange(nfiles):
-        if 'Nentries_%d'%nf in eif:
-            nevents = eif['Nentries_%d'%nf]
+        if 'Nentries_{:d}'.format(nf) in eif:
+            nevents = eif['Nentries_{:d}'.format(nf)]
         else:
             nevents = events_tot
             
         # new common values
         evtcommon={}
-        if "AMITag_%d"%nf in eif:
-            evtcommon['AMITag']=eif['AMITag_%d'%nf]
-        if "ProjName_%d"%nf in eif:
-            evtcommon['ProjName']=eif['ProjName_%d'%nf]
-        if "TrigStream_%d"%nf in eif:
-            evtcommon['TrigStream']=eif['TrigStream_%d'%nf]
+        if "AMITag_{:d}".format(nf) in eif:
+            evtcommon['AMITag']=eif['AMITag_{:d}'.format(nf)]
+        if "ProjName_{:d}".format(nf) in eif:
+            evtcommon['ProjName']=eif['ProjName_{:d}'.format(nf)]
+        if "TrigStream_{:d}".format(nf) in eif:
+            evtcommon['TrigStream']=eif['TrigStream_{:d}'.format(nf)]
             
-        evtcommon['PandaID']=eif['PandaID']
-        evtcommon['PanDA_TaskID']=eif['PanDA_TaskID']
+        evtcommon['TaskID']=eif['TaskID']
+        evtcommon['JobID']=eif['JobID']
+        evtcommon['InputDsName']=eif['InputDsName']
         fdata.append((nevents,evtcommon))
 
     i = 0
     nf = 0
-    log.info("Processing file %d"%nf)
+    log.info("Processing file {:d}".format(nf))
     (nevents,evtcommon) = fdata.pop(0)
     ei5.setEvtCommon(evtcommon)
     last_in_file = nevents
@@ -651,7 +671,7 @@ def main():
         
         # last event in input file ?
         if i == last_in_file:
-            log.info("Last event in file %d"%nf)
+            log.info("Last event in file {:d}".format(nf))
             nf += 1
             # prepare for next file
             try:
@@ -686,9 +706,10 @@ def main():
     stats.end_time=int(time.time() * 1000)
 
     # send stats to alternate queue
-    #     PandaID,PanDA_TaskID,start_time,end_time,#evts,#msg,totsize
-    msgst="EISTATS0;%s;%s;%s;%s;%s;%s;%s"%(
-        eif['PandaID'],eif['PanDA_TaskID'],
+    #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
+    msgst="EISTATS0;{};{};{};{};{};{};{};{}".format(
+        eif['GUID_0'],
+        eif['JobID'],eif['TaskID'],
         stats.start_time,stats.end_time,
         stats.ntot,stats.nmsg,stats.tot_size)
     mbroker.sendMSGstats(msgst)
@@ -696,18 +717,18 @@ def main():
     mbroker.close()
 
     if opt.verbose > 0:
-        log.info("======== summary")
-        log.info(" number of events:     %10d" % stats.ntot)
-        log.info(" Sun of message sizes: %10d bytes" % stats.tot_size)
-        log.info(" mean size per evt:    %10.1f bytes" % (float(stats.tot_size)/int(stats.ntot)))
-        log.info(" number of messages:   %10d " % stats.nmsg)
-        log.info(" mean message size:    %10.2f Kbytes" % (float(stats.tot_size)/int(stats.nmsg)/1000.))
-        log.info(" mean evts per msg:    %10.2f" % (float(stats.ntot)/int(stats.nmsg)))
+        log.info("=========== sendEI summary ==========")
+        log.info(" number of events:     {:10d}".format(stats.ntot))
+        log.info(" Sun of message sizes: {:10d} bytes".format(stats.tot_size))
+        log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
+        log.info(" number of messages:   {:10d} ".format(stats.nmsg))
+        log.info(" mean message size:    {:10.2f} Kbytes".format((float(stats.tot_size)/int(stats.nmsg)/1000.)))
+        log.info(" mean evts per msg:    {:10.2f}".format((float(stats.ntot)/int(stats.nmsg))))
         dt = int(stats.end_time - stats.start_time)
-        log.info(" connected time:   %d ms" % dt)
-        log.info(" BW %10.2f KB/s" % (float(stats.tot_size)/(dt)))
-        log.info(" BW %10.2f msg/s" % (float(stats.nmsg)/(dt)*1000))
-        log.info(" BW %10.2f evt/s" % (float(stats.ntot)/(dt)*1000))
+        log.info(" connected time:   {:d} ms".format(dt))
+        log.info(" BW {:10.2f} KB/s".format((float(stats.tot_size)/(dt))))
+        log.info(" BW {:10.2f} msg/s".format((float(stats.nmsg)/(dt)*1000)))
+        log.info(" BW {:10.2f} evt/s".format((float(stats.ntot)/(dt)*1000)))
 
 
 if __name__ == '__main__':

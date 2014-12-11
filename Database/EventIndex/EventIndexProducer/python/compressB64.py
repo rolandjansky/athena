@@ -90,7 +90,7 @@ if __name__ == "__main__":
     c=compressB64(s)
     d=decompressB64(c)
     x=int(s, 2)
-    sx="%X"%x
+    sx="{:0X}".format(x)
     
     print ""
     print "Original:     >>"+s+"<<" 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         c=compressB64(s)
         d=decompressB64(c)
         x=int(s, 2)
-        sx="%X"%x
+        sx="{:0X}".format(x)
 
         if i == 0:
             print ""

@@ -14,11 +14,16 @@ if hasattr(runArgs,"inputPOOLFile"):
     In=runArgs.inputPOOLFile
     if type(In) == type(''):
         In = [In]
+else:
+    raise RuntimeError("No POOL input file given")
+
 
 ## Output
 
 if hasattr(runArgs,"outputEIFile"):
     Out=runArgs.outputEIFile
+else:
+    Out=None
 
 # options
 
@@ -28,18 +33,38 @@ if hasattr(runArgs,"maxEvents"):
 if hasattr(runArgs,"trigger"):
     DoTriggerInfo = runArgs.trigger
 else:
-    DoTriggerInfo = False
+    DoTriggerInfo = True
 
 if hasattr(runArgs,"provenance"):
     DoProvenanceRef = runArgs.provenance
 else:
     DoProvenanceRef = True
 
+if hasattr(runArgs,"sendtobroker"):
+    SendToBroker = runArgs.sendtobroker
+else:
+    SendToBroker = True
 
-# load joboptions
-#include("PyAnalysisCore/InitPyAnalysisCore.py")
-include('EventIndexProducer/POOL2EI_joboptions.py')
+if hasattr(runArgs,"eidsname"):
+    EiDsName = runArgs.eidsname
+else:
+    EiDsName = None
 
+# Tier0 job identification
+if hasattr(runArgs,"_taskid"):
+    TaskID = runArgs._taskid
+else:
+    TaskID = None
+
+if hasattr(runArgs,"_jobid"):
+    JobID = runArgs._jobid
+else:
+    JobID = None
+
+if hasattr(runArgs,"_attempt"):
+    AttemptNumber =  runArgs._attempt
+else:
+    AttemptNumber = None
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -52,6 +77,11 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
+
+# load joboptions
+#include("PyAnalysisCore/InitPyAnalysisCore.py")
+include('EventIndexProducer/POOL2EI_joboptions.py')
+
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

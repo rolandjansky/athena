@@ -14,12 +14,9 @@ __doc__ = "provide components to POOL2EI"
 
 
 ### imports --------------------------------------------------------------------
-#import pdb
 import AthenaPython.PyAthena as PyAthena
 from compressB64 import compressB64
 from EI_Lib import EIrecord, IOV
-#from pympler import summary
-#from pympler import muppy
 
 import time
 StatusCode = PyAthena.StatusCode
@@ -53,6 +50,7 @@ class POOL2EI(PyAthena.Alg):
     _eif_entries = 0
     _eif_totentries = 0
     _eif_nfiles = 0
+    _eifname = None
 
     def __init__(self, name='POOL2EI', **kw):
         ## init base class
@@ -69,8 +67,31 @@ class POOL2EI(PyAthena.Alg):
         _info = self.msg.info
         _info("POOL2EI::initialize")
 
-        _info("## DoProvenanceRef: %s" % self.DoProvenanceRef);
-        _info("## DoTriggerInfo: %s" % self.DoTriggerInfo);
+        _info("## DoProvenanceRef: {}".format(self.DoProvenanceRef));
+        _info("## DoTriggerInfo: {}".format(self.DoTriggerInfo));
+        _info("## SendToBroker: {}".format(self.SendToBroker));
+
+
+        if self.EiDsName is not None:
+            _info("## EiDsName: {}".format(self.EiDsName));
+            self._dsname = self.EiDsName
+        else:
+            """ this code is not used. Just for reference in case dataset has to be
+                read from Job Definition
+            try:
+                import newJobDef
+                for k in newJobDef.job.keys():
+                    _info("## newJobDef.job[{}]: {}".format(k,newJobDef.job[k]))
+                realDatasetsIN = newJobDef.job['realDatasetsIN'].split(',')
+                self._dsname = realDatasetsIN[0]
+            except:
+                self._dsname = "Project.runNumber.streamName.prodStep.dataType.Version"
+            """
+            import os
+            inds = os.getenv('INDS',"Unknown.Input.Dataset.Name")
+            _info("## INDS: {}".format(inds))
+            self._dsname = inds
+                
 
         # token match regex
         import re
@@ -87,21 +108,33 @@ class POOL2EI(PyAthena.Alg):
         _info("retrieving various stores...")
         for store_name in ('evtStore', 'inputStore',
                            'tagStore', 'metaStore'):
-            _info('retrieving [%s]...', store_name)
+            _info("retrieving [{}]...".format(store_name))
             o = getattr(self, store_name)
-            _info('retrieving [%s]... [done]', store_name)
-            ## if store_name not in ('evtStore',):
-            ##     _info('loading event proxies for [%s]...', store_name)
-            ##     status = 'ok' if o.loadEventProxies().isSuccess() else 'err'
-            ##     _info('loading event proxies for [%s]... (%s)', store_name, status)
+            _info("retrieving [{}]... [done]".format(store_name))
         _info("retrieving various stores... [done]")
 
 
+        if "/TRIGGER/HLT/HltConfigKeys" in self.inputStore.keys():
+            # trigger decision tool
+            from TriggerJobOpts.TriggerFlags import TriggerFlags
+            TriggerFlags.configurationSourceList=['ds']
+            import AthenaPython.PyAthena as PyAthena
+            self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
+            self.trigDec.ExperimentalAndExpertMethods().enable()
+        else:
+            if self.DoTriggerInfo:
+                _info("Switch DoTriggerInfo to False")
+                self.DoTriggerInfo = False
+
         ## open output pkl file
         import os
-        oname = self.Out
+        if self.Out is not None:
+            oname = self.Out
+        else:
+            oname = "pool.ei.pkl"
         oname = os.path.expanduser(os.path.expandvars(oname))
-        _info('Opening EI file [%s]...', oname)
+        self._eifname = oname
+        _info('Opening EI file [{}]...'.format(oname))
         if os.path.exists(oname):
             os.remove(oname)
 
@@ -113,23 +146,39 @@ class POOL2EI(PyAthena.Alg):
             pass
 
         if self._eif is None:
-            self.msg.fatal("Unable to open EI output file %s exapnded as %s" % (self.Out, oname))
+            self.msg.fatal("Unable to open EI output file {} exapnded as {}".format(self.Out, oname))
             raise RuntimeError("Unable to open EI output file")
         
+        # get taskid and jobid
+        if hasattr(self,'TaskID') and hasattr(self,'JobID') and self.TaskID is not None and self.JobID is not None:
+            self._eif['TaskID'] = "{}.T".format(self.TaskID)
+            if hasattr(self,'AttemptNumber') and self.AttemptNumber is not None:
+                self._eif['JobID'] = "{}.{}".format(self.JobID,self.AttemptNumber)
+            else:
+                self._eif['JobID'] = "{}.0".format(self.JobID)
+        else:
+            # get them from job info 
+            try:
+                import newJobDef
+                self._eif['TaskID'] = "{}.G".format(newJobDef.job['taskID'])
+                self._eif['JobID'] = "{}.{}".format(newJobDef.job['PandaID'], newJobDef.job['attemptNr'])
+            except:
+                self._eif['TaskID'] = "{}.G".format(os.getenv('PanDA_TaskID', 0))
+                self._eif['JobID'] = "{}.0".format(os.getenv('PandaID', 0))
+
+            
         # initial information
         self._eif['StartProcTime'] = int(time.time() * 1000)
         self._eif['Schema'] = EIrecord().getRecSchema()
         self._eif['Version'] = EIrecord().getVersion()
-        self._eif['PandaID'] = os.getenv('PandaID', 0)
-        self._eif['PanDA_TaskID'] = os.getenv('PanDA_TaskID', 0)
+        self._eif['InputDsName'] = self._dsname
         
         #processing options
         self._eif['ProvenanceRef'] = self.DoProvenanceRef
         self._eif['TriggerInfo'] = self.DoTriggerInfo
 
-
         return StatusCode.Success
-        
+
     @property
     def evtStore(self):
         import AthenaPython.PyAthena as PyAthena
@@ -155,9 +204,9 @@ class POOL2EI(PyAthena.Alg):
         try:
             obj = store[metadata_name]
         except KeyError,err:
-            msg.warning('could not retrieve [%s]', metadata_name)
+            msg.warning('could not retrieve [{}]'.format(metadata_name))
             return ([],[])
-        msg.info('processing container [%s]', obj.folderName())
+        msg.info('processing container [{}]'.format(obj.folderName()))
         data = []
         iovs = []
         payloads = obj.payloadContainer()
@@ -176,60 +225,50 @@ class POOL2EI(PyAthena.Alg):
             # names
             chan_names = []
             sz = payload.name_size()
-            #msg.info('==names== (sz: %s)', sz)
             for idx in xrange(sz):
                 chan = payload.chanNum(idx)
                 chan_name = payload.chanName(chan)
-                #msg.info( '--> (%s, %s)', idx, chan_name)
                 chan_names.append(chan_name)
                 
             # iovs
             sz = payload.iov_size()
-            #msg.info('==iovs== (sz: %s)',sz)
             for idx in xrange(sz):
                 chan = payload.chanNum(idx)
                 iov_range = payload.iovRange(chan)
                 iov_start = iov_range.start()
                 iov_stop  = iov_range.stop()
-                msg.info( '(%s, %s) => (%s, %s) valid=%s runEvt=%s',
-                          iov_start.run(),
-                          iov_start.event(),
-                          iov_stop.run(),
-                          iov_stop.event(),
-                          iov_start.isValid(),
-                          iov_start.isRunEvent())
+                msg.info( '({}, {}) => ({}, {}) valid={} runEvt={}'.format(
+                        iov_start.run(),
+                        iov_start.event(),
+                        iov_stop.run(),
+                        iov_stop.event(),
+                        iov_start.isValid(),
+                        iov_start.isRunEvent()))
                 iovs.append((iov_start.run(),iov_start.event(),iov_stop.run(),iov_stop.event(),iov_start.isValid(),iov_start.isRunEvent()))
                     
             # attrs
             attrs = [] # can't use a dict as spec.name() isn't unique
             sz = payload.size()
-            #msg.info('==attrs== (sz: %s)', sz)
             for idx in xrange(sz):
                 chan = payload.chanNum(idx)
-                #msg.info("idx: %i chan: %s", idx, chan)
                 attr_list = payload.attributeList(chan)
-                #pdb.set_trace()
                 attr_list = list(toiter(attr_list.begin(),
                                         attr_list.end()))
                 attr_data = []
                 for a in attr_list:
-                    #msg.info((a,dir(a),type(a)))
                     spec   = a.specification()
                     a_type = spec.typeName()
                     a_type = 'std::string' if a_type == 'string' else a_type
-                    a_data = getattr(a,'data<%s>'%a_type)()
+                    a_data = getattr(a,'data<{}>'.format(a_type))()
                     if a_type == 'std::string':
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
                             # swallow and keep as a string
                             pass
-                    #msg.info("%s: %s", spec.name(), a_data)
                     attr_data.append((spec.name(),
-                                      #type(a_data),
                                       a_data))
                 attrs.append(dict(attr_data))
-                # msg.info(attrs[-1])
             if len(attrs) == len(chan_names):
                 data.append(dict(zip(chan_names,attrs)))
             else:
@@ -259,7 +298,6 @@ class POOL2EI(PyAthena.Alg):
         self._iov = IOV()
 
         ## inputStore
-        #self.inputStore.dump()
         store = self.inputStore
         esi_keys = store.keys('EventStreamInfo')
         nentries = None
@@ -270,31 +308,65 @@ class POOL2EI(PyAthena.Alg):
             stream_names = esi_keys[:]
             for sg_key in esi_keys:
                 esi = store.retrieve('EventStreamInfo', sg_key)
-                _info('=== [EventStreamInfo#%s] ===', sg_key)
+                _info('=== [EventStreamInfo#{}] ==='.format(sg_key))
                 nentries += esi.getNumberOfEvents()
                 evt_types = PyAthena.EventStreamInfo.evt_types(esi)
-            #print 'nentries ', nentries
-            #print 'evt_types ', evt_types
 
 
-        ##/TRIGGER/HLT/HltConfigKeys
-        (hltck_info, hltck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/HltConfigKeys')
-        hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
-        for val, iov in zip(hltpsk_l,hltck_iovs):
-            self._iov.add('HLTPSK',val,iov[:4])
-        smk_l = [ x['MasterConfigurationKey'] for x in hltck_info ]
-        for val, iov in zip(smk_l,hltck_iovs):
-            self._iov.add('SMK',val,iov[:4])
+        # retrieve the GUID
+        def _get_guid():
+            guid = None
+            ROOT = _import_ROOT()
+            import os
+            root_files = list(ROOT.gROOT.GetListOfFiles())
+            if len(root_files)!=1:
+                _info('could not find correct ROOT file (looking for [{}])'.format(self.infname))
+                return
+            
+            root_file = root_files[0]
+            pool = root_file.Get("##Params")
+            import re
+            # Pool parameters are of the form:
+            # '[NAME=somevalue][VALUE=thevalue]'
+            pool_token = re.compile(r'[[]NAME=(?P<name>.*?)[]]'\
+                                    r'[[]VALUE=(?P<value>.*?)[]]').match
+            params = []
+            guids = []
+            for i in xrange(pool.GetEntries()):
+                if pool.GetEntry(i)>0:
+                    match = pool_token(pool.db_string)
+                    if not match:
+                        continue
+                    d = match.groupdict()
+                    params.append((d['name'], d['value']))
+                    if d['name'].lower() == 'fid':
+                        guids.append(d['value'])
+            return guids
 
-        ##/TRIGGER/LVL1/Lvl1ConfigKey
-        (l1ck_info, l1ck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/LVL1/Lvl1ConfigKey')
-        l1ck_l = [ x['Lvl1PrescaleConfigurationKey'] for x in l1ck_info ]
-        for val, iov in zip(l1ck_l,l1ck_iovs):
-            self._iov.add('L1PSK',val,iov[:4])
+        self.guids = _get_guid()
+        if len(self.guids) > 0:
+            self.guid = self.guids.pop()
+        else:
+            self.guid = None
+
+        if self.DoTriggerInfo:
+            ##/TRIGGER/HLT/HltConfigKeys
+            (hltck_info, hltck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/HltConfigKeys')
+            hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
+            for val, iov in zip(hltpsk_l,hltck_iovs):
+                self._iov.add('HLTPSK',val,iov[:4])
+            smk_l = [ x['MasterConfigurationKey'] for x in hltck_info ]
+            for val, iov in zip(smk_l,hltck_iovs):
+                self._iov.add('SMK',val,iov[:4])
+
+            ##/TRIGGER/LVL1/Lvl1ConfigKey
+            (l1ck_info, l1ck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/LVL1/Lvl1ConfigKey')
+            l1ck_l = [ x['Lvl1PrescaleConfigurationKey'] for x in l1ck_info ]
+            for val, iov in zip(l1ck_l,l1ck_iovs):
+                self._iov.add('L1PSK',val,iov[:4])
             
 
         (tginfo, tgiovs) = self.process_metadata(self.inputStore,'/TagInfo')
-        #pdb.set_trace()
         amitag=None
         trigStream=None
         projName=None
@@ -302,27 +374,26 @@ class POOL2EI(PyAthena.Alg):
             for tgi in tginfo:
                 if 'AMITag' in tgi:
                     amitag = tgi['AMITag']
-                    _info("## AMITag: %s" %amitag)
+                    _info("## AMITag: {}".format(amitag))
                 if 'triggerStreamOfFile' in tgi:
                     trigStream = tgi['triggerStreamOfFile']
-                    _info("## triggerStreamOfFile: %s" % trigStream)
+                    _info("## triggerStreamOfFile: {}".format(trigStream))
                 if 'project_name' in tgi:
                     projName = tgi['project_name']
-                    _info("## project_name: %s" % projName)
+                    _info("## project_name: {}".format(projName))
         
 
         
         if  self._eif is not None:
             nfile = self._eif_nfiles
-            self._eif['StartProcTime_%d' % nfile] = int(time.time() * 1000)
-            self._eif['AMITag_%d' % nfile] = amitag
-            self._eif['TrigStream_%d' % nfile] = trigStream
-            self._eif['ProjName_%d' % nfile] = projName
+            self._eif['StartProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
+            self._eif['AMITag_{:d}'.format(nfile)] = amitag
+            self._eif['TrigStream_{:d}'.format(nfile)] = trigStream
+            self._eif['ProjName_{:d}'.format(nfile)] = projName
+            self._eif['GUID_{:d}'.format(nfile)] = self.guid
 
         self._eif_nfiles += 1
             
-        #self._iov.dump()
-
         return
 
 
@@ -335,15 +406,58 @@ class POOL2EI(PyAthena.Alg):
         _info("POOL2EI::endFile")
 
         nfile = self._eif_nfiles-1
-        self._eif['Nentries_%d'%nfile] = self._eif_entries
-        self._eif['EndProcTime_%d'%nfile] = int(time.time() * 1000)
+        self._eif['Nentries_{:d}'.format(nfile)] = self._eif_entries
+        self._eif['EndProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
+
+        return 
+
+    def getChainCounter(self,level):
+
+        triggers =self.trigDec.getChainGroup(level)
+        names = triggers.getListOfTriggers()
+        if level.startswith("L1"):
+            level1 = True
+        else:
+            level1 = False
+
+        ccname = {}
+        for i in xrange(names.size()):
+            name = names.at(i)
+            if level1:
+                cc = self.trigDec.ExperimentalAndExpertMethods().getItemConfigurationDetails(name).ctpId()
+            else:
+                cc = self.trigDec.ExperimentalAndExpertMethods().getChainConfigurationDetails(name).chain_counter()
+            ccname[cc]=name
+
+        return ccname
+        
+ 
+    ##########################################
+    # execute at begin of run
+    ##########################################
+    def beginRun(self):
+        import AthenaPython.PyAthena as PyAthena
+        _info = self.msg.info
+        _info("POOL2EI::beginRun")
+
+        if self.DoTriggerInfo:
+            self.ccnameL1 = self.getChainCounter("L1_.*")
+            self.ccnameL2 = self.getChainCounter("L2_.*")
+            self.ccnameEF = self.getChainCounter("EF_.*")
+
+        return StatusCode.Success
+
 
     ##########################################
     # execute event by event
     ##########################################
     def execute(self):
         import AthenaPython.PyAthena as PyAthena
-        _info = self.msg.info
+
+        if self._eif_totentries < 100:
+            _info = self.msg.info
+        else:
+            _info = lambda *x: None
         _error = self.msg.error
 
         _info("POOL2EI::execute")
@@ -354,21 +468,18 @@ class POOL2EI(PyAthena.Alg):
         store = self.evtStore
         evt_info_keys = store.keys('EventInfo')
         if len(evt_info_keys) != 1:
-            _info('more than one EventInfo: %s', evt_info_keys)
-            _info(' ==> we\'ll use [%s]', evt_info_keys[0])
+            _info('more than one EventInfo: {}'.format(evt_info_keys))
+            _info(' ==> we\'ll use [{}]'.format(evt_info_keys[0]))
         sg_key = evt_info_keys[0]
         ei = store.retrieve('EventInfo', sg_key)
-        _info('=== [EventInfo#%s] ===', sg_key)
+        _info('=== [EventInfo#{}] ==='.format(sg_key))
         eid = ei.event_ID()
-        _info('## bunch_crossing_id: %d', eid.bunch_crossing_id())
-        #_info('## detector_mask: %d', eid.detector_mask())
-        #_info('## detector_mask0: %d', eid.detector_mask0())
-        #_info('## detector_mask1: %d', eid.detector_mask1())
-        _info('## event_number: %d', eid.event_number())
-        _info('## lumi_block: %d', eid.lumi_block())
-        _info('## run_number: %d', eid.run_number())
-        _info('## time_stamp: %d', eid.time_stamp())
-        _info('## time_stamp_ns_offset: %d', eid.time_stamp_ns_offset())
+        _info('## bunch_crossing_id: {:d}'.format(eid.bunch_crossing_id()))
+        _info('## event_number: {:d}'.format(eid.event_number()))
+        _info('## lumi_block: {:d}'.format(eid.lumi_block()))
+        _info('## run_number: {:d}'.format(eid.run_number()))
+        _info('## time_stamp: {:d}'.format(eid.time_stamp()))
+        _info('## time_stamp_ns_offset: {:d}'.format(eid.time_stamp_ns_offset()))
 
         
         # event type
@@ -404,42 +515,30 @@ class POOL2EI(PyAthena.Alg):
         eirec['EventWeight'] = eitype.mc_event_weight()
         eirec['McChannelNumber'] = eitype.mc_channel_number()
 
-        _info('## EventWeight: %f', eitype.mc_event_weight())
-        _info('## McChannelNumber: %d', eitype.mc_channel_number())
+        _info('## EventWeight: {:f}'.format(eitype.mc_event_weight()))
+        _info('## McChannelNumber: {:d}'.format(eitype.mc_channel_number()))
 
         # -- trigger processing
         if self.DoTriggerInfo:
             eit = ei.trigger_info()
-            _info("## Lvl1ID %s" % eit.extendedLevel1ID())
+            _info("## Lvl1ID {}".format(eit.extendedLevel1ID()))
             Lvl1ID = eit.extendedLevel1ID()
             eirec['Lvl1ID'] = Lvl1ID
             trigL1=""
             trigL2=""
             trigEF=""
-            n=0
             for v in eit.level1TriggerInfo():
                 trigL1+="{0:032b}".format(v)[::-1]
-                if v != 0:
-                    _info("L1PassedTrigMask%s%d: %d" % (['TBP','TAP','TAV'][n/8],n%8,v))
-                n+=1
-            n=0
             for v in eit.level2TriggerInfo():
                 trigL2+="{0:032b}".format(v)[::-1]
-                if v != 0:
-                    _info("L2PassedTrigMask%d: %d"%(n, v))
-                n+=1
-            n=0
             for v in eit.eventFilterInfo():
                 trigEF+="{0:032b}".format(v)[::-1]
-                if v != 0:
-                    _info("EFPassedTrigMask%d: %d"%(n, v))
-                n+=1
             trigL1=compressB64(trigL1)
             trigL2=compressB64(trigL2)
             trigEF=compressB64(trigEF)
-            _info("## trigL1: %s"% trigL1)
-            _info("## trigL2: %s"% trigL2)
-            _info("## trigEF: %s"% trigEF)
+            _info("## trigL1: {}".format(trigL1))
+            _info("## trigL2: {}".format(trigL2))
+            _info("## trigEF: {}".format(trigEF))
 
             eirec['L1PassedTrigMask'] = trigL1
             eirec['L2PassedTrigMask'] = trigL2
@@ -450,14 +549,91 @@ class POOL2EI(PyAthena.Alg):
             SMK = self._iov.get('SMK',(run_number,event_number))
             L1PSK = self._iov.get('L1PSK',(run_number,lumi_block))
             HLTPSK = self._iov.get('HLTPSK',(run_number,lumi_block))
-            _info('## SMK:    %s'% SMK)
-            _info('## L1PSK:  %s'% L1PSK)
-            _info('## HLTPSK: %s'% HLTPSK)
+            _info('## SMK:    {}'.format(SMK))
+            _info('## L1PSK:  {}'.format(L1PSK))
+            _info('## HLTPSK: {}'.format(HLTPSK))
 
             eirec['SMK'] = SMK
             eirec['L1PSK'] = L1PSK
             eirec['HLTPSK'] = HLTPSK
-        
+
+
+            L1_isPassedAfterPrescale  = 0x1 << 16
+            L1_isPassedBeforePrescale = 0x1 << 17
+            L1_isPassedAfterVeto      = 0x1 << 18
+            trigL1X=list(768*"0")
+            for pos,name in self.ccnameL1.items():
+                passedBits = self.trigDec.isPassedBits(name)
+                if passedBits & L1_isPassedBeforePrescale != 0:
+                    trigL1X[pos]="1"
+                if passedBits & L1_isPassedAfterPrescale != 0:
+                    trigL1X[pos+256]="1"
+                if passedBits & L1_isPassedAfterVeto != 0:
+                    trigL1X[pos+512]="1"
+            trigL1X=compressB64("".join(trigL1X))
+
+
+            L2_passedRaw   = 0x1 << 8
+            L2_passThrough = 0x1 << 9
+            L2_prescaled   = 0x1 << 10
+            L2_resurrected = 0x1 << 11
+            trigL2_PH=list(32*eit.level2TriggerInfo().size()*"0")
+            trigL2_PT=list(32*eit.level2TriggerInfo().size()*"0")
+            trigL2_RS=list(32*eit.level2TriggerInfo().size()*"0")
+            for pos,name in self.ccnameL2.items():
+                passedBits    = self.trigDec.isPassedBits(name)
+                passedPhysics = ( self.trigDec.isPassed(name) != 0 )
+                passedPT      = ( passedBits & L2_passThrough != 0 )
+                passedRes     = ( passedBits & L2_resurrected != 0 )
+                if passedPhysics :
+                    trigL2_PH[pos] = "1"
+                if passedPT:
+                    trigL2_PT[pos] = "1"
+                if passedRes:
+                    trigL2_RS[pos] = "1"
+
+
+            trigL2_PH=compressB64("".join(trigL2_PH))
+            trigL2_PT=compressB64("".join(trigL2_PT))
+            trigL2_RS=compressB64("".join(trigL2_RS))
+            trigL2 = trigL2_PH+";"+trigL2_PT+";"+trigL2_RS
+
+
+            EF_passedRaw   = 0x1
+            EF_passThrough = 0x1 << 1
+            EF_prescaled   = 0x1 << 2
+            EF_resurrected = 0x1 << 3
+            trigEFX=list(32*eit.eventFilterInfo().size()*"0")
+            trigEF_PH=list(32*eit.eventFilterInfo().size()*"0")
+            trigEF_PT=list(32*eit.eventFilterInfo().size()*"0")
+            trigEF_RS=list(32*eit.eventFilterInfo().size()*"0")
+            trigEF_INC=list(32*eit.eventFilterInfo().size()*"0")
+            for pos,name in self.ccnameEF.items():
+                passedBits    = self.trigDec.isPassedBits(name)
+                passedPhysics = ( self.trigDec.isPassed(name) != 0 )
+                passedPT      = ( passedBits & EF_passThrough != 0 )
+                passedRes     = ( passedBits & EF_resurrected != 0 )
+                if passedPhysics :
+                    trigEF_PH[pos] = "1"
+                if passedPT:
+                    trigEF_PT[pos] = "1"
+                if passedRes:
+                    trigEF_RS[pos] = "1"
+                if ( passedPhysics or passedPT or passedRes ):
+                    trigEF_INC[pos] = "1"
+
+            trigEF_PH=compressB64("".join(trigEF_PH))
+            trigEF_PT=compressB64("".join(trigEF_PT))
+            trigEF_RS=compressB64("".join(trigEF_RS))
+            trigEF_INC=compressB64("".join(trigEF_INC))
+            trigEF  = trigEF_PH+";"+trigEF_PT+";"+trigEF_RS
+            trigEF2 = trigEF_PH+";"+trigEF_INC
+
+            # overwrite 
+            eirec['L1PassedTrigMask'] = trigL1
+            eirec['L2PassedTrigMask'] = trigL2
+            eirec['EFPassedTrigMask'] = trigEF
+
 
         stream_refs = {}   # sreeam reference
         Pstream_refs = {}  # provenance references
@@ -467,7 +643,6 @@ class POOL2EI(PyAthena.Alg):
         procTag = dh.getProcessTag()
         _info("## ProcessTag: " + procTag)
 
-        #pdb.set_trace()
         ## provenance referencess
         if self.DoProvenanceRef:
             if dh.sizeProvenance() > 0:    
@@ -480,21 +655,21 @@ class POOL2EI(PyAthena.Alg):
                         tk=prv.getToken()
                         match = self._re_pool_token(tk)
                     if not match:
-                        msg.warning('Provenance token can not be parsed: %s', tk)
+                        msg.warning('Provenance token can not be parsed: {}'.format(tk))
                         continue
                     d = match.groupdict()
                     key=prv.getKey()
                     # CNT is empty. Complete information
                     if key == "StreamRAW":
-                        stk = "[DB=%s][CNT=00000000][CLID=%s][TECH=%s][OID=%s]" % \
-                            (d['db'],d['clid'],d['tech'],d['oid'])
+                        stk = "[DB={}][CNT=00000000][CLID={}][TECH={}][OID={}]".format(
+                            d['db'],d['clid'],d['tech'],d['oid'])
                     elif key in ("StreamAOD","StreamESD","StreamRDO","StreamHITS",
                                  "StreamEVGEN","EmbeddingStream"):
-                        stk = "[DB=%s][CNT=POOLContainer(DataHeader)][CLID=%s][TECH=%s][OID=%s]" % \
-                            (d['db'],d['clid'],d['tech'],d['oid'])
+                        stk = "[DB={}][CNT=POOLContainer(DataHeader)][CLID={}][TECH={}][OID={}]".format(
+                            d['db'],d['clid'],d['tech'],d['oid'])
                     else:
-                        _info("provenance %s=%s" % (key,tk))
-                        _error('Unknown provenance stream: %s', key)
+                        _info("provenance {}={}".format(key,tk))
+                        _error('Unknown provenance stream: {}'.format(key))
                         raise RuntimeError('Unknown provenance stream')
                     _info("## P"+ key+"_ref: "+stk)
                     Pstream_refs[key]=stk
@@ -514,10 +689,9 @@ class POOL2EI(PyAthena.Alg):
                     continue
                 d = match.groupdict()
                 tk_guid = d['db']
-                stk = "[DB=%s][CNT=POOLContainer(DataHeader)][CLID=%s][TECH=%s][OID=%s]" \
-                    % (tk_guid,d['clid'],d['tech'],d['oid'])
+                stk = "[DB={}][CNT=POOLContainer(DataHeader)][CLID={}][TECH={}][OID={}]".format(
+                    tk_guid,d['clid'],d['tech'],d['oid'])
                 _info("## "+ key+"_ref: "+stk)
-                ##stream_refs[key+"_ref"]=stk
                 if "ProcTag_ref" in stream_refs:
                     _info("Already inserted key ProcTag_ref in stream_refs with value "+stream_refs["ProcTag_ref"])
                 stream_refs["Sref0"]=stk
@@ -528,7 +702,6 @@ class POOL2EI(PyAthena.Alg):
             _info("Updated ref token "+stk)
         except:
             pass
-        #print "stream_refs: ", stream_refs
         del dh
 
         if  self._eif is not None:
@@ -541,8 +714,8 @@ class POOL2EI(PyAthena.Alg):
             idx=1
             for sr,v in Pstream_refs.iteritems():
                 try:
-                    eirec['Snam%d'%idx] = sr
-                    eirec['Sref%d'%idx] = v
+                    eirec['Snam{:d}'.format(idx)] = sr
+                    eirec['Sref{:d}'.format(idx)] = v
                 except:
                     _info("Unable to insert " + sr + " in provenance stream references with value "+v)
                     pass
@@ -550,16 +723,9 @@ class POOL2EI(PyAthena.Alg):
 
 
             eirec['Snam0'] = procTag
-            self._eif['Entry_%d' % self._eif_totentries] = eirec.getRec()
+            self._eif['Entry_{:d}'.format(self._eif_totentries)] = eirec.getRec()
             self._eif_entries += 1     # for this input file
             self._eif_totentries += 1  # for all input fies
-
-
-        """
-        all_objects = muppy.get_objects()
-        sum1 = summary.summarize(all_objects)
-        summary.print_(sum1)
-        """
 
         return StatusCode.Success
 
@@ -572,7 +738,27 @@ class POOL2EI(PyAthena.Alg):
             self._eif['Nfiles'] = self._eif_nfiles
             self._eif['EndProcTime'] = int(time.time() * 1000)
             self._eif.close()
- 
+            
+            if self.SendToBroker:
+                from sendEI import eimrun
+                from sendEI import options as eioptions
+            
+                # set default options
+                import base64
+                argv2 = []
+                argv2.append("-v")                # verbose
+                argv2.append("--trigger")         # include trigger
+                # add the connect string
+                earg="LS1lbmRwb2ludCxhdGxhcy1tYi5jZXJuLmNoOjYxMDEzLC0tdXNlcixhdGxldnRpZHh0c3QsLS1wYXNzY29kZSxHZjR0YjV0Qk9XeUdoUnRW"
+                eargs=base64.b64decode(earg).split(",")
+                argv2.extend(eargs)
+                argv2.append(self._eifname)
+                opt = eioptions(argv2)
+
+                # transfer file
+                eimrun(self.msg,opt)
+            else:
+                _info("Event Index data NOT sent to broker by user request")
 
         return StatusCode.Success
         
@@ -601,6 +787,8 @@ class POOL2EISvc(PyAthena.Svc):
 
         incsvc.addListener(self, 'BeginInputFile')
         incsvc.addListener(self, 'EndInputFile')
+        incsvc.addListener(self, 'BeginRun', 10)
+        incsvc.addListener(self, 'EndRun', 10)
         incsvc.release()
 
         return StatusCode.Success
@@ -618,14 +806,19 @@ class POOL2EISvc(PyAthena.Svc):
         if tp == 'EndEvent':
             pass
         elif tp == 'BeginInputFile':
-            self.msg.info('POOL2EISvc::handle BeginInputFile')
+            _info('POOL2EISvc::handle BeginInputFile')
             self.algo.beginFile()
             pass
         elif tp == 'EndInputFile':
-            self.msg.info('POOL2EISvc::handle EndInputFile')
+            _info('POOL2EISvc::handle EndInputFile')
             self.algo.endFile()
             pass
+        elif tp == 'BeginRun':
+            _info('POOL2EISvc::handle BeginRun')
+            self.algo.beginRun()
+            pass
         else:
+            _info('POOL2EISvc::handle {}'.format(tp))
             pass
         return
     

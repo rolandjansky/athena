@@ -42,13 +42,13 @@ def Tagfile(fname):
     
     f = ROOT.TFile.Open (fname, "read")
     assert not f.IsZombie() and f.IsOpen(), \
-        "problem opening POOL file [%s]"%fname
+        "problem opening POOL file [{}]".format(fname)
 
     tree_name="CollectionMetadata"
     
     t = f.Get(tree_name)
     assert isinstance(t, ROOT.TTree), \
-        "could not retrieve tree [%s]" % tree_name
+        "could not retrieve tree [{}]".format(tree_name)
     
     CollectionMetadata={}
     nentries = t.GetEntries()
@@ -73,7 +73,7 @@ def Tagfile(fname):
         
     tree_name="POOLCollectionTree"
     if tree_name not in keys and "CollectionTree" not in keys:
-        err= "::: error: neither [%s] nor [CollectionTree] in file [%s]" % (
+        err= "::: error: neither [{}] nor [CollectionTree] in file [{}]".format(
             tree_name, fname)
         raise RuntimeError(err)
     # try the backward compat. hack
@@ -82,7 +82,7 @@ def Tagfile(fname):
         
     t = f.Get(tree_name)
     assert isinstance(t, ROOT.TTree), \
-        "could not retrieve tree [%s]" % tree_name
+        "could not retrieve tree [{}]".format(tree_name)
     
     branches = [str(b.GetName()) for b in t.GetListOfBranches()]
     #print "== branches"
@@ -98,8 +98,8 @@ def Tagfile(fname):
     t.SetBranchStatus ("*", 0)
     #activate only baskets wich are of interest
     for ref in ( 'RunNumber', 'EventNumber', 'LumiBlockN', 'EventTime', 'EventTimeNanoSec', 'EventWeight', 
-                'BunchId', 'Token', 'StreamAOD_ref', 'StreamESD_ref', 'StreamRAW_ref','IsSimulation','IsCalibration','IsTestBeam' ):
-            t.SetBranchStatus (ref, 1)
+                 'BunchId', 'Token', 'StreamAOD_ref', 'StreamESD_ref', 'StreamRAW_ref','IsSimulation','IsCalibration','IsTestBeam' ):
+        t.SetBranchStatus (ref, 1)
     # activate trigger baskets
     tbranches = [ k for k in branches if k.find("PassedTrigMask") != -1]
     for ref in tbranches:
@@ -147,8 +147,8 @@ def main():
     eif['StartProcTime_0'] = int(time.time() * 1000)
     eif['Schema'] = EIrecord().getRecSchema()
     eif['Version'] = EIrecord().getVersion()
-    eif['PandaID'] = os.getenv('PandaID', 0)
-    eif['PanDA_TaskID'] = os.getenv('PanDA_TaskID', 0)
+    eif['TaskID'] = os.getenv('TaskID', 0)
+    eif['JobID'] = os.getenv('JobID', 0)
 
     #processing options
     eif['ProvenanceRef'] = True
@@ -206,6 +206,11 @@ def main():
     eif['AMITag_0'] = TAG
     
     
+    # pool token has the format:
+    # [DB=dbID][CNT=cntID][CLID=classID][TECH=technology][OID=oid.first-oid.second]
+    # eg.:
+    #   [DB=FEAD2AD8-111F-11E2-8080-1CCD8E80BEEF][CNT=POOLContainer(DataHeader)]
+    #     [CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=00000123-00000008]
     pool_token = re.compile(r'[[]DB=(?P<db>.*?)[]]' \
                                 r'[[]CNT=(?P<cnt>.*?)[]]' \
                                 r'[[]CLID=(?P<clid>.*?)[]]' \
@@ -213,7 +218,6 @@ def main():
                                 r'[[]OID=(?P<oid1>.*?)-(?P<oid2>.*?)[]]' \
                                 ).match
 
-    
 
     # event loop
     tnow0=int(time.time() * 1000)
@@ -225,7 +229,7 @@ def main():
 
         if opt.verbose > 0 and evt_idx%1000 == 0:
             tnow1=int(time.time() * 1000)
-            sys.stderr.write("%8d %5d msecs\n"%(evt_idx, tnow1-tnow))
+            sys.stderr.write("{:8d} {:5d} msecs\n".format(evt_idx, tnow1-tnow))
             tnow=tnow1
 
         tg.GetEntry (evt_idx)
@@ -287,19 +291,19 @@ def main():
         trigL2=""
         trigEF=""
         for k in range(0,8):
-            v=getattr(pyl,'L1PassedTrigMaskTBP%d'%k).GetCnvValue()
+            v=getattr(pyl,'L1PassedTrigMaskTBP{:d}'.format(k)).GetCnvValue()
             trigL1+="{0:032b}".format(v)[::-1]
         for k in range(0,8):
-            v=getattr(pyl,'L1PassedTrigMaskTAP%d'%k).GetCnvValue()
+            v=getattr(pyl,'L1PassedTrigMaskTAP{:d}'.format(k)).GetCnvValue()
             trigL1+="{0:032b}".format(v)[::-1]
         for k in range(0,8):
-            v=getattr(pyl,'L1PassedTrigMaskTAV%d'%k).GetCnvValue()
+            v=getattr(pyl,'L1PassedTrigMaskTAV{:d}'.format(k)).GetCnvValue()
             trigL1+="{0:032b}".format(v)[::-1]
         for k in range(0,32):
-            v=getattr(pyl,'L2PassedTrigMask%d'%k).GetCnvValue()
+            v=getattr(pyl,'L2PassedTrigMask{:d}'.format(k)).GetCnvValue()
             trigL2+="{0:032b}".format(v)[::-1]
         for k in range(0,32):
-            v=getattr(pyl,'EFPassedTrigMask%d'%k).GetCnvValue()
+            v=getattr(pyl,'EFPassedTrigMask{:d}'.format(k)).GetCnvValue()
             vs="{0:064b}".format(v)
             ef_phys=vs[:32]
             ef_inclusive=vs[32:]
@@ -314,7 +318,7 @@ def main():
 
 
         # write to db
-        eif['Entry_%d' % evt_idx] = eirec.getRec()
+        eif['Entry_{:d}'.format(evt_idx)] = eirec.getRec()
 
 
     eif['Nentries_0'] = evt_idx
@@ -325,10 +329,7 @@ def main():
     eif.close()
         
     tnow=int(time.time() * 1000)
-    sys.stderr.write("Processed %d events in %f seconds\n"%(evt_idx, (tnow-tnow0)/1000.))
+    sys.stderr.write("Processed {:d} events in {:f} seconds\n".format(evt_idx, (tnow-tnow0)/1000.))
     
 if __name__ == '__main__':
     main()
-
-    
-    
