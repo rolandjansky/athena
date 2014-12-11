@@ -77,7 +77,7 @@ namespace {
 
 SimpleCscClusterFitter::
 SimpleCscClusterFitter(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr)
+  : AthAlgTool(type, aname, parent)
   , m_alignmentTool("CscAlignmentTool/CscAlignmentTool")
 {
   declareInterface<ICscClusterFitter>(this);
