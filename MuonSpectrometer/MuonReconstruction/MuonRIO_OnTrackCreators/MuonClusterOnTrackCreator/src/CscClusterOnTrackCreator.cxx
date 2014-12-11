@@ -296,6 +296,7 @@ namespace Muon {
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
       if (!MClus) {
         ATH_MSG_WARNING ( "RIO not of type CscPrepData, cannot create ROT" );
+        delete lp; lp=0;
         return 0;
       }
       
