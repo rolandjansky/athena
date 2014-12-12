@@ -60,7 +60,7 @@ namespace Muon {
   class MuonTruthTrackBuilder : public AthAlgTool, virtual public Trk::ITruthTrackBuilder {
   private:
     struct DetectorLayer {
-      DetectorLayer() : minPos(1e9),maxPos(-1e9),nnsw(0),nmdtS(0),nmdtL(0),nphi(0) {}
+      DetectorLayer() : stIndex(MuonStationIndex::BI),isEndcap(false),minPos(1e9),maxPos(-1e9),nnsw(0),nmdtS(0),nmdtL(0),nphi(0) {}
       MuonStationIndex::StIndex stIndex;
       bool isEndcap;
       double minPos; // flag whether first and second globalpos have been filled
