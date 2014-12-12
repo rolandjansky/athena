@@ -15,7 +15,7 @@ use EventPrimitives       EventPrimitives-*       Event
 use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
 use AthenaBaseComps       AthenaBaseComps-*       Control
 use CscClusterization     CscClusterization-*     MuonSpectrometer/MuonReconstruction/MuonDataPrep
-use EventInfo             EventInfo-*             Event
+use xAODEventInfo         xAODEventInfo-*         Event/xAOD
 use Identifier            Identifier-*            DetectorDescription
 use MuonReadoutGeometry   MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
 use MuonRecToolInterfaces MuonRecToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonRecTools

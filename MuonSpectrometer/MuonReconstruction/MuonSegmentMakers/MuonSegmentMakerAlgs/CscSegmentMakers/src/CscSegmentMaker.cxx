@@ -4,8 +4,7 @@
 
 #include "CscSegmentMaker.h"
 #include <sstream>
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
@@ -48,8 +47,13 @@ CscSegmentMaker::
 CscSegmentMaker(const std::string& aname, ISvcLocator* pSvcLocator)
   : AthAlgorithm(aname, pSvcLocator),
     m_dumped(0), m_dump(false), 
+    m_max_chisquare(-1.),
+    m_max_slope_r(-1.),
+    m_max_slope_phi(-1.),
+    m_max_seg_per_chamber(0),
+    m_fitsegment_tantheta_tolerance(-1.),
     m_2dseg_finder(""),
-    m_4dseg_finder(""), 
+    m_4dseg_finder(""),
     m_psegs(0),
     m_psegs4d(0)
 {
@@ -117,10 +121,10 @@ StatusCode CscSegmentMaker::execute(){
 
   StatusCode sc = StatusCode::SUCCESS;
   // Get event info.
-  const EventInfo* pevt = 0;
+  const xAOD::EventInfo* pevt = 0;
   StatusCode sc_ev = evtStore()->retrieve(pevt, "");
-  int evt = pevt->event_ID()->event_number();
-  int run = pevt->event_ID()->run_number();
+  int evt = pevt->eventNumber();
+  int run = pevt->runNumber();
   if ( m_dump )
     ATH_MSG_DEBUG ( "Processing run " << run
            << ", event " << evt );

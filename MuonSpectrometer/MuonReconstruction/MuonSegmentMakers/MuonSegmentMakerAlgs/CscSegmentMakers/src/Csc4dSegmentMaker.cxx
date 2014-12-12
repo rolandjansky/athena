@@ -5,8 +5,6 @@
 #include "Csc4dSegmentMaker.h"
 #include <sstream>
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"

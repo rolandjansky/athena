@@ -5,8 +5,7 @@
 #include "CscSegmentUtilTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
@@ -895,10 +894,10 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
         irio!=rios.end(); ++irio ) {
     const RIO_OnTrack& rio = **irio;
     const CscPrepData* pclu = dynamic_cast<const CscPrepData*>(rio.prepRawData());
-    int wlay = m_phelper->wireLayer(pclu->identify());
     if (pclu) {
       if ( IsUnspoiled ( pclu->status()) ) ++nunspoil;
       else  {
+        int wlay = m_phelper->wireLayer(pclu->identify());
         ++nspoil;
         spoilmap += int(std::pow(2,wlay-1));
       }
@@ -1730,8 +1729,8 @@ get4dMuonSegmentCombination( MuonSegmentCombination* insegs ) const {
       double xylike = matchLikelihood(rsg, psg);
       ATH_MSG_DEBUG ( "xy likelihood: " << xylike << " min: " << m_min_xylike);
       if (xylike < m_min_xylike) {
-        continue;
         ATH_MSG_DEBUG ( "Segment rejected too low likelihood: " << xylike);
+        continue;
       }
       MuonSegment* pseg = make_4dMuonSegment(rsg, psg);
       if( pseg ) pnewsegs->push_back(pseg);
@@ -1890,6 +1889,9 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg) const {
         ATH_MSG_DEBUG ( " id_eta: " << m_idHelper->toString(id_eta) << " " <<
                         " id_phi: " << m_idHelper->toString(id_phi) );
 
+/* commenting out because : 1/ coverity defect 13763+4 "Unchecked dynamic_cast"
+   2/ segment finding must be fast, dynamic cast is time consuming, here only used for dbg cout ... 
+
         const CscClusterOnTrack* csceta = dynamic_cast<const Muon::CscClusterOnTrack*>(etapold);
         const CscClusterOnTrack* cscphi = dynamic_cast<const Muon::CscClusterOnTrack*>(phipold);
         ATH_MSG_DEBUG ( "make_4dMuonSegment:: ieta/iphi: " << ieta << "/" << iphi
@@ -1897,6 +1899,7 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg) const {
                         << " rio times r/phi: "
                         << csceta->time() << " " << cscphi->time() 
                         );
+*/
         
         // get the reference surface of the eta hit
         const Trk::Surface& surf = etapold->associatedSurface();
@@ -2078,7 +2081,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
 
   if(m_add2hitSegments) {
   // Find 2-hit 2D segments.
-    const DataHandle<EventInfo> eventInfo;
+    const DataHandle<xAOD::EventInfo> eventInfo;
     StatusCode sc = m_storeGateSvc->retrieve(eventInfo);
     if (sc.isFailure()) 
     {
@@ -2088,7 +2091,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
  
     int lay0 = 0;
     int lay1 = 1;
-    if(eventInfo->event_ID()->run_number() > 207489 && eventInfo->event_ID()->run_number() < 217000 && col_station == 2 && col_eta < 0 && col_phisec == 1) {
+    if(eventInfo->runNumber() > 207489 && eventInfo->runNumber() < 217000 && col_station == 2 && col_eta < 0 && col_phisec == 1) {
       ATH_MSG_VERBOSE ( " start find find_2dseg2hit eta ");
       find_2dseg2hit(false, col_station, col_eta, col_phisec, lay0, lay1, eta_clus, lpos000, eta_segs2hit, eta_segs, pos_eta, slope_eta);
       ATH_MSG_VERBOSE ( " start find find_2dseg2hit phi ");
@@ -2218,8 +2221,17 @@ matchLikelihood(const MuonSegment& rsg, const MuonSegment& psg) const {
 
       const Muon::CscClusterOnTrack *eta_clu = 
 	dynamic_cast<const Muon::CscClusterOnTrack*>(etapold);
+      if(!eta_clu){
+        ATH_MSG_DEBUG ( " continuing because not a CSC eta cluster" );
+        continue;
+      }
+
       const Muon::CscClusterOnTrack *phi_clu = 
 	dynamic_cast<const Muon::CscClusterOnTrack*>(phipold);
+      if(!phi_clu){
+        ATH_MSG_DEBUG ( " continuing because not a CSC phi cluster" );
+        continue;
+      }
 
       // Get prep raw data
       const Muon::CscPrepData *eta_prd = eta_clu->prepRawData();
