@@ -34,7 +34,6 @@
 // Forward declarations
 
 
-class IExtrapolateToCaloTool;
 class ICaloMuonLikelihoodTool;
 
 //namespace xAOD { class CaloClusterContainer; }
@@ -75,6 +74,7 @@ namespace MagField { class IMagFieldSvc; }
 // tracking classes
 namespace Trk
 {
+  class IParticleCaloExtensionTool;
 class IIntersector;
 class ITrackParticleCreatorTool;
 class Surface;
@@ -152,24 +152,19 @@ namespace MuGirlNS {
     int  hough_data_size() const;
 
     /**
-     * Perform the muon beta refit processing
+     * Perform the processing from the ID tracks //vxCandidateContainer not used, so removed
      */
-    bool MuonBetaRefit(CandidateSummaryList& summaryList);
-    
-    /**
-     * Perform the processing from the Muon Feature
-     */
-    bool RunFromMuonFeature(const EventInfo* pEventInfo, CandidateSummaryList& summaryList);
-    
-    /**
-     * Perform the processing from the ID tracks
-     */
-    bool RunFromID(const EventInfo* pEventInfo, const VxContainer* vxCandidatesContainer, CandidateSummaryList& summaryList, bool generateTag=false);
+    bool RunFromID(const EventInfo* pEventInfo, CandidateSummaryList& summaryList);
     
     /**
      * Removes the maxima stored into the Hough data structure.
      */ 
     void clear_hough_data();
+
+    /**
+     *debug
+     **/
+    void listTrackParticles(const InDetCandidateCollection& InDetSeeds );
 
     /**
      * Print through the athena log the tool configuration.
@@ -179,6 +174,11 @@ namespace MuGirlNS {
     /**
      *  Structure to handle the eta, phi extrapolation of the ID at the CALO layers (obsolete in the new schema)
      */   
+
+    void doHoughTransformForNtuple(const EventInfo* pEventInfo,const xAOD::TrackParticle* pTrackParticle, MuGirlNS::CandidateSummary& summary);
+
+    void doSAFit(const Trk::Track* RefittedTrack, MuGirlNS::CandidateSummary& summary);
+
     struct CaloParticle
     {
         MuonCombined::InDetCandidate* pInDetCandidate;
@@ -202,7 +202,7 @@ namespace MuGirlNS {
      * Checks the candidate topology and apply the neural network cut to accept it as a muon.
      * Fills the result is filled into the CandidateSummary. 
      */
-    bool generateMuGirl(MuGirlNS::CandidateSummary* summary);
+    bool generateMuGirl(MuGirlNS::CandidateSummary& summary);
 
     /**
      *  Fills the Segment Container with the MuGirl segment list. The Segment Container
@@ -224,12 +224,6 @@ namespace MuGirlNS {
      * Computes the muon likelihood using the Calo Energy Cluster.
      */  
     void calculateLHR(CaloParticle* pParticle);
-
-    /**
-     * Records the links between the chambers and the T0s in StoreGate/
-     */ 
-    void recordChamberT0s();
-
 
 
     // Variables
@@ -263,7 +257,7 @@ namespace MuGirlNS {
     BooleanProperty m_doGlobalFit;        /**< performs the global track fit after MuGirl confirms the muon candidate */
     BooleanProperty m_doParticleCreator;  /**< fills the ParticleCreator container with the Muon Candidate summary */
     BooleanProperty m_doStau;             /**< Stau: performs the reconstruction for Slow Partciles */
-    BooleanProperty m_doConsistency;      /**< Stau: flag for performing full stau study */
+    BooleanProperty m_doRH;               /**< Stau: performs the reconstruction for R-Hadrons */
     BooleanProperty m_doSAFit;            /**< Stau: MS SA fit for stau when starting from trigger */
     BooleanProperty m_doMSRefit;          /**< Refit the hits on CB track in MS to obtain MS SA track */
     BooleanProperty m_doMuonFeature;      /**< Stau: Starts from a trigger muon feature */
@@ -309,13 +303,13 @@ namespace MuGirlNS {
     ToolHandle<MuGirlNS::IMuGirlParticleCreatorTool>    m_pParticleCreatorTool;    /**< The MuGirl Partcile Creator Tool */
     ToolHandle<MuGirlNS::IStauTool>                     m_pStauTool;               /**< The Stau tool */
 
-    ToolHandle<IExtrapolateToCaloTool>                  m_pToCalo;                 /**< The Tool extrapolating the ID track to the Calo layers */
     ToolHandle<Muon::IMuonTrackExtrapolationTool>       m_pTrackExtrapolationTool; /**< The Tool extrapolating the TD track to the other detector surfaces */
     ToolHandle<ICaloMuonLikelihoodTool>                 m_pMuLHR;                  /**< The Tool for computing the muon Calo likelihood */
     ToolHandle< Trk::ITrackParticleCreatorTool >        m_particleCreatorTool;     /**< The ID Particle Creator Tool */
     ToolHandle<Muon::MuonLayerHoughTool>                m_pMuonLayerHoughTool;     /**< Tool performing the Hough transform */ 
     ToolHandle<Trk::ITrackSelectorTool>                 m_pIdTrackSelectorTool;    /**<  */
     ToolHandle<Muon::MuonIdHelperTool>                  m_MuonIdHelperTool;        /**< Muon Id Helper Tool */
+    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
 
     ServiceHandle<MagField::IMagFieldSvc>               m_magFieldSvc;             /**< Magnetic Field Service */
 

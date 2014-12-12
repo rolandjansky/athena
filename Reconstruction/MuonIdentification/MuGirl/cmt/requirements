@@ -43,6 +43,7 @@ use  TrkTrack                   TrkTrack-*                      Tracking/TrkEven
 use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
 use  TrkRoad                    TrkRoad-*                       Tracking/TrkEvent
 use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation
+use  TrkCaloExtension           TrkCaloExtension-*              Tracking/TrkEvent
 
 use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
 

@@ -27,10 +27,9 @@ class MuGirlRecoConfig(MuGirlNS__MuGirlRecoTool):
         self.PtLowerLimit       = muGirlFlags.PtLowerLimit() 
         #self.momentumLowerLimit = muGirlFlags.momentumLowerLimit() 
         self.nIDhits            = muGirlFlags.nIDhits() 
-        self.doConsistency      = muGirlFlags.doConsistency() 
 
         #self.doMuonFeature      = True
-        #self.doSAFit            = True
+        #self.doSARefit          = False
         #if muGirlFlags.doLHR():
         #from TrackToCalo.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolFactory
         #MuGirlExtrapolTrackToCaloTool = ExtrapolTrackToCaloToolFactory(depth="showerdefault")
@@ -80,7 +79,7 @@ class MuGirlRecoConfig(MuGirlNS__MuGirlRecoTool):
         StauTool.StauGlobalFitTool = StauGlobalFitTool
         ToolSvc += MuGirlNS__GlobalFitTool(name = 'MSGlobalFitTool')
         MSGlobalFitTool = MuGirlNS__GlobalFitTool(name = 'MSGlobalFitTool')
-        MSGlobalFitTool.doMSFit = True 
+        MSGlobalFitTool.doSAfit = True 
         self.MuGirlMSGlobalFitTool = MSGlobalFitTool
 
         from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
@@ -151,10 +150,9 @@ class MuGirlTagConfig(MuGirlNS__MuGirlRecoTool):
         self.PtLowerLimit       = muGirlFlags.PtLowerLimit() 
         #self.momentumLowerLimit = muGirlFlags.momentumLowerLimit() 
         self.nIDhits            = muGirlFlags.nIDhits() 
-        self.doConsistency      = muGirlFlags.doConsistency() 
 
         #self.doMuonFeature      = True
-        #self.doSAFit            = True
+        #self.doSAfit            = True
         #if muGirlFlags.doLHR():
         #from TrackToCalo.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolFactory
         #MuGirlExtrapolTrackToCaloTool = ExtrapolTrackToCaloToolFactory(depth="showerdefault")
@@ -204,7 +202,7 @@ class MuGirlTagConfig(MuGirlNS__MuGirlRecoTool):
         StauTool.StauGlobalFitTool = StauGlobalFitTool
         ToolSvc += MuGirlNS__GlobalFitTool(name = 'MuGirlTagMSGlobalFitTool')
         MSGlobalFitTool = MuGirlNS__GlobalFitTool(name = 'MuGirlTagMSGlobalFitTool')
-        MSGlobalFitTool.doMSFit = True 
+        MSGlobalFitTool.doSAfit = True 
         self.MuGirlMSGlobalFitTool = MSGlobalFitTool
 
         from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
