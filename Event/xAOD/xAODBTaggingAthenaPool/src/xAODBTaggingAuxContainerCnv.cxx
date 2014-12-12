@@ -14,6 +14,8 @@
 #include "xAODBTaggingAuxContainerCnv.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODBTaggingAuxContainerCnv::xAODBTaggingAuxContainerCnv( ISvcLocator* svcLoc )
    : xAODBTaggingAuxContainerCnvBase( svcLoc ) {
@@ -40,10 +42,7 @@ createPersistent( xAOD::BTaggingAuxContainer* trans ) {
   }
 
   // Create a copy of the container:
-  xAOD::BTaggingAuxContainer* result =
-    new xAOD::BTaggingAuxContainer( *trans );
-
-  return result;
+  return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::BTaggingAuxContainer* xAODBTaggingAuxContainerCnv::createTransient() {
