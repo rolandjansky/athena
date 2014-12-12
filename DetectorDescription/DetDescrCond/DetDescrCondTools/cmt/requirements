@@ -6,18 +6,21 @@ package DetDescrCondTools
 author Richard Hawkings <richard.hawking@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-* 
-use GaudiInterface      GaudiInterface-01-*      External
-use StoreGate           StoreGate-02-*           Control
-use AtlasCLHEP          AtlasCLHEP-00-*          External
+use GaudiInterface      GaudiInterface-*         External
+use StoreGate           StoreGate-*              Control
+use AtlasCLHEP          AtlasCLHEP-*             External
 
 private
-use AtlasPOOL           AtlasPOOL-00-*           External
+use AtlasPOOL           AtlasPOOL-*              External
 use AtlasROOT           AtlasROOT-*              External
-use PoolSvc             PoolSvc-00-*             Database/AthenaPOOL
-use AthenaPoolUtilities AthenaPoolUtilities-00-* Database/AthenaPOOL
-use DetDescrConditions  DetDescrConditions-*  DetectorDescription/DetDescrCond
-use Identifier          Identifier-00-*          DetectorDescription
+use PoolSvc             PoolSvc-*                Database/AthenaPOOL
+use AthenaPoolUtilities AthenaPoolUtilities-*    Database/AthenaPOOL
+use DetDescrConditions  DetDescrConditions-*     DetectorDescription/DetDescrCond
+use Identifier          Identifier-*             DetectorDescription
 public
+
+# Add definition of the ROOT components for the cmake-based build. This is totally transparent to the CMT-based build
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist Tree RIO)"
 
 library DetDescrCondTools   AlignTransTool.cxx \
                             CoolStrFileSvc.cxx \

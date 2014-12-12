@@ -13,7 +13,7 @@ then
 fi
 RFILE=$1
 # generate a fresh GUID
-GUID=`pool_gen_uuid`
+GUID=`uuidgen|awk '{print toupper($0)}'`
 echo Generated GUID is $GUID
 # create a temporary file with the ROOT commands
 MYFILE=/tmp/coolHist_setFileIdentifier_$$.C
