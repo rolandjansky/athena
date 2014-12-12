@@ -10,18 +10,20 @@
 // AUTHOR:   Denis Oliveira Damazio - Brookhaven National Laboratory
 //           Chris Young - Oxford University
 //           Sven Kreiss - New York University
-//
+//           
 // Description: Level2 MissingET AllTEAlgo (FEX) algorithm. 
 //              
 //
 // ********************************************************************
 
 #include "TrigL2MissingET/T2CaloMissingET.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include "xAODTrigMissingET/TrigMissingET.h"
+#include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 
@@ -192,7 +194,13 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
   m_timer[0]->start();
 
-  m_met_feature = new TrigMissingET(NCOM); 
+  m_met_feature = new xAOD::TrigMissingET(); m_met_feature->makePrivateStore();
+
+  std::vector <std::string> vs_aux;
+  for(int i = 0; i < NCOM; i++)
+   vs_aux.push_back("");    
+  m_met_feature->defineComponents(vs_aux);   
+  
   // assign names and usedchannels
   init(m_met_feature);
   m_timer[1]->start();
@@ -256,8 +264,8 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
      m_met_feature->setEyComponent(0,L2L1Ey);
      m_met_feature->setEzComponent(0,L2L1Ez);
      m_met_feature->setSumEtComponent(0,L2L1SET);
-     //float tempE = sqrt(L2L1Ex*L2L1Ex+L2L1Ey*L2L1Ey+L2L1Ez*L2L1Ez);
-     //m_met_feature->setSumEComponent(0,tempE);
+     float tempE = sqrt(L2L1Ex*L2L1Ex+L2L1Ey*L2L1Ey+L2L1Ez*L2L1Ez);
+     m_met_feature->setSumEComponent(0,tempE);
    }
   }
   LArFebEnergyCollection::const_iterator feb_it, feb_it_beg, feb_it_end;
@@ -269,8 +277,8 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
   if ( debug ) (*m_log) << MSG::INFO << "Size of detid:" << m_detid.size() << endreq;
 
-  bool BSerrors = false;
-  if (m_data->report_error()) BSerrors = true;
+  //bool BSerrors = false;
+  //if (m_data->report_error()) BSerrors = true;
 
   // Get the LAr part of the Calo info
   for(size_t detid = 0; detid<m_detid.size();detid++){
@@ -317,14 +325,14 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
       // compute the component index
       unsigned int k=0;
-      bool doHackForHEC=false;
+      //bool doHackForHEC=false;
       switch (subdet) {
       case 0: // EM
 	k = 1 + 4*caloId + caloSamp;
 	break;
       case 1: // HEC
 	k = 9 + caloSamp;
-	doHackForHEC=true;
+	//doHackForHEC=true;
 	break;
       case 2: // FCAL
 	k = 11 + caloSamp;
@@ -358,19 +366,19 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 #endif
 
       // save into TrigMissingET: fetch MEx,...SumE, add the current values, save them back
-      float tempEx = m_met_feature->getExComponent(k);
+      float tempEx = m_met_feature->exComponent(k);
       float compEx = (*feb_it)->getFebEx();
       m_met_feature->setExComponent(k,tempEx-compEx);
-      float tempEy = m_met_feature->getEyComponent(k);
+      float tempEy = m_met_feature->eyComponent(k);
       float compEy = (*feb_it)->getFebEy();
       m_met_feature->setEyComponent(k,tempEy-compEy);
-      float tempEz = m_met_feature->getEzComponent(k);
+      float tempEz = m_met_feature->ezComponent(k);
       float compEz = (*feb_it)->getFebEz();
       m_met_feature->setEzComponent(k,tempEz-compEz);
-      float tempE = m_met_feature->getSumEComponent(k);
+      float tempE = m_met_feature->sumEComponent(k);
       tempE += sqrt(compEx*compEx+compEy*compEy+compEz*compEz);
       m_met_feature->setSumEComponent(k,tempE);
-      float tempEt = m_met_feature->getSumEtComponent(k);
+      float tempEt = m_met_feature->sumEtComponent(k);
       tempEt += sqrt(compEx*compEx+compEy*compEy);
       m_met_feature->setSumEtComponent(k,tempEt);
       //Sum of Signs?
@@ -433,19 +441,19 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       (*m_log) << MSG::ERROR << "dont know which part this tile drawer belongs to." << endreq;
     }
 
-    float tempEx = m_met_feature->getExComponent(targetComponent);
+    float tempEx = m_met_feature->exComponent(targetComponent);
     float compEx = (*draw_it)->Ex();
     m_met_feature->setExComponent(targetComponent,tempEx-compEx);
-    float tempEy = m_met_feature->getEyComponent(targetComponent);
+    float tempEy = m_met_feature->eyComponent(targetComponent);
     float compEy = (*draw_it)->Ey();
     m_met_feature->setEyComponent(targetComponent,tempEy-compEy);
-    float tempEz = m_met_feature->getEzComponent(targetComponent);
+    float tempEz = m_met_feature->ezComponent(targetComponent);
     float compEz = (*draw_it)->Ez();
     m_met_feature->setEzComponent(targetComponent,tempEz-compEz);
-    float tempE = m_met_feature->getSumEComponent(targetComponent);
+    float tempE = m_met_feature->sumEComponent(targetComponent);
     tempE += sqrt(compEx*compEx+compEy*compEy+compEz*compEz);
     m_met_feature->setSumEComponent(targetComponent,tempE);
-    float tempEt = m_met_feature->getSumEtComponent(targetComponent);
+    float tempEt = m_met_feature->sumEtComponent(targetComponent);
     tempEt += sqrt(compEx*compEx+compEy*compEy);
     m_met_feature->setSumEtComponent(targetComponent,tempEt);
     if ( debug ){
@@ -467,11 +475,11 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   float tempE=0.;
   float tempEt=0.;
   for (int p=1; p<NCOM-1; p++) {
-    tempEx += m_met_feature->getExComponent(p);
-    tempEy += m_met_feature->getEyComponent(p);
-    tempEz += m_met_feature->getEzComponent(p);
-    tempE += m_met_feature->getSumEComponent(p);
-    tempEt += m_met_feature->getSumEtComponent(p);
+    tempEx += m_met_feature->exComponent(p);
+    tempEy += m_met_feature->eyComponent(p);
+    tempEz += m_met_feature->ezComponent(p);
+    tempE += m_met_feature->sumEComponent(p);
+    tempEt += m_met_feature->sumEtComponent(p);
   }
   m_met_feature->setEx(tempEx);
   m_met_feature->setEy(tempEy);
@@ -481,14 +489,14 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
   
 
   if ( debug ) {
-    (*m_log) << MSG::DEBUG << "m_met_feature" << std::endl << str(*m_met_feature) << endreq;
-    for(int i=0; i < NCOM; i++) {
+    (*m_log) << MSG::DEBUG << "m_met_feature" << std::endl << m_met_feature << endreq;
+    for(int i=0; i < NCOM; i++) { 
       (*m_log) << MSG::DEBUG << "m_met_feature component: " << i;
-      (*m_log) << "\t Ex   : " << m_met_feature->getExComponent(i);
-      (*m_log) << "\t Ey   : " << m_met_feature->getEyComponent(i);
-      (*m_log) << "\t Ez   : " << m_met_feature->getEzComponent(i);
-      (*m_log) << "\t SumE : " << m_met_feature->getSumEComponent(i);
-      (*m_log) << "\t SumEt: " << m_met_feature->getSumEtComponent(i);
+      (*m_log) << "\t Ex   : " << m_met_feature->exComponent(i);
+      (*m_log) << "\t Ey   : " << m_met_feature->eyComponent(i);
+      (*m_log) << "\t Ez   : " << m_met_feature->ezComponent(i);
+      (*m_log) << "\t SumE : " << m_met_feature->sumEComponent(i);
+      (*m_log) << "\t SumEt: " << m_met_feature->sumEtComponent(i);
       (*m_log) << endreq;
     }
   }
@@ -514,7 +522,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
   // save feature to output TE:
   HLT::ErrorCode hltStatus = attachFeature(outputTE, m_met_feature, m_featureLabel);
-
+ 
   if ( hltStatus != HLT::OK ) {
     msg() << MSG::WARNING // ERROR
 	  << "Write of TrigMissingET feature into outputTE failed"
@@ -536,13 +544,12 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
 
 //////////////////////////////////////////////////////////
 
-HLT::ErrorCode T2CaloMissingET::init(TrigMissingET *met){
-  int ncom=met->getNumOfComponents();
+HLT::ErrorCode T2CaloMissingET::init(xAOD::TrigMissingET *met){
+  int ncom=met->getNumberOfComponents();
   if(ncom!=NCOM){
     msg() << MSG::ERROR << "Wrong number of TrigMissingET dimension." << endreq;
     return HLT::NO_HLT_RESULT;
   }
-  met->clear();			// Set all components to default value
   met->setNameOfComponent(0, "L1Calo   ");
   met->setNameOfComponent(1, "PreSamplB");
   met->setNameOfComponent(2, "EMB1     ");
@@ -559,13 +566,14 @@ HLT::ErrorCode T2CaloMissingET::init(TrigMissingET *met){
   met->setNameOfComponent(13,"FCalHad1 ");
   met->setNameOfComponent(14,"FCalHad2 ");
   met->setNameOfComponent(15,"Muons    ");
+  // Already set to zero by constructor of EDM
   for(int index=0;index<ncom-1;index++){
-    met->setUsedChannels(index,1); // Suggestion by Diego
+    met->setUsedChannelsComponent(index,1); // Suggestion by Diego
     met->setExComponent(index,0.);
     met->setEyComponent(index,0.);
     met->setEzComponent(index,0.);
     met->setSumEComponent(index,0.);
-    met->setSumEtComponent(index,0.);
+    met->setSumEtComponent(index,0.);   
   }
   return HLT::OK;
 }

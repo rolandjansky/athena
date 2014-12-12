@@ -8,7 +8,6 @@ author Diego Casadei <Diego.Casadei@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 use TrigInterfaces      TrigInterfaces-*             Trigger/TrigSteer
 use TrigSteeringEvent	TrigSteeringEvent-*          Trigger/TrigEvent
-use TrigMuonEvent       TrigMuonEvent-*              Trigger/TrigEvent
 use DataCollection      DataCollection-*             External
 use IRegionSelector     IRegionSelector-*            DetectorDescription
 use LArRecEvent         LArRecEvent-*                LArCalorimeter
@@ -16,7 +15,8 @@ use GaudiInterface      GaudiInterface-*             External
 use CaloIdentifier      CaloIdentifier-*             Calorimeter
 use LArIdentifier       LArIdentifier-*              LArCalorimeter
 use LArTools            LArTools-*                   LArCalorimeter
-
+use xAODTrigMissingET   xAODTrigMissingET-*          Event/xAOD
+ 
 private
 use TrigT2CaloCommon    TrigT2CaloCommon-*           Trigger/TrigAlgorithms
 use TrigMissingEtEvent  TrigMissingEtEvent-*         Trigger/TrigEvent
@@ -25,7 +25,7 @@ use TrigNavigation      TrigNavigation-*             Trigger/TrigEvent
 use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
 use AtlasCLHEP          AtlasCLHEP-*                 External
 use CxxUtils            CxxUtils-*                   Control
-use EventInfo           EventInfo-*                  Event
+use  xAODEventInfo      xAODEventInfo-*              Event/xAOD
 end_private
 
 

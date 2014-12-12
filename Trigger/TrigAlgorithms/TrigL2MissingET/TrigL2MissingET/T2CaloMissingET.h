@@ -7,12 +7,12 @@
  * @Package: TrigL2MissingET
  * @Class  : L2CaloMissingET
  *
- * @brief  PESA algorithm that refines the MissingET from LVL1 using LVL2 muons
+ * @brief  PESA algorithm that takes the LVL2 MissingET from LVL1
  *
  * @author  Denis Oliveira Damazio - Brookhaven National Laboratory
  *
  * File and Version Information:
- * $Id: T2CaloMissingET.h 555536 2013-07-24 14:33:51Z wlampl $
+ * $Id: T2CaloMissingET.h 635500 2014-12-12 07:58:17Z florianb $
  **********************************************************************************/
 
 
@@ -30,6 +30,8 @@
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
+#include "xAODTrigMissingET/TrigMissingET.h"
+
 #include <vector>
 
 class ITrigDataAccess;
@@ -41,7 +43,6 @@ namespace HLT {
   class TriggerElement;
 }
 
-class TrigMissingET;
 
 class T2CaloMissingET : public HLT::AllTEAlgo
   {
@@ -56,15 +57,18 @@ class T2CaloMissingET : public HLT::AllTEAlgo
      * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.
      *
      * @param input outer vector describeds the different input TE types,
-                    here we expect: 1st LVL1 energy TE; 2nd Muons;
+                    here we expect: 1st LVL1 energy TE;
                     inner vector provides all TE instances of the given type
      * @param output the output TE type
      */
     HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
 			      unsigned int output);
 
-    virtual bool reset() {m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
-    HLT::ErrorCode init(TrigMissingET *met);
+    HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; return HLT::OK; };
+
+    // virtual bool reset() {m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
+    
+    HLT::ErrorCode init(xAOD::TrigMissingET *met); 
 
   private:
      bool m_useCachedResult;
@@ -84,7 +88,7 @@ class T2CaloMissingET : public HLT::AllTEAlgo
      std::vector<DETID> m_detid;
      bool m_ReadL2L1;
 
-     TrigMissingET* m_met_feature;    //!< internal caching: missing E_T feature of the first execution
+     xAOD::TrigMissingET* m_met_feature;    //!< internal caching: missing E_T feature of the first execution
      HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
      LArCablingService *m_cablingSvc;

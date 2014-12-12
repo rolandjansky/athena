@@ -7,7 +7,7 @@
  * @Package: TrigL2MissingET
  * @Class  : L2MissingET
  *
- * @brief  PESA algorithm that refines the MissingET from LVL1 using LVL2 muons
+ * @brief  PESA algorithm that takes the LVL2 MissingET from LVL1
  *
  * @author Till Eifert     <Till.Eifert@cern.ch>     - U. of Geneva, Switzerland
  *
@@ -20,6 +20,7 @@
 #ifndef TrigL2MissingET_L2MissingET_H
 #define TrigL2MissingET_L2MissingET_H
 
+#include "xAODTrigMissingET/TrigMissingET.h"
 
 #include "TrigInterfaces/AllTEAlgo.h"
 #include <vector>
@@ -29,20 +30,14 @@ namespace HLT {
   class TriggerElement;
 }
 
-class TrigMissingET;
 
 namespace PESA {
 
   /**
       $class T2MissingET
-      This class combines LVL1 MET and LVL2 muons to produce LVL2 MET.
-      LVL1 MET is determined as minus the LVL1 energy ROI
-      LVL2 muon Ptx, Pty are subtracted from the LVL1 METx, METy
+      This class uses LVL1 MET to produce LVL2 MET.
+      LVL1 METx and METy are determined as minus the LVL1 energy ROI
       LVL2 MET = sqrt (METx^2 + METy^2)
-      No calorimeter energy deposit correction is performed for the
-      muon, because it is assumed that the muon Pt does not include
-      a correction for calorimeter energy.
-      LVL2 muon Pt is added to calorimeter sum Et
 
       The first defined trigger element must be the LVL1 MET
 
@@ -64,20 +59,22 @@ namespace PESA {
      * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.
      *
      * @param input outer vector describeds the different input TE types,
-                    here we expect: 1st LVL1 energy TE; 2nd Muons;
+                    here we expect: 1st LVL1 energy TE;
                     inner vector provides all TE instances of the given type
      * @param output the output TE type
      */
     HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input,
 			      unsigned int output);
 
+    HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0;  return HLT::OK; };
+
     /**
      * @brief This method overwrites the default one (doing nothing) in the algo.h class
      *
      * This is used to reset the internal caching mechanism of this T2MissingET algorithm.
      */
-    virtual bool reset() {m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
-    HLT::ErrorCode init(TrigMissingET *);
+    // virtual bool reset() {m_useCachedResult = false; m_met_feature = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
+    HLT::ErrorCode init(xAOD::TrigMissingET *);
 
   private:
 
@@ -116,6 +113,7 @@ namespace PESA {
                               // || TDAQ_CALO_CLUSTER_PROC_ROI
                               // || TDAQ_CALO_JET_PROC_DAQ
                               // || TDAQ_CALO_JET_PROC_ROI
+    bool firsteventinrun;
 
     float m_lvl1_mex; //!< Monitoring: LVL1 energyX [GeV]
     float m_lvl1_mey; //!< Monitoring: LVL1 energyY [GeV]
@@ -144,11 +142,11 @@ namespace PESA {
 
     std::vector<int> m_status_flag;   //!< Monitoring: status flags
 
-    TrigMissingET* m_met_feature;    //!< internal caching: mnissing E_T feature of the first execution
+    xAOD::TrigMissingET* m_met_feature;    //!< internal caching: mnissing E_T feature of the first execution
     HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
     /** definition of the meaning for the component flag bits
-     ** (see the constructor)
+     ** (see the constructor) 
      **/
 
     unsigned short m_maskErrParityL1;  //!< L1 parity error

@@ -15,7 +15,6 @@
 // ********************************************************************
 
 #include "TrigL2MissingET/T2MissingET.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigSteeringEvent/Enums.h"
@@ -24,8 +23,7 @@
 #include "CxxUtils/sincos.h"
 #include "CxxUtils/sincosf.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
 
@@ -155,88 +153,7 @@ HLT::ErrorCode T2MissingET::hltBeginRun() {
     return HLT::SG_ERROR;
   }
 
-  // get EventInfo
-  const EventInfo* pEvent(0);
-  StatusCode sc = m_StoreGate->retrieve(pEvent);
-  if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Can not find EventInfo object" << endreq;
-    return HLT::SG_ERROR;
-  }
-
-  const EventID* pEventId = pEvent->event_ID();
-  if(pEventId==0) {
-    msg() << MSG::ERROR << "Can not find EventID object" << endreq;
-    return HLT::SG_ERROR;
-  }
-  m_current_run_id = pEventId->run_number();
-  m_current_lbk_id = pEventId->lumi_block();
-  m_current_evt_id = pEventId->event_number();
-  m_current_bcg_id = pEventId->bunch_crossing_id();
-
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,
-	    "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
-	    m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-    msg() << MSG::DEBUG << buff << endreq;
-  }
-
-  if (!m_decodeDetMask) return HLT::OK; 
-
-  // Retrieve run number and detector mask
-  uint32_t mask0 = pEventId->detector_mask0();
-  uint32_t mask1 = pEventId->detector_mask1();
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
-    msg() << MSG::DEBUG << buff << endreq;
-  }
-
-  if (mask0==0 && mask1==0) return HLT::OK; // 0 means present
-
-  eformat::helper::DetectorMask dm(mask1, mask0);
-  m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
-  m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
-  m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
-  m_LArEMendCapCside  = dm.is_set(eformat::LAR_EM_ENDCAP_C_SIDE);
-  m_LArHECendCapAside = dm.is_set(eformat::LAR_HAD_ENDCAP_A_SIDE);
-  m_LArHECendCapCside = dm.is_set(eformat::LAR_HAD_ENDCAP_C_SIDE);
-  m_LArFCalAside      = dm.is_set(eformat::LAR_FCAL_A_SIDE);
-  m_LArFCalCside      = dm.is_set(eformat::LAR_FCAL_C_SIDE);
-  m_TileBarrelAside   = dm.is_set(eformat::TILECAL_BARREL_A_SIDE);
-  m_TileBarrelCside   = dm.is_set(eformat::TILECAL_BARREL_C_SIDE);
-  m_TileExtBarAside   = dm.is_set(eformat::TILECAL_EXT_A_SIDE);
-  m_TileExtBarCside   = dm.is_set(eformat::TILECAL_EXT_C_SIDE);
-
-  if(!m_LArEMbarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_A_SIDE is absent!" << endreq;
-  if(!m_LArEMbarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_C_SIDE is absent!" << endreq;
-  if(!m_LArEMendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_A_SIDE is absent!" << endreq;
-  if(!m_LArEMendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_C_SIDE is absent!" << endreq;
-  if(!m_LArHECendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_A_SIDE is absent!" << endreq;
-  if(!m_LArHECendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_C_SIDE is absent!" << endreq;
-  if(!m_LArFCalAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_A_SIDE is absent!" << endreq;
-  if(!m_LArFCalCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_C_SIDE is absent!" << endreq;
-  if(!m_TileBarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_A_SIDE is absent!" << endreq;
-  if(!m_TileBarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_C_SIDE is absent!" << endreq;
-  if(!m_TileExtBarAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_A_SIDE is absent!" << endreq;
-  if(!m_TileExtBarCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_C_SIDE is absent!" << endreq;
-
-
-  ///////////////////////////////////////////////////////
-  //////                  TO  DO:                  //////
-  ////// use DetMask to update list of bad regions //////
-  //////                                           //////
-  ///////////////////////////////////////////////////////
-
-
-  m_L1Calo=true;
-  if (!dm.is_set(eformat::TDAQ_CALO_PREPROC)) m_L1Calo=false; 
-  if (!dm.is_set(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ)) m_L1Calo=false; 
-  if (!dm.is_set(eformat::TDAQ_CALO_CLUSTER_PROC_ROI)) m_L1Calo=false; 
-  if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_DAQ)) m_L1Calo=false; 
-  if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_ROI)) m_L1Calo=false;
-
-  if(!m_L1Calo && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "L1Calo is absent!" << endreq;
+  firsteventinrun = true;
 
   return HLT::OK; 
 }
@@ -299,9 +216,104 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   // event status flag
   int flag=0;
 
+  if(firsteventinrun) {
+    msg() << MSG::DEBUG << "REGTEST: First event in run" << endreq;
+    // get EventInfo
+    const xAOD::EventInfo* pEvent(0);
+    StatusCode sc = m_StoreGate->retrieve(pEvent);
+    if ( sc.isFailure() ) {
+      msg() << MSG::ERROR << "Cannot find xAODEventInfo object" << endreq;
+      return HLT::SG_ERROR;
+    }
+    m_current_run_id = pEvent->runNumber();
+    m_current_lbk_id = pEvent->lumiBlock();
+    m_current_evt_id = pEvent->eventNumber();
+    m_current_bcg_id = pEvent->bcid();
+
+    if(msgLvl() <= MSG::DEBUG){
+      char buff[512];
+      snprintf(buff,512,
+            "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
+            m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
+      msg() << MSG::DEBUG << buff << endreq;
+    }
+
+    m_LArEMbarrelAside=true;
+    m_LArEMbarrelCside=true;
+    m_LArEMendCapAside=true;
+    m_LArEMendCapCside=true;
+    m_LArHECendCapAside=true;
+    m_LArHECendCapCside=true;
+    m_LArFCalAside=true;
+    m_LArFCalCside=true;
+    m_TileBarrelAside=true;
+    m_TileBarrelCside=true;
+    m_TileExtBarAside=true;
+    m_TileExtBarCside=true;
+    m_L1Calo=true;
+
+    if(m_decodeDetMask) { 
+      uint32_t mask0 = pEvent->detectorMask0();
+      uint32_t mask1 = pEvent->detectorMask1();
+      if(msgLvl() <= MSG::DEBUG){
+        char buff[512];
+        snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
+        msg() << MSG::DEBUG << buff << endreq;
+      }
+
+      if (!(mask0==0 && mask1==0)) {  // 0 means present
+
+        eformat::helper::DetectorMask dm(mask1, mask0);
+        m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
+        m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
+        m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
+        m_LArEMendCapCside  = dm.is_set(eformat::LAR_EM_ENDCAP_C_SIDE);
+        m_LArHECendCapAside = dm.is_set(eformat::LAR_HAD_ENDCAP_A_SIDE);
+        m_LArHECendCapCside = dm.is_set(eformat::LAR_HAD_ENDCAP_C_SIDE);
+        m_LArFCalAside      = dm.is_set(eformat::LAR_FCAL_A_SIDE);
+        m_LArFCalCside      = dm.is_set(eformat::LAR_FCAL_C_SIDE);
+        m_TileBarrelAside   = dm.is_set(eformat::TILECAL_BARREL_A_SIDE);
+        m_TileBarrelCside   = dm.is_set(eformat::TILECAL_BARREL_C_SIDE);
+        m_TileExtBarAside   = dm.is_set(eformat::TILECAL_EXT_A_SIDE);
+        m_TileExtBarCside   = dm.is_set(eformat::TILECAL_EXT_C_SIDE);
+
+        if(!m_LArEMbarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_A_SIDE is absent!" << endreq;
+        if(!m_LArEMbarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_C_SIDE is absent!" << endreq;
+        if(!m_LArEMendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_A_SIDE is absent!" << endreq;
+        if(!m_LArEMendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_C_SIDE is absent!" << endreq;
+        if(!m_LArHECendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_A_SIDE is absent!" << endreq;
+        if(!m_LArHECendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_C_SIDE is absent!" << endreq;
+        if(!m_LArFCalAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_A_SIDE is absent!" << endreq;
+        if(!m_LArFCalCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_C_SIDE is absent!" << endreq;
+        if(!m_TileBarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_A_SIDE is absent!" << endreq;
+        if(!m_TileBarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_C_SIDE is absent!" << endreq;
+        if(!m_TileExtBarAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_A_SIDE is absent!" << endreq;
+        if(!m_TileExtBarCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_C_SIDE is absent!" << endreq;
+
+        m_L1Calo=true;
+        if (!dm.is_set(eformat::TDAQ_CALO_PREPROC)) m_L1Calo=false;
+        if (!dm.is_set(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ)) m_L1Calo=false;
+        if (!dm.is_set(eformat::TDAQ_CALO_CLUSTER_PROC_ROI)) m_L1Calo=false;
+        if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_DAQ)) m_L1Calo=false;
+        if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_ROI)) m_L1Calo=false;
+
+        if(!m_L1Calo && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "L1Calo is absent!" << endreq;
+
+      } // Finshed dealing with non zero detector mask
+
+    } // finished decoding detector mask
+    firsteventinrun = false;
+  } // end processing of first run in event 
+
   // if L1Calo is missing, produce an empty feature
   if(!m_L1Calo){
-    m_met_feature = new TrigMissingET(NCOM);
+    m_met_feature = new xAOD::TrigMissingET(); m_met_feature->makePrivateStore();
+ 
+    std::vector <std::string> vs_aux;
+    for(int i = 0; i < NCOM; i++)
+     vs_aux.push_back("");    
+    m_met_feature->defineComponents(vs_aux); 
+    
     if (m_met_feature==0) {
       if(msgLvl() <= MSG::WARNING)
 	msg() << MSG::WARNING
@@ -371,7 +383,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_lvl2_xs = -9e9;
 
   bool seeded=true; // default mode: seeded by L1
-  unsigned int tes_in_size=tes_in.size(); // = 2 (seeded) or 1 (unseeded)
+  unsigned int tes_in_size=tes_in.size(); // = 1 (seeded) or 0 (unseeded)
   unsigned int tes_in0_size=0;  // size of L1 result (must be = 1)
 
   if (msgLvl() <= MSG::DEBUG) {
@@ -454,27 +466,22 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_lvl1_set = static_cast<float>(lvl1_energyRoi->energyT());
   m_lvl1_phi = atan2f(m_lvl1_mey, m_lvl1_mex);
 
-  if (msgLvl() <= MSG::DEBUG) {
+  if(msgLvl() <= MSG::DEBUG){
     if (m_StoreGate) {
-      const EventInfo* pEvent(0);
+      const xAOD::EventInfo* pEvent(0);
       StatusCode sc = m_StoreGate->retrieve(pEvent);
       if ( sc.isFailure() ) {
-	msg() << MSG::ERROR << "Can not find EventInfo object" << endreq;
+        msg() << MSG::ERROR << "Cannot find xAOD::EventInfo object" << endreq;
       } else {
-	const EventID* pEventId = pEvent->event_ID();
-	if(pEventId==0)
-	  msg() << MSG::ERROR << "Can not find EventID object" << endreq;
-	else {
-	  m_current_run_id = pEventId->run_number();
-	  m_current_lbk_id = pEventId->lumi_block();
-	  m_current_evt_id = pEventId->event_number();
-	  m_current_bcg_id = pEventId->bunch_crossing_id();
-	  char buff[512];
-	  snprintf(buff,512,
-		  "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
-		  m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-	  msg() << MSG::DEBUG << buff << endreq;
-	}
+        m_current_run_id = pEvent->runNumber();
+        m_current_lbk_id = pEvent->lumiBlock();
+        m_current_evt_id = pEvent->eventNumber();
+        m_current_bcg_id = pEvent->bcid();
+        char buff[512];
+        snprintf(buff,512,
+             "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
+             m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
+        msg() << MSG::DEBUG << buff << endreq;
       }
     }
     msg() << MSG::DEBUG << "REGTEST: (LVL1) Lvl1Id = " << config()->getLvl1Id() << endreq;
@@ -490,7 +497,6 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_lvl2_met = m_lvl1_met * 1e3;
   m_lvl2_set = m_lvl1_set * 1e3;
   m_lvl2_phi = m_lvl1_phi;
-
 
   /// flagging the event based on L1 ///
   unsigned int bitParityError    =  0x8000000; // bit 27 - roiWord parity error
@@ -576,13 +582,19 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
   /// 9. flag if MET is correlated with jet Pt: m_maskPhiCorrJet1, ... ///
 
   /// create MET feature ///
-  m_met_feature = new TrigMissingET(NCOM);
+  m_met_feature = new xAOD::TrigMissingET(); m_met_feature->makePrivateStore();
+  std::vector <std::string> vs_aux;
+  for(int i = 0; i < NCOM; i++)
+   vs_aux.push_back("");    
+  m_met_feature->defineComponents(vs_aux); 
+    
   if (m_met_feature==0) {
     msg() << MSG::WARNING // ERROR 
 	  << "cannot create the TrigMissingET object!" << endreq;
     return HLT::NO_HLT_RESULT;
   }
   init(m_met_feature);
+  
   // basic info:
   m_met_feature->setEx(m_lvl2_mex);
   m_met_feature->setEy(m_lvl2_mey);
@@ -693,16 +705,15 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
 //////////////////////////////////////////////////////////
 // Initializing the TrigMissingET object
 // This should be done in the TrigMissingEtEvent definition
-HLT::ErrorCode T2MissingET::init(TrigMissingET *met){
-  int ncom=met->getNumOfComponents();
+HLT::ErrorCode T2MissingET::init(xAOD::TrigMissingET *met){
+  int ncom=met->getNumberOfComponents();
   if(ncom!=NCOM){
     msg() << MSG::ERROR << "Wrong number of TrigMissingET dimension." << endreq;
     return HLT::NO_HLT_RESULT;
-  }
-  met->clear();			// Set all components to default value
+  } 
   met->setNameOfComponent(0,"Muons    ");
   for(int index=0;index<ncom;index++){
-    met->setUsedChannels(index,1); // Suggestion by Diego
-  }
+    met->setUsedChannelsComponent(index,1); // Suggestion by Diego
+  } 
   return HLT::OK;
 }
