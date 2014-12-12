@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterAuxContainerCnv.h 565402 2013-10-15 09:44:40Z krasznaa $
+// $Id: xAODCaloClusterAuxContainerCnv.h 628099 2014-11-13 09:30:05Z krasznaa $
 #ifndef XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 
@@ -22,21 +22,18 @@ typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
 /**
  *  @short POOL converter for the xAOD::CaloClusterAuxContainer class
  *
- *         This is the converter doing the actual schema evolution
- *         of the package... The converter for xAOD::CaloClusterContainer
- *         doesn't do much, as the "interface classes" don't contain
- *         too much/any payload. Most of the payload is in the auxiliary
- *         containers like this one.
+ *         This is the first xAOD POOL converter to implement real schema
+ *         evolution. Because ROOT can't handle the change in inheritance
+ *         that was done between _v1 and _v2.
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 565402 $
- * $Date: 2013-10-15 11:44:40 +0200 (Tue, 15 Oct 2013) $
+ * $Revision: 628099 $
+ * $Date: 2014-11-13 10:30:05 +0100 (Thu, 13 Nov 2014) $
  */
-class xAODCaloClusterAuxContainerCnv :
-   public xAODCaloClusterAuxContainerCnvBase {
+class xAODCaloClusterAuxContainerCnv : public xAODCaloClusterAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
+   /// Declare the factory as our friend
    friend class CnvFactory< xAODCaloClusterAuxContainerCnv >;
 
 protected:
