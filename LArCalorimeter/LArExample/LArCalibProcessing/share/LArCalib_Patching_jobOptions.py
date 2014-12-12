@@ -9,18 +9,18 @@ if "Objects" not in dir():
     Objects=["RAMP"]#,"CALIWAVE"]
 
 if "sqlite" in dir():
-    InputDB="sqlite://;schema="+sqlite+";dbname=COMP200"
+    InputDB="sqlite://;schema="+sqlite+";dbname=CONDBR2"
 else:
-    InputDB="COOLOFL_LAR/COMP200"
+    InputDB="COOLOFL_LAR/CONDBR2"
 
 
 if "output" in dir():
-    OutputDB="sqlite://;schema="+output+";dbname=COMP200"
+    OutputDB="sqlite://;schema="+output+";dbname=CONDBR2"
 else:
     if "sqlite" in dir():
         OutputDB=InputDB
     else:
-        OutputDB="sqlite://;schema=AdditionalCorrections.db;dbname=COMP200"
+        OutputDB="sqlite://;schema=AdditionalCorrections.db;dbname=CONDBR2"
 
 if 'poolcat' not in dir() and os.access("freshConstants.xml",os.R_OK):
     poolcat="freshConstants.xml"

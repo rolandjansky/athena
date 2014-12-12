@@ -113,7 +113,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 ###########################################################################
 # OFC properties (2 instances)
@@ -345,7 +345,7 @@ OutputObjectSpecTagOFCBin = LArCalibFolderTag(OFCBinFolder,OFCBinFolderTag)
 
 
 if not 'DBConnectionCOOL' in dir():
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 if ( ReadAutoCorrFromCOOL ):      
    if 'InputAutoCorrSQLiteFile' in dir():
@@ -363,7 +363,8 @@ if ( ReadPhysCaliTdiffFromCOOL ):
    if 'InputPhysCaliTdiffSQLiteFile' in dir():
       InputDBConnectionPhysCaliTdiff = DBConnectionFile(InputPhysCaliTdiffSQLiteFile)
    else:
-      InputDBConnectionPhysCaliTdiff = DBConnectionCOOL
+      #InputDBConnectionPhysCaliTdiff = DBConnectionCOOL
+      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/COMP200"
 
 ## Bad Channel   
    
@@ -374,8 +375,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/COMP200"        
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"        
       
 ###########################################################################
 # Print summary
@@ -452,9 +453,10 @@ globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-16-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-21-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()  #Switched off to avoid geometry

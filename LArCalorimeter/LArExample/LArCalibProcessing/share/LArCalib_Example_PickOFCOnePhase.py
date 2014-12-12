@@ -43,7 +43,7 @@ from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 Folder = "/LAR/ElecCalibOnl/OFC"
 ObjectSpec = [ "LArOFCComplete#LArOFC#"+Folder ]
 TagSpec = []
-OutputDB = "sqlite://X;schema=OFCnew.db;dbname=COMP200"
+OutputDB = "sqlite://X;schema=OFCnew.db;dbname=CONDBR2"
 theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","./ofc_picked.pool.root", 
                                            ObjectSpec,TagSpec,True)
 theOutputConditionsAlg.Run1 = 0

@@ -1,5 +1,5 @@
-#InputDB="oracle://ATONR_COOL;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;;password=COOLRED4PRO"
-InputDB="COOLOFL_LAR/COMP200"
+#InputDB="oracle://ATONR_COOL;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;;password=COOLRED4PRO"
+InputDB="COOLOFL_LAR/CONDBR2"
 #Folder="/LAR/ElecCalibOfl/CaliWaves/CaliWave"
 FolderTag="LARElecCalibCaliWavesCaliWave-comm-08"
 Folder="/LAR/ElecCalibOfl/CaliWaves/CaliWaveXtalkCorr"
@@ -88,7 +88,7 @@ from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","LArCaliWaveCorrections_"+str(RunNumber)+".pool.root",
                                            [OutputObjectSpecCaliWave],[FolderTag],True)
 theOutputConditionsAlg.Run1 = RunNumber
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=LArCaliWaveCorrections_"+str(RunNumber)+".db;dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=LArCaliWaveCorrections_"+str(RunNumber)+".db;dbname=CONDBR2"
 
 from AthenaCommon.AppMgr import ServiceMgr
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc

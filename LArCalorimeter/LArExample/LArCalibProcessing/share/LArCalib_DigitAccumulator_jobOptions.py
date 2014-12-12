@@ -71,7 +71,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 
 #######################################################
@@ -132,7 +132,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"   
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
    OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")

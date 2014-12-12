@@ -57,7 +57,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 ###########################################################################
 #                     OFC properties                                      #
@@ -69,12 +69,15 @@ if not 'TimeOffsetCorrection' in dir():
 if not 'DefaultPhase' in dir():
    DefaultPhase = 1
 
+if not 'Nsamples' in dir():
+   Nsamples = 5
+
 if not 'OFCFolder' in dir() :
-   OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples3bins17phases"
+   OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
    #OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
    
 if not 'ShapeFolder' in dir() :
-   ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases"
+   ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
    #ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/5samples"
 
 if not 'OFCKey' in dir() :
@@ -116,7 +119,7 @@ if not 'OutputPoolFileDir' in dir():
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
-OFCFileTag += "_5samples_Picked"
+OFCFileTag += "_"+str(Nsamples)+"samples_Picked"
 
 if not 'OutputOFCRootFileName' in dir():
    OutputOFCRootFileName = "LArOFCPhys_"+OFCFileTag + ".root"
@@ -132,9 +135,9 @@ if 'OutputSQLiteFile' in dir():
 
 #outputs
 if not 'FolderShapeOutput' in dir():
-   FolderShapeOutput = "/LAR/ElecCalibOfl/Shape/RTM/5samples1phase"
+   FolderShapeOutput = "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples1phase"
 if not 'FolderOFCOutput' in dir():
-   FolderOFCOutput = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples1phase"
+   FolderOFCOutput = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
 
 rs=FolderTagResover()
 
@@ -179,7 +182,7 @@ if not 'OutputObjectSpecShape' in dir():
      
 
 if not 'DBConnectionCOOL' in dir():
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 if ( ReadOFCFromCOOL ):      
    if 'InputOFCSQLiteFile' in dir():
@@ -202,8 +205,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/COMP200"            
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"            
 
 ###########################################################################
 # Print summary
@@ -325,7 +328,8 @@ if ( ReadShapeFromCOOL ):
       conddb.addFolder("",ShapeFolder+"<tag>"+ShapeFolderTagSpec+"</tag><key>LArShapeIn</key><dbConnection>"+InputDBConnectionShape+"</dbConnection>"+ ChannelSelection)
 
 
-conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/Dummy<dbConnection>"+DBConnectionCOOL+"</dbConnection>"+ ChannelSelection)     
+#conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/Dummy<dbConnection>"+DBConnectionCOOL+"</dbConnection>"+ ChannelSelection)     
+conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/Dummy<dbConnection>COOLOFL_LAR/COMP200</dbConnection><tag>LARElecCalibOflOFCBinDummy-UPD3-01</tag>"+ ChannelSelection)     
    
       
       

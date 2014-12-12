@@ -86,7 +86,7 @@ from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 Folder = "/LAR/OFC/OFCPhase"
 ObjectSpec = [ "LArOFCBinComplete#"+KeyOutput+"#"+Folder ]
 TagSpec = [ "LArOFCPhase-01" ]
-OutputDB = "sqlite://X;schema=OFCPhase.db;dbname=COMP200"
+OutputDB = "sqlite://X;schema=OFCPhase.db;dbname=CONDBR2"
 OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","./ofc_phase.pool.root", 
                     ObjectSpec,TagSpec,True)
 #OutputConditionsAlg.Run1 = 0

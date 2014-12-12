@@ -30,26 +30,10 @@ echo " Run /LB for IoOV start update for noise   in UPD4 tag  " ${run} ${lb}
 
 echo "    be careful: you need ~60 Mbytes of free disk space in the running directory... "
 
-if [ -f LArHVScaleCorr_dummy.pool.root ];
+if [ -f HVScaleCorr.db ];
    then
-   echo "ERROR: Output pool file for HV scale correction already exists LArHVScaleCorr_dummy.pool.root. Remove it before running this script !"
+   echo "ERROR: local sqlite file for HV scale correction already exists. Remove  HVScaleCorr.db before running this script !"
    exit
-fi
-
-if [ -f myDB200_hvDummy.db ];
-   then
-   echo "ERROR: local sqlite file for HV scale correction already exists  myDB200_hvDummy.db. Remove it before running this script !"
-   exit
-fi
-
-if [ -f myDB200_hvOnline.db ];
-    then
-    /bin/rm myDB200_hvOnline.db
-fi
-
-if [ -f myDB200_UPD3.db ];
-    then
-    /bin/rm myDB200_UPD3.db
 fi
 
 if [ -f larnoisesqlite.db ];
@@ -127,8 +111,8 @@ echo " ---> the run number to read the HV mapping db in the UPD4 tag is " ${used
 
 cat > dumpMapping.py << _EOF1_
 from CoolConvUtilities import AtlCoolTool
-toolNew = AtlCoolTool.AtlCoolTool("COOLOFL_LAR/COMP200")
-toolNew.usetag("LARIdentifierOflHVLineToElectrodeMap-UPD4-01")
+toolNew = AtlCoolTool.AtlCoolTool("COOLOFL_LAR/CONDBR2")
+toolNew.usetag("${globalTag}")
 a=toolNew.more("/LAR/IdentifierOfl/HVLineToElectrodeMap")
 f=file('dumpMapping.txt','w')
 f.write(str(a))
@@ -182,12 +166,12 @@ echo " -----> Number of channels which changed HV correction more than 0.5\%: " 
 echo "        Look at the file hvlist.txt for the full list of these channels"
 
 echo " "
-echo "Make online folder for HVcorr sqlite file"
-AtlCoolCopy.exe "sqlite://;schema=myDB200_hvDummy.db;dbname=COMP200" "sqlite://;schema=myDB200_hvOnline.db;dbname=COMP200" -f /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOnl/HVScaleCorr -fs -alliov -create >& mergedb.log 
-/afs/cern.ch/user/l/larcalib/LArDBTools/python/setOnlineMode.py myDB200_hvOnline.db
+#echo "Make online folder for HVcorr sqlite file"
+#AtlCoolCopy.exe "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://;schema=myDB200_hvOnline.db;dbname=CONDBR2" -f /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOnl/HVScaleCorr -fs -alliov -create >& mergedb.log 
+#/afs/cern.ch/user/l/larcalib/LArDBTools/python/setOnlineMode.py myDB200_hvOnline.db
 
-echo "create UPD3 tag for HV corr "
-AtlCoolCopy.exe  "sqlite://;schema=myDB200_hvDummy.db;dbname=COMP200" "sqlite://schema=myDB200_UPD3.db;dbname=COMP200" -f  /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOfl/HVScaleCorr -ot LARElecCalibOflHVScaleCorr-UPD3-00 -nrls ${run} ${lb} -create -alliov >> mergedb.log 
+#echo "create UPD3 tag for HV corr "
+#AtlCoolCopy.exe  "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://schema=myDB200_UPD3.db;dbname=CONDBR2" -f  /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOfl/HVScaleCorr -ot LARElecCalibOflHVScaleCorr-UPD3-00 -nrls ${run} ${lb} -create -alliov >> mergedb.log 
 
 
 echo " "
@@ -220,7 +204,7 @@ echo "      Check file "  ${summaryFile} " for the full list "
 echo "      You can also look at cellnoise_data.root for ntuple information "
 
 echo "Resolving current folder-level tag suffix for /LAR/NoiseOfl/CellNoise"
-fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/COMP200"  /LAR/NoiseOfl/CellNoise | tail -1` 
+fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/CONDBR2"  /LAR/NoiseOfl/CellNoise | tail -1` 
 #upd4TagName=`echo $fulltag | grep -o "UPD4-[0-9][0-9]"` 
 echo "Found $fulltag"
 
@@ -234,7 +218,7 @@ fi
 
 cat >> dumpDB.py << _EOF3_
 from CoolConvUtilities import AtlCoolTool
-toolNew = AtlCoolTool.AtlCoolTool("sqlite://;schema=larnoisesqlite.db;dbname=COMP200")
+toolNew = AtlCoolTool.AtlCoolTool("sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2")
 toolNew.usetag("$fulltag")
 a=toolNew.more('/LAR/NoiseOfl/CellNoise')
 f = file('dumpDB.txt','w')
@@ -259,12 +243,12 @@ echo " "
 cp larnoisesqlite.db tempdb.db
 
 echo "Make UPD1 offline folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=tempdb.db;dbname=COMP200" "sqlite://;schema=larnoisesqlite.db;dbname=COMP200" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy.exe "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-UPD1-00 -create >> mergedb.log 
 
 /bin/rm tempdb.db
 
 echo "Make UPD1 online folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=COMP200" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=COMP200" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot  CaloNoiseCellnoise-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot  CaloNoiseCellnoise-UPD1-00 -create >> mergedb.log 
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"
@@ -282,10 +266,10 @@ echo "  After checking that everything is OK you can proceed with the database u
 echo "  (1) ~atlcond/utils/registerFiles2 --wait --online cond12_data.lar.COND LArHVScaleCorr_dummy.pool.root "
 echo "  (2) ~atlcond/CondAFSBufferMgr/startAFSBufferReplication.py  myDB200_hvOnline.db"
 echo "  after checking that steps 1 and 2 went OK (you should get some e-mail confirmation, without ERROR) and after calling LAr RC"
-echo "  (3) ~atlcond/utils/AtlCoolMerge.py --online  myDB200_hvOnline.db  COMP200 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
-echo "  (4) ~atlcond/utils/AtlCoolMerge.py larnoisesqlite.db COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
-echo "  (5) ~atlcond/utils/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  COMP200 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
-echo "  (6) ~atlcond/utils/AtlCoolMerge.py --partial myDB200_UPD3.db COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password> "
+echo "  (3) ~atlcond/utils/AtlCoolMerge.py --online  myDB200_hvOnline.db  CONDBR2 ATONR_COOL  ATLAS_COOLONL_LAR_W  <password>"
+echo "  (4) ~atlcond/utils/AtlCoolMerge.py larnoisesqlite.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo "  (5) ~atlcond/utils/AtlCoolMerge.py --online caloSqlite_UPD1_online.db  CONDBR2 ATONR_COOL ATLAS_COOLONL_CALO_W <password>"
+echo "  (6) ~atlcond/utils/AtlCoolMerge.py --partial myDB200_UPD3.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password> "
 
 echo "  (note that password are different for LAr online,offline, Calo online offline databases"
 echo "  3 requires lar online password, 4 and 6 the lar offline password, 5 calo online password"

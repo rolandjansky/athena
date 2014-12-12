@@ -75,7 +75,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 ###########################################################################
 #                             OFC properties
@@ -161,7 +161,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():   
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2"
    
 if not 'OutputOFCRootFileDir' in dir():
    OutputOFCRootFileDir = commands.getoutput("pwd")
@@ -203,48 +203,50 @@ if 'OutputSQLiteFile' in dir():
 if not 'OutputObjectSpecOFC' in dir():
    if ( AllWavesPerCh ) :
         OutputObjectSpecOFC = []
+        OutputObjectSpecTagOFC = []
         for i in range(0, MaxCalLinePerCh):
-             OutputObjectSpecOFC.append("LArOFCComplete#"+OFCKeySplitted[i]+"#"+ LArCalib_Flags.LArOFCCaliFolder )
-        OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder,LArCalibFolderOutputTag)
+             OutputObjectSpecOFC.append("LArOFCComplete#"+OFCKeySplitted[i]+"#"+ LArCalib_Flags.LArOFCCaliFolder+str(i) )
+             OutputObjectSpecTagOFC.append(LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder+str(i),LArCalibFolderOutputTag))
    else:
         if   ( ContainerKey == "LArCaliWave" ) or (ContainerKey == "LArCaliWaveSel") or (ContainerKey == "LArCaliWaveSelPatch"):
          if ( not StripsXtalkCorr ):
             OutputObjectSpecOFC   = ["LArOFCComplete#"  +OFCKey  +"#"+ LArCalib_Flags.LArOFCCaliFolder]	
-            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder,LArCalibFolderOutputTag)
+            OutputObjectSpecTagOFC    = [LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder,LArCalibFolderOutputTag)]
          else:
             OutputObjectSpecOFC   = ["LArOFCComplete#"  +OFCKey  +"#"+ LArCalib_Flags.LArOFCCaliFolderXtlk]
-            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolderXtlk,LArCalibFolderOutputTag)
+            OutputObjectSpecTagOFC    = [LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolderXtlk,LArCalibFolderOutputTag)]
 			
         elif ( ContainerKey == "LArMasterWave" ):
          if ( not StripsXtalkCorr ):
             OutputObjectSpecOFC   = ["LArOFCComplete#"+OFCKey+"#"+ LArCalib_Flags.LArOFCMasterWaveFolder]
-            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolder,LArCalibFolderOutputTag)
+            OutputObjectSpecTagOFC    = [LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolder,LArCalibFolderOutputTag)]
          else:
             OutputObjectSpecOFC   = ["LArOFCComplete#"+OFCKey+"#"+ LArCalib_Flags.LArOFCMasterWaveFolderXtlk]
-            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolderXtlk,LArCalibFolderOutputTag)
+            OutputObjectSpecTagOFC    = [LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolderXtlk,LArCalibFolderOutputTag)]
 			
 if not 'OutputObjectSpecShape' in dir():
    if ( AllWavesPerCh ) :
         OutputObjectSpecShape = []
+        OutputObjectSpecTagShape = []
         for i in range(0, MaxCalLinePerCh):
-             OutputObjectSpecShape.append("LArShapeComplete#"+ShapeKeySplitted[i]+"#"+ LArCalib_Flags.LArShapeCaliWaveFolder ) 
-        OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder,LArCalibFolderOutputTag)
+             OutputObjectSpecShape.append("LArShapeComplete#"+ShapeKeySplitted[i]+"#"+ LArCalib_Flags.LArShapeCaliWaveFolder+str(i) ) 
+             OutputObjectSpecTagShape.append(LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder+str(i),LArCalibFolderOutputTag))
    else:
         if   ( ContainerKey == "LArCaliWave" ) or (ContainerKey == "LArCaliWaveSel") or (ContainerKey == "LArCaliWaveSelPatch"):
          if ( not StripsXtalkCorr ):
             OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeCaliWaveFolder]		
-            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder,LArCalibFolderOutputTag)
+            OutputObjectSpecTagShape  = [LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder,LArCalibFolderOutputTag)]
          else:
             OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeCaliWaveFolderXtlk]
-            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolderXtlk,LArCalibFolderOutputTag)
+            OutputObjectSpecTagShape  = [LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolderXtlk,LArCalibFolderOutputTag)]
 
         elif ( ContainerKey == "LArMasterWave" ):
          if ( not StripsXtalkCorr ):
             OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+LArCalib_Flags.LArShapeMasterWaveFolder]
-            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolder,LArCalibFolderOutputTag)		
+            OutputObjectSpecTagShape  = [LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolder,LArCalibFolderOutputTag)]		
          else:
             OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeMasterWaveFolderXtlk]
-            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolderXtlk,LArCalibFolderOutputTag)
+            OutputObjectSpecTagShape  = [LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolderXtlk,LArCalibFolderOutputTag)]
    
 if ( ReadAutoCorrFromCOOL ):      
    if 'InputAutoCorrSQLiteFile' in dir():
@@ -267,8 +269,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/COMP200"            
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
+      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"            
 
 ###########################################################################
 # Print summary
@@ -297,9 +299,9 @@ OFCLog.info( " OutputOFCRootFullFileName          = "+OutputOFCRootFileDir+"/"+O
 OFCLog.info( " OutputOFCPoolFullFileName          = "+OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName )
 OFCLog.info( " OutputShapePoolFileName            = "+OutputShapePoolFileDir+"/"+OutputShapePoolFileName )
 #OFCLog.info( " OutputObjectSpecOFC                = "+str(OutputObjectSpecOFC) )
-OFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
+#OFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
 #OFCLog.info( " OutputObjectSpecShape              = "+str(OutputObjectSpecShape) )
-OFCLog.info( " OutputObjectSpecTagShape           = "+str(OutputObjectSpecTagShape) )
+#OFCLog.info( " OutputObjectSpecTagShape           = "+str(OutputObjectSpecTagShape) )
 OFCLog.info( " IOVBegin                           = "+str(IOVBegin) )
 OFCLog.info( " IOVEnd                             = "+str(IOVEnd) )
 OFCLog.info( " LArCalibOutputDB                   = "+OutputDB )
@@ -359,6 +361,7 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 
+   
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
 
@@ -401,8 +404,13 @@ if ( ReadCaliWaveFromCOOL ):
    else:
       CaliWaveFolder = LArCalib_Flags.LArCaliWaveFolderXtlk
    if 'CaliWaveLArCalibFolderTag' in dir() :  
-      CaliWaveTagSpec = LArCalibFolderTag(CaliWaveFolder,CaliWaveLArCalibFolderTag)
-      conddb.addFolder("",CaliWaveFolder+"<tag>"+CaliWaveTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionCaliWave+"</dbConnection>" + ChannelSelection)
+      if AllWavesPerCh:
+         for i in range(0, MaxCalLinePerCh):
+            CaliWaveTagSpec = LArCalibFolderTag(CaliWaveFolder+str(i),CaliWaveLArCalibFolderTag)
+            conddb.addFolder("",CaliWaveFolder+str(i)+"<tag>"+CaliWaveTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionCaliWave+"</dbConnection>" + ChannelSelection)
+      else:   
+         CaliWaveTagSpec = LArCalibFolderTag(CaliWaveFolder,CaliWaveLArCalibFolderTag)
+         conddb.addFolder("",CaliWaveFolder+"<tag>"+CaliWaveTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionCaliWave+"</dbConnection>" + ChannelSelection)
    else :
       conddb.addFolder("",CaliWaveFolder+"<dbConnection>"+InputDBConnectionCaliWave+"</dbConnection>" + ChannelSelection)
    
@@ -521,7 +529,7 @@ if (  WritePoolFile ) :
    if os.path.exists(OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName): 
       os.remove(OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName)  
    OutputConditionsAlgOFC = OutputConditionsAlg("OutputConditionsAlgOFC",OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName,
-                                                OutputObjectSpecOFC,[OutputObjectSpecTagOFC],WriteIOV)
+                                                OutputObjectSpecOFC,OutputObjectSpecTagOFC,WriteIOV)
    OutputConditionsAlgOFC.Run1     = IOVBegin
    if IOVEnd>0:
       OutputConditionsAlgOFC.Run2  = IOVEnd
@@ -531,7 +539,7 @@ if (  WritePoolFile ) :
       if os.path.exists(OutputShapePoolFileDir+"/"+OutputShapePoolFileName): 
          os.remove(OutputShapePoolFileDir+"/"+OutputShapePoolFileName) 
       OutputConditionsAlgShape = OutputConditionsAlg("OutputConditionsAlgShape",OutputShapePoolFileDir+"/"+OutputShapePoolFileName,
-                                                     OutputObjectSpecShape,[OutputObjectSpecTagShape],WriteIOV)
+                                                     OutputObjectSpecShape,OutputObjectSpecTagShape,WriteIOV)
       OutputConditionsAlgShape.Run1     = IOVBegin
       if IOVEnd>0:
          OutputConditionsAlgShape.Run2  = IOVEnd
@@ -567,13 +575,13 @@ svcMgr.MessageSvc.OutputLevel  = WARNING
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = VERBOSE)
+svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = ERROR)
 
-from AthenaCommon.AppMgr import theAuditorSvc
-from AthenaCommon.ConfigurableDb import getConfigurable
-theAuditorSvc += getConfigurable("MemStatAuditor")(OutputLevel = DEBUG)
-theAuditorSvc += getConfigurable("ChronoAuditor")()
-theAuditorSvc += getConfigurable("NameAuditor")()
+#from AthenaCommon.AppMgr import theAuditorSvc
+#from AthenaCommon.ConfigurableDb import getConfigurable
+#theAuditorSvc += getConfigurable("MemStatAuditor")(OutputLevel = ERROR)
+#theAuditorSvc += getConfigurable("ChronoAuditor")()
+#theAuditorSvc += getConfigurable("NameAuditor")()
 
 ###########################################################################
 

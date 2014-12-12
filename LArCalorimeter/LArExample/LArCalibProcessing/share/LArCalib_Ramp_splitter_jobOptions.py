@@ -70,7 +70,7 @@ if not 'runAccumulator' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 #######################################################
 #                Monitoring properties
@@ -102,7 +102,7 @@ if not 'CorrectBias' in dir():
    CorrectBias = False   # Set whether to correct for bias - if True, will look for peds from COOL
 	
 if not 'StripsXtalkCorr' in dir():
-   StripsXtalkCorr = True # Xtalk correction for strips
+   StripsXtalkCorr = False # Xtalk correction for strips
 
 if not "ADCSaturation" in dir():
    ADCsaturation = 4095 # Set to 0 if you want to keep saturating pulses
@@ -144,8 +144,8 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'DBConnectionCOOL' in dir():
-   #DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
-   DBConnectionCOOL = "COOLOFL_LAR/COMP200"
+   #DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
+   DBConnectionCOOL = "COOLOFL_LAR/CONDBR2"
 
 ## HEC map
 if not 'ReadHECMapFromCOOL' in dir():
@@ -260,8 +260,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/COMP200"
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
+      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"
       
 #######################################################################################
 #                                print summary                                        #
@@ -501,8 +501,13 @@ if ( ReadOFCFromCOOL ):
       else:
          CaliOFCFolder  = LArCalib_Flags.LArOFCCaliFolderXtlk
       if 'OFCLArCalibFolderTag' in dir() :
-         CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,OFCLArCalibFolderTag)
-         conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
+         if AllWavesPerCh:
+            for i in range(0, MaxCalLinePerCh):
+               CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder+str(i),OFCLArCalibFolderTag)
+               conddb.addFolder("",CaliOFCFolder+str(i)+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
+         else:      
+               CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,OFCLArCalibFolderTag)
+               conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
       else :
          conddb.addFolder("",CaliOFCFolder+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
 
@@ -540,6 +545,17 @@ if ( StripsXtalkCorr ) :
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent
    topSequence +=theLArStripsCrossTalkCorrector
 
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+theLArBadChannelTool=LArBadChanTool()
+ToolSvc+=theLArBadChannelTool
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
+theLArRCBMasker.DoMasking=True
+theLArRCBMasker.ProblemsToMask=[
+   "deadCalib","deadReadout","deadPhys","almostDead","short" 
+   ]
+ToolSvc+=theLArRCBMasker
 
 from LArCalibUtils.LArCalibUtilsConf import LArRampBuilder
 if not PeakOF:
@@ -602,10 +618,10 @@ if ( AllWavesPerCh ) :
 #      theLArRampBuilder[i].Iterate=IterateOFC
       theLArRampBuilder[i].minDAC       = 10      # minimum DAC value to use in fit
       theLArRampBuilder[i].KeyOutput    = KeyOutputSplitted[i]
+      theLArRampBuilder[i].BadChannelMask = theLArRCBMasker
       theLArRampBuilder[i].DeadChannelCut = -9999
       theLArRampBuilder[i].GroupingType = "ExtendedSubDetector"
       theLArRampBuilder[i].OutputLevel = ERROR
-      theLArRampBuilder[i].CorrectBadChannels = False
 
 else:
 
@@ -634,9 +650,9 @@ else:
    theLArRampBuilder.ConsecutiveADCs = 0;
    theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
    theLArRampBuilder.KeyOutput = KeyOutput
+   theLArRampBuilder.BadChannelMask = theLArRCBMasker
    theLArRampBuilder.DeadChannelCut = -9999
    theLArRampBuilder.GroupingType = GroupingType
-   theLArRampBuilder.CorrectBadChannels = False
 
    if ( isHEC ) :
      theLArRampBuilder.isHEC = isHEC
@@ -657,17 +673,6 @@ if CorrectBadChannels:
    theLArRampPatcher.ContainerKey=KeyOutput
    theLArRampPatcher.PatchMethod="PhiAverage"
    
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-   theLArBadChannelTool=LArBadChanTool()
-   ToolSvc+=theLArBadChannelTool
-
-   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-   theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-   theLArRCBMasker.DoMasking=True
-   theLArRCBMasker.ProblemsToMask=[
-      "deadCalib","deadReadout","deadPhys","almostDead","short" 
-      ]
-   ToolSvc+=theLArRCBMasker
    theLArRampPatcher.MaskingTool=theLArRCBMasker
    topSequence+=theLArRampPatcher
 

@@ -2,11 +2,9 @@ import commands
 
 ###########################################################################
 #
-# <Marco.Delmastro@cern.ch>
+# <pavol@mail.cern.ch>
 #
-# Example jobOptions to reconstruction a DELAY runs in all 3 gains
-#
-# Last update: 09/12/2008 <Fabien.Tarrade@cern.ch>
+# jO to reconstruct a DELAY per calibration line 
 #
 ###########################################################################
 
@@ -18,11 +16,17 @@ include("RecExCommission/GetInputFiles.py")
 #######################################################
 
 if not 'SubDet' in dir():
-   SubDet = "Barrel"
+   SubDet = "EndCap"
 
 if not 'RunNumberList' in dir():
-   RunNumberList = [ '0029143' ]
+   RunNumberList = [ '00121536','00121539','00121542' ]
    
+if not 'AllWavesPerCh' in dir():
+      AllWavesPerCh      =  True
+
+if not 'MaxCalLinePerCh' in dir():
+      MaxCalLinePerCh = 4
+
 if not 'FilePrefix' in dir():
    if (int(RunNumberList[0]))<99800 :
       FilePrefix = "daq.Delay"
@@ -41,12 +45,16 @@ if not 'Partition' in dir():
 if not 'doCaliWaveSelector' in dir():
    doCaliWaveSelector = False      
 
-if not 'FullFileName' in dir():
+#if not 'RecAll' in dir():
+#   RecAll = False
+
+if not 'Trigger' in dir():
    if (int(RunNumberList[0]))<99800 :
       Trigger = "*"+Partition
    else :
       Trigger = "calibration_LArElec-Delay"+".*"+Partition
    
+if not 'FullFileName' in dir():
    FullFileName = []
    for RunNumber in RunNumberList :
        FullFileName+=GetInputFilesFromTokens(InputDir,int(RunNumber),FilePrefix,Trigger)
@@ -135,7 +143,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
 
 ## Pedestall   
    
@@ -154,10 +162,7 @@ if not 'InputPedPoolFileName' in dir():
 ## Output
 
 if not 'LArCalibFolderOutputTag' in dir():
-   rs=FolderTagResover()
-   LArCalibFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArShapeCaliWaveFolder)
-   del rs
-
+   LArCalibFolderOutputTag = '-UPD3-00'    
    
 if not 'OutputCaliWaveRootFileDir' in dir():
    OutputCaliWaveRootFileDir  = commands.getoutput("pwd")
@@ -174,16 +179,25 @@ if 'OutputSQLiteFile' in dir():
 if not 'KeyOutput' in dir():  
    KeyOutput = "LArCaliWave" # Key of LArCaliWaveContainer saved in Pool file
    
+if AllWavesPerCh:
+   KeyOutputSplitted = []
+   for i in range(0, MaxCalLinePerCh):
+            KeyOutputSplitted.append(KeyOutput+str(i))
+
 if not 'BaseFileName' in dir():
    BaseFileName = "LArCaliWave"
    
-if StripsXtalkCorr :
-   for RunNumber in RunNumberList :
-      BaseFileName = BaseFileName+"_"+str(RunNumber)+"_"+Partition.replace("*","") +"_StripsXtalkCorr"
-else :
-   for RunNumber in RunNumberList :
-      BaseFileName = BaseFileName+"_"+str(RunNumber)+"_"+Partition.replace("*","")
+for RunNumber in RunNumberList :
+   BaseFileName = BaseFileName+"_"+str(RunNumber)
 
+if StripsXtalkCorr :
+   BaseFileName = BaseFileName+"_StripsXtalkCorr"
+
+if AllWavesPerCh:
+   BaseFileName = BaseFileName+"_single"
+else:
+   BaseFileName = BaseFileName+"_averaged"
+     
 if not 'OutputCaliWaveRootFileName' in dir():
    OutputCaliWaveRootFileName = BaseFileName+".root"
    
@@ -192,10 +206,21 @@ if not 'OutputCaliWavePoolFileName' in dir():
 
 if not 'OutputObjectSpecCaliWave' in dir():
    if StripsXtalkCorr:
-      OutputObjectSpecCaliWave = "LArCaliWaveContainer#"+KeyOutput+"#"+LArCalib_Flags.LArCaliWaveFolderXtlk
+      OutputObjectSpecCaliWave = ["LArCaliWaveContainer#"+KeyOutput+"#"+LArCalib_Flags.LArCaliWaveFolderXtlk]
       OutputTagSpecCaliWave = LArCalibFolderTag(LArCalib_Flags.LArCaliWaveFolderXtlk,LArCalibFolderOutputTag)
    else:
-      OutputObjectSpecCaliWave = "LArCaliWaveContainer#"+KeyOutput+"#"+LArCalib_Flags.LArCaliWaveFolder
+      if ( AllWavesPerCh ) :
+         OutputObjectSpecCaliWave = []
+         for i in range(0, MaxCalLinePerCh):
+            if doCaliWaveSelector:
+               OutputObjectSpecCaliWave.append("LArCaliWaveContainer#"+KeyOutputSplitted[i]+"Sel"+"#"+LArCalib_Flags.LArCaliWaveFolder+str(i))
+            else:   
+               OutputObjectSpecCaliWave.append("LArCaliWaveContainer#"+KeyOutputSplitted[i]+"#"+LArCalib_Flags.LArCaliWaveFolder+str(i))
+      else:         
+         if doCaliWaveSelector:
+            OutputObjectSpecCaliWave = ["LArCaliWaveContainer#"+KeyOutput+"Sel"+"#"+LArCalib_Flags.LArCaliWaveFolder]
+         else:   
+            OutputObjectSpecCaliWave = ["LArCaliWaveContainer#"+KeyOutput+"#"+LArCalib_Flags.LArCaliWaveFolder]
       OutputTagSpecCaliWave = LArCalibFolderTag(LArCalib_Flags.LArCaliWaveFolder,LArCalibFolderOutputTag)
    
 if ( ReadPedFromCOOL ):      
@@ -213,9 +238,166 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
+      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"      
       
+###########################################################################
+#                             OFC properties
+###########################################################################
+
+if not 'Nsamples' in dir():
+   Nsamples = 5
+
+if not 'Nphases' in dir():
+   Nphases = 50
+
+if not 'Dphases' in dir():
+   Dphases = 1
+   
+if not 'Ndelays' in dir():
+   Ndelays = 24
+	
+if not 'ContainerKey' in dir():
+   ContainerKey = "LArCaliWave"
+   
+if AllWavesPerCh and (not 'ContainerKeySplitted' in dir()):
+        ContainerKeySplitted = []
+        for i in range(0, MaxCalLinePerCh):
+                if (doCaliWaveSelector):
+                    ContainerKeySplitted.append(ContainerKey+str(i)+"Sel")
+                else:
+                    ContainerKeySplitted.append(ContainerKey+str(i))
+
+if (doCaliWaveSelector) and (not AllWavesPerCh):
+        ContainerKey += "Sel"
+
+if not 'OFCKey' in dir():
+   OFCKey = "LArOFC"
+
+if AllWavesPerCh and (not 'OFCKeySplitted' in dir()):
+        OFCKeySplitted = []
+        for i in range(0, MaxCalLinePerCh):
+             OFCKeySplitted.append(OFCKey+str(i+1))
+
+if not 'ShapeKey' in dir():
+   ShapeKey = "LArShape"
+
+if AllWavesPerCh and (not 'ShapeKeySplitted' in dir()):
+        ShapeKeySplitted = []
+        for i in range(0, MaxCalLinePerCh):
+             ShapeKeySplitted.append(ShapeKey+str(i+1))
+
+if not 'Normalize' in dir():
+   Normalize = True
+
+if not 'TimeShift' in dir() :
+   TimeShift = False
+
+if not 'TimeShiftByIndex' in dir() :
+   TimeShiftByIndex = -1
+
+if not 'FillShape' in dir():
+   FillShape = False # Do not fill a LArShapeComplete object for calibration OFC!
+
+if not 'DumpOFC' in dir():
+   DumpOFC = False
+
+if not 'ReadAutoCorrFromCOOL' in dir():      
+   ReadAutoCorrFromCOOL = True
+
+###########################################################################
+#                              OFC output
+###########################################################################
+
+if not 'OutputOFCRootFileDir' in dir():
+   OutputOFCRootFileDir = commands.getoutput("pwd")
+   
+if not 'OutputOFCPoolFileDir' in dir():
+   OutputOFCPoolFileDir = commands.getoutput("pwd")
+
+if not 'OutputShapePoolFileDir' in dir():
+   OutputShapePoolFileDir = commands.getoutput("pwd")
+
+OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
+
+if (StripsXtalkCorr):
+   OFCFileTag += "_StripsXtalkCorr"
+
+OFCFileTag += "_"+str(Nsamples)+"samples"
+
+if (Dphases>1):
+   OFCFileTag += "_"+str(Dphases)+"Dphase"
+
+if not 'OutputOFCRootFileName' in dir():
+   OutputOFCRootFileName = "LArOFCCali_"+OFCFileTag + ".root"
+   
+if not 'OutputOFCPoolFileName' in dir():
+   OutputOFCPoolFileName = "LArOFCCali_"+OFCFileTag + ".pool.root"
+
+if not 'OutputShapePoolFileName' in dir():
+   OutputShapePoolFileName = "LArShapeCali_"+OFCFileTag + ".pool.root"
+
+if not 'LArCalibFolderOutputTag' in dir():
+   LArCalibFolderOutputTag = "-UPD3-00"  
+
+if not 'OutputDB' in dir():
+   OutputDB = LArCalib_Flags.OutputDB
+
+if 'OutputSQLiteFile' in dir():
+   OutputDB = DBConnectionFile(OutputSQLiteFile)
+
+if not 'OutputObjectSpecOFC' in dir():
+   if ( AllWavesPerCh ) :
+        OutputObjectSpecOFC = []
+        for i in range(0, MaxCalLinePerCh):
+             OutputObjectSpecOFC.append("LArOFCComplete#"+OFCKeySplitted[i]+"#"+ LArCalib_Flags.LArOFCCaliFolder )
+        OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder,LArCalibFolderOutputTag)
+   else:
+        if   ( ContainerKey == "LArCaliWave" ) or (ContainerKey == "LArCaliWaveSel") or (ContainerKey == "LArCaliWaveSelPatch"):
+         if ( not StripsXtalkCorr ):
+            OutputObjectSpecOFC   = ["LArOFCComplete#"  +OFCKey  +"#"+ LArCalib_Flags.LArOFCCaliFolder]	
+            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder,LArCalibFolderOutputTag)
+         else:
+            OutputObjectSpecOFC   = ["LArOFCComplete#"  +OFCKey  +"#"+ LArCalib_Flags.LArOFCCaliFolderXtlk]
+            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolderXtlk,LArCalibFolderOutputTag)
+			
+        elif ( ContainerKey == "LArMasterWave" ):
+         if ( not StripsXtalkCorr ):
+            OutputObjectSpecOFC   = ["LArOFCComplete#"+OFCKey+"#"+ LArCalib_Flags.LArOFCMasterWaveFolder]
+            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolder,LArCalibFolderOutputTag)
+         else:
+            OutputObjectSpecOFC   = ["LArOFCComplete#"+OFCKey+"#"+ LArCalib_Flags.LArOFCMasterWaveFolderXtlk]
+            OutputObjectSpecTagOFC    = LArCalibFolderTag(LArCalib_Flags.LArOFCMasterWaveFolderXtlk,LArCalibFolderOutputTag)
+			
+if not 'OutputObjectSpecShape' in dir():
+   if ( AllWavesPerCh ) :
+        OutputObjectSpecShape = []
+        for i in range(0, MaxCalLinePerCh):
+             OutputObjectSpecShape.append("LArShapeComplete#"+ShapeKeySplitted[i]+"#"+ LArCalib_Flags.LArShapeCaliWaveFolder ) 
+        OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder,LArCalibFolderOutputTag)
+   else:
+        if   ( ContainerKey == "LArCaliWave" ) or (ContainerKey == "LArCaliWaveSel") or (ContainerKey == "LArCaliWaveSelPatch"):
+         if ( not StripsXtalkCorr ):
+            OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeCaliWaveFolder]		
+            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolder,LArCalibFolderOutputTag)
+         else:
+            OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeCaliWaveFolderXtlk]
+            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeCaliWaveFolderXtlk,LArCalibFolderOutputTag)
+
+        elif ( ContainerKey == "LArMasterWave" ):
+         if ( not StripsXtalkCorr ):
+            OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+LArCalib_Flags.LArShapeMasterWaveFolder]
+            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolder,LArCalibFolderOutputTag)		
+         else:
+            OutputObjectSpecShape = ["LArShapeComplete#"+ShapeKey+"#"+ LArCalib_Flags.LArShapeMasterWaveFolderXtlk]
+            OutputObjectSpecTagShape  = LArCalibFolderTag(LArCalib_Flags.LArShapeMasterWaveFolderXtlk,LArCalibFolderOutputTag)
+   
+if ( ReadAutoCorrFromCOOL ):      
+   if 'InputAutoCorrSQLiteFile' in dir():
+      InputDBConnectionAutoCorr = DBConnectionFile(InputAutoCorrSQLiteFile)
+   else:
+      InputDBConnectionAutoCorr = DBConnectionCOOL
+
 #######################################################################################
 # print summary
 #######################################################################################
@@ -239,7 +421,7 @@ if 'PedLArCalibFolderTag' in dir() :
    DelayLog.info( " PedLArCalibFolderTag               = "+PedLArCalibFolderTag )
 DelayLog.info( " OutputCaliWaveRootFullFileName     = "+OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName )
 DelayLog.info( " OutputCaliWavePoolFullFileName     = "+OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName )
-DelayLog.info( " OutputObjectSpecCaliWave           = "+OutputObjectSpecCaliWave )
+#DelayLog.info( " OutputObjectSpecCaliWave           = "+OutputObjectSpecCaliWave )
 DelayLog.info( " OutputTagSpecCaliWave              = "+OutputTagSpecCaliWave )
 DelayLog.info( " IOVBegin                           = "+str(IOVBegin) )
 DelayLog.info( " IOVEnd                             = "+str(IOVEnd) )
@@ -327,15 +509,14 @@ else:
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
-from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
-theLArBadEventCatcher=LArBadEventCatcher()
-theLArBadEventCatcher.CheckAccCalibDigitCont=True
-theLArBadEventCatcher.CheckBSErrors=True
-theLArBadEventCatcher.KeyList=GainList
-theLArBadEventCatcher.StopOnError=False
-topSequence+=theLArBadEventCatcher      
+#include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
+#from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
+#theLArBadEventCatcher=LArBadEventCatcher()
+#theLArBadEventCatcher.CheckAccCalibDigitCont=True
+#theLArBadEventCatcher.CheckBSErrors=True
+#theLArBadEventCatcher.KeyList=GainList
+#theLArBadEventCatcher.StopOnError=False
+#topSequence+=theLArBadEventCatcher      
       
 ##########################################################################
 #                                                                        #
@@ -349,7 +530,8 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+BadChannelsFolder="/LAR/BadChannels/BadChannels"
+MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayLog.info( "Read Bad Channels from Oracle DB")
@@ -370,13 +552,16 @@ else :
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
-try:
-   svcMgr.IOVDbSvc.DBInstance=""
-except: 
-   pass
 
-from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
-svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
+
+svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/stableConds/PoolCat_stable.xml",
+                               "prfile:poolcond/PoolCat_oflcond.xml",
+                               "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_diskbuffer_afs.xml",
+                               "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_cond09_data.000001.lar.COND_castor.xml",
+                               "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_cond08_data.000001.lar.COND_castor.xml",
+                               "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_comcond.000005.lar_conditions.recon.pool.v0000_castor.xml",
+                               "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/fragments/PoolCat_comcond.000006.lar_conditions.recon.pool.v0000_castor.xml"]
+
 
 if ( doLArCalibDataQuality  ) :
    ## The reference is the Oracle DB
@@ -441,48 +626,84 @@ if ( StripsXtalkCorr ) :
    theLArStripsCrossTalkCorrector.AcceptableDifference=25.0 #in per-cent                                                                       
    topSequence +=theLArStripsCrossTalkCorrector
  
+# Now the complicated part, splitter or not
 from LArCalibUtils.LArCalibUtilsConf import LArCaliWaveBuilder
-LArCaliWaveBuilder = LArCaliWaveBuilder()
-LArCaliWaveBuilder.KeyList          = GainList
-if (doCaliWaveSelector) :
-   LArCaliWaveBuilder.KeyOutput        = KeyOutput+"multi"
-else :   
+if ( AllWavesPerCh ) :
+   ContNameSplitted = []
+   for i in range(0, MaxCalLinePerCh):
+          ContNameSplitted.append("CalLine"+str(i))
+
+   from LArCalibUtils.LArCalibUtilsConf import LArAccumulatedCalibDigitContSplitter
+   LArAccumulatedCalibDigitContSplitter = LArAccumulatedCalibDigitContSplitter("LArAccumulatedCalibDigitContSplitter")
+   LArAccumulatedCalibDigitContSplitter.KeyList         = GainList
+   LArAccumulatedCalibDigitContSplitter.KeyOutputList = ContNameSplitted
+   LArAccumulatedCalibDigitContSplitter.NumberSplitted  = MaxCalLinePerCh
+   LArAccumulatedCalibDigitContSplitter.UseDacAndIsPulsedIndex = True
+   LArAccumulatedCalibDigitContSplitter.OutputLevel = ERROR
+   topSequence += LArAccumulatedCalibDigitContSplitter
+
+   LArCaliWaveBuilderVec = []
+   if(doCaliWaveSelector):
+           from LArCalibUtils.LArCalibUtilsConf import LArCaliWaveSelector
+           LArCaliWaveSelVec = []
+
+   for i in range(0, MaxCalLinePerCh):
+            topSequence += LArCaliWaveBuilder("LArCaliWaveBuilder"+str(i+1))
+            exec 'LArCaliWaveBuilderVec.append( topSequence.LArCaliWaveBuilder%(fn)s )' % {'fn' :i+1}
+            LArCaliWaveBuilderVec[i].KeyList         = [ ContNameSplitted[i] ]
+            LArCaliWaveBuilderVec[i].KeyOutput       = KeyOutputSplitted[i]
+            LArCaliWaveBuilderVec[i].ADCsaturation   = ADCsaturation
+            LArCaliWaveBuilderVec[i].GroupingType    = GroupingType
+            LArCaliWaveBuilderVec[i].SubtractPed     = SubtractPed
+            LArCaliWaveBuilderVec[i].CheckEmptyPhases= CheckEmptyPhases
+            LArCaliWaveBuilderVec[i].NBaseline       = 0
+#            LArCaliWaveBuilderVec[i].RecAllCells     = RecAll
+            LArCaliWaveBuilderVec[i].UseDacAndIsPulsedIndex = True
+            LArCaliWaveBuilderVec[i].OutputLevel     = ERROR
+            if(doCaliWaveSelector):
+                 topSequence += LArCaliWaveSelector("LArCaliWaveSelector"+str(i+1))
+                 exec 'LArCaliWaveSelVec.append( topSequence.LArCaliWaveSelector%(fn)s )' % {'fn' :i+1}
+                 LArCaliWaveSelVec[i].KeyList         = [ KeyOutputSplitted[i] ]
+                 LArCaliWaveSelVec[i].KeyOutput       = KeyOutputSplitted[i]+"Sel"       
+                 LArCaliWaveSelVec[i].SelectionList   = [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
+                 LArCaliWaveSelVec[i].SelectionList   += [ "HEC/0/0/460","HEC/1/0/460","HEC/2/0/230","HEC/3/0/230"]
+                 LArCaliWaveSelVec[i].SelectionList   += [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000"]
+                 LArCaliWaveSelVec[i].OutputLevel     = ERROR
+
+else :
+   LArCaliWaveBuilder = LArCaliWaveBuilder()
+   LArCaliWaveBuilder.KeyList          = GainList
    LArCaliWaveBuilder.KeyOutput        = KeyOutput
-LArCaliWaveBuilder.GroupingType     = GroupingType
-LArCaliWaveBuilder.SubtractPed      = SubtractPed
-LArCaliWaveBuilder.CheckEmptyPhases = CheckEmptyPhases
-LArCaliWaveBuilder.NBaseline        = 0 # to avoid the use of the baseline when Pedestal are missing
-LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only for HEC
+   LArCaliWaveBuilder.GroupingType     = GroupingType
+   LArCaliWaveBuilder.SubtractPed      = SubtractPed
+   LArCaliWaveBuilder.CheckEmptyPhases = CheckEmptyPhases
+   LArCaliWaveBuilder.NBaseline        = 0 # to avoid the use of the baseline when Pedestal are missing
+   LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only for HEC
 
-if StripsXtalkCorr:
-   LArCaliWaveBuilder.ADCsaturation = 0
-else:
-   LArCaliWaveBuilder.ADCsaturation = ADCsaturation
+   if StripsXtalkCorr:
+      LArCaliWaveBuilder.ADCsaturation = 0
+   else:
+      LArCaliWaveBuilder.ADCsaturation = ADCsaturation
    
-topSequence+=LArCaliWaveBuilder
+   topSequence+=LArCaliWaveBuilder
 
-if (doCaliWaveSelector) :
-   from LArCalibUtils.LArCalibUtilsConf import LArCaliWaveSelector
-   LArCaliWaveSelector = LArCaliWaveSelector("LArCaliWaveSelector")
-   LArCaliWaveSelector.KeyList         = [ KeyOutput+"multi" ]
-   LArCaliWaveSelector.KeyOutput       = KeyOutput
-   if (GainList[0]=="HIGH") :
+   if (doCaliWaveSelector) :
+      from LArCalibUtils.LArCalibUtilsConf import LArCaliWaveSelector
+      LArCaliWaveSelector = LArCaliWaveSelector("LArCaliWaveSelector")
+      LArCaliWaveSelector.KeyList         = [ KeyOutput ]
+      LArCaliWaveSelector.KeyOutput       = KeyOutput+"Sel"
       LArCaliWaveSelector.SelectionList = [ "HEC/0/0/460","HEC/1/0/460","HEC/2/0/230","HEC/3/0/230" ] 
-
-   if (GainList[0]=="MEDIUM") :
-      LArCaliWaveSelector.SelectionList = [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
-   
-   if (GainList[0]=="LOW") :   
-      LArCaliWaveSelector.SelectionList = [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000" ]
+      LArCaliWaveSelector.SelectionList += [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
+      LArCaliWaveSelector.SelectionList += [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000" ]
       
-   topSequence+=LArCaliWaveSelector
+      topSequence+=LArCaliWaveSelector
 
 ######################################################################
 #                                                                    #
 #                          Correction                                #
 #                                                                    #
 ######################################################################
-
+# Not done on splitted caliwaves yet
 if CorrectBadChannels:
 
    from LArCalibUtils.LArCalibUtilsConf import LArCalibPatchingAlg_LArCaliWaveContainer_
@@ -494,6 +715,7 @@ if CorrectBadChannels:
    
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
    theLArBadChannelTool=LArBadChanTool()
+   theLArBadChannelTool.OutputLevel=DEBUG
    ToolSvc+=theLArBadChannelTool
    
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -505,7 +727,7 @@ if CorrectBadChannels:
    ToolSvc+=theLArRCBMasker
    theLArCaliWavePatcher.MaskingTool=theLArRCBMasker
    topSequence+=theLArCaliWavePatcher
- 
+
 ##########################################################################
 #                                                                        #
 #                                 Output                                 #
@@ -513,7 +735,7 @@ if CorrectBadChannels:
 ##########################################################################
 
 if ( doLArCalibDataQuality  ) :
-   
+
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
    theLArDelayValBCMask=LArBadChannelMasker("DelayValBCMask",
@@ -522,17 +744,13 @@ if ( doLArCalibDataQuality  ) :
                                                             "highNoiseHG","highNoiseMG","highNoiseLG"]
                                             )
    svcMgr.ToolSvc+=theLArDelayValBCMask
-   from LArCalibDataQuality.Thresholds import cwFWHMThr, cwAmpThr,cwAmpThrFEB, cwFWHMThrFEB  
-   theCaliWaveValidationAlg=LArCaliWaveValidationAlg("CaliWaveVal")
+                    
+   theCaliWaveValidationAlg=LArCaliWaveValidationAlg()
    theCaliWaveValidationAlg.BadChannelMaskingTool=theLArDelayValBCMask
    theCaliWaveValidationAlg.ValidationKey=KeyOutput
    theCaliWaveValidationAlg.ReferenceKey="LArCaliWaveRef"
-   theCaliWaveValidationAlg.MsgLevelForDeviations=WARNING
+   theCaliWaveValidationAlg.MsgLevelForDeviations=INFO
    theCaliWaveValidationAlg.ListOfDevFEBs="caliWaveFebs.txt"
-   theCaliWaveValidationAlg.AmplitudeTolerance=cwAmpThr
-   theCaliWaveValidationAlg.CaliWaveFWHMTolerance=cwFWHMThr
-   theCaliWaveValidationAlg.AmplitudeToleranceFEB=cwAmpThrFEB
-   theCaliWaveValidationAlg.CaliWaveFWHMToleranceFEB=cwFWHMThrFEB
    topSequence+=theCaliWaveValidationAlg
    
    ## second instance of the validation tool to detect "bad" channel 
@@ -540,13 +758,8 @@ if ( doLArCalibDataQuality  ) :
    theBadCaliWave.BadChannelMaskingTool=theLArDelayValBCMask
    theBadCaliWave.ValidationKey=KeyOutput
    theBadCaliWave.ReferenceKey="LArCaliWaveRef"
-   theBadCaliWave.MsgLevelForDeviations=ERROR
+   theBadCaliWave.MsgLevelForDeviations=INFO
    theBadCaliWave.ListOfDevFEBs="Bad_caliWaveFebs.txt"
-   theBadCaliWave.AmplitudeTolerance=["20,20,20"]
-   theBadCaliWave.CaliWaveFWHMTolerance=["50,50,50"]
-   theBadCaliWave.AmplitudeToleranceFEB=["10,10,10"]
-   theBadCaliWave.CaliWaveFWHMToleranceFEB=["80,80,80"]
-   theBadCaliWave.OutputLevel=DEBUG
    topSequence+=theBadCaliWave
    
 
@@ -590,19 +803,37 @@ if ( doMonitoring ) :
 
 if (WriteNtuple):
    from LArCalibTools.LArCalibToolsConf import LArCaliWaves2Ntuple
-   LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
-   LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
-   LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
-   LArCaliWaves2Ntuple.SaveJitter = SaveJitter
-   LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
-   
-   topSequence+=LArCaliWaves2Ntuple
+   if ( AllWavesPerCh ) :
+        LArCaliWaves2NtupleVec = []
+        for i in range(0, MaxCalLinePerCh):
+              thisAlgo =  "LArCaliWaves2Ntuple"+str(i+1)
+              topSequence += LArCaliWaves2Ntuple(thisAlgo)
+              exec 'LArCaliWaves2NtupleVec.append( topSequence.LArCaliWaves2Ntuple%(fn)s )' % {'fn': i+1}
+              LArCaliWaves2NtupleVec[i].NtupleName = "CALIWAVE"+str(i+1)
+              if (doCaliWaveSelector):
+                  LArCaliWaves2NtupleVec[i].KeyList    = [ KeyOutputSplitted[i]+"Sel" ]
+              else:    
+                  LArCaliWaves2NtupleVec[i].KeyList    = [ KeyOutputSplitted[i] ]
+              LArCaliWaves2NtupleVec[i].SaveJitter = SaveJitter    
+              LArCaliWaves2NtupleVec[i].SaveDerivedInfo = SaveDerivedInfo
+
+   else :
+        LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
+        LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
+        LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
+        LArCaliWaves2Ntuple.SaveJitter = SaveJitter
+        if (doCaliWaveSelector):
+           LArCaliWaves2Ntuple.KeyList     = [ KeyOutput+"Sel" ]
+        else:   
+           LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
+        topSequence+=LArCaliWaves2Ntuple
    
    theApp.HistogramPersistency = "ROOT"
-   from GaudiSvc.GaudiSvcConf import NTupleSvc
-   if os.path.exists(OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName): 
-      os.remove(OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName)  
-   svcMgr += NTupleSvc()
+   if not hasattr(svcMgr, 'NTupleSvc'):
+      from GaudiSvc.GaudiSvcConf import NTupleSvc
+      svcMgr += NTupleSvc()   
+   if os.path.exists(OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName):
+      os.remove(OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName)
    svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName+"' OPT='NEW'" ]
 
 if ( WritePoolFile ) :
@@ -611,7 +842,7 @@ if ( WritePoolFile ) :
    if os.path.exists(OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName): 
       os.remove(OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName)
    OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg",OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName,
-                                           [OutputObjectSpecCaliWave],[OutputTagSpecCaliWave],WriteIOV)
+                                           OutputObjectSpecCaliWave,[OutputTagSpecCaliWave],WriteIOV)
    OutputConditionsAlg.Run1 = IOVBegin
    if IOVEnd>0:
       OutputConditionsAlg.Run2 = IOVEnd
@@ -623,9 +854,135 @@ if ( WritePoolFile ) :
    svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
    svcMgr.IOVRegistrationSvc.RecreateFolders = False
    
+ 
+###########################################################################
+#                            OFC computation
 ###########################################################################
 
-svcMgr.MessageSvc.OutputLevel  = WARNING
+from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
+theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+ToolSvc += theLArAutoCorrDecoderTool
+
+from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
+if ( AllWavesPerCh ) :
+   LArCaliOFCAlgVec = []
+   for i in range(0, MaxCalLinePerCh):
+       topSequence+=LArOFCAlg("LArCaliOFCAlg"+str(i+1))
+       exec 'LArCaliOFCAlgVec.append( topSequence.LArCaliOFCAlg%(fn)s )' % {'fn' :i+1}
+
+       LArCaliOFCAlgVec[i].ReadCaliWave = True
+       LArCaliOFCAlgVec[i].KeyList   = [ ContainerKeySplitted[i] ]
+       LArCaliOFCAlgVec[i].Nphase    = Nphases
+       LArCaliOFCAlgVec[i].Dphase    = Dphases
+       LArCaliOFCAlgVec[i].Ndelay    = Ndelays
+       LArCaliOFCAlgVec[i].Nsample   = Nsamples
+       LArCaliOFCAlgVec[i].Normalize = Normalize
+       LArCaliOFCAlgVec[i].TimeShift = TimeShift
+       LArCaliOFCAlgVec[i].TimeShiftByIndex = TimeShiftByIndex
+       LArCaliOFCAlgVec[i].Verify    = True
+       LArCaliOFCAlgVec[i].KeyOFC = OFCKeySplitted[i]   # this is also the key for the output LArOFCComplete
+       LArCaliOFCAlgVec[i].FillShape = FillShape
+       LArCaliOFCAlgVec[i].KeyShape  = ShapeKeySplitted[i] # this is the key for the output LArShapeComplete
+       if ( DumpOFC ) :
+            LArCaliOFCAlgVec[i].DumpOFCfile = "LArOFCCali"+str(i+1)+".dat"
+       LArCaliOFCAlgVec[i].GroupingType = GroupingType
+       LArCaliOFCAlgVec[i].DecoderTool=theLArAutoCorrDecoderTool     
+
+else:
+   LArCaliOFCAlg = LArOFCAlg("LArCaliOFCAlg")
+   LArCaliOFCAlg.ReadCaliWave = True
+   LArCaliOFCAlg.KeyList   = [ ContainerKey ]
+   LArCaliOFCAlg.Nphase    = Nphases
+   LArCaliOFCAlg.Dphase    = Dphases
+   LArCaliOFCAlg.Ndelay    = Ndelays
+   LArCaliOFCAlg.Nsample   = Nsamples
+   LArCaliOFCAlg.Normalize = Normalize
+   LArCaliOFCAlg.TimeShift = TimeShift
+   LArCaliOFCAlg.TimeShiftByIndex = TimeShiftByIndex
+   LArCaliOFCAlg.Verify    = True
+   LArCaliOFCAlg.FillShape = FillShape
+   if ( DumpOFC ) :
+      LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
+   LArCaliOFCAlg.GroupingType = GroupingType
+   LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool   
+   topSequence+=LArCaliOFCAlg
+
+
+###########################################################################
+if (  WritePoolFile ) :
+    
+   from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
+
+   if os.path.exists(OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName): 
+      os.remove(OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName)  
+   OutputConditionsAlgOFC = OutputConditionsAlg("OutputConditionsAlgOFC",OutputOFCPoolFileDir+"/"+OutputOFCPoolFileName,
+                                                OutputObjectSpecOFC,[OutputObjectSpecTagOFC],WriteIOV)
+   OutputConditionsAlgOFC.Run1     = IOVBegin
+   if IOVEnd>0:
+      OutputConditionsAlgOFC.Run2  = IOVEnd
+   
+   if ( FillShape ):
+      
+      if os.path.exists(OutputShapePoolFileDir+"/"+OutputShapePoolFileName): 
+         os.remove(OutputShapePoolFileDir+"/"+OutputShapePoolFileName) 
+      OutputConditionsAlgShape = OutputConditionsAlg("OutputConditionsAlgShape",OutputShapePoolFileDir+"/"+OutputShapePoolFileName,
+                                                     OutputObjectSpecShape,[OutputObjectSpecTagShape],WriteIOV)
+      OutputConditionsAlgShape.Run1     = IOVBegin
+      if IOVEnd>0:
+         OutputConditionsAlgShape.Run2  = IOVEnd
+
+   svcMgr.IOVDbSvc.dbConnection  = OutputDB
+   
+   from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
+   svcMgr += IOVRegistrationSvc()
+   svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+   svcMgr.IOVRegistrationSvc.RecreateFolders = False
+   
+
+if ( WriteNtuple ) :
+
+   from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
+   if ( AllWavesPerCh ) :
+        LArOFC2NtupleVec = []
+        for i in range(0, MaxCalLinePerCh):
+           topSequence += LArOFC2Ntuple("LArOFC2Ntuple"+str(i+1))
+           exec 'LArOFC2NtupleVec.append( topSequence.LArOFC2Ntuple%(fn)s )' % {'fn': i+1}
+           LArOFC2NtupleVec[i].ContainerKey = OFCKeySplitted[i]
+           LArOFC2NtupleVec[i].NtupleName   = "OFC"+str(i+1)
+   else:   
+        LArOFC2Ntuple = LArOFC2Ntuple("LArOFC2Ntuple")
+        LArOFC2Ntuple.ContainerKey = OFCKey 	   
+        topSequence+=LArOFC2Ntuple
+
+   if ( FillShape ):
+      from LArCalibTools.LArCalibToolsConf import LArShape2Ntuple
+      if ( AllWavesPerCh ) :
+           LArOFC2NtupleVec = []
+           for i in range(0, MaxCalLinePerCh):
+              topSequence += LArShape2Ntuple("LArOFC2Ntuple"+str(i+1))
+              exec 'LArShape2NtupleVec.append( topSequence.LArShape2Ntuple%(fn)s )' % {'fn': i+1}
+              LArShape2NtupleVec[i].ContainerKey = ShapeKeySplitted[i]
+              LArShape2NtupleVec[i].NtupleName   = "SHAPE"+str(i+1)
+      else:   
+           LArShape2Ntuple = LArShape2Ntuple("LArShape2Ntuple")
+           LArShape2Ntuple.ContainerKey = ShapeKey 	   
+           topSequence+=LArShape2Ntuple
+   
+   theApp.HistogramPersistency = "ROOT"
+   from GaudiSvc.GaudiSvcConf import NTupleSvc
+   if os.path.exists(OutputOFCRootFileDir+"/"+OutputOFCRootFileName): 
+      os.remove(OutputOFCRootFileDir+"/"+OutputOFCRootFileName)  
+   svcMgr += NTupleSvc()
+   svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputOFCRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
+   
+###########################################################################
+conddb.blockFolder("/CALO/Identifier/CaloTTOnAttrIdMapAtlas")
+conddb.blockFolder("/CALO/Identifier/CaloTTOnOffIdMapAtlas")
+conddb.blockFolder("/CALO/Identifier/CaloTTPpmRxIdMapAtlas")
+conddb.blockFolder("/LAR/Identifier/LArTTCellMapAtlas")
+###########################################################################
+
+svcMgr.MessageSvc.OutputLevel  = DEBUG
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 

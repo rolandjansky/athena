@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-def TimeStampToRunLumi(tmstmp,guard=1):
+def TimeStampToRunLumi(tmstmp,guard=1,dbInstance="COMP200"):
     from PyCool import cool
     from time import asctime,localtime
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    db=dbSvc.openDatabase("COOLONL_TRIGGER/COMP200")
+    db=dbSvc.openDatabase("COOLONL_TRIGGER/"+dbInstance)
     folder=db.getFolder("/TRIGGER/LUMI/LBTIME")
     range=guard*24*60*60*1e9 # 2 days in ns
     t1=long(tmstmp-range)

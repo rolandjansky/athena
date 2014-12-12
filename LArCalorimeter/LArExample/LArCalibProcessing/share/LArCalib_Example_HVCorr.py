@@ -12,7 +12,7 @@ from calendar import timegm
 #set date to compute the correction
 
 if "date" not in dir():
-    date="2011-01-31:00:00:00"
+    date="2013-02-06:09:45:00"
 
 
 if "TimeStamp" not in dir():
@@ -38,13 +38,13 @@ else:
 print "Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp
 
 # name of output local sql file
-OutputSQLiteFile = 'myDB200_hvDummy.db'
+OutputSQLiteFile = 'HVScaleCorr.db'
 
 # name of output Pool file
-PoolFileName = "LArHVScaleCorr_dummy.pool.root"
+PoolFileName = "dummy.pool.root"
 
 # database folder
-LArHVScaleCorrFolder = "/LAR/ElecCalibOfl/HVScaleCorr"
+LArHVScaleCorrFolder = "/LAR/ElecCalibFlat/HVScaleCorr"
 
 # output key
 keyOutput = "LArHVScaleCorr"
@@ -57,7 +57,7 @@ WriteIOV      = True
 
 # global tag to read other conditions if needed
 if "GlobalTag" not in dir():
-    GlobalTag     = 'COMCOND-BLKPST-004-05'
+    GlobalTag     = 'LARCALIB-RUN2-00'
 
 # begin run IOV
 IOVBegin = 0
@@ -78,6 +78,7 @@ DetFlags.Tile_setOn()
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.DataSource.set_Value_and_Lock('data')
+globalflags.DatabaseInstance="CONDBR2"
 
 # Get a handle to the default top-level algorithm sequence
 from AthenaCommon.AppMgr import ToolSvc
@@ -94,7 +95,7 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-08-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -109,13 +110,17 @@ except:
 include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
-include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
-include( "TileIdCnv/TileIdCnv_jobOptions.py" )
-include( "LArDetDescr/LArDetDescr_joboptions.py" )
-include("TileConditions/TileConditions_jobOptions.py" )
+#include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
+#include( "TileIdCnv/TileIdCnv_jobOptions.py" )
+#include( "LArDetDescr/LArDetDescr_joboptions.py" )
+#include("TileConditions/TileConditions_jobOptions.py" )
+conddb.blockFolder(LArHVScaleCorrFolder);
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
+#include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
+include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
+
+
 
 from LArConditionsCommon import LArHVDB #Sets HV Calbling and DCS Database folders
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
@@ -126,6 +131,7 @@ ToolSvc += theLArHVToolDB
 from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
 theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
 theLArHVCorrTool.keyOutput = keyOutput
+theLArHVCorrTool.folderName= LArHVScaleCorrFolder
 theLArHVCorrTool.HVTool = theLArHVToolDB
 ToolSvc += theLArHVCorrTool
 
@@ -149,11 +155,9 @@ svcMgr += NTupleSvc()
 svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='hvcorr_ntuple.root' OPT='NEW'" ]
 
 # deal with DB output
-OutputObjectSpec = "LArHVScaleCorrComplete#"+keyOutput+"#"+LArHVScaleCorrFolder
-from string import *
-#OutputObjectSpecTag = join(split(LArHVScaleCorrFolder, '/'),'') + LArCalibFolderOutputTag
+OutputObjectSpec = "CondAttrListCollection#"+LArHVScaleCorrFolder
 OutputObjectSpecTag = ''
-OutputDB = "sqlite://;schema="+OutputSQLiteFile+";dbname=COMP200"
+OutputDB = "sqlite://;schema="+OutputSQLiteFile+";dbname=CONDBR2"
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg",PoolFileName,
@@ -165,9 +169,10 @@ svcMgr.IOVDbSvc.dbConnection  = OutputDB
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG 
-svcMgr.IOVRegistrationSvc.RecreateFolders = False 
-
-
+svcMgr.IOVRegistrationSvc.RecreateFolders = True
+svcMgr.IOVRegistrationSvc.SVFolder=True
+svcMgr.IOVRegistrationSvc.OverrideNames += ["HVScaleCorr",]
+svcMgr.IOVRegistrationSvc.OverrideTypes += ["Blob16M",]
 
 #--------------------------------------------------------------
 #--- Dummy event loop parameters

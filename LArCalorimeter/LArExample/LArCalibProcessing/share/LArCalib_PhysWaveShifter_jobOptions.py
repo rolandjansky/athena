@@ -49,7 +49,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 ###########################################################################
 #                PhysWaveShifter properties
@@ -108,7 +108,7 @@ if not 'OutputObjectSpecPhysWave' in dir():
    OutputObjectSpecTagPhysWave    = LArCalibFolderTag(LArCalib_Flags.LArPhysWaveFolder,LArPhysFolderOutputTag) 
 
 if not 'DBConnectionCOOL' in dir():
-   DBConnectionCOOL = "impl=cool;techno=oracle;schema=ATLAS_COOLOFL_LAR;ATLAS_COOLPROD:COMP200:ATLAS_COOL_READER:"
+   DBConnectionCOOL = "impl=cool;techno=oracle;schema=ATLAS_COOLOFL_LAR;ATLAS_COOLPROD:CONDBR2:ATLAS_COOL_READER:"
 
 if ( ReadPhysWaveFromCOOL ):      
    if 'InputPhysWaveSQLiteFile' in dir():

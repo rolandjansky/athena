@@ -12,7 +12,7 @@ import shutil, os
 from LArCalibProcessing.extractFolderInfo import *
 
 if 'dbname' not in dir():
-  dbname="COMP200"
+  dbname="CONDBR2"
 
 if 'sqliteIn' not in dir():
   sqliteIn="freshConstants_SV.db"

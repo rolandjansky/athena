@@ -76,7 +76,7 @@ if not 'runAccumulator' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):  
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 #######################################################
 #                Monitoring properties
@@ -143,7 +143,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
 
 ## Pedestall   
    
@@ -211,17 +211,19 @@ if not 'OutputObjectSpecCaliWave' in dir():
    else:
       if ( AllWavesPerCh ) :
          OutputObjectSpecCaliWave = []
+         OutputTagSpecCaliWave = []
          for i in range(0, MaxCalLinePerCh):
             if doCaliWaveSelector:
                OutputObjectSpecCaliWave.append("LArCaliWaveContainer#"+KeyOutputSplitted[i]+"Sel"+"#"+LArCalib_Flags.LArCaliWaveFolder+str(i))
             else:   
                OutputObjectSpecCaliWave.append("LArCaliWaveContainer#"+KeyOutputSplitted[i]+"#"+LArCalib_Flags.LArCaliWaveFolder+str(i))
+            OutputTagSpecCaliWave.append(LArCalibFolderTag(LArCalib_Flags.LArCaliWaveFolder+str(i),LArCalibFolderOutputTag))   
       else:         
          if doCaliWaveSelector:
             OutputObjectSpecCaliWave = ["LArCaliWaveContainer#"+KeyOutput+"Sel"+"#"+LArCalib_Flags.LArCaliWaveFolder]
          else:   
             OutputObjectSpecCaliWave = ["LArCaliWaveContainer#"+KeyOutput+"#"+LArCalib_Flags.LArCaliWaveFolder]
-      OutputTagSpecCaliWave = LArCalibFolderTag(LArCalib_Flags.LArCaliWaveFolder,LArCalibFolderOutputTag)
+         OutputTagSpecCaliWave = [LArCalibFolderTag(LArCalib_Flags.LArCaliWaveFolder,LArCalibFolderOutputTag)]
    
 if ( ReadPedFromCOOL ):      
    if 'InputPedSQLiteFile' in dir():
@@ -238,8 +240,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;user=ATLAS_COOL_READER"
-      InputDBConnectionBadChannel = "COOLONL_LAR/COMP200"      
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;user=ATLAS_COOL_READER"
+      InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"      
       
 #######################################################################################
 # print summary
@@ -265,7 +267,7 @@ if 'PedLArCalibFolderTag' in dir() :
 DelayLog.info( " OutputCaliWaveRootFullFileName     = "+OutputCaliWaveRootFileDir+"/"+OutputCaliWaveRootFileName )
 DelayLog.info( " OutputCaliWavePoolFullFileName     = "+OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName )
 #DelayLog.info( " OutputObjectSpecCaliWave           = "+OutputObjectSpecCaliWave )
-DelayLog.info( " OutputTagSpecCaliWave              = "+OutputTagSpecCaliWave )
+##DelayLog.info( " OutputTagSpecCaliWave              = "+OutputTagSpecCaliWave )
 DelayLog.info( " IOVBegin                           = "+str(IOVBegin) )
 DelayLog.info( " IOVEnd                             = "+str(IOVEnd) )
 DelayLog.info( " LArCalibOutputDB                   = "+OutputDB )
@@ -684,7 +686,7 @@ if ( WritePoolFile ) :
    if os.path.exists(OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName): 
       os.remove(OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName)
    OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg",OutputCaliWavePoolFileDir+"/"+OutputCaliWavePoolFileName,
-                                           OutputObjectSpecCaliWave,[OutputTagSpecCaliWave],WriteIOV)
+                                           OutputObjectSpecCaliWave,OutputTagSpecCaliWave,WriteIOV)
    OutputConditionsAlg.Run1 = IOVBegin
    if IOVEnd>0:
       OutputConditionsAlg.Run2 = IOVEnd

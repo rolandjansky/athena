@@ -12,7 +12,7 @@ import shutil, os
 from LArCalibProcessing.extractFolderInfo import *
 
 if 'dbname' not in dir():
-  dbname="COMP200"
+  dbname="CONDBR2"
 
 if 'sqliteIn' not in dir():
   sqliteIn="freshConstants.db"
@@ -41,14 +41,18 @@ shutil.copyfile(sqliteIn,sqliteOut)
 
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 
+#FIXME: Remove the following 2 lines as soon as AP has migrated to CONDBR2
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+include("LArCalibProcessing/LArCalib_MinimalSetup.py")
+
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-include("LArCalibProcessing/LArCalib_MinimalSetup.py")
-
 theApp.EvtMax = 1
-conddb.setGlobalTag("COMCOND-ES1PST-004-01") #For id mapping
+conddb.setGlobalTag("LARCALIB-RUN2-00") #For id mapping
+svcMgr.IOVDbSvc.DBInstance=""
 
 svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
@@ -92,7 +96,7 @@ if os.access(OutputFileRec,os.F_OK):
 
 print svcMgr.IOVDbSvc.Folders
 
-print "============ Reco ============="
+print "============ Output objects ============="
 print outObjects
 print outTags
 

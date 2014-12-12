@@ -79,7 +79,7 @@ if not 'OutputAutoCorrRootFileName' in dir():
 if not 'OutputSQLiteFile' in dir():
    OutputSQLiteFile = BaseFileNameAutoCorr +".db"
    
-OutputDB="sqlite://;schema="+OutputSQLiteFile+";dbname=COMP200"
+OutputDB="sqlite://;schema="+OutputSQLiteFile+";dbname=CONDBR2"
 
 # FIXME : fix name and folder and tag
 if not 'OutputObjectSpecAutoCorr' in dir():

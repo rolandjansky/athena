@@ -32,10 +32,10 @@ if not 'Partition' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):  
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 if not 'DBConnectionCOOL' in dir():
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 
 if not 'StripsXtalkCorr' in dir():
@@ -349,8 +349,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/COMP200"         
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"         
 
 ###########################################################################
 #                            Print summary

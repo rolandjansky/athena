@@ -4,9 +4,9 @@ from string import *
 
 class LArCalib_Flags:
     
-    #globalFlagDB = "COMCOND-ES1S-000-00"
-    globalFlagDB = "LARCALIB-000-02"
-    OutputDB     = "sqlite://;schema=myDB200.db;dbname=COMP200"
+    globalFlagDB = "LARCALIB-RUN2-00"
+    #globalFlagDB = "LARCALIB-000-02"
+    OutputDB     = "sqlite://;schema=myDB200.db;dbname=CONDBR2"
     InputDB      = OutputDB
 
     WritePoolFile = True
@@ -18,7 +18,8 @@ class LArCalib_Flags:
     LArPhysAutoCorrFolder        = "/LAR/ElecCalibOfl/AutoCorrs/PhysicsAutoCorr"
 
     LArCaliWaveFolder            = "/LAR/ElecCalibOfl/CaliWaves/CaliWave"
-    LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOfl/CaliWaves/CaliWaveXtalkCorr"
+#    LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOfl/CaliWaves/CaliWaveXtalkCorr"
+    LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOfl/CaliWaves/CaliWave"
 
     LArPhysWaveFolder            = "/LAR/ElecCalibOfl/PhysWaves/RTM"
     LArMPhysOverMCalFolder       = "/LAR/ElecCalibOfl/MphysOverMcal/RTM"
@@ -27,9 +28,11 @@ class LArCalib_Flags:
 
     LArOFCPhysFolder             = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"
     LArOFCCaliFolder             = "/LAR/ElecCalibOfl/OFC/CaliWave"
-    LArOFCCaliFolderXtlk         = "/LAR/ElecCalibOfl/OFC/CaliWaveXtalkCorr"
+#    LArOFCCaliFolderXtlk         = "/LAR/ElecCalibOfl/OFC/CaliWaveXtalkCorr"
+    LArOFCCaliFolderXtlk         = "/LAR/ElecCalibOfl/OFC/CaliWave"
     LArOFCMasterWaveFolder       = "/LAR/ElecCalibOfl/OFC/MasterWave"
-    LArOFCMasterWaveFolderXtlk   = "/LAR/ElecCalibOfl/OFC/MasterWaveXtalkCorr"
+#    LArOFCMasterWaveFolderXtlk   = "/LAR/ElecCalibOfl/OFC/MasterWaveXtalkCorr"
+    LArOFCMasterWaveFolderXtlk   = "/LAR/ElecCalibOfl/OFC/MasterWave"
                                
     LArShapeFolder               = "/LAR/ElecCalibOfl/Shape/RTM/"
     LArShapeCaliWaveFolder       = "/LAR/ElecCalibOfl/Shape/CaliWave"
@@ -50,6 +53,10 @@ class LArCalib_Flags:
     #LArDetCellParamsFolder       = "/LAR/ElecCalibOfl/DetCellParams/RTM"  
 
     LArDTimeFolder               = "/LAR/ElecCalibOfl/Tdrift/Computed"
+
+    PhysWaveShiftFolder          = "/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"
+    OFCBinFolder                 = "/LAR/ElecCalibOfl/OFCBin/Dummy"
+    ShapeResidualsFolder         = "/LAR/ElecCalibOfl/Shape/Residuals/5samples"
  
     IOVBegin=0
     IOVEnd=0
@@ -60,10 +67,10 @@ def LArCalibFolderTag(folder,tag):
     
 
 class FolderTagResover:
-    def __init__(self,dbname="COOLOFL_LAR/COMP200"):
+    def __init__(self,dbname="COOLOFL_LAR/CONDBR2"):
         from PyCool import cool
         dbSvc = cool.DatabaseSvcFactory.databaseService()
-        self._db = dbSvc.openDatabase("COOLOFL_LAR/COMP200")
+        self._db = dbSvc.openDatabase(dbname)
         return
 
     def __del__(self):
@@ -71,8 +78,13 @@ class FolderTagResover:
         return
 
     def getFolderTag(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):
-        folder=self._db.getFolder(foldername);
-        return folder.resolveTag(globalTag)
+        try:
+          folder=self._db.getFolder(foldername);
+          return folder.resolveTag(globalTag)
+        except:  
+          # new folder, should "create a tag"
+          return join(split(foldername, '/'),'') + '-UPD3-00'
+          
             
     def getFolderTagSuffix(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):
         ft=self.getFolderTag(foldername,globalTag)

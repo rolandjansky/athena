@@ -31,7 +31,7 @@ if not 'ChannelSelection' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 
 #######################################################
@@ -84,7 +84,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"   
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
    OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")
@@ -149,9 +149,9 @@ PedestalAutoCorrLog.info( " ====================================================
 
 #######################################################################################
 #include ("LArConditionsCommon/LArMinimalSetup.py")
-Geometry = 'ATLAS-GEO-18-01-01'
+Geometry = 'ATLAS-GEO-21-00-01'
 
-GlobalTag = 'COMCOND-BLKPST-005-06'
+GlobalTag = 'CONDBR2-BLKPA-2014-02'
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()
@@ -162,12 +162,13 @@ DetFlags.digitize.all_setOff()
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.DataSource.set_Value_and_Lock('data')
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.bunchSpacing = 50
 jobproperties.Beam.numberOfCollisions = float(NColl)
 
-# dont load Shape from COMP200 
+# dont load Shape from CONDBR2 
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.useShape.set_Value_and_Lock(False)
 
@@ -212,21 +213,21 @@ include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-cursor=connection.cursor()
-sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-cursor.execute(sRequest)
-times= cursor.fetchall()
-d=times[0][1]
-iovtemp=int(time.mktime(d.timetuple()))
-#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
-#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#cursor=connection.cursor()
+#sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#cursor.execute(sRequest)
+#times= cursor.fetchall()
+#d=times[0][1]
+#iovtemp=int(time.mktime(d.timetuple()))
+##print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 #if ( doLArCalibDataQuality  ) :
 
@@ -235,7 +236,7 @@ svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 #AutoCorrelation from data electronics noise
 conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>")
-conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-UPD3-01")
+conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00")
 
 #load fsampl, MinBias Average and PulseShape 32 samples from OFLP200
 from IOVDbSvc.CondDB import conddb
@@ -251,7 +252,7 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from LArRecUtils.LArAutoCorrTotalToolDefault import LArAutoCorrTotalToolDefault
 theLArAutoCorrTool = LArAutoCorrTotalToolDefault()
-theLArAutoCorrTool.NSamples = 5
+theLArAutoCorrTool.NSamples = NSamples
 theLArAutoCorrTool.keyAutoCorr = "LArAutoCorrRef"
 ToolSvc += theLArAutoCorrTool
 
@@ -278,7 +279,8 @@ if ( WriteNtuple ) :
    
    from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
    LArAutoCorr2Ntuple = LArAutoCorr2Ntuple( "LArAutoCorr2Ntuple" )
-   LArAutoCorr2Ntuple.Nsamples     = NSamples
+   #LArAutoCorr2Ntuple.Nsamples     = NSamples
+   LArAutoCorr2Ntuple.Nsamples     = 32
    LArAutoCorr2Ntuple.ContainerKey = KeyOutputAC
    
    topSequence += LArAutoCorr2Ntuple
@@ -306,7 +308,7 @@ if ( WritePoolFile ) :
         
         from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
         svcMgr += IOVRegistrationSvc()
-        svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+        svcMgr.IOVRegistrationSvc.OutputLevel = INFO
         svcMgr.IOVRegistrationSvc.RecreateFolders = False
        
         

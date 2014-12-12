@@ -70,7 +70,7 @@ if not 'runAccumulator' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 
 #######################################################
@@ -144,7 +144,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"   
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
    OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")
@@ -201,8 +201,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/COMP200"
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"
 
 #######################################################################################
 # print summary
@@ -302,6 +302,7 @@ theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeade
 theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
 theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
 theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
+theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
 
 theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/HIGH"]
 theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/MEDIUM"]
@@ -356,21 +357,21 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-cursor=connection.cursor()
-sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-cursor.execute(sRequest)
-times= cursor.fetchall()
-d=times[0][1]
-iovtemp=int(time.mktime(d.timetuple()))
-#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
-#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#cursor=connection.cursor()
+#sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#cursor.execute(sRequest)
+#times= cursor.fetchall()
+#d=times[0][1]
+#iovtemp=int(time.mktime(d.timetuple()))
+##print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 if ( doLArCalibDataQuality  ) :
    if  Pedestal :
@@ -424,6 +425,9 @@ else :
 #                          Output                                    #
 #                                                                    #
 ######################################################################
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -508,7 +512,10 @@ if ( doLArCalibDataQuality  ) :
       
       
 if ( doMonitoring ) :
-   
+
+   from AthenaMonitoring.DQMonFlags import DQMonFlags
+   DQMonFlags.enableLumiAccess.set_Value_and_Lock(False)
+
    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
    topSequence += AthenaMonManager( "LArMon" )
    LArMon = topSequence.LArMon

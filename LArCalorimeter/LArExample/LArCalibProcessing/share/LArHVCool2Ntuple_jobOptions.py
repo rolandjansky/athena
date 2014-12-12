@@ -8,7 +8,7 @@ from calendar import timegm
 
 
 if "date" not in dir():
-    date="2010-07-29:13:00:00"
+    date="2013-02-06:09:45:00"
 
 if "TimeStamp" not in dir():
    try:

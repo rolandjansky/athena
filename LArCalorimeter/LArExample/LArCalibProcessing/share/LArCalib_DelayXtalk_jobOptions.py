@@ -107,7 +107,7 @@ if not 'runAccumulator' in dir():
 
 from string import *
 def DBConnectionFile(sqlitefile):  
-   return "sqlite://;schema="+sqlitefile+";dbname=COMP200"
+   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
 
 #######################################################
 #      Monitoring properties
@@ -169,7 +169,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'DBConnectionCOOL' in dir():  
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=COMP200;"
+   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 ## Pedestal
    
@@ -238,7 +238,7 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      InputDBConnectionBadChannel = "COOLOFL_LAR/COMP200"    
+      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"    
 
 DelayLog = logging.getLogger( "DelayLog" )
 

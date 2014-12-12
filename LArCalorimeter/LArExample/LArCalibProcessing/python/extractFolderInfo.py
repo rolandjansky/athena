@@ -25,12 +25,11 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         else:
             c1=cool.ChannelId(int(s[:idx]))
             c2=cool.ChannelId(int(s[1+idx:]))
-        print "ExtractFolderInfo: Add channel range",c1,"to",c2
+        #print "ExtractFolderInfo: Add channel range",c1,"to",c2
         if sel is None:
-            if sel is None:
-                sel=cool.ChannelSelection(c1,c2,cool.ChannelSelection.sinceBeforeChannel);
-            else:
-                sel.addRange(c1,c2);
+            sel=cool.ChannelSelection(c1,c2,cool.ChannelSelection.sinceBeforeChannel);
+        else:
+            sel.addRange(c1,c2);
                                
     if sel is None:
         print "ExtractFolderInfo: No COOL channel selection given, work on all channels"
@@ -97,6 +96,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
                 #payload=obj.payload()
                 since=obj.since()>>32
                 until=obj.until()>>32
+                #print fn,t,since,until
                 if minIOV>since: minIOV=since
                 if maxIOV<until: maxIOV=until
             itr.close()
