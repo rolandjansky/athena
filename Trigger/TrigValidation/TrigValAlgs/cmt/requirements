@@ -69,6 +69,7 @@ use xAODTrigMinBias		xAODTrigMinBias-*	Event/xAOD
 
 # for bjet part of the test
 use     VxSecVertex             VxSecVertex-*           Tracking/TrkEvent
+use     xAODBTagging            xAODBTagging-*              	Event/xAOD
 end_private
 
 # library

@@ -30,10 +30,6 @@
 #include "TrigMuonEvent/TileMuFeatureContainer.h"
 #include "TrigMuonEvent/TileTrackMuFeatureContainer.h"
 #include "TrigParticle/TrigPhotonContainer.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
-#include "TrigParticle/TrigL2Bphys.h"
-//#include "TrigParticle/TrigEFBphysContainer.h"
-//#include "TrigParticle/TrigEFBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
 #include "TrigParticle/TrigEFBjetContainer.h"
@@ -273,6 +269,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
+    /*
 	if(doDumpAll || doDumpTrigMissingET){
 		StatusCode sc = dumpTrigMissingET();
 		if (sc.isFailure()) {
@@ -280,6 +277,7 @@ StatusCode TrigEDMChecker::execute() {
 
 		}
 	}
+	*/
 
 	if(doDumpAll || doDumpxAODTrigMissingET){
 		StatusCode sc = dumpxAODTrigMissingET();
@@ -287,7 +285,7 @@ StatusCode TrigEDMChecker::execute() {
 			mLog << MSG::ERROR << "The method dumpxAODTrigMissingET() failed" << endreq;
 
 		}
-	}
+    }
 
 	if(doDumpAll || doDumpMuonFeature){
 		StatusCode sc = dumpMuonFeature();
@@ -824,7 +822,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigMinBias() {
 StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 	MsgStream mLog( messageService(), name() );
 
-	mLog << MSG::INFO << "in dumpxAODTrigMissingET()" << endreq;
+	mLog << MSG::INFO << "in Florian: dumpxAODTrigMissingET()" << endreq;
 
 	int ntag=4;
 	std::string METTags[]={"HLT_xAOD__TrigMissingETContainer_EFJetEtSum","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET", "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB","HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl"};
@@ -842,13 +840,50 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
             for(uint i = 0; i < MissingETCont->size(); i++) {
 
              std::string s; char buff[128];
-
+             
              sprintf(buff, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
              mLog <<MSG::INFO << buff << endreq;
              sprintf(buff, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
              mLog <<MSG::INFO << buff << endreq;
+             sprintf(buff, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
+             mLog <<MSG::INFO << buff << endreq;
+             sprintf(buff, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
+             mLog <<MSG::INFO << buff << endreq;
              sprintf(buff, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
              mLog <<MSG::INFO << buff << endreq;
+             sprintf(buff, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
+             mLog <<MSG::INFO << buff << endreq;
+             sprintf(buff, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
+             mLog <<MSG::INFO << buff << endreq;
+             
+
+     		unsigned int Nc = MissingETCont->at(i)->getNumberOfComponents();
+		    if (Nc > 0) { s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
+			              s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
+			              mLog << MSG::INFO << s << endreq; }
+             
+            for(uint j = 0; j < Nc; j++) {
+             
+        std::string name =               MissingETCont->at(i)->nameOfComponent(j);
+				const short status =             MissingETCont->at(i)->statusComponent(j);
+				const unsigned short usedChan =  MissingETCont->at(i)->usedChannelsComponent(j);
+				const short sumOfSigns =         MissingETCont->at(i)->sumOfSignsComponent(j);
+				const float calib0 =             MissingETCont->at(i)->calib0Component(j);
+				const float calib1 =             MissingETCont->at(i)->calib1Component(j);
+				const float ex =                 MissingETCont->at(i)->exComponent(j);
+				const float ey =                 MissingETCont->at(i)->eyComponent(j);
+				const float ez =                 MissingETCont->at(i)->ezComponent(j);
+				const float sumE =               MissingETCont->at(i)->sumEComponent(j);
+				const float sumEt =              MissingETCont->at(i)->sumEtComponent(j);
+
+				sprintf(buff,
+						"REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
+						name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
+						ex, ey, ez, sumE, sumEt);
+				mLog << MSG::INFO << buff << endreq;
+				
+             }
+              
 
             }
 
@@ -1842,18 +1877,6 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
       ATH_MSG_INFO(" REGTEST: e011     =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e132);
       ATH_MSG_INFO(" REGTEST: e132     =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone20);
-      ATH_MSG_INFO(" REGTEST: etcone20   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone30);
-      ATH_MSG_INFO(" REGTEST: etcone30   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone40);
-      ATH_MSG_INFO(" REGTEST: etcone40   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone20_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone25_ptcorrected   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone30_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone30_ptcorrected   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone40_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone40_ptcorrected   =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237);
       ATH_MSG_INFO(" REGTEST: e237     =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335);
@@ -1868,12 +1891,12 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
       ATH_MSG_INFO(" REGTEST: ptcone30   =  " << val_float);
       eg->isolationValue(val_float,xAOD::Iso::ptcone40);
       ATH_MSG_INFO(" REGTEST: ptcone40   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone20);
-      ATH_MSG_INFO(" REGTEST: nucone20   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone30);
-      ATH_MSG_INFO(" REGTEST: nucone30   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone40);
-      ATH_MSG_INFO(" REGTEST: nucone40   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone20);
+      ATH_MSG_INFO(" REGTEST: etcone20   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone30);
+      ATH_MSG_INFO(" REGTEST: etcone30   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone40);
+      ATH_MSG_INFO(" REGTEST: etcone40   =  " << val_float);
       //DEBUG info for Electrons which by definition have a track match
 
   }
@@ -1941,18 +1964,6 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
       ATH_MSG_INFO(" REGTEST: e011     =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e132);
       ATH_MSG_INFO(" REGTEST: e132     =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone20);
-      ATH_MSG_INFO(" REGTEST: etcone20   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone30);
-      ATH_MSG_INFO(" REGTEST: etcone30   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone40);
-      ATH_MSG_INFO(" REGTEST: etcone40   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone20_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone20_ptcorrected   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone30_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone30_ptcorrected   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::etcone40_ptcorrected);
-      ATH_MSG_INFO(" REGTEST: etcone40_ptcorrected   =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237);
       ATH_MSG_INFO(" REGTEST: e237     =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335);
@@ -1967,12 +1978,12 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
       ATH_MSG_INFO(" REGTEST: ptcone30   =  " << val_float);
       eg->isolationValue(val_float,xAOD::Iso::ptcone40);
       ATH_MSG_INFO(" REGTEST: ptcone40   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone20);
-      ATH_MSG_INFO(" REGTEST: nucone20   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone30);
-      ATH_MSG_INFO(" REGTEST: nucone30   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::nucone40);
-      ATH_MSG_INFO(" REGTEST: nucone40   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone20);
+      ATH_MSG_INFO(" REGTEST: etcone20   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone30);
+      ATH_MSG_INFO(" REGTEST: etcone30   =  " << val_float);
+      eg->isolationValue(val_float,xAOD::Iso::etcone40);
+      ATH_MSG_INFO(" REGTEST: etcone40   =  " << val_float);
       //DEBUG info for Electrons which by definition have a track match
 
   }
@@ -2440,37 +2451,20 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 
 	mLog <<MSG::INFO << "REGTEST ==========START of TrigL2BphysContainer DUMP===========" << endreq;
 
-	//std::string L2BphysTags[]={"HLT_L2BMuMuFex","HLT_L2BMuMuXFex","HLT_L2MultiMuFex",
-	//		"HLT_L2DiMuXFex","HLT_L2DsPhiPiFexDs",
-	//		"HLT_L2DsPhiPiFexPhi","HLT_L2JpsieeFex",
-	//		"HLT_TrigDiMuon","HLT_L2TrackMass"};
-	//int ntag=7;
 
-    std::string L2BphysTags[]={"HLT_TrigL2BphysContainer_L2BMuMuFex",
-        "HLT_TrigL2BphysContainer_L2BMuMuXFex",
-        "HLT_TrigL2BphysContainer_L2DiMuXFex",
-        "HLT_TrigL2BphysContainer_L2DsPhiPiFexDs",
-        "HLT_TrigL2BphysContainer_L2DsPhiPiFexPhi",
-        "HLT_TrigL2BphysContainer_L2JpsieeFex",
-        "HLT_TrigL2BphysContainer_L2MultiMuFex",
-        "HLT_TrigL2BphysContainer_L2TrackMass",
-        "HLT_TrigL2BphysContainer_TrigDiMuon"
+    std::string L2BphysTags[]={"HLT_xAOD__TrigBphysContainer_L2BMuMuFex",
+        "HLT_xAOD__TrigBphysContainer_L2BMuMuXFex",
+        "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexDs",
+        "HLT_xAOD__TrigBphysContainer_L2DsPhiPiFexPhi",
+        "HLT_xAOD__TrigBphysContainer_L2JpsieeFex",
+        "HLT_xAOD__TrigBphysContainer_L2MultiMuFex",
+        "HLT_xAOD__TrigBphysContainer_L2TrackMass",
     };
     const int ntag = (int) sizeof(L2BphysTags) / sizeof(L2BphysTags[0]);
 
-	/*  const DataHandle< TrigL2BphysContainer > trigL2Bphys;
-  const DataHandle< TrigL2BphysContainer > lastTrigL2Bphys;
-
-  StatusCode sc = m_storeGate->retrieve(trigL2Bphys,lastTrigL2Bphys);
-  if (sc.isFailure()) {
-    mLog << MSG::INFO << "REGTEST No TrigL2BphysContainer found" << endreq;
-    return  StatusCode::SUCCESS;
-  }
-  mLog << MSG::INFO << "REGTEST TrigL2BphysContainers retrieved" << endreq;
-	 */
 
 	for (int itag=0; itag<ntag; itag++){
-		const TrigL2BphysContainer*  trigL2Bphys;
+		const xAOD::TrigBphysContainer*  trigL2Bphys;
 		StatusCode sc = m_storeGate->retrieve(trigL2Bphys, L2BphysTags[itag]);
 		if (sc.isFailure()) {
 			mLog << MSG::INFO << "REGTEST No TrigL2BphysContainer found with tag " << L2BphysTags[itag] << endreq;
@@ -2478,14 +2472,14 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 		}
 
 		mLog << MSG::INFO << "REGTEST TrigL2BphysContainer found with tag " << L2BphysTags[itag]
-		                                                                                   << " and size " << trigL2Bphys->size() << endreq;
+		                  << " and size " << trigL2Bphys->size() << endreq;
 
 		//  for (int i=0; trigL2Bphys != lastTrigL2Bphys; ++trigL2Bphys, ++i) {
 
 		// mLog << MSG::INFO << "REGTEST Looking at TrigL2BphysContainer " << i << endreq;
 
-		TrigL2BphysContainer::const_iterator L2BphysItr  = trigL2Bphys->begin();
-		TrigL2BphysContainer::const_iterator L2BphysItrE = trigL2Bphys->end();
+		xAOD::TrigBphysContainer::const_iterator L2BphysItr  = trigL2Bphys->begin();
+		xAOD::TrigBphysContainer::const_iterator L2BphysItrE = trigL2Bphys->end();
 
 		for (int j=0; L2BphysItr != L2BphysItrE; ++L2BphysItr, ++j ) {
 
@@ -2494,59 +2488,55 @@ StatusCode TrigEDMChecker::dumpTrigL2BphysContainer() {
 			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->eta() returns " << (*L2BphysItr)->eta() << endreq;
 			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->phi() returns " << (*L2BphysItr)->phi() << endreq;
 			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->mass() returns " << (*L2BphysItr)->mass() << endreq;
-			//      mLog <<MSG::INFO << "REGTEST TrigL2Bphys->dist() returns " << (*L2BphysItr)->dist() << endreq;
+			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->fitmass() returns " << (*L2BphysItr)->fitmass() << endreq;
 			//      mLog <<MSG::INFO << "REGTEST TrigL2Bphys->isValid() returns " << (*L2BphysItr)->isValid() << endreq;
 			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->roiId() returns " << (*L2BphysItr)->roiId() << endreq;
 			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->particleType() returns " << (*L2BphysItr)->particleType() << endreq;
 
-			//      if((*L2BphysItr)->pVertex() != NULL){
-			mLog <<MSG::INFO << "REGTEST Vertex info: " << endreq;
-			// 	mLog <<MSG::INFO << "REGTEST pVertex->x() returns " << (*L2BphysItr)->pVertex()->x() << endreq;
-			mLog <<MSG::INFO << "REGTEST pVertex->fitx() returns " << (*L2BphysItr)->fitx() << endreq;
-			// 	mLog <<MSG::INFO << "REGTEST pVertex->y() returns " << (*L2BphysItr)->pVertex()->y() << endreq;
-			mLog <<MSG::INFO << "REGTEST pVertex->fity() returns " << (*L2BphysItr)->fity() << endreq;
-			// 	mLog <<MSG::INFO << "REGTEST pVertex->z() returns " << (*L2BphysItr)->pVertex()->z() << endreq;
-			mLog <<MSG::INFO << "REGTEST pVertex->fitz() returns " << (*L2BphysItr)->fitz() << endreq;
-			//	mLog <<MSG::INFO << "REGTEST pVertex->energyFraction() returns " << (*L2BphysItr)->pVertex()->energyFraction() << endreq;
-			//	mLog <<MSG::INFO << "REGTEST pVertex->chi2() returns " << (*L2BphysItr)->pVertex()->chi2() << endreq;
-			mLog <<MSG::INFO << "REGTEST pVertex->fitchi2() returns " << (*L2BphysItr)->fitchi2() << endreq;
-			//	mLog <<MSG::INFO << "REGTEST pVertex->ndof() returns " << (*L2BphysItr)->pVertex()->ndof() << endreq;
-			mLog <<MSG::INFO << "REGTEST pVertex->fitndof() returns " << (*L2BphysItr)->fitndof() << endreq;
-			//	mLog <<MSG::INFO << "REGTEST pVertex->massVariance() returns " << (*L2BphysItr)->pVertex()->massVariance() << endreq;
-			mLog <<MSG::INFO << "REGTEST TrigL2Bphys->fitmass() returns " << (*L2BphysItr)->fitmass() << endreq;
-			//      }
-
-			if( (*L2BphysItr)->pSecondDecay() != NULL){
+			if( (*L2BphysItr)->secondaryDecay() != NULL){
+                const xAOD::TrigBphys * psecond =(*L2BphysItr)->secondaryDecay();
 				mLog <<MSG::INFO << "REGTEST Secondary decay info: " << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->eta() returns " << (*L2BphysItr)->pSecondDecay()->eta() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->phi() returns " << (*L2BphysItr)->pSecondDecay()->phi() << endreq;
-				mLog <<MSG::INFO << "REGTEST pSecondDecay->mass() returns " << (*L2BphysItr)->pSecondDecay()->mass() << endreq;
-				//	mLog <<MSG::INFO << "REGTEST pSecondDecay->dist() returns " << (*L2BphysItr)->pSecondDecay()->dist() << endreq;
-				if((*L2BphysItr)->pSecondDecay() != NULL){
-					mLog <<MSG::INFO << "REGTEST pSecondDecay->fitchi2() returns " << (*L2BphysItr)->pSecondDecay()->fitchi2() << endreq;
-					mLog <<MSG::INFO << "REGTEST pSecondDecay->fitmass() returns " << (*L2BphysItr)->pSecondDecay()->fitmass() << endreq;
-					mLog <<MSG::INFO << "REGTEST pSecondDecay->fitndof() returns " << (*L2BphysItr)->pSecondDecay()->fitndof() << endreq;
-				}
-			}
-			const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*L2BphysItr)->trackVector();
-			if (trackVector.size() != 0) {
-				mLog << MSG::INFO << " got track vector size: " << trackVector.size() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->eta() returns " << psecond->eta() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->phi() returns " << psecond->phi() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->mass() returns " << psecond->mass() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->fitmass() returns " << psecond->fitmass() << endreq;
+				//	mLog <<MSG::INFO << "REGTEST pSecondDecay->isValid() returns " << (*L2BphysItr)->secondaryDecayLink()->isValid() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->roiId() returns " << psecond->roiId() << endreq;
+				mLog <<MSG::INFO << "REGTEST pSecondDecay->particleType() returns " << psecond->particleType() << endreq;
+
+			} // end if secondary exists
+
+
+
+			const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*L2BphysItr)->trackParticleLinks();
+ 			if (trackVector.size() != 0) {
+				mLog << MSG::INFO << " REGTEST got track vector size: " << trackVector.size() << endreq;
 			} else {
-				mLog << MSG::INFO << " no track vector!!! "  << endreq;
+				mLog << MSG::INFO << " REGTEST no track vector!!! "  << endreq;
 			}
-			ElementLinkVector<TrigInDetTrackCollection>::const_iterator trkIt=trackVector.begin();
+			std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
 			for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
 			  if (!(trkIt->isValid())) {
-			    mLog << MSG::WARNING << "TrigInDetTrackCollection::Invalid ElementLink to track " << endreq;
+			    mLog << MSG::WARNING << "TrackParticleContainer::Invalid ElementLink to track " << endreq;
 			    continue;
 			  }
-				mLog << MSG::INFO << "track " << itrk << " pt phi eta " << (*(*trkIt))->param()->pT() << " " <<
-				(*(*trkIt))->param()->phi0() << " " << (*(*trkIt))->param()->eta() << endreq;
+				//const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
+                const Trk::Perigee* trackPerigee=&((*(*trkIt))->perigeeParameters());
+
+				//      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+				double phi = trackPerigee->parameters()[Trk::phi];
+				double theta = trackPerigee->parameters()[Trk::theta];
+				double px = trackPerigee->momentum()[Trk::px];
+				double py = trackPerigee->momentum()[Trk::py];
+				double pt = sqrt(px*px + py*py);
+				double eta = -std::log(tan(theta/2));
+
+				mLog << MSG::INFO << "track " << itrk << " pt phi eta " << pt << " " <<
+				phi << " " << eta << endreq;
 			}
 
-		} // end loop over partciles
-	} // end loop over trigL2Bphys container tags
-
+		}
+	}
 
 
 
@@ -2630,8 +2620,8 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
             //commented attributes are because they give an ERROR in 19.1.1.Y-VAL
             
             //checks int attributes
-            ATH_MSG_DEBUG("REGTEST    Checking int attributes");
-            int valueint;
+//            ATH_MSG_DEBUG("REGTEST    Checking int attributes");
+//            int valueint;
             //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostMuonSegmentCount, valueint))    ATH_MSG_INFO("REGTEST    GhostMuonSegmentCount: " << valueint);
             //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostTrackCount, valueint))          ATH_MSG_INFO("REGTEST    GhostTrackCount: " << valueint);
             //            if( thisjet->getAttribute(xAOD::JetAttribute::GhostTruthParticleCount, valueint))  ATH_MSG_INFO("REGTEST    GhostTruthParticleCount: " << valueint);
@@ -2687,8 +2677,8 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
             //            if( thisjet->getAttribute(xAOD::JetAttribute::Aplanarity, value))        ATH_MSG_INFO( "REGTEST    Aplanarity: " << value );
             
             //checks vector<int> attributes
-            ATH_MSG_DEBUG("REGTEST    Checking vector<int> attributes");
-            std::vector<int> vecvalueint;
+//            ATH_MSG_DEBUG("REGTEST    Checking vector<int> attributes");
+//            std::vector<int> vecvalueint;
             //            if (thisjet->getAttribute(xAOD::JetAttribute::NumTrkPt1000, vecvalueint)) {
             //                int vecsize = vecvalueint.size();
             //                ATH_MSG_INFO("REGTEST    Got NumTrkPt1000 vector, size: " << vecsize);
@@ -2774,7 +2764,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
             
             
             //checks associated objects
-            ATH_MSG_DEBUG("REGTEST    Checking associated objects");
+//            ATH_MSG_DEBUG("REGTEST    Checking associated objects");
             //            std::vector<const xAOD::TrackParticle*> track;
             //            if( thisjet->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, track) ){
             //                int vecsize = track.size();

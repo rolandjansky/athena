@@ -33,6 +33,14 @@ TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
 
+// bjet includes
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODBTagging/BTagVertex.h"
+
 #include "TrigParticle/TrigEFBjetContainer.h"
 #include "Particle/TrackParticleContainer.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -707,11 +715,82 @@ StatusCode TrigDecisionChecker::execute()
 
 StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
 
-  msg(MSG::INFO) << "REGTEST ==========START of muon EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+  msg(MSG::INFO) << "REGTEST ==========START of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
 
   ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed(trigItem));
 
   Trig::FeatureContainer fc = m_trigDec->features(trigItem);
+
+  // tracks
+  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > vec_trkcont = fc.get<xAOD::TrackParticleContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::TrackParticleContainer> > = " << vec_trkcont.size());
+  for( auto trkcont : vec_trkcont ) {
+    ATH_MSG_INFO("REGTEST Got track container, size = " << trkcont.cptr()->size());
+  }// loop over track features
+  
+  // vertexes
+  // TrigT2Histo
+  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont1 = fc.get<xAOD::VertexContainer>("EFHistoPrmVtx");
+  ATH_MSG_INFO("Size of EFHistoPrmVtx vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont1.size());
+  for( auto pvcont1 : vec_pvcont1 ) {
+    if(pvcont1.cptr()->size())
+      ATH_MSG_INFO("REGTEST Got EFHistoPrmVtx vertex container, size/x/y/z = " << pvcont1.cptr()->size()
+		   << "/" << pvcont1.cptr()->front()->x() << "/" << pvcont1.cptr()->front()->y() << "/" << pvcont1.cptr()->front()->z());
+    else
+      ATH_MSG_INFO("REGTEST Got EFHistoPrmVtx vertex container, size = " << pvcont1.cptr()->size());
+  }// loop over primary vertex features
+  // EFID
+  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont2 = fc.get<xAOD::VertexContainer>("xPrimVx");
+  ATH_MSG_INFO("Size of xPrimVx vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont2.size());
+  for( auto pvcont2 : vec_pvcont2 ) {
+    if(pvcont2.cptr()->size())
+      ATH_MSG_INFO("REGTEST Got xPrimVx vertex container, size/x/y/z = " << pvcont2.cptr()->size()
+		   << "/" << pvcont2.cptr()->front()->x() << "/" << pvcont2.cptr()->front()->y() << "/" << pvcont2.cptr()->front()->z());
+    else
+      ATH_MSG_INFO("REGTEST Got xPrimVx vertex container, size = " << pvcont2.cptr()->size());
+  }// loop over primary vertex features
+  // SV
+  const std::vector< Trig::Feature<xAOD::VertexContainer> > vec_pvcont3 = fc.get<xAOD::VertexContainer>("SecondaryVertex");
+  ATH_MSG_INFO("Size of SecondaryVertex vector< Trig::Feature<xAOD::VertexContainer> > = " << vec_pvcont3.size());
+  for( auto pvcont3 : vec_pvcont3 ) {
+    if(pvcont3.cptr()->size())
+      ATH_MSG_INFO("REGTEST Got SecondaryVertex vertex container, size/x/y/z = " << pvcont3.cptr()->size()
+		   << "/" << pvcont3.cptr()->front()->x() << "/" << pvcont3.cptr()->front()->y() << "/" << pvcont3.cptr()->front()->z());
+    else
+      ATH_MSG_INFO("REGTEST Got SecondaryVertex vertex container, size = " << pvcont3.cptr()->size());
+  }// loop over secondary vertex features
+
+  
+  // btag vertexes
+  const std::vector< Trig::Feature<xAOD::BTagVertexContainer> > vec_bvcont = fc.get<xAOD::BTagVertexContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::BTagVertexContainer> > = " << vec_bvcont.size());
+  for( auto bvcont : vec_bvcont ) {
+    if(bvcont.cptr()->size())
+      ATH_MSG_INFO("REGTEST Got vertex container, size = " << bvcont.cptr()->size());
+    else
+      ATH_MSG_INFO("REGTEST Got vertex container, size = " << bvcont.cptr()->size());
+  }// loop over btag vertex features
+  
+  // jets
+  const std::vector< Trig::Feature<xAOD::JetContainer> > vec_jetcont = fc.get<xAOD::JetContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::JetContainer> > = " << vec_jetcont.size());
+  for( auto jetcont : vec_jetcont ) {
+    ATH_MSG_INFO("REGTEST Got jet container, size = " << jetcont.cptr()->size());
+    for(unsigned int i=0; i<jetcont.cptr()->size(); i++) {
+      ATH_MSG_INFO("REGTEST Got jet with eta/phi = " << (*(jetcont.cptr()))[i]->eta() << "/" << (*(jetcont.cptr()))[i]->phi());
+    }
+  }// loop over jet features
+
+  // bjets
+  const std::vector< Trig::Feature<xAOD::BTaggingContainer> > vec_btagcont = fc.get<xAOD::BTaggingContainer>();
+  ATH_MSG_INFO("Size of vector< Trig::Feature<xAOD::BTaggingContainer> > = " << vec_btagcont.size());
+  for( auto btagcont : vec_btagcont ) {
+    ATH_MSG_INFO("REGTEST Got btag container, size = " << btagcont.cptr()->size());
+    for(unsigned int i=0; i<btagcont.cptr()->size(); i++) {
+      ATH_MSG_INFO("REGTEST Got btag with IP3D/SV1 P(u) = " << (*(btagcont.cptr()))[i]->IP3D_pu() << "/" << (*(btagcont.cptr()))[i]->SV1_pu());
+      ATH_MSG_INFO("REGTEST Got btag with IP3D/SV1 P(b) = " << (*(btagcont.cptr()))[i]->IP3D_pb() << "/" << (*(btagcont.cptr()))[i]->SV1_pb());
+    }
+  }// loop over bjet features
 
   // bjets
   const std::vector< Trig::Feature<TrigEFBjetContainer> > vec_bjetcont = fc.get<TrigEFBjetContainer>();
@@ -723,40 +802,6 @@ StatusCode TrigDecisionChecker::checkBjetEDM(std::string trigItem){
     }
   }// loop over bjet features
 
-  // tracks
-  const std::vector< Trig::Feature<Rec::TrackParticleContainer> > vec_trkcont = fc.get<Rec::TrackParticleContainer>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<Rec::TrackParticleContainer> > = " << vec_trkcont.size());
-  for( auto trkcont : vec_trkcont ) {
-    ATH_MSG_INFO("REGTEST Got track container, size = " << trkcont.cptr()->size());
-  }// loop over track features
-  
-  // primary vertex
-  const std::vector< Trig::Feature<TrigVertexCollection> > vec_pvcont = fc.get<TrigVertexCollection>();
-  ATH_MSG_INFO("Size of vector< Trig::Feature<TrigVertexCollection> > = " << vec_pvcont.size());
-  for( auto pvcont : vec_pvcont ) {
-    if(pvcont.cptr()->size())
-      ATH_MSG_INFO("REGTEST Got primary vertex container, size/algoid/z = " << pvcont.cptr()->size() << "/" << pvcont.cptr()->front()->algorithmId() << "/" << pvcont.cptr()->front()->z());
-    else
-      ATH_MSG_INFO("REGTEST Got primary vertex container, size = " << pvcont.cptr()->size());
-  }// loop over primary vertex features
-  
-  // secondary vertex
-  const std::vector< Trig::Feature<Trk::VxSecVertexInfoContainer> > vec_svcont = fc.get<Trk::VxSecVertexInfoContainer>();
-  ATH_MSG_INFO("Size of vector< Trk::VxSecVertexInfoContainer> > = " << vec_svcont.size());
-  for( auto svcont : vec_svcont ) {
-    if(svcont.cptr()->size())
-      if(svcont.cptr()->front()->vertices().size())
-	ATH_MSG_INFO("REGTEST Got secondary vertex container, size/size/type/x/y/z = " << svcont.cptr()->size() << "/" << svcont.cptr()->front()->vertices().size() << "/" 
-		     << svcont.cptr()->front()->vertices().front()->vertexType() << "/"
-		     << svcont.cptr()->front()->vertices().front()->position().x() << "/"
-		     << svcont.cptr()->front()->vertices().front()->position().y() << "/"
-		     << svcont.cptr()->front()->vertices().front()->position().z());
-      else
-	ATH_MSG_INFO("REGTEST Got secondary vertex container, size/size = " << svcont.cptr()->size() << "/" << svcont.cptr()->front()->vertices().size()); 
-    else
-      ATH_MSG_INFO("REGTEST Got secondary vertex container, size = " << svcont.cptr()->size());
-  }// loop over secondary vertex features
-  
   msg(MSG::INFO) << "REGTEST ==========END of bjet EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
 
   return StatusCode::SUCCESS;
