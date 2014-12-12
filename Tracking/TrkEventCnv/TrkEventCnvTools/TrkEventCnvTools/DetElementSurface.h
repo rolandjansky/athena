@@ -5,6 +5,7 @@
 #ifndef TRKEVENTCNVTOOLS_DETELEMENTSURFACE_H
 #define TRKEVENTCNVTOOLS_DETELEMENTSURFACE_H
 #include "TrkSurfaces/Surface.h"
+#include "TrkDetDescrUtils/Intersection.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkParametersBase/ParametersBase.h"
@@ -35,6 +36,7 @@ class DetElementSurface : public Surface
     bool                        operator==(const  Trk::Surface&) const { return false;}
     Surface *                   clone () const { return 0; }
     bool                        insideBounds(const Amg::Vector2D &, double, double) const {return false;}
+    bool insideBoundsCheck(const Amg::Vector2D& /*locpos*/, const BoundaryCheck& /*bchk*/) const { return false;}
     const Amg::Vector3D *       localToGlobal (const Amg::Vector2D &) const { return 0; }
     const Amg::Vector3D *       localToGlobal (const LocalParameters &) const { return 0; }
     const Amg::Vector2D *       globalToLocal (const Amg::Vector3D &, const double) const { return 0; }
@@ -54,9 +56,10 @@ class DetElementSurface : public Surface
     virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return 0;}
     virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return 0;}
 
-     virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D&, 
-                                                          const Amg::Vector3D&, 
-                                                          bool, Trk::BoundaryCheck) const { return Trk::SurfaceIntersection(Amg::Vector3D(0.,0.,0.),0.,false); }
+
+    virtual Intersection straightLineIntersection(const Amg::Vector3D&, 
+                                                  const Amg::Vector3D&, 
+                                                  bool, Trk::BoundaryCheck) const { return Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,false); }
     
 
 // persistency libraries.. 

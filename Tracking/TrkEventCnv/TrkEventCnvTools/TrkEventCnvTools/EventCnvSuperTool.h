@@ -66,10 +66,6 @@ namespace Trk
 
       int                                 m_errCount; //!< Current number of ERROR/WARNING messages sent to output
       int                                 m_maxErrCount; //!< Maximum number of permissable ERROR/WARNING messages sent to output.
-      /** If True, then will create Transient DetElementSurfaces for jobs where no geometry  is found. 
-       * This means for ESD to ESD copies, there remains a chance that we might be able to recover the correct det elements in future jobs with geometry. 
-       * (The behaviour if reconstruction is turned on is absolutely undefined though, but this is in any case true if the geometry is missing!)*/
-      bool                                m_createDetElementSurfaces; 
     };
   }
 #endif

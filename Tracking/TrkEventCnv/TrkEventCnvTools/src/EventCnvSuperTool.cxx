@@ -25,14 +25,12 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     m_doMuons(true),
     m_doID(true),
     m_errCount(0),
-    m_maxErrCount(10),
-    m_createDetElementSurfaces(false)
+    m_maxErrCount(10)
 {
     declareInterface<IEventCnvSuperTool>(this);
     declareProperty("DoMuons",m_doMuons, "If true (default), attempt to retrieve Muon helper tool and convert Muon objects.");
     declareProperty("DoID",m_doID, "If true (default), attempt to retrieve Inner Detector helper tool and convert ID objects.");
     declareProperty("MaxErrorCount", m_maxErrCount, "Maximum number of errors that will be reported");
-    declareProperty("CreateDetElementSurfaces", m_createDetElementSurfaces,"If True, then will create Transient DetElementSurfaces for jobs where no Geometry found.");
 }
 
 Trk::EventCnvSuperTool::~EventCnvSuperTool(){
@@ -149,10 +147,6 @@ Trk::EventCnvSuperTool::getSurface(const Identifier& id){
             if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get detector element from id:"<<id<<" Returning 0." << endreq;            
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get cnv tool for Identifier:"<<id<< endreq;
-        if (m_createDetElementSurfaces) {
-          surface = new DetElementSurface(id);
-          if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<<"Returning DetElementSurface with Id="<<id <<endreq;
-        }
     }
     return surface;
 }
