@@ -25,9 +25,10 @@
 
 class MuonStationIntersectSvc::Imp {
 public:
-  Imp(std::string name) : m_detMgr(0), m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-			  m_mdtSummarySvc("MDTCondSummarySvc", name), m_invalidStationData(0,0),m_name(name),
-			  m_log(0),m_debug(false),m_verbose(false) {}
+  Imp(std::string name) : m_detMgr(0),m_stNameMax(0),m_stPhiMax(0),m_stEtaMax(0),m_stEtaMin(0),m_etaRange(0), 
+                          m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
+			  m_mdtSummarySvc("MDTCondSummarySvc", name), m_invalidStationData(0,0),
+			  m_name(name),m_log(0),m_debug(false),m_verbose(false),m_initGeometry(true) {}
 
   typedef std::pair<const MuonGM::MdtDetectorElement*,const Muon::MuonIntersectGeometry*> StationData;
 
@@ -103,6 +104,7 @@ MuonStationIntersectSvc::MuonStationIntersectSvc(const std::string& name,ISvcLoc
   m_imp->m_log = 0;
   m_imp->m_debug = false;
   m_imp->m_verbose = false;
+  m_imp->m_initGeometry = true;
   declareProperty( "CreateGeometryAtInitialization", m_imp->m_initGeometry = false );
   declareProperty( "IdHelper", m_imp->m_idHelper );
   declareProperty( "MDTCondSummarySvc", m_imp->m_mdtSummarySvc );
@@ -407,7 +409,7 @@ void MuonStationIntersectSvc::Imp::initGeometry() const
       }
 
       // final sanity check, the first MdtReadoutElement for the MdtDetectorElement should be the same as the one from the Identifier
-      if( mdtROEl != mdtDetEl->getMdtReadoutElement(1) ){
+      if( mdtROEl != mdtDetEl->getMdtReadoutElement(1) && mdtROEl ){
 	*m_log << MSG::ERROR << " Detected inconsistency in MuonGeoModel. MdtReadoutElement pointer returned from MdtDetectorElement wrong " << endreq
 	       << " ReadoutEl     " << m_idHelper->toString(mdtROEl->identify()) << endreq
 	       << " DetEl         " << m_idHelper->toString(mdtDetEl->identify()) << endreq;
