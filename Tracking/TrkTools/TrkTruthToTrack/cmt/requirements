@@ -17,9 +17,9 @@ library TrkTruthToTrack *.cxx components/*.cxx
 
 private
 
+use xAODTruth            xAODTruth-*            Event/xAOD
 use AtlasHepMC           AtlasHepMC-*           External
 use HepPDT	         v*                     LCG_Interfaces
 use TrackRecord          *                      Simulation/G4Sim
-
 use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
 

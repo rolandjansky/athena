@@ -44,12 +44,16 @@ namespace Trk {
     virtual StatusCode initialize();
 
     /** Implements interface method. */
+    using ITruthToTrack::makeProdVertexParameters;
     virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const;
 
     /** Implements interface method.
      * You can configure an extrapolator through the job options.
      */
+    using ITruthToTrack::makePerigeeParameters;
     virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const;
 
   private:
     const HepPDT::ParticleDataTable *m_particleDataTable;

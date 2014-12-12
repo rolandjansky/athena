@@ -13,6 +13,9 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+
 //#include "CLHEP/Geometry/Transform3D.h"
 
 //#include "TrkEventPrimitives/GlobalPosition.h"
@@ -56,6 +59,8 @@ StatusCode Trk::TruthToTrack::initialize() {
   return StatusCode::SUCCESS;
 }
 
+
+
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
   Trk::TrackParameters *result = 0;
@@ -89,6 +94,42 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const He
 
   return result;
 }
+
+
+//================================================================
+const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xAOD::TruthParticle* part) const {
+  Trk::TrackParameters *result = 0;
+
+  if(part && part->hasProdVtx() && m_particleDataTable) {
+    Amg::Vector3D hv(part->prodVtx()->x(),part->prodVtx()->y(),part->prodVtx()->z());
+    Amg::Vector3D globalPos = hv;
+    
+    Amg::Vector3D hv2(part->p4().Px(),part->p4().Py(),part->p4().Pz());
+    Amg::Vector3D globalMom = hv2;
+      
+    int id = part->pdgId();
+    // the table seems to lack antiparticles, thus the use of abs()
+    const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(id));
+
+    if(pd) {
+      // pd could point to an antiparticle. recover the sign:
+      double charge = (id>0) ? pd->charge() : -pd->charge();
+      //      Trk::PlaneSurface surface(new HepGeom::Translate3D(part->production_vertex()->point3d()));
+      Amg::Translation3D tmpTransl(hv);
+      Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity(); 
+      Trk::PlaneSurface surface(new Amg::Transform3D(tmpTransf));
+      result = new Trk::AtaPlane(globalPos, globalMom, charge, surface);
+    }
+    else {
+      ATH_MSG_WARNING("Could not get particle data for particle ID="<<id);
+    }
+  }
+
+  return result;
+}
+
+
+
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
   const Trk::TrackParameters* generatedTrackPerigee = 0;
@@ -110,4 +151,27 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC
 
   return generatedTrackPerigee;
 }
+
+
+
 //================================================================
+const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const xAOD::TruthParticle* part) const {
+  const Trk::TrackParameters* generatedTrackPerigee = 0;
+
+  if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
+
+    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    if(productionVertexTrackParams.get()) {
+      
+      // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
+      // no material effects.
+      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
+								   Trk::PerigeeSurface(),
+								   Trk::anyDirection,
+								   false,
+								   Trk::nonInteracting );
+    }
+  }
+
+  return generatedTrackPerigee;
+}

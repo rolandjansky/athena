@@ -12,6 +12,9 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+
 //#include "CLHEP/Geometry/Transform3D.h"
 
 //#include "TrkEventPrimitives/GlobalPosition.h"
@@ -143,11 +146,108 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   }
   return result;
 }
+
+
+
+//================================================================
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(const xAOD::TruthParticle* part) const {
+
+  if (part == NULL || m_particleDataTable==NULL) return 0;
+
+  Trk::TrackParameters *result = 0;
+  Amg::Vector3D prodVertexVector;
+  Amg::Vector3D globalPos;
+  Amg::Vector3D globalMom;
+  int id=0;
+  double charge = 0.0;
+  const HepPDT::ParticleData* pd = 0;
+
+  const TrackRecordCollection* recordCollection;      
+  StatusCode sc=evtStore()->retrieve(recordCollection, m_reccollkey);
+  if (sc==StatusCode::FAILURE) {
+    ATH_MSG_ERROR ("Could not get track record!");
+    return 0;
+  }
+  ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
+
+  if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");
+
+  for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
+          
+    if ( (*record)->GetBarCode() == part->barcode() ) {
+
+      id = (**record).GetPDGCode();
+      pd = m_particleDataTable->particle(std::abs(id));
+      if (!pd) {
+        ATH_MSG_WARNING ("found barcode but could not digest pdg_id. " <<
+                         part->barcode() << " , " << id);
+        continue;
+      }
+
+      HepMC::ThreeVector tv = (**record).GetPosition();
+      prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
+      globalPos = prodVertexVector;
+
+      Amg::Vector3D hv2((**record).GetMomentum().x(), (**record).GetMomentum().y(),
+                            (**record).GetMomentum().z());
+      globalMom = hv2;
+
+      ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
+                    id << ", momentum " << hv2 << " production " << globalPos);
+      
+
+    } // if barcodes match
+  }   // loop over G4 records
+
+  if (pd) {
+    charge = (id>0) ? pd->charge() : -pd->charge();
+
+    Amg::Translation3D prodSurfaceCentre( prodVertexVector.x(),
+					  prodVertexVector.y(),
+					  prodVertexVector.z() );
+      
+    Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
+
+    Trk::PlaneSurface planeSurface(&tmpTransf, 5., 5. );
+    result = new Trk::AtaPlane(globalPos, globalMom, charge, planeSurface);
+
+  } else {
+    ATH_MSG_WARNING ("Could not get particle data for particle ID="<<id);
+  }
+  return result;
+}
+
+
+
 //================================================================
 const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
   const Trk::TrackParameters* generatedTrackPerigee = 0;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {
+    
+    MsgStream log(msgSvc(), name());
+    
+    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    if(productionVertexTrackParams.get()) {
+      
+      // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
+      // no material effects.
+      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
+								   Trk::PerigeeSurface(),
+								   Trk::anyDirection,
+								   false,
+								   Trk::nonInteracting );
+    }
+  }
+
+  return generatedTrackPerigee;
+}
+
+//================================================================
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const xAOD::TruthParticle* part) const {
+  const Trk::TrackParameters* generatedTrackPerigee = 0;
+
+  if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
     
     MsgStream log(msgSvc(), name());
     

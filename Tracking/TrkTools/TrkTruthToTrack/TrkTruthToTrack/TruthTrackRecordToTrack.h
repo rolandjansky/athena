@@ -46,7 +46,9 @@ namespace Trk {
      *  layer.  The method is a TrackParameter factory (client obtains
      *  ownership!)
      */
+    using ITruthToTrack::makeProdVertexParameters;
     virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const;
 
     /** This function produces Trk::TrackParameters corresponding to
        MC truth and in addition extrapolates them to the perigee.
@@ -54,7 +56,9 @@ namespace Trk {
        Once more it employs factory design: clients need to take care
        of deleting the returned parameters object.
      */
+    using ITruthToTrack::makePerigeeParameters;
     virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const;
+    virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const;
 
   private:
     const HepPDT::ParticleDataTable *m_particleDataTable;
