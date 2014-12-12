@@ -9,6 +9,12 @@ use AtlasROOT      AtlasROOT-*          External
 
 apply_tag ROOTGraphicsLibs
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist Graf Gpad RIO)"
+
+# Declare for cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(src)"
+
 apply_pattern declare_scripts files="../bin/*.py \
 	      		             ../bin/*.pl \
 				     ../bin/*.sh"

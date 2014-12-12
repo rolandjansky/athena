@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #################################################################
 # script to dump selected results to a text file
-#
+# Upated by czodrows, 12-12-14 - adding the L1 items implemented by Joerg
 #
 #################################################################
 
@@ -20,22 +20,22 @@ import datetime;
 # set defaults here so they are same for RTT and command line
 rfile = "expert-monitoring.root"
 # directories and histograms for chain acceptance and TEs
-dirs  = ["TrigSteer_L2","TrigSteer_EF", "TrigSteer_HLT"]  
-hists = ["ChainAcceptance_runsummary","NumberOfActiveTEs_runsummary"]
+dirs  = ["TrigSteer_HLT","CTPSimulation"]  
+hists = ["ChainAcceptance","NumberOfActiveTEs","L1ItemsAV"]
 #backup names
-backupName = { "ChainAcceptance_runsummary":"ChainAcceptance",
-              "NumberOfActiveTEs_runsummary":"NumberOfActiveTEs" }
+#backupName = { "ChainAcceptance":"ChainAcceptance_runsummary",
+#               "NumberOfActiveTEs":"NumberOfActiveTEs_runsummary"}
 
 # directories and histogram to be used for finding number of events that
 # were run on
 totDirs = dirs
 totHist ="NInitialRoIsPerEvent"
 # short names for files
-histDict = { "TrigSteer_L2":"L2",
-             "TrigSteer_EF":"EF",
-             "TrigSteer_HLT":"HLT",
-             "ChainAcceptance_runsummary":"Chain",
-             "NumberOfActiveTEs_runsummary":"TE"   }
+histDict = { "TrigSteer_HLT":"HLT",
+             "ChainAcceptance":"Chain",
+             "NumberOfActiveTEs":"TE",
+             "CTPSimulation":"L1",
+             "L1ItemsAV":"AV" }
 defFracTolerance  = "0.001"
 defSigmaTolerance = "0.0"
 defIntTolerance   = "2"
@@ -114,6 +114,9 @@ class chainDump:
         for j in range(nbins):
             # first bin is for underflows
             char_label = hst.GetXaxis().GetBinLabel(j+1)
+            #PC - skip the ones without any label
+            if char_label=="" :
+                continue
             chainCounts =  hst.GetBinContent(j+1)
             pairedList +=[[char_label,chainCounts]]
             if self.verbose:
@@ -350,12 +353,15 @@ class chainDump:
                             #print "grandTotalEvents", self.grandTotalEvents
                         else:
                             if hist_entries != total_events:
-                                print "WARNING: total events in different directories don't match"      
+                                print "WARNING: total events in different directories don't match" 
+                        if total_events != -1:
+                            print "Found %s events" % total_events
+                            break
                     tfile.cd("..")
                 except:
                   print "ERROR: cound not cd to directory: ", dir
             else:
-                print "WARNING: direcory ", dir," not found, could be normal if only HLT, EF or L2 is run"
+                print "WARNING: direcory ", dir," not found, could be normal if only HLT is run"
     
         found = False
         fileList=[]
@@ -369,12 +375,13 @@ class chainDump:
                 try:
                     tfile.cd(dir)
                     for histName in self.checkHist:
-                        print "dir,histName",dir,histName
+                        #print "trying dir,histName",dir,histName
+                        hist = 0
                         if histName in gDirectory.GetListOfKeys():
                             hist = gDirectory.Get(histName)
-                        else:
-                            print "trying backup",backupName[histName]
-                            hist = gDirectory.Get(backupName[histName])
+                            # else:
+                            #   print "trying backup",backupName[histName]
+                            #   hist = gDirectory.Get(backupName[histName])
                         if  hist != 0:
                             if  dir in histDict  and  histName in histDict:
                                 textFileName=histDict[dir]+histDict[histName]+".txt"
@@ -385,12 +392,15 @@ class chainDump:
                             fileList +=[chainList]
                             found = True
                         else:
-                           print "WARNING:  missing L2 or EF resutls (normal if only HLT, L2 or EF is run)"
+                            #not really useful to print a warning for not working dir/hist combinations  
+                            #print "WARNING:  missing L2 or EF resutls (normal if only HLT is run)"
+                            #print "nope combination ain't working - but fine"
+                            continue
                     tfile.cd("..")
                 except:
-                  print "ERROR: cound not cd to directory: ", dir
+                  print "ERROR2: cound not cd to directory: ", dir
             else:
-                print "WARNING: direcory ", dir," not found, could be normal if only EF or L2 is run"
+                print "WARNING: direcory ", dir," not found"
  
         self.results += [ [fileList,file,total_events] ]
         #print "DMS len:",len(self.results)
@@ -540,8 +550,9 @@ class chainDump:
                    except:
                        print "WARNING:  exception could not interpret direcotry structure"
                        releases +=[file]
-               else: 
-                   print "WARNING: no directory and/or release sturucture found"
+               else:
+                   #this is not appropiate here
+                   #print "WARNING: no directory and/or release sturucture found"
                    releases +=[file]
 
        if self.verbose: 

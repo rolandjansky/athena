@@ -7,13 +7,25 @@
  
  Original version from N. Sinev
  
- Upated by Strom,      05-10-09
- Upated by Czodrowski, 08-05-14 - to ensure merged HLT compatibility
+ Upated by Strom,       05-10-09
+ Upated by czodrows     08-05-14 - to ensure merged HLT compatibility
+ Upated by czodrows     12-12-14 - add the L1 Chains added by Joerg
+ 
  
  Compare both total chain acceptance and results
  of individual TEs
  
+ #to test "offline" do:
+ tol=10
+ 
+ ref=/path/to/a/refence/expert/monitoring/file.root
+ #in my local case
+ ref=r.root
+ level="HLT"
+ echo -e ".x TrigTest_CheckCounts.C($tol,\042${ref}\042,\042${level}\042) \n .q " | root -b 
  */
+
+
 
 #include <TTree.h>
 #include <TFile.h>
@@ -52,6 +64,13 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         exit(-1);
     }
     
+    TDirectory *l1_dir_cur =  rf->GetDirectory("../CTPSimulation");///L1ItemsAV");
+    TDirectory *l1_dir_ref = ref->GetDirectory("../CTPSimulation");///L1ItemsAV");
+    bool run_l1=0;
+    if((l1_dir_cur)&&(l1_dir_ref)) run_l1=1;
+    
+    
+    
     ///this is option for possible direct calls of levels
     if(TString(level)=="L2"||TString(level)=="EF"||TString(level)=="HLT"){
         hnames[0] =new TString("ChainAcceptance");
@@ -66,6 +85,13 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         //hanames[1]=new TString("NumberOfActiveTEs_runsummary");
         fnames[1] =new TString("TrigSteer_"+TString(level));
         ncheck =2;
+        
+        if(run_l1) {
+            hnames[2] =new TString("L1ItemsAV");
+            hanames[2]=new TString("L1ItemsAV");
+            fnames[2] =new TString("CTPSimulation");
+            ncheck =3;
+        }
         cout << "Checking " << level << " trigger counts" << endl;
     }
     
@@ -85,6 +111,12 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
             hanames[1]=new TString("NumberOfActiveTEsPerEvent");
             fnames[1] =new TString("TrigSteer_HLT");
             ncheck =2;
+            if(run_l1) {
+                hnames[2] =new TString("L1ItemsAV");
+                hanames[2]=new TString("L1ItemsAV");
+                fnames[2] =new TString("CTPSimulation");
+                ncheck =3;
+            }
             cout << "Checking HLT trigger counts" << endl;
         } else {
             //cout << "TrigLevel BOTH was given -- please ignore the following info line if this is a release < 18 "<< endl; 
@@ -113,6 +145,12 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
             //hanames[3]=new TString("NumberOfActiveTEs_runsummary");
             fnames[3] =new TString("TrigSteer_EF");
             ncheck =4;
+            if(run_l1) {
+                hnames[4] =new TString("L1ItemsAV");
+                hanames[4]=new TString("L1ItemsAV");
+                fnames[4] =new TString("CTPSimulation");
+                ncheck =5;
+            }
             cout << "Checking L2 and EF trigger counts " << endl;
         }
     } //end if(TString(level)=="BOTH")
@@ -124,46 +162,52 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
     
     Bool_t DIRERROR=0;
     //check if any TrigSteer directory exists - and also if they are the correct one(s) 
-        TDirectory *hlt_dir_ref = ref->GetDirectory("TrigSteer_HLT");
-        TDirectory *hlt_dir_cur =  rf->GetDirectory("TrigSteer_HLT");
-        
-        TDirectory *ef_dir_ref = ref->GetDirectory("TrigSteer_EF");
-        TDirectory *ef_dir_cur =  rf->GetDirectory("TrigSteer_EF");
-        TDirectory *l2_dir_ref = ref->GetDirectory("TrigSteer_L2");
-        TDirectory *l2_dir_cur =  rf->GetDirectory("TrigSteer_L2");
-        
-        if(TString(level)=="L2"){ 
+    TDirectory *hlt_dir_ref = ref->GetDirectory("TrigSteer_HLT");
+    TDirectory *hlt_dir_cur =  rf->GetDirectory("TrigSteer_HLT");
+    
+    TDirectory *ef_dir_ref = ref->GetDirectory("TrigSteer_EF");
+    TDirectory *ef_dir_cur =  rf->GetDirectory("TrigSteer_EF");
+    TDirectory *l2_dir_ref = ref->GetDirectory("TrigSteer_L2");
+    TDirectory *l2_dir_cur =  rf->GetDirectory("TrigSteer_L2");
+    //        TDirectory *l1_dir_cur =  rf->GetDirectory("../CTPSimulation");///L1ItemsAV");
+    //        TDirectory *l1_dir_ref = ref->GetDirectory("../CTPSimulation");///L1ItemsAV");
+    
+    if(TString(level)=="L2"){ 
+        if(!(l2_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
+        if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
+        if(!(l2_dir_ref)||!(l2_dir_cur))  DIRERROR=1;
+    }
+    if(TString(level)=="EF"){     
+        if(!(ef_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
+        if(!(ef_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_EF " << endl;
+        if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
+    }
+    if(TString(level)=="HLT"){
+        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: CTPSimulation " << endl; 
+        //            if((l1_dir_cur)) cout << "good reference file: " << *reffile << " : Does  contain the directory: CTPSimulation " << endl; 
+        if(!(hlt_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
+        if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
+        if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
+    }
+    if(TString(level)=="BOTH"){
+        //            if(!(l1_dir_cur)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: CTPSimulation " << endl; 
+        //            if((l1_dir_cur)) cout << "good reference file: " << *reffile << " : Does  contain the directory: CTPSimulation " << endl; 
+        //check for existence of TrigSteer_HLT in either of the 2 files
+        if(!(hlt_dir_ref)||!(hlt_dir_cur)){ //not found -> check for L2 and EF TrigSteer_ directories
             if(!(l2_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
             if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
             if(!(l2_dir_ref)||!(l2_dir_cur))  DIRERROR=1;
-        }
-        if(TString(level)=="EF"){     
             if(!(ef_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
             if(!(ef_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_EF " << endl;
             if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
         }
-        if(TString(level)=="HLT"){
+        //check for existence of L2 and EF TrigSteer_ directories in either of the 2 files
+        if(!(ef_dir_ref)||!(ef_dir_cur)||!(l2_dir_ref)||!(l2_dir_cur)){ //not found -> check for TrigSteer_HLT dirs
             if(!(hlt_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
             if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
             if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
         }
-        if(TString(level)=="BOTH"){
-            //check for existence of TrigSteer_HLT in either of the 2 files
-            if(!(hlt_dir_ref)||!(hlt_dir_cur)){ //not found -> check for L2 and EF TrigSteer_ directories
-                if(!(l2_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_L2 " << endl; 
-                if(!(l2_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_L2 " << endl;
-                if(!(l2_dir_ref)||!(l2_dir_cur))  DIRERROR=1;
-                if(!(ef_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_EF " << endl;
-                if(!(ef_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_EF " << endl;
-                if(!(ef_dir_ref)||!(ef_dir_cur)) DIRERROR=1;
-            }
-            //check for existence of L2 and EF TrigSteer_ directories in either of the 2 files
-            if(!(ef_dir_ref)||!(ef_dir_cur)||!(l2_dir_ref)||!(l2_dir_cur)){ //not found -> check for TrigSteer_HLT dirs
-                if(!(hlt_dir_ref)) cout << "Bad reference file: " << *reffile << " : Does not contain the directory: TrigSteer_HLT " << endl;
-                if(!(hlt_dir_cur)) cout << "Bad expert-monitoring.root file: Does not contain the directory: TrigSteer_HLT " << endl;
-                if(!(hlt_dir_ref)||!(hlt_dir_cur)) DIRERROR=1;
-            }
-        }
+    }
     
     if(DIRERROR){
         cout << "checkcounts: ERROR : Inconsitency/Problem with the TrigSteer_ directories in the reference and/or expert-monitoring.root file detected - exiting CheckCounts!" << endl;
@@ -234,28 +278,36 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         }
         for(Int_t i=0; i<nbins+EXT_BNS; i++)
         {    
+            
             newbc[i]=0.;
             oldbc[i]=0.;
         }
+        
         for(Int_t i=0; i<nbins; i++) newbc[i]=tchain->GetBinContent(i);
         TH1 *echist;
-        gDirectory->GetObject("NInitialRoIsPerEvent",echist); 
+        gDirectory->GetObject("NInitialRoIsPerEvent",echist);  
+        if (*fname=="CTPSimulation"){
+            const char * olddir ;
+            olddir = gDirectory->GetPath() ;
+            gDirectory->GetObject("../"+(*fnames[0])+"/NInitialRoIsPerEvent",echist);   
+            gDirectory->cd(olddir);
+        }
         // look for old sytle names if new one is not there
-        if(echist == 0 ){
-            `    if(fname->Contains("_EF"))
-                `   {
-                    gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
-                }            
-            if(fname->Contains("_L2"))
-            {
-                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
-            }
-            if(echist==0)
-            {    
-                cout << "checkcounts FAILURE : can't determine number of events processed" << endl;      
-                continue;
-            }
-        } 
+        //        if(echist == 0 ){
+        //            `    if(fname->Contains("_EF"))
+        //                `   {
+        //                    gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
+        //                }            
+        //            if(fname->Contains("_L2"))
+        //            {
+        //                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
+        //            }
+        if(echist==0)
+        {    
+            cout << "checkcounts FAILURE : can't determine number of events processed" << endl;      
+            continue;
+        }
+        //        } 
         nrnnew=echist->GetEntries();
         cout << "Number of events processed in test: " << nrnnew << endl;               
         rf->Close();
@@ -296,7 +348,7 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         {
             Int_t bi = -1;
             TString *obna = new TString(otchain->GetXaxis()->GetBinLabel(i));
-            if( debug ){ cout << "reference bin label: " << *obna << endl; }
+            if( debug ){ cout << i << "reference bin label: " << *obna << endl; }
             for(Int_t si=0; si<nbins+nexlb; si++)
             {
                 if(xlabels[si]->CompareTo(*obna) == 0) bi=si;   
@@ -321,21 +373,28 @@ void  TrigTest_CheckCounts(Int_t toler,char *refname, char *level)
         }
         TH1 *echist;
         gDirectory->GetObject("NInitialRoIsPerEvent",echist); 
-        // look for old sytle names if new one is not there
-        if(echist == 0 ){
-            if(fname->Contains("_EF"))
-            {
-                gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
-            }            
-            if(fname->Contains("_L2"))
-            {
-                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
-            }
-            if(echist==0){
-                cout << "failed to find number of events in reference" << endl;
-                continue;
-            }
+        if (*fname=="CTPSimulation"){
+            const char * olddir ;
+            olddir = gDirectory->GetPath() ;
+            gDirectory->GetObject("../"+(*fnames[0])+"/NInitialRoIsPerEvent",echist);    
+            gDirectory->cd(olddir);
         }
+        
+        // look for old sytle names if new one is not there
+        //        if(echist == 0 ){
+        //            if(fname->Contains("_EF"))
+        //            {
+        //                gDirectory->GetObject("N_Initial_RoI_in_Event_EF",echist);   
+        //            }            
+        //            if(fname->Contains("_L2"))
+        //            {
+        //                gDirectory->GetObject("N_Initial_RoI_in_Event_L2",echist);   
+        //            }
+        if(echist==0){
+            cout << "failed to find number of events in reference" << endl;
+            continue;
+        }
+        //        }
         nrnold=echist->GetEntries();
         cout << "Number of events in reference: " << nrnold << endl;               
         orf->Close();

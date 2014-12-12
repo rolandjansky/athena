@@ -26,6 +26,7 @@
 using namespace std;
 
 TRoot2Html::TRoot2Html() :
+  _nodeId(1),
   _showFullFileName(kFALSE)
 {
   setOutputDir("./");
@@ -33,7 +34,11 @@ TRoot2Html::TRoot2Html() :
 }
 
 TRoot2Html::TRoot2Html(const TRoot2Html& other):
-  TMultiFileLooper(other)
+  TMultiFileLooper(other),
+  _imgHeight(other._imgHeight),
+  _imgWidth(other._imgWidth),
+  _nodeId(other._nodeId),
+  _showFullFileName(other._showFullFileName)
 {
 }
 
