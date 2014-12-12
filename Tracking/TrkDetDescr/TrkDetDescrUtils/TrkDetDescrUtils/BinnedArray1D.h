@@ -54,7 +54,7 @@ namespace Trk {
           for (size_t ivec = 0; ivec < vecsize; ++ivec){
             const Amg::Vector3D currentGlobal(((tclassvector[ivec]).second));
             if (bingen->inside(currentGlobal)){
-              (*m_array)[bingen->bin(currentGlobal, 0)] = ((tclassvector)[ivec]).first;
+               (*m_array)[bingen->bin(currentGlobal, 0)] = ((tclassvector)[ivec]).first;
             } else 
                 throw GaudiException("BinnedArray1D constructor", "Object outside bounds", StatusCode::FAILURE );  
           }

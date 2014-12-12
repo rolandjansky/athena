@@ -31,6 +31,16 @@ namespace Trk {
         Unsigned               = 99
     };
 
+    enum GeometryType {
+        Static                  = 0,
+        Dense                   = 1,
+        DenseWithLayers         = 1,
+        Detached                = 2,
+        Master                  = 3,
+        NumberOfGeometryTypes   = 3   
+    };
+
+
 } // end of namespace
 
 

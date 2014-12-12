@@ -71,7 +71,6 @@ namespace Trk {
 
       private:
         mutable int      m_jumper;
-        mutable int      m_max;
         int              m_accessors[8];
 
     };

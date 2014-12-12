@@ -16,6 +16,7 @@
 // 
 //STL
 #include <vector>
+#include <cassert>
 // 
 class MsgStream;
 // 
@@ -57,7 +58,11 @@ namespace Trk {
       m_binUtilArray(binUtilVec)
       {
         // prepare the binned Array
-	if (m_binUtil1 && m_binUtil2){
+        if (!binUtil1 || !binUtil2 || !binUtilVec) {
+          throw std::logic_error("Invalid BinUtilities");
+        }
+
+	{
 	  int v1Size = binUtil1->bins();
 	  int v2Size = binUtil2->bins();
 	  m_array = new std::vector< std::vector< std::vector< SharedObject<const T> >* >* >(v1Size);
@@ -68,6 +73,7 @@ namespace Trk {
             }
 	  }
 	}
+        
 	// fill the Volume vector into the array
 	int vecsize(tclassvector.size());
 	for (int ivec = 0; ivec < vecsize; ++ivec){
@@ -75,6 +81,7 @@ namespace Trk {
 	  if (binUtil1->inside(currentGlobal) && binUtil2->inside(currentGlobal)  ){
 	    int bin1                 = binUtil1->bin(currentGlobal);
 	    int bin2                 = binUtil2->bin(currentGlobal);
+            assert( (*binUtilVec)[bin1][bin2] );
 	    int bin3                 = (*binUtilVec)[bin1][bin2]->bin(currentGlobal);
 	    std::vector< std::vector<SharedObject<const T> >* >* currArr = (*m_array)[bin1];
 	    std::vector< SharedObject<const T> >* curVec = (*currArr)[bin2];

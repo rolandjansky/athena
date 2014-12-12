@@ -72,7 +72,6 @@ namespace Trk {
         mutable int      m_jumper;
         int              m_accessors[4];
         mutable bool     m_break;
-        bool             m_backwardSearch;
 
     };
 

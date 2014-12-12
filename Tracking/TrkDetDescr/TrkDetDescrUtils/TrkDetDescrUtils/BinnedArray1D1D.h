@@ -74,8 +74,8 @@ namespace Trk {
 	      (*curVec)[singleBin] = ((tclassvector)[ivec]).first;
 	    } else
 	      throw GaudiException("BinnedArray1D1D", "Object outside bounds", StatusCode::FAILURE);
-	  }
-	}
+	      }
+	    }
       }
 
       /** Copy Constructor - copies only pointers! */

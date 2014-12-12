@@ -14,7 +14,7 @@ namespace Trk {
   /** @class SharedObject
   
     A class template to reference count 
-    shared object like BoundarySurfaces.
+    shared objects in the geometry.
     
     @author Andreas.Salzburger@cern.ch
     
@@ -76,6 +76,8 @@ namespace Trk {
       
       T* getPtr() const { return m_templatedT; }
 
+      /** count the references */
+      int references() const { return (m_ref ? *m_ref : 0 ); }
       
       /** adding a reference */
       void addRef() { if (m_ref) (*m_ref)++; }

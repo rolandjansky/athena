@@ -45,8 +45,8 @@ namespace Trk {
            m_binningData.reserve(3);
        }
       
-        /** Constructor for equidistant */
-        BinUtility(size_t bins, float min, float max, BinningOption opt = open, BinningValue value = binR) :
+        /** Constructor for equidistant - the substep is for phi binning offsets  */
+        BinUtility(size_t bins, float min, float max, BinningOption opt = open, BinningValue value = binR, float sStep = 0.) :
           m_binningData()
         {
             m_binningData.reserve(3);
@@ -54,14 +54,14 @@ namespace Trk {
             float step = (max-min)/bins;
             for (size_t ib = 0; ib <= bins; ++ib) bValues.push_back(min + ib*step);
             m_binningData.push_back(Trk::BinningData(Trk::equidistant, 
-                                                 opt, 
-                                                 value,
-                                                 bins, 
-                                                 min, 
-                                                 max, 
-                                                 step,
-                                                 0.,
-                                                 bValues) );
+                                                     opt, 
+                                                     value,
+                                                     bins, 
+                                                     min, 
+                                                     max, 
+                                                     step,
+                                                     sStep,
+                                                     bValues) );
         }
 
         /** Constructor for bi-equidistant */
@@ -70,17 +70,17 @@ namespace Trk {
         {
             m_binningData.reserve(3);
             std::vector<float> bValues;
-            float step = (max-substep-min)/(subbins-1);
-            for (size_t isb = 0; isb < subbins; ++isb){
+            float step = (max-min)/(subbins+1);
+            bValues.push_back(min);
+            for (size_t isb = 1; isb <= subbins; ++isb){
+                bValues.push_back(min+isb*step-substep);
                 bValues.push_back(min+isb*step);
-                bValues.push_back(min+isb*step+substep);
-                
             }
-            
+            bValues.push_back(max);
             m_binningData.push_back(Trk::BinningData(Trk::biequidistant, 
                                                  opt,
                                                  value,
-                                                 2*subbins-1,
+                                                 2*subbins+1,
                                                  min, 
                                                  max, 
                                                  step,
@@ -111,9 +111,7 @@ namespace Trk {
 	    m_binningData()
         {
             m_binningData.reserve(3);
-            m_binningData.push_back(Trk::BinningData(Trk::open,
-                                                     phiRef,
-						     bValues));
+            m_binningData.push_back(Trk::BinningData(Trk::open,phiRef,bValues));
         }
         
         /** Copy constructor */
@@ -151,8 +149,8 @@ namespace Trk {
         {
           if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
-          size_t bEval = m_binningData[ba].searchGlobal(position);
-	  return ( bEval > bins(ba)-1 ? bins(ba)-1 : bEval );     // ST additional protection : DEBUG source
+          size_t bEval = m_binningData[ba].searchGlobal(position);          
+          return ( bEval > bins(ba)-1 ? bins(ba)-1 : bEval );     // ST additional protection : DEBUG source
         }
         
         /** Bin from a 3D vector (already in binning frame) */
@@ -171,7 +169,7 @@ namespace Trk {
         }       
 
         /** Distance estimate to next bin  */
-	std::pair<size_t,float> distanceToNext(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const throw (GaudiException)
+	    std::pair<size_t,float> distanceToNext(const Amg::Vector3D& position, const Amg::Vector3D& direction, size_t ba=0) const throw (GaudiException)
         { if (ba >= m_binningData.size()) 
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
           return m_binningData[ba].distanceToNext(position, direction);
@@ -184,7 +182,10 @@ namespace Trk {
               return m_binningData[ba].orderDirection(position, direction);
         }     
         
-        /** Bin from a 2D vector (following local parameters defintitions) */
+        /** Bin from a 2D vector (following local parameters defintitions)
+            - USE WITH CARE !!
+              You need to check if your local position is actually in the binning frame of the BinUtility
+        */
         size_t bin(const Amg::Vector2D& lposition, size_t ba=0) const throw (GaudiException) 
         {    
             if (ba >= m_binningData.size()) 
