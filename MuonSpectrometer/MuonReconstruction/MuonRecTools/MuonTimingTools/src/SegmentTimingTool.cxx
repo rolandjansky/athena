@@ -104,10 +104,12 @@ std::vector<Trk::SpaceTimePoint*> Muon::SegmentTimingTool::timeMeasurements
       ATH_MSG_DEBUG ("numberOfMatchedMeasurements = " << numberOfMatchedMeasurements <<
           ", chi2/DoF = " << curr_seg->fitQuality()->chiSquared() / curr_seg->fitQuality()->numberDoF());
       const Muon::MuonSegment* mu_seg = dynamic_cast<const Muon::MuonSegment*>(curr_seg);
-      Identifier id = m_helperTool->chamberId(*mu_seg);
-      MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId(id);
-      ATH_MSG_DEBUG ("station name = " << fid.stationName() << " " << fid.stationNumberToFixedStationString(fid.stationName()));
-    }
+      if(mu_seg) {
+        Identifier id = m_helperTool->chamberId(*mu_seg);
+        MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId(id);
+        ATH_MSG_DEBUG ("station name = " << fid.stationName() << " " << fid.stationNumberToFixedStationString(fid.stationName()));
+      }    
+   }
   }
   ATH_MSG_DEBUG ("Number of matched space-time points = " << matched_segs.size());
 
@@ -260,7 +262,7 @@ int Muon::SegmentTimingTool::matchSegmentTrk(const Trk::Track& origTrk, const Tr
      ", number of matched hits >= " << m_numberOfMatchedCut << ")");
 
   //Check whether the percentage of matches is at the threshold set by the user
-  if(!( ((double)matches/(double)tot)>(m_matchThreshold-1e-6) && matches>=m_numberOfMatchedCut )) matches = 0;
+  if(!( (double)matches>(m_matchThreshold-1e-6)*(double)tot && matches>=m_numberOfMatchedCut )) matches = 0;
 
   return matches;
 }
