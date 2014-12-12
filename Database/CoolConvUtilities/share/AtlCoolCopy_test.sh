@@ -5,7 +5,7 @@ export DBORACLE="oracle://INTR;schema=ATLAS_COOL_GLOBAL;dbname=REFC2001"
 
 echo Start date is `date`
 
-AtlCoolCopy.exe $DBORACLE "sqlite://X;schema=test0.db;dbname=REFC2001" -create -folder /REFCOND1/LAR/FOLDER_0 
+AtlCoolCopy.exe COOLOFL_INDET/OFLP200 "sqlite://X;schema=test0.db;dbname=OFLP200" -create -folder /Indet/Align
 ls -l
 rm test0.db
 echo End date is `date`

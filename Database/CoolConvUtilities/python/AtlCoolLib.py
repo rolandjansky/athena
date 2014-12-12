@@ -64,7 +64,9 @@ def ensureFolder(db,folder,spec,desc,version=cool.FolderVersioning.SINGLE_VERSIO
     if (not db.existsFolder(folder)):
         print 'Attempting to create',folder,'with description',desc
         try:
-            db.createFolder(folder,spec,desc,version,True)
+            # Deprecated/dropped:  db.createFolder(folder,spec,desc,version,True)
+            folderSpec = cool.FolderSpecification(version,spec)
+            db.createFolder(folder,folderSpec,desc,True)
             print 'Folder created'
         except Exception,e:
             print e
@@ -157,7 +159,7 @@ def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
         # deal with frontier server - use only if FRONTIER_SERVER is set
         if server=='ATLF':
             if ('FRONTIER_SERVER' in os.environ):
-                connstr='frontier://ATLF/%s;schema=ATLAS_%s;dbname=%s' % (os.environ['FRONTIER_SERVER'],schema,dbinst)
+                connstr='frontier://ATLF/();schema=ATLAS_%s;dbname=%s' % (schema,dbinst)
             else:
                 # skip ATLF replica if FRONTIER_SERVER not set
                 continue

@@ -44,7 +44,7 @@ inline PoolMapElement::PoolMapElement(const int usage,
   m_folders.push_back(foldertag);
 }
 
-inline PoolMapElement::PoolMapElement(): m_count(0) {}
+inline PoolMapElement::PoolMapElement(): m_count(0),m_errcode(0),m_lfn(),m_pfn(),m_folders() {}
 
 inline void PoolMapElement::inccount() { ++m_count;}
 inline void PoolMapElement::setErrorBit(const int bit) 

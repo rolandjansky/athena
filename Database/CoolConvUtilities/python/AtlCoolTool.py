@@ -6,6 +6,8 @@ from re import match
 import time,calendar
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
 
+from zlib import crc32
+
 def expandConnectString( connectString ):
     """
     Expands a connect string.
@@ -282,12 +284,13 @@ class AtlCoolTool:
         res = InfoList()
         if self.db.existsFolder( node ):
             f = self.db.getFolder( node )
+            fdesc=f.description()
             if (self.curchan==-1):
                 chansel=cool.ChannelSelection.all()
             else:
                 chansel=cool.ChannelSelection(self.curchan)
                 res.append('Using channel: %i' % self.curchan)
-            istime=((f.description()).find('<timeStamp>time')!=-1)
+            istime=(fdesc.find('<timeStamp>time')!=-1)
             if istime:
                 limmin=self.curtimes[0]
                 limmax=self.curtimes[1]
@@ -297,7 +300,7 @@ class AtlCoolTool:
             if (limmin!=cool.ValidityKeyMin or limmax!=cool.ValidityKeyMax):
                 res.append('Using rawIOV range [%i,%i]' % (limmin,limmax))
             if (self.curtag==''):
-                objs = f.browseObjects( limmin,limmax,chansel)
+                restag=""
             else:
                 if not self.curtag in f.listTags():
                     # tag is not defined here, try hierarchical tag
@@ -310,12 +313,23 @@ class AtlCoolTool:
                 else:
                     restag=self.curtag
                     res.append('Using tag selection: %s' % self.curtag)
-                objs = f.browseObjects( limmin,limmax,chansel,restag )
+            coolvec=(fdesc.find('CondAttrListVec')>=0 and fdesc.find('coracool')<0)
+            if coolvec: print "Folder has CoolVector payload"
+            objs = f.browseObjects( limmin,limmax,chansel,restag )
             while objs.goToNext():
                 if (more):
                     obj=objs.currentRef()
-                    payload=obj.payload()
-                    i=self.timeRep(obj.since(),istime)+" - "+self.timeRep(obj.until(),istime,True)+" ("+str(obj.channelId())+") "+str(payload)
+                    i=self.timeRep(obj.since(),istime)+" - "+self.timeRep(obj.until(),istime,True)+" ("+str(obj.channelId())+")"
+                    if coolvec:
+                        j=0
+                        pitr=obj.payloadIterator()
+                        while pitr.goToNext():
+                            pobj=pitr.currentRef()
+                            i+='\nVector element %i:' % j
+                            i+=self.payloadRep(pobj,istime)
+                            j+=1
+                    else:
+                        i+=self.payloadRep(obj.payload(),istime)
                 else:
                     i = Info( '  %(str)s' )
                     i['str'] = str(objs.currentRef())
@@ -343,6 +357,21 @@ class AtlCoolTool:
         else:
             return "[%i,%i%s" % (value >> 32, value & 0xFFFFFFFF,trail)
 
+    def payloadRep(self,payload,istime):
+        "Pretty-print the payload of an object - helper function for more cmd"
+        spec=payload.specification()
+        i=""
+        for idx in range(spec.size()):
+            if (idx>0): i+=","
+            typename=spec[idx].storageType().name()
+            i+= " ["+spec[idx].name() + " (" + typename + ") : "
+            if (typename.startswith("Blob")):
+                blob=payload[idx]
+                i+= "size=%i,chk=%i" % (blob.size(),crc32(blob.read()))
+            else:
+                i+= str(payload[idx])
+            i+="]"
+        return i
 
     def defaultFolderInfo( self ):
         res = Info( '  %(name)-16s  %(description)-16s'

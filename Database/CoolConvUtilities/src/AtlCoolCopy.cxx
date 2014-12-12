@@ -1620,8 +1620,12 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
         nt_lbuntil=(sobj.until() & 0xFFFFFFFF);
       }
       nt_channel=sobj.channelId();
-      if (vermode==cool::FolderVersioning::MULTI_VERSION)
-	strcpy(nt_tagid,sourcetag.c_str());
+      if (vermode==cool::FolderVersioning::MULTI_VERSION) {
+	// truncate the string first to avoid coverity complaining about
+	// potential buffer overruns
+	std::string sourcetag2=sourcetag.substr(0,255);
+	strncpy(nt_tagid,sourcetag2.c_str(),256);
+      }
       // loop over the payload elements and fill the ones for which buffers
       // are defined
       try {
@@ -1915,46 +1919,46 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
 	}
 	h_iovname->Fill(ichan);
 	// analyse IOV start/stop
-	cool::ValidityKey since=sobj.since();
-	cool::ValidityKey until=sobj.until();
-	if (since<globsince) globsince=since;
+	cool::ValidityKey since2=sobj.since();
+	cool::ValidityKey until2=sobj.until();
+	if (since2<globsince) globsince=since2;
 	// dont count IOV is open-ended, so length statistics will make sense
-        if (until!=cool::ValidityKeyMax) {
-  	  if (until>globuntil) globuntil=until;
-   	  long long len=until-since;
+        if (until2!=cool::ValidityKeyMax) {
+  	  if (until2>globuntil) globuntil=until2;
+   	  long long len=until2-since2;
 	  h_iovlength->Fill(log10(len));
 	  iovn[ichan]+=1;
 	  iovtotlen[ichan]+=len;
 	}
-	if (lastiov[ichan]<static_cast<long long>(since) && 
+	if (lastiov[ichan]<static_cast<long long>(since2) && 
 	    lastiov[ichan]>=0) {
 	  // have a gap in the IOV structure for this channel
-	  long long gap=since-lastiov[ichan];
+	  long long gap=since2-lastiov[ichan];
 	  iovtotgap[ichan]+=gap;
 	  h_iovgap->Fill(log10(gap));
 	  std::cout << "Gap of " << gap << std::endl;
 	}
-	if (until!=cool::ValidityKeyMax) {
-	  lastiov[ichan]=until;
+	if (until2!=cool::ValidityKeyMax) {
+	  lastiov[ichan]=until2;
 	} else {
-	  lastiov[ichan]=since;
+	  lastiov[ichan]=since2;
 	}
 	// analyse IOV alignment
 	if (anatime) {
 	  long long del1=-1;
 	  long long del2=-1;
 	  // find the nearest time to this one
-	  // this gives the first value exceeding since
-	  IOVTimeMap::iterator hiitr=iov_time_map.lower_bound(since);
+	  // this gives the first value exceeding since2
+	  IOVTimeMap::iterator hiitr=iov_time_map.lower_bound(since2);
 	  IOVTimeMap::iterator lowitr=hiitr;
 	  if (hiitr!=iov_time_map.end()) {
 	    // del1 is +ve time interval to next one
-	    del1=hiitr->first-since;
+	    del1=hiitr->first-since2;
 	  }
 	  if (lowitr!=iov_time_map.begin()) {
 	    // del2 is +ve time interval to previous one
 	    --lowitr;
-	    del2=since-lowitr->first;
+	    del2=since2-lowitr->first;
 	  }
 	  long long del=-1;
 	  IOVTimeMap::iterator moditr;
@@ -1977,7 +1981,7 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
 	      h_anadelt->Fill(0.);
 	    }
 	  } else {
-	    iov_time_map[since]=0;
+	    iov_time_map[since2]=0;
 	  }
 	}
       } else {
@@ -2032,6 +2036,7 @@ int AtlCoolCopy::analyseIOVs(const std::string& folder,
   delete [] lastiov;
   delete [] iovtotlen;
   delete [] iovtotgap;
+  delete[] iovn; iovn=0; 
   return 0;
 }
 
@@ -2372,13 +2377,16 @@ int AtlCoolCopy::setOpts(int argc, const char* argv[]) {
 	  ++p_line;
 	}
 	if (fargc>0) {
-  	  if (!procOptVector(fargc,&fargv[0],folders)) return 3;
+  	  if (!procOptVector(fargc,&fargv[0],folders)) {
+	    fclose(p_inp);
+	    return 3;
+	  }
 	}
       }
     }
     std::cout << "Close file" << std::endl;
     fclose(p_inp);
-    delete p_buf;
+    delete[] p_buf;
   }
 
   // now open the database so folder lookup will work
@@ -2777,7 +2785,7 @@ bool AtlCoolCopy::getRunList() {
       }
     }
     fclose(p_inp);
-    delete p_buf;
+    delete[] p_buf;
   }
   std::sort(m_runlist.begin(),m_runlist.end());
   std::cout << "Read list of " << m_runlist.size() << " runs from " <<

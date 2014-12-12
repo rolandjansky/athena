@@ -112,13 +112,19 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
         return None
     data=None
     try:
+        # map of expected channel names to slots in data[] variable
+        # follows original order from run1/COMP200
+        # has changed in CONDBR2, but use of named channels recovers this
+        currentmap={'CentralSol_Current':0,'CentralSol_SCurrent':1,
+                    'Toroids_Current':2,'Toroids_SCurrent':3}
         dcsfolder=dcsDB.getFolder('/EXT/DCS/MAGNETS/SENSORDATA')
         objs=dcsfolder.findObjects(sortime,cool.ChannelSelection.all())
         data=[-1.,-1.,-1.,-1.]
         for obj in objs:
             chan=obj.channelId()
-            if (chan>0 and chan<5):
-                data[chan-1]=obj.payload()['value']
+            channame=dcsfolder.channelName(chan)
+            if channame in currentmap.keys():
+                data[currentmap[channame]]=obj.payload()['value']
     except Exception,e:
         print "MagFieldUtils.getFieldForRun ERROR accessing /EXT/DCS/MAGNETS/SENSORDATA"
         print e
