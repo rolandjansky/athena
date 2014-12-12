@@ -25,12 +25,6 @@ LArCellRescaler::~LArCellRescaler() {}
 StatusCode LArCellRescaler::initialize() {
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << " initialization " << endreq;
-  StatusCode sc;
-  sc=service("DetectorStore",m_detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-     return sc;
-   }
 
   // sc=m_detStore->regHandle(m_factors,m_key);
 //   if (sc.isFailure()) {
@@ -40,15 +34,9 @@ StatusCode LArCellRescaler::initialize() {
 //   }
 
 
-  sc=m_detStore->regFcn(&LArCellRescaler::checkConstants,
-			dynamic_cast<LArCellRescaler*>(this),
-			m_factors,m_key);
-
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Cound not register Callback function for CaloRec::CaloCellFactor with key "
-	 << m_key << endreq;
-     return sc;
-   }
+  ATH_CHECK( detStore()->regFcn(&LArCellRescaler::checkConstants,
+                                dynamic_cast<LArCellRescaler*>(this),
+                                m_factors,m_key) );
 
   return StatusCode::SUCCESS;
 }
@@ -57,12 +45,7 @@ StatusCode LArCellRescaler::initialize() {
 StatusCode LArCellRescaler::checkConstants(IOVSVC_CALLBACK_ARGS) {
   MsgStream log(msgSvc(), name());
   const CaloCell_ID* cellID;
-  StatusCode sc = m_detStore->retrieve(cellID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve caloCell_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(cellID) );
   IdentifierHash emMin, emMax;
   cellID->calo_cell_hash_range(CaloCell_ID::LAREM,emMin,emMax);
   if (m_factors->size() != emMax) {

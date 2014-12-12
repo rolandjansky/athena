@@ -24,317 +24,40 @@ using xAOD::EventInfo;
 
 LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
   AthAlgorithm (name, pSvcLocator), 
-  m_calo_id(0), m_onlineID(0),
-  m_event_counter(0), m_SaturatedCellTightCutEvents(0)
+  m_event_counter(0),
+  m_noisyROTool("LArNoisyROTool",this)
 {
   declareProperty( "CaloCellContainer", m_CaloCellContainerName = "AllCalo" );
-  declareProperty( "BadChanPerFEB", m_BadChanPerFEB=30 );
-  declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
-  declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
-  declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
-  declareProperty( "BadFEBCut", m_MinBadFEB=5 );
-  declareProperty( "KnownBADFEBs", m_knownBadFEBs={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
-  // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
-  // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
-  // 3a480000   EndcapCFT02RSpePresampler   ECC02RSpePs      EndcapCFT09Slot01     [4.4.1.0.9.1]   
-  // 3a490000   EndcapCFT02RSpeMiddle0      ECC02RSpeM0      EndcapCFT09Slot03     [4.4.1.0.9.3]   
-  // 3a498000   EndcapCFT02RSpeMiddle1      ECC02RSpeM1      EndcapCFT09Slot04     [4.4.1.0.9.4]   
-  // 3a790000   EndcapCFT12RSpeMiddle0      ECC12RSpeM0      EndcapCFT15Slot03     [4.4.1.0.15.3]  
-  // 3aa90000   EndcapCFT09RSpeMiddle0      ECC09RSpeM0      EndcapCFT21Slot03     [4.4.1.0.21.3]  
-  // 3aa98000   EndcapCFT09RSpeMiddle1      ECC09RSpeM1      EndcapCFT21Slot04     [4.4.1.0.21.4]  
-  // 3b108000   EndcapAFT02RSpeFront0       ECA02RSpeF0      EndcapAFT02Slot02     [4.4.1.1.2.2]   
-  // 3b110000   EndcapAFT02RSpeMiddle0      ECA02RSpeM0      EndcapAFT02Slot03     [4.4.1.1.2.3]   
-  // 3b118000   EndcapAFT02RSpeMiddle1      ECA02RSpeM1      EndcapAFT02Slot04     [4.4.1.1.2.4]   
-  // 3ba80000   EndcapAFT12RSpePresampler   ECA12RSpePs      EndcapAFT21Slot01     [4.4.1.1.21.1]  
-  // 3ba88000   EndcapAFT12RSpeFront0       ECA12RSpeF0      EndcapAFT21Slot02     [4.4.1.1.21.2]  
-  // 3ba90000   EndcapAFT12RSpeMiddle0      ECA12RSpeM0      EndcapAFT21Slot03     [4.4.1.1.21.3]  
-  // 3ba98000   EndcapAFT12RSpeMiddle1      ECA12RSpeM1      EndcapAFT21Slot04     [4.4.1.1.21.4]  
-  // 3bb08000   EndcapAFT12LEMInner2        ECA12LEMI2       EndcapAFT22Slot02     [4.4.1.1.22.2]  
-  // 3bc00000   EndcapAFT13LStdPresampler   ECA13LStdPs      EndcapAFT24Slot01     [4.4.1.1.24.1]  
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
-  declareProperty( "SaturatedCellQualityCut", m_SaturatedCellQualityCut=65535);
-  declareProperty( "SaturatedCellEnergyTightCut", m_SaturatedCellEnergyTightCut=1000.);
-  declareProperty( "SaturatedCellTightCut", m_SaturatedCellTightCut=20);
+  declareProperty( "Tool",m_noisyROTool);
 }
 
 StatusCode LArNoisyROAlg::initialize()
 {
-  StatusCode sc;
-
-
-  if ( m_CellQualityCut > m_SaturatedCellQualityCut ) {
-    msg(MSG::FATAL) << "LArNoisyROAlg assumes that the QFactor cut to declare a channel noisy is softer than the QFactor cut to declare the quality saturated !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   m_event_counter = 0;
 
-  // callback to GeoModel to retrieve identifier helpers, etc..
-  const IGeoModelSvc *geoModel=0;
-  sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-                          &LArNoisyROAlg::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
-  }
+  CHECK(m_noisyROTool.retrieve());
   return StatusCode::SUCCESS;
 }
-
-StatusCode LArNoisyROAlg::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  StatusCode sc;
-
-  const  CaloIdManager* caloIdMgr;
-  sc = detStore()->retrieve(caloIdMgr);
-  if (sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
-    return sc;
-  }
-  m_calo_id = caloIdMgr->getCaloCell_ID();
-
-
-  sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) 
-  {
-    msg(MSG::ERROR) << "Unable to retrieve LArOnlineID " << endreq;
-    return sc;
-  }
-
-  sc = m_cablingService.retrieve();
-  if (sc.isFailure()) 
-  {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingService " << endreq;
-    return sc;
-  }
-
-
-  
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode LArNoisyROAlg::execute() 
 {
 
   m_event_counter++;
 
-  LArNoisyROSummary* noisyRO = new LArNoisyROSummary();
-  StatusCode sc = evtStore()->record(noisyRO,m_outputKey);
-  if ( sc.isFailure() )
-  {
-    msg(MSG::WARNING) << "Could not store LArNoisyROSummary " << endreq;
-    delete noisyRO;
-    return StatusCode::SUCCESS;
-  }
-
-
-  // reset counters
-  for ( FEBEvtStatMapIt it = m_FEBstats.begin(); it != m_FEBstats.end(); it++ )
-    it->second.resetCounters();
-
   const CaloCellContainer* cellContainer(0);
-  sc = evtStore()->retrieve(cellContainer, m_CaloCellContainerName);
-  if (  sc.isFailure() || !cellContainer )
-  {
+  StatusCode sc = evtStore()->retrieve(cellContainer, m_CaloCellContainerName);
+  if (sc.isFailure() || !cellContainer ) {
     msg(MSG::WARNING) << " Could not retreive the CaloCellContainer with name " << m_CaloCellContainerName << endreq;
     return StatusCode::RECOVERABLE;
   }
 
-  unsigned int NsaturatedTightCutBarrelA = 0;
-  unsigned int NsaturatedTightCutBarrelC = 0;
-  unsigned int NsaturatedTightCutEMECA = 0;
-  unsigned int NsaturatedTightCutEMECC = 0;
-  unsigned int NsaturatedTightCutHECA = 0;
-  unsigned int NsaturatedTightCutHECC = 0;
-  unsigned int NsaturatedTightCutFCALA = 0;
-  unsigned int NsaturatedTightCutFCALC = 0;
+  std::unique_ptr<LArNoisyROSummary> noisyRO=m_noisyROTool->process(cellContainer);
 
 
-  CaloCellContainer::const_iterator cellItr    = cellContainer->begin();
-  CaloCellContainer::const_iterator cellItrEnd = cellContainer->end();
-  for ( ; cellItr != cellItrEnd; ++cellItr )
-  {
-    const CaloCell* cell = (*cellItr);
-    if (!cell) continue;
-
-    // only cells with a bad enough Quality Factor
-    if ( cell->quality() < m_CellQualityCut ) continue;
-
-    // cells with zero energy have been masked by previous algorithms
-    // they should not matter for physics so don't consider them
-    if ( m_ignore_masked_cells && std::abs(cell->e()) < 0.1 ) continue;
-
-
-    Identifier id = cell->ID();
-
-    // saturated Qfactor ? Tight cuts.
-    if ( cell->quality()>=m_SaturatedCellQualityCut && 
-	 std::abs(cell->e()) > m_SaturatedCellEnergyTightCut )
-    {
-      bool sideA = cell->eta() > 0.;
-      if ( m_calo_id->is_em_barrel(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutBarrelA++; } 
-	else { NsaturatedTightCutBarrelC++; }
-      }
-      else if ( m_calo_id->is_em_endcap(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutEMECA++; } 
-	else { NsaturatedTightCutEMECC++; }
-      }
-      else if ( m_calo_id->is_hec(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutHECA++; } 
-	else { NsaturatedTightCutHECC++; }
-      }
-      else if ( m_calo_id->is_fcal(id) )
-      {
-	if ( sideA ) { NsaturatedTightCutFCALA++; } 
-	else { NsaturatedTightCutFCALC++; }
-      }
-    }
-
-
-    // only LAr EM for bad FEBs
-    if ( m_calo_id->is_em(id) ) 
-    {
-      // get FEB ID and channel number
-      HWIdentifier hwid = m_cablingService->createSignalChannelID(id);
-      HWIdentifier febid = m_onlineID->feb_Id(hwid);
-      unsigned int FEBindex = febid.get_identifier32().get_compact();
-      unsigned int channel = m_onlineID->channel(hwid);    
-      m_FEBstats[FEBindex].addBadChannel(channel);
-    }
-  }
-
-  // exclude FCAL for now
-  uint8_t SatTightPartitions = 0;
-  if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
-  if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
-  if ( NsaturatedTightCutEMECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECAMask;
-  if ( NsaturatedTightCutEMECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMECCMask;
-  if ( NsaturatedTightCutHECA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECAMask;
-  if ( NsaturatedTightCutHECC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::HECCMask;
-  bool badSaturatedTightCut = (SatTightPartitions != 0);
-  if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
-
-
-  // Too many saturated cells ?
-  if ( badSaturatedTightCut )
-  {
-    //msg(MSG::INFO) << "Too many saturated cells " << endreq;
-    m_SaturatedCellTightCutEvents++;
-  }
-
-
-  // are there any bad FEB or preamp ?
-  unsigned int BadFEBCount = 0;
-  for ( FEBEvtStatMapCstIt it = m_FEBstats.begin(); it != m_FEBstats.end(); it++ )
-  {
-    if ( it->second.badChannels() > m_BadChanPerFEB ) 
-    {
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels " << endreq;
-      noisyRO->add_noisy_feb(HWIdentifier(it->first));
-      m_badFEB_counters[it->first]++;
-      BadFEBCount++;
-    }
-
-    const unsigned int* PAcounters = it->second.PAcounters();
-    for ( size_t i = 0; i < 32; i++ )
-    {
-      if ( PAcounters[i] > m_BadChanPerPA )
-      {
-	uint64_t PAid = static_cast<uint64_t>(1000000000)*static_cast<uint64_t>(i)+static_cast<uint64_t>(it->first);
-	if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " bad preamp " << i << " in FEB " << it->first << "  ID " << PAid << endreq;
-	noisyRO->add_noisy_preamp(HWIdentifier(it->first),4*i);
-	m_badPA_counters[PAid]++;
-      }
-    }
-  }
-
-  // Count noisy FEB per partition EMEC-EMB - Simple and weighted quantities
-  unsigned int NBadFEBEMECA = 0; unsigned int NBadFEBEMECA_W = 0;
-  unsigned int NBadFEBEMECC = 0; unsigned int NBadFEBEMECC_W = 0;
-  unsigned int NBadFEBEMBA = 0; unsigned int NBadFEBEMBA_W = 0;
-  unsigned int NBadFEBEMBC = 0; unsigned int NBadFEBEMBC_W = 0;
-
-  const std::vector<HWIdentifier>& badfebs = noisyRO->get_noisy_febs();
-  for ( std::vector<HWIdentifier>::const_iterator febit = badfebs.begin();
-	febit != badfebs.end(); febit++ )
-  {
-    // first channel of FEB, as safety since FEBid seem to be the Id of the
-    // first channel (no garantee?)
-    HWIdentifier chanID = m_onlineID->channel_Id(*febit,0);
-
-    int weight = 1;
-    // If the FEB is known to be subject to noise burst (list defiend as property)
-    // give a weight 2
-    unsigned int int_id =  (*febit).get_identifier32().get_compact();
-    if (knownFEB(int_id,m_knownBadFEBs)) weight = 2;
-
-    if ( m_onlineID->isEMBchannel(chanID) ) 
-    {
-      if ( m_onlineID->pos_neg(chanID) == 1 ){
-	  NBadFEBEMBA_W = NBadFEBEMBA_W + weight;
-	  NBadFEBEMBA++;
-      }
-      else{
-	NBadFEBEMBC_W = NBadFEBEMBC_W + weight;
-	NBadFEBEMBC++;
-      }
-    }
-    else if ( m_onlineID->isEMECchannel(chanID) ) 
-    {
-      if ( m_onlineID->pos_neg(chanID) == 1 ){
-	NBadFEBEMECA_W = NBadFEBEMECA_W + weight;
-	NBadFEBEMECA++;
-      }
-      else{
-	NBadFEBEMECC_W = NBadFEBEMECC_W + weight;
-	NBadFEBEMECC++;
-      }
-    }
-  } 
-
-  uint8_t BadFEBPartitions = 0;
-  if ( NBadFEBEMBA  > m_MinBadFEB )  BadFEBPartitions |= LArNoisyROSummary::EMBAMask;
-  if ( NBadFEBEMBC  > m_MinBadFEB )  BadFEBPartitions |= LArNoisyROSummary::EMBCMask;
-  if ( NBadFEBEMECA  > m_MinBadFEB )  BadFEBPartitions |= LArNoisyROSummary::EMECAMask;
-  if ( NBadFEBEMECC  > m_MinBadFEB )  BadFEBPartitions |= LArNoisyROSummary::EMECCMask;
-  bool badFEBFlag = (BadFEBPartitions != 0);
-  if ( badFEBFlag ) noisyRO-> SetBadFEBFlaggedPartitions(BadFEBPartitions);
-
-  uint8_t BadFEBPartitions_W = 0;
-  if ( NBadFEBEMBA_W  > m_MinBadFEB )  BadFEBPartitions_W |= LArNoisyROSummary::EMBAMask;
-  if ( NBadFEBEMBC_W  > m_MinBadFEB )  BadFEBPartitions_W |= LArNoisyROSummary::EMBCMask;
-  if ( NBadFEBEMECA_W  > m_MinBadFEB )  BadFEBPartitions_W |= LArNoisyROSummary::EMECAMask;
-  if ( NBadFEBEMECC_W  > m_MinBadFEB )  BadFEBPartitions_W |= LArNoisyROSummary::EMECCMask;
-  bool badFEBFlag_W = (BadFEBPartitions_W != 0);
-  if ( badFEBFlag_W ) noisyRO-> SetBadFEB_WFlaggedPartitions(BadFEBPartitions_W);
-
-  //std::cout << " Bad FEBS " <<  BadFEBCount << " EMBA " << NBadFEBEMBA << " EMBC " <<  NBadFEBEMBC << " EMECA " << NBadFEBEMECA << " EMECC " <<NBadFEBEMECC << std::endl; 
-  //if ( BadFEBCount  > m_MinBadFEB && !badFEBFlag ) std::cout << "Not flagged now ! " << std::endl; 
-
+  bool badFEBFlag=noisyRO->BadFEBFlaggedPartitions();
+  bool badFEBFlag_W=noisyRO->BadFEB_WFlaggedPartitions();
+  bool badSaturatedTightCut=noisyRO->SatTightFlaggedPartitions();
 
   if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut ) 
   {
@@ -400,12 +123,14 @@ StatusCode LArNoisyROAlg::execute()
     }
   }
 
+  CHECK(evtStore()->record(std::move(noisyRO),m_outputKey));
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArNoisyROAlg::finalize()
 {
+  /*
   msg(MSG::INFO) << "List of bad FEBs found in all events " << endreq;
   for ( SG::unordered_map<unsigned int, unsigned int>::const_iterator it = m_badFEB_counters.begin(); it != m_badFEB_counters.end(); it++ )
   {
@@ -422,24 +147,7 @@ StatusCode LArNoisyROAlg::finalize()
   }
 
   msg(MSG::INFO) << "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents << endreq;
-
+  */
   return StatusCode::SUCCESS;
 }
 
-
-
-bool LArNoisyROAlg::knownFEB (unsigned int hid, const std::vector<unsigned int>& v_feb) const {
-
-  bool is_known = false ;
-
-  if (v_feb.size()==0 ) return false ;
-
-  std::vector<unsigned int>::const_iterator it = find(v_feb.begin(),v_feb.end(), hid);
-  if ( it != v_feb.end() ){
-    // known
-    is_known  = true  ;
-  }
-
-  return is_known;
-
-}

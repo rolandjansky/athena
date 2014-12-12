@@ -15,7 +15,7 @@
 
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -28,16 +28,13 @@ class ILArBadChanTool;
 class HWIdentifier;
 class CaloCell;
 
-class LArCellGainPathology: public AlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class LArCellGainPathology: public AthAlgTool,
+  virtual public ICaloCellMakerTool 
 {
- 
 public:    
-  
   LArCellGainPathology(const std::string& type, 
-		const std::string& name, 
-				 const IInterface* parent) ;
+                       const std::string& name, 
+                       const IInterface* parent) ;
 
 
   /** initialize the tool
@@ -59,7 +56,6 @@ public:
 
 
  private:
-
   /** method to apply pathology between a couple of cells
   */
   void ApplyPathology(CaloCellContainer* theCont, HWIdentifier id1, HWIdentifier id2);
@@ -74,8 +70,6 @@ public:
 
   /** pointers to storegateSvc and identifier helpers
   */
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
 

@@ -29,7 +29,7 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent)
+  :AthAlgTool(type, name, parent)
 {
   declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.
@@ -37,7 +37,6 @@ LArCellMaskingTool::LArCellMaskingTool(
   //Feedthrough, slot, and channel can be left out. In this case all channels belonging to this 
   //Subdetector, Feedthrough or FEB will be masked.
   declareProperty ("RejectLArChannels",m_rejLArChannels);
-  m_log=NULL;
 }
 
 
@@ -50,58 +49,16 @@ LArCellMaskingTool::LArCellMaskingTool(
 
 StatusCode LArCellMaskingTool::initialize()
 {
-  m_log = new MsgStream(msgSvc(),name());
- 
-  // Cache pointer to storegate:
+  ATH_CHECK( detStore()->retrieve(m_offlineID) );
+  ATH_CHECK( detStore()->retrieve(m_onlineID) );
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-  {
-    (*m_log) << MSG::ERROR
-	<< "Unable to retrieve pointer to StoreGate Service"
-	<< endreq;
-    return sc;
-  }
-
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     (*m_log) << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-     return sc;
-   }
-
-  sc = detStore->retrieve(m_offlineID);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR
-	<< "Unable to retrieve CaloCell_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_onlineID);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR
-	<< "Unable to retrieve LArOnline_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
-
-  IToolSvc*     p_toolSvc;
-  sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL
-        << " Tool Service not found "
-        << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = p_toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-  if(sc.isFailure()){
-    (*m_log) << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  IToolSvc*     p_toolSvc = 0;
+  ATH_CHECK( service("ToolSvc", p_toolSvc) );
+  ATH_CHECK( p_toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
 
  // Get hash ranges
   m_offlinehashMax=m_offlineID->calo_cell_hash_max();
-  (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endreq;
+  ATH_MSG_DEBUG ("CaloCell Hash Max: " << m_offlinehashMax);
   
 //   m_onlinehashMax=m_onlineID->hash_max();
 //   (*m_log) << MSG::DEBUG << "CaloCell Hash Max: " << m_offlinehashMax << endreq;
@@ -109,9 +66,9 @@ StatusCode LArCellMaskingTool::initialize()
   //Fill the bit map
   m_includedCellsMap.set(); // By default include all cells
   
-  sc=fillIncludedCellsMap();
+  StatusCode sc=fillIncludedCellsMap();
 
-  (*m_log) << MSG::INFO << " Will exclude " << m_includedCellsMap.size() - m_includedCellsMap.count() << " cells from CaloCellContainer" << endreq;
+  ATH_MSG_INFO (" Will exclude " << m_includedCellsMap.size() - m_includedCellsMap.count() << " cells from CaloCellContainer");
   
 
   return sc;
@@ -130,7 +87,7 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
     //Want at least subdetector (=pn & bec)
     is >> bec >> pn;
     if (is.bad()) {
-      (*m_log) << MSG::ERROR << "jO problem: Malformed string [" << (*it) << "]" << endreq;
+      ATH_MSG_ERROR ("jO problem: Malformed string [" << (*it) << "]");
       return StatusCode::FAILURE;
     }
 
@@ -156,11 +113,11 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
       haveChannel=true;
     }
     
-    (*m_log) << MSG::DEBUG << "Will exclude: bec="<< bec << " pn=" << pn;
-    if (haveFT) (*m_log) << " FT=" << FT;
-    if (haveSlot) (*m_log) << " slot=" << slot; 
-    if (haveChannel) (*m_log) << " channel=" << channel;
-    (*m_log) << endreq;
+    msg() << MSG::DEBUG << "Will exclude: bec="<< bec << " pn=" << pn;
+    if (haveFT) msg() << " FT=" << FT;
+    if (haveSlot) msg() << " slot=" << slot; 
+    if (haveChannel) msg() << " channel=" << channel;
+    msg() << endreq;
 
     unsigned nOnlExceptions=0;
     unsigned nOfflExceptions=0;
@@ -200,7 +157,7 @@ StatusCode LArCellMaskingTool::fillIncludedCellsMap() {
       if (!haveSlot) slot=0;
       if (!haveFT) FT++;
     } while (!haveFT && FT<FTmax); 
-    (*m_log) << MSG::DEBUG << "Channels selected for exclusion: "<< nChannels << ". Disconnected: " << nDisconnected << endreq;
+    ATH_MSG_DEBUG ("Channels selected for exclusion: "<< nChannels << ". Disconnected: " << nDisconnected);
   }// end loop over strings
   return StatusCode::SUCCESS;
 }
@@ -222,14 +179,12 @@ StatusCode LArCellMaskingTool::process(CaloCellContainer * theCont )
     else
       ++it;
   }
-  (*m_log) << MSG::DEBUG << "Removed " << cnt << " Cells from container" << endreq;
+  ATH_MSG_DEBUG ("Removed " << cnt << " Cells from container");
   return StatusCode::SUCCESS ;
 }
 
 
 StatusCode LArCellMaskingTool::finalize() {
-  if (m_log)
-    delete m_log;
   return StatusCode::SUCCESS;
 }
 

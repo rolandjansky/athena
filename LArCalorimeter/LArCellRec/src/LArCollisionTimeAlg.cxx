@@ -16,8 +16,7 @@
 
 //Constructor
 LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator),
-    m_sgSvc(NULL),
+    AthAlgorithm(name,pSvcLocator),
     m_noiseTool("CaloNoiseTool/calonoisetool"),m_isMC(false),m_iterCut(true),m_timeCut(5.),m_minCells(2),m_cellsContName("AllCalo"),
     m_calo_id(NULL)
   {
@@ -34,48 +33,22 @@ LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* 
 //Destructor
   LArCollisionTimeAlg::~LArCollisionTimeAlg()
   {
-    MsgStream log( messageService(), name() ) ;
-    log << MSG::DEBUG << "LArCollisionTimeAlg destructor called" << endreq;
+    ATH_MSG_DEBUG ("LArCollisionTimeAlg destructor called");
   }
 
 //__________________________________________________________________________
 StatusCode LArCollisionTimeAlg::initialize()
   {
-    
-    MsgStream log( messageService(), name() );
-    log << MSG::INFO  <<"LArCollisionTimeAlg initialize()" << endreq;
+    ATH_MSG_INFO ("LArCollisionTimeAlg initialize()");
 
-    // Get the StoreGateSvc
-    if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-      log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-    StoreGateSvc* detStore;
-    StatusCode sc = service ( "DetectorStore" , detStore ) ;
-    if (sc.isFailure()) {
-      log << MSG::ERROR << " cannot find detector store " << endreq;
-      return StatusCode::FAILURE;
-    }
     //retrieve ID helpers 
-    sc = detStore->retrieve( m_caloIdMgr );
-    if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq; 
-     return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
     m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
 
 
 // get calonoise tool 
     if (m_noiseTool) {
-       if (m_noiseTool.retrieve().isFailure()) {
-         log << MSG::ERROR << "Unable to find tool for calonoisetool "  << endreq;
-         return StatusCode::FAILURE;
-       }
-       else {
-         log << MSG::INFO << " got m_noiseTool " << endreq;
-       }
+      ATH_CHECK( m_noiseTool.retrieve() );
     }
 
     m_nevt=0;
@@ -87,8 +60,7 @@ StatusCode LArCollisionTimeAlg::initialize()
 //__________________________________________________________________________
 StatusCode LArCollisionTimeAlg::finalize()
   {
-    MsgStream log( messageService(), name() );
-    log << MSG::DEBUG <<"LArCollisionTimeAlg finalize()" << endreq;
+    ATH_MSG_DEBUG ("LArCollisionTimeAlg finalize()");
     return StatusCode::SUCCESS; 
   }
   
@@ -97,22 +69,17 @@ StatusCode LArCollisionTimeAlg::execute()
   {
     //.............................................
     
-    MsgStream log( messageService(), name() );
-    log << MSG::DEBUG << "LArCollisionTimeAlg execute()" << endreq;
+    ATH_MSG_DEBUG ("LArCollisionTimeAlg execute()");
 
    m_nevt++;
 
 // Loop over CaloCells
   const CaloCellContainer* cell_container;
-  if(m_sgSvc->retrieve(cell_container,m_cellsContName).isFailure())
+  if(evtStore()->retrieve(cell_container,m_cellsContName).isFailure())
   {
-      log << MSG::INFO
-          << " Could not get pointer to Cell Container " 
-          << endreq;
+      ATH_MSG_INFO (" Could not get pointer to Cell Container ");
       LArCollisionTime * larTime = new LArCollisionTime();
-      if (m_sgSvc->record(larTime,"LArCollisionTime").isFailure()) {
-        log << MSG::WARNING << " Cannot record LArCollisionTime " << endreq;
-      }
+      ATH_CHECK( evtStore()->record(larTime,"LArCollisionTime") );
       return StatusCode::SUCCESS;
    }
 
@@ -125,7 +92,7 @@ StatusCode LArCollisionTimeAlg::execute()
 
    CaloCellContainer::const_iterator first_cell = cell_container->begin();
    CaloCellContainer::const_iterator end_cell   = cell_container->end();
-   log << MSG::DEBUG << "*** Start loop over CaloCells in MyLArCollisionTimeAlg" << endreq;
+   ATH_MSG_DEBUG ("*** Start loop over CaloCells in MyLArCollisionTimeAlg");
    for (; first_cell != end_cell; ++first_cell)
    {
        Identifier cellID = (*first_cell)->ID();
@@ -188,10 +155,7 @@ StatusCode LArCollisionTimeAlg::execute()
 
   //std::cout << " ncellA, ncellA, energyA, energyC, timeA, timeC  " << ncellA << " " << ncellC << " " << energyA << " " << energyC << " " << timeA << " " << timeC << std::endl;
   LArCollisionTime * larTime = new LArCollisionTime(ncellA,ncellC,energyA,energyC,timeA,timeC);
-  if (m_sgSvc->record(larTime,"LArCollisionTime").isFailure()) {
-    log << MSG::WARNING << " Cannot record LArCollisionTime " << endreq;
-  }
-
+  ATH_CHECK( evtStore()->record(larTime,"LArCollisionTime") );
 
   return StatusCode::SUCCESS;
 }

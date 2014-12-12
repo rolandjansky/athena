@@ -12,13 +12,13 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
-class LArCollisionTimeAlg : public Algorithm {
+class LArCollisionTimeAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -38,8 +38,6 @@ class LArCollisionTimeAlg : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
 
 
   int m_nevt;

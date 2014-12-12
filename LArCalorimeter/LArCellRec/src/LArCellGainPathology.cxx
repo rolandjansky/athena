@@ -41,7 +41,7 @@ LArCellGainPathology::LArCellGainPathology(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent)
+  :AthAlgTool(type, name, parent)
 
 { 
   declareInterface<ICaloCellMakerTool>(this); 
@@ -56,30 +56,9 @@ LArCellGainPathology::LArCellGainPathology(
 
 StatusCode LArCellGainPathology::initialize()
 {
-  MsgStream  log(msgSvc(),name());
-
-  //initialize the StoreGateSvc ptr
-  StatusCode sc = service("StoreGateSvc", m_storeGate); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve StoreGateSvc" << endreq;
-    return sc;
-  } 
-
-  //initialize the detectorStore ptr
-  sc = service("DetectorStore", m_detStore); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve detectorStore" << endreq;
-    return sc;
-  } 
-
   // callback to GeoModel to retrieve identifier helpers, etc..
   const IGeoModelSvc *geoModel=0;
-  sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -91,64 +70,34 @@ StatusCode LArCellGainPathology::initialize()
   }
   else
   {
-    sc = m_detStore->regFcn(&IGeoModelSvc::geoInit,
-                          geoModel,
-                          &LArCellGainPathology::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &LArCellGainPathology::geoInit,this) );
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArCellGainPathology::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-
-  MsgStream  log(msgSvc(),name());
-
   const  CaloIdManager* caloIdMgr;
-  StatusCode sc = m_detStore->retrieve( caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr " << endreq;
-   return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
   m_calo_id = caloIdMgr->getCaloCell_ID();
 
-
   // translate offline ID into online ID
-  sc = m_cablingService.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-    return sc;
-  }
-  
-  sc = m_detStore->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq; 
-    return sc;
-  }
-
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
   return StatusCode::SUCCESS;
 
 }
 
 StatusCode LArCellGainPathology::finalize()
 {
-
    return StatusCode::SUCCESS;
 }
 
 StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
 {
-	
-  MsgStream  log(msgSvc(),name());
-  bool dump=false;
-  if (log.level()<=MSG::DEBUG) dump=true;
-
-
-  if(dump) log << MSG::DEBUG << " in  LArCellGainPathology::process " << endreq;
+  ATH_MSG_DEBUG (" in  LArCellGainPathology::process ");
 
 // loop over all Febs
 
@@ -162,7 +111,7 @@ StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
 // for debug
       HWIdentifier febId = (*feb);
       unsigned int ifeb = febId.get_identifier32().get_compact();
-      if(dump) log << MSG::DEBUG << " process Feb: " << ifeb << " ";
+      ATH_MSG_DEBUG (" process Feb: " << ifeb << " ");
 
 // get information for channel 0-63  64-127
    
@@ -173,10 +122,7 @@ StatusCode LArCellGainPathology::process(CaloCellContainer * theCont )
        HWIdentifier hwid2 = m_onlineID->channel_Id(febId,cha2);
        this->ApplyPathology(theCont,hwid1,hwid2);
       }
-       
-
   }
- 
 
   return StatusCode::SUCCESS;
 }

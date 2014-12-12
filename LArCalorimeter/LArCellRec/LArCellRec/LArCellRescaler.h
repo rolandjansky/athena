@@ -43,7 +43,6 @@ public:
  private: 
   const DataHandle<CaloRec::CaloCellFactor> m_factors;
   std::string m_key;
-  StoreGateSvc* m_detStore;
   
   StatusCode checkConstants(IOVSVC_CALLBACK_ARGS);
 };

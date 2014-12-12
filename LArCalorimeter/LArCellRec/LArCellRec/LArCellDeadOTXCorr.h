@@ -30,9 +30,8 @@
 
 // Headerfile
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -68,7 +67,7 @@ class L1CaloCondSvc;
  * Trigger energy is estimated with a Landau-Landau fit on ADC samples. Corrections depending on eta and on the energy are then applied.\n
  * Known cell energies in the trigger tower are removed to this trigger energy, and the result is uniformly divided into the missing layer.
  */
-class LArCellDeadOTXCorr : public AlgTool,
+class LArCellDeadOTXCorr : public AthAlgTool,
 	public CaloRec::ToolWithConstantsMixin,
 	virtual public ICaloCellMakerTool 
 {
@@ -89,7 +88,7 @@ class LArCellDeadOTXCorr : public AlgTool,
 
 		virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
-		using AlgTool::setProperty;
+		using AthAlgTool::setProperty;
 
 		virtual StatusCode setProperty (const std::string& propname,
 				const std::string& value);
@@ -103,10 +102,6 @@ class LArCellDeadOTXCorr : public AlgTool,
 
 		ToolHandle<ILArBadChanTool> m_badChannelTool;
 		ToolHandle<LArCablingService> m_cablingService;
-
-		// a handle on Store Gate for access to the Event Store 
-		StoreGateSvc* m_storeGate;
-		StoreGateSvc* m_detStore;
 
 		std::string m_TTLocation;
 		std::vector<double> m_triggerNoiseCut;

@@ -122,7 +122,7 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 		const std::string& type, 
 		const std::string& name, 
 		const IInterface* parent)
-:AlgTool(type, name, parent)
+:AthAlgTool(type, name, parent)
 {
 	declareInterface<ICaloCellMakerTool>(this); 
 	declareProperty("triggerTowerLocation", m_TTLocation  = "TriggerTowers");
@@ -144,7 +144,7 @@ StatusCode
 LArCellDeadOTXCorr::setProperty (const std::string& propname,
                                     const std::string& value)
 {
-  CHECK( AlgTool::setProperty (propname, value) );
+  CHECK( AthAlgTool::setProperty (propname, value) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
   return StatusCode::SUCCESS;
 }
@@ -159,7 +159,7 @@ LArCellDeadOTXCorr::setProperty (const std::string& propname,
 StatusCode
 LArCellDeadOTXCorr::setProperty (const Property& p)
 {
-  CHECK( AlgTool::setProperty (p) );
+  CHECK( AthAlgTool::setProperty (p) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
   return StatusCode::SUCCESS;
 }
@@ -179,63 +179,23 @@ LArCellDeadOTXCorr::~LArCellDeadOTXCorr() {}
 //----------------------------------------------------------------------------------
 StatusCode LArCellDeadOTXCorr::initialize()
 {
+        ATH_MSG_INFO ("Initializing LArCellDeadOTXCorr");
 
-	MsgStream mLog( msgSvc(), name() );
-
-
-	mLog << MSG::INFO
-		<< "Initializing LArCellDeadOTXCorr"
-		<<endreq;
-
-	CHECK( AlgTool::initialize() );
+	CHECK( AthAlgTool::initialize() );
 	CHECK( CaloRec::ToolWithConstantsMixin::initialize() );
 
 		
-
-
-
-	//initialize the StoreGateSvc
-	StatusCode sc = service("StoreGateSvc", m_storeGate);
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR
-			<< "Unable to retrieve pointer to StoreGateSvc"
-			<< endreq;
-		return sc;
-	}
-
-
-
-	//initialize the detectorStore ptr
-	sc = service("DetectorStore", m_detStore); 
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << " Cannot retrieve detectorStore" << endreq;
-		return sc;
-	} 
-
-
-
 	// callback to GeoModel to retrieve identifier helpers, etc..
 	const IGeoModelSvc *geoModel=0;
-	sc = service("GeoModelSvc", geoModel);
-	if(sc.isFailure())
-	{
-		mLog << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-		return sc;
-	}
+	ATH_CHECK( service("GeoModelSvc", geoModel) );
 
 	if(m_useL1CaloDB)
 	{
-		mLog<<MSG::INFO<<"L1Calo database will be used to get the pedestal values."<<endreq;
-		sc = service("L1CaloCondSvc", m_l1CondSvc);
-		if(sc.isFailure())
-		{
-			mLog << MSG::ERROR<< "Could not retrieve L1CaloCondSvc" << endreq;
-			return sc;
-		}
+                ATH_MSG_INFO ("L1Calo database will be used to get the pedestal values.");
+		ATH_CHECK( service("L1CaloCondSvc", m_l1CondSvc) );
 	}
 	else
-		mLog<<MSG::INFO<<"L1Calo database won't be used. Pedestal values will be constant and equal to 32."<<endreq;
-
+                ATH_MSG_INFO ("L1Calo database won't be used. Pedestal values will be constant and equal to 32.");
 
 
 	// dummy parameters for the callback:
@@ -248,18 +208,10 @@ StatusCode LArCellDeadOTXCorr::initialize()
 	}
 	else
 	{
-		sc = m_detStore->regFcn(&IGeoModelSvc::geoInit,
-				geoModel,
-				&LArCellDeadOTXCorr::geoInit,this);
-		if(sc.isFailure())
-		{
-			mLog << MSG::ERROR << "Could not register geoInit callback" << endreq;
-			return sc;
-		}
+          ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                        geoModel,
+                                        &LArCellDeadOTXCorr::geoInit,this) );
 	}
-
-	
-
 		
 	return StatusCode::SUCCESS;
 }
@@ -267,98 +219,45 @@ StatusCode LArCellDeadOTXCorr::initialize()
 
 StatusCode LArCellDeadOTXCorr::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-
-	MsgStream mLog( msgSvc(), name() );
-
-
 	const  CaloIdManager* caloIdMgr;
-	StatusCode sc = m_detStore->retrieve( caloIdMgr );
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << "Unable to retrieve CaloIdMgr " << endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
 	m_calo_id = caloIdMgr->getCaloCell_ID();
 
-	// translate offline ID into online ID
-	sc = m_cablingService.retrieve();
-	if(sc.isFailure()){
-		mLog << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-		return sc;
-	}
-
-
-	sc = m_detStore->retrieve(m_onlineID, "LArOnlineID");
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq; 
-		return sc;
-	}
-
-
-	// Retrieve the CaloIdManager from the detector store
-	sc = m_detStore->retrieve(m_caloMgr);
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-		return StatusCode::FAILURE;
-	}
+	ATH_CHECK( m_cablingService.retrieve() );
+	ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+	ATH_CHECK( detStore()->retrieve(m_caloMgr) );
 
 
 	// Use the CaloIdManager to get a pointer to an instance of the CaloLVL1_ID helper
 	m_lvl1Helper = m_caloMgr->getLVL1_ID();
 	if (!m_lvl1Helper) {
-		mLog << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endreq;
+                ATH_MSG_ERROR ("Could not access CaloLVL1_ID helper");
 		return StatusCode::FAILURE;
 	}
 
 	// ..... need cabling services, to get channels associated to each TT
 
-	IToolSvc* toolSvc;
-	StatusCode status   = service( "ToolSvc",toolSvc  );
-	if(status.isSuccess()) {
-
-		sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-		if(sc.isFailure()) {
-			mLog << MSG::ERROR << "Could not retrieve CaloTriggerTowerService"<< endreq;
-			return(StatusCode::FAILURE);
-		}
+	IToolSvc* toolSvc = 0;
+	ATH_CHECK( service( "ToolSvc",toolSvc  ) );
+        ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
 
 
-		/*
-		   IAlgTool *algtool;
+        /*
+          IAlgTool *algtool;
 
-		   sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
-		   mLog<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
-		   if (sc!=StatusCode::SUCCESS) {
-		   mLog << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
-		// m_bTTMapInitialized = false;
-		}
-		m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
-		 */
-
-
-	}
-	else      {
-		mLog << MSG::ERROR << "Could not get ToolSvc"<< endreq;
-		return(StatusCode::FAILURE);
-	}
+          sc = toolSvc->retrieveTool("L1CaloTTIdTools", algtool);
+          mLog<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
+          if (sc!=StatusCode::SUCCESS) {
+          mLog << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
+          // m_bTTMapInitialized = false;
+          }
+          m_l1CaloTTIdTools = dynamic_cast<L1CaloTTIdTools*> (algtool);
+        */
 
 
-
-	//Bad Channel Tool
-	sc = m_badChannelTool.retrieve();
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << "Could not retrieve bad channel tool " << endreq;
-		return sc;
-	}
-
-	sc = m_detStore->retrieve(m_TT_ID);
-	if (sc.isFailure()) {
-		mLog << MSG::ERROR << "Unable to retrieve CaloLVL1_ID helper from DetectorStore" << endreq;
-		return sc;
-	}
-
-
+	ATH_CHECK( m_badChannelTool.retrieve() );
+	ATH_CHECK( detStore()->retrieve(m_TT_ID) );
 	return StatusCode::SUCCESS;
-
 }
 
 //
@@ -366,32 +265,16 @@ StatusCode LArCellDeadOTXCorr::geoInit(IOVSVC_CALLBACK_ARGS)
 //
 
 StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
-
-	MsgStream mLog( msgSvc(), name() );
-	bool dump=false;
-	if (mLog.level()<=MSG::DEBUG) dump=true;
-
-	if (dump) mLog<<MSG::DEBUG<<" in process..."<<endreq;
-
-	StatusCode sc = StatusCode::SUCCESS;
-
-	if(dump)
-	{
-		mLog<<MSG::DEBUG<<" Nb of eta calibration factors found : "<<m_etaCalibrations.size()<<endreq;
-		for(unsigned int i=0;i<m_etaCalibrations.size();i++)
-		{
-			mLog<<MSG::DEBUG<<"calibration["<<i<<"] = "<<m_etaCalibrations[i]<<endreq; 
-		}
-	}
-	
+        ATH_MSG_DEBUG (" in process...");
+        ATH_MSG_DEBUG (" Nb of eta calibration factors found : "<<m_etaCalibrations.size());
+        for(unsigned int i=0;i<m_etaCalibrations.size();i++)
+        {
+          ATH_MSG_DEBUG ("calibration["<<i<<"] = "<<m_etaCalibrations[i]);
+        }
 
 	//Retrieve Trigger Towers from SG
 	const TriggerTowerCollection* storedTTs = 0; 
-	sc = m_storeGate->retrieve(storedTTs, m_TTLocation); 
-	if( sc.isFailure()  ||  !storedTTs ) {
-		mLog << MSG::WARNING << "No Trigger Tower container found"<< endreq; 
-		return StatusCode::SUCCESS;
-	}
+	ATH_CHECK( evtStore()->retrieve(storedTTs, m_TTLocation) );
 
 	bool getDBPedestal = m_useL1CaloDB;
 	L1CaloPprLutContainer* l1CaloPprLutContainer = 0;
@@ -399,15 +282,15 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 	{
 		if(!m_l1CondSvc)
 		{
-			mLog<<MSG::WARNING<<"L1CaloCondSvc is null. Pedestals will be constant and set to 32."<<endreq;
+                        ATH_MSG_WARNING ("L1CaloCondSvc is null. Pedestals will be constant and set to 32.");
 			getDBPedestal = false;
 			m_useL1CaloDB = false;// disable DB 
 		}
 		else
 		{
-			sc = m_l1CondSvc->retrieve(l1CaloPprLutContainer); 
+			StatusCode sc = m_l1CondSvc->retrieve(l1CaloPprLutContainer); 
 			if(sc.isFailure() || !l1CaloPprLutContainer) {
-				mLog << MSG::WARNING<< "L1CaloCondSvc failed to retrieve l1CaloPprLutContainer. Pedestals will be constant and set to 32."<<endreq;
+                                ATH_MSG_WARNING ("L1CaloCondSvc failed to retrieve l1CaloPprLutContainer. Pedestals will be constant and set to 32.");
 				getDBPedestal = false;
 				m_useL1CaloDB = false;// disable DB, it won't try to retrieve L1CaloPprLutContainer again  
 			}
@@ -451,7 +334,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 	}   // loop over Febs
 
 
-	if (dump) mLog << MSG::DEBUG << " Number of missing cells " << cell_array.size() << endreq;
+        ATH_MSG_DEBUG (" Number of missing cells " << cell_array.size());
 
 	// nothing to do if no missing Febs
 	if (cell_array.size()==0) return StatusCode::SUCCESS;
@@ -472,16 +355,11 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 		{
 			const Identifier layerId(m_ttSvc->whichTTID(cId));
 			ttId = m_lvl1Helper->tower_id( m_lvl1Helper->pos_neg_z(layerId), m_lvl1Helper->sampling(layerId), m_lvl1Helper->region(layerId), m_lvl1Helper->eta(layerId), m_lvl1Helper->phi(layerId));
-			if (dump) {
-				mLog << MSG::DEBUG << " cell id, TT ID " <<  m_calo_id->show_to_string(cId) << " " << ttId << endreq;
-				mLog << MSG::DEBUG << "  pos_neg, layer, sampling, region,eta,phi " << m_lvl1Helper->pos_neg_z(layerId) << " " <<  m_lvl1Helper->sampling(layerId) << " "
-					<< m_lvl1Helper->region(layerId) << " " << m_lvl1Helper->eta(layerId) << " " << m_lvl1Helper->phi(layerId) << std::endl;
-			}
+                        ATH_MSG_DEBUG (" cell id, TT ID " <<  m_calo_id->show_to_string(cId) << " " << ttId);
+                        ATH_MSG_DEBUG ("  pos_neg, layer, sampling, region,eta,phi " << m_lvl1Helper->pos_neg_z(layerId) << " " <<  m_lvl1Helper->sampling(layerId) << " "
+                                       << m_lvl1Helper->region(layerId) << " " << m_lvl1Helper->eta(layerId) << " " << m_lvl1Helper->phi(layerId));
 			m_cellTTMapping[cId] = ttId;
 		}
-
-
-
 
 		double corr_energy;
 		bool counted = false;
@@ -491,7 +369,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 			if(ttId == trigtow[it]) {
 				counted = true;
 				corr_energy = en_array[it];
-				if(dump) mLog << MSG::DEBUG << " this trigger tower is already processed : E to assign per missing cell " << corr_energy << std::endl;
+				ATH_MSG_DEBUG (" this trigger tower is already processed : E to assign per missing cell " << corr_energy);
 				break;
 			}
 		}
@@ -518,12 +396,8 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 				corr_energy = 0.;
 			else
 			{
-
-
 				// get energy in this TT
 				double tt_energy = 0.;
-
-
 				
 				bool ttFound = false;
 				unsigned int ttIndex = 0;
@@ -683,7 +557,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 					std::vector<Identifier> cellVec = m_ttSvc->createCellIDvecTT(ttId);
 					int TTsize = cellVec.size();
 
-					if(dump) mLog << MSG::DEBUG<< " # of Cells in this TT " <<  TTsize << endreq;
+					ATH_MSG_DEBUG (" # of Cells in this TT " <<  TTsize);
 
 					// compute sum of non missing cell energies
 					double sum_cell_energy =0.;
@@ -711,7 +585,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 								break;
 							}
 						}
-						if (dump) mLog << MSG::DEBUG << "     cell in TT, energy, missing ? " << m_calo_id->show_to_string(cid1) << " " << cell_energy << " " << cell_missing << endreq;
+						ATH_MSG_DEBUG ("     cell in TT, energy, missing ? " << m_calo_id->show_to_string(cid1) << " " << cell_energy << " " << cell_missing);
 
 						if(sampling!=CaloCell_ID::HEC3)//No HEC3 in TT
 						{
@@ -722,7 +596,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 						}
 
 					}
-					if(dump) mLog << MSG::DEBUG<< "  Number of missing cells in this TT, sum of good cells energy " << missing_cells_this_tt << " " << sum_cell_energy << endreq;
+					ATH_MSG_DEBUG ("  Number of missing cells in this TT, sum of good cells energy " << missing_cells_this_tt << " " << sum_cell_energy);
 
 
                                         if (missing_cells_this_tt > 0)
@@ -750,7 +624,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 				if(corr_energy>0. && sampling!=CaloCell_ID::HEC3)
 				{
 					thisCell->setEnergy(corr_energy);
-					if (dump) mLog << MSG::DEBUG<< "   assign " << corr_energy<< " to this cell " << endreq;
+					ATH_MSG_DEBUG ("   assign " << corr_energy<< " to this cell ");
 				}
 			}
 		}
@@ -758,10 +632,9 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 	}//loop over missing cells
 
-	if (dump) mLog<<MSG::DEBUG<<" end process"<<endreq;
+	ATH_MSG_DEBUG (" end process");
 
 	return StatusCode::SUCCESS;
-
 }
 
 
@@ -770,13 +643,10 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 
 StatusCode  LArCellDeadOTXCorr::finalize() {
-	MsgStream mLog( msgSvc(), name() );
-
 	m_idIndexMapping.clear();
 	m_cellTTMapping.clear();
 
 	return StatusCode::SUCCESS;
-
 }
 
 
@@ -940,9 +810,6 @@ void LArCellDeadOTXCorr::getInitialFitParameters(const std::vector<int> & ADCsam
 
 double LArCellDeadOTXCorr::getL1Energy(const std::vector<int> & ADCsamples, int pedestal, double eta, int type)
 {
-
-	MsgStream mLog( msgSvc(), name() );
-
 	double energy = 0;
 	int nbSamples = ADCsamples.size();
 	double max0, maxPos0;
@@ -1012,9 +879,6 @@ double LArCellDeadOTXCorr::getL1Energy(const std::vector<int> & ADCsamples, int 
 
 double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type)
 {
-
-	MsgStream mLog( msgSvc(), name() );
-
 	unsigned int totalEtaSize = 0;
 
 	int barrelEtaSize = 0;
@@ -1028,8 +892,8 @@ double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type)
 
 	if(totalEtaSize != m_etaCalibrations.size())
 	{
-		mLog<<MSG::WARNING<<"The number of eta-dependent calibration factors is not consistent with the given sizes for each calorimeter parts."<<endreq;
-		mLog<<MSG::WARNING<<"Eta-dependent calibrations will not be applied"<<endreq;
+                ATH_MSG_WARNING ("The number of eta-dependent calibration factors is not consistent with the given sizes for each calorimeter parts.");
+		ATH_MSG_WARNING ("Eta-dependent calibrations will not be applied");
 	}
 	else
 	{
@@ -1038,9 +902,6 @@ double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type)
 		hecEtaSize = (m_etaCalibrationSizes.size()>2 ? m_etaCalibrationSizes[2] : 0);
 		//fcalEtaSize = (m_etaCalibrationSizes.size()>3 ? m_etaCalibrationSizes[3] : 0);
 	}
-
-
-
 
 	int region = TTID_regionIndex(eta);
 	int nbIndexBarrel = 15;
@@ -1109,17 +970,12 @@ double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type)
 		calibration = m_etaCalibrations[shift+ieta];
 
 
-
 	return calibration;
-
-
 }
 
 
 double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double energy)
 {
-	MsgStream mLog( msgSvc(), name() );
-
 	unsigned int totalEnergySize = 0;
 
 	int barrelEnergySize = 0;
@@ -1141,8 +997,8 @@ double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double ene
 	}
 	if(totalEnergySize != m_energyCalibrations.size())
 	{
-		mLog<<MSG::WARNING<<"The number of parameters for the energy-dependent calibrations is not consistent with the given parametrizations for each calorimeter parts"<<endreq;
-		mLog<<MSG::WARNING<<"Energy-dependent calibrations will not be applied"<<endreq;
+                ATH_MSG_WARNING ("The number of parameters for the energy-dependent calibrations is not consistent with the given parametrizations for each calorimeter parts");
+		ATH_MSG_WARNING ("Energy-dependent calibrations will not be applied");
 	}
 	else
 	{

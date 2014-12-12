@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOREC_LARCELLEMMISCALIB_H
-#define CALOREC_LARCELLEMMISCALIN_H
+#ifndef LARCELLREC_LARCELLEMMISCALIB_H
+#define LARCELLREC_LARCELLEMMISCALIB_H
 
 /*! \class LArCellEmMiscalib 
  *
@@ -20,7 +20,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "CaloUtils/CaloCellCorrection.h"
-#include "GaudiKernel/AlgTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -78,4 +77,4 @@ class LArCellEmMiscalib :  public CaloCellCorrection
 
 };
 
-#endif
+#endif // not LARCELLREC_LARCELLEMMISCALIB_H

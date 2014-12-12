@@ -46,7 +46,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent),
+  :AthAlgTool(type, name, parent),
    m_badChannelTool(""),m_maskParity(true),m_maskSampleHeader(true),m_maskEVTID(true),m_maskScacStatus(true),
    m_maskScaOutOfRange(true),m_maskGainMismatch(true),m_maskTypeMismatch(true),m_maskNumOfSamples(true),
    m_maskEmptyDataBlock(true),m_maskDspBlockSize(true),m_maskCheckSum(true),m_maskMissingHeader(true),
@@ -81,8 +81,6 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
 
 StatusCode LArBadFebMaskingTool::initialize()
 {
-  MsgStream  log(msgSvc(),name());
-
   m_evt=0;
   m_mask=0;
 
@@ -101,28 +99,14 @@ StatusCode LArBadFebMaskingTool::initialize()
   if (m_maskMissingHeader)  m_errorToMask = m_errorToMask | (1 <<LArFebErrorSummary::MissingHeader);
   if (m_maskBadGain)        m_errorToMask = m_errorToMask | (1 <<LArFebErrorSummary::BadGain);
 
-  log << MSG::INFO << " bit mask for errors to mask " << m_errorToMask << endreq;
-
-  //initialize the StoreGateSvc ptr
-  StatusCode sc = service("StoreGateSvc", m_storeGate); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve StoreGateSvc" << endreq;
-    return sc;
-  } 
-
-  //initialize the detectorStore ptr
-  sc = service("DetectorStore", m_detStore); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve detectorStore" << endreq;
-    return sc;
-  } 
+  ATH_MSG_INFO (" bit mask for errors to mask " << m_errorToMask);
 
   // callback to GeoModel to retrieve identifier helpers, etc..
   const IGeoModelSvc *geoModel=0;
-  sc = service("GeoModelSvc", geoModel);
+  StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
+    ATH_MSG_ERROR ("Could not locate GeoModelSvc");
     return sc;
   }
 
@@ -136,12 +120,12 @@ StatusCode LArBadFebMaskingTool::initialize()
   }
   else
   {
-    sc = m_detStore->regFcn(&IGeoModelSvc::geoInit,
-                          geoModel,
-                          &LArBadFebMaskingTool::geoInit,this);
+    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
+                            geoModel,
+                            &LArBadFebMaskingTool::geoInit,this);
     if(sc.isFailure())
     {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
+      ATH_MSG_ERROR ("Could not register geoInit callback");
       return sc;
     }
   }
@@ -150,37 +134,16 @@ StatusCode LArBadFebMaskingTool::initialize()
 
 StatusCode LArBadFebMaskingTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-
-  MsgStream  log(msgSvc(),name());
-
-  const  CaloIdManager* caloIdMgr;
-  StatusCode sc = m_detStore->retrieve( caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr " << endreq;
-   return sc;
-  }
+  const  CaloIdManager* caloIdMgr = 0;
+  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
   m_calo_id = caloIdMgr->getCaloCell_ID();
 
-
   // translate offline ID into online ID
-  sc = m_cablingService.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-    return sc;
-  }
-  
-  sc = m_detStore->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq; 
-    return sc;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
 
   if (!m_badChannelTool.empty()) {
-    sc = m_badChannelTool.retrieve();
-    if (sc.isFailure()) {
-     log << MSG::ERROR << "Could not retrieve bad channel tool " << endreq;
-     return sc;
-    }
+    ATH_CHECK( m_badChannelTool.retrieve() );
   }
 
   return StatusCode::SUCCESS;
@@ -189,45 +152,39 @@ StatusCode LArBadFebMaskingTool::geoInit(IOVSVC_CALLBACK_ARGS)
 
 StatusCode LArBadFebMaskingTool::finalize()
 {
-   MsgStream  log(msgSvc(),name());
-   log << MSG::INFO << "  ---- Summary from LArBadFebMaskingTool " << endreq;
-   log << MSG::INFO << "   Number of events processed    " << m_evt << endreq;
-   log << MSG::INFO << "   Number of masked Feb total    " << m_mask << endreq;
+   ATH_MSG_INFO ("  ---- Summary from LArBadFebMaskingTool ");
+   ATH_MSG_INFO ("   Number of events processed    " << m_evt);
+   ATH_MSG_INFO ("   Number of masked Feb total    " << m_mask);
    float ratio=0.;
    if (m_evt>0) ratio=((float)(m_mask))/((float)(m_evt));
-   log << MSG::INFO << "   Number of masked Feb per event " << ratio << endreq;
+   ATH_MSG_INFO ("   Number of masked Feb per event " << ratio);
 
    return StatusCode::SUCCESS;
 }
 
 StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 {
-	
-  MsgStream  log(msgSvc(),name());
-  bool dump=false;
-  if (log.level()<=MSG::DEBUG) dump=true;
-
   m_evt++;
 
 
-  if(dump) log << MSG::DEBUG << " in  LArBadFebMaskingTool::process " << endreq;
+  ATH_MSG_DEBUG (" in  LArBadFebMaskingTool::process ");
   const LArFebErrorSummary* larFebErrorSummary;
-  StatusCode sc = m_storeGate->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
+  StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
   if (sc.isFailure()) {
-    log << MSG::WARNING << " cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process " << endreq;
+    ATH_MSG_WARNING (" cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process ");
     return StatusCode::SUCCESS;
   }
 
   // retrieve map of Feb-errors
   const std::map<unsigned int,uint16_t>& febMap = larFebErrorSummary->get_all_febs();
 
-  if(dump) log << MSG::DEBUG << " Number of Febs " << febMap.size() << endreq;
+  ATH_MSG_DEBUG (" Number of Febs " << febMap.size());
 
   // retrieve EventInfo
   const EventInfo* eventInfo_c=0;
-  sc = m_storeGate->retrieve(eventInfo_c);
+  sc = evtStore()->retrieve(eventInfo_c);
   if (sc.isFailure()) {
-     log << MSG::WARNING << " cannot retrieve EventInfo, will not set LAr bit information " << endreq;
+    ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set LAr bit information ");
   }
   EventInfo* eventInfo=0;
   if (eventInfo_c) {
@@ -239,7 +196,7 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
   // catch cases of empty LAR container  => severe problem in decoding => flag event as in ERROR
   unsigned int nLar = theCont->nCellsCalo(CaloCell_ID::LAREM)+theCont->nCellsCalo(CaloCell_ID::LARHEC)+theCont->nCellsCalo(CaloCell_ID::LARFCAL);
   if (nLar==0) {
-     if(dump) log << MSG::DEBUG <<  " empty lar cell container " << endreq;
+     ATH_MSG_DEBUG (" empty lar cell container ");
      flagBadEvent = true;
   }
 
@@ -258,22 +215,21 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 // for debug
       HWIdentifier febId = (*feb);
       unsigned int ifeb = febId.get_identifier32().get_compact();
-      if(dump) log << MSG::DEBUG << " process Feb: " << ifeb << " ";
+      ATH_MSG_DEBUG (" process Feb: " << ifeb);
 
       std::map<unsigned int,uint16_t>::const_iterator it1 = febMap.find(ifeb);
       if (it1 != febMap.end()) {
         uint16_t ierror = (*it1).second;
         if (ierror & m_errorToMask) toMask1=true;
-        if(dump) log << MSG::DEBUG << " ierror,toMask " << ierror << " " << toMask1 << " ";
+        ATH_MSG_DEBUG (" ierror,toMask " << ierror << " " << toMask1 << " ");
       }
 
       if (!m_badChannelTool.empty()) {
          LArBadFeb febstatus = m_badChannelTool->febStatus(febId);
          inError = febstatus.inError();
          isDead = ( febstatus.deadReadout() | febstatus.deadAll() );
-         if(dump) log << MSG::DEBUG << " inError, isDead "  << inError << " " << isDead;
+         ATH_MSG_DEBUG (" inError, isDead "  << inError << " " << isDead);
       }
-      if (dump) log << MSG::DEBUG << endreq;
 
       if (toMask1 && !inError && !isDead) flagBadEvent=true;
 
@@ -286,14 +242,14 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
               IdentifierHash theCellHashID = m_calo_id->calo_cell_hash(id);
               int index = theCont->findIndex(theCellHashID);
               if (index<0) {
-                 if(dump) log << MSG::DEBUG << " cell " << hwid.get_compact() << " " << id.get_compact() << " is not in the container " << endreq;
+                 ATH_MSG_DEBUG (" cell " << hwid.get_compact() << " " << id.get_compact() << " is not in the container ");
                  continue;
               }
               CaloCell* aCell = theCont->at(index);
 
               if (aCell) {
-                if(dump) log << MSG::DEBUG << "  mask cell hwid= " << hwid.get_compact() << " offlineid = " << id.get_compact()
-                  << " " << aCell->ID().get_compact() << endreq;
+                ATH_MSG_DEBUG ("  mask cell hwid= " << hwid.get_compact() << " offlineid = " << id.get_compact()
+                               << " " << aCell->ID().get_compact());
                 aCell->setEnergy(0.);
                 aCell->setTime(0.);
                 uint16_t qua=0;
@@ -310,12 +266,12 @@ StatusCode LArBadFebMaskingTool::process(CaloCellContainer * theCont )
 
 
   if (eventInfo && flagBadEvent) {
-    if (dump) log << MSG::DEBUG << " set error bit for LAr for this event " << endreq;
+    ATH_MSG_DEBUG (" set error bit for LAr for this event ");
     if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Error)) {
-         log << MSG::WARNING << " cannot set error state for LAr " << endreq;
+      ATH_MSG_WARNING (" cannot set error state for LAr ");
     }
     if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
-        log << MSG::WARNING << " cannot set event bit info for LAr " << endreq;
+      ATH_MSG_WARNING (" cannot set event bit info for LAr ");
     }
   }
  

@@ -6,7 +6,7 @@
 #define LARCELLMASKINGTOOL_H
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/IdentifierHash.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -17,7 +17,7 @@ class StoreGateSvc;
 class LArCablingService;
 class MsgStream;
 
-class LArCellMaskingTool: public AlgTool,
+class LArCellMaskingTool: public AthAlgTool,
 			  virtual public ICaloCellMakerTool 
 
 {
@@ -38,8 +38,6 @@ public:
 
  private:
   StatusCode fillIncludedCellsMap();
-  MsgStream* m_log;
-  StoreGateSvc* m_storeGate;
   const LArOnlineID* m_onlineID;
   const CaloCell_ID* m_offlineID;
   LArCablingService* m_larCablingSvc;
@@ -50,10 +48,6 @@ public:
 
   IdentifierHash m_offlinehashMax;
   IdentifierHash m_onlinehashMax;
-  
-
-
-  
 };
 
 #endif

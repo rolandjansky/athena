@@ -51,7 +51,7 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
 				      const std::string& type, 
 				      const std::string& name, 
 				      const IInterface* parent)
-  :AlgTool(type, name, parent),
+  :AthAlgTool(type, name, parent),
     m_priority(1000), 
     m_eHitThreshold(-999999.), 
     m_ThresholdOnE(-999999.), 
@@ -112,21 +112,8 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
 
 StatusCode LArCellBuilderFromLArHitTool::initialize()
 {
-  MsgStream log(msgSvc(), name());
-
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -138,24 +125,16 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &LArCellBuilderFromLArHitTool::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    ATH_CHECK (detStore()->regFcn(&IGeoModelSvc::geoInit,
+                                  geoModel,
+                                  &LArCellBuilderFromLArHitTool::geoInit,this) );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  
-  MsgStream log(msgSvc(), name());
-
   //
   m_WithMap = false ;
   //
@@ -182,24 +161,23 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
     {     
       m_caloNum = CaloCell_ID::LAREM ;
       m_atlas_id = m_emID;
-      log << MSG::INFO << " LAr Calo is em " << endreq ;
+      ATH_MSG_VERBOSE (" LAr Calo is em ");
     }
   else if (m_LArRegion == "LAr_HEC")
     {
       m_caloNum = CaloCell_ID::LARHEC ;
       m_atlas_id = m_hecID;
-      log << MSG::INFO << " LAr Calo is hec " << endreq ;
+      ATH_MSG_VERBOSE (" LAr Calo is hec ");
     }
   else if (m_LArRegion == "LAr_FCal") 
     {
       m_caloNum = CaloCell_ID::LARFCAL ;
       m_atlas_id = m_fcalID;
-      log << MSG::INFO << " LAr Calo is FCAL " << endreq ;
+      ATH_MSG_VERBOSE (" LAr Calo is FCAL ");
     }  
   else
     {
-      log << MSG::ERROR
-	  << " cannot use region "  << m_LArRegion <<  endreq ;    
+      ATH_MSG_ERROR (" cannot use region "  << m_LArRegion);
       m_atlas_id = 0;
       return StatusCode::FAILURE;
     }
@@ -209,11 +187,11 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
 // threshold on hit energy
   if (m_eHitThreshold==-999999.) {
     m_applyHitEnergyThreshold = false ;    
-    log << MSG:: INFO << " No threshold on hit energy " << endreq ;
+    ATH_MSG_INFO (" No threshold on hit energy ");
   } else
     {
       m_applyHitEnergyThreshold = false ;    
-      log << MSG:: INFO << " Threshold on hit energy " << m_eHitThreshold << endreq ;
+      ATH_MSG_INFO (" Threshold on hit energy " << m_eHitThreshold);
     }
   
   
@@ -246,35 +224,29 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
     m_ThresholdOnAbsEinSigma=-999999.; 
     m_ThresholdSelected=0;
     m_ThresholdSelectedNotInSigma=0;
- 
-    log << MSG::WARNING
-	<<"More than one threshold was selected => none selected !" 
-	<< endreq; 
+
+    ATH_MSG_WARNING ("More than one threshold was selected => none selected !");
   } 
   else 
   {     
     if(iThreshold[0]==1) 
-      log<<MSG::INFO<<"THRESHOLD CHOICE : ThresholdOnE="
-	 <<m_ThresholdOnE<<endreq;
+      ATH_MSG_INFO ("THRESHOLD CHOICE : ThresholdOnE="<<m_ThresholdOnE);
     else 
     if(iThreshold[1]==1) 
-      log<<MSG::INFO<<"THRESHOLD CHOICE : ThresholdOnAbsE="
-	 <<m_ThresholdOnAbsE<<endreq;
+      ATH_MSG_INFO ("THRESHOLD CHOICE : ThresholdOnAbsE="<<m_ThresholdOnAbsE);
     else 
     if(iThreshold[2]==1) 
-      log<<MSG::INFO<<"THRESHOLD CHOICE : ThresholdOnEinSigma="
-	 <<m_ThresholdOnEinSigma<<endreq;
+      ATH_MSG_INFO ("THRESHOLD CHOICE : ThresholdOnEinSigma="<<m_ThresholdOnEinSigma);
     else
     if(iThreshold[3]==1) 
-      log<<MSG::INFO<<"THRESHOLD CHOICE : ThresholdOnAbsEinSigma="
-	 <<m_ThresholdOnAbsEinSigma<<endreq;
+      ATH_MSG_INFO ("THRESHOLD CHOICE : ThresholdOnAbsEinSigma="<<m_ThresholdOnAbsEinSigma);
     else   
-      log<<MSG::INFO<<"THRESHOLD CHOICE : No Threshold !"<<endreq;
+      ATH_MSG_INFO ("THRESHOLD CHOICE : No Threshold !");
   }
 
   if (m_ThresholdSelected==1) {
     // thresholds on cell are only implemented when using internal map
-    log << MSG::INFO << " One threshold selected: use internal map" << endreq;
+    ATH_MSG_INFO (" One threshold selected: use internal map");
     
     m_WithMap = true ;
   }
@@ -315,9 +287,8 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
     }  
   else if (m_LArRegion == "UserDefined" && (m_HitContainers.size()>0) )
      {
-      log << MSG::INFO
-	<< "Using user defined Region: hitContainers are "  <<  endreq;    
-      log << MSG::INFO << " cannot simulate noise " << endreq ;
+      ATH_MSG_INFO ("Using user defined Region: hitContainers are ");
+      ATH_MSG_INFO (" cannot simulate noise ");
       
       m_WithNoise = false;
       m_WithMap = false;
@@ -325,57 +296,24 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
       std::string names ; 
       for(unsigned int i=0; i < m_HitContainers.size(); ++i)
 	names+=m_HitContainers[i]+" ";
-      log << MSG::INFO<< names  <<  endreq;    
+      ATH_MSG_INFO (names);
       //nPool=10000;
      }
   else
   {
-      log << MSG::ERROR
-	<< " Unknown Region: "  << m_LArRegion <<  endreq;    
+      ATH_MSG_ERROR (" Unknown Region: "  << m_LArRegion);
       return StatusCode::FAILURE;
   }
-
-//---- initialize the StoreGateSvc ptr ----------------
-
-  StatusCode sg= service("StoreGateSvc", m_storeGate);
-
-//---- initialize the DetectorStore ptr ----------------
-
-  StatusCode scDS = service("DetectorStore", m_detStore);
-  if (scDS.isFailure()) 
-  {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to DetectorStore "
-	<< endreq;
-    return scDS;
-  }
-
-
 
   // retrieve the noisetool  
   //always needed even without noise to get the gain estimate
 
   IToolSvc* p_toolSvc = 0;// Pointer to Tool Service
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL
-	<< " Tool Service not found "
-	<< endreq;
-    return sc;
-  }
+  ATH_CHECK( service("ToolSvc", p_toolSvc) );
   IAlgTool* algtool;
   ListItem corr(m_NoiseToolName);	  
-  sc = p_toolSvc->retrieveTool(corr.type(), corr.name(), algtool);
-  if (sc.isFailure()) 
-    log << MSG::INFO
-	<< "Unable to find tool for " << m_NoiseToolName
-	<< endreq;
-  else  log << MSG::INFO
-	    << m_NoiseToolName << " successfully retrieved" 
-	    << endreq;
-
+  ATH_CHECK( p_toolSvc->retrieveTool(corr.type(), corr.name(), algtool) );
   m_noisetool=dynamic_cast<ICaloNoiseTool*>(algtool);
-
 
 // IF NOISE
   if( m_WithNoise )
@@ -383,48 +321,30 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
 
     // mandatory to use map
     m_WithMap = true ;
-    log << MSG::INFO << " Noise selected ("
-	<<m_WithElecNoise<<" "<<m_WithPileUpNoise<<")" << endreq ; 
+    ATH_MSG_INFO (" Noise selected ("
+                  <<m_WithElecNoise<<" "<<m_WithPileUpNoise<<")" );
 
 
     //access random noise number service
     static const bool CREATEIFNOTTHERE(true);
-    sc = service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE);
-    if (!sc.isSuccess() || 0 == m_AtRndmGenSvc)
-      {
-	log << MSG::ERROR << " Could not initialize Random Number Service" 
-	    << endreq;
-	return sc;
-      }	
+    ATH_CHECK( service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE) );
   }
-  else log << MSG::INFO << " no noise selected " << endreq ;
+  else ATH_MSG_INFO (" no noise selected ");
    
 
 // Incident Service: 
   IIncidentSvc* incSvc;
-  sc = service("IncidentSvc", incSvc);
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to DetectorStore "
-	<< endreq;
-    return sc;
-  }
+  ATH_CHECK( service("IncidentSvc", incSvc) );
   //start listening to "BeginRun"
   incSvc->addListener(this, "BeginRun", m_priority);
 
-
-  if( m_WithMap )
-  {
-    log << MSG::INFO << " Internal map will be used " << endreq ; 
+  if( m_WithMap ) {
+    ATH_MSG_VERBOSE (" Internal map will be used ");
   }
-  
   else {
-      log << MSG::INFO << " Internal map will not be used " << endreq ;
-    }
-  
-
-  return sg; //sg from "initialize the StoreGateSvc ptr"  
+    ATH_MSG_VERBOSE (" Internal map will not be used ");
+  }
+  return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -432,29 +352,19 @@ LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
 void 
 LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG
-      << "LArCellBuilderFromLArHit handle()" 
-      << endreq;
+  ATH_MSG_DEBUG ("LArCellBuilderFromLArHit handle()");
 
-  StatusCode sc = m_detStore->retrieve(m_dd_fSampl) ;
-  if (sc != StatusCode::SUCCESS) 
-    {
-      log << MSG::FATAL 
-	  << "Error in retrieving sampling fraction from Detector Store !" 
-	  << endreq;
-      return;
-    }
-  else log << MSG::INFO << " -- ILArfSampl retrieved" << endreq;
+  if (detStore()->retrieve(m_dd_fSampl).isFailure())
+    ATH_MSG_ERROR ("Could not retrieve ILArfSampl");
+  else
+    ATH_MSG_VERBOSE (" -- ILArfSampl retrieved");
   
   if (m_WithMap) 
   {    
-    log << MSG::INFO << " initialize internal cell collection " 
-	<< endreq ;
-    //
+    ATH_MSG_VERBOSE (" initialize internal cell collection ");
     if (this->initializeCellPermamentCollection()!=SUCCESS)
     {
-      log << MSG::FATAL<<"Making of cell permament collection failed"<< endreq;
+      ATH_MSG_FATAL ("Making of cell permament collection failed");
       return;
     }    
   }
@@ -465,8 +375,7 @@ LArCellBuilderFromLArHitTool::handle(const Incident& /* inc*/ )
 
 StatusCode LArCellBuilderFromLArHitTool::finalize()
 {
-  MsgStream log(msgSvc(), name());  
-  log << MSG::INFO << " finalize: delete cellPermamentCollection " << endreq;
+  ATH_MSG_VERBOSE (" finalize: delete cellPermamentCollection ");
   //clean all LarHitInfo*
   for (unsigned int i=0;i<m_cellPermanentCollection.size();++i){
     if (m_cellPermanentCollection[i]!=0) {
@@ -482,8 +391,7 @@ StatusCode LArCellBuilderFromLArHitTool::finalize()
 
 StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellContainer )
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "Executing LArCellBuilderFromLArHitTool" << endreq;
+  ATH_MSG_DEBUG ("Executing LArCellBuilderFromLArHitTool");
 
   unsigned int nCells0 = theCellContainer->size();
   
@@ -492,13 +400,10 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   // WITH NOISE 
   if( m_WithMap )
   {      
-    StatusCode sc;
-    sc = this->resetCellPermanentCollection();
-    if (!sc.isSuccess()) return sc;
+    ATH_CHECK( this->resetCellPermanentCollection() );
     if (m_Windows){
-      log <<MSG::WARNING << " windows not reimplemented yet" << endreq ;
-      StatusCode sc = this->buildWindowOnPermanentCollection();
-      if (!sc.isSuccess()) return sc;      
+      ATH_MSG_WARNING (" windows not reimplemented yet");
+      ATH_CHECK( this->buildWindowOnPermanentCollection() );
     }
   }
   
@@ -512,16 +417,10 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   { 
     //  const DataHandle < LArHitContainer >     hitcoll ;
     const LArHitContainer* hitcoll;
-    StatusCode sc = m_storeGate->retrieve(hitcoll,*hit_itr); 
-  
-    if(sc!=StatusCode::SUCCESS || !hitcoll){ 
-      log<<MSG::ERROR<<" Can not retrieve LArHitContainer: "<< *hit_itr 
-	 <<endreq; 
-      return StatusCode::FAILURE;      
-    }    
+    ATH_CHECK( evtStore()->retrieve(hitcoll,*hit_itr) );
 
-    log << MSG::DEBUG << "LArHit container: " << *hit_itr 
-	<< " Size=" << hitcoll->size() <<endreq; 
+    ATH_MSG_DEBUG ("LArHit container: " << *hit_itr 
+                   << " Size=" << hitcoll->size());
       
     LArHitContainer::const_iterator f_cell = hitcoll->begin();
     LArHitContainer::const_iterator l_cell = hitcoll->end();
@@ -534,7 +433,6 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
       double e  = hit->energy() ;
       if (m_applyHitEnergyThreshold) {
 	if (e>m_eHitThreshold) continue;
-	
       }
       
       Identifier id  = hit->cellID();
@@ -551,23 +449,20 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
 	  if (m_caloNum==CaloCell_ID::LAREM) {
 	    idHash=m_emID->channel_hash(id); 
 	  }
-	  
 	  else if (m_caloNum==CaloCell_ID::LARHEC) {
 	    idHash=m_hecID->channel_hash(id); 
 	  }
-	  
 	  else if (m_caloNum==CaloCell_ID::LARFCAL) {
 	    idHash=m_fcalID->channel_hash(id); 
 	  }
-	  
 
 	  // set the hits of hitmap
 	  if (m_cellPermanentCollection[idHash]!=0) {
 	    m_cellPermanentCollection[idHash]->setHit(hit);
 	   }	
 	  else {
-	     log << MSG::WARNING << " Trying to fill hit with no DDE " 
-		 << m_atlas_id->show_to_string(id);
+            ATH_MSG_WARNING (" Trying to fill hit with no DDE " 
+                             << m_atlas_id->show_to_string(id));
 	   }
 	}	
       // NO MAP
@@ -594,13 +489,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   if (m_WithNoise) 
     {
       const xAOD::EventInfo* eventInfo;
-      StatusCode sc = m_storeGate->retrieve(eventInfo);
-
-      if (sc.isFailure())
-	{
-	  log << MSG::ERROR << "Could not retrieve event info" << endreq;
-	}
-
+      ATH_CHECK( evtStore()->retrieve(eventInfo) );
       const int iSeedNumber = eventInfo->runNumber()*10000000
 	                     +eventInfo->eventNumber();
       
@@ -690,7 +579,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
    
 //---- cellMin & cellMax ----------------
 
-  if (log.level() <= MSG::DEBUG) {
+  if (msgLvl(MSG::DEBUG)) {
     CaloCellContainer::const_iterator itrCell =theCellContainer->begin(); 
     CaloCellContainer::const_iterator endCell = theCellContainer->end();
 
@@ -715,34 +604,31 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
         }
 
       //      if (index <= 10) {
-      	
-      log << MSG::VERBOSE 
-	  << " Cell id " << m_atlas_id->show_to_string((*itrCell)->ID())
-	  << " eta " << (*itrCell)->eta()
-	  << " 	phi " << (*itrCell)->phi()
-	  << " e " << (*itrCell)->energy()
-	  << endreq;
-     
+
+      ATH_MSG_VERBOSE (" Cell id " << m_atlas_id->show_to_string((*itrCell)->ID())
+                       << " eta " << (*itrCell)->eta()
+                       << " 	phi " << (*itrCell)->phi()
+                       << " e " << (*itrCell)->energy());
       
       ++index;
       
     }
   if (cellMax != 0 ) 
-    log << MSG::DEBUG << "Cell with max energy " << Emax 
-	<<" ID=" << m_atlas_id->show_to_string(cellMax->ID()) 
-	<< " eta=" << cellMax->eta() << " phi=" << cellMax-> phi()<< endreq;  
+    ATH_MSG_DEBUG ("Cell with max energy " << Emax 
+                   <<" ID=" << m_atlas_id->show_to_string(cellMax->ID()) 
+                   << " eta=" << cellMax->eta() << " phi=" << cellMax-> phi());
   if (cellMin != 0 ) 
-    log << MSG::DEBUG << "Cell with min energy " << Emin 
-	<<" ID=" << m_atlas_id->show_to_string(cellMin->ID()) 
-	<< " eta=" << cellMin->eta() << " phi=" << cellMin-> phi()<< endreq;  
+    ATH_MSG_DEBUG ("Cell with min energy " << Emin 
+                   <<" ID=" << m_atlas_id->show_to_string(cellMin->ID()) 
+                   << " eta=" << cellMin->eta() << " phi=" << cellMin-> phi());
 
   }
 
   //specify that a given calorimeter has been filled
   if (theCellContainer->hasCalo(m_caloNum) )
   {
-    log << MSG::WARNING << "CaloCellContainer has already been filled with calo " 
-	<< m_caloNum << endreq ;    
+    ATH_MSG_WARNING ("CaloCellContainer has already been filled with calo " 
+                     << m_caloNum);
   }
       
   theCellContainer->setHasCalo(m_caloNum);
@@ -750,10 +636,10 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   
 
 //---- end ---------------- 
-   
-  log << MSG::DEBUG << "CaloCellContainer : number of cells added " 
-      << theCellContainer->size()-nCells0 
-      << "  new size = " << theCellContainer->size()<< endreq;
+
+  ATH_MSG_DEBUG ("CaloCellContainer : number of cells added " 
+                 << theCellContainer->size()-nCells0 
+                 << "  new size = " << theCellContainer->size());
   
   return StatusCode::SUCCESS;
 }
@@ -767,10 +653,7 @@ LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer * & cellcoll,
 				      const double & q,
 				      const CaloGain::CaloGain & g)
 {
-CaloCell* theCell;
-  
-theCell = new LArCell(caloDDE,e,t,q,g);
-cellcoll->push_back(theCell);  
+  cellcoll->push_back(new LArCell(caloDDE,e,t,q,g));
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -782,18 +665,13 @@ void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* & cellcoll,
                                            const double & q)
 
 {  
-  LArCell* newCell;
-
   const CaloDetDescrElement* caloDDE=m_calo_dd_man->get_element(id);
-  
 
   //estimate the gain
   const CaloGain::CaloGain g=
     m_noisetool->estimatedGain(caloDDE,e,ICaloNoiseToolStep::RAWCHANNELS);  
   
-  newCell = new LArCell(caloDDE,e,t,q,g);
-
-  cellcoll->push_back(newCell);
+  cellcoll->push_back (new LArCell(caloDDE,e,t,q,g));
 
 }
 
@@ -801,9 +679,6 @@ void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* & cellcoll,
 
 StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
 {
-
-  MsgStream log(msgSvc(), name());
-  
   m_cellPermanentCollection.clear();
    
 
@@ -869,17 +744,17 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
     
   }
 
-  log << MSG::INFO << "permanent cell collection size = " 
-      << m_cellPermanentCollection.size()
-      << " Filled : " << nFilled << endreq ;
+  ATH_MSG_INFO ("permanent cell collection size = " 
+                << m_cellPermanentCollection.size()
+                << " Filled : " << nFilled);
   
   if (nHole!=0){
-    log << MSG::WARNING << nHole << " holes detected in caloDDE " << endreq ;
+    ATH_MSG_WARNING (nHole << " holes detected in caloDDE ");
   }
   
 
-  log << MSG::INFO << " Build permament cell collection with size " 
-      << m_cellPermanentCollection.size()<< endreq ;
+  ATH_MSG_INFO (" Build permament cell collection with size " 
+                << m_cellPermanentCollection.size());
    
   //check all elements have been created
   int nFailed = 0 ;
@@ -896,10 +771,9 @@ StatusCode LArCellBuilderFromLArHitTool::initializeCellPermamentCollection()
     return StatusCode::SUCCESS;
   }
   else{
-    log << MSG::WARNING << " total missing " << nFailed << endreq ;
+    ATH_MSG_WARNING (" total missing " << nFailed);
     return StatusCode::SUCCESS;
   }
-  
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -959,12 +833,7 @@ StatusCode LArCellBuilderFromLArHitTool::defineWindow()
     
     //get pointer of MC collection
     const McEventCollection * mcCollptr; 
-    if ( m_storeGate->retrieve(mcCollptr,m_mcEventName).isFailure() ) {
-      log << MSG::ERROR 
-	  << "Could not retrieve McEventCollection for HitMap Windows"
-	  << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve(mcCollptr,m_mcEventName) );
 
     McEventCollection::const_iterator itr; 
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
+from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
 class LArNoisyROSummaryGetter ( Configured )  :
     _outputType = "LArNoisyROSummary"
@@ -31,16 +32,26 @@ class LArNoisyROSummaryGetter ( Configured )  :
         # now configure the algorithm
         # cannot have same name
         try:        
-            from LArCellRec.LArCellRecConf import LArNoisyROAlg
+            from LArCellRec.LArCellRecConf import LArNoisyROAlg,LArNoisyROTool
         except:
-            mlog.error("could not import LArNoisyROAlg")
+            mlog.error("could not import LArNoisyROAlg or LArNoisyROTool")
             print traceback.format_exc()
             return False
 
+        theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
+                                         CellQualityCut=larNoisyROFlags.CellQualityCut(),
+                                         BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
+                                         BadFEBCut=larNoisyROFlags.BadFEBCut()
+                                         )
+
+
         theLArNoisyROAlg=LArNoisyROAlg()
+        theLArNoisyROAlg.Tool=theLArNoisyROTool
+
         self._LArNoisyROMakerHandle = theLArNoisyROAlg
-        theLArNoisyROAlg.BadChanPerFEB=30
         theLArNoisyROAlg.OutputKey=self.outputKey()        
+        
+
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore

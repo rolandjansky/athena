@@ -18,7 +18,7 @@
 
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -29,7 +29,7 @@ class CaloCell_ID;
 class LArOnlineID;
 class ILArBadChanTool;
 
-class LArBadFebMaskingTool: public AlgTool,
+class LArBadFebMaskingTool: public AthAlgTool,
 	             virtual public ICaloCellMakerTool 
 
 {
@@ -91,10 +91,8 @@ public:
   */
   uint16_t m_errorToMask;
 
-  /** pointers to storegateSvc and identifier helpers
+  /** pointers to identifier helpers
   */
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
 

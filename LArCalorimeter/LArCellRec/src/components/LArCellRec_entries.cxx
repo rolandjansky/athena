@@ -14,6 +14,7 @@
 #include "LArCellRec/LArCellMerger.h"
 #include "LArCellRec/LArCellDeadOTXCorr.h"
 #include "LArCellRec/LArNoisyROAlg.h"
+#include "LArCellRec/LArNoisyROTool.h"
 #include "LArCellRec/LArCollisionTimeAlg.h"
 #include "LArCellRec/LArTimeVetoAlg.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -35,6 +36,7 @@ DECLARE_TOOL_FACTORY (LArBadFebMaskingTool)
 DECLARE_TOOL_FACTORY (LArCellGainPathology)
 DECLARE_TOOL_FACTORY (LArCellMerger)
 DECLARE_TOOL_FACTORY (LArCellDeadOTXCorr)
+DECLARE_TOOL_FACTORY (LArNoisyROTool)
 DECLARE_ALGORITHM_FACTORY ( LArCollisionTimeAlg )
 DECLARE_ALGORITHM_FACTORY ( LArTimeVetoAlg )
 
@@ -57,6 +59,7 @@ DECLARE_FACTORY_ENTRIES(LArCellRec) {
     DECLARE_TOOL( LArCellGainPathology)
     DECLARE_TOOL( LArCellMerger)
     DECLARE_TOOL( LArCellDeadOTXCorr)
+    DECLARE_TOOL( LArNoisyROTool)
     DECLARE_ALGORITHM (LArCollisionTimeAlg )
     DECLARE_ALGORITHM (LArTimeVetoAlg )
 

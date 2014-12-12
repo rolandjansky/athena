@@ -33,7 +33,7 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent),
+  :AthAlgTool(type, name, parent),
    m_maskingTool(""),
    m_maskingSporadicTool(""),
    m_qualityCut(65536),
@@ -63,56 +63,33 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 
 StatusCode LArCellNoiseMaskingTool::initialize()
 {
-  MsgStream  log(msgSvc(),name());
- 
-
   if (!m_maskingTool.empty()) {
-    if (m_maskingTool.retrieve().isFailure()) {
-      log << MSG::ERROR
-               << "No tool for bad channel masking"
-               << endreq; 
-       return StatusCode::FAILURE;
-    }
-   log << MSG::INFO << " Cell masking for noise/dead channels activated using bad channel masking tool " << endreq;
+    ATH_CHECK( m_maskingTool.retrieve() );
+    ATH_MSG_INFO (" Cell masking for noise/dead channels activated using bad channel masking tool ");
   }
   else {
-    log << MSG::INFO << " Cell masking for noise/dead channels not activated " << endreq;
+    ATH_MSG_INFO (" Cell masking for noise/dead channels not activated ");
   }
 
   if (!m_maskingSporadicTool.empty()) {
-    if (m_maskingSporadicTool.retrieve().isFailure()) {
-      log << MSG::ERROR
-               << "No tool for sporadic noise channel masking"
-               << endreq; 
-       return StatusCode::FAILURE;
-    }
-   log << MSG::INFO << " Cell masking for sporadic noise activated using  masking tool " << endreq;
+    ATH_CHECK( m_maskingSporadicTool.retrieve() );
+    ATH_MSG_INFO (" Cell masking for sporadic noise activated using  masking tool ");
   }
   else {
-    log << MSG::INFO << " Cell masking for sporadic noise not activated " << endreq;
+    ATH_MSG_INFO (" Cell masking for sporadic noise not activated ");
   }
 
-
-
-
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode LArCellNoiseMaskingTool::process(CaloCellContainer * theCont )
 {
-	
-  MsgStream  log(msgSvc(),name());
-
   StatusCode returnSc = StatusCode::SUCCESS ;
 
   if (!m_maskNoise && !m_maskSporadic) return returnSc;
 
   bool sporadicMask = !m_maskingSporadicTool.empty() && m_maskSporadic;
   bool noiseMask    = !m_maskingTool.empty() && m_maskNoise;
-
-  bool debugPrint = false;
-  if (log.level() <= MSG::DEBUG ) debugPrint=true;
 
   for (std::vector<int>::const_iterator itrCalo=m_caloNums.begin();itrCalo!=m_caloNums.end();++itrCalo){
       CaloCell_ID::SUBCALO caloNum=static_cast<CaloCell_ID::SUBCALO>(*itrCalo);
@@ -130,7 +107,7 @@ StatusCode LArCellNoiseMaskingTool::process(CaloCellContainer * theCont )
               if (aCell->quality() > m_qualityCut) {
                   if (m_maskingSporadicTool->cellShouldBeMasked(cellId)) {
                       toMask=true;
-                      if(debugPrint) log << MSG::DEBUG << " Mask sporadic noise cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality() << endreq;
+                      ATH_MSG_DEBUG (" Mask sporadic noise cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
                   }
               }      
           }
@@ -139,7 +116,7 @@ StatusCode LArCellNoiseMaskingTool::process(CaloCellContainer * theCont )
           if (noiseMask) {
              if (m_maskingTool->cellShouldBeMasked(cellId)) {
                  toMask=true;
-                 if(debugPrint) log << MSG::DEBUG << " Mask highNoise/dead  cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality() << endreq;
+                 ATH_MSG_DEBUG (" Mask highNoise/dead  cell" << cellId << " E,t,chi2 " << aCell->energy() << " " << aCell->time() << " " << aCell->quality());
              }
           }
 

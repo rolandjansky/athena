@@ -40,7 +40,7 @@ process(CaloCellContainer * theCellContainer)
 
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 
 #include "GaudiKernel/IIncidentListener.h"
@@ -73,7 +73,7 @@ class LArG3Escale ;
 #include <CLHEP/Random/Randomize.h>
 
 
-class LArCellBuilderFromLArHitTool: public AlgTool,
+class LArCellBuilderFromLArHitTool: public AthAlgTool,
 					   public IIncidentListener,  
 					   virtual public ICaloCellMakerTool
 
@@ -131,9 +131,6 @@ private:
 //
   std::string     m_LArRegion;         //Region to build  
   std::vector<std::string>  m_HitContainers;      //Hit containers
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
-
   
 //THRESHOLDS on E
   bool m_applyHitEnergyThreshold ;

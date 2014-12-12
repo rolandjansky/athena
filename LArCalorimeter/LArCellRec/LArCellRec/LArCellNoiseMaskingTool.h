@@ -5,21 +5,18 @@
 #ifndef LARCELLREC_LArCellNoiseMaskingTool_H
 #define LARCELLREC_LArCellNoiseMaskingTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
-class LArCellNoiseMaskingTool: public AlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class LArCellNoiseMaskingTool: public AthAlgTool,
+  virtual public ICaloCellMakerTool 
 {
- 
 public:    
-  
   LArCellNoiseMaskingTool(const std::string& type, 
-		const std::string& name, 
-				 const IInterface* parent) ;
+                          const std::string& name, 
+                          const IInterface* parent) ;
 
 
   virtual StatusCode initialize() ; 
@@ -29,7 +26,6 @@ public:
 
 
  private:
-
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   ToolHandle<ILArBadChannelMasker> m_maskingSporadicTool;
   int m_qualityCut;
