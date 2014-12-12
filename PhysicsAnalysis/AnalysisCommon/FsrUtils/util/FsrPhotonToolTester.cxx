@@ -88,7 +88,7 @@ int main( int argc, char* argv[] )
    fsrTool.msg().setLevel(MSG::DEBUG);
    CHECK( fsrTool.initialize() );
 
-   FSR::IFsrPhotonTool::FsrCandidate candidate;
+   FSR::FsrCandidate candidate;
 
    // Loop over the events
    for(Long64_t entry = 0; entry < entries; ++entry) {
