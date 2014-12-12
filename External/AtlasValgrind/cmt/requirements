@@ -1,13 +1,18 @@
 package AtlasValgrind
 
 author  Sebastien Binet <binet@cern.ch>
+## for athena policies: this has to be the first use statement
+use AtlasPolicy         AtlasPolicy-*
 
 use LCG_Settings        v*
 use ExternalPolicy 	ExternalPolicy-*        External
+use valgrind		v*			LCG_Interfaces
 
-macro AtlasValgrind_native_version "3.8.0"
-macro AtlasValgrind_version "3.8" \
-      WIN32            "38"
+# pick up version from LCG
+#macro AtlasValgrind_native_version "3.9.0"
+#macro AtlasValgrind_version "3.9" \
+#      WIN32            "39"
+macro AtlasValgrind_native_version "$(valgrind_config_version)"
 
 macro AtlasValgrind_basesystem "$(LCG_basesystem)" \
       host-i686&host-slc5&target-gcc41 "i686-slc5-gcc41" \
@@ -41,8 +46,7 @@ apply_pattern declare_runtime files="*.supp"
 #macro AtlasValgrind_export_paths $(AtlasValgrind_home)
 # export all 32/64 versions of valgrind for the kit.
 macro AtlasValgrind_export_paths "\
- $(LCG_external)/valgrind/$(AtlasValgrind_native_version)/x86_64-slc5-gcc43-opt \
- $(LCG_external)/valgrind/$(AtlasValgrind_native_version)/i686-slc5-gcc43-opt \
+ $(LCG_external)/valgrind/$(AtlasValgrind_native_version)/$(CMTCONFIG) 
 "
 
 ###################
@@ -64,3 +68,4 @@ path_prepend PATH  "$(AtlasValgrind_home)/bin" \
 macro_append AtlasValgrind_linkopts "" \
       build_Valgrind_tool      " -lcoregrind"
 
+set VALGRIND_LIB "$(AtlasValgrind_libdir)"
