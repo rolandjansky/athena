@@ -21,6 +21,12 @@ SCT_ServiceBuilder::SCT_ServiceBuilder(InDetDD::Zone * topZone,
     m_servMatBuilder = new InDetDD::VolumeBuilder(*topZone, services);
     m_servMatBuilder->setMaterialManager(geometryManager->materialManager());
   }
-  delete topZone;
+  delete topZone; topZone=0;
 }
+
+SCT_ServiceBuilder::~SCT_ServiceBuilder(){
+delete m_servMatBuilder; m_servMatBuilder=0;
+
+}
+
 }

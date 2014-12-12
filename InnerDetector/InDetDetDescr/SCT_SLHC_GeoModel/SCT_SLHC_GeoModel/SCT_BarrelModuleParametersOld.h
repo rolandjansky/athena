@@ -16,9 +16,10 @@ class SCT_BarrelModuleParametersOld : public SCT_BarrelModuleParameters{
 
 public:
 
-  // Constructor 
+  /// default constructor 
   SCT_BarrelModuleParametersOld(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps);
-
+  ~SCT_BarrelModuleParametersOld();
+  
   // Sensors
   double sensorThickness(int moduleType) const;
   double sensorWidth(int moduleType) const;
@@ -51,6 +52,11 @@ public:
 
 
 private:
+  //disallow copy and assignment
+  /// assignment
+  SCT_BarrelModuleParametersOld & operator=(const SCT_BarrelModuleParametersOld & );
+  /// copy constructor
+  SCT_BarrelModuleParametersOld(const SCT_BarrelModuleParametersOld & );
   std::map<std::string, float>* m_SCT_Modules;
   std::map<std::string, std::string>* m_SCT_Modules_Strng;
 };

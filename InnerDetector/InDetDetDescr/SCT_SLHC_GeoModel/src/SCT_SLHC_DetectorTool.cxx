@@ -95,6 +95,7 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
      msg(MSG::INFO) <<  "No SCT Version. SCT_SLHC will not be built." << endreq;
   }else{
     std::string versionName;
+    std::string descrName="noDescr";
 
     if(versionKey.custom()){
       msg(MSG::WARNING) << "SCT_SLHC_DetectorTool:  Detector Information coming "
@@ -111,7 +112,11 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
       
       if (!switches->isFieldNull("VERSIONNAME")) {
 	versionName = switches->getString("VERSIONNAME"); 
-      }   
+      } 
+      if (!switches->isFieldNull("DESCRIPTION")) {
+	descrName = switches->getString("DESCRIPTION");
+      }
+  
     }
   
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "VersioName = " << versionName  << endreq;
@@ -190,7 +195,10 @@ StatusCode SCT_SLHC_DetectorTool::create( StoreGateSvc* detStore ){
       InDetDDSLHC::SCT_Options options;
       options.setAlignable(m_alignable);
       InDetDDSLHC::SCT_DetectorFactory theSCT(m_athenaComps, options);
-      theSCT.create(world);
+      if(descrName.compare("TrackingGeometry")!=0)
+	theSCT.create(world);
+      else
+	msg(MSG::INFO) << "SCT_SLHC - TrackingGeometry tag - no geometry built" << endreq; 
       m_manager = theSCT.getDetectorManager();
     
       if (!m_manager) {

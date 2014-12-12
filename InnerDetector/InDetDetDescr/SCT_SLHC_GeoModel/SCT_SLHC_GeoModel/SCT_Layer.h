@@ -30,6 +30,10 @@ public:
   SCT_Layer(const std::string & name,
 	    int iLayer,
 	    double cylLength);
+	    
+	//disable copy, assign
+	SCT_Layer & operator=(const SCT_Layer &) = delete;
+	SCT_Layer(const SCT_Layer &) = delete;
 
   ~SCT_Layer();
 

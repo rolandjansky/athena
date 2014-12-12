@@ -22,6 +22,10 @@ public:
   // Constructor 
   SCT_ForwardParametersOld(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps);
   ~SCT_ForwardParametersOld();
+  //disable assign and copy
+  SCT_ForwardParametersOld  & operator=(const SCT_ForwardParametersOld &) = delete;
+  SCT_ForwardParametersOld(const SCT_ForwardParametersOld &) = delete;
+  
   //////////////////////////////////////////////////////////////////////////////
   // Forward SCT
   //////////////////////////////////////////////////////////////////////////////

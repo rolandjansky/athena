@@ -19,7 +19,11 @@ class  SCT_ServiceBuilder {
 public:
   SCT_ServiceBuilder(InDetDD::Zone * topZone, const SCT_GeometryManager *);
   InDetDD::VolumeBuilder * getServMatBuilder() const {return m_servMatBuilder;}
+  //disable copy, assign
+  SCT_ServiceBuilder & operator=(const SCT_ServiceBuilder&) = delete;
+  SCT_ServiceBuilder( const SCT_ServiceBuilder &) = delete;
   
+  ~SCT_ServiceBuilder();
 private:
   InDetDD::VolumeBuilder * m_servMatBuilder;
 };
