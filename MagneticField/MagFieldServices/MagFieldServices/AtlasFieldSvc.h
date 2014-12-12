@@ -12,6 +12,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -30,6 +31,7 @@
 class CondAttrListCollection;
 class BFieldZone;
 class TFile;
+class Incident;
 
 namespace MagField {
 
@@ -37,7 +39,7 @@ namespace MagField {
       @author Elmar.Ritsch -at- cern.ch
     */
 
-  class AtlasFieldSvc : public IMagFieldSvc, virtual public AthService {
+  class AtlasFieldSvc : public IMagFieldSvc, virtual public IIncidentListener, virtual public AthService {
     public:
      
       //** Constructor with parameters */
@@ -48,14 +50,19 @@ namespace MagField {
      
       /** Athena algorithm's interface methods */
       StatusCode  initialize();
-      StatusCode  start();
       StatusCode  finalize();
+
+      /** Read **/
+      void handle(const Incident& runIncident);
 
       /** Query the interfaces **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
      
       /** Call back for possible magnet current update **/
       StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
+
+      /** Call back for possible magnet filename update **/
+      StatusCode updateMapFilenames(IOVSVC_CALLBACK_ARGS);
 
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
@@ -118,14 +125,25 @@ namespace MagField {
       // current associated with the map
       double m_mapSoleCurrent; // solenoid current in A
       double m_mapToroCurrent; // toroid current in A
+      // threshold below which currents are considered zero
+      double m_soleMinCurrent; // minimum solenoid current to be considered ON
+      double m_toroMinCurrent; // minimum toroid current to be considered ON
       // flag to use magnet current from DCS in COOL
       bool m_useDCS;
+      // COOL folder name containing current information
+      std::string m_coolCurrentsFolderName;
+      // flag to read magnet map filenames from COOL
+      bool m_useMapsFromCOOL;
+      // COOL folder name containing field maps
+      std::string m_coolMapsFolderName;
       // actual current if DCS is not in use
       double m_useSoleCurrent; // solenoid current in A
       double m_useToroCurrent; // toroid current in A
       // flag to skip current rescale and use map currents as they are
       bool m_lockMapCurrents;
 
+      // handle for COOL field map filenames
+      const DataHandle<CondAttrListCollection> m_mapHandle;
       // handle for COOL currents
       const DataHandle<CondAttrListCollection> m_currentHandle;
 
