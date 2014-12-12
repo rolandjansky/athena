@@ -31,6 +31,7 @@ class digiSteeringConf(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'StandardPileUpToolsAlg'
+    #StoredValue  = 'StandardInTimeOnlyTruthPileUpToolsAlg'
 #
 class rndmSeedList(JobProperty):
     """ Random Number Seeds

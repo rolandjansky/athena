@@ -39,6 +39,30 @@ def getStandardTruthPileUpTools():
             PileUpToolsList += [ "MergeCalibHitsTool" ]
     return PileUpToolsList
 
+def getStandardSignalOnlyTruthPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.pileup.Truth_on():
+        PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
+        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
+            PileUpToolsList += [ "MergeTrackRecordCollTool" ]
+        if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
+            PileUpToolsList += [ "MergeCalibHitsTool" ]
+    return PileUpToolsList
+
+def getStandardInTimeOnlyTruthPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.pileup.Truth_on():
+        PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
+        PileUpToolsList += [ "MergeTruthJetsTool" ]
+        if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
+            PileUpToolsList += [ "MergeTrackRecordCollTool" ]
+        if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
+            PileUpToolsList += [ "MergeCalibHitsTool" ]
+    return PileUpToolsList
+
 def getStandardForwardPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     PileUpToolsList = []
@@ -67,6 +91,7 @@ def getStandardInDetPileUpTools():
 
 def getFastInDetPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
+    from Digitization.DigitizationFlags import digitizationFlags
     PileUpToolsList = []
     if DetFlags.digitize.BCM_on():
         PileUpToolsList += [ "BCM_DigitizationTool" ]
@@ -145,6 +170,38 @@ def getStandardPileUpToolsList():
     PileUpToolsList += [ "MergeRecoTimingObjTool" ]
     return PileUpToolsList
 
+def getStandardSignalOnlyTruthPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardSignalOnlyTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization
+    PileUpToolsList += getStandardInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
+def getStandardInTimeOnlyTruthPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardInTimeOnlyTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization
+    PileUpToolsList += getStandardInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
 def getFastPileUpToolsList():
     PileUpToolsList = []
     ## Truth information
@@ -199,6 +256,26 @@ def getFastPileUpToolsAlg(name="FastPileUpToolsAlg", **kwargs):
 
 def getSplitPileUpToolsAlg(name="SplitPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitPileUpToolsList() )
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doXingByXingPileUp():
+        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
+        return PileUpToolsAlg(name, **kwargs)
+    else:
+        from PileUpComps.PileUpCompsConf import DigitizationAlg
+        return DigitizationAlg(name, **kwargs)
+
+def getStandardSignalOnlyTruthPileUpToolsAlg(name="StandardSignalOnlyTruthPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getStandardSignalOnlyTruthPileUpToolsList() )
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doXingByXingPileUp():
+        from PileUpComps.PileUpCompsConf import PileUpToolsAlg
+        return PileUpToolsAlg(name, **kwargs)
+    else:
+        from PileUpComps.PileUpCompsConf import DigitizationAlg
+        return DigitizationAlg(name, **kwargs)
+
+def getStandardInTimeOnlyTruthPileUpToolsAlg(name="StandardInTimeOnlyTruthPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getStandardInTimeOnlyTruthPileUpToolsList() )
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
         from PileUpComps.PileUpCompsConf import PileUpToolsAlg

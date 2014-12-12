@@ -27,6 +27,8 @@ addService("Digitization.PileUpConfig.getPileUpEventLoopMgr"         , "PileUpEv
 addAlgorithm("Digitization.DigiAlgConfig.getStandardPileUpToolsAlg"  , "StandardPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getFastPileUpToolsAlg"      , "FastPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitPileUpToolsAlg"     , "SplitPileUpToolsAlg")
+addAlgorithm("Digitization.DigiAlgConfig.getStandardSignalOnlyTruthPileUpToolsAlg"  , "StandardSignalOnlyTruthPileUpToolsAlg")
+addAlgorithm("Digitization.DigiAlgConfig.getStandardInTimeOnlyTruthPileUpToolsAlg"  , "StandardInTimeOnlyTruthPileUpToolsAlg")
 
 addService("Digitization.PileUpMergeSvcConfig.getPileUpMergeSvc"     , "PileUpMergeSvc")
 ## addTool("Digitization.PileUpMergeSvcConfig.getALFARange"             , "ALFARange" )

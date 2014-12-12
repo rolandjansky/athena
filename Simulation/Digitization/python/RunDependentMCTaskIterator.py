@@ -4,7 +4,7 @@
 # defines class taskIterator(runLumiInfo,evtsPerJob)
 # defines primitive function findPlaceInTask(jobNum,runLumiInfo,evtsPerJob)
 # defines user function getRunLumiInfoFragment(jobNum,runLumiInfo,evtsPerJob)
-## author: ATA <ayana>, DMB <davidb>
+## author: ATA <ayana>, DMB <davidb> 
 ## date: 29 Oct 2014, 1 Sept 2010
 
 import itertools
@@ -26,7 +26,7 @@ def getRunLumiInfoFragment(jobnumber,task,maxEvents):
         loMaxEvents=int((maxEvents+1)/2)
     hi_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu'],reverse=True),hiMaxEvents)
     lo_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu']),loMaxEvents)
-    return sum([hi_mu_frag,lo_mu_frag],[])
+    return sorted(sum([hi_mu_frag,lo_mu_frag],[]),key=lambda job: job['run'])
 
 def getFragment(jobnumber,task,maxEvents):
     """ Calculate the specific configuration of the current job in the digi task.
