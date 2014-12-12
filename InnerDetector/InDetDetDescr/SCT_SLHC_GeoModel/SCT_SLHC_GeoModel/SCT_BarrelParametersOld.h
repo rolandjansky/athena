@@ -20,7 +20,10 @@ public:
   // Constructor 
   SCT_BarrelParametersOld(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps);
   ~SCT_BarrelParametersOld();
-
+  //disable copy
+  SCT_BarrelParametersOld(const SCT_BarrelParametersOld & ) = delete;
+  //disable assign
+  SCT_BarrelParametersOld & operator=(const SCT_BarrelParametersOld & ) = delete;
   int layoutType() const;
   bool doEndCaps() const;
   // Ski

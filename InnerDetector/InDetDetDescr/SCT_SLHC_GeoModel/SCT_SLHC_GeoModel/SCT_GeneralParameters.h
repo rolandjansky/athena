@@ -25,6 +25,9 @@ public:
 
   SCT_GeneralParameters(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps);
   ~SCT_GeneralParameters();
+  //disable copy, assign
+  SCT_GeneralParameters & operator=(const SCT_GeneralParameters &) = delete;
+  SCT_GeneralParameters(const SCT_GeneralParameters &) = delete;
 
   // General
   double safety() const;

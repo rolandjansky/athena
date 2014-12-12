@@ -25,6 +25,10 @@ public:
 
   SCT_OuterSide(const std::string & name, int moduleType);
   ~SCT_OuterSide();  
+  //disable copy, assign
+  SCT_OuterSide & operator=(const SCT_OuterSide &) = delete;
+  SCT_OuterSide(const SCT_OuterSide &) = delete;
+  
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
   
 public:

@@ -55,6 +55,18 @@ SCT_Ski::SCT_Ski(const std::string & name,
 }
 
 SCT_Ski::~SCT_Ski(){
+  if (m_staveSupport_pos){
+    delete m_staveSupport_pos; 
+    m_staveSupport_pos=0;
+  }
+  if (m_staveSupport_neg){
+    delete m_staveSupport_neg; 
+    m_staveSupport_neg=0;
+  }
+  if (m_staveSupport){
+    delete m_staveSupport; 
+    m_staveSupport=0;
+  }
 }
 
 void SCT_Ski::getParameters(){

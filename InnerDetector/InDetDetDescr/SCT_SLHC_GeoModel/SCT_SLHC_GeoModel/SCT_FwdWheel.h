@@ -20,6 +20,8 @@ class SCT_FwdWheel : public SCT_UniqueComponentFactory{
   SCT_FwdWheel(const std::string & name, int iWheel);
   ~SCT_FwdWheel();
   
+  SCT_FwdWheel & operator=(const SCT_FwdWheel &) = delete;
+  SCT_FwdWheel(const SCT_FwdWheel &) = delete;
   int wheelNum() const {return m_iWheel;}
   
   // Retrieve basic parameters

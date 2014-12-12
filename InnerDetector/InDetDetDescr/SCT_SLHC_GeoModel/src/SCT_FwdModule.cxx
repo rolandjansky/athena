@@ -38,13 +38,19 @@ inline double sqr(double x) {return x*x;}
 
 
 SCT_FwdModule::SCT_FwdModule(const std::string & name, int ring, int doubleSided)
-  : SCT_UniqueComponentFactory(name), m_ring(ring), m_doubleSided(doubleSided){
+  : SCT_UniqueComponentFactory(name), m_ring(ring), m_doubleSided(doubleSided),
+  m_stereoAngle(0),
+  m_length(0),m_innerRadius(0),
+  m_middleRadius(0),m_outerRadius(0),
+  m_innerWidth(0), m_outerWidth(0),
+  m_deltaPhi(0),m_thickness(0),
+  m_moduleShift(0),m_interSidesGap(0),
+  m_sensor(0), m_spine(0){
     getParameters();
     m_logVolume = preBuild();
   }	
 
-SCT_FwdModule::~SCT_FwdModule()
-{
+SCT_FwdModule::~SCT_FwdModule(){
   delete m_spine;
   delete m_sensor;
 }
@@ -61,8 +67,6 @@ SCT_FwdModule::getParameters()
 
 const GeoLogVol * SCT_FwdModule::preBuild(){  
   //int iring = m_ring%4;//the sensors are defined in Simulation/G4Atlas/G4AtlasApps/python/atlas_idet.py
-  //m_spine  = new SCT_FwdSpine("SCT_FwdSpine"+intToString(iring), m_ring);
-  //m_sensor = new SCT_FwdSensor("ECSensor"+intToString(iring), m_ring);
   m_spine  = new SCT_FwdSpine("SCT_FwdSpine0", m_ring);
   m_sensor = new SCT_FwdSensor("ECSensor0", m_ring);
 
@@ -75,11 +79,11 @@ const GeoLogVol * SCT_FwdModule::preBuild(){
   if(m_doubleSided){
     double interSidesGap = std::max(m_spine->thickness(), m_interSidesGap);
     m_thickness = 2*m_sensor->thickness() + interSidesGap + 0.01*CLHEP::mm;//0.01mm safety necessary
-    //the term 10*CLHEP::degree*3.14/180, is for accomodate the stereo rotation
-    m_deltaPhi    = m_deltaPhi + 10*CLHEP::degree*3.14/180;
-    //add 1cm, to accomodate for stereo rotation (to be delt correctly with later)
-    m_innerRadius = m_innerRadius;// - 0.5*CLHEP::cm;
-    m_outerRadius = m_outerRadius;// + 0.5*CLHEP::cm;
+    //the term 10*CLHEP::degree*3.14/180, is to accommodate the stereo rotation
+    m_deltaPhi    = m_deltaPhi + 10*CLHEP::degree*3.14/180.;
+    //add 1cm, to accomodate for stereo rotation (to be dealt correctly with later)
+    //m_innerRadius = m_innerRadius - 0.5*CLHEP::cm;
+    //m_outerRadius = m_outerRadius + 0.5*CLHEP::cm;
     m_innerWidth = std::max(m_sensor->innerWidth(), m_spine->innerWidth()) + 2*CLHEP::cm; 
     m_outerWidth = std::max(m_sensor->outerWidth(), m_spine->outerWidth()) + 2*CLHEP::cm; 
   }else{
@@ -93,7 +97,6 @@ const GeoLogVol * SCT_FwdModule::preBuild(){
 					    0.5*m_length);
   SCT_MaterialManager * materials = geometryManager()->materialManager();
   GeoLogVol* moduleLog =  new GeoLogVol(getName(), moduleEnvelope, materials->gasMaterial());
-
   return moduleLog;
 }
 

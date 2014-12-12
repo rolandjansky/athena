@@ -20,6 +20,7 @@ namespace InDetDDSLHC {
 
 SCT_GeometryManager::SCT_GeometryManager(const SCT_GeoModelAthenaComps *athenaComps)
   : SCT_ParametersBase(athenaComps),
+    m_commonItems(0),
     m_barrelParameters(0),
     m_barrelModuleParameters(0),
     m_forwardParameters(0),

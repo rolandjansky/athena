@@ -99,7 +99,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
       continue;
     }else if(!strcmp(name, "SCT_BRL_MODULES_PARAMETERS_END")) break;
     else{
-      //put string paramters in a different container
+      //put string parameters in a different container
       if(strstr(name, "_STRNG") != NULL){
 	//re-read the second parameter as a string
 	sscanf(line, "%s %s", name, value_strng);
@@ -110,7 +110,6 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
       }
     } 
   }
-
   //print the values for test
   std::map<std::string, float>::iterator map_itr;
   std::cout<<"-----------------Begin of SCT Barrel Modules parameters----------------"<<std::endl;
@@ -121,6 +120,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
   fclose(db_iumputfile);
   std::cout<<"--------------- --End of SCT Barrel Modules parameters-------  ---------" <<std::endl;
 }
+
 
 //
 // Barrel Sensors
@@ -305,4 +305,8 @@ SCT_BarrelModuleParametersOld::barrelDeadEdge(int moduleType) const
  return deadEdge;
 }
 
+SCT_BarrelModuleParametersOld::~SCT_BarrelModuleParametersOld(){
+   delete m_SCT_Modules; m_SCT_Modules=0;
+   delete m_SCT_Modules_Strng; m_SCT_Modules_Strng=0;
+}
 }
