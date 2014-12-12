@@ -16,7 +16,7 @@ namespace Trk
  {
    public:
 
-    VxTrackAtVertex_p1() : m_typeOfLink(0) {}
+    VxTrackAtVertex_p1() : m_trkWeight(0.0), m_VertexCompatibility(0.0), m_typeOfLink(0) {}
   
     float m_trkWeight;
     float m_VertexCompatibility;  

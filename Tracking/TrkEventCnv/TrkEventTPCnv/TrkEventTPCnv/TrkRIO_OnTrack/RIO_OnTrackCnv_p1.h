@@ -29,7 +29,7 @@ class RIO_OnTrackCnv_p1
    : public T_AthenaPoolTPAbstractPolyCnvBase< Trk::MeasurementBase, Trk::RIO_OnTrack, Trk::RIO_OnTrack_p1 >
 {
 public:
- RIO_OnTrackCnv_p1() : m_localParCnv(0), m_errorMxCnv(0), m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), m_isInitialized(0) {}
+ RIO_OnTrackCnv_p1() : m_localParCnv(0), m_errorMxCnv(0), m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), m_pixId(0), m_storeGate(0), m_isInitialized(0) {}
   virtual void persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RIO_OnTrack *transObj, MsgStream &log );
   virtual void transToPers( const Trk::RIO_OnTrack *transObj, Trk::RIO_OnTrack_p1 *persObj, MsgStream &log );
   

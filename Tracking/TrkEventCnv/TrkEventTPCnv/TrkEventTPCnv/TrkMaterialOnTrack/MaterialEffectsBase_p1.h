@@ -19,7 +19,7 @@ namespace Trk
    class MaterialEffectsBase_p1
    {
   public:
-     MaterialEffectsBase_p1() {}
+     MaterialEffectsBase_p1() : m_tInX0(0.0), m_typeFlags(0) {}
 
      float  m_tInX0;
      short  m_typeFlags;

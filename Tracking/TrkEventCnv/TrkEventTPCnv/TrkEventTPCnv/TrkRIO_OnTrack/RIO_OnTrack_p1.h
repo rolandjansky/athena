@@ -21,7 +21,7 @@ namespace Trk
    // : public MeasurementBase_p1
    {
   public:
-     RIO_OnTrack_p1() {}
+     RIO_OnTrack_p1() : m_id(0) {}
 
      unsigned int  m_id;
 

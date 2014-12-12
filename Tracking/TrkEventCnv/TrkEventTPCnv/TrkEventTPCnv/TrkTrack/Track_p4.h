@@ -18,7 +18,7 @@ namespace Trk
   class Track_p4
   {
   public:
-    Track_p4() {}
+    Track_p4() : m_fitter(0), m_particleHypo(0), m_properties(0), m_patternRecognition(0), m_extPatternRecognition(0), m_chiSquared(0.0), m_numberDoF(0.0) {}
 
     //copied from trackInfo_p1
     unsigned int m_fitter;

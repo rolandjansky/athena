@@ -18,7 +18,7 @@ namespace Trk
    class Track_p1
    {
   public:
-     Track_p1() {}
+     Track_p1() : m_author(0), m_particleHypo(0) {}
 
      unsigned int	m_author;
      unsigned int	m_particleHypo;

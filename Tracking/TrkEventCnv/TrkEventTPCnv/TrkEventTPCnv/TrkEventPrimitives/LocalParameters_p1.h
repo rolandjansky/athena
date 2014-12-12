@@ -19,7 +19,7 @@ namespace Trk
    class LocalParameters_p1
    {
   public:
-     LocalParameters_p1() {}
+     LocalParameters_p1() : m_parameterKey(0) {}
 
      int                   m_parameterKey;
      std :: vector<float>  m_vec;     

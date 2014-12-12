@@ -87,6 +87,8 @@ macro_append TrkEventTPCnvFloatMacro " -DUseFloatsIn_CompetingRIOsOnTrack "
 
 macro_append  use_pp_cppflags                "" \
               use_float_pers_version  $(TrkEventTPCnvFloatMacro)
+			  
+apply_pattern cmake_add_definitions defines=$(TrkEventTPCnvFloatMacro)
 
 # The following use is to get the lcgdict pattern.
 # This is "hidden" behind "private" and "no_auto_imports" to keep 

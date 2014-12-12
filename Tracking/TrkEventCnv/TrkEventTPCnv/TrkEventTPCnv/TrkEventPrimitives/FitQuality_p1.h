@@ -22,7 +22,7 @@ namespace Trk
    {
    
   public:
-     FitQuality_p1() {}
+     FitQuality_p1() : m_chiSquared(0.0), m_numberDoF(0.0){}
 
      float  m_chiSquared;
      float  m_numberDoF;

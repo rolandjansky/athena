@@ -24,7 +24,7 @@
 class VxCandidateCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::VxCandidate, Trk::VxCandidate_p1>
  {                            
   public:
-   VxCandidateCnv_p1():m_recVertexConverter(0){}
+   VxCandidateCnv_p1():m_recVertexConverter(0), m_vxTrackAtVertexConverter(0) {}
   
 /**  
  * Conversion methods 

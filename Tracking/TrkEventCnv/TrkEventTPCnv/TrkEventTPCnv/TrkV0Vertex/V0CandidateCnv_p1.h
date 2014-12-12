@@ -18,7 +18,7 @@
  class V0CandidateCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::V0Candidate, Trk::V0Candidate_p1> {
   public:
    
-   V0CandidateCnv_p1(){}
+   V0CandidateCnv_p1() : m_v0HypothesisConverter(0) {}
 
    void  persToTrans(const Trk::V0Candidate_p1 * persObj, Trk::V0Candidate * transObj, MsgStream &log); 
    void  transToPers(const Trk::V0Candidate * transObj, Trk::V0Candidate_p1 * persObj, MsgStream &log);     

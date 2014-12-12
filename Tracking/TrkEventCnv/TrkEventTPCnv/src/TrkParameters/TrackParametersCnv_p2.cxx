@@ -49,8 +49,6 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
   // ---- Covariance matrix
   AmgSymMatrix(5)* cov= transErrorMatrix(persObj, log);
 
-
-
   // ---- Parameters
   Trk::TrackParameters    *transObj=0;
   unsigned int size=persObj->m_parameters.size();
@@ -82,6 +80,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     } else if (!m_nosurf) {
       // FIXME: next line changed to DEBUG to avoid filling the derivation job options with garbage. Underlying issue should be fixed.
       log<<MSG::DEBUG<<"No surface of type="<<type<<" created - so these parameters cannot be made!"<<endreq;
+      delete cov;
       return 0;
     }
   }
@@ -183,8 +182,8 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
     persObj->m_errorMatrix = toPersistent( &m_emConverter, &pMat, log );
   }
 
-  transObj->m_position.setZero();
-  transObj->m_momentum.setZero();
+  //transObj->m_position.setZero();
+  //transObj->m_momentum.setZero();
   if (deleteAtEnd) delete transObj;
 }
 

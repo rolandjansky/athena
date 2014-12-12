@@ -23,7 +23,7 @@ namespace Trk {
   class Segment_p1 {
     
     public:
-      Segment_p1() {};
+      Segment_p1() : m_author(0) {};
       // : public MeasurementBase_p1
       
       TPObjRef          m_localParameters;  // mutable const LocalParameters*

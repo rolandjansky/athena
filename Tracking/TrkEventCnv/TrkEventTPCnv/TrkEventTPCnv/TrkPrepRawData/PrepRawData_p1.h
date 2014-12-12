@@ -20,7 +20,7 @@ namespace Trk
    class PrepRawData_p1
    {
   public:
-     PrepRawData_p1() {}
+     PrepRawData_p1() : m_clusId(0), m_indexAndHash(0){}
 
      Identifier::value_type                 m_clusId; 
      std::vector< Identifier::value_type >  m_rdoList;

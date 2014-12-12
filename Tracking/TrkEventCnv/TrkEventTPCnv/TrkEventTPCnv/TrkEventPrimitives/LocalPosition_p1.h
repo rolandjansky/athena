@@ -19,7 +19,7 @@ namespace Trk
    class LocalPosition_p1
    {
   public:
-     LocalPosition_p1() {}
+     LocalPosition_p1() : m_x(0.0), m_y(0.0){}
      
      #ifdef UseFloatsIn_LocalPosition
      float m_x, m_y;

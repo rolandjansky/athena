@@ -17,7 +17,7 @@ namespace Trk
     class LocalDirection_p1
     {
    public:
-      LocalDirection_p1() {}
+      LocalDirection_p1() : m_angleXZ(0.0), m_angleYZ(0.0) {}
 
       #ifdef UseFloatsIn_LocalDirection
       float m_angleXZ;

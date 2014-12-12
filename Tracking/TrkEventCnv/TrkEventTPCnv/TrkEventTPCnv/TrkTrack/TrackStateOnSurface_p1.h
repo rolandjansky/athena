@@ -18,7 +18,7 @@ namespace Trk
     class TrackStateOnSurface_p1
     {
         public:
-      TrackStateOnSurface_p1() {}
+      TrackStateOnSurface_p1() : m_typeFlags(0) {}
 
       // TrackParameters_p1 *
       TPObjRef	m_trackParameters;

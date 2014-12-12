@@ -8,7 +8,7 @@
 class HepPoint3D_p1
 {
 public:
-  HepPoint3D_p1() {}
+  HepPoint3D_p1() : m_x(0.0), m_y(0.0), m_z(0.0){}
 
   #ifdef UseFloatsIn_HepPoint3D
   float m_x, m_y, m_z;
