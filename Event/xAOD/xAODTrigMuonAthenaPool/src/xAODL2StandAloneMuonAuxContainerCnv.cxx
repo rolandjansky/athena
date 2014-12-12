@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODL2StandAloneMuonAuxContainerCnv.cxx 592615 2014-04-11 14:36:58Z krasznaa $
+// $Id: xAODL2StandAloneMuonAuxContainerCnv.cxx 635805 2014-12-12 22:15:16Z ssnyder $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODL2StandAloneMuonAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODL2StandAloneMuonAuxContainerCnv::
 xAODL2StandAloneMuonAuxContainerCnv( ISvcLocator* svcLoc )
@@ -21,10 +23,7 @@ xAODL2StandAloneMuonAuxContainerCnv::
 createPersistent( xAOD::L2StandAloneMuonAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::L2StandAloneMuonAuxContainer* result =
-      new xAOD::L2StandAloneMuonAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::L2StandAloneMuonAuxContainer*
