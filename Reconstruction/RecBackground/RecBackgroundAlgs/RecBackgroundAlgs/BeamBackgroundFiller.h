@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.h 592355 2014-04-10 12:33:10Z wlampl $
+// $Id: BeamBackgroundFiller.h 592353 2014-04-10 12:32:35Z wlampl $
 #ifndef RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 #define RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 
@@ -31,8 +31,8 @@
  *
  * @author David Salek <David.Salek@cern.ch>
  *
- * $Revision: 592355 $
- * $Date: 2014-04-10 14:33:10 +0200 (Thu, 10 Apr 2014) $
+ * $Revision: 592353 $
+ * $Date: 2014-04-10 14:32:35 +0200 (Thu, 10 Apr 2014) $
  */
 class BeamBackgroundFiller : public AthAlgorithm
 {

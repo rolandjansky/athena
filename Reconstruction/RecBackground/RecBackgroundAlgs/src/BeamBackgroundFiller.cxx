@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.cxx 592355 2014-04-10 12:33:10Z wlampl $
+// $Id: BeamBackgroundFiller.cxx 635588 2014-12-12 13:32:15Z wlampl $
 #include "RecBackgroundAlgs/BeamBackgroundFiller.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -18,7 +18,7 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
   declareProperty("muonSegmentContainerKey", m_muonSegmentContainerKey="MuonSegments");
-  declareProperty("caloClusterContainerKey", m_caloClusterContainerKey="CaloCalTopoCluster");
+  declareProperty("caloClusterContainerKey", m_caloClusterContainerKey="CaloCalTopoClusters");
   declareProperty("jetContainerKey", m_jetContainerKey="AntiKt4EMTopoJets");
   declareProperty("BeamBackgroundKey", m_beamBackgroundDataKey="BeamBackgroundData", "SG key for output object.");
 
