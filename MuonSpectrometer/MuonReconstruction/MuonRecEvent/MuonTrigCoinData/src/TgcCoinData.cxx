@@ -186,6 +186,8 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_channelIdOut(RIO.m_channelIdOut),
     m_collectionIdHash(RIO.m_collectionIdHash),
     m_indexAndHash(RIO.m_indexAndHash),
+    m_detElIn(RIO.m_detElIn),
+    m_detElOut(RIO.m_detElOut),
     m_type(RIO.m_type),
     m_isAside(RIO.m_isAside),
     m_phi(RIO.m_phi),
@@ -201,19 +203,10 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_sub(RIO.m_sub),
     m_isPositiveDeltaR(RIO.m_isPositiveDeltaR)
 {
-  delete m_detElIn;
-  m_detElIn = RIO.m_detElIn;
-  delete m_detElOut;
-  m_detElOut = RIO.m_detElOut;
-  delete m_posIn;
   m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
-  delete m_posOut;
   m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : 0 );
-  delete m_errMat;
   m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : 0 );
-  delete m_globalposIn;
   m_globalposIn = ((RIO.m_globalposIn) ? new Amg::Vector3D(*RIO.m_globalposIn) : 0 );
-  delete m_globalposOut;
   m_globalposOut = ((RIO.m_globalposOut) ? new Amg::Vector3D(*RIO.m_globalposOut) : 0 );
 }
 
