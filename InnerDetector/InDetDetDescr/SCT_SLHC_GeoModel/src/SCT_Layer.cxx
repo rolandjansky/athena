@@ -78,8 +78,6 @@ void SCT_Layer::getParameters(){
 
   int numSegments = moduleParameters->barrelModelSideSegments(m_moduleType);
 
-  std::cout<<"SCT ski per layer : "<<m_skisPerLayer<<std::endl;
-
   // Set numerology
   // The sensor can be segmented, in which case each segement is considered a separate module for
   // counting purposes

@@ -60,7 +60,6 @@ void SCT_FwdSensor::getParameters(){
   // For truncated middle the sensor is offset from what it would be if it was a full middle.
   m_sensorOffset = 0;
   m_materialSensor  = materials->getMaterial(parameters->fwdSensorMaterial(m_ring));
-  m_chargeCarrier      = parameters->fwdSensorChargeCarrier(m_ring);
 }
 
 
@@ -114,9 +113,6 @@ void SCT_FwdSensor::makeDesign()
   double halfHeight1=0;
   double halfHeight2=0;
   int crystals=0;
-  InDetDD::CarrierType carrierType;
-  if (m_chargeCarrier < 0.0) carrierType = InDetDD::electrons;
-  else carrierType = InDetDD::holes;
   
   crystals = 1;
   radius1 = m_middleRadius;
@@ -147,7 +143,7 @@ void SCT_FwdSensor::makeDesign()
 					     cells, 
 					     shift,
 					     swapStripReadout, 
-					     carrierType,	     
+					     InDetDD::holes,	     
 					     radius1, 
 					     halfHeight1, 
 					     radius2, 

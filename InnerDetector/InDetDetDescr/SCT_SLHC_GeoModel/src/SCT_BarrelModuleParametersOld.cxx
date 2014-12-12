@@ -61,7 +61,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
   MsgStream log(msgSvc, "SCT_BarrelModuleParameters");
 
   log<<MSG::DEBUG<<"========== Read Local Databse Modules Parameters =======" 
-     << endmsg;
+     << endreq;
   //open the SLHC SCT local database text file
   char* textFileName = getenv ("LocalSlhcGeometryDatabase");
 
@@ -92,7 +92,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
       continue;
     }
     //if not a comment, then get the name and the value of the parameter
-    sscanf(line, "%499s %99f", name, &value);
+    sscanf(line, "%s %f", name, &value);
     
     if(!moduleParameters){
       if(!strcmp(name, "SCT_BRL_MODULES_PARAMETERS_BEGIN")) moduleParameters = true;
@@ -102,7 +102,7 @@ SCT_BarrelModuleParametersOld::SCT_BarrelModuleParametersOld(const SCT_DataBase 
       //put string parameters in a different container
       if(strstr(name, "_STRNG") != NULL){
 	//re-read the second parameter as a string
-	sscanf(line, "%499s %4999s", name, value_strng);
+	sscanf(line, "%s %s", name, value_strng);
 	(*m_SCT_Modules_Strng)[std::string(name)] = std::string(value_strng);
       }else{
 	//fill in the map (the container)
@@ -200,11 +200,11 @@ SCT_BarrelModuleParametersOld::baseBoardMaterial(int moduleType) const
   std::cout<<"-----------2 Barrel BASEBOARDMATERIAL_STRNG("<<moduleType<<") = "<<baseboardMaterial <<std::endl;
   return baseboardMaterial;
 }
-double SCT_BarrelModuleParametersOld::baseBoardOffsetY(int /*moduleType*/) const{
-  //if(moduleType == 1)
+double SCT_BarrelModuleParametersOld::baseBoardOffsetY(int moduleType) const{
+  if(moduleType == 1)
     return -5.7*CLHEP::mm;
-  //else
-  //  return -5.7*CLHEP::mm;
+  else
+    return -5.7*CLHEP::mm;
 }
 
 double SCT_BarrelModuleParametersOld::baseBoardOffsetZ(int moduleType) const{

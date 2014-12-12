@@ -79,7 +79,7 @@ SCT_ForwardParametersOld::SCT_ForwardParametersOld(const SCT_DataBase * sctdb, c
       continue;
     }
     //if not a comment, then get the name and the value of the parameter
-    sscanf(line, "%499s %99f", name, &value);
+    sscanf(line, "%s %f", name, &value);
     //escape lines before the FWD PARAMETERS section (in the txt file)
     if(!sct_fwd_parameters){
       if(!strcmp(name, "SCT_FWD_PARAMETERS_BEGIN")) sct_fwd_parameters = true;
@@ -97,7 +97,7 @@ SCT_ForwardParametersOld::SCT_ForwardParametersOld(const SCT_DataBase * sctdb, c
       //re-anlyse this line: get module positions
       char name_tmp[NAMELEN];
       char value_strg[LINELEN];
-      sscanf(line, "%499s %4999s", name_tmp, value_strg);
+      sscanf(line, "%s %s", name_tmp, value_strg);
       //module positions are code in a string (see the txt config file)
       std::vector<std::string> vec_str;
       //a delimeter "|" is used!
@@ -118,7 +118,7 @@ SCT_ForwardParametersOld::SCT_ForwardParametersOld(const SCT_DataBase * sctdb, c
       //std::cerr<<"Ring Types: "<<iwheel<<" ";
       for(unsigned int i=0; i<rings_per_wheel; i++){
 	unsigned int ring;
-	sscanf(vec_str[i].c_str(), "%99u", &ring);
+	sscanf(vec_str[i].c_str(), "%ud", &ring);
 	//std::cerr<<" "<<ring;
 	wheel_rings->push_back(ring);
       }
@@ -132,7 +132,7 @@ SCT_ForwardParametersOld::SCT_ForwardParametersOld(const SCT_DataBase * sctdb, c
     //put string paramters in a different container
     if(strstr(name, "_STRNG") != NULL){
       //re-read the second parameter as a string
-      sscanf(line, "%499s %4999s", name, value_strng);
+      sscanf(line, "%s %s", name, value_strng);
       (*m_SCT_Fwd_Parameters_Strng)[std::string(name)] = std::string(value_strng);
     }
     //fill the parameters map with the other parameters

@@ -8,7 +8,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "SCT_SLHC_GeoModel/SCT_GeoModelAthenaComps.h"
@@ -21,10 +21,10 @@ namespace InDetDDSLHC {
 SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
   : m_athenaComps(athenaComps)
 {
-  IGeoDbTagSvc * geoDbTag = m_athenaComps->geoDbTagSvc();
+  IGeoModelSvc * geoModel = m_athenaComps->geoModelSvc();
 
-  DecodeVersionKey versionKey(geoDbTag, "SCT");
-    std::string versionTag  = versionKey.tag();
+  DecodeVersionKey versionKey(geoModel, "SCT");
+  std::string versionTag  = versionKey.tag();
   std::string versionNode = versionKey.node();
 
   // Access the RDB
@@ -40,10 +40,10 @@ SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
 //
 /////////////////////////////////////////////////////////
 
-  msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endmsg;
-  msg(MSG::DEBUG) << " Using version tag: " << versionTag << endmsg;
-  msg(MSG::DEBUG) << "           at node: " << versionNode << endmsg;
-  msg(MSG::DEBUG) << " SCT Version:       " << m_sctVersionTag << endmsg;
+  msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endreq;
+  msg(MSG::DEBUG) << " Using version tag: " << versionTag << endreq;
+  msg(MSG::DEBUG) << "           at node: " << versionNode << endreq;
+  msg(MSG::DEBUG) << " SCT Version:       " << m_sctVersionTag << endreq;
   
   // ATLS - not sure I use it.
   // General atlas parameters
@@ -54,66 +54,66 @@ SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
 
   // SCT TopLevel
   m_topLevel = rdbSvc->getRecordsetPtr("SctTopLevel", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctTopLevel Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctTopLevel Fetched" << endreq;
 
   // Weight Table
   m_weightTable = rdbSvc->getRecordsetPtr("SctWeights", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctWeights Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctWeights Fetched" << endreq;
 
   // Envelope table. If not present will use a boolean of barrel + endcaps
   m_envelope = rdbSvc->getRecordsetPtr("SctEnvelope", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctEnvelope Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctEnvelope Fetched" << endreq;
 
   //
   // SCT Barrel 
   //
   m_brlSensor = rdbSvc->getRecordsetPtr("SSctBrlSensor", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlSensor Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlSensor Fetched" << endreq;
 
   m_brlModule = rdbSvc->getRecordsetPtr("SSctBrlModule", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlModule Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlModule Fetched" << endreq;
 
   m_brlLadder = rdbSvc->getRecordsetPtr("SSctBrlLadder", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlLadder Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlLadder Fetched" << endreq;
 
   m_brlServPerLayer = rdbSvc->getRecordsetPtr("SSctBrlServPerLayer", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlServPerLayer Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlServPerLayer Fetched" << endreq;
 
   m_brlSkiZ = rdbSvc->getRecordsetPtr("SSctBrlSkiZ", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlSkiZ Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlSkiZ Fetched" << endreq;
 
   m_brlLayer = rdbSvc->getRecordsetPtr("SSctBrlLayer", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlLayer Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlLayer Fetched" << endreq;
 
   m_brlGeneral = rdbSvc->getRecordsetPtr("SSctBrlGeneral", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctBrlGeneral Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctBrlGeneral Fetched" << endreq;
 
   m_fwdSensor = rdbSvc->getRecordsetPtr("SSctFwdSensor", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdSensor Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdSensor Fetched" << endreq;
 
   m_fwdSpine = rdbSvc->getRecordsetPtr("SSctFwdSpine", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdSpine Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdSpine Fetched" << endreq;
 
   m_fwdModule = rdbSvc->getRecordsetPtr("SSctFwdModule", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdModule Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdModule Fetched" << endreq;
 
   //
   // SCT Forward
   //
   m_fwdRing = rdbSvc->getRecordsetPtr("SSctFwdRing", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdRing Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdRing Fetched" << endreq;
 
   m_fwdWheel = rdbSvc->getRecordsetPtr("SSctFwdWheel", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdWheel Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdWheel Fetched" << endreq;
 
   m_fwdWheelRingMap = rdbSvc->getRecordsetPtr("SSctFwdWheelRingMap", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdWheelRingMap Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdWheelRingMap Fetched" << endreq;
 
   m_fwdDiscSupport = rdbSvc->getRecordsetPtr("SSctFwdDiscSupport", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdDiscSupport Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdDiscSupport Fetched" << endreq;
 
   m_fwdGeneral = rdbSvc->getRecordsetPtr("SSctFwdGeneral", versionTag, versionNode);
-  msg(MSG::DEBUG) << "Table SctFwdGeneral Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table SctFwdGeneral Fetched" << endreq;
 
 }
 

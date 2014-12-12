@@ -40,7 +40,6 @@ public:
   virtual double fwdSensorActiveHalfLength(int iModuleType) const;
   virtual double fwdSensorAngularPitch(int iModuleType) const;
   virtual int    fwdSensorNumReadoutStrips(int iModuleType) const;
-  virtual int fwdSensorChargeCarrier(int iModuleType) const;
 
   // Spine
   virtual double fwdSpineThickness(int iModuleType) const;
