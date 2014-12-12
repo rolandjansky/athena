@@ -26,6 +26,9 @@ class SCT_FwdRing : public SCT_UniqueComponentFactory{
   SCT_FwdRing(const std::string & name, int iWheel, int iRing, double offset);
   
   ~SCT_FwdRing();
+  //disable copy and assign
+  SCT_FwdRing & operator=(const SCT_FwdRing &) = delete;
+  SCT_FwdRing(const SCT_FwdRing &) = delete;
 
   int    numModules() const {return m_numModules;}
   double moduleStagger()    const {return m_moduleStagger;} 

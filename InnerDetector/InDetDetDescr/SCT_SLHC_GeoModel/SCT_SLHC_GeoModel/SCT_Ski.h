@@ -36,6 +36,10 @@ class SCT_Ski: public SCT_UniqueComponentFactory{
 	  const SCT_Module* module);
 
   ~SCT_Ski();
+  //disable copy, assign
+  SCT_Ski & operator=(const SCT_Ski &) = delete;
+  SCT_Ski(const SCT_Ski &) = delete;
+  
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
 
  public:

@@ -287,4 +287,11 @@ SCT_ForwardModuleParametersOld::fwdSpineMaterial(int iModuleType) const
   //---return m_rdb->fwdSpine(iModuleType)->getString("MATERIAL");
 }
 
+SCT_ForwardModuleParametersOld::~SCT_ForwardModuleParametersOld(){
+
+  delete m_SCT_Fwd_Modules; m_SCT_Fwd_Modules=0;
+  delete m_SCT_Fwd_Modules_Strng; m_SCT_Fwd_Modules_Strng=0;
+
+}
+
 }

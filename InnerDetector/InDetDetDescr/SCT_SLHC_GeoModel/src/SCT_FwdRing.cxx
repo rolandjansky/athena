@@ -37,16 +37,16 @@ SCT_FwdRing::SCT_FwdRing(const std::string & name,
 			 int iRing, double offset)
   : SCT_UniqueComponentFactory(name), 
     m_iWheel(iWheel),
-    m_iRing(iRing){
+    m_iRing(iRing),
+    m_numModules(0), m_doubleSided(0), m_moduleStagger(0),m_stereoSign(0), m_refStartAngle(0),
+    m_refFirstStagger(0), m_innerRadius(0), m_middleRadius(0),m_length(0),m_thickness(0), m_firstStagger(0){
     m_ringSide = (offset>0) ? 1 : -1;
     getParameters();
     m_logVolume = preBuild();
   }
 
 void SCT_FwdRing::getParameters(){
-  
   const SCT_ForwardParameters* parameters = geometryManager()->forwardParameters();
-    
   m_innerRadius     = parameters->fwdRingInnerRadius(m_iRing);
   m_middleRadius    = parameters->fwdRingMiddleRadius(m_iRing);
   m_outerRadius     = parameters->fwdRingOuterRadius(m_iRing);
@@ -110,7 +110,7 @@ GeoVPhysVol* SCT_FwdRing::build(SCT_Identifier id) const{
     //        _   |
     //   _ -      | 
     //  |         |
-    // -|-------  |-------->Z axis (Y is down the screen and X comming out the screen)
+    // -|-------  |-------->Z axis (Y is down the screen and X coming out the screen)
     //  |_        |
     //     -  _   |
     //           -

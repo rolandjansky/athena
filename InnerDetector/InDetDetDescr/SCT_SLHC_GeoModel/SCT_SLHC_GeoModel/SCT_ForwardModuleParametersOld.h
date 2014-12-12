@@ -18,7 +18,11 @@ public:
 
   // Constructor 
   SCT_ForwardModuleParametersOld(const SCT_DataBase * sctdb, const SCT_GeoModelAthenaComps * athenaComps);
-
+  ~SCT_ForwardModuleParametersOld();
+  //disable assignment
+  SCT_ForwardModuleParametersOld & operator=(const SCT_ForwardModuleParametersOld &) = delete;
+  //disable copy
+  SCT_ForwardModuleParametersOld(const SCT_ForwardModuleParametersOld &) = delete;
   // Sensor
   int    fwdSensorNumWafers(int iModuleType) const;
   double fwdSensorThickness(int iModuleType) const;

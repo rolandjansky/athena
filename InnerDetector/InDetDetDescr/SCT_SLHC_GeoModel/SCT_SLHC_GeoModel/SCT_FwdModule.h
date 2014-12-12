@@ -26,13 +26,13 @@ class SCT_FwdModule : public SCT_UniqueComponentFactory{
   
   SCT_FwdModule(const std::string & name, int ring, int doubleSided);
   ~SCT_FwdModule();
-  
+  SCT_FwdModule & operator=(const SCT_FwdModule &) = delete;
+  SCT_FwdModule(const SCT_FwdModule &) = delete;
   //GeoVPhysVol* build(SCT_Identifier id, GeoTransform * position, GeoPhysVol * world) ;
   virtual GeoVPhysVol* build(SCT_Identifier id) const;
   
   double stereoAngle() const {return m_stereoAngle;}
-  
-  double moduleShift()      const {return m_moduleShift;}	
+  double moduleShift() const {return m_moduleShift;}	
   double thickness()   const {return m_thickness;}
   double length()      const {return m_length;}
   double innerRadius() const {return m_innerRadius;}

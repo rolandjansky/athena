@@ -28,7 +28,11 @@ public:
 
   SCT_Module(const std::string & name, bool doubleSided, bool staveLayout, int moduleType);
 
-  ~SCT_Module();  
+  ~SCT_Module();
+  //disable copy, assign  
+  SCT_Module & operator=(const SCT_Module &) = delete;
+  SCT_Module(const SCT_Module &) = delete;
+  
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
   
 public:

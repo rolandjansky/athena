@@ -57,7 +57,6 @@ SCT_Module::~SCT_Module(){
 
 void SCT_Module::getParameters(){
   const SCT_BarrelModuleParameters* parameters = geometryManager()->barrelModuleParameters();
-
   m_stereoAngle   = parameters->moduleStereoAngle(m_moduleType);
   m_interSidesGap = parameters->moduleInterSidesGap(m_moduleType);
 }
@@ -65,7 +64,6 @@ void SCT_Module::getParameters(){
 
 const GeoLogVol* SCT_Module::preBuild(){
   SCT_MaterialManager * materials = geometryManager()->materialManager();
-
   m_innerSide = new SCT_InnerSide("InnerSide", m_moduleType, m_staveLayout);
   if(!m_staveLayout) {
     m_baseBoard = new SCT_BaseBoard("BaseBoard", m_moduleType);
@@ -79,6 +77,9 @@ const GeoLogVol* SCT_Module::preBuild(){
   double sideWidth, sideLength;
   double half_stereo = 0.5*m_stereoAngle;
   if(m_staveLayout){
+    //coverity investigation sroe 7/11/2014:
+    //How can this be sensible? : The m_baseboard parameter is only defined if (!m_staveLayout)
+    //but the code here dereferences it  and only executes if (m_staveLayout)
     // Sensor only if placing sensors directly on stave
     m_width   = m_innerSide->width();
     m_length  = m_innerSide->length();
@@ -112,11 +113,16 @@ const GeoLogVol* SCT_Module::preBuild(){
 GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
 
   if(!m_staveLayout) {
-  
     //We make these fullPhysVols for the alignment code.
     GeoFullPhysVol* module = new GeoFullPhysVol(m_logVolume); 
     //first, calculate the module components position
     HepGeom::Transform3D innerSidePos, baseBoardPos, outerSidePos;
+    if (not m_baseBoard){
+    	std::cerr<<"baseboard pointer in function 'build' of \n" 
+    	<<"InnerDetector/InDetDetDescr/SCT_SLHC_GeoModel/src/SCT_Module.cxx\n"
+    	<<" is NULL." <<std::endl;
+    	return NULL;
+    }
     if (m_doubleSided){
       //inner side position (shift this side towards the intreaction point, ie X negative)
       CLHEP::HepRotation inner_Rot;
@@ -127,11 +133,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
       //std::cerr<<"inner Xpos "<<Xpos<<" thickness "<<m_innerSide->thickness()<<std::endl;
       //protection
       if(fabs(Xpos)+0.5*m_innerSide->thickness() > 0.5*m_thickness){
-	std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
-		 <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_innerSide->thickness()
-		 <<", halfmodthick = "<<0.5*m_thickness
-		 <<". exit athena!"<<std::endl;
-	exit(1);
+	      std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
+		    <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_innerSide->thickness()
+		    <<", halfmodthick = "<<0.5*m_thickness
+		    <<". exit athena!"<<std::endl;
+	      exit(1);
       }
       CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
       innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
@@ -144,11 +150,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
       //std::cerr<<"inner Xpos "<<Xpos<<" thickness "<<m_outerSide->thickness()<<std::endl;
       //protection
       if(fabs(Xpos)+0.5*m_outerSide->thickness() > 0.5*m_thickness){
-	std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
-		 <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_outerSide->thickness()
-		 <<", halfmodthick = "<<0.5*m_thickness
-		 <<". exit athena!"<<std::endl;
-	exit(1);
+	      std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
+		    <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_outerSide->thickness()
+		    <<", halfmodthick = "<<0.5*m_thickness
+		    <<". exit athena!"<<std::endl;
+	      exit(1);
       }
       CLHEP::Hep3Vector outer_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
       outerSidePos = HepGeom::Transform3D(outer_Rot, outer_Xpos);
@@ -160,11 +166,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
       double Xpos = -0.5*m_baseBoard->thickness();
       //protection
       if(fabs(Xpos)+0.5*m_innerSide->thickness() > 0.5*m_thickness){
-	std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
-		 <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_innerSide->thickness()
-		 <<", halfmodthick = "<<0.5*m_thickness
-		 <<". exit athena!"<<std::endl;
-	exit(1);
+	      std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
+		    <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_innerSide->thickness()
+		    <<", halfmodthick = "<<0.5*m_thickness
+		    <<". exit athena!"<<std::endl;
+	     exit(1);
       }
       CLHEP::Hep3Vector  inner_Xpos = CLHEP::Hep3Vector(Xpos, 0., 0.);
       innerSidePos = HepGeom::Transform3D(inner_Rot, inner_Xpos);
@@ -172,11 +178,11 @@ GeoVPhysVol* SCT_Module::build(SCT_Identifier id) const{
       Xpos = 0.5*m_innerSide->thickness();
       //protection!
       if(fabs(Xpos)+0.5*m_baseBoard->thickness() > 0.5*m_thickness){
-	std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
-		 <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_baseBoard->thickness()
-		 <<", halfmodthick = "<<0.5*m_thickness
-		 <<". exit athena!"<<std::endl;
-	exit(1);
+	      std::cout<<"SCT_Module.cxx: sensor position should be < than module half thickness, "
+		      <<"sensXpos+halfsensthick = "<<fabs(Xpos)+0.5*m_baseBoard->thickness()
+		      <<", halfmodthick = "<<0.5*m_thickness
+		      <<". exit athena!"<<std::endl;
+	      exit(1);
       }
       baseBoardPos = HepGeom::Translate3D(CLHEP::Hep3Vector(Xpos, 0.0, 0.0));
     }
