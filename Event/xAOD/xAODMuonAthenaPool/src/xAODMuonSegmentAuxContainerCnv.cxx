@@ -12,6 +12,8 @@
 
 // Local include(s):
 #include "xAODMuonSegmentAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODMuonSegmentAuxContainerCnv::
 xAODMuonSegmentAuxContainerCnv( ISvcLocator* svcLoc )
@@ -39,10 +41,7 @@ createPersistent( xAOD::MuonSegmentAuxContainer* trans ) {
    }
 
    // Create a copy of the container:
-   xAOD::MuonSegmentAuxContainer* result =
-      new xAOD::MuonSegmentAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::MuonSegmentAuxContainer*

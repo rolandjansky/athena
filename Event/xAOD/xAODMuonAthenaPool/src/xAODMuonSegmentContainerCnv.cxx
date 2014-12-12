@@ -86,6 +86,7 @@ xAOD::MuonSegmentContainer* xAODMuonSegmentContainerCnv::createTransient() {
 void xAODMuonSegmentContainerCnv::
 toPersistent( xAOD::MuonSegment* ms ) const {
 
+#ifndef XAOD_ANALYSIS
    try {
 
       const_cast< ElementLink< Trk::SegmentCollection >& >( ms->muonSegment() ).toPersistent();
@@ -95,6 +96,7 @@ toPersistent( xAOD::MuonSegment* ms ) const {
       // exist. The code should not die in that case, but just continue.
       // The I/O system should be fine with the element link missing...
    }
+#endif
 
    return;
 }

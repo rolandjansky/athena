@@ -6,38 +6,38 @@
 #include <exception>
 
 // Local include(s):
-#include "xAODMuonAuxContainerCnv.h"
+#include "xAODSlowMuonAuxContainerCnv.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
 
-xAODMuonAuxContainerCnv::
-xAODMuonAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODMuonAuxContainerCnvBase( svcLoc ) {
+xAODSlowMuonAuxContainerCnv::
+xAODSlowMuonAuxContainerCnv( ISvcLocator* svcLoc )
+   : xAODSlowMuonAuxContainerCnvBase( svcLoc ) {
 
 }
 
-xAOD::MuonAuxContainer*
-xAODMuonAuxContainerCnv::
-createPersistent( xAOD::MuonAuxContainer* trans ) {
+xAOD::SlowMuonAuxContainer*
+xAODSlowMuonAuxContainerCnv::
+createPersistent( xAOD::SlowMuonAuxContainer* trans ) {
 
    // Create a copy of the container:
    return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
-xAOD::MuonAuxContainer*
-xAODMuonAuxContainerCnv::createTransient() {
+xAOD::SlowMuonAuxContainer*
+xAODSlowMuonAuxContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static const pool::Guid v1_guid( "EC9B677A-B3BA-4C75-87D3-373FC478291E" );
+  static const pool::Guid v1_guid( "B0B4F66B-C261-4403-AB96-D71249A9CDEC");
 
    // Check which version of the container we're reading:
    if( compareClassGuid( v1_guid ) ) {
       // It's the latest version, read it directly:
-      return poolReadObject< xAOD::MuonAuxContainer >();
+      return poolReadObject< xAOD::SlowMuonAuxContainer >();
    }
 
    // If we didn't recognise the ID:
    throw std::runtime_error( "Unsupported version of "
-                             "xAOD::MuonAuxContainer found" );
+                             "xAOD::SlowMuonAuxContainer found" );
    return 0;
 }
