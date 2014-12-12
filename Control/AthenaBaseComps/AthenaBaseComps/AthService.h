@@ -20,10 +20,11 @@
 #include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/UpdateHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "StoreGate/VarHandleProperty.h"
-#include "StoreGate/RVar.h"
-#include "StoreGate/RWVar.h"
-#include "StoreGate/WVar.h"
 
 // Forward declaration
 class ISvcLocator;

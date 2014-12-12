@@ -4,10 +4,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// AthFilterAlgorithm.cxx 
+// AthFilterAlgorithm.cxx
 // Implementation file for class AthFilterAlgorithm
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
@@ -18,21 +18,21 @@
 #include "GaudiKernel/Property.h"
 
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Public methods:
+///////////////////////////////////////////////////////////////////
 
 // Constructors
 ////////////////
-AthFilterAlgorithm::AthFilterAlgorithm( const std::string& name, 
-                                        ISvcLocator* pSvcLocator ) : 
+AthFilterAlgorithm::AthFilterAlgorithm( const std::string& name,
+                                        ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_cutID ( 0 ),
   m_cutFlowSvc("CutFlowSvc/CutFlowSvc", name)
 {
   //
   // Property declaration
-  // 
+  //
   //declareProperty( "Property", m_nProperty );
 
   declareProperty("CutFlowSvc", m_cutFlowSvc,
@@ -50,20 +50,20 @@ AthFilterAlgorithm::AthFilterAlgorithm( const std::string& name,
 AthFilterAlgorithm::~AthFilterAlgorithm()
 {}
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
+///////////////////////////////////////////////////////////////////
+// Const methods:
 ///////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Non-const methods:
+///////////////////////////////////////////////////////////////////
 
 /** Initialization method invoked by the framework. This method is responsible
  *  for any bookkeeping of initialization required by the framework itself.
  *  It will in turn invoke the initialize() method of the derived algorithm,
  * and of any sub-algorithms which it creates.
  */
-StatusCode 
+StatusCode
 AthFilterAlgorithm::sysInitialize()
 {
   // ---- stolen from GaudiKernel/Algorithm::sysInitialize -------
@@ -82,7 +82,7 @@ AthFilterAlgorithm::sysInitialize()
 
   // register ourselves with the cutFlowSvc
   if ( cutFlowSvc().retrieve().isSuccess()) {
-    m_cutID = cutFlowSvc()->selfRegisterFilter(this->name(), m_filterDescr);
+    m_cutID = cutFlowSvc()->registerFilter(this->name(), m_filterDescr);
     if (0 == m_cutID) {
       ATH_MSG_INFO("problem registering myself with cutflow-svc");
     } else {
@@ -93,15 +93,15 @@ AthFilterAlgorithm::sysInitialize()
   // re-direct to base class...
   return AthAlgorithm::sysInitialize();
 }
-  
+
 /// Set the filter passed flag to the specified state
-void 
+void
 AthFilterAlgorithm::setFilterPassed( bool state )
 {
   AthAlgorithm::setFilterPassed(state);
 
   if (state) {
-    cutFlowSvc()->addEvent(m_cutID);
+    m_cutFlowSvc->addEvent(m_cutID);
   }
 }
 
@@ -110,30 +110,15 @@ AthFilterAlgorithm::setFilterPassed( bool state )
 void
 AthFilterAlgorithm::setFilterDescription(const std::string& descr)
 {
-  if( cutFlowSvc()==0 ){ 
-    m_filterDescr = descr; 
+  if( cutFlowSvc()==0 ){
+    m_filterDescr = descr;
   }
   else if( m_resetSelfDescription and cutID() ){
     cutFlowSvc()->setFilterDescription(cutID(),descr);
   }
   else{
-    ATH_MSG_INFO("problem setting filter description with cutflow-svc");  
+    ATH_MSG_INFO("problem setting filter description with cutflow-svc");
   }
-  
+
   return;
 }
-
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-

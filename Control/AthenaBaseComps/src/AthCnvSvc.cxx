@@ -27,6 +27,7 @@
 #ifndef HAVE_GAUDI_PLUGINSVC
  namespace Rflx = ROOT::Reflex;
 #endif
+#include "GAUDI_VERSION.h"
 
 #include "GaudiKernel/Converter.h"
 
@@ -485,8 +486,13 @@ AthCnvSvc::createConverter (long typ,
   IConverter *cnv = 0;
 
 #ifdef HAVE_GAUDI_PLUGINSVC
-  cnv = Gaudi::PluginService::Factory1<IConverter*, ISvcLocator*>::create
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+  cnv = Gaudi::PluginService::Factory<IConverter*, ISvcLocator*>::create
     (ConverterID(typ,clid), serviceLocator().get() );
+#else  
+  cnv = Gaudi::PluginService::Factory1<IConverter*, ISvcLocator*>::create
+      (ConverterID(typ,clid), serviceLocator().get() );
+#endif
 #else
   cnv = Rflx::PluginService::CreateWithId<IConverter*> 
     (ConverterID (typ,clid), serviceLocator().get());
@@ -495,8 +501,13 @@ AthCnvSvc::createConverter (long typ,
   if (0==cnv) {
     typ = (typ<0xFF) ? typ : typ&0xFFFFFF00;
 #ifdef HAVE_GAUDI_PLUGINSVC
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    cnv = Gaudi::PluginService::Factory<IConverter*, ISvcLocator*>::create
+       (ConverterID(typ,clid), serviceLocator().get() );
+#else  
     cnv = Gaudi::PluginService::Factory1<IConverter*, ISvcLocator*>::create
        (ConverterID(typ,clid), serviceLocator().get() );
+#endif
 #else
     cnv = Rflx::PluginService::CreateWithId<IConverter*>
       (ConverterID(typ,clid), serviceLocator().get());

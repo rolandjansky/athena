@@ -24,9 +24,9 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
-#include "StoreGate/RVar.h"
-#include "StoreGate/RWVar.h"
-#include "StoreGate/WVar.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/UpdateHandle.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
