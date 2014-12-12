@@ -6,7 +6,7 @@
 #include <exception>
 
 // Local include(s):
-#include "xAODPrepRawDataContainerCnv.h"
+#include "xAODTrackStateValidationContainerCnv.h"
 
 namespace {
 
@@ -24,22 +24,22 @@ namespace {
 
 } // private namespace
 
-xAODPrepRawDataContainerCnv::xAODPrepRawDataContainerCnv( ISvcLocator* svcLoc )
-   : xAODPrepRawDataContainerCnvBase( svcLoc ) {
+xAODTrackStateValidationContainerCnv::xAODTrackStateValidationContainerCnv( ISvcLocator* svcLoc )
+   : xAODTrackStateValidationContainerCnvBase( svcLoc ) {
 }
 
-xAOD::PrepRawDataContainer*
-xAODPrepRawDataContainerCnv::
-createPersistent( xAOD::PrepRawDataContainer* trans ) {
+xAOD::TrackStateValidationContainer*
+xAODTrackStateValidationContainerCnv::
+createPersistent( xAOD::TrackStateValidationContainer* trans ) {
 
    // Create a view copy of the container:
-   xAOD::PrepRawDataContainer* result =
-      new xAOD::PrepRawDataContainer( trans->begin(), trans->end(),
+   xAOD::TrackStateValidationContainer* result =
+      new xAOD::TrackStateValidationContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
    // Prepare the objects to be written out:
-   xAOD::PrepRawDataContainer::iterator itr = result->begin();
-   xAOD::PrepRawDataContainer::iterator end = result->end();
+   xAOD::TrackStateValidationContainer::iterator itr = result->begin();
+   xAOD::TrackStateValidationContainer::iterator end = result->end();
    for( ; itr != end; ++itr ) {
       toPersistent( *itr );
    }
@@ -53,36 +53,36 @@ createPersistent( xAOD::PrepRawDataContainer* trans ) {
  * key of the container that's being created. After that's done, it lets the
  * base class do its normal task.
  */
-StatusCode xAODPrepRawDataContainerCnv::createObj( IOpaqueAddress* pAddr,
+StatusCode xAODTrackStateValidationContainerCnv::createObj( IOpaqueAddress* pAddr,
                                                    DataObject*& pObj ) {
 
    // Get the key of the container that we'll be creating:
    m_key = *( pAddr->par() + 1 );
-   ATH_MSG_VERBOSE( "Key of xAOD::PrepRawDataContainer: " << m_key );
+   ATH_MSG_VERBOSE( "Key of xAOD::TrackStateValidationContainer: " << m_key );
 
    // Let the base class do its thing now:
    return AthenaPoolConverter::createObj( pAddr, pObj );
 }
 
-xAOD::PrepRawDataContainer* xAODPrepRawDataContainerCnv::createTransient() {
+xAOD::TrackStateValidationContainer* xAODTrackStateValidationContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "451E4762-1860-4F89-A90F-9A17003ED01F" );
+   static pool::Guid v1_guid( "149664B4-C7A7-4373-B5BA-D8D2DB3E65B5" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
-      xAOD::PrepRawDataContainer* c = poolReadObject< xAOD::PrepRawDataContainer >();
+      xAOD::TrackStateValidationContainer* c = poolReadObject< xAOD::TrackStateValidationContainer >();
       setStoreLink( c, m_key );
       return c;
    }
 
    // If we didn't recognise the ID, let's complain:
    throw std::runtime_error( "Unsupported version of "
-                             "xAOD::PrepRawDataContainer found" );
+                             "xAOD::TrackStateValidationContainer found" );
    return 0;
 }
 
-void xAODPrepRawDataContainerCnv::
-toPersistent( xAOD::PrepRawData* /*np*/ ) const {
+void xAODTrackStateValidationContainerCnv::
+toPersistent( xAOD::TrackStateValidation* /*np*/ ) const {
    return;
 }

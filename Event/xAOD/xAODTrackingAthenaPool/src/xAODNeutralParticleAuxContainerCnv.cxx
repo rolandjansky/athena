@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODNeutralParticleAuxContainerCnv.cxx 581533 2014-02-05 09:28:36Z krasznaa $
+// $Id: xAODNeutralParticleAuxContainerCnv.cxx 635799 2014-12-12 22:08:09Z ssnyder $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODNeutralParticleAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODNeutralParticleAuxContainerCnv::
 xAODNeutralParticleAuxContainerCnv( ISvcLocator* svcLoc )
@@ -21,10 +23,7 @@ xAODNeutralParticleAuxContainerCnv::
 createPersistent( xAOD::NeutralParticleAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::NeutralParticleAuxContainer* result =
-      new xAOD::NeutralParticleAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::NeutralParticleAuxContainer*

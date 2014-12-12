@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleAuxContainerCnv.cxx 609811 2014-08-01 15:47:00Z ssnyder $
+// $Id: xAODTrackParticleAuxContainerCnv.cxx 635799 2014-12-12 22:08:09Z ssnyder $
 
 // System include(s):
 #include <exception>
@@ -17,6 +17,10 @@
 
 // Local include(s):
 #include "xAODTrackParticleAuxContainerCnv.h"
+#include "xAODTrackParticleAuxContainerCnv_v1.h"
+
+// EDM include(s):
+// #include "xAODTracking/versions/TrackParticleContainer_v1.h"
 
 
 xAODTrackParticleAuxContainerCnv::
@@ -40,28 +44,37 @@ createPersistent( xAOD::TrackParticleAuxContainer* trans ) {
       dictLoaded = true;
    }
 
-   // Check if there's a thinning service:
-   IThinningSvc* thinSvc = IThinningSvc::instance();
-
-   // Need to change createPersistent in converter base to take a const
-   // pointer as a return.
-   return SG::copyThinned (*trans, thinSvc);
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::TrackParticleAuxContainer*
 xAODTrackParticleAuxContainerCnv::createTransient() {
 
-   // The known ID(s) for this container:
-   static const pool::Guid v1_guid( "C3B01EA0-CA87-4C96-967F-E0F9A75BD370" );
+  // The known ID(s) for this container:
+  static const pool::Guid v1_guid( "C3B01EA0-CA87-4C96-967F-E0F9A75BD370" );
+  static const pool::Guid v2_guid( "53031BE5-2156-41E8-B70C-41A1C0572FC5" );
 
-   // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
-      // It's the latest version, read it directly:
-      return poolReadObject< xAOD::TrackParticleAuxContainer >();
-   }
+  // Check which version of the container we're reading:
+  if ( compareClassGuid( v2_guid ) ){
+    // It's the latest version, read it directly:
+    xAOD::TrackParticleAuxContainer* blah = poolReadObject< xAOD::TrackParticleAuxContainer >(); 
+    return blah;
+  } else if( compareClassGuid( v1_guid ) ) {
+    
+    // The v1 converter: 
+    static xAODTrackParticleAuxContainerCnv_v1 converter; 
+ 
+    // Read in the v1 version: 
+    std::unique_ptr< xAOD::TrackParticleAuxContainer_v1 > 
+      old( poolReadObject< xAOD::TrackParticleAuxContainer_v1 >() ); 
+ 
+    // Return the converted object: 
+    return converter.createTransient( old.get(), msg() );     
+  }
 
-   // If we didn't recognise the ID:
-   throw std::runtime_error( "Unsupported version of "
-                             "xAOD::TrackParticleAuxContainer found" );
-   return 0;
+  // If we didn't recognise the ID:
+  throw std::runtime_error( "Unsupported version of "
+    "xAOD::TrackParticleAuxContainer found" );
+  return 0;
 }

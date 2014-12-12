@@ -6,7 +6,7 @@
 #include <exception>
 
 // Local include(s):
-#include "xAODMeasurementStateOnSurfaceContainerCnv.h"
+#include "xAODTrackMeasurementValidationContainerCnv.h"
 
 namespace {
 
@@ -24,22 +24,22 @@ namespace {
 
 } // private namespace
 
-xAODMeasurementStateOnSurfaceContainerCnv::xAODMeasurementStateOnSurfaceContainerCnv( ISvcLocator* svcLoc )
-   : xAODMeasurementStateOnSurfaceContainerCnvBase( svcLoc ) {
+xAODTrackMeasurementValidationContainerCnv::xAODTrackMeasurementValidationContainerCnv( ISvcLocator* svcLoc )
+   : xAODTrackMeasurementValidationContainerCnvBase( svcLoc ) {
 }
 
-xAOD::MeasurementStateOnSurfaceContainer*
-xAODMeasurementStateOnSurfaceContainerCnv::
-createPersistent( xAOD::MeasurementStateOnSurfaceContainer* trans ) {
+xAOD::TrackMeasurementValidationContainer*
+xAODTrackMeasurementValidationContainerCnv::
+createPersistent( xAOD::TrackMeasurementValidationContainer* trans ) {
 
    // Create a view copy of the container:
-   xAOD::MeasurementStateOnSurfaceContainer* result =
-      new xAOD::MeasurementStateOnSurfaceContainer( trans->begin(), trans->end(),
+   xAOD::TrackMeasurementValidationContainer* result =
+      new xAOD::TrackMeasurementValidationContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
    // Prepare the objects to be written out:
-   xAOD::MeasurementStateOnSurfaceContainer::iterator itr = result->begin();
-   xAOD::MeasurementStateOnSurfaceContainer::iterator end = result->end();
+   xAOD::TrackMeasurementValidationContainer::iterator itr = result->begin();
+   xAOD::TrackMeasurementValidationContainer::iterator end = result->end();
    for( ; itr != end; ++itr ) {
       toPersistent( *itr );
    }
@@ -53,36 +53,36 @@ createPersistent( xAOD::MeasurementStateOnSurfaceContainer* trans ) {
  * key of the container that's being created. After that's done, it lets the
  * base class do its normal task.
  */
-StatusCode xAODMeasurementStateOnSurfaceContainerCnv::createObj( IOpaqueAddress* pAddr,
+StatusCode xAODTrackMeasurementValidationContainerCnv::createObj( IOpaqueAddress* pAddr,
                                                    DataObject*& pObj ) {
 
    // Get the key of the container that we'll be creating:
    m_key = *( pAddr->par() + 1 );
-   ATH_MSG_VERBOSE( "Key of xAOD::MeasurementStateOnSurfaceContainer: " << m_key );
+   ATH_MSG_VERBOSE( "Key of xAOD::TrackMeasurementValidationContainer: " << m_key );
 
    // Let the base class do its thing now:
    return AthenaPoolConverter::createObj( pAddr, pObj );
 }
 
-xAOD::MeasurementStateOnSurfaceContainer* xAODMeasurementStateOnSurfaceContainerCnv::createTransient() {
+xAOD::TrackMeasurementValidationContainer* xAODTrackMeasurementValidationContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "DBAAD4D2-334F-11E4-8DF6-02163E00A738" );
+   static pool::Guid v1_guid( "868F1FD8-AFE7-4B40-B12E-73716C37A6B0" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
-      xAOD::MeasurementStateOnSurfaceContainer* c = poolReadObject< xAOD::MeasurementStateOnSurfaceContainer >();
+      xAOD::TrackMeasurementValidationContainer* c = poolReadObject< xAOD::TrackMeasurementValidationContainer >();
       setStoreLink( c, m_key );
       return c;
    }
 
    // If we didn't recognise the ID, let's complain:
    throw std::runtime_error( "Unsupported version of "
-                             "xAOD::MeasurementStateOnSurfaceContainer found" );
+                             "xAOD::TrackMeasurementValidationContainer found" );
    return 0;
 }
 
-void xAODMeasurementStateOnSurfaceContainerCnv::
-toPersistent( xAOD::MeasurementStateOnSurface* /*np*/ ) const {
+void xAODTrackMeasurementValidationContainerCnv::
+toPersistent( xAOD::TrackMeasurementValidation* /*np*/ ) const {
    return;
 }

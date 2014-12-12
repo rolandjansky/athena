@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODVertexContainerCnv.cxx 611354 2014-08-12 07:20:27Z arnaez $
+// $Id: xAODVertexContainerCnv.cxx 625403 2014-10-31 13:39:56Z nstyles $
 
 // System include(s):
 #include <exception>
@@ -45,9 +45,6 @@ createPersistent( xAOD::VertexContainer* trans ) {
    // Prepare the objects to be written out:
    xAOD::VertexContainer::iterator itr = result->begin();
    xAOD::VertexContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
 
    // Return the new container:
    return result;
@@ -85,30 +82,4 @@ xAOD::VertexContainer* xAODVertexContainerCnv::createTransient() {
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::VertexContainer found" );
    return 0;
-}
-
-void xAODVertexContainerCnv::
-toPersistent( xAOD::Vertex* vertex ) const {
-
-   /// A convenience shorthand
-   typedef xAOD::Vertex::TrackParticleLinks_t Type_t;
-
-   // Call "toPersistent()" on all the ElementLinks:
-   Type_t::const_iterator track_itr = vertex->trackParticleLinks().begin();
-   Type_t::const_iterator track_end = vertex->trackParticleLinks().end();
-   for( ; track_itr != track_end; ++track_itr ) {
-      Type_t::reference el = const_cast< Type_t::reference >( *track_itr );
-      el.toPersistent();
-   }
-
-   //same for neutrals
-   typedef xAOD::Vertex::NeutralParticleLinks_t Type_n;
-   Type_n::const_iterator neutral_itr = vertex->neutralParticleLinks().begin();
-   Type_n::const_iterator neutral_end = vertex->neutralParticleLinks().end();
-   for( ; neutral_itr != neutral_end; ++neutral_itr ) {
-      Type_n::reference el = const_cast< Type_n::reference >( *neutral_itr );
-      el.toPersistent();
-   }
-
-   return;
 }

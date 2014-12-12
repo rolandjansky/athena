@@ -9,15 +9,15 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // EDM include(s):
-#include "xAODTracking/PrepRawDataAuxContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 /// Base class for the converter
-typedef T_AthenaPoolCustomCnv< xAOD::PrepRawDataAuxContainer,
-                               xAOD::PrepRawDataAuxContainer >
-   xAODPrepRawDataAuxContainerCnvBase;
+typedef T_AthenaPoolCustomCnv< xAOD::TrackMeasurementValidationAuxContainer,
+                               xAOD::TrackMeasurementValidationAuxContainer >
+   xAODTrackMeasurementValidationAuxContainerCnvBase;
 
 /**
- *  @short POOL converter for the xAOD::PrepRawDataAuxContainer class
+ *  @short POOL converter for the xAOD::TrackMeasurementValidationAuxContainer class
  *
  *         This is the converter doing the actual schema evolution
  *         of the package... The converter for xAOD::TrackParticleContainer
@@ -27,22 +27,22 @@ typedef T_AthenaPoolCustomCnv< xAOD::PrepRawDataAuxContainer,
  *
  * @author Edward Moyse <Edward.Moyse@cern.ch>
  */
-class xAODPrepRawDataAuxContainerCnv :
-   public xAODPrepRawDataAuxContainerCnvBase {
+class xAODTrackMeasurementValidationAuxContainerCnv :
+   public xAODTrackMeasurementValidationAuxContainerCnvBase {
 
    // Declare the factory as our friend:
-   friend class CnvFactory< xAODPrepRawDataAuxContainerCnv >;
+   friend class CnvFactory< xAODTrackMeasurementValidationAuxContainerCnv >;
 
 protected:
    /// Converter constructor
-   xAODPrepRawDataAuxContainerCnv( ISvcLocator* svcLoc );
+   xAODTrackMeasurementValidationAuxContainerCnv( ISvcLocator* svcLoc );
 
    /// Function preparing the container to be written out
-   virtual xAOD::PrepRawDataAuxContainer*
-   createPersistent( xAOD::PrepRawDataAuxContainer* trans );
+   virtual xAOD::TrackMeasurementValidationAuxContainer*
+   createPersistent( xAOD::TrackMeasurementValidationAuxContainer* trans );
    /// Function reading in the object from the input file
-   virtual xAOD::PrepRawDataAuxContainer* createTransient();
+   virtual xAOD::TrackMeasurementValidationAuxContainer* createTransient();
 
-}; // class xAODPrepRawDataAuxContainerCnv
+}; // class xAODTrackMeasurementValidationAuxContainerCnv
 
 #endif 

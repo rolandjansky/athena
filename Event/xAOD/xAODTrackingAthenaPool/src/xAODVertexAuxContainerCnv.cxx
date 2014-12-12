@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODVertexAuxContainerCnv.cxx 611354 2014-08-12 07:20:27Z arnaez $
+// $Id: xAODVertexAuxContainerCnv.cxx 635799 2014-12-12 22:08:09Z ssnyder $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODVertexAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODVertexAuxContainerCnv::
 xAODVertexAuxContainerCnv( ISvcLocator* svcLoc )
@@ -21,33 +23,7 @@ xAODVertexAuxContainerCnv::
 createPersistent( xAOD::VertexAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::VertexAuxContainer* result =
-      new xAOD::VertexAuxContainer( *trans );
-
-   std::vector< xAOD::VertexAuxContainer::TrackLink_t >::iterator itr =
-      result->trackParticleLinks.begin();
-   std::vector< xAOD::VertexAuxContainer::TrackLink_t >::iterator end =
-      result->trackParticleLinks.end();
-   for( ; itr != end; ++itr ) {
-      xAOD::VertexAuxContainer::TrackLink_t::iterator iitr = itr->begin();
-      xAOD::VertexAuxContainer::TrackLink_t::iterator iend = itr->end();
-      for( ; iitr != iend; ++iitr ) {
-         iitr->toPersistent();
-      }
-   }
-
-   //same for neutrals
-   std::vector< xAOD::VertexAuxContainer::NeutralLink_t >::iterator itrN = result->neutralParticleLinks.begin();
-   std::vector< xAOD::VertexAuxContainer::NeutralLink_t >::iterator endN = result->neutralParticleLinks.end();
-   for( ; itrN != endN; ++itrN ) {
-     xAOD::VertexAuxContainer::NeutralLink_t::iterator iitr = itrN->begin();
-     xAOD::VertexAuxContainer::NeutralLink_t::iterator iend = itrN->end();
-     for( ; iitr != iend; ++iitr ) {
-       iitr->toPersistent();
-     }
-   }
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::VertexAuxContainer*
