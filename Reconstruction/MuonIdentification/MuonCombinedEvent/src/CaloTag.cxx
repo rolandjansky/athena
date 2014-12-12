@@ -14,7 +14,8 @@ CaloTag::CaloTag (void)
         m_caloMuonIdTag         (0),
         m_fsrCandidateEnergy    (0),
         m_deposits              (),
-        m_etCore                (0.0)
+        m_etCore                (0.0),
+        m_author2(xAOD::Muon::unknown)
 { m_energyLossType = static_cast<CaloTag::EnergyLossType>(0); }
 
 CaloTag::CaloTag (const Trk::EnergyLoss& eloss)
@@ -24,7 +25,8 @@ CaloTag::CaloTag (const Trk::EnergyLoss& eloss)
         m_caloMuonIdTag         (0),
         m_fsrCandidateEnergy    (0),
         m_deposits              (),
-        m_etCore                (0.0)
+        m_etCore                (0.0),
+        m_author2(xAOD::Muon::unknown)
 { m_energyLossType = static_cast<CaloTag::EnergyLossType>(0); }
 
 CaloTag::CaloTag (xAOD::Muon::Author author,
@@ -40,7 +42,8 @@ CaloTag::CaloTag (xAOD::Muon::Author author,
         m_caloLRLikelihood      (likelihood),
         m_caloMuonIdTag         (tag),
         m_deposits              (),
-        m_etCore                (0.0)
+        m_etCore                (0.0),
+        m_author2(xAOD::Muon::unknown)
 {
         m_energyLossType = static_cast<CaloTag::EnergyLossType>(energyLossType);
         m_fsrCandidateEnergy = 0.0;
@@ -61,7 +64,8 @@ CaloTag::CaloTag (xAOD::Muon::Author author,
 	Trk::EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE ),
         m_caloLRLikelihood      (likelihood),
         m_caloMuonIdTag         (tag),
-        m_etCore                (0.0)
+        m_etCore                (0.0),
+        m_author2(xAOD::Muon::unknown)
 {
         m_energyLossType = static_cast<CaloTag::EnergyLossType>(energyLossType);
         m_fsrCandidateEnergy = 0.0;

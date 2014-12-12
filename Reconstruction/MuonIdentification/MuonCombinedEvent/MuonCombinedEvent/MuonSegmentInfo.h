@@ -24,7 +24,18 @@ namespace MuonCombined {
 
     struct MuonSegmentInfo {
 
-    MuonSegmentInfo() : track(0), segment(0), trackAtSegment(0) {}
+    MuonSegmentInfo() : track(0), segment(0), trackAtSegment(0),
+      dtheta(-9999.), dphi(-9999.), dthetaPos(-9999.), dphiPos(-9999.),
+      resX(-9999.), exErrorX(-9999.), segErrorX(-9999.), pullX(-9999.), 
+      resY(-9999.), exErrorY(-9999.), segErrorY(-9999.), pullY(-9999.), 
+      exCovYTheta(-9999.), exCovYZY(-9999.), dangleXZ(-9999.), 
+      exErrorXZ(-9999.), segErrorXZ(-9999.), pullXZ(-9999.), dangleYZ(-9999.),
+      exErrorYZ(-9999.), segErrorYZ(-9999.), pullYZ(-9999.), resCY(-9999.),
+      pullCY(-9999.), chi2Y(-9999.), hasPhi(-1), quality(-1), stationLayer(-1),
+      nholes(-1), nsegments(-1), singleML(-1), maximumResidualAlongTube(-9999.),
+      pullChamber(-9999.), maximumResidualPhi(-9999.), maximumPullPhi(-9999.),
+      minimumResidualPhi(-9999.), minimumPullPhi(-9999.), t0(-9999.),
+      RLocY(-9999.), RAYZ(-9999.), selected(-1) {}
       /**pointer to the track object*/
       const Trk::Track* track;
 

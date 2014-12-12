@@ -7,7 +7,6 @@
 
 #include "MuonCombinedEvent/TagBase.h"
 #include <vector>
-#include "Particle/ParticleExtrapolationMap.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthLinks/ElementLink.h"
@@ -52,12 +51,6 @@ namespace MuonCombined {
     /** access of a given type tag */
     const TagBase*                     lastCombinedDataTag( TagBase::Type type ) const;
 
-    /** set cached extrapolations */
-    void particleExtrapolationVector( const Rec::ParticleExtrapolationVector* pars ); 
-
-    /** access cached extrapolations */
-    const Rec::ParticleExtrapolationVector* particleExtrapolationVector() const; 
-
     /** print candidate to string */
     std::string toString() const;
     
@@ -71,9 +64,6 @@ namespace MuonCombined {
     /** vector of tags */
     std::vector<const TagBase*> m_tags;
     
-    /** cached pointer to Inner detector track particle expressed several reference surfaces in ATLAS */
-    const Rec::ParticleExtrapolationVector* m_parameters;
-
   };
 
   inline const xAOD::TrackParticle& InDetCandidate::indetTrackParticle() const { 
@@ -104,14 +94,6 @@ namespace MuonCombined {
     return 0;
   }
 
-  inline void InDetCandidate::particleExtrapolationVector( const Rec::ParticleExtrapolationVector* pars ) {
-    if( m_parameters ) delete m_parameters;
-    m_parameters = pars;
-  }
-
-  inline const Rec::ParticleExtrapolationVector* InDetCandidate::particleExtrapolationVector() const {
-    return m_parameters;
-  } 
 
 }
 

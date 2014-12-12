@@ -9,13 +9,13 @@ use xAODMuon            xAODMuon-*              Event/xAOD
 use DataModel           DataModel-*             Control
 use CLIDSvc             CLIDSvc-*               Control
 use AthLinks            AthLinks-*              Control
-use Particle            Particle-*              Reconstruction
 use xAODTracking        xAODTracking-*          Event/xAOD
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent
 use MuidEvent		MuidEvent-*		Reconstruction/MuonIdentification
 use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
 use muonEvent         muonEvent-*             Reconstruction/MuonIdentification
 use TrkMaterialOnTrack  TrkMaterialOnTrack-*    Tracking/TrkEvent
+use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 
 
 private

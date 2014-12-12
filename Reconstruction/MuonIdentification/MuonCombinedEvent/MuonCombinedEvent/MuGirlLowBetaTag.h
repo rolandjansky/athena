@@ -9,9 +9,10 @@
 #include "MuonCombinedEvent/TagBase.h"
 #include <vector>
 
+#include "MuonCombinedEvent/CandidateSummary.h"
+
 namespace Trk {
-  class Track;
- 
+  class Track; 
 }
 
 namespace Muon {
@@ -62,6 +63,19 @@ namespace MuonCombined {
 
     void releaseSegments();
 
+    /* stau Dressing */
+    void setMuBeta(float muBeta);
+    float getMuBeta();
+
+    void setStauSummary(MuGirlNS::CandidateSummary* stauSummary);
+    MuGirlNS::CandidateSummary* getStauSummary();
+    
+    void setStauExtras(MuGirlNS::StauExtras* stauExtras);
+    MuGirlNS::StauExtras* getStauExtras();
+    
+    void setRHExtras(MuGirlNS::RHExtras* rhExtras);
+    MuGirlNS::RHExtras* getRHExtras();
+
     /** name string */
     std::string name() const { return "MuGirlLowBetaTag"; }
 
@@ -81,6 +95,11 @@ namespace MuonCombined {
     const Trk::Track*    m_updatedExtrapolatedTrack; /// updated extrapolated track
     std::vector<const Muon::MuonSegment*> m_segments; /// list of segments
 
+    //dressing
+    float m_muBeta; 
+    MuGirlNS::CandidateSummary* m_stauSummary;
+    MuGirlNS::StauExtras* m_stauExtras;
+    MuGirlNS::RHExtras* m_rhExtras;
   };
   inline bool operator<( const MuGirlLowBetaTag& t1,  const MuGirlLowBetaTag& t2 ){
     const Trk::FitQuality* t1FQ = (t1.getCombinedTrack()!=NULL)? t1.getCombinedTrack()->fitQuality() : 0;
@@ -127,6 +146,18 @@ namespace MuonCombined {
     return &combinedTrack();
   }
 
+//stau dressing
+  inline void MuGirlLowBetaTag::setMuBeta(float muBeta) { m_muBeta = muBeta; }
+  inline float MuGirlLowBetaTag::getMuBeta() { return m_muBeta; }
+  
+  inline void MuGirlLowBetaTag::setStauSummary(MuGirlNS::CandidateSummary* stauSummary) {m_stauSummary = stauSummary;}
+  inline MuGirlNS::CandidateSummary* MuGirlLowBetaTag::getStauSummary() {return m_stauSummary;}
+  
+  inline void MuGirlLowBetaTag::setStauExtras(MuGirlNS::StauExtras* stauExtras) {m_stauExtras = stauExtras;}
+  inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() {return m_stauExtras;}
+  
+  inline void MuGirlLowBetaTag::setRHExtras(MuGirlNS::RHExtras* rhExtras) {m_rhExtras = rhExtras;}
+  inline MuGirlNS::RHExtras* MuGirlLowBetaTag::getRHExtras() {return m_rhExtras;}
 }
 
 
