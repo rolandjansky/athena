@@ -666,7 +666,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
 		      << ", " << ((it!=vars.end()) ? "found" : "not found"));  
 
       if(it != vars.end()) {
-        int bin_sig = m_TH1F_sig[iFile][i]->GetXaxis()->FindBin(it->second);
+        int bin_sig = m_TH1F_sig[iFile][i]->GetXaxis()->FindFixBin(it->second);
 
       	ATH_MSG_VERBOSE("getLHR sig " 
       			<< ": it->first = "  << it->first 
@@ -692,7 +692,7 @@ double CaloMuonLikelihoodTool::getLHR(const xAOD::CaloClusterContainer* ClusColl
           ProbS *= 1;
         }
         ATH_MSG_DEBUG("Temp ProbS : " << ProbS);
-        int bin_bkg = m_TH1F_bkg[iFile][i]->GetXaxis()->FindBin(it->second);
+        int bin_bkg = m_TH1F_bkg[iFile][i]->GetXaxis()->FindFixBin(it->second);
 
       	ATH_MSG_VERBOSE("getLHR bkg " 
       			<< ": it->first = "  << it->first 
