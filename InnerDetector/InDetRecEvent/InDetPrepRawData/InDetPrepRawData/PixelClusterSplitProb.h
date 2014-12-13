@@ -41,6 +41,13 @@ namespace InDet {
       m_splitProbabilities(pcp.m_splitProbabilities)
     {}
     
+    /** assignment */
+    PixelClusterSplitProb & operator=(const PixelClusterSplitProb & rhs){
+    	if (&rhs == this) return *this;
+    	m_splitProbabilities = rhs.m_splitProbabilities;
+    	return *this;
+    }
+    
     /** destructor */
     ~PixelClusterSplitProb(){}
     

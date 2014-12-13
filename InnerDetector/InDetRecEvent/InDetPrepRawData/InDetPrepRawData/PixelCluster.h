@@ -50,6 +50,7 @@ namespace InDet{
     /** Public, Copy, operator=, constructor*/
     PixelCluster();
     PixelCluster(const PixelCluster &);
+    PixelCluster & operator=(const PixelCluster & rhs);
     
 
     // legacy constructor with no ToT not LVL1 information
@@ -129,11 +130,13 @@ namespace InDet{
     /** dump information about the PRD object. */
     virtual std::ostream& dump( std::ostream& stream) const;
 
+    void packSplitInformation(bool split, float prob1, float prob2) ;
+ 
+    void setTooBigToBeSplit(bool a);
+    bool tooBigToBeSplit() const;
 
 
   private:
-    void packSplitInformation(bool split, float prob1, float prob2) ;
-      
     float m_omegax;
     float  m_omegay;
     std::vector<int> m_totList;
@@ -144,7 +147,7 @@ namespace InDet{
     bool  m_ambiguous;
     int   m_lvl1;
     int   m_splitInfo;
-    
+    bool  m_tooBigToBeSplit;    
   };
 
  MsgStream&    operator << (MsgStream& stream,    const PixelCluster& prd);
@@ -195,52 +198,63 @@ inline float  PixelCluster::energyLoss() const
 // return fake flag
 inline bool PixelCluster::isFake() const 
 {
-        return m_fake;
+  return m_fake;
 }
 // set fake flag
 inline bool PixelCluster::setFake(bool flag) 
 {
-        return m_fake=flag;
+  return m_fake=flag;
 }
 // return ambiguous flag
 inline bool PixelCluster::isAmbiguous() const 
 {
-        return m_ambiguous;
+  return m_ambiguous;
 }
 // pack the split information
 inline void PixelCluster::packSplitInformation(bool split, float prob1, float prob2){
-    m_splitInfo  =  int(prob1*SPLITMASK);
-    m_splitInfo |= (int(prob2*SPLITMASK)<<SPLITPREC);
-    m_splitInfo |= (int(split)<<(2*SPLITPREC+1));
+  m_splitInfo  =  int(prob1*SPLITMASK);
+  m_splitInfo |= (int(prob2*SPLITMASK)<<SPLITPREC);
+  m_splitInfo |= (int(split)<<(2*SPLITPREC+1));
 }
 
 // return the isSplit flag
 inline bool PixelCluster::isSplit() const 
 {
-    return (m_splitInfo>>(2*SPLITPREC+1));
+  return (m_splitInfo>>(2*SPLITPREC+1));
 }
 
 inline double PixelCluster::splitProbability1() const
 {
-    return ((m_splitInfo) & SPLITMASK )/double(SPLITMASK);
+  return ((m_splitInfo) & SPLITMASK )/double(SPLITMASK);
 }
 
 inline double PixelCluster::splitProbability2() const
 {
-   return ((m_splitInfo>>SPLITPREC) & SPLITMASK )/double(SPLITMASK);
+  return ((m_splitInfo>>SPLITPREC) & SPLITMASK )/double(SPLITMASK);
 }
 
 
 // set ambiguous flag
 inline bool PixelCluster::setAmbiguous(bool flag) 
 {
-        return m_ambiguous=flag;
+  return m_ambiguous=flag;
 }
 
 inline int PixelCluster::LVL1A() const
 {
   return m_lvl1;
 }
+
+inline  void PixelCluster::setTooBigToBeSplit(bool a)
+{
+  m_tooBigToBeSplit = a;
+}
+
+inline  bool PixelCluster::tooBigToBeSplit() const 
+{ 
+  return m_tooBigToBeSplit;
+}
+
 
 } 
 #endif // TRKPREPRAWDATA_PIXELCLUSTER_H

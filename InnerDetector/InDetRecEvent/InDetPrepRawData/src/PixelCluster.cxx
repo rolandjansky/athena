@@ -51,7 +51,8 @@ namespace InDet{
       m_fake = false;
       m_ambiguous = false;
       m_lvl1 = 0;
-      
+      m_tooBigToBeSplit = false;
+
       packSplitInformation(split,splitProb1,splitProb2);
         
     }
@@ -85,7 +86,7 @@ namespace InDet{
       m_fake = false;
       m_ambiguous = false;
       m_lvl1 = lvl1a;
-      
+      m_tooBigToBeSplit = false;
       packSplitInformation(split,splitProb1,splitProb2);
     
     }
@@ -94,9 +95,9 @@ namespace InDet{
                 const Identifier& RDOId,
                 const Amg::Vector2D& locpos, 
                 const std::vector<Identifier>& rdoList,
-    	        const int lvl1a,
-    	        const std::vector<int>& totList,
-    	        const std::vector<float>& chargeList,
+    	          const int lvl1a,
+    	          const std::vector<int>& totList,
+    	          const std::vector<float>& chargeList,
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
                 const Amg::MatrixX* locErrMat,
@@ -122,10 +123,8 @@ namespace InDet{
       m_fake = false;
       m_ambiguous = false;
       m_lvl1 = lvl1a;
-      
+      m_tooBigToBeSplit = false;
       packSplitInformation(split,splitProb1,splitProb2);
-    
-      
     }
     
     // Default constructor:
@@ -140,6 +139,7 @@ namespace InDet{
       m_ambiguous = false;
       m_lvl1 = 0;
       m_splitInfo = 0;
+      m_tooBigToBeSplit = false;
     }
     
     //copy constructor:
@@ -155,7 +155,27 @@ namespace InDet{
       m_ambiguous       = RIO.m_ambiguous;
       m_lvl1            = RIO.m_lvl1;
       m_splitInfo       = RIO.m_splitInfo;
-    } 
+			m_tooBigToBeSplit = RIO.m_tooBigToBeSplit;
+    }
+    
+    //assignment
+    PixelCluster & 
+    PixelCluster::operator=(const PixelCluster & rhs){
+    	if (&rhs ==this) return *this;
+      m_omegax          = rhs.m_omegax;
+      m_omegay          = rhs.m_omegay;
+      m_totList         = rhs.m_totList;
+      m_totalToT        = rhs.m_totalToT;
+      m_chargeList      = rhs.m_chargeList;
+      m_totalCharge     = rhs.m_totalCharge;
+      m_fake            = rhs.m_fake;
+      m_ambiguous       = rhs.m_ambiguous;
+      m_lvl1            = rhs.m_lvl1;
+      m_splitInfo       = rhs.m_splitInfo;
+      m_tooBigToBeSplit = rhs.m_tooBigToBeSplit;
+      return *this;
+    }
+
     
     
     
