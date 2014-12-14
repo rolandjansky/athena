@@ -13,16 +13,12 @@
 #define EFFICOLLECTION_H_
 
 // @class EffiCollection
-    /// @brief Utility class to collect the separate histos
-    /// for Calo, Central and High Eta muon SF
+/// @brief Utility class to collect the separate histos
+/// for Calo, Central and High Eta muon SF
 
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "xAODMuon/Muon.h"
-
-#ifdef ROOTCORE
-#include "errorcheck.h"
-#endif // ROOTCORE
 
 #include <map>
 #include <string>
@@ -30,31 +26,37 @@
 
 namespace CP {
 
-	class EffiCollection {
-	public:
-		EffiCollection();
-		EffiCollection(std::string file_central,
-		        std::string file_calo,
-		        std::string file_forward,
-		        std::map<std::string,double> lumis_central,
-		        std::map<std::string,double> lumis_calo,
-		        std::map<std::string,double> lumis_forward,
-		        SystematicSet sys);
+class EffiCollection {
+public:
+    EffiCollection();
+    EffiCollection(std::string file_central,
+            std::string file_calo,
+            std::string file_forward,
+            std::map<std::string,double> lumis_central,
+            std::map<std::string,double> lumis_calo,
+            std::map<std::string,double> lumis_forward,
+            SystematicSet sys);
 
-        /// return the correct SF type to provide, depending on eta and the author
-        EfficiencyScaleFactor* operator()(const xAOD::Muon & mu);
+    EffiCollection (const EffiCollection & other);
+    EffiCollection & operator = (const EffiCollection & other);
+    
+    /// return the correct SF type to provide, depending on eta and the author
+    EfficiencyScaleFactor* operator()(const xAOD::Muon & mu);
 
-        // return the name of the systematic variation being run
-        std::string sysname (void);
+    // return the name of the systematic variation being run
+    std::string sysname ();
+
+    // a consistency check
+    bool CheckConsistency();
 
 
-		virtual ~EffiCollection();
+    virtual ~EffiCollection();
 
-	protected:
+protected:
 
-		EfficiencyScaleFactor* m_central_eff;
-		EfficiencyScaleFactor* m_forward_eff;
-		EfficiencyScaleFactor* m_calo_eff;
-	};
+    EfficiencyScaleFactor* m_central_eff;
+    EfficiencyScaleFactor* m_forward_eff;
+    EfficiencyScaleFactor* m_calo_eff;
+};
 }
 #endif /* EFFICOLLECTION_H_ */

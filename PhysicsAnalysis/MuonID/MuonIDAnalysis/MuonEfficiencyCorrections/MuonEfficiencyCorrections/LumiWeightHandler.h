@@ -50,7 +50,7 @@ namespace CP {
         typedef std::map<std::string,double>::iterator ilumimap;
 
         lumimap m_user_lumi_weights;
-};
+    };
 
 } /* namespace CP */
 

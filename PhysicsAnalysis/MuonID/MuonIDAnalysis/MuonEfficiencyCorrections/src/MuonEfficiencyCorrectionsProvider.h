@@ -4,8 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
-#define CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
+#ifndef MUONEFFCORECTIONSPROVIDER
+#define MUONEFFCORECTIONSPROVIDER
+//author: will buttinger
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -15,13 +16,13 @@
 
 namespace CP {
 
-/// small test algorithm to quickly test/demonstrate the usage of the MuonEfficiencyCorrections code within athena
+/// decorates a muon collection with efficiency and scale factor
 
-class MuonEfficiencyCorrections_TestAlg : public AthAlgorithm {
+class MuonEfficiencyCorrectionsProvider : public AthAlgorithm {
 
 public:
     /// Regular Algorithm constructor
-    MuonEfficiencyCorrections_TestAlg( const std::string& name, ISvcLocator* svcLoc );
+    MuonEfficiencyCorrectionsProvider( const std::string& name, ISvcLocator* svcLoc );
 
     /// Function initialising the algorithm
     virtual StatusCode initialize();
@@ -35,8 +36,8 @@ private:
     /// Scale factor tool
     ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
 
-}; // class MuonEfficiencyCorrections_TestAlg
+}; // class
 
 } // namespace CP
 
-#endif //CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
+#endif //

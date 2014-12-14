@@ -19,15 +19,22 @@ private
 
 use GaudiInterface  GaudiInterface-*  External
 use AthenaBaseComps AthenaBaseComps-* Control
-
+use PathResolver PathResolver-* Tools
 
 end_private
 
+# Create a dual_use library instead of a component library because the lcgdict pattern
+# only works with the former when building with cmake. This pollutes the list of 
+# libraries to be linked against for client packages, but is otherwise harmless.
 # Declare the library:
-library MuonEfficiencyCorrections *.cxx ../Root/*.cxx components/*.cxx
-apply_pattern component_library
+#library MuonEfficiencyCorrections *.cxx ../Root/*.cxx components/*.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=../share/*.py
-# and the data files (for now stored in the package)
-apply_pattern declare_runtime files="../data/*.root "
+
+# PyROOT Reflex dictionaries
+private
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=MuonEfficiencyCorrections selectionfile=selection.xml headerfiles="../MuonEfficiencyCorrections/MuonEfficiencyCorrectionsDict.h"
