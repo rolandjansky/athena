@@ -19,15 +19,12 @@ use TrkEventPrimitives         TrkEventPrimitives-*  Tracking/TrkEvent
 use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkSurfaces                TrkSurfaces-*         Tracking/TrkDetDescr
 use RecoToolInterfaces         RecoToolInterfaces-*  Reconstruction/RecoTools
-use CaloGeoHelpers              CaloGeoHelpers-*        Calorimeter	
+use CaloGeoHelpers             CaloGeoHelpers-*      Calorimeter	
+use     TrkCaloExtension        TrkCaloExtension-*      Tracking/TrkEvent
 
-use TrkParameters   	         TrkParameters-*        Tracking/TrkEvent
+use TrkParameters   	       TrkParameters-*        Tracking/TrkEvent
 use TrkExInterfaces            TrkExInterfaces-*      Tracking/TrkExtrapolation
-# use TrkGeometry                TrkGeometry-*          Tracking/TrkDetDescr
-# use TrkFitterUtils             TrkFitterUtils-*       Tracking/TrkFitter
-# use TrkEventUtils             TrkEventUtils-*              Tracking/TrkEvent
 use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
-use AtlasCLHEP                 AtlasCLHEP-*           External
 use CaloTrackingGeometry       CaloTrackingGeometry-* Calorimeter
 
 use xAODEgamma                 xAODEgamma-*           Event/xAOD
@@ -44,6 +41,8 @@ use InDetIdentifier            InDetIdentifier-*     InnerDetector/InDetDetDescr
 use TrkParticleBase            TrkParticleBase-*     Tracking/TrkEvent
 use VxVertex                   VxVertex-*            Tracking/TrkEvent
 use TrkCaloCluster_OnTrack     TrkCaloCluster_OnTrack-* Tracking/TrkEvent
+use TrkParametersIdentificationHelpers TrkParametersIdentificationHelpers-* Tracking/TrkEvent
+
 
 use CaloDetDescr               CaloDetDescr-*        Calorimeter
 use CaloEvent                  CaloEvent-*           Calorimeter

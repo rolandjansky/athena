@@ -35,14 +35,18 @@ UPDATED:
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
-class IExtrapolateToCaloTool;
+#include "TrkCaloExtension/CaloExtensionHelpers.h"
+
 class TRT_ID;
 class CaloDepthTool;
 
 namespace Trk
 {
   class INeutralParticleParameterCalculator;
+  class IExtrapolator;
+  class IParticleCaloExtensionTool;
 }
+
 
 class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlgTool {
 
@@ -64,6 +68,7 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                               bool                          isTRT,
                               unsigned int                  extrapFrom = fromPerigee);
 
+
   /**  test for cluster/extrapolated track match, from xAOD::TrackParticle,
    *   returns true for good match, and
    *           the values for eta/phi, deltaEta/deltaPhi for sampling 2
@@ -72,7 +77,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                               const xAOD::TrackParticle*    trkPB, 
                               bool                          isTRT, 
                               Trk::PropDirection            direction,
-                              const std::vector<bool>&      doSample,
                               std::vector<double>&          eta,
                               std::vector<double>&          phi,
                               std::vector<double>&          deltaEta,
@@ -81,25 +85,17 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
-   *    layers given the Trk::ParametersBase.  doSample indicates
-   *    whether or not to extrapolate to each calo sample
-   */
+   *    layers given the Trk::ParametersBase.  */
+
   virtual StatusCode getMatchAtCalo (const xAOD::CaloCluster*      cluster, 
                                      const xAOD::TrackParticle*    trkPB,
+				     bool                          isTRT, 
                                      Trk::PropDirection            direction,
-                                     const std::vector<bool>&      doSample,
                                      std::vector<double>&          eta,
                                      std::vector<double>&          phi,
                                      std::vector<double>&          deltaEta,
                                      std::vector<double>&          deltaPhi,
                                      unsigned int                  extrapFrom = fromPerigee) const;
-
-  /** test for vertex-to-cluster match given also the positions 
-    * at the calorimeter from the vertex extrapolation  **/
-  bool matchesAtCalo(const xAOD::CaloCluster* cluster,
-                     const xAOD::Vertex *vertex,
-                     float etaAtCalo,
-                     float phiAtCalo)  const;
 
 
   /**  test for cluster/extrapolated track match, from NeutralPerigee */
@@ -109,36 +105,51 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
                               double&                            deltaEta,
                               double&                            deltaPhi);
 
+
+  /** test for vertex-to-cluster match given also the positions 
+    * at the calorimeter from the vertex extrapolation  **/
+  bool matchesAtCalo(const xAOD::CaloCluster* cluster,
+                     const xAOD::Vertex *vertex,
+                     float etaAtCalo,
+                     float phiAtCalo)  const;
+
+
   /** get eta, phi at EM2 given a vertex which is converted to NeutralParameters.
       Return false if the extrapolation fails **/
-  bool getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
-                        float *etaAtCalo,
-                        float *phiAtCalo) const;
+  virtual bool getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
+                                float *etaAtCalo,
+                                float *phiAtCalo) const;
   
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and <reuse> is true **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const;
+
     
  private:
 
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
-  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;
+  /** get eta, phi at EM2 For trackparameters 
+      Return false if the extrapolation fails **/
+  bool getHackEtaPhiAtCalo (const  Trk::TrackParameters*, 
+                            float *etaAtCalo,
+                            float *phiAtCalo,
+			    CaloExtensionHelpers::LayersToSelect& layersToSelect
+			    ) const;
 
   const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
-   
-  /** @brief TrackToCalo extrapolation tool. 
-      Handles Trk::TrackParameters as input.
-      Extrapolation starts from the last measurement of the track. The
-      InDetExtrapolator is used, with all proper material effects inside the
-      part of the ID that is traversed. Both charged and neutral particles
-      are handled. */ 
-  ToolHandle<IExtrapolateToCaloTool>     m_extrapolateToCalo;
-  /** @brief Tool to retrieve the calorimeter depth (for track extrapolation)*/
-  ToolHandle<CaloDepthTool>              m_calodepth;         
+
+
+  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;    
+  
+  ToolHandle<Trk::IParticleCaloExtensionTool>     m_defaultParticleCaloExtensionTool;
+  ToolHandle<Trk::IParticleCaloExtensionTool>     m_perigeeParticleCaloExtensionTool;
+  ToolHandle<Trk::IExtrapolator>                  m_extrapolator;
+       
   /** @brief */
   CaloPhiRange                           m_phiHelper;
 
+  
 
   // Track-to-cluster match cuts
   double                                m_broadDeltaEta;
@@ -155,7 +166,11 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 
   // ID TRT helper
   const TRT_ID*                         m_trtId;
+
   
+  //Use the a cache for track Particle extrapolation
+  bool  m_useCaching;
+
   // Use Trk::Track instead of TrackParticle to determine TRT section
   // due to missing association with detector element
   bool m_useTrkTrackForTRT;

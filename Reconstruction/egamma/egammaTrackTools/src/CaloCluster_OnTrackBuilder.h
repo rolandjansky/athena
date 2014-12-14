@@ -19,7 +19,7 @@ namespace Trk{
 }
 
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
 
 class CaloCellContainer;
 class CaloDetDescrManager;

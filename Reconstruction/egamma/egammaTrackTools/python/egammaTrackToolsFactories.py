@@ -7,18 +7,19 @@ from egammaRec.Factories import FcnWrapper, ToolFactory
 import egammaTrackToolsConf
 from egammaRec import egammaKeys
 from egammaTools.InDetTools import egammaExtrapolator
-
+import AthenaCommon.CfgMgr as CfgMgr
 #---------------------------------------
 
-from TrackToCalo import TrackToCaloConf
-ExtrapolateToCaloTool = ToolFactory( TrackToCaloConf.ExtrapolateToCaloTool,
-                                     name = 'exToCalo',
-                                     Extrapolator = egammaExtrapolator)
-
+EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
+                                            name="EMParticleCaloExtensionTool",
+                                            Extrapolator = egammaExtrapolator,
+                                            OutputContainerName="EGcaloExtension",
+                                            ParticleType="muon",
+                                            StartFromPerigee = True)
 
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
-                                    ExtrapolateToCaloTool = ExtrapolateToCaloTool,
-                                    doPrint = True)
+                                    PerigeeCaloExtentionTool = EMParticleCaloExtensionTool,
+                                    useCaching = True)
 
 #---------------------------------------
 
