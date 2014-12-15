@@ -13,5 +13,9 @@ namespace xAOD {
    /// Definition of the current "TrackParticle container version"
    typedef TrackParticleContainer_v1 TrackParticleContainer;
 }
- 
+
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::TrackParticleContainer, 1287425431, 1 )
+
 #endif // XAODTRACKING_TRACKPARTICLECONTAINER_H

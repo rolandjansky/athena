@@ -138,7 +138,7 @@ namespace xAOD {
       /// (and so it needs updating);
       mutable bool m_perigeeCached;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )
+#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
       mutable Trk::NeutralPerigee* m_perigeeParameters;
@@ -148,8 +148,5 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::NeutralParticle_v1, 33702537, 1 )
 
 #endif // XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H

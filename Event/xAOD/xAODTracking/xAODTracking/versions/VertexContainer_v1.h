@@ -19,8 +19,4 @@ namespace xAOD {
    typedef DataVector< xAOD::Vertex_v1 > VertexContainer_v1;
 }
 
-// Set up a CLID for the container:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::VertexContainer_v1, 1092961325, 1 )
-
 #endif // XAODTRACKING_VERSIONS_VERTEXCONTAINER_V1_H

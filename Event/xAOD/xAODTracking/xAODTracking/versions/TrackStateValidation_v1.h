@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAODTRACKING_VERSIONS_MEASUREMENTSTATEONSURFACE_V1_H
-#define XAODTRACKING_VERSIONS_MEASUREMENTSTATEONSURFACE_V1_H
+#ifndef XAODTRACKING_VERSIONS_TRACKSTATEVALIDATION_V1_H
+#define XAODTRACKING_VERSIONS_TRACKSTATEVALIDATION_V1_H
 
 // System include(s):
 #include <vector>
@@ -13,11 +13,11 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
-#include "xAODTracking/PrepRawDataContainer.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 namespace xAOD {
 
-  /// Class describing a MeasurementStateOnSurface.
+  /// Class describing a TrackStateValidation.
   ///
   /// @author Niels Van Eldik <niels.van.eldik@cern.ch>
   /// @author Anthony Morley <anthony.morley@cern.ch>
@@ -25,12 +25,12 @@ namespace xAOD {
   /// @author Heberth Torres <htorres@cern.ch>
   /// @nosubgrouping
   ///
-  class MeasurementStateOnSurface_v1 : public SG::AuxElement {
+  class TrackStateValidation_v1 : public SG::AuxElement {
 
   public:
 
     /// Default constructor
-    MeasurementStateOnSurface_v1();
+    TrackStateValidation_v1();
 
     /// @name Identification 
     /// @{
@@ -96,18 +96,18 @@ namespace xAOD {
 
     /// @name
     /// @{
-    /// Returns the link to the PrepRawDataContainer
-    ElementLink<xAOD::PrepRawDataContainer> prepRawDataLink() const;
-    /// sets the link to the PrepRawDataContainer
-    void setPrepRawDataLink(ElementLink<xAOD::PrepRawDataContainer> prepRawDataLink);
+    /// Returns the link to the TrackMeasurementValidationContainer
+    ElementLink<xAOD::TrackMeasurementValidationContainer> trackMeasurementValidationLink() const;
+    /// sets the link to the TrackMeasurementValidationContainer
+    void setTrackMeasurementValidationLink(ElementLink<xAOD::TrackMeasurementValidationContainer> trackMeasurementValidationLink);
     /*     /// Returns the link to the TrackParticle */
     /*     ElementLink<xAOD::TrackParticleContainer> trackParticleLink() const; */
     /*     /// Sets the link to the TrackParticle */
     /*     void setTrackParticleLink(ElementLink<xAOD::TrackParticleContainer> trackParticleLink); */
     /// @}
 
-  }; // end of the MeasurementStateOnSurface_v1 class definitions
+  }; // end of the TrackStateValidation_v1 class definitions
 
 } // end of the xAOD namespace
 
-#endif // XAODTRACKING_VERSIONS_MEASUREMENTSTATEONSURFACE_V1_H
+#endif // XAODTRACKING_VERSIONS_TRACKSTATEVALIDATION_V1_H

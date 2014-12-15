@@ -14,4 +14,8 @@ namespace xAOD {
    typedef NeutralParticleContainer_v1 NeutralParticleContainer;
 }
  
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::NeutralParticleContainer, 1293931985, 1 )
+
 #endif // XAODTRACKING_NEUTRALPARTICLECONTAINER_H

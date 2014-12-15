@@ -41,7 +41,9 @@ namespace xAOD {
   TrackParticle_v1& TrackParticle_v1::operator=(const TrackParticle_v1& tp ){
     if(this == &tp) return *this;
     
-    if(!hasStore() ) makePrivateStore();
+    if( ( ! hasStore() ) && ( ! container() ) ) {
+       makePrivateStore();
+    }
     this->IParticle::operator=( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;
@@ -228,6 +230,18 @@ namespace xAOD {
     static Accessor< float > acc2( "numberDoF" );
     acc2( *this ) = numberDoF;   
   }
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, radiusOfFirstHit, setRadiusOfFirstHit)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint64_t, identifierOfFirstHit, setIdentifierOfFirstHit)
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, beamlineTiltX, setBeamlineTiltX)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, float, beamlineTiltY, setBeamlineTiltY)
+  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint32_t, hitPattern, setHitPattern)
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint8_t,numberOfUsedHitsdEdx ,setNumberOfUsedHitsdEdx )
+
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint8_t,numberOfIBLOverflowsdEdx , setNumberOfIBLOverflowsdEdx)
 
   size_t TrackParticle_v1::numberOfParameters() const{
     ///@todo - Can we do this in a better way? Not great to force retrieval of one specific parameter - any would do.

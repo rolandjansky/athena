@@ -224,6 +224,16 @@ namespace xAOD {
     numberOfBLayerSharedHits        =16,  //!< number of Pixel b-layer hits shared by several tracks [unit8_t].
     numberOfBLayerSplitHits         =43,  //!< number of Pixel b-layer hits split by cluster splitting [unit8_t].
     expectBLayerHit                 =42,  //!< Do we expect a b-layer hit for this track? [unit8_t] (should be [bool])
+    expectInnermostPixelLayerHit                 =52,  //!< Do we expect a 0th-layer hit for this track?
+    numberOfInnermostPixelLayerHits              =53,  //!< these are the hits in the 0th pixel layer?
+    numberOfInnermostPixelLayerOutliers          =54,  //!< number of 0th layer outliers  
+    numberOfInnermostPixelLayerSharedHits        =55,  //!< number of Pixel 0th layer hits shared by several tracks.
+    numberOfInnermostPixelLayerSplitHits         =56,  //!< number of Pixel 0th layer hits split by cluster splitting 
+    expectNextToInnermostPixelLayerHit                 =57,  //!< Do we expect a 1st-layer hit for this track?
+    numberOfNextToInnermostPixelLayerHits              = 58,  //!< these are the hits in the 1st pixel layer
+    numberOfNextToInnermostPixelLayerOutliers          =59,  //!< number of 1st pixel layer outliers  
+    numberOfNextToInnermostPixelLayerSharedHits        =60,  //!< number of Pixel 1st layer hits shared by several tracks.
+    numberOfNextToInnermostPixelLayerSplitHits         =61,  //!< number of Pixel 1st layer hits split by cluster splitting 
     numberOfPixelHits               = 2,  //!< these are the pixel hits, including the b-layer [unit8_t].
     numberOfPixelOutliers           =41,  //!< these are the pixel outliers, including the b-layer [unit8_t].
     numberOfPixelHoles              = 1,  //!< number of pixel layers on track with absence of hits [unit8_t].
@@ -267,7 +277,7 @@ namespace xAOD {
     eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
     // -- numbers...
-    numberOfTrackSummaryTypes       = 52
+    numberOfTrackSummaryTypes       = 62
   };
 
   /// Enumerates the different types of information stored in Summary. 

@@ -6,11 +6,11 @@
 #define XAODTRACKING_PREPRAWDATA_H
 
 // Local include(s):
-#include "versions/PrepRawData_v1.h"
+#include "versions/TrackMeasurementValidation_v1.h"
 
 namespace xAOD {
   /// Reference the current persistent version:
-  typedef PrepRawData_v1 PrepRawData;
+  typedef TrackMeasurementValidation_v1 TrackMeasurementValidation;
 }
 
 #endif // XAODTRACKING_PREPRAWDATA_H

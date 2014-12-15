@@ -62,10 +62,6 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::VertexAuxContainer_v1, 1320163892, 1 )
-
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::VertexAuxContainer_v1, xAOD::AuxContainerBase );
 

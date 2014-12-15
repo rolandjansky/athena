@@ -22,25 +22,33 @@
 #include "AthLinks/ElementLinkVector.h"
  
 // Local include(s):
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v1.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
+#include "xAODTracking/NeutralParticleContainer.h"
 #include "xAODTracking/versions/NeutralParticleContainer_v1.h"
 #include "xAODTracking/versions/NeutralParticleAuxContainer_v1.h"
 #include "xAODTracking/versions/Vertex_v1.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/versions/VertexContainer_v1.h"
 #include "xAODTracking/versions/VertexContainer_v1.h"
 #include "xAODTracking/versions/VertexAuxContainer_v1.h"
-#include "xAODTracking/versions/PrepRawDataContainer_v1.h"
-#include "xAODTracking/versions/PrepRawDataAuxContainer_v1.h"
-#include "xAODTracking/versions/MeasurementStateOnSurfaceContainer_v1.h"
-#include "xAODTracking/versions/MeasurementStateOnSurfaceAuxContainer_v1.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/versions/TrackMeasurementValidationContainer_v1.h"
+#include "xAODTracking/versions/TrackMeasurementValidationAuxContainer_v1.h"
+#include "xAODTracking/TrackStateValidationContainer.h"
+#include "xAODTracking/versions/TrackStateValidationContainer_v1.h"
+#include "xAODTracking/versions/TrackStateValidationAuxContainer_v1.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
      xAOD::TrackParticleContainer_v1                                              c1;
      DataLink< xAOD::TrackParticleContainer_v1 >                                  l1;
-     ElementLink< xAOD::TrackParticleContainer_v1 >                               l2;
-     ElementLinkVector< xAOD::TrackParticleContainer_v1 >                         l3;
+     ElementLink< xAOD::TrackParticleContainer >                               l2;
+     ElementLinkVector< xAOD::TrackParticleContainer >                         l3;
      std::vector< DataLink< xAOD::TrackParticleContainer_v1 > >                   l4;
      std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > >                l5;
      std::vector< ElementLinkVector< xAOD::TrackParticleContainer_v1 > >          l6;
@@ -48,8 +56,8 @@ namespace {
 
      xAOD::NeutralParticleContainer_v1                                              nc1;
      DataLink< xAOD::NeutralParticleContainer_v1 >                                  nl1;
-     ElementLink< xAOD::NeutralParticleContainer_v1 >                               nl2;
-     ElementLinkVector< xAOD::NeutralParticleContainer_v1 >                         nl3;
+     ElementLink< xAOD::NeutralParticleContainer >                               nl2;
+     ElementLinkVector< xAOD::NeutralParticleContainer >                         nl3;
      std::vector< DataLink< xAOD::NeutralParticleContainer_v1 > >                   nl4;
      std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl5;
      std::vector< ElementLinkVector< xAOD::NeutralParticleContainer_v1 > >          nl6;
@@ -67,30 +75,33 @@ namespace {
       DataLink< xAOD::VertexContainer_v1 >                                        dl1;
       std::vector< DataLink< xAOD::VertexContainer_v1 > >                         dl2;
       // Element link(s):
-      ElementLink< xAOD::VertexContainer_v1 >                                     el1;
+      ElementLink< xAOD::VertexContainer >                                     el1;
       std::vector< ElementLink< xAOD::VertexContainer_v1 > >                      el2;
       std::vector< std::vector< ElementLink< xAOD::VertexContainer_v1 > > >       el3;
 
       // Container(s):
-      xAOD::PrepRawDataContainer_v1                                                    c4;
+      xAOD::TrackMeasurementValidationContainer_v1                                                    c4;
       // Data link(s):
-      DataLink< xAOD::PrepRawDataContainer_v1 >                                        pdl1;
-      std::vector< DataLink< xAOD::PrepRawDataContainer_v1 > >                         pdl2;
+      DataLink< xAOD::TrackMeasurementValidationContainer_v1 >                                        pdl1;
+      std::vector< DataLink< xAOD::TrackMeasurementValidationContainer_v1 > >                         pdl2;
       // Element link(s):
-      ElementLink< xAOD::PrepRawDataContainer_v1 >                                     pel1;
-      std::vector< ElementLink< xAOD::PrepRawDataContainer_v1 > >                      pel2;
-      std::vector< std::vector< ElementLink< xAOD::PrepRawDataContainer_v1 > > >       pel3;
+      ElementLink< xAOD::TrackMeasurementValidationContainer >                                     pel1;
+      std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > >                      pel2;
+      std::vector< std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > > >       pel3;
 
       // Container(s):
-      xAOD::MeasurementStateOnSurfaceContainer_v1                                                    c5;
+      xAOD::TrackStateValidationContainer_v1                                                    c5;
       // Data link(s):
-      DataLink< xAOD::MeasurementStateOnSurfaceContainer_v1 >                                        mdl1;
-      std::vector< DataLink< xAOD::MeasurementStateOnSurfaceContainer_v1 > >                         mdl2;
+      DataLink< xAOD::TrackStateValidationContainer_v1 >                                        mdl1;
+      std::vector< DataLink< xAOD::TrackStateValidationContainer_v1 > >                         mdl2;
       // Element link(s):
-      ElementLink< xAOD::MeasurementStateOnSurfaceContainer_v1 >                                     mel1;
-      std::vector< ElementLink< xAOD::MeasurementStateOnSurfaceContainer_v1 > >                      mel2;
-      std::vector< std::vector< ElementLink< xAOD::MeasurementStateOnSurfaceContainer_v1 > > >       mel3;
+      ElementLink< xAOD::TrackStateValidationContainer >                                     mel1;
+      std::vector< ElementLink< xAOD::TrackStateValidationContainer_v1 > >                      mel2;
+      std::vector< std::vector< ElementLink< xAOD::TrackStateValidationContainer_v1 > > >       mel3;
 
+      std::vector<std::vector<std::vector<int> > > vecDummyIntX;
+      std::vector<std::vector<std::vector<float> > > vecDummyFltX;
+      std::vector<std::vector<unsigned long> > vecDummyULX;
 
 
   };

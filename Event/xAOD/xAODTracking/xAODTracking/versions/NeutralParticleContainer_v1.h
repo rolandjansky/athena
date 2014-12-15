@@ -22,8 +22,5 @@ namespace xAOD {
    typedef DataVector< xAOD::NeutralParticle_v1 > NeutralParticleContainer_v1;
 }
  
-// Set up a CLID for the container:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::NeutralParticleContainer_v1, 1293931985, 1 )
 
 #endif // XAODTRACKING_VERSIONS_NEUTRALPARTICLECONTAINER_V1_H

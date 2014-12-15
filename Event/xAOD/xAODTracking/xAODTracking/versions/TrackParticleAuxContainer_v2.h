@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackParticleAuxContainer_v1.h 576255 2013-12-19 12:54:41Z emoyse $
-#ifndef XAODTRACKING_VERSIONS_TRACKPARTICLEAUXCONTAINER_V1_H
-#define XAODTRACKING_VERSIONS_TRACKPARTICLEAUXCONTAINER_V1_H
+// $Id: TrackParticleAuxContainer_v2.h 576255 2013-12-19 12:54:41Z emoyse $
+#ifndef XAODTRACKING_VERSIONS_TRACKPARTICLEAUXCONTAINER_V2_H
+#define XAODTRACKING_VERSIONS_TRACKPARTICLEAUXCONTAINER_V2_H
 
 // System include(s):
 extern "C" {
@@ -34,11 +34,11 @@ namespace xAOD {
    ///
    /// @author Edward Moyse
    ///
-   class TrackParticleAuxContainer_v1 : public AuxContainerBase {
+   class TrackParticleAuxContainer_v2 : public AuxContainerBase {
 
    public:
       /// Default constructor
-      TrackParticleAuxContainer_v1();
+      TrackParticleAuxContainer_v2();
       /// Dumps contents (for debugging)
       void dump() const;
 
@@ -59,20 +59,28 @@ namespace xAOD {
       std::vector< float >                vz;
       /// @}
 
-      /// @name Parameters 
-      /// We store the 3-pos, 3-mom and charge, and on the transient side these will be transformed into curvilinear parameters.
-      /// Also stored are the cov matrix (still expressed in local coordinate frame) and parameter position.
-      /// @{
-      std::vector< std::vector<float> >   parameterX;
-      std::vector< std::vector<float> >   parameterY;
-      std::vector< std::vector<float> >   parameterZ;
-      std::vector< std::vector<float> >   parameterPX;
-      std::vector< std::vector<float> >   parameterPY;
-      std::vector< std::vector<float> >   parameterPZ;
-      // std::vector< char > charge; /// @todo Is this really necessary? Can get it from qOverP?
+      // /// @name Parameters
+//       /// We store the 3-pos, 3-mom and charge, and on the transient side these will be transformed into curvilinear parameters.
+//       /// Also stored are the cov matrix (still expressed in local coordinate frame) and parameter position.
+//       /// @{
+//       std::vector< std::vector<float> >   parameterX;
+//       std::vector< std::vector<float> >   parameterY;
+//       std::vector< std::vector<float> >   parameterZ;
+//       std::vector< std::vector<float> >   parameterPX;
+//       std::vector< std::vector<float> >   parameterPY;
+//       std::vector< std::vector<float> >   parameterPZ;
+//       // std::vector< char > charge; /// @todo Is this really necessary? Can get it from qOverP?
+//
+//       std::vector< std::vector<float> >   trackParameterCovarianceMatrices;
+//       std::vector< std::vector<uint8_t> > parameterPosition;
 
-      std::vector< std::vector<float> >   trackParameterCovarianceMatrices;
-      std::vector< std::vector<uint8_t> > parameterPosition;
+      std::vector< float >                radiusOfFirstHit;
+      std::vector< uint64_t >             identifierOfFirstHit;
+
+     std::vector< float >  beamlineTiltX; 
+     std::vector< float >  beamlineTiltY;
+
+     std::vector< uint32_t > hitPattern;
 
       /// @name Fit quality functions
       /// @{
@@ -92,11 +100,6 @@ namespace xAOD {
       /// @name TrackSummary information
       /// @{
      std::vector< uint8_t >         numberOfContribPixelLayers       ;
-     std::vector< uint8_t >         numberOfBLayerHits               ;
-     std::vector< uint8_t >         numberOfBLayerOutliers           ;
-     std::vector< uint8_t >         numberOfBLayerSharedHits         ;
-     std::vector< uint8_t >         numberOfBLayerSplitHits          ;
-     std::vector< uint8_t >         expectBLayerHit                  ; /// @todo FIXME!Should be bool.
      std::vector< uint8_t >         numberOfInnermostPixelLayerHits               ;
      std::vector< uint8_t >         numberOfInnermostPixelLayerOutliers           ;
      std::vector< uint8_t >         numberOfInnermostPixelLayerSharedHits         ;
@@ -145,6 +148,10 @@ namespace xAOD {
      std::vector< float >           eProbabilityHT;
      std::vector< float >           eProbabilityToT;
      std::vector< float >           eProbabilityBrem;
+     std::vector< float >           pixeldEdx;
+     std::vector< uint8_t >         numberOfUsedHitsdEdx;
+     std::vector< uint8_t >         numberOfIBLOverflowsdEdx;
+
      /// @}
 #endif
 
@@ -153,11 +160,11 @@ namespace xAOD {
       std::vector< ElementLink< VertexContainer > > vertexLink;
       /// @}
 
-   }; // class TrackParticleAuxContainer_v1
+   }; // class TrackParticleAuxContainer_v2
 
 } // namespace xAOD
 
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::TrackParticleAuxContainer_v1, xAOD::AuxContainerBase );
+SG_BASE( xAOD::TrackParticleAuxContainer_v2, xAOD::AuxContainerBase );
 
 #endif // XAODJET_VERSIONS_JETAUXCONTAINER_V1_H

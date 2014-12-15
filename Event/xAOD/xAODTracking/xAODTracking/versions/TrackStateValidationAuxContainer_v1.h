@@ -13,7 +13,7 @@
 #include "AthLinks/ElementLink.h"
 
 // Local include(s):
-#include "xAODTracking/PrepRawDataContainer.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 namespace xAOD {
  
@@ -28,11 +28,11 @@ namespace xAOD {
    /// @author Edward Moyse <Edward.Moyse@cern.ch>
    /// @author Heberth Torres <htorres@cern.ch>
    ///
-   class MeasurementStateOnSurfaceAuxContainer_v1 : public AuxContainerBase {
+   class TrackStateValidationAuxContainer_v1 : public AuxContainerBase {
  
    public:
       /// Default constructor
-      MeasurementStateOnSurfaceAuxContainer_v1();
+      TrackStateValidationAuxContainer_v1();
 
    private:
       std::vector< char >      type;
@@ -52,15 +52,12 @@ namespace xAOD {
       std::vector< float >     biasedPullX;
       std::vector< float >     biasedPullY;
 
-      std::vector< ElementLink<xAOD::PrepRawDataContainer> >  prepRawDataLink;
+      std::vector< ElementLink<xAOD::TrackMeasurementValidationContainer> >  trackMeasurementValidationLink;
 
-   }; // class MeasurementStateOnSurfaceAuxContainer_v1
+   }; // class TrackStateValidationAuxContainer_v1
 } // namespace xAOD
  
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::MeasurementStateOnSurfaceAuxContainer_v1 , 1169589112 , 1 )
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::MeasurementStateOnSurfaceAuxContainer_v1, xAOD::AuxContainerBase );
+SG_BASE( xAOD::TrackStateValidationAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif // XAODTRACKING_VERSIONS_MEASUREMENTSTATEONSURFACEAUXCONTAINER_V1_H

@@ -18,5 +18,9 @@ namespace xAOD {
    ///
    typedef NeutralParticleAuxContainer_v1 NeutralParticleAuxContainer;
 }
- 
+
+// Set up a CLID and StoreGate inheritance for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::NeutralParticleAuxContainer, 1154908528, 1 )
+
 #endif // XAODTRACKING_NEUTRALPARTICLEAUXCONTAINER_H

@@ -21,9 +21,4 @@ namespace xAOD {
    /// The container is a simple typedef for now
    typedef DataVector< xAOD::TrackParticle_v1 > TrackParticleContainer_v1;
 }
- 
-// Set up a CLID for the container:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrackParticleContainer_v1, 1287425431, 1 )
-
 #endif // XAODTRACKING_VERSIONS_TRACKPARTICLECONTAINER_V1_H

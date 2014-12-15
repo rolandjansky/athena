@@ -18,5 +18,9 @@ namespace xAOD {
    ///
    typedef VertexAuxContainer_v1 VertexAuxContainer;
 }
- 
+
+// Set up a CLID and StoreGate inheritance for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::VertexAuxContainer, 1320163892, 1 )
+
 #endif // XAODTRACKING_VERTEXAUXCONTAINER_H

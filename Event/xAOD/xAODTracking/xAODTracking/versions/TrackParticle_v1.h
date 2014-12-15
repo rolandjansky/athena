@@ -185,6 +185,31 @@ namespace xAOD {
         const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;          
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
 
+    /// Returns the radius of the first hit.
+    float radiusOfFirstHit() const;
+    /// Set the radius of the first hit.
+    void setRadiusOfFirstHit(float radius);
+    
+        /// Returns the offline identifier of the first hit.
+    uint64_t identifierOfFirstHit() const;
+    /// Set the offline identifier of the first hit.
+    void setIdentifierOfFirstHit( uint64_t id);
+    
+    float beamlineTiltX() const;
+    void  setBeamlineTiltX(float tiltX);
+    
+    float beamlineTiltY() const;
+    void  setBeamlineTiltY(float tiltY);
+    
+    uint32_t hitPattern() const;
+    void setHitPattern(uint32_t hitpattern);
+
+    uint8_t numberOfUsedHitsdEdx() const;
+    void setNumberOfUsedHitsdEdx(uint8_t numhits);
+
+    uint8_t numberOfIBLOverflowsdEdx() const;
+    void setNumberOfIBLOverflowsdEdx(uint8_t numoverflows);
+
       /// @}
 
       /// @name Fit quality functions
@@ -299,7 +324,7 @@ namespace xAOD {
      /// (and so it needs updating);
      mutable bool m_perigeeCached;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )
+#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
       /// @brief Cached MeasuredPerigee, built from this object.
       /// @note This is only available in Athena.
      mutable Trk::Perigee* m_perigeeParameters;
@@ -309,8 +334,5 @@ namespace xAOD {
 
   } // namespace xAOD
 
-// Set up a CLID for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrackParticle_v1, 159016719, 1 )
 
 #endif // XAODTRACKING_VERSIONS_TrackParticle_v1_H

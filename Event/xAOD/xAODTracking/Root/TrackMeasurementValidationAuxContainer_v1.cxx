@@ -3,11 +3,11 @@
 */
 
 // Local include(s):
-#include "xAODTracking/versions/PrepRawDataAuxContainer_v1.h"
+#include "xAODTracking/versions/TrackMeasurementValidationAuxContainer_v1.h"
  
 namespace xAOD {
  
-  PrepRawDataAuxContainer_v1::PrepRawDataAuxContainer_v1()
+  TrackMeasurementValidationAuxContainer_v1::TrackMeasurementValidationAuxContainer_v1()
     : AuxContainerBase() {
       AUX_VARIABLE( identifier );
       AUX_VARIABLE( rdoIdentifierList );

@@ -13,4 +13,8 @@ namespace xAOD {
   typedef NeutralParticle_v1 NeutralParticle;
 }
 
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::NeutralParticle, 33702537, 1 )
+
 #endif // XAODTRACKING_NEUTRALPARTICLE_H

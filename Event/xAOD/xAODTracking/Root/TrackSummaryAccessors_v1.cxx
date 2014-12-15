@@ -36,16 +36,46 @@ namespace xAOD {
 
       switch( type ) {
         DEFINE_ACCESSOR( uint8_t, numberOfContribPixelLayers        );
-        DEFINE_ACCESSOR( uint8_t, numberOfBLayerHits                );
-        DEFINE_ACCESSOR( uint8_t, numberOfBLayerOutliers            );
-        DEFINE_ACCESSOR( uint8_t, numberOfBLayerSharedHits          );
-        DEFINE_ACCESSOR( uint8_t, numberOfBLayerSplitHits           );
-        DEFINE_ACCESSOR( uint8_t, expectBLayerHit                   );
+      case xAOD:: numberOfBLayerHits:                                                    { 
+	static SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerHits" ); 
+	return &a;								
+      }								    
+	break;
+      case xAOD:: numberOfBLayerOutliers:                                                    { 
+	static SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerOutliers" ); 
+	return &a;								
+      }								    
+	break;
+      case xAOD:: numberOfBLayerSharedHits:                                                    { 
+	static SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerSharedHits" ); 
+	return &a;								
+      }								    
+	break;
+      case xAOD:: numberOfBLayerSplitHits:                                                    { 
+	static SG::AuxElement::Accessor< uint8_t > a( "numberOfInnermostPixelLayerSplitHits" ); 
+	return &a;								
+      }								    
+	break;	
+      case xAOD:: expectBLayerHit:                                                    { 
+	static SG::AuxElement::Accessor< uint8_t > a( "expectInnermostPixelLayerHit" ); 
+	return &a;								
+      }								    
+	break;	
         DEFINE_ACCESSOR( uint8_t, numberOfPixelHits                 );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelOutliers             );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelHoles                );
-        DEFINE_ACCESSOR( uint8_t, numberOfPixelSharedHits           );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelSharedHits           );	
         DEFINE_ACCESSOR( uint8_t, numberOfPixelSplitHits            );
+	DEFINE_ACCESSOR( uint8_t, numberOfInnermostPixelLayerHits                );
+        DEFINE_ACCESSOR( uint8_t, numberOfInnermostPixelLayerOutliers            );
+        DEFINE_ACCESSOR( uint8_t, numberOfInnermostPixelLayerSharedHits          );
+	DEFINE_ACCESSOR( uint8_t, numberOfInnermostPixelLayerSplitHits          );
+        DEFINE_ACCESSOR( uint8_t, expectInnermostPixelLayerHit                   );	
+	DEFINE_ACCESSOR( uint8_t, numberOfNextToInnermostPixelLayerHits                );
+        DEFINE_ACCESSOR( uint8_t, numberOfNextToInnermostPixelLayerOutliers            );
+        DEFINE_ACCESSOR( uint8_t, numberOfNextToInnermostPixelLayerSharedHits          );
+	DEFINE_ACCESSOR( uint8_t, numberOfNextToInnermostPixelLayerSplitHits          );
+        DEFINE_ACCESSOR( uint8_t, expectNextToInnermostPixelLayerHit                   );	
         DEFINE_ACCESSOR( uint8_t, numberOfGangedPixels              );
         DEFINE_ACCESSOR( uint8_t, numberOfGangedFlaggedFakes        );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelDeadSensors          );
@@ -88,6 +118,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, eProbabilityHT       );   
         DEFINE_ACCESSOR( float, eProbabilityToT       );  
         DEFINE_ACCESSOR( float, eProbabilityBrem       ); 
+	DEFINE_ACCESSOR( float, pixeldEdx       ); 
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;

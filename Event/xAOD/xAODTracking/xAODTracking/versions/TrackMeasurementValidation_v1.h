@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAODTRACKING_VERSIONS_PREPRAWDATA_V1_H
-#define XAODTRACKING_VERSIONS_PREPRAWDATA_V1_H
+#ifndef XAODTRACKING_VERSIONS_TRACKMEASUREMENTVALIDATION_V1_H
+#define XAODTRACKING_VERSIONS_TRACKMEASUREMENTVALIDATION_V1_H
 
 // System include(s):
 #include <vector>
@@ -13,19 +13,19 @@
 
 namespace xAOD {
 
-  /// Class describing a PrepRawData.
+  /// Class describing a TrackMeasurementValidation.
   ///
   /// @author Niels Van Eldik <niels.van.eldik@cern.ch>
   /// @author Edward Moyse <Edward.Moyse@cern.ch>
   /// @author Heberth Torres <htorres@cern.ch>
   /// @nosubgrouping
   ///
-  class PrepRawData_v1 : public SG::AuxElement {
+  class TrackMeasurementValidation_v1 : public SG::AuxElement {
 
   public:
     
     /// Default constructor
-    PrepRawData_v1();
+    TrackMeasurementValidation_v1();
 
     /// @name Identification 
     /// SOME INFO SHOULD GO HERE
@@ -73,8 +73,8 @@ namespace xAOD {
     /// @}
 
 
-  }; // end of the PrepRawData_v1 class definitions
+  }; // end of the TrackMeasurementValidation_v1 class definitions
 
 } // end of the xAOD namespace
 
-#endif // XAODTRACKING_VERSIONS_PREPRAWDATA_V1_H
+#endif // XAODTRACKING_VERSIONS_TRACKMEASUREMENTVALIDATION_V1_H

@@ -63,9 +63,6 @@ namespace xAOD {
  
 } // namespace xAOD
  
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::NeutralParticleAuxContainer_v1, 1154908528, 1 )
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::NeutralParticleAuxContainer_v1, xAOD::AuxContainerBase );
 

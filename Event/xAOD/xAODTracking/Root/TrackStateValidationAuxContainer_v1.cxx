@@ -3,11 +3,11 @@
 */
 
 // Local include(s):
-#include "xAODTracking/versions/MeasurementStateOnSurfaceAuxContainer_v1.h"
+#include "xAODTracking/versions/TrackStateValidationAuxContainer_v1.h"
  
 namespace xAOD {
  
-  MeasurementStateOnSurfaceAuxContainer_v1::MeasurementStateOnSurfaceAuxContainer_v1()
+  TrackStateValidationAuxContainer_v1::TrackStateValidationAuxContainer_v1()
     : AuxContainerBase() {
     
     AUX_VARIABLE( type );
@@ -27,7 +27,7 @@ namespace xAOD {
     AUX_VARIABLE( biasedPullX );
     AUX_VARIABLE( biasedPullY );
 
-    AUX_VARIABLE( prepRawDataLink );
+    AUX_VARIABLE( trackMeasurementValidationLink );
 
   }
 
