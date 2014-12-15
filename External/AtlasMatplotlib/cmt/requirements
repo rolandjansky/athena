@@ -21,6 +21,5 @@ apply_pattern make_pkgbuild \
 apply_pattern make_pkgbuild \
  name=rootpy \
  file=pkgbuild_rootpy.py
-use AtlasPyTables * External -no_auto_imports
 
 end_private
