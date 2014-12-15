@@ -15,6 +15,8 @@ use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 # EDM package(s):
 use xAODTrigger         xAODTrigger-*         Event/xAOD
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
@@ -27,11 +29,15 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                                           xAOD::JetEtRoIAuxInfo \
                                           xAOD::EnergySumRoI \
                                           xAOD::EnergySumRoIAuxInfo \
+                                          xAOD::TrigCompositeContainer \
+                                          xAOD::TrigCompositeAuxContainer \
                                           xAOD::TriggerMenuContainer \
                                           xAOD::TriggerMenuAuxContainer \
                                           xAOD::TrigConfKeys \
                                           xAOD::TrigDecision \
                                           xAOD::TrigDecisionAuxInfo \
+                                          xAOD::TrigNavigation \
+                                          xAOD::TrigNavigationAuxInfo \
                                           xAOD::BunchConfKey \
                                           xAOD::BunchConfContainer \
                                           xAOD::BunchConfAuxContainer" \
@@ -46,11 +52,15 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                              JetEtRoIAuxInfo.h \
                              EnergySumRoI.h \
                              EnergySumRoIAuxInfo.h \
+			     TrigCompositeContainer.h \
+			     TrigCompositeAuxContainer.h \
                              TriggerMenuContainer.h \
                              TriggerMenuAuxContainer.h \
                              TrigConfKeys.h \
                              TrigDecision.h \
                              TrigDecisionAuxInfo.h \
+                             TrigNavigation.h \
+                             TrigNavigationAuxInfo.h \
                              BunchConfKey.h \
                              BunchConfContainer.h \
                              BunchConfAuxContainer.h" \
