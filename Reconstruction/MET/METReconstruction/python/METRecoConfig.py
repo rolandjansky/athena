@@ -21,18 +21,33 @@ defaultAuthor = {
 }
 
 defaultInputKey = {
-    'Ele'      :'ElectronCollection',
-    'Gamma'    :'PhotonCollection',
-    'Tau'      :'TauRecContainer',
-    'Jet'      :'AntiKt4LCTopoJets',
-    'Muon'     :'Muons',
-    'SoftTrk'  :'InDetTrackParticles',
-    'SoftClus' :'CaloCalTopoCluster',
-    'SoftPFlow':'neutralJetETMissPFO_eflowRec',
-    'PrimaryVx':'PrimaryVertices',
-    'Truth'    :'TruthParticle',
-    'Calo'     :'AllCalo'
-    }
+   'Ele'      :'Electrons',
+   'Gamma'    :'Photons',
+   'Tau'      :'TauJets',
+   'Jet'      :'AntiKt4LCTopoJets',
+   'Muon'     :'Muons',
+   'SoftTrk'  :'InDetTrackParticles',
+   'SoftClus' :'CaloCalTopoClusters',
+   'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
+   'PrimaryVx':'PrimaryVertices',
+   'Truth'    :'TruthParticles',
+   'Calo'     :'AllCalo'
+   }
+
+# # old naming scheme
+# defaultInputKey = {
+#     'Ele'      :'ElectronCollection',
+#     'Gamma'    :'PhotonCollection',
+#     'Tau'      :'TauRecContainer',
+#     'Jet'      :'AntiKt4LCTopoJets',
+#     'Muon'     :'Muons',
+#     'SoftTrk'  :'InDetTrackParticles',
+#     'SoftClus' :'CaloCalTopoCluster',
+#     'SoftPFlow':'neutralJetETMissPFO_eflowRec',
+#     'PrimaryVx':'PrimaryVertices',
+#     'Truth'    :'TruthParticle',
+#     'Calo'     :'AllCalo'
+# }
 
 defaultOutputKey = {
     'Ele'      :'RefEle',
@@ -108,6 +123,7 @@ def getBuilder(config,suffix,doTracks,doCells):
             tool.UseCells    = False                   
             config.inputKey  = defaultInputKey['SoftClus']
         config.outputKey = config.objType
+
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
@@ -134,15 +150,27 @@ class RefConfig:
 
 def getRefiner(config,suffix):
     tool = None
+
+    from AthenaCommon.AppMgr import ToolSvc
     if config.type == 'TrackFilter':
         tool = CfgMgr.met__METTrackFilterTool('MET_TrackFilterTool_'+suffix)
         tool.InputPVKey = defaultInputKey['PrimaryVx']
+        trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
+                                                         CutLevel="TightPrimary",
+                                                         maxZ0SinTheta=1.5,
+                                                         maxD0overSigmaD0=3)
+        ToolSvc += trkseltool
+        #
+        trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=1.5, doPV=False)
+        ToolSvc += trkvxtool
+        #
+        tool.TrackSelectorTool=trkseltool
+        tool.TrackVxAssocTool=trkvxtool
     if config.type == 'JetFilter':
         tool = CfgMgr.met__METJetFilterTool('MET_JetFilterTool_'+suffix)
     if config.type == 'MuonEloss':
         tool = CfgMgr.met__METMuonElossTool('MET_MuonElossTool_'+suffix)
     tool.MissingETKey = config.outputKey
-    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tool
     return tool
 

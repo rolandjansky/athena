@@ -129,6 +129,7 @@ namespace met {
   {
 
     const Jet* jet = dynamic_cast<const Jet*>(object);
+    m_signalstate = jet->getConstituentsSignalState();
 
     ATH_MSG_VERBOSE("Retrieving jet constituents.");
     // first get the topoclusters
@@ -141,15 +142,13 @@ namespace met {
     vector<const IParticle*> constit_vec;
     constit_vec.reserve(jet->numConstituents());
     CaloClusterChangeSignalStateList stateHelperList;
-    //stateHelperList.reserve(jet->numConstituents());
     for(JetConstituentVector::const_iterator iClus = constit.begin();
 	iClus!=constit.end(); ++iClus) {
       sumE_allclus += (*iClus)->e();
       const CaloCluster* pClus = dynamic_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
-      // create a helper to change the signal state and retain it until the end of the method
-      // signal state will be reset when it goes out of scope
-      //CaloClusterChangeSignalState stateHelper(pClus, CaloCluster::State(m_signalstate));
       stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
+
+      ATH_MSG_VERBOSE("Constit E = " << pClus->e());
 
       constit_vec.push_back(pClus);
     } // loop over jet constituents
@@ -165,6 +164,7 @@ namespace met {
 	  iClus!=constit_vec.end(); ++iClus) {
 	sumE_unique += (*iClus)->e();
 	acceptedSignals.push_back(*iClus);
+	ATH_MSG_VERBOSE("Unique constit E = " << (*iClus)->e());
       } // loop over jet unique constituents
       double scalef = sumE_unique / sumE_allclus;
       // weight as an entire object with the unused E fraction
@@ -236,18 +236,21 @@ namespace met {
 	  this->addToMET(*iJet,signalList,metTerm,metMap,objWeight);
 	} else {
 	  if( m_jet_doMinWetPtCut ) { 
-	    if( objWeight.wet() > m_jet_minWet ) {
-              ATH_MSG_VERBOSE("Jet weighted energy is above threshold -- add to MET");
-	      this->addToMET(*iJet,signalList,metTerm,metMap,objWeight);
-	      ATH_MSG_VERBOSE("Jet px = " << (*iJet)->px()
-			      << ", weighted px = " << (*iJet)->px()*objWeight.wpx()
-			      << ", MET px = " << metTerm->mpx() );
-            }
-	  } else {
             if( (*iJet)->pt()*objWeight.wet() > m_jet_minPt ) {
 	      ATH_MSG_VERBOSE("Jet unique energy is above threshold -- add to MET.");
               this->addToMET(*iJet,signalList,metTerm,metMap,objWeight);
               ATH_MSG_VERBOSE("Jet px = " << (*iJet)->px()
+			      << ", weighted px = " << (*iJet)->px()*objWeight.wpx()
+			      << ", MET px = " << metTerm->mpx() );
+              ATH_MSG_VERBOSE("Jet pt = " << (*iJet)->pt()
+			      << ", weighted pt = " << (*iJet)->pt()*objWeight.wet()
+			      << ", MET pt = " << metTerm->met() );
+            }
+	  } else {
+	    if( objWeight.wet() > m_jet_minWet ) {
+              ATH_MSG_VERBOSE("Jet weighted energy is above threshold -- add to MET");
+	      this->addToMET(*iJet,signalList,metTerm,metMap,objWeight);
+	      ATH_MSG_VERBOSE("Jet px = " << (*iJet)->px()
 			      << ", weighted px = " << (*iJet)->px()*objWeight.wpx()
 			      << ", MET px = " << metTerm->mpx() );
             }

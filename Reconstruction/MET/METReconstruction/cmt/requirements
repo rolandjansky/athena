@@ -17,14 +17,17 @@ use METRecoInterface	METRecoInterface-*	Reconstruction/MET
 
 ## Public EDM usage
 use xAODMissingET	xAODMissingET-*		Event/xAOD
-use xAODEgamma		xAODEgamma-*		Event/xAOD
 use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
 use xAODTracking	xAODTracking-*		Event/xAOD
 use xAODTruth		xAODTruth-*		Event/xAOD
 use xAODJet		xAODJet-*		Event/xAOD
+use xAODEgamma		xAODEgamma-*		Event/xAOD
+use xAODMuon		xAODMuon-*		Event/xAOD
 use xAODPFlow		xAODPFlow-*		Event/xAOD
 use PFlowUtils		PFlowUtils-*		Reconstruction/PFlow
-use CaloEvent           CaloEvent-*             Calorimeter
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetRecTools
 
 ## ROOT for timing
 use AtlasROOT		AtlasROOT-*		External
@@ -34,9 +37,10 @@ private
 use AthenaBaseComps     AthenaBaseComps-*       Control
 
 ## EDM
-use xAODMuon		xAODMuon-*		Event/xAOD
+use AthContainers AthContainers-* Control
 use xAODTau		xAODTau-*		Event/xAOD
-#use xAODEventInfo      xAODEventInfo-*         Event/xAOD
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
+use CaloEvent           CaloEvent-*             Calorimeter
 
 ##
 
@@ -45,7 +49,12 @@ use EventPrimitives	EventPrimitives-*	Event
 
 end_private
 
+include_dirs $(METReconstruction_root)/src
+
 branches METReconstruction src src/components doc python share Root
+
+# Apply the cmake-specific command to access the private headers
+apply_pattern cmake_add_command command="include_directories(src)"
 
 ## default is to make component library
 library METReconstruction *.cxx ../Root/*.cxx -s=components *.cxx
@@ -57,3 +66,6 @@ apply_pattern declare_python_modules files="../python/*.py"
 private
 macro DOXYGEN_INPUT "" Doxygen "../src ../Root ../$(package) ../doc ../share ../python ../cmt/fragments"
 end_private
+
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=METReconstruction selectionfile=selection.xml headerfiles="../METReconstruction/METReconstructionDict.h"

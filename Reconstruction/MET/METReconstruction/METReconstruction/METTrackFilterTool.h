@@ -28,6 +28,14 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
+#include "xAODEgamma/ElectronFwd.h"
+#include "xAODEgamma/ElectronContainer.h"
+
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
+
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
 namespace met{
 
@@ -64,22 +72,42 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
     // Accept functions
-    bool isPVTrack         (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
-    bool isGoodEoverP      (const xAOD::TrackParticle* trk,
-			    const std::vector<const xAOD::IParticle*>& trkList,
-			    const xAOD::CaloClusterContainer* clusters) const;
+    // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
+    bool isGoodEoverP(const xAOD::TrackParticle* trk,
+		      const std::vector<const xAOD::IParticle*>& trkList,
+		      const xAOD::CaloClusterContainer* clusters) const;
 
   private:
     // Default constructor: 
     METTrackFilterTool();
 
+    StatusCode buildTrackMET(xAOD::MissingETComponentMap* const metMap,
+			     xAOD::MissingET* const metTerm,
+			     const xAOD::Vertex* const pv,
+			     const std::vector<const xAOD::Electron*>& selElectrons,
+			     const std::vector<const xAOD::Muon*>& selMuons,
+			     const std::vector<const xAOD::TrackParticle*>& softTracks) const;
+
+    bool isElTrack(const xAOD::TrackParticle &trk, const std::vector<const xAOD::Electron*>& electrons, size_t &el_index ) const;
+    bool isMuTrack(const xAOD::TrackParticle &trk, const std::vector<const xAOD::Muon*>& muons) const;
+
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
+    ToolHandle<CP::ITrackVertexAssociationTool> m_trkToVertexTool;
+
+    void selectElectrons(const xAOD::ElectronContainer &elCont, std::vector<const xAOD::Electron*>& electrons) const;
+    void selectMuons(const xAOD::MuonContainer &muCont, std::vector<const xAOD::Muon*>& muons) const;
+
     bool m_trk_doPVsel;
-    double m_trk_d0Max;
-    double m_trk_z0Max;
+    // double m_trk_d0Max;
+    // double m_trk_z0Max;
     std::string m_pv_inputkey;
-    const xAOD::VertexContainer* m_pv_cont;
+    std::string m_el_inputkey;
+    std::string m_mu_inputkey;
+
+    bool m_doVxSep;
+    bool m_doLepRecovery;
 
     bool m_trk_doEoverPsel;
     std::string m_cl_inputkey;

@@ -121,9 +121,9 @@ namespace met {
 	if(nPrecision<m_mu_nPrecisionHits) return false;
       } // only if we use SA muons
     } // selection for StandAlone muons
-    else {
+    else if(mu->muonType()==Muon::Combined || mu->muonType()==Muon::SegmentTagged) {
       if(fabs(mu->eta())>m_mu_maxEta) return false;
-      
+
       // could add some error checking to make sure we successfully read the details
       uint8_t nPixHits(0), nSctHits(0);
       if(!mu->primaryTrackParticleLink().isValid()) return false;
@@ -133,7 +133,8 @@ namespace met {
       if(nPixHits<m_mu_nPixHits) return false;
       if(nPixHits+nSctHits<m_mu_nSiHits) return false;
     } // selection for SegmentTagged and Combined muons
-
+    else {return false;} // don't accept forward muons or calo tagged
+  
     return true;
   }
 

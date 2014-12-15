@@ -51,6 +51,10 @@ namespace met {
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
 
+  static bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
+    return part1->pt()>part2->pt();
+  }
+
   // Constructors
   ////////////////
   METEgammaTool::METEgammaTool(const std::string& name) : 
@@ -68,7 +72,7 @@ namespace met {
     declareProperty( "ClusOQ",            m_eg_clusOQ      = 0x0    );
     declareProperty( "TestClusOQ",        m_eg_testClusOQ  = false  ); // could e.g. veto BADCLUSELECTRON
 
-    declareProperty( "TopoClusKey",       m_tcCont_key = "CaloCalTopoCluster" );
+    declareProperty( "TopoClusKey",       m_tcCont_key = "CaloCalTopoClusters" );
     declareProperty( "TCMatchDeltaR",     m_tcMatch_dR        = 0.1 );
     declareProperty( "TCMatchMaxRat",     m_tcMatch_maxRat    = 1.5 );
     declareProperty( "TCMatchTolerance",  m_tcMatch_tolerance = 0.2 );
@@ -178,20 +182,23 @@ namespace met {
     bool goodmatch = false;
     bool doSum = true;
     double sumE_tc = 0.;
+    const CaloCluster* bestbadmatch = 0;
     std::sort(nearbyTC.begin(),nearbyTC.end(),greaterPt);
     for(vector<const xAOD::CaloCluster*>::const_iterator iClus=nearbyTC.begin();
-	iClus!=nearbyTC.end() && doSum; ++iClus) {
+	iClus!=nearbyTC.end(); ++iClus) {
       double tcl_e = (*iClus)->e();
       // skip cluster if it's above our bad match threshold
       if(tcl_e>m_tcMatch_maxRat*eg_cl_e) {
 	ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (tcl_e/eg_cl_e));
+	if( !bestbadmatch || (fabs(tcl_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = *iClus;
 	continue;
       }
 
       switch(m_tcMatch_method) {
       case 0:
 	// sum clusters until the next cluster to be added will make the energy match worse
-	doSum = ( fabs(sumE_tc+tcl_e - eg_cl_e) < fabs(sumE_tc - eg_cl_e));
+	doSum = ( fabs(sumE_tc+tcl_e - eg_cl_e) < fabs(sumE_tc - eg_cl_e) );
+	ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
 	break;
       case 1:
 	// sum clusters until we either find one very good cluster match
@@ -204,11 +211,15 @@ namespace met {
 	tclist.push_back(*iClus);
 	sumE_tc += tcl_e;
 	if(tclist.size()==1) goodmatch = fabs(tcl_e/eg_cl_e-1)<m_tcMatch_tolerance;
-	ATH_MSG_VERBOSE("Accept topocluster in sum.");
-	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << tcl_e / swclus->e());
+	ATH_MSG_VERBOSE("Accept topocluster with pt " << (*iClus)->pt() << ", e " << (*iClus)->e() << " in sum.");
+	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << tcl_e / eg_cl_e);
 	ATH_MSG_VERBOSE("Do we have a good match? " << (goodmatch ? "YES" : "NO"));
       } // if we will retain the topocluster
     } // loop over nearby clusters
+    if(sumE_tc<1e-9 && bestbadmatch) {
+      tclist.push_back(bestbadmatch);
+      sumE_tc += bestbadmatch->e();
+    }
     ATH_MSG_VERBOSE("Egamma links " << eg->nCaloClusters() << " clusters");
     ATH_MSG_VERBOSE("Identified " << tclist.size() << " matched topoclusters");
     ATH_MSG_VERBOSE("Egamma energy: " << eg->e());

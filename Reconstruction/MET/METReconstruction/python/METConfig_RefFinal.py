@@ -5,6 +5,8 @@ from METReconstruction.METRecoConfig import BuildConfig, RefConfig, METConfig,cl
 
 from RecExConfig.RecFlags import rec
 doInDet = rec.doInDet()
+from JetRec.JetRecFlags import jetFlags
+jetsUseTracks = jetFlags.useTracks()
 
 ############################################################################
 # MET_RefFinal
@@ -16,13 +18,12 @@ rf_builders = [BuildConfig('Ele'),
                BuildConfig('Muon'),
                BuildConfig('SoftClus'),
                BuildConfig('SoftTrk')]
-rf_refiners = [RefConfig('JetFilter','RefJet_JVFCut'),
-               RefConfig('TrackFilter','PVSoftTrk')]
+rf_refiners = [RefConfig('TrackFilter','PVSoftTrk')]
 cfg_mrf = METConfig('RefFinal',
                     rf_builders,
                     rf_refiners,
                     doSum=True,
-                    doTracks=doInDet,
+                    doTracks=(doInDet and jetsUseTracks),
                     doRegions=True
                     )
 
@@ -62,38 +63,7 @@ cfg_mrf.builders['Muon'].MinNprecision    = 3
 #
 cfg_mrf.builders['SoftClus'].VetoNegEClus = True
 cfg_mrf.builders['SoftClus'].SignalState = clusterSigStates['LocHad']
-#
-cfg_mrf.refiners['JetFilter'].DoJVFCut  = True
-cfg_mrf.refiners['JetFilter'].MinAbsJVF = 0.25
-cfg_mrf.refiners['JetFilter'].MaxPtJVF  = 50e3 # only apply for pt<50
-cfg_mrf.refiners['JetFilter'].MaxEtaJVF = 2.4  # only apply to central jets
-#
-cfg_mrf.refiners['TrackFilter'].DoPVSel = True
-cfg_mrf.refiners['TrackFilter'].TrackD0Max = 1.5
-cfg_mrf.refiners['TrackFilter'].TrackZ0Max = 1.5
 
 metFlags.METConfigs()[cfg_mrf.suffix] = cfg_mrf
 metFlags.METOutputList().append(cfg_mrf.suffix)
 metFlags.METOutputList().append(cfg_mrf.suffix+"Regions")
-
-############################################################################
-# LocHadTopo
-
-cfg_lht = METConfig('LocHadTopo',[BuildConfig('SoftClus','LocHadTopo')],
-                    doRegions=True
-                    )
-cfg_lht.builders['SoftClus'].SignalState = clusterSigStates['LocHad']
-
-metFlags.METConfigs()[cfg_lht.suffix] = cfg_lht
-metFlags.METOutputList().append(cfg_lht.suffix)
-metFlags.METOutputList().append(cfg_lht.suffix+"Regions")
-
-############################################################################
-# Nominal TrackMET
-
-cfg_trk = METConfig('Track',[BuildConfig('SoftTrk','Track')],[RefConfig('TrackFilter','PVTrack')],
-                    doTracks=doInDet)
-
-metFlags.METConfigs()[cfg_trk.suffix] = cfg_trk
-metFlags.METOutputList().append(cfg_trk.suffix)
-metFlags.METOutputList().append(cfg_trk.suffix+"Regions")

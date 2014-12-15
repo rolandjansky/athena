@@ -150,23 +150,25 @@ namespace met {
 
   bool METSoftTermsTool::accept(const xAOD::CaloCluster* clus) const
   {
+    if(!clus) return false;
     if(m_cl_vetoNegE && clus->e()<0) return false;
     if(m_cl_onlyNegE && clus->e()>0) return false;
 
     return true;
   }
 
-  bool METSoftTermsTool::accept(const xAOD::TrackParticle* trk) const
+  bool METSoftTermsTool::accept(const xAOD::TrackParticle* /*trk*/) const
   {
+    // if(!trk) return false;
 
-    if(fabs(trk->pt())<500/*MeV*/ || fabs(trk->eta())>2.5) return false;
-
-    // could add some error checking to make sure we successfully read the details
-    uint8_t nPixHits(0), nSctHits(0);
-    trk->summaryValue(nPixHits,xAOD::numberOfPixelHits);
-    if(nPixHits<1) return false;
-    trk->summaryValue(nSctHits,xAOD::numberOfSCTHits);
-    if(nSctHits<6) return false;
+//    if(fabs(trk->pt())<500/*MeV*/ || fabs(trk->eta())>2.5) return false;
+//
+//    // could add some error checking to make sure we successfully read the details
+//    uint8_t nPixHits(0), nSctHits(0);
+//    trk->summaryValue(nPixHits,xAOD::numberOfPixelHits);
+//    if(nPixHits<1) return false;
+//    trk->summaryValue(nSctHits,xAOD::numberOfSCTHits);
+//    if(nSctHits<6) return false;
 
     return true;
   }

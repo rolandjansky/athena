@@ -16,7 +16,10 @@
 #include "METReconstruction/METCaloRegionsTool.h"
 
 // MET EDM
-#include "xAODMissingET/MissingETComposition.h"
+#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+#else
+#include "CaloEvent/CaloCellContainer.h"
+#endif
 
 namespace met {
 
@@ -28,7 +31,6 @@ namespace met {
   using xAOD::CaloClusterContainer;
   //
   using xAOD::MissingET;
-  using xAOD::MissingETComposition;
   using xAOD::MissingETContainer;
 
   // Initialize CaloRegionNames
@@ -96,6 +98,14 @@ namespace met {
     // Create the container and push back the new MET terms 
     MissingETBase::Types::bitmask_t source = MissingETBase::Source::Calo | MissingETBase::Source::clusterEM();
     MissingETContainer* metCont = dynamic_cast<MissingETContainer*>( metTerm_EMB->container() );
+
+    // Check dynamic_cast for coverity
+    if(!metCont) {
+      ATH_MSG_WARNING("Unsuccesful dynamic_cast");
+      return StatusCode::SUCCESS;
+    }
+
+    // Push region terms to the container
     for( int i=0; i < REGIONS_TOTAL; ++i) {
       // Create the new terms 
       if( i > 0 ) { 
@@ -106,27 +116,32 @@ namespace met {
       metCont->at(i)->setSource( source );      
     }
       
+    StatusCode sc = StatusCode::SUCCESS;
+
     // Either Cells or Clusters
     if(m_calo_useCells) {
       // Retrieve the cell container
-      const CaloCellContainer*   caloCellCont = 0;
-      #ifndef XAOD_STANDALONE
-      if( evtStore()->retrieve(caloCellCont, m_input_data_key).isFailure() ) {
+      const CaloCellContainer* caloCellCont = 0;
+      #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+      #else
+      sc = evtStore()->retrieve(caloCellCont, m_input_data_key);
+      if( sc.isFailure() ) {
         ATH_MSG_WARNING("Unable to retrieve input cell cluster container");
         return StatusCode::SUCCESS;
       }
       #endif
       // Fill MET
-      return fillCellMet(metCont,caloCellCont);
+      sc = fillCellMet(metCont,caloCellCont);
     } else {
       // Retrieve the calo container
       const CaloClusterContainer*   caloClusCont = 0;
-      if( evtStore()->retrieve(caloClusCont, m_input_data_key).isFailure() ) {
+      sc = evtStore()->retrieve(caloClusCont, m_input_data_key);
+      if( sc.isFailure() ) {
         ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
         return StatusCode::SUCCESS;
       }
       // Fill MET
-      return fillClusterMet(metCont,caloClusCont);
+      sc=fillClusterMet(metCont,caloClusCont);
     } // end if use clusters if/else
 
     // Debug information
@@ -142,6 +157,10 @@ namespace met {
                     );      
     } // end debug information
 
+    if(sc.isFailure()) { 
+      ATH_MSG_WARNING("Unable to fill cell/cluster MET"); 
+    } 
+    
     return StatusCode::SUCCESS;
   }
 
@@ -194,7 +213,9 @@ namespace met {
   // Fill Cell MET
   StatusCode METCaloRegionsTool::fillCellMet(xAOD::MissingETContainer* metContainer,
                                              const CaloCellContainer* caloCellContainer) {
-    #ifndef XAOD_STANDALONE
+    #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    ATH_MSG_WARNING("Cell information is only available in athena framework");
+    #else
     // Loop over all cells
     for( CaloCellContainer::const_iterator iCell=caloCellContainer->begin();
        iCell!=caloCellContainer->end(); ++iCell ) {
@@ -222,8 +243,6 @@ namespace met {
                      et_cell);
       } // end if energy>0 if
     } // end of loop overall cells
-    #else
-    ATH_MSG_WARNING("Cell information is only available in athena framework");
     #endif
     return StatusCode::SUCCESS;
   } // end of fillCellMet

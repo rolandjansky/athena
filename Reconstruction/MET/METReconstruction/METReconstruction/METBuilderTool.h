@@ -139,8 +139,6 @@ namespace met {
 
   }; 
 
-  inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2);
-
 }
 
 // I/O operators
@@ -149,9 +147,5 @@ namespace met {
 /////////////////////////////////////////////////////////////////// 
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
-
-bool met::greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
-  return part1->pt()>part2->pt();
-}
 
 #endif //> !METRECONSTRUCTION_METBUILDERTOOL_H

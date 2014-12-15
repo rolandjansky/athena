@@ -34,11 +34,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
-#ifndef XAOD_STANDALONE
-#include "CaloEvent/CaloCellContainer.h"
-#else
 class CaloCellContainer;
-#endif
 
 namespace met{
 

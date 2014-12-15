@@ -96,6 +96,10 @@ namespace met {
 	  fabs(jet->eta()) < m_jet_maxEtaJVF ) {
 	vector<float> jvf;
 	jet->getAttribute<vector<float> >(JetAttribute::JVF,jvf);
+	if(!jet->getAttribute<vector<float> >(JetAttribute::JVF,jvf)) {
+	  ATH_MSG_WARNING("Jet JVF unavailable!");
+	  return false;
+	}
 	ATH_MSG_VERBOSE("Jet JVF = " << jvf[0]);
 	if( fabs(jvf[0]) < m_jet_minAbsJVF ) return false;
       }

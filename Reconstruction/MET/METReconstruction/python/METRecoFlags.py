@@ -11,6 +11,11 @@ class DoRegions(JobProperty):
     allowedTypes = ['bool'] 
     StoredValue  = False
 
+class DoPFlow(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = True
+
 class METConfigs(JobProperty):
     statusOn = True
     allowedTypes = ['dict'] 
@@ -26,11 +31,30 @@ class METOutputList(JobProperty):
     allowedTypes = ['list'] 
     StoredValue  = []
 
+class METAssocConfigs(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict'] 
+    StoredValue  = {}
+
+class METAssocTools(JobProperty):
+    statusOn = True
+    allowedTypes = ['dict'] 
+    StoredValue  = {}
+
+class METAssocOutputList(JobProperty):
+    statusOn = True
+    allowedTypes = ['list'] 
+    StoredValue  = []
+
 jobproperties.add_Container(METRecoFlags)
 
 jobproperties.METRecoFlags.add_JobProperty(DoRegions)
+jobproperties.METRecoFlags.add_JobProperty(DoPFlow)
 jobproperties.METRecoFlags.add_JobProperty(METConfigs)
 jobproperties.METRecoFlags.add_JobProperty(METOutputList)
 jobproperties.METRecoFlags.add_JobProperty(METRecoTools)
+jobproperties.METRecoFlags.add_JobProperty(METAssocConfigs)
+jobproperties.METRecoFlags.add_JobProperty(METAssocOutputList)
+jobproperties.METRecoFlags.add_JobProperty(METAssocTools)
 
 metFlags = jobproperties.METRecoFlags

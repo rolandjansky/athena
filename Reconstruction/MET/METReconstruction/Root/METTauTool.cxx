@@ -247,25 +247,25 @@ namespace met {
 	if ( this->resolveOverlap(*iTau,metMap,signalList,objWeight) ) {
 	  // add if not overlapping anything
 	  this->addToMET(*iTau,signalList,metTerm,metMap,objWeight);
-	} else {
+	} else { // no overlaps
 	  if( m_tau_doMinWetPtCut ) {
-	    if ( objWeight.wet() > m_tau_minWet ) {
-              ATH_MSG_VERBOSE("Tau weighted energy is above threshold -- add to MET");
-	      this->addToMET(*iTau,signalList,metTerm,metMap,objWeight);
-	      //ATH_MSG_VERBOSE("Tau px = " << (*iTau)->px()
-              //             << " , weighted px = " << (*iTau)->px()*objWeight.wpx()
-              //             << " ,MET px = " << metTerm->mpx() );
-            }
-          } else {
             if( (*iTau)->pt()*objWeight.wet() > m_tau_minPt ) {
               ATH_MSG_VERBOSE("Tau weighted energy is above threshold -- add to MET");
 	      this->addToMET(*iTau,signalList,metTerm,metMap,objWeight);
 	      //ATH_MSG_VERBOSE("Tau px = " << (*iTau)->px()
               //             << " , weighted px = " << (*iTau)->px()*objWeight.wpx()
               //             << " ,MET px = " << metTerm->mpx() );
-            }
-          } // end if minWet
-	}
+            } // if passes weighted pt cut
+          } else {
+	    if ( objWeight.wet() > m_tau_minWet ) {
+              ATH_MSG_VERBOSE("Tau weighted energy is above threshold -- add to MET");
+	      this->addToMET(*iTau,signalList,metTerm,metMap,objWeight);
+	      //ATH_MSG_VERBOSE("Tau px = " << (*iTau)->px()
+              //             << " , weighted px = " << (*iTau)->px()*objWeight.wpx()
+              //             << " ,MET px = " << metTerm->mpx() );
+            } // if passes weight cut
+          } // end if do weighted pt cut
+	} // overlapping
       } // if passing selection
     } // loop on tau container
     return StatusCode::SUCCESS;
