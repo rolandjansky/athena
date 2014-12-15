@@ -51,6 +51,10 @@ if BTaggingFlags.Gaia | BTaggingFlags.GaiaNeg :
 if BTaggingFlags.MVbPrime |  BTaggingFlags.MVbPrimeFlip :
   theFolders.append(BTaggingFlags.CalibrationFolderRoot+'MVbPrime')
   theFolders.append(BTaggingFlags.CalibrationFolderRoot+'MVbCharm')
+if BTaggingFlags.MultiSVbb1:
+  theFolders.append(BTaggingFlags.CalibrationFolderRoot+'MultiSVbb1')
+if BTaggingFlags.MultiSVbb2:
+  theFolders.append(BTaggingFlags.CalibrationFolderRoot+'MultiSVbb2')
 
 
 JetCollectionForCalib = []
