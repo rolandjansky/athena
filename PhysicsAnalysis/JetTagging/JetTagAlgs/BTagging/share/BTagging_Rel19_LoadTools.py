@@ -347,11 +347,12 @@ if BTaggingFlags.OutputLevel < 3:
 # -- for reference mode:
 if BTaggingFlags.Runmodus == 'reference':
 
-    for key in BTaggingFlags.Jets:
-        for tagger in ['JetProb','IP1D','IP2D','IP2DSpc','IP3D','IP3DSpc','SV1','SV2','SoftMu','SoftEl','JetFitterTagNN','JetFitterCOMBNN']:
-            if BTaggingFlags.IsEnabled(tagger):
-                RefileName = "BTaggingRef"+tagger+key+".root"
-                svcMgr.THistSvc.Output += ["RefFile"+tagger+key+" DATAFILE='"+RefileName+"' OPT='RECREATE'"]
+    svcMgr.THistSvc.Output += ["RefFile DATAFILE='BTagCalibALL.root' OPT='RECREATE'"]
+    #for key in BTaggingFlags.Jets:
+    #    for tagger in ['JetProb','IP1D','IP2D','IP2DSpc','IP3D','IP3DSpc','SV1','SV2','SoftMu','SoftEl','JetFitterTagNN','JetFitterCOMBNN']:
+    #        if BTaggingFlags.IsEnabled(tagger):
+    #            RefileName = "BTaggingRef"+tagger+key+".root"
+    #            svcMgr.THistSvc.Output += ["RefFile"+tagger+key+" DATAFILE='"+RefileName+"' OPT='RECREATE'"]
 
 if ( BTaggingFlags.lifetime1D | BTaggingFlags.lifetime2D | BTaggingFlags.lifetime3D | 
          BTaggingFlags.secVtxFitBU | BTaggingFlags.secVtxFitTD ):

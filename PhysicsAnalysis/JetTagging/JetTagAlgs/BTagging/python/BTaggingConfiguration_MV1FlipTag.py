@@ -25,8 +25,9 @@ def toolMV1FlipTag(name, useBTagFlagsDefaults = True, **options):
     inputIP3DWeightName                 default: "IP3DNeg"
     inputSV1WeightName                  default: "SV1Flip"
     inputJetFitterWeightName            default: "JetFitterCOMBNNIP3DNeg"
-    taggerName                          default: "MV1FlipTag"
-    taggerNameBase                      default: "MV1Tag"
+    taggerName                          default: "MV1Flip"
+    taggerNameBase                      default: "MV1"
+    xAODBaseName                        default: "MV1Flip"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -38,8 +39,9 @@ def toolMV1FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'inputIP3DWeightName'              : 'IP3DNeg',
                      'inputSV1WeightName'               : 'SV1Flip',
                      'inputJetFitterWeightName'         : 'JetFitterCOMBNNIP3DNeg',
-                     'taggerName'                       : 'MV1FlipTag',
-                     'taggerNameBase'                   : 'MV1Tag' }
+                     'taggerName'                       : 'MV1Flip',
+                     'taggerNameBase'                   : 'MV1',
+                     'xAODBaseName'                     : 'MV1Flip',}
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

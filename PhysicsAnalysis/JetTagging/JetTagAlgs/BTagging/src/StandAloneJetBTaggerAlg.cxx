@@ -7,6 +7,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
@@ -64,10 +65,51 @@ StatusCode StandAloneJetBTaggerAlg::execute() {
       return StatusCode::FAILURE;
     }
     else {
-      auto rec = xAOD::shallowCopyContainer (*jetsAOD);
-      int ret = m_JetBTaggerTool->modify(*rec.first);
-      if (!ret) {
-        ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+      //const xAOD::BTagging * BTag = 0;
+      //if (jetsAOD->size() != 0) {
+	// BTag = jetsAOD->front()->btagging();
+        // sc = evtStore()->retrieve(jetsAOD, m_JetCollectionName);
+      //}
+      //if (BTag == 0) { //Deep copy of jet container even if JetContainer empty
+      std::string BTaggingCollectionName = std::string("BTagging_") + m_JetCollectionName;
+      BTaggingCollectionName.erase(BTaggingCollectionName.length()-4);
+      //no PV0 in BTagging Colection Name
+      std::size_t start_position_PV0 = BTaggingCollectionName.find("PV0");
+      if (start_position_PV0!=std::string::npos) {
+ 	BTaggingCollectionName.erase(start_position_PV0, 3);	
+      }
+      if (!evtStore()->contains<xAOD::BTaggingContainer>(BTaggingCollectionName)) {
+        ATH_MSG_DEBUG("#BTAG# Deep copy of Jet container:" << m_JetCollectionName << " with " << jetsAOD->size() << " jets");
+        xAOD::JetContainer * jets = new xAOD::JetContainer();
+        xAOD::JetAuxContainer * jetsAux = new xAOD::JetAuxContainer();
+        jets->setStore(jetsAux);
+
+        xAOD::JetContainer::const_iterator itB = jetsAOD->begin();
+        xAOD::JetContainer::const_iterator itE = jetsAOD->end();
+        for(xAOD::JetContainer::const_iterator it = itB ; it != itE; ++it) {
+          xAOD::Jet * jetToTag = new xAOD::Jet( **it );
+          jets->push_back(jetToTag);
+        }
+        int ret = m_JetBTaggerTool->modify(*jets);
+        if (!ret) {
+          ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+        }
+        else {
+          static const bool allowOverwrite = true;
+	  static const bool resetOnly = false;
+          CHECK( evtStore()->overwrite(jetsAux, m_JetCollectionName+"Aux.", allowOverwrite, resetOnly));
+          CHECK( evtStore()->overwrite(jets, m_JetCollectionName, allowOverwrite, resetOnly));
+        }
+      }
+      else { //Shallow copy for re-tagging already tagged jet
+        ATH_MSG_DEBUG("#BTAG# Shallow copy of Jet container:" << m_JetCollectionName << " with " << jetsAOD->size() << " jets");
+        auto rec = xAOD::shallowCopyContainer (*jetsAOD);
+        int ret = m_JetBTaggerTool->modify(*rec.first);
+        delete rec.first;
+        delete rec.second;
+        if (!ret) {
+          ATH_MSG_DEBUG("#BTAG# Failed to call JetBTaggerTool");
+        }
       }
     }
   }

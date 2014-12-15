@@ -38,9 +38,7 @@ metathisBTagLabeling = { 'OneInTotal'    : True,
                                             } }
 
 def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a TrackToVertexIPEstimator tool and returns it. There are actually two
-    incarnations of this tool, toolJetQuarkLabel or tooltoolJetTrackTruthMatching depending
-    on the options. The relevant option is 'subtype'.
+    """Sets up a TrackToVertexIPEstimator tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -79,7 +77,7 @@ def toolBTagJetTruthMatching(name, useBTagFlagsDefaults = True, **options):
         del options['subtype']
         return toolJetTrackTruthMatching('BTagJetTruthMatching', useBTagFlagsDefaults = useBTagFlagsDefaults, **options)
     else:
-        raise NotImplementedError, 'Unimplemented request for TrackToVertexIPEstimator sub-type: '+options['subtype']
+        raise NotImplementedError, 'Unimplemented request for BTagJetTruthMatching sub-type: '+options['subtype']
 
 def toolJetQuarkLabel(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetQuarkLabel tool and returns it.

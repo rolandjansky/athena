@@ -12,7 +12,6 @@ metaSV1Tag = { 'IsATagger'         : True,
                'PassByPointer'     : {'LikelihoodTool'  : 'SV1NewLikelihoodTool'},
 #               'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxInJetTool' },
                'JetCollectionList' : 'jetCollectionList',
-#               'JetWithInfoPlus'   : 'jetWithInfoPlus',
                'ToolCollection'    : 'SV1Tag' }
 
 def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
@@ -43,7 +42,6 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
                      'xAODBaseName'                     : 'SV1',
                      'SecVxFinderName'                  : 'SV1',
                      'UseCHypo'                         : True,
-#                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
 #                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'LikelihoodTool'                   : None }
         for option in defaults:

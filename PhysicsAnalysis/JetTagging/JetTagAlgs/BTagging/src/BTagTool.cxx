@@ -202,7 +202,7 @@ namespace Analysis {
 
     //jetToTag.set_origin(vxContainer, 0);
 
-    ATH_MSG_VERBOSE("#BTAG# Going to start general secondary vertex finding ");
+    // ATH_MSG_VERBOSE("#BTAG# Going to start general secondary vertex finding ");
 
 
     /* ----------------------------------------------------------------------------------- */

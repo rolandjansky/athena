@@ -25,7 +25,6 @@ metaIP3DTag = { 'IsATagger'         : True,
 #                                       'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
-#                'JetWithInfoPlus'   : 'jetWithInfoPlus',
                 'ToolCollection'    : 'IP3DTag' }
 
 def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
@@ -59,7 +58,6 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                      'RejectBadTracks'                  : False,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
-#                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
 #                     'SecVxFinderNameForV0Removal'      : "InDetVKalVxInJetTool",
 #                     'SecVxFinderNameForIPSign'         : "InDetVKalVxInJetTool",
                      'unbiasIPEstimation'               : False,
@@ -87,6 +85,8 @@ def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     useSharedHitInfo                    default: True
     useDetailSharedHitInfo              default: True
     hitBLayerGrade                      default: True
+    hitInnerLayersGrade                 default: True
+    useRun2TrackGrading                 default: False
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -96,6 +96,8 @@ def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
+                     'useRun2TrackGrading'    : False,
+                     'hitInnerLayersGrade'    : True,
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -164,6 +166,7 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
+    usepTDepTrackSel                    default: False
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -171,7 +174,8 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'useBLayerHitPrediction' : True }
+                     'useBLayerHitPrediction' : True ,
+                     'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

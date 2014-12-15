@@ -10,9 +10,8 @@ metaSV1FlipTag = { 'IsATagger'         : True,
                                           'InDetVKalVxNegativeTagInJetTool',
                                           'SV1FlipNewLikelihoodTool'],
                    'PassByPointer'     : {'LikelihoodTool'  : 'SV1FlipNewLikelihoodTool'},
-                   'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxNegativeTagInJetTool'},
+#                   'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxNegativeTagInJetTool'},
                    'JetCollectionList' : 'jetCollectionList',
-                   'JetWithInfoPlus'   : 'jetWithInfoPlus',
                    'ToolCollection'    : 'SV1FlipTag' }
 
 def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
@@ -25,11 +24,10 @@ def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
     referenceType                       default: BTaggingFlags.ReferenceType
     SVAlgType                           default: "SV1"
     jetCollectionList                   default: BTaggingFlags.Jets
-    jetWithInfoPlus                     default: BTaggingFlags.JetsWithInfoPlus
-    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
-    writeInfoPlus                       default: False
-    SecVxFinderName                     default: "InDetVKalVxNegativeTagInJetTool"
+    SecVxFinderName                     default: "SV1Flip"
     LikelihoodTool                      default: None
+    UseCHypo                            default: True
+    xAODBaseName                        default: "SV1Flip"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -41,11 +39,12 @@ def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : BTaggingFlags.Jets,
-                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
-                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
-                     'writeInfoPlus'                    : False,
-                     'SecVxFinderName'                  : 'InDetVKalVxNegativeTagInJetTool',
-                     'LikelihoodTool'                   : None }
+#                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
+                     'SecVxFinderName'                  : 'SV1Flip',
+                     'LikelihoodTool'                   : None,
+                     'UseCHypo'                         : True,
+                     'xAODBaseName'                     : 'SV1Flip',
+                     }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

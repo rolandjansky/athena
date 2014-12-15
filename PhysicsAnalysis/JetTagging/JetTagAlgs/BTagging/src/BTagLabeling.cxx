@@ -113,7 +113,7 @@ namespace Analysis {
       else {
         thisJetTruthLabel = -1;
       }
-      jetToTag.setAttribute("TruthLabelID",thisJetTruthLabel);
+      jetToTag.setAttribute("ConeTruthLabelID",thisJetTruthLabel);
       ATH_MSG_VERBOSE("#BTAG# Matching tool result: " << jetIsMatched << " " << thisJetTruthLabel);
       //std::cout << "AARON result: " << jetIsMatched << " " << thisJetTruthLabel << std::endl;
       //jetToTag.addInfo(truthInfo); AA - need jet input

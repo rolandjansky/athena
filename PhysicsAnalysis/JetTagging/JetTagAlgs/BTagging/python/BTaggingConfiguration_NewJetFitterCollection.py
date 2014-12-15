@@ -343,7 +343,7 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
-    VxPrimaryContainer                  default: "PrimaryVertices"
+    VxPrimaryContainer                  default: BTaggingFlags.PrimaryVertexCollectionName
     MaxNumDeleteIterations              default: 30
     VertexProbCut                       default: 0.001
     MaxClusteringIterations             default: 30
@@ -357,7 +357,7 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
         if not 'InDetKeys' in dir():
             from InDetRecExample.InDetKeys import InDetKeys
         defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel,
-                     'VxPrimaryContainer'                  : 'PrimaryVertices',
+                     'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
                      'MaxNumDeleteIterations'              : 30,
                      'VertexProbCut'                       : 0.001,
                      'MaxClusteringIterations'             : 30,

@@ -11,7 +11,6 @@ metaSV0Tag = { 'IsATagger'         : True,
                #'PassByPointer'     : {'LikelihoodTool'  : 'NewLikelihoodTool'}, (apparently not used for SV0)
 #$               'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxNegInJetTool'},
                'JetCollectionList' : 'jetCollectionList',
-#               'JetWithInfoPlus'   : 'jetWithInfoPlus',
                'ToolCollection'    : 'SV0Tag' }
 
 def toolSV0Tag(name, useBTagFlagsDefaults = True, **options):
@@ -37,7 +36,6 @@ def toolSV0Tag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'SVAlgType'                        : 'SV0',
                      'jetCollectionList'                : BTaggingFlags.Jets,
-#                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
 #                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
 #                     'infoPlusName'                     : 'SV0InfoPlus',
                      'SecVxFinderName'                  : 'SV0',

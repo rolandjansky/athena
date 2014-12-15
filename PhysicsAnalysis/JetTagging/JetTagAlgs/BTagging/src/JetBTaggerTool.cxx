@@ -103,8 +103,8 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   std::string bTaggingContName = m_BTagName;
  
   std::vector<xAOD::BTagging *> btagsList;
-  xAOD::BTaggingContainer * bTaggingContainer;
-  xAOD::BTaggingAuxContainer * bTaggingAuxContainer;
+  xAOD::BTaggingContainer * bTaggingContainer(0);
+  xAOD::BTaggingAuxContainer * bTaggingAuxContainer(0);
 
   
   if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
@@ -116,7 +116,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.") );
     bTaggingContainer->setStore(bTaggingAuxContainer);
     CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName) );
-    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwrited in store");
+    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwritten in store");
   }
   else {
     if (!m_retag) {
@@ -131,78 +131,83 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     }
   }
 
-  //SV
+  // The SV need to be remade in case of re-tagging, or simply used if b-tagging information is merely to be extended.
+  // If the SV container does not exist it is created.
+  // It is conceivable that they do not exist but also don't need to be created anymore (e.g. if
+  // the container was slimmed away but is also not needed anymore), but we will ignore this case.
   std::string bTagSecVertexContName = bTaggingContName + m_BTagSVName;
-  xAOD::VertexContainer *bTagSecVertexContainer;
-  if (m_retag) {
-    const xAOD::VertexContainer *bTagSecVertexContainerAOD;
-    if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
+  xAOD::VertexContainer *bTagSecVertexContainer(0);
+  xAOD::ShallowAuxContainer* bTagSVShallowAuxContainer(0);
+  bool reuse_SVContainer = false;
+  if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
+    if (m_retag) {
+      bTagSecVertexContainer = new xAOD::VertexContainer;
+      xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
+      CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.") );
+      bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
+      CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName) );
+      ATH_MSG_VERBOSE("#BTAG# SV container " << bTagSecVertexContName << " overwritten in store");
+    } else {
+      const xAOD::VertexContainer *bTagSecVertexContainerAOD;
       StatusCode sc  = evtStore()->retrieve(bTagSecVertexContainerAOD,bTagSecVertexContName);
       if (sc.isFailure()) {
        ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagSecVertexContainer " <<bTagSecVertexContName );
-      }
-      else {
-	 auto rec = xAOD::shallowCopyContainer (*bTagSecVertexContainerAOD);
-         bTagSecVertexContainer = rec.first;
-      }
-    }
-    else {
-      ATH_MSG_VERBOSE("#BTAG# Sec Vertex container not in SG" << bTagSecVertexContName );
-    }
-  }
-  else {
-    if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
-      StatusCode sc  = evtStore()->retrieve(bTagSecVertexContainer,bTagSecVertexContName);
-      if (sc.isFailure()) {
-       ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagSecVertexContainer " <<bTagSecVertexContName );
+      } else {
+	auto rec = xAOD::shallowCopyContainer (*bTagSecVertexContainerAOD);
+	bTagSecVertexContainer = rec.first;
+        bTagSVShallowAuxContainer = rec.second;
+	reuse_SVContainer = true;
       }
     }
-    else {
-      bTagSecVertexContainer = new xAOD::VertexContainer();
-      xAOD::VertexAuxContainer *bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer();
-      CHECK( evtStore()->record(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.") );
-      bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
-      CHECK( evtStore()->record(bTagSecVertexContainer, bTagSecVertexContName) );
-      ATH_MSG_VERBOSE("#BTAG# SV Vertex container " << bTagSecVertexContName << " recorded in store");
-    }
+  } else {
+    bTagSecVertexContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer();
+    CHECK( evtStore()->record(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.") );
+    bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
+    CHECK( evtStore()->record(bTagSecVertexContainer, bTagSecVertexContName) );
+    ATH_MSG_VERBOSE("#BTAG# SV Vertex container " << bTagSecVertexContName << " recorded in store");
   }
 
-  //JFVTX
+  // JFVertex container: the logic here is the same as for the "ordinary" SV container.
   std::string bTagJFVertexContName = bTaggingContName + m_BTagJFVtxName;
-  xAOD::BTagVertexContainer *bTagJFVertexContainer;
-  if (m_retag) {
-    const xAOD::BTagVertexContainer *bTagJFVertexContainerAOD;
-    if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
+  xAOD::BTagVertexContainer *bTagJFVertexContainer(0);
+  xAOD::ShallowAuxContainer* bTagJFVShallowAuxContainer(0);
+  bool reuse_JFVContainer = false;
+  if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
+    if (m_retag) {
+      bTagJFVertexContainer = new xAOD::BTagVertexContainer();
+      xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
+      CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.") );
+      bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
+      CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName) );
+      ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " overwritten in store");
+    } else {
+      const xAOD::BTagVertexContainer *bTagJFVertexContainerAOD;
       StatusCode sc  = evtStore()->retrieve(bTagJFVertexContainerAOD,bTagJFVertexContName);
       if (sc.isFailure()) {
-       ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagJFVertexContainer " <<bTagJFVertexContName );
-      }
-      else {
-	 auto rec = xAOD::shallowCopyContainer (*bTagJFVertexContainerAOD);
-         bTagJFVertexContainer = rec.first;
+	ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagJFVertexContainer " <<bTagJFVertexContName );
+      } else {
+	auto rec = xAOD::shallowCopyContainer (*bTagJFVertexContainerAOD);
+	bTagJFVertexContainer = rec.first;
+        bTagJFVShallowAuxContainer = rec.second;
+	reuse_JFVContainer = true;
       }
     }
-    else {
-      ATH_MSG_VERBOSE("#BTAG# JF Vertex container not in SG" << bTagJFVertexContName );
-    }
+  } else {
+    bTagJFVertexContainer = new xAOD::BTagVertexContainer();
+    xAOD::BTagVertexAuxContainer *bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
+    CHECK( evtStore()->record(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.") );
+    bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
+    CHECK( evtStore()->record(bTagJFVertexContainer, bTagJFVertexContName) );
+    ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " recorded in store");
   }
-  else {
-    if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
-      ATH_MSG_WARNING("#BTAG# JetFitter Vertex container " << bTagJFVertexContName );
-      StatusCode sc  = evtStore()->retrieve(bTagJFVertexContainer,bTagJFVertexContName);
-      if (sc.isFailure()) {
-        ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagJFVertexContainer " << bTagJFVertexContName);
-      }
-    }
-    else {
-      bTagJFVertexContainer = new xAOD::BTagVertexContainer();
-      xAOD::BTagVertexAuxContainer *bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
-      CHECK( evtStore()->record(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.") );
-      bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
-      CHECK( evtStore()->record(bTagJFVertexContainer, bTagJFVertexContName) );
-      ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " recorded in store");
-    }
-  }      
+
+  // Since the secondary vertex reconstruction deals with the "ordinary" SV and JetFitter SV simultaneously,
+  // they should always be handled together. Since the logic above allows for differences between the two,
+  // these are at least flagged explicitly here.
+  if ((reuse_SVContainer && ! reuse_JFVContainer) || (! reuse_SVContainer && reuse_JFVContainer)) {
+    ATH_MSG_WARNING("#BTAG# Inconsistent results obtained for SV and JetFitter vertex containers will lead to inconsistent ElementLinks to SV/JFV in output");
+  }
 
   
   std::vector<xAOD::Jet*> jetsList;
@@ -242,11 +247,11 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
   for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it,++itBTag) {
     xAOD::Jet& jetToTag = ( **it );
-    //SV
-    if (!m_retag) {
+    // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
+    if (! reuse_SVContainer) {
       StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(jetToTag, *itBTag, bTagSecVertexContainer, bTagJFVertexContainer);
       if (SV.isFailure()) {
-        ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
+	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
       }
     }
     StatusCode sc = m_bTagTool->tagJet( jetToTag, *itBTag );
@@ -254,6 +259,16 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
   }
+
+   if (reuse_SVContainer) { //is a shallow copy
+     delete bTagSecVertexContainer;
+     delete bTagSVShallowAuxContainer;
+   }
+
+   if (reuse_JFVContainer) { //is a shallow copy
+     delete bTagJFVertexContainer;
+     delete bTagJFVShallowAuxContainer;
+   }
 
   /// testme
   /*for(xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {

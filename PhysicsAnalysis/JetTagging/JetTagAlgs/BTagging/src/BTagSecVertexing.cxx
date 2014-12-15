@@ -264,7 +264,7 @@ namespace Analysis {
       if(sc.isFailure()){
         ATH_MSG_ERROR("#BTAG# error filling variables in MSVVariablesFactory" );
         return sc;
-      }
+      }     
     }else{
       for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin; verticesIter!=verticesEnd;++verticesIter) {
         xAOD::Vertex* btagVtx = *verticesIter;
@@ -328,14 +328,14 @@ namespace Analysis {
       std::vector<const xAOD::IParticle*>::iterator ipBegin = btip.begin();
       std::vector<const xAOD::IParticle*>::iterator ipEnd   = btip.end();
       for (std::vector<const xAOD::IParticle*>::iterator ipIter=ipBegin; ipIter!=ipEnd; ++ipIter) {
-	const xAOD::TrackParticle* tp = dynamic_cast<const xAOD::TrackParticle*>(*ipIter);
-	if (!tp) {
-	  ATH_MSG_WARNING("#BTAG# bad track IParticle is not a TrackParticle");
-	  continue;
-	}
-	ElementLink<xAOD::TrackParticleContainer> tpel;
-	tpel.toContainedElement(*theTrackParticleContainer, tp);
-	badtrackEL.push_back(tpel);
+	    const xAOD::TrackParticle* tp = dynamic_cast<const xAOD::TrackParticle*>(*ipIter);
+	    if (!tp) {
+	      ATH_MSG_WARNING("#BTAG# bad track IParticle is not a TrackParticle");
+	      continue;
+	    }
+	    ElementLink<xAOD::TrackParticleContainer> tpel;
+	    tpel.toContainedElement(*theTrackParticleContainer, tp);
+	    badtrackEL.push_back(tpel);
       }
       newBTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
       newBTag->setDynTPELName(basename, "badTracksIP");
@@ -373,6 +373,10 @@ namespace Analysis {
      int nVtx = 0;
      if (JFvertices.size() > 0) {
        Trk::VxJetCandidate* vxjetcand = dynamic_cast< Trk::VxJetCandidate*>(JFvertices[0]);
+       if (!vxjetcand) {
+         ATH_MSG_WARNING("#BTAG# bad VxCandidate is not a VxJetCandidate");
+         return StatusCode::SUCCESS;
+       }
 
        //compatibility with others SV
        const Trk::VxClusteringTable* ClusteringTable = vxjetcand->getClusteringTable();
@@ -438,6 +442,10 @@ namespace Analysis {
            //tracks links
            Trk::ITrackLink* trklinks = (*itr)->trackOrParticleLink();
            const Trk::LinkToXAODTrackParticle* trkLinkTPxAOD=dynamic_cast<const Trk::LinkToXAODTrackParticle *>(trklinks);
+           if (!trkLinkTPxAOD) {
+             ATH_MSG_WARNING("#BTAG# bad ITrackLink is not a LinkToXAODTrackParticle");
+             continue;
+           }
            const xAOD::TrackParticle* myTrklink = **trkLinkTPxAOD;
            ElementLink<xAOD::TrackParticleContainer> tpel;
            tpel.toContainedElement(*theTrackParticleContainer, myTrklink);
@@ -452,7 +460,7 @@ namespace Analysis {
 
          }
          xAOD::BTagVertex* newbtagVtx = new xAOD::BTagVertex();
-	 JFVertices.push_back(newbtagVtx);
+	     JFVertices.push_back(newbtagVtx);
 
          bTagJFVertexContainer->push_back(newbtagVtx);
     
@@ -469,7 +477,7 @@ namespace Analysis {
          ElementLink< xAOD::BTagVertexContainer> linkBTagVertex;
          linkBTagVertex.toContainedElement(*bTagJFVertexContainer, newbtagVtx);
          JFVerticesLinks.push_back(linkBTagVertex);
-	 oldnewmap.insert(std::make_pair(*it,linkBTagVertex));
+	     oldnewmap.insert(std::make_pair(*it,linkBTagVertex));
       }
 
        //CompToOtherSecVertices
@@ -521,8 +529,8 @@ namespace Analysis {
       const Amg::VectorX& vtxPositions = recVtxposition.position();
       const Amg::MatrixX& vtxCovMatrix = recVtxposition.covariancePosition();
       ATH_MSG_DEBUG("#BTAGJF# size vtxPosition "<<vtxPositions.size());
-      std::vector< float > fittedPosition = std::vector<float>(8,-1);
-      std::vector< float > fittedCov = std::vector<float>(8,-1); //only store the diagonal terms
+      std::vector< float > fittedPosition = std::vector<float>(nVtx+5,-1);
+      std::vector< float > fittedCov = std::vector<float>(nVtx+5,-1); //only store the diagonal terms
       if(vtxPositions.rows()>4 ) {
         fittedPosition[0] = vtxPositions[Trk::jet_xv]; //position x,y,z of PV
         fittedPosition[1] = vtxPositions[Trk::jet_yv]; 
@@ -537,12 +545,12 @@ namespace Analysis {
         fittedCov[4] = vtxCovMatrix(4,4);
         
       }
-      if(nVtx<4){
-        for(int i=0; i<nVtx; ++i){
-          fittedPosition[i+5] = vtxPositions[i+5]; //dist of vtxi on jet axis from PV
-          fittedCov[i+5] = vtxCovMatrix(i+5,i+5);
-        }
+
+      for(int i=0; i<nVtx; ++i){
+        fittedPosition[i+5] = vtxPositions[i+5]; //dist of vtxi on jet axis from PV
+        fittedCov[i+5] = vtxCovMatrix(i+5,i+5);
       }
+      
       newBTag->setVariable<std::vector< float > >(basename, "fittedPosition", fittedPosition);
       newBTag->setVariable<std::vector< float > >(basename, "fittedCov", fittedCov);
     
@@ -562,7 +570,11 @@ namespace Analysis {
         tracksAtPVndf.push_back(float(tmpndf));
         //links
         Trk::ITrackLink* trklinks = (*it)->trackOrParticleLink();
-        const Trk::LinkToXAODTrackParticle* trkLinkTPxAOD=dynamic_cast<const Trk::LinkToXAODTrackParticle *>(trklinks);
+        const Trk::LinkToXAODTrackParticle* trkLinkTPxAOD = dynamic_cast<const Trk::LinkToXAODTrackParticle *>(trklinks);
+        if (!trkLinkTPxAOD) {
+          ATH_MSG_WARNING("#BTAG# bad ITrackLink is not a LinkToXAODTrackParticle");
+          continue;
+        }
         const xAOD::TrackParticle* myTrklink = **trkLinkTPxAOD;
         ElementLink<xAOD::TrackParticleContainer> tpel;
         tpel.toContainedElement(*theTrackParticleContainer, myTrklink);

@@ -106,6 +106,19 @@ class _BTaggingFlags:
 
     _AutoInspectInputFile = [ 'AutoInspectInputFile' ]
 
+    DoNotSetupBTagging = False # WOUTER: This is a temporary measure. It allows the JetRec people to test setting up b-tagging from their end without our job options setting it also up (and therefore ending up with a double setup). Do not switch to True unless you know what you are doing.
+
+    # WOUTER: These govern the adding of jet collections to lists that decide which containers get persistified.
+    OutputFilesBTag = "BTagging_"
+    OutputFilesSVname = "SecVtx"
+    OutputFilesJFVxname = "JFVtx"
+    OutputFilesBaseName = "xAOD::BTaggingContainer#"
+    OutputFilesBaseAuxName = "xAOD::BTaggingAuxContainer#"
+    OutputFilesBaseNameSecVtx = "xAOD::VertexContainer#"
+    OutputFilesBaseAuxNameSecVtx = "xAOD::VertexAuxContainer#"
+    OutputFilesBaseNameJFSecVtx = "xAOD::BTagVertexContainer#"
+    OutputFilesBaseAuxNameJFSecVtx = "xAOD::BTagVertexAuxContainer#"
+
     btaggingAODList = [ ]
     
     btaggingESDList = [ ]
@@ -169,9 +182,9 @@ class _BTaggingFlags:
         if attr == 'SV0':
           setattr(self, attr, True)
         if attr == 'MultiSVbb1':
-          setattr(self, attr, False)
+          setattr(self, attr, True)
         if attr == 'MultiSVbb2':
-          setattr(self, attr, False)
+          setattr(self, attr, True)
         if attr == 'SV1':
           setattr(self, attr, True)
         if attr == 'SV1Flip':
@@ -189,7 +202,7 @@ class _BTaggingFlags:
         if attr == 'SoftMu':
           setattr(self, attr, False)
         if attr == 'SoftMuChi2':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'BasicJetFitter':
           setattr(self, attr, True)
         if attr == 'JetFitterTag':
@@ -297,7 +310,7 @@ class _BTaggingFlags:
         setattr(self, attr, 'TrackParticleTruthCandidate')
 
       for attr in self._PrimaryVertexCollectionName:
-        setattr(self, attr, 'VxPrimaryCandidate')
+        setattr(self, attr, 'PrimaryVertices')
 
       for attr in self._MuonCollectionName:
         setattr(self, attr, 'Muons')
@@ -364,9 +377,19 @@ class _BTaggingFlags:
                               "AntiKt6Tower->AntiKt6Tower,AntiKt6H1Tower",
                               "AntiKt6Topo->AntiKt6Topo,AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower",
                               "AntiKt6LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt6Topo,AntiKt6H1Topo,AntiKt6H1Tower",
-                              "AntiKt4TopoEM->AntiKt4TopoEM,AntiKt4H1Topo",
-                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower"])
-
+                              "AntiKt4TopoEM->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo",
+                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower",
+                              #WOUTER: I added some more aliases here that were previously set up at ./python/BTagging_jobOptions.py. But it cannot
+                              #stay there if we want support for JetRec to setup b-tagging from their end.
+                              "AntiKt4EMTopo->AntiKt4TopoEM",
+                              "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM",
+                              "AntiKt10LCTopo->AntiKt10LCTopo,AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4TopoEM",
+                              "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM",
+                              "AntiKt10TruthWZ->AntiKt10TruthWZ,AntiKt6TopoEM,AntiKt4TopoEM",
+                              "AntiKt4Truth->AntiKt4TopoEM",
+			      "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM",
+                              "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM",
+                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)
@@ -488,6 +511,21 @@ class _BTaggingFlags:
       
       self.btaggingAODList = list()
       self.btaggingESDList = list()
+
+      # Jet collections not in this list (sans -Jets), and which do not have a calibration
+      # alias to one of these, will print a warning during the configuration. This is to help
+      # people trying to setup jet collections which we do not support (these would sometimes
+      # simply crash during execution without a helpful error remark).
+      # The function which uses this list is JetCollectionIsSupported() in
+      # ./python/BTaggingConfiguration.py
+      self.SupportedJetCollections = ["AntiKt4LCTopo",
+                                      "AntiKt10LCTopo",
+                                      "AntiKt4EMTopo",
+                                      "AntiKt4Track",
+                                      "AntiKt3Track",
+                                      "AntiKt10TruthWZ",
+                                      "AntiKt4TruthWZ",
+                                      ]
 
       print '#BTAG# ---------------------------------------------------------------------------------------------'
 

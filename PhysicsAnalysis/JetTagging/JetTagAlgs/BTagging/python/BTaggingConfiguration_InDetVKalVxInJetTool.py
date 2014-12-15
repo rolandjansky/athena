@@ -29,6 +29,7 @@ def toolInDetVKalVxInJetTool(name, useBTagFlagsDefaults = True, **options):
     that this tool also needs to be added to the main B-tagging tool."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
+                     'ExistIBL'         : True,
 #                     'TrackSummaryTool' : None }
                      }
         for option in defaults:

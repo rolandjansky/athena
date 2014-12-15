@@ -18,14 +18,14 @@ metaIP2DNegTag = { 'IsATagger'         : True,
                    'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP2DNeg',
                                           'trackSelectorTool'          : 'IP2DNegTrackSelector',
                                           'trackGradeFactory'          : 'IP2DNegDetailedTrackGradeFactory',
-                                          'trackToVertexTool'          : 'BTagTrackToVertexTool',
+#                                          'trackToVertexTool'          : 'BTagTrackToVertexTool',
                                           'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
                                           'LikelihoodTool'             : 'IP2DNegNewLikelihoodTool'},
-                   'PassByName'        : {'SecVxFinderNameForV0Removal' : 'InDetVKalVxInJetTool',
-                                          'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
-                   'PassTracksAs'      : 'trackAssociation',
+#                   'PassByName'        : {'SecVxFinderNameForV0Removal' : 'InDetVKalVxInJetTool',
+#                                          'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
+#                   'PassTracksAs'      : 'trackAssociation',
+                   'PassTracksAs'      : 'trackAssociationName',
                    'JetCollectionList' : 'jetCollectionList',
-                   'JetWithInfoPlus'   : 'jetWithInfoPlus',
                    'ToolCollection'    : 'IP2DNegTag' }
 
 def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
@@ -41,15 +41,11 @@ def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
     RejectBadTracks                     default: False
     originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
     jetCollectionList                   default: BTaggingFlags.Jets
-    jetWithInfoPlus                     default: BTaggingFlags.JetsWithInfoPlus
-    SecVxFinderNameForV0Removal         default: "InDetVKalVxInJetTool"
-    SecVxFinderNameForIPSign            default: "InDetVKalVxInJetTool"
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
     flipIPSign                          default: True
-    writeInfoPlus                       default: False
     usePosIP                            default: True
     useNegIP                            default: False
-    trackAssociation                    default: "Tracks"
+    xAODBaseName                        default: "IP2DNeg"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -64,15 +60,12 @@ def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
                      'RejectBadTracks'                  : False,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
-                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
-                     'SecVxFinderNameForV0Removal'      : "InDetVKalVxInJetTool",
-                     'SecVxFinderNameForIPSign'         : "InDetVKalVxInJetTool",
                      'unbiasIPEstimation'               : False,
                      'flipIPSign'                       : True,
-                     'writeInfoPlus'                    : False,
                      'usePosIP'                         : True,
                      'useNegIP'                         : False,
-                     'trackAssociation'                 : "Tracks" }
+                     'xAODBaseName'                     : 'IP2DNeg',
+                     }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -89,10 +82,11 @@ def toolIP2DNegDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **op
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
-    TrackSummaryTool                    default: None
     useSharedHitInfo                    default: True
     useDetailSharedHitInfo              default: True
+    useRun2TrackGrading                 default: False
     hitBLayerGrade                      default: True
+    hitInnerLayersGrade                 default: True
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -100,10 +94,13 @@ def toolIP2DNegDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **op
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'TrackSummaryTool'       : None,
+#                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'hitBLayerGrade'         : True }
+                     'useRun2TrackGrading'    : False,
+                     'hitBLayerGrade'         : True,
+                     'hitInnerLayersGrade'    : True, 
+                     }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -120,7 +117,6 @@ def toolIP2DNegBasicTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
-    TrackSummaryTool                    default: None
     useSharedHitInfo                    default: True
 
     input:             name: The name of the tool (should be unique).
@@ -129,7 +125,7 @@ def toolIP2DNegBasicTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
-                     'TrackSummaryTool' : None,
+#                     'TrackSummaryTool' : None,
                      'useSharedHitInfo' : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -173,6 +169,7 @@ def toolIP2DNegTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
+    usepTDepTrackSel                    default: False
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -180,7 +177,8 @@ def toolIP2DNegTrackSelector(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'useBLayerHitPrediction' : True }
+                     'useBLayerHitPrediction' : True,
+                     'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

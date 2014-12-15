@@ -26,7 +26,6 @@ metaIP2DTag = { 'IsATagger'         : True,
 #                'PassTracksAs'      : 'trackAssociation',
                 'PassTracksAs'      : 'trackAssociationName',
                 'JetCollectionList' : 'jetCollectionList',
-#                'JetWithInfoPlus'   : 'jetWithInfoPlus',
                 'ToolCollection'    : 'IP2DTag' }
 
 def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
@@ -83,7 +82,9 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useSharedHitInfo                    default: True
     useDetailSharedHitInfo              default: True
+    useRun2TrackGrading                 default: False
     hitBLayerGrade                      default: True
+    hitInnerLayersGrade                 default: True
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -94,6 +95,8 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
 #                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
+                     'useRun2TrackGrading'    : False,
+                     'hitInnerLayersGrade'    : True,
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -163,6 +166,7 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
+    usepTDepTrackSel                    default: False
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -170,7 +174,8 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'useBLayerHitPrediction' : True }
+                     'useBLayerHitPrediction' : True,
+                     'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

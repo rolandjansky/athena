@@ -7,6 +7,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaInDetVKalVxNegativeTagInJetTool = { 'IsAVertexFinder' : True,
+                                        'VertexFinderxAODBaseName' : 'SV1Flip',
                                         'OneInTotal'      : True,
                                         'DependsOn'       : ['AtlasExtrapolator',
                                                              'BTagTrackToVertexTool'] }
@@ -16,7 +17,6 @@ def toolInDetVKalVxNegativeTagInJetTool(name, useBTagFlagsDefaults = True, **opt
 
     The following options have BTaggingFlags defaults:
 
-    TrackSummaryTool                    default: None (not needed for b-tagging)
     OutputLevel                         default: BTaggingFlags.OutputLevel
     getNegativeTag                      default: True
     CutA0                               default: 2.0 (new tuned cuts for SV0 (Sara))
@@ -30,7 +30,8 @@ def toolInDetVKalVxNegativeTagInJetTool(name, useBTagFlagsDefaults = True, **opt
     that this tool also needs to be added to the main B-tagging tool."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'      : BTaggingFlags.OutputLevel,
-                     'TrackSummaryTool' : None,
+                     'ExistIBL'         : True,
+#                     'TrackSummaryTool' : None,
                      'getNegativeTag'   : True,
                      'CutA0'            : 2.0,
                      'CutZVrt'          : 2.0,
