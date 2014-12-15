@@ -117,6 +117,10 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
    /// Event assembler
    FullEventAssembler<L1CaloSrcIdMap>* m_fea;
 
+   // M7 format follows old specification, so we have two zeros 
+   // as most significant bits instead of 0xa
+   bool m_isM7Format;
+
 };
 
 } // end namespace

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMTOOL_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMTOOL_H
+#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV1TOOL_H
+#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV1TOOL_H
 
 #include <stdint.h>
 
@@ -36,7 +36,7 @@ namespace LVL1BS {
 
 class L1CaloErrorByteStreamTool;
 class L1CaloSrcIdMap;
-class PpmSubBlock;
+class PpmSubBlockV1;
 
 /** Tool to perform ROB fragments to trigger towers and trigger towers
  *  to raw data conversions.
@@ -46,12 +46,12 @@ class PpmSubBlock;
  *  @author Peter Faulkner
  */
 
-class PpmByteStreamTool : public AthAlgTool {
+class PpmByteStreamV1Tool : public AthAlgTool {
 
  public:
-   PpmByteStreamTool(const std::string& type, const std::string& name,
+   PpmByteStreamV1Tool(const std::string& type, const std::string& name,
                      const IInterface* parent);
-   virtual ~PpmByteStreamTool();
+   virtual ~PpmByteStreamV1Tool();
 
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
@@ -154,9 +154,9 @@ class PpmByteStreamTool : public AthAlgTool {
    /// Trigger tower key provider
    LVL1::TriggerTowerKey* m_towerKey;
    /// Current error block
-   PpmSubBlock* m_errorBlock;
+   PpmSubBlockV1* m_errorBlock;
    /// Vector for current PPM sub-blocks
-   DataVector<PpmSubBlock> m_ppmBlocks;
+   DataVector<PpmSubBlockV1> m_ppmBlocks;
    /// Vector for compression statistics
    std::vector<uint32_t> m_compStats;
    /// Trigger tower map for conversion from bytestream

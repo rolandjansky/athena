@@ -4,7 +4,10 @@ use AtlasPolicy          AtlasPolicy-*
 use DataModel            DataModel-*            Control
 use GaudiInterface       GaudiInterface-*       External
 
-author Peter Faulkner <P.J.W.Faulkner@bham.ac.uk> 
+author Alexander Mazurov <alexander.mazurov@cern.ch>
+author Peter Faulkner <P.J.W.Faulkner@bham.ac.uk>
+
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write)"
 
 # use this line to exclude test algorithms
 library TrigT1CaloByteStream *.cxx components/*.cxx
@@ -14,14 +17,17 @@ apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
 
+
+use DataCollection       DataCollection-*       External
+
 private
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* Event 
 use ByteStreamData       ByteStreamData-*       Event
-use DataCollection       DataCollection-*       External
 use StoreGate            StoreGate-*            Control
 use SGTools              SGTools-*              Control
 use EventInfo            EventInfo-*            Event
+use xAODTrigL1Calo       xAODTrigL1Calo-*       Event/xAOD
 
 use TrigT1CaloEvent      TrigT1CaloEvent-*      Trigger/TrigT1
 use TrigT1CaloUtils      TrigT1CaloUtils-*      Trigger/TrigT1

@@ -25,29 +25,29 @@
 #include "L1CaloSubBlock.h"
 #include "L1CaloUserHeader.h"
 #include "ModifySlices.h"
-#include "PpmSubBlock.h"
+#include "PpmSubBlockV1.h"
 
-#include "PpmByteStreamTool.h"
+#include "PpmByteStreamV1Tool.h"
 
 namespace LVL1BS {
 
-const int PpmByteStreamTool::s_crates;
-const int PpmByteStreamTool::s_modules;
-const int PpmByteStreamTool::s_channels;
-const int PpmByteStreamTool::s_dataSize;
+const int PpmByteStreamV1Tool::s_crates;
+const int PpmByteStreamV1Tool::s_modules;
+const int PpmByteStreamV1Tool::s_channels;
+const int PpmByteStreamV1Tool::s_dataSize;
 
 // Interface ID
 
-static const InterfaceID IID_IPpmByteStreamTool("PpmByteStreamTool", 1, 1);
+static const InterfaceID IID_IPpmByteStreamV1Tool("PpmByteStreamV1Tool", 1, 1);
 
-const InterfaceID& PpmByteStreamTool::interfaceID()
+const InterfaceID& PpmByteStreamV1Tool::interfaceID()
 {
-  return IID_IPpmByteStreamTool;
+  return IID_IPpmByteStreamV1Tool;
 }
 
 // Constructor
 
-PpmByteStreamTool::PpmByteStreamTool(const std::string& type,
+PpmByteStreamV1Tool::PpmByteStreamV1Tool(const std::string& type,
                                      const std::string& name,
 				     const IInterface*  parent)
   : AthAlgTool(type, name, parent),
@@ -59,7 +59,7 @@ PpmByteStreamTool::PpmByteStreamTool(const std::string& type,
     m_subDetector(eformat::TDAQ_CALO_PREPROC),
     m_srcIdMap(0), m_towerKey(0), m_errorBlock(0), m_rodStatus(0), m_fea(0)
 {
-  declareInterface<PpmByteStreamTool>(this);
+  declareInterface<PpmByteStreamV1Tool>(this);
 
   declareProperty("PpmMappingTool", m_ppmMaps,
                   "Crate/Module/Channel to Eta/Phi/Layer mapping tool");
@@ -103,7 +103,7 @@ PpmByteStreamTool::PpmByteStreamTool(const std::string& type,
 
 // Destructor
 
-PpmByteStreamTool::~PpmByteStreamTool()
+PpmByteStreamV1Tool::~PpmByteStreamV1Tool()
 {
 }
 
@@ -113,7 +113,7 @@ PpmByteStreamTool::~PpmByteStreamTool()
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode PpmByteStreamTool::initialize()
+StatusCode PpmByteStreamV1Tool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
                  << PACKAGE_VERSION << endreq;
@@ -146,7 +146,7 @@ StatusCode PpmByteStreamTool::initialize()
 
 // Finalize
 
-StatusCode PpmByteStreamTool::finalize()
+StatusCode PpmByteStreamV1Tool::finalize()
 {
   if (m_printCompStats && msgLvl(MSG::INFO)) {
     msg(MSG::INFO);
@@ -162,7 +162,7 @@ StatusCode PpmByteStreamTool::finalize()
 
 // Conversion bytestream to trigger towers
 
-StatusCode PpmByteStreamTool::convert(
+StatusCode PpmByteStreamV1Tool::convert(
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
                             DataVector<LVL1::TriggerTower>* const ttCollection)
 {
@@ -409,9 +409,9 @@ StatusCode PpmByteStreamTool::convert(
       firstBlock = true;
       firstWord = *payload;
       if (m_ppmBlocks.empty()) {
-        m_ppmBlocks.push_back(new PpmSubBlock());
+        m_ppmBlocks.push_back(new PpmSubBlockV1());
       }
-      PpmSubBlock* const subBlock = m_ppmBlocks[0];
+      PpmSubBlockV1* const subBlock = m_ppmBlocks[0];
       subBlock->clear();
       payloadFirst = subBlock->read(payload, payloadEnd);
       chanPerSubBlock = subBlock->channelsPerSubBlock();
@@ -432,7 +432,7 @@ StatusCode PpmByteStreamTool::convert(
     const int size = m_ppmBlocks.size();
     if (numSubBlocks > size) {
       for (int i = size; i < numSubBlocks; ++i) {
-        m_ppmBlocks.push_back(new PpmSubBlock());
+        m_ppmBlocks.push_back(new PpmSubBlockV1());
       }
     }
 
@@ -452,7 +452,7 @@ StatusCode PpmByteStreamTool::convert(
 	const uint32_t word = (firstBlock) ? firstWord : *payload;
         if (L1CaloSubBlock::wordType(word) != L1CaloSubBlock::HEADER
                                    || CmmSubBlock::cmmBlock(word)
-	                           || PpmSubBlock::errorBlock(word)) {
+	                           || PpmSubBlockV1::errorBlock(word)) {
           if (debug) msg() << "Unexpected data sequence" << endreq;
 	  rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
 	  break;
@@ -467,7 +467,7 @@ StatusCode PpmByteStreamTool::convert(
 	  rodErr = L1CaloSubBlock::ERROR_MISSING_SUBBLOCK;
 	  break;
         }
-        PpmSubBlock* const subBlock = m_ppmBlocks[block];
+        PpmSubBlockV1* const subBlock = m_ppmBlocks[block];
 	nPpmBlocks++;
 	if (firstBlock) {
           payload = payloadFirst;
@@ -517,9 +517,9 @@ StatusCode PpmByteStreamTool::convert(
       if (payload != payloadEnd) {
         if (L1CaloSubBlock::wordType(*payload) == L1CaloSubBlock::HEADER
                                     && !CmmSubBlock::cmmBlock(*payload)
-	                            && PpmSubBlock::errorBlock(*payload)) {
+	                            && PpmSubBlockV1::errorBlock(*payload)) {
 	  if (debug) msg() << "Error block found" << endreq;
-	  if (!m_errorBlock) m_errorBlock = new PpmSubBlock();
+	  if (!m_errorBlock) m_errorBlock = new PpmSubBlockV1();
 	  else m_errorBlock->clear();
 	  isErrBlock = true;
 	  payload = m_errorBlock->read(payload, payloadEnd);
@@ -556,7 +556,7 @@ StatusCode PpmByteStreamTool::convert(
       // Loop over sub-blocks and fill trigger towers
 
       for (int block = 0; block < nPpmBlocks; ++block) {
-        PpmSubBlock* const subBlock = m_ppmBlocks[block];
+        PpmSubBlockV1* const subBlock = m_ppmBlocks[block];
 	subBlock->setLutOffset(trigLut);
 	subBlock->setFadcOffset(trigFadc);
 	subBlock->setPedestal(m_pedestal);
@@ -621,7 +621,7 @@ StatusCode PpmByteStreamTool::convert(
           } else {
 	    errorBits.set(LVL1::DataError::PPMErrorWord,
 	                             subBlock->ppmError(channel));
-	    const PpmSubBlock* const lastBlock =
+	    const PpmSubBlockV1* const lastBlock =
 	                                      m_ppmBlocks[nPpmBlocks - 1];
 	    errorBits.set(LVL1::DataError::SubStatusWord,
 	                             lastBlock->subStatus());
@@ -706,7 +706,7 @@ StatusCode PpmByteStreamTool::convert(
 
 // Conversion of trigger towers to bytestream
 
-StatusCode PpmByteStreamTool::convert(
+StatusCode PpmByteStreamV1Tool::convert(
                       const DataVector<LVL1::TriggerTower>* const ttCollection,
                             RawEventWrite* const re)
 {
@@ -730,7 +730,7 @@ StatusCode PpmByteStreamTool::convert(
 
   // Create the sub-blocks to do the packing
 
-  PpmSubBlock subBlock;
+  PpmSubBlockV1 subBlock;
   const int chanPerSubBlock = subBlock.channelsPerSubBlock(m_version,
                                                                m_dataFormat);
   if (chanPerSubBlock == 0) {
@@ -738,7 +738,7 @@ StatusCode PpmByteStreamTool::convert(
                     << m_version << "/" << m_dataFormat << endreq;
     return StatusCode::FAILURE;
   }
-  PpmSubBlock errorBlock;
+  PpmSubBlockV1 errorBlock;
 
   int slicesLut  = 1;
   int slicesFadc = 1;
@@ -939,7 +939,7 @@ StatusCode PpmByteStreamTool::convert(
 
 // Add compression stats to totals
 
-void PpmByteStreamTool::addCompStats(const std::vector<uint32_t>& stats)
+void PpmByteStreamV1Tool::addCompStats(const std::vector<uint32_t>& stats)
 {
   if (stats.empty()) return;
   const int n = stats.size();
@@ -949,7 +949,7 @@ void PpmByteStreamTool::addCompStats(const std::vector<uint32_t>& stats)
 
 // Print compression stats
 
-void PpmByteStreamTool::printCompStats() const
+void PpmByteStreamV1Tool::printCompStats() const
 {
   msg() << "Compression stats format/count: ";
   const int n = m_compStats.size();
@@ -961,7 +961,7 @@ void PpmByteStreamTool::printCompStats() const
 
 // Find a trigger tower using separate layer maps
 
-const LVL1::TriggerTower* PpmByteStreamTool::findLayerTriggerTower(
+const LVL1::TriggerTower* PpmByteStreamV1Tool::findLayerTriggerTower(
             const double eta, const double phi, const int layer)
 {
   const LVL1::TriggerTower* tt = 0;
@@ -979,7 +979,7 @@ const LVL1::TriggerTower* PpmByteStreamTool::findLayerTriggerTower(
 
 // Set up trigger tower maps
 
-void PpmByteStreamTool::setupTTMaps(const TriggerTowerCollection*
+void PpmByteStreamV1Tool::setupTTMaps(const TriggerTowerCollection*
                                                            const ttCollection)
 {
   using std::accumulate;
@@ -1013,7 +1013,7 @@ void PpmByteStreamTool::setupTTMaps(const TriggerTowerCollection*
 
 // Get number of slices and triggered slice offsets for next slink
 
-bool PpmByteStreamTool::slinkSlices(const int crate, const int module,
+bool PpmByteStreamV1Tool::slinkSlices(const int crate, const int module,
                   const int modulesPerSlink, int& slicesLut, int& slicesFadc,
 		  int& trigLut, int& trigFadc)
 {
@@ -1070,7 +1070,7 @@ bool PpmByteStreamTool::slinkSlices(const int crate, const int module,
 
 // Return reference to vector with all possible Source Identifiers
 
-const std::vector<uint32_t>& PpmByteStreamTool::sourceIDs(
+const std::vector<uint32_t>& PpmByteStreamV1Tool::sourceIDs(
                                                  const std::string& sgKey)
 {
   // Check if spare channels wanted
@@ -1107,7 +1107,7 @@ const std::vector<uint32_t>& PpmByteStreamTool::sourceIDs(
 
 // Print a vector
 
-void PpmByteStreamTool::printVec(const std::vector<int>& vec) const
+void PpmByteStreamV1Tool::printVec(const std::vector<int>& vec) const
 {
   std::vector<int>::const_iterator pos;
   for (pos = vec.begin(); pos != vec.end(); ++pos) {

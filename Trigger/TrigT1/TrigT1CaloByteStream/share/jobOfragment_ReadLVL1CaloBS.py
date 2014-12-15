@@ -1,6 +1,6 @@
 # Bytestream to TrigT1Calo objects conversions
 ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
-ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::TriggerTower>/TriggerTowers" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD:TriggerTowerContainer_v2/TriggerTowers" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTower>/CPMTowers" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTower>/CPMTowersOverlap" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMHits>/CPMHits" ]

@@ -27,28 +27,28 @@
 
 #include "TrigT1CaloEvent/TriggerTower.h"
 
-#include "PpmByteStreamCnv.h"
-#include "PpmByteStreamTool.h"
+#include "PpmByteStreamV1Cnv.h"
+#include "PpmByteStreamV1Tool.h"
 
 namespace LVL1BS {
 
-PpmByteStreamCnv::PpmByteStreamCnv( ISvcLocator* svcloc )
+PpmByteStreamV1Cnv::PpmByteStreamV1Cnv( ISvcLocator* svcloc )
     : Converter( ByteStream_StorageType, classID(), svcloc ),
-      m_name("PpmByteStreamCnv"),
-      m_tool("LVL1BS::PpmByteStreamTool/PpmByteStreamTool"),
+      m_name("PpmByteStreamV1Cnv"),
+      m_tool("LVL1BS::PpmByteStreamV1Tool/PpmByteStreamV1Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
       m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
       m_log(msgSvc(), m_name), m_debug(false)
 {
 }
 
-PpmByteStreamCnv::~PpmByteStreamCnv()
+PpmByteStreamV1Cnv::~PpmByteStreamV1Cnv()
 {
 }
 
 // CLID
 
-const CLID& PpmByteStreamCnv::classID()
+const CLID& PpmByteStreamV1Cnv::classID()
 {
   return ClassID_traits<DataVector<LVL1::TriggerTower> >::ID();
 }
@@ -59,7 +59,7 @@ const CLID& PpmByteStreamCnv::classID()
 #define PACKAGE_VERSION "unknown"
 #endif
 
-StatusCode PpmByteStreamCnv::initialize()
+StatusCode PpmByteStreamV1Cnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
@@ -104,7 +104,7 @@ StatusCode PpmByteStreamCnv::initialize()
 
 // createObj should create the RDO from bytestream.
 
-StatusCode PpmByteStreamCnv::createObj( IOpaqueAddress* pAddr,
+StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
                                         DataObject*& pObj )
 {
   if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endreq;
@@ -153,7 +153,7 @@ StatusCode PpmByteStreamCnv::createObj( IOpaqueAddress* pAddr,
 
 // createRep should create the bytestream from RDOs.
 
-StatusCode PpmByteStreamCnv::createRep( DataObject* pObj,
+StatusCode PpmByteStreamV1Cnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
   if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endreq;

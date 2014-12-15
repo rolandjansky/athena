@@ -295,6 +295,7 @@ bool CmxJetSubBlock::pack()
 {
   bool rc = false;
   switch (version()) {
+    case 1:
     case 2:                                                  // <<== CHECK
       switch (format()) {
         case NEUTRAL:
@@ -317,6 +318,7 @@ bool CmxJetSubBlock::unpack()
 {
   bool rc = false;
   switch (version()) {
+    case 1:    
     case 2:                                                  // <<== CHECK
       switch (format()) {
         case NEUTRAL:

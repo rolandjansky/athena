@@ -8,13 +8,13 @@ if not rec.doLArg():
     include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
     include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
-from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamTool
+from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV2Tool
 ToolSvc = Service("ToolSvc")
-ToolSvc += LVL1BS__PpmByteStreamTool("PpmByteStreamTool",
+ToolSvc += LVL1BS__PpmByteStreamV2Tool("PpmByteStreamTool",
            PpmMappingTool="LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool")
 ToolSvc += LVL1BS__CpByteStreamV2Tool("CpByteStreamV2Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV2Tool("CpmRoiByteStreamV2Tool")

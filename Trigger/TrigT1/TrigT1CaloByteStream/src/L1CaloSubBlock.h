@@ -137,6 +137,7 @@ class L1CaloSubBlock {
    void     setStreamed();
    /// Unpack given number of bits of data
    uint32_t unpacker(int nbits);
+   uint32_t unpacker(int nbits, int align);
    /// Initialise unpacker
    void     unpackerInit();
    /// Return unpacker success flag

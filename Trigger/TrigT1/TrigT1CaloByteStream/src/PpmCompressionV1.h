@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMCOMPRESSION_H
-#define TRIGT1CALOBYTESTREAM_PPMCOMPRESSION_H
+#ifndef TRIGT1CALOBYTESTREAM_PPMCOMPRESSIONV1_H
+#define TRIGT1CALOBYTESTREAM_PPMCOMPRESSIONV1_H
 
 namespace LVL1BS {
 
-class PpmSubBlock;
+class PpmSubBlockV1;
 
 /** PPM Compressed Format Version 1.04 packing and unpacking utilities.
  *
@@ -19,16 +19,16 @@ class PpmSubBlock;
  *  @author Peter Faulkner
  */
 
-class PpmCompression {
+class PpmCompressionV1 {
 
  public:
-   PpmCompression();
-   ~PpmCompression();
+   PpmCompressionV1();
+   ~PpmCompressionV1();
 
    /// Pack data
-   static bool pack(PpmSubBlock& subBlock);
+   static bool pack(PpmSubBlockV1& subBlock);
    /// Unpack data
-   static bool unpack(PpmSubBlock& subBlock);
+   static bool unpack(PpmSubBlockV1& subBlock);
 
  private:
    static const int s_formatsV0    = 6;
@@ -45,12 +45,13 @@ class PpmCompression {
    static const int s_errorBits    = 6;
    static const int s_statusMask   = 0x1f;
 
-   static bool unpackV100(PpmSubBlock& subBlock);
-   static bool unpackV101(PpmSubBlock& subBlock);
-   static bool unpackV104(PpmSubBlock& subBlock);
+   static bool unpackV100(PpmSubBlockV1& subBlock);
+   static bool unpackV101(PpmSubBlockV1& subBlock);
+   static bool unpackV104(PpmSubBlockV1& subBlock);
 
 };
 
 } // end namespace
 
 #endif
+

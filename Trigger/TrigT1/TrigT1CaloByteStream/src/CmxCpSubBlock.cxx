@@ -270,7 +270,8 @@ bool CmxCpSubBlock::pack()
 {
   bool rc = false;
   switch (version()) {
-    case 2:                                                  // <<== CHECK
+    case 1:  
+    case 2: 
       switch (format()) {
         case NEUTRAL:
 	  rc = packNeutral();
@@ -292,6 +293,7 @@ bool CmxCpSubBlock::unpack()
 {
   bool rc = false;
   switch (version()) {
+    case 1:
     case 2:                                                  // <<== CHECK
       switch (format()) {
         case NEUTRAL:

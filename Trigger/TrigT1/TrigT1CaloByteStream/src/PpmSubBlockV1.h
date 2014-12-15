@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMSUBBLOCK_H
-#define TRIGT1CALOBYTESTREAM_PPMSUBBLOCK_H
+#ifndef TRIGT1CALOBYTESTREAM_PPMSUBBLOCKV1_H
+#define TRIGT1CALOBYTESTREAM_PPMSUBBLOCKV1_H
 
 #include <stdint.h>
 #include <vector>
@@ -17,11 +17,11 @@ namespace LVL1BS {
  *  @author Peter Faulkner
  */
 
-class PpmSubBlock : public L1CaloSubBlock {
+class PpmSubBlockV1 : public L1CaloSubBlock {
 
  public:
-   PpmSubBlock();
-   ~PpmSubBlock();
+   PpmSubBlockV1();
+   ~PpmSubBlockV1();
 
    /// Clear all data
    void clear();
@@ -195,202 +195,202 @@ class PpmSubBlock : public L1CaloSubBlock {
 
 };
 
-inline bool PpmSubBlock::glinkPinParity(const int chan) const
+inline bool PpmSubBlockV1::glinkPinParity(const int chan) const
 {
   return errorBit(pin(chan), s_glinkPinParityBit);
 }
 
-inline bool PpmSubBlock::fpgaCorrupt(const int chan) const
+inline bool PpmSubBlockV1::fpgaCorrupt(const int chan) const
 {
   return errorBit(pin(chan), s_fpgaCorruptBit);
 }
 
-inline bool PpmSubBlock::bunchMismatch(const int chan) const
+inline bool PpmSubBlockV1::bunchMismatch(const int chan) const
 {
   return errorBit(pin(chan), s_bunchMismatchBit);
 }
 
-inline bool PpmSubBlock::eventMismatch(const int chan) const
+inline bool PpmSubBlockV1::eventMismatch(const int chan) const
 {
   return errorBit(pin(chan), s_eventMismatchBit);
 }
 
-inline bool PpmSubBlock::asicFull(const int chan) const
+inline bool PpmSubBlockV1::asicFull(const int chan) const
 {
   return errorBit(pin(chan), s_asicFullBit);
 }
 
-inline bool PpmSubBlock::timeout(const int chan) const
+inline bool PpmSubBlockV1::timeout(const int chan) const
 {
   return errorBit(pin(chan), s_timeoutBit);
 }
 
-inline bool PpmSubBlock::mcmAbsent(const int chan) const
+inline bool PpmSubBlockV1::mcmAbsent(const int chan) const
 {
   return errorBit(pin(chan), s_mcmAbsentBit);
 }
 
-inline bool PpmSubBlock::channelDisabled(const int chan) const
+inline bool PpmSubBlockV1::channelDisabled(const int chan) const
 {
   return errorBit(pin(chan), s_channelDisabledBit + asic(chan));
 }
 
-inline bool PpmSubBlock::channelDisabledA(const int pin) const
+inline bool PpmSubBlockV1::channelDisabledA(const int pin) const
 {
   return errorBit(pin, s_channelDisabledBit);
 }
 
-inline bool PpmSubBlock::channelDisabledB(const int pin) const
+inline bool PpmSubBlockV1::channelDisabledB(const int pin) const
 {
   return errorBit(pin, s_channelDisabledBit + 1);
 }
 
-inline bool PpmSubBlock::channelDisabledC(const int pin) const
+inline bool PpmSubBlockV1::channelDisabledC(const int pin) const
 {
   return errorBit(pin, s_channelDisabledBit + 2);
 }
 
-inline bool PpmSubBlock::channelDisabledD(const int pin) const
+inline bool PpmSubBlockV1::channelDisabledD(const int pin) const
 {
   return errorBit(pin, s_channelDisabledBit + 3);
 }
 
-inline bool PpmSubBlock::glinkPinParity() const
+inline bool PpmSubBlockV1::glinkPinParity() const
 {
   return errorBit(s_glinkPinParityBit);
 }
 
-inline bool PpmSubBlock::fpgaCorrupt() const
+inline bool PpmSubBlockV1::fpgaCorrupt() const
 {
   return errorBit(s_fpgaCorruptBit);
 }
 
-inline bool PpmSubBlock::bunchMismatch() const
+inline bool PpmSubBlockV1::bunchMismatch() const
 {
   return errorBit(s_bunchMismatchBit);
 }
 
-inline bool PpmSubBlock::eventMismatch() const
+inline bool PpmSubBlockV1::eventMismatch() const
 {
   return errorBit(s_eventMismatchBit);
 }
 
-inline bool PpmSubBlock::asicFull() const
+inline bool PpmSubBlockV1::asicFull() const
 {
   return errorBit(s_asicFullBit);
 }
 
-inline bool PpmSubBlock::timeout() const
+inline bool PpmSubBlockV1::timeout() const
 {
   return errorBit(s_timeoutBit);
 }
 
-inline bool PpmSubBlock::mcmAbsent() const
+inline bool PpmSubBlockV1::mcmAbsent() const
 {
   return errorBit(s_mcmAbsentBit);
 }
 
-inline bool PpmSubBlock::channelDisabledA() const
+inline bool PpmSubBlockV1::channelDisabledA() const
 {
   return errorBit(s_channelDisabledBit);
 }
 
-inline bool PpmSubBlock::channelDisabledB() const
+inline bool PpmSubBlockV1::channelDisabledB() const
 {
   return errorBit(s_channelDisabledBit + 1);
 }
 
-inline bool PpmSubBlock::channelDisabledC() const
+inline bool PpmSubBlockV1::channelDisabledC() const
 {
   return errorBit(s_channelDisabledBit + 2);
 }
 
-inline bool PpmSubBlock::channelDisabledD() const
+inline bool PpmSubBlockV1::channelDisabledD() const
 {
   return errorBit(s_channelDisabledBit + 3);
 }
 
-inline void PpmSubBlock::setLutOffset(const int offset)
+inline void PpmSubBlockV1::setLutOffset(const int offset)
 {
   m_lutOffset = offset;
 }
 
-inline void PpmSubBlock::setFadcOffset(const int offset)
+inline void PpmSubBlockV1::setFadcOffset(const int offset)
 {
   m_fadcOffset = offset;
 }
 
-inline void PpmSubBlock::setPedestal(const int pedval)
+inline void PpmSubBlockV1::setPedestal(const int pedval)
 {
   m_pedestal = pedval;
 }
 
-inline void PpmSubBlock::setFadcBaseline(const int baseline)
+inline void PpmSubBlockV1::setFadcBaseline(const int baseline)
 {
   m_fadcBaseline = baseline;
 }
 
-inline void PpmSubBlock::setFadcThreshold(const int threshold)
+inline void PpmSubBlockV1::setFadcThreshold(const int threshold)
 {
   m_fadcThreshold = threshold;
 }
 
-inline void PpmSubBlock::setRunNumber(const int run)
+inline void PpmSubBlockV1::setRunNumber(const int run)
 {
   m_runNumber = run;
 }
 
-inline int PpmSubBlock::lutOffset() const
+inline int PpmSubBlockV1::lutOffset() const
 {
   return (m_lutOffset < 0) ? slicesLut()/2 : m_lutOffset;
 }
 
-inline int PpmSubBlock::fadcOffset() const
+inline int PpmSubBlockV1::fadcOffset() const
 {
   return (m_fadcOffset < 0) ? slicesFadc()/2 : m_fadcOffset;
 }
 
-inline int PpmSubBlock::pedestal() const
+inline int PpmSubBlockV1::pedestal() const
 {
   return m_pedestal;
 }
 
-inline int PpmSubBlock::fadcBaseline() const
+inline int PpmSubBlockV1::fadcBaseline() const
 {
   return m_fadcBaseline;
 }
 
-inline int PpmSubBlock::fadcThreshold() const
+inline int PpmSubBlockV1::fadcThreshold() const
 {
   return m_fadcThreshold;
 }
 
-inline int PpmSubBlock::runNumber() const
+inline int PpmSubBlockV1::runNumber() const
 {
   return m_runNumber;
 }
 
-inline const std::vector<uint32_t>& PpmSubBlock::compStats() const
+inline const std::vector<uint32_t>& PpmSubBlockV1::compStats() const
 {
   return m_compStats;
 }
 
-inline void PpmSubBlock::setCompStats(const std::vector<uint32_t>& stats)
+inline void PpmSubBlockV1::setCompStats(const std::vector<uint32_t>& stats)
 {
   m_compStats = stats;
 }
 
-inline int  PpmSubBlock::asic(const int chan) const
+inline int  PpmSubBlockV1::asic(const int chan) const
 {
   return chan / s_glinkPins;
 }
 
-inline int  PpmSubBlock::pin(const int chan) const
+inline int  PpmSubBlockV1::pin(const int chan) const
 {
   return chan % s_glinkPins;
 }
 
-inline bool PpmSubBlock::errorBit(const int pin, const int bit) const
+inline bool PpmSubBlockV1::errorBit(const int pin, const int bit) const
 {
   return m_errormap[pin] & (0x1 << bit);
 }

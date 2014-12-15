@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMCNV_H
-#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMCNV_H
+#ifndef TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV2CNV_H
+#define TRIGT1CALOBYTESTREAM_PPMBYTESTREAMV2CNV_H
 
 #include <string>
 
@@ -12,6 +12,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "AthenaBaseComps/AthMessaging.h"
 
 class DataObject;
 class IByteStreamEventAccess;
@@ -27,24 +29,25 @@ extern long ByteStream_StorageType;
 
 namespace LVL1BS {
 
-class PpmByteStreamTool;
+class PpmByteStreamV2Tool;
 
 /** ByteStream converter for Pre-processor Module DAQ data / TriggerTowers.
  *
+ *  @author alexander.mazurov@cern.ch
  *  @author Peter Faulkner
  */
 
-class PpmByteStreamCnv: public Converter {
+class PpmByteStreamV2Cnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamCnv>;
+  friend class CnvFactory<PpmByteStreamV2Cnv>;
 
 protected:
 
-  PpmByteStreamCnv(ISvcLocator* svcloc);
+  PpmByteStreamV2Cnv(ISvcLocator* svcloc);
 
 public:
 
-  ~PpmByteStreamCnv();
+  virtual ~PpmByteStreamV2Cnv();
 
   virtual StatusCode initialize();
   /// Create TriggerTowers from ByteStream
@@ -58,22 +61,20 @@ public:
   static const CLID& classID();
 
 private:
+  void _reserveMemory();
+
+private:
 
   /// Converter name
   std::string m_name;
 
   /// Tool that does the actual work
-  ToolHandle<LVL1BS::PpmByteStreamTool> m_tool;
+  ToolHandle<LVL1BS::PpmByteStreamV2Tool> m_tool;
 
   /// Service for reading bytestream
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   /// Service for writing bytestream
   ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
-
-  /// Message log
-  mutable MsgStream m_log;
-  bool m_debug;
-
 };
 
 } // end namespace

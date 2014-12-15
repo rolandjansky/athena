@@ -8,13 +8,15 @@ if not rec.doLArg():
     include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
     include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
-from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamTool
+from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpByteStreamV1Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStreamV1Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV1Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV1Tool
 ToolSvc = Service("ToolSvc")
-ToolSvc += LVL1BS__PpmByteStreamTool("PpmByteStreamTool",
+ToolSvc += LVL1BS__PpmByteStreamV1Tool("PpmByteStreamToolV1",
+           PpmMappingTool="LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool")
+ToolSvc += LVL1BS__PpmByteStreamV2Tool("PpmByteStreamToolV2",
            PpmMappingTool="LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool")
 ToolSvc += LVL1BS__CpByteStreamV1Tool("CpByteStreamV1Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV1Tool("CpmRoiByteStreamV1Tool")
@@ -22,7 +24,7 @@ ToolSvc += LVL1BS__JepByteStreamV1Tool("JepByteStreamV1Tool")
 ToolSvc += LVL1BS__JepRoiByteStreamV1Tool("JepRoiByteStreamV1Tool")
 
 StreamBS = AthenaOutputStream( "StreamBS" )
-StreamBS.ItemList += [ "6207#*" ]       # TriggerTower
+StreamBS.ItemList += [ "1174216565#*" ] # AOD::TriggerTowerContainer_v2
 StreamBS.ItemList += [ "216508938#*" ]  # CPMRoI
 StreamBS.ItemList += [ "1270847938#*" ] # CPBSCollectionV1
 StreamBS.ItemList += [ "1243139661#*" ] # JEPBSCollectionV1
