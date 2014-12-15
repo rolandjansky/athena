@@ -16,8 +16,9 @@ InDetPerfPlot_Pt::InDetPerfPlot_Pt(PlotBase* pParent, const std::string & sDir):
 
 void 
 InDetPerfPlot_Pt::initializePlots() {
-    m_recPt  = Book1D("recpT","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0.,200, false);
-    m_recPtLow  = Book1D("recpTlow","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0,20, false);
+  const bool prependDirectory(false);
+  m_recPt  = Book1D("recpT","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0.,200, prependDirectory);
+  m_recPtLow  = Book1D("recpTlow","p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)",200,0,20, prependDirectory);
 }
 
 void 

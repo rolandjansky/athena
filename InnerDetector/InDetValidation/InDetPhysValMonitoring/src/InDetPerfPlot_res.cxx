@@ -117,6 +117,7 @@ InDetPerfPlot_res::InDetPerfPlot_res(PlotBase* pParent, const std::string & sDir
 void 
 InDetPerfPlot_res::initializePlots() {
 	//never prepend the directory path to the histo variable names
+  // why? prevents ROOT memory issues
 	const bool prependDirectory(false);
 	//Initialize the projections which are the final result:
 
@@ -184,7 +185,11 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthPart
 		// get the corresponding truth variable, dont fill if doesn't exist
 		if (truthIsAvailable and m_resPlots[var][ieta]){
 		  const float truthParameter = (truthprt.auxdata< float >(varName));
-			(m_resPlots[var][ieta])->Fill( trackParameter - truthParameter);
+      if( var == QOVER_PT ) {
+        (m_resPlots[var][ieta])->Fill( 1.0 - (truthParameter / trackParameter) );
+      } else {
+        (m_resPlots[var][ieta])->Fill( trackParameter - truthParameter);
+      }
 		}
 	}
 }
@@ -218,10 +223,10 @@ InDetPerfPlot_res::formProjectionTitle(const unsigned int projection, const unsi
 		{"#phi", "#phi^{rec}-#phi^{tru}"},
 		{"#theta","#theta^{rec}-#theta^{tru}"},
 		{"z_{0}*sin(#theta)", "z_{0}sin(#theta)^{rec}-z_{0}sin(#theta)^{tru}"},
-		{"q/p_{T}", "q/p^{rec}-q/p^{tru}"}
+		{"q/p_{T}", "1-(q/p^{tru})/(q/p^{rec})"}
 	};
 	static std::string projectionTitles[2] = { "Track Measurement Bias: ","Track Resolution: "};
 	static std::string sigma[2] = {"#sigma(",""};
-	static std::string closure[2] = {"",")"};
+	static std::string closure[2] = {")",""};
 	return projectionTitles[projection] + titleComponents[param][0] + std::string("versus #eta;#eta;") + sigma[projection] + titleComponents[param][1]+ closure[projection];
 }

@@ -16,7 +16,9 @@ use xAODTruth           xAODTruth-*             Event/xAOD
 use AthenaMonitoring    AthenaMonitoring-*      Control
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
 use xAODTracking        xAODTracking-*          Event/xAOD
-use AtlasROOT           AtlasROOT-*                         External
+use AtlasROOT           AtlasROOT-*             External
+use PATCore             PATCore-*               PhysicsAnalysis/AnalysisCommon
+use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecTools   
 
 private
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
@@ -36,12 +38,13 @@ use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
 use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
 use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis 
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
+use xAODJet             xAODJet-*               Event/xAOD
 
 end_private
 
-private
-macro_append ROOT_linkopts " -lEG"
-end_private
+#private
+#macro_append ROOT_linkopts " -lEG"
+#end_private
 ##
 
 branches src src/components doc
