@@ -27,6 +27,7 @@
 //// trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "xAODMuon/Muon.h"
+#include "DataModel/ElementLink.h"
 
 // forward includes
 class TrigBphysHelperUtilsTool;
@@ -61,6 +62,7 @@ class TrigEFBMuMuFex: public HLT::ComboAlgo  {
     double m_massMuon;
     
     bool m_oppositeCharge;
+    bool m_sameCharge;
     float m_lowerMassCut;
     float m_upperMassCut;
     bool m_ApplyupperMassCut;

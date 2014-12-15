@@ -10,7 +10,7 @@
 // ********************************************************************
 
 #include "TrigEFTrkMassFex.h"
-#include "TrigBphysHypo/BtrigUtils.h"
+#include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"

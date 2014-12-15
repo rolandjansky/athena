@@ -542,3 +542,26 @@ class L2BMuMuHypo_Z_passL2 (TrigL2BMuMuHypo):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuHypo_DiMu_noinvm_noVtx (TrigL2BMuMuHypo):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuHypo_DiMu_noinvm_noVtx"):
+        super( TrigL2BMuMuHypo, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 0.
+        self.UpperMassCut      = 14000.
+        self.ApplyUpperMassCut = False
+        self.ApplyChi2Cut      = False
+        self.Chi2VtxCut        = 20.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigL2BMuMuHypoMonitoring import TrigL2BMuMuHypoValidationMonitoring
+        validation = TrigL2BMuMuHypoValidationMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuHypoMonitoring import TrigL2BMuMuHypoOnlineMonitoring
+        online = TrigL2BMuMuHypoOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]

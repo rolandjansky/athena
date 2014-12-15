@@ -22,7 +22,7 @@
 **
 ***************************************************************************/
 
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigEFBMuMuXHypo.h"
 #include "TrigParticle/TrigEFBphysContainer.h"

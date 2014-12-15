@@ -19,27 +19,35 @@
  **
  **************************************************************************/
 
-#include "TrigBphysHypo/TrigL2DiMuXHypo.h"
+#include "TrigL2DiMuXHypo.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "TrigMuonEvent/TrigCombDiMuonContainer.h"
+//#include "TrigMuonEvent/TrigCombDiMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigParticle/TrigL2Bphys.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
-#include "TrigInDetEvent/TrigVertexCollection.h"
+//#include "TrigParticle/TrigL2Bphys.h"
+//#include "TrigParticle/TrigL2BphysContainer.h"
+//#include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "TrigBphysHelperUtilsTool.h"
+
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
 
 TrigL2DiMuXHypo::TrigL2DiMuXHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator)
+,m_bphysHelperTool("TrigBphysHelperUtilsTool")
 {
 
   // Read cuts
@@ -73,6 +81,12 @@ HLT::ErrorCode TrigL2DiMuXHypo::hltInitialize()
     msg() << MSG::INFO << "B+ mass window:   " << m_lowerBplusMassCut << " < Mass(KplusMuMu) < " << m_upperBplusMassCut << endreq;
     msg() << MSG::INFO << "|---------------------------------------------------------------------|" << endreq;
   }
+    if (m_bphysHelperTool.retrieve().isFailure()) {
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+    }
 
   if ( timerSvc() ) {
     m_TotTimer    = addTimer("L2DiMuXHypo_Tot");
@@ -108,32 +122,15 @@ HLT::ErrorCode TrigL2DiMuXHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   bool result = false;
 
     // Retrieve event info
-    int IdRun   = 0;
     int IdEvent = 0;
-    
-    // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
-    const xAOD::EventInfo *evtInfo(0);
-    if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            if ( timerSvc() )
-                m_TotTimer->stop();
-            return HLT::NAV_ERROR;
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;
-        }// found old event info
-    }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endreq;
-        IdRun   = evtInfo->runNumber();
-        IdEvent = evtInfo->eventNumber();
-    } // get event ifo
-
+    int IdRun   = 0;
+    // event info
+    uint32_t runNumber(0), evtNumber(0), lbBlock(0);
+    if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+    }
+    IdEvent = evtNumber;
+    IdRun   = runNumber;
     
 
   // Accept-All mode: temporary patch; should be done with force-accept
@@ -169,7 +166,7 @@ HLT::ErrorCode TrigL2DiMuXHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   }
 
   // create vector for TrigL2Bphys particles
-  const TrigL2BphysContainer* trigBphysColl = 0;
+    const xAOD::TrigBphysContainer* trigBphysColl = 0;
 
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "L2DiMuXFex");
 
@@ -207,12 +204,12 @@ HLT::ErrorCode TrigL2DiMuXHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-  for ( TrigL2BphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
+  for ( xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
 
     if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Bphys particle type: " << (*bphysIter)->particleType() << " with mass " << (*bphysIter)->mass() << endreq;
 
 
-    if ( (*bphysIter)->particleType() == TrigL2Bphys::BMUMUX ) {   //TrigL2Bphys::BMUMUX = 3
+    if ( (*bphysIter)->particleType() == xAOD::TrigBphys::BMUMUX ) {   //TrigL2Bphys::BMUMUX = 3
 
       float BplusMass = (*bphysIter)->mass();
       if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "BplusMass = " << BplusMass << endreq;

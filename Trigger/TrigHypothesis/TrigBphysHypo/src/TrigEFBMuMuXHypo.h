@@ -30,8 +30,8 @@
 #include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "TrigParticle/TrigEFBphys.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
+//#include "TrigParticle/TrigEFBphys.h"
+//#include "TrigParticle/TrigEFBphysContainer.h"
 
 #include "TrigBphysHypo/Constants.h"
 

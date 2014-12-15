@@ -24,6 +24,9 @@
 
 #include "TrigBphysHypo/Constants.h"
 
+class TrigBphysHelperUtilsTool;
+
+
 class TrigL2DiMuXHypo: public HLT::HypoAlgo  {
   
   public:
@@ -51,6 +54,10 @@ class TrigL2DiMuXHypo: public HLT::HypoAlgo  {
 
     /* monitored variables*/
     std::vector<float> mon_bmass;
+    
+private:
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
+
 };
 
 #endif

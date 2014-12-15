@@ -4,14 +4,14 @@
 
 // *******************************************************************
 //
-// NAME:     TrigL2BMuMuFex.h
+// NAME:     TrigL2MultiMuFex.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigBphysHypo
 // AUTHOR:   Sergey Sivoklokov
 //
 // *******************************************************************
 
-#ifndef TRIG_TrigL2BMuMuCombo_H
-#define TRIG_TrigL2BMuMuCombo_H
+#ifndef TRIG_TrigL2MultiMuCombo_H
+#define TRIG_TrigL2MultiMuCombo_H
 
 #include <string>
 
@@ -23,23 +23,35 @@
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
 
-#include "TrigParticle/TrigL2BphysContainer.h"
+//#include "TrigParticle/TrigL2BphysContainer.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
+#include "TrigBphysHypo/Constants.h"
+
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+
+
 class TriggerElement;
-class CombinedMuonFeature;
+//class CombinedMuonFeature;
 
 class ITrigVertexFitter;
 class ITrigL2VertexFitter;
 class ITrigVertexingTool;
 
-class TrigL2BMuMuFex: public HLT::ComboAlgo {
+class TrigBphysHelperUtilsTool;
+
+
+class TrigL2MultiMuFex: public HLT::ComboAlgo {
 
   public:
 
-    TrigL2BMuMuFex(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigL2BMuMuFex();
+    TrigL2MultiMuFex(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigL2MultiMuFex();
 
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltFinalize();
@@ -47,27 +59,33 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     HLT::ErrorCode acceptInputs(HLT::TEConstVec& inputTE, bool& pass );  // TODO: move all to hltExecute ?
 
   private:
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
 
     // Invariant mass helper calculators (TODO: move to InvMass.cxx tool-box)
-    double invariantMass(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2);
-    double invariantMass(const CombinedMuonFeature* mu1, const MuonFeature* mu2);
+    //    double invariantMass(const CombinedMuonFeature* mu1, const CombinedMuonFeature* mu2);
+    //double invariantMass(const CombinedMuonFeature* mu1, const MuonFeature* mu2);
 
-    bool isUnique(const  TrigInDetTrack* id1, const  TrigInDetTrack* id2);
+    void processTriMuon(HLT::TEConstVec& inputTE);
+//    double getInvMass2(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2);
+//    double getInvMass3(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2,const CombinedMuonFeature *muon3);
+//    TrigL2Bphys* checkInvMass2(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2, double Mass);
+//    TrigL2Bphys* checkInvMass3(const CombinedMuonFeature *muon1,const CombinedMuonFeature *muon2, const CombinedMuonFeature *muon3, double Mass);
 
-    // Variables to keep pre-results from acceptInput to hltExecute
-    const CombinedMuonFeature *m_muon1;
-    const CombinedMuonFeature *m_muon2;
+    xAOD::TrigBphys* checkInvMass2(const xAOD::L2CombinedMuon *muon1,const xAOD::L2CombinedMuon *muon2, double Mass);
+    xAOD::TrigBphys* checkInvMass3(const xAOD::L2CombinedMuon *muon1,const xAOD::L2CombinedMuon *muon2, const xAOD::L2CombinedMuon *muon3,double Mass);
+    
+    TrigVertex* fitToVertex(const std::vector<const xAOD::L2CombinedMuon*> & muons);
 
     // Configurable properties - mass window cuts
     float m_lowerMassCut;
     float m_upperMassCut;
 
     // Configurable properties - boolean switches
-    bool  m_ApplyupperMassCut;
     bool  m_doVertexFit;
     bool  m_acceptAll;
     bool  m_oppositeCharge;
-    bool  m_noId;
+    unsigned int  m_NInputMuon;
+    int  m_NMassMuon;
 
     // Configurable properties - vertexing tools
     ToolHandle<ITrigL2VertexFitter> m_L2vertFitter;
@@ -88,14 +106,15 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     unsigned int m_countPassedBsMass;
     unsigned int m_countPassedVtxFit;
 
+    bool m_passInvMass;
+
     // Output collections
-    TrigL2BphysContainer* m_trigBphysColl;
-    TrigVertexCollection* m_VertexColl;
+    xAOD::TrigBphysContainer* m_trigBphysColl;
+    //TrigVertexCollection* m_VertexColl;
 
     // Monitored variables
     std::vector<int>   mon_Errors;
     std::vector<int>   mon_Acceptance;
-    float              mon_TotalRunTime;
     std::vector<float> mon_ROIEta;
     std::vector<float> mon_ROIPhi;
     std::vector<float> mon_Roi1Roi2dEta;
@@ -124,20 +143,8 @@ class TrigL2BMuMuFex: public HLT::ComboAlgo {
     std::vector<float> mon_SumPtMutrk12_okFit;
     std::vector<float> mon_FitVtxR;
     std::vector<float> mon_FitVtxZ;
-    float              mon_VertexingTime;
-    // - one combined + one standalone muon
-    std::vector<float> mon_MustandROIdR;
-    std::vector<float> mon_MustandPt;
-    std::vector<float> mon_MustandPt_wideRange;
-    std::vector<float> mon_MustandEta;
-    std::vector<float> mon_MustandPhi;
-    std::vector<float> mon_MutrkMustanddEta;
-    std::vector<float> mon_MutrkMustanddPhi;
-    std::vector<float> mon_MutrkMustanddR;
-    std::vector<float> mon_SumPtMutrkMustand;
-    std::vector<float> mon_InvMass_stand;
-    std::vector<float> mon_InvMass_stand_wideRange;
 
+    double m_massMuon;
 };
 
 #endif

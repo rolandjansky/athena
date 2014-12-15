@@ -18,7 +18,7 @@
  **
  **************************************************************************/
 
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigEFBMuMuHypo.h"
 //#include "TrigBphysHypo/TrigEFBMuMuFex.h"
@@ -33,7 +33,7 @@
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "Particle/TrackParticleContainer.h"
+//#include "Particle/TrackParticleContainer.h"
 
 #include "CLHEP/Geometry/Point3D.h"
 

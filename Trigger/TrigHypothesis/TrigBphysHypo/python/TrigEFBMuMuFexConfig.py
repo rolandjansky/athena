@@ -409,7 +409,7 @@ class EFBMuMuFex_DiMu_18invm60_noOS (TrigEFBMuMuFex):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 11000.
+        self.LowerMassCut      = 18000.
         self.UpperMassCut      = 60000.
         self.OppositeSign      = False
         self.ApplyUpperMassCut = True
@@ -450,3 +450,27 @@ class EFBMuMuFex_noId (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuFex_DiMu_noinvm_SS (TrigEFBMuMuFex):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_noinvm_SS"):
+        super( TrigEFBMuMuFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 0.
+        self.UpperMassCut      = 15000.
+        self.OppositeSign      = False
+        self.SameSign          = True
+        self.ApplyUpperMassCut = False
+        self.MuonAlgo          = "TrigMuSuperEF"
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
+        validation = TrigEFBMuMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
+        online = TrigEFBMuMuFexOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]

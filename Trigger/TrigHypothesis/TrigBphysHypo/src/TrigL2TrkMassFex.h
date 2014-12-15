@@ -23,7 +23,9 @@
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
 
-#include "TrigParticle/TrigL2BphysContainer.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -32,6 +34,9 @@ class TriggerElement;
 class ITrigVertexFitter;
 class ITrigL2VertexFitter;
 class ITrigVertexingTool;
+
+class TrigBphysHelperUtilsTool;
+
 
 class TrigL2TrkMassFex: public HLT::FexAlgo {
 
@@ -46,6 +51,7 @@ class TrigL2TrkMassFex: public HLT::FexAlgo {
     // HLT::ErrorCode acceptInput(const HLT::TriggerElement* inputTE, bool& pass );
 
   private:
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
 
     // Configurable properties - cuts
     float m_matchL1;
@@ -82,7 +88,7 @@ class TrigL2TrkMassFex: public HLT::FexAlgo {
     unsigned int m_countPassedMass;
 
     // Output collections
-    TrigL2BphysContainer* m_trigBphysColl;
+    xAOD::TrigBphysContainer* m_trigBphysColl;
     TrigVertexCollection* m_VertexColl;
 
     // Monitored variables

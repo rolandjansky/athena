@@ -23,11 +23,11 @@
  **
  ***************************************************************************/
 
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigEFBMuMuXFex.h"
 
-#include "TrigParticle/TrigEFBphysContainer.h"
+//#include "TrigParticle/TrigEFBphysContainer.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -40,10 +40,10 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "MuidEvent/MuidTrackContainer.h"
+//#include "MuidEvent/MuidTrackContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-#include "Particle/TrackParticleContainer.h"
+//#include "Particle/TrackParticleContainer.h"
 #include "VxVertex/VxCandidate.h"
 //#include "TrigVKalFitter/TrigVKalFitter.h"
 //#include "TrigVKalFitter/VKalVrtAtlas.h"

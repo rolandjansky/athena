@@ -13,6 +13,7 @@
 #include "TrigBphysHypo/Constants.h"
 
 class TriggerElement;
+class TrigBphysHelperUtilsTool;
 
 class TrigL2TrkMassHypo: public HLT::HypoAlgo
 {
@@ -28,7 +29,8 @@ public:
     bool execHLTAlgorithm(TriggerElement* );
 
 private:
-    
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
+
     BooleanProperty m_acceptAll;
     int m_lastEvent;
     int m_lastEventPassed;

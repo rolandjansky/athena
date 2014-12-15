@@ -24,6 +24,9 @@
 
 #include "TrigBphysHypo/Constants.h"
 
+class TrigBphysHelperUtilsTool;
+
+
 class TrigL2BMuMuXHypo: public HLT::HypoAlgo  {
   
   public:
@@ -68,6 +71,10 @@ class TrigL2BMuMuXHypo: public HLT::HypoAlgo  {
     unsigned int m_countPassedLbMass;        
     unsigned int m_countPassedBcMass;        
 
+private:
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
+
+    
 };
 
 #endif

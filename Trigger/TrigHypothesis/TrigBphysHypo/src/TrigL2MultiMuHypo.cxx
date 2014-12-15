@@ -16,28 +16,36 @@
  **
  **************************************************************************/
 
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
-#include "TrigBphysHypo/TrigL2MultiMuHypo.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
+#include "TrigL2MultiMuHypo.h"
+//#include "TrigParticle/TrigL2BphysContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
+//#include "StoreGate/StoreGateSvc.h"
+//#include "StoreGate/DataHandle.h"
 
 #include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+//#include "EventInfo/EventInfo.h"
+//#include "EventInfo/EventID.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 
-
+#include "TrigBphysHelperUtilsTool.h"
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
+//#include "xAODEventInfo/EventInfo.h"
+//#include "xAODTrigMuon/L2CombinedMuon.h"
+//#include "xAODTrigMuon/L2StandAloneMuon.h"
 
-class ISvcLocator;
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+//#include "xAODTrigBphys/TrigBphysAuxContainer.h"
+
+//class ISvcLocator;
 
 TrigL2MultiMuHypo::TrigL2MultiMuHypo(const std::string & name, ISvcLocator* pSvcLocator):
     HLT::HypoAlgo(name, pSvcLocator)
+,m_bphysHelperTool("TrigBphysHelperUtilsTool")
+
 {
 
   // Read cuts
@@ -81,6 +89,13 @@ HLT::ErrorCode TrigL2MultiMuHypo::hltInitialize()
   m_countPassedBsMass =0;
   m_countPassedChi2Cut =0;
 
+    if (m_bphysHelperTool.retrieve().isFailure()) {
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+    }
+
   return HLT::OK;
 }
 
@@ -108,29 +123,17 @@ HLT::ErrorCode TrigL2MultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   bool result = false;
   mon_cutCounter = -1;
     // Retrieve event info
-    int IdRun   = 0;
+    //int IdRun   = 0;
     int IdEvent = 0;
     
-    // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
-    const xAOD::EventInfo *evtInfo(0);
-    if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            //mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endreq;
-        }// found old event info
-    }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endreq;
-        IdRun   = evtInfo->runNumber();
-        IdEvent = evtInfo->eventNumber();
-    } // get event ifo
+    // event info
+    uint32_t runNumber(0), evtNumber(0), lbBlock(0);
+    if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+    }
+    //IdRun = runNumber;
+    IdEvent = evtNumber;
+    
 
     if (IdEvent != m_lastEvent) {
     m_countTotalEvents++;
@@ -154,15 +157,13 @@ HLT::ErrorCode TrigL2MultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
     }
   }
 //  create vector for TrigL2Bphys particles
-  const TrigL2BphysContainer* trigBphysColl = 0;
-
+    const xAOD::TrigBphysContainer* trigBphysColl(nullptr);
+    
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "L2MultiMuFex");
-
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigBphysics collection L2MultiMuFex" << endreq;
     }
-
     return HLT::OK;
   }
 
@@ -193,10 +194,10 @@ HLT::ErrorCode TrigL2MultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-  for (TrigL2BphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
+  for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
 
-    if ((*bphysIter)->particleType() == TrigL2Bphys::MULTIMU ) {
-      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys partcile with mass " <<  (*bphysIter)->mass() << " and chi2 " <<
+    if ((*bphysIter)->particleType() == xAOD::TrigBphys::MULTIMU ) {
+      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys particle with mass " <<  (*bphysIter)->mass() << " and chi2 " <<
             (*bphysIter)->fitchi2() << endreq;
       float BsMass = (*bphysIter)->mass();
       bool thisPassedBsMass = (m_lowerMassCut < BsMass && (BsMass < m_upperMassCut || (!m_ApplyupperMassCut)));

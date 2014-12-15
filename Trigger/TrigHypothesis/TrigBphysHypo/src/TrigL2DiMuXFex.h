@@ -36,6 +36,9 @@
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 
 #include "TrigBphysHypo/Constants.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+
+class TrigBphysHelperUtilsTool;
 
 class TrigL2DiMuXFex: public HLT::FexAlgo  
 {
@@ -47,6 +50,8 @@ class TrigL2DiMuXFex: public HLT::FexAlgo
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
             
  private:
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
+
     // to set Accept-All mode: should be done with force-accept when possible
     BooleanProperty m_acceptAll;
     BooleanProperty m_doVertexFit;
@@ -78,7 +83,7 @@ class TrigL2DiMuXFex: public HLT::FexAlgo
     unsigned int m_countPassedKMuMuMassCut;
     unsigned int m_countPassedKMuMuVertexCut;
 
-    TrigL2BphysContainer* m_trigBphysColl;
+    xAOD::TrigBphysContainer* m_trigBphysColl;
     //TrigVertexCollection* m_VertexColl;
 
     ToolHandle<ITrigL2VertexFitter> m_L2vertFitter;

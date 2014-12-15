@@ -13,15 +13,6 @@
 #include "TrigBphysHypo/Constants.h"
 
 class TriggerElement;
-//class TrigJpsi;
-
-// struct Encoding
-// {
-//     unsigned unused:18;
-//     unsigned mdt:5;
-//     unsigned tgc:5;
-//     unsigned rpc:4;
-// };
 
 class TrigL2LooseMuonHypo: public HLT::HypoAlgo
 {

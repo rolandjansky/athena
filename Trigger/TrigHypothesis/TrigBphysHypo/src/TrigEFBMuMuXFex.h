@@ -38,7 +38,7 @@
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrigParticle/TrigEFBphys.h"
 #include "TrigParticle/TrigEFBphysContainer.h"
-#include "TrigMuonEvent/TrigMuonEF.h"
+//#include "TrigMuonEvent/TrigMuonEF.h"
 //Ntuples
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
@@ -47,7 +47,7 @@
 //#include "TrigTimeAlgs/TrigTimer.h"
 
 #include "TrigBphysHypo/Constants.h"
-#include "TrigBphysHypo/BtrigUtils.h"
+#include "BtrigUtils.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"

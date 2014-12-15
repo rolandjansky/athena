@@ -11,7 +11,7 @@
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
+//#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
 #include "TrigSteeringEvent/Enums.h"
 
 #include "TrkTrack/Track.h"
@@ -27,7 +27,7 @@ double InvMass(const std::vector<const Trk::Track*>          &, const std::vecto
 double InvMass(const std::vector<const Trk::Perigee*>        &, const std::vector<double>&);
 
 
-HLT::ErrorCode GetTrigMuonEFInfoTracks(const TrigMuonEFInfoContainer*, std::vector<const Trk::Track*>&, MsgStream&);
+//HLT::ErrorCode GetTrigMuonEFInfoTracks(const TrigMuonEFInfoContainer*, std::vector<const Trk::Track*>&, MsgStream&);
 HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer*, std::vector<const Trk::Track*>&, MsgStream&);
 
 // JW new methods to help simplify the algorithms

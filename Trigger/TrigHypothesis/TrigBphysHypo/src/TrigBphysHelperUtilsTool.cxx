@@ -455,10 +455,18 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 
 
 double TrigBphysHelperUtilsTool::invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const {
-    return invariantMass( {p1,p2},{m1,m2});
+    return invariantMassIP( {p1,p2},{m1,m2});
 } // invariantMass
 
-double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const {
+double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const {
+    // 're-cast the vector in terms of the iparticle'
+    std::vector<const xAOD::IParticle*> i_ptls;
+    for ( auto tp : ptls) i_ptls.push_back(tp);
+    return invariantMassIP(i_ptls,masses);
+}
+
+
+double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const {
     if (ptls.size() != masses.size()) {
         if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Mismatch of vector sizes in invariantMass" << endreq;
         return -1;

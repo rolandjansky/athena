@@ -13,7 +13,7 @@
  **************************************************************************/ 
  
 #include "TrigEFBMuMuFex.h"
-#include "TrigBphysHypo/BtrigUtils.h"
+#include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -45,6 +45,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_expectNumberOfInputTE(2)
 ,m_massMuon(105.6583715)
 ,m_oppositeCharge(true)
+,m_sameCharge(false)
 ,m_lowerMassCut(1000)
 ,m_upperMassCut(1e6)
 ,m_ApplyupperMassCut(false)
@@ -76,6 +77,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 
     declareProperty("AcceptAll",    m_acceptAll=true);
     declareProperty("OppositeSign", m_oppositeCharge=true);
+    declareProperty("SameSign",     m_sameCharge=false);
     declareProperty("LowerMassCut", m_lowerMassCut=2000.0);
     declareProperty("UpperMassCut", m_upperMassCut=10000.0);
     declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut=true);
@@ -116,6 +118,8 @@ HLT::ErrorCode TrigEFBMuMuFex::hltInitialize()
         << (m_noId==true ? "True" : "False") << endreq;
         msg() << MSG::DEBUG << "OppositeCharge       = "
         << (m_oppositeCharge==true ? "True" : "False") << endreq;
+        msg() << MSG::DEBUG << "SameCharge       = "
+        << (m_sameCharge==true ? "True" : "False") << endreq;
         msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
         msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
         msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endreq;
@@ -124,7 +128,12 @@ HLT::ErrorCode TrigEFBMuMuFex::hltInitialize()
         m_BmmHypTot = addTimer("EFBmmHypTot");
         m_BmmHypVtx = addTimer("EFBmmHypVtxFit");
     }
-
+    
+    // Consistency check of charge requirements
+    if( m_oppositeCharge && m_sameCharge ) {
+      msg() << MSG::ERROR << "Bad configuration: OppositeCharge and SameCharge are required together" << endreq;
+      return HLT::BAD_JOB_SETUP;
+    }
     
     if (m_muonAlgo != "TrigMuSuperEF" ) {
         if ( msgLvl() <= MSG::INFO ) msg() << MSG::INFO <<" Expected algorithm name:  TrigMuSuperEF, but got: " << m_muonAlgo <<endreq;
@@ -481,6 +490,11 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
             << mu0->charge() << "  " << mu1->charge() << endreq;
         return;
     }// opposite charge
+    if (m_sameCharge && (tp0->charge() * tp1->charge() < 0)) {
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Reject permutation due to same charge requirement: "
+            << mu0->charge() << "  " << mu1->charge() << endreq;
+        return;
+    }// same charge
     
     
     // simple mass

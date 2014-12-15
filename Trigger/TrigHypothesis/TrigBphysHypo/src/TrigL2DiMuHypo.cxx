@@ -7,17 +7,21 @@
              Shlomit Tarem
 ***************************************************************************/
 
-#include "TrigBphysHypo/TrigL2DiMuHypo.h"
+#include "TrigL2DiMuHypo.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigParticle/TrigL2Bphys.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
+//#include "TrigInDetEvent/TrigInDetTrack.h"
+//#include "TrigParticle/TrigL2Bphys.h"
+//#include "TrigParticle/TrigL2BphysContainer.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 using namespace std;
 
@@ -79,7 +83,7 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   bool result = false;
 
     // get vector for TrigL2Bphys particles
-  const TrigL2BphysContainer* trigBphysColl;
+    const xAOD::TrigBphysContainer* trigBphysColl(nullptr);
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl);
   if (status != HLT::OK )
   {
@@ -102,12 +106,12 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
   mon_nbphys=trigBphysColl->size();
 
-  TrigL2BphysContainer::const_iterator
+  xAOD::TrigBphysContainer::const_iterator
       thePair = trigBphysColl->begin(),
   endPair = trigBphysColl->end();
   for (; thePair != endPair;  thePair++)
   {
-    if ((*thePair)->particleType() == TrigL2Bphys::JPSIMUMU)
+    if ((*thePair)->particleType() == xAOD::TrigBphys::JPSIMUMU)
     {
       float mass = (*thePair)->mass();
       if (m_MassMin < mass && (mass < m_MassMax || (!m_ApplyMassMax)) )
@@ -118,7 +122,10 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
         pair_number++;
         if (msgLvl() <= MSG::DEBUG)
           msg() << MSG::DEBUG << " Pair_number " << pair_number << " Invariant mass after cut = " << mass << endreq;
-        const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*thePair)->trackVector();
+        // const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*thePair)->trackVector();
+          typedef std::vector<ElementLink<xAOD::TrackParticleContainer > > VecEL;
+          const VecEL trackVector = (*thePair)->trackParticleLinks();
+          
         if (msgLvl() <= MSG::DEBUG)
           msg() << MSG::DEBUG << "Number of tracks in vertex:  " << trackVector.size() << endreq;
 
@@ -134,11 +141,10 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
           return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::USERDEF_1);
         }
 
-        ElementLinkVector<TrigInDetTrackCollection>::const_iterator
-            it=trackVector.begin(),
-        itEnd=trackVector.end();
+        VecEL::const_iterator  it=trackVector.begin(),  itEnd=trackVector.end();
         int goodTracks = 0;
         std::vector<float> pT, eta, phi;
+          /* JW Not yet adapted
         for (int itrk=0; it != itEnd; ++it, ++itrk)
         {
           const TrigInDetTrackFitPar* p_param=(*(*it))->param();
@@ -178,6 +184,11 @@ HLT::ErrorCode TrigL2DiMuHypo::hltExecute(const HLT::TriggerElement* outputTE, b
               msg() << MSG::DEBUG << " goodTracks : " << goodTracks << endreq;
           }
         }
+           */
+          if (msgLvl() <= MSG::WARNING ) {
+              msg() << MSG::WARNING << "Code in TrigL2DiMuHypo not fully implemented:  " << endreq;
+              continue;
+          }
         if (goodTracks == 2)
         {
           if (msgLvl() <= MSG::DEBUG)

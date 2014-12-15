@@ -18,7 +18,7 @@
  **
  **************************************************************************/
 
-#include "TrigMuonEvent/CombinedMuonFeature.h"
+//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigEFTrkMassHypo.h"
 

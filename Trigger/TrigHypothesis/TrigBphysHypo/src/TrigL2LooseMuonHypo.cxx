@@ -7,15 +7,15 @@
              Shlomit Tarem
 ***************************************************************************/
 
-#include "TrigBphysHypo/TrigL2LooseMuonHypo.h"
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigParticle/TrigL2Bphys.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
+#include "TrigL2LooseMuonHypo.h"
+//#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
+//#include "GaudiKernel/IDataProviderSvc.h"
+//#include "GaudiKernel/IIncidentSvc.h"
+//#include "GaudiKernel/PropertyMgr.h"
+//#include "GaudiKernel/SmartDataPtr.h"
+//#include "TrigInDetEvent/TrigInDetTrack.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
 
 using namespace std;
 
@@ -57,7 +57,7 @@ HLT::ErrorCode TrigL2LooseMuonHypo::hltExecute(const HLT::TriggerElement* output
   }
 
   // get vector for TrigL2Bphys particles
-  const TrigL2BphysContainer* trigBphysColl;
+    const xAOD::TrigBphysContainer* trigBphysColl(nullptr);
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl);
   if (status != HLT::OK )
   {
@@ -77,11 +77,12 @@ HLT::ErrorCode TrigL2LooseMuonHypo::hltExecute(const HLT::TriggerElement* output
     msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size() << endreq;
 
   // loop over nbphys
-  TrigL2BphysContainer::const_iterator thePair = trigBphysColl->begin();
+  xAOD::TrigBphysContainer::const_iterator thePair = trigBphysColl->begin();
   for (; thePair != trigBphysColl->end();  thePair++) {
-    if ((*thePair)->particleType() == TrigL2Bphys::JPSIMUMU) {
+    if ((*thePair)->particleType() == xAOD::TrigBphys::JPSIMUMU) {
 
-      const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*thePair)->trackVector();
+        //const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*thePair)->trackVector();
+        const std::vector<ElementLink<xAOD::TrackParticleContainer> >& trackVector = (*thePair)->trackParticleLinks();
 
       if (msgLvl() <= MSG::DEBUG)
         msg() << MSG::DEBUG << "Number of tracks in TrigL2Bphys object:  " << trackVector.size() << endreq;

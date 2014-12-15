@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigBphysHypo/BtrigUtils.h"
+#include "BtrigUtils.h"
 
 #include <math.h>
 #include <vector>
@@ -12,11 +12,11 @@
 #include "Particle/TrackParticle.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-#include "TrigMuonEvent/TrigMuonEFInfo.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
+//#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
+//#include "TrigMuonEvent/TrigMuonEFInfo.h"
+//#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
+//#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
+//#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
@@ -249,61 +249,61 @@ HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer* trigMuon, std::vecto
 // Obtain list of Inner Detector tracks from TrigMuonEFInfoContainer.
 //-------------------------------------------------------------------
 
-HLT::ErrorCode GetTrigMuonEFInfoTracks(const TrigMuonEFInfoContainer* trigMuon, std::vector<const Trk::Track*> &indetTracks, MsgStream &msg) {
-
-  bool debug = msg.level() <= MSG::DEBUG;
-
-  if ( !trigMuon ) {
-    msg << MSG::ERROR << "Retrieval of TrigMuonEFInfoContainer from vector failed" << endreq;
-    return HLT::NAV_ERROR;
-  } else {
-    if (debug ) msg << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
-  }
-
-  TrigMuonEFInfoContainer::const_iterator MuonItr    = trigMuon->begin();
-  TrigMuonEFInfoContainer::const_iterator MuonItrEnd = trigMuon->end();
-
-  for ( int i=0; MuonItr!=MuonItrEnd; MuonItr++, i++ ) { // loops over muons within the RoI
-    if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endreq;
-    TrigMuonEFInfo* muonInfo = (*MuonItr);
-    if ( !muonInfo ) {
-      if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFInfo found" << endreq;
-      continue;
-    }
-    if ( muonInfo->hasTrack() ) { // was there a muon in this RoI ?
-      TrigMuonEFInfoTrackContainer *muonTracks = muonInfo->TrackContainer(); // get the muon TrackContainer, there might be more then one muon in this RoI
-      TrigMuonEFInfoTrackContainer::const_iterator TrackItr    = muonTracks->begin();
-      TrigMuonEFInfoTrackContainer::const_iterator TrackItrEnd = muonTracks->end();
-      for ( ; TrackItr!=TrackItrEnd; TrackItr++ ) { // loop over muon tracks container content
-        TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
-        if ( debug ) msg << MSG::DEBUG << "Muon info track type: " << muonInfoTrack->MuonType() << endreq;
-        if ( !muonInfoTrack->hasCombinedTrack() ) {
-          if ( debug ) msg << MSG::DEBUG << "Combined track not initialized" << endreq;
-          continue;
-        }
-        TrigMuonEFCbTrack* combTrack = muonInfoTrack->CombinedTrack();
-        if ( !combTrack ) {
-          if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFCbTrack found" << endreq;
-          continue;
-        }
-        if ( debug ) msg << MSG::DEBUG << "Retrieved combined track" << endreq;
-        const Rec::TrackParticle* indetTrackParticle = combTrack->getIDTrackParticle();
-        if ( !indetTrackParticle ) {
-          if ( debug ) msg << MSG::DEBUG << "No combined muon Rec::TrackParticle found" << endreq;
-          continue;
-        }
-        const Trk::Track* indetTrack = indetTrackParticle->originalTrack();
-        if ( !indetTrack ) {
-          if ( debug ) msg << MSG::DEBUG << "No combined muon Trk::Track found" << endreq;
-          continue;
-        }
-        indetTracks.push_back(indetTrack);
-      }
-    }
-  }
-
-  return HLT::OK;
-}
+//HLT::ErrorCode GetTrigMuonEFInfoTracks(const TrigMuonEFInfoContainer* trigMuon, std::vector<const Trk::Track*> &indetTracks, MsgStream &msg) {
+//
+//  bool debug = msg.level() <= MSG::DEBUG;
+//
+//  if ( !trigMuon ) {
+//    msg << MSG::ERROR << "Retrieval of TrigMuonEFInfoContainer from vector failed" << endreq;
+//    return HLT::NAV_ERROR;
+//  } else {
+//    if (debug ) msg << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
+//  }
+//
+//  TrigMuonEFInfoContainer::const_iterator MuonItr    = trigMuon->begin();
+//  TrigMuonEFInfoContainer::const_iterator MuonItrEnd = trigMuon->end();
+//
+//  for ( int i=0; MuonItr!=MuonItrEnd; MuonItr++, i++ ) { // loops over muons within the RoI
+//    if ( debug ) msg << MSG::DEBUG << "Looking at TrigMuonEFInfo " << i << endreq;
+//    TrigMuonEFInfo* muonInfo = (*MuonItr);
+//    if ( !muonInfo ) {
+//      if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFInfo found" << endreq;
+//      continue;
+//    }
+//    if ( muonInfo->hasTrack() ) { // was there a muon in this RoI ?
+//      TrigMuonEFInfoTrackContainer *muonTracks = muonInfo->TrackContainer(); // get the muon TrackContainer, there might be more then one muon in this RoI
+//      TrigMuonEFInfoTrackContainer::const_iterator TrackItr    = muonTracks->begin();
+//      TrigMuonEFInfoTrackContainer::const_iterator TrackItrEnd = muonTracks->end();
+//      for ( ; TrackItr!=TrackItrEnd; TrackItr++ ) { // loop over muon tracks container content
+//        TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
+//        if ( debug ) msg << MSG::DEBUG << "Muon info track type: " << muonInfoTrack->MuonType() << endreq;
+//        if ( !muonInfoTrack->hasCombinedTrack() ) {
+//          if ( debug ) msg << MSG::DEBUG << "Combined track not initialized" << endreq;
+//          continue;
+//        }
+//        TrigMuonEFCbTrack* combTrack = muonInfoTrack->CombinedTrack();
+//        if ( !combTrack ) {
+//          if ( debug ) msg << MSG::DEBUG << "No TrigMuonEFCbTrack found" << endreq;
+//          continue;
+//        }
+//        if ( debug ) msg << MSG::DEBUG << "Retrieved combined track" << endreq;
+//        const Rec::TrackParticle* indetTrackParticle = combTrack->getIDTrackParticle();
+//        if ( !indetTrackParticle ) {
+//          if ( debug ) msg << MSG::DEBUG << "No combined muon Rec::TrackParticle found" << endreq;
+//          continue;
+//        }
+//        const Trk::Track* indetTrack = indetTrackParticle->originalTrack();
+//        if ( !indetTrack ) {
+//          if ( debug ) msg << MSG::DEBUG << "No combined muon Trk::Track found" << endreq;
+//          continue;
+//        }
+//        indetTracks.push_back(indetTrack);
+//      }
+//    }
+//  }
+//
+//  return HLT::OK;
+//}
 
 
 double fabsDeltaPhi(double phi1, double phi2) {

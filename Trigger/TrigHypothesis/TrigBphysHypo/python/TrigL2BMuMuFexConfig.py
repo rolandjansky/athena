@@ -727,3 +727,32 @@ class L2BMuMuFex_noId_Z_passL2 (TrigL2BMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuFex_DiMu_noinvm_SS (TrigL2BMuMuFex):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuFex_DiMu_noinvm_SS"):
+        super( TrigL2BMuMuFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # L2 Bmumu cuts
+        # self.TrackPTthr       = 1.4
+        # self.TrackAlgoId      = 2
+        # self.pTsumTrackPair   = 0.
+        self.OppositeSign       = False
+        self.SameSign           = True
+        self.LowerMassCut       = 0.
+        self.UpperMassCut       = 15000.
+        self.ApplyUpperMassCut  = False
+        self.doVertexFit        = False # not effective - vertexing is done always
+        self.TrigL2VertexFitter = L2VFitTool
+        self.TrigVertexingTool  = VertexTool
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
+        validation = TrigL2BMuMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
+        online = TrigL2BMuMuFexOnlineMonitoring()
+
+        self.AthenaMonTools = [ validation, online, time ]
