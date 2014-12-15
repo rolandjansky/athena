@@ -22,7 +22,7 @@ namespace Muon
     class MM_Digit_p1
     {
     public:
-      MM_Digit_p1() : m_stripForTrigger(0), m_stripTimeForTrigger(0.0){}
+      MM_Digit_p1() : m_muonId(0), m_stripForTrigger(0), m_stripTimeForTrigger(0.0) {}
                 
         /// @name Data from Muon::MmDigit
         //@{

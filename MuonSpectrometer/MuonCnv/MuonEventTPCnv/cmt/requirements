@@ -62,5 +62,5 @@ apply_pattern lcgdict dict=OLD_MuonEventTPCnv  selectionfile=OLD_selection.xml h
 apply_pattern lcgdict dict=ARA_MuonEventTPCnv  selectionfile=ARA_selection.xml headerfiles="../MuonEventTPCnv/ARA_MuonEventTPCnvDict.h"
 
 #private
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"
+# macro cppdebugflags '$(cppdebugflags_s)'
+# macro_remove componentshr_linkopts "-Wl,-s"

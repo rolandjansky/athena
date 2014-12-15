@@ -24,7 +24,7 @@ This replaces RpcPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConve
 class RpcPrepDataContainerCnv_p3 : public T_AthenaPoolTPCnvBase<Muon::RpcPrepDataContainer, Muon::RpcPrepDataContainer_p3>
 {
 public:
-    RpcPrepDataContainerCnv_p3() : m_isInitialized(0)  {};
+    RpcPrepDataContainerCnv_p3() : m_RpcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
     virtual void	persToTrans(const Muon::RpcPrepDataContainer_p3* persCont,
         Muon::RpcPrepDataContainer* transCont,

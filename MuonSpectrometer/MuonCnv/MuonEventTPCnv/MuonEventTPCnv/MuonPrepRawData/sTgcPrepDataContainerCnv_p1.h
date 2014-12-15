@@ -24,7 +24,7 @@ This replaces sTgcPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConv
 class sTgcPrepDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::sTgcPrepDataContainer, Muon::sTgcPrepDataContainer_p1>
 {
 public:
-    sTgcPrepDataContainerCnv_p1() : m_isInitialized(0)  {};
+    sTgcPrepDataContainerCnv_p1() : m_sTgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
     virtual void	persToTrans(const Muon::sTgcPrepDataContainer_p1* persCont,
         Muon::sTgcPrepDataContainer* transCont,

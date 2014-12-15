@@ -23,7 +23,9 @@ namespace Muon
    class RpcCoinData_p1
    {
   public:
-     RpcCoinData_p1() {}
+     RpcCoinData_p1() : m_localPos(0.), m_errorMat(0.), m_time(0.), m_ambiguityFlag(0), m_ijk(0),
+                        m_threshold(0), m_overlap(0), m_parentCmId(0), m_parentPadId(0),
+                        m_parentSectorId(0), m_lowPtCm(false) {}
      // base
      
      /// @name Data from Trk::PrepRawData (minus m_indexAndHash and m_clusId, which are both recomputed)

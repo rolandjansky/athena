@@ -166,8 +166,11 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::CscStripPrepData* chan = dynamic_cast<Muon::CscStripPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            if (!chan) {
+               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscStripPrepData!" << endreq;
+               continue;
+            }
             const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
-            
             chan->m_detEl = de;
             (*coll)[ichan] = chan;
         }

@@ -10,7 +10,7 @@ TgcCoinDataContainerCnv_tlp1::TgcCoinDataContainerCnv_tlp1()
    // Add all converters defined in this top level converter:
    // never change the order of adding converters!  
    addMainTPConverter();
-   // addTPConverter( &m_tgcCoinDataCnv );   
+   addTPConverter( &m_tgcCoinDataCnv );
    addTPConverter( &m_locPosCnv);
    addTPConverter( &m_errorMatCnv);
    // 
@@ -18,10 +18,10 @@ TgcCoinDataContainerCnv_tlp1::TgcCoinDataContainerCnv_tlp1()
 
 void TgcCoinDataContainerCnv_tlp1::setPStorage( Muon::TgcCoinDataContainer_tlp1 *storage )
 {
- setMainCnvPStorage( &storage->m_pixDCCont );
- // 
- // m_tgcCoinDataCnv.setPStorage( &storage->m_tgcCoinDatas );
- m_locPosCnv.setPStorage( &storage->m_locPos );
- m_errorMatCnv.setPStorage( &storage->m_errorMat );
+  setMainCnvPStorage( &storage->m_pixDCCont );
+  // 
+  m_tgcCoinDataCnv.setPStorage( &storage->m_tgcCoinDatas );
+  m_locPosCnv.setPStorage( &storage->m_locPos );
+  m_errorMatCnv.setPStorage( &storage->m_errorMat );
 }   
  

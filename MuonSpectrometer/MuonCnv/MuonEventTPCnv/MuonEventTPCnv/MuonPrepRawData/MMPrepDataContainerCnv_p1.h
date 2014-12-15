@@ -24,7 +24,7 @@ This replaces MMPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConver
 class MMPrepDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::MMPrepDataContainer, Muon::MMPrepDataContainer_p1>
 {
 public:
-    MMPrepDataContainerCnv_p1() : m_isInitialized(0)  {};
+    MMPrepDataContainerCnv_p1() : m_MMId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
     virtual void	persToTrans(const Muon::MMPrepDataContainer_p1* persCont,
         Muon::MMPrepDataContainer* transCont,

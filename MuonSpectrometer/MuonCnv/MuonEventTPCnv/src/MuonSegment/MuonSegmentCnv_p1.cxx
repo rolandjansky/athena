@@ -22,7 +22,7 @@ void MuonSegmentCnv_p1::persToTrans( const Muon::MuonSegment_p1 *persObj, Muon::
     ITPConverterFor<Trk::Surface> *associatedSurfaceCnv(0);
     const Trk::Surface* temp = createTransFromPStore( &associatedSurfaceCnv, persObj->m_associatedSurface, log ); 
     transObj->m_associatedSurface = dynamic_cast<const Trk::PlaneSurface*>(temp);
-  
+    if(!transObj->m_associatedSurface) throw std::runtime_error( "MuonSegmentCnv_p1::persToTrans : Cannot get associated surface!" );
     m_localDirCnv.persToTrans(&persObj->m_localDirection,&transObj->m_localDirection,log);
 
     transObj->m_time = persObj->m_t0;

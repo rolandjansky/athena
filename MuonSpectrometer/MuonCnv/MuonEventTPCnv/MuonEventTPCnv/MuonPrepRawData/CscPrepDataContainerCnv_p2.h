@@ -24,7 +24,7 @@ This replaces CscPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConve
 class CscPrepDataContainerCnv_p2 : public T_AthenaPoolTPCnvBase<Muon::CscPrepDataContainer, Muon::CscPrepDataContainer_p2>
 {
 public:
-    CscPrepDataContainerCnv_p2() : m_isInitialized(0)  {};
+    CscPrepDataContainerCnv_p2() : m_CscId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
     virtual void	persToTrans(const Muon::CscPrepDataContainer_p2* persCont,
         Muon::CscPrepDataContainer* transCont,

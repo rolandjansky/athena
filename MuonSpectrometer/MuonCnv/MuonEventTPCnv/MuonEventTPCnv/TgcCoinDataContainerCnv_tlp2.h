@@ -33,7 +33,7 @@ public:
 
 protected:
 
-  // TgcCoinDataCnv_p2             m_tgcCoinDataCnv;
+  TgcCoinDataCnv_p2             m_tgcCoinDataCnv;
   LocalPositionCnv_p1           m_locPosCnv;
   ErrorMatrixCnv_p1             m_errorMatCnv;
 };

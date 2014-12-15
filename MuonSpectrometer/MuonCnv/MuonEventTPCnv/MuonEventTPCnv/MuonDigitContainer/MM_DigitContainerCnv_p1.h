@@ -21,7 +21,7 @@ namespace Muon{
 class MM_DigitContainerCnv_p1 : public T_AthenaPoolTPCnvBase<MmDigitContainer, Muon::MM_DigitContainer_p1>
 {
 public:
-    MM_DigitContainerCnv_p1() : m_isInitialized(0)  {};
+    MM_DigitContainerCnv_p1() : m_MMId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
     virtual void	persToTrans(const Muon::MM_DigitContainer_p1* persCont,
         MmDigitContainer* transCont,

@@ -20,7 +20,7 @@ namespace Muon{
   class STGC_DigitContainerCnv_p1 : public T_AthenaPoolTPCnvBase<sTgcDigitContainer, Muon::STGC_DigitContainer_p1>
     {
     public:
-      STGC_DigitContainerCnv_p1() : m_isInitialized(0)  {};
+      STGC_DigitContainerCnv_p1() : m_sTgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
 
 	virtual void	persToTrans(const Muon::STGC_DigitContainer_p1* persCont, sTgcDigitContainer* transCont, MsgStream &log) ;
 	virtual void	transToPers(const sTgcDigitContainer* transCont, Muon::STGC_DigitContainer_p1* persCont, MsgStream &log) ;

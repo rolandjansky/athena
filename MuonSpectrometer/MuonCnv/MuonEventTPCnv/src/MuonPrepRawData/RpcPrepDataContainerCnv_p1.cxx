@@ -173,6 +173,10 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::RpcPrepData* chan = dynamic_cast<Muon::RpcPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            if (!chan) {
+               log << MSG::ERROR << "RpcPrepDataContainerCnv_p1::persToTrans: Cannot get RpcPrepData!" << endreq;
+               continue;
+            }
             const MuonGM::RpcReadoutElement * de = m_muonDetMgr->getRpcReadoutElement(chan->identify());
             chan->m_detEl = de;
             (*coll)[ichan] = chan;

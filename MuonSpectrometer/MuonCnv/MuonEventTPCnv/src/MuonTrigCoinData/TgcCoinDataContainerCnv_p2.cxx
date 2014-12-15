@@ -172,18 +172,18 @@ void  Muon::TgcCoinDataContainerCnv_p2::persToTrans(const Muon::MuonCoinDataCont
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_CoinData[ichan + pcoll.m_begin];
             Muon::TgcCoinData* chan = dynamic_cast<Muon::TgcCoinData*>(createTransFromPStore((CONV**)0, pchan, log ) );
-	    if(chan->m_type!=Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
-	      const MuonGM::TgcReadoutElement * deOut = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdOut));
-	      chan->m_detElOut = deOut;
-	    }
-	    if(chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET || chan->m_type==Muon::TgcCoinData::TYPE_HIPT || 
-	       chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
-	      const MuonGM::TgcReadoutElement * deIn = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdIn));
-	      chan->m_detElIn = deIn;
-	    }
-	    else {
-	      chan->m_detElIn = 0;
-	    }
+            if(chan->m_type!=Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
+              const MuonGM::TgcReadoutElement * deOut = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdOut));
+              chan->m_detElOut = deOut;
+            }
+            if(chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET || chan->m_type==Muon::TgcCoinData::TYPE_HIPT || 
+            chan->m_type==Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
+              const MuonGM::TgcReadoutElement * deIn = m_muonDetMgr->getTgcReadoutElement(Identifier(chan->m_channelIdIn));
+              chan->m_detElIn = deIn;
+            }
+            else {
+              chan->m_detElIn = 0;
+            }
             (*coll)[ichan] = chan;
         }
 

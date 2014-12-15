@@ -175,6 +175,10 @@ void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             Muon::CscPrepData* chan = dynamic_cast<Muon::CscPrepData*>(createTransFromPStore((CONV**)0, pchan, log ) );
+            if (!chan) {
+               log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscPrepData!" << endreq;
+               continue;
+            }
             const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
             chan->m_detEl = de;
             (*coll)[ichan] = chan;
