@@ -23,7 +23,9 @@ InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(PlotBase* pParent, 
 void 
 InDetPerfPlot_VertexContainer::initializePlots() {
 
-  m_vx_n_vs_mu = Book2D("vx_n_vs_mu", "Number of vertices vs #mu;N vertices;#mu;Entries", 70, 0.0, 70.,100,0.0,100,false);  
+  const bool prependDirectory(false);
+
+  m_vx_n_vs_mu = Book2D("vx_n_vs_mu", "Number of vertices vs #mu;N vertices;#mu;Entries", 70, 0.0, 70.,100,0.0,100,prependDirectory);  
 
 }
 
