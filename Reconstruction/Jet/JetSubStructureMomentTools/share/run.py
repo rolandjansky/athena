@@ -195,6 +195,27 @@ if 1:
   sd = ToolSvc.sd
   jetrec2.JetModifiers += [sd]
 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetMakerTool
+  ToolSvc += SubjetMakerTool("subjetmaker")
+  subjetmaker = ToolSvc.subjetmaker
+  subjetmaker.type = "Kt"
+  subjetmaker.R = 0.3
+  subjetmaker.PtCut = 5000;
+  jetrec2.JetModifiers += [subjetmaker]
+
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
+  ToolSvc += SubjetFinderTool("subjetfinder")
+  subjetfinder = ToolSvc.subjetfinder
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
+  ToolSvc += SubjetRecorderTool("subjetrecorder")
+  subjetrecorder = ToolSvc.subjetrecorder
+  subjetfinder.JetAlgorithm = "Kt"
+  subjetfinder.JetRadius = 0.3
+  subjetrecorder.SubjetLabel = "Kt3Subjets"
+  subjetrecorder.SubjetContainerName = "MyCopiedJets_Kt3Subjets"
+  subjetfinder.SubjetRecorder = subjetrecorder
+  jetrec2.JetModifiers += [subjetfinder]
+
 # Dump copied jets.
 if 1:
   from JetRec.JetRecConf import JetDumper
@@ -221,9 +242,21 @@ if 1:
   jdmp2.FloatMoments += ["Charge"]
   #jdmp2.FloatMoments += ["Volatility"]
   jdmp2.FloatMoments += ["ShowerDeconstructionW", "ShowerDeconstructionTop"]
+  jdmp2.FloatVectorMoments += ["SubjetKt30_e"]
  # jdmp2.FourVectorMoments = ["ActiveArea4vec"]
+  jdmp2.AssociatedParticleVectors += ["Kt3Subjets"]
   jdmp2.OutputLevel = INFO
   jetalg.Tools += [jdmp2]
+
+  ToolSvc += JetDumper("jdmp3")
+  jdmp3 = ToolSvc.jdmp3
+  jdmp3.ContainerName = "MyCopiedJets_Kt3Subjets"
+  jdmp3.Detail = 2
+  jdmp3.LineDetail = 3
+  jdmp3.MaxObject = 20
+  jdmp3.OutputLevel = INFO
+  jdmp3.ElementLinkMoments += ["Parent"]
+  jetalg.Tools += [jdmp3]
 
 
 # Create a POOL output file with the StoreGate contents:
