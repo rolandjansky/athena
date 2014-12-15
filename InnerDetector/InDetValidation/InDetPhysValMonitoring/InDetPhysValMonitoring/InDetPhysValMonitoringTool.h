@@ -17,17 +17,15 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //local include
+#include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetPhysValMonitoring/InDetValidationPlots.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
-
-namespace Trk{
-	class ITrackSelectorTool;
-}
 
 
 /**
@@ -59,17 +57,27 @@ private:
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
 
+
 	///histograms
 	//InDetValidationPlots m_inDetValidationPlots;
 	InDetRttPlots * m_monPlots;
 	///Tool for selecting tracks
-	ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool;
+  bool m_useTrackSelection;
+	bool m_onlyInsideOutTracks;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
 	///bool variable to determine whether a track selector is used (default is false, then all tracks are used)
-	bool m_useTrackSelection;
 	ToolHandle<IInDetPhysValDecoratorTool> m_truthDecoratorTool;
 	ToolHandle<IInDetPhysValDecoratorTool> m_hitDecoratorTool;
 	ToolHandle<IInDetPhysValDecoratorTool> m_errDecoratorTool;
 	ToolHandle<IInDetPhysValDecoratorTool> m_truthClassDecoratorTool;
+
+  ///Jet Things
+  std::string m_jetContainerName;
+  float m_maxTrkJetDR;
+  bool m_fillTIDEPlots;
+  bool m_fillExtraTIDEPlots;
+
+
 
 	template<class T>
 	const T* getContainer( const std::string & containerName);
