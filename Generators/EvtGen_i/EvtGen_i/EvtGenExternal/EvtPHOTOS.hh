@@ -20,8 +20,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTPHOTOS_HH
-#define EVTPHOTOS_HH
+#ifndef EVT_I_PHOTOS_HH
+#define EVT_I_PHOTOS_HH
 
 #include "EvtGenBase/EvtAbsRadCorr.hh"
 #include <string>

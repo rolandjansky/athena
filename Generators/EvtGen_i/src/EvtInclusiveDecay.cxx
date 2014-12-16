@@ -62,6 +62,8 @@ EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcL
   declareProperty("userDecayFile", m_userDecayFile = "");
   declareProperty("randomStreamName", m_randomStreamName = "EVTGEN");
   declareProperty("inputKeyName", m_inputKeyName = "GEN_EVENT");
+  declareProperty("outputKeyName",m_outputKeyName = "GEN_EVENT_EVTGEN");
+  declareProperty("readExisting",m_readExisting=false);
 
   // Selection of particles to be decayed
   declareProperty("prohibitFinalStateDecay", m_prohibitFinalStateDecay=false);
@@ -194,12 +196,49 @@ StatusCode EvtInclusiveDecay::execute() {
   MsgStream log(messageService(), name());
   log << MSG::DEBUG << "EvtInclusiveDecay executing" << endreq;
 
-  // Copy "GEN_EVENT" record if desired to leave generator output unmodified
-  // TO BE DONE
-
   std::string   key = m_inputKeyName;
+
   // retrieve event from Transient Store (Storegate)
-  if ( m_sgSvc->retrieve(m_mcEvtColl, key).isFailure() ) {
+  if(m_readExisting) {
+    const McEventCollection* oldmcEvtColl;
+    if(m_sgSvc->retrieve(oldmcEvtColl, key).isFailure()) {
+      log << MSG::ERROR << "Could not retrieve const McEventCollection" << endreq;
+      return StatusCode::FAILURE;
+    }
+ 
+    m_mcEvtColl = new McEventCollection;
+    std::size_t evtIdx = 0;
+    std::size_t pushCount = 0;
+    for ( McEventCollection::const_iterator iEvt = oldmcEvtColl->begin();
+	iEvt != oldmcEvtColl->end();
+	++iEvt, ++evtIdx ) {
+        m_mcEvtColl->push_back( new HepMC::GenEvent(**iEvt) );
+        ++pushCount;
+    } //> end loop over HepMC::GenEvent
+
+    // If we are using the same key for the old and new collections, we have
+    // to delete the old one
+    if(m_outputKeyName==key) {
+      if ( m_sgSvc->remove(oldmcEvtColl).isFailure() ) {
+        log<< "Could not remove old HepMC collection" << endreq;
+        return StatusCode::FAILURE;
+      }
+    }
+    /*
+  if (m_deleteOldCollection) {
+    if ( evtStore()->remove(m_mcEvtColl).isFailure() ) {
+      ATH_MSG_ERROR ( "Could not remove old HepMC collection" );
+      return StatusCode::FAILURE;
+    }
+  
+
+  if ( evtStore()->record(m_newMcEvtColl, m_newCollectionKey).isFailure() ) {
+    ATH_MSG_ERROR ( "Could not add new HepMC collection with key " << m_newCollectionKey );
+    return StatusCode::FAILURE;
+  }
+    */
+  }
+  else  if ( m_sgSvc->retrieve(m_mcEvtColl, key).isFailure() ) {
     log << MSG::ERROR << "Could not retrieve McEventCollection" << endreq;
     return StatusCode::FAILURE;
   }
@@ -266,6 +305,12 @@ StatusCode EvtInclusiveDecay::execute() {
 	printHepMC(hepMC,&toBeDecayed);
       else
 	printHepMC(hepMC);
+    }
+  }
+  if(m_readExisting) {
+    if ( m_sgSvc->record( m_mcEvtColl,m_outputKeyName).isFailure() ) {
+      log << "Could not add new HepMC collection with key " << m_outputKeyName << endreq;
+    return StatusCode::FAILURE;
     }
   }
   return StatusCode::SUCCESS;

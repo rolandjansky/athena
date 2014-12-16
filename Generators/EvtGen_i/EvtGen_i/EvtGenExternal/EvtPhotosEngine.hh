@@ -18,8 +18,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTPHOTOSENGINE_HH
-#define EVTPHOTOSENGINE_HH
+#ifndef EVT_I_PHOTOSENGINE_HH
+#define EVT_I_PHOTOSENGINE_HH
 
 #include "EvtGenModels/EvtAbsExternalGen.hh"
 #include "EvtGenBase/EvtParticle.hh"

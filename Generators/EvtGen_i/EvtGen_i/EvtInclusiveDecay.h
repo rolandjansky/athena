@@ -110,7 +110,9 @@ class EvtInclusiveDecay:public Algorithm {
 		std::string m_userDecayFile;
 		std::string m_randomStreamName;
 		std::string m_inputKeyName;
+		std::string m_outputKeyName;
 
+                bool m_readExisting;
 		bool m_prohibitFinalStateDecay;
 		bool m_prohibitReDecay;
 		bool m_prohibitUnDecay;

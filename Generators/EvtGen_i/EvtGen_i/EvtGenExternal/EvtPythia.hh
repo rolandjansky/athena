@@ -22,8 +22,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTPYTHIA_HH
-#define EVTPYTHIA_HH
+#ifndef EVT_I_PYTHIA_HH
+#define EVT_I_PYTHIA_HH
 
 #include "EvtGenBase/EvtDecayIncoherent.hh"
 
