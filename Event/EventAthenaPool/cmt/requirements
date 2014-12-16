@@ -17,7 +17,7 @@ apply_pattern poolcnv \
 private
 
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
-use GaudiInterface       GaudiInterface-*           External
+#use GaudiInterface       GaudiInterface-*           External
 use AthenaKernel         AthenaKernel-*             Control
 use ByteStreamData       ByteStreamData-*           Event
 use EventInfo            EventInfo-*                Event
