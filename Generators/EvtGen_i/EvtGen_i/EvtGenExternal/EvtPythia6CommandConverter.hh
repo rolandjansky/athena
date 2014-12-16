@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#ifndef EVTPYTHIA6COMMANDCONVERTER_HH
-#define EVTPYTHIA6COMMANDCONVERTER_HH
+#ifndef EVT_I_PYTHIA6COMMANDCONVERTER_HH
+#define EVT_I_PYTHIA6COMMANDCONVERTER_HH
 
 std::vector<std::string> convertPythia6Command(Command command);
 

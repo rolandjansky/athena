@@ -18,8 +18,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTPYTHIAENGINE_HH
-#define EVTPYTHIAENGINE_HH
+#ifndef EVT_I_PYTHIAENGINE_HH
+#define EVT_I_PYTHIAENGINE_HH
 
 #include "EvtGenModels/EvtAbsExternalGen.hh"
 #include "EvtGen_i/EvtGenExternal/EvtPythiaRandom.hh"

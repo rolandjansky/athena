@@ -19,8 +19,8 @@
 //------------------------------------------------------------------------------
 //
 
-#ifndef EVTEXTERNALGENFACTORY_HH
-#define EVTEXTERNALGENFACTORY_HH
+#ifndef EVT_I_EXTERNALGENFACTORY_HH
+#define EVT_I_EXTERNALGENFACTORY_HH
 
 #include "EvtGenModels/EvtAbsExternalGen.hh"
 

@@ -18,8 +18,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTTAUOLAENGINE_HH
-#define EVTTAUOLAENGINE_HH
+#ifndef EVT_I_TAUOLAENGINE_HH
+#define EVT_I_TAUOLAENGINE_HH
 
 #include "EvtGenModels/EvtAbsExternalGen.hh"
 #include "EvtGenBase/EvtParticle.hh"

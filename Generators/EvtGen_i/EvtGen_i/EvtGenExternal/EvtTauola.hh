@@ -16,8 +16,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTTAUOLA_HH
-#define EVTTAUOLA_HH
+#ifndef EVT_I_TAUOLA_HH
+#define EVT_I_TAUOLA_HH
 
 #include "EvtGenBase/EvtDecayIncoherent.hh"
 
