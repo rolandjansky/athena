@@ -196,6 +196,12 @@ private:
    **/
   AthSequencer& operator=( const AthSequencer& rhs );
 
+  /// Run one algorithm.
+  /// Broken out to avoid warnings related to longjmp.
+  StatusCode executeAlgorithm (Algorithm* theAlgorithm,
+                               volatile bool& all_good,
+                               volatile bool& caughtfpe);
+
   /**************************
    ** Private Data Members **
    **************************/

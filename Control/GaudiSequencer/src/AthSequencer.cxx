@@ -146,42 +146,14 @@ AthSequencer::execute()
     // in the latter case the filter state is still examined. Terminate
     // the loop if an algorithm indicates that it's filter didn't pass.
     std::vector<Algorithm*>* subAlgms = subAlgorithms( );
-    std::vector<Algorithm*>::iterator it;
-    std::vector<Algorithm*>::iterator itend = subAlgms->end( );
-    for (it = subAlgms->begin(); it != itend; it++) {
-      Algorithm* theAlgorithm = (*it);
+    //volatile std::vector<Algorithm*>::iterator it;
+    //std::vector<Algorithm*>::iterator itend = subAlgms->end( );
+    //for (it = subAlgms->begin(); it != itend; it++) {
+    //volatile Algorithm* theAlgorithm = (*it);
+    for (Algorithm* theAlgorithm : *subAlgms) {
       if ( theAlgorithm->isEnabled( ) ) {
         if ( ! theAlgorithm->isExecuted( ) ) {
-          // short-circuit evaluation to run the same code 
-          // with and w/o catching FPEs
-          if ( ! m_continueEventloopOnFPE || 
-               prepareCatchAndEnableFPE() ||
-               !sigsetjmp(s_fpe_landing_zone, 1) )
-            {
-              // Call the sysExecute() of the method the algorithm
-              m_abortTimer.start(m_timeoutMilliseconds);
-              sc = theAlgorithm->sysExecute( );
-              all_good = sc.isSuccess();
-              // I think this should be done by the algorithm itself, 
-              // but just in case...
-              theAlgorithm->setExecuted( true );
-              int tmp=m_abortTimer.stop();
-              // but printout only if non-zero timeout was used
-              if (m_timeoutMilliseconds) {
-                ATH_MSG_DEBUG ("Time left before interrupting <" 
-                               << theAlgorithm->name() << "> : " << tmp);
-              }
-            }
-          else
-            {
-              // longjmp was called, "catch" the failure
-              caughtfpe = true;
-              // and cleanup for rest of events
-              cleanupAfterFPE( &s_fpe_info );
-            }
-          // if needed, uninstall the signal handler
-          if ( m_continueEventloopOnFPE )
-            uninstallFPESignalHandler();
+          sc = executeAlgorithm (theAlgorithm, all_good, caughtfpe);
         }
 	
         if ( all_good ) {
@@ -205,6 +177,47 @@ AthSequencer::execute()
     }
   }
   return caughtfpe ? StatusCode::RECOVERABLE : sc;
+}
+
+
+StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
+                                           volatile bool& all_good,
+                                           volatile bool& caughtfpe)
+{
+  StatusCode sc = StatusCode::SUCCESS;
+
+  // short-circuit evaluation to run the same code 
+  // with and w/o catching FPEs
+  if ( ! m_continueEventloopOnFPE || 
+       prepareCatchAndEnableFPE() ||
+       !sigsetjmp(s_fpe_landing_zone, 1) )
+  {
+    // Call the sysExecute() of the method the algorithm
+    m_abortTimer.start(m_timeoutMilliseconds);
+    sc = theAlgorithm->sysExecute( );
+    all_good = sc.isSuccess();
+    // I think this should be done by the algorithm itself, 
+    // but just in case...
+    theAlgorithm->setExecuted( true );
+    int tmp=m_abortTimer.stop();
+    // but printout only if non-zero timeout was used
+    if (m_timeoutMilliseconds) {
+      ATH_MSG_DEBUG ("Time left before interrupting <" 
+                     << theAlgorithm->name() << "> : " << tmp);
+    }
+  }
+  else
+  {
+    // longjmp was called, "catch" the failure
+    caughtfpe = true;
+    // and cleanup for rest of events
+    cleanupAfterFPE( &s_fpe_info );
+  }
+  // if needed, uninstall the signal handler
+  if ( m_continueEventloopOnFPE )
+    uninstallFPESignalHandler();
+
+  return sc;
 }
 
 StatusCode
