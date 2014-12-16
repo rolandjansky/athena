@@ -16,7 +16,8 @@
 #include <math.h>
 
 Trk::CylinderBounds::CylinderBounds() :
-    m_boundValues(CylinderBounds::bv_length, 0.)
+  m_boundValues(CylinderBounds::bv_length, 0.),
+  m_checkPhi(false)
 {}
 
 Trk::CylinderBounds::CylinderBounds(double radius, double halez) :

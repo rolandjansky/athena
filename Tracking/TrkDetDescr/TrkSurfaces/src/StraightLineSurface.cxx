@@ -159,6 +159,22 @@ Trk::DistanceSolution Trk::StraightLineSurface::straightLineDistanceEstimate(con
   return Trk::DistanceSolution(1,currDist,false,sol);
 }
 
+// return the measurement frame
+const Amg::RotationMatrix3D Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
+{
+    Amg::RotationMatrix3D mFrame;
+    // construct the measurement frame
+    const Amg::Vector3D& measY = lineDirection();
+    Amg::Vector3D measX(measY.cross(glomom).unit());
+    Amg::Vector3D measDepth(measX.cross(measY));
+    // assign the columnes
+    mFrame.col(0) = measX;
+    mFrame.col(1) = measY;
+    mFrame.col(2) = measDepth;
+    // return the rotation matrix
+    return mFrame;
+}
+
 Trk::DistanceSolution Trk::StraightLineSurface::straightLineDistanceEstimate
 (const Amg::Vector3D& pos,const Amg::Vector3D& dir,bool bound) const
 {
@@ -209,5 +225,34 @@ Trk::DistanceSolution Trk::StraightLineSurface::straightLineDistanceEstimate
 
   return Trk::DistanceSolution(1,dist,false,s);
 }
+
+Trk::Intersection Trk::StraightLineSurface::straightLineIntersection(const Amg::Vector3D& pos, 
+                                                                     const Amg::Vector3D& dir, 
+                                                                     bool forceDir,
+                                                                     Trk::BoundaryCheck bchk) const
+{
+     // following nominclature found in header file and doxygen documentation
+     // line one is the straight track
+     const Amg::Vector3D&  ma  = pos;
+     const Amg::Vector3D&  ea  = dir;
+     // line two is the line surface
+     const Amg::Vector3D& mb = center();
+     const Amg::Vector3D& eb = lineDirection();
+     // now go ahead and solve for the closest approach
+     Amg::Vector3D  mab(mb - ma);
+     double eaTeb = ea.dot(eb);
+     double denom = 1 - eaTeb*eaTeb;
+     if (fabs(denom)>10e-7){
+        double lambda0 = (mab.dot(ea) - mab.dot(eb)*eaTeb)/denom;
+        // evaluate in terms of direction 
+        bool isValid = forceDir ? (lambda0 > 0.) : true;
+        // evaluate validaty in terms of bounds
+        Amg::Vector3D result = (ma+lambda0*ea);
+        isValid = bchk ? ( isValid && isOnSurface(result) ) : isValid;
+        // return the result
+        return Trk::Intersection(result,lambda0, isValid );
+     }
+     return Trk::Intersection(pos,0.,false);
+}  
 
 

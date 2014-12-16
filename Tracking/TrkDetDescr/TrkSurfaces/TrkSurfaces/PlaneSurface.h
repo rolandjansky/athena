@@ -112,10 +112,10 @@ namespace Trk {
       bool operator==(const Surface& sf) const;
       
       /**Virtual constructor*/
-      virtual PlaneSurface* clone() const;
+      virtual PlaneSurface* clone() const override;
       
       /** Return the surface type */
-      virtual SurfaceType type() const { return Surface::Plane; }
+      virtual SurfaceType type() const override { return Surface::Plane; }
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
       virtual const ParametersT<5, Charged, PlaneSurface>* createTrackParameters(double l1,
@@ -123,7 +123,7 @@ namespace Trk {
                                                                                  double phi,
                                                                                  double theta,
                                                                                  double qop,
-                                                                                 AmgSymMatrix(5)* cov = 0) const
+                                                                                 AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov); }
 
 
@@ -131,7 +131,7 @@ namespace Trk {
       virtual const ParametersT<5, Charged, PlaneSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                                  const Amg::Vector3D& momentum,
                                                                                  double charge,
-                                                                                 AmgSymMatrix(5)* cov = 0) const
+                                                                                 AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, PlaneSurface>(position, momentum, charge, *this, cov); }   
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
@@ -139,15 +139,15 @@ namespace Trk {
                                                                                    double l2,
                                                                                    double phi,
                                                                                    double theta,
-                                                                                   double qop,
-                                                                                   AmgSymMatrix(5)* cov = 0) const
-        { return new ParametersT<5, Neutral, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov); }
+                                                                                   double oop,
+                                                                                   AmgSymMatrix(5)* cov = 0) const override
+        { return new ParametersT<5, Neutral, PlaneSurface>(l1, l2, phi, theta, oop, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
       virtual const ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                                    const Amg::Vector3D& momentum,
-                                                                                   double charge,
-                                                                                   AmgSymMatrix(5)* cov = 0) const
+                                                                                   double charge = 0.,
+                                                                                   AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Neutral, PlaneSurface>(position, momentum, charge, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from local parameters */
@@ -167,20 +167,22 @@ namespace Trk {
         { return new ParametersT<DIM, T, PlaneSurface>(position, momentum, charge, *this, cov); }
       
       /**This method returns the bounds by reference, static NoBounds in case of no boundaries*/
-      virtual const SurfaceBounds&  bounds() const;
+      virtual const SurfaceBounds& bounds() const override;
            
       /**This method calls the inside() method of the Bounds*/
-      virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const;
-                               
+      virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const override;
+      
+      virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;                        
+	  
       /** This method returns true if the GlobalPosition is on the Surface for both, within
         or without check of whether the local position is inside boundaries or not */
-      virtual bool isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk=true, double tol1=0., double tol2=0.) const;
+      virtual bool isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk=true, double tol1=0., double tol2=0.) const override;
       
       /** Specified for PlaneSurface: LocalToGlobal method without dynamic memory allocation */
-      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
       
       /** Specified for PlaneSurface: GlobalToLocal method without dynamic memory allocation - boolean checks if on surface */
-      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const override;
       
       /** This method transforms a local direction wrt the plane to a global direction */
       void localToGlobalDirection(const Trk::LocalDirection& locdir, Amg::Vector3D& globdir) const;
@@ -207,19 +209,19 @@ namespace Trk {
           - perpenticular to the normal of the plane          
           
        */
-      virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D& pos, 
+      virtual Intersection straightLineIntersection(const Amg::Vector3D& pos, 
                                                            const Amg::Vector3D& dir, 
                                                            bool forceDir,
-                                                           Trk::BoundaryCheck bchk) const;
+                                                           Trk::BoundaryCheck bchk) const override;
       
       /** fast straight line distance evaluation to Surface */
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const override;
 
       /** fast straight line distance evaluation to Surface - with bound option*/
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool Bound) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool Bound) const override;
       
       /** Return properly formatted class name for screen output */
-      virtual std::string name() const { return "Trk::PlaneSurface"; }
+      virtual std::string name() const  override { return "Trk::PlaneSurface"; }
       
     protected: //!< data members
       mutable SharedObject<const SurfaceBounds>  m_bounds;      //!< bounds (shared)        
@@ -234,6 +236,9 @@ namespace Trk {
                                          double tol1,
                                          double tol2) const
   { return (bounds().inside(locpos,tol1,tol2));}
+  
+  inline bool PlaneSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const
+  { return (bounds().inside(locpos,bchk));}
 
   inline const SurfaceBounds& PlaneSurface::bounds() const
   {
@@ -246,7 +251,7 @@ namespace Trk {
   }
 
 
-  inline SurfaceIntersection PlaneSurface::straightLineIntersection(const Amg::Vector3D& pos, 
+  inline Intersection PlaneSurface::straightLineIntersection(const Amg::Vector3D& pos, 
                                                                     const Amg::Vector3D& dir, 
                                                                     bool forceDir,
                                                                     Trk::BoundaryCheck bchk) const
@@ -260,9 +265,9 @@ namespace Trk {
         // evaluate (if necessary in terms of boundaries)
         isValid = bchk ? (isValid && isOnSurface(intersectPoint) ) : isValid;
         // return the result
-        return Trk::SurfaceIntersection(intersectPoint,u,isValid);
+        return Trk::Intersection(intersectPoint,u,isValid);
       }
-      return Trk::SurfaceIntersection(pos,0.,false);
+      return Trk::Intersection(pos,0.,false);
   }
     
 } // end of namespace

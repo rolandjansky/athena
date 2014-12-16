@@ -78,34 +78,35 @@ namespace Trk {
       bool operator==(const SurfaceBounds& sbo) const;
          
       /**Virtual constructor */
-      CylinderBounds* clone() const;
+      virtual CylinderBounds* clone() const override;
       
       /** Return the bounds type */
-      virtual BoundsType type() const { return SurfaceBounds::Cylinder; }
+      virtual BoundsType type() const override { return SurfaceBounds::Cylinder; }
       
       /**This method checks if a LocalPosition is inside z bounds and rphi value- interface method */
-      virtual bool inside(const Amg::Vector2D &locpo, double tol1, double tol2) const;
-      
+      virtual bool inside(const Amg::Vector2D &locpo, double tol1, double tol2) const override;
+      virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+	  
       /**This method checks if a GlobalPosition is inside the Cylinder - not an interface method,
         assumes that GlobalPosition is in the right frame*/
       bool inside3D(const Amg::Vector3D& gp, double tol1=0., double tol2=0.) const;
       
       /** This method checks inside bounds in loc1
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
                               
       /** This method checks inside bounds in loc1
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
       
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
       
       /**This method checks if a LocalPosition is inside z bounds and inside the radius (for straws) */
       bool insideRadius(const Amg::Vector2D &locpo, double tol) const;
       
       /**This method returns the radius*/
-      virtual double r() const;
+      virtual double r() const override;
       
       /**This method returns the average phi*/
       double averagePhi() const;
@@ -117,19 +118,19 @@ namespace Trk {
       double halflengthZ() const;
       
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
 
   private:
-    /** helper methods for the inside check */
-    bool inside(double r, double phi, double z, double tol1, double tol2) const;
-    bool insideLocZ(double z, double tol2) const;
-
-    /** internal storage of the geometry parameters */
-    std::vector<TDD_real_t>             m_boundValues;
-    bool                                m_checkPhi;
+      /** helper methods for the inside check */
+      bool inside(double r, double phi, double z, double tol1, double tol2) const;
+      bool insideLocZ(double z, double tol2) const;
+      
+      /** internal storage of the geometry parameters */
+      std::vector<TDD_real_t>             m_boundValues;
+      bool                                m_checkPhi;
     
   };
 
@@ -147,6 +148,19 @@ namespace Trk {
     double localPhi = (locpo[locRPhi]/m_boundValues[CylinderBounds::bv_radius])-m_boundValues[CylinderBounds::bv_averagePhi];
     localPhi -= (localPhi > M_PI) ? 2.*M_PI : 0.;
     return ( localPhi*localPhi < (m_boundValues[CylinderBounds::bv_halfPhiSector]+tol1)*(m_boundValues[CylinderBounds::bv_halfPhiSector]+tol1) );
+  }
+  
+  inline bool CylinderBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  {	
+	if(bchk.bcType==0 || bchk.nSigmas==0 || m_boundValues[CylinderBounds::bv_halfPhiSector]!=M_PI)	return CylinderBounds::inside(locpo, bchk.toleranceLoc1, bchk.toleranceLoc2);
+	
+	float theta = (bchk.lCovariance(1,0) != 0 && (bchk.lCovariance(1,1)-bchk.lCovariance(0,0))!=0 ) ? .5*bchk.FastArcTan( 2*bchk.lCovariance(1,0)/(bchk.lCovariance(1,1)-bchk.lCovariance(0,0)) ) : 0.;
+    sincosCache scResult = bchk.FastSinCos(theta);
+	double dphi = scResult.sinC*scResult.sinC*bchk.lCovariance(0,0);
+	double dz = scResult.cosC*scResult.cosC*bchk.lCovariance(0,1);
+	double max_ell = dphi > dz ? dphi : dz;
+	double limit = bchk.nSigmas*sqrt(max_ell);
+	return insideLocZ(locpo[locZ],limit);
   }
 
   inline bool CylinderBounds::inside3D(const Amg::Vector3D& glopo, double tol1, double tol2) const

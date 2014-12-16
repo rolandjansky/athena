@@ -38,42 +38,46 @@ namespace Trk {
        bool operator==(const SurfaceBounds& sbo) const;
        
        /** Return SurfaceBounds for persistency */
-       SurfaceBounds::BoundsType type() const { return SurfaceBounds::Other; }
+       virtual SurfaceBounds::BoundsType type() const override { return SurfaceBounds::Other; }
        
        /** Method inside() returns true for any case */
-       virtual bool inside(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const;
-
+       virtual bool inside(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const override;
+       virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
        /** This method checks inside bounds in loc1
          - loc1/loc2 correspond to the natural coordinates of the surface */
-       virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+       virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
                         
        /** This method checks inside bounds in loc2 
          - loc1/loc2 correspond to the natural coordinates of the surface */
-       virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+       virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
 
        /** Minimal distance to boundary (=0 if inside) */
-       double minDistance(const Amg::Vector2D& pos) const;
+       virtual double minDistance(const Amg::Vector2D& pos) const override;
       
        /** Clone method to complete inherited interface */
-       virtual NoBounds* clone() const;
+       virtual NoBounds* clone() const override;
 
        /** r() method to complete inherited interface */
-       virtual double r() const;
+       virtual double r() const override;
      
        /** Output Method for MsgStream*/
-       virtual MsgStream& dump(MsgStream& sl) const;
+       virtual MsgStream& dump(MsgStream& sl) const override;
 
        /** Output Method for std::ostream */
-       virtual std::ostream& dump(std::ostream& sl) const;
+       virtual std::ostream& dump(std::ostream& sl) const override;
       
-       private:
-   };
+     private:
+  
+  };
 
   inline bool NoBounds::operator==(const SurfaceBounds&) const 
     { return true; } 
    
   inline bool NoBounds::inside(const Amg::Vector2D&, double, double) const
     { return true; }
+	
+  inline bool NoBounds::inside(const Amg::Vector2D&, const BoundaryCheck&) const
+  {  return true;  }
 
   inline bool NoBounds::insideLoc1(const Amg::Vector2D&, double) const
     { return true; }

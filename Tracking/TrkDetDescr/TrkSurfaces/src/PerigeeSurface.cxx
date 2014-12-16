@@ -19,19 +19,30 @@
 Trk::NoBounds Trk::PerigeeSurface::s_perigeeBounds;
 
 Trk::PerigeeSurface::PerigeeSurface() :
-    Surface()
+    Surface(),
+    m_lineDirection(0)    
 {}
 
 Trk::PerigeeSurface::PerigeeSurface(const Amg::Vector3D& gp):
-    Surface()
+    Surface(),
+    m_lineDirection(0)    
 {
     Surface::m_center       = new Amg::Vector3D(gp);
     Surface::m_transform    = new Amg::Transform3D();
     (*Surface::m_transform) = Amg::Translation3D(gp.x(),gp.y(),gp.z());
 }
 
+Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform):
+    Surface(),
+    m_lineDirection(0)    
+{
+    Surface::m_transform    = tTransform;
+}
+
+
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf):
-    Surface()
+    Surface(),
+    m_lineDirection(0)    
 {
     if (pesf.m_center)         Surface::m_center = new Amg::Vector3D(*pesf.m_center);
     if (pesf.m_transform)      Surface::m_transform = new Amg::Transform3D(*pesf.m_transform);
@@ -39,18 +50,27 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf):
 }
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Transform3D& shift):
-    Surface()
+    Surface(),
+    m_lineDirection(0)    
 {
     if (pesf.m_center)         Surface::m_center = new Amg::Vector3D(shift*(*pesf.m_center));
     if (pesf.m_transform)      Surface::m_transform = new Amg::Transform3D(shift*(*pesf.m_transform));
 
 }
 
+Trk::PerigeeSurface::~PerigeeSurface()
+{
+    delete m_lineDirection;
+}
+
 // assignment operator
 Trk::PerigeeSurface& Trk::PerigeeSurface::operator=(const Trk::PerigeeSurface& pesf)
 {
   if (this!=&pesf){
-   Trk::Surface::operator=(pesf);
+       Trk::Surface::operator=(pesf);
+       delete m_lineDirection;
+       m_lineDirection = new Amg::Vector3D(lineDirection());
+       
   }
   return *this;
 }
@@ -80,17 +100,31 @@ void Trk::PerigeeSurface::localToGlobal(const Amg::Vector2D& locpos,
                          				const Amg::Vector3D& glomom,
                          				Amg::Vector3D& glopos) const
 {
-    double phi = glomom.phi();
-    glopos[Amg::x] = - locpos[Trk::d0]*sin(phi);
-    glopos[Amg::y] =   locpos[Trk::d0]*cos(phi);
-    glopos[Amg::z] =   locpos[Trk::z0];
-    glopos += center();
+    // this is for a tilted perigee surface
+    if (Surface::m_transform){
+        // get the vector perpenticular to the momentum and the straw axis
+        Amg::Vector3D radiusAxisGlobal(lineDirection().cross(glomom));
+        Amg::Vector3D locZinGlobal = transform()*Amg::Vector3D(0.,0.,locpos[Trk::locZ]);
+        // transform zPosition into global coordinates and add locR * radiusAxis
+        glopos = Amg::Vector3D(locZinGlobal + locpos[Trk::locR]*radiusAxisGlobal.normalized());
+    } else {
+        double phi = glomom.phi();
+        glopos[Amg::x] = - locpos[Trk::d0]*sin(phi);
+        glopos[Amg::y] =   locpos[Trk::d0]*cos(phi);
+        glopos[Amg::z] =   locpos[Trk::z0];
+        glopos += center();
+    }
 }
 
 // true local to global method - from LocalParameters /
 const Amg::Vector3D* Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars,
                                                         const Amg::Vector3D& glomom) const
 {
+    if (Surface::m_transform){
+        Amg::Vector3D* glopos = new Amg::Vector3D(0.,0.,0.);
+        localToGlobal(Amg::Vector2D(locpars[Trk::d0],locpars[Trk::z0]),glomom,*glopos);
+        return glopos;
+    }
     double phi = glomom.phi();
     double x = - locpars[Trk::d0]*sin(phi) + center().x();
     double y =   locpars[Trk::d0]*cos(phi) + center().y();
@@ -103,14 +137,30 @@ bool Trk::PerigeeSurface::globalToLocal(const Amg::Vector3D& glopos,
                                         const Amg::Vector3D& glomom,
                                         Amg::Vector2D& locpos) const 
 {
-    Amg::Vector3D perPos(glopos - (center()));
+    Amg::Vector3D perPos = (transform().inverse())*glopos;
     double d0 = perPos.perp();
     double z0 = perPos.z();
     // decide the sign of d0
-    d0 *= ((Amg::Vector3D::UnitZ().cross(glomom)).dot(perPos)<0.0) ? -1.0 : 1.0;                                      
+    d0 *= ((lineDirection().cross(glomom)).dot(perPos)<0.0) ? -1.0 : 1.0;                                      
     locpos[Trk::d0] = d0;
     locpos[Trk::z0] = z0;
     return true;
+}
+
+// return the measurement frame - this is the frame where the covariance is defined
+const Amg::RotationMatrix3D Trk::PerigeeSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
+{
+    Amg::RotationMatrix3D mFrame;
+    // construct the measurement frame
+    const Amg::Vector3D& measY = lineDirection();
+    Amg::Vector3D measX(measY.cross(glomom).unit());
+    Amg::Vector3D measDepth(measX.cross(measY));
+    // assign the columnes
+    mFrame.col(0) = measX;
+    mFrame.col(1) = measY;
+    mFrame.col(2) = measDepth;
+    // return the rotation matrix
+    return mFrame;
 }
 
 /** distance to surface */

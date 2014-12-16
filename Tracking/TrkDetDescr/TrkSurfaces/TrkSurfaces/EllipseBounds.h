@@ -74,23 +74,24 @@ namespace Trk {
       bool operator==(const SurfaceBounds& sbo) const;
       
       /**Virtual constructor*/
-      virtual EllipseBounds* clone() const;
+      virtual EllipseBounds* clone() const override;
       
       /** Return the type of the bounds for persistency */
-      virtual BoundsType type() const { return SurfaceBounds::Ellipse; }
+      virtual BoundsType type() const override { return SurfaceBounds::Ellipse; }
       
       /**This method checks if the point given in the local coordinates is between two ellipsoids
          if only tol1 is given and additional in the phi sector is tol2 is given */
-      virtual bool inside(const Amg::Vector2D &locpo, double tol1 = 0., double tol2 = 0.) const;
-
+      virtual bool inside(const Amg::Vector2D &locpo, double tol1 = 0., double tol2 = 0.) const override;
+      virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+	  
       /**Check for inside first local coordinate */
-      virtual bool insideLoc1(const Amg::Vector2D &locpo, double tol1 = 0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D &locpo, double tol1 = 0.) const override;
 
       /**Check for inside second local coordinate */
-      virtual bool insideLoc2(const Amg::Vector2D &locpo, double tol2 = 0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D &locpo, double tol2 = 0.) const override;
       
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
       
       /**This method returns first inner radius*/
       double rMinX() const;
@@ -114,9 +115,9 @@ namespace Trk {
       double halfPhiSector() const;
       
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
 
     private: 
       /** The internal storage of the bounds can be float/double*/
@@ -138,6 +139,11 @@ namespace Trk {
    return ( insideInner && insideOuter && insidePhi ); 
    
  }
+ 
+ inline bool EllipseBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  {
+	return EllipseBounds::inside(locpo,bchk.toleranceLoc1,bchk.toleranceLoc2);
+  }
 
  inline bool EllipseBounds::insideLoc1(const Amg::Vector2D &locpo, double tol1) const
  { 

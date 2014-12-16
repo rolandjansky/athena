@@ -134,6 +134,23 @@ bool Trk::CylinderSurface::operator==(const Trk::Surface& sf) const
   return boundsEqual;
 }
 
+// return the measurement frame: it's the tangential plane
+const Amg::RotationMatrix3D Trk::CylinderSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
+{
+    Amg::RotationMatrix3D mFrame;
+    // construct the measurement frame
+    Amg::Vector3D measY(transform().rotation().col(2)); // measured Y is the z axis
+    Amg::Vector3D measDepth = Amg::Vector3D(pos.x(), pos.y(), 0.).unit(); // measured z is the position transverse normalized
+    Amg::Vector3D measX(measY.cross(measDepth).unit()); // measured X is what comoes out of it
+    // the columnes
+    mFrame.col(0) = measX;
+    mFrame.col(1) = measY;
+    mFrame.col(2) = measDepth;
+    // return the rotation matrix
+    return mFrame;
+}
+
+
 const Amg::Vector3D& Trk::CylinderSurface::rotSymmetryAxis() const
 {
   if (!m_rotSymmetryAxis){
@@ -181,11 +198,11 @@ bool Trk::CylinderSurface::isOnSurface(const Amg::Vector3D& glopo,
                                     double tol2) const
 {
 	Amg::Vector3D loc3Dframe = Trk::Surface::m_transform ? (transform().inverse())*glopo : glopo;
-    return ( bchk ? bounds().inside3D(loc3Dframe,tol1,tol2) : true ); 
+    return ( bchk ? bounds().inside3D(loc3Dframe,tol1+s_onSurfaceTolerance,tol2+s_onSurfaceTolerance) : true ); 
 }
 
 
-Trk::SurfaceIntersection Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos, 
+Trk::Intersection Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos, 
                                                                         const Amg::Vector3D& dir,
                                                                         bool forceDir,
                                                                         Trk::BoundaryCheck bchk) const
@@ -215,7 +232,7 @@ Trk::SurfaceIntersection Trk::CylinderSurface::straightLineIntersection(const Am
           t1 = (pquad.first  - point1.x())/direction.x();
           t2 = (pquad.second - point1.x())/direction.x();
       } else  // bail out if no solution exists
-         return Trk::SurfaceIntersection(pos, 0., false);          
+         return Trk::Intersection(pos, 0., false);          
     } else {
         // x value ise th one of point1
         // x^2 + y^2 = R^2
@@ -223,7 +240,7 @@ Trk::SurfaceIntersection Trk::CylinderSurface::straightLineIntersection(const Am
         double x  = point1.x();
         double r2mx2 = R*R-x*x;
         // bail out if no solution
-        if (r2mx2 < 0. ) return Trk::SurfaceIntersection(pos, 0., false);
+        if (r2mx2 < 0. ) return Trk::Intersection(pos, 0., false);
         double y  = sqrt(r2mx2);
         // assign parameters and solutions
         t1 = y-point1.y();
@@ -263,8 +280,8 @@ Trk::SurfaceIntersection Trk::CylinderSurface::straightLineIntersection(const Am
     isValid = bchk ? (isValid && m_bounds->inside3D(solution, Trk::Surface::s_onSurfaceTolerance, Trk::Surface::s_onSurfaceTolerance) ) : isValid;
     
     // now return   
-    return needsTransform ? SurfaceIntersection( transform()*solution, path, isValid ) 
-                          : SurfaceIntersection( solution, path, isValid );
+    return needsTransform ? Intersection( transform()*solution, path, isValid ) 
+                          : Intersection( solution, path, isValid );
 }
 
 

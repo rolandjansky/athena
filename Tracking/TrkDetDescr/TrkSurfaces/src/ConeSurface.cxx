@@ -124,6 +124,25 @@ const Amg::Vector3D& Trk::ConeSurface::rotSymmetryAxis() const
   return(*m_rotSymmetryAxis);
 }
 
+// return the measurement frame: it's the tangential plane
+const Amg::RotationMatrix3D Trk::ConeSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
+{
+    Amg::RotationMatrix3D mFrame;
+    // construct the measurement frame
+    Amg::Vector3D measY(transform().rotation().col(2)); // measured Y is the z axis
+    Amg::Vector3D measDepth = Amg::Vector3D(pos.x(), pos.y(), 0.).unit(); // measured z is the position transverse normalized
+    Amg::Vector3D measX(measY.cross(measDepth).unit()); // measured X is what comoes out of it
+    // the columnes
+    mFrame.col(0) = measX;
+    mFrame.col(1) = measY;
+    mFrame.col(2) = measDepth;
+    // return the rotation matrix
+    //!< @TODO fold in alpha
+    // return it
+    return mFrame;
+}
+
+
 void Trk::ConeSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
 {
   // create the position in the local 3d frame
@@ -148,10 +167,10 @@ bool Trk::ConeSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vec
 }
 
 
-Trk::SurfaceIntersection Trk::ConeSurface::straightLineIntersection(const Amg::Vector3D& pos, 
-                                                                    const Amg::Vector3D& dir,
-                                                                    bool forceDir,
-                                                                    Trk::BoundaryCheck bchk) const
+Trk::Intersection Trk::ConeSurface::straightLineIntersection(const Amg::Vector3D& pos, 
+                                                             const Amg::Vector3D& dir,
+                                                             bool forceDir,
+                                                             Trk::BoundaryCheck bchk) const
 {
      // transform to a frame with the cone along z, with the tip at 0
      Amg::Vector3D tpos1 = transform().inverse()*pos;
@@ -211,7 +230,7 @@ Trk::SurfaceIntersection Trk::ConeSurface::straightLineIntersection(const Amg::V
     solution = transform()*solution;
     
     isValid = bchk ? (isValid && isOnSurface(solution)) : isValid;  
-    return Trk::SurfaceIntersection(solution,path,isValid);
+    return Trk::Intersection(solution,path,isValid);
 }
 
 
@@ -299,3 +318,17 @@ Trk::DistanceSolution Trk::ConeSurface::straightLineDistanceEstimate
   };
 }
 
+double Trk::ConeSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const {
+    // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
+    bool applyTransform = !(transform().isApprox(Amg::Transform3D::Identity()));
+    Amg::Vector3D posLocal = applyTransform ? transform().inverse()*pos : pos;
+    double phi = posLocal.phi();
+    double sgn = posLocal.z()  > 0. ? -1. : +1.;
+    Amg::Vector3D normalC(cos(phi) * bounds().cosAlpha(),
+    			sin(phi) * bounds().cosAlpha(),
+    			sgn*bounds().sinAlpha());
+    if (applyTransform) normalC = transform()*normalC;
+    // back in global frame
+    double cAlpha = normalC.dot(mom.unit());            
+    return fabs(1./cAlpha);
+}

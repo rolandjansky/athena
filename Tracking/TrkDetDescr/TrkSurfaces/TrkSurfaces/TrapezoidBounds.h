@@ -65,10 +65,10 @@ namespace Trk {
       virtual ~TrapezoidBounds();
       
       /**Virtual constructor*/
-      virtual TrapezoidBounds* clone() const;
+      virtual TrapezoidBounds* clone() const override;
       
       /** Return the type of the bounds for persistency */
-      virtual BoundsType type() const { return SurfaceBounds::Trapezoid; }
+      virtual BoundsType type() const override { return SurfaceBounds::Trapezoid; }
       
       /**Assignment operator*/
       TrapezoidBounds& operator=(const TrapezoidBounds& sbo); 
@@ -95,7 +95,7 @@ namespace Trk {
       double halflengthY() const;
       
       /**This method returns the maximal extension on the local plane*/
-      virtual double r() const;
+      virtual double r() const override;
       
       /**This method returns the opening angle alpha in point A (negative local phi) */
       double alpha() const;
@@ -127,29 +127,31 @@ namespace Trk {
         <br>
        where @f$  \kappa_{I} = - \kappa_{II} = 2 \frac{y_{H}}{x_{max} - x_{min}} @f$ <br>
        and   @f$  \delta_{I} = \delta_{II} = - \frac{1}{2}\kappa_{I}(x_{max} + x_{min}) @f$  */
-      virtual bool inside(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const;
-      
+      virtual bool inside(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const override;
+      virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+	  
       /** This method checks inside bounds in loc1
       - loc1/loc2 correspond to the natural coordinates of the surface 
       - As loc1/loc2 are correlated the single check doesn't make sense : 
          -> check is done on enclosing Rectangle ! */
          
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
+      
       /** This method checks inside bounds in loc2 
       - loc1/loc2 correspond to the natural coordinates of the surface
       - As loc1/loc2 are correlated the single check doesn't make sense : 
          -> check is done on enclosing Rectangle !  */
-      bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
       
 
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
       
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
       
    private:
       /** inside() method for a full symmetric trapezoid */
@@ -193,6 +195,55 @@ namespace Trk {
    { return sqrt(m_boundValues[TrapezoidBounds::bv_maxHalfX]*m_boundValues[TrapezoidBounds::bv_maxHalfX] 
                + m_boundValues[TrapezoidBounds::bv_halfY]*m_boundValues[TrapezoidBounds::bv_halfY]); }
 
+  inline bool TrapezoidBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  {
+	if(bchk.bcType==0)	return TrapezoidBounds::inside(locpo, bchk.toleranceLoc1, bchk.toleranceLoc2);
+	
+	// a fast FALSE
+	double fabsY = fabs(locpo[Trk::locY]);
+	double max_ell = bchk.lCovariance(0,0) > bchk.lCovariance(1,1) ? bchk.lCovariance(0,0) :bchk.lCovariance(1,1);
+	double limit = bchk.nSigmas*sqrt(max_ell);
+	if (fabsY > ( m_boundValues[TrapezoidBounds::bv_halfY] + limit)) return false;
+	// a fast FALSE
+	double fabsX = fabs(locpo[Trk::locX]);
+	if (fabsX > (m_boundValues[TrapezoidBounds::bv_maxHalfX] + limit)) return false;
+	// a fast TRUE
+	double min_ell = bchk.lCovariance(0,0) < bchk.lCovariance(1,1) ? bchk.lCovariance(0,0) : bchk.lCovariance(1,1);
+	limit = bchk.nSigmas*sqrt(min_ell);
+	if (fabsX < (m_boundValues[TrapezoidBounds::bv_minHalfX] + limit) && fabsY < (m_boundValues[TrapezoidBounds::bv_halfY] + limit)) return true;
+	
+	// compute KDOP and axes for surface polygon
+    std::vector<KDOP> elementKDOP(3);
+    std::vector<Amg::Vector2D> elementP(4);
+    float theta = (bchk.lCovariance(1,0) != 0 && (bchk.lCovariance(1,1)-bchk.lCovariance(0,0))!=0 ) ? .5*bchk.FastArcTan( 2*bchk.lCovariance(1,0)/(bchk.lCovariance(1,1)-bchk.lCovariance(0,0)) ) : 0.;
+    sincosCache scResult = bchk.FastSinCos(theta);
+    AmgMatrix(2,2) rotMatrix ;
+    rotMatrix << scResult.cosC, scResult.sinC,
+                -scResult.sinC, scResult.cosC;   
+	AmgMatrix(2,2) normal ;
+    normal    << 0, -1,
+                 1,  0; 			
+	// ellipse is always at (0,0), surface is moved to ellipse position and then rotated			 
+    Amg::Vector2D p;
+    p << m_boundValues[TrapezoidBounds::bv_minHalfX],-m_boundValues[TrapezoidBounds::bv_halfY];
+    elementP[0] =( rotMatrix * (p - locpo) );
+    p << -m_boundValues[TrapezoidBounds::bv_minHalfX],-m_boundValues[TrapezoidBounds::bv_halfY];
+    elementP[1] =( rotMatrix * (p - locpo) );
+	scResult = bchk.FastSinCos(m_beta);
+    p << m_boundValues[TrapezoidBounds::bv_minHalfX] + (2.*m_boundValues[TrapezoidBounds::bv_halfY])*(scResult.sinC/scResult.cosC),m_boundValues[TrapezoidBounds::bv_halfY];
+    elementP[2] =( rotMatrix * (p - locpo) );
+	scResult = bchk.FastSinCos(m_alpha);
+    p << -(m_boundValues[TrapezoidBounds::bv_minHalfX] + (2.*m_boundValues[TrapezoidBounds::bv_halfY])*(scResult.sinC/scResult.cosC)),m_boundValues[TrapezoidBounds::bv_halfY];
+    elementP[3] =( rotMatrix * (p - locpo) );
+    std::vector<Amg::Vector2D> axis = {normal*(elementP[1]-elementP[0]), normal*(elementP[3]-elementP[1]), normal*(elementP[2]-elementP[0])};
+    bchk.ComputeKDOP(elementP, axis, elementKDOP);
+	// compute KDOP for error ellipse
+    std::vector<KDOP> errelipseKDOP(3);
+	bchk.ComputeKDOP(bchk.EllipseToPoly(3), axis, errelipseKDOP);
+	// check if KDOPs overlap and return result
+	return bchk.TestKDOPKDOP(elementKDOP, errelipseKDOP);
+  }		   
+			   
   inline bool TrapezoidBounds::insideLoc1(const Amg::Vector2D &locpo, double tol1) const
     { return (fabs(locpo[locX]) < m_boundValues[TrapezoidBounds::bv_maxHalfX] + tol1); }
 

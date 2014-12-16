@@ -30,6 +30,7 @@ Trk::Surface::Surface() :
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
+  m_materialLayer(0),
   m_owner(Trk::SurfaceOwner(0))
 {
 #ifndef NDEBUG
@@ -45,6 +46,7 @@ Trk::Surface::Surface(Amg::Transform3D* tform) :
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
+  m_materialLayer(0),
   m_owner(Trk::SurfaceOwner(0))
 {
 	m_transform = tform;
@@ -61,6 +63,7 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement) :
   m_associatedDetElement(&detelement),
   m_associatedDetElementId(),
   m_associatedLayer(0),
+  m_materialLayer(0),
   m_owner(Trk::DetElOwn)
 {
 #ifndef NDEBUG
@@ -75,6 +78,7 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
   m_associatedDetElement(&detelement),
   m_associatedDetElementId(id),
   m_associatedLayer(0),
+  m_materialLayer(0),
   m_owner(Trk::DetElOwn)
 {
 #ifndef NDEBUG
@@ -90,6 +94,7 @@ Trk::Surface::Surface(const Surface& sf) :
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(sf.m_associatedLayer),
+  m_materialLayer(sf.m_materialLayer),
   m_owner(Trk::SurfaceOwner(0))
 {
 
@@ -103,6 +108,7 @@ Trk::Surface::Surface(const Surface& sf) :
 }
 
 // copy constructor with shift - Attention! sets the associatedDetElement to 0 and the identifieer to invalid
+// also invalidates the material layer
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift) :
   m_transform( sf.m_transform ? new Amg::Transform3D(shift* (*(sf.m_transform)) ) : new Amg::Transform3D(shift) ),
   m_center( (sf.m_center) ? new Amg::Vector3D(shift*(*(sf.m_center)) ) : 0),
@@ -110,6 +116,7 @@ Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift) :
   m_associatedDetElement(0),
   m_associatedDetElementId(),
   m_associatedLayer(0),
+  m_materialLayer(0),
   m_owner(Trk::SurfaceOwner(0))
 {
 #ifndef NDEBUG
@@ -144,6 +151,7 @@ Trk::Surface& Trk::Surface::operator=(const Trk::Surface& sf)
     m_associatedDetElement   = 0;
     m_associatedDetElementId = Identifier();
     m_associatedLayer        = sf.m_associatedLayer;
+    m_materialLayer          = sf.m_materialLayer;
     m_owner                  = Trk::noOwn;
   }
   return *this;
@@ -161,7 +169,6 @@ const Amg::Vector2D* Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo,
     delete posOnSurface; return 0;
 }
 
-
 // checks if GlobalPosition is on Surface and inside bounds
 bool Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
                                BoundaryCheck bchk,
@@ -171,6 +178,12 @@ bool Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
     const Amg::Vector2D *posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
     if (posOnSurface) { delete posOnSurface; return true; }
     else return false;
+}
+
+// return the measurement frame
+const Amg::RotationMatrix3D Trk::Surface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&) const
+{
+  return transform().rotation();
 }
 
 

@@ -10,8 +10,7 @@
 #define TRKSURFACES_RECTANGLEBOUNDS_H
 
 #include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkEventPrimitives/ParamDefs.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+
 
 class MsgStream;
 
@@ -69,21 +68,24 @@ namespace Trk {
       virtual RectangleBounds* clone() const;
     
       /** Return the type of the bounds for persistency */
-      virtual BoundsType type() const { return SurfaceBounds::Rectangle; }
+      virtual BoundsType type() const override { return SurfaceBounds::Rectangle; }
     
       /**This method checks if the provided local coordinates are inside the surface bounds*/
-      virtual bool inside(const Amg::Vector2D &locpo, double tol1=0., double tol2=0.) const;
+      virtual bool inside(const Amg::Vector2D &locpo, double tol1=0., double tol2=0.) const override;
+      
+      /**This method checks if the provided local coordinates are inside the surface bounds*/
+      virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
 
       /** This method checks inside bounds in loc1
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
 
       /** This method checks inside bounds in loc2 
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
 
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
 
       /**This method returns the halflength in phi (first coordinate of local surface frame)*/
       double halflengthPhi() const;
@@ -98,7 +100,7 @@ namespace Trk {
       double halflengthY() const;    
       
       /**This method returns the maximal extension on the local plane, i.e. @f$s\sqrt{h_{\phi}^2 + h_{\eta}^2}\f$*/
-      virtual double r() const;
+      virtual double r() const override;
     
       /** Output Method for MsgStream*/
       virtual MsgStream& dump(MsgStream& sl) const;
@@ -117,6 +119,46 @@ namespace Trk {
 
   inline bool RectangleBounds::inside(const Amg::Vector2D &locpo, double tol1, double tol2) const
     { return ((fabs(locpo[locX]) < m_boundValues[RectangleBounds::bv_halfX] + tol1) && (fabs(locpo[locY]) < m_boundValues[RectangleBounds::bv_halfY] + tol2)  ); }
+  
+  inline bool RectangleBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  { 
+	if(bchk.bcType==0)	return RectangleBounds::inside(locpo, bchk.toleranceLoc1, bchk.toleranceLoc2);
+	
+	// a fast FALSE
+	double max_ell = bchk.lCovariance(0,0) > bchk.lCovariance(1,1) ? bchk.lCovariance(0,0) : bchk.lCovariance(1,1);
+	double limit = bchk.nSigmas*sqrt(max_ell);
+    if (!RectangleBounds::inside(locpo, limit, limit)) return false;
+	// a fast TRUE
+	double min_ell = bchk.lCovariance(0,0) < bchk.lCovariance(1,1) ? bchk.lCovariance(0,0) : bchk.lCovariance(1,1);
+	limit = bchk.nSigmas*sqrt(min_ell);
+    if (RectangleBounds::inside(locpo, limit, limit)) return true;
+
+	// compute KDOP and axes for surface polygon
+    std::vector<KDOP> elementKDOP(4);
+    std::vector<Amg::Vector2D> elementP(4);
+    float theta = (bchk.lCovariance(1,0) != 0 && (bchk.lCovariance(1,1)-bchk.lCovariance(0,0))!=0 ) ? .5*bchk.FastArcTan( 2*bchk.lCovariance(1,0)/(bchk.lCovariance(1,1)-bchk.lCovariance(0,0)) ) : 0.;
+    sincosCache scResult = bchk.FastSinCos(theta);
+    AmgMatrix(2,2) rotMatrix ;
+    rotMatrix << scResult.cosC, scResult.sinC,
+                -scResult.sinC, scResult.cosC;   
+	// ellipse is always at (0,0), surface is moved to ellipse position and then rotated
+    Amg::Vector2D p;
+    p << m_boundValues[RectangleBounds::bv_halfX],m_boundValues[RectangleBounds::bv_halfY];
+    elementP[0] = ( rotMatrix * (p - locpo) );
+    p << m_boundValues[RectangleBounds::bv_halfX],-m_boundValues[RectangleBounds::bv_halfY];
+    elementP[1] =( rotMatrix * (p - locpo) );
+    p << -m_boundValues[RectangleBounds::bv_halfX],m_boundValues[RectangleBounds::bv_halfY];
+    elementP[2] =( rotMatrix * (p - locpo) );
+    p << -m_boundValues[RectangleBounds::bv_halfX],-m_boundValues[RectangleBounds::bv_halfY];
+    elementP[3] =( rotMatrix * (p - locpo) );
+    std::vector<Amg::Vector2D> axis = {elementP[0]-elementP[1], elementP[0]-elementP[2], elementP[0]-elementP[3], elementP[1]-elementP[2]};
+    bchk.ComputeKDOP(elementP, axis, elementKDOP);
+	// compute KDOP for error ellipse
+    std::vector<KDOP> errelipseKDOP(4);
+	bchk.ComputeKDOP(bchk.EllipseToPoly(3), axis, errelipseKDOP);
+	// check if KDOPs overlap and return result
+	return bchk.TestKDOPKDOP(elementKDOP, errelipseKDOP);
+  }
 
   inline bool RectangleBounds::insideLoc1(const Amg::Vector2D &locpo, double tol1) const
     { return (fabs(locpo[locX]) < m_boundValues[RectangleBounds::bv_halfX] + tol1); }

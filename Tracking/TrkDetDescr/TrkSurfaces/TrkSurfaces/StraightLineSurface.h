@@ -69,7 +69,7 @@ namespace Trk {
       bool operator==(const Surface& sf) const;
       
       /**Implicit constructor*/
-      virtual StraightLineSurface* clone() const;
+      virtual StraightLineSurface* clone() const override;
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
       virtual const ParametersT<5, Charged, StraightLineSurface>* createTrackParameters(double l1,
@@ -77,7 +77,7 @@ namespace Trk {
                                                                                         double phi,
                                                                                         double theta,
                                                                                         double qop,
-                                                                                        AmgSymMatrix(5)* cov = 0) const
+                                                                                        AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, StraightLineSurface>(l1, l2, phi, theta, qop, *this, cov); }
 
 
@@ -85,7 +85,7 @@ namespace Trk {
       virtual const ParametersT<5, Charged, StraightLineSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                                         const Amg::Vector3D& momentum,
                                                                                         double charge,
-                                                                                        AmgSymMatrix(5)* cov = 0) const
+                                                                                        AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, StraightLineSurface>(position, momentum, charge, *this, cov); }   
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
@@ -94,14 +94,14 @@ namespace Trk {
                                                                                           double phi,
                                                                                           double theta,
                                                                                           double qop,
-                                                                                          AmgSymMatrix(5)* cov = 0) const
+                                                                                          AmgSymMatrix(5)* cov = 0) const override
         { return new ParametersT<5, Neutral, StraightLineSurface>(l1, l2, phi, theta, qop, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
       virtual const ParametersT<5, Neutral, StraightLineSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                                           const Amg::Vector3D& momentum,
                                                                                           double charge,
-                                                                                          AmgSymMatrix(5)* cov = 0) const
+                                                                                          AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Neutral, StraightLineSurface>(position, momentum, charge, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from local parameters */
@@ -120,11 +120,15 @@ namespace Trk {
                                                                                                    AmgSymMatrix(DIM)* cov = 0) const
         { return new ParametersT<DIM, T, StraightLineSurface>(position, momentum, charge, *this, cov); }
       
+      /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
+          - the default implementation is the the RotationMatrix3D of the transform */
+      virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const override;
+      
       /** Return the surface type */
-      virtual SurfaceType type() const { return Surface::Line; }
+      virtual SurfaceType type() const override { return Surface::Line; }
       
       /** Specified for StraightLineSurface: LocalToGlobal method without dynamic memory allocation */
-      void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
       
       /** Specified for StraightLineSurface: GlobalToLocal method without dynamic memory allocation
         This method is the true global->local transformation.<br>
@@ -143,7 +147,7 @@ namespace Trk {
           
         \image html SignOfDriftCircleD0.gif
       */
-      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const override;
       
       /** Special method for StraightLineSurface - providing a different z estimate */
       virtual const Amg::Vector3D* localToGlobal(const Trk::LocalParameters& locpars,
@@ -176,36 +180,38 @@ namespace Trk {
           - @f$ \lambda_0 = \frac{(\vec m_ab \cdot \vec e_a)-(\vec m_ab \cdot \vec e_b)(\vec e_a \cdot \vec e_b)}{1-(\vec e_a \cdot \vec e_b)^2} @f$ <br>
           - @f$ \mu_0 = - \frac{(\vec m_ab \cdot \vec e_b)-(\vec m_ab \cdot \vec e_a)(\vec e_a \cdot \vec e_b)}{1-(\vec e_a \cdot \vec e_b)^2} @f$ <br>          
        */
-      virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D& pos, 
-                                                           const Amg::Vector3D& dir, 
-                                                           bool forceDir,
-                                                           Trk::BoundaryCheck bchk) const;
+      virtual Intersection straightLineIntersection(const Amg::Vector3D& pos, 
+                                                    const Amg::Vector3D& dir, 
+                                                    bool forceDir,
+                                                    Trk::BoundaryCheck bchk) const override;
       
       /** fast straight line distance evaluation to Surface */
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const override;
 
       /** fast straight line distance evaluation to Surface - with bound option*/
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool Bound) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool Bound) const override;
+
+      
+      /** the pathCorrection for derived classes with thickness */
+      virtual double pathCorrection(const Amg::Vector3D&, const Amg::Vector3D&) const  override { return 1.; }
 
       /** This method checks if the provided GlobalPosition is inside the assigned straw radius, but
         no check is done whether the GlobalPosition is inside bounds or not.
         It overwrites isOnSurface from Base Class as it saves the time of sign determination.  */
       virtual bool isOnSurface(const Amg::Vector3D& glopo,
-                       BoundaryCheck bchk=true,
-                       double tol1=0.,
-                       double tol2=0.) const;
+                               BoundaryCheck bchk=true,
+                               double tol1=0.,
+                               double tol2=0.) const override;
                        
       /**This method returns the bounds of the Surface by reference */
-      virtual const SurfaceBounds& bounds() const;
+      virtual const SurfaceBounds& bounds() const override;
       
       /**This surface calls the iside method of the bouns */
-      virtual bool insideBounds(const Amg::Vector2D& locpos,
-                        double tol1=0.,
-                        double tol2=0.) const;
-
+      virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const override;
+      virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override; 
 
       /** Return properly formatted class name for screen output */
-      virtual std::string name() const { return "Trk::StraightLineSurface"; };
+      virtual std::string name() const override { return "Trk::StraightLineSurface"; };
       
     protected: //!< data members
       mutable Amg::Vector3D*                      m_lineDirection;  //!< cache of the line direction (speeds up)
@@ -236,41 +242,15 @@ namespace Trk {
            && bounds().insideLoc2(locpos, tol2)); 
   }
   
+ inline bool StraightLineSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const
+  { return StraightLineSurface::insideBounds(locpos,bchk.toleranceLoc1,bchk.toleranceLoc2); }
+  
  inline const Amg::Vector3D& StraightLineSurface::lineDirection() const {
       if (!m_lineDirection) {
           m_lineDirection = new Amg::Vector3D(transform().rotation().col(2));
       }
       return (*m_lineDirection);
   }
-    
-  inline SurfaceIntersection StraightLineSurface::straightLineIntersection(const Amg::Vector3D& pos, 
-                                                                           const Amg::Vector3D& dir, 
-                                                                           bool forceDir,
-                                                                           Trk::BoundaryCheck bchk) const
-  {
-       // following nominclature found in header file and doxygen documentation
-       // line one is the straight track
-       const Amg::Vector3D&  ma  = pos;
-       const Amg::Vector3D&  ea  = dir;
-       // line two is the line surface
-       const Amg::Vector3D& mb = center();
-       const Amg::Vector3D& eb = lineDirection();
-       // now go ahead
-       Amg::Vector3D  mab(mb - ma);
-       double eaTeb = ea.dot(eb);
-       double denom = 1 - eaTeb*eaTeb;
-       if (fabs(denom)>10e-7){
-          double lambda0 = (mab.dot(ea) - mab.dot(eb)*eaTeb)/denom;
-          // evaluate in terms of direction 
-          bool isValid = forceDir ? (lambda0 > 0.) : true;
-          // evaluate validaty in terms of bounds
-          Amg::Vector3D result = (ma+lambda0*ea);
-          isValid = bchk ? ( isValid && isOnSurface(result) ) : isValid;
-          // return the result
-          return Trk::SurfaceIntersection( result, lambda0, isValid );
-       }
-       return Trk::SurfaceIntersection(pos,0.,false);
-  }  
     
 } // end of namespace
 

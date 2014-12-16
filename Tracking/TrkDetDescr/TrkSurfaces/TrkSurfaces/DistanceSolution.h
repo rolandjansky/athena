@@ -30,13 +30,7 @@ namespace Trk {
       
       /**Constructor*/
       DistanceSolution(int num, double current=0., bool signedDist=false, double first=0., double second=0.);
-      
-      /**Copy constructor*/
-      DistanceSolution(const DistanceSolution& );
-      
-      /**operator =*/
-      DistanceSolution& operator = (const DistanceSolution& );
-      
+            
       /**Destructor*/
       virtual ~DistanceSolution();
       
@@ -69,15 +63,6 @@ namespace Trk {
       double                 m_current;
       bool                   m_signedDist;
   };
-
-  inline DistanceSolution& DistanceSolution::operator =(const DistanceSolution& ds)
-  { 
-    m_num    = ds.m_num;
-    m_first  = ds.m_first;
-    m_second = ds.m_second;
-    m_signedDist = ds.m_signedDist;
-    return (*this);
-  }
   
   inline int DistanceSolution::numberOfSolutions() const 
     { 

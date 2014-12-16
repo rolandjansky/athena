@@ -74,7 +74,7 @@ namespace Trk {
       bool operator==(const Surface& sf) const;
       
       /**Implicit Constructor*/
-      ConeSurface* clone() const;
+      virtual ConeSurface* clone() const override;
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
       virtual const ParametersT<5, Charged, ConeSurface>* createTrackParameters(double l1,
@@ -82,7 +82,7 @@ namespace Trk {
                                                                                 double phi,
                                                                                 double theta,
                                                                                 double qop,
-                                                                                AmgSymMatrix(5)* cov = 0) const
+                                                                                AmgSymMatrix(5)* cov = 0) const override 
        { return new ParametersT<5, Charged, ConeSurface>(l1, l2, phi, theta, qop, *this, cov); }
 
 
@@ -90,7 +90,7 @@ namespace Trk {
       virtual const ParametersT<5, Charged, ConeSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                                 const Amg::Vector3D& momentum,
                                                                                 double charge,
-                                                                                AmgSymMatrix(5)* cov = 0) const
+                                                                                AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, ConeSurface>(position, momentum, charge, *this, cov); }   
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
@@ -99,14 +99,14 @@ namespace Trk {
                                                                                   double phi,
                                                                                   double theta,
                                                                                   double qop,
-                                                                                  AmgSymMatrix(5)* cov = 0) const
+                                                                                  AmgSymMatrix(5)* cov = 0) const override
         { return new ParametersT<5, Neutral, ConeSurface>(l1, l2, phi, theta, qop, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
       virtual const ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                                   const Amg::Vector3D& momentum,
                                                                                   double charge,
-                                                                                  AmgSymMatrix(5)* cov = 0) const
+                                                                                  AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Neutral, ConeSurface>(position, momentum, charge, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from local parameters */
@@ -128,17 +128,22 @@ namespace Trk {
         { return new ParametersT<DIM, T, ConeSurface>(position, momentum, charge, *this, cov); }
       
       /** Return the surface type */
-      SurfaceType type() const { return Surface::Cone; }
+      virtual SurfaceType type() const override { return Surface::Cone; }
       
-     /** Returns a global reference point:
+      
+      /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
+        - the default implementation is the the RotationMatrix3D of the transform */
+      virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const override;
+      
+      /** Returns a global reference point:
          For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
          Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
         */
-      virtual const Amg::Vector3D& globalReferencePoint() const;
+      virtual const Amg::Vector3D& globalReferencePoint() const override;
       
       /**Return method for surface normal information
          at a given local point, overwrites the normal() from base class.*/
-      virtual const Amg::Vector3D& normal() const;
+      virtual const Amg::Vector3D& normal() const override;
       
       /**Return method for surface normal information
          at a given local point, overwrites the normal() from base class.*/
@@ -149,19 +154,20 @@ namespace Trk {
       
       /**This method returns the ConeBounds by reference
        (NoBounds is not possible for cone)*/
-      virtual const ConeBounds& bounds() const;
+      virtual const ConeBounds& bounds() const override;
          
       /**This method calls the inside method of ConeBounds*/
-      virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const;
-      
+      virtual bool insideBounds(const Amg::Vector2D& locpos, double tol1=0., double tol2=0.) const override;
+      virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;
+	  
       /** Specialized for ConeSurface : LocalParameters to Vector2D */
       const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
       
       /** Specialized for ConeSurface : LocalToGlobal method without dynamic memory allocation */
-      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
       
       /** Specialized for ConeSurface : GlobalToLocal method without dynamic memory allocation - boolean checks if on surface */
-      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const override;
 
       /** fast straight line intersection schema - provides closest intersection and (signed) path length 
       
@@ -194,16 +200,19 @@ namespace Trk {
         is also the length of the path, since we normalized @f$x_d@f$
         to be unit length.
       */
-      virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool forceDir=false, BoundaryCheck bchk=false) const;
+      virtual Intersection straightLineIntersection(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool forceDir=false, BoundaryCheck bchk=false) const override;
             
       /** fast straight line distance to Surface */
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const override;
       
       /** fast straight line distance to Surface - with bounds options */  
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir,bool bound) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir,bool bound) const override;
+
+      /** the pathCorrection for derived classes with thickness */
+      virtual double pathCorrection(const Amg::Vector3D&, const Amg::Vector3D&) const override;
       
       /** Return properly formatted class name for screen output */
-      virtual std::string name() const { return "Trk::ConeSurface"; }
+      virtual std::string name() const override { return "Trk::ConeSurface"; }
 
     protected: //!< data members
       SharedObject<const ConeBounds>  m_bounds;                //!< bounds (shared)
@@ -221,7 +230,7 @@ namespace Trk {
   {
     // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
     double phi = lp[Trk::locRPhi]/(bounds().r(lp[Trk::locZ])),
-      sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
+           sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
     Amg::Vector3D localNormal(cos(phi) * bounds().cosAlpha(),
 				sin(phi) * bounds().cosAlpha(),
 				sgn*bounds().sinAlpha());
@@ -235,6 +244,9 @@ namespace Trk {
                                         double tol1,
                                         double tol2) const
   { return bounds().inside(locpos,tol1,tol2); }
+  
+  inline bool ConeSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const
+  { return bounds().inside(locpos,bchk.toleranceLoc1,bchk.toleranceLoc2); }
   
   inline const Amg::Vector2D ConeSurface::localParametersToPosition(const LocalParameters& locpars) const 
   {

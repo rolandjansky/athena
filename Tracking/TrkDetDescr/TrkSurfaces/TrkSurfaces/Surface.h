@@ -16,6 +16,7 @@
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
+#include "TrkDetDescrUtils/Intersection.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParametersBase/Charged.h"
@@ -41,23 +42,7 @@ namespace Trk {
     DetElOwn    = 2
   };
 
-  /**
-    @struct SurfaceIntersection 
-    */
-    
-  struct SurfaceIntersection {
-      Amg::Vector3D intersection;
-      double        pathLength;
-      bool          valid;
-      
-      SurfaceIntersection(const Amg::Vector3D& sinter,
-                          double slenght,
-                          bool svalid) :
-        intersection(sinter),
-        pathLength(slenght),
-        valid(svalid){}
-  };
-  
+
   /**
    @class Surface
    
@@ -75,14 +60,15 @@ namespace Trk {
   
   class Surface {
 
-    /** Declare the ILayerBuilder to be a friend class such it is able to set the layer */
+    /** Declare the ILayerBuilder / ITrackingVolumeHelper to be a friend class such it is able to set the layer */
     friend class ILayerBuilder;
+    friend class ITrackingVolumeHelper;
 
     public:
         
     /** @enum SurfaceType 
       
-        This enumerator simplifies the persistency,
+        This enumerator simplifies the persistency & calculations,
         by saving a dynamic_cast to happen.
         
         Other is reserved for the GeometrySurfaces implementation.
@@ -95,7 +81,8 @@ namespace Trk {
         Perigee          = 3,
         Plane            = 4,
         Line             = 5,
-        Other            = 6 
+        Curvilinear      = 6,
+        Other            = 7
       };
         
       /**Default Constructor
@@ -166,21 +153,24 @@ namespace Trk {
       
       /** return the associated Layer */
       const Trk::Layer* associatedLayer() const;
-      
+
+      /** return the material Layer */
+      const Trk::Layer* materialLayer() const;
+           
       /** return the base surface (simplified for persistification) */
       virtual const Trk::Surface* baseSurface() const;
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-      virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const = 0;
+      virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)* cov = 0) const = 0;
 
       /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-      virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const = 0;     
+      virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)* cov = 0) const = 0;     
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-      virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const = 0;
+      virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)* cov = 0) const = 0;
 
       /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-      virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const = 0;      
+      virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double charge=0., AmgSymMatrix(5)* cov = 0) const = 0;      
       
       /** positionOnSurface() returns a pointer to a LocalPosition on the Surface,<br>
         If BoundaryCheck==false it just returns the value of globalToLocal (including NULL pointer possibility),
@@ -189,6 +179,9 @@ namespace Trk {
                                              BoundaryCheck bchk=true,
                                              double tol1=0.,
                                              double tol2=0.) const;
+      
+      /** The templated Parameters OnSurface method - checks on surface pointer first */
+      template <class T> bool onSurface(const T& parameters, const BoundaryCheck& bchk = BoundaryCheck(true)) const;                                       
       
       /** This method returns true if the GlobalPosition is on the Surface for both, within
         or without check of whether the local position is inside boundaries or not */
@@ -201,6 +194,9 @@ namespace Trk {
       virtual bool insideBounds(const Amg::Vector2D& locpos,
                                 double tol1=0.,
                                 double tol2=0.) const = 0;   
+								
+	  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
+                                     const BoundaryCheck& bchk) const = 0;   						
       
       /** This method returns the GlobalPosition from a LocalPosition
         The LocalPosition can be outside Surface bounds - only for planar, cylinder surfaces fully defined */
@@ -238,14 +234,25 @@ namespace Trk {
       
       /** Optionally specified by each surface type : LocalParameters to Vector2D */
       virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
+     
+      /** the pathCorrection for derived classes with thickness - it reflects if the direction projection is positive or negative */
+      virtual double pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const;
+       
+      /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
+           - the default implementation is the the RotationMatrix3D of the transform */
+      virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const;
+      
+      /** fst straight line intersection schema - templated for cvharged and neutral parameters */
+      template <class T> Intersection straightLineIntersection(const T& pars, bool forceDir = false, Trk::BoundaryCheck bchk = false) const
+      { return straightLineIntersection(pars.position(),pars.momentum().unit(),forceDir,bchk); }
             
       /** fast straight line intersection schema - standard: provides closest intersection and (signed) path length
           forceFwd is to provide the closest forward solution
        */
-      virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D& pos, 
-                                                           const Amg::Vector3D& dir, 
-                                                           bool forceDir = false,
-                                                           Trk::BoundaryCheck bchk = false) const = 0;
+      virtual Intersection straightLineIntersection(const Amg::Vector3D& pos, 
+                                                    const Amg::Vector3D& dir, 
+                                                    bool forceDir = false,
+                                                    Trk::BoundaryCheck bchk = false) const = 0;
       
       /** fast straight line distance evaluation to Surface */
       virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const = 0;
@@ -259,11 +266,17 @@ namespace Trk {
       /** Returns 'true' if this surface is 'free', i.e. it does not belong to a detector element (and returns false otherwise*/
       bool isFree() const;
       
+      /** Return 'true' if this surface is own by the detector element */
+      bool isActive() const;
+      
       /** set ownership */
       void setOwner(SurfaceOwner) const;
       
       /** return ownership */
       SurfaceOwner owner() const;
+
+      /** set material layer */
+      void setMaterialLayer(const Layer& materiallay) const;
       
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const;
@@ -273,44 +286,52 @@ namespace Trk {
     
       /** Return properly formatted class name */
       virtual std::string name() const = 0;   
-        
+
       /**return number of surfaces currently created - needed for EDM monitor */
       static unsigned int numberOfInstantiations(); 
       
       /**return number of free surfaces currently created (i.e. those not belonging to a DE) - needed for EDM monitor */
       static unsigned int numberOfFreeInstantiations(); 
+
+      /** method to associate the associated Trk::Layer which is alreay owned
+         - only allowed by LayerBuilder
+         - only done if no Layer is set already  */
+      void associateLayer(const Layer&) const;
             
   protected:
-      /** method to associate the associated Trk::Layer 
-         - only allowed by LayerBuilder
-         - only done if no Layer is set already 
-        */
-      void associateLayer(const Layer&) const;
-      
+            
       /** Private members are in principle implemented as mutable pointers to objects for easy checks
         if they are already declared or not */           
-      mutable Amg::Transform3D*     m_transform;     //!< Transform3D to orient surface w.r.t to global frame
-      mutable Amg::Vector3D*        m_center;        //!< center position of the surface
-      mutable Amg::Vector3D*        m_normal;        //!< normal vector of the surface
+      mutable Amg::Transform3D*                 m_transform;     //!< Transform3D to orient surface w.r.t to global frame
+      mutable Amg::Vector3D*                    m_center;        //!< center position of the surface
+      mutable Amg::Vector3D*                    m_normal;        //!< normal vector of the surface
        
       /** Pointers to the a TrkDetElementBase */
-      const TrkDetElementBase*      m_associatedDetElement;
-      Identifier                    m_associatedDetElementId;
+      const TrkDetElementBase*                  m_associatedDetElement;
+      Identifier                                m_associatedDetElementId;
       
-      /**The Trk::Layer in which the Surface may be embedded*/
-      mutable const Layer*          m_associatedLayer;
+      /**The associated layer Trk::Layer 
+       - layer in which the Surface is be embedded
+       */
+      mutable const Layer*                      m_associatedLayer;
+      
+      /** Possibility to attach a material descrption
+      - potentially given as the associated material layer
+        don't delete, it's the TrackingGeometry's job to do so
+      */
+      mutable const Layer*                      m_materialLayer;
       
       /** pointer to surface owner : 0  free surface */
-      mutable SurfaceOwner          m_owner;
+      mutable SurfaceOwner                      m_owner;
          
       /**Tolerance for being on Surface */
-      static double                 s_onSurfaceTolerance;
+      static double                             s_onSurfaceTolerance;
       
       /** number of objects of this type in memory - needed for EDM monitor*/
-      static unsigned int           s_numberOfInstantiations; 
+      static unsigned int                       s_numberOfInstantiations; 
       
       /** number of objects of this type in memory which do not belong to a detector element - needed for EDM monitor*/
-      static unsigned int           s_numberOfFreeInstantiations; 
+      static unsigned int                       s_numberOfFreeInstantiations; 
   };
 
 
@@ -353,6 +374,24 @@ namespace Trk {
       if ( locpars.contains(Trk::loc2) )
           return Amg::Vector2D(0.,locpars[loc2]);
       return Amg::Vector2D(0.,0.);
+  }
+
+  // common to planar surfaces
+  inline double Surface::pathCorrection(const Amg::Vector3D&, const Amg::Vector3D& mom) const 
+  {
+      Amg::Vector3D dir(mom.unit());
+      double cosAlpha = dir.dot(normal());
+      return fabs(1./cosAlpha);
+  }
+
+  //* the templated parameters on Surface method */
+  template <class T> bool Surface::onSurface(const T& pars, const Trk::BoundaryCheck& bcheck ) const 
+  {
+      // surface pointer comparison as a first fast check (w/o transform)
+      if ( (&pars.associatedSurface() ==  this ) ){
+          return (bcheck ?  insideBoundsCheck(pars.localPosition(),bcheck) : true);
+      }
+      return isOnSurface(pars.position(),bcheck);
   }
 
   // common to all surface, uses memory optized method
@@ -420,9 +459,15 @@ namespace Trk {
 
   inline const Layer* Surface::associatedLayer() const
   { return (m_associatedLayer); }
+ 
+  inline const Layer* Surface::materialLayer() const
+  { return m_materialLayer; }
   
   inline const Surface* Surface::baseSurface() const
   { return (this); }
+  
+  inline bool Surface::isActive() const
+  { return (m_associatedDetElement!=0); }
   
   inline bool Surface::isFree() const 
   { return (m_owner==Trk::noOwn); }
@@ -432,9 +477,12 @@ namespace Trk {
 
   inline SurfaceOwner Surface::owner() const 
   { return m_owner; }
+
+  inline void Surface::setMaterialLayer(const Layer& mlay) const
+  { m_materialLayer = (&mlay); }
   
   inline void Surface::associateLayer(const Layer& lay) const
-  { if (!m_associatedLayer) m_associatedLayer = (&lay); }
+  { m_associatedLayer = (&lay); }
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& operator << ( MsgStream& sl, const Surface& sf);

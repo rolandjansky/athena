@@ -76,33 +76,34 @@ namespace Trk {
       virtual TriangleBounds* clone() const;
       
       /** Return the type of the bounds for persistency */
-      virtual BoundsType type() const { return SurfaceBounds::Triangle; }
+      virtual BoundsType type() const override { return SurfaceBounds::Triangle; }
     
       /**This method checks if the provided local coordinates are inside the surface bounds*/
-      virtual bool inside(const Amg::Vector2D &locpo, double tol1 = 0., double tol2 = 0.) const;
-      
+      virtual bool inside(const Amg::Vector2D &locpo, double tol1 = 0., double tol2 = 0.) const override;
+      virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+	  
       /** This method checks inside bounds in loc1
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
       
       /** This method checks inside bounds in loc2 
         - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
       
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
 
       /**This method returns the coordinates of vertices*/
       const std::vector< std::pair< TDD_real_t, TDD_real_t> > vertices() const;
 
       /**This method returns the maximal extension on the local plane, i.e. @f$s\sqrt{h_{\phi}^2 + h_{\eta}^2}\f$*/
-      virtual double r() const;
+      virtual double r() const override;
     
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
   
     private:
       std::vector<TDD_real_t> m_boundValues;
@@ -133,7 +134,7 @@ namespace Trk {
     
     double dn = locB.first*locT.second-locB.second*locT.first;
 
-    if ( fabs(dn) > tol1 ) {
+    if ( fabs(dn) > fabs(tol1) ) {
       double t = (locB.first*locV.second-locB.second*locV.first)/dn;
       if ( t > 0.) return false;
 
@@ -144,6 +145,45 @@ namespace Trk {
       return false;
     }
     return true;
+  }
+  
+  inline bool TriangleBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  {
+	if (bchk.bcType==0)	return TriangleBounds::inside(locpo, bchk.toleranceLoc1, bchk.toleranceLoc2);
+	
+	// a fast FALSE
+	double fabsR = sqrt(locpo[Trk::locX]*locpo[Trk::locX]+locpo[Trk::locY]*locpo[Trk::locY]);
+	double max_ell = bchk.lCovariance(0,0) > bchk.lCovariance(1,1) ? bchk.lCovariance(0,0) :bchk.lCovariance(1,1);
+	double limit = bchk.nSigmas*sqrt(max_ell);
+	double r_max = TriangleBounds::r();
+	if (fabsR > ( r_max + limit)) return false;
+	
+	// compute KDOP and axes for surface polygon
+    std::vector<KDOP> elementKDOP(3);
+    std::vector<Amg::Vector2D> elementP(3);
+    float theta = (bchk.lCovariance(1,0) != 0 && (bchk.lCovariance(1,1)-bchk.lCovariance(0,0))!=0 ) ? .5*bchk.FastArcTan( 2*bchk.lCovariance(1,0)/(bchk.lCovariance(1,1)-bchk.lCovariance(0,0)) ) : 0.;
+    sincosCache scResult = bchk.FastSinCos(theta);
+    AmgMatrix(2,2) rotMatrix ;
+    rotMatrix << scResult.cosC, scResult.sinC,
+                -scResult.sinC, scResult.cosC;   
+	AmgMatrix(2,2) normal ;
+    normal    << 0, -1,
+                 1,  0; 			
+	// ellipse is always at (0,0), surface is moved to ellipse position and then rotated
+    Amg::Vector2D p;
+    p << m_boundValues[TriangleBounds::bv_x1],m_boundValues[TriangleBounds::bv_y1];
+    elementP[0] =( rotMatrix * (p - locpo) );
+    p << m_boundValues[TriangleBounds::bv_x2],m_boundValues[TriangleBounds::bv_y2];
+    elementP[1] =( rotMatrix * (p - locpo) );
+    p << m_boundValues[TriangleBounds::bv_x3],m_boundValues[TriangleBounds::bv_y3];
+    elementP[2] =( rotMatrix * (p - locpo) );
+    std::vector<Amg::Vector2D> axis = {normal*(elementP[1]-elementP[0]), normal*(elementP[2]-elementP[1]), normal*(elementP[2]-elementP[0])};
+    bchk.ComputeKDOP(elementP, axis, elementKDOP);
+	// compute KDOP for error ellipse
+    std::vector<KDOP> errelipseKDOP(3);
+	bchk.ComputeKDOP(bchk.EllipseToPoly(3), axis, errelipseKDOP);
+	// check if KDOPs overlap and return result
+	return bchk.TestKDOPKDOP(elementKDOP, errelipseKDOP);
   }
 
   inline bool TriangleBounds::insideLoc1(const Amg::Vector2D &locpo, double tol1) const

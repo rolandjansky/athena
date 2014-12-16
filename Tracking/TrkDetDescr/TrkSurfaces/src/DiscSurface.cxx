@@ -214,5 +214,3 @@ Trk::DistanceSolution Trk::DiscSurface::straightLineDistanceEstimate
 
   return Trk::DistanceSolution(ns,dist,true,s);
 }
-
-

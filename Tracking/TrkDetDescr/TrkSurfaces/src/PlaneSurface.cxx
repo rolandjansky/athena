@@ -238,11 +238,11 @@ Trk::DistanceSolution Trk::PlaneSurface::straightLineDistanceEstimate(const Amg:
   const Amg::Transform3D&  T    = transform()           ;
   double                Az[3] = {T(0,2),T(1,2),T(2,2)};
 
-  // Transformation to cylinder system coordinates
+  // Transformation to plane system coordinates
   //
-  double dx  = pos[0]-T(3,0)                         ;
-  double dy  = pos[1]-T(3,1)                         ;
-  double dz  = pos[2]-T(3,2)                         ;
+  double dx  = pos[0]-T(0,3)                         ;
+  double dy  = pos[1]-T(1,3)                         ;
+  double dz  = pos[2]-T(2,3)                         ;
   double z   = dx*Az[0]+dy*Az[1]+dz*Az[2]            ;
   double az  = dir[0]*Az[0]+dir[1]*Az[1]+dir[2]*Az[2];
 

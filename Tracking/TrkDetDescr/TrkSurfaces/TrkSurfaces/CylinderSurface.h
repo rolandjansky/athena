@@ -60,7 +60,7 @@ namespace Trk {
         - ownership of the bounds is passed */
       CylinderSurface(Amg::Transform3D* htrans, CylinderBounds* cbounds);
       
-      /**Constructor from radius and halflenght - speed optimized for concentric volumes */      
+      /** Constructor from radius and halflenght - speed optimized for concentric volumes */      
       CylinderSurface(double radius, double hlength);      
       
       /**Constructor from radius halfphi, and halflenght - speed optimized fron concentric volumes */
@@ -84,10 +84,10 @@ namespace Trk {
       CylinderSurface& operator=(const CylinderSurface& csf);
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /**Implicit Constructor*/
-      virtual CylinderSurface* clone() const;
+      virtual CylinderSurface* clone() const override;
 
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
       virtual const ParametersT<5, Charged, CylinderSurface>* createTrackParameters(double l1,
@@ -95,7 +95,7 @@ namespace Trk {
                                                                                     double phi,
                                                                                     double theta,
                                                                                     double qop,
-                                                                                    AmgSymMatrix(5)* cov = 0) const
+                                                                                    AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov); }
 
 
@@ -103,7 +103,7 @@ namespace Trk {
       virtual const ParametersT<5, Charged, CylinderSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                                     const Amg::Vector3D& momentum,
                                                                                     double charge,
-                                                                                    AmgSymMatrix(5)* cov = 0) const
+                                                                                    AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Charged, CylinderSurface>(position, momentum, charge, *this, cov); }   
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
@@ -119,7 +119,7 @@ namespace Trk {
       virtual const ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                                       const Amg::Vector3D& momentum,
                                                                                       double charge,
-                                                                                      AmgSymMatrix(5)* cov = 0) const
+                                                                                      AmgSymMatrix(5)* cov = 0) const override
        { return new ParametersT<5, Neutral, CylinderSurface>(position, momentum, charge, *this, cov); }
 
       
@@ -139,50 +139,55 @@ namespace Trk {
                                                                                                AmgSymMatrix(DIM)* cov = 0) const
         { return new ParametersT<DIM, T, CylinderSurface>(position, momentum, charge, *this, cov); }
 
+      /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
+          - the default implementation is the the RotationMatrix3D of the transform */
+      virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const override;
+
       /** Return the surface type */
-      SurfaceType type() const { return Surface::Cylinder; }
+      virtual SurfaceType type() const override { return Surface::Cylinder; }
 
       /** Returns a global reference point:
          For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
          Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
         */
-      virtual const Amg::Vector3D& globalReferencePoint() const;
+      virtual const Amg::Vector3D& globalReferencePoint() const override;
       
       /**Return method for surface normal information
          at a given local point, overwrites the normal() from base class.*/
-      virtual const Amg::Vector3D& normal() const;
+      virtual const Amg::Vector3D& normal() const override;
       
       /**Return method for surface normal information
          at a given local point, overwrites the normal() from base class.*/
-      virtual const Amg::Vector3D* normal(const Amg::Vector2D& locpo) const;
+      virtual const Amg::Vector3D* normal(const Amg::Vector2D& locpo) const override;
       
       /**Return method for the rotational symmetry axis - the z-Axis of the HepTransform */
       virtual const Amg::Vector3D& rotSymmetryAxis() const;
       
       /**This method returns the CylinderBounds by reference
        (NoBounds is not possible for cylinder)*/
-      virtual const CylinderBounds& bounds() const;   
+      virtual const CylinderBounds& bounds() const override;   
       
       /**This method calls the inside method of CylinderBounds*/
       virtual bool insideBounds(const Amg::Vector2D& locpos,
                                 double tol1=0.,
-                                double tol2=0.) const;
+                                double tol2=0.) const override;
+	  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override; 
       
       /** Specialized for CylinderSurface : LocalParameters to Vector2D */
       virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
 
       /** Specialized for CylinderSurface : LocalToGlobal method without dynamic memory allocation */
-      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+      virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
       
       /** Specialized for CylinderSurface : GlobalToLocal method without dynamic memory allocation - boolean checks if on surface */
-      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+      virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const override; 
 
       /** This method returns true if the GlobalPosition is on the Surface for both, within
         or without check of whether the local position is inside boundaries or not */
       virtual bool isOnSurface(const Amg::Vector3D& glopo,
                                BoundaryCheck bchk=true,
                                double tol1=0., 
-                               double tol2=0.) const;
+                               double tol2=0.) const override;
         
       /** fast straight line intersection schema - provides closest intersection and (signed) path length 
       
@@ -199,19 +204,22 @@ namespace Trk {
           and intersects with the corresponding circle @f$x^{2}+y^{2} = R^{2}. @f$<br>
           The solutions can then be found by a simple quadratic equation and reinsertion into the line equation.
       */
-      virtual SurfaceIntersection straightLineIntersection(const Amg::Vector3D& pos, 
-                                                           const Amg::Vector3D& dir, 
-                                                           bool forceDir = false,
-                                                           Trk::BoundaryCheck bchk = false) const;
+      virtual Intersection straightLineIntersection(const Amg::Vector3D& pos, 
+                                                    const Amg::Vector3D& dir, 
+                                                    bool forceDir = false,
+                                                    Trk::BoundaryCheck bchk = false) const override;
         
       /** fast distance to Surface */
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const override;
 
       /** fast distance to Surface - with bounds directive*/
-      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool bound) const;
+      virtual DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool bound) const override;
+      
+      /** the pathCorrection for derived classes with thickness */
+      virtual double pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const override;
       
       /** Return properly formatted class name for screen output */
-      virtual std::string name() const { return "Trk::CylinderSurface"; }
+      virtual std::string name() const override { return "Trk::CylinderSurface"; }
 
 
     protected: //!< data members
@@ -233,6 +241,15 @@ namespace Trk {
      return new Amg::Vector3D(transform()*localNormal);
   }  
 
+  inline double CylinderSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const
+  {
+    // the gobal normal vector is pos-center.unit() - at the z of the position @TODO make safe for tilt
+    Amg::Vector3D pcT(pos.x()-center().x(),pos.y()-center().y(),0.) ;
+    Amg::Vector3D normalT(pcT.unit()); // transverse normal
+    double cosAlpha = normalT.dot(mom.unit());
+    return fabs(1./cosAlpha);
+  }
+
   inline const CylinderBounds& CylinderSurface::bounds() const
   { return (m_bounds.getRef()); }
 
@@ -240,6 +257,10 @@ namespace Trk {
                                             double tol1,
                                             double tol2) const
   { return bounds().inside(locpos,tol1,tol2); }
+  
+  inline bool CylinderSurface::insideBoundsCheck(const Amg::Vector2D& locpos,
+                                                 const BoundaryCheck& bchk) const
+  {return bounds().inside(locpos,bchk);}
   
 
   inline const Amg::Vector2D CylinderSurface::localParametersToPosition(const LocalParameters& locpars) const

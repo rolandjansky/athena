@@ -27,21 +27,6 @@ Trk::DistanceSolution::DistanceSolution(int num, double current, bool signedDist
   m_signedDist(signedDist)
 {}
 
-// copy constructor 
-Trk::DistanceSolution::DistanceSolution(const Trk::DistanceSolution& sol) :
-  m_num(),
-  m_first(),
-  m_second(),
-  m_current(),
-  m_signedDist()
-{ 
-   m_num    = sol.m_num;
-   m_first  = sol.m_first;
-   m_second = sol.m_second;
-   m_current= sol.m_current; 
-   m_signedDist = sol.m_signedDist; 
-}
-
 // destructor
 Trk::DistanceSolution::~DistanceSolution() 
 {}

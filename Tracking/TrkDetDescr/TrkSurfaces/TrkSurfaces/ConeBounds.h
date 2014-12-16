@@ -76,31 +76,33 @@ namespace Trk {
       bool operator==(const SurfaceBounds& sbo) const;
        
       /**Virtual constructor */
-      ConeBounds* clone() const;
+      virtual ConeBounds* clone() const override;
     
       /** Return the bounds type */
-      BoundsType type() const { return SurfaceBounds::Cone; }
+      virtual BoundsType type() const override { return SurfaceBounds::Cone; }
     
       /**This method checks if a LocalPosition is inside z bounds and rphi value- interface method */     
-      virtual bool inside(const Amg::Vector2D &locpo, double tol1, double tol2) const;
+      virtual bool inside(const Amg::Vector2D& locpo, double tol1, double tol2) const override;
+	  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk=true) const override; 
 			  
       /**This method checks if a GlobalPosition is inside the Cylinder - not an interface method,
 	    assumes that GlobalPosition is in the right frame*/
       virtual bool inside(const Amg::Vector3D& gp, double tol1=0., double tol2=0.) const;
+	  virtual bool inside(const Amg::Vector3D& locpo, const BoundaryCheck& bchk) const;
+  
+      /** This method checks inside bounds in loc1
+	  - loc1/loc2 correspond to the natural coordinates of the surface */
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
 
       /** This method checks inside bounds in loc1
 	  - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
-
-      /** This method checks inside bounds in loc1
-	  - loc1/loc2 correspond to the natural coordinates of the surface */
-      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
 
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-      virtual double minDistance(const Amg::Vector2D& pos) const;
+      virtual double minDistance(const Amg::Vector2D& pos) const override;
     
       /**This method returns the maximal radius - for an unbound cone it returns MAXBOUNDVALUE*/
-      virtual double r() const;
+      virtual double r() const override;
       
       /** Return the radius at a specific z values */
       double r(double z) const;
@@ -169,6 +171,17 @@ namespace Trk {
      // coords are (rphi,z)
       return inside(Amg::Vector2D(glopo.perp()*glopo.phi(),glopo.z()) ,tol1,tol2);
    }
+   
+   inline bool ConeBounds::inside(const Amg::Vector3D &glopo, const BoundaryCheck& bchk) const
+   {
+     // coords are (rphi,z)
+      return inside(Amg::Vector2D(glopo.perp()*glopo.phi(),glopo.z()) ,bchk.toleranceLoc1,bchk.toleranceLoc2);
+   }
+   
+   inline bool ConeBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const
+  {
+	return ConeBounds::inside(locpo,bchk.toleranceLoc1,bchk.toleranceLoc2);
+  }
 
    inline bool ConeBounds::insideLoc1(const Amg::Vector2D &locpo, double tol1) const
    { 

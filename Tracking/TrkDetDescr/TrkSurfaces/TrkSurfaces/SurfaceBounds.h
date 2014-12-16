@@ -19,6 +19,8 @@
 // Geo & Math library
 #include "GeoPrimitives/GeoPrimitives.h"
 
+// Trk included
+#include "TrkSurfaces/BoundaryCheck.h"
 
 #ifdef TRKDETDESCR_USEFLOATPRECISON 
 typedef float TDD_real_t; 
@@ -41,6 +43,7 @@ namespace Trk {
     
    @author Andreas.Salzburger@cern.ch
    */
+        
       
   class SurfaceBounds {
 
@@ -90,7 +93,8 @@ namespace Trk {
       /** Each Bounds has a method inside, which checks if a LocalPosition is inside the bounds.
           Inside can be called without/with tolerances. */                 
       virtual bool inside(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const = 0;
-
+      virtual bool inside(const Amg::Vector2D& locpo,
+                                 const BoundaryCheck& bchk) const = 0;
       /** Extend the interface to for single inside Loc 1 / Loc2 tests 
          - loc1/loc2 correspond to the natural coordinates of the surface
         */
