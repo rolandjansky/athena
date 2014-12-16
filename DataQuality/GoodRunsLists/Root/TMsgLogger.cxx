@@ -76,7 +76,7 @@ Root::TMsgLogger::TMsgLogger( TMsgLevel /* minLevel */ )
 }
 
 Root::TMsgLogger::TMsgLogger( const TMsgLogger& parent )
-   : basic_ios< TMsgLogger::char_type, TMsgLogger::traits_type >( new TMsgLogger::__stringbuf_type() ),
+  : basic_ios< TMsgLogger::char_type, TMsgLogger::traits_type >(),
      ostringstream(),
      TObject(),
      m_prefix( PREFIX ), 

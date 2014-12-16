@@ -9,6 +9,8 @@ use  AthenaKernel               AthenaKernel-*                  Control
 use  AtlasROOT                  AtlasROOT-*                     External
 use  GaudiInterface             GaudiInterface-*                External
 
+use  xAODEventInfo               xAODEventInfo-*                 Event/xAOD
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 
 private
 use  DetectorStatus             DetectorStatus-*                DetectorDescription/DetDescrCond
@@ -17,6 +19,10 @@ use  PathResolver               PathResolver-*                  Tools
 use  StoreGate                  StoreGate-*                     Control
 end_private
 
+# Inform cmake of the required ROOT and xml components (invisible to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS XMLIO XMLParser)"
+apply_pattern cmake_add_command command="find_package(xml)"
+apply_pattern cmake_add_libraries target=GoodRunsListsLib libraries=xml2
 
 ## macros
 apply_tag       ROOTBasicLibs
@@ -27,8 +33,21 @@ library GoodRunsListsLib "../Root/*.cxx"
 apply_pattern named_installed_library library=GoodRunsListsLib
 
 # Create the CINT dictionary
+macro xaod_build_type       "do_athena_build" \
+      xaod_standalone_build "do_standalone_build"
+
+pattern do_athena_build \
 apply_pattern have_root_headers root_headers="TLumiBlockRange.h RegularFormula.h TGoodRunsListReader.h TGoodRunsListWriter.h DQHelperFunctions.h ../Root/LinkDef.h" \
               headers_lib=GoodRunsListsLib
+pattern do_standalone_build \
+apply_pattern have_root_headers root_headers="TLumiBlockRange.h RegularFormula.h TGoodRunsListReader.h TGoodRunsListWriter.h DQHelperFunctions.h ../Root/LinkDef.h" \
+              headers_lib=GoodRunsLists
+
+apply_pattern $(xaod_build_type)
+
+# Create the CINT dictionary for cmake for athena mode only (transparent to CMT)
+apply_pattern cmake_add_command command="athena_add_rootcint_dictionary(GoodRunsListsLibDict ROOT_HEADERS GoodRunsLists/TLumiBlockRange.h GoodRunsLists/RegularFormula.h GoodRunsLists/TGoodRunsListReader.h GoodRunsLists/TGoodRunsListWriter.h GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h INCLUDE_PATHS -I${CMAKE_CURRENT_SOURCE_DIR} -I${ROOT_INCLUDE_DIR})"
+apply_pattern cmake_add_generated_files library=GoodRunsListsLib files=GoodRunsListsLibDict.cxx
 
 ## Create a component library
 library GoodRunsLists *.cxx components/*.cxx
@@ -45,9 +64,15 @@ apply_pattern declare_runtime extras = "../test/*.xml"
 
 private
 macro_append GoodRunsListsLib_cppflags " `xml2-config --cflags`"
+apply_tag       ROOTCintexLibs
 ## xml libraries
 macro_append GoodRunsListsLib_use_linkopts " -L$(ROOTSYS)/lib -lXMLIO -lXMLParser"
 macro_append GoodRunsListsLib_use_linkopts " -lxml2" slc4-gcc34 " /usr/lib/libxml2.so.2"
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+end_private
+
+application getLumi ../Utils/getLumi.cxx
+macro_append getLumi_dependencies " GoodRunsLists"
+#macro_append getLumi_use_linkopts " -L$(ROOTSYS)/lib -lCintex"
 

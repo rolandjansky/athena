@@ -1,8 +1,15 @@
 #!/bin/sh
 
-CONFFILE=config.RootCore
-OUTFILE=configured
-MAKEFILE=Makefile.RootCore
+if test -f $ROOTCORECMT/Makefile.RootCore
+then
+    CONFFILE=$ROOTCORECMT/config.RootCore
+    OUTFILE=$ROOTCORECMT/configured
+    MAKEFILE=$ROOTCORECMT/Makefile.RootCore
+else
+    CONFFILE=config.RootCore
+    OUTFILE=configured
+    MAKEFILE=Makefile.RootCore
+fi
 
 test -e $OUTFILE -a $OUTFILE -nt $0 -a $OUTFILE -nt $CONFFILE -a $OUTFILE -nt $ROOTCOREBIN/packages && exit 0
 
