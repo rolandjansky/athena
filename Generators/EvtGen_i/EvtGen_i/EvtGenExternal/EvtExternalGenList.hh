@@ -19,8 +19,8 @@
 //------------------------------------------------------------------------------
 //
 
-#ifndef EVTEXTERNALGENLIST_HH
-#define EVTEXTERNALGENLIST_HH
+#ifndef EVT_I_EXTERNALGENLIST_HH
+#define EVT_I_EXTERNALGENLIST_HH
 
 #include "EvtGenBase/EvtAbsRadCorr.hh"
 #include "EvtGenBase/EvtDecayBase.hh"

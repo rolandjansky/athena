@@ -19,8 +19,8 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef EVTPYTHIARANDOM_HH
-#define EVTPYTHIARANDOM_HH
+#ifndef EVT_I_PYTHIARANDOM_HH
+#define EVT_I_PYTHIARANDOM_HH
 
 #include "EvtGenBase/EvtRandom.hh"
 
