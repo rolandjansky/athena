@@ -10,8 +10,6 @@
 ///////////////////////////////////////////////////////////////////
 #include "MuonPrintingTool.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkEventPrimitives/FitQuality.h"
@@ -20,6 +18,10 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticle.h"
+#include "AthLinks/ElementLink.h"
 
 
 /** constructor */
@@ -81,7 +83,95 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
     xAOD::Muon::Author author = static_cast<xAOD::Muon::Author>(a);
     if( author != muon.author() && muon.isAuthor(author) ) sout << " " << a;
   }
-  sout << std::endl;
+  sout << std::endl;    
+
+  sout << " ParamDef available:" << std::endl;
+  float spectrometerFieldIntegral=0;
+  if(muon.parameter(spectrometerFieldIntegral, xAOD::Muon::spectrometerFieldIntegral))
+    sout << "  spectrometerFieldIntegral : " << spectrometerFieldIntegral << std::endl;
+  float scatteringCurvatureSignificance=0;
+  if(muon.parameter(scatteringCurvatureSignificance, xAOD::Muon::scatteringCurvatureSignificance))
+    sout << "  scatteringCurvatureSignificance : " << scatteringCurvatureSignificance << std::endl;
+  float scatteringNeighbourSignificance=0;
+  if(muon.parameter(scatteringNeighbourSignificance, xAOD::Muon::scatteringNeighbourSignificance))
+    sout << "  scatteringNeighbourSignificance : " << scatteringNeighbourSignificance << std::endl;
+  float momentumBalanceSignificance=0;
+  if(muon.parameter(momentumBalanceSignificance, xAOD::Muon::momentumBalanceSignificance))
+    sout << "  momentumBalanceSignificance : " << momentumBalanceSignificance << std::endl;
+  float segmentDeltaEta=0;
+  if(muon.parameter(segmentDeltaEta, xAOD::Muon::segmentDeltaEta))
+    sout << "  segmentDeltaEta : " << segmentDeltaEta << std::endl;
+  float segmentDeltaPhi=0;
+  if(muon.parameter(segmentDeltaPhi, xAOD::Muon::segmentDeltaPhi))
+    sout << "  segmentDeltaPhi : " << segmentDeltaPhi << std::endl;
+  float segmentChi2OverDoF=0;
+  if(muon.parameter(segmentChi2OverDoF, xAOD::Muon::segmentChi2OverDoF))
+    sout << "  segmentChi2OverDoF : " << segmentChi2OverDoF << std::endl;
+  float t0=0;
+  if(muon.parameter(t0, xAOD::Muon::t0))
+    sout << "  t0 : " << t0 << std::endl;
+  float beta=0;
+  if(muon.parameter(beta, xAOD::Muon::beta))
+    sout << "  beta : " << beta << std::endl;
+  float annBarrel=0;
+  if(muon.parameter(annBarrel, xAOD::Muon::annBarrel))
+    sout << "  annBarrel : " << annBarrel << std::endl;
+  float annEndCap=0;
+  if(muon.parameter(annEndCap, xAOD::Muon::annEndCap))
+    sout << "  annEndCap : " << annEndCap << std::endl;
+  float innAngle=0;
+  if(muon.parameter(innAngle, xAOD::Muon::innAngle))
+    sout << "  innAngle : " << innAngle << std::endl;
+  float midAngle=0;
+  if(muon.parameter(midAngle, xAOD::Muon::midAngle))
+    sout << "  midAngle : " << midAngle << std::endl;
+  float msInnerMatchChi2=0;
+  if(muon.parameter(msInnerMatchChi2, xAOD::Muon::msInnerMatchChi2))
+    sout << "  msInnerMatchChi2 : " << msInnerMatchChi2 << std::endl;
+  int msInnerMatchDOF=0;
+  if(muon.parameter(msInnerMatchDOF, xAOD::Muon::msInnerMatchDOF))
+    sout << "  msInnerMatchDOF : " << msInnerMatchDOF << std::endl;
+  float msOuterMatchChi2=0;
+  if(muon.parameter(msOuterMatchChi2, xAOD::Muon::msOuterMatchChi2))
+    sout << "  msOuterMatchChi2 : " << msOuterMatchChi2 << std::endl;
+  int msOuterMatchDOF=0;
+  if(muon.parameter(msOuterMatchDOF, xAOD::Muon::msOuterMatchDOF))
+    sout << "  msOuterMatchDOF : " << msOuterMatchDOF << std::endl;
+  float meanDeltaADCCountsMDT=0;
+  if(muon.parameter(meanDeltaADCCountsMDT, xAOD::Muon::meanDeltaADCCountsMDT))
+    sout << "  meanDeltaADCCountsMDT : " << meanDeltaADCCountsMDT << std::endl;
+  float CaloLRLikelihood=0;
+  if(muon.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood))
+    sout << "  CaloLRLikelihood : " << CaloLRLikelihood << std::endl;
+  int CaloMuonIDTag=0;
+  if(muon.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag))
+    sout << "  CaloMuonIDTag : " << CaloMuonIDTag << std::endl;
+  float FSR_CandidateEnergy=0;
+  if(muon.parameter(FSR_CandidateEnergy, xAOD::Muon::FSR_CandidateEnergy))
+    sout << "  FSR_CandidateEnergy : " << FSR_CandidateEnergy << std::endl;
+  float EnergyLoss=0;
+  if(muon.parameter(EnergyLoss, xAOD::Muon::EnergyLoss))
+    sout << "  EnergyLoss : " << EnergyLoss << std::endl;
+  float ParamEnergyLoss=0;
+  if(muon.parameter(ParamEnergyLoss, xAOD::Muon::ParamEnergyLoss))
+    sout << "  ParamEnergyLoss : " << ParamEnergyLoss << std::endl;
+  float MeasEnergyLoss=0;
+  if(muon.parameter(MeasEnergyLoss, xAOD::Muon::MeasEnergyLoss))
+    sout << "  MeasEnergyLoss : " << MeasEnergyLoss << std::endl;
+  float EnergyLossSigma=0;
+  if(muon.parameter(EnergyLossSigma, xAOD::Muon::EnergyLossSigma))
+    sout << "  EnergyLossSigma : " << EnergyLossSigma << std::endl;
+  float ParamEnergyLossSigmaPlus=0;
+  if(muon.parameter(ParamEnergyLossSigmaPlus, xAOD::Muon::ParamEnergyLossSigmaPlus))
+    sout << "  ParamEnergyLossSigmaPlus : " << ParamEnergyLossSigmaPlus << std::endl;
+  float ParamEnergyLossSigmaMinus=0;
+  if(muon.parameter(ParamEnergyLossSigmaMinus, xAOD::Muon::ParamEnergyLossSigmaMinus))
+    sout << "  ParamEnergyLossSigmaMinus : " << ParamEnergyLossSigmaMinus << std::endl;
+  float MeasEnergyLossSigma=0;
+  if(muon.parameter(MeasEnergyLossSigma, xAOD::Muon::MeasEnergyLossSigma))
+    sout << "  MeasEnergyLossSigma : " << MeasEnergyLossSigma << std::endl;
+
+
   uint8_t nprecisionLayers = 0;
   uint8_t nprecisionHoleLayers = 0;
   uint8_t nphiLayers = 0;         
@@ -99,12 +189,14 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
     if( !tp.summaryValue(ntrigEtaLayers,xAOD::numberOfTriggerEtaLayers) ) ntrigEtaLayers = 0;     
     if( !tp.summaryValue(ntrigEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers) ) ntrigEtaHoleLayers = 0; 
   } else sout << " No valid primaryTrackParticleLink for this muon" << std::endl;
+
   if( !muon.summaryValue(mainSector,xAOD::primarySector) ) mainSector = 0;
   if( !muon.summaryValue(secondSector,xAOD::secondarySector) ) secondSector = 0;
   sout << " Station Layers: precision " << static_cast<int>(nprecisionLayers) << " holes " << static_cast<int>(nprecisionHoleLayers )
        << " phi " << static_cast<int>(nphiLayers) << " holes " << static_cast<int>(nphiHoleLayers)
        << " trigEta " << static_cast<int>(ntrigEtaLayers) << " holes " << static_cast<int>(ntrigEtaHoleLayers)
        << " main sector " << static_cast<int>(mainSector) << " secondary " << static_cast<int>(secondSector) << std::endl;
+
   if( muon.combinedTrackParticleLink().isValid() ){
     const xAOD::TrackParticle* cbtp = *muon.combinedTrackParticleLink();
     if( cbtp ){

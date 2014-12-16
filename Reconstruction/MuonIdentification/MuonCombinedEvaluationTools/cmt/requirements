@@ -11,11 +11,11 @@ apply_pattern component_library
 library MuonCombinedEvaluationTools *.cxx components/*.cxx
 
 private
+use  AthLinks                   AthLinks-*                    Control
 use AthenaBaseComps             AthenaBaseComps-*             Control
 use GaudiInterface              GaudiInterface-*              External
 use TrkDetDescrInterfaces       TrkDetDescrInterfaces-*       Tracking/TrkDetDescr
 use TrkGeometry                 TrkGeometry-*                 Tracking/TrkDetDescr
-use EventInfo                   EventInfo-*                   Event
 use TrkEventPrimitives          TrkEventPrimitives-*          Tracking/TrkEvent
 use TrkMaterialOnTrack          TrkMaterialOnTrack-*          Tracking/TrkEvent
 use TrkMeasurementBase          TrkMeasurementBase-*          Tracking/TrkEvent
@@ -23,6 +23,7 @@ use TrkTrack                    TrkTrack-*                    Tracking/TrkEvent
 use MuonSegment                 MuonSegment-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use xAODTracking                xAODTracking-*                Event/xAOD
 use xAODMuon                    xAODMuon-*                    Event/xAOD
+use xAODTruth                   xAODTruth-*                   Event/xAOD
 
 use MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*  Reconstruction/MuonIdentification
 use MuonRecHelperTools          MuonRecHelperTools-*          MuonSpectrometer/MuonReconstruction/MuonRecTools
