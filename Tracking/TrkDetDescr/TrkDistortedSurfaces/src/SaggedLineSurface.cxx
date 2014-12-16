@@ -63,6 +63,19 @@ Trk::SaggedLineSurface::~SaggedLineSurface()
   delete m_lineDirection;
 }
 
+Trk::SaggedLineSurface& Trk::SaggedLineSurface::operator=(const Trk::SaggedLineSurface& sls) 
+{
+  if (this != &sls ) {
+    Trk::DistortedSurface::operator=(sls);
+    Trk::StraightLineSurface::operator=(sls);
+    delete m_saggingDescriptor;
+    delete m_lineDirection;
+    m_lineDirection=NULL;
+    m_saggingDescriptor=new Trk::LineSaggingDescriptor(sls.distortionDescriptor());
+  }
+  return *this;
+}
+
 Trk::StraightLineSurface* Trk::SaggedLineSurface::correctedSurface(const Amg::Vector2D& lp) const
 {
   // prepare
@@ -75,9 +88,10 @@ Trk::StraightLineSurface* Trk::SaggedLineSurface::correctedSurface(const Amg::Ve
                                                                      *m_lineDirection);
   } else if (Trk::Surface::associatedDetectorElement()) {
      // get the sagging descriptor and the endpoints from GeoModel
-     // m_saggingDescriptor 
+     // m_saggingDescriptor
+    throw std::logic_error("Condition not implemented ( Trk::SaggedLineSurface::correctedSurface (1) ).");
   }else{
- 
+    throw std::logic_error("Condition not implemented ( Trk::SaggedLineSurface::correctedSurface (2) ).");
   }
   return (newHepTransform) ? new Trk::StraightLineSurface(newHepTransform,bounds().r(),10e3) : 0;
 }

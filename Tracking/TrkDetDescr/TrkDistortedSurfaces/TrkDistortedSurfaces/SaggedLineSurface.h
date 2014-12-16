@@ -56,6 +56,8 @@ namespace Trk {
      /** Destructor */
      ~SaggedLineSurface();
 
+     Trk::SaggedLineSurface& operator=(const Trk::SaggedLineSurface& sls);
+
      /** Get the Surface representation */
      const StraightLineSurface& surfaceRepresentation() const;
 
