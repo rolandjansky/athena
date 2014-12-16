@@ -33,8 +33,6 @@ class ScatteringAngles
                     double deltaTheta, 
                     double sigmaDeltaPhi, 
                     double sigmaDeltaTheta);
-   //! Copy constructor 
-   ScatteringAngles(const ScatteringAngles& sangot);
    
    //! virtual destructor 
    virtual ~ScatteringAngles();

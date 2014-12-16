@@ -25,13 +25,6 @@ Trk::ScatteringAngles::ScatteringAngles(
   m_sigmaDeltaTheta(sigmaDeltaTheta)
 {}
 
-Trk::ScatteringAngles::ScatteringAngles(const Trk::ScatteringAngles& sangot) :
-  m_deltaPhi(sangot.m_deltaPhi),
-  m_deltaTheta(sangot.m_deltaTheta),
-  m_sigmaDeltaPhi(sangot.m_sigmaDeltaPhi),
-  m_sigmaDeltaTheta(sangot.m_sigmaDeltaTheta)
-{}
-
 Trk::ScatteringAngles::~ScatteringAngles()
 {
 }
