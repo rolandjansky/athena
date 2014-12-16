@@ -26,11 +26,33 @@
 
 
 egammaMVATool::egammaMVATool( const std::string &name )
-  : asg::AsgTool(name) 
+  : asg::AsgTool(name),
+    m_mvaElectron(0),
+    m_mvaPhoton(0),
+    m_folder(""),
+    m_egammaType(0),
+    m_mvaCalibratedEnergy(0),
+    m_rawcl_Es0(0),
+    m_rawcl_Es1(0),
+    m_rawcl_Es2(0),
+    m_rawcl_Es3(0),
+    m_cl_eta(0),
+    m_cl_E(0),
+    m_ptconv(0),
+    m_pt1conv(0),
+    m_pt2conv(0),
+    m_cl_etaCalo(0),
+    m_cl_phiCalo(0),
+    m_convtrk1nPixHits(0),
+    m_convtrk1nSCTHits(0),
+    m_convtrk2nPixHits(0),
+    m_convtrk2nSCTHits(0),
+    m_rawcl_calibHitsShowerDepth(0),
+    m_Rconv(0)
 {
 
   // Configurable properties...
-  declareProperty("folder", m_folder="");//, "folder with weight files");
+  declareProperty("folder", m_folder="egammaMVACalib/v1");//, "folder with weight files");
 }
 
 StatusCode egammaMVATool::initialize(){
