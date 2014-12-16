@@ -102,6 +102,7 @@ namespace InDet{
       std::string                    m_fieldmode     ;  // Mode of magnetic field
       std::string                    m_patternName   ;  // Name of the pattern recognition
       std::string         m_inputClusterContainerName;
+      std::string      m_inputHadClusterContainerName;
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;
       bool                           m_sct           ;
@@ -112,12 +113,15 @@ namespace InDet{
       bool                           m_useBremModel  ;
       bool                           m_useCaloSeeds  ;
       bool                           m_useSSSfilter  ;
+      bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
+      bool                           m_sss           ; // True if SSS seed without filter 
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
       double                         m_xi2maxlink    ; // max Xi2 for clusters
       double                         m_pTmin         ; // min pT
       double                         m_pTminBrem     ; // min pT for Brem mode
+      double                         m_pTminSSS      ; // min pT for SSS filtering
       double                         m_distmax       ; // 
       double                         m_xi2multitracks; // max Xi2 for multi tracks
       int                            m_nholesmax     ; // Max number holes
@@ -128,9 +132,14 @@ namespace InDet{
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
       std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack;
       std::list<double>              m_caloF         ;
-      std::list<double>              m_caloE         ;
+      std::list<double>              m_caloR         ;
+      std::list<double>              m_caloZ         ;
+      std::list<double>              m_hadF          ;
+      std::list<double>              m_hadR          ;
+      std::list<double>              m_hadZ          ;
       double m_phiWidth                              ;
       double m_etaWidth                              ;
+      double m_p[9]                                  ;
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -138,21 +147,23 @@ namespace InDet{
 
  
       const Trk::TrackParameters* getAtaPlane
-	(const std::list<const Trk::SpacePoint*>&);
+	(bool,const std::list<const Trk::SpacePoint*>&);
 
       bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
 			   double*,double*,double*);
 
       void globalPosition(const Trk::SpacePoint*,double*,double*);
       void globalPosition(const Trk::SpacePoint*,double*,double*,double*);
-      void magneticFieldInit();
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
       bool newClusters(const std::list<const Trk::SpacePoint*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
       bool isNewTrack(Trk::Track*);
-      bool isCaloCompatible(const Trk::TrackParameters&);
+      bool isCaloCompatible   ();
+      bool isHadCaloCompatible();
       void clusterTrackMap(Trk::Track*);
+      void       magneticFieldInit();
+      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;

@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <utility>
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
@@ -43,6 +44,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_multitracks  = false              ;
   m_useBremModel = false              ;
   m_useCaloSeeds = false              ;
+  m_useHClusSeed = false              ;
   m_useSSSfilter = true               ; 
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
@@ -50,6 +52,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_xi2multitracks = 3.               ;
   m_pTmin        = 500.               ;
   m_pTminBrem    = 1000.              ;
+  m_pTminSSS     = 1000.              ;
   m_distmax      = 20.                ;
   m_nholesmax    = 2                  ;
   m_dholesmax    = 2                  ;
@@ -62,7 +65,8 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_seedsfilter  = 2                  ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
-  m_inputClusterContainerName = "InDetCaloClusterROIs";
+  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
+  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
 
   declareInterface<ISiTrackMaker>(this);
 
@@ -73,6 +77,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
   declareProperty("pTmin"                   ,m_pTmin       );
   declareProperty("pTminBrem"               ,m_pTminBrem   );
+  declareProperty("pTminSSS"                ,m_pTminSSS    );
   declareProperty("MaxDistanceForSCTsp"     ,m_distmax     );
   declareProperty("nHolesMax"               ,m_nholesmax   );
   declareProperty("nHolesGapMax"            ,m_dholesmax   );
@@ -89,9 +94,11 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("useBremModel"            ,m_useBremModel); 
   declareProperty("useSSSseedsFilter"       ,m_useSSSfilter); 
   declareProperty("doCaloSeededBrem"        ,m_useCaloSeeds);
+  declareProperty("doHadCaloSeedSSS"        ,m_useHClusSeed);
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
-  declareProperty("InputClusterContainerName",m_inputClusterContainerName);
+  declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
+  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
 }
 
@@ -109,7 +116,6 @@ InDet::SiTrackMaker_xk::~SiTrackMaker_xk()
 
 StatusCode InDet::SiTrackMaker_xk::initialize()
 {
-  
   // Get magnetic field service
   //
   if(m_fieldmode != "NoField" ) {
@@ -165,8 +171,23 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   
   // Setup for magnetic field
   //
-  magneticFieldInit();
-
+  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+  const DataHandle<CondAttrListCollection> currentHandle;
+  if (detStore()->contains<CondAttrListCollection>(folder)){
+    
+    StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
+    
+    if(sc==StatusCode::SUCCESS) {
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+    } else {
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+      return StatusCode::FAILURE;
+    }
+  } else {
+    magneticFieldInit();
+    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
+  }
+  
   m_distmax = m_distmax*m_distmax;
   return StatusCode::SUCCESS;
 }
@@ -304,7 +325,7 @@ std::ostream& InDet::operator <<
 void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX;
-  m_sct          = SCT;
+  m_sct          = SCT; if(m_nclusmin < 6) m_sct = false;
   m_simpleTrack  = false;
 
   setTrackQualityCuts();
@@ -328,22 +349,42 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
   if(m_useBremModel && m_useCaloSeeds) {
 
     m_caloF.clear();
-    m_caloE.clear();
+    m_caloR.clear();
+    m_caloZ.clear();
 
     const CaloClusterROI_Collection* calo = 0;    
     StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+ 
+    if(sc == StatusCode::SUCCESS && calo) {
+
+      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+
+      for(; c!=ce; ++c) {
+        m_caloF.push_back( (*c)->globalPosition().phi ());
+        m_caloR.push_back( (*c)->globalPosition().perp());
+	m_caloZ.push_back( (*c)->globalPosition().z   ());
+     }
+    }
+  }
+
+  if(!m_useSSSfilter && m_useHClusSeed) {
+
+    m_hadF.clear();
+    m_hadR.clear();
+    m_hadZ.clear();
+
+    const CaloClusterROI_Collection* calo = 0;    
+    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
   
     if(sc == StatusCode::SUCCESS && calo) {
 
       CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
 
       for(; c!=ce; ++c) {
-	double x = (*c)->globalPosition().x();
-	double y = (*c)->globalPosition().y();
-	double z = (*c)->globalPosition().z();
-	m_caloF.push_back(atan2(y,x));
-	m_caloE.push_back(atan2(1.,z/sqrt(x*x+y*y)));
-      }
+        m_hadF.push_back( (*c)->globalPosition().phi ());
+        m_hadR.push_back( (*c)->globalPosition().perp());
+	m_hadZ.push_back( (*c)->globalPosition().z   ());
+     }
     }
   }
 }
@@ -355,7 +396,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
 {
   m_pix          = PIX;
-  m_sct          = SCT;
+  m_sct          = SCT; if(m_nclusmin < 5) m_sct = false;
   m_simpleTrack  = true;
 
   setTrackQualityCuts();
@@ -407,14 +448,14 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
   if(!m_pix && !m_sct) return m_tracks;
   
-  bool good;  
+  bool good;  m_sss = false; 
   !m_seedsfilter ? good=true : m_seedsfilter==1 ? good=newClusters(Sp) : good=newSeed(Sp);  
 
   if(!good) return m_tracks;
   
   // Get initial parameters estimation
   // 
-  const Trk::TrackParameters* Tp = getAtaPlane(Sp);
+  const Trk::TrackParameters* Tp = getAtaPlane(m_sss && m_useHClusSeed,Sp);
   if(!Tp) return m_tracks;
   ++m_goodseeds;
 
@@ -438,7 +479,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   else if(!m_useCaloSeeds      ) {
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,false);
   }
-  else if(isCaloCompatible(*Tp)) {
+  else if(  isCaloCompatible() ) {
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,true);
   }
   else                           {
@@ -492,7 +533,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   else if(!m_useCaloSeeds      ) {
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,false);
   }
-  else if(isCaloCompatible(Tp) ) {
+  else if(  isCaloCompatible() ) {
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,true);
   }
   else                           {
@@ -517,7 +558,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
-(const std::list<const Trk::SpacePoint*>& SP)
+(bool sss,const std::list<const Trk::SpacePoint*>& SP)
 {
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if(is==ise) return 0;
@@ -525,7 +566,7 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   const Trk::PrepRawData*       cl  = (*is)->clusterList().first;
   if(!cl) return 0;
   const Trk::PlaneSurface*      pla = 
-    dynamic_cast<const Trk::PlaneSurface*>(&cl->detectorElement()->surface());
+    static_cast<const Trk::PlaneSurface*>(&cl->detectorElement()->surface());
   if(!pla) return 0;
 
   is0 = is; if(++is==ise) return 0; 
@@ -563,34 +604,41 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   
   double   d[3] = {x0-D[0],y0-D[1],z0-D[2]}            ;
 
-  double p[5];
-  p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
-  p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
+  m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
+  m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
   if(m_fieldprop.magneticFieldMode() > 0) {
 
     double H[3],gP[3] ={x0,y0,z0}; m_fieldService->getFieldZR(gP,H);
 
     if(fabs(H[2])>.0001) {
-      p[2] = atan2(b+a*A,a-b*A);
-      p[3] = atan2(1.,T)       ;  
-      double pTi =-C/(300.*H[2]); if(fabs(pTi)*m_pTmin > 1.1) return 0;
-      p[4] = pTi/sqrt(1.+T*T)  ;
+      m_p[2] = atan2(b+a*A,a-b*A);
+      m_p[3] = atan2(1.,T)       ;  
+      m_p[5] = -C/(300.*H[2])    ;
     }
     else {
-      T    =  z2*sqrt(r2);
-      p[2] = atan2(y2,x2);
-      p[3] = atan2(1.,T) ;
-      p[4] = 1./(m_pTmin*sqrt(1.+T*T)); 
+      T    =  z2*sqrt(r2)  ;
+      m_p[2] = atan2(y2,x2);
+      m_p[3] = atan2(1.,T) ;
+      m_p[5] = 1./m_pTmin  ;
     }
   }
   else {
-      T    = z2*sqrt(r2) ;
-      p[2] = atan2(y2,x2);
-      p[3] = atan2(1.,T) ;
-      p[4] = 1./(m_pTmin*sqrt(1.+T*T)); 
+      T    = z2*sqrt(r2)   ;
+      m_p[2] = atan2(y2,x2);
+      m_p[3] = atan2(1.,T) ;
+      m_p[5] = 1./m_pTmin  ;
   }
-  return pla->createTrackParameters(p[0],p[1],p[2],p[3],p[4],0); 
+  
+  if(fabs(m_p[5])*m_pTmin > 1.1) return 0;
+  m_p[4] = m_p[5]/sqrt(1.+T*T);
+  m_p[6] = x0                              ;
+  m_p[7] = y0                              ;
+  m_p[8] = z0                              ;
+
+  if(sss && !isHadCaloCompatible()) return 0;
+
+  return pla->createTrackParameters(m_p[0],m_p[1],m_p[2],m_p[3],m_p[4],0); 
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -646,10 +694,16 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiTrackMaker_xk::magneticFieldInit() 
+StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
 {
   // Build MagneticFieldProperties 
   //
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  return StatusCode::SUCCESS;
+}
+
+void InDet::SiTrackMaker_xk::magneticFieldInit() 
+{
   Trk::MagneticFieldProperties* pMF = 0;
   if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
   else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
@@ -736,7 +790,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
      if(n==40) break;
   }
 
-  if(!nc || (!m_cosmicTrack && n==3)) return true; 
+  if(!nc || (!m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43.)) return true; 
   if(n==nc) {
 
     int m = 0;
@@ -762,7 +816,7 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     if(i==n) return false;
   }
 
-  if(n==6 && !m_useSSSfilter) return true;
+  if(n==3) return true;
 
   int h = 0;
   for(int i=0; i!=n; ++i) {
@@ -772,7 +826,9 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
       if((*tt).second->measurementsOnTrack()->size() >= m_wrongcluster) {++h; break;}
     }
   }
-  if(h) return false; return true;
+  if(        !h             )                return true;
+  if(n==6 && !m_useSSSfilter) {m_sss = true; return true;}
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -899,8 +955,8 @@ void InDet::SiTrackMaker_xk::globalPosition
   const Trk::PrepRawData*  c0  = sp->clusterList().first;
   const Trk::PrepRawData*  c1  = sp->clusterList().second;
 
-  const InDet::SiCluster* s0 = dynamic_cast<const InDet::SiCluster*>(c0);
-  const InDet::SiCluster* s1 = dynamic_cast<const InDet::SiCluster*>(c1);
+  const InDet::SiCluster* s0 = static_cast<const InDet::SiCluster*>(c0);
+  const InDet::SiCluster* s1 = static_cast<const InDet::SiCluster*>(c1);
   if(!s0  || !s1 ) {p[0]=0.; p[1]=0.; p[2]=0.; return;}
   const InDetDD::SiDetectorElement* de0 = s0->detectorElement();
   const InDetDD::SiDetectorElement* de1 = s1->detectorElement();
@@ -947,8 +1003,8 @@ void InDet::SiTrackMaker_xk::globalPosition
   const Trk::PrepRawData*  c0  = sp->clusterList().first;
   const Trk::PrepRawData*  c1  = sp->clusterList().second;
 
-  const InDet::SiCluster* s0 = dynamic_cast<const InDet::SiCluster*>(c0);
-  const InDet::SiCluster* s1 = dynamic_cast<const InDet::SiCluster*>(c1);
+  const InDet::SiCluster* s0 = static_cast<const InDet::SiCluster*>(c0);
+  const InDet::SiCluster* s1 = static_cast<const InDet::SiCluster*>(c1);
 
   const InDetDD::SiDetectorElement* de0 = s0->detectorElement();
   const InDetDD::SiDetectorElement* de1 = s1->detectorElement();
@@ -994,26 +1050,64 @@ void InDet::SiTrackMaker_xk::globalPosition
 // Test is it track with calo seed compatible
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isCaloCompatible(const Trk::TrackParameters& Tp)
+bool InDet::SiTrackMaker_xk::isCaloCompatible()
 {
   const double pi = M_PI, pi2 = 2.*M_PI;
+
   if(m_caloF.empty()) return false;   
 
   std::list<double>::iterator f = m_caloF.begin(), fe = m_caloF.end();
-  std::list<double>::iterator e = m_caloE.begin();
+  std::list<double>::iterator r = m_caloR.begin();
+  std::list<double>::iterator z = m_caloZ.begin();
 
-  const AmgVector(5)& Vp = Tp.parameters(); 
-  double F = Vp[2]; 
-  double E = Vp[3]; 
-
+  double F = m_p[2]                           ;
+  double E = -log(tan(.5*m_p[3]))             ;
+  double R = sqrt(m_p[6]*m_p[6]+m_p[7]*m_p[7]);
+  double Z = m_p[8]                           ;                           
+  
   for(; f!=fe; ++f) {
     double df = fabs(F-(*f));
     if(df > pi        ) df = fabs(pi2-df);
     if(df < m_phiWidth) {
-      double de = fabs(E-(*e));
-      if(de < m_etaWidth) return true;
+      
+      double dR = (*r)-R;
+      double dZ = (*z)-Z;
+      if(fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
     }
-    ++e;
+    ++r; ++z;
+  }
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////
+// Test track is compatible withi had calo seed
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrackMaker_xk::isHadCaloCompatible()
+{
+  const double pi = M_PI, pi2 = 2.*M_PI;
+
+  if(m_hadF.empty() || fabs(m_p[5])*m_pTminSSS > 1.) return false;   
+
+  std::list<double>::iterator f = m_hadF.begin(), fe = m_hadF.end();
+  std::list<double>::iterator r = m_hadR.begin();
+  std::list<double>::iterator z = m_hadZ.begin();
+
+  double F = m_p[2]                           ;
+  double E = -log(tan(.5*m_p[3]))             ;
+  double R = sqrt(m_p[6]*m_p[6]+m_p[7]*m_p[7]);
+  double Z = m_p[8]                           ;                           
+  
+  for(; f!=fe; ++f) {
+    double df = fabs(F-(*f));
+    if(df > pi        ) df = fabs(pi2-df);
+    if(df < m_phiWidth) {
+      
+      double dR = (*r)-R;
+      double dZ = (*z)-Z;
+      if(fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
+    }
+    ++r; ++z;
   }
   return false;
 }

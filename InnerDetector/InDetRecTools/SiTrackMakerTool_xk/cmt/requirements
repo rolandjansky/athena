@@ -7,6 +7,7 @@ private
 use TrkRIO_OnTrack            TrkRIO_OnTrack-*            Tracking/TrkEvent
 use TrkCaloClusterROI         TrkCaloClusterROI-*         Tracking/TrkEvent
 use InDetPrepRawData          InDetPrepRawData-*          InnerDetector/InDetRecEvent
+use AthenaPoolUtilities       AthenaPoolUtilities-*       Database/AthenaPOOL
 
 public
 
