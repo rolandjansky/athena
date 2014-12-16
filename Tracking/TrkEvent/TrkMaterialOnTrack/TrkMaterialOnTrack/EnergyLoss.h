@@ -14,6 +14,8 @@
 class MsgStream;
 class TrackCollectionCnv;
 
+#include <cassert>
+
 namespace Trk {
 
 /** @brief This class describes energy loss material effects in the ATLAS
@@ -48,8 +50,17 @@ class EnergyLoss {
               double mean_rad,
               double sigma_rad); 
 
-  //! Copy constructor 
-  EnergyLoss( const EnergyLoss& eloss );
+  //! Constructor with @f$\Delta E@f$, @f$\sigma(\Delta E)@f$ and component info
+  EnergyLoss (double deltaE,
+              double sigmaDeltaE,
+              double sigmaMinusDeltaE,
+              double sigmaPlusDeltaE, 
+              double mean_ioni,
+              double sigma_ioni,
+              double mean_rad,
+              double sigma_rad,
+              double length); 
+
   //! Destructor 
   virtual ~EnergyLoss() {};
   
@@ -73,6 +84,7 @@ class EnergyLoss {
   double sigmaIoni() const;
   double meanRad() const;
   double sigmaRad() const;
+  double length() const;
 
   //update from mean values
   void update(double ioni, double sigi, double rad, double sigr, bool mpv=false) const; 
@@ -96,10 +108,11 @@ class EnergyLoss {
   //!< @f$ \sigma(\Delta E) @f$ - positive error on the energy loss
   double  m_sigmaPlusDeltaE;
   // additional information about components (cache only, not persistified)
-  mutable double  m_mean_ioni;          // most probable value for ionization 
+  mutable double  m_mean_ioni;          // mean value for ionization 
   mutable double  m_sig_ioni;          // sigma for ionization 
   mutable double  m_mean_rad;          // mean value for radiation 
   mutable double  m_sig_rad;           // sigma for radiation 
+  mutable double  m_length;           // 3D length of material 
 
 };
 
@@ -129,6 +142,9 @@ class EnergyLoss {
  
  inline double EnergyLoss::sigmaRad() const
  { return m_sig_rad; }
+ 
+ inline double EnergyLoss::length() const
+ { assert( m_length>=0. ); return m_length; }
  
  inline void EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv) const
  { m_mean_ioni += ioni;

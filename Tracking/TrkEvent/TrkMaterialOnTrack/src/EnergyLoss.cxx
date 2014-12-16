@@ -12,12 +12,14 @@
 
 Trk::EnergyLoss::EnergyLoss() :
   m_deltaE(0.),
+  m_sigmaDeltaE(0.),
   m_sigmaMinusDeltaE(0.),
   m_sigmaPlusDeltaE(0.),
   m_mean_ioni(0.),
   m_sig_ioni(0.),
   m_mean_rad(0.),
-  m_sig_rad(0.)
+  m_sig_rad(0.),
+  m_length(0.)
 {
 }
 
@@ -30,7 +32,23 @@ Trk::EnergyLoss::EnergyLoss(double deltaE, double sigmaDeltaE,
   m_mean_ioni(0.),
   m_sig_ioni(0.),
   m_mean_rad(0.),
-  m_sig_rad(0.)
+  m_sig_rad(0.),
+  m_length(-std::numeric_limits<double>::min())
+{ }
+
+Trk::EnergyLoss::EnergyLoss(double deltaE, double sigmaDeltaE,
+                            double sMinusDeltaE, double sPlusDeltaE, 
+                            double mean_ioni, double sig_ioni,
+			    double mean_rad, double sig_rad, double length)  :
+  m_deltaE(deltaE),
+  m_sigmaDeltaE(sigmaDeltaE),
+  m_sigmaMinusDeltaE(sMinusDeltaE),
+  m_sigmaPlusDeltaE(sPlusDeltaE),
+  m_mean_ioni(mean_ioni),
+  m_sig_ioni(sig_ioni),
+  m_mean_rad(mean_rad),
+  m_sig_rad(sig_rad),
+  m_length(length)
 { }
 
 Trk::EnergyLoss::EnergyLoss(double deltaE, double sigmaDeltaE,
@@ -43,18 +61,8 @@ Trk::EnergyLoss::EnergyLoss(double deltaE, double sigmaDeltaE,
   m_mean_ioni(mean_ioni),
   m_sig_ioni(sig_ioni),
   m_mean_rad(mean_rad),
-  m_sig_rad(sig_rad)
-{ }
-
-Trk::EnergyLoss::EnergyLoss(const Trk::EnergyLoss& eloss) :
-  m_deltaE(eloss.m_deltaE),
-  m_sigmaDeltaE(eloss.m_sigmaDeltaE),
-  m_sigmaMinusDeltaE(eloss.m_sigmaMinusDeltaE),
-  m_sigmaPlusDeltaE(eloss.m_sigmaPlusDeltaE),
-  m_mean_ioni(eloss.m_mean_ioni),
-  m_sig_ioni(eloss.m_sig_ioni),
-  m_mean_rad(eloss.m_mean_rad),
-  m_sig_rad(eloss.m_sig_rad)
+  m_sig_rad(sig_rad),
+  m_length(-std::numeric_limits<double>::min())
 { }
 
 // Overload of << operator for MsgStream and std::ostream for debug output 
