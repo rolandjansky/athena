@@ -60,7 +60,10 @@ MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name,
   m_triggerHitCut(0),				// minimum hits
   m_mdtHitCut(0),				// minimum hits
   m_muonSegmentCut(0),				// minimum segments
-  m_MuonSpShowerKey("MuonSpShowers")		// Storegate key
+  m_MuonSpShowerKey("MuonSpShowers"),		// Storegate key
+  m_storeGate(0),
+  m_MuonMgr(0),
+  m_muonHelper(0)
 {
   declareProperty("JetCollectionKey", m_JetCollectionKey);
   declareProperty("jetPtCut", m_jetPtCut);
@@ -74,6 +77,7 @@ MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name,
   declareProperty("triggerHitCut", m_triggerHitCut);
   declareProperty("mdtHitCut", m_mdtHitCut);
   declareProperty("muonSegmentCut", m_muonSegmentCut);
+
 }
 
 /////////////////////////////////////////////////////////////////
@@ -205,6 +209,9 @@ StatusCode MuonSpShowerBuilder::execute() {
       return StatusCode::FAILURE;
     }
   }
+
+  if(!segments) return StatusCode::FAILURE;
+
   auto segItr = segments->begin();
   auto segBeg = segments->begin();
   auto segEnd = segments->end();
