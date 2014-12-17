@@ -90,7 +90,7 @@ void lbn_analyze(int stream, int nwanted)
 	   //runmap[grun].nevt=0;
 	 }
 	 grun=run;//save the run number
-	 if (debug) printf("Setting grun to %d\n",run);
+	 printf("Setting grun to %d\n",run);
 
 	 //read in event counts from runquery file for run
 	 readeventcounts(run);
