@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerDict.h 592079 2014-04-09 09:58:48Z aranzazu $
+// $Id: xAODTriggerDict.h 635056 2014-12-10 15:35:39Z watsona $
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
 
@@ -31,9 +31,17 @@
 #include "xAODTrigger/versions/JetRoIAuxContainer_v1.h"
 #include "xAODTrigger/versions/JetRoI_v1.h"
 
+#include "xAODTrigger/versions/JetRoIContainer_v2.h"
+#include "xAODTrigger/versions/JetRoIAuxContainer_v2.h"
+#include "xAODTrigger/versions/JetRoI_v2.h"
+
 #include "xAODTrigger/versions/EmTauRoIContainer_v1.h"
 #include "xAODTrigger/versions/EmTauRoIAuxContainer_v1.h"
 #include "xAODTrigger/versions/EmTauRoI_v1.h"
+
+#include "xAODTrigger/versions/EmTauRoIContainer_v2.h"
+#include "xAODTrigger/versions/EmTauRoIAuxContainer_v2.h"
+#include "xAODTrigger/versions/EmTauRoI_v2.h"
 
 #include "xAODTrigger/versions/JetEtRoIAuxInfo_v1.h"
 #include "xAODTrigger/versions/JetEtRoI_v1.h"
@@ -43,6 +51,9 @@
 
 #include "xAODTrigger/versions/TrigDecision_v1.h"
 #include "xAODTrigger/versions/TrigDecisionAuxInfo_v1.h"
+
+#include "xAODTrigger/versions/TrigNavigation_v1.h"
+#include "xAODTrigger/versions/TrigNavigationAuxInfo_v1.h"
 
 #include "xAODTrigger/versions/TrigConfKeys_v1.h"
 
@@ -73,6 +84,14 @@ namespace{
     std::vector< ElementLink<xAOD::JetRoIContainer_v1 > > jet_l5;
     std::vector< ElementLinkVector< xAOD::JetRoIContainer_v1 > > jet_l6;
 
+    xAOD::JetRoIContainer_v2 jet_v2_c1;
+    DataLink< xAOD::JetRoIContainer_v2 > jet_v2_l1;
+    ElementLink< xAOD::JetRoIContainer_v2 > jet_v2_l2;
+    ElementLinkVector< xAOD::JetRoIContainer_v2 > jet_v2_l3;
+    std::vector< DataLink<xAOD::JetRoIContainer_v2 > > jet_v2_l4;
+    std::vector< ElementLink<xAOD::JetRoIContainer_v2 > > jet_v2_l5;
+    std::vector< ElementLinkVector< xAOD::JetRoIContainer_v2 > > jet_v2_l6;
+
     xAOD::EmTauRoIContainer_v1 emtau_c1;
     DataLink< xAOD::EmTauRoIContainer_v1 > emtau_l1;
     ElementLink< xAOD::EmTauRoIContainer_v1 > emtau_l2;
@@ -80,6 +99,14 @@ namespace{
     std::vector< DataLink<xAOD::EmTauRoIContainer_v1 > > emtau_l4;
     std::vector< ElementLink<xAOD::EmTauRoIContainer_v1 > > emtau_l5;
     std::vector< ElementLinkVector< xAOD::EmTauRoIContainer_v1 > > emtau_l6;
+
+    xAOD::EmTauRoIContainer_v2 emtau_v2_c1;
+    DataLink< xAOD::EmTauRoIContainer_v2 > emtau_v2_l1;
+    ElementLink< xAOD::EmTauRoIContainer_v2 > emtau_v2_l2;
+    ElementLinkVector< xAOD::EmTauRoIContainer_v2 > emtau_v2_l3;
+    std::vector< DataLink<xAOD::EmTauRoIContainer_v2 > > emtau_v2_l4;
+    std::vector< ElementLink<xAOD::EmTauRoIContainer_v2 > > emtau_v2_l5;
+    std::vector< ElementLinkVector< xAOD::EmTauRoIContainer_v2 > > emtau_v2_l6;
 
     DataLink< xAOD::JetEtRoI_v1 > jetEt_l1;
     std::vector< DataLink< xAOD::JetEtRoI_v1 > > jetEt_l2;

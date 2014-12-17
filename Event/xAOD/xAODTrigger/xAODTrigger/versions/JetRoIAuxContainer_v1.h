@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetRoIAuxContainer_v1.h 574653 2013-12-09 15:53:17Z krasznaa $
+// $Id: JetRoIAuxContainer_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_JETROIAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_JETROIAUXCONTAINER_V1_H
 
@@ -28,8 +28,8 @@ namespace xAOD {
    /// @author Lukas Heinrich <Lukas.Heinrich@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 574653 $
-   /// $Date: 2013-12-09 16:53:17 +0100 (Mon, 09 Dec 2013) $
+   /// $Revision: 631149 $
+   /// $Date: 2014-11-26 13:26:18 +0100 (Wed, 26 Nov 2014) $
    ///
    class JetRoIAuxContainer_v1 : public AuxContainerBase{
 
@@ -53,12 +53,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::JetRoIAuxContainer_v1, 1287744961, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetRoIAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_JETROIAUXCONTAINER_V1_H

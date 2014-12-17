@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.h 608265 2014-07-23 18:42:02Z ssnyder $
+// $Id: ByteStreamAuxContainer_v1.h 613820 2014-08-28 13:36:36Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 
@@ -17,7 +17,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainers/tools/threading.h"
 #ifndef XAOD_STANDALONE
-#include "AthenaKernel/ILockable.h"
+#   include "AthenaKernel/ILockable.h"
 #endif
 
 // Forward declaration(s):
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 608265 $
-   /// $Date: 2014-07-23 20:42:02 +0200 (Wed, 23 Jul 2014) $
+   /// $Revision: 613820 $
+   /// $Date: 2014-08-28 15:36:36 +0200 (Thu, 28 Aug 2014) $
    ///
    class ByteStreamAuxContainer_v1
      : public SG::IAuxStore
@@ -181,10 +181,9 @@ namespace xAOD {
 
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+// Declare the inheritace of the container:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::ByteStreamAuxContainer_v1, SG::IAuxStore );
-#endif // not XAOD_STANDALONE
 
 /// @namespace SG
 /// Namespace used by StoreGate for some of its internal structures/classes

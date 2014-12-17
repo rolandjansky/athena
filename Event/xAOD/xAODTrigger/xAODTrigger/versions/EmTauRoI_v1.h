@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTauRoI_v1.h 574653 2013-12-09 15:53:17Z krasznaa $
+// $Id: EmTauRoI_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_EMTAUROI_V1_H
 #define XAODTRIGGER_VERSIONS_EMTAUROI_V1_H
 
@@ -29,8 +29,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Alan Watson <Alan.Watson@cern.ch>
    ///
-   /// $Revision: 574653 $
-   /// $Date: 2013-12-09 16:53:17 +0100 (Mon, 09 Dec 2013) $
+   /// $Revision: 631149 $
+   /// $Date: 2014-11-26 13:26:18 +0100 (Wed, 26 Nov 2014) $
    ///
    class EmTauRoI_v1 : public SG::AuxElement {
 
@@ -40,6 +40,15 @@ namespace xAOD {
 
       /// Initialise the object with its most important properties
       void initialize( uint32_t roiword, float eta, float phi );
+
+      /// RoI word types
+      enum RoIType {
+         CPRoIWord  = 0, ///< This is a Run 1 EM/Tau RoI word
+         EMRoIWord  = 1, ///< This is a Run 2 EM RoI word
+         TauRoIWord = 2  ///< This is a Run 2 Tau RoI word
+      };
+      /// Get the type of the RoI word
+      RoIType roiType() const;
 
       /// The pseudorapidity (\f$\eta\f$) of the em/tau candidate
       float eta() const;
@@ -113,5 +122,9 @@ namespace xAOD {
    }; // class EmTauRoI_v1
 
 } // namespace xAOD
+
+// Declare the inheritance of the type:
+#include "xAODCore/BaseInfo.h"
+SG_BASE( xAOD::EmTauRoI_v1, SG::AuxElement );
 
 #endif // XAODTRIGGER_VERSIONS_EMTAUROI_V1_H

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoI_v1.cxx 579914 2014-01-24 10:15:15Z krasznaa $
+// $Id: EnergySumRoI_v1.cxx 615960 2014-09-10 14:03:39Z krasznaa $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -34,8 +34,8 @@ namespace xAOD {
       setRoIWord2( roiword2 );
 
       setEnergyX( energyX );
-      setEnergyX( energyY );
-      setEnergyX( energyT );
+      setEnergyY( energyY );
+      setEnergyT( energyT );
 
       return;
    }

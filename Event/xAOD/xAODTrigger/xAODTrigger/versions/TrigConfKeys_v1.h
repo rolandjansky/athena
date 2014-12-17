@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfKeys_v1.h 578510 2014-01-15 13:40:34Z krasznaa $
+// $Id: TrigConfKeys_v1.h 630856 2014-11-25 11:22:49Z gwatts $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCONFKEYS_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCONFKEYS_V1_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 578510 $
-   /// $Date: 2014-01-15 14:40:34 +0100 (Wed, 15 Jan 2014) $
+   /// $Revision: 630856 $
+   /// $Date: 2014-11-25 12:22:49 +0100 (Tue, 25 Nov 2014) $
    ///
    class TrigConfKeys_v1 {
 
@@ -62,11 +62,5 @@ namespace xAOD {
    }; // class TrigConfKeys_v1
 
 } // namespace xAOD
-
-// Declare the CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigConfKeys_v1, 33226429, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_TRIGCONFKEYS_V1_H

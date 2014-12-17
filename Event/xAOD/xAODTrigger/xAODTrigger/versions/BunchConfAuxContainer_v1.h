@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchConfAuxContainer_v1.h 583374 2014-02-14 15:52:54Z krasznaa $
+// $Id: BunchConfAuxContainer_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_BUNCHCONFAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BUNCHCONFAUXCONTAINER_V1_H
 
@@ -27,8 +27,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 583374 $
-   /// $Date: 2014-02-14 16:52:54 +0100 (Fri, 14 Feb 2014) $
+   /// $Revision: 631149 $
+   /// $Date: 2014-11-26 13:26:18 +0100 (Wed, 26 Nov 2014) $
    ///
    class BunchConfAuxContainer_v1 : public AuxContainerBase {
 
@@ -61,12 +61,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BunchConfAuxContainer_v1, 1159930079, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the container:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::BunchConfAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_BUNCHCONFAUXCONTAINER_V1_H

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchConfKey_v1.h 583374 2014-02-14 15:52:54Z krasznaa $
+// $Id: BunchConfKey_v1.h 630856 2014-11-25 11:22:49Z gwatts $
 #ifndef XAODTRIGGER_VERSIONS_BUNCHCONFKEY_V1_H
 #define XAODTRIGGER_VERSIONS_BUNCHCONFKEY_V1_H
 
@@ -23,8 +23,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 583374 $
-   /// $Date: 2014-02-14 16:52:54 +0100 (Fri, 14 Feb 2014) $
+   /// $Revision: 630856 $
+   /// $Date: 2014-11-25 12:22:49 +0100 (Tue, 25 Nov 2014) $
    ///
    class BunchConfKey_v1 {
 
@@ -44,11 +44,5 @@ namespace xAOD {
    }; // class BunchConfKey_v1
 
 } // namespace xAOD
-
-// Declare the CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BunchConfKey_v1, 27810374, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_BUNCHCONFKEY_V1_H

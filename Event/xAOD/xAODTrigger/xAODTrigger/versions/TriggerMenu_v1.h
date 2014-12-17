@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenu_v1.h 582798 2014-02-12 15:53:47Z krasznaa $
-#ifndef XAODTRIGGER_VERSIONS_TRIGGERMENU_V1_H
-#define XAODTRIGGER_VERSIONS_TRIGGERMENU_V1_H
+// $Id: TriggerMenu_v1.h 631658 2014-11-27 18:53:39Z lheinric $
+#ifndef XAODTRIGGER_VERSIONS_TRIGGERMENU_v1_H
+#define XAODTRIGGER_VERSIONS_TRIGGERMENU_v1_H
 
 // System include(s):
 extern "C" {
@@ -28,8 +28,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 582798 $
-   /// $Date: 2014-02-12 16:53:47 +0100 (Wed, 12 Feb 2014) $
+   /// $Revision: 631658 $
+   /// $Date: 2014-11-27 19:53:39 +0100 (Thu, 27 Nov 2014) $
    ///
    class TriggerMenu_v1 : public SG::AuxElement {
 
@@ -128,6 +128,58 @@ namespace xAOD {
       /// Check if the HLT chain pass-through prescales are available
       bool chainPassthroughPrescalesAvailable() const;
 
+      /// Get the counters of all signatures
+      const std::vector< std::vector< uint32_t > >& chainSignatureCounters() const;
+      /// Set the counters of all signatures
+      void setChainSignatureCounters( const std::vector< std::vector< uint32_t > >& value );
+      /// Check if the signature counters are available
+      bool chainSignatureCountersAvailable() const;
+
+      /// Get the logic of all signatures
+      const std::vector<std::vector< int > >& chainSignatureLogics() const;
+      /// Set the logic of all signatures
+      void setChainSignatureLogics( const std::vector< std::vector< int > >& value );
+      /// Check if the logic of the signatures are available
+      bool chainSignatureLogicsAvailable() const;
+
+      /// Get the output TE ids of all signatures
+      const std::vector<std::vector< std::vector< std::string > > >& chainSignatureOutputTEs() const;
+      /// Set the output TE ids of all signatures
+      void setChainSignatureOutputTEs( const std::vector< std::vector< std::vector< std::string > > >& value );
+      /// Check if the output TE ids are available
+      bool chainSignatureOutputTEsAvailable() const;
+
+      /// Get the labels of the signatures for all chains
+      const std::vector<std::vector< std::string > >& chainSignatureLabels() const;
+      /// Set the labels of the signatures for all chains
+      void setChainSignatureLabels( const std::vector< std::vector< std::string > >& value );
+      /// Check if the signature labels are available
+      bool chainSignatureLabelsAvailable() const;
+     
+
+      /// Get the input TEs for each sequence
+      const std::vector< std::vector< std::string > >& sequenceInputTEs() const;
+      /// Set the input TEs for each sequence
+     void setSequenceInputTEs( const std::vector< std::vector< std::string > >& value );
+      /// Check input TEs are available
+      bool sequenceInputTEsAvailable() const;
+ 
+      /// Get the output TEs for each sequence
+      const std::vector< std::string >& sequenceOutputTEs() const;
+      /// Set the output TEs for each sequence
+      void setSequenceOutputTEs( const std::vector< std::string >& value );
+      /// Check output TEs are available
+      bool sequenceOutputTEsAvailable() const;
+
+      /// Get the algortithm list for each sequence
+      const std::vector< std::vector< std::string > >& sequenceAlgorithms() const;
+      /// Set the input TEs for each sequence
+      void setSequenceAlgorithms( const std::vector< std::vector< std::string > >& value );
+      /// Check input TEs are available
+      bool sequenceAlgorithmsAvailable() const;
+
+
+
       /// @}
 
       /// @name Bunch group access
@@ -149,4 +201,4 @@ namespace xAOD {
 
 } // namespace xAOD
 
-#endif // XAODTRIGGER_VERSIONS_TRIGGERMENU_V1_H
+#endif // XAODTRIGGER_VERSIONS_TRIGGERMENU_v1_H

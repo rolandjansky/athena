@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoI_v1.h 578325 2014-01-14 14:52:23Z krasznaa $
+// $Id: EnergySumRoI_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_ENERGYSUMROI_V1_H
 #define XAODTRIGGER_VERSIONS_ENERGYSUMROI_V1_H
 
@@ -29,8 +29,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Alan Watson <Alan.Watson@cern.ch>
    ///
-   /// $Revision: 578325 $
-   /// $Date: 2014-01-14 15:52:23 +0100 (Tue, 14 Jan 2014) $
+   /// $Revision: 631149 $
+   /// $Date: 2014-11-26 13:26:18 +0100 (Wed, 26 Nov 2014) $
    ///
    class EnergySumRoI_v1 : public SG::AuxElement {
 
@@ -128,12 +128,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EnergySumRoI_v1, 61465022, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritace of the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::EnergySumRoI_v1, SG::AuxElement );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_ENERGYSUMROI_V1_H

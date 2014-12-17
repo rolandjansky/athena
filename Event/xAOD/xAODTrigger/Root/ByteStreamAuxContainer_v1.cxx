@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.cxx 611309 2014-08-11 16:51:58Z ssnyder $
+// $Id: ByteStreamAuxContainer_v1.cxx 611308 2014-08-11 16:51:49Z ssnyder $
 
 // System include(s):
 #include <iostream>

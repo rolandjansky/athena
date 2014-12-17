@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenuAuxContainer_v1.h 582798 2014-02-12 15:53:47Z krasznaa $
-#ifndef XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_V1_H
-#define XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_V1_H
+// $Id: TriggerMenuAuxContainer_v1.h 636406 2014-12-17 05:19:48Z lheinric $
+#ifndef XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_v1_H
+#define XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_v1_H
 
 // System include(s):
 extern "C" {
@@ -28,8 +28,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 582798 $
-   /// $Date: 2014-02-12 16:53:47 +0100 (Wed, 12 Feb 2014) $
+   /// $Revision: 636406 $
+   /// $Date: 2014-12-17 06:19:48 +0100 (Wed, 17 Dec 2014) $
    ///
    class TriggerMenuAuxContainer_v1 : public AuxContainerBase {
 
@@ -60,7 +60,19 @@ namespace xAOD {
       std::vector< std::vector< float > > chainPrescales;
       std::vector< std::vector< float > > chainRerunPrescales;
       std::vector< std::vector< float > > chainPassthroughPrescales;
+      std::vector< std::vector< std::vector< uint32_t > > > chainSignatureCounters;
+      std::vector< std::vector< std::vector< int > > > chainSignatureLogics;
+      std::vector< std::vector< std::vector< std::vector< std::string > > > > chainSignatureOutputTEs;
+      std::vector< std::vector< std::vector< std::string > > > chainSignatureLabels;
       /// @}
+
+      /// @name HLT sequence info
+      /// @{
+      std::vector< std::vector< std::vector< std::string > > > sequenceInputTEs;
+      std::vector< std::vector< std::string > > sequenceOutputTEs;
+      std::vector< std::vector< std::vector< std::string > > > sequenceAlgorithms;
+      /// @}
+
 
       /// @name Bunch group variables
       /// @{
@@ -71,12 +83,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TriggerMenuAuxContainer_v1, 1212409402, 1 )
-#include "SGTools/BaseInfo.h"
-SG_BASE( xAOD::TriggerMenuAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
+// Declare the inheritance of the container: 
+#include "xAODCore/BaseInfo.h" 
+SG_BASE( xAOD::TriggerMenuAuxContainer_v1, xAOD::AuxContainerBase ); 
 
-#endif // XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_V1_H
+#endif // XAODTRIGGER_VERSIONS_TRIGGERMENUAUXCONTAINER_v1_H

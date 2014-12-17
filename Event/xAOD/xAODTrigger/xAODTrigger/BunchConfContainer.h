@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchConfContainer.h 583374 2014-02-14 15:52:54Z krasznaa $
+// $Id: BunchConfContainer.h 630856 2014-11-25 11:22:49Z gwatts $
 #ifndef XAODTRIGGER_BUNCHCONFCONTAINER_H
 #define XAODTRIGGER_BUNCHCONFCONTAINER_H
 
@@ -16,5 +16,9 @@ namespace xAOD {
    /// Define the latest version of the bunch configuration container class
    typedef BunchConfContainer_v1 BunchConfContainer;
 }
+
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::BunchConfContainer, 1244568624, 1 )
 
 #endif // XAODTRIGGER_BUNCHCONFCONTAINER_H

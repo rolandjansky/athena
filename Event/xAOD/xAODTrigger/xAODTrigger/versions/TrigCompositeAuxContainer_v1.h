@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+// $Id: TrigCompositeAuxContainer_v1.h 631318 2014-11-26 18:32:04Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITEAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITEAUXCONTAINER_V1_H
 
@@ -29,8 +29,8 @@ namespace xAOD {
    /// @author Tomasz Bold <Tomasz.Bold@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision$
-   /// $Date$
+   /// $Revision: 631318 $
+   /// $Date: 2014-11-26 19:32:04 +0100 (Wed, 26 Nov 2014) $
    ///
    class TrigCompositeAuxContainer_v1 : public ByteStreamAuxContainer_v1 {
 
@@ -41,19 +41,17 @@ namespace xAOD {
    private:
       std::vector< std::string > name;
 
-      std::vector< std::vector< std::string > > linkColName;
-      std::vector< std::vector< int > >         linkColIndex;
+      std::vector< std::vector< std::string > > linkColNames;
+      std::vector< std::vector< uint32_t > >    linkColKeys;
+      std::vector< std::vector< uint16_t > >    linkColIndices;
+      std::vector< std::vector< uint32_t > >    linkColClids;
 
    }; // class TrigCompositeAuxContainer_v1
 
 } // namespace xAOD
 
-// Set up a CLID and StoreGate inheritance for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigCompositeAuxContainer_v1, 1175586382, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the class:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TrigCompositeAuxContainer_v1, xAOD::ByteStreamAuxContainer_v1 );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_TRIGCOMPOSITEAUXCONTAINER_V1_H

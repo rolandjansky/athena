@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 601493 2014-06-12 17:36:33Z ssnyder $ -->
+<!-- $Id: selection.xml 635056 2014-12-10 15:35:39Z watsona $ -->
 <lcgdict>
 
    <!-- The byte stream auxiliary container, v1: -->
@@ -24,6 +24,12 @@
    <class name="std::map<std::string,std::vector<float> >" />
    <class name="std::map<std::string,std::vector<std::vector<int> > >" />
    <class name="std::map<std::string,std::vector<std::vector<float> > >" />
+   
+
+   <!-- Types used by Signature and Sequence info in TriggerMenuAuxContainer_v1 -->
+   <class name="std::vector<std::vector<std::vector<std::string> > >" />
+   <class name="std::vector<std::vector<std::vector<uint32_t> > >" />
+   <class  name="std::vector<std::vector<std::vector<std::vector<std::string> > > >" />
 
    <!-- RoI dictionaries: -->
    <class name="xAOD::MuonRoI_v1" />
@@ -38,11 +44,23 @@
    <class name="xAOD::JetRoIAuxContainer_v1"
           id="64C2E2A4-5E9A-11E3-BEF2-02163E00A725" />
 
+   <class name="xAOD::JetRoI_v2" />
+   <class name="xAOD::JetRoIContainer_v2"
+          id="8F9A76C9-2083-4774-A0EE-FB585930B664" />
+   <class name="xAOD::JetRoIAuxContainer_v2"
+          id="8448ECAF-10E0-4E8B-9E67-3A00FEA36317" />
+
    <class name="xAOD::EmTauRoI_v1" />
    <class name="xAOD::EmTauRoIContainer_v1"
           id="101CD1EE-5EA2-11E3-895D-02163E00A743" />
    <class name="xAOD::EmTauRoIAuxContainer_v1"
           id="1825AE7E-5EA2-11E3-A41F-02163E00A743" />
+
+   <class name="xAOD::EmTauRoI_v2" />
+   <class name="xAOD::EmTauRoIContainer_v2"
+          id="6AB862C4-31E6-4F66-AAE8-56BA01E350F2" />
+   <class name="xAOD::EmTauRoIAuxContainer_v2"
+          id="74EA3AFB-B7BE-4E4B-AD5D-4297CA6EDBCD" />
 
    <class name="xAOD::JetEtRoI_v1"
           id="6018AD28-5EAF-11E3-9B5D-02163E00A743" />
@@ -73,6 +91,12 @@
          id="092BCB2D-9630-4689-BE86-7B93466420DA" />
   <class name="xAOD::TrigDecisionAuxInfo_v1"
          id="F9618829-3B9C-41CB-8A87-D26B5D31CA79" />
+
+  <!-- TrigNavigation_v1 dictionaries: -->
+  <class name="xAOD::TrigNavigation_v1"
+         id="C9131CE0-C4D5-47A2-B088-D49ECE2C3C69" />
+  <class name="xAOD::TrigNavigationAuxInfo_v1"
+         id="924049A6-25B4-4406-A70A-CCAC2E4233E1" />
 
   <!-- TrigComposite_v1 dictionaries: -->
   <class name="xAOD::TrigComposite_v1" />

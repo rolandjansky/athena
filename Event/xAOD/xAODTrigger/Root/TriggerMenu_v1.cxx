@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerMenu_v1.cxx 582798 2014-02-12 15:53:47Z krasznaa $
+// $Id: TriggerMenu_v1.cxx 631658 2014-11-27 18:53:39Z lheinric $
 
 // System include(s):
 #include <iostream>
@@ -135,8 +135,84 @@ namespace xAOD {
       return acc.isAvailable( *this );
    }
 
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector< std::vector< uint32_t> >,
+                                      chainSignatureCounters, setChainSignatureCounters )
+
+   bool TriggerMenu_v1::chainSignatureCountersAvailable() const {
+
+      static Accessor< std::vector< std::vector< uint32_t> > > acc( "chainSignatureCounters" );
+      return acc.isAvailable( *this );
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector< std::vector< int > >,
+                                      chainSignatureLogics, setChainSignatureLogics )
+
+   bool TriggerMenu_v1::chainSignatureLogicsAvailable() const {
+
+      static Accessor< std::vector< std::vector< uint32_t > > > acc( "chainSignatureLogics" );
+      return acc.isAvailable( *this );
+   }
+  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector<std::vector< std::vector< std::string> > >,
+                                      chainSignatureOutputTEs, setChainSignatureOutputTEs )
+
+   bool TriggerMenu_v1::chainSignatureOutputTEsAvailable() const {
+     
+    static Accessor< std::vector<std::vector< std::vector< std::string> > > > acc( "chainSignatureOutputTEs" );
+     return acc.isAvailable( *this );
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector<std::vector< std::string > >,
+				      chainSignatureLabels, setChainSignatureLabels )
+
+   bool TriggerMenu_v1::chainSignatureLabelsAvailable() const {
+
+      static Accessor< std::vector< std::vector< std::string > > > acc( "chainSignatureLabels" );
+      return acc.isAvailable( *this );
+   }
+
+
    //
    /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   //          Implementation of the HLT sequence accessor functions
+   //
+
+   
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector< std::vector< std::string > >,
+                                       sequenceInputTEs, setSequenceInputTEs )
+
+   bool TriggerMenu_v1::sequenceInputTEsAvailable() const {
+
+      static Accessor< std::vector< std::vector< std::string > > > acc( "sequenceInputTEs" );
+      return acc.isAvailable( *this );
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector< std::string >,
+                                      sequenceOutputTEs, setSequenceOutputTEs )
+
+   bool TriggerMenu_v1::sequenceOutputTEsAvailable() const {
+
+      static Accessor< std::vector< std::string > > acc( "sequenceOutputTEs" );
+      return acc.isAvailable( *this );
+   }
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TriggerMenu_v1, std::vector< std::vector< std::string > >,
+                                      sequenceAlgorithms, setSequenceAlgorithms )
+
+   bool TriggerMenu_v1::sequenceAlgorithmsAvailable() const {
+     
+     static Accessor< std::vector<std::vector< std::string > > > acc( "sequenceAlgorithms" );
+     return acc.isAvailable( *this );
+   }
+
+
+
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
 
    /////////////////////////////////////////////////////////////////////////////
    //

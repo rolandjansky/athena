@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionAuxInfo_v1.h 581968 2014-02-06 16:08:52Z krasznaa $
+// $Id: TrigDecisionAuxInfo_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_TRIGDECISIONAUXINFO_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGDECISIONAUXINFO_V1_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 581968 $
-   /// $Date: 2014-02-06 17:08:52 +0100 (Thu, 06 Feb 2014) $
+   /// $Revision: 631149 $
+   /// $Date: 2014-11-26 13:26:18 +0100 (Wed, 26 Nov 2014) $
    ///
    class TrigDecisionAuxInfo_v1 : public AuxInfoBase {
 
@@ -71,12 +71,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the type:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigDecisionAuxInfo_v1, 44251926, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the type:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TrigDecisionAuxInfo_v1, xAOD::AuxInfoBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_TRIGDECISIONAUXINFO_V1_H

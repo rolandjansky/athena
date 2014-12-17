@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+// $Id: TrigCompositeContainer_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITECONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITECONTAINER_V1_H
 
@@ -18,11 +18,5 @@ namespace xAOD {
    /// The container is a simple typedef
    typedef DataVector< TrigComposite_v1 > TrigCompositeContainer_v1;
 }
-
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TrigCompositeContainer_v1, 1333228823, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_VERSIONS_TRIGCOMPOSITECONTAINER_V1_H
