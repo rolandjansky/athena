@@ -45,7 +45,7 @@ Rec::MuonTrackSlimmer::MuonTrackSlimmer(const std::string& name,
 
   declareProperty("InDetSlimTrackContainer", m_inDetSlimTrackContainerName="Tracks");
 
-  declareProperty("TakeAllMuGirlRefittedSlimmedTracks", m_takeAllMuGrilRefittedTrack = false);
+  declareProperty("TakeAllMuGirlRefittedSlimmedTracks", m_takeAllMuGirlRefittedTrack = false);
  
   declareProperty("doMuonTrackSlimming", m_doMuonTrackSlimming = true);
   
@@ -252,7 +252,7 @@ void Rec::MuonTrackSlimmer::doTrackSlimming ( const Analysis::MuonContainer * mu
              muonCombinedTrackParticle->setTrackLink( slimmedTracks, slimmed );
           }
        }
-       if ( (muonTrackFromVertex && muonTrackParticleFromVertex) && m_takeAllMuGrilRefittedTrack) {
+       if ( (muonTrackFromVertex && muonTrackParticleFromVertex) && m_takeAllMuGirlRefittedTrack) {
           if ( checkOverlap ) isOverlapping = this->checkForOverlap ( muonTrackFromVertex );
           if ( !isOverlapping ) {
              Track *slimmed = m_muonTrackSlimmerTool->slim( *muonTrackFromVertex );
@@ -262,15 +262,15 @@ void Rec::MuonTrackSlimmer::doTrackSlimming ( const Analysis::MuonContainer * mu
           }
        }
     }
-    else if ( muonTrackFromVertex && muonTrackParticleFromVertex && !m_takeAllMuGrilRefittedTrack) {
-       if ( checkOverlap ) isOverlapping = this->checkForOverlap ( muonTrackFromVertex );
-       if ( !isOverlapping ) {
-          Track *slimmed = m_muonTrackSlimmerTool->slim( *muonTrackFromVertex );
-          slimmedTracks->push_back( slimmed );
-          m_tempTrackCollection->push_back( muonTrackFromVertex );
-          muonTrackParticleFromVertex->setTrackLink( slimmedTracks, slimmed );
-       }
-    }
+//    else if ( muonTrackFromVertex && muonTrackParticleFromVertex && !m_takeAllMuGirlRefittedTrack) {
+//       if ( checkOverlap ) isOverlapping = this->checkForOverlap ( muonTrackFromVertex );
+//       if ( !isOverlapping ) {
+//          Track *slimmed = m_muonTrackSlimmerTool->slim( *muonTrackFromVertex );
+//          slimmedTracks->push_back( slimmed );
+//          m_tempTrackCollection->push_back( muonTrackFromVertex );
+//          muonTrackParticleFromVertex->setTrackLink( slimmedTracks, slimmed );
+//       }
+//    }
     else if ( muonTrackToVertex && muonTrackParticleToVertex ) {
        if ( checkOverlap ) isOverlapping = this->checkForOverlap ( muonTrackToVertex );
        if ( !isOverlapping ) { 
@@ -281,7 +281,7 @@ void Rec::MuonTrackSlimmer::doTrackSlimming ( const Analysis::MuonContainer * mu
        }
     }
 /*
-    else if ( muonTrackFromVertex && muonTrackParticleFromVertex && !m_takeAllMuGrilRefittedTrack) {
+    else if ( muonTrackFromVertex && muonTrackParticleFromVertex && !m_takeAllMuGirlRefittedTrack) {
        if ( checkOverlap ) isOverlapping = this->checkForOverlap ( muonTrackFromVertex );
        if ( !isOverlapping ) {
           Track *slimmed = m_muonTrackSlimmerTool->slim( *muonTrackFromVertex );

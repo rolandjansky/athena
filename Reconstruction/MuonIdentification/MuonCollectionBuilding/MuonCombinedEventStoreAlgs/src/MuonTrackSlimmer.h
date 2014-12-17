@@ -97,7 +97,7 @@ namespace Rec {
     float m_caloLikelihood;
 
     /** option to take all refitted tracks */
-    bool m_takeAllMuGrilRefittedTrack;
+    bool m_takeAllMuGirlRefittedTrack;
 
     /** option to slim muon tracks or not */
     bool m_doMuonTrackSlimming;
