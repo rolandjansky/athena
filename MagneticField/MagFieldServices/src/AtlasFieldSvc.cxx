@@ -48,7 +48,7 @@ MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc)
     m_toroMinCurrent(1.0),
     m_useDCS(false),
     m_coolCurrentsFolderName("/EXT/DCS/MAGNETS/SENSORDATA"),
-    m_useMapsFromCOOL(false),
+    m_useMapsFromCOOL(true),
     m_coolMapsFolderName("/GLOBAL/BField/Maps"),
     m_useSoleCurrent(7730.),
     m_useToroCurrent(20400.),
