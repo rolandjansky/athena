@@ -176,8 +176,10 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
     double newqoverp=sign/(5.*CLHEP::GeV);
     params[Trk::qOverP]=newqoverp;
     const Trk::TrackParameters *newlastidpar=lastmeasidpar->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],new AmgSymMatrix(5)(*lastmeasidpar->covariance()));
-    idextrapolatedpar=m_extrapolator->extrapolateToVolume(*newlastidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon);
-    delete newlastidpar;
+    if(newlastidpar) {
+      idextrapolatedpar=m_extrapolator->extrapolateToVolume(*newlastidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon);
+      delete newlastidpar;
+    }
   }
   const Trk::TrackParameters *measidpar= idextrapolatedpar && idextrapolatedpar->covariance() ? idextrapolatedpar : 0;
 
@@ -191,6 +193,11 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
     const AmgSymMatrix(5) &idcovmat=*measidpar->covariance();
     AmgVector(5) params=mspar->parameters();
     params[Trk::qOverP]=idextrapolatedpar->parameters()[Trk::qOverP];
+    if(!mspar->covariance()){
+      ATH_MSG_DEBUG( "Muons parameters missing Error matrix: " << mspar);
+      delete idextrapolatedpar;
+      return 1e5; // Sometimes it's 0, sometimes 1e15. Maybe for comparison of chi2? Just in case, will copy this value from earlier check on ms track. EJWM.
+    } 
     AmgSymMatrix(5) *newcovmat=new AmgSymMatrix(5)(*mspar->covariance());
     for (int i=0;i<5;i++) (*newcovmat)(i,4)=idcovmat(i,4);
     msparforextrapolator=msparforextrapolator->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],newcovmat);
@@ -213,7 +220,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   }
   //std::cout << "idpar: " << measidpar << " mspar: " << measmspar << std::endl;
 
-  if ((!msextrapolatedpar && !muonisstraight) || !idextrapolatedpar){
+  if ((!msextrapolatedpar && !muonisstraight)){
     msg(MSG::DEBUG) << "extrapolation failed, id:" << idextrapolatedpar << " ms: " << msextrapolatedpar << endreq;
 
     delete msextrapolatedpar;
