@@ -18,7 +18,8 @@ from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 #simFlags.SimLayout='ATLAS-SLHC-00-00-00'
 #simFlags.SimLayout='ATLAS-SLHC-01-00-00_VALIDATION'
-simFlags.SimLayout='ATLAS-SLHC-01-03-00_VALIDATION'
+#simFlags.SimLayout='ATLAS-SLHC-01-03-00_VALIDATION'
+simFlags.SimLayout='ATLAS-P2-ITK-01-00-00_VALIDATION'
 simFlags.SimLayout.set_On() 
 simFlags.EventFilter.set_On()
 

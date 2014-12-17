@@ -49,7 +49,8 @@ globalflags.DataSource = 'geant4'
 globalflags.InputFormat = 'pool'
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-00-00'
+# jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-00-00'
+DetDescrVersion = jobproperties.Global.DetDescrVersion()
 
 # --- printout
 globalflags.print_JobProperties()
@@ -57,9 +58,11 @@ globalflags.print_JobProperties()
 from AthenaCommon.BeamFlags import jobproperties
 # --- default is high luminosity for SLHC
 jobproperties.Beam.numberOfCollisions = 40.0  
+jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-SDR-BS14T-ATLAS-00"
+# globalflags.ConditionsTag = "OFLCOND-SDR-BS14T-ATLAS-00"
+# globalflags.ConditionsTag = "OFLCOND-MC12-ITK-21-200-25"
 
 # --- no conditions for SLHC
 if len(globalflags.ConditionsTag())!=0:
@@ -83,6 +86,8 @@ DetFlags.makeRIO.TRT_setOff()
 # --- and switch off all the rest
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
+
+# DetFlags.Truth_setOn()
 # --- printout
 DetFlags.Print()
 
@@ -94,7 +99,8 @@ DetFlags.Print()
 
 # --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool')
+# InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool')
+InDetFlags.doTruth       = False
 
 InDetFlags.doLowBetaFinder = False
 
@@ -118,6 +124,8 @@ if ( rec.OutputFileNameForRecoStep() == 'ESDtoAOD' or
     print 'switching off tracking and vertex finding for AOD and ESD making'
     InDetFlags.doNewTracking  =         False
     InDetFlags.doVertexFinding =        False
+    InDetFlags.doPRDFormation = False
+    InDetFlags.doParticleCreation = False
 
 else:
     print 'setting flags for RAWtoESD'
@@ -155,11 +163,14 @@ else:
     InDetFlags.doStandardPlots  = False
     InDetFlags.doSGDeletion     = False
 
+    # Write RDOs 
+    InDetFlags.writeRDOs.set_Value_and_Lock(True);
+
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon = True
-from PerfMonComps.PerfMonFlags import jobproperties as jp
-jp.PerfMonFlags.OutputFile=rec.OutputFileNameForRecoStep()+'.pmon.gz'
-jp.PerfMonFlags.doMonitoring=True
+#from PerfMonComps.PerfMonFlags import jobproperties as jp
+#jp.PerfMonFlags.OutputFile=rec.OutputFileNameForRecoStep()+'.pmon.gz'
+#jp.PerfMonFlags.doMonitoring=True
 
 
 #InDetFlags.doTrkD3PD        = True
@@ -213,23 +224,35 @@ TrkDetFlags.SCT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.TRT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.MagneticFieldCallbackEnforced   = False
 TrkDetFlags.TRT_BuildStrawLayers            = False
-TrkDetFlags.MaterialFromCool                = True
-TrkDetFlags.MaterialDatabaseLocal           = False and TrkDetFlags.MaterialFromCool()
+# TrkDetFlags.MaterialFromCool                = True
+TrkDetFlags.MaterialDatabaseLocal           = True # False and TrkDetFlags.MaterialFromCool()
 TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-TrkDetFlags.MaterialTagBase                 = 'SLHC_LayerMat_v'
-TrkDetFlags.MaterialVersion                 = 6
+#TrkDetFlags.MaterialTagBase                 = 'SLHC_LayerMat_v'
+TrkDetFlags.MaterialTagBase                 = 'AtlasLayerMat_v'
+# TrkDetFlags.MaterialVersion                 = 6
+TrkDetFlags.MaterialVersion                 = 17
+
+TrkDetFlags.MaterialSource           = 'COOL'
+
 if SLHC_Flags.SLHC_Version() is '' :
     TrkDetFlags.MaterialMagicTag                = jobproperties.Global.DetDescrVersion()
 else :
     TrkDetFlags.MaterialMagicTag                = SLHC_Flags.SLHC_Version() 
 if TrkDetFlags.MaterialDatabaseLocal() is True :
-    TrkDetFlags.MaterialDatabaseLocalPath    = ''
-    TrkDetFlags.MaterialDatabaseLocalName    = 'SLHC_LayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
+    # prepare the magic tag
+    splitGeo = DetDescrVersion.split('-')
+    TrkDetFlags.MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
+    # now say where the file is
+    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMaterial'
+    TrkDetFlags.MaterialDatabaseLocalPath    = './'
+    TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
+    # TrkDetFlags.MaterialDatabaseLocalPath    = ''
+    # TrkDetFlags.MaterialDatabaseLocalName    = 'SLHC_LayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
 TrkDetFlags.MagneticFieldCallbackEnforced         = False
-TrkDetFlags.LArUseMaterialEffectsOnTrackProvider  = False
-TrkDetFlags.TileUseMaterialEffectsOnTrackProvider = False
+# TrkDetFlags.LArUseMaterialEffectsOnTrackProvider  = False
+# TrkDetFlags.TileUseMaterialEffectsOnTrackProvider = False
 
-
+import MagFieldServices.SetupField
 
 # --- do tracking D3PD
 if hasattr(runArgs,"outputDESDM_TRACKFile"):
@@ -264,3 +287,5 @@ theApp.EvtMax = athenaCommonFlags.EvtMax()
 from InDetSLHC_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
+if ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' ):
+    include("InDetSLHC_Example/postInclude.DigitalClustering.py")

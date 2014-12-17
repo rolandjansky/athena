@@ -7,11 +7,11 @@ private
 
 use AtlasPolicy		       AtlasPolicy-*
 use TestPolicy                 TestPolicy-*
-use AthenaCommon               AthenaCommon-*		Control
+use AthenaCommon               AthenaCommon-*		Control -no_auto_imports
 use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
 
 # --- needed for LCG relational database stuff
-use RDBAccessSvc               RDBAccessSvc-*           Database/AthenaPOOL
+use RDBAccessSvc               RDBAccessSvc-*           Database/AthenaPOOL -no_auto_imports
 
 end_private
 

@@ -17,7 +17,8 @@ jobproperties.AthenaCommonFlags.PoolRDOOutput="singleMuon_test_slhc_Digits.pool.
 
 from AthenaCommon.GlobalFlags import jobproperties
 # jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-00-00'
-jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-03-00'
+# jobproperties.Global.DetDescrVersion='ATLAS-SLHC-01-03-00'
+jobproperties.Global.DetDescrVersion='ATLAS-P2-ITK-01-00-00'
 
 from Digitization.DigitizationFlags import jobproperties 
 jobproperties.Digitization.doInDetNoise=False
