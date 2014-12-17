@@ -873,6 +873,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 	surface		= (**m).surface();	
 	if (! intersection)		return false;
 	(**m).intersection(type,intersection);
+	if (type == FittedTrajectory) (**m).qOverP(qOverP);
 	++m;
     }
     
@@ -904,71 +905,66 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 	}
 	if (! intersection) return false;
 
-	// active or passive (hole) measurement
-	if ((**m).isPositionMeasurement() || (**m).isPassive() || (**m).isMaterialDelimiter())
+	// alignment and material effects (energy loss and trajectory deviations)
+	if ((**m).isEnergyDeposit() || (**m).isScatterer())
 	{
-	    (**m).intersection(type,intersection);
-	    continue;
-	}
-
-	// otherwise some sort of material effect
-	if ((**m).numberDoF())
-	{
-	    if ((**m).isEnergyDeposit()) // used for calorimeter
+	    // apply fitted parameters
+	    if ((**m).numberDoF())
 	    {
-		if (type == FittedTrajectory)
+		if ((**m).isEnergyDeposit()) // reserved for calorimeter
 		{
-		    m_qOverPbeforeCalo	= qOverP;
-		    m_qOverPafterCalo	= m_parameters->qOverP1();
-		    qOverP		= m_qOverPafterCalo;
-		    (**m).qOverP(qOverP);
+		    if (type == FittedTrajectory)
+		    {
+			m_qOverPbeforeCalo	= qOverP;
+			m_qOverPafterCalo	= m_parameters->qOverP1();
+			qOverP			= m_qOverPafterCalo;
+			(**m).qOverP(qOverP);
+		    }
+		    else if (type == DeltaQOverP1)
+		    {
+			delete intersection;
+			intersection	=
+			    new TrackSurfaceIntersection((**m).intersection(FittedTrajectory));
+			qOverP		= m_qOverPafterCalo + m_delta[DeltaQOverP1];
+		    }
+		    else
+		    {
+			qOverP		= m_qOverPafterCalo;
+		    }
+		    (**m).intersection(type,intersection);
+		    continue;
+		}
 
-		    // additional check for projectivity/looper (trap crazy perigee displacement)
-		    // if (intersection->direction().dot(intersection->position()) < 0.)	return false;
-		}
-		else if (type == DeltaQOverP1)
+		if ((**m).isScatterer())	// scattering centre
 		{
-		    delete intersection;
-		    intersection	=
-			new TrackSurfaceIntersection((**m).intersection(FittedTrajectory));
-		    qOverP		= m_qOverPafterCalo + m_delta[DeltaQOverP1];
+		    // update track direction for fitted scattering
+		    double sinDeltaPhi	=  std::sin(m_parameters->scattererPhi(nScat));
+		    double cosDeltaPhi	=  std::sqrt(1. - sinDeltaPhi*sinDeltaPhi);
+		    double sinDeltaTheta	=  std::sin(m_parameters->scattererTheta(nScat));
+		    double tanDeltaTheta	=  sinDeltaTheta;
+		    if (std::abs(sinDeltaTheta) < 1.)
+			tanDeltaTheta	/= std::sqrt(1. - sinDeltaTheta*sinDeltaTheta);
+		    Amg::Vector3D trackDirection(intersection->direction());
+		    trackDirection		/= trackDirection.perp();
+		    double cosPhi		=  trackDirection.x()*cosDeltaPhi -
+						   trackDirection.y()*sinDeltaPhi;
+		    double sinPhi		=  trackDirection.y()*cosDeltaPhi +
+						   trackDirection.x()*sinDeltaPhi;
+		    double cotTheta		=  (trackDirection.z() - tanDeltaTheta) /
+						   (1. + trackDirection.z()*tanDeltaTheta);
+		    trackDirection		=  Amg::Vector3D(cosPhi,sinPhi,cotTheta);
+		    trackDirection		=  trackDirection.unit();
+		    const TrackSurfaceIntersection* oldIntersection = intersection;
+		    intersection		= new TrackSurfaceIntersection(intersection->position(),
+									       trackDirection,
+									       intersection->pathlength());
+		    delete oldIntersection;
+		    ++nScat;
 		}
-		else
-		{
-		    qOverP		= m_qOverPafterCalo;
-		}
-		(**m).intersection(type,intersection);
-		continue;
-	    }
-
-	    if ((**m).isScatterer())	// scattering centre
-	    {
-		// update track direction for fitted scattering
-		double sinDeltaPhi	=  std::sin(m_parameters->scattererPhi(nScat));
-		double cosDeltaPhi	=  std::sqrt(1. - sinDeltaPhi*sinDeltaPhi);
-		double sinDeltaTheta	=  std::sin(m_parameters->scattererTheta(nScat));
-		double tanDeltaTheta	=  sinDeltaTheta;
-		if (std::abs(sinDeltaTheta) < 1.)
-		    tanDeltaTheta	/= std::sqrt(1. - sinDeltaTheta*sinDeltaTheta);
-		Amg::Vector3D trackDirection(intersection->direction());
-		trackDirection		/= trackDirection.perp();
-		double cosPhi		=  trackDirection.x()*cosDeltaPhi -
-					   trackDirection.y()*sinDeltaPhi;
-		double sinPhi		=  trackDirection.y()*cosDeltaPhi +
-					   trackDirection.x()*sinDeltaPhi;
-		double cotTheta		=  (trackDirection.z() - tanDeltaTheta) /
-					   (1. + trackDirection.z()*tanDeltaTheta);
-		trackDirection		=  Amg::Vector3D(cosPhi,sinPhi,cotTheta);
-		trackDirection		=  trackDirection.unit();
-		const TrackSurfaceIntersection* oldIntersection = intersection;
-		intersection		= new TrackSurfaceIntersection(intersection->position(),
-								       trackDirection,
-								       intersection->pathlength());
-		delete oldIntersection;
-		++nScat;
 	    }
 	}
 
+	// apply unfitted energy loss
 	if (m_parameters->fitMomentum())
 	{
 	    // at extreme momenta use series expansion to avoid rounding (or FPE)
@@ -991,7 +987,8 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 		qOverP		=  1./momentum;
 	    }
 	}
-	
+
+	// store intersection and momentum vector (leaving surface)
 	if (type == FittedTrajectory) (**m).qOverP(qOverP);
 	(**m).intersection(type,intersection);
     }

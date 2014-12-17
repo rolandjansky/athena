@@ -105,6 +105,9 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 {
     // debug
     if (m_debug) reportQuality(measurements,parameters);
+
+    // NB keep first and last measurements distinct i.e. separate TSOS (no scatterers etc)
+    // NB trackParameters outwards from TSOS i.e. always last FitMeas on surface
     
     // create vector of TSOS - reserve upper limit for size (+1 as starts with perigee)
     DataVector<const TrackStateOnSurface>* trackStateOnSurfaces =
@@ -112,6 +115,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
+    const FitMeasurement*	fitMeasurement	= measurements.front();
     const FitQualityOnSurface*	fitQoS		= 0;
     const MaterialEffectsBase*	materialEffects	= 0;
     const MeasurementBase*	measurementBase	= 0;
@@ -121,39 +125,36 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
     // start with (measured) perigee
-    const Perigee* perigee		= parameters.perigee();
-    double qOverP			= perigee->parameters()[Trk::qOverP];
-    surface				= &perigee->associatedSurface();
-    trackParameters			= perigee;
+    unsigned scatter		= 0;
+    unsigned tsos		= 0;
+    const Perigee* perigee	= parameters.perigee();
     typePattern.set(TrackStateOnSurface::Perigee);
-    unsigned scatter	= 0;
-    unsigned tsos	= 0;
+    trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
+							    perigee,
+							    fitQoS,
+							    materialEffects,
+							    typePattern));
+    ++tsos;
 
     // append leading TSOS to perigee
     if (leadingTSOS)
     {
-	trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
-								trackParameters,
-								fitQoS,
-								materialEffects,
-								typePattern));
-	surface = 0;
 	for (DataVector<const TrackStateOnSurface>::const_iterator t = leadingTSOS->begin();
 	     t != leadingTSOS->end();
 	     ++t)
 	{
 	    if (! (**t).type(Trk::TrackStateOnSurface::Perigee))
 	    {
-		++tsos;
 		trackStateOnSurfaces->push_back((**t).clone());
+		++tsos;
 	    }
 	}
     }
     
     // then append the fitted TSOS
     for (std::list<FitMeasurement*>::const_iterator m = measurements.begin();
-	 m != measurements.end();
-	 ++m)
+    	 m != measurements.end();
+    	 ++m)
     {
 	if ((**m).isMaterialDelimiter()) continue;
 	
@@ -174,23 +175,38 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		}
 		else
 		{
-		    ++tsos;
+		    // get the MeasuredParameters (with covariance)
+		    bool withCovariance	= true;
+		    trackParameters	= parameters.trackParameters(*m_log,
+								     *fitMeasurement,
+								     withCovariance);
+		    if (! trackParameters)
+		    {
+			*m_log << MSG::WARNING
+			       << " fail track with incomplete return TSOS: no trackParameters"
+			       << endreq;
+			delete trackStateOnSurfaces;
+			return 0;
+		    }
+		    typePattern.set(TrackStateOnSurface::Parameter);
 		    trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
 									    trackParameters,
 									    fitQoS,
 									    materialEffects,
 									    typePattern));
+		    ++tsos;
 		}
 	    }
+	    fitMeasurement	= *m;
 	    surface 		= (**m).surface();
 	    measurementBase	= 0;
-	    trackParameters	= 0;
 	    fitQoS		= 0;
 	    materialEffects	= 0;
 	    typePattern		= defaultPattern;
 	}
 	else
 	{
+	    fitMeasurement	= *m;
 	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endreq;
 	}
 
@@ -201,13 +217,27 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    // (dirty fix for pseudoMeasurements)
 	    if (measurementBase)
 	    {
-		++tsos;
+		// get the MeasuredParameters (with covariance)
+		bool withCovariance	= true;
+		trackParameters		= parameters.trackParameters(*m_log,
+								     *fitMeasurement,
+								     withCovariance);
+		if (! trackParameters)
+		{
+		    *m_log << MSG::WARNING
+			   << " fail track with incomplete return TSOS: no trackParameters"
+			   << endreq;
+		    delete trackStateOnSurfaces;
+		    return 0;
+		}
+		typePattern.set(TrackStateOnSurface::Parameter);
 		trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
 									trackParameters,
 									fitQoS,
 									materialEffects,
 									typePattern));
-		trackParameters	= 0;
+		++tsos;
+		fitMeasurement	= *m;
 		fitQoS		= 0;
 		materialEffects	= 0;
 		typePattern	= defaultPattern;
@@ -222,7 +252,6 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	if ((**m).materialEffects())
 	{
 	    // update momentum to account for energy loss
-	    qOverP	= (**m).qOverP();
 	    delete materialEffects;
 
 	    if ((**m).isEnergyDeposit())
@@ -303,28 +332,26 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	{
 	    if ((**m).type() == hole)		typePattern.set(TrackStateOnSurface::Hole);
 	}
-
-	// get the MeasuredParameters (with covariance)
-	delete trackParameters;
-	(**m).qOverP(qOverP);
-	bool withCovariance	= true;
-	trackParameters		= parameters.trackParameters(*m_log, **m, withCovariance);
-	if (! trackParameters)
-	{
-	    *m_log << MSG::WARNING << " fail track with incomplete return TSOS: no trackParameters"
-		   << endreq;
-	    delete trackStateOnSurfaces;
-	    return 0;
-	}
-	typePattern.set(TrackStateOnSurface::Parameter);
     }
 
     // remember the final TSOS !
+    bool withCovariance	= true;
+    trackParameters	= parameters.trackParameters(*m_log, *fitMeasurement, withCovariance);
+    if (! trackParameters)
+    {
+	*m_log << MSG::WARNING
+	       << " fail track with incomplete return TSOS: no trackParameters"
+	       << endreq;
+	delete trackStateOnSurfaces;
+	return 0;
+    }
+    typePattern.set(TrackStateOnSurface::Parameter);
     trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
 							    trackParameters,
 							    fitQoS,
 							    materialEffects,
 							    typePattern));
+    ++tsos;
 
     // construct track
     double chiSquared	= m_chiSq * static_cast<double>(m_numberDoF);
