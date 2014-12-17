@@ -1,0 +1,106 @@
+The following functino are all equivalent
+
+Initialization
+==============
+
+egammaEnergyCorrection::AtlasRoot::egammaEnergyCorrectionTool tool();
+tool.initialize();
+
+Interfaces
+==========
+
+Specialized interface
+---------------------
+getCorrectedEnergyPhoton( unsigned int runnumber,
+                          PATCore::ParticleDataType::DataType dataType,
+			  float rawcl_Es0,
+			  float rawcl_Es1,
+			  float rawcl_Es2,
+			  float rawcl_Es3,
+			  float cl_eta,
+			  float cl_phi,
+			  float cl_E,
+			  float cl_etaCalo,
+			  float cl_phiCalo,
+			  float ptconv,
+			  float pt1conv,
+			  float pt2conv,
+			  float convtrk1nPixHits,
+			  float convtrk1nSCTHits,
+			  int convtrk2nPixHits,
+			  int convtrk2nSCTHits,
+			  float Rconv,
+			  Scale::Variation scaleVar=Scale::None,
+			  Resolution::Variation resVar=Resolution::None,
+			  double varSF=1.0 )
+
+getCorrectedEnergyElectron( unsigned int runnumber,
+			    PATCore::ParticleDataType::DataType dataType,
+			    float rawcl_Es0,
+			    float rawcl_Es1,
+			    float rawcl_Es2,
+			    float rawcl_Es3,
+			    float cl_eta,
+			    float cl_phi,
+			    float trk_eta,
+			    float cl_E,
+			    float cl_etaCalo,
+			    float cl_phiCalo,
+			    Scale::Variation scaleVar=Scale::None,
+			    Resolution::Variation resVar=Resolution::None,
+			    double varSF=1.0 ) const;
+Struct interface
+----------------
+double getCorrectedEnergy( unsigned int runnumber,
+                           PATCore::ParticleDataType::DataType dataType,
+			   const ParticleInformation & particle_info,
+			   Scale::Variation scaleVar=Scale::None,
+                           Resolution::Variation resVar=Resolution::None,
+                           double varSF=1.0 ) const;
+
+where ParticleInformation can be created in two ways:
+
+ParticleInformation(float rawcl_Es0,
+			  float rawcl_Es1,
+			  float rawcl_Es2,
+			  float rawcl_Es3,
+			  float cl_eta,
+			  float cl_phi,
+			  float cl_E,
+			  float calibHitsShowerDepth,
+			  float cl_etaCalo,
+			  float cl_phiCalo,
+			  float ptconv,
+			  float pt1conv,
+			  float pt2conv,
+			  float convtrk1nPixHits,
+			  float convtrk1nSCTHits,
+			  int convtrk2nPixHits,
+			  int convtrk2nSCTHits,
+			  float Rconv)
+
+ParticleInformation(float rawcl_Es0,
+			  float rawcl_Es1,
+			  float rawcl_Es2,
+			  float rawcl_Es3,
+			  float cl_eta,
+			  float cl_phi,
+			  float trk_eta,
+			  float cl_E,
+			  float calibHitsShowerDepth,
+			  float cl_etaCalo,
+			  float cl_phiCalo)
+
+(suggestion: create it inplace)
+
+Additional methods
+==================
+
+This methods should be called after the contructor and between the initialization.
+They change the default behaviour of the tool.
+
+void useMVA ( bool val );
+
+void useIntermoduleCorrection( bool val );
+
+void usePhiUniformCorrection( bool val );

@@ -1,0 +1,14 @@
+ <lcgdict>
+
+   <class name="AtlasRoot::egammaEnergyCorrectionTool" />
+
+   <enum pattern="egammaEnergyCorrection::*"/>
+   <variable pattern="egammaEnergyCorrection::*"/>
+
+   <enum pattern="egammaEnergyCorrection::Resolution::*"/>
+   <variable pattern="egammaEnergyCorrection::Resolution::*"/>
+
+   <enum pattern="egammaEnergyCorrection::Scale::*"/>
+   <variable pattern="egammaEnergyCorrection::Scale::*"/>
+
+</lcgdict>
