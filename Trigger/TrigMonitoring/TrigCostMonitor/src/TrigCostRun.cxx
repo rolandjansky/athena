@@ -12,6 +12,7 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
+// NEEDS MIGRATING
 
 // Trigger
 #include "TrigConfHLTData/HLTUtils.h"
@@ -252,7 +253,7 @@ StatusCode TrigCostRun::execute()
   //
   // Check if we have L2 and EF events for the same L1 event: 
   //
-  if(MatchL2andEF(m_readL2.vecEvent, m_readEF.vecEvent)) {
+  if(m_readL2.vecEvent.size() && m_readEF.vecEvent.size() && MatchL2andEF(m_readL2.vecEvent, m_readEF.vecEvent)) {
     log() << MSG::DEBUG << "L2 and EF events match - merge two events" << endreq;
     //
     // Merge L2 into EF: use EF because it has correct (non-L1) event number
@@ -269,11 +270,10 @@ StatusCode TrigCostRun::execute()
       (*it)->Fill(m_readEF.vecEvent.front());
     }
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
-
       (*it)->Fill(m_readEF.vecEvent.front());
     }
   }
-  else {
+  else if (m_readL2.vecEvent.size() || m_readEF.vecEvent.size()) {
     log() << MSG::DEBUG << "L2 and EF events do not match - record them separately" << endreq;
 
     //
@@ -281,8 +281,7 @@ StatusCode TrigCostRun::execute()
     //
     for(unsigned i = 0; i < m_readL2.vecEvent.size(); ++i) {
       for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
-
-		(*it)->Fill(m_readL2.vecEvent.at(i));
+        (*it)->Fill(m_readL2.vecEvent.at(i));
       }
       for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
         (*it)->Fill(m_readL2.vecEvent.at(i));
@@ -290,11 +289,9 @@ StatusCode TrigCostRun::execute()
     }
     for(unsigned i = 0; i < m_readEF.vecEvent.size(); ++i) {
       for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
-
-		(*it)->Fill(m_readEF.vecEvent.at(i));
+		    (*it)->Fill(m_readEF.vecEvent.at(i));
       }
       for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
-
         (*it)->Fill(m_readEF.vecEvent.at(i));
       }
     }
@@ -305,15 +302,12 @@ StatusCode TrigCostRun::execute()
   //
   for(unsigned i = 0; i < m_readHLT.vecEvent.size(); ++i) {
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
-
-  	(*it)->Fill(m_readHLT.vecEvent.at(i));
+      (*it)->Fill(m_readHLT.vecEvent.at(i));
     }
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
-
-  	(*it)->Fill(m_readHLT.vecEvent.at(i));
+  	  (*it)->Fill(m_readHLT.vecEvent.at(i));
   	}
 	}
-
 
   return StatusCode::SUCCESS;
 }
@@ -327,7 +321,6 @@ StatusCode TrigCostRun::finalize()
   log() << MSG::INFO << "finalize()" << endreq;
 
   for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
-
     (*it)->Fill(&m_config);
   }
 
@@ -358,10 +351,7 @@ bool TrigCostRun::MatchL2andEF(const std::vector<TrigMonEvent> &events_l2,
   //
   // Check if L2 and EF vectors contain the same single event
   //
-  if(!(events_l2.size() == 1 && events_ef.size() == 1)) {
-    return false;
-  }
-  
+
   const TrigMonEvent &evt_l2 = events_l2.front();
   const TrigMonEvent &evt_ef = events_ef.front();
 
@@ -385,7 +375,8 @@ TrigCostRun::ReadHLTResult::ReadHLTResult()
    countInvalid(0),
    countValid(0),
    countEvent(0),
-   countConfig(0)
+   countConfig(0),
+   resultPrint(0)
 {
 }
 
@@ -512,21 +503,19 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   appName = "APP_"+hltLevel+":"+appName;
   if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Extracted App Name: " << appName << endreq;
 
+  //
+  // Save a map between application name and application id (hashed name) in global config
+  //
+  const std::vector<uint32_t> &ids = globalConfig->getVarId();
+  if(!std::count(ids.begin(), ids.end(), appId)) {
+    globalConfig->add<TrigConfVar>(TrigConfVar(appName, appId));
+  }
 
   //
   // Get hash id for HLT result
   //
   appId = TrigConf::HLTUtils::string2hash(appName, "APP_ID");
   
-  //
-  // Save map between application name and application id (hashed name)
-  //
-  const std::vector<uint32_t> &ids = globalConfig->getVarId();
-  
-  if(!std::count(ids.begin(), ids.end(), appId)) {
-    globalConfig->add<TrigConfVar>(TrigConfVar(appName, appId));
-  }
-
   return true;
 }
 
@@ -543,7 +532,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
 
     if(!storeGate->contains<TrigMonConfigCollection>(keyConfig)) {
       if(outputLevel <= MSG::DEBUG) {
-	log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endreq;
+	      log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endreq;
       }
       return false;
     }
@@ -563,16 +552,29 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
   for(TrigMonConfigCollection::const_iterator it = configCol->begin(); it != configCol->end(); ++it) {
     TrigMonConfig *ptr = *it;
     if(!ptr) continue;
-    
+
+    // Have we already saved this config?
+    std::pair<int,int> prescaleKeys( ptr->getLV1PrescaleKey(), ptr->getHLTPrescaleKey() );
+    if ( exportedConfigs.find(prescaleKeys) != exportedConfigs.end() ) continue;
+    exportedConfigs.insert( prescaleKeys );
+
+    //
+    // Save a map between application name and application id (hashed name) in exported config
+    //
+    const std::vector<uint32_t> &ids = ptr->getVarId();
+    if(!std::count(ids.begin(), ids.end(), appId)) {
+      ptr->add<TrigConfVar>(TrigConfVar(appName, appId));
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Attaching App Name map to Config " << appName << " = " << appId << endreq;
+    }
+
     //
     // Save TrigMonConfig
     //
     vecConfig.push_back(*ptr);
 
-    if(outputLevel <= MSG::DEBUG) {
-      log() << MSG::DEBUG 
-	    << "ExtractConfig #" << ptr->getEvent() << " lumi #" << ptr->getLumi() << endreq;
-    }
+    log() << MSG::INFO << "ExtractConfig M:" <<  ptr->getMasterKey() 
+          << " L1:" << ptr->getLV1PrescaleKey() << " HLT:" << ptr->getHLTPrescaleKey() 
+          << " Lumi:" << ptr->getLumi() << endreq;
   }
   
   //
@@ -599,7 +601,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
 
     if(!storeGate->contains<TrigMonEventCollection>(keyEvent)) {
       if(outputLevel <= MSG::DEBUG) {
-	log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endreq;
+	      log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endreq;
       }
       return false;
     }
@@ -619,8 +621,8 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     TrigMonEvent *ptr = *it;
     if(!ptr) continue;
 
+    // Add my HLT node
     ptr->addWord(appId); //Backward compatability
-    ptr->addVar(42, appId); //For more security, also store this in location 42
 
     if(fill_size) {
       ptr->addVar(9, float(eventCol->size()));
@@ -636,18 +638,30 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     }
 
     //
-    // Save the lumi block length
+    // Save the lumi block length, if not already in file
     //
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Reading lumi length" << endreq;
-    if (m_readLumiBlock.getTriedSetup() == false) m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
-    ptr->addVar(43, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "LB "<< ptr->getLumi()<<" is Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endreq;
-    std::string _msg = m_readLumiBlock.infos();
-    if (_msg.size()) log() << MSG::INFO << _msg;
-    std::string _dbg = m_readLumiBlock.debug();
-    if (_dbg.size() && outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << _dbg;
-    m_readLumiBlock.clearMsg();
+    bool _haveLumiLength = false;
+    for (unsigned i=0; i < ptr->getVarKey().size(); ++i) {
+      if (ptr->getVarKey().at(i) == 43) {
+        _haveLumiLength = true;
+        if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Lumi length already stored in event" << endreq;
+        break;
+      }
+    }
 
+    if (_haveLumiLength == false) {
+      if (m_readLumiBlock.getTriedSetup() == false) {
+        log() << MSG::INFO << "Reading lumi length" << endreq;
+        m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
+      }
+      ptr->addVar(43, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endreq;
+      std::string _msg = m_readLumiBlock.infos();
+      if (_msg.size()) log() << MSG::INFO << _msg;
+      std::string _dbg = m_readLumiBlock.debug();
+      if (_dbg.size() && outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << _dbg;
+      m_readLumiBlock.clearMsg();
+    }
 
     //
     // Save events: so that later L2 and EF events can be merged
@@ -690,13 +704,9 @@ void TrigCostRun::ReadHLTResult::PrintEvent()
 
   for(unsigned i = 0; i < vecEvent.size(); ++i) {
     const TrigMonEvent &event = vecEvent.at(i);
-
-    log() << MSG::INFO
-	  << "Run #" << event.getRun() 
-	  << " lumi #" << event.getLumi() 
-	  << " event #" << event.getEvent()<< endreq;
-    
-    Trig::Print(event, *globalConfig, log(), MSG::INFO);
+    int verbosity = 6;
+    if (resultPrint++ > 10) verbosity = 0;
+    Trig::Print(event, *globalConfig, log(), MSG::INFO, verbosity);
   }
 }
 

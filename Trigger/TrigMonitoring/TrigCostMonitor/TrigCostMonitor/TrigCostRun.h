@@ -14,12 +14,14 @@
 
 // C/C++
 #include <set>
+#include <utility> //pair
 
 // Framework
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CoolLumiUtilities/BunchGroupTool.h"
 
 // Trigger
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
@@ -92,7 +94,7 @@ private:
      std::string                  keyConfig;    // StoreGate key for TrigMonConfigCollection
      std::string                  keyEvent;     // StoreGate key for TrigMonEventCollection
      std::string                  hltLevel;     // HLT trigger level
-	 bool                         doLevel;      // If level is active and to be processed
+	   bool                         doLevel;      // If level is active and to be processed
 
      unsigned                     outputLevel;  // Output level of parent TrigCostRun instance
      MsgStream                   *msgStream;    // MsgStream    of parent TrigCostRun instance
@@ -111,7 +113,10 @@ private:
      unsigned                     countValid;   // Count valid     HLT results 
 
      unsigned                     countEvent;   // Count all extracted TrigMonEvent  objects
-     unsigned                     countConfig;  // Count all extracted TrigMonConfig objects
+     unsigned                     countConfig;  // Count all extracted TrigMonConfig 
+     unsigned                     resultPrint;  // Count all fully printed results
+
+     std::set< std::pair<int,int> > exportedConfigs; // L1 and HLT keys of configurations which have already been exported to D3PD
    };
 
 private:

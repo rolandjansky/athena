@@ -12,6 +12,9 @@ if (not 'costD3PD_doEF' in dir()):
 if (not 'costD3PD_doHLT' in dir()):
   costD3PD_doHLT = True
 
+if (not 'costOutput' in dir()):
+  costOutput = "COST RATE EB"
+
 #BSRDOInput=['data_test.00212967.Single_Stream.daq.RAW._lb0291._Athena._0101.data']
 
 if not ('BSRDOInput' in dir()):
@@ -19,11 +22,13 @@ if not ('BSRDOInput' in dir()):
     sys.exit(1)
 
 if not ('EvtMax' in dir()):
-    EvtMax=0
+    EvtMax=-1
+from AthenaCommon.AppMgr import theApp
+theApp.EvtMax = EvtMax
 
 if ('setEvent' in dir()) and type(setEvent) == int:
     from AthenaCommon.AppMgr import theApp
-    theApp.EvtMax = setEvent
+    theApp.setEvent = setEvent
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.isOnline = True
@@ -76,22 +81,26 @@ runAlg = prepareCostRun('TrigCostRun', costRunString)
 
 #setDebug = 1
 
-if ('setDebug' in dir()):
+if ('enableCostDebug' in dir() and bool(enableCostDebug) == True):
+    print 'Setting TrigCostRun to DEBUG output level'
     setupCostDebug()
     runAlg.OutputLevel = DEBUG
     runAlg.navigation.OutputLevel = DEBUG
-    
     for tool in runAlg.tools:
         tool.OutputLevel = DEBUG
-
     print runAlg
-    StoreGateSvc = Service("StoreGateSvc")
-    StoreGateSvc.Dump = False
 
 topSeq += runAlg
 
 from AthenaCommon.Include import include
-include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
+if ("COST" in costOutput):
+  include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
+
+if ("RATE" in costOutput):
+  include("TrigCostD3PDMaker/TrigRateD3PDMaker_prodJobOFragment.py")
+
+if ("EB" in costOutput):
+  include("TrigCostD3PDMaker/TrigEBWeightD3PDMaker_prodJobOFragment.py")
 
 #----------------------------------------------------------------------
 # Message service and loop manager options

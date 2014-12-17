@@ -171,8 +171,8 @@ bool Trig::TrigNtExecTool::Fill(TrigMonEvent &event)
     }
 
   } else {
-    if(outputLevel() <= MSG::WARNING) {
-      log() << MSG::WARNING << "Cannot Find TrigOperationalInfoCollection with key " << m_keyExten 
+    if(outputLevel() <= MSG::DEBUG) {
+      log() << MSG::DEBUG << "Cannot Find TrigOperationalInfoCollection with key " << m_keyExten 
       << " or with key " << m_fallBackKey << endreq;
     }
   }

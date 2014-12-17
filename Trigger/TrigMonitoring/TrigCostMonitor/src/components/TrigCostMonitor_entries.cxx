@@ -10,6 +10,7 @@
 #include "TrigCostMonitor/TrigNtExecTool.h"
 #include "TrigCostMonitor/TrigNtLvl1Tool.h"
 #include "TrigCostMonitor/TrigNtHltRTool.h"
+#include "TrigCostMonitor/TrigNtEBWeightTool.h"
 #include "TrigCostMonitor/TrigNtPostTool.h"
 #include "TrigCostMonitor/TrigNtRobsTool.h"
 #include "TrigCostMonitor/TrigNtSaveTool.h"
@@ -27,6 +28,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtElemTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtExecTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtLvl1Tool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtHltRTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtEBWeightTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtPostTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtRobsTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( Trig, TrigNtSaveTool )
@@ -43,6 +45,7 @@ DECLARE_FACTORY_ENTRIES( TrigCostMonitor )
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtExecTool )
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtLvl1Tool )
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtHltRTool )
+  DECLARE_NAMESPACE_TOOL( Trig, TrigNtEBWeightTool )  
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtPostTool )
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtRobsTool )
   DECLARE_NAMESPACE_TOOL( Trig, TrigNtSaveTool )

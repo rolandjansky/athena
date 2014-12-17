@@ -10,6 +10,8 @@
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigMonitoringEvent/TrigMonEvent.h"
+#include "TrigSteering/SteeringChain.h"
+#include "TrigSteering/TrigSteer.h"
 
 // Local
 #include "TrigCostMonitor/TrigNtHltRTool.h"
@@ -19,6 +21,7 @@ Trig::TrigNtHltRTool::TrigNtHltRTool(const std::string &name,
 				     const std::string &type,
 				     const IInterface  *parent)
   :AlgTool(name, type, parent),
+   m_parentAlg(0),
    m_log(0),
    m_storeGate("StoreGateSvc", name),
    m_hltTool("HLT::HLTResultAccessTool/HLTResultAccessTool")
@@ -27,6 +30,7 @@ Trig::TrigNtHltRTool::TrigNtHltRTool(const std::string &name,
 
   declareProperty("keyResult", m_keyResult = "");
   declareProperty("saveFailedChains", m_saveFailedChains = true);
+  declareProperty("useSteering", m_useSteering = true);
 }
 
 //---------------------------------------------------------------------------------------
@@ -57,6 +61,17 @@ StatusCode Trig::TrigNtHltRTool::initialize()
 }
 
 //---------------------------------------------------------------------------------------
+void Trig::TrigNtHltRTool::SetSteer(const HLT::TrigSteer *ptr)
+{
+  if(!ptr) {
+    log() << MSG::WARNING << "Null HLT::TrigSteer pointer" << endreq;
+    return;
+  }
+
+  m_parentAlg = ptr;
+}
+
+//---------------------------------------------------------------------------------------
 StatusCode Trig::TrigNtHltRTool::finalize()
 {
   //
@@ -81,8 +96,16 @@ bool Trig::TrigNtHltRTool::Fill(TrigMonConfig *)
 //---------------------------------------------------------------------------------------
 bool Trig::TrigNtHltRTool::Fill(TrigMonEvent &event)
 {
+  if (m_useSteering == true) return FillFromSteering(event);
+  else return FillFromHLTResult(event);
+}
+
+//---------------------------------------------------------------------------------------
+bool Trig::TrigNtHltRTool::FillFromHLTResult(TrigMonEvent &event)
+{
   //
-  // Retrieve and unpack HLT result
+  // Retrieve and unpack HLT result - note in Run-2, this may be being made _after_ the OPI mon tool has run.
+  // To use this again, might need to ask to re-order the steering, or just use FillFromSteering. It's just as good.
   //
   if(!m_hltTool) {
     log() << MSG::WARNING << "Missing HLT tool: " << m_hltTool << endreq;
@@ -106,7 +129,7 @@ bool Trig::TrigNtHltRTool::Fill(TrigMonEvent &event)
 
   if(outputLevel() <= MSG::DEBUG) {
     log() << MSG::DEBUG << "Retrieved HLTResult: " << m_keyResult
-	  << " containing " << hlt_result->getChainResult().size() << " chain(s)" << endreq;
+    << " containing " << hlt_result->getChainResult().size() << " chain(s)" << endreq;
   }
 
   //
@@ -157,7 +180,7 @@ bool Trig::TrigNtHltRTool::Fill(TrigMonEvent &event)
     TrigMonChain decis(level, chain.getChainCounter());
 
     if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Saving TrigNtHltRTool HLTResult: " << chain << endreq;
+      log() << MSG::DEBUG << "Saving TrigNtHltRTool HLTResult [HLTResult] : " << chain << endreq;
     }
     
     for(std::vector<TrigMonChain::Decision>::const_iterator dit = dvec.begin(); dit != dvec.end(); ++dit) {
@@ -167,5 +190,54 @@ bool Trig::TrigNtHltRTool::Fill(TrigMonEvent &event)
     event.add<TrigMonChain>(decis);
   }
 
+  return true;
+}
+
+//---------------------------------------------------------------------------------------
+bool Trig::TrigNtHltRTool::FillFromSteering(TrigMonEvent &event)
+{
+  //
+  // Read chain decision bits
+  //
+  const std::vector<const HLT::SteeringChain *> chains = m_parentAlg->getActiveChains();
+
+  for(std::vector<const HLT::SteeringChain *>::const_iterator it = chains.begin(); it != chains.end(); ++it) {
+    const HLT::SteeringChain *chain_steer = *it;
+    if(!chain_steer) {
+      log() << MSG::WARNING << "Null HLT::SteeringChain pointer!" << endreq;
+      continue;
+    }
+
+    const TrigConf::HLTChain *chain_confg = chain_steer -> getConfigChain();
+    if(!chain_confg) {
+      log() << MSG::WARNING << "Null TrigConf::HLTChain pointer!" << endreq;
+      continue;
+    }
+
+    //
+    // Read decision bits and save chain if passed
+    //
+    std::vector<TrigMonChain::Decision> dvec;
+
+    if(chain_steer->chainPassed())     dvec.push_back(TrigMonChain::kPassed);
+    if(chain_steer->chainPassedRaw())  dvec.push_back(TrigMonChain::kPassedRaw);
+    if(chain_steer->isPassedThrough()) dvec.push_back(TrigMonChain::kPassedThrough);
+    if(chain_steer->isPrescaled())     dvec.push_back(TrigMonChain::kPrescaled);
+    if(chain_steer->isResurrected())   dvec.push_back(TrigMonChain::kResurrected);
+    
+    if(m_saveFailedChains == false && dvec.empty()) continue;
+    
+    TrigMonChain decis(chain_confg->level(), chain_confg->chain_counter());
+
+    for(std::vector<TrigMonChain::Decision>::const_iterator dit = dvec.begin(); dit != dvec.end(); ++dit) {
+      decis.addDecision(*dit);
+    }
+    
+    if(outputLevel() <= MSG::DEBUG) {
+      log() << MSG::DEBUG << " TrigNtHltRTool Saving HLTResult [Steering] : " << chain_steer << endreq;
+    }
+
+    event.add<TrigMonChain>(decis);
+  }
   return true;
 }

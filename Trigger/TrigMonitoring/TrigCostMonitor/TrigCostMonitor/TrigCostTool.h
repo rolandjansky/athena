@@ -13,10 +13,14 @@
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "GaudiKernel/AlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CoolLumiUtilities/BunchGroupTool.h"
 
 // Trigger
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigSteering/Scaler.h"
+
+#include "xAODEventInfo/EventInfo.h" // OLD
+#include "xAODEventInfo/EventInfo.h"
 
 // Trigger
 #include "TrigMonitoringEvent/TrigMonConfigCollection.h"
@@ -25,7 +29,6 @@
 #include "TrigCostMonitor/ITrigNtTool.h"
 #include "TrigCostMonitor/ReadLumiBlock.h"
 
-class EventInfo;
 class TrigTimer;
 class TriggerInfo;
 
@@ -57,14 +60,16 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
 
   MsgStream& log() const { return *m_log; }
   
-  void ProcessConfig(const EventInfo &info);
+  void ProcessConfig(xAOD::EventInfo* info);
 
   void ProcessEvent(TrigMonEvent &event);
   void SavePrevLumi(TrigMonEvent &event);
 
-  bool IsMonitoringEvent(TriggerInfo &trig);
+  bool IsMonitoringEvent(xAOD::EventInfo* info);
   
   void ClearBeforeNewRun(unsigned run = 0);
+
+  uint32_t GetL1PSKFromCTPfragment();
 
  private:
   
@@ -79,18 +84,20 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
   std::string  m_appName; // Application name for current event (HLT result) - TimM moving into CostTool from CostRun
 
   bool         m_doTiming;         // Collect timing information
-  bool         m_saveFailedChains; // Save trigger chains with zero passed trigger decision bits 
   bool         m_printEvent;       // Print event summary
   bool         m_purgeCostStream;  // Remove cost stream when no cost data is attached
   bool         m_useConfDb;        // Use the trigger configuration database
   bool         m_useConfSvc;       // Use the trigger configuration service
-  bool         m_saveExtraWords;   // Save extra words to event
+  bool         m_costForCAF;       // (Re)running the trigger outside of P1
+  bool         m_doEBWeight;       // Calculate EB weight
   bool         m_saveEventTimers;  // Save event timers: from TrigSteer and this tool
   bool         m_writeAlways;      // Always write out data for every event
   bool         m_writeConfig;      // Write out configuration data
+  bool         m_writeConfigDB;    // Write out configuration data loaded from the DB
 
   unsigned int m_stopAfterNEvent;  // Stop collecting data after nevents
   float        m_execPrescale;     // Prescale for collecting extended data
+  float        m_doOperationalInfo;// Value of doOperationalInfo in parent steering alg. Only for reference here
 
   // Athena tool and service handles
   const HLT::TrigSteer              *m_parentAlg;
@@ -98,10 +105,12 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
   TrigTimer                         *m_timer;
   ServiceHandle<StoreGateSvc>        m_storeGate;
   ServiceHandle<ITrigTimerSvc>       m_timerSvc; 
+  ToolHandle<IBunchGroupTool>        m_toolBunchGroup;
   ToolHandle<HLT::IReusableScaler>   m_scalerTool;
 
   // Tools for operational data collection
   ToolHandle<Trig::ITrigNtTool>      m_toolConf;
+  ToolHandle<Trig::ITrigNtTool>      m_toolEBWeight;
   ToolHandleArray<Trig::ITrigNtTool> m_eventTools;
   ToolHandleArray<Trig::ITrigNtTool> m_scaleTools;
   ToolHandleArray<Trig::ITrigNtTool> m_alwaysTools;
@@ -116,6 +125,8 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
   unsigned                           m_lumi;          // Current run luminosity block
   unsigned                           m_countEvent;    // Continous count of events
   unsigned                           m_keyTimer;      // Starting key for adding timers
+  unsigned                           m_exportedConfig;// Number of configs exported to the HLT result
+  unsigned                           m_exportedEvents;// Number of events exported to the HLT result
 
   TrigMonConfig                      m_config_db;     // Trigger configuration from DB (live config)
   TrigMonConfig                      m_config_sv;     // Trigger configuration from conf. servivce

@@ -35,21 +35,28 @@ namespace Trig
     
     StatusCode initialize();
     StatusCode finalize();
+
+    void SetSteer(const HLT::TrigSteer *ptr);
     
     bool Fill(TrigMonConfig *confg);
     bool Fill(TrigMonEvent &event);
     
   private:
     
-    MsgStream& log() const { return *m_log; }          
-    
+    MsgStream& log() const { return *m_log; } 
+
+    bool FillFromSteering(TrigMonEvent &event);
+    bool FillFromHLTResult(TrigMonEvent &event);
+
   private:
     
     // Properties:
     std::string                           m_keyResult;        // StoreGate key to retrieve HLTResult
     bool                                  m_saveFailedChains; // Flag to save chain info even if no trigger bits are set to pass
+    bool                                  m_useSteering;      // Flag to use steering info, if false then use HLT result
  
     // Tools and services:
+    const HLT::TrigSteer                 *m_parentAlg;
     MsgStream                            *m_log;
     ServiceHandle<StoreGateSvc>           m_storeGate;    // StoreGate service
     ToolHandle<HLT::IHLTResultAccessTool> m_hltTool;      // Helper tool for unpacking HLTResult

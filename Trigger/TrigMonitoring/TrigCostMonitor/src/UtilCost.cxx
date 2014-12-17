@@ -16,7 +16,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 void Trig::Print(const TrigMonEvent &event,
 		 const TrigMonConfig &config,
-		 MsgStream &log, MSG::Level level)
+		 MsgStream &log, MSG::Level level, int verb)
 {
   //
   // Print event
@@ -25,11 +25,30 @@ void Trig::Print(const TrigMonEvent &event,
 
   const std::vector<TrigMonL1Item> lv1 = event.getL1Items();
   const std::vector<TrigMonChain>  hlt = event.getChains();
+
+  if (verb == 0) { // Ultra compact
+    log << level 
+        << "TrigMonEvent R:" << event.getRun() 
+        << " L:" << event.getLumi()
+        << " E:" << event.getEvent()
+        << " [#ROB=" << event.size<TrigMonROB>() 
+        << "|#ROI=" << event.size<TrigMonRoi>() 
+        << "|#SEQ=" << event.size<TrigMonSeq>() 
+        << "|#TE=" << event.size<TrigMonTE> ()
+        << "|#L1=" << event.getL1Item().size()
+        << "|#HLT=" << event.getChain().size() 
+        << "|#WORD=" << event.getWord().size() << "]" << endreq;
+    return;
+  }
  
   log << level 
       << "TrigMonEvent run #" << event.getRun() 
       << " lumi #" << event.getLumi()
-      << " event #" << event.getEvent() << endreq
+      << " event #" << event.getEvent() << endreq;
+
+  if (verb == 1) return;
+
+  log << level
       << "   # of rob  = " << event.size<TrigMonROB>() << endreq
       << "   # of roi  = " << event.size<TrigMonRoi>() << endreq
       << "   # of seq  = " << event.size<TrigMonSeq>() << endreq
@@ -37,6 +56,8 @@ void Trig::Print(const TrigMonEvent &event,
       << "   # of l1   = " << event.getL1Item().size() << endreq
       << "   # of hlt  = " << event.getChain().size()  << endreq
       << "   # of word = " << event.getWord().size()   << endreq;
+
+  if (verb == 2) return;
   
   log << level << "   LV1: ";
   for(unsigned int i = 0; i < lv1.size(); ++i) {
@@ -70,6 +91,8 @@ void Trig::Print(const TrigMonEvent &event,
   }
   log << level << endreq;
 
+  if (verb == 3) return;
+
   for(unsigned int i = 0; i < event.size<TrigMonRoi>(); ++i) {
     const TrigMonRoi &roi = event.at<TrigMonRoi>(i);
     float eta = -1999.0, phi = -1999.0;
@@ -82,12 +105,14 @@ void Trig::Print(const TrigMonEvent &event,
     if(!roi.getWord().empty()) rword = roi.getWord().front();
 
     log << level << "RoI: id, eta, phi, word: " 
-	<< int(roi.getRoiId()) << ", " 
-	<< eta << ", " 
-	<< phi << ", " 
-	<< rword
-	<< endreq;
+	    << int(roi.getRoiId()) << ", " 
+	    << eta << ", " 
+	    << phi << ", " 
+	    << rword
+	    << endreq;
   }
+
+  if (verb == 4) return;
 
   for(unsigned int i = 0; i < event.size<TrigMonROB>(); ++i) {
     const TrigMonROB &rob = event.at<TrigMonROB>(i);
@@ -97,11 +122,11 @@ void Trig::Print(const TrigMonEvent &event,
       const TrigConfSeq &seq = config.at<TrigConfSeq>(s);    
       
       for(unsigned int j = 0; j < seq.getNAlg(); ++j) {
-	const TrigConfAlg &alg = seq.getAlg(j);
-	if(rname.empty() && alg.getNameId() == rob.getRequestorId()) {
-	  rname = alg.getName();
-	  break;
-	}
+	      const TrigConfAlg &alg = seq.getAlg(j);
+	      if(rname.empty() && alg.getNameId() == rob.getRequestorId()) {
+	        rname = alg.getName();
+	        break;
+	      }
       }
     }
     
@@ -124,15 +149,17 @@ void Trig::Print(const TrigMonEvent &event,
     }  
     
     log << level << "ROB " 
-	<< rname << "/" << rob.getRequestorId() << ": "
-	<< "start: " << rob.start().getSec() + 1.e-6*rob.start().getUSec()
-	<< " stop: " << rob.stop().getSec() + 1.e-6*rob.stop().getUSec()
-	<< " nrob="  << rob.getData().size()
-	<< " #sum="  << rob.getSum().size()
-	<< " #data=" << ndata << ", "
-	<< " ROB size=" << rsize 
-	<< endreq;
+	      << rname << "/" << rob.getRequestorId() << ": "
+	      << "start: " << rob.start().getSec() + 1.e-6*rob.start().getUSec()
+	      << " stop: " << rob.stop().getSec() + 1.e-6*rob.stop().getUSec()
+	      << " nrob="  << rob.getData().size()
+	      << " #sum="  << rob.getSum().size()
+	      << " #data=" << ndata << ", "
+	      << " ROB size=" << rsize 
+	      << endreq;
   }
+
+  if (verb == 5) return;
 
   const std::vector<uint32_t> &key_vec = event.getVarKey();
   const std::vector<float>    &var_vec = event.getVarVal();

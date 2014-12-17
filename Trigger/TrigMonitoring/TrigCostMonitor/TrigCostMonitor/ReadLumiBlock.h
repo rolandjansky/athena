@@ -39,7 +39,7 @@ namespace Trig
     
     std::string debug() const { return m_debug.str(); } 
     std::string infos() const { return m_infos.str(); } 
-    void clearMsg() { m_debug.clear(); m_infos.clear(); }
+    void clearMsg() { m_debug.str(""); m_debug.clear(); m_infos.str(""); m_infos.clear(); }
     
     cool::DatabaseId&   cool_id()  { return m_cool_id; }
     cool::IDatabasePtr& cool_ptr() { return m_cool_ptr; }
@@ -69,6 +69,8 @@ namespace Trig
   	std::map<unsigned, uint64_t> m_lbLength;       // Hold the runs LB lengths
 
     cool::DatabaseId            m_cool_id;        // COOL connection id
+    cool::DatabaseId            m_cool_id_run1;   // COOL connection id for run 1 data
+    cool::DatabaseId            m_cool_id_run2;   // COOL connection id for run 2 data
     cool::IDatabasePtr          m_cool_ptr;       // COOL database pointer
     
     std::string                 m_cool_source;    // COOL configuration source

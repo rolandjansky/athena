@@ -12,9 +12,6 @@
 // Framework
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 // LV1 and HLT configuration
 #include "TrigConfHLTData/HLTFrame.h"
@@ -61,7 +58,7 @@ Trig::TrigNtConfTool::TrigNtConfTool(const std::string &name,
   declareProperty("useDB",            m_useDB             = true);
   declareProperty("useConfSvc",       m_useConfSvc        = true);
 
-  declareProperty("connectionCool",   m_connectionCool    = "COOLONL_TRIGGER/COMP200");
+  declareProperty("connectionCool",   m_connectionCool    = "COOLONL_TRIGGER/CONDBR2");
   declareProperty("connectionTrig",   m_connectionTrig    = "TRIGGERDB");
   declareProperty("username",         m_username          = "");
   declareProperty("password",         m_password          = "");
@@ -236,7 +233,15 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   }
 
   log() << MSG::INFO << "Filling Keyset : " << m_configSvc->masterKey() << ","
-    << m_configSvc->lvl1PrescaleKey() << "," << m_configSvc->hltPrescaleKey() << endreq;
+    << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() << endreq;
+
+  std::stringstream _ss1, _ss2, _ss3;
+  _ss1 << m_configSvc->masterKey();
+  _ss1 >> m_triggerMenuSetup;
+  _ss2 << ctp_confg->prescaleSetId();
+  _ss2 >> m_L1PrescaleSet;
+  _ss3 << m_configSvc->hltPrescaleKey();
+  _ss3 >> m_HLTPrescaleSet;
 
   //
   // Just update HLT prescales
@@ -247,7 +252,7 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
     if(m_configSvc->hltPrescaleKey()  != confg.getHLTPrescaleKey()) {
       conf.UpdateHLT(confg, *chn_confg);
     }
-    if(m_configSvc->lvl1PrescaleKey() != confg.getLV1PrescaleKey()) {
+    if((unsigned)ctp_confg->prescaleSetId() != confg.getLV1PrescaleKey()) {
       conf.UpdateLV1(confg, *ctp_confg);
     }
 
@@ -256,8 +261,10 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
     }
     
     confg.setTriggerKeys(m_configSvc->masterKey(), 
-			 m_configSvc->lvl1PrescaleKey(), 
+			 ctp_confg->prescaleSetId(), 
 			 m_configSvc->hltPrescaleKey());
+
+    conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
 
     if(m_printConfig) {
       log() << MSG::INFO << "Print TrigMonConfig filled from TrigConfigSvc" << endreq;
@@ -285,6 +292,27 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   conf.FillHLT(confg, *chn_confg);
   conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
 
+  // Fill config information from the CTP, starting with the BG info
+  const std::vector<TrigConf::BunchGroup> _bunchGroups = ctp_confg->bunchGroupSet().bunchGroups();
+  for (unsigned _bg = 0; _bg < _bunchGroups.size(); ++_bg) {
+    if (outputLevel() <= MSG::DEBUG) {
+      log() << MSG::DEBUG << " TrigConf::CTPConfig BunchGroup " << _bunchGroups.at(_bg).name() << " has size " << _bunchGroups.at(_bg).bunches().size() << endreq;
+    }
+    std::stringstream _ssNameKey, _ssSizeKey, _ssSizeVal;
+    _ssNameKey << "CTPConfig:NAME:BGRP" << _bg;
+    _ssSizeKey << "CTPConfig:SIZE:BGRP" << _bg;
+    _ssSizeVal << _bunchGroups.at(_bg).bunches().size();
+    confg.addValue(_ssNameKey.str(), _bunchGroups.at(_bg).name());
+    confg.addValue(_ssSizeKey.str(), _ssSizeVal.str());
+  }
+  std::stringstream _bgSet, _ctpVersion, _l1Version;
+  _bgSet << ctp_confg->bunchGroupSetId();
+  _ctpVersion << ctp_confg->ctpVersion();
+  _l1Version << ctp_confg->l1Version();
+  confg.addValue("BunchGroupSet", _bgSet.str() );
+  confg.addValue("CTPVersion", _ctpVersion.str() );
+  confg.addValue("LV1Version", _l1Version.str() );  
+
   if(!conf.error().empty()) {
     log() << MSG::INFO  << "FillConf error stream:" << endreq 
 	  << "-----------------------------------------------------------" << endreq
@@ -299,8 +327,9 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
 	  << "-----------------------------------------------------------" << endreq;
   }
 
+
   confg.setTriggerKeys(m_configSvc->masterKey(), 
-		       m_configSvc->lvl1PrescaleKey(), 
+		       ctp_confg->prescaleSetId(), 
 		       m_configSvc->hltPrescaleKey());
   
   confg.addValue("SOURCE", "CONFIG_SVC");
@@ -353,6 +382,14 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   m_currentKey = key;
   confg.setTriggerKeys(key.getSMK(), key.getLV1_PS(), key.getHLT_PS());
 
+  std::stringstream _ss1, _ss2, _ss3;
+  _ss1 << key.getSMK();
+  _ss1 >> m_triggerMenuSetup;
+  _ss2 << key.getLV1_PS();
+  _ss2 >> m_L1PrescaleSet;
+  _ss3 << key.getHLT_PS();
+  _ss3 >> m_HLTPrescaleSet;
+
   std::stringstream keyStr;
   m_currentKey.print(keyStr);
 
@@ -402,7 +439,9 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   ctp_conf.setPrescaleSetId(key.getLV1_PS());
   ctp_conf.setBunchGroupSetId(key.getBGK());
 
-  m_storage->masterTableLoader().load(ctp_conf);    
+  m_storage->masterTableLoader().load(ctp_conf); 
+
+  log() << MSG::INFO << "Got " << ctp_conf.menu().items().size() << " L1 Items to fill" << endreq;
 
   //
   // Load HLT configuration
@@ -441,6 +480,7 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   conf.FillHLT(confg, m_hltFrame->getHLTChainList());
   conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
   
+
   if(!conf.error().empty()) {
     log() << MSG::INFO  << "FillConf error stream:" << endreq 
 	  << "-----------------------------------------------------------" << endreq
@@ -453,6 +493,7 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 	  << conf.debug() 
 	  << "-----------------------------------------------------------" << endreq;
   }
+
 
   if(m_printConfig) {
     log() << MSG::INFO << "Print TrigMonConfig filled from DB" << endreq;
@@ -484,6 +525,10 @@ bool Trig::TrigNtConfTool::ReadKeysDB(unsigned run)
   }
   
   Trig::ReadConf read;
+
+  if (run < 239708) { // Run 1
+    m_connectionCool = "COOLONL_TRIGGER/COMP200";
+  }
   
   read.setConnectionCOOL(m_connectionCool);
   read.updateConfigKeys(run);

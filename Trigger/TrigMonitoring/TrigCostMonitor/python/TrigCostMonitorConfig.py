@@ -8,7 +8,7 @@ from AthenaCommon.Logging import logging
 #
 steeringL2_online_doOperationalInfo=10  # frequency of operartional info collection at L2
 steeringEF_online_doOperationalInfo=1   # frequency of operartional info collection at EF
-steeringHLT_online_doOperationalInfo=1  # frequency of operartional info collection at HLT
+steeringHLT_online_doOperationalInfo=10  # frequency of operartional info collection at HLT
 
 #----------------------------------------------------------------------
 # Base class which defines target() method used by TrigSteer config
@@ -38,51 +38,44 @@ def prepareCostTool(target):
     
     if target.count('L2') == 1:
         tool.level = 'L2'
+        tool.keyResult = 'HLTResult_L2'
         tool.monitoringStream = 'L2CostMonitoring'
     elif target.count('EF') == 1:
         tool.level = 'EF'
+        tool.keyResult = 'HLTResult_EF'
         tool.monitoringStream = 'EFCostMonitoring'
     elif target.count('HLT') == 1:
         tool.level = 'HLT'
-        # TODO - Migrate this to HLT 24-june-14 try HLT
-        log.info('Setting up in prepareCostTool - using monitoringStream = HLTCostMonitoring')
-        tool.monitoringStream = 'HLTCostMonitoring'
+        tool.keyResult = 'HLTResult_HLT'  # HLT result stores which XPU node the trigger was running on
+        log.info('Setting up in prepareCostTool - using monitoringStream = CostMonitoring')
+        tool.monitoringStream = 'CostMonitoring' # Migration to run 2 menu, using conf. as in LS1_v1 menu
     else:
         raise Exception('Unknown target level: '+target)
     
     tool.monitoringLogic  = 'no-calib no-debug no-physics'
     tool.monitoringTarget = target
-    tool.purgeCostStream  = True
-    tool.writeAlways      = False #This is set to True by postSetupCostForCAF()
-    tool.writeConfig      = False #Overridden by writeAlways
-    tool.saveExtraWords   = True
-    tool.saveEventTimers  = False
+    tool.purgeCostStream  = True  # Remove cost stream if no data to save 
+    tool.writeAlways      = False # This is set to True by postSetupCostForCAF()
+    tool.writeConfig      = True  # This should default to false for online (why?) [TODO] put to true for tests
+    tool.writeConfigDB    = False # If reading from the DB, do we want to save the data? Should not be needed as EBWeight calc is in this package.
+    tool.useConfDb        = True  # Ask toolConf to fetch online config from DB. Only used currently if running costoForCAF
+    tool.costForCAF       = False # This is set to True by postSetupCostForCAF()
+    tool.doEBWeight       = False # Calculate EB weighting factors. Use 
+    tool.useConfSvc       = True  # Ask toolConf to fetch current config from config service
+    tool.saveEventTimers  = True
     tool.stopAfterNEvent  = 800
     tool.execPrescale     = 1.0
     
-    tool.toolConf = Trig__TrigNtConfTool('Conf'+target)
-    tool.toolConf.useDB = False  # Save online keys from DB
-    tool.toolConf.useConfSvc = True # Save current keys from ConfSvc
-    
+    tool.toolConf     = Trig__TrigNtConfTool('Conf'+target)
+    tool.toolEBWeight = Trig__TrigNtEBWeightTool('Ebwt'+target)
     tool_elem = Trig__TrigNtElemTool('Elem'+target)
     tool_exec = Trig__TrigNtExecTool('Exec'+target)
     tool_lvl1 = Trig__TrigNtLvl1Tool('Lvl1'+target)
-    tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target) # Not currently used
+    tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target)
     tool_robs = Trig__TrigNtRobsTool('Robs'+target)
 
-    ## INFO: If using this tool to get the HLT result from storegate in the combined trigger,
-    ## TrigSteering needs re-ordering as the OPIMonitoring tools are run before the ResultBuilder.
-    ## Alternativly, don't use tool_hlt2 and get the chains with TrigCostTool
-    if tool.level == "HLT":
-        tool_hlt2.keyResult = 'HLTResult_HLT'
-    else:
-        tool_hlt2.keyResult = 'HLTResult_L2'
-
-    # HLT result also stores which XPU node the trigger was running on
-    tool.keyResult = 'HLTResult_HLT'
-
     #
-    # Add TrigNtSaveTool tool for offline running of athenaMT/PT
+    # Add TrigNtSaveTool tool for offline running of athenaMT/PT/HLT
     #
     if useSaveTools:
         save_cost = Trig__TrigNtSaveTool('SaveCost_'+target)
@@ -102,7 +95,7 @@ def prepareCostTool(target):
         tool_exec.printOPI         = True
         tool_exec.printSEQ         = True 
         tool_robs.printDebug       = True
-        tool.toolConf.printConfig  = False #This is a crazy amout of output 
+        tool.toolConf.printConfig  = True #This is a crazy amout of output 
         tool.printEvent            = True
     
     if target.count('CostExec') == 1:
@@ -117,13 +110,20 @@ def prepareCostTool(target):
         # New settings
         tool.doTiming         = True
         tool.saveEventTimers  = True
-        tool.saveFailedChains = True
         #
         tool_robs.cleanROBs        = False
         tool_robs.keepSubDet       = False
         tool_elem.saveNavigation   = True
         tool_elem.filterTE         = True
         tool_exec.saveSeqTimer     = True
+        ## INFO: If using this tool to get the HLT result from storegate in the combined trigger,
+        ## TrigSteering needs re-ordering as the OPIMonitoring tools are run before the ResultBuilder.
+        ## Alternativly, don't use HLTResult by setting useSteering=True
+        tool_hlt2.saveFailedChains = True
+        tool_hlt2.useSteering      = True
+        tool_hlt2.keyResult = 'HLTResult_HLT'
+        if tool.level != "HLT":
+          tool_hlt2.keyResult = 'HLTResult_L2'
                 
         if   tool.level == "L2":
             tool.eventTools += [ tool_lvl1 ]
@@ -133,44 +133,20 @@ def prepareCostTool(target):
         elif tool.level == "EF":
             tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
-            # tool_hlt2 removed
+            tool.scaleTools += [ tool_hlt2 ]
         elif tool.level == "HLT":
             tool.eventTools += [ tool_lvl1 ]
             tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_robs ]
-            # tool_hlt2 removed
+            tool.scaleTools += [ tool_hlt2 ]
 
         # Removing by default the Save tools - we now have the D3PDMaker for this
         if useSaveTools:
             tool.alwaysTools += [save_cost, save_rate]
             
     elif target.count('CostAthena') == 1:
-        ## INFO: Can we remove this? I think we can...
-
-        tool.writeAlways      = True
-        tool.monitoringTarget = 'CostAthena'
-        tool.execPrescale     = 0.0
-        tool.doTiming         = True
-        tool.saveEventTimers  = True
-        
-        tool_robs.cleanROBs      = False
-        tool_elem.saveNavigation = True
-        tool_elem.filterTE       = True
-        tool_exec.saveSeqTimer   = True
-        
-        if   tool.level == "L2":
-            tool.eventTools += [ tool_lvl1 ]
-            tool.eventTools += [ tool_exec ]
-            tool.eventTools += [ tool_robs ]
-        elif tool.level == "EF":
-            tool.eventTools += [ tool_elem ]
-            tool.eventTools += [ tool_exec ]
-        elif tool.level == "HLT":
-            tool.eventTools += [ tool_lvl1 ]
-            tool.eventTools += [ tool_elem ]
-            tool.eventTools += [ tool_exec ]
-            tool.eventTools += [ tool_robs ] 
+        log.error('The CostAthena mode of TrigCostMonitor has been depricated and removed.')
                     
     else:
         raise Exception('Unknown target: '+target)
@@ -183,9 +159,10 @@ def prepareCostTool(target):
 TrigCostToolsList = [ prepareCostTool('CostExecL2'),
                       prepareCostTool('CostExecEF'),
                       prepareCostTool('CostExecHLT'),
-                      prepareCostTool('CostAthenaL2'),
-                      prepareCostTool('CostAthenaEF'),
-                      prepareCostTool('CostAthenaHLT') ]
+                      #prepareCostTool('CostAthenaL2'),
+                      #prepareCostTool('CostAthenaEF'),
+                      #prepareCostTool('CostAthenaHLT')
+                    ]
 
 #----------------------------------------------------------------------
 # prepare TrigCostRun configuration
@@ -271,34 +248,35 @@ def prepareCostRun(name, option = 'hlt'):
     tool_conf.useDB        = True
 
     #
-    # Configure output
+    # Configure old style output
     #
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr(svcMgr, 'THistSvc'):
-        from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc()
+    if option.count('useSaveTools'):
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if not hasattr(svcMgr, 'THistSvc'):
+            from GaudiSvc.GaudiSvcConf import THistSvc
+            svcMgr += THistSvc()
 
-    svcMgr.THistSvc.Output += ["TrigCostReadBS DATAFILE='TrigCostReadBS.root' OPT='RECREATE'"]
+        svcMgr.THistSvc.Output += ["TrigCostReadBS DATAFILE='TrigCostReadBS.root' OPT='RECREATE'"]
 
-    save_cost = Trig__TrigNtSaveTool('RunCostSave_full')
-    save_cost.writeFile        = False
-    save_cost.fileName         = ''
-    save_cost.streamConfig     = 'TrigCostReadBS'
-    save_cost.streamEvent      = 'TrigCostReadBS'
-    save_cost.writeRateOnly    = False
+        save_cost = Trig__TrigNtSaveTool('RunCostSave_full')
+        save_cost.writeFile        = False
+        save_cost.fileName         = ''
+        save_cost.streamConfig     = 'TrigCostReadBS'
+        save_cost.streamEvent      = 'TrigCostReadBS'
+        save_cost.writeRateOnly    = False
 
-    save_rate = Trig__TrigNtSaveTool('RunCostSave_rate')
-    save_rate.writeFile        = False
-    save_rate.fileName         = ''
-    save_rate.streamConfig     = ''
-    save_rate.streamEvent      = 'TrigCostReadBS'
-    save_rate.writeRateOnly    = True
-    save_rate.treeNameEvent    = 'event_rate_only'
-    save_rate.treeNameConfig   = ''
-    save_rate.printPostSummary = False
-    
-    run.tools     = [tool_conf, tool_post]
-    run.toolsSave = [save_cost, save_rate]
+        save_rate = Trig__TrigNtSaveTool('RunCostSave_rate')
+        save_rate.writeFile        = False
+        save_rate.fileName         = ''
+        save_rate.streamConfig     = ''
+        save_rate.streamEvent      = 'TrigCostReadBS'
+        save_rate.writeRateOnly    = True
+        save_rate.treeNameEvent    = 'event_rate_only'
+        save_rate.treeNameConfig   = ''
+        save_rate.printPostSummary = False
+        
+        run.tools     = [tool_conf, tool_post]
+        run.toolsSave = [save_cost, save_rate]
 
     if option.count('emon'):
         run.tools = []
@@ -647,15 +625,32 @@ def postSetupOnlineCost():
 
     global steeringL2_online_doOperationalInfo
     global steeringEF_online_doOperationalInfo
+    global steeringHLT_online_doOperationalInfo
     
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr        
     from AthenaCommon.AlgSequence import AlgSequence
     
     topSeq = AlgSequence()
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    if TriggerFlags.Online.doValidation():
+        log.info('Trigger is in validation mode: setting all doOperationalInfo=1 to make it reproducible')
+        steeringL2_online_doOperationalInfo=1
+        steeringEF_online_doOperationalInfo=1
+        steeringHLT_online_doOperationalInfo=1
+        log.info('Set global flag for L2: doOperationalInfo=%d' %steeringL2_online_doOperationalInfo)
+        log.info('Set global flag for EF: doOperationalInfo=%d' %steeringEF_online_doOperationalInfo)
+        log.info('Set global flag for HLT: doOperationalInfo=%d' %steeringHLT_online_doOperationalInfo)
     
     if hasattr(topSeq, 'TrigSteer_L2'):        
         topSeq.TrigSteer_L2.doOperationalInfo=steeringL2_online_doOperationalInfo
         log.info('Set TrigSteer_L2.doOperationalInfo='+str(topSeq.TrigSteer_L2.doOperationalInfo))
+
+        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_L2.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doOperationalInfo = steeringL2_online_doOperationalInfo
+                    log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_L2.doOperationalInfo))
         
         if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
@@ -664,14 +659,28 @@ def postSetupOnlineCost():
     if hasattr(topSeq, 'TrigSteer_EF'):
         topSeq.TrigSteer_EF.doOperationalInfo=steeringEF_online_doOperationalInfo
         log.info('Set TrigSteer_EF.doOperationalInfo='+str(topSeq.TrigSteer_EF.doOperationalInfo))
+
+        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_EF.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doOperationalInfo = steeringEF_online_doOperationalInfo
+                    log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_EF.doOperationalInfo))
         
     if hasattr(topSeq, 'TrigSteer_HLT'):        
         topSeq.TrigSteer_HLT.doOperationalInfo=steeringHLT_online_doOperationalInfo
         log.info('Set TrigSteer_HLT.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
+
+        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_HLT.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doOperationalInfo = steeringHLT_online_doOperationalInfo
+                    log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
         
         if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
             log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
+        else:
+            log.info('ROBDataProviderSvc does not have property doDetailedROBMonitoring - will not do cost monitor for ROS.')
 
 #----------------------------------------------------------------------
 # Set options for running cost on CAF - used together with CostExecL2/EF options!!!
@@ -707,6 +716,7 @@ def postSetupCostForCAF():
             for tool in topSeq.TrigSteer_L2.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
+                    tool.costForCAF = True
                     log.info('Set '+tool.name()+'.writeAlways = True')
 
     if hasattr(topSeq, 'TrigSteer_EF'):
@@ -714,6 +724,7 @@ def postSetupCostForCAF():
             for tool in topSeq.TrigSteer_EF.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
+                    tool.costForCAF = True
                     log.info('Set '+tool.name()+'.writeAlways = True')
                     
     if hasattr(topSeq, 'TrigSteer_HLT'):
@@ -721,7 +732,38 @@ def postSetupCostForCAF():
             for tool in topSeq.TrigSteer_HLT.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
+                    tool.costForCAF = True
                     log.info('Set '+tool.name()+'.writeAlways = True')
+
+#----------------------------------------------------------------------
+# Set options for calculating Enhanced Bias weighting factors
+#
+def postSetupEBWeighting():
+
+    log = logging.getLogger('postSetupEBWeighting')
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSeq = AlgSequence()
+    
+    if hasattr(topSeq, 'TrigSteer_L2'):        
+        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_L2.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doEBWeight = True
+                    log.info('Set '+tool.name()+'.doEBWeight = True')
+
+    if hasattr(topSeq, 'TrigSteer_EF'):
+        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_EF.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doEBWeight = True
+                    log.info('Set '+tool.name()+'.doEBWeight = True')
+                    
+    if hasattr(topSeq, 'TrigSteer_HLT'):
+        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+            for tool in topSeq.TrigSteer_HLT.OPITools:
+                if tool.getType().count('TrigCostTool'):
+                    tool.doEBWeight = True
+                    log.info('Set '+tool.name()+'.doEBWeight = True')
                     
 #----------------------------------------------------------------------
 # Read input files form local text file

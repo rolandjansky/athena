@@ -136,6 +136,7 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
   }
 
   unsigned lvl1_id = 0;
+  unsigned robDebug = 0;
 
   for(ROBDataMonitorCollection::const_iterator it = robcol->begin(); it != robcol->end(); ++it) {
     robmonitor::ROBDataMonitorStruct *rob = *it;
@@ -181,13 +182,14 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       alg_id = TrigConf::HLTUtils::string2hash(rob->requestor_name, "ALG");
       
       if(m_algIds.insert(alg_id).second) {
-	log() << MSG::INFO << "Algorithm not in a menu: " << rob->requestor_name 
+	      log() << MSG::INFO << "Algorithm not in a menu: " << rob->requestor_name 
 	      << " use hash id=" << alg_id << endreq;
       }
     }
 
-    if(outputLevel() <= MSG::DEBUG) {
+    if(outputLevel() <= MSG::DEBUG && ++robDebug < 10) {
       log() << MSG::DEBUG << "ROB requestor name/id: " << rob->requestor_name << "/" << alg_id << endreq;
+      if (robDebug == 9) log() << MSG::DEBUG << "Additional ROBs not shown..." << endreq;
     }
 
     // create ntuple entry for ROB monitoring data
@@ -227,7 +229,7 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       myrob.addData(mydata);
 
       if(outputLevel() <= MSG::DEBUG && m_printDebug) {
-	log() << MSG::DEBUG  
+	      log() << MSG::DEBUG  
 	      << "ROBDataStruct:  id, size=" << data.rob_id       << ", " << data.rob_size       << endreq
 	      << "TrigMonROBData: id, size=" << mydata.getROBId() << ", " << mydata.getROBSize() << endreq;
       }

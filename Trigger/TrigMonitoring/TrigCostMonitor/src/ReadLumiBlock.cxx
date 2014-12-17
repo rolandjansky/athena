@@ -26,7 +26,9 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 Trig::ReadLumiBlock::ReadLumiBlock()
-  :m_cool_id("COOLONL_TRIGGER/COMP200"),
+  :m_cool_id(),
+   m_cool_id_run1("COOLONL_TRIGGER/COMP200"),
+   m_cool_id_run2("COOLONL_TRIGGER/CONDBR2"),
    m_cool_source(),
    m_run(0),
    m_triedSetup(false)
@@ -48,6 +50,9 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
   m_cool_source.clear();
   m_run = run;
 
+  if (m_run < 238742) m_cool_id = m_cool_id_run1;
+  else                m_cool_id = m_cool_id_run2;
+
   cool::ValidityKey since(run);
   cool::ValidityKey until(run);
   cool::ValidityKey maskLB(0xffffffff);
@@ -58,7 +63,7 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
 
   if(!dbIsOpen()) { 
     if(!openDb(true)) {
-      m_infos << "updateLumiBlocks - failed to open DB... nothing to do" << endl;    
+      m_infos << "updateLumiBlocks - failed to open DB... " << m_cool_id << " nothing to do" << endl;    
       return;
     }
   }
@@ -81,15 +86,15 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
 
       m_lbLength[lumi] = _length;
 
-	  m_debug << "  run=" << run
-	          << "   LB=" << lumi
-		      << "   Start=" << _start
-		      << "   End=" << _end
-		      << "   Length=" << _length << endl;
+  	  m_debug << "  run=" << run
+  	          << "   LB=" << lumi
+  		        << "   Start=" << _start
+  		        << "   End=" << _end
+  		        << "   Length=" << _length << endl;
     }
   }
   else { 
-    m_infos << "ReadRunData - missing COOL folder: /TRIGGER/LUMI/LBLB" << endl; 
+    m_infos << "ReadRunData - missing COOL folder: /TRIGGER/LUMI/LBLB in " << m_cool_id << endl; 
   }
 // more lumi info can be got from http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Trigger/TrigCost/TrigCostRate/src/ReadCool.cxx
 
@@ -139,17 +144,17 @@ bool Trig::ReadLumiBlock::openDb( bool readOnly )
   
   cool::IDatabaseSvc& dbSvc = databaseService();
   try {
-    cout << "ReadLumiBlock::openDb - opening database '" << m_cool_id << "'" << endl;
+    m_debug << "ReadLumiBlock::openDb - opening database '" << m_cool_id << "'" << endl;
     m_cool_ptr = dbSvc.openDatabase(m_cool_id, readOnly);
     
     const int schemaVersion = TrigConf::TrigConfCoolFolderSpec::readSchemaVersion(m_cool_ptr);
-    cout << "ReadLumiBlock::openDb - using schema version: " << schemaVersion << endl;
+    m_debug << "ReadLumiBlock::openDb - using schema version: " << schemaVersion << endl;
 
     return true;
   }
   catch(cool::DatabaseDoesNotExist& e) {
-    cout<< "ReadLumiBlock::openDb - COOL exception caught: " << e.what() << endl
-	<< "   could not open database: " << m_cool_id << endl;
+    m_infos << "ReadLumiBlock::openDb - COOL exception caught: " << e.what() << endl
+	          << "   could not open database: " << m_cool_id << endl;
     return false;
   }
 
@@ -161,13 +166,13 @@ void Trig::ReadLumiBlock::closeDb()
 {
   try {
     if(dbIsOpen()) {
-      cout << "ReadLumiBlock::closeDd - closing database '" << m_cool_id << endl;
+      m_debug << "ReadLumiBlock::closeDd - closing database '" << m_cool_id << endl;
       m_cool_ptr->closeDatabase();
     }
   }
   catch(std::exception& e) {
-    cout << "ReadLumiBlock::closeDB - COOL exception caught: " << e.what() << endl
-	 << "   could not close COOL database: " << m_cool_id << endl;
+    m_infos << "ReadLumiBlock::closeDB - COOL exception caught: " << e.what() << endl
+	          << "   could not close COOL database: " << m_cool_id << endl;
   }
   
   TrigConf::TrigConfCoolFolderSpec::resetSchemaVersion();

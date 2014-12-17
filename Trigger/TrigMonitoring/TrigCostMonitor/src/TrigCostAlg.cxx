@@ -11,9 +11,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // Reconstruction
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // DAQ
 #include "eformat/SourceIdentifier.h"
@@ -85,22 +83,22 @@ StatusCode TrigCostAlg::initialize()
     log() << MSG::INFO << "Retrieved " << m_tools << endreq;
   }
   
-  const DataHandle<EventInfo> event_handle;
-  if(m_storeGate -> transientContains<EventInfo>("") &&
-     m_storeGate -> retrieve(event_handle).isSuccess()) {
+
+  xAOD::EventInfo* eventInfo = 0;
+  if(m_storeGate -> retrieve(eventInfo).isSuccess()) {
     
-    m_config.setEventID(event_handle->event_ID()->event_number(),
-			event_handle->event_ID()->lumi_block(),
-			event_handle->event_ID()->run_number(),
-			event_handle->event_ID()->time_stamp(),
-			event_handle->event_ID()->time_stamp_ns_offset());
+    m_config.setEventID(eventInfo->eventNumber(),
+			eventInfo->lumiBlock(),
+			eventInfo->runNumber(),
+			eventInfo->timeStamp(),
+			eventInfo->timeStampNSOffset());
     
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
       (*it)->Fill(&m_config);
     }
   }
   else {
-    log() << MSG::INFO << "Missing EventInfo in initialize()... will try again later" << endreq;
+    log() << MSG::INFO << "Missing xAOD::EventInfo in initialize()... will try again later" << endreq;
   }
 
   log() << MSG::INFO 
@@ -120,19 +118,19 @@ StatusCode TrigCostAlg::execute()
   //
   if(m_timerTotal) m_timerTotal -> resume();
 
-  const DataHandle<EventInfo> event_handle;
-  if(m_storeGate -> retrieve(event_handle).isFailure()) {
-    log() << MSG::ERROR << "Faied to get EventID" << endreq;
+  xAOD::EventInfo* eventInfo = 0;
+  if(m_storeGate -> retrieve(eventInfo).isFailure()) {
+    log() << MSG::ERROR << "Faied to get xAOD::EventID" << endreq;
     return StatusCode::FAILURE;
   }
 
   m_event.clear();
-  m_event.setEventID(event_handle->event_ID()->event_number(),
-		     event_handle->event_ID()->lumi_block(),
-		     event_handle->event_ID()->bunch_crossing_id(),
-		     event_handle->event_ID()->run_number(),
-		     event_handle->event_ID()->time_stamp(),
-		     event_handle->event_ID()->time_stamp_ns_offset());
+  m_event.setEventID(eventInfo->eventNumber(),
+      eventInfo->lumiBlock(),
+      eventInfo->bcid(),
+      eventInfo->runNumber(),
+      eventInfo->timeStamp(),
+      eventInfo->timeStampNSOffset());
 
   if(outputLevel() <= MSG::DEBUG) {
     log() << MSG::DEBUG 
@@ -143,11 +141,11 @@ StatusCode TrigCostAlg::execute()
   // Read configuration not filled before or reread configuration for new run 
   //
   if(m_config.getRun() != m_event.getRun()) {
-    m_config.setEventID(event_handle->event_ID()->event_number(),
-			event_handle->event_ID()->lumi_block(),
-			event_handle->event_ID()->run_number(),
-			event_handle->event_ID()->time_stamp(),
-			event_handle->event_ID()->time_stamp_ns_offset());
+    m_config.setEventID(eventInfo->eventNumber(),
+      eventInfo->lumiBlock(),
+      eventInfo->runNumber(),
+      eventInfo->timeStamp(),
+      eventInfo->timeStampNSOffset());
     
     for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it) {
       (*it)->Fill(&m_config);

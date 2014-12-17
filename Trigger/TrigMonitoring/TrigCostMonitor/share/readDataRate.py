@@ -56,12 +56,11 @@ from TrigCostMonitor.TrigCostMonitorConfig import prepareReadOnlineAlg
 topSeq = AlgSequence()
 runAlg = prepareReadOnlineAlg('TrigCostAlg', 'read')
 
-if ('setDebug' in dir()) and setDebug:
+if ('enableCostDebug' in dir()) and bool(enableCostDebug) == True:
+    print 'enableCostDebug = TRUE. Adding extra debug output'
     runAlg.OutputLevel = 2
-    
     for tool in runAlg.tools:
         tool.OutputLevel = 2
-
     print runAlg
     StoreGateSvc = Service("StoreGateSvc")
     StoreGateSvc.Dump = True

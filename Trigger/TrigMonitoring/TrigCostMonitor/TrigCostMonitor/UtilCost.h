@@ -20,7 +20,7 @@ namespace Trig
 {   
   void Print(const TrigMonEvent &event, 
 	     const TrigMonConfig &config,
-	     MsgStream &log, MSG::Level level);
+	     MsgStream &log, MSG::Level level, int verb = 6);
 
   void Print(const TrigMonConfig &config,
 	     std::ostream &os);
