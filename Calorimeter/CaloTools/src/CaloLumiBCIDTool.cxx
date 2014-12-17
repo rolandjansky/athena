@@ -406,10 +406,28 @@ float CaloLumiBCIDTool::average(const CaloDetDescrElement* caloDDE,unsigned int 
     StatusCode sc = this->computeValues(bcid);
     if (sc.isFailure()) return 0.;
   }
-  const Identifier CellID = caloDDE->identify();
+  // const Identifier CellID = caloDDE->identify();
+  //if (m_calocell_id->is_tile(CellID)) return 0.;
 
-  if (m_calocell_id->is_tile(CellID)) return 0.;
+  if (caloDDE->is_tile()) return 0;
+  int i2 = (int) caloDDE->calo_hash();//(m_calocell_id->calo_cell_hash(CellID));
+  if (i2>=m_ncell) return 0.;
+  unsigned int index = m_symCellIndex[i2];
+  if (index>=m_eshift_sym.size()) return 0.;
+  return m_eshift_sym[index];
+}
 
+//-------------------------------------------------
+
+float CaloLumiBCIDTool::average(const Identifier CellID,unsigned int bcid)
+{
+  if (bcid != m_bcid && bcid !=0 ) m_cacheValid=false;
+  if (!m_cacheValid) {
+    StatusCode sc = this->computeValues(bcid);
+    if (sc.isFailure()) return 0.;
+  }
+
+  if (m_calocell_id->is_tile(CellID)) return 0.;  
   int i2 = (int) (m_calocell_id->calo_cell_hash(CellID));
   if (i2>=m_ncell) return 0.;
   unsigned int index = m_symCellIndex[i2];

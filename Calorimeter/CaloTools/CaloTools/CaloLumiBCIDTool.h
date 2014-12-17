@@ -102,7 +102,7 @@ public:
 
   float average(const CaloDetDescrElement* caloDDE,unsigned int bcid);
 
-
+  float average(const Identifier caloDDE,unsigned int bcid);
 };
 
 #endif

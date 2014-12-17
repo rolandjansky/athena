@@ -284,7 +284,7 @@ CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
     m_CachedGetNoiseCDDE=&CaloNoiseTool::totalNoiseRMS;
     m_CachedGetNoiseCELL=&CaloNoiseTool::totalNoiseRMS;
   }
-  if(m_CachedGetNoiseCELL==NULL || 
+  if(m_CachedGetNoiseCDDE==NULL || 
      m_CachedGetNoiseCELL==NULL) {
     log << MSG::ERROR << "Unknown noise !" << endreq;
     return StatusCode::FAILURE;
