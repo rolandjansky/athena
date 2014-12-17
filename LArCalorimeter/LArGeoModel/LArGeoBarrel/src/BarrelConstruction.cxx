@@ -1332,7 +1332,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 #endif
 
 		
-	        GeoPhysVol* thinPhys;	
+	        GeoPhysVol* thinPhys = nullptr;
                 GeoTrap* thinTrap = new GeoTrap(Dz,0.,0.,h1(instance),tl1,bl1,alpha(instance),
                                                          h1(instance),tl1,bl1,alpha(instance));
                 if (!doDetailedAbsorberStraight) {
@@ -1580,7 +1580,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                  for (int instance = 0; instance < Nabsorber; instance++)
                  {
 
-                  GeoPhysVol* thinPhys;
+                  GeoPhysVol* thinPhys = nullptr;
 
                   if (!doDetailedAbsorberFold) {
                      GeoTubs* thinTubs        = new GeoTubs(Rcmin,Rcmax,ddz0,
