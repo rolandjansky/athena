@@ -18,7 +18,11 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // Athena Pool
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+
+// IncidentSvc
+#include "GaudiKernel/IIncidentSvc.h"
 
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -40,7 +44,12 @@ MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc)
     m_toroMapFilename("MagneticFieldMaps/bfieldmap_0_20400_14m.root"),
     m_mapSoleCurrent(7730.),
     m_mapToroCurrent(20400.),
+    m_soleMinCurrent(1.0),
+    m_toroMinCurrent(1.0),
     m_useDCS(false),
+    m_coolCurrentsFolderName("/EXT/DCS/MAGNETS/SENSORDATA"),
+    m_useMapsFromCOOL(true),
+    m_coolMapsFolderName("/GLOBAL/BField/Maps"),
     m_useSoleCurrent(7730.),
     m_useToroCurrent(20400.),
     m_lockMapCurrents(false),
@@ -57,7 +66,12 @@ MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc)
     declareProperty("ToroMapFile", m_toroMapFilename, "File storing the toroid-only magnetic field map");
     declareProperty("MapSoleCurrent", m_mapSoleCurrent, "Nominal solenoid current (A)");
     declareProperty("MapToroCurrent", m_mapToroCurrent, "Nominal toroid current (A)");
+    declareProperty("SoleMinCurrent", m_soleMinCurrent, "Minimum solenoid current (A) for which solenoid is considered ON");
+    declareProperty("ToroMinCurrent", m_toroMinCurrent, "Minimum toroid current (A) for which toroid is considered ON");
     declareProperty("UseDCS", m_useDCS, "Get magnet currents from DCS through COOL");
+    declareProperty("COOLCurrentsFolderName", m_coolCurrentsFolderName, "Name of the COOL folder containing magnet currents");
+    declareProperty("UseMapsFromCOOL", m_useMapsFromCOOL, "Get magnetic field map filenames from COOL");
+    declareProperty("COOLMapsFolderName", m_coolMapsFolderName, "Name of the COOL folder containing field maps");
     declareProperty("UseSoleCurrent", m_useSoleCurrent, "Set actual solenoid current (A)");
     declareProperty("UseToroCurrent", m_useToroCurrent, "Set actual toroid current (A)");
     declareProperty("LockMapCurrents", m_lockMapCurrents, "Do not rescale currents (use the map values)");
@@ -75,6 +89,23 @@ StatusCode MagField::AtlasFieldSvc::initialize()
 {
     ATH_MSG_INFO( "initialize() ..." );
 
+    // determine map location from COOL, if available
+    if ( m_useMapsFromCOOL ) {
+      // Register callback
+      StoreGateSvc* detStore;
+      if ( service( "DetectorStore", detStore ).isFailure() ) {
+          ATH_MSG_FATAL( "Could not get detector store" );
+          return StatusCode::FAILURE;
+      }
+      std::string folder( m_coolMapsFolderName );
+      ATH_MSG_INFO("maps will be chosen reading COOL folder " << folder);
+      if ( detStore->regFcn( &MagField::AtlasFieldSvc::updateMapFilenames, this,
+                                 m_mapHandle, folder ).isFailure() ) {
+              ATH_MSG_FATAL( "Could not book callback for " << folder );
+              return StatusCode::FAILURE;
+      }
+    }
+
     // are we going to get the magnet currents from DCS?
     if ( m_useDCS ) {
         // Register callback
@@ -83,7 +114,8 @@ StatusCode MagField::AtlasFieldSvc::initialize()
             ATH_MSG_FATAL( "Could not get detector store" );
             return StatusCode::FAILURE;
         }
-        std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+        std::string folder( m_coolCurrentsFolderName );
+        ATH_MSG_INFO("magnet currents will be read from COOL folder " << folder);
         if ( detStore->regFcn( &MagField::AtlasFieldSvc::updateCurrent, this,
                                m_currentHandle, folder ).isFailure() ) {
             ATH_MSG_FATAL( "Could not book callback for " << folder );
@@ -92,7 +124,16 @@ StatusCode MagField::AtlasFieldSvc::initialize()
         ATH_MSG_INFO( "Booked callback for " << folder );
         // actual initalization has to wait for the fist callback
     } else {
-        ATH_MSG_INFO( "Currents are set-up by jobOptions - delaying map initialization until ::start" );
+        ATH_MSG_INFO( "Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens" );
+
+	ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
+	if (incidentSvc.retrieve().isFailure()) {
+            ATH_MSG_FATAL( "Unable to retrieve the IncidentSvc" );
+            return StatusCode::FAILURE;
+	} else {
+ 	    incidentSvc->addListener( this, IncidentType::BeginRun );
+            ATH_MSG_INFO( "Added listener to BeginRun incident" );
+	}
     }
 
     // clear the map for zero field
@@ -118,17 +159,17 @@ StatusCode MagField::AtlasFieldSvc::initialize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode MagField::AtlasFieldSvc::start()
+void MagField::AtlasFieldSvc::handle(const Incident& runIncident)
 {
-    ATH_MSG_INFO( "start() ..." );
-    if ( !m_useDCS ) {
+    ATH_MSG_INFO( "handling incidents ..." );
+    if ( !m_useDCS && runIncident.type() == IncidentType::BeginRun) {
         if ( importCurrents().isFailure() ) {
             ATH_MSG_FATAL( "Failure in manual setting of currents" );
-            return StatusCode::FAILURE;
-        }
+        } else {
+            ATH_MSG_INFO( "BeginRun incident handled" );
+	}
     }
-    ATH_MSG_INFO( "start() successful" );
-    return StatusCode::SUCCESS;
+    ATH_MSG_INFO( "incidents handled successfully" );
 }
 
 StatusCode MagField::AtlasFieldSvc::importCurrents()
@@ -136,8 +177,18 @@ StatusCode MagField::AtlasFieldSvc::importCurrents()
     ATH_MSG_INFO( "importCurrents() ..." );
 
     // take the current values from JobOptions
-    setSolenoidCurrent(m_useSoleCurrent);
-    setToroidCurrent(m_useToroCurrent);
+    double solcur(m_useSoleCurrent);
+    double torcur(m_useToroCurrent);
+    if ( solcur < m_soleMinCurrent ) {
+        solcur = 0.0;
+        ATH_MSG_INFO( "Solenoid is off" );
+    }
+    if ( torcur < m_toroMinCurrent) {
+        torcur = 0.0;
+        ATH_MSG_INFO( "Toroids are off" );
+    }
+    setSolenoidCurrent(solcur);
+    setToroidCurrent(torcur);
     // read the map file
     if ( initializeMap().isFailure() ) {
         ATH_MSG_FATAL( "Failed to initialize field map" );
@@ -151,23 +202,56 @@ StatusCode MagField::AtlasFieldSvc::importCurrents()
 /** callback for possible magnet current update **/
 StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
 {
-    // get magent currents from DCS
+    // get magnet currents from DCS
     double solcur(0.);
     double torcur(0.);
     bool gotsol(false);
     bool gottor(false);
+
+    // due to inconsistencies between CONDBR2 and OFLP200/COMP200 (the former includes channel names
+    // in the /EXT/DCS/MAGNETS/SENSORDATA folder, the latter don't), we try to read currents in
+    // both ways
+    bool hasChanNames(false);
+ 
+    ATH_MSG_INFO( "Attempt 1 at reading currents from DCS (using channel name)" );
     for ( CondAttrListCollection::const_iterator itr = m_currentHandle->begin();
 	  itr != m_currentHandle->end(); ++itr ) {
-        if ( itr->first == 1 ) {
-            // channel 1 is solenoid current
-            solcur = itr->second["value"].data<float>();
-            gotsol = true;
-        } else if ( itr->first == 3 ) {
-            // channel 3 is toroid current
-            torcur = itr->second["value"].data<float>();
-            gottor = true;
+
+          std::string name = m_currentHandle->chanName(itr->first);
+          ATH_MSG_INFO( "Trying to read from DCS: [channel name, index, value] " << name << " , " << itr->first << " , " << itr->second["value"].data<float>() );
+
+	  if (name.compare("") != 0) {
+	    hasChanNames = true;
+	  }
+
+          if ( name.compare("CentralSol_Current") == 0 ) {
+              // channel 1 is solenoid current
+              solcur = itr->second["value"].data<float>();
+              gotsol = true;
+          } else if ( name.compare("Toroids_Current") == 0 ) {
+              // channel 3 is toroid current
+              torcur = itr->second["value"].data<float>();
+              gottor = true;
+          }
+    }
+    if ( !hasChanNames ) {
+        ATH_MSG_INFO( "Attempt 2 at reading currents from DCS (using channel index)" );
+        // in no channel is named, try again using channel index instead
+        for ( CondAttrListCollection::const_iterator itr = m_currentHandle->begin();
+              itr != m_currentHandle->end(); ++itr ) {
+
+              if ( itr->first == 1 ) {
+                  // channel 1 is solenoid current
+                  solcur = itr->second["value"].data<float>();
+                  gotsol = true;
+              } else if ( itr->first == 3 ) {
+                  // channel 3 is toroid current
+                  torcur = itr->second["value"].data<float>();
+                  gottor = true;
+              }
         }
     }
+
     if ( !gotsol || !gottor ) {
         if ( !gotsol ) ATH_MSG_ERROR( "Missing solenoid current in DCS information" );
         if ( !gottor ) ATH_MSG_ERROR( "Missing toroid current in DCS information" );
@@ -175,11 +259,11 @@ StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
     }
     ATH_MSG_INFO( "Currents read from DCS: solenoid " << solcur << " toroid " << torcur );
     // round to zero if close to zero
-    if ( solcur < 1.0 ) {
+    if ( solcur < m_soleMinCurrent) {
         solcur = 0.0;
         ATH_MSG_INFO( "Solenoid is off" );
     }
-    if ( torcur < 1.0 ) {
+    if ( torcur < m_toroMinCurrent) {
         torcur = 0.0;
         ATH_MSG_INFO( "Toroids are off" );
     }
@@ -205,6 +289,64 @@ StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
     return StatusCode::SUCCESS;
 }
 
+/** callback for possible field map filenames update **/
+StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
+{
+    ATH_MSG_INFO( "reading magnetic field map filenames from COOL" );
+
+    std::string fullMapFilename("");
+    std::string soleMapFilename("");
+    std::string toroMapFilename("");
+
+    for (CondAttrListCollection::const_iterator itr = m_mapHandle->begin(); itr != m_mapHandle->end(); ++itr) {
+        const coral::AttributeList &attr = itr->second;
+        const std::string &mapType = attr["FieldType"].data<std::string>();
+        const std::string &mapFile = attr["MapFileName"].data<std::string>();
+        const float soleCur = attr["SolenoidCurrent"].data<float>();
+        const float toroCur = attr["ToroidCurrent"].data<float>();
+        
+        ATH_MSG_INFO("found map of type " << mapType << " with soleCur=" << soleCur << " toroCur=" << toroCur << " (path " << mapFile << ")");
+
+	// first 5 letters are reserved (like "file:")
+	const std::string mapFile_decoded = mapFile.substr(5);
+	if (mapType == "GlobalMap") {
+	  fullMapFilename = mapFile_decoded;
+	  m_mapSoleCurrent = soleCur;
+	  m_mapToroCurrent = toroCur;
+	} else if (mapType == "SolenoidMap") {
+	  soleMapFilename = mapFile_decoded;
+	} else if (mapType == "ToroidMap") {
+	  toroMapFilename = mapFile_decoded;
+	}
+	// note: the idea is that the folder contains exactly three maps
+	// (if it contains more than 3 maps, then this logic doesn't work perfectly)
+	// nominal currents are read from the global map
+    }
+
+    if (fullMapFilename == "" || soleMapFilename == "" || toroMapFilename == "") {
+      ATH_MSG_ERROR("unexpected content in COOL field map folder");
+      return StatusCode::FAILURE;
+    }
+
+    // check if maps really changed
+    if (fullMapFilename != m_fullMapFilename || soleMapFilename != m_soleMapFilename || toroMapFilename != m_toroMapFilename) {
+      ATH_MSG_INFO( "map set is new! reinitializing map");
+      m_fullMapFilename = fullMapFilename;
+      m_soleMapFilename = soleMapFilename;
+      m_toroMapFilename = toroMapFilename;
+
+      // trigger map reinitialization
+      if ( initializeMap().isFailure() ) {
+         ATH_MSG_ERROR( "failed to re-initialize field map" );
+         return StatusCode::FAILURE;
+      }
+    } else { 
+      ATH_MSG_INFO( "no need to update map set");
+    }
+
+    return StatusCode::SUCCESS;
+}
+
 //
 //  read and initialize map
 //
@@ -213,6 +355,7 @@ StatusCode MagField::AtlasFieldSvc::initializeMap()
     ATH_MSG_INFO( "Initializing the field map (solenoidCurrent=" << solenoidCurrent() << " toroidCurrent=" << toroidCurrent() << ")" );
     // empty the current map first
     clearMap();
+
     // determine the map to load
     std::string mapFile("");
     if ( solenoidOn() && toroidOn() ) {
@@ -382,8 +525,10 @@ void MagField::AtlasFieldSvc::getFieldZR(const double *xyz, double *bxyz, double
 /** Query the interfaces. */
 StatusCode MagField::AtlasFieldSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-    if ( IID_IMagFieldSvc == riid ) {
-        *ppvInterface = (MagField::IMagFieldSvc*)this;
+    if ( IIncidentListener::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<IIncidentListener*>(this);
+    } else if ( MagField::IMagFieldSvc::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<MagField::IMagFieldSvc*>(this);
     } else {
         // Interface is not directly available: try out a base class
         return Service::queryInterface(riid, ppvInterface);

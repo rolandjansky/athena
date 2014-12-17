@@ -11,8 +11,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 # initialise required conditions DB folders
 from IOVDbSvc.CondDB import conddb
-conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Map <noover/>','/GLOBAL/BField/Map <noover/>')
-conddb.toMetaData('/GLOBAL/BField/Map')
+conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Maps <noover/>','/GLOBAL/BField/Maps <noover/>')
+conddb.toMetaData('/GLOBAL/BField/Maps')
 if not athenaCommonFlags.isOnline():
     conddb.addFolder('DCS_OFL','/EXT/DCS/MAGNETS/SENSORDATA')
     conddb.toMetaData('/EXT/DCS/MAGNETS/SENSORDATA')
