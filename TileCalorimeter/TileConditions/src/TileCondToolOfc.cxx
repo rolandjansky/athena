@@ -277,7 +277,7 @@ const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerId
                 << " Cache " << m_cache );
 
 
-  unsigned int chanIdx;
+  unsigned int chanIdx = 0;
   if (m_cache) chanIdx = TileCalibUtils::getChanIdx(drawerIdx, channel) + MAX_ADCS * adc;
   // --- calculate on-fly if #of cached phases for this channel is too big
   if (m_cache && ((*ofc_phase_cache[chanIdx]).size() < m_cache)) {

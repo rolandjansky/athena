@@ -206,6 +206,7 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
     //--- drawerIdx=1, channel=0: definition of bad channel
     //--- drawerIdx=1, channel=1: definition of noisy channel
     //--- drawerIdx=1, channel=2: definition of NoGainLevel1 channel
+    //--- drawerIdx=1, channel=3: definition of bad timing channel
     //--- .... (this list could be extended if needed)
     //============================================================
     //=== Reset defintion to hard-coded defaults
@@ -247,6 +248,18 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
       ATH_MSG_INFO( "No TileBchStatus::isNoGainL1() definition found in DB, using defaults" );
     }
 
+
+    //=== TileBchStatus.isBadTiming() definition
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::BADTIMING_DEFINITION_CHAN, 0, adcBits, chnBits);
+    chnStatus = m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits);
+    if (chnStatus.isAffected()) {
+      ATH_MSG_INFO( "Updating TileBchStatus::isBadTiming() definition from DB" );
+      TileBchStatus::defineBadTiming(chnStatus);
+    } else {
+      ATH_MSG_INFO( "No TileBchStatus::isBadTiming() definition found in DB, using defaults" );
+    }
+
+
     //=== report current definitions
     ATH_MSG_INFO( "TileBchStatus::isBad() is defined by: "
                  << TileBchStatus::getDefinitionBad().getString() );
@@ -254,6 +267,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
                  << TileBchStatus::getDefinitionNoisy().getString() );
     ATH_MSG_INFO( "TileBchStatus::isNoGainL1() is defined by: "
                  << TileBchStatus::getDefinitionNoGainL1().getString() );
+    ATH_MSG_INFO( "TileBchStatus::isBadTiming() is defined by: "
+                 << TileBchStatus::getDefinitionBadTiming().getString() );
     
 
     // Check if drawer trips probabilities for simulation are exist in DB.

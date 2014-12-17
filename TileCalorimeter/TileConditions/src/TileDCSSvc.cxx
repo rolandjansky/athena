@@ -195,17 +195,18 @@ StatusCode TileDCSSvc::initialize() {
   // read special deltas for few unstable PMTs
   if (m_readHVSET) read_badhv("BadHVChannels.dat");
 
-  if (m_version == 2) {
-    ATH_MSG_INFO( "Reading config for RUN2");
-    if (read_config("DCSChStatesInCOOLR2.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
-    if (read_config("DCSChHVInCOOLR2.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
-    if (read_config("DCSChHVSETInCOOLR2.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Reading config for RUN1");
+  // not needed - all cool channels are the same as in RUN1 now
+  //if (m_version == 2) {
+  //  ATH_MSG_INFO( "Reading config for RUN2");
+  //  if (read_config("DCSChStatesInCOOLR2.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
+  //  if (read_config("DCSChHVInCOOLR2.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
+  //  if (read_config("DCSChHVSETInCOOLR2.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
+  //} else {
+  //  ATH_MSG_INFO( "Reading config for RUN1");
     if (read_config("DCSChStatesInCOOL.dat", "_LVPS_", m_pModulesSTATES)) return StatusCode::FAILURE;
     if (read_config("DCSChHVInCOOL.dat", "Drawer", m_pModulesHV)) return StatusCode::FAILURE;
     if (read_config("DCSChHVSETInCOOL.dat", "Drawer", m_pModulesHVSET)) return StatusCode::FAILURE;
-  }
+  //}
   
   return StatusCode::SUCCESS;
 }
@@ -452,7 +453,7 @@ int TileDCSSvc::read_badhv(std::string filename) {
   float delta, offset;
   char ll[256];
   std::string line;
-  size_t pos;
+  size_t pos = 0;
 
   while (true) {
 

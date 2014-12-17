@@ -418,7 +418,7 @@ void TileInfoLoader::handle ( const Incident& incident ) {
 
     if (m_eorCalled) {
       if (m_detStore->record(m_info, "TileInfo", false ).isFailure()) {
-        ATH_MSG_ERROR( "Failed to register new TileInfo object in the detector store." );
+        ATH_MSG_WARNING( "Failed to register new TileInfo object in the detector store." );
       } else {
         ATH_MSG_INFO( "Placed TileInfo object in the detector store." );
         m_eorCalled = false;
@@ -433,9 +433,11 @@ void TileInfoLoader::handle ( const Incident& incident ) {
       ATH_MSG_DEBUG( "TileInfo counter before release " << m_detStore->typeCount<TileInfo>() );
 
       m_detStore->releaseObject(m_info->clID(), "TileInfo");
-      ATH_MSG_INFO( "Removed TileInfo object from detector store." );
-
-      //StatusCode sc = m_detStore->remove(m_info);
+      if (m_detStore->remove(m_info).isFailure()) {
+        ATH_MSG_WARNING( "Failed to remove TileInfo object from detector store." );
+      } else {
+        ATH_MSG_INFO( "Removed TileInfo object from detector store." );
+      }
       ATH_MSG_DEBUG( "TileInfo counter after release " << m_detStore->typeCount<TileInfo>() );
 
       m_eorCalled = true;
