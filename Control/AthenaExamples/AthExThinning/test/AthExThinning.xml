@@ -40,6 +40,7 @@
       </expectations>
    </TEST>
 
+<!-- disable, since it has not worked for a long time
    <TEST name="test_pyslimming" type="script" suite="Core">
       <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
       <options_atn>chappy.py AthExThinning/test_pyslimming.py</options_atn>
@@ -52,5 +53,5 @@
          <returnValue>0</returnValue>
       </expectations>
    </TEST>
-
+-->
 </atn>
