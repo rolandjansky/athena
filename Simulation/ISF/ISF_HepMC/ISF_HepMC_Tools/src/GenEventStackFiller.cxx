@@ -156,13 +156,19 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
   m_uniqueBc = 0;
   m_largestBc = 0;
 
+  StatusCode sc;
   if (!m_pMergeSvc.empty()) {
     // 1. pileup merge service has been configured.
     // retrieve and process merged mceventcollection set
-    return processMergedColls(particleColl);
+    sc = processMergedColls(particleColl);
   } else {
     // 2. try to retrieve and process regular mceventcollection, as usual
-    return processSingleColl(particleColl);
+    sc = processSingleColl(particleColl);
+  }
+
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Unable to fill initial particle collection");
+    return StatusCode::FAILURE;
   }
 
   // register the largest barcode appearing in GEN_EVENT
