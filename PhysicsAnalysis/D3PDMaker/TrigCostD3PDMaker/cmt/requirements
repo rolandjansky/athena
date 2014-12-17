@@ -7,10 +7,14 @@ private
 
 # Generic Gaudi/Athena packages:
 use AthenaKernel               AthenaKernel-*           Control
+use AthenaBaseComps            AthenaBaseComps-*        Control
 use GaudiInterface             GaudiInterface-*         External
 
+use StoreGate                  StoreGate-*              Control
+use SGTools                    SGTools-*                Control
+
 # D3PDMaker packages:
-use D3PDMakerUtils             D3PDMakerUtils-*         PhysicsAnalysis/D3PDMaker
+use D3PDMakerInterfaces        D3PDMakerInterfaces-*    PhysicsAnalysis/D3PDMaker
 
 # EDM packages:
 use TrigMonitoringEvent				 TrigMonitoringEvent-*			Trigger/TrigEvent
