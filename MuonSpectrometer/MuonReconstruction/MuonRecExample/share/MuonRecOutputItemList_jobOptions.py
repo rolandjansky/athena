@@ -9,37 +9,48 @@ MuonAODList = []
 if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
    
    # Segments 
-   MuonAODList+=[ "xAOD::MuonSegmentContainer_v1#MuonSegments" ]
-   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer_v1#MuonSegmentsAux." ]
+   MuonAODList+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
+   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux." ]
 
    # TrackParticles 
-   MuonAODList+=[ "xAOD::TrackParticleContainer_v1#MuonSpectrometerTrackParticles" ]
-   MuonAODList+=[ "xAOD::TrackParticleAuxContainer_v1#MuonSpectrometerTrackParticlesAux." ]
+   MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
+   MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
+   MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerOnlyTrackParticles" ]
+   MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerOnlyTrackParticlesAux." ]
+
+   MuonAODList+=[ "xAOD::TrackParticleContainer#MSonlyTracklets" ]
+   MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MSonlyTrackletsAux." ]
+   MuonAODList+=[ "xAOD::VertexContainer#MSDisplacedVertex" ]
+   MuonAODList+=[ "xAOD::VertexAuxContainer#MSDisplacedVertexAux." ]
 
    if rec.doTruth():
       # Truth Particle Container
-      MuonAODList+=["xAOD::TruthParticleContainer_v1#MuonTruthParticle"]
-      MuonAODList+=["xAOD::TruthParticleAuxContainer_v1#MuonTruthParticleAux."]
+      MuonAODList+=["xAOD::TruthParticleContainer#MuonTruthParticles"]
+      MuonAODList+=["xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux."]
 
       # Truth Segment Container
-      MuonAODList+=["xAOD::MuonSegmentContainer_v1#MuonTruthSegments"]
-      MuonAODList+=["xAOD::MuonSegmentAuxContainer_v1#MuonTruthSegmentsAux."]
+      MuonAODList+=["xAOD::MuonSegmentContainer#MuonTruthSegments"]
+      MuonAODList+=["xAOD::MuonSegmentAuxContainer#MuonTruthSegmentsAux."]
 
    if muonRecFlags.prdToxAOD():
-      MuonAODList += [ "xAOD::PrepRawDataContainer_v1#MDT_DriftCircles"] 
-      MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#MDT_DriftCirclesAux."] 
-      MuonAODList += [ "xAOD::PrepRawDataContainer_v1#RPC_Measurements"] 
-      MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#RPC_MeasurementsAux."] 
-      MuonAODList += [ "xAOD::PrepRawDataContainer_v1#TGC_MeasurementsAllBCs"] 
-      MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#TGC_MeasurementsAllBCsAux."] 
-      MuonAODList += [ "xAOD::PrepRawDataContainer_v1#CSC_Clusters"] 
-      MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#CSC_ClustersAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#MDT_DriftCircles"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#MDT_DriftCirclesAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#RPC_Measurements"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_MeasurementsAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#TGC_MeasurementsAllBCs"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#TGC_MeasurementsAllBCsAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#CSC_Clusters"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#CSC_ClustersAux."] 
       if muonRecFlags.doCreateClusters:
-         MuonAODList += [ "xAOD::PrepRawDataContainer_v1#RPC_Clusters"] 
-         MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#RPC_ClustersAux."] 
-         MuonAODList += [ "xAOD::PrepRawDataContainer_v1#TGC_Clusters"] 
-         MuonAODList += [ "xAOD::PrepRawDataAuxContainer_v1#TGC_ClustersAux."] 
-         
+         MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#RPC_Clusters"] 
+         MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_ClustersAux."] 
+         MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#TGC_Clusters"] 
+         MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#TGC_ClustersAux."] 
+
+   if muonRecFlags.rpcRawToxAOD():
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer_v1#RPC_RDO_Measurements"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer_v1#RPC_RDO_MeasurementsAux."] 
+
 # ESD list includes all AOD items
 MuonESDList = []
 MuonESDList += MuonAODList
@@ -55,6 +66,11 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    MuonESDList+=["Muon::MdtPrepDataContainer#MDT_DriftCircles"]
    MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
    MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
+
+   #trigger related info for offline DQA
+   ### MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"]
+   MuonESDList+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
+   MuonESDList+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
    # Segments
    MuonESDList+=["Trk::SegmentCollection#MuonSegments"]

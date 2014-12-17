@@ -185,6 +185,14 @@ def MuonHoughPatternTool(name="MuonHoughPatternTool",**kwargs):
     return CfgMgr.MuonHoughPatternTool(name,**kwargs)
 # end of factory function MuonHoughPatternTool
 
+def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs): 
+    getPublicTool("MuonCombinePatternTool") 
+    getPublicTool("MuonHoughPatternTool") 
+    if beamFlags.beamType() != 'collisions' and not muonRecFlags.forceCollisionsMode():  
+        kwargs.setdefault("MDT_TDC_cut", False)
+        kwargs.setdefault("RecordAll",False)
+    return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs) 
+
 #--------------------------------------------------------------------------------
 # Tracking geometry
 #--------------------------------------------------------------------------------
@@ -351,7 +359,7 @@ MuonParticleCreatorTool.setDefaultProperties(
     Extrapolator     = "AtlasExtrapolator"    ,
     TrackSummaryTool = "MuonTrackSummaryTool",
     KeepAllPerigee=True,
-    ExpressPerigeeToBeamSpot=False)
+    PerigeeExpression="Origin")
 # end of class MuonParticleCreatorTool
 
 def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):

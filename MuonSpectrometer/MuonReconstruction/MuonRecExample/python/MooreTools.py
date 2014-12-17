@@ -33,7 +33,7 @@ from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 from MooreFlags import mooreFlags
 from MuonRecFlags import muonRecFlags
-
+from MuonStandaloneFlags import muonStandaloneFlags
 #==============================================================
 
 # call  setDefaults to update flags
@@ -104,28 +104,33 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
     __slots__ = ()
     
     def __init__(self,name="MooSegmentFinder",**kwargs):
+
+        kwargs.setdefault( "SegmentCombiner", "MuonCurvedSegmentCombiner" )
+        kwargs.setdefault( "SegmentCombinationCleaner", "MuonSegmentCombinationCleanerTool" )
+        if( beamFlags.beamType() != 'cosmics' and beamFlags.beamType() != 'singlebeam'): 
+            kwargs.setdefault( "HoughPatternFinder", "MuonLayerHoughTool" )
+        else:
+            kwargs.setdefault( "HoughPatternFinder", "MuonHoughPatternFinderTool" )
+
+        kwargs.setdefault( "MdtSegmentMaker", "MuonPatternSegmentMaker" )
+        kwargs.setdefault( "DoSegmentCombinationCleaning", True )
+        kwargs.setdefault( "DoCscSegments", muonRecFlags.doCSCs() )
+        kwargs.setdefault( "DoMdtSegments", muonRecFlags.doMDTs() )
+        if muonRecFlags.doCSCs():
+            kwargs.setdefault( "Csc2dSegmentMaker","Csc2dSegmentMaker" )
+            kwargs.setdefault( "Csc4dSegmentMaker", "Csc4dSegmentMaker" )
+        else:
+            kwargs.setdefault( "Csc2dSegmentMaker", None )
+            kwargs.setdefault( "Csc4dSegmentMaker", None )
+        if muonStandaloneFlags.printSummary():
+            kwargs.setdefault( "DoSummary", True )
+
         self.applyUserDefaults(kwargs,name)
         # set some defaults
 
         # call the base class ctor
         super(MooSegmentCombinationFinder,self).__init__(name,**kwargs)
 
-MooSegmentCombinationFinder.setDefaultProperties(
-    SegmentCombiner           = "MuonCurvedSegmentCombiner",
-    SegmentCombinationCleaner = "MuonSegmentCombinationCleanerTool",
-    HoughPatternFinder        = "MuonLayerHoughTool",
-    MdtSegmentMaker           = "MuonPatternSegmentMaker",
-    DoSegmentCombinationCleaning = True ,
-    DoCscSegments             = muonRecFlags.doCSCs() ,
-    DoMdtSegments             = muonRecFlags.doMDTs(),
-    Csc2dSegmentMaker         = "Csc2dSegmentMaker",
-    Csc4dSegmentMaker         = "Csc4dSegmentMaker" )
-if not muonRecFlags.doCSCs():
-    MooSegmentCombinationFinder.setDefaultProperties(
-    Csc2dSegmentMaker         = None,
-    Csc4dSegmentMaker         = None )
-if mooreFlags.printSummary():
-    MooSegmentCombinationFinder.setDefaultProperties( DoSummary = True )
 # end of class MooSegmentCombinationFinder
 
 

@@ -38,8 +38,8 @@ addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorAdjustableT0Mo
 addTool( "MuonRecExample.MuonRecTools.MuonRotCreator", "MuonRotCreator" )
 
 addTool( "MuonRecExample.MuonRecTools.MuonCombinePatternTool", "MuonCombinePatternTool" )
-
 addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternTool", "MuonHoughPatternTool" )
+addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPatternFinderTool" ) 
 
 addService("MuonRecExample.MuonRecTools.AtlasTrackingGeometrySvc","AtlasTrackingGeometrySvc")
 
@@ -256,16 +256,14 @@ addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool" )
 addTool("Muon::MuonSegmentCombinationCleanerTool","MuonSegmentCombinationCleanerTool")
 
 ################################################################################
-# Muonboy
-################################################################################
-
-#addTool("Muon::MboyMuonTrackBuilder","MboyMuonTrackBuilder")
-#addTool("MuonboyToParticleTool","MuonboyToParticleTool")
-#addTool("Muon::MuonBackTracker","MuonBackTracker")
-
-################################################################################
 # MuonStandalone
 ################################################################################
 
 addTool( "MuonRecExample.MuonStandalone.MuonTrackSteering", "MuonTrackSteering" )
-#addTool( "MuonRecExample.MuonStandalone.MboyMuonSegmentMaker", "ThirdChainMboyMuonSegmentMaker" )
+
+################################################################################
+# MS vertex
+################################################################################
+
+addTool("Muon::MSVertexTrackletTool","MSVertexTrackletTool")
+addTool("Muon::MSVertexRecoTool","MSVertexRecoTool")

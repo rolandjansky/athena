@@ -66,16 +66,11 @@ def getCalibConfigs():
 
 ## Setup MuonSegmenToCalibSegment algorithm.
 # @input @c segmentKeys list of segment keys to use or single segments key (string)
-def getMuonSegmentToCalibSegment(segmentKeys, segmentAuthors=[]):
+def getMuonSegmentToCalibSegment():
     global topSequence,muonRecFlags
     try:
         return topSequence.MuonSegmentToCalibSegment
     except AttributeError:
-        # support just one key (string)
-        if type(segmentKeys) == str:
-            segmentKeys = [ segmentKeys ]
-        if type(segmentAuthors) == str:
-            segmentAuthors = [ segmentAuthors ]
             
         from MuonCalibPatRec.MuonCalibPatRecConf import MuonCalib__MuonSegmentToCalibSegment
         MuonSegmentToCalibSegment = MuonCalib__MuonSegmentToCalibSegment("MuonSegmentToCalibSegment")
@@ -86,8 +81,8 @@ def getMuonSegmentToCalibSegment(segmentKeys, segmentAuthors=[]):
         MuonSegmentToCalibSegment.UpdateForT0Shift = type(MuonSegmentToCalibSegment.getDefaultProperty("UpdateForT0Shift")) (muonRecFlags.doSegmentT0Fit())
         # only do CSC segments if Moore is running and CSCs are on
         MuonSegmentToCalibSegment.UseCscSegments = False
-        MuonSegmentToCalibSegment.SegmentLocations = segmentKeys
-        MuonSegmentToCalibSegment.SegmentAuthors = segmentAuthors
+        MuonSegmentToCalibSegment.SegmentLocations = [ "MuonSegments" ]
+        MuonSegmentToCalibSegment.SegmentAuthors = [ 4,8 ] 
         MuonSegmentToCalibSegment.ReadSegments = True # rather than SegmentCombinations
 
         getService("MdtCalibrationSvc")
@@ -138,9 +133,7 @@ def setupMuonCalibNtuple():
         configs = getCalibConfigs()
         # MuonSegmentToCalibSegment is only needed if we want segments
         if muonRecFlags.calibNtupleSegments and (muonRecFlags.calibMoore or muonRecFlags.calibMuonboy or muonRecFlags.calibMuonStandalone):
-            segmentKeys = [ c['segmentsKey'] for c in configs ]
-            segmentAuthors = [ c['segmentAuthor'] for c in configs ]
-            MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment( segmentKeys,  segmentAuthors)
+            MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment()
 
         # MuonCalibAlg is always needed
         eventTag="UNKNOWN"
@@ -246,7 +239,7 @@ def setupMuonCalib():
         # MuonSegmentToCalibSegment
         #
         calibConfig = muonRec.allConfigs()[0].getCalibConfig() #muonRec.getConfig(muonCalibFlags.EventTag()).getCalibConfig()
-        MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment( calibConfig['segmentsKey'],  [calibConfig['segmentAuthor']])
+        MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment()
         #
         # MuonCalibAlg
         #
@@ -273,9 +266,9 @@ def setupMuonCalib():
 
 
 # chose the setup
-if muonRecFlags.doCalibNtuple:
+if muonRecFlags.doCalibNtuple():
     setupMuonCalibNtuple()
-elif muonRecFlags.doCalib:
+elif muonRecFlags.doCalib():
     setupMuonCalib()
 else:
     logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )

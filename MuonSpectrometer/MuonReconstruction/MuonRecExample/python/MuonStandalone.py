@@ -105,8 +105,7 @@ class MuonStandalone(ConfiguredMuonRec):
         beamFlags = jobproperties.Beam 
         if beamFlags.beamType()=='cosmics': 
             self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker", 
-                                                     SegmentFinder = getPrivateTool("MooSegmentFinder", WriteChamerT0s = True,
-                                                                                    DoSummary = muonStandaloneFlags.printSummary() ), 
+                                                     SegmentFinder = getPublicTool("MooSegmentFinder"), 
                                                      MuonSegmentOutputLocation = "MuonSegments", 
                                                      UseCSC = muonRecFlags.doCSCs(), 
                                                      UseMDT = muonRecFlags.doMDTs(), 

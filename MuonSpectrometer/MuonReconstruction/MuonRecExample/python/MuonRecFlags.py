@@ -67,6 +67,18 @@ class prdToxAOD(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+## Add RPC RDO to xAOD
+class rpcRawToxAOD(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+## Run MS vertex (arXiv:1311.7070)
+class doMSVertex(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 
 ## @brief OBSOLETE. Use instead: doMoore, doMuonboy
 #
@@ -489,6 +501,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doRPCs,True)
         setDefault(self.doTGCs,True)
         setDefault(self.doCSCs,True)
+        setDefault(self.doMSVertex,False)
         setDefault(self.forceDataMode,self.Commissioning())
         setDefault(self.forceCollisionsMode,False)
         setDefault(self.useWireSagCorrections,False)

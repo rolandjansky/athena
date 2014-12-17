@@ -51,6 +51,14 @@ if (rec.readRDO() or rec.readESD()) and muonRecFlags.prdToxAOD():
     if muonRecFlags.doCreateClusters():
         topSequence += CfgMgr.RPC_PrepDataToxAOD("RPC_ClusterToxAOD",InputContainerName="RPC_Clusters")
         topSequence += CfgMgr.TGC_PrepDataToxAOD("TGC_ClusterToxAOD",InputContainerName="TGC_Clusters")
+
+### add RPC RDO -> xAOD
+if (rec.readRDO() or rec.readESD()) and muonRecFlags.rpcRawToxAOD():
+    from AthenaCommon import CfgMgr
+    topSequence += CfgMgr.RPC_RDOToxAOD()
+    
+    #if muonRecFlags.doCreateClusters():
+    #    topSequence += CfgMgr.rpcRawToxAOD("rpcRawToxAOD",InputContainerName="rpcRaw")
         
 
 ###### from Tomoe & Susumu
@@ -108,6 +116,8 @@ if muonRecFlags.doMoore() or muonRecFlags.doMuonboy() or muonRecFlags.doStandalo
     #
     from MuonRecExample.MuonRec import muonRec
 
+    muonRecFlags.doMSVertex = True
+
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
         from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonSegmentTruthAssociationAlg
@@ -149,3 +159,6 @@ if muonRecFlags.doTrackPerformance():
 if muonRecFlags.doTrkD3PD():
     include("MuonRecExample/MuonRecD3PDCreation.py")
 
+if muonRecFlags.doMSVertex():
+    from MSVertexRecoAlg.MSVertexRecoAlgConf import MSVertexRecoAlg
+    topSequence+=MSVertexRecoAlg("MSVertexRecoAlg")
