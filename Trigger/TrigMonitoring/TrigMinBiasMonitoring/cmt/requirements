@@ -13,7 +13,14 @@ use  GaudiInterface             GaudiInterface-*                External
 use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
 use  TrigHLTMonitoring          TrigHLTMonitoring-*             Trigger/TrigMonitoring
 
+use  TrigInDetEvent             TrigInDetEvent-*                Trigger/TrigEvent
+
 use  ZdcIdentifier              ZdcIdentifier-*                 ForwardDetectors/ZDC
+
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+
+use	 InDetTrackSelectionTool	InDetTrackSelectionTool-*		InnerDetector/InDetRecTools
+
 private
 use  InDetBCM_RawData           InDetBCM_RawData-*              InnerDetector/InDetRawEvent
 use  LUCID_RawEvent             LUCID_RawEvent-*                ForwardDetectors/LUCID
@@ -24,7 +31,8 @@ use  CaloEvent                  CaloEvent-*                     Calorimeter
 use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
 use  ZdcEvent                   ZdcEvent-*                      ForwardDetectors/ZDC
 
-use  xAODTrigMinBias						xAODTrigMinBias-*								Event/xAOD
+use  xAODTrigMinBias	        xAODTrigMinBias-*				Event/xAOD
+use  xAODTracking				xAODTracking-*					Event/xAOD
 
 end_private
 

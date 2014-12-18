@@ -25,6 +25,8 @@
  *
  *    Based on HLTMonTool example by Christiane Risler and Martin zur Nedden
  */
+#include "TrigMinBiasMonitoring/HLTMinBiasMonTool.h" 
+ 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
@@ -60,7 +62,11 @@
 // Energy-Time 
 #include "TrigCaloEvent/TrigT2MbtsBitsContainer.h"
 
-#include "TrigMinBiasMonitoring/HLTMinBiasMonTool.h" 
+#include "xAODTrigMinBias/TrigHisto2D.h"
+#include "TrigInDetEvent/TrigVertexCollection.h"
+//#include <xAODTrigMinBias/TrigVertexCounts.h>
+
+#include "xAODTracking/TrackParticle.h"
 
 #include "TROOT.h"
 #include "TH1I.h"
@@ -81,7 +87,8 @@ using namespace std;
  *  numbers to be used, and the timebin.
  */
 HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string & myname, const IInterface* parent) :
-	IHLTMonTool(type, myname, parent), m_log(0), m_tdthandle("Trig::TrigDecisionTool/monTrigDecTool")
+	IHLTMonTool(type, myname, parent), m_log(0), m_tdthandle("Trig::TrigDecisionTool/monTrigDecTool"),
+	m_tileTBID(0), m_selTool( "InDet::InDetTrackSelectionTool/TrackSelection", this )//, m_selTool( "TrackSelection" )
 {
 	m_log = new MsgStream(msgSvc(), name());
 
@@ -97,73 +104,18 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	// Threshold settings for multiplicity requirements.
 	// A trigger threshold can be disabled by setting it to be < 0
 	declareProperty("TotalPixelClus", m_totalPixelClus_cut = 3.);
-	declareProperty("PixelClusRatioA", m_pixelClusRatioA_cut = -1.);
-	declareProperty("PixelClusRatioB", m_pixelClusRatioB_cut = -1.);
-	declareProperty("PixelClusEndcapC", m_pixelClusEndcapC_cut = -1.);
-	declareProperty("PixelClusBarrel", m_pixelClusBarrel_cut = -1.);
-	declareProperty("PixelClusEndcapA", m_pixelClusEndcapA_cut = -1.);
-	declareProperty("PixelClusEndcapC_max", m_pixelClusEndcapC_max = -1.);
-	declareProperty("PixelClusBarrel_max", m_pixelClusBarrel_max = -1.);
-	declareProperty("PixelClusEndcapA_max", m_pixelClusEndcapA_max = -1.);
-	declareProperty("PixelClusEndcaps_cut", m_pixelClusEndcaps_cut = -1.);
 
 	declareProperty("TotalSctSp", m_totalSctSp_cut = 3.);
-	declareProperty("SctSpEndcapC", m_sctSpEndcapC_cut = -1.);
-	declareProperty("SctSpBarrel", m_sctSpBarrel_cut = -1.);
-	declareProperty("SctSpEndcapA", m_sctSpEndcapA_cut = -1.);
-	declareProperty("SctSpEndcapC_max", m_sctSpEndcapC_max = -1.);
-	declareProperty("SctSpBarrel_max", m_sctSpBarrel_max = -1.);
-	declareProperty("SctSpEndcapA_max", m_sctSpEndcapA_max = -1.);
-	declareProperty("SctSpEndcaps_cut", m_sctSpEndcaps_cut = -1.);
 
 	//EF container
 	declareProperty("TCContainerName", m_tcContainerName);
 
 	declareProperty("max_z0", m_max_z0 = 401.0); // (mm)
 	declareProperty("min_pt", m_min_pt = 0.2); // (GeV)
-	declareProperty("Required_ntrks", m_required_ntrks = 1); // (#)
-
-	// hip_trk Sp threshold - pA 2013
-	declareProperty("SctSpThresh", m_sctSp_thresh = 20.);
 	
 	// Parameter to be tuned to correspond to trigger threshold
         declareProperty("TimeCut", m_timeCut = 20.0);
         declareProperty("EnergyCut", m_energyCut = 40. / 222.); // It should be 60./222.
-	
-	//ERASE THIS...
-	declareProperty("EF_mbSpTrk",m_EF_mbSpTrkName);
-	declareProperty("EF_mbSp",m_EF_mbSpName);
-	declareProperty("EF_mbMbts_2_eff",m_EF_mbMbts_2_effName);
-	declareProperty("EF_mbRd1_eff",m_EF_mbRd1_effName);
-	
-	declareProperty("EF_mbLucid_eff",m_EF_mbLucid_effName);
-	
-	declareProperty("EF_rd0_filled_NoAlg",m_EF_rd0_filled_NoAlgName);
-	
-	declareProperty("EF_L1ItemStreamer_L1_MBTS_2",m_EF_L1ItemStreamer_L1_MBTS_2Name);
-	declareProperty("EF_mbZdc_eff",m_EF_mbZdc_effName);
-	//declareProperty("EF_mbLucid_eff",m_EF_mbLucid_effName);
-	
-	declareProperty("EF_mbMbts_1_1_eff",m_EF_mbMbts_1_1_effName);
-	declareProperty("EF_mbMbts_2_2_eff",m_EF_mbMbts_2_2_effName);
-	declareProperty("EF_mbMbts_4_4_eff",m_EF_mbMbts_4_4_effName);
-	
-	declareProperty("EF_mbSpTrkVtxMh",m_EF_mbSpTrkVtxMhName);
-	declareProperty("EF_mbSpTrkVtxMh_eff",m_EF_mbSpTrkVtxMh_effName);
-	
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk150_L1TE50",m_EF_mbSpTrkVtxMh_hip_trk150_L1TE50Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk190_L1TE50",m_EF_mbSpTrkVtxMh_hip_trk190_L1TE50Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk120_L1TE35",m_EF_mbSpTrkVtxMh_hip_trk120_L1TE35Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk190_L1TE35",m_EF_mbSpTrkVtxMh_hip_trk190_L1TE35Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk240_L1TE35",m_EF_mbSpTrkVtxMh_hip_trk240_L1TE35Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk180_L1TE65",m_EF_mbSpTrkVtxMh_hip_trk180_L1TE65Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk200_L1TE65",m_EF_mbSpTrkVtxMh_hip_trk200_L1TE65Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk240_L1TE65",m_EF_mbSpTrkVtxMh_hip_trk240_L1TE65Name);
-	declareProperty("EF_mbSpTrkVtxMh_hip_trk175_L1MBTS",m_EF_mbSpTrkVtxMh_hip_trk175_L1MBTSName);
-	
-	declareProperty("EF_L1ZDC_A_NoAlg",m_EF_L1ZDC_A_NoAlgName);
-	declareProperty("EF_L1ZDC_C_NoAlg",m_EF_L1ZDC_C_NoAlgName);
-	declareProperty("EF_L1LHCF_NoAlg",m_EF_L1LHCF_NoAlgName);
 	
 	// -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
         declareProperty("MinBiasTrigItem", m_trigItems);
@@ -212,13 +164,22 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
                 ss << partName << std::setfill('0') << std::setw(2) << c << std::setfill(' '); //MBTS_A00, MBTS_C03
                 m_moduleLabel.push_back(ss.str());
         }
+        //HMT
+        
+        declareProperty("VCContainerName", m_vcContainerName);
+        declareProperty("VColContainerName", m_vcolContainerName);
+        //declareProperty("TrigSpacePointCountsName", m_trigSpacePointCountsName);
+        // Cut made on time overthreshold before any multiplicities are calculated.
+        declareProperty("PixelCLToTCut", m_timeOverThreshold_cut = 20.);
+		
+		//purity & efficiency
+		declareProperty("InDetTrackParticleContainerName", m_inDetTrackParticleContainerName);
+		declareProperty("CutLevel", m_cutLevel);
 }
 
-/*---------------------------------------------------------*/
-StatusCode HLTMinBiasMonTool::initialize()
-/*---------------------------------------------------------*/
+StatusCode HLTMinBiasMonTool::init()
 {
-	StatusCode sc;
+    StatusCode sc;
 
 	sc = service("StoreGateSvc", m_storeGate);
 	if (sc.isFailure()) {
@@ -232,9 +193,9 @@ StatusCode HLTMinBiasMonTool::initialize()
 		return sc;
 	}
 	
-	sc = m_detStore->retrieve(m_tileID);
+	sc = m_detStore->retrieve(m_tileTBID);
 	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endreq;
+		(*m_log) << MSG::ERROR << "Unable to retrieve TileTBID helper from DetectorStore" << endreq;
 		return sc;
 	}
 	
@@ -243,6 +204,12 @@ StatusCode HLTMinBiasMonTool::initialize()
 		(*m_log) << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endreq;
 		return sc;
 	}
+	
+	/*sc = m_detStore->retrieve(m_evinfo);
+	if (sc.isFailure()) {
+		(*m_log) << MSG::ERROR << "Unable to retrieve XAOD::EventInfo helper from DetectorStore" << endreq;
+		return sc;
+	}*/
 
 	// retrieve the trigger decision tool
 	sc = m_tdthandle.retrieve();
@@ -250,52 +217,6 @@ StatusCode HLTMinBiasMonTool::initialize()
 		*m_log << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
 		return sc;
 	}
-
-	//The Chain Groups are initialized here.
-	m_EF_mbSpTrk = m_tdthandle->getChainGroup(m_EF_mbSpTrkName);
-	m_EF_mbSp = m_tdthandle->getChainGroup(m_EF_mbSpName);
-	//m_EF_mbMbts_1_eff = m_tdthandle->getChainGroup("EF_mbMbts_1_eff");
-	m_EF_mbMbts_2_eff = m_tdthandle->getChainGroup(m_EF_mbMbts_2_effName);
-	//m_EF_mbZdc_eff = m_tdthandle->getChainGroup("EF_mbZdc_eff");
-	m_EF_mbRd1_eff = m_tdthandle->getChainGroup(m_EF_mbRd1_effName);
-
-// 8 TeV Low-mu
-	m_EF_mbLucid_eff = m_tdthandle->getChainGroup(m_EF_mbLucid_effName);
-
-	m_EF_rd0_filled_NoAlg = m_tdthandle->getChainGroup(m_EF_rd0_filled_NoAlgName);        
-	//m_EF_mbMbts_2_NoAlg = m_tdthandle->getChainGroup("EF_mbMbts_2_NoAlg");      
-
-// pA 
-// Rd1 used instead of rd0 above (8 TeV pp low mu)
-// defined above 	m_EF_mbRd1_eff        
-// used instead of mbMbts_2_NoAlg (8 TeV pp low mu)
-	m_EF_L1ItemStreamer_L1_MBTS_2 = m_tdthandle->getChainGroup(m_EF_L1ItemStreamer_L1_MBTS_2Name);      
-	m_EF_mbZdc_eff = m_tdthandle->getChainGroup(m_EF_mbZdc_effName);
-	//m_EF_mbLucid_eff = m_tdthandle->getChainGroup(m_EF_mbLucid_effName);
-
-	//Heavy-Ion triggers
-	m_EF_mbMbts_1_1_eff = m_tdthandle->getChainGroup(m_EF_mbMbts_1_1_effName);
-	m_EF_mbMbts_2_2_eff = m_tdthandle->getChainGroup(m_EF_mbMbts_2_2_effName);
-	m_EF_mbMbts_4_4_eff = m_tdthandle->getChainGroup(m_EF_mbMbts_4_4_effName);
-
-	//High Multiplicity
-	m_EF_mbSpTrkVtxMh = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMhName);
-	m_EF_mbSpTrkVtxMh_eff = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_effName);
-
-// Heavy-Ion proton-lead hip_trk (pA 2013)
-	m_EF_mbSpTrkVtxMh_hip_trk150_L1TE50 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk150_L1TE50Name);
-	m_EF_mbSpTrkVtxMh_hip_trk190_L1TE50 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk190_L1TE50Name);
-	m_EF_mbSpTrkVtxMh_hip_trk120_L1TE35 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk120_L1TE35Name);
-	m_EF_mbSpTrkVtxMh_hip_trk190_L1TE35 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk190_L1TE35Name);
-	m_EF_mbSpTrkVtxMh_hip_trk240_L1TE35 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk240_L1TE35Name);
-	m_EF_mbSpTrkVtxMh_hip_trk180_L1TE65 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk180_L1TE65Name);
-	m_EF_mbSpTrkVtxMh_hip_trk200_L1TE65 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk200_L1TE65Name);
-	m_EF_mbSpTrkVtxMh_hip_trk240_L1TE65 = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk240_L1TE65Name);
-	m_EF_mbSpTrkVtxMh_hip_trk175_L1MBTS = m_tdthandle->getChainGroup(m_EF_mbSpTrkVtxMh_hip_trk175_L1MBTSName);
-
-	m_EF_L1ZDC_A_NoAlg = m_tdthandle->getChainGroup(m_EF_L1ZDC_A_NoAlgName);
-	m_EF_L1ZDC_C_NoAlg = m_tdthandle->getChainGroup(m_EF_L1ZDC_C_NoAlgName);
-	m_EF_L1LHCF_NoAlg = m_tdthandle->getChainGroup(m_EF_L1LHCF_NoAlgName);
 	
         // -------------------------------------------------------- NEW AUTOMATIC WAY TO COPE WITH THINGS----------------------
         
@@ -308,6 +229,7 @@ StatusCode HLTMinBiasMonTool::initialize()
         m_pathForGroup[IDMINBIAS] =     "IDMinbias";
         m_pathForGroup[ZDC] =           "ZDC";
         m_pathForGroup[BCM] =           "BCM";
+        m_pathForGroup[HMT] =           "HMT";
         
         m_mbtsCountsBothSides = m_mbtsCountsSideA + m_mbtsCountsSideC;
         
@@ -324,13 +246,35 @@ StatusCode HLTMinBiasMonTool::initialize()
 		*m_log << MSG::ERROR << "Unable to call ManagedMonitoringToolBase::initialize" << endreq;
 		return sc;
 	}
-
+	
+	//purity & efficiency
+	//m_selTool = InDet::InDetTrackSelectionTool ( "TrackSelection" );
+	switch(m_cutLevel)
+	{
+		case 0:
+			m_selTool->setCutLevel( InDet::CutLevel::NoCut );
+			break;
+		case 1:
+			m_selTool->setCutLevel( InDet::CutLevel::Loose );
+			break;
+		case 2:
+			m_selTool->setCutLevel( InDet::CutLevel::LoosePrimary );
+			break;
+		case 3:
+			m_selTool->setCutLevel( InDet::CutLevel::TightPrimary );
+			break;
+		default:
+			*m_log << MSG::WARNING << "Inappropriate cut level for InDetTrackSelectionTool" << endreq;
+	}
+	//m_selTool->setCutLevel( m_cutLevel ); //set cuts
+	sc = m_selTool->initialize();
+	if (sc.isFailure())
+	{
+		*m_log << MSG::ERROR << "Unable to initialize InDetTrackSelectionTool" << endreq;
+		return sc;
+	}
+	
 	return sc;
-}
-
-StatusCode HLTMinBiasMonTool::init()
-{
-        return StatusCode::SUCCESS;
 }
 
 StatusCode HLTMinBiasMonTool::book()
@@ -340,25 +284,32 @@ StatusCode HLTMinBiasMonTool::book()
         //Trigger entries
         TH1I *th1i = new TH1I("TriggerEntries", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());		
         TProfile *tProf = new TProfile("TriggerEntriesProfile", "Trigger Entries;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);
+		//histogram filled with mean purity for every trigger chain
+		TH1F *tAllTracks = new TH1F("TriggerTracksAll", "Trigger All Tracks;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
+		TH1F *tTracksPassed = new TH1F("TriggerTracksPassed", "Trigger Tracks Passed;trigger chain id;entry rate", m_trigItems.size(), 0, m_trigItems.size());	
+		TH1F *tPurities = new TH1F("TriggerPurities", "Trigger Purities;trigger chain id;purity", m_trigItems.size(), 0, m_trigItems.size());	
         
         //Error rates for IDMinBias
         addMonGroup(new MonGroup(this,"HLT/MinBiasMon/IDMinbias", run, ATTRIB_UNMANAGED));
-	TProfile *tTrigErrors = new TProfile("IDMinBiasTriggerErrors", "Trigger Errors;trigger chain id;error rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);	
+		TProfile *tTrigErrors = new TProfile("IDMinBiasTriggerErrors", "Trigger Errors;trigger chain id;error rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);	
         	
         for (const auto &i: m_trigItems)	//for each chain
         {
-                tProf->GetXaxis()->FindBin(i.c_str());
-                tTrigErrors->GetXaxis()->FindBin(i.c_str());
+			tProf->GetXaxis()->FindBin(i.c_str());
+			tAllTracks->GetXaxis()->FindBin(i.c_str());
+			tTracksPassed->GetXaxis()->FindBin(i.c_str());
+			tPurities->GetXaxis()->FindBin(i.c_str());
+			tTrigErrors->GetXaxis()->FindBin(i.c_str());
 
                 for (const auto &j: m_availableAlgs)	//iterate through algorithms
- 		{
- 		        if (std::string::npos != i.find(j)) //and find their signatures in the chain name
- 		 	{
- 		 	        unsigned k = m_algorithmsForChain[j];
- 		 	        m_histoGroupForChain[i] = k;//assign histoGroup(s) for a given chain
+				{
+					if (std::string::npos != i.find(j)) //and find their signatures in the chain name
+					{
+						unsigned k = m_algorithmsForChain[j];
+						m_histoGroupForChain[i] = k;//assign histoGroup(s) for a given chain
 
- 		 	        if (k)
- 		 	        {
+						if (k)
+						{
  		 	                for (const auto &l: m_pathForGroup)//book needed histograms
  		 	                {
  		 	                        if ( (k & l.first) == l.first)
@@ -367,13 +318,22 @@ StatusCode HLTMinBiasMonTool::book()
  		 	                                bookHistogramsForItem(i, l.first);
  		 	                        }
  		 	                }
- 		 	        }
-                                break; //no need to look further
- 		        }
- 	        }
+						}
+						break; //no need to look further
+					}
+				}
+			//Time-dependent purity histograms
+			addMonGroup(new MonGroup(this,"HLT/MinBiasMon/Purities/" + i, run, ATTRIB_UNMANAGED));
+			addHistogram(new TH1F("TracksAll", "Trigger All Tracks;lumiblock;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("TracksPassed", "Trigger Passed Tracks;lumiblock;entry rate", 1000, -0.5, 999.5));
+			addHistogram(new TH1F("Purity", "Trigger Purity;lumiblock;entry rate", 1000, -0.5, 999.5));
  	}
-        tProf->ResetBit(TH1::kCanRebin);
+    tProf->ResetBit(TH1::kCanRebin);
 	tProf->SetMinimum(0.0);
+	
+	tAllTracks->SetMinimum(0.0);
+	tTracksPassed->SetMinimum(0.0);
+	tPurities->SetMinimum(0.0);
 	
 	th1i->SetMinimum(0.0);
 	
@@ -382,6 +342,10 @@ StatusCode HLTMinBiasMonTool::book()
 
         addProfile(tProf, "HLT/MinBiasMon");
         addHistogram(th1i, "HLT/MinBiasMon");
+		
+		addHistogram(tAllTracks, "HLT/MinBiasMon");
+		addHistogram(tTracksPassed, "HLT/MinBiasMon");
+		addHistogram(tPurities, "HLT/MinBiasMon");
         
         addProfile(tTrigErrors, "HLT/MinBiasMon/IDMinbias");
         
@@ -451,51 +415,11 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		th2i = new TH2I("m_h_mbtsCorr_N_N", "MBTS hits correlation;MBTS Side A;MBTS Side C", m_mbtsCountsSideA + 1, -0.5, m_mbtsCountsSideA + 0.5, m_mbtsCountsSideC + 1, -0.5, m_mbtsCountsSideC + 0.5);
 		th2i->SetOption("COLZ");
 		addHistogram(th2i);
- 	}
- 	if ( (histGroup & LUCID) == LUCID)
- 	{
- 	        // Lucid
-		addHistogram(new TH1I("lucidChannels", "occupancy;channel;hits per channel", 40, -0.5, 39.5));
-		addHistogram(new TH1I("lucidChannels_pBX", "occupancy for the previous BX;channel;hits per channel", 40,	-0.5, 39.5));
-		addHistogram(new TH1I("lucidChannels_nBX", "occupancy for the next BX;channel;hits per channel", 40, -0.5, 39.5));
 		
-                //addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_All", "L1_LUCID_A_C All passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_nBX", "L1_LUCID passed;max. # of hits on side A or C for the next BX;entries", 21,-0.5, 20.5));
-                addHistogram(new TH1F("LUCID_pBX", "L1_LUCID passed;max. # of hits on side A or C for the previous BX;entries",21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C", "L1_LUCID_A_C passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_nBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the next BX;entries", 21, -0.5, 20.5));
-                addHistogram(new TH1F("LUCID_A_C_pBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the previous BX;entries", 21, -0.5, 20.5));
-                
-                //Error rates
-		tProf = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 5, 0, 5, 0, 1);
-		tProf->GetXaxis()->FindBin("L1_LUCID");
-		tProf->GetXaxis()->FindBin("L1_LUCID_A");
-		tProf->GetXaxis()->FindBin("L1_LUCID_C");
-		tProf->GetXaxis()->FindBin("L1_LUCID_A_C");
-		tProf->GetXaxis()->FindBin("L1_LUCID_COMM");
-		tProf->ResetBit(TH1::kCanRebin);
-		tProf->SetMinimum(0.0);
-		addProfile(tProf);
- 	}
- 		 	                
- 	if ( (histGroup & IDMINBIAS) == IDMINBIAS)
- 	{
- 	        //default:
-                // L2, ID
-	 	addHistogram(new TH1I("pixBarr_sp", "number of L2 pixel spacepoints in the barrel;;entries", 250, -0.5, 2499.5));       
-	 	addHistogram(new TH1I("pixECA_sp", "number of L2 pixel spacepoints in ECA;;entries", 250, -0.5, 2499.5));               
-	 	addHistogram(new TH1I("pixECC_sp", "number of L2 pixel spacepoints in ECC;;entries", 250, -0.5, 2499.5));               
-	 	addHistogram(new TH1I("sctBarr_sp", "number of L2 sct spacepoints in the barrel;;entries", 300, -0.5, 2999.5));         
-	 	addHistogram(new TH1I("sctECA_sp", "number of L2 sct spacepoints in ECA;;entries", 300, -0.5, 2999.5));                 
-	 	addHistogram(new TH1I("sctECC_sp", "number of L2 sct spacepoints in ECC;;entries", 300, -0.5, 2999.5));                 
-	 	
-	 	addHistogram(new TH1I("h_pixTot", "L2_mbMbts_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5));
-	 	addHistogram(new TH1I("h_sctTot", "L2_mbMbts_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5));
-	 	
-	 	// EF, ID
-	 	addHistogram(new TH1I("minbiasTracks", "number of minbias tracks;# of tracks; entries", 125, -0.5, 249.5));             
+		/////////
+		
+		// EF, ID
+	 	addHistogram(new TH1I("minbiasTracks", "number of minbias tracks;# of tracks; entries", 125, -0.5, 2499.5));             
 	 	
 		// MBTS energy
   	        // The A side mean energy passed the trigger
@@ -542,6 +466,48 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		th1i = new TH1I("Occupancy_Online - side C", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0, 32);              
 		th1i->SetMinimum(0.0);
 		addHistogram(th1i);
+ 	}
+ 	if ( (histGroup & LUCID) == LUCID)
+ 	{
+ 	        // Lucid
+		addHistogram(new TH1I("lucidChannels", "occupancy;channel;hits per channel", 40, -0.5, 39.5));
+		addHistogram(new TH1I("lucidChannels_pBX", "occupancy for the previous BX;channel;hits per channel", 40,	-0.5, 39.5));
+		addHistogram(new TH1I("lucidChannels_nBX", "occupancy for the next BX;channel;hits per channel", 40, -0.5, 39.5));
+		
+                //addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_A_C_All", "L1_LUCID_A_C All passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_All", "L1_LUCID All passed;max. # of hits on side A or C;entries", 21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_nBX", "L1_LUCID passed;max. # of hits on side A or C for the next BX;entries", 21,-0.5, 20.5));
+                addHistogram(new TH1F("LUCID_pBX", "L1_LUCID passed;max. # of hits on side A or C for the previous BX;entries",21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_A_C", "L1_LUCID_A_C passed; min. # of hits on side A or C;entries", 21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_A_C_nBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the next BX;entries", 21, -0.5, 20.5));
+                addHistogram(new TH1F("LUCID_A_C_pBX","L1_LUCID_A_C passed; min. # of hits on side A or C for the previous BX;entries", 21, -0.5, 20.5));
+                
+                //Error rates
+		tProf = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 5, 0, 5, 0, 1);
+		tProf->GetXaxis()->FindBin("L1_LUCID");
+		tProf->GetXaxis()->FindBin("L1_LUCID_A");
+		tProf->GetXaxis()->FindBin("L1_LUCID_C");
+		tProf->GetXaxis()->FindBin("L1_LUCID_A_C");
+		tProf->GetXaxis()->FindBin("L1_LUCID_COMM");
+		tProf->ResetBit(TH1::kCanRebin);
+		tProf->SetMinimum(0.0);
+		addProfile(tProf);
+ 	}
+ 		 	                
+ 	if ( (histGroup & IDMINBIAS) == IDMINBIAS)
+ 	{
+ 	        //default:
+                // L2, ID
+	 	addHistogram(new TH1I("pixBarr_sp", "number of L2 pixel spacepoints in the barrel;;entries", 250, -0.5, 2499.5));       
+	 	addHistogram(new TH1I("pixECA_sp", "number of L2 pixel spacepoints in ECA;;entries", 250, -0.5, 2499.5));               
+	 	addHistogram(new TH1I("pixECC_sp", "number of L2 pixel spacepoints in ECC;;entries", 250, -0.5, 2499.5));               
+	 	addHistogram(new TH1I("sctBarr_sp", "number of L2 sct spacepoints in the barrel;;entries", 300, -0.5, 2999.5));         
+	 	addHistogram(new TH1I("sctECA_sp", "number of L2 sct spacepoints in ECA;;entries", 300, -0.5, 2999.5));                 
+	 	addHistogram(new TH1I("sctECC_sp", "number of L2 sct spacepoints in ECC;;entries", 300, -0.5, 2999.5));                 
+	 	
+	 	addHistogram(new TH1I("h_pixTot", "L2_mbMbts_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5));
+	 	addHistogram(new TH1I("h_sctTot", "L2_mbMbts_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5));
 	}
  	if ( (histGroup & ZDC) == ZDC)
  	{
@@ -605,9 +571,16 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		tProf->SetMinimum(0.0);
 		addProfile(tProf);
  	}
+ 	if ( (histGroup & HMT) == HMT)
+ 	{
+ 	        addHistogram(new TH1I("numSpacePoints", "Space points;amount;entries", 1000, -0.5, 9999.5));
+ 	        
+ 	        addHistogram(new TH1I("numVertices", "Vertices;amount;entries", 100, -0.5, 99.5));
+ 	        addHistogram(new TH1I("numTracksAtVertex", "Tracks at vertex;amount;entries", 100, -0.5, 99.5));
+ 	        
+ 	        addHistogram(new TH1I("numHitsAtVertex", "Hits at vertex;amount;entries", 200, -0.5, 999.5));
+ 	}
  	(*m_log) << MSG::DEBUG << "All histograms booked successfully" << endreq; 
-        
-        //return sc;
 }
 
 StatusCode HLTMinBiasMonTool::fill()
@@ -621,6 +594,7 @@ StatusCode HLTMinBiasMonTool::fill()
                        profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
                        hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
                        fillHistogramsForItem(i, m_histoGroupForChain[i]);
+					   fillPurityForItem(i);
                 }
                 else{
                         profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
@@ -632,9 +606,38 @@ StatusCode HLTMinBiasMonTool::fill()
         return sc;
 }
 
+void HLTMinBiasMonTool::fillPurityForItem(const std::string &item)
+{
+	StatusCode sc = StatusCode::SUCCESS;
+	// Get the InDetTrackParticles from the event:
+	const xAOD::TrackParticleContainer* tracks = nullptr;
+	sc = m_storeGate->retrieve(tracks,m_inDetTrackParticleContainerName);
+	unsigned goodTracks(0);
+	if (sc.isFailure() || tracks->empty()) {
+		if (sc.isFailure())
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endreq;
+		else
+			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endreq;
+	} else {
+	
+		xAOD::TrackParticleContainer::const_iterator itr = tracks->begin();
+		xAOD::TrackParticleContainer::const_iterator end = tracks->end();
+	
+		for ( ; itr!=end; ++itr)
+		{
+			const xAOD::TrackParticle* track = (*itr);
+			if (m_selTool->accept(*track)) ++goodTracks;
+		}
+		hist("TriggerTracksAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
+		hist("TracksAll", "HLT/MinBiasMon/Purities/" + item)->Fill(getLumiBlockNr(), 1);
+		hist("TriggerTracksPassed", "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > 1)?1:0));
+		hist("TracksPassed", "HLT/MinBiasMon/Purities/" + item)->Fill(getLumiBlockNr(), ((goodTracks > 1)?1:0));
+	}
+}
+
 void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned histGroup)
 {
-        StatusCode sc;
+        StatusCode sc = StatusCode::SUCCESS;
         
         (*m_log) << MSG::DEBUG << "Currently processing: " << item << " in " << histGroup << endreq;
 
@@ -646,6 +649,16 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
                 {
                         (*m_log) << MSG::WARNING << "Couldn't fill MBTS info properly for: " << item << endreq;
                 }
+                sc = fillHLTMbtsInfo();
+                if (sc.isFailure())
+                {
+                        (*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endreq;
+                }
+				sc = fillTrackingInfo();
+                if (sc.isFailure())
+                {
+                        (*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endreq;
+                }	
  	}
  	if ( (histGroup & LUCID) == LUCID)
  	{
@@ -663,18 +676,7 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
                 if (sc.isFailure())
                 {
                         (*m_log) << MSG::WARNING << "Couldn't fill space point info properly for: " << item << endreq;
-                }
-                sc = fillTrackingInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endreq;
-                }
-                sc = fillHLTMbtsInfo();
-                if (sc.isFailure())
-                {
-                        (*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endreq;
-                }
- 	        
+                }        
  	}
  	if ( (histGroup & ZDC) == ZDC)
  	{
@@ -695,10 +697,31 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
                 }
  	}
         
+        if ( (histGroup & HMT) == HMT)
+        {
+                setCurrentMonGroup("HLT/MinBiasMon/HMT/" + item);
+                sc = fillHMTSpacePointsInfo();
+                if (sc.isFailure())
+                {
+                        (*m_log) << MSG::WARNING << "Couldn't fill HMTSpacePoints info properly for: " << item << endreq;
+                }
+                sc = fillHMTVertexCountsInfo();
+                if (sc.isFailure())
+                {
+                        (*m_log) << MSG::WARNING << "Couldn't fill HMTVertexCounts info properly for: " << item << endreq;
+                }
+                sc = fillHMTTrigVertexCollectionInfo();
+                if (sc.isFailure())
+                {
+                        (*m_log) << MSG::WARNING << "Couldn't fill HMTTrigVertexCollection info properly for: " << item << endreq;
+                }
+        }
+		if (sc.isFailure())
+		{
+			(*m_log) << MSG::WARNING << "Unknown error occurred in FillHistogramsForItem!" << endreq;
+		}
         ++m_numberOfEvents;
         (*m_log) << MSG::DEBUG << "PROCESSED SUCCESSFULLY" << endreq;        
-              
-        //return  StatusCode::SUCCESS;
 }
 
 StatusCode HLTMinBiasMonTool::fillZDCInfo()
@@ -804,7 +827,7 @@ StatusCode HLTMinBiasMonTool::fillZDCInfo()
         hist2("ZDC_vs_FCAL_A_All")->Fill(E_A,FCal_A);
         hist("ZDC_A_All")->Fill(E_A);
         hist2("ZDC_vs_FCAL_C_All")->Fill(E_C,FCal_C);
-	hist("ZDC_C_All")->Fill(E_C);
+		hist("ZDC_C_All")->Fill(E_C);
 
         // MBTS condition (stable beam)
 	//----------------------------------------------------------------------
@@ -1229,7 +1252,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
         unsigned int triggerWord = 0;
 	unsigned int timeWord = 0;
 	const unsigned int mask = 65535; // 2^16 - 1
-	int counter = 0;
+	//int counter = 0;
 
 	unsigned int innerMBTS_EBA = 0;
 	unsigned int innerMBTS_EBC = 0;
@@ -1393,11 +1416,10 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
 				// tower is 1 for outer counter (lower eta) and 0 for inner counter (higher eta)
 				// module counts from 0-7 in increasing phi
 				// side is -1 for EBC 1 for EBA
-				//int counter = (m_tileID->module(id)*2+1) - m_tileID->tower(id);
-
-				counter = (m_tileID->module(id)) + 8 * (m_tileID->tower(id));
-				if (m_tileID->side(id) < 0) // EBC side
-					counter += 16;
+                                //int counter = m_tileTBID->phi(id) + 8 * m_tileTBID->eta(id); 
+	 
+                               int counter = m_tileTBID->phi(id) + 8 * m_tileTBID->eta(id); 
+	                       if (m_tileTBID->side(id) < 0) counter += 16;// EBC side
 
 				//the counter should not go outside of the range: [0,31]
 				if (counter < 0 || counter > 31) {
@@ -1499,35 +1521,20 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 
 		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) {
 			xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
-			/*if (id_mbFeature->pixelClusBarrel().nbins_x() > 0 && id_mbFeature->pixelClusBarrel().nbins_y() > 0) {
-				pixSpBarr = (int) id_mbFeature->pixelClusBarrel().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
+			unsigned totBins = id_mbFeature->pixelClusTotBins();
+			if ( totBins > 0){
+				pixSpBarr = (int) id_mbFeature->pixelClusBarrelSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
 				hist("pixBarr_sp")->Fill(pixSpBarr);
-			} else {
-				(*m_log) << MSG::WARNING << "Histogram pixelClusBarrel() is not initialized properly; it has 0 bins in X or Y."
-						<< endreq;
-
-			}
-
-			if (id_mbFeature->pixelClusEndcapA().nbins_x() > 0 && id_mbFeature->pixelClusEndcapA().nbins_y() > 0) {
-				pixSpECA = (int) id_mbFeature->pixelClusEndcapA().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
+				
+				pixSpECA = (int) id_mbFeature->pixelClusEndcapASumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
 				hist("pixECA_sp")->Fill(pixSpECA);
-			} else {
-				(*m_log) << MSG::WARNING
-						<< "Histogram pixelClusEndcapA() is not initialized properly; it has 0 bins in X or Y." << endreq;
-
-			}
-
-			if (id_mbFeature->pixelClusEndcapC().nbins_x() > 0 && id_mbFeature->pixelClusEndcapC().nbins_y() > 0) {
-				pixSpECC = (int) id_mbFeature->pixelClusEndcapC().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
+				
+				pixSpECC = (int) id_mbFeature->pixelClusEndcapCSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
 				hist("pixECC_sp")->Fill(pixSpECC);
-
+				
 			} else {
-				(*m_log) << MSG::WARNING
-						<< "Histogram pixelClusEndcapC()  is not initialized properly; it has 0 bins in X or Y." << endreq;
-			}*/
+				(*m_log) << MSG::WARNING << "SpacePointCounts is not initialized properly; it has 0 bins in X or Y: "	<< totBins << endreq;
+			}
                         
 			sctSpBarr = (int) id_mbFeature->sctSpBarrel();
 			sctSpECA = (int) id_mbFeature->sctSpEndcapA();
@@ -1538,7 +1545,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 			hist("sctECC_sp")->Fill(sctSpECC);
                         
 			hist("h_pixTot")->Fill(pixSpBarr + pixSpECA + pixSpECC);
-			hist("h_sctTot")->Fill(sctSpBarr + sctSpECA + sctSpECC);
+			hist("h_sctTot")->Fill(sctSpBarr + sctSpECA + sctSpECC); //has overflows -> deeper investigation needed
 		}
 
 	} // end TrigSpacePointCounts
@@ -1587,13 +1594,12 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 		for (; mbTT_coll_itr != mbTTcont->end(); ++mbTT_coll_itr) {
 			xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
 
-			/*if (mbTT->z0_pt().nbins_x() > 0 && mbTT->z0_pt().nbins_y() > 0) {
-				mbTracks = (int) (mbTT->z0_pt().sumEntries(m_max_z0, m_min_pt, TrigHistoCutType::BELOW_X_ABOVE_Y));
+			if (mbTT->z0Bins() > 0) {
+				mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
 				hist("minbiasTracks")->Fill(mbTracks);
 			} else {
-				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y."
-						<< endreq;
-			}*/
+				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y: " << mbTT->z0Bins()	<< endreq;
+			}
 
 		}
 	} // end TrigTrackCounts
@@ -1601,14 +1607,154 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
         return sc;
 }
 
-//USUNIĘCIE ZBEDNEGO KODU (STARE ROZWIAZANIE) POWINNO ZMNIEJSZYC PLIK DO PONIZEJ 800 LINII KODU
-
-StatusCode HLTMinBiasMonTool::proc()
+StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 {
         StatusCode sc = StatusCode::SUCCESS;
         
+        // for monitoring
+        int totNumPixSP = -999;
+        int totNumSctSP = -999;
+        double multiplicity[3];
+        for (auto &i: multiplicity) i = 0.0;
+        
+        const xAOD::TrigSpacePointCountsContainer* mbSPcont = nullptr;
+        sc = m_storeGate->retrieve(mbSPcont, m_spContainerName);
+
+        if (sc.isFailure() || !mbSPcont) {
+                if (sc.isFailure())
+                        (*m_log) << MSG::WARNING << "Failed to retrieve TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts" << endreq;
+                else
+                        (*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCounts is empty." << endreq;
+        } else {
+                (*m_log) << MSG::DEBUG << " ====== START TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts ====== " << endreq;
+                
+				xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
+				xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
+				unsigned tmp = 0;
+				for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) 
+				{
+					xAOD::TrigSpacePointCounts *trigSpacePointCounts = (*mbSP_coll_itr);
+					++tmp;
+
+					totNumSctSP = trigSpacePointCounts->sctSpEndcapC() + trigSpacePointCounts->sctSpEndcapA() + trigSpacePointCounts->sctSpBarrel();
+					
+					xAOD::TrigHisto2D *th2dPixelClusEndcapC = new xAOD::TrigHisto2D;
+					xAOD::TrigHisto2D *th2dPixelClusBarrel  = new xAOD::TrigHisto2D;
+					xAOD::TrigHisto2D *th2dPixelClusEndcapA = new xAOD::TrigHisto2D;
+                
+					//make private stores
+					th2dPixelClusEndcapC->makePrivateStore();
+					th2dPixelClusBarrel->makePrivateStore();
+					th2dPixelClusEndcapA->makePrivateStore();
+                
+					th2dPixelClusEndcapC->initialize(trigSpacePointCounts->pixelClusTotBins(),
+												trigSpacePointCounts->pixelClusTotMin(),
+												trigSpacePointCounts->pixelClusTotMax(),
+												trigSpacePointCounts->pixelClusSizeBins(),
+												trigSpacePointCounts->pixelClusSizeMin(),
+												trigSpacePointCounts->pixelClusSizeMax());
+	 
+					th2dPixelClusEndcapC->setContents(trigSpacePointCounts->contentsPixelClusEndcapC());
+	 
+					th2dPixelClusBarrel->initialize(trigSpacePointCounts->pixelClusTotBins(),
+												trigSpacePointCounts->pixelClusTotMin(),
+												trigSpacePointCounts->pixelClusTotMax(),
+												trigSpacePointCounts->pixelClusSizeBins(),
+												trigSpacePointCounts->pixelClusSizeMin(),
+												trigSpacePointCounts->pixelClusSizeMax());
+	 
+					th2dPixelClusBarrel->setContents(trigSpacePointCounts->contentsPixelClusBarrel());
+	 
+					th2dPixelClusEndcapA->initialize(trigSpacePointCounts->pixelClusTotBins(),
+												trigSpacePointCounts->pixelClusTotMin(),
+												trigSpacePointCounts->pixelClusTotMax(),
+												trigSpacePointCounts->pixelClusSizeBins(),
+												trigSpacePointCounts->pixelClusSizeMin(),
+												trigSpacePointCounts->pixelClusSizeMax());
+	 
+					th2dPixelClusEndcapA->setContents(trigSpacePointCounts->contentsPixelClusEndcapA());
+	        
+					multiplicity[0] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+					multiplicity[1] = th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+					multiplicity[2] = th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+					totNumPixSP = multiplicity[0] + multiplicity[1] + multiplicity[2];
+                
+					hist("numSpacePoints")->Fill(totNumPixSP + totNumSctSP);
+                
+					//check if it fits the problem :)
+					th2dPixelClusEndcapC->releasePrivateStore();
+					th2dPixelClusBarrel->releasePrivateStore();
+					th2dPixelClusEndcapA->releasePrivateStore();
+				}
+        }
+        
         return sc;
 }
+//Works fine
+StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
+{
+        StatusCode sc = StatusCode::SUCCESS;
+        
+        //const xAOD::TrigVertexCounts* trigVertexCounts = nullptr;
+		const xAOD::TrigVertexCountsContainer* vcCont = nullptr;
+        sc = m_storeGate->retrieve(vcCont, m_vcContainerName);
+
+        if (sc.isFailure() || !vcCont) {
+                if (sc.isFailure())
+                        (*m_log) << MSG::WARNING << "Failed to retrieve TrigVertexCountsMonTool for xAOD::TrigVertexCounts" << endreq;
+                else
+                        (*m_log) << MSG::DEBUG << "xAOD::TrigVertexCounts is empty." << endreq;
+        } else {
+                (*m_log) << MSG::DEBUG << " ====== START TrigVertexCountsMonTool for xAOD::TrigVertexCounts ====== " << endreq;
+                
+				xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itr = vcCont->begin();
+				xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itrE = vcCont->end();
+				
+				for (; vc_coll_itr != vc_coll_itrE; ++vc_coll_itr) 
+				{
+					xAOD::TrigVertexCounts *trigVertexCounts = (*vc_coll_itr);
+				
+					// Get the number of tracks per vertex
+					std::vector<unsigned int> vtxNtrks = trigVertexCounts->vtxNtrks();
+					unsigned int nvtx = vtxNtrks.size();
+                                
+					hist("numVertices")->Fill(nvtx);
+					for (const auto &i: vtxNtrks)
+					{
+                        hist("numTracksAtVertex")->Fill(i);
+					}
+				}
+        }
+        return sc;
+}
+	
+StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
+{
+        StatusCode sc = StatusCode::SUCCESS;
+        
+        const TrigVertexCollection* vertexCollection = nullptr;
+        sc = m_storeGate->retrieve(vertexCollection, m_vcolContainerName);
+
+        if (sc.isFailure() || vertexCollection->empty()) {
+                if (sc.isFailure())
+                        (*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endreq;
+                else
+                        (*m_log) << MSG::DEBUG << "TrigVertexCollection is empty." << endreq;
+        } else {
+                (*m_log) << MSG::DEBUG << " ====== START VertexCollectionMonTool for TrigVertexCollection ====== " << endreq;
+                
+                for( /*const auto &i: vertexCollection*/TrigVertexCollection::const_iterator vtxIt = vertexCollection->begin(); vtxIt != vertexCollection->end(); ++vtxIt)
+                {
+					hist("numHitsAtVertex")->Fill((*vtxIt)->z() );
+	                //m_vertexWeight.push_back( (*vtxIt)->z() );
+	                //if ( (*vtxIt)->z() > m_vertexWeightMax ) m_vertexWeightMax = (*vtxIt)->z(); //looking for the biggest weight
+	                //if ( (*vtxIt)->z() > -999. && (*vtxIt)->z() > m_weightThreshold ) nVertices++;
+				}
+        }
+        
+        return sc;
+}
+
 
 /*---------------------------------------------------------*/
 HLTMinBiasMonTool::~HLTMinBiasMonTool()
@@ -1616,2561 +1762,6 @@ HLTMinBiasMonTool::~HLTMinBiasMonTool()
 {
 	if (m_log)
 		delete m_log;
-}
-
-/*---------------------------------------------------------*/
-StatusCode HLTMinBiasMonTool::bookHistogramsRecurrent()//suppress 'unused' compiler warning
-/*---------------------------------------------------------*/
-{
-	StatusCode sc = StatusCode::SUCCESS;
-
-	(*m_log) << MSG::DEBUG << "book being called" << endreq;
-
-//	if (isNewRun) {
-	if (newRun) {
-
-                m_numberOfEvents=0;
-
-//		MonGroup m_MonGroup(this, "HLT/MinBiasMon/IDMinbias", shift, run);
-		MonGroup m_MonGroup(this, "HLT/MinBiasMon/IDMinbias",run,ATTRIB_UNMANAGED);
-
-		// L2, ID
-		m_pixBarr_sp = new TH1I("pixBarr_sp", "number of L2 pixel spacepoints in the barrel;;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(m_pixBarr_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		m_pixECA_sp = new TH1I("pixECA_sp", "number of L2 pixel spacepoints in ECA;;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(m_pixECA_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		m_pixECC_sp = new TH1I("pixECC_sp", "number of L2 pixel spacepoints in ECC;;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(m_pixECC_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		m_sctBarr_sp = new TH1I("sctBarr_sp", "number of L2 sct spacepoints in the barrel;;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(m_sctBarr_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		m_sctECA_sp = new TH1I("sctECA_sp", "number of L2 sct spacepoints in ECA;;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(m_sctECA_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		m_sctECC_sp = new TH1I("sctECC_sp", "number of L2 sct spacepoints in ECC;;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(m_sctECC_sp);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		// EF, ID
-		m_minbiasTracks = new TH1I("minbiasTracks", "number of minbias tracks;# of tracks; entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(m_minbiasTracks);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		//L2_mbMbts_1_eff trigger distributions
-		// no mbMbts_1_eff
-/* 
-		h_mbMbts_1_eff_pixTot_P = new TH1I("h_mbMbts_1_eff_pixTot_P",
-				"L2_mbMbts_1_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbMbts_1_eff_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbMbts_1_eff_sctTot_P = new TH1I("h_mbMbts_1_eff_sctTot_P",
-				"L2_mbMbts_1_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbMbts_1_eff_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-
-// mbMbtS_2_eff instead of mbMbtS_1_eff
-		//L2_mbMbts_2_eff trigger distributions
-		h_mbMbts_2_eff_pixTot_P = new TH1I("h_mbMbts_2_eff_pixTot_P",
-				"L2_mbMbts_2_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbMbts_2_eff_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbMbts_2_eff_sctTot_P = new TH1I("h_mbMbts_2_eff_sctTot_P",
-				"L2_mbMbts_2_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbMbts_2_eff_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-// 8 teV low-mu Lucid
-// changed for pA: mbLucid -> mbLucid_a_c, pA 2013 changed back to mbLucid 
-
-		//L2_mbLucid_eff trigger distributions
-		h_mbLucid_eff_pixTot_P = new TH1I("h_mbLucid_eff_pixTot_P",
-				"L2_mbLucid_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		//		"L2_mbLucid_a_c_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbLucid_eff_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbLucid_eff_sctTot_P = new TH1I("h_mbLucid_eff_sctTot_P",
-				"L2_mbLucid_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		//		"L2_mbLucid_a_c_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbLucid_eff_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-//
-
-		//L2_mbZdc_eff trigger distributions
-		h_mbZdc_eff_pixTot_P = new TH1I("h_mbZdc_eff_pixTot_P",
-				"L2_mbZdc_a_c_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		//		"L2_mbZdc_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbZdc_eff_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbZdc_eff_sctTot_P = new TH1I("h_mbZdc_eff_sctTot_P",
-				"L2_mbZdc_a_c_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		//		"L2_mbZdc_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbZdc_eff_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		//L2_mbRd1_eff trigger distributions
-		h_mbRd1_eff_pixTot_P = new TH1I("h_mbRd1_eff_pixTot_P",
-				"L2_mbRd1_eff passed;total number of L2 pixel space-points;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbRd1_eff_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbRd1_eff_sctTot_P = new TH1I("h_mbRd1_eff_sctTot_P",
-				"L2_mbRd1_eff passed;total number of L2 SCT space-points;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbRd1_eff_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-/* 
-// *** no mbMbts_1_eff ; mbMbts_2_eff instead
-
-		// EF_mbMbts_1_eff
-		h_mbMbts_1_eff_trkTot_P = new TH1I("h_mbMbts_1_eff_trkTot_P", "EF_mbMbts_1_eff passed;# of tracks;entries", 50,
-				-0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbMbts_1_eff_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-		// EF_mbMbts_2_eff
-		h_mbMbts_2_eff_trkTot_P = new TH1I("h_mbMbts_2_eff_trkTot_P", "EF_mbMbts_2_eff passed;# of tracks;entries", 50,
-				-0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbMbts_2_eff_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbMbts_2_eff_trkTot_F = new TH1I("h_mbMbts_2_eff_trkTot_F", "EF_mbMbts_2_eff failed;# of tracks;entries", 50,
-				-0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbMbts_2_eff_trkTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-// 8 TeV Low-mu Lucid
-//pA: changed mbLucid-> mbLucid_a_c 
-//pA 2013: back to mbLucid 
-
-		// EF_mbLucid_eff
-		h_mbLucid_eff_trkTot_P = new TH1I("h_mbLucid_eff_trkTot_P", "EF_mbLucid_eff passed;# of tracks;entries", 50, -0.5, 249.5);
-		//h_mbLucid_eff_trkTot_P = new TH1I("h_mbLucid_eff_trkTot_P", "EF_mbLucid_a_c_eff passed;# of tracks;entries", 50, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbLucid_eff_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-//
-		// EF_mbZdc_eff
-		h_mbZdc_eff_trkTot_P = new TH1I("h_mbZdc_eff_trkTot_P", "EF_mbZdc_a_c_eff passed;# of tracks;entries", 50, -0.5, 249.5);
-		//h_mbZdc_eff_trkTot_P = new TH1I("h_mbZdc_eff_trkTot_P", "EF_mbZdc_eff passed;# of tracks;entries", 50, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbZdc_eff_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		// EF_mbZdc_eff
-		h_mbZdc_eff_trkTot_F = new TH1I("h_mbZdc_eff_trkTot_F", "EF_mbZdc_a_c_eff failed;# of tracks;entries", 50, -0.5, 249.5);
-		//h_mbZdc_eff_trkTot_F = new TH1I("h_mbZdc_eff_trkTot_F", "EF_mbZdc_eff failed;# of tracks;entries", 50, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbZdc_eff_trkTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		// EF_mbRd1_eff
-		h_mbRd1_eff_trkTot_P = new TH1I("h_mbRd1_eff_trkTot_P", "EF_mbRd1_eff passed;# of tracks;entries", 50, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbRd1_eff_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		// EF_mbSpTrk -> mbSp
-		h_mbSp_trkTot_P = new TH1D("h_mbSp_trkTot_P", "EF_mbSp OR EF_mbSpTrk passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSp_trkTot_F = new TH1D("h_mbSp_trkTot_F", "EF_mbSp, EF_mbSpTrk failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-///*
-// moved 
-//  with mbSpTrk -> mbSp, mbSp || mbSpTrk , rd0 -> Rd1, 
-// mbMbts_2_NoAlg -> L1ItemStreamer_L1_MBTS_2 to pA below 
-//
-// 8 TeV Low-mu
-// rd0 back in pA jan 2013
-		// EF_mbSpTrk_trkTot_rd0_filled_NoAlg
-		h_mbSpTrk_trkTot_rd0_P = new TH1D("h_mbSpTrk_trkTot_rd0_P", "EF_mbSpTrk & EF_rd0_filled_NoAlg passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_trkTot_rd0_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSpTrk_trkTot_rd0_F = new TH1D("h_mbSpTrk_trkTot_rd0_F", "EF_mbSpTrk passed, EF_rd0_failed_NoAlg failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_trkTot_rd0_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-/*
-		// EF_mbSpTrk_trkTot_rd0_filled_NoAlg
-		h_mbSpTrk_trkTot_mb2Alg_P = new TH1D("h_mbSpTrk_trkTot_mb2Alg_P", "EF_mbSpTrk & EF_mbMbts_2_NoAlg passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_trkTot_mb2Alg_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSpTrk_trkTot_mb2Alg_F = new TH1D("h_mbSpTrk_trkTot_mb2Alg_F", "EF_mbSpTrk passed, EF_mbMbts_2_NoAlg failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_trkTot_mb2Alg_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-//
-*/
-
-// in pp 8 TeV low mu above  was mbSpTrk (-> mbSp) , rd0_filled_NoAlg (Rd1_eff) 
-//
-// pA (Sept 2012)
-		// EF_mbSp_trkTot_mbRd1_eff
-		h_mbSp_trkTot_Rd1_P = new TH1D("h_mbSp_trkTot_Rd1_P", "EF_mbSp & EF_mbRd1_eff passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_Rd1_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSp_trkTot_Rd1_F = new TH1D("h_mbSp_trkTot_Rd1_F", "EF_mbSp passed, EF_mbRd1_eff failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_Rd1_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-// in pp 8 TeV low mu above  was mbSpTrk (-> mbSp) , rd0_filled_NoAlg (Rd1_eff),  mbMbts_2_NoAlg (-> L1ItemStreamer_L1_MBTS_2)  
-		// EF_mbSp_trkTot_mb2
-		h_mbSp_trkTot_mb2_P = new TH1D("h_mbSp_trkTot_mb2_P", "EF_mbSp & EF_L1ItemStreamer_L1_MBTS_2 passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_mb2_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSp_trkTot_mb2_F = new TH1D("h_mbSp_trkTot_mb2_F", "EF_mbSp passed, EF_L1ItemStreamer_L1_MBTS_2 failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSp_trkTot_mb2_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-//
-
-
-/*
-// Track efficiency
-		h_mbSpTrk_trkTot_Eff = new TH1D("h_mbSpTrk_trkTot_Eff", "EF_mbSpTrk effic ;# of tracks;efficiency", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_trkTot_Eff);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/              
-
-
-		//EF High Multiplicity (tracks)
-		h_EF_mbSpTrkVtxMh_P = new TH1I("h_EF_mbSpTrkVtxMh_P", "EF_mbSpTrkVtxMh passed;# of tracks;entries", 125, -0.5,
-				249.5);
-		sc = m_MonGroup.regHist(h_EF_mbSpTrkVtxMh_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_EF_mbSpTrkVtxMh_F = new TH1I("h_EF_mbSpTrkVtxMh_F", "EF_mbSpTrkVtxMh failed;# of tracks;entries", 125, -0.5,
-				249.5);
-		sc = m_MonGroup.regHist(h_EF_mbSpTrkVtxMh_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_EF_mbSpTrkVtxMh_eff_P = new TH1I("h_EF_mbSpTrkVtxMh_eff_P", "EF_mbSpTrkVtxMh_eff passed;# of tracks;entries",
-				200, -0.5, 199.5);
-		sc = m_MonGroup.regHist(h_EF_mbSpTrkVtxMh_eff_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		/*
-		 h_EF_mbSpTrkVtxMh_eff_F = new TH1I("h_EF_mbSpTrkVtxMh_eff_F", "EF_mbSpTrkVtxMh_eff failed;# of tracks;entries",
-		 200, -0.5, 199.5);
-		 sc = m_MonGroup.regHist(h_EF_mbSpTrkVtxMh_eff_F);
-		 if (sc.isFailure()) {
-		 *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-		 return sc;
-		 }
-		 */
-
-
-// moved 
-//  with mbSpTrk -> mbSp , rd0 -> rd1, mbMbts_2_NoAlg -> L1ItemStreamer_L1_MBTS_2 to pA below 
-// rd0 back in pA Jan 2013
-/*
-
-		//L2_mbSpTrk trigger distributions
-
-		h_mbSpTrk_pixTot_P = new TH1D("h_mbSpTrk_pixTot_P",
-				"L2_mbSpTrk passed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSpTrk_pixTot_F = new TH1D("h_mbSpTrk_pixTot_F",
-				"L2_mbSpTrk failed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-// 8 TeV Low-mu
-		// EF_mbSpTrk_pixTot_rd0_filled_NoAlg
-		h_mbSpTrk_pixTot_rd0_P = new TH1D("h_mbSpTrk_pixTot_rd0_P", "EF_mbSpTrk & EF_rd0_filled_NoAlg passed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-                sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_rd0_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSpTrk_pixTot_rd0_F = new TH1D("h_mbSpTrk_pixTot_rd0_F", "EF_mbSpTrk passed, EF_rd0_failed_NoAlg failed;total number of L2 pixel spacepoints;entries", 
-                           250, -0.5, 2499.5);
-                sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_rd0_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-/*
-		// EF_mbSpTrk_sctTot_mbMbts_2_NoAlg
-		h_mbSpTrk_pixTot_mb2Alg_P = new TH1D("h_mbSpTrk_pixTot_mb2Alg_P", "EF_mbSpTrk & EF_mbMbts_2_NoAlg passed;total number of L2 pixel spacepoints;entries",
-                           250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_mb2Alg_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSpTrk_pixTot_mb2Alg_F = new TH1D("h_mbSpTrk_pixTot_mb2Alg_F", "EF_mbSpTrk passed, EF_mbMbts_2_NoAlg failed;total number of L2 pixel spacepoints;entries",
-                           250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_mb2Alg_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-
-
-// pA  
-//  in 8 TeV pp low mu was  mbSpTrk (-> mbSp), rd0 (-> Rd1), mbMbts_2_NoAlg (-> L1ItemStreamer_L1_MBTS_2)  just above
-
-		//L2_mbSp trigger distributions
-
-		h_mbSp_pixTot_P = new TH1D("h_mbSp_pixTot_P",
-				"L2_mbSp passed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSp_pixTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSp_pixTot_F = new TH1D("h_mbSp_pixTot_F",
-				"L2_mbSp failed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSp_pixTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-//
-		// EF_mbSp_pixTot_Rd1_eff
-		h_mbSp_pixTot_Rd1_P = new TH1D("h_mbSp_pixTot_Rd1_P", "EF_mbSp & EF_mbRd1_eff passed;total number of L2 pixel spacepoints;entries", 250, -0.5, 2499.5);
-                sc = m_MonGroup.regHist(h_mbSp_pixTot_Rd1_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSp_pixTot_Rd1_F = new TH1D("h_mbSp_pixTot_Rd1_F", "EF_mbSp passed, EF_mbRd1_eff failed;total number of L2 pixel spacepoints;entries", 
-                           250, -0.5, 2499.5);
-                sc = m_MonGroup.regHist(h_mbSp_pixTot_Rd1_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-		// EF_L1ItemStreamer_L1_MBTS_2
-		h_mbSp_pixTot_mb2_P = new TH1D("h_mbSp_pixTot_mb2_P", "EF_mbSp & EF_L1ItemStreamer_L1_MBTS_2 passed;total number of L2 pixel spacepoints;entries",
-                           250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSp_pixTot_mb2_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSp_pixTot_mb2_F = new TH1D("h_mbSp_pixTot_mb2_F", "EF_mbSp passed, EF_L1ItemStreamer_L1_MBTS_2 failed;total number of L2 pixel spacepoints;entries",
-                           250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSp_pixTot_mb2_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-
-/*
-// Pixel Sp. points efficiency
-		h_mbSpTrk_pixTot_Eff = new TH1D("h_mbSpTrk_pixTot_Eff", 
-				"L2_mbSpTrk effic ;total number of L2 pixel spacepoints;efficiency", 250, -0.5, 2499.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_pixTot_Eff);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-//
-/*
-// moved 
-//  with mbSpTrk -> mbSp , rd0 -> rd1, mbMbts_2_NoAlg -> L1ItemStreamer_L1_MBTS_2 to pA below 
-
-		h_mbSpTrk_sctTot_P = new TH1D("h_mbSpTrk_sctTot_P", "L2_mbSpTrk passed;total number of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSpTrk_sctTot_F = new TH1D("h_mbSpTrk_sctTot_F", "L2_mbSpTrk failed;total number of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-// rd0 back in use in pA Jan 2013
-// 8 TeV Low-mu
-		// EF_mbSpTrk_sctTot_rd0_filled_NoAlg
-		h_mbSpTrk_sctTot_rd0_P = new TH1D("h_mbSpTrk_sctTot_rd0_P", "EF_mbSpTrk & EF_rd0_filled_NoAlg passed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_rd0_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSpTrk_sctTot_rd0_F = new TH1D("h_mbSpTrk_sctTot_rd0_F", "EF_mbSpTrk passed, EF_rd0_filled_NoAlg failed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_rd0_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-/*
-		// EF_mbSpTrk_sctTot_mbMbts_2_NoAlg
-		h_mbSpTrk_sctTot_mb2Alg_P = new TH1D("h_mbSpTrk_sctTot_mb2Alg_P", "EF_mbSpTrk & EF_mbMbts_2_NoAlg passed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_mb2Alg_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSpTrk_sctTot_mb2Alg_F = new TH1D("h_mbSpTrk_sctTot_mb2Alg_F", "EF_mbSpTrk passed, EF_mbMbts_2_NoAlg failed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_mb2Alg_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-*/
-
-// pA  
-//  in 8 TeV pp low mu was  mbSpTrk (-> mbSp), rd0 (-> rd1), mbMbts_2_NoAlg (-> L1ItemStreamer_L1_MBTS_2)  just above
-
-		h_mbSp_sctTot_P = new TH1D("h_mbSp_sctTot_P", "L2_mbSp passed;total number of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_mbSp_sctTot_F = new TH1D("h_mbSp_sctTot_F", "L2_mbSp failed;total number of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-//
-		// EF_mbSp_sctTot_Rd1_eff
-		h_mbSp_sctTot_Rd1_P = new TH1D("h_mbSp_sctTot_Rd1_P", "EF_mbSp & EF_mbRd1_eff passed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_Rd1_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSp_sctTot_Rd1_F = new TH1D("h_mbSp_sctTot_Rd1_F", "EF_mbSp passed, EF_mbRd1_eff failed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_Rd1_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-		// EF_mbSp_sctTot_L1ItemStreamer_L1_MBTS_2
-		h_mbSp_sctTot_mb2_P = new TH1D("h_mbSp_sctTot_mb2_P", "EF_mbSp & EF_L1ItemStreamer_L1_MBTS_2 passed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_mb2_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		h_mbSp_sctTot_mb2_F = new TH1D("h_mbSp_sctTot_mb2_F", "EF_mbSp passed, EF_L1ItemStreamer_L1_MBTS_2 failed;total number of L2 SCT spacepoints;entries",
-                                300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSp_sctTot_mb2_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-
-//
-
-/*
-// SCT Sp. points efficiency
-		h_mbSpTrk_sctTot_Eff = new TH1D("h_mbSpTrk_sctTot_Eff", "L2_mbSpTrk effic;total number of L2 SCT spacepoints;efficiency",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_mbSpTrk_sctTot_Eff);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-*/
-//L2 (SCT) High Multiplicity
-		h_sct_mbSpTrkVtxMh_P = new TH1I("h_sct_mbSpTrkVtxMh_P", "L2_mbSpTrkVtxMh passed;# of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_sct_mbSpTrkVtxMh_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_sct_mbSpTrkVtxMh_F = new TH1I("h_sct_mbSpTrkVtxMh_F", "L2_mbSpTrkVtxMh failed;# of L2 SCT spacepoints;entries",
-				300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_sct_mbSpTrkVtxMh_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_sct_mbSpTrkVtxMh_eff_P = new TH1I("h_sct_mbSpTrkVtxMh_eff_P",
-				"L2_mbSpTrkVtxMh_eff passed;# of L2 SCT spacepoints;entries", 300, -0.5, 2999.5);
-		sc = m_MonGroup.regHist(h_sct_mbSpTrkVtxMh_eff_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		/*
-		 //The trigger can not fail
-		 h_sct_mbSpTrkVtxMh_eff_F = new TH1I("h_sct_mbSpTrkVtxMh_eff_F",
-		 "L2_mbSpTrkVtxMh failed;# of L2 SCT spacepoints;entries", 2000, -0.5, 1999.5);
-		 sc = m_MonGroup.regHist(h_sct_mbSpTrkVtxMh_eff_F);
-		 if (sc.isFailure()) {
-		 *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-		 return sc;
-		 }
-		 */
-
-		//*****
-		// L2 (PIXEL) High Multiplicity
-		h_pix_mbSpTrkVtxMh_P = new TH1I("h_pix_mbSpTrkVtxMh_P", "L2_mbSpTrkVtxMh passed;# of L2 pixel spacepoints;entries",
-				400, -0.5, 1119.5);
-		sc = m_MonGroup.regHist(h_pix_mbSpTrkVtxMh_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_pix_mbSpTrkVtxMh_F = new TH1I("h_pix_mbSpTrkVtxMh_F", "L2_mbSpTrkVtxMh failed;# of L2 pixel spacepoints;entries",
-				400, -0.5, 1119.5);
-		sc = m_MonGroup.regHist(h_pix_mbSpTrkVtxMh_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_pix_mbSpTrkVtxMh_eff_P = new TH1I("h_pix_mbSpTrkVtxMh_eff_P",
-				"L2_mbSpTrkVtxMh_eff passed;# of L2 pixel spacepoints;entries", 400, -0.5, 1119.5);
-		sc = m_MonGroup.regHist(h_pix_mbSpTrkVtxMh_eff_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_pix_mbSpTrkVtxMh_eff_F = new TH1I("h_pix_mbSpTrkVtxMh_eff_F",
-				"L2_mbSpTrkVtxMh_eff failed;# of L2 pixel spacepoints;entries", 400, -0.5, 1119.5);
-		sc = m_MonGroup.regHist(h_pix_mbSpTrkVtxMh_eff_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		//Error rates 
-		// the number of bins to be the number of input items
-		//m_h_TriggerErrors = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 2, 0, 2, 0, 1);
-		//m_h_TriggerErrors = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 6, 0, 6, 0, 1);
-		m_h_TriggerErrors = new TProfile("TriggerErrors", "Trigger Errors;trigger chain id;error rate", 23, 0, 23, 0, 1);
-      		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbSpTrk");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbSpTrk");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbSp");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbSp");
-		//m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbMbts_1_eff");
-		//m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbMbts_1_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbMbts_2_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbMbts_2_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbZdc_a_c_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbZdc_a_c_eff");
-		//  High Mult
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbSpTrkVtxMh");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbSpTrkVtxMh_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbSpTrkVtxMh_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbSpTrkVtxMh");
-// 8 TeV Low-mu
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbLucid_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbLucid_eff");
-// moved to rd1 and mb2 stream in pA below, rd0 back in use in pA jan 2013
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_rd0_filled_NoAlg");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_rd0_filled_NoAlg");
-		//m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbMbts_2_NoAlg");
-		//m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbMbts_2_NoAlg");
-
-// pA
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_mbRd1_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_mbRd1_eff");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_L1ItemStreamer_L1_MBTS_2");
-		m_h_TriggerErrors->GetXaxis()->FindBin("L2_L1ItemStreamer_L1_MBTS_2");
-
-// pA Jan 2013
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_L1LHCF_NoAlg");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_L1ZDC_A_NoAlg");
-		m_h_TriggerErrors->GetXaxis()->FindBin("EF_L1ZDC_C_NoAlg");
-
-		m_h_TriggerErrors->ResetBit(TH1::kCanRebin);
-		m_h_TriggerErrors->SetMinimum(0.0);
-		sc = m_MonGroup.regHist(m_h_TriggerErrors);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-
-                }
-
-
-
-// Energy-Time
-// ENERGY
-
-               // MBTS energy
-               // The A side mean energy passed the trigger
-                m_h_energyMean_A_P = new TH1F("m_h_energyMean_A_P", "Mean MBTS Energy A side passed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMean_A_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The A side mean energy failed
-                m_h_energyMean_A_F = new TH1F("m_h_energyMean_A_F", "Mean MBTS Energy A side failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMean_A_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The A side  maximum energy passed the trigger
-                m_h_energyMax_A_P = new TH1F("m_h_energyMax_A_P", "Maximum MBTS Energy A side passed;MBTS Energy [ns];[pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMax_A_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The A side maximum energy failed
-                m_h_energyMax_A_F = new TH1F("m_h_energyMax_A_F", "Maximum MBTS Energy A side failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMax_A_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The C side  mean energy passed the trigger
-                m_h_energyMean_C_P = new TH1F("m_h_energyMean_C_P", "Mean MBTS Energy C side passed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMean_C_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The C side mean energy failed
-                m_h_energyMean_C_F = new TH1F("m_h_energyMean_C_F", "Mean MBTS Energy C side failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMean_C_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The C side  maximum energy passed the trigger
-                m_h_energyMax_C_P = new TH1F("m_h_energyMax_C_P", "Maximum MBTS Energy C side passed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMax_C_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The C side maximum energy failed
-                m_h_energyMax_C_F = new TH1F("m_h_energyMax_C_F", "Maxmum MBTS Energy C side failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energyMax_C_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-    // energy online + L2 , EF passed/failed
-
-                //The  time online
-                m_h_energy_1d = new TH1D("m_h_energy_onl", "MBTS Energy  online;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_1d);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The  energy online L2 passed
-                m_h_energy_L2_P = new TH1D("m_h_energy_L2_P", "MBTS Energy online L2 passed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_L2_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The  energy online L2 failed
-                m_h_energy_L2_F = new TH1F("m_h_energy_L2_F", "MBTS Energy online L2 failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_L2_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-/*
-// energy effic. L2
-                //The  energy online L2 passed
-                m_h_energy_L2_Eff = new TH1D("m_h_energy_L2_Eff", "MBTS Energy online L2 effic;MBTS Energy [pC];efficiency", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_L2_Eff);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-*/
-
-                //The  energy online EF passed
-                m_h_energy_EF_P = new TH1F("m_h_energy_EF_P", "MBTS Energy online EF passed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_EF_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The  energy online EF failed
-                m_h_energy_EF_F = new TH1F("m_h_energy_EF_F", "MBTS Energy online EF failed;MBTS Energy [pC];entries", 100, -5, 95);
-                sc = m_MonGroup.regHist(m_h_energy_EF_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-// Time
-                //=== The time is monitored only if the energy is sufficient to suppress noise
-                //The A side  mean time passed the trigger
-                m_h_timeMean_A_P = new TH1F("m_h_timeMean_A_P", "Mean MBTS Time A side passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMean_A_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The A side mean time failed
-                m_h_timeMean_A_F = new TH1F("m_h_timeMean_A_F", "Mean MBTS Time A side failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMean_A_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The A side  minimum time passed the trigger
-                m_h_timeMin_A_P = new TH1F("m_h_timeMin_A_P", "Minimum MBTS Time A side passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMin_A_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The A side minimum time failed
-                m_h_timeMin_A_F = new TH1F("m_h_timeMin_A_F", "Minimum MBTS Time A side failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMin_A_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The C side  mean time passed the trigger
-                m_h_timeMean_C_P = new TH1F("m_h_timeMean_C_P", "Mean MBTS Time C side passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMean_C_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The C side mean time failed
-                m_h_timeMean_C_F = new TH1F("m_h_timeMean_C_F", "Mean MBTS Time C side failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMean_C_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-                //The C side  minimum time passed the trigger
-                m_h_timeMin_C_P = new TH1F("m_h_timeMin_C_P", "Minimum MBTS Time C side passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMin_C_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The C side minimum time failed
-                m_h_timeMin_C_F = new TH1F("m_h_timeMin_C_F", "Minimum MBTS Time C side failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_timeMin_C_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-    // time online + L2 , EF passed/failed
-
-                //The  time online
-                m_h_time_1d = new TH1D("m_h_time_onl", "MBTS Time  online;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_1d);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The  time online L2 passed
-                m_h_time_L2_P = new TH1D("m_h_time_L2_P", "MBTS Time online L2 passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_L2_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The  time online L2 failed
-                m_h_time_L2_F = new TH1F("m_h_time_L2_F", "MBTS Time online L2 failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_L2_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-/*
-// Timing efficiency (L2) 
-                m_h_time_L2_Eff = new TH1D("m_h_time_L2_Eff", "MBTS Time online L2 effic;MBTS Time [ns];efiiciency", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_L2_Eff);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-*/
-
-                //The  time online EF passed
-                m_h_time_EF_P = new TH1F("m_h_time_EF_P", "MBTS Time online EF passed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_EF_P);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-                //The  time online EF failed
-                m_h_time_EF_F = new TH1F("m_h_time_EF_F", "MBTS Time online EF failed;MBTS Time [ns];entries", 100, -25, 25);
-                sc = m_MonGroup.regHist(m_h_time_EF_F);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-		}
-
-
-// energy-time cell occupancy
-                // side A
-                m_h_occupancy_onl_A = new TH1I("Occupancy_Online - side A", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0,
-                                32);
-                //fixXaxis( m_h_occupancy_onl_A);
-                m_h_occupancy_onl_A->SetMinimum(0.0);
-                sc = m_MonGroup.regHist(m_h_occupancy_onl_A);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-                } 
-
-
-                // side A
-                m_h_occupancy_onl_C = new TH1I("Occupancy_Online - side C", "Online MBTS Occupancy (no time cut);channel id;entries", 32, 0,
-                                32);
-                //fixXaxis( m_h_occupancy_onl_C);
-                m_h_occupancy_onl_C->SetMinimum(0.0);
-                sc = m_MonGroup.regHist(m_h_occupancy_onl_C);
-                if (sc.isFailure()) {
-                        *m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-                        return sc;
-                } 
-
-//pA 2013 hip_trk due to Sp threshold 
-                //PASSED
-		m_h_Trig_hip_trk_P = new TH1F("EF_hip_trk_P", "EF_mbSpTrkVtxMh_hip_trk with Sp thresh passed;hip_trk chain id;entries", 9, 0, 9);
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk150_L1TE50");
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk190_L1TE50");
-
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk120_L1TE35");
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk190_L1TE35");
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk240_L1TE35");
-
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk180_L1TE65");
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk200_L1TE65");
-      		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk240_L1TE65");
-
-		m_h_Trig_hip_trk_P->GetXaxis()->FindBin("trk175_L1MBTS");
-		m_h_Trig_hip_trk_P->ResetBit(TH1::kCanRebin);
-		//m_h_Trig_hip_trk_P->SetMinimum(0.0);
-		m_h_Trig_hip_trk_P->Sumw2();
-		sc = m_MonGroup.regHist(m_h_Trig_hip_trk_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-                }
-                //FAILED
-		m_h_Trig_hip_trk_F = new TH1F("EF_hip_trk_F", "EF_mbSpTrkVtxMh_hip_trk with Sp thresh failed;hip_trk chain id;entries", 9, 0, 9);
-
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk150_L1TE50");
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk190_L1TE50");
-
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk120_L1TE35");
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk190_L1TE35");
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk240_L1TE35");
-
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk180_L1TE65");
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk200_L1TE65");
-      		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk240_L1TE65");
-
-		m_h_Trig_hip_trk_F->GetXaxis()->FindBin("trk175_L1MBTS");
-
-		m_h_Trig_hip_trk_F->ResetBit(TH1::kCanRebin);
-		//m_h_Trig_hip_trk_F->SetMinimum(0.0);
-		m_h_Trig_hip_trk_F->Sumw2();
-		sc = m_MonGroup.regHist(m_h_Trig_hip_trk_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-                }
-
-		// EF_L1ZDC_A_NoAlg vs. number of tracks  
-		h_L1ZDC_A_NoAlg_trkToT_P  = new TH1I("h_L1ZDC_A_NoAlg_trk_ToT_P", "EF_L1ZDC_A_NoAlg passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1ZDC_A_NoAlg_trkToT_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_L1ZDC_A_NoAlg_trkToT_F = new TH1I("h_L1ZDC_A_NoAlg_trkToT_F", "EF_L1ZDC_A_NoAlg failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1ZDC_A_NoAlg_trkToT_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-		// EF_L1ZDC_C_NoAlg vs. number of tracks  
-		h_L1ZDC_C_NoAlg_trkToT_P  = new TH1I("h_L1ZDC_C_NoAlg_trk_ToT_P", "EF_L1ZDC_C_NoAlg passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1ZDC_C_NoAlg_trkToT_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_L1ZDC_C_NoAlg_trkToT_F = new TH1I("h_L1ZDC_C_NoAlg_trkToT_F", "EF_L1ZDC_C_NoAlg failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1ZDC_C_NoAlg_trkToT_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-		// EF_L1LHCF_NoAlg vs. number of tracks  
-		h_L1LHCF_NoAlg_trkToT_P  = new TH1I("h_L1LHCF_NoAlg_trk_ToT_P", "EF_L1LHCF_NoAlg passed;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1LHCF_NoAlg_trkToT_P);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-		h_L1LHCF_NoAlg_trkToT_F = new TH1I("h_L1LHCF_NoAlg_trkToT_F", "EF_L1LHCF_NoAlg failed ;# of tracks;entries", 125, -0.5, 249.5);
-		sc = m_MonGroup.regHist(h_L1LHCF_NoAlg_trkToT_F);
-		if (sc.isFailure()) {
-			*m_log << MSG::ERROR << "Unable to call regHist() for the current MonGroup" << endreq;
-			return sc;
-		}
-
-
-//	} else if (isNewEventsBlock || isNewLumiBlock) {
-	} else if (newLumiBlock) {
-		return sc;
-	}
-
-	return sc;
-}
-
-/*---------------------------------------------------------*/
-StatusCode HLTMinBiasMonTool::fillHistograms()
-/*---------------------------------------------------------*/
-{
-
-	*m_log << MSG::DEBUG << " ====== Begin fillHists() ====== " << endreq;
-	
-	StatusCode fSC = fill();
-	if (fSC.isFailure())
-	{
-	        (*m_log) << MSG::ERROR << "An error in new code occured!" << endreq;
-	}
-
-	//we obtain the unprescaled decision @ L1 since the triggers run in PT
-	unsigned int L1_bits = TrigDefs::L1_isPassedAfterVeto | TrigDefs::L1_isPassedAfterPrescale
-			| TrigDefs::L1_isPassedBeforePrescale;
-
-	bool L1_mbMbts_2_eff = (m_EF_mbMbts_2_eff->isPassedBits() & L1_bits) == L1_bits;
-	//bool L1_mbMbts_1_eff = (m_EF_mbMbts_1_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbMbts_1_1_eff = (m_EF_mbMbts_1_1_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbMbts_2_2_eff = (m_EF_mbMbts_2_2_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbMbts_4_4_eff = (m_EF_mbMbts_4_4_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbZdc_eff = (m_EF_mbZdc_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbRd1_eff = (m_EF_mbRd1_eff->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbSpTrk = (m_EF_mbSpTrk->isPassedBits() & L1_bits) == L1_bits;
-// 8 TeV Low-mu
-	bool L1_mbLucid_eff = (m_EF_mbLucid_eff->isPassedBits() & L1_bits) == L1_bits;
-
-	bool L1_rd0_filled_NoAlg = (m_EF_rd0_filled_NoAlg->isPassedBits() & L1_bits) == L1_bits;
-//	bool L1_mbMbts_2_NoAlg = (m_EF_mbMbts_2_NoAlg->isPassedBits() & L1_bits) == L1_bits;
-  
-// pA       
-//	bool L1_mbRd1_eff = is already defined just above 
-	bool L1_L1ItemStreamer_L1_MBTS_2 = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbSp = (m_EF_mbSp->isPassedBits() & L1_bits) == L1_bits;
-
-	// High Mult
-	bool L1_mbSpTrkVtxMh = (m_EF_mbSpTrkVtxMh->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_mbSpTrkVtxMh_eff = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & L1_bits) == L1_bits;
-
-	//L2 should not be prescaled
-	//bool L2_mbMbts_1_eff_ps = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbMbts_2_eff_ps = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbMbts_1_1_eff_ps = (m_EF_mbMbts_1_1_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbMbts_2_2_eff_ps = (m_EF_mbMbts_2_2_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbMbts_4_4_eff_ps = (m_EF_mbMbts_4_4_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbZdc_eff_ps = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbRd1_eff_ps = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbSpTrk_ps = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-// 8 TeV Low mu
-	bool L2_mbLucid_eff_ps = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-
-	bool L2_rd0_filled_NoAlg_ps = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	//bool L2_mbMbts_2_NoAlg_ps = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-       
-// pA 
-	//bool L2_mbRd1_eff_ps defined just above
-	bool L2_L1ItemStreamer_L1_MBTS_2_ps = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbSp_ps = (m_EF_mbSp->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-
-	//  High Mult
-	bool L2_mbSpTrkVtxMh_ps = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::L2_prescaled) == TrigDefs::L2_prescaled;
-	bool L2_mbSpTrkVtxMh_eff_ps = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::L2_prescaled)
-			== TrigDefs::L2_prescaled;
-
-	//L2 Should not be in Pass Through 
-	//bool L2_mbMbts_1_eff_pt = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbMbts_2_eff_pt = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbMbts_1_1_eff_pt = (m_EF_mbMbts_1_1_eff->isPassedBits() & TrigDefs::L2_passThrough)
-			== TrigDefs::L2_passThrough;
-	bool L2_mbMbts_2_2_eff_pt = (m_EF_mbMbts_2_2_eff->isPassedBits() & TrigDefs::L2_passThrough)
-			== TrigDefs::L2_passThrough;
-	bool L2_mbMbts_4_4_eff_pt = (m_EF_mbMbts_4_4_eff->isPassedBits() & TrigDefs::L2_passThrough)
-			== TrigDefs::L2_passThrough;
-	bool L2_mbZdc_eff_pt = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbRd1_eff_pt = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbSpTrk_pt = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-// 8 TeV Low-mu
-	bool L2_mbLucid_eff_pt = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-
-	bool L2_rd0_filled_NoAlg_pt = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	//bool L2_mbMbts_2_NoAlg_pt = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-// pA 
-	// bool L2_mbRd1_eff_pt  defined just above
-	bool L2_L1ItemStreamer_L1_MBTS_2_pt = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbSp_pt = (m_EF_mbSp->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-
-	//  High Mult
-	bool L2_mbSpTrkVtxMh_pt = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::L2_passThrough) == TrigDefs::L2_passThrough;
-	bool L2_mbSpTrkVtxMh_eff_pt = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::L2_passThrough)
-			== TrigDefs::L2_passThrough;
-
-	//L2 raw decision
-	//bool L2_mbMbts_1_eff_pr = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_mbMbts_2_eff_pr = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_mbZdc_eff_pr = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	//bool L2_mbRd1_eff_pr = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_mbSpTrk_pr = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-// 8 TeV Low-mu
-// lucid_eff, rd0 back in pA Jan 2013
-	//bool L2_mbLucid_eff_pr = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-
-	bool L2_rd0_filled_NoAlg_pr = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	//bool L2_mbMbts_2_NoAlg_pr = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-
-// pA
-        bool L2_mbRd1_eff_pr = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-        bool L2_L1ItemStreamer_L1_MBTS_2_pr = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_mbSp_pr = (m_EF_mbSp->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-// pA Jan 2013
-	bool L2_L1ZDC_A_NoAlg_pr = (m_EF_L1ZDC_A_NoAlg->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_L1ZDC_C_NoAlg_pr = (m_EF_L1ZDC_C_NoAlg->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_L1LHCF_NoAlg_pr = (m_EF_L1LHCF_NoAlg->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-
-
-	//  High Mult Raw decision
-	bool L2_mbSpTrkVtxMh_pr = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::L2_passedRaw) == TrigDefs::L2_passedRaw;
-	bool L2_mbSpTrkVtxMh_eff_pr = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::L2_passedRaw)
-			== TrigDefs::L2_passedRaw;
-
-	//EF should not be prescaled
-	//bool EF_mbMbts_1_eff_ps = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbMbts_2_eff_ps = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbMbts_1_1_eff_ps = (m_EF_mbMbts_1_1_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbMbts_2_2_eff_ps = (m_EF_mbMbts_2_2_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbMbts_4_4_eff_ps = (m_EF_mbMbts_4_4_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbZdc_eff_ps = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbRd1_eff_ps = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbSpTrk_ps = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-// 8 TeV Low-mu
-	bool EF_mbLucid_eff_ps = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_rd0_filled_NoAlg_ps = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	//bool EF_mbMbts_2_NoAlg_ps = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-
-// pA
-	//bool EF_mbRd1_eff_ps  is defined just above
-	bool EF_L1ItemStreamer_L1_MBTS_2_ps = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbSp_ps = (m_EF_mbSp->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-
-	//  High Mult
-	bool EF_mbSpTrkVtxMh_ps = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_mbSpTrkVtxMh_eff_ps = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::EF_prescaled)
-			== TrigDefs::EF_prescaled;
-
-// pA Jan 2013
-	bool EF_L1ZDC_A_NoAlg_ps = (m_EF_L1ZDC_A_NoAlg->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_L1ZDC_C_NoAlg_ps = (m_EF_L1ZDC_C_NoAlg->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-	bool EF_L1LHCF_NoAlg_ps = (m_EF_L1LHCF_NoAlg->isPassedBits() & TrigDefs::EF_prescaled) == TrigDefs::EF_prescaled;
-
-
-	//EF Should not be in Pass Through
-	//bool EF_mbMbts_1_eff_pt = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbMbts_2_eff_pt = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbMbts_1_1_eff_pt = (m_EF_mbMbts_1_1_eff->isPassedBits() & TrigDefs::EF_passThrough)
-			== TrigDefs::EF_passThrough;
-	bool EF_mbMbts_2_2_eff_pt = (m_EF_mbMbts_2_2_eff->isPassedBits() & TrigDefs::EF_passThrough)
-			== TrigDefs::EF_passThrough;
-	bool EF_mbMbts_4_4_eff_pt = (m_EF_mbMbts_4_4_eff->isPassedBits() & TrigDefs::EF_passThrough)
-			== TrigDefs::EF_passThrough;
-	bool EF_mbZdc_eff_pt = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbRd1_eff_pt = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbSpTrk_pt = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-// 8 TeV Low-mu
-	bool EF_mbLucid_eff_pt = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-
-	bool EF_rd0_filled_NoAlg_pt = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	//bool EF_mbMbts_2_NoAlg_pt = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-
-// pA
-	//bool EF_mbRd1_eff_pt is just defined
-	bool EF_L1ItemStreamer_L1_MBTS_2_pt = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbSp_pt = (m_EF_mbSp->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-
-
-	//  High Mult
-	bool EF_mbSpTrkVtxMh_pt = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_mbSpTrkVtxMh_eff_pt = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::EF_passThrough)
-			== TrigDefs::EF_passThrough;
-// pA Jan 2013
-	bool EF_L1ZDC_A_NoAlg_pt = (m_EF_L1ZDC_A_NoAlg->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_L1ZDC_C_NoAlg_pt = (m_EF_L1ZDC_C_NoAlg->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-	bool EF_L1LHCF_NoAlg_pt = (m_EF_L1LHCF_NoAlg->isPassedBits() & TrigDefs::EF_passThrough) == TrigDefs::EF_passThrough;
-
-
-
-	//EF decision
-	//bool EF_mbMbts_1_eff_pr = (m_EF_mbMbts_1_eff->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-        bool EF_mbMbts_2_eff_pr = (m_EF_mbMbts_2_eff->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_mbZdc_eff_pr = (m_EF_mbZdc_eff->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_mbSpTrk_pr = (m_EF_mbSpTrk->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-// 8 TeV Low-mu
-	//bool EF_mbLucid_eff_pr = (m_EF_mbLucid_eff->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_rd0_filled_NoAlg_pr = (m_EF_rd0_filled_NoAlg->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	//bool EF_mbMbts_2_NoAlg_pr = (m_EF_mbMbts_2_NoAlg->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-// pA
-	bool EF_mbRd1_eff_pr = (m_EF_mbRd1_eff->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_L1ItemStreamer_L1_MBTS_2_pr = (m_EF_L1ItemStreamer_L1_MBTS_2->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_mbSp_pr = (m_EF_mbSp->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-
-
-	// High Mult
-	bool EF_mbSpTrkVtxMh_pr = (m_EF_mbSpTrkVtxMh->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_mbSpTrkVtxMh_eff_pr = (m_EF_mbSpTrkVtxMh_eff->isPassedBits() & TrigDefs::EF_passedRaw)
-			== TrigDefs::EF_passedRaw;
-
-// pA Jan 2013
-	bool EF_L1ZDC_A_NoAlg_pr = (m_EF_L1ZDC_A_NoAlg->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_L1ZDC_C_NoAlg_pr = (m_EF_L1ZDC_C_NoAlg->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-	bool EF_L1LHCF_NoAlg_pr = (m_EF_L1LHCF_NoAlg->isPassedBits() & TrigDefs::EF_passedRaw) == TrigDefs::EF_passedRaw;
-
-
-	//check if L2 Hypo algorithms was ran (to improve efficiency of the code)
-	//bool L2_mbMbts_1_eff_ran = (L1_mbMbts_1_eff && (!L2_mbMbts_1_eff_ps || L2_mbMbts_1_eff_pt)
-	//		&& !m_EF_mbMbts_1_eff->getListOfTriggers().empty());
-
-	bool L2_mbMbts_2_eff_ran = (L1_mbMbts_2_eff && (!L2_mbMbts_2_eff_ps || L2_mbMbts_2_eff_pt)
-			&& !m_EF_mbMbts_2_eff->getListOfTriggers().empty());
-
-	//Additional Heavy-Ion triggers
-/* no mbMbts_1_eff ; mbMbts_2_eff is intead
-	L2_mbMbts_1_eff_ran |= (L1_mbMbts_1_1_eff && (!L2_mbMbts_1_1_eff_ps || L2_mbMbts_1_1_eff_pt)
-			&& !m_EF_mbMbts_1_1_eff->getListOfTriggers().empty());
-	L2_mbMbts_1_eff_ran |= (L1_mbMbts_2_2_eff && (!L2_mbMbts_2_2_eff_ps || L2_mbMbts_2_2_eff_pt)
-			&& !m_EF_mbMbts_2_2_eff->getListOfTriggers().empty());
-	L2_mbMbts_1_eff_ran |= (L1_mbMbts_4_4_eff && (!L2_mbMbts_4_4_eff_ps || L2_mbMbts_4_4_eff_pt)
-			&& !m_EF_mbMbts_4_4_eff->getListOfTriggers().empty());
-*/
-	L2_mbMbts_2_eff_ran |= (L1_mbMbts_1_1_eff && (!L2_mbMbts_1_1_eff_ps || L2_mbMbts_1_1_eff_pt)
-			&& !m_EF_mbMbts_1_1_eff->getListOfTriggers().empty());
-	L2_mbMbts_2_eff_ran |= (L1_mbMbts_2_2_eff && (!L2_mbMbts_2_2_eff_ps || L2_mbMbts_2_2_eff_pt)
-			&& !m_EF_mbMbts_2_2_eff->getListOfTriggers().empty());
-	L2_mbMbts_2_eff_ran |= (L1_mbMbts_4_4_eff && (!L2_mbMbts_4_4_eff_ps || L2_mbMbts_4_4_eff_pt)
-			&& !m_EF_mbMbts_4_4_eff->getListOfTriggers().empty());
-
-	bool L2_mbZdc_eff_ran = (L1_mbZdc_eff && (!L2_mbZdc_eff_ps || L2_mbZdc_eff_pt)
-			&& !m_EF_mbZdc_eff->getListOfTriggers().empty());
-
-	bool L2_mbRd1_eff_ran = (L1_mbRd1_eff && (!L2_mbRd1_eff_ps || L2_mbRd1_eff_pt)
-			&& !m_EF_mbRd1_eff->getListOfTriggers().empty());
-
-	bool L2_mbSpTrk_ran = (L1_mbSpTrk && (!L2_mbSpTrk_ps || L2_mbSpTrk_pt) && !m_EF_mbSpTrk->getListOfTriggers().empty());
-// 8 TeV Low-mu
-	bool L2_mbLucid_eff_ran = (L1_mbLucid_eff && (!L2_mbLucid_eff_ps || L2_mbLucid_eff_pt)
-			&& !m_EF_mbLucid_eff->getListOfTriggers().empty());
-
-	bool L2_rd0_filled_NoAlg_ran = (L1_rd0_filled_NoAlg && (!L2_rd0_filled_NoAlg_ps || L2_rd0_filled_NoAlg_pt) 
-				  && !m_EF_rd0_filled_NoAlg->getListOfTriggers().empty());
-//	bool L2_mbMbts_2_NoAlg_ran = (L1_mbMbts_2_NoAlg && (!L2_mbMbts_2_NoAlg_ps || L2_mbMbts_2_NoAlg_pt) 
-//                                  && !m_EF_mbMbts_2_NoAlg->getListOfTriggers().empty());
-// pA
-	//bool L2_mbRd1_eff_ran  is defined just above
-	bool L2_L1ItemStreamer_L1_MBTS_2_ran = (L1_L1ItemStreamer_L1_MBTS_2 && (!L2_L1ItemStreamer_L1_MBTS_2_ps || L2_L1ItemStreamer_L1_MBTS_2_pt) 
-                                  && !m_EF_L1ItemStreamer_L1_MBTS_2->getListOfTriggers().empty());
-	bool L2_mbSp_ran = (L1_mbSp && (!L2_mbSp_ps || L2_mbSp_pt) && !m_EF_mbSp->getListOfTriggers().empty());
-
-	// High Mult ran
-	bool L2_mbSpTrkVtxMh_ran = (L1_mbSpTrkVtxMh && (!L2_mbSpTrkVtxMh_ps || L2_mbSpTrkVtxMh_pt)
-			&& !m_EF_mbSpTrkVtxMh->getListOfTriggers().empty());
-	bool L2_mbSpTrkVtxMh_eff_ran = (L1_mbSpTrkVtxMh_eff && (!L2_mbSpTrkVtxMh_eff_ps || L2_mbSpTrkVtxMh_eff_pt)
-			&& !m_EF_mbSpTrkVtxMh_eff->getListOfTriggers().empty());
-
-	/*
-	 bool sct_pix_hypo_on = L2_mbMbts_1_eff_ran || L2_mbZdc_eff_ran || L2_mbRd1_eff_ran;
-
-	 if (!sct_pix_hypo_on)
-	 return StatusCode::SUCCESS;
-	 */
-	// retrieve MinBias features from transient classes
-	// L2, ID
-
-	pixSpBarr = 0;
-	pixSpECA = 0;
-	pixSpECC = 0;
-	sctSpBarr = 0;
-	sctSpECA = 0;
-	sctSpECC = 0;
-
-	const xAOD::TrigSpacePointCountsContainer* mbSPcont = 0;
-	StatusCode sc_mbsp = m_storeGate->retrieve(mbSPcont, m_spContainerName);
-
-	if (sc_mbsp.isFailure() || mbSPcont->empty()) {
-		if (sc_mbsp.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias for xAOD::TrigSpacePointCountsContainer" << endreq;
-		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCountsContainer is empty." << endreq;
-	} else {
-		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigSpacePointCountsContainer ====== " << endreq;
-
-		(*m_log) << MSG::DEBUG << "space point container has " << mbSPcont->size() << " entries." << endreq;
-
-		// Loop over TrigMinBias feature objects
-		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
-		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
-
-		for (; mbSP_coll_itr != mbSP_coll_itrE; ++mbSP_coll_itr) {
-			xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
-
-			/*if (id_mbFeature->pixelClusBarrel().nbins_x() > 0 && id_mbFeature->pixelClusBarrel().nbins_y() > 0) {
-				pixSpBarr = (int) id_mbFeature->pixelClusBarrel().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				m_pixBarr_sp->Fill(pixSpBarr);
-			} else {
-				(*m_log) << MSG::WARNING << "Histogram pixelClusBarrel() is not initialized properly; it has 0 bins in X or Y."
-						<< endreq;
-
-			}
-
-			if (id_mbFeature->pixelClusEndcapA().nbins_x() > 0 && id_mbFeature->pixelClusEndcapA().nbins_y() > 0) {
-				pixSpECA = (int) id_mbFeature->pixelClusEndcapA().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				m_pixECA_sp->Fill(pixSpECA);
-			} else {
-				(*m_log) << MSG::WARNING
-						<< "Histogram pixelClusEndcapA() is not initialized properly; it has 0 bins in X or Y." << endreq;
-
-			}
-
-			if (id_mbFeature->pixelClusEndcapC().nbins_x() > 0 && id_mbFeature->pixelClusEndcapC().nbins_y() > 0) {
-				pixSpECC = (int) id_mbFeature->pixelClusEndcapC().sumEntries(m_timeOverThresholdCut, 0.,
-						TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				m_pixECC_sp->Fill(pixSpECC);
-
-			} else {
-				(*m_log) << MSG::WARNING
-						<< "Histogram pixelClusEndcapC()  is not initialized properly; it has 0 bins in X or Y." << endreq;
-			}*/
-
-			sctSpBarr = (int) id_mbFeature->sctSpBarrel();
-			sctSpECA = (int) id_mbFeature->sctSpEndcapA();
-			sctSpECC = (int) id_mbFeature->sctSpEndcapC();
-
-			m_sctBarr_sp->Fill(sctSpBarr);
-			m_sctECA_sp->Fill(sctSpECA);
-			m_sctECC_sp->Fill(sctSpECC);
-
-			//Check if a L2 trigger is ran
-/* 
-// ***** no mbMbts_1_eff ; mbMbts_2_eff instead 
-			if (L2_mbMbts_1_eff_ran) {
-				h_mbMbts_1_eff_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				h_mbMbts_1_eff_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-			}
-*/
-			if (L2_mbMbts_2_eff_ran) {
-				h_mbMbts_2_eff_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				h_mbMbts_2_eff_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-			}
-
-			if (L2_mbZdc_eff_ran) {
-				h_mbZdc_eff_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				h_mbZdc_eff_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-			}
-
-// 8 TeV Lucid
-			if (L2_mbLucid_eff_ran) {
-				h_mbLucid_eff_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				h_mbLucid_eff_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-			}
-
-
-			if (L2_mbRd1_eff_ran) {
-				h_mbRd1_eff_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				h_mbRd1_eff_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-			}
-
-/* 
-// moved to pA just below with the changes
-
-			if (L2_mbSpTrk_ran) {
-				if (L2_mbSpTrk_pr) { //Trigger mismatch; error
-					h_mbSpTrk_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_mbSpTrk_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-// 8 TeV Low-mu
-//
-                                        if (L2_mbMbts_2_NoAlg_ran) {
-                                        	if (L2_mbMbts_2_NoAlg_pr) { //Trigger mismatch; error
-                                                        h_mbSpTrk_pixTot_mb2Alg_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                	h_mbSpTrk_sctTot_mb2Alg_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				              	} else {
-                                                        h_mbSpTrk_pixTot_mb2Alg_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                	h_mbSpTrk_sctTot_mb2Alg_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                                }
-                                        }        
-                               
-				} else {
-					h_mbSpTrk_pixTot_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_mbSpTrk_sctTot_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				}
-			}
-*/
-
-// ========> pA ; pA 2013: mbSp || mbSpTrk, rd0 in
-
-			if (L2_mbSp_ran || L2_mbSpTrk_ran) {
-				if (L2_mbSp_pr || L2_mbSpTrk_pr) { //Trigger mismatch; error
-					h_mbSp_pixTot_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_mbSp_sctTot_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-//
-                                        if (L2_rd0_filled_NoAlg_ran) {
-                                        	if (L2_rd0_filled_NoAlg_pr) { //Trigger mismatch; error
-                                                        h_mbSpTrk_pixTot_rd0_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                        h_mbSpTrk_sctTot_rd0_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                        	} else {
-                                                        h_mbSpTrk_pixTot_rd0_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                        h_mbSpTrk_sctTot_rd0_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                                }
-                                        }        
-                                        if (L2_mbRd1_eff_ran) {
-                                        	if (L2_mbRd1_eff_pr) { //Trigger mismatch; error
-                                                        h_mbSp_pixTot_Rd1_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                        h_mbSp_sctTot_Rd1_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                        	} else {
-                                                        h_mbSp_pixTot_Rd1_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                        h_mbSp_sctTot_Rd1_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                                }
-                                        }        
-//
-                                        if (L2_L1ItemStreamer_L1_MBTS_2_ran) {
-                                        	if (L2_L1ItemStreamer_L1_MBTS_2_pr) { //Trigger mismatch; error
-                                                        h_mbSp_pixTot_mb2_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                	h_mbSp_sctTot_mb2_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				              	} else {
-                                                        h_mbSp_pixTot_mb2_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-                                                	h_mbSp_sctTot_mb2_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-                                                }
-                                        }        
-                               
-				} else {
-					h_mbSp_pixTot_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_mbSp_sctTot_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				}
-			}
-
-
-			//High Mult
-			if (L2_mbSpTrkVtxMh_ran) {
-				if (L2_mbSpTrkVtxMh_pr) { //Trigger mismatch; error
-					h_pix_mbSpTrkVtxMh_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_sct_mbSpTrkVtxMh_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				} else {
-					h_pix_mbSpTrkVtxMh_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_sct_mbSpTrkVtxMh_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				}
-			}
-
-			//High Mult eff
-			if (L2_mbSpTrkVtxMh_eff_ran) {
-				//The trigger can not fail
-				//if (L2_mbSpTrkVtxMh_eff_pr) { //Trigger mismatch; error
-					h_pix_mbSpTrkVtxMh_eff_P->Fill(pixSpBarr + pixSpECA + pixSpECC);
-					h_sct_mbSpTrkVtxMh_eff_P->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				//} else {
-				//	h_pix_mbSpTrkVtxMh_eff_F->Fill(pixSpBarr + pixSpECA + pixSpECC);
-				//	h_sct_mbSpTrkVtxMh_eff_F->Fill(sctSpBarr + sctSpECA + sctSpECC);
-				//}
-			}
-
-			//End of Check
-
-		}
-
-	} // end TrigSpacePointCounts
-
-	//Now we can form a proper L2 simulated decision
-
-	bool sim_L2_mbSpTrk = false;
-	bool sim_L2_mbSp = false;
-
-	if (m_triggerTypeAND) {
-		sim_L2_mbSpTrk = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-		sim_L2_mbSp = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	} else {
-		sim_L2_mbSpTrk = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-		sim_L2_mbSp = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-
-	//Check if a L2 trigger is ran
-	if (L2_mbSp_ran) {  
-		if (sim_L2_mbSp != L2_mbSp_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbSp", 1.0); 
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbSp", 0.0); 
-		}
-	}
-
-	if (L2_mbSpTrk_ran) {  
-		if (sim_L2_mbSpTrk != L2_mbSpTrk_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbSpTrk", 1.0); 
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbSpTrk", 0.0); 
-		}
-	}
-
-
-//*
-// moved to pA with the changes 
-// 8 TeV Low-mu
-// rd0 back in use for pA 2013
-        bool sim_L2_rd0_filled_NoAlg = false;
-	if (m_triggerTypeAND) {
-                sim_L2_rd0_filled_NoAlg = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_rd0_filled_NoAlg  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_rd0_filled_NoAlg_ran) {
-		if (sim_L2_rd0_filled_NoAlg != L2_rd0_filled_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_rd0_filled_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_rd0_filled_NoAlg", 0.0);
-		}
-	}
-                    
-	//Check if a L2 trigger is ran
-        bool sim_L2_mbMbts_2_eff = false;
-	if (m_triggerTypeAND) {
-                sim_L2_mbMbts_2_eff = ((pixSpBarr + pixSpECC + pixSpECA) > 
-m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbMbts_2_eff  = ((pixSpBarr + pixSpECC + pixSpECA) 
-> m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_mbMbts_2_eff_ran) {
-		if (sim_L2_mbMbts_2_eff != L2_mbMbts_2_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbMbts_2_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbMbts_2_eff", 0.0);
-		}
-	}
-                    
-/*
-        bool sim_L2_mbMbts_2_NoAlg = false;
-	if (m_triggerTypeAND) {
-                sim_L2_mbMbts_2_NoAlg = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbMbts_2_NoAlg  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_mbMbts_2_NoAlg_ran) {
-		if (sim_L2_mbMbts_2_NoAlg != L2_mbMbts_2_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbMbts_2_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbMbts_2_NoAlg", 0.0);
-		}
-	}
-                    
-*/
-
-// ============> pA
-
-        bool sim_L2_mbRd1_eff = false;
-	if (m_triggerTypeAND) {
-                sim_L2_mbRd1_eff = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbRd1_eff  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_mbRd1_eff_ran) {
-		if (sim_L2_mbRd1_eff != L2_mbRd1_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbRd1_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbRd1_eff", 0.0);
-		}
-	}
-                    
-        bool sim_L2_L1ItemStreamer_L1_MBTS_2 = false;
-	if (m_triggerTypeAND) {
-                sim_L2_L1ItemStreamer_L1_MBTS_2 = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_L1ItemStreamer_L1_MBTS_2  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_L1ItemStreamer_L1_MBTS_2_ran) {
-		if (sim_L2_L1ItemStreamer_L1_MBTS_2 != L2_L1ItemStreamer_L1_MBTS_2_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_L1ItemStreamer_L1_MBTS_2", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_L1ItemStreamer_L1_MBTS_2", 0.0);
-		}
-	}
-
-
-	// High Mult - VtxMh 
-	bool sim_L2_mbSpTrkVtxMh = false;
-
-	if (m_triggerTypeAND) {
-		sim_L2_mbSpTrkVtxMh = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA
-				+ sctSpECC) > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbSpTrkVtxMh = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA
-				+ sctSpECC) > m_totalSctSp_cut);
-	}
-
-	// High Mult Check if a L2 trigger is ran
-	if (L2_mbSpTrkVtxMh_ran) {
-		if (sim_L2_mbSpTrkVtxMh != L2_mbSpTrkVtxMh_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbSpTrkVtxMh", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbSpTrkVtxMh", 0.0);
-		}
-	}
-
-	// High Mult - VtxMh_eff 
-	bool sim_L2_mbSpTrkVtxMh_eff = false;
-
-	if (m_triggerTypeAND) {
-		sim_L2_mbSpTrkVtxMh_eff = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA
-				+ sctSpECC) > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbSpTrkVtxMh_eff = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA
-				+ sctSpECC) > m_totalSctSp_cut);
-	}
-
-	// High Mult eff Check if a L2 trigger is ran
-	if (L2_mbSpTrkVtxMh_eff_ran) {
-		if (sim_L2_mbSpTrkVtxMh_eff != L2_mbSpTrkVtxMh_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbSpTrkVtxMh_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbSpTrkVtxMh_eff", 0.0);
-		}
-	}
-
-
-        bool sim_L2_mbZdc_eff = false;
-	if (m_triggerTypeAND) {
-                sim_L2_mbZdc_eff = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC)
-                                > m_totalSctSp_cut);
-	} else {
-		sim_L2_mbZdc_eff  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC)
-				> m_totalSctSp_cut);
-	}
-         
-	//Check if a L2 trigger is ran
-        if (L2_mbZdc_eff_ran) {
-		if (sim_L2_mbZdc_eff != L2_mbZdc_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("L2_mbZdc_a_c_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("L2_mbZdc_a_c_eff", 0.0);
-		}
-	}
-
-
-	/*
-	 if (L2_mbZdc_eff_ran) {
-	 if (sim_L2_mbSpTrk != L2_mbZdc_eff_pr) { //Trigger mismatch; error
-	 m_h_TriggerErrors->Fill("L2_mbZdc_eff", 1.0);
-	 } else {
-	 m_h_TriggerErrors->Fill("L2_mbZdc_eff", 0.0);
-	 }
-	 }
-
-	 if (L2_mbRd1_eff_ran) {
-	 if (sim_L2_mbSpTrk != L2_mbRd1_eff_pr) { //Trigger mismatch; error
-	 m_h_TriggerErrors->Fill("L2_mbRd1_eff", 1.0);
-	 } else {
-	 m_h_TriggerErrors->Fill("L2_mbRd1_eff", 0.0);
-	 }
-	 }
-	 */
-	//--------------------------------------------------------------------------------------------------------------
-
-/*********   This part is specifically fot the hip_trk histo ************** */
-// Simplified pass of EF_mbSp/Trk and hip_trk trigs.  pA Jan 2013
-
-	//bool L1_mbSp_defined = !(L1_mbSp->getListOfTriggers().empty());
-	//bool L1_mbSpTrk_defined = !(L1_mbSpTrk->getListOfTriggers().empty());
-        bool mbSp_passed = m_EF_mbSp->isPassed(TrigDefs::eventAccepted);
-        bool mbSpTrk_passed = m_EF_mbSpTrk->isPassed(TrigDefs::eventAccepted);
-
- 	bool L1_hip_trk150_L1TE50 = (m_EF_mbSpTrkVtxMh_hip_trk150_L1TE50->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk190_L1TE50 = (m_EF_mbSpTrkVtxMh_hip_trk190_L1TE50->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk120_L1TE35 = (m_EF_mbSpTrkVtxMh_hip_trk120_L1TE35->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk190_L1TE35 = (m_EF_mbSpTrkVtxMh_hip_trk190_L1TE35->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk240_L1TE35 = (m_EF_mbSpTrkVtxMh_hip_trk240_L1TE35->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk240_L1TE65 = (m_EF_mbSpTrkVtxMh_hip_trk240_L1TE65->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk200_L1TE65 = (m_EF_mbSpTrkVtxMh_hip_trk200_L1TE65->isPassedBits() & L1_bits) == L1_bits;
- 	bool L1_hip_trk180_L1TE65 = (m_EF_mbSpTrkVtxMh_hip_trk180_L1TE65->isPassedBits() & L1_bits) == L1_bits;
-	bool L1_hip_trk175_L1MBTS = (m_EF_mbSpTrkVtxMh_hip_trk175_L1MBTS->isPassedBits() & L1_bits) == L1_bits;
-
-	bool L1_hip_trk150_L1TE50_passed = (L1_hip_trk150_L1TE50 && !m_EF_mbSpTrkVtxMh_hip_trk150_L1TE50->getListOfTriggers().empty());
-	bool L1_hip_trk190_L1TE50_passed = (L1_hip_trk190_L1TE50 && !m_EF_mbSpTrkVtxMh_hip_trk190_L1TE50->getListOfTriggers().empty());
-	bool L1_hip_trk120_L1TE35_passed = (L1_hip_trk120_L1TE35 && !m_EF_mbSpTrkVtxMh_hip_trk120_L1TE35->getListOfTriggers().empty());
-	bool L1_hip_trk190_L1TE35_passed = (L1_hip_trk190_L1TE35 && !m_EF_mbSpTrkVtxMh_hip_trk190_L1TE35->getListOfTriggers().empty());
-	bool L1_hip_trk240_L1TE35_passed = (L1_hip_trk240_L1TE35 && !m_EF_mbSpTrkVtxMh_hip_trk240_L1TE35->getListOfTriggers().empty());
-	bool L1_hip_trk240_L1TE65_passed = (L1_hip_trk240_L1TE65 && !m_EF_mbSpTrkVtxMh_hip_trk240_L1TE65->getListOfTriggers().empty());
-	bool L1_hip_trk200_L1TE65_passed = (L1_hip_trk200_L1TE65 && !m_EF_mbSpTrkVtxMh_hip_trk200_L1TE65->getListOfTriggers().empty());
-	bool L1_hip_trk180_L1TE65_passed = (L1_hip_trk180_L1TE65 && !m_EF_mbSpTrkVtxMh_hip_trk180_L1TE65->getListOfTriggers().empty());
-	bool L1_hip_trk175_L1MBTS_passed = (L1_hip_trk175_L1MBTS && !m_EF_mbSpTrkVtxMh_hip_trk175_L1MBTS->getListOfTriggers().empty());
-
-        bool sim_hip_trk_150_50 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_150_50 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_190_50 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_190_50 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-         bool sim_hip_trk_190_35 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_190_35 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_240_35 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_240_35 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_120_35 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_120_35 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_180_65 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_180_65 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_200_65 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_200_65 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_240_65 = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_240_65 = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-        bool sim_hip_trk_175_mb = false;
-        if (m_triggerTypeAND) {
-		sim_hip_trk_175_mb = ((sctSpBarr + sctSpECA + sctSpECC) 
-				> m_sctSp_thresh);
-        }
-
-        //if (L1_mbSp_defined || L1_mbSpTrk_defined) {
-        if (mbSp_passed || mbSpTrk_passed) {
-		if (sim_hip_trk_150_50) {
-			if (L1_hip_trk150_L1TE50_passed) {
-  			    m_h_Trig_hip_trk_P->Fill("trk150_L1TE50",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk150_L1TE50",1.0);
-                        }
-                }
-		if (sim_hip_trk_190_50) {
-                        if (L1_hip_trk190_L1TE50_passed) {
-  			   m_h_Trig_hip_trk_P->Fill("trk190_L1TE50",1.0);
-                        } else {   
-  			   m_h_Trig_hip_trk_F->Fill("trk190_L1TE50",1.0);
-                        }
-                }
-		if (sim_hip_trk_120_35) {
-                        if (L1_hip_trk120_L1TE35_passed) {
-  			    m_h_Trig_hip_trk_P->Fill("trk120_L1TE35",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk120_L1TE35",1.0);
-                        }
-                }
-		if (sim_hip_trk_190_35) {
-                        if (L1_hip_trk190_L1TE35_passed) {  	
-			    m_h_Trig_hip_trk_P->Fill("trk190_L1TE35",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk190_L1TE35",1.0);
-                        }
-                }
-		if (sim_hip_trk_240_35) {
-                        if (L1_hip_trk240_L1TE35_passed) {  	
-		            m_h_Trig_hip_trk_P->Fill("trk240_L1TE35",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk240_L1TE35",1.0);
-                        }
-                }
-		if (sim_hip_trk_240_65) {
-                        if (L1_hip_trk240_L1TE65_passed) {  	
-		            m_h_Trig_hip_trk_P->Fill("trk240_L1TE65",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk240_L1TE65",1.0);
-                        }
-                }
-		if (sim_hip_trk_200_65) {
-                        if (L1_hip_trk200_L1TE65_passed) {  	
-		            m_h_Trig_hip_trk_P->Fill("trk200_L1TE65",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk200_L1TE65",1.0);
-                        }
-                }
-		if (sim_hip_trk_180_65) {
-                        if (L1_hip_trk180_L1TE65_passed) {  	
-		            m_h_Trig_hip_trk_P->Fill("trk180_L1TE65",1.0);
-                        } else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk180_L1TE65",1.0);
-                        }
-                }
-		if (sim_hip_trk_175_mb) {
-  			if (L1_hip_trk175_L1MBTS_passed) {
-  			    m_h_Trig_hip_trk_P->Fill("trk175_L1MBTS",1.0);
-                	} else {   
-  			    m_h_Trig_hip_trk_F->Fill("trk175_L1MBTS",1.0);
-	                }
-                }
-        }
-// ********** end of hip_trk *********** */
-	//EF active triggers
-	//bool EF_mbMbts_1_eff_enabled = ((!EF_mbMbts_1_eff_ps || EF_mbMbts_1_eff_pt) && L2_mbMbts_1_eff_ran
-	//		&& !m_EF_mbMbts_1_eff->getListOfTriggers().empty());
-	bool EF_mbMbts_2_eff_enabled = ((!EF_mbMbts_2_eff_ps || EF_mbMbts_2_eff_pt) && L2_mbMbts_2_eff_ran
-			&& !m_EF_mbMbts_2_eff->getListOfTriggers().empty());
-
-	//Specific to heavy-ion conditions
-/*
-	EF_mbMbts_1_eff_enabled |= ((!EF_mbMbts_1_1_eff_ps || EF_mbMbts_1_1_eff_pt) && L2_mbMbts_1_eff_ran
-			&& !m_EF_mbMbts_1_1_eff->getListOfTriggers().empty());
-	EF_mbMbts_1_eff_enabled |= ((!EF_mbMbts_2_2_eff_ps || EF_mbMbts_2_2_eff_pt) && L2_mbMbts_1_eff_ran
-			&& !m_EF_mbMbts_2_2_eff->getListOfTriggers().empty());
-	EF_mbMbts_1_eff_enabled |= ((!EF_mbMbts_4_4_eff_ps || EF_mbMbts_4_4_eff_pt) && L2_mbMbts_1_eff_ran
-			&& !m_EF_mbMbts_4_4_eff->getListOfTriggers().empty());
-*/
-	EF_mbMbts_2_eff_enabled |= ((!EF_mbMbts_1_1_eff_ps || EF_mbMbts_1_1_eff_pt) && L2_mbMbts_2_eff_ran
-			&& !m_EF_mbMbts_1_1_eff->getListOfTriggers().empty());
-	EF_mbMbts_2_eff_enabled |= ((!EF_mbMbts_2_2_eff_ps || EF_mbMbts_2_2_eff_pt) && L2_mbMbts_2_eff_ran
-			&& !m_EF_mbMbts_2_2_eff->getListOfTriggers().empty());
-	EF_mbMbts_2_eff_enabled |= ((!EF_mbMbts_4_4_eff_ps || EF_mbMbts_4_4_eff_pt) && L2_mbMbts_2_eff_ran
-			&& !m_EF_mbMbts_4_4_eff->getListOfTriggers().empty());
-	EF_mbMbts_2_eff_enabled |= ((!EF_mbMbts_4_4_eff_ps || EF_mbMbts_4_4_eff_pt) && L2_mbMbts_2_eff_ran
-			&& !m_EF_mbMbts_4_4_eff->getListOfTriggers().empty());
-
-	bool EF_mbZdc_eff_enabled = ((!EF_mbZdc_eff_ps || EF_mbZdc_eff_pt) && L2_mbZdc_eff_ran
-			&& !m_EF_mbZdc_eff->getListOfTriggers().empty());
-
-	bool EF_mbRd1_eff_enabled = ((!EF_mbRd1_eff_ps || EF_mbRd1_eff_pt) && L2_mbRd1_eff_ran
-			&& !m_EF_mbRd1_eff->getListOfTriggers().empty());
-
-	bool EF_mbSpTrk_enabled = ((!EF_mbSpTrk_ps || EF_mbSpTrk_pt) && L2_mbSpTrk_pr
-			&& !m_EF_mbSpTrk->getListOfTriggers().empty());
-// 8 TeV low-mu
-	bool EF_mbLucid_eff_enabled = ((!EF_mbLucid_eff_ps || EF_mbLucid_eff_pt) && L2_mbLucid_eff_ran
-			&& !m_EF_mbLucid_eff->getListOfTriggers().empty());
-
-        bool EF_rd0_filled_NoAlg_enabled = ((!EF_rd0_filled_NoAlg_ps || EF_rd0_filled_NoAlg_pt) && L2_rd0_filled_NoAlg_pr
-			&& !m_EF_rd0_filled_NoAlg->getListOfTriggers().empty());
-        //bool EF_mbMbts_2_NoAlg_enabled = ((!EF_mbMbts_2_NoAlg_ps || EF_mbMbts_2_NoAlg_pt) && L2_mbMbts_2_NoAlg_pr 
-        //                && !m_EF_mbMbts_2_NoAlg->getListOfTriggers().empty());
-// pA
-	//bool EF_mbRd1_eff_enabled  is already defined just above
-        bool EF_L1ItemStreamer_L1_MBTS_2_enabled = ((!EF_L1ItemStreamer_L1_MBTS_2_ps || EF_L1ItemStreamer_L1_MBTS_2_pt) && L2_L1ItemStreamer_L1_MBTS_2_pr 
-                        && !m_EF_L1ItemStreamer_L1_MBTS_2->getListOfTriggers().empty());
-	bool EF_mbSp_enabled = ((!EF_mbSp_ps || EF_mbSp_pt) && L2_mbSp_pr && !m_EF_mbSp->getListOfTriggers().empty());
-//
-//pA jan 2013
-	bool EF_L1ZDC_A_NoAlg_enabled = ((!EF_L1ZDC_A_NoAlg_ps || EF_L1ZDC_A_NoAlg_pt) && L2_L1ZDC_A_NoAlg_pr && !m_EF_L1ZDC_A_NoAlg->getListOfTriggers().empty());
-	bool EF_L1ZDC_C_NoAlg_enabled = ((!EF_L1ZDC_C_NoAlg_ps || EF_L1ZDC_C_NoAlg_pt) && L2_L1ZDC_C_NoAlg_pr && !m_EF_L1ZDC_C_NoAlg->getListOfTriggers().empty());
-	bool EF_L1LHCF_NoAlg_enabled = ((!EF_L1LHCF_NoAlg_ps || EF_L1LHCF_NoAlg_pt) && L2_L1LHCF_NoAlg_pr && !m_EF_L1LHCF_NoAlg->getListOfTriggers().empty());
-
-	//High Mult 
-	bool EF_mbSpTrkVtxMh_enabled = ((!EF_mbSpTrkVtxMh_ps || EF_mbSpTrkVtxMh_pt) && L2_mbSpTrkVtxMh_pr
-			&& !m_EF_mbSpTrkVtxMh->getListOfTriggers().empty());
-
-	bool EF_mbSpTrkVtxMh_eff_enabled = ((!EF_mbSpTrkVtxMh_eff_ps || EF_mbSpTrkVtxMh_eff_pt) && L2_mbSpTrkVtxMh_eff_pr
-			&& !m_EF_mbSpTrkVtxMh_eff->getListOfTriggers().empty());
-
-	// EF ID (it is the same for trt and pixel+sct)
-	const xAOD::TrigTrackCountsContainer* mbTTcont = 0;
-	StatusCode sc_mbtt = m_storeGate->retrieve(mbTTcont, m_tcContainerName);
-
-	if (sc_mbtt.isFailure() || mbTTcont->empty()) {
-		if (sc_mbtt.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias MonTool for xAOD::TrigTrackCountsContainer" << endreq;
-		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigTrackCountsContainer is empty." << endreq;
-
-	} else {
-		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigTrackCountsContainer ====== " << endreq;
-
-		mbTracks = 0;
-		totpix_spEF = 0;
-		totsct_spEF = 0;
-
-		// Loop over EF TrigMinBias objects
-		xAOD::TrigTrackCountsContainer::const_iterator mbTT_coll_itr = mbTTcont->begin();
-		for (; mbTT_coll_itr != mbTTcont->end(); ++mbTT_coll_itr) {
-			xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
-
-			/*if (mbTT->z0_pt().nbins_x() > 0 && mbTT->z0_pt().nbins_y() > 0) {
-				mbTracks = (int) (mbTT->z0_pt().sumEntries(m_max_z0, m_min_pt, TrigHistoCutType::BELOW_X_ABOVE_Y));
-				m_minbiasTracks->Fill(mbTracks);
-			} else {
-				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y."
-						<< endreq;
-			}*/
-
-//// --> pA ; pA Jan 2013
-			//Check if the EF_mbSp/Trk trigger is ran
-			if (EF_mbSp_enabled || EF_mbSpTrk_enabled) {
-				if (EF_mbSp_pr || EF_mbSpTrk_pr) { //Trigger mismatch; error
-					h_mbSp_trkTot_P->Fill(mbTracks);
-//////// no _mbMbts_2_NoAlg
-/*
-//
-                  			//Check if the EF_mbMbts_2_NoAlg trigger is ran
-                                        if (EF_mbMbts_2_NoAlg_enabled) {
-                                        	if (EF_mbMbts_2_NoAlg_pr) { //Trigger mismatch; error
-                                                        h_mbSpTrk_trkTot_mb2Alg_P->Fill(mbTracks);
-				              	} else {
-                                                        h_mbSpTrk_trkTot_mb2Alg_F->Fill(mbTracks);
-                                                }
-                                        }        
-*/
-// rd0 back in use: pA 2013
-                  			//Check if the EF_rd0_filled_NoAlg trigger is ran
-                                        if (EF_rd0_filled_NoAlg_enabled) {
-                                        	if (EF_rd0_filled_NoAlg_pr) { //Trigger mismatch; error
-                                                        h_mbSpTrk_trkTot_rd0_P->Fill(mbTracks);
-                                        	} else {
-                                                        h_mbSpTrk_trkTot_rd0_F->Fill(mbTracks);
-                                                }
-                                        }        
-
-                  			//Check if the EF_mbRd1_eff trigger is ran
-                                        if (EF_mbRd1_eff_enabled) {
-                                        	if (EF_mbRd1_eff_pr) { //Trigger mismatch; error
-                                                        h_mbSp_trkTot_Rd1_P->Fill(mbTracks);
-                                        	} else {
-                                                        h_mbSp_trkTot_Rd1_F->Fill(mbTracks);
-                                                }
-                                        }        
-//
-                  			//Check if the L1ItemStreamer_L1_MBTS_2 trigger is ran
-                                        if (EF_L1ItemStreamer_L1_MBTS_2_enabled) {
-                                        	if (EF_L1ItemStreamer_L1_MBTS_2_pr) { //Trigger mismatch; error
-                                                        h_mbSp_trkTot_mb2_P->Fill(mbTracks);
-				              	} else {
-                                                        h_mbSp_trkTot_mb2_F->Fill(mbTracks);
-                                                }
-                                        }        
-
-// no mbMbts_1_eff ; mbMbts_2_eff is instead
-/*
-					//Check if the EF_mbMbts_1_eff trigger is ran
-					if (EF_mbMbts_1_eff_enabled) {
-						//if (EF_mbMbts_1_eff_pr) { //Trigger mismatch; error
-							h_mbMbts_1_eff_trkTot_P->Fill(mbTracks);
-						//} else {
-						//	h_mbMbts_1_eff_trkTot_F->Fill(mbTracks);
-						//}
-					}
-*/
-					//Check if the EF_mbMbts_2_eff trigger is ran
-					if (EF_mbMbts_2_eff_enabled) {
-						if (EF_mbMbts_2_eff_pr) { //Trigger mismatch; error
-							h_mbMbts_2_eff_trkTot_P->Fill(mbTracks);
-						} else {
-					        	h_mbMbts_2_eff_trkTot_F->Fill(mbTracks);
-						}
-					}
-
-					//Check if the EF_mbZdc_eff trigger is ran
-					if (EF_mbZdc_eff_enabled) {
-						if (EF_mbZdc_eff_pr) { //Trigger mismatch; error
-							h_mbZdc_eff_trkTot_P->Fill(mbTracks);
-						} else {
-							h_mbZdc_eff_trkTot_F->Fill(mbTracks);
-						}
-					}
-
-					// 8 TeV low-mu Lucid
-					//Check if the EF_mbLucid_eff trigger is ran
-					if (EF_mbLucid_eff_enabled) {
-						//if (EF_mbLucid_eff_pr) { //Trigger mismatch; error
-							h_mbLucid_eff_trkTot_P->Fill(mbTracks);
-						//} else {
-						//	h_mbLucid_eff_trkTot_F->Fill(mbTracks);
-						//}
-					}
-
-					//High Mult VtxMh
-					// Check if the EF_mbSpTrkVtxMh trigger is ran
-					if (EF_mbSpTrkVtxMh_enabled) {
-						if (EF_mbSpTrkVtxMh_pr) { //Trigger mismatch; error
-							h_EF_mbSpTrkVtxMh_P->Fill(mbTracks);
-						} else {
-							h_EF_mbSpTrkVtxMh_F->Fill(mbTracks);
-						}
-					}
-
-					//High Mult 
-					// Check if the EF_mbSpTrkVtxMh_eff trigger is ran
-					if (EF_mbSpTrkVtxMh_eff_enabled) {
-					//The trigger can not fail by definition
-						//if (EF_mbSpTrkVtxMh_eff_pr) { //Trigger mismatch; error
-							h_EF_mbSpTrkVtxMh_eff_P->Fill(mbTracks);
-						//} else {
-						//	h_EF_mbSpTrkVtxMh_eff_F->Fill(mbTracks);
-						//}
-					}
-
-					// pA Jan 2013
-					//Check if the EF_L1ZDC_A_NoAlg trigger is ran
-					if (EF_L1ZDC_A_NoAlg_enabled) {
-						if (EF_L1ZDC_A_NoAlg_pr) { //Trigger mismatch; error
-							h_L1ZDC_A_NoAlg_trkToT_P->Fill(mbTracks);
-							} else {
-							h_L1ZDC_A_NoAlg_trkToT_F->Fill(mbTracks);
-							}
-					}
-
-					//Check if the EF_L1ZDC_C_NoAlg trigger is ran
-					if (EF_L1ZDC_C_NoAlg_enabled) {
-						if (EF_L1ZDC_C_NoAlg_pr) { //Trigger mismatch; error
-							h_L1ZDC_C_NoAlg_trkToT_P->Fill(mbTracks);
-							} else {
-							h_L1ZDC_C_NoAlg_trkToT_F->Fill(mbTracks);
-							}
-					}
-
-					//Check if the EF_L1LHCF_NoAlg trigger is ran
-					if (EF_L1LHCF_NoAlg_enabled) {
-						if (EF_L1LHCF_NoAlg_pr) { //Trigger mismatch; error
-							h_L1LHCF_NoAlg_trkToT_P->Fill(mbTracks);
-							} else {
-							h_L1LHCF_NoAlg_trkToT_F->Fill(mbTracks);
-							}
-					}
-
-//
-				} else {
-					h_mbSp_trkTot_F->Fill(mbTracks);
-				}
-			}
-
-		}
-	} // end TrigTrackCounts
-
-
-	//Now we can form a proper EF simulated decision
-
-	bool sim_EF_mbSpTrk = mbTracks >= m_required_ntrks;
-	bool sim_EF_mbSp = mbTracks >= m_required_ntrks;
-
-	/*
-	 //Check if the EF trigger is ran
-	 if (EF_mbMbts_1_eff_enabled) {
-	 if (sim_EF_mbSpTrk != EF_mbMbts_1_eff_pr) { //Trigger mismatch; error
-	 m_h_TriggerErrors->Fill("EF_mbMbts_1_eff", 1.0);
-	 } else {
-	 m_h_TriggerErrors->Fill("EF_mbMbts_1_eff", 0.0);
-	 }
-	 }
-
-	 //Check if the EF trigger is ran
-	 if (EF_mbZdc_eff_enabled) {
-	 if (sim_EF_mbSpTrk != EF_mbZdc_eff_pr) { //Trigger mismatch; error
-	 m_h_TriggerErrors->Fill("EF_mbZdc_eff", 1.0);
-	 } else {
-	 m_h_TriggerErrors->Fill("EF_mbZdc_eff", 0.0);
-	 }
-	 }
-
-	 //Check if the EF trigger is ran
-	 if (EF_mbRd1_eff_enabled) {
-	 if (sim_EF_mbSpTrk != EF_mbRd1_eff_pr) { //Trigger mismatch; error
-	 m_h_TriggerErrors->Fill("EF_mbRd1_eff", 1.0);
-	 } else {
-	 m_h_TriggerErrors->Fill("EF_mbRd1_eff", 0.0);
-	 }
-	 }
-	 */
-
-	//Check if the EF trigger is ran
-///*
-// pA 2013, EfmbSpTrk + EF_mbSp
-	if (EF_mbSpTrk_enabled) {
-		if (sim_EF_mbSpTrk != EF_mbSpTrk_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbSpTrk", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbSpTrk", 0.0);
-		}
-	}
-//*/
-	if (EF_mbSp_enabled) {
-		if (sim_EF_mbSp != EF_mbSp_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbSp", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbSp", 0.0);
-		}
-	}
-
-//*
-// moved to pA with the changes (SpTrk->Sp, etc.) just below
-// 8 TeV Low-mu
-// rd0 back in use pA 2013
-
-
-	bool sim_EF_mbMbts_2_eff = mbTracks >= m_required_ntrks;
-	 //Check if the EF trigger is ran
-	 if (EF_mbMbts_2_eff_enabled) {
-		 if (sim_EF_mbMbts_2_eff != EF_mbMbts_2_eff_pr) { //Trigger mismatch; error
-	 		m_h_TriggerErrors->Fill("EF_mbMbts_2_eff", 1.0);
-	 		} else {
-	 		m_h_TriggerErrors->Fill("EF_mbMbts_2_eff", 0.0);
-	 		}
-	 }
-
-	bool sim_EF_rd0_filled_NoAlg = mbTracks >= m_required_ntrks;
-	//bool sim_EF_mbMbts_2_NoAlg = mbTracks >= m_required_ntrks;
-
-	//Check if the EF trigger is ran
-	if (EF_rd0_filled_NoAlg_enabled) {
-		if (sim_EF_rd0_filled_NoAlg != EF_rd0_filled_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_rd0_filled_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_rd0_filled_NoAlg", 0.0);
-		}
-	}
-/*
-	//Check if the EF trigger is ran
-	if (EF_mbMbts_2_NoAlg_enabled) {
-		if (sim_EF_mbMbts_2_NoAlg != EF_mbMbts_2_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbMbts_2_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbMbts_2_NoAlg", 0.0);
-		}
-	}
-
-*/
-
-// ======> pA 
-
-	bool sim_EF_mbRd1_eff = mbTracks >= m_required_ntrks;
-	bool sim_EF_L1ItemStreamer_L1_MBTS_2 = mbTracks >= m_required_ntrks;
-
-	//Check if the EF trigger is ran
-	if (EF_mbRd1_eff_enabled) {
-		if (sim_EF_mbRd1_eff != EF_mbRd1_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbRd1_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbRd1_eff", 0.0);
-		}
-	}
-	//Check if the EF trigger is ran
-	if (EF_L1ItemStreamer_L1_MBTS_2_enabled) {
-		if (sim_EF_L1ItemStreamer_L1_MBTS_2 != EF_L1ItemStreamer_L1_MBTS_2_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_L1ItemStreamer_L1_MBTS_2", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_L1ItemStreamer_L1_MBTS_2", 0.0);
-		}
-	}
-
-        bool sim_EF_Zdc_eff =  mbTracks >= m_required_ntrks;
-	//Check if the EF trigger is ran
-	if (EF_mbZdc_eff_enabled) {
-		if (sim_EF_Zdc_eff != EF_mbZdc_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbZdc_a_c_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbZdc_a_b_eff", 0.0);
-		}
-	}
-
-	// High Mult
-	bool sim_EF_mbSpTrkVtxMh = mbTracks >= m_required_ntrks;
-	//Check if the EF trigger is ran
-	if (EF_mbSpTrkVtxMh_enabled) {
-		if (sim_EF_mbSpTrkVtxMh != EF_mbSpTrkVtxMh_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbSpTrkVtxMh", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbSpTrkVtxMh", 0.0);
-		}
-	}
-
-	bool sim_EF_mbSpTrkVtxMh_eff = mbTracks >= m_required_ntrks;
-	//Check if the EF eff trigger is ran
-	if (EF_mbSpTrkVtxMh_eff_enabled) {
-		if (sim_EF_mbSpTrkVtxMh_eff != EF_mbSpTrkVtxMh_eff_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_mbSpTrkVtxMh_eff", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_mbSpTrkVtxMh_eff", 0.0);
-		}
-	}
-
-
-// pA Jan 2013
-
-	bool sim_EF_L1ZDC_A_NoAlg = mbTracks >= m_required_ntrks;
-	//Check if the EF trigger is ran
-	if (EF_L1ZDC_A_NoAlg_enabled) {
-		if (sim_EF_L1ZDC_A_NoAlg != EF_L1ZDC_A_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_L1ZDC_A_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_L1ZDC_A_NoAlg", 0.0);
-		}
-	}
-
-	bool sim_EF_L1ZDC_C_NoAlg = mbTracks >= m_required_ntrks;
-	//Check if the EF trigger is ran
-	if (EF_L1ZDC_C_NoAlg_enabled) {
-		if (sim_EF_L1ZDC_C_NoAlg != EF_L1ZDC_C_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_L1ZDC_C_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_L1ZDC_C_NoAlg", 0.0);
-		}
-	}
-
-
-	bool sim_EF_L1LHCF_NoAlg = mbTracks >= m_required_ntrks;
-	//Check if the EF trigger is ran
-	if (EF_L1LHCF_NoAlg_enabled) {
-		if (sim_EF_L1LHCF_NoAlg != EF_L1LHCF_NoAlg_pr) { //Trigger mismatch; error
-			m_h_TriggerErrors->Fill("EF_L1LHCF_NoAlg", 1.0);
-		} else {
-			m_h_TriggerErrors->Fill("EF_L1LHCF_NoAlg", 0.0);
-		}
-	}
-
-
-
-// Energy Time
-        
-        unsigned int triggerWord = 0;
-        unsigned int timeWord = 0;
-
-        std::vector<float> mbtsHitEnergies; // energy (in pC) of signal in a counter (relative to IP), vector for all counters
-        std::vector<float> mbtsHitTimes; // time of signal in counter (relative to IP), vector for all counters        
-
-        int time_ebaCounters=0, time_ebcCounters=0;
-        int energy_ebaCounters=0, energy_ebcCounters=0;
-        float timeMean_A = 0.;
-        float timeMean_C = 0.;
-        float timeMin_A = 10000.;
-        float timeMin_C = 10000.;
-        float energyMean_A = 0.;
-        float energyMean_C = 0.;
-        float energyMax_A = -10000.;
-        float energyMax_C = -10000.;
-
-        //==============================================================================
-        // MBTS BITS INFORMATION
-        //==============================================================================
-       const xAOD::TrigT2MbtsBitsContainer* mbTScont = 0;
-        StatusCode sc = m_storeGate->retrieve(mbTScont, m_t2mbtsContainerName);
-
-        if (sc.isFailure() || mbTScont->empty()) {
-                if (sc.isFailure())
-                        (*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endreq;
-                else
-                        (*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endreq;
-        } else {
-                (*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endreq;
-
-                // Loop over EF TrigMinBias objects
-                xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
-                for (; mbTS_coll_itr != mbTScont->end(); ++mbTS_coll_itr) {
-
-                        xAOD::TrigT2MbtsBits *mbtsFeature = (*mbTS_coll_itr);
-
-                        mbtsHitEnergies = mbtsFeature->triggerEnergies();
-                        mbtsHitTimes = mbtsFeature->triggerTimes();
-
-                        if (mbtsHitTimes.size() != 32)
-                                (*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements."
-                                                << endreq;
-
-                        if (mbtsHitEnergies.size() != 32)
-                                (*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements."
-                                                << endreq;
-
-        //The energy-dependent bitmask is produced below
-                        for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
-                                if (mbtsHitEnergies.at(k) > m_energyCut) {
-                                        triggerWord += (1 << k);
-                                        // Online distributions
-                                        const char* cell_name = (m_moduleLabel[k]).data();
-                                        if (k < 16) { // A side
-                                               m_h_occupancy_onl_A->Fill(cell_name, 1.0);
-                                               timeMean_A += mbtsHitTimes.at(k); time_ebaCounters++;
-                                               if (mbtsHitTimes.at(k) < timeMin_A) timeMin_A = mbtsHitTimes.at(k);
-                                               if (k == 15) {  
-                                                     //if (L1_mbMbts_1_eff) { //          <--- the trigger
-                                                     if (L1_mbMbts_2_eff) { 
-                                                              m_h_timeMin_A_P->Fill(timeMin_A);
-                                                     } else {
-                                                              m_h_timeMin_A_F->Fill(timeMin_A);
-                                                     }
-                                                     if (time_ebaCounters> 0) {
-                                                          timeMean_A /= time_ebaCounters;
-                                                          //if (L1_mbMbts_1_eff) { //       <--- the trigger   
-                                                          if (L1_mbMbts_2_eff) { 
-                                                                   m_h_timeMean_A_P->Fill(timeMean_A);
-                                                          } else {
-                                                                   m_h_timeMean_A_F->Fill(timeMean_A);
-                                                          }
-                                                     } else {
-                                         	           timeMean_A = -999.0;
-                                                     }
-                                               }
-                                        } else { // C side 
-                                               m_h_occupancy_onl_C->Fill(cell_name, 1.0);
-                                               timeMean_C += mbtsHitTimes.at(k); time_ebcCounters++;
-                                               if (mbtsHitTimes.at(k) < timeMin_C) timeMin_C = mbtsHitTimes.at(k);
-                                               if (k == 31) { 
-                                                     //if (L1_mbMbts_1_eff) { //              <--- the trigger   
-                                                     if (L1_mbMbts_2_eff) { 
-                                                              m_h_timeMin_C_P->Fill(timeMin_C);
-                                                     } else {
-                                                              m_h_timeMin_C_F->Fill(timeMin_C);
-                                                     }
-                                                    if (time_ebcCounters> 0) {
-                                                         timeMean_C /= time_ebcCounters;
-                                                         //if (L1_mbMbts_1_eff) { //          <---  the trigger   
-                                                         if (L1_mbMbts_2_eff) { 
-                                                                 m_h_timeMean_C_P->Fill(timeMean_C);
-                                                         } else {
-                                                                 m_h_timeMean_C_F->Fill(timeMean_C);
-                                                         }
-                                                    } else {
-                                         	         timeMean_C = -999.0;
-                                                    }
-                                               }
-                                        }
-                                        //Time online
-                                        m_h_time_1d->Fill(mbtsHitTimes.at(k)); 
-                                        //Check if the L2_mbMbts_1_eff trigger is ran
-                                        // now mbMbts_2_eff (pA 2013)
-                                        //if (L2_mbMbts_1_eff_ran) {
-                                        if (L2_mbMbts_2_eff_ran) {
-                                                  m_h_time_L2_P->Fill(mbtsHitTimes.at(k));
-                                        } else {
-                                                  m_h_time_L2_F->Fill(mbtsHitTimes.at(k)); 
-                                        }
-                                        //Check if the EF_mbMbts_1_eff trigger is ran
-                                        // now mbMbts_2_eff (pA 2013)
-                                       //if (EF_mbMbts_1_eff_enabled) {
-                                       if (EF_mbMbts_2_eff_enabled) {
-                                                  m_h_time_EF_P->Fill(mbtsHitTimes.at(k));
-                                        } else {
-                                                  m_h_time_EF_F->Fill(mbtsHitTimes.at(k)); 
-                                        }
-                                }
-                        //The time-dependent bitmask is produced for the case
-                        //of time-dependent L2 trigger
-                        for (std::size_t k = 0; k < mbtsHitTimes.size() && k < 32; k++) {
-                                if (fabs(mbtsHitTimes.at(k)) < m_timeCut || m_timeCut <= 0.0)
-                                        timeWord += (1 << k);
-
-                                // Online distributions
-                                //const char* cell_name = (m_moduleLabel[k]).data();
-
-                                if (k < 16) { // A side
-                                       energyMean_A += mbtsHitEnergies.at(k); energy_ebaCounters++;
-                                       if (mbtsHitEnergies.at(k) > energyMax_A) energyMax_A = mbtsHitEnergies.at(k);
-                                       if (k == 15) {
-                                              //if (L1_mbMbts_1_eff) { // --->is this the trigger needed ??????  
-                                              if (L1_mbMbts_2_eff) { 
-                                                       m_h_energyMax_A_P->Fill(energyMax_A);
-                                              } else {
-                                                       m_h_energyMax_A_F->Fill(energyMax_A);
-                                              }
-                                              if (energy_ebaCounters> 0) {
-                                                      energyMean_A /= energy_ebaCounters;
-                                                      //if (L1_mbMbts_1_eff) { // --->is this the trigger needed ??????  
-                                                      if (L1_mbMbts_2_eff) { 
-                                                              m_h_energyMean_A_P->Fill(energyMean_A);
-                                                      } else {
-                                                              m_h_energyMean_A_F->Fill(energyMean_A);
-                                                      }
-                                              } else {
-                                         	      energyMean_A = -999.0;
-                                              }
-                                       }
-                                } else { // C side 
-                                       energyMean_C += mbtsHitEnergies.at(k); energy_ebcCounters++;
-                                       if (mbtsHitEnergies.at(k) > energyMax_C) energyMax_C = mbtsHitEnergies.at(k);
-                                       if (k == 31)  {
-                                             //if (L1_mbMbts_1_eff) { // --->is this the trigger needed ??????  
-                                             if (L1_mbMbts_2_eff) { 
-                                                      m_h_energyMax_C_P->Fill(energyMax_C);
-                                             } else {
-                                                      m_h_energyMax_C_F->Fill(energyMax_C);
-                                             }
-                                             if ( energy_ebcCounters> 0) {
-                                                     energyMean_C /= energy_ebcCounters;
-                                                     //if (L1_mbMbts_1_eff) { // --->is this the trigger needed ??????  
-                                                     if (L1_mbMbts_2_eff) 
-{ 
-                                                               m_h_energyMean_C_P->Fill(energyMean_C);
-                                                     } else {
-                                                               m_h_energyMean_C_F->Fill(energyMean_C);
-                                                     }
-                                             } else {
-                                                     energyMean_C = -999.0;
-                                             }
-                                       }
-                                }
-                                //Energy online
-                                m_h_energy_1d->Fill(mbtsHitEnergies.at(k)); 
-                                //Check if the L2_mbMbts_1_eff trigger is ran
-				// now mbMbts_2_eff (pA Jan 2013)
-                                //if (L2_mbMbts_1_eff_ran) {
-                                if (L2_mbMbts_2_eff_ran) {
-                                        m_h_energy_L2_P->Fill(mbtsHitEnergies.at(k));
-                                } else {
-                                        m_h_energy_L2_F->Fill(mbtsHitEnergies.at(k)); 
-                                }
-                                //Check if the EF_mbMbts_1_eff trigger is ran
-				// now mbMbts_2_eff (pA Jan 2013)
-                                //if (EF_mbMbts_1_eff_enabled) {
-                                if (EF_mbMbts_2_eff_enabled) {
-                                        m_h_energy_EF_P->Fill(mbtsHitEnergies.at(k));
-                                } else {
-                                        m_h_energy_EF_F->Fill(mbtsHitEnergies.at(k)); 
-                                }
-                        }
-                }
-        } // end TrigT2MbtsBitsContainer.h    
-
-        m_numberOfEvents++;
-	return StatusCode::SUCCESS;
 }
 
 void HLTMinBiasMonTool::fixXaxis(TH1* h) {
@@ -4193,17 +1784,39 @@ int HLTMinBiasMonTool::error_bit(bool a, bool b) {
 
 }
 
-/*---------------------------------------------------------*/
-/*
-StatusCode HLTMinBiasMonTool::procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun) 
-*/
-/*---------------------------------------------------------*/
-/*
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+StatusCode HLTMinBiasMonTool::proc()
+#else
+StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun)
+#endif
 {
+        StatusCode sc = StatusCode::SUCCESS;
+		
+		if (endOfRun)
+		{
+			hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerTracksPassed", "HLT/MinBiasMon"), hist("TriggerTracksAll", "HLT/MinBiasMon"), 1.0, 1.0, "B");
+			
+			for (const auto &i: m_trigItems)
+			{
+				hist("Purity", "HLT/MinBiasMon/Purities/" + i)->Divide(hist("TracksPassed", "HLT/MinBiasMon/Purities/" + i), hist("TracksAll", "HLT/MinBiasMon/Purities/" + i), 1.0, 1.0, "B");
+			}
+		}
+        
+        return sc;
+}
+
+/*---------------------------------------------------------*/
+
+//StatusCode HLTMinBiasMonTool::procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun) 
+
+/*---------------------------------------------------------*/
+/*{
        if (isEndOfEventsBlock || isEndOfLumiBlock) {}
        if (isEndOfRun) {
+	   
+				hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerAllTracks", "HLT/MinBiasMon"), hist("TriggerTracksPassed", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 
-//                cout << " m_numberOfEvents: " << m_numberOfEvents << " events " << endreq;
+				cout << " m_numberOfEvents: " << m_numberOfEvents << " events " << endreq;
 
                 msg(MSG::DEBUG) << " m_numberOfEvents: " << m_numberOfEvents << endreq;
               
@@ -4227,9 +1840,9 @@ StatusCode HLTMinBiasMonTool::procHistograms(bool isEndOfEventsBlock, bool isEnd
 
                // Energy efficiency (L2)
                m_h_energy_L2_Eff->Divide(m_h_energy_L2_P,m_h_energy_1d,1.,1.,"B");
+			   
 
        }
    
        return StatusCode::SUCCESS;
-}
-*/
+}*/
