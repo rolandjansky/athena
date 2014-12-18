@@ -15,8 +15,6 @@ from LArTrackingGeometry.LArTrackingGeometryConf import LAr__LArVolumeBuilder
 class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
     # constructor
     def __init__(self,name = 'LArVolumeBuilder'):
-
-        #from CaloMaterialEffectsOnTrackProvider.ConfCaloMaterialEffectsOnTrackProvider import ConfCaloMaterialEffectsOnTrackProvider as ConfMEOTP
         
         from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 
@@ -25,15 +23,6 @@ class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
         if 'ToolSvc' not in dir():
           ToolSvc = ToolSvc()
         
-        meotps = []
-        #if TrkDetFlags.LArUseMaterialEffectsOnTrackProvider() :
-
-          #from CaloMaterialEffectsOnTrackProvider.ConfCaloMaterialEffectsOnTrackProvider import ConfCaloMaterialEffectsOnTrackProvider as ConfMEOTP
-        
-          #MEOTP = ConfMEOTP('CaloMaterialEffectsOnTrackProvider')
-          #ToolSvc += MEOTP
-          #meotps += [ MEOTP ]
-
         # The volume helper
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
         LArTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
@@ -41,20 +30,9 @@ class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
           
         LAr__LArVolumeBuilder.__init__(self,
                                        name,
-                                       MaterialEffectsOnTrackProviders = meotps,
                                        UseCaloSurfBuilder = TrkDetFlags.LArUseCaloSurfBuilder(),
                                        TrackingVolumeHelper = LArTrackingVolumeHelper,
                                        BarrelEnvelopeCover  = TrkDetFlags.LArBarrelEnvelopeCover(),
                                        EndcapEnvelopeCover  = TrkDetFlags.LArEndcapEnvelopeCover(),
-                                       BarrelMaterialBinsRz = TrkDetFlags.LArBarrelLayerMaterialBinsRz(),   
-                                       BarrelMaterialBinsPhi = TrkDetFlags.LArBarrelLayerMaterialBinsPhi(),   
-                                       EndcapMaterialBinsRz = TrkDetFlags.LArEndcapLayerMaterialBinsRz(),    
-                                       EndcapMaterialBinsPhi = TrkDetFlags.LArEndcapLayerMaterialBinsPhi(),   
-                                       EndcapHecMaterialBinsRz = TrkDetFlags.LArEndcapHecLayerMaterialBinsRz(), 
-                                       EndcapHecMaterialBinsPhi = TrkDetFlags.LArEndcapHecLayerMaterialBinsPhi(),
-                                       EndcapFcalMaterialBinsRz = TrkDetFlags.LArEndcapFcalLayerMaterialBinsRz(),
-                                       EndcapFcalMaterialBinsPhi = TrkDetFlags.LArEndcapFcalLayerMaterialBinsPhi(),
-                                       EndcapGapMaterialBinsRz = TrkDetFlags.LArEndcapGapLayerMaterialBinsRz(), 
-                                       EndcapGapMaterialBinsPhi = TrkDetFlags.LArEndcapGapLayerMaterialBinsPhi(),
                                        OutputLevel = TrkDetFlags.LArBuildingOutputLevel(),
                                        MagneticFieldMode = TrkDetFlags.MagneticFieldMode())

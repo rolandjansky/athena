@@ -106,31 +106,10 @@ namespace LAr {
                                                                                       
       ToolHandle<Trk::ITrackingVolumeHelper>            m_lArTrackingVolumeHelper;     //!< Helper Tool to create TrackingVolumes
       ToolHandle<Trk::ITrackingVolumeCreator>           m_trackingVolumeCreator;       //!< helper for volume creation
-      unsigned int                                      m_lArBarrelMaterialBinsRz;     //!< the material bins in Rz, barrel
-      unsigned int                                      m_lArBarrelMaterialBinsPhi;    //!< the material bins in Rz, barrel      
-      unsigned int                                      m_lArEndcapMaterialBinsRz;     //!< the material bins in Rz, endcap 
-      unsigned int                                      m_lArEndcapMaterialBinsPhi;    //!< the material bins in Rz, endcap 
-      unsigned int                                      m_lArEndcapHecMaterialBinsRz;  //!< the material bins in Rz, endcap Hec
-      unsigned int                                      m_lArEndcapHecMaterialBinsPhi; //!< the material bins in Rz, endcap 
-      unsigned int                                      m_lArEndcapFcalMaterialBinsRz; //!< the material bins in Rz, endcap Fcal
-      unsigned int                                      m_lArEndcapFcalMaterialBinsPhi;//!< the material bins in Rz, endcap 
-      unsigned int                                      m_lArEndcapGapMaterialBinsRz;  //!< the material bins in Rz, endcap Gap
-      unsigned int                                      m_lArEndcapGapMaterialBinsPhi; //!< the material bins in Rz, endcap 
-                        
-      bool                                              m_useMeotProvider;       //!< steer the meot provider
-      
-      //std::vector<Trk::IMaterialEffectsOnTrackProvider*>    m_meotProviders;                   //!< drawback of ToolHandle
-      //ToolHandleArray<Trk::IMaterialEffectsOnTrackProvider> m_materialEffectsOnTrackProviders; //!< MaterialEffectsOnTrackProvider for TrackingVolumes
-
+                              
       double                           m_lArBarrelEnvelope;            //!< envelope Cover of the Barrel
       double                           m_lArEndcapEnvelope;            //!< envelope Cover of the Endcap
 
-      unsigned int                     m_lArBarrelModelLayers;         //!< number of model layers for LAr Barrel
-      unsigned int                     m_lArEndcapModelLayers;         //!< number of model layers for LAr Endcap
-      unsigned int                     m_lArEndcapInnerGapModelLayers; //!< number of model layers for LAr Endcap
-      unsigned int                     m_lArFcalModelLayers;           //!< number of model layers for the Fcal 
-      unsigned int                     m_lArHecFcalCoverModelLayers;   //!< number of model layers for the Hec (part that covers Fcal) 
-      unsigned int                     m_lArHecModelLayers;            //!< number of model layers for the Hec (part that attaches to LAr EC) 
       bool                             m_useCaloSurfBuilder;           //!< if true use DetDescr based layering, if false use biequidistant layering
       unsigned int                     m_lArLayersPerRegion;           //!< if m_useCaloSurfBuilder == true, number of layers per dead material region or sampling
       bool                             m_useCaloTrackingGeometryBounds;//!< if true use DetDescr based layering, if false use biequidistant layering
