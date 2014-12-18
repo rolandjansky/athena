@@ -24,6 +24,4 @@ private
 
 use IRegionSelector              IRegionSelector-*              DetectorDescription
 
-macro_append cppflags " -Wno-deprecated "
-
 #macro_append cppflags  " -DIDSCAN_DEBUG "
