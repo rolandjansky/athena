@@ -3,5 +3,6 @@
 
   <!-- Enums -->
   <enum pattern="xAOD::Iso::*" />
+  <class name="xAOD::Iso::ROOT6_NamespaceAutoloadHook" />
 
 </lcgdict>
