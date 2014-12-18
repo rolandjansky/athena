@@ -13,6 +13,8 @@
 #   jtm.addJetFinder("AntiKt4EMTopoJets", "AntiKt", 0.4, "em", "calib_topo_ungroomed")
 #
 
+import copy
+
 myname = "JetRecStandard.py: "
 
 print myname + "Defining standard tools"
@@ -72,19 +74,18 @@ if jetFlags.useTruth():
   empfgetters += [jtm.gtruthget]
   emcpfgetters += [jtm.gtruthget]
   lcpfgetters += [jtm.gtruthget]
-  # Add Truth flavor.
+  # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
-  if len(jetFlags.truthFlavorTags()):
-    for ptype in jetFlags.truthFlavorTags():
-      flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
-    emgetters      += flavorgetters
-    lcgetters      += flavorgetters
-    truthgetters   += flavorgetters
-    truthwzgetters += flavorgetters
-    trackgetters   += flavorgetters
-    empfgetters    += flavorgetters
-    emcpfgetters   += flavorgetters
-    lcpfgetters    += flavorgetters
+  for ptype in jetFlags.truthFlavorTags():
+    flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
+  emgetters      += flavorgetters
+  lcgetters      += flavorgetters
+  truthgetters   += flavorgetters
+  truthwzgetters += flavorgetters
+  trackgetters   += flavorgetters
+  empfgetters    += flavorgetters
+  emcpfgetters   += flavorgetters
+  lcpfgetters    += flavorgetters
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
@@ -94,17 +95,17 @@ if jetFlags.useTracks():
   lcgetters += trackjetgetters
 
 # Add getter lists to jtm indexed by input type name.
-jtm.gettersMap["emtopo"]    = emgetters
-jtm.gettersMap["lctopo"]    = lcgetters
-jtm.gettersMap["empflow"]   = empfgetters
-jtm.gettersMap["emcpflow"]  = emcpfgetters
-jtm.gettersMap["lcpflow"]   = lcpfgetters
-jtm.gettersMap["track"]     = trackgetters
-jtm.gettersMap["ztrack"]    = trackgetters
-jtm.gettersMap["pv0track"]  = trackgetters
+jtm.gettersMap["emtopo"]    = list(emgetters)
+jtm.gettersMap["lctopo"]    = list(lcgetters)
+jtm.gettersMap["empflow"]   = list(empfgetters)
+jtm.gettersMap["emcpflow"]  = list(emcpfgetters)
+jtm.gettersMap["lcpflow"]   = list(lcpfgetters)
+jtm.gettersMap["track"]     = list(trackgetters)
+jtm.gettersMap["ztrack"]    = list(trackgetters)
+jtm.gettersMap["pv0track"]  = list(trackgetters)
 if jetFlags.useTruth():
-  jtm.gettersMap["truth"]   = truthgetters
-  jtm.gettersMap["truthwz"] = truthwzgetters
+  jtm.gettersMap["truth"]   = list(truthgetters)
+  jtm.gettersMap["truthwz"] = list(truthwzgetters)
 
 #########################################################
 # Modifiers
@@ -123,6 +124,14 @@ common_ungroomed_modifiers = [
   jtm.encorr,
   jtm.comshapes
 ]
+
+# Add truth parton cone matching.
+if jetFlags.useTruth():
+  common_ungroomed_modifiers += [jtm.truthpartondr]
+
+# Add parton truth label.
+if jetFlags.useTruth():
+  common_ungroomed_modifiers += [jtm.partontruthlabel]
 
 # Modifiers for truth jets.
 truth_ungroomed_modifiers = common_ungroomed_modifiers
@@ -180,20 +189,20 @@ if len(jetFlags.skipTools()):
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
-jtm.modifiersMap["topo_ungroomed"]        =       topo_ungroomed_modifiers
-jtm.modifiersMap["calib_topo_ungroomed"]  = calib_topo_ungroomed_modifiers
-jtm.modifiersMap["calib"]                 = calib_topo_ungroomed_modifiers
-jtm.modifiersMap["truth_ungroomed"]       =      truth_ungroomed_modifiers
-jtm.modifiersMap["track_ungroomed"]       =      track_ungroomed_modifiers
-jtm.modifiersMap["groomed"]               =              groomed_modifiers
+jtm.modifiersMap["topo_ungroomed"]        =       list(topo_ungroomed_modifiers)
+jtm.modifiersMap["calib_topo_ungroomed"]  = list(calib_topo_ungroomed_modifiers)
+jtm.modifiersMap["calib"]                 = list(calib_topo_ungroomed_modifiers)
+jtm.modifiersMap["truth_ungroomed"]       =      list(truth_ungroomed_modifiers)
+jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
+jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
 
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.
-jtm.modifiersMap["emtopo"]   =  topo_ungroomed_modifiers
-jtm.modifiersMap["lctopo"]   =  topo_ungroomed_modifiers
-jtm.modifiersMap["track"]    = track_ungroomed_modifiers
-jtm.modifiersMap["ztrack"]   = track_ungroomed_modifiers
-jtm.modifiersMap["pv0track"] = track_ungroomed_modifiers
-jtm.modifiersMap["truth"]    = truth_ungroomed_modifiers
-jtm.modifiersMap["truthwz"]  = truth_ungroomed_modifiers
+jtm.modifiersMap["emtopo"]   =  list(topo_ungroomed_modifiers)
+jtm.modifiersMap["lctopo"]   =  list(topo_ungroomed_modifiers)
+jtm.modifiersMap["track"]    = list(track_ungroomed_modifiers)
+jtm.modifiersMap["ztrack"]   = list(track_ungroomed_modifiers)
+jtm.modifiersMap["pv0track"] = list(track_ungroomed_modifiers)
+jtm.modifiersMap["truth"]    = list(truth_ungroomed_modifiers)
+jtm.modifiersMap["truthwz"]  = list(truth_ungroomed_modifiers)
 

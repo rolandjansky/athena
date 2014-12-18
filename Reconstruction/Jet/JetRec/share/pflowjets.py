@@ -98,15 +98,17 @@ jtm.addJetFinder("MyAntiKt4LCPFlowJets",  "AntiKt", 0.4, "lcpflow",  "mymods",
                  ghostArea=0.01 , ptmin=2000, ptminFilter=7000)
 
 #--------------------------------------------------------------
-# Configure the jet algorithm.
+# Add jet reco to the algorithm sequence.
 # The current configuration of the jet tool manager is used.
 #--------------------------------------------------------------
-from JetRec.JetAlgorithm import jetalg
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+addJetRecoToAlgSequence()
 
 #--------------------------------------------------------------
 # Add tool to dump the new jet container to the log.
 #--------------------------------------------------------------
 from JetRec.JetRecConf import JetDumper
+from JetRec.JetAlgorithm import jetalg
 for jetrec in [jtm.empflowget, jtm.emcpflowget, jtm.lcpflowget] + jtm.jetrecs:
   name = jetrec.name()
   cname = name

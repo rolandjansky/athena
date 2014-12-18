@@ -114,7 +114,8 @@ if len(vertexCollectionName):
   jtm.vertexContainer = vertexCollectionName
 
 # Read job options and import the jet algorithm.
-from RunJetRec import jetalg, runJetGrooming, useLArHVCorr
+from RunJetRec import runJetGrooming, useLArHVCorr, useDRTruthFlavor
+from JetRec.JetAlgorithm import jetalg
 
 if not runJetGrooming:
   dumpGroomed = False
@@ -250,6 +251,7 @@ for name in names:
   if jetFlags.useTruth():
     for ptype in jetFlags.truthFlavorTags():
       jdmp.IntMoments += ["Ghost" + ptype + "Count"]
+    jdmp.IntMoments += ["PartonTruthLabelID"]
   jdmp.FloatMoments = ["SizeParameter"]
   if hasActiveArea:
     jdmp.FloatMoments += ["JetGhostArea", "ActiveArea"]
@@ -257,6 +259,11 @@ for name in names:
   jdmp.FloatMoments += ["m"]
   jdmp.FloatMoments += ["eta"]
   jdmp.FloatMoments += ["phi"]
+  if useDRTruthFlavor:
+    jdmp.IntMoments += ["TruthLabelID"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_B"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_C"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_T"]
   if jetFlags.useTracks() and isTopo:
     jdmp.IntMoments += ["GhostTrackCount"]
     jdmp.FloatMoments += ["GhostTrackPt"]
