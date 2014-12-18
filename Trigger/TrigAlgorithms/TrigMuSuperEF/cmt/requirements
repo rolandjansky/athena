@@ -46,7 +46,8 @@ use TrkToolInterfaces		TrkToolInterfaces-*             Tracking/TrkTools
 use xAODMuon			xAODMuon-*			Event/xAOD
 use xAODTracking		xAODTracking-*			Event/xAOD
 
-
+# Inform cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(src)"
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 public

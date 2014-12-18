@@ -25,6 +25,7 @@
 
 // EDM includes
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/SlowMuonContainer.h"
 #include "Particle/TrackParticleContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -139,6 +140,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   // Output xAOD muons
   xAOD::MuonContainer* m_muonContainer;
+  xAOD::SlowMuonContainer* m_slowMuonContainer;
 
   // Output combined TrackCollection
   TrackCollection* m_combTrkTrackColl;

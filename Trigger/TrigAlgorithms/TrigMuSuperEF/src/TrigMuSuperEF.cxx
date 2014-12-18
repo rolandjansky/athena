@@ -21,7 +21,7 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "CaloEvent/CaloClusterContainer.h"
 
-#include "TrigNavigation/TrigNavigation/TriggerElement.h"
+#include "TrigNavigation/TriggerElement.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -85,7 +85,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_recordTracks(false),
   m_dEtaRoI(0.2),
   m_dPhiRoI(0.2),
-  m_idTrackParticlesName("InDetTrigTrackingxAODCnv_Muon_EFID"),
+  m_idTrackParticlesName(""),
   m_saTrackParticleContName("MuonEFInfo_ExtrapTrackParticles"),
   m_msTrackParticleContName("MuonEFInfo_MSonlyTrackParticles"),
   m_cbTrackParticleContName("MuonEFInfo_CombTrackParticles"),
@@ -924,9 +924,17 @@ HLT::ErrorCode TrigMuSuperEF::buildMuons(const MuonCandidateCollection* muonCand
 
   // call muon creator tool to fill all xAOD objects
   // note, this also does duplicate removal
+
   ATH_MSG_DEBUG("Call m_muonCreatorTool->create");
-  m_muonCreatorTool->create( muonCandidates, inDetCandidates, *m_muonContainer, combinedTrackParticles, m_combTrkTrackColl, extrapolatedTrackParticles, extrapolatedTracks);
-    
+  MuonCombined::IMuonCreatorTool::OutputData output(*m_muonContainer);
+  output.combinedTrackParticleContainer = combinedTrackParticles;
+  output.combinedTrackCollection = m_combTrkTrackColl;
+
+  output.extrapolatedTrackParticleContainer = extrapolatedTrackParticles;
+  output.extrapolatedTrackCollection = extrapolatedTracks;
+
+  m_muonCreatorTool->create( muonCandidates, inDetCandidates, output);
+
   ATH_MSG_DEBUG("N(input SA) = " << muonCandidates->size() << " N(SA from muon creator tool) = " << extrapolatedTracks->size());
 
   if(combinedTrackParticles) ATH_MSG_DEBUG("n(xAOD combinedTrackParticles)=" << combinedTrackParticles->size());
@@ -1069,6 +1077,7 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
       } else if (superRoI) { 
 	if ( !superRoI->composite() ) {
 	  ATH_MSG_DEBUG("Retrieved TrigRoiDescriptor \"forMFFS\" is not a composite RoI");
+	  if(superRoI->isFullscan()) m_roi = superRoI;
 	}
 	else { 
 	  ATH_MSG_VERBOSE("Retrieved (composite)TrigRoiDescriptor \"forMFFS\"");
@@ -1082,14 +1091,17 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
 	  ATH_MSG_DEBUG("Failure in getFeature((composite)TrigRoiDescriptor,\"\") due to internal navigation error");
 	} else if (superRoI) {
 	  if ( !superRoI->composite() ) {
-	    ATH_MSG_DEBUG("Retrieved TrigRoiDescriptor \"forMFFS\" is not a composite RoI");
+	    ATH_MSG_DEBUG("Retrieved TrigRoiDescriptor \"forMFFS\" is not a composite RoI, fullScan setting of RoI= " << superRoI->isFullscan());
+
+	    if(superRoI->isFullscan()) m_roi = superRoI;
 	  }
 	  else { 
 	    ATH_MSG_VERBOSE("Retrieved (composite)TrigRoiDescriptor \"\"");
 	    m_roi = superRoI;
 	  }
-	} else {
-	  // no SuperRoI found, create new full-scan RoI
+	}
+	if(m_roi==0) {
+	  // no RoI found, create new full-scan RoI
 	  ATH_MSG_VERBOSE("No (composite)TrigRoiDescriptor found. Creating new full-scan RoI");
 	  newTrigRoI = new TrigRoiDescriptor(true);
 	  /// newTrigRoI->set_roiId(10000); /// do we need this identifier set ???

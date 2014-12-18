@@ -15,3 +15,5 @@ addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TMEFCombinerOnly",
 # full-scans
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_FSCB","TrigMuSuperEF_FSCB")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_FSSA","TrigMuSuperEF_FSSA")
+addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone","TrigMuSuperEF_WideCone")
+addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone05","TrigMuSuperEF_WideCone05")

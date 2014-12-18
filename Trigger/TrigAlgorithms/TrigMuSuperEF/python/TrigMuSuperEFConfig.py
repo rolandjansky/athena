@@ -8,7 +8,7 @@ from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFStandaloneToolMonitoring,T
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
 from TrigMuSuperEFConf import TrigMuSuperEF
-
+from AthenaCommon.BeamFlags import jobproperties
 
 #
 # Default config: RoI based, Combined, TrigMuonEF only
@@ -28,18 +28,17 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         kwargs.setdefault("MuonCombinedTool","TMEF_MuonCombinedTool")
         kwargs.setdefault("TrkToTrackParticleConvTool","TMEF_TrkToTrackParticleConvTool")
         kwargs.setdefault("MuonCreatorTool","TMEF_MuonCreatorTool")
-        
+        kwargs.setdefault("deltaEtaRoI",0.2)
+        kwargs.setdefault("deltaPhiRoI",0.2)
+
 
         doTrigMuonEF     = kwargs["doOutsideIn"]
         doTrigMuGirl     = kwargs["doInsideOut"]
         doStandaloneOnly = kwargs["StandaloneOnly"]
         doFullScan       = kwargs["fullScan"]
         combinerOnly     = kwargs["CombinerOnly"]
+        doCosmics        = jobproperties.Beam.beamType == 'cosmics'
 
-        if doFullScan:
-            kwargs.setdefault("IdTrackParticles",  "InDetTrigTrackingxAODCnv_FullScan_EFID")
-        else:
-            kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_EFID")
         
         # make instance
         super(TrigMuSuperEFConfig,self).__init__(name,**kwargs)
@@ -120,6 +119,21 @@ def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwarg
     kwargs.setdefault("CombinerOnly", True)
     return TrigMuSuperEFConfig(name,**kwargs)
 
+
+def TrigMuSuperEF_WideCone(name="TrigMuSuperEF_WideCone",**kwargs):
+    kwargs.setdefault("deltaEtaRoI", 0.3)
+    kwargs.setdefault("deltaPhiRoI", 0.3)
+    kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_MuonIso_EFID")
+    return TrigMuSuperEFConfig(name,**kwargs)
+
+def TrigMuSuperEF_WideCone05(name="TrigMuSuperEF_WideCone05",**kwargs):
+    kwargs.setdefault("deltaEtaRoI", 0.5)
+    kwargs.setdefault("deltaPhiRoI", 0.5)
+    kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_MuonIso_EFID")
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("StandaloneOnly", True)
+    return TrigMuSuperEFConfig(name,**kwargs)
 #
 # Full scan configs
 #
@@ -127,13 +141,13 @@ def TrigMuSuperEF_FSCB(name="TrigMuSuperEF_FSCB",**kwargs):
     kwargs.setdefault("doInsideOut",False)
     kwargs.setdefault("doOutsideIn",True)
     kwargs.setdefault("fullScan",True)    
-    kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_FullScan_EFID")
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
 def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("StandaloneOnly",True)
     return TrigMuSuperEF_FSCB(name,**kwargs)
+
 
 
 
