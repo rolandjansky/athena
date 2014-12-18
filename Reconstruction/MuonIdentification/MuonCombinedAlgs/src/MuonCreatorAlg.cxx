@@ -14,6 +14,8 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
+#include "xAODMuon/SlowMuonContainer.h"
+#include "xAODMuon/SlowMuonAuxContainer.h"
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -21,11 +23,13 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
 {  
   declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("MuonContainerLocation",m_muonCollectionName = "Muons" );
+  declareProperty("SlowMuonContainerLocation",m_slowMuonCollectionName = "SlowMuons" );
   declareProperty("CombinedLocation", m_combinedCollectionName = "CombinedMuon" );
   declareProperty("ExtrapolatedLocation", m_extrapolatedCollectionName = "ExtrapolatedMuon" );
   declareProperty("InDetCandidateLocation",m_indetCandidateCollectionName = "InDetCandidates" );
   declareProperty("MuonCandidateLocation", m_muonCandidateCollectionName = "MuonCandidates" );
   declareProperty("SegmentContainerName", m_segContainerName = "MuonSegments" );
+  declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
 }
 
 MuonCreatorAlg::~MuonCreatorAlg()
@@ -58,6 +62,7 @@ StatusCode MuonCreatorAlg::execute()
       return StatusCode::FAILURE;
     }
   }
+
   
   // Create the xAOD container and its auxiliary store:
   xAOD::MuonContainer* xaod = new xAOD::MuonContainer();
@@ -68,20 +73,27 @@ StatusCode MuonCreatorAlg::execute()
   xaod->setStore( aux );
   ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName );    
 
-  xAOD::TrackParticleContainer* combinedTP = 0;
-  TrackCollection* combinedTracks = 0;
-  ATH_CHECK(createAndRecord(combinedTP,combinedTracks,m_combinedCollectionName));
+  MuonCombined::IMuonCreatorTool::OutputData output(*xaod);
 
-  xAOD::TrackParticleContainer* extrapolatedTP = 0;
-  TrackCollection* extrapolatedTracks = 0;
-  ATH_CHECK(createAndRecord(extrapolatedTP,extrapolatedTracks,m_extrapolatedCollectionName));
+  if (m_buildSlowMuon){
+    // Create the xAOD slow muon container and its auxiliary store:
+    output.slowMuonContainer = new xAOD::SlowMuonContainer();
+    ATH_CHECK( evtStore()->record( output.slowMuonContainer, m_slowMuonCollectionName ) );
+    
+    xAOD::SlowMuonAuxContainer* auxSlowMuon = new xAOD::SlowMuonAuxContainer();
+    ATH_CHECK( evtStore()->record( auxSlowMuon, m_slowMuonCollectionName + "Aux." ) );
+    output.slowMuonContainer->setStore( auxSlowMuon );
+    ATH_MSG_DEBUG( "Recorded Slow Muons with key: " << m_slowMuonCollectionName );   
+  }
 
-  xAOD::MuonSegmentContainer* xaodSegments = 0;
-  Trk::SegmentCollection* segments = 0;
-  ATH_CHECK(createAndRecordSegments(xaodSegments,segments,m_segContainerName));
+  ATH_CHECK(createAndRecord(output.combinedTrackParticleContainer,output.combinedTrackCollection,m_combinedCollectionName));
 
-  m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,*xaod,combinedTP,combinedTracks,extrapolatedTP,extrapolatedTracks,xaodSegments, segments);
-  
+  ATH_CHECK(createAndRecord(output.extrapolatedTrackParticleContainer,output.extrapolatedTrackCollection,m_extrapolatedCollectionName));
+
+  ATH_CHECK(createAndRecordSegments(output.xaodSegmentContainer,output.muonSegmentCollection,m_segContainerName));
+
+
+  m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,output);
 
   return StatusCode::SUCCESS;
 }

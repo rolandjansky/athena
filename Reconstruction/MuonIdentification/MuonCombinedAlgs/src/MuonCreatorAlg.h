@@ -10,6 +10,7 @@
 #include <string>
 
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/SlowMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "MuonSegment/MuonSegment.h"
@@ -35,11 +36,14 @@ class MuonCreatorAlg : public AthAlgorithm
 
   ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool;
   std::string m_muonCollectionName;
+  std::string m_slowMuonCollectionName;
   std::string m_combinedCollectionName;
   std::string m_extrapolatedCollectionName;
   std::string m_indetCandidateCollectionName;
   std::string m_muonCandidateCollectionName;
   std::string m_segContainerName;
+  bool m_buildSlowMuon;
+
 };
 
 
