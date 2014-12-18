@@ -11,7 +11,7 @@
 #include <sstream>
 
 GeoPixelCable::GeoPixelCable() 
-  : m_currentElement(-1)
+  :   m_currentElement(-1)
 {
   fillElements(gmt_mgr->GetLD(), gmt_mgr->Phi());
   if (m_elements.empty()) { // If no information for layer use layer 0 numbers.

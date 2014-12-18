@@ -12,7 +12,8 @@ PixelSwitches::PixelSwitches()
     m_dc1Geometry(false),
     m_alignable(true),
     m_slhc(false),
-    m_ibl(false)
+    m_ibl(false),
+    m_dbm(false)
 {}
 
 void PixelSwitches::setServices(bool flag) {m_services = flag;}

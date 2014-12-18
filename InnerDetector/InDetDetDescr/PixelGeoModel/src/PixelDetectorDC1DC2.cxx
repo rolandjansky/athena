@@ -1162,6 +1162,7 @@ GeoPixelServices::GeoPixelServices(std::string root) {
   } else {
     std::cerr << "Services can  not be placed in this volume!!!! " << root << std::endl;
   }
+  _nframe = 0;
 }
 
 void GeoPixelServices::initialize(std::string a)
@@ -1747,7 +1748,9 @@ OraclePixGeoManager::OraclePixGeoManager()
     m_alignable(true),
     m_magFieldFromNova(true),
     m_useMagFieldSvc(false),
-    m_commonItems(0)
+    m_commonItems(0),
+    m_pDDmgr(0),
+    m_pMatMgr(0)
 {
 
 
@@ -1996,10 +1999,9 @@ double OraclePixGeoManager::PixelHybridThickness()
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
     return thick*CLHEP::cm;
-  } else {
-    return CalculateThickness(thick,mat);
   }
-  return 0.;
+  return CalculateThickness(thick,mat);
+
 } 
 /////////////////////////////////////////////////////////
 //
@@ -2039,10 +2041,9 @@ double OraclePixGeoManager::PixelChipThickness() {
   // if it is negative is given in % of r.l.
   if(thick > 0.) { 
     return thick*CLHEP::cm;
-  } else {
-    return CalculateThickness(thick,mat);
-  }
-  return 0.;
+  } 
+  return CalculateThickness(thick,mat);
+
 }
 
 /////////////////////////////////////////////////////////
@@ -2055,10 +2056,8 @@ double OraclePixGeoManager::PixelECCarbonRMin(string a) {
     return (*PixelDisk)[currentLD]->getDouble("SUP1RMIN")*CLHEP::cm;
   } else if (a == "Central") {
     return (*PixelDisk)[currentLD]->getDouble("SUP2RMIN")*CLHEP::cm;
-  } else {
-    return (*PixelDisk)[currentLD]->getDouble("SUP3RMIN")*CLHEP::cm;
   }
-  return 0.;
+  return (*PixelDisk)[currentLD]->getDouble("SUP3RMIN")*CLHEP::cm;
 }
 
 double OraclePixGeoManager::PixelECCarbonRMax(string a) {
@@ -2087,10 +2086,8 @@ double OraclePixGeoManager::PixelECCarbonThickness(string a) {
   }
   if(tck>0.) {
     return tck*CLHEP::cm;
-  } else {
-    return CalculateThickness(tck,mat[imat]);
-  }
-  return 0.;
+  } 
+  return CalculateThickness(tck,mat[imat]);
 }
 string OraclePixGeoManager::PixelECCarbonMaterial(string a) {
   string mat[4] = {"std::Berillia","std::Carbon","pix::ECSevices","pix::Disk"} ; 

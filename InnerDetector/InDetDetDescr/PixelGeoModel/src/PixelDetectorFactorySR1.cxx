@@ -206,6 +206,9 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
     }
 
   }
+  
+  // Delete pixServices 
+  if(pixServices) delete pixServices;
 
   // Should not happen as we check before that we have at least one part built.
   if (!physVol) {

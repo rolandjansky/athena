@@ -163,6 +163,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->addChannel("/Indet/Align/PIXB1",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXB2",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXB3",  0, InDetDD::local);
+    m_detectorManager->addChannel("/Indet/Align/PIXB4",  0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA1", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA2", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEA3", 0, InDetDD::local);

@@ -168,9 +168,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   double WingWidth = gmt_mgr->IBLStaveFlexWingWidth();
   double WingThick = gmt_mgr->IBLStaveFlexWingThick();
   bool bFlexAndWing = gmt_mgr->IBLFlexAndWingDefined();
-  //  bFlexAndWing=false;
 
-  bool bFlexConstantThickness = bFlexAndWing;
+  bool bFlexConstantThickness = true;
+  if(!bFlexAndWing) bFlexConstantThickness = false;
 
   double layerRadius = gmt_mgr->PixelLayerRadius();
 

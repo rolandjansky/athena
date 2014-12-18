@@ -26,7 +26,7 @@ class GeoPixelLadder : public GeoVPixelFactory {
   double calcThickness();
   double calcWidth(); 
 
-  const GeoLogVol* theLadder;
+  const GeoLogVol* m_theLadder;
   GeoPixelSiCrystal& m_theSensor;
   GeoPixelStaveSupport * m_staveSupport;
   double m_thickness;

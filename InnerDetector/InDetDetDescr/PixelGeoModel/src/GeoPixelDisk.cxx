@@ -117,12 +117,16 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
   // Even modules (front of disk, delta z < 0)
   // and Odd modules (back of disk, delta z > 0)
-  for (int ii = 0; ii <  gmt_mgr->PixelECNSectors1()*2; ii++) {
+  int pixelECNSectors1 = gmt_mgr->PixelECNSectors1();
+  for (int ii = 0; ii <  pixelECNSectors1*2; ii++) {
 
     // Build both endcaps the same but re-number phiId in endcap C to get correct offline numbering.
     // Endcap C is obtained by rotating endcap A by 180 around y axis. Numbering goes in opposite direction
     // with module 0 becoming module 23. Mapping is 0<->23, 24<->47.
-    int phiId = (gmt_mgr->GetSide()>0) ? ii : (3*gmt_mgr->PixelECNSectors1()-ii-1)%(gmt_mgr->PixelECNSectors1()*2);
+
+    // Add a test to get rid off division by zero coverity error
+    int phiId = 0;
+    if(pixelECNSectors1>0) phiId = (gmt_mgr->GetSide()>0) ? ii : (3*pixelECNSectors1-ii-1)%(pixelECNSectors1*2);
 
     gmt_mgr->SetPhi(phiId);
 

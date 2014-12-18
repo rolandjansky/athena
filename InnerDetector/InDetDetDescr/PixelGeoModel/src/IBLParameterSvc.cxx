@@ -29,7 +29,7 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
     m_disablePixMapCondDB(false),
     m_disableSpecialPixels(false),
     m_disableCalibCondDB(false),
-    m_disableAlignable(true),
+    m_disableAlignable(false),
     m_disableAllClusterSplitting(false),
     m_disableClusterMakerOfflineCalib(false),
     m_disableDCS(true)

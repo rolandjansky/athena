@@ -60,8 +60,11 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
   int iring = gmt_mgr->Eta();
   int nmodules = gmt_mgr->PixelDiskRingNModules();
 
+  // in case no modules are defined for the ring
+  if(nmodules==0) return ringPhys;
+
   // deltaPhi is angle between two adjacent modules regardless of side of the disk
-  double deltaPhi = 360.*CLHEP::deg / nmodules;
+  double deltaPhi = 360.*CLHEP::deg / (double)nmodules;
 
   // This is the start angle of the even modules
   // Start angle could eventually come from the database...

@@ -30,6 +30,7 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
     _halflength.push_back(halflength);
     _typeNum.push_back(matTypeNum);
   }
+  _nframe = 0;
 }
 
 

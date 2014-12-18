@@ -33,6 +33,9 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   int numSides = gmt_mgr->PixelFrameNumSides(section);
   bool mirrorSides = gmt_mgr->PixelFrameMirrorSides(section);
 
+  // No frame defined in the DB table
+  if(numSides==0)return;
+
   double midRadius = 0.5*(rminSide+rmaxSide);
   double zCenter = 0.5*(zmin+zmax);
 
