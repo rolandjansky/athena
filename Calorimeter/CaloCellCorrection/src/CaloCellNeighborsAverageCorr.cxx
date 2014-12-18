@@ -34,7 +34,7 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent)
+  :AthAlgTool(type, name, parent)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("testMode",m_testMode=false,"test mode");
@@ -49,39 +49,26 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 
 StatusCode CaloCellNeighborsAverageCorr::initialize()
 {
-  MsgStream  log(msgSvc(),name());
-  log << MSG::INFO << " in CaloCellNeighborsAverageCorr::initialize() " << endreq;
+  ATH_MSG_INFO ( " in CaloCellNeighborsAverageCorr::initialize() " );
 
   if (m_testMode)
-    log << MSG::DEBUG << " Running in Test Mode. " << endreq;
+    ATH_MSG_DEBUG ( " Running in Test Mode. " );
 
   // don't need to check status of the drawer if all dead cells are ignored
   if (m_skipDeadTile && m_skipDeadDrawer) {
-    log << MSG::WARNING << "Please, don't set skipDeadDrawer and skipDeadTile to True at the same time" << endreq;
-    log << MSG::WARNING << "Setting skipDeadDrawer=False" << endreq;
+    ATH_MSG_WARNING ( "Please, don't set skipDeadDrawer and skipDeadTile to True at the same time" );
+    ATH_MSG_WARNING ( "Setting skipDeadDrawer=False" );
     m_skipDeadDrawer=false; 
   }
   
-  log << MSG::INFO << "Skip Dead Feb    = " << ((m_skipDeadFeb)?"true":"false")    << endreq;
-  log << MSG::INFO << "Skip Dead LAr    = " << ((m_skipDeadLAr)?"true":"false")    << endreq;
-  log << MSG::INFO << "Skip Dead Drawer = " << ((m_skipDeadDrawer)?"true":"false") << endreq;
-  log << MSG::INFO << "Skip Dead Tile   = " << ((m_skipDeadTile)?"true":"false")   << endreq;
+  ATH_MSG_INFO ( "Skip Dead Feb    = " << ((m_skipDeadFeb)?"true":"false")    );
+  ATH_MSG_INFO ( "Skip Dead LAr    = " << ((m_skipDeadLAr)?"true":"false")    );
+  ATH_MSG_INFO ( "Skip Dead Drawer = " << ((m_skipDeadDrawer)?"true":"false") );
+  ATH_MSG_INFO ( "Skip Dead Tile   = " << ((m_skipDeadTile)?"true":"false")   );
 
       
-  StoreGateSvc* detStore;
-  if (service("DetectorStore", detStore).isFailure()) {
-    log << MSG::ERROR   << "Unable to access DetectoreStore" << endreq ;
-    return StatusCode::FAILURE;
-  }
-
-
   const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endreq;
-    return sc;
-  }
+  CHECK( service("GeoModelSvc", geoModel) );
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -93,18 +80,13 @@ StatusCode CaloCellNeighborsAverageCorr::initialize()
   }
   else
   {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-                          geoModel,
-                          &CaloCellNeighborsAverageCorr::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endreq;
-      return sc;
-    }
+    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
+                              geoModel,
+                              &CaloCellNeighborsAverageCorr::geoInit,this) );
   }
 
   
-  log << MSG::INFO << "CaloCellNeighborsAverageCorr initialize() end" << endreq;
+  ATH_MSG_INFO ( "CaloCellNeighborsAverageCorr initialize() end" );
   
   return StatusCode::SUCCESS;
 }
@@ -114,8 +96,7 @@ StatusCode CaloCellNeighborsAverageCorr::initialize()
 StatusCode
 CaloCellNeighborsAverageCorr::geoInit(IOVSVC_CALLBACK_ARGS)
 {
-  MsgStream  log(msgSvc(),name());
-  log << MSG::INFO << " in geoInit " << endreq;
+  ATH_MSG_INFO ( " in geoInit " );
   m_calo_dd_man  = CaloDetDescrManager::instance();
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();  
   m_tile_id   = m_calo_id->tile_idHelper();
@@ -127,9 +108,7 @@ CaloCellNeighborsAverageCorr::geoInit(IOVSVC_CALLBACK_ARGS)
 
 StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 {
-  MsgStream  log(msgSvc(),name());
-  bool lVerbose = (log.level()<=MSG::VERBOSE);
-  if (lVerbose) log << MSG::VERBOSE << " in process " << endreq;
+  ATH_MSG_VERBOSE ( " in process " );
 
   //inspired from Calorimeter/CaloRec/src/CaloTopoClusterMaker.cxx
   // (to be moved such that can be jobOptions configurable )
@@ -170,7 +149,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
         ++nGoodCellsPerDrawer[part][module];
       }
     }
-    if (lVerbose) {
+    if (msgLvl(MSG::VERBOSE)) {
       //                       1-1   2-1   1+1   2+1
       const char * name[4] = {"LBC","EBC","LBA","EBA"};
       for (int part=0; part<4; ++part) {
@@ -180,7 +159,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
           //    << ( ( nGoodCellsPerDrawer[part][module] < 2 ) ? " bad drawer" : "")
           //    << endreq;
           if ( nGoodCellsPerDrawer[part][module] < 2 ) {
-            log << MSG::VERBOSE << "Bad drawer " << name[part] << module+1  << endreq;
+            ATH_MSG_VERBOSE ( "Bad drawer " << name[part] << module+1  );
           }
         }
       }
@@ -202,7 +181,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
       if (isTile) {
 
         if (m_skipDeadTile) {
-          if (lVerbose) log << MSG::VERBOSE << " skipping Tile hash " << m_calo_id->calo_cell_hash(aCell->ID()) << endreq;
+          ATH_MSG_VERBOSE ( " skipping Tile hash " << m_calo_id->calo_cell_hash(aCell->ID()) );
           continue;
         } else if (m_skipDeadDrawer) {
 
@@ -210,7 +189,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
           int part = std::min(m_tile_id->section(id),2)+m_tile_id->side(id);
           int module = m_tile_id->module(id);
           if ( nGoodCellsPerDrawer[part][module] < 2 ) {
-            if (lVerbose) log << MSG::VERBOSE << " skipping Tile drawer hash " << m_calo_id->calo_cell_hash(aCell->ID()) << endreq;
+            ATH_MSG_VERBOSE ( " skipping Tile drawer hash " << m_calo_id->calo_cell_hash(aCell->ID()) );
             continue;
           }
         }
@@ -218,10 +197,10 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
       } else {
 
         if (m_skipDeadLAr) {
-          if (lVerbose) log << MSG::VERBOSE << " skipping LAr hash " << m_calo_id->calo_cell_hash(aCell->ID()) << endreq;
+          ATH_MSG_VERBOSE ( " skipping LAr hash " << m_calo_id->calo_cell_hash(aCell->ID()) );
           continue;
         } else if (m_skipDeadFeb && ((aCell->provenance() & 0x0200) == 0x0200) ) {
-          if (lVerbose) log << MSG::VERBOSE << " skipping LAr Feb hash " << m_calo_id->calo_cell_hash(aCell->ID()) << endreq;
+          ATH_MSG_VERBOSE ( " skipping LAr Feb hash " << m_calo_id->calo_cell_hash(aCell->ID()) );
           continue;
         }
       }
@@ -232,7 +211,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
       Identifier theCellID = aCell->ID();
       IdentifierHash theCellHashID = m_calo_id->calo_cell_hash(theCellID); 
 
-      if (lVerbose) log << MSG::VERBOSE << " correcting " << ((isTile)?"Tile":"LAr") <<  " hash " << theCellHashID << endreq;
+      ATH_MSG_VERBOSE ( " correcting " << ((isTile)?"Tile":"LAr") <<  " hash " << theCellHashID );
       
       //Find now the neighbors around theCell, and store them in theNeighbors vector.
       m_calo_id->get_neighbours(theCellHashID,m_nOption,theNeighbors);

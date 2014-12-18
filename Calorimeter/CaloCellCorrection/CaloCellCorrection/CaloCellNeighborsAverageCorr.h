@@ -5,7 +5,7 @@
 #ifndef CALOREC_CALOCELLNEIGHBORSAVERAGECORR_H
 #define CALOREC_CALOCELLNEIGHBORSAVERAGECORR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
@@ -17,7 +17,7 @@ class CaloCell_ID;
 class TileID;
 
 //inspiration from http://alxr.usatlas.bnl.gov/lxr-stb3/source/atlas/Calorimeter/CaloRec/CaloRec/CaloCellCopyTool.h#032
-class CaloCellNeighborsAverageCorr :  public AlgTool, 
+class CaloCellNeighborsAverageCorr :  public AthAlgTool, 
                                       virtual public ICaloCellMakerTool
 
 {
