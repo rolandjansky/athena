@@ -18,6 +18,7 @@
 #include "JetRec/JetSorter.h"
 #include "JetRec/CopyPseudoJets.h"
 #include "JetRec/JetFilterTool.h"
+#include "JetRec/JetConstitRemover.h"
 
 DECLARE_TOOL_FACTORY(JetToolRunner)
 DECLARE_TOOL_FACTORY(JetRecTool)
@@ -34,6 +35,7 @@ DECLARE_TOOL_FACTORY(JetTrimmer)
 DECLARE_TOOL_FACTORY(JetPruner)
 DECLARE_TOOL_FACTORY(FastJetInterfaceTool)
 DECLARE_TOOL_FACTORY(CopyPseudoJets)
+DECLARE_TOOL_FACTORY(JetConstitRemover)
 
 DECLARE_ALGORITHM_FACTORY(JetAlgorithm)
 
@@ -53,6 +55,7 @@ DECLARE_FACTORY_ENTRIES(JetRec) {
   DECLARE_TOOL(JetPruner)
   DECLARE_TOOL(FastJetInterfaceTool)
   DECLARE_TOOL(CopyPseudoJets)
+  DECLARE_TOOL(JetConstitRemover)
 
   DECLARE_ALGORITHM(JetAlgorithm)
 }

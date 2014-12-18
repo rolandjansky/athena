@@ -1,5 +1,8 @@
 #!/bin/sh
 
 rm athena.log
-RecExCommon_links.sh
-athena.py RecExCommon/rdotoesdnotrigger.py 2>&1 | tee athena.log
+if [ ! -r myTopOptions.py ];then
+  RecExCommon_links.sh
+fi
+#athena.py RecExCommon/rdotoesdnotrigger.py 2>&1 | tee athena.log
+athena.py myTopOptions.py 2>&1 | tee athena.log

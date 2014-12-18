@@ -100,9 +100,10 @@ if jetFlags.debug > 1:
     jtm.setOutputLevel(jetrec, DEBUG)
 
 #--------------------------------------------------------------
-# Configure algorithm.
+# Add jet reco to algorithm sequence.
 #--------------------------------------------------------------
-import JetRec.JetAlgorithm 
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+addJetRecoToAlgSequence()
 
 
 #--------------------------------------------------------------

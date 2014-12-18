@@ -35,6 +35,7 @@ from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import PseudoJetGetter
 from JetRec.JetRecConf import MuonSegmentPseudoJetGetter
 from JetRec.JetRecConf import JetFromPseudojet
+from JetRec.JetRecConf import JetConstitRemover
 from JetSimTools.JetSimToolsConf import JetTruthParticleSelectorTool
 from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
 from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
@@ -59,6 +60,9 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMa
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
 
 #--------------------------------------------------------------
 # Track selection.
@@ -101,8 +105,8 @@ jtm += TrackVertexAssociationTool(
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  MaxTransverseDistance   = 1.0,
-  MaxLongitudinalDistance = 1.0
+  MaxTransverseDistance   = 1.5,
+  MaxLongitudinalDistance = 1.5
 )
 
 #--------------------------------------------------------------
@@ -264,7 +268,7 @@ if jetFlags.useTruth:
 
   )
 
-  # Truth flavor
+  # Truth flavor tags.
   for ptype in jetFlags.truthFlavorTags():
     jtm += PseudoJetGetter(
       "gtruthget_" + ptype,
@@ -275,7 +279,18 @@ if jetFlags.useTruth:
       GhostScale = 1e-20
     )
 
+  # Delta-R truth parton label: truthpartondr.
+  jtm += Analysis__JetQuarkLabel(
+    "jetquarklabel",
+    McEventCollection = "TruthEvent"
+  )
+  jtm += Analysis__JetConeLabeling(
+    "truthpartondr",
+    JetTruthMatchTool = jtm.jetquarklabel
+  )
 
+  # Parton truth label.
+  jtm += Analysis__JetPartonTruthLabel("partontruthlabel")
 
 #--------------------------------------------------------------
 # Jet builder.
@@ -456,3 +471,5 @@ jtm += JetChargeTool("charge", K=1.0)
 jtm += ShowerDeconstructionTool("showerdec")
 
 
+# remove constituents in truth pile-up event
+jtm += JetConstitRemover("removeconstit")

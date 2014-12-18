@@ -27,14 +27,11 @@ useLArHVCorr = False
 # A fifth argument may be added to change the list of modifiers.
 #--------------------------------------------------------------
 
-# Update the modier lists.
+# Update the modifier lists.
 jtm.modifiersMap["calib"] += [jtm.isolation]
 if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
 jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge, jtm.showerdec]
-print "%%%%%%%"
-print jtm.modifiersMap["mycalib"]
-print "%%%%%%%"
 
 # Finders.
 # Calibration for topo jets: calibOpt =
@@ -50,9 +47,9 @@ if jetFlags.useTruth:
   jtm.addJetFinder("Run2AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin= 5000)
   jtm.addJetFinder("Run2AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ghostArea=gatruth, ptmin= 5000)
   jtm.addJetFinder("Run2AntiKt10TruthJets",   "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2AntiKt10TruthWZJets", "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2CamKt12TruthJets",     "CamKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2CamKt12TruthWZJets",   "CamKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2AntiKt10TruthWZJets", "AntiKt", 1.0,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2CamKt12TruthJets",     "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2CamKt12TruthWZJets",   "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
 if jetFlags.useTracks:
   jtm.addJetFinder("Run2AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
@@ -73,4 +70,5 @@ if runJetGrooming:
 # Configure the jet algorithm.
 #--------------------------------------------------------------
 
-from JetRec.JetAlgorithm import jetalg
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+addJetRecoToAlgSequence()

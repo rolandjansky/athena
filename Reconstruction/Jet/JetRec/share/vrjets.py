@@ -100,15 +100,17 @@ jtm.addJetFinder("MyAntiKtVRLCTopoJets", "AntiKt", 0.4, "mygetters", "mymods",
                  variableRMinRadius=0.2, variableRMassScale=60000)
 
 #--------------------------------------------------------------
-# Configure the jet algorithm.
+# Add jet reco to the algorithm sequence.
 # The current configuration of the jet tool manager is used.
 #--------------------------------------------------------------
-from JetRec.JetAlgorithm import jetalg
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+addJetRecoToAlgSequence()
 
 #--------------------------------------------------------------
 # Add tool to dump the new jet container to the log.
 #--------------------------------------------------------------
 from JetRec.JetRecConf import JetDumper
+from JetRec.JetAlgorithm import jetalg
 
 ToolSvc += JetDumper("jetdumper0")
 jetdumper0 = ToolSvc.jetdumper0

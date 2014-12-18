@@ -77,7 +77,9 @@ class truthFlavorTags(JobProperty):
   allowedTypes = ['array']  # type
   StoredValue  = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
                   "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                  "TausFinal"]
+                  "TausFinal",
+                  "Partons",
+                 ]
   
 class useTopo(JobProperty):
   """ If true, topoclusters are present and used in jet reconstruction.
