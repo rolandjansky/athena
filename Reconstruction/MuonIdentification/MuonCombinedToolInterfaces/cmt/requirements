@@ -11,3 +11,8 @@ use TrkTrack           TrkTrack-*            Tracking/TrkEvent
 use TrkParameters      TrkParameters-*       Tracking/TrkEvent
 use xAODTracking       xAODTracking-*        Event/xAOD
 use xAODMuon           xAODMuon-*            Event/xAOD
+
+# Declare this package as a cmake metalibrary in order to allow its clients to access the
+# libraries and header files from packages that this one depends on. Transparent to CMT.
+apply_pattern cmake_add_command command=metalibrary
+
