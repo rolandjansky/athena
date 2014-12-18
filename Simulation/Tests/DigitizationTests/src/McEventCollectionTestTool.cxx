@@ -18,7 +18,11 @@ McEventCollectionTestTool::McEventCollectionTestTool(const std::string& type,
     m_numberOfEventsSelected(0),
     m_collection("TruthEvent"), //("GEN_EVENT"),
     m_nGenEvents(0),
-    m_nEmptyGenEvents(0)
+    m_nEmptyGenEvents(0),
+    m_sig_n_vert(0),
+    m_sig_n_part(0),
+    m_bkg_n_vert(0),
+    m_bkg_n_part(0)
 {
   declareProperty("McEventCollectionName" , m_collection);
 }
@@ -77,6 +81,8 @@ StatusCode McEventCollectionTestTool::processEvent() {
           continue;
         }
       ++n_genEvent;
+
+      if(genEventIter != p_mceventcollection->begin()) isFirstEvent = false;
 
       ATH_MSG_INFO ("GenEvent Position in McEventCollection: " << n_genEvent-1 <<
                     ", signal_process_id: " << currentGenEvent->signal_process_id() <<
