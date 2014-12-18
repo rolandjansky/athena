@@ -5,8 +5,10 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 534178 2013-01-21 19:04:08Z graemes $
+#  @version $Id: test_trfArgs.py 623865 2014-10-24 12:39:44Z graemes $
 
+import argparse
+import os
 import unittest
 
 import logging
@@ -15,6 +17,7 @@ msg = logging.getLogger(__name__)
 # Allowable to import * from the package for which we are the test suite
 from PyJobTransforms.trfArgs import *
 from PyJobTransforms.trfArgClasses import trfArgParser
+from PyJobTransforms.trfDecorators import silent
 
 ## Unittests for trfArgs module
 class trfArgsUnitTests(unittest.TestCase):

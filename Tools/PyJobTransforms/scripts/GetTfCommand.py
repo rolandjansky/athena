@@ -17,9 +17,8 @@ from PyJobTransforms.trfExceptions import TransformAMIException
 def main():
 
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS, description = 'GetTfCommand.py - prints the job transform commands accociated with an AMI tag.')
-    parser.add_argument('--AMI', '--AMIConfig', help='Production tag to be interpreted')
+    parser.add_argument('--AMI', '--AMIConfig', help='Production tag to be interpreted', required=True)
     parser.add_argument('--verbose', '--debug', action='store_true', help='set logging level to DEBUG')
-    parser.add_argument('--argdict', help='name of pickle file in which the result is stored. Not yet implemented')
     
     args=vars(parser.parse_args(sys.argv[1:]))
 

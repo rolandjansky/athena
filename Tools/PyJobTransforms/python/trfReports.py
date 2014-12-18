@@ -6,11 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 617963 2014-09-22 13:13:07Z graemes $
+#  @version $Id: trfReports.py 623865 2014-10-24 12:39:44Z graemes $
 #
 
-__version__ = '$Revision: 617963 $'
-__doc__ = 'Transform report module'
+__version__ = '$Revision: 623865 $'
 
 import cPickle as pickle
 import json
@@ -19,7 +18,6 @@ import platform
 import pprint
 import sys
 
-from copy import deepcopy
 from xml.etree import ElementTree
 
 import logging
@@ -107,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '0.9.6'
+    _reportVersion = '1.0.0'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -116,160 +114,6 @@ class trfJobReport(trfReport):
     #  @param parentTrf Mandatory link to the transform this job report represents
     def __init__(self, parentTrf):
         self._trf = parentTrf
-
-
-    ## @brief compress the given filereport dict
-    #  @param fileDict the dict to compress
-    def _compressFileDict(self, fileDict):
-        resultDict = {}
-
-        for fileType, fileList in fileDict.iteritems():
-            # check if compression makes sense
-            if len(fileList) > 1:
-                # which keys need to be ignored definitely??
-                keyIgnoreList = ['nentries', 'size']
-                compressionHappend = False
-                compressedDict = {'common' : {},
-                                  'files' : fileList}
-
-                # iterate over all keys in first file, if they are not in here, why look int he others??
-                file0 = fileList[0]
-                for k, v in file0.iteritems():
-                    if k in keyIgnoreList:
-                        continue
-
-                    # there are already compressions for this subfile
-                    if k == 'subFiles':
-                        #special handling, now search in all subfile lists
-                        keyCompressible = True
-                        for checkFile in fileList[1:]:
-                            if 'subFiles' not in checkFile.keys():
-                                keyCompressible = False
-                                break
-                        if not keyCompressible:
-                            # not al have subFiles, leave all subFiles alone
-                            continue
-
-                        subFilesDict0 = file0['subFiles']
-                        for entry in subFilesDict0:
-                            for k, v in entry.iteritems():
-                                subFileKeyCompressible = True
-                                localCommonKeyToDelete = []
-                                for checkFile in fileList[1:]:
-                                    if 'common' in checkFile.keys():
-                                        # we do not need to look up in subFiles
-                                        if k not in checkFile['common'].keys():
-                                            #it is not in common, so it CAN NOT be in all the subfiles, we can break
-                                            subFileKeyCompressible = False
-                                            break
-                                    else:
-                                        for subFileEntry in checkFile['subFiles']:
-                                            if k not in subFileEntry.keys():
-                                                subFileKeyCompressible = False
-                                                break
-                                            if str(v) != str(subFileEntry[k]):
-                                                subFileKeyCompressible = False
-                                                break
-
-                                if subFileKeyCompressible:
-                                    compressionHappend = True
-                                    compressedDict['common'][k] = subFilesDict0[0][k]
-                        # end of subfiles
-                        continue
-                    if k == 'common':
-                        #special handling, now search in all subfile lists
-                        commonKeyCompressible = True
-                        localCommonKeyToDelete = []
-
-                        commonDict0 = file0['common']
-                        for k, v in commonDict0.iteritems():
-                            for checkFile in fileList[1:]:
-                                if 'common' in checkFile.keys():
-                                    # we do not need to look up in subFiles
-                                    if k not in checkFile['common'].keys():
-                                        #it is not in common, so it CAN NOT be in all the subfiles, we can break
-                                        commonKeyCompressible = False
-                                        break
-                                    else:
-                                        localCommonKeyToDelete.append(checkFile)
-                                else:
-                                    for subFileEntry in checkFile['subFiles']:
-                                        if k not in subFileEntry.keys():
-                                            commonKeyCompressible = False
-                                            break
-                                        if str(v) != str(subFileEntry[k]):
-                                            commonKeyCompressible = False
-                                            break
-
-                                if k in checkFile.keys():
-                                    if str(v) != str(subFileEntry[k]):
-                                        commonKeyCompressible = False
-                                        break
-
-                            if commonKeyCompressible:
-                                compressionHappend = True
-                                compressedDict['common'][k] = commonDict0[k]
-                        # end of common
-                        continue
-
-                    # this is the normal case for all keys not in common or subfiles
-                    keyCompressible = True
-                    inCommon = True
-                    inSubFiles = True
-                    for checkFile in fileList[1:]:
-                        if 'common' in checkFile.keys():
-                            if k in checkFile['common'].keys():
-
-                                if str(file0[k]) != str(checkFile['common'][k]):
-                                    inCommon = False
-                            else:
-                                inCommon = False
-                        else:
-                            inCommon = False
-
-                        if 'subFiles' in checkFile.keys():
-                            # has to be in all subfiles
-                            for subFile in checkFile['subFiles']:
-                                if k not in subFile.keys():
-                                    inSubFiles = False
-                                    break
-                                else:
-                                    if str(file0[k]) != str(subFile[k]):
-                                        inSubFiles = False
-                                        break
-
-                        if k in checkFile.keys():
-                            if file0[k] != checkFile[k]:
-                                keyCompressible = False
-                        else:
-                            keyCompressible = False
-
-                        if keyCompressible or inCommon or inSubFiles:
-                            compressionHappend = True
-                            compressedDict['common'][k] = v
-
-                # restore old layout
-                if not compressionHappend:
-                    resultDict[fileType] = fileList
-                else:
-                    # clean all keys that are compressible
-                    resultDict[fileType] = compressedDict
-                    for key in compressedDict['common'].keys():
-                        for fileEntry in fileList:
-                            if key in fileEntry.keys():
-                                del fileEntry[key]
-                                continue
-                            if 'common' in fileEntry.keys():
-                                if key in fileEntry['common'].keys():
-                                    del fileEntry['common'][key]
-                                    continue
-                            for subFileEntry in fileEntry['subFiles']:
-                                if key in subFileEntry.keys():
-                                    del subFileEntry[key]
-            else:
-                resultDict[fileType] = fileList
-
-        return resultDict
 
     ## @brief generate the python transform job report
     #  @param type Then general type of this report (e.g. fast)
@@ -312,13 +156,6 @@ class trfJobReport(trfReport):
                 entry = {"type": dataType}
                 entry.update(trfFileReport(dataArg).python(fast = fast, type = fileReport[dataArg.io]))
                 myDict['files'][dataArg.io].append(entry)
-
-        try:
-            saveFilesDict = deepcopy(myDict['files'])
-            myDict['files'] = self._compressFileDict(myDict['files'])
-        except Exception, e:
-            msg.warning('Exception raised during file dictionary compression: {0}'.format(e))
-            myDict['files'] = saveFilesDict
 
         # We report on all executors, in execution order
         myDict['executor'] = []
@@ -373,7 +210,7 @@ class trfJobReport(trfReport):
                                        value = str(self._trf.argdict[exeKey].value))
 
         # Now add information about output files
-        for dataType, dataArg in self._trf._dataDictionary.iteritems():
+        for dataArg in self._trf._dataDictionary.itervalues():
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
@@ -536,22 +373,22 @@ class trfFileReport(object):
 
         ## @note We try to strip off the path when there are multiple files to be reported on,
         #  however we should not do this if any of the files share a basename or anything is
-        #  in adifferent directory
-        uniqueBasenames = set([ os.path.basename(file) for file in self._fileArg.value ])
-        uniqueDirectories = set([ os.path.dirname(os.path.relpath(os.path.normpath(file))) for file in self._fileArg.value ])
+        #  in a different directory
+        uniqueBasenames = set([ os.path.basename(fname) for fname in self._fileArg.value ])
+        uniqueDirectories = set([ os.path.dirname(os.path.relpath(os.path.normpath(fname))) for fname in self._fileArg.value ])
         if len(uniqueBasenames) != len(self._fileArg.value):
-            msg.info('Detected two files with the same basename in a file argument - report for file {0} will be produced with the path as a key'.format(file))
+            msg.info('Detected two files with the same basename in a file argument - report for file {0} will be produced with the path as a key'.format(self._fileArg))
             basenameReport = False
         elif len(uniqueDirectories) > 1:
-            msg.warning('Detected output files in different directories - report for file {0} will be produced with the path as a key'.format(file))
+            msg.warning('Detected output files in different directories - report for file {0} will be produced with the path as a key'.format(self._fileArg))
             basenameReport = False
         else:
             basenameReport = True
-        for file in self._fileArg.value:
+        for fname in self._fileArg.value:
             if basenameReport:
-                fileArgProps['subFiles'].append(self.singleFilePython(file, fast = fast, type = type))
+                fileArgProps['subFiles'].append(self.singleFilePython(fname, fast = fast, type = type))
             else:
-                fileArgProps['subFiles'].append(self.singleFilePython(file, fast = fast, type = type, basename = False))
+                fileArgProps['subFiles'].append(self.singleFilePython(fname, fast = fast, type = type, basename = False))
 
         if type == 'full':
             # move metadata to subFile dict, before it can be compressed
@@ -576,37 +413,6 @@ class trfFileReport(object):
                 for k, v in metaData[fileName].iteritems():
                     if k not in thisFile.keys() and k != '_exists':
                         thisFile[k] = v
-
-        # Try to compress subFile metadata
-        fileArgProps['common'] = {}
-        if len(self._fileArg.value) > 1:
-            fileList = fileArgProps['subFiles']
-            mdKeys = fileList[0].keys()
-            for key in mdKeys:
-                # Certain keys we never 'compress'
-                if key in ('nentries', 'size', '_exists'):
-                    continue
-                compressible = True
-
-                file0 = fileList[0]
-                for file in fileList[1:]:
-                    if key in file.keys():
-                        if file0[key] != file[key]:
-                            compressible = False
-                            break
-                    else:
-                        compressible = False
-                        break
-
-                msg.debug('key: >>%s<<  -->> compressible: %r' % (key, compressible))
-                if compressible:
-                    fileArgProps['common'][key] = file0[key]
-                    for file in fileList:
-                        del file[key]
-
-        # remove common if its empty
-        if len(fileArgProps['common'].keys()) == 0:
-            del fileArgProps['common']
 
         return fileArgProps
 
@@ -643,8 +449,8 @@ class trfFileReport(object):
     #  @return List of ElementTree.Element objects
     def classicEltreeList(self, fast = False):
         treeList = []
-        for file in self._fileArg.value:
-            treeList.append(self.classicSingleEltree(file, fast = fast))
+        for fname in self._fileArg.value:
+            treeList.append(self.classicSingleEltree(fname, fast = fast))
 
         return treeList
 
@@ -656,14 +462,14 @@ class trfFileReport(object):
         if filename not in self._fileArg.value:
             raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                          'Unknown file ({0}) in the file report for {1}'.format(filename, self._fileArg))
-        tree = ElementTree.Element('File', ID = str(self._fileArg.getSingleMetadata(file = filename, metadataKey = 'file_guid', populate = not fast)))
+        tree = ElementTree.Element('File', ID = str(self._fileArg.getSingleMetadata(fname = filename, metadataKey = 'file_guid', populate = not fast)))
         logical = ElementTree.SubElement(tree, 'logical')
         lfn = ElementTree.SubElement(logical, 'lfn', name = filename)
         for myKey, classicKey in self._internalToClassicMap.iteritems():
             # beam_type is tricky - we return only the first list value,
             # (but remember, protect against funny stuff!)
             if myKey is 'beam_type':
-                beamType = self._fileArg.getSingleMetadata(file = filename, metadataKey = myKey, populate = not fast)
+                beamType = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
                 if isinstance(beamType, list):
                     if len(beamType) is 0:
                         ElementTree.SubElement(tree, 'metadata', att_name = classicKey, att_value = '')
@@ -674,7 +480,7 @@ class trfFileReport(object):
                     ElementTree.SubElement(tree, 'metadata', att_name = classicKey, att_value = str(beamType))
             else:
                 ElementTree.SubElement(tree, 'metadata', att_name = classicKey,
-                                       att_value = str(self._fileArg.getSingleMetadata(file = filename, metadataKey = myKey, populate = not fast)))
+                                       att_value = str(self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)))
         # Now add the metadata which is stored at the whole argument level
         ElementTree.SubElement(tree, 'metadata', att_name = 'fileType', att_value = str(self._fileArg.type))
         if self._fileArg.dataset is not None:
@@ -687,8 +493,8 @@ class trfFileReport(object):
     #  @return List of file metadata dictionaries
     def classicPython(self, fast = False):
         fileList = []
-        for file in self._fileArg.value:
-            fileList.append(self.classicSinglePython(file, fast = fast))
+        for fname in self._fileArg.value:
+            fileList.append(self.classicSinglePython(fname, fast = fast))
         return fileList
 
     ## @brief Return single file metadata in classic Tier 0 python style
@@ -704,7 +510,7 @@ class trfFileReport(object):
                     }
         # Fill in the mapped 'primary' keys
         for myKey, classicKey in self._internalToGpickleMap.iteritems():
-            fileDict[classicKey] = self._fileArg.getSingleMetadata(file = filename, metadataKey = myKey, populate = not fast)
+            fileDict[classicKey] = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
             if classicKey is 'checkSum' and fileDict[classicKey] is 'UNDEFINED':
                 # Old style is that we give back None when we don't know
                 fileDict[classicKey] = None
@@ -714,7 +520,7 @@ class trfFileReport(object):
         # Base 'more' stuff which is known by the argFile itself
         fileDict['more'] = {'metadata' : {'fileType' : self._fileArg.type}}
         for myKey, classicKey in self._internalToGpickleMoreMap.iteritems():
-            value = self._fileArg.getSingleMetadata(file = filename, metadataKey = myKey, populate = not fast)
+            value = self._fileArg.getSingleMetadata(fname = filename, metadataKey = myKey, populate = not fast)
             if value is not 'UNDEFINED':
                 fileDict['more']['metadata'][classicKey] = value
 

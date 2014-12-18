@@ -10,13 +10,12 @@
 # exists this is used for configuring the transform logger. Otherwise a 
 # standard setup is used. 
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfLogger.py 573315 2013-12-02 15:45:55Z graemes $
+# @version $Id: trfLogger.py 634986 2014-12-10 12:43:21Z graemes $
 
 import logging
-import logging.config
+import logging.config as lconfig
 import os
 import sys
-import unittest
 
 ## base logger
 #  Note we do not setup a root logger, as this has nasty interactions with the PyUtils
@@ -32,6 +31,8 @@ stdLogLevels = {'DEBUG' : logging.DEBUG,
                 'ERROR' : logging.ERROR,
                 'CRITICAL' : logging.CRITICAL,
                 'FATAL' : logging.CRITICAL,
+                'CATASTROPHE' : logging.CRITICAL+10,  # Special prority level to ensure an error is
+                                                      # elevated to be the exitMsg  
                 }
 
 ## This is the correct order to put the most serious stuff first
@@ -40,7 +41,7 @@ stdLogLevelsByCritcality = ['FATAL', 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'VE
 # If TRF_LOGCONF is defined then try to use that file
 # for logging setup
 if 'TRF_LOGCONF' in os.environ and os.access(os.environ['TRF_LOGCONF'], os.R_OK):
-    logging.config.fileConfig(os.environ['TRF_LOGCONF'])
+    lconfig.fileConfig(os.environ['TRF_LOGCONF'])
 else:
     # Otherwise use a standard logging configuration
     hdlr = logging.StreamHandler(sys.stdout)

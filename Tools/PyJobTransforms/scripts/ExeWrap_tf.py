@@ -4,7 +4,7 @@
 
 ## A simple executor wrapper around the transforms' scriptExecutor
 #  Mainly used to test core infrastructure
-# $Id: ExeWrap_tf.py 529035 2012-12-05 15:45:24Z graemes $
+# $Id: ExeWrap_tf.py 634752 2014-12-09 15:01:52Z graemes $
 
 import argparse
 import os
@@ -39,7 +39,7 @@ def main():
     # Need to update what we want to execute after the command line is parsed
     # LHS is the slightly convoluted way to get at the single member of a set 
     # (which, of course, itself has no index)
-    list(trf._executor)[0].exe = trf.argdict['exe'].value
+    list(trf._executors)[0].exe = trf.argdict['exe'].value
     
     trf.execute()
     trf.generateReport()

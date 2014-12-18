@@ -3,11 +3,10 @@
 ## @Package PyJobTransforms.trfEnv
 #  @brief Support for environemnt variable manipulation in the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfEnv.py 588222 2014-03-18 14:37:06Z graemes $
+#  @version $Id: trfEnv.py 623865 2014-10-24 12:39:44Z graemes $
 
 import os
-import os.path
-import re
+import os.path as path
 
 import logging
 msg = logging.getLogger(__name__)
@@ -58,8 +57,8 @@ class environmentUpdate(object):
         if 'ATLASMKLLIBDIR_PRELOAD' in os.environ:
             if "LD_PRELOAD" not in self._envdict:
                 self._envdict["LD_PRELOAD"] = pathVar("LD_PRELOAD")
-            self._envdict["LD_PRELOAD"].add(os.path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libimf.so"))
-            self._envdict["LD_PRELOAD"].add(os.path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libintlc.so.5"))
+            self._envdict["LD_PRELOAD"].add(path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libimf.so"))
+            self._envdict["LD_PRELOAD"].add(path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libintlc.so.5"))
 
 
     ## @brief Add TCMALLOC to the setup
@@ -77,7 +76,7 @@ class environmentUpdate(object):
         # For now we support the minimal version (it's the default)
         if "LD_PRELOAD" not in self._envdict:
             self._envdict["LD_PRELOAD"] = pathVar("LD_PRELOAD")
-        self._envdict["LD_PRELOAD"].add(os.path.join(os.environ['TCMALLOCDIR'], "libtcmalloc_minimal.so"))
+        self._envdict["LD_PRELOAD"].add(path.join(os.environ['TCMALLOCDIR'], "libtcmalloc_minimal.so"))
     
 
     ## @brief Add other settings

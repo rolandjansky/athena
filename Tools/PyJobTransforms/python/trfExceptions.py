@@ -3,9 +3,7 @@
 ## @Package PyJobTransforms.trfExceptions
 #  @brief Standard exceptions thrown by transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfExceptions.py 570543 2013-11-14 21:52:16Z graemes $
-
-import unittest
+#  @version $Id: trfExceptions.py 628398 2014-11-14 12:54:56Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -86,6 +84,11 @@ class TransformMetadataException(TransformException):
 
 ## Exception used by configuration via AMI tags
 class TransformAMIException(TransformException):
+        pass
+
+## Exception used when the job wants to signal that it should
+#  get manual intervention at Tier-0
+class TransformNeedCheckException(TransformException):
         pass
 
     

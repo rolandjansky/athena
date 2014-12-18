@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 590840 2014-04-02 12:22:48Z graemes $
+#  @version $Id: test_trfAMI.py 626621 2014-11-06 13:47:51Z graemes $
 
 import unittest
 
@@ -22,7 +22,7 @@ class trfAMIUnitTests(unittest.TestCase):
     # test T0 tag
     def test_info_q120(self):
         physics={'AMITag':'q120',
-                 'maxEvents': '-1',
+                 'maxEvents': -1,
                  'autoConfiguration':'everything',
                  'preExec':'rec.doFloatingPointException.set_Value_and_Lock(True)'}
         
@@ -52,6 +52,17 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].physics, physics)
         self.assertEqual(tag.trfs[1].name, 'DigiMReco_trf.py')
         self.assertEqual(tag.trfs[1].release, '17.2.1.4.2,TrigMC')
+        
+    # test a new transform tag from AMI
+    def test_info_q220(self):
+        physics = {'conditionsTag': {'all': 'OFLCOND-RUN1-SDR-05'}, 'AMITag': 'q220', 'postInclude': {'all': ['RecJobTransforms/UseFrontier.py']}, 'preExec': {'ESDtoAOD': ['TriggerFlags.AODEDMSet="AODSLIM"'], 'all': ['rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.)'], 'HITtoRDO': ['userRunLumiOverride={"run":212272, "lb":1, "starttstamp":1349603811, "mu":0.000}'], 'RAWtoESD': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False']}, 'autoConfiguration': ['everything'], 'maxEvents': '-1', 'preInclude': {'HITtoRDO': ['RunDependentSimData/configLumi_user.py', 'SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py']}, 'digiSeedOffset2': 39, 'inputHITSFile': ['/afs/cern.ch/atlas/groups/validation/RTT/HITS.01454684._000014.pool.root.1'], 'digiSeedOffset1': 39, 'triggerConfig': {'RAWtoESD': 'NONE'}, 'inputCavernHitsFile': ['/afs/cern.ch/atlas/groups/validation/RTT/HITS.01415612._000121.pool.root.2'], 'geometryVersion': {'all': 'ATLAS-R1-2012-02-00-00'}, 'numberOfCavernBkg': 0, 'jobNumber': 1}
+        tag=TagInfo("q220")
+        self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
+        self.assertEqual(tag.isProdSys, False)
+        self.assertEqual(tag.trfs[0].name, 'Reco_tf.py')
+        self.assertEqual(tag.trfs[0].release, '19.1.3.7')
+        self.assertEqual(tag.trfs[0].physics, physics)
+        
 
     # test setup of transform     
     def test_transform(self):

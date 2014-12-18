@@ -18,7 +18,7 @@ msg.info('logging set in %s' % sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfExe import transformExecutor
+from PyJobTransforms.trfExe import logscanExecutor
 import PyJobTransforms.trfArgs as trfArgs
 import PyJobTransforms.trfArgClasses as trfArgClasses
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
@@ -30,16 +30,16 @@ def main():
 
     trf=getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
+    print '+++', trf._argdict
     trf.execute()
     trf.generateReport()
     sys.exit(trf.exitCode)
 
 def getTransform():
-    trf=transform(executor = transformExecutor())
+    trf=transform(executor = logscanExecutor())
     
     # Mostly reco types...
     addArgs(trf.parser)
-    trfArgs.addFileValidationArguments(trf.parser)
     trfArgs.addParallelJobProcessorArguments(trf.parser)
 
     # Add all known D3PD types
@@ -59,6 +59,7 @@ def addArgs(parser):
     parser.add_argument('--outputTXT_FTKIPFile', type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, io='output', multipleOK=True), nargs='+')
     parser.add_argument('--outputNTUP_FTKSIMFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output', type='ntup_ftksim', treeNames = ['ftkdata'], multipleOK=True), nargs='+')
     parser.add_argument('--outputEvtFile', type=trfArgClasses.argFactory(trfArgClasses.argHepEvtAsciiFile, io='output', type='evt', multipleOK=True), nargs='+')
+    parser.add_argument('--logfile', type=trfArgClasses.argFactory(trfArgClasses.argString))
 
 
     # This is a dummy argument which makes the graph tracer code happy

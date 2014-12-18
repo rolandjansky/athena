@@ -5,23 +5,17 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 609252 2014-07-29 16:20:33Z wbreaden $
+# @version $Id: transform.py 636429 2014-12-17 09:48:38Z graemes $
 # 
 
 __version__ = '$Revision'
-__doc__ = 'Core class for transforms'
 
 import argparse
 import os
-import os.path
-import pprint
+import os.path as path
 import re
 import sys
-import time
 import traceback
-import unittest
-
-from xml.etree import ElementTree
 
 import logging
 msg = logging.getLogger(__name__)
@@ -32,10 +26,9 @@ import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfSignal import setTrfSignalHandlers, resetTrfSignalHandlers
 from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArguments, addValidationArguments
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
-from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, listChildren, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
+from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
 from PyJobTransforms.trfReports import trfJobReport, defaultFileReport
 from PyJobTransforms.trfExe import transformExecutor
 from PyJobTransforms.trfGraph import executorGraph
@@ -51,10 +44,10 @@ class transform(object):
     #  @param trfName Name of the transform. Default is executable name with .py rstripped.
     #  @param executor Executor list
     def __init__(self, standardSignalHandlers = True, standardTrfArgs = True, standardValidationArgs=True, 
-                 trfName = os.path.basename(sys.argv[0]).rsplit('.py', 1)[0], 
+                 trfName = path.basename(sys.argv[0]).rsplit('.py', 1)[0], 
                  executor = set([transformExecutor(),]), exeArgs = None, description = ''):
         '''Transform class initialiser'''
-        msg.debug('Welcome to new transforms')
+        msg.debug('Welcome to ATLAS job transforms')
         
         ## @brief Get starting timestamp as early as possible
         self._transformStart = os.times()
@@ -90,7 +83,7 @@ class transform(object):
         
         # If we were passed executors at construction time then append them to the set:
         if executor is not None:
-            self.appendToExecutorSet(executor) 
+            self.appendToExecutorSet(executor)
         
         ## Transform exit code/message holders
         self._exitCode = None
@@ -161,7 +154,8 @@ class transform(object):
             executor.trf = self
             if executor.name in self._executorDictionary:
                 raise trfExceptions.TransformInternalException(trfExit.nameToCode('TRF_INTERNAL'), 
-                                                               'Transform has been initialised with two executors with the same name ({0}) - executor names must be unique'.format(value.name))
+                                                               'Transform has been initialised with two executors with the same name ({0})'
+                                                               ' - executor names must be unique'.format(executor.name))
             self._executors.add(executor)
             self._executorDictionary[executor.name] = executor
 
@@ -249,6 +243,12 @@ class transform(object):
             self._exitMsg = e.errMsg
             self._report.fast = True
             self.generateReport()
+            sys.exit(self._exitCode)
+            
+        except trfExceptions.TransformAMIException, e:
+            msg.critical('AMI failure: {0!s}'.format(e))
+            self._exitCode = e.errCode
+            self._exitMsg = e.errMsg
             sys.exit(self._exitCode)
 
         self.setGlobalLogLevel()
@@ -351,6 +351,13 @@ class transform(object):
                 
             self.validateOutFiles()
             
+        except trfExceptions.TransformNeedCheckException as e:
+            msg.warning('Transform executor signaled NEEDCHECK condition: {0}'.format(e.errMsg))
+            self._exitCode = e.errCode
+            self._exitMsg = e.errMsg
+            self.generateReport(fast=False)
+            sys.exit(self._exitCode)
+
         except trfExceptions.TransformException as e:
             msg.critical('Transform executor raised %s: %s' % (e.__class__.__name__, e.errMsg))
             self._exitCode = e.errCode
@@ -403,34 +410,7 @@ class transform(object):
         # setup the graph
         if 'steering' in self._argdict.keys():
             msg.debug('Now applying steering to graph: {0}'.format(self._argdict['steering'].value))
-            for substep, steeringValues in self._argdict['steering'].value.iteritems():
-                foundSubstep = False
-                for executor in self._executors:
-                    if executor.name == substep or executor.substep == substep:
-                        foundSubstep = True
-                        msg.debug('Updating {0} with {1}'.format(executor.name, steeringValues))
-                        # Steering consists of tuples with (in/out, +/-, datatype) 
-                        for steeringValue in steeringValues:
-                            if steeringValue[0] == 'in':
-                                startSet = executor.inData
-                            else:
-                                startSet = executor.outData
-                            origLen = len(startSet)
-                            msg.debug('Data values to be modified are: {0}'.format(startSet))
-                            if steeringValue[1] is '+':
-                                startSet.add(steeringValue[2])
-                                if len(startSet) != origLen + 1:
-                                    raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
-                                                                                'Attempting to add data type {0} from {1} {2} fails (original set of data: {3}). Was this datatype already there?'.format(steeringValue[2], executor.name, steeringValue[1], startSet))
-                            else:
-                                startSet.discard(steeringValue[2])
-                                if len(startSet) != origLen - 1:
-                                    raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
-                                                                                'Attempting to remove data type {0} from {1} {2} fails (original set of data: {3}). Was this datatype even present?'.format(steeringValue[2], executor.name, steeringValue[1], startSet))
-                        msg.debug('Updated data values to: {0}'.format(startSet))
-                if not foundSubstep:
-                    raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
-                                                                'This transform has no executor/substep {0}'.format(substep))                                
+            self._doSteering()
         
         # Setup the graph and topo sort it
         self._executorGraph = executorGraph(self._executors, self._inputData, self._outputData)
@@ -451,6 +431,42 @@ class transform(object):
                                                         '(Did you correctly specify input data for this transform?)')
         # Tell the first executor that they are the first
         self._executorDictionary[self._executorPath[0]['name']].conf.firstExecutor = True
+
+    ## @brief Setup steering, which manipulates the graph before we trace the path
+    #  for this transform
+    def _doSteering(self):
+        steeringAliases = {'doRDO_TRIG': {'RAWtoESD' : [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG')]},
+                           }
+        
+        for substep, steeringValues in self._argdict['steering'].value.iteritems():
+            foundSubstep = False
+            for executor in self._executors:
+                if executor.name == substep or executor.substep == substep:
+                    foundSubstep = True
+                    msg.debug('Updating {0} with {1}'.format(executor.name, steeringValues))
+                    # Steering consists of tuples with (in/out, +/-, datatype) 
+                    for steeringValue in steeringValues:
+                        if steeringValue[0] == 'in':
+                            startSet = executor.inData
+                        else:
+                            startSet = executor.outData
+                        origLen = len(startSet)
+                        msg.debug('Data values to be modified are: {0}'.format(startSet))
+                        if steeringValue[1] is '+':
+                            startSet.add(steeringValue[2])
+                            if len(startSet) != origLen + 1:
+                                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
+                                                                            'Attempting to add data type {0} from {1} {2} fails (original set of data: {3}). Was this datatype already there?'.format(steeringValue[2], executor.name, steeringValue[1], startSet))
+                        else:
+                            startSet.discard(steeringValue[2])
+                            if len(startSet) != origLen - 1:
+                                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
+                                                                            'Attempting to remove data type {0} from {1} {2} fails (original set of data: {3}). Was this datatype even present?'.format(steeringValue[2], executor.name, steeringValue[1], startSet))
+                    msg.debug('Updated data values to: {0}'.format(startSet))
+            if not foundSubstep:
+                raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_GRAPH_STEERING_ERROR'),
+                                                            'This transform has no executor/substep {0}'.format(substep))                                
+        
 
     ## @brief Return the last executor which actually executed
     #  @return Last executor which has @c _hasExecuted == @c True, or the very first executor if we didn't even start yet
@@ -618,9 +634,9 @@ class transform(object):
         else:
             msg.info('Validating input files')
             if 'parallelFileValidation' in self._argdict:
-                trfValidation.performStandardFileValidation(dict=self._dataDictionary, io='input', parallelMode=self._argdict['parallelFileValidation'].value )
+                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='input', parallelMode=self._argdict['parallelFileValidation'].value )
             else:
-                trfValidation.performStandardFileValidation(dict=self._dataDictionary, io='input')
+                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='input')
 
     def validateOutFiles(self):
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
@@ -629,6 +645,6 @@ class transform(object):
         else:
             msg.info('Validating output files')
             if 'parallelFileValidation' in self._argdict:
-                trfValidation.performStandardFileValidation(dict=self._dataDictionary, io='output', parallelMode=self._argdict['parallelFileValidation'].value )
+                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output', parallelMode=self._argdict['parallelFileValidation'].value )
             else:
-                trfValidation.performStandardFileValidation(dict=self._dataDictionary, io='output')
+                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output')

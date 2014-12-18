@@ -3,21 +3,15 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 613109 2014-08-22 16:55:12Z graemes $
+#  @version $Id: trfArgs.py 636448 2014-12-17 11:40:15Z graemes $
 
-import argparse
 import logging
 msg = logging.getLogger(__name__)
-import unittest
-import pickle
-import os
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 from PyJobTransforms.trfArgClasses import argFactory
 
 from PyJobTransforms.trfLogger import stdLogLevels
-from PyJobTransforms.trfDecorators import silent
-from PyJobTransforms.trfExitCodes import trfExit
 
 ## Add standard transform arguments to an argparse ArgumentParser
 def addStandardTrfArgs(parser):
@@ -48,15 +42,12 @@ def addStandardTrfArgs(parser):
                         '(otherwise this is disabled for base releases < 17.7, enabled otherwise)')
     parser.add_argument('--tcmalloc', type=argFactory(trfArgClasses.argSubstepBool, runarg=False), metavar="substep:BOOL", nargs='+',
                         help='Switch preload of the tcmalloc library (disabled by default)')
-    parser.add_argument('--AMIConfig', '--amiConfig', '--AMI', type=argFactory(trfArgClasses.argString, runarg=False), help='Configure transform with AMI tag')
-    parser.add_argument('--AMITag', '--amiConfigTag', '--AMIConfigTag', type=argFactory(trfArgClasses.argString), metavar='TAG',
-                        help='AMI tag from which this job was defined - this option simply writes the '
-                        'relevant AMI tag value into the output metadata, it does not configure the job (use --AMIConfig for that)')
     parser.add_argument('--steering', type=argFactory(trfArgClasses.argSubstepSteering, runarg=False), nargs='+', metavar='substep:{in/out}{+-}DATA',
                         help='Steer the transform by manipulating the execution graph before the execution path is calculated. '
                         'Format is substep:{in,out}{+-}DATA,{in,out}{+-}DATA,... to modify the substep\'s input/output ' 
                         ' by adding/removing a data type. e.g. RAWtoESD:in-RDO,in+RDO_TRIG would remove RDO and add '
                         'RDO_TRIG to the list of valid input datatypes for the RAWtoESD substep.')
+    addMetadataArguments(parser)
 
 
 ## Options related to running athena in general
@@ -65,7 +56,7 @@ def addStandardTrfArgs(parser):
 #  @param parser trfArgParser object
 #  @param maxEventsDefaultSubstep Special option which can change the default substep for maxEvents (needed by
 #  some special transforms).
-def addAthenaArguments(parser, maxEventsDefaultSubstep='first'):
+def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True):
     parser.defineArgGroup('Athena', 'General Athena Options')
     parser.add_argument('--athenaopts', group = 'Athena', type=argFactory(trfArgClasses.argList, splitter=' ', runarg=False), metavar='OPT1 OPT2 OPT3', 
                         help='Extra options to pass to athena. Will split on spaces. Options starting with "-" must be given as --athenaopts=\'--opt1 --opt2[=foo] ...\'') 
@@ -95,13 +86,57 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first'):
     parser.add_argument('--eventAcceptanceEfficiency', type=trfArgClasses.argFactory(trfArgClasses.argSubstepFloat, min=0.0, max=1.0, runarg=False),
                         help='Allowed "efficiency" for processing events - used to ensure output file has enough events (default 1.0)')
     parser.add_argument('--athenaMPMergeTargetSize', '--mts', type=trfArgClasses.argFactory(trfArgClasses.argKeyFloatValueList, runarg=False),
-                        metavar='dataType:targetSizeInMegaBytes', nargs='+',
+                        metavar='dataType:targetSizeInMegaBytes', nargs='+', group='Athena',
                         help='Set the target merge size for an AthenaMP output file type (give size in MB). '
-                        'Note that the special value 0 means do not merge this output file; negative values means '
+                        'Note that the special value 0 means do not merge this output file; negative values mean '
                         'always merge to a single file. Note that the datatype "ALL" will be used as a default '
                         'for all datatypes not explicitly given their own value.')
+    if addValgrind:
+        addValgrindArguments(parser)
 
-    
+## @brief Add Valgrind options
+def addValgrindArguments(parser):
+    parser.defineArgGroup(
+        'Valgrind',
+        'General Valgrind Options'
+    )
+    parser.add_argument(
+        '--valgrind',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argBool,
+            runarg = False
+        ),
+        metavar = "substep:BOOL",
+        help = 'Enable Valgrind'
+    )
+    parser.add_argument(
+        '--valgrindbasicopts',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argList,
+            splitter = ',',
+            runarg = False
+        ),
+        metavar = 'OPT1,OPT2,OPT3', 
+        help = 'Basic options passed to Valgrind when running Athena. ' +
+        'Options starting with "-" must be given as ' +
+        '--valgrindopts=\'--opt1=foo,--opt2=bar,...\''
+    )
+    parser.add_argument(
+        '--valgrindextraopts',
+        group = 'Valgrind',
+        type = argFactory(
+            trfArgClasses.argList,
+            splitter = ',',
+            runarg = False
+        ),
+        metavar = 'OPT1,OPT2,OPT3', 
+        help = 'Extra options passed to Valgrind when running Athena. ' +
+        'Options starting with "-" must be given as ' +
+        '--valgrindopts=\'--opt1=foo,--opt2=bar,...\''
+    )
+
 ## @brief Options related to the setup of the ATLAS detector (used in simulation and digitisation
 #  as well as reconstruction)
 #  @param parser trfArgParser object
@@ -117,6 +152,18 @@ def addDetectorArguments(parser):
                         help='Manual beam type setting')
     parser.add_argument('--runNumber', '--RunNumber', group='Detector', type=argFactory(trfArgClasses.argInt), 
                         help='Manual run number setting')
+
+## @brief Options for passing metadata into the transform
+#  @param parser trfArgParser object
+def addMetadataArguments(parser):
+    parser.defineArgGroup('Metadata', 'Metadata arguments that will be passed into the transform')
+    parser.add_argument('--AMIConfig', '--amiConfig', '--AMI', type=argFactory(trfArgClasses.argString, runarg=False), help='Configure transform with AMI tag', group="Metadata")
+    parser.add_argument('--AMITag', '--amiConfigTag', '--AMIConfigTag', type=argFactory(trfArgClasses.argString), metavar='TAG', group="Metadata",
+                        help='AMI tag from which this job was defined - this option simply writes the '
+                        'relevant AMI tag value into the output metadata, it does not configure the job (use --AMIConfig for that)')
+    parser.add_argument('--taskid', type=argFactory(trfArgClasses.argString, runarg=False), help="Task identification number", group="Metadata")
+    parser.add_argument('--jobid', type=argFactory(trfArgClasses.argString, runarg=False), help="Job identification number", group="Metadata")
+    parser.add_argument('--attempt', type=argFactory(trfArgClasses.argString, runarg=False), help="Job attempt number", group="Metadata")
 
 
 ## @brief Add primary DPD arguments
@@ -214,11 +261,6 @@ def addD3PDArguments(parser, pick = None, transform = None, multipleOK=False, ad
                                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=dpdWriter.TreeNames),
                                         group='D3PD NTUPs',
                                         metavar=dpdName.upper(), help='D3PD merged output {0} file )'.format(dpdName))
-                    if transform:
-                        for executor in transform.executors:
-                            if executor.name == "NTUPLEMerge":
-                                executor.inDataUpdate([dpdName])                    
-                                executor.outDataUpdate([dpdName+"_MRG"])                    
                 else:
                     parser.add_argument('--output' + dpdName + 'File', 
                                         type=argFactory(trfArgClasses.argNTUPFile, treeNames=dpdWriter.TreeNames, multipleOK=multipleOK),
@@ -267,7 +309,7 @@ class dpdType(object):
 
     ## @brief Class constructor for dpdType
     #  @param name The name of this datatype (e.g., @c DRAW_ZEE, @c NTUP_SCT)
-    #  @param type The argFile.type (should be the major datatype, e.g. @c bs, @c esd, @c aod, etc.)
+    #  @param type The argFile.type (should be the major datatype, e.g. @c BS, @c ESD, @c AOD, etc.)
     #  @param substeps The substeps or executor names where this data can be made
     #  @param argclass The argument class to be used for this data
     #  @param treeNames For DPD types only, the tree(s) used for event counting (if @c None then 
@@ -288,7 +330,7 @@ class dpdType(object):
             elif 'NTUP' in name:
                 self._type = 'ntup'
         else:
-            self._type = dataType
+            self._type = type
             
         ## @note If not given explictly apply some heuristics, watch out for this
         #  if your data is made in a non-standard step
