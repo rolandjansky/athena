@@ -23,7 +23,6 @@
   #include "TrigInDetEvent/TrigVertexCollection.h"
   #include "TrigInDetEvent/TrigInDetTrack.h"
   #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-  #include "TrigInDetTrackUtils/TrigToTrkTrackTool.h"
   #include "TrigSiSpacePointTool/ISpacePointProvider.h"
 
   #include "TrigInDetToolInterfaces/ITrigZFinder.h"

@@ -280,13 +280,6 @@ HLT::ErrorCode TrigL2PattRecoStrategyC::findTracks(const std::vector<const TrigS
 
   std::vector<IdentifierHash>  listOfSCTIds; 
   std::vector<IdentifierHash>  listOfPixIds; 
-  double                      PhiEtaCuts[4];
-
-  double m_RoIEta = 0.0;
-  double m_RoIPhi = 0.0; 
-
-  m_RoIEta = roi.eta(); 
-  m_RoIPhi = roi.phi(); 
 
   m_regionSelector->DetHashIDList(SCT, roi, listOfSCTIds );
 

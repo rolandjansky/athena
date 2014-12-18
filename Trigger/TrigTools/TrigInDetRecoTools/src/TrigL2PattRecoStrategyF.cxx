@@ -148,8 +148,6 @@ HLT::ErrorCode TrigL2PattRecoStrategyF::findTracks(const std::vector<const TrigS
   std::vector<IdentifierHash>  listOfFTKIds;
 
 
-  double m_RoIEta = roi.eta();;
-  double m_RoIPhi = roi.phi(); 
 
   double roiPhiMin = roi.phiMinus();
   double roiPhiMax = roi.phiPlus();

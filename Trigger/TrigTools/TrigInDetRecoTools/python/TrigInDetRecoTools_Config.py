@@ -5,19 +5,17 @@ from TrigInDetRecoTools.TrigInDetRecoTools_ConfigB import FactoryForStrategyB
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigC import FactoryForStrategyC
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigF import FactoryForStrategyF
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigA import FactoryForStrategyA
-from TrigInDetRecoTools.TrigInDetRecoTools_ConfigBC import FactoryForStrategyBC
 
 class TrigL2PattRecoStrategyFactory() :
     __slots__=[]
     def __init__(self, name = 'TrigL2PattRecoStrategyFactory') :
-        self.allowedStrNames = ['A', 'B', 'C', 'F', 'BC']
+        self.allowedStrNames = ['A', 'B', 'C', 'F']
 
         self.commonSettings = CommonSettings()
         self.factoryForStrB = FactoryForStrategyB()        
         self.factoryForStrC = FactoryForStrategyC()
         self.factoryForStrF = FactoryForStrategyF()
         self.factoryForStrA = FactoryForStrategyA()
-        self.factoryForStrBC = FactoryForStrategyBC()  
     def createStrategy(self, instName, strName, roiPhi=0.1, roiEta=0.1, ptCut = 2500.0) :
         if strName in self.allowedStrNames :
             if instName in self.commonSettings.allowedInstanceNames :
@@ -38,10 +36,6 @@ class TrigL2PattRecoStrategyFactory() :
                     configuredStrF = self.factoryForStrF.createStrategy(instName)
                     return configuredStrF
 
-                if strName=='BC' :
-                    configuredStrBC = self.factoryForStrBC.createStrategy(instName)
-                    return configuredStrBC
-            
             else :
                 print "Instance "+instName+" of the Strategy"+strName+" is not supported !"
                 return None
