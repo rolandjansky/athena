@@ -9,7 +9,12 @@
 #include <uuid/uuid.h>
 #include <sstream>
 
-DataHeaderElement_p6::DataHeaderElement_p6() : m_token(), m_oid1(0ULL), m_oid2(0ULL) {}
+DataHeaderElement_p6::DataHeaderElement_p6() :
+  m_token(),
+  m_oid1(0ULL),
+  m_oid2(0ULL),
+  m_dbIdx(0),
+  m_objIdx(0) {}
 DataHeaderElement_p6::DataHeaderElement_p6(const DataHeaderElement_p6& rhs) : m_token(rhs.m_token),
 	m_oid1(rhs.m_oid1),
 	m_oid2(rhs.m_oid2),
@@ -163,10 +168,12 @@ void DataHeaderForm_p6::resize(unsigned int size) {
 
 
 DataHeader_p6::DataHeader_p6() : m_dataHeader(), m_provenanceSize(0U), m_dhForm(), m_dhFormToken(), m_dhFormMdx() {}
-DataHeader_p6::DataHeader_p6(const DataHeader_p6& rhs) : m_dataHeader(rhs.m_dataHeader),
-	m_dhForm(rhs.m_dhForm),
-	m_dhFormToken(rhs.m_dhFormToken),
-	m_dhFormMdx(rhs.m_dhFormMdx) {}
+DataHeader_p6::DataHeader_p6(const DataHeader_p6& rhs) :
+  m_dataHeader(rhs.m_dataHeader),
+  m_provenanceSize(rhs.m_provenanceSize),
+  m_dhForm(rhs.m_dhForm),
+  m_dhFormToken(rhs.m_dhFormToken),
+  m_dhFormMdx(rhs.m_dhFormMdx) {}
 DataHeader_p6::~DataHeader_p6() {}
 
 DataHeader_p6& DataHeader_p6::operator=(const DataHeader_p6& rhs) {

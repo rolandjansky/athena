@@ -27,6 +27,5 @@
    <class name="Guid" />
    <class name="std::vector<std::pair<Guid, std::pair<std::string, unsigned int> > >" />
    <class name="std::pair<Guid, std::pair<std::string, unsigned int> >" />
-   <class name="std::pair<std::string, unsigned int>" />
    <class name="DataHeaderCnv_p6"/>
 </lcgdict>
