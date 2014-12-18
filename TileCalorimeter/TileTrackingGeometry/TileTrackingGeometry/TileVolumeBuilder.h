@@ -77,16 +77,7 @@ namespace Tile {
       ToolHandle<Trk::ITrackingVolumeHelper>            m_trackingVolumeHelper;           //!< Helper Tool to create TrackingVolumes
       ToolHandle<Trk::ITrackingVolumeCreator>           m_trackingVolumeCreator;          //!< Second helper for volume creation
             
-      bool                                              m_useMeotProvider;                //!< steer the meot provider
-
-      //std::vector<Trk::IMaterialEffectsOnTrackProvider*>    m_meotProviders;                   //!< drawback of ToolHandle
-      //ToolHandleArray<Trk::IMaterialEffectsOnTrackProvider> m_materialEffectsOnTrackProviders; //!< MEOT providers for TrackingVolumes
-
       double                           m_tileBarrelEnvelope;            //!< envelope Cover of the Barrel
-
-      unsigned int                     m_tileBarrelModelLayers;         //!< model Layers for the Barrel and ext. Barrel
-      unsigned int                     m_tileFingerModelLayers;         //!< model Layers for the Finger (B && EB)
-      unsigned int                     m_tileGapModelLayers;            //!< model Layers for the Gaps
 
       bool                             m_useCaloSurfBuilder;            //!< if true use DetDescr based layering, if false use biequidistant layering
       unsigned int                     m_tileBarrelLayersPerSampling;   //!< if m_useCaloSurfBuilder == true, number of layers per dead material region or sampling

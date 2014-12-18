@@ -51,16 +51,17 @@
 #include "TrkSurfaces/DiscBounds.h"
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/make_unique.h"
 
 using HepGeom::Transform3D;
 using HepGeom::Translate3D;
 using CLHEP::Hep3Vector;
 using CLHEP::mm;
+using CxxUtils::make_unique;
 
 // constructor
 Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -70,13 +71,7 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   m_calo_dd(0),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
-  m_useMeotProvider(false),
-  //m_meotProviders(),
-  //m_materialEffectsOnTrackProviders(),
   m_tileBarrelEnvelope(25.*mm),
-  m_tileBarrelModelLayers(3),
-  m_tileFingerModelLayers(3),
-  m_tileGapModelLayers(3),
   m_useCaloSurfBuilder(true),
   m_tileBarrelLayersPerSampling(1),
   m_surfBuilder("CaloSurfaceBuilder"),
@@ -88,19 +83,13 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   declareProperty("TileDetManagerLocation",                 m_tileMgrLocation);
   // layers and general setup
   declareProperty("BarrelEnvelopeCover",                    m_tileBarrelEnvelope);
-  declareProperty("BarrelModelLayers",                      m_tileBarrelModelLayers);
-  declareProperty("FingerModelLayers",                      m_tileFingerModelLayers);
-  declareProperty("GapModelLayers",                         m_tileGapModelLayers);
   declareProperty("ForceVolumeSymmetry",                    m_forceSymmetry);
   // helper tools 
   declareProperty("TrackingVolumeHelper",                   m_trackingVolumeHelper);    
   declareProperty("TrackingVolumeCreator",                  m_trackingVolumeCreator);  
-  declareProperty("UseMaterialEffectsOnTrackProvider",      m_useMeotProvider);  
-  //declareProperty("MaterialEffectsOnTrackProviders",        m_materialEffectsOnTrackProviders);  
   declareProperty("UseCaloSurfBuilder",                     m_useCaloSurfBuilder);
   declareProperty("BarrelLayersPerSampling",                m_tileBarrelLayersPerSampling);
   declareProperty("CaloSurfaceBuilder",                     m_surfBuilder);
-
 }
 
 // destructor
@@ -163,7 +152,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Trk::GeoShapeConverter    geoShapeToVolumeBounds;
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;
   // dummy material 
-  Trk::Material* tileMaterial = new Trk::Material;
+  Trk::Material tileMaterial;
 
   // dimensions
   double tileZ = 0.;
@@ -191,11 +180,9 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 
   // The Bounds To be Assigned (for resizing) ==================== 
   Trk::CylinderVolumeBounds* tileBarrelBounds                        = 0;
-  Trk::CylinderVolumeBounds* tileBarrelGirderBounds                  = 0;
-  Trk::CylinderVolumeBounds* tileGirderBounds                        = 0;
+  std::unique_ptr<Trk::CylinderVolumeBounds> tileBarrelGirderBounds;
 
   Trk::CylinderVolumeBounds* tilePositiveExtendedBarrelBounds        = 0;
-  //Trk::CylinderVolumeBounds* tileNegativeExtendedBarrelBounds        = 0;
   Trk::CylinderVolumeBounds* itcPlug1Bounds                          = 0;
   Trk::CylinderVolumeBounds* itcPlug2Bounds                          = 0;
   Trk::CylinderVolumeBounds* gapBounds                               = 0;
@@ -229,11 +216,9 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID));
   matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID+1));
   matTB.push_back(new std::pair<const Trk::Material*,int>(barrelProperties,baseID+2));
-  const std::vector<const Trk::IdentifiedMaterial*>* mTB = new std::vector<const Trk::IdentifiedMaterial*>(matTB);
   
   // material index 
   std::vector<size_t> ltb{0,1,2,3};
-  const std::vector<size_t>* cltb = new std::vector<size_t>(ltb);
   
   // layer material can be adjusted here
   std::vector<const Trk::IdentifiedMaterial*> matETB; 
@@ -242,14 +227,13 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID));
   matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID+1));
   matETB.push_back(new std::pair<const Trk::Material*,int>(extendedBarrelProperties,baseID+2));
-  const std::vector<const Trk::IdentifiedMaterial*>* mETB = new std::vector<const Trk::IdentifiedMaterial*>(matETB);
 
   // layer material can be adjusted here
   //Trk::MaterialProperties barrelFingerGapProperties = Trk::MaterialProperties(1., 130./0.35, 0.003*pow(0.35,3),30.);
-  const Trk::Material* barrelFingerGapProperties = new Trk::Material(353., 2254., 20.7, 10., 0.00057);
+  Trk::Material barrelFingerGapProperties(353., 2254., 20.7, 10., 0.00057);
 
   //Trk::MaterialProperties fingerGapProperties = Trk::MaterialProperties(1., 88./0.1, 0.003*pow(0.1,3),30.);
-  const Trk::Material* fingerGapProperties = new Trk::Material(552., 3925., 16.4, 8.1, 0.00034);
+  Trk::Material fingerGapProperties(552., 3925., 16.4, 8.1, 0.00034);
 
   for (unsigned int itreetop = 0; itreetop<numTreeTops; ++itreetop){
     PVConstLink currentVPhysVolLink   = m_tileMgr->getTreeTop(itreetop);
@@ -306,7 +290,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    tileBarrelBounds = new Trk::CylinderVolumeBounds(childCylVolBounds->innerRadius(),depth,childCylVolBounds->halflengthZ());
 	    
 	    // assign Bounds
-	    tileBarrelGirderBounds = new Trk::CylinderVolumeBounds(depth,childCylVolBounds->outerRadius(),childCylVolBounds->halflengthZ());
+	    tileBarrelGirderBounds = make_unique<Trk::CylinderVolumeBounds>(depth,childCylVolBounds->outerRadius(),childCylVolBounds->halflengthZ());
 	    
 	    Amg::Transform3D* align=0;     //  no alignment given yet       
 	    
@@ -319,7 +303,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    steps.push_back(depth);
 	    Trk::BinUtility* rBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	    
-	    barrelMaterialBinned = new Trk::BinnedMaterial(barrelProperties,rBU,*cltb,*mTB);
+	    barrelMaterialBinned = new Trk::BinnedMaterial(barrelProperties,rBU,ltb,matTB);
             
 	    tileBarrel = new Trk::AlignableTrackingVolume(0,align,                          
 							  tileBarrelBounds,
@@ -333,12 +317,11 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	  
 	  std::string  volumeName;
 	  std::string  girderName;
-	  //unsigned int modelLayers = 0;
 	  std::vector<double> girderLayerRadius;
 	  std::vector<double> layerRadius;
 	  std::vector<double> layerEnvelope; 
 	  Trk::CylinderVolumeBounds* tileExtendedBounds = 0;
-	  Trk::CylinderVolumeBounds* gapVolBounds = 0;
+	  std::unique_ptr<Trk::CylinderVolumeBounds> gapVolBounds;
 	  
 	  // prepare for the Extended Barrel
 	  if (childCylVolBounds->halflengthZ() > 1000.){
@@ -354,7 +337,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    
 	  } else if ( childLogVol->getName()=="Gap" && !gapBounds ) {
 	    
-	    gapVolBounds = new Trk::CylinderVolumeBounds(childCylVolBounds->innerRadius(),childCylVolBounds->outerRadius(),
+	    gapVolBounds = make_unique<Trk::CylinderVolumeBounds>(childCylVolBounds->innerRadius(),childCylVolBounds->outerRadius(),
 						      childCylVolBounds->halflengthZ());
 	    
 	    gapZ = fabs(childZposition); 
@@ -383,7 +366,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    steps.push_back(tileExtendedBounds->outerRadius());
 	    Trk::BinUtility* eBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	    
-	    extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,*cltb,*mETB);
+	    extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,ltb,matETB);
 	    
 	    tileExtendedTrackingVolume = new Trk::AlignableTrackingVolume(new Amg::Transform3D(Amg::Translation3D(childPosition)),
 									  align,
@@ -394,7 +377,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    
 	  } else {          
 	    if ( gapVolBounds ) {
-	      gapBounds = gapVolBounds; 
+	      gapBounds = gapVolBounds.release(); 
 
 	    } else if (tileExtendedBounds) {
 	      
@@ -407,7 +390,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	      steps.push_back(tileExtendedBounds->outerRadius());
 	      Trk::BinUtility* eBU = new Trk::BinUtility(steps, Trk::open, Trk::binR);
 	      
-	      extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,*cltb,*mETB);
+	      extendedMaterialBinned = new Trk::BinnedMaterial(extendedBarrelProperties,eBU,ltb,matETB);
 	      
 	      tileExtendedTrackingVolume = new Trk::AlignableTrackingVolume(new Amg::Transform3D(Amg::Translation3D(childPosition)),
 									    align,
@@ -434,23 +417,28 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
       delete childCylVolBounds;
     } //end of ichild loop
   } // end of treetop loop
+
+  if (!gapBounds) std::abort();
+  if (!tileBarrelGirderBounds) std::abort();
+  if (!tilePositiveExtendedBarrel) std::abort();
+  if (!tilePositiveExtendedBarrelBounds) std::abort();
+  if (!tileNegativeExtendedBarrel) std::abort();
   
   ATH_MSG_DEBUG( "TileDetDescrManager parsed successfully! " );
 
   // combined girder volume
-  tileGirderBounds = new Trk::CylinderVolumeBounds(tileBarrelGirderBounds->innerRadius(),
-						   tileBarrelGirderBounds->outerRadius(),
-						   tileZ);
+  {
+    auto tileGirderBounds = CxxUtils::make_unique<Trk::CylinderVolumeBounds>
+      (tileBarrelGirderBounds->innerRadius(),
+       tileBarrelGirderBounds->outerRadius(),
+       tileZ);
 
-
-  tileGirder =new Trk::TrackingVolume(0,                     
-				      tileGirderBounds,
-				      girderProperties,
-				      dummyLayers, dummyVolumes,
-				      "Calo::Girder::TileCombined");
-
-  // cleanup
-  delete tileBarrelGirderBounds;
+    tileGirder =new Trk::TrackingVolume(0,                     
+                                        tileGirderBounds.release(),
+                                        girderProperties,
+                                        dummyLayers, dummyVolumes,
+                                        "Calo::Girder::TileCombined");
+  }
 
   // build the gap volumes ( crack done by CaloTG )
   double tileExtZ = tilePositiveExtendedBarrel->center().z()-tilePositiveExtendedBarrelBounds->halflengthZ();
@@ -462,7 +450,6 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+15));
   matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+16));
   matITC.push_back(new Trk::IdentifiedMaterial(barrelProperties,baseID+17));
-  const std::vector<const Trk::IdentifiedMaterial* >* itcmat = new  std::vector<const Trk::IdentifiedMaterial*>(matITC);
 
   // ITCPlug1
   double p1Z = 0.5*(plug1Z-plug1hZ+tileExtZ);
@@ -477,22 +464,24 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Amg::Transform3D* itcP1NegTransform = new Amg::Transform3D(Amg::Translation3D(itcP1Neg));
 
 
-  const std::vector<size_t>* dummylay = new std::vector<size_t>(1,1);
+  std::vector<size_t> dummylay(1,1);
   std::vector<float> bpsteps{float(plug1R), float(tileBarrelBounds->outerRadius())};
   Trk::BinUtility* rBU = new Trk::BinUtility(bpsteps, Trk::open, Trk::binR);
-  const Trk::BinnedMaterial* plug1Mat = new Trk::BinnedMaterial(barrelProperties,rBU,*dummylay,*itcmat);
+  Trk::BinUtility* rBUc = rBU->clone();
+  const Trk::BinnedMaterial* plug1MatPos = new Trk::BinnedMaterial(barrelProperties,rBU,dummylay,matITC);
+  const Trk::BinnedMaterial* plug1MatNeg = new Trk::BinnedMaterial(barrelProperties,rBUc,dummylay,matITC);
 
   Amg::Transform3D* align=0;      
 
   Trk::AlignableTrackingVolume* itcPlug1Pos = new Trk::AlignableTrackingVolume(itcP1PosTransform, align,
 									       itcPlug1Bounds,
-									       plug1Mat,
+									       plug1MatPos,
 									       16,
 									       "Calo::Detectors::Tile::ITCPlug1Pos");
       
   Trk::AlignableTrackingVolume* itcPlug1Neg = new Trk::AlignableTrackingVolume(itcP1NegTransform, align,
 									       itcPlug1Bounds->clone(),
-									       plug1Mat,
+									       plug1MatNeg,
 									       16,
 									       "Calo::Detectors::Tile::ITCPlug1Neg");
 
@@ -510,20 +499,22 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Amg::Transform3D* itcP2PosTransform = new Amg::Transform3D(Amg::Translation3D(itcP2Pos));
   Amg::Transform3D* itcP2NegTransform = new Amg::Transform3D(Amg::Translation3D(itcP2Neg));
 
-  const std::vector<size_t>* p2lay = new std::vector<size_t>(1,0);
+  std::vector<size_t> p2lay(1,0);
   std::vector<float> p2steps{float(plug2R), float(plug1R)};
   Trk::BinUtility* p2BU = new Trk::BinUtility(p2steps, Trk::open, Trk::binR);
-  const Trk::BinnedMaterial* plug2Mat = new Trk::BinnedMaterial(barrelProperties,p2BU,*p2lay,*itcmat);
+  Trk::BinUtility* p2BUc = p2BU->clone();
+  const Trk::BinnedMaterial* plug2MatPos = new Trk::BinnedMaterial(barrelProperties,p2BU,p2lay,matITC);
+  const Trk::BinnedMaterial* plug2MatNeg = new Trk::BinnedMaterial(barrelProperties,p2BUc,p2lay,matITC);
       
   Trk::AlignableTrackingVolume* itcPlug2Pos = new Trk::AlignableTrackingVolume(itcP2PosTransform, align,
 									       itcPlug2Bounds,
-									       plug2Mat,
+									       plug2MatPos,
 									       15,
 									       "Calo::Detectors::Tile::ITCPlug2Pos");
       
   Trk::AlignableTrackingVolume* itcPlug2Neg = new Trk::AlignableTrackingVolume(itcP2NegTransform, align,
 									       itcPlug2Bounds->clone(),
-									       plug2Mat,
+									       plug2MatNeg,
 									       15,
 									       "Calo::Detectors::Tile::ITCPlug2Neg");
 
@@ -542,10 +533,10 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Amg::Transform3D* gapPosTransform = new Amg::Transform3D(Amg::Translation3D(gPos));
   Amg::Transform3D* gapNegTransform = new Amg::Transform3D(Amg::Translation3D(gNeg));
 
-  const std::vector<size_t>* glay = new std::vector<size_t>(1,2);
+  std::vector<size_t> glay(1,2);
   std::vector<float> gsteps{float(gapi-gapBounds->halflengthZ()), float(gapi+gapBounds->halflengthZ())};
   Trk::BinUtility* gp = new Trk::BinUtility(gsteps, Trk::open, Trk::binZ);
-  const Trk::BinnedMaterial* gpMat = new Trk::BinnedMaterial(barrelProperties,gp,*glay,*itcmat);
+  const Trk::BinnedMaterial* gpMat = new Trk::BinnedMaterial(barrelProperties,gp,glay,matITC);
       
   Trk::AlignableTrackingVolume* gapPos = new Trk::AlignableTrackingVolume(gapPosTransform, align,
 									  gapBounds,
@@ -555,7 +546,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 
   std::vector<float> nsteps{float(-gapi-gapBounds->halflengthZ()), float(-gapi+gapBounds->halflengthZ())};
   Trk::BinUtility* gn = new Trk::BinUtility(nsteps, Trk::open, Trk::binZ);
-  const Trk::BinnedMaterial* gnMat = new Trk::BinnedMaterial(barrelProperties,gn,*glay,*itcmat);
+  const Trk::BinnedMaterial* gnMat = new Trk::BinnedMaterial(barrelProperties,gn,glay,matITC);
       
   Trk::AlignableTrackingVolume* gapNeg = new Trk::AlignableTrackingVolume(gapNegTransform, align,
 									  gapBounds->clone(),
@@ -593,22 +584,24 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 								   "Calo::GapVolumes::Tile::GapBufferNeg");
 
   const Trk::TrackingVolume* positiveGapSector = 0;
-  if (gapPos && gBufferPos) {
+  if (gBufferPos) {
     std::vector<const Trk::TrackingVolume*> volsPosGap;
      volsPosGap.push_back(gBufferPos);
      volsPosGap.push_back(gapPos);
-     positiveGapSector = m_trackingVolumeCreator->createContainerTrackingVolume(volsPosGap,
-									       *tileMaterial,
-									       "Calo::Container::PositiveGap");
+     positiveGapSector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsPosGap,
+        tileMaterial,
+        "Calo::Container::PositiveGap");
   } 
   const Trk::TrackingVolume* negativeGapSector = 0;
-  if (gapNeg && gBufferNeg) {
+  if (gBufferNeg) {
     std::vector<const Trk::TrackingVolume*> volsNegGap;
      volsNegGap.push_back(gapNeg);
      volsNegGap.push_back(gBufferNeg);
-     negativeGapSector = m_trackingVolumeCreator->createContainerTrackingVolume(volsNegGap,
-									       *tileMaterial,
-									       "Calo::Container::NegativeGap");
+     negativeGapSector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsNegGap,
+        tileMaterial,
+        "Calo::Container::NegativeGap");
   } 
 
   // plug2 sector
@@ -638,44 +631,48 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 								    "Calo::GapVolumes::Tile::Plug2BufferNeg");
 
   const Trk::TrackingVolume* positiveP2Sector = 0;
-  if (itcPlug2Pos && p2BufferPos) {
+  if (p2BufferPos) {
     std::vector<const Trk::TrackingVolume*> volsPosP2;
      volsPosP2.push_back(p2BufferPos);
      volsPosP2.push_back(itcPlug2Pos);
-     positiveP2Sector = m_trackingVolumeCreator->createContainerTrackingVolume(volsPosP2,
-									       *tileMaterial,
-									       "Calo::Container::PositiveP2");
+     positiveP2Sector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsPosP2,
+        tileMaterial,
+        "Calo::Container::PositiveP2");
   } 
   const Trk::TrackingVolume* negativeP2Sector = 0;
-  if (itcPlug2Neg && p2BufferNeg) {
+  if (itcPlug2Neg) {
     std::vector<const Trk::TrackingVolume*> volsNegP2;
      volsNegP2.push_back(itcPlug2Neg);
      volsNegP2.push_back(p2BufferNeg);
-     negativeP2Sector = m_trackingVolumeCreator->createContainerTrackingVolume(volsNegP2,
-									       *tileMaterial,
-									       "Calo::Container::NegativeP2");
+     negativeP2Sector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsNegP2,
+        tileMaterial,
+        "Calo::Container::NegativeP2");
   } 
 
   // glue ITC sector radially
   const Trk::TrackingVolume* positiveITCSector = 0;
-  if (positiveGapSector && positiveP2Sector && itcPlug1Pos) {
+  if (positiveGapSector && positiveP2Sector) {
     std::vector<const Trk::TrackingVolume*> volsITCPos;
      volsITCPos.push_back(positiveGapSector);
      volsITCPos.push_back(positiveP2Sector);
      volsITCPos.push_back(itcPlug1Pos);
-     positiveITCSector = m_trackingVolumeCreator->createContainerTrackingVolume(volsITCPos,
-									       *tileMaterial,
-									       "Calo::Container::ITCPos");
+     positiveITCSector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsITCPos,
+        tileMaterial,
+        "Calo::Container::ITCPos");
   } 
   const Trk::TrackingVolume* negativeITCSector = 0;
-  if (negativeGapSector && negativeP2Sector && itcPlug1Neg) {
+  if (negativeGapSector && negativeP2Sector) {
     std::vector<const Trk::TrackingVolume*> volsITCNeg;
      volsITCNeg.push_back(negativeGapSector);
      volsITCNeg.push_back(negativeP2Sector);
      volsITCNeg.push_back(itcPlug1Neg);
-     negativeITCSector = m_trackingVolumeCreator->createContainerTrackingVolume(volsITCNeg,
-									       *tileMaterial,
-									       "Calo::Container::ITCNeg");
+     negativeITCSector = m_trackingVolumeCreator->createContainerTrackingVolume
+       (volsITCNeg,
+        tileMaterial,
+        "Calo::Container::ITCNeg");
   } 
 
   ATH_MSG_DEBUG( "Gap volumes (ITC sector) built " );
@@ -697,13 +694,13 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
     
   tileBarrelPositiveFingerGap = new Trk::TrackingVolume(bfPosTransform,
 							tileBarrelFingerGapBounds,
-							*barrelFingerGapProperties,
+							barrelFingerGapProperties,
 							dummyLayers, dummyVolumes,
 							"Calo::GapVolumes::Tile::BarrelPositiveFingerGap");
   
   tileBarrelNegativeFingerGap =  new Trk::TrackingVolume(bfNegTransform,
 							 tileBarrelFingerGapBounds->clone(),
-							 *barrelFingerGapProperties,
+							 barrelFingerGapProperties,
 							 dummyLayers, dummyVolumes,
 							 "Calo::GapVolumes::Tile::BarrelNegativeFingerGap");
   
@@ -726,13 +723,13 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
  
   tilePositiveFingerGap = new Trk::TrackingVolume(efPosTransform,
 						  tilePositiveFingerGapBounds,
-						  *fingerGapProperties,
+						  fingerGapProperties,
 						  dummyLayers, dummyVolumes,
 						  "Calo::GapVolumes::Tile::PositiveFingerGap");
      
   tileNegativeFingerGap = new Trk::TrackingVolume(efNegTransform,
 						  tilePositiveFingerGapBounds->clone(),
-						  *fingerGapProperties,
+						  fingerGapProperties,
 						  dummyLayers, dummyVolumes,
 						  "Calo::GapVolumes::Tile::NegativeFingerGap");
 
@@ -765,17 +762,19 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   tileVols.push_back(positiveITCSector);
   tileVols.push_back(tilePositiveExtendedBarrel);
   tileVols.push_back(tilePositiveFingerGap);
-  const Trk::TrackingVolume* tileCombinedSector = m_trackingVolumeCreator->createContainerTrackingVolume(tileVols,
-									     *tileMaterial,
-									     "Calo::Container::Tile::InnerSector");
+  const Trk::TrackingVolume* tileCombinedSector = m_trackingVolumeCreator->createContainerTrackingVolume
+    (tileVols,
+     tileMaterial,
+     "Calo::Container::Tile::InnerSector");
 
   // glue with combined girder
   std::vector<const Trk::TrackingVolume*> tileVolumes;
   tileVolumes.push_back(tileCombinedSector);
   tileVolumes.push_back(tileGirder);
-  const Trk::TrackingVolume* tile = m_trackingVolumeCreator->createContainerTrackingVolume(tileVolumes,
-									     *tileMaterial,
-									     "Calo::Container::Tile::Combined");
+  const Trk::TrackingVolume* tile = m_trackingVolumeCreator->createContainerTrackingVolume
+    (tileVolumes,
+     tileMaterial,
+     "Calo::Container::Tile::Combined");
 
   ATH_MSG_DEBUG( "Combined Tile built " );
 
