@@ -24,8 +24,8 @@ if Simulation:
     MBTSflag="13TeV"
     run=222222
 else:
-    db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
-    tag = "HLT-UPD1-01"
+    db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
+    tag = "RUN2-HLT-UPD1-01"
     MBTSflag="none"
     run=0
 

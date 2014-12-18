@@ -78,7 +78,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         #            self.__tilePrefixOfl+"CALIB/CIS/FMA/",
         #            self.__tilePrefixOfl+"CALIB/CIS/FLT/"]
 
-        folders = [self.__tilePrefixOfl2+"CALIB/CIS/FIT/"]
+        folders = [self.__tilePrefixOfl2+"CALIB/CIS/"]
         
         #=== fill LIN (linear) folders first
         loGainDefVec = PyCintex.gbl.std.vector('float')()

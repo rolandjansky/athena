@@ -3,24 +3,22 @@
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-08-05
 
 import getopt,sys,os,string
-
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps the TileCal noise from SAMPLE and OFNI folders"
     print ""
     print "-h, --help      shows this help"
-    print "-t, --tag=      specify tag to use, f.i. HLT-UPD1-01 or COM-01"
+    print "-t, --tag=      specify tag to use, f.i. RUN2-HLT-UPD1-01 or COM-01"
     print "-r, --run=      specify run  number, by default uses latest iov"
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-p, --ros=      specify partition (ros number), default is 1"
     print "-d, --drawer=   specify drawer number, default is 0"
     print "-c, --channel=  specify channel number, default is 0"
     print "-g, -a, --adc=  specify gain (adc number), default is 0"
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/COMP200' or 'sqlite://;schema=tileSqlite.db;dbname=COMP200'"
+    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     
-
-
 letters = "hr:l:s:t:p:d:c:a:g:"
 keywords = ["help","run=","lumi=","schema=","tag=","ros=","drawer=","channel=","adc=","gain="]
 
@@ -34,8 +32,8 @@ except getopt.GetOptError, err:
 # defaults 
 run = 2147483647
 lumi = 0
-schema = 'COOLONL_TILE/COMP200'
-tag = "HLT-UPD1-01"
+schema = 'COOLONL_TILE/CONDBR2'
+tag = "HLT-UPD1-01" # tag is needed only for COMP200, ignored in CONDBR2
 ros     = 1
 drawer  = 0
 channel = 0
@@ -65,8 +63,8 @@ for o, a in opts:
         assert False, "unhandeled option"
 
         
-if schema=='COOLOFL_TILE/COMP200':
-    print "This script works on the 'COOLONL_TILE/COMP200' schema" 
+if not 'COOLONL_TILE' in schema and not 'sqlite' in schema:
+    print "This script works on the 'COOLONL_TILE/COMP200' or 'COOLONL_TILE/CONDBR2' schema" 
     sys.exit(2)
 
         
@@ -82,14 +80,13 @@ log.setLevel(logging.DEBUG)
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
 
-
+folder1="/TILE/ONL01/NOISE/SAMPLE"
+folder2="/TILE/ONL01/NOISE/OFNI"
+if 'COMP200' in schema: folder1="/TILE/OFL01/NOISE/SAMPLE"
 log.info("Initializing ros %d, drawer %d for run %d, lumiblock %d" % (ros,drawer,run,lumi))
-for folderPath in ["/TILE/OFL01/NOISE/SAMPLE", "/TILE/ONL01/NOISE/OFNI"]:
+for folderPath in [folder1, folder2]:
 
-    if "/TILE/ONL01" in folderPath:
-        folderTag = ""
-    else:
-        folderTag = TileCalibUtils.getFullTag(folderPath, tag)
+    folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
     log.info("Initializing folder %s with tag %s" % (folderPath, folderTag) )
     blobReader = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
     log.info("... %s" % blobReader.getComment((run,lumi)))

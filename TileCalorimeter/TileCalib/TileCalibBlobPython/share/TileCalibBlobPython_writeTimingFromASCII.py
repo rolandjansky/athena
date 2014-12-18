@@ -125,9 +125,9 @@ timingDict = {
 
 
 #=== open the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
-tag = "HLT-UPD1-00"
+tag = "RUN2-HLT-UPD1-00"
 for directory in sorted(timingDict.iterkeys()):
     since = timingDict[directory]
 #    fileTdlas = directory+"/Tile.tdlas"

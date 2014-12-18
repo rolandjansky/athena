@@ -10,9 +10,10 @@ options, remainder = getopt.getopt(sys.argv[1:], 'h', ['help','folder=','globalt
 
 # defaults
 folder=''
-globaltag='CURRENT'
+#globaltag='CURRENT'
+globaltag=''
 localtag=''
-instance = 'COMP200'
+instance = 'CONDBR2'
 schema = "COOLOFL_TILE"
 help = 0
 for opt, arg in options:
@@ -45,14 +46,14 @@ if help:
     print '   if local tag is specified, it makes inverse operation - '
     print '   shows all global tags linked to local tag'
     print '  localtag='
-    print '  default instance=COMP200'
+    print '  default instance=CONDBR2'
     print ' usage:'
     print ' CheckTagAssociation.py --folder=foldername --globaltag=tagname --instance=instancename --localtag=leaftagname'
     print "options globaltag and localtag are mutually exclusive"
     print "    if both are specified, globaltag is ignored and "
     print "    association of localtag to all global tags is printed"
     print " EXAMPLES: "
-    print "CheckTagAssociation.py --folder=/TILE/OFL02/CALIB/CES --localtag=TileOfl02CalibCes-HLT-UPD1-01"
+    print "CheckTagAssociation.py --folder=/TILE/OFL02/CALIB/CES --localtag=TileOfl02CalibCes-RUN2-HLT-UPD1-01"
     print "CheckTagAssociation.py --folder=/TILE/OFL02/CALIB/CES"
     sys.exit()
 
@@ -78,8 +79,8 @@ log.setLevel(logging.WARNING)
 log.setLevel(logging.WARNING)
 
 
-if instance == 'COMP200' :
-    print "alias CURRENT = %s alias NEXT = %s" % (current, next)
+#if instance == 'CONDBR2' :
+print "alias CURRENT = %s alias NEXT = %s" % (current, next)
 
 if folder == '':
         sys.exit()
@@ -88,15 +89,18 @@ if folder == '':
 connStr=schema+'/'+instance
 
 #=== open the database
-#db = TileCalibTools.openDb('ORACLE', 'COMP200', 'READONLY')
-
-#db = TileCalibTools.openDbConn('COOLOFL_TILE/OFLP200', 'READONLY')
 db = TileCalibTools.openDbConn(connStr, 'READONLY')
 
 if localtag == "" :
 #    === resolve folder tag from global tag
-    foldertag = TileCalibTools.getFolderTag(db, folder, globaltag)
-    print "global tag %s associated to leaf TAG %s" % (globaltag,foldertag)
+    if globaltag != "":
+        foldertag = TileCalibTools.getFolderTag(db, folder, globaltag)
+        print "global tag %s associated to leaf TAG %s" % (globaltag,foldertag)
+    else:
+        foldertag = TileCalibTools.getFolderTag(db, folder, current)
+        print "global tag %s associated to leaf TAG %s" % (current,foldertag)
+        foldertag = TileCalibTools.getFolderTag(db, folder, next)
+        print "global tag %s associated to leaf TAG %s" % (next,foldertag)
 
 else:
     rfolder=db.getFolderSet('/')

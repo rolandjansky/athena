@@ -2,20 +2,19 @@
 # ./ReadTripsProbsFromCool.py  --schema='COOLOFL_TILE/OFLP200'  --folder='OFL02' --tag='UPD4'
 
 import getopt,sys,os,string
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps the TileCal drawer trips probabilities from various schemas / folders"
     print ""
     print "-h, --help     shows this help"
-    print "-f, --folder=  specify status folder to use OFL01 or OFL02, by default OFL01 "
+    print "-f, --folder=  specify status folder, by default OFL02 "
     print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4"
     print "-r, --run=     specify run  number, by default uses latest iov"
     print "-l, --lumi=    specify lumi block number, default is 0"
-    print "-s, --schema=  specify schema to use, like 'COOLONL_TILE/OFLP200' or 'sqlite://;schema=tileSqlite.db;dbname=OFLP200'"
+    print "-s, --schema=  specify schema to use, like 'COOLOFL_TILE/OFLP200' or 'sqlite://;schema=tileSqlite.db;dbname=OFLP200'"
     
-
-
 letters = "hr:l:s:t:f:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder="]
 
@@ -30,8 +29,8 @@ except getopt.GetOptError, err:
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/OFLP200'
-folderPath =  "/TILE/OFL01/STATUS/ADC"
-tag = "UPD1"
+folderPath =  "/TILE/OFL02/STATUS/ADC"
+tag = "SDR-BS8T-10"
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -68,17 +67,7 @@ log1.setLevel(logLevel)
 
 #=== set database
 db = TileCalibTools.openDbConn(schema, 'READONLY')
-
-if tag == "UPD4":
-    sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-    from AtlCoolBKLib import resolveAlias
-    gtagUPD4 = resolveAlias.getCurrent().replace('*','')
-    log.info("global tag: %s" % gtagUPD4)
-    folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
-else:
-    folderTag = TileCalibUtils.getFullTag(folderPath, tag )
-
-
+folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 blobReader = TileCalibTools.TileBlobReader(db, folderPath, folderTag)

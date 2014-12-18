@@ -20,7 +20,7 @@ def usage():
     print "-f, --folder=    specify status folder to use ONL01, OFL01 or OFL02 "
     print "-t, --tag=       specify tag to use, f.i. UPD1 or UPD4"
     print "-o, --outtag=    specify output tag to be used for cleaned up result, f.i. UPD4-99"
-    print "-i, --instance=  specify DB instance (COMP200 or OFLP200)"
+    print "-i, --instance=  specify DB instance (CONDBR2 or COMP200 or OFLP200)"
     print ""
 
 def showAdcProblems(mgr,ros,mod):
@@ -82,7 +82,7 @@ def writeMergedIOV(ros,mod,since,until):
         runUntil += 1
         lumUntil = 0
 
-    msg = 'AtlCoolCopy.exe \"%s\" \"%s\" -folder /TILE/OFL02/STATUS/ADC  -tag TileOfl02StatusAdc-UPD4-08 -rls %i %i -rlu %i %i -alliov -outtag %s -ch1 %i -ch2 %i -nrls %i %i -nrlu %i %i\n' % (ischema,oschema,runSince,lumSince,runSince,lumSince+1,outtagFull,chanNum,chanNum,runSince,lumSince,runUntil,lumUntil)
+    msg = 'AtlCoolCopy.exe \"%s\" \"%s\" -folder /TILE/OFL02/STATUS/ADC  -tag TileOfl02StatusAdc-RUN2-UPD4-08 -rls %i %i -rlu %i %i -alliov -outtag %s -ch1 %i -ch2 %i -nrls %i %i -nrlu %i %i\n' % (ischema,oschema,runSince,lumSince,runSince,lumSince+1,outtagFull,chanNum,chanNum,runSince,lumSince,runUntil,lumUntil)
     log.info(msg)
 
 
@@ -138,16 +138,6 @@ if __name__ == "__main__":
   log.info("ischema=%s" % ischema)
   log.info("oschema=%s" % oschema)
 
-  #if schema=='COOLONL_TILE/COMP200':
-  #    if folderPath!="/TILE/ONL01/STATUS/ADC" and folderPath!="/TILE/OFL01/STATUS/ADC":
-  #        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
-  #        sys.exit(2)
-
-  #if schema=='COOLOFL_TILE/COMP200':
-  #    if folderPath!="/TILE/OFL02/STATUS/ADC":
-  #        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
-  #        sys.exit(2)
-
 
   from TileCalibBlobPython import TileCalibTools
   from TileCalibBlobPython import TileBchTools
@@ -169,14 +159,18 @@ if __name__ == "__main__":
   elif "/TILE/OFL01" in folderPath:
     folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-00")
   elif "/TILE/OFL02" in folderPath:
-    if tag == "UPD1":
-        folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-00" )
+    if tag == "UPD1" and 'CONDBR2' in schema:
+        gtagUPD1='CONDBR2-ES1PA-2014-00'
+        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD1 )
     elif tag == "UPD4":
         sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
         from AtlCoolBKLib import resolveAlias
         gtagUPD4 = resolveAlias.getCurrent().replace('*','')
         log.info("global tag: %s" % gtagUPD4)
-        folderTag = TileCalibTools.getFolderTag(idb, folderPath, gtagUPD4 )
+        if 'CONDBR2' in schema and 'RUN1-' in gtagUPD4:
+            gtagUPD4='CONDBR2-BLKPA-2014-00'
+            log.info("wrong global tag for CONDBR2, changing it to: %s" % gtagUPD4)
+        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
     else:
         folderTag = TileCalibUtils.getFullTag(folderPath, tag)
   else:

@@ -6,23 +6,25 @@ from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
 import ROOT
 
-pointInTime = (99999,0)
+pointInTime = (999999999,0)
 
 #=== get a logger
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
 log = getLogger("ps_readDb")
     
 #=== open the database
-db = TileCalibTools.openDb('ORACLE', 'COMP200', 'READONLY')
+db = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
 
 #=== specify folder and tag
-folder = "/TILE/OFL01/PULSESHAPE/PHY"
-folderTag = TileCalibUtils.getFullTag(folder, "COM-00")
+folder = "/TILE/OFL02/PULSESHAPE/PHY"
+folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
 #folder = "/TILE/OFL01/PULSESHAPE/LAS"
-#folderTag = TileCalibUtils.getFullTag(folder, "COM-01")
+#folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-01")
 
 
 #=== get a blob reader
+print folder
+print folderTag
 blobReader = TileCalibTools.TileBlobReader(db,folder,folderTag)
 
 #=== write out the comment
@@ -92,3 +94,5 @@ can.cd(3)
 psHG.Draw("AP")
 can.cd(4)
 dsHG.Draw("AP")
+
+c = raw_input('please enter a character: ')

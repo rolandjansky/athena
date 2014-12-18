@@ -20,7 +20,7 @@ log = getLogger("int_readDb")
 
 #=== open the database
 from TileCalibBlobPython import TileCalibTools
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'READONLY')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'READONLY')
 
 #=== get a blob writer
 blobReader = TileCalibTools.TileBlobReader(db,"/TILE/V01/INTEGRATOR")

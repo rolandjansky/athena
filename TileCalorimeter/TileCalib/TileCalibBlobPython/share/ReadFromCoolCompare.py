@@ -11,7 +11,7 @@
 #folderPath = "/TILE/OFL02/CALIB/CES"
 #folderPath = "/TILE/OFL02/TIME/CHANNELOFFSET/PHY"
 #folderPath = "/TILE/OFL02/NOISE/SAMPLE"
-#tag = "HLT-UPD1-01"
+#tag = "RUN2-HLT-UPD1-01"
 #folderPath = "/TILE/ONL01/CALIB/CIS/LIN"
 #folderPath = "/TILE/ONL01/MUID"
 #folderPath = "/TILE/ONL01/FRAG1"
@@ -21,9 +21,10 @@
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
 import os, sys, getopt
+os.environ['TERM'] = 'linux'
 
 # main defaults are here - can be modified from command line
-run=999999
+run=999999999
 run2=0       # will be set to "run" if not on command line
 lumi=0
 lumi2=-1     # will be set to "lumi" if not on command line
@@ -31,11 +32,11 @@ maxdiff=-1.0 # dump all values
 maxdiffpercent=-1.0
 folderPath = "/TILE/OFL02/CALIB/CES"
 folderPath2 = "none" # will be set to "folderPath" if not on command line
-tag = "HLT-UPD1-01"
+tag = "RUN2-HLT-UPD1-01"
 tag2 = "none"
 schema = "COOLOFL_TILE"
 schema2 = "none"
-instance = "COMP200"
+instance = "CONDBR2"
 instance2 = "none"
 sqlfn = "none"
 sqlfn2 = "none"
@@ -119,7 +120,7 @@ if help:
     print '   in logical AND, so, both have to be TRUE to print the data'
     print '\n Examples:'
     print '\npython ReadFromCoolCompare.py --maxdiff=100 --run=100012  --folder=/TILE/ONL01/CALIB/CES  --tag= --schema=COOLONL_TILE --tag2=HLT-REPC-004 --sqlfn2=tileSqlite.db --folder2=/TILE/OFL02/CALIB/CES --schema2=COOLOFL_TILE'
-    print '\npython ReadFromCoolCompare.py --folder=/TILE/ONL01/FRAG1 --schema=COOLONL_TILE --tag= --maxdiffpercent=5.5 --run=160000 --run2=999999'
+    print '\npython ReadFromCoolCompare.py --folder=/TILE/ONL01/FRAG1 --schema=COOLONL_TILE --tag= --maxdiffpercent=5.5 --run=160000 --run2=999999999'
     sys.exit()
 
 
@@ -171,18 +172,41 @@ drawer = 0
 log.info("Initializing for run1 %d lumi %d run2 %d lumi2 %d maxdiff %f maxdiffpercent %f" %  (run, lumi, run2, lumi2, maxdiff,maxdiffpercent))
 log.info("Comment1: %s" % blobReader.getComment((run,lumi)))
 log.info("Comment2: %s" % blobReader2.getComment((run2,lumi2)))
-flt = blobReader.getDrawer(ros, drawer,(run,lumi))
-flt2 = blobReader2.getDrawer(ros, drawer,(run2,lumi2))
 
+flt=None
+r=5
+d=0
+while not flt:
+    d-=1
+    if d<0:
+        r-=1
+        if r<0:
+            log.info("ERROR!!! No valid drawers in first database")
+            sys.exit()
+        d=TileCalibUtils.getMaxDrawer(r)-1
+    flt = blobReader.getDrawer(r, d, (run,lumi), False, False)
 #flt.dump()
 ot = flt.getObjType()
-ot2 = flt2.getObjType()
 ov = flt.getObjVersion()
 os = flt.getObjSizeByte()/4
-os2 = flt2.getObjSizeByte()/4
 no = flt.getNObjs()
 nc = flt.getNChans()
 ng = flt.getNGains()
+
+flt2=None
+r=5
+d=0
+while not flt2:
+    d-=1
+    if d<0:
+        r-=1
+        if r<0:
+            log.info("ERROR!!! No valid drawers in second database")
+            sys.exit()
+        d=TileCalibUtils.getMaxDrawer(r)-1
+    flt2 = blobReader2.getDrawer(r, d, (run,lumi), False, False)
+ot2 = flt2.getObjType()
+os2 = flt2.getObjSizeByte()/4
 
 if (os <> os2) or (ot <> ot2):
     log.info("ERROR!!! object sizes %s %s or types %s %s are different" % (os, os2, ot, ot2))
@@ -195,7 +219,7 @@ for ind in xrange(0,os):
     v2.append(0)
 
 f.write("Command line parameters used: \n %s \n" % sys.argv[1:])
-f.write("---- Object header for ros=1 drawer=0 \n")
+f.write("---- Object header for ros=%d drawer=%d \n" % (r,d))
 f.write("ObjType        : %d \n" % ot)
 f.write("ObjVersion     : %d \n" % ov)
 f.write("ObjSize[4bytes]: %d \n" % os)
@@ -209,40 +233,41 @@ for ros in xrange(0,5):
     for mod in xrange(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
         modName = TileCalibUtils.getDrawerString(ros,mod)        
         #log.info("ros %d, drawer %s at run %d" % (ros, modName, run))
-        flt = blobReader.getDrawer(ros, mod,(run,lumi))
-        flt2 = blobReader2.getDrawer(ros, mod,(run2,lumi2))
-        osc = flt.getObjSizeByte()/4
-        os2c = flt2.getObjSizeByte()/4
-        if (((os <> osc) or (os2 <> os2c)) and answ <> 'y'):
-            log.info("ERROR!!! object sizes are different for ROS 0 (%s %s) and ROS %s (%s %s) drawer %s" % (os, os2, ros, osc, os2c, modName))
-            answ=raw_input(' continue anyway? (y/n)')
-            if (answ <> 'y'):
-                sys.exit()
-            else:
-                for ind in xrange(0,osc):
-                    v.append(0)
-                    v2.append(0)
-                
-
-        for chn in xrange(TileCalibUtils.max_chan()):
-            chnName = " %2i" % chn
-            for adc in xrange(ng):
-                for ind in xrange(0,osc):
-                    v[ind]  =  flt.getData(chn, adc, ind)
-                    v2[ind] =  flt2.getData(chn, adc, ind)
-                    dv12 = v[ind] - v2[ind]
-                    if v2[ind] == 0:
-                        dv12percent=0
-                    else:
-                        dv12percent=dv12*100/v2[ind]
-#                    print  modName, ' chann ',  repr(chn),  ' adc ',  repr(adc),  ' ind ',  repr(ind),  ' val1 ',  repr(v[ind]),' val2 ',  repr(v2[ind]), ' diff ',  repr(dv12), 'percent ', repr(dv12percent)
-                    if abs(dv12) > maxdiff and abs(dv12percent) > maxdiffpercent:
-                        if ot==30: # integers
-                            f.write('%s chann %2d adc %d ind %d val1 %d val2 %d  diff %d \n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12))
-                        elif ot==20: # bad channels
-                            f.write('%s chann %2d adc %d ind %d val1 %s val2 %s  diff %f \n' % (modName,chn,adc,ind,hex(int(v[ind])),hex(int(v2[ind])),dv12))                             
-                        else:       # floats
-                            f.write('%s chann %2d adc %d ind %d val1 %.4f val2 %.4f  diff %.4f %.2f%%\n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12,dv12percent))
+        flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
+        flt2 = blobReader2.getDrawer(ros, mod,(run2,lumi2), False, False)
+        if flt and flt2:
+            osc = flt.getObjSizeByte()/4
+            os2c = flt2.getObjSizeByte()/4
+            if (((os <> osc) or (os2 <> os2c)) and answ <> 'y'):
+                log.info("ERROR!!! object sizes are different for ROS 0 (%s %s) and ROS %s (%s %s) drawer %s" % (os, os2, ros, osc, os2c, modName))
+                answ=raw_input(' continue anyway? (y/n)')
+                if (answ <> 'y'):
+                    sys.exit()
+                else:
+                    for ind in xrange(0,osc):
+                        v.append(0)
+                        v2.append(0)
+                    
+        
+            for chn in xrange(TileCalibUtils.max_chan()):
+                chnName = " %2i" % chn
+                for adc in xrange(ng):
+                    for ind in xrange(0,osc):
+                        v[ind]  =  flt.getData(chn, adc, ind)
+                        v2[ind] =  flt2.getData(chn, adc, ind)
+                        dv12 = v[ind] - v2[ind]
+                        if v2[ind] == 0:
+                            dv12percent=0
+                        else:
+                            dv12percent=dv12*100/v2[ind]
+#                        print  modName, ' chann ',  repr(chn),  ' adc ',  repr(adc),  ' ind ',  repr(ind),  ' val1 ',  repr(v[ind]),' val2 ',  repr(v2[ind]), ' diff ',  repr(dv12), 'percent ', repr(dv12percent)
+                        if abs(dv12) > maxdiff and abs(dv12percent) > maxdiffpercent:
+                            if ot==30: # integers
+                                f.write('%s chann %2d adc %d ind %d val1 %d val2 %d  diff %d \n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12))
+                            elif ot==20: # bad channels
+                                f.write('%s chann %2d adc %d ind %d val1 %s val2 %s  diff %f \n' % (modName,chn,adc,ind,hex(int(v[ind])),hex(int(v2[ind])),dv12))                             
+                            else:       # floats
+                                f.write('%s chann %2d adc %d ind %d val1 %.4f val2 %.4f  diff %.4f %.2f%%\n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12,dv12percent))
                                 
 #                        f.write(s + "\n")
                     

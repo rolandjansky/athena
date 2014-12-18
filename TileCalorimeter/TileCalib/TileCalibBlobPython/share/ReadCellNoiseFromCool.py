@@ -8,13 +8,14 @@
 # These are: ratio between first and second gaussian, RMS of the first gaussian, and RMS of the second gaussian
 
 import getopt,sys,os,string
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps noise constants from online or offline folders / tags"
     print ""
     print "-h, --help      shows this help"
-    print "-s, --schema=   specify schema to use, ONL or OFL"
+    print "-s, --schema=   specify schema to use, ONL or OFL for RUN1 or ONL2 or OFL2 for RUN2 or MC"
     print "-f, --folder=   specify status folder to use f.i. /TILE/OFL02/NOISE/CELL or /CALO/Noise/CellNoise "
     print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or tag suffix like 14TeV-N200_dT50-01"
     print "-r, --run=      specify run  number, by default uses latest iov"
@@ -39,9 +40,9 @@ except getopt.GetoptError, err:
 # defaults 
 run    = 2147483647
 lumi   = 0
-schema = 'OFL'
+schema = 'OFL2'
 folderPath = '/TILE/OFL02/NOISE/CELL'
-tag    = 'UPD1'
+tag    = 'UPD4'
 chan   = 48 # represents Tile
 cell   = -1
 gain   = -1
@@ -79,9 +80,13 @@ for o, a in opts:
         usage()
         sys.exit(2)
         
+tile=(chan==48)
+
 import PyCintex
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
+from TileCalibBlobPython import TileCellTools
+hashMgr=TileCellTools.TileCellHashMgr()
 
 #=== get a logger
 log = CaloCondLogger.getLogger("ReadCellNoise")
@@ -90,47 +95,56 @@ log = CaloCondLogger.getLogger("ReadCellNoise")
 
 if schema=='ONL': # shortcut for COOLONL_CALO/COMP200
     schema='COOLONL_CALO/COMP200'
-    if folderPath.startswith('/TILE'):
-        folderPath='/CALO/Noise/CellNoise'
-elif schema=='OFL': # shortcut for COOLOFL_TILE/COMP200
-    schema='COOLOFL_TILE/COMP200'
-    if folderPath.startswith('/CALO'):
+    folderPath='/CALO/Noise/CellNoise'
+    if tag=='UPD4': tag='UPD1-00' # change default to latest RUN1 tag
+elif schema=='ONL2': # shortcut for COOLONL_CALO/CONDBR2
+    schema='COOLONL_CALO/CONDBR2'
+    folderPath='/CALO/Noise/CellNoise'
+    if tag=='UPD4': tag='RUN2-UPD1-00' # change default to latest RUN2 tag
+elif schema=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200
+    if chan!=48:
+        schema='COOLOFL_LAR/COMP200'
+        folderPath='/LAR/NoiseOfl/CellNoise'
+        if tag=='UPD4': tag='UPD4-02' # change default to latest RUN1 tag
+    else:
+        schema='COOLOFL_TILE/COMP200'
+        folderPath='/TILE/OFL02/NOISE/CELL'
+        if tag=='UPD4': tag='UPD4-10' # change default to latest RUN1 tag
+elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
+    if chan!=48:
+        schema='COOLOFL_LAR/CONDBR2'
+        folderPath='/LAR/NoiseOfl/CellNoise'
+    else:
+        schema='COOLOFL_TILE/CONDBR2'
         folderPath='/TILE/OFL02/NOISE/CELL'
 elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200 
     schema='COOLONL_CALO/OFLP200'
-    if folderPath.startswith('/TILE'):
-        folderPath='/CALO/Noise/CellNoise'
-    if tag=='UPD1': # change default to tag used in DC14
-        tag='IOVDEP-10'
+    folderPath='/CALO/Noise/CellNoise'
+    if tag=='UPD4': tag='IOVDEP-10' # change default to tag used in DC14
 elif schema=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200
     schema='COOLOFL_CALO/OFLP200'
-    if folderPath.startswith('/TILE'):
-        folderPath='/CALO/Ofl/Noise/CellNoise'
-    if tag=='UPD1': # change default to tag used in DC14
-        tag='IOVDEP-10'
-elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200
-    schema='COOLOFL_TILE/OFLP200'
-    if folderPath.startswith('/CALO'):
+    folderPath='/CALO/Ofl/Noise/CellNoise'
+    if tag=='UPD4': tag='IOVDEP-10' # change default to tag used in DC14
+elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
+    if chan!=48:
+        schema='COOLOFL_LAR/OFLP200'
+        folderPath='/LAR/NoiseOfl/CellNoise'
+        if tag=='UPD4': tag='IOVDEP-00' # change default to tag used in DC14
+    else:
+        schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
-    if tag=='UPD1': # change default to tag used in DC14
-        tag='IOVDEP-01'
+        if tag=='UPD4': tag='IOVDEP-02' # change default to tag used in DC14
 
 db = CaloCondTools.openDbConn(schema, "READONLY")
 
-if tag=='UPD1':
-    tag='UPD1-00'
-if tag=='UPD4':
-    sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-    from AtlCoolBKLib import resolveAlias
-    gtagUPD4 = resolveAlias.getCurrent().replace('*','')
-    log.info("global tag: %s" % gtagUPD4)
-    folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
+if folderPath.startswith('/TILE') or tag=='UPD1' or tag=='UPD4' or 'COND'in tag:
+    folderTag = TileCalibTools.getFolderTag(db, folderPath, tag )
 elif folderPath.startswith('/CALO/Ofl'):
     folderTag = 'CaloOflNoiseCellnoise-'+tag
 elif folderPath.startswith('/CALO'):
     folderTag = 'CaloNoiseCellnoise-'+tag
-else:
-    folderTag = 'TileOfl02NoiseCell-'+tag
+elif folderPath.startswith('/LAR'):
+    folderTag = 'LARNoiseOflCellNoise-'+tag
 
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
@@ -186,8 +200,10 @@ else:
   for i in xrange(len(names),indexmax): names += ["c"+str(i)+" "]
   dm="\t"
 for cell in xrange(cellmin,cellmax):
+  if tile and len(name1[0]):
+    name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
   for gain in xrange(gainmin,gainmax):
-    msg="%s%d %s%d\t" % ( name1[0], cell, name1[1], gain)
+    msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
     for index in xrange(indexmin,indexmax):
       v=blobFlt.getData(cell, gain, index)
       if doubl: msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v),dm)

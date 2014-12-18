@@ -43,7 +43,7 @@ g = PyCintex.gbl
 log = TileCalibLogger.getLogger("WriteOfc")
 
 #=== (re-)create the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 #=== creating folder specifications
 spec = cool.RecordSpecification()
 #=== Note special name '*Ofc' and 16M instead of 64k for OFCs

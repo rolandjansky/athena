@@ -8,7 +8,7 @@ from TileCalibBlobPython import TileCalibTools, TileCalibDefaultWriter
 from TileCalibBlobObjs.Classes import *
 
 #=== open the commissioning database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 
 #=== create default writer
@@ -41,7 +41,7 @@ defaultWriter.writeBadChannels(tag)
 defaultWriter.writePulseShape(tag)
 defaultWriter.writeMuid()
 
-#=== write noise defaults for simulation db OFLP200 (not COMP200)
+#=== write noise defaults for simulation db OFLP200 (not CONDBR2)
 #defaultWriter.writeNoiseSampleMC(tag)
 #defaultWriter.writeEmscaleMC(tag) # does not in
 #defaultWriter.writeOldCes(tag) # MBTS in EBs connected in channel 47. No module type 11 anomaly.

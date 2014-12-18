@@ -3,7 +3,7 @@
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-25
 
 import getopt,sys,os,string
-
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
@@ -18,10 +18,8 @@ def usage():
     print "-c, --channel=  specify channel number, default is 0"
     print "-g, -a, --adc=  specify gain (adc number), default is 0"
     print "-i, --field=    specify field number, default is 0"
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/COMP200' or 'sqlite://;schema=tileSqlite.db;dbname=COMP200'"
+    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     
-
-
 letters = "hr:l:s:t:f:p:d:c:a:g:i:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","ros=","drawer=","channel=","adc=","gain=","field="]
 
@@ -35,7 +33,7 @@ except getopt.GetOptError, err:
 # defaults 
 run = 2147483647
 lumi = 0
-schema = 'COOLONL_TILE/COMP200'
+schema = 'COOLONL_TILE/CONDBR2'
 folderPath =  "/TILE/ONL01/FILTER/OF2/PHY"
 tag = ""
 ros     = 1
@@ -46,7 +44,9 @@ field   = 0
 
 for o, a in opts:
     if o in ("-f","--folder"):
-        folderPath = "/TILE/ONL01/FILTER/OF2/%s" % a
+        if a.startswith("/TILE"): folderPath = a
+        elif a.startswith("OF"): folderPath = "/TILE/ONL01/FILTER/%s" % a
+        else: folderPath = "/TILE/ONL01/FILTER/OF2/%s" % a
     elif o in ("-t","--tag"):
         print "These are single version folders"
         sys.exit(2)

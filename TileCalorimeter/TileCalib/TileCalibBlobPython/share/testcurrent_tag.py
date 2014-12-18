@@ -6,7 +6,7 @@ options, remainder = getopt.getopt(sys.argv[1:], 'h', ['help','folder=','globalt
 # defaults
 folder=''
 globaltag='CURRENT'
-instance = 'COMP200'
+instance = 'CONDBR2'
 help = 0
 for opt, arg in options:
     if opt in ('-h'):
@@ -25,7 +25,7 @@ if help:
     print ' if no options are provided and also resolves leaf tag if'
     print ' folder is provided. By default, if global tag is not specified,'
     print '  globaltag=CURRENT'
-    print '  default instance=COMP200'
+    print '  default instance=CONDBR2'
     print ' usage:'
     print ' testcurrent_tag.py --folder=foldername --globaltag=tagname --instance=instancename'
     sys.exit()
@@ -46,7 +46,7 @@ log = getLogger("resolve_Tag")
 import logging
 log.setLevel(logging.DEBUG)
 
-if instance == 'COMP200' :
+if instance == 'CONDBR2' :
     log.info("alias CURRENT = %s alias NEXT = %s" % (current, next))
 
 if folder == '':
@@ -56,9 +56,6 @@ if folder == '':
 connStr='COOLOFL_TILE/'+instance
 
 #=== open the database
-#db = TileCalibTools.openDb('ORACLE', 'COMP200', 'READONLY')
-
-#db = TileCalibTools.openDbConn('COOLOFL_TILE/OFLP200', 'READONLY')
 db = TileCalibTools.openDbConn(connStr, 'READONLY')
 
 #=== resolve folder tag from global tag

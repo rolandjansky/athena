@@ -52,9 +52,9 @@ def fillBadChannels(db ,tag, bchFile,
 #===================================================================
 #====================== FILL DB BELOW ==============================
 #===================================================================
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 ##tag = ""
-tag = "TileOfl02StatusAdc-UPD4-08"
+tag = "TileOfl02StatusAdc-RUN2-UPD4-08"
 
 
 

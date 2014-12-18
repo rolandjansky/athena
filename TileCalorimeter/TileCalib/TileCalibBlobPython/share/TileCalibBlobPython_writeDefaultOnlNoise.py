@@ -10,7 +10,7 @@ from TileCalibBlobObjs.Classes import *
 
 
 #=== open database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 tag = ""
 
 #=== create default writer

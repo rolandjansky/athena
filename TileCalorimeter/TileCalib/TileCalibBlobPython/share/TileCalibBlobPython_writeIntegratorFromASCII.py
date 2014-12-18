@@ -98,8 +98,8 @@ def fillIntegrator(fileInt, tag, since,
 #===================================================================
 
 #=== open the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
-tag = "HLT-UPD1-00"
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
+tag = "RUN2-HLT-UPD1-00"
 
 #=== source data file
 fillIntegrator("/afs/cern.ch/user/l/lpribyl/CalibDB/Integrator/Calib_Int.dat", tag, (60000,0))

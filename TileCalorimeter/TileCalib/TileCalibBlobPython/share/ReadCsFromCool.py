@@ -3,21 +3,19 @@
 # Sanya Solodkov 2011-07-15
 
 import getopt,sys,os,string
-
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps the TileCal cesium from various schemas / folders / tags"
     print ""
     print "-h, --help     shows this help"
-    print "-f, --folder=  specify status folder to use ONL01, OFL01 or OFL02 "
-    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4"
+    print "-f, --folder=  specify status folder to use ONL01 or OFL02 "
+    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-01"
     print "-r, --run=     specify run  number, by default uses latest iov"
     print "-l, --lumi=    specify lumi block number, default is 0"
     print "-n, --nval=    specify number of values to output, default is 3"
-    print "-s, --schema=  specify schema to use, like 'COOLONL_TILE/COMP200' or 'sqlite://;schema=tileSqlite.db;dbname=COMP200'"
-    
-
+    print "-s, --schema=  specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
 
 letters = "hr:l:s:t:f:n:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","nval="]
@@ -32,9 +30,9 @@ except getopt.GetOptError, err:
 # defaults 
 run = 2147483647
 lumi = 0
-schema = 'COOLOFL_TILE/COMP200'
+schema = 'COOLOFL_TILE/CONDBR2'
 folderPath =  "/TILE/OFL02/CALIB/CES"
-tag = "UPD1"
+tag = "UPD4"
 nval = 3
 
 for o, a in opts:
@@ -62,7 +60,12 @@ if schema=='COOLONL_TILE/COMP200':
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
         sys.exit(2)
         
-if schema=='COOLOFL_TILE/COMP200':
+if schema=='COOLONL_TILE/CONDBR2':
+    if folderPath!="/TILE/ONL01/CALIB/CES":
+        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
+        sys.exit(2)
+        
+if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
     if folderPath!="/TILE/OFL02/CALIB/CES":
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
         sys.exit(2)
@@ -79,28 +82,7 @@ log.setLevel(logging.DEBUG)
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
-
-
-if "/TILE/ONL01" in folderPath:
-    folderTag = ""
-elif "/TILE/OFL01" in folderPath:
-    folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-01")
-elif "/TILE/OFL02" in folderPath:
-    if tag == "UPD1":
-        folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-01" )
-    elif tag == "UPD4":
-        sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-        from AtlCoolBKLib import resolveAlias
-        gtagUPD4 = resolveAlias.getCurrent().replace('*','')
-        log.info("global tag: %s" % gtagUPD4)
-        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
-    else:
-        folderTag = TileCalibUtils.getFullTag(folderPath, tag)
-else:
-    print "Unknown folder %s " % folderPath 
-    sys.exit(2)
-
-
+folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 #=== initialize blob reader

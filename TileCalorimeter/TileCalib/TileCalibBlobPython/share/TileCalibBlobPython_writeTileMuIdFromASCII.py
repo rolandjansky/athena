@@ -79,7 +79,7 @@ def fillTileMuId(file, since,
 #===================================================================
 
 #=== open the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 #=== source data
 runfrom = 0

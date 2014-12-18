@@ -9,12 +9,12 @@ import ROOT
 
 
 #=== specify which time to read
-folder      = "/TILE/OFL01/NOISE/SAMPLE"
-pointInTime = (99999,0) # (run number, luminosity block number)
-globalTag   = "COMCOND-005-01"
+folder      = "/TILE/OFL02/NOISE/SAMPLE"
+pointInTime = (999999999,0) # (run number, luminosity block number)
+globalTag   = "UPD4"
 
 #=== open the database
-db = TileCalibTools.openDb('ORACLE', 'COMP200', 'READONLY')
+db = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
 
 #=== resolve folder tag from global tag
 folderTag = TileCalibTools.getFolderTag(db, folder, globalTag)

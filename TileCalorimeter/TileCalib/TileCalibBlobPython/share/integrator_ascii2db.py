@@ -42,7 +42,7 @@ from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools
 
 #=== open the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 #=== get a blob writer
 blobWriter = TileCalibTools.TileBlobWriter(db,"/TILE/V01/INTEGRATOR",True,False)

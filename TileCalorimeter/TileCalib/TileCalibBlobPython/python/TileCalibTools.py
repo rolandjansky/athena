@@ -13,8 +13,9 @@ Python helper module for managing COOL DB connections and TileCalibBlobs.
 import ROOT
 ROOT.gInterpreter.EnableAutoLoading()
 
+import cx_Oracle
 from PyCool import cool
-import time, types, re, sys
+import time, types, re, sys, os
 import PyCintex
 
 PyCintex.makeClass('std::vector<float>')
@@ -52,6 +53,23 @@ UNIX2COOL   = 1000000000
 UNIXTMAX    = cool.Int32Max
 # empty Tile channel for storing laser partition variation. DO NOT CHANGE.
 LASPARTCHAN = 43 
+
+#
+#______________________________________________________________________
+def getLastRunNumber(partition=""):
+    """
+    Return the run number of last run taken in the pit
+    if partition name is not empty, max run number taken with given TDAQ partition is returned
+    """
+    connection=cx_Oracle.connect(dsn="ATLR",user="atlas_run_number_r",password="-Run.Num@rEaDeR-x-12")
+    con=connection.cursor()
+    sql="SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER"
+    if len(partition):
+        sql += (" WHERE PARTITIONNAME='%s'" % partition)
+    con.execute(sql)
+    data=con.fetchall()
+    connection.close()
+    return data[0][0]
 
 #
 #______________________________________________________________________
@@ -131,6 +149,11 @@ def openDb(db, instance, mode="READONLY",schema="COOLONL_TILE",sqlfn="tileSqlite
     #=== construct connection string
     connStr = ""
     if db=='SQLITE':
+        if mode=="READONLY" and not os.path.exists(sqlfn):
+            raise Exception( "Sqlite file %s does not exist" % (sqlfn) )
+        if (mode=="RECREATE" or mode=="UPDATE") and not os.path.exists(os.path.dirname(sqlfn)):
+            dirn=os.path.dirname(sqlfn)
+            if dirn: os.makedirs(dirn)
         connStr="sqlite://X;schema=%s;dbname=%s" % (sqlfn,instance)
     elif db=='ORACLE':
         connStr='oracle://%s;schema=ATLAS_%s;dbname=%s' % ('ATLAS_COOLPROD',schema,instance)
@@ -258,16 +281,62 @@ def getCoolValidityKey(pointInTime, isSince=True):
 #____________________________________________________________________
 def getFolderTag(db, folderPath, globalTag):
 
-    folder = db.getFolder(folderPath)
-    if globalTag=='CURRENT':
-          globalTag=resolveAlias.getCurrent()
-          log.info("Resolved CURRENT globalTag to \'%s\'" % globalTag)
-    elif globalTag=='NEXT':
-          globalTag=resolveAlias.getNext()
-          log.info("Resolved NEXT globalTag to \'%s\'" % globalTag)
-    globalTag=globalTag.replace('*','')
-    tag = folder.resolveTag(globalTag)
-    log.info("Resolved globalTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+    tag=""
+    if globalTag.startswith("/") or globalTag.startswith("TileO"):
+        tag = globalTag
+        log.warning("Using tag as-is for folder %s" % folderPath)
+    elif '/TILE/ONL01' in folderPath:
+        log.info("Using empty tag for single-version folder %s" % folderPath)
+    elif globalTag.startswith(" "):
+        log.warning("Using empty tag for folder %s" % folderPath)
+    elif globalTag=="":
+        tag = TileCalibUtils.getFullTag(folderPath, globalTag)
+        log.warning("Using tag with empty suffix for folder %s" % folderPath)
+    else:
+        schema='COOLOFL_TILE/CONDBR2'
+        if isinstance(db, (str, unicode)):
+            if 'OFLP200' in db or 'MC' in db:
+                schema='COOLOFL_TILE/OFLP200'
+                globalTag='OFLCOND-RUN12-SDR-21'
+                log.info("Using Simulation global tag \'%s\'" % globalTag)
+            elif 'COMP200' in db or 'RUN1' in db:
+                schema='COOLOFL_TILE/COMP200'
+                globalTag='COMCOND-BLKPA-RUN1-06'
+                log.info("Using RUN1 global tag \'%s\'" % globalTag)
+        if schema == 'COOLOFL_TILE/CONDBR2':
+            if globalTag=='CURRENT' or globalTag=='UPD4' or globalTag=='':
+                globalTag=resolveAlias.getCurrent()
+                log.info("Resolved CURRENT globalTag to \'%s\'" % globalTag)
+            elif globalTag=='CURRENTES' or globalTag=='UPD1':
+                globalTag=resolveAlias.getCurrentES()
+                log.info("Resolved CURRENT ES globalTag to \'%s\'" % globalTag)
+            elif globalTag=='NEXT':
+                globalTag=resolveAlias.getNext()
+                log.info("Resolved NEXT globalTag to \'%s\'" % globalTag)
+            elif globalTag=='NEXTES':
+                globalTag=resolveAlias.getNextES()
+                log.info("Resolved NEXT ES globalTag to \'%s\'" % globalTag)
+        globalTag=globalTag.replace('*','')
+        if 'UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag:
+            tag = TileCalibUtils.getFullTag(folderPath, globalTag)
+            log.info("Resolved localTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+        else:
+            if not isinstance(db, (str, unicode)):
+                try:
+                    folder = db.getFolder(folderPath)
+                    tag = folder.resolveTag(globalTag)
+                    log.info("Resolved globalTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+                    schema=""
+                except Exception, e:
+                    log.warning(e)
+                    log.warning("Using %s to resolve globalTag",schema)
+            if len(schema):
+                dbr = openDbConn(schema,'READONLY')
+                folder = dbr.getFolder(folderPath)
+                tag = folder.resolveTag(globalTag)
+                dbr.closeDatabase()
+                log.info("Resolved globalTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+
     return tag
 
 #
@@ -617,7 +686,69 @@ class TileBlobReader(TileCalibLogger):
             return "<no comment found>"
         
     #____________________________________________________________________
-    def getDrawer(self, ros, drawer, pointInTime):
+    def getDrawer(self, ros, drawer, pointInTime, printError=True, useDefault=True):
+        """
+        Returns a TileCalibDrawer object for the given ROS and drawer.
+        """
+
+        validityKey = getCoolValidityKey(pointInTime)
+        self.log().debug("Validity key is %s" % validityKey)
+        try:
+            calibDrawer = None
+            #=== Have we retrieved data previously?
+            key = (ros,drawer,validityKey)
+            obj = self.__objDict.get(key)
+            #=== ... if not, get it from DB
+            if not obj:
+                chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
+                obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
+                self.log().debug("Fetching from DB: %s" % obj)
+                blob = obj.payload()[0]
+                self.log().debug("blob size: %d" % blob.size())
+                #=== default policy 
+                if not useDefault and blob.size()==0:
+                    return 0
+                while blob.size()==0:
+                    #=== no default at all?
+                    if ros==0 and drawer==0:
+                        raise Exception('No default available')
+                    #=== follow default policy
+                    drawer = 4 * ros
+                    ros    = 0
+                    chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
+                    obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
+                    blob = obj.payload()[0]
+                #=== store object in dictionary
+                self.__objDict[key] = obj
+            #=== get blob
+            blob = obj.payload()[0]
+            self.log().debug("blob size: %d" % blob.size())
+                
+            #=== create calibDrawer depending on type
+            calibDrawer = TileCalibDrawerCmt.getInstance(blob)
+            typeName =    TileCalibType.getClassName(calibDrawer.getObjType())
+            del calibDrawer
+            if   typeName=='TileCalibDrawerFlt':
+                calibDrawer = TileCalibDrawerFlt.getInstance(blob)
+                self.log().debug( "typeName = Flt " )
+            elif typeName=='TileCalibDrawerInt':
+                calibDrawer = TileCalibDrawerInt.getInstance(blob)
+                self.log().debug( "typeName = Int " )
+            elif typeName=='TileCalibDrawerBch':
+                calibDrawer = TileCalibDrawerBch.getInstance(blob)
+                self.log().debug( "typeName = Bch " )
+            elif typeName=='TileCalibDrawerOfc':
+                calibDrawer = TileCalibDrawerOfc.getInstance(blob)
+                self.log().debug( "typeName = Ofc " )
+            else:
+                raise Exception( "Invalid blob type requested: %s" % typeName )
+            return calibDrawer
+        except Exception, e:
+            if printError: self.log().error("TileCalibTools.getDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+            return None
+
+    #____________________________________________________________________
+    def getDefaultDrawer(self, ros, drawer, pointInTime, printError=True):
         """
         Returns a TileCalibDrawer object for the given ROS and drawer.
         """
@@ -673,71 +804,11 @@ class TileBlobReader(TileCalibLogger):
                 raise Exception( "Invalid blob type requested: %s" % typeName )
             return calibDrawer
         except Exception, e:
-            self.log().error("TileCalibTools.getDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+            if printError: self.log().error("TileCalibTools.getDefaultDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
             return None
 
     #____________________________________________________________________
-    def getDefaultDrawer(self, ros, drawer, pointInTime):
-        """
-        Returns a TileCalibDrawer object for the given ROS and drawer.
-        """
-
-        validityKey = getCoolValidityKey(pointInTime)
-        self.log().debug("Validity key is %s" % validityKey)
-        try:
-            calibDrawer = None
-            #=== Have we retrieved data previously?
-            key = (ros,drawer,validityKey)
-            obj = self.__objDict.get(key)
-            #=== ... if not, get it from DB
-            if not obj:
-                chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
-                obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
-                self.log().debug("Fetching from DB: %s" % obj)
-                blob = obj.payload()[0]
-                self.log().debug("blob size: %d" % blob.size())
-                #=== default policy 
-                while blob.size()==0:
-                    #=== no default at all?
-                    if ros==0 and drawer==0:
-                        raise Exception('No default available')
-                    #=== follow default policy
-                    drawer = 4 * ros
-                    ros    = 0
-                    chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
-                    obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
-                    blob = obj.payload()[0]
-                #=== store object in dictionary
-                self.__objDict[key] = obj
-            #=== get blob
-            blob = obj.payload()[0]
-            self.log().debug("blob size: %d" % blob.size())
-                
-            #=== create calibDrawer depending on type
-            calibDrawer = TileCalibDrawerCmt.getInstance(blob)
-            typeName =    TileCalibType.getClassName(calibDrawer.getObjType())
-            del calibDrawer
-            if   typeName=='TileCalibDrawerFlt':
-                calibDrawer = TileCalibDrawerFlt.getInstance(blob)
-                self.log().debug( "typeName = Flt " )
-            elif typeName=='TileCalibDrawerInt':
-                calibDrawer = TileCalibDrawerInt.getInstance(blob)
-                self.log().debug( "typeName = Int " )
-            elif typeName=='TileCalibDrawerBch':
-                calibDrawer = TileCalibDrawerBch.getInstance(blob)
-                self.log().debug( "typeName = Bch " )
-            elif typeName=='TileCalibDrawerOfc':
-                calibDrawer = TileCalibDrawerOfc.getInstance(blob)
-                self.log().debug( "typeName = Ofc " )
-            else:
-                raise Exception( "Invalid blob type requested: %s" % typeName )
-            return calibDrawer
-        except Exception, e:
-            self.log().error("TileCalibTools.getDefaultDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
-            return None
-
-    #____________________________________________________________________
-    def getDBobjsWithinRange(self, ros, drawer, point1inTime=(0,0), point2inTime=(2147483647,4294967295)):
+    def getDBobjsWithinRange(self, ros, drawer, point1inTime=(0,0), point2inTime=(2147483647,4294967295), printError=True):
         """
         Returns all DB objects for the given ROS and drawer, within given validity range -- default: [0-Infty)
         Check getBlobsWithinRange for an example on how to loop over objects and check validity ranges.
@@ -751,12 +822,12 @@ class TileBlobReader(TileCalibLogger):
 
         objs = None
         try:
-            dbChanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
+            dbChanNum = drawer if ros<0 else TileCalibUtils.getDrawerIdx(ros,drawer)
             dbChanSel = cool.ChannelSelection(dbChanNum)
             #self.log().debug("Fetching blobs from DB: %s" % obj)
             objs = self.__folder.browseObjects(validityKey1,validityKey2,dbChanSel,self.__tag)
         except Exception, e:
-            self.log().error("TileCalibTools.getDBobjsWithinRange(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+            if printError: self.log().error("TileCalibTools.getDBobjsWithinRange(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
 
         return objs
 

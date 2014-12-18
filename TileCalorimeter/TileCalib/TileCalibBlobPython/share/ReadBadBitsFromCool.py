@@ -1,25 +1,25 @@
 #!/bin/env python
-# ReadBadBitsFromCool.py
+# ReadBadBitsFromCool.py   --schema='COOLOFL_TILE/CONDBR2'  --folder='OFL02' --tag='UPD4'
 # Sanya Solodkov 2011-07-15
 
 import getopt,sys,os,string
-
+os.environ['TERM'] = 'linux'
 
 def usage():
     print "Usage: ",sys.argv[0]," [OPTION] ... "
     print "Dumps the TileCal status bits from various schemas / folders"
     print ""
     print "-h, --help     shows this help"
-    print "-f, --folder=  specify status folder to use ONL01, OFL01 or OFL02 "
-    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4"
+    print "-f, --folder=  specify status folder to use ONL01 or OFL02 "
+    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00"
     print "-r, --run=     specify run  number, by default uses latest iov"
     print "-l, --lumi=    specify lumi block number, default is 0"
-    print "-s, --schema=  specify schema to use, like 'COOLONL_TILE/COMP200' or 'sqlite://;schema=tileSqlite.db;dbname=COMP200'"
+    print "-s, --schema=  specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
+    print "-d, --dbname=  specify dbname part of schema if schema only contains file name, default is CONDBR2'"
+    print "-w, --warning  suppress warning messages about missing drawers in DB"
     
-
-
-letters = "hr:l:s:t:f:"
-keywords = ["help","run=","lumi=","schema=","tag=","folder="]
+letters = "hr:l:s:t:f:d:w"
+keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","warning"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -31,9 +31,11 @@ except getopt.GetOptError, err:
 # defaults 
 run = 2147483647
 lumi = 0
-schema = 'COOLOFL_TILE/COMP200'
+schema = 'COOLOFL_TILE/CONDBR2'
+dbname = 'CONDBR2'
 folderPath =  "/TILE/OFL02/STATUS/ADC"
-tag = "UPD1"
+tag = "UPD4"
+warn = 1
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -42,61 +44,67 @@ for o, a in opts:
         tag = a
     elif o in ("-s","--schema"):
         schema = a
+    elif o in ("-d","--dbname"):
+        dbname = a
     elif o in ("-r","--run"):
         run = int(a) 
     elif o in ("-l","--lumi"):
         lumi = int(a)
+    elif o in ("-w","--warning"):
+        warn = -1
     elif o in ("-h","--help"):
         usage()
         sys.exit(2)
     else:
         assert False, "unhandeled option"
 
-
-if schema=='COOLONL_TILE/COMP200':
-    if folderPath!="/TILE/ONL01/STATUS/ADC" and folderPath!="/TILE/OFL01/STATUS/ADC":
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
-        sys.exit(2)
-
-if schema=='COOLOFL_TILE/COMP200':
-    if folderPath!="/TILE/OFL02/STATUS/ADC":
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema) 
-        sys.exit(2)
-
+if not 'COOLO' in schema and not 'oracle:' in schema and not 'sqlite:' in schema:
+    schema='sqlite://;schema='+schema+";dbname="+dbname
 
 from TileCalibBlobPython import TileCalibTools
+from TileCalibBlobPython import TileBchTools
+from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
 from TileCalibBlobObjs.Classes import *
 
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
 log = getLogger("ReadBadBits")
 import logging
-log.setLevel(logging.DEBUG)
+logLevel=logging.DEBUG
+log.setLevel(logLevel)
+log1 = getLogger("TileCalibTools")
+log1.setLevel(logLevel)
+
+
+#=== check parameters
+if len(tag)==0:
+    folderPath='/TILE/ONL01/STATUS/ADC'
+    if 'COOLOFL' in schema:
+        if 'COMP200' in schema: schema='COOLONL_TILE/COMP200'
+        if 'CONDBR2' in schema: schema='COOLONL_TILE/CONDBR2'
+    log.warning("tag is empty, using %s folder and schema %s" % (folderPath,schema))
+
+if schema=='COOLONL_TILE/COMP200':
+    if folderPath!="/TILE/ONL01/STATUS/ADC" and folderPath!="/TILE/OFL01/STATUS/ADC":
+        log.warning("Folder %s doesn't exist in schema %s" % (folderPath,schema)) 
+        folderPath="/TILE/ONL01/STATUS/ADC"
+        log.warning("Changing folder to %s" % folderPath)
+
+if schema=='COOLONL_TILE/CONDBR2':
+    if folderPath!="/TILE/ONL01/STATUS/ADC":
+        log.warning("Folder %s doesn't exist in schema %s " % (folderPath,schema))
+        folderPath="/TILE/ONL01/STATUS/ADC"
+        log.warning("Changing folder to %s" % folderPath)
+
+if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
+    if folderPath!="/TILE/OFL02/STATUS/ADC":
+        log.warning("Folder %s doesn't exist in schema %s " % (folderPath,schema)) 
+        folderPath="/TILE/OFL02/STATUS/ADC"
+        log.warning("Changing folder to %s" % folderPath)
 
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
-
-
-if "/TILE/ONL01" in folderPath:
-    folderTag = ""
-elif "/TILE/OFL01" in folderPath:
-    folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-00")
-elif "/TILE/OFL02" in folderPath:
-    if tag == "UPD1":
-        folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-00" )
-    elif tag == "UPD4":
-        sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-        from AtlCoolBKLib import resolveAlias
-        gtagUPD4 = resolveAlias.getCurrent().replace('*','')
-        log.info("global tag: %s" % gtagUPD4)
-        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
-    else:
-        folderTag = TileCalibUtils.getFullTag(folderPath, tag)
-else:
-    print "Unknown folder %s " % folderPath 
-    sys.exit(2)
-
-
+folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 #=== initialize blob reader

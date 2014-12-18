@@ -80,7 +80,7 @@ def fillAutoCr(filePed, tag, since,
 #===================================================================
 
 #=== open the database
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 tag = "TEST-00"
 
 #=== source data

@@ -18,8 +18,8 @@ mgr.setLogLvl(logging.INFO)
 #=== recreate DB and initialize with default (no bad channels)
 #============================================================
 folder = "/TILE/OFL02/STATUS/ADC"
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
-tag = "TileOfl02StatusAdc-UPD4-08"
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
+tag = "TileOfl02StatusAdc-RUN2-UPD4-08"
 #=== check if status folder exist, otherwise create
 if not db.existsFolder(folder):
     defaultWriter = TileCalibDefaultWriter.TileCalibDefaultWriter(db,tag)

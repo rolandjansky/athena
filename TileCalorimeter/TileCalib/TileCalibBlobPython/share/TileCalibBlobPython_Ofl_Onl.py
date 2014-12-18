@@ -19,13 +19,13 @@ log.setLevel(logging.DEBUG)
 #===================================================================
 #====================== FILL DB BELOW ==============================
 #===================================================================
-db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 #=== ADC status folder
 folder = TileCalibTools.getTilePrefix()+"STATUS/ADC"
 
 #=== specify folder and tag
-folderTag = TileCalibUtils.getFullTag(folder, "HLT-UPD1-00")
+folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
 
 #=== create bad channel manager
 mgr = TileBchTools.TileBchMgr()
