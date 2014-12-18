@@ -23,7 +23,8 @@ static const int maxDig  = 2000;
 
 // Algorithm constructor
 ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
-  : Algorithm(name, pSvcLocator)
+  : Algorithm(name, pSvcLocator), m_eventStore(0), m_activeStore(0),
+    m_ntuplePtr(0), m_rpcIdHelper(0), m_log(0), m_debug(false), m_verbose(false)
 {
   declareProperty("NtupleLocID", m_NtupleLocID);  
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);

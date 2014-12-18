@@ -13,7 +13,7 @@
 CscDigitToCscRDO::CscDigitToCscRDO(const std::string& name, 
 				 ISvcLocator* pSvcLocator)
   : Algorithm(name, pSvcLocator),
-    m_digTool("CscDigitToCscRDOTool", this )
+    m_digTool("CscDigitToCscRDOTool", this ), m_log(0), m_debug(false), m_verbose(false)
 {
    declareProperty("CscDigitToRDOTool", m_digTool);
 }

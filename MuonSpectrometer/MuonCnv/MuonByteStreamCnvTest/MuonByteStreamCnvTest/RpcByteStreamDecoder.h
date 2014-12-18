@@ -60,6 +60,9 @@ class RpcByteStreamDecoder {
   bool m_debug;
   bool m_verbose;
 
+  RpcByteStreamDecoder & operator=(const RpcByteStreamDecoder &right);
+  RpcByteStreamDecoder(const RpcByteStreamDecoder&);
+
 };    //  RPCBYTESTREAMDECODER_H 
 
 #endif

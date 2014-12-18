@@ -38,7 +38,8 @@ static const int maxFiredChannels =  4096;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator) {
+  Algorithm(name, pSvcLocator), m_ntuplePtr(0), m_activeStore(0),
+  m_log(0), m_debug(false), m_verbose(false) {
   
   // Declare the properties
 

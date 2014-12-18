@@ -11,7 +11,7 @@
 MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, 
 				 ISvcLocator* pSvcLocator)
   : Algorithm(name, pSvcLocator),
-    m_digTool("MuonRdoToMuonDigitTool", this )
+    m_digTool("MuonRdoToMuonDigitTool", this ), m_log(0), m_debug(false), m_verbose(false)
 {
    declareProperty("MuonRdoToMuonDigitTool", m_digTool);
 }

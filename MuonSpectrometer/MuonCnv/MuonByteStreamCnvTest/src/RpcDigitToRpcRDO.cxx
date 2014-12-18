@@ -41,7 +41,9 @@ static double time_correction(double, double, double);
 /////////////////////////////////////////////////////////////////////////////
 
 RpcDigitToRpcRDO::RpcDigitToRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),m_EvtStore("StoreGateSvc", name),m_padContainer(0)
+  Algorithm(name, pSvcLocator), m_simu_code(0), m_activeStore(0),
+  m_EvtStore("StoreGateSvc", name), m_MuonMgr(0), m_cabling(0), m_padContainer(0),
+  m_rpcHelper(0), m_tagInfoMgr(0), m_log(0), m_debug(false), m_verbose(false)
 {
   declareProperty ( "FastDebug", m_fast_debug=0 );
 
@@ -285,7 +287,6 @@ StatusCode RpcDigitToRpcRDO::execute() {
       *m_log << MSG::ERROR << "Unable to record RPC Pad in IDC"  << endreq; 
   }
 
-  delete pads;
   delete padDecoder;
 
   return StatusCode::SUCCESS;

@@ -23,7 +23,9 @@ RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, c
 }
 
 RpcByteStreamDecoder::~RpcByteStreamDecoder()
-{ }
+{
+  if( m_rpcpads != NULL ) { delete m_rpcpads; m_rpcpads = NULL; }
+}
 
 StatusCode RpcByteStreamDecoder::decodeByteStream()
 {

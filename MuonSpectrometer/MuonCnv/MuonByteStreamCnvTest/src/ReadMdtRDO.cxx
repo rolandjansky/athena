@@ -38,7 +38,8 @@ static const int maxAmt =   5000;//?????
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtRDO::ReadMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator) {
+  Algorithm(name, pSvcLocator), m_ntuplePtr(0), m_activeStore(0), m_log(0),
+  m_debug(false), m_verbose(false) {
   
   // Declare the properties
 
