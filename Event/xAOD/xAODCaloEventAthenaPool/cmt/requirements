@@ -1,5 +1,5 @@
 package xAODCaloEventAthenaPool
-# $Id: requirements 623230 2014-10-22 11:18:53Z wlampl $
+# $Id: requirements 636751 2014-12-18 14:50:06Z will $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -23,7 +23,8 @@ use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
 use xAODCaloEvent       xAODCaloEvent-*       Event/xAOD
 
 # for the float compression
-use CaloInterface	CaloInterface-*       Calorimeter
+#use CaloInterface	CaloInterface-*       Calorimeter
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloInterface"
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::CaloClusterContainer \

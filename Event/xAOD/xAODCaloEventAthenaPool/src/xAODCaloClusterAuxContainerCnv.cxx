@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterAuxContainerCnv.cxx 635809 2014-12-12 22:19:22Z ssnyder $
+// $Id: xAODCaloClusterAuxContainerCnv.cxx 635808 2014-12-12 22:19:18Z ssnyder $
 
 // System include(s):
 #include <exception>

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterContainerCnv.h 623230 2014-10-22 11:18:53Z wlampl $
+// $Id: xAODCaloClusterContainerCnv.h 636751 2014-12-18 14:50:06Z will $
 #ifndef XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERCONTAINERCNV_H
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERCONTAINERCNV_H
 
@@ -15,7 +15,9 @@
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#ifndef XAOD_ANALYSIS
 class IxAODClusterCompressor;
+#endif
 
 /// Type definition for the converter's base
 typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterContainer,
@@ -30,8 +32,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 623230 $
- * $Date: 2014-10-22 13:18:53 +0200 (Wed, 22 Oct 2014) $
+ * $Revision: 636751 $
+ * $Date: 2014-12-18 15:50:06 +0100 (Thu, 18 Dec 2014) $
  */
 class xAODCaloClusterContainerCnv : public xAODCaloClusterContainerCnvBase {
 
@@ -58,8 +60,10 @@ private:
    /// StoreGate key of the container just being created
    std::string m_key;
 
+#ifndef XAOD_ANALYSIS
   /// AlgTool compressing the cluster for storage on disk
   ToolHandle<IxAODClusterCompressor> m_compressor;
+#endif
 
   /// Flag set to false if the retrieval of the compression tool failed
   bool m_doCompression;
