@@ -10,6 +10,8 @@
 
 #include "AthenaKernel/IOVSvcDefs.h"
 
+#include "Identifier/Identifier.h"
+
 class CaloDetDescrElement;
 class CaloCell;
 
@@ -26,6 +28,8 @@ public:
   virtual float average(const CaloCell* caloCell, unsigned int bcid)=0;
 
   virtual float average(const CaloDetDescrElement* caloDDE, unsigned int bcid)=0;
+
+  virtual float average(const Identifier cellID, unsigned int bcid)=0;
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
  

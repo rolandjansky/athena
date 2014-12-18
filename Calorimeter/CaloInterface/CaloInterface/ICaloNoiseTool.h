@@ -25,7 +25,7 @@ namespace ICaloNoiseToolStep
 typedef std::vector< std::vector<float> > VectorContainer;
 typedef std::vector< float > SingleContainer;
 
-class ICaloNoiseTool: virtual public ICalorimeterNoiseTool {
+class ICaloNoiseTool:public ICalorimeterNoiseTool {
   
 public:
 

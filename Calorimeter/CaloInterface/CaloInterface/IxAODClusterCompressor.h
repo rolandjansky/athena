@@ -14,7 +14,7 @@
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
 
-#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 
 static const InterfaceID IID_IxAODClusterCompressor("IxAODClusterCompressor", 1, 0);
@@ -38,7 +38,7 @@ class IxAODClusterCompressor
   static const InterfaceID& interfaceID();
 
 
-  virtual void compress(xAOD::CaloCluster* cluster) const=0;
+  virtual void compress(xAOD::CaloClusterContainer* clustercontainer) const=0;
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 

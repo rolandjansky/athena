@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOINTERCACE_ICALOTOPOTOWERBUILDERTOOLBASE_H
+#ifndef CALOINTERFACE_ICALOTOPOTOWERBUILDERTOOLBASE_H
 #define CALOINTERFACE_ICALOTOPOTOWERBUILDERTOOLBASE_H
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief ICaloTopoTowerBuilderToolBase is abstract interface for CALOTOPOTOWERBUILDERTOOLBASE
