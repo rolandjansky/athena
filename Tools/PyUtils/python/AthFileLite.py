@@ -94,6 +94,7 @@ class AthPoolFile(object):
         self._logFile = self._stub + '-miniAthFile.log'
 
         self._metadata = _create_file_info_template()
+        self._error = False
         self.fopen()
 
 
@@ -127,11 +128,19 @@ class AthPoolFile(object):
 
         except Exception, e:
             print >>sys.stderr, "Exception raised when writing JO file: {0}".format(e)
+            self._error = True
             raise
 
     def _runMiniAthena(self):
         out = open(self._logFile, 'wb')
-        subprocess.check_call(['athena.py', self._jobOptionsFile], stdout=out, stderr=out)
+        try:
+            athenv = os.environ.copy()
+            athenv["ATHENA_PROC_NUMBER"] = "0"   # Suppress AthenaMP running
+            subprocess.check_call(['athena.py', self._jobOptionsFile], stdout=out, stderr=out, env=athenv)
+        except subprocess.CalledProcessError:
+            # Don't delete log files if errors occured
+            self._error = True
+            raise
 
 
     def _loadFileInfo(self):
@@ -146,11 +155,11 @@ class AthPoolFile(object):
             self._metadata['file_size'] = None
 
     def __del__(self):
-        if 'AFDEBUG' not in os.environ:
-            for file in (self._jobOptionsFile, self._infoOutputFile, self._logFile):
+        if ('AFDEBUG' not in os.environ) and (not self._error):
+            for fname in (self._jobOptionsFile, self._infoOutputFile, self._logFile):
                 try:
-                    os.unlink(file)
-                except OSError, IOError:
+                    os.unlink(fname)
+                except (OSError, IOError):
                     pass
 
 

@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 543921 $"
+__version__ = "$Revision: 632450 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -306,6 +306,7 @@ def _test_main():
                  fct=root_compile, fname=tmp.name)
 
     print "OK"
+    return True
 
 if __name__ == "__main__":
     _test_main()
