@@ -161,14 +161,15 @@ void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p
       rsl->resize(numRpcSLTriggerHits);  
       for (unsigned int th=0; th<numRpcSLTriggerHits; th++){
         //std::cout<<"begin th "<<th<<", index="<<index<<std::endl;
-        (*rsl)[th]=new RpcSLTriggerHit(persCont->m_slVariables[index++], //rowinBcid
-                            persCont->m_slVariables[index++], //padid
-                            persCont->m_slVariables[index++], //ptid
-                            persCont->m_slVariables[index++], //roi
-                            persCont->m_slVariables[index++],//outerPlane
-                            persCont->m_slVariables[index++],//overlapPhi
-                            persCont->m_slVariables[index++],//overlapEta
-                            persCont->m_slVariables[index++]);//triggerBcid                            
+        (*rsl)[th]=new RpcSLTriggerHit(persCont->m_slVariables[index], //rowinBcid
+                            persCont->m_slVariables[index+1], //padid
+                            persCont->m_slVariables[index+2], //ptid
+                            persCont->m_slVariables[index+3], //roi
+                            persCont->m_slVariables[index+4],//outerPlane
+                            persCont->m_slVariables[index+5],//overlapPhi
+                            persCont->m_slVariables[index+6],//overlapEta
+                            persCont->m_slVariables[index+7]);//triggerBcid                            
+        index+=8;
         (*rsl)[th]->m_isInput = static_cast<bool>(persCont->m_slVariables[index++]);
         //std::cout<<"end th "<<th<<", index="<<index<<std::endl;
       }         

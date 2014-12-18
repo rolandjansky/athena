@@ -19,7 +19,7 @@ class CscRawData_p0
 {
 
  public:
-  CscRawData_p0 () {}
+  CscRawData_p0 () : m_address(0), m_dpuID(0), m_id(0) {}
   virtual ~CscRawData_p0() {}
 
   void setDpuID (uint16_t dpuID) { m_dpuID = dpuID; }

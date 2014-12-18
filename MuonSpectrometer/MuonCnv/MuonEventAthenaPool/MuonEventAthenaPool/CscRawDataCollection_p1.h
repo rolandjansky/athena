@@ -23,8 +23,8 @@ public:
 
   // Default constructor 
   CscRawDataCollection_p1 () :
-	m_id(0),  m_numSamples(0),  m_latency(0),
-	m_numDPU(0),  m_rate(0)
+	m_id(0), m_rodId(0), m_subDetectorId(0), m_numSamples(0),
+	m_latency(0), m_numDPU(0), m_rate(0)
   { }
 
 

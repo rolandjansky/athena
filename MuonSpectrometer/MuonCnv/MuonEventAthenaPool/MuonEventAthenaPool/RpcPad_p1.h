@@ -16,7 +16,7 @@ class RpcPad_p1 : public std::vector<RpcCoinMatrix_p1> {
 public:  
     
     /** Default constructor*/
-    RpcPad_p1 () : m_id(0), m_onlineId(0), m_status(0), m_errorCode(0), m_sector(0)
+    RpcPad_p1 () : m_id(0), m_idHash(0), m_onlineId(0), m_status(0), m_errorCode(0), m_sector(0)
      {}
     
     /** virtual destructor for persistency*/

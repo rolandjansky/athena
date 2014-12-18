@@ -16,7 +16,7 @@ public:
     friend class  RpcFiredChannelCnv_p1;
 
     /** Default constructor.*/
-    RpcFiredChannel_p1(){}
+    RpcFiredChannel_p1() : m_bcid(0), m_time(0), m_ijk(0), m_channel(0), m_ovl(0), m_thr(0) {}
     
     /** return bunch crossing id*/
     uint16_t bcid() const { return m_bcid; }

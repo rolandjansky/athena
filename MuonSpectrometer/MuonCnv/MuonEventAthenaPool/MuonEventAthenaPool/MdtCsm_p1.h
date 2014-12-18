@@ -17,7 +17,7 @@ class MdtCsm_p1 : public std::vector<MdtAmtHit_p1>
 {
 public:
     friend class  MdtCsmCnv_p1;
-    MdtCsm_p1() : m_Id(0), m_SubDetId(0), m_MrodId(0), m_CsmId(0) {}
+    MdtCsm_p1() : m_Id(0), m_idHash(0), m_SubDetId(0), m_MrodId(0), m_CsmId(0) {}
     
  private:
 
