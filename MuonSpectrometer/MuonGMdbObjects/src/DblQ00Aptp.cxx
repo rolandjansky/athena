@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Aptp::DblQ00Aptp(IRDBQuery* m_aptp)
+ : m_nObj(0)
 {
   if(m_aptp) {
     m_aptp->execute();

@@ -42,6 +42,8 @@ public:
 private:
     WLBI* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wlbi & operator=(const DblQ00Wlbi &right);
+    DblQ00Wlbi(const DblQ00Wlbi&);
 };
 } // end of MuonGM namespace
 

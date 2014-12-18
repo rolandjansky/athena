@@ -42,6 +42,8 @@ public:
 private:
     WCRO* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wcro & operator=(const DblQ00Wcro &right);
+    DblQ00Wcro(const DblQ00Wcro&);
 };
 } // end of MuonGM namespace
 

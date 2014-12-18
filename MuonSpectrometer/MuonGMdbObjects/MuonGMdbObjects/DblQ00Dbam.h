@@ -43,6 +43,8 @@ public:
 private:
     DBAM* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Dbam & operator=(const DblQ00Dbam &right);
+    DblQ00Dbam(const DblQ00Dbam&);
 };
 } // end of MuonGM namespace
 

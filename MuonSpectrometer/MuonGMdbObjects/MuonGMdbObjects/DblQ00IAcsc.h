@@ -58,6 +58,8 @@ public:
 private:
     IACSC* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00IAcsc & operator=(const DblQ00IAcsc &right);
+    DblQ00IAcsc(const DblQ00IAcsc&);
 };
 
 

@@ -40,6 +40,8 @@ public:
 private:
     ACUT* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Acut & operator=(const DblQ00Acut &right);
+    DblQ00Acut(const DblQ00Acut&);
 };
 } // end of MuonGM namespace
 

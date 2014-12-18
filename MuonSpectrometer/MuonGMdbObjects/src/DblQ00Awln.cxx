@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Awln::DblQ00Awln(IRDBQuery* m_awln)
+ : m_nObj(0)
 {
   if(m_awln) {
     m_awln->execute();

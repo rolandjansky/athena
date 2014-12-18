@@ -52,6 +52,8 @@ public:
 private:
     APTP* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Aptp & operator=(const DblQ00Aptp &right);
+    DblQ00Aptp(const DblQ00Aptp&);
 };
 }// end of MuonGM namespace
 

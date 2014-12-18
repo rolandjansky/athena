@@ -41,6 +41,8 @@ public:
 private:
   ASMP* m_d;
   unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+  DblQ00Asmp & operator=(const DblQ00Asmp &right);
+  DblQ00Asmp(const DblQ00Asmp&);
 };
 } // end of MuonGM namespace
 

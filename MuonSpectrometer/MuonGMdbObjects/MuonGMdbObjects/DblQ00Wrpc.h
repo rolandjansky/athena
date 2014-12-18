@@ -54,6 +54,8 @@ public:
 private:
     WRPC* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wrpc & operator=(const DblQ00Wrpc &right);
+    DblQ00Wrpc(const DblQ00Wrpc&);
 };
 } // end of MuonGM namespace
 

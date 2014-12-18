@@ -42,6 +42,8 @@ public:
 private:
     WDED* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wded & operator=(const DblQ00Wded &right);
+    DblQ00Wded(const DblQ00Wded&);
 };
 } // end of MuonGM namespace
 

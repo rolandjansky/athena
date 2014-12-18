@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Wcro::DblQ00Wcro(IRDBQuery* m_wcro)
+ : m_nObj(0)
 {
   if(m_wcro) {
     m_wcro->execute();

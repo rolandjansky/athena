@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Wspa::DblQ00Wspa(IRDBQuery* m_wspa)
+ : m_nObj(0)
 {
   if(m_wspa) {
     m_wspa->execute();

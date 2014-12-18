@@ -41,6 +41,8 @@ public:
 private:
   WSPA* m_d;
   unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+  DblQ00Wspa & operator=(const DblQ00Wspa &right);
+  DblQ00Wspa(const DblQ00Wspa&);
 };
 } // end of MuonGM namespace
 

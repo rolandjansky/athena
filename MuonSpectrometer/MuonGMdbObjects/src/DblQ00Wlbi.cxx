@@ -36,6 +36,7 @@ namespace MuonGM
 {
 
 DblQ00Wlbi::DblQ00Wlbi(IRDBQuery* m_wlbi)
+ : m_nObj(0)
 {
   if(m_wlbi) {
     m_wlbi->execute();

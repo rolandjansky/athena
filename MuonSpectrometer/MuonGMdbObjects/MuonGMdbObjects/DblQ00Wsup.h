@@ -44,6 +44,8 @@ public:
 private:
     WSUP* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wsup & operator=(const DblQ00Wsup &right);
+    DblQ00Wsup(const DblQ00Wsup&);
 };
 } // end of MuonGM namespace
 

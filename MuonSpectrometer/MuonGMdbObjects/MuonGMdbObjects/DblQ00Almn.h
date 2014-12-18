@@ -59,6 +59,8 @@ public:
 private:
     ALMN* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Almn & operator=(const DblQ00Almn &right);
+    DblQ00Almn(const DblQ00Almn&);
 };
 
 

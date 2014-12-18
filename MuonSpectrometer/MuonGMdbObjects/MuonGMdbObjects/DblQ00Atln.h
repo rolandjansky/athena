@@ -45,6 +45,8 @@ public:
 private:
     ATLN* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Atln & operator=(const DblQ00Atln &right);
+    DblQ00Atln(const DblQ00Atln&);
 };
 } // end of MuonGM namespace
 

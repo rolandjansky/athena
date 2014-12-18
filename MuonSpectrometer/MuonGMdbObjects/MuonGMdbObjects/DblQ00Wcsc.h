@@ -62,6 +62,8 @@ public:
 private:
     WCSC* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wcsc & operator=(const DblQ00Wcsc &right);
+    DblQ00Wcsc(const DblQ00Wcsc&);
 };
 } // end of MuonGM namespace
 

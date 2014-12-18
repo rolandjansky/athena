@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Wsup::DblQ00Wsup(IRDBQuery* m_wsup)
+ : m_nObj(0)
 {
   if(m_wsup) {
     m_wsup->execute();

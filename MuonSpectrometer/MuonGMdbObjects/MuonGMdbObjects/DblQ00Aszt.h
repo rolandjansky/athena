@@ -57,6 +57,8 @@ public:
 private:
     ASZT* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Aszt & operator=(const DblQ00Aszt &right);
+    DblQ00Aszt(const DblQ00Aszt&);
 };
 
 

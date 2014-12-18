@@ -32,6 +32,7 @@ namespace MuonGM
 {
 
 DblQ00Acut::DblQ00Acut(IRDBQuery* m_acut)
+ : m_nObj(0)
 {
   if(m_acut) {
     m_acut->execute();

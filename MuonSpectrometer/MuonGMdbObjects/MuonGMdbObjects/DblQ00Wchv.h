@@ -42,6 +42,8 @@ public:
 private:
     WCHV* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wchv & operator=(const DblQ00Wchv &right);
+    DblQ00Wchv(const DblQ00Wchv&);
 };
 } // end of MuonGM namespace
 

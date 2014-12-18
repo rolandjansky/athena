@@ -43,6 +43,8 @@ public:
 private:
     ATYP* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Atyp & operator=(const DblQ00Atyp &right);
+    DblQ00Atyp(const DblQ00Atyp&);
 };
     
 } // end of MuonGM namespace

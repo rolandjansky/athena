@@ -48,6 +48,8 @@ public:
 private:
     WMDT* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wmdt & operator=(const DblQ00Wmdt &right);
+    DblQ00Wmdt(const DblQ00Wmdt&);
 };
 } // end of MuonGM namespace
 

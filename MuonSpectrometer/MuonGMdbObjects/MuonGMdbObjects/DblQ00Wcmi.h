@@ -42,6 +42,8 @@ public:
 private:
     WCMI* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wcmi & operator=(const DblQ00Wcmi &right);
+    DblQ00Wcmi(const DblQ00Wcmi&);
 };
 } // end of MuonGM namespace
     

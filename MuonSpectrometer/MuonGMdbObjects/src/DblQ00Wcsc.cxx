@@ -34,6 +34,7 @@ namespace MuonGM
 {
 
 DblQ00Wcsc::DblQ00Wcsc(IRDBQuery* m_wcsc)
+ : m_nObj(0)
 {
   if(m_wcsc) {
     m_wcsc->execute();

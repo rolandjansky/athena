@@ -33,12 +33,13 @@
 
 namespace MuonGM
 {
-DblQ00Aszt::DblQ00Aszt()
+DblQ00Aszt::DblQ00Aszt() : m_d(NULL)
 {
     m_nObj = 0;
 }
     
 DblQ00Aszt::DblQ00Aszt(IRDBQuery* m_aszt)
+ : m_nObj(0)
 {
   if(m_aszt) {
     m_aszt->execute();

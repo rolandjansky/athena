@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Wrpc::DblQ00Wrpc(IRDBQuery* m_wrpc)
+ : m_nObj(0)
 {
   if(m_wrpc) {
     m_wrpc->execute();

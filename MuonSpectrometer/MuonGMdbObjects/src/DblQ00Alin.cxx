@@ -32,6 +32,7 @@ namespace MuonGM
 {
 
 DblQ00Alin::DblQ00Alin(IRDBQuery* m_alin)
+ : m_nObj(0)
 {
   if(m_alin) {
     m_alin->execute();

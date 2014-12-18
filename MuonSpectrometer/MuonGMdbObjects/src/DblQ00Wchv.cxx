@@ -33,6 +33,7 @@ namespace MuonGM
 {
 
 DblQ00Wchv::DblQ00Wchv(IRDBQuery* m_wchv)
+ : m_nObj(0)
 {
   if(m_wchv) {
     m_wchv->execute();

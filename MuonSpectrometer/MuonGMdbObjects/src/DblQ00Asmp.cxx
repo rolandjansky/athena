@@ -32,6 +32,7 @@ namespace MuonGM
 {
 
 DblQ00Asmp::DblQ00Asmp(IRDBQuery* m_asmp)
+ : m_nObj(0)
 {
   if(m_asmp) {
     m_asmp->execute();

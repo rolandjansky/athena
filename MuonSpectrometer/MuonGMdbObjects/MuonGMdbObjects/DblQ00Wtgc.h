@@ -44,6 +44,8 @@ public:
 private:
     WTGC* m_d;
     unsigned int m_nObj; // > 1 if array; 0 if error in retrieve.
+    DblQ00Wtgc & operator=(const DblQ00Wtgc &right);
+    DblQ00Wtgc(const DblQ00Wtgc&);
 };
 } // end of MuonGM namespace
 

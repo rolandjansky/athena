@@ -36,11 +36,13 @@ namespace MuonGM
 DblQ00IAcsc::DblQ00IAcsc()
 {
     m_nObj = 0;
+    m_d = 0;
 //    std::cerr <<" here we are"<<std::endl;
     
 }
     
 DblQ00IAcsc::DblQ00IAcsc(IRDBQuery* m_iacsc)
+ : m_nObj(0)
 {
     //std::cerr<<" pointer to ISZT data "<< m_iacsc<<std::endl;
     

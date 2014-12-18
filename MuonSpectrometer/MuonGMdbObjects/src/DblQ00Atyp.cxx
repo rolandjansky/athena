@@ -32,6 +32,7 @@ namespace MuonGM
 {
 
 DblQ00Atyp::DblQ00Atyp(IRDBQuery* m_atyp)
+ : m_nObj(0)
 {
   if(m_atyp) {
     m_atyp->execute();
