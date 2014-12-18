@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date May 2011
 
-__version__ = "$Revision: 538932 $"
+__version__ = "$Revision: 636803 $"
 __doc__ = "show the clients of a package using TC-2"
 __author__ = "Sebastien Binet"
 
@@ -68,7 +68,7 @@ def main(args):
     for full_name in sorted(_all_clients.keys()):
         v = _all_clients[full_name]
         if len(v) > 1:
-            versions = client.get_version_of_pkg(full_name, args.release)
+            versions = client.get_pkg_info(full_name, args.release, resultKey="packageTag")
             if len(versions) != 1:
                 client.msg.info('found multiple versions for package [%s]: %r',
                                 full_name, versions)

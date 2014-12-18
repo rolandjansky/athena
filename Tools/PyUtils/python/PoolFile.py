@@ -29,7 +29,8 @@ import os
 import shelve
 import whichdb
 
-from Helpers import ShutUp
+from Helpers import ShutUp, ROOT6Setup
+ROOT6Setup()
 from Decorators import forking
 
 ### --- data ------------------------------------------------------------------
@@ -298,7 +299,7 @@ def extract_streams_from_tag (fname,
     import sys
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
-    import PyCintex; PyCintex.Cintex.Enable()
+    #import PyCintex; PyCintex.Cintex.Enable()
 
     print "::: opening file [%s]..." % fname
 
@@ -546,6 +547,8 @@ class PoolFile(object):
             protocol, fileName = af.server.fname(fileName)
         except Exception,err:
             print "## warning: problem opening PoolFileCatalog:\n%s"%err
+            import traceback
+            traceback.print_exc(err)
             pass
         
         self.poolFile = None
@@ -588,8 +591,7 @@ class PoolFile(object):
         ROOT.gErrorIgnoreLevel = ROOT.kFatal
         rootMsg.unMute()
 
-        import PyCintex
-        PyCintex.Cintex.Enable()
+        #import PyCintex;        PyCintex.Cintex.Enable()
 
         rootMsg.mute()
         poolFile = None

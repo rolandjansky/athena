@@ -12,14 +12,10 @@ acmdlib.register('chk-sg', 'PyUtils.scripts.check_sg:main')
 acmdlib.register('ath-dump', 'PyUtils.scripts.ath_dump:main')
 acmdlib.register('chk-rflx', 'PyUtils.scripts.check_reflex:main')
 acmdlib.register('gen-klass', 'PyUtils.scripts.gen_klass:main')
-#acmdlib.register('tc.submit', 'PyUtils.AmiLib:tc_submit')
-#acmdlib.register('tc.pkg-tree', 'PyUtils.AmiLib:tc_pkg_tree')
-#acmdlib.register('ami-dset', 'PyUtils.AmiLib:ami_dset')
 
 acmdlib.register('tc.find-pkg', 'PyUtils.scripts.tc_find_pkg:main')
 acmdlib.register('tc.find-tag', 'PyUtils.scripts.tc_find_tag:main')
 acmdlib.register('tc.submit-tag', 'PyUtils.scripts.tc_submit_tag:main')
-acmdlib.register('tc.show-clients', 'PyUtils.scripts.tc_show_clients:main')
 
 acmdlib.register('get-tag-diff', 'PyUtils.scripts.get_tag_diff:main')
 
@@ -27,5 +23,8 @@ acmdlib.register('merge-files', 'PyUtils.scripts.merge_files:main')
 acmdlib.register('filter-files', 'PyUtils.scripts.filter_files:main')
 
 acmdlib.register('cmt.new-pkg', 'PyUtils.scripts.cmt_newpkg:main')
+acmdlib.register('cmt.new-alg', 'PyUtils.scripts.cmt_newalg:main')
+acmdlib.register('cmt.new-metadataalg', 'PyUtils.scripts.cmt_newmetadataalg:main')
+acmdlib.register('cmt.new-pyalg', 'PyUtils.scripts.cmt_newpyalg:main')
 ##
 

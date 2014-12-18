@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 611656 $"
+__version__ = "$Revision: 636803 $"
 __doc__ = "Submit one or more TAGs to TagCollector."
 __author__ = "Sebastien Binet, Frank Winklmeier"
 
@@ -15,9 +15,10 @@ import readline
 import getpass
 import os
 import os.path as osp
+import sys
 
 import PyUtils.acmdlib as acmdlib
-import PyUtils.AmiLib as amilib
+import pyAMI.exception
 import PyCmt.Cmt as cmt
 
 ### functions -----------------------------------------------------------------
@@ -44,35 +45,6 @@ def query_option(opt_name):
     if value == '':
         return None
     return value
-
-def _get_projects(client, release, pkg):
-    """retrieve the list of projects from AMI for a given release and package
-    """
-    projects = []
-    full_pkg_name = pkg['packagePath']+pkg['packageName'] # pkg['packageTag']
-    try:
-        res = client.exec_cmd(cmd='TCGetPackageVersionHistory',
-                              fullPackageName=full_pkg_name,
-                              releaseName=release)
-        rows = res.rows()
-        if isinstance(rows, dict):
-            rows = [rows]
-        ## print "---"
-        ## print list(rows)
-        ## print "---"
-        for row in rows:
-            if row.get('releaseName')!=release: continue  # skip irrelevant releases
-            v = row.get('groupName')
-            if not v in projects:
-                projects.append(v)
-            
-        if not projects:
-            print "::: no project found for package [%s] and release [%s]" % (
-                full_pkg_name,
-                release)
-    except amilib.PyAmi.AMI_Error, err:
-        pass
-    return projects
     
 def query_project(projects, release, pkg):
     """query the project(s) to submit to"""
@@ -115,26 +87,26 @@ def query_release(releases, project):
         return ','.join(releases)
     return choice
    
-def submit_tag(client, args, pkg, tag):
-   """Submit tag"""
+def submit_tag(client, args, pkg, tag, dryrun=None):
+    """Submit tag"""
 
-   cmd_args = {}
-   cmd_args['action'] = 'update'
-   cmd_args['fullPackageName'] = pkg
-   cmd_args['packageTag'] = tag
-   cmd_args['autoDetectChanges'] = 'yes'
+    cmd_args = {}
+    cmd_args['-action'] = 'update'
+    cmd_args['-fullPackageName'] = '"'+pkg+'"'
+    cmd_args['-packageTag'] = '"'+tag+'"'
+    cmd_args['-autoDetectChanges'] = 'yes'
 
-   if args.justification: cmd_args['justification'] = args.justification
-   if args.bug: cmd_args['bugReport'] = args.bug
-   if args.bundle: cmd_args['bundleName'] = args.bundle
-   if args.no_mail: cmd_args['noMail'] = ''
+    if args.justification: cmd_args['-justification'] = '"'+args.justification+'"'
+    if args.bug: cmd_args['-bugReport'] = '"'+args.bug+'"'
+    if args.bundle: cmd_args['-bundleName'] = '"'+args.bundle+'"'
+    if args.no_mail: cmd_args['-noMail'] = ''
    
-   for i,p in enumerate(args.project):
-     cmd_args['groupName'] = p
-     cmd_args['releaseName'] = args.release[i]
-     ok = client.exec_cmd(cmd='TCSubmitTagApproval', args=cmd_args)
-     if ok:
-         print "%s %s submitted to %s %s" % (pkg,tag,p,args.release[i])
+    for i,p in enumerate(args.project):
+        cmd_args['-groupName'] = '"'+p+'"'
+        cmd_args['-releaseName'] = args.release[i]
+        ok = client.exec_cmd(cmd='TCSubmitTagApproval', args=cmd_args, dryrun=dryrun)
+        if ok:
+            print "%s %s submitted to %s %s" % (pkg,tag,p,args.release[i])
 
 @acmdlib.command(name='tc.submit-tag')
 @acmdlib.argument(
@@ -150,11 +122,11 @@ def submit_tag(client, args, pkg, tag):
     action='store',
     help='justification for tag request')
 @acmdlib.argument(
-    '-s', '--savannah', '--bug',
+    '-s', '--bug',
     dest='bug',
     action='store',
     metavar='BUG',
-    help='bug report number')
+    help='Jira issue')
 @acmdlib.argument(
     '-b','--bundle',
     action='store',
@@ -165,7 +137,7 @@ def submit_tag(client, args, pkg, tag):
     default=False,
     help="do not send confirmation email")
 @acmdlib.argument(
-    '--dry-run',
+    '--dryrun',
     action='store_true',
     default=False,
     help='switch to simulate the commands but not actually send the requests'
@@ -176,6 +148,7 @@ def submit_tag(client, args, pkg, tag):
     metavar='TAG',
     help="""\
     (list of package) tags to submit or a file containing that list""")
+
 def main(args):
     """submit one or more package tags to TagCollector
 
@@ -196,119 +169,115 @@ def main(args):
     """
 
     import PyUtils.AmiLib as amilib
-    client = amilib.Client()
 
-    def select_tag():
-        value = raw_input('Please select (q to quit): ')
-        if value.lower() == 'q':
-            raise StopIteration
-        return int(value)
+    try:
+        client = amilib.Client()
     
-    # create a list of (pkg,tag) with full package path
-    pkgs = []
-
-    for pkg in args.pkgs:
-        # a file ?
-        if osp.exists(pkg):
-            fname = pkg
-            print "::: taking tags from file [%s]..." % (fname,)
-            for l in open(fname, 'r'):
-                l = l.strip()
-                if l:
-                    print " - [%s]" % (l,)
-                    pkgs.append(l)
-        else:
-            pkgs.append(pkg)
-
-    pkg_list = [client.find_pkg(pkg, cbk_fct=select_tag, check_tag=False) for pkg in pkgs]
-
-    # setup history
-    readline.set_history_length(10)
-
-    # query release if project is known
-    if args.project and not args.release:
-        for p in args.project.split(','):
-            rel = client.get_open_releases(p)
-            if len(rel)==0:
-                continue
-            if not args.release:
-                args.release = query_release(rel, p)
+        # create a list of (pkg,tag) with full package path
+        pkgs = []
+    
+        for pkg in args.pkgs:
+            # a file ?
+            if osp.exists(pkg):
+                fname = pkg
+                print "::: taking tags from file [%s]..." % (fname,)
+                for l in open(fname, 'r'):
+                    l = l.strip()
+                    if l:
+                        print " - [%s]" % (l,)
+                        pkgs.append(l)
             else:
-                args.release += (',%s' % query_release(rel, p))
-    if args.release and len(args.release.split(',')) == 1:
-        _release = args.release.split(',')[0]
-        args.release = ','.join([_release]*len(pkg_list))
-        # adjust the project list too
-        if args.project and len(args.project.split(',')) == 1:
-            args.project = ','.join([args.project.split(',')[0]]*len(pkg_list))
+                pkgs.append(pkg)
+    
+        pkg_list = [client.find_pkg(pkg, check_tag=False) for pkg in pkgs]
+    
+        # setup history
+        readline.set_history_length(10)
+    
+        # query release if project is known
+        if args.project and not args.release:
+            for p in args.project.split(','):
+                rel = client.get_open_releases(p)
+                if len(rel)==0:
+                    continue
+                if not args.release:
+                    args.release = query_release(rel, p)
+                else:
+                    args.release += (',%s' % query_release(rel, p))
+        if args.release and len(args.release.split(',')) == 1:
+            _release = args.release.split(',')[0]
+            args.release = ','.join([_release]*len(pkg_list))
+            # adjust the project list too
+            if args.project and len(args.project.split(',')) == 1:
+                args.project = ','.join([args.project.split(',')[0]]*len(pkg_list))
+                
+        # query project if release is known
+        if args.release and not args.project:
+            _releases = args.release.split(',')
+            _projects = []
+            rel = _releases[0]
+            for pkg in pkg_list:
+                proj = client.get_pkg_info(pkg['packageName'], rel, resultKey="groupName")
+                if len(proj)==0:
+                    _projects.append(None)
+                    continue
+                v = query_project(proj, rel, pkg)
+                _projects.append(v)
+                pass # pkgs
+            if not args.project:
+                args.project = ','.join(_projects)
+            else:
+                args.project += ','+','.join(_projects)
+            pass
+    
+        # Find latest tag if needed
+        print '-'*80
+        for p in pkg_list:
+            if not 'packageTag' in p:
+                pkg = (p['packagePath']+p['packageName']).strip('/') # CMTise path
+                p['packageTag'] = cmt.CmtWrapper().get_latest_pkg_tag(pkg)
+                print 'Using latest tag %s' % (p['packageTag'])
+    
+        # query for missing options    
+        for o in ('project', 'release', 'justification', 'bug',):
+            value = getattr(args, o)
+            if value:
+                print '%s : %s' % (o, value)
+            else:
+                setattr(args, o, query_option(o))
+        print '-'*80
+    
+        args.project = args.project.split(',')
+        args.release = args.release.split(',')
+        if len(args.project) != len(args.release):
+            raise RuntimeError(
+                'Number of projects %s and releases %s do not match' %
+                (args.project, args.release)
+                )
+    
+        # If only one tag given, submit this tag to all releases
+        if len(pkg_list)==1: pkg_list = pkg_list*len(args.release)
+                        
+        choice = raw_input("Submit tag? [Y/n] ")      
+        ok = len(choice)==0 or choice.upper()=="Y"
+    
+        releases = args.release[:]
+        projects = args.project[:]
+    
+        exitcode = 0
+        if ok:
+            # Submit tag request
+            for p,rel,proj in zip(pkg_list, releases, projects):
+                args.release = [rel]
+                args.project = [proj]
+                submit_tag(client, args,
+                           p['packagePath']+p['packageName'],p['packageTag'], dryrun=args.dryrun)
+        else:
+            print "Tag submission aborted"
+            exitcode = 1
             
-    # query project if release is known
-    if args.release and not args.project:
-        _releases = args.release.split(',')
-        _projects = []
-        rel = _releases[0]
-        for pkg in pkg_list:
-            proj = _get_projects(client, rel, pkg)
-            if len(proj)==0:
-                _projects.append(None)
-                continue
-            v = query_project(proj, rel, pkg)
-            _projects.append(v)
-            pass # pkgs
-        if not args.project:
-            args.project = ','.join(_projects)
-        else:
-            args.project += ','+','.join(_projects)
-        pass
+        return exitcode
 
-    # Find latest tag if needed
-    print '-'*80
-    for p in pkg_list:
-        if not 'packageTag' in p:
-            pkg = (p['packagePath']+p['packageName']).strip('/') # CMTise path
-            p['packageTag'] = cmt.CmtWrapper().get_latest_pkg_tag(pkg)
-            print 'Using latest tag %s' % (p['packageTag'])
-
-    # query for missing options    
-    for o in ('project', 'release', 'justification', 'bug',):
-        value = getattr(args, o)
-        if value:
-            print '%s : %s' % (o, value)
-        else:
-            setattr(args, o, query_option(o))
-    print '-'*80
-
-    args.project = args.project.split(',')
-    args.release = args.release.split(',')
-    if len(args.project) != len(args.release):
-        raise RuntimeError(
-            'Number of projects %s and releases %s do not match' %
-            (args.project, args.release)
-            )
-
-    # If only one tag given, submit this tag to all releases
-    if len(pkg_list)==1: pkg_list = pkg_list*len(args.release)
-                    
-    choice = raw_input("Submit tag? [Y/n] ")      
-    ok = len(choice)==0 or choice.upper()=="Y"
-
-    if args.dry_run:
-        client.dry_run = args.dry_run
-
-    releases = args.release[:]
-    projects = args.project[:]
-
-    exitcode = 0
-    if ok:
-        # Submit tag request
-        for p,rel,proj in zip(pkg_list, releases, projects):
-            args.release = [rel]
-            args.project = [proj]
-            submit_tag(client, args,
-                       p['packagePath']+p['packageName'],p['packageTag'])
-    else:
-        print "Tag submission aborted"
-        exitcode = 1
-        
-    return exitcode
-
+    except amilib.PyUtilsAMIException, e:
+        print >>sys.stderr, e
+        sys.exit(1)

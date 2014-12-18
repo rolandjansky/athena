@@ -158,8 +158,8 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
         
     import PyUtils.Logging as _L
     msg = _L.logging.getLogger('typereg-dso')
-    #msg.setLevel(_L.logging.INFO)
-    msg.setLevel(_L.logging.VERBOSE)
+    msg.setLevel(_L.logging.INFO)
+    #msg.setLevel(_L.logging.VERBOSE)   #MN
     del _L
     
     msg.info("installing registry in [%s]...", oname)
@@ -169,18 +169,18 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
     reg = PyDsoDb()
     
     cls_names = reg.db.keys()
-    msg.debug("::: loading reflex")
-    import PyCintex
-    PyCintex.Cintex.Enable()
-    PyCintex.loadDict('libReflexRflx.so')
-    rflx = PyCintex.makeNamespace('Reflex')
-    if not rflx:
-        rflx = PyCintex.makeNamespace('ROOT::Reflex')
-    rflx = rflx.Type
-    assert(rflx)
+    import cppyy
+    _load_lib = cppyy.loadDict
 
-    import PyCintex
-    _load_lib = PyCintex.loadDict
+    if not hasattr(cppyy, 'hasFakeCintex '):
+        msg.debug("::: loading reflex")
+        _load_lib('libReflexRflx.so')
+        rflx = cppyy.makeNamespace('Reflex')
+        if not rflx:
+            rflx = cppyy.makeNamespace('ROOT::Reflex')
+        rflx = rflx.Type
+        assert(rflx)
+
     def _load_dict(libname,retry=10):
         msg.debug("::: loading [%s]...", libname)
         try:
@@ -191,8 +191,8 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
 
     # we need to pre-load these guys as HepPDT is missing a linkopts
     # against HepPID. see bug #46551
-    hep_pid = PyCintex.loadDict('libHepPID.so')
-    hep_pdt = PyCintex.loadDict('libHepPDT.so')
+    hep_pid = _load_lib('libHepPID.so')
+    hep_pdt = _load_lib('libHepPDT.so')
 
     from PyUtils.Decorators import forking
     
@@ -318,18 +318,20 @@ class CxxDsoDb(object):
     """
     def __init__(self):
         # import cintex
-        import PyCintex; PyCintex.Cintex.Enable()
+        # import PyCintex; PyCintex.Cintex.Enable()
+        import cppyy
         # import root
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
         self._cxx = ROOT.Ath.DsoDb.instance()
-        # load reflex
-        _load_dict = PyCintex.loadDict
-        _load_dict('ReflexRflx')
-        self._rflx = PyCintex.makeNamespace('Reflex')
-        if not self._rflx:
-            self._rflx = PyCintex.makeNamespace('ROOT::Reflex')
-        return
+        if not hasattr(cppyy, 'hasFakeCintex '):
+           # load reflex
+           _load_dict = cppyy.loadDict
+           _load_dict('ReflexRflx')
+           self._rflx = cppyy.makeNamespace('Reflex')
+           if not self._rflx:
+               self._rflx = cppyy.makeNamespace('ROOT::Reflex')
+           return
 
     def _to_py(self, cxx):
         dd = {}

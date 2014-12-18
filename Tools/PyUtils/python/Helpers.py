@@ -12,6 +12,107 @@ __author__  = "Sebastien Binet <binet@cern.ch>"
 import sys
 import os
 
+from AthenaCommon.Logging import log
+
+
+def ROOT6Setup():
+
+   def addROOTIncludePaths():
+      """
+      Fill ROOT include path list for entries for all packages found in CMTPATH
+      """
+      log.debug( "\n  ---------   addROOTIncludePaths!" )
+      log.debug( "Expanding CMTPATH:\n" + str( os.environ['CMTPATH'] ) + '\n' )
+      import glob
+      import PyUtils.RootUtils as ru
+      interp = ru.import_root().gInterpreter
+      plist = os.environ['CMTPATH'].split(':')
+      for p in plist:
+         if p.find('AtlasCore')>0:
+            path_for_eigen = os.path.join (p, 'InstallArea', os.environ['CMTCONFIG'],'include')
+            interp.AddIncludePath( path_for_eigen )
+         # MN disabling to use the patchs from release setup now
+   #      if p.find('GAUDI')<0:
+   #         idir = os.path.join (p, 'InstallArea', 'include')
+   #         for ii in glob.glob (os.path.join (idir, '*')):
+   #            interp.AddIncludePath (ii)
+      try:
+         interp.AddIncludePath( os.environ['G4INCLUDE'] )
+      except KeyError:
+         pass
+
+
+   def cppyyFakeCintex():
+      class Cintex:
+         def Enable(self):
+             pass
+      
+      _load = cppyy.loadDict
+      def loadDict(dict):
+         if dict.find('Reflex') >= 0:
+            log.debug(" LoadDict: ignoring dict " + dict )
+         else:
+            log.debug(" LoadDict: loading dict " + dict )
+            return _load(dict)
+      
+      cppyy.Cintex = Cintex()
+      cppyy.hasFakeCintex = True
+      cppyy.loadDict = loadDict
+
+
+   def install_root6_importhook():
+      import __builtin__
+      oldimporthook = __builtin__.__import__
+      autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
+      
+      def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
+          if name == 'PyCintex':
+             import sys, traceback
+             source, line, f, t = traceback.extract_stack( sys._getframe(1) )[-1]
+             log.warning( 'PyCintex imported (replace with import cppyy) from: %s:%d'%(source,line) )
+          m = oldimporthook(name, globals, locals, fromlist, level)
+          if m and m.__name__== 'ROOT':
+             log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
+             if fromlist:
+                vars = [ '.'.join([name, fl, autoload_var_name]) for fl in fromlist]
+             else:
+                vars = [ '.'.join([name, autoload_var_name]) ]
+             for v in vars:
+                mm = m
+                try:
+                   #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
+                   for comp in v.split('.')[1:]:
+                      mm = getattr(mm, comp)
+                except:
+                   pass
+          return m
+      
+      __builtin__.__import__ = root6_importhook
+      
+
+   try:
+      import cppyy
+      # let cppyy pretend to be PyCintex (and prevent subsequent imports of PyCintex)
+      sys.modules['PyCintex'] = PyCintex = cppyy
+   except ImportError, e:
+    # handle a somewhat common mistake
+      import traceback
+      traceback.print_exception( sys.exc_type,
+          '%s, ROOT version or setup problem?' % str(e), sys.exc_traceback )
+      sys.exit( 1 )
+
+   try:
+       # test if we have Cintex (ROOT5)
+       PyCintex.Cintex.Debug
+   except AttributeError:
+       # no Cintex!  do ROOT6 stuff
+       # but don't initialize more than once
+       if not hasattr('cppyy','hasFakeCintex'):
+          log.info('executing ROOT6Setup')
+          cppyyFakeCintex()
+          addROOTIncludePaths()
+          install_root6_importhook()
+
 import re
 from tempfile import NamedTemporaryFile
 class ShutUp(object):

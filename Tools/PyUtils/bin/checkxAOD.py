@@ -2,14 +2,14 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 592348 2014-04-10 12:06:41Z krasznaa $
+# $Id: checkxAOD.py 619905 2014-10-03 16:11:12Z krasznaa $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
 # object/container.
 #
 
-__version__ = "$Revision: 592348 $"
+__version__ = "$Revision: 619905 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>"
 
@@ -27,6 +27,10 @@ if __name__ == "__main__":
        "--file",
        dest = "fileName",
        help = "The path to the POOL file to analyze" )
+    p( "-c",
+       "--csv",
+       dest = "csvFileName",
+       help = "Output CSV file name, to use with spreadsheets" )
     ( options, args ) = parser.parse_args()
 
     fileNames = []
@@ -45,6 +49,12 @@ if __name__ == "__main__":
         pass
 
     fileNames = set( fileNames )
+
+    # Check the consistency with the CSV output:
+    if len( fileNames ) > 1 and options.csvFileName:
+        print( "WARNING  CSV output is only available when processing a single "
+               "input file" )
+        pass
 
     # Loop over the specified file(s):
     for fileName in fileNames:
@@ -158,6 +168,27 @@ if __name__ == "__main__":
         print( "%12.3f kb %12.3f kb       %s" %
                ( memSize, diskSize, "Total" ) )
         print( "=" * 80 )
+
+        # Write out a CSV file if one was requested:
+        if options.csvFileName and ( len( fileNames ) == 1 ):
+            # Open the output file:
+            import csv
+            with open( options.csvFileName, "wb" ) as f:
+                writer = csv.writer( f )
+                # Set up the formatting of the file:
+                writer.writerow( [ "Name (Type)", "Size/Evt" ] )
+                # Write all entries to it:
+                for d in orderedData:
+                    # Skip metadata items:
+                    if d.nEntries != poolFile.dataHeader.nEntries: continue
+                    # Construct the name of the entry:
+                    nameType = "%s (%s)" % \
+                        ( d.name, ttree.GetBranch( d.name ).GetClassName() )
+                    # Write the entry:
+                    writer.writerow( [ nameType, d.diskSize / d.nEntries ] )
+                    pass
+                pass
+            pass
 
         if len(fileNames) > 1:
             print ""

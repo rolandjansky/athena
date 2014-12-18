@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 543921 $"
+__version__ = "$Revision: 632456 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -38,8 +38,7 @@ def import_root(batch=True):
     ROOT.gROOT.SetBatch(batch)
     if batch:
         ROOT.PyConfig.IgnoreCommandLineOptions = True
-    import PyCintex
-    PyCintex.Cintex.Enable()
+    #import PyCintex;    PyCintex.Cintex.Enable()
     return ROOT
 
 def root_compile(src=None, fname=None, batch=True):
@@ -95,7 +94,8 @@ def root_compile(src=None, fname=None, batch=True):
         
 @memoize
 def _pythonize_tfile():
-    import PyCintex; PyCintex.Cintex.Enable()
+    #import PyCintex; PyCintex.Cintex.Enable()
+    import cppyy
     root = import_root()
     import PyUtils.Helpers as H
     with H.ShutUp(filters=[
@@ -105,9 +105,10 @@ def _pythonize_tfile():
             'Warning in <TEnvRec::ChangeValue>: duplicate entry.*'
             ),
         ]):
-        PyCintex.loadDict("RootUtilsPyROOTDict")
+        cppyy.loadDict("RootUtilsPyROOTDict")
         rootutils = getattr(root, "RootUtils")
-        pybytes = getattr(rootutils, "PyBytes")
+        pybytes        = getattr(rootutils, "PyBytes")
+        #MN: lines below fail in ROOT6 if PCM from RootUtils is not found
         read_root_file = getattr(rootutils, "_pythonize_read_root_file")
         tell_root_file = getattr(rootutils, "_pythonize_tell_root_file")
         pass
@@ -306,6 +307,7 @@ def _test_main():
                  fct=root_compile, fname=tmp.name)
 
     print "OK"
+    return True
 
 if __name__ == "__main__":
     _test_main()
