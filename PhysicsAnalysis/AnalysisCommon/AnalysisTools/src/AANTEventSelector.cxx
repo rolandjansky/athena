@@ -198,16 +198,10 @@ StatusCode AANTEventSelector::next(IEvtSelector::Context& it, int jump) const
 	  return this->next(it,0);
 	}
     }
-  else
-    {
-      // EOF
-      //ct = new AANTEventContext(0);
-      return StatusCode::FAILURE; 
-    }
 
-  // should not be here...
-  log << MSG::ERROR << "jumping out of evt-boundaries" << endreq;
-  return StatusCode::FAILURE;
+  // EOF
+  //ct = new AANTEventContext(0);
+  return StatusCode::FAILURE; 
 }
 
 
