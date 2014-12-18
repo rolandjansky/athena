@@ -11,10 +11,12 @@ use AtlasPolicy        AtlasPolicy-*
 private
 
 # Base package(s):
-use GaudiInterface      GaudiInterface-*      External
+#use GaudiInterface      GaudiInterface-*      External
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
 
 # EDM package(s):
 use xAODTrigEgamma         xAODTrigEgamma-*         Event/xAOD

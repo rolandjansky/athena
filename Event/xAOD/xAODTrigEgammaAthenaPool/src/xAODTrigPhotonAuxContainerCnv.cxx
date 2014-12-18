@@ -9,6 +9,8 @@
 
 // Local include(s):
 #include "xAODTrigPhotonAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODTrigPhotonAuxContainerCnv::xAODTrigPhotonAuxContainerCnv( ISvcLocator* svcLoc )
    : xAODTrigPhotonAuxContainerCnvBase( svcLoc ) {
@@ -20,10 +22,7 @@ xAODTrigPhotonAuxContainerCnv::
 createPersistent( xAOD::TrigPhotonAuxContainer* trans ) {
 
    // Create a copy of the container:
-   xAOD::TrigPhotonAuxContainer* result =
-      new xAOD::TrigPhotonAuxContainer( *trans );
-
-   return result;
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 xAOD::TrigPhotonAuxContainer* xAODTrigPhotonAuxContainerCnv::createTransient() {
