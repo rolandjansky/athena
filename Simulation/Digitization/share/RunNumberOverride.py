@@ -30,7 +30,10 @@ if digitizationFlags.dataRunNumber.get_Value():
     ServiceMgr.EventSelector.RunNumber=myRunNumber
     ServiceMgr.EventSelector.FirstLB = myFirstLB
     ServiceMgr.EventSelector.InitialTimeStamp = myInitialTimeStamp
-    if digitizationFlags.simRunNumber.get_Value() < 0:
-        raise SystemExit("Failed to read HIT file Run Number - please check input file for corruption.")
-    ##FIXME need to do some error checking at this point
-    ServiceMgr.EventSelector.OldRunNumber=digitizationFlags.simRunNumber.get_Value()
+
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if not athenaCommonFlags.DoFullChain:
+        if digitizationFlags.simRunNumber.get_Value() < 0:
+            raise SystemExit("Failed to read HIT file Run Number - please check input file for corruption.")
+        ##FIXME need to do some error checking at this point
+        ServiceMgr.EventSelector.OldRunNumber=digitizationFlags.simRunNumber.get_Value()
