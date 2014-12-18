@@ -26,6 +26,8 @@ namespace Trk {
   class VolumeBounds;
   class LayerMaterialProperties;
   class OverlapDescriptor;
+  class ApproachDescriptor;
+  
   /**
    @class DiscLayer
    
@@ -65,6 +67,7 @@ namespace Trk {
                   SurfaceArray* surfaceArray,
                   double isontolerance = 0.,
                   OverlapDescriptor* od = 0,
+                  ApproachDescriptor* ad = 0,
                   int laytyp=int(Trk::active));
                 
         /**Constructor with DiscSurface components, 
@@ -75,6 +78,7 @@ namespace Trk {
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
                   OverlapDescriptor* od = 0,
+                  ApproachDescriptor* ad = 0,
                   int laytyp=int(Trk::active)); 
  
         /**Copy constructor of DiscLayer*/
@@ -87,32 +91,46 @@ namespace Trk {
         DiscLayer& operator=(const DiscLayer&);
               
         /**Destructor*/
-        virtual ~DiscLayer(){}  
+        virtual ~DiscLayer();  
                 
         /** Transforms the layer into a Surface representation for extrapolation */
-        const DiscSurface& surfaceRepresentation() const;
-        
+        const DiscSurface& surfaceRepresentation() const override;
+
+        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+        const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
+                                         const Amg::Vector3D& mom, 
+                                         PropDirection pdir,
+                                         BoundaryCheck& bcheck,
+                                         bool resolveSubSurfaces = 0,
+                                         const ICompatibilityEstimator* ice = 0) const override;
+      
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const;
+                                       Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
         double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const;
-
-        /** Return the path correction */
-        double pathCorrection(const TrackParameters& par) const;
+                                         Trk::PropDirection dir) const override;
 
        /** move the Layer */
-        void moveLayer( Amg::Transform3D& shift ) const;
+        void moveLayer( Amg::Transform3D& shift ) const override;
      
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       void resizeLayer(const VolumeBounds& vBounds, double envelope) const;        
+       void resizeLayer(const VolumeBounds& vBounds, double envelope) const override;        
            
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) const;
+       void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) const override;
+
+       /** build approach surfaces */
+       void buildApproachDescriptor() const;
     
+       /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+       const Surface& approachSurface(const Amg::Vector3D& pos,
+                                      const Amg::Vector3D& dir,
+                                      BoundaryCheck& bcheck) const;    
+                                          
+       mutable ApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

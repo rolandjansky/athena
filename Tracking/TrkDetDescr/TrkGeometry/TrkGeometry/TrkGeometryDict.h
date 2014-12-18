@@ -5,8 +5,8 @@
 #ifndef TRKGEOMETRY_TRKGEOMETRYDICT_H
 #define TRKGEOMETRY_TRKGEOMETRYDICT_H
 
-#include "TrkGeometry/MaterialStepVector.h"
 #include "TrkGeometry/MaterialStep.h"
+#include "TrkGeometry/Layer.h"
 #include "DataModel/DataVector.h"
 
 namespace TrkDetDetDescrPoolRegister {

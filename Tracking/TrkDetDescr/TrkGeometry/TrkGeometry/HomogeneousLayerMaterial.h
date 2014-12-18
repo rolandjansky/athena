@@ -60,7 +60,7 @@ namespace Trk {
       virtual ~HomogeneousLayerMaterial();
       
       /**Pseudo-Constructor clone()*/ 
-      HomogeneousLayerMaterial* clone() const;
+      HomogeneousLayerMaterial* clone() const override;
       
       /** Assignment operator */
       HomogeneousLayerMaterial& operator=(const HomogeneousLayerMaterial& lmp);
@@ -72,18 +72,18 @@ namespace Trk {
       virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
 
       /**Direct access via bins to the MaterialProperties */
-      virtual const MaterialProperties* material(size_t ib0, size_t ib1) const;
+      virtual const MaterialProperties* material(size_t ib0, size_t ib1) const override;
       
       /** Return the BinUtility */
-      const BinUtility* binUtility() const { return 0; }
+      const BinUtility* binUtility() const  override { return 0; }
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       void updateBinning(BinUtility*) const { }
           
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const;
+      MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const;      
+      std::ostream& dump(std::ostream& sl) const override;      
 
     private:
       /** The five different MaterialProperties */

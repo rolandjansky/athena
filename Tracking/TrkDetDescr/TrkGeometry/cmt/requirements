@@ -10,11 +10,10 @@ use AthenaKernel          AthenaKernel-*             Control
 use CLIDSvc               CLIDSvc-*                  Control
 use DataModel             DataModel-*                Control
 use GaudiInterface        GaudiInterface-*           External  
-
-use GeoPrimitives	  GeoPrimitives-*            DetectorDescription
-
+use GeoPrimitives	      GeoPrimitives-*            DetectorDescription
 use TrkEventPrimitives    TrkEventPrimitives-*       Tracking/TrkEvent
 use TrkParameters         TrkParameters-*            Tracking/TrkEvent
+use TrkNeutralParameters  TrkNeutralParameters-*     Tracking/TrkEvent
 
 use TrkDetDescrUtils      TrkDetDescrUtils-*         Tracking/TrkDetDescr
 use TrkGeometrySurfaces   TrkGeometrySurfaces-*      Tracking/TrkDetDescr
@@ -25,6 +24,7 @@ use TrkVolumes            TrkVolumes-*               Tracking/TrkDetDescr
 # private use statements
 private
 use AtlasReflex           AtlasReflex-*             External   -no_auto_imports
+use EventPrimitives       EventPrimitives-*         Event
 
 public
 library TrkGeometry *.cxx
@@ -36,4 +36,4 @@ private
 
 macro DOXYGEN_IMAGE_PATH "../doc/images"
 macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
-#apply_pattern lcgdict dict=TrkGeometry selectionfile=selection.xml headerfiles="../TrkGeometry/TrkGeometryDict.h"
+apply_pattern lcgdict dict=TrkGeometry selectionfile=selection.xml headerfiles="../TrkGeometry/TrkGeometryDict.h"

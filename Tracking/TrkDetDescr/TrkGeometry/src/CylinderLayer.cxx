@@ -10,6 +10,7 @@
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
+#include "TrkGeometry/ApproachDescriptor.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkParameters/TrackParameters.h"
@@ -24,8 +25,11 @@ Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   Trk::OverlapDescriptor* olap,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
-  Layer(laymatprop, thickness, olap, laytyp)
-{}
+  Layer(laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(0)
+{
+  CylinderSurface::associateLayer(*this);
+}
 
 Trk::CylinderLayer::CylinderLayer(Trk::CylinderSurface* cyl,
                                   const Trk::LayerMaterialProperties& laymatprop,
@@ -33,18 +37,29 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderSurface* cyl,
                                   Trk::OverlapDescriptor* olap,
                                   int laytyp) :
   CylinderSurface(*cyl),
-  Layer(laymatprop, thickness, olap, laytyp)
-{}
+  Layer(laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(0)
+{
+    CylinderSurface::associateLayer(*this);
+}
         
 Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   Trk::CylinderBounds* cbounds,
                                   Trk::SurfaceArray* surfaceArray,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
+                                  Trk::ApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
-  Layer(surfaceArray, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    CylinderSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);
+    
+}
                 
 Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   Trk::CylinderBounds* cbounds,
@@ -52,10 +67,18 @@ Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   const Trk::LayerMaterialProperties& laymatprop,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
+                                  Trk::ApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
-  Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    CylinderSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);
+    
+}
 
 Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   const Trk::LayerMaterialProperties& laymatprop,
@@ -63,48 +86,80 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   Trk::OverlapDescriptor* olap,
                                   int laytyp) :
   CylinderSurface(cbounds),
-  Layer(laymatprop, thickness, olap, laytyp)
-{}
+  Layer(laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(0)
+{
+    CylinderSurface::associateLayer(*this);
+}
         
 Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   Trk::SurfaceArray* surfaceArray,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
+                                  Trk::ApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(cbounds),
-  Layer(surfaceArray, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    CylinderSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);  
+}
                 
 Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   Trk::SurfaceArray* surfaceArray,
                                   const Trk::LayerMaterialProperties& laymatprop,
                                   double thickness,
                                   Trk::OverlapDescriptor* olap,
+                                  Trk::ApproachDescriptor* ades,
                                   int laytyp) :
   CylinderSurface(cbounds),
-  Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    CylinderSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);    
+}
 
 Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay):
   CylinderSurface(clay),
-  Layer(clay)
-{}
+  Layer(clay),
+  m_approachDescriptor(0)
+{
+    CylinderSurface::associateLayer(*this);
+    delete m_approachDescriptor;
+    if (m_surfaceArray) buildApproachDescriptor(); //!< TODO use clone when exists
+}
 
 Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay, const Amg::Transform3D& transf):
   CylinderSurface(clay,transf),
-  Layer(clay)
-{}
+  Layer(clay),
+  m_approachDescriptor(0)
+{
+    if (m_surfaceArray) buildApproachDescriptor();
+}
 
 Trk::CylinderLayer& Trk::CylinderLayer::operator=(const CylinderLayer& clay)
 {
   if (this!=&clay){
-   // call the assignments of the base classes
-   Trk::CylinderSurface::operator=(clay);
-   Trk::Layer::operator=(clay);
-   }
+    // call the assignments of the base classes
+    Trk::CylinderSurface::operator=(clay);
+    Trk::Layer::operator=(clay);
+    if (m_surfaceArray) buildApproachDescriptor(); 
+    CylinderSurface::associateLayer(*this); 
+  }
   return(*this);
 }
 
+Trk::CylinderLayer::~CylinderLayer()
+{
+    delete m_approachDescriptor;
+}
+ 
     
 const Trk::CylinderSurface& Trk::CylinderLayer::surfaceRepresentation() const
 {
@@ -114,7 +169,7 @@ const Trk::CylinderSurface& Trk::CylinderLayer::surfaceRepresentation() const
 double Trk::CylinderLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                    Trk::PropDirection dir) const
 {    
-    if (!Trk::Layer::m_layerMaterialProperties)
+    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
       return 0.;
     // calculate the direction to the normal 
     const Amg::Vector3D& parmPos = parm.position();
@@ -127,7 +182,7 @@ double Trk::CylinderLayer::preUpdateMaterialFactor(const Trk::TrackParameters& p
 double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                     Trk::PropDirection dir) const 
 {
-   if (!Trk::Layer::m_layerMaterialProperties)
+   if (!Trk::Layer::m_layerMaterialProperties.getPtr())
       return 0;
     const Amg::Vector3D& parmPos = parm.position();
     Amg::Vector3D pastStep(parmPos + dir*parm.momentum().normalized());
@@ -136,46 +191,6 @@ double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& 
     return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
 }
 
-double Trk::CylinderLayer::pathCorrection(const Trk::TrackParameters& parm) const
-{
-    
-  // pathCorrection is only supported for Cylinders with sym axis == z-axis
-  if ( fabs(rotSymmetryAxis().z()) > 0.99 &&  !TRKGEOMETRY_COMPLEXPATHCORRECTION){
-     // the fastest version
-     return 1./sin(parm.parameters()[Trk::theta]);
-
-  } if ( fabs(rotSymmetryAxis().z()) > 0.99) {
-   // the center of the Cylinder 
-   
-   const Amg::Vector3D& center = surfaceRepresentation().center();
-
-   // create the global direction
-   Amg::Vector3D dir(parm.momentum().normalized());
-   double dirTfactor = 1./dir.perp(); 
-  
-   Amg::Vector3D transdir(dirTfactor*dir.x(), dirTfactor*dir.y(), 0.);
-
-   // and the transverse correction - to be safe against small shifts
-   Amg::Vector3D normal(parm.position().x() - center.x() ,parm.position().y() - center.y() ,0.);
-
-   // the cos of the enclosed angle is the dot product - the longitudinal correction
-   double lambda = acos(fabs(dir.dot( rotSymmetryAxis() )));
-   double tau = acos(fabs(transdir.dot(normal.normalized())));
-
-   // get the tangenti
-   double tanlambda = tan(lambda);
-   double tantau  = tan(tau);  
-   return sqrt(1.+tantau*tantau + 1./(tanlambda*tanlambda));
-   }
-
-   // create the global direction
-   Amg::Vector3D dir(parm.momentum().normalized());
-   // the cos of the enclosed angle is the dot product - the longitudinal correction
-   double lambda = acos(fabs(dir.dot( rotSymmetryAxis() )));
-   // return the correction 
-   return (1./sin(lambda));
-   
-}
 
 void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
        Amg::Transform3D transf = shift * (*m_transform);
@@ -185,6 +200,9 @@ void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
        m_center = new Amg::Vector3D(m_transform->translation());
        delete m_normal;
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+
+       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+           buildApproachDescriptor();
 }
 
 void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
@@ -198,7 +216,7 @@ void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope
         Trk::CylinderBounds* rCylinderBounds = new Trk::CylinderBounds(r,hLengthZ-envelope);
         Trk::CylinderSurface::m_bounds = Trk::SharedObject<const Trk::CylinderBounds>(rCylinderBounds);
         // (1) resize the material properties by updating the BinUtility, assuming rphi/z binning
-        if (Trk::Layer::m_layerMaterialProperties ){
+        if (Trk::Layer::m_layerMaterialProperties.getPtr() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
             if (layerMaterialBU && layerMaterialBU->dimensions() > 1 ){
                 size_t binsRPhi = layerMaterialBU->max(0)+1;
@@ -211,6 +229,77 @@ void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope
             }
         }
     }
+    
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+        buildApproachDescriptor();
+    
+}
+
+/** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+const Trk::Surface& Trk::CylinderLayer::approachSurface(const Amg::Vector3D& pos,
+                                                        const Amg::Vector3D& dir,
+                                                        Trk::BoundaryCheck& bcheck) const
+{
+    if (m_approachDescriptor){
+        // get the test surfaces from the approach Descriptor
+        const Trk::ApproachSurfaces* surfacesOnApproach = m_approachDescriptor->approachSurfaces(pos,dir);
+        if (surfacesOnApproach){
+            // test the intersections and go 
+            std::vector<Trk::Intersection> sfIntersections;
+            const Trk::Surface* aSurface = 0;
+            double aPathLength           = 10e10;
+            // get the surfaces
+            for (auto& sfIter : (*surfacesOnApproach)){
+                // get the intersection with the surface
+                Trk::Intersection sIntersection = sfIter->straightLineIntersection(pos, dir, true, bcheck); 
+                // validation
+                if (sIntersection.valid && sIntersection.pathLength < aPathLength){
+                    aPathLength = sIntersection.pathLength;
+                    aSurface    = sfIter;
+                } 
+            } 
+            if (aSurface) return (*aSurface);
+        } 
+    }
+    return surfaceRepresentation();
+}
+
+/** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+const Trk::Surface& Trk::CylinderLayer::surfaceOnApproach(const Amg::Vector3D& pos,
+                                                          const Amg::Vector3D& mom,
+                                                          Trk::PropDirection pDir,
+                                                          Trk::BoundaryCheck& bcheck,
+                                                          bool resolveSubSurfaces,
+                                                          const Trk::ICompatibilityEstimator*) const
+{ 
+    // resolve the surfaces
+    if (m_approachDescriptor && resolveSubSurfaces){
+        // resolve based on straight line intersection
+        return approachSurface(pos,double(pDir)*mom.unit(),bcheck);
+    }
+    return surfaceRepresentation();
+}
+
+
+
+/** build approach surfaces */
+void Trk::CylinderLayer::buildApproachDescriptor() const {
+    // delete it
+    delete m_approachDescriptor;
+    // delete the surfaces    
+    Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
+    // create new surfaces
+    Amg::Transform3D* asTransform = m_transform ? new Amg::Transform3D(*m_transform) : 0;
+    // create the new surfaces
+    aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()-0.5*thickness(), m_bounds->halflengthZ() ));
+    aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()+0.5*thickness(), m_bounds->halflengthZ() ));
+    // set the layer and make TGOwn
+    for (auto& sIter : (*aSurfaces)){
+        sIter->associateLayer(*this);
+        sIter->setOwner(Trk::TGOwn);
+    }
+    m_approachDescriptor = new Trk::ApproachDescriptor(aSurfaces);
+    
 }
 
 void Trk::CylinderLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope) const {
@@ -225,7 +314,8 @@ void Trk::CylinderLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, c
     // delete derived and the cache
     delete Trk::CylinderSurface::m_center; Trk::CylinderSurface::m_center = new Amg::Vector3D(vCenter);
     delete Trk::CylinderSurface::m_normal; Trk::CylinderSurface::m_normal = 0;
-    
-
+    // rebuild approaching layers if needed
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+        buildApproachDescriptor();
 }
 

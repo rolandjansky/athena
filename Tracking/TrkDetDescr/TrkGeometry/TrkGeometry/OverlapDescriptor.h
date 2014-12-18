@@ -10,17 +10,20 @@
 #define TRKGEOMETRY_OVERLAPDESCRIPTOR_H
 
 // Trk
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkDetDescrUtils/Intersection.h"
+#include "TrkSurfaces/Surface.h"
+
+//#include "TrkParameters/TrackParameters.h"
+
 // STL
 #include <utility>
 
 namespace Trk {
 
-    class Surface;
 
-    typedef std::pair<const Surface*, PropDirection> OverlapCell;
-    typedef std::pair<OverlapCell,int>               OverlapCellCondition;
+     typedef ObjectIntersection<Surface> SurfaceIntersection;
     
      /**
      @class OverlapDescriptor
@@ -47,18 +50,16 @@ namespace Trk {
         /**Pseudo-constructor*/
         virtual OverlapDescriptor* clone() const  = 0;
     
-        /**Interface method for most probable OverlapCell*/
-        virtual const OverlapCell overlapSurface(const TrackParameters& tp,
-                                                 const Surface* sfreq,
-                                                 PropDirection dir) const = 0;
-                                                 
-                                                 
-        /** Interface method for RISC logic - start/end surface are needed for on-layer search*/
-        virtual const std::vector<OverlapCellCondition>&  overlapCells(const TrackParameters& tp,
-                                                                       PropDirection dir,
-                                                                       const Trk::Surface* startSf = 0,
-                                                                       const Trk::Surface* endSf = 0) const = 0;
-                                                 
+        /** get the compatible surfaces 
+            - return : a boolean indicating if an actual intersection had been tried
+            - fill vector of intersections
+            - primary bin surface : sf
+            - position & direction : pos, dir
+        */
+        virtual bool reachableSurfaces(std::vector<SurfaceIntersection>& cSurfaces, 
+                                       const Trk::Surface& sf,
+                                       const Amg::Vector3D& pos,
+                                       const Amg::Vector3D& dir) const = 0;
        
     };
 

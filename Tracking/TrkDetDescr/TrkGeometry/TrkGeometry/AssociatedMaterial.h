@@ -48,6 +48,14 @@ namespace Trk {
                          float correctionFactor,
                          const Trk::TrackingVolume* tvol,
                          const Trk::Layer* lay);
+      
+      /** Constructor with Material */
+      AssociatedMaterial(const Amg::Vector3D& hitpos,
+                         float steplength,
+                         const Trk::Material&,
+                         float correctionFactor,
+                         const Trk::TrackingVolume* tvol,
+                         const Trk::Layer* lay);
                          
       /** Constructor with Material Properties - ownership stays with holder*/
       AssociatedMaterial(const Amg::Vector3D& hitpos,

@@ -13,6 +13,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 //Trk
 #include "TrkGeometry/MaterialProperties.h"
+#include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkEventPrimitives/PropDirection.h"
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
@@ -21,6 +23,7 @@
 namespace Trk {
 
   class BinUtility;
+  class ElementTable;
     
  /**
    @enum MaterialConcentration
@@ -77,30 +80,40 @@ namespace Trk {
       /**Direct access via bins to the MaterialProperties */
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const = 0;
       
-      /**Return method for pre update  
+      /** Update the ElementTable */
+      void updateElementTable(const SharedObject<const ElementTable>&) const { return; }
+      
+      /** Get the ElementTable */
+      const ElementTable* elementTable() const { return 0; }
+            
+      /** Update pre factor */
+      double factor(PropDirection pDir, MaterialUpdateStage mStage) const;
+
+      /**Return method for pre update 
       material description of the Layer along normalvector */
       double alongPreFactor() const;
-      
-      /**Return method for post update 
+     
+      /**Return method for post update
       material description of the Layer along normalvector */
       double alongPostFactor() const;
-      
-      /**Return method for pre update  
+     
+      /**Return method for pre update 
       material description of the Layer along normalvector */
       double  oppositePreFactor() const;
-      
-      /**Return method for post update 
+     
+      /**Return method for post update
       material description of the Layer along normalvector */
       double oppositePostFactor() const;
 
       /** Return the BinUtility */
       virtual const BinUtility* binUtility() const = 0;
-      
+            
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       virtual void updateBinning(BinUtility* bu) const = 0;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const = 0;
+      
       /** Output Method for std::ostream, to be overloaded by child classes */
       virtual std::ostream& dump(std::ostream& sl) const = 0;
                                             
@@ -110,6 +123,13 @@ namespace Trk {
   };
 
 /** inline return methods for the pre/post factors */  
+inline double LayerMaterialProperties::factor(PropDirection pDir, MaterialUpdateStage mStage ) const 
+{ 
+    if (mStage == Trk::fullUpdate) return 1.;
+    return ( pDir*mStage > 0 ? m_splitFactor : 1.-m_splitFactor ); 
+}   
+
+/** inline return methods for the pre/post factors */ 
 inline double LayerMaterialProperties::alongPreFactor() const { return (1.-m_splitFactor); }
 
 inline double LayerMaterialProperties::alongPostFactor() const { return m_splitFactor; }

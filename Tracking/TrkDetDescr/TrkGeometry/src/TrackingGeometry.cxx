@@ -18,6 +18,7 @@
 
 Trk::TrackingGeometry::TrackingGeometry(const Trk::TrackingVolume* highestVolume, Trk::NavigationLevel navLev)
 : m_world(highestVolume),
+  m_beam(nullptr),
   m_navigationLevel(navLev)
 {
     // for the time being only world
@@ -26,7 +27,12 @@ Trk::TrackingGeometry::TrackingGeometry(const Trk::TrackingVolume* highestVolume
 
 Trk::TrackingGeometry::~TrackingGeometry()
 {
+    delete m_beam;
     delete m_world;
+    auto bLayerIter  = m_boundaryLayers.begin();
+    auto bLayerIterE = m_boundaryLayers.end();
+    for ( ; bLayerIter != bLayerIterE; ++bLayerIter)
+        delete bLayerIter->first;
 }
 
 const Trk::TrackingVolume* Trk::TrackingGeometry::lowestTrackingVolume(const Amg::Vector3D& gp) const
@@ -92,6 +98,21 @@ void Trk::TrackingGeometry::registerTrackingVolumes(const Trk::TrackingVolume& t
             if (volumesIter && tvol.inside(volumesIter->trackingVolume()->center(),0.) )
                 registerTrackingVolumes(*(volumesIter->trackingVolume()), &tvol, sublvl);
     }
+    /** register the boundary layers */
+    // boundary layers
+    for (auto& bSurface : tvol.boundarySurfaces()){
+        const Trk::Layer* bLayer = bSurface->surfaceRepresentation().materialLayer();
+        if (bLayer){
+            auto bfIter = m_boundaryLayers.find(bLayer);
+            if ( bfIter != m_boundaryLayers.end())
+                ++(bfIter->second);
+            else
+                m_boundaryLayers[bLayer] = 0;
+        }
+    }
+    ATH_MSG_VERBOSE("registerTrackingVolumes() ... TrackingGeometry has " << m_boundaryLayers.size() << " unique boundary material layers.");
+      
+    
 }
 
 void Trk::TrackingGeometry::compactify(MsgStream& msg, const TrackingVolume* vol) const
@@ -102,6 +123,9 @@ void Trk::TrackingGeometry::compactify(MsgStream& msg, const TrackingVolume* vol
     size_t tSurfaces = 0;
     if (tVolume) tVolume->compactify(cSurfaces,tSurfaces);
     msg << MSG::VERBOSE << "  --> set TG ownership of " << cSurfaces << " out of " << tSurfaces << std::endl;
+    for (auto bLayerIter = m_boundaryLayers.begin(); bLayerIter != m_boundaryLayers.end(); ++bLayerIter)
+        bLayerIter->first->surfaceRepresentation().setOwner(Trk::TGOwn);
+    msg << MSG::VERBOSE << "  --> set TG ownership of " << m_boundaryLayers.size() << " boundary layers." << std::endl;    
     msg << MSG::VERBOSE << endreq;
 
 }
@@ -117,6 +141,8 @@ const Trk::TrackingVolume* Trk::TrackingGeometry::checkoutHighestTrackingVolume(
 {
     const Trk::TrackingVolume* checkoutVolume = m_world;
     m_world = 0;
+    // clear the boundary layers they go with the highest volume
+    m_boundaryLayers.clear();
     return checkoutVolume;
 }
 
@@ -170,7 +196,10 @@ void Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg, const Trk::Tr
 
 void Trk::TrackingGeometry::indexStaticLayers(GeometrySignature geosit, int offset) const
 {
-    if (m_world) m_world->indexContainedStaticLayers(geosit, offset);
+  if (m_world)  { 
+    m_world->indexContainedStaticLayers(geosit, offset);
+    m_world->indexContainedMaterialLayers(geosit, offset);
+  }
 }
 
 bool Trk::TrackingGeometry::atVolumeBoundary( const Amg::Vector3D& gp, const Trk::TrackingVolume* vol, double tol) const

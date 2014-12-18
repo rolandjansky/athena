@@ -44,6 +44,22 @@ Trk::AssociatedMaterial::AssociatedMaterial(
    m_cleanup(true)                           
 {}
 
+Trk::AssociatedMaterial::AssociatedMaterial(
+                           const Amg::Vector3D& hitpos,
+                           float steplength,
+                           const Trk::Material& mat,
+                           float cFactor,
+                           const TrackingVolume* tvol,
+                           const Layer* lay)
+ : m_materialPosition(hitpos),
+   m_correctionFactor(cFactor), 
+   m_materialProperties(new Trk::MaterialProperties(mat,steplength)),
+   m_materialStep(nullptr),
+   m_trackingVolume(tvol),
+   m_layer(lay),
+   m_cleanup(true)                           
+{}
+
 Trk::AssociatedMaterial::AssociatedMaterial(const Amg::Vector3D& hitpos,
                                             const Trk::MaterialProperties* mprop,
                                             float cFactor,
@@ -52,7 +68,7 @@ Trk::AssociatedMaterial::AssociatedMaterial(const Amg::Vector3D& hitpos,
  : m_materialPosition(hitpos),
    m_correctionFactor(cFactor), 
    m_materialProperties(mprop),
-   m_materialStep(0),
+   m_materialStep(nullptr),
    m_trackingVolume(tvol),
    m_layer(lay),
    m_cleanup(false)
@@ -87,7 +103,7 @@ Trk::AssociatedMaterial::AssociatedMaterial(const Amg::Vector3D& hitpos,
 Trk::AssociatedMaterial::AssociatedMaterial(const AssociatedMaterial& am)
  : m_materialPosition(am.m_materialPosition),
    m_correctionFactor(am.m_correctionFactor), 
-   m_materialProperties(am.m_materialProperties),
+   m_materialProperties(am.m_cleanup && am.m_materialProperties ? am.m_materialProperties->clone() : am.m_materialProperties),
    m_materialStep( (am.m_cleanup && am.m_materialStep ) ? new Trk::MaterialStep(*am.m_materialStep) : am.m_materialStep),
    m_trackingVolume(am.m_trackingVolume),
    m_layer(am.m_layer),
@@ -98,9 +114,13 @@ Trk::AssociatedMaterial::AssociatedMaterial(const AssociatedMaterial& am)
 Trk::AssociatedMaterial& Trk::AssociatedMaterial::operator =( const Trk::AssociatedMaterial& am )
 {
     if (&am != this) {
+        if (m_cleanup) {
+           delete m_materialStep;
+           delete m_materialProperties;
+        }
         m_materialPosition = am.m_materialPosition;
         m_correctionFactor = am.m_correctionFactor;
-        m_materialProperties = am.m_materialProperties;
+        m_materialProperties = (am.m_cleanup && am.m_materialProperties ) ? am.m_materialProperties->clone() : am.m_materialProperties; 
         m_materialStep =  (am.m_cleanup && am.m_materialStep ) ? new Trk::MaterialStep(*am.m_materialStep) : am.m_materialStep; 
         m_trackingVolume = am.m_trackingVolume ;
         m_layer = am.m_layer;
@@ -111,8 +131,10 @@ Trk::AssociatedMaterial& Trk::AssociatedMaterial::operator =( const Trk::Associa
 
 Trk::AssociatedMaterial::~AssociatedMaterial() 
 {
-    if (m_cleanup) 
+    if (m_cleanup) {
         delete m_materialStep;
+        delete m_materialProperties;
+    }
 }
 
 MsgStream& Trk::AssociatedMaterial::dump(MsgStream& sl) const

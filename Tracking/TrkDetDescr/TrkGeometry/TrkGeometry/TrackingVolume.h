@@ -17,6 +17,8 @@
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/AbstractVolume.h"
 #include "TrkVolumes/BoundarySurface.h"
+#include "TrkVolumes/BoundaryDiscSurface.h"
+#include "TrkVolumes/BoundaryCylinderSurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/Material.h"
@@ -44,7 +46,6 @@ namespace Trk {
   class PlaneLayer;
   class TrackingVolume;
   class DetachedTrackingVolume;
-  class EntryLayerProvider;
   class ObjectAccessor;
   class GlueVolumesDescriptor;
   class VolumeBounds;
@@ -52,21 +53,9 @@ namespace Trk {
   typedef BinnedArray< Layer >            LayerArray;                         
   typedef BinnedArray< TrackingVolume >   TrackingVolumeArray;
   
-  /**
-    @struct LayerIntersection 
-    */
-
-  struct LayerIntersection {
-
-      SurfaceIntersection   sIntersection;
-      mutable const Layer*  layer;
-      
-      LayerIntersection(const SurfaceIntersection& sInter,
-                        const Layer*  sLayer):
-        sIntersection(sInter),
-        layer(sLayer){}
-  };
-         
+  template <class T> using LayerIntersection            = FullIntersection< Layer, Surface, T >;
+  template <class T> using BoundaryIntersection         = FullIntersection< BoundarySurface<TrackingVolume>, Surface, T >;
+ 
   /**
    @class TrackingVolume
      
@@ -200,7 +189,7 @@ namespace Trk {
                      const std::string& volumeName="undefined");                     
 
       /** copy constructor with shift */
-      TrackingVolume(const Trk::TrackingVolume& trVol, Amg::Transform3D& transform);
+      TrackingVolume(const TrackingVolume& trVol, Amg::Transform3D& transform);
       
       /** Destructor */
       ~TrackingVolume();
@@ -220,15 +209,28 @@ namespace Trk {
       /** Return the exit Layer from a TrackingVolume */
       const Layer* exitLayer(const Amg::Vector3D& gp, const Amg::Vector3D& dir) const;
 
+      /** Return the material layers ordered based on straight line intersections:
+          - startLayer and endLayer are included in the list 
+      */
+      template <class T> std::vector< LayerIntersection<T> >
+                          materialLayersOrdered(const Layer* sLayer,
+                                                const Layer* eLayer,
+                                                const T& parameters, 
+                                                PropDirection pDir = alongMomentum,
+                                                BoundaryCheck bchk = true,
+                                                bool resolveSubSurfaces = false) const;
+
+
       /** Return the closest layer with material description 
             - it assumes to be on lowest navigation level
             - does not step down to eventually confined TrackingVolumes
-            - navigates to the next trackign volume IF PropDirection == Trk::mappingMode
+            - navigates to the next trackign volume IF PropDirection == mappingMode
         */
-      const LayerIntersection closestMaterialLayer(const Amg::Vector3D& gp, 
-                                                   const Amg::Vector3D& dir, 
-                                                   PropDirection pDir = Trk::alongMomentum,
-                                                   BoundaryCheck bchk = true ) const;
+      const LayerIntersection<Amg::Vector3D>
+                            closestMaterialLayer(const Amg::Vector3D& gp, 
+                                                 const Amg::Vector3D& dir, 
+                                                 PropDirection pDir = alongMomentum,
+                                                 BoundaryCheck bchk = true ) const;
             
       /** Return the associated sub Volume, returns THIS if no subVolume exists */
       const TrackingVolume* associatedSubVolume(const Amg::Vector3D& gp) const;
@@ -236,19 +238,13 @@ namespace Trk {
       /** Return the next volume along the navigation stream */
       const TrackingVolume* nextVolume(const Amg::Vector3D& gp, 
                                        const Amg::Vector3D& dir, 
-                                       PropDirection pDir = Trk::alongMomentum) const;
+                                       PropDirection pDir = alongMomentum) const;
       
       /** Return the next sub Volume if existing, returns THIS if no subVolume exists */
       const TrackingVolume* nextSubVolume(const Amg::Vector3D& gp, const Amg::Vector3D& dir) const;
-
+      
       /** Return the associated detached subvolumes */
-      std::vector<const Trk::DetachedTrackingVolume*>* assocDetachedSubVolumes(const Amg::Vector3D& gp, double tol) const;
-
-      /** Return the subLayer array - not the ownership*/
-      const EntryLayerProvider* entryLayerProvider() const;   
-
-      /** Return the subLayer array - not the ownership*/
-      const EntryLayerProvider* checkoutEntryLayerProvider() const;   
+      std::vector<const DetachedTrackingVolume*>* assocDetachedSubVolumes(const Amg::Vector3D& gp, double tol) const;
    
       /** Layer attempts - as provided by the LayerAttemptCreator */
       unsigned int layerAttempts(BoundarySurfaceFace exitFace) const;
@@ -260,7 +256,7 @@ namespace Trk {
       const LayerArray* confinedLayers() const;
 
       /** Return the subLayer array - not the ownership*/
-      const std::vector<const Trk::Layer*>* confinedArbitraryLayers() const;
+      const std::vector<const Layer*>* confinedArbitraryLayers() const;
       
       /** Return the subLayerarray including the ownership*/
       const LayerArray* checkoutConfinedLayers() const;
@@ -269,23 +265,29 @@ namespace Trk {
       const TrackingVolumeArray* confinedVolumes() const;
 
       /** Return detached subVolumes - not the ownership */
-      const std::vector<const Trk::DetachedTrackingVolume*>* confinedDetachedVolumes() const;
+      const std::vector<const DetachedTrackingVolume*>* confinedDetachedVolumes() const;
 
       /** Return unordered subVolumes - not the ownership */
-      const std::vector<const Trk::TrackingVolume*>* confinedDenseVolumes() const;
+      const std::vector<const TrackingVolume*>* confinedDenseVolumes() const;
       
       /** Returns the VolumeName - for debug reason, might be depreciated later */
       const std::string& volumeName() const;
       
       /** Method to return the BoundarySurfaces */
       const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >& boundarySurfaces() const;
-                                            
+      
+      /** Returns the boundary surfaces ordered in probability to hit them based on straight line intersection */
+      template <class T> std::vector< BoundaryIntersection<T> > 
+                         boundarySurfacesOrdered(const T& parameters, 
+                                                 PropDirection pDir = alongMomentum,
+                                                 bool startOffBoundary = false) const;
+      
       /** Get the BoundarySurface to the appointed Accessor state */
       const BoundarySurface<TrackingVolume>* boundarySurface(const ObjectAccessor& oa) const;
-
-      /** Register (and give ownership) the entryLayer array */
-      void registerEntryLayerProvider(const EntryLayerProvider* entryLayerProvider) const;
-
+      
+      /** show if you are on a boundary surface */
+      template <class T> bool onVolumeBoundary(const T& pars ) const;
+      
       /** Register the outside glue volumes -
           ordering is in the TrackingVolume Frame:
            - negativeFaceXY
@@ -312,10 +314,13 @@ namespace Trk {
       const AbstractVolume* checkoutSensitiveVolume() const;
 
       /** sign the volume - the geometry builder has to do that */
-      void sign(GeometrySignature signat) const;
+      void sign(GeometrySignature signat, GeometryType gtype = Static) const;
 
       /** return the Signature */
       GeometrySignature geometrySignature() const;
+      
+      /** return the Signature */
+      GeometryType geometryType() const;
                         
       /** Register the color code */
       void registerColorCode(unsigned int icolor) const;
@@ -330,10 +335,10 @@ namespace Trk {
       bool redoNavigation() const; 
 
       /** Return the MotherVolume - if it exists */
-      const Trk::TrackingVolume* getMotherVolume() const;
+      const TrackingVolume* getMotherVolume() const;
 
       /** Return the MotherVolume - if it exists */
-      void setMotherVolume(const Trk::TrackingVolume* mvol) const;
+      void setMotherVolume(const TrackingVolume* mvol) const;
 
       /** move Volume */
       void moveVolume( Amg::Transform3D& shift ) const;
@@ -355,6 +360,9 @@ namespace Trk {
     private:          
       /** reIndex the static layers of the TrackingVolume */
       void indexContainedStaticLayers(GeometrySignature geoSig, int& offset) const;
+
+      /** reIndex the material layers of the TrackingVolume */
+      void indexContainedMaterialLayers(GeometrySignature geoSig, int& offset) const;
       
       /** propagate material properties to subvolumes */
       void propagateMaterialProperties(const Material& mprop) const;
@@ -380,10 +388,10 @@ namespace Trk {
       void interlinkLayers();
 
       /** Helper method - find closest of two layers */
-      const Trk::Layer* closest(const Amg::Vector3D& pos,
+      const Layer* closest(const Amg::Vector3D& pos,
                                 const Amg::Vector3D& dir,
-                                const Trk::Layer& first,
-                                const Trk::Layer& second) const;
+                                const Layer& first,
+                                const Layer& second) const;
                                 
       
       /** move the Tracking Volume*/
@@ -391,32 +399,35 @@ namespace Trk {
            
       /** Forbidden copy constructor */   
       TrackingVolume(const TrackingVolume&): Volume(), Material() {} 
+
+      /** Forbid assignment. */
+      TrackingVolume &operator=(const TrackingVolume&) { return *this; }
        
       mutable const TrackingVolume*        m_motherVolume;  //!< mother volume of this volume
 
       std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >* m_boundarySurfaces;  //!< boundary Surfaces
       //(a)
-      mutable const EntryLayerProvider*                                m_entryLayerProvider;      //!< Array of entry Layers
-      mutable const LayerArray*                                        m_confinedLayers;   //!< Array of Layers inside the Volume
-      mutable const TrackingVolumeArray*                               m_confinedVolumes;  //!< Array of Volumes inside the Volume
-      //(b)
-      mutable const std::vector<const Trk::DetachedTrackingVolume*>*   m_confinedDetachedVolumes; //!< Detached subvolumes
-      // additionally
-      mutable const std::vector<const Trk::TrackingVolume*>*           m_confinedDenseVolumes;    //!< Unordered subvolumes
-      //(b)
-      mutable const std::vector<const Trk::Layer*>*                    m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
-
-      mutable GlueVolumesDescriptor*                                   m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
-
-      mutable const AbstractVolume*                                    m_sensitiveVolume;         //!< Sensitive volume
-
-      LayerAttemptsCalculator*                                         m_layerAttemptsCalculator; //!< provided the number of layer attempts
-
-      mutable GeometrySignature            m_geometrySignature;        //!< The Signature done by the GeometryBuilder 
-      
-      std::string                          m_name;                     //!< Volume name for debug reasons
-      mutable unsigned int                 m_colorCode;                //!< Color code for displaying (Root Color code)
-      mutable bool                         m_redoNavigation;           //!< Navigation boolean. If true navigation needs to be redone when entering this volume
+      mutable const LayerArray*                                             m_confinedLayers;   //!< Array of Layers inside the Volume
+      mutable const TrackingVolumeArray*                                    m_confinedVolumes;  //!< Array of Volumes inside the Volume
+      //(b)                                                                 
+      mutable const std::vector<const DetachedTrackingVolume*>*        m_confinedDetachedVolumes; //!< Detached subvolumes
+      // additionally                                                       
+      mutable const std::vector<const TrackingVolume*>*                m_confinedDenseVolumes;    //!< Unordered subvolumes
+      //(b)                                                                 
+      mutable const std::vector<const Layer*>*                         m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
+                                                                            
+      mutable GlueVolumesDescriptor*                                        m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
+                                                                            
+      mutable const AbstractVolume*                                         m_sensitiveVolume;         //!< Sensitive volume
+                                                                            
+      LayerAttemptsCalculator*                                              m_layerAttemptsCalculator; //!< provided the number of layer attempts
+                                                                            
+      mutable GeometrySignature            m_geometrySignature;             //!< The Signature done by the GeometryBuilder 
+      mutable GeometryType                 m_geometryType;                  //!< defines how the Extrapolator propagates through this
+                                                                            
+      std::string                          m_name;                          //!< Volume name for debug reasons
+      mutable unsigned int                 m_colorCode;                     //!< Color code for displaying 
+      mutable bool                         m_redoNavigation;                //!< Navigation boolean. If true navigation needs to be redone when entering this volume
 
     public:
       /// Log a message using the Athena controlled logging system
@@ -431,8 +442,6 @@ namespace Trk {
   };
 
   inline const std::string& TrackingVolume::volumeName() const { return m_name; }
-
-  inline const EntryLayerProvider*  TrackingVolume::entryLayerProvider() const { return m_entryLayerProvider; }
  
   inline unsigned int TrackingVolume::layerAttempts(BoundarySurfaceFace exitFace) const
   {
@@ -449,16 +458,16 @@ namespace Trk {
   inline const LayerArray*  TrackingVolume::confinedLayers() const
   { return m_confinedLayers; }
 
-  inline const std::vector<const Trk::Layer*>* TrackingVolume::confinedArbitraryLayers() const 
+  inline const std::vector<const Layer*>* TrackingVolume::confinedArbitraryLayers() const 
   { return m_confinedArbitraryLayers; }
 
   inline const TrackingVolumeArray*  TrackingVolume::confinedVolumes() const
   { return m_confinedVolumes; }
 
-  inline const  std::vector<const Trk::DetachedTrackingVolume*>*  TrackingVolume::confinedDetachedVolumes() const 
+  inline const  std::vector<const DetachedTrackingVolume*>*  TrackingVolume::confinedDetachedVolumes() const 
   { return m_confinedDetachedVolumes; }
 
-  inline const  std::vector<const Trk::TrackingVolume*>*  TrackingVolume::confinedDenseVolumes() const 
+  inline const  std::vector<const TrackingVolume*>*  TrackingVolume::confinedDenseVolumes() const 
   { return m_confinedDenseVolumes; }
 
   inline void TrackingVolume::registerSensitiveVolume(const AbstractVolume* svol) const
@@ -474,8 +483,108 @@ namespace Trk {
       return returnVolume; 
   }
     
+  template <class T> bool TrackingVolume::onVolumeBoundary(const T& pars) const {
+      // get the associated Surface
+      const Surface* pSurface = &pars.associatedSurface();
+      auto& bSurfaces = boundarySurfaces();
+      // fast loop pointer comparison of the surfaces 
+      for (auto& bsIter : bSurfaces ){
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          // pointer of the parameter surface is identical with one of the boundary surface pointers
+          if (pSurface == &bSurface->surfaceRepresentation()) return true;
+      }
+      // slow loop - checking the onSurface (does pointer comparison as well)
+      for (auto& bsIter : bSurfaces ){
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          // pointer of the parameter surface is identical with one of the boundary surface pointers
+          if (bSurface->onBoundary(pars)) return true;
+      }
+      // could not find an onSurface
+      return false;
+  }
+     
+
+  /** Return the material layers ordered based on straight line intersections 
+      - start and end layer are always part of it
+  */
+  template <class T> std::vector< LayerIntersection<T> >
+                       TrackingVolume::materialLayersOrdered(const Layer* sLayer,
+                                                             const Layer* eLayer,
+                                                             const T& pars, 
+                                                             PropDirection pDir,
+                                                             BoundaryCheck bchk,
+                                                             bool resolveSubSurfaces) const
+  {
+      // get position and momentum from the parameters
+      const Amg::Vector3D& gp = pars.position();
+      const Amg::Vector3D& gm = pars.momentum();
+      // the layer intersections
+      std::vector< LayerIntersection<T> > lIntersections;
+      if (m_confinedLayers){
+          // assign the direction
+          const Amg::Vector3D& dir = ( pDir == alongMomentum ? gm.unit() : Amg::Vector3D(-1*gm.unit()));
+          // start layer given or not - test layer
+          const Trk::Layer* tLayer = sLayer ? sLayer : associatedLayer(gp);
+          if (tLayer){
+              do {
+                  // collect material or sensitive layers, always provide the final layer for the navigation stop
+                  if (tLayer->layerMaterialProperties() || tLayer->surfaceArray() || tLayer == eLayer){
+                      // get the approaching surface 
+                      const Surface& tSurface = tLayer->surfaceOnApproach(gp,dir,pDir,bchk,resolveSubSurfaces);
+                      // always give the start layer to test - even without intersection
+                      if (tLayer == sLayer)
+                          lIntersections.push_back(LayerIntersection<T>(Trk::Intersection(gp,0.,true),tLayer,&tSurface,0,pDir));
+                      else {
+                          Trk::Intersection lIntersection = tSurface.straightLineIntersection(gp,dir,true,bchk);
+                          if (lIntersection.valid)
+                              lIntersections.push_back(LayerIntersection<T>(lIntersection,tLayer,&tSurface,0,pDir));
+                          else if (eLayer) break;
+                      }      
+                  } 
+                  // move to next one or break because you reached the end layer
+                  tLayer = (tLayer == eLayer ) ? 0 :  tLayer->nextLayer(gp,dir);
+              } while (tLayer);
+          }
+          // sort them accordingly
+          std::sort(lIntersections.begin(),lIntersections.end());
+      }
+      // and return
+      return lIntersections;
+  }
+
+  /** Returns the boundary surfaces ordered in probability to hit them based on straight line intersection @TODO change hard-coded default */
+  template <class T > std::vector< BoundaryIntersection<T> > 
+                      TrackingVolume::boundarySurfacesOrdered(const T& pars, 
+                                                              PropDirection pDir,
+                                                              bool) const
+  {
+      
+      
+      // assign the direction
+      
+      const Amg::Vector3D dir = ( pDir == alongMomentum ? pars.momentum().unit() : Amg::Vector3D(-1*pars.momentum().unit()));
+      // loop over boundarySurfaces and calculate the intersection
+      std::vector< BoundaryIntersection<T> > bIntersections;
+      auto& bSurfaces = boundarySurfaces();
+      for (auto& bsIter : bSurfaces ){
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          Intersection bsIntersection   = bSurface->surfaceRepresentation().straightLineIntersection(pars.position(),dir,true,false);
+          if (bsIntersection.valid)
+              bIntersections.push_back(BoundaryIntersection<T>(bsIntersection,bSurface,&(bSurface->surfaceRepresentation()),0,pDir));
+      }
+      // and now sort to get the closest
+      std::sort(bIntersections.begin(),bIntersections.end());
+      // and return
+      return bIntersections;
+  }
+
+
+    
   inline GeometrySignature TrackingVolume::geometrySignature() const
   { return m_geometrySignature; }  
+    
+  inline GeometryType TrackingVolume::geometryType() const
+  { return m_geometryType; }      
     
   inline void TrackingVolume::registerColorCode(unsigned int icolor) const
   { m_colorCode = icolor; }

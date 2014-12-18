@@ -70,7 +70,7 @@ namespace Trk {
       virtual ~BinnedLayerMaterial();
       
       /**Pseudo-Constructor clone()*/ 
-      BinnedLayerMaterial* clone() const;
+      BinnedLayerMaterial* clone() const override;
       
       /** Assignment operator */
       BinnedLayerMaterial& operator=(const BinnedLayerMaterial& lmp);
@@ -79,7 +79,7 @@ namespace Trk {
       BinnedLayerMaterial& operator*=(double scale);
 
       /** Return the BinUtility */
-      const BinUtility* binUtility() const;
+      const BinUtility* binUtility() const override;
        
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       void updateBinning(BinUtility* bu) const; 
@@ -91,12 +91,13 @@ namespace Trk {
       const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
             
       /** Access the single bin */
-     const MaterialProperties* material(size_t bin0, size_t bin1 ) const;
+     const MaterialProperties* material(size_t bin0, size_t bin1 ) const override;
             
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const;
+      MsgStream& dump(MsgStream& sl) const override;
+      
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const;      
+      std::ostream& dump(std::ostream& sl) const override;      
 
     private:
 

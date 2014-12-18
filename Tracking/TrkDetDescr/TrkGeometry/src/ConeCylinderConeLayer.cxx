@@ -21,7 +21,7 @@ Trk::ConeCylinderConeLayer::ConeCylinderConeLayer(Amg::Transform3D* htrans,
 						  OverlapDescriptor* od,
 						  int laytyp) :
   // set up the encompassing cylinder (and most of the layer properties)
-  CylinderLayer(htrans, new CylinderBounds(radius, halfLength), surfaceArray, laymatprop, thickness, od, laytyp),
+  CylinderLayer(htrans, new CylinderBounds(radius, halfLength), surfaceArray, laymatprop, thickness, od, 0, laytyp),
   m_transform(htrans),
   m_radius   (radius),	        
   m_halfLength(halfLength),   

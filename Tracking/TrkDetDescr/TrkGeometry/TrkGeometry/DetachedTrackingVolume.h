@@ -78,10 +78,13 @@ namespace Trk {
         const std::vector<const Layer*>* multilayerRepresentation() const;
 
         /** sign the volume - the geometry builder has to do that */
-        void sign(GeometrySignature signat) const;
+        void sign(GeometrySignature signat, GeometryType geotype) const;
         
         /** return the Signature */
         GeometrySignature geometrySignature() const;
+
+        /** return the Type */
+        GeometryType geometryType() const;
 
         /** set the simplified calculable components */
         void saveConstituents(std::vector<std::pair<const Trk::Volume*,float> >* ) const;

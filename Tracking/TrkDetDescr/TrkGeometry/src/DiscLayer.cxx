@@ -10,6 +10,7 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
+#include "TrkGeometry/ApproachDescriptor.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkParameters/TrackParameters.h"
@@ -24,8 +25,11 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           Trk::OverlapDescriptor* olap,
                           int laytyp) :
   DiscSurface(transform, dbounds),
-  Layer(laymatprop, thickness, olap, laytyp)
-{}
+  Layer(laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(0)
+{
+    DiscSurface::associateLayer(*this);
+}
 
 Trk::DiscLayer::DiscLayer(Trk::DiscSurface* disc,
                           const Trk::LayerMaterialProperties& laymatprop,
@@ -33,18 +37,29 @@ Trk::DiscLayer::DiscLayer(Trk::DiscSurface* disc,
                           Trk::OverlapDescriptor* olap,
                           int laytyp) :
   DiscSurface(*disc),
-  Layer(laymatprop, thickness, olap, laytyp)
-{}
+  Layer(laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(0)
+{
+    DiscSurface::associateLayer(*this);    
+}
 
 Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           Trk::DiscBounds* dbounds,
                           Trk::SurfaceArray* surfaceArray,
                           double thickness,
                           Trk::OverlapDescriptor* olap,
+                          Trk::ApproachDescriptor* ades,
                           int laytyp) :
   DiscSurface(transform, dbounds),
-  Layer(surfaceArray, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    DiscSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);
+    
+}
                 
 Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           Trk::DiscBounds* dbounds,
@@ -52,20 +67,40 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           const Trk::LayerMaterialProperties& laymatprop,
                           double thickness,
                           Trk::OverlapDescriptor* olap,
+                          Trk::ApproachDescriptor* ades,
                           int laytyp) :
   DiscSurface(transform, dbounds),
-  Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
-{}
+  Layer(surfaceArray, laymatprop, thickness, olap, laytyp),
+  m_approachDescriptor(ades)
+{
+    DiscSurface::associateLayer(*this);
+    if (!ades && surfaceArray) buildApproachDescriptor();
+    // register the layer
+    if (ades) m_approachDescriptor->registerLayer(*this);
+}
 
 Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay):
   DiscSurface(dlay),
-  Layer(dlay)
-{}
+  Layer(dlay),
+  m_approachDescriptor(0)
+{
+    DiscSurface::associateLayer(*this);
+    if (m_surfaceArray) buildApproachDescriptor();
+}
 
 Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& transf):
   DiscSurface(dlay,transf),
-  Layer(dlay)
-{}
+  Layer(dlay),
+  m_approachDescriptor(0)
+{
+    DiscSurface::associateLayer(*this);
+    if (m_surfaceArray) buildApproachDescriptor();    
+}
+
+Trk::DiscLayer::~DiscLayer()
+{
+    delete m_approachDescriptor;
+}
 
 Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
 {
@@ -73,6 +108,9 @@ Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
         // call the assignments of the base classes
         Trk::DiscSurface::operator=(dlay);
         Trk::Layer::operator=(dlay);
+        delete m_approachDescriptor;
+        if (m_surfaceArray) buildApproachDescriptor();
+        DiscSurface::associateLayer(*this);
    }
   return(*this);
 }
@@ -85,7 +123,7 @@ const Trk::DiscSurface& Trk::DiscLayer::surfaceRepresentation() const
 double Trk::DiscLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                Trk::PropDirection dir) const
 {
-    if (!Trk::Layer::m_layerMaterialProperties)
+    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
       return 0.;
     //const Amg::Vector3D& parmPos = parm.position(); 
     if (Trk::DiscSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
@@ -94,23 +132,14 @@ double Trk::DiscLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
 }
 
 double Trk::DiscLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
-                                                    Trk::PropDirection dir) const 
+                                                Trk::PropDirection dir) const 
 {
-   if (!Trk::Layer::m_layerMaterialProperties)
+   if (!Trk::Layer::m_layerMaterialProperties.getPtr())
      return 0.;
    //const Amg::Vector3D& parmPos = parm.position(); 
    if (Trk::DiscSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPostFactor();
    return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
-}
-
-double Trk::DiscLayer::pathCorrection(const Trk::TrackParameters& parm) const {
-        // normal and direction of track
-        const Amg::Vector3D& normal   = surfaceRepresentation().normal();
-        const Amg::Vector3D trackdir = parm.momentum().normalized();
-        // projection
-        double invCorr = fabs(normal.dot(trackdir));
-        return (1./invCorr);
 }
 
 void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
@@ -121,6 +150,9 @@ void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
        m_center = new Amg::Vector3D(m_transform->translation());
        delete m_normal; 
        m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+       // rebuild that
+       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+           buildApproachDescriptor();       
 }
 
 void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
@@ -134,7 +166,7 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         Trk::DiscBounds* rDiscBounds = new Trk::DiscBounds(rInner+envelope,rOuter-envelope);
         Trk::DiscSurface::m_bounds = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
         // (1) resize the material properties by updating the BinUtility, assuming r/phi binning
-        if (Trk::Layer::m_layerMaterialProperties ){
+        if (Trk::Layer::m_layerMaterialProperties.getPtr() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
             if (layerMaterialBU && layerMaterialBU->binningValue(0) == Trk::binR ){
                 size_t binsR = layerMaterialBU->max(0)+1;
@@ -149,6 +181,79 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
             }
         }
     }
+
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+        buildApproachDescriptor();
+    
+}
+
+/** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+const Trk::Surface& Trk::DiscLayer::approachSurface(const Amg::Vector3D& pos,
+                                                    const Amg::Vector3D& dir,
+                                                    Trk::BoundaryCheck& bcheck) const
+{
+    if (m_approachDescriptor){
+        // get the test surfaces from the approach Descriptor
+        const Trk::ApproachSurfaces* surfacesOnApproach = m_approachDescriptor->approachSurfaces(pos,dir);
+        if (surfacesOnApproach){
+            // test the intersections and go
+            std::vector<Trk::Intersection> sfIntersections;
+            const Trk::Surface* aSurface = 0;
+            double aPathLength           = 10e10;
+            //!< @TODO -> optimise by breaking the loop if possible
+            for (auto& sfIter : (*surfacesOnApproach)){
+                // get the intersection with the surface
+                Trk::Intersection sIntersection = sfIter->straightLineIntersection(pos, dir, true, bcheck); 
+                // validation
+                if (sIntersection.valid && sIntersection.pathLength < aPathLength){
+                    aPathLength = sIntersection.pathLength;
+                    aSurface    = sfIter;
+                }   
+            } 
+            if (aSurface) return (*aSurface);
+        } 
+    }
+    return surfaceRepresentation();
+}
+
+/** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
+                                                      const Amg::Vector3D& mom,
+                                                      Trk::PropDirection pDir,
+                                                      Trk::BoundaryCheck& bcheck,
+                                                      bool resolveSubSurfaces,
+                                                      const Trk::ICompatibilityEstimator*) const
+{ 
+    // resolve the surfaces
+    if (m_approachDescriptor && resolveSubSurfaces){
+        // resolve based on straight line intersection
+        return approachSurface(pos,double(pDir)*mom.unit(),bcheck);
+    }
+    return surfaceRepresentation();
+}
+
+/** build approach surfaces */
+void Trk::DiscLayer::buildApproachDescriptor() const {
+    // delete the surfaces    
+    Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
+    // get the center
+    const Amg::Vector3D aspPosition(center()+0.5*thickness()*normal());
+    const Amg::Vector3D asnPosition(center()-0.5*thickness()*normal());
+    // create the new surfaces
+    const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.getPtr());
+    if (db){ 
+        // create new surfaces
+        Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));   
+        Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));   
+        aSurfaces->push_back( new Trk::DiscSurface(aspTransform, db->clone()) );
+        aSurfaces->push_back( new Trk::DiscSurface(asnTransform, db->clone()) );
+        // set the layer and make TGOwn
+        for (auto& sIter : (*aSurfaces)){
+            sIter->associateLayer(*this);
+            sIter->setOwner(Trk::TGOwn);
+        }
+    }
+    m_approachDescriptor = new Trk::ApproachDescriptor(aSurfaces);
 }
 
 void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope) const {
@@ -169,5 +274,8 @@ void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const
         // delete derived and the cache
         delete Trk::DiscSurface::m_center; Trk::DiscSurface::m_center = new Amg::Vector3D(nDiscCenter);
         delete Trk::DiscSurface::m_normal; Trk::DiscSurface::m_normal = 0;
-    }    
+    }
+    // rebuild the approaching layer 
+    if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
+        buildApproachDescriptor();        
 }

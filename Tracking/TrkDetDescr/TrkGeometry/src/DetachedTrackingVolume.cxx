@@ -157,11 +157,14 @@ void Trk::DetachedTrackingVolume::compactify(size_t& cSurfaces, size_t& tSurface
 }
 
 
-void Trk::DetachedTrackingVolume::sign(GeometrySignature signat) const 
-{ m_trkVolume->sign(signat); }
+void Trk::DetachedTrackingVolume::sign(GeometrySignature signat, GeometryType geotype) const 
+{ m_trkVolume->sign(signat, geotype); }
 
 Trk::GeometrySignature Trk::DetachedTrackingVolume::geometrySignature() const 
 { return m_trkVolume->geometrySignature(); }
+
+Trk::GeometryType Trk::DetachedTrackingVolume::geometryType() const 
+{ return m_trkVolume->geometryType(); }
 
 void Trk::DetachedTrackingVolume::setBaseTransform( Amg::Transform3D* transf ) const 
 {

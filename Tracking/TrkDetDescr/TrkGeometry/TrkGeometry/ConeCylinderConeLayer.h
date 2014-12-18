@@ -42,9 +42,9 @@ namespace Trk {
 
     virtual const ConeCylinderConeLayer& layerRepresentation() const {return (*this);}
     
-    virtual const CylinderSurface& surfaceRepresentation() const {return (*this);}
+    virtual const CylinderSurface& surfaceRepresentation() const override {return (*this);}
     
-    virtual bool isOnLayer(const Amg::Vector3D& gp) const {return isOnCompoundLayer(gp,0.5*thickness());}
+    virtual bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck&) const {return isOnCompoundLayer(gp,0.5*thickness());}
     
     double radius(const Amg::Vector3D& gp) const
     {

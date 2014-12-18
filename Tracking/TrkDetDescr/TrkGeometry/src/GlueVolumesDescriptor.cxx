@@ -22,12 +22,6 @@ Trk::GlueVolumesDescriptor::GlueVolumesDescriptor(const std::map<Trk::BoundarySu
        m_glueFaces.push_back(searchIter->first);
 }
 
-Trk::GlueVolumesDescriptor::GlueVolumesDescriptor(const Trk::GlueVolumesDescriptor& glvd) :
- m_glueVolumes(glvd.m_glueVolumes),
- m_glueFaces(glvd.m_glueFaces)
-{}
-
-
 void Trk::GlueVolumesDescriptor::registerGlueVolumes(Trk::BoundarySurfaceFace bsf, std::vector<const Trk::TrackingVolume*>&gvs) const
 {
   // register the face

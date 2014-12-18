@@ -185,9 +185,6 @@ class LayerMaterialProperties;
         double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
                                          Trk::PropDirection dir) const;
 
-        /** Return the path correction */
-        double pathCorrection(const TrackParameters& par) const;
-
        /** move the Layer */
         void moveLayer( Amg::Transform3D& shift ) const;
     

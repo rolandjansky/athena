@@ -20,11 +20,8 @@ class MsgStream;
 namespace Trk {
     
   class Surface;
-  class LocalPosition;
   class BinUtility;
-  
-  typedef BinnedArray<Surface> SurfaceArray;
-  
+    
   /**
    @class NavigationLayer
   
@@ -47,6 +44,12 @@ namespace Trk {
                         Layer* next=0,
                         BinUtility* binUtil = 0);
         
+        /**Constructor - the surface representation is given by pointer (ownership passed)
+            - spacer layer if needed            
+                        */
+        NavigationLayer(Surface* surfaceRepresentation, 
+                        double thickness);
+        
         /**Copy Constructor - */
         NavigationLayer(const NavigationLayer& lay);
                                       
@@ -60,34 +63,31 @@ namespace Trk {
         const Surface& surfaceRepresentation() const;
         
         /** isOnLayer() method, using isOnSurface() with Layer specific tolerance */
-        bool isOnLayer(const Amg::Vector3D& gp) const;
+        bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
         
         /** getting the MaterialProperties back - for full update*/ 
-        const MaterialProperties* fullUpdateMaterialProperties() const ;
+        const MaterialProperties* fullUpdateMaterialProperties() const;
         
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const;
+                                       Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
         double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const;
+                                         Trk::PropDirection dir) const override;
                                                                       
         /** getting the next/overlapping Surface */
         const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = 0) const;
         
-        /** Return the path correction */
-        double pathCorrection(const TrackParameters&) const { return 0.; }
-
         /** move the Layer */
-        void moveLayer( Amg::Transform3D&  ) const;
+        void moveLayer( Amg::Transform3D&  ) const override;
 
     protected:
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer(const VolumeBounds&, double) const {}      
+       void resizeLayer(const VolumeBounds&, double) const  override {}      
        
        /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const {}
+       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const  override {}
 
         Surface*  m_surfaceRepresentation;       //!< for the navigation Volume the surface is a private member */
       

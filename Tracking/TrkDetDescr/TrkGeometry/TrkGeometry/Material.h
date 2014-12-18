@@ -9,40 +9,100 @@
 #ifndef TRKGEOMETRY_MATERIAL_H
 #define TRKGEOMETRY_MATERIAL_H
 
+#include <utility>
 #include <vector>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <climits>
 
 namespace Trk {
 
-  /** @struct MaterialComposition */
-  struct MaterialComposition {
-      std::vector<unsigned char> elements;
-      std::vector<unsigned char> fractions;
+  static double s_oneOverUcharMax = 1./double(UCHAR_MAX);
+
+  /** @class ElementFraction */
+  class ElementFraction : public std::pair<unsigned char, unsigned char> {
+    public:
+      /** Default Constructor */    
+      ElementFraction() :
+          std::pair <unsigned char, unsigned char>(0,0)
+        {} 
       
+      /** Copy Constructor from base class */
+      ElementFraction(const std::pair<unsigned char, unsigned char>& ef ) :
+        std::pair <unsigned char, unsigned char>(ef){}
+      
+      /**Constructor from arguments */ 
+      ElementFraction(unsigned char iz, unsigned char ifrac) :
+         std::pair <unsigned char, unsigned char>(iz,ifrac){} 
+  
+      /** assignment operator from base class */
+      ElementFraction& operator=(const std::pair<unsigned char, unsigned char>& ef )
+      {
+          if (this != &ef){
+              std::pair<unsigned char, unsigned char>::operator=(ef);
+          }
+          return (*this);
+      }
+  
+      /** Return in a nice format */ 
+      unsigned int element() const { return static_cast<unsigned int>((*this).first); }
+
+      /** Return in a nice format */ 
+      double fraction() const { return (static_cast<unsigned int>((*this).second))*s_oneOverUcharMax; }
+  
+  };
+
+  /** @struct MaterialComposition */
+  class MaterialComposition : public std::vector< ElementFraction > {
+    public:        
+      /** default constructor*/
       MaterialComposition() :
-        elements(),
-        fractions()
+        std::vector< ElementFraction > ()
       {}
 
       ~MaterialComposition(){}
       
-      MaterialComposition(std::vector<unsigned char> iel, std::vector<unsigned char> ifrac) :
-        elements(iel),
-        fractions(ifrac)
-      {}
-      
-      MaterialComposition(const MaterialComposition& mc) :
-        elements(mc.elements),
-        fractions(mc.fractions)
-      {}
+      /** constructor for persistency (1), size optimized */
+      MaterialComposition(const std::vector<unsigned char>& iel, const std::vector<unsigned char>& ifrac)
+      {
+         reserve(iel.size());
+         for (std::size_t elvc =0; elvc < iel.size() && ifrac.size(); ++elvc )
+              push_back( ElementFraction(iel[elvc],ifrac[elvc]) );
+     }
 
-      MaterialComposition& operator=(const MaterialComposition& mc) {
-          if ( this != &mc){
-              elements = mc.elements;
-              fractions = mc.fractions;
-          }
-          return (*this);
-      }
-      
+     /** constructor for persistency (2), size optimized */
+     MaterialComposition(const std::vector< std::pair< unsigned char, unsigned char > >& efracs )
+     {
+        reserve(efracs.size());
+        for (auto& efracIt : efracs )
+             push_back( efracIt );
+    }
+          
+     /** Copy constructor from base class */
+     MaterialComposition(const std::vector< ElementFraction >& mc) :
+       std::vector< ElementFraction > (mc) {}
+       
+     /** assignment operator from base class */
+     MaterialComposition& operator=(const std::vector< ElementFraction >& mc )
+     {
+         if (this != &mc){
+             std::vector< ElementFraction >::operator=(mc);
+         }
+         return (*this);
+     }
+     
+     /** assignment operator for persistency (2) */
+     MaterialComposition& operator=(const std::vector< std::pair< unsigned char, unsigned char > >& efracs  )
+     {
+        clear();
+        reserve(efracs.size());
+        for (auto& efracIt : efracs )
+             push_back( efracIt );
+        return (*this);
+     }
+     
   };
 
 
@@ -92,8 +152,8 @@ namespace Trk {
         A(iA),
         Z(iZ),
         rho(iRho),
-	dEdX(idEdX),
-	zOaTr( iA>0? iZ/iA*iRho : 0.),
+	    dEdX(idEdX),
+	    zOaTr( iA>0? iZ/iA*iRho : 0.),
         composition(mc)
       {}    
       
@@ -110,8 +170,8 @@ namespace Trk {
         composition( amc.composition ? new MaterialComposition(*amc.composition) : 0 )
       {}
 
-     /** Desctructor - delete the composition if there */
-	~Material() { if (composition) delete composition;  }
+      /** Desctructor - delete the composition if there */
+	  ~Material() { delete composition;  }
 
       /** Assignment operator */
       Material& operator=(const Material& amc) {
@@ -123,6 +183,7 @@ namespace Trk {
               rho         = amc.rho;  
               dEdX        = amc.dEdX;  
               zOaTr       = amc.zOaTr;  
+              delete composition;
               composition =  amc.composition ? new MaterialComposition(*amc.composition) : 0;
           }
           return (*this);
@@ -136,12 +197,18 @@ namespace Trk {
       float x0()             const { return (*this).X0; }  
       float averageZ()       const { return (*this).Z; }  
 
+      /** spit out as a string */
+      std::string toString() const { 
+          std::ostringstream sout;
+          sout << std::setiosflags(std::ios::fixed) << std::setprecision(4);
+          sout << "(" << X0 << " | " << L0 << " | " << A << " | " << Z << " | " << rho <<")";
+          return sout.str();
+      }
+
   };
 
   inline Material* Material::scale( float sf) const {
-
-    return new Material( X0/sf, L0/sf, sf*A, sf*Z, sf*rho);
-
+     return new Material( X0/sf, L0/sf, sf*A, sf*Z, sf*rho);
   }
 
 }

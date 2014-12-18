@@ -165,7 +165,7 @@ const Trk::PlaneSurface& Trk::PlaneLayer::surfaceRepresentation() const
 double Trk::PlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                 Trk::PropDirection dir) const
 {
-    if (!Trk::Layer::m_layerMaterialProperties)
+    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
       return 0.;
     if (Trk::PlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPreFactor();
@@ -175,21 +175,11 @@ double Trk::PlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm
 double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                  Trk::PropDirection dir) const 
 {
-    if (!Trk::Layer::m_layerMaterialProperties)
+    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
       return 0.;
     if (Trk::PlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPostFactor();
     return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
-}
-
-double Trk::PlaneLayer::pathCorrection(const Trk::TrackParameters& parm) const {
-        // normal and direction of track
-        const Amg::Vector3D& normal   = surfaceRepresentation().normal();
-        const Amg::Vector3D trackdir = parm.momentum().normalized();
-        // projection
-        double invCorr = fabs(normal.dot(trackdir));
-        double corr = fmin(this->surfaceRepresentation().bounds().r()/this->thickness(),1/invCorr);
-        return (corr);
 }
 
 void Trk::PlaneLayer::moveLayer(Amg::Transform3D& shift) const {

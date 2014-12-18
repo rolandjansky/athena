@@ -35,7 +35,7 @@ Trk::Layer::Layer(const Trk::LayerMaterialProperties& laymatprop,
                   Trk::OverlapDescriptor* olap,
                   int laytyp) :
   m_surfaceArray(0),
-  m_layerMaterialProperties(laymatprop.clone()),
+  m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(laymatprop.clone())),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
   m_previousLayer(0),
@@ -54,7 +54,7 @@ Trk::Layer::Layer(Trk::SurfaceArray* surfaceArray,
                   Trk::OverlapDescriptor* olap,
                   int laytyp) :
   m_surfaceArray(surfaceArray),
-  m_layerMaterialProperties(0),
+  m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(0)),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
   m_previousLayer(0),
@@ -74,7 +74,7 @@ Trk::Layer::Layer(Trk::SurfaceArray* surfaceArray,
                   Trk::OverlapDescriptor* olap,
   int laytyp) :
   m_surfaceArray(surfaceArray),
-  m_layerMaterialProperties(laymatprop.clone()),
+  m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(laymatprop.clone())),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
   m_previousLayer(0),
@@ -90,7 +90,7 @@ Trk::Layer::Layer(Trk::SurfaceArray* surfaceArray,
 
 Trk::Layer::Layer(const Trk::Layer& lay) :
   m_surfaceArray(lay.m_surfaceArray ? lay.m_surfaceArray->clone() : 0),
-  m_layerMaterialProperties(lay.m_layerMaterialProperties ? lay.m_layerMaterialProperties->clone() : 0),
+  m_layerMaterialProperties(lay.m_layerMaterialProperties),
   m_layerThickness(lay.m_layerThickness),
   m_overlapDescriptor(lay.m_overlapDescriptor ? lay.m_overlapDescriptor->clone() : 0),
   m_previousLayer(0),
@@ -108,7 +108,6 @@ Trk::Layer::Layer(const Trk::Layer& lay) :
 Trk::Layer::~Layer()
 {  
   delete m_surfaceArray;
-  delete m_layerMaterialProperties; 
   delete m_overlapDescriptor;
   delete m_representingVolume;
 }
@@ -119,12 +118,11 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
   if (this != &lay){
     delete m_overlapDescriptor;
     delete m_surfaceArray;
-    delete m_layerMaterialProperties;
-    m_enclosingTrackingVolume         = lay.m_enclosingTrackingVolume;
-    m_enclosingDetachedTrackingVolume = lay.m_enclosingDetachedTrackingVolume;
-    m_overlapDescriptor       = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : 0;
-    m_surfaceArray            = (lay.m_surfaceArray) ? lay.m_surfaceArray->clone() : 0;
-    m_layerMaterialProperties = (lay.m_layerMaterialProperties) ? lay.m_layerMaterialProperties->clone() : 0;
+    m_enclosingTrackingVolume           = lay.m_enclosingTrackingVolume;
+    m_enclosingDetachedTrackingVolume   = lay.m_enclosingDetachedTrackingVolume;
+    m_overlapDescriptor                 = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : 0;
+    m_surfaceArray                      = (lay.m_surfaceArray) ? lay.m_surfaceArray->clone() : 0;
+    m_layerMaterialProperties           = lay.m_layerMaterialProperties->clone();
     // just assign by pointer
     m_nextLayer               = lay.m_nextLayer;
     m_previousLayer           = lay.m_previousLayer;
@@ -168,10 +166,9 @@ const Trk::Surface* Trk::Layer::subSurfaceReference(unsigned int idx) const
    return referenceSurface;
 }
 
-
-bool Trk::Layer::isOnLayer(const Amg::Vector3D& gp) const 
+bool Trk::Layer::isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bchk) const 
 {
-  return (surfaceRepresentation()).isOnSurface(gp, true, 0.5*m_layerThickness);
+  return (surfaceRepresentation()).isOnSurface(gp, bchk, 0.5*m_layerThickness);
 }
 
 const Trk::Layer* Trk::Layer::previousLayer(bool skipNavLayer) const 
@@ -202,16 +199,28 @@ const Trk::Layer* Trk::Layer::nextLayer(const Amg::Vector3D& gp, const Amg::Vect
 }
 
 const Trk::MaterialProperties* Trk::Layer::fullUpdateMaterialProperties(const Trk::TrackParameters& parm) const {
-    if (m_layerMaterialProperties) return m_layerMaterialProperties->fullMaterial(parm.position());
+    if (m_layerMaterialProperties.getPtr()) return m_layerMaterialProperties->fullMaterial(parm.position());
     return 0;
   }
 
+bool Trk::Layer::needsMaterialProperties() const {
+  //!< @TODO this is temporary    
+  if (m_surfaceArray){
+    const std::vector<const Trk::Surface*>& surfaces = m_surfaceArray->arrayObjects();
+    for ( auto& sIter : surfaces ) {
+      if (sIter && sIter->materialLayer() && (sIter->materialLayer())->layerMaterialProperties())
+	     return false;	
+    }
+    return true;
+  }
+  return true;
+}
+
 void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, double scale) const 
 {
-  delete m_layerMaterialProperties;
-  m_layerMaterialProperties = prop.clone();  
+  m_layerMaterialProperties = Trk::SharedObject<LayerMaterialProperties>(prop.clone());  
   if (scale != 1.0) 
-    (*m_layerMaterialProperties) *= scale;
+     (*(m_layerMaterialProperties.getPtr())) *= scale;
 }
 
 void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
@@ -232,5 +241,24 @@ void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
             ++tSurfaces;
         }
     }
+}
+
+                                   
+/** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
+const Trk::Surface& Trk::Layer::surfaceOnApproach(const Amg::Vector3D&,
+                                                  const Amg::Vector3D&,
+                                                  Trk::PropDirection,
+                                                  Trk::BoundaryCheck&,
+                                                  bool,
+                                                  const Trk::ICompatibilityEstimator*) const
+{ return surfaceRepresentation(); }
+                                                     
+
+inline bool Trk::Layer::hasSubStructure(bool resolveSensitive) const 
+{
+    if (resolveSensitive && m_surfaceArray)
+        return true;
+    //!< TODO for cylinders with material substructure this, has to go here       
+    return false;
 }
 

@@ -117,9 +117,9 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::MaterialProperties& mpro
     sl << "   - average material Z/A*rho [gram/mm^3]  = " << mprop.zOverAtimesRho()   << std::endl;
     /*  interface not finalized
     if (mprop.material().composition){
-        sl << "   - material composition from " << mprop.material().composition->elementFractions().size() << " elements " << std::endl;
+        sl << "   - material composition from " << mprop.material().composition->size() << " elements " << std::endl;
         sl << "       listing them (prob. ordereded ) : " << std::endl;
-        for ( auto& eIter : mprop.material().composition->elementFractions() )
+        for ( auto& eIter : (*mprop.material().composition) )
             sl << "         -> Z : " << eIter.element() << "( fraction : "  <<  eIter.fraction() << " )" << std::endl;
     }
     */
@@ -136,9 +136,9 @@ std::ostream& Trk::operator << ( std::ostream& sl, const MaterialProperties& mpr
     sl << "   - average material Z/A*rho [gram/mm^3]  = " << mprop.zOverAtimesRho()   << std::endl;
     /*  interface not finalized
     if (mprop.material().composition){
-        sl << "   - material composition from " << mprop.material().composition->elementFractions().size() << " elements " << std::endl;
+        sl << "   - material composition from " << mprop.material().composition->size() << " elements " << std::endl;
         sl << "       listing them (prob. ordereded ) : " << std::endl;
-        for ( auto& eIter : mprop.material().composition->elementFractions() )
+        for ( auto& eIter : (*mprop.material().composition) )
             sl << "         -> Z : " << eIter.element() << "( fraction : "  <<  eIter.fraction() << " )" << std::endl;
     }    
     */

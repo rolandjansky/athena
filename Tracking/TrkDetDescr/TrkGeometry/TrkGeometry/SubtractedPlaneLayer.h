@@ -56,28 +56,25 @@ namespace Trk {
         virtual ~SubtractedPlaneLayer(){}   
     
         /** Transforms the layer into a Surface representation for extrapolation */
-        const SubtractedPlaneSurface& surfaceRepresentation() const;            
+        const SubtractedPlaneSurface& surfaceRepresentation() const override;            
 
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const;
+                                       Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
         double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const;
+                                         Trk::PropDirection dir) const override;
 
-        /** Return the path correction */
-        double pathCorrection(const TrackParameters& par) const;
-
-       /** move the Layer */
-        void moveLayer( Amg::Transform3D& shift ) const;
+        /** move the Layer */
+         void moveLayer( Amg::Transform3D& shift ) const override;
         
     private:
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeLayer(const VolumeBounds&, double) const {}      
+       void resizeLayer(const VolumeBounds&, double) const override {}      
        
        /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const {}
+       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const override {}
           
 
                                                                    

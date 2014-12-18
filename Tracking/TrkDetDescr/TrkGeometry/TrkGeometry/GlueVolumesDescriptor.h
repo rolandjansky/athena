@@ -39,8 +39,6 @@ namespace Trk {
         /**Constructor - with arguments*/
         GlueVolumesDescriptor(const std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> >& glv);
 
-        /**Copy Constructor */
-        GlueVolumesDescriptor(const GlueVolumesDescriptor& glvd);
 
         /**Desctructor */
         ~GlueVolumesDescriptor(){}

@@ -59,7 +59,7 @@ namespace Trk {
       virtual ~CompressedLayerMaterial();
       
       /**Pseudo-Constructor clone()*/ 
-      CompressedLayerMaterial* clone() const;
+      CompressedLayerMaterial* clone() const override;
       
       /** Assignment operator */
       CompressedLayerMaterial& operator=(const CompressedLayerMaterial& lmp);
@@ -68,7 +68,7 @@ namespace Trk {
       CompressedLayerMaterial& operator*=(double scale);
 
       /** Return the BinUtility */
-      const BinUtility* binUtility() const;
+      const BinUtility* binUtility() const override;
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       void updateBinning(BinUtility* bu) const;
@@ -80,15 +80,15 @@ namespace Trk {
       const std::vector<unsigned short int>& materialBins() const;
  
       /**Return method for full material description of the Layer */
-      const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
+      const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
       
        /** Access the single bin */
-      const MaterialProperties* material(size_t bin0, size_t bin1) const;
+      const MaterialProperties* material(size_t bin0, size_t bin1) const override;
             
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const;
+      MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const;      
+      std::ostream& dump(std::ostream& sl) const override;      
 
     private:
       mutable BinUtility*                             m_binUtility; //!< the helper for the bin finding 

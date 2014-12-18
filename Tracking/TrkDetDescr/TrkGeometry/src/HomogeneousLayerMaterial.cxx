@@ -55,9 +55,10 @@ Trk::HomogeneousLayerMaterial& Trk::HomogeneousLayerMaterial::operator*=(double 
 MsgStream& Trk::HomogeneousLayerMaterial::dump( MsgStream& sl) const
 {
   sl << "Trk::HomogeneousLayerMaterial : " << std::endl;
-  if (m_fullMaterial)        
+  if (m_fullMaterial) {
        sl << "   - fullMaterial         : " << *m_fullMaterial << std::endl;
-       sl << "   - split factor         : " << m_splitFactor << std::endl;
+  }
+  sl << "   - split factor         : " << m_splitFactor << std::endl;
 
   return sl;
 }
@@ -65,8 +66,9 @@ MsgStream& Trk::HomogeneousLayerMaterial::dump( MsgStream& sl) const
 std::ostream& Trk::HomogeneousLayerMaterial::dump( std::ostream& sl) const
 {
   sl << "Trk::HomogeneousLayerMaterial : " << std::endl;
-  if (m_fullMaterial)        
+  if (m_fullMaterial) {
        sl << "   - fullMaterial         : " << *m_fullMaterial << std::endl;
-       sl << "   - split factor         : " << m_splitFactor << std::endl; 
+  }
+  sl << "   - split factor         : " << m_splitFactor << std::endl; 
   return sl;
 }

@@ -65,8 +65,9 @@ namespace Trk {
     virtual ~CompoundLayer();
 
     virtual const Layer& layerRepresentation() const = 0;
-    //virtual const Surface& surfaceRepresentation() = 0;
+
     const std::vector<const Surface*> constituentSurfaces() const;
+
     virtual const std::vector<const Surface*> closestSurfaces(const Amg::Vector3D& gp, const Amg::Vector3D& dir, bool alsoBackward = false) const;
 
     /// Searches through the surfaces with Layer specific tolerance to

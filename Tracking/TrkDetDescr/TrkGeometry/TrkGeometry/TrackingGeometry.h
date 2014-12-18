@@ -89,17 +89,18 @@ namespace Trk {
       const Layer* nextLayer(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool skipNavLayer=false) const;
 
       /** Closest Material Layer - used for the mapping option */
-     const LayerIntersection  closestMaterialLayer(const Amg::Vector3D& gp, 
-                                                   const Amg::Vector3D& mom,
-                                                   PropDirection pDir = Trk::alongMomentum,
-                                                   BoundaryCheck bchk = true) const;
-      
+      template <class T> const LayerIntersection<Amg::Vector3D>  closestMaterialLayer(const T& pars,
+                                                                                      PropDirection pDir = Trk::alongMomentum,
+                                                                                      BoundaryCheck bchk = true) const;
       /** check position at volume boundary */
       bool atVolumeBoundary(const Amg::Vector3D& gp, const TrackingVolume* vol, double tol) const;
       
       /** check position at volume boundary + navigation link */
       bool atVolumeBoundary(const Amg::Vector3D& gp, const Amg::Vector3D& mom, const TrackingVolume* vol, 
 			                const TrackingVolume*& nextVol, Trk::PropDirection dir, double tol) const;
+      
+      /** Return the unique BoundarySurfaces with MaterialInformation */
+     const std::map<const Layer*,int>& boundaryLayers() const;
       
       /** Return the Navigation Level - only one TrackingGeometry can have full association 
          to GeoModel */
@@ -110,12 +111,11 @@ namespace Trk {
       
       /** indexLayers : method to re-set the index of the layers, depending on geometrySignature */
       void indexStaticLayers(GeometrySignature geosit, int offset = 0) const;
-      
 
     private:
       /** Geometry Builder busineess:
           the geometry builder has to sign*/
-      void sign(GeometrySignature geosit) const;
+      void sign(GeometrySignature geosit, GeometryType geotype = Static) const;
     
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 
@@ -139,8 +139,12 @@ namespace Trk {
       /** print VolumeInformation with Level */
       void printVolumeInformation(MsgStream& msgstream, const TrackingVolume& tvol, int lvl) const;
       
-      /** The known world */   
+      /** The known world - and the beam */   
       mutable const TrackingVolume*                         m_world;
+      mutable const PerigeeSurface*                         m_beam;
+      
+      /** The unique boundary Layers */
+      mutable std::map<const Layer*,int>                    m_boundaryLayers;
       
       /** The Volumes in a map for later finding */
       std::map<const std::string, const TrackingVolume*>    m_trackingVolumes;
@@ -160,7 +164,7 @@ namespace Trk {
       mutable Athena::MsgStreamMember m_msg;
 
   };
-
+  
   inline const TrackingVolume* TrackingGeometry::highestTrackingVolume() const
   { return (m_world); }
 
@@ -170,8 +174,8 @@ namespace Trk {
   inline void TrackingGeometry::registerNavigationLevel(NavigationLevel navLevel) const 
   { m_navigationLevel = navLevel; }
 
-  inline void TrackingGeometry::sign(GeometrySignature geosit) const
-  { m_world->sign(geosit); }
+  inline void TrackingGeometry::sign(GeometrySignature geosit, GeometryType geotype) const
+  { m_world->sign(geosit, geotype); }
   
   inline const TrackingVolume* TrackingGeometry::trackingVolume(const std::string& name) const
   {
@@ -194,15 +198,18 @@ namespace Trk {
       const TrackingVolume* lowestVol = (lowestTrackingVolume(gp));
       return lowestVol->nextLayer(gp, mom, true, skipNavLayer);
   }
+
+  inline const std::map<const Layer*,int>& TrackingGeometry::boundaryLayers() const 
+  { return m_boundaryLayers; }
+
   
-  inline  const LayerIntersection TrackingGeometry::closestMaterialLayer(const Amg::Vector3D& gp, 
-                                                                         const Amg::Vector3D& mom,
-                                                                         PropDirection pDir,
-                                                                         BoundaryCheck bchk) const
+  template <class T> const LayerIntersection<Amg::Vector3D> TrackingGeometry::closestMaterialLayer(const T& pars,
+                                                                                                   PropDirection pDir,
+                                                                                                   BoundaryCheck bchk) const
   {
-      const TrackingVolume* lowestVol = (lowestTrackingVolume(gp));
-      return ( lowestVol ) ? (lowestVol->closestMaterialLayer(gp, mom.normalized(), pDir, bchk)) : 
-            Trk::LayerIntersection(Trk::SurfaceIntersection(gp,10e10,false), 0 );
+      const TrackingVolume* lowestVol = (lowestTrackingVolume(pars.position()));
+      return ( lowestVol ) ? (lowestVol->closestMaterialLayer(pars.position(),pars.momentum().unit(), pDir, bchk)) : 
+            Trk::LayerIntersection<Amg::Vector3D>(Trk::Intersection(pars.position(),10e10,false), 0, 0, 0 );
   }  
 
 } // end of namespace

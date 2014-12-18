@@ -23,6 +23,16 @@ Trk::NavigationLayer::NavigationLayer(Trk::Surface* surfaceRepresentation,
   Trk::Layer::m_layerType     = Trk::passive;
 }
 
+
+// constructor with arguments
+Trk::NavigationLayer::NavigationLayer(Trk::Surface* surfaceRepresentation, 
+                                      double thickness):
+ Trk::Layer(),                                     
+ m_surfaceRepresentation(surfaceRepresentation)
+{
+  Trk::Layer::m_layerThickness = thickness;
+}
+
 // copy constructor
 Trk::NavigationLayer::NavigationLayer(const Trk::NavigationLayer& lay):
  Trk::Layer(lay),
@@ -43,14 +53,11 @@ Trk::NavigationLayer& Trk::NavigationLayer::operator =(const Trk::NavigationLaye
   Trk::Layer::operator=(lay);
   delete m_surfaceRepresentation;
   m_surfaceRepresentation     = lay.m_surfaceRepresentation->clone();
-  Trk::Layer::m_previousLayer = lay.m_previousLayer;
-  Trk::Layer::m_nextLayer     = lay.m_nextLayer;
-  Trk::Layer::m_binUtility    = lay.m_binUtility;
  }
  return (*this);
 }
 
-bool Trk::NavigationLayer::isOnLayer(const Amg::Vector3D& gp) const {
-  return m_surfaceRepresentation->isOnSurface(gp);
+bool Trk::NavigationLayer::isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck) const {
+  return m_surfaceRepresentation->isOnSurface(gp, bcheck);
 }
 
