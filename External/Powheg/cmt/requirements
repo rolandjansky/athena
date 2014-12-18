@@ -10,12 +10,12 @@ macro Powheg_home  "${SITEROOT}/atlas/offline/external/powhegbox" \
         EXTSITE    "${SITEROOT}/powhegbox" \
         STANDALONE "${SITEROOT}/powhegbox"
 
-macro Powheg_native_version "r2330.5"
-
-macro Powheg_dir "${Powheg_home}/${Powheg_native_version}/POWHEG-BOX"
-
-set POWHEGPATH "$(Powheg_dir)"
-
+macro Powheg_native_version "ATLASOTF-00-00-01"
+	
+macro Powheg_dir "${Powheg_home}/${Powheg_native_version}"
+	
+set POWHEGPATH "$(Powheg_dir)/POWHEG-BOX"
+	
 macro Powheg_export_paths "$(Powheg_dir)"
-
+	
 apply_pattern install_external_home
