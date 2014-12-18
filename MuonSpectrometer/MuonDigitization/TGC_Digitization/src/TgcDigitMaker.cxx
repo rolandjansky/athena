@@ -525,7 +525,7 @@ float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal) const
     jthAngle = ithAngle+1;
   }
 
-  float jitter;
+  float jitter = 0.;
   float prob = 1.;
   float probRef = 0.;
 
