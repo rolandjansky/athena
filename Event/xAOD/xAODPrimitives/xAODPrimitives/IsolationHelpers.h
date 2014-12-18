@@ -31,10 +31,9 @@ namespace xAOD {
      /// convert float (e.g. 0.3) into IsolationConeSize. An assert is thrown  
      inline IsolationConeSize coneSize( float size ){
        int index = static_cast<int>(size*20)-2; // *20 equiv. to /0.05;
+       assert ( (size - float(index))<0.0001 );
        assert ( (index>-1) && (index < static_cast<int>(numIsolationConeSizes) )  );
-       IsolationConeSize rel = static_cast<IsolationConeSize>(index);
-       assert ( fabs(size-coneSize(rel) )<0.0001 ); // this will fail if the input size is 0.3001...
-       return rel;
+       return static_cast<IsolationConeSize>(index);
      }
 
      /// convert Isolation Type into cone size

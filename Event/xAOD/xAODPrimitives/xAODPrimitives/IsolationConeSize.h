@@ -23,8 +23,7 @@ namespace xAOD {
        cone35 = 5,
        cone40 = 6,
        cone45 = 7,
-       cone50 = 8,
-       numIsolationConeSizes=9
+       numIsolationConeSizes=8
      };
      
      static inline const char* toString(IsolationConeSize conesize)
@@ -39,7 +38,6 @@ namespace xAOD {
          case cone35:    return "cone35";
          case cone40:    return "cone40";
          case cone45:    return "cone45";
-         case cone50:    return "cone50";
          case numIsolationConeSizes:
          default:
            return "Unknown size";

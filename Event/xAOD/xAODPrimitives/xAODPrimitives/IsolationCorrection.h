@@ -34,11 +34,8 @@ namespace xAOD {
       /// fully corrected
       pileupCorrection = 5,
 
-      /// core energy (super cluster).     
-      coreConeSC = 6,
-
       /// unknown
-      numIsolationCaloCorrections=7
+      numIsolationCaloCorrections=6
 
     }; // enum IsolationCaloCorrection
 
@@ -50,7 +47,6 @@ namespace xAOD {
             case coreMuon:           return "coreMuon";
             case core57cells:        return "core57cells";
             case coreCone:           return "coreCone";
-            case coreConeSC:         return "coreConeSC";
             case ptCorrection:       return "pt";
 	    case pileupCorrection:   return "pileup";
             case numIsolationCaloCorrections:
