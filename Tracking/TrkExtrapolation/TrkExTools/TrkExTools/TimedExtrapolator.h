@@ -40,6 +40,7 @@ namespace Trk {
   class Layer;
   class Volume;                  
   class DetachedTrackingVolume;
+  class AlignableTrackingVolume;
   class TrackingGeometry;
   class TrackParticleBase;
   class IPropagator;
@@ -61,6 +62,30 @@ namespace Trk {
     DestBound( const Surface* surf, double dist, unsigned int index ) :
       surface(surf),distance(dist),bIndex(index)
       {}
+  };
+
+  struct BoundaryTrackParameters
+  {
+    const TrackParameters* trPar;
+    const TrackingVolume* exitVol;
+    const TrackingVolume* entryVol;
+    //
+    BoundaryTrackParameters( const TrackParameters* parms, 
+			     const TrackingVolume* exitTV, 
+			     const TrackingVolume* entryTV ) :
+    trPar(parms), exitVol(exitTV), entryVol(entryTV)
+    {} 
+  };
+
+  struct IdentifiedIntersection
+  {
+    float distance;
+    int   identifier;
+    const Trk::Material* material;
+    //
+    IdentifiedIntersection( float dist, int id, const Trk::Material* mat) :
+    distance(dist), identifier(id), material(mat)
+    {}
   };
 
   /** @struct ParametersAtBoundarySurface
@@ -178,7 +203,15 @@ namespace Trk {
 								   Trk::ParticleHypothesis particle,
 								   Trk::GeometrySignature& nextGeoID,
 								   const Trk::TrackingVolume* destVol) const;
-       
+     
+     BoundaryTrackParameters  extrapolateInAlignableTV(
+						     const Trk::TrackParameters& parm,
+						     Trk::TimeLimit& time,
+						     Trk::PropDirection dir,                                    
+						     Trk::ParticleHypothesis particle,
+						     Trk::GeometrySignature& nextGeoId,
+						     const Trk::AlignableTrackingVolume* aliTV) const;
+     
 
      const Trk::TrackParameters*  transportToVolumeWithPathLimit(
 								 const Trk::TrackParameters& parm,
@@ -187,6 +220,14 @@ namespace Trk {
 								 Trk::ParticleHypothesis particle,
 								 Trk::GeometrySignature& nextGeoId,
 								 const Trk::TrackingVolume* boundaryVol) const;
+
+     BoundaryTrackParameters  transportInAlignableTV(
+						     const Trk::TrackParameters& parm,
+						     Trk::TimeLimit& time,
+						     Trk::PropDirection dir,                                    
+						     Trk::ParticleHypothesis particle,
+						     Trk::GeometrySignature& nextGeoId,
+						     const Trk::AlignableTrackingVolume* aliTV) const;
        
     /** Access the subPropagator to the given volume*/
     const IPropagator* subPropagator(const TrackingVolume& tvol) const;
@@ -311,6 +352,7 @@ namespace Trk {
     mutable bool                                                      m_robustSampling;
     mutable PathLimit                                                 m_path;    
     mutable double                                                    m_time;    
+    mutable size_t                 m_currentLayerBin;
 
     //------------------------- NAVIGATION -------- ----------------------------------------------//
     mutable int                     m_methodSequence;

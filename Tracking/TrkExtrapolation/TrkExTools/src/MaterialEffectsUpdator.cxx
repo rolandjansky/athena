@@ -148,7 +148,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
   if ( !mprop ) return(parm);
 
   // get the real pathlength
-  double pathCorrection = lay.pathCorrection(*parm);
+  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
 
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
@@ -360,13 +360,12 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::preUpdate(const TrackP
 
   // get the material properties 
   const Trk::MaterialProperties* mprop =  0;
-  double pathCorrection                =  0.; 
 
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
 
   mprop = mprop ? mprop : lay.fullUpdateMaterialProperties(*parm);
-  pathCorrection = pathCorrection > 0. ? pathCorrection : lay.pathCorrection(*parm); 
+  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
   pathCorrection *= preFactor;
 
   // exit if no mprop could be assigned
@@ -397,25 +396,24 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::postUpdate(const Track
 {    
   
   // no material properties - pass the parameters back
-  if (particle==Trk::geantino || particle==Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) || !lay.isOnLayer(parm.position()) ) return 0;
+  if (particle==Trk::geantino || particle==Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) || !lay.isOnLayer(parm.position()) ) return(&parm);
   
   // get the quantities
   const Trk::MaterialProperties* mprop  = 0;
   double postFactor = lay.postUpdateMaterialFactor( parm, dir);
-  double pathCorrection                 = 0.;  
 
   // no material properties - pass them back
-  if (postFactor < 0.01 ) return 0;
+  if (postFactor < 0.01 ) return(&parm);
 
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
 
   mprop = mprop ? mprop : lay.fullUpdateMaterialProperties(parm);
-  pathCorrection = pathCorrection > 0. ? pathCorrection : lay.pathCorrection(parm); 
+  double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(),parm.momentum())); 
   pathCorrection *= postFactor;
   
   // exit if no material properties
-  if (!mprop) return 0;
+  if (!mprop) return(&parm);
 
   //--------------------------------------------------------------------------------------------------  
   if (outputFlag){
@@ -582,7 +580,6 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
       }
      // parm = Trk::TrkParametersManipulator::manipulateParameter(parm, qOverPmod, updatedError);
      updatedParameters[Trk::qOverP]=parm->charge()/(p+deltaP); 
-
      parm = parm->associatedSurface().createTrackParameters(updatedParameters[Trk::loc1],updatedParameters[Trk::loc2],
                                                     updatedParameters[Trk::phi],updatedParameters[Trk::theta],
                                                     updatedParameters[Trk::qOverP],updatedCovariance);
@@ -745,8 +742,8 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
 void Trk::MaterialEffectsUpdator::validationAction() const
 {
     
-     if (m_validationMode && m_validationSteps)
-        m_materialMapper->finalizeEvent(m_validationEta/m_validationSteps, m_validationPhi/m_validationSteps);
+  //if (m_validationMode && m_validationSteps)
+  //      m_materialMapper->finalizeEvent(m_validationEta/m_validationSteps, m_validationPhi/m_validationSteps);
 
      m_validationEta   = 0.;
      m_validationPhi   = 0.;

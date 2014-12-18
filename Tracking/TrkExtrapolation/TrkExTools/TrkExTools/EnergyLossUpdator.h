@@ -140,19 +140,20 @@ namespace Trk {
 			    bool mpv = false) const;   
     
 
+     /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
+         the detailed Eloss information Calorimeter energy, error momentum and momentum error */
+     EnergyLoss* updateEnergyLoss(EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, 
+                          double pCaloEntry, double momentumError, int & elossFlag) const;
+
+     /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
+     void getX0ElossScales(int icalo, double eta, double phi, double & X0Scale, double & ElossScale ) const;
+
       /** Method to return the variance of the change in q/p for the Bethe-Heitler parameterisation */
       double varianceDeltaQoverP(const MaterialProperties&,
                                  double p,
                                  double pathcorrection,
                                  PropDirection direction = alongMomentum,
                                  ParticleHypothesis particleHypothesis = electron ) const;
-
-     /** Method to recalculate Eloss values for the fit using as an input
-         the detailed Eloss information Calorimeter energy, error and momentum error*/
-     EnergyLoss* updateEnergyLoss(
-                 EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, double momentumError) const;
-
-
 
 
     private:

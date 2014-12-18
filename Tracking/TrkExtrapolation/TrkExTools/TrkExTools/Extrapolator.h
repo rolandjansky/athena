@@ -821,7 +821,6 @@ namespace Trk {
 
     // ------------------------------- static members --------------------------------------------------------------------
     static double                   s_distIncreaseTolerance;         //!< distance increatse tolerance to account for straight line approx.
-	static double                   s_distEntryLayerMax;			//!< maximal allowed distance to the entry layer	 
 
     unsigned int m_maxNavigSurf;
     unsigned int m_maxNavigVol;

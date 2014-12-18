@@ -20,8 +20,8 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkTrack/Track.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
+#include "TrkGeometry/AlignableTrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/CompoundLayer.h"
 #include "TrkGeometry/CylinderLayer.h"
@@ -81,7 +81,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string& t, const std::strin
   m_initialLayerAttempts(3),
   m_successiveLayerAttempts(1),
   m_tolerance(0.002),  
-  m_caloMsSecondary(true),  
+  m_caloMsSecondary(false),  
   m_activeOverlap(false),
   m_useDenseVolumeDescription(true),
   m_useMuonMatApprox(false),
@@ -384,7 +384,6 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   const Trk::TrackingVolume*  nextVol = 0;
   std::vector<unsigned int> solutions;
   const Trk::TrackingVolume* assocVol = 0;  
-  int                        nEntryLays = 0;
   unsigned int               iDest = 0;
   
   // destination volume boundary ? 
@@ -433,6 +432,14 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   // current frame volume known-retrieve geoID
   nextGeoID = m_currentStatic->geometrySignature(); 
 
+  // resolve active Calo volumes if hit info required 
+  if ( m_hitVector && nextGeoID==Trk::Calo ) {
+    const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_currentStatic);
+    if (alignTV) {
+      return extrapolateInAlignableTV(*currPar,timeLim,dir,particle,nextGeoID,alignTV).trPar;
+    }
+  }
+
   // update if new static volume
   if ( updateStatic ) {    // retrieve boundaries
     m_staticBoundaries.clear();
@@ -450,17 +457,17 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
     m_navigLays.clear();
 
     // new: ID volumes may have special material layers ( entry layers ) - add them here
-    if (m_currentStatic->entryLayerProvider()) {
-      const std::vector<const Trk::Layer*>& entryLays = m_currentStatic->entryLayerProvider()->layers();
-      for (unsigned int i=0; i < entryLays.size(); i++) { 
-	if (entryLays[i]->layerType()>0 || entryLays[i]->layerMaterialProperties()) {
-	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(entryLays[i]->surfaceRepresentation()),true));
-	  m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,entryLays[i]) );
-	  Trk::DistanceSolution distSol = m_layers.back().first->straightLineDistanceEstimate(currPar->position(),
-                                                                                          currPar->momentum().normalized());
-	}
-      } 
-    }
+    //if (m_currentStatic->entryLayerProvider()) {
+    //  const std::vector<const Trk::Layer*>& entryLays = m_currentStatic->entryLayerProvider()->layers();
+    //  for (unsigned int i=0; i < entryLays.size(); i++) { 
+    //	if (entryLays[i]->layerType()>0 || entryLays[i]->layerMaterialProperties()) {
+    //	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(entryLays[i]->surfaceRepresentation()),true));
+    //	  m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,entryLays[i]) );
+    //	  Trk::DistanceSolution distSol = m_layers.back().first->straightLineDistanceEstimate(currPar->position(),
+    //                                                                                        currPar->momentum().normalized());
+    //	}
+    // } 
+    //}
 
     // detached volume boundaries
     const std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_currentStatic->confinedDetachedVolumes();
@@ -519,16 +526,10 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   // reset remaining counters
   m_currentDense = m_dense ?  m_currentStatic : m_highestVolume;
   m_navigBoundaries.clear(); 
-  if (m_denseVols.size()>m_denseResolved.first) {
-    m_denseVols.resize(m_denseResolved.first);
-    m_denseBoundaries.resize(m_denseResolved.second);
-  }
-  if (m_layers.size()>m_layerResolved) {
-    m_layers.resize(m_layerResolved);
-    m_navigLays.resize(m_layerResolved);
-  }  
-
-  if (m_currentStatic->entryLayerProvider()) nEntryLays = m_currentStatic->entryLayerProvider()->layers().size();
+  if (m_denseVols.size()>m_denseResolved.first) m_denseVols.resize(m_denseResolved.first);
+  while (m_denseBoundaries.size()>m_denseResolved.second) m_denseBoundaries.pop_back();
+  if (m_layers.size()>m_layerResolved) m_navigLays.resize(m_layerResolved);
+  while (m_layers.size()>m_layerResolved)  m_layers.pop_back();
 
   // current detached volumes
   // collect : subvolume boundaries, ordered/unordered layers, confined dense volumes
@@ -666,16 +667,16 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
       //	std::cout<<" find input associated layer, second attempt:"<< lay<< std::endl;
       //} 
       if (lay) {
-	m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(lay->surfaceRepresentation()),false));
+	m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(lay->surfaceRepresentation()),Trk::BoundaryCheck(false)));
 	m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,lay) );
 	const Trk::Layer* nextLayer = lay->nextLayer(currPar->position(),dir*currPar->momentum().normalized());      
 	if (nextLayer && nextLayer != lay ) {
-	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(nextLayer->surfaceRepresentation()),false));
+	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(nextLayer->surfaceRepresentation()),Trk::BoundaryCheck(false)));
 	  m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,nextLayer) );
 	}
 	const Trk::Layer* backLayer = lay->nextLayer(currPar->position(),-dir*currPar->momentum().normalized());      
 	if (backLayer && backLayer != lay ) {
-	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(backLayer->surfaceRepresentation()),false));
+	  m_layers.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&(backLayer->surfaceRepresentation()),Trk::BoundaryCheck(false)));
 	  m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,backLayer) );
 	}
       }
@@ -738,7 +739,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
      if (!(m_currentDense->inside(currPar->position(),m_tolerance) 
 	   || m_navigator->atVolumeBoundary(currPar,m_currentDense,dir,assocVol,m_tolerance) ) ) m_currentDense = m_highestVolume ;
      //const Trk::TrackParameters* nextPar = m_stepPropagator->propagateT(*currPar,m_navigSurfs,dir,*m_currentDense,particle,solutions,m_path,timeLim,true);
-     const Trk::TrackParameters* nextPar = m_stepPropagator->propagateT(*currPar,m_navigSurfs,dir,m_fieldProperties,particle,solutions,m_path,timeLim,true,m_currentDense);
+     const Trk::TrackParameters* nextPar = m_stepPropagator->propagateT(*currPar,m_navigSurfs,dir,m_fieldProperties,particle,solutions,m_path,timeLim,true,m_currentDense,m_hitVector);
      ATH_MSG_VERBOSE( "  [+] Propagation done. " );
      if (nextPar)  
        ATH_MSG_DEBUG( "  [+] Position after propagation -   at " << positionOutput(nextPar->position())<<", timed at " << timeLim.time); 
@@ -805,8 +806,29 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
        if ( solutions[iSol] < iDest ) {
          return nextPar->clone();          
        } else if ( solutions[iSol] < iDest + m_staticBoundaries.size() ) {
+
+	 // material attached ?
+	 const Trk::Layer*  mb =  m_navigSurfs[solutions[iSol]].first->materialLayer();  
+	 if (mb) {
+	   if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPar->position()) ) {
+
+	     const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
+	     nextPar =  currentUpdator ?
+	       currentUpdator->update(nextPar, *mb, timeLim, m_path, m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+	   
+	     if (!nextPar) {
+	       ATH_MSG_VERBOSE( "  [+] Update may have killed neutral track - return." );
+	       m_parametersAtBoundary.resetBoundaryInformation();
+	       return returnParameters;
+	     }
+	   } else {    // material layer without material ?
+	     ATH_MSG_VERBOSE( " boundary layer without material:"<<mb->layerIndex() );
+	   }
+	 }
+
 	 // static volume boundary; return to the main loop 
 	 unsigned int index = solutions[iSol]-iDest;
+
 	 // use global coordinates to retrieve attached volume (just for static!)
 	 nextVol = (m_currentStatic->boundarySurfaces())[index].getPtr()->attachedVolume(nextPar->position(),nextPar->momentum(),dir);
 	 // double check the next volume
@@ -844,12 +866,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
          //bool matUp = nextLayer->layerMaterialProperties() && m_includeMaterialEffects && nextLayer->isOnLayer(nextPar->position());
          bool matUp = nextLayer->fullUpdateMaterialProperties(*nextPar) && m_includeMaterialEffects && nextLayer->isOnLayer(nextPar->position());
          // identical to last material layer ?
-         if (matUp && nextLayer==m_lastMaterialLayer ) {
-	   // cylinder layers !
-	   const Trk::CylinderLayer* cyl = dynamic_cast<const Trk::CylinderLayer*> (nextLayer);
-	   const Trk::SubtractedCylinderLayer* scyl = dynamic_cast<const Trk::SubtractedCylinderLayer*> (nextLayer);
-	   if (!cyl && !scyl) matUp = false;            
-	 }
+         if (matUp && nextLayer==m_lastMaterialLayer &&  nextLayer->surfaceRepresentation().type()!=Trk::Surface::Cylinder ) matUp = false;
+
 	 // material update 
 	 const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
          if ( matUp ) {
@@ -882,7 +900,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 	     if (newLayer && newLayer!=nextLayer) {
                bool found = false;
                int replace = -1;
-               for (unsigned int i=nEntryLays;i<m_navigLays.size();i++) { 
+               for (unsigned int i=0;i<m_navigLays.size();i++) { 
 		 if (m_navigLays[i].second==newLayer) {found=true; break;}
                  if (m_navigLays[i].second !=nextLayer) replace = i;
 	       }
@@ -990,7 +1008,7 @@ void Trk::TimedExtrapolator::overlapSearch(const IPropagator& prop,
 					   //const TrackingVolume& tvol,
 					   float time,
 					   PropDirection dir,
-					   BoundaryCheck, //bcheck
+					   BoundaryCheck bcheck, //bcheck
 					   ParticleHypothesis particle,
 					   bool startingLayer) const 
 {
@@ -1072,77 +1090,48 @@ void Trk::TimedExtrapolator::overlapSearch(const IPropagator& prop,
 
        // search for the overlap ------------------------------------------------------------------------
        if (detParameters){     
-         if (lay.overlapDescriptor()){
-            // the surface ordering on BinnedArrays can not guarantee a strict radial, longitudinal ordering (overlaps)
-            // search directive is only strict for start-at-the-layer-setup
-             Trk::PropDirection overlapSearchDir = (startSurface || endSurface) ? dir : Trk::anyDirection;             
-            // --------------------------- overlap search following RISC logics ------------------------------------
-            const std::vector<Trk::OverlapCellCondition>& overlapCells  = lay.overlapDescriptor()->overlapCells(*detParameters,overlapSearchDir,startSurface,endSurface);
-            std::vector<Trk::OverlapCellCondition>::const_iterator ocIter    = overlapCells.begin();
-            std::vector<Trk::OverlapCellCondition>::const_iterator ocIterEnd = overlapCells.end();
+         // retrive compatible subsurfaces
+	 std::vector<Trk::SurfaceIntersection> cSurfaces;
+	 size_t ncSurfaces = lay.compatibleSurfaces(cSurfaces,*detParameters,Trk::anyDirection,bcheck);
             
-            ATH_MSG_VERBOSE( "  [o] " << overlapCells.size() 
-                << " candidates for overlap search provided with direction " << overlapSearchDir );
-            for ( ; ocIter != ocIterEnd; ++ocIter){
-                 // assign Surface and search direction
-                 const Trk::Surface*  overlapSurface = (ocIter->first).first;
-                 // skip the destination surface
-                 if (overlapSurface == m_destinationSurface 
-                    || overlapSurface == startSurface 
-                    || overlapSurface == endSurface
-                    || overlapSurface == detSurface) continue;
-                 // re-assign the overlap search direction from what the overlap descriptor yielded
-                 overlapSearchDir = (ocIter->first).second;
-                 int                overlapCondition = (ocIter->second);                 
-                 // base the decision condition on surfaceHit boolean                 
-                 if (overlapCondition !=2){
-                    if (surfaceHit && !overlapCondition) { 
-                        ATH_MSG_VERBOSE( "  [-] Surface was hit, but overlap condition requires differently -> skip this surface.");
-                        continue;
-                    }
-                    if (!surfaceHit && overlapCondition) {
-                       ATH_MSG_VERBOSE( "  [-] Surface was not hit, but overlap condition requires it -> skip this surface.");
-                       continue;
-                    }
-                 }
-                 
-                 // --------------------------------------------------------------------------------
-                 ATH_MSG_VERBOSE( "  [o] Overlap surface retrieved, try to hit it with direction " << overlapSearchDir );
-                 ATH_MSG_VERBOSE( "  [o] Overlap surface center       - at " << positionOutput(overlapSurface->center()) );
-                 
-                 // search with given boundary directive
-                 const Trk::TrackParameters* overlapParameters = prop.propagate(parm,
-                                                                                *overlapSurface,
-                                                                                overlapSearchDir,
-                                                                                true,
-                                                                                //tvol,
-                                                                                m_fieldProperties,
-                                                                                particle);           
-              if (overlapParameters) {
-                  ATH_MSG_VERBOSE( "  [+] Overlap surface was hit, checking start/end surface condition." );
-                  // check on start / end surface for on-layer navigaiton action
-                  surfaceHit = ( startSurface ) ? 
-                      ((overlapParameters->position()-parm.position()).dot(dir*parm.momentum().normalized()) > 0) : true;
-                  surfaceHit = ( surfaceHit && endSurface ) ?
-                      ((overlapParameters->position()-parsOnLayer.position()).dot(dir*parsOnLayer.momentum().normalized()) < 0) : surfaceHit;                  
-                  if (surfaceHit){
-                      ATH_MSG_VERBOSE( "  [H] Hit with detector surface recorded !" );
-                      // count the overlap Surfaces hit 
-                      ++m_overlapSurfaceHit;
-                      // distinguish whether sorting is needed or not
-                      if (overlapSearchDir==Trk::anyDirection) reorderDetParametersOnLayer=true;
-                      // push back into the temporary vector
-                      detParametersOnLayer.push_back(overlapParameters);        
-                   } else { // the parameters have been cancelled by start/end surface
-                       // no hit -> fill into the garbage bin 
-                       ATH_MSG_VERBOSE("  [-] Detector surface hit cancelled through start/end surface check." );       
-                       throwIntoGarbageBin(overlapParameters);
-                       }
-                } else // surface was not hit with the given bchek, search direction 
-                  surfaceHit = false;                                                      
-            }
-         
-         }     
+	 // import from StaticEngine.icc
+	 if (ncSurfaces){
+	   ATH_MSG_VERBOSE( "found " <<  ncSurfaces << " candidate sensitive surfaces to test."); 
+	   // now loop over the surfaces:
+	   // the surfaces will be sorted @TODO integrate pathLength propagation into this
+	   for (auto& csf : cSurfaces ) {
+	     // propagate to the compatible surface, return types are (pathLimit failure is excluded by Trk::anyDirection for the moment):
+	     const Trk::TrackParameters* overlapParameters = prop.propagate(parm,
+									   *(csf.object),
+                                                                           Trk::anyDirection,
+									   true,
+									   m_fieldProperties,
+									   particle);           
+
+	     if (overlapParameters) {
+	       ATH_MSG_VERBOSE( "  [+] Overlap surface was hit, checking start/end surface condition." );
+	       // check on start / end surface for on-layer navigaiton action
+	       surfaceHit = ( startSurface ) ? 
+		 ((overlapParameters->position()-parm.position()).dot(dir*parm.momentum().normalized()) > 0) : true;
+	       surfaceHit = ( surfaceHit && endSurface ) ?
+		 ((overlapParameters->position()-parsOnLayer.position()).dot(dir*parsOnLayer.momentum().normalized()) < 0) : surfaceHit;                  
+	       if (surfaceHit){
+		 ATH_MSG_VERBOSE( "  [H] Hit with detector surface recorded !" );
+		 // count the overlap Surfaces hit 
+		 ++m_overlapSurfaceHit;
+		 // distinguish whether sorting is needed or not
+		 reorderDetParametersOnLayer=true;
+		 // push back into the temporary vector
+		 detParametersOnLayer.push_back(overlapParameters);        
+	       } else { // the parameters have been cancelled by start/end surface
+		 // no hit -> fill into the garbage bin 
+		 ATH_MSG_VERBOSE("  [-] Detector surface hit cancelled through start/end surface check." );       
+		 throwIntoGarbageBin(overlapParameters);
+	       }
+	     }
+	   } // loop over test surfaces done
+	 } // there are compatible surfaces  
+
        }  //---------------------------------------------------------------------------------------------
 
        // push them into the parameters vector
@@ -1343,6 +1332,14 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
   // current frame volume known-retrieve geoID
   nextGeoID = m_currentStatic->geometrySignature(); 
 
+  // resolve active Calo volumes if hit info required 
+  if ( m_hitVector && nextGeoID==Trk::Calo ) {
+    const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_currentStatic);
+    if (alignTV) {
+      return transportInAlignableTV(parm,timeLim,dir,particle,nextGeoID,alignTV).trPar;
+    }
+  }
+
   // distance to static volume boundaries recalculated
   // retrieve boundaries along path
   m_trStaticBounds.clear();
@@ -1421,24 +1418,24 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
   m_navigLays.clear();
 
   // new: ID volumes may have special material layers ( entry layers ) - add them here
-  if (m_currentStatic->entryLayerProvider()) {
-    const std::vector<const Trk::Layer*>& entryLays = m_currentStatic->entryLayerProvider()->layers();
-    for (unsigned int i=0; i < entryLays.size(); i++) {
-      if (entryLays[i]->layerType()>0 || entryLays[i]->layerMaterialProperties()) {
-	  const Trk::Surface& surf=entryLays[i]->surfaceRepresentation(); 
-	  Trk::DistanceSolution distSol = surf.straightLineDistanceEstimate(currPar->position(),
-									    dir*currPar->momentum().normalized());
-	  if (distSol.numberOfSolutions()>0 && distSol.first()>0.) {
-	    // boundary check
-	    Amg::Vector3D gp = currPar->position()+distSol.first()*dir*currPar->momentum().normalized();
-	    if ( surf.isOnSurface(gp,true,0.001,0.001) ) {
-	      m_trLays.push_back(std::pair<const Trk::Surface*,double>(&surf,distSol.first()));
-	      m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,entryLays[i]) );
-	    }   // valid intersection
-	  }  // along path
-      }
-    } 
-  }
+  //if (m_currentStatic->entryLayerProvider()) {
+  //  const std::vector<const Trk::Layer*>& entryLays = m_currentStatic->entryLayerProvider()->layers();
+  //  for (unsigned int i=0; i < entryLays.size(); i++) {
+  //    if (entryLays[i]->layerType()>0 || entryLays[i]->layerMaterialProperties()) {
+  //	  const Trk::Surface& surf=entryLays[i]->surfaceRepresentation(); 
+  //	  Trk::DistanceSolution distSol = surf.straightLineDistanceEstimate(currPar->position(),
+  //									    dir*currPar->momentum().normalized());
+  //	  if (distSol.numberOfSolutions()>0 && distSol.first()>0.) {
+  //	    // boundary check
+  //	    Amg::Vector3D gp = currPar->position()+distSol.first()*dir*currPar->momentum().normalized();
+  // 	    if ( surf.isOnSurface(gp,true,0.001,0.001) ) {
+  //	      m_trLays.push_back(std::pair<const Trk::Surface*,double>(&surf,distSol.first()));
+  //	      m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,entryLays[i]) );
+  //	    }   // valid intersection
+  //	  }  // along path
+  //     }
+  //  } 
+  //}
 
   // detached volume boundaries
   const std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_currentStatic->confinedDetachedVolumes();
@@ -1623,7 +1620,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	  Amg::Vector3D gp = currPar->position()+distSol.first()*dir*currPar->momentum().normalized();
 	  if ( surf.isOnSurface(gp,true,0.001,0.001) ) {
 	    m_trLays.push_back(std::pair<const Trk::Surface*,double>(&surf,distSol.first()));
-	    m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,cLays[i]) );         
+	    m_navigLays.push_back(std::pair<const Trk::TrackingVolume*,const Trk::Layer*> (m_currentStatic,cLays[i]) ); 
 	  }   // valid intersection
 	}  // along path
       }
@@ -1771,6 +1768,26 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
      if (sols[is]<iDest) {      // destination volume (most often, subdetector boundary)
        return nextPar;          
      } else if ( sols[is] < iDest + m_trStaticBounds.size() ) {     // tracking geometry frame
+
+       // material attached ?
+       const Trk::Layer*  mb =  m_trStaticBounds[sols[is]-iDest].surface->materialLayer();  
+       if (mb) {
+         if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPos) ) {
+
+	   const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
+	   nextPar =  currentUpdator ?
+	     currentUpdator->update(nextPar, *mb, timeLim, m_path, m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+	   
+	   if (!nextPar) {
+	     ATH_MSG_VERBOSE( "  [+] Update may have killed neutral track - return." );
+	     m_parametersAtBoundary.resetBoundaryInformation();
+	     return returnParameters;
+	   }
+	 } else {    // material layer without material ?
+	   ATH_MSG_VERBOSE( " boundary layer without material:"<<mb->layerIndex() );
+         }
+       }
+
        // static volume boundary; return to the main loop 
        unsigned int index = m_trStaticBounds[sols[is]-iDest].bIndex;
        // use global coordinates to retrieve attached volume (just for static!)
@@ -1809,14 +1826,13 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
        unsigned int index = sols[is]-iDest-m_trStaticBounds.size();
        const Trk::Layer* nextLayer = m_navigLays[index].second;
 
-       bool matUp = nextLayer->fullUpdateMaterialProperties(*nextPar) && m_includeMaterialEffects;
-       // identical to last material layer ?
-       if (matUp && nextLayer==m_lastMaterialLayer ) {
-	 // cylinder layers !
-	 const Trk::CylinderLayer* cyl = dynamic_cast<const Trk::CylinderLayer*> (nextLayer);
-	 const Trk::SubtractedCylinderLayer* scyl = dynamic_cast<const Trk::SubtractedCylinderLayer*> (nextLayer);
-	 if (!cyl && !scyl) matUp = false;            
-       }
+       bool matUp = nextLayer->layerMaterialProperties()->fullMaterial(nextPos) && m_includeMaterialEffects;
+
+       if (!matUp && !nextLayer->layerMaterialProperties()->fullMaterial(nextPos) )
+         ATH_MSG_WARNING("layer without material:"<< nextLayer->layerIndex());    
+
+       // identical to the last material layer ?
+       if (matUp && nextLayer==m_lastMaterialLayer && nextLayer->surfaceRepresentation().type()!=Trk::Surface::Cylinder ) matUp = false;
 
        // material update        
        if (matUp) {
@@ -1876,3 +1892,423 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
    return nextPar;
 
 }
+
+
+Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters& parm,
+								       Trk::TimeLimit& timeLim,
+								       Trk::PropDirection dir,                                    
+								       Trk::ParticleHypothesis particle,
+								       Trk::GeometrySignature& nextGeoID,
+								       const Trk::AlignableTrackingVolume* aliTV) const
+
+{
+  ATH_MSG_DEBUG( "  [0] starting transport of neutral particle in alignable volume "<< m_currentStatic->volumeName() );
+ 
+  // material loop in sensitive Calo volumes 
+  // returns: boundary parameters (static volume boundary)
+  // material collection / intersection with active layers  ( binned material used ) 
+  
+  // initialize the return parameters vector
+  const Trk::TrackParameters* currPar = &parm;
+  const Trk::TrackingVolume*  nextVol = 0;
+  std::vector<Trk::IdentifiedIntersection> iis;
+
+  emptyGarbageBin(&parm);
+
+  if (!aliTV) return Trk::BoundaryTrackParameters(0,0,0);
+    
+  // TODO if volume entry go to entry of misaligned volume
+
+  // save volume entry if collection present
+
+  const Trk::BinnedMaterial* binMat = aliTV->binnedMaterial();
+
+  const Trk::IdentifiedMaterial* binIDMat = 0;
+
+  const Trk::Material*  currMat = aliTV;     // material to be used
+
+  if (binMat && m_hitVector) {
+    binIDMat = binMat->material(currPar->position());
+    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(currPar->clone(),timeLim.time,binIDMat->second,0.));
+  }
+
+  // loop through binned material : save identifier, material, distance
+
+  // binned material 
+  if (binMat) {
+
+    Amg::Vector3D pos = currPar->position();
+    Amg::Vector3D umo = currPar->momentum().normalized();
+
+    const Trk::BinUtility* lbu =  binMat->layerBinUtility(pos);
+    if (lbu) {
+      //std::cout <<"layerBinUtility retrieved:"<<lbu->bins()<< std::endl;
+      m_currentLayerBin = binMat->layerBin(pos);
+      currMat           = binMat->material(pos)->first;
+      std::pair<size_t,float> dist2next = lbu->distanceToNext(pos,dir*umo);
+      //std::cout<<"estimated distance to the next bin:"<<dist2next.first<<","<<dist2next.second<< std::endl; 
+      unsigned int lastBin = dist2next.first;
+      double distTot = dist2next.second*dir;
+      while (dist2next.first < lbu->bins()) {
+        pos = pos+ dist2next.second*dir*umo;
+	//std::cout <<"step inside volume?"<< aliTV->inside(pos)<<","<<aliTV->inside(pos,0.002)<< std::endl;
+        if ( !aliTV->inside(pos) ) break;   // step outside volume
+        binIDMat       = binMat->material(pos);   // material at the bin entry
+        iis.push_back(Trk::IdentifiedIntersection(distTot,binIDMat->second,binIDMat->first));
+        dist2next = lbu->distanceToNext(pos,dir*umo);  // distance to the bin exit
+        distTot += dist2next.second*dir;                // combined distance
+        if (dist2next.first==lastBin) break;
+        lastBin=dist2next.first;
+      }
+    }
+  }
+
+  // resolve exit from the volume
+
+  m_trStaticBounds.clear();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = aliTV->boundarySurfaces();
+  for (unsigned int ib=0; ib< bounds.size(); ib++ ){
+    const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+    Trk::DistanceSolution distSol = surf.straightLineDistanceEstimate(currPar->position(),
+								      dir*currPar->momentum().normalized());
+    double dist = distSol.first();
+    // resolve multiple intersection solutions
+    if (distSol.numberOfSolutions()>1 && dist<m_tolerance && distSol.second()>dist ) dist = distSol.second();
+    // boundary check
+    Amg::Vector3D gp = currPar->position()+dist*dir*currPar->momentum().normalized();
+    if ( surf.isOnSurface(gp,true,m_tolerance,m_tolerance) ) {
+      const Trk::TrackingVolume* attachedVol =  (bounds[ib].getPtr())->attachedVolume(gp,currPar->momentum(),dir);
+      if ( attachedVol != m_currentStatic )   { //exit  
+        nextVol = attachedVol;
+	m_trStaticBounds.insert(m_trStaticBounds.begin(),Trk::DestBound(&surf,dist,ib));
+      }   
+    }
+  } // end loop over boundaries
+
+  if (!m_trStaticBounds.size()) {
+
+    ATH_MSG_ERROR("exit from alignable volume "<<aliTV->volumeName()<<" not resolved, aborting");
+    return Trk::BoundaryTrackParameters(0,0,0); 
+
+  } else if (m_trStaticBounds.size()>1) {  // hit edge ?
+    Amg::Vector3D gp = currPar->position()+(m_trStaticBounds[0].distance+1.)*dir*currPar->momentum().normalized();
+    nextVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp); 
+  }
+
+  // exit from the volume may coincide with the last bin boundary - leave 10 microns marge  
+  if (iis.size() &&  m_trStaticBounds[0].distance-iis.back().distance < 0.01) iis.pop_back();
+
+  // add volume exit
+  iis.push_back(Trk::IdentifiedIntersection(m_trStaticBounds[0].distance,0,0)); 
+
+  // loop over intersection taking into account the material effects
+
+  double dist = 0.;  
+  double mom=currPar->momentum().mag(); 
+  double beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass)*Gaudi::Units::c_light;
+  Amg::Vector3D nextPos = currPar->position(); 
+  
+  for (unsigned int is=0; is<iis.size(); is++) {
+    
+    if ( iis[is].distance==0. ) continue;
+    
+    double step = iis[is].distance-dist;
+    
+    nextPos = currPar->position()+dir*currPar->momentum().normalized()*iis[is].distance;
+    
+    double tDelta = step/beta;
+    
+    double mDelta = (currMat->zOverAtimesRho() != 0.) ? step/currMat->x0() : 0.;
+    
+    // in case of hadronic interaction retrieve nuclear interaction properties, too
+    
+    double frT = 1.;
+    if (step>0 && timeLim.tMax>m_time && m_time+tDelta >= timeLim.tMax) frT = (timeLim.tMax-m_time)*beta/step;
+    
+    // TODO : compare x0 or l0 according to the process type     
+    double frM = 1.;
+    if (mDelta>0 && m_path.x0Max > 0.) {
+      if (m_path.process < 100 && m_path.x0Collected+mDelta > m_path.x0Max ) frM = (m_path.x0Max-m_path.x0Collected)/mDelta;
+      else {     // waiting for hadronic interaction,  retrieve nuclear interaction properties
+	double mDeltaL = currMat->L0 > 0. ? step/currMat->L0 : mDelta/0.37/currMat->averageZ();
+	if (m_path.l0Collected+mDeltaL > m_path.x0Max)   frM = (m_path.x0Max-m_path.l0Collected)/mDeltaL;
+      }
+    }
+    
+    double fr = fmin(frT,frM);
+    
+    //std::cout << "looping over intersections:"<<is<<","<< m_trSurfs[sols[is]].second<<","<<step << ","<< tDelta<<","<<mDelta << std::endl;
+    
+    if (fr<1.) { // decay or material interaction during the step
+      
+      int process = frT < frM ? timeLim.process : m_path.process;
+      m_time += fr*step/beta; 
+      if (mDelta>0 && currMat->averageZ()>0) m_path.updateMat( fr*mDelta, currMat->averageZ(), 0.); 
+      
+      nextPos = currPar->position()+dir*currPar->momentum().normalized()*(dist+fr*step);
+      
+      // process interaction only if creation of secondaries allowed
+      if (m_caloMsSecondary ) {
+	
+	const Trk::TrackParameters* nextPar = m_updators[0]->interact(m_time,nextPos,currPar->momentum(),particle,process,currMat);
+	throwIntoGarbageBin(nextPar);
+	
+	if (nextPar) ATH_MSG_DEBUG( " [!] WARNING: particle survives the interaction "<< process ); 
+	
+	if (nextPar && process==121) {
+	  ATH_MSG_DEBUG( " [!] WARNING: failed hadronic interaction, killing the input particle anyway" );
+	  return Trk::BoundaryTrackParameters(0,0,0);
+	}
+	
+	if (!nextPar) return Trk::BoundaryTrackParameters(0,0,0);
+	
+	//return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+      } else {  // kill particle without trace ?
+	return Trk::BoundaryTrackParameters(0,0,0);
+      }    
+      
+    }  // end decay or material interaction during the step
+    
+    // update
+    dist = iis[is].distance; 
+    if (mDelta>0 && currMat->averageZ()>0) m_path.updateMat( mDelta, currMat->averageZ(), 0.); 
+    m_time += tDelta;
+    
+    if ( is<iis.size()-1 ) {  // update bin material info
+      binIDMat = binMat->material(nextPos);
+      currMat = binIDMat->first; 
+      if (m_hitVector && binIDMat->second>0 ) {      // save entry to the next layer
+	ATH_MSG_VERBOSE("active layer entry:"<<binIDMat->second << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
+	Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
+	m_hitVector->push_back(Trk::HitInfo(nextPar,timeLim.time,binIDMat->second,0.));
+      }
+    }
+  }   // end loop over intersections
+
+  Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
+
+  if (m_hitVector) {      // save volume exit /active layer only ? 
+    ATH_MSG_VERBOSE("active layer/volume exit:"<<binIDMat->second << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
+    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,-binIDMat->second,0.));
+  }
+  
+  throwIntoGarbageBin(nextPar);
+       
+  // static volume boundary; return to the main loop : TODO move from misaligned to static
+  unsigned int index = m_trStaticBounds[0].bIndex;
+  // use global coordinates to retrieve attached volume (just for static!)
+  nextVol = (m_currentStatic->boundarySurfaces())[index].getPtr()->attachedVolume(nextPar->position(),nextPar->momentum(),dir);
+  // double check the next volume
+  if ( nextVol && !(nextVol->inside(nextPar->position()+0.01*nextPar->momentum().normalized(),m_tolerance) ) ) {
+    ATH_MSG_DEBUG( "  [!] WARNING: wrongly assigned static volume ?"<< m_currentStatic->volumeName()<<"->" << nextVol->volumeName() );
+    nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(nextPar->position()+0.01*nextPar->momentum().normalized());
+    if (nextVol) ATH_MSG_DEBUG( "  new search yields: "<< nextVol->volumeName() );          
+  }
+
+  ATH_MSG_DEBUG("  [+] StaticVol boundary reached of '" <<m_currentStatic->volumeName() << "'.");
+
+  // no next volume found --- end of the world
+  if ( !nextVol ) {
+    ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position())<<", timed at " << m_time );
+    nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
+  } else {
+    ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "'");
+    ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
+  }     
+
+  return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+}
+
+
+Trk::BoundaryTrackParameters Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters& parm,
+									      Trk::TimeLimit& timeLim,
+									      Trk::PropDirection dir,                                    
+									      Trk::ParticleHypothesis particle,
+									      Trk::GeometrySignature& nextGeoID,
+									      const Trk::AlignableTrackingVolume* vol) const
+{
+  ATH_MSG_DEBUG( "M-[" << ++m_methodSequence << "] extrapolateInAlignableTV(...) " );
+ 
+  // material loop in sensitive Calo volumes 
+  // extrapolation without target surface returns:
+  //    A)    boundary parameters (static volume boundary)
+  // if target surface:
+  //    B)    trPar at target surface
+  // material collection done by the propagator ( binned material used ) 
+  
+  // initialize the return parameters vector
+  const Trk::TrackParameters* currPar = &parm;
+  const Trk::AlignableTrackingVolume*  staticVol = 0;
+  const Trk::TrackingVolume*  currVol = 0;
+  const Trk::TrackingVolume*  nextVol = 0;
+  std::vector<unsigned int> solutions;
+  //double tol = 0.001;
+  //double path = 0.;
+  if (!m_highestVolume ) m_highestVolume = m_navigator->highestVolume();
+
+  emptyGarbageBin(&parm);
+    
+  // verify current position
+  Amg::Vector3D gp = parm.position();
+  if ( vol && vol->inside(gp,m_tolerance) ) {
+    staticVol = vol; 
+  } else {
+    currVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);    
+    const Trk::TrackingVolume* nextStatVol = 0;
+    if ( m_navigator->atVolumeBoundary(currPar,currVol,dir,nextStatVol,m_tolerance) && nextStatVol != currVol ) 
+      currVol = nextStatVol;
+    if (currVol && currVol != vol) {
+      const Trk::AlignableTrackingVolume* aliTG = dynamic_cast<const Trk::AlignableTrackingVolume*> (currVol);
+      if (aliTG) staticVol = aliTG;
+    }
+  }
+
+  if (!staticVol) {
+     ATH_MSG_DEBUG( "  [!] failing in retrieval of AlignableTV, return 0" );
+     return Trk::BoundaryTrackParameters(0,0,0);
+  } 
+
+  // TODO if volume entry go to entry of misaligned volume
+
+  // save volume entry if collection present
+
+  if (m_hitVector) {
+    const Trk::BinnedMaterial* binMat = staticVol->binnedMaterial();
+    if (binMat) {
+      const Trk::IdentifiedMaterial* binIDMat = binMat->material(currPar->position());
+      if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo( currPar->clone(), timeLim.time, binIDMat->second, 0.));  
+    }
+  }
+   
+  // navigation surfaces
+  if( m_navigSurfs.capacity() > m_maxNavigSurf ) m_navigSurfs.reserve(m_maxNavigSurf); 
+  m_navigSurfs.clear();
+
+  // assume new static volume, retrieve boundaries
+  m_currentStatic = staticVol;
+  m_staticBoundaries.clear();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = staticVol->boundarySurfaces();
+  for (unsigned int ib=0; ib< bounds.size(); ib++ ){
+    const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+    m_staticBoundaries.push_back(std::pair<const Trk::Surface*,Trk::BoundaryCheck>(&surf,true));
+  }
+  
+  m_navigSurfs.insert(m_navigSurfs.end(),m_staticBoundaries.begin(),m_staticBoundaries.end());
+
+  // current dense
+  m_currentDense =  staticVol;
+   
+  // ready to propagate      
+  // till: A/ static volume boundary(bcheck=true) , B/ destination surface(bcheck=false)
+   
+   nextVol = 0;
+   while (currPar) {      
+     std::vector<unsigned int> solutions;
+     // propagate now
+     ATH_MSG_DEBUG( "  [+] Starting propagation at position  " << positionOutput(currPar->position())  
+         << " (current momentum: " << currPar->momentum().mag() << ")" ); 
+     ATH_MSG_DEBUG( "  [+] " << m_navigSurfs.size() << " target surfaces in '" << m_currentDense->volumeName() <<"'.");   
+     //  arguments : inputParameters, vector of navigation surfaces, propagation direction, b field service, particle type, result,
+     //              material collection, intersection collection, path limit, switch for use of path limit, switch for curvilinear on return, current TG volume
+     const Trk::TrackParameters* nextPar = m_stepPropagator->propagateT(*currPar,m_navigSurfs,dir,m_fieldProperties,particle,solutions,m_path,timeLim,true,m_currentDense,m_hitVector);
+     ATH_MSG_VERBOSE( "  [+] Propagation done. " ); 
+     if (nextPar)  
+        ATH_MSG_DEBUG( "  [+] Position after propagation -   at " << positionOutput(nextPar->position())); 
+
+     if (nextPar)  ATH_MSG_DEBUG( "  [+] Number of intersection solutions: " << solutions.size() );
+     if (nextPar) throwIntoGarbageBin(nextPar);
+
+     // material update has been done already by the propagator
+     if ( m_path.x0Max>0. && ( (m_path.process<100 && m_path.x0Collected >= m_path.x0Max) || (m_path.process>100 && m_path.l0Collected >= m_path.x0Max)) ) {
+
+       // trigger presampled interaction, provide material properties if needed 
+       // process interaction only if creation of secondaries allowed
+       if ( m_currentStatic->geometrySignature()==Trk::ID || m_caloMsSecondary ) {
+	 const Trk::Material* extMprop = m_path.process>100 ? m_currentDense : 0;
+	 
+	 const Trk::TrackParameters* iPar = m_updators[0]->interact(timeLim.time,nextPar->position(),nextPar->momentum(),particle,m_path.process,extMprop);
+
+	 if (!iPar) return Trk::BoundaryTrackParameters(0,0,0);
+	 
+	 throwIntoGarbageBin(iPar);         
+	 
+	 if (iPar && m_path.process==121) {
+	   ATH_MSG_DEBUG( " [!] WARNING: failed hadronic interaction, killing the input particle anyway" );
+	   return Trk::BoundaryTrackParameters(0,0,0);
+	 }
+	 
+	 //return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+       } else {  // kill particle without trace ?
+	 return Trk::BoundaryTrackParameters(0,0,0);
+       }    
+     }
+
+     // decay ?
+     if ( timeLim.tMax > 0. &&  timeLim.time >= timeLim.tMax ) {
+       // process interaction only if creation of secondaries allowed
+       if ( m_currentStatic->geometrySignature()==Trk::ID || m_caloMsSecondary ) {
+	 // trigger presampled interaction 
+	 const Trk::TrackParameters* iPar = m_updators[0]->interact(timeLim.time,nextPar->position(),nextPar->momentum(),particle,timeLim.process);
+	 if (!iPar) return Trk::BoundaryTrackParameters(0,0,0);
+
+	 throwIntoGarbageBin(iPar);        
+         ATH_MSG_WARNING("particle decay survival?"<< particle<<","<<timeLim.process);
+         return Trk::BoundaryTrackParameters(0,0,0);      
+
+       } else {    // kill the particle without trace ( some validation info can be included here eventually )
+         return Trk::BoundaryTrackParameters(0,0,0);      
+       }
+     }
+
+     if (nextPar) {    
+       unsigned int iSol  = 0;
+       while ( iSol < solutions.size() ) {         
+	 if ( solutions[iSol] < m_staticBoundaries.size() ) {
+           // TODO if massive boundary coded, add the material effects here 
+	   // static volume boundary; return to the main loop : TODO move from misaligned to static
+	   unsigned int index = solutions[iSol];
+	   // use global coordinates to retrieve attached volume (just for static!)
+	   nextVol = (m_currentStatic->boundarySurfaces())[index].getPtr()->attachedVolume(nextPar->position(),nextPar->momentum(),dir);
+	   // double check the next volume
+	   if ( nextVol && !(nextVol->inside(nextPar->position()+0.01*nextPar->momentum().normalized(),m_tolerance) ) ) {
+	     ATH_MSG_DEBUG( "  [!] WARNING: wrongly assigned static volume ?"<< m_currentStatic->volumeName()<<"->" << nextVol->volumeName() );
+	     nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(nextPar->position()+0.01*nextPar->momentum().normalized());
+	     if (nextVol) ATH_MSG_DEBUG( "  new search yields: "<< nextVol->volumeName() );          
+	   }
+	   // end double check - to be removed after validation of the geometry gluing 
+	   // lateral exit from calo sample can be handled here 
+	   if (m_hitVector) {
+	     const Trk::BinnedMaterial* binMat = staticVol->binnedMaterial();
+	     if (binMat) {
+	       const Trk::IdentifiedMaterial* binIDMat = binMat->material(nextPar->position());
+               // save only if entry to the sample present, the exit missing and non-zero step in the sample
+               if (binIDMat && binIDMat->second>0 && m_hitVector->size() &&  m_hitVector->back().detID== binIDMat->second) {
+                 //double s = (nextPar->position()-m_identifiedParameters->back().first->position()).mag(); 
+		 //if (s>0.001) m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (nextPar->clone(), -binIDMat->second));
+		 m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,-binIDMat->second,0.));
+	       }  
+	     }
+	   }
+           // end lateral exit handling
+
+	   ATH_MSG_DEBUG("  [+] StaticVol boundary reached of '" <<m_currentStatic->volumeName() << "'.");
+	   // no next volume found --- end of the world
+	   if ( !nextVol ) {
+	     ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position())<<", timed at " << m_time );
+	     nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
+	   } else {
+	     ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "'");
+	     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
+	   }     
+	   
+	   return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+	 }
+       }
+     }
+ 
+     currPar = nextPar;
+   }
+
+   return Trk::BoundaryTrackParameters(0,0,0);
+}        
+

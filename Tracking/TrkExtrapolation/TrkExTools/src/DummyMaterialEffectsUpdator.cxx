@@ -85,7 +85,7 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::update(const Trac
 
       if (tvol && updateProperties){
 
-           double correctionFactor = lay.pathCorrection(*parm);
+	   double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
            // material properties
            double pathInX0         = updateProperties->thicknessInX0();
            double x0               = updateProperties->x0();
@@ -131,7 +131,7 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::preUpdate(const T
       // retrun if the preFactor is too small
       if (preFactor < 0.1) return (parm);
 
-      double correctionFactor = lay.pathCorrection(*parm);
+      double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
       bool  surfaceValidaiton = false;
       
       // get the material properties
@@ -188,7 +188,7 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::postUpdate(const 
       if (postFactor < 0.1 ) return 0;
 
       // the correction Factor to the layer
-      double correctionFactor = lay.pathCorrection(parm);
+      double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(),parm.momentum()));
       // get the material properties
       const Trk::MaterialProperties* updateProperties = lay.fullUpdateMaterialProperties(parm);
       correctionFactor *= postFactor;
@@ -241,6 +241,6 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::update(const Trac
 void Trk::DummyMaterialEffectsUpdator::validationAction() const
 {
     // first record the values
-    if (m_validationMode && m_materialMapper)
-        m_materialMapper->finalizeEvent(m_etaFinalize, m_phiFinalize);
+  // if (m_validationMode && m_materialMapper)
+  //      m_materialMapper->finalizeEvent(m_etaFinalize, m_phiFinalize);
 }
