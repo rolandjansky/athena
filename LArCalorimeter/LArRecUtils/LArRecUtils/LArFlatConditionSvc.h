@@ -87,11 +87,13 @@ class LArFlatConditionSvc : public virtual IAddressProvider,
 
   bool m_doRegularCells;
   bool m_doSuperCells;
-
+  bool m_printChecksum;
 
   template<class T> 
   T* createFlatObj(const CondAttrListCollection* attr,  SG::TransientAddress* tad);
 
+
+  void printCheckSums(const objInfo_t& objInfo, const CondAttrListCollection* attr); 
 };
 
 

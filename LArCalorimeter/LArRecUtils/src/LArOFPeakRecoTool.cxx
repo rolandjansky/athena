@@ -42,7 +42,7 @@ LArOFPeakRecoTool::~LArOFPeakRecoTool() {
 }
 
 StatusCode LArOFPeakRecoTool::initialize() {
-  msg() << MSG::DEBUG << "initializing LArOFPeakRecoTool..." << endreq ;
+  ATH_MSG_DEBUG("initializing LArOFPeakRecoTool...");
   
 // call back for OFC 
   
@@ -134,11 +134,11 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   //Code will segfault if not the case. 
 
   const unsigned nSamples=samples.size();
-  if (samples.size()<5){ 
-    msg() << MSG::WARNING << "Not enough ADC samples (" << nSamples << ") found for channel 0x"  
-	     << std::hex << chID.get_compact() << std::dec << endreq;
-    return m_result;
-  }
+  //if (samples.size()<5){ 
+  //  msg() << MSG::WARNING << "Not enough ADC samples (" << nSamples << ") found for channel 0x"  
+ //	     << std::hex << chID.get_compact() << std::dec << endreq;
+ //   return m_result;
+ // }
 
   // force uses of high gain if required for OFC and shape
   CaloGain::CaloGain usedGain = gain;
@@ -164,7 +164,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     timeBinWidth=m_dd_ofc->timeBinWidth(chID,usedGain);
     timeMax =  (nOFCPhase-1)*timeBinWidth;
     if (timeBinWidth==0.) {
-      msg() << MSG::ERROR << "timeBinWidth is zero for channel 0x"  << std::hex << chID.get_compact() << std::dec << endreq;
+      msg() << MSG::ERROR << "timeBinWidth is zero for channel " << m_lar_on_id->channel_name(chID) << endreq;
       return m_result;
     }
     //Check if initial delay isn't too big
@@ -184,7 +184,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
 
   //some sanity check on the OFCs
   if ( ofcSize == 0 || this_OFC_b.size() == 0 ) {
-    msg() << MSG::DEBUG << "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec << endreq;
+    ATH_MSG_DEBUG("OFC not found for channel " << m_lar_on_id->channel_name(chID));
     return m_result;
   }
 
@@ -256,7 +256,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     //Validate the result
     m_result.m_valid = true; //Doesn't mean that the result is really good, but we have something
     if ( A == 0 ) {
-      msg() << MSG::DEBUG << "Null amplitude: " << A << "  for channel 0x" << std::hex << chID.get_compact() << std::dec << endreq ;
+      ATH_MSG_DEBUG("Null amplitude: " << A << "  for channel" << m_lar_on_id->channel_name(chID));
       m_result.m_amplitude=0;
       m_result.m_tau=0;
       return m_result;
@@ -373,7 +373,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
       }
     }
     else {
-      msg() << MSG::DEBUG << " No shape for this channel"  << endreq ;
+      ATH_MSG_DEBUG("No shape for this channel");
     } 
   }
 

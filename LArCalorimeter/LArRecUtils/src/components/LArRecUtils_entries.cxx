@@ -16,6 +16,7 @@
 #include "LArRecUtils/LArFEBConfigReader.h"
 #include "LArRecUtils/LArFlatConditionSvc.h"
 #include "../LArFCalTowerBuilderToolTestAlg.h"
+#include "../LArHVScaleRetriever.h"
 
 DECLARE_TOOL_FACTORY( LArADC2MeVTool )
 DECLARE_TOOL_FACTORY( LArAutoCorrNoiseTool )
@@ -33,6 +34,7 @@ DECLARE_TOOL_FACTORY( LArFCalTowerBuilderTool )
 DECLARE_TOOL_FACTORY( LArFEBConfigReader )
 DECLARE_SERVICE_FACTORY( LArFlatConditionSvc)
 DECLARE_ALGORITHM_FACTORY( LArFCalTowerBuilderToolTestAlg )
+DECLARE_TOOL_FACTORY( LArHVScaleRetriever )
 
 
 DECLARE_FACTORY_ENTRIES(LArRecUtils) {
@@ -52,6 +54,7 @@ DECLARE_FACTORY_ENTRIES(LArRecUtils) {
 	DECLARE_TOOL(LArFEBConfigReader)
 	DECLARE_SERVICE( LArFlatConditionSvc )
 	DECLARE_ALGORITHM( LArFCalTowerBuilderToolTestAlg )
+  DECLARE_TOOL( LArHVScaleRetriever )
 }
 
 

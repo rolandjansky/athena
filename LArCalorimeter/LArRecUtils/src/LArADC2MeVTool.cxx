@@ -424,34 +424,6 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
   ATH_MSG_INFO("Low Gain: Channels without Ramp = " << count3[2]);
   ATH_MSG_DEBUG( "end of loop over cells ");
 
-  // reset conditions
-  if ( !m_isSC )
-  if (!m_IOVDbSvc->dropObject(m_keyADC2DAC,true)) {
-      ATH_MSG_WARNING("Cannot drop " << m_keyADC2DAC);
-  }
-
-  if (m_useMphysOverMcal) {
-     if (!m_IOVDbSvc->dropObject(m_keyMphysMcal,true)) {
-       ATH_MSG_WARNING("Cannot drop " << m_keyMphysMcal);
-     }
-  }
-
- if (m_useHVScaleCorr) {
-     if (!m_IOVDbSvc->dropObject(m_keyHVScaleCorr,true)) {
-       ATH_MSG_WARNING("Cannot drop " << m_keyHVScaleCorr);
-     }
-  }
-
-  if ( !m_isSC )
-  if (!m_IOVDbSvc->dropObject(m_keyDAC2uA,true)) {
-      ATH_MSG_WARNING("Cannot drop " << m_keyDAC2uA);
-  }
-
-  if ( !m_isSC )
-  if (!m_IOVDbSvc->dropObject(m_keyuA2MeV,true)) {
-      ATH_MSG_WARNING("Cannot drop " << m_keyuA2MeV); 
-  }
-
   m_cacheValid=true;
 
   return StatusCode::SUCCESS;  

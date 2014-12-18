@@ -9,7 +9,11 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "StoreGate/StoreGateSvc.h"
+
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "CoralBase/Blob.h"
+#include "LArCOOLConditions/LArHVScaleCorrFlat.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -46,8 +50,10 @@ LArHVCorrTool::LArHVCorrTool(const std::string& type,
   m_T0 = 90.371;   // parameter for vdrift
   m_allCallBack=false;
 
-  declareProperty("keyOutput",m_keyOutput,"Output key for LArHVScaleCorr");
+  declareProperty("keyOutput",m_keyOutput="LArHVScaleCorr","Output key for LArHVScaleCorr");
   declareProperty("keyOutputTd",m_keyOutputTd,"Output key for LArTdrift");
+  declareProperty("folderName",m_folderName="/LAR/ElecCalibFlat/HVScaleCorr",
+		  "Folder to store the CondAttrListCollection containing the HVScale correction");
   declareProperty("HVTool",m_hvtool,"HV tool used");
   declareProperty("doTdrift",m_doTdrift,"Compute drift time");
   declareProperty("allHVCallBack",m_allCallBack,"recompute correction for each HV db callback instead of only once per run/lbn");
@@ -614,7 +620,7 @@ float LArHVCorrTool::Scale(const IdentifierHash& hash) const {
     }
   }
   if (hash>m_vScale.size()) {
-    msg(MSG::ERROR) << "Cell outside hash range! " << endreq;
+    msg(MSG::ERROR) << "Cell outside hash range! hash=" << hash << " range=" << m_vScale.size() << endreq;
     return 1;
   }
   return m_vScale[hash];
@@ -629,29 +635,45 @@ StatusCode LArHVCorrTool::record()  {
       return sc;
     }
   }
-  LArHVScaleCorrComplete* scale=new LArHVScaleCorrComplete();
-  if( (scale->setGroupingType("ExtendedSubDetector",msg())).isFailure()) {
-    msg(MSG::ERROR) << " cannot setGroupingType " << endreq;
-    return StatusCode::FAILURE;
-  }
-  if( (scale->initialize()).isFailure()) {
-    msg(MSG::ERROR) << "cannot initialize Scale " << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  const size_t nCells=m_vScale.size();
-  for (size_t idx=0;idx<nCells;++idx) {
-    const IdentifierHash oflHash(idx);
-    const HWIdentifier hwid=m_cablingService->createSignalChannelIDFromHash(oflHash);
-    scale->set(hwid,m_vScale[idx]);
-  }
 
-  StatusCode sc=detStore()->record(scale,m_keyOutput);
+  const unsigned hashMax=m_lar_on_id->channelHashMax();
+  coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
+  spec->extend("HVScaleCorr", "blob");
+  spec->extend<unsigned>("version");
+  CondAttrListCollection* coll=new CondAttrListCollection(true);
+  coral::AttributeList* attrList = new coral::AttributeList(*spec);
+  (*attrList)["version"].setValue(0U);
+  coral::Blob& blob=(*attrList)["HVScaleCorr"].data<coral::Blob>();
+  blob.resize(hashMax*sizeof(float));
+  float* pblob=static_cast<float*>(blob.startingAddress());
+  //Loop over online hash (to make sure that *every* field of the blob gets filled
+  for (unsigned hs=0;hs<hashMax;++hs) {
+    float value=1.0;
+    if (m_cablingService->isOnlineConnectedFromHash(hs)) {
+      const Identifier id=m_cablingService->cnvToIdentifierFromHash(hs);
+      ATH_MSG_VERBOSE("Filling value for id " << id.get_identifier32().get_compact());
+      value=this->Scale(id);
+    }
+    pblob[hs]=value;
+  }
+  coll->add(1,*attrList); //Add as channel 1 to AttrListCollection
+
+  StatusCode sc=detStore()->record(coll,m_folderName);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record HVScaleCorr in detStore " << endreq;
+    msg(MSG::ERROR) << " cannot record CondAttrListCollection with key " << m_folderName << endreq;
+    delete coll;
     return sc;
   }
  
+  LArHVScaleCorrFlat* flatHVScale=new LArHVScaleCorrFlat(coll);
+  sc=detStore()->record(flatHVScale,m_keyOutput);
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Failed to record LArHVScaleCorrFlat with key " << m_keyOutput << endreq;
+    delete flatHVScale;
+    return sc;
+  }
+  
+
   if (m_doTdrift) {
     sc=detStore()->record(m_Tdrift,m_keyOutputTd);
     if (sc.isFailure()) {
@@ -659,13 +681,7 @@ StatusCode LArHVCorrTool::record()  {
       return sc;
     }
   }
-
-  m_ownScale = false;
-  sc=detStore()->symLink(scale, (ILArHVScaleCorr*)scale);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to symlink LArHVScaleCorr object" << endreq;
-    return sc;
-  }
+  m_ownScale = false; //Matters only for m_Tdrift
 
   if (m_doTdrift) {
     sc=detStore()->symLink(m_Tdrift, (ILArTdrift*)m_Tdrift);

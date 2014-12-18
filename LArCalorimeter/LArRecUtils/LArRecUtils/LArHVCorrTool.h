@@ -114,6 +114,7 @@ class LArHVCorrTool: public AthAlgTool,
 
   std::string m_keyOutput;
   std::string m_keyOutputTd;
+  std::string m_folderName;
 
   bool m_doTdrift;
   unsigned int m_deltatupdate;

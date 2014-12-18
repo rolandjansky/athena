@@ -32,7 +32,10 @@
 #include "LArCOOLConditions/LArPedestalSC.h"	 
 #include "LArCOOLConditions/LArRampSC.h"
 #include "LArCOOLConditions/LArShapeSC.h"
+#include "LArCOOLConditions/LArMinBiasSC.h"
 
+#include "CoralBase/Blob.h"
+#include <boost/crc.hpp> 
 
 
 LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* svc )
@@ -40,7 +43,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
     m_IOVSvc     ("IOVSvc", name),
     m_detStore   ("DetectorStore", name),
     m_clidSvc    ("ClassIDSvc", name),
-    m_objInfo(16),
+    m_objInfo(17),
     m_attrListClid(),
     m_initializing(true),
     m_doRegularCells(true),
@@ -75,6 +78,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   m_objInfo[13].m_classname="LArPedestalSC"; 
   m_objInfo[14].m_classname="LArRampSC"; 
   m_objInfo[15].m_classname="LArShapeSC"; 
+  m_objInfo[16].m_classname="LArMinBiasSC"; 
 
   //Interface names for SuperCell conditions
   m_objInfo[8].m_ifacename="ILArAutoCorr";
@@ -85,6 +89,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   m_objInfo[13].m_ifacename="ILArPedestal"; 
   m_objInfo[14].m_ifacename="ILArRamp"; 
   m_objInfo[15].m_ifacename="ILArShape"; 
+  m_objInfo[16].m_ifacename="ILArMinBias"; 
   
 
   //StoreGate keys for conditions objects for regular cells
@@ -106,6 +111,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("PedestalSCOutput",   m_objInfo[13].m_outputKey="LArPedestalSC");
   declareProperty("RampSCOutput",       m_objInfo[14].m_outputKey="LArRampSC");	    
   declareProperty("ShapeSCOutput",      m_objInfo[15].m_outputKey="LArShapeSC");	    
+  declareProperty("MinBiasSCOutput",    m_objInfo[16].m_outputKey="LArMinBiasSC");	    
 
 
   //Folder names for flat conditions data for regular cells
@@ -127,9 +133,11 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("PedestalSCInput",    m_objInfo[13].m_inputKey="/LAR/ElecCalibMCSC/Pedestal");  
   declareProperty("RampSCInput",        m_objInfo[14].m_inputKey="/LAR/ElecCalibMCSC/Ramp");	     
   declareProperty("ShapeSCInput",       m_objInfo[15].m_inputKey="/LAR/ElecCalibMCSC/Shape");	     
+  declareProperty("MinBiasSCInput",     m_objInfo[16].m_inputKey="/LAR/ElecCalibMCSC/MinBias");	     
 
   declareProperty("DoSuperCells", m_doSuperCells);
   declareProperty("DoRegularCells", m_doRegularCells);
+  declareProperty("PrintChecksum",  m_printChecksum=true);
 }
  
 LArFlatConditionSvc::~LArFlatConditionSvc() {}
@@ -247,6 +255,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
     return StatusCode::FAILURE;
   }
 
+  if(m_printChecksum) printCheckSums(*objIt,attrlist);
 
   IOVRange range;
   sc=m_IOVSvc->getRange(m_attrListClid,objIt->m_inputKey,range);
@@ -383,6 +392,13 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
       return StatusCode::FAILURE; 
     }
     break;
+
+  case 16:      
+    if (this->createFlatObj<LArMinBiasSC>(attrlist,tad)==0) {
+      msg(MSG::ERROR) << "Problem creating LArMinBiasSC object" << endreq;
+      return StatusCode::FAILURE; 
+    }
+    break;
     
 
   default:
@@ -433,3 +449,42 @@ T* LArFlatConditionSvc::createFlatObj(const CondAttrListCollection* attr,  SG::T
    }
    return flat;
  }
+
+void LArFlatConditionSvc::printCheckSums(const objInfo_t& objInfo, const CondAttrListCollection* attrListColl) {
+
+  if (!msgLvl(MSG::INFO)) return;
+
+  union {
+    int sn;
+    unsigned usn;
+  } cnv;
+
+  boost::crc_32_type crc32;
+
+  msg(MSG::INFO) << "Loading " << objInfo.m_classname << " from folder " << objInfo.m_inputKey << endreq;
+
+  CondAttrListCollection::const_iterator it=attrListColl->begin();
+  CondAttrListCollection::const_iterator it_e=attrListColl->end();
+  for (;it!=it_e;++it) {
+    const coral::AttributeList& attrList=it->second;
+    const unsigned gain=it->first;
+    msg(MSG::INFO) << "   Gain " << gain;
+    for (const auto& attr : attrList) {
+      const std::string& typeName=attr.specification().typeName();
+      if (typeName.find("blob")==0) {
+	//Got a blob:
+	const coral::Blob& blob = attr.data<coral::Blob>();
+	const std::string& blobName=attr.specification().name();
+	crc32.process_bytes(blob.startingAddress(),blob.size());
+	cnv.usn= crc32.checksum();
+	msg(MSG::INFO) << ", " << blobName << " checksum=" << cnv.sn;
+	crc32.reset();
+      }//end if blob
+    }//end loop over attributes
+    msg(MSG::INFO) << endreq;
+  }//end loop over gains
+  
+
+
+
+}
