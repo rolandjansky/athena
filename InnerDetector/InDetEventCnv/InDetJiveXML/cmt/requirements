@@ -27,6 +27,10 @@ public
 use AthenaBaseComps       AthenaBaseComps-*       Control
 use GaudiInterface        GaudiInterface-*        External
 
+# Add explicit dependency against VxVertex to avoid indirect dependency from InDetBeamSpotService
+# which creates a component library and cmake (correctly) does not propagate such dependencies. This  
+# is transparent to CMT and checkreq.
+apply_pattern cmake_add_dependency package=Tracking/TrkEvent/VxVertex
 
 library InDetJiveXML *.cxx components/*.cxx
 apply_pattern component_library
