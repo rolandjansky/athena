@@ -17,6 +17,8 @@ use AthenaPoolUtilities     AthenaPoolUtilities-*     Database/AthenaPOOL
 private
 use DataModelTestDataRead    DataModelTestDataRead-*    Control/DataModelTest
 use DataModelTestDataCommon  DataModelTestDataCommon-*  Control/DataModelTest
+
+apply_tag no_merge_componentslist
 end_private
 
 apply_pattern poolcnv \
@@ -24,10 +26,12 @@ apply_pattern poolcnv \
                      DMTest::DDer DMTest::BDer DMTest::ELVec \
                      DMTest::BAux DMTest::BAuxVec DMTest::BAuxStandalone \
                      DMTest::C_v1 DMTest::CVec_v1 DMTest::CAuxContainer_v1 \
+                     DMTest::G_v1 DMTest::GVec_v1 DMTest::GAuxContainer_v1 \
                      DMTest::CInfoAuxContainer_v1 \
                      DMTest::CTrigAuxContainer_v1 " \
  files="-s=${DataModelTestDataRead_root}/DataModelTestDataRead \
              BVec.h BDer.h DVec.h DDer.h ELVec.h \
+             versions/G_v1.h versions/GVec_v1.h versions/GAuxContainer_v1.h \
         -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
            BAux.h BAuxVec.h BAuxStandalone.h \
            versions/C_v1.h versions/CVec_v1.h versions/CAuxContainer_v1.h \
@@ -37,5 +41,6 @@ apply_pattern poolcnv \
 private
 # poolcnv pattern doesn't support headers in subdirectories.
 # work around.
-macro_append use_pp_cppflags -I$(DataModelTestDataCommon_root)/DataModelTestDataCommon
+macro_append use_pp_cppflags " -I$(DataModelTestDataCommon_root)/DataModelTestDataCommon "
+macro_append use_pp_cppflags " -I$(DataModelTestDataRead_root)/DataModelTestDataRead "
 end_private
