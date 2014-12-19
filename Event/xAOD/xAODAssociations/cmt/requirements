@@ -1,0 +1,26 @@
+package xAODAssociations
+
+author niels.van.eldik@cern.ch
+author Edward.Moyse@cern.ch
+author htorres@cern.ch
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+private
+use  AtlasROOT                  AtlasROOT-*                     External
+use  AtlasReflex                AtlasReflex-*                   External
+end_private
+
+library xAODAssociations ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+apply_pattern lcgdict dict=xAODAssociations selectionfile=selection.xml \
+                      headerfiles="../xAODAssociations/xAODAssociationsDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
