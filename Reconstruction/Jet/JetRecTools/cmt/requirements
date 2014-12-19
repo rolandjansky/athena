@@ -13,18 +13,20 @@ use CaloDetDescr        CaloDetDescr-*          Calorimeter
 
 public
 
-use AthenaBaseComps     AthenaBaseComps-*       Control
+#use AthenaBaseComps     AthenaBaseComps-*       Control
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-* 	External
-use AthContainers   AthContainers-*     Control
+use AthContainers       AthContainers-*         Control
 
 use CxxUtils            CxxUtils-*              Control
 
 use TileConditions      TileConditions-*        TileCalorimeter
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
 
+use InDetTrackSelectionTool   InDetTrackSelectionTool-*   InnerDetector/InDetRecTools
+use TrackVertexAssociationTool   TrackVertexAssociationTool-*   InnerDetector/InDetRecTools
+
 #use xAODJet             xAODJet-*               Event/xAOD
-#use xAODPFlow           xAODPFlow-*             Event/xAOD
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
 use JetUtils            JetUtils-*              Reconstruction/Jet
@@ -35,8 +37,20 @@ use AsgTools            AsgTools-*              Control/AthToolSupport
 use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
 
 
+private
+# Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
+# which creates a component library and cmake (correctly) does not propagate such dependencies
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+end_private
+
+
 use xAODTracking        xAODTracking-*          Event/xAOD
-use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
+#use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
+
+# Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
+# which creates a component library and cmake (correctly) does not propagate such dependencies.
+# This is transparent to CMT and checkreq.
+apply_pattern cmake_add_dependency package=Event/xAOD/xAODPFlow
 	
 library JetRecTools *.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library

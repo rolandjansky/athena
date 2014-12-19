@@ -3,71 +3,42 @@
 */
 
 #include "JetRecTools/TrackVertexAssociationTool.h"
-
+#include <cmath>
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)
     : AsgTool(t)
+    , m_tvaTool("") // default as empty
     , m_trackContainer("")
     , m_vertexContainer("")
     , m_tvaStoreName("")
-    , m_transDistMax(0)
-    , m_longDistMax(0)
+    , m_transDistMax(10e6)
+    , m_longDistMax(10e6)
+    , m_maxZ0SinTheta(10e6)
 {
     declareProperty("TrackParticleContainer",m_trackContainer);
     declareProperty("VertexContainer",m_vertexContainer);
     declareProperty("TrackVertexAssociation",m_tvaStoreName);
+    declareProperty("TrackVertexAssoTool", m_tvaTool);
+
     declareProperty("MaxTransverseDistance",m_transDistMax);
     declareProperty("MaxLongitudinalDistance",m_longDistMax);
+    declareProperty("MaxZ0SinTheta", m_maxZ0SinTheta);
+    
 }
 
-
-const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
-{
-  ATH_MSG_DEBUG("Building track-vertex association trk size="<< trackContainer->size() 
-                << "  vtx size="<< vertexContainer->size());
+StatusCode TrackVertexAssociationTool::initialize(){
   
-  // Construct object with track container input
-    jet::TrackVertexAssociation* tva = new jet::TrackVertexAssociation(trackContainer);
-    for (size_t iTrack = 0; iTrack < trackContainer->size(); ++iTrack)
-    {
-        const xAOD::TrackParticle* track = trackContainer->at(iTrack);
+  if(! m_tvaTool.empty() ) {
+    ATH_MSG_INFO("Intialized using ITrackVertexAssociationTool");
+    return m_tvaTool.retrieve();
+  }
+  ATH_MSG_INFO("Intialized using custom track-vertex association");
 
-        // Apply track transverse distance cut
-        const float transverseDistance = track->perigeeParameters().parameters()[Trk::d0];
-        if (transverseDistance > m_transDistMax)
-            continue;
-
-        // Get track longitudinal distance offset
-        //const float longitudinalDistance = track->perigeeParameters().parameters()[Trk::z0];
-        const float longitudinalDistance = track->z0()+track->vz();
-
-        // For each track, find the vertex with highest sum pt^2 within z0 cut
-        size_t matchedIndex = 0;
-        bool foundMatch = false;
-        for (size_t iVertex = 0; iVertex < vertexContainer->size(); ++iVertex)
-        {
-            const xAOD::Vertex* vertex = vertexContainer->at(iVertex);
-
-            // Check longitudinal distance between track and vertex
-            if (fabs(longitudinalDistance - vertex->z()) > m_longDistMax)
-                continue;
-
-            // If it passed the cuts, then this is the vertex we want
-            // This does make the assumption that the container is sorted in sum pT^2 order
-            foundMatch = true;
-            matchedIndex = iVertex;
-            break;
-        }
-
-        // If we matched a vertex, then associate that vertex to the track
-        if (foundMatch)
-            tva->associate(trackContainer->at(iTrack),vertexContainer->at(matchedIndex));
-    }
-
-
-    // Return the TVA object
-    return tva;
+  return StatusCode::SUCCESS;
 }
+
+
+
 
 int TrackVertexAssociationTool::execute() const {
   // Get input track collection
@@ -92,7 +63,14 @@ int TrackVertexAssociationTool::execute() const {
   }
 
   // Build the TVA
-  const jet::TrackVertexAssociation* tva = buildTrackVertexAssociation(trackContainer,vertexContainer);
+  const jet::TrackVertexAssociation* tva;
+  
+  if(m_tvaTool.empty() )
+    tva = buildTrackVertexAssociation_custom(trackContainer,vertexContainer);
+  else
+    tva = buildTrackVertexAssociation_withTool(trackContainer,vertexContainer);
+
+  // Check the result.
   if ( tva  == nullptr ) {
     ATH_MSG_ERROR("Could not build the TrackVertexAssociation");
     return 3;
@@ -110,3 +88,81 @@ int TrackVertexAssociationTool::execute() const {
 }
 
 
+
+
+//////////////////////////////////////////////////////////////
+const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
+{
+
+  ATH_MSG_DEBUG("Building track-vertex association USING InDet tool. trk size="<< trackContainer->size() 
+                << "  vtx size="<< vertexContainer->size());
+
+  // Construct object with track container input
+  jet::TrackVertexAssociation* tva = new jet::TrackVertexAssociation(trackContainer);
+
+  std::vector<const xAOD::Vertex*> vecVert;
+  vecVert.assign(vertexContainer->begin(), vertexContainer->end());
+
+  for( const xAOD::TrackParticle* track : *trackContainer) {
+    
+    const xAOD::Vertex * v = & m_tvaTool->getUniqueMatchVertex(*track, vecVert) ;
+    tva->associate( track, v );
+  }
+  return tva;
+}
+
+//////////////////////////////////////////////////////////////
+const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
+{
+  ATH_MSG_DEBUG("Building track-vertex association trk size="<< trackContainer->size() 
+                << "  vtx size="<< vertexContainer->size());
+  
+  // Construct object with track container input
+  jet::TrackVertexAssociation* tva = new jet::TrackVertexAssociation(trackContainer);
+  for (size_t iTrack = 0; iTrack < trackContainer->size(); ++iTrack)
+    {
+      const xAOD::TrackParticle* track = trackContainer->at(iTrack);
+
+        // Apply track transverse distance cut
+        const float transverseDistance = track->perigeeParameters().parameters()[Trk::d0];
+        if (transverseDistance > m_transDistMax)
+            continue;
+
+        // Get track longitudinal distance offset
+        const float longitudinalDistance = track->z0()+track->vz();
+
+        double sinTheta = std::sin(track->theta());
+
+        // For each track, find the vertex with highest sum pt^2 within z0 cut
+        size_t matchedIndex = 0;
+        bool foundMatch = false;
+        for (size_t iVertex = 0; iVertex < vertexContainer->size(); ++iVertex)
+          {
+            const xAOD::Vertex* vertex = vertexContainer->at(iVertex);
+            
+            double deltaz = longitudinalDistance - vertex->z();
+
+            // Check longitudinal distance between track and vertex
+            if ( fabs(deltaz)  > m_longDistMax)
+                continue;
+
+            // Check z0*sinThetha between track and vertex
+            if (fabs(deltaz*sinTheta) > m_maxZ0SinTheta)
+                continue;
+
+            // If it passed the cuts, then this is the vertex we want
+            // This does make the assumption that the container is sorted in sum pT^2 order
+            foundMatch = true;
+            matchedIndex = iVertex;
+            break;
+        }
+
+        // If we matched a vertex, then associate that vertex to the track
+        if (foundMatch)
+            tva->associate(trackContainer->at(iTrack),vertexContainer->at(matchedIndex));
+    }
+
+
+    // Return the TVA object
+    return tva;
+}

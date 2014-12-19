@@ -8,20 +8,21 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-//#include "xAODPFlow/PFlowContainer.h"
+#include "xAODPFlow/PFO.h"
 
 namespace PFlowPJHelper{
 
-  // We can not use the PseudoJetGetter::append method for PFlow object because the neutral component needs to be corrected.
+  // We can not use the PseudoJetGetter::append method for PFlow object because the neutral component
+  // needs to be corrected.
   // We temporary use this helper object to reproduce the filling code in PseudoJetGetter::append .
   // PseudoJetGetter::append can be re-worked and the duplication in this helper class removed
   struct PseudoJetFiller {
-    PseudoJetFiller(jet::PseudoJetVector& psjs, const jet::LabelIndex* pli,  const std::string &label, double g, bool skipNegE=true) : m_pjVector(psjs), m_labelMap(pli), m_ghostscale(g>0 ? g : 1), m_skipNegE(skipNegE) {
-
-        m_labidx = 0;
-        if ( pli != 0 ) m_labidx = m_labelMap->index(label);
-        if ( m_ghostscale!=1 ) m_labidx = -m_labidx;
-
+    PseudoJetFiller(jet::PseudoJetVector& psjs, const jet::LabelIndex* pli,  const std::string &label,
+                    double g, bool skipNegE=true)
+    : m_pjVector(psjs), m_labelMap(pli), m_ghostscale(g>0 ? g : 1), m_skipNegE(skipNegE) {
+       m_labidx = 0;
+       if ( pli != 0 ) m_labidx = m_labelMap->index(label);
+       if ( m_ghostscale!=1 ) m_labidx = -m_labidx;
     }
 
 
@@ -55,6 +56,8 @@ PFlowPseudoJetGetter::PFlowPseudoJetGetter(const std::string &name)
   declareProperty("RetrievePFOTool", m_retrievePFOTool,  "Name of tool that builds the PFO collection.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
   declareProperty("CalibratePFO",    m_calibrate =true,  "True if LC calibration should be applied to EM PFOs.");
+  declareProperty("UseNeutral",      m_useneutral =true, "True to use the nuetral component of PFlow.");
+  declareProperty("UseCharged",      m_usecharged =true, "True if use the charged component of PFlow.");
 }
 
 int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const { 
@@ -71,42 +74,48 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
   const xAOD::Vertex& vtx = *pvtxs->at(0);
 
   // Get the neutral pflow.
-  CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
-  const xAOD::PFOContainer* pnpfs = m_retrievePFOTool->retrievePFO(inscale, CP::neutral);
-  if ( pnpfs == 0 || pnpfs->size()==0 ) {
-    std::string sscale = m_inputIsEM ? "EM" : "LC";
-    ATH_MSG_WARNING(sscale << " neutral PFOs not found.");
-    return 1;
-  }
-  for ( const xAOD::PFO* ppfo : *pnpfs ) {
-    if ( ppfo == 0 ) {
-      ATH_MSG_WARNING("Have NULL pointer to neutral PFO");
-      continue;
+  if ( m_useneutral ) {
+    CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
+    const xAOD::PFOContainer* pnpfs = m_retrievePFOTool->retrievePFO(inscale, CP::neutral);
+    if ( pnpfs == 0 ) {
+      std::string sscale = m_inputIsEM ? "EM" : "LC";
+      ATH_MSG_WARNING(sscale << " neutral PFOs not found.");
+      return 1;
     }
-    if ( !m_inputIsEM || m_calibrate ) {
-      filler.fill(ppfo, ppfo->GetVertexCorrectedFourVec(vtx));
-    } else { 
-      filler.fill(ppfo, ppfo->GetVertexCorrectedEMFourVec(vtx));
+    for ( const xAOD::PFO* ppfo : *pnpfs ) {
+      if ( ppfo == 0 ) {
+        ATH_MSG_WARNING("Have NULL pointer to neutral PFO");
+        continue;
+      }
+      if ( !m_inputIsEM || m_calibrate ) {
+        filler.fill(ppfo, ppfo->GetVertexCorrectedFourVec(vtx));
+      } else { 
+        filler.fill(ppfo, ppfo->GetVertexCorrectedEMFourVec(vtx));
+      }
     }
+    delete pnpfs;
   }
 
   // Get the charged pflow.
-  const xAOD::PFOContainer* pcpfs = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
-  for ( const xAOD::PFO* pcpf : *pcpfs ) {
-    if ( pcpf == 0 ) {
-      ATH_MSG_WARNING("Have NULL pointer to charged PFO");
-      continue;
+  if ( m_usecharged ) {
+    const xAOD::PFOContainer* pcpfs = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
+    for ( const xAOD::PFO* pcpf : *pcpfs ) {
+      if ( pcpf == 0 ) {
+        ATH_MSG_WARNING("Have NULL pointer to charged PFO");
+        continue;
+      }
+      const xAOD::TrackParticle* ptrk = pcpf->track(0);
+      if ( ptrk == 0 ) {
+        ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
+        continue;
+      }
+      //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we corrext the track z0 to be w.r.t z = 0
+      float z0 = ptrk->z0() + ptrk->vz() - vtx.z();
+      float theta = ptrk->theta();
+      if ( fabs(z0*sin(theta)) < 2.0 ) filler.fill(pcpf, pcpf->p4() );
     }
-    const xAOD::TrackParticle* ptrk = pcpf->track(0);
-    if ( ptrk == 0 ) {
-      ATH_MSG_WARNING("Skipping charged PFO with null track pointer.");
-      continue;
-    }
-    float z0 = ptrk->z0();
-    float theta = ptrk->theta();
-    if ( fabs(z0*sin(theta)) < 2.0 ) filler.fill(pcpf, pcpf->p4() );
+    delete pcpfs;
   }
-
   
   return 0;
 }
