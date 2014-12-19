@@ -24,8 +24,12 @@
 // Local include(s):
 #include "TauAnalysisTools/ITauSmearingTool.h"
 
+// ROOT include(s):
 #include "TH1D.h"
 #include "TFile.h"
+
+// BOOST include(s):
+#include <boost/unordered_map.hpp>
 
 namespace TauAnalysisTools
 {
@@ -104,6 +108,9 @@ public:
   };
 
 private:
+#ifndef __MAKECINT__
+  boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
+#endif // not __MAKECINT__
   const CP::SystematicSet* m_sSystematicSet;
   bool m_bIsData ;
   std::string m_sInputFilePath;

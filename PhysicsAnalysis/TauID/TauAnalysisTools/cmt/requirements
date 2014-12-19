@@ -15,6 +15,7 @@ use AtlasROOT       AtlasROOT-*       External
 use AthLinks        AthLinks-*        Control
 use PathResolver    PathResolver-*    Tools
 # use AtlasReflex AtlasReflex-* External -no-auto-imports
+use AtlasBoost      AtlasBoost-*      External 
 
 private
 
