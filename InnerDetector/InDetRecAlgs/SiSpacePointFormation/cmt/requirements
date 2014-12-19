@@ -20,10 +20,15 @@ use GeoPrimitives        GeoPrimitives-*        DetectorDescription
 private
 
 use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
-use EventInfo            EventInfo-*               Event
+use xAODEventInfo        xAODEventInfo-*           Event/xAOD
 use InDetBeamSpotService InDetBeamSpotService-*    InnerDetector/InDetConditions
 use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
 #use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
+
+# Add explicit dependency against VxVertex to avoid indirect dependency from InDetBeamSpotService
+# which creates a component library and cmake (correctly) does not propagate such dependencies. This  
+# is transparent to CMT and checkreq.
+apply_pattern cmake_add_dependency package=Tracking/TrkEvent/VxVertex
 
 public
 

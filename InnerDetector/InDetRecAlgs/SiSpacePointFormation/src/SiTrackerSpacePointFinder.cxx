@@ -40,8 +40,7 @@ ATLAS Collaboration
 
 // general Atlas classes
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "GaudiKernel/PropertyMgr.h"
 
@@ -56,6 +55,8 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 	m_spacePointsSCTName	("SCT_SpacePoints"),
 	m_spacePointsPixelName	("PixelSpacePoints"),
 	m_spacePointsOverlapName("OverlapSpacePoints"),
+	m_Sct_clcontainer(nullptr),
+	m_Pixel_clcontainer(nullptr),
 	m_selectPixels		(true),
 	m_selectSCTs(		true),
 	m_overlap		(true),		// process overlaps of SCT wafers.
@@ -72,6 +73,7 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 	m_iBeamCondSvc		("BeamCondSvc",name),
 	m_event			(0),
 	m_numberOfEvents	(0),
+	m_manager(0),
 	m_idHelper		(0),
 	m_idHelperPixel		(0),
 	m_properties		(0),
@@ -201,14 +203,14 @@ StatusCode SiTrackerSpacePointFinder::execute()
 	ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::execute()" );
 	    
 	// Put out info about event.
-	const DataHandle<EventInfo> eventInfo;
+	const DataHandle<xAOD::EventInfo> eventInfo;
 	StatusCode sc = evtStore()->retrieve(eventInfo);
 	if (sc.isFailure())
 	{
 	    ATH_MSG_ERROR( "Could not get event" );
 	    return StatusCode::RECOVERABLE;
 	}
-	ATH_MSG_DEBUG( "Event number event_" + intString(eventInfo->event_ID()->event_number()) );
+	ATH_MSG_DEBUG( "Event number event_" + intString(eventInfo->eventNumber()) );
     }
     ++m_numberOfEvents;
     
@@ -553,10 +555,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
 //--------------------------------------------------------------------------
 std::string SiTrackerSpacePointFinder::intString(int n)
 {
-  char num[15];
-  sprintf(num,"%d",n);
-  std::string str(num);
-  return str;
+  return std::to_string(n);
 }
 //--------------------------------------------------------------------------
 

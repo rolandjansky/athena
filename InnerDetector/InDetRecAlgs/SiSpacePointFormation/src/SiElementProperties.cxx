@@ -18,7 +18,7 @@ namespace InDet{
 SiElementProperties::SiElementProperties(const IdentifierHash&			idHash, 
 					 const SCT_ID&				idHelper,
 					 const InDetDD::SiDetectorElement&	element,
-					 float					epsilonWidth) 
+					 float					epsilonWidth) : m_neighbours(),m_halfWidth(0)
 
 {
     // construct vector of neighbours of this wafer.
