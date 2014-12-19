@@ -52,6 +52,7 @@ SmearingClass::SmearingClass(string Data,
 SmearingClass::SmearingClass(const SmearingClass& _rhs){
   const string SmearType = _rhs.Tsmear==SMEAR_QPT ? "q_pT" : "pT";
   useErrMatrix = false;
+  m_CallSetClass=true;
   m_nb_regions = 4;
   Initialize(_rhs.m_DataYear,_rhs.m_Algorithm,SmearType,_rhs.m_Release,_rhs.m_Fdir);
 }

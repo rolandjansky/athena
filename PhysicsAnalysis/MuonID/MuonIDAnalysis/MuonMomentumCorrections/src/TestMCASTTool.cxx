@@ -4,6 +4,7 @@
 
 // EDM include(s):
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
 
 // Local include(s):
 #include "TestMCASTTool.h"
@@ -13,8 +14,13 @@ namespace CP {
 TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   AthAlgorithm( name, svcLoc ),
   m_Tool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ) {
+
   declareProperty( "SGKey", m_sgKey = "Muons" );
   declareProperty( "MuonCalibrationAndSmearingTool", m_Tool );
+
+  m_smearfile = NULL;
+  m_smeartree = NULL;
+
 }
 
 StatusCode TestMCASTTool::initialize() {
@@ -43,45 +49,43 @@ StatusCode TestMCASTTool::execute() {
   //---\\---// Looping over muons
   xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
   xAOD::MuonContainer::const_iterator mu_end = muons->end();
+
+  xAOD::MuonContainer* mymuons = new xAOD::MuonContainer;
+  ATH_CHECK( evtStore()->record(mymuons,"CalibMuons") );
+  xAOD::MuonAuxContainer* mymuonsaux = new xAOD::MuonAuxContainer;
+  ATH_CHECK( evtStore()->record(mymuonsaux,"CalibMuonsAux.") );
+  mymuons->setStore(mymuonsaux);
+
+
   for( ; mu_itr != mu_end; ++mu_itr ) {
-    //---\\---// Simplified muon selection: eta, pt and author
-    if( fabs( ( *mu_itr )->eta() ) > 2.5 ) continue;
-    if( ( *mu_itr )->pt() < 6000 ) continue;
-    if( ( *mu_itr )->author() != 12 ) continue;
+    //---\\---// Simple preselection
+    if( ( *mu_itr )->muonType() != xAOD::Muon::Combined ) continue;  
     //---\\---// Printing info
     ATH_MSG_INFO( "Analizing muon #" << mu_itr - muons->begin() );
     ATH_MSG_INFO( std::setw( 30 ) << "Selected muon: eta = " << std::setw( 8 ) << ( *mu_itr )->eta() << ", phi = " << std::setw( 8 ) << ( *mu_itr )->phi() << ", pt = " << std::setw( 8 ) << ( *mu_itr )->pt() );
-    const ElementLink< xAOD::TrackParticleContainer >& id_track = ( *mu_itr )->inDetTrackParticleLink();
-    const ElementLink< xAOD::TrackParticleContainer >& ms_track = ( *mu_itr )->muonSpectrometerTrackParticleLink();
-    if( id_track ) {
-      ATH_MSG_INFO( std::setw( 30 ) << "ID track: eta = " << std::setw( 8 ) << ( *id_track )->eta() << ", phi = " << std::setw( 8 ) << ( *id_track )->phi() << ", pt = " << std::setw( 8 ) << ( *id_track )->pt() );
-      m_ptid=( *id_track )->pt();
-    }
-    else {
-      m_ptid=0;
-    }
-    if( ms_track ) {
-      ATH_MSG_INFO( std::setw( 30 ) << "MS track: eta = " << std::setw( 8 ) << ( *ms_track )->eta() << ", phi = " << std::setw( 8 ) << ( *ms_track )->phi() << ", pt = " << std::setw( 8 ) << ( *ms_track )->pt() );
-      m_ptms=( *ms_track )->pt();
-    }
-    else {
-      m_ptms=0;
-    }
-    m_eta=( *mu_itr )->eta();
-    m_phi=( *mu_itr )->phi();
-    m_pt=( *mu_itr )->pt();
+    m_eta = ( *mu_itr )->eta();
+    m_phi = ( *mu_itr )->phi();
+    m_pt = ( *mu_itr )->pt();
     //---\\---// Calibrating muon
+    ATH_MSG_DEBUG( "Calibrating muon" ); 
     xAOD::Muon* mu = 0;
-    if( ! m_Tool->correctedCopy( **mu_itr, mu ) ) {
+    if( m_Tool->correctedCopy( **mu_itr, mu ) == CP::CorrectionCode::Error  ) {
       ATH_MSG_WARNING( "Failed to correct the muon!" );
       continue;
     }
+    xAOD::Muon* mymuon = new xAOD::Muon();
+    mymuon->makePrivateStore( **mu_itr );
+    mymuons->push_back( mymuon );
+    if( m_Tool->applyCorrection( *mymuon ) == CP::CorrectionCode::Error ) {
+      ATH_MSG_WARNING( "Problem applying muon calibration" );
+    }
+
     ATH_MSG_INFO( std::setw( 30 ) << "Calibrated muon: eta = " << std::setw( 8 ) << mu->eta() << ", phi = " << std::setw( 8 ) << mu->phi() << ", pt = " << std::setw( 8 ) << mu->pt() );
-    //ATH_MSG_INFO( "Calibration result: original pt = " << ( *mu_itr )->pt() << " / corrected pt = " << mu->pt() );
+    ATH_MSG_INFO( "Calibration result: original pt = " << ( *mu_itr )->pt() << " / corrected pt = " << mu->pt() );
     //---\\---// Remove calibrated muon
-    m_ptcorr=mu->pt();
-    m_ptdiff=( m_pt-m_ptcorr );
-    m_ptdiffabs=abs( ( m_pt-m_ptcorr ) );
+    m_ptcorr = mu->pt();
+    m_ptdiff = m_pt - m_ptcorr;
+    m_ptdiffabs = abs( m_pt - m_ptcorr );
     m_smeartree->Fill();
     delete mu;
   }

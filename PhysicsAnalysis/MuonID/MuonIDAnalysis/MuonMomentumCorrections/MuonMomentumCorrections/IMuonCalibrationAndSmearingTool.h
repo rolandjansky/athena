@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MCAST_IMUONSMEARINGTOOL_H
-#define MCAST_IMUONSMEARINGTOOL_H
+#ifndef MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
+#define MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -12,10 +12,13 @@
 #include "xAODMuon/Muon.h"
 
 // Local include(s):
-#include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/CorrectionCode.h"
-#include "PATInterfaces/SystematicVariation.h"
+#include "PATInterfaces/ISystematicsTool.h"
+#include "PATInterfaces/SystematicCode.h"     
+#include "PATInterfaces/SystematicList.h"
+#include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicSet.h"
+#include "PATInterfaces/SystematicVariation.h"
 
 namespace CP {
 
@@ -42,4 +45,4 @@ public:
 
 } // namespace CP
 
-#endif // MCAST_IMUONSMEARINGTOOL_H
+#endif // MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H

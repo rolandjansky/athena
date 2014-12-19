@@ -11,6 +11,7 @@
 
 // Local include(s):
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h"
 
 // Root include(s)
 #include "TTree.h"
@@ -21,20 +22,21 @@ namespace CP {
 class TestMCASTTool : public AthAlgorithm {
 
 public:
-  /// Regular Algorithm constructor
+  //::: Regular Algorithm constructor
   TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
-  /// Function initialising the algorithm
+  //::: Function initialising the algorithm
   virtual StatusCode initialize();
-  /// Function executing the algorithm
+  //::: Function executing the algorithm
   virtual StatusCode execute();
-  /// Function finalizing the algoritm
+  //::: Function finalizing the algoritm
   virtual StatusCode finalize();
 
 private:
-  /// StoreGate key for the muon container to investigate
+  //::: StoreGate key for the muon container to investigate
   std::string m_sgKey;
-  /// Connection to the smearing tool
-  ToolHandle< IMuonCalibrationAndSmearingTool > m_Tool;
+  //::: Connection to the smearing tool
+  ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_Tool;
+
   TFile* m_smearfile;
   TTree* m_smeartree;
   Float_t m_eta, m_phi, m_pt, m_ptcorr, m_ptdiff, m_ptdiffabs, m_ptid, m_ptms;

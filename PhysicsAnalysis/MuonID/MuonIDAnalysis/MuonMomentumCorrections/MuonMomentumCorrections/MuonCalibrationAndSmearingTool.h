@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MCAST_MUONSMEARINGTOOL_H
-#define MCAST_MUONSMEARINGTOOL_H
+#ifndef MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
+#define MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 
-// Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+// ROOT include(s)
+#include "TRandom.h"
 
 // C++ include(s)
 #include <boost/unordered_map.hpp>
@@ -18,38 +18,39 @@
 #include <vector>
 #include <map>
 
+// Local include(s):
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+
+#define DEFAULT_INIT_VAL -999
+#define MCAST_MAX_PT 100000000
+
+
 namespace CP {
 
-typedef enum { SMEAR_PT=1, SMEAR_QPT=2 } SMEARTYPE;
-typedef enum { SCALE_DEFAULT=1, SCALE_KPKM=2, SCALE_KC=3, SCALE_K=4, SCALE_C=5 } SCALETYPE;
-typedef enum { DET_MS=1, DET_ID=2, DET_CB=3 } DETTYPE;
-typedef enum { ID_UP=1, ID_LOW=2, MS_UP=3, MS_LOW=4,SCALE_UP=5, SCALE_LOW=6 } SYSTTYPE;
-typedef enum { DATA10=1, DATA11=2,DATA12=3 } DATATYPE;
-typedef enum { MUID=1, STACO=2, MUONS=3 } ALGOTYPE;
-typedef enum { REL16_6=1, REL17=2, REL17_2=3, REL17_2_REPRO=4, REL17_2_SUM13=5 } RELTYPE;
-const double m_defaultInit = -999.;
+namespace MCAST {
 
-class MuonCalibrationAndSmearingTool : 
-  public virtual IMuonCalibrationAndSmearingTool,
-  public virtual ISystematicsTool,
-  public asg::AsgTool {
+  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3 }; }
+  namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5 }; }
+  namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
+  namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
+  namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
+
+}
+
+class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
   //::: Create a proper constructor for Athena
   ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
 
+
 public:
 
-  //::: Create a constructor for standalone usage
+  //::: Constructor
   MuonCalibrationAndSmearingTool( const std::string& name );
 
-  //::: Regions helpers 
-  StatusCode   Regions( std::string inRegionFile, int doMacroRegionsFlag = 0 );
-  void         PrintRegions() const;
-  unsigned int GetNRegions() const;
-  int          GetRegion( const double eta, const double phi ) const;
-  float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
-  std::string  GetRegionName( const int r_i ) const;
-  std::string  GetRegionName( const double eta, const double phi ) const;
+  //::: Copy constructor
+  MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool );
 
   virtual StatusCode initialize();
 
@@ -67,11 +68,20 @@ public:
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
 
+protected:
+  //::: Regions helpers 
+  StatusCode   Regions( std::string inRegionFile, int doMacroRegionsFlag = 0 );
+  void         PrintRegions() const;
+  unsigned int GetNRegions() const;
+  int          GetRegion( const double eta, const double phi ) const;
+  float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
+  std::string  GetRegionName( const int r_i ) const;
+  std::string  GetRegionName( const double eta, const double phi ) const;
   double GetSmearing( int, xAOD::Muon& );
   double GetSystVariation( int DetType, double var );
   int GetScaleRegion( xAOD::Muon& );
   void CalcCBWeights( xAOD::Muon& );
-  double CalculatePt( const int DetType, const double inSmearID = m_defaultInit, const double inSmearMS = m_defaultInit, const double scaleVar = 0. ) const;
+  double CalculatePt( const int DetType, const double inSmearID = DEFAULT_INIT_VAL, const double inSmearMS = DEFAULT_INIT_VAL, const double scaleVar = 0. ) const;
   StatusCode FillValues();
   void Clean();
   double ScaleApply( const double pt, const double S1, const double S2, double S = 1.0, const double S_EnLoss = 0. ) const;
@@ -82,30 +92,24 @@ public:
   double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
   double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
-  DATATYPE SetData( std::string );
-  ALGOTYPE SetAlgorithm( std::string );
-  RELTYPE  SetRelease( std::string );
+  StatusCode SetData( std::string );
+  StatusCode SetAlgorithm( std::string );
+  StatusCode SetRelease( std::string );
+  StatusCode SetType( std::string );
 
 private:
   struct ParameterSet { 
-    DETTYPE SubDetectorType; 
-    double VarSmearingID; 
-    double VarSmearingMS; 
+    double SmearTypeID; 
+    double SmearTypeMS; 
     double Scale; 
   };
-  boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
-  ParameterSet *m_currentParameters;
-  double m_pTmax;
   double m_smearDeltaMS, m_smearDeltaID, m_smearDeltaCB;
-  std::string m_year, m_algo, m_type, m_release, m_path;
-  SMEARTYPE m_Tsmear;
-  SCALETYPE m_Tscale;
-  DETTYPE   m_Tdet;
-  SYSTTYPE  m_Tfun;
-  DATATYPE  m_Tdata;
-  RELTYPE   m_Trel;
-  ALGOTYPE  m_Talgo;
-  int m_nb_regions;
+  std::string m_year, m_algo, m_type, m_release;
+  int m_Tsmear;
+  int m_Tdet;
+  int m_Tdata;
+  int m_Trel;
+  int m_Talgo;
   int m_detRegion;
   double m_useNsigmaForICombine;
   double m_ptms, m_ptid, m_ptcb, m_eta, m_phi;
@@ -116,24 +120,6 @@ private:
   std::vector<double> m_scaleSystDw_ID, m_enLossSystDw_MS, m_scaleSystDw_MS;
 
   std::vector<double> m_scaleBins;
-  std::vector<double> m_S1_ID;
-  std::vector<double> m_S2_ID;
-  std::vector<double> m_S1_MS;
-  std::vector<double> m_S2_MS;
-  std::vector<double> m_S1_CB;
-  std::vector<double> m_S2_CB;
-  std::vector<double> m_S1Corr_ID;
-  std::vector<double> m_S2Corr_ID;
-  std::vector<double> m_S1Corr_MS;
-  std::vector<double> m_S2Corr_MS;
-  std::vector<double> m_S1Corr_CB;
-  std::vector<double> m_S2Corr_CB;
-  std::vector<double> m_S1ACorr_ID;
-  std::vector<double> m_S2ACorr_ID;
-  std::vector<double> m_S1ACorr_MS;
-  std::vector<double> m_S2ACorr_MS;
-  std::vector<double> m_S1ACorr_CB;
-  std::vector<double> m_S2ACorr_CB;
   std::vector<double> m_p1_ID, m_p2_ID, m_p2_ID_TAN, m_p0_MS, m_p1_MS, m_p2_MS;
   std::vector<double> m_E_p1_ID, m_E_p2_ID, m_E_p2_ID_TAN, m_E_p0_MS, m_E_p1_MS, m_E_p2_MS;
   // syst. errors on resolution parameters corrections:
@@ -143,46 +129,26 @@ private:
   std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
   std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
   std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
-  std::vector<double> m_CorrMatC0;
-  std::vector<double> m_CorrMatC1;
-  std::vector<double> m_CorrMatC2;
-  std::vector<double> m_CorrMatC3;
-  std::vector<double> m_CorrMatC4;
-  std::vector<double> m_CorrMatC5;
-  std::vector<double> m_CorrMatTanC0;
-  std::vector<double> m_CorrMatTanC1;
-  std::vector<double> m_CorrMatTanC2;
-  std::vector<double> m_CorrMatTanC3;
-  std::vector<double> m_CorrMatTanC4;
-  std::vector<double> m_CorrMatTanC5;
-  std::ifstream m_InValues; //! don't persistify
   double m_weightMS, m_weightID;
   double m_g0, m_g1, m_g2, m_g3, m_g4, m_charge;
 
-  bool m_verb;
-  bool m_loadNames;
-  /* number of regions */
-  //int m_nb_regions;
-  /* eta boundaries of the regions */
-  std::vector<float> m_eta_min;
-  std::vector<float> m_eta_max;
-  /* phi boundaries of the regions */
-  std::vector<float> m_phi_min;
-  std::vector<float> m_phi_max;
   std::vector<std::string> m_names;
-  //In same cases I need to collect the simple regions in macroRegions according to specific criteria
+  bool m_loadNames;
+  int m_nb_regions;
+  std::vector<float> m_eta_min, m_eta_max, m_phi_min, m_phi_max;
+  
   bool m_doMacroRegions;
-  //This maps the standard regions indexes into the indexes of the macroRegions.
-
-  std::map<int, int> m_macroRegionIdxMap;
-  // The macro regions themselves are stored in a vector with their name
-  std::vector<std::string> m_macroRegionName;
-  std::vector<double> m_macroRegionInnerEta;//I need this var in few occasions
-
+  std::map< int, int > m_MacroRegionIdxMap;
+  std::vector< std::string > m_MacroRegionName;
+  std::vector< double > m_MacroRegionInnerEta;
 
   int m_scaleRegion;
-}; // class MuonCalibrationAndSmearingTool
 
-} // namespace CP
+  boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
+  ParameterSet *m_currentParameters;
 
-#endif // MCAST_MUONSMEARINGTOOL_H
+}; //::: class MuonCalibrationAndSmearingTool
+
+} //::: namespace CP
+
+#endif

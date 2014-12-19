@@ -23,36 +23,47 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Local include(s):
-#include "MuonMomentumCorrections/errorcheck.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonSelectorTools/MuonSelectionTool.h"
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicCode.h"
 #include "boost/unordered_map.hpp"
 
+// Framework include(s):
+#include "AsgTools/Check.h"
+
 int main( int argc, char* argv[] ) {
-  // The application's name:
+
+  //::: The application's name:
   const char* APP_NAME = argv[ 0 ];
-  // Check if we received a file name:
+
+  //::: Check if we received a file name:
   if( argc < 2 ) {
     Error( APP_NAME, "No file name received!" );
     Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
     return 1;
   }
-  // Initialise the application:
-  CHECK( xAOD::Init( APP_NAME ) );
-  // Open the input file:
+
+  //::: Initialise the application:
+  //ATH_CHECK( xAOD::Init( APP_NAME ) );
+  xAOD::Init( APP_NAME );
+
+  //::: Open the input file:
   const TString fileName = argv[ 1 ];
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
   TFile* ifile( TFile::Open( fileName, "READ" ) );
   if( !ifile ) Error( APP_NAME, "Cannot find file " + fileName );
-  // Create a TEvent object:
+
+  //::: Create a TEvent object:
   xAOD::TEvent event( ifile, xAOD::TEvent::kClassAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
-  // Create a transient object store. Needed for the tools.
+
+  //::: Create a transient object store. Needed for the tools.
   xAOD::TStore store;
-  // Decide how many events to run over:
+
+  //::: Decide how many events to run over:
   Long64_t entries = event.getEntries();
   if( argc > 2 ) {
     const Long64_t e = atoll( argv[ 2 ] );
@@ -60,12 +71,22 @@ int main( int argc, char* argv[] ) {
       entries = e;
     }
   }
-  // Create the tool(s) to test:
+
+  //::: Create the tool(s) to test:
+
+  //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
   corrTool.msg().setLevel( MSG::DEBUG );
-  //corrTool.setProperty( "FilesPath", "/afs/cern.ch/work/g/gartoni/work/ParallelTest/MuonCalibrationAndSmearing/share/" );
+  //ATH_CHECK( corrTool.initialize() );
   corrTool.initialize();
-  // Systematics initialization
+
+  //::: Muon Selection
+  CP::MuonSelectionTool selTool( "MuonSelectionTool" );
+  //selTool.setProperty( "MaxEta", 2.5 );
+  //ATH_CHECK( selTool.initialize() );
+  selTool.initialize();
+
+  //::: Systematics initialization
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   std::vector< CP::SystematicSet > sysList;
@@ -75,88 +96,108 @@ int main( int argc, char* argv[] ) {
     sysList.back().insert( *sysItr );
   }
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
-  // Output initialization
-  float ptCB( 0. ), ptID( 0. ), ptMS( 0. ), eta( 0. ), phi( 0. ), charge( 0. ), ptCBcorr( 0. );
-  //
+
+  //::: Output initialization
+  Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
+  Float_t CorrPtCB( 0. ), CorrPtID( 0. ), CorrPtMS( 0. );
+  Float_t Eta( 0. ), Phi( 0. ), Charge( 0. );
   TFile* outputFile = TFile::Open( "output.root", "recreate" );
   boost::unordered_map< CP::SystematicSet, TTree* > sysTreeMap;
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
-    std::string treeName = "l_tree_" + sysListItr->name();
+    std::string treeName = "test_tree_" + sysListItr->name();
     TTree* sysTree = new TTree( treeName.c_str(), "test tree for MCAST" );
-    sysTree->Branch( "ptCB", &ptCB, "ptCB/F" );
-    sysTree->Branch( "ptID", &ptID, "ptID/F" );
-    sysTree->Branch( "ptMS", &ptMS, "ptMS/F" );
-    sysTree->Branch( "eta", &eta, "eta/F" );
-    sysTree->Branch( "phi", &phi, "phi/F" );
-    sysTree->Branch( "charge", &charge, "charge/F" );
-    sysTree->Branch( "ptCBcorr", &ptCBcorr, "ptCBcorr/F" );
+
+    sysTree->Branch( "InitPtCB", &InitPtCB, "InitPtCB/F" );
+    sysTree->Branch( "InitPtID", &InitPtID, "InitPtID/F" );
+    sysTree->Branch( "InitPtMS", &InitPtMS, "InitPtMS/F" );
+    sysTree->Branch( "CorrPtCB", &CorrPtCB, "CorrPtCB/F" );
+    sysTree->Branch( "CorrPtID", &CorrPtID, "CorrPtID/F" );
+    sysTree->Branch( "CorrPtMS", &CorrPtMS, "CorrPtMS/F" );
+    sysTree->Branch( "Eta", &Eta, "Eta/F" );
+    sysTree->Branch( "Phi", &Phi, "Phi/F" );
+    sysTree->Branch( "Charge", &Charge, "Charge/F" );
+
     sysTreeMap[ *sysListItr ] = sysTree;
   }
-  // Loop over the events:
+
+  //::: Loop over the events:
   for( Long64_t entry = 0; entry < entries; ++entry ) {
-    // Tell the object which entry to look at:
+
+    //::: Tell the object which entry to look at:
     event.getEntry( entry );
-    // Print some event information for fun:
-    const xAOD::EventInfo* ei = 0;
-    CHECK( event.retrieve( ei, "EventInfo" ) );
-    Info( APP_NAME, "===>>>  start processing event #%i, " "run #%i %i events processed so far  <<<===", static_cast< int >( ei->eventNumber() ), static_cast< int >( ei->runNumber() ), static_cast< int >( entry ) );
-    // Get the Muons from the event:
+
+    //::: Print some event information for fun:
+    const xAOD::EventInfo* evtInfo = 0;
+    //ATH_CHECK( event.retrieve( evtInfo, "EventInfo" ) );
+    event.retrieve( evtInfo, "EventInfo" );
+    Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
+
+    //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
-    CHECK( event.retrieve( muons, "Muons" ) );
+    //ATH_CHECK( event.retrieve( muons, "Muons" ) );
+    event.retrieve( muons, "Muons" );
     Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
+
+    //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
-      //
+      
+      //::: Check if systematic is applicable
       if( corrTool.applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) { 
-        Error(APP_NAME, "Cannot configure muon calibration tool for systematic" );
+        Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
-      // Print their properties, using the tools:
+
+      //::: Print their properties, using the tools:
       xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
       xAOD::MuonContainer::const_iterator mu_end = muons->end();
+
+      //::: Loop over muon container
       for( ; mu_itr != mu_end; ++mu_itr ) {
-        Info( APP_NAME, "After Calibrated muon: 0" );
-        // Select "good" muons:
-        if( fabs( ( *mu_itr )->eta() ) > 2.5 ) continue;
-        if( ( *mu_itr )->pt() < 6000 ) continue;
-        if( ( *mu_itr )->author() != 12 ) continue;
-        //
-        // ptCB = ( *mu_itr )->pt();
-        // const ElementLink< xAOD::TrackParticleContainer >& id_track = ( *mu_itr )->inDetTrackParticleLink();
-        // ptID = ( id_track ) ? ( *id_track )->pt() : -999.;
-        // const ElementLink< xAOD::TrackParticleContainer >& ms_track = ( *mu_itr )->muonSpectrometerTrackParticleLink();
-        // ptMS = ( ms_track ) ? ( *ms_track )->pt() : -999.;
-        // eta = ( *mu_itr )->eta();
-        // phi = ( *mu_itr )->phi();
-        // charge = ( *( *mu_itr )->combinedTrackParticleLink() )->charge();
-        // Print some info about the selected muon:
+
+        //::: Select "good" muons:
+        if( ! selTool.passedIDCuts( **mu_itr ) ) {
+          Info( APP_NAME, "This muon doesn't pass the ID hits quality cuts");
+          continue;
+        }
+        InitPtCB = ( *mu_itr )->pt();
+        InitPtID = ( *mu_itr )->isAvailable< float >( "InnerDetectorPt" ) ? ( *mu_itr )->auxdata< float >( "InnerDetectorPt" ) : -999;
+        InitPtMS = ( *mu_itr )->isAvailable< float >( "MuonSpectrometerPt" ) ? ( *mu_itr )->auxdata< float >( "MuonSpectrometerPt" ) : -999;
+        Eta = ( *mu_itr )->eta();
+        Phi = ( *mu_itr )->phi();
+        Charge = ( *mu_itr )->charge();
+        //::: Print some info about the selected muon:
         Info( APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", ( *mu_itr )->eta(), ( *mu_itr )->phi(), ( *mu_itr )->pt() );
-        // Create a calibrated muon:
+        //::: Create a calibrated muon:
         xAOD::Muon* mu = 0;
         if( !corrTool.correctedCopy( **mu_itr, mu ) ) {
           Error(APP_NAME, "Cannot really apply calibration nor smearing");
           continue;
         }
-        ptCBcorr = mu->pt();
-        Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt = %g", mu->eta(), mu->phi(), mu->pt() );
+        CorrPtCB = mu->pt();
+        CorrPtID = mu->auxdata< float >( "InnerDetectorPt" );
+        CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
+
+        Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
+
         sysTreeMap[ *sysListItr ]->Fill();
-        Info( APP_NAME, "After Calibrated muon: 1" );
-        // Delete the calibrated muon:
+
+        //::: Delete the calibrated muon:
         delete mu;
-        Info( APP_NAME, "After Calibrated muon: 2" );
+
       }
     }
-    // Close with a message:
-    Info( APP_NAME,
-          "===>>>  done processing event #%i, "
-          "run #%i %i events processed so far  <<<===",
-          static_cast< int >( ei->eventNumber() ),
-          static_cast< int >( ei->runNumber() ),
-          static_cast< int >( entry + 1 ) );
+
+    //::: Close with a message:
+    Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
+
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
     sysTreeMap[ *sysListItr ]->Write();
   }
-  // Close output file
+
+  //::: Close output file
   outputFile->Close();
-  // Return gracefully:
+
+  //::: Return gracefully:
   return 0;
+
 }

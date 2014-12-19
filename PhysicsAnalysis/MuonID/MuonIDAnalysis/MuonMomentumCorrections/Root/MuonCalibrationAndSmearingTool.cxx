@@ -2,76 +2,139 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Framework include(s):
+#include "PathResolver/PathResolver.h"
+
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
-
-// ROOT include(s)
-#include "TRandom.h"
 
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
-#include "PATInterfaces/SystematicCode.h"     
-#include "PATInterfaces/SystematicList.h"
-#include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicVariation.h" 
-
 namespace CP {
 
-MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) :
-  asg::AsgTool( name ) {
+MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) : asg::AsgTool( name ) {
+
   declareProperty( "Year", m_year = "Data12" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
   declareProperty( "Release", m_release = "Rel17.2Sum13" );
-  declareProperty( "FilesPath", m_path = "" );
+
+  m_currentParameters = NULL; 
+  m_scaleRegion = NULL; 
+
+}
+
+MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) : 
+  asg::AsgTool( tool.name() + "Copy" ),
+  m_useNsigmaForICombine( tool.m_useNsigmaForICombine ),
+
+  m_scale_ID( tool.m_scale_ID ),
+  m_enLoss_MS( tool.m_enLoss_MS ),
+  m_scale_MS( tool.m_scale_MS ),
+  m_scale_CB( tool.m_scale_CB ),
+
+  m_scaleSyst_ID( tool.m_scaleSyst_ID ),
+  m_enLossSyst_MS( tool.m_enLossSyst_MS ),
+  m_scaleSyst_MS( tool.m_scaleSyst_MS ),
+  m_scaleSyst_CB( tool.m_scaleSyst_CB ),
+
+  m_scaleSystUp_ID( tool.m_scaleSystUp_ID ),
+  m_enLossSystUp_MS( tool.m_enLossSystUp_MS ),
+  m_scaleSystUp_MS( tool.m_scaleSystUp_MS ),
+
+  m_scaleSystDw_ID( tool.m_scaleSystDw_ID ),
+  m_enLossSystDw_MS( tool.m_enLossSystDw_MS ),
+  m_scaleSystDw_MS( tool.m_scaleSystDw_MS ),
+
+  m_p1_ID( tool.m_p1_ID ),
+  m_p2_ID( tool.m_p2_ID ),
+  m_p2_ID_TAN( tool.m_p2_ID_TAN ),
+  m_p0_MS( tool.m_p0_MS ),
+  m_p1_MS( tool.m_p1_MS ),
+  m_p2_MS( tool.m_p2_MS ),
+
+  m_E_p1_ID( tool.m_E_p1_ID ),
+  m_E_p2_ID( tool.m_E_p2_ID ),
+  m_E_p2_ID_TAN( tool.m_E_p2_ID_TAN ),
+  m_E_p0_MS( tool.m_E_p0_MS ),
+  m_E_p1_MS( tool.m_E_p1_MS ),
+  m_E_p2_MS( tool.m_E_p2_MS ),
+  m_S_p1_ID( tool.m_S_p1_ID ),
+  m_S_p2_ID( tool.m_S_p2_ID ),
+  m_S_p2_ID_TAN( tool.m_S_p2_ID_TAN ),
+  m_S_p0_MS( tool.m_S_p0_MS ),
+  m_S_p1_MS( tool.m_S_p1_MS ),
+  m_S_p2_MS( tool.m_S_p2_MS ),
+
+  m_SUp_p1_ID( tool.m_SUp_p1_ID ),
+  m_SUp_p2_ID( tool.m_SUp_p2_ID ),
+  m_SUp_p2_ID_TAN( tool.m_SUp_p2_ID_TAN ),
+  m_SUp_p0_MS( tool.m_SUp_p0_MS ),
+  m_SUp_p1_MS( tool.m_SUp_p1_MS ),
+  m_SUp_p2_MS( tool.m_SUp_p2_MS ),
+  m_SDw_p1_ID( tool.m_SDw_p1_ID ),
+  m_SDw_p2_ID( tool.m_SDw_p2_ID ),
+  m_SDw_p2_ID_TAN( tool.m_SDw_p2_ID_TAN ),
+  m_SDw_p0_MS( tool.m_SDw_p0_MS ),
+  m_SDw_p1_MS( tool.m_SDw_p1_MS ),
+  m_SDw_p2_MS( tool.m_SDw_p2_MS ),
+
+  m_MC_p1_ID( tool.m_MC_p1_ID ),
+  m_MC_p2_ID( tool.m_MC_p2_ID ),
+  m_MC_p2_ID_TAN( tool.m_MC_p2_ID_TAN ),
+  m_MC_p0_MS( tool.m_MC_p0_MS ),
+  m_MC_p1_MS( tool.m_MC_p1_MS ),
+  m_MC_p2_MS( tool.m_MC_p2_MS ),
+
+  m_names( tool.m_names ),
+  m_loadNames( tool.m_loadNames ),
+  m_nb_regions( tool.m_nb_regions ),
+  m_eta_min( tool.m_eta_min ),
+  m_eta_max( tool.m_eta_max ),
+  m_phi_min( tool.m_phi_min ),
+  m_phi_max( tool.m_phi_max ),
+
+  m_doMacroRegions( tool.m_doMacroRegions ),
+  m_MacroRegionIdxMap( tool.m_MacroRegionIdxMap ),
+  m_MacroRegionName( tool.m_MacroRegionName ),
+  m_MacroRegionInnerEta( tool.m_MacroRegionInnerEta ),
+
+  m_Parameters( tool.m_Parameters ),
+  m_currentParameters( NULL ) {
+
+  declareProperty( "Year", m_year = "Data12" );
+  declareProperty( "Algo", m_algo = "muons" );
+  declareProperty( "SmearingType", m_type = "q_pT" );
+  declareProperty( "Release", m_release = "Rel17.2Sum13" );
+
 }
 
 StatusCode MuonCalibrationAndSmearingTool::initialize() {
-  // Greet the user:
+
+  //::: Greet the user:
   ATH_MSG_INFO( "Initialising..." );
 
-  // ::GA:: Add the others
-  //if( !m_rand ) m_rand = new TRandom();
-  //m_rand->SetSeed( 0 );
-  m_pTmax = 100000000;
-  m_Tscale = SCALE_DEFAULT;
-  m_Tdata = SetData( m_year );
-  m_Talgo = SetAlgorithm( m_algo );
-  if( m_type == "pT" ) {
-    m_Tsmear = SMEAR_PT;
-    ATH_MSG_INFO( "Using " << m_type << " Smearing " );
+  if( SetData( m_year ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+  if( SetAlgorithm( m_algo ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+  if( SetRelease( m_release ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+  if( SetType( m_type ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+
+  ATH_MSG_DEBUG( "Checking Initialization - Year: " << m_year );
+  ATH_MSG_DEBUG( "Checking Initialization - Algo: " << m_algo );
+  ATH_MSG_DEBUG( "Checking Initialization - Type: " << m_type );
+  ATH_MSG_DEBUG( "Checking Initialization - Release: " << m_release );
+  
+  std::string regionsPath;
+  int regionMode = 0; // simple Eta Bins
+  if ( m_Trel <= MCAST::Release::Rel17 ) {
+    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/Regions.dat" );
   }
-  else if( m_type=="q_pT" ) {
-    m_Tsmear = SMEAR_QPT;
-    ATH_MSG_INFO( "Using " << m_type << " Smearing " );
+  else if ( m_Trel == MCAST::Release::Rel17_2_Repro ) {
+    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsRepro.dat" );
   }
-  m_Trel = SetRelease( m_release );
-  if( m_path == "" ) {
-    char *rootcoreDir = getenv( "ROOTCOREBIN" );
-    char *testareaDir = getenv( "TestArea" );
-    if( rootcoreDir ) {
-      m_path = std::string( rootcoreDir ) + "/data/MuonMomentumCorrections/";
-    }
-    else if( testareaDir ) {
-      m_path = std::string( testareaDir ) + "/PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections/share/";
-    }
-  }
-  ATH_MSG_DEBUG( "Year: " << m_year );
-  ATH_MSG_DEBUG( "Algo: " << m_algo );
-  ATH_MSG_DEBUG( "Type: " << m_type );
-  ATH_MSG_DEBUG( "Release: " << m_release );
-  ATH_MSG_DEBUG( "Directory: " << m_path );
-  std::string regionsPath = m_path;
-  int regionMode = 0; //simple Eta Bins
-  if ( m_Trel <= REL17 ) {
-    regionsPath += "Regions.dat";
-  }
-  else if ( m_Trel == REL17_2_REPRO ) {
-    regionsPath += "RegionsRepro.dat";//16 eta bins for ID and MS
-  }
-  else if ( m_Trel == REL17_2_SUM13 ) {
-    regionsPath += "RegionsPhi18.dat";
+  else if ( m_Trel == MCAST::Release::Rel17_2_Sum13 ) {
+    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsPhi18.dat" );
     regionMode = 2;//MS: 48Bins L/S split plus 11_15 and Feet in the BARREL. ID has values from 16 eta bins
     m_useNsigmaForICombine = 0;
   }
@@ -79,7 +142,10 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     ATH_MSG_ERROR( "Unknown release" );
     return StatusCode::FAILURE;
   }
+  ATH_MSG_DEBUG( "Checking Initialization - Regions file: " << regionsPath );
+
   if( Regions( regionsPath, regionMode ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
+
   if( FillValues() == StatusCode::FAILURE ) return StatusCode::FAILURE;
 
   if( !applySystematicVariation( SystematicSet() ) ) {
@@ -89,660 +155,681 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
   SystematicRegistry& registry = SystematicRegistry::getInstance();
   if( registry.registerSystematics( *this ) != SystematicCode::Ok ) return StatusCode::FAILURE;
 
-  // Return gracefully:
+  //::: Return gracefully:
   return StatusCode::SUCCESS;
 }
 
 CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu ) {
+
   const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
   const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.muonSpectrometerTrackParticleLink();
-  if( !id_track || !ms_track ) {
-    ATH_MSG_DEBUG( "( !id_track || !ms_track )=true, id_track=" << id_track << "  ms_track=" << ms_track );
-    return CorrectionCode::OutOfValidityRange;
-  }
-  else {
-    ATH_MSG_DEBUG( "( !id_track || !ms_track )=false, id_track=" << id_track << "  ms_track=" << ms_track );
-  }
-  if( !( *id_track ) || !( *ms_track ) ){
-    ATH_MSG_DEBUG( "( !(*id_track) || !(*ms_track) )=true, (*id_track)=" << *id_track << "  (*ms_track)=" << *ms_track);
-    return CorrectionCode::OutOfValidityRange;
-  }
-  else{
-    ATH_MSG_DEBUG( "( !(*id_track) || !(*ms_track) )=false, (*id_track)=" << *id_track << "  (*ms_track)=" << *ms_track );
-  }
-  m_ptid = ( *id_track )->pt() / 1000.;
-  m_ptms = ( *ms_track )->pt() / 1000.;
+  
+  //::: Set muon information
+  m_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
+  m_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
   m_ptcb = mu.pt() / 1000.;
   m_eta = mu.eta();
   m_phi = mu.phi();
-  const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.combinedTrackParticleLink();
-  m_charge = ( *cb_track )->charge();
-  ATH_MSG_DEBUG( "Input Muon Info: Pt_ID = " << m_ptid * 1000. );
-  ATH_MSG_DEBUG( "                 Pt_MS = " << m_ptms * 1000. );
-  ATH_MSG_DEBUG( "                 Pt_CB = " << m_ptcb * 1000. );
-  ATH_MSG_DEBUG( "                   Eta = " << m_eta );
-  ATH_MSG_DEBUG( "                   Phi = " << m_phi );
-  ATH_MSG_DEBUG( "                Charge = " << ( ( m_charge > 0 ) ? "+" : "-" ) );
-  // Retrieve the event information:
-  const xAOD::EventInfo* ei = 0;
-  if( evtStore()->retrieve( ei, "EventInfo" ).isFailure() ) {
-    ATH_MSG_WARNING( "No EventInfo object could be retrieved" );
-    ATH_MSG_WARNING( "Random number generation not configured correctly" );
+
+  //::: Retrieve the event information:
+  const xAOD::EventInfo* evtInfo = 0;
+  if( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() ) {
+    ATH_MSG_ERROR( "No EventInfo object could be retrieved" );
+    ATH_MSG_ERROR( "Random number generation not configured correctly, impossible to determine if dealing with data or MC" );
+    return CorrectionCode::Error;
   }
-  // Get the run and event numbers:
-  //const uint32_t runNumber = ei ? ei->runNumber() : 0;
-  const unsigned long long eventNumber = ei ? ei->eventNumber() : 0;
-  // Construct a seed for the random number generator:
-  const UInt_t seed = 1000 * mu.phi() + eventNumber;
+  ATH_MSG_DEBUG( "Checking Simulation flag: " << evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) );
+
+  if( !evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+    mu.auxdata< float >( "InnerDetectorPt" ) = m_ptid * 1000.;
+    mu.auxdata< float >( "MuonSpectrometerPt" ) = m_ptms * 1000.;
+    return CorrectionCode::Ok;
+  }
+
+  //const ElementLink< xAOD::TrackParticleContainer >& cb_track = mu.combinedTrackParticleLink();
+  //m_charge = ( *cb_track )->charge();
+  m_charge = mu.charge();
+  ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_ID: " << m_ptid * 1000. );
+  ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_MS: " << m_ptms * 1000. );
+  ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_CB: " << m_ptcb * 1000. );
+  ATH_MSG_DEBUG( "Checking Input Muon Info -    Eta: " << m_eta );
+  ATH_MSG_DEBUG( "Checking Input Muon Info -    Phi: " << m_phi );
+  ATH_MSG_DEBUG( "Checking Input Muon Info - Charge: " << ( ( m_charge > 0 ) ? "+" : "-" ) );
+
+  //::: Get Event Number:
+  const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
+  //::: Construct a seed for the random number generator:
+  const UInt_t seed = 10000 * mu.phi() + eventNumber;
   gRandom->SetSeed( seed );
-  //gRandom->SetSeed( 0 );
+
   m_smearDeltaMS = 0.;
   m_smearDeltaID = 0.;
   m_smearDeltaCB = 0.;
   m_detRegion = -1;
-  if( m_phi == m_defaultInit && m_Trel == REL17_2_SUM13 ) ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
-  /* Detector Region */
-  if( m_phi == m_defaultInit && m_Trel < REL17_2_SUM13 ) {
+
+  //::: Getting detector region
+  if( int( m_phi ) == DEFAULT_INIT_VAL && m_Trel == MCAST::Release::Rel17_2_Sum13 ) ATH_MSG_ERROR( "You need phi of the muon for after Rel17.2Sum13!" );
+ 
+  if( int( m_phi ) == DEFAULT_INIT_VAL && m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
     //Lower release have just Eta bins, so usually the user doesn't input
     //Phi and 0 is a good default for these regions
-    m_detRegion = GetRegion( m_eta,0 );
+    m_detRegion = GetRegion( m_eta, 0 );
   }
   else {
     m_detRegion = GetRegion( m_eta, m_phi );
   }
   if( m_detRegion == -1 ) {
-    ATH_MSG_WARNING( "Can't find correct detector region! Set smearing to 0." );
-    return CorrectionCode::Error;
+    ATH_MSG_INFO( "Can't find correct detector region! Set smearing to 0." );
+    mu.auxdata< float >( "InnerDetectorPt" ) = m_ptid * 1000.;
+    mu.auxdata< float >( "MuonSpectrometerPt" ) = m_ptms * 1000.;
+    return CorrectionCode::OutOfValidityRange;
   }
-  /* Scale Region */
+  
+  //::: Getting scale region
   m_scaleRegion = GetScaleRegion( mu );
   m_g0 = gRandom->Gaus( 0, 1 );
   m_g1 = gRandom->Gaus( 0, 1 );
   m_g2 = gRandom->Gaus( 0, 1 );
   m_g3 = gRandom->Gaus( 0, 1 );
   m_g4 = gRandom->Gaus( 0, 1 );
-  ATH_MSG_DEBUG( "Generated Random Values: g_0 = " << m_g0 ); 
-  ATH_MSG_DEBUG( "                         g_1 = " << m_g1 ); 
-  ATH_MSG_DEBUG( "                         g_2 = " << m_g2 ); 
-  ATH_MSG_DEBUG( "                         g_3 = " << m_g3 ); 
-  ATH_MSG_DEBUG( "                         g_4 = " << m_g4 ); 
-  /** Definition: deltaSmear = 1+smearDET **/
-  m_smearDeltaMS = GetSmearing( DET_MS, mu );
-  m_smearDeltaID = GetSmearing( DET_ID, mu );
+  ATH_MSG_DEBUG( "Checking Random Values - g_0: " << m_g0 ); 
+  ATH_MSG_DEBUG( "Checking Random Values - g_1: " << m_g1 ); 
+  ATH_MSG_DEBUG( "Checking Random Values - g_2: " << m_g2 ); 
+  ATH_MSG_DEBUG( "Checking Random Values - g_3: " << m_g3 ); 
+  ATH_MSG_DEBUG( "Checking Random Values - g_4: " << m_g4 ); 
+
+  //::: Getting smearing values 
+  //::: MS
+  if( m_currentParameters->SmearTypeMS == MCAST::SystVariation::Default ) {
+    m_smearDeltaMS = GetSmearing( MCAST::DetectorType::MS, mu );
+  }
+  else if( m_currentParameters->SmearTypeMS == MCAST::SystVariation::Up ) {
+    m_smearDeltaMS = GetSystVariation( MCAST::DetectorType::MS, 1. );
+  }
+  else if( m_currentParameters->SmearTypeMS == MCAST::SystVariation::Down ) {
+    m_smearDeltaMS = GetSystVariation( MCAST::DetectorType::MS, -1. );
+  }
+  else {
+    ATH_MSG_ERROR( "Invalid value for m_currentParameters->SmearTypeMS" );
+  }
+  //::: ID
+  if( m_currentParameters->SmearTypeID == MCAST::SystVariation::Default ) {
+    m_smearDeltaID = GetSmearing( MCAST::DetectorType::ID, mu );
+  }
+  else if( m_currentParameters->SmearTypeID == MCAST::SystVariation::Up ) {
+    m_smearDeltaID = GetSystVariation( MCAST::DetectorType::ID, 1. );
+  }
+  else if( m_currentParameters->SmearTypeID == MCAST::SystVariation::Down ) {
+    m_smearDeltaID = GetSystVariation( MCAST::DetectorType::ID, -1. );
+  }
+  else {
+    ATH_MSG_ERROR( "Invalid value for m_currentParameters->SmearTypeID" );
+  }
   CalcCBWeights( mu );
-  m_smearDeltaCB = m_smearDeltaID*m_weightID + m_smearDeltaMS*m_weightMS;
-  // Smear the pT of the muon:
-  double correctedPt = mu.pt();
-  if( ei->eventType( xAOD::EventInfo::IS_SIMULATION ) ) correctedPt = 1000. * CalculatePt( m_currentParameters->SubDetectorType, m_currentParameters->VarSmearingID, m_currentParameters->VarSmearingMS, m_currentParameters->Scale );
-  mu.setP4( correctedPt, m_eta, m_phi );
-  ATH_MSG_DEBUG( "Output Muon Info: Pt_CB = " << correctedPt );
-  // Return gracefully:
+  ATH_MSG_DEBUG( "Checking Smearing - smearDeltaID: " << m_smearDeltaID );
+  ATH_MSG_DEBUG( "Checking Smearing - smearDeltaMS: " << m_smearDeltaMS );
+  ATH_MSG_DEBUG( "Checking Weights - weightID: " << m_weightID );
+  ATH_MSG_DEBUG( "Checking Weights - weightMS: " << m_weightMS );
+  m_smearDeltaCB = m_smearDeltaID * m_weightID + m_smearDeltaMS * m_weightMS;
+
+  //::: Calibrate the pt of the muon:
+  double res_cbPt = 1000. * CalculatePt( MCAST::DetectorType::CB, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
+  double res_idPt = 1000. * CalculatePt( MCAST::DetectorType::ID, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
+  double res_msPt = 1000. * CalculatePt( MCAST::DetectorType::MS, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
+  mu.setP4( res_cbPt, m_eta, m_phi );
+  mu.auxdata< float >( "InnerDetectorPt" ) = res_idPt;
+  mu.auxdata< float >( "MuonSpectrometerPt" ) = res_msPt;
+  ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_ID: " << res_idPt );
+  ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_MS: " << res_msPt );
+  ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_CB: " << res_cbPt );
+
+  //::: Return gracefully:
   return CorrectionCode::Ok;
+
 }
 
 CorrectionCode MuonCalibrationAndSmearingTool::correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) {
-  // A sanity check:
+
+  //::: A sanity check:
   if( output ) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
-  // Create a new object:
+
+  //::: Create a new object:
   output = new xAOD::Muon();
   output->makePrivateStore( input );
-  // Use the other function to modify this object:
+
+  //::: Use the other function to modify this object:
   return applyCorrection( *output );
 }
 
 bool MuonCalibrationAndSmearingTool::isAffectedBySystematic( const SystematicVariation& systematic ) const {
+
   SystematicSet sys = affectingSystematics();
   return sys.find( systematic ) != sys.end();
+
 }
 
 SystematicSet MuonCalibrationAndSmearingTool::affectingSystematics() const {
+
   SystematicSet result;
+
   //::: ID systematics
   result.insert( SystematicVariation( "MUONS_ID", 1 ) );
   result.insert( SystematicVariation( "MUONS_ID", -1 ) );
+
   //::: MS systematics
   result.insert( SystematicVariation( "MUONS_MS", 1 ) );
   result.insert( SystematicVariation( "MUONS_MS", -1 ) );
+
   //::: Scale systematics
   result.insert( SystematicVariation( "MUONS_SCALE", 1 ) );
   result.insert( SystematicVariation( "MUONS_SCALE", -1 ) );
+
   return result;
+
 }
 
 SystematicSet MuonCalibrationAndSmearingTool::recommendedSystematics() const {
+
   return affectingSystematics();
+
 }
 
 SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
-  // first check if we already know this systematic configuration
+
+  //::: First check if we already know this systematic configuration
   boost::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
   if( parIter != m_Parameters.end() ) {
     m_currentParameters = &parIter->second;
     return SystematicCode::Ok;
   }
 
-  ParameterSet param;
-  param.SubDetectorType = DET_CB;
-  param.VarSmearingID = m_defaultInit;
-  param.VarSmearingMS = m_defaultInit;
-  param.Scale = 0;
+  //::: Then check if it is actually supported
+  static CP::SystematicSet affSysts = affectingSystematics();
+  SystematicSet checkSysConf;
+  if( !SystematicSet::filterForAffectingSystematics( systConfig, affSysts, checkSysConf ) ) {
+    ATH_MSG_ERROR( "Passing unsupported systematic to the tool!" );
+    return SystematicCode::Unsupported;
+  }
 
+  ParameterSet param;
+  param.SmearTypeID = MCAST::SystVariation::Default; 
+  param.SmearTypeMS = MCAST::SystVariation::Default;
+  param.Scale = MCAST::SystVariation::Default;
+
+  //::: ID systematics
   SystematicVariation syst = systConfig.getSystematicByBaseName( "MUONS_ID" );
+
   if( syst == SystematicVariation( "MUONS_ID", 1 ) ) {
-    param.VarSmearingMS = m_smearDeltaMS;
-    param.VarSmearingID = GetSystVariation( DET_ID, 1. );
+    param.SmearTypeMS = MCAST::SystVariation::Default;
+    param.SmearTypeID = MCAST::SystVariation::Up;
+    param.Scale = MCAST::SystVariation::Default;
   }
   else if( syst == SystematicVariation( "MUONS_ID", -1 ) ) {
-    param.VarSmearingMS = m_smearDeltaMS;
-    param.VarSmearingID = GetSystVariation( DET_ID, -1. );
+    //param.SmearTypeMS = m_smearDeltaMS;
+    //param.SmearTypeID = GetSystVariation( MCAST::DetectorType::ID, -1. );
+    param.SmearTypeMS = MCAST::SystVariation::Default;
+    param.SmearTypeID = MCAST::SystVariation::Down;
+    param.Scale = MCAST::SystVariation::Default;
   }
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
+  //::: MS systematics
   syst = systConfig.getSystematicByBaseName( "MUONS_MS" );
+
   if( syst == SystematicVariation( "MUONS_MS", 1 ) ) {
-    param.VarSmearingID = m_smearDeltaID;
-    param.VarSmearingMS = GetSystVariation( DET_MS, 1. );
+    //param.SmearTypeMS = GetSystVariation( MCAST::DetectorType::MS, 1. );
+    //param.SmearTypeID = m_smearDeltaID;
+    param.SmearTypeMS = MCAST::SystVariation::Up;
+    param.SmearTypeID = MCAST::SystVariation::Default;
+    param.Scale = MCAST::SystVariation::Default;
   }
   else if( syst == SystematicVariation( "MUONS_MS", -1 ) ) {
-    param.VarSmearingID = m_smearDeltaID;
-    param.VarSmearingMS = GetSystVariation( DET_MS, -1. );
+    //param.SmearTypeID = m_smearDeltaID;
+    //param.SmearTypeMS = GetSystVariation( MCAST::DetectorType::MS, -1. );
+    param.SmearTypeMS = MCAST::SystVariation::Down;
+    param.SmearTypeID = MCAST::SystVariation::Default;
+    param.Scale = MCAST::SystVariation::Default;
   }
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
+  //::: Scale systematics
   syst = systConfig.getSystematicByBaseName( "MUONS_SCALE" );
+
   if( syst == SystematicVariation( "MUONS_SCALE", 1 ) ) {
-    param.Scale = 1.;
+    param.SmearTypeMS = MCAST::SystVariation::Default;
+    param.SmearTypeID = MCAST::SystVariation::Default;
+    param.Scale = MCAST::SystVariation::Down;
   }
   else if( syst == SystematicVariation( "MUONS_SCALE", -1 ) ) {
-    param.Scale = -1.;
+    param.SmearTypeMS = MCAST::SystVariation::Default;
+    param.SmearTypeID = MCAST::SystVariation::Default;
+    param.Scale = MCAST::SystVariation::Up;
   }
   else if( !syst.empty() ) return SystematicCode::Unsupported;
 
-  // store this calibration for future use, and make it current
+  //:::
+  ATH_MSG_VERBOSE( "Systematic variation's parameters, SmearTypeID: " << param.SmearTypeID ); 
+  ATH_MSG_VERBOSE( "Systematic variation's parameters, SmearTypeMS: " << param.SmearTypeMS ); 
+  ATH_MSG_VERBOSE( "Systematic variation's parameters, Scale: " << param.Scale ); 
+  //::: store this calibration for future use, and make it current
   m_currentParameters = &m_Parameters.insert( std::make_pair( systConfig, param ) ).first->second;
   return SystematicCode::Ok;
+
 }
 
-DATATYPE MuonCalibrationAndSmearingTool::SetData( std::string data ) {
+StatusCode MuonCalibrationAndSmearingTool::SetData( std::string data ) {
+
   if( data == "Data10" ) {
-    m_Tdata = DATA10;
+    m_Tdata = MCAST::DataType::Data10;
   }
   else if( data == "Data11" ) {
-    m_Tdata = DATA11;
+    m_Tdata = MCAST::DataType::Data11;
   }
   else if( data == "Data12" ) {
-    m_Tdata = DATA12;
+    m_Tdata = MCAST::DataType::Data12;
   }
-  return m_Tdata;
+  else {
+    ATH_MSG_ERROR( "Unrecognized value for SetData" );
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+
 }
 
-ALGOTYPE MuonCalibrationAndSmearingTool::SetAlgorithm( std::string algo ) {
-  if( algo=="muid" ) {
-    m_Talgo=MUID;
+StatusCode MuonCalibrationAndSmearingTool::SetAlgorithm( std::string algo ) {
+
+  if( algo == "muid" ) {
+    m_Talgo = MCAST::AlgoType::Muid;
   }
-  else if( algo=="staco" ) {
-    m_Talgo=STACO;
+  else if( algo == "staco" ) {
+    m_Talgo = MCAST::AlgoType::Staco;
   }
-  else if( algo=="muons" ) {
-    m_Talgo=MUONS;
+  else if( algo == "muons" ) {
+    m_Talgo = MCAST::AlgoType::Muons;
   }
-  return m_Talgo;
+  else {
+    ATH_MSG_ERROR( "Unrecognized value for SetAlgorithm" );
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+
 }
 
-RELTYPE MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
-  if( rel=="Rel16.6" ) {
-    m_Trel=REL16_6;
+StatusCode MuonCalibrationAndSmearingTool::SetType( std::string type ) {
+
+  if( type == "pT" ) {
+    m_Tsmear = MCAST::SmearingType::Pt;
+    ATH_MSG_DEBUG( "Using " << type << " Smearing " );
   }
-  else if( rel=="Rel17" ) {
-    m_Trel=REL17;
+  else if( type == "q_pT" ) {
+    m_Tsmear = MCAST::SmearingType::QoverPt;
+    ATH_MSG_DEBUG( "Using " << type << " Smearing " );
   }
-  else if( rel=="Rel17.2" ) {
-    m_Trel=REL17_2;
+  else {
+    ATH_MSG_ERROR( "Unrecognized value for SetType" );
+    return StatusCode::FAILURE;
   }
-  else if( rel=="Rel17.2Repro" ) {
-    m_Trel=REL17_2_REPRO;
-  }
-  else if( rel=="Rel17.2Sum13" ) {
-    m_Trel=REL17_2_SUM13;
-  }
-  return m_Trel;
+  return StatusCode::SUCCESS;
+
 }
 
-double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, const double S1, const double S2,
-    double S, const double S_enLoss ) const {
-  bool useScale = true;
-  bool apply_to_data = false;
-  /* general-purpose function to apply scale/curvature corrections */
-  if ( m_detRegion<0 || m_detRegion>=m_nb_regions ) return pt;
-  //ATH_MSG_DEBUG( "m_detRegion="<<m_detRegion );
-  //ATH_MSG_DEBUG( "S="<<S );
-  //ATH_MSG_DEBUG( "S_EnLoss="<<S_enLoss );
-  //ATH_MSG_DEBUG( "S1="<<S1 );
-  //ATH_MSG_DEBUG( "S2="<<S2 );
-  //if(dbg) cout<<"m_detRegion="<<m_detRegion<<"; S="<<S<<"; S_EnLoss="<<S_enLoss<<"; S1="<<S1<<"; S2="<<S2<<endl;
-  if( !useScale ) return pt;
-  // default momentum scale (derived form template fits)
-  if( m_Tscale == SCALE_DEFAULT ) {
-    return apply_to_data ? pt/S : ( pt*S + S_enLoss );
+StatusCode MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
+
+  if( rel == "Rel16.6" ) {
+    m_Trel = MCAST::Release::Rel16_6;
   }
-  // charge-dependent scales: kp,km == pt(data)/pt(mc)
-  if( m_Tscale == SCALE_KPKM ) {
-    if( m_charge == 0 ) {
-      ATH_MSG_ERROR( " must provide muon charge via Event() to use advanced pT scaling" );
-      //cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"ERROR: must provide muon charge via Event() to use advanced pT scaling" << endl;
-      return pt;
-    }
-    const double kpkm = ( m_charge>0 ? S1 : S2 )/100.0;
-    return apply_to_data ? pt/kpkm : pt*kpkm;
+  else if( rel == "Rel17" ) {
+    m_Trel = MCAST::Release::Rel17;
   }
-  // overall scale: K == pt(data)/pt(mc) and curvature split: 2*C == 1/pt+ - 1/pt-
-  // both corrections can be applied one after another or one at a time
-  if( m_Tscale >= SCALE_KC ) {
-    if( m_charge == 0 ) {
-      ATH_MSG_ERROR( "must provide muon charge via Event() to use advanced pT scaling" );
-      //cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"ERROR: must provide muon charge via Event() to use advanced pT scaling" << endl;
-      return pt;
-    }
-    const double K = S1/100.0;
-    const double C = S2/1e6;
-    // scale pt (unless only curvature splitting is requested)
-    const double ptsc = ( m_Tscale==SCALE_C ) ? pt : ( apply_to_data ? pt/K : pt*K );
-    // calculate curvature and apply a correction, if needed:
-    double curv=1/ptsc;
-    if( m_Tscale != SCALE_K ) {
-      // if correcting a curvature offset in data:
-      if( apply_to_data ) curv += m_charge<0 ? C  : -C;
-      // if putting a curvature offset into MC to better match the data
-      else curv += m_charge<0 ? -C  : +C;
-    }
-    return curv == 0 ? m_pTmax : fabs( 1.0/curv );
+  else if( rel == "Rel17.2" ) {
+    m_Trel = MCAST::Release::Rel17_2;
   }
-  return pt;
+  else if( rel == "Rel17.2Repro" ) {
+    m_Trel = MCAST::Release::Rel17_2_Repro;
+  }
+  else if( rel == "Rel17.2Sum13" ) {
+    m_Trel = MCAST::Release::Rel17_2_Sum13;
+  }
+  else {
+    ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+
+}
+
+double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, const double S1, const double S2, double S, const double S_enLoss ) const {
+
+
+  //::: Sanity checks:
+  if( m_detRegion < 0 || m_detRegion >= m_nb_regions ) return pt;
+
+  //::: default momentum scale (derived form template fits)
+  return pt * S + S_enLoss;
+  //bool apply_to_data = false;
+  //return apply_to_data ? pt / S : ( pt * S + S_enLoss );
+
 }
 
 
 double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar ) const {
-  //////////////////////////////////////////////////////////////////////////////////////////
-  //Scales have not been applied to the present smearings, get them before proceeding
-  //////////////////////////////////////////////////////////////////////////////////////////
+
   double scaleID = 0., enLossCorrMS = 0., scaleMS = 0., scaleCB = 0.;//initialize all to 0
-  //These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
+  //::: These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
   double s1_ID = 0., s2_ID = 0., s1_MS = 0., s2_MS = 0., s1_CB = 0., s2_CB = 0.;//Description of these is in ApplyScale
+
   if( fabs( scaleVar ) != 1. && scaleVar != 0. ) ATH_MSG_ERROR( "Unpredicted scale variation of Delta "<<scaleVar<<" sigmas!" );
-  if( m_Tscale == SCALE_DEFAULT ) {
-    if( m_scale_ID[m_detRegion] != -1 ) {
-      if( m_Trel >= REL17_2_SUM13 ) {
-        scaleID = scaleVar > 0. ? m_scaleSystUp_ID[m_detRegion] : m_scaleSystDw_ID[m_detRegion];
-      }
-      else {
-        scaleID = m_scaleSyst_ID[m_detRegion];
-      }
-      scaleID = m_scale_ID[m_detRegion] + scaleVar*scaleID;
+
+  if( m_scale_ID[m_detRegion] != -1 ) {
+    if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      scaleID = scaleVar > 0. ? m_scaleSystUp_ID[m_detRegion] : m_scaleSystDw_ID[m_detRegion];
     }
     else {
-      scaleID = ( m_Trel >= REL17_2_SUM13 ) ? 0. : 1.;
+      scaleID = m_scaleSyst_ID[m_detRegion];
     }
-    if( m_scale_MS[m_detRegion] != -1 ) {
-      if( m_Trel >= REL17_2_SUM13 ) {
-        scaleMS = scaleVar > 0. ? m_scaleSystUp_MS[m_detRegion] : m_scaleSystDw_MS[m_detRegion];
-        enLossCorrMS = scaleVar > 0. ? m_enLossSystUp_MS[m_detRegion] : m_enLossSystDw_MS[m_detRegion];
-      }
-      else {
-        scaleMS = m_scaleSyst_MS[m_detRegion];
-      }
-      scaleMS =  m_scale_MS[m_detRegion] + scaleVar*scaleMS;
-      if( true ) enLossCorrMS = m_enLoss_MS[m_detRegion] + scaleVar*enLossCorrMS;
-    }
-    else {
-      scaleMS = ( m_Trel >= REL17_2_SUM13 ) ? 0. : 1.;
-    }
-    if( m_Trel >= REL17_2_SUM13 ) { //NB: REL17_2_SUM13 has scale parametrized around 0, not 1!!
-      scaleID += 1.;
-      scaleMS += 1.;
-    }
-    if( m_scale_CB[m_detRegion] != -1 ) {
-      scaleCB = m_scale_CB[m_detRegion] + scaleVar*m_scaleSyst_CB[m_detRegion];
-    }
-    else {
-      scaleCB = ( scaleID*m_weightID + ( scaleMS + enLossCorrMS/m_ptms )*m_weightMS );
-    }
-    /*if( dbg )
-      std::cout<<__FILE__<<" "<<__LINE__<<": m_weightID="<<m_weightID<<"; m_weightMS="<<m_weightMS
-               <<"; enLossCorrMS="<<enLossCorrMS<<"; scaleID="<<scaleID<<"; scaleMS="<<scaleMS<<"; scaleCB="<<scaleCB<<std::endl;*/
-    //ATH_MSG_DEBUG( "m_weightID="<<m_weightID<<"; m_weightMS="<<m_weightMS<<"; enLossCorrMS="<<enLossCorrMS<<"; scaleID="<<scaleID<<"; scaleMS="<<scaleMS<<"; scaleCB="<<scaleCB );
+    scaleID = m_scale_ID[m_detRegion] + scaleVar*scaleID;
   }
   else {
-    if( unsigned( m_scaleRegion ) >= m_S1_CB.size() || unsigned( m_scaleRegion ) >= m_S2_CB.size() ) {
-      ATH_MSG_ERROR( " " << m_scaleRegion << " length of scaleRegion1: " << m_S1_CB.size() );
-      ATH_MSG_ERROR( " " << m_scaleRegion << " length of scaleRegion2: " << m_S2_CB.size() );
-      //std::cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass ERROR:: "<<scaleRegion<<" length of scaleRegion1: "<<m_S1_CB.size()<<std::endl;
-      //std::cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass ERROR:: "<<scaleRegion<<" length of scaleRegion2: "<<m_S2_CB.size()<<std::endl;
-      return -1;
-    }
-    s1_ID = m_S1_ID[m_scaleRegion];
-    s2_ID = m_S2_ID[m_scaleRegion];
-    s1_MS = m_S1_MS[m_scaleRegion];
-    s2_MS = m_S2_MS[m_scaleRegion];
-    s1_CB = m_S1_CB[m_scaleRegion];
-    s2_CB = m_S2_CB[m_scaleRegion];
-    //+++++ These variations were available for 2011 and should be checked again +++++++++++
-    if( m_Tscale == SCALE_KC || m_Tscale == SCALE_K ) {
-      // here, we scale up or down the overall pT scale: called SCALE_K variation
-      s1_ID += scaleVar*m_S1Corr_ID[m_scaleRegion];
-      s1_MS += scaleVar*m_S1Corr_MS[m_scaleRegion];
-      s1_CB += scaleVar*m_S1Corr_CB[m_scaleRegion];
-      // here, we scale up or down the curvature offset: called SCALE_C variation
-      s2_ID += scaleVar*m_S2Corr_ID[m_scaleRegion];
-      s2_MS += scaleVar*m_S2Corr_MS[m_scaleRegion];
-      s2_CB += scaleVar*m_S2Corr_CB[m_scaleRegion];
-    }
-    if( m_Tscale == SCALE_KPKM ) {
-      // m_S1Corr/m_S2Corr correspond to the component of kp/km error from Z mass fit: called SCALE_K variation
-      // m_S1ACorr/m_S2ACorr correspond to the component of kp/km error from R0 fit: called SCALE_C variation
-      s1_ID += scaleVar*m_S1ACorr_ID[m_scaleRegion] + scaleVar*m_S1Corr_ID[m_scaleRegion];
-      s2_ID += scaleVar*m_S2ACorr_ID[m_scaleRegion] - scaleVar*m_S2Corr_ID[m_scaleRegion];
-      s1_MS += scaleVar*m_S1ACorr_MS[m_scaleRegion] + scaleVar*m_S1Corr_MS[m_scaleRegion];
-      s2_MS += scaleVar*m_S2ACorr_MS[m_scaleRegion] - scaleVar*m_S2Corr_MS[m_scaleRegion];
-      s1_CB += scaleVar*m_S1ACorr_CB[m_scaleRegion] + scaleVar*m_S1Corr_CB[m_scaleRegion];
-      s2_CB += scaleVar*m_S2ACorr_CB[m_scaleRegion] - scaleVar*m_S2Corr_CB[m_scaleRegion];
-    }
+    scaleID = ( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) ? 0. : 1.;
   }
-  //////////////////////////////////////////////////////////////////////////////////////////
-  double tmpDelta= 1.;
+  if( m_scale_MS[m_detRegion] != -1 ) {
+    if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      scaleMS = scaleVar > 0. ? m_scaleSystUp_MS[m_detRegion] : m_scaleSystDw_MS[m_detRegion];
+      enLossCorrMS = scaleVar > 0. ? m_enLossSystUp_MS[m_detRegion] : m_enLossSystDw_MS[m_detRegion];
+    }
+    else {
+      scaleMS = m_scaleSyst_MS[m_detRegion];
+    }
+    scaleMS =  m_scale_MS[m_detRegion] + scaleVar*scaleMS;
+    if( true ) enLossCorrMS = m_enLoss_MS[m_detRegion] + scaleVar*enLossCorrMS;
+  }
+  else {
+    scaleMS = ( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) ? 0. : 1.;
+  }
+  if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) { //NB: MCAST::Release::Rel17_2_Sum13 has scale parametrized around 0, not 1!!
+    scaleID += 1.;
+    scaleMS += 1.;
+  }
+  if( m_scale_CB[m_detRegion] != -1 ) {
+    scaleCB = m_scale_CB[m_detRegion] + scaleVar * m_scaleSyst_CB[m_detRegion];
+  }
+  else {
+    if( m_ptms ) scaleCB = ( scaleID * m_weightID + ( scaleMS + enLossCorrMS / m_ptms ) * m_weightMS );
+    else         scaleCB = ( scaleID * m_weightID );
+  }
+  
+  double tmpDelta = 1.;
   double outPtID = m_ptid, outPtMS = m_ptms, outPtCB = m_ptcb;
-  if( DetType == DET_ID ) {
+  if( DetType == MCAST::DetectorType::ID ) {
+    ATH_MSG_VERBOSE( "Double-Checking outPtID = " << outPtID << " at first..." );
+    if( outPtID == 0. ) return outPtID;
     //Load the ID scale and smearing that you will use
-    tmpDelta = ( inSmearID == m_defaultInit ) ? 1.+ m_smearDeltaID : 1.+ inSmearID;
-    //ATH_MSG_DEBUG( "smearDeltaID="<<m_smearDeltaID<<"; scaleID="<<scaleID<<"; initial outPtID="<<outPtID );
-    //if( dbg )	std::cout<<__FILE__<<" "<<__LINE__
-    //<<": tmpDelta="<<tmpDelta<<"; smearDeltaID="<<m_smearDeltaID<<"; scaleID="<<scaleID<<"; initial outPtID="<<outPtID<<std::endl;
-    //In these releases the smearing was applied to the pt before the scale
-    if( m_Trel < REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtID = outPtID*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtID = ( tmpDelta == 0 ) ? m_pTmax : outPtID/tmpDelta;
+    ATH_MSG_VERBOSE( "Double-Checking int( inSmearID ) = " << int( inSmearID ) );
+    ATH_MSG_VERBOSE( "Double-Checking DEFAULT_INIT_VAL = " << DEFAULT_INIT_VAL );
+    tmpDelta = ( int( inSmearID ) == DEFAULT_INIT_VAL ) ? 1. + m_smearDeltaID : 1. + inSmearID;
+    ATH_MSG_VERBOSE( "Double-Checking inSmearID = " << inSmearID );
+    ATH_MSG_VERBOSE( "Double-Checking m_smearDeltaID = " << m_smearDeltaID );
+    ATH_MSG_VERBOSE( "Double-Checking tmpDelta = " << tmpDelta );
+    if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
     }
     outPtID = ScaleApply( fabs( outPtID ), s1_ID, s2_ID, scaleID );
-    if( m_Trel >= REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtID = outPtID*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtID = ( tmpDelta == 0 ) ? m_pTmax : outPtID/tmpDelta;
+    if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
     }
     return outPtID;
   }
-  if( DetType == DET_MS ) {
+  if( DetType == MCAST::DetectorType::MS ) {
+    ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at first..." );
+    if( outPtMS == 0. ) return outPtMS;
     //Load the MS scale and smearing that you will use
-    tmpDelta = ( inSmearMS == m_defaultInit ) ? 1.+ m_smearDeltaMS : 1.+ inSmearMS;
-    //ATH_MSG_DEBUG( "tmpDelta="<<tmpDelta<<"; smearDeltaMS="<<m_smearDeltaMS<<"; scaleMS="<<scaleMS<<"; initial outPtMS="<<outPtMS );
-    //if( dbg ) std::cout<<__FILE__<<" "<<__LINE__
-    //                     <<": tmpDelta="<<tmpDelta<<"; smearDeltaMS="<<m_smearDeltaMS<<"; scaleMS="<<scaleMS<<"; initial outPtMS="<<outPtMS<<std::endl;
+    ATH_MSG_VERBOSE( "Double-Checking int( inSmearMS ) = " << int( inSmearMS ) );
+    ATH_MSG_VERBOSE( "Double-Checking DEFAULT_INIT_VAL = " << DEFAULT_INIT_VAL );
+    tmpDelta = ( int( inSmearMS ) == DEFAULT_INIT_VAL ) ? 1. + m_smearDeltaMS : 1. + inSmearMS;
+    ATH_MSG_VERBOSE( "Double-Checking inSmearMS = " << inSmearMS );
+    ATH_MSG_VERBOSE( "Double-Checking m_smearDeltaMS = " << m_smearDeltaMS );
+    ATH_MSG_VERBOSE( "Double-Checking tmpDelta = " << tmpDelta );
     //In these releases the smearing was applied to the pt before the scale
-    if( m_Trel < REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtMS = outPtMS*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtMS = ( tmpDelta == 0 ) ? m_pTmax : outPtMS/tmpDelta;
+    if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtMS = outPtMS * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtMS = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtMS / tmpDelta;
     }
+    ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at second..." );
     outPtMS = ScaleApply( fabs( outPtMS ), s1_MS, s2_MS, scaleMS, enLossCorrMS );
-    if( m_Trel >= REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtMS = outPtMS*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtMS = ( tmpDelta == 0 ) ? m_pTmax : outPtMS/tmpDelta;
+    ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at third..." );
+    if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtMS = outPtMS * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtMS = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtMS / tmpDelta;
     }
+    ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at fourth..." );
     return outPtMS;
   }
-  if( DetType == DET_CB ) {
-    if( inSmearID != m_defaultInit && inSmearMS != m_defaultInit ) {
-      tmpDelta = 1. + inSmearID*m_weightID + inSmearMS*m_weightMS;
+  if( DetType == MCAST::DetectorType::CB ) {
+    if( int( inSmearID ) != DEFAULT_INIT_VAL && int( inSmearMS ) != DEFAULT_INIT_VAL ) {
+      tmpDelta = 1. + inSmearID * m_weightID + inSmearMS * m_weightMS;
     }
-    else if ( inSmearID == m_defaultInit && inSmearMS == m_defaultInit ) {
+    else if( int( inSmearID ) == DEFAULT_INIT_VAL && int( inSmearMS ) == DEFAULT_INIT_VAL ) {
       tmpDelta = 1. + m_smearDeltaCB;
     }
     else {
-      ATH_MSG_ERROR( "only one ID or MS var is defined for CB var!" );
-      //std::cout<<__FILE__<<" "<<__LINE__<<": ERROR! only one ID or MS var is defined for CB var!"<<std::endl;
     }
-    //ATH_MSG_DEBUG( "tmpDelta="<<tmpDelta<<"; smearDeltaCB="<<m_smearDeltaCB<<"; scaleCB="<<scaleCB<<"; initial outPtCB="<<outPtCB );
-    //if( dbg ) std::cout<<__FILE__<<" "<<__LINE__
-    //                     <<": tmpDelta="<<tmpDelta<<"; smearDeltaCB="<<m_smearDeltaCB<<"; scaleCB="<<scaleCB<<"; initial outPtCB="<<outPtCB<<std::endl;
     //In these releases the smearing was applied to the pt before the scale
-    if( m_Trel < REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtCB = outPtCB*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtCB = ( tmpDelta == 0 ) ? m_pTmax : outPtCB/tmpDelta;
+    if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
     }
-    //ATH_MSG_DEBUG( "tmpDelta="<<tmpDelta<<"; outPtCB="<<outPtCB );
-    //if( dbg ) std::cout<<__FILE__<<" "<<__LINE__<<": tmpDelta="<<tmpDelta<<"; outPtCB="<<outPtCB<<std::endl;
     outPtCB = ScaleApply( fabs( outPtCB ), s1_CB, s2_CB, scaleCB );
-    if( m_Trel >= REL17_2_SUM13 ) {
-      if( m_Tsmear == SMEAR_PT )  outPtCB = outPtCB*tmpDelta;
-      if( m_Tsmear == SMEAR_QPT ) outPtCB = ( tmpDelta == 0 ) ? m_pTmax : outPtCB/tmpDelta;
+    if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
+      if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
     }
     return outPtCB;
   }
   return 0.;
+
 }
 
-
-
 StatusCode MuonCalibrationAndSmearingTool::FillValues() {
+
   Clean();
   double tmpval;
-  int i=0;
   std::string tmpname;
-  std::string scale_val = m_path+"Scale_values_"+m_algo+"_"+m_release+".dat";
-  if( m_year == "Data11" && m_Trel >= REL17_2_SUM13 )
-    scale_val = m_path+"Data11_Scale_values_"+m_algo+"_"+m_release+".dat";
-  std::string data_val  = m_path+m_year+"_values_"+m_algo+"_"+m_release+".dat";
-  std::string mc_val    = m_path+"MC_values_"+m_algo+"_"+m_release+".dat";
-  std::string corr_val  = m_path+m_year+"_CorrMatrix_"+m_algo+"_"+m_release+".dat";
-  /* filling scale vectors*/
-  m_InValues.open( scale_val.c_str() );
-  i=0;
-  if( !m_InValues.good() ) {
+  std::ifstream InValues;
+
+  //::: Retrieving scale corrections!
+  std::string scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_values_" + m_algo + "_" + m_release + ".dat" );
+  if( m_year == "Data11" && m_Trel >= MCAST::Release::Rel17_2_Sum13 ) scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Data11_Scale_values_" + m_algo + "_" + m_release + ".dat" );
+  ATH_MSG_DEBUG( "Checking Files - Scales: " << scale_val );
+
+  InValues.open( scale_val.c_str() );
+  int i = 0;
+  if( !InValues.good() ) {
     ATH_MSG_ERROR( "File " << scale_val <<" not found!!" );
     return StatusCode::FAILURE;
   }
   else {
-    while( m_InValues.good() && i<m_nb_regions ) {
-      tmpval=0;
-      if( i==0 ) {
-        getline( m_InValues,tmpname );
+    while( InValues.good() && i < m_nb_regions ) {
+      tmpval = 0;
+      if( i == 0 ) {
+        getline( InValues, tmpname );
       }
-      if( m_Trel >= REL17_2_SUM13 ) {
+      if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
         //These have a different order and Up/Dw split sys
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scale_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_enLoss_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scale_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSystUp_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_enLossSystUp_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSystUp_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSystDw_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_enLossSystDw_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSystDw_MS.push_back( tmpval );
       }
       else {
         m_enLoss_MS.push_back( 0. );
         m_enLossSyst_MS.push_back( 0. );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scale_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSyst_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scale_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_scaleSyst_MS.push_back( tmpval );
       }
-      //CB is always on the cfg file althoug rarely used
-      m_InValues>>tmpval;
+      //CB is always on the cfg file although rarely used
+      InValues>>tmpval;
       m_scale_CB.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_scaleSyst_CB.push_back( tmpval );
       i++;
     }
   }
-  m_InValues.close();
-  m_InValues.clear();
-  /* filling data vectors*/
-  m_InValues.open( data_val.c_str() );
-  i=0;
-  if( !m_InValues.good() ) {
+  InValues.close();
+  InValues.clear();
+ 
+  //::: Retrieving data values
+  std::string data_val  = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_year + "_values_" + m_algo + "_" + m_release + ".dat" );
+  ATH_MSG_DEBUG( "Checking Files - Data: " << data_val );
+
+  InValues.open( data_val.c_str() );
+  i = 0;
+  if( !InValues.good() ) {
     ATH_MSG_ERROR( "File " << data_val << " not found!!" );
     return StatusCode::FAILURE;
   }
   else {
-    while( m_InValues.good() && i < m_nb_regions ) {
-      /*main values*/
-      tmpval=0;
-      if( i==0 ) {
-        getline( m_InValues,tmpname );
+    while( InValues.good() && i < m_nb_regions ) {
+      tmpval = 0;
+      if( i == 0 ) {
+        getline( InValues,tmpname );
       }
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_p1_ID.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_p2_ID.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_p2_ID_TAN.push_back( tmpval );
-      m_InValues>>tmpval;
-      if( m_Trel >= REL17_2_SUM13 ) {
+      InValues>>tmpval;
+      if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
         m_p0_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
       }
       else {
         m_p0_MS.push_back( 0 );
       }
       m_p1_MS.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_p2_MS.push_back( tmpval );
       //Syst and stat uncertianties: they are split and symmetrized before Rel17.2Sum13, after
       // that, the stat is added in ^2 and they are split in Up/Dw
-      if( m_Trel >= REL17_2_SUM13 ) {
-        m_InValues>>tmpval;
+      if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+        InValues>>tmpval;
         m_SUp_p1_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SUp_p2_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SUp_p2_ID_TAN.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SUp_p0_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SUp_p1_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SUp_p2_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p1_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p2_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p2_ID_TAN.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p0_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p1_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_SDw_p2_MS.push_back( tmpval );
       }
       else {
         m_E_p0_MS.push_back( 0 );
         m_S_p0_MS.push_back( 0 );
         //Stat
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_E_p1_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_E_p2_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_E_p2_ID_TAN.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_E_p1_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_E_p2_MS.push_back( tmpval );
         /*systematic*/
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_S_p1_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_S_p2_ID.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_S_p2_ID_TAN.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_S_p1_MS.push_back( tmpval );
-        m_InValues>>tmpval;
+        InValues>>tmpval;
         m_S_p2_MS.push_back( tmpval );
       }
     }
   }
-  m_InValues.close();
-  m_InValues.clear();
-  /* filling mc vectors*/
-  m_InValues.open( mc_val.c_str() );
-  i=0;
-  if( !m_InValues.good() ) {
+  InValues.close();
+  InValues.clear();
+
+  //::: Retrieving MC values
+  std::string mc_val    = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_" + m_release + ".dat" );
+  ATH_MSG_DEBUG( "Checking Files - MC: " << mc_val );
+  
+  InValues.open( mc_val.c_str() );
+  i = 0;
+  if( !InValues.good() ) {
     ATH_MSG_ERROR( "File " << mc_val << " not found!!" );
     return StatusCode::FAILURE;
   }
   else {
-    while( m_InValues.good() && i<m_nb_regions ) {
-      tmpval=0;
-      if( i==0 ) {
-        getline( m_InValues,tmpname );
+    while( InValues.good() && i<m_nb_regions ) {
+      tmpval = 0;
+      if( i == 0 ) {
+        getline( InValues,tmpname );
       }
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p1_ID.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p2_ID.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p2_ID_TAN.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p0_MS.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p1_MS.push_back( tmpval );
-      m_InValues>>tmpval;
+      InValues>>tmpval;
       m_MC_p2_MS.push_back( tmpval );
     }
   }
-  m_InValues.close();
-  m_InValues.clear();
-  /* filling correlation vectors*/
-  m_InValues.open( corr_val.c_str() );
-  i=0;
-  if( !m_InValues.good() ) {
-    ATH_MSG_ERROR( "File " << corr_val << " not found!!" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    while( m_InValues.good() && i<m_nb_regions ) {
-      tmpval=0;
-      if( i==0 ) {
-        getline( m_InValues,tmpname );
-      }
-      m_InValues>>tmpval;
-      m_CorrMatC0.push_back( tmpval );
-      m_CorrMatTanC0.push_back( tmpval );
-      m_InValues>>tmpval;
-      m_CorrMatC1.push_back( tmpval );
-      m_CorrMatTanC1.push_back( tmpval );
-      m_InValues>>tmpval;
-      m_CorrMatC2.push_back( tmpval );
-      m_CorrMatTanC2.push_back( tmpval );
-      m_InValues>>tmpval;
-      m_CorrMatC3.push_back( tmpval );
-      m_CorrMatTanC3.push_back( tmpval );
-      m_InValues>>tmpval;
-      m_CorrMatC4.push_back( tmpval );
-      m_CorrMatTanC4.push_back( tmpval );
-      m_InValues>>tmpval;
-      m_CorrMatC5.push_back( tmpval );
-      m_CorrMatTanC5.push_back( tmpval );
-    }
-  }
-  m_InValues.close();
-  m_InValues.clear();
+  InValues.close();
+  InValues.clear();
+  
   return StatusCode::SUCCESS;
+
 }
 
 int MuonCalibrationAndSmearingTool::GetScaleRegion( xAOD::Muon& mu ) {
+
   if( m_scaleBins.empty() ) {
     return -1;
   }
@@ -754,50 +841,45 @@ int MuonCalibrationAndSmearingTool::GetScaleRegion( xAOD::Muon& mu ) {
   if( mu.eta()>=_max ) {
     return m_scaleBins.size() - 1;
   }
+
   std::vector<double>::iterator lb = lower_bound( m_scaleBins.begin(),m_scaleBins.end(),mu.eta()+1e-9 ); // [first,last)
   return( std::min( static_cast<int>( distance( m_scaleBins.begin(),lb ) ) , static_cast<int>( m_scaleBins.size()-1 ) ) );
+
 }
 
 double MuonCalibrationAndSmearingTool::GetSmearing( int DetType, xAOD::Muon& mu ) {
+
   bool useTan2 = true;
   if ( m_detRegion < 0 || m_detRegion >= m_nb_regions ) return 0; //++++++ HOW TO IMPROVE THIS CHECK?!
   double smear = 0.;
-  if ( DetType == DET_MS ) {
+  if ( DetType == MCAST::DetectorType::MS ) {
     if( m_ptms == 0 ) {
-      return 0;
+      return 0.;
     }
     else {
-      smear =  m_p0_MS[m_detRegion]*m_g0/m_ptms + m_p1_MS[m_detRegion]*m_g1 + m_p2_MS[m_detRegion]*m_g2*m_ptms;
-      //ATH_MSG_DEBUG( "m_p0_MS[m_detRegion]:"<<m_p0_MS[m_detRegion]<<"; m_p1_MS[m_detRegion]:"<<m_p1_MS[m_detRegion]<<"; m_p2_MS[m_detRegion]="<<m_p2_MS[m_detRegion]<<"; ptms="<<m_ptms<<"; smear:"<<smear );
-      //if(dbg) cout<<"m_p0_MS[m_detRegion]:"<<m_p0_MS[m_detRegion]<<"; m_p1_MS[m_detRegion]:"<<m_p1_MS[m_detRegion]<<"; m_p2_MS[m_detRegion]="<<m_p2_MS[m_detRegion]
-      //	   <<"; ptms="<<ptms<<"; smear:"<<smear<<endl;
+      smear = m_p0_MS[m_detRegion]*m_g0/m_ptms + m_p1_MS[m_detRegion]*m_g1 + m_p2_MS[m_detRegion]*m_g2*m_ptms;
       return smear;
     }
   }
-  else if( DetType==DET_ID ) {
+  else if( DetType == MCAST::DetectorType::ID ) {
     if ( useTan2 && m_p2_ID_TAN[m_detRegion] != 0. ) {
       smear = m_p1_ID[m_detRegion]*m_g3 + m_p2_ID_TAN[m_detRegion]*m_g4*m_ptid*sinh( mu.eta() )*sinh( mu.eta() );
-      //ATH_MSG_DEBUG( "m_p1_ID[m_detRegion]:"<<m_p1_ID[m_detRegion]<<"; m_p2_ID_TAN[m_detRegion]="<<m_p2_ID_TAN[m_detRegion]<<"; ptid="<<m_ptid<<"; smearTAN:"<<smear );
-      //if(dbg) cout<<"m_p1_ID[m_detRegion]:"<<m_p1_ID[m_detRegion]<<"; m_p2_ID_TAN[m_detRegion]="<<m_p2_ID_TAN[m_detRegion]
-      //	   <<"; ptid="<<ptid<<"; smearTAN:"<<smear<<endl;
       return smear;
     }
     else {
       smear = m_p1_ID[m_detRegion]*m_g3 + m_p2_ID[m_detRegion]*m_g4*m_ptid;
-      //ATH_MSG_DEBUG( "m_p1_ID[m_detRegion]:"<<m_p1_ID[m_detRegion]<<"; m_p2_ID[m_detRegion]="<<m_p2_ID[m_detRegion]<<"; ptid="<<m_ptid<<"; smear:"<<smear );
-      //if(dbg) cout<<"m_p1_ID[m_detRegion]:"<<m_p1_ID[m_detRegion]<<"; m_p2_ID[m_detRegion]="<<m_p2_ID[m_detRegion]
-      //	   <<"; ptid="<<ptid<<"; smear:"<<smear<<endl;
       return smear;
     }
   }
   else {
     ATH_MSG_ERROR( " DetType not defined "<<DetType );
-    //      std::cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass ERROR:: DetType not defined "<<DetType<<std::endl;
   }
-  return 0;
+  return 0.;
+
 }
 
 void MuonCalibrationAndSmearingTool::CalcCBWeights( xAOD::Muon& mu ) {
+
   //Calculate the weights of ID and MS used for CB. Two ways are implemented:
   // - weight by ^2 of exp reso
   // - from equation pT_CB = R(pT_ID) + (1-R)(pT_MS)
@@ -805,19 +887,17 @@ void MuonCalibrationAndSmearingTool::CalcCBWeights( xAOD::Muon& mu ) {
   m_weightID = 0.5;
   m_weightMS = 0.5;
   if ( m_detRegion < 0 || m_detRegion >= m_nb_regions ) return;
-  if ( m_ptcb==0 ) {
-    //cout<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass WARNING:: ptcb==0"<<endl;
+  if ( m_ptcb == 0 ) {
     ATH_MSG_ERROR( "Combined Pt = 0" );
     return;
   }
   const bool doNotAddSmearing = true;
-  double SigmaMS = ExpectedResolution( DET_MS,mu, doNotAddSmearing );
-  double SigmaID = ExpectedResolution( DET_ID,mu, doNotAddSmearing );
-  //if(dbg) cout<<"SigmaMS="<<SigmaMS<<"; SigmaID="<<SigmaID<<endl;
+  double SigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, doNotAddSmearing );
+  double SigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, doNotAddSmearing );
   double Nsigma = m_useNsigmaForICombine;
-  if( fabs( m_ptcb-m_ptms ) > Nsigma*SigmaMS*m_ptcb || fabs( m_ptcb-m_ptid ) > Nsigma*SigmaID*m_ptcb ) {
+  if( fabs( m_ptcb - m_ptms ) > Nsigma * SigmaMS * m_ptcb || fabs( m_ptcb - m_ptid ) > Nsigma * SigmaID * m_ptcb ) {
     double R=1, Rplus;
-    if( fabs( m_ptcb-m_ptms ) == fabs( m_ptcb-m_ptid ) ) return; //This case returns weightID = weightMS = 0.5
+    if( fabs( m_ptcb-m_ptms ) == fabs( m_ptcb - m_ptid ) ) return; //This case returns weightID = weightMS = 0.5
     if( fabs( m_ptcb-m_ptms ) != 0 && fabs( m_ptcb-m_ptms ) > fabs( m_ptcb-m_ptid ) ) {
       R = ( m_ptid - m_ptcb )/( m_ptcb - m_ptms ); /* R~wMS/wID */
       Rplus = 1 + R;
@@ -843,65 +923,48 @@ void MuonCalibrationAndSmearingTool::CalcCBWeights( xAOD::Muon& mu ) {
   m_weightID =  wID/(wMS + wID);
   m_weightMS =  wMS/(wMS + wID);
   return;
+
 }
 
 void MuonCalibrationAndSmearingTool::CleanScales() {
-  m_Tscale = SCALE_DEFAULT;
+
   m_scaleBins.clear();
-  m_S1_ID.clear();
-  m_S2_ID.clear();
-  m_S1_MS.clear();
-  m_S2_MS.clear();
-  m_S1_CB.clear();
-  m_S2_CB.clear();
-  m_S1Corr_ID.clear();
-  m_S2Corr_ID.clear();
-  m_S1Corr_MS.clear();
-  m_S2Corr_MS.clear();
-  m_S1Corr_CB.clear();
-  m_S2Corr_CB.clear();
-  m_S1ACorr_ID.clear();
-  m_S2ACorr_ID.clear();
-  m_S1ACorr_MS.clear();
-  m_S2ACorr_MS.clear();
-  m_S1ACorr_CB.clear();
-  m_S2ACorr_CB.clear();
+
 }
 
-double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType,xAOD::Muon& mu, const bool mc ) const {
-  if( DetType=="MS" ) {
-    return ExpectedResolution( DET_MS,mu,mc );
+double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc ) const {
+
+  if( DetType == "MS" ) {
+    return ExpectedResolution( MCAST::DetectorType::MS, mu, mc );
   }
-  else if( DetType=="ID" ) {
-    return ExpectedResolution( DET_ID,mu,mc );
+  else if( DetType == "ID" ) {
+    return ExpectedResolution( MCAST::DetectorType::ID, mu, mc );
   }
-  else if( DetType=="CB" ) {
-    return ExpectedResolution( DET_CB,mu,mc );
+  else if( DetType == "CB" ) {
+    return ExpectedResolution( MCAST::DetectorType::CB, mu, mc );
   }
   else {
-    ATH_MSG_ERROR( "wrong DetType in input "<<DetType );
-    //cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass ERROR: wrong DetType in input "<<DetType<<endl;
+    ATH_MSG_ERROR( "wrong DetType in input " << DetType );
     return 0.;
   }
+
 }
 
 double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAOD::Muon& mu, const bool mc ) const {
+
   bool useTan2 = true;
   /** do the average with the EXPECTED resolutions **/
   if ( m_detRegion<0 || m_detRegion>=m_nb_regions ) return 0;
   double expRes = 0.;
-  if ( DetType == DET_MS ) {
-    //if (ptms==0) cout<<__FILE__<<" line:"<<__LINE__<<" SmearingClass WARNING:: ptms==0"<<endl;
+  if ( DetType == MCAST::DetectorType::MS ) {
     double p0 = mc ? m_MC_p0_MS[m_detRegion] : ( m_MC_p0_MS[m_detRegion] + m_p0_MS[m_detRegion] );
     double p1 = mc ? m_MC_p1_MS[m_detRegion] : ( m_MC_p1_MS[m_detRegion] + m_p1_MS[m_detRegion] );
     double p2 = mc ? m_MC_p2_MS[m_detRegion] : ( m_MC_p2_MS[m_detRegion] + m_p2_MS[m_detRegion] );
     expRes =  sqrt( pow( p0/m_ptms, 2 ) + pow( p1, 2 ) + pow( p2*m_ptms ,2 ) );
-    //if(dbg) cout<<__LINE__<<" Std MS RES: "<<expRes<<endl;
     return expRes; //+++++No SYS!!!
   }
-  else if ( DetType == DET_ID ) {
-    if ( m_ptid==0 ) ATH_MSG_WARNING( "ptid==0" );
-    //if (ptid==0) cout<<__FILE__<<" line:"<<__LINE__<<" SmearingClass WARNING:: ptid==0"<<endl;
+  else if ( DetType == MCAST::DetectorType::ID ) {
+    if ( m_ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
     double p1 = mc ? m_MC_p1_ID[m_detRegion] : ( m_MC_p1_ID[m_detRegion] + m_p1_ID[m_detRegion] );
     double p2 = mc ? m_MC_p2_ID[m_detRegion] : ( m_MC_p2_ID[m_detRegion] + m_p2_ID[m_detRegion] );
     if ( m_MC_p2_ID_TAN[m_detRegion] != 0 && useTan2 ) {
@@ -909,18 +972,16 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
       p2 = p2*sinh( mu.eta() )*sinh( mu.eta() );
     }
     expRes = sqrt( pow( p1, 2 ) + pow( p2*m_ptid ,2 ) );
-    //if(dbg) cout<<__LINE__<<" Std ID RES: "<<expRes<<endl;
     return expRes; //+++++No SYS!!!
   }
-  else if ( DetType == DET_CB ) {
-    //if (ptcb==0) cout<<__FILE__<<" line:"<<__LINE__<<" "<<"SmearingClass WARNING:: ptcb==0"<<endl;//+++++++
+  else if ( DetType == MCAST::DetectorType::CB ) {
     // Due to complicated maths, the expected combined resolution
     // is given by this equation (note: all sigmas are fractional uncertainties):
     // sigma_CB = sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
     // Do a little recursive calling to make things easier to read
     // Turn these into *absolute* uncertainties to make life easier
-    double sigmaID = ExpectedResolution( DET_ID,mu,mc ) * m_ptid;
-    double sigmaMS = ExpectedResolution( DET_MS,mu,mc ) * m_ptms;
+    double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc ) * m_ptid;
+    double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * m_ptms;
     double denominator = ( m_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
     return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
   }
@@ -928,9 +989,11 @@ double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAO
     ATH_MSG_ERROR( "wrong DetType in input "<<DetType );
     return 0.;
   }
+
 }
 
 void MuonCalibrationAndSmearingTool::Clean() {
+
   m_scale_ID.clear();
   m_enLoss_MS.clear();
   m_scale_MS.clear();
@@ -982,29 +1045,18 @@ void MuonCalibrationAndSmearingTool::Clean() {
   m_MC_p0_MS.clear();
   m_MC_p1_MS.clear();
   m_MC_p2_MS.clear();
-  m_CorrMatC0.clear();
-  m_CorrMatC1.clear();
-  m_CorrMatC2.clear();
-  m_CorrMatC3.clear();
-  m_CorrMatC4.clear();
-  m_CorrMatC5.clear();
-  m_CorrMatTanC0.clear();
-  m_CorrMatTanC1.clear();
-  m_CorrMatTanC2.clear();
-  m_CorrMatTanC3.clear();
-  m_CorrMatTanC4.clear();
-  m_CorrMatTanC5.clear();
-  m_InValues.clear();
+
 }
 
 void MuonCalibrationAndSmearingTool::PrintRegions() const {
+
   if( m_doMacroRegions ) {
-    for( std::map<int, int>::const_iterator it = m_macroRegionIdxMap.begin(); it!=m_macroRegionIdxMap.end(); ++it ) {
+    for( std::map<int, int>::const_iterator it = m_MacroRegionIdxMap.begin(); it!=m_MacroRegionIdxMap.end(); ++it ) {
       int bReg = it->first, mReg = it->second;
       ATH_MSG_INFO( "Base region n "<<bReg );
       ATH_MSG_INFO( "phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg] );
       ATH_MSG_INFO( "eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg] );
-      ATH_MSG_INFO( "included in Macro region N "<<mReg<<" with innerEta="<<m_macroRegionInnerEta[mReg] );
+      ATH_MSG_INFO( "included in Macro region N "<<mReg<<" with innerEta="<<m_MacroRegionInnerEta[mReg] );
     }
   }
   else {
@@ -1013,24 +1065,27 @@ void MuonCalibrationAndSmearingTool::PrintRegions() const {
       ATH_MSG_INFO( "eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg] );
     }
   }
+
 }
 
 unsigned int MuonCalibrationAndSmearingTool::GetNRegions() const {
-  if( m_doMacroRegions ) return m_macroRegionName.size();
+
+  if( m_doMacroRegions ) return m_MacroRegionName.size();
   else return m_nb_regions;
+
 }
 
 StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, int doMacroRegionsFlag ) {
+
   m_eta_min.clear();
   m_eta_max.clear();
   m_phi_min.clear();
   m_phi_max.clear();
   m_loadNames = false;
   m_doMacroRegions = false;
-  m_verb = false;
   std::string tmpname;
   double tmpval;
-  int i=0;
+  int i = 0;
   std::ifstream inFile( inRegionFile.c_str() );
   if( !inFile.good() ) {
     ATH_MSG_ERROR( "File not good" );
@@ -1043,7 +1098,7 @@ StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, in
       if( i==0 ) {
         getline( inFile,tmpname );
         //Check if I am loading the name of the regions in the file
-        if( tmpname.find( "name" ) != std::string::npos && !m_loadNames ) m_loadNames=true;
+        if( tmpname.find( "name" ) != std::string::npos && !m_loadNames ) m_loadNames = true;
       }
       else {
         inFile>>tmpval;
@@ -1064,9 +1119,9 @@ StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, in
     }
   }
   inFile.close();
-  m_nb_regions = ( int )m_eta_min.size();
+  m_nb_regions = ( int ) m_eta_min.size();
   if( doMacroRegionsFlag ) { //In case I want macroRegions, I need to define the criteria here
-    m_doMacroRegions =true;
+    m_doMacroRegions = true;
     switch( doMacroRegionsFlag ) {
     case 1:
       //Collects all the Large and Small sectors if they belong to the same eta bin
@@ -1086,9 +1141,11 @@ StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, in
     }
   }
   return StatusCode::SUCCESS;
+
 }
 
 int MuonCalibrationAndSmearingTool::GetRegion( const double eta, const double phi ) const {
+
   int ret_k =-1;
   for( int k=0; k < m_nb_regions; ++k ) {
     if( eta>=m_eta_min[k] && eta<m_eta_max[k] ) {
@@ -1107,16 +1164,18 @@ int MuonCalibrationAndSmearingTool::GetRegion( const double eta, const double ph
     }
   }
   if( ret_k == -1 ) {
-    ATH_MSG_WARNING( "Region corresponding to Eta="<<eta<<", Phi="<<phi<<" NOT FOUND!" );
+    ATH_MSG_INFO( "Region corresponding to Eta=" << eta << ", Phi=" << phi << " NOT FOUND!" );
     return -1;
   }
-  if( m_doMacroRegions ) return m_macroRegionIdxMap.find( ret_k )->second;
+  if( m_doMacroRegions ) return m_MacroRegionIdxMap.find( ret_k )->second;
   return ret_k;
+
 }
 
 float MuonCalibrationAndSmearingTool::GetRegionInnerEta( const int r_i ) const { //Return Eta closer to the origin
+
   if( m_doMacroRegions ) {
-    if( r_i>=0 && r_i < ( int )m_macroRegionName.size() ) return m_macroRegionInnerEta[r_i];
+    if( r_i>=0 && r_i < ( int )m_MacroRegionName.size() ) return m_MacroRegionInnerEta[r_i];
   }
   else {
     if( r_i >= 0 && r_i < m_nb_regions ) {
@@ -1124,32 +1183,38 @@ float MuonCalibrationAndSmearingTool::GetRegionInnerEta( const int r_i ) const {
       else return m_eta_max[r_i];
     }
   }
-  ATH_MSG_WARNING( "Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!" );
+  //ATH_MSG_WARNING( "Region Inner Eta corresponding to Region index=" << r_i << " NOT FOUND!" );
   return -999.;
+
 }
 
 std::string MuonCalibrationAndSmearingTool::GetRegionName( const int r_i ) const {
+
   if( m_loadNames ) {
     if( m_doMacroRegions ) {
-      if( r_i>=0 && r_i < ( int )m_macroRegionName.size() ) return m_macroRegionName[r_i];
+      if( r_i>=0 && r_i < ( int )m_MacroRegionName.size() ) return m_MacroRegionName[r_i];
     }
     else {
       if( r_i>=0 && r_i < m_nb_regions ) return m_names[r_i];
     }
-    ATH_MSG_WARNING( "Region Name corresponding to Region index="<<r_i<<" NOT FOUND!" );
+    ATH_MSG_WARNING( "Region Name corresponding to Region index=" << r_i << " NOT FOUND!" );
   }
-  ATH_MSG_WARNING( " Region Names are not set!" );
+  ATH_MSG_WARNING( "Region Names are not set!" );
   return "NAN";
+
 }
 
 std::string MuonCalibrationAndSmearingTool::GetRegionName( const double eta, const double phi ) const {
+
   if( m_loadNames ) return GetRegionName( GetRegion( eta, phi ) );
   ATH_MSG_WARNING( "Region Names are not set!" );
   return "NAN";
+
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
 void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL() {
+
   double etaMin = -999., etaMax = -999.;
   int macroRegionIdx = 0;
   for( int k=0; k < m_nb_regions; ++k ) {
@@ -1162,24 +1227,27 @@ void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL() {
       macroRegName = macroRegName.substr( 0, m_names[k].find( "BL" ) );
       macroRegName = macroRegName.substr( 0, m_names[k].find( "ES" ) );
       macroRegName = macroRegName.substr( 0, m_names[k].find( "BS" ) );
-      m_macroRegionName.push_back( macroRegName+"Large" );
-      m_macroRegionName.push_back( macroRegName+"Small" );
+      m_MacroRegionName.push_back( macroRegName+"Large" );
+      m_MacroRegionName.push_back( macroRegName+"Small" );
       //insert twice the innerEta, for Large and for Small sectors
       for( int i=0; i<2; ++i ) {
-        if( etaMin >= 0. ) m_macroRegionInnerEta.push_back( etaMin );
-        else         m_macroRegionInnerEta.push_back( etaMax );
+        if( etaMin >= 0. ) m_MacroRegionInnerEta.push_back( etaMin );
+        else         m_MacroRegionInnerEta.push_back( etaMax );
       }
       macroRegionIdx+=2;
     }
     if( m_names[k].find( "EL" ) != std::string::npos || m_names[k].find( "BL" ) != std::string::npos )
-      m_macroRegionIdxMap[k] = macroRegionIdx-2;//Large sectors
+      m_MacroRegionIdxMap[k] = macroRegionIdx-2;//Large sectors
     if( m_names[k].find( "ES" ) != std::string::npos || m_names[k].find( "BS" ) != std::string::npos )
-      m_macroRegionIdxMap[k] = macroRegionIdx-1;//Small sectors
+      m_MacroRegionIdxMap[k] = macroRegionIdx-1;//Small sectors
   }
+  return;
+
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
 void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_UpDn() {
+
   double etaMin = -999., etaMax = -999.;
   int macroRegionIdx = 0;
   for( int k=0; k < m_nb_regions; ++k ) {
@@ -1192,41 +1260,44 @@ void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_UpDn() {
       macroRegName = macroRegName.substr( 0, m_names[k].find( "BL" ) );
       macroRegName = macroRegName.substr( 0, m_names[k].find( "ES" ) );
       macroRegName = macroRegName.substr( 0, m_names[k].find( "BS" ) );
-      m_macroRegionName.push_back( macroRegName+"LargeDn" );
-      m_macroRegionName.push_back( macroRegName+"SmallDn" );
-      m_macroRegionName.push_back( macroRegName+"LargeUp" );
-      m_macroRegionName.push_back( macroRegName+"SmallUp" );
+      m_MacroRegionName.push_back( macroRegName+"LargeDn" );
+      m_MacroRegionName.push_back( macroRegName+"SmallDn" );
+      m_MacroRegionName.push_back( macroRegName+"LargeUp" );
+      m_MacroRegionName.push_back( macroRegName+"SmallUp" );
       //insert 4 time the innerEta, for Large and Small sectors times Up and Dn
       for( int i=0; i<4; ++i ) {
-        if( etaMin >= 0. ) m_macroRegionInnerEta.push_back( etaMin );
-        else         m_macroRegionInnerEta.push_back( etaMax );
+        if( etaMin >= 0. ) m_MacroRegionInnerEta.push_back( etaMin );
+        else         m_MacroRegionInnerEta.push_back( etaMax );
       }
       macroRegionIdx+=4;
     }
     if( m_names[k].find( "EL" ) != std::string::npos || m_names[k].find( "BL" ) != std::string::npos ) { //Large sectors
       if( m_names[k].find( "11" ) != std::string::npos || m_names[k].find( "13" ) != std::string::npos ||
           m_names[k].find( "15" ) != std::string::npos ) {
-        m_macroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
+        m_MacroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
       }
       else {
-        m_macroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
+        m_MacroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
       }
     }
     if( m_names[k].find( "ES" ) != std::string::npos || m_names[k].find( "BS" ) != std::string::npos ) { //Small sectors
       if( m_names[k].find( "10" ) != std::string::npos || m_names[k].find( "12" ) != std::string::npos ||
           m_names[k].find( "14" ) != std::string::npos || m_names[k].find( "16" ) != std::string::npos ) {
-        m_macroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
+        m_MacroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
       }
       else {
-        m_macroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
+        m_MacroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
       }
     }
   }
+  return;
+
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin and splits
 // the barrel 12,14 smalls and 11+15 larges that may need different calibrations
 void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_SplitBAR() {
+
   double etaMin = -999., etaMax = -999.;
   int macroRegionIdx = 0;
   for( int k=0; k < m_nb_regions; ++k ) {
@@ -1239,11 +1310,11 @@ void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_SplitBAR() {
         macroRegName = m_names[k].substr( 0, m_names[k].find( "EL" ) );
         macroRegName = macroRegName.substr( 0, m_names[k].find( "ES" ) );
         //insert 4 time the innerEta, for Large and Small sectors
-        m_macroRegionName.push_back( macroRegName+"Large" );
-        m_macroRegionName.push_back( macroRegName+"Small" );
+        m_MacroRegionName.push_back( macroRegName+"Large" );
+        m_MacroRegionName.push_back( macroRegName+"Small" );
         for( int i=0; i<2; ++i ) {
-          if( etaMin >= 0. ) m_macroRegionInnerEta.push_back( etaMin );
-          else               m_macroRegionInnerEta.push_back( etaMax );
+          if( etaMin >= 0. ) m_MacroRegionInnerEta.push_back( etaMin );
+          else               m_MacroRegionInnerEta.push_back( etaMax );
         }
         macroRegionIdx+=2;
       }
@@ -1251,40 +1322,42 @@ void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_SplitBAR() {
         macroRegName = m_names[k].substr( 0, m_names[k].find( "BL" ) );
         macroRegName = macroRegName.substr( 0, m_names[k].find( "BS" ) );
         //insert 4 time the innerEta, for Large and Small sectors times Up and Dn
-        m_macroRegionName.push_back( macroRegName+"Large" );
-        m_macroRegionName.push_back( macroRegName+"Small" );
-        m_macroRegionName.push_back( macroRegName+"Large11_15" );
-        m_macroRegionName.push_back( macroRegName+"SmallFeet" );
+        m_MacroRegionName.push_back( macroRegName+"Large" );
+        m_MacroRegionName.push_back( macroRegName+"Small" );
+        m_MacroRegionName.push_back( macroRegName+"Large11_15" );
+        m_MacroRegionName.push_back( macroRegName+"SmallFeet" );
         for( int i=0; i<4; ++i ) {
-          if( etaMin >= 0. ) m_macroRegionInnerEta.push_back( etaMin );
-          else               m_macroRegionInnerEta.push_back( etaMax );
+          if( etaMin >= 0. ) m_MacroRegionInnerEta.push_back( etaMin );
+          else               m_MacroRegionInnerEta.push_back( etaMax );
         }
         macroRegionIdx+=4;
       }
     }
     if( m_names[k].find( "EL" ) != std::string::npos ) { //End-Cap Large sectors
-      m_macroRegionIdxMap[k] = macroRegionIdx-2;
+      m_MacroRegionIdxMap[k] = macroRegionIdx-2;
     }
     else if( m_names[k].find( "ES" ) != std::string::npos ) { //End-Cap Small sectors
-      m_macroRegionIdxMap[k] = macroRegionIdx-1; //
+      m_MacroRegionIdxMap[k] = macroRegionIdx-1; //
     }
     else if ( m_names[k].find( "BL" ) != std::string::npos ) { //Barrel Large sectors
       if( m_names[k].find( "11" ) != std::string::npos || m_names[k].find( "15" ) != std::string::npos ) {
-        m_macroRegionIdxMap[k] = macroRegionIdx-2;//Barrel Large sectors with different alignment (11,15)
+        m_MacroRegionIdxMap[k] = macroRegionIdx-2;//Barrel Large sectors with different alignment (11,15)
       }
       else {
-        m_macroRegionIdxMap[k] = macroRegionIdx-4; //Standard Barrel Large sectors
+        m_MacroRegionIdxMap[k] = macroRegionIdx-4; //Standard Barrel Large sectors
       }
     }
     else if( m_names[k].find( "BS" ) != std::string::npos ) { //Barrel Small sectors
       if( m_names[k].find( "12" ) != std::string::npos || m_names[k].find( "14" ) != std::string::npos ) {
-        m_macroRegionIdxMap[k] = macroRegionIdx-1; //Feet Small sectors (12+14, Down).
+        m_MacroRegionIdxMap[k] = macroRegionIdx-1; //Feet Small sectors (12+14, Down).
       }
       else {
-        m_macroRegionIdxMap[k] = macroRegionIdx-3; //All standard Barrel Small sectors
+        m_MacroRegionIdxMap[k] = macroRegionIdx-3; //All standard Barrel Small sectors
       }
     }
   }
+  return;
+
 }
 
 double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var ) {
@@ -1297,11 +1370,11 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
 
   double p0_MS_var = 0., p1_MS_var = 0., p2_MS_var = 0., p1_ID_var = 0., p2_ID_var = 0., p2_ID_TAN_var = 0.;   
   double newSmear = 0.;
-  if( DetType == DET_MS ) {
+  if( DetType == MCAST::DetectorType::MS ) {
     if( m_ptms == 0 ) {  
       return 0;
     } else {
-      if( m_Trel < REL17_2_SUM13 ) {
+      if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
         p0_MS_var = pow( m_E_p0_MS[ m_detRegion ] * m_E_p0_MS[ m_detRegion ] + m_S_p0_MS[ m_detRegion ] * m_S_p0_MS[ m_detRegion ], 0.5 );
         p1_MS_var = pow( m_E_p1_MS[ m_detRegion] * m_E_p1_MS[ m_detRegion ] + m_S_p1_MS[ m_detRegion ] * m_S_p1_MS[ m_detRegion ], 0.5 );
         p2_MS_var = pow( m_E_p2_MS[ m_detRegion] * m_E_p2_MS[ m_detRegion ] + m_S_p2_MS[ m_detRegion ] * m_S_p2_MS[ m_detRegion ], 0.5 );
@@ -1321,8 +1394,8 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
       newSmear = ( p0_MS_var * m_g0 / m_ptms + p1_MS_var * m_g1 + p2_MS_var * m_g2 * m_ptms );
       return newSmear;
     }
-  } else if( DetType == DET_ID ) {
-    if( m_Trel < REL17_2_SUM13 ) {
+  } else if( DetType == MCAST::DetectorType::ID ) {
+    if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
       p1_ID_var     = pow( m_E_p1_ID[ m_detRegion ] * m_E_p1_ID[ m_detRegion ] + m_S_p1_ID[ m_detRegion ] * m_S_p1_ID[ m_detRegion ], 0.5 );
       p2_ID_var     = pow( m_E_p2_ID[ m_detRegion ] * m_E_p2_ID[ m_detRegion ] + m_S_p2_ID[ m_detRegion ] * m_S_p2_ID[ m_detRegion ], 0.5 );
       p2_ID_TAN_var = pow( m_E_p2_ID_TAN[ m_detRegion ] * m_E_p2_ID_TAN[ m_detRegion ] + m_S_p2_ID_TAN[ m_detRegion ] * m_S_p2_ID_TAN[ m_detRegion ], 0.5 );

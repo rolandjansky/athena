@@ -13,7 +13,6 @@
     - the recommended configurations can be found in share/MCAST_jobOptions.py and are:
       alg.MuonCalibrationAndSmearingTool.Year = 'Data12'
       alg.MuonCalibrationAndSmearingTool.Release = 'Rel17.2Sum13'
-      alg.MuonCalibrationAndSmearingTool.FilesPath = '<your path to share dir>'
 
   - If you are running in RootCore:
     - please look at util/MCAST_Tester.cxx how to use the tool
@@ -22,5 +21,4 @@
       corrTool.msg().setLevel( MSG::INFO );
       corrTool.setProperty( "Year", "Data12" );
       corrTool.setProperty( "Release", "Rel17.2Sum13" );
-      corrTool.setProperty( "FilesPath", "<your path to share dir>" );
       corrTool.initialize();

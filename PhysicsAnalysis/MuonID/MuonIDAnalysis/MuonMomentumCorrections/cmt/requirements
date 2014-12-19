@@ -5,26 +5,29 @@ author Giacomo Artoni <Giacomo.Artoni@cern.ch>
 public
 
 use AtlasPolicy     AtlasPolicy-*
-
 use AtlasROOT       AtlasROOT-*       External
 use AtlasBoost      AtlasBoost-*      External
+use AtlasReflex     AtlasReflex-*     External                       -no-auto-imports
 use AsgTools        AsgTools-*        Control/AthToolSupport
 use PATInterfaces   PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
-
 use xAODMuon        xAODMuon-*        Event/xAOD
 
 private
 
-use GaudiInterface  GaudiInterface-*  External
-use AthenaBaseComps AthenaBaseComps-* Control
-use xAODEventInfo   xAODEventInfo-*   Event/xAOD
-
+use GaudiInterface    GaudiInterface-*    External
+use AthenaBaseComps   AthenaBaseComps-*   Control
+use PathResolver      PathResolver-*      Tools
+use xAODEventInfo     xAODEventInfo-*     Event/xAOD
+use xAODBase          xAODBase-*          Event/xAOD
+use xAODCore          xAODCore-*          Event/xAOD
+use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
 end_private
 
 # Declare the library:
 library MuonMomentumCorrections *.cxx ../Root/*.cxx components/*.cxx
 apply_pattern component_library
+apply_pattern lcgdict dict=MuonMomentumCorrections selectionfile=selection.xml headerfiles="../MuonMomentumCorrections/MuonMomentumCorrectionsDict.h"
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py
-apply_pattern declare_runtime files="-s=../share *.dat"
+apply_pattern declare_runtime files="../share/*.dat"
