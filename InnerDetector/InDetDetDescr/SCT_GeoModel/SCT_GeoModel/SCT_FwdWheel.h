@@ -30,6 +30,9 @@ public:
 	       const std::vector<const SCT_FwdModule *> & modules,
 	       int ec);
   ~SCT_FwdWheel();
+  //Explicitly disallow copy and assignment to appease coverity
+  SCT_FwdWheel(const SCT_FwdWheel &) = delete;
+  SCT_FwdWheel & operator=(const SCT_FwdWheel &) = delete;
   
   int wheelNum() const {return m_iWheel;}
 
@@ -63,8 +66,6 @@ private:
   int      m_numRings;
   double   m_zPosition;
   std::vector<int> m_ringType;
-  //std::vector<int> m_ringSide;
-  //std::vector<int> m_ringStereoType;
   std::vector<int> m_patchPanelType;
   std::vector<double> m_patchPanelLocAngle;
   std::vector<bool> m_patchPanelRepeatQuadrant;

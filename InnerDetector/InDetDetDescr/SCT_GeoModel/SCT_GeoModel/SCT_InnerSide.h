@@ -29,6 +29,10 @@ class SCT_InnerSide: public SCT_UniqueComponentFactory
 public:
 
   SCT_InnerSide(const std::string & name);
+  
+  //explicitly disallow copy, assign, to appease coverity
+  SCT_InnerSide(const SCT_InnerSide &) = delete;
+  SCT_InnerSide & operator=(const SCT_InnerSide &) = delete;
 
   ~SCT_InnerSide();  
   virtual GeoVPhysVol * build(SCT_Identifier id) const;

@@ -27,7 +27,10 @@ public:
 
   SCT_OuterSide(const std::string & name);
 
-  ~SCT_OuterSide();  
+  ~SCT_OuterSide(); 
+  //Explicitly disallow copy, assign to appease coverity
+  SCT_OuterSide(const SCT_OuterSide &) = delete;
+  SCT_OuterSide & operator=(const SCT_OuterSide &) = delete;
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
   
 public:
