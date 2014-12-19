@@ -29,7 +29,7 @@
 #include "AthenaKernel/IThinningSvc.h"
 
 // DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"

@@ -13,7 +13,8 @@ use AthenaKernel	AthenaKernel-*		Control
 use AthenaServices      AthenaServices-*   	Control -no_auto_imports
 use SGTools		SGTools-*		Control 
 use AthenaBaseComps	AthenaBaseComps-* 	Control
-use DataModel		DataModel-*		Control
+use AthContainers	AthContainers-*		Control
+use AthLinks		AthLinks-*		Control
 use AthenaPython	AthenaPython-*		Control -no_auto_imports
 
 ##

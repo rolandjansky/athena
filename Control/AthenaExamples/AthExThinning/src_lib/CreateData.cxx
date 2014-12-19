@@ -22,8 +22,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // DataModel includes
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLinkVector.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExIParticles.h"

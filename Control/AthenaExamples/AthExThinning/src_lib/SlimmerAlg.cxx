@@ -18,7 +18,7 @@
 // STL includes
 
 // datamodel
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"

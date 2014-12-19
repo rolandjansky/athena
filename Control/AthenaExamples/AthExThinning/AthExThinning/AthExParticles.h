@@ -17,7 +17,7 @@
 
 // Gaudi includes
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 
 // AthExThinning includes

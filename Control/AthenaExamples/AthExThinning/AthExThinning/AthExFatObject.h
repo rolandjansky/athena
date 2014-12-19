@@ -19,7 +19,7 @@
 
 // datamodel
 #include "SGTools/CLASS_DEF.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // Forward declaration
 class AthExFatObjectSlimmer;

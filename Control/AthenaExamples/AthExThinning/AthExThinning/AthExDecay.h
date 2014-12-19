@@ -18,7 +18,7 @@
 #include "SGTools/CLASS_DEF.h"
 
 // DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"

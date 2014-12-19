@@ -17,7 +17,7 @@
 // AthenaKernel includes
 #include "AthenaKernel/ISlimmingHdlr.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "AthExThinning/AthExParticles.h"
 
 // Forward declaration
