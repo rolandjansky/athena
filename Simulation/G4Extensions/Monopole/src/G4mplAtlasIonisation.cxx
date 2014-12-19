@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplAtlasIonisation.cxx 729653 2016-03-14 15:55:47Z jchapman $
+// $Id: G4mplAtlasIonisation.cxx 637068 2014-12-19 15:17:25Z jchapman $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 // -------------------------------------------------------------------
@@ -45,20 +45,20 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-// class header
-#include "G4mplAtlasIonisation.hh"
-// package headers
-#include "G4mplAtlasIonisationWithDeltaModel.hh"
-// Geant4 headers
-#include "G4BohrFluctuations.hh"
+#include "Monopole/G4mplAtlasIonisation.hh"
 #include "G4Electron.hh"
-#include "G4EmProcessSubType.hh"
-#include "G4Version.hh"
-// CLHEP headers
-#include "CLHEP/Units/SystemOfUnits.h"
+//#include "Monopole/G4mplIonisationModel.hh"
+//#include "Monopole/G4mplAtlasIonisationModel.hh"
+#include "Monopole/G4mplAtlasIonisationWithDeltaModel.hh"
+//#include "Monopole/G4mplAtlasIonisationModel.hh"
+#include "G4BohrFluctuations.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "G4EmProcessSubType.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+using namespace std;
 
 G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& name)
   : G4VEnergyLossProcess(name),
@@ -66,7 +66,7 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
     isInitialised(false)
 {
 
-  G4cout <<"!!! G4mplAtlasIonisation constructor"<<G4endl;
+  std::cout <<"!!! G4mplAtlasIonisation constructor"<<std::endl;
 
   SetProcessSubType(  fIonisation );
 
@@ -74,9 +74,6 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
   if(magneticCharge == 0.0) magneticCharge = CLHEP::eplus*0.5/CLHEP::fine_structure_const;
 
   SetDEDXBinning(120);
-#if G4VERSION_NUMBER < 1010
-  SetLambdaBinning(120); //G4 9.6 only
-#endif
   SetMinKinEnergy(0.1*CLHEP::keV);
   SetMaxKinEnergy(100.0*CLHEP::TeV);
   SetVerboseLevel(0);
@@ -86,7 +83,7 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
 
 G4mplAtlasIonisation::~G4mplAtlasIonisation()
 {
-  G4cout <<"!!! G4mplAtlasIonisation destructor"<<G4endl;
+  std::cout <<"!!! G4mplAtlasIonisation destructor"<<std::endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -96,7 +93,7 @@ void G4mplAtlasIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinitio
 {
   if(isInitialised) return;
 
-  G4cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess"<<G4endl;
+  std::cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess"<<std::endl;
 
   SetBaseParticle(0);
   SetSecondaryParticle(G4Electron::Electron());
@@ -115,7 +112,7 @@ void G4mplAtlasIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinitio
 
   isInitialised = true;
 
-  G4cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess done"<<G4endl;
+  std::cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess done"<<std::endl;
 
 }
 

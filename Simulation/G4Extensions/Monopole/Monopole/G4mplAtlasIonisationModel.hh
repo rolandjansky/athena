@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -33,7 +37,7 @@
 //
 // File name:     G4mplAtlasIonisationModel
 //
-// Author:        Vladimir Ivanchenko
+// Author:        Vladimir Ivanchenko 
 //
 // Creation date: 06.09.2005
 //
@@ -47,12 +51,11 @@
 // -------------------------------------------------------------------
 //
 
-#ifndef MONOPOLE_G4mplAtlasIonisationModel_h
-#define MONOPOLE_G4mplAtlasIonisationModel_h 1
+#ifndef G4mplAtlasIonisationModel_h
+#define G4mplAtlasIonisationModel_h 1
 
 #include "G4VEmModel.hh"
 #include "G4VEmFluctuationModel.hh"
-#include "G4Version.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 class G4ParticleChangeForLoss;
@@ -66,38 +69,38 @@ public:
 
   virtual ~G4mplAtlasIonisationModel();
 
-  virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&) override final;
+  virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&);
 
   virtual G4double ComputeDEDXPerVolume(const G4Material*,
-                                        const G4ParticleDefinition*,
-                                        G4double kineticEnergy,
-                                        G4double cutEnergy) override final;
+					const G4ParticleDefinition*,
+					G4double kineticEnergy,
+					G4double cutEnergy);
 
   virtual void SampleSecondaries(     std::vector<G4DynamicParticle*>* ,
-                                      const G4MaterialCutsCouple*,
-                                      const G4DynamicParticle*,
+                                const G4MaterialCutsCouple*,
+                                const G4DynamicParticle*,
                                       G4double tmin,
-                                      G4double maxEnergy) override final;
+                                      G4double maxEnergy);
 
 
-  virtual G4double SampleFluctuations(const G4MaterialCutsCouple* material,
-                                      const G4DynamicParticle* dp,
+  virtual G4double SampleFluctuations(const G4MaterialCutsCouple*,
+                                      const G4DynamicParticle*,
                                       G4double tmax,
                                       G4double length,
-                                      G4double meanLoss) override final;
+                                      G4double meanLoss);
 
-  virtual G4double Dispersion(        const G4Material*,
-                                      const G4DynamicParticle*,
-                                      G4double tmax,
-                                      G4double length) override final;
-
-  // hide assignment operator and copy constructor
-  G4mplAtlasIonisationModel & operator=(const  G4mplAtlasIonisationModel &right) = delete;
-  G4mplAtlasIonisationModel(const  G4mplAtlasIonisationModel&) = delete;
+  virtual G4double Dispersion(const G4Material*,
+                              const G4DynamicParticle*,
+                              G4double tmax,
+                              G4double length);
 
 private:
 
   void SetParticle(const G4ParticleDefinition* p);
+
+  // hide assignment operator
+  G4mplAtlasIonisationModel & operator=(const  G4mplAtlasIonisationModel &right);
+  G4mplAtlasIonisationModel(const  G4mplAtlasIonisationModel&);
 
   const G4ParticleDefinition* monopole;
   G4ParticleChangeForLoss*    fParticleChange;
@@ -117,23 +120,23 @@ private:
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-inline void G4mplAtlasIonisationModel::SampleSecondaries(
-                                                         std::vector<G4DynamicParticle*>* ,
-                                                         const G4MaterialCutsCouple*,
-                                                         const G4DynamicParticle*,
-                                                         G4double,
-                                                         G4double)
+inline void G4mplAtlasIonisationModel::SampleSecondaries( 
+                                   std::vector<G4DynamicParticle*>* ,
+                             const G4MaterialCutsCouple*,
+                             const G4DynamicParticle*,
+                                   G4double,
+                                   G4double)
 {;}
 
 inline G4double G4mplAtlasIonisationModel::Dispersion(
-                                                      const G4Material* material,
-                                                      const G4DynamicParticle* dp,
-                                                      G4double tmax,
-                                                      G4double length)
+                          const G4Material* material,
+                          const G4DynamicParticle* dp,
+                                G4double tmax,
+                                G4double length)
 {
   G4double siga = 0.0;
   G4double tau   = dp->GetKineticEnergy()/mass;
-  if(tau > 0.0) {
+  if(tau > 0.0) { 
     G4double electronDensity = material->GetElectronDensity();
     G4double gam   = tau + 1.0;
     G4double invbeta2 = (gam*gam)/(tau * (tau+2.0));
