@@ -7,12 +7,12 @@
 
 InsituDataCorrection::InsituDataCorrection()
   : asg::AsgTool( "InsituDataCorrection::InsituDataCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_insituCorr(NULL)
+    m_config(NULL), m_jetAlgo(""), m_insituCorr(NULL)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_insituCorr(NULL)
+    m_config(NULL), m_jetAlgo(""), m_insituCorr(NULL)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo)

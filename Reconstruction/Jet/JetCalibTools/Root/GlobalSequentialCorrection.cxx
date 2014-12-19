@@ -20,7 +20,7 @@
 
 #include <TKey.h>
 
-#include "xAODMuon/MuonSegment.h"
+#include "xAODMuon/MuonSegmentContainer.h"
 
 #include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
 #include "PathResolver/PathResolver.h"
@@ -199,7 +199,11 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
   for (uint i=0; i<m_punchThroughEtaBins.size()-1; ++i) {
     if(eta_det >= m_punchThroughEtaBins[i] && eta_det < m_punchThroughEtaBins[i+1]) etabin = i;
   }
-  if(etabin<0) ATH_MSG_WARNING("There was a problem determining the eta bin to use for the punch through correction.");
+  if(etabin<0) {
+    ATH_MSG_WARNING("There was a problem determining the eta bin to use for the punch through correction.");
+    //this could probably be improved, but to avoid a seg fault...
+    return 1;
+  }
   double PunchThroughResponse = readPtJetPropertyHisto(E,log(Nsegments),m_respFactorsPunchThrough[etabin]);
   if ( PunchThroughResponse > 1 ) return 1;
   return PunchThroughResponse;
@@ -276,8 +280,12 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   //vector<float> that holds the trackWIDTH variable calculated with tracks of pT > 1 GeV for different primary vertices
   std::vector<float> trackWIDTH = jet.getAttribute<std::vector<float> >("TrackWidthPt1000");
   //vector<const MuonSegment* > that holds the ghost associated muon segments behind each jet
-  std::vector<const xAOD::MuonSegment*> vecMuonSegments = jet.getAttribute<std::vector<const xAOD::MuonSegment*> >("GhostMuonSegment");
-  int Nsegments = vecMuonSegments.size();
+  int Nsegments = 0;
+  std::vector<const xAOD::MuonSegment*> vecMuonSegments;
+  if ( jet.getAssociatedObjects("GhostMuonSegment", vecMuonSegments) )
+    Nsegments = vecMuonSegments.size();
+  else 
+    ATH_MSG_WARNING("Couldn't retrieve GhostMuonSegment jet associated object, punch through correction won't be applied");
 
   xAOD::JetFourMom_t jetStartP4;
   ATH_CHECK( setStartP4(jet) );

@@ -6,19 +6,19 @@
 
 JetPileupCorrection::JetPileupCorrection()
   : asg::AsgTool( "JetPileupCorrection::JetPileupCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
-JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData)
+JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool doOrigin, bool isData)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_doResidual(doResidual), m_isData(isData),
+    m_config(config), m_jetAlgo(jetAlgo), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
@@ -52,7 +52,7 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
     ATH_MSG_WARNING("JetPileupCorrection::initializeTool : WARNING!! You have requested the 4 vector jet area correction and the residual offset correction. This configuration is not currently supported, the residual offset correction will be deactivated.");
      return StatusCode::SUCCESS;
   } else if ( !m_doResidual && !m_useFull4vectorArea ) {
-    ATH_MSG_WARNING("JetPileupCorrection::initializeTool : WARNING!! You have requested the transverse jet area correction without the residual offset correction. This configuration is not recommended.");
+    ATH_MSG_VERBOSE("JetPileupCorrection::initializeTool : You have requested the transverse jet area correction without the residual offset correction. This configuration is not recommended.");
     return StatusCode::SUCCESS;
   } else { 
     return StatusCode::SUCCESS;
@@ -87,6 +87,8 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     ATH_MSG_VERBOSE("  Applying area-subtraction calibration to jet " << jet.index() << " with pT = " << 0.001*jet.pt() << " GeV");
     //subtract rho * the jet area from the jet
     xAOD::JetFourMom_t calibP4 = jetStartP4 - rho*jetareaP4;
+    //Attribute to track if a jet has received the pileup subtraction (always true if this code was run)
+    jet.setAttribute<int>("PileupCorrected",true);
     //Transfer calibrated jet properties to the Jet object
     jet.setAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum",calibP4);
     jet.setJetP4( calibP4 );
@@ -105,8 +107,28 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
 
     //Set the jet pT to 10 MeV if the pT is negative after the jet area and residual offset corrections
     const double pileup_SF = pT_offset >= 0 ? pT_offset / pT_det : 0.01*m_GeV/pT_det;
-    xAOD::JetFourMom_t calibP4 = jetStartP4*pileup_SF;
 
+    xAOD::JetFourMom_t calibP4;
+    if ( m_doOrigin ) { 
+      xAOD::JetFourMom_t jetOriginP4;
+      static unsigned int originWarnings = 0;
+      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+	calibP4 = jetOriginP4*pileup_SF;
+      else {
+	if ( originWarnings < 20 ) {
+	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ++originWarnings;
+	}
+	calibP4 = jetStartP4*pileup_SF;
+      }
+    } else
+      calibP4 = jetStartP4*pileup_SF;
+
+    //Attribute to track if a jet has received the origin correction
+    jet.setAttribute<int>("OriginCorrected",m_doOrigin);
+    //Attribute to track if a jet has received the pileup subtraction (always true if this code was run)
+    jet.setAttribute<int>("PileupCorrected",true);
+    
     //Transfer calibrated jet properties to the Jet object
     jet.setAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum",calibP4);
     jet.setJetP4( calibP4 );
@@ -115,7 +137,26 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     ATH_MSG_VERBOSE("  Applying postive-only area-subtraction calibration to jet " << jet.index() << " with pT = " << 0.001*jet.pt() << " GeV");
     //Set the jet pT to 10 MeV if the pT or energy is negative after the jet area correction
     const double area_SF = (pT_det-rho*jetareaP4.pt()<=0 || E_det-rho*jetareaP4.e()<=0) ? 10/pT_det : (pT_det-rho*jetareaP4.pt())/pT_det;
-    xAOD::JetFourMom_t calibP4 = jetStartP4*area_SF;
+    xAOD::JetFourMom_t calibP4;
+    if ( m_doOrigin ) { 
+      xAOD::JetFourMom_t jetOriginP4;
+      static unsigned int originWarnings = 0;
+      if ( jet.getAttribute<xAOD::JetFourMom_t>("JetOriginConstitScaleMomentum",jetOriginP4) )
+	calibP4 = jetOriginP4*area_SF;
+      else {
+	if ( originWarnings < 20 ) {
+	  ATH_MSG_WARNING("Could not retrieve JetOriginConstitScaleMomentum jet attribute, origin correction will not be applied.");
+	  ++originWarnings;
+	}
+	calibP4 = jetStartP4*area_SF;
+      }
+    } else
+      calibP4 = jetStartP4*area_SF;
+
+    //Attribute to track if a jet has received the origin correction
+    jet.setAttribute<int>("OriginCorrected",m_doOrigin);
+    //Attribute to track if a jet has received the pileup subtraction (always true if this code was run)
+    jet.setAttribute<int>("PileupCorrected",true);
 
     //Transfer calibrated jet properties to the Jet object
     jet.setAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum",calibP4);

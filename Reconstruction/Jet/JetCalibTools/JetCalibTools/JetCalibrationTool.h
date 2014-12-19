@@ -57,13 +57,14 @@ public:
                      TString config = "", 
                      TString calibSeq = "JetArea_Offset_AbsoluteEtaJES_Insitu",
                      bool isData = true,
-                     TString dir = "");
+                     TString rhoKey = "auto",
+                     TString dir = "JetCalibTools/CalibrationConfigs/");
 
 
   /// Destructor: 
   virtual ~JetCalibrationTool(); 
 
-  enum jetScale { EM, LC };
+  enum jetScale { EM, LC, PFLOW };
 
   // Initialize the tool (default, assumes private members were set in the constructor)
   virtual StatusCode initializeTool(const std::string& name);
@@ -100,6 +101,7 @@ private:
   std::string m_config;
   std::string m_calibSeq;
   bool m_isData;
+  std::string m_rhoKey;
   std::string m_dir;
 
   //TEnv to hold the global text config
@@ -109,6 +111,7 @@ private:
   jetScale m_jetScale;
   bool m_doJetArea;
   bool m_doResidual;
+  bool m_doOrigin;
 
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;
