@@ -25,7 +25,7 @@ def RunInnerDetectorOnly():
 def ListOfTupleToDic(lst):
     if lst is None:
         return {}
-    
+
     import collections as _c
     dic= _c.defaultdict(list)
 
@@ -41,13 +41,13 @@ def InputFileNames():
         return athenaCommonFlags.FilesInput()
     from RecExConfig.RecFlags import rec
     inFiles=None
-     
+
 ## FIXME
 ##     if (not athenaCommonFlags.PoolTAGInput.isDefault() or rec.readTAG() ):
 ##         inFiles=athenaCommonFlags.PoolTAGInput()
 ##     elif (not athenaCommonFlags.PoolAODInput.isDefault() or rec.readAOD() ):
 ##         inFiles=athenaCommonFlags.PoolAODInput()
-##     elif (not athenaCommonFlags.PoolESDInput.isDefault() or rec.readESD() ):     
+##     elif (not athenaCommonFlags.PoolESDInput.isDefault() or rec.readESD() ):
 ##         inFiles=athenaCommonFlags.PoolESDInput()
 ##     elif not athenaCommonFlags.BSRDOInput.isDefault():
 ##         inFiles=athenaCommonFlags.BSRDOInput()
@@ -69,7 +69,7 @@ def InputFileNames():
             inFiles=athenaCommonFlags.PoolRDOInput()
     else:
         raise RuntimeError("Unable to determine input file")
-    
+
     return inFiles
 
 
@@ -85,17 +85,17 @@ def OutputFileName(suffix=""):
                 OutFileName="rdo"
         elif rec.readESD():
             OutFileName="esd"
-        elif rec.readAOD():    
+        elif rec.readAOD():
             OutFileName="aod"
         else:
             OutFileName="in"
-            
+
         OutFileName=OutFileName+"to"
         if rec.doWriteBS():
             OutFileName=OutFileName+"bs"
         elif rec.doWriteRDO():
             OutFileName=OutFileName+"rdo"
-            
+
         if rec.doESD():
             OutFileName=OutFileName+"esd"
         if rec.doAOD():
@@ -104,7 +104,7 @@ def OutputFileName(suffix=""):
             OutFileName=OutFileName+"dpd"
         if rec.doWriteTAG():
             OutFileName=OutFileName+"tag"
-            
+
         if suffix!="":
             OutFileName=OutFileName+"_"+suffix
         print "Generated OutFileName",OutFileName
@@ -151,7 +151,7 @@ def AddValidItemToList(item,aList):
             aList += [item]
     else:
         raise TypeError("RecoFunctions.AddValidItemToList() does not support item of type %s"%type(item))
-    return 
+    return
 
 def RemoveValidItemFromList(item,aList):
     #Recursive loop if item is a list
@@ -175,15 +175,3 @@ def ItemInListStartsWith(item_starts, aList):
         if item.startswith(item_starts):
             found = True
     return found
-
-##--------------------
-def GetSkimCycle( inputFileSummary ):
-    cycle=-1
-    try:
-        metaDataItemList=inputFileSummary['metadata_itemsList']
-        for item in metaDataItemList:
-            if item.startswith("EventBookkeeperCollection#cycle"):
-                cycle=int(item.lstrip("EventBookkeeperCollection#cycle"))
-    except:
-        print "WARNING Unable to determine skim cycle from metadata_itemList."
-    return cycle

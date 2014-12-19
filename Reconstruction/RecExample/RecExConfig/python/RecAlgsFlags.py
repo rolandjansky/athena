@@ -64,7 +64,7 @@ class doMuonSpShower(JobProperty):
     """ Switch for MuonSpShower (muon identification in jets)"""
     statusOn=True 
     allowedTypes=['bool']
-    StoredValue=True 
+    StoredValue=False 
 class doCaloTrkMuId(JobProperty):
     """ Switch for CaloTrkMuid (muon identification in calorimeter with tracks)"""
     statusOn=True 
@@ -117,6 +117,12 @@ class doMonteCarloReact(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class doTrackParticleCellAssociation(JobProperty):
+    """ Switch for TrackParticle cell association  """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 # Defines a sub-container for the algorithm switches
 class RecAlgs(JobPropertyContainer):
     """ Algorithm switches. """
@@ -133,7 +139,7 @@ _list_Rec=[doTrackRecordFilter,\
            doTrigger,\
            doMuonIDStandAlone,doMuonIDCombined,doMuidLowPt,doMuGirl,\
            doStaco,doMuTag,doTileMuID,doMuonSpShower,doCaloTrkMuId,
-           doAtlfast,doMonteCarloReact ]
+           doAtlfast,doMonteCarloReact,doTrackParticleCellAssociation ]
 for j in _list_Rec: 
     recAlgs.add_JobProperty(j)
 del _list_Rec

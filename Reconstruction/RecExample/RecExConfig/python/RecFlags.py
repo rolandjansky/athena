@@ -924,6 +924,13 @@ class doWriteCalibHits(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
+    StoredValue=False
+
+class doContainerRemapping(JobProperty):
+    """ Enable container name remapping
+    """
+    statusOn=True
+    allowedTypes=['bool']
     StoredValue=True
 
 
@@ -957,7 +964,7 @@ doWriteAOD, doWritexAOD, doWriteESD, doWriteBS, doWriteRDO, doWriteTAG, doWriteT
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList ]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping ]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec
