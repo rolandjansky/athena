@@ -23,4 +23,8 @@
   </class>
 
   <class name="std::vector<ElementLink<DataVector<DMTest::B> > >"/>
+
+  <class name="DMTest::G_v1" id="0EA73CDC-FBD0-4241-9041-14D276B604CC"/>
+  <class name="DMTest::GVec_v1" id="C532D340-6D58-444F-9C34-54C7A3D645AD"/>
+  <class name="DMTest::GAuxContainer_v1" id="E70544A9-9D77-475E-AAD8-C5F967A44B66"/>
 </lcgdict>

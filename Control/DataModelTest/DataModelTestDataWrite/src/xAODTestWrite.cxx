@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file  src/xAODTestWrite.cxx
+ * @file DataModelTestDataWrite/src/xAODTestWrite.cxx
  * @author snyder@bnl.gov
  * @date May 2014
  * @brief Algorithm to test writing xAOD classes with auxiliary data.
@@ -17,8 +17,21 @@
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataWrite/GVec.h"
+#include "DataModelTestDataWrite/G.h"
+#include "DataModelTestDataWrite/GAuxContainer.h"
+#include "AthContainersInterfaces/AuxDataOption.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
+
+
+#define CHECK_OPTION(ret)                       \
+  do {                                          \
+    if (!ret) {                                 \
+      ATH_MSG_ERROR("setOption failed");        \
+      return StatusCode::FAILURE;               \
+    }                                           \
+  } while(0)
 
 
 namespace DMTest {
@@ -61,9 +74,9 @@ StatusCode xAODTestWrite::execute()
   DMTest::CTrigAuxContainer* trig_store = new DMTest::CTrigAuxContainer;
   trig_coll->setStore (trig_store);
 
-  DMTest::C* c = new DMTest::C;
+  DMTest::C* cinfo = new DMTest::C;
   DMTest::CInfoAuxContainer* info_store = new DMTest::CInfoAuxContainer;
-  c->setStore (info_store);
+  cinfo->setStore (info_store);
 
   CHECK( evtStore()->record (coll, "cvec") );
   CHECK( evtStore()->record (store, "cvecAux.") );
@@ -72,16 +85,44 @@ StatusCode xAODTestWrite::execute()
   static C::Decorator<int> dInt1 ("dInt1");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
+  //static C::Decorator<SG::PackedElement<unsigned int> > dpInt1 ("dpInt1");
+  //static C::Decorator<SG::PackedElement<std::vector<float> > > dpvFloat ("dpvFloat");
+  static C::Decorator<unsigned int> dpInt1 ("dpInt1");
+  static C::Decorator<std::vector<float> > dpvFloat ("dpvFloat");
+
   for (int i=0; i < 10; i++) {
     coll->push_back (new DMTest::C);
     C& c = *coll->back();
     c.setAnInt (m_count * 100 + i+1);
     c.setAFloat (m_count * 200 + (float)i/10);
+    c.setPInt (m_count * 500 + i+1);
+    c.setPFloat (i + (float)m_count / 100);
+
+    std::vector<int> pvi;
+    for (int j=0; j<i; j++)
+      pvi.push_back (j + i*10 + m_count*100 - 500);
+    c.setPVInt (pvi);
+
+    std::vector<float> pvf;
+    for (int j=0; j<i; j++)
+      pvf.push_back ((float)j/10 + (float)i/100 + (float)m_count/1000 - 0.5);
+    c.setPVFloat (std::move (pvf));
 
     anInt2(c) = m_count*300 + i+1;
     dInt1(c) = m_count*400 + i+1;
+    dpInt1(c) = m_count*50 + i+1;
     cEL(c).toIndexedElement (*coll, 9-i);
+
+    pvf.clear();
+    for (int j=0; j<i; j++)
+      pvf.push_back ((float)i/10 + (float)m_count/100 + (float)j/1000);
+    dpvFloat(c) = std::move(pvf);
   }
+
+  CHECK_OPTION( coll->setOption ("dpInt1", SG::AuxDataOption ("nbits", 13)) );
+  CHECK_OPTION( coll->setOption ("dpvFloat", SG::AuxDataOption ("nbits", 13)) );
+  CHECK_OPTION( coll->setOption ("dpvFloat", SG::AuxDataOption ("signed", 0)));
+  CHECK_OPTION( coll->setOption ("dpvFloat", SG::AuxDataOption ("nmantissa", 13)) );
 
   for (int i=0; i < 8; i++) {
     trig_coll->push_back (new DMTest::C);
@@ -93,10 +134,10 @@ StatusCode xAODTestWrite::execute()
     dInt1(c) = m_count*480 + i+1;
   }
 
-  c->setAnInt (m_count * 1000);
-  c->setAFloat ((float)m_count / 10);
-  anInt2(*c) = m_count * 2000;
-  dInt1(*c) = m_count * 3000;
+  cinfo->setAnInt (m_count * 1000);
+  cinfo->setAFloat ((float)m_count / 10);
+  anInt2(*cinfo) = m_count * 2000;
+  dInt1(*cinfo) = m_count * 3000;
 
   CHECK( evtStore()->setConst (coll) );
   CHECK( evtStore()->setConst (store) );
@@ -106,12 +147,27 @@ StatusCode xAODTestWrite::execute()
   CHECK( evtStore()->setConst (trig_coll) );
   CHECK( evtStore()->setConst (trig_store) );
 
-  cEL(*c).toIndexedElement (*coll, m_count % coll->size());
+  cEL(*cinfo).toIndexedElement (*coll, m_count % coll->size());
 
-  CHECK( evtStore()->record (c, "cinfo") );
+  CHECK( evtStore()->record (cinfo, "cinfo") );
   CHECK( evtStore()->record (info_store, "cinfoAux.") );
-  CHECK( evtStore()->setConst (c) );
+  CHECK( evtStore()->setConst (cinfo) );
   CHECK( evtStore()->setConst (info_store) );
+
+  DMTest::GVec* gvec = new DMTest::GVec;
+  DMTest::GAuxContainer* gstore = new DMTest::GAuxContainer;
+  gvec->setStore (gstore);
+
+  for (int i=0; i < 10; i++) {
+    gvec->push_back (new DMTest::G);
+    G& g = *gvec->back();
+    g.setAnInt (m_count * 700 + i+1);
+  }
+
+  CHECK( evtStore()->record (gvec, "gvec") );
+  CHECK( evtStore()->record (gstore, "gvecAux.") );
+  CHECK( evtStore()->setConst (gvec) );
+  CHECK( evtStore()->setConst (gstore) );
 
   return StatusCode::SUCCESS;
 }

@@ -17,8 +17,18 @@
 #include "DataModelTestDataCommon/BAuxStandalone.h"
 #include "DataModelTestDataCommon/BAuxVec.h"
 #include "AthContainers/AuxStoreInternal.h"
+#include "AthContainersInterfaces/AuxDataOption.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
+
+
+#define CHECK_OPTION(ret)                       \
+  do {                                          \
+    if (!ret) {                                 \
+      ATH_MSG_ERROR("setOption failed");        \
+      return StatusCode::FAILURE;               \
+    }                                           \
+  } while(0)
 
 
 namespace DMTest {
@@ -63,6 +73,15 @@ StatusCode AuxDataTestWrite::execute()
   static BAux::Accessor<DMTest::B> aB ("aB");
   static BAux::Decorator<float> dFloat1 ("dFloat1");
 
+  static BAux::Accessor<unsigned int> pint ("pint");
+  static BAux::Accessor<float> pfloat ("pfloat");
+  static BAux::Accessor<std::vector<int> > pvint ("pvint");
+  static BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
+
+  CHECK_OPTION( vec->setOption ("pint", "nbits", 3) );
+  CHECK_OPTION( vec->setOption ("pvfloat", SG::AuxDataOption ("nbits", 13)) );
+  CHECK_OPTION( vec->setOption ("pvfloat", SG::AuxDataOption ("nmantissa",12)));
+
   for (int i=0; i < 10; i++) {
     vec->push_back (new BAux (i + m_count * 1000));
     BAux& b = *vec->back();
@@ -70,7 +89,27 @@ StatusCode AuxDataTestWrite::execute()
     aFloat1(b) = m_count*1000 + i+200 + 0.5;
     dFloat1(b) = m_count*1000 + i+400 + 0.5;
     aB(b).m_x = m_count*1000 + i+300;
+
+    pint(b) = (m_count*2 + i) % 3;
+    pfloat(b) = i + (float)m_count / 100;
+
+    std::vector<int> pvi;
+    for (int j=0; j<i; j++)
+      pvi.push_back (j + i*10 + m_count*100 - 500);
+    pvint(b) = pvi;
+
+    std::vector<float> pvf;
+    for (int j=0; j<i; j++)
+      pvf.push_back ((float)j/10 + (float)i/100 + (float)m_count/1000 - 0.5);
+    pvfloat(b) = std::move (pvf);
   }
+
+  CHECK_OPTION( vec->setOption ("pfloat", SG::AuxDataOption ("nbits", 17)) );
+  CHECK_OPTION( vec->setOption ("pfloat", SG::AuxDataOption ("signed", 0)) );
+  CHECK_OPTION( vec->setOption ("pfloat", SG::AuxDataOption ("nmantissa", 17)));
+  CHECK_OPTION( vec->setOption ("pfloat", SG::AuxDataOption ("scale", 10)) );
+
+  CHECK_OPTION( vec->setOption ("pvint", SG::AuxDataOption ("nbits", 13)) );
   
   CHECK( evtStore()->record (vec, "bauxvec") );
   CHECK( evtStore()->record (store, "bauxvecAux.") );

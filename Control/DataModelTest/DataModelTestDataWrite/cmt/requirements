@@ -19,10 +19,12 @@ use DataModelTestDataCommon DataModelTestDataCommon-* Control/DataModelTest
 use GaudiInterface          GaudiInterface-*          External
 use CLIDSvc                 CLIDSvc-*                 Control
 use SGTools                 SGTools-*                 Control
+use xAODCore                xAODCore-*                Event/xAOD
 
 
 private
 use AthenaKernel            AthenaKernel-*            Control
+use AthContainersInterfaces AthContainersInterfaces-* Control
 use StoreGate               StoreGate-*               Control
 use AthenaBaseComps         AthenaBaseComps-*         Control
 end_private
@@ -38,4 +40,5 @@ macro elemLinks_DataModelTestDataWrite "DataVector<DMTest::B>"
 apply_tag no_rootmap
 apply_pattern lcgdict dict=DataModelTestDataWrite selectionfile=selection.xml\
   headerfiles="../DataModelTestDataWrite/DataModelTestDataWriteDict.h" \
-  elementLinks="$(elemLinks_DataModelTestDataWrite)"
+  elementLinks="$(elemLinks_DataModelTestDataWrite)" \
+  extralibfiles=../src/dict/*.cxx

@@ -21,9 +21,12 @@
 #include "DataModelTestDataWrite/DVec.h"
 #include "DataModelTestDataWrite/DDer.h"
 #include "DataModelTestDataWrite/ELVec.h"
+#include "DataModelTestDataWrite/G.h"
+#include "DataModelTestDataWrite/GVec.h"
+#include "DataModelTestDataWrite/GAuxContainer.h"
 
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_DATAMODELTESTDATAWRITE {
   ElementLink<DMTest::BVec> m_dum1;
   DataLink<DMTest::BVec> m_dum2;
 };
