@@ -24,18 +24,18 @@ namespace ZeeValidation{
     // Reco only information
     std::string m_sParticleType;
     
-    TH1* z_mass[nLevels];
-    TH1* z_pt[nLevels];
-    TH1* z_y[nLevels];
+    TH1* h_z_mass[nLevels];
+    TH1* h_z_pt[nLevels];
+    TH1* h_z_y[nLevels];
 
-    TH1* dr_electrons[nLevels];
+    TH1* h_dr_electrons[nLevels];
 
-    TH1* pt_central_electron[nLevels];
-    TH1* eta_central_electron[nLevels];
-    TH1* phi_central_electron[nLevels];
-    TH1* pt_fwd_electron[nLevels];
-    TH1* eta_fwd_electron[nLevels];
-    TH1* phi_fwd_electron[nLevels];
+    TH1* h_pt_central_electron[nLevels];
+    TH1* h_eta_central_electron[nLevels];
+    TH1* h_phi_central_electron[nLevels];
+    TH1* h_pt_fwd_electron[nLevels];
+    TH1* h_eta_fwd_electron[nLevels];
+    TH1* h_phi_fwd_electron[nLevels];
 
   private:
  

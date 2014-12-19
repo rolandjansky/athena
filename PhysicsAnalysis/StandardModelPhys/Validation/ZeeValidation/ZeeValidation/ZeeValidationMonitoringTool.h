@@ -70,7 +70,7 @@ namespace ZeeValidation {
     
     /// Default constructor:
     ZeeValidationMonitoringTool();
-    
+ 
     // Containers
     std::string m_eventInfoName;
     std::string m_elecName; 
@@ -87,6 +87,13 @@ namespace ZeeValidation {
     double m_EtaCrackLowCut, m_EtaCrackHighCut;
     double m_dRminRecoTrue;
 
+   // Hists
+    ZeeValidation::ReconElectronsPlots m_ReconElectronsPlots;
+    ZeeValidation::TrueElectronsPlots m_TrueElectronsPlots;
+    ZeeValidation::TrueFwdElectronsPlots m_TrueFwdElectronsPlots;
+    ZeeValidation::ZeePlots m_ZeePlots;
+    ZeeValidation::FWDZeePlots m_FWDZeePlots;
+
     //Matching True-Reco
     void MatchElec(const xAOD::TruthParticle* truth_electron, const xAOD::ElectronContainer* electrons);
     double drmin_elreco_truth;
@@ -97,13 +104,6 @@ namespace ZeeValidation {
     double drmin_phreco_truth;
     bool matchedP;
     
-    // Hists
-    ZeeValidation::ReconElectronsPlots m_ReconElectronsPlots;
-    ZeeValidation::TrueElectronsPlots m_TrueElectronsPlots;
-    ZeeValidation::TrueFwdElectronsPlots m_TrueFwdElectronsPlots;
-    ZeeValidation::ZeePlots m_ZeePlots;
-    ZeeValidation::FWDZeePlots m_FWDZeePlots;
-
     StatusCode book(PlotBase& plots);
   }; 
   

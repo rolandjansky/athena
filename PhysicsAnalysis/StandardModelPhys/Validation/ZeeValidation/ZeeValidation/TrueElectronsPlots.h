@@ -8,6 +8,7 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBase/IParticle.h"
+#include "xAODEgamma/Electron.h"
 
 namespace ZeeValidation{
   
@@ -16,8 +17,12 @@ namespace ZeeValidation{
     TrueElectronsPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
     void fill(const xAOD::IParticle* part, int level);
     void fillinAcc(const xAOD::IParticle* part, int level);
-    void finalize();
-     
+
+    void fillResponse(const xAOD::IParticle* part, const xAOD::Electron* electron);  
+    void fillResponseCluster(const xAOD::IParticle* part, const xAOD::CaloCluster* cluster);   
+
+    void makeEfficiencyPlot(TH1* hDenom, TH1* hNom, TProfile* hEff);     
+
     // Reco only information
     std::string m_sParticleType;
     
@@ -25,19 +30,30 @@ namespace ZeeValidation{
     static const int nLevels = 7;
     static const std::string cLevelLabel[nLevels];
 
-    TH1* electron_pt[nLevels];
-    TH1* electron_eta[nLevels];
-    TH1* electron_phi[nLevels]; 
-    TH2* electron_etavsphi[nLevels];
+    TH1* h_electron_pt[nLevels];
+    TH1* h_electron_eta[nLevels];
+    TH1* h_electron_phi[nLevels]; 
 
-    TH1* electron_eff_pt[nLevels-1];
-    TH1* electron_eff_eta[nLevels-1];
-    TH1* electron_eff_phi[nLevels-1];  
-    
+    TProfile* h_electron_eff_pt[nLevels-1];
+    TProfile* h_electron_eff_eta[nLevels-1];
+    TProfile* h_electron_eff_phi[nLevels-1];  
+
+    TProfile* h_e_response_vs_e;
+    TProfile* h_e_cluster_response_vs_e;  
+    TProfile* h_e_response_vs_eta;
+    TProfile* h_e_cluster_response_vs_eta; 
+
+    TH1* h_dr_electron;
+    TH1* h_dphi_electron;
+    TH1* h_deta_electron;
+
+    TH1* h_dr_photon;
+   
   private:
  
     virtual void initializePlots();
-    
+    virtual void finalizePlots();
+
   };
 }
 
