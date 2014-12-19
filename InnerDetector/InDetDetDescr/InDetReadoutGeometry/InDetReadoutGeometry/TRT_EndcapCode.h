@@ -36,8 +36,8 @@ namespace InDetDD {
       
       TRT_EndcapCode( const TRT_EndcapCode & right );
       ~TRT_EndcapCode();
-      
-      const TRT_EndcapCode & operator=( const TRT_EndcapCode & right );
+      //was returning a const ref; changed 10/12/2014, sroe
+      TRT_EndcapCode & operator=( const TRT_EndcapCode & right );
       
       bool operator < (const TRT_EndcapCode & right) const;
       bool operator > (const TRT_EndcapCode & right) const;
@@ -60,7 +60,7 @@ namespace InDetDD {
       //   bit 3-7  StrawLayer Index
       //   bit 8-12 Phi position (0-31)      
       
-      unsigned short int _key;
+      unsigned short int m_key;
       
       static const int Z_MASK;
       static const int WHEEL_MASK;
@@ -77,28 +77,28 @@ namespace InDetDD {
   
   
   inline unsigned int TRT_EndcapCode::isPosZ() const {
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> Z_SHIFT) & Z_MASK;
   }
   
   inline unsigned int TRT_EndcapCode::getWheelIndex() const{
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> WHEEL_SHIFT) & WHEEL_MASK;
   }
   
   
   inline unsigned int TRT_EndcapCode::getStrawLayerIndex() const {
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> STRAWLAYER_SHIFT) & STRAWLAYER_MASK;
   }
 
   inline unsigned int TRT_EndcapCode::getPhiIndex() const {
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> PHIPOS_SHIFT) & PHIPOS_MASK;
   }
   
   inline unsigned int TRT_EndcapCode::getKey() const {
-    return _key;
+    return m_key;
   }
   
   

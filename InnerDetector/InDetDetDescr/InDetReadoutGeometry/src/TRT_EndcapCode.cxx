@@ -26,12 +26,12 @@ const int TRT_EndcapCode::PHIPOS_SHIFT      = 11;
 
 TRT_EndcapCode::TRT_EndcapCode()
 {
-  _key = 0;
+  m_key = 0;
 }
 
 TRT_EndcapCode::TRT_EndcapCode(unsigned isPos, unsigned wheelIndex, unsigned strawLayerIndex, unsigned int phiIndex)
   :
-  _key ((( isPos           & Z_MASK )          << Z_SHIFT)          | 
+  m_key ((( isPos           & Z_MASK )          << Z_SHIFT)          | 
 	(( wheelIndex      & WHEEL_MASK )      << WHEEL_SHIFT)      | 
 	(( strawLayerIndex & STRAWLAYER_MASK ) << STRAWLAYER_SHIFT) |
 	(( phiIndex        & PHIPOS_MASK )     << PHIPOS_SHIFT))
@@ -40,7 +40,7 @@ TRT_EndcapCode::TRT_EndcapCode(unsigned isPos, unsigned wheelIndex, unsigned str
 
 TRT_EndcapCode::TRT_EndcapCode(const TRT_EndcapCode &right)
 {
-  _key = right.getKey();
+  m_key = right.getKey();
 }
 
 
@@ -51,16 +51,17 @@ TRT_EndcapCode::~TRT_EndcapCode()
 }
 
 
-const TRT_EndcapCode & TRT_EndcapCode::operator=(const TRT_EndcapCode &right)
+TRT_EndcapCode & TRT_EndcapCode::operator=(const TRT_EndcapCode &right)
 {
-  _key = right.getKey();
+  if (this != &right){
+    m_key = right.getKey();
+  }
   return *this;
 }
 
 
 
 std::string TRT_EndcapCode::getName() const {
-
   std::ostringstream outputStream;
   outputStream << this;
   return outputStream.str();

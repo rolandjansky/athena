@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SiDetectorElement.h
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/**
+ * @file SiDetectorElement.h
+**/
 
 #ifndef INDETREADOUTGEOMETRY_SIDETECTORELEMENT_H
 #define INDETREADOUTGEOMETRY_SIDETECTORELEMENT_H
@@ -148,9 +146,9 @@ namespace InDetDD {
       bool isNextToInnermostPixelLayer() const;
       bool isDBM() const;
 
-      // Identfier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
+      // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
     
-      /// Identfier from SiCellId (ie strip number or pixel eta_index,phi_index)
+      /// Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
       Identifier identifierFromCellId(const SiCellId & cellId) const;
     
       /// SiCellId from Identifier
@@ -533,9 +531,6 @@ namespace InDetDD {
       /// Update all caches including surfaces.
       void updateAllCaches() const;
     
-    
-    
-    
       //@}
     
       ///////////////////////////////////////////////////////////////////
@@ -581,7 +576,6 @@ namespace InDetDD {
       // Common code for constructors.
       void commonConstructor();
     
-    
       // Calculate extent in r,z and phi. The values are cached and there
       // are rMin(), rMax etc methods.
       void getExtent(double &rMin, double &rMax, 
@@ -611,19 +605,15 @@ namespace InDetDD {
       // Private methods:
       ///////////////////////////////////////////////////////////////////
     private:
-    
       // Don't allow copying.
       SiDetectorElement();
       SiDetectorElement(const SiDetectorElement&);
       SiDetectorElement &operator=(const SiDetectorElement&);
-    
-    
-    
+
       ///////////////////////////////////////////////////////////////////
       // Protected data:
       ///////////////////////////////////////////////////////////////////
     protected:
-    
       Identifier m_id; // identifier of this detector element
       IdentifierHash m_idHash; // hash id
       const SiDetectorDesign *m_design; // local description of this detector element

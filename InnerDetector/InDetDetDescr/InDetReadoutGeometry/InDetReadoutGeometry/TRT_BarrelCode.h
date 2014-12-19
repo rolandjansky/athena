@@ -36,8 +36,8 @@ namespace InDetDD {
       
       TRT_BarrelCode( const TRT_BarrelCode & right );
       ~TRT_BarrelCode();
-      
-      const TRT_BarrelCode & operator=( const TRT_BarrelCode & right );
+      //(operator= ) was returning const ref; changed on 10/12/2014 sroe
+      TRT_BarrelCode & operator=( const TRT_BarrelCode & right );
       
       bool operator < (const TRT_BarrelCode & right) const;
       bool operator > (const TRT_BarrelCode & right) const;
@@ -59,7 +59,7 @@ namespace InDetDD {
       //   bit 3-7  Phi Index
       //   bit 8-12 StrawLayer Index
       
-      unsigned short int _key;
+      unsigned short int m_key;
       
       static const int Z_MASK;
       static const int MODULE_MASK;
@@ -77,27 +77,27 @@ namespace InDetDD {
   
   
   inline unsigned int TRT_BarrelCode::isPosZ() const {
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> Z_SHIFT) & Z_MASK;
   }
   
   inline unsigned int TRT_BarrelCode::getModuleIndex() const{
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> MODULE_SHIFT) & MODULE_MASK;
   }
   
   inline unsigned int TRT_BarrelCode::getPhiIndex() const{
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> PHI_SHIFT) & PHI_MASK;
   }
   
   inline unsigned int TRT_BarrelCode::getStrawLayerIndex() const {
-    unsigned int ret = _key;
+    unsigned int ret = m_key;
     return (ret >> STRAWLAYER_SHIFT) & STRAWLAYER_MASK;
   }
   
   inline unsigned int TRT_BarrelCode::getKey() const {
-    return _key;
+    return m_key;
   }
   
   

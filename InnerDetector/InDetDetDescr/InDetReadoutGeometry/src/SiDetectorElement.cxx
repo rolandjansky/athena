@@ -2,15 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SiDetectorElement.cxx
-//   Implementation file for class SiDetectorElement
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Authors: Grant Gorfine
-// Based on version developed by David Calvet.
-///////////////////////////////////////////////////////////////////
+/**
+ * @file SiDetectorElement.cxx
+ * Implementation file for class SiDetectorElement
+ * @author Grant Gorfine
+ * Based on version developed by David Calvet.
+**/
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -25,7 +22,6 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Units/PhysicalConstants.h" // for M_PI
 #include "CLHEP/Units/SystemOfUnits.h" 
-//#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
@@ -36,14 +32,11 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
-
-
-
 #include <cmath>
 #include <cassert>
+#include <limits>
 
 namespace InDetDD {
-
 using Trk::distPhi;
 using Trk::distEta;
 using Trk::distDepth;
@@ -71,13 +64,27 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_lorentzCorrection(0),
   m_surface(0)
 {
+  //The following are fixes for coverity bug 11955, uninitialized scalars:
+  const bool boolDefault(true);
+  m_depthDirection=boolDefault;
+  m_phiDirection=boolDefault;
+  m_etaDirection=boolDefault;
+  const double defaultMin(std::numeric_limits<double>::max());
+  const double defaultMax(std::numeric_limits<double>::lowest());
+  m_minZ=defaultMin;
+  m_maxZ=defaultMax;
+  m_minR=defaultMin;
+  m_maxR=defaultMax;
+  m_minPhi=defaultMin;
+  m_maxPhi=defaultMax;
+  ///
+  
   commonConstructor();
 }
 
 void
 SiDetectorElement::commonConstructor() 
 {
-  
   if (!m_id.is_valid()) throw std::runtime_error("SiDetectorElement: Invalid identifier");
 
   // Set booleans for wether we are pixel/sct barrel/endcap
