@@ -19,6 +19,9 @@ public:
 
   SCT_GeneralParameters();
   ~SCT_GeneralParameters();
+  //Explicitly disallow copy, assignment to appease coverity
+  SCT_GeneralParameters(const SCT_GeneralParameters &) = delete;
+  SCT_GeneralParameters & operator=(const SCT_GeneralParameters &) = delete;
 
   // General
   double safety() const;
