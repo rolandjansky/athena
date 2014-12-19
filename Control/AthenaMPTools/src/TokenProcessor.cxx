@@ -50,7 +50,8 @@ TokenProcessor::TokenProcessor(const std::string& type
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
   , m_sharedRankQueue(0)
-  , m_sharedFinQueue(0)
+  , m_socketFactory(0)
+  , m_socket2Scatterer(0)
 {
   declareInterface<IAthenaMPTool>(this);
 
@@ -99,7 +100,6 @@ StatusCode TokenProcessor::initialize()
 StatusCode TokenProcessor::finalize()
 {
   delete m_sharedRankQueue;
-  delete m_sharedFinQueue;
   return StatusCode::SUCCESS;
 }
 
@@ -130,16 +130,6 @@ int TokenProcessor::makePool(int, int nprocs, const std::string& topdir)
       return -1;
     }
 
-  // Create finalization scheduling queue
-  std::ostringstream finQueueName;
-  finQueueName << "TokenProcessor_FinQueue_" << getpid();
-  m_sharedFinQueue = new AthenaInterprocess::SharedQueue(finQueueName.str(),m_nprocs,sizeof(int));
-  for(int i=0; i<m_nprocs; ++i)
-    if(!m_sharedFinQueue->send_basic<int>(i*3)) {  // TO DO: this '3' could be made configurable
-      msg(MSG::ERROR) << "Unable to send int to the finalization queue!" << endreq;
-      return -1;
-    }
-
   // Create the process group and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(m_nprocs);
   msg(MSG::INFO) << "Created Pool of " << m_nprocs << " worker processes" << endreq;
@@ -158,11 +148,6 @@ StatusCode TokenProcessor::exec()
     return StatusCode::FAILURE;
   msg(MSG::INFO) << "Workers started processing events" << endreq;
 
-  // Map exit flag on children
-  if(m_processGroup->map_async(0,0)){
-    msg(MSG::ERROR) << "Unable to set exit to the workers" << endreq;
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -188,10 +173,12 @@ StatusCode TokenProcessor::wait_once(int& numFinishedProc)
   else {
     // Pull one result and decode it if necessary
     presult = m_processGroup->pullOneResult();
+    int res(0);
     if(presult && (unsigned)(presult->output.size)>sizeof(int))
-      decodeProcessResult(presult);
+      res = decodeProcessResult(presult,true);
     if(presult) free(presult->output.data);
     delete presult;
+    if(res) return StatusCode::FAILURE;
   }
   return sc;
 }
@@ -362,13 +349,13 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   std::queue<std::string> queueTokens;
 
   // Get the yampl connection channels
-  yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
-  yampl::ISocket* socket2Scatterer = socketFactory->createClientSocket(yampl::Channel(m_channel2Scatterer.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  m_socketFactory = new yampl::SocketFactory();
+  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(m_channel2Scatterer.value(),yampl::LOCAL_PIPE),yampl::MOVE_DATA);
   msg(MSG::DEBUG) << "Created CLIENT socket to the Scatterer: " << m_channel2Scatterer.value() << endreq;
   std::ostringstream pidstr;
   pidstr << getpid();
   std::string socket2EvtSelName = m_channel2EvtSel.value() + std::string("_") + pidstr.str();
-  yampl::ISocket* socket2EvtSel = socketFactory->createClientSocket(yampl::Channel(socket2EvtSelName,yampl::LOCAL_PIPE),yampl::COPY_DATA);
+  yampl::ISocket* socket2EvtSel = m_socketFactory->createClientSocket(yampl::Channel(socket2EvtSelName,yampl::LOCAL_PIPE),yampl::COPY_DATA);
   msg(MSG::DEBUG) << "Created CLIENT socket to the Tool: " << socket2EvtSelName << endreq;
 
   // Get the IncidentSvc
@@ -382,16 +369,14 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   std::string ping = pidstr.str() + std::string(" ready for event processing");
   void* message2scatterer = malloc(ping.size());
   memcpy(message2scatterer,ping.data(),ping.size());
-  socket2Scatterer->send(message2scatterer,ping.size());
+  m_socket2Scatterer->send(message2scatterer,ping.size());
   msg(MSG::DEBUG) << "Sent a welcome message to the Scatterer" << endreq;
-
-  std::string outputFileReport("");
 
   while(all_ok) {
     // Get the response - list of tokens - from the scatterer. 
     // The format of the response: | ResponseSize | RangeID, | evtToken[,evtToken] |
     char *responseBuffer(0);
-    ssize_t responseSize = socket2Scatterer->recv(responseBuffer);
+    ssize_t responseSize = m_socket2Scatterer->recv(responseBuffer);
     // If response size is 0 then break the loop
     if(responseSize==1) {
       msg(MSG::DEBUG) << "Empty range received. Terminating the loop" << endreq;
@@ -421,11 +406,11 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       p_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange",rangeID));
 
       // Time to report the previous output
-      if(!outputFileReport.empty()) {
-	message2scatterer = malloc(outputFileReport.size());
-	memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
-	socket2Scatterer->send(message2scatterer,outputFileReport.size());
-	outputFileReport.clear();
+      if(!m_outputFileReport.empty()) {
+	message2scatterer = malloc(m_outputFileReport.size());
+	memcpy(message2scatterer,m_outputFileReport.data(),m_outputFileReport.size());
+	m_socket2Scatterer->send(message2scatterer,m_outputFileReport.size());
+	m_outputFileReport.clear();
       }
     }
 
@@ -504,13 +489,13 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       outputReportStream << strOutpFile << "," << rangeID 
 			 << ",CPU:" << time_delta.cpuTime<System::Sec>()
 			 << ",WALL:" << time_delta.elapsedTime<System::Sec>();
-      outputFileReport = outputReportStream.str();
+      m_outputFileReport = outputReportStream.str();
     }
 
     // Request the next available range
     message2scatterer = malloc(ping.size());
     memcpy(message2scatterer,ping.data(),ping.size());
-    socket2Scatterer->send(message2scatterer,ping.size());
+    m_socket2Scatterer->send(message2scatterer,ping.size());
     msg(MSG::DEBUG) << "Sent a message to the scatterer: " << ping << endreq;
   } // Main "event loop"
 
@@ -519,33 +504,6 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       msg(MSG::ERROR) << "Could not finalize the Run" << endreq;
       all_ok=false;
     }
-  }
-
-  // Schedule finalization
-  int waittime(-1);
-  if(!m_sharedFinQueue->receive_basic<int>(waittime)) {
-    msg(MSG::ERROR) << "Unable to value from the finalization queue" << endreq;
-    all_ok = false;
-  }
-  else 
-    usleep(waittime*1000000);
-
-  if(m_appMgr->stop().isFailure()) {
-    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
-    all_ok=false;
-  }
-  else { 
-    if(m_appMgr->finalize().isFailure()) {
-      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
-      all_ok=false;
-    }
-  }
-
-  // Report the last output file
-  if(!outputFileReport.empty()) {
-    message2scatterer = malloc(outputFileReport.size());
-    memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
-    socket2Scatterer->send(message2scatterer,outputFileReport.size());
   }
 
   int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
@@ -564,36 +522,121 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   // reported in the master proces
   // ...
 
-  delete socket2Scatterer;
   delete socket2EvtSel;
-  delete socketFactory;
 
   return outwork;
 }
 
 AthenaInterprocess::ScheduledWork* TokenProcessor::fin_func()
 {
-  // Dummy
-  int* errcode = new int(0); 
+  msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endreq;
+
+  // We are not able to use private data members after the appMgr has been finalized
+  yampl::ISocket* socket2Scatterer(m_socket2Scatterer);
+  yampl::ISocketFactory* socketFactory(m_socketFactory);
+  std::string outputFileReport(m_outputFileReport);
+
+  bool all_ok(true);
+
+  if(m_appMgr->stop().isFailure()) {
+    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
+    all_ok=false;
+  }
+  else { 
+    if(m_appMgr->finalize().isFailure()) {
+      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
+      all_ok=false;
+    }
+  }
+
+  // Report the last output file
+  if(!outputFileReport.empty()) {
+    void* message2scatterer = malloc(outputFileReport.size());
+    memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
+    socket2Scatterer->send(message2scatterer,outputFileReport.size());
+  }
+
+  int errcode = (all_ok?0:1); // For now use 0 success, 1 failure
+  int nEvt = -1;
+  AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
+  // Return value: "ERRCODE|Func_Flag|NEvt"  (Here NEvt=-1)
+  int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
+  void* outdata = malloc(outsize);
+  memcpy(outdata,&errcode,sizeof(int));
+  memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
+  memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEvt,sizeof(int));
   AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
-  outwork->data = (void*)errcode;
-  outwork->size = sizeof(int);
+  outwork->data = outdata;
+  outwork->size = outsize;
+
+  delete socket2Scatterer;
+  delete socketFactory;
+
   return outwork;
 }
 
-void TokenProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult)
+int TokenProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult, bool doFinalize)
 {
-  if(!presult) return;
+  if(!presult) return 0;
   const AthenaInterprocess::ScheduledWork& output = presult->output;
-  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) return;
+  msg(MSG::DEBUG) << "Decoding the output of PID=" << presult->pid << " with the size=" << output.size << endreq;
+  if(output.size!=2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag)) return 0;
   
   AthenaMPToolBase::Func_Flag func;
   memcpy(&func,(char*)output.data+sizeof(int),sizeof(func));
+
   if(func==AthenaMPToolBase::FUNC_EXEC) {
+    // Store the number of processed events
     int nevt(0);
     memcpy(&nevt,(char*)output.data+sizeof(int)+sizeof(func),sizeof(int));
     m_nProcessedEvents[presult->pid]=nevt;
+    msg(MSG::DEBUG) << "PID=" << presult->pid << " processed " << nevt << " events" << endreq;
+
+    if(doFinalize) {
+      // Add PID to the finalization queue
+      m_finQueue.push(presult->pid);
+      msg(MSG::DEBUG) << "Added PID=" << presult->pid << " to the finalization queue" << endreq;
+
+      // If this is the only element in the queue then start its finalization
+      // Otherwise it has to wait its turn until all previous processes have been finalized
+      if(m_finQueue.size()==1) {
+        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,presult->pid)
+           || m_processGroup->map_async(0,0,presult->pid)) {
+          msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << presult->pid << endreq;
+          return 1;
+        }
+        else {
+          msg(MSG::DEBUG) << "Scheduled finalization of PID=" << presult->pid << endreq;
+        }
+      }
+    }
   }
+  else if(doFinalize && func==AthenaMPToolBase::FUNC_FIN) {
+    msg(MSG::DEBUG) << "Finished finalization of PID=" << presult->pid << endreq;
+    pid_t pid = m_finQueue.front();
+    if(pid==presult->pid) {
+      // pid received as expected. Remove it from the queue
+      m_finQueue.pop();
+      msg(MSG::DEBUG) << "PID=" << presult->pid << " removed from the queue" << endreq;
+      // Schedule finalization of the next processe in the queue
+      if(m_finQueue.size()) {
+        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
+           || m_processGroup->map_async(0,0,m_finQueue.front())) {
+          msg(MSG::ERROR) << "Problem scheduling finalization on PID=" << m_finQueue.front() << endreq;
+          return 1;
+        }
+        else  {
+          msg(MSG::DEBUG) << "Scheduled finalization of PID=" << m_finQueue.front() << endreq;
+        }
+      }
+    }
+    else {
+      // Error: unexpected pid received from presult
+      msg(MSG::ERROR) << "Finalized PID=" << presult->pid << " while PID=" << pid << " was expected" << endreq;
+      return 1;
+    }
+  }
+  return 0;
 }
 
 StatusCode TokenProcessor::startProcess()

@@ -5,6 +5,7 @@
 #include "SharedEvtQueueConsumer.h"
 #include "copy_file_icc_hack.h"
 #include "AthenaInterprocess/ProcessGroup.h"
+#include "AthenaInterprocess/Incidents.h"
 
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEventShare.h"
@@ -13,6 +14,7 @@
 #include "GaudiKernel/IFileMgr.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IIncidentSvc.h"
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -24,6 +26,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdexcept>
+#include <cmath> // For pow
 
 SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 					       , const std::string& name
@@ -31,8 +34,8 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
   , m_isPileup(false)
-  , m_rankId(-1)
   , m_nEventsBeforeFork(0)
+  , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
   , m_evtShare(0)
@@ -335,6 +338,14 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
     return outwork;
   }
 
+  // ___________________ Fire UpdateAfterFork incident _________________
+  IIncidentSvc* p_incidentSvc(0);
+  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    return outwork;
+  }
+  p_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_rankId,getpid(),name()));
+
   // Declare success and return
   *errcode = 0;
   return outwork;
@@ -387,9 +398,10 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
   // ________________________ This is needed only for PileUp jobs __________________________________
 
 
-  int nEvt(1+m_nEventsBeforeFork);
+  long intmask = pow(0x100,sizeof(int))-1; // Mask for decoding event number from the value posted to the queue
+  int nEvt(m_nEventsBeforeFork);
   int nEventsProcessed(0);
-  int evtnum(0);
+  long evtnumAndChunk(0);
   std::string shmemName("/athmp-shmem-"+m_randStr);
   boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only
                                                          , shmemName.c_str()
@@ -402,7 +414,7 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
   m_chronoStatSvc->chronoStart("AthenaMP_getEvent");
   if(all_ok) {
     while(true) {
-      if(!m_sharedEventQueue->try_receive_basic<int>(evtnum)) {
+      if(!m_sharedEventQueue->try_receive_basic<long>(evtnumAndChunk)) {
 	// The event queue is empty, but we should check whether there are more events to come or not
 	msg(MSG::DEBUG) << "Event queue is empty"; 
 	if(*shmemCountFinal) {
@@ -415,9 +427,12 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
 	  continue;
 	}
       }
-      
+      msg(MSG::DEBUG) << "Received value from the queue 0x" << std::hex << evtnumAndChunk << std::dec << endreq;
       m_chronoStatSvc->chronoStop("AthenaMP_getEvent");
-      msg(MSG::INFO) << "Received event num " << evtnum << endreq;
+      int chunkSize = evtnumAndChunk >> (sizeof(int)*8);
+      int evtnum = evtnumAndChunk & intmask;
+      msg(MSG::INFO) << "Received from the queue: event num=" << evtnum << " chunk size=" << chunkSize << endreq;
+      nEvt+=chunkSize;
       StatusCode sc;
       if(m_useSharedReader) {
 	sc = m_evtShare->share(evtnum);
@@ -444,10 +459,13 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::exec_func()
 	m_chronoStatSvc->chronoStop("AthenaMP_seek");
       }
       m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
-      sc = m_evtProcessor->nextEvent(nEvt++);
-      nEventsProcessed++;
+      sc = m_evtProcessor->nextEvent(nEvt);
+      nEventsProcessed += chunkSize;
       if(sc.isFailure()){
-	msg(MSG::ERROR) << "Unable to process " << evtnum << endreq;
+	if(chunkSize==1)
+	  msg(MSG::ERROR) << "Unable to process event " << evtnum << endreq;
+	else
+	  msg(MSG::ERROR) << "Unable to process the chunk (" << evtnum << "," << evtnum+chunkSize-1 << ")" << endreq;
 	all_ok=false;
 	break;
       }

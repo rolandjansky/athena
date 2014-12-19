@@ -42,15 +42,17 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   SharedEvtQueueProvider(const SharedEvtQueueProvider&);
   SharedEvtQueueProvider& operator= (const SharedEvtQueueProvider&);
 
+  // Properties
   bool m_isPileup;        // Are we doing pile-up digitization?
+  int  m_preCountedEvents; // Somebody (TF) has already counted the events, no need to do that again
+  int  m_nEventsBeforeFork;
+  int  m_chunkSize;
 
   int  m_nEvtRequested;    // Max event received from AppMgr
   int  m_skipEvents;       // SkipEvent property value of the Event Selectors
   int  m_nEvtCounted;      // The number of events this tool has counted itself in the input files 
   int  m_nEvtAddPending;   // Number of pending events to be added to the queue
-  int  m_preCountedEvents; // Somebody (TF) has already counted the events, no need to do that again
   bool m_needCountEvents;  // Flag indicating whether or not it is necessary to keep counting events
-  int  m_nEventsBeforeFork;
   int  m_nEventsInInpFiles;// Total number of events in the input files opened so far
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          

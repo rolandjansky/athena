@@ -8,6 +8,10 @@
 #include "AthenaMPToolBase.h"
 #include "yampl/Exceptions.h"
 
+namespace yampl {
+  class ISocket;
+}
+
 class TokenScatterer : public AthenaMPToolBase
 {
  public:
@@ -42,8 +46,15 @@ class TokenScatterer : public AthenaMPToolBase
   // 2. Leading "u\'" and trailing "\'"
   void trimRangeStrings(std::string&);
 
+  // Helper functuion for receiving new messages from the socket2Processor channel
+  // If this is an output file report, then it is forwarded to the pilot and an empty string is returned to the caller
+  std::string getNewRangeRequest(yampl::ISocket* socket2Processor
+				 , yampl::ISocket* socket2Pilot
+				 , int& procReportPending);
+
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
+  bool                     m_doCaching;
 };
 
 #endif

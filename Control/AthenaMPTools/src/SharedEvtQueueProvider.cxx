@@ -29,13 +29,14 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_isPileup(false)
+  , m_preCountedEvents(-1)
+  , m_nEventsBeforeFork(0)
+  , m_chunkSize(1)
   , m_nEvtRequested(-1)
   , m_skipEvents(0)
   , m_nEvtCounted(0)
   , m_nEvtAddPending(0)
-  , m_preCountedEvents(-1)
   , m_needCountEvents(false)
-  , m_nEventsBeforeFork(0)
   , m_nEventsInInpFiles(0)
   , m_sharedEventQueue(0)
 {
@@ -44,6 +45,7 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
   declareProperty("IsPileup",m_isPileup);
   declareProperty("PreCountedEvents",m_preCountedEvents);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
+  declareProperty("ChunkSize",m_chunkSize);
 
   m_subprocDirPrefix = "evt_counter";
 }
@@ -307,7 +309,8 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueProvider::exec_func()
       }
     }
 
-    msg(MSG::INFO) << "Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) << endreq;
+    msg(MSG::INFO) << "Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
+		   << ", Event Chunk size in the queue is " << m_chunkSize << endreq;
   }
 
   if(all_ok) {
@@ -430,14 +433,25 @@ int SharedEvtQueueProvider::addEventsToQueue()
 {
   msg(MSG::DEBUG) << "in addEventsToQueue" << endreq;
 
+  long chunkSize(0); 
+  long chunkSizeCounter(0);
+
   // Add events to the queue
   while(m_nEvtAddPending>0) {
+    if(chunkSizeCounter==0) {
+      chunkSize = (m_nEvtAddPending >= m_chunkSize ? m_chunkSize : m_nEvtAddPending);
+      chunkSizeCounter = chunkSize;
+    }
+    msg(MSG::DEBUG) << "Chunk Size " << chunkSize << endreq;
     // Don't add those events which have already been processed by the master before forking
-    assert(m_nEvtRequested>m_nEvtCounted);
     if(m_nEvtCounted<m_nEventsBeforeFork 
-       || m_sharedEventQueue->try_send_basic<int>(m_nEvtCounted+m_skipEvents)) {
+       || chunkSizeCounter < chunkSize
+       || m_sharedEventQueue->try_send_basic<long>((chunkSize<<(sizeof(int)*8))|(m_nEvtCounted+m_skipEvents))) {
+      if(m_nEvtCounted>=m_nEventsBeforeFork && chunkSizeCounter==chunkSize)
+	msg(MSG::DEBUG) << "Sent to the queue 0x" << std::hex << ((chunkSize<<(sizeof(int)*8))|(m_nEvtCounted+m_skipEvents)) << std::dec << endreq;
       m_nEvtCounted++;
       m_nEvtAddPending--;
+      chunkSizeCounter--;
     }
     else {
       // The queue reached maximum capacity
