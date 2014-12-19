@@ -50,6 +50,7 @@ public:
 
 typedef Reflex::Member RootDataMember;
 typedef Reflex::Object RootObject;
+typedef Reflex::PropertyList RootPropertyList;
 
 #else   // ROOT 6
 #define ROOT_6
@@ -130,11 +131,10 @@ public:
    std::string FunctionParameterNameAt( size_t nth ) const;
    std::string FunctionParameterDefaultAt( size_t nth ) const;
 
-   TReturnTypeAdapter ReturnType() const;
-   TScopeAdapter DeclaringScope() const;
-   TTypeAdapter DeclaringType() const;
-
-   TMemberAdapter TypeOf() const { return *this; }
+   TReturnTypeAdapter   ReturnType() const;
+   TScopeAdapter        DeclaringScope() const;
+   TTypeAdapter         DeclaringType() const;
+   TTypeAdapter         TypeOf() const;
 
 private:
    TDictionary* fMember;
@@ -160,7 +160,7 @@ class TScopeAdapter {
 public:
    TScopeAdapter();
    TScopeAdapter( TClass* klass );
-   TScopeAdapter( const std::string& name );
+   TScopeAdapter( const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kFALSE );
    TScopeAdapter( const TMemberAdapter& );
    TScopeAdapter( const std::type_info &typeinfo );
    operator TClass*() const { return fClass.GetClass(); }
@@ -174,7 +174,7 @@ public:
    static size_t TypeSize();
 
 public:
-   std::string Name( unsigned int mod = 0 ) const;
+   std::string Name( unsigned int mod = Reflex::SCOPED ) const;
    TScopeAdapter DeclaringScope() const;
 
    void *Construct() const ;
@@ -187,6 +187,9 @@ public:
    Bool_t IsTemplateInstance() const;
    Bool_t IsTopScope() const;
    Bool_t IsFundamental() const;
+   Bool_t IsEnum() const;
+   Bool_t IsTypedef() const;
+   Bool_t IsArray() const;
 
    TBaseAdapter BaseAt( size_t nth ) const;
    size_t BaseSize() const;
@@ -229,8 +232,9 @@ public:
    static void EnableCintex() {}
   
 private:
-   std::string fName;
-   TClassRef fClass;
+   std::string  fName;
+   TClassRef    fClass;
+   bool         isFundamental = false;
 };
 
 

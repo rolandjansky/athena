@@ -5,7 +5,7 @@
 
 #include "DataModelRoot/RootType.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,99,0)
+#ifdef ROOT_6
 
 // ROOT  
 #include "TBaseClass.h"
@@ -22,9 +22,11 @@
 #include "TMethod.h"
 #include "TMethodArg.h"
 #include "TROOT.h"
+#include "TEnum.h"
    
 // Standard
 #include <assert.h>
+#include <cxxabi.h>
 #include <iostream>
 using namespace std;
 
@@ -76,7 +78,7 @@ static std::string map_property( const std::string& key )
 Bool_t TPropertyListAdapter::HasProperty( const std::string& key ) const
 {
     if ( fAttributes )
-       return fAttributes->GetPropertyAsString( map_property( key ).c_str() );
+       return fAttributes->HasKey( map_property( key ).c_str() );
     return kFALSE;
 }
 
@@ -157,6 +159,33 @@ TMemberAdapter::operator TMethodArg*() const
 // cast the adapter to a TMethodArg* being adapted, returns 0 on failure
    return dynamic_cast< TMethodArg* >( const_cast< TDictionary* >( fMember ) );
 }
+
+//____________________________________________________________________________
+TTypeAdapter TMemberAdapter::TypeOf() const
+{
+   // get the type of the data member
+   TDataMember* dataMember = (TDataMember*)*this;
+   if ( dataMember ) {
+      // MN: the only way to get the type is through the type name
+      TClass *tc = TClass::GetClass( dataMember->GetTypeName() );
+      //cout << "---  TMemberAdapter  name=" << Name() << endl;
+      if( tc ) {
+         //cout << "      type = " << tc->GetName() << endl;
+         return TTypeAdapter(tc);
+      } else {
+         //cout << "      typename = " << dataMember->GetTypeName() << endl;
+         return TTypeAdapter(dataMember->GetTypeName());
+      }
+   }
+
+   // get type of the function/method
+   TMethod* method = (TMethod*)*this;
+   if ( method )
+      return method->GetClass();
+
+   return TTypeAdapter();
+}
+
 
 //____________________________________________________________________________
 std::string TMemberAdapter::Name( unsigned int mod ) const
@@ -241,6 +270,7 @@ Bool_t TMemberAdapter::IsTransient() const
    return dm ? ! dm->IsPersistent() : kTRUE;
 }
 
+
 //____________________________________________________________________________
 size_t TMemberAdapter::FunctionParameterSize( Bool_t required ) const
 {
@@ -310,6 +340,11 @@ TScopeAdapter TMemberAdapter::DeclaringScope() const
    if ( method )
       return method->GetClass();
 
+// get the declaring scope (class) of the wrapped data member
+   TDataMember* dataMember = (TDataMember*)*this;
+   if ( dataMember )
+      return dataMember->GetClass();
+
 // happens for free-standing functions (i.e. global scope)
    return std::string( "" );
 }
@@ -317,7 +352,7 @@ TScopeAdapter TMemberAdapter::DeclaringScope() const
 TTypeAdapter TMemberAdapter::DeclaringType() const
 {
 // no distinction between scope/type
-    return DeclaringScope();
+   return DeclaringScope();
 }
 
 
@@ -350,19 +385,162 @@ TScopeAdapter::TScopeAdapter( TClass* klass ) : fClass( klass )
       fName = fClass->GetName();
 }
 
+
+bool is_fundamental_type(const std::string& name)
+{
+   const char* typname = name.c_str();
+   switch(typname[0])  {
+    case 'b':
+       if ( strcmp(typname,"bool")           ==0 ) return true;
+       break;
+    case 'c':
+       if ( strcmp(typname,"char")           ==0 ) return true;
+       break;
+    case 'l':
+       if ( strncmp(typname,"lib",3)         ==0 ) return true;
+       if ( strcmp(typname,"long")           ==0 ) return true;
+       if ( strcmp(typname,"long long")      ==0 ) return true;
+       if ( strcmp(typname,"long long int")  ==0 ) return true;
+       break;
+    case 'L':
+       if ( strcmp(typname,"Long_t")         ==0 ) return true;
+       if ( strcmp(typname,"Long64_t")       ==0 ) return true;
+       break;
+    case 'i':
+       if ( strcmp(typname,"int")            ==0 ) return true;
+       if ( strcmp(typname,"__int64")        ==0 ) return true;
+       break;
+    case 'I':
+       if ( strcmp(typname,"Int_t")          ==0 ) return true;
+       break;
+    case 'e':
+       if ( strncmp(typname,"enum ",5)       ==0 ) return true;
+       break;
+    case 'd':
+       if ( strcmp(typname,"double")         ==0 ) return true;
+       break;
+    case 'D':
+       if ( strcmp(typname,"Double_t")       ==0 ) return true;
+       break;
+    case 'f':
+       if ( strcmp(typname,"float")          ==0 ) return true;
+       break;
+    case 'F':
+       if ( strcmp(typname,"Float_t")        ==0 ) return true;
+       break;
+    case 's':
+       if( strcmp(typname,"short")           ==0 ) return true;
+       if( strcmp(typname,"short int")       ==0 ) return true;
+       break;
+    case 'S':
+       if ( strcmp(typname,"Short_t")        ==0 ) return true;
+       break;
+    case 'u':
+       if ( strncmp(typname,"unknown",7)     ==0 ) return true;
+       if ( strcmp(typname,"unsigned int")   ==0 ) return true;
+       if ( strcmp(typname,"unsigned short") ==0 ) return true;
+       if ( strcmp(typname,"unsigned long")  ==0 ) return true;
+       if ( strcmp(typname,"unsigned char")  ==0 ) return true;
+       if ( strcmp(typname,"unsigned long long")      ==0 ) return true;
+       if ( strcmp(typname,"unsigned long long int")  ==0 ) return true;
+       break;
+   }
+   return false;
+}
+
+
+const std::type_info& fundamental_type(const std::string& name)
+{
+   const char* typname = name.c_str();
+   switch(typname[0])  {
+    case 'b':
+       if ( strcmp(typname,"bool")           ==0 ) return typeid(bool);
+       break;
+    case 'c':
+       if ( strcmp(typname,"char")           ==0 ) return typeid(char);
+       break;
+    case 'l':
+       if ( strcmp(typname,"long")           ==0 ) return typeid(long);
+       if ( strcmp(typname,"long long")      ==0 ) return typeid(long long);
+       if ( strcmp(typname,"long long int")  ==0 ) return typeid(long long int);
+       break;
+    case 'i':
+       if ( strcmp(typname,"int")            ==0 ) return typeid(int);
+       break;
+    case 'd':
+       if ( strcmp(typname,"double")         ==0 ) return typeid(double);
+       break;
+    case 'f':
+       if ( strcmp(typname,"float")          ==0 ) return typeid(float);
+       break;
+    case 's':
+       if( strcmp(typname,"short")           ==0 ) return typeid(short);
+       if( strcmp(typname,"short int")       ==0 ) return typeid(short int);
+       break;
+    case 'u':
+       if ( strcmp(typname,"unsigned char")  ==0 ) return typeid(unsigned char);
+       if ( strcmp(typname,"unsigned long")  ==0 ) return typeid(unsigned long);
+       if ( strcmp(typname,"unsigned long long")      ==0 ) return typeid(unsigned long long);
+       if ( strcmp(typname,"unsigned long long int")  ==0 ) return typeid(unsigned long long int);
+       if ( strcmp(typname,"unsigned int")   ==0 ) return typeid(unsigned int);
+       if ( strcmp(typname,"unsigned short") ==0 ) return typeid(unsigned short);
+       if ( strcmp(typname,"unsigned short int")      ==0 ) return typeid(unsigned short int);
+       break;
+    case 'v':
+       if ( strcmp(typname,"void")           ==0 ) return typeid(void);
+       break;
+   }
+   cerr << "WARNING!  RootType getting typeinfo failed for: " << typname << endl;
+   return typeid(void);
+}
+
+
 //____________________________________________________________________________
-TScopeAdapter::TScopeAdapter( const std::string& name ) :
+TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet ) :
       fName( name )
 {
+   // Bool_t load = kTRUE; Bool_t quiet = kFALSE;  // MN: move to parameters later
+   const string anonnmsp("(anonymous)");
    InitROOT();
-   cout << "RootType: creating for type=" << name << endl;
-   fClass = TClassRef( Name( Reflex::SCOPED ).c_str() );
-   if( fClass.GetClass() ) {
-      cout << "INFO: RootType::RootType(): Got ROOT dictionary for <" << name << "> class" << endl;
-   } else  {
-      cout << "ERROR!: RootType::RootType(): Cannot get the ROOT dictionary for <" << name << "> class" << endl;
-      exit(0);
-   }  
+
+   // cout << "INFO: RootType::RootType() creating for type=" << name << endl;
+
+   Int_t oldEIL = gErrorIgnoreLevel;
+   if( quiet )  gErrorIgnoreLevel = 3000;
+
+   if( !load ) {
+      // let GetClass() have a crack at it first, to prevent accidental loading
+      TClass* klass = TClass::GetClass( name.c_str(), load, quiet );
+      if( klass ) {
+         gErrorIgnoreLevel = oldEIL;
+         fClass = klass;
+         return;
+      }
+   } else {
+      // load
+      const string scoped_name = Name( Reflex::SCOPED );
+      fClass = TClassRef( scoped_name.c_str() );
+      if( fClass.GetClass() ) {
+         // cout << "INFO: RootType::RootType(): found TClass for '" << scoped_name << "'" << endl;
+         gErrorIgnoreLevel = oldEIL;
+         return;
+      }
+   }
+   
+   // now check if GetClass failed because of lack of dictionary or it is maybe not a class at all
+   if( gROOT->GetType(name.c_str()) ) {
+         isFundamental = true;
+   //} else if( name.substr( name.length() - anonnmsp.length() ) == anonnmsp ||
+   } else if( TEnum::GetEnum(name.c_str()) ) {
+      // MN: enum, or anonymous type that could be an enum.  for the moment mark it as fundamental
+      isFundamental = true;
+      // cout << "DEBUG: RootType::RootType():  ignoring " << name << endl;
+   } else {
+      // cout << "WARNING!: RootType::RootType(): Cannot get the ROOT dictionary for <" << name << ">"
+      //     << " (load=" << load << ")" << endl;
+   }
+
+   gErrorIgnoreLevel = oldEIL;
 }
 
 
@@ -371,8 +549,15 @@ TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )
 {
    InitROOT();
    fClass = TClassRef( TClass::GetClass(typeinfo) );   // MN: is that right?
-   if( fClass.GetClass() )
+   if( fClass.GetClass() ) {
       fName = fClass->GetName();
+   } else  {
+      char buff[1024];
+      size_t len = sizeof(buff);
+      int    status = 0;
+      fName = __cxxabiv1::__cxa_demangle(typeinfo.name(), buff, &len, &status);
+      isFundamental = true;
+   }
 }
 
 //____________________________________________________________________________
@@ -387,20 +572,9 @@ TScopeAdapter::TScopeAdapter( const TMemberAdapter& mb ) :
 TScopeAdapter TScopeAdapter::ByName(
       const std::string& name, Bool_t load, Bool_t quiet )
 {
-   InitROOT();
-   // lookup a scope (class) by name
-   if ( ! load ) {
-   // let GetClass() have a crack at it first, to prevent accidental loading
-      TClass* klass = TClass::GetClass( name.c_str(), load, quiet );
-      if ( ! klass ) return TScopeAdapter();
-      return klass;
-   }
+   return TScopeAdapter(name, load, quiet);
 
-   Int_t oldEIL = gErrorIgnoreLevel;
-   if ( quiet )
-      gErrorIgnoreLevel = 3000;
-
-   TClassRef klass( name.c_str() );
+   /* MN: causes problems in ROOT6, do we need it?
    if (klass.GetClass() && klass->GetListOfAllPublicMethods()->GetSize() == 0) {
    // sometimes I/O interferes, leading to zero methods: reload from CINT
       ClassInfo_t* cl = gInterpreter->ClassInfo_Factory( name.c_str() );
@@ -409,10 +583,8 @@ TScopeAdapter TScopeAdapter::ByName(
          gInterpreter->ClassInfo_Delete(cl);
       }
    }
-
-   gErrorIgnoreLevel = oldEIL;
-
    return klass.GetClass();
+   */
 }
 
 //____________________________________________________________________________
@@ -501,6 +673,9 @@ void *RootType::Construct(void *place) const {
 //____________________________________________________________________________
 const type_info& TScopeAdapter::TypeInfo() const
 {
+   if (isFundamental) { // Fundamentals have no fClass.GetClass()
+      return fundamental_type(fName);
+   }
    return  *fClass.GetClass()->GetTypeInfo();
 }
 
@@ -510,7 +685,7 @@ TPropertyListAdapter TScopeAdapter::Properties() const
 {
 // Reflex properties are more or less related to ROOT attributes: the names
 // may be different (see map_property() above)
-   return fClass->GetAttributeMap();
+   return isFundamental? TPropertyListAdapter(0) : fClass->GetAttributeMap();
 }
 
 //____________________________________________________________________________
@@ -545,7 +720,24 @@ Bool_t TScopeAdapter::IsTopScope() const
 
 Bool_t TScopeAdapter::IsFundamental() const
 {
-   return fClass.GetClass()? fClass.GetClass()->Property() & kIsFundamental : false;
+   return isFundamental;
+//   return fClass.GetClass()? fClass.GetClass()->Property() & kIsFundamental : false;
+}
+
+//____________________________________________________________________________
+Bool_t TScopeAdapter::IsEnum() const
+{
+   return fClass.GetClass()? fClass.GetClass()->Property() & kIsEnum : false;
+}
+//____________________________________________________________________________
+Bool_t TScopeAdapter::IsTypedef() const
+{
+   return fClass.GetClass()? fClass.GetClass()->Property() & kIsTypedef : false;
+}
+//____________________________________________________________________________
+Bool_t TScopeAdapter::IsArray() const
+{
+   return fClass.GetClass()? fClass.GetClass()->Property() & kIsArray : false;
 }
 
 //____________________________________________________________________________
@@ -624,15 +816,14 @@ TScopeAdapter TScopeAdapter::TemplateArgumentAt( size_t nth ) const
          continue;
       } else if (c == '>') {
          --tpl_open;
-
-         if ((c == ',' && tpl_open == 1) || (c == '>' && tpl_open == 0)) {
-            if ( argcount++ == nth ) {
-                std::string part = 
-                   TClassEdit::CleanType( name.substr(last, pos-last).c_str(), 1 );
-                return part;
-            }
-            last = pos+1;         // done with part
+      }
+      if ((c == ',' && tpl_open == 1) || (c == '>' && tpl_open == 0)) {
+         if ( argcount++ == nth ) {
+            std::string part = 
+               TClassEdit::CleanType( name.substr(last, pos-last).c_str(), 1 );
+            return part;
          }
+         last = pos+1;         // done with part
       }
    }
 
@@ -667,9 +858,18 @@ size_t TScopeAdapter::TemplateArgumentSize() const
 TScopeAdapter::operator Bool_t() const
 {
 // check the validity of this scope (class)
-   if ( fName.empty() )
-      return false;
+   if( fName.empty() )      return false;
+   if( isFundamental )      return true;
 
+   // MN: rewriting this method to avoid premature header parsing
+   TClass* klass = fClass.GetClass();
+   if( !klass )  return false;
+   if( klass->HasDictionary() )  return true;
+
+   // cout << "RootType: (Debug warning)  Type " << fName << " has no dictionary!" << endl;
+   return false;
+   
+   /*
    Bool_t b = kFALSE;
 
    Int_t oldEIL = gErrorIgnoreLevel;
@@ -679,6 +879,7 @@ TScopeAdapter::operator Bool_t() const
    if ( klass && klass->GetClassInfo() )     // works for normal case w/ dict
       b = gInterpreter->ClassInfo_IsValid( klass->GetClassInfo() );
    else {      // special case for forward declared classes
+      cout << "RootType: checking validity for fwd decl type: " << fName << endl;
       ClassInfo_t* ci = gInterpreter->ClassInfo_Factory( scname.c_str() );
       if ( ci ) {
          b = gInterpreter->ClassInfo_IsValid( ci );
@@ -687,6 +888,7 @@ TScopeAdapter::operator Bool_t() const
    }
    gErrorIgnoreLevel = oldEIL;
    return b;
+   */
 }
 
 //____________________________________________________________________________
