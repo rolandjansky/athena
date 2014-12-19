@@ -62,10 +62,13 @@ namespace xAODMaker {
       void setLinks(const Analysis::Muon& aodmuon, xAOD::Muon& xaodmuon) const;
       void setMuonHitContent(const Analysis::Muon& aodmuon, xAOD::Muon& xaodmuon);
       ElementLink<xAOD::TrackParticleContainer> getNewLink(const ElementLink<Rec::TrackParticleContainer>& oldLink, const std::string& name) const;
+      xAOD::Muon::Author convertAuthor(MuonParameters::Author aodAuthor); // conversion of author (release 17 to release 19) 
       
       std::string   m_inDetTrackParticles; //!< Location/Key for xAOD::TrackParticles from ID. 
       std::string   m_saTrackParticles ;   //!< Location/Key for MS SA (extrap to beamline) xAOD::TrackParticles. 
       std::string   m_cbTrackParticles ;   //!< Location/Key for combined fit xAOD::TrackParticles.
+      std::string   m_mgTrackParticles ;   //!< Location/Key for MuGirl combined fit xAOD::TrackParticles; needed in conversion from release 17
+      // bool m_doConversionFromRel17; un-initilized variable that is actually never used, commenting out - coverity defect 28732
 
       ToolHandle<xAOD::IMuonDressingTool>  m_muonDressingTool;
    }; // class MuonCnvAlg

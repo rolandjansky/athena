@@ -157,22 +157,22 @@ namespace xAODMaker {
   }
   
   void MuonCnvAlg::setIsolations(const Analysis::Muon& aodmuon, xAOD::Muon& xaodmuon){
-    checkAndSetIsolation(MuonParameters::etcone10     ,   xAOD::Iso::etcone10     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::etcone10     ,   xAOD::Iso::etcone10     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::etcone20     ,   xAOD::Iso::etcone20     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::etcone30     ,   xAOD::Iso::etcone30     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::etcone40     ,   xAOD::Iso::etcone40     ,  aodmuon,   xaodmuon);
-    checkAndSetIsolation(MuonParameters::nucone10     ,   xAOD::Iso::nucone10     ,  aodmuon,   xaodmuon);
-    checkAndSetIsolation(MuonParameters::nucone20     ,   xAOD::Iso::nucone20     ,  aodmuon,   xaodmuon);
-    checkAndSetIsolation(MuonParameters::nucone30     ,   xAOD::Iso::nucone30     ,  aodmuon,   xaodmuon);
-    checkAndSetIsolation(MuonParameters::nucone40     ,   xAOD::Iso::nucone40     ,  aodmuon,   xaodmuon);
-    checkAndSetIsolation(MuonParameters::ptcone10     ,   xAOD::Iso::ptcone10     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::nucone10     ,   xAOD::Iso::nucone10     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::nucone20     ,   xAOD::Iso::nucone20     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::nucone30     ,   xAOD::Iso::nucone30     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::nucone40     ,   xAOD::Iso::nucone40     ,  aodmuon,   xaodmuon);
+    //checkAndSetIsolation(MuonParameters::ptcone10     ,   xAOD::Iso::ptcone10     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::ptcone20     ,   xAOD::Iso::ptcone20     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::ptcone30     ,   xAOD::Iso::ptcone30     ,  aodmuon,   xaodmuon);
     checkAndSetIsolation(MuonParameters::ptcone40     ,   xAOD::Iso::ptcone40     ,  aodmuon,   xaodmuon);   
-    checkAndSetIsolation(MuonParameters::etconeNoEm10 ,   xAOD::Iso::etconeNoEm10 ,  aodmuon,   xaodmuon);   
-    checkAndSetIsolation(MuonParameters::etconeNoEm20 ,   xAOD::Iso::etconeNoEm20 ,  aodmuon,   xaodmuon);   
-    checkAndSetIsolation(MuonParameters::etconeNoEm30 ,   xAOD::Iso::etconeNoEm30 ,  aodmuon,   xaodmuon);   
-    checkAndSetIsolation(MuonParameters::etconeNoEm40 ,   xAOD::Iso::etconeNoEm40 ,  aodmuon,   xaodmuon);   
+    //checkAndSetIsolation(MuonParameters::etconeNoEm10 ,   xAOD::Iso::etconeNoEm10 ,  aodmuon,   xaodmuon);   
+    //checkAndSetIsolation(MuonParameters::etconeNoEm20 ,   xAOD::Iso::etconeNoEm20 ,  aodmuon,   xaodmuon);   
+    //checkAndSetIsolation(MuonParameters::etconeNoEm30 ,   xAOD::Iso::etconeNoEm30 ,  aodmuon,   xaodmuon);   
+    //checkAndSetIsolation(MuonParameters::etconeNoEm40 ,   xAOD::Iso::etconeNoEm40 ,  aodmuon,   xaodmuon);   
   }
   
   void MuonCnvAlg::checkAndSetIsolation(MuonParameters::ParamDef aodParameter,xAOD::Iso::IsolationType xaodParameter, const Analysis::Muon& aodmuon, xAOD::Muon& xaodmuon){
