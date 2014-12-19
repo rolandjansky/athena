@@ -179,7 +179,15 @@ CP::SystematicSet TauSmearingTool::recommendedSystematics() const
 
 CP::SystematicCode TauSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
-  m_sSystematicSet = &sSystematicSet;
+  // first check if we already know this systematic configuration
+  auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
+  if (itSystematicSet != m_mSystematicSets.end())
+  {
+    m_sSystematicSet = &itSystematicSet->first;
+    return CP::SystematicCode::Ok;
+  }
+  // store this calibration for future use, and make it current
+  m_sSystematicSet = &m_mSystematicSets.insert(std::pair<CP::SystematicSet,std::string>(sSystematicSet, sSystematicSet.name())).first->first;
   return CP::SystematicCode::Ok;
 }
 
