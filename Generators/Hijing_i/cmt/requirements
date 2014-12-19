@@ -26,6 +26,9 @@ private
 apply_tag notAsNeeded
 end_private
 
+# Setup the Hijing version macro for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DHIJINGVERSION=\"${HHIJING_VERSION}\")'
+
 apply_pattern dual_use_library files=" *.cxx *.F Hijing_modified/*.f"
 macro_append Hijing_i_pp_cppflags '-DHIJINGVERSION=\"$(Hijing_version)\" '
 apply_pattern declare_joboptions files="*.py"
