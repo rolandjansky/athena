@@ -7,17 +7,9 @@ from TrigEgammaD3PDMaker.TrigPhotonD3PDObject   import TrigPhotonD3PDObject
 from TrigEgammaD3PDMaker.EFElectronD3PDObject   import EFElectronD3PDObject
 from TrigEgammaD3PDMaker.EFPhotonD3PDObject     import EFPhotonD3PDObject
 from TrigCaloD3PDMaker.TrigEMClusterD3PDObject  import TrigEMClusterD3PDObject
-
 from TriggerD3PDMaker.TrigNaviD3PDObject     import *
 from TriggerD3PDMaker.TrigDecisionD3PDObject import TrigDecisionD3PDObject
-
-from CaloD3PDMaker.ClusterD3PDObject import ClusterD3PDObject
-from CaloD3PDMaker.CellD3PDObject import CellD3PDObject
-
-from egammaD3PDMaker.PhotonD3PDObject import PhotonD3PDObject
-
-from TrigInDetD3PDMaker.TrigInDetTrackD3PDObject import TrigInDetTrackD3PDObject
-from TrackD3PDMaker.TrackD3PDObject import TrackParticleD3PDObject
+from CaloD3PDMaker.xAODClusterD3PDObject import xAODClusterD3PDObject
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
 
 TrackD3PDFlags.doTruth = False
@@ -107,30 +99,33 @@ def TrigEgammaD3PDObjects( alg, level = 10, **kw ):
     alg += TrigEMClusterD3PDObject( **_args( level, "TrigEMCluster", kw,
                                              prefix = 'trig_L2_emcl_',
                                              allowMissing = True ) )
-    alg += TrigInDetTrackD3PDObject( **_args( level, "TrigInDetTrackIDSCAN", kw,
-                                              sgkey = 'HLT_TrigIDSCAN_eGamma',
-                                              prefix = 'trig_L2_trk_idscan_eGamma_',
-                                              allowMissing = True ) )
-    alg += TrigInDetTrackD3PDObject( **_args( level, "TrigInDetTrackSiTrack", kw,
-                                              sgkey = 'HLT_TrigSiTrack_eGamma',
-                                              prefix = 'trig_L2_trk_sitrack_eGamma_',
-                                              allowMissing = True ) )
-    alg += TrigElectronD3PDObject( **_args( level, "TrigElectron", kw,
-                                            prefix = 'trig_L2_el_',
-                                            sgkey = 'HLT_L2ElectronFex,HLT_L2IDCaloFex',
-                                            allowMissing = True ) )
-    alg += TrigPhotonD3PDObject( **_args( level, "TrigPhoton", kw,
-                                          prefix='trig_L2_ph_' ) )
+    # TrigInDetTrack not in xAOD.
+    # alg += TrigInDetTrackD3PDObject( **_args( level, "TrigInDetTrackIDSCAN", kw,
+    #                                           sgkey = 'HLT_TrigIDSCAN_eGamma',
+    #                                           prefix = 'trig_L2_trk_idscan_eGamma_',
+    #                                           allowMissing = True ) )
+    # alg += TrigInDetTrackD3PDObject( **_args( level, "TrigInDetTrackSiTrack", kw,
+    #                                           sgkey = 'HLT_TrigSiTrack_eGamma',
+    #                                           prefix = 'trig_L2_trk_sitrack_eGamma_',
+    #                                           allowMissing = True ) )
+
+    # No AOD->xAOD conversion for these.
+    # alg += TrigElectronD3PDObject( **_args( level, "TrigElectron", kw,
+    #                                         prefix = 'trig_L2_el_',
+    #                                         sgkey = 'HLT_L2ElectronFex,HLT_L2IDCaloFex',
+    #                                         allowMissing = True ) )
+    # alg += TrigPhotonD3PDObject( **_args( level, "TrigPhoton", kw,
+    #                                       prefix='trig_L2_ph_' ) )
 
     # EF trigger info
-    alg += ClusterD3PDObject( **_args( level, "TrigCaloCluster", kw,
-                                       sgkey = 'HLT_TrigCaloClusterMaker',
-                                       prefix = 'trig_EF_emcl_',
-                                       allowMissing = True ) )
-    alg += ClusterD3PDObject( **_args( level, "TrigCaloClusterSLW", kw,
-                                       sgkey = 'HLT_TrigCaloClusterMaker_slw',
-                                       prefix = 'trig_EF_emcl_slw_',
-                                       allowMissing = True ) )
+    alg += xAODClusterD3PDObject( **_args( level, "TrigCaloCluster", kw,
+                                           sgkey = 'HLT_TrigCaloClusterMaker',
+                                           prefix = 'trig_EF_emcl_',
+                                           allowMissing = True ) )
+    alg += xAODClusterD3PDObject( **_args( level, "TrigCaloClusterSLW", kw,
+                                           sgkey = 'HLT_TrigCaloClusterMaker_slw',
+                                           prefix = 'trig_EF_emcl_slw_',
+                                           allowMissing = True ) )
     alg += EFElectronD3PDObject( **_args( level, "EFElectron", kw,
                                           sgkey = 'HLT_egamma_Electrons,HLT_egamma',
                                           prefix = 'trig_EF_el_',

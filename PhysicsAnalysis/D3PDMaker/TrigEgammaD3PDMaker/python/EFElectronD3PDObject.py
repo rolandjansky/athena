@@ -1,25 +1,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from egammaD3PDMaker.isem_version import isem_version
-import egammaD3PDMaker
 import EventCommonD3PDMaker
 import CaloD3PDMaker
+import egammaD3PDMaker
 import D3PDMakerCoreComps
+import TrackD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaParameters
-from ROOT import egammaPID
-from RecExConfig.RecFlags import rec
-from egammaD3PDMaker.ElectronD3PDObject import ElectronD3PDObject
-from TrackD3PDMaker.TrackD3PDObject import TrackParticleD3PDObject
-import TrackD3PDMaker
+from TrackD3PDMaker.xAODTrackSummaryFiller  import xAODTrackSummaryFiller
 
 
 EFElectronD3PDObject = \
-           make_SGDataVector_D3PDObject ('egammaContainer',
+           make_SGDataVector_D3PDObject ('xAOD::ElectronContainer',
                                          'HLT_egamma_Electrons,HLT_egamma', 
                                          'trig_EF_el_', 'EFElectronD3PDObject')
 
@@ -28,264 +21,80 @@ EFElectronD3PDObject.defineBlock (0, 'Kinematics',
                                 WriteE  = True,
                                 WriteEt = True,
                                 WriteRect = True)
-EFElectronD3PDObject.defineBlock (0, 'Charge',
-                                EventCommonD3PDMaker.ChargeFillerTool)
-EFElectronD3PDObject.defineBlock (0, 'Author',
-                                egammaD3PDMaker.egammaAuthorFillerTool)
-EFElectronD3PDObject.defineBlock (0, 'IsEM',
-                                egammaD3PDMaker.egammaIsEMoneFillerTool
-                                )
-## EFElectronD3PDObject.defineBlock (0, 'Conversion0',
-##                                 egammaD3PDMaker.egammaConversion0FillerTool,
-##                                 )
-
-## if rec.doTruth():
-##     import TruthD3PDMaker.MCTruthClassifierConfig
-##     EFElectronD3PDObject.defineBlock (1, 'TruthClassification',
-##                                     egammaD3PDMaker.egammaTruthClassificationFillerTool)
-##     ElectronGenPartAssoc = SimpleAssociation \
-##         (EFElectronD3PDObject,
-##          egammaD3PDMaker.egammaGenParticleAssociationTool,
-##          prefix = 'truth_',
-##          matched = 'matched',
-##          blockname = 'Truth')
-##     ElectronGenPartAssoc.defineBlock (0, 'Truth',
-##                                       EventCommonD3PDMaker.GenParticleFillerTool,
-##                                       WriteE = True,
-##                                       WriteM = False)
-##     ElectronGenPartAssoc.defineBlock (0, 'TruthBrem',
-##                                       EventCommonD3PDMaker.GenParticleBremFillerTool)
+EFElectronD3PDObject.defineBlock (
+    0, 'Charge',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['charge'])
+EFElectronD3PDObject.defineBlock (
+    0, 'Author',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['author'])
+EFElectronD3PDObject.defineBlock (
+    0, 'Pass',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    # These are present only for central electrons.
+    Vars = ['loose = Loose < int8_t: 0',
+            'medium = Medium < int8_t: 0',
+            'tight = Tight < int8_t : 0'
+            ])
 
 
-
-if isem_version() == 1:
-    EFElectronD3PDObject.defineBlock (0, 'IsEMCuts',
-                                    egammaD3PDMaker.egammaIsEMFillerTool,
-                                    IsEM  = [(egammaPID.ElectronLooseOLDRel,
-                                              None),
-                                             'loose',
-                                             (egammaPID.ElectronMediumOLDRel,
-                                              None),
-                                             'medium',
-                                             (egammaPID.ElectronMediumNoIsoOLDRel,
-                                              None),
-                                             'mediumNoIso',
-                                             (egammaPID.ElectronTightOLDRel,
-                                              None),
-                                             'tight',
-                                             (egammaPID.ElectronTightTRTNoIsoOLDRel,
-                                              None),
-                                             'tightTRTNoIso',
-                                             (egammaPID.ElectronTightNoIsolationOLDRel,
-                                              None),
-                                             'tightNoIso',
-                                    ])
-else:
-    EFElectronD3PDObject.defineBlock (0, 'IsEMCuts',
-                                    egammaD3PDMaker.egammaIsEMFillerTool,
-                                    IsEM  =
-       [(egammaPID.ElectronLoose,
-         egammaPID.frwdElectronLoose),                    'loose',
-        (egammaPID.ElectronLooseIso,  None),              'looseIso',
-        (egammaPID.ElectronMedium,    None),              'medium',
-        (egammaPID.ElectronMediumIso, None),              'mediumIso',
-        (egammaPID.ElectronMedium_WithoutTrackMatch, None),'mediumWithoutTrack',
-        (egammaPID.ElectronMediumIso_WithoutTrackMatch, None),'mediumIsoWithoutTrack',
-        (egammaPID.ElectronTight,
-         egammaPID.frwdElectronTight),                    'tight',
-        (egammaPID.ElectronTightIso,              None),  'tightIso',
-        (egammaPID.ElectronTight_WithoutTrackMatch,None), 'tightWithoutTrack',
-        (egammaPID.ElectronTightIso_WithoutTrackMatch,None), 'tightIsoWithoutTrack',
-
-        (egammaPID.ElectronLoosePP,     None),            'loosePP',
-        (egammaPID.ElectronLoosePPIso,  None),            'loosePPIso',
-        (egammaPID.ElectronMediumPP,    None),            'mediumPP',
-        (egammaPID.ElectronMediumPPIso, None),            'mediumPPIso',
-        (egammaPID.ElectronTightPP,     None),            'tightPP',
-        (egammaPID.ElectronTightPPIso,  None),            'tightPPIso',
-        ])
-
-
-EFElectronD3PDObject.defineBlock (1, 'HadLeakage',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.ethad,
-                                           'Ethad',
-                                           egammaParameters.ethad1,
-                                           'Ethad1',
-                                           ])
-EFElectronD3PDObject.defineBlock (1, 'Layer1Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.f1,
-                                           'f1',
-                                           egammaParameters.f1core,
-                                           'f1core',
-                                           egammaParameters.emins1,
-                                           'Emins1',
-                                           egammaParameters.fracs1,
-                                           'fside',
-                                           egammaParameters.e2tsts1,
-                                           'Emax2',
-                                           egammaParameters.weta1,
-                                           'ws3',
-                                           egammaParameters.wtots1,
-                                           'wstot',
-                                           egammaParameters.emaxs1,
-                                           'emaxs1',
-                                           ])
+EFElectronD3PDObject.defineBlock (
+    1, 'HadLeakage',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['Ethad = ethad',
+            'Ethad1 = ethad1'])
+EFElectronD3PDObject.defineBlock (
+    1, 'Layer1Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['f1',
+            'f1core',
+            'Emins1 = emins1',
+            'fside = fracs1',
+            'Emax2 = e2tsts1',
+            'ws3 = weta1',
+            'wstot = wtots1',
+            'emaxs1'])
 EFElectronD3PDObject.defineBlock (1, 'Layer1ShapeExtra',
                                 egammaD3PDMaker.egammaLayer1ExtraFillerTool)
-EFElectronD3PDObject.defineBlock (1, 'Layer2Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.e233,
-                                           'E233',
-                                           egammaParameters.e237,
-                                           'E237',
-                                           egammaParameters.e277,
-                                           'E277',
-                                            egammaParameters.weta2,
-                                           'weta2',
-                                           ])
-EFElectronD3PDObject.defineBlock (1, 'Layer3Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.f3,
-                                           'f3',
-                                           egammaParameters.f3core,
-                                           'f3core',
-                                           ])
-EFElectronD3PDObject.defineBlock (1, 'Iso',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.r33over37allcalo,
-                                           'rphiallcalo',
-                                           egammaParameters.etcone,
-                                           'Etcone45',
-                                           egammaParameters.etcone15,
-                                           'Etcone15',
-                                           egammaParameters.etcone20,
-                                           'Etcone20',
-                                           egammaParameters.etcone25,
-                                           'Etcone25',
-                                           egammaParameters.etcone30,
-                                           'Etcone30',
-                                           egammaParameters.etcone35,
-                                           'Etcone35',
-                                           egammaParameters.etcone40,
-                                           'Etcone40',
-                                           egammaParameters.ptcone20,
-                                           'ptcone20',
-                                           egammaParameters.ptcone30,
-                                           'ptcone30',
-                                           egammaParameters.ptcone40,
-                                           'ptcone40',
-                                           ])
-## EFElectronD3PDObject.defineBlock (1, 'ConvFlags',
-##                                 egammaD3PDMaker.egammaDetailFillerTool,
-##                                 Details = [egammaParameters.convAngleMatch,
-##                                            'convanglematch',
-##                                            egammaParameters.convTrackMatch,
-##                                            'convtrackmatch',
-##                                            ])
-## EFElectronD3PDObject.defineBlock (1, 'Conversion',
-##                                 egammaD3PDMaker.egammaConversionFillerTool)
-EFElectronD3PDObject.defineBlock (1, 'TrkMatch',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.pos7,
-                                           'pos7',
-                                           egammaParameters.EtaCorrMag,
-                                           'etacorrmag',
-                                           egammaParameters.deltaEta1,
-                                           'deltaeta1',
-                                           egammaParameters.deltaEta2,
-                                           'deltaeta2',
-                                           egammaParameters.deltaPhi2,
-                                           'deltaphi2',
-                                           egammaParameters.expectHitInBLayer,
-                                           'expectHitInBLayer:Do we expect to see a hit from this track in the B pixel layer?',
-                                           egammaParameters.trackd0_physics,
-                                           'trackd0_physics:Transverse impact parameter with respect to the beam spot.',
-                                    ])
+EFElectronD3PDObject.defineBlock (
+    1, 'Layer2Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['E233 = e233',
+            'E237 = e237',
+            'E277 = e277',
+            'weta2'])
+EFElectronD3PDObject.defineBlock (
+    1, 'Layer3Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['f3', 'f3core'])
+EFElectronD3PDObject.defineBlock (
+    1, 'Iso',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['rphiallcalo = r33over37allcalo',
+            'Etcone20 = etcone20',
+            'Etcone30 = etcone30',
+            'Etcone40 = etcone40',
+            'ptcone20 < float: 0',
+            'ptcone30 < float: 0',
+            'ptcone40 < float: 0',
+        ])
+EFElectronD3PDObject.defineBlock (
+    1, 'TrkMatch',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['pos7',
+            'deltaeta1 = deltaEta1',
+            'deltaeta2 = deltaEta2',
+            'deltaphi2 = deltaPhi2',
+            ])
 EFElectronD3PDObject.defineBlock (1, 'Retaphi',
                                 egammaD3PDMaker.egammaRetaphiFillerTool)
 
 
-EFElectronD3PDObject.defineBlock (2, 'Rings',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-    Details = [egammaParameters.etringnoisedR03Sig2,
-               'EtringnoisedR03sig2',
-               egammaParameters.etringnoisedR03Sig3,
-               'EtringnoisedR03sig3',
-               egammaParameters.etringnoisedR03Sig4,
-               'EtringnoisedR03sig4',
-               ])
-EFElectronD3PDObject.defineBlock (2, 'ElecDiscrim',
-                                egammaD3PDMaker.egammaPIDFillerTool,
-    PID  = [egammaPID.IsolationLikelihood_jets,
-            'isolationlikelihoodjets',
-            egammaPID.IsolationLikelihood_HQDelectrons,
-            'isolationlikelihoodhqelectrons',
-            egammaPID.ElectronWeight,
-            'electronweight',
-            egammaPID.BgWeight,
-            'electronbgweight',
-            egammaPID.SofteElectronWeight,
-            'softeweight',
-            egammaPID.SofteBgWeight,
-            'softebgweight',
-            egammaPID.NeuralNet,
-            'neuralnet',
-            egammaPID.Hmatrix,
-            'Hmatrix',
-            egammaPID.Hmatrix5,
-            'Hmatrix5',
-            egammaPID.AdaBoost,
-            'adaboost',
-            egammaPID.SofteNeuralNet,
-            'softeneuralnet',
-            ])
-EFElectronD3PDObject.defineBlock (2, 'Pointing',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.zvertex,
-                                           'zvertex',
-                                           egammaParameters.errz,
-                                           'errz',
-                                           egammaParameters.etap,
-                                           'etap',
-                                           egammaParameters.depth,
-                                           'depth'
-                                           ])
-## EFElectronD3PDObject.defineBlock (2, 'Brem',
-##                                 egammaD3PDMaker.egammaDetailFillerTool,
-##     Details = [egammaParameters.bremInvpT,
-##                'breminvpt',
-##                egammaParameters.bremRadius,
-##                'bremradius',
-##                egammaParameters.bremX,
-##                'bremx',
-##                egammaParameters.bremClusterRadius,
-##                'bremclusterradius',
-##                egammaParameters.bremInvpTerr,
-##                'breminvpterr',
-##                egammaParameters.bremTrackAuthor,
-##                'bremtrackauthor',
-##                egammaParameters.hasBrem,
-##                'hasbrem',
-##                egammaParameters.bremDeltaQoverP,
-##                'bremdeltaqoverp',
-##                egammaParameters.bremMaterialTraversed,
-##                'bremmaterialtraversed',
-##                ])
-## EFElectronD3PDObject.defineBlock (2, 'RefittedTrk',
-##                                 egammaD3PDMaker.egammaDetailFillerTool,
-##     Details = [egammaParameters.refittedTrack_qOverP,
-##                'refittedtrackqoverp',
-##                egammaParameters.refittedTrack_d0,
-##                'refittedtrackd0',
-##                egammaParameters.refittedTrack_z0,
-##                'refittedtrackz0',
-##                egammaParameters.refittedTrack_theta,
-##                'refittedtracktheta',
-##                egammaParameters.refittedTrack_phi0,
-##                'refittedtrackphi',
-##                ])
+EFElectronD3PDObject.defineBlock (
+    2, 'Pointing',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['zvertex', 'errz', 'etap', 'depth'])
 
 ElectronClusterAssoc = SimpleAssociation \
     (EFElectronD3PDObject,
@@ -305,85 +114,21 @@ ElectronClusterAssoc.defineBlock \
      WriteEnergy = False,
      WritePhi = False,
      Samplings = [2])
-## from CaloD3PDMaker import ClusterMomentFillerTool as CMFT
-## ElectronClusterAssoc.defineBlock \
-##     (1, 'FwdEVars', CMFT,
-##      Moments = [CMFT.FIRST_ENG_DENS,   'firstEdens',
-##                 CMFT.ENG_FRAC_MAX,     'cellmaxfrac',
-##                 CMFT.LONGITUDINAL,     'longitudinal',
-##                 CMFT.SECOND_LAMBDA,    'secondlambda',
-##                 CMFT.LATERAL,          'lateral',
-##                 CMFT.SECOND_R,         'secondR',
-##                 CMFT.CENTER_LAMBDA,    'centerlambda',
-##                 ])
 
-## ElectronRawClusterAssoc = SimpleAssociation \
-##     (EFElectronD3PDObject,
-##      egammaD3PDMaker.egammaRawClusterAssociationTool,
-##      prefix = 'rawcl_',
-##      AssocGetter = D3PDMakerCoreComps.SGObjGetterTool
-##         ('ElectronRawClusterAssocGetter',
-##          SGKey = D3PDMakerFlags.ElectronRawClustersAssocSGKey(),
-##          TypeName = 'INav4MomAssocs'))
-## ElectronRawClusterAssoc.defineBlock \
-##     (2, 'RawSamplings', CaloD3PDMaker.ClusterEMSamplingFillerTool)
-## ElectronRawClusterAssoc.defineBlock \
-##     (2, 'RawClusterKin', EventCommonD3PDMaker.FourMomFillerTool,
-##      WriteE = True,
-##      WriteM = False)
-
-
-EFElectronD3PDObject.defineBlock (3, 'RefittedTrkCov',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-    Details = [egammaParameters.refittedTrack_Covd0d0,
-               'refittedtrackcovd0',
-               egammaParameters.refittedTrack_Covz0z0,
-               'refittedtrackcovz0',
-               egammaParameters.refittedTrack_Covphiphi,
-               'refittedtrackcovphi',
-               egammaParameters.refittedTrack_Covthetatheta,
-               'refittedtrackcovtheta',
-               egammaParameters.refittedTrack_CovqOverPqOverP,
-               'refittedtrackcovqoverp',
-               egammaParameters.refittedTrack_Covd0z0,
-               'refittedtrackcovd0z0',
-               egammaParameters.refittedTrack_Covz0phi,
-               'refittedtrackcovz0phi',
-               egammaParameters.refittedTrack_Covz0theta,
-               'refittedtrackcovz0theta',
-               egammaParameters.refittedTrack_Covz0qOverP,
-               'refittedtrackcovz0qoverp',
-               egammaParameters.refittedTrack_Covd0phi,
-               'refittedtrackcovd0phi',
-               egammaParameters.refittedTrack_Covd0theta,
-               'refittedtrackcovd0theta',
-               egammaParameters.refittedTrack_Covd0qOverP,
-               'refittedtrackcovd0qoverp',
-               egammaParameters.refittedTrack_Covphitheta,
-               'refittedtrackcovphitheta',
-               egammaParameters.refittedTrack_CovphiqOverP,
-               'refittedtrackcovphiqoverp',
-               egammaParameters.refittedTrack_CovthetaqOverP,
-               'refittedtrackcovthetaqoverp',
-               ])
 
 
 EFElectronD3PDObject.defineBlock \
        (1, 'Triggers',
-        egammaD3PDMaker.egammaObjectDecisionFillerTool,
+        egammaD3PDMaker.xAODElectronObjectDecisionFillerTool,
         AllowExtend = D3PDMakerFlags.AllowTrigExtend(),
         Chains = [ D3PDMakerFlags.ElectronEFTrigPattern() ])
 
 
 ElectronTPAssoc = SimpleAssociation \
     (EFElectronD3PDObject,
-     egammaD3PDMaker.egammaTrackParticleAssociationTool,
+     egammaD3PDMaker.ElectronTrackParticleAssociationTool,
      matched = 'hastrack',
      blockname = 'TrkInfo')
-
-# This generates ERROR messages.  Disabled for now.
-#ElectronTPAssoc.defineBlock (1, 'TrackIso',
-#                             TrackD3PDMaker.TrackIsolationFillerTool)
 
 TrackParticlePerigeeAssoc = SimpleAssociation \
     (ElectronTPAssoc,
@@ -407,44 +152,34 @@ TrackParticleCovarAssoc.defineBlock (3, 'TrkCovOffDiag',
                                      OffDiagCovariance = True)
 
 
-ElectronFitQualityAssoc = \
-   SimpleAssociation (ElectronTPAssoc,
-                      TrackD3PDMaker.TrackParticleFitQualityAssociationTool)
-ElectronFitQualityAssoc.defineBlock (2, 'TrkFitQuality',
-                                     TrackD3PDMaker.TrackFitQualityFillerTool,
-                                     prefix = 'trackfit')
+ElectronTPAssoc.defineBlock (
+    2, 'TrkFitQuality',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['chi2 = chiSquared',
+            'ndof = numberDoF'],
+    prefix = 'trackfit')
 
-TrackSummaryAssoc = \
-   SimpleAssociation (ElectronTPAssoc,
-                      TrackD3PDMaker.TrackParticleTrackSummaryAssociationTool)
-TrackSummaryAssoc.defineBlock (1, 'IDHits',
-                               TrackD3PDMaker.TrackTrackSummaryFillerTool,
-                               IDSharedHits = True,
-                               IDHits = True,
-                               IDOutliers = True,
-                               MuonHits = False,
-                               HitSum = False,
-                               HoleSum = False,
-                               HitPattern = False,
-                               SiHits = True,
-                               TRTRatio = True)
-TrackSummaryAssoc.defineBlock (1, 'TrackSummaryPID',
-                               TrackD3PDMaker.TrackPIDFillerTool,
-                               PID = [TrackD3PDMaker.eProbabilityComb,
-                                      'eProbabilityComb',
-                                      TrackD3PDMaker.eProbabilityHT,
-                                      'eProbabilityHT',
-                                      TrackD3PDMaker.eProbabilityToT,
-                                      'eProbabilityToT',
-                                      TrackD3PDMaker.eProbabilityBrem,
-                                      'eProbabilityBrem',
-                                      ])
+xAODTrackSummaryFiller (ElectronTPAssoc, 1, 'IDHits',
+                        IDSharedHits = True,
+                        IDHits = True,
+                        IDOutliers = True,
+                        MuonHits = False,
+                        HitSum = False,
+                        HoleSum = False)
+ElectronTPAssoc.defineBlock (
+    1, 'TrackSummaryPID',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['eProbabilityComb',
+            'eProbabilityHT',
+            'eProbabilityToT',
+            'eProbabilityBrem'])
 
 ElectronVertAssoc = SimpleAssociation \
                     (ElectronTPAssoc,
                      TrackD3PDMaker.TrackParticleVertexAssociationTool,
+                     Fast = False,
                      prefix = 'vert')
-ElectronVertAssoc.defineBlock (2, 'Vertex',
-                               TrackD3PDMaker.VertexPositionFillerTool)
-
-
+ElectronVertAssoc.defineBlock (
+    2, 'Vertex',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['x', 'y', 'z'])

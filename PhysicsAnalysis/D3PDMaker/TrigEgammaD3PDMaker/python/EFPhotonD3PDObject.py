@@ -11,25 +11,16 @@
 #
 
 import egammaD3PDMaker
+import D3PDMakerCoreComps
 import EventCommonD3PDMaker
 import CaloD3PDMaker
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from D3PDMakerCoreComps.D3PDObject  import make_SGDataVector_D3PDObject
-from egammaD3PDMaker.PhotonD3PDObject import PhotonD3PDObject
-
-from D3PDMakerCoreComps.D3PDObject           import make_SGDataVector_D3PDObject
-from D3PDMakerCoreComps.SimpleAssociation    import SimpleAssociation
-from RecExConfig.RecFlags                    import rec
-from egammaD3PDMaker.isem_version            import isem_version
-
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaParameters
-from ROOT import egammaPID
+from D3PDMakerCoreComps.D3PDObject          import make_SGDataVector_D3PDObject
+from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
+from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
 
 
 EFPhotonD3PDObject = \
-           make_SGDataVector_D3PDObject ('egammaContainer',
+           make_SGDataVector_D3PDObject ('xAOD::PhotonContainer',
                                          'HLT_egamma_Photons,HLT_egamma', 
                                          'trig_EF_ph_', 'EFPhotonD3PDObject')
 
@@ -40,151 +31,72 @@ EFPhotonD3PDObject.defineBlock (0, 'Kinematics',
                                 WriteRect = True)
 EFPhotonD3PDObject.defineBlock \
        (1, 'Triggers',
-        egammaD3PDMaker.egammaObjectDecisionFillerTool,
+        egammaD3PDMaker.xAODPhotonObjectDecisionFillerTool,
         AllowExtend = D3PDMakerFlags.AllowTrigExtend(),
         Chains = [ D3PDMakerFlags.PhotonEFTrigPattern() ])
 
 
 # Same structure as offline photon
-EFPhotonD3PDObject.defineBlock (0, 'Author',
-                              egammaD3PDMaker.egammaAuthorFillerTool,
-                              RecoveredFlag = True)
-EFPhotonD3PDObject.defineBlock (0, 'IsEM',
-                              egammaD3PDMaker.egammaIsEMoneFillerTool
-                              )
+EFPhotonD3PDObject.defineBlock (
+    0, 'Author',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['author'])
+EFPhotonD3PDObject.defineBlock (
+    0, 'Pass',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['loose = Loose',
+            'tight = Tight'
+            ])
 EFPhotonD3PDObject.defineBlock (0, 'Conversion0',
                               egammaD3PDMaker.egammaConversion0FillerTool,
                               )
 
-## if rec.doTruth():
-##     from TruthD3PDMaker.MCTruthClassifierConfig \
-##          import D3PDMCTruthClassifier
-##     EFPhotonD3PDObject.defineBlock (1, 'TruthClassification',
-##                                   egammaD3PDMaker.egammaTruthClassificationFillerTool,
-##                                   Classifier = D3PDMCTruthClassifier)
-##     PhotonGenPartAssoc = SimpleAssociation \
-##         (EFPhotonD3PDObject,
-##          egammaD3PDMaker.egammaGenParticleAssociationTool,
-##          prefix = 'truth_',
-##          matched = 'matched',
-##          blockname = 'TruthAssoc',
-##          DRVar = 'deltaRRecPhoton',
-##          Classifier = D3PDMCTruthClassifier)
-##     PhotonGenPartAssoc.defineBlock (0, 'Truth',
-##                                     EventCommonD3PDMaker.GenParticleFillerTool,
-##                                     WriteE = True,
-##                                     WriteM = False)
-
-
-if isem_version() == 1:
-    EFPhotonD3PDObject.defineBlock (0, 'IsEMCuts',
-                                  egammaD3PDMaker.egammaIsEMFillerTool,
-                                  IsEM  = [egammaPID.PhotonTightOLDRel,
-                                           'tight',
-                                           ])
-else:
-    EFPhotonD3PDObject.defineBlock (0, 'IsEMCuts',
-                                  egammaD3PDMaker.egammaIsEMFillerTool,
-                                  IsEM  =
-        [egammaPID.PhotonLoose,         'loose',
-         egammaPID.PhotonLooseIso,      'looseIso',
-         egammaPID.PhotonTight,         'tight',
-         egammaPID.PhotonTightIso,      'tightIso',
-
-         egammaPID.PhotonLooseAR,       'looseAR',
-         egammaPID.PhotonLooseARIso,    'looseARIso',
-         egammaPID.PhotonTightAR,       'tightAR',
-         egammaPID.PhotonTightARIso,    'tightARIso',
-                                           ])
-
-
-EFPhotonD3PDObject.defineBlock (1, 'HadLeakage',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.ethad,
-                                           'Ethad',
-                                           egammaParameters.ethad1,
-                                           'Ethad1',
-                                           ])
-EFPhotonD3PDObject.defineBlock (1, 'Layer0Shape',
-                              egammaD3PDMaker.egammaDetailFillerTool,
-                              Details = [egammaParameters.e033,
-                                         'E033'
-                                         ])
-EFPhotonD3PDObject.defineBlock (1, 'Layer1Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.f1,
-                                           'f1',
-                                           egammaParameters.f1core,
-                                           'f1core',
-                                           egammaParameters.emins1,
-                                           'Emins1',
-                                           egammaParameters.fracs1,
-                                           'fside',
-                                           egammaParameters.e2tsts1,
-                                           'Emax2',
-                                           egammaParameters.weta1,
-                                           'ws3',
-                                           egammaParameters.wtots1,
-                                           'wstot',
-                                           egammaParameters.e132,
-                                           'E132',
-                                           egammaParameters.e1152,
-                                           'E1152',
-                                           egammaParameters.emaxs1,
-                                           'emaxs1',
-                                           ])
+EFPhotonD3PDObject.defineBlock (
+    1, 'HadLeakage',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['Ethad = ethad',
+            'Ethad1 = ethad1'])
+EFPhotonD3PDObject.defineBlock (
+    1, 'Layer0Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['E033 = e033'])
+EFPhotonD3PDObject.defineBlock (
+    1, 'Layer1Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['f1',
+            'f1core',
+            'Emins1 = emins1',
+            'fside = fracs1',
+            'Emax2 = e2tsts1',
+            'ws3 = weta1',
+            'wstot = wtots1',
+            'E132 = e132',
+            'E1152 = e1152',
+            'emaxs1'])
 EFPhotonD3PDObject.defineBlock (1, 'Layer1ShapeExtra',
                               egammaD3PDMaker.egammaLayer1ExtraFillerTool)
-EFPhotonD3PDObject.defineBlock (1, 'Layer2Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.e233,
-                                           'E233',
-                                           egammaParameters.e237,
-                                           'E237',
-                                           egammaParameters.e277,
-                                           'E277',
-                                            egammaParameters.weta2,
-                                           'weta2',
-                                           ])
-EFPhotonD3PDObject.defineBlock (1, 'Layer3Shape',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.f3,
-                                           'f3',
-                                           egammaParameters.f3core,
-                                           'f3core',
-                                           ])
-EFPhotonD3PDObject.defineBlock (1, 'Iso',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.r33over37allcalo,
-                                           'rphiallcalo',
-                                           egammaParameters.etcone,
-                                           'Etcone45',
-                                           egammaParameters.etcone15,
-                                           'Etcone15',
-                                           egammaParameters.etcone20,
-                                           'Etcone20',
-                                           egammaParameters.etcone25,
-                                           'Etcone25',
-                                           egammaParameters.etcone30,
-                                           'Etcone30',
-                                           egammaParameters.etcone35,
-                                           'Etcone35',
-                                           egammaParameters.etcone40,
-                                           'Etcone40',
-                                           egammaParameters.ptcone20,
-                                           'ptcone20',
-                                           egammaParameters.ptcone30,
-                                           'ptcone30',
-                                           egammaParameters.ptcone40,
-                                           'ptcone40',
-                                           ])
-EFPhotonD3PDObject.defineBlock (1, 'ConvFlags',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.convAngleMatch,
-                                           'convanglematch',
-                                           egammaParameters.convTrackMatch,
-                                           'convtrackmatch',
-                                           ])
+EFPhotonD3PDObject.defineBlock (
+    1, 'Layer2Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['E233 = e233',
+            'E237 = e237',
+            'E277 = e277',
+            'weta2'])
+EFPhotonD3PDObject.defineBlock (
+    1, 'Layer3Shape',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['f3', 'f3core'])
+EFPhotonD3PDObject.defineBlock (
+    1, 'Iso',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['rphiallcalo = r33over37allcalo',
+            'Etcone20 = etcone20',
+            'Etcone30 = etcone30',
+            'Etcone40 = etcone40',
+            'ptcone20',
+            'ptcone30',
+            'ptcone40',
+        ])
 EFPhotonD3PDObject.defineBlock (1, 'Conversion',
                               egammaD3PDMaker.egammaConversionFillerTool)
 EFPhotonD3PDObject.defineBlock (1, 'Retaphi',
@@ -192,47 +104,10 @@ EFPhotonD3PDObject.defineBlock (1, 'Retaphi',
                                            
 
 
-EFPhotonD3PDObject.defineBlock (2, 'Rings',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-    Details = [egammaParameters.etringnoisedR03Sig2,
-               'EtringnoisedR03sig2',
-               egammaParameters.etringnoisedR03Sig3,
-               'EtringnoisedR03sig3',
-               egammaParameters.etringnoisedR03Sig4,
-               'EtringnoisedR03sig4',
-               ])
-EFPhotonD3PDObject.defineBlock (2, 'PhotDiscrim',
-                              egammaD3PDMaker.egammaPIDFillerTool,
-    PID  = [egammaPID.IsolationLikelihood_jets,
-            'isolationlikelihoodjets',
-            egammaPID.IsolationLikelihood_HQDelectrons,
-            'isolationlikelihoodhqelectrons',
-            egammaPID.PhotonWeight,
-            'loglikelihood',
-            egammaPID.PhotonWeight,
-            'photonweight',
-            egammaPID.BgPhotonWeight,
-            'photonbgweight',
-            egammaPID.NeuralNet,
-            'neuralnet',
-            egammaPID.Hmatrix,
-            'Hmatrix',
-            egammaPID.Hmatrix5,
-            'Hmatrix5',
-            egammaPID.AdaBoost,
-            'adaboost',
-            ])
-EFPhotonD3PDObject.defineBlock (2, 'Pointing',
-                                egammaD3PDMaker.egammaDetailFillerTool,
-                                Details = [egammaParameters.zvertex,
-                                           'zvertex',
-                                           egammaParameters.errz,
-                                           'errz',
-                                           egammaParameters.etap,
-                                           'etap',
-                                           egammaParameters.depth,
-                                           'depth'
-                                           ])
+EFPhotonD3PDObject.defineBlock (
+    2, 'Pointing',
+    D3PDMakerCoreComps.AuxDataFillerTool,
+    Vars = ['zvertex', 'errz', 'etap', 'depth'])
 
 PhotonClusterAssoc = SimpleAssociation \
     (EFPhotonD3PDObject,
