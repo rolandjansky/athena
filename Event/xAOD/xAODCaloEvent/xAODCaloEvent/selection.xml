@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 591865 2014-04-08 08:49:51Z krasznaa $ -->
+<!-- $Id: selection.xml 635789 2014-12-12 20:08:28Z ssnyder $ -->
 <lcgdict>
 
   <class name="xAOD::CaloCluster_v1" >
@@ -43,8 +43,12 @@
   </read>
   <class name="xAOD::CaloClusterContainer_v1"
          id="24997BCA-3F6A-4530-8826-822EE9FC3C08" />
+
   <class name="xAOD::CaloClusterAuxContainer_v1"
          id="CE498B3B-A32D-43A3-B9B3-C13D136BACFC" />
+
+  <class name="xAOD::CaloClusterAuxContainer_v2"
+         id="451393B0-69CD-11E4-A739-02163E00A64D" />
 
   <!-- Link types pointing at clusters: -->
   <class name="DataLink<xAOD::CaloClusterContainer_v1>" />
@@ -62,6 +66,8 @@
 
   <!-- Additional type(s) needed: -->
   <class name="std::bitset<3>" />
+  <class name="xAOD::CaloVertexedClusterBase"/>
+  <class name="xAOD::CaloVertexedTopoCluster"/>
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

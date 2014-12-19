@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterAccessors_v1.cxx 593083 2014-04-16 07:55:40Z wlampl $
+// $Id: CaloClusterAccessors_v1.cxx 633006 2014-12-02 13:36:25Z menke $
 
 // System include(s):
 #include <iostream>
@@ -51,6 +51,8 @@ namespace xAOD {
          DEFINE_ACCESSOR( BAD_CELLS_CORR_E );
          DEFINE_ACCESSOR( BADLARQ_FRAC );
          DEFINE_ACCESSOR( ENG_POS );
+         DEFINE_ACCESSOR( ENG_BAD_HV_CELLS );
+         DEFINE_ACCESSOR( N_BAD_HV_CELLS );
          DEFINE_ACCESSOR( SIGNIFICANCE );
          DEFINE_ACCESSOR( CELL_SIGNIFICANCE );
          DEFINE_ACCESSOR( CELL_SIG_SAMPLING );

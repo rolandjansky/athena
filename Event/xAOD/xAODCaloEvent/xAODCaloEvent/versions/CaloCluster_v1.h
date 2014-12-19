@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 613212 2014-08-24 21:43:58Z ssnyder $
+// $Id: CaloCluster_v1.h 636000 2014-12-15 14:48:40Z wlampl $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -38,14 +38,12 @@ class CaloClusterChangeSignalState;
 
 namespace xAOD {
 
-  class CaloCluster_v1;
-
    /// Description of a calorimeter cluster
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 613212 $
-   /// $Date: 2014-08-24 23:43:58 +0200 (Sun, 24 Aug 2014) $
+   /// $Revision: 636000 $
+   /// $Date: 2014-12-15 15:48:40 +0100 (Mon, 15 Dec 2014) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -134,6 +132,9 @@ namespace xAOD {
          AVG_LAR_Q         = 826,
          /// Sum(E_cell_Tile^2 Q_cell_Tile)/Sum(E_cell_Tile^2)
          AVG_TILE_Q        = 827,
+         /// Total em-scale energy of cells with bad HV in this cluster
+         ENG_BAD_HV_CELLS  = 828,
+         N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
@@ -230,7 +231,11 @@ namespace xAOD {
      /// Copy constructor
      CaloCluster_v1(const CaloCluster_v1& other);
 
+     /// Destructor
      virtual ~CaloCluster_v1();
+
+     /// Assignment operator
+     CaloCluster_v1& operator=(const xAOD::CaloCluster_v1& other);
 
      /// @name Functions implementing the xAOD::IParticle interface
      /// @{
@@ -549,7 +554,11 @@ namespace xAOD {
      /// @{
      /// Set up an ElementLink to a CaloClusterCellLink object
      void addCellLink(CaloClusterCellLink* CCCL) {
-       //FIXME: Allow overwrite? EL validity?
+       if (m_ownCellLinks && m_cellLinks) {
+	 //Delete link if there is one
+	 delete m_cellLinks;
+       }
+
        m_cellLinks=CCCL;
        m_ownCellLinks=true;
      }
@@ -703,9 +712,5 @@ namespace xAOD {
   }
 
 } // namespace xAOD
-
-// Set up a CLID for the object:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::CaloCluster_v1, 176433021, 1 )
 
 #endif // XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H

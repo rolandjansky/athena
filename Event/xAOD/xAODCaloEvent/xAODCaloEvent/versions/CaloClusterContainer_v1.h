@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterContainer_v1.h 611975 2014-08-15 11:38:48Z wlampl $
+// $Id: CaloClusterContainer_v1.h 628097 2014-11-13 09:24:54Z krasznaa $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTERCONTAINER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTERCONTAINER_V1_H
 
@@ -23,9 +23,6 @@ namespace xAOD {
    typedef DataVector< CaloCluster_v1 > CaloClusterContainer_v1;
 }
 
-// Set up a CLID for the container:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::CaloClusterContainer_v1, 1219821989, 1 )
 
 
 #endif // XAODCALOEVENT_VERSIONS_CALOCLUSTERCONTAINER_V1_H

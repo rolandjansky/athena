@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterAuxContainer_v1.cxx 628097 2014-11-13 09:24:54Z krasznaa $
+// $Id: CaloClusterAuxContainer_v2.cxx 628097 2014-11-13 09:24:54Z krasznaa $
 
 // Local include(s):
-#include "xAODCaloEvent/versions/CaloClusterAuxContainer_v1.h"
+#include "xAODCaloEvent/versions/CaloClusterAuxContainer_v2.h"
 
 namespace xAOD {
 
-   CaloClusterAuxContainer_v1::CaloClusterAuxContainer_v1()
+   CaloClusterAuxContainer_v2::CaloClusterAuxContainer_v2()
       : AuxContainerBase() {
 
      AUX_VARIABLE( time );
@@ -31,8 +31,6 @@ namespace xAOD {
 
      // Energies in various samplings
      AUX_VARIABLE ( e_sampl );
-     AUX_VARIABLE ( eta_sampl );
-     AUX_VARIABLE ( phi_sampl );
    }
 
 } // namespace xAOD

@@ -23,6 +23,7 @@ public:
   //Delete default and copy constructor 
   CaloClusterChangeSignalState() = delete;
   CaloClusterChangeSignalState(const CaloClusterChangeSignalState&)=delete;
+  CaloClusterChangeSignalState& operator=(const CaloClusterChangeSignalState&) = delete;
 #else
   CaloClusterChangeSignalState() : m_clus(0) {};
   void init(const xAOD::CaloCluster* pClus,

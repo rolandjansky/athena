@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloClusterAuxContainer_v1.h 628097 2014-11-13 09:24:54Z krasznaa $
-#ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V1_H
-#define XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V1_H
+// $Id: CaloClusterAuxContainer_v2.h 628097 2014-11-13 09:24:54Z krasznaa $
+#ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V2_H
+#define XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V2_H
 
 // STL include(s):
 #include <vector>
@@ -27,13 +27,13 @@ namespace xAOD {
    /// $Revsision$
    /// $Date: 2014-11-13 10:24:54 +0100 (Thu, 13 Nov 2014) $
    ///
-   class CaloClusterAuxContainer_v1 : public AuxContainerBase {
+   class CaloClusterAuxContainer_v2 : public AuxContainerBase {
 
    public:
       /// Default constructor
-      CaloClusterAuxContainer_v1();
+      CaloClusterAuxContainer_v2();
       /// Destructor
-      ~CaloClusterAuxContainer_v1() {}
+      ~CaloClusterAuxContainer_v2() {}
 
    private:
      /// @name Basic variables
@@ -57,11 +57,9 @@ namespace xAOD {
      std::vector<float> calM; 
      ///@}
 
-      /// @name Energies, Eta and Phi in various samplings
-      /// @{
+     /// @name Energies, Eta and Phi in various samplings
+     /// @{
      std::vector <std::vector< float > > e_sampl;
-     std::vector <std::vector< float > > eta_sampl;
-     std::vector <std::vector< float > > phi_sampl;
      /// @}
 
    }; // class CaloClusterAuxContainer_v1
@@ -70,6 +68,6 @@ namespace xAOD {
 
 // Set up a CLID and StoreGate inheritance for the class:
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::CaloClusterAuxContainer_v1, xAOD::AuxContainerBase );
+SG_BASE( xAOD::CaloClusterAuxContainer_v2, xAOD::AuxContainerBase );
 
 #endif // XAODCALOEVENT_VERSIONS_CALOCLUSTERAUXCONTAINER_V1_H
