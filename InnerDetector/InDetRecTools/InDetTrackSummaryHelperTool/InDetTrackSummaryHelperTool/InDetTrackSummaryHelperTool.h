@@ -78,6 +78,10 @@ namespace InDet {
 
     /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
     void updateSharedHitCount(const Trk::Track& track, Trk::TrackSummary& summary) const;
+ /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
+    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const;
+    /** This method updates the expect... hit info*/
+    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const;
 
     /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
 
@@ -109,6 +113,7 @@ namespace InDet {
     bool m_doSharedHits;
     bool m_doSplitPixelHits;
     bool m_overwriteidsummary;
+    bool m_runningTIDE_Ambi;
 };
 
 }
