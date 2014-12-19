@@ -40,6 +40,9 @@ public:
 	    const SCT_Module * module);
 
   ~SCT_Layer();
+  //Explicitly disallow copy, assign to appease coverity
+  SCT_Layer(const SCT_Layer &) = delete;
+  SCT_Layer & operator=(const SCT_Layer &) = delete;
 
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
 

@@ -28,6 +28,10 @@ public:
 	      int ec);
 
   ~SCT_FwdRing();
+  
+  //explicitly disallow copy, assignment to appease coverity
+  SCT_FwdRing(const SCT_FwdRing &) = delete;
+  SCT_FwdRing & operator=(const SCT_FwdRing &) = delete;
 
   // Ring type
   //int ringType() const {return m_ringType;}  

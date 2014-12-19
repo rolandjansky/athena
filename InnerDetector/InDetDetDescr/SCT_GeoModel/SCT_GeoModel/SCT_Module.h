@@ -27,7 +27,11 @@ public:
 
   SCT_Module(const std::string & name);
 
-  ~SCT_Module();  
+  ~SCT_Module(); 
+  //Explicitly disallow copy, assign to appease coverity
+  SCT_Module(const SCT_Module &) = delete;
+  SCT_Module & operator=(const SCT_Module &) = delete;
+  
   virtual GeoVPhysVol * build(SCT_Identifier id) const;
   
 public:

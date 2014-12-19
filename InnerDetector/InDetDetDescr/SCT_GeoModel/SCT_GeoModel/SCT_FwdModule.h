@@ -28,11 +28,13 @@ public:
 
   SCT_FwdModule(const std::string & name, int ringType);
   ~SCT_FwdModule();
+  //explicitly disallow copy, assignment to appease coverity
+  SCT_FwdModule(const SCT_FwdModule &) = delete;
+  SCT_FwdModule & operator=(const SCT_FwdModule &) = delete;
   
   // Ring type
   int ringType() const {return m_ringType;}
 
-  //GeoVPhysVol* build(SCT_Identifier id, GeoTransform * position, GeoPhysVol * world) ;
   virtual GeoVPhysVol* build(SCT_Identifier id) const;
 
   double stereoAngle() const {return m_stereoAngle;}
