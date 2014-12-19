@@ -37,7 +37,7 @@ from AthenaCommon.KeyStore import CfgItemList
 fullESDList = CfgItemList( "EsdList" )
 
 # EventInfo stuff
-fullItemList = ["xAOD::EventInfo_v1#*","xAOD::EventAuxInfo_v1#*"]
+fullItemList = ["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
 protectedInclude ( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py")
 fullESDList += CfgItemList( "EventAthenaPool",
                             items = fullItemList,
@@ -60,12 +60,12 @@ except Exception:
 if rec.doTruth():
     fullESDList += CfgItemList( "McTruthEsd",
                                 items = [ "McEventCollection#TruthEvent",
-                                          "xAOD::TruthEventContainer#TruthEvent",
-                                          "xAOD::TruthEventAuxContainer#TruthEventAux.",
-                                          "xAOD::TruthParticleContainer#TruthParticle",
-                                          "xAOD::TruthParticleAuxContainer#TruthParticleAux.",
-                                          "xAOD::TruthVertexContainer#TruthVertex", 
-                                          "xAOD::TruthVertexAuxContainer#TruthVertexAux."
+                                          "xAOD::TruthEventContainer#TruthEvents",
+                                          "xAOD::TruthEventAuxContainer#TruthEventsAux.",
+                                          "xAOD::TruthParticleContainer#TruthParticles",
+                                          "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                                          "xAOD::TruthVertexContainer#TruthVertices", 
+                                          "xAOD::TruthVertexAuxContainer#TruthVerticesAux."
                                           ] )
     if jobproperties.Beam.beamType=="cosmics" and globalflags.DataSource=="geant4":
         fullESDList += CfgItemList( "McTruthTracRecord",
@@ -120,10 +120,10 @@ if DetFlags.detdescr.AFP_on():
 
 # Tau:
 try:
-    include ("tauRec/TauAODList.py")
-    fullESDList += CfgItemList( "TauAod", items = TauAODList )
+    include ("tauRec/TauESDList.py")
+    fullESDList += CfgItemList( "TauEsd", items = TauESDList )
 except Exception:
-    treatException("Could not tauRec/TauAODList.py")
+    treatException("Could not tauRec/TauESDList.py")
 
 # MissingET 
 try:
@@ -148,6 +148,13 @@ try:
 except Exception:
     treatException("Could not load BTagging item list")    
 
+#isolation, EventShape containers for ED correction
+try:
+    include("IsolationAlgs/IsoEventShapeOutputItemList_jobOptions.py")
+    fullESDList += CfgItemList( "Isolation", items = IsoAODESList)
+except Exception:
+    treatException("Could not load IsoEventShape item list")   
+
 #egamma
 if rec.doEgamma():
     try:
@@ -168,8 +175,13 @@ if recAlgs.doEFlow():
         pass
     pass
 
-                                        
-
+if recAlgs.doTrackParticleCellAssociation():    
+    trackParticleCellAssociationList=["xAOD::CaloClusterContainer#InDetTrackParticlesAssociatedClusters",
+                                      "xAOD::CaloClusterAuxContainer#InDetTrackParticlesAssociatedClustersAux.",
+                                      "xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations",
+                                      "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
+    fullESDList += CfgItemList("trackParticleCellAsso",items=trackParticleCellAssociationList)
+    
 
 # Muon combined reconstruction
 if DetFlags.detdescr.Muon_on() or DetFlags.detdescr.Calo_on():

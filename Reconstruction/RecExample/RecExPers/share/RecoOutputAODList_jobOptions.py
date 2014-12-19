@@ -48,7 +48,7 @@ from AthenaCommon.KeyStore import CfgItemList
 fullAODList = CfgItemList( "AodList" )
 
 # EventInfo stuff
-fullItemList = ["xAOD::EventInfo_v1#*","xAOD::EventAuxInfo_v1#*"]
+fullItemList = ["xAOD::EventInfo#*","xAOD::EventAuxInfo#*"]
 
 try:
     include ( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py")
@@ -70,12 +70,12 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
-    McTruthAODList=["xAOD::TruthEventContainer#TruthEvent",
-                    "xAOD::TruthEventAuxContainer#TruthEventAux.",
-                    "xAOD::TruthParticleContainer#TruthParticle",
-                    "xAOD::TruthParticleAuxContainer#TruthParticleAux.",
-                    "xAOD::TruthVertexContainer#TruthVertex", 
-                    "xAOD::TruthVertexAuxContainer#TruthVertexAux."]
+    McTruthAODList=["xAOD::TruthEventContainer#TruthEvents",
+                    "xAOD::TruthEventAuxContainer#TruthEventsAux.",
+                    "xAOD::TruthParticleContainer#TruthParticles",
+                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                    "xAOD::TruthVertexContainer#TruthVertices", 
+                    "xAOD::TruthVertexAuxContainer#TruthVerticesAux."]
     fullAODList += CfgItemList( "McTruthAod",
                                 items = McTruthAODList )
 
@@ -158,6 +158,13 @@ try:
 except Exception:
     treatException("Could not load BTagging item list")    
 
+#isolation, EventShape containers for ED correction
+try:
+    include("IsolationAlgs/IsoEventShapeOutputItemList_jobOptions.py")
+    fullAODList += CfgItemList( "Isolation", items = IsoAODESList)
+except Exception:
+    treatException("Could not load IsoEventShape item list")   
+
 # uncomment
 # FIXME : there is a logic inconsistency
 # either the jet should add streamAOD at ESD building stage (preferred)
@@ -220,6 +227,12 @@ if DetFlags.detdescr.Muon_on() or DetFlags.detdescr.Calo_on():
     except Exception:
         treatException("Could not load MCRE/MuonCombined_OutputItemsAOD.py" )
 
+if recAlgs.doTrackParticleCellAssociation():    
+    trackParticleCellAssociationList=["xAOD::CaloClusterContainer#InDetTrackParticlesAssociatedClusters",
+                                      "xAOD::CaloClusterAuxContainer#InDetTrackParticlesAssociatedClustersAux.",
+                                      "xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations",
+                                      "xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociationsAux."]
+    fullAODList += CfgItemList("trackParticleCellAsso",items=trackParticleCellAssociationList)
 
 # Atlfast, note ESD and AOD lists are equal
 
