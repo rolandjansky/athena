@@ -17,6 +17,7 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/LocalDirection.h"
+#include "TrkDetDescrUtils/Intersection.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -373,8 +374,9 @@ namespace Muon {
       seg1.associatedSurface().localToGlobal(lpos,segDir1Min,gpos);
 
       // calculate intersection
-      Trk::SurfaceIntersection intersect = segmentSurface.straightLineIntersection(gpos,segDir1Min,false,false);
-      if( !intersect.valid || !segmentSurface.globalToLocal(intersect.intersection,segDir1Min,lpos) ){
+      Trk::Intersection intersect = segmentSurface.straightLineIntersection(gpos,segDir1Min,false,false);
+      if( !intersect.valid || !segmentSurface.globalToLocal(intersect.position,segDir1Min,lpos) ){
+//      if( !intersect.valid || !segmentSurface.globalToLocal(intersect.intersection,segDir1Min,lpos) ){
 	ATH_MSG_WARNING(" Intersect with surface  position " << Amg::toString(gpos) 
 			<< " direction: phi " << segDir1Min.phi() << " theta " << segDir1Min.theta() ); 
       }else{
@@ -430,13 +432,13 @@ namespace Muon {
       segPos = gpos;
 
       // calculate intersection
-      Trk::SurfaceIntersection intersect = segmentSurface.straightLineIntersection(gpos,segDir1Min,false,false);
+      Trk::Intersection intersect = segmentSurface.straightLineIntersection(gpos,segDir1Min,false,false);
       if( !intersect.valid ){
 	ATH_MSG_WARNING(" Intersect with surface  position " << Amg::toString(gpos) 
 			<< " direction: phi " << segDir1Min.phi() << " theta " << segDir1Min.theta() ); 
 	goodMatch = false;
       }else{
-	Amg::Vector3D locExSeg2 = segmentGeometry2.globalToSeg*intersect.intersection;
+	Amg::Vector3D locExSeg2 = segmentGeometry2.globalToSeg*intersect.position;
 	distPosMin2 = locExSeg2.x();
 	distPosInTube2 = segmentGeometry2.positionInsideTube(distPosMin2);
       }
@@ -498,7 +500,7 @@ namespace Muon {
 
     ATH_MSG_DEBUG(" First segment  " << m_printer->print(seg1) << std::endl
 		  << " Second segment " << m_printer->print(seg2));
-    SegmentMatchResult result;
+    SegmentMatchResult result = SegmentMatchResult();
     
     // calculate the phi angle that matches the two local segment angles
     result.phiResult = bestPhiMatchAnalytic(seg1,seg2);

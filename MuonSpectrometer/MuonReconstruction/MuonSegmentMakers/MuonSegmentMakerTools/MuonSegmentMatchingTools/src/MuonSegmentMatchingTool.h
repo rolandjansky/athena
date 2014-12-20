@@ -69,7 +69,7 @@ namespace Muon {
     
     /** @brief check whether we should perform a straight line match */
     bool isSLMatch( const Identifier& chid1, const Identifier& chid2 ) const;
-    
+        
     /** @brief Suppress noise from cavern background/pile up using basic cuts  */
     bool suppressNoise( const MuonSegment& seg1, const MuonSegment& seg2, const bool& useTightCuts ) const;
     
@@ -98,6 +98,7 @@ namespace Muon {
     mutable unsigned int m_curvedMatches;
     mutable unsigned int m_curvedMatchesGood;
 
+    bool m_isCosmics;
     bool m_doOverlapMatch;
     bool m_doStraightLineMatch;
     bool m_doCurvedMatch;
@@ -110,11 +111,16 @@ namespace Muon {
     double m_straightLineMatchPositionCut;
 
     // cuts for sl overlap match
-    double m_overlapMatchAngleCut; //!< cut of the angular difference between phi from phi match and phi from positions
+    double m_overlapMatchAngleDPhiCut; //!< cut of the angular difference between phi from phi match and phi from positions
+    double m_overlapMatchAngleDYZCut; //!< cut of the angular difference between phi from phi match and phi from positions
     double m_overlapMatchPositionCut;  //!< cut on the distance of best position from the chamber bounds
     double m_overlapMatchPositionResidualCut; //!< cut on the position residual for the best position match
     double m_overlapMatchPhiHitPullCut; //!< cut on the average pull of the phi hits with the new segment parameters
-    double m_maxDistSegments; //!< cut on the distance between the segments, if the distance is larger then the cut the segments are always matched
+
+    // cuts for matching segments from different stations
+    double m_angleABCut;
+    double m_maxDistSegments; //!< cut on the maximum distance between the segments
+    double m_minDistSegmentsCosmics; //!< cut on the minimum distance between the segments, if the distance is larger than the cut the segments are always matched (for cosmics)
     double m_matchingbibm_lphisec;
     double m_matchingbibo_lphisec;
     double m_matchingbmbo_lphisec;
@@ -127,7 +133,9 @@ namespace Muon {
     double m_matchingeiem_sphisec;
     double m_matchingeieo_sphisec;
     double m_matchingemeo_sphisec;
-    bool   m_onlyMatchSameStations;  //!< only apply matching for segments in same station layer, all other segments are always matched
+    
+    double m_matchingbee_sphisec;
+    
     bool   m_onlySameSectorIfTight;  //!< reject all segments in different sectors if in tight matching
     bool   m_useTightCuts;  //!< only apply tight selection for busy combinations
     bool   m_dumpAngles;    //!< dump matching angle info to screen

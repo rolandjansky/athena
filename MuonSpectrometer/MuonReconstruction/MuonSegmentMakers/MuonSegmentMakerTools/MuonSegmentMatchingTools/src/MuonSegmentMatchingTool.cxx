@@ -48,29 +48,34 @@ namespace Muon {
       m_curvedMatches(0),m_curvedMatchesGood(0)
   {
     declareInterface<IMuonSegmentMatchingTool>(this);
+    declareProperty("UseCosmicsSettings",  m_isCosmics = false, "Pick up settings for cosmics");
     declareProperty("DoOverlapMatch",      m_doOverlapMatch      = true, "Perform matching for segments in a small/large overlap");
     declareProperty("DoStraightLineMatch", m_doStraightLineMatch = true, "Perform matching for segments in regions without field");
     declareProperty("DoCurvedMatch",       m_doCurvedMatch       = true, "Perform matching for segments in a field regions");
     declareProperty("doThetaMatching",     m_thetaMatch  = false, "Pre-matching in theta" );
     declareProperty("doPhiMatching",       m_phiMatch    = false, "Pre-matching in phi" );
-    declareProperty("OverlapMatchAngleCut",m_overlapMatchAngleCut = 0.15,
+
+    declareProperty("OverlapMatchAngleDPhiCut",m_overlapMatchAngleDPhiCut = 0.15,
+		    "Cut on the angular difference between the best phi and the one consistent with the chamber bounds");
+    declareProperty("OverlapMatchAngleDYZCut",m_overlapMatchAngleDYZCut = 0.05,
 		    "Cut on the angular difference between the best phi and the one consistent with the chamber bounds");
     declareProperty("OverlapMatchPositionCut",m_overlapMatchPositionCut = 100.,
 		    "Cut on the distance of recalculated position to the tube edge");
-    declareProperty("OverlapMatchPositionResidualCut",m_overlapMatchPositionResidualCut = 100.,
+    declareProperty("OverlapMatchPositionResidualCut",m_overlapMatchPositionResidualCut = 30.,
 		    "Cut on the segment position residual after recalculation of the paramters");
-    declareProperty("OverlapMatchAveragePhiHitPullCut",m_overlapMatchPhiHitPullCut = 10.,
+    declareProperty("OverlapMatchAveragePhiHitPullCut",m_overlapMatchPhiHitPullCut = 20.,
 		    "Cut on the average pull of the phi hits with the new segment parameters");
+
     declareProperty("StraightLineMatchAngleCut",m_straightLineMatchAngleCut = 0.1,
 		    "Cut on the angular difference between the extrapolated segment angle and reference");
     declareProperty("StraightLineMatchPositionCut",m_straightLineMatchPositionCut = 200.,
 		    "Cut on the distance of extrapolated segment position and reference");
     declareProperty("MaxDistanceBetweenSegments",m_maxDistSegments = 3000.,
 		    "If the two segments are further appart than this distance, they are always considered to match");
-    declareProperty("OnlyMatchSameStations",m_onlyMatchSameStations = true, "Accept all segments that are in different station layers");
+
     declareProperty("OnlySameSectorIfTight",m_onlySameSectorIfTight = true, "Accept only segments that are in the same sector for tight matching");
     declareProperty("TightSegmentMatching",m_useTightCuts = false, "Use tight selection for busy event to suppress combinatorics and improve CPU");
-    declareProperty("UseLocalAnglesForMatch",m_useLocalAngles = true, "Use Local Angles For Match test");
+
     declareProperty("DumpAngles", m_dumpAngles = false, "Print matching angle information to screen. WARNING: always returns True for suppressNoise");
     declareProperty("DoMatchingCutsBIBM_S", m_matchingbibm_sphisec = 0.015, "Cut on sumDeltaYZ, segments in BI and BM, small phi sec"); 
     declareProperty("DoMatchingCutsBIBO_S", m_matchingbibo_sphisec = 0.015, "Cut on sumDeltaYZ, segments in BI and BO, small phi sec"); 
@@ -198,8 +203,9 @@ namespace Muon {
     // if we get here perform a curved matching
     if( !m_doCurvedMatch ) return true;
     if( stIndex1 == stIndex2 ) return false;
-
+    
     return curvedMatch(seg1,seg2);
+
   }
 
 
@@ -250,27 +256,18 @@ namespace Muon {
 
     Identifier chid = m_helperTool->chamberId(seg1);
 
-    // check the distance between the two segments, if it is too large always accept the combination
-    Amg::Vector3D diffPos = seg1.globalPosition() - seg2.globalPosition();
-    ATH_MSG_VERBOSE(" Distance between segments " << diffPos.mag());
-    if( diffPos.mag() > m_maxDistSegments ) {
+    // check the distance between the two segments
+    float segDist = (seg1.globalPosition() - seg2.globalPosition()).mag();
+    ATH_MSG_VERBOSE(" Distance between segments " << segDist );
+    if(m_isCosmics && segDist > m_minDistSegmentsCosmics) {
       ATH_MSG_DEBUG(" Too far appart, accepting ");
       return true;
     }
+    if (segDist > m_maxDistSegments) return false;
 
     if( !m_idHelperTool->isMdt(chid) ) {
       ATH_MSG_DEBUG(" not a mdt segment " << m_idHelperTool->toString(chid));
       return true;
-    }
-
-    if( m_onlyMatchSameStations ){
-      Identifier chid2 = m_helperTool->chamberId(seg2);
-      MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid);
-      MuonStationIndex::StIndex stIndex2 = m_idHelperTool->stationIndex(chid2);
-      if( stIndex1 != stIndex2 ){
-	ATH_MSG_DEBUG(" Different stations ");
-	return true;
-      }
     }
 
     IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolvingTool->matchResult(seg1,seg2);
@@ -281,8 +278,9 @@ namespace Muon {
       ATH_MSG_DEBUG(" bad match ");
       return false;
     }
-
-    if( fabs(result.angularDifferencePhi) > m_overlapMatchAngleCut || fabs(result.phiResult.deltaYZ) > m_overlapMatchAngleCut ) {
+    
+    result.phiResult = m_overlapResolvingTool->bestPhiMatch(seg1,seg2);
+    if( fabs(result.angularDifferencePhi) > m_overlapMatchAngleDPhiCut || fabs(result.phiResult.deltaYZ) > m_overlapMatchAngleDYZCut ) {
       ATH_MSG_DEBUG(" failed angle cut: diff phi  " << result.angularDifferencePhi
 			   << "  deltaYZ " << result.phiResult.deltaYZ);
       return false;
@@ -1103,11 +1101,14 @@ namespace Muon {
     if( useTightCuts ) drCut *= 2;
     else               drCut *= 4;
 
-    if( (stIndex1 == MuonStationIndex::EM && stIndex2 == MuonStationIndex::BI) || (stIndex1 == MuonStationIndex::BI && stIndex2 == MuonStationIndex::EM) ){
+    /*
+    //can't be true currently
+    if( (stIndex1 == MuonStationIndex::EM && stIndex2 == MuonStationIndex::BI) || (stIndex1 == MuonStationIndex::BI && stIndex2 == MuonStationInde)){
       drCut += 3*m_drExtrapAlignmentOffset;
     }else{
-      drCut += m_drExtrapAlignmentOffset;
-    }
+    */
+    drCut += m_drExtrapAlignmentOffset;
+    
 
     double dthetaCut = m_dthetaExtrapRMS + 1.5e3*rhoInv;
     if( useTightCuts ) dthetaCut *= 2;

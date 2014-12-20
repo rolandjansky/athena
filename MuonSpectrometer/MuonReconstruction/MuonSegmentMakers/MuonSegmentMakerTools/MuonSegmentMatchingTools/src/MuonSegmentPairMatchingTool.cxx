@@ -296,9 +296,9 @@ namespace Muon {
     }
     std::pair<Amg::Vector3D, Amg::Vector3D> shortpos;
     Amg::Vector2D lp(0,storedLength);
-    shortestMdt->associatedSurface().localToGlobal(lp,Amg::Vector3D::UnitZ(),shortpos.first);
+    if(shortestMdt) shortestMdt->associatedSurface().localToGlobal(lp,Amg::Vector3D::UnitZ(),shortpos.first);
     lp[1] = -storedLength;
-    shortestMdt->associatedSurface().localToGlobal(lp,Amg::Vector3D::UnitZ(),shortpos.second);
+    if(shortestMdt) shortestMdt->associatedSurface().localToGlobal(lp,Amg::Vector3D::UnitZ(),shortpos.second);
     return shortpos;
   }
 }

@@ -16,6 +16,7 @@ use TrkEventPrimitives            TrkEventPrimitives-*           Tracking/TrkEve
 use TrkParameters                 TrkParameters-*                Tracking/TrkEvent
 use TrkTrack                      TrkTrack-*                     Tracking/TrkEvent
 use TrkExInterfaces               TrkExInterfaces-*              Tracking/TrkExtrapolation
+use TrkDetDescrUtils              TrkDetDescrUtils-*             Tracking/TrkDetDescr
 
 use TrkToolInterfaces             TrkToolInterfaces-*            Tracking/TrkTools
 use TrkGeometry                   TrkGeometry-*                  Tracking/TrkDetDescr
