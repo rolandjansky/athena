@@ -766,7 +766,7 @@ void MuTagMatchingTool::nrTriggerHits( const Muon::MuonSegment* seg, int& nRPC, 
 
 MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Track* track, const Muon::MuonSegment*  segment,  const Trk::AtaPlane* exTrack ){
 
-   MuonCombined::MuonSegmentInfo info;
+   MuonCombined::MuonSegmentInfo info = MuonCombined::MuonSegmentInfo();
 
 //  segment and track pointers
    
