@@ -7,8 +7,8 @@
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODMuon/MuonContainer.h"
-#include "ITrackInCaloTools/ITrackInCaloTools.h"
-#include "IsolationTool/ICaloIsolationTool.h"
+#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
+#include "RecoToolInterfaces/IsolationCommon.h"
 
 #include "TLorentzVector.h"
 #include <iostream>
@@ -22,15 +22,13 @@ TrigMuonEFCaloIsolation::TrigMuonEFCaloIsolation(const std::string &name, ISvcLo
     FexAlgo(name, pSvcLocator),
     m_requireCombined(false),
     m_debug(false),
-    m_trackInCaloTool("TrackInCaloTools/MuonIsoTrackInTools"),
-    m_caloIsolationTool("xAOD::CaloIsolationTool"),
+    m_caloIsolationTool("xAOD__CaloIsolationTool"),
     m_etiso_cone1(),
     m_etiso_cone2(),
     m_etiso_cone3(),
     m_etiso_cone4()
 {
   declareProperty("RequireCombinedMuon",      m_requireCombined);
-  declareProperty("TrackInCaloTool",          m_trackInCaloTool);
   declareProperty("CaloIsolationTool",        m_caloIsolationTool);
   declareProperty("HistoPathBase",            m_histo_path_base = "/EXPERT/");
     
@@ -62,18 +60,9 @@ HLT::ErrorCode TrigMuonEFCaloIsolation::hltInitialize() {
     ATH_MSG_DEBUG("Properties set as follows: ");
     ATH_MSG_DEBUG("RequireCombinedMuon:       " << m_requireCombined);
 
-    StatusCode sc = m_trackInCaloTool.retrieve();
 
-    if (sc.isSuccess()) {
-      ATH_MSG_DEBUG("Retrieved " << m_trackInCaloTool);
-    } else {
-      ATH_MSG_FATAL("Could not retrieve " << m_trackInCaloTool);
-      return HLT::BAD_JOB_SETUP;
-    }
 
-    sc = m_caloIsolationTool.retrieve();
-
-    if (sc.isSuccess()) {
+    if (m_caloIsolationTool.retrieve().isSuccess()) {
       ATH_MSG_DEBUG("Retrieved " << m_caloIsolationTool);
     } else {
       ATH_MSG_FATAL("Could not retrieve " << m_caloIsolationTool);
@@ -100,8 +89,7 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer* muons
 
   std::vector<xAOD::Iso::IsolationType> etCones = { xAOD::Iso::etcone40,
 						    xAOD::Iso::etcone30,
-						    xAOD::Iso::etcone20,
-						    xAOD::Iso::etcone10 };
+						    xAOD::Iso::etcone20};
 
   for(auto muon : *muons) {
     
@@ -131,9 +119,11 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer* muons
       continue;
     }
 
-    xAOD::CaloIsolation caloIsolation;
+    xAOD::CaloIsolation  caloIsolation;
+    xAOD::CaloCorrection corrlist;
+    corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::coreMuon));
 
-    if ( !m_caloIsolationTool->caloIsolation( caloIsolation, *tp, etCones, xAOD::ICaloIsolationTool::Ecore  ) ){
+    if ( !m_caloIsolationTool->caloCellIsolation( caloIsolation, *tp, etCones, corrlist  ) ){
       ATH_MSG_WARNING("Calculation of calorimeter isolation failed");
       continue;
     }
@@ -143,14 +133,12 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer* muons
     }
 
     //Monitor the values
-    m_etiso_cone1.push_back( caloIsolation.etcones[3]/1000.0 );
     m_etiso_cone2.push_back( caloIsolation.etcones[2]/1000.0 );
     m_etiso_cone3.push_back( caloIsolation.etcones[1]/1000.0 );
     m_etiso_cone4.push_back( caloIsolation.etcones[0]/1000.0 );
 
     if(m_debug) {
       ATH_MSG_DEBUG("Filled muon isolation information with:");
-      ATH_MSG_DEBUG("\tCone Et 0.1 sum = " << m_etiso_cone1.back() << " GeV");
       ATH_MSG_DEBUG("\tCone Et 0.2 sum = " << m_etiso_cone2.back() << " GeV");
       ATH_MSG_DEBUG("\tCone Et 0.3 sum = " << m_etiso_cone3.back() << " GeV");
       ATH_MSG_DEBUG("\tCone Et 0.4 sum = " << m_etiso_cone4.back() << " GeV");
@@ -190,13 +178,6 @@ HLT::ErrorCode TrigMuonEFCaloIsolation::hltExecute(const HLT::TriggerElement *in
 
     ATH_MSG_DEBUG(" Retrieved the cell container in the RoI called " << cellCollKey);
 
-    //Try to set the property of the offline track in calo tool, 
-    //This tool is then used by the actual calo isolation tool.
-    //This is very ugly code, would prefer a better interface!
-    if( (dynamic_cast<AlgTool*>(&*m_trackInCaloTool))->setProperty( StringProperty("CaloCellContainer", cellCollKey) ).isFailure()) {
-      ATH_MSG_ERROR("Problem setting the CaloCellContainer name in the offline tool");
-      return HLT::TOOL_FAILURE;
-    }
 
   } else {
     ATH_MSG_ERROR("Failed to get TrigCells");   

@@ -19,14 +19,15 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #Offline calorimeter isolation tool
-from TrackInCaloTools import TrackInCaloTools
-TMEFTrackInCaloTools = TrackInCaloTools.TrackInCaloTools(name='MuonIsoTrackInCaloTools')
-ToolSvc += TMEFTrackInCaloTools
+#from TrackInCaloTools import TrackInCaloTools
+#TMEFTrackInCaloTools = TrackInCaloTools.TrackInCaloTools(name='MuonIsoTrackInCaloTools')
+#ToolSvc += TMEFTrackInCaloTools
 
-from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
-TMEFCaloIsolationTool = xAOD__CaloIsolationTool(name='MuonIsoCaloIsolationTool',
-                                                ExtrapolTrackToCaloTool = TMEFTrackInCaloTools)
-ToolSvc += TMEFCaloIsolationTool
+#from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
+#TMEFCaloIsolationTool = xAOD__CaloIsolationTool(name='MuonIsoCaloIsolationTool',
+#                                                ExtrapolTrackToCaloTool = TMEFTrackInCaloTools)
+
+#ToolSvc += TMEFCaloIsolationTool
 
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
@@ -134,7 +135,13 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("RecoverOutliers", False)
     return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
-        
+
+
+def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
+    kwargs.setdefault("UseCaloEnergyMeasurement", False)
+    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    return Trk__TrkMaterialProviderTool(name,**kwargs)
+
 
 def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs):
     from MuonRecExample.MuonRecFlags import mooreFlags
@@ -172,6 +179,9 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     from MuonRecExample.MuonRecFlags import muonRecFlags
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator", "")
+
+    kwargs.setdefault("UseCaloTG", True)
+    kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
 
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
@@ -279,6 +289,8 @@ def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     kwargs.setdefault('MaxIterations',         50)
     kwargs.setdefault('GetMaterialFromTrack',  True) #FIX? jobproperties.BField.solenoidOn() and jobproperties.BField.allToroidOn(),
     kwargs.setdefault('RecalculateDerivatives',False)
+    kwargs.setdefault("UseCaloTG",             True)
+    kwargs.setdefault("CaloMaterialProvider",  "TMEF_TrkMaterialProviderTool")
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return  Trk__GlobalChi2Fitter(name, **kwargs)
 
@@ -305,9 +317,8 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
 
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
-    kwargs.setdefault('TrackIsolationTool',None)
-    kwargs.setdefault('CaloIsolationTool',None)
     kwargs.setdefault('MakeTrackAtMSLink',True)
+    kwargs.setdefault('ParticleCaloClusterAssociationTool',None)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 # TrigMuonEF classes
@@ -334,11 +345,11 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         
         self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
-        self.SegmentsFinderTool = CfgGetter.getPrivateToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                     WriteIntermediateResults = False)
-        self.SegmentsFinderTool.HoughPatternFinder = "Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"
-        self.SegmentsFinderTool.HoughPatternFinder.RecordAll = False
-        self.SegmentsFinderTool.HoughPatternFinder.muonCombinePatternTool ="MuonCombinePatternTool" 
+        self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
+                                                                WriteIntermediateResults = False,
+                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonHoughPatternFinderTool") )
+
+        CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
 
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             self.useRoIDrivenDataAccess  = True

@@ -45,7 +45,7 @@
 
 #include "TrigMuonToolInterfaces/TrigMuonEFMonVars.h"
 
-#include "TrigNavigation/TrigNavigation/TriggerElement.h"
+#include "TrigNavigation/TriggerElement.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
@@ -63,9 +63,13 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include<fstream>
+#include <fstream>
 
 #include "TrigMuonEFUtils.icc"
+
+#if DEBUG_ROI_VS_FULL
+#include <set> //used in the method sanity_check
+#endif
 
 #define testRoiDrivenMode false
 
@@ -417,68 +421,73 @@ StatusCode TrigMuonEFStandaloneTrackTool::finalize()
 }
 
 //________________________________________________________________________
-
 #if DEBUG_ROI_VS_FULL
 void TrigMuonEFStandaloneTrackTool::sanity_check(const std::vector<IdentifierHash>& input_hash_ids, const std::vector<IdentifierHash>& hash_ids_withData, const std::string& technology, std::ostream& outfile)
 {
-  std::vector<IdentifierHash> anomalous_hash_ids;
 
-  for(unsigned int i = 0; i < hash_ids_withData.size(); ++i)
-    {
-      bool test = false;
-
-      for(unsigned int j = 0; j < input_hash_ids.size(); ++j)
-	{
-	  if (input_hash_ids[j] == hash_ids_withData[i])
-	    {
-	    test = true;
-	    break;
-	    }
-	}
-
-      if(test == false) anomalous_hash_ids.push_back(hash_ids_withData[i]);
-    }
-
-  if (anomalous_hash_ids.size() > 0)
-    {
-      msg() << MSG::ERROR << " *********Anomalous Hash ID's Present in "<<technology<<" ********** ";
-      
-      for(unsigned int i = 0; i< anomalous_hash_ids.size(); ++i)
-	{
-	  msg() << MSG::ERROR <<" "<< anomalous_hash_ids[i];
-	}
-
-      msg() << MSG::ERROR << " Not Present in : ";
-
-      for(unsigned int i = 0; i< input_hash_ids.size(); ++i)
-	{
-	  msg() << MSG::ERROR <<" "<< input_hash_ids[i];
-	}
-      
-      msg() << MSG::ERROR << endreq;
-    
-  
-  outfile << "Anomalous Hash ID's" ;
-  
-  for(unsigned int i = 0; i< anomalous_hash_ids.size(); ++i)
-    {
-      outfile <<" "<< anomalous_hash_ids[i];
-    }
-  
-  outfile << " Not Present in : ";
-  
-  for(unsigned int i = 0; i< input_hash_ids.size(); ++i)
-    {
-      outfile <<" "<< input_hash_ids[i];
-    }
-  
+  std::set<IdentifierHash> inputSet;
+  std::set<IdentifierHash> outputSet;
+  std::vector<IdentifierHash> inputDuplicates;
+  std::vector<IdentifierHash> outputDuplicates;
+  std::vector<IdentifierHash> inputUnmatched;
+  std::vector<IdentifierHash> outputUnmatched;
+   
+  //print input and output hash IDs and check for duplicates or unmatched
+  outfile << "requested hash IDs:                          ";
+  for (auto it = input_hash_ids.begin(); it != input_hash_ids.end(); ++it) {//loop over requested hash IDs
+    outfile << *it << " ";
+    if (!inputSet.insert(*it).second) //check for duplicate
+      inputDuplicates.push_back(*it);
+  }
   outfile << "\n";
-
-    }
+  outfile << "hash IDs with data:                          ";
+  for (auto it = hash_ids_withData.begin(); it != hash_ids_withData.end(); ++it) {//loop over hash IDs with data
+    outfile << *it << " ";
+    if (!outputSet.insert(*it).second) //check for duplicate
+      outputDuplicates.push_back(*it);
+    if (inputSet.find(*it) == inputSet.end()) //check for mismatch
+      outputUnmatched.push_back(*it);
+  }
+  outfile << "\n";
+  
+  for (auto it = input_hash_ids.begin(); it != input_hash_ids.end(); ++it) {//another loop over requested hash IDs
+     if (outputSet.find(*it) == outputSet.end()) //check for mismatch
+       inputUnmatched.push_back(*it);
+  }
+  
+  
+  //print duplicates if any
+  if (inputDuplicates.size()) {
+     outfile << "requested  hID duplicates:                   ";
+     for (auto it = inputDuplicates.begin(); it != inputDuplicates.end(); ++it)
+       outfile << *it << " ";
+     outfile << "\n";
+  }
+  if (outputDuplicates.size()) {
+     outfile << "hID with data duplicates:                    ";
+     for (auto it = outputDuplicates.begin(); it != outputDuplicates.end(); ++it)
+       outfile << *it << " ";
+     outfile << "\n";
+  }
+  
+  //print unmatched IDs if any
+  if (inputUnmatched.size()) {
+     outfile << "requested  hID unrecovered with data:        ";
+     for (auto it = inputUnmatched.begin(); it != inputUnmatched.end(); ++it)
+       outfile << *it << " ";
+     outfile << "\n";
+  }
+  if (outputUnmatched.size()) {
+     outfile << "recovered but unrequested hID with data:     ";
+     for (auto it = outputUnmatched.begin(); it != outputUnmatched.end(); ++it)
+       outfile << *it << " ";
+     outfile << "\n";
+  }
 
 }
 #endif
 
+//________________________________________________________________________
 void TrigMuonEFStandaloneTrackTool::unpackTimers( std::vector<TrigTimer*>& timers, unsigned int firstIndex,
 						  TrigTimer*& dataPrepTime, TrigTimer*& algTime, TrigTimer*& dataOutputTime ) 
 {
@@ -635,6 +644,13 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
 							   std::vector<TrigTimer*>& timers, 
 							   unsigned int firstTimerIndex )
 {
+#if DEBUG_ROI_VS_FULL
+  m_fileWithHashIds_rpc << "\n#####\n\n";
+  m_fileWithHashIds_mdt << "\n#####\n\n";
+  m_fileWithHashIds_tgc << "\n#####\n\n";
+  m_fileWithHashIds_csc << "\n#####\n\n";
+#endif
+
   ATH_MSG_DEBUG("in findSegments()");
 
   TrigTimer* dataPrepTime   = 0;
@@ -781,15 +797,17 @@ if (m_useMdtData>0) {
   if (m_useRoIDrivenDataAccess)
     {
       if (m_useRpcData && !rpc_hash_ids.empty()) {
+
 	if (m_rpcPrepDataProvider->decode(rpc_hash_ids, hash_ids_withData).isSuccess()) {
 
 #if DEBUG_ROI_VS_FULL
 	  sanity_check(rpc_hash_ids, hash_ids_withData, "rpc", m_fileWithHashIds_rpc);
 #endif
-	  rpc_hash_ids.clear();
-	  rpc_hash_ids_cache.clear();
-	  rpc_hash_ids = hash_ids_withData;
-	  if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "RpcHashId vector resized to " << rpc_hash_ids.size() << endreq;
+    // the following lines are commented out because hash_ids_withData contains extra, unrequested ids
+	  //rpc_hash_ids.clear();
+	  //rpc_hash_ids_cache.clear();
+	  //rpc_hash_ids = hash_ids_withData;
+	  //if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "RpcHashId vector resized to " << rpc_hash_ids.size() << endreq;
 	} else {
 	  msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
 	}
@@ -860,31 +878,43 @@ if (m_useMdtData>0) {
       // not RoiDriven - still use the prepdatatools but decode entire event
       std::vector<IdentifierHash> input_hash_ids;
       input_hash_ids.reserve(0);
-      if (m_useRpcData)
+      if (m_useRpcData && !rpc_hash_ids.empty())
 	{
 	  if (!m_rpcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
 	    msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
 	  ATH_MSG_DEBUG("rpc hash_ids_withData.size(): "<<hash_ids_withData.size());
+#if DEBUG_ROI_VS_FULL
+	  sanity_check(rpc_hash_ids, hash_ids_withData, "rpc", m_fileWithHashIds_rpc);
+#endif
 	}
-      if (m_useMdtData)
+      if (m_useMdtData && !mdt_hash_ids.empty())
 	{
 	  if (!m_mdtPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
 	    msg() << MSG::WARNING << "Problems when preparing MDT PrepData " << endreq;
 	  ATH_MSG_DEBUG("mdt hash_ids_withData.size(): "<<hash_ids_withData.size());
+#if DEBUG_ROI_VS_FULL
+	  sanity_check(mdt_hash_ids, hash_ids_withData, "mdt", m_fileWithHashIds_mdt);
+#endif
 	}
-      if (m_useTgcData)
+      if (m_useTgcData && !tgc_hash_ids.empty())
 	{
 	  if (!m_tgcPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
 	    msg() << MSG::WARNING << "Problems when preparing TGC PrepData " << endreq;
 	  ATH_MSG_DEBUG("tgc hash_ids_withData.size(): "<<hash_ids_withData.size());
+#if DEBUG_ROI_VS_FULL
+	  sanity_check(tgc_hash_ids, hash_ids_withData, "tgc", m_fileWithHashIds_tgc);
+#endif
 	}
-      if (m_useCscData)
+      if (m_useCscData && !csc_hash_ids.empty())
 	{
 	  if (!m_cscPrepDataProvider->decode(input_hash_ids, hash_ids_withData).isSuccess())
 	    msg() << MSG::WARNING << "Problems when preparing CSC PrepData " << endreq;
 	  if (!m_cscClusterProvider->getClusters(input_hash_ids, hash_ids_withData).isSuccess())
 	    msg() << MSG::WARNING << "Problems when preparing CSC Clusters " << endreq;
 	  ATH_MSG_DEBUG("csc hash_ids_withData.size(): "<<hash_ids_withData.size());
+#if DEBUG_ROI_VS_FULL
+	  sanity_check(csc_hash_ids, hash_ids_withData, "csc", m_fileWithHashIds_csc);
+#endif
 	}
     }
   
@@ -898,44 +928,46 @@ if (m_useMdtData>0) {
     }  else msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endreq;
     // Get RPC collections
     RpcPrepDataContainer::const_iterator RPCcoll;
-    for(std::vector<IdentifierHash>::const_iterator idit = rpc_hash_ids.begin();
-	idit != rpc_hash_ids.end(); ++idit) {
+    for(std::vector<IdentifierHash>::const_iterator idit = rpc_hash_ids.begin(); idit != rpc_hash_ids.end(); ++idit) {
       RPCcoll = rpcPrds->indexFind(*idit);
       if( RPCcoll == rpcPrds->end() ) {
-	if (msgLvl(MSG::VERBOSE)) {
-	  Identifier idColl;
-	  IdContext rpcContext = m_rpcIdHelper->module_context();
-	  int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
-	  msg() << MSG::VERBOSE << "get_id code = " << code
-		<< " collection for rpc id hash = " << (int)*idit
-		<< " not found in the cont. ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
-	}
-	continue;
+        if (msgLvl(MSG::VERBOSE)) {
+	       Identifier idColl;
+          IdContext rpcContext = m_rpcIdHelper->module_context();
+          int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
+          msg() << MSG::VERBOSE << "get_id code = " << code
+                << " collection for rpc id hash = " << (int)*idit
+                << " not found in the cont. ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
+        }
+        continue;
       }
       if( (*RPCcoll)->size() == 0)    {
-	if (msgLvl(MSG::VERBOSE)) {
-	  Identifier idColl;
-	  IdContext rpcContext = m_rpcIdHelper->module_context();
-	  int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
-	  msg() << MSG::VERBOSE << "get_id code = " << code
-		<< " collection for rpc id hash = " << (int)*idit
-		<< " is empty ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
-	}
-	continue;
+        if (msgLvl(MSG::VERBOSE)) {
+          Identifier idColl;
+          IdContext rpcContext = m_rpcIdHelper->module_context();
+          int  code = m_rpcIdHelper->get_id(*idit, idColl, &rpcContext);
+          msg() << MSG::VERBOSE << "get_id code = " << code
+                << " collection for rpc id hash = " << (int)*idit
+                << " is empty ext.id = " << m_rpcIdHelper->show_to_string(idColl) << endreq;
+        }
+        continue;
       }
       
       rpc_hash_ids_cache.push_back(*idit);
       
       nRpcHits+=(*RPCcoll)->size(); // count hits for TrigMuonEFInfo
       rpcCols.push_back(*RPCcoll);
-      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Selected Rpc Collection: "
-			 << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
-			 << " with size " << (*RPCcoll)->size() << endreq;
-      else
-	if (testRoiDrivenMode) msg() << MSG::INFO << "Selected Rpc Collection: "
-				     << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
-				     << " with size " << (*RPCcoll)->size() << endreq;
-      
+      if (msgLvl(MSG::DEBUG)) 
+        msg() << MSG::DEBUG << "Selected Rpc Collection: "
+              << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
+              << " (hash = " << (int)*idit
+              << ") with size " << (*RPCcoll)->size() << endreq;
+      else if (testRoiDrivenMode) 
+        msg() << MSG::INFO << "Selected Rpc Collection: "
+				  << m_rpcIdHelper->show_to_string((*RPCcoll)->identify())
+              << " (hash = " << (int)*idit
+				  << "), with size " << (*RPCcoll)->size() << endreq;
+
     }
     if (rpcCols.empty()) {
       if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No Rpc data collections selected" << endreq;
@@ -1185,21 +1217,23 @@ if (m_useMdtData>0) {
   std::vector<IdentifierHash> rpc_hash_list(rpc_hash_ids_cache);
   std::sort(rpc_hash_list.begin(),rpc_hash_list.end());
   
-for  (unsigned int i = 0; i<rpc_hash_list.size(); i++)
-  {
-    m_fileWithHashIds_rpc <<rpc_hash_list[i]<<" ";
-  }
+  if(rpc_hash_ids_cache.size() > 0)
+    m_fileWithHashIds_rpc << "selected hash IDs passed to pattern finder:  ";
+    
+  for  (unsigned int i = 0; i<rpc_hash_list.size(); i++)
+    m_fileWithHashIds_rpc << rpc_hash_list[i] << " ";
   
   if(rpc_hash_ids_cache.size() > 0)
-    {
-      m_fileWithHashIds_rpc <<"\n";
-    }
+    m_fileWithHashIds_rpc << "\n";
 
   //tgc
 
 
   std::vector<IdentifierHash> tgc_hash_list(tgc_hash_ids_cache);
   std::sort(tgc_hash_list.begin(),tgc_hash_list.end());
+  
+  if(tgc_hash_ids_cache.size() > 0)
+    m_fileWithHashIds_tgc << "selected hash IDs passed to pattern finder:  ";
 
   for (unsigned int i = 0; i<tgc_hash_list.size(); i++)
     {
@@ -1215,6 +1249,9 @@ for  (unsigned int i = 0; i<rpc_hash_list.size(); i++)
   
   std::vector<IdentifierHash> mdt_hash_list(mdt_hash_ids_cache);
   std::sort(mdt_hash_list.begin(),mdt_hash_list.end());
+  
+  if(mdt_hash_ids_cache.size() > 0)
+    m_fileWithHashIds_mdt << "selected hash IDs passed to pattern finder:  ";
 
   for (unsigned int i = 0; i<mdt_hash_list.size(); i++)
     {
@@ -1230,6 +1267,9 @@ for  (unsigned int i = 0; i<rpc_hash_list.size(); i++)
 
   std::vector<IdentifierHash> csc_hash_list(csc_hash_ids_cache);
   std::sort(csc_hash_list.begin(),csc_hash_list.end());
+  
+  if(csc_hash_ids_cache.size() > 0)
+    m_fileWithHashIds_csc << "selected hash IDs passed to pattern finder:  ";
 
  for (unsigned int i = 0; i<csc_hash_list.size(); i++)
    {

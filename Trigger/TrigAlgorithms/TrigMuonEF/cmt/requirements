@@ -62,8 +62,7 @@ use TrigMuonToolInterfaces      TrigMuonToolInterfaces-*        Trigger/TrigTool
 use xAODTracking		xAODTracking-*			Event/xAOD
 use xAODMuon			xAODMuon-*			Event/xAOD
 use xAODCaloEvent		xAODCaloEvent-*			Event/xAOD
-use ITrackInCaloTools          ITrackInCaloTools-*             Reconstruction/RecoTools
-use IsolationTool	       IsolationTool-*		       Reconstruction/RecoTools
+use RecoToolInterfaces	       RecoToolInterfaces-*	       Reconstruction/RecoTools
 use CaloEvent                  CaloEvent-*                     Calorimeter
 use AtlasROOT		       AtlasROOT-*		       External
 use TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
@@ -71,7 +70,8 @@ use TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 public
 
-
+# Inform cmake that this package has private header files (transparent to CMT)
+apply_pattern cmake_add_command command="include_directories(src)"
 
 library TrigMuonEF \
 "SegmentCache.cxx\

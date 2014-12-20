@@ -15,11 +15,9 @@
 class StoreGateSvc;
 class IsoMuonFeature;
 
-// fwd declare calorimeter isolation tool interface
-class ITrackInCaloTools;
 
 namespace xAOD{
-  class ICaloIsolationTool;
+  class ICaloCellIsolationTool;
 }
 
 /**
@@ -62,8 +60,7 @@ class TrigMuonEFCaloIsolation : public virtual HLT::FexAlgo,
   bool m_debug;
 
   /// Tools to calculate the isolation
-  ToolHandle<ITrackInCaloTools>        m_trackInCaloTool;
-  ToolHandle<xAOD::ICaloIsolationTool> m_caloIsolationTool;
+  ToolHandle<xAOD::ICaloCellIsolationTool> m_caloIsolationTool;
 
   /// Monitoring Histograms
   StringProperty m_histo_path_base;     // set the histo path for Monitoring

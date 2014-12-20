@@ -36,6 +36,7 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_OutwardsCombinedMuonTrackBuilder","TME
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCombinedFitTagTool","TMEF_MuonCombinedFitTagTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCreatorTool","TMEF_MuonCreatorTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTool","TMEF_MuonCandidateTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMaterialProviderTool")
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "TrigMuonEFTrackIsolation")
 
