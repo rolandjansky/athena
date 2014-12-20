@@ -57,7 +57,6 @@ class IEMExtrapolationTools : virtual public IAlgTool {
                               const xAOD::TrackParticle*    trkPB, 
                               bool                          isTRT, 
                               Trk::PropDirection            direction,
-                              const std::vector<bool>&      doSample,
                               std::vector<double>&          eta,
                               std::vector<double>&          phi,
                               std::vector<double>&          deltaEta,
@@ -66,13 +65,13 @@ class IEMExtrapolationTools : virtual public IAlgTool {
 
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
-   *    layers given the Trk::ParametersBase.  doSample indicates
+   *    layers given the Trk::ParametersBase.  
    *    whether or not to extrapolate to each calo sample
    */
   virtual StatusCode getMatchAtCalo (const xAOD::CaloCluster*            cluster, 
                                      const xAOD::TrackParticle* trkPB,
-                                     Trk::PropDirection            direction,
-                                     const std::vector<bool>&      doSample,
+				      bool                          isTRT,                         
+				     Trk::PropDirection            direction,
                                      std::vector<double>&          eta,
                                      std::vector<double>&          phi,
                                      std::vector<double>&          deltaEta,

@@ -23,7 +23,7 @@ MODIFIED :
 
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
+#include "xAODTracking/TrackParticleContainerFwd.h" 
 
 class egammaRec;
 static const InterfaceID IID_IEMTrackMatchBuilder("IEMTrackMatchBuilder", 1, 0);

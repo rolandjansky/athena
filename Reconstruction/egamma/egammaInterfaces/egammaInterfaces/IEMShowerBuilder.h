@@ -18,8 +18,8 @@ MODIFIED :
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
-#include "xAODTracking/VertexContainer.h" 
+#include "xAODTracking/TrackParticleContainerFwd.h" 
+#include "xAODTracking/VertexContainerFwd.h" 
 
 // Forward declarations
 class CaloCellContainer;

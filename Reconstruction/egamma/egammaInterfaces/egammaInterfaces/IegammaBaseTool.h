@@ -22,7 +22,7 @@
 
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
+#include "xAODTracking/TrackParticleContainerFwd.h" 
 class egammaRec;
 
 static const InterfaceID IID_IegammaBaseTool("IegammaBaseTool", 1, 0);

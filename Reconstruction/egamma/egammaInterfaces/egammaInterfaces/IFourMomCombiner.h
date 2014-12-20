@@ -19,7 +19,7 @@ MODIFIED :
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
+#include "xAODTracking/TrackParticleContainerFwd.h" 
 
 // Forward declarations.
 class egamma;

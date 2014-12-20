@@ -4,22 +4,17 @@
   <class name="IEMBremCollectionBuilder" />
   <class name="IEMClusterTool" />
   <class name="IEMConversionBuilder" />
-  <class name="IEMExtrapolCaloConversion" />
   <class name="IEMExtrapolationTools" />
   <class name="IEMFourMomBuilder" />
   <class name="IEMShowerBuilder" />
-  <class name="IEMIsolationBuilder" />
-  <class name="IEMTrackIsolationTool" />
   <class name="IEMTrackMatchBuilder" />
   <class name="IEMVertexBuilder" />
   <class name="IFourMomCombiner" />
   <class name="IegammaBackShape" />
   <class name="IegammaBaseTool" />
-  <class name="IegammaBremsstrahlungHelix" />
   <class name="IegammaCheckEnergyDepositTool" />
   <class name="IegammaEnergyPositionAllSamples" />
   <class name="IegammaIso" />
-  <class name="IegammaIsoPtCorrection" />
   <class name="IegammaMiddleShape" />
   <class name="IegammaPreSamplerShape" />
   <class name="IegammaShowerShape" />
@@ -28,5 +23,7 @@
   <class name="IegammaTrkRefitterTool" />
   <class name="Iegammaqweta1c" />
   <class name="Iegammaqweta2c" />
+  <class name="IegammaTopoClusterMap" />
+  <class name="IegammaSuperClusterBuilder" />
 </lcgdict>
 

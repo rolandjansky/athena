@@ -20,7 +20,7 @@ MODIFIED : May,2009 (remove an argument from fourMomExecute)
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
+#include "xAODTracking/TrackParticleContainerFwd.h" 
 
 // INCLUDE HEADER FILES:
 #include "egammaInterfaces/IegammaBaseTool.h"

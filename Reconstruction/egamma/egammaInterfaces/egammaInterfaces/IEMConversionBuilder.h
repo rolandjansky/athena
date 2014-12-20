@@ -20,12 +20,9 @@ MODIFIED :
 
 // INCLUDE HEADER FILES:
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "xAODTracking/VertexContainer.h"
-
+#include "xAODTracking/VertexContainerFwd.h"
 // Forward declarations
-class egamma;
-class egDetail;
-class VxContainer;
+class egammaRec;
 
 static const InterfaceID IID_IEMConversionBuilder("IEMConversionBuilder", 1, 0);
 
