@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 617559 2014-09-18 21:37:54Z christos $
+// $Id: Egamma_v1.h 637182 2014-12-20 01:55:15Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
@@ -23,13 +23,19 @@
 #include  "xAODCaloEvent/CaloClusterContainer.h" 
 
 //xAOD Primitives
+#include "xAODPrimitives/IsolationCorrection.h"
 #include "xAODPrimitives/IsolationType.h"
+#include "xAODPrimitives/IsolationFlavour.h"
 
 //Eigen/Amg includes , prefer to do it via EventPrimitives for now
 #include "EventPrimitives/EventPrimitives.h"
 
+//CxxUtils for override final
+#include "CxxUtils/final.h"
+#include "CxxUtils/override.h"
 //std Include
 #include <stdint.h>
+
 namespace xAOD {
 
   /// @class xAOD::Egamma
@@ -41,8 +47,8 @@ namespace xAOD {
   /// @author Anthony Morley
   /// @author Jovan Mitrevski
   ///
-  /// $Revision: 617559 $
-  /// $Date: 2014-09-18 23:37:54 +0200 (Thu, 18 Sep 2014) $
+  /// $Revision: 637182 $
+  /// $Date: 2014-12-20 02:55:15 +0100 (Sat, 20 Dec 2014) $
   ///
   class Egamma_v1 :public IParticle {
 
@@ -77,31 +83,31 @@ namespace xAOD {
     /// @{
     
     /// @brief The transverse momentum (\f$p_T\f$) of the particle
-    virtual double           pt() const  /*override*/;
+    virtual double           pt() const  ATH_FINAL;
 
     /// @brief The pseudorapidity (\f$\eta\f$) of the particle
-    virtual double           eta() const /*override*/;
+    virtual double           eta() const ATH_FINAL;
 
     /// @brief The azimuthal angle (\f$\phi\f$) of the particle
-    virtual double           phi() const /*override*/;
+    virtual double           phi() const ATH_FINAL;
 
     /// @brief The invariant mass of the particle
-    virtual double           m() const /*override*/;
+    virtual double           m() const ATH_FINAL;
 
     /// The total energy of the particle
-    virtual double           e() const  /*override*/;
+    virtual double           e() const  ATH_FINAL;
 
     /// @brief The true rapidity (y) of the particle
-    virtual double           rapidity() const /*override*/;
+    virtual double           rapidity() const ATH_FINAL;
     
     /// @brief Definition of the 4-momentum type
     typedef IParticle::FourMom_t FourMom_t;
 
     /// @brief The full 4-momentum of the particle as a TLoretzVector
-    virtual const FourMom_t& p4() const /*override*/;
+    virtual const FourMom_t& p4() const ATH_FINAL;
 
     /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
-    virtual Type::ObjectType type() const /*override*/ =0 ; 
+    virtual Type::ObjectType type() const ATH_OVERRIDE =0 ; 
     
     /// @}
 
@@ -181,7 +187,7 @@ namespace xAOD {
     /// @}
 
    
-    /// @name xAOD::Egamma Shower shape and Isolation Accesors
+    /// @name xAOD::Egamma Shower shape  Accesors
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
     /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     ///
@@ -190,25 +196,86 @@ namespace xAOD {
     /// @brief Accessor for ShowerShape values.
     bool showerShapeValue(float& value,const EgammaParameters::ShowerShapeType information) const;
 
-    /// Accessor to ShowerShape values , this just returns the value without internaly checking if it exists.
+    /// @brief Accessor to ShowerShape values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the variable is not available
     float showerShapeValue(const EgammaParameters::ShowerShapeType information) const;
 
     /// @brief Set method for Shower Shape values.
     bool setShowerShapeValue(float value, const EgammaParameters::ShowerShapeType information) ;
 
+    /// @}
+
+    /// @name xAOD::Egamma Isolation value Accesors
+    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
+    ///
+    /// @{    
 
     /// @brief Accessor for Isolation values.
     bool isolationValue(float& value,   const Iso::IsolationType information) const;
 
-    /// Accessor to Isolation values , this just returns the value without internaly checking if it exists.
+    /// @brief Accessor to Isolation values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
     float isolationValue(const Iso::IsolationType information) const;
 
-    /// @method for Isolation values.
+    /// @brief set method for Isolation values.
     bool setIsolationValue(float value, const Iso::IsolationType information);
 
     /// @}
+
+
+    /// @name xAOD::Egamma Isolation correction  Accesors
+    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
+    ///
+    /// @{    
+
+    /// @brief Accessor for flavour and type depended Isolation Calo correction.
+    bool isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+				 const Iso::IsolationCorrectionParameter param) const;
+
+    /// @brief Accessor for flavour and type depended Isolation Calo corrections , this just returns the correction without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+				  const Iso::IsolationCorrectionParameter param) const;
+
+    /// @brief set method for flavour and type depended Isolation Calo Corrections.
+    bool setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+				    const Iso::IsolationCorrectionParameter param);
+
+    /// @brief Accessor  for type depended Isolation Calo correction.
+    bool isolationCaloCorrection(float& value,  Iso::IsolationType type , Iso::IsolationCaloCorrection corr) const;
+
+    /// @brief Accessor for type depended Isolation Calo corrections , this just returns the correction without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationCaloCorrection(Iso::IsolationType type, Iso::IsolationCaloCorrection corr) const;
+
+    /// @brief set method for type depended Isolation Calo Corrections.
+    bool setIsolationCaloCorrection(float value, Iso::IsolationType type, Iso::IsolationCaloCorrection corr);
+
+    /// @brief Accessor for Isolation Track correction.
+    bool isolationTrackCorrection(float& value, const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection corr ) const;
+
+    /// @brief Accessor to Isolation Track corrections , this just returns the correction without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationTrackCorrection(const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection corr) const;
+
+    /// @brief Set method for Isolation Track Corrections.
+    bool setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection corr);
+
+
+    /// @brief Accessor for Isolation corection Bitset
+    bool isolationCorrectionBitset(uint32_t& value, const Iso::IsolationFlavour flavour ) const;
+
+    /// @brief Accessor to Isolation corection Bitset , this just returns the bitset without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    uint32_t isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const;
+
+    /// @brief Set method for Isolation corection Bitset.
+    bool setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour );
+
+    /// @}
+
     
     /// @name xAOD::Egamma  object quality of the calorimeter cluster 
     /// @{    
@@ -216,31 +283,100 @@ namespace xAOD {
     /// @brief  Check object quality. Return True is it is Good Object Quality
     bool isGoodOQ(uint32_t mask ) const;
 
+    /// @brief  Return the object quality bit word
+    uint32_t OQ( ) const;
+
     /// @brief Set the object quality
     void setOQ(uint32_t newOQ);
     
     ///@}
 
-    /// @name xAOD::Egamma selector methods
+    /// @name xAOD::Egamma selector / isEM methods using enums
     /// @{    
 
+    /// @name xAOD::Egamma selector methods with enums
     /// @brief  Check if the egamma object pass a selection menu
     ///If the menu decision is stored in this xAOD::Egamma,
-    ///then the function fills 'value' and returns 'true', otherwise it returns 'false', 
-    /// and does not touch 'value'.
-    bool passSelection(bool& value, const std::string& menu ) const;
-
+    ///then the function fills 'value' with the decision (reference) 
+    ///and returns 'true', otherwise it returns 'false', 
+    ///and does not touch 'value'.
+    bool passSelection(bool& value, const xAOD::EgammaParameters::SelectionMenu menu ) const;
 
     /// @brief  Check if the egamma object pass a selection menu
     /// If the particular menu decision is not stored in this xAOD::Egamma,
     /// an exception will occur
-    bool passSelection( const std::string& menu ) const;
+    bool passSelection( const xAOD::EgammaParameters::SelectionMenu menu ) const;
 
-    /// @brief Set if the egamma object pass a selection menu
-    void setPassSelection(bool value, const std::string& menu);
+    /// @brief Set the selection decision for a  menu
+    void setPassSelection(bool value, const xAOD::EgammaParameters::SelectionMenu menu);
+
+    /// @brief Return the isEM  word for a selection menu
+    ///If the menu isEM is stored in this xAOD::Egamma,
+    ///then the function fills 'value' with the isEM (reference) 
+    ///and returns 'true', otherwise it returns 'false', 
+    ///and does not touch 'value'.
+    bool selectionisEM(unsigned int&  value, const xAOD::EgammaParameters::SelectionisEM isEM) const;
+
+    /// @brief Return the isEM word for a  selection menu
+    /// If the particular isEM word is not stored in this xAOD::Egamma,
+    /// an exception will occur
+    unsigned int selectionisEM(const xAOD::EgammaParameters::SelectionisEM isEM) const;
+
+    /// @brief Set the isEM word for a selection menu
+    void setSelectionisEM(unsigned int value, const xAOD::EgammaParameters::SelectionisEM isEM);
 
     ///@}
 
+
+    /// @name xAOD::Egamma selector / isEM methods using the menu name
+    /// @{    
+
+    /// @brief  Check if the egamma object pass a selection menu (using the name)
+    ///If the menu decision is stored in this xAOD::Egamma,
+    ///then the function fills 'value' with the decision (reference) 
+    ///and returns 'true', otherwise it returns 'false', 
+    /// and does not touch 'value'.
+    bool passSelection(bool& value, const std::string& menu ) const;
+
+    /// @brief  Check if the egamma object pass a selection menu (using the name)
+    /// If the particular menu decision is not stored in this xAOD::Egamma,
+    /// an exception will occur
+    bool passSelection( const std::string& menu ) const;
+
+    /// @brief Set the selection decision for a  menu (using the name)
+    void setPassSelection(bool value, const std::string& menu);
+
+    /// @brief Return the isEM  word for a selection menu
+    ///If the menu isEM is stored in this xAOD::Egamma,
+    ///then the function fills 'value' with the isEM (reference) 
+    ///and returns 'true', otherwise it returns 'false', 
+    ///and does not touch 'value'.
+    bool selectionisEM(unsigned int&  value, const std::string& isEM) const;
+
+    /// @brief Return the isEM word for a  selection menu (using the name)
+    /// If the particular isEM word is not stored in this xAOD::Egamma,
+    /// an exception will occur
+    unsigned int selectionisEM(const std::string& isEM) const;
+
+    /// @brief Set the isEM word for a selection menu (using the name)
+    void setSelectionisEM(unsigned int value, const std::string& isEM);
+
+    /// @brief Return the LH value as float
+    ///If the LH decision is stored in this xAOD::Egamma,
+    ///then the function fills 'value' with the decision (reference) 
+    ///and returns 'true', otherwise it returns 'false', 
+    ///and does not touch 'value'.
+    bool likelihoodValue(float&  value, const std::string& LHValue=std::string("LHValue")) const;
+
+    /// @brief Return the LH value as float
+    /// If the LH Value  is not stored in this xAOD::Egamma,
+    /// an exception will occur
+    float likelihoodValue(const std::string& LHValue=std::string("LHValue")) const;
+
+    /// @brief Set the LHValue as float 
+    void setLikelihoodValue(float value, const std::string& LHValue=std::string("LHValue"));
+
+    ///@}
 
   private:
     ///
@@ -259,10 +395,5 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::Egamma_v1 , 237874247 , 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEGAMMA_VERSIONS_EGAMMA_V1_H

@@ -29,13 +29,6 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, m );
 
 /// @}
 
-///@name Covariance Matrix
-/// @{
-
-EGAMMA_AUX_VARIABLE( std::vector< std::vector< float > >,
-                     EgammaCovarianceMatrix );
-
-/// @}
     
 ///@name Author
 /// @{
@@ -74,8 +67,6 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, f3core );
 /// where i is the number of the strip and imax the strip number of the most
 /// energetic one 
 EGAMMA_AUX_VARIABLE( std::vector< float >, weta1 );
-///same as egammaParameters::weta1 but without corrections  on particle impact point inside the cell
-EGAMMA_AUX_VARIABLE( std::vector< float >, widths1 );
 /// The lateral width is calculated with a window of 3x5 cells using the
 /// energy weighted  sum over all cells, which depends on the particle impact
 /// point inside the cell:
@@ -91,6 +82,9 @@ EGAMMA_AUX_VARIABLE( std::vector< float >, fracs1 );
 /// where i is the strip number and imax the strip number of the first local
 /// maximum
 EGAMMA_AUX_VARIABLE( std::vector< float >, wtots1 );
+/// Uncalibrated energy (sum of cells) of the middle sampling in a rectangle
+/// of size 7x7
+EGAMMA_AUX_VARIABLE( std::vector< float >, e277 );
 /// e237/e277
 EGAMMA_AUX_VARIABLE( std::vector< float >, Reta );
 ///  e233/e237

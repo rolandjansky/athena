@@ -14,11 +14,8 @@ use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AtlasROOT     AtlasROOT-*     External
 use AthLinks      AthLinks-*      Control
+use CxxUtils       CxxUtils-*          Control
 
-# The code needs libGenVector.so...
-macro xAODEgamma_extra_libs "-lGenVector"
-macro_append xAODEgammalinkopts   " $(xAODEgamma_extra_libs) "
-macro_append xAODEgamma_shlibflags " $(xAODEgamma_extra_libs) "
 
 # EDM package(s):
 use xAODBase		xAODBase-*		Event/xAOD

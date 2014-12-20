@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PhotonAccessors_v1.cxx 582601 2014-02-11 15:46:49Z christos $
+// $Id: PhotonAccessors_v1.cxx 628253 2014-11-13 19:47:54Z christos $
 
 // System include(s):
 #include <iostream>
@@ -30,7 +30,7 @@ namespace xAOD {
 	DEFINE_ACCESSOR( float,convMatchDeltaPhi1);    
 	DEFINE_ACCESSOR( float,convMatchDeltaPhi2);
       default:                  
-         std::cerr << "xAOD::Photon_v1 ERROR Unknown float VertexCaloMatchType ("
+         std::cerr << "xAOD::Photon  ERROR Unknown float VertexCaloMatchType ("
                    << type << ") requested" << std::endl;
          return 0;
       }

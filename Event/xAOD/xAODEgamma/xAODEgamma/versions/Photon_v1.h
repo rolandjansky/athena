@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.h 617559 2014-09-18 21:37:54Z christos $
+// $Id: Photon_v1.h 634194 2014-12-06 14:20:09Z christos $
 #ifndef XAODEGAMMA_VERSIONS_PHOTON_V1_H
 #define XAODEGAMMA_VERSIONS_PHOTON_V1_H
 
@@ -18,6 +18,9 @@
 
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
+//CxxUtils for override final
+#include "CxxUtils/final.h"
+#include "CxxUtils/override.h"
 
 namespace xAOD {
 
@@ -27,8 +30,8 @@ namespace xAOD {
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 617559 $
-  /// $Date: 2014-09-18 23:37:54 +0200 (Thu, 18 Sep 2014) $
+  /// $Revision: 634194 $
+  /// $Date: 2014-12-06 15:20:09 +0100 (Sat, 06 Dec 2014) $
   ///
   class Photon_v1 :public xAOD::Egamma_v1 {
 
@@ -56,7 +59,7 @@ namespace xAOD {
     /// @{
 
     /// @brief The type of the object as a simple enumeration
-    virtual Type::ObjectType type() const /*final*/; //Always a Photon .
+    virtual Type::ObjectType type() const ATH_FINAL; //Always a Photon .
     /// @}
 
     /// @name xAOD::vertex Pointers to  vertices
@@ -84,21 +87,22 @@ namespace xAOD {
 
     /// @}
 
-    /// @name xAOD::Photon to cluster matching values.
+    /// @name xAOD::Photon vertex to cluster matching values.
     /// @{ 
 
-    ///@brief Accessor to CaloMatch Values
+    ///@brief Accessor to vertex to Calo Match Values
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
     /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     bool vertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information ) const;
     
-    /// Accessor to CaloMatch Values , this just returns the value without internaly checking if it exists.
+    /// @brief Accessor to vertex to Calo Match Values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
     float vertexCaloMatchValue( const EgammaParameters::VertexCaloMatchType information ) const;
 
 
-    /// Set method for CaloMatch values.
+    ///@brief Set method for CaloMatch values.
     bool  setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information );
+
     /// @}
 
 

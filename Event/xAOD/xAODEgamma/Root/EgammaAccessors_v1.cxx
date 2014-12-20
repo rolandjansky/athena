@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.cxx 620915 2014-10-09 15:50:27Z christos $
+// $Id: EgammaAccessors_v1.cxx 630766 2014-11-25 00:34:26Z christos $
 
 // System include(s):
 #include <iostream>
@@ -76,11 +76,48 @@ namespace xAOD {
 	DEFINE_ACCESSOR( float, depth );
 
       default:                  
-         std::cerr << "xAOD::Egamma_v1 ERROR Unknown float ShowerShapeType ("
+         std::cerr << "xAOD::Egamma  ERROR Unknown float ShowerShapeType ("
                    << type << ") requested" << std::endl;
          return 0;
       }
    
    }  
+
+   SG::AuxElement::Accessor< char >*
+   selectionMenuAccessorV1( xAOD::EgammaParameters::SelectionMenu menu ) 
+   {   
+      switch( menu ) {
+        DEFINE_ACCESSOR( char, Loose);
+        DEFINE_ACCESSOR( char, Medium);
+        DEFINE_ACCESSOR( char, Tight);
+        DEFINE_ACCESSOR( char, LHLoose);
+        DEFINE_ACCESSOR( char, LHMedium);
+        DEFINE_ACCESSOR( char, LHTight);
+        DEFINE_ACCESSOR( char, MultiLepton);
+      default:                  
+         std::cerr << "xAOD::Egamma ERROR Unknown char ElectronSelectionMenu ("
+                   << menu << ") requested" << std::endl;
+         return 0;
+      }
+   }
+
+   SG::AuxElement::Accessor< unsigned int >*
+   selectionisEMAccessorV1( xAOD::EgammaParameters::SelectionisEM isEM ) 
+   {   
+      switch( isEM ) {
+        DEFINE_ACCESSOR( unsigned int, isEMLoose);
+        DEFINE_ACCESSOR( unsigned int, isEMMedium);
+        DEFINE_ACCESSOR( unsigned int, isEMTight);
+        DEFINE_ACCESSOR( unsigned int, isEMLHLoose);
+        DEFINE_ACCESSOR( unsigned int, isEMLHMedium);
+        DEFINE_ACCESSOR( unsigned int, isEMLHTight);
+        DEFINE_ACCESSOR( unsigned int, isEMMultiLepton);
+      default:                  
+         std::cerr << "xAOD::Egamma ERROR Unknown unsigned int ElectronSelectionisEM ("
+                   << isEM << ") requested" << std::endl;
+         return 0;
+      }
+   }
+
 
 } // namespace xAOD

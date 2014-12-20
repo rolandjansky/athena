@@ -21,6 +21,7 @@ namespace xAOD {
       NumberOfEgammaTypes = 3
     };
 
+
     /// @name Shower shape types
     /// @{
     enum ShowerShapeType{
@@ -169,28 +170,24 @@ namespace xAOD {
       /// @brief difference between the cluster phi (sampling 2) and the
       /// eta of the track extrapolated from the last measurement point.
       deltaPhiFromLastMeasurement = 8,
-      /// @brief difference between the cluster phi (sampling 2) and the
-      /// phi of the track extrapolated from the perigee with a rescaled
-      /// momentum. 
-      deltaPhiRescaled = 9,
       /// @brief difference between the cluster phi (presampler) and
       ///	  the eta of the track extrapolated to the presampler  from the perigee with a rescaled
       /// momentum. 
-      deltaPhiRescaled0 = 10,
+      deltaPhiRescaled0 = 9,
       /// @brief difference between the cluster eta (1st sampling) and
       ///	  the eta of the track extrapolated to the 1st sampling (strips) from the perigee with a rescaled
       /// momentum. 
-      deltaPhiRescaled1 = 11,
+      deltaPhiRescaled1 = 10,
       /// @brief difference between the cluster phi (second sampling) and the phi of the track
       ///	  extrapolated to the second sampling from the perigee with a rescaled
       /// momentum. 
-      deltaPhiRescaled2 = 12,
+      deltaPhiRescaled2 = 11,
       ///@brief difference between the cluster eta (3rd sampling) and
       /// the eta of the track extrapolated to the 3rd sampling from the perigee with a rescaled
       /// momentum. 
-      deltaPhiRescaled3 = 13,
+      deltaPhiRescaled3 = 12,
       ///maximum number of enums 
-      NumberOfTrackMatchProperties= 14
+      NumberOfTrackMatchProperties= 13
     };
     ///@}
 
@@ -218,6 +215,36 @@ namespace xAOD {
       NumberOfVertexMatchProperties= 4
     };
     ///@}
+
+    /// @name Selection Menus
+    /// @{
+    enum SelectionMenu{ 
+      Loose = 0,
+      Medium = 1, 
+      Tight = 2,  
+      LHLoose = 3, 
+      LHMedium = 4, 
+      LHTight = 5,
+      MultiLepton = 6,
+      NumberOfMenus = 7
+    };
+    ///@}
+
+
+    /// @name Selection isEM
+    /// @{
+    enum SelectionisEM{ 
+      isEMLoose = 0,
+      isEMMedium = 1, 
+      isEMTight = 2,  
+      isEMLHLoose = 3, 
+      isEMLHMedium = 4, 
+      isEMLHTight = 5,
+      isEMMultiLepton = 6,
+      NumberOfisEMs = 7
+    };
+    ///@}
+
 
     /// @name Conversion types
     /// @{

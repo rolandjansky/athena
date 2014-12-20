@@ -9,9 +9,10 @@
    @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    @author Christos Anastopoulos <Christos.Anastopoulos@cern.h>
    @author Anthony Morley <Anthony.Morley@cern.ch>
+   @author Bruno Lenzi <Bruno.Lenzi@cern.ch>
 
-   $Revision: 575885 $
-   $Date: 2013-12-17 14:23:39 +0100 (Tue, 17 Dec 2013) $
+   $Revision: 636327 $
+   $Date: 2014-12-16 17:34:24 +0100 (Tue, 16 Dec 2014) $
 
    @section xAODEgammaOverivew Overview
 
@@ -36,6 +37,27 @@
       - xAOD::ElectronAuxContainer: Typedef to the latest egamma auxiliray 
         container version.
       - xAOD::Electron_v1: The current latest egamma implementation.
+
+      - xAOD::Photon: Typedef to the latest <code>Photon_vX</code> class
+        version.
+      - xAOD::PhotonContainer: Typedef to the latest egamma container
+        version.
+      - xAOD::PhotonAuxContainer: Typedef to the latest egamma auxiliray 
+        container version.
+      - xAOD::Photon_v1: The current latest egamma implementation.
+
+   @section EgammaHelpers Helpers
+   
+   Helper functions are provided for the most common routines and used in reconstruction
+   and CP tools. Users should request additions in case of need.
+   
+   The functions are split in 3 files: 
+   EgammaxAODHelpers, ElectronxAODHelpers, PhotonxAODHelpers, EgammaTruthxAODHelpers
+   but the users only need:
+   <code> #include "xAODEgamma/EgammaxAODHelpers.h" </code>
+   
+
+
 
    @htmlinclude used_packages.html
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEgammaDict.h 619839 2014-10-03 13:38:44Z christos $
+// $Id: xAODEgammaDict.h 636327 2014-12-16 16:34:24Z christos $
 #ifndef XAODEGAMMA_XAODEGAMMADICT_H
 #define XAODEGAMMA_XAODEGAMMADICT_H
 
@@ -22,20 +22,26 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
+#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/versions/EgammaContainer_v1.h"
 #include "xAODEgamma/versions/EgammaAuxContainer_v1.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/versions/ElectronContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v1.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v2.h"
 #include "xAODEgamma/versions/ElectronAuxContainer_v3.h"
+
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/versions/PhotonContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v1.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v2.h"
 #include "xAODEgamma/versions/PhotonAuxContainer_v3.h"
+
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
+#include "xAODEgamma/PhotonxAODHelpers.h"
+#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/EgammaDefs.h"
 

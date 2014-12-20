@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.h 617292 2014-09-17 18:22:08Z christos $
+// $Id: EgammaAccessors_v1.h 630766 2014-11-25 00:34:26Z christos $
 #ifndef XAOD_EGAMMAACCESSORS_V1_H
 #define XAOD_EGAMMAACCESSORS_V1_H
 
@@ -23,6 +23,12 @@ namespace xAOD {
 
    SG::AuxElement::Accessor< float >*
    showerShapeAccessorV1( xAOD::EgammaParameters::ShowerShapeType type );
+
+   SG::AuxElement::Accessor< char >*
+   selectionMenuAccessorV1( xAOD::EgammaParameters::SelectionMenu menu ) ;
+
+   SG::AuxElement::Accessor< unsigned int >*
+   selectionisEMAccessorV1( xAOD::EgammaParameters::SelectionisEM isEM ) ;
 
 
 } // namespace xAOD

@@ -6,9 +6,9 @@
 
 #ifndef XAOD_PHOTONXAODHELPERS_H
 #define XAOD_PHOTONXAODHELPERS_H
-
-#include "xAODTracking/Vertex.h"
 #include "xAODEgamma/PhotonFwd.h"
+#include "xAODTracking/VertexFwd.h"
+#include "xAODTracking/TrackParticleFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -18,8 +18,6 @@
 namespace xAOD {
 
   namespace EgammaHelpers{
-
-
 
     ///@brief is the object a converted photon
     bool isConvertedPhoton(const xAOD::Photon *ph);
@@ -55,10 +53,7 @@ namespace xAOD {
       * (used for track isolation)
       * If useBremAssoc is set, get the original TrackParticle **/
     const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Photon* ph,
-      bool useBremAssoc = true);
-
-    // xAOD::Vertex does not have method isAvailable for the moment
-    bool isAvailable(const xAOD::Vertex& vertex, std::string name);
+								 bool useBremAssoc = true);
     
 
   } //namaspace EgammaHelpers

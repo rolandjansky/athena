@@ -3,15 +3,11 @@
 */
 
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
-
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/TrackParticle.h"
 
 bool xAOD::EgammaHelpers::isElectron(const xAOD::Egamma *eg){
   return ( (eg->type()==xAOD::Type::Electron) && 
@@ -33,13 +29,13 @@ bool xAOD::EgammaHelpers::isConvertedPhoton(const xAOD::Egamma *eg){
 }
 
 // ==================================================================
-bool xAOD::EgammaHelpers::isBarrel(const xAOD::Egamma *eg)
-{
+bool xAOD::EgammaHelpers::isBarrel(const xAOD::Egamma *eg){
+
   return (eg ? isBarrel(eg->caloCluster()) : false);
+
 }
 
-bool xAOD::EgammaHelpers::isBarrel(const xAOD::CaloCluster *cluster)
-{
+bool xAOD::EgammaHelpers::isBarrel(const xAOD::CaloCluster *cluster){
   if (cluster->inBarrel() &&  cluster->inEndcap()){
     return  cluster->eSample(CaloSampling::EMB2) >= cluster->eSample(CaloSampling::EME2);
   }
@@ -48,14 +44,15 @@ bool xAOD::EgammaHelpers::isBarrel(const xAOD::CaloCluster *cluster)
 
 // ==================================================================
 const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Egamma *eg, 
-  bool useBremAssoc /* = true */, bool allParticles /* = true */)
-{  
+  bool useBremAssoc /* = true */, bool allParticles /* = true */){  
+
   if (!eg) return std::set<const xAOD::TrackParticle*>();
 
   if (eg->type()==xAOD::Type::Electron) {
     const xAOD::Electron* el = static_cast<const xAOD::Electron*> (eg);
     if (el) return getTrackParticles(el, useBremAssoc, allParticles);
   }
+  
   if (eg->type()==xAOD::Type::Photon) {
     const xAOD::Photon* ph = static_cast<const xAOD::Photon*> (eg);  
     if (ph) return getTrackParticles(ph, useBremAssoc);
@@ -65,34 +62,13 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
   return std::set<const xAOD::TrackParticle*>();
 }
 
-// ==================================================================
 
-const xAOD::TruthParticle* xAOD::EgammaHelpers::getTruthParticle(const xAOD::IParticle* particle, bool debug /* =false */)
-{
-  return getLink<xAOD::TruthParticle>(particle, "truthParticleLink", debug);
+int xAOD::EgammaHelpers::summaryValueInt(const xAOD::TrackParticle& tp, const xAOD::SummaryType& info, int deflt /* = -999 */){
+  uint8_t dummy(0);
+  return (tp.summaryValue(dummy, info) ? dummy : deflt);
 }
 
-
-int xAOD::EgammaHelpers::getParticleTruthType(const xAOD::IParticle* particle){
-  static SG::AuxElement::Accessor<int> tT("truthType") ;
-  if (!tT.isAvailable(*particle)) return 0;
-  return tT(*particle);
+float xAOD::EgammaHelpers::summaryValueFloat(const xAOD::TrackParticle& tp, const xAOD::SummaryType& info, int deflt /* = -999. */){
+  float dummy(0);
+  return (tp.summaryValue(dummy, info) ? dummy : deflt);
 }
-
-
-int xAOD::EgammaHelpers::getParticleTruthOrigin(const xAOD::IParticle* particle){
-  static SG::AuxElement::Accessor<int> tO("truthOrigin") ;
-  if (!tO.isAvailable(*particle)) return 0;
-  return tO(*particle);
-}
-
-const xAOD::Electron* xAOD::EgammaHelpers::getRecoElectron(const xAOD::TruthParticle* particle, bool debug /* =false */)
-{
-  return getLink<xAOD::Electron>(particle, "recoElectronLink", debug);
-}
-
-const xAOD::Photon* xAOD::EgammaHelpers::getRecoPhoton(const xAOD::TruthParticle* particle, bool debug /* =false */)
-{
-  return getLink<xAOD::Photon>(particle, "recoPhotonLink", debug);
-}
-

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaDefs.h 617559 2014-09-18 21:37:54Z christos $
+// $Id: EgammaDefs.h 634202 2014-12-06 15:00:49Z christos $
 #ifndef XAODEGAMMA_EGAMMADEFS_H
 #define XAODEGAMMA_EGAMMADEFS_H
 
@@ -16,20 +16,19 @@ extern "C" {
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
 
-
   namespace EgammaParameters {
-     /// for the Authors of the egammas
+     /// for the Authors of the egamma objects
     /** @brief Default author */
     const uint16_t AuthorUnknown=0x0;
-    /** @brief Electron reconstructed by standard cluster-based algorithm */
+    /** @brief Object Reconstructed by standard cluster-based algorithm. Surely not Photon ==> Electron */
     const uint16_t AuthorElectron=0x1;
-    /** @brief Electron reconstructed by the track-based algorithm */
+    /** @brief Electron reconstructed by the track-based algorithm, here for compatibility with old AOD format*/
     const uint16_t AuthorSofte =0x2;
-    /** @brief Photon reconstructed by standard cluster-based algorithm */
+    /** @brief Object Reconstructed by standard cluster-based algorithm. Surely not Electron ==> Photon */
     const uint16_t AuthorPhoton=0x4;
     /** @brief Electron reconstructed by the Forward cluster-based algorithm */
     const uint16_t AuthorFwdElectron=0x8;
-    /** @brief Ambiguous object */
+    /** @brief Object Reconstructed by standard cluster-based algorithm. Ambiguous ==> can be either Electron or Photon */
     const uint16_t AuthorAmbiguous=0x10; 
     /** @brief trigger Electrons */
     const uint16_t AuthorTrigElectron=0x20;

@@ -5,6 +5,8 @@
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODTracking/Vertex.h"
+
 
 #include<cmath>
 
@@ -27,83 +29,81 @@ xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const
   uint8_t nSiHits1 = numberOfSiHits(trk1);
   uint8_t nSiHits2 = numberOfSiHits(trk2);
 
-  if (!trk1) return xAOD::EgammaParameters::unconverted;
+  if (!trk1) {return xAOD::EgammaParameters::unconverted;}
 
   if (!trk2)
-    return nSiHits1 ? xAOD::EgammaParameters::singleSi : xAOD::EgammaParameters::singleTRT;
+    {return nSiHits1 ? xAOD::EgammaParameters::singleSi : xAOD::EgammaParameters::singleTRT;}
   
-  if (nSiHits1 && nSiHits2)
-    return xAOD::EgammaParameters::doubleSi;
-  else if (nSiHits1 || nSiHits2)
-    return xAOD::EgammaParameters::doubleSiTRT;  
-  else
-    return xAOD::EgammaParameters::doubleTRT;
+  if (nSiHits1 && nSiHits2){
+    return xAOD::EgammaParameters::doubleSi;}
+  else if (nSiHits1 || nSiHits2){
+    return xAOD::EgammaParameters::doubleSiTRT;}  
+  else{
+    return xAOD::EgammaParameters::doubleTRT;}
 }
 
 // ==================================================================
 
 std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Photon *ph){
-  if (!ph || !ph->vertex()) return 0;
+  if (!ph || !ph->vertex()) {return 0;}
   return numberOfSiTracks(ph->vertex());
 }
 
-std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Vertex *vx)
-{
+std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::Vertex *vx){
   if (!vx) return 0;
   return numberOfSiTracks(conversionType(vx));
 }
 
-std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType)
-{
-  if (convType == xAOD::EgammaParameters::doubleSi) return 2;
+std::size_t xAOD::EgammaHelpers::numberOfSiTracks(const xAOD::EgammaParameters::ConversionType convType){
+  if (convType == xAOD::EgammaParameters::doubleSi) {return 2;}
   if (convType == xAOD::EgammaParameters::singleSi ||
-      convType == xAOD::EgammaParameters::doubleSiTRT) return 1;
+      convType == xAOD::EgammaParameters::doubleSiTRT) {return 1;}
   return 0;
 }
 
 // ==================================================================
 
-float xAOD::EgammaHelpers::conversionRadius(const xAOD::Vertex* vx)
-{
+float xAOD::EgammaHelpers::conversionRadius(const xAOD::Vertex* vx){
   if (!vx) return 9999.;
   return sqrt( vx->x()*vx->x() + vx->y()*vx->y() );
 }
 
-float xAOD::EgammaHelpers::conversionRadius(const xAOD::Photon* ph)
-{
+float xAOD::EgammaHelpers::conversionRadius(const xAOD::Photon* ph){
   if (!ph || !ph->vertex()) return 9999.;
   return conversionRadius(ph->vertex());
 }
 
 // ==================================================================
 
-Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Photon *photon, bool debug)
-{
+Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Photon *photon, bool debug){
   if (!photon || !photon->vertex()) return Amg::Vector3D(0., 0., 0.);
   return momentumAtVertex(*photon->vertex(), debug);
 }
   
 
-Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, bool debug)
-{  
-  if (isAvailable(vertex, "px") && 
-      isAvailable(vertex, "py") && 
-      isAvailable(vertex, "pz") )
-  {
-    return Amg::Vector3D( vertex.auxdata<float>("px"),
-                          vertex.auxdata<float>("py"),
-                          vertex.auxdata<float>("pz") );
-  }
-  else if (debug)
-    std::cout << "Vertex not decorated with momentum" << std::endl;
+Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, bool debug){  
+
+  static SG::AuxElement::Accessor<float> accPx("px");
+  static SG::AuxElement::Accessor<float> accPy("py");
+  static SG::AuxElement::Accessor<float> accPz("pz");
   
+  if (accPx.isAvailable(vertex) && 
+      accPy.isAvailable(vertex) && 
+      accPz.isAvailable(vertex)) 
+    {
+      return Amg::Vector3D(accPx(vertex), 
+			   accPy(vertex),  
+			   accPz(vertex)); 
+    }
+  else if (debug){
+    std::cout << "Vertex not decorated with momentum" << std::endl;
+  }
   return Amg::Vector3D(0., 0., 0.);
 }
 
 // ==================================================================
 const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,
-  bool useBremAssoc /* = true */)
-{
+										  bool useBremAssoc /* = true */){
   std::set<const xAOD::TrackParticle*> tps;
   if (!ph) return tps;
   const xAOD::Vertex* vx = ph->vertex();
@@ -116,9 +116,3 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
 }
 
 
-
-bool xAOD::EgammaHelpers::isAvailable(const xAOD::Vertex& vertex, std::string name)
-{
-  SG::AuxElement::Accessor<float> acc(name, "");
-  return acc.isAvailable(vertex); 
-}

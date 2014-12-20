@@ -10,7 +10,7 @@
 #include "xAODEgamma/versions/Egamma_v1.h"
 #include "EgammaAccessors_v1.h"
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
-
+#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h" 
 #include <stdexcept>
 
 namespace xAOD {
@@ -117,6 +117,11 @@ namespace xAOD {
 
   Egamma_v1::EgammaCovMatrix_t Egamma_v1::covMatrix() const{
     static Accessor< std::vector<float> > acc( "EgammaCovarianceMatrix" );
+    if(!acc.isAvailable( *this) ) { 
+      EgammaCovMatrix_t dummy;
+      dummy.setZero();
+      return dummy;
+    }
     const std::vector<float>& v = acc(*this);
     return Eigen::Map<const EgammaCovMatrix_t> (v.data());
   }
@@ -147,13 +152,13 @@ namespace xAOD {
   
 
   
-  ///////////////
+  /////////////// shower shapes
   bool Egamma_v1::showerShapeValue(float& value, const EgammaParameters::ShowerShapeType information)  const {
     xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
-    if( ! acc ) {
+    if( !acc ) {
       return false;
     }
-    if(! acc->isAvailable( *this) ) { 
+    if(!acc->isAvailable( *this) ) { 
       return  false;
     }
     // Retrieve the value:
@@ -163,26 +168,26 @@ namespace xAOD {
 
   float Egamma_v1::showerShapeValue(const EgammaParameters::ShowerShapeType information)  const {
     xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
-    if(! acc ) throw std::runtime_error( "Unknown/Unavailable Shower Shape type requested" );
+    if(!acc ) throw std::runtime_error( "Unknown/Unavailable Shower Shape type requested" );
     return ( *acc )( *this );
   }
   
   bool Egamma_v1::setShowerShapeValue(float value, const EgammaParameters::ShowerShapeType information){
     xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
-     if( ! acc ) return false;
+     if( !acc ) return false;
     // Set the value:
     ( *acc )( *this ) = value;
     return true;
 
   }
-   
-  ///////////////
+
+  ///////////////   Isolation value
   bool  Egamma_v1::isolationValue(float& value, const Iso::IsolationType information)  const {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
-    if( ! acc ) {
+    if( !acc ) {
       return false;
     }
-    if(! acc->isAvailable( *this) ) {
+    if(!acc->isAvailable( *this) ) {
       return  false;
     }
     // Retrieve the value:
@@ -192,22 +197,140 @@ namespace xAOD {
 
   float Egamma_v1::isolationValue( const Iso::IsolationType information)  const {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
-    if( ! acc ) throw std::runtime_error( "Unknown/Unavailable Isolation type requested" );
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation type requested" );
     return  ( *acc )( *this );
   }
 
   bool Egamma_v1::setIsolationValue(float value, const Iso::IsolationType information) {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
-    if( ! acc ) return false;
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+  /////////////// Isolation corrections
+
+  bool Egamma_v1::isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+					  const Iso::IsolationCorrectionParameter param) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr,param);
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+ }
+
+  float Egamma_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+					  const Iso::IsolationCorrectionParameter param) const{
+
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr,param);
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );
+    return  ( *acc )( *this );
+  }
+
+  bool Egamma_v1::setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+					     const Iso::IsolationCorrectionParameter param){
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr,param);
+    if( !acc ) return false;
     // Set the value:
     ( *acc )( *this ) = value;
     return true;
   }
 
 
+  bool Egamma_v1::isolationCaloCorrection(float& value,  Iso::IsolationType type , Iso::IsolationCaloCorrection corr) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(type,corr);
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+
+  float Egamma_v1::isolationCaloCorrection(Iso::IsolationType type, Iso::IsolationCaloCorrection corr) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(type,corr);
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );
+    return  ( *acc )( *this );
+  }
+
+
+  bool Egamma_v1::setIsolationCaloCorrection(float value, Iso::IsolationType type, Iso::IsolationCaloCorrection corr){
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(type,corr);
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+
+  bool Egamma_v1::isolationTrackCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr);
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+  
+  float Egamma_v1::isolationTrackCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr) const{
+    
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr);
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );
+    return  ( *acc )( *this );
+  }
+  
+  bool Egamma_v1::setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr){
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,corr);
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+  bool Egamma_v1::isolationCorrectionBitset(uint32_t& value, const Iso::IsolationFlavour flavour ) const{
+   SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+
+  uint32_t Egamma_v1::isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const{
+   SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation BitSet requested" );
+    return  ( *acc )( *this );
+  }
+
+  bool Egamma_v1::setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour ) {
+   SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+
+
   ////////////////////////////////////////////////////
   /// Implementation of the CaloCluster accessor functions
-
   size_t Egamma_v1::nCaloClusters() const {
 
      static SG::AuxElement::Accessor< Egamma_v1::CLELVec_t >
@@ -251,16 +374,75 @@ namespace xAOD {
     uint32_t OQ = acc( *this );
     return (OQ & mask)==0;
   }
+
+  uint32_t Egamma_v1::OQ() const{
+    static Accessor< uint32_t > acc( "OQ" );
+    return acc( *this) ;
+  }
   
   void Egamma_v1::setOQ(uint32_t newOQ) {
     static Accessor< uint32_t > acc( "OQ" );
     acc( *this) = newOQ;
   }
 
-  ///////////
+  /////////// 
+
+  ///Selectors / isEM and all that 
+
+  ///First with enums (static accessor no lookup => faster but less flexible)
+  bool Egamma_v1::passSelection(bool&  value, const xAOD::EgammaParameters::SelectionMenu menu ) const {
+    SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) { 
+      return  false;
+    }
+    value= (*acc)( *this );
+    return true;
+  }
+
+  bool Egamma_v1::passSelection(const xAOD::EgammaParameters::SelectionMenu menu  ) const {
+    SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
+    if(!acc ) throw std::runtime_error( "Unknown/Unavailable bool selection menu requested" );
+    return (*acc)( *this );
+  }
+
+  void Egamma_v1::setPassSelection(bool value, const xAOD::EgammaParameters::SelectionMenu menu){
+    SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
+    ( *acc )( *this )=value;
+    return;
+  }
+
+
+  bool Egamma_v1::selectionisEM(unsigned int&  value, const xAOD::EgammaParameters::SelectionisEM isEM) const {
+    SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
+    if(!acc ) {
+      return false;
+    }    
+    if(!acc->isAvailable( *this) ) { 
+      return  false;
+    }
+    value= (*acc)( *this );
+    return true;
+  }
+
+  unsigned int Egamma_v1::selectionisEM(const xAOD::EgammaParameters::SelectionisEM isEM) const {
+    SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
+    if(!acc ) throw std::runtime_error( "Unknown/Unavailable unsigned int isEM requested" );
+    return (*acc)( *this );
+  }
+
+  void Egamma_v1::setSelectionisEM(unsigned int value, const xAOD::EgammaParameters::SelectionisEM isEM){
+    SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
+    ( *acc )( *this )=value;
+    return;
+  }
+
+  ///Then with strings (full flexibility)
   bool Egamma_v1::passSelection(bool&  value, const std::string& menu ) const {
     SG::AuxElement::Accessor< char > acc( menu );
-    if(! acc.isAvailable( *this) ) { 
+    if(!acc.isAvailable( *this) ) { 
       return  false;
     }
     value= (acc)( *this );
@@ -277,8 +459,47 @@ namespace xAOD {
     ( acc )( *this )=value;
     return;
   }
-  
 
+  bool Egamma_v1::selectionisEM(unsigned int&  value, const std::string& isEM) const{
+    SG::AuxElement::Accessor< unsigned int > acc( isEM );
+    if(!acc.isAvailable( *this) ) { 
+      return  false;
+    }
+    value= (acc)( *this );
+    return true;
+  }
+
+  unsigned int Egamma_v1::selectionisEM(const std::string& isEM) const{
+    SG::AuxElement::Accessor< unsigned int > acc( isEM );
+    return (acc)( *this );
+  }
+
+  void Egamma_v1::setSelectionisEM(unsigned int value, const std::string& isEM){
+    SG::AuxElement::Accessor< unsigned int > acc( isEM );
+    ( acc )( *this )=value;
+    return;
+  }
+
+  bool Egamma_v1::likelihoodValue(float&  value, const std::string& LHValue/*=std::string("LHValue")*/) const{
+    SG::AuxElement::Accessor<float> acc( LHValue );
+    if(!acc.isAvailable( *this) ) { 
+      return  false;
+    }
+    value= (acc)( *this );
+    return true;
+  }
+
+  float Egamma_v1::likelihoodValue(const std::string& LHValue/*=std::string("LHValue")*/) const{
+    SG::AuxElement::Accessor< float > acc( LHValue );
+    return (acc)( *this );
+  }
+
+  void Egamma_v1::setLikelihoodValue(float value, const std::string& LHValue/*=std::string("LHValue")*/){
+    SG::AuxElement::Accessor<float> acc( LHValue);
+    ( acc )( *this )=value;
+    return;
+  }
+ 
 } // namespace xAOD
 
 //  LocalWords:  const el hasStore makePrivateStore

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaContainer_v1.h 581559 2014-02-05 10:54:05Z krasznaa $
+// $Id: EgammaContainer_v1.h 632191 2014-11-29 16:24:08Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMACONTAINER_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMACONTAINER_V1_H
 
@@ -23,10 +23,5 @@ namespace xAOD {
    typedef DataVector< xAOD::Egamma_v1 > EgammaContainer_v1;
 }
 
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EgammaContainer_v1 , 1087548811 , 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODEGAMMA_VERSIONS_EGAMMACONTAINER_V1_H
