@@ -648,7 +648,8 @@ namespace Muon {
       }
     }
     // Endcap inner to middle station 
-    else if ( (station_a == MuonStationIndex::EI||station_a == MuonStationIndex::BI) && station_b == MuonStationIndex::EM ) {
+    else if ( station_a == MuonStationIndex::EI &&
+	      (station_b == MuonStationIndex::EM) ) {
       if( result.phiSector_a%2==0){
 	if ( result.deltaTheta > m_matchingeiem_sphisec ) {
 	  return false;
@@ -1100,11 +1101,14 @@ namespace Muon {
     if( useTightCuts ) drCut *= 2;
     else               drCut *= 4;
 
-    if( (stIndex1 == MuonStationIndex::EM && stIndex2 == MuonStationIndex::BI) || (stIndex1 == MuonStationIndex::BI && stIndex2 == MuonStationIndex::EM) ){
+    /*
+    //can't be true currently
+    if( (stIndex1 == MuonStationIndex::EM && stIndex2 == MuonStationIndex::BI) || (stIndex1 == MuonStationIndex::BI && stIndex2 == MuonStationInde)){
       drCut += 3*m_drExtrapAlignmentOffset;
     }else{
-      drCut += m_drExtrapAlignmentOffset;
-    }
+    */
+    drCut += m_drExtrapAlignmentOffset;
+    
 
     double dthetaCut = m_dthetaExtrapRMS + 1.5e3*rhoInv;
     if( useTightCuts ) dthetaCut *= 2;
