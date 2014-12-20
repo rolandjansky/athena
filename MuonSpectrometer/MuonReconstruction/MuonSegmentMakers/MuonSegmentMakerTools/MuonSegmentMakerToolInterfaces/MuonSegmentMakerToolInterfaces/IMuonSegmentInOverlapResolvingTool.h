@@ -41,7 +41,8 @@ namespace Muon {
 
 
     struct SegmentPhiMatchResult {
-      SegmentPhiMatchResult() {}
+      SegmentPhiMatchResult() : 
+        segmentDirection1(Amg::Vector3D(-999.,-999.,-999.)),segmentDirection2(Amg::Vector3D(-999.,-999.,-999.)),deltaYZ(-999.) {}
       
       SegmentPhiMatchResult( Amg::Vector3D segDir1, Amg::Vector3D segDir2, double dYZ ) :
 	segmentDirection1(segDir1),segmentDirection2(segDir2),deltaYZ(dYZ) {}
@@ -102,7 +103,10 @@ namespace Muon {
 
     struct SegmentPositionMatchResult {
 
-      SegmentPositionMatchResult() {}
+      SegmentPositionMatchResult() : 
+        positionAlongTube1(-999.),positionInTube1(-999.),channelLength1(-999.),
+        positionAlongTube2(-999.),positionInTube2(-999.),channelLength2(-999.),
+        positionResidual(-999.), goodMatch(false), segmentPosition(Amg::Vector3D(-999.,-999.,-999.)) {}
 
       SegmentPositionMatchResult( double distMin1, double distMinInTube1, double chLen1, 
 				  double distMin2, double distMinInTube2, double chLen2, 
@@ -135,7 +139,10 @@ namespace Muon {
     };
 
     struct SegmentMatchResult {
-      SegmentMatchResult() {}
+      SegmentMatchResult() : 
+        phiResult(SegmentPhiMatchResult()),angularDifferencePhi(-999.),averagePhiHitPullSegment1(-999.),
+        averagePhiHitPullSegment2(-999.),segmentResult1(SegmentPositionMatchResult()),
+        segmentResult2(SegmentPositionMatchResult()) {}
 
       SegmentPhiMatchResult phiResult; // result of phi match
       double angularDifferencePhi;     // angular difference of the phi from phi match and the phi from the difference of the recalculate positions
