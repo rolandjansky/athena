@@ -33,7 +33,8 @@ addAlgorithm("MuonCreatorAlg","StauCreatorAlg",
              CombinedLocation = "CombinedStau",
              ExtrapolatedLocation = "ExtrapolatedStau",
              MuonCandidateLocation = "",
-             SegmentContainerName = "StauSegments" )
+             SegmentContainerName = "StauSegments",
+             BuildSlowMuon=1)
 
 # tracking tools
 addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "AtlasTrackSummaryTool" )
@@ -47,6 +48,7 @@ addAlgorithm("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTaggerAlg
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCaloParticleCreator","MuonCaloParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")

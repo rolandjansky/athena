@@ -3,7 +3,31 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from RecExConfig.RecFlags import rec
 
 if (not rec.readRDO() or muonCombinedRecFlags.doAOD()) and not muonCombinedRecFlags.doxAOD():
-#SA
+
+  # from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+  # truthAlg = xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+  # # truthAlg.OutputLevel = VERBOSE
+  # topSequence += truthAlg
+
+  # # InDet
+  # from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+  # alg = xAODMaker__TrackParticleCnvAlg()
+  # alg.AddTruthLink=True
+  # alg.AODContainerName = InDetKeys.TrackParticles()
+  # alg.xAODContainerName="InDetTrackParticles"
+  # alg.AODTruthContainerName = InDetKeys.TrackParticlesTruth()
+  # # alg.OutputLevel = VERBOSE
+  # topSequence += alg
+
+  # # MuGirl
+  # from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+  # alg2 = xAODMaker__TrackParticleCnvAlg("TrackParticleCnvAlg_MuGirlTrackParticles")
+  # alg2.AODContainerName = 'MuGirlRefittedTrackParticles'
+  # alg2.xAODContainerName = MuonCbKeys.MuGirlMuons()
+  # # alg2.OutputLevel = VERBOSE
+  # topSequence += alg2
+
+  #SA
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
   alg1 = xAODMaker__TrackParticleCnvAlg("TrackParticleCnvAlg_ExtrapolatedMS")
   alg1.AODContainerName = 'ExtrapolatedMuonSpectrometerParticles' #ExtrapolatedMuonSpectrometerParticles
@@ -45,6 +69,27 @@ if (not rec.readRDO() or muonCombinedRecFlags.doAOD()) and not muonCombinedRecFl
   #Muons
   from xAODMuonCnv.xAODMuonCnvConf import xAODMaker__MuonCnvAlg
   muonAlg = xAODMaker__MuonCnvAlg("MuonCnvAlg")
+  ## For conversion from release 17, uncomment the following two lines:
+  # muonAlg.DoConversionFromRel17 = True ## @@@
+  # muonAlg.xAODMuGirlCombinedTrackParticleContainerName = MuonCbKeys.MuGirlMuons() ## @@@
+
   # muonAlg.OutputLevel = VERBOSE
   topSequence += muonAlg
   
+  # # MuonTruthParticles
+  # from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
+  # muonTruthDecoAlg = Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
+  # # muonTruthDecoAlg.OutputLevel = VERBOSE
+  # topSequence += muonTruthDecoAlg
+  
+  # # Associate MuonTruthParticles with reco muons
+  # from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
+  # muonTruthAssocAlg = MuonTruthAssociationAlg("MuonTruthAssociationAlg")
+  # muonTruthAssocAlg.AssociateWithInDetTP = True ## needed in conversion from rel 17
+  # #muonTruthAssocAlg.OutputLevel = VERBOSE
+  # topSequence += muonTruthAssocAlg
+
+  # from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonSegmentTruthAssociationAlg
+  # muonTruthSegAssocAlg = Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
+  # muonTruthSegAssocAlg.OutputLevel = VERBOSE
+  # topSequence += muonTruthSegAssocAlg

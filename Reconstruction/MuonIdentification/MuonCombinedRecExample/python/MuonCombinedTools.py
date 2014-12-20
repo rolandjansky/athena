@@ -47,13 +47,18 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     kwargs.setdefault("KeepAllPerigee",True )
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
+def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
+    kwargs.setdefault("KeepAllPerigee",True )
+    kwargs.setdefault("PerigeeExpression","Origin")
+    return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
+
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     getPublicTool("MuonMomentumBalanceSignificanceTool")
     getPublicTool("MuonScatteringAngleSignificanceTool")
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
-    from AthenaCommon.DetFlags import DetFlags 
-    if not DetFlags.haveRIO.Calo_on():
-        kwargs.setdefault("CaloIsolationTool", None )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def MuonCandidateTool(name="MuonCandidateTool",**kwargs):

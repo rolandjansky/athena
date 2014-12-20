@@ -10,25 +10,27 @@ if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make 
    MuonCombinedAODList+=["CaloCellLinkContainer#MuonClusterCollection_Link"]
 
 if DetFlags.detdescr.Muon_on():
+   excludedAuxData = '-caloExtension.-cellAssociation.-clusterAssociation'
    # Adding the xAOD content by default
-   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer_v1#"+MuonCbKeys.CombinedFitParticles()]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#"+MuonCbKeys.CombinedFitParticles()+"Aux." ]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer_v1#"+MuonCbKeys.ExtrapolatedMSParticles() ]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#"+MuonCbKeys.ExtrapolatedMSParticles()+"Aux." ]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#"+MuonCbKeys.SpectrometerParticles() ]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#"+MuonCbKeys.SpectrometerParticles()+"Aux." ]
-   MuonCombinedAODList+=[ "xAOD::MuonContainer_v1#Muons" ]
-   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer_v1#MuonsAux." ]
-
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.CombinedFitParticles()]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.CombinedFitParticles()+"Aux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.ExtrapolatedMSParticles() ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.ExtrapolatedMSParticles()+"Aux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.SpectrometerParticles() ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.SpectrometerParticles()+"Aux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::MuonContainer#Muons" ]
+   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#MuonsAux." ]
    MuonCombinedAODList+=["MuonCaloEnergyContainer#MuonCaloEnergyCollection"]
 
    ### stau
-   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer_v1#CombinedStauTrackParticles"]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#CombinedStauTrackParticlesAux." ]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer_v1#ExtrapolatedStauTrackParticles"]
-   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer_v1#ExtrapolatedStauTrackParticlesAux." ]
-   MuonCombinedAODList+=[ "xAOD::MuonContainer_v1#Staus" ]
-   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer_v1#StausAux." ]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#CombinedStauTrackParticles"]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#CombinedStauTrackParticlesAux." + excludedAuxData]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#ExtrapolatedStauTrackParticles"]
+   MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#ExtrapolatedStauTrackParticlesAux." + excludedAuxData]
+   MuonCombinedAODList+=[ "xAOD::MuonContainer#Staus" ]
+   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#StausAux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
+   MuonCombinedAODList+=[ "xAOD::SlowMuonAuxContainer#SlowMuonsAux." ]
 
    #Slimmed Track Collection
    #MuonCombinedAODList+=["TrackCollection#MuonSlimmedTrackCollection"]

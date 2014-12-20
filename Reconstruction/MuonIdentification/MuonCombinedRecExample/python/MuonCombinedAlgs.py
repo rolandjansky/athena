@@ -27,6 +27,7 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         topSequence = AlgSequence()
 
         getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
+        getPublicTool("MuonCaloParticleCreator")
         getPublicTool("MuonCombinedParticleCreator")
         getPublicTool("InDetCandidateTool")
         getPublicTool("MuonCandidateTool")

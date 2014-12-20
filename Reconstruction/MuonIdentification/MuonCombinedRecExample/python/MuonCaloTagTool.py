@@ -5,6 +5,8 @@
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getService
 
+###logfile
+from AthenaCommon.Logging import log
 
 ###############################################################################
 ## Helper function for defining THistSvc inputs
@@ -95,15 +97,18 @@ def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     if not hasattr(ServiceMgr, 'THistSvc'):
         ServiceMgr += CfgMgr.THistSvc()
 
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A0.root");            ### PDFs for barrel region low pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A1.root");            ### PDFs for barrel region medium pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A2.root");            ### PDFs for barrel region high pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B0.root");            ### PDFs for transition region low pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B1.root");            ### PDFs for transition region medium pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B2.root");            ### PDFs for transition region high pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C0.root");            ### PDFs for endcap region low pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C1.root");            ### PDFs for endcap region medium pT
-    ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C2.root");            ### PDFs for endcap region high pT
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline == False:
+
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A0.root");            ### PDFs for barrel region low pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A1.root");            ### PDFs for barrel region medium pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.A2.root");            ### PDFs for barrel region high pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B0.root");            ### PDFs for transition region low pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B1.root");            ### PDFs for transition region medium pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.B2.root");            ### PDFs for transition region high pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C0.root");            ### PDFs for endcap region low pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C1.root");            ### PDFs for endcap region medium pT
+        ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C2.root");            ### PDFs for endcap region high pT
 
     kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)

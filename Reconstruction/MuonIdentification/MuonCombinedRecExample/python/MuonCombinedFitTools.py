@@ -206,6 +206,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
+    kwargs.setdefault("UseCaloTG"                     , False )
+
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )
         kwargs.setdefault("LowMomentum"   ,  1.5*GeV )
@@ -244,6 +246,8 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
+    kwargs.setdefault("UseCaloTG"                     , True ) #
+    
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("MdtRotCreator" ,  "" )
         kwargs.setdefault("LowMomentum"   ,  1.5*GeV )
@@ -291,6 +295,7 @@ def MuonCombinedTrackFitter( name="MuonCombinedTrackFitter", **kwargs ):
     kwargs.setdefault("MaxIterations"         , 50 )
     kwargs.setdefault("GetMaterialFromTrack"  ,  jobproperties.BField.solenoidOn() and jobproperties.BField.allToroidOn() )
     kwargs.setdefault("RecalculateDerivatives", False)
+    kwargs.setdefault("UseCaloTG"             , True) #
     return CfgMgr.Trk__GlobalChi2Fitter(name,**kwargs)
 
 def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):

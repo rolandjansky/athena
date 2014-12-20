@@ -44,12 +44,6 @@ if useIBLRDO:
 
 
 
-#--------------------------------------------------------------------------------
-# Output setup
-#--------------------------------------------------------------------------------
-#recFlags.doTruth=False
-#recFlags.doWriteESD = True
-#recFlags.doWriteAOD = True
 
 #--------------------------------------------------------------------------------
 # Reco setup
@@ -105,8 +99,14 @@ muonCombinedRecFlags.TrackPerfDebugLevel = 5
 athenaCommonFlags.EvtMax = 100
 athenaCommonFlags.SkipEvents = 0
 #EventList = "missed.txt"
+
+#--------------------------------------------------------------------------------
+# Output setup
+#--------------------------------------------------------------------------------
+#recFlags.doTruth=False
 rec.doWriteESD = False
 rec.doWriteAOD = False
+
 
 ##### no more flags after this line #####
 try:

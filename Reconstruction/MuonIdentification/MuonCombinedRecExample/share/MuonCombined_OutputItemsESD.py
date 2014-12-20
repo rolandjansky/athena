@@ -8,8 +8,6 @@ from AthenaCommon.BeamFlags import jobproperties
 MuonCombinedESDList = []
 
 if DetFlags.detdescr.Muon_on():
-    
-    
   if muonRecFlags.doStandalone():    
     # ========================Muons===============================================
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSTracks()]
