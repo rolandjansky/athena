@@ -93,7 +93,10 @@ MdtCalibrationSvc::Imp::Imp(std::string name)
   m_verbose(false),
   m_debug(false),
   m_magFieldSvc("AtlasFieldSvc", name),
-  m_dbSvc("MdtCalibrationDbSvc", name)
+  m_dbSvc("MdtCalibrationDbSvc", name),
+  m_unphysicalHitRadiusUpperBound(-1.),
+  m_unphysicalHitRadiusLowerBound(-1.),
+  m_resTwin(-1.)
 {}
 
 
