@@ -59,14 +59,22 @@ namespace Trk {
 namespace MuonCalib {
 
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name, pSvcLocator), 
-    m_log(messageService(),name), 
-    m_storeGateSvc(0),
+    Algorithm(name, pSvcLocator),
+    m_log(messageService(),name),
+    m_debug(false),
+    m_verbose(false),
+    m_storeGateSvc(NULL),
+    m_detMgr(NULL),
+    m_mdtIdHelper(NULL),
+    m_cscIdHelper(NULL),
+    m_rpcIdHelper(NULL),
+    m_tgcIdHelper(NULL),
+    m_calibSvc(NULL),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
 
   {
-  
+
     declareProperty("ReadSegments", m_readSegments = false);
     declareProperty("UseCscSegments", m_useCscSegments = true);
     declareProperty("SegmentLocation", m_segmentLocation = "Muonboy_SegmentStore");
