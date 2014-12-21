@@ -63,7 +63,7 @@ namespace MuonCalib {
     MuonCalibBranchNtuple(bool booTree=true, bool doRawTgc=false);                        //!< default constructor
     MuonCalibBranchNtuple(std::string RegionName, bool booTree=true, bool doRawTgc=false);  //!< constructor initializing specific region
     ~MuonCalibBranchNtuple();                       //!< destructor
-  
+
     void handleRawHits( const MuonCalibRawHitCollection& rawHits ); //!< fills branch with raw hit collection. Calls the specific MuonCalibRawXxxNtupleBranch fill routine per MuonCalibRawXxxHit on the collection.
     void handleRawTriggerHits( const MuonCalibRawTriggerHitCollection& rawTriggerHits ); //!< fills branch with raw trigger hit collection. Calls the specific MuonCalibRawTriggerXxxNtupleBranch fill routine per MuonCalibRawTriggerXxxHit on the collection.
     void handlePattern(const MuonCalibPattern& pat);                //!< fills branch with MuonCalibPattern information, calling handleSegment per MuonCalibSegment on the MuonCalibPattern
@@ -75,13 +75,13 @@ namespace MuonCalib {
     void fillCscTruthToTree( const MuonCalibCscTruthHit& cscTruth );//!< fills branch with MuonCalibCscTruthHit information
     void fillRpcSectorLogic( const RpcSectorLogicContainer& rpcSlContainer );//!< fills branch with MuonCalibCscTruthHit information
     void fillEventToTree( const MuonCalibEventInfo& eventInfo, const MuonCalibTriggerTimeInfo& triggerTimeInfo = MuonCalibTriggerTimeInfo());    //!< fills branch with MuonCalibEventInfo information
-    void setEvent(unsigned int n);                                  //!< sets eventcounter to n and resets all NtupleBranches 
+    void setEvent(unsigned int n);                                  //!< sets eventcounter to n and resets all NtupleBranches
     void finishEvent();                                             //!< outputs summary information of the NtupleBranches and fills Tree
- 
-    void setPrintLevel(int level);                                  //!< set print level 
+
+    void setPrintLevel(int level);                                  //!< set print level
 
     void  writeTree();                                              //!< Writes the Tree
-    
+
     inline TTree * getTTree()
     	{
 	return m_tree;
@@ -115,9 +115,9 @@ namespace MuonCalib {
 
     IMdtSegmentFitter* createFitter();          //!< creates a DCSLFitter instance
 
-    TFile*   m_file;                            //!< TFile member 
+    TFile*   m_file;                            //!< TFile member
     TDirectory* m_directory;                    //!< TDirectory member
-    TTree*   m_tree;                            //!< TTree to store all branches in 
+    TTree*   m_tree;                            //!< TTree to store all branches in
     IMdtSegmentFitter* m_fitter;                //!< DCSLFitter instance
     LocalSegmentResolver m_resolver;            //!< Segment resolver instance
 
@@ -138,7 +138,7 @@ namespace MuonCalib {
     RpcCalibHitNtupleBranch rpcHitBranch;
     TgcCalibHitNtupleBranch tgcHitBranch;
     CscCalibHitNtupleBranch cscHitBranch;
-    
+
     MdtRawHitNtupleBranch rawMdtHitBranch;
     RpcRawHitNtupleBranch rawRpcHitBranch;
     TgcRawHitNtupleBranch rawTgcHitBranch;
@@ -148,8 +148,11 @@ namespace MuonCalib {
     MuonCalibRpcSectorLogicBranch rpcSlBranch;
     RpcRawTriggerHitNtupleBranch rawRpcTriggerHitBranch;
 
-    int m_printLevel;                         //!< print level 
+    int m_printLevel;                         //!< print level
 
+    // hidden assignment operator and copy constructor
+    MuonCalibBranchNtuple & operator=(const MuonCalibBranchNtuple &right);
+    MuonCalibBranchNtuple(const MuonCalibBranchNtuple&);
 
   };
 

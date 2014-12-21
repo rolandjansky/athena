@@ -17,6 +17,9 @@ private
 use AtlasCLHEP            AtlasCLHEP-*           External
 use MuonCalibIdentifier   MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
 
+# Declare the ROOT components that are required (only relevant for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
 public
 
 library MuonCalibNtuple  *.cxx 

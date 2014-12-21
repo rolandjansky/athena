@@ -22,6 +22,7 @@ namespace MuonCalib {
   RootFileManager::RootFileManager(const RootFileManager& /*mgr*/): m_fileOption("RECREATE"), m_outFile(0),  m_key(NULL), m_value(NULL)
   {
     // empty method, no copying
+    m_printLevel = 0;
   }
 
   TDirectory* RootFileManager::getDirectory( std::string dirname)
@@ -30,15 +31,15 @@ namespace MuonCalib {
       //std::cout << "  RootFileManager::getDirectory ERROR <open file first> " << std::endl;
       return 0;
     }
-  
+
     // pointer to directory associated with the dirnam
     TDirectory* dir = 0;
-  
+
     // lookup name in map
     DirectoryIt it = m_dirMap.find( dirname );
     if( it != m_dirMap.end() ){
       // if found return pointer to existing TDirectory
-      dir = it->second; 
+      dir = it->second;
     }else{
       // no found create new directory
       dir = m_outFile->mkdir( dirname.c_str() );

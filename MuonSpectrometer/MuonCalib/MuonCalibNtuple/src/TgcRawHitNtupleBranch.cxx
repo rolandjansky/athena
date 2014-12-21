@@ -14,6 +14,7 @@
 namespace MuonCalib {
 
   TgcRawHitNtupleBranch::TgcRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false)
+   , index(-1), index_Curr(-1), index_Prev(-1), index_Next(-1)
   {
   }
 
