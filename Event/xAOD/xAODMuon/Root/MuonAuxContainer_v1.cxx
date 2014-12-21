@@ -14,6 +14,8 @@ namespace xAOD {
         AUX_VARIABLE( pt );
         AUX_VARIABLE( eta );
         AUX_VARIABLE( phi );
+        AUX_VARIABLE(charge);
+
 
         // Muon summary
         AUX_VARIABLE( allAuthors );
@@ -73,22 +75,12 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer4Holes );
 
         // Isolation
-        AUX_VARIABLE( etcone10 );
         AUX_VARIABLE( etcone20 );
         AUX_VARIABLE( etcone30 );
         AUX_VARIABLE( etcone40 );
-        AUX_VARIABLE( nucone10 );
-        AUX_VARIABLE( nucone20 );
-        AUX_VARIABLE( nucone30 );
-        AUX_VARIABLE( nucone40 );
-        AUX_VARIABLE( ptcone10 );
         AUX_VARIABLE( ptcone20 );
         AUX_VARIABLE( ptcone30 );
         AUX_VARIABLE( ptcone40 );
-        AUX_VARIABLE( etconeNoEm10 );
-        AUX_VARIABLE( etconeNoEm20 );
-        AUX_VARIABLE( etconeNoEm30 );
-        AUX_VARIABLE( etconeNoEm40 );
 
         // Links
         AUX_VARIABLE( inDetTrackParticleLink );

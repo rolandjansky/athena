@@ -18,5 +18,10 @@ namespace xAOD {
    ///
    typedef MuonAuxContainer_v1 MuonAuxContainer;
 }
- 
+
+// Set up a CLID and StoreGate inheritance for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::MuonAuxContainer, 1153381047, 1 )
+
+
 #endif // XAODMUON_MUONAUXCONTAINER_H

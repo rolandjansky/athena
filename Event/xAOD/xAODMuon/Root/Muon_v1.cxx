@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.cxx 616892 2014-09-16 08:59:08Z emoyse $
+// $Id: Muon_v1.cxx 637257 2014-12-21 14:36:07Z jomeyer $
 // Misc includes
-#include <bitset>
 #include <vector>
 
 // EDM include(s):
@@ -12,6 +11,9 @@
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackSummaryAccessors_v1.h"
+
+#include "xAODPrimitives/tools/getIsolationAccessor.h"
+#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 
 // Local include(s):
 #include "xAODMuon/versions/Muon_v1.h"
@@ -31,6 +33,8 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, pt)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, eta)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, phi)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( Muon_v1, float, charge, setCharge )
+
   // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, float, double, e)
   
   double Muon_v1::e() const {
@@ -66,11 +70,11 @@ namespace xAOD {
     return m_p4;
   }
 
-  float Muon_v1::charge() const {
-    if (primaryTrackParticle()) return primaryTrackParticle()->charge();
-    // something has gone wrong!
-    throw std::runtime_error("No link to primary TrackParticle!");
-  }
+//  float Muon_v1::charge() const {
+//    if (primaryTrackParticle()) return primaryTrackParticle()->charge();
+//    // something has gone wrong!
+//    throw std::runtime_error("No link to primary TrackParticle!");
+//  }
 
   Type::ObjectType Muon_v1::type() const {
     return Type::Muon;
@@ -95,7 +99,7 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Muon_v1, uint16_t, Muon_v1::MuonType, muonType)
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( Muon_v1, uint16_t, Muon_v1::MuonType, muonType, setMuonType)
 
-  bool Muon_v1::summaryValue(uint8_t& value, const SummaryType &information)  const {
+  bool Muon_v1::summaryValue(uint8_t& value, const SummaryType information)  const {
     // Here we want to check if this information has been added to the Muon, and use this first if so.
     // @todo ?Could further optimise the below, to see first if the SummaryType value is one of the ones we write to Muons?
     // @todo ?Is there a better way than catching the exception?
@@ -111,21 +115,31 @@ namespace xAOD {
     return (*el)->summaryValue(value,information);
   }  
 
-  void Muon_v1::setSummaryValue( uint8_t  value, const SummaryType & 	information ) {
+  void Muon_v1::setSummaryValue( uint8_t  value, const SummaryType 	information ) {
     Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1<uint8_t>( information ); ///FIXME!
     // Set the value:
     ( *acc )( *this ) = value;
   }
+
+  // No set method for 'float' values as not expected to be needed
    
-  bool Muon_v1::summaryValue(float& value, const SummaryType &information)  const {
+  bool Muon_v1::summaryValue(float& value, const SummaryType information)  const {
     const ElementLink< TrackParticleContainer >& el= primaryTrackParticleLink();
     if (!el.isValid()) return false;
     return (*el)->summaryValue(value,information);
   }  
-
-  // No set method for 'float' values as not expected to be needed
   
-  bool Muon_v1::summaryValue(uint8_t& value, const MuonSummaryType &information)  const {
+  float Muon_v1::floatSummaryValue(const SummaryType information) const {
+    Muon_v1::Accessor< float >* acc = trackSummaryAccessorV1< float >( information );
+  	return ( *acc )( *this );
+  }
+
+  uint8_t Muon_v1::uint8SummaryValue(const SummaryType information) const{
+    Muon_v1::Accessor< uint8_t >* acc = trackSummaryAccessorV1< uint8_t >( information );
+    return ( *acc )( *this );  	
+  }
+  
+  bool Muon_v1::summaryValue(uint8_t& value, const MuonSummaryType information)  const {
     Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;
@@ -134,14 +148,20 @@ namespace xAOD {
     value = ( *acc )( *this );
     return true;
   }
+  
+  float Muon_v1::uint8MuonSummaryValue(const MuonSummaryType information) const{
+	  Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
+	  return ( *acc )( *this );
+  }
+  
 
-  void Muon_v1::setSummaryValue(uint8_t value, const MuonSummaryType &information) {
+  void Muon_v1::setSummaryValue(uint8_t value, const MuonSummaryType information) {
     Muon_v1::Accessor< uint8_t >* acc = muonTrackSummaryAccessorV1( information );
     // Set the value:
     ( *acc )( *this ) =  value;
   }
   
-  bool Muon_v1::parameter(float& value, const Muon_v1::ParamDef &information)  const {
+  bool Muon_v1::parameter(float& value, const Muon_v1::ParamDef information)  const {
     xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;
@@ -150,10 +170,38 @@ namespace xAOD {
     value = ( *acc )( *this );
     return true;
   }
-
-  void Muon_v1::setParameter(float& value, const Muon_v1::ParamDef &information){
+	
+  float xAOD::Muon_v1::floatParameter(xAOD::Muon_v1::ParamDef information) const{
     xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
-    if( ! acc ) throw std::runtime_error("Muon_v1::setParameter - no accessor for paramdef number: "+information);
+    return ( *acc )( *this );
+  }
+
+  void Muon_v1::setParameter(float value, const Muon_v1::ParamDef information){
+    xAOD::Muon_v1::Accessor< float >* acc = parameterAccessorV1<float>( information );
+    if( ! acc ) throw std::runtime_error("Muon_v1::setParameter - no float accessor for paramdef number: "+information);
+    
+    // Set the value:
+    ( *acc )( *this ) = value;
+  }
+  
+  bool Muon_v1::parameter(int& value, const Muon_v1::ParamDef information)  const {
+    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    if( ! acc ) return false;
+    if( ! acc->isAvailable( *this ) ) return false;
+    
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+	
+  int xAOD::Muon_v1::intParameter(xAOD::Muon_v1::ParamDef information) const{
+    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    return ( *acc )( *this );
+  }
+
+  void Muon_v1::setParameter(int value, const Muon_v1::ParamDef information){
+    xAOD::Muon_v1::Accessor< int >* acc = parameterAccessorV1<int>( information );
+    if( ! acc ) throw std::runtime_error("Muon_v1::setParameter - no int accessor for paramdef number: "+information);
     
     // Set the value:
     ( *acc )( *this ) = value;
@@ -210,20 +258,117 @@ namespace xAOD {
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( Muon_v1, bool, passesIDCuts,      setPassesIDCuts)
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( Muon_v1, bool, passesHighPtCuts,  setPassesHighPtCuts)
   
-  
-  
-  bool Muon_v1::isolation(float& value, const Iso::IsolationType &information)  const {
+  bool Muon_v1::isolation(float& value, const Iso::IsolationType information)  const {
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
+    
     if( ! acc ) return false;
+    
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    
     // Retrieve the value:
     value = ( *acc )( *this );
     return true;
   }
   
-  void Muon_v1::setIsolation(float& value, const Iso::IsolationType &information){
+  float Muon_v1::isolation( const Iso::IsolationType information)  const {
+    SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation type requested" );
+    return  ( *acc )( *this );
+  }
+  
+  void Muon_v1::setIsolation(float value, const Iso::IsolationType information){
     SG::AuxElement::Accessor< float >* acc = getIsolationAccessor( information );
     // Set the value:
     ( *acc )( *this ) = value;
+  }
+  
+bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavour flavour, 
+                                        const Iso::IsolationCaloCorrection type,
+                                        const Iso::IsolationCorrectionParameter param) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type,param);
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+
+  float Muon_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
+  const Iso::IsolationCorrectionParameter param) const{
+
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type,param);
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );
+    return  ( *acc )( *this );
+  }
+
+  bool Muon_v1::setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
+  const Iso::IsolationCorrectionParameter param){
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type,param);
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+  bool Muon_v1::isolationTrackCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection type) const{
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type);
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = ( *acc )( *this );
+    return true;
+  }
+
+  float Muon_v1::isolationTrackCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection type) const{
+
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type);
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );
+    return  ( *acc )( *this );
+  }
+
+  bool Muon_v1::setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection type){
+    SG::AuxElement::Accessor< float >* acc = getIsolationCorrectionAccessor(flavour,type);
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
+  }
+
+  bool Muon_v1::isolationCorrectionBitset(std::bitset<32>& value, const Iso::IsolationFlavour flavour ) const{
+    SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) {
+      return false;
+    }
+    if(!acc->isAvailable( *this) ) {
+      return  false;
+    }
+    // Retrieve the value:
+    value = std::bitset<32>(( *acc )( *this ));
+    return true;
+  }
+
+  std::bitset<32> Muon_v1::isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const{
+    SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) throw std::runtime_error( "Unknown/Unavailable Isolation BitSet requested" );
+    return  std::bitset<32>( ( *acc )( *this ) );
+  }
+
+  bool Muon_v1::setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour ) {
+    SG::AuxElement::Accessor< uint32_t >* acc = getIsolationCorrectionBitsetAccessor( flavour );
+    if( !acc ) return false;
+    // Set the value:
+    ( *acc )( *this ) = value;
+    return true;
   }
 
   AUXSTORE_OBJECT_GETTER( Muon_v1, ElementLink< TrackParticleContainer >, inDetTrackParticleLink)
@@ -247,8 +392,8 @@ namespace xAOD {
       default:
       throw std::runtime_error("Unknown primary type - not sure which track particle to return!");
     }
-    static ElementLink< TrackParticleContainer > dummy;
-    return dummy;
+    // static ElementLink< TrackParticleContainer > dummy;
+    // return dummy;
   }
   
   const xAOD::TrackParticle* Muon_v1::primaryTrackParticle() const{
@@ -280,8 +425,8 @@ namespace xAOD {
       default:
         throw std::runtime_error("Unknown TrackParticleType - not sure which track particle to return!");
     }
-    static ElementLink< TrackParticleContainer > dummy;
-    return dummy;
+    // static ElementLink< TrackParticleContainer > dummy;
+    // return dummy;
   }
   
   const xAOD::TrackParticle* Muon_v1::trackParticle( Muon_v1::TrackParticleType type) const{

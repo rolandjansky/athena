@@ -13,5 +13,10 @@ namespace xAOD {
    /// Definition of the current "MuonSegment container version"
    typedef MuonSegmentContainer_v1 MuonSegmentContainer;
 }
- 
+
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::MuonSegmentContainer, 1129401482, 1 )
+
+
 #endif // XAODMUON_MUONSEGMENTCONTAINER_H

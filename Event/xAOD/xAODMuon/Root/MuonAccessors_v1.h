@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonAccessors_v1.h 594592 2014-04-29 09:11:56Z emoyse $
+// $Id: MuonAccessors_v1.h 636019 2014-12-15 15:55:20Z emoyse $
 #ifndef XAODMUON_MUONACCESSORS_V1_H
 #define XAODMUON_MUONACCESSORS_V1_H
 
@@ -23,7 +23,7 @@ namespace xAOD {
    ///
    template <class T>
    SG::AuxElement::Accessor< T >*
-   parameterAccessorV1( Muon_v1::ParamDef type );
+   parameterAccessorV1( Muon::ParamDef type );
    
 } // namespace xAOD
 

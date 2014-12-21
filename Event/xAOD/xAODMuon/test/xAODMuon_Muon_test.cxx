@@ -30,13 +30,15 @@ std::ostream& operator<< ( std::ostream& out,
 void fill( xAOD::Muon& muon ) {
 
    muon.setP4( 1.0, 2.0, 3.0 );
-   muon.setAuthor(xAOD::Muon_v1::MuidCo);
+   muon.setAuthor(xAOD::Muon::MuidCo);
    muon.setAllAuthors(0x10);
-   muon.setMuonType(xAOD::Muon_v1::Combined);
+   muon.setMuonType(xAOD::Muon::Combined);
    float value=1.0;
-   muon.setParameter(value, xAOD::Muon_v1::spectrometerFieldIntegral);
-   muon.setParameter(value, xAOD::Muon_v1::momentumBalanceSignificance);
-   muon.setQuality(xAOD::Muon_v1::Medium);
+   muon.setParameter(value, xAOD::Muon::spectrometerFieldIntegral);
+   muon.setParameter(value, xAOD::Muon::momentumBalanceSignificance);
+   muon.setQuality(xAOD::Muon::Medium);
+   
+   muon.setParameter(1, xAOD::Muon::msInnerMatchDOF);
    
    // static const float covMatrix[ 15 ] = {
    //    1.0, 1.0, 1.0, 1.0, 1.0,

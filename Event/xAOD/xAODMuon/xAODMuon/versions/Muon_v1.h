@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 612402 2014-08-19 07:28:08Z htorres $
+// $Id: Muon_v1.h 636019 2014-12-15 15:55:20Z emoyse $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -12,9 +12,13 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-// xAOD include(s):
-#include "xAODBase/IParticle.h"
+//xAOD Primitives
+#include "xAODPrimitives/IsolationCorrection.h"
 #include "xAODPrimitives/IsolationType.h"
+#include "xAODPrimitives/IsolationFlavour.h"
+
+// Misc xAOD include(s):
+#include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackingPrimitives.h" 
 #include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODCaloEvent/CaloClusterContainer.h" 
@@ -63,8 +67,11 @@ namespace xAOD {
     /// @}
 
     /// @name Charge
-    /// A convenience function that returns the charge of primaryTrackParticle();
+    /// Returns the charge.
     float charge() const;    
+    
+    /// Set the charge (*must* be the same as primaryTrackParticle() )
+    void setCharge(float charge);
 
     /// @name Author
     /// Methods to query the author(s) of this Muon
@@ -132,24 +139,33 @@ namespace xAOD {
     /// @param[in] information The information being requested. This is not guaranteed to be stored in all Muons (or primary TrackParticle).
     /// @param[out] value  Only filled if this Muon (or its primary TrackParticle) contains 'information', and the types match.
     /// @return Returns 'true' if the Muon contains 'information', and its concrete type matches 'value' (templated type T).
-    bool summaryValue(uint8_t& value, const SummaryType &information) const;     
+    bool summaryValue(uint8_t& value, const SummaryType information) const;	     
     /// Set method for storing TrackSummary SummaryType information on the Muon (see Aux to see which is already defined as static)       
-    void setSummaryValue(uint8_t value, const SummaryType &information);  
+    void setSummaryValue(uint8_t value, const SummaryType information);  
     /// @copydoc summaryValue(uint8_t& value, const SummaryType &information) const;
-    bool summaryValue(float& value, const SummaryType &information) const;        
+    bool summaryValue(float& value, const SummaryType information) const;        
     /// Accessor for MuonSummaryType.
-    bool summaryValue(uint8_t& value, const MuonSummaryType &information) const;
+    bool summaryValue(uint8_t& value, const MuonSummaryType information) const;
     /// Set method for MuonSummaryType.        
-    void setSummaryValue(uint8_t value, const MuonSummaryType &information); 
-      
-        
+    void setSummaryValue(uint8_t value, const MuonSummaryType information); 
+     
+	/// Same as bool summaryValue(float& value, const SummaryType &information) const , but without check (will throw exception if value isn't there)
+	/// Primarily for use in Python.
+	float floatSummaryValue(const SummaryType information) const;
+	/// Same as bool summaryValue(uint8_t& value, const SummaryType &information) const, but without check (will throw exception if value isn't there)
+	/// Primarily for use in Python.
+	uint8_t uint8SummaryValue(const SummaryType information) const;
+	/// Same as bool summaryValue(uint8_t& value, const MuonSummaryType &information) const, but without check (will throw exception if value isn't there)
+	/// Primarily for use in Python.
+	float uint8MuonSummaryValue(const MuonSummaryType information) const;
+	    
     /// Enum for parameter indexes 
     enum ParamDef {
       /** Discriminators and further variables */
-      spectrometerFieldIntegral  , //<! B-field integral in MS
-      scatteringCurvatureSignificance , //<! Scattering angle significance: curvature
-      scatteringNeighbourSignificance , //<! Scattering angle significance: neighbours
-      momentumBalanceSignificance, //<! momentum balance significance
+      spectrometerFieldIntegral=0  , //<! B-field integral in MS
+      scatteringCurvatureSignificance=1 , //<! Scattering angle significance: curvature
+      scatteringNeighbourSignificance=2 , //<! Scattering angle significance: neighbours
+      momentumBalanceSignificance=3, //<! momentum balance significance
         
       /** MuTag parameters */
       segmentDeltaEta , 
@@ -167,21 +183,47 @@ namespace xAOD {
       msInnerMatchDOF, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the entrance to the spectrometer (MS).
       msOuterMatchChi2, //!< The chi^2 for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
       msOuterMatchDOF, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
-      meanDeltaADCCountsMDT //!< Difference between mean number of ADC count for given track and mean number of ADC for all muons from DATA.
+      meanDeltaADCCountsMDT, //!< Difference between mean number of ADC count for given track and mean number of ADC for all muons from DATA.
+      /** CaloMuon variables (EnergyLossType is stored separately and retrieved using energyLossType() */
+      CaloLRLikelihood, //!< Calo Muon ID likelihood
+      CaloMuonIDTag, //!< Calo Muon Identification tag
+      FSR_CandidateEnergy, //!< FSR candidate energy [MeV]
+      EnergyLoss, //!< Fitted energy loss (either param or meas depending on track isolation and calo meas) [Mev]
+      ParamEnergyLoss, //!< Parametrised energy loss [Mev]
+      MeasEnergyLoss, //!< Measured energy loss [Mev]
+      EnergyLossSigma, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
+      ParamEnergyLossSigmaPlus, //!< Sigma plus of Parametrised energy loss [Mev]
+      ParamEnergyLossSigmaMinus, //!< Sigma minus of Parametrised energy loss [Mev]
+      MeasEnergyLossSigma //!< Sigma of Measured energy loss [Mev]
     };
         
-    /// get a parameter for this Muon - momentumBalanceSignificance for example 
+    /// Get a parameter for this Muon - momentumBalanceSignificance for example 
     /// @todo Finish documentation
     /// include matchChi2, muonentrancechi2 (instead of outerMatchChi2). Store chi2/dof instead of two?
     /// fitChi2 comes from TrackParticle.
-    bool parameter(float& value, const ParamDef &parameter) const;
+    bool parameter(float& value, const ParamDef parameter) const;
 
     /// Set method for parameter values.
-    void setParameter(float& value, const ParamDef &parameter);
+    void setParameter(float value, const ParamDef parameter);
+
+    /// Same as bool parameter(float& value, const ParamDef &parameter) const, but without check (will throw exception if value isn't there). 
+    /// Primarily for use in Python.
+    float floatParameter(const ParamDef parameter) const;
+
+    /// Get an integer parameter for this Muon - msInnerMatchDOF for example 
+    bool parameter(int& value, const ParamDef parameter) const;
+
+    /// Set method for parameter values.
+    void setParameter(int value, const ParamDef parameter);
+
+    /// Same as bool parameter(float& value, const ParamDef &parameter) const, but without check (will throw exception if value isn't there). 
+    /// Primarily for use in Python.
+    int intParameter(const ParamDef parameter) const;
+
     
     /// The Muon Quality information is defined on the MCP twiki: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MuonsQualityDefinition      
     /// @todo Finish documentation
-    enum Quality {Tight, Medium, Loose};
+    enum Quality {Tight, Medium, Loose, VeryLoose};
     Quality quality() const;
     void setQuality(Quality);
           
@@ -201,10 +243,67 @@ namespace xAOD {
               
     /// @}
 	
-    /// @name Isolation
-    bool isolation(float& value, const Iso::IsolationType &type) const;
-    /// Set method for isolation values.
-    void setIsolation(float& value, const Iso::IsolationType &type);
+    /// @name xAOD::Muon Isolation value Accesors
+    /// If 'information' is stored in this xAOD::Muon and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
+    ///
+    /// @{   
+
+    /// @brief Accessor for Isolation values.
+    bool isolation(float& value,   const Iso::IsolationType information) const;
+
+    /// Accessor to Isolation values , this just returns the value without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolation(const Iso::IsolationType information) const;
+
+    /// @set method for Isolation values.
+    void setIsolation(float value, const Iso::IsolationType information);
+    /// @}
+
+
+    /// @name xAOD::Egamma Isolation correction  Accesors
+    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
+    ///
+    /// @{   
+
+    /// @brief Accessor for Isolation Calo correction.
+    bool isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
+                                 const Iso::IsolationCorrectionParameter param) const;
+
+
+
+    /// Accessor to Isolation Calo corrections , this just returns the correction without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
+                                  const Iso::IsolationCorrectionParameter param) const;
+
+    /// @se method for Isolation Calo Corrections.
+    bool setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
+                                    const Iso::IsolationCorrectionParameter param);
+
+
+    /// @brief Accessor for Isolation Track correction.
+    bool isolationTrackCorrection(float& value, const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection type ) const;
+
+    /// Accessor to Isolation Track corrections , this just returns the correction without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    float isolationTrackCorrection(const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection type) const;
+
+    /// @Set method for Isolation Track Corrections.
+    bool setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection type);
+
+
+    /// @brief Accessor for Isolation corection Bitset
+    bool isolationCorrectionBitset(std::bitset<32>& value, const Iso::IsolationFlavour flavour ) const;
+
+    /// Accessor to Isolation corection Bitset , this just returns the bitset without internaly checking if it exists.
+    /// Will lead to an exception if the information is not available
+    std::bitset<32> isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const;
+
+    /// @Set method for Isolation corection Bitset.
+    bool setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour );
+
     /// @}
 
     /// @name Links
@@ -254,7 +353,6 @@ namespace xAOD {
     void setClusterLink(const ElementLink<CaloClusterContainer>& link);
     /// Retrieve the associated cluster with a bare pointer
     const CaloCluster* cluster() const;
-
         
     /// Defines how the energy loss was handled for this muon 
     enum EnergyLossType { Parametrized=0, 
@@ -263,7 +361,12 @@ namespace xAOD {
       Tail=3,         //!< Measured eloss significantly higher than mop --> the calo measurement used
       FSRcandidate=4  //!< In standalone reconstruction the Tail option was used. but an imbalance is observed when comparing Pstandalone and Pinnerdetector (Pstandalone>Pinnerdetector) --> if using the mop resolves the imbalance the excess energy loss is stored as fsrEnergy and the mop is used as the eloss.
     };
-    /** energy determined from parametrization or not (measured) */
+    /** Energy determined from parametrization or not (measured). The actual energy loss is returned via     
+    @code
+    float etCore;
+    bool hasEnergyLoss = parameter(float& value, const ParamDef parameter)    
+    @endcode
+    */
     EnergyLossType energyLossType (void) const;
     /// Set method for the type
     void setEnergyLossType (EnergyLossType type) ;

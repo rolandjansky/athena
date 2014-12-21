@@ -40,6 +40,7 @@ namespace xAOD {
      std::vector< float >             pt;
      std::vector< float >             eta;
      std::vector< float >             phi;
+     std::vector< float >             charge;
      /// @}  
 			                       	
      /// @name Muon summary information
@@ -103,22 +104,12 @@ namespace xAOD {
       
       /// @name Isolation values
       /// @{
-      std::vector< float >            etcone10;
       std::vector< float >            etcone20;
       std::vector< float >            etcone30;
       std::vector< float >            etcone40;
-      std::vector< float >            nucone10;
-      std::vector< float >            nucone20;
-      std::vector< float >            nucone30;
-      std::vector< float >            nucone40;
-      std::vector< float >            ptcone10;
       std::vector< float >            ptcone20;
       std::vector< float >            ptcone30;
       std::vector< float >            ptcone40;
-      std::vector< float >            etconeNoEm10;
-      std::vector< float >            etconeNoEm20;
-      std::vector< float >            etconeNoEm30;
-      std::vector< float >            etconeNoEm40;      
       /// @}
       
       /// @name Links 
@@ -139,9 +130,6 @@ namespace xAOD {
  
 } // namespace xAOD
  
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::MuonAuxContainer_v1, 1153381047, 1 )
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::MuonAuxContainer_v1, xAOD::AuxContainerBase ); 
  

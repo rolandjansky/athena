@@ -16,8 +16,5 @@ namespace xAOD {
    typedef DataVector< xAOD::MuonSegment_v1 > MuonSegmentContainer_v1;
 }
 
-// Set up a CLID for the container:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::MuonSegmentContainer_v1, 1129401482, 1 )
 
 #endif // XAODMUON_VERSIONS_MUONSEGMENTCONTAINER_V1_H

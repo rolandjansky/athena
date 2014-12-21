@@ -42,6 +42,21 @@
   <class name="std::vector<ElementLink<xAOD::MuonSegmentContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::MuonSegmentContainer_v1> > >" />
 
+  <!-- SlowMuon_v1 dictionaries -->
+  <class name="xAOD::SlowMuon_v1"/>
+  <class name="xAOD::SlowMuonAuxContainer_v1"
+         id="B0B4F66B-C261-4403-AB96-D71249A9CDEC"/>
+  <class name="xAOD::SlowMuonContainer_v1"
+         id="78E011F9-AD91-40A8-95E9-E288A5A583FE"/>
+
+  <!-- All smart pointer dictionaries for xAOD::SlowMuon -->
+  <class name="DataLink<xAOD::SlowMuonContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::SlowMuonContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::SlowMuonContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::SlowMuonContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::SlowMuonContainer_v1> > >" />
+
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

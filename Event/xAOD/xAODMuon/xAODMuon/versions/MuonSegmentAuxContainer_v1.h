@@ -61,9 +61,6 @@ namespace xAOD {
    }; // class MuonSegmentAuxContainer_v1
 } // namespace xAOD
  
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::MuonSegmentAuxContainer_v1, 1341820669, 1 )
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::MuonSegmentAuxContainer_v1, xAOD::AuxContainerBase ); 
 
