@@ -37,8 +37,6 @@ inline double Tschebyscheff_polynomial::value(const unsigned int & m_order,
 			break;
 	}
 
-	return 0.0;
-
 }
 
 }

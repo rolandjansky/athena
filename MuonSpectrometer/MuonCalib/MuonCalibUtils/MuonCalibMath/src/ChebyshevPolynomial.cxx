@@ -35,8 +35,6 @@ namespace MuonCalib {
       break;
     }
 
-    return 0.0;
-
   }
 
 }

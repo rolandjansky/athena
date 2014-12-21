@@ -72,6 +72,4 @@ double LegendrePolynomial::value(const int & k, const double & x) const {
 			break;
 	}
 
-	return 0.0;
-
 }

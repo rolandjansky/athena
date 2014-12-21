@@ -60,8 +60,6 @@ inline double Legendre_polynomial::value(const int & m_order,
 			break;
 	}
 
-	return 0.0;
-
 }
 
 }
