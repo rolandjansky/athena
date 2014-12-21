@@ -14,9 +14,12 @@
 namespace MuonCalib {
 
   MdtTruthHitNtupleBranch::MdtTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {}
+  {
 
-  bool MdtTruthHitNtupleBranch::fillBranch(const MuonCalibMdtTruthHit &hit) {
+  }
+
+  bool  MdtTruthHitNtupleBranch::fillBranch(const MuonCalibMdtTruthHit& hit)
+  {
     // check if branches where initialized
     if( !branchesInit ){
       //      std::cout << "MdtTruthHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
@@ -36,18 +39,15 @@ namespace MuonCalib {
     barCode[index] = hit.barCode();
     driftRadius[index] = hit.driftRadius();
     positionAlongTube[index] = hit.positionAlongTube();
-    gpositionX[index] = hit.gpositionX();
-    gpositionY[index] = hit.gpositionY();
-    gpositionZ[index] = hit.gpositionZ();
-    time[index] = hit.time();
 
     // increment hit index
     ++index;
   
     return true;
-  }  //end MdtTruthHitNtupleBranch::fillBranch
+  }
 
-  bool MdtTruthHitNtupleBranch::createBranch(TTree *tree) {
+  bool  MdtTruthHitNtupleBranch::createBranch(TTree* tree)
+  {
     // check if pointer is valid
     if( !tree ){
       //      std::cout << "MdtTruthHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -71,10 +71,6 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "barCode",     &barCode,           array_size + "/I" );
     branchCreator.createBranch( tree, "driftRadius", &driftRadius,       array_size + "/D" );
     branchCreator.createBranch( tree, "posAlongTube",&positionAlongTube, array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosX",       &gpositionX,        array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosY",       &gpositionY,        array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosZ",       &gpositionZ,        array_size + "/D" );
-    branchCreator.createBranch( tree, "time",        &time,              array_size + "/D" );
 
     branchesInit = true;
   
@@ -82,6 +78,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }  //end MdtTruthHitNtupleBranch::createBranch
+  }
 
-}  //namespace MuonCalib
+}

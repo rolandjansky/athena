@@ -13,11 +13,13 @@
 
 namespace MuonCalib {
 
-  CscCalibHitNtupleBranch::CscCalibHitNtupleBranch(std::string branchName) : 
-    m_branchName(branchName), branchesInit(false), index(0)
-  {}
+  CscCalibHitNtupleBranch::CscCalibHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  {
 
-  bool CscCalibHitNtupleBranch::fillBranch(const CscCalibHitBase &hit, const int segmentIndex) {
+  }
+
+  bool  CscCalibHitNtupleBranch::fillBranch(const CscCalibHitBase& hit, const int segmentIndex)
+  {
     // check if branches where initialized
     if( !branchesInit ){
       //std::cout << "CscCalibHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
@@ -38,19 +40,22 @@ namespace MuonCalib {
     nStrips[index]    = hit.nStrips();
     stripWidth[index] = hit.stripWidth();
     charge[index]     = hit.charge();
-    error[index]      = hit.error();
-    posX[index]       = hit.localPosition().x();
-    posY[index]       = hit.localPosition().y();
-    posZ[index]       = hit.localPosition().z();
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
+    error[index]  = hit.error();
+    posX[index]  = hit.localPosition().x();
+    posY[index]  = hit.localPosition().y();
+    posZ[index]  = hit.localPosition().z();
+    gPosX[index] = hit.globalPosition().x();
+    gPosY[index] = hit.globalPosition().y();
+    gPosZ[index] = hit.globalPosition().z();
 
-    ++index;    // increment hit index
+    // increment hit index
+    ++index;
+  
     return true;
-  }  //end CscCalibHitNtupleBranch::fillBranch
+  }
 
-  bool CscCalibHitNtupleBranch::createBranch(TTree *tree) {
+  bool  CscCalibHitNtupleBranch::createBranch(TTree* tree)
+  {
     // check if pointer is valid
     if( !tree ){
       //std::cout << "CscCalibHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -76,17 +81,19 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "stripWidth",&stripWidth,array_size + "/F" );
     branchCreator.createBranch( tree, "charge",    &charge,    array_size + "/I" );
     branchCreator.createBranch( tree, "error",     &error,     array_size + "/F" );
-    branchCreator.createBranch( tree, "posX",      &posX,      array_size + "/F" );
-    branchCreator.createBranch( tree, "posY",      &posY,      array_size + "/F" );
-    branchCreator.createBranch( tree, "posZ",      &posZ,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,     array_size + "/F" );
+    branchCreator.createBranch( tree, "posX",      &posX,     array_size + "/F" );
+    branchCreator.createBranch( tree, "posY",      &posY,     array_size + "/F" );
+    branchCreator.createBranch( tree, "posZ",      &posZ,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",     &gPosX,    array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",     &gPosY,    array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,    array_size + "/F" );
 
     branchesInit = true;
   
-    reset();     // reset branch
-    return true;
-  }  //CscCalibHitNtupleBranch::createBranch
+    // reset branch
+    reset();
 
-}  //namespace MuonCalib
+    return true;
+  }
+
+}
