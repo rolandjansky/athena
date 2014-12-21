@@ -104,10 +104,10 @@ StatusCode CalibrationOracleFileIOTool :: WriteRt(const RtCalibrationOutput *rt_
 	if(db_rt_file==NULL || db_rtt_file==NULL || db_rtr_file==NULL || db_rts_file==NULL)
 		{
 		log << MSG::FATAL << "Cannot open output files" <<endreq;
-		if (db_rt_file) delete db_rt_file;
-		if (db_rtt_file) delete db_rtt_file;
-		if (db_rtr_file) delete db_rtr_file;
-		if (db_rts_file) delete db_rts_file;
+		if (db_rt_file) fclose(db_rt_file);
+		if (db_rtt_file) fclose(db_rtt_file);
+		if (db_rtr_file) fclose(db_rtr_file);
+		if (db_rts_file) fclose(db_rts_file);
 		return StatusCode::FAILURE;
 		}
 	log << MSG::INFO << "Writing out r-t relationships in the files for calibration db." << endreq;

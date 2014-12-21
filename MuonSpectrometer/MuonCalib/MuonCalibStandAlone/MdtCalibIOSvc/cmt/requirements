@@ -20,7 +20,7 @@ use MdtCalibUtils MdtCalibUtils-* MuonSpectrometer/MuonCalib/MdtCalib
 
 
 apply_pattern declare_joboptions files="*.py"
-apply_pattern dual_use_library files= *.cxx
+apply_pattern dual_use_library files=*.cxx
 
 private 
 
