@@ -90,6 +90,15 @@ def dump_obj4 (tr):
         print ' ', i, tr.obj4[i]
 
 
+def dump_obj5 (tr):
+    for i in range (tr.n):
+        print ' ', i, tr.obj5[i], tr.anInt[i], tr.aFloat[i], tr.s[i], \
+              '%7.1f %6.3f %6.3f' % (tr.aFourvec[i].Pt(),
+                                     tr.aFourvec[i].Eta(),
+                                     tr.aFourvec[i].Phi()), \
+               tr.dummy[i]
+
+
 def dump_def (tr):
     print ' %3d %3d' % (ord(tr.c1),  ord(tr.c2))
     print ' %3d %3d' % (ord(tr.uc1), ord(tr.uc2))
@@ -129,6 +138,7 @@ def dumpit (file):
     tr_o12 = tr.subreader ('o12_%s')
     tr_o3 = tr.subreader ('o3_%s')
     tr_o4 = tr.subreader ('o4_%s')
+    tr_o5 = tr.subreader ('o5_%s')
     tr_def = tr.subreader ('def_%s')
     tr_mdt = tr.subreader ('mdt_hit_%s')
     tr_trackrecord = tr.subreader ('ms_entry_truth_%s')
@@ -147,6 +157,8 @@ def dumpit (file):
         dump_obj3 (tr_o3)
         print '** Obj4'
         dump_obj4 (tr_o4)
+        print '** Obj5'
+        dump_obj5 (tr_o5)
         print '** Def'
         dump_def (tr_def)
         print '** MDT'

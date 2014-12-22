@@ -14,6 +14,7 @@
 #include "../Obj12FillerTool.h"
 #include "../Obj4FillerTool.h"
 #include "../Obj4GetterTool.h"
+#include "../Obj5FillerTool.h"
 #include "../DefaultFillerTool.h"
 #include "../DefaultFillerTool2.h"
 #include "../Obj1Obj2AssociationTool.h"
@@ -31,6 +32,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj2FillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj12FillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj4FillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj4GetterTool)
+DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj5FillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, DefaultFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, DefaultFillerTool2)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PDTest, Obj1Obj2AssociationTool)
@@ -48,6 +50,7 @@ DECLARE_FACTORY_ENTRIES(D3PDMakerTest) {
   DECLARE_NAMESPACE_TOOL      (D3PDTest, Obj12FillerTool)
   DECLARE_NAMESPACE_TOOL      (D3PDTest, Obj4FillerTool)
   DECLARE_NAMESPACE_TOOL      (D3PDTest, Obj4GetterTool)
+  DECLARE_NAMESPACE_TOOL      (D3PDTest, Obj5FillerTool)
   DECLARE_NAMESPACE_TOOL      (D3PDTest, DefaultFillerTool)
   DECLARE_NAMESPACE_TOOL      (D3PDTest, DefaultFillerTool2)
   DECLARE_NAMESPACE_TOOL      (D3PDTest, Obj1Obj2AssociationTool)

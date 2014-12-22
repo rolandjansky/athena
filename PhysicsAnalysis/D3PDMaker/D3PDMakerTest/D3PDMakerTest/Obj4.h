@@ -18,7 +18,7 @@
 
 
 #include "D3PDMakerTest/Obj1.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 
 namespace D3PDTest {

@@ -53,6 +53,10 @@ from D3PDMakerCoreComps.ContainedVectorMultiAssociation \
 from D3PDMakerCoreComps.ContainedMultiAssociation \
      import ContainedMultiAssociation
 
+
+###########################################################################
+
+
 Obj1D3PDObject = \
            make_SGDataVector_D3PDObject ('D3PDTest::Obj1Container',
                                          'obj1container',
@@ -60,6 +64,10 @@ Obj1D3PDObject = \
 Obj1D3PDObject.defineBlock (0, 'Obj1',  D3PDMakerTest.Obj1FillerTool)
 Obj1D3PDObject.defineBlock (0, 'Obj1a', D3PDMakerTest.Obj12FillerTool)
 Obj1D3PDObject.defineBlock (0, 'Def2', D3PDMakerTest.DefaultFillerTool2)
+
+
+#####################
+
 
 Obj2aAssoc = SimpleAssociation (Obj1D3PDObject,
                                 D3PDMakerTest.Obj1Obj2AssociationTool,
@@ -117,6 +125,9 @@ Obj1D3PDObject2Assoc1_c = ContainedMultiAssociation \
 Obj1D3PDObject2Assoc1_c.defineBlock (0, 'Obj2c', D3PDMakerTest.Obj2FillerTool)
 
 
+#####################
+
+
 Obj3D3PDObject = \
        make_SGDataVector_D3PDObject ('DataVector<INavigable4Momentum>',
                                      'obj3container',
@@ -144,6 +155,9 @@ DRIndexAssociation (Obj3D3PDObject,
 
 
 
+#####################
+
+
 def make_obj4 (name, prefix, object_name):
     getter = D3PDMakerTest.Obj4GetterTool (name + '_Getter',
                                            SGKey = 'obj4container')
@@ -156,6 +170,25 @@ Obj4D3PDObject = D3PDMakerCoreComps.D3PDObject.D3PDObject (make_obj4, 'o4_')
 Obj4D3PDObject.defineBlock (0, 'Obj4', D3PDMakerTest.Obj4FillerTool)
 
 
+#####################
+
+
+Obj5D3PDObject = \
+       make_SGDataVector_D3PDObject ('DataVector<D3PDTest::Obj5>',
+                                     'obj5container',
+                                     'o5_')
+
+Obj5D3PDObject.defineBlock (0, 'Obj5', D3PDMakerTest.Obj5FillerTool)
+Obj5D3PDObject.defineBlock (0, 'Obj5aux', D3PDMakerCoreComps.AuxDataFillerTool,
+                            Vars = ['anInt',
+                                    'aFloat',
+                                    's = aString #This is a string.',
+                                    'aFourvec',
+                                    'dummy < int:-999'])
+
+
+###########################################################################
+
 
 
 alg += Obj1D3PDObject(99)
@@ -165,6 +198,7 @@ alg += Obj1D3PDObject(99,
                       getterFilter = 'obj1sel')
 alg += Obj3D3PDObject (99)
 alg += Obj4D3PDObject(99)
+alg += Obj5D3PDObject(99)
 
 DefD3PDObject = make_Void_D3PDObject ('def_')
 DefD3PDObject.defineBlock (0, 'Def', D3PDMakerTest.DefaultFillerTool)
@@ -178,7 +212,7 @@ from MuonD3PDMaker.TrackRecordD3PDObject import TrackRecordD3PDObject
 alg += TrackRecordD3PDObject (99, sgkey = 'TrackRecord',
                               exclude = ['TruthHits'])
 
-from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+from AnalysisTools.AnalysisToolsConf import AANTupleStream
 AANTupleStream('D3PD').ExistDataHeader = False
 
 
@@ -197,10 +231,11 @@ svcMgr.MessageSvc.debugLimit  = 100000
 svcMgr.ClassIDSvc.OutputLevel = 3
 
 # No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
+from GaudiCommonSvc.GaudiCommonSvcConf import ChronoStatSvc
+chronoStatSvc = ChronoStatSvc()
+chronoStatSvc.ChronoPrintOutTable = FALSE
+chronoStatSvc.PrintUserTime       = FALSE
+chronoStatSvc.StatPrintOutTable   = FALSE
 
 # Elide files/errors in log messages.
 import ROOT

@@ -14,7 +14,7 @@
 
 
 #ifndef D3PDMAKERTEST_OBJ3_H
-#define D3PDMAKERTESTOBJ3_H
+#define D3PDMAKERTEST_OBJ3_H
 
 
 #include "ParticleEvent/ParticleImpl.h"

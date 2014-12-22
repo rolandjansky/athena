@@ -41,10 +41,11 @@ def topy (o):
         keys = ROOT.D3PDTest.MapDumper.keys (o)
         values = ROOT.D3PDTest.MapDumper.values (o)
         return OrderedDict (sorted (zip (keys, values), key=lambda t: t[0]))
-    if type(o).__name__.startswith ('vector<char'):
+    if (type(o).__name__.startswith ('vector<char') or
+        type(o).__name__.startswith ('vector<unsigned char')):
         ll = list(o)
         lens = [len(x) for x in ll]
-        if min(lens) == 1 and max(lens) == 1:
+        if lens and min(lens) == 1 and max(lens) == 1:
             ll = [ord(x) for x in ll]
         return ll
     if type(o).__name__.startswith ('vector<'):

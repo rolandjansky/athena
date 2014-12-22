@@ -64,11 +64,15 @@ private:
   /// Fill collections involving Obj4.
   StatusCode fillObj4Collections();
 
+  /// Fill collections involving Obj5.
+  StatusCode fillObj5Collections();
+
   std::string m_sgkeyObj1cont;
   std::string m_sgkeyObj1sel;
   std::string m_sgkeyObj1;
   std::string m_sgkeyObj3cont;
   std::string m_sgkeyObj4cont;
+  std::string m_sgkeyObj5cont;
 
   int m_count;
 };

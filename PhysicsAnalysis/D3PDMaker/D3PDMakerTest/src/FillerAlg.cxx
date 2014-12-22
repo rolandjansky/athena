@@ -15,14 +15,20 @@
 #include "D3PDMakerTest/Obj1.h"
 #include "D3PDMakerTest/Obj3.h"
 #include "D3PDMakerTest/Obj4.h"
+#include "D3PDMakerTest/Obj5.h"
+#include "D3PDMakerTest/MyVec.h"
 #include "ParticleEvent/SelectedParticles.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthContainers/AuxStoreInternal.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/make_unique.h"
+#include <sstream>
 #include <stdint.h>
 
 
 using CLHEP::GeV;
+using CxxUtils::make_unique;
 
 
 namespace D3PDTest {
@@ -62,6 +68,7 @@ FillerAlg::FillerAlg (const std::string& name,
   declareProperty ("SGKeyObj1",     m_sgkeyObj1     = "obj1");
   declareProperty ("SGKeyObj3Cont", m_sgkeyObj3cont = "obj3container");
   declareProperty ("SGKeyObj4Cont", m_sgkeyObj4cont = "obj4container");
+  declareProperty ("SGKeyObj5Cont", m_sgkeyObj5cont = "obj5container");
 }
 
 
@@ -152,6 +159,41 @@ StatusCode FillerAlg::fillObj4Collections()
 
 
 /**
+ * @brief Fill collections involving Obj5.
+ */
+StatusCode FillerAlg::fillObj5Collections()
+{
+  auto c = make_unique<Obj5Container>();
+  auto store = make_unique<SG::AuxStoreInternal>();
+  c->setStore (store.get());
+
+  static Obj5::Accessor<int> anInt ("anInt");
+  static Obj5::Accessor<float> aFloat ("aFloat");
+  static Obj5::Accessor<std::string> aString ("aString");
+  static Obj5::Accessor<D3PDTest::MyVec> aFourvec ("aFourvec");
+
+  for (unsigned i = 0; i < 10; i++) {
+    c->push_back (make_unique<Obj5> (300*m_count + i));
+    anInt(*c->back()) = 400*m_count + i;
+    aFloat(*c->back()) = 500*m_count + i + 0.5;
+
+    std::ostringstream os;
+    os << "aux " << 600*m_count + i;
+    aString(*c->back()) = os.str();
+
+    aFourvec(*c->back()).SetPtEtaPhiM (randf(100*GeV),
+                                       randf(-5, 5),
+                                       randf(-M_PI, M_PI),
+                                       randf(10*GeV));
+  }
+  CHECK( this->evtStore()->record (std::move(c),     m_sgkeyObj5cont) );
+  CHECK( this->evtStore()->record (std::move(store), m_sgkeyObj5cont + "Aux.") );
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
  * @brief Standard Gaudi @c execute method.
  */
 StatusCode FillerAlg::execute()
@@ -159,6 +201,7 @@ StatusCode FillerAlg::execute()
   CHECK( fillObj1Collections() );
   CHECK( fillObj3Collections() );
   CHECK( fillObj4Collections() );
+  CHECK( fillObj5Collections() );
 
   ++m_count;
   return StatusCode::SUCCESS;

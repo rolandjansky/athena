@@ -201,7 +201,9 @@ PP="$PP"'|^PixelID +WARNING|^ DBM PixelID:|^PixelGeoModel did not build|^ PixelI
 PP="$PP"'|^Py:JobPropertyContainer:: WARNING|USHAPE|Will skip this envelope volume|^ ?AtlasGeometry.* WARNING'
 
 # 19.x.x...
-PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^MuonPatterns=|^MuonSegment.*=|^MuonTrack.*=|^PhiPatterns=|End of Reco Config|PerfMon domains|^::: domain|^IOVDbSvc +WARNING Tag .* substituted|^AtlasEnvelopeSvcDefinitionSvc +WARNING|LayerMaterialMap of size|^ AtlasEnvelopeSvcDefinitionSvc.* WARNING|^.*CnvAlg.* WARNING No .* with key .* found. Do nothing.|^ .*CnvAlg.* WARNING|^ToolSvc.PixelLayerBuilder +WARNING|^ ToolSvc.PixelLayerBuilder .* WARNING|^ ToolSvc.CaloNoiseToolDefault.* WARNING|^turning off forward muons'
+PP="$PP"'|load MagFieldTool|: Defining |Start of Reco Config|^CscSegments=|^MuonPatterns=|^MuonSegment.*=|^MuonTrack.*=|^PhiPatterns=|End of Reco Config|PerfMon domains|^::: domain|^IOVDbSvc +WARNING Tag .* substituted|^AtlasEnvelopeSvcDefinitionSvc +WARNING|LayerMaterialMap of size|^ AtlasEnvelopeSvcDefinitionSvc.* WARNING|^.*CnvAlg.* WARNING No .* with key .* found. Do nothing.|^ .*CnvAlg.* WARNING|^ToolSvc.PixelLayerBuilder +WARNING|^ ToolSvc.PixelLayerBuilder .* WARNING|^ ToolSvc.CaloNoiseToolDefault.* WARNING|^turning off forward muons|already in TClassTable|already loaded$'
+
+PP="$PP"'|TClassTable::Add|^Note.* already loaded|^DataLink version|^ElementLink version|Using split mode on a class'
 
 
 # temp
