@@ -100,13 +100,11 @@ def convert_vertices (seq, xaod_key, key, TPContainerName):
 def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName,
                        forTrigger = False):
     from AthenaCommon.AppMgr          import ToolSvc
-    from egammaTools.EMPIDBuilderBase import EMPIDBuilderElectronBase
-    pid = EMPIDBuilderElectronBase("electronPIDBuilder")
-    ToolSvc += pid
+
+    from egammaTools.egammaToolsFactories import ElectronPIDBuilder, EMClusterTool
 
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__ElectronCnvTool
     kw = {}
-    kw['xAODElectronOrigTrackContainerName'] = 'TrackParticles'
     if forTrigger:
         kw['xAODElectronTrackContainerName' ] = ''
         kw['xAODElectronOrigTrackContainerName' ] = ''
@@ -114,8 +112,12 @@ def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName,
         kw['xAODCaloClusterSofteContainerName' ] = ''
         kw['xAODCaloClusterFrwdContainerName' ] = ''
         kw['xAODCaloClusterOtherContainerName' ] = ''
+        kw['RunPID' ] = False
+
+        
     tool = xAODMaker__ElectronCnvTool (xaod_key + 'CnvTool',
-                                       PIDBuilder = pid,
+                                       PIDBuilder = ElectronPIDBuilder(),
+                                       EMClusterTool = EMClusterTool(),
                                        **kw)
     ToolSvc += tool
     
@@ -134,9 +136,8 @@ def convert_photons (seq, xaod_key, key,
                      vertex_xaod_key = '',
                      forTrigger = False):
     from AthenaCommon.AppMgr          import ToolSvc
-    from egammaTools.EMPIDBuilderBase import EMPIDBuilderPhotonBase
-    pid = EMPIDBuilderPhotonBase("photonPIDBuilder")
-    ToolSvc += pid
+
+    from egammaTools.egammaToolsFactories import PhotonPIDBuilder, EMClusterTool
 
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__PhotonCnvTool
     kw = {}
@@ -146,7 +147,8 @@ def convert_photons (seq, xaod_key, key,
         kw['xAODCaloClusterContainerName'] = ''
         kw['xAODCaloClusterOtherContainerName'] = ''
     tool = xAODMaker__PhotonCnvTool (xaod_key + 'CnvTool',
-                                     PIDBuilder = pid,
+                                     PIDBuilder = PhotonPIDBuilder(),
+                                     EMClusterTool = EMClusterTool(),
                                      **kw)
     ToolSvc += tool
     
@@ -184,6 +186,27 @@ def convert_muons (seq, xaod_key, key,
     return
 
 
+
+def convert_muonef (seq, xaod_key, key):
+
+    from AthenaCommon.AppMgr          import ToolSvc
+    from xAODTrigMuonCnv.xAODTrigMuonCnvConf import TrigMuonEFInfoToMuonCnvTool
+    tool = TrigMuonEFInfoToMuonCnvTool \
+           (xaod_key + 'CnvTool',
+            xAODEFInDetTrackParticleContainerName = '')
+    ToolSvc += tool
+
+    from xAODTrigMuonCnv.xAODTrigMuonCnvConf import xAODMaker__TrigMuonEFInfoToMuonCnvAlg
+    alg = xAODMaker__TrigMuonEFInfoToMuonCnvAlg \
+          (xaod_key + 'Cnv',
+           ConverterTool = tool,
+           AODContainerName = key,
+           xAODMuonContainerName = xaod_key,
+           xAODCombinedTrackParticleContainerName = xaod_key + 'CombinedTrackParticles',
+           xAODExtrapolatedTrackParticleContainerName = xaod_key + 'ExtrapolatedTrackParticles',
+           )
+    seq += alg
+    return
 
 
 def convert_truth (seq, xaod_key, key,
@@ -233,7 +256,8 @@ types = {
                                  ('egammaContainer', convert_electrons)],
     'xAOD::PhotonContainer'   : [('PhotonContainer',   convert_photons),
                                  ('egammaContainer',   convert_photons)],
-    'xAOD::MuonContainer'     : ('Analysis::MuonContainer', convert_muons),
+    'xAOD::MuonContainer'     : [('Analysis::MuonContainer', convert_muons),
+                                 ('TrigMuonEFInfoContainer', convert_muonef)],
     'xAOD::TruthParticleContainer' : ('McEventCollection', convert_truth),
     'xAOD::MissingETContainer' : ('MissingET', convert_met),
     'xAOD::TrigEMClusterContainer' : ('TrigEMClusterContainer', convert_trigemcluster),

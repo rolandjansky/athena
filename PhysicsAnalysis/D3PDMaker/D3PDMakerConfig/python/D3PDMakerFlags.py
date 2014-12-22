@@ -44,7 +44,7 @@ def _string_prop (name, val):
 _string_prop ('EventInfoSGKey',              'EventInfo')
 _string_prop ('ElectronSGKey',               'AllElectrons')
 _string_prop ('GSFTrackAssocSGKey',          'GSFTrackAssociation')
-_string_prop ('PhotonSGKey',                 'PhotonCollection')
+_string_prop ('PhotonSGKey',                 'Photons,PhotonCollection')
 _string_prop ('MuonSGKey',                   'StacoMuonCollection,Muons')
 _string_prop ('MuonSegmentSGKey',            'ConvertedMBoySegments')
 _string_prop ('JetSGKey',                    'AntiKt4TopoEMJets,' +
@@ -57,18 +57,18 @@ _string_prop ('JetSGKey',                    'AntiKt4TopoEMJets,' +
 _string_prop ('TruthJetSGKey',               'AntiKt4H1TruthJets,' +
                                              #'Cone4TruthJets,' +
                                              'AntiKt4TruthJets')
-_string_prop ('MissingETSGKey',              'MET_RefFinal')
+_string_prop ('MissingETSGKey',              'MET_Reference_AntiKt4EMTopo,MET_RefFinal')
 _string_prop ('TauSGKey',                    'TauRecContainer')
 _string_prop ('CellsSGKey',                  'AllCalo')
-_string_prop ('ClusterSGKey',                'CaloCalTopoCluster')
+_string_prop ('ClusterSGKey',                'CaloCalTopoClusters,CaloCalTopoCluster')
 _string_prop ('EMTopoClusterSGKey',          'EMTopoCluster430,' +
                                              'EMTopoSW35' )
 _string_prop ('TrackSGKey',                  'TrackParticleCandidate')
-_string_prop ('VertexSGKey',                 'VxPrimaryCandidate')
+_string_prop ('VertexSGKey',                 'PrimaryVertices')
 _string_prop ('MBTSSGKey',                   'MBTSContainer')
-_string_prop ('TruthSGKey',                  'TruthParticle')
-_string_prop ('TruthParticlesSGKey',         'TruthParticle')
-_string_prop ('TruthEventSGKey',             'TruthEvent')
+_string_prop ('TruthSGKey',                  'TruthParticles')
+_string_prop ('TruthParticlesSGKey',         'TruthParticles')
+_string_prop ('TruthEventSGKey',             'TruthEvents')
 _string_prop ('RawClustersSGKeySuffix',      '_D3PDRawClusters')
 _string_prop ('RawClustersAssocSGKeySuffix', '_D3PDRawClustersAssoc')
 _string_prop ('LArCollisionTimeSGKey',       'LArCollisionTime')

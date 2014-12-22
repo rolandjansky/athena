@@ -49,16 +49,18 @@ rec.doCBNT.set_Value_and_Lock( False )
 rec.doWriteTAG.set_Value_and_Lock( False )
 rec.doWritexAOD.set_Value_and_Lock( False )
 rec.doTau.set_Value_and_Lock( False )
+from MuonRecExample.MuonRecFlags import muonRecFlags
+muonRecFlags.doMSVertex.set_Value_and_Lock( False )
 
-from xAODJetCnv import ParticleJetCompatibility
+#from xAODJetCnv import ParticleJetCompatibility
 
 # Block loading conditions folders we won't need.
 blocked_folders = [
     '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
     '/CALO/Identifier/CaloTTOnOffIdMapAtlas',
     '/CALO/Identifier/CaloTTPpmRxIdMapAtlas',
-    '/LAR/BadChannels/BadChannels',
-    '/LAR/BadChannels/MissingFEBs',
+    #'/LAR/BadChannels/BadChannels',
+    #'/LAR/BadChannels/MissingFEBs',
     '/LAR/ElecCalibMC/AutoCorr',
     '/LAR/ElecCalibMC/DAC2uA',
     '/LAR/ElecCalibMC/HVScaleCorr',

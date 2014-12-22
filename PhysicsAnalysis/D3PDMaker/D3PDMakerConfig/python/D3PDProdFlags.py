@@ -224,21 +224,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteTrigMuonD3PD)
 listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
 
 
-class WriteL1TgcD3PD (JobProperty):
-    """Produce the L1Tgc D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_L1TGC'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "TrigMuonD3PDMaker/L1TgcD3PD_prodJobOFragment.py"
-    TreeNames = ['physics']
-    SubSteps = ['e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteL1TgcD3PD)
-listAllKnownD3PD.append (prodFlags.WriteL1TgcD3PD)
-
-
 #
 #
 #######################################################
@@ -259,9 +244,6 @@ _importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
 
 # Standard Model D3PDs
 _importFlagsFromModule ('PhysicsD3PDMaker.PhysicsD3PDProdFlags')
-
-# Tau D3PDs
-_importFlagsFromModule ('TauD3PDMaker.TauD3PDProdFlags')
 
 # Jet tag D3PDs
 _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')

@@ -29,7 +29,6 @@ from TruthD3PDMaker.TruthEventD3PDObject      import TruthEventD3PDObject
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
 from TrigEgammaD3PDMaker.TrigEgammaD3PD       import TrigEgammaD3PDObjects
-# from TrigMuonD3PDMaker.TrigMuonD3PD           import TrigMuonD3PDObjects
 from RecExConfig.RecFlags                     import rec
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
@@ -50,9 +49,9 @@ def _args (level, name, kwin, **kw):
 def createxAOD (seq):
     from D3PDMakerConfig.makexAOD import makexAOD, setVxLinks
     makexAOD (seq, 'xAOD::TruthParticleContainer',
-              'TruthParticle', 'GEN_AOD',
-              xaod_truth_event_key = 'TruthEvent',
-              xaod_truth_vertex_key = 'TruthVertex',
+              'TruthParticles', 'GEN_AOD',
+              xaod_truth_event_key = 'TruthEvents',
+              xaod_truth_vertex_key = 'TruthVertices',
               xaod_truth_links_key = 'xAODTruthLinks')
     makexAOD (seq, 'xAOD::CaloClusterContainer',  'CaloCalTopoCluster')
     makexAOD (seq, 'xAOD::CaloClusterContainer',  'egClusterCollection')
@@ -69,21 +68,21 @@ def createxAOD (seq):
     makexAOD (seq, 'xAOD::JetContainer',          'AntiKt4TopoEMJets')
     makexAOD (seq, 'xAOD::JetContainer',          'AntiKt4TruthJets')
 
-    makexAOD (seq, 'xAOD::TrackParticleContainer',
-              'InDetTrackParticles', 'Tracks',
-              truth_key = 'TrackTruthCollection')
+    #makexAOD (seq, 'xAOD::TrackParticleContainer',
+    #          'InDetTrackParticles', 'Tracks',
+    #          truth_key = 'TrackTruthCollection')
     makexAOD (seq, 'xAOD::TrackParticleContainer',
               'GSFInDetTrackParticles', 'GSFTracks',
               truth_key = 'GSFTrackTruthCollection')
 
     makexAOD (seq, 'xAOD::TrackParticleContainer',
-              'TrackParticles', 'TrackParticleCandidate',
+              'InDetTrackParticles', 'TrackParticleCandidate',
               truth_key = 'TrackParticleTruthCollection')
     makexAOD (seq, 'xAOD::TrackParticleContainer',
               'GSFTrackParticles', 'GSFTrackParticleCandidate',
               truth_key = 'GSFTrackParticleTruthCollection',
               trackmap_key = 'GSFTrackAssociation',
-              base_xaod_key = 'TrackParticles',
+              base_xaod_key = 'InDetTrackParticles',
               base_key = 'TrackParticleCandidate')
 
     makexAOD (seq, 'xAOD::TrackParticleContainer',
@@ -106,25 +105,42 @@ def createxAOD (seq):
               truth_key = 'TrackParticleTruthCollection')
     makexAOD (seq, 'xAOD::TrackParticleContainer',
               'HLT_InDetTrigParticleCreation_Electron_EFID',
-              truth_key = 'TrackParticleTruthCollection')
+              truth_key = '')
     makexAOD (seq, 'xAOD::TrackParticleContainer',
               'HLT_InDetTrigParticleCreationTRTOnly_Electron_EFID',
-              truth_key = 'TrackParticleTruthCollection')
+              truth_key = '')
+
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreation_Muon_EFID',
+              truth_key = '')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreation_FullScan_EFID',
+              truth_key = '')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreation_Bphysics_EFID',
+              truth_key = '')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreationTRTOnly_Muon_EFID',
+              truth_key = '')
+    makexAOD (seq, 'xAOD::TrackParticleContainer',
+              'HLT_InDetTrigParticleCreationTRTOnly_FullScan_EFID',
+              truth_key = '')
 
     makexAOD (seq, 'xAOD::VertexContainer', 'AllPhotonsVxCandidates',
               TPContainerName = 'GSFTrackParticles')
     makexAOD (seq, 'xAOD::VertexContainer', 'VxPrimaryCandidate',
-              TPContainerName = 'TrackParticles')
+              key = 'PrimaryVertices',
+              TPContainerName = 'InDetTrackParticles')
 
     makexAOD (seq, 'xAOD::ElectronContainer',
-              'ElectronCollection', 'ElectronAODCollection',
-              xAODContainerFrwdName = 'FwdElectrons')
+              'Electrons', 'ElectronAODCollection',
+              xAODContainerFrwdName = 'ForwardElectrons')
     makexAOD (seq, 'xAOD::ElectronContainer',
               'HLT_egamma_Electrons', 'HLT_egamma_Electrons',
               xAODContainerFrwdName = 'HLT_egamma_Electrons_fwd',
               forTrigger = True)
     makexAOD (seq, 'xAOD::PhotonContainer',
-              'PhotonCollection', 'PhotonAODCollection',
+              'Photons', 'PhotonAODCollection',
               topo_cluster_xaod_key = 'EMTopoSW35',
               vertex_xaod_key = 'AllPhotonsVxCandidates')
     makexAOD (seq, 'xAOD::PhotonContainer',
@@ -135,34 +151,41 @@ def createxAOD (seq):
 
     makexAOD (seq, 'xAOD::MuonContainer',
               'StacoMuonCollection',
-              xaod_tp_key = 'TrackParticles',
+              xaod_tp_key = 'InDetTrackParticles',
               xaod_sa_key = 'MuonboyTrackParticles',
               xaod_cb_key = 'StacoTrackParticles')
     makexAOD (seq, 'xAOD::MuonContainer',
               'MuidMuonCollection',
-              xaod_tp_key = 'TrackParticles',
+              xaod_tp_key = 'InDetTrackParticles',
               xaod_sa_key = 'MuidExtrTrackParticles',
               xaod_cb_key = 'MuidCombTrackParticles')
     makexAOD (seq, 'xAOD::MuonContainer',
               'CaloMuonCollection',
-              xaod_tp_key = 'TrackParticles',
+              xaod_tp_key = 'InDetTrackParticles',
               xaod_sa_key = '',
               xaod_cb_key = '')
+    makexAOD (seq, 'xAOD::MuonContainer',
+              'HLT_MuonEFInfo')
+    #makexAOD (seq, 'xAOD::MuonContainer',
+    #          'HLT_eMuonEFInfo')
     #makexAOD (seq, 'xAOD::MuonContainer',
     #          'Muons',
-    #          xaod_tp_key = 'TrackParticles',
+    #          xaod_tp_key = 'InDetTrackParticles',
     #          xaod_sa_key = 'ExtrapolatedMuonSpectrometerParticles',
     #          xaod_cb_key = 'CombinedfitMuonparticles')
     makexAOD (seq, 'xAOD::TrigEMClusterContainer',
               'HLT_TrigT2CaloEgamma')
 
-    #setVxLinks (seq, 'TrackParticles', 'VxPrimaryCandidate')
+    #setVxLinks (seq, 'InDetTrackParticles', 'VxPrimaryCandidate')
     #setVxLinks (seq, 'GSFTrackParticles', 'VxPrimaryCandidate')
 
-    makexAOD (seq, 'xAOD::MissingETContainer', 'MET_RefFinal')
+    makexAOD (seq, 'xAOD::MissingETContainer',
+              'MET_Reference_AntiKt4EMTopo',
+              'MET_RefFinal')
 
     from xAODTriggerCnv.xAODRoICreator import xAODRoICreator
-    xAODRoICreator (seq)
+    if cfgKeyStore.isInInput ('LVL1_ROI', 'LVL1_ROI'):
+        xAODRoICreator (seq)
     return
 
 
@@ -176,8 +199,8 @@ class MergeElectrons (PyAthena.Alg):
     def execute (self):
         import ROOT
         sg=PyAthena.py_svc('StoreGateSvc')
-        e1 = sg['ElectronCollection']
-        e2 = sg['FwdElectrons']
+        e1 = sg['Electrons']
+        e2 = sg['ForwardElectrons']
         enew = ROOT.DataVector(ROOT.xAOD.Electron_v1) (1) #VIEW_ELEMENTS
         for e in e1: enew.push_back(e)
         for e in e2: enew.push_back(e)
@@ -186,16 +209,17 @@ class MergeElectrons (PyAthena.Alg):
         cfgKeyStore.addTransient ('xAOD::ElectronContainer', 'AllElectrons')
 
         #e1 = sg['StacoMuonCollection']
-        #e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Electron_v1), 'HLT_egamma')
-        #if e1.size() > 0:
-        #    reg = ROOT.SG.AuxTypeRegistry.instance()
-        #    auxids = list(e1[0].getAuxIDs())
-        #    auxids = [(reg.getName(id), id) for id in auxids]
-        #    auxids.sort()
-        #    print 'aaa', auxids
+        e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Electron_v1), 'AllElectrons')
+        if e1.size() > 0:
+            reg = ROOT.SG.AuxTypeRegistry.instance()
+            auxids = list(e1[0].getAuxIDs())
+            auxids = [(reg.getName(id), id) for id in auxids]
+            auxids.sort()
+            print 'aaa', auxids
         # if e2.size() > 0:
         #     acc = ROOT.SG.AuxElement.TypelessConstAccessor ('Loose')
         #     print 'bbb2', acc.isAvailable(e2[0])
+
         return StatusCode.Success
         
 
@@ -274,7 +298,7 @@ def egammaD3PD (alg = None,
     # alg += ZDCTriggerBitsD3PDObject   (**_args (level, 'ZDCTriggerBits', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
     alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
-                                         sgkey = 'MET_RefFinal',
+                                         sgkey = 'MET_Reference_AntiKt4EMTopo',
                                          prefix = 'MET_RefFinal_'))
     if D3PDMakerFlags.DoTrigger():
         from TriggerD3PDMaker.TrigDecisionD3PDObject \
@@ -282,8 +306,6 @@ def egammaD3PD (alg = None,
         alg += TrigDecisionD3PDObject (**_args (2, 'TrigDecision', kw))
         TrigEgammaD3PDObjects (alg, **_args (1, 'TrigEgamma', kw,
                                              TrigEMCluster_level = 2))
-    #     TrigMuonD3PDObjects   (alg, 1,
-    #                            TrigMuonEFIsolation_allowMissing = True)
 
     #     from TriggerD3PDMaker.EnergySumROID3PDObject import EnergySumROID3PDObject
     #     from TrigMissingETD3PDMaker.TrigMETD3PDObject import TrigMETD3PDObject
