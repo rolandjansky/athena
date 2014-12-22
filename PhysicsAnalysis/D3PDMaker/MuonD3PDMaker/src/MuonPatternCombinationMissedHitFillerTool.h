@@ -34,6 +34,7 @@ public:
                         const IInterface* parent);
 
   virtual StatusCode book();
+  virtual StatusCode initialize();
 
   virtual StatusCode fill(const EventInfo& p);
   virtual SubDetHitStatistics::SubDetType findSubDetType(Identifier id);

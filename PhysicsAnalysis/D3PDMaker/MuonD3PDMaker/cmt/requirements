@@ -8,6 +8,7 @@ use AtlasHepMC                  AtlasHepMC-*            External
 use AtlasCLHEP                  AtlasCLHEP-*            External
 use AtlasBoost                  AtlasBoost-*            External
 #use AtlasROOT                   AtlasROOT-*             External
+use CxxUtils                    CxxUtils-*              Control
 use AthenaKernel                AthenaKernel-*          Control
 use SGTools                     SGTools-*               Control
 use DataModel                   DataModel-*             Control

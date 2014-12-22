@@ -21,7 +21,7 @@ TruthMuonD3PDObject = make_SGDataVector_D3PDObject ('DataVector<xAOD::TruthParti
                                                     'muonTruth_',
                                                     'TruthMuonD3PDObject')
 def _truthMuonAlgHook (c, prefix, sgkey,
-                       TruthContainer = 'TruthParticle',
+                       TruthContainer = 'TruthParticles',
                        **kw):
     preseq = AlgSequence(D3PDMakerFlags.PreD3PDAlgSeqName())
 

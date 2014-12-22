@@ -35,6 +35,7 @@ namespace D3PD {
       m_truthTool("Trk::DetailedMuonPatternTruthBuilder/DetailedMuonPatternTruthBuilder") {
 
     declareProperty("DetailedMuonPatternTruthTool", m_truthTool);
+    book().ignore(); // Avoid coverity warnings.
   }
   
   StatusCode MuonSegmentTruthFillerTool::book() {
@@ -63,9 +64,12 @@ namespace D3PD {
     CHECK( addVariable("common_nTGC", m_common_nTGC) );
     CHECK( addVariable("common_nCSC", m_common_nCSC) );
     
-    //constants
-    m_pi = 3.1415926;
-
+    return StatusCode::SUCCESS;
+  }
+  
+  
+  StatusCode MuonSegmentTruthFillerTool::initialize()
+  {
     //get tools
     if(m_truthTool.retrieve().isFailure() ){
       ATH_MSG_FATAL( "Could not get " << m_truthTool );
@@ -75,12 +79,11 @@ namespace D3PD {
       ATH_MSG_FATAL("Unable to initialize ID helper.");
       return StatusCode::FAILURE;
     }
-
-
+    
     return StatusCode::SUCCESS;
   }
-  
-  
+
+
   StatusCode MuonSegmentTruthFillerTool::fill(const Trk::Segment& ts) {
     const Muon::MuonSegment& mSeg = dynamic_cast<const Muon::MuonSegment&> (ts);
 
@@ -248,8 +251,8 @@ namespace D3PD {
   double MuonSegmentTruthFillerTool::deltaR(double eta1, double eta2, double phi1, double phi2) {
     double Deta = eta1 - eta2;
     double Dphi = phi1 - phi2;
-    if(Dphi > m_pi) Dphi -= 2*m_pi;
-    else if(Dphi < -m_pi) Dphi += 2*m_pi;
+    if(Dphi > M_PI) Dphi -= 2*M_PI;
+    else if(Dphi < -M_PI) Dphi += 2*M_PI;
     double DR = sqrt(Deta*Deta + Dphi*Dphi);
     return DR;
   }

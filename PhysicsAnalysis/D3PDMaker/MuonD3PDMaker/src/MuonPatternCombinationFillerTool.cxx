@@ -31,6 +31,8 @@ namespace D3PD {
 
     declareProperty("DetailedMuonPatternTruthTool", m_truthTool);
     declareProperty("MuonPatternCombinationCollection", m_patternKey = "MuonRoadPatternCombinations");
+
+    book().ignore(); // Avoid coverity warnings.
   }
   
   
@@ -62,24 +64,25 @@ namespace D3PD {
     CHECK( addVariable("common_nTGC", m_common_nTGC) );
     CHECK( addVariable("common_nCSC", m_common_nCSC) );
     
-    //constants
-    m_pi = 3.1415926;
-
-    //get tools
-    if(m_truthTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL( "Could not get " << m_truthTool );
-      return StatusCode::FAILURE;
-    }
-    if(!detStore()->retrieve(m_idHelper, "AtlasID").isSuccess()) {
-      ATH_MSG_FATAL("Unable to initialize ID helper.");
-      return StatusCode::FAILURE;
-    }
-
-
     return StatusCode::SUCCESS;
   }
   
   
+   StatusCode MuonPatternCombinationFillerTool::initialize()
+   {
+     //get tools
+     if(m_truthTool.retrieve().isFailure() ){
+       ATH_MSG_FATAL( "Could not get " << m_truthTool );
+       return StatusCode::FAILURE;
+     }
+     if(!detStore()->retrieve(m_idHelper, "AtlasID").isSuccess()) {
+       ATH_MSG_FATAL("Unable to initialize ID helper.");
+       return StatusCode::FAILURE;
+     }
+    
+    return StatusCode::SUCCESS;
+   }
+
   StatusCode MuonPatternCombinationFillerTool::fill(const Muon::MuonPatternCombination& pattern) {
     if(pattern.chamberData().size() == 0) return StatusCode::SUCCESS;
     Amg::Vector3D gpos = pattern.chamberData().front().intersectPosition();
@@ -137,7 +140,6 @@ namespace D3PD {
     bool isTruthMatched(false);
     for(std::vector<DetailedTrackTruth>::const_iterator dtit=dtt->begin(); dtit!=dtt->end(); ++dtit) {
       const TruthTrajectory traj = (*dtit).trajectory();
-      std::cout << "check trajectory" << std::endl;
       if(traj[0].isValid()) {
 	isTruthMatched = true;
 
@@ -178,18 +180,16 @@ namespace D3PD {
       m_noise_nCSC->push_back(0);
     }
        
-    std::cout << "deleting the dtt" << std::endl;
-    if(dtt) delete dtt;
+    delete dtt;
 
-    std::cout << "Filled MuonPatternCombination information" << std::endl;
     return StatusCode::SUCCESS;
   }
   
   double MuonPatternCombinationFillerTool::deltaR(double eta1, double eta2, double phi1, double phi2) {
     double Deta = eta1 - eta2;
     double Dphi = phi1 - phi2;
-    if(Dphi > m_pi) Dphi -= 2*m_pi;
-    else if(Dphi < -m_pi) Dphi += 2*m_pi;
+    if(Dphi > M_PI) Dphi -= 2*M_PI;
+    else if(Dphi < -M_PI) Dphi += 2*M_PI;
     double DR = sqrt(Deta*Deta + Dphi*Dphi);
     return DR;
   }

@@ -20,6 +20,7 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
+#include "CxxUtils/make_unique.h"
 
 
 namespace D3PD {
@@ -33,6 +34,8 @@ namespace D3PD {
       m_truthTool("Trk::DetailedMuonPatternTruthBuilder/DetailedMuonPatternTruthBuilder") {
 
     declareProperty("DetailedMuonPatternTruthMissedHitTool", m_truthTool);
+
+    book().ignore(); // Avoid coverity warning.
   }
   
   
@@ -52,6 +55,12 @@ namespace D3PD {
     CHECK( addVariable("common_nTGC", m_common_nTGC) );
     CHECK( addVariable("common_nCSC", m_common_nCSC) );
 
+    return StatusCode::SUCCESS;
+  }
+  
+  
+  StatusCode MuonPatternCombinationMissedHitFillerTool::initialize()
+  {
     //get tools
     if(m_truthTool.retrieve().isFailure() ){
       ATH_MSG_FATAL( "Could not get " << m_truthTool );
@@ -64,13 +73,12 @@ namespace D3PD {
 
     return StatusCode::SUCCESS;
   }
-  
-  
+
+
   StatusCode MuonPatternCombinationMissedHitFillerTool::fill(const EventInfo&) {
     //build a MuonPatternCombination including all hits
     Amg::Vector3D patpos(0,0,0);
     Amg::Vector3D patdir(0,0,0);
-    Trk::TrackParameters* trkpars = new Trk::Perigee(patpos,patdir,1,patpos);
     std::vector<Muon::MuonPatternChamberIntersect> chambers;    
     //MDT
     const Muon::MdtPrepDataContainer* mdtPrds = 0;
@@ -142,7 +150,8 @@ namespace D3PD {
       chambers.push_back(chIntersect);
     }
     //build the pattern combination
-    Muon::MuonPatternCombination *pattern = new Muon::MuonPatternCombination(trkpars, chambers);
+    auto pattern = CxxUtils::make_unique<Muon::MuonPatternCombination>
+      (new Trk::Perigee(patpos,patdir,1,patpos), chambers);
     pattern->setTrackRoadType(3);
 
 
@@ -177,7 +186,6 @@ namespace D3PD {
     bool isTruthMatched(false);
     for(std::vector<DetailedTrackTruth>::const_iterator dtit=dtt->begin(); dtit!=dtt->end(); ++dtit) {
       const TruthTrajectory traj = (*dtit).trajectory();
-      std::cout << "check trajectory" << std::endl;
       if(traj[0].isValid()) {
 	isTruthMatched = true;
 
@@ -218,17 +226,13 @@ namespace D3PD {
       m_noise_nCSC->push_back(0);
     }
        
-    std::cout << "deleting the dtt" << std::endl;
-    if(dtt) delete dtt;
-
-    std::cout << "Filled MuonPatternCombination information" << std::endl;
+    delete dtt;
 
 // END HISTO FILLING    
 
 
   
     //clean memory and return
-    delete pattern;
     return StatusCode::SUCCESS;
   }
   

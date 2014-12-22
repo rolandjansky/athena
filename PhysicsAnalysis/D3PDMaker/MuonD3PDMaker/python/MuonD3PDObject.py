@@ -53,19 +53,12 @@ MuonD3PDObject.defineBlock (
     Vars = ['etcone20',
             'etcone30',
             'etcone40',
-            'nucone20',
-            'nucone30',
-            'nucone40',
             'ptcone20',
             'ptcone30',
             'ptcone40',
-            'etconeNoEm10',
-            'etconeNoEm20',
-            'etconeNoEm30',
-            'etconeNoEm40',
-            'scatteringCurvatureSignificance',
-            'scatteringNeighbourSignificance',
-            'momentumBalanceSignificance'])
+            'scatteringCurvatureSignificance < float: 0',
+            'scatteringNeighbourSignificance < float: 0',
+            'momentumBalanceSignificance < float: 0'])
 
 MuonD3PDObject.defineBlock (
     1, 'CaloEnergyLoss',
@@ -121,7 +114,7 @@ MuonD3PDObject.defineBlock (
 MuonD3PDObject.defineBlock (
     4, 'MuonSpectrometerFieldIntegral',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['MSFieldIntegral = spectrometerFieldIntegral'])
+    Vars = ['MSFieldIntegral = spectrometerFieldIntegral < float: 0'])
 
 
 ############################################################################

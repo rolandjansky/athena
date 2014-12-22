@@ -34,6 +34,7 @@ public:
                         const IInterface* parent);
 
   virtual StatusCode book();
+  virtual StatusCode initialize();
 
   virtual StatusCode fill(const Muon::MuonPatternCombination& pattern);
   virtual double deltaR(double eta1, double eta2, double phi1, double phi2);
@@ -69,7 +70,6 @@ private:
   int m_matchedTruth;
   std::string m_truthSGkey;
   std::string m_patternKey;
-  double m_pi;
 
   const AtlasDetectorID *m_idHelper;
   ToolHandle<Trk::IDetailedMuonPatternTruthBuilder> m_truthTool;
