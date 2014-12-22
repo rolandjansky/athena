@@ -41,7 +41,9 @@ namespace MuonCalib {
   MdtValidationAlg::MdtValidationAlg(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator), 
   p_reg_sel_svc(NULL), m_tube_chamber(NULL),  m_detStore(NULL), m_MdtIdHelper(NULL),m_detMgr(NULL),  m_db(NULL), m_t0_op(NULL), m_rt_op(NULL), m_head_ops(NULL),
   m_fitter(1), m_writeToDbEnable(true), m_limitslevel(0), m_makeHistos(0), m_lastdate(0), 
-m_validationTask(""), m_db_ConnectionString(""),m_db_WorkingSchema(""),m_defaultRtFile("./RT_default_comm.dat"), m_Histos(NULL), m_HistosList(NULL)
+  m_validationTask(""), m_db_ConnectionString(""),m_db_WorkingSchema(""),m_defaultRtFile("./RT_default_comm.dat"),
+  m_minSegs(-1), m_minDAngle(-999.), m_Histos(NULL), m_HistosList(NULL),
+  m_lowrun(-1), m_uprun(-1), m_ComputeLimits(false), m_debug(-1), m_tube(-1), m_eta(-1), m_phi(-1)
   {
 	declareProperty("FitterFlag",m_fitter);
 	declareProperty("WriteToDbEnable",m_writeToDbEnable);
@@ -82,7 +84,13 @@ m_validationTask(""), m_db_ConnectionString(""),m_db_WorkingSchema(""),m_default
 	declareProperty("ReaderPassword", m_reader_password);
 	declareProperty("WriterAccount", m_writer_account);
 	declareProperty("WriterPassword", m_writer_password);
-	
+        m_t0.tv_sec = 0;
+        m_t0.tv_usec = 0;
+        m_t1.tv_sec = 0;
+        m_t1.tv_usec = 0;
+        m_result.tv_sec = 0;
+        m_result.tv_usec = 0;
+
   }
  
   MdtValidationAlg::~MdtValidationAlg()
