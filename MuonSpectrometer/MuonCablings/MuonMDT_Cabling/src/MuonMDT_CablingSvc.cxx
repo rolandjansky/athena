@@ -5,12 +5,13 @@
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 // include the old cabling service for backwards-compatibility when reading old data
-#include "MDTcabling/IMDTcablingSvc.h"
+//#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/IIncidentSvc.h" 
 
 #include "StoreGate/StoreGateSvc.h"
+#include "Identifier/IdentifierHash.h"
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "MuonCablingData/MdtMezzanineType.h"
@@ -27,14 +28,15 @@ AthService(svcName,sl),
     m_useOldCabling(false),
     m_dbTool("MDTCablingDbTool/MDTCablingDbTool"),
     m_firstAccess(true),
-    m_oldCablingSvc("MDTcablingSvc", svcName),
+//    m_oldCablingSvc("MDTcablingSvc", svcName),
     m_tagInfoMgr("TagInfoMgr", svcName),
+    m_tagsCompared(false),
     m_detStore(0),
     m_forceUse(false)
 {
     declareProperty("UseOldCabling", m_useOldCabling);
     declareProperty("DBTool", m_dbTool);
-    declareProperty("OldCablingSvc", m_oldCablingSvc);
+    //    declareProperty("OldCablingSvc", m_oldCablingSvc);
     declareProperty("TagInfoManager", m_tagInfoMgr);
     declareProperty("ForcedUse", m_forceUse);
 }
@@ -99,59 +101,56 @@ StatusCode MuonMDT_CablingSvc::initialize()
     }
 
   /** Get a pointer to the old cabling if needed */
-    if (m_useOldCabling || (!m_forceUse)) {
-      
-      if (m_useOldCabling) msg(MSG::DEBUG) << "===> The old cabling service is being used within the new one" << endreq; 
-        if (m_oldCablingSvc.retrieve().isFailure()) {
-            msg(MSG::ERROR) << "Could not get a pointer to the MDTcablingSvc" << endreq;
-            return StatusCode::FAILURE;
-        }
-    }
-    if ( !m_useOldCabling ) 
-    {
-	// register the init mapping model for callback against the
-	// cabling folders --- only if not using the old   cabling 
-	msg(MSG::INFO) << "Registering for callback the initMappingModel function" 
-		       << endreq;
-
-	std::string mapFolderName = m_dbTool->mapFolderName();
-	msg(MSG::INFO) << "Map folder name: " << m_dbTool->mapFolderName() << endreq;
-
-	const DataHandle<CondAttrListCollection> MapData;
-
-	sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
-				this,
-				MapData, mapFolderName);
+    //if (m_useOldCabling || (!m_forceUse)) {
+    //  
+    //  if (m_useOldCabling) msg(MSG::DEBUG) << "===> The old cabling service is being used within the new one" << endreq; 
+    //    if (m_oldCablingSvc.retrieve().isFailure()) {
+    //        msg(MSG::ERROR) << "Could not get a pointer to the MDTcablingSvc" << endreq;
+    //        return StatusCode::FAILURE;
+    //    }
+    //}
+    //if ( !m_useOldCabling ) 
+    //{
+    // register the init mapping model for callback against the
+    // cabling folders --- only if not using the old   cabling 
+    msg(MSG::INFO) << "Registering for callback the initMappingModel function" 
+		   << endreq;
     
-	if (sc.isFailure()) {
-
-	  msg(MSG::ERROR) 
-	    << "Could not register initMapping function for callback against: " << mapFolderName 
-	    << endreq;
-	    return sc;
-	}
-
-	// register the mezzanine folder for callback 
-	std::string mezzanineFolderName = m_dbTool->mezzanineFolderName();
-	msg(MSG::INFO) << "Mezzanine folder name: " 
-		       << mezzanineFolderName << endreq;
-	
-	const DataHandle<CondAttrListCollection> MapData_mez;
-	
-	sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
-				this,MapData_mez, mezzanineFolderName);
-	
-	if (sc.isFailure()) {
-	  
-	  msg(MSG::ERROR) 
-	    << "Could not register initMapping function for callback against: " << mezzanineFolderName 
-	    << endreq;
-	    return sc;
-	}
-
-
-    }// new model in use => register for call back the initMappingModel method
-
+    std::string mapFolderName = m_dbTool->mapFolderName();
+    msg(MSG::INFO) << "Map folder name: " << m_dbTool->mapFolderName() << endreq;
+    
+    const DataHandle<CondAttrListCollection> MapData;
+    
+    sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
+			    this,
+			    MapData, mapFolderName);
+    
+    if (sc.isFailure()) {
+      
+      msg(MSG::ERROR) 
+	<< "Could not register initMapping function for callback against: " << mapFolderName 
+	<< endreq;
+      return sc;
+    }
+    
+    // register the mezzanine folder for callback 
+    std::string mezzanineFolderName = m_dbTool->mezzanineFolderName();
+    msg(MSG::INFO) << "Mezzanine folder name: " 
+		   << mezzanineFolderName << endreq;
+    
+    const DataHandle<CondAttrListCollection> MapData_mez;
+    
+    sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
+			    this,MapData_mez, mezzanineFolderName);
+    
+    if (sc.isFailure()) {
+      
+      msg(MSG::ERROR) 
+	<< "Could not register initMapping function for callback against: " << mezzanineFolderName 
+	<< endreq;
+      return sc;
+    }
+    
     return sc;
 }
 
@@ -297,12 +296,12 @@ std::vector<uint32_t> MuonMDT_CablingSvc::getAllROBId()
 {
     std::vector<uint32_t> allROBId;
 
-    if (m_useOldCabling) {
-	std::set< uint32_t > setOfRobIds =  m_oldCablingSvc->getROBid(0.,2.*3.141592,-3.,3.);
-	std::vector< uint32_t > robIds(setOfRobIds.size());
-	std::copy(setOfRobIds.begin(), setOfRobIds.end(), robIds.begin());
-	return robIds;
-    }
+    //    if (m_useOldCabling) {
+    //	std::set< uint32_t > setOfRobIds =  m_oldCablingSvc->getROBid(0.,2.*3.141592,-3.,3.);
+    //	std::vector< uint32_t > robIds(setOfRobIds.size());
+    //	std::copy(setOfRobIds.begin(), setOfRobIds.end(), robIds.begin());
+    //	return robIds;
+    //    }
     
     allROBId = m_cablingMap->getAllROBId();
     
@@ -321,24 +320,24 @@ bool MuonMDT_CablingSvc::getOfflineId(uint8_t subdetectorId,
 {
 
 
-    if (m_useOldCabling) {
-        bool found_old = m_oldCablingSvc->getOfflineIDfromOnlineID(subdetectorId,
-            rodId,
-            csmId,
-            tdcId,
-            channelId,
-            stationName, stationEta, stationPhi,
-            multiLayer, layer, tube);
-
-        if (!found_old) {
-            msg(MSG::ERROR) << "Can't find subdetector: 0x" << MSG::hex << (int) subdetectorId
-                << MSG::dec   << " rod: 0x" << MSG::hex << (int) rodId
-                << MSG::dec   << " rod: 0x" << MSG::hex << (int) csmId
-                << MSG::dec   << " rod: 0x" << MSG::hex << (int) tdcId
-                << MSG::dec   << " rod: 0x" << MSG::hex << (int) channelId;
-        }
-        return found_old;
-    }
+  //    if (m_useOldCabling) {
+  //        bool found_old = m_oldCablingSvc->getOfflineIDfromOnlineID(subdetectorId,
+  //            rodId,
+  //            csmId,
+  //            tdcId,
+  //            channelId,
+  //            stationName, stationEta, stationPhi,
+  //            multiLayer, layer, tube);
+  //
+  //        if (!found_old) {
+  //            msg(MSG::ERROR) << "Can't find subdetector: 0x" << MSG::hex << (int) subdetectorId
+  //                << MSG::dec   << " rod: 0x" << MSG::hex << (int) rodId
+  //                << MSG::dec   << " rod: 0x" << MSG::hex << (int) csmId
+  //                << MSG::dec   << " rod: 0x" << MSG::hex << (int) tdcId
+  //                << MSG::dec   << " rod: 0x" << MSG::hex << (int) channelId;
+  //        }
+  //        return found_old;
+  //    }
 
     bool found = m_cablingMap->getOfflineId(subdetectorId,rodId,csmId,
         tdcId,channelId,
@@ -357,34 +356,34 @@ bool MuonMDT_CablingSvc::getOnlineId(int stationName, int stationEta, int statio
 {
 
     
-    if (m_useOldCabling) {
-        short unsigned int subdet=0;
-        short unsigned int rod=0;
-        short unsigned int csm=0;
-        short unsigned int tdc=0;
-        short unsigned int channel=0;
-
-        bool found_old = m_oldCablingSvc->getOnlineIDfromOfflineID(stationName, stationEta, stationPhi,
-            multiLayer,layer,tube,
-            subdet,rod,csm,tdc,channel);
-
-        if (!found_old) {
-            msg(MSG::ERROR)<< "Can't find station: " << stationName
-                << " eta: " << stationEta
-                << " phi: " << stationPhi
-                << " multilayer: " << multiLayer 
-                << " layer: " << layer
-                << " tube: " << tube << endreq;
-        }
-        else {
-            subdetectorId = (uint8_t) subdet;
-            rodId = (uint8_t) rod;
-            csmId = (uint8_t) csm;
-            tdcId = (uint8_t) tdc;
-            channelId = (uint8_t) channel;
-        }
-        return found_old;
-    }
+//    if (m_useOldCabling) {
+//        short unsigned int subdet=0;
+//        short unsigned int rod=0;
+//        short unsigned int csm=0;
+//        short unsigned int tdc=0;
+//        short unsigned int channel=0;
+//
+//        bool found_old = m_oldCablingSvc->getOnlineIDfromOfflineID(stationName, stationEta, stationPhi,
+//            multiLayer,layer,tube,
+//            subdet,rod,csm,tdc,channel);
+//
+//        if (!found_old) {
+//            msg(MSG::ERROR)<< "Can't find station: " << stationName
+//                << " eta: " << stationEta
+//                << " phi: " << stationPhi
+//                << " multilayer: " << multiLayer 
+//                << " layer: " << layer
+//                << " tube: " << tube << endreq;
+//        }
+//        else {
+//            subdetectorId = (uint8_t) subdet;
+//            rodId = (uint8_t) rod;
+//            csmId = (uint8_t) csm;
+//            tdcId = (uint8_t) tdc;
+//            channelId = (uint8_t) channel;
+//        }
+//        return found_old;
+//    }
 
     bool found = m_cablingMap->getOnlineId(stationName, stationEta, stationPhi,
         multiLayer, layer, tube,

@@ -10,7 +10,10 @@
 #include "StoreGate/DataHandle.h"
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
+  Algorithm(name,pSvcLocator),
+  m_cablingSvc(0),
+  m_mdtIdHelper(0),
+  m_chronoSvc(0)
 { 
 
   //  m_log = new MsgStream(msgSvc(),name());
@@ -38,12 +41,6 @@ StatusCode MdtTestCabling::initialize()
     return sc;
   }
 
-
-  sc = service("MDTcablingSvc",m_oldCablingSvc);
-  if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the MDTcablingSvc" << endreq;
-    return sc;
-  }
 
   //  bool init = initTestMap();
   //if (!init) {
@@ -139,7 +136,6 @@ bool MdtTestCabling::testMap()
   *m_log << MSG::DEBUG << "Number of subdetectors: " << listOfSubdet->size() << endreq;
   //}
 
-  int ntotal = 0;
   // loop on the subdetectors
   for (it_sub=listOfSubdet->begin() ; it_sub !=listOfSubdet->end() ; ++it_sub) {
 
@@ -163,7 +159,6 @@ bool MdtTestCabling::testMap()
 	*m_log << MSG::DEBUG << "Now in csm: 0x" << MSG::hex 
 	       << (int) csmId << MSG::dec << endreq;
 	
-	bool csmTested = false;
 
 	listOfAmt = ((*it_csm).second)->getListOfElements();
 	for (it_amt=listOfAmt->begin() ; it_amt !=listOfAmt->end() ; ++it_amt) {
@@ -249,75 +244,6 @@ bool MdtTestCabling::testMap()
 
 		}
 	      }
-
-	      int stationOld=0;
-	      int etaOld=0;
-	      int phiOld=0;
-	      int multiOld=0;
-	      int layerOld=0;
-	      int tubeOld=0;
-	      
-	      
-	      // convert using the old cabling service
-	      m_chronoSvc->chronoStart(m_chrono2);
-	      
-	      bool old_cabling = m_oldCablingSvc->getOfflineIDfromOnlineID(subdetectorId,rodId,
-									   csmId,amtId,chanId,
-									   stationOld,etaOld,
-									   phiOld,multiOld,
-									   layerOld,tubeOld  );
-	      
-	      
-	      m_chronoSvc->chronoStop(m_chrono2);
-	      
-	      if (!old_cabling) {
-		*m_log << MSG::ERROR << "*******************************************" << endreq;
-		*m_log << MSG::ERROR << "channel not found in the old cabling service!" << endreq;
-		ntotal++;
-		*m_log << MSG::ERROR << "subdet: 0x" << MSG::hex << (int) subdetectorId
-		       << MSG::dec << " rod: 0x" << MSG::hex << (int) rodId << MSG::dec
-		       << " csm: 0x" << MSG::hex << (int) csmId << MSG::dec
-		       << " amt: 0x" << MSG::hex << (int) amtId << MSG::dec
-		       << " chan: 0x" << MSG::hex << (int) chanId << MSG::dec << endreq;
-		
-		*m_log << MSG::ERROR << "station: " << station << " name: " 
-		       << m_mdtIdHelper->stationNameString(station) <<  " eta: " << eta
-		       << " phi: " << phi << " multilayer: " << multi 
-		       << " layer: " << layer << " tube: " << tube << endreq;
-		*m_log << MSG::ERROR << "*******************************************" << endreq;
-	      }
-	      
-	      else {
-		
-		
-		if ( (station != stationOld || eta != etaOld || phi != phiOld || multi != multiOld
-		      || layer != layerOld || tube != tubeOld) && !csmTested) {
-		  
-		  *m_log << MSG::ERROR << "Maps differ for: subdet 0x" 
-			 << MSG::hex << (int) subdetectorId << MSG::dec
-			 << "  rodId: 0x" << MSG::hex << (int) rodId << MSG::dec
-			 << "  csmId: 0x" << MSG::hex << (int) csmId << MSG::dec
-			 << "  amtId: 0x" << MSG::hex << (int) amtId << MSG::dec
-			 << "  chanId: 0x" << MSG::hex << (int) chanId << MSG::dec << endreq;
-		  
-		  *m_log << MSG::ERROR << "New cabling says:     " << m_mdtIdHelper->stationNameString(station)
-			 << " " << eta << " " << phi << " " << multi << " " << layer << " " << tube
-			 << endreq;
-		  
-		  
-		  *m_log << MSG::ERROR << "Difference (new-old):   " 
-			 << station-stationOld << " " << eta-etaOld << " " 
-			 << phi-phiOld << " " << multi-multiOld << " " << layer-layerOld
-			 << " " << tube-tubeOld << endreq;
-		  
-		  // if it's just a csm id difference then print it just once
-		  //		if (tube==tubeOld) csmTested=true;
-		  
-		  
-		}
-		
-	      }
-	      
 
 	    }
 

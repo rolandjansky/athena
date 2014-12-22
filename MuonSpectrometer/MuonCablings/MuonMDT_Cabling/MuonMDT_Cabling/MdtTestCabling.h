@@ -19,9 +19,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 // old cabling service
-#include "MDTcabling/IMDTcablingSvc.h"
+//#include "MDTcabling/IMDTcablingSvc.h"
 
 
 class MdtTestCabling : public Algorithm {
@@ -40,7 +41,7 @@ class MdtTestCabling : public Algorithm {
   MuonMDT_CablingSvc* m_cablingSvc;
   MsgStream* m_log;
 
-  IMDTcablingSvc* m_oldCablingSvc;
+  //  IMDTcablingSvc* m_oldCablingSvc;
 
   const MdtIdHelper* m_mdtIdHelper;
 

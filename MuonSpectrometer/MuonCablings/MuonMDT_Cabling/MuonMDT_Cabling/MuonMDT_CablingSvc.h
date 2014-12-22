@@ -17,7 +17,7 @@
 class MuonMDT_CablingMap;
 class MdtMezzanineType;
 class StoreGateSvc;
-class IMDTcablingSvc;
+//class IMDTcablingSvc;
 class IMDTCablingDbTool;
 class ITagInfoMgr;
 
@@ -127,7 +127,7 @@ class MuonMDT_CablingSvc : public AthService
 
   /** pointer to the old cabling service: added for backwards compatibility to read
       old simulated data */
-  ServiceHandle<IMDTcablingSvc> m_oldCablingSvc;
+  //  ServiceHandle<IMDTcablingSvc> m_oldCablingSvc;
   
   ServiceHandle<ITagInfoMgr>  m_tagInfoMgr;                   // Tag Info Manager
   mutable bool  m_tagsCompared;

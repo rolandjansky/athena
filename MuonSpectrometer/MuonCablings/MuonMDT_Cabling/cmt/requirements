@@ -6,15 +6,18 @@ use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  StoreGate                  StoreGate-*                     Control
 use  GaudiInterface             GaudiInterface-*                External
+use  MuonIdHelpers 		MuonIdHelpers-*			MuonSpectrometer
 #use  GaudiPython                v*
-use  MDTcabling                 MDTcabling-*                    MuonSpectrometer/MuonCablings
 private
 use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
 use  EventInfo                  EventInfo-*                     Event
 use  EventInfoMgt               EventInfoMgt-*                  Event
+use  Identifier			Identifier-*			DetectorDescription
 use  MuonCablingData            MuonCablingData-*               MuonSpectrometer/MuonCablings
 use  MuonCondInterface          MuonCondInterface-*             MuonSpectrometer/MuonConditions/MuonCondGeneral
 public
+
+
 
 #library MuonMDT_Cabling *.cxx components/*.cxx
 
