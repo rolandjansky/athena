@@ -102,7 +102,7 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and 
+if (rec.doRecoTiming() and
     ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
       rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
     from RecAlgs.RecAlgsConf import TimingAlg
@@ -177,7 +177,6 @@ if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMIT
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
 
 AODFix_addMetaData()
-
 
 if rec.oldFlagCompatibility:
     print "RecExCommon_flags.py flags values:"
@@ -296,7 +295,7 @@ if rec.doCBNT():
     ServiceMgr.THistSvc.OutputLevel=WARNING
 
     try:
-        from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+        from AnalysisTools.AnalysisToolsConf import AANTupleStream
 
         theAANTupleStream=AANTupleStream(OutputName=rec.RootNtupleOutput() )
         theAANTupleStream.ExtraRefNames = []
@@ -434,6 +433,15 @@ if rec.OutputLevel() <= DEBUG:
 
 #one canalso remove object
 #objKeyStore['inputFile'].removeItem(["SomeType#SomeKey"])
+
+#add remapping if have old names. Currently check for a few (but one should work for any)
+if rec.doContainerRemapping() and (rec.readESD() or rec.readAOD()):
+    if (objKeyStore.isInInput("xAOD::ElectronContainer", "ElectronCollection") or
+        objKeyStore.isInInput("xAOD::TrackParticleContainer", "InDetTrackParticlesForward") or
+        objKeyStore.isInInput("xAOD::CaloClusterContainer", "CaloCalTopoCluster")):
+        include ("RecExCommon/ContainerRemapping.py")
+    
+        
 
 
 #if jivexml required and id is enabled, make sure space points are generated
@@ -590,6 +598,15 @@ if rec.doTruth():
 if rec.readESD():
    doMuonboyEDM=False
 
+#Temporary: Schedule conversion algorithm for EventInfo object:
+# Note that we need to check whether the HLT already added this algorithm to the
+# algorithm sequence!
+#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+    pass
 
 
 if recAlgs.doAtlfast():
@@ -622,7 +639,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and 
+    if (rec.doRecoTiming() and
         ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
          rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
@@ -662,15 +679,6 @@ if rec.doMonitoring():
     except Exception:
         treatException("Could not load AthenaMonitoring/DataQualityInit_jobOptions.py")
 
-#Temporary: Schedule conversion algorithm for EventInfo object:
-# Note that we need to check whether the HLT already added this algorithm to the
-# algorithm sequence!
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
-        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
 
 #
 # System Reconstruction
@@ -808,7 +816,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and 
+if (rec.doRecoTiming() and
     ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
       rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
@@ -1035,8 +1043,10 @@ if rec.doFileMetaData():
         pass
     #EventBookkeepers
     if not hasattr(svcMgr,"CutFlowSvc"):
-        from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-        svcMgr+=CutFlowSvc()
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
+        #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
+        #svcMgr+=CutFlowSvc()
         pass
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
@@ -1256,13 +1266,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
     # special slimmed cell in AOD
     if DetFlags.detdescr.Calo_on() and rec.doAODCaloCells():
         try:
+            from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
             if  rec.readESD() or jobproperties.CaloRecFlags.doEmCluster() :
-                from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
                 addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
 
             from egammaRec.egammaRecFlags import jobproperties
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4  :
-                from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
                 addClusterToCaloCellAOD("egClusterCollection")
                 if objKeyStore.isInInput("CaloClusterContainer","AllPhotonsClusters"):
                     addClusterToCaloCellAOD("AllPhotonsClusters")
@@ -1270,8 +1279,10 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if rec.readESD() or muonCombinedRecFlags.doMuonClusters():
-                from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
                 addClusterToCaloCellAOD("MuonClusterCollection")
+
+            if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
+                addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
         except Exception:
             treatException("Could not make AOD cells" )
@@ -1385,10 +1396,10 @@ if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
         if rec.doFileMetaData(): #needed to have xAOD readable outside athena
             theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
             if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat_v1#EventFormat")
+                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
                 pass
             if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat_v1#EventFormat")
+                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
                 pass
             pass
         #Moved to RecoUtils - more specific
@@ -1551,19 +1562,7 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         if globalflags.InputFormat()=='pool':
             include("PyAnalysisCore/InitPyAnalysisCore.py")
             pass
-        #DR not needed
-        # to be double check LArTool MuonEventCnvTools remove LArTowerBuild
-        # if rec.readAOD():
-        #    import AthenaPoolCnvSvc.ReadAthenaPool
-        #    include( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py")
-        #    include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
-        #    include( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )
-        #    pass
         pass
-
-    #First of all, schedule EventCounterAlg
-    from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
-    topSequence+=EventCounterAlg("AllExecutedEvents")
 
     #Then include all requested DPD makers
     logRecExCommon_topOptions.info( "Content of rec.DPDMakerSkripts = %s", rec.DPDMakerScripts() )
@@ -1592,19 +1591,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     #Configure CutFlowSv and common metadata
     if rec.doFileMetaData():
 
-        # Determine current skimming cycle and input stream name
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        from RecExConfig.RecoFunctions import GetSkimCycle
-        inputCycle=GetSkimCycle(inputFileSummary)
-        if inputCycle<0:
-            currentCycle=1
-        else:
-            currentCycle=inputCycle+1
-            pass
-        svcMgr.CutFlowSvc.SkimmingCycle=currentCycle
-        svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
-        #svcMgr.CutFlowSvc.OutputLevel=DEBUG
-
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
             svcMgr.CutFlowSvc.SkimmingCycle=0
@@ -1612,17 +1598,13 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             pass
 
         if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
-            #Create a separate EventBookkeeper list to persistify skimming cycle info
-            from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-            SkimmingCycleDefiner=EventBookkeepersWriter("SkimmingCycleDefiner")
-            SkimmingCycleDefiner.OutputCollectionName="cycle"+str(currentCycle)
-            SkimmingCycleDefiner.ParentStreamName=rec.mergingStreamName()
-            topSequence+=SkimmingCycleDefiner
-
+            from RecExConfig.InputFilePeeker import inputFileSummary
             #Explicitely add file metadata from input and from transient store
             MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
-            MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
+            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
+            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )
+            #MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "IOVMetaDataContainer#*" )
             pass
         pass

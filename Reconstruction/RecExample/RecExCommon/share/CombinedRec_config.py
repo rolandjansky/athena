@@ -41,21 +41,68 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
         treatException("Could not set up combined muon reconstruction. Switched off !")
         rec.doMuonCombined = False
 
+#
+#  functionality : add cells crossed by high pt ID tracks 
+#
+if rec.doESD() and recAlgs.doTrackParticleCellAssociation():
+    from AthenaCommon.CfgGetter import getPublicTool
+    getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
+    topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg")
+
+#
+# functionality : energy flow
+#                                                                                                 
+pdr.flag_domain('eflow')
+if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() ) )  :
+    try:
+        include( "eflowRec/eflowRec_jobOptions.py" )
+    except Exception:
+        treatException("Could not set up EFlow. Switched off !")
+        recAlgs.doEFlow=False
+else:
+    recAlgs.doEFlow=False
+
+#
+# functionality : isolation for egamma and combined muon
+#
+pdr.flag_domain('egmiso')
+if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
+    try:
+        from IsolationAlgs.IsoGetter import isoGetter
+        isoGetter()
+    except Exception:
+        treatException("Could not set up isolation. Switched off !")
+
+if rec.doESD() and rec.doEgamma():
+    try:
+        from egammaRec.egammaLocker import egammaLocker
+        topSequence +=egammaLocker(name= "egLocker",
+                                   doTruth=rec.doTruth(),
+                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
+                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
+                                   outputClusterKey=egammaKeys.outputClusterKey(),
+                                   egammakeys=egammaKeysDict.outputs.items())
+    except:
+        treatException("Could not set up egammaLocker. Switched off !")
+
+
 #AODFix_postMuonCombinedRec()
 #
 # functionality : CaloTower protojets + preclustering + KT algorithm + CombinedJetAlg
 #
 pdr.flag_domain('jet')
 jetOK=False
-try:
-    from JetRec.JetRecFlags import jetFlags
-    if jetFlags.Enabled():
-        include( "JetRec/JetRec_jobOptions.py" )
-        jetOK=jetFlags.Enabled()
-except Exception:
+if rec.doJetMissingETTag():
+    try:
+        from JetRec.JetRecFlags import jetFlags
+        if jetFlags.Enabled():
+            include( "JetRec/JetRec_jobOptions.py" )
+            jetOK=jetFlags.Enabled()
+    except Exception:
         treatException("Could not set up jet reconstruction")
         jetOK=False
-AODFix_postJetRec()
+    AODFix_postJetRec()
 
 
 if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
@@ -88,29 +135,7 @@ if jetOK and rec.doTau():
 AODFix_posttauRec()
 
 
-#
-# functionality : energy flow 
-#
-pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() ) )  :
-    try:
-        include( "eflowRec/eflowRec_jobOptions.py" )
-    except Exception:
-        treatException("Could not set up EFlow. Switched off !")
-        recAlgs.doEFlow=False
-else:
-    recAlgs.doEFlow=False
 
-#
-# functionality : Jet-finding on eflowObjects 
-if recAlgs.doEFlowJet() and ( rec.readESD() or recAlgs.doEFlow() ) :
-    try: 
-        include ("eflowRec/ConeJetEflow_jobOptions.py")
-    except Exception:
-        treatException("Could not set up ConeJetEflow. Switched off !")
-        recAlgs.doEFlowJet=False
-else:
-    recAlgs.doEFlowJet=False
 
 
 #
@@ -138,6 +163,5 @@ else:
   recAlgs.doMissingETSig=False
 
   
-
 
         

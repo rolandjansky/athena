@@ -101,7 +101,7 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 # Flags (separated) #
 #####################
 
-include ( "RecExCond/RecExCommon_flags.py" )
+#include ( "RecExCond/RecExCommon_flags.py" )
 
 
 ## What should be done when encountering an unchecked StatusCode
@@ -145,24 +145,15 @@ if rec.doDetStatus() and not athenaCommonFlags.isOnline():
     pass
 
 #Output file TagInfo and metadata
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
+#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+#svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
+#svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
+#svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
+#svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
+#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+#svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
 
 
-# if rec.oldFlagCompatibility:
-#     print "RecExCommon_flags.py flags values:"
-#     try:
-#         for o in RecExCommonFlags.keys():
-#             exec 'print "%s =",%s ' % (o,o)
-#     except Exception:
-#         print "WARNING RecExCommonFlags not available, cannot delete"
-# else:
-#     print "Old flags have been deleted"
 
 # end flag settings section
 ##########################################################################
@@ -206,14 +197,6 @@ if globalflags.InputFormat()=='pool':
     EventSelector=ServiceMgr.EventSelector
     pass
 
-
-
-#######################################################################
-# useful debugging/info tools
-
-# Display detailed size and timing statistics for writing and reading
-#  but not if trigger on, because of the randomize key
-from RecExConfig.RecAlgsFlags import recAlgs
 
 
 ########################################################################
@@ -315,18 +298,30 @@ if rec.OutputLevel() <= DEBUG:
 
 
 
+if rec.readAOD():
+    from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+    ServiceMgr += AthenaEventLoopMgr()
+    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
+    logAnaCommon_topOptions.debug("AOD reading case: Set EventPrintoutInterval=100")
+    pass
+
+
+
 # put quasi empty first algorithm so that the first real
 # algorithm does not see the memory change due to event manipulation
 #from AthenaPoolTools.AthenaPoolToolsConf import EventCounter
 from GaudiAlg.GaudiAlgConf import EventCounter
 
 
-import PerfMonComps.DomainsRegistry as pdr
-pdr.flag_domain('admin')
-# one print every 100 event
-topSequence+=EventCounter(Frequency=100)
-#topSequence.EventCounter(Frequency=ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval)
-
+#import PerfMonComps.DomainsRegistry as pdr
+#pdr.flag_domain('admin')
+# one print every 100 events
+eventPrintFrequency = vars().get('EVTPRINTFREQ', 100)
+topSequence += EventCounter(Frequency=eventPrintFrequency)
+if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
+    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+    topSequence.EventCounter.Frequency = ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval
+    pass
 
 
 try:
@@ -337,18 +332,6 @@ except Exception:
     pass
 
 
-if rec.doDumpPoolInputContent() and globalflags.InputFormat()=='pool':
-    try:
-        include("AthenaPoolTools/EventCount_jobOptions.py")
-        topSequence.EventCount.Dump=True
-        topSequence.EventCount.OutputLevel=DEBUG
-        pass
-    except:
-        treatException("EventCount_jobOptions.py" )
-        pass
-    pass
-
-
 #--------------------------------------------------------------
 # Now specify the list of algorithms to be run
 # The order of the jobOption specify the order of the algorithms
@@ -356,77 +339,12 @@ if rec.doDumpPoolInputContent() and globalflags.InputFormat()=='pool':
 #--------------------------------------------------------------
 
 
-#
-#
-# functionality : read truth
-#
-if rec.doTruth():
-    # this algorithm dump the content of the MC event: big output
-    if rec.doDumpMC():
-        # generator truth
-        from TruthExamples.TruthExamplesConf import DumpMC
-        topSequence+=DumpMC()
-        pass
-    protectedInclude( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
-    pass
-
-
-
-
 #Temporary: Schedule conversion algorithm for EventInfo object:
 #FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if not objKeyStore.isInInput( "xAOD::EventInfo_v1"):
+if not objKeyStore.isInInput( "xAOD::EventInfo"):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
     topSequence+=xAODMaker__EventInfoCnvAlg()
     pass
-
-
-
-
-import os
-atlasversionstr=""
-if os.getenv("AtlasVersion") != None:
-    atlasversionstr=os.getenv("AtlasVersion")
-    pass
-
-from RecAlgs.RecAlgsConf import JobInfo
-#topSequence+=JobInfo(PrintFATAL=atlasversionstr.startswith("rel_"))
-topSequence+=JobInfo(PrintFATAL=False)
-del atlasversionstr
-
-
-# pdr.flag_domain('output')
-
-#-----------------------------------------------------------------------------
-# Virtual Point1 Display
-#-----------------------------------------------------------------------------
-if rec.doVP1():
-    logAnaCommon_topOptions.info("Scheduling VP1 algorithms")
-    from VP1Algs.VP1AlgsConf import VP1Alg
-    topSequence += VP1Alg()
-    topSequence.TimeOut = 0
-    pass
-
-
-#-----------------------------------------------------------------------------
-# Atlantis xml
-#-----------------------------------------------------------------------------
-if rec.doJiveXML():
-    logAnaCommon_topOptions.info("Scheduling JiveXML algorithms")
-    protectedInclude ( "JiveXML/JiveXML_RecEx_config.py")
-    pass
-
-
-#-----------------------------------------------------------------------------
-# PERSINT graphics for muons + calorimeters
-#-----------------------------------------------------------------------------
-if rec.doPersint()  :
-    if rec.doMuon():
-        logAnaCommon_topOptions.info("Scheduling MuonBoyView")
-        from MboyView.ConfiguredMboyView import theMboyView
-        pass
-    pass
-
 
 
 
@@ -455,24 +373,6 @@ theApp.OutStream = []
 
 
 
-# if globalflags.InputFormat()=='bytestream':
-#     # FIXME : metadata store definition is in ReadAthenaPool_jobOptions.py
-#     # copy it there for BS Reading for 13..0.X
-#     # Add in MetaDataSvc
-#     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
-#     svcMgr += MetaDataSvc( "MetaDataSvc" )
-#     # Add in MetaData Stores
-#     from StoreGate.StoreGateConf import StoreGateSvc
-#     svcMgr += StoreGateSvc( "MetaDataStore" )
-#     svcMgr += StoreGateSvc( "InputMetaDataStore" )
-#
-#     # Make MetaDataSvc an AddressProvider
-#     svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
-#
-#     # enable IOVDbSvc to read metadata
-#     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-#     svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
-
 MetaDataStore=svcMgr.MetaDataStore
 
 
@@ -492,8 +392,10 @@ if rec.doFileMetaData():
         pass
     #EventBookkeepers
     if not hasattr(svcMgr,"CutFlowSvc"):
-        from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-        svcMgr+=CutFlowSvc()
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=False )
+        #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
+        #svcMgr+=CutFlowSvc()
         pass
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
@@ -504,74 +406,24 @@ if rec.doFileMetaData():
 
 
 
-pdr.flag_domain('aod')
+#pdr.flag_domain('aod')
 
 if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
     try:
         if rec.doFileMetaData(): #needed to have xAOD readable outside athena
             theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
             if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat_v1#EventFormat")
+                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
                 pass
             if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat_v1#EventFormat")
+                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
                 pass
             pass
-        #Moved to RecoUtils - more specific
-        # Congfigure "xAOD behaviour" for the AOD files:
-        #svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_SPLITLEVEL='1'" ]
-        #svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<key>"
         pass
     except Exception:
         treatException("Problem with extra attributes for xAOD output")
         pass
     pass
-
-try:
-    # event dumper at the very end
-    if rec.doPyDump():
-        from RecExConfig.RecoFunctions import OutputFileName
-        OutFileName=OutputFileName(rec.OutputSuffix())
-
-        from PyDumper.PyComps import PySgDumper
-        topSequence += PySgDumper(ofile='PyDump_'+OutFileName+'.txt')
-
-        # preliminary
-        topSequence += CfgMgr.INav4MomDumper(INav4Moms    = ['CaloMuonCollection'],OutputStream = "inav4moms_"+OutFileName+'.txt',OutputLevel  = INFO   )
-        pass
-    pass
-except Exception:
-     # protect until doPyDump is defined in all releases
-     treatException("problem with the dumpers")
-
-
-# detailed auditor of time to read/write pool object
-if hasattr(ServiceMgr, 'AthenaPoolCnvSvc'):
-    ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
-    logAnaCommon_topOptions.warning("TEST... using detailed ChronoStat")
-    pass
-logAnaCommon_topOptions.warning("TEST")
-
-
-
-
-
-# end of configuration : check that some standalone flag have not been reinstantiated
-varInit=dir()
-if not rec.oldFlagCompatibility:
-    try:
-        for i in RecExCommonFlags.keys():
-            if i in varInit:
-                logAnaCommon_topOptions.warning("Variable %s has been re-declared, forbidden !" % i)
-                pass
-            pass
-        pass
-    except Exception:
-        print "WARNING RecExCommonFlags not available, cannot check"
-        pass
-    pass
-
-
 
 
 #########
@@ -579,7 +431,7 @@ if not rec.oldFlagCompatibility:
 #########
 if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+    #from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 
     # Get an instance of the random number generator
     # The actual seeds are dummies since event reseeding is used
@@ -594,19 +446,19 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         pass
 
     # Schedule the AODSelect setup
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_setupOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
-            rec.doAODSelect = False
-            pass
-        pass
+    #if rec.doAODSelect():
+    #    try:
+    #        include("AODSelect/AODSelect_setupOptions.py")
+    #    except Exception:
+    #        treatException("Could not load AODSelect/AODSelect_setupOptions.py !")
+    #        rec.doAODSelect = False
+    #        pass
+    #    pass
 
     #This block may not be needed... something to check if somebody has time!
     if rec.DPDMakerScripts()!=[]:
         if globalflags.InputFormat()=='pool':
-            include("PyAnalysisCore/InitPyAnalysisCore.py")
+            #include("PyAnalysisCore/InitPyAnalysisCore.py")
             pass
         #DR not needed
         # to be double check LArTool MuonEventCnvTools remove LArTowerBuild
@@ -618,9 +470,9 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         #    pass
         pass
 
-    #First of all, schedule EventCounterAlg
-    from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
-    topSequence+=EventCounterAlg("AllExecutedEvents")
+    # #First of all, schedule EventCounterAlg
+    # from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
+    # topSequence+=EventCounterAlg("AllExecutedEvents")
 
     #Then include all requested DPD makers
     logAnaCommon_topOptions.debug( "Content of rec.DPDMakerSkripts = %s", rec.DPDMakerScripts() )
@@ -631,36 +483,36 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         pass
 
     # Schedule the AODSelect algorithms
-    if rec.doAODSelect():
-        try:
-            include("AODSelect/AODSelect_mainOptions.py")
-        except Exception:
-            treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
-            rec.doAODSelect = False
-            pass
-        pass
+    #if rec.doAODSelect():
+    #    try:
+    #        include("AODSelect/AODSelect_mainOptions.py")
+    #    except Exception:
+    #        treatException("Could not load AODSelect/AODSelect_mainOptions.py !")
+    #        rec.doAODSelect = False
+    #        pass
+    #    pass
 
     #SkimDecision objects may once migrate to CutFlowSvc or DecisionSvc, but not yet
-    logAnaCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )
-    if primDPD.WriteSkimDecisions():
-        MSMgr.WriteSkimDecisionsOfAllStreams()
-        pass
+    #logAnaCommon_topOptions.info( "primDPD.WriteSkimDecisions =  %s", primDPD.WriteSkimDecisions() )
+    #if primDPD.WriteSkimDecisions():
+    #    MSMgr.WriteSkimDecisionsOfAllStreams()
+    #    pass
 
     #Configure CutFlowSv and common metadata
     if rec.doFileMetaData():
 
-        # Determine current skimming cycle and input stream name
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        from RecExConfig.RecoFunctions import GetSkimCycle
-        inputCycle=GetSkimCycle(inputFileSummary)
-        if inputCycle<0:
-            currentCycle=1
-        else:
-            currentCycle=inputCycle+1
-            pass
-        svcMgr.CutFlowSvc.SkimmingCycle=currentCycle
-        svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
-        #svcMgr.CutFlowSvc.OutputLevel=DEBUG
+        # # Determine current skimming cycle and input stream name
+        # from RecExConfig.InputFilePeeker import inputFileSummary
+        # from RecExConfig.RecoFunctions import GetSkimCycle
+        # inputCycle=GetSkimCycle(inputFileSummary)
+        # if inputCycle<0:
+        #     currentCycle=1
+        # else:
+        #     currentCycle=inputCycle+1
+        #     pass
+        # svcMgr.CutFlowSvc.SkimmingCycle=currentCycle
+        # svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
+        # #svcMgr.CutFlowSvc.OutputLevel=DEBUG
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
@@ -669,17 +521,19 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             pass
 
         if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
-            #Create a separate EventBookkeeper list to persistify skimming cycle info
-            from EventBookkeeperTools.BookkeepingInfoWriter import EventBookkeepersWriter
-            SkimmingCycleDefiner=EventBookkeepersWriter("SkimmingCycleDefiner")
-            SkimmingCycleDefiner.OutputCollectionName="cycle"+str(currentCycle)
-            SkimmingCycleDefiner.ParentStreamName=rec.mergingStreamName()
-            topSequence+=SkimmingCycleDefiner
+            # #Create a separate EventBookkeeper list to persistify skimming cycle info
+            # from EventBookkeeperTools.BookkeepingInfoWriter import CutCycleWriter
+            # topSequence += CutCycleWriter("CutCycleWriter",
+            #                               OutputName   = "ProcessingCycle",
+            #                               CurrentCycle = currentCycle)
+
 
             #Explicitely add file metadata from input and from transient store
             MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
-            # MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
+            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
+            MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )
+            #MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "IOVMetaDataContainer#*" )
             pass
         pass
@@ -687,16 +541,8 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
 
 
-if rec.readAOD():
-    from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
-    ServiceMgr += AthenaEventLoopMgr()
-    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
-    logAnaCommon_topOptions.debug("AOD reading case: Set EventPrintoutInterval=100")
-
-
 ###################
 ## Common Utils  ##
 ###################
 
-include("RecExCommon/RecoUtils.py")
-include("RecExCommon/PrintRecoSummary.py")
+#include("RecExCommon/RecoUtils.py")

@@ -10,7 +10,7 @@ if (objKeyStore.isInInput("<McEventCollection","TruthEvent")):
     topSequence += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
 
 #EventInfo:
-    if (objKeyStore.isInInput("EventInfo") and not objKeyStore.isInInput( "xAOD::EventInfo_v1")):
+    if (objKeyStore.isInInput("EventInfo") and not objKeyStore.isInInput( "xAOD::EventInfo")):
         from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
         topSequence+=xAODMaker__EventInfoCnvAlg()
 #CaloClusters:

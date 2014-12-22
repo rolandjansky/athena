@@ -3,7 +3,7 @@
 #if not 'rec.doTrigger' in dir():
 rec.doTrigger=True
 #donewTracking=True
-rec.doESD=False
+rec.doESD.set_Value_and_Lock(False)
 rec.doCBNT=False
 rec.doWriteRDO=False
 rec.doESD=False
