@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigMuonD3PD.py 514304 2012-08-20 08:37:38Z krasznaa $
+# $Id: TrigMuonD3PD.py 637271 2014-12-22 02:43:34Z ssnyder $
 
 #
 # Set up the trigger navigation flattening for the muon chains. Done in the
@@ -56,8 +56,8 @@ def _args( level, name, kwin, **kw ):
 #    TrigMuonD3PDObjects( myd3pdalg, level = 1, addNaviInfo = False )
 #  </code>
 #
-# $Revision: 514304 $
-# $Date: 2012-08-20 10:37:38 +0200 (Mon, 20 Aug 2012) $
+# $Revision: 637271 $
+# $Date: 2014-12-22 03:43:34 +0100 (Mon, 22 Dec 2014) $
 #
 def TrigMuonD3PDObjects( d3pdalg, level = 10, addNaviInfo = True, addConfigInfo = True,
                          **kw ):
@@ -77,106 +77,108 @@ def TrigMuonD3PDObjects( d3pdalg, level = 10, addNaviInfo = True, addConfigInfo 
 
     #
     # Add the LVL2 information:
+    # MuonFeature not available in xAOD.
     #
-    from TrigMuonD3PDMaker.MuonFeatureD3PDObject import MuonFeatureD3PDObject
-    d3pdalg += MuonFeatureD3PDObject( **_args( level, "MuonFeature", kw ) )
+    #from TrigMuonD3PDMaker.MuonFeatureD3PDObject import MuonFeatureD3PDObject
+    #d3pdalg += MuonFeatureD3PDObject( **_args( level, "MuonFeature", kw ) )
 
-    from TrigMuonD3PDMaker.MuonFeatureDetailsD3PDObject import MuonFeatureDetailsD3PDObject
-    d3pdalg += MuonFeatureDetailsD3PDObject( **_args( level, "MuonFeatureDetails", kw ) )
+    #from TrigMuonD3PDMaker.MuonFeatureDetailsD3PDObject import MuonFeatureDetailsD3PDObject
+    #d3pdalg += MuonFeatureDetailsD3PDObject( **_args( level, "MuonFeatureDetails", kw ) )
 
-    from TrigMuonD3PDMaker.CombinedMuonFeatureD3PDObject import CombinedMuonFeatureD3PDObject
-    d3pdalg += CombinedMuonFeatureD3PDObject( **_args( level, "CombinedMuonFeature", kw,
-                                                       exclude = [ "MFInfo", "IDInfo" ] ) )
+    #from TrigMuonD3PDMaker.CombinedMuonFeatureD3PDObject import CombinedMuonFeatureD3PDObject
+    #d3pdalg += CombinedMuonFeatureD3PDObject( **_args( level, "CombinedMuonFeature", kw,
+    #                                                    exclude = [ "MFInfo", "IDInfo" ] ) )
 
-    from TrigMuonD3PDMaker.IsoMuonFeatureD3PDObject import IsoMuonFeatureD3PDObject
-    d3pdalg += IsoMuonFeatureD3PDObject( **_args( level, "IsoMuonFeature", kw ) )
+    #from TrigMuonD3PDMaker.IsoMuonFeatureD3PDObject import IsoMuonFeatureD3PDObject
+    #d3pdalg += IsoMuonFeatureD3PDObject( **_args( level, "IsoMuonFeature", kw ) )
 
-    from TrigMuonD3PDMaker.TileMuFeatureD3PDObject import TileMuFeatureD3PDObject
-    d3pdalg += TileMuFeatureD3PDObject( **_args( level, "TileMuFeature", kw ) )
+    #from TrigMuonD3PDMaker.TileMuFeatureD3PDObject import TileMuFeatureD3PDObject
+    #d3pdalg += TileMuFeatureD3PDObject( **_args( level, "TileMuFeature", kw ) )
 
-    from TrigMuonD3PDMaker.TileTrackMuFeatureD3PDObject import TileTrackMuFeatureD3PDObject
-    d3pdalg += TileTrackMuFeatureD3PDObject( **_args( level, "TileTrackMuFeature", kw,
-                                                      exclude = [ "TileMuInfo" ] ) )
+    #from TrigMuonD3PDMaker.TileTrackMuFeatureD3PDObject import TileTrackMuFeatureD3PDObject
+    #d3pdalg += TileTrackMuFeatureD3PDObject( **_args( level, "TileTrackMuFeature", kw,
+    #                                                  exclude = [ "TileMuInfo" ] ) )
 
     #
     # Add the EF information:
     #
     from TrigMuonD3PDMaker.TrigMuonEFInfoD3PDObject import TrigMuonEFInfoD3PDObject
     d3pdalg += TrigMuonEFInfoD3PDObject( **_args( level, "TrigMuonEF", kw ) )
-    d3pdalg += TrigMuonEFInfoD3PDObject( **_args( level, "TrigMuGirl", kw,
-                                                  sgkey = "HLT_eMuonEFInfo",
-                                                  prefix = "trig_EF_trigmugirl_",
-                                                  exclude = [ "Source" ] ) )
+    # d3pdalg += TrigMuonEFInfoD3PDObject( **_args( level, "TrigMuGirl", kw,
+    #                                               sgkey = "HLT_eMuonEFInfo",
+    #                                               prefix = "trig_EF_trigmugirl_",
+    #                                               exclude = [ "Source" ] ) )
 
-    from TrigMuonD3PDMaker.TrigMuonEFIsolationD3PDObject import TrigMuonEFIsolationD3PDObject
-    d3pdalg += TrigMuonEFIsolationD3PDObject( **_args (level,
-                                                       "TrigMuonEFIsolation",
-                                                       kw) )
+    # from TrigMuonD3PDMaker.TrigMuonEFIsolationD3PDObject import TrigMuonEFIsolationD3PDObject
+    # d3pdalg += TrigMuonEFIsolationD3PDObject( **_args (level,
+    #                                                    "TrigMuonEFIsolation",
+    #                                                    kw) )
 
-    #
-    # Add separate LVL2 tracking information:
-    #
-    from RecExConfig.ObjKeyStore import cfgKeyStore
-    from TrigInDetD3PDMaker.TrigInDetTrackD3PDObject import TrigInDetTrackD3PDObject
-    d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigSiTrack_Muon", kw,
-                                                  sgkey = 'HLT_TrigSiTrack_Muon',
-                                                  prefix = 'trig_L2_sitrack_muon_',
-                                                  allowMissing = True ) )
-    d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigIDSCAN_Muon", kw,
-                                                  sgkey = 'HLT_TrigIDSCAN_Muon',
-                                                  prefix = 'trig_L2_idscan_muon_' ) )
-    if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
-                                  "HLT_TrigL2SiTrackFinder_Muon" ):
-        d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder_Muon", kw,
-                                                      sgkey = 'HLT_TrigL2SiTrackFinder_Muon',
-                                                      prefix = 'trig_L2_sitrackfinder_muon_' ) )
-        pass
+    # TrigInDetTrack not in xAOD.
+    # #
+    # # Add separate LVL2 tracking information:
+    # #
+    # from RecExConfig.ObjKeyStore import cfgKeyStore
+    # from TrigInDetD3PDMaker.TrigInDetTrackD3PDObject import TrigInDetTrackD3PDObject
+    # d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigSiTrack_Muon", kw,
+    #                                               sgkey = 'HLT_TrigSiTrack_Muon',
+    #                                               prefix = 'trig_L2_sitrack_muon_',
+    #                                               allowMissing = True ) )
+    # d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigIDSCAN_Muon", kw,
+    #                                               sgkey = 'HLT_TrigIDSCAN_Muon',
+    #                                               prefix = 'trig_L2_idscan_muon_' ) )
+    # if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
+    #                               "HLT_TrigL2SiTrackFinder_Muon" ):
+    #     d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder_Muon", kw,
+    #                                                   sgkey = 'HLT_TrigL2SiTrackFinder_Muon',
+    #                                                   prefix = 'trig_L2_sitrackfinder_muon_' ) )
+    #     pass
 
-    d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigSiTrack_muonIso", kw,
-                                                  sgkey = 'HLT_TrigSiTrack_muonIso',
-                                                  prefix = 'trig_L2_sitrack_isomuon_',
-                                                  allowMissing = True ) )
-    d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigIDSCAN_muonIso", kw,
-                                                  sgkey = 'HLT_TrigIDSCAN_muonIso',
-                                                  prefix = 'trig_L2_idscan_isomuon_' ) )
-    if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
-                                  "HLT_TrigL2SiTrackFinder_muonIso" ):
-        d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder_muonIso", kw,
-                                                      sgkey = 'HLT_TrigL2SiTrackFinder_muonIso',
-                                                      prefix = 'trig_L2_sitrackfinder_isomuon_' ) )
-        pass
+    # d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigSiTrack_muonIso", kw,
+    #                                               sgkey = 'HLT_TrigSiTrack_muonIso',
+    #                                               prefix = 'trig_L2_sitrack_isomuon_',
+    #                                               allowMissing = True ) )
+    # d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigIDSCAN_muonIso", kw,
+    #                                               sgkey = 'HLT_TrigIDSCAN_muonIso',
+    #                                               prefix = 'trig_L2_idscan_isomuon_' ) )
+    # if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
+    #                               "HLT_TrigL2SiTrackFinder_muonIso" ):
+    #     d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder_muonIso", kw,
+    #                                                   sgkey = 'HLT_TrigL2SiTrackFinder_muonIso',
+    #                                                   prefix = 'trig_L2_sitrackfinder_isomuon_' ) )
+    #     pass
 
-    if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
-                                  "HLT_TrigL2SiTrackFinder" ):
-        d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder", kw,
-                                                      sgkey = 'HLT_TrigL2SiTrackFinder',
-                                                      prefix = 'trig_L2_sitrackfinder_' ) )
-        pass
+    # if cfgKeyStore.isInInputFile( "TrigInDetTrackCollection",
+    #                               "HLT_TrigL2SiTrackFinder" ):
+    #     d3pdalg += TrigInDetTrackD3PDObject( **_args( level, "TrigL2SiTrackFinder", kw,
+    #                                                   sgkey = 'HLT_TrigL2SiTrackFinder',
+    #                                                   prefix = 'trig_L2_sitrackfinder_' ) )
+    #     pass
 
-    #
-    # Add RoiDescriptor (back-extrapoltaion of mufast tracks)
-    #
-    from TriggerD3PDMaker.TrigRoiDescD3PDObject import TrigRoiDescD3PDObject
-    d3pdalg += TrigRoiDescD3PDObject( **_args( level, "RoIDescID", kw,
-                                               sgkey  = 'HLT_forID',
-                                               prefix = 'trig_roidescriptor_forID_' ) )
+    # #
+    # # Add RoiDescriptor (back-extrapoltaion of mufast tracks)
+    # #
+    # from TriggerD3PDMaker.TrigRoiDescD3PDObject import TrigRoiDescD3PDObject
+    # d3pdalg += TrigRoiDescD3PDObject( **_args( level, "RoIDescID", kw,
+    #                                            sgkey  = 'HLT_forID',
+    #                                            prefix = 'trig_roidescriptor_forID_' ) )
 
-    # Trigger navigation info
-    # note: level for CombLinksD3PDObjects should be >=1, otherwise navigation info will not be filled
-    if addNaviInfo:
-        from TriggerD3PDMaker.TrigNaviD3PDObject import \
-             ChainEntryD3PDObject, CombLinksD3PDObjects
-        if not hasattr( d3pdalg, 'trig_Nav_Filler' ):
-            d3pdalg += ChainEntryD3PDObject( **_args( 1, "ChainEntry", kw ) )
-        d3pdalg += CombLinksD3PDObjects[ 'L2_mu' ]( **_args( 1, "CombLinksL2Mu", kw ) )
-        d3pdalg += CombLinksD3PDObjects[ 'EF_mu' ]( **_args( 1, "CombLinksEFMu", kw ) )
-        d3pdalg += CombLinksD3PDObjects[ 'L2_TileMu' ]( **_args( 1, "CombLinksL2TileMu", kw ) )
-        d3pdalg += CombLinksD3PDObjects[ 'EF_TileMu' ]( **_args( 1, "CombLinksEFTileMu", kw ) )
+    # # Trigger navigation info
+    # # note: level for CombLinksD3PDObjects should be >=1, otherwise navigation info will not be filled
+    # if addNaviInfo:
+    #     from TriggerD3PDMaker.TrigNaviD3PDObject import \
+    #          ChainEntryD3PDObject, CombLinksD3PDObjects
+    #     if not hasattr( d3pdalg, 'trig_Nav_Filler' ):
+    #         d3pdalg += ChainEntryD3PDObject( **_args( 1, "ChainEntry", kw ) )
+    #     d3pdalg += CombLinksD3PDObjects[ 'L2_mu' ]( **_args( 1, "CombLinksL2Mu", kw ) )
+    #     d3pdalg += CombLinksD3PDObjects[ 'EF_mu' ]( **_args( 1, "CombLinksEFMu", kw ) )
+    #     d3pdalg += CombLinksD3PDObjects[ 'L2_TileMu' ]( **_args( 1, "CombLinksL2TileMu", kw ) )
+    #     d3pdalg += CombLinksD3PDObjects[ 'EF_TileMu' ]( **_args( 1, "CombLinksEFTileMu", kw ) )
 
-    # Add the trigger configuration metadata:
-    if addConfigInfo:
-        from TriggerD3PDMaker.TrigConfMetadata import addTrigConfMetadata
-        addTrigConfMetadata( d3pdalg )
+    # # Add the trigger configuration metadata:
+    # if addConfigInfo:
+    #     from TriggerD3PDMaker.TrigConfMetadata import addTrigConfMetadata
+    #     addTrigConfMetadata( d3pdalg )
     
     return d3pdalg
 
@@ -187,8 +189,8 @@ def TrigMuonD3PDObjects( d3pdalg, level = 10, addNaviInfo = True, addConfigInfo 
 # algorithm. Then the user can add additional tools to the algorithm if
 # (s)he wishes.
 #
-# $Revision: 514304 $
-# $Date: 2012-08-20 10:37:38 +0200 (Mon, 20 Aug 2012) $
+# $Revision: 637271 $
+# $Date: 2014-12-22 03:43:34 +0100 (Mon, 22 Dec 2014) $
 #
 def TrigMuonD3PD( file,
                   level = 10,

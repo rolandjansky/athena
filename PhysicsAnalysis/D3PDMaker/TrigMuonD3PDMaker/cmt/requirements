@@ -10,7 +10,6 @@ private
 use GaudiInterface   GaudiInterface-*   External
 use AthenaKernel     AthenaKernel-*     Control
 use SGTools          SGTools-*          Control
-use EventPrimitives  EventPrimitives-*  Event
 
 # D3PD package(s):
 use D3PDMakerUtils   D3PDMakerUtils-*   PhysicsAnalysis/D3PDMaker
@@ -21,7 +20,6 @@ use EventKernel      EventKernel-*      Event
 use TrigMuonEvent    TrigMuonEvent-*    Trigger/TrigEvent
 use TrigInDetEvent   TrigInDetEvent-*   Trigger/TrigEvent
 use MuonTrigCoinData MuonTrigCoinData-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use Particle         Particle-*         Reconstruction
 
 # Helper Tools package(s):
 use MuonIdHelpers    MuonIdHelpers-*    MuonSpectrometer
@@ -29,25 +27,9 @@ use MuonReadoutGeometry MuonReadoutGeometry-* MuonSpectrometer/MuonDetDescr
 use TrigMuonCoinHierarchy TrigMuonCoinHierarchy-* Trigger/TrigAnalysis
 use TrigObjectMatching TrigObjectMatching-* Trigger/TrigAnalysis
 
-use AthenaBaseComps AthenaBaseComps-* Control
-use AtlasCLHEP AtlasCLHEP-* External
 use AtlasROOT AtlasROOT-* External
-use AnalysisTriggerEvent AnalysisTriggerEvent-* PhysicsAnalysis/AnalysisTrigger
 use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
-use TrigEffJpsiTools TrigEffJpsiTools-* Trigger/TrigAnalysis
 use MuonRDO MuonRDO-* MuonSpectrometer
-use MuonDigitContainer MuonDigitContainer-* MuonSpectrometer
-use MuonPrepRawData MuonPrepRawData-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use muonEvent muonEvent-* Reconstruction/MuonIdentification
-use InDetConversionFinderTools InDetConversionFinderTools-* InnerDetector/InDetRecTools
-use TrkEventPrimitives TrkEventPrimitives-* Tracking/TrkEvent
-use TrkTrack TrkTrack-* Tracking/TrkEvent
-use VxVertex VxVertex-* Tracking/TrkEvent
-use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
-use TrkV0Fitter TrkV0Fitter-* Tracking/TrkVertexFitter
-use TrkVertexAnalysisUtils TrkVertexAnalysisUtils-* Tracking/TrkVertexFitter
-use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
-use TrkVKalVrtFitter TrkVKalVrtFitter-* Tracking/TrkVertexFitter
 
 end_private
 

@@ -1,4 +1,4 @@
-// $Id: TrigMuonD3PDMaker_entries.cxx 514304 2012-08-20 08:37:38Z krasznaa $
+// $Id: TrigMuonD3PDMaker_entries.cxx 633618 2014-12-04 10:12:10Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -20,19 +20,6 @@
 #include "../RpcPadFillerTool.h"
 #include "../TrigMuonEFIsolationFillerTool.h"
 #include "../TrigMuonEFIsolationEFInfoTrackIndexFillerTool.h"
-
-#include "../L1TgcMdtPrepDataFillerTool.h"
-#include "../L1TgcPrepDataFillerTool.h"
-#include "../L1TgcCoinDataFillerTool.h"
-#include "../L1TgcCoinHierarchyFillerTool.h"
-#include "../L1TgcRpcPrepDataFillerTool.h"
-#include "../L1TgcTrkExtrapolationFillerTool.h"
-#include "../L1TgcTriggerInfoFillerTool.h"
-#include "../L1TgcTandpFillerTool.h"
-
-#include "../L1TgcSkim.h"
-#include "../L1TgcTrkExtrapolator.h"
-
 
 // Decision tools:
 #include "../MuonFeatureObjectDecisionFillerTool.h"
@@ -92,18 +79,6 @@ DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, RpcPadFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigMuonEFIsolationFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigMuonEFIsolationEFInfoTrackIndexFillerTool )
 
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcMdtPrepDataFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcPrepDataFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcCoinDataFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcCoinHierarchyFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcRpcPrepDataFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcTrkExtrapolationFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcTriggerInfoFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcTandpFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY(D3PD,L1TgcTrkExtrapolator)
-DECLARE_ALGORITHM_FACTORY(L1TgcSkim)
-
-
 // Decision tools:
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, MuonFeatureObjectDecisionFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, CombinedMuonFeatureObjectDecisionFillerTool )
@@ -158,17 +133,6 @@ DECLARE_FACTORY_ENTRIES( TrigMuonD3PDMaker ) {
    DECLARE_NAMESPACE_TOOL( D3PD, RpcPadFillerTool )
    DECLARE_NAMESPACE_TOOL( D3PD, TrigMuonEFIsolationFillerTool )
    DECLARE_NAMESPACE_TOOL( D3PD, TrigMuonEFIsolationEFInfoTrackIndexFillerTool )
-
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcMdtPrepDataFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcPrepDataFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcCoinDataFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcCoinHierarchyFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcRpcPrepDataFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcTrkExtrapolationFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcTriggerInfoFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcTandpFillerTool)
-   DECLARE_NAMESPACE_TOOL(D3PD,L1TgcTrkExtrapolator)
-   DECLARE_ALGORITHM(L1TgcSkim)
 
    // Decision tools:
    DECLARE_NAMESPACE_TOOL( D3PD, MuonFeatureObjectDecisionFillerTool )
