@@ -1,3 +1,27 @@
+2014-12-22 Nick Styles
+	* Fix to split hit on layer intialisation
+	* Tagged as TrkTrackSummaryTool-01-02-05
+
+2014-12-17 Nick Styles
+	* Update new method to also re-fill expected hit info
+	* Tagged as TrkTrackSummaryTool-01-02-04
+
+2014-12-09 Nick Styles
+	* Method to just update specific info as needed
+	* Tagged as TrkTrackSummaryTool-01-02-03
+
+2014-12-01 Nick Styles
+	* Fill overflow clusters
+	* Tagged as TrkTrackSummaryTool-01-02-02
+
+2014-12-01 Anthony Morley
+        * Ensure that the split hit counters are set to 0
+        * tag TrkTrackSummaryTool-01-02-01
+
+2014-10-21 Nick Styles <nicholas.styles -at- cern.ch>
+	* Added extra info for Run2
+	* tagged as TrkTrackSummaryTool-01-02-00
+
 2014-03-30 Andreas Salzburger < Andreas.Salzburger -at- cern.ch >
         * new updateSharedHits
         * tag TrkTrackSummaryTool-01-00-01

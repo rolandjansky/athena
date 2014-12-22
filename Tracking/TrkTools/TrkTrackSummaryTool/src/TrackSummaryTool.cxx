@@ -191,6 +191,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
 
   float dedx=-1;
   int nhitsuseddedx=-1;
+  int noverflowhitsdedx=-1;
 
   // Now set values to 0 for the ones we evaluate
   if (!m_idTool.empty()) {
@@ -199,15 +200,24 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
       information [numberOfContribPixelLayers]   = 0; 
       information [numberOfBLayerHits]           = 0;
       information [numberOfBLayerOutliers]       = 0;
+      information [numberOfInnermostPixelLayerHits] = 0;
+      information [numberOfInnermostPixelLayerOutliers] = 0;
+      information [numberOfNextToInnermostPixelLayerHits] = 0;
+      information [numberOfNextToInnermostPixelLayerOutliers] = 0;
       information [numberOfPixelHits]            = 0;
       information [numberOfPixelOutliers]        = 0;
       information [numberOfGangedPixels]         = 0;
       information [numberOfGangedFlaggedFakes]   = 0;
       information [numberOfPixelSpoiltHits]      = 0;
       information [numberOfGangedFlaggedFakes]   = 0;
+      information [numberOfPixelSplitHits]       = 0;
+      information [numberOfBLayerSplitHits]      = 0;
+      information [numberOfInnermostLayerSplitHits] = 0;
+      information [numberOfNextToInnermostLayerSplitHits] = 0;
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
         dedx = m_dedxtool->dEdx(track);
         nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
+	noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
       }
     }
     information [numberOfSCTHits]                  = 0;
@@ -229,6 +239,8 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     information [numberOfSCTSharedHits]      = 0;
     if (m_pixelExists) {
       information [numberOfBLayerSharedHits] = 0;
+      information [numberOfInnermostPixelLayerSharedHits] = 0;
+      information [numberOfNextToInnermostPixelLayerSharedHits] = 0;
       information [numberOfPixelSharedHits]  = 0;
     }
   }
@@ -274,7 +286,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     searchHolesStepWise(track,information);
   }
 
-  TrackSummary* ts = new TrackSummary(information,eProbability,hitPattern,dedx,nhitsuseddedx);
+  TrackSummary* ts = new TrackSummary(information,eProbability,hitPattern,dedx,nhitsuseddedx,noverflowhitsdedx);
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
@@ -323,6 +335,38 @@ void Trk::TrackSummaryTool::updateSharedHitCount(Track& track) const
   } 
   Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
   m_idTool->updateSharedHitCount(track, *tSummary);
+  return;
+}
+
+void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
+{
+  // first check if track has no summary - then it is recreated
+  if (track.m_trackSummary==0) {
+      createSummary( track, true );
+      return;
+  } 
+  Trk::TrackSummary* tSummary = const_cast<Trk::TrackSummary*>(track.m_trackSummary);
+  
+  unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
+  std::vector<float> eProbability(numberOfeProbabilityTypes,0.5); 
+  if ( !m_eProbabilityTool.empty() ) eProbability = m_eProbabilityTool->electronProbability(track);
+  
+  float dedx=0;
+  int nhitsuseddedx=0;
+  int noverflowhitsdedx=0;
+
+  if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
+    dedx = m_dedxtool->dEdx(track);
+    nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
+    noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
+  }
+  m_idTool->updateAdditionalInfo(*tSummary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
+  
+  m_idTool->updateSharedHitCount(track, *tSummary);
+
+   m_idTool->updateExpectedHitInfo(track, *tSummary);
+  
+  if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,*tSummary);
   return;
 }
 

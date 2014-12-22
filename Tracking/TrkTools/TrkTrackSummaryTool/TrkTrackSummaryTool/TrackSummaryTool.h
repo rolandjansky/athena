@@ -64,8 +64,11 @@ namespace Trk {
       Because it is taken from the track the ownership stays with the track */
       void updateTrack(Track& track) const;
       
-  /** method to update the shared hit content only, this is optimised for track collection merging. */
+      /** method to update the shared hit content only, this is optimised for track collection merging. */
       void updateSharedHitCount(Track& track) const;
+      
+      /** method to update additional information (PID,shared hits, dEdX), this is optimised for track collection merging. */
+      void updateAdditionalInfo(Track& track) const;
 
     private:
       
