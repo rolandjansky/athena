@@ -282,8 +282,8 @@ void Trk::DistributedKalmanFilter::m_numericalJacobian(TrkTrackState* pTS,
   
   double R0[5],delta,Ri[5],Rf[5],J[5][5],Rs[5];
   int i,j;
-  
-  for(i=0;i<5;i++) R0[i]=pTS->m_getTrackState(i);
+  //not sure what Rs/Rf should be intialised to - at the moment it is not set at all so setting to zero to solve coverity bugs 14380/14381...
+  for(i=0;i<5;i++) {R0[i]=pTS->m_getTrackState(i);Rs[i]=0;Rf[i]=0;}
   
   //s0=m_integrate(R0,pSB,pSE,Rs);
   
