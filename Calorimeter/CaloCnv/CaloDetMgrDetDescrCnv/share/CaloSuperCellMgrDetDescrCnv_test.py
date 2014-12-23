@@ -10,7 +10,7 @@
 # this in the log:
 #    Error in <TCint::AutoLoad>: failure loading library libGaudiKernelDict for class StatusCode
 #
-import PyCintex
+import cppyy 
 import ROOT
 ROOT.StatusCode
 
