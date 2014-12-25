@@ -139,16 +139,16 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
 cannot initialze message service");
 	}
 	MsgStream msg(msgSvc, "LArWheelCalculator");
-	msg << MSG::INFO << "LArWheelCalculator constructor at " << this
+	msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
 	         << " (type " << LArWheelCalculatorTypeString(m_type)
 	         << "):" << endreq;
 
 #ifdef LARWC_DTNF_NEW
-	msg << MSG::INFO << "compiled with new DTNF" << endreq;
+	msg << MSG::VERBOSE << "compiled with new DTNF" << endreq;
 #endif
 
 	// Access source of detector parameters.
-	msg << MSG::INFO
+	msg << MSG::VERBOSE
 	         << "initializing data members from DB..." << endreq;
 
 	IGeoModelSvc *geoModel;
@@ -215,7 +215,7 @@ cannot initialze message service");
 	m_zWheelFrontFace = m_dMechFocaltoWRP + m_dWRPtoFrontFace;
 	m_zWheelBackFace = m_zWheelFrontFace + m_WheelThickness;
 
-	msg << MSG::INFO << "... got these values:" << std::endl // MSG::DEBUG
+	msg << MSG::DEBUG << "... got these values:" << std::endl // MSG::DEBUG
 	    << "m_zWheelRefPoint       : " << m_zWheelRefPoint / cm << " [cm]" << std::endl
 	    << "m_dMechFocaltoWRP      : " << m_dMechFocaltoWRP / cm << " [cm]" << std::endl
 		<< "m_dElecFocaltoWRP      : " << m_dElecFocaltoWRP / cm << " [cm]" << std::endl
@@ -227,14 +227,14 @@ cannot initialze message service");
 	    << "Phi rotation           : " << (m_phiRotation? "true": "false") << std::endl
 		<< "eta wheels limits      : " << m_eta_low << ", " << m_eta_mid << ", " << m_eta_hi
 		<< endreq;
-	msg << MSG::INFO << "hardcoded constants: " << std::endl
+	msg << MSG::DEBUG << "hardcoded constants: " << std::endl
 	    << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
 		<< "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
 		<< endreq;
 #ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-	msg << MSG::INFO << "LARWHEELCALCULATOR_PSA_DEVELOPMENT defined, runtime selection allowed" << endreq;
+	msg << MSG::VERBOSE << "LARWHEELCALCULATOR_PSA_DEVELOPMENT defined, runtime selection allowed" << endreq;
 #else
-	msg << MSG::INFO << "LARWHEELCALCULATOR_PSA_DEVELOPMENT is not defined, default method 'param' is used \
+	msg << MSG::VERBOSE << "LARWHEELCALCULATOR_PSA_DEVELOPMENT is not defined, default method 'param' is used \
 in parameterized_slant_angle()" << endreq;
 #endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 
@@ -346,7 +346,7 @@ in parameterized_slant_angle()" << endreq;
 			if(b) *b = 0; \
 			if(strncmp(key, buf, strlen(key)) == 0){ \
 				a = buf + strlen(key); \
-				msg << MSG::INFO << "data from " \
+				msg << MSG::VERBOSE << "data from " \
 				    << EMECPARAMFILE << " is used for " << key << "!!!" \
 		    	    << endreq; \
 				break; \
@@ -358,16 +358,16 @@ in parameterized_slant_angle()" << endreq;
 	READEMECPARAM(sagging_opt_value, "sagging ")
 #endif // LARWHEELCALCULATOR_STUDY_DEFORMATIONS
 
-	msg << MSG::INFO << "SAGGING value = " << sagging_opt_value << endreq;
+	msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endreq;
 
 	 // the same condition is in DistanceCalculatorFactory::Create
 	m_SaggingOn = (sagging_opt_value != "" && sagging_opt_value != "off")? true: false;
 
 	m_distanceCalcImpl = LArWheelCalculator_Impl::DistanceCalculatorFactory::Create(sagging_opt_value, this, rdbAccess, larVersionKey);
 	if (m_SaggingOn) {
-		msg << MSG::INFO << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endreq;
+		msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endreq;
 	} else {
-		msg << MSG::INFO << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endreq;
+		msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endreq;
 	}
 
 	m_fanCalcImpl = LArWheelCalculator_Impl::FanCalculatorFactory::Create(m_SaggingOn, m_isModule, this, rdbAccess, larVersionKey);
@@ -378,7 +378,7 @@ in parameterized_slant_angle()" << endreq;
 //--------------------------
 
   // Get option: Slant params.
-	msg << MSG::INFO << "Loading SlantAngle parameters ...";
+	msg << MSG::VERBOSE << "Loading SlantAngle parameters ...";
 	std::string slant_params;
 
 	if (m_isInner) {
@@ -414,9 +414,9 @@ in parameterized_slant_angle()" << endreq;
 
 	fill_sincos_parameterization(); // initialize sin&cos parameterization
 
-	msg << MSG::INFO << "All params initialized. Print some internal variables" << endreq;
+	msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endreq;
 
-	msg << MSG::INFO << "Data members:" << std::endl
+	msg << MSG::VERBOSE << "Data members:" << std::endl
 	    << "m_AtlasZside              = " << m_AtlasZside << std::endl
 	    << "m_NumberOfFans            = " << m_NumberOfFans << std::endl
 	    << "m_ZeroFanPhi              = " << m_ZeroFanPhi << std::endl
@@ -433,7 +433,7 @@ in parameterized_slant_angle()" << endreq;
 	msg << endreq;
 
 	if(m_isModule){
-		msg << MSG::INFO
+		msg << MSG::VERBOSE
 		    << "module_init: FirstFan = " << m_FirstFan
 			<< ", LastFan = " << m_LastFan
 			<< ", ZeroFanPhi = " << m_ZeroFanPhi

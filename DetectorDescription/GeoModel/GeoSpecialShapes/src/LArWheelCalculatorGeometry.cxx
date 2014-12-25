@@ -21,22 +21,17 @@ using namespace Gaudi::Units;
 
 void LArWheelCalculator::parameterized_sin(const double r, double &sin_a, double &cos_a) const
 {
-	const double r2 = r*r;
-	const double r3 = r2*r;
-	const double r4 = r2*r2;
+
+	sin_a=(((( 
 #if LARWC_SINCOS_POLY > 4
-	const double r5 = r4*r;
+   (m_sin_parametrization[5])*r+
 #endif
-	sin_a = m_sin_parametrization[0]
-	      + m_sin_parametrization[1]*r
-	      + m_sin_parametrization[2]*r2
-	      + m_sin_parametrization[3]*r3
-	      + m_sin_parametrization[4]*r4
-#if LARWC_SINCOS_POLY > 4
-	      + m_sin_parametrization[5]*r5
-#endif
-	;
-	cos_a = sqrt(1. - sin_a*sin_a);
+   m_sin_parametrization[4])*r+m_sin_parametrization[3])*r+m_sin_parametrization[2])*r+m_sin_parametrization[1])*r+m_sin_parametrization[0];
+	double u=1.-sin_a*sin_a;
+	//put sqrt(u) in cos_a using sqrtsd instruction rather than function call
+	__asm__ ("sqrtsd %1, %0" : "=x" (cos_a) : "x" (u));
+//    Generic code, for re-insertion once the compiler does this for us
+//	cos_a = sqrt(1. - sin_a*sin_a);
 }
 
 void LArWheelCalculator::parameterized_sincos(const double r, double &sin_a, double &cos_a) const
