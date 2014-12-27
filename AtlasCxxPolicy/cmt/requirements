@@ -62,10 +62,20 @@ macro_append cppflags                "" \
 macro_append cppflags                "" \
              noWerror                "" \
              applyWerror             " -Werror"
+macro_append cppflags                "" \
+             target-gcc              " -fno-var-tracking-assignments "
 
 # Enable c++11 for gcc47 (enables target-c11)
 macro_append cppflags  "" \
       target-c11       " -std=c++11 "
+
+# Checking.
+# Can't use use_if here, since that makes a private dependency and we need
+# it to be public.
+macro use_CheckerGccPlugins_if "" target-gcc "CheckerGccPlugins CheckerGccPlugins-* External"
+use $(use_CheckerGccPlugins_if)
+macro_append cppflags "" \
+      target-gcc " `checker_gccplugins_args` "
 
 
 # Intel compiler support
