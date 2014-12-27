@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CustomParticle.h"
+#include "RHadrons/CustomParticle.h"
 
 // ######################################################################
 // ###                           CustomParticle                          ###

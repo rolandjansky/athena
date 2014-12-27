@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FullModelHadronicProcess.hh"
+#include "RHadrons/FullModelHadronicProcess.hh"
 #include "G4ProcessManager.hh"
-#include "G4ProcessHelper.hh"
+#include "RHadrons/G4ProcessHelper.hh"
 #include "G4ParticleTable.hh"
-#include "FullModelReactionDynamics.hh"
+#include "RHadrons/FullModelReactionDynamics.hh"
 #include "G4HadReentrentException.hh"
-#include "CustomPDGParser.h"
-#include "CustomParticle.h"
+#include "RHadrons/CustomPDGParser.h"
+#include "RHadrons/CustomParticle.h"
 
 
 // Macro to help with overzealous compiler warnings
