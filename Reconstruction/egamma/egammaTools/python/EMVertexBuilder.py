@@ -8,11 +8,9 @@ from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools, ExtrapolateToCaloTool
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
-from InDetTools import egammaInDetTrackSummaryTool, \
-  InDet__SingleTrackConversionTool, \
-  egammaExtrapolator
+from InDetTools import egammaInDetTrackSummaryTool, InDet__SingleTrackConversionTool, egammaExtrapolator
 
 class VertexFinderToolInstance(FcnWrapper):
   def __call__(self):

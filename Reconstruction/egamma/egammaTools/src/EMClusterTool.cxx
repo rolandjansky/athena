@@ -208,22 +208,21 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
 								   cluster.eta0(),cluster.phi0(),
 								   cluSize);
-
-  if(!newClus){
+  if(newClus){
+    if (m_clusterCorrectionTool->execute(newClus).isFailure()){
+      ATH_MSG_ERROR("Problem executing cluster correction tool");
+    }
+    fillPositionsInCalo(newClus);
+    //Fill the raw state , by default the above filled the calib one
+    newClus->setRawE(newClus->calE());
+    newClus->setRawEta(newClus->calEta());
+    newClus->setRawPhi(newClus->calPhi());
+    if (m_MVACalibTool->execute(newClus,eg).isFailure()){
+      ATH_MSG_ERROR("Problem executing MVA cluster tool");
+    }
+  }
+  else {
     ATH_MSG_ERROR("Null newClus");
-  }
-  if (m_clusterCorrectionTool->execute(newClus).isFailure()){
-    ATH_MSG_ERROR("Problem executing cluster correction tool");
-  }
-
-  fillPositionsInCalo(newClus);
-  //Fill the raw state , by default the above filled the calib one
-  newClus->setRawE(newClus->calE());
-  newClus->setRawEta(newClus->calEta());
-  newClus->setRawPhi(newClus->calPhi());
-
-  if (m_MVACalibTool->execute(newClus,eg).isFailure()){
-    ATH_MSG_ERROR("Problem executing MVA cluster tool");
   }
   return newClus;
 }
@@ -234,7 +233,7 @@ void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster){
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
   double eta, phi;
-  m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi0(), eta, phi); 
+  m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);

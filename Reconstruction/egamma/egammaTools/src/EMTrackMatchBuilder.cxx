@@ -289,7 +289,6 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
   ATH_MSG_DEBUG("inBroadWindow: extrapolation method From (0 Last, 1 perigee , 2 Rescale) " << extrapFrom);
   
   // Now get the delta eta/phi and eta correction at the calorimeter
-  std::vector<bool>    doSample(4, true);
   std::vector<double>  eta(4, -999.0);
   std::vector<double>  phi(4, -999.0);
   // final arrays that we will write
@@ -309,7 +308,6 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
 					    trkPB, 
 					    trkTRT,
 					    dir, 
-					    doSample, 
 					    eta,
 					    phi,
 					    deltaEta, 
@@ -322,8 +320,8 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
   else{//Silicon tracks
     if (m_extrapolationTool->getMatchAtCalo (cluster, 
 					     trkPB, 
+					     trkTRT,
 					     dir, 
-					     doSample, 
 					     eta,
 					     phi,
 					     deltaEta, 
@@ -337,14 +335,12 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
     //=======================================================================================///
     //Calculate both always std and rescale
     IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
-    std::vector<bool>    doSample1(4, false);
-    doSample1[2] = true; // Only extrapolate to second sampling
     std::vector<double>  eta1(4, -999.0);
     std::vector<double>  phi1(4, -999.0);
     if (m_extrapolationTool->getMatchAtCalo (cluster, 
 					     trkPB, 
+					     trkTRT,
 					     dir, 
-					     doSample, 
 					     eta1,
 					     phi1,
 					     deltaEtaRes, 
@@ -381,16 +377,14 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
   //In case of extrapolation from perigee keep the dPhi from the last measurement
   if (!m_useLastMeasurement ) {  
     IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromLastMeasurement;
-    std::vector<bool>    doSample1(4, false);
-    doSample1[2] = true; // Only extrapolate to second sampling
     std::vector<double>  eta1(4, -999.0);
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
     std::vector<double>  deltaPhi1(4, -999.0);
     if (m_extrapolationTool->getMatchAtCalo (cluster, 
                                              trkPB, 
-                                             dir, 
-                                             doSample1, 
+					     trkTRT,
+					     dir, 
                                              eta1,
                                              phi1,
                                              deltaEta1, 
@@ -441,38 +435,71 @@ EMTrackMatchBuilder::inBroadWindow(std::vector<TrackMatch>& trackMatches,
     trkmatch.seconddR = -999;
     ATH_MSG_DEBUG("TRTSA = " << trkTRT << " DPhi " << trkmatch.dR <<" deltaPhi " << deltaPhi[2]);   
   }
-  //Score
+
+  //Primary Score. The first thing to check in finding the best track match
   trkmatch.score=0; 
+  /*Seconday score based on hits to be used for track that are very close 
+    to each other at the calo, pick the innermost possible one*/
   trkmatch.hitsScore=0;
-  if(!trkTRT){  //10 points if it has more than 4 silicon 
+
+  if(!trkTRT){  //10 primary points if it is not TRT ==> TRT-only are the weakest candidates ==> score =0
+
     trkmatch.score+=10 ;   
     if(m_useScoring){
+
       int nPixel=0;
       uint8_t uint8_value=0;
+
+      //Check number of pixel hits
       if (trkPB->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
 	nPixel+=uint8_value;
       }
       if (trkPB->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
 	nPixel+=uint8_value;
       }
-      //20 points if it also have pixel
-      if (nPixel > 0)  trkmatch.score+=20;
-      /*Score based on hits to be used for track that are very close to each other at the calo */
-      trkmatch.hitsScore+=(nPixel*5);
-      //Extra for Blayer
-      int nBL =0;
-      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfBLayerHits)){
-	nBL+=uint8_value;
+
+      //20 primary score points if it also have pixel hits
+      if (nPixel > 0)  {
+	trkmatch.score+=20;
       }
-      int expectBLayerHit = 0; 
-      if (trkPB->summaryValue(uint8_value,  xAOD::expectBLayerHit)){
-	expectBLayerHit+=uint8_value;
+
+      //Check the 2 innermost layers
+      int nInnerMost =0;
+      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfInnermostPixelLayerHits)){
+	nInnerMost+=uint8_value;
+      }
+      int expectInnermostPixelLayerHit = 0; 
+      if (trkPB->summaryValue(uint8_value,  xAOD::expectInnermostPixelLayerHit)){
+	expectInnermostPixelLayerHit+=uint8_value;
+      }
+      int nNextToInnerMost =0;
+      if (trkPB->summaryValue(uint8_value,  xAOD::numberOfNextToInnermostPixelLayerHits)){
+	nNextToInnerMost+=uint8_value;
+      }
+      int expectNextToInnermostPixelLayerHit = 0; 
+      if (trkPB->summaryValue(uint8_value,  xAOD::expectNextToInnermostPixelLayerHit)){
+	expectNextToInnermostPixelLayerHit+=uint8_value;
       }
       
-      if(!expectBLayerHit ||  nBL>0){
+      //Secondary score , find the longest track possible, 
+      //i.e the one with the most inner hists  in the pixel 
+      //npixel*5 
+      trkmatch.hitsScore+=(nPixel*5);
+      //Extra points for NextToInnermost
+      if(!expectNextToInnermostPixelLayerHit ||  nNextToInnerMost>0){
 	trkmatch.hitsScore+=5;
       }
-      ATH_MSG_DEBUG("Pixel hits : " <<nPixel <<" Blayer : " <<nBL <<" Expected Blayer : " << expectBLayerHit);   
+      //Extra points for Innermost
+      if(!expectInnermostPixelLayerHit ||  nInnerMost>0){
+	trkmatch.hitsScore+=10;
+      }
+
+      ATH_MSG_DEBUG("Pixel hits : " <<nPixel 
+		    <<" InnerMost : " << nInnerMost
+		    <<" Expected InnerMost : " << expectInnermostPixelLayerHit
+		    <<" NextToInnerMost : " << nNextToInnerMost
+		    <<" Expected NextToInnerMost : " << expectNextToInnermostPixelLayerHit);   
+    
     }  
   }
   ATH_MSG_DEBUG("Score : " <<trkmatch.score <<" hitsScore : " <<trkmatch.hitsScore);   

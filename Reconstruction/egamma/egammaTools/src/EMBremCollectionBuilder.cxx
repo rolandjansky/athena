@@ -14,7 +14,7 @@ PURPOSE:  Performs Brem refit of all tracks
 UPDATE :
 **********************************************************************/
 #include "EMBremCollectionBuilder.h"
-
+//
 #include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -32,27 +32,20 @@ UPDATE :
 //extrapolation
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 //
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxContainer.h"
 #include "TrkEventPrimitives/VertexType.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 //
 #include "CandidateMatchHelpers.h"
-
 #include "AthenaKernel/errorcheck.h"
-
+//
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-
-#include "xAODTracking/VertexContainer.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
 #include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
 
 //std includes
 #include <stdint.h>
@@ -74,7 +67,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   //Collection
   declareProperty("ClusterContainerName"  ,                 m_clusterContainerName   = "LArClusterEM");
   declareProperty("TrackParticleContainerName"  ,           m_trackParticleContainerName   = "InDetTrackParticles");
-  declareProperty("PrimaryVertexContainerName"  ,           m_vxCandidatesPrimaryName   = "PrimaryVertices");
   declareProperty("OutputTrkPartContainerName",             m_OutputTrkPartContainerName = "GSFTrackParticles");
   declareProperty("TrackParticleTruthCollectionName",       m_trackParticleTruthCollectionName = "TrackParticleTruthCollection");
   declareProperty("OutputTrackContainerName",               m_OutputTrackContainerName = "GSFTracks");
@@ -194,14 +186,6 @@ StatusCode EMBremCollectionBuilder::contExecute()
   //Initialize list of track to truth  associations
   //m_tpTruthMap.clear();
 
-  // Get the primary vertex container from TES
-  const xAOD::VertexContainer* primcontainer(0);
-  bool primVtxExists = evtStore()->contains<xAOD::VertexContainer>(m_vxCandidatesPrimaryName);
-  if (primVtxExists){
-    if (evtStore()->retrieve(primcontainer, m_vxCandidatesPrimaryName).isFailure()){
-      ATH_MSG_DEBUG("xAOD::VertexContainer with key " << m_vxCandidatesPrimaryName << "found!");
-    }
-  }
   //
   // Get the Cluster particle truth collection  from TES -/
   const xAOD::CaloClusterContainer* clusterTES(0);
@@ -222,17 +206,16 @@ StatusCode EMBremCollectionBuilder::contExecute()
   
   // Record the final Track Particle container in StoreGate
   m_finalTrkPartContainer = new xAOD::TrackParticleContainer();
+  xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
+  m_finalTrkPartContainer->setStore( aux );
+
   sc = evtStore()->record(m_finalTrkPartContainer, m_OutputTrkPartContainerName);
   if(sc.isFailure()){
     ATH_MSG_ERROR("Unable to create new container " << m_OutputTrkPartContainerName);
     return sc;
   }
-  
-  xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-  m_finalTrkPartContainer->setStore( aux );
   CHECK( evtStore()->record( aux, m_OutputTrkPartContainerName + "Aux." ) );  
 
-  
   //
   //create container for slimmed tracks
   m_finalTracks = new TrackCollection(0);
@@ -301,7 +284,7 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	    static SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer> >  tPL ("truthParticleLink");
 	    if(tPL.isAvailable(*(*track_iter))){
 	      ElementLink<xAOD::TruthParticleContainer> linkToTruth= tPL(*(*track_iter));
-	      gsfTrack->auxdata< ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = linkToTruth;	      
+	      tPL(*gsfTrack) = linkToTruth;	      
 	      linkToTruth.toPersistent();    
 	      
 	      if(!linkToTruth.isValid()){
@@ -312,18 +295,18 @@ StatusCode EMBremCollectionBuilder::contExecute()
 	    static SG::AuxElement::Accessor<float >  tMP ("truthMatchProbability");
 	    if(tMP.isAvailable(*(*track_iter))){
 	      float originalProbability = tMP(*(*track_iter));
-	      gsfTrack->auxdata<float>("truthMatchProbability") = originalProbability ;
+	      tMP(*gsfTrack)= originalProbability ;
 	    }
 	    
 	    static SG::AuxElement::Accessor<int> tT("truthType") ;
 	    if(tT.isAvailable(*(*track_iter))){
 	      int truthType = tT(*(*track_iter));
-	      gsfTrack->auxdata<int>("truthType") = truthType ;
+	      tT(*gsfTrack) = truthType ;
 	    }
 	    static SG::AuxElement::Accessor<int> tO("truthOrigin") ;
 	    if(tO.isAvailable(*(*track_iter))){
 	      int truthOrigin = tO(*(*track_iter));
-	      gsfTrack->auxdata<int>("truthOrigin") = truthOrigin ;
+	      tO(*gsfTrack) = truthOrigin ;
 	    } 
 	  }
 	}
@@ -348,8 +331,8 @@ StatusCode EMBremCollectionBuilder::contExecute()
     ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
   }  
 
-  evtStore()->setConst(m_finalTrkPartContainer).ignore();  
-  evtStore()->setConst(m_finalTracks).ignore();
+  //evtStore()->setConst(m_finalTrkPartContainer).ignore();  
+  //evtStore()->setConst(m_finalTracks).ignore();
   //======================================================================================================
   return StatusCode::SUCCESS;
 }
@@ -477,33 +460,37 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
   double trkPhiCorrTrack = m_phiHelper.diff(trkPhi, phiRotTrack);
   double deltaPhi2Track = m_phiHelper.diff(cluster->phiBE(2), trkPhiCorrTrack);
   //===========================================================//     
-  if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
-    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+ 
+  if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
+      fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
+    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
+		  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
     return false;
   }
   //if it does not fail the eta cut, does it fail the phi?
-  else if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
-    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack ,cluster phi): ( " << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
+  if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) 
+       && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
+    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack ,cluster phi): ( " 
+		  << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
     return false;
   }
 
-  //Extrapolate from Perigee
-  IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromPerigee;
-  std::vector<bool>    doSample(4, false);
-  doSample[2] = true; // Only extrapolate to second sampling
+  //Extrapolate from last measurement, since this is before brem fit last measurement is better.
+  IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromLastMeasurement;
   std::vector<double>  eta(4, -999.0);
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
   std::vector<double>  deltaPhi(4, -999.0);
   if (m_extrapolationTool->getMatchAtCalo (cluster, 
 					   track, 
+					   trkTRT,
 					   Trk::alongMomentum, 
-					   doSample, 
 					   eta,
 					   phi,
 					   deltaEta, 
 					   deltaPhi, 
-					   extrapFrom).isFailure()) return false;  
+					   extrapFrom).isFailure()) {return false;}  
+
   // Selection in narrow eta/phi window
   if(( trkTRT || fabs(deltaEta[2]) < m_narrowDeltaEta ) && 
      deltaPhi[2] < m_narrowDeltaPhi && 
@@ -512,7 +499,8 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
     return true;
   }
   else if(!trkTRT && fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
-    ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
+    ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " 
+		  << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
     IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
     std::vector<double>  eta1(4, -999.0);
@@ -521,8 +509,8 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
     std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
     if (m_extrapolationTool->getMatchAtCalo (cluster, 
                                              track, 
-                                             Trk::alongMomentum, 
-                                             doSample, 
+					     trkTRT,
+					     Trk::alongMomentum, 
                                              eta1,
                                              phi1,
                                              deltaEta1, 
@@ -535,17 +523,14 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
       return true;
     }
     else {
-      ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " << deltaPhi1[2] <<" / "<< deltaEta1[2] );
+      ATH_MSG_DEBUG("Rescaled matched Failed deltaPhi/deltaEta " 
+		    << deltaPhi1[2] <<" / "<< deltaEta1[2] );
       return false;
     }
   }
-  else{
-    ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<", No Rescale attempted isTRT, "<< trkTRT);
-    return false;
-  }
-  //Default
-  ATH_MSG_DEBUG("Default True");
-  return true;  
+ 
+  ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
+  return false;
 }
 
 

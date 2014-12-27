@@ -61,12 +61,12 @@ class EMPIDBuilderElectronBase ( EMPIDBuilder ) :
             print traceback.format_exc()
             return False
 
-        electronSelectors = [LooseElectronSelector, MediumElectronSelector, TightElectronSelector,
-                            LooseLHSelector, MediumLHSelector, TightLHSelector, MultiLeptonSelector]
-        electronSelectorNames = ["Loose", "Medium", "Tight", "LHLoose","LHMedium","LHTight","MultiLepton"]
-            
-        self.selectors=electronSelectors
-        self.selectorResultNames=electronSelectorNames
+        self.electronIsEMselectors = [LooseElectronSelector, MediumElectronSelector, TightElectronSelector]
+        self.electronIsEMselectorResultNames = ["Loose", "Medium", "Tight"]
+        self.electronLHselectors = [LooseLHSelector, MediumLHSelector, TightLHSelector]
+        self.electronLHselectorResultNames= ["LHLoose","LHMedium","LHTight"]
+        self.genericIsEMselectors =[MultiLeptonSelector]
+        self.genericIsEMselectorResultNames=["MultiLepton"]
 
 class EMPIDBuilderPhotonBase ( EMPIDBuilder ) :
     __slots__ = ()
@@ -92,8 +92,6 @@ class EMPIDBuilderPhotonBase ( EMPIDBuilder ) :
             print traceback.format_exc()
             return False
 
-        photonSelectors = [LoosePhotonSelector, TightPhotonSelector]
-        photonSelectorNames = ["Loose", "Tight"]
-            
-        self.selectors=photonSelectors
-        self.selectorResultNames=photonSelectorNames
+        self.photonIsEMselectors= [LoosePhotonSelector,TightPhotonSelector]
+        self.photonIsEMselectorResultNames = ["Loose","Tight"]
+

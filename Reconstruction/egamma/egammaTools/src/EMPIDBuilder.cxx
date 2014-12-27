@@ -3,11 +3,13 @@
 */
 
 // INCLUDE HEADER FILES:
-
 #include "AthenaKernel/errorcheck.h"
 
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 // ===========================================================================
@@ -23,10 +25,29 @@ EMPIDBuilder::EMPIDBuilder(const std::string& type,
   // declare interface
   declareInterface<IegammaBaseTool>(this);
 
-  declareProperty("selectors", m_selectors,
-    "The selectors that we need to apply to the EGamma object");
-  declareProperty("selectorResultNames", m_selectorResultNames,
+  declareProperty("electronIsEMselectors", m_electronIsEMselectors,
+    "The selectors that we need to apply to the Electron object");
+  declareProperty("electronIsEMselectorResultNames", m_electronIsEMselectorResultNames,
     "The selector result names");
+
+  declareProperty("electronLHselectors", m_electronLHselectors,
+    "The selectors that we need to apply to the LH electron object");
+  declareProperty("electronLHselectorResultNames", m_electronLHselectorResultNames,
+    "The selector result names");
+
+  declareProperty("genericIsEMselectors", m_genericIsEMselectors,
+    "The selectors that we need to apply to the generic object");
+  declareProperty("genericIsEMselectorResultNames", m_genericIsEMselectorResultNames,
+    "The selector result names");
+
+  declareProperty("photonIsEMselectors", m_photonIsEMselectors,
+    "The selectors that we need to apply to the pothon object");
+  declareProperty("photonIsEMselectorResultNames", m_photonIsEMselectorResultNames,
+    "The selector result names");
+
+  declareProperty("LHValueName", m_LHValueName="LHValue",
+    "The LH Value name");
+
 }
 
 // ===============================================================
@@ -46,12 +67,41 @@ StatusCode EMPIDBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing EMPIDBuilder");
  
-  for (const auto& selector : m_selectors) {
+  for (const auto& selector : m_electronIsEMselectors) {
     CHECK(selector.retrieve());
   }
 
-  if (m_selectors.size() != m_selectorResultNames.size()) {
-    ATH_MSG_ERROR("The number of selectors does not match the number of given selector names");
+  if (m_electronIsEMselectors.size() != m_electronIsEMselectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given electronIsEMselector names");
+    return StatusCode::FAILURE;
+  }
+
+  for (const auto& selector : m_electronLHselectors) {
+    CHECK(selector.retrieve());
+  }
+
+  if (m_electronLHselectors.size() != m_electronLHselectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given electron LH selector names");
+    return StatusCode::FAILURE;
+  }
+
+
+  for (const auto& selector : m_genericIsEMselectors) {
+    CHECK(selector.retrieve());
+  }
+
+  if (m_genericIsEMselectors.size() != m_genericIsEMselectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given generic selector names");
+    return StatusCode::FAILURE;
+  }
+
+
+  for (const auto& selector : m_photonIsEMselectors) {
+    CHECK(selector.retrieve());
+  }
+
+  if (m_photonIsEMselectors.size() != m_photonIsEMselectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given photon selector names");
     return StatusCode::FAILURE;
   }
 
@@ -81,12 +131,52 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
     return StatusCode::SUCCESS;
   }
   
-  size_t size = m_selectors.size();
+  size_t size = m_electronIsEMselectors.size();
 
-  for (size_t i = 0; i<size; i++) {
-    const Root::TAccept& accept = m_selectors[i]->accept(eg);
-    eg->setPassSelection(static_cast<bool>(accept), m_selectorResultNames[i]);
+  for (size_t i = 0; i<size;++i) {
+    const Root::TAccept& accept = m_electronIsEMselectors[i]->accept(eg);
+    //save the bool result
+    eg->setPassSelection(static_cast<bool>(accept), m_electronIsEMselectorResultNames[i]);
+    //save the isem
+    eg->setSelectionisEM(m_electronIsEMselectors[i]->IsemValue(), "isEM"+m_electronIsEMselectorResultNames[i]);
+
   }
+
+  size_t sizePh = m_photonIsEMselectors.size();
+
+  for (size_t i = 0; i<sizePh;++i) {
+    const Root::TAccept& accept = m_photonIsEMselectors[i]->accept(eg);
+    //save the bool result
+    eg->setPassSelection(static_cast<bool>(accept), m_photonIsEMselectorResultNames[i]);
+    //save the isem
+    eg->setSelectionisEM(m_photonIsEMselectors[i]->IsemValue(), "isEM"+m_photonIsEMselectorResultNames[i]);
+  }
+
+  size_t sizeLH = m_electronLHselectors.size();
+
+  for (size_t i = 0; i<sizeLH; ++i) {
+   const Root::TAccept& accept = m_electronLHselectors[i]->accept(eg);
+   //save the bool result
+   eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
+   //save the isem
+   eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_electronLHselectorResultNames[i]); 
+
+   //save the LHValue only once
+   if(i==0){
+     eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->getTResult().getResult(0)),m_LHValueName);
+   }
+
+  }
+
+  size_t sizeGen = m_genericIsEMselectors.size();
+  for (size_t i = 0; i<sizeGen;++i) {
+    const Root::TAccept& accept = m_genericIsEMselectors[i]->accept(eg);
+    //save the bool result
+    eg->setPassSelection(static_cast<bool>(accept), m_genericIsEMselectorResultNames[i]);
+    //save the isem
+    eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_genericIsEMselectorResultNames[i]);
+  }
+
   
   return StatusCode::SUCCESS;
 }

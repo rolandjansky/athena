@@ -30,7 +30,8 @@
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
 
 class IEMExtrapolationTools;
 
@@ -57,6 +58,9 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   StatusCode finalize();
 
 private:
+
+  /** @brief Return true if vertex and cluster pass Pt and E/p cuts **/
+  bool passPtAndEoverP(const xAOD::Vertex&, const xAOD::CaloCluster&) const;
   
   // configuration:
   /** @brief Name of conversion container*/
@@ -75,14 +79,20 @@ private:
  bool m_rejectAllTRT;
  /** @brief minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices) */
  int m_minTRTHits;
- /** @brief minimum pT for Si tracks to be considered single-track conversion vertices */
- double m_minSiSingleTrackPt;
- /** @brief minimum pT for TRT-only tracks considered to be single-track conversion vertices */
- double m_minTRTonlySingleTrackPt;
- /** @brief minimum pT for each tracks in TRT-only double-track conversion vertices */  
- double m_minTRTonlyTrackPt;
+ /** @brief minimum pT for single-track conversion vertices */
+ float m_minPt_singleTrack;
+ /** @brief minimum pT for TRT-only single-track conversion vertices */
+ float m_minPt_singleTRT;
+ /** @brief minimum pT for each track in TRT-only double-track conversion vertices */  
+ float m_minTRTonlyTrackPt;
  /** @brief minimum sum pT for double track conversion vertices */
- double m_minSumPt;
+ float m_minSumPt_double;
+ /** @brief minimum sum pT for double TRT track conversion vertices */
+ float m_minSumPt_doubleTRT; 
+ /** @brief maximum E/p for single track conversion vertices (E is not calibrated) */
+ float m_maxEoverP_singleTrack;
+ /** @brief Scale maxEoverP_singleTrack by 1+sf*Et(cluster)/GeV  **/
+ float m_maxEoverP_singleTrack_EtSf;
  /** @brief Preference to vertices with more Si tracks when chosing a conversion vertex */
  int m_preferSi;
  

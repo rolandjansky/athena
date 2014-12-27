@@ -21,8 +21,6 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
-#include "xAODTracking/VertexContainer.h" 
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ToolHandle.h"

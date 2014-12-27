@@ -16,13 +16,9 @@ class IegammaCheckEnergyDepositTool;
 class IEMExtrapolationTools;
 
 
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
-
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 
@@ -76,7 +72,6 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
 	std::string                       m_trackParticleTruthCollectionName;
 	std::string                       m_OutputTrkPartContainerName;	
 	std::string                       m_OutputTrackContainerName;	
-	std::string                       m_vxCandidatesPrimaryName;
 	std::string                       m_trackAssocName;
 
 	/** @Cut on minimum silicon hits*/

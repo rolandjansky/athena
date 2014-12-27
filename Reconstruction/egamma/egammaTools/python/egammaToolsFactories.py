@@ -35,7 +35,8 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
   postInit=[configureClusterCorrections])
 
 from egammaMVACalib import egammaMVACalibConf 
-egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool)
+egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
+                             folder="egammaMVACalib/v1")
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
@@ -54,11 +55,6 @@ egammaCheckEnergyDepositTool = ToolFactory(egammaToolsConf.egammaCheckEnergyDepo
                                            ThrF3max=0.8)
 
 
-from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
-EMTrackIsolationTool = ToolFactory( egammaToolsConf.EMTrackIsolationTool,
-  TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool),
-  useBremAssoc = True)
-
 from EMBremCollectionBuilder import egammaBremCollectionBuilder
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
@@ -70,7 +66,6 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
 )
 
 
-
 EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
                                    egammaRecContainerName = egammaKeys.outputEgammaRecKey(),
                                    ConversionContainerName = egammaKeys.outputConversionKey(),
@@ -78,7 +73,6 @@ EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
 
 
 EMAmbiguityTool = ToolFactory( egammaToolsConf.EMAmbiguityTool )
-
 
 
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
@@ -95,7 +89,6 @@ PhotonPIDBuilder = ToolFactory( EMPIDBuilderPhotonBase, name = "PhotonPIDBuilder
 
 # Import the factories that are not defined here
 from EMShowerBuilder import EMShowerBuilder
-from EMIsolationBuilder import EMIsolationBuilder
 from egammaOQFlagsBuilder import egammaOQFlagsBuilder
 from EMTrackMatchBuilder import EMTrackMatchBuilder
 from EMVertexBuilder import EMVertexBuilder

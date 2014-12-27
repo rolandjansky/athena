@@ -10,7 +10,6 @@ use GaudiInterface	       GaudiInterface-*	       External
 use AtlasCLHEP                 AtlasCLHEP-*            External
 use StoreGate                  StoreGate-*             Control
 use Identifier                 Identifier-*            DetectorDescription
-
 use EventKernel                EventKernel-*           Event
 use FourMom                    FourMom-*               Event
 use NavFourMom                 NavFourMom-*            Event
@@ -33,9 +32,6 @@ use CaloInterface	       CaloInterface-*         Calorimeter
 use CaloConditions	       CaloConditions-*        Calorimeter
 
 use Particle                   Particle-*              Reconstruction
-use IsolationTool	       IsolationTool-*	       Reconstruction/RecoTools
-
-#use TrkParameters              TrkParameters-*         Tracking/TrkEvent
 use TrkParticleBase    	       TrkParticleBase-*       Tracking/TrkEvent
 use TrkTrack                   TrkTrack-*              Tracking/TrkEvent
 use TrkEventPrimitives         TrkEventPrimitives-*    Tracking/TrkEvent
@@ -53,13 +49,10 @@ use egammaMVACalib             egammaMVACalib-*        Reconstruction/egamma
 use xAODEgamma                 xAODEgamma-*            Event/xAOD
 use xAODTracking               xAODTracking-*          Event/xAOD
 use xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
-use xAODPrimitives             xAODPrimitives-*        Event/xAOD
 use xAODTruth                  xAODTruth-*             Event/xAOD
 
-use xAODEventShape             xAODEventShape-*        Event/xAOD
-
 use PATCore                    PATCore-*               PhysicsAnalysis/AnalysisCommon
-#use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonSelectorTools    ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 
 
 end_private

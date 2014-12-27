@@ -17,8 +17,8 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 
 // INCLUDE HEADER FILES:
 #include "egammaBaseTool.h"
-#include "TrackMatchSorter.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
+#include "TrackMatchSorter.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"

@@ -161,6 +161,7 @@ StatusCode EMVertexBuilder::contExecute()
 	((*itVtx)->position().perp() > m_maxRadius)){
       
       itVtx = vertices.first->erase(itVtx);
+      itVtxEnd = vertices.first->end();
     }
     else{
       ++itVtx;

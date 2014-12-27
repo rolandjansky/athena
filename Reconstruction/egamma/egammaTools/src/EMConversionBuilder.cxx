@@ -29,6 +29,7 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 /////////////////////////////////////////////////////////////////
 
 using CLHEP::GeV;
+using namespace xAOD::EgammaParameters;
 
 EMConversionBuilder::EMConversionBuilder(const std::string& type,
 					 const std::string& name,
@@ -58,20 +59,30 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
   declareProperty("RejectAllTRTConversions", m_rejectAllTRT = false,
 		  "Ignore all conversion vertices containing exclusively TRT-only tracks");
     
-  declareProperty("MinTRTHits", m_minTRTHits = 0,
+  declareProperty("minTRTHits", m_minTRTHits = 0,
 		  "minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices)");
   
-  declareProperty("MinSiSingleTrackPt", m_minSiSingleTrackPt = 0*GeV,
-		  "minimum pT for Si tracks to be considered single-track conversion vertices");
+  declareProperty("minPt_singleTrack", m_minPt_singleTrack = 0*GeV,
+		  "minimum pT for single-track conversion vertices");
   
-  declareProperty("MinTRTOnlySingleTrackPt", m_minTRTonlySingleTrackPt = 2*GeV,
-		  "minimum pT for TRT-only tracks to be considered single-track conversion vertices");
+  declareProperty("minPt_singleTRT", m_minPt_singleTRT = 2*GeV,
+		  "minimum pT for TRT-only single-track conversion vertices");
   
-  declareProperty("MinTRTOnlyTrackPt", m_minTRTonlyTrackPt = 0*GeV,
+  declareProperty("minTRTonlyTrackPt", m_minTRTonlyTrackPt = 0*GeV,
 		  "minimum pT for each track in TRT-only double-track conversion vertices");
         
-  declareProperty("MinSumPt", m_minSumPt = 0*GeV,
+  declareProperty("minSumPt_double", m_minSumPt_double = 0*GeV,
 		  "minimum sum pT for double track conversion vertices");
+
+  declareProperty("minSumPt_doubleTRT", m_minSumPt_doubleTRT = 2*GeV,
+		  "minimum sum pT for double TRT track conversion vertices");
+
+  declareProperty("maxEoverP_singleTrack", m_maxEoverP_singleTrack = 10. ,  
+      "Maximum E/p for single track conversion vertices");
+
+  declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0. ,  
+      "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
+
 }
 
 // =================================================================
@@ -144,6 +155,8 @@ StatusCode EMConversionBuilder::contExecute()
     for (auto& egRec : *egammaRecs)
     {
       const xAOD::CaloCluster *cluster = egRec->caloCluster();
+      if (!passPtAndEoverP(*vertex, *cluster)) 
+        continue;
       if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo))
         continue;
       const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
@@ -201,6 +214,8 @@ StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexC
       continue;
     
     const xAOD::CaloCluster *cluster = egRec->caloCluster();
+    if (!passPtAndEoverP(*vertex, *cluster))
+        continue;
     if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo))
       continue;
     const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
@@ -227,4 +242,27 @@ StatusCode EMConversionBuilder::finalize()
 
   return StatusCode::SUCCESS;
 
+}
+// ==================================================================
+bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD::CaloCluster& cluster) const
+{
+  Amg::Vector3D momentum = m_extrapolationTool->getMomentumAtVertex(vertex);
+  float pt = momentum.perp();
+  float EoverP = cluster.e() / momentum.mag();
+  
+  auto convType = xAOD::EgammaHelpers::conversionType(&vertex);
+  bool isSingle = (convType == singleTRT || convType == singleSi);
+  bool isTRT = (convType == singleTRT || convType == xAOD::EgammaParameters::doubleTRT);
+  float EoverPcut = m_maxEoverP_singleTrack*(1+m_maxEoverP_singleTrack_EtSf*cluster.et()/1e3);
+  
+  bool reject =  (
+    (isTRT && m_rejectAllTRT) ||
+    (isSingle && pt < m_minPt_singleTrack) ||
+    (!isSingle && pt < m_minSumPt_double) ||
+    (isSingle && EoverP > EoverPcut) ||
+    (convType == singleTRT && pt < m_minPt_singleTRT) ||
+    (convType == doubleTRT && pt < m_minSumPt_doubleTRT)
+  );
+  if (reject) ATH_MSG_DEBUG("Conversion failed pt or E/p cuts");
+  return !reject;
 }

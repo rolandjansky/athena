@@ -6,8 +6,6 @@
 #include "../EMConversionBuilder.h"
 #include "../EMFourMomBuilder.h"
 #include "../EMShowerBuilder.h"
-#include "../EMIsolationBuilder.h"
-#include "../EMTrackIsolationTool.h"
 #include "../EMTrackMatchBuilder.h"
 #include "../EMVertexBuilder.h"
 #include "../FourMomCombiner.h"
@@ -15,6 +13,8 @@
 #include "../egammaOQFlagsBuilder.h"
 #include "../EMPIDBuilder.h"
 #include "../egammaSwTool.h"
+#include "../egammaTopoClusterMap.h"
+#include "../egammaSuperClusterBuilder.h"
 
 DECLARE_TOOL_FACTORY     ( EMAmbiguityTool              )
 DECLARE_TOOL_FACTORY     ( EMBremCollectionBuilder      )
@@ -22,8 +22,6 @@ DECLARE_TOOL_FACTORY     ( EMClusterTool                )
 DECLARE_TOOL_FACTORY     ( EMConversionBuilder          )
 DECLARE_TOOL_FACTORY     ( EMFourMomBuilder             )
 DECLARE_TOOL_FACTORY     ( EMShowerBuilder              )
-DECLARE_TOOL_FACTORY     ( EMIsolationBuilder           )
-DECLARE_TOOL_FACTORY     ( EMTrackIsolationTool         )
 DECLARE_TOOL_FACTORY     ( EMTrackMatchBuilder          )
 DECLARE_TOOL_FACTORY     ( EMVertexBuilder              )
 DECLARE_TOOL_FACTORY     ( FourMomCombiner              )
@@ -31,7 +29,8 @@ DECLARE_TOOL_FACTORY     ( egammaCheckEnergyDepositTool )
 DECLARE_TOOL_FACTORY     ( egammaOQFlagsBuilder         )
 DECLARE_TOOL_FACTORY     ( EMPIDBuilder                 )
 DECLARE_TOOL_FACTORY     ( egammaSwTool                 )
-
+DECLARE_TOOL_FACTORY     ( egammaTopoClusterMap         )
+DECLARE_TOOL_FACTORY     ( egammaSuperClusterBuilder    )
 
 DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMAmbiguityTool              )
@@ -40,8 +39,6 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMConversionBuilder          )
     DECLARE_TOOL     ( EMFourMomBuilder             )
     DECLARE_TOOL     ( EMShowerBuilder              )
-    DECLARE_TOOL     ( EMIsolationBuilder           )
-    DECLARE_TOOL     ( EMTrackIsolationTool         )
     DECLARE_TOOL     ( EMTrackMatchBuilder          )
     DECLARE_TOOL     ( EMVertexBuilder              )
     DECLARE_TOOL     ( FourMomCombiner              )
@@ -49,5 +46,7 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( egammaOQFlagsBuilder         )
     DECLARE_TOOL     ( EMPIDBuilder                 )
     DECLARE_TOOL     ( egammaSwTool                 )
+    DECLARE_TOOL     ( egammaTopoClusterMap         )
+    DECLARE_TOOL     ( egammaSuperClusterBuilder    )
 }
 

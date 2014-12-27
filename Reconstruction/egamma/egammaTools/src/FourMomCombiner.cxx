@@ -11,7 +11,6 @@
 #include "egammaUtils/WeightedMeanCalc.h"
 #include "egammaUtils/EMConversionUtils.h"
 #include "CaloUtils/CaloVertexedCluster.h"
-//#include "egammaInterfaces/IEMExtrapolCaloConversion.h"
 
 //NEW xAOD INCLUDES.
 #include "xAODEgamma/EgammaDefs.h"
@@ -23,20 +22,11 @@
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include  "xAODCaloEvent/CaloClusterContainer.h" 
-#include "xAODTracking/TrackParticleContainer.h" 
-#include "xAODTracking/VertexContainer.h" 
 
-#include "VxVertex/VxContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 using namespace CLHEP;
@@ -118,19 +108,6 @@ StatusCode FourMomCombiner::initialize() {
 
   ATH_MSG_DEBUG(" Initializing FourMomCombiner");
 
-  //NEW: Use egamma calibration tool for cluster energy resolution.
-  //Need a way to tell 2011 vs. 2012.
-  //bool m_is2012(true);
-  /*
-  eRescaler = new AtlasRoot::egammaEnergyCorrectionTool();
-  eRescaler->setFileName("ElectronPhotonFourMomentumCorrection/data/egammaEnergyCorrectionData.root");
-  if (m_is2012) {
-    eRescaler->setESModel(egEnergyCorr::es2012c);
-  }else {
-    eRescaler->setESModel(egEnergyCorr::es2011c);
-  }
-  eRescaler->initialize();
-  */
 
   return StatusCode::SUCCESS;
 
@@ -142,7 +119,7 @@ StatusCode FourMomCombiner::ClusterExecute(xAOD::Egamma *eg,
 {
 
   //A few security checks.                                                                                                                                                         
-  if (eg == NULL) {
+  if (eg == 0) {
     ATH_MSG_DEBUG("No Egamma Object");
     return StatusCode::FAILURE;
   }
@@ -487,10 +464,6 @@ bool FourMomCombiner::fillTrackMatrixElements(xAOD::Egamma *eg, int index, int c
   m.setZero();
   ATH_MSG_DEBUG("fillTrackMatrixElements: Creating Jacobian ...");
 
-  //EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP J(perigee->parameters()[Trk::theta], 
-  //						  charge, 
-  //						  m_trkVector[4]);
-
   EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP J(perigee(3),
 						  charge, 
 						  m_trkVector[4]);
@@ -512,7 +485,7 @@ bool FourMomCombiner::fillClusterParameters(const xAOD::Egamma* eg)
   if (!eg) return false;
 
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
-  if (aCluster == NULL) return false;
+  if (aCluster == 0) return false;
 
   //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");
   
@@ -553,7 +526,7 @@ bool FourMomCombiner::fillClusterParameters(const xAOD::Egamma* eg,
   if (!eg) return false;
 
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
-  if (aCluster == NULL) return false;
+  if (aCluster == 0) return false;
 
   //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");
 
@@ -597,16 +570,9 @@ double FourMomCombiner::getClusterPhiError(const xAOD::Egamma* eg) const
 {
 
   if (!eg) return 0.;
-  //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");
-
-  /*  
-  EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
-    EMClusterErrorsParametrizations::ELECTRON : 
-    EMClusterErrorsParametrizations::PHOTON;
-  */
   
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
-  if (aCluster == NULL /*|| pars == NULL*/) return 1E11;
+  if (aCluster == 0 /*|| pars == 0*/) return 1E11;
 
   return 1e-3;
   
@@ -618,18 +584,11 @@ double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const
 {
 
   if (!eg) return 0.;
-  //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");
-
-  /*
-  EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
-    EMClusterErrorsParametrizations::ELECTRON : 
-    EMClusterErrorsParametrizations::PHOTON;
-  */
 
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
   double eta = (aCluster) ?  caloEta(eg, aCluster->eta()) : 0;
   if (fabs(eta) > 8) eta = 8.0;
-  if (1 /*pars == NULL*/) {
+  if (1 /*pars == 0*/) {
 
     const double clusterEnergyGeV = 100.0; //GeV - just use 100 as the default
     const double sigma_theta = 0.07 /sqrt(clusterEnergyGeV);
@@ -640,21 +599,12 @@ double FourMomCombiner::getClusterEtaError(const xAOD::Egamma* eg) const
 
   return 0.;
 
-  //return pars->getEtaMatrix(tp).getError(eta, 
-  //                                     aCluster ? aCluster->e(): 0);
 }
 
 double FourMomCombiner::getClusterEtaPosError(const xAOD::Egamma* eg) const
 {
 
   if (!eg) return 0.;
-  //if (forcePhoton) ATH_MSG_DEBUG("Treating all objects as photons");
-
-  /*
-  EMClusterErrorsParametrizations::Type tp = isElectron(eg, forcePhoton) ? 
-    EMClusterErrorsParametrizations::ELECTRON : 
-    EMClusterErrorsParametrizations::PHOTON;
-  */
 
   double clusterE(1.);
   double eta(0.);
@@ -667,22 +617,6 @@ double FourMomCombiner::getClusterEtaPosError(const xAOD::Egamma* eg) const
   } else {
     return 0.30e-3*sqrt(100./(clusterE*0.001));
   }
-    /*
-  if (!pars) {
-    return 0.30e-3*sqrt(100./(clusterE*0.001));
-  } else {
-
-    const EMClusterEtaPosErrorsMatrix& mat = pars->getEtaPosMatrix(tp);
-    const double err = mat.getError(eta, clusterE);
-
-    if (err != -1.0) {
-      return err;
-    } else {
-      // Use old  parametrization.
-      return 0.30e-3*sqrt(100./(clusterE*0.001));
-    }
-  }
-    */
 
   return -1.;
 }
@@ -696,19 +630,10 @@ double FourMomCombiner::getClusterEnergyError(const xAOD::Egamma* eg) const
 
   const xAOD::CaloCluster* aCluster = eg->caloCluster();
 
-  if (aCluster == NULL /* || pars == NULL*/) return 1e-3; // In merging, use the cluster energy.
+  if (aCluster == 0 /* || pars == 0*/) return 1e-3; // In merging, use the cluster energy.
   
   double cl_err = 1E10;
 
-  /*
-  double cl_err = aCluster->e() * eRescaler->resolution(aCluster->e(), 
-							aCluster->eta(), 
-							isElectron(eg, forcePhoton) ? PATCore::ParticleType::Electron : PATCore::ParticleType::Photon, 
-							true);
-  */
-  
-  // Note The parametrization is in cluster eta, not pointing eta.
-  //return pars->getEnergyMatrix(tp).getError(aCluster->eta(), aCluster->e());
 
   return cl_err;
 

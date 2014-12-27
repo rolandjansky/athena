@@ -7,7 +7,9 @@ from AthenaCommon.Constants import *
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.GlobalFlags  import globalflags
 from RecExConfig.RecFlags  import rec
+from InDetRecExample.InDetJobProperties import InDetFlags
 import traceback
 
 #import base class
@@ -78,16 +80,25 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                 Extrapolator    = GSFBuildInDetExtrapolator)
             ToolSvc += GSFBuildTestBLayerTool
             print  GSFBuildTestBLayerTool
-        #
+
         # Configurable version of TRT_ElectronPidTools
         #
         GSFBuildTRT_ElectronPidTool = None
-        if DetFlags.haveRIO.TRT_on():
-            from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-            GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidTool(name = "GSFBuildTRT_ElectronPidTool")
+        if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
+            
+            from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
+            ToolSvc += GSFBuildTRT_LocalOccupancy
+            print GSFBuildTRT_LocalOccupancy
                 
+            from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+            GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "GSFBuildTRT_ElectronPidTool",
+                                                                         TRT_LocalOccupancyTool = GSFBuildTRT_LocalOccupancy,
+                                                                         isData = (globalflags.DataSource == 'data') )
+ 
             ToolSvc += GSFBuildTRT_ElectronPidTool
             print GSFBuildTRT_ElectronPidTool
+
         #
         # Configurable version of PixelToTPIDTOol
         #
@@ -154,7 +165,6 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
         self.ClusterContainerName="LArClusterEM"
         from InDetRecExample.InDetKeys import InDetKeys
         self.TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer()
-        self.PrimaryVertexContainerName=InDetKeys.xAODVertexContainer()
         self.TrackParticleTruthCollectionName="TrackParticleTruthCollection"
         self.OutputTrkPartContainerName="GSFTrackParticles"
         self.OutputTrackContainerName="GSFTracks"

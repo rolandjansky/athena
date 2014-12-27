@@ -41,8 +41,6 @@
 #include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODTracking/VertexContainer.h" 
 
-#include "xAODEventShape/EventShape.h"
-
 class StoreGateSvc;
 class CaloCellContainer;
 class IEMTrackIsolationTool;
@@ -107,10 +105,6 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   const CaloCellContainer* m_cellcoll;
   /** @brief the CaloCluster container */
   const xAOD::CaloCluster* m_clus;
-
-  /** @brief the eventShape container */
-  const xAOD::EventShape* m_evtShape;
-
 
   /** @brief boolean to print results*/
   bool m_Print;

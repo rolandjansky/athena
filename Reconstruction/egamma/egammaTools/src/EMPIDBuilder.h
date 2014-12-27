@@ -12,7 +12,6 @@
   @author Jovan Mitrevski Jovan.Mitrevski@cern.ch
 
 */
-
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaBaseTool.h"
@@ -21,6 +20,9 @@
 #include <vector>
 
 class IAsgSelectionTool;
+class IAsgElectronIsEMSelector;
+class IAsgElectronLikelihoodTool;
+class IAsgPhotonIsEMSelector;
 
 class EMPIDBuilder : public egammaBaseTool
 {
@@ -43,8 +45,20 @@ class EMPIDBuilder : public egammaBaseTool
 
  protected:
   /** Handle to the selectors */
-  ToolHandleArray<IAsgSelectionTool> m_selectors;
-  std::vector<std::string> m_selectorResultNames;
+
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMselectors;
+  std::vector<std::string> m_electronIsEMselectorResultNames;
+ 
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHselectors;
+  std::vector<std::string> m_electronLHselectorResultNames;
+  
+  ToolHandleArray<IAsgSelectionTool> m_genericIsEMselectors;
+  std::vector<std::string> m_genericIsEMselectorResultNames;
+  
+  ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMselectors;
+  std::vector<std::string> m_photonIsEMselectorResultNames;
+
+  std::string m_LHValueName;
 };
 
 #endif

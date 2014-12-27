@@ -14,7 +14,6 @@
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainer.h" 
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ToolHandle.h"
@@ -25,6 +24,7 @@
 #include "egammaInterfaces/IFourMomCombiner.h"
 #include "egammaBaseTool.h"
 #include "EventPrimitives/EventPrimitives.h"
+
 //#include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
 class IEMExtrapolCaloConversion;

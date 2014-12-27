@@ -8,11 +8,10 @@ from egammaRec.Factories import FcnWrapper, ToolFactory
 from egammaRec import egammaKeys
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools, ExtrapolateToCaloTool
+from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 def appendToEMTrackMatchBuilder(tool):
     "add track to calo tool (like it was done in egammaGetter)"
-    tool += ExtrapolateToCaloTool()
     tool += EMExtrapolationTools()
   
 EMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,

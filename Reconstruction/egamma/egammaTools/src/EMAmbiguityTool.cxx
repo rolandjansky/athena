@@ -5,21 +5,8 @@
 /********************************************************************
 
 NAME:     EMAmbiguityTool.cxx
-PACKAGE:  offline/Reconstruction/egamma/egammaTrackTools
+PACKAGE:  offline/Reconstruction/egamma/egammaTools
 
-CREATED:  12/06/2008
-AUTHOR : T. Koffas
-MODIFIED:
-          Dec. 28, 2009 (FD) add protections against bad pointers
-          May  06, 2010 (JM) use expectHitInBLayer for dead pixels
-          June 06, 2010 (JM) add expectHitInBLayer when tp != conversion tracks
-          June 07, 2010 (JM) remove LocationOfConversion function
-          June,    2010 (JM) expand role of tool and change interface
-          July 18, 2010 (JM) make it return AmbiguityResult instead of bool
-          Oct. 28, 2010 (JM) make it use expectHitInBLayer from track summary
-          Nov. 10, 2010 (JM) allow it to use outliers
-          Feb.  6, 2012 (JM) introduce MEDIUM AR for two-track conversions
-          Feb. 20, 2014 (BL) xAOD migration, changing logic
 ********************************************************************/
 
 #include "EMAmbiguityTool.h"
@@ -38,7 +25,7 @@ EMAmbiguityTool::EMAmbiguityTool(const std::string& type, const std::string& nam
   declareProperty("minNoSiHits",  m_MinNoSiHits = 4, "Minimum number of silicon hits to be an electron==>not photon for sure");
   declareProperty("minNoPixHits", m_MinNoPixHits = 2, "Minimum number of Pixel hits to be an electron==>not photon for sure");
   declareProperty("maxEoverPCut", m_maxEoverPCut = 10,"Maximum EoverP , more that this is ambiguous");
-  declareProperty("minPCut",      m_minPtCut = 1500 ,  "Minimum P, less than that is ambiguous");
+  declareProperty("minPCut",      m_minPtCut = 2000 ,  "Minimum Pt, less than that is ambiguous");
 
 }
 
@@ -73,11 +60,11 @@ unsigned int EMAmbiguityTool::ambiguityResolve(const egammaRec *egRec) const
     ep= cluster->e() * fabs(tp->qOverP());
   }
 
-  if (tp && !tp->summaryValue(trkExpectBlayerHit,xAOD::expectBLayerHit))
-    ATH_MSG_WARNING("Could not retrieve expected BLayer hit from track");
+  if (tp && !tp->summaryValue(trkExpectBlayerHit,xAOD::expectInnermostPixelLayerHit))
+    ATH_MSG_WARNING("Could not retrieve expected InnermostPixelLayer hit from track");
   
-  if (tp && !tp->summaryValue(trkBlayerHits,xAOD::numberOfBLayerHits))
-    ATH_MSG_WARNING("Could not retrieve number of BLayer hits from track");
+  if (tp && !tp->summaryValue(trkBlayerHits,xAOD::numberOfInnermostPixelLayerHits))
+    ATH_MSG_WARNING("Could not retrieve number of InnermostPixelLayer hits from track");
   
   if (tp && !tp->summaryValue(trkPixelHits,xAOD::numberOfPixelHits))
     ATH_MSG_WARNING("Could not retrieve number of pixel hits from track");
@@ -134,23 +121,24 @@ unsigned int EMAmbiguityTool::ambiguityResolve(const egammaRec *egRec) const
     return xAOD::EgammaParameters::AuthorPhoton;
   }
   
-  //Ambigous due to E/P and Min Pt 
-  // - E/P >10  or track P < 1.5 GeV then Ambigoous
-  if( ep > m_maxEoverPCut ||  tp->pt()<m_minPtCut) {
-    ATH_MSG_DEBUG("Returning Ambiguous deu to E over P and min Pt ");
+  //Ambigous due to E/P ,Min Pt, pixel hits
+  //We are not sure it is a Photon , but is not good enough either to be surely an Electron
+  // - E/P >10  or track Pt < 2.0 GeV or no-pixel then Ambiguous
+  if( ep > m_maxEoverPCut ||  tp->pt()<m_minPtCut || !trkPixelHits) {
+    ATH_MSG_DEBUG("Returning Ambiguous due to E over P ||  min Pt  || no pixels");
     return xAOD::EgammaParameters::AuthorAmbiguous;
   }
 
   //Electron ==> Surely not Photon
-  // - Track with at least the minimum si hits (previous selection for photons)
-  // - And has E/P < 10 and Pt > 1.5 GeV (previous for ambiguous)
+  // - Track with at least the minimum Si and Pixel hits (previous selection for photons/ambiguous)
+  // - And has E/P < 10 and Pt > 2.0 GeV (previous for ambiguous)
   // - No vertex Matched
   // - Or if a vertex exists and is not  Si+Si
   //    - Either Blayer hit
   //    - Or (2) or more Pixel hits when not expecting a b-layer hit
   // In this case we do not want this to be in Photons
   
-  if (!vx || 
+  if ( !vx|| 
       (trkBlayerHits && !vxDoubleSi) || 
       (!trkExpectBlayerHit && trkPixelHits>=m_MinNoPixHits  && !vxDoubleSi) ){
       ATH_MSG_DEBUG("Returning Electron");
@@ -158,9 +146,8 @@ unsigned int EMAmbiguityTool::ambiguityResolve(const egammaRec *egRec) const
   }
 
   // Ambiguous all else, these will go to both electrons and photons
-
-  // This involves a matched Si+Si vertex and  a track with enough hits.
-  // Or a non Si+Si vertex matched and a track with not enough hits.
+  // A matched Si+Si vertex and  a track with 2 pixel / blayer hits
+  // A non Si+Si vertex matched and a track with no 2 pixel / blayer hits
 
 
   ATH_MSG_DEBUG("Returning Ambiguous");
