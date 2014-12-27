@@ -12,9 +12,10 @@
 #include "G4ReactionProduct.hh"
 #include <vector>
 #include "G4HadronicException.hh"
-
-
-
+#include "G4Version.hh"
+#if G4VERSION_NUMBER > 1009
+enum{ GHADLISTSIZE=256};
+#endif
 class G4ProcessHelper;
 //class HistoHelper;
 
