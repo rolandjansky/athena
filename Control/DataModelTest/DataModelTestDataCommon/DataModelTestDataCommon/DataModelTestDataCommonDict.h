@@ -27,6 +27,7 @@
 #include "DataModelTestDataCommon/versions/CAuxContainer_v1.h"
 #include "DataModelTestDataCommon/versions/CTrigAuxContainer_v1.h"
 #include "DataModelTestDataCommon/versions/CInfoAuxContainer_v1.h"
+#include "DataModelTestDataCommon/setConverterLibrary.h"
 #include "AthLinks/ElementLink.h"
 
 

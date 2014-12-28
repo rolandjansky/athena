@@ -18,6 +18,7 @@
 
 
 #include "xAODCore/AuxContainerBase.h"
+#include "AthContainers/PackedContainer.h"
 #include "SGTools/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 #include <vector>
@@ -35,6 +36,10 @@ public:
 private:
   std::vector<int> anInt;
   std::vector<float> aFloat;
+  SG::PackedContainer<unsigned int>  pInt;
+  SG::PackedContainer<float>  pFloat;
+  SG::PackedContainer<std::vector<int> >  pvInt;
+  SG::PackedContainer<std::vector<float> >  pvFloat;
 };
 
 

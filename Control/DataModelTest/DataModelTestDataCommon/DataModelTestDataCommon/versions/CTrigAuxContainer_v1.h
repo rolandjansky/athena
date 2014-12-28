@@ -32,6 +32,9 @@ class CTrigAuxContainer_v1
 public:
   CTrigAuxContainer_v1();
 
+  void setName( const char* /*name*/ ) {}
+
+
 private:
   std::vector<int> anInt;
   std::vector<float> aFloat;

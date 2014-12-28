@@ -34,6 +34,20 @@ public:
 
   int anInt() const;
   void setAnInt (int i);
+
+  unsigned int pInt() const;
+  void setPInt (unsigned int);
+
+  float pFloat() const;
+  void setPFloat (float);
+
+  const std::vector<int>& pvInt() const;
+  void setPVInt (const std::vector<int>&);
+  void setPVInt (std::vector<int>&&);
+
+  const std::vector<float>& pvFloat() const;
+  void setPVFloat (const std::vector<float>&);
+  void setPVFloat (std::vector<float>&&);
 };
 
 

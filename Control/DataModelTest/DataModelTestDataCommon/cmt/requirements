@@ -11,15 +11,16 @@ package DataModelTestDataCommon
 
 author scott snyder <snyder@bnl.gov>
 
-use AtlasPolicy   AtlasPolicy-*
+use AtlasPolicy    AtlasPolicy-*
+use GaudiInterface GaudiInterface-*                   External
 use AthContainersInterfaces AthContainersInterfaces-* Control
-use AthContainers AthContainers-* Control
-use xAODCore      xAODCore-*      Event/xAOD
-use xAODTrigger   xAODTrigger-*   Event/xAOD
-use SGTools       SGTools-*       Control
+use AthContainers  AthContainers-* Control
+use xAODCore       xAODCore-*      Event/xAOD
+use xAODTrigger    xAODTrigger-*   Event/xAOD
+use SGTools        SGTools-*       Control
 
 private
-use AthLinks      AthLinks-*      Control
+use AthLinks       AthLinks-*      Control
 end_private
 
 library DataModelTestDataCommon ../src/*.cxx
@@ -28,9 +29,9 @@ apply_pattern installed_library
 private
 use AtlasReflex  AtlasReflex-*  External  -no_auto_imports
 
+apply_tag no_rootmap
 apply_pattern lcgdict dict=DataModelTestDataCommon selectionfile=selection.xml\
   elementLinks="DMTest::BAuxVec DMTest::CVec_v1" \
   headerfiles="../DataModelTestDataCommon/DataModelTestDataCommonDict.h" \
   extralibfiles=../src/dict/*.cxx
 
-apply_tag no_rootmap

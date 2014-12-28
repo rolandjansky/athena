@@ -28,9 +28,11 @@ namespace DMTest {
  * @brief Derived contained class for @c DataVector tests.
  *
  *        This derives virtually from @c B.
+ *        Actually, for now it doesn't; this because root6 i/o
+ *        doesn't handle it properly.
  */
 struct D
-  : public virtual B
+  : public /*virtual*/ B
 {
   D (int d = 0) : B (d+1), m_x (d) {}
   int m_x;
