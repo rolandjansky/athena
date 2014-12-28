@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file  src/AuxDataTestRead.cxx
+ * @file DataModelTestDataRead/src/AuxDataTestRead.cxx
  * @author snyder@bnl.gov
  * @date May 2014
  * @brief Algorithm to test reading @c DataVector with auxiliary data.
@@ -18,6 +18,7 @@
 #include "DataModelTestDataCommon/BAuxVec.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
+//#include "AthContainers/PackedElement.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
@@ -68,6 +69,14 @@ StatusCode AuxDataTestRead::execute()
   static BAux::Accessor<float> dFloat1 ("dFloat1");
   static BAux::Accessor<int> dInt1 ("dInt1");
   static BAux::Accessor<int> dInt2 ("dInt2");
+  //static BAux::Accessor<SG::PackedElement<unsigned int> > pInt ("pint");
+  //static BAux::Accessor<SG::PackedElement<float> > pFloat ("pfloat");
+  //static BAux::Accessor<SG::PackedElement<std::vector<int> > > pvint ("pvint");
+  //static BAux::Accessor<SG::PackedElement<std::vector<float> > > pvfloat ("pvfloat");
+  static BAux::Accessor<unsigned int> pInt ("pint");
+  static BAux::Accessor<float> pFloat ("pfloat");
+  static BAux::Accessor<std::vector<int> > pvint ("pvint");
+  static BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
 
   const BAuxVec* vec = 0;
   CHECK( evtStore()->retrieve (vec, m_readPrefix + "bauxvec") );
@@ -83,6 +92,8 @@ StatusCode AuxDataTestRead::execute()
   for (const BAux* belt : *vec) {
     std::cout << " anInt1: " << anInt1(*belt)
               << " aFloat1: " << aFloat1(*belt)
+              << " pInt: " << pInt(*belt)
+              << " pFloat: " << CxxUtils::strformat ("%.2f", pFloat(*belt))
               << " aB: " << aB(*belt).m_x
               << " dFloat1: " << dFloat1(*belt);
     if (dInt1.isAvailable(*belt))
@@ -90,6 +101,18 @@ StatusCode AuxDataTestRead::execute()
     if (dInt2.isAvailable(*belt))
       std::cout << " dInt2: " << dInt2(*belt);
     std::cout << "\n";
+
+    const std::vector<int>& pvi = pvint(*belt);
+    std::cout << "  pvInt: [";
+    for (auto ii : pvi)
+      std::cout << ii << " ";
+    std::cout << "]\n";
+
+    const std::vector<float>& pvf = pvfloat(*belt);
+    std::cout << "  pvFloat: [";
+    for (auto ii : pvf)
+      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+    std::cout << "]\n";
   }
 
   const BAux* b = 0;

@@ -17,9 +17,14 @@
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataRead/GVec.h"
+#include "DataModelTestDataRead/G.h"
+#include "DataModelTestDataRead/GAuxContainer.h"
+//#include "AthContainers/PackedElement.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/StrFormat.h"
 #include <memory>
 
 
@@ -64,6 +69,8 @@ StatusCode xAODTestRead::execute()
   static C::Accessor<int> anInt2 ("anInt2");
   static C::Accessor<int> anInt10 ("anInt10");
   static C::Accessor<int> dInt1 ("dInt1");
+  static C::Accessor<unsigned int> dpInt1 ("dpInt1");
+  static C::Accessor<std::vector<float> > dpvFloat ("dpvFloat");
   static C::Accessor<int> dInt100 ("dInt100");
   static C::Accessor<int> dInt150 ("dInt150");
   static C::Accessor<int> dInt200 ("dInt200");
@@ -84,8 +91,11 @@ StatusCode xAODTestRead::execute()
   for (const C* c : *vec) {
     std::cout << " anInt1 " << c->anInt()
               << " aFloat: " << c->aFloat()
+              << " pInt: " << c->pInt()
+              << " pFloat: " << CxxUtils::strformat ("%.2f", c->pFloat())
               << " anInt2: " << anInt2(*c)
-              << " dInt1: " << dInt1(*c);
+              << " dInt1: " << dInt1(*c)
+              << " dpInt1: " << dpInt1(*c);
       if (dInt100.isAvailable(*c))
         std::cout << " dInt100: " << dInt100(*c);
       if (dInt150.isAvailable(*c))
@@ -100,6 +110,30 @@ StatusCode xAODTestRead::execute()
         std::cout << " cEL: " << cEL(*c).dataID()
                   << "[" << cEL(*c).index() << "]";
     std::cout << "\n";
+
+    {
+      const std::vector<int>& pvi = c->pvInt();
+      std::cout << "  pvInt: [";
+      for (auto ii : pvi)
+        std::cout << ii << " ";
+      std::cout << "]\n";
+    }
+
+    {
+      const std::vector<float>& pvf = c->pvFloat();
+      std::cout << "  pvFloat: [";
+      for (auto ii : pvf)
+        std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+      std::cout << "]\n";
+    }
+
+    {
+      const std::vector<float>& pvf = dpvFloat(*c);
+      std::cout << "  dpvFloat: [";
+      for (auto ii : pvf)
+        std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+      std::cout << "]\n";
+    }
   }
 
   const C* cinfo = 0;
@@ -161,6 +195,24 @@ StatusCode xAODTestRead::execute()
     std::cout << "\n";
   }
 
+  const GVec* gvec = 0;
+  if (evtStore()->contains<GVec> (m_readPrefix + "gvec")) {
+    CHECK( evtStore()->retrieve (gvec, m_readPrefix + "gvec") );
+
+    names.clear();
+    for (SG::auxid_t auxid : gvec->getAuxIDs())
+      names.push_back (r.getName(auxid));
+    std::sort (names.begin(), names.end());
+    std::cout << "gvec aux items: ";
+    for (const std::string& n : names)
+      std::cout << n << " ";
+    std::cout << "\n";
+    for (const G* g : *gvec) {
+      std::cout << " anInt " << g->anInt();
+      std::cout << "\n";
+    }
+  }
+
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.
     bool LOCKED = false;
@@ -192,6 +244,18 @@ StatusCode xAODTestRead::execute()
     }
     CHECK (evtStore()->record (std::move(ctrignew), m_writePrefix + "ctrig", LOCKED));
     CHECK (evtStore()->record (std::move(trig_store), m_writePrefix + "ctrigAux.", LOCKED));
+
+    if (gvec) {
+      std::unique_ptr<GVec> gvecnew (new GVec);
+      std::unique_ptr<GAuxContainer> gstore (new GAuxContainer);
+      gvecnew->setStore (gstore.get());
+      for (size_t i = 0; i < gvec->size(); i++) {
+        gvecnew->push_back (new G);
+        *gvecnew->back() = *(*gvec)[i];
+      }
+      CHECK (evtStore()->record (std::move(gvecnew), m_writePrefix + "gvec", LOCKED));
+      CHECK (evtStore()->record (std::move(gstore), m_writePrefix + "gvecAux.", LOCKED));
+    }
   }
 
   return StatusCode::SUCCESS;

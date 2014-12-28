@@ -21,8 +21,11 @@
 #include "DataModelTestDataRead/DVec.h"
 #include "DataModelTestDataRead/DDer.h"
 #include "DataModelTestDataRead/ELVec.h"
+#include "DataModelTestDataRead/G.h"
+#include "DataModelTestDataRead/GVec.h"
+#include "DataModelTestDataRead/GAuxContainer.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_DATAMODELTESTDATAREAD {
   ElementLink<DMTest::BVec> m_dum1;
   DataLink<DMTest::BVec> m_dum2;
 };

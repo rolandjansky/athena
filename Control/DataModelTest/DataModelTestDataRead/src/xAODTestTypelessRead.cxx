@@ -60,18 +60,66 @@ void dumpAuxItem (SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
 {
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   const std::type_info* ti = r.getType(auxid);
-  std::cout << r.getName(auxid) << ": ";
+  std::string head = r.getName(auxid) + ": ";
   if (ti == &typeid(int))
-    std::cout << c.getData<int> (auxid, i) << "; ";
+    std::cout << head << c.getData<int> (auxid, i) << "; ";
+  else if (ti == &typeid(unsigned int))
+    std::cout << head << c.getData<unsigned int> (auxid, i) << "; ";
   else if (ti == &typeid(float))
-    std::cout << CxxUtils::strformat ("%.1f", c.getData<float> (auxid, i)) << "; ";
+    std::cout << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
   else if (ti == &typeid(ElementLink<DMTest::CVec>)) {
     const ElementLink<DMTest::CVec>& el =
       c.getData<ElementLink<DMTest::CVec> > (auxid, i);
-    std::cout << el.dataID() << "[" << el.index() << "]; ";
+    std::cout << head << el.dataID() << "[" << el.index() << "]; ";
   }
+#if 0
+  else if (ti == &typeid(SG::PackedElement<unsigned int>))
+    std::cout << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
+  else if (ti == &typeid(SG::PackedElement<float>))
+    std::cout << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
+#endif
+  else if (ti == &typeid(std::vector<unsigned int>)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<std::vector<unsigned int> > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(std::vector<int>)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<std::vector<int> > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(std::vector<float>) ||
+           strcmp (ti->name(), typeid(std::vector<float>).name()) == 0)
+  {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<std::vector<float> > (auxid, i))
+      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+    std::cout << "]; ";
+  }
+#if 0
+  else if (ti == &typeid(SG::PackedElement<std::vector<unsigned int> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<unsigned int> > > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(SG::PackedElement<std::vector<int> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<int> > > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(SG::PackedElement<std::vector<float> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<float> > > (auxid, i))
+      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+    std::cout << "]; ";
+  }
+#endif
   else
-    std::cout << "xxx; ";
+    std::cout << head << "xxx " << ti->name() << "; ";
 }
 
 

@@ -19,6 +19,7 @@
 #include "DataModelTestDataCommon/BAuxVec.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
+//#include "AthContainers/PackedElement.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
@@ -60,21 +61,63 @@ void dumpAuxItem (SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
 {
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   const std::type_info* ti = r.getType(auxid);
-  std::cout << r.getName(auxid) << ": ";
+  std::string head = r.getName(auxid) + ": ";
   if (ti == &typeid(int))
-    std::cout << c.getData<int> (auxid, i) << "; ";
+    std::cout << head << c.getData<int> (auxid, i) << "; ";
   else if (ti == &typeid(float))
-    std::cout << CxxUtils::strformat ("%.1f", c.getData<float> (auxid, i)) << "; ";
+    std::cout << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
   else if (ti == &typeid(ElementLink<DMTest::BAuxVec>)) {
     const ElementLink<DMTest::BAuxVec>& el =
       c.getData<ElementLink<DMTest::BAuxVec> > (auxid, i);
-    std::cout << el.dataID() << "[" << el.index() << "]; ";
+    std::cout << head << el.dataID() << "[" << el.index() << "]; ";
   }
   else if (ti == &typeid(DMTest::B)) {
-    std::cout << c.getData<B>(auxid, i).m_x << "; ";
+    std::cout << head << c.getData<B>(auxid, i).m_x << "; ";
+  }
+#if 0
+  else if (ti == &typeid(SG::PackedElement<unsigned int>))
+    std::cout << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
+#endif
+  else if (ti == &typeid(unsigned int))
+    std::cout << head << c.getData<unsigned int> (auxid, i) << "; ";
+#if 0
+  else if (ti == &typeid(SG::PackedElement<float>))
+    std::cout << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
+  else if (ti == &typeid(SG::PackedElement<std::vector<unsigned int> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<unsigned int> > > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(SG::PackedElement<std::vector<int> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<int> > > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(SG::PackedElement<std::vector<float> >)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<SG::PackedElement<std::vector<float> > > (auxid, i))
+      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+    std::cout << "]; ";
+  }
+#endif
+  else if (ti == &typeid(std::vector<int>)) {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<std::vector<int> > (auxid, i))
+      std::cout << ii << " ";
+    std::cout << "]; ";
+  }
+  else if (ti == &typeid(std::vector<float>) ||
+           strcmp (ti->name(), typeid(std::vector<float>).name()) == 0)
+  {
+    std::cout << "\n    " << head << "[";
+    for (auto ii : c.getData<std::vector<float> > (auxid, i))
+      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
+    std::cout << "]; ";
   }
   else
-    std::cout << "xxx; ";
+    std::cout << head << "xxx " << ti->name() << "; ";
 }
 
 
