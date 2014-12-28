@@ -17,6 +17,7 @@
 #define DATAMODELTESTDATAREAD_GVEC_H
 
 
+
 #include "DataModelTestDataRead/versions/GVec_v1.h"
 
 
@@ -27,10 +28,6 @@ typedef GVec_v1 GVec;
 
 
 } // namespace DMTest
-
-
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF (DMTest::GVec, 9741, 1)
 
 
 #endif // not DATAMODELTESTDATAREAD_GVEC_H

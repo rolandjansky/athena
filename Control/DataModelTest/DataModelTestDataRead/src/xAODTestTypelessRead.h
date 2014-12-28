@@ -57,12 +57,6 @@ public:
 
 
 private:
-  template <class OBJ, class AUX>
-  StatusCode testit (const char* key);
-
-  template <class OBJ>
-  StatusCode testit_view (const char* key);
-
   /// Parameter: Prefix for names written to SG.  Null for no write.
   std::string m_writePrefix;
 
