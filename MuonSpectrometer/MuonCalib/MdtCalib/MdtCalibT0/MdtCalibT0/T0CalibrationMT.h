@@ -111,6 +111,10 @@ bool  analyse_adc(const int & nr, std::map<int, MdtTubeFitContainer::SingleTubeF
   const std::vector<int> &m_sort_by;
   const std::vector<int> &m_adc_sort_by;
   bool m_delete_settings;
+
+  // hidden assignment operator and copy constructor
+  T0CalibrationMT & operator=(const T0CalibrationMT &right);
+  T0CalibrationMT(const T0CalibrationMT&);
 };
 }
 

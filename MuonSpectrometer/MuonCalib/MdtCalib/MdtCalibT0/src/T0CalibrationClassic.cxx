@@ -26,26 +26,24 @@ namespace MuonCalib {
 
 //function to be fitted to time spectrum
 
-inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
-	{
-	Double_t &x(xx[0]);
-	return par[0]+(par[1]*(1+par[2]*exp(-(x-par[4])/par[3])))/((1+exp((-x+par[4])/par[6]))*(1+exp((x-par[5])/par[7])));
-	}
+  inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par) { 
+    Double_t &x(xx[0]);
+    return par[0]+(par[1]*(1+par[2]*exp(-(x-par[4])/par[3])))/((1+exp((-x+par[4])/par[6]))*(1+exp((x-par[5])/par[7])));
+  }
 
   T0CalibrationClassic::T0CalibrationClassic( std::string name, const T0ClassicSettings* settings ) : 
-    IMdtCalibration(name), m_settings(settings), m_converged(false), m_name(name),m_result(0), m_delete_settings(false)
-  {
-    if (!m_settings){
-      double * params=new double[8];   // warning: this would give a memory leak
-      params[0] = 0. ; // noise level
+    IMdtCalibration(name), m_settings(settings), m_converged(false), m_name(name),m_result(0), m_delete_settings(false) {
+    if (!m_settings) {
+      double *params=new double[8];   // warning: this would give a memory leak
+      params[0] = 0. ;   // noise level
       params[1] = 6.5 ; 
       params[2] = 6.5 ; 
       params[3] = 155. ;
       params[4] = 280. ; //t0
       params[5] = 980. ; //tmax
-      params[6] = 9. ; //t0 slope
+      params[6] = 9. ;   //t0 slope
       params[7] = 11.5 ; //tmax slope
-      m_settings=new T0ClassicSettings(0.,300.,100,-100.,900.,1000,1,1000,1,8,params,10.,4); 
+      m_settings = new T0ClassicSettings(0.,300.,100,-100.,900.,1000,1,1000,1,8,params,10.,4); 
       m_delete_settings=true;
     }
     if(m_settings->printLevel() <= 3)
@@ -60,30 +58,25 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
     m_regiondir = p_file->mkdir(m_name.c_str()); 
   }
 
-  T0CalibrationClassic::~T0CalibrationClassic()
-  {
+  T0CalibrationClassic::~T0CalibrationClassic() {
     if(m_settings->printLevel() <= 3) std::cout << "T0CalibrationClassic::~T0CalibrationClassic()" << std::endl;
     p_file->Write();
     p_file->Close();
     delete p_file;
     std::for_each(p_histos.begin(),p_histos.end(),DeleteObject());
-    if(m_delete_settings)
-    	delete m_settings;
+    if(m_delete_settings) delete m_settings;
   }
 
-  bool  T0CalibrationClassic::handleSegment( MuonCalibSegment& seg )
-  {
-    for(std::vector<MdtCalibHitBase*>::iterator it =seg.mdtHOTBegin() ; 
-	it!=seg.mdtHOTEnd();++it) 
-      {
+  bool  T0CalibrationClassic::handleSegment( MuonCalibSegment& seg ) {
+    for(std::vector<MdtCalibHitBase*>::iterator it=seg.mdtHOTBegin(); it!=seg.mdtHOTEnd(); ++it) {
         // 
         //  M.I. 16 October 2007
         //  ATTENTION ATTENTION Including cut on DistanceToReadOut 
         //  ONLY FOR P1 data
         //
-        float distanceToRO = (*it)->distanceToReadout() ;
+      float distanceToRO = (*it)->distanceToReadout();
 
-        bool ROside = distanceToRO<130000. ; // this means that there is no selection along the tube
+      bool ROside = distanceToRO<130000. ; // this means that there is no selection along the tube
         // bool ROside = distanceToRO<1300. ;
 //        bool HVside = distanceToRO>2200. ;
         // bool ChamberChop = distanceToRO>100.&&distanceToRO<600. ;
@@ -93,8 +86,7 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
         // bool ChamberChop = distanceToRO>2400.&&distanceToRO<2900. ;
         // bool ChamberChop = distanceToRO>2900.&&distanceToRO<3400. ;
 
-        if (ROside) {
-
+      if (ROside) {
 	MuonFixedId id=(*it)->identify();
       
 	// get the T0 originally subtracted for this hit 
@@ -103,15 +95,14 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	int nT=id.mdtTube();
 	// std::cout<<"Accessing Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<" mezzanine="<<id.mdtMezzanine()<<std::endl; 
 	const MdtTubeFitContainer::SingleTubeCalib * stc=m_result->getCalib(nML-1,nL-1,nT-1);
-//	double oldT0=0;
-	if(!stc)
-	  {
-	    std::cout<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<std::endl; 
-	    std::cout<<"container size "<<m_result->size()<<std::endl;
-	    std::cout<<"container nML "<<m_result->numMultilayers()<<std::endl;
-	    std::cout<<"container nL "<<m_result->numLayers()<<std::endl;
-	    std::cout<<"container nT "<<m_result->numTubes()<<std::endl;
-	  }
+	//	double oldT0=0;
+	if(!stc) {
+	  std::cout<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<std::endl; 
+	  std::cout<<"container size "<<m_result->size()<<std::endl;
+	  std::cout<<"container nML "<<m_result->numMultilayers()<<std::endl;
+	  std::cout<<"container nL "<<m_result->numLayers()<<std::endl;
+	  std::cout<<"container nT "<<m_result->numTubes()<<std::endl;
+	}
 
 	// get histos
 	T0ClassicHistos* histos = getHistos(id.getIdInt());
@@ -128,9 +119,9 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
        //F.R. Always use the drift time, and not the tdc-count. It will be filled correctly bu the CalibNtupleAnalysysAlg
 	 	         //float ttime=((*it)->tdcCount())*(25./32.);
 	 	 
-	 	         float ttime=((*it)->driftTime());
+	float ttime=((*it)->driftTime());
 	//      histos->time->Fill((*it)->tdcCount()+oldT0);
-
+	  
 	histos->time->Fill(ttime);
 	histos->adc->Fill((*it)->adcCount());
 	//histos.adc_vs_time->Fill((*it)->driftTime(),(*it)->adcCount);
@@ -138,7 +129,7 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	T0ClassicHistos* histosAll = getHistos(0);
 	histosAll->time->Fill(ttime);
 	histosAll->adc->Fill((*it)->adcCount());
-
+	
 	// M.I. Jun20-07 ---- Adding MultiLayer Histos :
 	T0ClassicHistos* histosML = getHistos(nML);
 	histosML->time->Fill(ttime);
@@ -153,124 +144,120 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	T0ClassicHistos* histosSerialGas = getHistos(serialGas);
 	histosSerialGas->time->Fill(ttime);
 	histosSerialGas->adc->Fill((*it)->adcCount());
-        }
-      }
+      }    //end if (ROside) 
+    }      //end loop over seg.mdtHOT
     return true;
   }
   
-  bool  T0CalibrationClassic::analyse()
-  {
+  bool  T0CalibrationClassic::analyse() {
     if(m_settings->printLevel() <= 3)
-      std::cout << "T0CalibrationClassic::analyse iteration "<<m_currentItnum 
-		<< std::endl;
+      std::cout << "T0CalibrationClassic::analyse iteration "<<m_currentItnum << std::endl;
 
-
-    for(std::vector<T0ClassicHistos*>::iterator it =p_histos.begin() ;
-	it!=p_histos.end();++it)
-      // loop over p_histos histograms 
-      {
-	if(m_settings->fitTime()) {
-	  MdtTubeFitContainer::SingleTubeFit full;
-	  MdtTubeFitContainer::SingleTubeCalib st;
-	  int idtube=(*it)->id ;
+    // loop over p_histos histograms 
+    for(std::vector<T0ClassicHistos*>::iterator it=p_histos.begin(); it!=p_histos.end();++it) {
+      if(m_settings->fitTime()) {
+	MdtTubeFitContainer::SingleTubeFit full;
+	MdtTubeFitContainer::SingleTubeCalib st;
+	int idtube=(*it)->id ;
 	  // if((*it)->id!=0 && (int)(idtube/100000000)!=9 && idtube!=1 && idtube!=2 ) {
-	  if((*it)->id!=0 && (int)(idtube/100000000)!=9 ) {
+	if((*it)->id!=0 && (int)(idtube/100000000)!=9 ) {
 	    // doTimeFit(*it,full,st);
-	    doTimeFit(*it,full,st);
-	    doAdcFit(*it,full,st);
-	    MuonFixedId fId((*it)->id); 
-	    int nML=fId.mdtMultilayer();
-	    int nL=fId.mdtTubeLayer();
-	    int nT=fId.mdtTube();
+	  doTimeFit(*it,full,st);
+	  doAdcFit(*it,full,st);
+	  MuonFixedId fId((*it)->id); 
+	  int nML=fId.mdtMultilayer();
+	  int nL=fId.mdtTubeLayer();
+	  int nT=fId.mdtTube();
              
-	    bool setInfo=m_result->setCalib(nML-1,nL-1,nT-1,st);
-	    if(!setInfo) 
-	      std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeCalib info "<<std::endl;
-	    setInfo=m_result->setFit(nML-1,nL-1,nT-1,full);
-	    if(!setInfo) 
-	      std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeFullInfo info "<<std::endl;
+	  bool setInfo=m_result->setCalib(nML-1,nL-1,nT-1,st);
+	  if(!setInfo) 
+	    std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeCalib info "<<std::endl;
+	  setInfo=m_result->setFit(nML-1,nL-1,nT-1,full);
+	  if(!setInfo) 
+	    std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeFullInfo info "<<std::endl;
 
 	    // DA TOGLIERE !!!!
 	    //
 	    // int headid,lowrun,uprun;
 	    // int ok=m_db->getTubeHead(headid,lowrun,uprun); 
 	    // std::cout<<" headid,lowrun,uprun " << headid <<" "<<lowrun<<" "<<uprun <<std::endl;
-	  }
 	}
       }
+    }
 
     m_currentItnum++;
     p_file->Write();
     return true;
   }
 
-  const IMdtCalibrationOutput* T0CalibrationClassic::analyseSegments( const std::vector<MuonCalibSegment*> & segs )
-  {
+  const IMdtCalibrationOutput* T0CalibrationClassic::analyseSegments( const std::vector<MuonCalibSegment*> &segs ) {
     for(unsigned int i=0; i<segs.size(); i++) handleSegment(*segs[i]);
     analyse();
-    return 	getResults();
+    return getResults();
   }
 
-  void  T0CalibrationClassic::doTimeFit(T0ClassicHistos * T0h, MdtTubeFitContainer::SingleTubeFit & fi, MdtTubeFitContainer::SingleTubeCalib & stc)
-  {
-  TMinuit *gMinuit = new TMinuit();
+  void T0CalibrationClassic::doTimeFit(T0ClassicHistos *T0h, MdtTubeFitContainer::SingleTubeFit &fi, MdtTubeFitContainer::SingleTubeCalib &stc) {
+    TMinuit *gMinuit = new TMinuit();
     // THIS SETTINGS VARIABLE HAS TO BE IMPLEMENTED (as of March 7, 2007)  : 
     // int fitMezz = m_settings->fitMezzanine();
     // int fitMezz(123) ; 
     int fitMezz(1) ; 
 
-    int np=m_settings->numParams();
-    double * pfit=new double[np];
-    double * errfit=new double[np];
+    const int np=m_settings->numParams();
+    double *pfit   = new double[np];
+    double *errfit = new double[np];
     Double_t **matrix = new Double_t*[np];
-    for(int i=0; i<np; i++)
-    	{
-	matrix[i]=new Double_t[np];
-	}
-    double * pdefault=m_settings->params();
+    // initialize everything to make Coverity happy
+    for(int i=0; i<np; i++) {
+      matrix[i]=new Double_t[np];
+      pfit[i] = 0.;
+      errfit[i] = 0.;
+      for(int j=0; j<np; j++) matrix[i][j] = 0.;
+    }
+    double *pdefault=m_settings->params();
     double chi2;
     int ndof;
            
     MuonFixedId fId(T0h->id);
+    int isMultilayer(0);
 
-    int isMultilayer(0) ;
-
-    if (T0h->id==1 || T0h->id==2 || (T0h->id>10&&T0h->id<=23)) isMultilayer=1 ;
+    if (T0h->id==1 || T0h->id==2 || (T0h->id>10&&T0h->id<=23)) isMultilayer=1;
 
     if (( fId.isValid() && fId.is_mdt()) || isMultilayer ) {
-
       std::cout<<" STARTING doTimeFit "<< std::endl;
       TH1 * h(NULL) ; 
-      if (!fitMezz || isMultilayer) {
+
+      //      if (!fitMezz || isMultilayer) {    //!fitMezz not implemented (see above)
+      if ( isMultilayer) {
         std::cout<< " DEBUGGGG : " << T0h->id << std::endl ;
 	h=T0h->time;
       }
 
-      if (fitMezz==123 && !isMultilayer) {                       // FIT Mixed 
-	h=T0h->time;
-        if (h->GetEntries()<m_settings->entries()) {
-	   int hIdMezz = fId.mdtMezzanine() ;
-	   ToString ts;
-   	   std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
-   	   TH1F * timeHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-	   if(!timeHis) {
-	     delete [] pfit ;
-	     delete [] errfit ;
-	     for(int i=0; i<np; i++)
-	         delete [] matrix[i];
-	     delete [] matrix;
-	     return ;
-	   }
-
-	   T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
-	   h= histosMezz->time;
-           if (h->GetEntries()<m_settings->entries()) {
-	      int nML=fId.mdtMultilayer();
-	      T0ClassicHistos* histosML = getHistos(nML);
-	      h= histosML->time;
-           }
-        }
-      } 
+// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
+//      if (fitMezz==123 && !isMultilayer) {                       // FIT Mixed 
+//	h=T0h->time;
+//        if (h->GetEntries()<m_settings->entries()) {
+//	  int hIdMezz = fId.mdtMezzanine() ;
+//	  ToString ts;
+//	  std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
+//	  TH1F * timeHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
+//	  if(!timeHis) {
+//	    delete [] pfit ;
+//	    delete [] errfit ;
+//	    for(int i=0; i<np; i++) delete [] matrix[i];
+//	    delete [] matrix;
+//	    return;
+//	  }
+//
+//	  T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
+//	  h= histosMezz->time;
+//	  if (h->GetEntries()<m_settings->entries()) {
+//	    int nML=fId.mdtMultilayer();
+//	    T0ClassicHistos* histosML = getHistos(nML);
+//	    h= histosML->time;
+//	  }
+//       }
+//      } 
 
       if (fitMezz==1 && !isMultilayer) {                       // FIT MEZZANINE 
 	int hIdMezz = fId.mdtMezzanine() ;
@@ -285,22 +272,21 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	if(!timeHis) {
 	  delete [] pfit ;
 	  delete [] errfit ;
-	     for(int i=0; i<np; i++)
-	         delete [] matrix[i];
-	     delete [] matrix;
-	  return ;
+	  for(int i=0; i<np; i++) delete [] matrix[i];
+	  delete [] matrix;
+	  return;
 	}
 
 	T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
 	h= histosMezz->time;
       }
 
-      if (fitMezz==2 && !isMultilayer) {                        // FIT MULTILAYER 
-	 int nML=fId.mdtMultilayer();
-	 T0ClassicHistos* histosML = getHistos(nML);
-	 h= histosML->time;
-      }
-
+// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
+//      if (fitMezz==2 && !isMultilayer) {                        // FIT MULTILAYER 
+//	 int nML=fId.mdtMultilayer();
+//	 T0ClassicHistos* histosML = getHistos(nML);
+//	 h= histosML->time;
+//    }
       
       Stat_t entries=h->GetEntries();
       fi.statistics=(int)entries;
@@ -319,31 +305,29 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
       if(FitFunction){
 //	double chiquadro = FitFunction->GetChisquare();
 	for(int i=0; i<np; i++){
-	  pfit[i]    = FitFunction->GetParameter(i);
+	  pfit[i]   = FitFunction->GetParameter(i);
 	  errfit[i] = FitFunction->GetParError(i) ;
 	}
-	chi2     = FitFunction->GetChisquare() ; // total chi2
-	ndof     = FitFunction->GetNDF();        // number of degrees of freedom
-      } 
-      else    // The Selected Histo has NOT been fitted. Fit Now   
-      {
-      
-      TF1 * TimeSpectrum = new TF1("TimeSpectrum",
-				   "[0]+([1]*(1+[2]*exp(-(x-[4])/[3])))/((1+exp((-x+[4])/[6]))*(1+exp((x-[5])/[7]))) ",
-				   m_settings->minTime(),m_settings->maxTime()); 
+	chi2 = FitFunction->GetChisquare() ; // total chi2
+	ndof = FitFunction->GetNDF();        // number of degrees of freedom
+      } else {  // The Selected Histo has NOT been fitted. Fit Now         
+	TF1 *TimeSpectrum = new TF1("TimeSpectrum",
+				    "[0]+([1]*(1+[2]*exp(-(x-[4])/[3])))/((1+exp((-x+[4])/[6]))*(1+exp((x-[5])/[7]))) ",
+				    m_settings->minTime(),m_settings->maxTime()); 
       // if ((int)entries > m_settings->entries())
         // searchParams(h,&pfit[0],np);  
 	for(int i=0;i<np;i++) {
 	  pfit[i]=*(pdefault++);
 	  if(m_settings->printLevel() <= 2) 
-	    std::cout<<"T0CalibrationClassic::doTimeFit initial parameter "
+	    std::cout<<"T0CalibrationClassic::doTimeFit initial parameters"
 		     <<i<<"="<<pfit[i]<<std::endl;
         }
         //	if ( !m_settings->initParamFlag() ) {
 	searchParams(h,&pfit[0],np);  
 	if(m_settings->printLevel() <= 2) {
-	   std::cout<<"T0CalibrationClassic::doTimeFit parameters after searchParams "<<std::endl;
-	   for(int i=0;i<np;++i){std::cout << "i,pfit(i) "<<i<<" "<<pfit[i]<<std::endl;}}
+	  std::cout<<"T0CalibrationClassic::doTimeFit parameters after searchParams "<<std::endl;
+	  for(int i=0;i<np;++i){std::cout << "i,pfit(i) "<<i<<" "<<pfit[i]<<std::endl;}
+	}
 	std::cout <<" Sto per mettere i limiti"<<std::endl;
 	TimeSpectrum->SetParameters(pfit);
 	TimeSpectrum->SetParLimits(0,0.,5.);
@@ -379,23 +363,23 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	}
 	chi2     = TimeSpectrum->GetChisquare() ; // total chi2
 	ndof     = TimeSpectrum->GetNDF();        // number of degrees of freedom
-        }
-        // THE NEW HISTOGRAM HAS BEEN FITTED 
+      }
+      // THE NEW HISTOGRAM HAS BEEN FITTED 
+      if( ndof == 0. ) ndof = -1;
 
-
-	if(m_settings->printLevel() <= 1) 
-	  std::cout<<" fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<std::endl; 
-	if(chi2/ndof < m_settings->chi2max()) {
-	  stc.statusCode=0 ;// success
-	} else {
-	  stc.statusCode=3 ; // bad chi2 
-	}
-	stc.t0=pfit[4]; 
-	fi.chi2Tdc=chi2/ndof;
-	for (int i=0 ; i<np; i++) fi.par[i]=pfit[i] ;
-  
-        // NOW we get rid of the covariance matrix 
-        /******************************************************* 
+      if(m_settings->printLevel() <= 1) 
+	std::cout<<" fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<std::endl; 
+      if(chi2/ndof < m_settings->chi2max()) {
+	stc.statusCode=0 ;// success
+      } else {
+	stc.statusCode=3 ; // bad chi2 
+      }
+      stc.t0=pfit[4]; 
+      fi.chi2Tdc=chi2/ndof;
+      for (int i=0 ; i<np; i++) fi.par[i]=pfit[i] ;
+      
+      // NOW we get rid of the covariance matrix 
+      /******************************************************* 
 	int jj=0;
 	for (int i=0; i<8; i++) {
 	  for (int k=0; k<i+1; k++) {
@@ -405,7 +389,7 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	}
         *******************************************************/
         // NOW we  set the the first 8 values of fi.cov to errfit
-        for (int i=0 ; i<np; i++) fi.cov[i]=errfit[i] ;
+      for (int i=0 ; i<np; i++) fi.cov[i]=errfit[i] ;
 
 	//
 	// Try 4 parameters fit now
@@ -433,29 +417,27 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
     }
     delete [] pfit;
     delete [] errfit;
-	     for(int i=0; i<np; i++)
-	         delete [] matrix[i];
-	     delete [] matrix;
+    for(int i=0; i<np; i++) delete [] matrix[i];
+    delete [] matrix;
 	
     std::cout<<" ENDING doTimeFit "<< std::endl;
 
   }
 
-  void  T0CalibrationClassic::doAdcFit(T0ClassicHistos * T0h, MdtTubeFitContainer::SingleTubeFit & fi, MdtTubeFitContainer::SingleTubeCalib & stc)
-  {
+  void  T0CalibrationClassic::doAdcFit(T0ClassicHistos *T0h, MdtTubeFitContainer::SingleTubeFit &fi, MdtTubeFitContainer::SingleTubeCalib &stc) {
     // THIS SETTINGS VARIABLE HAS TO BE IMPLEMENTED (as of March 7, 2007)  : 
     // int fitMezz = m_settings->fitMezzanine();
     // int fitMezz(123) ; 
-    int fitMezz(1) ; 
+    int fitMezz(1); 
 
-    double chi2(0)	;
+    double chi2(0);
     int ndof(0) ;	
     Double_t par[4];
     Double_t errpar[4];
 
     for (int ii=0; ii<4; ii++) {
-       par[ii] = 0.0 ;
-       errpar[ii] = 0.0 ;
+      par[ii] = 0.0 ;
+      errpar[ii] = 0.0 ;
     }
 
     MuonFixedId fId(T0h->id);
@@ -476,39 +458,37 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
       std::cout<<" STARTING doAdcFit "<< std::endl;
 
       TH1 * h ;
-      if (!fitMezz) {
-	h=T0h->adc;
-      }
 
-      if (fitMezz==123) {                       // FIT Mixed
-        h=T0h->adc;
-        if (h->GetEntries()<m_settings->entries()) {
-           int hIdMezz = fId.mdtMezzanine() ;
-           ToString ts;
-           std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
+// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
+//    if (!fitMezz) {
+//	h=T0h->adc;
+//      }
+//
+//    if (fitMezz==123) {                       // FIT Mixed
+//        h=T0h->adc;
+//        if (h->GetEntries()<m_settings->entries()) {
+//	  int hIdMezz = fId.mdtMezzanine() ;
+//	  ToString ts;
+//	  std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
            // std::cout <<" DEBUGG FITTING MEZZANINE "<<fId.mdtTube()
            //           <<" "<<fId.mdtTubeLayer()<<" "<<fId.mdtMultilayer()
            //           <<" "<<fId.mdtMezzanine() <<std::endl;
+      //	TH1F * adcHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
+      //	if(!adcHis) return;
+      //	T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
+      //	h= histosMezz->adc;
+      //	if (h->GetEntries()<m_settings->entries()) {
+      //	  int nML=fId.mdtMultilayer();
 
-           TH1F * adcHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-           if(!adcHis) {
-             return ;
-           }
+	    // std::cout <<" DEBUGG FITTING MULTILAYER "<<fId.mdtTube()
+	    //           <<" "<<fId.mdtTubeLayer()<<" "<<nML
+	    //           <<" "<<fId.mdtMezzanine() <<std::endl;
 
-           T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
-           h= histosMezz->adc;
-           if (h->GetEntries()<m_settings->entries()) {
-              int nML=fId.mdtMultilayer();
-
-               // std::cout <<" DEBUGG FITTING MULTILAYER "<<fId.mdtTube()
-               //           <<" "<<fId.mdtTubeLayer()<<" "<<nML
-               //           <<" "<<fId.mdtMezzanine() <<std::endl;
-
-              T0ClassicHistos* histosML = getHistos(nML);
-              h= histosML->adc;
-           }
-        }
-      }
+      //	  T0ClassicHistos* histosML = getHistos(nML);
+      //	  h= histosML->adc;
+      //	}
+      //      }     
+      //    }  //end if fitMezz=123
 
       if (fitMezz==1) {
 	int hIdMezz = fId.mdtMezzanine() ;
@@ -519,17 +499,17 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
 	  std::cout<<" doAdcFit Histogram : "<< HistoId << std::endl;
 	}
 	TH1F * adcHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-	if(!adcHis) {
-	  return ;
-	}
+	if(!adcHis) return;
+
 	T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
 	h= histosMezz->adc;
       }
-      if (fitMezz==2) {                        // FIT MULTILAYER
-         int nML=fId.mdtMultilayer();
-         T0ClassicHistos* histosML = getHistos(nML);
-         h= histosML->adc;
-      }
+// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
+//    if (fitMezz==2) {                        // FIT MULTILAYER
+//      int nML=fId.mdtMultilayer();
+//      T0ClassicHistos* histosML = getHistos(nML);
+//      h= histosML->adc;
+//    }
 
       if(m_settings->printLevel() <= 1)
 	std::cout<<" histogram "<<h->GetName()<<" "<<h->GetTitle()
@@ -537,52 +517,50 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
       Stat_t entries=h->GetEntries();
 
       // CHECK whether the Selected Histogram has enough entries
-      if ((int)entries > m_settings->entries()){
+      if ((int)entries > m_settings->entries()) {
 
         // CHECK whether the histogram has been already fitted
-        TF1 * FitFunction = h->GetFunction("AdcSpectrum");
-        if (FitFunction){
-	   chi2	= FitFunction->GetChisquare();
-           ndof	= FitFunction->GetNDF();	
-           for (int i=0; i<4; i++) {
-	       par[i] = FitFunction->GetParameter(i);
-	       errpar[i] = FitFunction->GetParError(i);
-           }
+	TF1 * FitFunction = h->GetFunction("AdcSpectrum");
+	if (FitFunction){
+	  chi2	= FitFunction->GetChisquare();
+	  ndof	= FitFunction->GetNDF();	
+	  for (int i=0; i<4; i++) {
+	    par[i] = FitFunction->GetParameter(i);
+	    errpar[i] = FitFunction->GetParError(i);
+	  }
 
-      }
-        else    // The Selected Histo has NOT been fitted. Fit Now
-      {
-	double m=h->GetMean();
-	double r=h->GetRMS();
-	double maxval=h->GetMaximum();
-	double adcpar[4] ;
-	adcpar[0] = maxval*2. ;
-	adcpar[1] = m ;
-	adcpar[2] = r ;
-	adcpar[3] = r/3. ;
+	} else {    // The Selected Histo has NOT been fitted. Fit Now
+	  double m=h->GetMean();
+	  double r=h->GetRMS();
+	  double maxval=h->GetMaximum();
+	  double adcpar[4] ;
+	  adcpar[0] = maxval*2. ;
+	  adcpar[1] = m ;
+	  adcpar[2] = r ;
+	  adcpar[3] = r/3. ;
    
-	TF1 * AdcSpectrum = new TF1("AdcSpectrum"," ([0]*exp((x-[1])/[2]))/ (1.+exp((x-[1])/[3])) ",
-				    m_settings->minAdc(),m_settings->maxAdc() );
-	AdcSpectrum->SetParameters(adcpar) ;
-        double fitMin = m-(3*r) ;
-        double fitMax = m+(3*r) ;
-        if (fitMin<adcThreshold) fitMin = adcThreshold ;
-        if (fitMax>300 ) fitMax = 300. ;
-	h->Fit("AdcSpectrum","Q"," ",fitMin,fitMax);
-	chi2	= AdcSpectrum->GetChisquare();
-	ndof	= AdcSpectrum->GetNDF();	
-        for (int i=0; i<4; i++) {
+	  TF1 * AdcSpectrum = new TF1("AdcSpectrum"," ([0]*exp((x-[1])/[2]))/ (1.+exp((x-[1])/[3])) ",
+				      m_settings->minAdc(),m_settings->maxAdc() );
+	  AdcSpectrum->SetParameters(adcpar) ;
+	  double fitMin = m-(3*r) ;
+	  double fitMax = m+(3*r) ;
+	  if (fitMin<adcThreshold) fitMin = adcThreshold ;
+	  if (fitMax>300 ) fitMax = 300. ;
+	  h->Fit("AdcSpectrum","Q"," ",fitMin,fitMax);
+	  chi2	= AdcSpectrum->GetChisquare();
+	  ndof	= AdcSpectrum->GetNDF();	
+	  for (int i=0; i<4; i++) {
 	    par[i] = AdcSpectrum->GetParameter(i);
 	    errpar[i] = AdcSpectrum->GetParError(i);
-        }
-	if (m_settings->printLevel() <=1)
-	           std::cout<<"chi2/ndof="<<chi2/ndof<<" "<<"Mean="<<m<<" "<<"RMS="<<r
-		   <<" par 0 1 2 3 " << par[0] <<" "<<par[1]<<" "<<par[2]<< " "<<par[3]<< std::endl;
+	  }
+	  if (m_settings->printLevel() <=1)
+	    std::cout<<"chi2/ndof="<<chi2/ndof<<" "<<"Mean="<<m<<" "<<"RMS="<<r
+		     <<" par 0 1 2 3 " << par[0] <<" "<<par[1]<<" "<<par[2]<< " "<<par[3]<< std::endl;
 
-        }
-        // THE NEW HISTOGRAM HAS BEEN FITTED
+	}
+	// THE NEW HISTOGRAM HAS BEEN FITTED
       
-      } else {
+	//    } else {
 	// stc.statusCode=2; // too few entries - DO NOT CHANGE statusCode coming from doTimeFit
       }
 
@@ -593,12 +571,12 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
       fi.adc_par[1] = par[2] ;
       fi.adc_err[0] = errpar[1] ;
       fi.adc_err[1] = errpar[2] ;
-      fi.adc_chi2 = chi2/ndof ;
+      if( ndof != 0. ) fi.adc_chi2 = chi2/ndof;
+      else             fi.adc_chi2 = -1;
     }
   }
 
-  void  T0CalibrationClassic::searchParams(TH1 * h, double * p, int np)
-  {
+  void  T0CalibrationClassic::searchParams(TH1 * h, double * p, int np) {
     int nbinsX=h->GetNbinsX();
     double sizeX = h->GetBinWidth(1);
     double oldSizeX=sizeX;
@@ -688,13 +666,11 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
     return;
   }
 
-  const IMdtCalibrationOutput* T0CalibrationClassic::getResults() const
-  {
+  const IMdtCalibrationOutput* T0CalibrationClassic::getResults() const {
     return new T0CalibrationOutput(m_result);
   }
 
-  T0ClassicHistos* T0CalibrationClassic::getHistos(unsigned int idtube) 
-  {
+  T0ClassicHistos* T0CalibrationClassic::getHistos(unsigned int idtube) {
     ToString ts;
     // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<std::endl;
     std::string HistoId;
@@ -735,24 +711,25 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
       HistoId="time_"+stationName+"_"+ts(eta)+"_"+ts(phi)+"_"+ts(tubeid);
       // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" of tipe tube "<<HistoId<<std::endl;
     }
-    TH1F * timeHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
-    if(!timeHis) { 
+    T0ClassicHistos *ret = NULL; 
+    TH1F *timeHis = (TH1F*) m_regiondir->Get(HistoId.c_str());
+    // We will either find the pointer to an existing histogram or create a new one
+    if(!timeHis) {   //book histo if it does not exist
       // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" pointer not found, booking"<<std::endl;
-      return bookHistos(idtube);
-    } else {
-      for(std::vector<T0ClassicHistos*>::iterator it =p_histos.begin() ;
-	  it!=p_histos.end();++it)
-	// loop over p_histos histograms to look for the set of histos of tube idtube 
-	{
-	  if((*it)->time==timeHis) return (*it);
+      ret = bookHistos(idtube);
+    } else {  // else loop over p_histos histograms to look for the set of histos of tube idtube 
+      for(std::vector<T0ClassicHistos*>::iterator it =p_histos.begin(); it!=p_histos.end();++it) {
+	if((*it)->time==timeHis) {
+	  ret = (*it);
+	  break;
 	}
+      }
     }
-    return new T0ClassicHistos();
-  }
+    return ret;
+  }    //end T0CalibrationClassic::getHistos
 
-  T0ClassicHistos* T0CalibrationClassic::bookHistos(unsigned int idtube)
-  {
-    T0ClassicHistos * histos=new T0ClassicHistos(); 
+  T0ClassicHistos* T0CalibrationClassic::bookHistos(unsigned int idtube) {
+    T0ClassicHistos *histos = new T0ClassicHistos(); 
     ToString ts;
     std::string histonametdc;
     std::string histonameadc;
@@ -805,16 +782,13 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
     }
 
     histos->time=new TH1F(histonametdc.c_str(),"Drift Time",m_settings->binTime(),m_settings->minTime(),m_settings->maxTime()); 
-
     histos->adc= new TH1F(histonameadc.c_str(),"ADC",m_settings->binAdc(),m_settings->minAdc(),m_settings->maxAdc());
 
     p_histos.push_back(histos);  
     return histos;
   }
 
-  void T0CalibrationClassic::setInput( const IMdtCalibrationOutput* calib_in )
-  {
-
+  void T0CalibrationClassic::setInput( const IMdtCalibrationOutput* calib_in ) {
     // This method is called both by the event loop and by the tool.
     // Only the call from the tool is relevant for this implementation
     // and should be performed only once.
@@ -822,12 +796,13 @@ inline Double_t TimeSpectrum_func(Double_t *xx , Double_t *par)
     if(m_result) return;
 
     const T0CalibrationOutput* t0Input = dynamic_cast<const T0CalibrationOutput*>(calib_in);
-    m_result = t0Input->t0s(); 
-    m_result->setImplementation("T0CalibrationClassic");
+    if( t0Input != NULL ) {
+      m_result = t0Input->t0s(); 
+      m_result->setImplementation("T0CalibrationClassic");
+    }
   }
 
-  bool T0CalibrationClassic::converged() const
-  {
+  bool T0CalibrationClassic::converged() const {
     return m_converged;
   }
 
