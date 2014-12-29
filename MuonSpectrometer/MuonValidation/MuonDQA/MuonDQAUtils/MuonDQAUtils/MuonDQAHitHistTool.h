@@ -5,7 +5,7 @@
 #ifndef MUON_MUONDQAHITHISTTOOL_H
 #define MUON_MUONDQAHITHISTTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MuonDQAUtils/MuonDQAHistosBase.h"
@@ -33,7 +33,7 @@ namespace Muon {
      - fill the extracted information into a set of histograms
   */
   
-  class MuonDQAHitHistTool : public AlgTool {
+  class MuonDQAHitHistTool : public AthAlgTool {
   public:
     struct DetData {
       DetData();

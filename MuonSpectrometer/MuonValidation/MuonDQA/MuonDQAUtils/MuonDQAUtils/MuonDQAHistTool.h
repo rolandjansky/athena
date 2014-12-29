@@ -5,7 +5,7 @@
 #ifndef MUON_MUONDQAHISTTOOL_H
 #define MUON_MUONDQAHISTTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -32,7 +32,7 @@ namespace Muon {
 
   */
   
-  class MuonDQAHistTool : public AlgTool {
+  class MuonDQAHistTool : public AthAlgTool {
   public:
  
     /** @brief a pair of MeasurementBase + TrackParameters is the minimum input to calculate a residual */

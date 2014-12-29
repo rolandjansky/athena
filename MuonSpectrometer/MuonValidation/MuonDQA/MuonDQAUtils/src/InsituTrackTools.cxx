@@ -12,7 +12,7 @@
 //================ Constructor =================================================
 namespace Muon {
   InsituTrackTools::InsituTrackTools(const std::string& t, const std::string& n, const IInterface*  p ):
-    AlgTool(t,n,p),
+    AthAlgTool(t,n,p),
     m_log(msgSvc(),n)
   {
     declareInterface<IInsituTrackTools>(this);

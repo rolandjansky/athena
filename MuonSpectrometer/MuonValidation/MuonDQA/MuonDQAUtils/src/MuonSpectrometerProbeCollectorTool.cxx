@@ -14,7 +14,7 @@ namespace Muon {
 									 const std::string& n,
 									 const IInterface*  p )
     :
-    AlgTool(t,n,p),
+    AthAlgTool(t,n,p),
     m_log(msgSvc(),n),
     m_InsituPerformanceTools("InsituTrackPerformanceTools/TestTool")
   {

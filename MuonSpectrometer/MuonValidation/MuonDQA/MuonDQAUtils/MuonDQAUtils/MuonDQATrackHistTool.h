@@ -5,7 +5,7 @@
 #ifndef MUON_MUONDQATRACKHISTTOOL_H
 #define MUON_MUONDQATRACKHISTTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkTrack/TrackCollection.h"
@@ -58,7 +58,7 @@ namespace Muon {
 
   */
   
-  class MuonDQATrackHistTool : public AlgTool {
+  class MuonDQATrackHistTool : public AthAlgTool {
   public:
     struct TrackData {
       TrackData();

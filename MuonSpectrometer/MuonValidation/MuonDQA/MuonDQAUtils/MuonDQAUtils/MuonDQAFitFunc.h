@@ -14,7 +14,7 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -28,7 +28,7 @@ namespace Muon {
      *  @author Nektarios Benekos Nectarios.Benekos@cern.ch
      */
 
-  class MuonDQAFitFunc: public AlgTool {
+  class MuonDQAFitFunc: public AthAlgTool {
   public:
  
     /** @brief constructor */

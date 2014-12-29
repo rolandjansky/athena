@@ -24,7 +24,7 @@
 namespace Muon {
  
   MuonDQAFitFunc::MuonDQAFitFunc(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AlgTool(ty,na,pa),
+    : AthAlgTool(ty,na,pa),
       m_minMuonEffWindow(0.8),
       m_maxMuonEffWindow(1.05),
       m_log(msgSvc(),na)      

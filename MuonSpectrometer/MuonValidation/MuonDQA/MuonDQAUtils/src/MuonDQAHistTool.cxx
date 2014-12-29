@@ -14,7 +14,7 @@
 namespace Muon {
   /***********************************************************/	
   MuonDQAHistTool::MuonDQAHistTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AlgTool(ty,na,pa),
+    : AthAlgTool(ty,na,pa),
       m_log(0)
   {
     declareInterface<MuonDQAHistTool>(this);

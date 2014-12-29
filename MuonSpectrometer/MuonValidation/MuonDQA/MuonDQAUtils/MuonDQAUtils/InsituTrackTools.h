@@ -16,7 +16,7 @@
 #include <functional>
 #include <string>
 /// Gaudi Tools
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -74,7 +74,7 @@ short Doxygen comment stating the purpose of this function.
 */  
 namespace Muon 
 {
-  class InsituTrackTools : virtual public IInsituTrackTools, public AlgTool
+  class InsituTrackTools : virtual public IInsituTrackTools, public AthAlgTool
     {
     public:
       InsituTrackTools(const std::string&,const std::string&,const IInterface*);

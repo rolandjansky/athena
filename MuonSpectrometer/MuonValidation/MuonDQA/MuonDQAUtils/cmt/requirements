@@ -22,6 +22,7 @@ use EventKernel                 EventKernel-*                Event
 use AtlasCLHEP                  AtlasCLHEP-*                 External
 use StoreGate                   StoreGate-*                  Control
 use AthenaMonitoring	        AthenaMonitoring-*           Control
+use AthenaBaseComps             AthenaBaseComps-*            Control
 
 # for histograming tool
 use MuonIdHelpers	        MuonIdHelpers-*	             MuonSpectrometer
@@ -51,7 +52,7 @@ use TrigMuonEvent               TrigMuonEvent-*              Trigger/TrigEvent
 use TrigSteeringEvent           TrigSteeringEvent-*          Trigger/TrigEvent
 
 #library MuonDQAUtils *.cxx -s=components *.cxx
-apply_pattern dual_use_library files= *.cxx
+apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime
 apply_tag  ROOTBasicLibs
 apply_tag  ROOTMathLibs

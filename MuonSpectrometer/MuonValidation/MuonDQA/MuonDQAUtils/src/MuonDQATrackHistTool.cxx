@@ -36,7 +36,7 @@
 namespace Muon {
 
   MuonDQATrackHistTool::MuonDQATrackHistTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AlgTool(ty,na,pa),
+    : AthAlgTool(ty,na,pa),
       m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_hitHistTool("Muon::MuonDQAHitHistTool/MuonDQAHitHistTool"),
@@ -1032,10 +1032,14 @@ namespace Muon {
       
       // pointer to resPull
       const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(meas, pars, Trk::ResidualPull::Unbiased );
-      detData->pull  = resPull ? resPull->pull().front() : -9999;
-      detData->res   = resPull ? resPull->residual().front() : -9999;
-      detDataAll->pull  = resPull ? resPull->pull().front() : -9999;
-      detDataAll->res   = resPull ? resPull->residual().front() : -9999;
+      if (detData!=0) {
+	detData->pull  = resPull ? resPull->pull().front() : -9999;
+	detData->res   = resPull ? resPull->residual().front() : -9999;
+      }
+      if (detDataAll!=0) {
+	detDataAll->pull  = resPull ? resPull->pull().front() : -9999;
+	detDataAll->res   = resPull ? resPull->residual().front() : -9999;
+      }
       if (detDataSubdet!=0) {
 	detDataSubdet->pull  = resPull ? resPull->pull().front() : -9999;
 	detDataSubdet->res   = resPull ? resPull->residual().front() : -9999;
@@ -1046,11 +1050,15 @@ namespace Muon {
       }
       delete resPull;
 
-      detData->error = meas->localCovariance()(Trk::locX,Trk::locX);
-      //      detData->error = 0.;
-      detData->lposX = meas->localParameters()[Trk::locX];
-      detDataAll->error = 0.;
-      detDataAll->lposX = meas->localParameters()[Trk::locX];
+      if (detData!=0) {
+	detData->error = meas->localCovariance()(Trk::locX,Trk::locX);
+	//      detData->error = 0.;
+	detData->lposX = meas->localParameters()[Trk::locX];
+      }
+      if (detDataAll!=0) {
+	detDataAll->error = 0.;
+	detDataAll->lposX = meas->localParameters()[Trk::locX];
+      }
       if (detDataSubdet!=0) {
 	detDataSubdet->error = meas->localCovariance()(Trk::locX,Trk::locX);
 	detDataSubdet->lposX = meas->localParameters()[Trk::locX];
@@ -1060,10 +1068,14 @@ namespace Muon {
 	detDataSector->lposX = meas->localParameters()[Trk::locX];
       }
 
-       const Amg::Vector2D* locPos = meas->associatedSurface().globalToLocal(pars->position());      
+      const Amg::Vector2D* locPos = meas->associatedSurface().globalToLocal(pars->position());      
 //      const Trk::LocalPosition* locPos = meas->associatedSurface().globalToLocal(pars->position());
-      detData->lposY = locPos ? (*locPos)[Trk::locY] : -9999.;
-      detDataAll->lposY = locPos ? (*locPos)[Trk::locY] : -9999.;
+      if (detData!=0) {
+	detData->lposY = locPos ? (*locPos)[Trk::locY] : -9999.;
+      }
+      if (detDataAll!=0) {
+	detDataAll->lposY = locPos ? (*locPos)[Trk::locY] : -9999.;
+      }
       if (detDataSubdet!=0) {
 	detDataSubdet->lposY = locPos ? (*locPos)[Trk::locY] : -9999.;
       }
