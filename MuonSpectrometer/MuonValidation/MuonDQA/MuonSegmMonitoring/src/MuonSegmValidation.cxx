@@ -64,8 +64,18 @@ const int s_maxSoS        = 80;
 MuonSegmValidation::MuonSegmValidation( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ), 
    m_storeGate(0),
+   m_activeStore(NULL),
+   m_muonMgr(NULL),
+   m_mdtIdHelper(NULL),
+   m_rpcIdHelper(NULL),
+   m_cscIdHelper(NULL),
+   m_tgcIdHelper(NULL),
+   m_segms(NULL),
    m_eventCounter(0),
-   m_debuglevel(false)
+   m_eventNumber(-1),
+   m_rec_nSoS(-1),
+   m_debuglevel(false),
+   b_status(false)
 {
   m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
   m_helperTool     = ToolHandle<Muon::MuonEDMHelperTool>("Muon::MuonEDMHelperTool/MuonEDMHelperTool");
