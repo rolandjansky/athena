@@ -13,19 +13,19 @@
 #include "MuonLinearSegmentMakerUtilities/ClusterNtuple.h"
 
 namespace ClusterSeg {
- 
+
   class ClusterAnalysis {
     public:
-    
-      ClusterAnalysis() {};
+
+      ClusterAnalysis() : m_tree(NULL), m_ncalls(-1) {m_ntuple.init();}
       ClusterAnalysis( TTree& tree ) : m_tree(&tree) {m_ntuple.initForRead(tree);}
 
       std::vector<std::vector<SpacePoint>> analyse(std::vector<Cluster*> clust);
       void analyseWrite();
-     
+
     private:
 
-      std::vector<std::vector<SpacePoint>> createSeeds(std::vector<SpacePoint>& points); 
+      std::vector<std::vector<SpacePoint>> createSeeds(std::vector<SpacePoint>& points);
       std::vector<SpacePoint> createSpacePoints(std::vector<Cluster*>& clust);
 
       TTree*        m_tree;
