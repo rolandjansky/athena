@@ -20,8 +20,6 @@ namespace ClusterSeg {
     tree.Branch("y",&y,"y[nclusters]/D");
     tree.Branch("z",&z,"z[nclusters]/D");
     tree.Branch("isPhi",&isPhi,"isPhi[nclusters]/O");
-    tree.Branch("techIndex",&tIndex,"techIndex[nclusters]/I");
-    tree.Branch("phiIndex",&pIndex,"phiIndex[nclusters]/I");
     tree.Branch("isMatch",&isMatch,"isMatch[nclusters]/O");
     tree.Branch("barcode",&barcode,"barcode[nclusters]/I");
     tree.Branch("ntracks",&ntracks,"ntracks/I");
@@ -40,8 +38,6 @@ namespace ClusterSeg {
     tree.SetBranchAddress("y",&y);
     tree.SetBranchAddress("z",&z);
     tree.SetBranchAddress("isPhi",&isPhi);
-    tree.SetBranchAddress("techIndex",&tIndex);
-    tree.SetBranchAddress("phiIndex",&pIndex);
     tree.SetBranchAddress("isMatch",&isMatch);
     tree.SetBranchAddress("barcode",&barcode);
   }
@@ -56,8 +52,6 @@ namespace ClusterSeg {
     y[nclusters] = cluster.m_y;
     z[nclusters] = cluster.m_z;
     isPhi[nclusters] = cluster.m_isPhi;
-    tIndex[nclusters] = (int)cluster.m_tIndex;
-    pIndex[nclusters] = (int)cluster.m_pIndex;
     isMatch[nclusters] = cluster.m_isMatch;
     barcode[nclusters] = cluster.m_barcode;
     ++nclusters;
@@ -105,7 +99,7 @@ namespace ClusterSeg {
     }
     
     for( int i=0;i<nclusters;++i){
-      Cluster* cluster = new Cluster(x[i],y[i],z[i],isPhi[i],tIndex[i],pIndex[i],isMatch[i],barcode[i]);
+      Cluster* cluster = new Cluster(x[i],y[i],z[i],isPhi[i],isMatch[i],barcode[i]);
       clusters.push_back(cluster);
     }
 
