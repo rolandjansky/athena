@@ -4,20 +4,24 @@
 
 #include "MuonSegmentValidationPlots.h"
 
-MuonSegmentValidationPlots::MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
-m_oRecoSegmPlots(this, "reco/MuonSegments/"),
-m_oMatchedMuonSegmPlots(this, "matched/MuonSegments/"),
-m_oMuonSegmResolutionPlots(this, "matched/MuonSegments/"),
-m_oTruthMuonSegmPlots(this, "truth/MuonSegments/"){}
+MuonSegmentValidationPlots::MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir):
+  PlotBase(pParent, sDir),
+  m_oRecoSegmPlots(this, "reco/MuonSegments/"),
+  m_oMatchedMuonSegmPlots(this, "matched/MuonSegments/"),
+  m_oMatchedMuonSegmDiffPlots(this, "matched/MuonSegments/"),
+  m_oTruthMuonSegmPlots(this, "truth/MuonSegments/")
+{}
 
 void MuonSegmentValidationPlots::fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg)
 {
   if (truthMuSeg) 
     m_oTruthMuonSegmPlots.fill( *truthMuSeg );
- 
-  if ( (truthMuSeg) && (muSeg) ) {
+  if (muSeg)
+    m_oRecoSegmPlots.fill(*muSeg);
+  
+  if ( (truthMuSeg) && (muSeg) ) {    
     m_oMatchedMuonSegmPlots.fill( *truthMuSeg );
-    m_oMuonSegmResolutionPlots.fill( *truthMuSeg, *muSeg );
+    m_oMatchedMuonSegmDiffPlots.fill( *truthMuSeg, *muSeg );
   }
 }
 

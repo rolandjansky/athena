@@ -10,9 +10,9 @@
 #include "TrkValHistUtils/MSHitDiffPlots.h"
 #include "MuonHistUtils/MuonHitDiffSummaryPlots.h"
 #include "MuonHistUtils/MuonResolutionPlots.h"
+#include "TrkValHistUtils/DefParamPullPlots.h"
 
 #include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODTruth/TruthParticle.h"
 
 class TruthRelatedMuonPlots:public PlotBase {
@@ -20,15 +20,17 @@ class TruthRelatedMuonPlots:public PlotBase {
   TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots);
   ~TruthRelatedMuonPlots();
   void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu);
-      
+
   // Truth related plots
   Trk::ParamPlots                 m_oMatchedPlots;
   Trk::MSHitDiffPlots             m_oMSHitDiffPlots;
-  Muon::MuonHitDiffSummaryPlots   m_oMuonHitDiffSummaryPlots;        
+  Muon::MuonHitDiffSummaryPlots   m_oMuonHitDiffSummaryPlots;
   Muon::MuonResolutionPlots       m_oMuonResolutionPlots;
   Muon::MuonResolutionPlots       m_oMuonMSResolutionPlots;
   Muon::MuonResolutionPlots       m_oMuonIDResolutionPlots;
-
+  Trk::DefParamPullPlots          m_oDefParamPullPlots;
+  Trk::DefParamPullPlots          m_oMSDefParamPullPlots;
+  Trk::DefParamPullPlots          m_oIDDefParamPullPlots;
 };
 
 #endif

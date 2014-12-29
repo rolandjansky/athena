@@ -8,7 +8,6 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/MSHitPlots.h"
-#include "TrkValHistUtils/RecoInfoPlots.h"
 #include "TrkValHistUtils/ImpactPlots.h"
 #include "MuonHistUtils/RecoInfoPlots.h"
 #include "MuonHistUtils/MomentumPullPlots.h"
@@ -27,7 +26,6 @@ class RecoMuonPlots:public PlotBase {
       Trk::ParamPlots                 m_oAllPlots;
       Muon::RecoInfoPlots             m_oMuRecoInfoPlots;
       Trk::ImpactPlots                m_oImpactPlots;
-      Trk::RecoInfoPlots              m_oTrkRecoInfoPlots;
       Muon::MomentumPullPlots         m_oMomentumPullPlots;
       Trk::MSHitPlots                 m_oMSHitPlots; 
       Muon::MuonHitSummaryPlots       m_oMuonHitSummaryPlots;

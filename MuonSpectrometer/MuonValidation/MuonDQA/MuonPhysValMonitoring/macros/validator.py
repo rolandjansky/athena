@@ -90,12 +90,17 @@ class Validator(object):
   def MakeComparisonPlot(self,refHist, testHist, path):
     def SetBounds(refHist, testHist, setMinToZero):
 
-      if setMinToZero:
+      if setMinToZero:        
         maximum = max(refHist.GetMaximum(), testHist.GetMaximum())
         maximum = maximum + 0.1*abs(maximum)
         minimum = min(refHist.GetMinimum(), testHist.GetMinimum())
         minimum = minimum - 0.1*abs(minimum)
-        refHist.SetMinimum(0)
+
+        if minimum<0:
+            refHist.SetMinimum(minimum)
+            maximum = -minimum
+        else:
+            refHist.SetMinimum(0)
         refHist.SetMaximum(maximum)
       else:
         refHist.SetMinimum(0.35)
@@ -132,7 +137,7 @@ class Validator(object):
     refHist.SetLineColor(17)
     refHist.SetFillColor(17)
 
-    if self.DoNormalization:
+    if self.DoNormalization and not "_Eff_" in refHist.GetName():
       i1 = 1.*refHist.Integral()
       i2 = 1.*testHist.Integral()
       if i1>i2:

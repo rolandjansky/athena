@@ -12,7 +12,6 @@ RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pPare
 m_oAllPlots(this, "/", "Reco Muon"),
 m_oMuRecoInfoPlots(this, "/"),
 m_oImpactPlots(this, "/"),
-m_oTrkRecoInfoPlots(this, "/"),
 m_oMomentumPullPlots(this, "/"),
 m_oMSHitPlots(this,"/"),
 m_oMuonHitSummaryPlots(this,"/"),
@@ -32,6 +31,5 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu) {
   const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   if (!primaryTrk) return;
   m_oImpactPlots.fill(*primaryTrk);
-  m_oTrkRecoInfoPlots.fill(*primaryTrk);
   m_oMSHitPlots.fill(*primaryTrk);
 }

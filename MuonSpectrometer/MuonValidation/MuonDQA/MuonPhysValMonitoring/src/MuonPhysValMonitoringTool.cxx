@@ -17,8 +17,8 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
+#include "xAODTruth/TruthVertexAuxContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
@@ -35,10 +35,15 @@ namespace MuonPhysValMonitoring {
 MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type, 
 						      const std::string& name, 
 						      const IInterface* parent ):
-  ManagedMonitorToolBase( type, name, parent )
+  ManagedMonitorToolBase( type, name, parent ),
+  m_oUnmatchedRecoMuonPlots(NULL),
+  m_oUnmatchedTruthMuonPlots(NULL),
+  m_oUnmatchedRecoMuonTrackPlots(NULL),
+  m_oUnmatchedRecoMuonSegmentPlots(NULL),
+  h_overview_reco_category(NULL)
 {  
   declareProperty( "MuonContainerName", m_muonsName = "Muons" );
-  declareProperty( "MuonTruthParticleContainerName", m_muonsTruthName = "MuonTruthParticle" );
+  declareProperty( "MuonTruthParticleContainerName", m_muonsTruthName = "MuonTruthParticles" );
   declareProperty( "MuonTrackContainerName", m_muonTracksName = "MuonSpectrometerTrackParticles" );
   declareProperty( "MuonSegmentContainerName", m_muonSegmentsName = "MuonSegments" );
   declareProperty( "MuonTruthSegmentContainerName", m_muonSegmentsTruthName = "MuonTruthSegments" );
@@ -110,14 +115,15 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
   }
 
   if (m_selectMuonCategories.size()==0) {
-    unsigned int defaultMuonCategories[]={ ALL, PROMPT, INFLIGHT, REST };
+    unsigned int defaultMuonCategories[]={ ALL, PROMPT, INFLIGHT, NONISO, REST };
     for (const auto category: defaultMuonCategories) m_selectMuonCategories.push_back(category);
   }
 
-  std::string theMuonCategories[4];
+  std::string theMuonCategories[5];
   theMuonCategories[ALL]="All";
   theMuonCategories[PROMPT]="Prompt";
   theMuonCategories[INFLIGHT]="InFlight";
+  theMuonCategories[NONISO]="NonIsolated";
   theMuonCategories[REST]="Rest";
 
   for (const auto category: m_selectMuonCategories) m_selectMuonCategoriesStr.push_back(theMuonCategories[category]);
@@ -127,8 +133,10 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
     m_muonValidationPlots.push_back(new MuonValidationPlots(0, categoryPath, m_selectMuonAuthors, m_doBinnedResolutionPlots));
     if (m_doMuonTrackValidation) 
       m_muonTrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath));
-    if (m_doMuonSegmentValidation) 
+    if (m_doMuonSegmentValidation) {
+      if (category!=theMuonCategories[ALL]) continue; //cannot identify the truth origin of segments...
       m_muonSegmentValidationPlots.push_back(new MuonSegmentValidationPlots(0, categoryPath));
+    }
   }
   
   m_oUnmatchedRecoMuonPlots = new RecoMuonPlots(0, "Muons/UnmatchedRecoMuons/");
@@ -160,16 +168,18 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
   bookValidationPlots(*m_oUnmatchedTruthMuonPlots).ignore();
 
   //book overview hists
-  h_overview_reco_category = new TH1F("Muons_reco_category","",4,0,4); //prompt/in-flight/rest/unmatched
+  h_overview_reco_category = new TH1F("Muons_reco_category","",4,0,4); //prompt/in-flight/non-isolated/other
   for (int i=1; i<4; i++) { //skip 'All'
     h_overview_reco_category->GetXaxis()->SetBinLabel(i,theMuonCategories[i].c_str());
-  } h_overview_reco_category->GetXaxis()->SetBinLabel(4,"Unmatched");
+  } h_overview_reco_category->GetXaxis()->SetBinLabel(4,"Other"); //of some other origin or fakes
   ATH_CHECK(regHist(h_overview_reco_category,"Muons/Overview",all));
 
   int nAuth = xAOD::Muon::NumberOfMuonAuthors;
   for (int i=1; i<4; i++) {
     h_overview_reco_authors.push_back(new TH1F(("Muons_"+theMuonCategories[i]+"_reco_authors").c_str(),("Muons_"+theMuonCategories[i]+"_reco_authors").c_str(),nAuth+1,-0.5,nAuth+0.5));
-  } h_overview_reco_authors.push_back(new TH1F("Muons_Unmatched_reco_authors","Muons_Unmatched_reco_authors",nAuth+1,-0.5,nAuth+0.5));
+  }
+  h_overview_reco_authors.push_back(new TH1F("Muons_Other_reco_authors","Muons_Other_reco_authors",nAuth+1,-0.5,nAuth+0.5));
+  
   for (const auto hist : h_overview_reco_authors) {
     if (hist) ATH_CHECK(regHist(hist,"Muons/Overview",all));
   }
@@ -194,6 +204,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   m_vMatchedMuons.clear();
   m_vMatchedMuonTracks.clear();
   m_vMatchedMuonSegments.clear();
+
   // const xAOD::EventInfo* eventInfo = evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
   // if (!eventInfo){
   //   ATH_MSG_WARNING("Could not retrieve EventInfo. Returning 1");
@@ -210,14 +221,14 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   ATH_MSG_DEBUG("Retrieved truth muons " << TruthMuons->size());
 
   for (const auto truthMu: *TruthMuons) handleTruthMuon(truthMu);
-
+  
   const xAOD::MuonContainer* Muons = evtStore()->retrieve< const xAOD::MuonContainer >( m_muonsName );
   if (!Muons) {
     ATH_MSG_WARNING ("Couldn't retrieve Muons container with key: " << m_muonsName);
     return StatusCode::SUCCESS;
   } 
   ATH_MSG_DEBUG("Retrieved muons " << Muons->size());
-
+ 
   for(const auto mu : *Muons) handleMuon(mu);
 
   if (m_doMuonTrackValidation) {
@@ -241,7 +252,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
 
     ATH_MSG_DEBUG("Retrieved truth muon segments " << TruthMuonSegments->size());
   
-    for (const auto truthMuSeg: *TruthMuonSegments) handleTruthMuonSegment(truthMuSeg);
+    for (const auto truthMuSeg: *TruthMuonSegments) handleTruthMuonSegment(truthMuSeg,TruthMuons);
     
     const xAOD::MuonSegmentContainer* MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >( m_muonSegmentsName );
     if (!MuonSegments) {
@@ -255,34 +266,20 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
   return StatusCode::SUCCESS;
 }
 
-void MuonPhysValMonitoringTool::handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg)
+void MuonPhysValMonitoringTool::handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg,const xAOD::TruthParticleContainer* /*muonTruthContainer*/)
 {
   const xAOD::MuonSegment* muSeg = findRecoMuonSegment(truthMuSeg);
   ////if (msgLvl(MSG::DEBUG)) printTruthMuonDebug(truthMu, mu);
 
-  for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
-    if (m_selectMuonCategories[i]==ALL) {
+  unsigned int thisMuonCategory = ALL; //getMuonSegmentTruthCategory(truthMuSeg, muonTruthContainer) @@@ Does not work...
+;
+
+  for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {    
+    if ( m_selectMuonCategories[i]==ALL || m_selectMuonCategories[i]==thisMuonCategory ) {
       m_muonSegmentValidationPlots[i]->fill(truthMuSeg, muSeg);   // if no reco muon segment is found a protection inside MuonSegmentValidationPlots will ensure, its plots won't be filled
-      break;
     }
   }
 
-  // @@@ FIX: find origin of particle from which this segment originates
-
-  // ElementLink< xAOD::TruthParticleContainer > truthLink;
-  // if( truthMuSeg->isAvailable<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") ) {
-  //   truthLink = truthMuSeg->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
-  // }
-  // else {
-  //   ATH_MSG_WARNING("No truth link available for muon truth segment");
-  //   return;
-  // }
-  // if( truthLink ) {
-  //   if (truthLink.isValid()) {
-  //     std::cout<< truthLink.auxdata< int > ("truthType") << std::endl;
-  //   }
-  // }
-  //   //
 }
 
 void MuonPhysValMonitoringTool::handleMuonSegment(const xAOD::MuonSegment* muSeg)
@@ -308,7 +305,7 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu)
   if (std::find(std::begin(m_vMatchedMuons), std::end(m_vMatchedMuons), mu) != std::end(m_vMatchedMuons)) return;
   //unmatched reco muons (not matched with any kind of truth particle, fakes)
   m_oUnmatchedRecoMuonPlots->fill(*mu);
-  h_overview_reco_category->Fill("Unmatched",1);
+  h_overview_reco_category->Fill("Other",1);
   h_overview_reco_authors[3]->Fill(mu->author());
   for (unsigned int i=0; i<m_selectMuonCategories.size(); i++) {
     if (m_selectMuonCategories[i]==ALL) { 
@@ -462,10 +459,32 @@ TH1F* MuonPhysValMonitoringTool::findHistogram(std::vector<HistData> hists,std::
   return h;
 }
 
+MuonPhysValMonitoringTool::MUCATEGORY MuonPhysValMonitoringTool::getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg,const xAOD::TruthParticleContainer* muonTruthContainer)
+{
+  ElementLink< xAOD::TruthParticleContainer > truthLink;
+  if( truthMuSeg->isAvailable<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") ) {
+    truthLink = truthMuSeg->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
+    if (truthLink.isValid()) {
+      int theBarcode = (*truthLink)->barcode();
+      if (abs( (*truthLink)->pdgId() ) != 13) return REST;
+      	    
+      for (const auto muTruthPart: *muonTruthContainer) {
+      	if (muTruthPart->barcode() == theBarcode) {
+      	 return getMuonTruthCategory(muTruthPart);
+      	}
+      }
+    }
+  }
+  else ATH_MSG_WARNING("No truth link available for muon truth segment");
+
+  return REST;
+}
+
 MuonPhysValMonitoringTool::MUCATEGORY MuonPhysValMonitoringTool::getMuonTruthCategory(const xAOD::IParticle* mu)
 {
   if (mu->auxdata< int >("truthType") == 6) return PROMPT;
-  else if (mu->auxdata< int >("truthType") == 20 && (mu->auxdata< int >("truthOrigin") == 34 || mu->auxdata< int >("truthOrigin") == 35)) return INFLIGHT;
+  else if (mu->auxdata< int >("truthType") == 8 && (mu->auxdata< int >("truthOrigin") == 34 || mu->auxdata< int >("truthOrigin") == 35)) return INFLIGHT;
+  else if ( mu->auxdata< int >("truthType") == 7 ) return NONISO;
   return REST;
 }
 

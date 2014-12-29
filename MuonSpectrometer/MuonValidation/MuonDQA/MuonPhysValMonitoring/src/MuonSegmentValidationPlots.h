@@ -6,7 +6,7 @@
 #define MUONPHYSVALMONITORING_MUONSEGMENTVALIDATIONPLOTS_H
 
 #include "MuonHistUtils/MuonSegmentPlots.h"
-#include "MuonHistUtils/MuonSegmentResolutionPlots.h"
+#include "MuonHistUtils/MuonSegmentTruthRelatedPlots.h"
 
 class MuonSegmentValidationPlots: public PlotBase {
   public:
@@ -16,7 +16,7 @@ class MuonSegmentValidationPlots: public PlotBase {
     Muon::MuonSegmentPlots                 m_oRecoSegmPlots;
     // Truth related plots
     Muon::MuonSegmentPlots                 m_oMatchedMuonSegmPlots;
-    Muon::MuonSegmentResolutionPlots       m_oMuonSegmResolutionPlots;
+    Muon::MuonSegmentTruthRelatedPlots     m_oMatchedMuonSegmDiffPlots;
     Muon::MuonSegmentPlots                 m_oTruthMuonSegmPlots;
 
     void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg);

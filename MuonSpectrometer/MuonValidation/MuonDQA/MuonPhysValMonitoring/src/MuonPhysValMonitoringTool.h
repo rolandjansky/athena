@@ -18,6 +18,8 @@
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -79,7 +81,7 @@ class MuonPhysValMonitoringTool
   void handleTruthMuon(const xAOD::TruthParticle* truthMu);
   void handleMuonTrack(const xAOD::TrackParticle* muTP);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
-  void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg);
+  void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   
   void printMuonDebug(const xAOD::Muon* mu);
   void printTruthMuonDebug(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu);
@@ -104,8 +106,9 @@ class MuonPhysValMonitoringTool
   bool m_doBinnedResolutionPlots;
 
   //
-  enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, REST};
+  enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
   std::vector<std::string> m_selectMuonCategoriesStr;
+  MuonPhysValMonitoringTool::MUCATEGORY getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
 
   // Hists

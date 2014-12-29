@@ -1,0 +1,41 @@
+by Dan Mori <dmori at cern.ch>
+
+This is how to use the software in the macros folder in MuonSpectrometer/MuonValidation/MuonDQA/MuonPhysValMonitoring to create slides for muon validation.
+Software requires Python version 2.7 or greater
+
+This assumes that the validation will be done using a test sample and reference sample for comparison and that you already have the ROOT files containing the physval plots for each sample. The macros that both files have the same directory structure.
+
+eg. REFFILE=19.1.1.3.run1.root
+eg. TESTFILE=19.1.1.1.run1.root
+
+1. Create Efficiency and Reco Fraction Plots
+	Run the following for each file to add efficiency and reco fraction plots:
+
+python CreateEffAndRecoFracPlots.py $REFFILE
+python CreateEffAndRecoFracPlots.py $TESTFILE
+
+2. Create Resolution Plots
+	Run the following for each file to add resolution and pt scale plots:
+
+python CreateResolutionPlots.py $REFFILE
+python CreateResolutionPlots.py $TESTFILE
+
+3. Create Muon Validation Slides
+CreateMuonValidation Slides uses Beamer (LaTeX) to create slides for a presentation using selected plots from the test and reference physval files. All plots will also contain a ratio plot of the test and reference histograms.
+
+3a. Configuration
+First, open up the slides_config.py file and edit the info as required. From here, you can edit the title page info, such as title, date, author, as well as input the sample datasets, Athena versions used, description of the samples, summary slide items, and which plots go on which page. Comments can be added to each slide as well.
+
+e.g.
+title = 'Muon Validation of 19.1.1.1 compared to 19.0.3.3'
+subtitle = 'No Pileup, Run 1 Configuration'
+date = r'\today'
+
+3b. Running the macro
+python CreateMuonValidationSlides.py -r $REFFILE -t $TESTFILE -d OUTPUT_DIRECTORY -c
+
+-t FILE: test file
+-r FILE: reference file
+-d DIR: directory where the LaTeX files, plots and final pdf will be put. This is by default set to './beamer'
+-c: compile LaTeX file automatically
+-n: don't create a title page for the slides
