@@ -6,8 +6,7 @@
 
 #include "TTree.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
  
 ///for GaudiKernel
 #include "GaudiKernel/MsgStream.h"
@@ -55,14 +54,80 @@ using namespace MuonGM;
 
 MDTPRDValAlg::MDTPRDValAlg(const std::string& name, 
 			     ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   mdttree(0),
-  m_pMuonMgr           (0),
-  m_mdtIdHelper       (0),
-  m_log( 0 ),
+  event_counter(0),
+  histo_flag(false),
+  descriptor(0),
+  m_pMuonMgr(0),
+  m_mdtIdHelper(0),
+  m_log(0),
   m_debug(false),
   m_verbose(false),
   m_sgSvc(0),
+
+  counter_ValHitNumber(-99),
+  m_Validation_MDT_Type(-99),
+  m_Validation_MDT_NumberOfHits(-99),
+  m_Validation_MDT_EventNumber(-99),
+  m_Validation_MDT_RunNumber(-99),
+  m_Validation_MDT_pdg(0),
+  m_Validation_MDT_phi(-99999.),
+  m_Validation_MDT_theta(-99999.),
+  m_Validation_MDT_eta(-99999.),
+  m_Validation_MDT_qp(-99999.),
+  m_Validation_MDT_MEX(-99999.),
+  m_Validation_MDT_MEY(-99999.),
+  m_Validation_MDT_MEZ(-99999.),
+  m_Validation_MDT_Exit_qp(-99999.),
+  m_Validation_MDT_ExitX(-99999.),
+  m_Validation_MDT_ExitY(-99999.),
+  m_Validation_MDT_ExitZ(-99999.),
+  m_Validation_MDT_HitX(-99999.),
+  m_Validation_MDT_HitY(-99999.),
+  m_Validation_MDT_HitZ(-99999.),
+  m_Validation_MDT_HitR(-99999.),
+  m_Validation_MDT_ExX(-99999.),
+  m_Validation_MDT_ExY(-99999.),
+  m_Validation_MDT_ExZ(-99999.),
+  m_Validation_MDT_ExR(-99999.),
+  m_Validation_MDT_StationEta(-99),
+  m_Validation_MDT_StationPhi(-99),
+  m_Validation_MDT_IDTube(-99),
+  m_Validation_MDT_IDMultiLayer(-99),
+  m_Validation_MDT_IDLayer(-99),
+  m_Validation_MDT_GeoSign(-99),
+  m_Validation_MDT_BESL(-99),
+
+  m_Validation_MDT_LocalX(-99999.),
+  m_Validation_MDT_LocalY(-99999.),
+  m_Validation_MDT_LocalZ(-99999.),
+  m_Validation_MDT_LocalR(-99999.),
+  m_Validation_MDT_Res_LocalX(-99999.),
+  m_Validation_MDT_Res_LocalY(-99999.),
+  m_Validation_MDT_ResEloss_LocalX(-99999.),
+  m_Validation_MDT_ResEloss_LocalY(-99999.),
+  m_Validation_MDT_dtheta_dLocX(-99999.),
+  m_Validation_MDT_dtheta_dLocY(-99999.),
+  m_Validation_MDT_dphi_dLocX(-99999.),
+  m_Validation_MDT_dphi_dLocY(-99999.),
+  m_Validation_MDT_dtheta(-99999.),
+  m_Validation_MDT_3DdistME(-99999.),
+  m_Validation_MDT_ploss(-99999.),
+  m_Validation_MDT_3DdistExit(-99999.),
+  m_Validation_MDT_last(-99),
+
+  m_Validation_MDT_ExNomWireR(-99999.),
+  m_Validation_MDT_ExNomWireZ(-99999.),
+  m_Validation_MDT_ExSagWireR(-99999.),
+  m_Validation_MDT_ExSagWireZ(-99999.),
+  m_Validation_MDT_ExSagRotR(-99999.),
+  m_Validation_MDT_ExSagRotZ(-99999.),
+  m_Validation_MDT_SimRadius(-99999.),
+  m_Validation_MDT_SdoRadius(-99999.),
+  m_Validation_MDT_RotRadius(-99999.),
+  m_Validation_MDT_WireLen(-99999.),
+
   m_rootsvc(0),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_rotCreator("Muon::MdtDriftCircleOnTrackCreator/SaggingMdtDriftCircleOnTrackCreator")
@@ -749,7 +814,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   // ---------------------------------------
   // fill event data
   /** get EventInfo, used to obtain run and event number */
-  const EventInfo* pevt;
+  const xAOD::EventInfo* pevt;
 		
 	
   if (m_sgSvc->retrieve(pevt).isFailure()) {
@@ -760,13 +825,13 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   }	
 
   if(m_verbose) {
-    *m_log << MSG::VERBOSE <<"Processing EventInfo event #"<<pevt->event_ID()->event_number() << " run: " << pevt->event_ID()->run_number() << endreq;
+    *m_log << MSG::VERBOSE <<"Processing EventInfo event #"<<pevt->eventNumber() << " run: " << pevt->runNumber() << endreq;
   }
 
 
   /**Get number of events processed and run number*/
-  int evt = pevt->event_ID()->event_number();
-  int numrun = pevt->event_ID()->run_number();
+  int evt = pevt->eventNumber();
+  int numrun = pevt->runNumber();
   m_Validation_MDT_RunNumber = numrun;
 
   /**Enter MDT hits loop, initialize the hits counter*/
@@ -1048,7 +1113,10 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       } 
 
 // put station name string in AANTUPLE as Val_StName  
-      strcpy(m_Validation_MDT_StationName,m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).c_str() ); 
+      if( m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).size() == 3 )
+        strcpy(m_Validation_MDT_StationName,m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id) ).c_str() );
+      else
+        strcpy(m_Validation_MDT_StationName,"ERR" );
 
       std::string stName = m_mdtIdHelper->stationNameString( m_mdtIdHelper->stationName(id));
       int geoSign = 1;

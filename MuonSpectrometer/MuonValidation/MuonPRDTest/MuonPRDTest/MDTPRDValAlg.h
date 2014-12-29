@@ -5,7 +5,7 @@
 #ifndef MDTPRDValAlg_H
 #define MDTPRDValAlg_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 
@@ -37,10 +37,10 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class MDTPRDValAlg: public Algorithm {
+class MDTPRDValAlg: public AthAlgorithm {
  public:
   struct ParticleParameters {
-    ParticleParameters() : pars(0) {}
+    ParticleParameters() : charge(-9999.), pars(0) {}
     ~ParticleParameters(){
       delete pars;
     }

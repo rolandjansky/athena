@@ -17,8 +17,7 @@
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrackRecord/TrackRecordCollection.h"
 
@@ -56,6 +55,9 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator), 
     m_thistSvc(0),
     m_tree(0), 
+    m_detManager(0),
+    m_MmIdHelper(0),
+    m_sTgcIdHelper(0),
     m_runNumber(0),
     m_eventNumber(0),
     m_Truth_nVertices(0),
@@ -168,6 +170,15 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_NSWsTGC_fdg_truth_barcode(0),
     m_NSWsTGC_fdg_truth_hitOnSurfaceX(0),
     m_NSWsTGC_fdg_truth_hitOnSurfaceY(0),
+
+    m_NSWsTGC_nDigits(0),
+    m_NSWsTGC_dig_stationName(0),
+    m_NSWsTGC_dig_stationEta(0),
+    m_NSWsTGC_dig_stationPhi(0),
+    m_NSWsTGC_dig_multiplet(0),
+    m_NSWsTGC_dig_gas_gap(0),
+    m_NSWsTGC_dig_channel_type(0),
+    m_NSWsTGC_dig_channel(0),
 
     m_NSWMM_nSimHits(0), 
     m_NSWMM_trackId(0),
@@ -364,14 +375,14 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_INFO("execute()");
 
   // Event information
-  const EventInfo *pevt = 0;
+  const xAOD::EventInfo *pevt = 0;
   StatusCode sc = evtStore()->retrieve(pevt);
   if(!sc.isSuccess()) {
     ATH_MSG_WARNING("Could not retrieve event info");
     return StatusCode::SUCCESS;
   }
-  m_runNumber = pevt->event_ID()->run_number();
-  m_eventNumber = pevt->event_ID()->event_number();
+  m_runNumber = pevt->runNumber();
+  m_eventNumber = pevt->eventNumber();
 
   // Truth information
   if (m_doTruth)  {
