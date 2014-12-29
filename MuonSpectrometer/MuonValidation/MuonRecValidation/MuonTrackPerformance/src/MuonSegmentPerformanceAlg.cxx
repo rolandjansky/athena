@@ -13,6 +13,7 @@ MuonSegmentPerformanceAlg::MuonSegmentPerformanceAlg(const std::string& name, IS
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
+  m_nevents(0),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareProperty("SegmentLocation",      m_segmentLocation = "MuonSegments");

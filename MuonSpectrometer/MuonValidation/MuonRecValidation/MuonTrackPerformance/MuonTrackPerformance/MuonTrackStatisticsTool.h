@@ -5,7 +5,7 @@
 #ifndef MUONTRACKSTATISTICSTOOL_MUONTRACKSTATISTICSTOOL_H
 #define MUONTRACKSTATISTICSTOOL_MUONTRACKSTATISTICSTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
@@ -29,7 +29,7 @@ class StoreGateSvc;
 
 static const InterfaceID IID_MuonTrackStatisticsTool("MuonTrackStatisticsTool",1,0);
 
-class MuonTrackStatisticsTool : public AlgTool
+class MuonTrackStatisticsTool : public AthAlgTool
 {
 public:
 	

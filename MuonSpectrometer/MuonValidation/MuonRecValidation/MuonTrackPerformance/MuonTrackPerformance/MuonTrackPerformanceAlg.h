@@ -5,8 +5,9 @@
 #ifndef MUONTRACKPERFORMANCEALG_H
 #define MUONTRACKPERFORMANCEALG_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 
@@ -29,7 +30,6 @@ class StoreGate;
 class StoreGateSvc;
 class MsgStream;
 class TFile;
-class EventInfo;
 class TruthTrajectory;
 
 namespace HepMC{
@@ -51,7 +51,7 @@ namespace Muon {
 }
 
 
-class MuonTrackPerformanceAlg : public Algorithm
+class MuonTrackPerformanceAlg : public AthAlgorithm
 {
 public:
   struct ChamberData {
@@ -269,7 +269,7 @@ private:
   StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
   std::string         m_trackLocation;            //!< Location of the track output location
   std::string         m_segmentCombiLocation;     //!< Location of the segment combination collections
-  const EventInfo*    m_eventInfo;                //!< pointer to the event info
+  const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
   // member set by Joboptions 
   int  m_doSummary;

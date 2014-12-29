@@ -5,7 +5,7 @@
 #ifndef MUONTRACKSTATISTICSALG_MUONTRACKSTATISTICSALG_H
 #define MUONTRACKSTATISTICSALG_MUONTRACKSTATISTICSALG_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <fstream>
@@ -14,7 +14,7 @@ class MsgStream;
 class StoreGateSvc;
 class MuonTrackStatisticsTool;
 
-class MuonTrackStatisticsAlg : public Algorithm
+class MuonTrackStatisticsAlg : public AthAlgorithm
 {
  public:
   

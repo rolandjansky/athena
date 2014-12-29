@@ -14,10 +14,10 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class StoreGate;
 class StoreGateSvc;
-class EventInfo;
 
 
 class MuonPerformanceAlg : public AthAlgorithm {
@@ -65,7 +65,7 @@ class MuonPerformanceAlg : public AthAlgorithm {
 
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
   StoreGateSvc*       m_storeGate;
-  const EventInfo*    m_eventInfo; 
+  const xAOD::EventInfo*    m_eventInfo; 
 
   int m_runNumber;
   int m_eventNumber;

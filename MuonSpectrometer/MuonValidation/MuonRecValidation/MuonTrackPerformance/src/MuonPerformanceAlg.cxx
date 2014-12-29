@@ -18,15 +18,11 @@ MuonPerformanceAlg
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
-
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 
 
 //#include "MuonID/MuonSelectionTool.h"
@@ -36,7 +32,12 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
-  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+  m_nevents(0),
+  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+  m_storeGate(NULL),
+  m_eventInfo(NULL), 
+  m_runNumber(0),
+  m_eventNumber(0)
 {
   declareProperty( "MuonContainerName", m_muonsName = "Muons" );
 
@@ -152,12 +153,12 @@ StatusCode MuonPerformanceAlg::execute()
 
   StatusCode sc = m_storeGate->retrieve(m_eventInfo);
 
-  m_runNumber = m_eventInfo->event_ID()->run_number();
-  m_eventNumber = m_eventInfo->event_ID()->event_number();
+  m_runNumber = m_eventInfo->runNumber();
+  m_eventNumber = m_eventInfo->eventNumber();
 
-  const xAOD::TruthParticleContainer* TruthMuons = evtStore()->tryRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticle");
+  const xAOD::TruthParticleContainer* TruthMuons = evtStore()->tryRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
   if (!TruthMuons) {
-    ATH_MSG_VERBOSE ("Couldn't retrieve TruthMuons container with key: " << "MuonTruthParticle");
+    ATH_MSG_VERBOSE ("Couldn't retrieve TruthMuons container with key: " << "MuonTruthParticles");
     return StatusCode::SUCCESS;
   }
   ATH_MSG_VERBOSE("Retrieved truth muons " << TruthMuons->size());

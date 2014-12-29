@@ -37,7 +37,7 @@
 //  CONSTRUCTOR:
 MuonTrackStatisticsTool::MuonTrackStatisticsTool(const std::string& t, const std::string& n, const IInterface* p)
 : 
-AlgTool(t,n,p),
+AthAlgTool(t,n,p),
 m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelpertTool"),
 m_doTruth     (false)
 

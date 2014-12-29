@@ -22,7 +22,7 @@ MuonTrackStatisticsAlg
 //  CONSTRUCTOR:
 MuonTrackStatisticsAlg::MuonTrackStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   p_SGevent(0),
   m_statisticsTool("MuonTrackStatisticsTool"),
   m_writeToFile (false),

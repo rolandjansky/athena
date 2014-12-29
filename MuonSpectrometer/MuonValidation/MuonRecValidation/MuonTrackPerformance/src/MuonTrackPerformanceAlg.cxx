@@ -20,14 +20,12 @@
 #include "TrkTrack/Track.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-
 #include "TFile.h"
 
 
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
+  m_storeGate(NULL),
   m_eventInfo(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
@@ -642,7 +640,7 @@ void MuonTrackPerformanceAlg::getEventInfo() {
 
 int MuonTrackPerformanceAlg::eventNumber() const {
   if( !m_eventInfo ) return -1;
-  return m_eventInfo->event_ID()->event_number();
+  return m_eventInfo->eventNumber();
 }
 
 std::string MuonTrackPerformanceAlg::eventInfo() const {
@@ -650,7 +648,7 @@ std::string MuonTrackPerformanceAlg::eventInfo() const {
   if( !m_eventInfo ) {
     sout << "No event info!";
   }else{
-    int eventNumber = m_eventInfo->event_ID()->event_number();
+    int eventNumber = m_eventInfo->eventNumber();
     sout << eventNumber;
   }
   return sout.str();
