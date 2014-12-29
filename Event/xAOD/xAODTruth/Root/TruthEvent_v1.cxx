@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthEvent_v1.cxx 622193 2014-10-16 16:08:34Z krasznaa $
+// $Id: TruthEvent_v1.cxx 623284 2014-10-22 14:07:48Z krasznaa $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -49,7 +49,7 @@ namespace xAOD {
                                          PdfParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1< int >( information );
+      auto* acc = pdfInfoAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -61,7 +61,7 @@ namespace xAOD {
                                          PdfParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1< float >( information );
+      auto* acc = pdfInfoAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -73,7 +73,7 @@ namespace xAOD {
                                             PdfParam information ) {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1< int >( information );
+      auto* acc = pdfInfoAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -85,7 +85,7 @@ namespace xAOD {
                                             PdfParam information ) {
 
       // Look for the accessor object:
-      auto* acc = pdfInfoAccessorV1< float >( information );
+      auto* acc = pdfInfoAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -121,7 +121,7 @@ namespace xAOD {
                                           HIParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1< int >( information );
+      auto* acc = heavyIonAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -133,7 +133,7 @@ namespace xAOD {
                                           HIParam information ) const {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1< float >( information );
+      auto* acc = heavyIonAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Get the value:
@@ -145,7 +145,7 @@ namespace xAOD {
                                              HIParam information ) {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1< int >( information );
+      auto* acc = heavyIonAccessorV1Int( information );
       if( ! acc ) return false;
 
       // Set the value:
@@ -157,7 +157,7 @@ namespace xAOD {
                                              HIParam information ) {
 
       // Look for the accessor object:
-      auto* acc = heavyIonAccessorV1< float >( information );
+      auto* acc = heavyIonAccessorV1Float( information );
       if( ! acc ) return false;
 
       // Set the value:

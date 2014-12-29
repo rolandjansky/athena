@@ -1,7 +1,7 @@
-<!-- $Id: selection.xml 622193 2014-10-16 16:08:34Z krasznaa $ -->
+<!-- $Id: selection.xml 623284 2014-10-22 14:07:48Z krasznaa $ -->
 <lcgdict>
 
-  <!-- The TruthParticle_v1 class: -->
+  <!-- The TruthParticle_v1 class(es): -->
   <class name="xAOD::TruthParticle_v1" >
     <field name="m_p4" transient="true" />
     <field name="m_p4Cached" transient="true" />
@@ -12,6 +12,7 @@
        m_p4Cached = false;
     ]]>
   </read>
+  <class name="xAOD::TruthParticle_v1::Polarization" />
 
   <!-- The TruthVertex_v1 class: -->
   <class name="xAOD::TruthVertex_v1" >
@@ -30,6 +31,7 @@
   <class name="xAOD::TruthEventBaseContainer_v1" />
   <class name="xAOD::TruthEvent_v1" />
   <class name="xAOD::TruthPileupEvent_v1" />
+  <class name="xAOD::TruthEvent_v1::PdfInfo" />
 
   <!-- The persistent classes: -->
   <class name="xAOD::TruthParticleContainer_v1"

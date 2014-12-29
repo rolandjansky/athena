@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthVertexAuxContainer_v1.h 622081 2014-10-16 00:55:18Z abuckley $
+// $Id: TruthVertexAuxContainer_v1.h 624338 2014-10-27 15:08:55Z krasznaa $
 #ifndef XAODTRUTH_VERSIONS_TRUTHVERTEXAUXCONTAINER_V1_H
 #define XAODTRUTH_VERSIONS_TRUTHVERTEXAUXCONTAINER_V1_H
 
@@ -25,8 +25,8 @@ namespace xAOD {
   /// @author Andy Buckley <Andy.Buckey@cern.ch>
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   ///
-  /// $Revision: 622081 $
-  /// $Date: 2014-10-16 02:55:18 +0200 (Thu, 16 Oct 2014) $
+  /// $Revision: 624338 $
+  /// $Date: 2014-10-27 16:08:55 +0100 (Mon, 27 Oct 2014) $
   ///
   class TruthVertexAuxContainer_v1 : public AuxContainerBase {
 
@@ -45,7 +45,6 @@ namespace xAOD {
     std::vector< float > y;
     std::vector< float > z;
     std::vector< float > t;
-    std::vector< std::vector<float> > weights; // weights for this event first weight
 
   }; // class TruthVertexAuxContainer_v1
 

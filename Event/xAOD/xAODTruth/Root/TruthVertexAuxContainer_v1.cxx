@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthVertexAuxContainer_v1.cxx 595827 2014-05-07 13:18:18Z jmitrevs $
+// $Id: TruthVertexAuxContainer_v1.cxx 624338 2014-10-27 15:08:55Z krasznaa $
 
 // Local include(s):
 #include "xAODTruth/versions/TruthVertexAuxContainer_v1.h"
@@ -20,7 +20,6 @@ namespace xAOD {
       AUX_VARIABLE( y );
       AUX_VARIABLE( z );
       AUX_VARIABLE( t );
-      AUX_VARIABLE( weights );
    }
 
 } // namespace xAOD
