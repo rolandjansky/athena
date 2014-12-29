@@ -14,9 +14,6 @@
 
 #include "MuonAlignMonitoring/MuonAlignSegment.h"
  
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 // Id-related includes
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
@@ -58,11 +55,14 @@
    ********************************************************** */
 MuonAlignSegment::MuonAlignSegment( const std::string & type, const std::string & name, const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ), 
+    m_activeStore(0),
+    m_storeGate(0),
     p_muonMgr(0),
     p_mdtIdHelper(0),
     p_cscIdHelper(0),
     p_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    p_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    p_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_thistSvc(0)
 {
   m_histoTool  = ToolHandle<Muon::MuonDQAHistTool>("Muon::MuonDQAHistTool/MuonDQAHistTool");
   /** switches to control the analysis through job options */
@@ -90,6 +90,9 @@ MuonAlignSegment::MuonAlignSegment( const std::string & type, const std::string 
   declareProperty("mdtSegmentDEtaMax",    m_mdtdeltaEta    = 0.10);   // Delta eta
   declareProperty("mdtSegmentDZMax",      m_mdtdeltaZ      = 100.0);  // Delta Z (in cm)
   declareProperty("mdtSegmentDRMax",      m_mdtdeltaR      = 100.0);  // Delta R (in cm)
+
+
+  
 }
 
 
@@ -495,6 +498,7 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
 
   for ( s = segmentCollection->begin(); s != segmentCollection->end(); ++s ) {
     Muon::MuonSegment* mSeg               = dynamic_cast<Muon::MuonSegment*> (*s);
+    if(!mSeg) continue;
     // Get the identifier (chamber ID)
     Identifier id1                        = p_helperTool->chamberId( *mSeg );
 
@@ -513,14 +517,16 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
     }
 
     // Moore MDT segments only
-    if ( isMDT1 && hIndex < 1 ) {  
+    if ( isMDT1 && hIndex < 1 ) {
+  
       const Muon::MuonSegmentQuality* Q1 = dynamic_cast<const Muon::MuonSegmentQuality*>(mSeg->fitQuality());
+      if(!Q1) continue;    
       float chisq1  = Q1->chiSquared();
       int n_dof1     = Q1->numberDoF();
       int hots1      = n_dof1 +2;
       int holes1     = Q1->channelsWithoutHit().size();
-
       if ( !goodSegmentQuality(chisq1, hots1, holes1, isMDT1, isEndcap1, stationId1) ) continue;
+     
     }
 
     if ( isCSC1 || stationId1 == 0 || stationId1 == 4) {
@@ -739,7 +745,8 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
         else {
           phiSector3 = 2 * phiSector3 - 1; // Large chambers start at 1
         }
-
+      
+        /*
 	bool dominiqueCheck = false;
         if ( dominiqueCheck ) {
           if (hIndex > 0 ) {
@@ -754,7 +761,7 @@ StatusCode MuonAlignSegment::getSegments( int& hIndex ) {
             std::cout << "PositionB extra: "  << extraZ << " " << resid << std::endl;
           }
         }
-
+        */
 
         // Fill histograms here:
 

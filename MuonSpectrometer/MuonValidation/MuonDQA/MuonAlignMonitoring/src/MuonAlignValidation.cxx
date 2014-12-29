@@ -22,9 +22,6 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
 // Id-related includes
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
@@ -80,6 +77,8 @@
    ********************************************************** */
 MuonAlignValidation::MuonAlignValidation( const std::string & type, const std::string & name, const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ), 
+    m_activeStore(0),
+    m_storeGate(0),
     p_muonMgr(0),
     p_magFieldProperties(0),
     p_mdtIdHelper(0),
@@ -87,7 +86,8 @@ MuonAlignValidation::MuonAlignValidation( const std::string & type, const std::s
     p_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     p_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     p_trackBuilder("Muon::MuonSegmentTrackBuilder/MuonSegmentTrackBuilder"), 
-    p_IExtrapolator("Trk::Extrapolator/AtlasExtrapolator") 
+    p_IExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_thistSvc(0) 
 {
 
   /** switches to control the analysis through job options */
@@ -549,6 +549,7 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
 
   for ( s = segmentCollection->begin(); s != segmentCollection->end(); ++s ) {
     Muon::MuonSegment* mSeg               = dynamic_cast<Muon::MuonSegment*> (*s);
+    if(!mSeg) continue;
     // Get the identifier (chamber ID)
     Identifier id1                        = p_helperTool->chamberId( *mSeg );
 
@@ -566,14 +567,16 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
     }
 
     // Moore MDT segments only
-    if ( isMDT1 && hIndex < 1 ) {  
+    if ( isMDT1 && hIndex < 1 ) { 
+
       const Muon::MuonSegmentQuality* Q1 = dynamic_cast<const Muon::MuonSegmentQuality*>(mSeg->fitQuality());
+      if(!Q1) continue;
       float chisq1  = Q1->chiSquared();
       int n_dof1     = Q1->numberDoF();
       int hots1      = n_dof1 +2;
       int holes1     = Q1->channelsWithoutHit().size();
-
       if ( !goodSegmentQuality(chisq1, hots1, holes1, isMDT1, isEndcap1, stationId1) ) continue;
+     
     }
 
     if ( isCSC1 || stationId1 == 0 || stationId1 == 4) {
@@ -759,7 +762,7 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
         float dZlocal = trklocalPos.y() - localPos3->y();
 
         // Radial distance between track and segment at surface:
-	float dR = sqrt( dX * dX + dY * dY + dZ * dZ );
+	//float dR = sqrt( dX * dX + dY * dY + dZ * dZ );
 
         // Test that segment and track are within 10 cm of each other in x, y and z
         float absDx = dX;
@@ -854,7 +857,8 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
 	    thisEtaSector = etaSector3 + 7; 
 	  }
 	}	  
-	
+
+        /*	
 	bool dominiqueCheck = false;
 	if ( dominiqueCheck ) {
           if (hIndex < 1 ) {
@@ -867,7 +871,7 @@ StatusCode MuonAlignValidation::getSegments( int& hIndex ) {
 		      << measPerigee_p_T - muMeasPerigee_p_T << " " << std::endl;
           }
         }
-
+        */
 
 	if ( dZlocal < 2.0 && dZlocal > -2.0 ) {	  
 	  if ( thisEtaSector > -1 && thisEtaSector < 16 ) {

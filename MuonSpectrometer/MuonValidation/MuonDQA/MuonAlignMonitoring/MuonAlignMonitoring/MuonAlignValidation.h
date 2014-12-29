@@ -102,7 +102,9 @@ class MuonAlignValidation: public ManagedMonitorToolBase {
   bool hasTrackMatch( std::vector<Muon::MuonSegment* > muonSegs, const DataVector<Trk::Track> *m_tracks );
 
   /** chrono service */
-  IChronoStatSvc*                              m_chrono;
+
+  // Commented by Yanlin Liu cause m_chrono is not used in MuonAlignValidation.cxx
+  //IChronoStatSvc*                              m_chrono;
 
   /** a handle on Store Gate for access to the Event Store */
   ActiveStoreSvc*                              m_activeStore;
@@ -130,7 +132,8 @@ class MuonAlignValidation: public ManagedMonitorToolBase {
   ToolHandle<Muon::IMuonSegmentTrackBuilder>   p_trackBuilder;
   ToolHandle<Trk::IExtrapolator>               p_IExtrapolator;
 
-  Trk::TrackingGeometry*                       m_trackingGeometry; 
+  //Commented by Yanlin Liu; not used in MuonAlignValidation.cxx
+  //Trk::TrackingGeometry*                       m_trackingGeometry; 
   std::string                                  m_trackingGeometryName;  
 
   /** a handle on the Hist/TTree registration service */
