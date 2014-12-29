@@ -25,7 +25,7 @@ void MuonIsolationPlots::fill(const xAOD::Muon& muon){
 }
 
 IsoPlots::IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize):PlotBase(pParent, sDir),
-m_sConeSize(sConeSize)
+m_sConeSize(sConeSize), cone(NULL), conerel(NULL)
 {}
 
 void IsoPlots::initializePlots(){

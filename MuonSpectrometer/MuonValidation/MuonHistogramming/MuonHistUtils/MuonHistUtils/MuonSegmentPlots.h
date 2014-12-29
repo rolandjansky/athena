@@ -8,7 +8,6 @@
 #include "TrkValHistUtils/PlotBase.h"
 
 #include "xAODMuon/MuonSegment.h"
-///#include "xAODTruth/TruthParticle.h"
 #include <vector>
 #include <string>
 
@@ -33,13 +32,20 @@ class MuonSegmentPlots:public PlotBase {
       TH1* nPhiLayers;
       TH1* nTrigEtaLayers;
 
-      TH2* positionXY;
-      TH2* positionRZ;
-      TH1* directionEta;
-      TH1* directionPhi;
-      TH1* directionPhiVsEta;
+      TH2* xypos_barrel;
+      TH2* xypos_endcap;
+      TH2* rzpos_sectorSmall;
+      TH2* rzpos_sectorLarge;
 
-      std::vector<TH1*> sector_perStation;
+      TH1* etadir;
+
+      TH1* etadir_barrel;
+      TH1* etadir_endcap;
+
+      TH1* phidir;
+      TH1* etaphidir;
+
+      TH2* sector_perStation;
 
 
 };

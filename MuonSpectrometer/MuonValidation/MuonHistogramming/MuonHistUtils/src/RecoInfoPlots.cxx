@@ -6,6 +6,21 @@
 
 namespace Muon{
 
+RecoInfoPlots::RecoInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
+						  ,m_oTrkRecoInfoPlots(this, "IDTrk")
+						  ,m_oMSTrkRecoInfoPlots(this, "MSTrk")
+						  ,m_oRecoInfoPlots(this, "MuTrk")
+						  ,author(NULL)
+						  ,quality(NULL)
+						  ,muonType(NULL)
+						  ,innerMatchingChi2(NULL)
+						  ,innerMatchingNdof(NULL)
+						  ,innerMatchingCon(NULL)
+						  ,outerMatchingChi2(NULL)
+						  ,outerMatchingNdof(NULL)
+						  ,outerMatchingCon(NULL)
+{}
+
 void RecoInfoPlots::initializePlots(){
 
   author   = Book1D("author", "author;Author;Entries",21,-0.5,20.5);
@@ -23,6 +38,21 @@ void RecoInfoPlots::initializePlots(){
 }
 
 void RecoInfoPlots::fill(const xAOD::Muon& mu) {
+
+  const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
+  if (primaryTrk) {
+    m_oRecoInfoPlots.fill(*primaryTrk);
+  }
+
+  const xAOD::TrackParticle* inDetTrk = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+  if (inDetTrk) {
+    m_oTrkRecoInfoPlots.fill(*inDetTrk);
+  }
+  const xAOD::TrackParticle* msTrk = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+  if (msTrk) {
+    m_oMSTrkRecoInfoPlots.fill(*msTrk);
+  }
+  
   author->Fill(mu.author());
   muonType->Fill(mu.muonType());
   quality->Fill(mu.quality());
