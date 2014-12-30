@@ -57,9 +57,6 @@ public:
     }
 
     virtual StatusCode fill(int iTrack, const xAOD::TrackParticle* pTrackParticle, const Trk::TrackParameters* extrMuonEntry, bool bSaveMdtSegmentMakerInfo) = 0;
-    virtual StatusCode fillEFTrack(int iMF, const TrigMuonEFTrack* muonEFTrack, bool bSaveMdtSegmentMakerInfo,bool has_combined) = 0;
-    virtual StatusCode fillMF(int iMF, const MuonFeature* muonFeature, bool bSaveMdtSegmentMakerInfo,bool has_combined) = 0;
-    virtual StatusCode fillBetaRefitTrack(int iTrack, const xAOD::TrackParticle* lowBetaTrack, const Trk::Track* trkLowBetaTrack, bool bSaveMdtSegmentMakerInfo,bool has_combined) = 0;
     virtual void fillRefittedTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary) = 0;
     virtual void fillMSTrack(const xAOD::TrackParticle* pMSRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary) = 0;
     virtual void setLHR(double lhr) = 0;

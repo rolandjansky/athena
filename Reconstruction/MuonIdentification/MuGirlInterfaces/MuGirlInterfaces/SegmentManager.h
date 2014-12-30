@@ -22,7 +22,7 @@ public:
             //std::cout << "Added pSegment=" << pSeg << ",  type=" << type << ",  map size: " << m_map.size() << std::endl;
         }
         else
-        { 
+        {
             itSeg->second->type = type;
             //std::cout << "Modified pSegment=" << pSeg << ",  type=" << type << ",  map size: " << m_map.size() << std::endl;
         }
@@ -51,10 +51,11 @@ public:
         for (InfoMap::iterator itSeg = m_map.begin(); itSeg != m_map.end(); itSeg++)
         {
             //std::cout << "pSegment=" << itSeg->first << ",  inStore=" << itSeg->second->inStore
-            //          << ",  type=" << itSeg->second->type << std::endl;    
-            if (!itSeg->second->inStore)
+            //          << ",  type=" << itSeg->second->type << std::endl;
+            if (!itSeg->second->inStore) {
                 delete itSeg->first;
                 delete itSeg->second;
+            }
         }
         m_map.clear();
     }
