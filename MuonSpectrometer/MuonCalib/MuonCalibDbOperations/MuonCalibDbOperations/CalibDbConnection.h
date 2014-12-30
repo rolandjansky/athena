@@ -12,9 +12,7 @@
 
 namespace coral {
   class IRelationalDomain;
-  class AttributeList;
-  class IConnection;
-  class ISession;
+  class ISessionProxy;
   class Context;
   class IQuery;
   class ITableDataEditor;
@@ -70,10 +68,8 @@ class CalibDbConnection
 		std::set<coral::IQuery*> m_queries;
 	// The application context
 		coral::Context* m_context;
-	//current connectino
-		coral::IConnection *m_connection;
-	//current session
-		coral::ISession *m_session;
+	// session proxy
+		coral::ISessionProxy *m_session;
 	// username 
 		std::string m_username;
 	// password 

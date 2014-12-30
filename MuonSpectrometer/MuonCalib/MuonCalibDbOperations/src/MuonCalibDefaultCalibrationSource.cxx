@@ -22,7 +22,7 @@
 
 namespace MuonCalib {
 
-MuonCalibDefaultCalibrationSource :: MuonCalibDefaultCalibrationSource(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p)
+MuonCalibDefaultCalibrationSource :: MuonCalibDefaultCalibrationSource(const std::string& t, const std::string& n, const IInterface* p): AthAlgTool(t, n, p)
 	{
 	declareInterface< IMuonCalibConditionsSource >(this);
 	declareProperty("T0Regions", m_t0_region_str);

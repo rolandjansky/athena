@@ -42,7 +42,7 @@
 //using namespace cool;
 namespace MuonCalib {
 
-CoolInserter :: CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false), m_mdtIdHelper(NULL), m_detMgr(NULL)
+CoolInserter :: CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false), m_mdtIdHelper(NULL), m_detMgr(NULL)
 	{
 	declareProperty("CoolConnectionString", m_cool_connection_string);
 	declareProperty("RtVersion", m_version);

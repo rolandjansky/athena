@@ -15,6 +15,8 @@ namespace MuonGM {
 
 #include "MdtCalibUtils/RtDataFromFile.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 class RegionSelectionSvc;
 
 namespace MuonCalib {
@@ -24,7 +26,7 @@ class IRtRelation;
 class SamplePoint;
 class CalibHeadOperations;
 
-class CalibrationDbIOTool : public AlgTool, virtual public CalibrationIOTool
+class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool
 	{
 	public:
 	/** constructor*/

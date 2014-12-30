@@ -33,7 +33,7 @@
 
 namespace MuonCalib {
 
-MuonCalibDbCalibrationSource :: MuonCalibDbCalibrationSource(const std::string& t, const std::string& n, const IInterface* p):  IMuonCalibConditionsSource(), IConditionsStorage(),  AlgTool(t, n, p)
+MuonCalibDbCalibrationSource :: MuonCalibDbCalibrationSource(const std::string& t, const std::string& n, const IInterface* p):  IMuonCalibConditionsSource(), IConditionsStorage(),  AthAlgTool(t, n, p)
 	{
 	declareInterface< IMuonCalibConditionsSource >(this);
 	declareProperty("SiteName", m_site_name);

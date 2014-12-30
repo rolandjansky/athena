@@ -9,8 +9,8 @@
 #include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
 
 //athena
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //c - c++
 #include <vector>
@@ -25,7 +25,7 @@ namespace MuonCalib {
 class RegionSelectorBase;
 
 class SamplePoint;
-class MuonCalibDefaultCalibrationSource: public AlgTool, virtual public IMuonCalibConditionsSource
+class MuonCalibDefaultCalibrationSource: public AthAlgTool, virtual public IMuonCalibConditionsSource
 	{
 	public:
 //===============================destructor -- constructor======================

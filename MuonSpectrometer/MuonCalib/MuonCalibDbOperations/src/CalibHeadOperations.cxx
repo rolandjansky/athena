@@ -8,9 +8,9 @@
 
 //coral
 #include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IConnection.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/ISession.h"
+//#include "RelationalAccess/IConnection.h"
+//#include "RelationalAccess/IConnectionService.h"
+//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"

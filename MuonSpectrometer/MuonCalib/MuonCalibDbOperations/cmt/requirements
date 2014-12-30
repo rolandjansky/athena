@@ -7,7 +7,7 @@ use AtlasPolicy    AtlasPolicy-*
 
 
 use GaudiInterface GaudiInterface-* External
-
+use AthenaBaseComps     AthenaBaseComps-*       Control
 use MuonCalibStandAloneBase	MuonCalibStandAloneBase-* MuonSpectrometer/MuonCalib/MuonCalibStandAlone
 use MdtCalibUtils MdtCalibUtils-* MuonSpectrometer/MuonCalib/MdtCalib
 
@@ -32,7 +32,7 @@ private
 apply_pattern declare_scripts files="CalibDbCompareRT.py CalibDbCompareT0.py CalibDbDump.py CalibCoolCompareT0.py CalibCoolCompareRT.py CalibDbCool2Calib.py"
 
 apply_tag NEEDS_CORAL_BASE
-apply_tag NEEDS_COOL_FACTORY
+apply_tag NEEDS_COOL_FACTORY 
 use AtlasCOOL  AtlasCOOL-* External
 use MdtCalibData MdtCalibData-* MuonSpectrometer/MuonCalib/MdtCalib
 use  MdtCalibRt  MdtCalibRt-*   MuonSpectrometer/MuonCalib/MdtCalib

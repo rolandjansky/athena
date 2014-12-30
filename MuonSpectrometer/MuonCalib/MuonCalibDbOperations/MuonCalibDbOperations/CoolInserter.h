@@ -11,8 +11,8 @@
 #include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
 
 //athena
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // COOL API: database service bootstrap
 #include "CoolApplication/Application.h"
@@ -47,7 +47,7 @@ namespace MuonCalib {
 class CalibDbConnection;
 class CalibHeadOperations;
 
-class CoolInserter :  public Algorithm
+class CoolInserter :  public AthAlgorithm
 
 	{
 	public:

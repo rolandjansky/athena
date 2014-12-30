@@ -48,7 +48,7 @@
 
 namespace MuonCalib {
 
-  CalibrationDbIOTool :: CalibrationDbIOTool(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t, n, p), m_db_ConnectionString(""), m_db_WorkingSchema(""), m_sitename("")
+  CalibrationDbIOTool :: CalibrationDbIOTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_db_ConnectionString(""), m_db_WorkingSchema(""), m_sitename("")
 	{
 	declareInterface< CalibrationIOTool >(this) ;
 	declareProperty("ConnectionString", m_db_ConnectionString);

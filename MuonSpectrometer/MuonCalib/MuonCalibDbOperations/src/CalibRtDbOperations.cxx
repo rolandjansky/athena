@@ -20,9 +20,9 @@
 
 //coral
 #include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IConnection.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/ISession.h"
+//#include "RelationalAccess/IConnection.h"
+//#include "RelationalAccess/IConnectionService.h"
+//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -547,7 +547,7 @@ inline void CalibRtDbOperations :: fullInfoInitData( const RtFullInfo * full_inf
 	if(std::fabs(full_info->rmsAng()) > 9.9999)
 		{
 		updateData["DELTA_AVER_ANGLE"].data<float>() = ((full_info->rmsAng() < 0)? -1 : 1) * 9.9999;
-		}	
+		}
 	updateData.extend<float>("AVER_SPREAD");
 	updateData["AVER_SPREAD"].data<float>()=full_info->meanPos();
 	if(std::fabs(full_info->meanPos()) > 9.9999)
@@ -564,7 +564,7 @@ inline void CalibRtDbOperations :: fullInfoInitData( const RtFullInfo * full_inf
 	updateData["CONVERGENCE"].data<float>()=full_info->convEst();
 	if(std::fabs(full_info->convEst()) > 999.999)
 		{
-		updateData["CONVERGENCE"].data<float>() = ((full_info->rmsPos() < 0)? -1 : 1) * 999.999;
+		updateData["CONVERGENCE"].data<float>() = ((full_info->convEst() < 0)? -1 : 1) * 999.999;
 		}
 	if(for_insert)
 		{

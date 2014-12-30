@@ -7,9 +7,10 @@
 
 //coral
 #include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IConnection.h"
+//#include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/ISession.h"
+//#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -20,9 +21,9 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IAuthenticationCredentials.h"
 #include "RelationalAccess/SchemaException.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeSpecification.h"
+//#include "CoralBase/AttributeList.h"
+//#include "CoralBase/Attribute.h"
+//#include "CoralBase/AttributeSpecification.h"
 #include "CoralKernel/Context.h"
 
 
@@ -36,11 +37,11 @@ namespace MuonCalib{
 // Constructor //
 /////////////////
 
-CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const std::string& WorkingSchema): m_connection_string(ConnectionString), m_working_schema(WorkingSchema), m_comp_loaded(false), m_context( &coral::Context::instance() ), m_connection(NULL), m_session(NULL), m_transaction(false)
+CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const std::string& WorkingSchema): m_connection_string(ConnectionString), m_working_schema(WorkingSchema), m_comp_loaded(false), m_context( &coral::Context::instance() ), m_session(NULL), m_transaction(false)
 	{
-	std::cout<<"X"<<std::endl;
+	//std::cout<<"X"<<std::endl;
 	coral::IHandle<coral::IConnectionService> lookSvcH = m_context->query<coral::IConnectionService>();
-	std::cout<<"XX"<<std::endl;
+	//std::cout<<"XX"<<std::endl;
 	if (!lookSvcH.isValid()) 
 		{
 		std::cout<<"XX"<<std::endl;
@@ -52,13 +53,13 @@ CalibDbConnection::CalibDbConnection(const std::string& ConnectionString, const 
 		{
 		return;
 		}
-	std::cout<<"Y"<<std::endl;
+	//std::cout<<"Y"<<std::endl;
 	m_context->loadComponent( "CORAL/Services/XMLAuthenticationService" );
-	std::cout<<"YY"<<std::endl;
+	//std::cout<<"YY"<<std::endl;
 	m_context->loadComponent( "CORAL/Services/RelationalService" );
-	std::cout<<"YYY"<<std::endl;
+	//std::cout<<"YYY"<<std::endl;
 	m_comp_loaded=true;
-	m_connection=NULL;
+	m_session=NULL;
 	}
 
 
@@ -78,23 +79,28 @@ bool CalibDbConnection::OpenConnection()
 		{
 		return false;
 		}
-	if (m_connection!=NULL)
+	if (m_session!=NULL)
 		{
 		return true;
 		}
 	try {
-	coral::IRelationalDomain &domain = this->domain( m_connection_string); 
-	std::pair<std::string,std::string> cstr(domain.decodeUserConnectionString(m_connection_string));
-	m_connection=domain.newConnection(cstr.first);
-	m_connection->connect(); 
-	m_session=m_connection->newSession(cstr.second);
-	m_session->startUserSession(m_username,m_password);
-	return true;
+          // Load CORAL connection service
+          coral::IHandle<coral::IConnectionService> lookSvcH = m_context->query<coral::IConnectionService>();
+          if (!lookSvcH.isValid()) {
+              m_context->loadComponent( "CORAL/Services/ConnectionService" );
+              lookSvcH = m_context->query<coral::IConnectionService>();
+          }
+          if (!lookSvcH.isValid()) {
+             throw std::runtime_error( "Could not locate the connection service" );
+          }
+          // connection to CORAL
+          m_session = lookSvcH->connect( m_connection_string, coral::Update );
+	  return true;
 	}
 	catch( coral::SchemaException& e )
 		{
 		std::cerr << "Schema exception : " << e.what() << std::endl;
-		m_connection=NULL;
+		m_session=NULL;
 		return false;
 		}		
 	}
@@ -118,13 +124,13 @@ void CalibDbConnection::CloseConnection(bool commit)
 			Commit();
 		else
 			Rollback();
-		m_session->endUserSession();
 		}
-	if (m_connection !=NULL)
-		m_connection->disconnect();
-	m_session=NULL;
-	m_connection=NULL;
-	}
+	if (m_session !=NULL)
+         { 
+          std::cout << "\nCOOLCORAL Client: Disconnecting from database '" << m_connection_string << "'" << std::endl; 
+          delete m_session;
+         }
+        }
 	
 	
 /////////////////////	

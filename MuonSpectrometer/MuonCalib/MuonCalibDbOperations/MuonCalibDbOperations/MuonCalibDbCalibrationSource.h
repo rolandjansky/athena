@@ -9,7 +9,7 @@
 #include "MuonCalibDbOperations/IConditionsStorage.h"
 #include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
 //athena
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" 
 
 namespace MuonCalib {
@@ -18,7 +18,7 @@ class CalibDbConnection;
 class RegionSelectorBase;
 class CalibHeadOperations;
 
-class MuonCalibDbCalibrationSource: public AlgTool, virtual public IMuonCalibConditionsSource, virtual public IConditionsStorage
+class MuonCalibDbCalibrationSource: public AthAlgTool, virtual public IMuonCalibConditionsSource, virtual public IConditionsStorage
 	{
 	public:
 //===============================destructor -- constructor======================
