@@ -2,7 +2,6 @@
 
 import cx_Oracle
 from MuonCalibIdentifier.MuonFixedIdUnpack import *
-import CalibDbInfo
 import sys
 
 sys.argv=[sys.argv[0], '-b']
@@ -11,7 +10,8 @@ from ROOT import *
 
 
 def get_data_schema(cursor, db, head_id):
-	meta_schema = {'MP': 'ATLAS_MUONCALIBR_MPI', 'UM' : 'ATLAS_MUONCALIBR_UM', 'RM' : 'ATLAS_MUONCALIBR_RM'}
+
+	meta_schema={'MP': 'ATLAS_MUONCALIB_MPI_META', 'UM' : 'ATLAS_MUONCALIB_UM_META', 'RM' : 'ATLAS_MUONCALIB_RM_META'}
 	cursor.execute("select data_schema from " + meta_schema[db] + ".MDT_HEAD where head_id=:hid", {'hid': head_id})
 	return cursor.fetchone()[0]
 	
@@ -29,12 +29,8 @@ def build_rt_relation(r,t, rt_id):
 	
 
 	
-def ReadRtCalibDb(db, reader_passwd, head_id):
-	ra = CalibDbInfo.dbr[CalibDbInfo.calibdb]
-	tns = CalibDbInfo.tns[CalibDbInfo.calibdb]
-	if reader_passwd == None:
-		reader_passwd = CalibDbInfo.dbr_password[CalibDbInfo.calibdb]
-	connection=cx_Oracle.connect(ra, reader_passwd, tns)
+def ReadRtCalibDb(db, reader_passwd, head_id):	
+	connection=cx_Oracle.connect('ATLAS_MUONCALIB_READER', reader_passwd, 'ATLAS_MUON')
 	cursor=connection.cursor()
 	data_schema=get_data_schema(cursor, db, head_id)
 	
@@ -71,9 +67,7 @@ def build_t0_vec(values):
 	return ret
 
 def ReadT0CalibDb(db, reader_passwd, head_id):
-	ra = CalibDbInfo.dbr[CalibDbInfo.calibdb]
-	tns = CalibDbInfo.tns[CalibDbInfo.calibdb]
-	connection=cx_Oracle.connect(ra, reader_passwd, tns)
+	connection=cx_Oracle.connect('ATLAS_MUONCALIB_READER', reader_passwd, 'ATLAS_MUON')
 	cursor=connection.cursor()
 	data_schema=get_data_schema(cursor, db, head_id)
 	
