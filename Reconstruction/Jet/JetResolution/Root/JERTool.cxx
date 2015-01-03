@@ -6,6 +6,7 @@
 #include <sstream>
 
 // ROOT includes
+#include "TROOT.h"
 #include "TSystem.h"
 
 // EDM includes
@@ -28,8 +29,9 @@ const double invTeV = 1.e-6;
 //-----------------------------------------------------------------------------
 JERTool::JERTool(const std::string& name)
     : asg::AsgMetadataTool(name),
-      m_etaAxis(0),
-      m_jetAlgo(JETALGO_UNDEFINED)
+      m_etaAxis(NULL),
+      m_jetAlgo(JETALGO_UNDEFINED),
+      m_inputFile(NULL)
 {
   declareProperty("PlotFileName",
                   m_fileName = "JetResolution/JERProviderPlots_2012.root");
@@ -92,6 +94,19 @@ JERTool::JERTool(const JERTool& other)
 JERTool::~JERTool()
 {
   if(m_etaAxis) delete m_etaAxis;
+  // Clean up memory that was cloned from the input file
+  for(auto mapPair : m_jerFunc)
+    if(mapPair.second) delete mapPair.second;
+  for(auto mapPair : m_jerFuncAFII)
+    if(mapPair.second) delete mapPair.second;
+  for(auto mapPair : m_jerMC)
+    if(mapPair.second) delete mapPair.second;
+  for(auto mapPair : m_errorMC)
+    if(mapPair.second) delete mapPair.second;
+  for(auto mapPair : m_diffDataMC)
+    if(mapPair.second) delete mapPair.second;
+  for(auto mapPair : m_errorDataMC)
+    if(mapPair.second) delete mapPair.second;
 }
 
 //-----------------------------------------------------------------------------
@@ -109,142 +124,20 @@ StatusCode JERTool::initialize()
   }
   #endif
 
-  //
   // Process the configuration flags
-  //
-
-  // TODO: split the configuration parsing into its own protected method,
-  // TODO: simplify the determination of the jet algo enum/parameters.
-
-  // Beam energy
-  if(m_beamEnergy == "8TeV")
-    m_is7TeV = false;
-  else if(m_beamEnergy == "7TeV")
-    m_is7TeV = true;
-  else{
-    ATH_MSG_ERROR("No available configuration for beam energy "
-                  << m_beamEnergy);
-    return StatusCode::FAILURE;
-  }
-
-  // Simulation type
-  if(m_simulationType == "FullSim")
-    m_isAFII = false;
-  else if(m_simulationType == "AFII")
-    m_isAFII = true;
-  else{
-    ATH_MSG_ERROR("No available configuration for simulation type " 
-                  << m_simulationType);
-    return StatusCode::FAILURE;
-  }
-
-  // Error method
-  if(m_errorMethod == "Default")
-    m_useAltErr = false;
-  else if(m_errorMethod == "Alternate")
-    m_useAltErr = true;
-  else{
-    ATH_MSG_ERROR("No available configuration for error method " 
-                  << m_errorMethod);
-    return StatusCode::FAILURE;
-  }
-
-  // Determine the jet distance parameter
-  int jetR = 0;
-  if(m_collectionName.find("Kt4") != std::string::npos)
-    jetR = 4;
-  else if(m_collectionName.find("Kt6") != std::string::npos)
-    jetR = 6;
-  else{
-    ATH_MSG_FATAL("No support for JER of " << m_collectionName << " jets!");
-    return StatusCode::FAILURE;
-  }
-
-  // Determine the jet calibration
-  bool isLC = m_collectionName.find("LC") != std::string::npos;
-  std::string jetCal = isLC ? "LCTopoJES" : "TopoJES";
-
-  // Determine the jet algorithm
-  m_jetAlgo = (isLC) ? (jetR == 4) ? AKt4LC : AKt6LC
-                     : (jetR == 4) ? AKt4EM : AKt6EM;
-
-  // Currently only Truth method is supported
-  if(m_jerMethod != "Truth"){
-    ATH_MSG_FATAL("JER method unsupported! Only Truth " <<
-                  "is currently supported!");
-    return StatusCode::FAILURE;
-  }
-
-  // Open input file using the new PathResolver
-  ATH_MSG_DEBUG("Using JER file " << m_fileName);
-  m_inputFile = new TFile(PathResolverFindCalibFile(m_fileName).c_str());
-  //m_inputFile = new TFile(gSystem->ExpandPathName(m_fileName.c_str()));
-  if(!m_inputFile->IsOpen()){
-    ATH_MSG_FATAL("JER input file " << m_fileName << " could not be found!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( parseConfiguration() );
 
   // Print some information
-  ATH_MSG_INFO("Retrieving JER for AntiKt" << jetR << " jets with " <<
-               (isLC ? "LCW" : "EM") << "+JES calibration");
+  std::string description = m_collectionName;
+  if     (m_jetAlgo == AKt4LC) description = "AntiKt4 LCW+JES";
+  else if(m_jetAlgo == AKt4EM) description = "AntiKt4 EM+JES";
+  else if(m_jetAlgo == AKt6LC) description = "AntiKt6 LCW+JES";
+  else if(m_jetAlgo == AKt6EM) description = "AntiKt6 EM+JES";
+  ATH_MSG_INFO("Retrieving JER for jets: " << description);
 
-  // This hardcoded binning needs to be improved
-  double etaBins[7] = {0, 0.8, 1.2, 2.1, 2.8, 3.6, 4.5};
-  m_etaAxis = new TAxis(6, etaBins);
-  std::string regions[m_nEtaBins] = {"_0","_1","_2","_3","_4","_5"};
+  // Load the inputs
+  ATH_CHECK( loadJERInputs() );
 
-  // Graph prefix name
-  std::ostringstream stream;
-  stream << "AntiKt" << jetR << jetCal;
-  std::string collString = stream.str();
-  std::string graphPrefix = m_jerMethod + "_" + collString;
-
-  // Convenience macro for checking status code below.
-  // Pull object from file
-  #define GETCHECK(type, dest, name)                  \
-    do {                                              \
-      if(!pullFromFile<type>(name, dest).isSuccess()) \
-        return StatusCode::FAILURE;                   \
-    } while(false)
-
-  // Retrieve the 8 TeV JER
-  if(!m_is7TeV){
-    // Loop over the eta regions
-    for(unsigned int i = 0; i < m_nEtaBins; ++i){
-      std::string postfix = collString + regions[i];
-      //std::string postfix = m_collectionName + regions[i];
-      GETCHECK(TF1, m_jerFunc[i], graphPrefix + regions[i]);
-      GETCHECK(TF1, m_jerFuncAFII[i], "TruthAF2_" + postfix);
-
-      // (only up to 2.8 due to statistics) ---> m_nEtaBins-2
-      // TODO: write this in a cleaner, safer way
-      if ( i < m_nEtaBins - 2 ) {
-        GETCHECK(TGraphErrors, m_jerMC[i], "BisectorFit_" + postfix);
-        GETCHECK(TGraphErrors, m_jerData[i], "BisectorDataFit_" + postfix);
-        GETCHECK(TGraph, m_errorMC[i], "BisectorFitUNCERT_" + postfix);
-        GETCHECK(TGraph, m_errorData[i], "BisectorDataFitUNCERT_" + postfix);
-      }
-    }
-  }
-
-  // Retrieve the 7 TeV JER
-  else{
-    // Loop over the eta regions
-    for(unsigned int i = 0; i < m_nEtaBins; ++i){
-      std::string postfix = collString + regions[i];
-      //std::string postfix = m_collectionName + regions[i];
-      GETCHECK(TF1, m_jerFunc[i], graphPrefix + regions[i]);
-
-      // (only up to 2.8 due to statistics) ---> m_nEtaBins-2
-      // TODO: write this in a cleaner, safer way
-      if ( i < m_nEtaBins - 2 ) {
-        GETCHECK(TGraphErrors, m_diffDataMC[i], "DataMCBisector_" + postfix);
-        GETCHECK(TGraph, m_errorDataMC[i], "DataMCBisectorUNCERT_" + postfix);
-      }
-    }
-  }
-
-  // Return gracefully
   return StatusCode::SUCCESS;
 }
 
@@ -268,9 +161,15 @@ StatusCode JERTool::autoConfigure()
   ATH_CHECK( retrieveMetadata("/TagInfo", "beam_energy", beamEnergy) );
   ATH_MSG_DEBUG("Retrieved beam energy: " << beamEnergy*invTeV << " TeV");
   // Convert into known string
-  int collisionEnergyTeV = int(beamEnergy*invTeV)*2;
+  int collisionEnergyTeV = int(beamEnergy*invTeV*2);
   if(collisionEnergyTeV == 8) m_beamEnergy = "8TeV";
   else if(collisionEnergyTeV == 7) m_beamEnergy = "7TeV";
+  // 13 TeV placeholder
+  else if(collisionEnergyTeV == 13){
+    ATH_MSG_WARNING("No resolution measurements available yet for 13 TeV. " <<
+                    "Auto-config will apply 8 TeV results instead.");
+    m_beamEnergy = "8TeV";
+  }
   else{
     ATH_MSG_ERROR("Unknown collision energy retrieved from Metadata: "
                   << collisionEnergyTeV << " TeV");
@@ -297,6 +196,181 @@ StatusCode JERTool::autoConfigure()
   }
 
   return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Parse configuration
+//-----------------------------------------------------------------------------
+StatusCode JERTool::parseConfiguration()
+{
+  // Beam energy
+  if(m_beamEnergy == "8TeV")
+    m_is7TeV = false;
+  else if(m_beamEnergy == "7TeV")
+    m_is7TeV = true;
+  else{
+    ATH_MSG_ERROR("No available configuration for beam energy "
+                  << m_beamEnergy);
+    return StatusCode::FAILURE;
+  }
+
+  // Simulation type
+  if(m_simulationType == "FullSim")
+    m_isAFII = false;
+  else if(m_simulationType == "AFII")
+    m_isAFII = true;
+  else{
+    ATH_MSG_ERROR("No available configuration for simulation type "
+                  << m_simulationType);
+    return StatusCode::FAILURE;
+  }
+
+  // Error method
+  if(m_errorMethod == "Default")
+    m_useAltErr = false;
+  else if(m_errorMethod == "Alternate")
+    m_useAltErr = true;
+  else{
+    ATH_MSG_ERROR("No available configuration for error method "
+                  << m_errorMethod);
+    return StatusCode::FAILURE;
+  }
+
+  // Determine the jet algorithm
+  if(m_collectionName.find("AntiKt4LC") != std::string::npos)
+    m_jetAlgo = AKt4LC;
+  else if(m_collectionName.find("AntiKt4EM") != std::string::npos)
+    m_jetAlgo = AKt4EM;
+  else if(m_collectionName.find("AntiKt6LC") != std::string::npos)
+    m_jetAlgo = AKt6LC;
+  else if(m_collectionName.find("AntiKt6EM") != std::string::npos)
+    m_jetAlgo = AKt6EM;
+  else{
+    ATH_MSG_FATAL("No support for JER of " << m_collectionName << " jets!");
+    return StatusCode::FAILURE;
+  }
+
+  // Currently only Truth method is supported
+  if(m_jerMethod != "Truth"){
+    ATH_MSG_FATAL("JER method unsupported! Only Truth " <<
+                  "is currently supported!");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Load JER results from input file
+//-----------------------------------------------------------------------------
+StatusCode JERTool::loadJERInputs()
+{
+  // This hardcoded binning needs to be improved
+  double etaBins[7] = {0, 0.8, 1.2, 2.1, 2.8, 3.6, 4.5};
+  m_etaAxis = new TAxis(6, etaBins);
+  std::string regions[m_nEtaBins] = {"_0","_1","_2","_3","_4","_5"};
+
+  // Open input file using PathResolver
+  ATH_MSG_DEBUG("Using JER file " << m_fileName);
+  m_inputFile = new TFile(PathResolverFindCalibFile(m_fileName).c_str());
+  if(!m_inputFile->IsOpen()){
+    ATH_MSG_FATAL("JER input file " << m_fileName << " could not be found!");
+    return StatusCode::FAILURE;
+  }
+
+  // Graph prefix name
+  std::string algString;
+  if     (m_jetAlgo == AKt4LC) algString = "AntiKt4LCTopoJES";
+  else if(m_jetAlgo == AKt4EM) algString = "AntiKt4TopoJES";
+  else if(m_jetAlgo == AKt6LC) algString = "AntiKt6LCTopoJES";
+  else if(m_jetAlgo == AKt6EM) algString = "AntiKt6TopoJES";
+  std::string graphPrefix = m_jerMethod + "_" + algString;
+
+  // Convenience macro for checking status code below.
+  // Pull object from file
+  #define GETCHECK(type, dest, name)                  \
+    do {                                              \
+      if(!pullFromFile<type>(name, dest).isSuccess()) \
+        return StatusCode::FAILURE;                   \
+    } while(false)
+
+  // Retrieve the 8 TeV JER
+  if(!m_is7TeV){
+    // Loop over the eta regions
+    for(unsigned int i = 0; i < m_nEtaBins; ++i){
+      std::string suffix = algString + regions[i];
+      GETCHECK(TF1, m_jerFunc[i], graphPrefix + regions[i]);
+      GETCHECK(TF1, m_jerFuncAFII[i], "TruthAF2_" + suffix);
+
+      // (only up to 2.8 due to statistics) ---> m_nEtaBins-2
+      // TODO: write this in a cleaner, safer way
+      if ( i < m_nEtaBins - 2 ) {
+        GETCHECK(TGraphErrors, m_jerMC[i], "BisectorFit_" + suffix);
+        GETCHECK(TGraphErrors, m_jerData[i], "BisectorDataFit_" + suffix);
+        GETCHECK(TGraph, m_errorMC[i], "BisectorFitUNCERT_" + suffix);
+        GETCHECK(TGraph, m_errorData[i], "BisectorDataFitUNCERT_" + suffix);
+      }
+    }
+  }
+
+  // Retrieve the 7 TeV JER
+  else{
+    // Loop over the eta regions
+    for(unsigned int i = 0; i < m_nEtaBins; ++i){
+      std::string suffix = algString + regions[i];
+      GETCHECK(TF1, m_jerFunc[i], graphPrefix + regions[i]);
+
+      // (only up to 2.8 due to statistics) ---> m_nEtaBins-2
+      // TODO: write this in a cleaner, safer way
+      if ( i < m_nEtaBins - 2 ) {
+        GETCHECK(TGraphErrors, m_diffDataMC[i], "DataMCBisector_" + suffix);
+        GETCHECK(TGraph, m_errorDataMC[i], "DataMCBisectorUNCERT_" + suffix);
+      }
+    }
+  }
+
+  // Now close the input file
+  m_inputFile->Close();
+  delete m_inputFile;
+  return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Extract an object from the input file
+//-----------------------------------------------------------------------------
+template<class T> StatusCode JERTool::pullFromFile(std::string name, T*& obj)
+{
+  if(m_inputFile == NULL || !m_inputFile->IsOpen())
+    return StatusCode::FAILURE;
+  T* inputObj = dynamic_cast<T*>(m_inputFile->Get(name.c_str()));
+  if(inputObj == NULL){
+    ATH_MSG_FATAL("Unable to retrieve " << T::Class()->GetName() <<
+                  " with name " << name);
+    return StatusCode::FAILURE;
+  }
+  // Clone the object
+  obj = (T*) inputObj->Clone(name.c_str());
+  // Remove TF1s from ROOT's control, to avoid ROOT
+  // cleaning them up early in PyROOT.
+  if(T::Class()->InheritsFrom("TF1"))
+    gROOT->GetListOfFunctions()->Remove(obj);
+  return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Extract an in situ measurement from one of the TGraph maps.
+// All of these measurements use truncations in eta and pt.
+//-----------------------------------------------------------------------------
+template<class T> double JERTool::getInsituMeasurement(double pt, double eta,
+                                                       std::map<int, T*> graphMap)
+{
+  const double GeV = 1.e3;
+  const double invGeV = 1.e-3;
+  // Truncate eta bin due to lacking stats in data/mc
+  int etaBin = std::min(getEtaBin(eta), 3);
+  pt = std::min(1000.*GeV, pt);
+  if(fabs(eta) > 2.1 && pt > 300.*GeV) pt = 300.*GeV;
+  return graphMap[etaBin]->Eval(pt*invGeV);
 }
 
 //-----------------------------------------------------------------------------
@@ -358,7 +432,10 @@ double JERTool::getRelResolutionData(double pt, double eta)
     double relOffset = getInsituDiffDataMC(pt, eta) * 0.01;
     return sigmaMC + relOffset * sigmaMC;
   }
-  return getRelResolutionMC(pt, eta) + getOffset(pt, eta);
+  // Insitu measurements are Fullsim, so use the Fullsim
+  // MC resolution when calculating the data resolution.
+  const bool isAFII = false;
+  return getRelResolutionMC(pt, eta, isAFII) + getOffset(pt, eta);
 }
 
 //-----------------------------------------------------------------------------
@@ -420,7 +497,6 @@ double JERTool::getUncertainty(const xAOD::Jet* jet, bool isAFII, bool altErr)
   }
 
   double insituFitErr = getInsituUncert(pt, eta);
-  // This method uses fullsim MC reso, even if AFII. Is that correct?
   double jerData = getRelResolutionData(pt, eta);
   double jerMC = getRelResolutionMC(pt, eta, isAFII);
 
@@ -480,40 +556,40 @@ double JERTool::getSystematics_7TeV(int etaBin)
   // Return the requested parametrization
   // Hardcoded values... Error prone!!
   if (etaBin == 0) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.09;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.11;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.17;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.15;
+    if     (m_jetAlgo == AKt6EM) syst = 0.09;
+    else if(m_jetAlgo == AKt6LC) syst = 0.11;
+    else if(m_jetAlgo == AKt4EM) syst = 0.17;
+    else if(m_jetAlgo == AKt4LC) syst = 0.15;
   }
   else if (etaBin == 1) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.1;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.10;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.17;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.15;
+    if     (m_jetAlgo == AKt6EM) syst = 0.1;
+    else if(m_jetAlgo == AKt6LC) syst = 0.10;
+    else if(m_jetAlgo == AKt4EM) syst = 0.17;
+    else if(m_jetAlgo == AKt4LC) syst = 0.15;
   }
   else if (etaBin == 2) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.12;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.23;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.19;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.15;
+    if     (m_jetAlgo == AKt6EM) syst = 0.12;
+    else if(m_jetAlgo == AKt6LC) syst = 0.23;
+    else if(m_jetAlgo == AKt4EM) syst = 0.19;
+    else if(m_jetAlgo == AKt4LC) syst = 0.15;
   }
   else if (etaBin == 3) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.12;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.23;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.19;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.19;
+    if     (m_jetAlgo == AKt6EM) syst = 0.12;
+    else if(m_jetAlgo == AKt6LC) syst = 0.23;
+    else if(m_jetAlgo == AKt4EM) syst = 0.19;
+    else if(m_jetAlgo == AKt4LC) syst = 0.19;
   }
   else if (etaBin == 4) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.13;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.23;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.19;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.19;
+    if     (m_jetAlgo == AKt6EM) syst = 0.13;
+    else if(m_jetAlgo == AKt6LC) syst = 0.23;
+    else if(m_jetAlgo == AKt4EM) syst = 0.19;
+    else if(m_jetAlgo == AKt4LC) syst = 0.19;
   }
   else if (etaBin == 5) {
-    if     (m_collectionName == "AntiKt6TopoJES")   syst = 0.13;
-    else if(m_collectionName == "AntiKt6LCTopoJES") syst = 0.23;
-    else if(m_collectionName == "AntiKt4TopoJES")   syst = 0.19;
-    else if(m_collectionName == "AntiKt4LCTopoJES") syst = 0.19;
+    if     (m_jetAlgo == AKt6EM) syst = 0.13;
+    else if(m_jetAlgo == AKt6LC) syst = 0.23;
+    else if(m_jetAlgo == AKt4EM) syst = 0.19;
+    else if(m_jetAlgo == AKt4LC) syst = 0.19;
   }
   return syst;
 }
@@ -535,17 +611,17 @@ double JERTool::getInsituDiffDataMCError(double pt, double eta)
     double diffError = 0;
     if(etaBin == 4) {
       // Hardcoded values... Error prone!!
-      if (m_collectionName == "AntiKt6TopoJES")        diffError = 0.05;
-      else if (m_collectionName == "AntiKt6LCTopoJES") diffError = 0.10;
-      else if (m_collectionName == "AntiKt4TopoJES")   diffError = 0.10;
-      else if (m_collectionName == "AntiKt4LCTopoJES") diffError = 0.08;
+      if      (m_jetAlgo == AKt6EM) diffError = 0.05;
+      else if (m_jetAlgo == AKt6LC) diffError = 0.10;
+      else if (m_jetAlgo == AKt4EM) diffError = 0.10;
+      else if (m_jetAlgo == AKt4LC) diffError = 0.08;
     }
     else if(etaBin == 5) {
       // Hardcoded values... Error prone!!
-      if (m_collectionName == "AntiKt6TopoJES")        diffError = 0.05;
-      else if (m_collectionName == "AntiKt6LCTopoJES") diffError = 0.10;
-      else if (m_collectionName == "AntiKt4TopoJES")   diffError = 0.10;
-      else if (m_collectionName == "AntiKt4LCTopoJES") diffError = 0.08;
+      if      (m_jetAlgo == AKt6EM) diffError = 0.05;
+      else if (m_jetAlgo == AKt6LC) diffError = 0.10;
+      else if (m_jetAlgo == AKt4EM) diffError = 0.10;
+      else if (m_jetAlgo == AKt4LC) diffError = 0.08;
     }
     return diffError;
   }

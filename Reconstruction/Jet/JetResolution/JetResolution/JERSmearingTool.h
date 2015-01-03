@@ -139,6 +139,8 @@ class JERSmearingTool : public virtual IJERSmearingTool,
 
     /// Handle to the associated JERTool
     ToolHandle<IJERTool> m_jerTool;
+    /// Workaround to set the JERTool tool handle in PyROOT
+    std::string m_jerToolName;
 
     /// Configuration flag for toggling nominal smearing
     bool m_applyNominalSmearing;
