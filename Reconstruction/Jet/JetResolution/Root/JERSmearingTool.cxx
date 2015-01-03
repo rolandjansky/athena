@@ -21,7 +21,10 @@ JERSmearingTool::JERSmearingTool(const std::string& name)
     m_jerSys("JER", 1),
     m_applyJERSyst(false)
 {
+  // Property for setting the tool handle directly
   declareProperty("JERTool", m_jerTool);
+  // Temporary workaround for setting the JERTool in PyROOT
+  declareProperty("JERToolName", m_jerToolName="");
   declareProperty("ApplyNominalSmearing", m_applyNominalSmearing = false,
                   "If set to false, smearing only applied for JER sys");
 }
@@ -33,6 +36,7 @@ JERSmearingTool::JERSmearingTool(const std::string& name)
 JERSmearingTool::JERSmearingTool(const JERSmearingTool& other)
   : asg::AsgTool(other.name() + "_copy"),
     m_jerTool(other.m_jerTool),
+    m_jerToolName(other.m_jerToolName),
     m_applyNominalSmearing(other.m_applyNominalSmearing),
     m_rand(other.m_rand),
     m_userSeed(other.m_userSeed),
@@ -47,6 +51,10 @@ StatusCode JERSmearingTool::initialize()
 {
   // Greet the user
   ATH_MSG_INFO("Initializing JER smearing tool");
+
+  // Workaround for configuring ToolHandle in PyROOT
+  if(!m_jerToolName.empty())
+    m_jerTool = ToolHandle<IJERTool>(m_jerToolName);
 
   // Try to retrieve the JERTool
   if(m_jerTool.retrieve() != StatusCode::SUCCESS){

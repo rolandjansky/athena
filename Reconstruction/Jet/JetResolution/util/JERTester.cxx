@@ -151,15 +151,13 @@ int main( int argc, char* argv[] ) {
       Info(APP_NAME, "  Resolution Err  = %g", uncert);
 
       // Loop over systematic sets
-      for(auto sysSetItr = sysList.begin(); sysSetItr != sysList.end();
-          ++sysSetItr){
-        std::string sysName = sysSetItr->name();
-        if(sysName.empty()) sysName = "nominal";
+      for(const auto& sysSet : sysList){
+        std::string sysName = sysSet.empty()? "nominal" : sysSet.name();
         Info(APP_NAME, "  Correcting jets with sysSet: %s",
-             sysSetItr->name().c_str());
+             sysName.c_str());
 
         // Apply systematic configuration to the smearing tool
-        CHECK( smearTool.applySystematicVariation(*sysSetItr) );
+        CHECK( smearTool.applySystematicVariation(sysSet) );
 
         // Now smear the jet
         xAOD::Jet* newJet = 0;

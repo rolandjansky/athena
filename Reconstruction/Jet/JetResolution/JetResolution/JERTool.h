@@ -131,11 +131,9 @@ class JERTool : public virtual IJERTool,
 
     /// @}
 
-
     ///-----------------------------------------------------------------------
     /// @name Lower-level methods for multiple tool configurations.
-    /// I'm not sure if I will continue to support these, or if it's
-    /// preferable to require users to configure multiple tool instances.
+    /// I may not always support these.
     /// @{
 
     /// Read the resolution from the MC parameterization
@@ -197,21 +195,11 @@ class JERTool : public virtual IJERTool,
     /// This currently only works in Athena.
     StatusCode autoConfigure();
 
-    /// Extract an object from the input file
-    template<class T> StatusCode pullFromFile(std::string name, T*& obj)
-    {
-      obj = dynamic_cast<T*>(m_inputFile->Get(name.c_str()));
-      if(obj == NULL){
-        ATH_MSG_FATAL("Unable to retrieve " << T::Class()->GetName() <<
-                      " with name " << name);
-        return StatusCode::FAILURE;
-      }
-      // Why rename the object?
-      obj->SetName(("the" + name).c_str());
-      return StatusCode::SUCCESS;
-    }
+    /// Helper method for parsing the configuration
+    StatusCode parseConfiguration();
+    /// Helper method for loading the JER inputs
+    StatusCode loadJERInputs();
 
-  protected:
 
     /// Get eta bin corresponding for this jet.
     /// Indexing convention of eta regions is off-by-one
@@ -223,19 +211,15 @@ class JERTool : public virtual IJERTool,
     double getOffset(const xAOD::Jet* jet);
     double getOffset(double pt, double eta);
 
+  private:
+
+    /// Extract an object from the input file
+    template<class T> StatusCode pullFromFile(std::string name, T*& obj);
+
     /// Extract an in situ measurement from one of the TGraph maps.
     /// All of these measurements use truncations in eta and pt.
     template<class T> double getInsituMeasurement(double pt, double eta,
-                                                  std::map<int, T*> graphMap)
-    {
-      const double GeV = 1.e3;
-      const double invGeV = 1.e-3;
-      // Truncate eta bin due to lacking stats in data/mc
-      int etaBin = std::min(getEtaBin(eta), 3);
-      pt = std::min(1000.*GeV, pt);
-      if(fabs(eta) > 2.1 && pt > 300.*GeV) pt = 300.*GeV;
-      return graphMap[etaBin]->Eval(pt*invGeV);
-    }
+                                                  std::map<int, T*> graphMap);
 
   private:
 
