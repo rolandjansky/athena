@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="IFillParamsTool"/>
+  <class name="IBunchGroupTool"/>
+  <class name="IBunchLumisTool"/>
+  <class name="IOnlineLumiCalibrationTool"/>
+  <class name="OnlineLumiCalibrator"/>
+
+  <class name="FillParamsUtil"/>
+  <class name="BunchGroupUtil"/>
+  <class name="CoolLumiUtilsTestObj"/>
+  <class name="CoolLumiUtilsVector"/>
+  <class name="MyTestClass"/>
+  <class name="BunchDescription"/>
+  <class name="BunchDataUtil"/>
+  <class name="BunchLumisUtil"/>
+  <class name="LumiBlobUtil"/>
+</lcgdict>
