@@ -78,12 +78,13 @@ StatusCode  ISF::GeoIDSvc::initialize()
 
     // retrieve a list of (r,z) pairs for the z>0
     // side of the envelope
-    RZPairList &curRZ = *prepareRZPairs( AtlasDetDescr::AtlasRegion(geoID) );
-    if ( curRZ.size()==0) {
+    RZPairList *curRZ = prepareRZPairs( AtlasDetDescr::AtlasRegion(geoID) );
+    if ( curRZ->size()==0) {
       ATH_MSG_ERROR("Unable to create volume representation for geoID="<<geoID);
+      delete curRZ; // makes coverity happy (CID 13321)
       return StatusCode::FAILURE;
     }
-    ATH_MSG_VERBOSE("Found " << curRZ.size() << " (r,z) pairs with positive z for geoID=" << geoID);
+    ATH_MSG_VERBOSE("Found " << curRZ->size() << " (r,z) pairs with positive z for geoID=" << geoID);
 
     // TODO:
     // make sure the list of (r,z) pairs is supported by this GeoIDSvc implementation
@@ -94,24 +95,24 @@ StatusCode  ISF::GeoIDSvc::initialize()
     //  return StatusCode::FAILURE;
     //}
 
-    ATH_MSG_DEBUG("Preparing " << curRZ.size() << " (r,z) pairs with positive z for geoID=" << geoID);
-    while ( curRZ.size()) {
+    ATH_MSG_DEBUG("Preparing " << curRZ->size() << " (r,z) pairs with positive z for geoID=" << geoID);
+    while ( curRZ->size()) {
       //double minR = std::min( curRZ.front().first , curRZ.back().first );
-      double maxR = std::max( curRZ.front().first , curRZ.back().first );
-      double zFront = curRZ.front().second;
-      double zBack  = curRZ.back().second;
+      double maxR = std::max( curRZ->front().first , curRZ->back().first );
+      double zFront = curRZ->front().second;
+      double zBack  = curRZ->back().second;
       double minZ = std::min( zFront, zBack);
 
-      ATH_MSG_VERBOSE(" minz=" << minZ << " zBack="<<zBack<<" zFront="<<zFront<<" maxR="<<maxR<<" curRZ.size()="<<curRZ.size());
+      ATH_MSG_VERBOSE(" minz=" << minZ << " zBack="<<zBack<<" zFront="<<zFront<<" maxR="<<maxR<<" curRZ->size()="<<curRZ->size());
 
       // remove items only on the one side of the list that
       // has the smaller z
-      if      (zFront<zBack) curRZ.pop_front();
-      else if (zBack<zFront) curRZ.pop_back();
+      if      (zFront<zBack) curRZ->pop_front();
+      else if (zBack<zFront) curRZ->pop_back();
       else {
         // both are equal in z
-        curRZ.pop_front();
-        if (curRZ.size()>0) curRZ.pop_back();
+        curRZ->pop_front();
+        if (curRZ->size()>0) curRZ->pop_back();
       }
 
       // register the boundary value of new bin in z
@@ -373,11 +374,12 @@ ISF::RZPairList* ISF::GeoIDSvc::prepareRZPairs( AtlasDetDescr::AtlasRegion geoID
   // fill the RZPairLists
   //
   {
-    // if both RZPairList have to be empty
+    // both RZPairList have to be empty
     if ( positiveZ->size() || negativeZ->size() ) {
       ATH_MSG_ERROR("Can not interpret the (r,z) pairs provided by the EnvelopeDefSvc");
       positiveZ->clear();
       negativeZ->clear();
+      delete negativeZ;
       return positiveZ;
     }
 
@@ -444,6 +446,7 @@ ISF::RZPairList* ISF::GeoIDSvc::prepareRZPairs( AtlasDetDescr::AtlasRegion geoID
         ATH_MSG_ERROR("  -> provided (r,z) pairs traverse the z==0 plane more than twice" );
         positiveZ->clear();
         negativeZ->clear();
+        delete negativeZ;
         return positiveZ;
       }
     }
@@ -456,6 +459,7 @@ ISF::RZPairList* ISF::GeoIDSvc::prepareRZPairs( AtlasDetDescr::AtlasRegion geoID
     ATH_MSG_ERROR("(r,z) pairs received from EnvelopeDefSvc are not symmetric around z==0 plane");
     positiveZ->clear();
     negativeZ->clear();
+    delete negativeZ;
     return positiveZ;
   }
 
@@ -465,6 +469,10 @@ ISF::RZPairList* ISF::GeoIDSvc::prepareRZPairs( AtlasDetDescr::AtlasRegion geoID
   double backR  = positiveZ->back().first;
   positiveZ->push_front( RZPair(frontR, 0.) );
   positiveZ->push_back ( RZPair(backR , 0.) );
+
+  // clear the RZPairList for negative z values
+  negativeZ->clear();
+  delete negativeZ;
 
   // return the RZPairList for positive z values
   return positiveZ;
