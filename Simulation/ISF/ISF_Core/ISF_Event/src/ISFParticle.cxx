@@ -127,6 +127,8 @@ ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_history(isfp.history()),
   m_barcode(isfp.barcode()),
   m_truth(0),
+  m_allowSelectorUpdates(),
+  m_order(ISF::DefaultParticleOrder),
   m_userInfo(0)
 {
   if (isfp.truthBinding()) m_truth=isfp.truthBinding()->clone();
