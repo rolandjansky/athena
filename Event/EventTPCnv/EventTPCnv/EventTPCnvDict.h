@@ -48,7 +48,7 @@
 #include "EventTPCnv/PileUpEventInfoCnv_p5.h"
 #include "EventTPCnv/ByteStreamMetadataCnv_p1.h"
 
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_EVENTTPCNV {
     T_TPCnv<EventInfo, EventInfo_p1>             m_eventinfo_p1;
     T_TPCnv<EventInfo, EventInfo_p2>             m_eventinfo_p2;
     T_TPCnv<EventInfo, EventInfo_p3>             m_eventinfo_p3;

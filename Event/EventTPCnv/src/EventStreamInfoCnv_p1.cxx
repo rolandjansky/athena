@@ -28,9 +28,10 @@ void EventStreamInfoCnv_p1::persToTrans(const EventStreamInfo_p1* pers, EventStr
    trans->m_processingTags = pers->m_processingTags;
    trans->m_itemList = pers->m_itemList;
    trans->m_eventTypes.clear();
-   for (std::set<EventType_p1>::const_iterator iter = pers->m_eventTypes.begin(),
-		   last = pers->m_eventTypes.end(); iter != last; iter++) {
-      trans->m_eventTypes.insert(*typeConv.createTransient(&(*iter), log));
+   for (const EventType_p1& ptype : pers->m_eventTypes)
+   {
+      std::unique_ptr<EventType> p (typeConv.createTransient(&ptype, log));
+      trans->m_eventTypes.insert(*p);
    }
 }
 
@@ -41,10 +42,10 @@ void EventStreamInfoCnv_p1::transToPers(const EventStreamInfo* trans, EventStrea
    pers->m_processingTags = trans->m_processingTags;
    pers->m_itemList = trans->m_itemList;
    pers->m_eventTypes.clear();
-   for (std::set<EventType>::const_iterator iter = trans->m_eventTypes.begin(),
-		   last = trans->m_eventTypes.end(); iter != last; iter++) {
-      EventType_p1 type;
-      typeConv.transToPers(&(*iter), &type, log);
-      pers->m_eventTypes.insert(type);
+   for (const EventType& ttype : trans->m_eventTypes)
+   {
+     EventType_p1 ptype;
+     typeConv.transToPers(&ttype, &ptype, log);
+     pers->m_eventTypes.insert(ptype);
    }
 }

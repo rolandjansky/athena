@@ -22,6 +22,7 @@
 #include "EventTPCnv/PileUpEventInfo_p2.h"
 #include "EventTPCnv/PileUpEventInfo_p3.h"
 #include "EventTPCnv/PileUpEventInfo_p4.h"
+#include "EventTPCnv/PileUpEventInfo_p5.h"
 #include "EventTPCnv/EventInfoCnv_p1.h"
 #include "EventTPCnv/EventInfoCnv_p2.h"
 #include "EventTPCnv/EventInfoCnv_p3.h"
@@ -35,6 +36,7 @@
 #include "EventTPCnv/PileUpEventInfoCnv_p2.h"
 #include "EventTPCnv/PileUpEventInfoCnv_p3.h"
 #include "EventTPCnv/PileUpEventInfoCnv_p4.h"
+#include "EventTPCnv/PileUpEventInfoCnv_p5.h"
 
 DECLARE_TPCNV_FACTORY(EventInfoCnv_p1,
                       EventInfo,
@@ -99,4 +101,9 @@ DECLARE_TPCNV_FACTORY(PileUpEventInfoCnv_p3,
 DECLARE_TPCNV_FACTORY(PileUpEventInfoCnv_p4,
                       PileUpEventInfo,
                       PileUpEventInfo_p4,
+                      Athena::TPCnvVers::Old)
+                      
+DECLARE_TPCNV_FACTORY(PileUpEventInfoCnv_p5,
+                      PileUpEventInfo,
+                      PileUpEventInfo_p5,
                       Athena::TPCnvVers::Current)

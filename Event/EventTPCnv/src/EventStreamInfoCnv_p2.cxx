@@ -23,71 +23,55 @@ static EventTypeCnv_p1 typeConv;
 
 void EventStreamInfoCnv_p2::persToTrans(const EventStreamInfo_p2* pers, EventStreamInfo* trans, MsgStream &log)  {
    trans->m_numberOfEvents = pers->m_numberOfEvents;
+
    trans->m_runNumbers.clear();
-   std::set<unsigned int>::iterator lastRun = trans->m_runNumbers.begin();
-   for (std::vector<unsigned int>::const_iterator iter = pers->m_runNumbers.begin(),
-		   last = pers->m_runNumbers.end(); iter != last; iter++) {
-      lastRun = trans->m_runNumbers.insert(lastRun, *iter);
-   }
+   trans->m_runNumbers.insert (pers->m_runNumbers.begin(),
+                               pers->m_runNumbers.end());
+
    trans->m_lumiBlockNumbers.clear();
-   std::set<unsigned int>::iterator lastLB = trans->m_lumiBlockNumbers.begin();
-   for (std::vector<unsigned int>::const_iterator iter = pers->m_lumiBlockNumbers.begin(),
-		   last = pers->m_lumiBlockNumbers.end(); iter != last; iter++) {
-      lastLB = trans->m_lumiBlockNumbers.insert(lastLB, *iter);
-   }
+   trans->m_lumiBlockNumbers.insert (pers->m_lumiBlockNumbers.begin(),
+                                     pers->m_lumiBlockNumbers.end());
+
    trans->m_processingTags.clear();
-   std::set<std::string>::iterator lastTag = trans->m_processingTags.begin();
-   for (std::vector<std::string>::const_iterator iter = pers->m_processingTags.begin(),
-		   last = pers->m_processingTags.end(); iter != last; iter++) {
-      lastTag = trans->m_processingTags.insert(lastTag, *iter);
-   }
+   trans->m_processingTags.insert (pers->m_processingTags.begin(),
+                                   pers->m_processingTags.end());
+
    trans->m_itemList.clear();
-   std::set<std::pair<unsigned int, std::string> >::iterator lastItem = trans->m_itemList.begin();
-   for (std::vector<std::pair<unsigned int, std::string> >::const_iterator iter = pers->m_itemList.begin(),
-		   last = pers->m_itemList.end(); iter != last; iter++) {
-      lastItem = trans->m_itemList.insert(lastItem, *iter);
-   }
+   trans->m_itemList.insert (pers->m_itemList.begin(),
+                             pers->m_itemList.end());
+
    trans->m_eventTypes.clear();
    std::set<EventType>::iterator lastType = trans->m_eventTypes.begin();
-   for (std::vector<EventType_p1>::const_iterator iter = pers->m_eventTypes.begin(),
-		   last = pers->m_eventTypes.end(); iter != last; iter++) {
-      lastType = trans->m_eventTypes.insert(lastType, *typeConv.createTransient(&(*iter), log));
+   for (const EventType_p1& ptype : pers->m_eventTypes) {
+      std::unique_ptr<EventType> p (typeConv.createTransient(&ptype, log));
+      lastType = trans->m_eventTypes.insert(lastType, *p);
    }
 }
 
 void EventStreamInfoCnv_p2::transToPers(const EventStreamInfo* trans, EventStreamInfo_p2* pers, MsgStream &log) {
    pers->m_numberOfEvents = trans->m_numberOfEvents;
 
-   pers->m_runNumbers.clear();
    pers->m_runNumbers.reserve(trans->m_runNumbers.size());
-   for (std::set<unsigned int>::const_iterator iter = trans->m_runNumbers.begin(),
-		   last = trans->m_runNumbers.end(); iter != last; iter++) {
-      pers->m_runNumbers.push_back(*iter);
-   }
-   pers->m_lumiBlockNumbers.clear();
+   pers->m_runNumbers.assign (trans->m_runNumbers.begin(),
+                              trans->m_runNumbers.end());
+
    pers->m_lumiBlockNumbers.reserve(trans->m_lumiBlockNumbers.size());
-   for (std::set<unsigned int>::const_iterator iter = trans->m_lumiBlockNumbers.begin(),
-		   last = trans->m_lumiBlockNumbers.end(); iter != last; iter++) {
-      pers->m_lumiBlockNumbers.push_back(*iter);
-   }
-   pers->m_processingTags.clear();
+   pers->m_lumiBlockNumbers.assign (trans->m_lumiBlockNumbers.begin(),
+                                    trans->m_lumiBlockNumbers.end());
+
    pers->m_processingTags.reserve(trans->m_processingTags.size());
-   for (std::set<std::string>::const_iterator iter = trans->m_processingTags.begin(),
-		   last = trans->m_processingTags.end(); iter != last; iter++) {
-      pers->m_processingTags.push_back(*iter);
-   }
-   pers->m_itemList.clear();
+   pers->m_processingTags.assign (trans->m_processingTags.begin(),
+                                  trans->m_processingTags.end());
+
    pers->m_itemList.reserve(trans->m_itemList.size());
-   for (std::set<std::pair<unsigned int, std::string> >::const_iterator iter = trans->m_itemList.begin(),
-		   last = trans->m_itemList.end(); iter != last; iter++) {
-      pers->m_itemList.push_back(*iter);
-   }
-   pers->m_eventTypes.clear();
+   pers->m_itemList.assign (trans->m_itemList.begin(),
+                            trans->m_itemList.end());
+
    pers->m_eventTypes.reserve(trans->m_eventTypes.size());
-   for (std::set<EventType>::const_iterator iter = trans->m_eventTypes.begin(),
-		   last = trans->m_eventTypes.end(); iter != last; iter++) {
-      EventType_p1 type;
-      typeConv.transToPers(&(*iter), &type, log);
-      pers->m_eventTypes.push_back(type);
+   pers->m_eventTypes.clear();
+   for (const EventType& ttype : trans->m_eventTypes) {
+      EventType_p1 ptype;
+      typeConv.transToPers(&ttype, &ptype, log);
+      pers->m_eventTypes.push_back(ptype);
    }
 }
