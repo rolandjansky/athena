@@ -18,14 +18,6 @@ PURPOSE:  Updates TrigMissingETHelper using info from topo. clusters
  ********************************************************************/
 #include "TrigEFMissingET/EFMissingETFromClustersPS.h"
 
-
-// #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-// #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-// // #include "TrigMuonEvent/TrigMuonEFTrack.h"
-// #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-// #include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
 
@@ -33,7 +25,7 @@ PURPOSE:  Updates TrigMissingETHelper using info from topo. clusters
 #include "EventKernel/SignalStateHelper.h"
 
 #include <cmath>
-#include <string>
+#include <string> 
 using namespace std;
 
 EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
@@ -53,7 +45,7 @@ EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
 
   _fextype = FexType::TOPO;
 
-  m_methelperposition = 11;
+  m_methelperposition = 14; 
 
 }
 
@@ -79,7 +71,7 @@ StatusCode EFMissingETFromClustersPS::initialize()
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
 
-  if(m_saveuncalibrated) m_methelperposition = 6;
+  if(m_saveuncalibrated) m_methelperposition = 9; 
 
   if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
    else m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
@@ -103,10 +95,9 @@ StatusCode EFMissingETFromClustersPS::finalize()
 
 }
 
-
-StatusCode EFMissingETFromClustersPS::execute(TrigMissingET * /* met */ ,
+StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster)
+    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */)
 {
 
   if(msgLvl(MSG::DEBUG))
@@ -144,21 +135,12 @@ StatusCode EFMissingETFromClustersPS::execute(TrigMissingET * /* met */ ,
 
   msg() << MSG::DEBUG << " Fetch topo cluster component " << endreq;
 
-
- //--- fetching the topo. cluster component
- double upperlim[4] = {1.5,0,5,-1.5}; double lowerlim[4] = {0,-1.5,1.5,-5};
-
- for(int i = 0; i < 5; i++) {
-
-  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + i); // fetch Cluster component
+  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
 
   if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endreq;  return StatusCode::FAILURE; }
   if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endreq; return StatusCode::FAILURE; }
 
   for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
-
-   //     SignalStateHelper sshelper(P4SignalState::UNCALIBRATED);
-   //     if(m_saveuncalibrated) sshelper.controlObject(*it);       // Save uncalibrated?
 
     float phi = (*it)->phi(m_clusterstate);
     float eta = (*it)->eta(m_clusterstate);
@@ -170,32 +152,15 @@ StatusCode EFMissingETFromClustersPS::execute(TrigMissingET * /* met */ ,
     float Ez = Et*sinhf(eta);
     float E =  (*it)->p4(m_clusterstate).E();  // sqrtf(Et*Et + Ez*Ez);
 
-    if(i == 0) {
-
-          metComp->m_ex -= Ex;
-          metComp->m_ey -= Ey;
-          metComp->m_ez -= Ez;
-          metComp->m_sumEt += Et;
-          metComp->m_sumE  += E;
-          metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,Et)+0.5));
-
-    } else if (i > 0) {
-
-       if( eta >= lowerlim[i-1] && eta <= upperlim[i-1]) {
-          metComp->m_ex -= Ex;
-          metComp->m_ey -= Ey;
-          metComp->m_ez -= Ez;
-          metComp->m_sumEt += Et;
-          metComp->m_sumE  += E;
-          metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,Et)+0.5));
-       }
-
-     }
-
+    metComp->m_ex -= Ex;
+    metComp->m_ey -= Ey;
+    metComp->m_ez -= Ez;
+    metComp->m_sumEt += Et;
+    metComp->m_sumE  += E;
+    metComp->m_usedChannels += 1;
+    metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,Et)+0.5));
+          
    } // end topo. loop -- before PS
-
 
   msg() << MSG::DEBUG << " Start pileup subtraction algorithm: " << endreq;
 
@@ -333,7 +298,7 @@ StatusCode EFMissingETFromClustersPS::execute(TrigMissingET * /* met */ ,
          double second_r;
          double center_mag;
          
-         msg() << MSG::DEBUG << " Fetching second_r & center_mag " << endreq;
+         // msg() << MSG::DEBUG << " Fetching second_r & center_mag " << endreq;
          
          (*it_ii)->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r);
          (*it_ii)->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,center_mag);
@@ -379,8 +344,6 @@ StatusCode EFMissingETFromClustersPS::execute(TrigMissingET * /* met */ ,
  // move from "processing" to "processed" state
  metComp->m_status ^= m_maskProcessing; // switch off bit
  metComp->m_status |= m_maskProcessed;  // switch on bit
-
- } // end container loop.
 
  if(m_timersvc)
      m_glob_timer->stop(); // total time

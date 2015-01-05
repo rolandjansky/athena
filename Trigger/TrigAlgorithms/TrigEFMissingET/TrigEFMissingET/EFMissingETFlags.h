@@ -42,9 +42,10 @@ class EFMissingETFlags : public EFMissingETBaseTool
   virtual StatusCode finalize();
   virtual StatusCode execute();
 
-  virtual StatusCode execute(TrigMissingET *met, 
+  virtual StatusCode execute(xAOD::TrigMissingET *met, 
         TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster); 
+        const xAOD::CaloClusterContainer *caloCluster,
+        const xAOD::JetContainer *jets); 
 
  private:
 

@@ -8,7 +8,7 @@
  * @Package:  Trigger/TrigAlgorithms/TrigEFMissingET
  * @Class:    EFMissingET
  *
- * @brief  Right now calculates EF MissingET by adding up all the cells or feb headers, and then refines it using EF muons   
+ * @brief  Right now calculates EF MissingET by adding up all the cells, feb headers, or clusters
  *
  * @author  Rashid Djilkibaev (updated by Diego Casadei)
  * File and Version Information: 
@@ -54,8 +54,6 @@ class TrigMissingET;
 
   - EFMissingETFromFEBHeader does a sum over FEB headers
 
-  - EFMissingETFromMuons applies a correction with EF muons
-
   - EFMissingETFlags makes checks about fake sources of MET
 
   - EFMissingETFromHelper saves data into TrigMissingET
@@ -87,7 +85,6 @@ class EFMissingET : public HLT::AllTEAlgo {
      * makeMissingET() invokes the different tools that make the actual work.
      *
      * It creates the transient-only helper object and the persistent object;
-     * before calling all tools, it scans tes_in to find all muons;
      * finally, it prints REGTEST messages.
      **/
     HLT::ErrorCode makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in);
@@ -100,23 +97,23 @@ class EFMissingET : public HLT::AllTEAlgo {
     HLT::ErrorCode hltInitialize();
     /** finalization */
     HLT::ErrorCode hltFinalize();
+    /** end */
+    HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_cachedTE=0; return HLT::OK; };
 
     /** @brief Called at the end of each event, to reset the internal caching mechanism */
-    virtual bool reset() { AllTEAlgo::reset(); m_useCachedResult = false; m_cachedTE=0; return true; }
+    // From 19.3.0 on, this is deprecated and hltEndEvent is used
+    // virtual bool reset() { AllTEAlgo::reset(); m_useCachedResult = false; m_cachedTE=0; return true; }
 
   private:
-    /** pointer to persistent object */
-    TrigMissingET         *m_met;
-    /** xAOD Migration objects **/
-    xAOD::TrigMissingET   *m_met_xAOD;
-    xAOD::TrigMissingETContainer  *m_met_xAOD_cont;
+    /** pointer to persistent object **/
+    xAOD::TrigMissingET   *m_met;
     /** pointer to transient helper object */
     TrigEFMissingEtHelper *m_met_help;
     /** input trigger element */
     const HLT::TriggerElement *m_inputTE;
     /** pointer to StoreGate */
     StoreGateSvc* m_StoreGate;
-
+        
     //!< Internal caching:
     HLT::TriggerElement *m_cachedTE; //!< output TE from the first exectution
     bool m_useCachedResult;          //!< true when the hltExecute will run in cached mode
@@ -128,6 +125,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     unsigned int m_current_bcg_id;  //!< bunch crossing
     
     const xAOD::CaloClusterContainer *m_caloCluster;
+    const xAOD::JetContainer *m_jets;
 
     //    unsigned m_maskEMB_A_Missing;      //!< EMB_A absent in DetMask
     //    unsigned m_maskEMB_C_Missing;      //!< EMB_C absent in DetMask
@@ -156,17 +154,20 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_TileExtBarAside;   //  TILECAL_EXT_A_SIDE
     bool m_TileExtBarCside;   //  TILECAL_EXT_C_SIDE
 
+    bool firsteventinrun;
+
     //!< Configurables:
     bool m_doTimers;             //!< switch on/off detailed timers
     bool m_decodeDetMask;        //!< switch on/off DetMask decoding
     bool m_doTopoClusters;       //!< switch on/off topo. clusters
+    bool m_doJets;               //!< switch on/off jets
+    bool m_doPUC;                //!< switch on/off Pile-up fit
     std::string  m_metOutputKey; //!< label for the MET feature in the HLT Navigation
     ToolHandleArray< EFMissingETBaseTool > m_tools; //!< list of tools
     int n_sizePers;              //!< number of components in pers. objects
     std::vector<int>  m_flags;   //!< component flag (skip if <0)
     std::vector<float> m_calib0; //!< additive calibration constants
     std::vector<float> m_calib1; //!< multiplicative calib. constants
-    bool m_useL2Muons;           //!< use L2 muons
     
     //!< Monitoring variables:
     float m_mex_log;  //!< Monitoring: EF signed log10 of Missing Ex [GeV]
@@ -188,7 +189,6 @@ class EFMissingET : public HLT::AllTEAlgo {
     float m_phi;      //!< Monitoring: EF MET phi [rad]
 
     std::vector<int> m_status_flag;   //!< Monitoring: status flags
-
 
     /** 2D histograms for componente are build from the following vectors */
     std::vector<float> m_comp_index;   //!< Monitoring: component indices

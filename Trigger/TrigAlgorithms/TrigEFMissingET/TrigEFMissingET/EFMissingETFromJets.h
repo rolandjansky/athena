@@ -1,0 +1,54 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRIGEFMISSINGET_EFMISSINGETFROMJETS_H
+#define TRIGEFMISSINGET_EFMISSINGETFROMJETS_H
+
+/********************************************************************
+
+NAME:     EFMissingETFromJets.h
+PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
+
+AUTHORS:  Florian U. Bernlochner, Doug Schaefer, Justin Chiu
+CREATED:  May 20, 2014
+
+PURPOSE:  Updates TrigMissingETHelper using info from jets
+
+ ********************************************************************/
+
+#include "TrigEFMissingET/EFMissingETBaseTool.h"
+#include "TrigMissingEtEvent/TrigMissingET.h"
+
+
+/**
+  $class EFMissingETFromJets
+  Updates transient helper object with jets
+ **/
+
+class EFMissingETFromJets : public EFMissingETBaseTool
+{
+  public:
+
+    EFMissingETFromJets(const std::string& type, 
+        const std::string& name, 
+        const IInterface* parent);
+
+    ~EFMissingETFromJets();
+
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+    virtual StatusCode execute();
+
+    virtual StatusCode execute(xAOD::TrigMissingET *met, 
+			       TrigEFMissingEtHelper *metHelper, 
+			       const xAOD::CaloClusterContainer *caloCluster,
+			       const xAOD::JetContainer *jets); 
+
+  private:
+    bool m_saveuncalibrated;
+    int  m_methelperposition;
+
+};
+
+#endif // TRIGEFMISSINGET_EFMISSINGETFROMJETS_H

@@ -24,21 +24,19 @@ tools must implement the execute(...) method.
 #include "TrigEFMissingET/EFMissingETHelper.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTrigMissingET/TrigMissingET.h"
+#include "xAODJet/JetContainer.h"
 #include <vector>
 
 class TrigMissingET;
-
-class TrigMuonEFInfoContainer;
-
-// class MuonFeature;
-class CombinedMuonFeature;
 
 struct FexType {
         enum Type {
           OTHER         = -1,
           TOPO          =  0, 
           CELL          =  1,
-          FEB           =  2
+          FEB           =  2,
+          JET           =  3
          };
 };
 
@@ -60,9 +58,9 @@ class EFMissingETBaseTool : public AthAlgTool
     virtual StatusCode execute();       //!< not used
     virtual StatusCode finalize();      //!< not used
 
-    virtual StatusCode execute(TrigMissingET *met, 
+    virtual StatusCode execute(xAOD::TrigMissingET *met, 
         TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster); 
+        const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer *jets);  
 
     /** save time for detector iDet at step iStep in timerTime */
     StatusCode getTime(int iDet, int iStep, float *timerTime);

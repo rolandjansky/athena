@@ -46,7 +46,7 @@ class TrigEFMissingEtComponent {
     TrigEFMissingEtComponent();
     void Reset();
     std::string getFormattedHeader();
-    std::string getFormattedValues();
+    std::string getFormattedValues(); 
 };
 
 
@@ -55,7 +55,7 @@ class TrigEFMissingEtComponent {
 class TrigEFMissingEtHelper {
 
   private:
-    static const unsigned char DEFAULT_LEN = 3+CaloSampling::FCAL2; //<! default no. of components
+    static const unsigned char DEFAULT_LEN = 6+CaloSampling::FCAL2; //<! default no. of components
     static const unsigned char REASONABLE_MAX = 2*DEFAULT_LEN;      //<! max no. of components
 
   public:

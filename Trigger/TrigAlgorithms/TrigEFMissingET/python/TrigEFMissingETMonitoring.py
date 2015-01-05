@@ -16,6 +16,7 @@ compNames = [ "PreSamplB", "EMB1", "EMB2", "EMB3",   # LAr barrel
               "TCLCWE1", "TCLCWE2",                  # Forward endcap
               "TCEM", "TCEMB1", "TCEMB2",            # TC LC, Tile barrel
               "TCEME1", "TCEME2",                    # Forward endcap
+              "Jets",                                # Jets 
               "Muons" ]                              # Muons 
 
 ## bits assigned in EFMissingETBaseTool.cxx

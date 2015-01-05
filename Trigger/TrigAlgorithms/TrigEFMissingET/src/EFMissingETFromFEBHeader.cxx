@@ -120,10 +120,9 @@ StatusCode EFMissingETFromFEBHeader::execute()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode EFMissingETFromFEBHeader::execute(TrigMissingET * /* met */ ,
+StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * metHelper,
-    const xAOD::CaloClusterContainer * /* caloCluster */)
+    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer  * /* jets */)
 {
 
   if (msgLvl(MSG::DEBUG)) {
@@ -289,23 +288,23 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
   }
 
   int iDet=0;
-  CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
+  //CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
   switch (detectorID) {
     case TTEM:
       iDet=0;
-      samp = CaloSampling::PreSamplerB;
+      //samp = CaloSampling::PreSamplerB;
       break;
     case TTHEC:
       iDet=1;
-      samp = CaloSampling::HEC0;
+      //samp = CaloSampling::HEC0;
       break;
     case FCALEM:
       iDet=3;
-      samp = CaloSampling::FCAL0;
+      //samp = CaloSampling::FCAL0;
       break;
     case FCALHAD:
       iDet=3;
-      samp = CaloSampling::FCAL1;
+      //samp = CaloSampling::FCAL1;
       break;
     default:
       break;
@@ -450,23 +449,23 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
   }
 
   int iDet=0;
-  CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
+  //CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
   switch (detectorID) {
     case TTEM:
       iDet=0;
-      samp = CaloSampling::PreSamplerB;
+      //samp = CaloSampling::PreSamplerB;
       break;
     case TTHEC:
       iDet=1;
-      samp = CaloSampling::HEC0;
+      //samp = CaloSampling::HEC0;
       break;
     case FCALEM:
       iDet=3;
-      samp = CaloSampling::FCAL0;
+      //samp = CaloSampling::FCAL0;
       break;
     case FCALHAD:
       iDet=3;
-      samp = CaloSampling::FCAL1;
+      //samp = CaloSampling::FCAL1;
       break;
     default:
       break;

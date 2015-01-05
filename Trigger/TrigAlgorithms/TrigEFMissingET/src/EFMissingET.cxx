@@ -6,7 +6,7 @@
 //
 // NAME:     EFMissingET.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
-//
+// 
 // AUTHOR:   Rashid Djilkibaev, Diego Casadei
 // CREATED:  March 1, 2006
 //
@@ -25,16 +25,13 @@
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
-//#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-//#include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 //#include "TrigNavigation/Navigation.h" // Added for "Hack"
 //#include "TrigNavigation/NavigationCore.icc" // Added for "Hack"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+
 // #include "TrigSteeringEvent/detectormask.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
@@ -53,10 +50,11 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("doTimers", m_doTimers = true, "switch on/off internal timers");
   declareProperty("DecodeDetMask", m_decodeDetMask = true, "switch on/off DetMask decoding");
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
+  declareProperty("doJets", m_doJets = false, "run with or without jets");
+  declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
   declareProperty("ComponentFlags",  m_flags,  "(vector) set to -1 to switch off a component");
   declareProperty("ComponentCalib0", m_calib0, "(vector) additive calibration constants");
   declareProperty("ComponentCalib1", m_calib1, "(vector) multiplicative calib. constants");
-  declareProperty("useL2Muons", m_useL2Muons = false, "use L2 Muons");
 
   declareMonitoredVariable("EF_MEx_log",   m_mex_log);
   declareMonitoredVariable("EF_MEy_log",   m_mey_log);
@@ -99,9 +97,9 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredVariable("TotalLoopTime",    m_tool_time_Loop);
 
   // helper object
-  unsigned char N=35; // number of components
+  unsigned char N=38; // number of components   
   m_met_help = new TrigEFMissingEtHelper(N);
-  m_flags.reserve(N);
+  m_flags.reserve(N);  
   m_calib0.reserve(N);
   m_calib1.reserve(N);
   m_comp_index.reserve(N);
@@ -167,6 +165,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   m_TileExtBarCside=true;
 
   m_caloCluster=0; 
+  m_jets=0;
 
   // // see the base tool for all other status bits
   // m_maskEMB_A_Missing      = 0x00010000; // bit 16
@@ -286,44 +285,8 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
     return HLT::SG_ERROR;
   }
 
-  // get EventInfo
-  const EventInfo* pEvent(0);
-  StatusCode sc = m_StoreGate->retrieve(pEvent);
-  if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Can not find EventInfo object" << endreq;
-    return HLT::SG_ERROR;
-  }
-
-  const EventID* pEventId = pEvent->event_ID();
-  if(pEventId==0) {
-    msg() << MSG::ERROR << "Can not find EventID object" << endreq;
-    return HLT::SG_ERROR;
-  }
-  m_current_run_id = pEventId->run_number();
-  m_current_lbk_id = pEventId->lumi_block();
-  m_current_evt_id = pEventId->event_number();
-  m_current_bcg_id = pEventId->bunch_crossing_id();
-
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,
-	    "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
-	    m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-    msg() << MSG::DEBUG << buff << endreq;
-  }
-
-  // Retrieve run number and detector mask
-  uint32_t mask0 = pEventId->detector_mask0();
-  uint32_t mask1 = pEventId->detector_mask1();
-  if(msgLvl() <= MSG::DEBUG){
-    char buff[512];
-    snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
-    msg() << MSG::DEBUG << buff << endreq;
-  }
-
-  
   // Check if configuration is sane
-  bool foundTopo = false; bool foundFEB = false; bool foundCell = false;
+  bool foundTopo = false; bool foundFEB = false; bool foundCell = false; bool foundJets = false;
 
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " loop through helper tools start " << endreq;
@@ -336,6 +299,7 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
       if((*it)->getFexType() == FexType::TOPO) foundTopo = true;
       if((*it)->getFexType() == FexType::CELL) foundCell = true;
       if((*it)->getFexType() == FexType::FEB)  foundFEB = true;
+      if((*it)->getFexType() == FexType::JET)  foundJets = true;
       
   }
   
@@ -354,40 +318,19 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
   	
   	return HLT::ERROR;  
   }
+  
+  if(m_doJets && !foundJets) {
+
+    if(msgLvl() <= MSG::DEBUG)
+     msg() << MSG::DEBUG << "found jet config but no JetTool .. aborting " << endreq;     
+  	
+  	return HLT::ERROR;  
+  }  
  
   
   // --
 
-  if (!m_decodeDetMask) return HLT::OK; 
-
-  if (mask0==0 && mask1==0) return HLT::OK; // 0 means present
-
-  eformat::helper::DetectorMask dm(mask1, mask0);
-  m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
-  m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
-  m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
-  m_LArEMendCapCside  = dm.is_set(eformat::LAR_EM_ENDCAP_C_SIDE);
-  m_LArHECendCapAside = dm.is_set(eformat::LAR_HAD_ENDCAP_A_SIDE);
-  m_LArHECendCapCside = dm.is_set(eformat::LAR_HAD_ENDCAP_C_SIDE);
-  m_LArFCalAside      = dm.is_set(eformat::LAR_FCAL_A_SIDE);
-  m_LArFCalCside      = dm.is_set(eformat::LAR_FCAL_C_SIDE);
-  m_TileBarrelAside   = dm.is_set(eformat::TILECAL_BARREL_A_SIDE);
-  m_TileBarrelCside   = dm.is_set(eformat::TILECAL_BARREL_C_SIDE);
-  m_TileExtBarAside   = dm.is_set(eformat::TILECAL_EXT_A_SIDE);
-  m_TileExtBarCside   = dm.is_set(eformat::TILECAL_EXT_C_SIDE);
-
-  if(!m_LArEMbarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_A_SIDE is absent!" << endreq;
-  if(!m_LArEMbarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_C_SIDE is absent!" << endreq;
-  if(!m_LArEMendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_A_SIDE is absent!" << endreq;
-  if(!m_LArEMendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_C_SIDE is absent!" << endreq;
-  if(!m_LArHECendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_A_SIDE is absent!" << endreq;
-  if(!m_LArHECendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_C_SIDE is absent!" << endreq;
-  if(!m_LArFCalAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_A_SIDE is absent!" << endreq;
-  if(!m_LArFCalCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_C_SIDE is absent!" << endreq;
-  if(!m_TileBarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_A_SIDE is absent!" << endreq;
-  if(!m_TileBarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_C_SIDE is absent!" << endreq;
-  if(!m_TileExtBarAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_A_SIDE is absent!" << endreq;
-  if(!m_TileExtBarCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_C_SIDE is absent!" << endreq;
+  firsteventinrun = true;
 
   return HLT::OK; 
 }
@@ -472,6 +415,82 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     //            << endreq;
   }
 
+  if(firsteventinrun) {
+    msg() << MSG::DEBUG << "REGTEST: First event in run" << endreq;
+    if (m_StoreGate) {
+      const xAOD::EventInfo* pEvent(0);
+      StatusCode sc = m_StoreGate->retrieve(pEvent);
+      if ( sc.isFailure() ) {
+        msg() << MSG::ERROR << "Cannot find xAOD::EventInfo object" << endreq;
+      } else {
+        m_current_run_id = pEvent->runNumber();
+        m_current_lbk_id = pEvent->lumiBlock();
+        m_current_evt_id = pEvent->eventNumber();
+        m_current_bcg_id = pEvent->bcid();
+        char buff[512];
+        snprintf(buff,512,
+             "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
+             m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
+        msg() << MSG::DEBUG << buff << endreq;
+
+        m_LArEMbarrelAside=true;
+        m_LArEMbarrelCside=true;
+        m_LArEMendCapAside=true;
+        m_LArEMendCapCside=true;
+        m_LArHECendCapAside=true;
+        m_LArHECendCapCside=true;
+        m_LArFCalAside=true;
+        m_LArFCalCside=true;
+        m_TileBarrelAside=true;
+        m_TileBarrelCside=true;
+        m_TileExtBarAside=true;
+        m_TileExtBarCside=true;
+
+        if (m_decodeDetMask) {
+          uint32_t mask0 = pEvent->detectorMask0();
+          uint32_t mask1 = pEvent->detectorMask1();
+          if(msgLvl() <= MSG::DEBUG){
+            char buff[512];
+            snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
+            msg() << MSG::DEBUG << buff << endreq;
+          }
+
+          if (!(mask0==0 && mask1==0)) {  // 0 means present
+
+            eformat::helper::DetectorMask dm(mask1, mask0);
+            m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
+            m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
+            m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
+            m_LArEMendCapCside  = dm.is_set(eformat::LAR_EM_ENDCAP_C_SIDE);
+            m_LArHECendCapAside = dm.is_set(eformat::LAR_HAD_ENDCAP_A_SIDE);
+            m_LArHECendCapCside = dm.is_set(eformat::LAR_HAD_ENDCAP_C_SIDE);
+            m_LArFCalAside      = dm.is_set(eformat::LAR_FCAL_A_SIDE);
+            m_LArFCalCside      = dm.is_set(eformat::LAR_FCAL_C_SIDE);
+            m_TileBarrelAside   = dm.is_set(eformat::TILECAL_BARREL_A_SIDE);
+            m_TileBarrelCside   = dm.is_set(eformat::TILECAL_BARREL_C_SIDE);
+            m_TileExtBarAside   = dm.is_set(eformat::TILECAL_EXT_A_SIDE);
+            m_TileExtBarCside   = dm.is_set(eformat::TILECAL_EXT_C_SIDE);
+
+            if(!m_LArEMbarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_A_SIDE is absent!" << endreq;
+            if(!m_LArEMbarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_C_SIDE is absent!" << endreq;
+            if(!m_LArEMendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_A_SIDE is absent!" << endreq;
+            if(!m_LArEMendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_C_SIDE is absent!" << endreq;
+            if(!m_LArHECendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_A_SIDE is absent!" << endreq;
+            if(!m_LArHECendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_C_SIDE is absent!" << endreq;
+            if(!m_LArFCalAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_A_SIDE is absent!" << endreq;
+            if(!m_LArFCalCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_C_SIDE is absent!" << endreq;
+            if(!m_TileBarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_A_SIDE is absent!" << endreq;
+            if(!m_TileBarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_C_SIDE is absent!" << endreq;
+            if(!m_TileExtBarAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_A_SIDE is absent!" << endreq;
+            if(!m_TileExtBarCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_C_SIDE is absent!" << endreq;
+
+          } // end of setting flags for non-zero mask
+        } // end of decoding detector mask
+      }
+    }
+    firsteventinrun=false;
+  } // done processing for first event in the run
+
   // do the real job
   HLT::ErrorCode status = makeMissingET(tes_in);
 
@@ -513,14 +532,25 @@ HLT::ErrorCode EFMissingET::getROI()    {
 HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in)
 {
 
-  if(m_doTopoClusters == false) 
+  if(m_doTopoClusters == false && m_doJets == false && m_doJets == false) 
      n_sizePers = 25;
-   else 
-     n_sizePers = 9;
+   else if(m_doJets == true)
+     n_sizePers = 2;   
+   else if(m_doPUC == true)
+     n_sizePers = 3;
+   else  
+     n_sizePers = 9;    
      
-  // create the persistent object, with aux info
-  m_met =  new TrigMissingET(n_sizePers);
-
+  
+  // Setup xAOD EDM
+  m_met = new xAOD::TrigMissingET(); m_met->makePrivateStore();
+  
+  std::vector <std::string> vs_aux;
+  for(int i = 0; i < n_sizePers; i++)
+     vs_aux.push_back("");
+     
+  m_met->defineComponents(vs_aux); 
+  
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG  << " Created pers. object of size " << n_sizePers << endreq;
 
@@ -534,13 +564,32 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          } else {     
             if (msgLvl() <= MSG::DEBUG) {
                msg() << MSG::DEBUG << "size of cluster container " << m_caloCluster->size() << endreq;  	
-               for (xAOD::CaloClusterContainer::const_iterator it = m_caloCluster->begin(); it != m_caloCluster->end(); ++it )
-                  msg() << MSG::DEBUG << " Cluster E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endreq;   
+               //for (xAOD::CaloClusterContainer::const_iterator it = m_caloCluster->begin(); it != m_caloCluster->end(); ++it )
+               //   msg() << MSG::DEBUG << " Cluster E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endreq;   
             }     
          }
          
       } // end loop over topoclusters
    } // fetched all topo. clusters
+
+   // fetch jets for later use
+   if (m_doJets && tes_in.size() > 0) { // safe-guard 
+      for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
+         HLT::ErrorCode status = getFeature(  (*it) , m_jets );
+         
+         if(status!=HLT::OK || !m_jets) {      	  
+            msg() << MSG::ERROR <<"Failed to get Jets" << endreq; return HLT::NAV_ERROR; 
+         } else {     
+            if (msgLvl() <= MSG::DEBUG) {
+               msg() << MSG::DEBUG << "size of jet container " << m_jets->size() << endreq;  	
+               for (xAOD::JetContainer::const_iterator it = m_jets->begin(); it != m_jets->end(); ++it )
+                  msg() << MSG::DEBUG << " Jet E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endreq;   
+            }     
+         }
+         
+      } // end loop over topoclusters
+   } // fetched all topo. clusters
+
     
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present  
      msg() << MSG::DEBUG << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
@@ -572,119 +621,18 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
   // m_met_help->SetStatus(flag);
 
+  //unsigned short m_tmp_maskProcessing         = 0x0001; // bit  0
+  //unsigned short m_tmp_maskProcessed          = 0x4000; // bit 14
 
-  ///// ***************************************///////
-  ///// ********  FETCHING L2 MET Event *******///////
-  ///// ****************************************///////
-  
-  unsigned short m_tmp_maskProcessing         = 0x0001; // bit  0
-  unsigned short m_tmp_maskProcessed          = 0x4000; // bit 14
-
-  // Get Helper Muon Component
-  TrigEFMissingEtComponent* metComp = 0;
-  metComp = m_met_help->GetComponent(m_met_help->GetElements() - 1); // last component
-  if(m_useL2Muons) {
-     if (metComp==0) {
-       msg() << MSG::ERROR << "cannot fetch Muons component!" << endreq;
-       return HLT::ERROR;
-     }
-     if(string(metComp->m_name).substr(0,4)!="Muon"){
-       msg() << MSG::ERROR << "fetched " << metComp->m_name
-           << " instead of the muon component!" << endreq;
-       return HLT::ERROR;
-     }
-
-     if(msgLvl() <= MSG::DEBUG) 
-       msg() << MSG::DEBUG << "fetched met helper component \"" << metComp->m_name << "\"" << endreq;
-   
-     if (metComp->m_skip) {
-       msg() << MSG::WARNING << "Muons will not be processed" << endreq;
-       return HLT::ERROR; 
-     }
-     
-     if ( (metComp->m_status & m_tmp_maskProcessed)==0 ){ // not yet processed
-       metComp->Reset();  // reset component...
-     
-       // set status to Processing
-       metComp->m_status |= m_tmp_maskProcessing;
-   
-       using namespace HLT;
-   
-       // Fetch Level 2 MET
-       const TrigMissingET* lvl2_met = NULL;
-       ElementLinkVector<TrigMissingETContainer > lvl2_met_vec;
-       HLT::Navigation* nav = config()->getNavigation();
-       
-       if( nav->getAllFeatures<TrigMissingETContainer, TrigMissingET>(lvl2_met_vec) == false) { // Add all TrigMissingET features to vector
-         msg() << MSG::WARNING << "Can not get vector of TrigMissingET objects.  Bad." << endreq;
-         return HLT::ERROR;
-       }
-       
-       ElementLinkVector< TrigMissingETContainer >::iterator elvIt;
-       ElementLink< TrigMissingETContainer > link;
-       
-       for ( elvIt = lvl2_met_vec.begin(); elvIt != lvl2_met_vec.end(); ++elvIt ) {
-         link = *elvIt;
-         lvl2_met = *link;
-         if(lvl2_met) {
-            int numComponents = lvl2_met->getNumOfComponents();
-            msg() << MSG::DEBUG << "Found. MET object. "
-                  << " NumComponents: " << numComponents << endreq;
-                  
-            if( numComponents == 0 ) {
-               msg() << MSG::DEBUG << "Found. MET object. But it has zero components. Looking for another one." << endreq;
-               lvl2_met = NULL;
-               continue;
-            }
-            
-      	   // use the muon component that has non-zero used channels
-            if( lvl2_met->getUsedChannels( numComponents - 1 ) > 0 ) break;
-            else{
-               msg() << MSG::DEBUG << "Muon component has zero used channels. Looking for another MET object." << endreq;
-               lvl2_met = NULL;
-               continue;
-            }
-         }
-       }
-       if(!lvl2_met) {
-          msg() << MSG::DEBUG << "No Level 2 MET object found! Skipping Muon correction." << endreq;
-   
-          metComp->m_ex = 0.0;
-          metComp->m_ey = 0.0;
-          metComp->m_ez = 0.0;
-          metComp->m_sumEt = 0.0;
-          metComp->m_sumE  = 0.0;
-          metComp->m_usedChannels = 0;
-          metComp->m_sumOfSigns   = 0;
-       }else{
-          unsigned int muonComp = lvl2_met->getNumOfComponents() - 1;
-      
-          metComp->m_ex = lvl2_met->getExComponent(muonComp);
-          metComp->m_ey = lvl2_met->getEyComponent(muonComp);
-          metComp->m_ez = lvl2_met->getEzComponent(muonComp);
-          metComp->m_sumEt = lvl2_met->getSumEtComponent(muonComp);
-          metComp->m_sumE  = lvl2_met->getSumEComponent(muonComp);
-          metComp->m_usedChannels = lvl2_met->getUsedChannels(muonComp);
-          metComp->m_sumOfSigns   = lvl2_met->getSumOfSigns(muonComp);
-       }
-   
-       // move from "processing" to "processed" state
-       metComp->m_status ^= m_tmp_maskProcessing; // switch off bit
-       metComp->m_status |= m_tmp_maskProcessed;  // switch on bit
-       
-     } 
-   
-     ///// ***** END FETCHING L2 MET Event *******///////
-
-  }
-
-  /// loop over tools
+  /// loop over tools 
   ToolHandleArray<EFMissingETBaseTool>::iterator it = m_tools.begin();
   for (; it < m_tools.end(); ++it) {
-     if ( (*it)->execute(m_met, m_met_help, m_caloCluster).isFailure() ) {
+     
+     if ( (*it)->execute(m_met, m_met_help, m_caloCluster,m_jets).isFailure() ) {
            msg() << MSG::ERROR << "EFMissingET AlgTool returned Failure" << endreq;
            return HLT::ERROR;
-     } 
+     }       
+     
              	
     if (doTiming() && m_doTimers) {
       float timer[4][3]={{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
@@ -730,32 +678,25 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
   float ETx = m_met->ex();
   float ETy = m_met->ey();
-  float ETz = m_met->ez();
-  float MET = m_met->et();
+  float MET = sqrt(ETx*ETx+ETy*ETy);
   float SET = m_met->sumEt();
-  float SE = m_met->sumE();
 
   if(msgLvl() <= MSG::DEBUG){
     if (m_StoreGate) {
-      const EventInfo* pEvent(0);
+      const xAOD::EventInfo* pEvent(0);
       StatusCode sc = m_StoreGate->retrieve(pEvent);
       if ( sc.isFailure() ) {
-	msg() << MSG::ERROR << "Can not find EventInfo object" << endreq;
+        msg() << MSG::ERROR << "Cannot find xAOD::EventInfo object" << endreq;
       } else {
-	const EventID* pEventId = pEvent->event_ID();
-	if(pEventId==0)
-	  msg() << MSG::ERROR << "Can not find EventID object" << endreq;
-	else {
-	  m_current_run_id = pEventId->run_number();
-	  m_current_lbk_id = pEventId->lumi_block();
-	  m_current_evt_id = pEventId->event_number();
-	  m_current_bcg_id = pEventId->bunch_crossing_id();
-	  char buff[512];
-	  snprintf(buff,512,
-		  "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
-		  m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-	  msg() << MSG::DEBUG << buff << endreq;
-	}
+        m_current_run_id = pEvent->runNumber();
+        m_current_lbk_id = pEvent->lumiBlock();
+        m_current_evt_id = pEvent->eventNumber();
+        m_current_bcg_id = pEvent->bcid();
+        char buff[512];
+        snprintf(buff,512,
+             "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
+             m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
+        msg() << MSG::DEBUG << buff << endreq;
       }
     }
     msg() << MSG::DEBUG << "Transient object follows " << endreq;
@@ -809,7 +750,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   // monitoring: status flag
   for (int i=0; i<32; ++i) {
     unsigned mask = (1<<i);
-    if (m_met->getFlag() & mask)
+    if (m_met->flag() & mask)
       m_status_flag[i] = 1;
     else
       m_status_flag[i] = 0;
@@ -852,27 +793,6 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
       m_comp_sum_e_log[i] = 0;
   }
 
- //////////////////////////////////////////////////////////     
- // xAOD EDM Object
- //////////////////////////////////////////////////////////     
-  m_met_xAOD = new xAOD::TrigMissingET();
-  m_met_xAOD->makePrivateStore();
-  m_met_xAOD->setEx(ETx);
-  m_met_xAOD->setEy(ETy);
-  m_met_xAOD->setEz(ETz);
-  m_met_xAOD->setSumEt(SET);
-  m_met_xAOD->setSumE(SE);  
-  std::vector <std::string> vs_aux;
-  for(int i = 0; i < n_sizePers; i++)
-     vs_aux.push_back("");
-  m_met_xAOD->defineComponents(vs_aux); 
-  for(int i = 0; i < n_sizePers; i++) {
-    m_met_xAOD->setNameOfComponent(i, m_met->getNameOfComponent(i) ); 
-    m_met_xAOD->setExComponent(i, m_met->getExComponent(i) ); 
-    m_met_xAOD->setEyComponent(i, m_met->getEyComponent(i) ); 
-  }
- ////////////////////////////////////////////////////////// 
-
   return HLT::OK;
 }
 
@@ -890,13 +810,6 @@ HLT::ErrorCode EFMissingET::makeOutputTE(std::vector<std::vector<HLT::TriggerEle
   // Create an output TE seeded by the inputs
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   HLT::ErrorCode status = attachFeature(outputTE, m_met, m_metOutputKey);
-
- //////////////////////////////////////////////////////////     
- // xAOD EDM Object 
- status = attachFeature(outputTE, m_met_xAOD, m_metOutputKey);
- //////////////////////////////////////////////////////////     
-
-
 
   if (status != HLT::OK){
     if(msgLvl() <= MSG::DEBUG){

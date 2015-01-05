@@ -15,14 +15,6 @@ PURPOSE:  Updates TrigMissingETHelper using info from topo. clusters
  ********************************************************************/
 #include "TrigEFMissingET/EFMissingETFromClusters.h"
 
-
-// #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-// #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-// // #include "TrigMuonEvent/TrigMuonEFTrack.h"
-// #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-// #include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
 
@@ -43,7 +35,7 @@ EFMissingETFromClusters::EFMissingETFromClusters(const std::string& type,
   
   _fextype = FexType::TOPO;
   
-  m_methelperposition = 11;
+  m_methelperposition = 14;
   
 }
 
@@ -69,7 +61,7 @@ StatusCode EFMissingETFromClusters::initialize()
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
 
-  if(m_saveuncalibrated) m_methelperposition = 6;
+  if(m_saveuncalibrated) m_methelperposition = 9;
 
   if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
    else m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
@@ -92,10 +84,9 @@ StatusCode EFMissingETFromClusters::finalize()
   
 }
 
-
-StatusCode EFMissingETFromClusters::execute(TrigMissingET * /* met */ ,
+StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster)
+    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */)
 {
 
   if(msgLvl(MSG::DEBUG)) 
@@ -141,12 +132,8 @@ StatusCode EFMissingETFromClusters::execute(TrigMissingET * /* met */ ,
   if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endreq;  return StatusCode::FAILURE; }
   if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endreq; return StatusCode::FAILURE; }
 
-
   for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
-
-    //SignalStateHelper sshelper(P4SignalState::UNCALIBRATED); 
-    //if(m_saveuncalibrated) sshelper.controlObject(*it);       // Save uncalibrated?
-    
+  
     float phi = (*it)->phi(m_clusterstate);
     float eta = (*it)->eta(m_clusterstate);
     float Et  = (*it)->pt(m_clusterstate);  
@@ -156,7 +143,8 @@ StatusCode EFMissingETFromClusters::execute(TrigMissingET * /* met */ ,
     float Ey = Et*sinPhi;
     float Ez = Et*sinhf(eta);
     float E =  (*it)->p4(m_clusterstate).E(); //sqrtf(Et*Et + Ez*Ez); 
-
+ 
+    
     if(i == 0) {
     	
           metComp->m_ex -= Ex;

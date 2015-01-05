@@ -136,10 +136,9 @@ StatusCode EFMissingETFromCells::execute()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode EFMissingETFromCells::execute(TrigMissingET * /* met */ ,
+StatusCode EFMissingETFromCells::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */)
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
 {
 
   if (msgLvl(MSG::DEBUG)) {

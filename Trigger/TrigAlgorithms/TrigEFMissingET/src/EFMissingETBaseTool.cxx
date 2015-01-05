@@ -20,8 +20,8 @@ must implement an execute(EFMissingET*) method.
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "TrigTimeAlgs/TrigTimeAlgs/ITrigTimerSvc.h"
-#include "TrigTimeAlgs/TrigTimeAlgs/TrigTimer.h"
+#include "TrigTimeAlgs/ITrigTimerSvc.h"
+#include "TrigTimeAlgs/TrigTimer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include <string>
@@ -112,10 +112,9 @@ StatusCode EFMissingETBaseTool::execute()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode EFMissingETBaseTool::execute(TrigMissingET * /* met */ ,
+StatusCode EFMissingETBaseTool::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * /* metHelper */ ,
-    const xAOD::CaloClusterContainer * /* caloCluster */)
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
 {	
   return StatusCode::SUCCESS;
 }

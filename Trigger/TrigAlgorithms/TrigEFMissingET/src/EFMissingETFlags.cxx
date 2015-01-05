@@ -208,10 +208,9 @@ StatusCode EFMissingETFlags::execute()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode EFMissingETFlags::execute(TrigMissingET *met ,
+StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */)
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
 {
   if (msgLvl(MSG::DEBUG)) {
      msg(MSG::DEBUG) << "EFMissingETFlags::execute() called" << endreq;
@@ -244,9 +243,9 @@ StatusCode EFMissingETFlags::execute(TrigMissingET *met ,
   float FCal_SumE=0;
 
 
-  if (elem == 35) { // compute subdetector energies 
-
-     for (unsigned char i=0; i<elem-11; ++i) { // EMB
+  if (elem == 38) { // compute subdetector energies 
+ 
+     for (unsigned char i=0; i<elem-14; ++i) { // EMB
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
       string Name=metComp->m_name;
 
@@ -317,7 +316,7 @@ StatusCode EFMissingETFlags::execute(TrigMissingET *met ,
 	  if (Name == "FCalEM") EM_SumE += sumE;
 	  FCal_SumE += sumE;
 	} else {
-          msg(MSG::WARNING)
+          msg(MSG::WARNING) 
 		   << "Cannot find FCal!  Skipping check" << endreq;
 	  break;
 	}
@@ -330,7 +329,7 @@ StatusCode EFMissingETFlags::execute(TrigMissingET *met ,
 
   } else {
     msg(MSG::WARNING) << "Found " << elem 
-	     << " (!=35) auxiliary components.  Skipping checks!" << endreq;
+	     << " (!=38) auxiliary components.  Skipping checks!" << endreq;
   }
 
   /// main loop over components ///
@@ -348,34 +347,34 @@ StatusCode EFMissingETFlags::execute(TrigMissingET *met ,
     float MET = sqrtf(MEx*MEx+MEy*MEy);
     float sumBadEt =   sumOfSigns * c0 + c1 *  metComp->m_sumBadEt;
 
-    // flag component if |MET/SumET| is too large
-    if (elem==35 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
+    // flag component if |MET/SumET| is too large 
+    if (elem==38 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
       metComp->m_status |= m_maskCompBigMEtSEtRatio;
     }
 
     // flag component if its energy is too large (positive or negative)
-    if (elem==35 && i<24 && (sumE<m_MinCompE[i] || sumE>m_MaxCompE[i])) {
+    if (elem==38 && i<24 && (sumE<m_MinCompE[i] || sumE>m_MaxCompE[i])) {
       metComp->m_status |= m_maskBadCompEnergy;
     }
 
     // flag component if cell energy is outside the allowed boundaries
-    if (elem==35 && i<24 && (metComp->m_minE<m_MinCellE[i] || metComp->m_maxE>m_MaxCellE[i])){
+    if (elem==38 && i<24 && (metComp->m_minE<m_MinCellE[i] || metComp->m_maxE>m_MaxCellE[i])){
       metComp->m_status |= m_maskBadCellEnergy;
     }
 
     // flag component if cell time is outside the allowed boundaries
-    if (elem==35 && i<24 &&
+    if (elem==38 && i<24 &&
        (metComp->m_minTime<m_MinCellTime[i] || metComp->m_maxTime>m_MaxCellTime[i])){
       metComp->m_status |= m_maskBadCellTime;
     }
 
     // flag component if cell quality is poor
-    if (elem==35 && i<24 && metComp->m_maxQlty>m_WorstCellQlty[i]){
+    if (elem==38 && i<24 && metComp->m_maxQlty>m_WorstCellQlty[i]){
       metComp->m_status |= m_maskBadCellQuality;
     }
 
     //flag component if noiy energy ratio is too large
-    if (elem==35 && i<24 && sumEt>1e-3 && sumBadEt>1e-3 && (sumBadEt/sumEt)>m_CompMaxNoisyEnergyRatio[i]){
+    if (elem==38 && i<24 && sumEt>1e-3 && sumBadEt>1e-3 && (sumBadEt/sumEt)>m_CompMaxNoisyEnergyRatio[i]){
        metComp->m_status |= m_maskNoisyEnergyRatio;
     }
 

@@ -1,5 +1,5 @@
 package TrigEFMissingET
-
+	
 author Kyle Cranmer <cranmer@cern.ch>
 author Rashid Djilkibaev <rd47@nyu.edu>
 author Diego Casadei <Diego.Casadei@cern.ch>
@@ -24,17 +24,22 @@ use  TrigT2CaloCommon           TrigT2CaloCommon-*              Trigger/TrigAlgo
 use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
-use  xAODTrigMissingET	        xAODTrigMissingET-*	        Event/xAOD
-
+use  xAODTrigMissingET          xAODTrigMissingET-*                 Event/xAOD
+	
+use  TrigParticle               TrigParticle-*                  Trigger/TrigEvent
+	
+use  xAODJet                    xAODJet-*                       Event/xAOD
 private
 use  CxxUtils                   CxxUtils-*                      Control
 use  DataCollection             DataCollection-*                External
-use  EventInfo                  EventInfo-*                     Event
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  EventKernel                EventKernel-*                   Event
 use  Identifier                 Identifier-*                    DetectorDescription
 use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+	
+use  JetEvent                   JetEvent-*                      Reconstruction/Jet
 end_private
 
 
