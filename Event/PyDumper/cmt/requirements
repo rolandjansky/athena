@@ -16,6 +16,9 @@ use AthenaPython 	AthenaPython-*		Control -no_auto_imports
 use AtlasReflex         AtlasReflex-*           External
 use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
 
+# Specify the Boost components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options regex)"
+
 branches doc python bin
 
 #apply_pattern declare_joboptions files="*.py"

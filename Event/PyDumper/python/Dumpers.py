@@ -29,7 +29,7 @@ from math import \
 
 from AthenaPython import PyAthena
 import ROOT
-import PyCintex
+import cppyy
 
 # not available due to a reflex bug.
 etcone10 = 0
@@ -400,7 +400,7 @@ def dump_EMTrackFit (d, f):
     return
 
 def dump_egamma (e, f):
-    PyCintex.loadDictionary ('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary ('libElectronPhotonSelectorToolsDict')
     dump_ParticleImpl (e, f)
     print >> f, "\n      %d %d %d" % (e.author(), e.isem(), e.isemse()),
     if e.clusterElementLink().isValid():
@@ -2764,14 +2764,20 @@ def dump_TrigMissingET_nolist (m, f):
     return
 
 
-def dump_TrigRoiDescriptor (d, f):
-    print >> f, '  ', d.roiId(), d.l1Id(), d.roiWord(), \
-          d.isFullscan(), d.version(), \
-          d.eta(), d.phi(), d.zed(), \
-          d.etaPlus(), d.phiPlus(), d.zedPlus(), \
-          d.dzdrPlus(), d.dzdrMinus(), d.drdzPlus(), d.drdzMinus(), \
-          d.composite(), d.manageConstituents(), d.size(),
+def dump_RoiDescriptor (d, f):
+    print >> f, '  ', \
+          d.version(), d.isFullscan(), \
+          d.eta(), d.etaPlus(), d.etaMinus(), \
+          d.phi(), d.phiPlus(), d.phiMinus(), \
+          d.zed(), d.zedPlus(), d.zedMinus(), \
+          d.composite(), d.manageConstituents(), d.size(), \
+          [d.at(i).roiId() for i in range(d.size())],
     return
+
+
+def dump_TrigRoiDescriptor (d, f):
+    print >> f, '  ', d.roiId(), d.l1Id(), d.roiWord(),
+    dump_RoiDescriptor (d, f)
 @nolist
 def dump_TrigRoiDescriptor_nolist (d, f):
     dump_TrigRoiDescriptor (d, f)
@@ -3390,8 +3396,10 @@ class uchar_accessor:
         return
     def __call__ (self, x):
         return ord(self.ac(x))
-tlist = ['int',
+tlist = ['bool',
+         'int',
          'short',
+         'long',
          'unsigned int',
          'unsigned short',
          'unsigned long',
@@ -3425,6 +3433,8 @@ def format_obj (x, name=None):
         tname2 = tname[ipos+1:]
         if tname2.startswith('char,') or tname2.startswith ('unsigned char,'):
             l = ', '.join ([str(ord(xx)) for xx in x])
+        elif tname2.startswith('bool,') or tname2 == 'bool>':
+            l = ', '.join ([str(bool(xx)) for xx in x])
         else:
             l = ', '.join ([format_obj(xx, name) for xx in list(x)])
         return '[' + l + ']'
@@ -3435,6 +3445,13 @@ def format_obj (x, name=None):
 
 
 def generic_dump_auxitem (x, auxid, f):
+    if hasattr (x, 'container'):
+        try:
+             x.container().getConstStore().getData(auxid)[0]
+        except IndexError:
+            print >> f, '<unavailable>',
+            return
+            
     reg=ROOT.SG.AuxTypeRegistry.instance()
     tname = reg.getTypeName (auxid)
     ac = ROOT.SG.AuxElement.TypelessConstAccessor (reg.getName(auxid))
@@ -3453,6 +3470,17 @@ def generic_dump_auxitem (x, auxid, f):
 
 
 def dump_auxitem (x, auxid, f = sys.stdout):
+    if hasattr (x, 'container'):
+        auxdata = x.container().getConstStore().getData(auxid)
+        if not auxdata:
+            print >> f, '<unavailable>',
+            return
+        try:
+            auxdata[0]
+        except IndexError:
+            print >> f, '<unavailable>',
+            return
+
     reg=ROOT.SG.AuxTypeRegistry.instance()
     tname = reg.getTypeName (auxid)
     ac_cl = accessors.get (tname)
@@ -3615,36 +3643,91 @@ dumpspecs = [
     ["ElectronMuonTopoInfoContainer",        dump_ElectronMuonTopoInfo],
     ["RecoTimingObj",                        dump_RecoTimingObj],
 
+    ['DataVector<xAOD::BTagVertex_v1>',      dump_xAOD],
+    ['xAOD::BTagVertexContainer',            dump_xAOD],
     ['DataVector<xAOD::BTagging_v1>',        dump_xAOD],
+    ['xAOD::BTaggingContainer',              dump_xAOD],
     ['DataVector<xAOD::CaloCluster_v1>',     dump_xAOD],
+    ['xAOD::CaloClusterContainer',           dump_xAOD],
     ['DataVector<xAOD::Electron_v1>',        dump_xAOD],
-    ['DataVector<xAOD::Photon_v1>',          dump_xAOD],
-    ['DataVector<xAOD::Muon_v1>',            dump_xAOD],
-    ['DataVector<xAOD::MuonSegment_v1>',     dump_xAOD],
-    ['DataVector<xAOD::Jet_v1>',             dump_xAOD],
-    ['DataVector<xAOD::TauJet_v1>',          dump_xAOD],
-    ['DataVector<xAOD::TrackParticle_v1>',   dump_xAOD],
-    ['DataVector<xAOD::Vertex_v1>',          dump_xAOD],
-    ['DataVector<xAOD::TruthEvent_v1>',      dump_xAOD],
-    ['DataVector<xAOD::TruthParticle_v1>',   dump_xAOD],
-    ['DataVector<xAOD::TruthVertex_v1>',     dump_xAOD],
-    ['DataVector<xAOD::PFO_v1>',             dump_xAOD],
-    ['xAOD::EventInfo_v1',                   dump_xAODObject],
-    ['xAOD::MissingETContainer_v1',          dump_xAOD],
-    ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
-    ['DataVector<xAOD::MuonRoI_v1>',         dump_xAOD],
-    ['DataVector<xAOD::TrigBphys_v1>',       dump_xAOD],
-    ['DataVector<xAOD::TrigEMCluster_v1>',   dump_xAOD],
-    ['DataVector<xAOD::TrigElectron_v1>',    dump_xAOD],
-    ['DataVector<xAOD::TrigPhoton_v1>',      dump_xAOD],
-    ['DataVector<xAOD::TrigMissingET_v1>',   dump_xAOD],
     ['DataVector<xAOD::EmTauRoI_v1>',        dump_xAOD],
+    ['DataVector<xAOD::EmTauRoI_v2>',        dump_xAOD],
+    ['xAOD::EmTauRoIContainer',              dump_xAOD],
     ['DataVector<xAOD::JetRoI_v1>',          dump_xAOD],
+    ['DataVector<xAOD::JetRoI_v2>',          dump_xAOD],
+    ['xAOD::JetRoIContainer',                dump_xAOD],
+    ['DataVector<xAOD::Jet_v1>',             dump_xAOD],
+    ['xAOD::JetContainer',                   dump_xAOD],
+    ['DataVector<xAOD::L2CombinedMuon_v1>',  dump_xAOD],
+    ['xAOD::L2CombinedMuonContainer',        dump_xAOD],
+    ['DataVector<xAOD::L2StandAloneMuon_v1>',dump_xAOD],
+    ['xAOD::L2StandAloneMuonContainer',      dump_xAOD],
     ['DataVector<xAOD::MuonRoI_v1>',         dump_xAOD],
+    ['xAOD::MuonRoIContainer',               dump_xAOD],
+    ['DataVector<xAOD::MuonSegment_v1>',     dump_xAOD],
+    ['xAOD::MuonSegmentContainer',           dump_xAOD],
+    ['DataVector<xAOD::Muon_v1>',            dump_xAOD],
+    ['xAOD::MuonContainer',                  dump_xAOD],
+    ['DataVector<xAOD::PFO_v1>',             dump_xAOD],
+    ['xAOD::PFOContainer',                   dump_xAOD],
+    ['DataVector<xAOD::Photon_v1>',          dump_xAOD],
+    ['DataVector<xAOD::SlowMuon_v1>',        dump_xAOD],
+    ['xAOD::SlowMuonContainer',              dump_xAOD],
+    ['DataVector<xAOD::TauJet_v1>',          dump_xAOD],
+    ['DataVector<xAOD::TauJet_v2>',          dump_xAOD],
+    ['xAOD::TauJetContainer',                dump_xAOD],
+    ['DataVector<xAOD::TrackParticle_v1>',   dump_xAOD],
+    ['xAOD::TrackParticleContainer',         dump_xAOD],
+    ['DataVector<xAOD::TrigBphys_v1>',       dump_xAOD],
+    ['xAOD::TrigBphysContainer',             dump_xAOD],
+    ['DataVector<xAOD::TrigComposite_v1>',   dump_xAOD],
+    ['xAOD::TrigCompositeContainer',         dump_xAOD],
+    ['DataVector<xAOD::TrigEMCluster_v1>',   dump_xAOD],
+    ['xAOD::TrigEMClusterContainer',         dump_xAOD],
+    ['DataVector<xAOD::TrigElectron_v1>',    dump_xAOD],
+    ['xAOD::TrigElectronContainer',          dump_xAOD],
+    ['DataVector<xAOD::TrigMissingET_v1>',   dump_xAOD],
+    ['xAOD::TrigMissingETContainer',         dump_xAOD],
+    ['DataVector<xAOD::TrigPhoton_v1>',      dump_xAOD],
+    ['xAOD::TrigPhotonContainer',            dump_xAOD],
+    ['DataVector<xAOD::TrigRNNOutput_v1>',   dump_xAOD],
+    ['xAOD::TrigRNNOutputContainer',         dump_xAOD],
+    ['DataVector<xAOD::TrigRingerRings_v1>', dump_xAOD],
+    ['xAOD::TrigRingerRingsContainer',       dump_xAOD],
+    ['DataVector<xAOD::TrigSpacePointCounts_v1>',dump_xAOD],
+    ['xAOD::TrigSpacePointCountsContainer',  dump_xAOD],
+    ['DataVector<xAOD::TrigT2MbtsBits_v1>',  dump_xAOD],
+    ['xAOD::TrigT2MbtsBitsContainer',        dump_xAOD],
+    ['DataVector<xAOD::TrigTrackCounts_v1>', dump_xAOD],
+    ['xAOD::TrigTrackCountsContainer',       dump_xAOD],
+    ['DataVector<xAOD::TrigVertexCounts_v1>',dump_xAOD],
+    ['xAOD::TrigVertexCountsContainer',      dump_xAOD],
+    ['DataVector<xAOD::TruthEvent_v1>',      dump_xAOD],
+    ['xAOD::TruthEventContainer',            dump_xAOD],
+    ['DataVector<xAOD::TruthParticle_v1>',   dump_xAOD],
+    ['xAOD::TruthParticleContainer',         dump_xAOD],
+    ['DataVector<xAOD::TruthVertex_v1>',     dump_xAOD],
+    ['xAOD::TruthVertexContainer',           dump_xAOD],
+    ['DataVector<xAOD::Vertex_v1>',          dump_xAOD],
+    ['xAOD::VertexContainer',                dump_xAOD],
+    ['DataVector<xAOD::TrackParticleClusterAssociation_v1>', dump_xAOD],
+    ['xAOD::TrackParticleClusterAssociationContainer', dump_xAOD],
+    ['xAOD::MissingETContainer_v1',          dump_xAOD],
+    ['xAOD::MissingETContainer',             dump_xAOD],
+    ['xAOD::MissingETComponentMap_v1',       dump_xAOD],
+    ['xAOD::MissingETComponentMap',          dump_xAOD],
+    ['xAOD::EventInfo_v1',                   dump_xAODObject],
+    ['xAOD::EventInfo',                      dump_xAODObject],
+    ['xAOD::EventShape_v1',                  dump_xAODObject],
+    ['xAOD::EventShape',                     dump_xAODObject],
+    ['xAOD::MissingETAssociationMap_v1',     dump_xAODObject],
+    ['xAOD::MissingETAssociationMap',        dump_xAODObject],
     ['xAOD::TrigDecision_v1',                dump_xAODObject],
     ['xAOD::TrigConfKeys_v1',                dump_TrigConfKeys],
     ['xAOD::JetEtRoI_v1',                    dump_xAODObject],
     ['xAOD::EnergySumRoI_v1',                dump_xAODObject],
+    ['xAOD::TrigNavigation_v1',              dump_xAODObject],
+    ['xAOD::TrigNavigation',                 dump_xAODObject],
 
     # Make some of these more compact?
 
@@ -3679,3 +3762,4 @@ def get_dumper_fct(klass, ofile=sys.stdout):
     else:
         dumper = _partial(dump_list, f=ofile, dumper=fct)
     return dumper
+
