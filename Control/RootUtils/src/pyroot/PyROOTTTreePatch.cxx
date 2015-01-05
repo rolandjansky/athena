@@ -19,6 +19,7 @@
 #include "TBranch.h"
 #include "TBranchElement.h"
 #include "TLeaf.h"
+#include "TLeafObject.h"
 #include "TROOT.h"
 #include "TPython.h"
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
@@ -259,10 +260,15 @@ PyObject* leafToValue (TLeaf* leaf)
     delete pcnv;
       
     return value;
-  } else {
+  }
+  else {
     // value types
     TConverter* pcnv = CreateConverter( leaf->GetTypeName() );
-    PyObject* value = pcnv->FromMemory( (void*)leaf->GetValuePointer() );
+    void* ptr = leaf->GetValuePointer();
+    if (dynamic_cast<TLeafObject*>(leaf))
+      ptr = *(void**)ptr;
+    
+    PyObject* value = pcnv->FromMemory( ptr );
     delete pcnv;
 
     return value;

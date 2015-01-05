@@ -26,7 +26,7 @@ of TTree.  These may be enabled by calling enable_tree_speedups().
 __docformat__ = "restructuredtext en"
 
 import ROOT
-import PyCintex
+import cppyy
 
 
 def fix_dv_container (clname):

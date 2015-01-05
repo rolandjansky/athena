@@ -98,6 +98,9 @@ void test1()
   assert (itype.getTypeInfo() == &typeid(int));
   testit<int> (itype);
 
+  RootUtils::Type itype_x (itype);
+  testit<int> (itype_x);
+
   RootUtils::Type dtype (kDouble_t);
   assert (dtype.getTypeName() == "Double_t");
   assert (dtype.getClass() == 0);
@@ -106,6 +109,9 @@ void test1()
   assert (dtype.getTypeInfo() == &typeid(double));
   testit<double> (dtype);
 
+  itype_x = dtype;
+  testit<double> (itype_x);
+
   RootUtils::Type stype (TClass::GetClass ("std::string"));
   assert (stype.getTypeName() == "string");
   assert (std::string(stype.getClass()->GetName()) == "string");
@@ -113,6 +119,11 @@ void test1()
   assert (stype.getSize() == sizeof(std::string));
   assert (stype.getTypeInfo() == &typeid(std::string));
   testit<std::string> (stype);
+
+  RootUtils::Type stype_x (stype);
+  testit<std::string> (stype_x);
+  itype_x = stype;
+  testit<std::string> (itype_x);
 
   RootUtils::Type dtype2 ("double");
   assert (dtype2.getClass() == 0);
@@ -174,7 +185,7 @@ void test2()
   stype1.fromString (&sx, "lkjlkj");
   assert (sx == "lkjlkj");
 
-  RootUtils::Type xtype1 ("TClass");
+  RootUtils::Type xtype1 ("TH1F");
   char xx;
   bool caught = false;
   try {

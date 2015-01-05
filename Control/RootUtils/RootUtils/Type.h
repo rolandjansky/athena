@@ -74,6 +74,21 @@ public:
   Type (const std::string& typname);
 
 
+
+  /**
+   * @brief Copy constructor
+   * @param other Object to be copied.
+   */
+  Type (const RootUtils::Type& other);
+
+
+  /**
+   * @brief Assignment.
+   * @param other Object to be copied.
+   */
+  Type& operator= (const RootUtils::Type& other);
+
+
   /**
    * @brief Destructor.
    */
@@ -320,7 +335,8 @@ private:
   /// to change the object state to make a call (registering the
   /// arguments), this is not thread-safe.  Instead, we use the
   /// thread-specific instances accessed through @c m_tsAssign.
-  TMethodCall m_assign;
+  /// Mutable, to allow calls to GetMethod().
+  mutable TMethodCall m_assign;
 
   /// Objects used to call assignment on the payload object.
   /// Left invalid if the payload does not have class type.

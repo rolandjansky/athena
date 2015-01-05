@@ -415,10 +415,10 @@ TClass* ScatterH2::Class()
 }
 
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,1,0)
-TClass* ScatterH2::fgIsA = 0;
-#else
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
 atomic_TClass_ptr ScatterH2::fgIsA;
+#else
+TClass* ScatterH2::fgIsA = 0;
 #endif
 
 

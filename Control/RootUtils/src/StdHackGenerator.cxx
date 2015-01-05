@@ -339,10 +339,10 @@ void StdHackGenerator::Streamer (TBuffer& b)
 }
 
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,1,0)
-TClass* StdHackGenerator::fgIsA = 0;
-#else
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
 atomic_TClass_ptr StdHackGenerator::fgIsA;
+#else
+TClass* StdHackGenerator::fgIsA = 0;
 #endif
 
 

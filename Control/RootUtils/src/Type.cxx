@@ -93,6 +93,52 @@ Type::Type (const std::string& typname)
 
 
 /**
+ * @brief Copy constructor.
+ * @param other Object to be copied.
+ */
+Type::Type (const Type& other)
+  : m_cls (other.m_cls),
+    m_type (other.m_type),
+    m_ti (other.m_ti),
+    m_size (other.m_size),
+    m_assign (other.m_assign),
+    m_defElt (0)
+{
+  // Don't copy m_tsAssign.
+
+  if (m_cls)
+    m_defElt = create();
+}
+
+
+/**
+ * @brief Assignment.
+ * @param other Object to be copied.
+ */
+Type& Type::operator= (const Type& other)
+{
+  if (this != &other) {
+    m_cls = other.m_cls;
+    m_type = other.m_type;
+    m_ti = other.m_ti;
+    m_size = other.m_size;
+    m_assign = other.m_assign;
+    if (m_defElt)
+      destroy (m_defElt);
+    if (m_cls)
+      m_defElt = create();
+    else
+      m_defElt = 0;
+
+    // Don't copy m_tsAssign.
+    // Before we call using it, we'll check that the function still matches
+    // m_assign.
+  }
+  return *this;
+}
+
+
+/**
  * @brief Destructor.
  */
 Type::~Type()
@@ -433,7 +479,7 @@ void Type::assign (void* dst, const void* src) const
 {
   TMethodCall* assign_call = 0;
   if (m_cls) {
-    if (m_tsAssign.get() == 0)
+    if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign.GetMethod())
       m_tsAssign.reset (new TMethodCall (m_assign));
     assign_call = &*m_tsAssign;
   }
