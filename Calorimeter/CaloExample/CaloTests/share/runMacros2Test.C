@@ -1,7 +1,8 @@
 
 #include "TSystem.h"
 
-void runMacros2()
+// conflicts with runMacros2 from CaloRecEx
+void runMacros2Test()
 {
   int nbTests=2;
   string macros[]={"runPython2.C","CaloTests_plotAllCaloNoise13.C"};

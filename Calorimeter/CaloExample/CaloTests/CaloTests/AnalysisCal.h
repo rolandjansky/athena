@@ -12,7 +12,7 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
@@ -26,7 +26,7 @@ class LArCablingService;
 
 namespace MyAnalysisCal {
 
-  class AnalysisCal : public Algorithm {
+  class AnalysisCal : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -45,9 +45,6 @@ namespace MyAnalysisCal {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-
   int m_nevt;
 
   };

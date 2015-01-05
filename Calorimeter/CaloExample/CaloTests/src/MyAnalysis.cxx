@@ -19,7 +19,7 @@
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloEvent/CaloSampling.h"
+#include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
@@ -42,9 +42,7 @@ namespace MyAnalysis {
 
   //Constructor
   Analysis:: Analysis(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator),
-    m_sgSvc(0),
-    m_detStore(0),
+    AthAlgorithm(name,pSvcLocator),
     m_thistSvc(0),
     m_hist_etraw_emb_s0(0),
     m_hist_etraw_emb_s1(0),
@@ -90,6 +88,97 @@ namespace MyAnalysis {
     m_useTriggerTime    = false;
     m_doTruth=true;
 
+    m_nevt = 0;
+    m_nt_e = 0;
+    m_nt_eta = 0;
+    m_nt_phi = 0;
+    m_nt_e0 = 0;
+    m_nt_e1 = 0;
+    m_nt_e2 = 0;
+    m_nt_e3 = 0;
+    m_nt_c0 = 0;
+    m_nt_c1 = 0;
+    m_nt_c2 = 0;
+    m_nt_c3 = 0;
+    m_nt_hb0 = 0;
+    m_nt_hb1 = 0;
+    m_nt_hb2 = 0;
+    m_nt_hb3 = 0;
+    m_nt_he0 = 0;
+    m_nt_he1 = 0;
+    m_nt_he2 = 0;
+    m_nt_he3 = 0;
+    m_nt_tb0 = 0;
+    m_nt_tb1 = 0;
+    m_nt_tb2 = 0;
+    m_nt_tb3 = 0;
+    m_nt_eclus = 0;
+    m_nt_eclus0 = 0;
+    m_nt_eclus1 = 0;
+    m_nt_eclus2 = 0;
+    m_nt_eclus3 = 0;
+    m_nt_etaclus = 0;
+    m_nt_phiclus = 0;
+    m_nt_etaclus551 = 0;
+    m_nt_etaclus552 = 0;
+    m_nt_eclus35 = 0;
+    m_nt_eclus37 = 0;
+    m_nt_eclus350 = 0;
+    m_nt_eclus351 = 0;
+    m_nt_eclus352 = 0;
+    m_nt_eclus353 = 0;
+    m_nt_etaclus35 = 0;
+    m_nt_etaclus351 = 0;
+    m_nt_etaclus352 = 0;
+    m_nt_etaclus371 = 0;
+    m_nt_etaclus372 = 0;
+    m_nt_eclusg = 0;
+    m_nt_etaclusg551 = 0;
+    m_nt_etaclusg552 = 0;
+    m_nt_eclusg35 = 0;
+    m_nt_etaclusg351 = 0;
+    m_nt_etaclusg352 = 0;
+    m_nt_eclusg37 = 0;
+    m_nt_etaclusg371 = 0;
+    m_nt_etaclusg372 = 0;
+    m_nt_eActEM = 0;
+    m_nt_eActNonEM = 0;
+    m_nt_eActEscaped = 0;
+    m_nt_eActInvisible = 0;
+    m_nt_eInactEM = 0;
+    m_nt_eInactNonEM = 0;
+    m_nt_eInactEscaped = 0;
+    m_nt_eInactInvisible = 0;
+    m_nt_eDeadEM = 0;
+    m_nt_eDeadNonEM = 0;
+    m_nt_eDeadEscaped = 0;
+    m_nt_eDeadInvisible = 0;
+    m_nt_eTile = 0;
+    m_nt_edead_1_0 = 0;
+    m_nt_edead_1_1_0 = 0;
+    m_nt_edead_1_1_1 = 0;
+    m_nt_edead_1_1_2 = 0;
+    m_nt_edead_1_1_3 = 0;
+    m_nt_edead_1_1_4 = 0;
+    m_nt_edead_1_1_5 = 0;
+    m_nt_edead_1_1_6 = 0;
+    m_nt_edead_1_1_7 = 0;
+    m_nt_edead_1_2_0 = 0;
+    m_nt_edead_1_2_1 = 0;
+    m_nt_edead_1_2_2 = 0;
+    m_nt_edead_1_2_3 = 0;
+    m_nt_edead_1_2_4 = 0;
+    m_nt_edead_1_2_5 = 0;
+    m_nt_edead_1_3 = 0;
+    m_nt_eleak = 0;
+    m_xconv = 0;
+    m_yconv = 0;
+    m_zconv = 0;
+    m_xvert = 0;
+    m_yvert = 0;
+    m_zvert = 0;
+    
+
     declareProperty("ClusterNoise",m_clusternoise);
     declareProperty("Check",m_check);
     declareProperty("LoopRaw",m_raw);
@@ -117,19 +206,8 @@ namespace MyAnalysis {
     MsgStream log( messageService(), name() );
     log << MSG::DEBUG <<"Analysis initialize()" << endreq;
 
-    // Get the StoreGateSvc
-    if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-      log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-    }
-
-    StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-    if (sc.isFailure()) {
-      std::cout << "Unable to retrieve DetectorStore " << std::endl;
-      return false;
-    }
-
     //retrieve ID helpers 
-    sc = m_detStore->retrieve( m_caloIdMgr );
+    StatusCode sc = detStore()->retrieve( m_caloIdMgr );
     if (sc.isFailure()) {
      std::cout << "Unable to retrieve CaloIdMgr in LArHitEMap " << std::endl;
      return false;
@@ -138,7 +216,7 @@ namespace MyAnalysis {
     m_calodm_id  = m_caloIdMgr->getDM_ID();
 
 //  retrieve CaloDetDescrMgr 
-    sc = m_detStore->retrieve(m_calodetdescrmgr);
+    sc = detStore()->retrieve(m_calodetdescrmgr);
     if (sc.isFailure()) {
        std::cout << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << std::endl;
        return false;
@@ -409,7 +487,7 @@ namespace MyAnalysis {
 
    if (m_nevt==-1) {
     std::cout << "retrieving fsampl from detStore " << std::endl;
-    StatusCode sc = m_detStore->retrieve(m_dd_fSampl);
+    StatusCode sc = detStore()->retrieve(m_dd_fSampl);
     if (sc.isFailure() || !m_dd_fSampl)
     {
       log << MSG::ERROR
@@ -477,7 +555,7 @@ namespace MyAnalysis {
     for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {
     const LArHitContainer* hit_container ;
-      if(m_sgSvc->retrieve(hit_container,m_HitContainer[iHitContainer])
+    if(evtStore()->retrieve(hit_container,m_HitContainer[iHitContainer])
             .isFailure()) {
         log << MSG::WARNING << " cannot retrieve hit container " << endreq;
       }  
@@ -568,7 +646,7 @@ namespace MyAnalysis {
       double phi_true=-999.;
       int nn=0;
       if (m_doTruth) {
-        if ( m_sgSvc->retrieve(mcCollptr).isFailure() ) {
+        if ( evtStore()->retrieve(mcCollptr).isFailure() ) {
              log << MSG::WARNING 
              << "cannot retrieve McEventCollection  without Key"
              << endreq;
@@ -629,7 +707,7 @@ namespace MyAnalysis {
   double etot_cell[4]={0.,0.,0.,0.};
   if (m_cell) {
     const CaloCellContainer* cell_container;
-    if(m_sgSvc->retrieve(cell_container,"AllCalo").isFailure())
+    if(evtStore()->retrieve(cell_container,"AllCalo").isFailure())
     {
       log << MSG::INFO
           << " Could not get pointer to Cell Container " 
@@ -676,7 +754,7 @@ namespace MyAnalysis {
 // Loop over LArRawChannel
     int nraw=0;
     const LArRawChannelContainer* rawchannel_container;
-    if(m_sgSvc->retrieve(rawchannel_container,"LArRawChannels").isFailure())
+    if(evtStore()->retrieve(rawchannel_container,"LArRawChannels").isFailure())
     {
      log << MSG::INFO
         << " Could not get  LArRawChannel container"
@@ -775,7 +853,7 @@ if (!selObj.select(hit)) continue;
           iHitContainer++)
     {
       const CaloCalibrationHitContainer* calocalibrationhit_container ;
-      if(m_sgSvc->retrieve(calocalibrationhit_container,m_CalibrationHitContainer[iHitContainer])
+      if(evtStore()->retrieve(calocalibrationhit_container,m_CalibrationHitContainer[iHitContainer])
         .isFailure()) {
           log << MSG::INFO << " cannot retrieve calo calibration hit container " << endreq;
       }  
@@ -1012,7 +1090,7 @@ if (!selObj.select(hit)) continue;
   if (m_cluster) {
 // 5x5
     const CaloClusterContainer* cluster_container;
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEM")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEM")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container " << endreq;
     }  
@@ -1060,7 +1138,7 @@ if (!selObj.select(hit)) continue;
       }
     }
 // 5x5 photons
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEMgam")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEMgam")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container " << endreq;
     }  
@@ -1089,7 +1167,7 @@ if (!selObj.select(hit)) continue;
     }
 
 // 3x5
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEM35")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEM35")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container 35" << endreq;
     }  
@@ -1121,7 +1199,7 @@ if (!selObj.select(hit)) continue;
     }
 
 // 3x5 photons
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEMgam35")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEMgam35")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container gam35" << endreq; 
     }  
@@ -1149,7 +1227,7 @@ if (!selObj.select(hit)) continue;
     }
 
 // 3x7
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEM37")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEM37")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container 37" << endreq;
     }  
@@ -1177,7 +1255,7 @@ if (!selObj.select(hit)) continue;
     }
 
 // 3x7 gam
-    if(m_sgSvc->retrieve(cluster_container,"LArClusterEMgam37")
+    if(evtStore()->retrieve(cluster_container,"LArClusterEMgam37")
         .isFailure()) {
         log << MSG::INFO << " cannot retrieve cluster container gam37" << endreq;
     }

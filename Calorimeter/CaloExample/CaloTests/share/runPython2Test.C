@@ -1,6 +1,7 @@
 
 #include "TSystem.h"
 
+// conflicts with runPython2 from CaloRecEx
 void runPython2()
 {
   int nbTests=1;

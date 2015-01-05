@@ -12,7 +12,7 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AIDA/IHistogram2D.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
@@ -32,7 +32,7 @@ class ITriggerTime;
 
 namespace MyAnalysis {
 
-  class Analysis : public Algorithm {
+  class Analysis : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -56,9 +56,6 @@ namespace MyAnalysis {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
 
   ITHistSvc* m_thistSvc;
   TH1D* m_hist_etraw_emb_s0;

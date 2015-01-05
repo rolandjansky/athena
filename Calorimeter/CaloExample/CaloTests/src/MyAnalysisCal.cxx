@@ -22,7 +22,7 @@ namespace MyAnalysisCal {
 
   //Constructor
   AnalysisCal::AnalysisCal(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator),
+    AthAlgorithm(name,pSvcLocator),
     m_nevt(0)
   {
   }
@@ -40,11 +40,6 @@ namespace MyAnalysisCal {
     
     MsgStream log( messageService(), name() );
     log << MSG::DEBUG <<"Analysiscal initialize()" << endreq;
-
-    // Get the StoreGateSvc
-    if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-      log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-    }
 
     return StatusCode::SUCCESS; 
   }
@@ -70,7 +65,7 @@ namespace MyAnalysisCal {
       double e_true=0.;
       double eta_true=-999.;
       double phi_true=-999.;
-      if ( m_sgSvc->retrieve(mcCollptr,"GEN_EVENT").isFailure() ) {
+      if ( evtStore()->retrieve(mcCollptr,"GEN_EVENT").isFailure() ) {
              log << MSG::WARNING 
              << "cannot retrieve McEventCollection  with key GEN_EVENT"
              << endreq;
@@ -112,7 +107,7 @@ namespace MyAnalysisCal {
   for (iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
   {
     const LArHitContainer* hit_container ;
-    if(m_sgSvc->retrieve(hit_container,m_HitContainer[iHitContainer])
+    if(evtStore()->retrieve(hit_container,m_HitContainer[iHitContainer])
       .isFailure()) {
         log << MSG::INFO << " cannot retrieve hit container " << endreq;
     }  else
@@ -143,7 +138,7 @@ namespace MyAnalysisCal {
   for (iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();iHitContainer++)
   {
     const CaloCalibrationHitContainer* calocalibrationhit_container ;
-    if(m_sgSvc->retrieve(calocalibrationhit_container,m_CalibrationHitContainer[iHitContainer])
+    if(evtStore()->retrieve(calocalibrationhit_container,m_CalibrationHitContainer[iHitContainer])
       .isFailure()) {
         log << MSG::INFO << " cannot retrieve calo calibration hit container " << endreq;
     }  else
