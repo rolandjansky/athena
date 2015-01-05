@@ -20,10 +20,11 @@
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DiscLayer.h"
+#include "TrkGeometry/MaterialLayer.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/EntryLayerProvider.h"
+//#include "TrkGeometry/EntryLayerProvider.h"
 
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h" 
 
@@ -32,6 +33,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
 #include "TrkGeometry/MaterialProperties.h"
@@ -113,7 +115,9 @@ GlobalChi2Fitter::GlobalChi2Fitter(const std::string& t,const std::string& n,
     m_msEntrance(0),   
     m_derivmat(0),
     m_fullcovmat(0),
-    m_DetID(0)
+    m_DetID(0),
+    m_useCaloTG(false),
+    m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool")
   {
   
   // tools and services
@@ -159,6 +163,8 @@ GlobalChi2Fitter::GlobalChi2Fitter(const std::string& t,const std::string& n,
   declareProperty("AsymmetricEnergyLoss",m_asymeloss=true);
   declareProperty("MinimumIterations",m_miniter=1);
   //declareProperty("FastMaterial",m_fastmat=false);
+  declareProperty("UseCaloTG", m_useCaloTG);
+  declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
 
 #ifdef GXFDEBUGCODE  
   declareProperty("Truth",m_truth=false);
@@ -290,7 +296,15 @@ StatusCode GlobalChi2Fitter::initialize()
     msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endreq; 
   }
 
-
+  if(m_useCaloTG) {
+    StatusCode sc = m_caloMaterialProvider.retrieve(); 
+    if( sc.isFailure() ){ 
+      msg(MSG::ERROR) << " failed to retrieve " << m_caloMaterialProvider << endreq; 
+      return StatusCode::FAILURE;
+    }  
+    msg(MSG::INFO)  << m_caloMaterialProvider << " retrieved " << endreq; 
+  }
+  
   msg(MSG::INFO) << "fixed momentum: " << m_p << endreq;
   m_inputPreparator = new TrackFitInputPreparator;
   
@@ -411,7 +425,17 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
     const AmgVector(5)& newpars=parforcalo->parameters(); 
     parforcalo=parforcalo->associatedSurface().createTrackParameters(newpars[0],newpars[1],newpars[2],newpars[3],1/5000.,0);
   } 
-  std::vector<MaterialEffectsOnTrack> calomeots=m_calotool->extrapolationSurfacesAndEffects(*m_navigator->highestVolume(),*prop, *parforcalo,parforcalo->associatedSurface(),Trk::anyDirection,Trk::muon);
+
+  std::vector<MaterialEffectsOnTrack> calomeots;
+  if(!m_useCaloTG) {
+    if(!m_calotool.empty())
+      calomeots=m_calotool->extrapolationSurfacesAndEffects(*m_navigator->highestVolume(),*prop, *parforcalo,parforcalo->associatedSurface(),Trk::anyDirection,Trk::muon);
+  }else{
+    msg(MSG::VERBOSE) << "Updating Calorimeter TSOS in Muon Combined Fit ..." << endreq;
+    m_caloMaterialProvider->getCaloMEOT(*indettrack, *muontrack, calomeots);
+  }
+
+    
   //std::cout << "eloss: " << calomeots[1].energyLoss()->deltaE() << std::endl;  
   if (firstismuon) std::reverse(calomeots.begin(),calomeots.end());
   if (calomeots.empty()){
@@ -433,7 +457,7 @@ Track* GlobalChi2Fitter::fit(const Track&             intrk1,
   const AmgSymMatrix(5) *errmatmuon= measpermuon ? measpermuon->covariance() : 0;
   //std::cout << "firstismuon: " << firstismuon << " measperid: " << measperid << " measpermuon: " << measpermuon << " pmuon: " << 1/qoverpmuon << std::endl;
   //bool isparametrized=false;
-  if (!firstismuon && errmatid && errmatmuon && qoverpmuon!=0 && !m_calotoolparam.empty()){
+  if (!firstismuon && errmatid && errmatmuon && qoverpmuon!=0 && !m_calotoolparam.empty() && !m_useCaloTG){
     double piderror=sqrt((*errmatid)(4,4))/(qoverpid*qoverpid);
     double pmuonerror=sqrt((*errmatmuon)(4,4))/(qoverpmuon*qoverpmuon);
     double energyerror=sqrt(calomeots[1].energyLoss()->sigmaDeltaE()*calomeots[1].energyLoss()->sigmaDeltaE()+piderror*piderror+pmuonerror*pmuonerror);
@@ -891,7 +915,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
       firstscattheta=-idscattheta;
       secondscattheta=-muonscattheta;
     }
-    if (i==1 && m_fieldService->toroidOn()){
+    if (i==1 && m_fieldService->toroidOn()&& !firstismuon){
 
       AmgVector(5) params2=scat2->parameters();
       params2[Trk::phi]+=idscatphi;
@@ -2130,31 +2154,35 @@ bool GlobalChi2Fitter::processTrkVolume(const Trk::TrackingVolume* tvol) const {
       }
     }
   }
-  const EntryLayerProvider *elp=tvol->entryLayerProvider();
-  if (elp) {
-    const std::vector<const Trk::Layer*>& layerVector = elp->layers();
-    std::vector<const Trk::Layer*>::const_iterator layerIter = layerVector.begin();
+  //const EntryLayerProvider *elp=tvol->entryLayerProvider();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bsurf=tvol->boundarySurfaces();
+  //if (elp) {
+  for (std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >::const_iterator it=bsurf.begin();it!=bsurf.end();it++){
+    //const std::vector<const Trk::Layer*>& layerVector = elp->layers();
+    //std::vector<const Trk::Layer*>::const_iterator layerIter = layerVector.begin();
+    const Layer *layer=(*it)->surfaceRepresentation().materialLayer();
     // loop over layers
-    for ( ; layerIter != layerVector.end(); ++layerIter) {
+    //for ( ; layerIter != layerVector.end(); ++layerIter) {
       // push_back the layer
-      if (*layerIter) {
+      if (layer) {
         // get the layerIndex
-        const Trk::LayerIndex& layIndex = (*layerIter)->layerIndex();
+        const Trk::LayerIndex& layIndex = layer->layerIndex();
         // skip navigaion layers for the moment
 	//std::cout << "layindex: " << layIndex.value() << " matprop: " << (*layerIter)->layerMaterialProperties() << std::endl;
-        if (!layIndex.value() || !(*layerIter)->layerMaterialProperties()) continue;
-        const CylinderLayer *cyllay=dynamic_cast<const CylinderLayer *>((*layerIter));
-        const DiscLayer *disclay=dynamic_cast<const DiscLayer *>((*layerIter));
-        if (disclay) {
-          if (disclay->center().z()<0) m_negdiscs.push_back(disclay);
-          else m_posdiscs.push_back(disclay);
+        if (!layIndex.value() || !layer->layerMaterialProperties()) continue;
+        const CylinderSurface *cylsurf=dynamic_cast<const CylinderSurface *>(&layer->surfaceRepresentation());
+        const DiscSurface *discsurf=dynamic_cast<const DiscSurface *>(&layer->surfaceRepresentation());
+	
+        if (discsurf) {
+          if (discsurf->center().z()<0 && std::find(m_negdiscs.begin(),m_negdiscs.end(),layer)==m_negdiscs.end()) m_negdiscs.push_back(layer);
+          else if (discsurf->center().z()>0 && std::find(m_posdiscs.begin(),m_posdiscs.end(),layer)==m_posdiscs.end()) m_posdiscs.push_back(layer);
         }
-        else if (cyllay) {
-          m_barrelcylinders.push_back(cyllay);
+        else if (cylsurf && std::find(m_barrelcylinders.begin(),m_barrelcylinders.end(),layer)==m_barrelcylinders.end()) {
+          m_barrelcylinders.push_back(layer);
         }
-        else return false;
+        if (!cylsurf && !discsurf) return false;
       }
-    } 
+    //} 
   }
   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol->confinedVolumes();
   // get the confined volumes and loop over it -> call recursively
@@ -2172,32 +2200,65 @@ bool GlobalChi2Fitter::processTrkVolume(const Trk::TrackingVolume* tvol) const {
   return true;
 }
 
-class GXFlayersort : public std::binary_function<const std::pair<const CylinderLayer*,const DiscLayer*>& , const std::pair<const CylinderLayer*,const DiscLayer*>&,bool > {
+class GXFlayersort : public std::binary_function<const std::pair<const Layer*,const Layer*>& , const std::pair<const Layer*,const Layer*>&,bool > {
       public:       
        /** Default Constructor */
        GXFlayersort(){}
-       bool operator() (const std::pair<const CylinderLayer*,const DiscLayer*>& one, const std::pair<const CylinderLayer*,const DiscLayer*>&two) const 
+       bool operator() (const std::pair<const Layer*,const Layer*>& one, const std::pair<const Layer*,const Layer*>&two) const 
        {
-         const CylinderLayer* cyl1=one.first;
-	 const DiscLayer* disc1=one.second;
-	 const CylinderLayer* cyl2=two.first;
-	 const DiscLayer* disc2=two.second;
-	 if (cyl1 && cyl2) return (cyl1->bounds().r()<cyl2->bounds().r());
-	 if (disc1 && disc2) return (std::abs(disc1->center().z())<std::abs(disc2->center().z()));
+         const CylinderSurface* cyl1=0;
+	 if (one.first) cyl1=(const CylinderSurface*)&one.first->surfaceRepresentation();
+	 const DiscSurface* disc1=0;
+	 if (one.second) disc1=(const DiscSurface*)&one.second->surfaceRepresentation();
+	 const CylinderSurface* cyl2=0;
+	 if (two.first) cyl2=(const CylinderSurface*)&two.first->surfaceRepresentation();
+	 const DiscSurface* disc2=0;
+	 if (two.second) disc2=(const DiscSurface*)&two.second->surfaceRepresentation();
+	 
+	 if (cyl1 && cyl2) {
+	   if (std::abs(cyl1->center().z()-cyl2->center().z())>1.) return (std::abs(cyl1->center().z())<std::abs(cyl2->center().z()));
+	   return (cyl1->bounds().r()<cyl2->bounds().r());
+	 }
+	 if (disc1 && disc2) {
+	   const DiscBounds *discbounds1=(const DiscBounds*)&disc1->bounds();
+	   const DiscBounds *discbounds2=(const DiscBounds*)&disc2->bounds();
+	   if (discbounds1->rMax()<discbounds2->rMin()+1) return true;
+	   if (discbounds1->rMin()>discbounds2->rMax()-1) return false;
+	   return (std::abs(disc1->center().z())<std::abs(disc2->center().z()));
+	 }
 	 if (cyl1 && disc2) {
-	   if (std::abs(cyl1->center().z()-disc2->center().z())>cyl1->bounds().halflengthZ()) return (std::abs(cyl1->center().z())<std::abs(disc2->center().z()));
-           else {
-             const DiscBounds *discbounds=(const DiscBounds *)(&disc2->bounds());
-	     return (cyl1->bounds().r()<discbounds->rMin());
-	   }
+	   const DiscBounds *discbounds=(const DiscBounds*)&disc2->bounds();
+	   if (cyl1->bounds().r()>discbounds->rMax()-1) return false;
+	   if (cyl1->bounds().r()<discbounds->rMin()+1) return true;
+	   
+	   return (std::abs(cyl1->center().z())<std::abs(disc2->center().z()));
+           
 	 }  
          //if (disc1 && cyl2) {
-	   if (std::abs(cyl2->center().z()-disc1->center().z())>cyl2->bounds().halflengthZ()) return (std::abs(cyl2->center().z())>std::abs(disc1->center().z()));
-           else {
-             const DiscBounds *discbounds=(const DiscBounds *)(&disc1->bounds());
-	     return (cyl2->bounds().r()>discbounds->rMin());
-	   }
+	 const DiscBounds *discbounds=(const DiscBounds*)&disc1->bounds();
+	   if (cyl2->bounds().r()>discbounds->rMax()-1) return true;
+	   if (cyl2->bounds().r()<discbounds->rMin()+1) return false;
+	   
+	   return (std::abs(cyl2->center().z())>std::abs(disc1->center().z()));
 	 //}  
+         
+       }
+};
+
+class GXFlayersort2 : public std::binary_function<const Layer* , const Layer*,bool > {
+      public:       
+       /** Default Constructor */
+       GXFlayersort2(){}
+       bool operator() (const Layer* one, const Layer *two) const 
+       {
+         const CylinderSurface* cyl1=dynamic_cast<const CylinderSurface*>(&one->surfaceRepresentation());
+	 const DiscSurface* disc1=dynamic_cast<const DiscSurface*>(&one->surfaceRepresentation());
+	 const CylinderSurface* cyl2=dynamic_cast<const CylinderSurface*>(&two->surfaceRepresentation());
+	 const DiscSurface* disc2=dynamic_cast<const DiscSurface*>(&two->surfaceRepresentation());
+	 
+	 if (cyl1 && cyl2) return (cyl1->bounds().r()<cyl2->bounds().r());
+	 if (disc1 && disc2) return (std::abs(disc1->center().z())<std::abs(disc2->center().z()));
+	 return false;
          
        }
 };
@@ -2218,10 +2279,10 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
       addMaterial(trajectory,refpar2,matEffects);
       return;
     }
-    std::stable_sort(m_negdiscs.begin(),m_negdiscs.end(),DiscLayerSorterZ());
-    std::stable_sort(m_posdiscs.begin(),m_posdiscs.end(),DiscLayerSorterZ());
-    std::reverse(m_negdiscs.begin(),m_negdiscs.end());
-    std::stable_sort(m_barrelcylinders.begin(),m_barrelcylinders.end(),CylinderLayerSorterR());
+    std::stable_sort(m_negdiscs.begin(),m_negdiscs.end(),GXFlayersort2());
+    std::stable_sort(m_posdiscs.begin(),m_posdiscs.end(),GXFlayersort2());
+    //std::reverse(m_negdiscs.begin(),m_negdiscs.end());
+    std::stable_sort(m_barrelcylinders.begin(),m_barrelcylinders.end(),GXFlayersort2());
     //std::cout << "nbarrelcyl: " << m_barrelcylinders.size() << " nposdisc: " << m_posdiscs.size() << " nnegdisc: " << m_negdiscs.size() << std::endl;
   }
   const TrackParameters *refpar=refpar2,*firstsipar=0,*lastsipar=0;
@@ -2245,11 +2306,17 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
         }
         firstsipar=oldstates[i]->trackParameters();
       }
-      lastsipar=oldstates[i]->trackParameters();
       lastsistate=oldstates[i];
       //lastsiindex=i;
     }
   }
+  if (!lastsistate->trackParameters()) {
+    const TrackParameters *tmppar=m_propagator->propagateParameters(*refpar,*lastsistate->surface(),alongMomentum,false,*m_fieldprop,Trk::nonInteracting);
+    if (!tmppar) return;
+    lastsistate->setTrackParameters(tmppar);
+  }
+  lastsipar=lastsistate->trackParameters();
+
   
   if (hasmat) {
     refpar=lastsipar;
@@ -2267,17 +2334,17 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
   GXFTrackState *laststate=oldstates.back();
   lastz=laststate->position().z();
   lastr=laststate->position().perp();
-  std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > layers;
+  std::vector<std::pair<const Layer*,const Layer*> > layers;
   const Layer *startlayer=firststate->surface()->associatedLayer();
   const Layer *startlayer2= hasmat ? lastsistate->surface()->associatedLayer() : 0;
   const Layer *endlayer=laststate->surface()->associatedLayer();
-  std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > &upstreamlayers=trajectory.upstreamMaterialLayers();
+  std::vector<std::pair<const Layer*,const Layer*> > &upstreamlayers=trajectory.upstreamMaterialLayers();
   layers.reserve(30);
   upstreamlayers.reserve(5);
   double tantheta=tan(refpar->parameters()[Trk::theta]);
   double slope= (tantheta!=0) ? 1/tantheta : 0;//(lastz-firstz)/(lastr-firstr);
   if (slope!=0){
-    std::vector<const DiscLayer*>::const_iterator it,itend;
+    std::vector<const Layer*>::const_iterator it,itend;
     if (lastz>0) {
       it=m_posdiscs.begin();
       itend=m_posdiscs.end();
@@ -2287,27 +2354,27 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
       itend=m_negdiscs.end();
     }
     for (;it!=itend;it++) {
-      if (fabs((*it)->center().z())>fabs(lastz)) break;
+      if (fabs((*it)->surfaceRepresentation().center().z())>fabs(lastz)) break;
       //if (fabs((*it)->center().z())<fabs(firstz)) continue;
-      const DiscBounds *discbounds=(const DiscBounds *)(&(*it)->bounds());
+      const DiscBounds *discbounds=(const DiscBounds *)(&(*it)->surfaceRepresentation().bounds());
       if (discbounds->rMax()<firstr || discbounds->rMin()>lastr) continue;
-      double rintersect=firstr+((*it)->center().z()-firstz)/slope;
+      double rintersect=firstr+((*it)->surfaceRepresentation().center().z()-firstz)/slope;
       if (rintersect<discbounds->rMin()-50 || rintersect>discbounds->rMax()+50) continue;
       if (/*(*it)==startlayer || (*it)==startlayer2 || */ (*it)==endlayer) continue;
-      if (fabs((*it)->center().z())<fabs(firstz) || (*it)==startlayer) upstreamlayers.push_back(std::make_pair((CylinderLayer*)0,(*it)));
-      if ((*it)!=startlayer && (fabs((*it)->center().z())>fabs(firstz2) || (*it)==startlayer2)) layers.push_back(std::make_pair((CylinderLayer*)0,(*it)));
+      if (fabs((*it)->surfaceRepresentation().center().z())<fabs(firstz) || (*it)==startlayer) upstreamlayers.push_back(std::make_pair((Layer*)0,(*it)));
+      if ((*it)!=startlayer && (fabs((*it)->surfaceRepresentation().center().z())>fabs(firstz2) || (*it)==startlayer2)) layers.push_back(std::make_pair((Layer*)0,(*it)));
       //std::cout << "r: " << rintersect << " z: " << (*it)->center().z() << " surf: " << (**it) << std::endl;
     }
   }
-  for (std::vector<const CylinderLayer*>::const_iterator it=m_barrelcylinders.begin();it!=m_barrelcylinders.end();it++) {
-    if ((*it)->bounds().r()>lastr) break;
+  for (std::vector<const Layer*>::const_iterator it=m_barrelcylinders.begin();it!=m_barrelcylinders.end();it++) {
+    if ((*it)->surfaceRepresentation().bounds().r()>lastr) break;
     //if ((*it)->bounds().r()<firstr) continue;
-    double zintersect=firstz+((*it)->bounds().r()-firstr)*slope;
-    if (fabs(zintersect-(*it)->center().z())>(*it)->bounds().halflengthZ()+50 ) continue;
+    double zintersect=firstz+((*it)->surfaceRepresentation().bounds().r()-firstr)*slope;
+    if (fabs(zintersect-(*it)->surfaceRepresentation().center().z())>((const CylinderSurface*)(&(*it)->surfaceRepresentation()))->bounds().halflengthZ()+50 ) continue;
     if (/*(*it)==startlayer || (*it)==startlayer2 ||*/ (*it)==endlayer) continue;
     //std::cout << "firstr: " << firstr << " r: " << (*it)->bounds().r() << std::endl;
-    if ((*it)->bounds().r()<firstr || (*it)==startlayer) upstreamlayers.push_back(std::make_pair((*it),(DiscLayer*)0));
-    if ((*it)!=startlayer && ((*it)->bounds().r()>firstr2 || (*it)==startlayer2)) layers.push_back(std::make_pair((*it),(DiscLayer*)0));
+    if ((*it)->surfaceRepresentation().bounds().r()<firstr || (*it)==startlayer) upstreamlayers.push_back(std::make_pair((*it),(Layer*)0));
+    if ((*it)!=startlayer && ((*it)->surfaceRepresentation().bounds().r()>firstr2 || (*it)==startlayer2)) layers.push_back(std::make_pair((*it),(Layer*)0));
     //std::cout << "r: " << (*it)->bounds().r() << " z: " << zintersect << " surf: " << (**it) << std::endl;
   }
   //if (startlayer && startlayer->layerMaterialProperties()) upstreamlayers.push_back(std::make_pair(startlayer,9999));
@@ -2330,15 +2397,22 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
   for (int i=indexoffset+1;i<(int)oldstates.size();i++){
     double rmeas=oldstates[i]->position().perp();
     double zmeas=oldstates[i]->position().z();
-    bool measisendcap=false;
-    if (oldstates[i]->measurementType()==TrackState::TRT) measisendcap= (fabs(oldstates[i]->surface()->transform().rotation().col(2)[2])<0.5);
-    else measisendcap=(fabs(oldstates[i]->surface()->normal().z())>0.5);
+    
     while (layerindex<(int)layers.size()) {
       //const Surface &surf=layers[layerindex].first->surfaceRepresentation();
-      const CylinderSurface *cylsurf = layers[layerindex].first;
-      const DiscSurface *discsurf=layers[layerindex].second;
-      if (cylsurf && !measisendcap && cylsurf->bounds().r()>rmeas) break;
-      if (discsurf && measisendcap && fabs(discsurf->center().z())>fabs(zmeas)) break;
+      const CylinderSurface *cylsurf = 0;
+      if (layers[layerindex].first) cylsurf=(const CylinderSurface *)(&layers[layerindex].first->surfaceRepresentation());
+      const DiscSurface *discsurf=0;
+      if (layers[layerindex].second) discsurf=(const DiscSurface *)(&layers[layerindex].second->surfaceRepresentation());
+      /* if (cylsurf) std::cout << "cyl rmeas: " << rmeas << " zmeas: " << zmeas << " bounds: " << cylsurf->bounds().r() << " z: " <<
+      cylsurf->center().z() << std::endl;
+      if (discsurf) {
+      const DiscBounds *discbounds=(const DiscBounds*)&discsurf->bounds();
+      std::cout << "disc rmeas: " << rmeas << " zmeas: " << zmeas << " zdisc: " << discsurf->center().z() << " rmin: " <<
+      discbounds->rMin() << " rmax: " << discbounds->rMax() << std::endl;
+      } */
+      //if (cylsurf && /* !measisendcap && */ cylsurf->bounds().r()>rmeas) break;
+      //if (discsurf && /* measisendcap && */ fabs(discsurf->center().z())>fabs(zmeas)) break;
       //std::cout << "zmeas: " << zmeas << " layer index: " << layerindex << std::endl; 
       
       
@@ -3037,7 +3111,7 @@ void GlobalChi2Fitter::addMaterial(GXFTrajectory &trajectory,const TrackParamete
           const TrackingVolume *tvol=m_navigator->volume(layerpar->position()); 
           const Layer * lay = 0;
           if (tvol)
-              lay = (tvol->closestMaterialLayer(layerpar->position(),layerpar->momentum().normalized())).layer;
+              lay = (tvol->closestMaterialLayer(layerpar->position(),layerpar->momentum().normalized())).object;
           //if (lay) std::cout << "mat: " << lay->layerMaterialProperties() << " sensvol: " << tvol->sensitiveVolume() << " inside: ";
           //if (tvol->sensitiveVolume()) std::cout << tvol->sensitiveVolume()->inside(layerpar->position());
           //std::cout << std::endl;
@@ -4888,6 +4962,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
     m_notenoughmeas++;
     return 0;
   }
+  if(newtrajectory && oldtrajectory!=newtrajectory) delete newtrajectory;
   return oldtrajectory;
 }
 
@@ -5020,7 +5095,7 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
     
     const TrackParameters *prevpar=firstmeasstate->trackParameters();
     const TrackParameters *tmppar=firstmeasstate->trackParameters();
-    std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > &upstreamlayers=oldtrajectory.upstreamMaterialLayers();
+    std::vector<std::pair<const Layer*,const Layer*> > &upstreamlayers=oldtrajectory.upstreamMaterialLayers();
     for (int i=(int)upstreamlayers.size()-1;i>=0;i--){
       if (!prevpar) break;
       PropDirection propdir=oppositeMomentum;
@@ -5032,6 +5107,7 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
       else if (distsol.numberOfSolutions()==2) {
         distance= (std::abs(distsol.first())<std::abs(distsol.second())) ? distsol.first() : distsol.second();
         if (fabs(distance)<0.01) continue;
+        if (distsol.first() * distsol.second() < 0 && prevpar!=firstmeasstate->trackParameters()) continue;
       }
       if (prevpar==firstmeasstate->trackParameters() && distance>0) propdir=alongMomentum;
       
@@ -5157,7 +5233,7 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
       jac=numericalDerivatives(prevtrackpar,surf,propdir);
     }
 
-    if (propdir==Trk::alongMomentum && currenttrackpar && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>1*mm) {
+    if (propdir==Trk::alongMomentum && currenttrackpar && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>5*mm) {
       msg(MSG::DEBUG) << "Propagation in wrong direction" << endreq; 
       if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "upstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar << endreq;
     }
@@ -5263,9 +5339,9 @@ FitterStatusCode GlobalChi2Fitter::calculateTrackParameters(GXFTrajectory &traje
       jac=numericalDerivatives(prevtrackpar,surf,propdir);
     }
 
-    if (currenttrackpar && propdir==Trk::oppositeMomentum && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>1*mm) {
+    if (currenttrackpar && propdir==Trk::oppositeMomentum && msgLvl(MSG::DEBUG) && (prevtrackpar->position()-currenttrackpar->position()).mag()>5*mm) {
       msg(MSG::DEBUG) << "Propagation in wrong direction" << endreq;
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "downstream prevtrackpar: " << *prevtrackpar << " current par: " << *currenttrackpar << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "downstream prevtrackpar: " << *prevtrackpar << " surf: " << prevtrackpar->associatedSurface() << " current par: " << *currenttrackpar << " surf: " << currenttrackpar->associatedSurface() << endreq;
     }
     if (!currenttrackpar) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "propagation failed, prev par: " << *prevtrackpar << " pos: " << prevtrackpar->position() << " destination surface: " << *surf << endreq;

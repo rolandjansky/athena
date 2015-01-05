@@ -83,7 +83,7 @@ public:
   double mass();
   GXFTrackState *caloElossState();
 
-  std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > &upstreamMaterialLayers();
+  std::vector<std::pair<const Layer*,const Layer*> > &upstreamMaterialLayers();
 
 private:
   std::vector<GXFTrackState*> m_states; //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
@@ -119,7 +119,7 @@ private:
   bool m_ownrefpar;
   int m_prefit;
   GXFTrackState *m_caloelossstate;  
-  std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > m_upstreammat;
+  std::vector<std::pair<const Layer*,const Layer*> > m_upstreammat;
 };
 }
 

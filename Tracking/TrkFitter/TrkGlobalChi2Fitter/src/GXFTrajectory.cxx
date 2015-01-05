@@ -560,7 +560,7 @@ GXFTrackState *GXFTrajectory::caloElossState(){
   return m_caloelossstate;
 }
 
-std::vector<std::pair<const CylinderLayer*,const DiscLayer*> > &GXFTrajectory::upstreamMaterialLayers(){
+std::vector<std::pair<const Layer*,const Layer*> > &GXFTrajectory::upstreamMaterialLayers(){
   return m_upstreammat;
 }
 

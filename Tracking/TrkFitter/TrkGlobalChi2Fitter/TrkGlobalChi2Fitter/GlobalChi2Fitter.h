@@ -59,6 +59,7 @@ namespace Trk{
   class TrackingGeometry; 
   class TrackingVolume; 
   class Volume; 
+  class ITrkMaterialProviderTool;
   
 class GlobalChi2Fitter:virtual public IGlobalTrackFitter,public AthAlgTool {
 public:
@@ -252,6 +253,10 @@ private:
   mutable std::vector<double> m_residuals;
   mutable bool m_updatescat;
 
+  bool m_useCaloTG;
+  ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider;
+
+
 #ifdef GXFDEBUGCODE
   
   bool m_truth;
@@ -287,10 +292,10 @@ private:
   mutable const std::vector<const TrackStateOnSurface*> *m_matvecmuondownstream;
   mutable std::vector<const TrackStateOnSurface*> m_matvec;
   int m_fixbrem;
-  mutable std::vector<const Trk::DiscLayer*> m_negdiscs;
-  mutable std::vector<const Trk::DiscLayer*> m_posdiscs;
-  mutable std::vector<const Trk::CylinderLayer*> m_barrelcylinders;
-  mutable std::vector<const Trk::CylinderLayer*> m_othercylinders;
+  mutable std::vector<const Trk::Layer*> m_negdiscs;
+  mutable std::vector<const Trk::Layer*> m_posdiscs;
+  mutable std::vector<const Trk::Layer*> m_barrelcylinders;
+  mutable std::vector<const Trk::Layer*> m_othercylinders;
   mutable bool m_fastmat;
 };
 
