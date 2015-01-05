@@ -16,12 +16,11 @@
 */
 
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
-//#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronIsEMSelectorConfigHelper.h"
+#include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h" //For the LikelihoodEnums
-
 
 #endif

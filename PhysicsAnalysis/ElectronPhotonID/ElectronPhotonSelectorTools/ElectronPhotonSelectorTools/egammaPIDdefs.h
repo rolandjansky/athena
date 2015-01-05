@@ -193,10 +193,10 @@ namespace egammaPID {
     /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus) */    
     TrackTRTratio90_Electron        = 26,
 
-    /** @brief distance of closet approach for tight selection (not to be used in new ++ menus) */
+    /** @brief distance of closet approach for tight selection (!! Used in new ++ menus dc14) */
     TrackA0Tight_Electron           = 27,
     /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
-	tight selection (not to be used in new ++ menus)*/
+	tight selection (!! Used in new ++ menus dc14)*/
     TrackMatchEtaTight_Electron     = 28,
 
     /** @brief isolation */
@@ -212,27 +212,13 @@ namespace egammaPID {
   enum BitDefPhoton {
     /** @brief cluster eta range */
     ClusterEtaRange_Photon        =  0,
-    /** @brief cluster eta range */
-    ClusterEtaRange_PhotonLoose   =  1,
-
-    // selection for Loose photons
-    /** @brief cluster leakage into the hadronic calorimeter */
-    ClusterHadronicLeakage_PhotonLoose =  2,
-    /** @brief energy in 2nd sampling (e277) */
-    ClusterMiddleEnergy_PhotonLoose    =  3, 
-    /** @brief energy ratio in 2nd sampling */
-    ClusterMiddleEratio37_PhotonLoose  =  4,
-    /** @brief energy ratio in 2nd sampling */
-    ClusterMiddleEratio33_PhotonLoose  =  5,
-    /** @brief width in the second sampling */
-    ClusterMiddleWidth_PhotonLoose     =  6,
 
     /** @brief energy fraction in the third layer */
     ClusterBackEnergyFraction_Photon = 7,
 
-    // selection for tight photons
     /** @brief cluster leakage into the hadronic calorimeter */
     ClusterHadronicLeakage_Photon =  10,
+
     /** @brief energy in 2nd sampling (e277) */
     ClusterMiddleEnergy_Photon    =  11, 
     /** @brief energy ratio in 2nd sampling */
@@ -297,7 +283,8 @@ namespace egammaPID {
     0x1 << ClusterMiddleEratio37_Electron   |
     0x1 << ClusterMiddleWidth_Electron     ;
   const unsigned int CALOBACK_ELECTRON = 
-    0x1 << ClusterBackEnergyFraction_Electron;
+    0x1 << ClusterBackEnergyFraction_Electron |
+    0x1 << ClusterMiddleEratio33_Electron;
 
   /** @brief calorimeter isolation*/
   const unsigned int CALORIMETRICISOLATION_ELECTRON = 
@@ -385,8 +372,9 @@ namespace egammaPID {
   /** @brief Medium++ electron selecton */
   const unsigned int ElectronMediumPP =
     CALO_ELECTRON | 
-    TRACKING_ELECTRON | 
-    TRACKMATCHDETA_ELECTRON |
+    TRACKING_ELECTRON |
+    TRACKMATCHDETA_ELECTRON | 
+    TRACKMATCHDETATIGHT_ELECTRON |
     TRT_RATIO_ELECTRON;
 
   /** @brief Medium++ electron selecton with isolation */
@@ -399,6 +387,7 @@ namespace egammaPID {
     CALO_ELECTRON | 
     TRACKING_ELECTRON | 
     TRACKMATCH_ELECTRON |
+    TRACKMATCHTIGHT_ELECTRON |
     CONVMATCH_ELECTRON |
     TRT_ELECTRON;
 
@@ -522,14 +511,15 @@ namespace egammaPID {
   /** @brief trigger specfic definitions **/
   /** @brief calo middle with rphi **/
   const unsigned int CALOMIDDLE_ELECTRON_HLT = 
-      CALOMIDDLE_ELECTRON | 
+      CALOMIDDLE_ELECTRON |
       0X1 << ClusterMiddleEratio33_Electron;
+  
 
   /** @brief all cuts in calorimeter (except isolation)*/
   const unsigned int CALO_ELECTRON_HLT = 
       HADLEAKETA_ELECTRON | 
       CALOSTRIPS_ELECTRON | 
-      CALOMIDDLE_ELECTRON_HLT | 
+      CALOMIDDLE_ELECTRON | 
       CALOBACK_ELECTRON;
 
   /** @brief Tight Track cluster matching redefined for EF **/
@@ -570,7 +560,7 @@ namespace egammaPID {
   /** @brief Loose 2014 tunes electron selection */
   // Add Rphi to Calo selection
   const unsigned int ElectronLooseHLT = 
-    CALOMIDDLE_ELECTRON_HLT | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
+    CALOMIDDLE_ELECTRON | HADLEAKETA_ELECTRON | CALOSTRIPS_LOOSE_ELECTRON | 
     TRACKMATCHDETA_ELECTRON | TRACKINGLOOSE_ELECTRON;
 
   /** @brief Medium 2014 tunes electron selecton */
@@ -579,45 +569,35 @@ namespace egammaPID {
     CALO_ELECTRON_HLT | 
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
+    TRACKMATCHDETATIGHT_ELECTRON |
     TRT_RATIO_ELECTRON;
 
   /** @brief Tight 2014 tunes electron selecton */
   // Add Rphi to Calo selection and CALOBACK
   const unsigned int ElectronTightHLT =
-    HADLEAKETA_ELECTRON | 
-    CALOSTRIPS_ELECTRON | 
-    CALOMIDDLE_ELECTRON_HLT |
+    CALO_ELECTRON_HLT | 
     TRACKING_ELECTRON | 
     TRACKMATCHDETA_ELECTRON |
-    TRACKMATCH_ELECTRON_EF | 
     TRACKMATCHTIGHT_ELECTRON |
     TRT_ELECTRON;
 
   //
   // for photon selection
   //
-  /** @brief cuts of hadronic leakage (for Loose selection)*/
-  const unsigned int HADLEAKETA_PHOTONLOOSE = 
-    0x1 << ClusterEtaRange_PhotonLoose  | 
-    0x1 << ClusterHadronicLeakage_PhotonLoose;
   /** @brief cuts of hadronic leakage*/
   const unsigned int HADLEAKETA_PHOTON = 
     0x1 << ClusterEtaRange_Photon        | 
     0x1 << ClusterHadronicLeakage_Photon;
-  /** @brief cuts in middle sampling (for Loose selection)*/
-  const unsigned int CALOMIDDLE_PHOTONLOOSE=    
-    0x1 << ClusterMiddleEnergy_PhotonLoose     |
-    0x1 << ClusterMiddleEratio37_PhotonLoose   |
-    0x1 << ClusterMiddleEratio33_PhotonLoose   |
-    0x1 << ClusterMiddleWidth_PhotonLoose     ;
+
   /** @brief cuts in middle sampling*/
   const unsigned int CALOMIDDLE_PHOTON =    
     0x1 << ClusterMiddleEnergy_Photon     |
     0x1 << ClusterMiddleEratio37_Photon   |
     0x1 << ClusterMiddleEratio33_Photon   |
     0x1 << ClusterMiddleWidth_Photon     ;
+
  /** @brief cuts in strips (with ClusterStripsDEmaxs1)*/
-  const unsigned int CALOSTRIPS_PHOTON =
+  const unsigned int CALOSTRIPS_PHOTONTIGHT =
     0x1 << ClusterStripsEratio_Photon     |
     0x1 << ClusterStripsDeltaEmax2_Photon |
     0x1 << ClusterStripsDeltaE_Photon     |
@@ -633,9 +613,6 @@ namespace egammaPID {
   /** @brief calorimeter isolation*/
   const unsigned int CALORIMETRICISOLATION_PHOTON = 
     0x1 << ClusterIsolation_Photon;
-  /** @brief all cuts in calorimeter (except isolation)*/
-  const unsigned int CALO_PHOTON = 
-    HADLEAKETA_PHOTON | CALOSTRIPS_PHOTON | CALOMIDDLE_PHOTON;
 
   /** @brief isolation by tracker */
   const unsigned int TRACKINGISOLATION_PHOTON = 
@@ -660,52 +637,50 @@ namespace egammaPID {
   /** @brief cuts of hadronic leakage (for Loose selection) */
   const unsigned int HADLEAKETA_PHOTON_EF = 
       0x1 << ClusterEtaRange_Photon | 
-      0x1 << ClusterHadronicLeakage_PhotonLoose;
+      0x1 << ClusterHadronicLeakage_Photon;
 
   /** @brief cuts of Eratio (for Medium selection) */
-  const unsigned int CALO_PHOTON_REAT_WETA2_ERATIO = 
+  const unsigned int CALO_PHOTON_RETA_WETA2_ERATIO = 
       0x1 << ClusterEtaRange_Photon | 
-      0x1 << ClusterMiddleEnergy_PhotonLoose | 
-      0x1 << ClusterMiddleEratio37_PhotonLoose | 
-      0x1 << ClusterMiddleWidth_PhotonLoose   | 
+      0x1 << ClusterMiddleEnergy_Photon | 
+      0x1 << ClusterMiddleEratio37_Photon | 
+      0x1 << ClusterMiddleWidth_Photon   | 
       0x1 << ClusterStripsEratio_Photon;
 
+  /** @brief Loose photon selection */
+  const unsigned int PhotonLoose = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON;
+  /** @brief Loose photon selection with Isolation*/
+  const unsigned int PhotonLooseIso = PhotonLoose | ISOLATION_PHOTON;
   /** @brief Loose photon selection with Ambiguity resolver*/
-  const unsigned int PhotonLooseAR = 
-    CALOMIDDLE_PHOTONLOOSE | HADLEAKETA_PHOTONLOOSE | AMBIGUITYRESOLVE_PHOTON;
+  const unsigned int PhotonLooseAR = PhotonLoose | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Loose photon selection with Ambiguity resolver and Isolation*/
   const unsigned int PhotonLooseARIso = PhotonLooseAR | ISOLATION_PHOTON;
 
   /** @brief Medium photon selection */
-  const unsigned int PhotonMediumAR = PhotonLooseAR | CALOSTRIPS_PHOTONMEDIUM;
+  const unsigned int PhotonMedium = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONMEDIUM;
+  /** @brief Medium photon selection with Isolation*/
+  const unsigned int PhotonMediumIso = PhotonMedium | ISOLATION_PHOTON;
+  /** @brief Medium photon selection with Ambiguity revolver*/
+  const unsigned int PhotonMediumAR = PhotonMedium | AMBIGUITYRESOLVE_PHOTON;
+  /** @brief Medium photon selection with Ambiguity resolver and Isolation*/
+  const unsigned int PhotonMediumARIso = PhotonMediumAR | ISOLATION_PHOTON;
 
+  /** @brief Tight photon selection */
+  const unsigned int PhotonTight = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONTIGHT;
+  /** @brief Tight photon selection with isolation*/
+  const unsigned int PhotonTightIso = PhotonTight | ISOLATION_PHOTON;
   /** @brief Tight photon selection with Ambiguity resolver*/
-  const unsigned int PhotonTightAR = CALO_PHOTON | AMBIGUITYRESOLVE_PHOTON;
+  const unsigned int PhotonTightAR = PhotonTight | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Tight photon selection with isolation and Ambiguity resolver*/
   const unsigned int PhotonTightARIso = PhotonTightAR | ISOLATION_PHOTON;
 
-  /** @brief Loose photon selection */
-  const unsigned int PhotonLoose = 
-    CALOMIDDLE_PHOTONLOOSE | HADLEAKETA_PHOTONLOOSE;
-  /** @brief Loose photon selection with Isolation*/
-  const unsigned int PhotonLooseIso = PhotonLoose | ISOLATION_PHOTON;
-
-  /** @brief Medium photon selection */
-  const unsigned int PhotonMedium = PhotonLoose | CALOSTRIPS_PHOTONMEDIUM;
-
-  /** @brief Tight photon selection */
-  const unsigned int PhotonTight = CALO_PHOTON ;
-  /** @brief Tight photon selection with isolation*/
-  const unsigned int PhotonTightIso = PhotonTight | ISOLATION_PHOTON;
-
-
   /** @brief TrigEgamma Pid Definitions */
   /** @brief Loose photon selection for online EF */
-  const unsigned int PhotonLooseEF =  CALOMIDDLE_PHOTONLOOSE | HADLEAKETA_PHOTON_EF;
+  const unsigned int PhotonLooseEF =  CALOMIDDLE_PHOTON | HADLEAKETA_PHOTON_EF;
 
   // Added for 2g20_medium
   /** @brief Medium photon selection for online EF */
-  const unsigned int PhotonMediumEF = HADLEAKETA_PHOTON_EF | CALO_PHOTON_REAT_WETA2_ERATIO;
+  const unsigned int PhotonMediumEF = HADLEAKETA_PHOTON_EF | CALO_PHOTON_RETA_WETA2_ERATIO;
 
 
   /**@brief forward electron flavours */
@@ -728,6 +703,7 @@ namespace egammaPID {
   const unsigned int frwdElectronTight = 126;
   const unsigned int frwdElectronLoose = 104;
 
+  struct ROOT6_NamespaceAutoloadHook{};
 }
 
 

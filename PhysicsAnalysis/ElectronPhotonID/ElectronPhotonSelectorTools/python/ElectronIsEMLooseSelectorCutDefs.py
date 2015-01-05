@@ -17,6 +17,18 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+def ElectronIsEMLooseSelectorConfigDC14(theTool) :
+    '''
+    These are the cut base isEM definitions: Loose from *DC14*
+    '''
+    
+    theTool = GetTool(theTool)
+    
+    # the isEM name
+    theTool.PIDName = egammaPID.IsEMLoose
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMLooseSelectorCutDefs.conf"
+
+
 def ElectronIsEMLooseSelectorConfig2011(theTool) :
     '''
     This is for the Loose++ isEM definitions.

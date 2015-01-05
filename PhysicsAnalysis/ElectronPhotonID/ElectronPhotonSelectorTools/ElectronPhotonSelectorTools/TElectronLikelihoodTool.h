@@ -132,6 +132,9 @@ namespace LikeEnum {
     int nBlayerOutliers;
     bool expectBlayer;
     int convBit;
+    double d0;
+    double deltaEta;
+    double deltaphires;
     double ip;         
   };
 
@@ -154,8 +157,11 @@ namespace LikeEnum {
     //double ws3;
     double deltaPoverP;
     double deltaphires;
+    double TRT_PID;
     double ip;        
   };
+
+   struct ROOT6_NamespaceAutoloadHook{};
 }
 
 //This is an *ugly* solution due to what appears to be Root dict issue for interactive use
@@ -202,7 +208,7 @@ namespace Root {
                                  double eta, double eT,
                                  int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
                                  int nBlayer, int nBlayerOutliers, bool expectBlayer,
-                                 int convBit, double ip ) const;
+                                 int convBit, double d0, double deltaEta, double deltaphires, double ip ) const;
     const Root::TResult& calculate(LikeEnum::LHCalcVars_t& vars_struct) const ;
     const Root::TResult& calculate( double eta, double eT,double f3, double rHad, double rHad1,
                                     double Reta, double w2, double f1, /*double wstot,*/ double eratio,
@@ -210,6 +216,7 @@ namespace Root {
                                     /*double deltaPhi,*/ double d0sigma, /*double fside,*/
                                     /*double ptcone20,*/ double rphi, /*double ws3,*/
                                     double deltaPoverP ,double deltaphires,
+				    double TRT_PID,
                                     double ip) const;
     
 
@@ -239,6 +246,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = true;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_VeryTight,Disc_VeryTight+sizeof(Disc_VeryTight)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_VeryTight_b,Disc_VeryTight_b+sizeof(Disc_VeryTight_b)/sizeof(double));
       }
@@ -249,6 +257,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = true;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Tight,Disc_Tight+sizeof(Disc_Tight)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_Tight_b,Disc_Tight_b+sizeof(Disc_Tight_b)/sizeof(double));
       }	
@@ -260,6 +269,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = false;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Medium,Disc_Medium+sizeof(Disc_Medium)/sizeof(double));
 	CutLikelihoodPileupCorrection.assign(Disc_Medium_b,Disc_Medium_b+sizeof(Disc_Medium_b)/sizeof(double));
       }
@@ -271,6 +281,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = false;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_Loose,Disc_Loose+sizeof(Disc_Loose)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
       }
@@ -281,6 +292,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = false;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_LooseRelaxed,Disc_LooseRelaxed+sizeof(Disc_LooseRelaxed)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
       }
@@ -291,6 +303,7 @@ namespace Root {
 	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
 	doCutConversion = false;
 	doRemoveF3AtHighEt = false;
+	doPileupTransform = false;
 	CutLikelihood.assign(Disc_VeryLoose,Disc_VeryLoose+sizeof(Disc_VeryLoose)/sizeof(double));
 	CutLikelihoodPileupCorrection.clear();
       }
@@ -356,14 +369,32 @@ namespace Root {
     std::vector<int> CutPi;
     /** @brief cut min on precision hits*/
     std::vector<int> CutSi;
+    /** @brief cut max on track d0 bit*/
+    std::vector<double> CutA0;
+    /** @brief do cut on delta eta bit*/
+    std::vector<double> CutDeltaEta;
+    // /** @brief do cut on delta phi (not res) bit*/
+    std::vector<double> CutDeltaPhiRes;
     /** @brief do cut on conversion bit*/
-    int doCutConversion;
+    bool doCutConversion;
     /** @brief do remove f3 variable from likelihood at high Et (>100 GeV)*/
-    int doRemoveF3AtHighEt;
+    bool doRemoveF3AtHighEt;
+    /** @brief do pileup-dependent transform on discriminant value*/
+    bool doPileupTransform;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
     /** @brief pileup correction factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrection;
+    /** @brief reference disc for very hard cut; used by pileup transform */
+    std::vector<double> DiscHardCutForPileupTransform;
+    /** @brief reference slope on disc for very hard cut; used by pileup transform */
+    std::vector<double> DiscHardCutSlopeForPileupTransform;
+    /** @brief reference disc for a pileup independent loose menu; used by pileup transform */
+    std::vector<double> DiscLooseForPileupTransform;
+    /** @brief max discriminant for which pileup transform is to be used */
+    double DiscMaxForPileupTransform;
+    /** @brief max nvtx or mu to be used in pileup transform  */
+    double PileupMaxForPileupTransform;
     /** @brief variables to use in the LH*/
     std::string VariableNames;
     /** The operating point for the final cuts*/
@@ -376,8 +407,8 @@ namespace Root {
 
     // Private methods
   private:
-    /// Apply a transform to zoom into the LH output peaks.
-    double TransformLikelihoodOutput(double ps,double pb) const;
+    /// Apply a transform to zoom into the LH output peaks. Optionally do pileup correction too
+    double TransformLikelihoodOutput(double ps,double pb, double ip, unsigned int ibin_combined) const;
 
     /// Eta binning for pdfs and discriminant cuts.
     unsigned int getLikelihoodEtaBin(double eta) const ;
@@ -414,13 +445,13 @@ namespace Root {
     /// The position of the kinematic cut bit in the TAccept return object
     int m_cutPosition_kinematic;
 
-    /// The position of the kinematic cut bit in the TAccept return object
+    /// The position of the NSilicon cut bit in the TAccept return object
     int m_cutPosition_NSilicon;
 
-    /// The position of the kinematic cut bit in the TAccept return object
+    /// The position of the NPixel cut bit in the TAccept return object
     int m_cutPosition_NPixel;
 
-    /// The position of the kinematic cut bit in the TAccept return object
+    /// The position of the NBlayer cut bit in the TAccept return object
     int m_cutPosition_NBlayer;
 
     /// The position of the conversion cut bit in the TAccept return object
@@ -429,6 +460,14 @@ namespace Root {
     /// The position of the likelihood cut bit in the TAccept return object
     int m_cutPosition_LH;
 
+    /// The position of the d0 cut bit in the TAccept return object
+    int m_cutPositionTrackA0;
+
+    /// The position of the deltaeta cut bit in the TAccept return object
+    int m_cutPositionTrackMatchEta;
+
+    // /// The position of the deltaphi cut bit in the TAccept return object
+    int m_cutPositionTrackMatchPhiRes;
 
     /// The position of the likelihood value bit in the TResult return object
     int m_resultPosition_LH;
@@ -440,10 +479,10 @@ namespace Root {
     static const unsigned int  fnEtBins         = 6;
     static const unsigned int  fnFineEtBins     = 9;
     static const unsigned int  fnEtaBins        = 10;
-    static const unsigned int  fnVariables      = 13; // 19
-    TH1F*               fPDFbins     [2][IP_BINS][6][10][13]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    double              fPDFIntegrals[2][IP_BINS][6][10][13]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [13]; // 
+    static const unsigned int  fnVariables      = 14; // 19
+    TH1F*               fPDFbins     [2][IP_BINS][6][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    double              fPDFIntegrals[2][IP_BINS][6][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    static const char*  fVariables                      [14]; // 
     //static const double cutDiscriminant [1][6][10];     // [ip][et][eta]
 
     static const double Disc_VeryLoose[90];

@@ -247,12 +247,12 @@ class SelectionDefElectron:
                           CutDefElectron.HADLEAKETA_ELECTRON | \
                           CutDefElectron.CALOSTRIPS_LOOSE_ELECTRON | \
 		          CutDefElectron.TRACKINGLOOSE_ELECTRON |  \
-                          CutDefElectron.TRACKMATCHDETA_ELECTRON | \
-                          0x1 << BitDefElectron.ClusterMiddleEratio33_Electron
+                          CutDefElectron.TRACKMATCHDETA_ELECTRON 
 	""" @brief Medium1 with Rphi Electron definition for trigger """
 	#AT: 7Sept2011, remove TRT Hits from medium1, following offline medium++ prescription
 	ElectronMediumHLT    = CutDefElectron.CALO_ELECTRON | CutDefElectron.TRACKING_ELECTRON | \
 		CutDefElectron.TRACKMATCHDETA_ELECTRON | \
+                CutDefElectron.TRACKMATCHDETATIGHT_ELECTRON | \
 		0x1 << BitDefElectron.TrackTRTratio_Electron | \
 		0x1 << BitDefElectron.ClusterBackEnergyFraction_Electron | \
                 0x1 << BitDefElectron.ClusterMiddleEratio33_Electron

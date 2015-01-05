@@ -46,7 +46,7 @@ public:
 
 
   /** The isem potentially for the trigger */
-  virtual StatusCode execute(const xAOD::Photon*, double trigEtTh) const =0;
+  virtual StatusCode execute(const xAOD::Photon* eg) const =0;
 
   virtual unsigned int IsemValue() const =0;
 

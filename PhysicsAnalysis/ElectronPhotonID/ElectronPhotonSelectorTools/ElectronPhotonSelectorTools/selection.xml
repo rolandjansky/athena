@@ -1,10 +1,12 @@
 <lcgdict>
   <enum pattern="egammaPID::*"/>
   <variable pattern="egammaPID::*"/>
+  <class name="egammaPID::ROOT6_NamespaceAutoloadHook" /> 
   <enum name="LikeEnum::Menu" />
-<!--   <class name="AsgElectronIsEMSelector" /> 
+  <class name="LikeEnum::ROOT6_NamespaceAutoloadHook" /> 
+  <class name="AsgElectronIsEMSelector" /> 
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
-  <function pattern="AsgConfigHelper::Helper*"/>  -->
+  <function pattern="AsgConfigHelper::Helper*"/> 
 </lcgdict>

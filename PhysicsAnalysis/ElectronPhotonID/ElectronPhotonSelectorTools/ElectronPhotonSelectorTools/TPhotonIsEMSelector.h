@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 // Dear emacs, this is -*-c++-*-
 
 #ifndef __TPHOTONISEMSELECTOR__
@@ -63,26 +64,26 @@ namespace Root {
 				float eta2,
 				// transverse energy in calorimeter (using eta position in second sampling)
 				double et,
-				// transverse energy in 1st scintillator of hadronic calorimeter
-				float ethad1,
-				// transverse energy in hadronic calorimeter
-				float ethad,
-				// E(3*3) in 2nd sampling
-				float e233,
-				// E(3*7) in 2nd sampling
-				float e237,
+				// transverse energy in 1st scintillator of hadronic calorimeter/ET
+				float Rhad1,
+				// transverse energy in hadronic calorimeter/ET
+				float Rhad,
 				// E(7*7) in 2nd sampling
 				float e277,
+				// E(3*7)/E(7*7) in 2nd sampling
+				float Reta,
+				// E(3*3)/E(3*7) in 2nd sampling
+				float Rphi,
 				// shower width in 2nd sampling
 				float weta2c,
-				//  E of 2nd max between max and min in strips
-				float emax2,
-				// E of 1st max in strips
-				float emax,
-				// E(min) in strips
-				float emin,
 				// fraction of energy reconstructed in strips
 				float f1,
+				// (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+				float Eratio,
+				// E(2nd max)-E(min) in strips
+				float DeltaE,
+				//  E of 2nd max between max and min in strips
+				// float emax2,
 				// shower width in 3 strips in 1st sampling
 				float weta1c,
 				// total shower width in strips
@@ -104,26 +105,26 @@ namespace Root {
 			  float eta2,
 			  // transverse energy in calorimeter (using eta position in second sampling)
 			  double et,
-			  // transverse energy in 1st scintillator of hadronic calorimeter
-			  float ethad1,
-			  // transverse energy in hadronic calorimeter
-			  float ethad,
-			  // E(3*3) in 2nd sampling
-			  float e233,
-			  // E(3*7) in 2nd sampling
-			  float e237,
+			  // transverse energy in 1st scintillator of hadronic calorimeter/ET
+			  float Rhad1,
+			  // transverse energy in hadronic calorimeter/ET
+			  float Rhad,
 			  // E(7*7) in 2nd sampling
 			  float e277,
+			  // E(3*7)/E(7*7) in 2nd sampling
+			  float Reta,
+			  // E(3*3)E(3*7) in 2nd sampling
+			  float Rphi,
 			  // shower width in 2nd sampling
 			  float weta2c,
-			  //  E of 2nd max between max and min in strips
-			  float emax2,
-			  // E of 1st max in strips
-			  float emax,
-			  // E(min) in strips
-			  float emin,
 			  // fraction of energy reconstructed in strips
 			  float f1,
+			  // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+			  float Eratio,
+			  // E(2nd max)-E(min) in strips
+			  float DeltaE,
+			  // shower width in 3 strips in 1st sampling
+			  //  E of 2nd max between max and min in strips
 			  // shower width in 3 strips in 1st sampling
 			  float weta1c,
 			  // total shower width in strips
@@ -139,94 +140,75 @@ namespace Root {
 			  // The ambiguity result 
 			  EMAmbiguityType::AmbiguityResult ambiguityResult) const;
 
+    /** @brief Apply calorimeter cuts for selection of converted photons*/
+    unsigned int calocuts_photonsConverted(
+					   // eta position in second sampling
+					   float eta2,
+					   // transverse energy in calorimeter 
+					   double et,
+					   // hadronic leakage ratios
+					   float Rhad1,
+					   float Rhad,
+					   // E(7*7) in 2nd sampling
+					   float e277,
+					   // ratios
+					   float Reta,
+					   float Rphi,
+					   // shower width in 2nd sampling
+					   float weta2c,
+					   // fraction of energy reconstructed in strips
+					   float f1,
+					   // (Emax1-Emax2)/(Emax1+Emax2)
+					   float Eratio,
+					   // difference of energy between max and min
+					   float DeltaE,
+					   // parametrization of E(2nd max)
+					   //float deltaemax2,
+					   // shower width in 3 strips in 1st sampling
+					   float weta1c,
+					   // total shower width in strips
+					   float wtot,
+					   // E(+/-3)-E(+/-1)/E(+/-1)
+					   float fracm,
+					   // fraction of energy reconstructed in the 3rd sampling
+					   float f3,
+					   // E/p
+					   double ep,
+					   unsigned int iflag) const;
 
-    /** @brief Apply calorimeter cuts for Loose selection; used by calcIsEm */
-    unsigned int calocuts_photonsLoose(
-				       // eta position in second sampling
-				       float eta2,
-				       // transverse energy in calorimeter (using eta position in second sampling)
-				       double et,
-				       // hadronic leakage ratios
-				       float raphad1,
-				       float raphad,
-				       // E(7*7) in 2nd sampling
-				       float e277,
-				       // ratios
-				       float Reta37,
-				       float Rphi33,
-				       // shower width in 2nd sampling
-				       float weta2c,
-				       unsigned int iflag) const;
-
-    /** @brief Apply calorimeter cuts for Tight selection of converted photons*/
-    unsigned int calocuts_photonsTightConverted(
-						// eta position in second sampling
-						float eta2,
-						// transverse energy in calorimeter 
-						double et,
-						// hadronic leakage ratios
-						float raphad1,
-						float raphad,
-						// E(7*7) in 2nd sampling
-						float e277,
-						// ratios
-						float Reta37,
-						float Rphi33,
-						// shower width in 2nd sampling
-						float weta2c,
-						// (Emax1-Emax2)/(Emax1+Emax2)
-						float demaxs1,
-						// difference of energy between max and min
-						float deltae,
-						// parametrization of E(2nd max)
-						float deltaemax2,
-						// fraction of energy reconstructed in strips
-						float f1,
-						// shower width in 3 strips in 1st sampling
-						float weta1c,
-						// total shower width in strips
-						float wtot,
-						// E(+/-3)-E(+/-1)/E(+/-1)
-						float fracm,
-						// fraction of energy reconstructed in the 3rd sampling
-						float f3,
-						// E/p
-						double ep,
-						unsigned int iflag) const;
-
-    /** @brief Apply calorimeter cuts for Tight selection of non converted photons*/
-    unsigned int calocuts_photonsTightNonConverted(
-						   // eta position in second sampling
-						   float eta2,
-						   // transverse energy in calorimeter 
-						   double et,
-						   // hadronic leakage ratios
-						   float raphad1,
-						   float raphad,
-						   // E(7*7) in 2nd sampling
-						   float e277,
-						   // ratios
-						   float Reta37,
-						   float Rphi33,
-						   // shower width in 2nd sampling
-						   float weta2c,
-						   // (Emax1-Emax2)/(Emax1+Emax2)
-						   float demaxs1,
-						   // difference of energy between max and min
-						   float deltae,
-						   // parametrization of E(2nd max)
-						   float deltaemax2,
-						   // fraction of energy reconstructed in strips
-						   float f1,
-						   // shower width in 3 strips in 1st sampling
-						   float weta1c,
-						   // total shower width in strips
-						   float wtot,
-						   // E(+/-3)-E(+/-1)/E(+/-1)
-						   float fracm,
-						   // fraction of energy reconstructed in the 3rd sampling
-						   float f3,
-						   unsigned int iflag) const;
+    /** @brief Apply calorimeter cuts for selection of non converted photons*/
+    unsigned int calocuts_photonsNonConverted(
+					      // eta position in second sampling
+					      float eta2,
+					      // transverse energy in calorimeter 
+					      double et,
+					      // hadronic leakage ratios
+					      float Rhad1,
+					      float Rhad,
+					      // E(7*7) in 2nd sampling
+					      float e277,
+					      // ratios
+					      float Reta,
+					      float Rphi,
+					      // shower width in 2nd sampling
+					      float weta2c,
+					      // fraction of energy reconstructed in strips
+					      float f1,
+					      // (Emax1-Emax2)/(Emax1+Emax2)
+					      float Eratio,
+					      // difference of energy between max and min
+					      float DeltaE,
+					      // parametrization of E(2nd max)
+					      //float deltaemax2,
+					      // shower width in 3 strips in 1st sampling
+					      float weta1c,
+					      // total shower width in strips
+					      float wtot,
+					      // E(+/-3)-E(+/-1)/E(+/-1)
+					      float fracm,
+					      // fraction of energy reconstructed in the 3rd sampling
+					      float f3,
+					      unsigned int iflag) const;
     
     // used internally by calcIsEm, but left public because it can be useful for users.
     unsigned int ambiguitycuts_photons(EMAmbiguityType::AmbiguityResult ambiguityResult, 
@@ -254,27 +236,9 @@ namespace Root {
     /** @brief boolean to force to test non converted photon hypothesis */
     bool forceNonConvertedPhotonPID;
 
-    //
-    // Loose selection
-    //
-    /** @brief range of eta bins for photon-ID*/
-    std::vector<float> CutBinEta_photonsLoose;
-    /** @brief range of ET bins for photon-ID*/
-    std::vector<float> CutBinEnergy_photonsLoose;
-    /** @brief Cut in E277 for photons*/
-    std::vector<float> e277_photonsLoose;
-    /** @brief Cut on hadronic leakage for photons*/
-    std::vector<float> CutHadLeakage_photonsLoose;
-    /** @brief Cut on ratio Reta37 for photons*/
-    std::vector<float> Reta37_photonsLoose;
-    /** @brief Cut on ratio Rphi33 for photons*/
-    std::vector<float> Rphi33_photonsLoose;
-    /** @brief Cut on width in 2nd sampling for photons*/
-    std::vector<float> weta2_photonsLoose;
     
-    // New f3 cut
     //
-    // selection for Tight photons (non-converted)
+    // selection for non-converted photons
     //
     /** @brief range of eta bins for photon-ID*/
     std::vector<float> CutBinEta_photonsNonConverted;
@@ -298,7 +262,7 @@ namespace Root {
     /** @brief Cut on fraction of energy rec. in 1st sampling for photons*/
     std::vector<float> f1_photonsNonConverted;
     /** @brief Cut on Demax2 for photons*/
-    std::vector<float> emax2r_photonsNonConverted;
+    // std::vector<float> emax2r_photonsNonConverted;
     /** @brief Cut on Emax2-Emin for photons*/
     std::vector<float> deltae_photonsNonConverted;
     /** @brief cut on (Emax1-Emax2)/(Emax1-Emax2) for photons*/
@@ -313,7 +277,7 @@ namespace Root {
     std::vector<float> CutF3_photonsNonConverted;
 
     //
-    // selection for Tight photons (converted)
+    // selection for converted photons
     //
     /** @brief range of eta bins for photon-ID*/
     std::vector<float> CutBinEta_photonsConverted;
@@ -337,7 +301,7 @@ namespace Root {
     /** @brief Cut on fraction of energy rec. in 1st sampling for photons*/
     std::vector<float> f1_photonsConverted;
     /** @brief Cut on Demax2 for photons*/
-    std::vector<float> emax2r_photonsConverted;
+    // std::vector<float> emax2r_photonsConverted;
     /** @brief Cut on Emax2-Emin for photons*/
     std::vector<float> deltae_photonsConverted;
     /** @brief cut on (Emax1-Emax2)/(Emax1-Emax2) for photons*/
@@ -373,25 +337,8 @@ namespace Root {
 
     /** @brief cluster eta range */
     int m_cutPositionClusterEtaRange_Photon;
-    /** @brief cluster eta range */
-    int m_cutPositionClusterEtaRange_PhotonLoose;
-
-    // selection for Loose photons
-    /** @brief cluster leakage into the hadronic calorimeter */
-    int m_cutPositionClusterHadronicLeakage_PhotonLoose;
-    /** @brief energy in 2nd sampling (e277) */
-    int m_cutPositionClusterMiddleEnergy_PhotonLoose;
-    /** @brief energy ratio in 2nd sampling */
-    int m_cutPositionClusterMiddleEratio37_PhotonLoose;
-    /** @brief energy ratio in 2nd sampling */
-    int m_cutPositionClusterMiddleEratio33_PhotonLoose;
-    /** @brief width in the second sampling */
-    int m_cutPositionClusterMiddleWidth_PhotonLoose;
-
     /** @brief energy fraction in the third layer */
     int m_cutPositionClusterBackEnergyFraction_Photon;
-
-    // selection for tight photons
     /** @brief cluster leakage into the hadronic calorimeter */
     int m_cutPositionClusterHadronicLeakage_Photon;
     /** @brief energy in 2nd sampling (e277) */
@@ -402,11 +349,10 @@ namespace Root {
     int m_cutPositionClusterMiddleEratio33_Photon;
     /** @brief width in the second sampling */
     int m_cutPositionClusterMiddleWidth_Photon;
-
     /** @brief fraction of energy found in 1st sampling */
     int m_cutPositionClusterStripsEratio_Photon;
     /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
-    int m_cutPositionClusterStripsDeltaEmax2_Photon;
+    // int m_cutPositionClusterStripsDeltaEmax2_Photon;
     /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
     int m_cutPositionClusterStripsDeltaE_Photon;
     /** @brief shower width in 1st sampling */
@@ -417,13 +363,10 @@ namespace Root {
     int m_cutPositionClusterStripsWeta1c_Photon;
     /** @brief difference between max and 2nd max in strips */
     int m_cutPositionClusterStripsDEmaxs1_Photon;
-
     /** @brief energy-momentum match for photon selection*/
     int m_cutPositionTrackMatchEoverP_Photon;
-    
     /** @brief ambiguity resolution for photon (vs electron) */
     int m_cutPositionAmbiguityResolution_Photon;
-
     /** @brief isolation */
     int m_cutPositionIsolation_Photon;
     /** @brief calorimetric isolation for photon selection */
@@ -435,25 +378,8 @@ namespace Root {
 
     /** @brief cluster eta range */
     const TString m_cutNameClusterEtaRange_Photon;
-    /** @brief cluster eta range */
-    const TString m_cutNameClusterEtaRange_PhotonLoose;
-
-    // selection for Loose photons
-    /** @brief cluster leakage into the hadronic calorimeter */
-    const TString m_cutNameClusterHadronicLeakage_PhotonLoose;
-    /** @brief energy in 2nd sampling (e277) */
-    const TString m_cutNameClusterMiddleEnergy_PhotonLoose;
-    /** @brief energy ratio in 2nd sampling */
-    const TString m_cutNameClusterMiddleEratio37_PhotonLoose;
-    /** @brief energy ratio in 2nd sampling */
-    const TString m_cutNameClusterMiddleEratio33_PhotonLoose;
-    /** @brief width in the second sampling */
-    const TString m_cutNameClusterMiddleWidth_PhotonLoose;
-
     /** @brief energy fraction in the third layer */
     const TString m_cutNameClusterBackEnergyFraction_Photon;
-
-    // selection for tight photons
     /** @brief cluster leakage into the hadronic calorimeter */
     const TString m_cutNameClusterHadronicLeakage_Photon;
     /** @brief energy in 2nd sampling (e277) */
@@ -464,11 +390,10 @@ namespace Root {
     const TString m_cutNameClusterMiddleEratio33_Photon;
     /** @brief width in the second sampling */
     const TString m_cutNameClusterMiddleWidth_Photon;
-
     /** @brief fraction of energy found in 1st sampling */
     const TString m_cutNameClusterStripsEratio_Photon;
     /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
-    const TString m_cutNameClusterStripsDeltaEmax2_Photon;
+    // const TString m_cutNameClusterStripsDeltaEmax2_Photon;
     /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
     const TString m_cutNameClusterStripsDeltaE_Photon;
     /** @brief shower width in 1st sampling */
@@ -479,13 +404,10 @@ namespace Root {
     const TString m_cutNameClusterStripsWeta1c_Photon;
     /** @brief difference between max and 2nd max in strips */
     const TString m_cutNameClusterStripsDEmaxs1_Photon;
-
     /** @brief energy-momentum match for photon selection*/
     const TString m_cutNameTrackMatchEoverP_Photon;
-    
     /** @brief ambiguity resolution for photon (vs electron) */
     const TString m_cutNameAmbiguityResolution_Photon;
-
     /** @brief isolation */
     const TString m_cutNameIsolation_Photon;
     /** @brief calorimetric isolation for photon selection */

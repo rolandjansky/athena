@@ -15,6 +15,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 
 // STL includes
 #include <string>
@@ -28,7 +29,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
+#include "TEnv.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -38,6 +39,7 @@
 //=============================================================================
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
+  m_configFile(""),
   m_rootTool(0)
 {
 
@@ -45,6 +47,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   m_rootTool = new Root::TElectronLikelihoodTool( ("T"+myname).c_str() );
 
   // Declare the needed properties
+  declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 11, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
@@ -54,7 +57,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   // Configurables in the root tool
   //
   // pdf file name. Managed in the Asg tool.
-  declareProperty("inputPDFFileName",  m_pdfFileName="ElectronPhotonSelectorTools/ElectronLikelihoodPdfs.root", "The input ROOT file name that holds the PDFs" );
+  declareProperty("inputPDFFileName",  m_pdfFileName="ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root", "The input ROOT file name that holds the PDFs" );
   // Operating Point. Managed in the Asg tool.
   declareProperty("OperatingPoint",m_operatingPoint=0,"Likelihood operating point");
   // the variable names, if non-standard - nope, it's done above!
@@ -69,10 +72,29 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutBL",m_rootTool->CutBL,"Cut on b-layer");
   // cut on pixel hits
   declareProperty("CutPi",m_rootTool->CutPi,"Cut on pixel hits");
+  // cut on d0
+  declareProperty("CutA0",m_rootTool->CutA0,"Cut on d0");
+  // cut on deltaEta
+  declareProperty("CutDeltaEta",m_rootTool->CutDeltaEta,"Cut on deltaEta");
+  // cut on deltaPhiRes
+  declareProperty("CutDeltaPhiRes",m_rootTool->CutDeltaPhiRes,"Cut on deltaPhiRes");
   // cut on precision hits
   declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
   // turn off f3 at high Et
   declareProperty("doRemoveF3AtHighEt",m_rootTool->doRemoveF3AtHighEt,"Turn off f3 at high Et");
+  // do pileup-dependent transform on discriminant value
+  declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
+  // reference disc for very hard cut; used by pileup transform
+  declareProperty("DiscHardCutForPileupTransform",m_rootTool->DiscHardCutForPileupTransform,"Reference disc for very hard cut; used by pileup transform");
+  // reference slope on disc for very hard cut; used by pileup transform
+  declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->DiscHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
+  // reference disc for a pileup independent loose menu; used by pileup transform
+  declareProperty("DiscLooseForPileupTransform",m_rootTool->DiscLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
+  // max discriminant for which pileup transform is to be used
+  declareProperty("DiscMaxForPileupTransform",m_rootTool->DiscMaxForPileupTransform,"Max discriminant for which pileup transform is to be used");
+  // max nvtx or mu to be used in pileup transform
+  declareProperty("PileupMaxForPileupTransform",m_rootTool->PileupMaxForPileupTransform,"Max nvtx or mu to be used in pileup transform");
+  declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only LH");
 }
 
 
@@ -84,7 +106,7 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
   if(finalize().isFailure()){
     ATH_MSG_ERROR ( "Failure in AsgElectronLikelihoodTool finalize()");
   }
-  if ( m_rootTool ) delete m_rootTool;
+  delete m_rootTool;
 }
 
 
@@ -95,17 +117,85 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 {
   // Add an input file that holds the PDFs
 
-  //First try the PathResolver
-  std::string filename = PathResolverFindCalibFile( m_pdfFileName );
-  if (filename.empty()){
-    ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
-  }  else{
-    ATH_MSG_INFO(" Path found = "<<filename);
+//---------------start of text config------------------------
+// TODO: Sort out this set operating point stuff.
+  if(!m_configFile.empty()){
+    std::string configFile = PathResolverFindCalibFile( m_configFile);
+    TEnv env(configFile.c_str());
+
+    // Get the input PDFs in the tool.
+    std::string PDFfilename;
+    
+    if (m_configFile.find("dev/") != std::string::npos) {
+      
+      std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+      PDFfilename = ("dev/"+PDFdevval);
+       ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
+    } else {
+      PDFfilename = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
+       ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename );
+    }
+    
+    std::string filename = PathResolverFindCalibFile( PDFfilename );
+    if (!filename.empty()){
+      m_pdfFileName = filename.c_str();
+    }
+    m_rootTool->setPDFFileName( m_pdfFileName );
+    m_rootTool->VariableNames =  env.GetValue("VariableNames","");
+    m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
+    m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
+    // do the conversion cut
+    m_rootTool->doCutConversion = env.GetValue("doCutConversion", false);
+    // cut on b-layer
+    m_rootTool->CutBL = AsgConfigHelper::HelperInt("CutBL",env);
+    // cut on pixel hits
+    m_rootTool->CutPi = AsgConfigHelper::HelperInt("CutPi", env);
+    // cut on precision hits
+    m_rootTool->CutSi = AsgConfigHelper::HelperInt("CutSi", env);
+    // cut on d0
+    m_rootTool->CutA0 = AsgConfigHelper::HelperDouble("CutA0", env);
+    // cut on deltaEta
+    m_rootTool->CutDeltaEta = AsgConfigHelper::HelperDouble("CutDeltaEta", env);
+    // cut on deltaPhiRes
+    m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
+    // turn off f3 at high Et
+    m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
+    m_operatingPoint = env.GetValue("OperatingPoint", 0);
+    m_caloOnly = env.GetValue("caloOnly", false);
+
+    m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
+    m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
+    m_rootTool->DiscHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
+    m_rootTool->DiscLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
+    m_rootTool->DiscMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
+    m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
+
+
+  }  else{  //Do python config if m_configFile is empty.
+    std::string filename = PathResolverFindCalibFile( m_pdfFileName );
+	if (filename.empty()){
+      ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
+    }  else{
+      ATH_MSG_INFO(" Path found = "<<filename);
+    }
+    const char* fname= filename.c_str();
+    m_rootTool->setPDFFileName ( fname );
+
+  // Set the cut value to be used
   }
+///-----------End of text config----------------------------
+  //First try the PathResolver
+//  std::string filename = PathResolverFindCalibFile( m_pdfFileName );
+//  if (filename.empty()){
+//    ATH_MSG_WARNING ( "Could NOT resolve file name " << m_pdfFileName );
+//  }  else{
+//    ATH_MSG_INFO(" Path found = "<<filename);
+//  }
 
-  const char* fname= filename.c_str();
-  m_rootTool->setPDFFileName ( fname );
+ // const char* fname= filename.c_str();
+ // m_rootTool->setPDFFileName ( fname );
 
+  m_rootTool->setOperatingPoint( (LikeEnum::Menu)m_operatingPoint );
   // Get the name of the current operating point, and massage the other strings accordingly
   ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
 
@@ -114,8 +204,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   if ( this->msgLvl(MSG::VERBOSE) ) debug = true;
   m_rootTool->setDebug(debug);
 
-  // Set the cut value to be used
-  m_rootTool->setOperatingPoint( (LikeEnum::Menu)m_operatingPoint );
   
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -153,7 +241,7 @@ StatusCode AsgElectronLikelihoodTool::finalize()
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg ) const
+const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg )
     {
@@ -188,49 +276,63 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   uint8_t expectBlayer(true);
   uint8_t nBlayerHits(0); 
   uint8_t nBlayerOutliers(0); 
+  float d0(0.0);
+  float deltaEta=0, deltaPhiRescaled2=0;
+  int convBit(0); // this no longer works
+  double ip(0);
 
   bool allFound = true;
 
-  // retrieve associated track
-  const xAOD::TrackParticle* t  = eg->trackParticle();    
-  if (t)
-    {
-       allFound = allFound && t->summaryValue(nPix, xAOD::numberOfPixelHits);
-       allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
-       nSi = nPix + nSCT;
-       allFound = allFound && t->summaryValue(nPixDeadSensors, xAOD::numberOfPixelDeadSensors);
-       allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
-       nSiDeadSensors = nPixDeadSensors + nSCTDeadSensors;
+  if(!m_caloOnly) {
+      // retrieve associated track
+      const xAOD::TrackParticle* t  = eg->trackParticle();    
+      if (t)
+        {
+           d0 = t->d0();
+           allFound = allFound && t->summaryValue(nPix, xAOD::numberOfPixelHits);
+           allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
+           nSi = nPix + nSCT;
+           allFound = allFound && t->summaryValue(nPixDeadSensors, xAOD::numberOfPixelDeadSensors);
+           allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
+           nSiDeadSensors = nPixDeadSensors + nSCTDeadSensors;
 
-       allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
-       allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
-       allFound = allFound && t->summaryValue(nBlayerOutliers, xAOD::numberOfBLayerOutliers);
+           allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
+           allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
+           allFound = allFound && t->summaryValue(nBlayerOutliers, xAOD::numberOfBLayerOutliers);
 
-    }
-  else
-    {
-      ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
-    }
-  //if ( nSi < 4 ){ et = cluster->et(); }
+        }
+      else
+        {
+          ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
+        }
+      //if ( nSi < 4 ){ et = cluster->et(); }
+
+      allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
+      allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
+
+  } //if not calo ONly
 
   // Get the conversion bit
-  int convBit(0); // this no longer works
   // //convBit = eg->isem(0x1 << egammaPID::ConversionMatch_Electron) == 0;
   // unsigned int isem = (unsigned int)eg->egammaID (egammaPID::IsEM);
   // convBit = isem & (0x1 << egammaPID::ConversionMatch_Electron);
 
   // Get the number of primary vertices in this events
-  double ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
-
+  if( mu < 0 ){
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  }
+  else {
+    ip = mu;
+  }
 
   // for now don't cache. 
-  double likelihood = calculate(eg); 
+  double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, ip=%8.5f",
                          likelihood, eta, et,
                          nSi, nSiDeadSensors, nPix, nPixDeadSensors,
                          nBlayerHits, nBlayerOutliers, expectBlayer,
-                         convBit, ip ) );
+                         convBit, d0, deltaEta, deltaPhiRescaled2, ip ) );
 
 
   if (!allFound) {
@@ -249,6 +351,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
                              nBlayerOutliers,
                              expectBlayer,
                              convBit,
+			     d0,
+			     deltaEta,
+			     deltaPhiRescaled2,
                              ip
                              );
 }
@@ -256,10 +361,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 //=============================================================================
 // Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
-                                                        bool CaloCutsOnly) const
+const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
 {
-  if( !CaloCutsOnly )
+  if( !m_caloOnly )
     {
       return accept( (xAOD::IParticle*) eg);
     }
@@ -295,11 +399,17 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
   uint8_t nBlayerOutliers(0); 
   int convBit(0);
 
-  // Should make this mu in the end
-  double ip = static_cast<double>(m_nPVdefault);
+  // Temporary until mu input is sorted
 
+  double ip(0);
+  if( mu < 0 ){
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  }
+  else {
+    ip = mu;
+  }
   // for now don't cache. 
-  double likelihood = calculate(eg, CaloCutsOnly); 
+  double likelihood = calculate(eg, ip); 
 
   ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, convBit=%i, ip=%8.5f",
                          likelihood, eta, et,
@@ -307,6 +417,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
                          nBlayerHits, nBlayerOutliers, expectBlayer,
                          convBit, ip ) );
 
+  double deltaEta=0,deltaPhiRescaled2=0,d0=0;
 
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept( likelihood,
@@ -320,6 +431,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
                              nBlayerOutliers,
                              expectBlayer,
                              convBit,
+			     d0,
+			     deltaEta,
+			     deltaPhiRescaled2,
                              ip
                              );
 }
@@ -331,7 +445,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg,
 //=============================================================================
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
-const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg ) const
+const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg )
     {
@@ -367,45 +481,49 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float d0(0.0);
   float d0sigma(0.0);
   double dpOverp(0.0);
+  float TRT_PID(0.0);
+  float deltaEta=0, deltaPhiRescaled2=0;
+  double rTRT(0.0);
 
   bool allFound = true;
-
+  if (!m_caloOnly){
   // retrieve associated TrackParticle
-  const xAOD::TrackParticle* t = eg->trackParticle();    
-  if (t)
-    {
-      trackqoverp = t->qOverP();
-      d0 = t->d0();
-      float vard0 = t->definingParametersCovMatrix()(0,0);
-      if (vard0 > 0) {
-	d0sigma=sqrtf(vard0);
-      }
+    const xAOD::TrackParticle* t = eg->trackParticle();    
+    if (t)
+      {
+        trackqoverp = t->qOverP();
+        d0 = t->d0();
+        float vard0 = t->definingParametersCovMatrix()(0,0);
+        if (vard0 > 0) {
+	  d0sigma=sqrtf(vard0);
+        }
 
       //nSi = summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits);
-      allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
-      allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
-      allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
-      allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
-      allFound = allFound && t->summaryValue(nTRTXenon, xAOD::numberOfTRTXenonHits);
+        allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
+        allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
+        allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
+        allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
+        allFound = allFound && t->summaryValue(nTRTXenon, xAOD::numberOfTRTXenonHits);
+        allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityComb);
 
-      unsigned int index;
-      if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
+        unsigned int index;
+        if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
 	
-	double refittedTrack_LMqoverp  = 
-	  t->charge() / sqrt(std::pow(t->parameterPX(index), 2) +
+	  double refittedTrack_LMqoverp  = 
+	    t->charge() / sqrt(std::pow(t->parameterPX(index), 2) +
 			     std::pow(t->parameterPY(index), 2) +
 			     std::pow(t->parameterPZ(index), 2));
 	
-	dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
-      }
+	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
+        }
       
-    }
-  else
-    {
-      ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
-    }
-  //if ( nSi < 4 ){ et = cluster->et(); }
-
+      }
+    else
+      {
+        ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
+      }
+    //if ( nSi < 4 ){ et = cluster->et(); }
+  }  // if not calo Only
 
   //float e233(0), e237(0), e277(0), ethad1(0), ethad(0), ws3(0), w2(0), f1(0), emax2(0), emax(0), f3(0);
   float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
@@ -443,34 +561,50 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   
 
   // Delta eta,phi matching
-  float deltaEta=0, deltaPhiRescaled2=0;
 
-  allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
+  if( !m_caloOnly){
+    allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
 
   // difference between the cluster phi (sampling 2) and the eta of the track extrapolated from the last measurement point.
-  allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
+    allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
   
-  // Get the number of primary vertices in this events
-  double ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
 
-  // TRT high-to-low threshold hits ratio
-  double rTRT(0.0);
-  if ( nTRTXenon > 0 )
-    {
-      rTRT = ((double)(nTRThigh+nTRThighOutliers)) / ((double)(nTRTXenon)) ;
-    }
+    // TRT high-to-low threshold hits ratio
+    if ( nTRTXenon > 0 )
+      {
+        rTRT = ((double)(nTRThigh+nTRThighOutliers)) / ((double)(nTRTXenon)) ;
+      }
   // else if ( nTRTXenon < 0 && (nTRT+nTRTOutliers) > 0 ) // this is always false as given
   //   {
   //     rTRT = ((double)(nTRThigh+nTRThighOutliers)) / ((double)(nTRT+nTRTOutliers)) ;
   //   }
-  
+  }
 
-  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, ip=%8.5f",
+  // Get the number of primary vertices in this events
+
+  double ip = static_cast<double>(m_nPVdefault);
+
+  if(mu < 0){  // use npv if mu is negative (not given)
+    if (!m_caloOnly){
+      ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+    }
+  }
+  else{
+    ip = mu;
+  }
+
+  if (!m_caloOnly){
+    ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
+  }
+
+
+  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
                          deltaEta, d0, rTRT,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
+			 TRT_PID,
                          ip ) );
 
 
@@ -495,6 +629,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
                                 Rphi,
                                 dpOverp,
                                 deltaPhiRescaled2,
+				TRT_PID,
                                 ip
                                 );
 }
@@ -502,10 +637,9 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, 
-                                                           bool CaloCutsOnly) const
+const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
-  if( !CaloCutsOnly )
+  if( !m_caloOnly )
     {
       return calculate( (xAOD::IParticle*) eg);
     }
@@ -538,6 +672,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 
   float deltaEta=0, deltaPhiRescaled2=0;
   double rTRT(0.0);
+  float TRT_PID(0.0);
 
   // Calo Variables
   float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
@@ -565,14 +700,19 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 
   // Get the number of primary vertices in this events
   // Should make this mu!
-  double ip = static_cast<double>(m_nPVdefault);
-
-  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, ip=%8.5f",
+  double ip(0);
+  if( mu < 0){
+    ip = static_cast<double>(m_nPVdefault);
+  } else {
+    ip = mu;
+  }
+  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, rTRT=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
                          deltaEta, d0, rTRT,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
+			 TRT_PID,
                          ip ) );
 
 
@@ -597,6 +737,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
                                 Rphi,
                                 dpOverp,
                                 deltaPhiRescaled2,
+				TRT_PID,
                                 ip
                                 );
 }
@@ -607,12 +748,13 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
-  if(part->type()==xAOD::Type::Electron){
-    const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
-    return accept(eg);
-  }
+  const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(part);
+  if(eg)
+    {
+      return accept(eg);
+    }
   else{
-    ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not convert argument to accept");
+    ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not cast to const Electron");
     return m_acceptDummy;
   }
 }
@@ -626,7 +768,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
     }
   else
     {
-      ATH_MSG_ERROR ( " Could not cast to const egamma " );
+      ATH_MSG_ERROR ( " Could not cast to const Electron " );
       return m_resultDummy;
     }
 }

@@ -26,6 +26,20 @@ GeV = 1000.0
 
 def TrigElectronIsEMMediumSelectorConfigDC14(theTool) :
     '''
+    This is for the Medium++ isEM definitions for the LATEST Trigger.
+    '''
+    theTool = GetTool(theTool)
+    
+    # the isEM name
+    theTool.PIDName = egammaPID.IsEMMedium
+    
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/dc14b_20141031/ElectronIsEMMediumSelectorCutDefs.conf"
+
+
+
+
+def TrigElectronIsEMMediumSelectorConfigDC14OLD(theTool) :
+    '''
     This is for the Medium++ isEM definitions for the Trigger.
     '''
     

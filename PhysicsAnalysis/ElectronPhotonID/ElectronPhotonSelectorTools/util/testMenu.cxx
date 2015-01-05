@@ -93,9 +93,9 @@ int main( int argc, char* argv[] ) {
    myLikelihood.initialize();
 
    AsgElectronIsEMSelector myLoose ("myLoose"); 
-   myLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/SomeTest.conf" );
-   myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
-   myLoose.setProperty("PIDName",static_cast<int> (egammaPID::IsEMLoose) );
+   myLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/ElectronIsEMMediumSelectorCutDefs.conf");
+   myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronMediumPP) );
+   myLoose.setProperty("PIDName",static_cast<int> (egammaPID::IsEMMedium) );
    myLoose.initialize();
 
    // Loop over the events:

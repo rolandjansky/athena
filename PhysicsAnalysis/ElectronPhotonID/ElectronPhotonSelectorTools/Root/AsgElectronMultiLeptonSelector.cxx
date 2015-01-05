@@ -45,7 +45,7 @@ AsgElectronMultiLeptonSelector::~AsgElectronMultiLeptonSelector()
   if(finalize().isFailure()){
     ATH_MSG_ERROR ( "Failure in AsgElectronMultiLeptonSelector finalize()");
   }
-  if ( m_rootTool ) delete m_rootTool;
+  delete m_rootTool;
 }
 
 
@@ -115,42 +115,23 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
   
   bool allFound = true;
 
-  float e237(0), e277(0), ethad1(0), ethad(0), w2(0), f1(0), f3(0), wstot(0),
-    emax2(0), emax(0), deltaEta(0), deltaPhiRescaled(0);
+  float Reta(0), Rhad1(0), Rhad(0), w2(0), f1(0), f3(0), wstot(0),Eratio(0), deltaEta(0), deltaPhiRescaled(0);
 
-  // E(3*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
-  // E(7*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
-  // transverse energy in 1st scintillator of hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1);
-  // transverse energy in hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad, xAOD::EgammaParameters::ethad);
+  // Reta
+  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
   // shower width in 2nd sampling
   allFound = allFound && eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2);
   // fraction of energy reconstructed in the 1st sampling
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
-  // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
   // E of 1st max in strips
-  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
+  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
   // fraction of energy reconstructed in the 3rd sampling
   allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
-
   // total shower width in 1st sampling
   allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
       
-
-
-  double rHad1  = et != 0. ? ethad1/et : 0.;
-  
-  double rHad   = et != 0. ? ethad/et : 0.;
-  
-  double Reta   = e277 != 0 ? e237/e277 : 0.;
-  
-  // (Emax1-Emax2)/(Emax1+Emax2)
-  //double DEmaxs1 = (emax+emax2)==0. ? 0.0 : (emax-emax2)/(emax+emax2);
-  double DEmaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.0;
   
 
   // delta eta
@@ -230,10 +211,10 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
 
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept(eta, et,
-                            rHad, rHad1,
+                            Rhad, Rhad1,
                             Reta, w2,
                             f1, f3,
-                            wstot, DEmaxs1, 
+                            wstot, Eratio, 
                             deltaEta,
                             nSi, nSiDeadSensors, nPix, nPixDeadSensors,
                             deltaPhiRescaled,

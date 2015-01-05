@@ -17,6 +17,19 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+def ElectronIsEMMediumSelectorConfigDC14(theTool) :
+    '''
+    These are the cut base isEM definitions: Medium from *DC14*
+    '''
+    
+    theTool = GetTool(theTool)
+
+    # the isEM name
+    theTool.PIDName = egammaPID.IsEMMedium
+
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMMediumSelectorCutDefs.conf"
+
+
 def ElectronIsEMMediumSelectorConfig2011(theTool) :
     '''
     This is for the Medium++ isEM definitions.

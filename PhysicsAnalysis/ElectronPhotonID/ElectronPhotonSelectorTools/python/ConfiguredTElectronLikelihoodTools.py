@@ -28,7 +28,7 @@ import ROOT
 
 from ElectronLikelihoodToolMapping import ElectronLikelihoodMap, electronLHmenu
 
-def ConfiguredTElectronLikelihoodTool( quality, menu=electronLHmenu.menu2012 ):
+def ConfiguredTElectronLikelihoodTool( quality, menu=electronLHmenu.offline2015 ):
     """
     Configure the TElectronIsEMSelector with the cuts of the given quality
     """    

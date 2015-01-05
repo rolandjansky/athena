@@ -202,7 +202,7 @@ def ElectronLikelihoodLooseTriggerConfig2015(theTool) :
     theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
 
     # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OnlinePDFs.root"
+    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/dc14b_20141031/DC14OnlinePDFs.root"
 
     # do cut on conversion
     theTool.doCutConversion = 0
@@ -263,7 +263,7 @@ def ElectronLikelihoodMediumTriggerConfig2015(theTool) :
     theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
 
     # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OnlinePDFs.root"
+    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/dc14b_20141031/DC14OnlinePDFs.root"
 
     # do cut on conversion
     theTool.doCutConversion = 0
@@ -324,7 +324,7 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool) :
     theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
 
     # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OnlinePDFs.root"
+    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/dc14b_20141031/DC14OnlinePDFs.root"
 
     # do cut on conversion
     theTool.doCutConversion = 0
@@ -376,57 +376,8 @@ def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodLooseOfflineConfig2015.conf"
 
-    # Variable names in the likelihood. Use these exact names! Comma-separated.
-    theTool.VariableNames = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_trackd0pvunbiased,el_d0significance,el_deltaphiRescaled,el_DeltaPoverP"
-
-    # Operating point.
-    theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
-
-    # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OfflinePDFs.root"
-
-    # do cut on conversion
-    theTool.doCutConversion = 0
-
-    # do remove f3 at high Et
-    theTool.doRemoveF3AtHighEt = 1
-
-    # cut on pixel-layer hits. Must be 10 long
-    theTool.CutPi += [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-    
-    # cut on precision hits. Must be 10 long
-    theTool.CutSi += [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
-
-    # cut on precision hits. Must be 10 long
-    theTool.CutBL += [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    #
-    # Details: 
-    # Tuned to fully binned offline 2012 Loosepp + 1% signal efficiency
-    # No Pileup Correction at this time!
-    #
-    theTool.CutLikelihood += [ 0.460,  0.460,  0.472,  0.382,  0.478,  0.223,  0.409,  0.514,  0.481,  0.139,
-                               0.460,  0.460,  0.472,  0.382,  0.478,  0.223,  0.409,  0.514,  0.481,  0.139,
-                               0.448,  0.448,  0.469,  0.370,  0.466,  0.172,  0.349,  0.448,  0.400,  0.118,
-                               0.439,  0.439,  0.469,  0.394,  0.478,  0.178,  0.439,  0.481,  0.409,  0.151,
-                               0.460,  0.460,  0.487,  0.412,  0.499,  0.172,  0.451,  0.493,  0.412,  0.121,
-                               0.475,  0.475,  0.499,  0.463,  0.463,  0.172,  0.439,  0.439,  0.466,  0.148,
-                               0.481,  0.481,  0.511,  0.472,  0.484,  0.172,  0.433,  0.439,  0.451,  0.103,
-                               0.520,  0.520,  0.496,  0.523,  0.466,  0.073,  0.406,  0.406,  0.490, -0.041,
-                               0.532,  0.532,  0.511,  0.556,  0.481,  0.061,  0.373,  0.352,  0.490, -0.200,
-                               ]
-    
-    theTool.CutLikelihoodPileupCorrection += [  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                ]
     
 def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     '''
@@ -436,58 +387,8 @@ def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodMediumOfflineConfig2015.conf"
 
-    # Variable names in the likelihood. Use these exact names! Comma-separated.
-    theTool.VariableNames = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_trackd0pvunbiased,el_d0significance,el_deltaphiRescaled,el_DeltaPoverP"
-
-
-    # Operating point.
-    theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
-
-    # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OfflinePDFs.root"
-
-    # do cut on conversion
-    theTool.doCutConversion = 0
-
-    # do remove f3 at high Et
-    theTool.doRemoveF3AtHighEt = 1
-
-    # cut on pixel-layer hits. Must be 10 long
-    theTool.CutPi += [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-    
-    # cut on precision hits. Must be 10 long
-    theTool.CutSi += [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
-
-    # cut on precision hits. Must be 10 long
-    theTool.CutBL += [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-    #
-    # Details: 
-    # Tuned to fully binned offline 2012 Mediumpp + 1% signal efficiency
-    # No Pileup Correction at this time!
-    #
-    theTool.CutLikelihood += [ 0.523,  0.523,  0.565,  0.511,  0.559,  0.250,  0.511,  0.604,  0.553,  0.262,
-                               0.523,  0.523,  0.565,  0.511,  0.559,  0.250,  0.511,  0.604,  0.553,  0.262,
-                               0.523,  0.523,  0.544,  0.511,  0.529,  0.238,  0.481,  0.598,  0.502,  0.244,
-                               0.592,  0.592,  0.577,  0.571,  0.574,  0.259,  0.550,  0.631,  0.610,  0.259,
-                               0.610,  0.610,  0.595,  0.589,  0.589,  0.256,  0.571,  0.655,  0.631,  0.214,
-                               0.601,  0.601,  0.586,  0.577,  0.562,  0.262,  0.556,  0.625,  0.649,  0.211,
-                               0.610,  0.610,  0.604,  0.595,  0.583,  0.271,  0.565,  0.643,  0.655,  0.208,
-                               0.604,  0.604,  0.589,  0.610,  0.562,  0.205,  0.517,  0.622,  0.649,  0.136,
-                               0.634,  0.634,  0.628,  0.646,  0.592,  0.214,  0.529,  0.655,  0.673,  0.142,
-                               ]
-    
-    theTool.CutLikelihoodPileupCorrection += [  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                ]
     
 def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     '''
@@ -497,55 +398,6 @@ def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodTightOfflineConfig2015.conf"
 
-    # Variable names in the likelihood. Use these exact names! Comma-separated.
-    theTool.VariableNames = "el_deltaeta1,el_weta2,el_TRTHighTOutliersRatio,el_f1,el_f3,el_eratio,el_rphi,el_rhad,el_reta,el_trackd0pvunbiased,el_d0significance,el_deltaphiRescaled,el_DeltaPoverP"
-
-    # Operating point.
-    theTool.OperatingPoint = LikeEnum.CustomOperatingPoint
-
-    # PdfFileName
-    theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/DC14OfflinePDFs.root"
-
-    # do cut on conversion
-    theTool.doCutConversion = 1
-
-    # do remove f3 at high Et
-    theTool.doRemoveF3AtHighEt = 1
-
-    # cut on pixel-layer hits. Must be 10 long
-    theTool.CutPi += [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-    
-    # cut on precision hits. Must be 10 long
-    theTool.CutSi += [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
-
-    # cut on precision hits. Must be 10 long
-    theTool.CutBL += [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-    #
-    # Details: 
-    # Tuned to fully binned offline 2012 Tightpp + 1% signal efficiency
-    # No Pileup Correction at this time!
-    #
-    theTool.CutLikelihood += [ 0.565,  0.565,  0.610,  0.568,  0.607,  0.307,  0.574,  0.679,  0.631,  0.376,
-                               0.565,  0.565,  0.610,  0.568,  0.607,  0.307,  0.574,  0.679,  0.631,  0.376,
-                               0.574,  0.574,  0.580,  0.562,  0.583,  0.283,  0.556,  0.655,  0.592,  0.403,
-                               0.640,  0.640,  0.619,  0.619,  0.628,  0.304,  0.613,  0.703,  0.658,  0.427,
-                               0.664,  0.664,  0.646,  0.640,  0.652,  0.319,  0.646,  0.733,  0.688,  0.469,
-                               0.673,  0.673,  0.643,  0.643,  0.667,  0.322,  0.643,  0.715,  0.727,  0.484,
-                               0.697,  0.697,  0.667,  0.676,  0.691,  0.337,  0.670,  0.748,  0.751,  0.514,
-                               0.772,  0.772,  0.676,  0.706,  0.691,  0.292,  0.646,  0.733,  0.745,  0.472,
-                               0.802,  0.802,  0.715,  0.742,  0.724,  0.304,  0.667,  0.778,  0.778,  0.532,
-                               ]
-    
-    theTool.CutLikelihoodPileupCorrection += [  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,  0.00000,
-                                                ]
     

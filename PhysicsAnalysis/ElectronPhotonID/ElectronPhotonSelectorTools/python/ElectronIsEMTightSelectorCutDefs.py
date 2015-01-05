@@ -23,6 +23,18 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+def ElectronIsEMTightSelectorConfigDC14(theTool) :
+    '''
+    These are the cut base isEM definitions: Tight from DC14
+    '''
+    
+    theTool = GetTool(theTool)
+    
+    # the isEM name
+    theTool.PIDName = egammaPID.IsEMTight
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMTightSelectorCutDefs.conf"
+
+
 def ElectronIsEMTightSelectorConfig2011(theTool) :
     '''
     This is for the tight++ isEM definitions.

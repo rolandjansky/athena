@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 // Dear emacs, this is -*-c++-*-
 
 /**
@@ -53,7 +54,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 		  "Boolean to use b-layer prediction");
 
   // Boolean to use TRT outliers
-  declareProperty("useTRTOutliers",m_rootTool->useTRTOutliers,
+  declareProperty("useTRTOutliers",m_rootTool->useTRTOutliers=false,
 		  "Boolean to use TRT outliers");
 
   // Boolean to use BL outliers
@@ -65,6 +66,11 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   declareProperty("usePIXOutliers",
 		  m_rootTool->usePIXOutliers = true,
 		  "Boolean to use PIX outliers");
+    
+  // Boolean to use PIX dead sensor
+  declareProperty("usePIXDeadSensors",
+          m_rootTool->usePIXDeadSensors = true,
+          "Boolean to use PIX dead sensors");
 
   // Boolean to use SCT outliers
   declareProperty("useSCTOutliers",
@@ -90,7 +96,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   declareProperty("CutHadLeakage",m_rootTool->CutHadLeakage,
 		  "Cut on hadronic leakage");
   // Cut on lateral shower shape in 2nd sampling
-  declareProperty("CutRphi37",m_rootTool->CutRphi37,
+  declareProperty("CutRphi33",m_rootTool->CutRphi33,
 		  "Cut on lateral shower shape in 2nd sampling");
   // Cut on longitudinal shower shape in 2nd sampling
   declareProperty("CutReta37",m_rootTool->CutReta37,
@@ -120,7 +126,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   declareProperty("useF3core",m_useF3core = false,
 		  "Cut on f3 or f3core?");
   // Cut on fraction of energy to use 3rd sampling
-  declareProperty("CutF3",m_rootTool->CutF3,
+  declareProperty("CutF3",m_rootTool->CutF3 ,
 		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core)");
 
   // cut on b-layer
@@ -160,6 +166,11 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   // cuts on TRT
   declareProperty("CutBinEta_TRT",m_rootTool->CutBinEta_TRT,
 		  "Eta binning in TRT");
+
+  // cuts on TRT
+  declareProperty("CutBinET_TRT",m_rootTool->CutBinET_TRT,
+		  "ET binning in TRT");
+
   // cut on Number of TRT hits
   declareProperty("CutNumTRT",m_rootTool->CutNumTRT,
 		  "cut on Number of TRT hits");
@@ -169,6 +180,10 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   // cut on Ratio of TR hits to Number of TRT hits for 90% efficiency
   declareProperty("CutTRTRatio90",m_rootTool->CutTRTRatio90,
 		  "cut on Ratio of TR hits to Number of TRT hits for 90% efficiency");
+  // for the trigger needs:
+  declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only cutbase"); 
+  declareProperty("trigEtTh", m_trigEtTh=-999. , "Trigger threshold"); 
+  
 
 }
 
@@ -204,6 +219,8 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->useBLOutliers =useBLOutliers;
     bool usePIXOutliers(env.GetValue("usePIXOutliers", true));
     m_rootTool->usePIXOutliers =usePIXOutliers;
+    bool usePIXDeadSensors(env.GetValue("usePIXDeadSensors", true));
+    m_rootTool->usePIXDeadSensors =usePIXDeadSensors;
     bool useSCTOutliers(env.GetValue("useSCTOutliers", true));
     m_rootTool->useSCTOutliers =useSCTOutliers;
     bool  useTRTXenonHits(env.GetValue(" useTRTXenonHits", false));
@@ -216,7 +233,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutF1 = AsgConfigHelper::HelperFloat("CutF1",env);
     m_rootTool->CutHadLeakage = AsgConfigHelper::HelperFloat("CutHadLeakage",env);
     m_rootTool->CutReta37 = AsgConfigHelper::HelperFloat("CutReta37",env);
-    m_rootTool->CutRphi37 = AsgConfigHelper::HelperFloat("CutRphi37",env);
+    m_rootTool->CutRphi33 = AsgConfigHelper::HelperFloat("CutRphi33",env);
     m_rootTool->CutWeta2c = AsgConfigHelper::HelperFloat("CutWeta2c",env);
     m_rootTool->CutDeltaEmax2 = AsgConfigHelper::HelperFloat("CutDeltaEmax2",env);
     m_rootTool->CutDeltaE = AsgConfigHelper::HelperFloat("CutDeltaE",env);
@@ -238,9 +255,12 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutminEp = AsgConfigHelper::HelperFloat("CutminEp",env);    
     m_rootTool->CutmaxEp = AsgConfigHelper::HelperFloat("CutmaxEp",env);    
     m_rootTool->CutBinEta_TRT = AsgConfigHelper::HelperFloat("CutBinEta_TRT",env); 
+    m_rootTool->CutBinET_TRT = AsgConfigHelper::HelperFloat("CutBinET_TRT",env); 
     m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
     m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
-    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);    
+    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);   
+
+       
   }
 
   // We need to initialize the underlying ROOT TSelectorTool
@@ -292,12 +312,12 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::IParticle* par
   }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg ) const
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg) const
 {
   ATH_MSG_DEBUG("Entering accept( const egamma* part )");  
   if ( eg )
     {
-      StatusCode sc = execute(eg, -999., false);
+      StatusCode sc = execute(eg);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR("could not calculate isEM");
 	return m_acceptDummy;
@@ -311,14 +331,12 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg )
     }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg, 
-						      double trigEtTh, 
-						      bool CaloCutsOnly) const
+const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const
 {
-  ATH_MSG_DEBUG("Entering accept( const egamma* part )");  
+  ATH_MSG_DEBUG("Entering accept( const egamma* part )"); 
   if ( eg )
     {
-      StatusCode sc = execute(eg, trigEtTh, CaloCutsOnly);
+      StatusCode sc = execute(eg);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR("could not calculate isEM");
 	return m_acceptDummy;
@@ -332,41 +350,11 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Electron* eg,
     }
 }
 
-const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg, 
-						      double trigEtTh) const
-{
-  ATH_MSG_DEBUG("Entering accept( const egamma* part )");  
-  if ( eg )
-    {
-      StatusCode sc = execute(eg, trigEtTh);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("could not calculate isEM");
-	return m_acceptDummy;
-      }
-      return m_rootTool->fillAccept();
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
-      return m_acceptDummy;
-    }
-}
 
 // The stuff copied over from egammaElectronCutIDTool
 
-// A simple execute command wrapper
 // ==============================================================
 StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg) const
-{
-  // call execute method 
-  return execute(eg, -999., false);
-}
-
-// The real execute command
-// ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg, 
-					    double trigEtTh, 
-					    bool CaloCutsOnly) const
 {
   //
   // Particle identification for electrons based on cuts
@@ -408,23 +396,22 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg,
     const double cosheta = cosh(eta2);
     et = (cosheta != 0.) ? energy /cosheta : 0.;
   }
-  
-  if (CaloCutsOnly) {
 
+  if( m_caloOnly )   {
+    
     //ATH_MSG_DEBUG("Doing CaloCutsOnly");
     //
     // apply only calo information
     //
     
     // apply calorimeter selection
-    iflag = calocuts_electrons(eg, eta2, et, trigEtTh, 0);
+    iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
 
 
   } else {
 
-    
     // apply calorimeter selection
-    iflag = calocuts_electrons(eg, eta2, et, trigEtTh, 0);
+    iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
     //ATH_MSG_DEBUG(std::hex << "after calo cuts, iflag = " << iflag); 
 
     // apply track selection 
@@ -440,38 +427,37 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg,
 
 // The only does calocutsonly
 // ==============================================================
-StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg, 
-					    double trigEtTh) const
+StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const
 {
   //
   // Particle identification for electrons based on cuts
   //
-
+  
   ATH_MSG_DEBUG("entering execute(const egamma* eg...)");
-
+  
   // initialisation
-  unsigned int iflag = 0; 
-
+  unsigned int iflag = 0;
+  
   // protection against null pointer
   if (eg==0) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_DEBUG("exiting because eg is empty");
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
+    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron);
     m_rootTool->setIsEM(iflag);
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
-
+  
   // retrieve associated cluster
-  const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
-
+  const xAOD::CaloCluster* cluster  = eg->caloCluster();
+  
   // basic protection : isem is calculated only for objects
   // which have a cluster, a track, an EMTrackMatch object and an EMShower
   // which is likely for an electron
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
-    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
+    iflag = (0x1 << egammaPID::ClusterEtaRange_Electron);
     m_rootTool->setIsEM(iflag);
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
   
   // eta position in second sampling
@@ -485,10 +471,9 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg,
   }
   
   // apply calorimeter selection
-  iflag = calocuts_electrons(eg, eta2, et, trigEtTh, 0);
-  
-
-  m_rootTool->setIsEM(iflag);  
+  iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);
+ 
+  m_rootTool->setIsEM(iflag); 
   return StatusCode::SUCCESS;
 }
 
@@ -507,21 +492,21 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   //
 
 
-  float Reta(0), Rphi(0), e277(0), Rhad1(0), Rhad(0), weta1c(0), weta2c(0), 
+  float Reta(0), Rphi(0), Rhad1(0), Rhad(0), e277(0), weta1c(0), weta2c(0), 
     f1(0), emax2(0), Eratio(0), DeltaE(0), wtot(0), fracm(0), f3(0);
 
   bool allFound = true;
 
-  // E(3*3) in 2nd sampling
+  // Reta
   allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
-  // E(3*7) in 2nd sampling
+  // Rphi
   allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
-  // E(7*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
   // transverse energy in 1st scintillator of hadronic calorimeter
   allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
   // transverse energy in hadronic calorimeter
   allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+  // E(7*7) in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
   // shower width in 3 strips in 1st sampling
   allFound = allFound && eg->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
   // shower width in 2nd sampling
@@ -529,15 +514,9 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   // fraction of energy reconstructed in the 1st sampling
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
   // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
-  // E of 2nd max between max and min in strips
   allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
   // E of 1st max in strips
   allFound = allFound && eg->showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
-  // E of 1st max in strips
-  //allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
-  // E(min) in strips
- // allFound = allFound && eg->showerShapeValue(emin, xAOD::EgammaParameters::emins1);
   // total shower width in 1st sampling
   allFound = allFound && eg->showerShapeValue(wtot, xAOD::EgammaParameters::wtots1);
   // E(+/-3)-E(+/-1)/E(+/-1)
@@ -564,9 +543,9 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
 					et,
                                         Reta, //replacing e233
 					Rphi,  //replacing e237,
-					e277,
 					Rhad1, //replacing ethad1,
 					Rhad, //replacing ethad,
+					e277,
 					weta1c,
 					weta2c,
 					f1,
@@ -612,9 +591,11 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   // number of Pixel hits
   uint8_t nPi = 0;
   uint8_t nPiOutliers = 0;
+  uint8_t nPiDeadSensors = 0;
   // number of SCT hits
   uint8_t nSCT = 0;
   uint8_t nSCTOutliers = 0;
+  uint8_t nSCTDeadSensors = 0;
   uint8_t nTRThigh          = 0;
   uint8_t nTRThighOutliers  = 0;
   uint8_t nTRT         = 0;
@@ -629,7 +610,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
   allFound = allFound && t->summaryValue(nBLOutliers, xAOD::numberOfBLayerOutliers);
   allFound = allFound && t->summaryValue(nPiOutliers, xAOD::numberOfPixelOutliers);
-  allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers);
+  allFound = allFound && t->summaryValue(nPiDeadSensors, xAOD::numberOfPixelDeadSensors);
+  allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers); 
+  allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
   allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
   allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
   allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
@@ -662,8 +645,10 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      nBLOutliers,
 			      nPi,
 			      nPiOutliers,
+			      nPiDeadSensors,
 			      nSCT,
 			      nSCTOutliers,
+			      nSCTDeadSensors,
 			      nTRThigh,
 			      nTRThighOutliers,
 			      nTRT,

@@ -21,9 +21,10 @@ class electronPIDmenu:
     menu2011 = 0
     menu2012 = 1
     origMenu2012 = 2
-    menuH4l2011 =3
+    menuH4l2011 = 3
     menuTrig2012 = 4
     menuTrigDC14 = 5
+    menuDC14 = 6
 
 import ElectronPhotonSelectorTools.ElectronIsEMSelectorCutDefs as ElectronIsEMSelectorCutDefs
 import ElectronPhotonSelectorTools.ElectronIsEMLooseSelectorCutDefs as ElectronIsEMLooseSelectorCutDefs
@@ -65,6 +66,13 @@ ElectronIsEMMap2012OLD = {
     egammaPID.NoIDCut: ( 0, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfig2012OLD )
     }
 
+ElectronIsEMMapDC14 = {
+    egammaPID.ElectronIDLoosePP: ( egammaPID.ElectronLoosePP, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14 ),
+    egammaPID.ElectronIDMediumPP: ( egammaPID.ElectronMediumPP, ElectronIsEMMediumSelectorCutDefs.ElectronIsEMMediumSelectorConfigDC14 ),
+    egammaPID.ElectronIDTightPP: ( egammaPID.ElectronTightPP, ElectronIsEMTightSelectorCutDefs.ElectronIsEMTightSelectorConfigDC14 ),
+    egammaPID.NoIDCut: ( 0, ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14 )
+    }
+
 TrigElectronIsEMMap2012 = {
     egammaPID.ElectronIDLoose1: ( egammaPID.ElectronLoose1, TrigElectronIsEMLoose1SelectorCutDefs.TrigElectronIsEMLoose1SelectorConfig2012 ),
     egammaPID.ElectronIDMedium1: ( egammaPID.ElectronMedium1, TrigElectronIsEMMedium1SelectorCutDefs.TrigElectronIsEMMedium1SelectorConfig2012 ),
@@ -86,10 +94,12 @@ def ElectronIsEMMap(quality, menu):
         return ElectronIsEMMap2012[quality]
     elif menu == electronPIDmenu.origMenu2012:
         return ElectronIsEMMap2012OLD[quality]
+    elif menu == electronPIDmenu.menuDC14:
+        return ElectronIsEMMapDC14[quality]
     elif menu == electronPIDmenu.menuTrig2012:
         return TrigElectronIsEMMap2012[quality]
     elif menu == electronPIDmenu.menuTrigDC14:
-        return TrigElectronIsEMMapDC14[quality]
+        return TrigElectronIsEMMapDC14[quality]    
     elif menu == electronPIDmenu.menuH4l2011:
         tuple =(egammaPID.ElectronLoosePP,ElectronIsEMH4l2011SelectorCutDefs.ElectronIsEMH4l2011SelectorConfig)
         return tuple

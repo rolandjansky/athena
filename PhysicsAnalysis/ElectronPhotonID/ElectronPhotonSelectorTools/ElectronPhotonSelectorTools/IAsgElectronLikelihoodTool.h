@@ -39,6 +39,7 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   /**Virtual Destructor*/
   virtual ~IAsgElectronLikelihoodTool() {};
 
+
   /** The main accept method: using the generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
@@ -46,16 +47,30 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part, bool CaloCutsOnly ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
+
+  /** The main accept method: in case mu not in EventInfo online */
+  virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
+
+  /** The main accept method: in case mu not in EventInfo online */
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
+
 
   /** The main accept method: using the generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Egamma& part, bool CaloCutsOnly ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part ) const = 0;
+
+  /** The main accept method: in case mu not in EventInfo online */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part, double mu ) const = 0;
+
+  /** The main accept method: in case mu not in EventInfo online */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part, double mu ) const = 0;
+
 
   /** The main result method: the actual likelihood is calculated here */
   virtual const Root::TResult& calculate( const xAOD::IParticle* part ) const = 0;
@@ -64,7 +79,14 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   virtual const Root::TResult& calculate( const xAOD::Electron* eg ) const = 0;
 
   /** The main result method: the actual likelihood is calculated here */
-  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, bool CaloCutsOnly ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::Egamma* eg ) const = 0;
+
+  /** The main result method: in case mu not in EventInfo online */
+  virtual const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const = 0;
+
+  /** The main result method: in case mu not in EventInfo online */
+  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const = 0;
+
 
   /** Method to get the plain TResult */
   virtual const Root::TResult& getTResult( ) const=0;

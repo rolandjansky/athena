@@ -67,10 +67,7 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   egammaPID::PID PIDName() const {return m_rootTool->isEMPIDName(); };
 
   /** The basic isem */
-  virtual StatusCode execute(const xAOD::Photon*) const;
-
-  /** The isem potentially for the trigger */
-  virtual StatusCode execute(const xAOD::Photon*, double trigEtTh) const;
+  virtual StatusCode execute(const xAOD::Photon* eg) const;
 
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const
@@ -94,6 +91,10 @@ private:
 
   /** A dummy return TAccept object */
   Root::TAccept m_acceptDummy;
+
+  /// Flag for calo only cut-base 
+  bool m_caloOnly; 
+  float m_trigEtTh;
 
 }; // End: class definition
 

@@ -11,60 +11,6 @@ Created:     October 2012
 Description: Electron selector tool to select objects in pure ROOT using the multi-lepton cuts
 ******************************************************************************/
 
-/*
-  H4l/MultiLepton 2012 MENU
-==========================================================================================================
-  // Create an instance of this tool BEFORE the event loop starts
-  TElectronMultiLeptonSelector myElML("MyElectronMultiLeptonSelector");
-  // and initialize it
-  myElML.initialize();
-
-  // ...now in event loop and at a given electrons...
-
-  double Et_cl           =  el_cl_E/cosh(el_etas2);
-  double etas2           =  el_etas2;
-  double rHad            =  el_Ethad/Et_cl;
-  double rHad1           =  el_Ethad1/Et_cl;
-  double Reta            =  el_reta;
-  double w2              =  el_weta2;
-  double f1              =  el_f1;
-  double f3              =  el_f3;
-  double wstot           =  el_wstot;
-  double DEmaxs1         = fabs(el_emaxs1+el_Emax2)>0. ? (el_emaxs1-el_Emax2)/(el_emaxs1+el_Emax2) : 0.;
-  double deltaEta        = el_deltaeta1;
-  double deltaPhiRescaled = el_deltaphiRescaled;
-  int    nSi              = el_nSiHits;
-  int    nSiDeadSensors   = el_nSCTDeadSensors+el_nPixelDeadSensors;
-  int    nPix             = el_nPixHits;
-  int    nPixDeadSensors  = el_nPixelDeadSensors;
-  int    nTRThigh         = el_nTRTHighTHits;
-  int    nTRThighOutliers = el_nTRTHighTOutliers;
-  int    nTRT             = el_nTRTHits;  
-  int    nTRTOutliers     = el_nTRTOutliers; 
-  bool   expectBlayer     = el_expectBLayerHit; 
-  int    nBlayerHits      = el_nBLHits;
-
-  double rTRT = 0.;
-  rTRT = (nTRT+nTRTOutliers) > 0 ?  ((double) (nTRThigh+nTRThighOutliers)/(nTRT+nTRTOutliers) ) : 0.;
-  int nTRTTotal = nTRT+nTRTOutliers;
-
-  double dpOverp =0;
-  for (unsigned int i = 0; i<el_refittedTrack_LMqoverp.size;++i)
-    {
-      if((el_refittedTrack_author).at(i)==4)
-	   {
-	     dpOverp= 1-(el_trackqoverp/(el_refittedTrack_LMqoverp.at(i)));
-      }
-    }
-  return bool( myElML.accept(etas2, Et_cl,
-                             rHad, rHad1, Reta, w2,
-                             f1,f3, wstot, DEmaxs1, 
-                             deltaEta, nSi,nSiDeadSensors, nPix, 
-                             nPixDeadSensors,deltaPhiRescaled,dpOverp,
-                             rTRT,nTRTTotal,nBlayerHits,expectBlayer) );
-===============================================================================================
-*/
-
 
 // This class header
 #include "ElectronPhotonSelectorTools/TElectronMultiLeptonSelector.h"

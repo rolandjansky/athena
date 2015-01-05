@@ -22,8 +22,11 @@
 //----------------------------------------------------------------------------------------
 Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   ITElectronLikelihoodTool(name),
-  doCutConversion(0),
-  doRemoveF3AtHighEt(0),
+  doCutConversion(false),
+  doRemoveF3AtHighEt(false),
+  doPileupTransform(false),
+  DiscMaxForPileupTransform(2.0),
+  PileupMaxForPileupTransform(50),
   VariableNames(""),
   OperatingPoint(LikeEnum::VeryLoose),
   PdfFileName(""),
@@ -39,6 +42,9 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_cutPosition_NBlayer(-9),
   m_cutPosition_conversion(-9),
   m_cutPosition_LH(-9),
+  m_cutPositionTrackA0(-9),
+  m_cutPositionTrackMatchEta(-9),
+  m_cutPositionTrackMatchPhiRes(-9),
   m_resultPosition_LH(-9)
 {
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
@@ -87,12 +93,12 @@ int Root::TElectronLikelihoodTool::initialize()
   // Check that all needed variables are setup
   if ( PdfFileName.empty() )
     {
-      std::cerr << "You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') " << std::endl;
+      std::cout << "You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') " << std::endl;
       sc = 0;
     }
   if ( sc == 0 )
     {
-      std::cerr << "Could NOT initialize! Please fix the errors mentioned above..." << std::endl;
+      std::cout << "Could NOT initialize! Please fix the errors mentioned above..." << std::endl;
       return sc;
     }
 
@@ -104,7 +110,7 @@ int Root::TElectronLikelihoodTool::initialize()
   // Check that we could load the ROOT file
   if ( !m_pdfFile )
     {
-      std::cerr << "ERROR!"// << this->getName()
+      std::cout << "ERROR!"// << this->getName()
                 << " (file: " << __FILE__ << ", line: " << __LINE__ << ") "
                 << "! No ROOT file found here: " << PdfFileName << std::endl;
       return 0;
@@ -135,10 +141,22 @@ int Root::TElectronLikelihoodTool::initialize()
   m_cutPosition_conversion = m_accept.addCut( "conversion", "pass conversion" );
   if ( m_cutPosition_conversion < 0 ) sc = 0;
 
-  // Cut position for the likelihood selection
+  // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
   if ( m_cutPosition_LH < 0 ) sc = 0;
 
+  // D0
+  m_cutPositionTrackA0 = m_accept.addCut( "TrackA0", "A0 (aka d0) wrt beam spot < Cut" );
+  if ( m_cutPositionTrackA0 < 0 ) sc = 0;
+
+  // deltaeta
+  m_cutPositionTrackMatchEta = m_accept.addCut("TrackMatchEta", "Track match deta in 1st sampling < Cut");
+  if ( m_cutPositionTrackMatchEta < 0 ) sc = 0;
+
+  // deltaphi
+  m_cutPositionTrackMatchPhiRes = m_accept.addCut( "TrackMatchPhiRes", "Track match dphi in 2nd sampling, rescaled < Cut" );
+  if ( m_cutPositionTrackMatchPhiRes < 0 ) sc = 0;
+  
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -153,7 +171,7 @@ int Root::TElectronLikelihoodTool::initialize()
   // Check that we got everything OK
   if ( sc == 0 )
     {
-      std::cerr << "ERROR!" //<< this->getName()
+      std::cout << "ERROR!" //<< this->getName()
                 << " (file: " << __FILE__ << ", line: " << __LINE__ << ") "
                 << "! Something went wrong with the setup of the return objects..." << std::endl;
       return 0;
@@ -168,6 +186,12 @@ int Root::TElectronLikelihoodTool::initialize()
   
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
     std::string vstr = fVariables[varIndex];
+    // Skip the loading of PDFs for variables we don't care about for this operating point.
+    // If the string is empty (which is true in the default 2012 case), load all of them.
+    if(VariableNames.find(vstr) == std::string::npos && !VariableNames.empty()){
+      continue;
+    }
+
     LoadVarHistograms(vstr,varIndex);
   }
 
@@ -186,8 +210,12 @@ int Root::TElectronLikelihoodTool::initialize()
 		   << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
 		   << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
 		   << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
+		   << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
 		   << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
 		   << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
+		   << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
+		   << "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
+		   << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
 		   << std::endl;
   }
   return sc;
@@ -227,9 +255,8 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	    fPDFIntegrals[s_or_b][ip][et][eta][varIndex] = fPDFbins[s_or_b][ip][et][eta][varIndex]->Integral(1,nbins);
 	  }
 	  else {
-	    std::cerr << "Warning: Object " << pdf << " does not exist." << std::endl;
-	    std::cerr << "Skipping all other hisograms with this variable." << std::endl;
-	    std::cerr << "This is possibly a fatal error!" << std::endl;
+	    std::cout << "Warning: Object " << pdf << " does not exist." << std::endl;
+	    std::cout << "Skipping all other histograms with this variable." << std::endl;
 	    return 1;
 	  }
 	}
@@ -243,7 +270,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
                                                             double eta, double eT,
                                                             int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
                                                             int nBlayer, int nBlayerOutliers, bool expectBlayer,
-                                                            int convBit, double ip
+                                                            int convBit, double d0, double deltaEta, double deltaphires, double ip
                                                             ) const
 {
   LikeEnum::LHAcceptVars_t vars;
@@ -259,6 +286,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
   vars.nBlayerOutliers = nBlayerOutliers;
   vars.expectBlayer    = expectBlayer   ;
   vars.convBit         = convBit        ;
+  vars.d0              = d0             ;
+  vars.deltaEta        = deltaEta       ;
+  vars.deltaphires     = deltaphires    ;
   vars.ip              = ip             ;
   
   return accept(vars);
@@ -279,6 +309,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passNBlayer(true);
   bool passConversion(true);
   bool passLH(true);
+  bool passTrackA0(true);
+  bool passDeltaEta(true);
+  bool passDeltaPhiRes(true);
   
   if (fabs(vars_struct.eta) > 2.47) {
     if (m_debug) std::cout << "This electron is fabs(eta)>2.47 Returning False." << std::endl;
@@ -332,7 +365,8 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   
   int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!
   double cutDiscriminant = CutLikelihood[ibin_combined];
-  if (CutLikelihoodPileupCorrection.size()) 
+  // If doPileupTransform, then correct the discriminant itself instead of the cut value
+  if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
     cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combined];
   
   // Determine if the calculated likelihood value passes the cut
@@ -344,6 +378,32 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       if (m_debug) std::cout << "Likelihood macro: Disciminant Cut Failed." << std::endl;
       passLH = false;
     }
+
+  // d0 cut
+  if (CutA0.size()){
+    if (fabs(vars_struct.d0) > CutA0[etabin]){
+      if (m_debug) std::cout << "Likelihood macro: D0 Failed." << std::endl;
+      passTrackA0 = false;
+    }
+  }
+
+  // deltaEta cut
+  if (CutDeltaEta.size()){
+    if ( fabs(vars_struct.deltaEta) > CutDeltaEta[etabin]){
+      if (m_debug) std::cout << "Likelihood macro: deltaEta Failed." << std::endl;
+      passDeltaEta = false;
+    }
+  }
+  
+  // deltaPhiRes cut
+  if (CutDeltaPhiRes.size()){
+    if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[etabin]){
+      if (m_debug) std::cout << "Likelihood macro: deltaphires Failed." << std::endl;
+      passDeltaPhiRes = false;
+    }
+  }
+  
+  
   
   // Set the individual cut bits in the return object
   m_accept.setCutResult( m_cutPosition_NSilicon, passNSilicon );
@@ -351,6 +411,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   m_accept.setCutResult( m_cutPosition_NBlayer, passNBlayer );
   m_accept.setCutResult( m_cutPosition_conversion, passConversion );
   m_accept.setCutResult( m_cutPosition_LH, passLH );  
+  m_accept.setCutResult( m_cutPositionTrackA0, passTrackA0 );  
+  m_accept.setCutResult( m_cutPositionTrackMatchEta, passDeltaEta );  
+  m_accept.setCutResult( m_cutPositionTrackMatchPhiRes, passDeltaPhiRes );  
   
   return m_accept;
 }
@@ -361,6 +424,7 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, doubl
                                                                /*double deltaPhi,*/ double d0sigma, /*double fside,*/
                                                                /*double ptcone20,*/ double rphi, /*double ws3,*/
                                                                double deltaPoverP ,double deltaphires,
+							       double TRT_PID,
                                                                double ip )  const
 {
 
@@ -382,6 +446,7 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, doubl
   vars.rphi        = rphi       ;
   vars.deltaPoverP = deltaPoverP;
   vars.deltaphires = deltaphires;
+  vars.TRT_PID     = TRT_PID    ;
   vars.ip          = ip         ;
 
   return calculate(vars);
@@ -403,7 +468,8 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate(LikeEnum::LHCalcVa
                   ,vars_struct.f1,vars_struct.f3
                   ,vars_struct.Reta,rhad_corr,vars_struct.rphi
                   ,vars_struct.d0,vars_struct.TRratio,vars_struct.w2
-                  ,vars_struct.deltaPoverP,vars_struct.deltaphires};
+                  ,vars_struct.deltaPoverP,vars_struct.deltaphires
+		  ,vars_struct.TRT_PID};
   std::vector<double> vec (arr, arr + sizeof(arr) / sizeof(double) );
   
   // Calculate the actual likelihood value and fill the return object
@@ -494,33 +560,79 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
       else if (s_or_b == 1) SigmaB *= prob;
     }
   }
-  return TransformLikelihoodOutput( SigmaS, SigmaB );
+  
+  unsigned int etfinebin = getLikelihoodEtFineBin(et);
+  unsigned int ibin_combined = etfinebin*10+etabin;
+  return TransformLikelihoodOutput( SigmaS, SigmaB, ip, ibin_combined );
 }
 
 
 
 
 // --------------------------------------------
-double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double pb) const {
+double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double pb, double ip, unsigned int ibin_combined) const {
   // returns transformed or non-transformed output
   // (Taken mostly from TMVA likelihood code)
   double fEpsilon = 1e-99;
   // If both signal and bkg are 0, we want it to fail.
   if (ps < fEpsilon) ps = 0;
   if (pb < fEpsilon) pb = fEpsilon;
-  double r = ps/double(ps + pb);
-  if (r >= 1.0) r = 1. - 1.e-15;
-  if (true) {
+  double disc = ps/double(ps + pb);
     
-    if (r <= 0.0) r = fEpsilon;
-    else if (r >= 1. - 1.e-15) r = 1. - 1.e-15;
+  if (disc >= 1.0) disc = 1. - 1.e-15;
+  else if (disc <= 0.0) disc = fEpsilon;
+  
+  double tau = 15.0;
+  disc = - log(1.0/disc - 1.0)/double(tau);
     
-    double tau = 15.0;
-    r = - log(1.0/r - 1.0)/double(tau);
-    
+  // Linearly transform the discriminant as a function of pileup, rather than
+  // the old scheme of changing the cut value based on pileup. This is simpler for
+  // the tuning, as well as ensuring subsets / making discriminants more transparent.
+  if(doPileupTransform){
+
+    // The variables used by the transform:
+    //
+    // - hard_cut_ref = extremely tight discriminant cut as reference to ensure
+    // pileup correction for looser menus is less than for tighter menus.
+    // - loose_ref = a loose menu with no pileup correction. Any tighter
+    // menu with same inputs will necessarily have pileup dependence built in
+    // - disc_max = max disc value for which pileup correction is desired.
+    // - pileup_max = max nvtx or mu for calculating the transform. Any larger
+    // pileup values will use this maximum value in the transform.
+
+    if( DiscHardCutForPileupTransform.size() == 0 || DiscHardCutSlopeForPileupTransform.size() == 0 || DiscLooseForPileupTransform.size() == 0){
+      std::cout << "Warning: Vectors needed for pileup-dependent transform not correctly filled! Skipping the transform." << std::endl;
+      return disc;
+    }
+
+    double disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
+    double disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
+    double disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
+    double disc_max                = DiscMaxForPileupTransform;
+    double pileup_max              = PileupMaxForPileupTransform;
+
+    double disc_hard_cut_ref_prime = disc_hard_cut_ref + disc_hard_cut_ref_slope * std::min(ip,pileup_max);
+
+    if(disc <= disc_loose_ref){
+      // Below threshold for applying pileup correction
+      disc = disc;
+    }
+    else if(disc <= disc_hard_cut_ref_prime){
+      // Between the loose and hard cut reference points for pileup correction
+      disc = disc_loose_ref + (disc - disc_loose_ref) * (disc_hard_cut_ref - disc_loose_ref) / double(disc_hard_cut_ref_prime - disc_loose_ref);
+    }
+    else if(disc_hard_cut_ref_prime < disc && disc <= disc_max){
+      // Between the hard cut and max reference points for pileup correction
+      disc = disc_hard_cut_ref + (disc - disc_hard_cut_ref_prime) * (disc_max - disc_hard_cut_ref) / double(disc_max - disc_hard_cut_ref_prime);
+    }
+    else{
+      // Above threshold where pileup correction necessary
+      disc = disc;
+    }
   }
-  if (m_debug) std::cout << "r is " << r << std::endl;
-  return r;
+
+  if (m_debug) std::cout << "disc is " << disc << std::endl;
+  return disc;
 }
 
 
@@ -616,7 +728,7 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
 
 
 // These are the variables availalble in the likelihood.
-const char* Root::TElectronLikelihoodTool::fVariables[13] = {"el_d0significance"
+const char* Root::TElectronLikelihoodTool::fVariables[14] = {"el_d0significance"
 							     ,"el_eratio"
 							     ,"el_deltaeta1"
 							     ,"el_f1"
@@ -628,7 +740,8 @@ const char* Root::TElectronLikelihoodTool::fVariables[13] = {"el_d0significance"
 							     ,"el_TRTHighTOutliersRatio"
 							     ,"el_weta2"
 							     ,"el_DeltaPoverP"
-							     ,"el_deltaphiRescaled"};
+							     ,"el_deltaphiRescaled"
+							     ,"el_TRT_PID"};
 //,"el_ws3"
 //,"el_ptcone20pt"
 //,"el_deltaphi2"

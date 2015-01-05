@@ -68,14 +68,8 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
   }
 
   /** METHODS FOR THE TRIGGER **/
-  /*This method is for the trigger */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part, 
-				       double trigEtTh, 
-				       bool CaloCutsOnly=true) const;
-
   /** This method is for the trigger, and implies CaloCutsOnly set to true */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part, 
-				       double trigEtTh) const;
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const;
 
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
@@ -85,14 +79,8 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
   /** The basic isem */
   StatusCode execute(const xAOD::Electron* eg) const;
   
-  /** The isem potentially for the trigger */
-  StatusCode execute(const xAOD::Electron* eg, 
-		     double trigEtTh, 
-		     bool CaloCutsOnly) const;
-
   /** The isem potentially for the trigger, implies CaloCutsOnly */
-  StatusCode execute(const xAOD::Egamma* eg, 
-		     double trigEtTh) const;
+  StatusCode execute(const xAOD::Egamma* eg) const;
 
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const
@@ -125,6 +113,11 @@ private:
   /** A dummy return TAccept object */
   Root::TAccept m_acceptDummy;
 
+  /// Flag for calo only cut-base 
+  bool m_caloOnly; 
+  float m_trigEtTh;
+
+  
 }; // End: class definition
 
 

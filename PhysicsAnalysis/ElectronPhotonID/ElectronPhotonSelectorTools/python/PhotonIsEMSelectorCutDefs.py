@@ -17,6 +17,7 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+## obsolete the old cut-def should be updated with the new selectors.
 def PhotonIsEMSelectorConfig2011(theTool) :
     '''
     These are the photon isEM definitions

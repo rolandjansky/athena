@@ -23,7 +23,7 @@ import ROOT
 
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap, electronPIDmenu
 
-def ConfiguredTElectronIsEMSelector( quality, menu=electronPIDmenu.menu2012 ):
+def ConfiguredTElectronIsEMSelector( quality, menu=electronPIDmenu.menuDC14 ):
     """
     Configure the TElectronIsEMSelector with the cuts of the given quality
     """    

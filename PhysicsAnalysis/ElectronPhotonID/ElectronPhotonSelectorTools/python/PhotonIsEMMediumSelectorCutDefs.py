@@ -17,6 +17,22 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
+def PhotonIsEMMediumSelectorConfigDC14(theTool) :
+    '''
+    These are the photon isEM definitions from *DC14*
+    '''
+    
+    theTool = GetTool(theTool)
+
+    # the isEM name
+    theTool.PIDName = egammaPID.IsEMMedium
+
+    # MEDIUM (20/11/2013 -- Ludovica@cern.ch)
+    #  Coming from Fer
+    #
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/PhotonIsEMMediumSelectorCutDefs.conf"
+
+
 def PhotonIsEMMediumSelectorConfig2012(theTool) :
     '''
     These are the photon isEM definitions

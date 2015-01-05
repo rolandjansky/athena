@@ -65,12 +65,12 @@ namespace Root {
 				float Reta, //e233,
 				// E(3*7) in 2nd sampling
 				float Rphi, //e237,
-				// E(7*7) in 2nd sampling
-				float e277,
 				// transverse energy in 1st scintillator of hadronic calorimeter
 				float Rhad1, //ethad1,
 				// transverse energy in hadronic calorimeter
 				float Rhad, //ethad,
+				// E(7*7) in 2nd sampling
+				float e277,
 				// shower width in 3 strips in 1st sampling
 				float weta1c,
 				// shower width in 2nd sampling
@@ -96,9 +96,11 @@ namespace Root {
 				// number of Pixel hits
 				int nPi,
 				int nPiOutliers,
+				int nPiDeadSensors,
 				// number of SCT hits
 				int nSCT,
 				int nSCTOutliers,
+				int nSCTDeadSensors,
 				// TRT hits
 				int nTRThigh,
 				int nTRThighOutliers,
@@ -125,12 +127,12 @@ namespace Root {
 			  float Reta, //e233,
 			  // E(3*7) in 2nd sampling
 			  float Rphi, //e237,
-			  // E(7*7) in 2nd sampling
-			  float e277,
 			  // transverse energy in 1st scintillator of hadronic calorimeter
 			  float Rhad1, //ethad1,
 			  // transverse energy in hadronic calorimeter
 			  float Rhad, //ethad,
+			  // E(7*7) in 2nd sampling
+			  float e277,
 			  // shower width in 3 strips in 1st sampling
 			  float weta1c,
 			  // shower width in 2nd sampling
@@ -156,9 +158,11 @@ namespace Root {
 			  // number of Pixel hits
 			  int nPi,
 			  int nPiOutliers,
+			  int nPiDeadSensors,
 			  // number of SCT hits
 			  int nSCT,
 			  int nSCTOutliers,
+			  int nSCTDeadSensors,
 			  // TRT hits
 			  int nTRThigh,
 			  int nTRThighOutliers,
@@ -186,12 +190,12 @@ namespace Root {
 				    float Reta, //e233,
 				    // E(3*7) in 2nd sampling
 				    float Rphi, //e237,
-				    // E(7*7) in 2nd sampling
-				    float e277,
 				    // transverse energy in 1st scintillator of hadronic calorimeter
 				    float Rhad1, //ethad1,
 				    // transverse energy in hadronic calorimeter
 				    float Rhad, //ethad,
+				    // E(7*7) in 2nd sampling
+				    float e277,
 				    // shower width in 3 strips in 1st sampling
 				    float weta1c,
 				    // shower width in 2nd sampling
@@ -230,9 +234,11 @@ namespace Root {
 			  // number of Pixel hits
 			  int nPi,
 			  int nPiOutliers,
+			  int nPiDeadSensors,
 			  // number of SCT hits
 			  int nSCT,
 			  int nSCTOutliers,
+			  int nSCTDeadSensors,
 			  // TRT hits
 			  int nTRThigh,
 			  int nTRThighOutliers,
@@ -272,6 +278,8 @@ namespace Root {
     bool useBLOutliers;
     /** @brief use of PIX outliers*/
     bool usePIXOutliers;
+    /** @brief use of PIX adn SCT outliers and dead sensor*/
+    bool usePIXDeadSensors;
     /** @brief use of SCT outliers*/
     bool useSCTOutliers;
     /** @brief use of TRT Xenon Hits*/ 
@@ -291,7 +299,7 @@ namespace Root {
     /** @brief cut on ratio e237/e277 for e-ID*/
     std::vector<float> CutReta37;
     /** @brief cut on ratio e233/e277 for e-ID*/
-    std::vector<float> CutRphi37;
+    std::vector<float> CutRphi33;
     /** @brief cut on shower width in 2nd sampling for e-ID*/
     std::vector<float> CutWeta2c;
     /** @brief cut on Delta Emax2 in 1st sampling for e-ID*/
@@ -333,8 +341,10 @@ namespace Root {
     /** @brief cut max on E/p for e-ID*/
     std::vector<float> CutmaxEp;
     
-    /** @brief binning for cuts on TRT for e-ID*/
+    /** @brief Eta binning for cuts on TRT for e-ID*/
     std::vector<float> CutBinEta_TRT;
+    /** @brief Et binning for cuts on TRT for e-ID*/
+    std::vector<float>  CutBinET_TRT;
     /** @brief cut on Number of TRT hits for e-ID*/
     std::vector<float> CutNumTRT;
     /** @brief cut on Ratio of TR hits to Number of TRT hits for e-ID*/
@@ -350,8 +360,10 @@ namespace Root {
     void setIsEM(unsigned int isEM) { m_isEM = isEM; };
     const Root::TAccept& fillAccept() const;
 
-    bool CheckVar(std::vector<float> vec, int choice) const;
-    bool CheckVar(std::vector<int> vec, int choice) const;
+    std::vector<int> FindEtEtaBin(double et, double eta2) const;
+
+    bool CheckVar(const std::vector<float>& vec, int choice) const;
+    bool CheckVar(const std::vector<int>& vec, int choice) const;
 
     mutable unsigned int m_isEM;
 
@@ -365,7 +377,7 @@ namespace Root {
     
     /** @brief cluster leakage into the hadronic calorimeter */
     int m_cutPositionClusterHadronicLeakage_Electron;
-    /** @brief energy in 2nd sampling (e.g E277>0) */
+    /** @brief Et<0 cut */
     int m_cutPositionClusterMiddleEnergy_Electron;
     /** @brief energy ratio in 2nd sampling (e.g E237/E277) */
     int m_cutPositionClusterMiddleEratio37_Electron;

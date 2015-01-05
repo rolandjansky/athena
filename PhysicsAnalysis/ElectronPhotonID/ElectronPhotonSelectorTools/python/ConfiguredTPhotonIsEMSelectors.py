@@ -20,7 +20,7 @@ import ROOT
 
 from PhotonPhotonSelectorTools.PhotonIsEMSelectorMapping import PhotonIsEMMap, photonPIDmenu
 
-def ConfiguredTPhotonIsEMSelector( quality, menu=photonPIDmenu.menu2012 ):
+def ConfiguredTPhotonIsEMSelector( quality, menu=photonPIDmenu.menuDC14 ):
     """
     Configure the TPhotonIsEMSelector with the cuts of the given quality
     """    

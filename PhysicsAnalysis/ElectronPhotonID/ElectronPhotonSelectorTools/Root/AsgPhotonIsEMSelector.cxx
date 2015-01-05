@@ -77,46 +77,20 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 		  m_rootTool->forceNonConvertedPhotonPID=false,
 		  "boolean to force to test non converted photon hypothesis");
 
-  //
-  // selection for Loose photons
-  //
-  // Eta binning
-  declareProperty("CutBinEta_photonsLoose",m_rootTool->CutBinEta_photonsLoose,
-		  "Eta binning for photonsLoose");
-  // ET binning
-  declareProperty("CutBinEnergy_photonsLoose",m_rootTool->CutBinEnergy_photonsLoose,
-		  "E binning for photonsLoose");
-
-  // Cut on hadronic leakage
-  declareProperty("CutHadLeakage_photonsLoose",m_rootTool->CutHadLeakage_photonsLoose,
-		  "Cut on hadronic leakage for photonsLoose");
-  // Cut on E277
-  declareProperty("e277_photonsLoose",m_rootTool->e277_photonsLoose,
-		  "Cut on E277 for photonsLoose");
-  // Cut on Reta37
-  declareProperty("Reta37_photonsLoose",m_rootTool->Reta37_photonsLoose,
-		  "Cut on Reta37 for photonsLoose");
-  // Cut on Rphi33
-  declareProperty("Rphi33_photonsLoose",m_rootTool->Rphi33_photonsLoose,
-		  "Cut on Rphi33 for photonsLoose");
-  // Cut on Weta2
-  declareProperty("weta2_photonsLoose",m_rootTool->weta2_photonsLoose,
-		  "Cut on Weta2 for photonsLoose");
-
   // new cuts on f3
   // Use f3core instead of f3
   declareProperty("useF3core", m_useF3core = false,
 		  "Cut on f3 or f3core?");
   // Cut on fraction of energy to use 3rd sampling
   declareProperty("CutF3_photonsNonConverted",m_rootTool->CutF3_photonsNonConverted,
-		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for tight unconv");
+		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for unconverted");
   // Cut on fraction of energy to use 3rd sampling
   declareProperty("CutF3_photonsConverted",m_rootTool->CutF3_photonsConverted,
-		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for tight converted");
+		  "Cut on fraction of energy to use 3rd sampling (f3 or f3core) for converted");
 
 
   //
-  // selection for Tight photons (non-converted)
+  // selection for non-converted photons
   //
   // Eta binning
   declareProperty("CutBinEta_photonsNonConverted",
@@ -159,10 +133,10 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   declareProperty("f1_photonsNonConverted",
 		  m_rootTool->f1_photonsNonConverted,
 		  "Cut on fraction of energy to use 1st sampling for non converted photons");
-  // Cut on Emax2
-  declareProperty("emax2r_photonsNonConverted",
-		  m_rootTool->emax2r_photonsNonConverted,
-		  "Cut on Emax2 for non converted photons");
+  // Cut on Emax2 [NOT USED]
+  // declareProperty("emax2r_photonsNonConverted",
+  //                 m_rootTool->emax2r_photonsNonConverted,
+  //		     "Cut on Emax2 for non converted photons");
   // Cut on Delta E
   declareProperty("deltae_photonsNonConverted",
 		  m_rootTool->deltae_photonsNonConverted,
@@ -186,7 +160,7 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 
   //================================================
   //
-  // selection for Tight photons (converted)
+  // selection for converted photons
   //
   // Eta binning
   declareProperty("CutBinEta_photonsConverted",
@@ -229,10 +203,10 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   declareProperty("f1_photonsConverted",
 		  m_rootTool->f1_photonsConverted,
 		  "Cut on fraction of energy to use 1st sampling for converted photons");
-  // Cut on Emax2
-  declareProperty("emax2r_photonsConverted",
-		  m_rootTool->emax2r_photonsConverted,
-		  "Cut on Emax2 for converted photons");
+  // Cut on Emax2 [NOT USED]
+  //declareProperty("emax2r_photonsConverted",
+  //		  m_rootTool->emax2r_photonsConverted,
+  //		  "Cut on Emax2 for converted photons");
   // Cut on Delta E
   declareProperty("deltae_photonsConverted",
 		  m_rootTool->deltae_photonsConverted,
@@ -261,7 +235,11 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
   declareProperty("CutmaxEp_photonsConverted",
 		  m_rootTool->CutmaxEp_photonsConverted,
 		  "Cut max on E/p for converted photons");
-
+  
+  // for the trigger needs:
+  declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if its a calo only cutbase"); 
+  declareProperty("trigEtTh", m_trigEtTh=-999. , "Trigger threshold"); 
+  
 }
 
 // =================================================================
@@ -285,13 +263,6 @@ StatusCode AsgPhotonIsEMSelector::initialize()
       std::string filename = PathResolverFindCalibFile( m_configFile);
       TEnv env(filename.c_str());
 
-      m_rootTool->CutBinEta_photonsLoose                    =AsgConfigHelper::HelperFloat("CutBinEta_photonsLoose",env);
-      m_rootTool->CutBinEnergy_photonsLoose                 =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsLoose",env);
-      m_rootTool->e277_photonsLoose                         =AsgConfigHelper::HelperFloat("e277_photonsLoose",env);
-      m_rootTool->CutHadLeakage_photonsLoose                =AsgConfigHelper::HelperFloat("CutHadLeakage_photonsLoose",env);
-      m_rootTool->Reta37_photonsLoose                       =AsgConfigHelper::HelperFloat("Reta37_photonsLoose",env);
-      m_rootTool->Rphi33_photonsLoose                       =AsgConfigHelper::HelperFloat("Rphi33_photonsLoose",env);
-      m_rootTool->weta2_photonsLoose                        =AsgConfigHelper::HelperFloat("weta2_photonsLoose",env);
       m_rootTool->CutBinEta_photonsNonConverted             =AsgConfigHelper::HelperFloat("CutBinEta_photonsNonConverted",env);
       m_rootTool->CutBinEnergy_photonsNonConverted          =AsgConfigHelper::HelperFloat("CutBinEnergy_photonsNonConverted",env);
       m_rootTool->e277_photonsNonConverted                  =AsgConfigHelper::HelperFloat("e277_photonsNonConverted",env);
@@ -302,7 +273,7 @@ StatusCode AsgPhotonIsEMSelector::initialize()
       m_rootTool->CutBinEtaStrips_photonsNonConverted       =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsNonConverted",env);
       m_rootTool->CutBinEnergyStrips_photonsNonConverted    =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsNonConverted",env);
       m_rootTool->f1_photonsNonConverted                    =AsgConfigHelper::HelperFloat("f1_photonsNonConverted",env);
-      m_rootTool->emax2r_photonsNonConverted                =AsgConfigHelper::HelperFloat("emax2r_photonsNonConverted",env);
+      //m_rootTool->emax2r_photonsNonConverted                =AsgConfigHelper::HelperFloat("emax2r_photonsNonConverted",env);
       m_rootTool->deltae_photonsNonConverted                =AsgConfigHelper::HelperFloat("deltae_photonsNonConverted",env);
       m_rootTool->DEmaxs1_photonsNonConverted               =AsgConfigHelper::HelperFloat("DEmaxs1_photonsNonConverted",env);
       m_rootTool->wtot_photonsNonConverted                  =AsgConfigHelper::HelperFloat("wtot_photonsNonConverted",env);
@@ -319,7 +290,7 @@ StatusCode AsgPhotonIsEMSelector::initialize()
       m_rootTool->CutBinEtaStrips_photonsConverted          =AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsConverted",env);
       m_rootTool->CutBinEnergyStrips_photonsConverted       =AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsConverted",env);
       m_rootTool->f1_photonsConverted                       =AsgConfigHelper::HelperFloat("f1_photonsConverted",env);
-      m_rootTool->emax2r_photonsConverted                   =AsgConfigHelper::HelperFloat("emax2r_photonsConverted",env);
+      //m_rootTool->emax2r_photonsConverted                   =AsgConfigHelper::HelperFloat("emax2r_photonsConverted",env);
       m_rootTool->deltae_photonsConverted                   =AsgConfigHelper::HelperFloat("deltae_photonsConverted",env);
       m_rootTool->DEmaxs1_photonsConverted                  =AsgConfigHelper::HelperFloat("DEmaxs1_photonsConverted",env);
       m_rootTool->wtot_photonsConverted                     =AsgConfigHelper::HelperFloat("wtot_photonsConverted",env);
@@ -405,15 +376,6 @@ const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Photon* eg ) con
 // ==============================================================
 StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
 {
-  // call main method
-  return execute(eg,-999.);
-}
-
-// this one is potentially for the trigger
-// ==============================================================
-StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg, 
-					  double trigEtTh) const
-{
   //
   // Particle identification for photons based on cuts
   // trigEtTh : threshold in ET as applied by trigger
@@ -455,33 +417,41 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg,
     et = (cosheta != 0.) ? energy/cosheta : 0.;
   }
 
-  float ethad1(0), ethad(0), e233(0), e237(0), e277(0), weta2c(0), 
-    emax2(0), emax(0), emin(0), f1(0), weta1c(0), wtot(0), fracm(0), f3(0);
+  float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
+    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0), f3(0);
 
   bool allFound = true;
     
-  // transverse energy in 1st scintillator of hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1);
-  // transverse energy in hadronic calorimeter
-  allFound = allFound && eg->showerShapeValue(ethad, xAOD::EgammaParameters::ethad);
-  // E(3*3) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e233, xAOD::EgammaParameters::e233);
-  // E(3*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e237, xAOD::EgammaParameters::e237);
+  // variables based on HCAL
+
+  // transverse energy in 1st scintillator of hadronic calorimeter/ET
+  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  // transverse energy in hadronic calorimeter/ET
+  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+
+  // variables based on S2 of EM CAL
+
   // E(7*7) in 2nd sampling
   allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
-  // shower width in 3 strips in 1st sampling
-  allFound = allFound && eg->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
+  // E(3*7)/E(7*7) in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  // E(3*3)/E(3*7) in 2nd sampling
+  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
   // shower width in 2nd sampling
   allFound = allFound && eg->showerShapeValue(weta2c, xAOD::EgammaParameters::weta2);
+
+  // variables based on S1 of EM CAL
+
   // fraction of energy reconstructed in the 1st sampling
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
-  // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
-  // E of 1st max in strips
-  allFound = allFound && eg->showerShapeValue(emax, xAOD::EgammaParameters::emaxs1);
-  // E(min) in strips
-  allFound = allFound && eg->showerShapeValue(emin, xAOD::EgammaParameters::emins1);
+  // shower width in 3 strips in 1st sampling
+  allFound = allFound && eg->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
+  // E of 2nd max between max and min in strips [NOT USED]
+  // allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  // E(2nd max)-E(min) in strips
+  allFound = allFound && eg->showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
   // total shower width in 1st sampling
   allFound = allFound && eg->showerShapeValue(wtot, xAOD::EgammaParameters::wtots1);
   // E(+/-3)-E(+/-1)/E(+/-1)
@@ -495,11 +465,18 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg,
 
   // cut on E/p
   double ep = 1.0; 		// default passes
-
-  // retrieve associated track
-  const xAOD::Vertex* vx = eg->vertex();
-  if (vx != 0) {
-    ep = energy * getConversion1OverP(vx);
+  
+  if (m_caloOnly){
+    ATH_MSG_DEBUG("Doing CaloCutsOnly");
+    //
+    // apply only calo information
+    //
+  } else {
+    // retrieve associated track
+    const xAOD::Vertex* vx = eg->vertex();
+    if (vx != 0) {
+      ep = energy * getConversion1OverP(vx);
+    }
   }
 
   const EMAmbiguityType::AmbiguityResult ambiguityResult = 
@@ -507,21 +484,21 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg,
 
   // modifiy et when dealing with trigger
   // to be sure that it will take the correct bin (VD)
-  if(trigEtTh > 0) et = trigEtTh*1.01; 
+  if(m_trigEtTh > 0) et = m_trigEtTh*1.01; 
 
-  // apply calorimeter selection for Loose photons
+  // apply calorimeter selection for photons
   iflag = m_rootTool->calcIsEm(eta2,
 			       et,
-			       ethad1,
-			       ethad,
-			       e233,
-			       e237,
+			       Rhad1,
+			       Rhad,
 			       e277,
+			       Reta,
+			       Rphi,
 			       weta2c,
-			       emax2,
-			       emax,
-			       emin,
+			       //emax2,
 			       f1,
+			       Eratio,
+			       DeltaE,
 			       weta1c,
 			       wtot,
 			       fracm,

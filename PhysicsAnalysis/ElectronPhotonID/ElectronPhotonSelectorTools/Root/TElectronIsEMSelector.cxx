@@ -34,16 +34,18 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   useTRTOutliers(true),
   useBLOutliers(true),
   usePIXOutliers(true),
+  usePIXDeadSensors(true),
   useSCTOutliers(true),
   useTRTXenonHits(false),
   useBLayerHitPrediction(true),
+  m_isEM(~0),
   /** @brief cluster eta range */
   m_cutPositionClusterEtaRange_Electron(0),    
   /** @brief matching to photon (not necessarily conversion--the name is historical) */
   m_cutPositionConversionMatch_Electron(0),    
   /** @brief cluster leakage o the hadronic calorimeter */
   m_cutPositionClusterHadronicLeakage_Electron(0),
-  /** @brief energy in 2nd sampling (e.g E277>0) */
+  /** @brief Et <0  */
   m_cutPositionClusterMiddleEnergy_Electron(0),
   /** @brief energy ratio in 2nd sampling (e.g E237/E277) */
   m_cutPositionClusterMiddleEratio37_Electron(0),
@@ -104,7 +106,7 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   m_cutNameConversionMatch_Electron("ConversionMatch_Electron"),  
   /** @brief cluster leakage into the hadronic calorimeter */
   m_cutNameClusterHadronicLeakage_Electron("ClusterHadronicLeakage_Electron"),
-  /** @brief energy in 2nd sampling (i.e. E277>0) */
+  /** @brief Et <0 Cut */
   m_cutNameClusterMiddleEnergy_Electron("ClusterMiddleEnergy_Electron"), 
   /** @brief energy ratio in 2nd sampling (i.e. E237/E277) */
   m_cutNameClusterMiddleEratio37_Electron("ClusterMiddleEratio37_Electron"),
@@ -197,9 +199,9 @@ FakeStatusCode Root::TElectronIsEMSelector::initialize()
     m_accept.addCut(m_cutNameClusterHadronicLeakage_Electron, "Had leakage < Cut");
   if (m_cutPositionClusterHadronicLeakage_Electron < 0) sc = FkStatusCode::FAILURE;
 
-  /** @brief energy in 2nd sampling (i.e. E277>0), bit 3 */
+  /** @brief et < 0 bit 3 */
   m_cutPositionClusterMiddleEnergy_Electron = 
-    m_accept.addCut(m_cutNameClusterMiddleEnergy_Electron, "Energy in second sampling (E277) > Cut"); 
+    m_accept.addCut(m_cutNameClusterMiddleEnergy_Electron, "Et <0  Cut"); 
   if (m_cutPositionClusterMiddleEnergy_Electron < 0) sc = FkStatusCode::FAILURE;
 
   /** @brief energy ratio in 2nd sampling (i.e. E237/E277), bit 4 */
@@ -254,7 +256,6 @@ FakeStatusCode Root::TElectronIsEMSelector::initialize()
 
   int voidcutpos = m_accept.addCut("VOID1", "No Cut"); // bit 14 is not used
   if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
-
 
   /** @brief difference between max and 2nd max in strips, bit 15 */
   m_cutPositionClusterStripsDEmaxs1_Electron = 
@@ -370,12 +371,12 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 float Reta,
 							 // E(3*7) in 2nd sampling  e237
 							 float Rphi,
-							 // E(7*7) in 2nd sampling
-							 float e277,
 							 // transverse energy in 1st scintillator of hadronic calorimeter
 							 float Rhad1,
 							 // transverse energy in hadronic calorimeter
 							 float Rhad,
+							 // E(7*7) in 2nd sampling
+							 float e277,
 							 // shower width in 3 strips in 1st sampling
 							 float weta1c,
 							 // shower width in 2nd sampling
@@ -401,9 +402,11 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 // number of Pixel hits
 							 int nPi,
 							 int nPiOutliers,
+							 int nPiDeadSensors,
 							 // number of SCT hits
 							 int nSCT,
 							 int nSCTOutliers,
+							 int nSCTDeadSensors,
 							 // TRT hits
 							 int nTRThigh,
 							 int nTRThighOutliers,
@@ -428,9 +431,9 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    et,
 		    Reta, // e233,
 		    Rphi, //e237,
-		    e277,
 		    Rhad1, ///ethad1,
 		    Rhad, //ethad,
+		    e277,
 		    weta1c,
 		    weta2c,
 		    f1,
@@ -444,8 +447,10 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    nBLOutliers,
 		    nPi,
 		    nPiOutliers,
+		    nPiDeadSensors,
 		    nSCT,
 		    nSCTOutliers,
+		    nSCTDeadSensors,
 		    nTRThigh,
 		    nTRThighOutliers,
 		    nTRT,
@@ -472,12 +477,12 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   float Reta,
 						   // E(3*7) in 2nd sampling e237
 						   float Rphi,
-						   // E(7*7) in 2nd sampling
-						   float e277,
 						   // transverse energy in 1st scintillator of hadronic calorimeter
 						   float Rhad1,
 						   // transverse energy in hadronic calorimeter
 						   float Rhad,
+						   // E(7*7) in 2nd sampling
+						   float e277,
 						   // shower width in 3 strips in 1st sampling
 						   float weta1c,
 						   // shower width in 2nd sampling
@@ -503,9 +508,11 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   // number of Pixel hits
 						   int nPi,
 						   int nPiOutliers,
+						   int nPiDeadSensors,
 						   // number of SCT hits
 						   int nSCT,
 						   int nSCTOutliers,
+						   int nSCTDeadSensors,
 						   // TRT hits
 						   int nTRThigh,
 						   int nTRThighOutliers,
@@ -525,9 +532,9 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 					  et,
                                           Reta, //e233,
 					  Rphi, //e237,
-					  e277,
 					  Rhad1, //ethad1,
 					  Rhad, //ethad,
+					  e277,
 					  weta1c,
 					  weta2c,
 					  f1,
@@ -545,8 +552,10 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   nBLOutliers,
 		   nPi,
 		   nPiOutliers,
+		   nPiDeadSensors,
 		   nSCT,
 		   nSCTOutliers,
+		   nSCTDeadSensors,
 		   nTRThigh,
 		   nTRThighOutliers,
 		   nTRT,
@@ -572,12 +581,12 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 							     float Reta,
 							     // E(3*7) in 2nd sampling
 							     float Rphi,
-							     // E(7*7) in 2nd sampling
-							     float e277,
 							     // transverse energy in 1st scintillator of hadronic calorimeter
 							     float Rhad1,
 							     // transverse energy in hadronic calorimeter
 							     float Rhad,
+							     // E(7*7) in 2nd sampling
+							     float e277,							     
 							     // shower width in 3 strips in 1st sampling
 							     float weta1c,
 							     // shower width in 2nd sampling
@@ -602,69 +611,25 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
                                                              double trigEtTh
 							     ) const
 {
-
-  // derived variables
-
-  //------- These are now in the xAOD
-  // hadronic leakage variables
-  //double raphad1 = fabs(et) > 0. ? ethad1/et : 0.;
-  //double raphad  = fabs(et) > 0. ? ethad/et : 0.;
-
-  // (Emax1-Emax2)/(Emax1+Emax2)
-  //double demaxs1 = fabs(emax+emax2)>0. ? (emax-emax2)/(emax+emax2) : 0.;
-
-  // parametrizatiion of emax2
-  double deltaemax2= emax2/(1000.+0.009*et);
-
   // modifiy et when dealing with trigger
   // to be sure that it will take the correct bin (VD)
   if(trigEtTh > 0) et = trigEtTh*1.01; 
 
-  int ibin_et = -1;
-  // loop on ET range
-  for (unsigned int ibinET=0;ibinET<=CutBinET.size();ibinET++) {
-    if ( ibinET == 0 ) {
-      if (et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
-      }
-    } 
-    else if ( ibinET > 0 && ibinET <CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] && 
-	   et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
-      }
-    }
-    else if ( ibinET == CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] ) {
-	ibin_et = ibinET;
-      }
-    }
-  }
-      
-  int ibin_eta = -1;
-  // loop on eta range
-  for (unsigned int ibinEta=0;ibinEta<CutBinEta.size();ibinEta++) {
-    if ( ibinEta == 0 ){
-      if ( eta2 < CutBinEta[ibinEta] ) {
-	ibin_eta = ibinEta;
-      }
-    }
-    else {
-      if ( eta2 >= CutBinEta[ibinEta-1] && 
-	   eta2 < CutBinEta[ibinEta] ) {
-	ibin_eta = ibinEta;
-      }
-    }
-  }
-
-  // check the bin number
-  int ibin_combined =  ibin_et*CutBinEta.size()+ibin_eta;
+  std::vector<int> bins =FindEtEtaBin(et,eta2);
+  int ibin_et= bins.at(0);
+  int ibin_eta= bins.at(1);
+  int ibin_combined= bins.at(2);
 
   // check eta range 
-  if (ibin_eta < 0) {  
+  if (eta2 > 2.47) {  
     iflag |= (0x1 << egammaPID::ClusterEtaRange_Electron);  
   }
  
+  //Negative energy. For legacy fill the Middle Energy less than 0 , should be equivalent
+  if (e277 < 0) {  
+    iflag |= ( 0x1 << egammaPID::ClusterMiddleEnergy_Electron) ;       
+  }
+
   // check if index is defined
   if (ibin_eta>=0 && ibin_et>=0 &&  ibin_combined>=0) {
   
@@ -690,14 +655,13 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
     }
 
     // cuts on 2nd sampling
-    if (e277<=0.) iflag |= ( 0x1 << egammaPID::ClusterMiddleEnergy_Electron) ; 
     if (CheckVar(CutReta37,4)) {
       if (Reta<=CutReta37[ibin_combined]) 
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio37_Electron);
     }
     // -------------------------------
-    if (CheckVar(CutRphi37,4)) {
-      if (Rphi<=CutRphi37[ibin_combined]) 
+    if (CheckVar(CutRphi33,4)) {
+      if (Rphi<=CutRphi33[ibin_combined]) 
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio33_Electron);
     }
     // -------------------------------
@@ -714,6 +678,8 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
 
       // check Rmax2
       if (CheckVar(CutDeltaEmax2,4)) {
+	// parametrizatiion of emax2
+	double deltaemax2= emax2/(1000.+0.009*et);
 	if (emax2>0. && deltaemax2>=CutDeltaEmax2[ibin_combined] )
 	  iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaEmax2_Electron);
       }
@@ -749,16 +715,10 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
       }
     }
 
-    // // check cluster isolation
-    // if (CheckVar(CutClusterIsolation,4)) {
-    //   if ( etconeIso >= CutClusterIsolation[ibin_combined])
-    // 	iflag |= ( 0x1 << egammaPID::ClusterIsolation_Electron);
-    // }
   }
   
   return iflag; 
 }
-
 
 
 unsigned int Root::TElectronIsEMSelector::TrackCut(  
@@ -772,9 +732,11 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   // number of Pixel hits
 						   int nPi,
 						   int nPiOutliers,
+						   int nPiDeadSensors,
 						   // number of SCT hits
 						   int nSCT,
 						   int nSCTOutliers,
+						   int nSCTDeadSensors,
 						   // TRT hits
 						   int nTRThigh,
 						   int nTRThighOutliers,
@@ -791,47 +753,14 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   bool expectHitInBLayer,
 						   unsigned int iflag) const
 {
-  int ibin_et = -1;
-  // loop on ET range
-  for (unsigned int ibinET=0;ibinET<=CutBinET.size();ibinET++) {
-    if ( ibinET == 0 ) {
-      if (et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
-      }
-    } 
-    else if ( ibinET > 0 && ibinET <CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] && 
-	   et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
-      }
-    }
-    else if ( ibinET == CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] ) {
-	ibin_et = ibinET;
-      }
-    }
-  }
-  
-  int ibin_eta = -1;
-  // loop on eta range
-  for (unsigned int ibinEta=0;ibinEta<CutBinEta.size();ibinEta++) {
-    if ( ibinEta == 0 ){
-      if ( eta2 < CutBinEta[ibinEta] ) {
-	ibin_eta = ibinEta;
-      }
-    } else {
-      if ( eta2 >= CutBinEta[ibinEta-1] && 
-	   eta2 < CutBinEta[ibinEta] ) {
-	ibin_eta = ibinEta;
-      }
-    }
-  }
   
   // check the bin number
-  int ibin_combined =  ibin_et*CutBinEta.size()+ibin_eta;
-
+  std::vector<int> bins =FindEtEtaBin(et,eta2);
+  int ibin_eta= bins.at(1);
+  int ibin_combined= bins.at(2);
 
   int nSi = nPi + nSCT;
+  int nSiDeadSensors = nPiDeadSensors + nSCTDeadSensors;
   
   if (useBLOutliers) {
     nBL += nBLOutliers;
@@ -839,6 +768,10 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   if (usePIXOutliers) {
     nPi += nPiOutliers;
     nSi += nPiOutliers;
+  }
+  if (usePIXDeadSensors) {
+    nPi += nPiDeadSensors;
+    nSi += nSiDeadSensors;
   }
   if (useSCTOutliers) {
     nSi += nSCTOutliers;
@@ -855,7 +788,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 	  iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron) ; 
       }
     }
-
     // cuts on number of pixel hits
     if (CheckVar(CutPi,1)) {
       if (nPi<CutPi[ibin_eta]) 
@@ -916,7 +848,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   double rTRT = 0;
   int nTRTTotal = 0;
   if (useTRTOutliers) { 
-
     ///**** UGLY, UGLY;
     ///**** can't actually use the constant define in TrackSummary
     if (useTRTXenonHits && (nTRTXenonHits!=SummaryTypeNotSet)) nTRTTotal= nTRTXenonHits; 
@@ -944,7 +875,7 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   const double a4 = -640.9; const double b4 = 1323.; const double c4 = -851.8; const double d4 = 180.8;
   // zone 5: eta <2.0 linear
   const double a5 = 159.8; const double b5 = -70.9;
-  
+    
   int ibin_eta_TRT = -1;
   // loop on eta range
   for (unsigned int ibinEta=0;ibinEta<CutBinEta_TRT.size();ibinEta++) {
@@ -985,58 +916,147 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
     case 5: 
       DeltaNum = nTRTTotal - (a5 + b5*eta2);
     }
-    
+  
     if (CheckVar(CutNumTRT,2)) {
       if ( DeltaNum < CutNumTRT[ibin_eta_TRT]) {
 	iflag |= ( 0x1 << egammaPID::TrackTRThits_Electron);
       }
     }
-    if (CheckVar(CutTRTRatio,2)) {
-      if ( rTRT < CutTRTRatio[ibin_eta_TRT]  && nTRTTotal > 0) {
+
+    int ibin_et_TRT = -1;
+    // loop on ET range
+    if(CutBinET_TRT.size()>0){
+      for (unsigned int ibinET=0;ibinET<=CutBinET_TRT.size();++ibinET) {
+	if ( ibinET == 0 ) {
+	  if (et < CutBinET_TRT[ibinET] ) {
+	    ibin_et_TRT = ibinET;
+	  }
+	}
+	else if ( ibinET > 0 && ibinET <CutBinET_TRT.size() ) {
+	  if ( et >= CutBinET_TRT[ibinET-1] && 
+	       et < CutBinET_TRT[ibinET] ) {
+	    ibin_et_TRT = ibinET;
+	  }
+	}
+	else if ( ibinET == CutBinET_TRT.size() ) {
+	  if ( et >= CutBinET_TRT[ibinET-1] ) {
+	    ibin_et_TRT = ibinET;
+	  }
+	}
+      }
+    }
+    
+    int  ibin_combined_TRT =ibin_eta_TRT;
+    if(ibin_et_TRT>0){
+      ibin_combined_TRT =ibin_et_TRT*CutBinEta_TRT.size()+ibin_eta_TRT;
+    }
+    if (CheckVar(CutTRTRatio,5)) {
+      if ( rTRT < CutTRTRatio[ibin_combined_TRT]  && nTRTTotal > 0) {
 	iflag |= ( 0x1 << egammaPID::TrackTRTratio_Electron);
       } 
     }
-    if (CheckVar(CutTRTRatio90,2)) { // not really used
-      if ( rTRT < CutTRTRatio90[ibin_eta_TRT] ) {
-	iflag |= ( 0x1 << egammaPID::TrackTRTratio90_Electron);
+    
+    if (CheckVar(CutTRTRatio90,5)) { // not really used
+      if ( rTRT < CutTRTRatio90[ibin_combined_TRT] ) {
+       iflag |= ( 0x1 << egammaPID::TrackTRTratio90_Electron);
       } 
-    }
+    } 
   }
-  
+ 
   return iflag; 
 }
 
+std::vector<int> Root::TElectronIsEMSelector::FindEtEtaBin(double et, double eta2) const{
+
+  //Try to figure out in which bin we belong
+  int ibin_et = -1;
+  // loop on ET range
+  for (unsigned int ibinET=0;ibinET<=CutBinET.size();++ibinET) {
+    if ( ibinET == 0 ) {
+      if (et < CutBinET[ibinET] ) {
+	ibin_et = ibinET;
+      }
+    } 
+    else if ( ibinET > 0 && ibinET <CutBinET.size() ) {
+      if ( et >= CutBinET[ibinET-1] && 
+	   et < CutBinET[ibinET] ) {
+	ibin_et = ibinET;
+      }
+    }
+    else if ( ibinET == CutBinET.size() ) {
+      if ( et >= CutBinET[ibinET-1] ) {
+	ibin_et = ibinET;
+      }
+    }
+  }
+  
+  int ibin_eta = -1;
+  // loop on eta range
+  for (unsigned int ibinEta=0;ibinEta<CutBinEta.size();++ibinEta) {
+    if ( ibinEta == 0 ){
+      if ( eta2 < CutBinEta[ibinEta] ) {
+	ibin_eta = ibinEta;
+      }
+    }
+    else if ( ibinEta > 0 && ibinEta <CutBinEta.size() ) {
+      if ( eta2 >= CutBinEta[ibinEta-1] && 
+	   eta2 < CutBinEta[ibinEta] ) {
+	ibin_eta = ibinEta;
+      }
+    }
+    else if ( ibinEta == CutBinEta.size() ) {
+      if ( eta2 >= CutBinEta[ibinEta-1] ) {
+	ibin_eta = ibinEta;
+      }
+    }
+  }
+  
+  int ibin_combined = ibin_et*CutBinEta.size()+ibin_eta;
+  // check the bin number
+  std::vector<int> bins{ibin_et, ibin_eta,ibin_combined};
+  return bins;
+}
 
 // ==============================================================
-bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) const
+
+bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int choice) const
 {
-  //
   // check vector size
   // 0 : size should be 1
   // 1 : vs etaNB
   // 2 : vs etaTRTNB
   // 3 : vs etNB
   // 4 : vs combinedNB
-  //
-
-  unsigned int etaNB = CutBinEta.size();
-  unsigned int etaTRTNB = CutBinEta_TRT.size();
-  unsigned int etNB =  CutBinET.size();
-  unsigned int combinedNB = 0;
-  if (etNB>1) 
-    combinedNB = 
-      etaNB * (etNB+1);
-  else 
-    combinedNB = 
-      etaNB;
+  // 5 : vs combinedTRTNB
 
   // if size of vector is 0 it means cut is not defined
   if (vec.size() == 0) return false;
 
-  // check if size is 1
+  unsigned int etaNB = CutBinEta.size();
+  unsigned int etaTRTNB = CutBinEta_TRT.size();
+  unsigned int etNB =  CutBinET.size();
+  unsigned int etTRTNB =  CutBinET_TRT.size();
+  unsigned int combinedNB = 0;
+  unsigned int combinedTRTNB = 0;
+
+  if (etNB>1) {
+    combinedNB = etaNB * (etNB+1);
+  }
+  else {
+    combinedNB = etaNB;
+  }
+
+  if (etTRTNB>1) {
+    combinedTRTNB = etaTRTNB * (etTRTNB+1);
+  }
+  else {
+    combinedTRTNB = etaTRTNB;
+  }
+
+  // check if size is 1 (give choice 0)
   if (choice==0) {
     if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 0 vector size is " 
 		     << vec.size() << " but needs 1"); 
       return false;      
     }
@@ -1045,17 +1065,16 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   // check if size is etaNB
   if (choice==1) {
     if ( vec.size() != etaNB ) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 1 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etaNB);
       return false;      
     }
   }
-
   // check if size is etaTRTNB
   if (choice==2) {
     if ( vec.size() != etaTRTNB ) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 2 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etaTRTNB);
       return false;      
@@ -1065,7 +1084,7 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   // check if size is etNB
   if (choice==3) {
     if ( vec.size() != etNB ) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 3 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etNB);
       return false;      
@@ -1075,107 +1094,122 @@ bool Root::TElectronIsEMSelector::CheckVar(std::vector<float> vec, int choice) c
   // check if size is combinedNB 
   if (choice==4) {
     if ( vec.size() != combinedNB ) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 4 vector size is " 
 		     << vec.size() << " but needs " 
 		     << combinedNB);
       return false;      
     }
   }
- 
+
+
+  // check if size is etaTRTNB
+  if (choice==5) {
+    if ( vec.size() != combinedTRTNB ) {
+      FAKE_MSG_ERROR("choice 5 vector size is " 
+		     << vec.size() << " but needs " 
+		     << combinedTRTNB);
+      return false;      
+    }
+  }
   return true;
 }
 
 // ==============================================================
-bool Root::TElectronIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
+bool Root::TElectronIsEMSelector::CheckVar(const std::vector<int>& vec, int choice) const
 {
-  //
+
   // check vector size
   // 0 : size should be 1
   // 1 : vs etaNB
   // 2 : vs etaTRTNB
   // 3 : vs etNB
   // 4 : vs combinedNB
-  //
-
+  // 5 : vs combinedTRTNB
 
   // if size of vector is 0 it means cut is not defined
   if (vec.size() == 0) return false;
 
 
-  switch(choice) {
-  case 0:
+  unsigned int etaNB = CutBinEta.size();
+  unsigned int etaTRTNB = CutBinEta_TRT.size();
+  unsigned int etNB =  CutBinET.size();
+  unsigned int etTRTNB =  CutBinET_TRT.size();
+  unsigned int combinedNB = 0;
+  unsigned int combinedTRTNB = 0;
+
+  if (etNB>1) {
+    combinedNB = etaNB * (etNB+1);
+  }
+  else {
+    combinedNB = etaNB;
+  }
+
+  if (etTRTNB>1) {
+    combinedTRTNB = etaTRTNB * (etTRTNB+1);
+  }
+  else {
+    combinedTRTNB = etaTRTNB;
+  }
+
+
+  // check if size is 1
+  if (choice==0) {
     if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("vector size is " 
+      FAKE_MSG_ERROR("choice 0 vector size is " 
 		     << vec.size() << " but needs 1"); 
       return false;      
-    } else {
-      return true;
     }
-
-    // check if size is etaNB
-  case 1:
-    {
-      const unsigned int etaNB = CutBinEta.size();
-      if ( vec.size() != etaNB ) {
-	FAKE_MSG_ERROR("vector size is " 
-		       << vec.size() << " but needs etaNB=" 
-		       << etaNB);
-	return false;      
-      } else {
-	return true;
-      }
-    }
-    // check if size is etaTRTNB
-  case 2:
-    {
-      const unsigned int etaTRTNB = CutBinEta_TRT.size();      
-      if ( vec.size() != etaTRTNB ) {
-	FAKE_MSG_ERROR("vector size is " 
-		       << vec.size() << " but needs etaTRTNB=" 
-		       << etaTRTNB);
-	return false;      
-      } else {
-	return true;
-      }
-    }
-
-    // check if size is etNB
-  case 3:
-    {
-      const unsigned int etNB =  CutBinET.size();
-      if ( vec.size() != etNB ) {
-	FAKE_MSG_ERROR("vector size is " 
-		       << vec.size() << " but needs etNB=" 
-		       << etNB);
-	return false;      
-      } else {
-	return true;
-      }
-    }
-    // check if size is combinedNB 
-  case 4:
-    {
-      const unsigned int etaNB = CutBinEta.size();
-      const unsigned int etNB =  CutBinET.size();
-      unsigned int combinedNB = 0;
-      if (etNB>1) 
-	combinedNB = 
-	  etaNB * (etNB+1);
-      else 
-	combinedNB = 
-	  etaNB;
-      
-      if ( vec.size() != combinedNB ) {
-	FAKE_MSG_ERROR("vector size is " 
-		       << vec.size() << " but needs combinedNB=" 
-		       << combinedNB);
-	return false;      
-      } else {
-	return true;
-      }
-    }
-  default:
-    FAKE_MSG_ERROR("choice " << choice << " is not implemented");
-    return false;
   }
+
+  // check if size is etaNB
+  if (choice==1) {
+    if ( vec.size() != etaNB ) {
+      FAKE_MSG_ERROR("choice 1 vector size is " 
+		     << vec.size() << " but needs " 
+		     << etaNB);
+      return false;      
+    }
+  }
+
+  // check if size is etaTRTNB
+  if (choice==2) {
+    if ( vec.size() != etaTRTNB ) {
+      FAKE_MSG_ERROR("choice 2 vector size is " 
+		     << vec.size() << " but needs " 
+		     << etaTRTNB);
+      return false;      
+    }
+  }
+
+  // check if size is etNB
+  if (choice==3) {
+    if ( vec.size() != etNB ) {
+      FAKE_MSG_ERROR("choice 3 vector size is " 
+		     << vec.size() << " but needs " 
+		     << etNB);
+      return false;      
+    }
+  }
+
+  // check if size is combinedNB 
+  if (choice==4) {
+    if ( vec.size() != combinedNB ) {
+      FAKE_MSG_ERROR("choice 4 vector size is " 
+		     << vec.size() << " but needs " 
+		     << combinedNB);
+      return false;      
+    }
+  }
+
+  // check if size is etaTRTNB
+  if (choice==5) {
+    if ( vec.size() != combinedTRTNB ) {
+      FAKE_MSG_ERROR("choice 5 vector size is " 
+		     << vec.size() << " but needs " 
+		     << combinedTRTNB);
+      return false;      
+    }
+  }
+ 
+  return true;
 }
