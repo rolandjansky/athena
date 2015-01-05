@@ -26,10 +26,10 @@ public:
   bool good() const { return m_isInitialized && m_nChannels>0; }
   
   // retrieving LArMinBias using online ID  
-  virtual const float& MinBias(const HWIdentifier& chid) const;
+  virtual const float& minBiasRMS(const HWIdentifier& chid) const;
 
   // retrieving LArMinBias using offline ID  
-  virtual const float& MinBias(const Identifier& id) const; 
+  virtual const float& minBiasRMS(const Identifier& id) const; 
   
 private:
   static const float errorcode;

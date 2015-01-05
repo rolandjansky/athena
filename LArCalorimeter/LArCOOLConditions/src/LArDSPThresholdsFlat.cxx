@@ -71,26 +71,26 @@ void LArDSPThresholdsFlat::readBlob(const AthenaAttributeList* attrList) {
 
   //m_setName=attr["Name"].data<std::string>();
 
-  //const coral::Blob& tQThrBlob = attr["tQThr"].data<coral::Blob>();
-  //const coral::Blob& samplesThrBlob = attr["samplesThr"].data<coral::Blob>();
-  //const coral::Blob& trigSumThrBlob = attr["trigSumThr"].data<coral::Blob>();
-  const coral::Blob *tQThrBlob = new coral::Blob(attr["tQThr"].data<coral::Blob>());
-  const coral::Blob *samplesThrBlob = new coral::Blob(attr["samplesThr"].data<coral::Blob>());
-  const coral::Blob *trigSumThrBlob = new coral::Blob(attr["trigSumThr"].data<coral::Blob>());
+  const coral::Blob& tQThrBlob = attr["tQThr"].data<coral::Blob>();
+  const coral::Blob& samplesThrBlob = attr["samplesThr"].data<coral::Blob>();
+  const coral::Blob& trigSumThrBlob = attr["trigSumThr"].data<coral::Blob>();
+  //const coral::Blob *tQThrBlob = new coral::Blob(attr["tQThr"].data<coral::Blob>());
+  //const coral::Blob *samplesThrBlob = new coral::Blob(attr["samplesThr"].data<coral::Blob>());
+  //const coral::Blob *trigSumThrBlob = new coral::Blob(attr["trigSumThr"].data<coral::Blob>());
 
-  if (!(tQThrBlob->size()==samplesThrBlob->size() && samplesThrBlob->size()==trigSumThrBlob->size())) {
+  if (!(tQThrBlob.size()==samplesThrBlob.size() && samplesThrBlob.size()==trigSumThrBlob.size())) {
     (*m_log) << MSG::ERROR << "Unequal blob size tQThr/samplesThr/trigSumThr = " 
-	   << tQThrBlob->size() << "/" << samplesThrBlob->size()  << "/" << trigSumThrBlob->size() 
+	   << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() 
 	   << endreq;
     return;
   }
 
-  m_nChannels=tQThrBlob->size()/sizeof(float);
+  m_nChannels=tQThrBlob.size()/sizeof(float);
   
   (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
-  m_ptQThr=static_cast<const float*>(tQThrBlob->startingAddress());
-  m_psamplesThr=static_cast<const float*>(samplesThrBlob->startingAddress());
-  m_ptrigSumThr=static_cast<const float*>(trigSumThrBlob->startingAddress());
+  m_ptQThr=static_cast<const float*>(tQThrBlob.startingAddress());
+  m_psamplesThr=static_cast<const float*>(samplesThrBlob.startingAddress());
+  m_ptrigSumThr=static_cast<const float*>(trigSumThrBlob.startingAddress());
 
 
   return;

@@ -1,0 +1,14 @@
+<lcgdict>
+
+<class name="LArDAC2uAFlat" />
+<class name="LArDSPThresholdsFlat"  />
+<class name="LArHVScaleCorrFlat" />	  
+<class name="LArMphysOverMcalFlat"  />
+<class name="LArOFCFlat" />	  
+<class name="LArPedestalFlat" />  
+<class name="LArRampFlat" />  
+<class name="LArShapeFlat" />	  
+<class name="LAruA2MeVFlat"  />
+
+
+</lcgdict>      

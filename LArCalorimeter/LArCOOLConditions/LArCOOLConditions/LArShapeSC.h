@@ -3,8 +3,8 @@
 */
 
 //Dear emacs, this is -*-c++-*-
-#ifndef LARCOOLCONDITIONS_LARSHAPEFSC_H
-#define LARCOOLCONDITIONS_LARSHAPEESC_H
+#ifndef LARCOOLCONDITIONS_LARSHAPESC_H
+#define LARCOOLCONDITIONS_LARSHAPESC_H
 
 #include "LArElecCalib/ILArShape.h" 
 #include "LArCOOLConditions/LArCondSuperCellBase.h"

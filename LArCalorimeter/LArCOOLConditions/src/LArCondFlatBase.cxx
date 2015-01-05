@@ -61,10 +61,10 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
     (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endreq;
     return sc;
   }
-  //sc = toolSvc->retrieveTool("LArSuperCellCablingTool",m_larCablingSvc);
+
   sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArSuperCellCablingTool!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endreq;
     return sc;
   }
 

@@ -26,13 +26,13 @@ LArMinBiasSC::LArMinBiasSC(const CondAttrListCollection* attrList) {
 }
 
 
-const float& LArMinBiasSC::MinBias(const HWIdentifier& hwid) const {
+const float& LArMinBiasSC::minBiasRMS(const HWIdentifier& hwid) const {
   const IdentifierHash hash=m_scOnlineID->channel_Hash(hwid);
   return this->getDataByHash(hash, 0);
 }
 
 // retrieving LArMinBias using offline ID  
-const float& LArMinBiasSC::MinBias(const Identifier& cellID) const  {
+const float& LArMinBiasSC::minBiasRMS(const Identifier& cellID) const  {
   const HWIdentifier hwid=m_scCablingTool->createSignalChannelID(cellID);
-  return LArMinBiasSC::MinBias(hwid);
+  return LArMinBiasSC::minBiasRMS(hwid);
 }
