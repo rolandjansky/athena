@@ -79,7 +79,9 @@ namespace D3PDReader {
 
       if( ! fInBranch ) {
          if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
-                                TDataType::GetType( typeid( Type ) ), kFALSE ) ) {
+                                TDataType::GetType( typeid( Type ) ), kFALSE ) ||
+             !fInBranch )
+         {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
             return fVariable;
@@ -229,7 +231,9 @@ namespace D3PDReader {
 
       if( ! fInBranch ) {
          if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
-                                TDataType::GetType( typeid( Type ) ), kTRUE ) ) {
+                                TDataType::GetType( typeid( Type ) ), kTRUE ) ||
+             !fInBranch)
+         {
             ::Error( ::TString( "D3PDReader::VarHandle::" ) + GetName() + "()",
                      "Failed connecting to D3PD" );
             return fVariable;

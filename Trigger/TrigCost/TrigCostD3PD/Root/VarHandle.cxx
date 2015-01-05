@@ -151,6 +151,8 @@ namespace D3PDReader {
    }
 
    void VarHandleBase::UpdateBranch() const {
+      //Cov warning
+      if (!fInBranch) return;
 
       if( *fMaster != fInBranch->GetReadEntry() ) {
          fInBranch->GetEntry( *fMaster );

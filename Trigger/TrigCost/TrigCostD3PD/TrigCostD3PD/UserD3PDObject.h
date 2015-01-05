@@ -80,6 +80,8 @@ namespace D3PDReader {
       /// Book-keeper of the VarProxy members
       mutable std::map< ::TString, VarProxyBase* > fProxies;
 
+      UserD3PDObjectElement& operator=( const UserD3PDObjectElement& parent );
+
       ClassDef( UserD3PDObjectElement, 0 )
 
    }; // class UserD3PDObjectElement

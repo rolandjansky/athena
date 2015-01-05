@@ -244,6 +244,21 @@ namespace D3PDReader {
       } else {
          appId() = 0;
       }
+      if( parent.ebWeight.IsAvailable() && ebWeight.IsActive() ) {
+         ebWeight() = parent.ebWeight();
+      } else {
+         ebWeight() = 0;
+      }
+      if( parent.ebWeightBG.IsAvailable() && ebWeightBG.IsActive() ) {
+         ebWeightBG() = parent.ebWeightBG();
+      } else {
+         ebWeightBG() = 0;
+      }
+      if( parent.ranScaleTools.IsAvailable() && ranScaleTools.IsActive() ) {
+         ranScaleTools() = parent.ranScaleTools();
+      } else {
+         ranScaleTools() = 0;
+      }
       if( parent.bunchCrossingId.IsAvailable() && bunchCrossingId.IsActive() ) {
          bunchCrossingId() = parent.bunchCrossingId();
       } else {
@@ -832,6 +847,15 @@ namespace D3PDReader {
       if( ! ::strcmp( name, "appId" ) ) {
          return &appId;
       }
+      else if( ! ::strcmp( name, "ebWeight" ) ) {
+         return &ebWeight;
+      }
+      else if( ! ::strcmp( name, "ebWeightBG" ) ) {
+         return &ebWeightBG;
+      }
+      else if( ! ::strcmp( name, "ranScaleTools" ) ) {
+         return &ranScaleTools;
+      }
       else if( ! ::strcmp( name, "bunchCrossingId" ) ) {
          return &bunchCrossingId;
       }
@@ -1190,9 +1214,12 @@ namespace D3PDReader {
    void TrigCostD3PDObject::SetVarHandles( const ::Long64_t* master ) {
 
       // Create a list of variable-branch name pairs:
-      static const Int_t NVARNAMES = 115;
+      static const Int_t NVARNAMES = 118;
       static const char* VARNAMES[ NVARNAMES ][ 2 ] = {
          { "appId", "appId" },
+         { "ebWeight", "ebWeight" },
+         { "ebWeightBG", "ebWeightBG" },
+         { "ranScaleTools", "ranScaleTools" },         
          { "bunchCrossingId", "bunchCrossingId" },
          { "chain_counter", "chain_counter" },
          { "chain_isExpressStream", "chain_isExpressStream" },
