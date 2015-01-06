@@ -9,8 +9,9 @@
 #define ITRKTRACKPARTICLECALOEXTENSIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/ParticleCaloExtension.h"
+#include "TrkCaloExtension/CaloExtension.h"
 
 
 namespace Trk 
@@ -21,11 +22,19 @@ namespace Trk
   class IParticleCaloExtensionTool : virtual public IAlgTool {
   public:
 
-    /** Method to dress a TrackParticle with the calo layers crossed by its track
-        @param trackParticle 
-        @return ParticleCaloExtension
+    /** Method to dress a IParticle with the calo layers crossed by its track
+        @param IParticle     reference to the particle
+        @param extension     reference to a pointer to a CaloExtesion, will be updated if call is successfull
+                             NEVER delete the pointer, you will cause a crash! 
+        @param useCaching    configure whether the tool caches the result on the track particle
+                             The default behavior is 'true' to ensure optimal performance
+        @return true if the call was successful
     */
-    virtual const xAOD::ParticleCaloExtension* caloExtension( xAOD::TrackParticle& trackParticle ) const = 0;
+    virtual bool caloExtension( const xAOD::IParticle& particle, const Trk::CaloExtension*& extension, 
+                                bool useCaching = true  ) const = 0;
+
+
+    virtual Trk::CaloExtension* caloExtension( const TrackParameters& startPars, PropDirection propDir, ParticleHypothesis particleType ) const =0;
 
     static const InterfaceID& interfaceID( ) ;
   };

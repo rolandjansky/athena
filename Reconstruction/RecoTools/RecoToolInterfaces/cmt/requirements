@@ -4,15 +4,16 @@ author Sebastian.Fleischmann <Sebastian.Fleischmann@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
-use DataModel           DataModel-*             Control
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use CaloDetDescr        CaloDetDescr-*          Calorimeter
-use TrkParameters       TrkParameters-*         Tracking/TrkEvent
-use TrkNeutralParameters TrkNeutralParameters-* Tracking/TrkEvent
-use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
-use Particle            Particle-*              Reconstruction
-use xAODTracking        xAODTracking-*          Event/xAOD 
+use xAODBase            xAODBase-*              Event/xAOD 
+use TrkCaloExtension    TrkCaloExtension-*      Tracking/TrkEvent
+use ParticleCaloExtension ParticleCaloExtension-* Reconstruction/RecoEvent
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
 
-use AtlasReflex      AtlasReflex-*        External -no_auto_imports
+use xAODTracking                xAODTracking-*                Event/xAOD
+use xAODPrimitives              xAODPrimitives-*              Event/xAOD
+use xAODBase                    xAODBase-*                    Event/xAOD
+use xAODCaloEvent               xAODCaloEvent-*               Event/xAOD
 
-apply_pattern lcgdict dict=RecoToolInterfaces selectionfile=selection.xml headerfiles="../RecoToolInterfaces/RecoToolInterfacesDict.h"
+# Declare this package as a cmake metalibrary so that the libraries and header files from
+# package it depends on are available to its clients. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary
