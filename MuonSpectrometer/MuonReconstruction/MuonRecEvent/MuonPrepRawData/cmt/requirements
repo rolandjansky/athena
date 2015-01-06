@@ -16,7 +16,6 @@ use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetD
 private
 use  GaudiInterface             GaudiInterface-*                External
 
-
 public
 library MuonPrepRawData *.cxx
 apply_pattern installed_library

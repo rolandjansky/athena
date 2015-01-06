@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <new>
+#include <sstream>
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -114,12 +115,14 @@ RpcPrepData::dump( std::ostream&    stream) const
     stream << "RpcPrepData {"<<std::endl;
     
     MuonCluster::dump(stream);
-    stream << std::setiosflags(std::ios::fixed);
-    stream << std::setprecision(4);
-    stream <<"time = "<<this->time()<<", ";
-    stream<<"triggerInfo = "<<this->triggerInfo()<<", ";
-    stream<<"ambiguityFlag = "<<this->ambiguityFlag()<<", ";
-    stream<<"}"<<std::endl;
+    std::stringstream s;
+    s << std::setiosflags(std::ios::fixed);
+    s << std::setprecision(4);
+    s <<"time = "<<this->time()<<", ";
+    s <<"triggerInfo = "<<this->triggerInfo()<<", ";
+    s <<"ambiguityFlag = "<<this->ambiguityFlag()<<", ";
+    s <<"}"<<std::endl;
+    stream << s.str();
 
     return stream;
   }

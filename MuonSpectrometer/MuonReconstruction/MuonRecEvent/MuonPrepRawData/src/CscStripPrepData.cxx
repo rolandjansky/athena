@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <new>
+#include <sstream>
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -92,14 +93,16 @@ namespace Muon
   {
     stream << MSG::INFO << "CscStripPrepData {" <<endreq;
 
-    stream << std::setiosflags(std::ios::fixed);
-    stream << std::setprecision(4);
-    stream << "Samples = ";
-    for( unsigned int i=0;i<m_sampleCharges.size();++i) stream << m_sampleCharges[i] << " , ";
-    stream << endreq;
-    stream << "Time of first sample= "<<this->timeOfFirstSample() << ", sampling Time (ns) " 
+    std::stringstream s;
+    s << std::setiosflags(std::ios::fixed);
+    s << std::setprecision(4);
+    s << "Samples = ";
+    for( unsigned int i=0;i<m_sampleCharges.size();++i) s << m_sampleCharges[i] << " , ";
+    s << std::endl;
+    s << "Time of first sample= "<<this->timeOfFirstSample() << ", sampling Time (ns) " 
            << this->samplingTime() << ", sampling Phase " << this->samplingPhase();
-    stream << "} End CscStripPrepData" << endreq;
+    s << "} End CscStripPrepData" << std::endl;
+    stream << s.str();
 
     return stream;
   }
@@ -107,16 +110,18 @@ namespace Muon
   std::ostream& CscStripPrepData::dump( std::ostream&    stream) const
   {
     stream << "CscStripPrepData {"<<std::endl;
+
+    std::stringstream s;   
+    s << std::setiosflags(std::ios::fixed);
+    s << std::setprecision(4);
     
-    stream << std::setiosflags(std::ios::fixed);
-    stream << std::setprecision(4);
-    
-    stream << "Samples = ";
-    for( unsigned int i=0;i<m_sampleCharges.size();++i) stream << m_sampleCharges[i] << " , ";
-    stream << std::endl;
-    stream << "Time of first sample= "<<this->timeOfFirstSample() << ", sampling time(ns) " 
-           << this->samplingTime();
-    stream << "} End CscStripPrepData" << std::endl;
+    s << "Samples = ";
+    for( unsigned int i=0;i<m_sampleCharges.size();++i) s << m_sampleCharges[i] << " , ";
+    s << std::endl;
+    s << "Time of first sample= "<<this->timeOfFirstSample() << ", sampling time(ns) " 
+      << this->samplingTime();
+    s << "} End CscStripPrepData" << std::endl;
+    stream << s.str();
 
     return stream;
   }

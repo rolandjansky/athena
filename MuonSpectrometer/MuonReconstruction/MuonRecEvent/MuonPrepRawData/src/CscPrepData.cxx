@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <new>
+#include <sstream>
 #include "MuonPrepRawData/CscPrepData.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -83,13 +84,15 @@ namespace Muon
 
     MuonCluster::dump(stream);
 
-    stream << "Charge = "<<this->charge() << ", ";
-    stream << std::setiosflags(std::ios::fixed);
-    stream << std::setprecision(4);
-    stream << "Time = "<<this->time() << ", ";
-    stream << "Status = "<<this->status();    
-    stream << "TimeStatus = "<<this->timeStatus();    
-    stream << "}" << endreq;
+    std::stringstream s;
+    s << "Charge = "<<this->charge() << ", ";
+    s << std::setiosflags(std::ios::fixed);
+    s << std::setprecision(4);
+    s << "Time = "<<this->time() << ", ";
+    s << "Status = "<<this->status();    
+    s << "TimeStatus = "<<this->timeStatus();    
+    s << "}" << std::endl;
+    stream << s.str();
 
     return stream;
   }
@@ -100,13 +103,15 @@ namespace Muon
     
     MuonCluster::dump(stream);
     
-    stream << "Charge = " << this->charge() << ", ";
-    stream << std::setiosflags(std::ios::fixed);
-    stream << std::setprecision(4);
-    stream << "Time = " << this->time() << ", ";
-    stream << "Status = "<<this->status();    
-    stream << "TimeStatus = "<<this->timeStatus();    
-    stream << "}" <<std::endl;
+    std::stringstream s;
+    s << "Charge = " << this->charge() << ", ";
+    s << std::setiosflags(std::ios::fixed);
+    s << std::setprecision(4);
+    s << "Time = " << this->time() << ", ";
+    s << "Status = "<<this->status();    
+    s << "TimeStatus = "<<this->timeStatus();    
+    s << "}" <<std::endl;
+    stream << s.str();
 
     return stream;
   }
