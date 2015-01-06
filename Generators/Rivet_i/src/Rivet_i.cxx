@@ -216,18 +216,19 @@ StatusCode Rivet_i::finalize() {
     foreach (const Rivet::AnalysisObjectPtr ao, m_analysisHandler->getData()) {
       // Normalize path name to be usable by ROOT
       const string path = boost::replace_all_copy(ao->path(), "-", "_");
+      const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
       // Convert YODA histos to heap-allocated ROOT objects and register
       if (ao->type() == "Histo1D") {
-        TH1* h = (TH1*) YODA::toTH1D(*boost::dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone();
+        TH1* h = (TH1*) YODA::toTH1D(*boost::dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TH1D " + path + " created from YODA::Histo1D");
       } else if (ao->type() == "Profile1D") {
-        TH1* h = (TH1*) YODA::toTProfile(*boost::dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone();
+        TH1* h = (TH1*) YODA::toTProfile(*boost::dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TProfile " + path + " created from YODA::Profile1D");
       } else if (ao->type() == "Scatter2D") {
-        TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone();
+        TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regGraph(m_stream + path, g));
         ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
       } else {

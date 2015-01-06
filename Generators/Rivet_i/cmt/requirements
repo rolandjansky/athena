@@ -16,7 +16,11 @@ use AtlasBoost        AtlasBoost-*        External
 use AtlasROOT         AtlasROOT-*         External
 use YODA              YODA-*              External
 use PathResolver      PathResolver-*      Tools
+use AtlasFastJet      AtlasFastJet-*      External
 end_private
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
 
 private
 macro_append fflags "" Linux ""
