@@ -57,9 +57,10 @@ namespace InDet {
   
   inline Barcode& Barcode::operator = (const Barcode& BC) 
     {
-      
-      m_barcharge = BC.m_barcharge;
-      m_rapidity  = BC.m_rapidity ;
+      if(&BC!=this) {
+	m_barcharge = BC.m_barcharge;
+	m_rapidity  = BC.m_rapidity ;
+      }
       return(*this);
     }
   inline Barcode::Barcode (int bc,int rap)
