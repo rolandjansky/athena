@@ -78,9 +78,10 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
                   << track->GetTrackID() << ", track pos: "<<track->GetPosition() << ", mom: "<<track->GetMomentum()
                   << ", parentID " << track->GetParentID() << ", numSec="<<numSecondaries << ")";
       G4Exception("iGeant4::ISFTrajectory", "NoISFParticle", FatalException, description);
-    } else {
-      geoID=parent->nextGeoID();
+      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
     }
+
+    geoID=parent->nextGeoID();
 
     ISF::Geant4TruthIncident truth( aStep, geoID, numSecondaries, m_sHelper);
 
