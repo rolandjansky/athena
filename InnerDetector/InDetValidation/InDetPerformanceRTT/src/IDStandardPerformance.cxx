@@ -2498,14 +2498,16 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 			// m_truthd0c->Fill(d0corr);
 
 			//int ieta =abs(int(m_track_truth_eta/0.25));
-			int ieta = int(m_track_truth_eta/0.25 + 10.0);
-			if (ieta < 0 || ieta>19){
+			//int ieta = int(m_track_truth_eta/0.25 + 10.0);
+			int ieta = int(0.5*m_trackEtaBins*(m_track_truth_eta/m_maxTrackEta + 1.0));
+			if (ieta < 0 || ieta>=m_trackEtaBins){
 			  delete generatedTrackPerigee;
 			  continue;
 			}
 			float log10pt=log10(m_track_truth_pt);
-			int ipt = int((log10pt+0.5)/0.25);
-			if (ipt>9) ipt=9;
+			//int ipt = int((log10pt+0.5)/0.25);
+			int ipt = int(m_trackPtBins*(log10pt+0.5)/2.5);
+			if (ipt>=m_trackPtBins) ipt=m_trackPtBins-1;
 			if (ipt<0) ipt=0;
 
 			// fill histograms for resolutions

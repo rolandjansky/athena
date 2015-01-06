@@ -188,8 +188,9 @@ InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
 InDetFlags.doiPatRec.set_Value_and_Lock                            (True)
 
 # --- possibility to run tracking on subdetectors separately (and independent from each other)
-InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock                 (True)
-InDetFlags.doTrackSegmentsSCT.set_Value_and_Lock                   (True)
+# --- Si track segments incompatible with TIDE setup, which is now default
+#InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock                 (True)
+#InDetFlags.doTrackSegmentsSCT.set_Value_and_Lock                   (True)
 InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock                   (True)
 
 # --- activate non default algorithms -- actually deactivate for now
