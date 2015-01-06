@@ -30,4 +30,5 @@ InDet::TRT_DetElementLink_xk::TRT_DetElementLink_xk
   m_cos        = float(P[ 6])                 ; // cos(phi)
   m_centerf    = float(P[18])                 ; //
   m_used       = false                        ;
+  m_way        = 0.                           ;
  } 

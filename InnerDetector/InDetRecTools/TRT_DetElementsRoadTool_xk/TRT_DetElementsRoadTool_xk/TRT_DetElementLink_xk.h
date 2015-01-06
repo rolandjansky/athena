@@ -79,13 +79,15 @@ namespace InDet {
   inline TRT_DetElementLink_xk& TRT_DetElementLink_xk::operator = 
     (const TRT_DetElementLink_xk& L) 
     {
-      m_detelement =  L.m_detelement;
-      m_phi        =  L.m_phi       ;
-      m_sin        =  L.m_sin       ;
-      m_cos        =  L.m_cos       ;
-      m_centerf    =  L.m_centerf   ;
-      m_way        =  L.m_way       ;
-      m_used       =  L.m_used      ;
+      if(&L!=this) {
+	m_detelement =  L.m_detelement;
+	m_phi        =  L.m_phi       ;
+	m_sin        =  L.m_sin       ;
+	m_cos        =  L.m_cos       ;
+	m_centerf    =  L.m_centerf   ;
+	m_way        =  L.m_way       ;
+	m_used       =  L.m_used      ;
+      }
       return(*this);
     }
 

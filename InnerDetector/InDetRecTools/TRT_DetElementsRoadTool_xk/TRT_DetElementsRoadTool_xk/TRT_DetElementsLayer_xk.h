@@ -88,7 +88,18 @@ namespace InDet{
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline TRT_DetElementsLayer_xk::TRT_DetElementsLayer_xk(){} 
+  inline TRT_DetElementsLayer_xk::TRT_DetElementsLayer_xk()
+  {
+    m_z   = 0.;
+    m_dz  = 0.;
+    m_r   = 0.;
+    m_dr  = 0.;
+    m_dfe = 0.;
+    m_f0  = 0.;
+    m_sfi = 0.;
+    m_wf  = 0.;
+    m_wz  = 0.;
+  } 
 
   inline TRT_DetElementsLayer_xk::TRT_DetElementsLayer_xk
     (double r,double dr,double z,double dz,double df)
@@ -120,16 +131,18 @@ namespace InDet{
   inline TRT_DetElementsLayer_xk& TRT_DetElementsLayer_xk::operator = 
     (const TRT_DetElementsLayer_xk& L) 
     {
-      m_z         = L.m_z       ;
-      m_dz        = L.m_dz      ;
-      m_r         = L.m_r       ;
-      m_dr        = L.m_dr      ;
-      m_dfe       = L.m_dfe     ;
-      m_f0        = L.m_f0      ;
-      m_sfi       = L.m_sfi     ;
-      m_wf        = L.m_wf      ;
-      m_wz        = L.m_wz      ;
-      m_elements  = L.m_elements;
+      if(&L!=this) {
+	m_z         = L.m_z       ;
+	m_dz        = L.m_dz      ;
+	m_r         = L.m_r       ;
+	m_dr        = L.m_dr      ;
+	m_dfe       = L.m_dfe     ;
+	m_f0        = L.m_f0      ;
+	m_sfi       = L.m_sfi     ;
+	m_wf        = L.m_wf      ;
+	m_wz        = L.m_wz      ;
+	m_elements  = L.m_elements;
+      }
       return(*this);
     }
 

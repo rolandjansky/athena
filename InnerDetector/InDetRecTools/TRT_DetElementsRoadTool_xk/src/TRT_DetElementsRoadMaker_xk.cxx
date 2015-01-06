@@ -16,6 +16,7 @@
 
 #include <utility>
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
@@ -121,6 +122,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   
   // register the Callback
   //
+
   sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction,
 			  this,tagInfoH,m_callbackString);
   if (sc.isFailure()) {
@@ -129,10 +131,26 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   else {
     msg(MSG::INFO) << "Register the callback" << m_proptool << endreq;
   }
-
+  
+  
   // Setup callback for magnetic field
   //
-  magneticFieldInit();
+  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+  const DataHandle<CondAttrListCollection> currentHandle;
+  if (detStore()->contains<CondAttrListCollection>(folder)){
+    sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit,this,currentHandle,folder);
+    
+    if(sc==StatusCode::SUCCESS) {
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+    } else {
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    magneticFieldInit();
+    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
+  }
 
   // Get output print level
   //
@@ -995,11 +1013,19 @@ double InDet::TRT_DetElementsRoadMaker_xk::stepToDetElement
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
+StatusCode InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
+{
+  // Build MagneticFieldProperties 
+  //
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  return StatusCode::SUCCESS;
+}
+
 void InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit() 
 {
   // Build MagneticFieldProperties 
   //
-   Trk::MagneticFieldProperties* pMF = 0;
+  Trk::MagneticFieldProperties* pMF = 0;
   if      (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
   else if (m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
   else                                   pMF = new Trk::MagneticFieldProperties(Trk::FullField);

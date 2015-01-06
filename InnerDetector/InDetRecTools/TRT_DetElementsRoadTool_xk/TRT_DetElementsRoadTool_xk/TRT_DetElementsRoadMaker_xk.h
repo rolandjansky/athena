@@ -129,7 +129,8 @@ namespace InDet {
       double stepToDetElement
 	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&);
 
-      void magneticFieldInit();
+      void       magneticFieldInit();
+      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       Trk::CylinderBounds getBound(const Trk::TrackParameters&);
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
