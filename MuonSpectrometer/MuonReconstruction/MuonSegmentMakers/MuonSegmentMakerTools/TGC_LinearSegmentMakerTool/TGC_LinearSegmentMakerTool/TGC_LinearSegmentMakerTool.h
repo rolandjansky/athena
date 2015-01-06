@@ -6,7 +6,7 @@
 #define TGC_LINEARSEGMENTMAKERTOOL_H
 
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 //#include "CLHEP/Vector/TwoVector.h"
 
@@ -21,7 +21,7 @@ namespace Trk
     class IIntersector;
 }
 
-class TGC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AlgTool
+class TGC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AthAlgTool
 {
 public:
     TGC_LinearSegmentMakerTool(const std::string& type,
@@ -69,7 +69,7 @@ public:
 private:
     const MuonGM::MuonDetectorManager* m_pMuonMgr;
     const TgcIdHelper*                 m_pIdHelper;
-    DoubleProperty                     m_fExclChi2;    
+    DoubleProperty                     m_fExclChi2;
     ToolHandle<Trk::IIntersector>      m_pIntersector;
 };
 
