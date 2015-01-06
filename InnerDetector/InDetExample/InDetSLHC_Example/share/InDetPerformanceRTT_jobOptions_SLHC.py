@@ -3,6 +3,8 @@
 #  - Tracking 
 #--------------------------------------------------------------
 
+include("InDetSLHC_Example/preInclude.SLHC.py")
+
 # --- Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 OutputLevel     = INFO
 # --- produce an atlantis data file
@@ -70,16 +72,17 @@ from RecExConfig.RecFlags import rec
 rec.Commissioning=False
 
 from AthenaCommon.DetFlags import DetFlags 
-# --- switch on InnerDetector
-DetFlags.ID_setOn()
-# --- no TRT for SLHC
-DetFlags.TRT_setOff()
-DetFlags.detdescr.TRT_setOff()
-DetFlags.makeRIO.TRT_setOff()
-# --- and switch off all the rest
-DetFlags.Calo_setOff()
-DetFlags.Muon_setOff()
-# --- printout
+include("InDetSLHC_Example/preInclude.SiliconOnly.py")
+# # --- switch on InnerDetector
+# DetFlags.ID_setOn()
+# # --- no TRT for SLHC
+# DetFlags.TRT_setOff()
+# DetFlags.detdescr.TRT_setOff()
+# DetFlags.makeRIO.TRT_setOff()
+# # --- and switch off all the rest
+# DetFlags.Calo_setOff()
+# DetFlags.Muon_setOff()
+# --- Printout
 DetFlags.Print()
 
 #--------------------------------------------------------------
@@ -88,7 +91,7 @@ DetFlags.Print()
 
 # --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool')
+InDetFlags.doTruth       = False # (globalflags.InputFormat() == 'pool')
 
 InDetFlags.doLowBetaFinder = False
 
@@ -138,18 +141,19 @@ InDetFlags.doMonitoringAlignment = False
 InDetFlags.doTrkNtuple      = True
 InDetFlags.doStandardPlots  = True
 InDetFlags.doSGDeletion     = False
-InDetFlags.doTrkD3PD        = True
+InDetFlags.doTrkD3PD        = False
 
-from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails     = 2
-TrackD3PDFlags.storeTrackPredictionAtBLayer                     = False
-TrackD3PDFlags.storeTrackSummary                                = True
-TrackD3PDFlags.storeHitTruthMatching                            = True
-TrackD3PDFlags.storeDetailedTruth                               = True
+if InDetFlags.doTrkD3PD():
+  from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
+  TrackD3PDFlags.trackParametersAtGlobalPerigeeLevelOfDetails     = 2
+  TrackD3PDFlags.storeTrackPredictionAtBLayer                     = False
+  TrackD3PDFlags.storeTrackSummary                                = True
+  TrackD3PDFlags.storeHitTruthMatching                            = True
+  TrackD3PDFlags.storeDetailedTruth                               = True
 
-from InDetRecExample.InDetKeys import InDetKeys
-InDetKeys.trkValidationNtupleName = 'myTrkValidation.root'
-InDetKeys.trkD3PDFileName = 'myInDetTrackD3PD.root'
+  from InDetRecExample.InDetKeys import InDetKeys
+  InDetKeys.trkValidationNtupleName = 'myTrkValidation.root'
+  InDetKeys.trkD3PDFileName = 'myInDetTrackD3PD.root'
 
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables = True
@@ -188,28 +192,27 @@ TrkDetFlags.SCT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.TRT_BuildingOutputLevel         = VERBOSE
 TrkDetFlags.MagneticFieldCallbackEnforced   = False
 TrkDetFlags.TRT_BuildStrawLayers            = False
-TrkDetFlags.MaterialFromCool                = True
-TrkDetFlags.MaterialDatabaseLocal           = False and TrkDetFlags.MaterialFromCool()
-TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-TrkDetFlags.MaterialTagBase                 = 'SLHC_LayerMat_v'
-TrkDetFlags.MaterialVersion                 = 6
-if SLHC_Flags.SLHC_Version() is '' :
- TrkDetFlags.MaterialMagicTag                = jobproperties.Global.DetDescrVersion()
-else :
- TrkDetFlags.MaterialMagicTag                = SLHC_Flags.SLHC_Version() 
+TrkDetFlags.MaterialDatabaseLocal           = False 
+TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/LayerMaterialITK'
+TrkDetFlags.MaterialTagBase                 = 'AtlasLayerMat_v'
+TrkDetFlags.MaterialVersion                 = 17
+TrkDetFlags.MaterialSubVersion              = ""
+TrkDetFlags.MaterialMagicTag                = jobproperties.Global.DetDescrVersion()
 if TrkDetFlags.MaterialDatabaseLocal() is True :
    TrkDetFlags.MaterialDatabaseLocalPath    = ''
-   TrkDetFlags.MaterialDatabaseLocalName    = 'SLHC_LayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
+   TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
 TrkDetFlags.MagneticFieldCallbackEnforced         = False
-TrkDetFlags.LArUseMaterialEffectsOnTrackProvider  = False
-TrkDetFlags.TileUseMaterialEffectsOnTrackProvider = False
 
 #
 # -- Truth jet creation
 #
-from JetRec.JetGetters import *
-antiKt2alg = make_StandardJetGetter('AntiKt',0.4,'Truth').jetAlgorithmHandle()
-cone2alg = make_StandardJetGetter('Cone',0.4,'Truth').jetAlgorithmHandle()
+# from JetRec.JetGetters import *
+# antiKt2alg = make_StandardJetGetter('AntiKt',0.4,'Truth').jetAlgorithmHandle()
+# cone2alg = make_StandardJetGetter('Cone',0.4,'Truth').jetAlgorithmHandle()
+
+import MagFieldServices.SetupField
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 #--------------------------------------------------------------
 # load master joboptions file
@@ -229,8 +232,7 @@ theApp.EvtMax = -1
 ServiceMgr.PoolSvc.AttemptCatalogPatch=True
 
 # --- default SLHC test file from digit output
-ServiceMgr.EventSelector.InputCollections = [ 'singleMuon_test_slhc_Digits.pool.root' ]
+ServiceMgr.EventSelector.InputCollections = [ 'SLHCtest.ESD.pool.root' ]
 
-# set the path variables consistently
-from InDetSLHC_Example.SLHC_Setup import SLHC_Setup
-SLHC_Setup = SLHC_Setup()
+
+include("InDetSLHC_Example/postInclude.SLHC_Setup.py")

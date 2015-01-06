@@ -22,7 +22,7 @@ DetFlags.detdescr.TRT_setOff()
 
 # Select the geometry version. 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = 'ATLAS-SLHC-01-00-00'
+globalflags.DetDescrVersion = 'ATLAS-P2-ITK-01-00-00'
 
 # import the # the conditions setup
 from IOVDbSvc.CondDB import conddb
@@ -65,20 +65,15 @@ if True :
   TrkDetFlags.TRT_BuildingOutputLevel         = VERBOSE
   TrkDetFlags.MagneticFieldCallbackEnforced   = False
   TrkDetFlags.TRT_BuildStrawLayers            = False
-  TrkDetFlags.MaterialFromCool                = True
-  TrkDetFlags.MaterialDatabaseLocal           =  SLHC_Flags.SLHC_Version() != '' and TrkDetFlags.MaterialFromCool()
-  TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-  TrkDetFlags.MaterialTagBase                 = 'SLHC_LayerMat_v'
-  TrkDetFlags.MaterialVersion                 = 6
+  TrkDetFlags.MaterialDatabaseLocal           =  SLHC_Flags.SLHC_Version() != '' 
+  TrkDetFlags.MaterialStoreGateKey            = '/GLOBAL/TrackingGeo/LayerMaterialITK'
+  TrkDetFlags.MaterialTagBase                 = 'AtlasLayerMat_v'
+  TrkDetFlags.MaterialVersion                 = 17
   if TrkDetFlags.MaterialDatabaseLocal() is True :
-     TrkDetFlags.MaterialMagicTag                = SLHC_Flags.SLHC_Version()
+     TrkDetFlags.MaterialMagicTag                = jobproperties.Global.DetDescrVersion()
      TrkDetFlags.MaterialDatabaseLocalPath    = ''
-     TrkDetFlags.MaterialDatabaseLocalName    = 'SLHC_LayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
+     TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+SLHC_Flags.SLHC_Version()+'.db'
   TrkDetFlags.MagneticFieldCallbackEnforced         = False
-  TrkDetFlags.LArUseMaterialEffectsOnTrackProvider  = False
-  TrkDetFlags.TileUseMaterialEffectsOnTrackProvider = False
-
-
 
 # VP1 setup
 from VP1Algs.VP1AlgsConf import VP1Alg
