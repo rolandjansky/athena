@@ -86,7 +86,14 @@ namespace InDet{
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline SiDetElementsLayer_xk::SiDetElementsLayer_xk(){} 
+  inline SiDetElementsLayer_xk::SiDetElementsLayer_xk()
+  {
+    m_z   = 0.;
+    m_dz  = 0.;
+    m_r   = 0.;
+    m_dr  = 0.;
+    m_dfe = 0.;
+  } 
 
   inline SiDetElementsLayer_xk::SiDetElementsLayer_xk
     (double r,double dr,double z,double dz,double df)

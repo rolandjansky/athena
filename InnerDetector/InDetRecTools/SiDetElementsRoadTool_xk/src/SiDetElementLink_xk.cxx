@@ -24,7 +24,7 @@
 InDet::SiDetElementLink_xk::SiDetElementLink_xk
 (InDetDD::SiDetectorElement*& el,const double* P)
 {
-  m_detelement = el; set(P); m_used = false;
+  m_detelement = el; set(P); m_used = false; m_way = 0.;
 } 
 
 ///////////////////////////////////////////////////////////////////

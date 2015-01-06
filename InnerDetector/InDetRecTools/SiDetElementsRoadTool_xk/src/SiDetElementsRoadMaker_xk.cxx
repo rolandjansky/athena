@@ -14,7 +14,7 @@
 #include <iostream>
 #include <iomanip>
 #include <utility>
-
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsRoadMaker_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -133,9 +133,24 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
       return StatusCode::FAILURE;
   }
 
-  // Setup for magnetic field
-  //
-  magneticFieldInit();
+ std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+ const DataHandle<CondAttrListCollection> currentHandle;
+ if (detStore()->contains<CondAttrListCollection>(folder)){
+   
+   sc = detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::magneticFieldInit,
+			   this,currentHandle,folder);
+   
+   if(sc==StatusCode::SUCCESS) {
+     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+   } else {
+     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+     return StatusCode::FAILURE;
+   }
+ } else {
+   magneticFieldInit();
+   ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
+ }
+ 
   return sc;
 }
 
@@ -359,82 +374,12 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (const std::list<const Trk::SpacePoint*>& Sp,
  std::list<const InDetDD::SiDetectorElement*>& Road)
 {
-  if (!m_usePIX && !m_useSCT) return;
-
-  std::list<std::pair<const InDetDD::SiDetectorElement*,float> > lDE;
+  if ((!m_usePIX && !m_useSCT)) return;
+  
+  std::list<Amg::Vector3D> G;
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
-
-  Amg::Vector3D r0 =           (*s)->globalPosition();
-  Amg::Vector3D r1 = (*Sp.rbegin())->globalPosition();
-
-  double              ax = r1.x()-r0.x();
-  double              ay = r1.y()-r0.y();
-  double              az = r1.z()-r0.z();
-  double              st = sqrt(ax*ax+ay*ay+az*az); if(st<1.) return; st=1./st;
-  Amg::Vector3D a((ax*st),(ay*st),(az*st));
-
-  const InDetDD::SiDetectorElement* dS0 = 0;
-  for(; s!=se; ++s) {
-    
-    const Trk::PrepRawData* p0 = (*s)->clusterList().first; 
-    const Trk::PrepRawData* p1 = (*s)->clusterList().second;
-
-    if(p0) {
-      const Trk::TrkDetElementBase*     
-	dE = p0->detectorElement(); 
-      const InDetDD::SiDetectorElement* 
-	dS = dynamic_cast<const InDetDD::SiDetectorElement*>(dE);
-      if(dS && dS!=dS0) {
-
-	std::pair<const InDetDD::SiDetectorElement*,double> eds(dS,stepToDetElement(dS,r0,a)); 
-	lDE.push_back(eds); dS0 = dS;
-      }
-    }
-    if(p1) {
-      const Trk::TrkDetElementBase* 
-	dE = p1->detectorElement(); 
-      const InDetDD::SiDetectorElement* 
-	dS = dynamic_cast<const InDetDD::SiDetectorElement*>(dE);
-      if(dS && dS!=dS0) {
-
-	std::pair<const InDetDD::SiDetectorElement*,double> eds(dS,stepToDetElement(dS,r0,a));
-	lDE.push_back(eds); dS0 = dS;
-      }
-    }
-  }
-
-  // Sort pairs in propogation order
-  //
-  std::list<std::pair<const InDetDD::SiDetectorElement*,float> >::iterator 
-    d,d0,de=lDE.end();
-
-  int nc=1;
-  while(nc) {
-
-    nc=0; d0=lDE.begin(); ++(d=d0); 
-    for(; d!=de; ++d) {
-      if((*d0).second > (*d).second) {
-	std::pair<const InDetDD::SiDetectorElement*,double> eds=(*d0);
-	nc=1; (*d0)=(*d); (*d)=eds;
-      }
-      d0=d;
-    }
-  }
- 
-  // Fill list pointers to detector elements
-  //
-  for(d=lDE.begin(); d!=de; ++d) {
-
-    if(d!=lDE.begin()) {
-      if((*d).first != (*d0).first) Road.push_back((*d).first);
-    }
-    else                            Road.push_back((*d).first);
-    d0=d;
-  }
-  m_sizeroad = Road.size();
-  if(m_outputlevel<0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
-  }
+  for(; s!=se; ++s) {G.push_back((*s)->globalPosition());}
+  detElementsRoad(G,Road);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -576,12 +521,6 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
     (*l)->clearUsed();
   }
-
-  if(m_outputlevel < 0) {
-
-    m_sizeroad = Road.size();
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
-  }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -616,7 +555,6 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       if(r < r0) {r0 = r; G.erase(g++);} else break;
     }
   }
-  
   detElementsRoad(G,R);  
 }
 
@@ -1047,11 +985,18 @@ float InDet::SiDetElementsRoadMaker_xk::stepToDetElement
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
+StatusCode InDet::SiDetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
+{
+  // Build MagneticFieldProperties 
+  //
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  return StatusCode::SUCCESS;
+}
+
 void InDet::SiDetElementsRoadMaker_xk::magneticFieldInit() 
 {
   // Build MagneticFieldProperties 
   //
-   //
   Trk::MagneticFieldProperties* pMF = 0;
   if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
   else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
@@ -1065,10 +1010,6 @@ void InDet::SiDetElementsRoadMaker_xk::magneticFieldInit()
 
     double f[3], p[3] ={10.,10.,0.}; m_fieldService->getFieldZR(p,f);
     m_zfield =  299.7925*f[2];
-  }
-
-  if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
 }
 

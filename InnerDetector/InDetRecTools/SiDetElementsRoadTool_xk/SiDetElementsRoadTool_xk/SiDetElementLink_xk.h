@@ -78,15 +78,18 @@ namespace InDet{
   inline SiDetElementLink_xk& SiDetElementLink_xk::operator = 
     (const SiDetElementLink_xk& L) 
     {
-      m_detelement =  L.m_detelement;
-      m_phi        =  L.m_phi       ;
-      for(int i=0; i!=6; ++i)  m_geo   [i] = L.m_geo   [i];
-      for(int i=0; i!=2; ++i)  m_center[i] = L.m_center[i];
-      for(int i=0; i!=4; ++i) {
-	for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+      if(&L!=this) {
+
+	m_detelement =  L.m_detelement;
+	m_phi        =  L.m_phi       ;
+	for(int i=0; i!=6; ++i)  m_geo   [i] = L.m_geo   [i];
+	for(int i=0; i!=2; ++i)  m_center[i] = L.m_center[i];
+	for(int i=0; i!=4; ++i) {
+	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+	}
+	m_way        = L.m_way ;
+	m_used       = L.m_used;
       }
-      m_way        = L.m_way ;
-      m_used       = L.m_used;
       return(*this);
     }
  
