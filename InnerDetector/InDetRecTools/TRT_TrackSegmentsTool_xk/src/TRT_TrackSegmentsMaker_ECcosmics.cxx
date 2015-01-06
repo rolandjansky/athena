@@ -2198,6 +2198,7 @@ double InDet::TRT_TrackSegmentsMaker_ECcosmics::classify_segment(Trk::TrackSegme
       }
     }
   }
+  if(total==0) total = 1;
   return double(real)/double(total);
 }
 
@@ -2243,6 +2244,8 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::is_suspicious(const InDet::TRT_Dri
     meanz+=sc.z();
     varz+=sc.z()*sc.z();
   }
+
+  if(count < 2) return true;
 
   varz=(count*varz-meanz*meanz);
   varz/=(double)(count*(count-1));

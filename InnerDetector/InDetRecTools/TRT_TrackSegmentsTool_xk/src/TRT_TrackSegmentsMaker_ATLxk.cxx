@@ -903,8 +903,8 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::fillHistogramm
 
   // Loop through all momentum slopes
   //
-  for(int s=s0; s!=s0+m_Ts; s+=m_nPhi) {
-    int k =(f>>7); f+=sf; k<m_nPhi ? ++m_U.H[k+s] : ++m_U.H[k+s-m_nPhi];
+  for(int i=s0; i!=s0+m_Ts; i+=m_nPhi) {
+    int k =(f>>7); f+=sf; k<m_nPhi ? ++m_U.H[k+i] : ++m_U.H[k+i-m_nPhi];
   }
 }
 
