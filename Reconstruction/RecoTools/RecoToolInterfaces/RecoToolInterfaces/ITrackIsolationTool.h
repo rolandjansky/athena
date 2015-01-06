@@ -8,7 +8,7 @@
 #ifndef TRKISOLATIONTOOLS_ITRACKISOALTIONTOOL_H
 #define TRKISOLATIONTOOLS_ITRACKISOALTIONTOOL_H
 
-#include "AsgTools/AsgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODPrimitives/IsolationType.h"
@@ -17,15 +17,18 @@
 
 namespace xAOD {
 
+  static const InterfaceID IID_ITrackIsolationTool("xAOD::ITrackIsolationTool", 1, 0);
+
   /** @class ITrackIsolationTool
       @brief interface for tools calculating track isolation
  
       @author Niels van Eldik, Sandrine Laplace
   */
 
-  class ITrackIsolationTool : virtual public asg::IAsgTool {
-    ASG_TOOL_INTERFACE( xAOD::ITrackIsolationTool )
+  class ITrackIsolationTool : virtual public IAlgTool {
   public:
+
+    static const InterfaceID& interfaceID( ) ;
 
     /**ITrackIsolationTool interface: 
        Calculates the track isolation. 
@@ -45,7 +48,7 @@ namespace xAOD {
                                  TrackCorrection corrections,
 				 const Vertex* vertex = 0, 
                                  const std::set<const xAOD::TrackParticle*>* exclusionSet = 0,
-                                 const TrackParticleContainer* indetTrackParticles = 0) const = 0; 
+                                 const TrackParticleContainer* indetTrackParticles = 0) = 0; 
 
     /**ITrackIsolationTool interface: 
        Calculates the track isolation and decorates the particle 
@@ -57,7 +60,7 @@ namespace xAOD {
        @param[in] vertex              if provided vertex to be used for track selection
        @param[in] exclusionSet        if provided track particles in the set are ignored
        @param[in] indetTrackParticles if provided the isolation will be calculated using the ID track particle collection passed
-       @return true if the calculation and decoration was successfull
+       @return true if the calculation was successfull
     */    
     virtual bool decorateParticle( IParticle& tp, 
                                    const std::vector<Iso::IsolationType>& cones, 
@@ -67,6 +70,10 @@ namespace xAOD {
                                    const TrackParticleContainer* indetTrackParticles = 0 ) = 0; 
 
   };
+
+  inline const InterfaceID& ITrackIsolationTool::interfaceID() { 
+    return IID_ITrackIsolationTool; 
+  }
 
 } // end of namespace
 
