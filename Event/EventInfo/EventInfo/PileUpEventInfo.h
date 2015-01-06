@@ -82,6 +82,11 @@ public:
     SubEvent();
     ~SubEvent();
     SubEvent(const SubEvent&);
+    SubEvent& operator=(const SubEvent&);
+#if __cplusplus > 201100
+    SubEvent(SubEvent&&);
+    SubEvent& operator=(SubEvent&&);
+#endif
     SubEvent(time_type t, const EventInfo* pse, StoreGateSvc* psg);
     SubEvent(time_type t, index_type index,
 	     const EventInfo* pse, StoreGateSvc* psg);
@@ -133,6 +138,7 @@ public:
   
  private:
   PileUpEventInfo(const PileUpEventInfo&);
+  PileUpEventInfo& operator= (const PileUpEventInfo&);
   std::list<SubEvent> m_subEvents; //FIXME should become a vector
 };
 

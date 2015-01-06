@@ -14,9 +14,6 @@
 MergedEventInfo::MergedEventInfo() : 
   EventInfo(), m_newEventID() {}
 
-MergedEventInfo::MergedEventInfo(const MergedEventInfo& e) :
-  EventInfo(e), m_newEventID(e.m_newEventID) {}
-
 MergedEventInfo::MergedEventInfo(const EventInfo& origEvent, 
 				 EventID::number_type newRunNo,
 				 EventID::number_type newEvtNo,

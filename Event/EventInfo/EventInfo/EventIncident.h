@@ -44,7 +44,7 @@ public:
   EventIncident(const EventInfo& event, 
 		const std::string& source,
 		const std::string& type=std::string("BeginEvent"));
-  EventIncident(const EventIncident& e);
+  // Use default copy constructor.
   virtual ~EventIncident();
   //@}
 

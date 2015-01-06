@@ -11,8 +11,12 @@
   <class name="std::set<std::pair<CLID, std::string> >"/>
   <class name="std::pair<CLID, std::string>"/>
   <class name="std::set<EventType>"/>
-  <class name="PileUpEventInfo" id="6A58157B-6B6E-430F-A72A-EAAA4BDC4AE2" />
+  <class name="PileUpEventInfo" id="6A58157B-6B6E-430F-A72A-EAAA4BDC4AE2">
+    <field name="m_subEvents" transient="true"/>
+  </class>
   <class name="std::list<PileUpEventInfo::SubEvent>" />
+  <class name="std::list<PileUpEventInfo::SubEvent>::iterator" />
+  <class name="std::list<PileUpEventInfo::SubEvent>::const_iterator" />
   <class name="PileUpTimeEventIndex" />
   <class name="PileUpEventInfo::SubEvent" >
     <field name="pSubEvtSG" transient="true" />

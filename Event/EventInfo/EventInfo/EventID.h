@@ -60,7 +60,7 @@ public:
             number_type detector_mask1,
             number_type detector_mask2 = 0,
             number_type detector_mask3 = 0);
-    explicit EventID(const EventID& id);
+    // Use default copy constructor.
     virtual ~EventID();
     //@}
   

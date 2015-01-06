@@ -145,7 +145,7 @@ public:
 		const std::vector<number_type>& eventFilterInfo,
                 const std::vector<StreamTag>&   streamTags);
 
-    TriggerInfo(const TriggerInfo&);
+    // Default copy constructor.
     virtual ~TriggerInfo();
     //@}
 

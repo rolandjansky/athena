@@ -52,7 +52,7 @@ public:
   /// \name structors
   //@{
   MergedEventInfo();  ///< POOL required
-  explicit MergedEventInfo(const MergedEventInfo& e); ///< STL required
+  // Use default copy constructor.
   /// the constructor to be used
   MergedEventInfo(const EventInfo& origEvent, 
 		  EventID::number_type newRunNo,

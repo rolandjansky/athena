@@ -26,6 +26,7 @@
 #include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/TagInfo.h"
+#include "AthLinks/DataLink.h"
 
 class PyEventStreamInfo
 {
@@ -82,6 +83,13 @@ public:
     return std::vector<unsigned int>(et.bit_mask_begin(),
 				     et.bit_mask_end());
   }
+};
+
+
+struct EventInfoInstan
+{
+  std::list<PileUpEventInfo::SubEvent>::iterator i1;
+  std::list<PileUpEventInfo::SubEvent>::const_iterator i2;
 };
 
 #endif // EVENTINFO_EVENTINFODICT_H

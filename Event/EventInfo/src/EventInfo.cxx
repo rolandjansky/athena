@@ -66,6 +66,65 @@ EventInfo::EventInfo(const EventInfo& e)
 {}
 
 
+EventInfo& EventInfo::operator=(const EventInfo& e)
+{
+  if (this != &e) {
+    delete m_event_ID;
+    m_event_ID = ( e.m_event_ID ?
+                   new EventID( *(e.m_event_ID) ) :
+                   new EventID(0,0) );
+      
+    delete m_event_type;
+    m_event_type = ( e.m_event_type ?
+                     new EventType( *(e.m_event_type) ):
+                     new EventType() );
+
+    delete m_trigger_info;
+    m_trigger_info = ( e.m_trigger_info?
+                       new TriggerInfo(*(e.m_trigger_info) ) :
+                       new TriggerInfo() );
+
+    m_event_flags = e.m_event_flags;
+  }
+  return *this;
+}
+
+
+#if __cplusplus > 201100
+EventInfo::EventInfo(EventInfo&& e)
+  : m_event_ID (e.m_event_ID),
+    m_event_type (e.m_event_type),
+    m_trigger_info (e.m_trigger_info),
+    m_event_flags (std::move(e.m_event_flags))
+{
+  e.m_event_ID = 0;
+  e.m_event_type = 0;
+  e.m_trigger_info = 0;
+}
+
+
+EventInfo& EventInfo::operator=(EventInfo&& e)
+{
+  if (this != &e) {
+    delete m_event_ID;
+    m_event_ID = e.m_event_ID;
+    e.m_event_ID = 0;
+      
+    delete m_event_type;
+    m_event_type = e.m_event_type;
+    e.m_event_type = 0;
+
+    delete m_trigger_info;
+    m_trigger_info = e.m_trigger_info;
+    e.m_trigger_info = 0;
+
+    m_event_flags = std::move (e.m_event_flags);
+  }
+  return *this;
+}
+#endif
+
+
 EventInfo::~EventInfo()
 {
     delete m_event_ID;

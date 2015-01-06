@@ -126,17 +126,6 @@ TriggerInfo::TriggerInfo(number_type statusElement,
         m_streamTags(streamTags)
 {}
 
-TriggerInfo::TriggerInfo(const TriggerInfo& rhs) 
-        :
-        m_statusElement(rhs.m_statusElement),
-        m_extendedLevel1ID(rhs.m_extendedLevel1ID),
-        m_level1TriggerType(rhs.m_level1TriggerType),
-        m_level1TriggerInfo(rhs.m_level1TriggerInfo),
-        m_level2TriggerInfo(rhs.m_level2TriggerInfo),
-        m_eventFilterInfo(rhs.m_eventFilterInfo),
-        m_streamTags(rhs.m_streamTags)
-{}
-
 TriggerInfo::~TriggerInfo()
 {}
 

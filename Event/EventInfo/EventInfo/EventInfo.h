@@ -89,6 +89,11 @@ public:
     EventInfo(EventID* id, EventType* type);
     EventInfo(EventID* id, EventType* type, TriggerInfo* trig_info);
     EventInfo(const EventInfo& e);
+    EventInfo& operator=(const EventInfo& e);
+#if __cplusplus > 201100
+    EventInfo(EventInfo&& e);
+    EventInfo& operator=(EventInfo&& e);
+#endif
     virtual ~EventInfo();
     //@}
 

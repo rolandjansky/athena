@@ -43,6 +43,42 @@ PileUpEventInfo::SubEvent::SubEvent(const SubEvent& rhs) :
   pSubEvtSG(rhs.pSubEvtSG)
 
 {}
+
+PileUpEventInfo::SubEvent&
+PileUpEventInfo::SubEvent::operator=(const SubEvent& rhs)
+{
+  if (this != &rhs) {
+    m_timeIndex = rhs.m_timeIndex;
+    pSubEvtSG = rhs.pSubEvtSG;
+    delete pSubEvt;
+    pSubEvt = (0==rhs.pSubEvt ? 0 :new EventInfo(*rhs.pSubEvt));
+  }
+  return *this;
+}
+
+#if __cplusplus > 201100
+PileUpEventInfo::SubEvent::SubEvent(SubEvent&& rhs) :
+  m_timeIndex(rhs.m_timeIndex), 
+  pSubEvt(rhs.pSubEvt),
+  pSubEvtSG(rhs.pSubEvtSG)
+{
+  rhs.pSubEvt = 0;
+}
+
+PileUpEventInfo::SubEvent&
+PileUpEventInfo::SubEvent::operator=(SubEvent&& rhs)
+{
+  if (this != &rhs) {
+    m_timeIndex = rhs.m_timeIndex;
+    pSubEvtSG = rhs.pSubEvtSG;
+    delete pSubEvt;
+    pSubEvt = rhs.pSubEvt;
+    rhs.pSubEvt = 0;
+  }
+  return *this;
+}
+#endif
+
 PileUpEventInfo::SubEvent::~SubEvent() 
 { 
   delete pSubEvt; 

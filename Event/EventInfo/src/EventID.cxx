@@ -117,19 +117,6 @@ EventID::EventID(number_type run_number,
 {}
 
 
-EventID::EventID(const EventID& id) :
-    m_run_number           (id.m_run_number),
-    m_event_number         (id.m_event_number),
-    m_time_stamp           (id.m_time_stamp),
-    m_time_stamp_ns_offset (id.m_time_stamp_ns_offset),
-    m_lumiBlock            (id.m_lumiBlock),
-    m_bunch_crossing_id    (id.m_bunch_crossing_id),
-    m_detector_mask0       (id.m_detector_mask0),
-    m_detector_mask1       (id.m_detector_mask1),
-    m_detector_mask2       (id.m_detector_mask2),
-    m_detector_mask3       (id.m_detector_mask3)
-{}
-
 EventID::~EventID()
 {}
 
