@@ -7,8 +7,8 @@
 // NAME:     TileMuonFitMonTool.h
 // PACKAGE:  TileMonitoring
 //
-// AUTHOR:   Luca Fiorini (Luca.Fiorini@cern.ch) and Francesc Vives (fvives@ifae.es)
-//	     
+// AUTHOR:   Luca Fiorini (Luca.Fiorini@cern.ch)
+//           Francesc Vives (fvives@ifae.es)
 //
 // ********************************************************************
 #ifndef TILEMUONFITMONTOOL_H
@@ -16,10 +16,11 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-/** @class TileCellMonTool
+class TileCosmicMuon;
+
+/** @class TileMuonFitMonTool
  *  @brief Class for Tile MuonFit based monitoring
  */
-class TileCosmicMuon;
 
 class TileMuonFitMonTool: public TileFatherMonTool {
 
@@ -50,6 +51,7 @@ class TileMuonFitMonTool: public TileFatherMonTool {
 
     bool m_isFirstEv;
     bool m_trigok;
+    bool m_useLVL1;
 
     std::vector<std::string> m_l1triggers;
 

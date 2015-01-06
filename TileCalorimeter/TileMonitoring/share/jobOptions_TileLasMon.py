@@ -4,7 +4,7 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
-# MonitorOutput="EXPERT"
+MonitorOutput='Tile'
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'jobOptions_TileLasMon.py' )
@@ -96,24 +96,6 @@ if athenaCommonFlags.isOnline() or doOnline or doStateless:
         athenaCommonFlags.isOnlineStateless=True
         log.info( 'athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode' )
 
-# init DetDescr
-from AthenaCommon.GlobalFlags import jobproperties
-if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-GEO-20-00-02'
-jobproperties.Global.DetDescrVersion = DetDescrVersion 
-log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
-
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
-from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-GeoModelSvc = GeoModelSvc()
-GeoModelSvc.IgnoreTagDifference = True
-log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
-
-# Setup Db stuff
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag(tileCOOLtag)
-
 
 #-----------------
 # ByteSream Input 
@@ -162,11 +144,37 @@ if not athenaCommonFlags.isOnline():
    
     athenaCommonFlags.FilesInput = FileNameVec
 
+    projectName = FileNameVec[0].split('/').pop().split('.')[0]
+    log.info( "Project name is " + projectName )
+    rec.projectName = projectName
+
+
+# init DetDescr
+from AthenaCommon.GlobalFlags import jobproperties
+if not 'DetDescrVersion' in dir():
+    DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+jobproperties.Global.DetDescrVersion = DetDescrVersion 
+log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
+
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.IgnoreTagDifference = True
+log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
+
+# Setup Db stuff
+if TileUseCOOL:
+    from IOVDbSvc.CondDB import conddb
+    log.info( 'Tile COOL tag: ' + tileCOOLtag )
+    conddb.setGlobalTag(tileCOOLtag)
+
+
 # setting option to build frag->ROB mapping at the begin of run
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ] 
 
-# topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
+topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
 if not athenaCommonFlags.isOnline():
     from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
@@ -185,6 +193,7 @@ doTileFit = True
 TileCorrectTime = True    
 doTileOptATLAS = False
 
+
 # load conditions data
 include( "TileRec/TileDefaults_jobOptions.py" )
 include( "TileConditions/TileConditions_jobOptions.py" )
@@ -200,6 +209,16 @@ jobproperties.TileRecFlags.doTileOverflowFit.set_Value_and_Lock(False)
 include( "TileRec/TileRec_jobOptions.py" )
 
 
+if not 'LaserUpdateFrequency' in dir():
+    LaserUpdateFrequency = 0
+
+if not 'LaserResetAfterUpdate' in dir():
+    LaserResetAfterUpdate = False
+
+if not 'LaserDoSummaryVsPMT' in dir():
+    LaserDoSummaryVsPMT = False
+
+
 #----------------
 # TileMonitoring
 #----------------
@@ -207,29 +226,28 @@ topSequence += CfgMgr.AthenaMonManager( "TileLasMon"
                                        , ManualRunLBSetup    = True
                                        , ManualDataTypeSetup = True
                                        , Environment         = "online"
-                                       , FileKey             = "SHIFT"
+                                       , FileKey             = MonitorOutput
                                        , Run                 = RunNumber
                                        , LumiBlock           = 1)
 
-#-------------------------------
-#   Tile raw channel monitoring
-#-------------------------------
-toolSvc += CfgMgr.TileRawChannelMonTool ( name              = "TileLasRawChannelMon" 
-                                          , histoStreamName = "/" + MonitorOutput
-                                          , histoPathBase   = "/Tile/RawChannel"
-                                          , book2D          = False
-                                          , PlotDSP         = False
-                                          , runType         = TileRunType
-                                          , TileRawChannelContainer = "TileRawChannelFit")
 
-topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasRawChannelMon ]
-print toolSvc.TileLasRawChannelMon
+#-------------------------------
+#   Tile raw channel time monitoring
+#-------------------------------
+toolSvc += CfgMgr.TileRawChannelTimeMonTool ( name              = "TileLasRawChannelTimeMon"
+                                              , histoPathBase   = "/Tile/RawChannelTime"
+                                              , runType         = TileRunType
+                                              , doOnline        = athenaCommonFlags.isOnline()
+                                              , TileRawChannelContainer = "TileRawChannelFit")
+
+
+topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasRawChannelTimeMon ]
+print toolSvc.TileLasRawChannelTimeMon
 
 #-------------------------------
 #   Tile DQFrag monitoring
 #-------------------------------
 toolSvc += CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFragMon'
-                                     , histoStreamName    = "/SHIFT"
                                      , OutputLevel        = 3
                                      , TileRawChannelContainerDSP    = "TileRawChannelCnt"
                                      , TileRawChannelContainerOffl   = "TileRawChannelFit"
@@ -248,19 +266,21 @@ print toolSvc.TileLasDQFragMon
 print topSequence.TileLasMon
 
 
+import os
 # -- use root histos --
 # THistService for native root in Athena
 if not  athenaCommonFlags.isOnline() or storeHisto or athenaCommonFlags.isOnlineStateless():
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    svcMgr += THistSvc("THistSvc")
-    tTHistSvc = svcMgr.THistSvc
-    tTHistSvc.Output = [MonitorOutput + " DATAFILE='" + RootHistOutputFileName + "' OPT='RECREATE'"]
-    #THistSvc.OutputLevel = DEBUG
+    #theApp.HistogramPersistency = "ROOT"
+    if not hasattr(svcMgr,"THistSvc"):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc("THistSvc")
+    if os.path.exists(RootHistOutputFileName):
+        os.remove(RootHistOutputFileName)
+    svcMgr.THistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")
     svcMgr += trigmonTHistSvc
-    #trigmonTHistSvc.OutputLevel = VERBOSE
 
 
 

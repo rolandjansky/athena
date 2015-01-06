@@ -17,7 +17,6 @@
 #include "TileEvent/TileMu.h"
 #include "TileEvent/TileMuContainer.h"
 
-
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
@@ -32,8 +31,7 @@ TileMuIdMonTool::TileMuIdMonTool(const std::string & type, const std::string & n
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("muidsContainerName", m_muidsContName = "TileMuObj"); //SG Muid Container
-
-  m_path = "Tile/Muid"; //ROOT File directory
+  m_path = "/Tile/Muid"; //ROOT File directory
 }
 
 /*---------------------------------------------------------*/
@@ -63,73 +61,73 @@ StatusCode TileMuIdMonTool::bookHistTrig( int trig ) {
 
   m_TileMuidTrig++; //Increment trigger index
 
-  m_TileMuidTags.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuidTags" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid number of tags",5,0., 5.) );
+  m_TileMuidTags.push_back( book1F(m_TrigNames[trig],"tileMuidTags" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid number of tags",5,0., 5.) );
   
-  m_TileMuidEnergy.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuidEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Energy dep (MeV)",100,0., 10000.) );
+  m_TileMuidEnergy.push_back( book1F(m_TrigNames[trig],"tileMuidEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Energy dep (MeV)",100,0., 10000.) );
   m_TileMuidEnergy[ element ]->GetXaxis()->SetTitle("Muid Energy (MeV)");
   
-  m_TileMuidEtaPhi.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuidEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid muon position",40,-2.0, 2.0,64,-3.15,3.15) );
+  m_TileMuidEtaPhi.push_back( book2F(m_TrigNames[trig],"tileMuidEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid muon position",40,-2.0, 2.0,64,-3.15,3.15) );
   m_TileMuidEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileMuidEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
     
-  m_TileMuidEta.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuidEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon #eta position",40,-2.0, 2.0) );
+  m_TileMuidEta.push_back( book1F(m_TrigNames[trig],"tileMuidEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon #eta position",40,-2.0, 2.0) );
   m_TileMuidEta[ element ]->GetXaxis()->SetTitle("#eta");
   
-  m_TileMuidPhi.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuidPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon #phi position",64,-3.15, 3.15) );
+  m_TileMuidPhi.push_back( book1F(m_TrigNames[trig],"tileMuidPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon #phi position",64,-3.15, 3.15) );
   m_TileMuidPhi[ element ]->GetXaxis()->SetTitle("#phi");
   
-  m_TileMuidEneEta.push_back( bookProfile(m_stem+"/"+m_TrigNames[trig],"tileMuidEneEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon average energy as a function of #eta position",40,-2.0, 2.0,-2.e6,2.e6) );
+  m_TileMuidEneEta.push_back( bookProfile(m_TrigNames[trig],"tileMuidEneEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon average energy as a function of #eta position",40,-2.0, 2.0,-2.e6,2.e6) );
   m_TileMuidEneEta[ element ]->GetXaxis()->SetTitle("#eta");
 
-  m_TileMuidEnePhi.push_back( bookProfile(m_stem+"/"+m_TrigNames[trig],"tileMuidEnePhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon average energy as a function of #phi position",64,-3.15, 3.15,-2.e6,2.e6) );
+  m_TileMuidEnePhi.push_back( bookProfile(m_TrigNames[trig],"tileMuidEnePhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid muon average energy as a function of #phi position",64,-3.15, 3.15,-2.e6,2.e6) );
   m_TileMuidEnePhi[ element ]->GetXaxis()->SetTitle("#phi");
 
-  m_TileMuidQuality.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuidQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid tag quality",4,-0.5, 1.5) );
+  m_TileMuidQuality.push_back( book1F(m_TrigNames[trig],"tileMuidQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid tag quality",4,-0.5, 1.5) );
   m_TileMuidQuality[ element ]->GetXaxis()->SetTitle("quality");
   
-  m_TileMuidEneQuality.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuidEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
+  m_TileMuidEneQuality.push_back( book2F(m_TrigNames[trig],"tileMuidEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
   m_TileMuidEneQuality[ element ]->GetXaxis()->SetTitle("Energy (MeV)");
   m_TileMuidEneQuality[ element ]->GetYaxis()->SetTitle("Quality");
   
     
-  m_TileMuid1TagEnergy.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 Energy dep (MeV)",100,0., 10000.) );
+  m_TileMuid1TagEnergy.push_back( book1F(m_TrigNames[trig],"tileMuid1TagEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 Energy dep (MeV)",100,0., 10000.) );
   m_TileMuid1TagEnergy[ element ]->GetXaxis()->SetTitle("Muid1Tag Energy (MeV)");
   
-  m_TileMuid1TagEtaPhi.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=1 muon position",40,-2.0, 2.0,64,-3.15,3.15) );
+  m_TileMuid1TagEtaPhi.push_back( book2F(m_TrigNames[trig],"tileMuid1TagEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=1 muon position",40,-2.0, 2.0,64,-3.15,3.15) );
   m_TileMuid1TagEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileMuid1TagEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
   
-  m_TileMuid1TagEta.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 muon #eta position",40,-2.0, 2.0) );
+  m_TileMuid1TagEta.push_back( book1F(m_TrigNames[trig],"tileMuid1TagEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 muon #eta position",40,-2.0, 2.0) );
   m_TileMuid1TagEta[ element ]->GetXaxis()->SetTitle("#eta");
   
-  m_TileMuid1TagPhi.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 muon #phi position",64,-3.15, 3.15) );
+  m_TileMuid1TagPhi.push_back( book1F(m_TrigNames[trig],"tileMuid1TagPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 muon #phi position",64,-3.15, 3.15) );
   m_TileMuid1TagPhi[ element ]->GetXaxis()->SetTitle("#phi");
     
-  m_TileMuid1TagQuality.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 tag quality",4,-0.5, 1.5) );
+  m_TileMuid1TagQuality.push_back( book1F(m_TrigNames[trig],"tileMuid1TagQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=1 tag quality",4,-0.5, 1.5) );
   m_TileMuid1TagQuality[ element ]->GetXaxis()->SetTitle("quality");
     
-  m_TileMuid1TagEneQuality.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuid1TagEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=1 muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
+  m_TileMuid1TagEneQuality.push_back( book2F(m_TrigNames[trig],"tileMuid1TagEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=1 muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
   m_TileMuid1TagEneQuality[ element ]->GetXaxis()->SetTitle("Energy (MeV)");
   m_TileMuid1TagEneQuality[ element ]->GetYaxis()->SetTitle("Quality");
     
     
-  m_TileMuid2TagEnergy.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 Energy dep (MeV)",100,0., 10000.) );
+  m_TileMuid2TagEnergy.push_back( book1F(m_TrigNames[trig],"tileMuid2TagEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 Energy dep (MeV)",100,0., 10000.) );
   m_TileMuid2TagEnergy[ element ]->GetXaxis()->SetTitle("Muid2Tag Energy (MeV)");
     
-  m_TileMuid2TagEtaPhi.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=2 muon position",40,-2.0, 2.0,64,-3.15,3.15) );
+  m_TileMuid2TagEtaPhi.push_back( book2F(m_TrigNames[trig],"tileMuid2TagEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=2 muon position",40,-2.0, 2.0,64,-3.15,3.15) );
   m_TileMuid2TagEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileMuid2TagEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
   
-  m_TileMuid2TagEta.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 muon #eta position",40,-2.0, 2.0) );
+  m_TileMuid2TagEta.push_back( book1F(m_TrigNames[trig],"tileMuid2TagEta" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 muon #eta position",40,-2.0, 2.0) );
   m_TileMuid2TagEta[ element ]->GetXaxis()->SetTitle("#eta");
 
-  m_TileMuid2TagPhi.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 muon #phi position",64,-3.15, 3.15) );
+  m_TileMuid2TagPhi.push_back( book1F(m_TrigNames[trig],"tileMuid2TagPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 muon #phi position",64,-3.15, 3.15) );
   m_TileMuid2TagPhi[ element ]->GetXaxis()->SetTitle("#phi");
     
-  m_TileMuid2TagQuality.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 tag quality",4,-0.5, 1.5) );
+  m_TileMuid2TagQuality.push_back( book1F(m_TrigNames[trig],"tileMuid2TagQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Muid Tags=2 tag quality",4,-0.5, 1.5) );
   m_TileMuid2TagQuality[ element ]->GetXaxis()->SetTitle("quality");
     
-  m_TileMuid2TagEneQuality.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileMuid2TagEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=2 muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
+  m_TileMuid2TagEneQuality.push_back( book2F(m_TrigNames[trig],"tileMuid2TagEneQuality" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal 2D Muid Tags=2 muon energy (MeV) vs. quality",50,0., 10000.,4,-0.5,1.5) );
   m_TileMuid2TagEneQuality[ element ]->GetXaxis()->SetTitle("Energy (MeV)");
   m_TileMuid2TagEneQuality[ element ]->GetYaxis()->SetTitle("Quality");
 
@@ -146,7 +144,6 @@ StatusCode TileMuIdMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in bookHistograms()" );
-  ATH_MSG_INFO( "Using base path " << m_stem );
 
   cleanHistVec(); //clean vectors before booking
     /*

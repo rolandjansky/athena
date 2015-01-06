@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     TileToweMonTool.h
+// NAME:     TileClusterMonTool.h
 // PACKAGE:  TileMonitoring
 //
 // AUTHOR:   Luca Fiorini (Luca.Fiorini@cern.ch)
@@ -19,9 +19,6 @@
 /** @class TileClusterMonTool
  *  @brief Class for TileCluster based monitoring
  */
-
-class TProfile;
-class TProfile2D;
 
 class TileClusterMonTool: public TileFatherMonTool {
 

@@ -12,14 +12,13 @@
 //
 //********************************************************************//
 
+#include "TileMonitoring/TileRODMonTool.h"
 
-
+#include "TileCalibBlobObjs/TileCalibUtils.h" 
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h" 
-#include "TileMonitoring/TileRODMonTool.h"
-#include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/ITileBadChanTool.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -29,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+
 
 /*---------------------------------------------------------*/
 TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -55,7 +55,8 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("DspComparisonFit", m_useFitRef = false); //reference type
   declareProperty("DspComparisonOF", m_useOFRef = true);
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
-  m_path = "Tile/ROD"; //ROOT File directory
+
+  m_path = "/Tile/ROD"; //ROOT File directory
   
   int chMap_LB[48] = {
       1,1,1,1,1,1,1,1,1,1,1,1,
@@ -240,7 +241,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
     for (int rod = 0; rod < 8; rod++) {
       for (int dsp = 0; dsp < 4; dsp++) {
 
-        sStr << m_stem << "/" << m_TrigNames[trig] << "/Details";
+        sStr << m_TrigNames[trig] << "/Details";
         histDir = sStr.str();
         sStr.str("");
 
@@ -286,7 +287,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
   }
 
 
-  sStr << m_stem << "/" << m_TrigNames[trig] << "/Summary";
+  sStr << m_TrigNames[trig] << "/Summary";
   histDir = sStr.str();
   sStr.str("");
 
@@ -477,7 +478,6 @@ StatusCode TileRODMonTool::bookHistograms() {
 
   //if(m_runType!=Phys){return StatusCode::SUCCESS;} 
   ATH_MSG_INFO( "in bookHistograms()" );
-  ATH_MSG_INFO( "Using base path " << m_stem );
 
   cleanHistVec(); //clean vectors before booking
 

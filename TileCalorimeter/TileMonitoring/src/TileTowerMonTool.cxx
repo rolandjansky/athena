@@ -14,12 +14,12 @@
 
 #include "TileMonitoring/TileTowerMonTool.h"
 
+#include "CaloEvent/CaloTower.h"
+#include "CaloEvent/CaloTowerContainer.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
-
-#include "CaloEvent/CaloTower.h"
-#include "CaloEvent/CaloTowerContainer.h"
 
 
 /*---------------------------------------------------------*/
@@ -32,7 +32,8 @@ TileTowerMonTool::TileTowerMonTool(const std::string & type, const std::string &
 
   declareProperty("energyThreshold"     , m_Threshold = 50.); //Threshold in MeV
   declareProperty("towersContainerName" , m_towersContName = "TileTower"); //SG Tower Container
-  declareProperty("histoPathBase"       , m_path = "Tile/Tower"); //ROOT File directory
+
+  m_path = "/Tile/Tower"; //ROOT File directory
 }
 
 /*---------------------------------------------------------*/
@@ -61,23 +62,23 @@ StatusCode TileTowerMonTool::bookHistTrigPart( int trig , int part ) {
 
     std::string runNumStr = getRunNumStr();
 
-    //m_TilenTowers[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"nTowers","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Tower number",150,0., 1500.) );
+    //m_TilenTowers[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"nTowers","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Tower number",150,0., 1500.) );
     //m_TilenTowers[part][ element ]->GetXaxis()->SetTitle("Number of Towers");
 
-    //m_TileTowernCells[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"TowersnCells","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" number of cells in most en. Tower",5,0., 5.) );
+    //m_TileTowernCells[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"TowersnCells","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" number of cells in most en. Tower",5,0., 5.) );
     //m_TileTowernCells[part][ element ]->GetXaxis()->SetTitle("Number of cells for each tower");
 
-    //m_TileTowerEnergy[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEnergy","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Energy in most en. Tower (MeV)",80,0., 20000.) );
+    //m_TileTowerEnergy[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEnergy","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Energy in most en. Tower (MeV)",80,0., 20000.) );
     //m_TileTowerEnergy[part][ element ]->GetXaxis()->SetTitle("most en. Tower Energy (MeV)");
 
-    //m_TileTowerEnergyRebin[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEnergyRebin","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Energy in most en. Tower (MeV). Full Dynamic Range",40,0., 20000.) );
+    //m_TileTowerEnergyRebin[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEnergyRebin","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Energy in most en. Tower (MeV). Full Dynamic Range",40,0., 20000.) );
     //m_TileTowerEnergyRebin[part][ element ]->GetXaxis()->SetTitle("most en. Tower Energy (MeV)");
     //m_TileTowerEnergyRebin[part][ element ]->SetBit(TH1::kCanRebin);
 
-    m_TileTowerEt[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEt" + m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Et in most en. Tower (MeV)",80,0., 20000.) );
+    m_TileTowerEt[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"TowerEt" + m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" Et in most en. Tower (MeV)",80,0., 20000.) );
     m_TileTowerEt[part][ element ]->GetXaxis()->SetTitle("most en. Tower Et (MeV)");
 
-    m_TileAllTowerEnergy[part].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[part],"AllTowerEnergy" + m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" All Towers Energy (MeV)",80,0., 20000.) );
+    m_TileAllTowerEnergy[part].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],"AllTowerEnergy" + m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal "+m_PartNames[part]+" All Towers Energy (MeV)",80,0., 20000.) );
     m_TileAllTowerEnergy[part][ element ]->GetXaxis()->SetTitle("All Towers Energy (MeV)");
 
   return StatusCode::SUCCESS;
@@ -97,33 +98,33 @@ StatusCode TileTowerMonTool::bookHistTrig( int trig ) {
 
   m_TileTowerTrig++; //Iterates size of m_TileTowerTrig for trigger type
 
-  m_TileTowerEtaPhi.push_back(book2F(m_stem + "/" + m_TrigNames[trig], "TowerEtaPhi" + m_TrigNames[trig]
+  m_TileTowerEtaPhi.push_back(book2F( m_TrigNames[trig], "TowerEtaPhi" + m_TrigNames[trig]
                               , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Position of most en. Tower"
                               , 40, -2.0, 2.0, 64, -3.15, 3.15));
   m_TileTowerEtaPhi[element]->GetXaxis()->SetTitle("#eta");
   m_TileTowerEtaPhi[element]->GetYaxis()->SetTitle("#phi");
 
-  //m_TileTowerEta.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"TowerEta","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal #eta position of most en. Tower",40,-2.0, 2.0) );
+  //m_TileTowerEta.push_back( book1F(m_TrigNames[trig],"TowerEta","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal #eta position of most en. Tower",40,-2.0, 2.0) );
   //m_TileTowerEta[element]->GetXaxis()->SetTitle("#eta");
 
-  //m_TileTowerPhi.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"TowerPhi","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal #phi position of most en. Tower",64,-3.15, 3.15) );
+  //m_TileTowerPhi.push_back( book1F(m_TrigNames[trig],"TowerPhi","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal #phi position of most en. Tower",64,-3.15, 3.15) );
   //m_TileTowerPhi[element]->GetXaxis()->SetTitle("#phi");
 
-  m_TileTowerEtaPhiDiff.push_back(book2F(m_stem + "/" + m_TrigNames[trig], "TowerEtaPhiDiff" + m_TrigNames[trig]
+  m_TileTowerEtaPhiDiff.push_back(book2F( m_TrigNames[trig], "TowerEtaPhiDiff" + m_TrigNames[trig]
                                   , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal pos. correlation of Tow. opposite to most en. Towers"
                                   , 40, -2.0, 2.0, 64, 0., 6.4));
   m_TileTowerEtaPhiDiff[element]->GetXaxis()->SetTitle("#Delta #eta");
   m_TileTowerEtaPhiDiff[element]->GetYaxis()->SetTitle("#Delta #phi");
 
-  //m_TileTowerEneDiff.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"TowerEneDiff","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal en. correlation of Tow. opposite to most en. Towers",200,-5000., 5000.) );
+  //m_TileTowerEneDiff.push_back( book1F(m_TrigNames[trig],"TowerEneDiff","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal en. correlation of Tow. opposite to most en. Towers",200,-5000., 5000.) );
   //m_TileTowerEneDiff[element]->GetXaxis()->SetTitle("Energy diff. (MeV)");
 
-  //m_TileTowerEneTim.push_back( bookProfile(m_stem+"/"+m_TrigNames[trig],"TowerEneTim","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Energy of most en. Tower versus time",25,0., 100.,-2000.,200000.) );
+  //m_TileTowerEneTim.push_back( bookProfile(m_TrigNames[trig],"TowerEneTim","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Energy of most en. Tower versus time",25,0., 100.,-2000.,200000.) );
   //m_TileTowerEneTim[element]->GetXaxis()->SetTitle("event number");
   //m_TileTowerEneTim[element]->GetYaxis()->SetTitle("<E> of the most en. Tower (MeV)");
   //m_TileTowerEneTim[ element ]->SetBit(TH1::kCanRebin);
 
-  //m_TileTowerEneLumi.push_back( bookProfile(m_stem+"/"+m_TrigNames[trig],"TowerEneLumi","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Energy of most en. Tower versus LumiBlock",10,0., 10.,-2000.,200000., run, ATTRIB_MANAGED, "", "mergeRebinned") );
+  //m_TileTowerEneLumi.push_back( bookProfile(m_TrigNames[trig],"TowerEneLumi","Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Energy of most en. Tower versus LumiBlock",10,0., 10.,-2000.,200000., run, ATTRIB_MANAGED, "", "mergeRebinned") );
   //m_TileTowerEneLumi[element]->GetXaxis()->SetTitle("LumiBlock");
   //m_TileTowerEneLumi[element]->GetYaxis()->SetTitle("Average Energy of the most Energetic Tower (MeV)");
   //m_TileTowerEneLumi[ element ]->SetBit(TH1::kCanRebin);
@@ -150,7 +151,6 @@ StatusCode TileTowerMonTool::bookHistograms() {
 
 
   ATH_MSG_INFO("in bookHistograms()");
-  ATH_MSG_INFO("Using base path " << m_stem);
 
   cleanHistVec(); //necessary to avoid problems at the eb, lumi blocks boundaries
   /*

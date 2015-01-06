@@ -11,29 +11,24 @@
 //
 //
 // ********************************************************************
-#ifndef TILERAWCHANNELMONTOOL_H
-#define TILETAWCHANNELMONTOOL_H
+#ifndef TILEMONITORING_TILEDQFRAGMONTOOL_H
+#define TILEMONITORING_TILEDQFRAGMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
-//
-#include <stdint.h>
-#include <vector>
+
+class ITileBadChanTool;
+class TileDCSSvc;
+class TileBeamInfoProvider;
+class TileDQstatus;
+class TileRawChannel;
+class TileRawChannelCollection;
 
 #define NERR 13
 #define NCORRUPTED 13
 #define NDMU 16
 
-class TileBeamInfoProvider;
-class TileDigitsCollection;
-class TileRawChannelCollection;
-class TileDQstatus;
-class ITileBadChanTool;
-class TileDCSSvc;
-class TileRawChannel;
-class TileDigits;
-
 /** @class TileDQFragMonTool
- *  @brief Class for commissioning: dq fragment monitoring
+ *  @brief Class for TileCal monitoring of Data Quality fragment
  */
 
 class TileDQFragMonTool: public TileFatherMonTool {
@@ -107,7 +102,6 @@ class TileDQFragMonTool: public TileFatherMonTool {
     uint32_t m_last_lb;
     //bool m_UpFlag = false;
     int globalErrCount[4][64]; //global CRC errors
-    std::string errorDir;
 
     /* njunior@cern.ch */
     TH2I* hist_error[4][64];
@@ -141,4 +135,3 @@ class TileDQFragMonTool: public TileFatherMonTool {
 };
 
 #endif
-

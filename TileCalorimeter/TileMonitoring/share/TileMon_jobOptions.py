@@ -41,7 +41,6 @@ if tileESDMon:
 
     from TileMonitoring.TileMonitoringConf import TileCellMonTool
     TileCellMon = TileCellMonTool(name               = 'TileCellMon',
-                                  histoStreamName    = "/SHIFT",
                                   OutputLevel        = 3, 
                                   doOnline           = athenaCommonFlags.isOnline(),
                                   cellsContainerName = "AllCalo",
@@ -54,7 +53,6 @@ if tileESDMon:
     include ("TileMonitoring/TileMonTower_jobOptions.py")
     from TileMonitoring.TileMonitoringConf import TileTowerMonTool
     TileTowerMon = TileTowerMonTool(name                = 'TileTowerMon',
-                                    histoStreamName     = "/SHIFT",
                                     OutputLevel         = 3, 
                                     towersContainerName = "TileTower",
                                     histoPathBase       = "/Tile/Tower");
@@ -65,19 +63,18 @@ if tileESDMon:
     include ("TileMonitoring/TileMonTopoCluster_jobOptions.py")
     from TileMonitoring.TileMonitoringConf import TileClusterMonTool
     TileClusterMon = TileClusterMonTool(name                  = 'TileClusterMon',
-                                        histoStreamName       = "/SHIFT",
                                         OutputLevel           = 3,
                                         clustersContainerName = "TileTopoCluster",
                                         histoPathBase         = "/Tile/Cluster");
     ToolSvc += TileClusterMon;
     ManagedAthenaTileMon.AthenaMonTools += [ TileClusterMon ];
     
-    if (jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam') and DQMonFlags.useTrigger() :
+    if (jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam'):
 
         from TileMonitoring.TileMonitoringConf import TileMuonFitMonTool
         TileMuonFitMon = TileMuonFitMonTool(name                = 'TileMuonFitMon',
-                                            histoStreamName     = "/SHIFT",
                                             OutputLevel         = 3, 
+                                            UseLVL1             = DQMonFlags.useTrigger(),
                                             histoPathBase       = "/Tile/MuonFit");
         ToolSvc += TileMuonFitMon;
         ManagedAthenaTileMon.AthenaMonTools += [ TileMuonFitMon ];
@@ -85,7 +82,6 @@ if tileESDMon:
 
     from TileMonitoring.TileMonitoringConf import TileMuIdMonTool
     TileMuIdMon = TileMuIdMonTool(name                = 'TileMuIdMon',
-                                  histoStreamName     = "/SHIFT",
                                   OutputLevel         = 3, 
                                   histoPathBase       = "/Tile/Muid");
     ToolSvc += TileMuIdMon;
@@ -94,7 +90,6 @@ if tileESDMon:
 
     from TileMonitoring.TileMonitoringConf import TileL2MonTool
     TileL2MuMon = TileL2MonTool(name                = 'TileL2MuMon',
-                                histoStreamName     = "/SHIFT",
                                 OutputLevel         = 3, 
                                 histoPathBase       = "/Tile/L2Muon");
     ToolSvc += TileL2MuMon;
@@ -105,12 +100,15 @@ if  tileRawMon:
 
     from TileMonitoring.TileMonitoringConf import TileMBTSMonTool
     TileMBTSMon = TileMBTSMonTool(  name            = 'TileMBTSMon',
-                                    histoStreamName = "/SHIFT",
                                     OutputLevel     = 3,
                                     histoPathBase   = "/Tile/MBTS",
                                     LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc",
                                     doOnline        = athenaCommonFlags.isOnline(),
                                     readTrigger     = DQMonFlags.useTrigger());
+
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.InputFormat() == 'pool':
+        TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
 
     ToolSvc += TileMBTSMon;
     ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ];
@@ -120,7 +118,6 @@ if  tileRawMon:
 
         from TileMonitoring.TileMonitoringConf import TileRODMonTool
         TileRODMon = TileRODMonTool( name            = 'TileRODMon',
-                                     histoStreamName = "/SHIFT",
                                      OutputLevel     = 3,
                                      histoPathBase   = "/Tile/ROD",
                                      doOnline        = athenaCommonFlags.isOnline());
@@ -130,7 +127,6 @@ if  tileRawMon:
 
     from TileMonitoring.TileMonitoringConf import TileDQFragMonTool
     TileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
-                                      histoStreamName    = "/SHIFT",
                                       OutputLevel        = 3, 
                                       TileRawChannelContainerDSP    = "TileRawChannelCnt",
                                       TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer(),

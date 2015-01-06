@@ -12,19 +12,19 @@
 // July 2006	
 // ********************************************************************//
 
-// Athena includes
+#include "TileMonitoring/TileFatherMonTool.h"
+
 #include "xAODEventInfo/EventInfo.h"
-#include "AthenaKernel/errorcheck.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/TileID.h"
 
-#include "TileEvent/TileContainer.h"
-#include "TileEvent/TileCell.h"
-#include "TileMonitoring/TileCellMonTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileEvent/TileContainer.h"
+#include "TileEvent/TileCell.h"
+
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include "TH1C.h"
 #include "TH2C.h"
@@ -47,53 +47,23 @@
 #include "TDirectory.h"
 #include "TAxis.h"
 
-#include "TileMonitoring/TileFatherMonTool.h"
-
-/*---------------------------------------------------------*/
-/// Methods registering historgrams
-/// Ownership passed to Gaudi
-template <typename T>
-void TileFatherMonTool::regHist(const std::string path, T * hist, Interval_t interval, MgmtAttr_t attribute,  std::string trigChain, std::string mergeAlgo)
-{
-  if(ManagedMonitorToolBase::regHist(hist, path, interval, attribute, trigChain, mergeAlgo).isFailure()) {
-    ATH_MSG_WARNING( "Could not register histogram : "  << "/" + path + "/" + hist->GetName() );
-  }
- 
-}
-
-template <typename T>
-void TileFatherMonTool::regGraph(const std::string path, T * graph, Interval_t interval, MgmtAttr_t attribute,  std::string trigChain, std::string mergeAlgo)
-{
-  if(ManagedMonitorToolBase::regGraph(graph, path, interval, attribute, trigChain, mergeAlgo) != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING( "Could not register Graph : " << path );
-  }	 
-}
 
 ///Base class for TileCal monitoring tools
 /*---------------------------------------------------------*/
 TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : ManagedMonitorToolBase(type, name, parent)
+  : TilePaterMonTool(type, name, parent)
   , m_lvl1info(0)
   , m_evtNum(0)
   , m_lumiBlock(0)
   , m_evtBCID(0)
   , m_runNum(0)
   , m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_cabling(0)
+
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
 
-  // the same variable is property THistSvc_OutStream in MonitorToolBase
-  declareProperty("histoStreamName", m_THistSvc_streamname = "/SHIFT");
-
-  // property histoPathBase in MonitorToolBase
-  declareProperty("histoPathBase", m_path = "Tile");
   declareProperty("MBTSCellContainerID", m_MBTSCellContainerID = "MBTSContainer");
-  declareProperty("savePng", m_savePng = false);
-  declareProperty("savePs", m_savePs = false);
 
   // conversion from ROS index to partition index
   m_ros2partition[TileHWID::BEAM_ROS] = NumPart;
@@ -109,6 +79,7 @@ TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string
   m_partition2ros[PartEBC] = TileHWID::EXTBAR_NEG;
   m_partition2ros[NumPart] = TileHWID::BEAM_ROS;
 
+  m_path = "/Tile";
 }
 
 /*---------------------------------------------------------*/
@@ -122,11 +93,6 @@ TileFatherMonTool::~TileFatherMonTool() {
 /*---------------------------------------------------------*/
 StatusCode TileFatherMonTool::initialize() {
 /*---------------------------------------------------------*/
-
-
-  //NB Changed for new ManagedMonitorMonTool 
-  //m_stem=m_THistSvc_streamname+m_path;
-  m_stem = "/" + m_path;
 
   m_SampStrNames[SampA] = "SampA";
   m_SampStrNames[SampB] = "SampB";
@@ -163,60 +129,15 @@ StatusCode TileFatherMonTool::initialize() {
   m_activeTrigs[Trig_b7] = -1;
   m_activeTrigs[AnyTrig] = -1;
 
-  CHECK(detStore()->retrieve(m_tileID));
-
-  CHECK(detStore()->retrieve(m_tileHWID));
-
-  m_cabling = TileCablingService::getInstance();
-
   //done explicitly
   //ToolRootHistSvc();
 
   //SetBookStatus(false);
-  CHECK(ManagedMonitorToolBase::initialize());
+  CHECK(TilePaterMonTool::initialize());
 
   return StatusCode::SUCCESS;
 }
 
-/*---------------------------------------------------------*/
-StatusCode TileFatherMonTool::bookHistograms() {
-/*---------------------------------------------------------*/
-
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "in bookHistograms()" << endmsg;
-    msg(MSG::DEBUG) << "Using base path " << m_stem << endmsg;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-/*---------------------------------------------------------*/
-StatusCode TileFatherMonTool::fillHistograms() {
-/*---------------------------------------------------------*/
-
-  ATH_MSG_DEBUG( "in fillHistograms()" );
-
-  return StatusCode::SUCCESS;
-}
-
-/*---------------------------------------------------------*/
-StatusCode TileFatherMonTool::procHistograms() {
-/*---------------------------------------------------------*/
-
-  ATH_MSG_DEBUG( "in procHistograms()" );
-
-  return StatusCode::SUCCESS;
-}
-
-/*---------------------------------------------------------*/
-StatusCode TileFatherMonTool::checkHists(bool /* fromFinalize */) {
-/*---------------------------------------------------------*/
-
-
-  ATH_MSG_DEBUG( "in checkHists()" );
-
-  return StatusCode::SUCCESS;
-}
 
 /// Method to navigate from a cell to its Tile partition
 /// EBA, LBA, LBC, EBC. Other kind of cell or non Tile cells 
@@ -582,346 +503,6 @@ void TileFatherMonTool::ShiftTprofile(TProfile* histo, int delta_lb) {
   histo->SetEntries(total_entries);
 }
 
-/*---------------------------------------------------------*/
-/// Method booking 1D Histograms and storing them in THistSvc
-/// The method return the pointer to the new histogram
-/// Argument sudir the path to to the histograms
-/// nam is the histogram name
-/// tit is the histogram title
-/// nx the number of bins
-/// xmin the the low limit of the histogram
-/// xmax is the high limit of the histogram
-TH1D* TileFatherMonTool::book1D(std::string subdir, std::string nam, std::string tit,
-                                int nx, double xmin, double xmax,
-                                Interval_t interval, MgmtAttr_t attribute,
-                                std::string trigChain, std::string mergeAlgo)
-{
-
-  TH1D* hist = new TH1D(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH1F* TileFatherMonTool::book1F(std::string subdir, std::string nam, std::string tit,
-                                int nx, double xmin, double xmax,
-                                Interval_t interval, MgmtAttr_t attribute,
-                                std::string trigChain, std::string mergeAlgo)
-{
-
-  TH1F* hist = new TH1F(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH1C* TileFatherMonTool::book1C(std::string subdir, std::string nam, std::string tit,
-                                 int nx, double xmin, double xmax,
-                                 Interval_t interval, MgmtAttr_t attribute,
-                                 std::string trigChain, std::string mergeAlgo)
-{
-
-  TH1C* hist = new TH1C(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH1S* TileFatherMonTool::book1S(std::string subdir, std::string nam, std::string tit,
-                                int nx, double xmin, double xmax,
-                                Interval_t interval, MgmtAttr_t attribute,
-                                std::string trigChain, std::string mergeAlgo)
-{
-
-  TH1S* hist = new TH1S(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH1I* TileFatherMonTool::book1I(std::string subdir, std::string nam, std::string tit,
-                                 int nx, double xmin, double xmax,
-                                 Interval_t interval, MgmtAttr_t attribute,
-                                 std::string trigChain, std::string mergeAlgo)
-{
-
-  TH1I* hist = new TH1I(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-/*---------------------------------------------------------*/
-/// Method booking 2D Histograms and storing them in THistSvc
-/// The method return the pointer to the new histogram
-TH2D* TileFatherMonTool::book2D(std::string subdir, std::string nam, std::string tit,
-                                 int nx, double xmin, double xmax,
-                                 int ny, double ymin, double ymax,
-                                 Interval_t interval, MgmtAttr_t attribute,
-                                 std::string trigChain, std::string mergeAlgo)
-{
-  TH2D* hist = new TH2D(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH2F* TileFatherMonTool::book2F(std::string subdir, std::string nam, std::string tit,
-                                int nx, double xmin, double xmax,
-                                int ny, double ymin, double ymax,
-                                Interval_t interval, MgmtAttr_t attribute,
-                                std::string trigChain, std::string mergeAlgo)
-{
-  TH2F* hist = new TH2F(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH2F* TileFatherMonTool::book2F(std::string subdir, std::string nam, std::string tit,
-                                 int nx, double xmin, double xmax,
-                                 int ny, const double* ybins,
-                                 Interval_t interval, MgmtAttr_t attribute,
-                                 std::string trigChain, std::string mergeAlgo)
-{
-  TH2F* hist = new TH2F(TString(nam), TString(tit), nx, xmin, xmax, ny, ybins);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH2I* TileFatherMonTool::book2I(std::string subdir, std::string nam, std::string tit,
-                                 int nx, double xmin, double xmax,
-                                 int ny, double ymin, double ymax,
-                                 Interval_t interval, MgmtAttr_t attribute,
-                                 std::string trigChain, std::string mergeAlgo)
-{
-  TH2I* hist = new TH2I(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH2S * TileFatherMonTool::book2S(std::string subdir, std::string nam, std::string tit,
-                                  int nx, double xmin, double xmax,
-                                  int ny, double ymin, double ymax,
-                                  Interval_t interval, MgmtAttr_t attribute,
-                                  std::string trigChain, std::string mergeAlgo)
-{
-  TH2S *hist = new TH2S(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TH2C* TileFatherMonTool::book2C(std::string subdir, std::string nam, std::string tit,
-                                int nx, double xmin, double xmax,
-                                int ny, double ymin, double ymax,
-                                Interval_t interval, MgmtAttr_t attribute,
-                                std::string trigChain, std::string mergeAlgo)
-{
-  TH2C* hist = new TH2C(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TProfile* TileFatherMonTool::bookProfile(std::string subdir, std::string nam, std::string tit,
-                                          int nx, double xmin, double xmax,
-                                          Interval_t interval, MgmtAttr_t attribute,
-                                          std::string trigChain, std::string mergeAlgo)
-{
-  TProfile* hist = new TProfile(TString(nam), TString(tit), nx, xmin, xmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TProfile* TileFatherMonTool::bookProfile(std::string subdir, std::string nam, std::string tit,
-                                          int nx, double xmin, double xmax,
-                                          double ymin, double ymax,
-                                          Interval_t interval, MgmtAttr_t attribute,
-                                          std::string trigChain, std::string mergeAlgo)
-{
-  TProfile* hist = new TProfile(TString(nam), TString(tit), nx, xmin, xmax, ymin, ymax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-TProfile2D* TileFatherMonTool::bookProfile2D(std::string subdir, std::string nam, std::string tit,
-                                             int nx, double xmin, double xmax,
-                                             int ny, double ymin, double ymax,
-                                             double zmin, double zmax,
-                                             Interval_t interval, MgmtAttr_t attribute,
-                                             std::string trigChain, std::string mergeAlgo)
-{
-
-  TProfile2D* hist = new TProfile2D(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax, zmin, zmax);
-  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
-  return hist;
-}
-
-
-/*-----------------------------------------------------------*/
-/// Method booking TTree and TGraph and storing them in THistSvc
-/// The method return the pointer to the new histogram
-TTree* TileFatherMonTool::bookTree(std::string subdir, std::string nam, std::string tit) {
-
-  TTree* hist = new TTree(TString(nam), TString(tit));
-  if (m_THistSvc_streamname.size() > 0) {
-    if (m_THistSvc->regTree(m_stem + subdir + "/" + nam, hist).isFailure()) {
-      ATH_MSG_WARNING( "Could not register object : " << m_stem + subdir + "/" + nam );
-    }
-  }
-  return hist;
-}
-
-//
-// Terrible hack to register TGraph in THistSvc
-//
-
-//#define private public
-//#define GAUDISVC_THISTSVC_ICC
-//#include "THistSvc/THistSvc.h"
-//#undef GAUDISVC_THISTSVC_ICC
-//#include "THistSvc/THistSvc.icc"
-//#undef private
-
-class TGraph1: public TGraph {
-  public:
-    TGraph1(int N, float * X, float * Y)
-        : TGraph(N, X, Y), fDirectory(0) {
-    }
-
-    TDirectory * GetDirectory() { return fDirectory; }
-
-    void SetDirectory(TDirectory *dir) {
-      if (fDirectory == dir) return;
-      if (fDirectory) fDirectory->GetList()->Remove(this);
-      fDirectory = dir;
-      if (fDirectory) fDirectory->GetList()->Add(this);
-    }
-
-  private:
-    TDirectory* fDirectory;
-};
-
-TGraph* TileFatherMonTool::bookGraph(std::string subdir, std::string nam, std::string tit, int N, float * X, float * Y) {
-
-  TGraph1 *hist = new TGraph1(N, X, Y);
-  hist->SetName(TString(nam));
-  hist->SetTitle(TString(tit));
-
-  regGraph(m_stem + subdir + "/" + nam, hist);
-
-  return (TGraph*) hist;
-}
-
-class TGraphErrors1: public TGraphErrors {
-  public:
-    TGraphErrors1(int N, float * X, float * Y, float * X_errors, float * Y_errors)
-        : TGraphErrors(N, X, Y, X_errors, Y_errors), fDirectory(0) {
-    }
-
-    TDirectory * GetDirectory() { return fDirectory; }
-
-    void SetDirectory(TDirectory *dir) {
-      if (fDirectory == dir) return;
-      if (fDirectory) fDirectory->GetList()->Remove(this);
-      fDirectory = dir;
-      if (fDirectory) fDirectory->GetList()->Add(this);
-    }
-
-  private:
-    TDirectory * fDirectory;
-};
-
-TGraphErrors * TileFatherMonTool::bookGraphErrors(std::string subdir, std::string nam, std::string tit, int N, float * X, float * Y, float * X_errors, float * Y_errors) {
-
-  TGraphErrors *hist = new TGraphErrors(N, X, Y, X_errors, Y_errors);
-  hist->SetName(TString(nam));
-  hist->SetTitle(TString(tit));
-
-  regGraph(m_stem + subdir + "/" + nam, hist);
-  return (TGraphErrors *) hist;
-}
-
-StatusCode TileFatherMonTool::removeTObj(TObject *obj) {
-  if (obj != 0) {
-    if (obj->IsA()->InheritsFrom("TH1")) {
-      if (deregHist((TH1*) obj).isFailure()) {
-        ATH_MSG_WARNING( "Could not dereg Histogram : " << obj->GetName() );
-        return StatusCode::FAILURE;
-      } else {
-        delete obj;
-      }
-    } else if (obj->IsA()->InheritsFrom("TGraph")) {
-      if (deregGraph((TGraph*) obj) != StatusCode::SUCCESS) {
-        ATH_MSG_WARNING( "Could not dereg Graph : " << obj->GetName() );
-        return StatusCode::FAILURE;
-      } else {
-        delete obj;
-      }
-    } else {
-      ATH_MSG_WARNING( "Asked to remove object " << obj->GetName() << "of unsupported type " << obj->IsA() );
-      return StatusCode::FAILURE;
-    }
-  } else {
-    ATH_MSG_WARNING( "Asked to remove NULL pointer" );
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-class TGraphAsymmErrors1: public TGraphAsymmErrors {
-  public:
-    TGraphAsymmErrors1(int N, float * X, float * Y, float * X_errors1, float * X_errors2, float * Y_errors1, float * Y_errors2)
-        : TGraphAsymmErrors(N, X, Y, X_errors1, X_errors2, Y_errors1, Y_errors2), fDirectory(0) {
-    }
-
-    TDirectory * GetDirectory() { return fDirectory; }
-
-    void SetDirectory(TDirectory *dir) {
-      if (fDirectory == dir) return;
-      if (fDirectory) fDirectory->GetList()->Remove(this);
-      fDirectory = dir;
-      if (fDirectory) fDirectory->GetList()->Add(this);
-    }
-
-  private:
-    TDirectory* fDirectory;
-};
-
-TGraphAsymmErrors* TileFatherMonTool::bookGraphAsymmErrors(std::string subdir, std::string nam, std::string tit, int N,
-                                                           float* X, float* Y, float* X_errors1, float* X_errors2,
-                                                           float* Y_errors1, float* Y_errors2)
-{
-
-  TGraphAsymmErrors *hist = new TGraphAsymmErrors(N, X, Y, X_errors1, X_errors2, Y_errors1, Y_errors2);
-  hist->SetName(TString(nam));
-  hist->SetTitle(TString(tit));
-
-  regGraph(m_stem + subdir + "/" + nam, hist);
-  return (TGraphAsymmErrors*) hist;
-}
-
-class TMultiGraph1: public TMultiGraph {
-  public:
-    TMultiGraph1()
-        : TMultiGraph(), fDirectory(0) {
-    }
-
-    TDirectory* GetDirectory() { return fDirectory; }
-
-    void SetDirectory(TDirectory *dir) {
-      if (fDirectory == dir) return;
-      if (fDirectory) fDirectory->GetList()->Remove(this);
-      fDirectory = dir;
-      if (fDirectory) fDirectory->GetList()->Add(this);
-    }
-
-  private:
-    TDirectory* fDirectory;
-};
-
-TMultiGraph* TileFatherMonTool::bookMultiGraph(std::string subdir, std::string nam, std::string tit) {
-
-  TMultiGraph1* hist = new TMultiGraph1();
-  hist->SetName(TString(nam));
-  hist->SetTitle(TString(tit));
-
-  regGraph(m_stem + subdir + "/" + nam, (TGraph*) hist);
-  return (TMultiGraph*) hist;
-}
 
 bool TileFatherMonTool::m_iscoll = false;
 unsigned int TileFatherMonTool::m_lastevent = 0;

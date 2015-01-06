@@ -19,14 +19,20 @@
 
 #include "TileMonitoring/TileJetMonTool.h"
 
-#include <iostream>
-#include <string>
-
 #include "Navigation/NavigationToken.h"
+
+#include "CaloGeoHelpers/CaloSampling.h" 
+#include "CaloIdentifier/TileID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloSamplingHelper.h"
-#include "CaloGeoHelpers/CaloSampling.h" 
+
+#include "TileIdentifier/TileHWID.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileEvent/TileCell.h"
+#include "TileEvent/TileContainer.h"
+
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetConstituentIterator.h"
 #include "JetEvent/JetCollection.h"
@@ -37,18 +43,12 @@
 /* this was an attempt to exploit isBad() from JetCaloUtilsFillerTool, but
    then I discovered it is private. So need to define it here anyway... */
 
-#include "TileEvent/TileCell.h"
-#include "TileEvent/TileContainer.h"
-#include "CaloIdentifier/TileID.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileConditions/TileCablingService.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/errorcheck.h"
-
-
 #include "TH2F.h"
 //#include "TProfile.h"
+
+#include <iostream>
+#include <string>
+
 
 // copy of auxillary functions from JetD3PDMaker/src/JetCaloUtilsFillerTool.cxx
 
@@ -144,7 +144,8 @@ namespace {
 
 /*---------------------------------------------------------*/
 TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : TileFatherMonTool(type, name, parent), m_tileBadChanTool("TileBadChanTool")
+  : TileFatherMonTool(type, name, parent)
+  , m_tileBadChanTool("TileBadChanTool")
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -154,14 +155,11 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("jetCollectionName",m_jetCollectionName="AntiKt4Topo");
   declareProperty("energyChanMin",m_energyChanMin=2000);
   declareProperty("energyChanMax",m_energyChanMax=4000);
-  declareProperty("histoStreamName",m_THistSvcStreamName="/EXPERT");
 
+  m_path = "/Tile";
   /* see 
  http://alxr.usatlas.bnl.gov/lxr-stb6/source/atlas/TileCalorimeter/TileMonitoring/src/TileFatherMonTool.cxx#101
   */
-  m_path = "Tile"; //ROOT File directory.
-  m_stem = m_THistSvcStreamName; // + m_path;
-
 
   m_name = name;
 
@@ -270,12 +268,12 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
         }
         /* TH2F histograms are too much in memory. Trying to book only 10 LB
          and set rebin-bit */
-        m_TileChanTime[p].push_back( book2F(m_stem + "/" + m_path + "/" + m_partname[p]
+        m_TileChanTime[p].push_back( book2F( m_partname[p]
                                             , m_partname[p] + modnum + "_ch_" + chnum, m_partname[p] + modnum + "_ch_" + chnum
                                             , 10, 0, 10, 120, -30.0, 30.0));
         //	m_TileChanTime[p][m*NPMT+ch]->SetBit(TH1::kCanRebin);
         /*
-         m_TileChanTime[p].push_back(bookProfile(m_stem + "/" + m_path + "/" + m_partname[p],
+         m_TileChanTime[p].push_back(bookProfile( m_partname[p],
          m_partname[p]+modnum+"_ch_"+chnum,
          m_partname[p]+modnum+"_ch_"+chnum,
          1500,0.5,1500.5,-30.0,30.0));
@@ -351,10 +349,10 @@ StatusCode TileJetMonTool::fillTimeHistograms(const Jet& jet, uint32_t LumiBlock
         int pmt2 = -1;
         uint32_t bad1 = 0;
         uint32_t bad2 = 0;
-        long gain1 = tilecell->gain1();
-        long gain2 = tilecell->gain2();
-        long qbit1 = tilecell->qbit1();
-        long qbit2 = tilecell->qbit2();
+        int gain1 = tilecell->gain1();
+        int gain2 = tilecell->gain2();
+        unsigned int qbit1 = tilecell->qbit1();
+        unsigned int qbit2 = tilecell->qbit2();
 
         const CaloDetDescrElement * caloDDE = tilecell->caloDDE();
         IdentifierHash hash1 = caloDDE->onl1();
@@ -413,7 +411,7 @@ StatusCode TileJetMonTool::fillTimeHistograms(const Jet& jet, uint32_t LumiBlock
  A jak to udelame s celami, ktere jsou ve vice clusterech v jednom jetu ??
  */
 
-bool TileJetMonTool::isGoodChannel(int part, int mod, int pmt, uint32_t bad, long qbit, float energy) {
+bool TileJetMonTool::isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, float energy) {
   /*
    MsgStream log(msgSvc(), name());
    log << MSG::INFO << "isGoodChannel: part " << part << ", mod " << mod+1

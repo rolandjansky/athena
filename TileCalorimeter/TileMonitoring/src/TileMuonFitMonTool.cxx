@@ -12,22 +12,22 @@
 //
 // ********************************************************************
 
-
-#include "xAODTrigger/TrigDecision.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TileMonitoring/TileMuonFitMonTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "TileMonitoring/TileMuonFitMonTool.h"
 #include "TileEvent/TileCosmicMuon.h"
 #include "TileEvent/TileContainer.h"
+
+#include "xAODTrigger/TrigDecision.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include "TH1F.h"
 #include "TH2D.h"
 #include "TProfile.h"
 
-
 #include <cmath>
+
 
 /*---------------------------------------------------------*/
 TileMuonFitMonTool::TileMuonFitMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -42,7 +42,9 @@ TileMuonFitMonTool::TileMuonFitMonTool(const std::string & type, const std::stri
 
   declareProperty("muonfitContainerName", m_muonfitContName = "TileCosmicMuonHT"); //SG MuonFit Container
   declareProperty("muonfitCellContainerName", m_cellContainerKey = "AllCalo");
-  m_path = "Tile/Muonfit"; //ROOT File directory
+  declareProperty("UseLVL1", m_useLVL1 = "true");
+
+  m_path = "/Tile/Muonfit"; //ROOT File directory
 }
 
 /*---------------------------------------------------------*/
@@ -71,47 +73,47 @@ StatusCode TileMuonFitMonTool::bookHistTrig( int trig ) {
 
   m_tileMuonFitTrig++; //Increment Trigger index
 
-  m_tileMuonFit.push_back(book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonFit" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": Tile MuonFit reconstructed", 10, -0.5, 9.5));
+  m_tileMuonFit.push_back(book1F(m_TrigNames[trig], "tileMuonFit" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": Tile MuonFit reconstructed", 10, -0.5, 9.5));
 
-  m_tileMuonFitPos.push_back( book2F(m_stem + "/" + m_TrigNames[trig], "tileMuonFitPos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Muon Fit position at y=0", 70, -7000., 7000., 45, -4500., 4500.));
+  m_tileMuonFitPos.push_back( book2F(m_TrigNames[trig], "tileMuonFitPos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Muon Fit position at y=0", 70, -7000., 7000., 45, -4500., 4500.));
   m_tileMuonFitPos[element]->GetXaxis()->SetTitle("z position (mm)");
   m_tileMuonFitPos[element]->GetYaxis()->SetTitle("x position (mm)");
 
-  m_tileMuonFitDir.push_back(book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonFitDir" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit sinus of the angle in the y-z plane", 50, 0., 1.));
+  m_tileMuonFitDir.push_back(book1F(m_TrigNames[trig], "tileMuonFitDir" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit sinus of the angle in the y-z plane", 50, 0., 1.));
   m_tileMuonFitDir[element]->GetXaxis()->SetTitle("sin(#theta)");
 
   m_tileMuonFitDir2.push_back(
-      book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonFitDir2" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit sinus of the angle in the x-y plane", 100, -1., 1.));
+      book1F(m_TrigNames[trig], "tileMuonFitDir2" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit sinus of the angle in the x-y plane", 100, -1., 1.));
   m_tileMuonFitDir2[element]->GetXaxis()->SetTitle("sin(#phi)");
 
   m_tileMuonFitTime.push_back(
-      book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonTime" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit-time at y=0 plane", 50, -75., 75.));
+      book1F(m_TrigNames[trig], "tileMuonTime" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit-time at y=0 plane", 50, -75., 75.));
   m_tileMuonFitTime[element]->GetXaxis()->SetTitle("Muon time (ns)");
 
-  m_tileMuonFitDirPos.push_back(book2F(m_stem + "/" + m_TrigNames[trig], "tileMuonFitDirPos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Muon Fit vertical axis component wrt z coordinate at y=0", 50, -5000., 5000., 50, -1., 1.));
+  m_tileMuonFitDirPos.push_back(book2F(m_TrigNames[trig], "tileMuonFitDirPos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Muon Fit vertical axis component wrt z coordinate at y=0", 50, -5000., 5000., 50, -1., 1.));
   m_tileMuonFitDirPos[element]->GetXaxis()->SetTitle("z position (mm)");
   m_tileMuonFitDirPos[element]->GetYaxis()->SetTitle("vertical direction component");
 
-  m_tileMuonFitEnergy.push_back(book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonEnergy" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Total Energy ", 50, 0., 10000.));
+  m_tileMuonFitEnergy.push_back(book1F(m_TrigNames[trig], "tileMuonEnergy" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Total Energy ", 50, 0., 10000.));
   m_tileMuonFitEnergy[element]->GetXaxis()->SetTitle("Muon energy (MeV)");
 
-  m_tileMuonFitPath.push_back(book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonPath" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Total Path length ", 50, 0., 10000.));
+  m_tileMuonFitPath.push_back(book1F(m_TrigNames[trig], "tileMuonPath" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Total Path length ", 50, 0., 10000.));
   m_tileMuonFitPath[element]->GetXaxis()->SetTitle("Muon path length (mm)");
   //    m_tileMuonFitPath[element]->SetBit(TH1::kCanRebin);
 
-  m_tileMuonFitEnergyDensity.push_back(book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonEnergyDensity" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Energy Density", 50, 0., 10.));
+  m_tileMuonFitEnergyDensity.push_back(book1F(m_TrigNames[trig], "tileMuonEnergyDensity" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Energy Density", 50, 0., 10.));
   m_tileMuonFitEnergyDensity[element]->GetXaxis()->SetTitle("Muon Energy Loss per mm (MeV/mm)");
   //    m_tileMuonFitEnergyDensity[element]->SetBit(TH1::kCanRebin);
 
-  m_tileMuonFitNCells.push_back( book1F(m_stem + "/" + m_TrigNames[trig], "tileMuonNCells" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Number of Cells", 10, 0., 10., run, ATTRIB_MANAGED, "", "mergeRebinned"));
+  m_tileMuonFitNCells.push_back( book1F(m_TrigNames[trig], "tileMuonNCells" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Number of Cells", 10, 0., 10., run, ATTRIB_MANAGED, "", "mergeRebinned"));
   m_tileMuonFitNCells[element]->GetXaxis()->SetTitle("number of cells");
   //m_tileMuonFitNCells[element]->SetBit(TH1::kCanRebin);
 
-  m_tileMuonFitTimePos.push_back(bookProfile(m_stem + "/" + m_TrigNames[trig], "tileMuonTimePos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Average Time VS z position when crossing y=0 plane", 80, -8000., 8000., -200., 200.));
+  m_tileMuonFitTimePos.push_back(bookProfile(m_TrigNames[trig], "tileMuonTimePos" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Average Time VS z position when crossing y=0 plane", 80, -8000., 8000., -200., 200.));
   m_tileMuonFitTimePos[element]->GetXaxis()->SetTitle("Muon Fit z position at y=0 plane (mm)");
   m_tileMuonFitTimePos[element]->GetYaxis()->SetTitle("Muon Fit time at y=0 plane (ns)");
 
-  m_tileMuonFitTimePart.push_back(bookProfile(m_stem + "/" + m_TrigNames[trig], "tileMuonTimePart" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Average Time VS Partition when crossing y=0 plane", 4, -0.5, 3.5, -200., 200.));
+  m_tileMuonFitTimePart.push_back(bookProfile(m_TrigNames[trig], "tileMuonTimePart" + m_TrigNames[trig], "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal MuonFit Average Time VS Partition when crossing y=0 plane", 4, -0.5, 3.5, -200., 200.));
   m_tileMuonFitTimePart[element]->GetXaxis()->SetTitle("Muon Fit Partition crossed");
   m_tileMuonFitTimePart[element]->GetYaxis()->SetTitle("Muon Fit time at y=0 plane (ns)");
 
@@ -130,7 +132,6 @@ StatusCode TileMuonFitMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in bookHistograms()" );
-  ATH_MSG_INFO( "Using base path " << m_stem );
 
   cleanHistVec(); //necessary to avoid problems at the eb, lumi blocks boundaries
   m_isFirstEv = true;
@@ -191,33 +192,38 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
   if (m_isFirstEv) {
     std::string runNumStr = getRunNumStr();
 
-    m_trigDec.retrieve().ignore();
-    const Trig::ChainGroup* allL1 = m_trigDec->getChainGroup("L1_.*");
-    m_l1triggers = allL1->getListOfTriggers();
 
-    /*
-    msg(MSG::INFO) << "LUCA lvl1 item names: [";
-    for (unsigned int i = 0; i < m_l1triggers.size(); i++) {
-      msg(MSG::INFO) << i << " " << m_l1triggers.at(i) << " , " << endmsg;
-    }
-    msg(MSG::INFO) << "] " << endmsg;
-    */
+    if (m_useLVL1) {
+      m_trigDec.retrieve().ignore();
+      const Trig::ChainGroup* allL1 = m_trigDec->getChainGroup("L1_.*");
+      m_l1triggers = allL1->getListOfTriggers();
 
-    if (m_l1triggers.size() > 0) {
-      m_trigok = true;
-    }
+      /*
+      msg(MSG::INFO) << "LUCA lvl1 item names: [";
+      for (unsigned int i = 0; i < m_l1triggers.size(); i++) {
+        msg(MSG::INFO) << i << " " << m_l1triggers.at(i) << " , " << endmsg;
+      }
+      msg(MSG::INFO) << "] " << endmsg;
+      */
 
-    for (int i = PartEBA; i < NumPart; i++) {
-      // set the x-axis label to partition name for occupancy and balance plot
+      if (m_l1triggers.size() > 0) {
+        m_trigok = true;
+      }
 
-      m_tileMuonFitTimePartLVL1[i] = book2F(m_stem + "/", "tileMuonTimePartLVL1" + m_PartNames[i], "Run " + runNumStr + ": " + m_PartNames[i] + " TileCal MuonFit Average Time VS LVL1 item when crossing y=0 plane", 31, -77.5, 77.5, 256, -0.5, 255.5);
-      m_tileMuonFitTimePartLVL1[i]->GetXaxis()->SetTitle("Time at y=0 (ns)");
-      if (m_trigok) {
-        SetBinLabel(m_tileMuonFitTimePartLVL1[i]->GetYaxis(), m_l1triggers);
-      } else {
-        m_tileMuonFitTimePartLVL1[i]->GetYaxis()->SetTitle("LVL1 item");
+    
+      for (int i = PartEBA; i < NumPart; i++) {
+        // set the x-axis label to partition name for occupancy and balance plot
+
+        m_tileMuonFitTimePartLVL1[i] = book2F("", "tileMuonTimePartLVL1" + m_PartNames[i], "Run " + runNumStr + ": " + m_PartNames[i] + " TileCal MuonFit Average Time VS LVL1 item when crossing y=0 plane", 31, -77.5, 77.5, 256, -0.5, 255.5);
+        m_tileMuonFitTimePartLVL1[i]->GetXaxis()->SetTitle("Time at y=0 (ns)");
+        if (m_trigok) {
+          SetBinLabel(m_tileMuonFitTimePartLVL1[i]->GetYaxis(), m_l1triggers);
+        } else {
+          m_tileMuonFitTimePartLVL1[i]->GetYaxis()->SetTitle("LVL1 item");
+        }
       }
     }
+
     m_isFirstEv = false;
   }
 
@@ -261,7 +267,7 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
 
   std::vector<unsigned int> trigid;
   trigid.clear();
-  if (!m_trigok) {
+  if (m_useLVL1 && !m_trigok) {
     const DataHandle<xAOD::TrigDecision> trigDecision;
     if (evtStore()->retrieve(trigDecision).isSuccess()) { //snippet from TRT monitoring, thanks!
       std::vector<unsigned int> lvl1TAV = trigDecision->tav();
@@ -305,7 +311,7 @@ StatusCode TileMuonFitMonTool::fillHistograms() {
           && (mu_fullEnergy / mu_fullPath < 7.5)) {
         int part = getTMFpart(theTileCosmicMuon); // get the partition crossed by the TMF
 
-        if (part > -1 && part < NumPart) {
+        if (m_useLVL1 && part > -1 && part < NumPart) {
           if (m_trigok) { // in case the TDT is working, we fill the histogram looping on the labels
             std::vector<std::string>::const_iterator it = m_l1triggers.begin();
             int l1 = 0;

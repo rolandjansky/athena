@@ -16,14 +16,12 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-/** @class TileCellMonTool
- *  @brief Class for TileCell based monitoring
- */
-
-class TProfile;
-class TProfile2D;
-class TileCell;
 class ITileBadChanTool;
+class TileCell;
+
+/** @class TileCellMonTool
+ *  @brief Class for TileCal monitoring at cell level
+ */
 
 class TileCellMonTool: public TileFatherMonTool {
 
@@ -151,4 +149,3 @@ class TileCellMonTool: public TileFatherMonTool {
 };
 
 #endif
-

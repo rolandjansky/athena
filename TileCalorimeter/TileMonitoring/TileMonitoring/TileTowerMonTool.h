@@ -20,8 +20,6 @@
  *  @brief Class for TileTower based monitoring
  */
 
-class TProfile;
-
 class TileTowerMonTool: public TileFatherMonTool {
 
   public:

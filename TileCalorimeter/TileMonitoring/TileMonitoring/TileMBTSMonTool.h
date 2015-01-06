@@ -11,19 +11,12 @@
 //            Specific Alg - Brian Martin (Brian.Thomas.Martin@cern.ch)
 //
 // ********************************************************************
-
 #ifndef TILEMBTSMONTOOL_H
 #define TILEMBTSMONTOOL_H
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TileMonitoring/TileFatherMonTool.h"
 
-class TH1F;
-class TH2F;
-class TH2S;
-class TProfile;
+class TileBeamInfoProvider;
 
 class CTP_RDO;
 class CTP_RIO;
@@ -34,7 +27,9 @@ namespace TrigConf {
   class ILVL1ConfigSvc;
 }
 
-class TileBeamInfoProvider;
+/** @class TileMBTSMonTool
+ *  @brief Class for Tile MBTS based monitoring
+ */
 
 class TileMBTSMonTool: public TileFatherMonTool {
   public:
@@ -155,6 +150,8 @@ class TileMBTSMonTool: public TileFatherMonTool {
     int m_MBTSchannels[2][64];
     int m_MBTScounters[2][64];
     std::vector<bool> m_counterExist;
+
+    bool m_useTrigger;
 };
 
 #endif

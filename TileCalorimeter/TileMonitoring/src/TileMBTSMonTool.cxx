@@ -12,13 +12,15 @@
 //
 // ********************************************************************//
 
-
 #include "TileMonitoring/TileMBTSMonTool.h"
-#include "TileEvent/TileDigitsContainer.h"
+
+#include "CaloIdentifier/TileTBID.h"
+
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileCell.h"
 #include "TileEvent/TileContainer.h"
+#include "TileEvent/TileDigitsContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigT1Result/CTP_RDO.h"
@@ -26,12 +28,10 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "CaloIdentifier/TileTBID.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
-
 
 #include <sstream>
 #include <iomanip>
@@ -97,11 +97,12 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("TileDigitsContainerName", m_TileDigitsContainerID = "TileDigitsCnt");
   declareProperty("TileDSPRawChannelContainerName", m_TileDSPRawChannelContainerID = "TileRawChannelCnt");
   declareProperty("TileBeamElemContainerName", m_TileBeamElemContainerID = "TileBeamElemCnt");
-  declareProperty("histoPathBase", m_path = "/Tile/MBTS");
   declareProperty("readTrigger", m_readTrigger = true); // Switch for CTP config
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
+  declareProperty("UserTrigger", m_useTrigger = true); // Switch for using trigger information
 
-	m_numEvents = 0;
+  m_path = "/Tile/MBTS";
+  m_numEvents = 0;
 
   std::ostringstream ss;
   std::string partName;
@@ -277,70 +278,70 @@ StatusCode TileMBTSMonTool::bookHistograms() {
   for (int counter = 0; counter < 32; ++counter) {
     if (m_counterExist[counter]) {
       // Trigger
-      m_h_bcidPIT[counter] = book1S(m_path + "/Trigger", "DeltaBcidPIT_" + m_counterNames[counter], "MBTS BCID difference of PIT signal", 20, -9, 10);
-      m_h_bcidTBP[counter] = book1S(m_path + "/Trigger", "DeltaBcidTBP_" + m_counterNames[counter], "MBTS BCID difference of TBP signal", 20, -9, 10);
-      m_h_bcidTAP[counter] = book1S(m_path + "/Trigger", "DeltaBcidTAP_" + m_counterNames[counter], "MBTS BCID difference of TAP signal", 20, -9, 10);
-      m_h_bcidTAV[counter] = book1S(m_path + "/Trigger", "DeltaBcidTAV_" + m_counterNames[counter], "MBTS BCID difference of TAV signal", 20, -9, 10);
+      m_h_bcidPIT[counter] = book1S("Trigger", "DeltaBcidPIT_" + m_counterNames[counter], "MBTS BCID difference of PIT signal", 20, -9, 10);
+      m_h_bcidTBP[counter] = book1S("Trigger", "DeltaBcidTBP_" + m_counterNames[counter], "MBTS BCID difference of TBP signal", 20, -9, 10);
+      m_h_bcidTAP[counter] = book1S("Trigger", "DeltaBcidTAP_" + m_counterNames[counter], "MBTS BCID difference of TAP signal", 20, -9, 10);
+      m_h_bcidTAV[counter] = book1S("Trigger", "DeltaBcidTAV_" + m_counterNames[counter], "MBTS BCID difference of TAV signal", 20, -9, 10);
 
       // Cell
-      m_h_energy[counter] = book1F(m_path + "/Cell", "Energy_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter], 400, -0.5, 10.);
-      m_h_time[counter] = book1F(m_path + "/Cell", "Time_" + m_counterNames[counter], "MBTS Time of " + m_counterNames[counter], 100, -100, 100);
-      m_h_energy_wTBP[counter] = book1F(m_path + "/Cell", "Energy_wTBP_" + m_counterNames[counter], "MBTS Energy with TBP fired of " + m_counterNames[counter], 400, -0.5, 10);
-      m_h_time_wTBP[counter] = book1F(m_path + "/Cell", "Time_wTBP_" + m_counterNames[counter], "MBTS Time with TBP fired of " + m_counterNames[counter], 100, -100, 100);
-      m_h_efficiency[counter] = bookProfile(m_path + "/Cell", "Efficiency_" + m_counterNames[counter], "Efficiency of Lvl1 vs readout " + m_counterNames[counter], 400, -0.5, 10);
+      m_h_energy[counter] = book1F("Cell", "Energy_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter], 400, -0.5, 10.);
+      m_h_time[counter] = book1F("Cell", "Time_" + m_counterNames[counter], "MBTS Time of " + m_counterNames[counter], 100, -100, 100);
+      m_h_energy_wTBP[counter] = book1F("Cell", "Energy_wTBP_" + m_counterNames[counter], "MBTS Energy with TBP fired of " + m_counterNames[counter], 400, -0.5, 10);
+      m_h_time_wTBP[counter] = book1F("Cell", "Time_wTBP_" + m_counterNames[counter], "MBTS Time with TBP fired of " + m_counterNames[counter], 100, -100, 100);
+      m_h_efficiency[counter] = bookProfile("Cell", "Efficiency_" + m_counterNames[counter], "Efficiency of Lvl1 vs readout " + m_counterNames[counter], 400, -0.5, 10);
 
       // Digit
-      m_h_pedestal[counter] = book1F(m_path + "/Digit", "Ped_" + m_counterNames[counter], "MBTS Pedestal of " + m_counterNames[counter], 100, 20, 120);
-      m_h_hfNoise[counter] = book1F(m_path + "/Digit", "HFN_" + m_counterNames[counter], "MBTS High Frequency Noise of " + m_counterNames[counter], 100, 0, 5);
-      m_h_pulseAvgTrig[counter] = bookProfile(m_path + "/Digit", "PulseAvgTrig_" + m_counterNames[counter], "Avg Pulse shape (w/ Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
-      m_h_pulseAvgNoTrig[counter] = bookProfile(m_path + "/Digit", "PulseAvgNoTrig_" + m_counterNames[counter], "Avg Pulse shape (no Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
+      m_h_pedestal[counter] = book1F("Digit", "Ped_" + m_counterNames[counter], "MBTS Pedestal of " + m_counterNames[counter], 100, 20, 120);
+      m_h_hfNoise[counter] = book1F("Digit", "HFN_" + m_counterNames[counter], "MBTS High Frequency Noise of " + m_counterNames[counter], 100, 0, 5);
+      m_h_pulseAvgTrig[counter] = bookProfile("Digit", "PulseAvgTrig_" + m_counterNames[counter], "Avg Pulse shape (w/ Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
+      m_h_pulseAvgNoTrig[counter] = bookProfile("Digit", "PulseAvgNoTrig_" + m_counterNames[counter], "Avg Pulse shape (no Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
     }
   }
 
   // Trigger
-  m_h_ctpPIT = book1S(m_path + "/Trigger", "PITs_Fired", "MBTS Trigger Inputs fired", 32, 0, 32);
-  m_h_ctpTBP = book1S(m_path + "/Trigger", "TBPs_Fired", "MBTS Triggers before prescale", 32, 0, 32);
-  m_h_ctpTAP = book1S(m_path + "/Trigger", "TAPs_Fired", "MBTS Triggers after prescale", 32, 0, 32);
-  m_h_ctpTAV = book1S(m_path + "/Trigger", "TAVs_Fired", "MBTS Triggers after veto", 32, 0, 32);
-  m_h_ctpPITwin = book1S(m_path + "/Trigger", "PITs_FiredWin", "MBTS Trigger Inputs fired in BC window", 32, 0, 32);
-  m_h_ctpTBPwin = book1S(m_path + "/Trigger", "TBPs_FiredWin", "MBTS Triggers before prescale in BC window", 32, 0, 32);
-  m_h_ctpTAPwin = book1S(m_path + "/Trigger", "TAPs_FiredWin", "MBTS Triggers after prescale in BC window", 32, 0, 32);
-  m_h_ctpTAVwin = book1S(m_path + "/Trigger", "TAVs_FiredWin", "MBTS Triggers after veto in BC window", 32, 0, 32);
-  m_h_sumPIT = book1S(m_path + "/Trigger", "PITs_Sum", "Sum of MBTS Trigger Inputs fired", 6, 0, 6);
-  m_h_sumTBP = book1S(m_path + "/Trigger", "TBPs_Sum", "Sum of MBTS Trigger before prescale", 6, 0, 6);
-  m_h_sumTAP = book1S(m_path + "/Trigger", "TAPs_Sum", "Sum of MBTS Trigger after prescale", 6, 0, 6);
-  m_h_sumTAV = book1S(m_path + "/Trigger", "TAVs_Sum", "Sum of MBTS Trigger after veto", 6, 0, 6);
-  m_h_coinPIT = book2S(m_path + "/Trigger", "CoinPIT", "Coincident PITs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTBP = book2S(m_path + "/Trigger", "CoinTBP", "Coincident TBPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTAP = book2S(m_path + "/Trigger", "CoinTAP", "Coincident TAPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTAV = book2S(m_path + "/Trigger", "CoinTAV", "Coincident TAVs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_bcidPITsum = bookProfile(m_path + "/Trigger", "DeltaBcidPITsummary", "BCID difference of PIT from Event BCID", 32, 0, 32);
-  m_h_bcidTBPsum = bookProfile(m_path + "/Trigger", "DeltaBcidTBPsummary", "BCID difference of TBP from Event BCID", 32, 0, 32);
-  m_h_bcidTAPsum = bookProfile(m_path + "/Trigger", "DeltaBcidTAPsummary", "BCID difference of TAP from Event BCID", 32, 0, 32);
-  m_h_bcidTAVsum = bookProfile(m_path + "/Trigger", "DeltaBcidTAVsummary", "BCID difference of TAV from Event BCID", 32, 0, 32);
-  m_h_multiMapPITA = book2S(m_path + "/Trigger", "MultiMapPITA", "MBTS A-side multiplicities", 16, 0, 16, 16, 0, 16);
-  m_h_multiMapPITC = book2S(m_path + "/Trigger", "MultiMapPITC", "MBTS C-side multiplicities", 16, 0, 16, 16, 0, 16);
-  m_h_multiPerSide = book2S(m_path + "/Trigger", "MultiPerSide", "MBTS multiplicities per side", 16, 0, 16, 16, 0, 16);
-  m_h_bcidTriggerA = bookProfile(m_path + "/Trigger", "BCIDTriggerA", "Average number of MBTS triggers on A side as a function of BCID", 3565, 0, 3565);
-  m_h_bcidTriggerC = bookProfile(m_path + "/Trigger", "BCIDTriggerC", "Average number of MBTS triggers on C side as a function of BCID", 3565, 0, 3565);
+  m_h_ctpPIT = book1S("Trigger", "PITs_Fired", "MBTS Trigger Inputs fired", 32, 0, 32);
+  m_h_ctpTBP = book1S("Trigger", "TBPs_Fired", "MBTS Triggers before prescale", 32, 0, 32);
+  m_h_ctpTAP = book1S("Trigger", "TAPs_Fired", "MBTS Triggers after prescale", 32, 0, 32);
+  m_h_ctpTAV = book1S("Trigger", "TAVs_Fired", "MBTS Triggers after veto", 32, 0, 32);
+  m_h_ctpPITwin = book1S("Trigger", "PITs_FiredWin", "MBTS Trigger Inputs fired in BC window", 32, 0, 32);
+  m_h_ctpTBPwin = book1S("Trigger", "TBPs_FiredWin", "MBTS Triggers before prescale in BC window", 32, 0, 32);
+  m_h_ctpTAPwin = book1S("Trigger", "TAPs_FiredWin", "MBTS Triggers after prescale in BC window", 32, 0, 32);
+  m_h_ctpTAVwin = book1S("Trigger", "TAVs_FiredWin", "MBTS Triggers after veto in BC window", 32, 0, 32);
+  m_h_sumPIT = book1S("Trigger", "PITs_Sum", "Sum of MBTS Trigger Inputs fired", 6, 0, 6);
+  m_h_sumTBP = book1S("Trigger", "TBPs_Sum", "Sum of MBTS Trigger before prescale", 6, 0, 6);
+  m_h_sumTAP = book1S("Trigger", "TAPs_Sum", "Sum of MBTS Trigger after prescale", 6, 0, 6);
+  m_h_sumTAV = book1S("Trigger", "TAVs_Sum", "Sum of MBTS Trigger after veto", 6, 0, 6);
+  m_h_coinPIT = book2S("Trigger", "CoinPIT", "Coincident PITs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  m_h_coinTBP = book2S("Trigger", "CoinTBP", "Coincident TBPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  m_h_coinTAP = book2S("Trigger", "CoinTAP", "Coincident TAPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  m_h_coinTAV = book2S("Trigger", "CoinTAV", "Coincident TAVs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  m_h_bcidPITsum = bookProfile("Trigger", "DeltaBcidPITsummary", "BCID difference of PIT from Event BCID", 32, 0, 32);
+  m_h_bcidTBPsum = bookProfile("Trigger", "DeltaBcidTBPsummary", "BCID difference of TBP from Event BCID", 32, 0, 32);
+  m_h_bcidTAPsum = bookProfile("Trigger", "DeltaBcidTAPsummary", "BCID difference of TAP from Event BCID", 32, 0, 32);
+  m_h_bcidTAVsum = bookProfile("Trigger", "DeltaBcidTAVsummary", "BCID difference of TAV from Event BCID", 32, 0, 32);
+  m_h_multiMapPITA = book2S("Trigger", "MultiMapPITA", "MBTS A-side multiplicities", 16, 0, 16, 16, 0, 16);
+  m_h_multiMapPITC = book2S("Trigger", "MultiMapPITC", "MBTS C-side multiplicities", 16, 0, 16, 16, 0, 16);
+  m_h_multiPerSide = book2S("Trigger", "MultiPerSide", "MBTS multiplicities per side", 16, 0, 16, 16, 0, 16);
+  m_h_bcidTriggerA = bookProfile("Trigger", "BCIDTriggerA", "Average number of MBTS triggers on A side as a function of BCID", 3565, 0, 3565);
+  m_h_bcidTriggerC = bookProfile("Trigger", "BCIDTriggerC", "Average number of MBTS triggers on C side as a function of BCID", 3565, 0, 3565);
   // Cell
-  m_h_occupancy = book1F(m_path + "/Cell", "Occupancy", "MBTS Occupancy", 32, 0, 32);
-  m_h_sumEnergy = bookProfile(m_path + "/Cell", "SummaryEnergy", "Average MBTS Energy", 32, 0, 32);
-  m_h_sumEnergy_wTBP = bookProfile(m_path + "/Cell", "SummaryEnergy_wTBP", "Average MBTS Energy with Trigger", 32, 0, 32);
-  m_h_sumTime = bookProfile(m_path + "/Cell", "SummaryTime", "Average MBTS Time (Energy above threshold)", 32, 0, 32);
-  m_h_timeDiff = book1F(m_path + "/Cell", "TimeDiff_A-C", "Time Difference between MBTS on A and C side", 151, -75, 75);
-  m_h_timeDiffLumi = book2F(m_path + "/Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 1500, -0.5, 1499.5, 151, -75, 75);
-  m_h_coinEnergyHits = book2S(m_path + "/Cell", "CoinEnergyHits", "Coincident Hits(energy) between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  //m_h_corrEnergy     = book2F(m_path+"/Cell","EnergyCorr","Energy Correlation between two MBTS counters",32,0,32,32,0,32);
-  //m_h_corrEnergyTot  = book2F(m_path+"/Cell","EnergyCorrTot","Energy Correlation between two MBTS Areas",6,0,6,6,0,6);
-  m_h_bcidEnergyA = bookProfile(m_path + "/Cell", "BCIDEnergyA", "Average MBTS Energy of entire A side as a function of BCID", 3565, 0, 3565);
-  m_h_bcidEnergyC = bookProfile(m_path + "/Cell", "BCIDEnergyC", "Average MBTS Energy of entire C side as a function of BCID", 3565, 0, 3565);
+  m_h_occupancy = book1F("Cell", "Occupancy", "MBTS Occupancy", 32, 0, 32);
+  m_h_sumEnergy = bookProfile("Cell", "SummaryEnergy", "Average MBTS Energy", 32, 0, 32);
+  m_h_sumEnergy_wTBP = bookProfile("Cell", "SummaryEnergy_wTBP", "Average MBTS Energy with Trigger", 32, 0, 32);
+  m_h_sumTime = bookProfile("Cell", "SummaryTime", "Average MBTS Time (Energy above threshold)", 32, 0, 32);
+  m_h_timeDiff = book1F("Cell", "TimeDiff_A-C", "Time Difference between MBTS on A and C side", 151, -75, 75);
+  m_h_timeDiffLumi = book2F("Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 1500, -0.5, 1499.5, 151, -75, 75);
+  m_h_coinEnergyHits = book2S("Cell", "CoinEnergyHits", "Coincident Hits(energy) between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  //m_h_corrEnergy     = book2F("Cell","EnergyCorr","Energy Correlation between two MBTS counters",32,0,32,32,0,32);
+  //m_h_corrEnergyTot  = book2F("Cell","EnergyCorrTot","Energy Correlation between two MBTS Areas",6,0,6,6,0,6);
+  m_h_bcidEnergyA = bookProfile("Cell", "BCIDEnergyA", "Average MBTS Energy of entire A side as a function of BCID", 3565, 0, 3565);
+  m_h_bcidEnergyC = bookProfile("Cell", "BCIDEnergyC", "Average MBTS Energy of entire C side as a function of BCID", 3565, 0, 3565);
   // Digit
-  m_h_sumPed = book2F(m_path + "/Digit", "SummaryPed", "Avg Pedestal for MBTS channels", 32, 0, 32, 100, 20, 120);
-  m_h_sumHFNoise = book2F(m_path + "/Digit", "SummaryHFNoise", "Avg High Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
-  m_h_sumLFNoise = book2F(m_path + "/Digit", "SummaryLFNoise", "Avg Low Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
+  m_h_sumPed = book2F("Digit", "SummaryPed", "Avg Pedestal for MBTS channels", 32, 0, 32, 100, 20, 120);
+  m_h_sumHFNoise = book2F("Digit", "SummaryHFNoise", "Avg High Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
+  m_h_sumLFNoise = book2F("Digit", "SummaryLFNoise", "Avg Low Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
   // Error
-  m_h_tileRdOutErr = book2S(m_path + "/Digit", "ReadOutErrors", "Tile Readout Errors for MBTS counters", 32, 0, 32, 10, 0, 10);
+  m_h_tileRdOutErr = book2S("Digit", "ReadOutErrors", "Tile Readout Errors for MBTS counters", 32, 0, 32, 10, 0, 10);
 
   return StatusCode::SUCCESS;
 }
@@ -468,171 +469,180 @@ StatusCode TileMBTSMonTool::fillHistograms() {
 	
 	
 	
-	//=======================================================================
-	// CTP Information
-	//=======================================================================
+  //=======================================================================
+  // CTP Information
+  //=======================================================================
+  
+  unsigned int l1aBCID(0);
 
-  const DataHandle<CTP_RDO> theCTP_RDO = 0;
-  CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
+  if (m_useTrigger) {
 
-	CTP_Decoder ctp;
-	ctp.setRDO(theCTP_RDO);
-	uint32_t numberBC = theCTP_RDO->getNumberOfBunches();
-	unsigned int l1aBCID(0);
+    uint32_t numberBC(0);
+    CTP_Decoder ctp;
+    CTP_RDO* theCTP_RDO = evtStore()->tryRetrieve<CTP_RDO>();
 
-  if (numberBC > 0) {
-    short l1aBunch = theCTP_RDO->getL1AcceptBunchPosition();
-    const std::vector<CTP_BC> &BCs = ctp.getBunchCrossings();
-    const CTP_BC & bunch = BCs[l1aBunch];
-    l1aBCID = bunch.getBCID();
-    //std::cout << "Number of Bunches in CTP window: " << numberBC << std::endl;
-    //std::cout << "Level 1 Accept Bunch: " << l1aBunch << std::endl;
-    //std::cout << "Level 1 Accept BCID: "  << l1aBCID << std::endl;
-    unsigned int bcid;
-    int deltaBCID;
-    // Loop over bunch crossings in CTP window
-    for (std::vector<CTP_BC>::const_iterator it = BCs.begin(); it != BCs.end(); ++it) {
+    if (theCTP_RDO) {
+      ctp.setRDO(theCTP_RDO);
+      numberBC = theCTP_RDO->getNumberOfBunches();
+    } else {
+      ATH_MSG_WARNING("No CTP_RDO is available! No trigger specific information will be used!");
+      m_useTrigger = false;
+    }
+ 
+    if (numberBC > 0) {
+      short l1aBunch = theCTP_RDO->getL1AcceptBunchPosition();
+      const std::vector<CTP_BC> &BCs = ctp.getBunchCrossings();
+      const CTP_BC & bunch = BCs[l1aBunch];
+      l1aBCID = bunch.getBCID();
+      //std::cout << "Number of Bunches in CTP window: " << numberBC << std::endl;
+      //std::cout << "Level 1 Accept Bunch: " << l1aBunch << std::endl;
+      //std::cout << "Level 1 Accept BCID: "  << l1aBCID << std::endl;
+      unsigned int bcid;
+      int deltaBCID;
+      // Loop over bunch crossings in CTP window
+      for (std::vector<CTP_BC>::const_iterator it = BCs.begin(); it != BCs.end(); ++it) {
 
-      bcid = it->getBCID();
-      deltaBCID = l1aBCID - bcid;
-      int PITmultiA = 0;
-      int PITmultiC = 0; // for counting multiplicity from counter bits
-      int TBPmultiA = 0;
-      int TBPmultiC = 0;
-      const std::bitset<160> currentPIT(it->getPIT());
-      for (size_t p = 0; p < m_pitID.size(); ++p) {
-        if (m_pitID[p] == 0) continue;
-        if (currentPIT.test(m_pitID[p])) {
-          m_h_bcidPIT[p]->Fill(deltaBCID, 1);
-          m_h_bcidPITsum->Fill(p, deltaBCID);
-          m_h_ctpPITwin->Fill(p, 1);
-          if (bcid == l1aBCID) {
-            m_h_ctpPIT->Fill(p, 1);
-            m_hasPIT[p] = true;
-            // Fill Sum histogram
-            if (p < 16)   {//Side A
-
-              m_h_sumPIT->Fill(2, 1);
-              PITmultiA++;
-              if (m_isInner[p] == 1) m_h_sumPIT->Fill(0., 1);
-              else m_h_sumPIT->Fill(1, 1);
-            } else {//Side C
-
-              m_h_sumPIT->Fill(5, 1);
-              PITmultiC++;
-              if (m_isInner[p] == 1) m_h_sumPIT->Fill(3, 1);
-              else m_h_sumPIT->Fill(4, 1);
-            }
-          }
-        }
-
-        if (bcid == l1aBCID) {
-          // Check MBTSmultiplicity bits (only in PIT right now)
-          int PITmultiA_ctp = 0;
-          int PITmultiC_ctp = 0;
-          if (currentPIT.test(m_pitMultBitsA[0])) PITmultiA_ctp += 1;
-          if (currentPIT.test(m_pitMultBitsA[1])) PITmultiA_ctp += 2;
-          if (currentPIT.test(m_pitMultBitsA[2])) PITmultiA_ctp += 4;
-          if (currentPIT.test(m_pitMultBitsC[0])) PITmultiC_ctp += 1;
-          if (currentPIT.test(m_pitMultBitsC[1])) PITmultiC_ctp += 2;
-          if (currentPIT.test(m_pitMultBitsC[2])) PITmultiC_ctp += 4;
-          m_h_multiMapPITA->Fill(PITmultiA, PITmultiA_ctp);
-          m_h_multiMapPITC->Fill(PITmultiA, PITmultiC_ctp);
-        }
-      }
-
-      const std::bitset<256> currentTBP(it->getTBP());
-      for (size_t p = 0; p < m_ctpID.size(); ++p) {
-        if (m_ctpID[p] == 0) continue;
-        if (currentTBP.test(m_ctpID[p])) {
-          m_h_bcidTBP[p]->Fill(deltaBCID, 1);
-          m_h_bcidTBPsum->Fill(p, deltaBCID);
-          m_h_ctpTBPwin->Fill(p, 1);
-          if (bcid == l1aBCID) {
-            m_h_ctpTBP->Fill(p, 1);
-            m_hasTBP[p] = true;
-            // Fill Sum histogram
-            if (p < 16) {//Side A
-
-              TBPmultiA++;
-              m_h_sumTBP->Fill(2, 1);
-              if (m_isInner[p] == 1) m_h_sumTBP->Fill(0., 1);
-              else m_h_sumTBP->Fill(1, 1);
-            } else {//Side C
-
-              TBPmultiC++;
-              m_h_sumTBP->Fill(5, 1);
-              if (m_isInner[p] == 1) m_h_sumTBP->Fill(3, 1);
-              else m_h_sumTBP->Fill(4, 1);
-            }
-          }
-        }
-      }
-
-      if (bcid == l1aBCID) {
-        m_h_bcidTriggerA->Fill(l1aBCID, TBPmultiA);
-        m_h_bcidTriggerC->Fill(l1aBCID, TBPmultiC);
-        m_h_multiPerSide->Fill(TBPmultiA, TBPmultiC);
-      }
-
-      const std::bitset<256> currentTAP(it->getTAP());
-      for (size_t p = 0; p < m_ctpID.size(); ++p) {
-        if (m_ctpID[p] == 0) continue;
-        if (currentTAP.test(m_ctpID[p])) {
-          m_h_bcidTAP[p]->Fill(deltaBCID, 1);
-          m_h_bcidTAPsum->Fill(p, deltaBCID);
-          m_h_ctpTAPwin->Fill(p, 1);
-          if (bcid == l1aBCID) {
-            m_h_ctpTAP->Fill(p, 1);
-            m_hasTAP[p] = true;
-            // Fill Sum histogram
-            if (p < 16) {//Side A
-
-              m_h_sumTAP->Fill(2, 1);
-              if (m_isInner[p] == 1) m_h_sumTAP->Fill(0., 1);
-              else m_h_sumTAP->Fill(1, 1);
-            } else {//Side C
-
-              m_h_sumTAP->Fill(5, 1);
-              if (m_isInner[p] == 1) m_h_sumTAP->Fill(3, 1);
-              else m_h_sumTAP->Fill(4, 1);
-            }
-          }
-        }
-      }
-
-      const std::bitset<256> currentTAV(it->getTAV());
-      for (size_t p = 0; p < m_ctpID.size(); ++p) {
-        if (m_ctpID[p] == 0) continue;
-        if (currentTAV.test(m_ctpID[p])) {
-          m_h_bcidTAV[p]->Fill(deltaBCID, 1);
-          m_h_bcidTAVsum->Fill(p, deltaBCID);
-          m_h_ctpTAVwin->Fill(p, 1);
-          if (bcid == l1aBCID) {
-            m_h_ctpTAV->Fill(p, 1);
-            m_hasTAV[p] = true;
-            // Fill Sum histogram
-            if (p < 16) {//Side A
-
-              m_h_sumTAV->Fill(2, 1);
-              if (m_isInner[p] == 1) m_h_sumTAV->Fill(0., 1);
-              else m_h_sumTAV->Fill(1, 1);
-            } else {//Side C
-
-              m_h_sumTAV->Fill(5, 1);
-              if (m_isInner[p] == 1) m_h_sumTAV->Fill(3, 1);
-              else m_h_sumTAV->Fill(4, 1);
-            }
-          }
-        }
-      }
-    } // end BC loop
+	bcid = it->getBCID();
+	deltaBCID = l1aBCID - bcid;
+	int PITmultiA = 0;
+	int PITmultiC = 0; // for counting multiplicity from counter bits
+	int TBPmultiA = 0;
+	int TBPmultiC = 0;
+	const std::bitset<512> currentPIT(it->getTIP());
+	for (size_t p = 0; p < m_pitID.size(); ++p) {
+	  if (m_pitID[p] == 0) continue;
+	  if (currentPIT.test(m_pitID[p])) {
+	    m_h_bcidPIT[p]->Fill(deltaBCID, 1);
+	    m_h_bcidPITsum->Fill(p, deltaBCID);
+	    m_h_ctpPITwin->Fill(p, 1);
+	    if (bcid == l1aBCID) {
+	      m_h_ctpPIT->Fill(p, 1);
+	      m_hasPIT[p] = true;
+	      // Fill Sum histogram
+	      if (p < 16)   {//Side A
+		
+		m_h_sumPIT->Fill(2, 1);
+		PITmultiA++;
+		if (m_isInner[p] == 1) m_h_sumPIT->Fill(0., 1);
+		else m_h_sumPIT->Fill(1, 1);
+	      } else {//Side C
+		
+		m_h_sumPIT->Fill(5, 1);
+		PITmultiC++;
+		if (m_isInner[p] == 1) m_h_sumPIT->Fill(3, 1);
+		else m_h_sumPIT->Fill(4, 1);
+	      }
+	    }
+	  }
+	  
+	  if (bcid == l1aBCID) {
+	    // Check MBTSmultiplicity bits (only in PIT right now)
+	    int PITmultiA_ctp = 0;
+	    int PITmultiC_ctp = 0;
+	    if (currentPIT.test(m_pitMultBitsA[0])) PITmultiA_ctp += 1;
+	    if (currentPIT.test(m_pitMultBitsA[1])) PITmultiA_ctp += 2;
+	    if (currentPIT.test(m_pitMultBitsA[2])) PITmultiA_ctp += 4;
+	    if (currentPIT.test(m_pitMultBitsC[0])) PITmultiC_ctp += 1;
+	    if (currentPIT.test(m_pitMultBitsC[1])) PITmultiC_ctp += 2;
+	    if (currentPIT.test(m_pitMultBitsC[2])) PITmultiC_ctp += 4;
+	    m_h_multiMapPITA->Fill(PITmultiA, PITmultiA_ctp);
+	    m_h_multiMapPITC->Fill(PITmultiA, PITmultiC_ctp);
+	  }
+	}
+	
+	const std::bitset<512> currentTBP(it->getTBP());
+	for (size_t p = 0; p < m_ctpID.size(); ++p) {
+	  if (m_ctpID[p] == 0) continue;
+	  if (currentTBP.test(m_ctpID[p])) {
+	    m_h_bcidTBP[p]->Fill(deltaBCID, 1);
+	    m_h_bcidTBPsum->Fill(p, deltaBCID);
+	    m_h_ctpTBPwin->Fill(p, 1);
+	    if (bcid == l1aBCID) {
+	      m_h_ctpTBP->Fill(p, 1);
+	      m_hasTBP[p] = true;
+	      // Fill Sum histogram
+	      if (p < 16) {//Side A
+		
+		TBPmultiA++;
+		m_h_sumTBP->Fill(2, 1);
+		if (m_isInner[p] == 1) m_h_sumTBP->Fill(0., 1);
+		else m_h_sumTBP->Fill(1, 1);
+	      } else {//Side C
+		
+		TBPmultiC++;
+		m_h_sumTBP->Fill(5, 1);
+		if (m_isInner[p] == 1) m_h_sumTBP->Fill(3, 1);
+		else m_h_sumTBP->Fill(4, 1);
+	      }
+	    }
+	  }
+	}
+	
+	if (bcid == l1aBCID) {
+	  m_h_bcidTriggerA->Fill(l1aBCID, TBPmultiA);
+	  m_h_bcidTriggerC->Fill(l1aBCID, TBPmultiC);
+	  m_h_multiPerSide->Fill(TBPmultiA, TBPmultiC);
+	}
+	
+	const std::bitset<512> currentTAP(it->getTAP());
+	for (size_t p = 0; p < m_ctpID.size(); ++p) {
+	  if (m_ctpID[p] == 0) continue;
+	  if (currentTAP.test(m_ctpID[p])) {
+	    m_h_bcidTAP[p]->Fill(deltaBCID, 1);
+	    m_h_bcidTAPsum->Fill(p, deltaBCID);
+	    m_h_ctpTAPwin->Fill(p, 1);
+	    if (bcid == l1aBCID) {
+	      m_h_ctpTAP->Fill(p, 1);
+	      m_hasTAP[p] = true;
+	      // Fill Sum histogram
+	      if (p < 16) {//Side A
+		
+		m_h_sumTAP->Fill(2, 1);
+		if (m_isInner[p] == 1) m_h_sumTAP->Fill(0., 1);
+		else m_h_sumTAP->Fill(1, 1);
+	      } else {//Side C
+		
+		m_h_sumTAP->Fill(5, 1);
+		if (m_isInner[p] == 1) m_h_sumTAP->Fill(3, 1);
+		else m_h_sumTAP->Fill(4, 1);
+	      }
+	    }
+	  }
+	}
+	
+	const std::bitset<512> currentTAV(it->getTAV());
+	for (size_t p = 0; p < m_ctpID.size(); ++p) {
+	  if (m_ctpID[p] == 0) continue;
+	  if (currentTAV.test(m_ctpID[p])) {
+	    m_h_bcidTAV[p]->Fill(deltaBCID, 1);
+	    m_h_bcidTAVsum->Fill(p, deltaBCID);
+	    m_h_ctpTAVwin->Fill(p, 1);
+	    if (bcid == l1aBCID) {
+	      m_h_ctpTAV->Fill(p, 1);
+	      m_hasTAV[p] = true;
+	      // Fill Sum histogram
+	      if (p < 16) {//Side A
+		
+		m_h_sumTAV->Fill(2, 1);
+		if (m_isInner[p] == 1) m_h_sumTAV->Fill(0., 1);
+		else m_h_sumTAV->Fill(1, 1);
+	      } else {//Side C
+		
+		m_h_sumTAV->Fill(5, 1);
+		if (m_isInner[p] == 1) m_h_sumTAV->Fill(3, 1);
+		else m_h_sumTAV->Fill(4, 1);
+	      }
+	    }
+	  }
+	}
+      } // end BC loop
+    }
   }
 
-	//==============================================================================
-	// CELL LEVEL INFORMATION
-	//==============================================================================
-	//Retrieve MBTS container collection from SG
+  //==============================================================================
+  // CELL LEVEL INFORMATION
+  //==============================================================================
+  //Retrieve MBTS container collection from SG
   const TileCellContainer* theMBTScontainer;
   CHECK(evtStore()->retrieve(theMBTScontainer, m_MBTSCellContainerID));
   ATH_MSG_VERBOSE( "Retrieval of MBTS container " << m_MBTSCellContainerID << " succeeded" );
@@ -717,8 +727,11 @@ StatusCode TileMBTSMonTool::fillHistograms() {
     m_h_timeDiff->Fill(tdiff, 1.0);
     m_h_timeDiffLumi->Fill(LB, tdiff);
   }
-  m_h_bcidEnergyA->Fill(l1aBCID, bcidEnergyA);
-  m_h_bcidEnergyC->Fill(l1aBCID, bcidEnergyC);
+
+  if (m_useTrigger) {
+    m_h_bcidEnergyA->Fill(l1aBCID, bcidEnergyA);
+    m_h_bcidEnergyC->Fill(l1aBCID, bcidEnergyC);
+  }
 
   //=======================================================================
   // Digits Level Information

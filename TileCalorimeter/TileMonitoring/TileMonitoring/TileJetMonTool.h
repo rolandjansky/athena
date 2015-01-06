@@ -2,32 +2,32 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// ********************************************************************
+//
+// NAME:     TileJetMonTool.h
+// PACKAGE:  TileMonitoring
+//
+// AUTHOR:   Tomas Davidek (Tomas.Davidek@cern.ch)
+//	     
+//
+// ********************************************************************
 #ifndef TILEMONITORING_TILEJETMONTOOL_H
 #define TILEMONITORING_TILEJETMONTOOL_H
-
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-
-#include "TH2F.h"
-//#include "TProfile.h"
-#include <iostream>
-#include <string>
-#include <vector>
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
 class ITileBadChanTool;
 class Jet;
-class TileID;
-class TileHWID;
-class TileCablingService;
-class ITHistSvc;
 
 // Define flags & constants not defined anywhere else
 #define FLAG_OF2 0x2   // OF2 has been applied
 #define NPART 4 // number of Tilecal partitions
 #define NMOD 64 // number of Tilecal modules per partition
 #define NPMT 48 // number of Tilecal channels in a module
+
+/** @class TileJetMonTool
+ *  @brief Class for Tile Jet based monitoring
+ */
 
 class TileJetMonTool: public TileFatherMonTool {
   private:
@@ -38,8 +38,6 @@ class TileJetMonTool: public TileFatherMonTool {
     float m_energyChanMin;
     float m_energyChanMax;
 
-    std::string m_path;
-    std::string m_stem;
     std::string m_name;
 
     std::string m_partname[NPART];
@@ -65,7 +63,7 @@ class TileJetMonTool: public TileFatherMonTool {
     void clearTimeHistograms();
     StatusCode fillTimeHistograms(const Jet& jet, uint32_t LumiBlock);
 
-    bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, long qbit, float energy);
+    bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, float energy);
     bool isGoodJet(const Jet &jet);
 
     /* copy & paste from JetD3PDMaker/src/JetCaloUtilsFillerTool.h. It is defined
@@ -80,4 +78,4 @@ class TileJetMonTool: public TileFatherMonTool {
 
 };
 
-#endif /* TILEMONITORING_TILEJETMONTOOL_H */
+#endif

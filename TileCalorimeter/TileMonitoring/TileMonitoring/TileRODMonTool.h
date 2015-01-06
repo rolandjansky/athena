@@ -9,18 +9,15 @@
 //
 // AUTHORS:  Michael Miller (Michael.Earl.Miller@cern.ch)
 //	     Luca Fiorini   (Luca.Fiorini@cern.ch)
+//
 // ********************************************************************
-
 #ifndef TILERODMONTOOL_H
 #define TILERODMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-#include <vector>
-#include <string>
-
-class TileCondToolEmscale;
 class ITileBadChanTool;
+class TileCondToolEmscale;
 class TileBeamInfoProvider;
 
 /** @class TileRODMonTool
@@ -115,5 +112,5 @@ class TileRODMonTool: public TileFatherMonTool {
     }
 
 };
-#endif
 
+#endif

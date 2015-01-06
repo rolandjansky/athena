@@ -12,16 +12,15 @@
 //
 // ********************************************************************
 
-#include "AthenaKernel/errorcheck.h"
-
 #include "TileMonitoring/TileDQFragMonTool.h"
-#include "TileEvent/TileRawChannelContainer.h"
+
+#include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileDCSSvc.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileRawChannelContainer.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileConditions/TileDCSSvc.h"
 
 #include "TH2I.h"
 #include "TProfile.h"
@@ -63,8 +62,8 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   declareProperty("doOnline",m_doOnline = false); // online mode
   declareProperty("CheckDCS",m_checkDCS = false);
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
-  m_path = "Tile/DQFrag"; //ROOT file directory
-  
+
+  m_path = "/Tile/DMUErrors";
   // starting up the label variable....
   m_ErrorsLabels.clear();
   m_ErrorsLabels.push_back("OK");                 // Error: 0
@@ -114,7 +113,6 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_UpdateCount_shadow[9] = 0;
   m_Update      = 50; // default..
 
-  errorDir = "/Tile/DMUErrors";
   
 
 #if 0
@@ -245,7 +243,7 @@ htitle= hist->GetTitle();
 //deregHist(hist);
 //delete hist;
 //(m_manager->m_objMap).erase(hname);
-hist = book2I(errorDir,hname,htitle,16,0.0,16.0,11,0.0,11.0);
+hist = book2I("",hname,htitle,16,0.0,16.0,11,0.0,11.0);
 SetBinLabel(hist->GetYaxis(),m_ErrorsLabels);
 log << MSG::INFO << "after SETBINLABEL" << endreq;
 
@@ -289,18 +287,17 @@ void TileDQFragMonTool::bookFirstHist(  )
   globalTitle.push_back("Run "+runNumStr+": Global Error Top [1,32]");
   globalTitle.push_back("Run "+runNumStr+": Global Error Bottom[33,64]");
     
-  std::string globalDir = m_stem + "/DMUErrors";
-  hist_global[0] = book2I(globalDir,globalName[0],globalTitle[0],32,0.5,32.5,4,0.,4.);
+  hist_global[0] = book2I("",globalName[0],globalTitle[0],32,0.5,32.5,4,0.,4.);
   hist_global[0]->GetXaxis()->SetTitle("Drawer");
   SetBinLabel(hist_global[0]->GetYaxis(),m_PartitionsLabels);
     
   // The Second Global Histogram
-  hist_global[1] = book2I(globalDir,globalName[1],globalTitle[1],32,32.5,64.5,4,0.,4);
+  hist_global[1] = book2I("",globalName[1],globalTitle[1],32,32.5,64.5,4,0.,4);
   SetBinLabel(hist_global[1]->GetYaxis(),m_PartitionsLabels);
   hist_global[1]->GetXaxis()->SetTitle("Drawer");
 
   // Histograms of bad drawers
-  std::string badDrawersDir = m_stem + "/DMUErrors/BadDrawers";
+  std::string badDrawersDir = "BadDrawers";
   //if (m_contNameDSP.size() > 0) {
     //hist_BadDrawerBCID = book1I(badDrawersDir, "TileBadDrawersBcid", "# of drawers with BCID errors in all MB", 256, 0.5, 256.5);
     //hist_BadDrawerBCID -> GetXaxis()->SetTitle("# modules with BCID errors in all MB");
@@ -460,7 +457,7 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
   histlbName = "FracTileDigiErrors"+moduleName;
  
    
-  hist_error[ros][drawer] = book2I(errorDir,histName.c_str(), histTitle.c_str(),16,0.0,16.0,NERR + NCORRUPTED,0.,NERR + NCORRUPTED);
+  hist_error[ros][drawer] = book2I("",histName.c_str(), histTitle.c_str(),16,0.0,16.0,NERR + NCORRUPTED,0.,NERR + NCORRUPTED);
   if (m_doOnline) { // create "shadow" histograms for last 10 LB
     for (int i = 0; i < 10; i++)
       hist_error_shadow[ros][drawer][i] = new TH2I(*hist_error[ros][drawer]);
@@ -470,13 +467,13 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
 
   if (m_doOnline)
   {
-    hist_error_lb[ros][drawer] = bookProfile(errorDir, histlbName.c_str(), histlbTitle.c_str(),
+    hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(),
       100, -99.5, 0.5, -1.1, 1.1);
     hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("Last LumiBlocks");
   }
   else
   {
-    hist_error_lb[ros][drawer] = bookProfile(errorDir, histlbName.c_str(), histlbTitle.c_str(),
+    hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(),
       1500, -0.5, 1499.5, -1.1, 1.1);
     hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("LumiBlock");
   }
@@ -486,7 +483,7 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
 
     //histTitle =  "Run "+runNumStr+": "+m_PartitionsLabels[ros]+" number of events with NOT MASKED Digital Errors ";
     //histName = m_PartitionsLabels[ros]+ "summaryOfErrors";
-    //hist_summary[ros] = book1I(errorDir,histName.c_str(), histTitle.c_str(),64,0.5,64.5);
+    //hist_summary[ros] = book1I("",histName.c_str(), histTitle.c_str(),64,0.5,64.5);
     //hist_summary[ros]->GetXaxis()->SetTitle("Drawer");
     //hist_summary[ros]->GetYaxis()->SetTitle("Number of Events with not masked DigErr");
  // }

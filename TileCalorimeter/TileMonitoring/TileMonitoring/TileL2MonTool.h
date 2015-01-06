@@ -16,11 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-#include <string>
-#include <vector>
-
 /** @class TileL2MonTool
- *  @brief Class for TileMuid based monitoring
+ *  @brief Class for TileL2 based monitoring
  */
 
 class TileL2MonTool: public TileFatherMonTool {

@@ -9,15 +9,18 @@
 //
 // AUTHORS:   Christophe Clement
 //
+//
 // ********************************************************************
 #ifndef TILECELLNOISEMONTOOL_H
 #define TILECELLNOISEMONTOOL_H
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
-class TProfile;
-class TProfile2D;
 class ITileBadChanTool;
+
+/** @class TileCellNoiseMonTool
+ *  @brief Class for TileCal noise monitoring at cell level
+ */
 
 class TileCellNoiseMonTool: public TileFatherMonTool {
 
@@ -56,7 +59,6 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
     int32_t m_old_lumiblock;
     int32_t m_delta_lumiblock;
     std::string m_cellsContName;
-    std::string m_cellnoise_histo_path;
 
     bool m_isFirstEv;
 
@@ -86,4 +88,3 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
 };
 
 #endif
-

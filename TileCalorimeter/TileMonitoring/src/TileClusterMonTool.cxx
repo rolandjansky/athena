@@ -12,22 +12,19 @@
 //
 // ********************************************************************
 
-#include "AthenaKernel/errorcheck.h"
-
 #include "TileMonitoring/TileClusterMonTool.h"
+
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
 #include <cmath>
+
 
 /*---------------------------------------------------------*/
 TileClusterMonTool::TileClusterMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -40,7 +37,7 @@ TileClusterMonTool::TileClusterMonTool(const std::string & type, const std::stri
   declareProperty("energyThreshold",m_Threshold = 500.); //Threshold in MeV
   declareProperty("clustersContainerName",m_clustersContName="TileTopoCluster"); //SG Cluster Container
 
-  m_path = "Tile/Cluster"; //ROOT File directory. 
+  m_path = "/Tile/Cluster"; //ROOT File directory.
   //Avoid the trailing slash or you will get a double slash in the histogram path: SHIFT//Tile/...
 }
 
@@ -73,59 +70,59 @@ StatusCode TileClusterMonTool::bookHistTrig( int trig ) {
 
   m_TileClusterTrig++; //increment index vector
 
-  m_TilenClusters.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tilenClusters" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Cluster number",50,0., 10., run, ATTRIB_MANAGED, "", "mergeRebinned") );
+  m_TilenClusters.push_back( book1F(m_TrigNames[trig],"tilenClusters" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Cluster number",50,0., 10., run, ATTRIB_MANAGED, "", "mergeRebinned") );
   //m_TilenClusters[ element ]->SetBit(TH1::kCanRebin);
 
-  m_TileClusternCells.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusternCells" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile number of cells in most en. Cluster",100,0., 100., run, ATTRIB_MANAGED, "", "mergeRebinned") );
+  m_TileClusternCells.push_back( book1F(m_TrigNames[trig],"tileClusternCells" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile number of cells in most en. Cluster",100,0., 100., run, ATTRIB_MANAGED, "", "mergeRebinned") );
   //m_TileClusternCells[ element ]->SetBit(TH1::kCanRebin);
 
-  m_TileClusterEt.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterEt" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Et in most en. Cluster (MeV)",80,0., 20000.) );
+  m_TileClusterEt.push_back( book1F(m_TrigNames[trig],"tileClusterEt" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Et in most en. Cluster (MeV)",80,0., 20000.) );
   m_TileClusterEt[ element ]->GetXaxis()->SetTitle("most en. Cluster Et (MeV)");
     
-  m_TileClusterEtaPhi.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileClusterEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Position of most en. Cluster",21,-2.025, 2.025,64,-3.15,3.15) );
+  m_TileClusterEtaPhi.push_back( book2F(m_TrigNames[trig],"tileClusterEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Position of most en. Cluster",21,-2.025, 2.025,64,-3.15,3.15) );
   m_TileClusterEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileClusterEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
 
-  m_TileClusterEneEtaPhi.push_back( bookProfile2D(m_stem+"/"+m_TrigNames[trig],"tileClusterEneEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile clusters average energy deposition versus #eta and #phi ",21,-2.025,2.025,64,-3.15, 3.15,-3.e6,3.e6) );
+  m_TileClusterEneEtaPhi.push_back( bookProfile2D(m_TrigNames[trig],"tileClusterEneEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile clusters average energy deposition versus #eta and #phi ",21,-2.025,2.025,64,-3.15, 3.15,-3.e6,3.e6) );
   m_TileClusterEneEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileClusterEneEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
 
-  m_TileClusterAllEtaPhi.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileClusterAllEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile clusters number versus #eta and #phi ",21,-2.025,2.025,64,-3.15, 3.15) );
+  m_TileClusterAllEtaPhi.push_back( book2F(m_TrigNames[trig],"tileClusterAllEtaPhi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile clusters number versus #eta and #phi ",21,-2.025,2.025,64,-3.15, 3.15) );
   m_TileClusterAllEtaPhi[ element ]->GetXaxis()->SetTitle("#eta");
   m_TileClusterAllEtaPhi[ element ]->GetYaxis()->SetTitle("#phi");
 
-  m_TileClusterEtaPhiDiff.push_back( book2F(m_stem+"/"+m_TrigNames[trig],"tileClusterEtaPhiDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile pos. correlation of Clus. opposite to most en. Cluster",21,-2.025, 2.025,64,0.,6.4) );
+  m_TileClusterEtaPhiDiff.push_back( book2F(m_TrigNames[trig],"tileClusterEtaPhiDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile pos. correlation of Clus. opposite to most en. Cluster",21,-2.025, 2.025,64,0.,6.4) );
   m_TileClusterEtaPhiDiff[ element ]->GetXaxis()->SetTitle("#Delta #eta");
   m_TileClusterEtaPhiDiff[ element ]->GetYaxis()->SetTitle("#Delta #phi");
 
-  m_TileClusterEneDiff.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterEneDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile en. correlation of Clus. opposite to most en. Cluster",200,-10000., 10000.) );
+  m_TileClusterEneDiff.push_back( book1F(m_TrigNames[trig],"tileClusterEneDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile en. correlation of Clus. opposite to most en. Cluster",200,-10000., 10000.) );
   m_TileClusterEneDiff[ element ]->GetXaxis()->SetTitle("Energy diff. (MeV)");  
     
-  m_TileClusterTimeDiff.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterTimeDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile time correlation of Clus. opposite to most en. Cluster",200,-100., 100.) );
+  m_TileClusterTimeDiff.push_back( book1F(m_TrigNames[trig],"tileClusterTimeDiff" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile time correlation of Clus. opposite to most en. Cluster",200,-100., 100.) );
   m_TileClusterTimeDiff[ element ]->GetXaxis()->SetTitle("Time diff. (ns)");  
     
-  m_TileAllClusterEnergy.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileAllClusterEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile All Clusters Energy (MeV)",80,0., 20000.) );
+  m_TileAllClusterEnergy.push_back( book1F(m_TrigNames[trig],"tileAllClusterEnergy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile All Clusters Energy (MeV)",80,0., 20000.) );
   m_TileAllClusterEnergy[ element ]->GetXaxis()->SetTitle("All Clusters Energy (MeV)");
 
-  m_TileClusterEneLumi.push_back( bookProfile(m_stem+"/"+m_TrigNames[trig],"tileClusterEneLumi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Energy of most en. Cluster (MeV) as a function of the LumiBlock",10,0., 20.,-2000.,200000., run, ATTRIB_MANAGED, "", "mergeRebinned") );
+  m_TileClusterEneLumi.push_back( bookProfile(m_TrigNames[trig],"tileClusterEneLumi" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Energy of most en. Cluster (MeV) as a function of the LumiBlock",10,0., 20.,-2000.,200000., run, ATTRIB_MANAGED, "", "mergeRebinned") );
   m_TileClusterEneLumi[ element ]->GetXaxis()->SetTitle("Lumi Block");
   m_TileClusterEneLumi[ element ]->GetYaxis()->SetTitle("Most Energetic cluster Averge Energy (MeV)");
   //m_TileClusterEneLumi[ element ]->SetBit(TH1::kCanRebin);
 
-  m_TileClusterSumEt.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterSumEt" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters SumEt",100,0., 20000.) );
+  m_TileClusterSumEt.push_back( book1F(m_TrigNames[trig],"tileClusterSumEt" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters SumEt",100,0., 20000.) );
   m_TileClusterSumEt[ element ]->GetXaxis()->SetTitle("SumEt (GeV)");
 
-  m_TileClusterSumPx.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterSumPx" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters Px",101,-10000., 10000.) );
+  m_TileClusterSumPx.push_back( book1F(m_TrigNames[trig],"tileClusterSumPx" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters Px",101,-10000., 10000.) );
   m_TileClusterSumPx[ element ]->GetXaxis()->SetTitle("SumPx (GeV)");
 
-  m_TileClusterSumPy.push_back( book1F(m_stem+"/"+m_TrigNames[trig],"tileClusterSumPy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters Py",101,-10000., 10000.) );
+  m_TileClusterSumPy.push_back( book1F(m_TrigNames[trig],"tileClusterSumPy" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Clusters Py",101,-10000., 10000.) );
   m_TileClusterSumPy[ element ]->GetXaxis()->SetTitle("SumPy (GeV)");
 
 
 
   for(int p =  PartEBA; p < NPartHisto; p++) {
 
-    m_TileClusterEnergy[ p ].push_back( book1F(m_stem+"/"+m_TrigNames[trig]+"/"+m_PartNames[p],"tileClusterEnergy" + m_PartNames[p] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Energy in most en. Cluster (MeV)",80,0., 20000.) );
+    m_TileClusterEnergy[ p ].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[p],"tileClusterEnergy" + m_PartNames[p] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Energy in most en. Cluster (MeV)",80,0., 20000.) );
     m_TileClusterEnergy[ p ][ element ]->GetXaxis()->SetTitle("most en. Cluster Energy (MeV)");
   }
 
@@ -142,7 +139,6 @@ StatusCode TileClusterMonTool::bookHistograms()
 /*---------------------------------------------------------*/
 {
   ATH_MSG_INFO( "in bookHistograms()" );
-  ATH_MSG_INFO( "Using base path " << m_stem );
 
   cleanHistVec();
 

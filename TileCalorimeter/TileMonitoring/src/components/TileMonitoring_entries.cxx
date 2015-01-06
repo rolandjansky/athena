@@ -1,5 +1,6 @@
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TileMonitoring/TilePaterMonTool.h"
+#include "TileMonitoring/TileFatherMonTool.h"
 #include "TileMonitoring/TileCellMonTool.h"
 #include "TileMonitoring/TileTowerMonTool.h"
 #include "TileMonitoring/TileClusterMonTool.h"
@@ -14,7 +15,8 @@
 #include "TileMonitoring/TileJetMonTool.h"
 #include "TileMonitoring/TileDigiNoiseMonTool.h"
 #include "TileMonitoring/TileCellNoiseMonTool.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "TileMonitoring/TileRawChannelTimeMonTool.h"
+#include "TileMonitoring/TileRawChannelNoiseMonTool.h"
 
 DECLARE_TOOL_FACTORY(TileFatherMonTool )
 DECLARE_TOOL_FACTORY(TilePaterMonTool )
@@ -32,6 +34,8 @@ DECLARE_TOOL_FACTORY(TileRODMonTool )
 DECLARE_TOOL_FACTORY(TileJetMonTool )
 DECLARE_TOOL_FACTORY(TileDigiNoiseMonTool )
 DECLARE_TOOL_FACTORY(TileCellNoiseMonTool )
+DECLARE_TOOL_FACTORY(TileRawChannelTimeMonTool )
+DECLARE_TOOL_FACTORY(TileRawChannelNoiseMonTool )
 
 DECLARE_FACTORY_ENTRIES(TileMonitoring) {
   DECLARE_ALGTOOL(TileFatherMonTool )
@@ -50,4 +54,6 @@ DECLARE_FACTORY_ENTRIES(TileMonitoring) {
   DECLARE_ALGTOOL(TileJetMonTool )
   DECLARE_ALGTOOL(TileDigiNoiseMonTool )
   DECLARE_ALGTOOL(TileCellNoiseMonTool )
+  DECLARE_ALGTOOL(TileRawChannelTimeMonTool )
+  DECLARE_ALGTOOL(TileRawChannelNoiseMonTool )
 }

@@ -18,16 +18,15 @@
 //
 // ********************************************************************
 
-#include "AthenaKernel/errorcheck.h"
+#include "TileMonitoring/TileCellNoiseMonTool.h"
+#include "TileMonitoring/PairBuilder.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "TileEvent/TileCell.h"
-#include "TileConditions/ITileBadChanTool.h"
-#include "TileIdentifier/TileHWID.h"
-#include "TileMonitoring/TileCellNoiseMonTool.h"
-#include "TileMonitoring/PairBuilder.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileIdentifier/TileHWID.h"
+#include "TileConditions/ITileBadChanTool.h"
+#include "TileEvent/TileCell.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -36,13 +35,12 @@
 #include "TProfile2D.h"
 #include "TString.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include <sstream>
 #include <iomanip>
-#include <map>
 #include <iostream>
+#include <map>
 
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using CLHEP::GeV;
 using CLHEP::ns;
@@ -79,10 +77,10 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
   declareProperty("cellsContainerName"     , m_cellsContName="AllCalo"); //SG Cell Container
   declareProperty("doOnline"               , m_doOnline=false); //online mode
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
-  declareProperty("CellNoiseHistoPath"     , m_cellnoise_histo_path ); //ROOT File relative directory
   declareProperty("Xmin"                   , m_xmin = -1000. ); //xmin for the single cell noise histos
   declareProperty("Xmax"                   , m_xmax =  1000. ); //xmax for the single cell noise histos
 
+  m_path = "/Tile/CellNoise";
   
   std::ostringstream ss;
 
@@ -90,11 +88,6 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
   m_isFirstEv = true;
 
   
-//  std::cout << MSG::INFO << "in TileCellNoiseMonTool::TileCellNoiseMonTool(...) " << std::endl;
-//  std::cout << MSG::INFO << " - m_path = " << m_path << std::endl;
-//  std::cout << MSG::INFO << " - m_stem = " << m_stem << std::endl;
-//  std::cout << MSG::INFO << " - m_cellnoise_histo_path " <<  m_cellnoise_histo_path << std::endl;
-
 }
 
 /*---------------------------------------------------------*/
@@ -114,8 +107,6 @@ StatusCode TileCellNoiseMonTool::initialize() {
 
   ATH_MSG_INFO( "in TileCellNoiseMonTool::initialize (...) " );
   ATH_MSG_INFO( " - m_path = " << m_path );
-  ATH_MSG_INFO( " - m_stem = " << m_stem );
-  ATH_MSG_INFO( " - m_cellnoise_histo_path " << m_cellnoise_histo_path );
 
   return TileFatherMonTool::initialize();
 }
@@ -127,8 +118,6 @@ StatusCode TileCellNoiseMonTool::bookCellNoiseHistos() {
 
   ATH_MSG_INFO( "in bookCellNoiseHistos()" );
   ATH_MSG_INFO( " - m_path = " << m_path );
-  ATH_MSG_INFO( " - m_stem = " << m_path );
-  ATH_MSG_INFO( " - m_cellnoise_histo_path = " << m_cellnoise_histo_path );
 
   // Create a vector of Long Barrel Cell CellName+CellID
   const int NLBCells  = 23;
@@ -172,19 +161,19 @@ StatusCode TileCellNoiseMonTool::bookCellNoiseHistos() {
     }
 
     // MYHISTOS
-    // m_cellnoise_histo_path
+    // ""
     // Long barrel cells
     for (int icell = 0; icell < NLBCells; ++icell) {
 
       m_TileCellEne[PartLBA][imod].push_back(
-          book1F(m_cellnoise_histo_path,
+          book1F("",
               "CellNoise_" + PartitionName[PartLBA] + module_str + "_" + LBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartLBA] + module_str + " "
                   + LBCellName[icell], 100, m_xmin, m_xmax));
       
 
       m_TileCellEne[PartLBC][imod].push_back(
-          book1F(m_cellnoise_histo_path,
+          book1F("",
               "CellNoise_" + PartitionName[PartLBC] + module_str + "_" + LBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartLBC] + module_str + " "
                   + LBCellName[icell], 100, m_xmin, m_xmax));
@@ -195,13 +184,13 @@ StatusCode TileCellNoiseMonTool::bookCellNoiseHistos() {
     for (int icell = 0; icell < NEBCells; ++icell) {
 
       m_TileCellEne[PartEBA][imod].push_back(
-          book1F(m_cellnoise_histo_path,
+          book1F("",
               "CellNoise_" + PartitionName[PartEBA] + module_str + "_" + EBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartEBA] + module_str + " "
                   + EBCellName[icell], 100, m_xmin, m_xmax));
 
       m_TileCellEne[PartEBC][imod].push_back(
-          book1F(m_cellnoise_histo_path,
+          book1F("",
               "CellNoise_" + PartitionName[PartEBC] + module_str + "_" + EBCellName[icell],
               "TileCellNoise  Run " + runNumStr + " " + PartitionName[PartEBC] + module_str + " "
                   + EBCellName[icell], 100, m_xmin, m_xmax));
@@ -210,21 +199,21 @@ StatusCode TileCellNoiseMonTool::bookCellNoiseHistos() {
 
   } // module
 
-  h_partition1  = book1F (m_cellnoise_histo_path , "h_partitions1","partitions1", 8, -2., 6.);
-  h_partition2  = book1F (m_cellnoise_histo_path , "h_partitions2","partitions1", 8, -2., 6.);
-  h2_partition0 = book2F (m_cellnoise_histo_path , "h2_partition0","h2_partition0", 100, -2., 2., 100, 0, 6.28);
-  h2_partition1 = book2F (m_cellnoise_histo_path , "h2_partition1","h2_partition1", 100, -2., 2., 100, 0, 6.28);
-  h2_partition2 = book2F (m_cellnoise_histo_path , "h2_partition2","h2_partition2", 100, -2., 2., 100, 0, 6.28);
-  h2_partition3 = book2F (m_cellnoise_histo_path , "h2_partition3","h2_partition3", 100, -2., 2., 100, 0, 6.28);
+  h_partition1  = book1F ("" , "h_partitions1","partitions1", 8, -2., 6.);
+  h_partition2  = book1F ("" , "h_partitions2","partitions1", 8, -2., 6.);
+  h2_partition0 = book2F ("" , "h2_partition0","h2_partition0", 100, -2., 2., 100, 0, 6.28);
+  h2_partition1 = book2F ("" , "h2_partition1","h2_partition1", 100, -2., 2., 100, 0, 6.28);
+  h2_partition2 = book2F ("" , "h2_partition2","h2_partition2", 100, -2., 2., 100, 0, 6.28);
+  h2_partition3 = book2F ("" , "h2_partition3","h2_partition3", 100, -2., 2., 100, 0, 6.28);
 
   for (int ipart = 0; ipart < 4; ++ipart) {
-    m_map_sigma1 [ipart] =  book2F (m_cellnoise_histo_path,       "map_sigma1_" + PartitionName[ipart] , "Sigma 1 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_sigma2 [ipart] =  book2F (m_cellnoise_histo_path,       "map_sigma2_" + PartitionName[ipart] , "Sigma 2 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_R      [ipart] =  book2F (m_cellnoise_histo_path,       "map_R_"      + PartitionName[ipart] , "R (A_{1}/A_{2})- " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_chi2   [ipart] =  book2F (m_cellnoise_histo_path,       "map_chi2_"   + PartitionName[ipart] , "chi2 - "           + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_chi2prb[ipart] =  book2F (m_cellnoise_histo_path,       "map_chi2prb_"+ PartitionName[ipart] , "chi2 prob. - "     + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_rmsOsig[ipart] =  book2F (m_cellnoise_histo_path,       "map_rmsOsig_"+ PartitionName[ipart] , "RMS/ Sigma1 - "    + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_rms    [ipart] =  book2F (m_cellnoise_histo_path,       "map_rms_"    + PartitionName[ipart] , "RMS - "            + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_sigma1 [ipart] =  book2F ("",       "map_sigma1_" + PartitionName[ipart] , "Sigma 1 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_sigma2 [ipart] =  book2F ("",       "map_sigma2_" + PartitionName[ipart] , "Sigma 2 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_R      [ipart] =  book2F ("",       "map_R_"      + PartitionName[ipart] , "R (A_{1}/A_{2})- " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_chi2   [ipart] =  book2F ("",       "map_chi2_"   + PartitionName[ipart] , "chi2 - "           + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_chi2prb[ipart] =  book2F ("",       "map_chi2prb_"+ PartitionName[ipart] , "chi2 prob. - "     + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_rmsOsig[ipart] =  book2F ("",       "map_rmsOsig_"+ PartitionName[ipart] , "RMS/ Sigma1 - "    + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_map_rms    [ipart] =  book2F ("",       "map_rms_"    + PartitionName[ipart] , "RMS - "            + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
 
     // Set cell Names for LB partitions
     if (PartitionName[ipart] == "LBA" || PartitionName[ipart] == "LBC") {
@@ -276,7 +265,6 @@ StatusCode TileCellNoiseMonTool::bookHistograms()
 {
   ATH_MSG_INFO( "in bookHistograms()" );
   ATH_MSG_INFO( "---  m_path = " << m_path );
-  ATH_MSG_INFO( "---  m_stem = " << m_stem );
 
   cleanHistVec(); //necessary to avoid problems at the run, evblock, lumi blocks boundaries
   m_isFirstEv = true;
@@ -310,7 +298,7 @@ void TileCellNoiseMonTool::cleanHistVec() {
 void TileCellNoiseMonTool::do2GFit() {
 /*---------------------------------------------------------*/
 
-  ATH_MSG_INFO( "in do2GFit() " );
+  ATH_MSG_VERBOSE( "in do2GFit() " );
 
   // check there is at least one histo to fit!
   float xmin = -1000.;
@@ -321,10 +309,10 @@ void TileCellNoiseMonTool::do2GFit() {
     return;
   }
 
-  TF1 *fitfunction = new TF1("total", "gaus(0)+gaus(3)", xmin, xmax);
-  fitfunction->SetLineColor(2);
+  TF1 fitfunction ("total", "gaus(0)+gaus(3)", xmin, xmax);
+  fitfunction.SetLineColor(2);
 
-  double *fitresults = new double[9];
+  double fitresults[9];
   double R, rmsOsig;
   for (int ipart = 0; ipart < 4; ++ipart) {
 
@@ -333,25 +321,25 @@ void TileCellNoiseMonTool::do2GFit() {
       for (unsigned int icell = 0; icell < m_TileCellEne[ipart][imod].size(); ++icell) {
         // fit the single cell energy distributions
 
-        ATH_MSG_WARNING( "in  do2GFit() : ipart =  " << ipart
+        ATH_MSG_VERBOSE( "in  do2GFit() : ipart =  " << ipart
                          << "   imod = " << imod
                          << "   icell = " << icell );
 
         if (m_TileCellEne[ipart][imod][icell] != 0
             && m_TileCellEne[ipart][imod][icell]->GetEntries() > 0) {
 
-          do2GFit(m_TileCellEne[ipart][imod][icell], fitresults, fitfunction);
+          do2GFit(m_TileCellEne[ipart][imod][icell], fitresults, &fitfunction);
         }
 
 	  // then store the fitresults into a permanent container
-        ATH_MSG_WARNING( "Fit results  .... " );
-        ATH_MSG_WARNING( "  sigma1  = " << fitresults[2]
-                         << "  sigma2  = " << fitresults[5]
-                         << "  amp1    = " << fitresults[0]
-		                     << "  amp2    = " << fitresults[3]
-		                     << "  chi2    = " << fitresults[6]
-		                     << "  chi2prb = " << fitresults[7]
-		                     << "  CellRMS = " << fitresults[8] );
+        ATH_MSG_VERBOSE( "Fit results:"
+                          << " sigma1  = " << fitresults[2]
+                          << "  sigma2  = " << fitresults[5]
+                          << "  amp1    = " << fitresults[0]
+		          << "  amp2    = " << fitresults[3]
+		          << "  chi2    = " << fitresults[6]
+		          << "  chi2prb = " << fitresults[7]
+		          << "  CellRMS = " << fitresults[8] );
 
 
         //////////// Store the results in 2D maps /////////////
@@ -373,9 +361,6 @@ void TileCellNoiseMonTool::do2GFit() {
 
   } // partition
 
-  delete fitresults;
-  delete fitfunction;
-
   return;
 }
 
@@ -387,14 +372,11 @@ void TileCellNoiseMonTool::do2GFit(TH1F* h, double * fitresults, TF1* fitfunctio
 
   double par[6];
 
-  ATH_MSG_DEBUG( "h->GetName() = " << h->GetName() );
-
   // start values for fit parameters should be the same as in the main reconstruction
   float nentries = h->GetEntries();
   float rms = h->GetRMS();
 
-  ATH_MSG_DEBUG( "in do2GFit(...)  : nentries = " << nentries );
-  ATH_MSG_DEBUG( "in do2GFit(...)  : rms      = " << rms );
+  ATH_MSG_DEBUG( "in do2GFit(...)  : nentries = " << nentries << ", rms      = " << rms );
 
   par[0] = 0.1 * nentries;
   par[1] = 0.;
@@ -411,21 +393,21 @@ void TileCellNoiseMonTool::do2GFit(TH1F* h, double * fitresults, TF1* fitfunctio
   float lim2 = std::max(rms * 1.05, bin * 2.0);
   float lim3 = std::max(rms * 10.0, bin * 20.);
 
-  ATH_MSG_DEBUG( "in do2GFit(...)  : test1 " );
+  //  ATH_MSG_DEBUG( "in do2GFit(...)  : test1 " );
 
   fitfunction->SetParLimits(0,0.,nentries);
-  ATH_MSG_DEBUG( "in do2GFit(...)  : test2 " );
+  //  ATH_MSG_DEBUG( "in do2GFit(...)  : test2 " );
 
   fitfunction->FixParameter(1,0.);
   fitfunction->SetParLimits(2,lim1,lim2);
-  ATH_MSG_DEBUG( "in do2GFit(...)  : test3 " );
+  //  ATH_MSG_DEBUG( "in do2GFit(...)  : test3 " );
 
   fitfunction->SetParLimits(3,0.,nentries);
-  ATH_MSG_DEBUG( "in do2GFit(...)  : test4 " );
+  //  ATH_MSG_DEBUG( "in do2GFit(...)  : test4 " );
 
   fitfunction->FixParameter(4,0.);
   fitfunction->SetParLimits(5,lim2,lim3);
-  ATH_MSG_DEBUG( "in do2GFit(...)  : test5 " );
+  //  ATH_MSG_DEBUG( "in do2GFit(...)  : test5 " );
 
   h->Fit(fitfunction, "B");
 
@@ -459,7 +441,7 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
 /*---------------------------------------------------------*/
 
 
-  ATH_MSG_INFO( "in fillHistoPerCell() " );
+  ATH_MSG_VERBOSE( "in fillHistoPerCell() " );
 
   // transform a channel index into a CellIndex: -1 is a channel not connected to a cell
   int LBch2cellID[48] = {
@@ -582,20 +564,24 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
       // From the channel number we need to decide which cell this is
       
       // if LB
-      int CellID1, CellID2;
+      int CellID1=0, CellID2=0;
       std::string CellName1 = "";
       std::string CellName2 = "";
 
-      if (partition1 == PartLBA || partition1 == PartLBC) {
-        CellID1 = LBch2cellID[ch1];
-      } else {
-        CellID1 = EBch2cellID[ch1];
+      if (ch1 >= 0) {
+        if (partition1 == PartLBA || partition1 == PartLBC) {
+          CellID1 = LBch2cellID[ch1];
+        } else {
+          CellID1 = EBch2cellID[ch1];
+        }
       }
 
-      if (partition2 == PartLBA || partition2 == PartLBC) {
-        CellID2 = LBch2cellID[ch2];
-      } else {
-        CellID2 = EBch2cellID[ch2];
+      if (ch2 >= 0) {
+        if (partition2 == PartLBA || partition2 == PartLBC) {
+          CellID2 = LBch2cellID[ch2];
+        } else {
+          CellID2 = EBch2cellID[ch2];
+        }
       }
 
       if (msgLvl(MSG::DEBUG) && (fabs(energy - 1.) < 0.01)) {
@@ -695,8 +681,6 @@ StatusCode TileCellNoiseMonTool::finalHists() {
 
   ATH_MSG_INFO( "in finalHists()" );
   ATH_MSG_INFO( " - m_path = " << m_path );
-  ATH_MSG_INFO( " - m_stem = " << m_stem );
-  ATH_MSG_INFO( " - m_cellnoise_histo_path " << m_cellnoise_histo_path );
 
   // Call the 2G fit for all Cell energy histograms
   do2GFit();

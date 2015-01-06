@@ -30,7 +30,6 @@ ManagedAthenaTileMon.LumiBlock           = 1
 
 from TileMonitoring.TileMonitoringConf import TileDQFragMonTool
 TileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
-                                  histoStreamName    = "/SHIFT",
                                   OutputLevel        = 3, 
                                   TileRawChannelContainerDSP    = "TileRawChannelCnt",
                                   TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer(),
@@ -49,7 +48,6 @@ ManagedAthenaTileMon.AthenaMonTools += [ TileDQFragMon ];
 
 from TileMonitoring.TileMonitoringConf import TileRODMonTool
 TileRODMon = TileRODMonTool( name             = 'TileRODMon',
-                             histoStreamName  = "/SHIFT",
                              OutputLevel      = 3,
                              histoPathBase    = "/Tile/ROD",
                              doOnline         =  athenaCommonFlags.isOnline());
@@ -61,7 +59,6 @@ if doTileL2Mu:
 
     from TileMonitoring.TileMonitoringConf import TileL2MonTool
     TileL2MuMon = TileL2MonTool(name                = 'TileL2MuMon',
-                                histoStreamName     = "/SHIFT",
                                 OutputLevel         = 3, 
                                 histoPathBase       = "/Tile/L2Muon");
     ToolSvc += TileL2MuMon;
@@ -72,7 +69,6 @@ if doTileCells:
     
     from TileMonitoring.TileMonitoringConf import TileCellMonTool
     TileCellMon = TileCellMonTool(name               = 'TileCellMon',
-                                  histoStreamName    = "/SHIFT",
                                   OutputLevel        = 3, 
                                   doOnline           = athenaCommonFlags.isOnline(),
                                   cellsContainerName = "AllCalo",
@@ -84,7 +80,6 @@ if doTileCells:
     if doTowers:
         from TileMonitoring.TileMonitoringConf import TileTowerMonTool
         TileTowerMon = TileTowerMonTool(name                = 'TileTowerMon',
-                                        histoStreamName     = "/SHIFT",
                                         OutputLevel         = 3, 
                                         towersContainerName = "TileTower",
                                         histoPathBase       = "/Tile/Tower");
@@ -94,7 +89,6 @@ if doTileCells:
     if doClusters:
         from TileMonitoring.TileMonitoringConf import TileClusterMonTool
         TileClusterMon = TileClusterMonTool(name              = 'TileClusterMon',
-                                            histoStreamName       = "/SHIFT",
                                             OutputLevel           = 3,
                                             clustersContainerName = "TileTopoCluster",
                                             histoPathBase       = "/Tile/Cluster");
@@ -104,7 +98,6 @@ if doTileCells:
     if doTileMuId:
         from TileMonitoring.TileMonitoringConf import TileMuIdMonTool
         TileMuIdMon = TileMuIdMonTool(name                = 'TileMuIdMon',
-                                      histoStreamName     = "/SHIFT",
                                       OutputLevel         = 3, 
                                       histoPathBase       = "/Tile/Muid");
         ToolSvc += TileMuIdMon;
@@ -113,7 +106,6 @@ if doTileCells:
     if doTileMuonFit:
         from TileMonitoring.TileMonitoringConf import TileMuonFitMonTool
         TileMuonFitMon = TileMuonFitMonTool(name                = 'TileMuonFitMon',
-                                            histoStreamName     = "/SHIFT",
                                             OutputLevel         = 3, 
                                             histoPathBase       = "/Tile/MuonFit");
         ToolSvc += TileMuonFitMon;
@@ -141,7 +133,6 @@ if doTileCells:
 
         from TileMonitoring.TileMonitoringConf import TileMBTSMonTool
         TileMBTSMon = TileMBTSMonTool(  name            = 'TileMBTSMon',
-                                        histoStreamName = "/SHIFT",
                                         OutputLevel     = 3,
                                         histoPathBase   = "/Tile/MBTS",
                                         LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc",
@@ -156,21 +147,18 @@ if doTileCells:
 print ManagedAthenaTileMon;
 
 
+import os
 # -- use root histos --
 # THistService for native root in Athena
 if not  athenaCommonFlags.isOnline() or storeHisto or athenaCommonFlags.isOnlineStateless():
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    svcMgr += THistSvc("THistSvc")
-    tTHistSvc = svcMgr.THistSvc
-    tTHistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
-    #tTHistSvc.Output += ["EXPERT DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
-    #tTHistSvc.Output += ["EXPERT DATAFILE='pippo.root' OPT='RECREATE'"]
-    #tTHistSvc.Output += ["RUNSTAT DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
-    #THistSvc.OutputLevel = DEBUG
+    #theApp.HistogramPersistency = "ROOT"
+    if not hasattr(svcMgr,"THistSvc"):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        svcMgr += THistSvc("THistSvc")
+    if os.path.exists(RootHistOutputFileName):
+        os.remove(RootHistOutputFileName)
+    svcMgr.THistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")
     svcMgr += trigmonTHistSvc
-    #include ("TrigServices/TrigMonTHistSvc.py")
-    #THistSvc = Service("THistSvc")
-    #trigmonTHistSvc.OutputLevel = VERBOSE

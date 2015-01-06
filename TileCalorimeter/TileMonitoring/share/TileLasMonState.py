@@ -52,8 +52,9 @@ ByteStreamEmonInputSvc.Partition = Partition
 # #########################################
 #ByteStreamEmonInputSvc.Key = "ReadoutApplication"
 if 'Key' not in dir():
-    Key="SFI"
+    Key="dcm"
 ByteStreamEmonInputSvc.Key = Key
+ByteStreamEmonInputSvc.KeyCount = 1000
 
 # ############################################################
 # A list of of key values, e.g. a list of SFIs to contact.
@@ -91,14 +92,14 @@ if 'LVL1Logic' in dir():
 
 if 'LVL1Names' in dir():
     ByteStreamEmonInputSvc.LVL1Names = LVL1Names
-elif Partition=="ATLAS":
-    # make sure that we do not read calibration events in physics run
-    if 'StreamType' not in dir():
-        StreamType = "calibration"
-    if 'StreamLogic' not in dir():
-        StreamLogic = "And"
-    if 'StreamNames' not in dir():    
-        StreamNames = [ "Tile" ]
+
+# make sure that we do not read calibration events in physics run
+if 'StreamType' not in dir():
+    StreamType = "calibration"
+if 'StreamLogic' not in dir():
+    StreamLogic = "And"
+if 'StreamNames' not in dir():    
+    StreamNames = [ "Tile" ]
 
 # ###########################################
 # Selection by stream tag:
@@ -135,19 +136,18 @@ if 'ISServer' not in dir():
 ByteStreamEmonInputSvc.ISServer = ISServer
 
 if 'PublishName' not in dir():
-    PublishName="TileLasPT-stateless"
+    PublishName="TilePT-stateless-laser"
 ByteStreamEmonInputSvc.PublishName = PublishName
 
 if 'Frequency' not in dir():
     Frequency=100 #histograms update in number of events
 ByteStreamEmonInputSvc.Frequency = Frequency
 
-if 'UpdatePeriod' not in dir():
-    UpdatePeriod=60 #histograms update time in seconds
-try:
-    ByteStreamEmonInputSvc.UpdatePeriod = UpdatePeriod
-except Exception:
-     treatException("Could not set UpdatePeriod")
+if 'UpdatePeriod' in dir():
+    try:
+        ByteStreamEmonInputSvc.UpdatePeriod = UpdatePeriod
+    except Exception:
+        treatException("Could not set UpdatePeriod")
 
 if 'BufferSize' not in dir():
     BufferSize=10
@@ -156,10 +156,17 @@ try:
 except Exception:
      treatException("Could not set BufferSize")
 
+if 'PublishInclude' in dir():
+    ByteStreamEmonInputSvc.Include = PublishInclude
+
+
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
+print ByteStreamEmonInputSvc
+
 include("TileMonitoring/jobOptions_TileLasMon.py")
+
 
 # -----------------------------------------------------
 # An example algorithm in Python

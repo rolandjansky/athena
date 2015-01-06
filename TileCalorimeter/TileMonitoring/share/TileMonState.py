@@ -52,7 +52,7 @@ ByteStreamEmonInputSvc.Partition = Partition
 # #########################################
 #ByteStreamEmonInputSvc.Key = "ReadoutApplication"
 if 'Key' not in dir():
-    Key="SFI"
+    Key="dcm"
 ByteStreamEmonInputSvc.Key = Key
 
 # ############################################################
@@ -120,7 +120,10 @@ if 'StreamType' in dir():
 
 if 'StreamNames' in dir():
     ByteStreamEmonInputSvc.StreamNames = StreamNames
-
+    
+if 'TriggerType' in dir():
+    ByteStreamEmonInputSvc.TriggerType = TriggerType
+    ByteStreamEmonInputSvc.KeyCount = 1000
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?
@@ -136,16 +139,15 @@ if 'PublishName' not in dir():
     PublishName="TilePT-stateless"
 ByteStreamEmonInputSvc.PublishName = PublishName
 
-if 'Frequency' not in dir():
-    Frequency=100 #histograms update in number of events
-ByteStreamEmonInputSvc.Frequency = Frequency
-
-if 'UpdatePeriod' not in dir():
-    UpdatePeriod=60 #histograms update time in seconds
-try:
-    ByteStreamEmonInputSvc.UpdatePeriod = UpdatePeriod
-except Exception:
-     treatException("Could not set UpdatePeriod")
+if 'Frequency' in dir():
+    ByteStreamEmonInputSvc.Frequency = 301 #histograms update in number of events
+else:
+    if 'UpdatePeriod' not in dir():
+        UpdatePeriod=60 #histograms update time in seconds
+    try:
+        ByteStreamEmonInputSvc.UpdatePeriod = UpdatePeriod
+    except Exception:
+        treatException("Could not set UpdatePeriod")
 
 if 'BufferSize' not in dir():
     BufferSize=10
@@ -153,6 +155,11 @@ try:
      ByteStreamEmonInputSvc.BufferSize = BufferSize
 except Exception:
      treatException("Could not set BufferSize")
+
+if 'PublishInclude' in dir():
+    ByteStreamEmonInputSvc.Include = PublishInclude
+
+print ByteStreamEmonInputSvc
 
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]

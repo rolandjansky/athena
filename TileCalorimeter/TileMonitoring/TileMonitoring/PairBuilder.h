@@ -19,7 +19,6 @@
 #include <ostream>
 #include <set>
 
-
 /** @class PairBuilder
  *  @brief Class to build pairs of XY values. 
  *
@@ -27,6 +26,7 @@
  *  PairBuilder will make all possible XY pairs
  *  and return the pairs in vector.
  */
+
 class  PairBuilder {
 public:
 	PairBuilder();
@@ -71,7 +71,8 @@ private:
 	//@}
 
 };
+
 ///Overloaded "operator <<" for output of PairBuilder objects
 std::ostream& operator<< (std::ostream& os, const PairBuilder& e);
-#endif
 
+#endif
