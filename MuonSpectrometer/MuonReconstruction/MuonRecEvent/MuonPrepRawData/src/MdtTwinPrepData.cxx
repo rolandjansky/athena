@@ -86,7 +86,7 @@ namespace Muon
     //MdtTwinPrepData methods
     stream <<"TDC TWIN = "<<this->tdcTwin()<<", ";
     stream <<"ADC TWIN= "<<this->adcTwin()<<", ";
-    stream<<"} End MdtTwinPrepData"<<endmsg;
+    stream<<"} End MdtTwinPrepData"<<endreq;
 
     return stream;
   }

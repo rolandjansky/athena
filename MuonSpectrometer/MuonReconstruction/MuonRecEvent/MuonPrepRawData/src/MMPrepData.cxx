@@ -36,12 +36,6 @@ namespace Muon
     m_detEl( RIO.m_detEl )
   { }
 
-  //move constructor:
-  MMPrepData::MMPrepData(MMPrepData&& RIO):
-    MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl )
-  { }
-
   //assignment operator
   MMPrepData&
   MMPrepData::operator=(const MMPrepData& RIO)
@@ -55,18 +49,6 @@ namespace Muon
 
   }
 
-  MMPrepData&
-  MMPrepData::operator=(MMPrepData&& RIO)
-  {
-    if (&RIO !=this)
-      {
-	MuonCluster::operator=(std::move(RIO));
-	m_detEl =  RIO.m_detEl ;
-      }
-    return *this;
-
-  }
-
   MsgStream&
   MMPrepData::dump( MsgStream&    stream) const
   {
@@ -74,7 +56,7 @@ namespace Muon
     
     MuonCluster::dump(stream);
  
-    stream<<"}"<<endmsg;
+    stream<<"}"<<endreq;
 
     return stream;
   }

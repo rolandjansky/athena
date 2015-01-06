@@ -25,7 +25,7 @@ namespace Muon
                       const Amg::Vector2D& locpos,
                       const Amg::MatrixX* locErrMat,
                       const MuonGM::CscReadoutElement* detEl,
-                      const std::vector<float>& sampleCharges,
+                      std::vector<float> sampleCharges,
                       float timeOfFirstSample,
                       unsigned short samplingTime 
                       ):
@@ -91,7 +91,7 @@ namespace Muon
 
   MsgStream& CscStripPrepData::dump( MsgStream&    stream) const
   {
-    stream << MSG::INFO << "CscStripPrepData {" <<endmsg;
+    stream << MSG::INFO << "CscStripPrepData {" <<endreq;
 
     std::stringstream s;
     s << std::setiosflags(std::ios::fixed);

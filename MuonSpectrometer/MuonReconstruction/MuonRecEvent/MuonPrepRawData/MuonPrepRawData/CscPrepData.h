@@ -30,8 +30,6 @@ class CscPrepDataContainerCnv;
 namespace Muon
 {
 
-  class CscPrepDataContainerCnv_p1;
-
     /**@brief Class representing clusters from the CSC.
     @author Edward.Moyse@cern.ch
     @author Ketevi A. Assamagan*/
@@ -44,13 +42,10 @@ class CscPrepData :   public MuonCluster
  public:
 
   friend class ::CscPrepDataContainerCnv;
-  friend class Muon::CscPrepDataContainerCnv_p1;
 
   CscPrepData();
   CscPrepData(const CscPrepData &);
-  CscPrepData(CscPrepData &&);
   CscPrepData &operator=(const CscPrepData &);
-  CscPrepData &operator=(CscPrepData &&);
   
 
   /** @brief Full constructor. 

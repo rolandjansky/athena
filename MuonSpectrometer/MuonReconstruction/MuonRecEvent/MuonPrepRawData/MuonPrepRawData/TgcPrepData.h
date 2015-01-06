@@ -25,7 +25,6 @@ class TgcPrepDataContainerCnv;
 
 namespace Muon
 {
-  class TgcPrepDataContainerCnv_p1;
 
 /** @brief Class to represent TGC measurements*/
   class TgcPrepData :   public MuonCluster
@@ -37,13 +36,10 @@ namespace Muon
   public:
 
     friend class ::TgcPrepDataContainerCnv;
-    friend class TgcPrepDataContainerCnv_p1;
 
     TgcPrepData();
     TgcPrepData(const TgcPrepData &);
-    TgcPrepData(TgcPrepData &&);
     TgcPrepData &operator=(const TgcPrepData &);
-    TgcPrepData &operator=(TgcPrepData &&);
 
     /** @brief Full constructor.
     @param RDOId The identifier of the central strip of the cluster
