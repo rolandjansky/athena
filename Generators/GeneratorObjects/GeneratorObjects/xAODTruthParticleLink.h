@@ -26,7 +26,7 @@ struct SortTruthParticleLink {
 class xAODTruthParticleLinkVector : public DataVector<xAODTruthParticleLink> {
 public:
   ElementLink<xAOD::TruthParticleContainer> find( const HepMcParticleLink& hepMCLink ) const {
-    auto result = std::lower_bound(begin(),end(), hepMCLink, [](const xAODTruthParticleLink* l, const HepMcParticleLink& hepMCLink ) { return l->first.barcode() < hepMCLink.barcode(); });
+    auto result = std::lower_bound(begin(),end(), hepMCLink, [](const xAODTruthParticleLink* l, const HepMcParticleLink& hepLink ) { return l->first.barcode() < hepLink.barcode(); });
     if( result != end() ) {
       // if( (*result)->hepMCLink() != hepMCLink ) {
       // 	std::cout << " invalid link: barcode " << hepMCLink.barcode() << " evt " << hepMCLink.eventIndex()

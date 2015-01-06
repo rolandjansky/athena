@@ -26,7 +26,7 @@ namespace {
 }
 
 
-HepMC::GenEvent*
+const HepMC::GenEvent*
 McEventCollection::find(int eventNumber) const {
   const_iterator i(std::find_if(begin(), end(), FilledMatchEventNumber(eventNumber)));
   if (end() == i)

@@ -46,7 +46,7 @@ class McEventCollection : public DataVector<HepMC::GenEvent>
 
   McEventCollection& operator=(const McEventCollection&);
   
-  HepMC::GenEvent* find(int evtNumber) const;
+  const HepMC::GenEvent* find(int evtNumber) const;
 };
 
 inline
