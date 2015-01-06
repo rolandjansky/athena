@@ -794,6 +794,7 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
                 const Trk::TrkDetElementBase* detEl = (*it)->prd->detectorElement();
                 if (detEl==0) {
                     m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepRawData loop: detector element retrieved from the PRD is invalid!" << endreq;
+                    continue;
                 }
                 Amg::Vector3D gPos,dummy(1.,1.,1.);
                 detEl->surface( id ).localToGlobal(locPos,dummy,gPos);
@@ -825,6 +826,7 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
                   const Trk::TrkDetElementBase* detEl = tgc[tgc_hit]->detectorElement();
                   if (detEl==0) {
                     m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, Tgc Prepdata loop:: detector element retrieved from the TgcPrepData is invalid!" << endreq;
+                    continue;
                   }
                   Amg::Vector3D gPos, dummy(1.,1.,1.);
                   detEl->surface( id ).localToGlobal(locPos, dummy, gPos);

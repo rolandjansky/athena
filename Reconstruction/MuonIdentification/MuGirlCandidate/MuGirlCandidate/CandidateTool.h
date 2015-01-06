@@ -83,10 +83,6 @@ public:
     virtual StatusCode finalize  ();
 
     virtual StatusCode fill(int iTrack, const xAOD::TrackParticle* pTrackParticle, const Trk::TrackParameters* extrMuonLayer, bool bSaveMdtSegmentMakerInfo);
-    virtual StatusCode fillEFTrack(int iMF, const TrigMuonEFTrack* muonEFTrack, bool bSaveMdtSegmentMakerInfo,bool has_combined);
-    virtual StatusCode fillMF(int iMF, const MuonFeature* muonFeature, bool bSaveMdtSegmentMakerInfo,bool has_combined);
-    virtual StatusCode fillBetaRefitTrack(int iTrack, const xAOD::TrackParticle* lowBetaTrack, const Trk::Track* trkLowBetaTrack,bool bSaveMdtSegmentMakerInfo,bool has_combined);
-
     virtual void fillRefittedTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary);
     virtual void fillMSTrack(const xAOD::TrackParticle* pRefittedTrack, const Trk::Track* trkRefittedTrack, CandidateSummary* pSummary);
     virtual void setLHR(double lhr);

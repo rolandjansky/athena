@@ -27,7 +27,9 @@ MM::MM(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = MM_TECH;
     m_detId = ::PIXEL;   // dummy as we do not yet have the detector elemement implemented in the region selector
-    m_pIdHelper = pMuGirl->muonManager()->mmIdHelper();
+    m_pIdHelper = dynamic_cast<const MmIdHelper*>(pMuGirl->muonManager()->mmIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be MmIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* MM::readoutElement(const Identifier& id) const
@@ -38,12 +40,14 @@ const MuonGM::MuonReadoutElement* MM::readoutElement(const Identifier& id) const
 
 int MM::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const MmIdHelper*>(m_pIdHelper)->stationName(id);
+    const MmIdHelper* mmHelper = dynamic_cast<const MmIdHelper*>(m_pIdHelper);
+    return (mmHelper) ? mmHelper->stationName(id) : -1;
 }
 
 int MM::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const MmIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const MmIdHelper* mmHelper = dynamic_cast<const MmIdHelper*>(m_pIdHelper);
+    return (mmHelper) ? mmHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode MM::retrievePrepData()

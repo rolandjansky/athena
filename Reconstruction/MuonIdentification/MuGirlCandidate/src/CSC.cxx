@@ -30,7 +30,9 @@ CSC::CSC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = CSC_TECH;
     m_detId = ::CSC;
-    m_pIdHelper = pMuGirl->muonManager()->cscIdHelper();
+    m_pIdHelper = dynamic_cast<const CscIdHelper*>(pMuGirl->muonManager()->cscIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be CscIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* CSC::readoutElement(const Identifier& id) const
@@ -41,12 +43,14 @@ const MuonGM::MuonReadoutElement* CSC::readoutElement(const Identifier& id) cons
 
 int CSC::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const CscIdHelper*>(m_pIdHelper)->stationName(id);
+    const CscIdHelper* cscHelper = dynamic_cast<const CscIdHelper*>(m_pIdHelper);
+    return (cscHelper) ? cscHelper->stationName(id) : -1;
 }
 
 int CSC::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const CscIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const CscIdHelper* cscHelper = dynamic_cast<const CscIdHelper*>(m_pIdHelper);
+    return (cscHelper) ? cscHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode CSC::retrievePrepData()

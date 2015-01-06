@@ -28,7 +28,9 @@ TGC::TGC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = TGC_TECH;
     m_detId = ::TGC;
-    m_pIdHelper = pMuGirl->muonManager()->tgcIdHelper();
+    m_pIdHelper = dynamic_cast<const TgcIdHelper*>(pMuGirl->muonManager()->tgcIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be TgcIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* TGC::readoutElement(const Identifier& id) const
@@ -38,12 +40,14 @@ const MuonGM::MuonReadoutElement* TGC::readoutElement(const Identifier& id) cons
 
 int TGC::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const TgcIdHelper*>(m_pIdHelper)->stationName(id);
+    const TgcIdHelper* tgcHelper = dynamic_cast<const TgcIdHelper*>(m_pIdHelper);
+    return (tgcHelper) ? tgcHelper->stationName(id) : -1;
 }
 
 int TGC::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const TgcIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const TgcIdHelper* tgcHelper = dynamic_cast<const TgcIdHelper*>(m_pIdHelper);
+    return (tgcHelper) ? tgcHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode TGC::retrievePrepData()
@@ -272,7 +276,8 @@ Amg::Vector3D TGC::hitPosition(const Trk::PrepRawData* pPrepData)
 
 bool TGC::isEtaHit(const Trk::PrepRawData* pPrepData)
 {
-    return !dynamic_cast<const TgcIdHelper*>(m_pIdHelper)->isStrip(pPrepData->identify());
+    const TgcIdHelper* tgcHelper = dynamic_cast<const TgcIdHelper*>(m_pIdHelper);
+    return (tgcHelper) ? (!(tgcHelper->isStrip(pPrepData->identify()))) : false;
 }
 
 void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)

@@ -37,7 +37,9 @@ MDT::MDT(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = MDT_TECH;
     m_detId = ::MDT;
-    m_pIdHelper = pMuGirl->muonManager()->mdtIdHelper();
+    m_pIdHelper = dynamic_cast<const MdtIdHelper*>(pMuGirl->muonManager()->mdtIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be MdtIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* MDT::readoutElement(const Identifier& id) const
@@ -48,12 +50,14 @@ const MuonGM::MuonReadoutElement* MDT::readoutElement(const Identifier& id) cons
 
 int MDT::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const MdtIdHelper*>(m_pIdHelper)->stationName(id);
+    const MdtIdHelper* mdtHelper = dynamic_cast<const MdtIdHelper*>(m_pIdHelper);
+    return (mdtHelper) ? mdtHelper->stationName(id) : -1;
 }
 
 int MDT::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const MdtIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const MdtIdHelper* mdtHelper = dynamic_cast<const MdtIdHelper*>(m_pIdHelper);
+    return (mdtHelper) ? mdtHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode MDT::retrievePrepData()

@@ -27,7 +27,9 @@ sTGC::sTGC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = STGC_TECH;
     m_detId = ::PIXEL;   // dummy as we do not yet have the detector elemement implemented in the region selector
-    m_pIdHelper = pMuGirl->muonManager()->stgcIdHelper();
+    m_pIdHelper = dynamic_cast<const sTgcIdHelper*>(pMuGirl->muonManager()->stgcIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be sTgcIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* sTGC::readoutElement(const Identifier& id) const
@@ -38,12 +40,14 @@ const MuonGM::MuonReadoutElement* sTGC::readoutElement(const Identifier& id) con
 
 int sTGC::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const sTgcIdHelper*>(m_pIdHelper)->stationName(id);
+    const sTgcIdHelper* stgcHelper = dynamic_cast<const sTgcIdHelper*>(m_pIdHelper);
+    return (stgcHelper) ? stgcHelper->stationName(id) : -1;
 }
 
 int sTGC::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const sTgcIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const sTgcIdHelper* stgcHelper = dynamic_cast<const sTgcIdHelper*>(m_pIdHelper);
+    return (stgcHelper) ? stgcHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode sTGC::retrievePrepData()
@@ -177,7 +181,8 @@ Amg::Vector3D sTGC::hitPosition(const Trk::PrepRawData* pPrepData)
 
 bool sTGC::isEtaHit(const Trk::PrepRawData* prd)
 {
-    return ( dynamic_cast<const sTgcIdHelper*>(m_pIdHelper)->channelType(prd->identify())==1 )? 1 : 0;
+    const sTgcIdHelper* stgcHelper = dynamic_cast<const sTgcIdHelper*>(m_pIdHelper);
+    return (stgcHelper) ? ( ((stgcHelper->channelType(prd->identify()))==1 ) ? 1 : 0) : false;
 }
 
 void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double /*QoverP*/)

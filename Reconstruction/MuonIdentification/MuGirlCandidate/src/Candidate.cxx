@@ -989,8 +989,9 @@ void Candidate::collectHits(TechnologyType eTech,
             if (eTech == MDT_TECH)
             {
                 const Muon::MdtPrepData* pMdtPrepData = dynamic_cast<const Muon::MdtPrepData*>(pPrepData);
+                if (pMdtPrepData == NULL) continue;
                 const Amg::Vector3D* gdir = new Amg::Vector3D(pHitTrkIsect->direction());
-                
+
                 pRIO = m_pMuGirl->mdtDriftCircleCreator()->createRIO_OnTrack(*pMdtPrepData, pHitTrkIsect->position(),gdir);
                 delete gdir;
             }
@@ -1471,20 +1472,24 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
             cellIntersection(RPC_TECH, eDist, eReg) != NULL)
     {
         Intersection* pRpcIsect = cellIntersection(RPC_TECH, eDist, eReg);
+        Intersection* pMdtIsect = cellIntersection(MDT_TECH, eDist, eReg);
+        double cosa = (pRpcIsect->direction()).dot(pMdtIsect->direction());
+        bool aux_quantities_set = false;
+
         Segment* pRpcSeg = pRpcIsect->segment();
         if (pRpcSeg == NULL)
             m_pMuGirl->msg(MSG::WARNING) << "RPC intersection does not have a segment!" << endreq;
-        Intersection* pMdtIsect = cellIntersection(MDT_TECH, eDist, eReg);
-        Segment* pMdtSeg = pMdtIsect->segment();
-        if (pMdtSeg == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endreq;
-        double cosa = (pRpcIsect->direction()).dot( pMdtIsect->direction() );
-        if (pRpcSeg->fitProbability() > 0.05 && cosa <= COS1DEG)
+        else if (pRpcSeg->fitProbability() > 0.05 && cosa <= COS1DEG)
         {
             pInIsect = pRpcIsect;
             inTech = RPC_TECH;
+            aux_quantities_set = true;
         }
-        else if (cosa > COS1DEG && pMdtSeg->fitProbability() > 0.001)
+
+        Segment* pMdtSeg = pMdtIsect->segment();
+        if (pMdtSeg == NULL)
+            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endreq;
+        else if (cosa > COS1DEG && pMdtSeg->fitProbability() > 0.001 && !aux_quantities_set)
         {
             pInIsect = pMdtIsect;
             inTech = MDT_TECH;
@@ -2024,14 +2029,18 @@ bool Candidate::firstIsBest( const Muon::MuonSegment& seg1, const Muon::MuonSegm
 // prefer segments with fit quality (always expected)
     const Trk::FitQuality* fq1 = seg1.fitQuality();
     const Trk::FitQuality* fq2 = seg2.fitQuality();
-    if( !fq1 && fq2 ) return false;
-    if( fq1  && !fq2 ) return true;
-
+    if( !fq1 && !fq2 ) {
+      m_pMuGirl->msg(MSG::WARNING) << "None of the two segments has a fit quality! Choosing arbitrarily first to be the best!" << endreq;
+      return true;
+    }
+    else if( !fq1 && fq2 ) return false;
+    else if( fq1  && !fq2 ) return true;
+    else {
 // select candidate with smallest chi2
-    double chi2Ndof1 = fq1->chiSquared()/fq1->numberDoF();
-    double chi2Ndof2 = fq2->chiSquared()/fq2->numberDoF();
-    return chi2Ndof1 < chi2Ndof2;
-
+      double chi2Ndof1 = fq1->chiSquared()/fq1->numberDoF();
+      double chi2Ndof2 = fq2->chiSquared()/fq2->numberDoF();
+      return chi2Ndof1 < chi2Ndof2;
+    }
 }
 
 int Candidate::segmentQuality(const Muon::MuonSegment* pSegment) const

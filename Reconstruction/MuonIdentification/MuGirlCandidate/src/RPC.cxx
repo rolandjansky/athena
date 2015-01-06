@@ -34,7 +34,9 @@ RPC::RPC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
 {
     m_eType = RPC_TECH;
     m_detId = ::RPC;
-    m_pIdHelper = pMuGirl->muonManager()->rpcIdHelper();
+    m_pIdHelper = dynamic_cast<const RpcIdHelper*>(pMuGirl->muonManager()->rpcIdHelper());
+    if(m_pIdHelper == 0)
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be RpcIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* RPC::readoutElement(const Identifier& id) const
@@ -44,12 +46,14 @@ const MuonGM::MuonReadoutElement* RPC::readoutElement(const Identifier& id) cons
 
 int RPC::stationID(const Identifier& id) const
 {
-    return dynamic_cast<const RpcIdHelper*>(m_pIdHelper)->stationName(id);
+    const RpcIdHelper* rpcHelper = dynamic_cast<const RpcIdHelper*>(m_pIdHelper);
+    return (rpcHelper) ? rpcHelper->stationName(id) : -1;
 }
 
 int RPC::stationNameID(const std::string& name) const
 {
-    return dynamic_cast<const RpcIdHelper*>(m_pIdHelper)->stationNameIndex(name);
+    const RpcIdHelper* rpcHelper = dynamic_cast<const RpcIdHelper*>(m_pIdHelper);
+    return (rpcHelper) ? rpcHelper->stationNameIndex(name) : -1;
 }
 
 StatusCode RPC::retrievePrepData()
@@ -139,7 +143,8 @@ Amg::Vector3D RPC::hitPosition(const Trk::PrepRawData* pPrepData)
 
 bool RPC::isEtaHit(const Trk::PrepRawData* pPrepData)
 {
-    return !dynamic_cast<const RpcIdHelper*>(m_pIdHelper)->measuresPhi(pPrepData->identify());
+    const RpcIdHelper* rpcHelper = dynamic_cast<const RpcIdHelper*>(m_pIdHelper);
+    return (rpcHelper) ? (!(rpcHelper->measuresPhi(pPrepData->identify()))) : false;
 }
 
 void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
@@ -262,6 +267,13 @@ void RPC::stauHitBeta(Hit* pHit, double& d_beta, bool& b_isEta)
 
     const Trk::PrepRawData* pPrepData = pRIO->prepRawData();
     const Muon::RpcPrepData* pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
+    if(!pRpcPrepData) {
+      m_pMuGirl->msg(MSG::WARNING) << "PrepData should be RpcPrepData, but it is NOT!" << endreq;
+      m_pMuGirl->msg(MSG::WARNING) << "Returning beta=0. and isEta=false." << endreq;
+      d_beta = 0.;
+      b_isEta = false;
+      return;
+    }
 
     Amg::Vector3D hitPos = pHit->position();
     float f_distance = fabs(hitPos.mag())/1000; //[m]
