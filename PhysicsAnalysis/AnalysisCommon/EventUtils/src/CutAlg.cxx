@@ -28,10 +28,13 @@
 // Constructors
 ////////////////
 CutAlg::CutAlg( const std::string& name,
-							  ISvcLocator* pSvcLocator ) :
+                ISvcLocator* pSvcLocator ) :
   ::AthFilterAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
   m_skimTool("CutTool/CutTool", this),
+  m_setInCollKey(false),
+  m_setOutCollKey(false),
+  m_setOutLinkCollKey(false),
   m_cut(""),
   m_setCut(false),
   m_nEventsProcessed(0)
@@ -120,9 +123,9 @@ StatusCode CutAlg::execute()
   ATH_MSG_DEBUG ( "==> execute " << name() << " on " << m_nEventsProcessed << ". event..." );
 
   // Call the skimming tool and set its result
-	bool eventPasses = m_skimTool->eventPassesFilter();
+  bool eventPasses = m_skimTool->eventPassesFilter();
   this->setFilterPassed( eventPasses );
-	ATH_MSG_DEBUG("Event passes/fails: " << eventPasses );
+  ATH_MSG_DEBUG("Event passes/fails: " << eventPasses );
 
   return StatusCode::SUCCESS;
 }

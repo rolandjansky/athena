@@ -118,15 +118,15 @@ StatusCode ParticleSortingTool::finalize()
 
 
 // Declare a short pre-processor macro to deal with the different container types
-#define COPY_AND_SORT_CONTAINER( CONTAINERTYPE )                                     \
-ATH_MSG_DEBUG("Trying to copy, sort, and record container of type "#CONTAINERTYPE ); \
-if ( evtStore()->contains<CONTAINERTYPE>( m_inCollKey.value() ) ) {                  \
-  const CONTAINERTYPE* inCont;                                                       \
-  ATH_CHECK( evtStore()->retrieve( inCont, m_inCollKey.value() ) );                  \
-  CONTAINERTYPE* outCont = new CONTAINERTYPE( SG::VIEW_ELEMENTS );                   \
-  *outCont = *inCont;                                                                \
-  ATH_CHECK( evtStore()->record ( outCont, m_outCollKey.value() ) );                 \
-  ATH_CHECK( this->doSort(outCont) );                                                \
+#define COPY_AND_SORT_CONTAINER( CONTAINERTYPE )                                       \
+else if ( evtStore()->contains<CONTAINERTYPE>( m_inCollKey.value() ) ) {               \
+  ATH_MSG_DEBUG("Trying to copy, sort, and record container of type "#CONTAINERTYPE ); \
+  const CONTAINERTYPE* inCont;                                                         \
+  ATH_CHECK( evtStore()->retrieve( inCont, m_inCollKey.value() ) );                    \
+  CONTAINERTYPE* outCont = new CONTAINERTYPE( SG::VIEW_ELEMENTS );                     \
+  *outCont = *inCont;                                                                  \
+  ATH_CHECK( evtStore()->record ( outCont, m_outCollKey.value() ) );                   \
+  ATH_CHECK( this->doSort(outCont) );                                                  \
 }
 
 
@@ -152,18 +152,24 @@ StatusCode ParticleSortingTool::addBranches() const
                   << "Trying to retrieve a const version of the 'InputContainer'...");
 
     // Now, do the copy and sorting of all known container types
-    COPY_AND_SORT_CONTAINER(xAOD::MuonContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::ElectronContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::PhotonContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::TauJetContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::JetContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::PFOContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::NeutralParticleContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::TrackParticleContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::TruthParticleContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::CompositeParticleContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::ParticleContainer);
-    COPY_AND_SORT_CONTAINER(xAOD::CaloClusterContainer);
+    if (false) {
+    }
+    COPY_AND_SORT_CONTAINER(xAOD::MuonContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::ElectronContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::PhotonContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::TauJetContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::JetContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::PFOContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::NeutralParticleContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::TrackParticleContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::TruthParticleContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::CompositeParticleContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::ParticleContainer)
+    COPY_AND_SORT_CONTAINER(xAOD::CaloClusterContainer)
+    else {
+      ATH_MSG_ERROR("Couln't find the provided intput container in store gate");
+      return StatusCode::FAILURE;
+    }
 
   }
 

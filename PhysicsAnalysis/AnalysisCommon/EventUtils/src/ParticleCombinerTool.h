@@ -38,6 +38,8 @@
 #include "xAODParticleEvent/CompositeParticleContainerFwd.h"
 #include "xAODParticleEvent/CompositeParticleFwd.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"
+#include "xAODParticleEvent/IParticleLink.h"
+#include "xAODMissingET/MissingET.h"
 
 // MC Truth
 // #include "GeneratorObjects/McEventCollection.h"
@@ -77,7 +79,8 @@ private:
 
   /** Build the composite candidates */
   StatusCode buildComposite( xAOD::CompositeParticleContainer* outContainer,
-                             xAOD::IParticleLinkContainer& anIPartLinkList ) const;
+                             xAOD::IParticleLinkContainer& anIPartLinkList,
+                             const xAOD::MissingET* metObject ) const;
 
   /** Check if the composite particle at hand was already found before */
   bool compositeParticleAlreadyFound( xAOD::CompositeParticleContainer* compContainer,
@@ -97,6 +100,9 @@ private:
       composite particles, that they don't share the same constitutents */
   bool shareSameConstituents( const xAOD::CompositeParticle* compPart1,
                               const xAOD::CompositeParticle* compPart2 ) const;
+
+  /// Try to get the charge for all types
+  float getCharge( const xAOD::IParticleLink& aParticleLink, bool& hasCharge ) const;
 
   /** Do the MC Truth selections */
   // bool mcTruthSelections( const xAOD::CompositeParticle* compPart );
@@ -119,6 +125,9 @@ private:
 
   /// The PDG_ID of the CompositeParticle
   IntegerProperty m_pdgId;
+
+  /// If true: sort the constituents in decending pt order
+  BooleanProperty m_sortConstit;
 
   // /** MCEventCollection name */
   // StringProperty m_mcEventCollKey;

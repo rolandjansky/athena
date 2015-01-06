@@ -82,6 +82,9 @@ private:
   /// This internal method will realize if a user sets the 'SetPdgId' property
   void setupSetPdgId( Property& /*prop*/ );
 
+  /// This internal method will realize if a user sets the 'SortConstituents' property
+  void setupSort( Property& /*prop*/ );
+
 
 
 private:
@@ -120,6 +123,13 @@ private:
   bool m_setPdgId;
 
 
+  /// If true: sort the constituents in decending pt order
+  BooleanProperty m_sortConstit;
+
+  /// This boolean is true if the user sets the 'SortConstituents' property
+  bool m_setSort;
+
+
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;
@@ -151,6 +161,12 @@ inline void ParticleCombinerAlg::setupOutputContainer( Property& /*prop*/ ) {
 /// This internal method will realize if a user sets the 'SetPdgId' property
 inline void ParticleCombinerAlg::setupSetPdgId( Property& /*prop*/ ) {
   m_setPdgId = true;
+  return;
+}
+
+/// This internal method will realize if a user sets the 'SortConstituents' property
+inline void ParticleCombinerAlg::setupSort( Property& /*prop*/ ) {
+  m_setSort = true;
   return;
 }
 

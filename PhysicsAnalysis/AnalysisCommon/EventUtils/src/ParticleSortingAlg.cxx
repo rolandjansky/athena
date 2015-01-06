@@ -44,7 +44,7 @@ ParticleSortingAlg::ParticleSortingAlg( const std::string& name,
 {
   declareProperty("JobOptionsSvc",   m_jos, "The JobOptionService instance.");
 
-  declareProperty("SkimTool",        m_tool, "The private ParticleSortingTool" );
+  declareProperty("SortingTool",        m_tool, "The private ParticleSortingTool" );
 
   declareProperty("InputContainer",  m_inCollKey="",   "Input container name" );
   m_inCollKey.declareUpdateHandler( &ParticleSortingAlg::setupInputContainer, this );

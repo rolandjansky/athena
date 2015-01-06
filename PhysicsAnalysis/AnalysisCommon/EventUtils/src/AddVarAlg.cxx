@@ -28,13 +28,13 @@
 // Constructors
 ////////////////
 AddVarAlg::AddVarAlg( const std::string& name,
-										  ISvcLocator* pSvcLocator ) :
+                      ISvcLocator* pSvcLocator ) :
   ::AthFilterAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
   m_tool("AddVarTool/AddVarTool", this),
-	m_setInCollKey(false),
-	m_setVarName(false),
-	m_setVarType(false),
+  m_setInCollKey(false),
+  m_setVarName(false),
+  m_setVarType(false),
   m_setSelection(false),
   m_nEventsProcessed(0)
 {
@@ -43,18 +43,18 @@ AddVarAlg::AddVarAlg( const std::string& name,
   declareProperty("AddVarTool",          m_tool, "The private AddVarTool" );
 
   declareProperty("AddVarTo",   m_inCollKey="",
-								  "Name of the container or object where the new variable will be added to" );
+                  "Name of the container or object where the new variable will be added to" );
   m_inCollKey.declareUpdateHandler( &AddVarAlg::setupInputContainer, this );
 
   declareProperty("VarName",             m_varName="",   "The name of the new variable" );
   m_varName.declareUpdateHandler( &AddVarAlg::setupVarName, this );
 
   declareProperty("VarType",             m_varType="float",
-								  "The type of the new variable (allowed values are: 'bool', 'int', 'float')" );
+                  "The type of the new variable (allowed values are: 'bool', 'int', 'float')" );
   m_varType.declareUpdateHandler( &AddVarAlg::setupVarType, this );
 
   declareProperty("Selection",         m_selection="",
-								  "The selection string that defines which xAOD::IParticles to select from the container" );
+                  "The selection string that defines which xAOD::IParticles to select from the container" );
   m_selection.declareUpdateHandler( &AddVarAlg::setupSelection, this );
 }
 

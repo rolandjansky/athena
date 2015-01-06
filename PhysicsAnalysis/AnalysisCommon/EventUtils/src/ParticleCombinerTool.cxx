@@ -28,6 +28,7 @@
 #include <vector>
 #include <cfloat>
 #include <climits>
+#include <algorithm>
 
 // The composite particle
 #include "xAODParticleEvent/CompositeParticle.h"
@@ -42,6 +43,15 @@
 #include "xAODParticleEvent/IParticleLinkContainer.h"
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODParticleEvent/Particle.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTau/TauJet.h"
+#include "xAODTracking/NeutralParticle.h"
+#include "xAODTracking/TrackParticle.h"
+// #include "xAODTruth/TruthParticle.h"
+#include "xAODPFlow/PFO.h"
+#include "xAODJet/Jet.h"
 
 // MC Truth includes
 // #include "GeneratorObjects/McEventCollection.h"
@@ -50,8 +60,9 @@
 // #include "HepMC/GenParticle.h"
 // #include "HepMC/GenVertex.h"
 
-// include the Odometer Algorithm
-#include "AnalysisUtils/CombinatoricsOdometer.h"
+// include other stuff
+#include "CxxUtils/fpcompare.h"
+#include "PATCore/CombinatoricsOdometer.h"
 
 
 
@@ -83,6 +94,7 @@ ParticleCombinerTool::ParticleCombinerTool(const std::string& type,
   declareProperty("OutputContainer",    m_outCollKey="DefaultCompositeParticleContainer",
                   "The name of the output container (default: 'DefaultCompositeParticleContainer')" );
   declareProperty("SetPdgId",           m_pdgId=0,         "PDG ID of the new output xAOD::CompositeParticle" );
+  declareProperty("SortConstituents",   m_sortConstit=false, "If true: sort the constituents in decending pt order" );
 
   // declareProperty("mcTruthRequireSameMotherPdgID",
   //                 m_mcTruthRequireSameMotherPdgID=false,
@@ -123,6 +135,7 @@ StatusCode ParticleCombinerTool::initialize()
   ATH_MSG_DEBUG ( " using = " << m_metName );
   ATH_MSG_DEBUG ( " using = " << m_outCollKey );
   ATH_MSG_DEBUG ( " using = " << m_pdgId );
+  ATH_MSG_DEBUG ( " using = " << m_sortConstit );
 
   // ATH_MSG_DEBUG ( " using mcTruthRequireSameMotherPdgID   = " << m_mcTruthRequireSameMotherPdgID );
   // ATH_MSG_DEBUG ( " using mcTruthRequireSameMotherBarcode = " << m_mcTruthRequireSameMotherBarcode );
@@ -210,8 +223,13 @@ StatusCode ParticleCombinerTool::addBranches() const
         newLinkContainer->reserve( aContainer->size() );
         m_inputLinkContainerListToDelete.push_back( newLinkContainer );
 
-        for ( std::size_t i=0; i < aContainer->size(); ++i ) {
-          xAOD::IParticleLink iPartLink( *aContainer, i );
+        for ( const auto* aPart : *aContainer ) {
+          // Have to use the container() and index() method to be able to also
+          // use an input container with SG::VIEW_ELEMENTS, i.e., this way,
+          // the IParticleLink will correctly point to the element in the
+          // original SG::OWN_ELEMENTS container.
+          xAOD::IParticleLink iPartLink( static_cast<const xAOD::IParticleContainer&>(*(aPart->container())),
+                                         aPart->index() );
           newLinkContainer->push_back( iPartLink );
         }
 
@@ -393,7 +411,7 @@ StatusCode ParticleCombinerTool::addBranches() const
       } // end the loop over the available containers to build INav4MomLink objects
 
       // Now, actually build the CompositeParticle from the list of ElementLinks to INavigable4Momentum
-      ATH_CHECK( buildComposite( outContainer, m_anIPartLinkList ) );
+      ATH_CHECK( buildComposite( outContainer, m_anIPartLinkList, metObject ) );
 
     } // End: while ( anOdometer.increment() )
 
@@ -448,7 +466,8 @@ StatusCode ParticleCombinerTool::finalize()
 // potential constituents
 //=============================================================================
 StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContainer* outContainer,
-                                                 xAOD::IParticleLinkContainer& anIPartLinkList ) const
+                                                 xAOD::IParticleLinkContainer& anIPartLinkList,
+                                                 const xAOD::MissingET* metObject ) const
 {
   // Check if the vector does not have zero size
   if ( anIPartLinkList.size() == 0 ) {
@@ -506,14 +525,39 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
   // Do the combination
   //-----------------------------------------
   if ( ParticlesAreValid ) {
+    // Sort the constituents in decending pt order, if requested
+    if ( m_sortConstit.value() ) {
+      std::sort( anIPartLinkList.begin(), anIPartLinkList.end(),
+                 [this](const xAOD::IParticleLink& a, const xAOD::IParticleLink& b) {
+                   return CxxUtils::fpcompare::greater( (*a)->pt(), (*b)->pt() );
+                 } );
+    }
+
     // Actually create the composite particle
     //--------------------------------------------------------------
+    // Try to inferr the charge from the constituents
+    bool hasCharge(true);
+    float chargeSum(0.0);
     xAOD::CompositeParticle* compPart = new xAOD::CompositeParticle();
     compPart->makePrivateStore();
     for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
+      chargeSum += this->getCharge( aParticleLink, hasCharge );
       compPart->addConstituent( aParticleLink );
     }
+    // Add also the missing ET object to the composite particle, if we have one
+    if (metObject) {
+      compPart->setMissingET(metObject);
+    }
+    // Set the PDG ID for this composite particle
     compPart->setPdgId( m_pdgId.value() );
+    // Set the charge (if we were able to calculate it) for this composite particle
+    if ( hasCharge ) {
+      ATH_MSG_VERBOSE("Setting the charge of the current composite particle to " << chargeSum );
+      compPart->setCharge(chargeSum);
+    }
+    else {
+      ATH_MSG_DEBUG("Couldn't set the charge of the composite particle");
+    }
 
     // Check if this composite particle has been found before
     if ( !compositeParticleAlreadyFound( outContainer, compPart ) ) {
@@ -567,6 +611,73 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
 }
 
 
+
+
+// Try to get the charge for all types
+float ParticleCombinerTool::getCharge( const xAOD::IParticleLink& aParticleLink,
+                                       bool& hasCharge ) const
+{
+  if (!hasCharge) { return 0.0; }
+  if (!aParticleLink.isValid()) {
+    hasCharge = false;
+    return 0.0;
+  }
+
+  // Now, start testing the different particle types
+  const xAOD::CompositeParticle* compPart = dynamic_cast<const xAOD::CompositeParticle*>(*aParticleLink);
+  if ( compPart ) {
+    if ( !(compPart->hasCharge()) ) {
+      hasCharge = false;
+      return 0.0;
+    }
+    return compPart->charge();
+  }
+  const xAOD::Particle* part = dynamic_cast<const xAOD::Particle*>(*aParticleLink);
+  if ( part ) {
+    if ( !(part->hasCharge()) ) {
+      hasCharge = false;
+      return 0.0;
+    }
+    return part->charge();
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::Electron ) {
+    const xAOD::Electron* ele = static_cast<const xAOD::Electron*>(*aParticleLink);
+    return ele->charge();
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::Photon ) {
+    return 0.0;
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::Muon ) {
+    const xAOD::Muon* muon = static_cast<const xAOD::Muon*>(*aParticleLink);
+    return muon->charge();
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::Tau ) {
+    const xAOD::TauJet* tau = static_cast<const xAOD::TauJet*>(*aParticleLink);
+    return tau->charge();
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::Jet ) {
+    // jets don't have a charge (yet?)
+    return 0.0;
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::TrackParticle ) {
+    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(*aParticleLink);
+    return trk->charge();
+  }
+  if ( (*aParticleLink)->type() == xAOD::Type::NeutralParticle ) {
+    return 0.0;
+  }
+  // if ( (*aParticleLink)->type() == xAOD::Type::TruthParticle ) {
+  //   const xAOD::TruthParticle* tp = static_cast<const xAOD::TruthParticle*>(*aParticleLink);
+  //   return static_cast<float>(tp->charge());
+  // }
+  if ( (*aParticleLink)->type() == xAOD::Type::ParticleFlow ) {
+    const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(*aParticleLink);
+    return pfo->charge();
+  }
+  // If we couldn't determine the type, do this:
+  hasCharge = false;
+  return 0.0;
+}
 
 
 
@@ -742,7 +853,7 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::CompositeParticle*
       const xAOD::CompositeParticle* constitCP2 =
         dynamic_cast<const xAOD::CompositeParticle*> (part2) ;
 
-      if ( !constitCP1 && !constitCP1 ) {
+      if ( !constitCP1 && !constitCP2 ) {
         isConstituent = this->isEqual( part1, part2 );
       }
       if ( !constitCP1 && constitCP2 ) {

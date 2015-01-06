@@ -7,18 +7,18 @@ public
 use  AtlasPolicy                AtlasPolicy-*
 
 private
-use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
 use  AthContainers              AthContainers-*                 Control
 use  AthLinks                   AthLinks-*                      Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
-use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
+use  CxxUtils                   CxxUtils-*                      Control
 use  DerivationFrameworkInterfaces                              DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
-use  EventBookkeeperMetaData    EventBookkeeperMetaData-*       Event
 use  EventInfo                  EventInfo-*                     Event
 use  ExpressionEvaluation       ExpressionEvaluation-*          PhysicsAnalysis/CommonTools
 use  GaudiInterface             GaudiInterface-*                External
-use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
+#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use_unless pkg=TrigDecisionTool tag=ManaCore ver=* root=Trigger/TrigAnalysis
 use  xAODBTagging               xAODBTagging-*                  Event/xAOD
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD

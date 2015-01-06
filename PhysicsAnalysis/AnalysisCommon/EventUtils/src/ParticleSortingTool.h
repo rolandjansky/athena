@@ -18,6 +18,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "CxxUtils/fpcompare.h"
 
 // EDM inlcudes
 #include "xAODBase/IParticle.h"
@@ -117,8 +118,8 @@ private:
 
 inline bool ParticleSortingTool::compareDouble( double a, double b ) const
 {
-  if ( m_sortID < 0 ) { return ( a > b ); }
-  else { return ( a < b ); }
+  if ( m_sortID < 0 ) { return CxxUtils::fpcompare::greater(a,b); }
+  else { return CxxUtils::fpcompare::less(a,b); }
 }
 
 #endif //> !EVENTUTILS_PARTICLESORTINGTOOL_H

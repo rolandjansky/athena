@@ -4,11 +4,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// EventQualityFilterAlg.cxx 
+// EventQualityFilterAlg.cxx
 // Implementation file for class EventQualityFilterAlg
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
 // Description: Algorithm to filter out events with a bad Event error
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // SelectionUtils includes
 #include "EventQualityFilterAlg.h"
@@ -23,19 +23,19 @@
 #include "EventInfo/EventType.h"
 
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Public methods:
+///////////////////////////////////////////////////////////////////
 
 // Constructors
 ////////////////
-EventQualityFilterAlg::EventQualityFilterAlg( const std::string& name, 
-                                              ISvcLocator* pSvcLocator ) : 
+EventQualityFilterAlg::EventQualityFilterAlg( const std::string& name,
+                                              ISvcLocator* pSvcLocator ) :
   ::AthFilterAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
-  // 
+  //
   declareProperty( "VetoLArError",  m_useLArError       = false, "Veto events with a LAr error" );
   declareProperty( "VetoTileError", m_useTileError      = false, "Veto events with a Tile error" );
   declareProperty( "VetoCoreError", m_useCoreError      = false, "Veto events with a Core error" );
@@ -72,7 +72,7 @@ StatusCode EventQualityFilterAlg::finalize()
 
 
 StatusCode EventQualityFilterAlg::execute()
-{  
+{
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
 
@@ -93,12 +93,12 @@ StatusCode EventQualityFilterAlg::execute()
 
   // Now make the event decision
   bool passEvent(true);
-  if ( eventInfo->errorState(EventInfo::LAr)  == EventInfo::Error ){ passEvent = false; }
-  if ( eventInfo->errorState(EventInfo::Tile) == EventInfo::Error ){ passEvent = false; }
-  if ( eventInfo->eventFlags(EventInfo::Core) & 0x40000 ){ passEvent = false; }
+  // if ( eventInfo->errorState(EventInfo::LAr)  == EventInfo::Error ){ passEvent = false; }
+  // if ( eventInfo->errorState(EventInfo::Tile) == EventInfo::Error ){ passEvent = false; }
+  // if ( eventInfo->eventFlags(EventInfo::Core) & 0x40000 ){ passEvent = false; }
 
   // Set the final decision
   setFilterPassed(passEvent);
-  
+
   return StatusCode::SUCCESS;
 }

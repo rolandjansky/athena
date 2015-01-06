@@ -68,6 +68,9 @@ ParticleCombinerAlg::ParticleCombinerAlg(const std::string& name,
 
   declareProperty("SetPdgId",           m_pdgId=0,         "PDG ID of the new output xAOD::CompositeParticle" );
   m_pdgId.declareUpdateHandler( &ParticleCombinerAlg::setupSetPdgId, this );
+
+  declareProperty("SortConstituents",   m_sortConstit=false, "If true: sort the constituents in decending pt order" );
+  m_sortConstit.declareUpdateHandler( &ParticleCombinerAlg::setupSort, this );
 }
 
 
@@ -94,12 +97,13 @@ StatusCode ParticleCombinerAlg::initialize()
   ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
 
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using JobOptionsSvc                    = " << m_jos );
-  ATH_MSG_DEBUG ( " using ParticleCombinerTool             = " << m_tool );
-  ATH_MSG_DEBUG ( " using InputContainerList               = " << m_inCollKeyList );
-  ATH_MSG_DEBUG ( " using MissingETObjectName              = " << m_metName );
-  ATH_MSG_DEBUG ( " using OutputContainer                  = " << m_outCollKey );
-  ATH_MSG_DEBUG ( " using SetPdgId                         = " << m_pdgId );
+  ATH_MSG_DEBUG ( " using JobOptionsSvc        = " << m_jos );
+  ATH_MSG_DEBUG ( " using ParticleCombinerTool = " << m_tool );
+  ATH_MSG_DEBUG ( " using InputContainerList   = " << m_inCollKeyList );
+  ATH_MSG_DEBUG ( " using MissingETObjectName  = " << m_metName );
+  ATH_MSG_DEBUG ( " using OutputContainer      = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using SetPdgId             = " << m_pdgId );
+  ATH_MSG_DEBUG ( " using SortConstituents     = " << m_sortConstit );
 
 
   // Initialize the counters to zero
@@ -137,6 +141,11 @@ StatusCode ParticleCombinerAlg::initialize()
     ATH_MSG_DEBUG( "Setting property" << m_pdgId
                    << " of private tool with name: '" << fullToolName << "'" );
     ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_pdgId) );
+  }
+  if (m_setSort) {
+    ATH_MSG_DEBUG( "Setting property" << m_sortConstit
+                   << " of private tool with name: '" << fullToolName << "'" );
+    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortConstit) );
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

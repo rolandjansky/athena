@@ -18,14 +18,16 @@
 
 // FrameWork includes
 #include "ExpressionEvaluation/ExpressionParser.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
 
-
+// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
+#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
+#endif
 
 
 ///////////////////////////////////////////////////////////////////
@@ -35,11 +37,13 @@
 // Constructors
 ////////////////
 CutTool::CutTool( const std::string& type,
-						      const std::string& name,
-									const IInterface* parent ) :
+                  const std::string& name,
+                  const IInterface* parent ) :
   ::AthAlgTool  ( type, name, parent ),
-	m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-	m_parser(0),
+#ifndef XAOD_ANALYSIS
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+#endif
+  m_parser(0),
   m_cut(""),
   m_nEventsProcessed(0)
 {
@@ -62,14 +66,16 @@ StatusCode CutTool::initialize()
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   // initialize proxy loaders for expression parsing
-	ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-	proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-	proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+#ifndef XAOD_ANALYSIS
+  proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
+  proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+  proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 
-	// load the expressions
-	m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	m_parser->loadExpression( m_cut.value() );
+  // load the expressions
+  m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+  m_parser->loadExpression( m_cut.value() );
 
   return StatusCode::SUCCESS;
 }
@@ -80,10 +86,10 @@ StatusCode CutTool::finalize()
 {
   ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
-	if (m_parser) {
-		delete m_parser;
-		m_parser = 0;
-	}
+  if (m_parser) {
+    delete m_parser;
+    m_parser = 0;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -93,7 +99,7 @@ StatusCode CutTool::finalize()
 // Implement the method from the ISkimmingTool interface
 bool CutTool::eventPassesFilter() const
 {
-	ATH_MSG_DEBUG ( "==> eventPassesFilter() " << name()  );
+  ATH_MSG_DEBUG ( "==> eventPassesFilter() " << name()  );
   ATH_MSG_VERBOSE ( "Dumping event store: " << evtStore()->dump() );
 
   return m_parser->evaluateAsBool();
