@@ -27,6 +27,7 @@ use AtlasReflex         AtlasReflex-*         External
 # transient. It should be put in ../<package> dir and is conventionally called
 # selection.xml.
 apply_pattern lcgdict dict=TrigDecisionEvent selectionfile=selection.xml \
+        dataLinks="HLT::HLTResult" \
         headerfiles="../TrigDecisionEvent/TrigDecisionEventDict.h"
 
 use TestTools      TestTools-*         AtlasTest
