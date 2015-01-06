@@ -31,10 +31,6 @@ struct JetMoment
       this->setMoment(moment);
       this->setTag(tag);
     }
-    MomentData(const MomentData& data) : database_t()
-    {
-      this->setData(data.moment(),data.tag());
-    }
 
     virtual ~MomentData() { };
 

@@ -99,7 +99,7 @@ class JetCollection : public DataVector<Jet>
 
   protected:
 
-#ifndef __REFLEX__
+#if !defined(__REFLEX__) && !defined(__CLING__)
   mutable DataLink<JetMomentMap>      m_momentMapLink;
 #endif
   

@@ -22,6 +22,7 @@ JetMapBase<P>::JetMapBase()  //: m_lastIndex(0)
   m_ownPolicy = SG::OWN_ELEMENTS;
 }
 
+#if 0
 template<class P>
 inline
 JetMapBase<P>::JetMapBase(const JetMapBase& /*base*/)
@@ -35,6 +36,7 @@ JetMapBase<P>::JetMapBase(const JetMapBase& /*base*/)
   // std::copy(base.m_store.begin(),base.m_store.end(),
   //           std::back_insert_iterator<map_t>(m_store));
 }
+#endif
 
 template<class P>
 inline

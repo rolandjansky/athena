@@ -11,11 +11,6 @@ JetMomentMap::JetMomentMap() : base_t()
 }
 
 
-JetMomentMap::JetMomentMap(const JetMomentMap& map) 
-  : base_t(map)
-{ 
-}
-
 JetMomentMap::~JetMomentMap()
 { 
 }

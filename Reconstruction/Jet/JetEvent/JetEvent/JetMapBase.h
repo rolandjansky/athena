@@ -51,8 +51,9 @@ public:
 
   /*! @brief Constructor  */
   JetMapBase();
-  /*! @brief Copy ctor */
-  JetMapBase(const JetMapBase& base);
+  /*! @brief No copy ctor, assignment. */
+  JetMapBase(const JetMapBase& base) = delete;
+  JetMapBase& operator=(const JetMapBase& base) = delete;
   /*! @brief destructor */
   virtual ~JetMapBase();
 
@@ -149,7 +150,7 @@ protected:
   const map_t& map() const;
 
 
-#ifndef __REFLEX__
+#if !defined(__REFLEX__) && !defined(__CLING__)
   // /*! @brief Store last valid record index */
   // mutable size_t m_lastIndex; not used so remove it for simplicity
   /*! @brief Data store */
@@ -183,7 +184,7 @@ protected:
  *  record is an entry in the store).
  */
 
-#ifndef __REFLEX__
+#if !defined(__REFLEX__) && !defined(__CLING__)
 #include "JetEvent/JetMapBase.icc"
 #endif
 

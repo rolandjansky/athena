@@ -32,7 +32,6 @@ public:
   typedef base_t::record_t      record_t;
   
   JetMomentMap();
-  JetMomentMap(const JetMomentMap& map);
   virtual ~JetMomentMap();
   
   virtual bool    setMoment(size_t jetIndex,size_t keyIndex,float_t  moment);
