@@ -37,8 +37,10 @@ apply_pattern declare_scripts files="\
  extract_mp_stat.py \
 "
 
-library AthenaMP *.cxx components/*.cxx
+library AthenaMP *.cxx components/*.cxx memory-profiler/getPss.cc
 apply_pattern component_library
+
+application getSharedMemory memory-profiler/getSharedMemory.cc memory-profiler/getPss.cc application_suffix=""
 
 end_private
 

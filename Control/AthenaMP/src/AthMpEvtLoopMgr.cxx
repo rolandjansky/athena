@@ -21,10 +21,17 @@
 #include <cstdlib>
 #include <string>
 #include <time.h>
+#include <chrono>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+
+namespace athenaMP_MemHelper
+{
+  int getPss(pid_t, unsigned long&, unsigned long&, unsigned long&, unsigned long&, bool verbose=false);
+}
 
 AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 				 , ISvcLocator* svcLocator)
@@ -39,6 +46,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_tools(this)
   , m_nChildProcesses(0)
   , m_nPollingInterval(100) // 0.1 second
+  , m_nMemSamplingInterval(0) // no sampling by default
   , m_nEventsBeforeFork(0)
   , m_shmemName("")
   , m_masterPid(getpid())
@@ -51,6 +59,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   declareProperty("CollectSubprocessLogs",m_collectSubprocessLogs);
   declareProperty("Tools",m_tools);
   declareProperty("PollingInterval",m_nPollingInterval);
+  declareProperty("MemSamplingInterval",m_nMemSamplingInterval);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
 }
 
@@ -139,7 +148,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       return StatusCode::FAILURE;
     }
 
-    AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(int));
+    AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
       msg(MSG::FATAL) << "Unable to record the pointer to Shared Event queue into Detector Store" << endreq;
       delete evtQueue;
@@ -265,6 +274,15 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   StatusCode sc = wait();
 
+  if(m_nMemSamplingInterval>0) {
+    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
+    msg(MSG::INFO) << "*** MAX PSS  "  << (*std::max_element(m_samplesPss.cbegin(),m_samplesPss.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX RSS  "  << (*std::max_element(m_samplesRss.cbegin(),m_samplesRss.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX SIZE " << (*std::max_element(m_samplesSize.cbegin(),m_samplesSize.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** MAX SWAP " << (*std::max_element(m_samplesSwap.cbegin(),m_samplesSwap.cend()))/1024 << "MB" << endreq;
+    msg(MSG::INFO) << "*** *** Memory Usage *** ***" << endreq;
+  }
+
   if(m_collectSubprocessLogs) {
     msg(MSG::INFO) << "BEGIN collecting sub-process logs" << endreq;
     std::vector<std::string> logs;
@@ -334,6 +352,8 @@ StatusCode AthMpEvtLoopMgr::wait()
   int nFinishedProc(0);
   bool all_ok(true);
 
+  auto memMonTime = std::chrono::system_clock::now();
+
   while(m_nChildProcesses>0) {
     for(it = m_tools.begin(); it!=itLast; ++it) {
       if((*it)->wait_once(nFinishedProc).isFailure()) {
@@ -347,7 +367,27 @@ StatusCode AthMpEvtLoopMgr::wait()
     }
     if(!all_ok) break;
 
-    usleep(m_nPollingInterval*1000); 
+    usleep(m_nPollingInterval*1000);
+
+    if(m_nMemSamplingInterval>0) {
+      auto currTime = std::chrono::system_clock::now();
+      if(std::chrono::duration<double,std::ratio<1,1>>(currTime-memMonTime).count()>m_nMemSamplingInterval) {
+	unsigned long size(0);
+	unsigned long rss(0);
+	unsigned long pss(0);
+	unsigned long swap(0);
+
+	if(athenaMP_MemHelper::getPss(getpid(), pss, swap, rss, size, msgLvl(MSG::DEBUG)))
+	  msg(MSG::WARNING) << "Unable to get memory sample" << endreq;
+	else {
+	  m_samplesRss.push_back(rss);
+	  m_samplesPss.push_back(pss);
+	  m_samplesSize.push_back(size);
+	  m_samplesSwap.push_back(swap);
+	}
+	memMonTime=currTime;
+      }
+    }
   }
 
   for(it=m_tools.begin(); it!=itLast; ++it) 

@@ -24,6 +24,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.CollectSubprocessLogs = jp.AthenaMPFlags.CollectSubprocessLogs()
         self.Strategy = jp.AthenaMPFlags.Strategy()
         self.PollingInterval = jp.AthenaMPFlags.PollingInterval()
+        self.MemSamplingInterval = jp.AthenaMPFlags.MemSamplingInterval()
 
         from AthenaCommon.DetFlags import DetFlags
         if DetFlags.pileup.any_on():
@@ -53,13 +54,19 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         from AthenaMPFlags import jobproperties as jp
         precounted_events = jp.AthenaMPFlags.PreCountedEvents()
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
+        chunk_size = jp.AthenaMPFlags.ChunkSize()
 
         if strategy=='SharedQueue':
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
-            self.Tools += [ SharedEvtQueueProvider(PreCountedEvents=precounted_events,IsPileup=pileup,EventsBeforeFork=events_beore_fork) ]
+            self.Tools += [ SharedEvtQueueProvider(PreCountedEvents=precounted_events,
+                                                   IsPileup=pileup,
+                                                   EventsBeforeFork=events_beore_fork,
+                                                   ChunkSize=chunk_size) ]
 
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
-            self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,IsPileup=pileup,EventsBeforeFork=events_beore_fork) ]
+            self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,
+                                                   IsPileup=pileup,
+                                                   EventsBeforeFork=events_beore_fork) ]
 
             # Enable seeking
             setupEvtSelForSeekOps()
@@ -93,7 +100,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             svcMgr.EventSelector.SharedMemoryTool = AthenaYamplTool("AthenaYamplTool",ChannelName = channelProcessor2EvtSel,Many2One=False)
 
             from AthenaMPTools.AthenaMPToolsConf import TokenScatterer
-            self.Tools += [ TokenScatterer(ProcessorChannel = channelScatterer2Processor,EventRangeChannel = event_range_channel) ]
+            self.Tools += [ TokenScatterer(ProcessorChannel = channelScatterer2Processor,EventRangeChannel = event_range_channel,DoCaching=jp.AthenaMPFlags.TokenScattererCaching()) ]
 
             from AthenaMPTools.AthenaMPToolsConf import TokenProcessor
             self.Tools += [ TokenProcessor(IsPileup=pileup,Channel2Scatterer = channelScatterer2Processor,Channel2EvtSel = channelProcessor2EvtSel) ]
