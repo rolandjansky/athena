@@ -13,6 +13,7 @@
 #include "G4UserRunAction.hh"
 #include "G4Run.hh"
 #include "G4RegionStore.hh"
+#include "G4Version.hh"
 
 //________________________________________________________________________
 iGeant4::G4AtlasRunManager::G4AtlasRunManager()
@@ -174,8 +175,11 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
 void iGeant4::G4AtlasRunManager::RunTermination()
 {
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
+#if G4VERSION_NUMBER < 1010
   for (size_t itr=0;itr<previousEvents->size();itr++) { delete (*previousEvents)[itr]; }
-
+#else
+  this->CleanUpPreviousEvents();
+#endif
   previousEvents->clear();
   
   if (userRunAction) userRunAction->EndOfRunAction(currentRun);

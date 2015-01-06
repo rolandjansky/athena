@@ -59,7 +59,7 @@ namespace iGeant4 {
 
     AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
 
-    bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 ) const;
+    bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 );
 
     ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
 
@@ -75,6 +75,7 @@ namespace iGeant4 {
     double m_cavernRmean, m_cavernZmean;
     int m_volumeOffset;
     int m_minHistoryDepth;
+    bool m_hasCavern;
 
     bool m_geant4OnlyMode;
 
@@ -83,6 +84,10 @@ namespace iGeant4 {
     std::map<std::string, int, std::less<std::string> > m_entryLayerMap;
 
     std::map<int, ISF::ISFParticle*> m_parentISPmap;
+
+    /** for keeping track of the currently processed G4Track and its corresponding ISFParticle */
+    int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
+    ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
   };
    
 }

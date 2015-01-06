@@ -491,7 +491,7 @@ class ISF_G4ConfigTool(PyAthena.AlgTool):
            frozen showers, etc
         """
         G4Eng.log.verbose('AtlasSimSkeleton._do_external :: starting')
-        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         geo2G4Svc = Geo2G4Svc()
         #theApp.CreateSvc += ["Geo2G4Svc"]
@@ -549,16 +549,15 @@ class ISF_G4ConfigTool(PyAthena.AlgTool):
             MuonDetectorTool.FillCacheInitTime = 0 # default is 1
             if 'ATLAS-GEO' in simFlags.SimLayout.get_Value():
                 ## Additional material in the muon system
-                from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-                agdd2GeoSvc = AGDD2GeoSvc()
-                import logging
-                if G4Eng.log.getEffectiveLevel()<logging.INFO:
-                    agdd2GeoSvc.PrintSections = True
-                else:
-                    agdd2GeoSvc.PrintSections = False
-                agdd2GeoSvc.Locked = True
-                #theApp.CreateSvc += ["AGDD2GeoSvc"]
-                ServiceMgr += agdd2GeoSvc
+                from MuonAGDD.MuonAGDDConf import MuonAGDDTool
+                MuonAGDDTool = MuonAGDDTool('MuonSpectrometer')
+                MuonAGDDTool.BuildNSW = False
+                ToolSvc += MuonAGDDTool
+                from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+                AGDD2Geo = AGDDtoGeoSvc()
+                AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+                #theApp.CreateSvc += ["AGDDtoGeoSvc"]
+                ServiceMgr += AGDD2Geo
             else:
                 G4Eng.log.info("AtlasSimSkeleton._do_external :: You are using a layout that does not support additional Muon material.")
     
