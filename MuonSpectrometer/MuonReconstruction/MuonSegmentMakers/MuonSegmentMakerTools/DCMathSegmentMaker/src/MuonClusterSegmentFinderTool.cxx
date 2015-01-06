@@ -92,7 +92,11 @@ namespace Muon {
     if(muonClusters.size() < 4) return 0;
     std::vector<const Muon::MuonSegment*>* segs = findPrecisionSegments(muonClusters);
     if(segs == 0) return 0;
-    if(segs->size() == 0) return 0;
+    if(segs->size() == 0)
+    { 
+      delete segs;
+      return 0;
+    }
     std::vector<const Muon::MuonSegment*>* segments = find3DSegments(muonClusters,segs);
 
     
@@ -111,7 +115,10 @@ namespace Muon {
     bool selectPhiHits(false);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " clusters to be fit" );
-    if(clusters.size() < 4) return 0;
+    if(clusters.size() < 4){
+      delete segments;
+      return 0;
+    }
     //std::vector< const Muon::MuonClusterOnTrack* > clusters = muonClusters;
     //order the muon clusters by layer
     std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters);
@@ -222,6 +229,7 @@ namespace Muon {
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " clusters to be fit" );
     if(clusters.size() < 4) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
+      delete segments;
       return etaSegs;
     }
     TrackCollection* segTrkColl = new TrackCollection;
@@ -277,7 +285,10 @@ namespace Muon {
 	}
 	
 	std::vector< const Muon::MuonClusterOnTrack* > phiHits = getClustersOnSegment(orderedClusters,seed3D);
-	if(phiHits.size() < 2) continue;
+	if(phiHits.size() < 2) {
+          delete startpar;
+          continue;
+        }
 	//interleave the phi hits
 	std::vector<const Trk::MeasurementBase*> vec2;
 	const std::vector<const Trk::RIO_OnTrack*> etaHits = (*sit)->containedROTs();
@@ -512,6 +523,7 @@ namespace Muon {
     //check if the MuonCluster is pad hit
     if(m_idHelperTool->issTgc( clus->identify() ) && m_idHelperTool->stgcIdHelper().channelType( clus->identify() ) == 0 ) {
       const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>(clus->prepRawData());
+      if (!prd) return dist;
       const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( clus->identify() );
       if(!design) {	
 	ATH_MSG_WARNING( "MuonPadDesign not found for " << m_idHelperTool->toString( clus->identify() ) );
@@ -570,8 +582,10 @@ namespace Muon {
 	surf->globalToLocal(piOnPlane,piOnPlane,lpos);
 	//pad width
 	const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>((*cit)->prepRawData());
-	const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( (*cit)->identify() );
-	double chWidth1 = 0.5*design->channelWidth(prd->localPosition(),false);
+	if (!prd) continue;
+        const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( (*cit)->identify() );
+	if (!design) continue;
+        double chWidth1 = 0.5*design->channelWidth(prd->localPosition(),false);
 	Amg::Vector2D lp1(prd->localPosition().x(),prd->localPosition().y()-chWidth1);
 	Amg::Vector2D lp2(prd->localPosition().x(),prd->localPosition().y()+chWidth1);	
 	if(lp1.y() < lpos.y() && lp2.y() > lpos.y()) {
@@ -601,6 +615,11 @@ namespace Muon {
       std::vector<const Muon::MuonClusterOnTrack*> hits;
       sTgc2.push_back(hits);
     }
+    if( !prdL1 || !prdL2 ) {
+      ATH_MSG_WARNING( "No prd associated to one of the sTgc pads!" );
+      return seeds;
+    }
+
     if( !surf1 || !surf2 ) {
       ATH_MSG_WARNING( "No surface associated to one of the sTgc pads!" );
       return seeds;
@@ -653,7 +672,11 @@ namespace Muon {
       for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit=pads[i].begin(); cit!=pads[i].end(); ++cit) {
 	Identifier id = (*cit)->identify();
 	const sTgcPrepData* prd = dynamic_cast<const sTgcPrepData*>((*cit)->prepRawData()); 
-	const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( id ); 
+	if (!prd) {
+          ATH_MSG_WARNING("No prd found for " << m_idHelperTool->toString( id ) );
+          continue;
+        } 
+        const MuonGM::MuonPadDesign* design = prd->detectorElement()->getPadDesign( id ); 
 	if( !design ) { 
 	  ATH_MSG_WARNING("No design found for " << m_idHelperTool->toString( id ) ); 
 	  continue; 

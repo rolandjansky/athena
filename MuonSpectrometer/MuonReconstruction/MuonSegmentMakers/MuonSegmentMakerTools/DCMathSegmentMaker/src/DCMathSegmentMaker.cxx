@@ -5,7 +5,7 @@
 #include "DCMathSegmentMaker.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/Timeout.h" 
+#include "AthenaKernel/Timeout.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -836,7 +836,7 @@ namespace Muon {
 	double charge = gpos.z()*tan(gdir.theta());
 	charge = charge/fabs(charge);
 	//if the curved segment was not refit, then use a momentum estimate
-	double BILALPHA(28.4366),BMLALPHA(62.8267),BMSALPHA(53.1259),BOLALPHA(29.7554);
+	double BILALPHA(28.4366),BMLALPHA(62.8267),/*BMSALPHA(53.1259),*/BOLALPHA(29.7554);
 	if(chIndex == MuonStationIndex::BIL) {
 	  qoverp = (charge*segment.deltaAlpha())/BILALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BILALPHA;
@@ -845,10 +845,13 @@ namespace Muon {
 	  qoverp = (charge*segment.deltaAlpha())/BMLALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BMLALPHA;
 	}
+        /*
+        //code currently can't reach this
 	else if(chIndex == MuonStationIndex::BMS) {
 	  qoverp = (charge*segment.deltaAlpha())/BMSALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BMSALPHA;
 	}
+        */
 	else if(chIndex == MuonStationIndex::BOL) {
 	  qoverp = (charge*segment.deltaAlpha())/BOLALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BOLALPHA;
@@ -1291,8 +1294,6 @@ namespace Muon {
 	phiVec.push_back(phiHit);
 	return createRpcSpacePoint( gasGapId,etaHit,phiVec );
       }
-    }else{
-      ATH_MSG_WARNING(" ARRRGGG got two empty pointers!!! ");
     }
     Identifier detElId = m_idHelperTool->detElId(gasGapId);
     if( fabs(error) < 0.001 ){
@@ -1309,6 +1310,7 @@ namespace Muon {
     double error(1.);
     double lpx(0.);
     double lpy(0.);
+    Identifier detElId = m_idHelperTool->detElId(gasGapId);
     // case one hit missing. Take position and error of the available hit
     if( !etaHit ){
       lpx = phiHit->localParameters()[Trk::locX];
@@ -1325,7 +1327,10 @@ namespace Muon {
       int gasGap = m_idHelperTool->tgcIdHelper().gasGap(phiHit->identify());
 
       const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(etaHit->detectorElement());
-	
+      if (!detEl) {
+        ATH_MSG_WARNING("dynamic cast error returning");
+        return Cluster2D(detElId,gasGapId,Amg::Vector2D(lpx,lpy),error,etaHit,phiHit);
+      }	
       // calculate local position of endpoint of strip
       Amg::Vector3D lEtapos = detEl->localChannelPos(etaHit->identify());
       double localEtaY = detEl->stripCtrX(gasGap, stripNo, lEtapos.z() );
@@ -1356,10 +1361,7 @@ namespace Muon {
 					 << "   " << m_idHelperTool->toString( etaHit->identify() ) << std::endl
 					 << "   " << m_idHelperTool->toString( phiHit->identify() ) << std::endl;
 
-    }else{
-      ATH_MSG_WARNING(" ARRRGGG got two empty pointers!!! ");
     }
-    Identifier detElId = m_idHelperTool->detElId(gasGapId);
     if( fabs(error) < 0.001 ){
       ATH_MSG_WARNING(" Unphysical error assigned for gasgap " << m_idHelperTool->toString(gasGapId));
       error = 1.;
@@ -1629,8 +1631,8 @@ namespace Muon {
        an identifier uniquely identifying the chamber
     */
 
-    Amg::Vector3D firstTubeMl0;
-    Amg::Vector3D firstTubeMl1; 
+    Amg::Vector3D firstTubeMl0(0., 0., 0.);
+    Amg::Vector3D firstTubeMl1(0., 0., 0.);
 
     // get id
     int eta =  m_idHelperTool->mdtIdHelper().stationEta(chid);
@@ -2569,7 +2571,7 @@ namespace Muon {
       if( isMdt ){
 
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*it);
-
+        if (!mdt) continue;
 	TubeEnds tubeEnds = localTubeEnds(*mdt,gToSegment,segmentToGlobal);
 
 	lxmin = tubeEnds.lxmin;
@@ -2617,7 +2619,10 @@ namespace Muon {
 	    int gasGap = m_idHelperTool->tgcIdHelper().gasGap(id);
 
 	    const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(crot->containedROTs().front()->prepRawData()->detectorElement());
-	
+            if (!detEl) {
+              ATH_MSG_WARNING("dynamic cast failed for TgcReadoutElement");
+              continue;
+            }
 	    // calculate two points along the tgc phi strip in the local tgc reference frame
 	    Amg::Vector3D lposTGC = detEl->localChannelPos(id);
 	    double z_shift = lposTGC.z()+10;
@@ -2631,12 +2636,12 @@ namespace Muon {
 
 	    // transform the two points to global coordinates
 	    const Amg::Transform3D tgcTrans = detEl->absTransform();
-	    Amg::Vector3D gpos    = tgcTrans*lposTGC;
-	    Amg::Vector3D gpos_shift    = tgcTrans*lpos_shift;
+	    Amg::Vector3D gposL    = tgcTrans*lposTGC;
+	    Amg::Vector3D gposL_shift    = tgcTrans*lpos_shift;
 
 	    // now transform them into the segment frame
-	    Amg::Vector3D lposSeg = gToSegment*gpos;
-	    Amg::Vector3D lposSeg_shift = gToSegment*gpos_shift;
+	    Amg::Vector3D lposSeg = gToSegment*gposL;
+	    Amg::Vector3D lposSeg_shift = gToSegment*gposL_shift;
 
 	    // calculate the y coordinate of the intersect of the segment with the TGC plane in the segment frame
 	    double segYAtHit = yline + dYdZ*(lposSeg.z()-zline); 
