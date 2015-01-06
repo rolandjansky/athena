@@ -275,8 +275,10 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
   int Nstraws = 0;
   const InDetDD::TRT_BarrelElement* be = dynamic_cast<const InDetDD::TRT_BarrelElement*>(m_detelement);
   if(be) Nstraws = be->nStraws();
-  else   Nstraws = (dynamic_cast<const InDetDD::TRT_EndcapElement*>(m_detelement))->nStraws();
-
+  else   {
+    const InDetDD::TRT_EndcapElement* en = dynamic_cast<const InDetDD::TRT_EndcapElement*>(m_detelement);
+    if(en) Nstraws = en->nStraws();
+  }
   if(be) {
 
     for(int ns=0; ns!=Nstraws; ++ns) {

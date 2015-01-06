@@ -70,13 +70,14 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   std::list<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
 
-  std::list< std::pair<Amg::Vector3D,double> >::iterator i,i0=Gp.begin(),ie=Gp.end();
+  std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
+  if(i0==ie) return;
  
   // Primary trajectory direction calculation
   //
   double A[4]; A[3]=Tp.par()[4];
 
-  for(++(i=i0); i!=ie; ++i) {
+  for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
       
       A[0] = (*i).first.x()-(*i0).first.x();
@@ -151,13 +152,14 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   std::list<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
 
-  std::list< std::pair<Amg::Vector3D,double> >::iterator i,i0=Gp.begin(),ie=Gp.end();
- 
+  std::list< std::pair<Amg::Vector3D,double> >::iterator i=Gp.begin(),i0=Gp.begin(),ie=Gp.end();
+  if(i0==ie) return;
+
   // Primary trajectory direction calculation
   //
   double A[4]; A[3]=Tp.par()[4];
 
-  for(++(i=i0); i!=ie; ++i) {
+  for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
 
       A[0] = (*i).first.x()-(*i0).first.x();

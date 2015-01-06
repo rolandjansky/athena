@@ -174,6 +174,19 @@ namespace InDet{
       m_updatortool = 0    ;
       m_trtid       = 0    ;
       m_scale_error = 2.   ;
+      m_barrel      = false;
+      m_bestlink    = 0    ;
+      m_nlinks      = 0    ;
+      m_z           = 0.   ;
+      m_zMin        = 0.   ;
+      m_zMax        = 0.   ;
+      m_radius      = 0.   ;
+      m_radiusMin   = 0.   ;
+      m_radiusMax   = 0.   ;
+      m_dpositive   = 0.   ;
+      m_dnegative   = 0.   ;
+      m_detelement  = 0    ;
+      m_fieldService= 0    ;    
     }
 
   inline TRT_TrajectoryElement_xk::TRT_TrajectoryElement_xk

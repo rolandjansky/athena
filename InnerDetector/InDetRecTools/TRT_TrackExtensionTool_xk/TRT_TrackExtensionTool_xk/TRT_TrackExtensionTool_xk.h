@@ -121,7 +121,8 @@ namespace InDet{
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      void magneticFieldInit();
+      void       magneticFieldInit();
+      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       bool isGoodExtension(const Trk::TrackParameters&);
       bool numberPIXandSCTclustersCut(const Trk::Track&);
 

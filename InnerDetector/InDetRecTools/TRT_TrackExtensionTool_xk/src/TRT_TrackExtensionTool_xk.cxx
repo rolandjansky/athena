@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <list>
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h" 
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionTool_xk.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
@@ -185,7 +186,22 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
 
   // Setup callback for magnetic field
   //
-  magneticFieldInit();
+  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
+  if (detStore()->contains<CondAttrListCollection>(folder)){
+    const DataHandle<CondAttrListCollection> currentHandle;
+    sc = detStore()->regFcn(&InDet::TRT_TrackExtensionTool_xk::magneticFieldInit,this,currentHandle,folder);
+    
+    if(sc==StatusCode::SUCCESS) {
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+    } else {
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+      return StatusCode::FAILURE;
+    }
+  } else {
+    magneticFieldInit();
+    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
+  }
+
 
   // Get output print level
   //
@@ -467,10 +483,19 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
 // Callback function - get the magnetic field /
 ///////////////////////////////////////////////////////////////////
 
+StatusCode InDet::TRT_TrackExtensionTool_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS) 
+{
+  // Build MagneticFieldProperties 
+  //
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  return StatusCode::SUCCESS;
+}
+
 void InDet::TRT_TrackExtensionTool_xk::magneticFieldInit() 
 {
   // Build MagneticFieldProperties 
   //
+
   Trk::MagneticFieldProperties* pMF = 0;
   if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
   else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);

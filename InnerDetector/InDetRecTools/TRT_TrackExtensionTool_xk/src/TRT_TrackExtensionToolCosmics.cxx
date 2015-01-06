@@ -204,7 +204,7 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
 {
   //create the boundary surfaces
   //
-  Amg::RotationMatrix3D r; r.Identity(); 
+  Amg::RotationMatrix3D r; r.setIdentity(); 
   Amg::Transform3D* t = 0;
 
   if(!m_trtcylinder) {
@@ -359,7 +359,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
         if (lastz<-9999) lastz=(**parameterIter).position().z();
         if (fabs(lastz-(**parameterIter).position().z())>500.) return;
         lastz=(**parameterIter).position().z();
-        const Trk::StraightLineSurface *slsurf=dynamic_cast<const Trk::StraightLineSurface *>(&circ->detectorElement()->surface(circ->identify()));
+        const Trk::StraightLineSurface *slsurf=dynamic_cast<const Trk::StraightLineSurface *>(&circ->detectorElement()->surface(circ->identify())); if(!slsurf) continue;
         Trk::AtaStraightLine atasl((**parameterIter).position(),(**parameterIter).parameters()[Trk::phi],(**parameterIter).parameters()[Trk::theta],(**parameterIter).parameters()[Trk::qOverP],*slsurf);
         const Trk::MeasurementBase *newmeas=m_riontrackN->correct(*circ,atasl); 
 	m_measurement.push_back(newmeas);

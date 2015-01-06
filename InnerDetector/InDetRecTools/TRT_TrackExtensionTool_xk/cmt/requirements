@@ -9,6 +9,7 @@ use TrkSurfaces                 TrkSurfaces-*                 Tracking/TrkDetDes
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools   
 use TrkTrack                    TrkTrack-*                    Tracking/TrkEvent
 use InDetRIO_OnTrack            InDetRIO_OnTrack-*            InnerDetector/InDetRecEvent
+use AthenaPoolUtilities         AthenaPoolUtilities-*         Database/AthenaPOOL
 
 public
 

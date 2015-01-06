@@ -188,10 +188,29 @@ namespace InDet{
 
   inline TRT_Trajectory_xk::TRT_Trajectory_xk()
     {
-      m_nElements   = 0;
-      m_proptool    = 0;
-      m_updatortool = 0;
-      m_scale_error = 0.;
+      m_nElements       = 0;
+      m_proptool        = 0;
+      m_updatortool     = 0;
+      m_scale_error     = 0.;
+      m_firstRoad       = 0 ;
+      m_lastRoad        = 0 ;
+      m_firstTrajectory = 0 ;
+      m_lastTrajectory  = 0 ;
+      m_nclusters       = 0 ;
+      m_ntclusters      = 0 ; 
+      m_nholesb         = 0 ; 
+      m_nholese         = 0 ; 
+      m_nholes          = 0 ; 
+      m_dholes          = 0 ; 
+      m_naElements      = 0 ; 
+      m_ndf             = 0 ;
+      m_xi2             = 0.;
+      m_roadwidth2      = 0.;
+      m_zVertexWidth    = 0.;
+      m_impact          = 0.;
+      m_A               = 0.;
+      m_B               = 0.;
+      for(int i=0; i!=5000; ++i) {m_SS[i].m_F = 0.; m_SS[i].m_NA = 0; m_U[i]=0.; m_V[i]=0.;}
     }
 
   inline TRT_Trajectory_xk::TRT_Trajectory_xk(const TRT_Trajectory_xk& T)
