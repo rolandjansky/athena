@@ -107,6 +107,16 @@ namespace TrigCostRootAnalysis {
   void CounterBase::setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val) {
     return m_dataStore.setEntries(_name, _vo, _val);
   }
+
+  /**
+   * Overwrite the sumw2 error of this counter. Note that this should be the SQUARE of the error.
+   * @param _name The name of the variable required.
+   * @param _vo The VariableOption_t requested for this variable.
+   * @param _val The SQUARE of the error for this variable
+   */
+  void CounterBase::setError(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
+    return m_dataStore.setError(_name, _vo, _val);
+  }
   
   /**
    * Return data for this counter from within the DataStore.

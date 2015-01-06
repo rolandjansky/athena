@@ -113,20 +113,18 @@ namespace TrigCostRootAnalysis {
   /////////////////////////////////////
 
   Float_t tableFnRateGetWeightedRateErr(CounterMap_t* _map, CounterBase* _TCCB) {
+    // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
     UNUSED( _map );
-    Float_t _evPassWeight = _TCCB->getValue(kVarEventsPassed, kSavePerCall);
+    Float_t _evPassErr = _TCCB->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
     Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    Float_t _rate = _evPassWeight / _walltime;
-    return TMath::Sqrt( _rate / _walltime );  
+    return _evPassErr / _walltime;  
   }
 
   Float_t tableFnRateGetDirectRateErr(CounterMap_t* _map, CounterBase* _TCCB) {
     UNUSED( _map );
-    Float_t _evPassDP = _TCCB->getValue(kVarEventsPassedDP, kSavePerCall);
+    Float_t _evPassErr = _TCCB->getValueError(kVarEventsPassedDP, kSavePerCall); // Get sqrt(sumW2)
     Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    Float_t _rate = _evPassDP / _walltime;
-    return TMath::Sqrt( _rate / _walltime );  
+    return _evPassErr / _walltime; 
   }
-
 
 } // namespace TrigCostRootAnalysis

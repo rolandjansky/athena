@@ -27,6 +27,7 @@
 namespace TrigCostRootAnalysis {
 
   class CounterBaseRates;
+  class CounterRatesUnion;
 
   /**
    * @class MonitorRates
@@ -48,6 +49,14 @@ namespace TrigCostRootAnalysis {
     void saveRateGraphs();
     void saveRuleBookXML();
     void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
+
+    void createGlobalCounters(CounterMap_t* _counterMap);
+    void createL1Counters(CounterMap_t* _counterMap);
+    void createHLTCounters(CounterMap_t* _counterMap);
+    void createOverlapCounters(CounterMap_t* _counterMap);
+
+    CounterRatesUnion* m_globalRateHLTCounter;
+    CounterRatesUnion* m_globalRateL1Counter;
 
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsHLT;

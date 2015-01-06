@@ -154,6 +154,7 @@ namespace TrigCostRootAnalysis {
    */
   void ProcessEvent::newEvent(Float_t _weight) {
     // For each active monitoring type, process event
+    if ( isZero(_weight) == kTRUE) return;
     for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
       _it->second->newEvent( _weight );
     }

@@ -50,6 +50,7 @@ namespace TrigCostRootAnalysis {
    * @param _tree Pointer to the TTree containing the data branches.
    */
   TrigCostData::TrigCostData(const Long64_t& _master, const char* _prefix, TTree* _tree) :
+    m_parent(0),
     m_bufferEventNumber(-1),
     m_hasLumiData(kTRUE),
     m_emptySet(),
@@ -64,7 +65,9 @@ namespace TrigCostRootAnalysis {
    * @see setup(const Long64_t& _master, const char* _prefix, TTree* _tree)
    */
   TrigCostData::TrigCostData() :
+    m_parent(0),
     m_bufferEventNumber(-1),
+    m_hasLumiData(kTRUE),
     m_emptySet(),
     m_trigCostObject(0)
   {
@@ -94,7 +97,31 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getEventNumber() const {
     return m_trigCostObject->eventNumber();
   }
-  
+
+  /**
+   * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the D3PD.
+   * Normally this will be done centally and distributed in this package.
+   */
+  Float_t TrigCostData::getEBWeight() const {
+    return m_trigCostObject->ebWeight();
+  }
+
+  /**
+   * @return The bunch group associated with the EB weight - note this needs to be calculated explicitly when creating the D3PD.
+   * This is decoded internally, but for reference matches up with Bunch Group Set 489
+   * (FILLED=1, CALREQ=2, EMPTY=3, UNPAIRED_ISO=4, UNPAIRED_NONISO=5, FIRSTEMPTY=6, UNPAIRED=7)
+   */
+  UInt_t TrigCostData::getEBWeightBG() const {
+    return m_trigCostObject->ebWeightBG();
+  }
+
+  /**
+   * @return If this event was a full monitoring event or not. Only full monitoring events have 
+   */
+  Bool_t TrigCostData::getIsMonitoringEvent() const {
+    return (Bool_t) m_trigCostObject->ranScaleTools();
+  }
+
   /**
    * @return The event number.
    */

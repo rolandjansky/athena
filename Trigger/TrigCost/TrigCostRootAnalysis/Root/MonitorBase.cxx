@@ -123,7 +123,7 @@ namespace TrigCostRootAnalysis {
       if ( (Int_t) _lumiBlockNumber >= _lbSummaryStart && (Int_t) _lumiBlockNumber < _lbSummaryEnd ) {
         std::string _LBIdentifier;
         std::stringstream _ss;
-        _ss << Config::config().getStr(kLumiBlockString) << "_" << _lumiBlockNumber;
+        _ss << Config::config().getStr(kLumiBlockString) << "_" << std::setfill('0') << std::setw(4) << _lumiBlockNumber;
         _ss >> _LBIdentifier;
         addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength);
       }
@@ -442,6 +442,8 @@ namespace TrigCostRootAnalysis {
     CounterMap_t* _counterMap,
     std::string &_counterCollectionName) {
 
+    std::ios::fmtflags _foutFlags( _fout.flags() );
+
     // Check if we are saving this 
     if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName() ) == kFALSE ) return;
 
@@ -552,6 +554,7 @@ namespace TrigCostRootAnalysis {
     }
     
     _fout << std::endl;
+    _fout.flags( _foutFlags );
   }
   
   /**

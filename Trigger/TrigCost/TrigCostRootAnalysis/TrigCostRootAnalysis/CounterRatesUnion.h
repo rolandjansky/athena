@@ -54,8 +54,6 @@ namespace TrigCostRootAnalysis {
     Float_t runDirect(Bool_t _usePrescale = kTRUE); 
     Float_t runWeight();
 
-    void setGlobalRateCounter(CounterBaseRates* _c) { m_globalRates = _c; }
-
    protected:
 
     void classify();
@@ -65,7 +63,6 @@ namespace TrigCostRootAnalysis {
     Float_t runWeight_AllOneToMany();
     Float_t runWeight_ManyToMany();
 
-    CounterBaseRates* m_globalRates;    //!< Pointer to the global rates counter. Used by Unique CounterRatesUnion derived counters. 
     CombinationClassification m_combinationClassification; //!< Hold the classified topology of the set of chains in this Union.
        
   }; //class CounterRatesUnion

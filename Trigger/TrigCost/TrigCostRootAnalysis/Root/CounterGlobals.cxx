@@ -17,6 +17,7 @@
 
 // Local include(s):
 #include "../TrigCostRootAnalysis/CounterGlobals.h"
+#include "../TrigCostRootAnalysis/TrigConfInterface.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/Config.h"
@@ -106,6 +107,7 @@ namespace TrigCostRootAnalysis {
     //Did HLT pass?
     for (UInt_t _i = 0; _i < m_costData->getNChains(); ++_i) {
       if ( m_costData->getIsChainPassedRaw( _i ) == kFALSE ) continue;
+      if ( TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID( _i ) ).find("costmonitor") != std::string::npos ) continue; // This always passes!
       m_dataStore.store(kVarHLTPassEvents, 1., _weight);
       break;
     }

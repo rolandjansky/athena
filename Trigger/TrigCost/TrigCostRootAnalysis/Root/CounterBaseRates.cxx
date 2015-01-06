@@ -36,16 +36,23 @@ namespace TrigCostRootAnalysis {
     CounterBase(_costData, _name, _ID, _detailLevel),
     m_L2s(),
     m_L1s(),
-    m_cannotCompute(kFALSE) {
+    m_cannotCompute(kFALSE),
+    m_myUniqueCounter(0),
+    m_globalRates(0) {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
-
-      m_dataStore.newVariable(kVarEventsPassed).setSavePerCall("Prescale Weighting;Combined Chain Weight;Events");
-      m_dataStore.newVariable(kVarEventsPassedRaw).setSavePerCall();
 
       if (Config::config().getInt(kDirectlyApplyPrescales) == kTRUE) {
         m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
       }
+      m_dataStore.newVariable(kVarEventsPassed).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsRun).setSavePerCall();
+      m_dataStore.newVariable(kVarEventsPassRawStat).setSavePerCall();    
+      m_dataStore.newVariable(kVarEventsRunRawStat).setSavePerCall();
+
+      m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerCall("Rate Per Lumi Block;Lumi Block;Rate [Hz]");
+
   }
   
   /**
@@ -61,7 +68,7 @@ namespace TrigCostRootAnalysis {
     Error("CounterBaseRates::startEvent","Not expected to call this for a rates counter");
   }
 
-    /**
+  /**
    * Monitor rate of this chain
    * @param _e Chain index in D3PD.
    * @param _f unused
@@ -72,18 +79,34 @@ namespace TrigCostRootAnalysis {
     UNUSED(_e);
     UNUSED(_f);
 
-    if (Config::config().getInt(kDirectlyApplyPrescales) == kTRUE) {
-      Float_t _weightDirect = runDirect();
-      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, _weightDirect, _weight);
+    // Reminder - _weight here is the enhanced bias event weight. May be already multiplied up by the basic weight (if not the default value of 1)
+
+    // Optional - when not doin EB weighting. We can scale up individual chains by their L1 PS to get the effective PS=1 rates.
+    // Does not work on combinations!
+    Float_t _scaleByPS = 1.;
+    if ( Config::config().getInt(kRatesScaleByPS) == kTRUE && (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1")) {
+      _scaleByPS = getDecoration(kDecPrescaleValOnlineL1);
     }
 
+    // DIRECT Prescale
+    if (Config::config().getInt(kDirectlyApplyPrescales) == kTRUE) {
+      Float_t _weightDirect = runDirect();
+      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
+    }
+
+    // WEIGHTED Prescale
     Float_t _weightPS = runWeight();
     if (!isZero( _weightPS )) {
-      m_dataStore.store(kVarEventsPassed, _weightPS, _weight);
+      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
+      m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
     }
 
     if (getInEvent() == kTRUE) {
-      m_dataStore.store(kVarEventsPassedRaw, runDirect(kFALSE), _weight);
+      Float_t _passBeforePS = runDirect(kFALSE); // usePrescales == false
+      m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
+      m_dataStore.store(kVarEventsRun, 1., _weight * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
+      m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
+      m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
     }
 
   }
@@ -139,8 +162,10 @@ namespace TrigCostRootAnalysis {
     // Perform Union check on number of L1 seeds
     if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
       if (_toAdd->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
-        Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
-          _toAdd->getName().c_str(), getName().c_str(), (UInt_t) _toAdd->getLower().size());
+        if (!(getStrDecoration(kDecType) != "UniqueHLT" || getStrDecoration(kDecType) != "UniqueL1")) {
+          Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
+            _toAdd->getName().c_str(), getName().c_str(), (UInt_t) _toAdd->getLower().size());
+        }
         return;
       }
     }
@@ -159,8 +184,10 @@ namespace TrigCostRootAnalysis {
       // Perform Union check on number of L1 seeds
       if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
         if (_L2->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
-          Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
-            _L2->getName().c_str(), getName().c_str(), (UInt_t) _L2->getLower().size());
+          if (!(getStrDecoration(kDecType) == "UniqueHLT" || getStrDecoration(kDecType) == "UniqueL1")) { // This msg gets spammy otherwise
+            Warning("CounterBaseRates::addHLTItem","Not including %s in %s due to %u L1 seeds (see: --maxMultiSeed)",
+              _L2->getName().c_str(), getName().c_str(), (UInt_t) _L2->getLower().size());
+          }
           continue;
         }
       }
@@ -171,14 +198,12 @@ namespace TrigCostRootAnalysis {
     }
   }
 
-
   /**
    * @param _overlap Pointer to another counter which overlaps with this one, used to get relative rates at the end of run.
    */
   void CounterBaseRates::addOverlap( CounterBase* _overlap ) {
     m_ovelapCounters.insert( _overlap );
   }
-
 
   /**
    * @return kTRUE if at least one HLT counter of this chain had info in the D3PD for this event.
@@ -210,8 +235,45 @@ namespace TrigCostRootAnalysis {
         _chainPasses,
         _chainPassesDP,
         _sig,
-        getStrDecoration(kDecPrescale).c_str());
+        getStrDecoration(kDecPrescaleStr).c_str());
     }
+    
+    // Check zero rates
+    const std::string _output = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputRatesWarnings);
+    if (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1") { // If a plain chain
+      if (getBasicPrescale() > 0 && isZero(_chainPasses) == kTRUE) { // If PS > 0 but no rate
+        // Only display this warning once
+        if (Config::config().getDisplayMsg(kMsgZeroRate) == kTRUE) { 
+          Warning("CounterBaseRates::finalise","There are chains with non-zero prescale but ZERO rate. Please check %s !", _output.c_str() );
+        }
+        std::ofstream _fout;
+        _fout.open(_output.c_str(), std::ofstream::out | std::ofstream::app); // Open to append
+        _fout << "Warning in <CounterBaseRates::finalise>: Chain " << getName() << " has a prescale of " << getStrDecoration(kDecPrescaleStr) << " but ZERO RATE." << std::endl;
+        _fout.close();
+      }
+    }
+
+    // This has just been set
+    Float_t _walltime = getDecoration(kDecLbLength);
+
+    // Get unique rates
+    Float_t _uniqueRate = 0.;
+    if (getMyUniqueCounter() != 0) {
+      _uniqueRate = getMyUniqueCounter()->getValue(kVarEventsPassed, kSavePerCall);
+      _uniqueRate /= _walltime;
+    }
+    decorate(kDecUniqueRate, _uniqueRate);
+
+    // Get unique fraction
+    Float_t _uniqueFraction = 0.;
+    if (getGlobalRateCounter() != 0) {
+      Float_t _globalRate = getGlobalRateCounter()->getValue(kVarEventsPassed, kSavePerCall);
+      _globalRate /= _walltime;
+      if (!isZero(_globalRate)) {
+        _uniqueFraction = _uniqueRate / _globalRate;
+      }
+    }
+    decorate(kDecUniqueFraction, _uniqueFraction * 100); // Save in %
 
     // Next step is only for chain counters
     if (getStrDecoration(kDecType) != "Chain") return;

@@ -46,6 +46,9 @@ namespace TrigCostRootAnalysis {
 
     // Check if we are randomly going to accept this event
     if ( m_rando.Rndm() > m_probability ) return;
+
+    // Check this is a monitoring event - no point saving it if not
+    if ( m_costData->getIsMonitoringEvent() == kFALSE ) return;
     
     // Check if we have already saved our max number of events.
     // In this monitor, we use a new counter collection for every event.
@@ -61,7 +64,7 @@ namespace TrigCostRootAnalysis {
     const std::string _eventNumberStr = std::string("Event_") + intToString( m_costData->getEventNumber(), 6);
     CounterMap_t* _eventMap = getCounterCollection( _eventNumberStr );
 
-    if (true || Config::config().debug()) {
+    if (Config::config().getDisplayMsg(kMsgSaveFullEvent) == kTRUE) {
       Info("MonitorFullEvent::newEvent","Saving full event for event number %s", _eventNumberStr.c_str());
     }
 

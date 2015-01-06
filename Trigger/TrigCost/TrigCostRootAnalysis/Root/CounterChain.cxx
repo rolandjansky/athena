@@ -40,7 +40,7 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.newVariable(kVarEventsPassed)
       .setSavePerEvent("Chains Passed;Chain Passed;Events");
-    m_dataStore.newVariable(kVarEventsPassedRaw).setSavePerEvent();
+    m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerEvent();
     m_dataStore.newVariable(kVarEventsPassthrough).setSavePerEvent();
     m_dataStore.newVariable(kVarEventsSlow).setSavePerEvent();
     m_dataStore.newVariable(kVarTotalPrescale).setSavePerEvent();
@@ -105,7 +105,7 @@ namespace TrigCostRootAnalysis {
     
     //}
     
-    m_dataStore.store(kVarEventsPassedRaw, m_costData->getIsChainPassedRaw(_e), _weight);
+    m_dataStore.store(kVarEventsPassedNoPS, m_costData->getIsChainPassedRaw(_e), _weight);
     m_dataStore.store(kVarEventsPassthrough, m_costData->getIsChainPassthrough(_e), _weight);
     
     m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(_e), _weight);

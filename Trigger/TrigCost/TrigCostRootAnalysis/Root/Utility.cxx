@@ -48,6 +48,17 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Helper function, converts string to double
+   * @param _i string to convert.
+   * @returns Double precision point representation of string.
+   */
+  Double_t stringToDouble(const std::string& _i) {
+    Double_t _result = DBL_MAX;
+    std::istringstream( _i ) >> _result;
+    return _result;
+  }
+
+  /**
    * Helper function, converts unsigned integer to string.
    * @param _i UInt_t to convert.
    * @returns String of integer.
@@ -88,7 +99,9 @@ namespace TrigCostRootAnalysis {
   std::string doubleToString(Double_t _d, Int_t _precision) {
     std::ostringstream ss;
     ss.precision( _precision );
-    if (TMath::Abs(_d) < 1e4) {
+    if (isZero(_d) == kTRUE) {
+      ss << "0";
+    } else if (TMath::Abs(_d) < 1e4) {
       ss << std::fixed << _d;
     } else {
       ss << std::scientific << _d;

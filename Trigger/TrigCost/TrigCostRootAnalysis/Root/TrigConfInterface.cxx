@@ -145,17 +145,27 @@ namespace TrigCostRootAnalysis {
   const std::string& TrigConfInterface::getLowerChainName( const std::string& _name ) {
     return getTCT()->GetLowerChainName( _name );
   }
+
+  /**
+   * Fetch the current passtrhough PS value for a given chain
+   * @param _name Const reference to higher chain name.
+   * @return Passthrough value
+   */
+  Float_t TrigConfInterface::getPassthrough( const std::string& _name ) {
+    return getTCT()->GetPassthrough( _name );
+  }
   
   /**
    * Explicitly load given entry in tree. This should not be needed.
    * @param _entry Entry in tree to load.
    */
   void TrigConfInterface::getEntry( Long64_t _entry ) {
+    UNUSED( _entry );
     assert( m_isConfigured );
     // This is not, it appears, needed.
     Warning("TrigConfInterface::getEntry", "This does not need to be called"); //TODO Remove this func
     return;
-    m_tdt->GetEntry( _entry );
+    //m_tdt->GetEntry( _entry );
   }
   
   /**
@@ -314,48 +324,102 @@ namespace TrigCostRootAnalysis {
     }
     return 0;
   }
+
+  /**
+   * Get number of metadata values in file
+   * @return Number of string->string metadata pairs
+   */
+  UInt_t TrigConfInterface::getMetaStringN() {
+    if ( getUsingNtupleMetadata() == kTRUE ) {
+      return getTCT()->GetMetaStringN();
+    }
+    return 0;
+  }
+
+  /**
+   * Fetch a string key from the config metadata
+   * @param _m Which metadata to fetch.
+   * @return String key value for this metadata
+   */
+  std::string TrigConfInterface::getMetaStringKey(UInt_t _m) {
+    if ( getUsingNtuplePrescales() == kTRUE ) {
+      return getTCT()->GetMetaStringKey( _m );
+    }
+    return Config::config().getStr(kBlankString);
+  }
+
+  /**
+   * Fetch a string payload from the config metadata
+   * @param _m Which metadata to fetch.
+   * @return String payload value for this metadata
+   */
+  std::string TrigConfInterface::getMetaStringVal(UInt_t _m) {
+    if ( getUsingNtuplePrescales() == kTRUE ) {
+      return getTCT()->GetMetaStringVal( _m );
+    }
+    return Config::config().getStr(kBlankString);
+  }
+
+  /**
+   * Fetch a string payload from the config metadata
+   * @param _key String key to fetch
+   * @return String payload value for this metadata
+   */
+  std::string TrigConfInterface::getMetaStringVal(std::string _key) {
+    if ( getUsingNtuplePrescales() == kTRUE ) {
+      for (UInt_t _i = 0; _i < getMetaStringN(); ++_i) {
+        if (getMetaStringKey(_i) == _key) return getMetaStringVal(_i);
+      }
+    }
+    return Config::config().getStr(kBlankString);
+  }
   
-  // /**
-  //  * Get if given chain was passed in the event by decoding the trigger bits.
-  //  * @deprecated This is currently unsupported due to change in source of trigger information.
-  //  * @see TrigCostData::getIsChainPassed(std::string& _n)
-  //  * @param _chainName Name of chain to fetch decision for.
-  //  * @return Boolean decision.
-  //  */
-  // Bool_t TrigConfInterface::getIsPassedPhysics( const std::string _chainName ) {
-  //   assert( m_isConfigured );
-  //   Error("TrigConfInterface::getIsPassedPhysics", "GETTING 'IS PASSED' IS BROKEN FOR NOW."); //TODO remove this, it's not coming back any tme soon
-  //   return getTDT()->IsPassed( _chainName );
-  // }
-  
-  // /**
-  //  * Get list of triggers which passed at L2.
-  //  * @deprecated This is currently unsupported due to change in source of trigger information.
-  //  * @return Vector of string chain names for chains which passed this event.
-  //  */ 
-  // std::vector< std::string > TrigConfInterface::getPassedL2Triggers() {
-  //   assert( m_isConfigured );
-  //   Error("TrigConfInterface::getPassedL2Triggers", "GETTING 'IS PASSED' IS BROKEN FOR NOW."); //TODO remove this, it's not coming back any tme soon
-  //   return getTDT()->GetPassedL2Triggers();
-  // }
-  
-  // /**
-  //  * Get list of triggers which passed at EF.
-  //  * @deprecated This is currently unsupported due to change in source of trigger information.
-  //  * @return Vector of string chain names for chains which passed this event.
-  //  */
-  // std::vector< std::string > TrigConfInterface::getPassedEFTriggers() {
-  //   assert( m_isConfigured );
-  //   Error("TrigConfInterface::getPassedEFTriggers", "GETTING 'IS PASSED' IS BROKEN FOR NOW."); //TODO remove this, it's not coming back any tme soon
-  //   return getTDT()->GetPassedEFTriggers();
-  // }
-  
+  /**
+   * Fetch a map which contains the bunch group information.
+   * This may be fetched from the database or from the CTP
+   * conf. Both are tried but only one will be returned.
+   * @return Map of bunch group name -> number of BCIDs in bunch group
+   */
+  StringIntMap_t TrigConfInterface::getBunchGroupSetup() {
+    StringIntMap_t _BGDatabase, _BGCTPConf;
+    UInt_t _BCIDCountDB = 0, _BCIDCountCTPConf = 0;
+    for (Int_t _bg = 0; _bg < Config::config().getInt(kNBunchGroups); ++_bg) {
+      std::stringstream _ss, _ssDB, _ssCTPName, _ssCTPSize;
+      // Database
+      _ssDB << "DB:BGRP" << _bg;
+      std::string _BGDBVal = getMetaStringVal(_ssDB.str());
+      if ( _BGDBVal != Config::config().getStr(kBlankString) ) {
+        _ss << "BGRP" << _bg;
+        _BGDatabase[_ss.str()] = stringToInt( _BGDBVal );
+        _BCIDCountDB += stringToInt( _BGDBVal );
+      }
+      // CTP Config 
+      _ssCTPName << "CTPConfig:NAME:BGRP" << _bg;
+      _ssCTPSize << "CTPConfig:SIZE:BGRP" << _bg;
+      std::string _CTPBGName = getMetaStringVal( _ssCTPName.str() );
+      std::string _CTPBGSize = getMetaStringVal( _ssCTPSize.str() );
+      if ( _CTPBGName != Config::config().getStr(kBlankString) &&  _CTPBGSize != Config::config().getStr(kBlankString) ) {
+        _BGCTPConf[_CTPBGName] = stringToInt( _CTPBGSize );
+        _BCIDCountCTPConf += stringToInt( _CTPBGSize );
+      }
+    }
+    // Hopefully these agree, but let's assume if not that the one with the most active BCIDs
+    if (_BCIDCountDB > _BCIDCountCTPConf) {
+      return _BGDatabase;
+    } else {
+      return _BGCTPConf;
+    }
+  }
+
   /**
    * Designed for internal use, get a pointer to the TriggerDescisionTool object.
    * @return Pointer to configured D3PD::TrigDecisionToolD3PD.
    */
   D3PD::TrigDecisionToolD3PD* TrigConfInterface::getTDT() {
-    assert( m_isConfigured );
+    if ( m_isConfigured == kFALSE ) {
+      Error("TrigConfInterface::getTDT", "Configuration tool is not configured!");
+      return 0;
+    }
     return m_tdt;
   }
   
@@ -375,6 +439,8 @@ namespace TrigCostRootAnalysis {
    * Export current trigger configuration to basic HTML page.
    */
   void TrigConfInterface::dump() {
+
+    if (m_isConfigured == kFALSE) return;
   
     const std::string _sm = intToString( getCurrentSMK() );
     
@@ -410,7 +476,8 @@ namespace TrigCostRootAnalysis {
       }
       //_foutHtml << "<hr>" << std::endl;
       //_foutHtml << "<li>Trigger Chain: Name:<b>" << getTCT()->GetChainName(_c) << _counter << getTCT()->GetChainCounter(_c) << "</i></li>" << std::endl;
-      _json->addNode(_foutJson, getTCT()->GetChainName(_c), "C");
+      std::string _chainName = getTCT()->GetChainName(_c);
+      _json->addNode(_foutJson, _chainName + " (PS:" + floatToString(getTCT()->GetPrescale(_chainName),2) + ")", "C");
       // _foutHtml << "<li>Prescale:<i>" << getPrescale( getTCT()->GetChainName(_c) ) << "</i></li>" << std::endl;
       // if (getTCT()->GetChainGroupNameSize(_c)) {
       //   _foutHtml << "<li>Groups:<i>";
@@ -466,6 +533,7 @@ namespace TrigCostRootAnalysis {
     _json->endNode(_foutJson); //END HLT
     _json->endNode(_foutJson); //END TRIGGER
     _foutJson.close();
+    delete _json;
     //_foutHtml << "</ul>" << std::endl;
     //_foutHtml << "</p></body></html>" << std::endl;
     //_foutHtml.close();

@@ -32,7 +32,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Chain's ID number.
    */
   CounterRatesUnion::CounterRatesUnion( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
-    CounterBaseRates(_costData, _name, _ID, _detailLevel), m_globalRates(0), m_combinationClassification(kUnset) {
+    CounterBaseRates(_costData, _name, _ID, _detailLevel), m_combinationClassification(kUnset) {
   }
   
   /**
@@ -48,18 +48,30 @@ namespace TrigCostRootAnalysis {
       assert (m_globalRates != 0);
 
       // Get the global rate
-      Float_t _globPasses    = m_globalRates->getValue(kVarEventsPassed,    kSavePerCall);
-      Float_t _globPassesDP  = m_globalRates->getValue(kVarEventsPassedDP,  kSavePerCall);
-      Float_t _globPassesRaw = m_globalRates->getValue(kVarEventsPassedRaw, kSavePerCall);
+      Float_t _globPasses       = m_globalRates->getValue(kVarEventsPassed,    kSavePerCall);
+      Float_t _globPassesDP     = m_globalRates->getValue(kVarEventsPassedDP,  kSavePerCall);
+      Float_t _globPassesNoPS   = m_globalRates->getValue(kVarEventsPassedNoPS,kSavePerCall);
+      // Square these to keep them as sumw2
+      Float_t _globPassesErr    = TMath::Power( m_globalRates->getValueError(kVarEventsPassed,    kSavePerCall), 2);
+      Float_t _globPassesDPErr  = TMath::Power( m_globalRates->getValueError(kVarEventsPassedDP,  kSavePerCall), 2);
+      Float_t _globPassesNoPSErr= TMath::Power( m_globalRates->getValueError(kVarEventsPassedNoPS,kSavePerCall), 2);
+
       // Get my rate
-      Float_t _chainPasses    = getValue(kVarEventsPassed,   kSavePerCall);
-      Float_t _chainPassesDP  = getValue(kVarEventsPassedDP, kSavePerCall);
-      Float_t _chainPassesRaw = getValue(kVarEventsPassedRaw, kSavePerCall);
+      Float_t _chainPasses       = getValue(kVarEventsPassed,   kSavePerCall);
+      Float_t _chainPassesDP     = getValue(kVarEventsPassedDP, kSavePerCall);
+      Float_t _chainPassesNoPS   = getValue(kVarEventsPassedNoPS, kSavePerCall);
+      // Square these to keep them as sumw2
+      Float_t _chainPassesErr    = TMath::Power( getValueError(kVarEventsPassed,    kSavePerCall), 2);
+      Float_t _chainPassesDPErr  = TMath::Power( getValueError(kVarEventsPassedDP,  kSavePerCall), 2);
+      Float_t _chainPassesNoPSErr= TMath::Power( getValueError(kVarEventsPassedNoPS,kSavePerCall), 2);
 
       //Set me to the difference
-      setValue(kVarEventsPassed,    kSavePerCall, _globPasses    - _chainPasses   );
-      setValue(kVarEventsPassedDP,  kSavePerCall, _globPassesDP  - _chainPassesDP );
-      setValue(kVarEventsPassedRaw, kSavePerCall, _globPassesRaw - _chainPassesRaw);
+      setValue(kVarEventsPassed,    kSavePerCall, _globPasses       - _chainPasses       );
+      setValue(kVarEventsPassedDP,  kSavePerCall, _globPassesDP     - _chainPassesDP     );
+      setValue(kVarEventsPassedNoPS,kSavePerCall, _globPassesNoPS   - _chainPassesNoPS   );
+      setError(kVarEventsPassed,    kSavePerCall, _globPassesErr    - _chainPassesErr    ); // Note - directly changing m_sumw2
+      setError(kVarEventsPassedDP,  kSavePerCall, _globPassesDPErr  - _chainPassesDPErr  ); // Note - directly changing m_sumw2
+      setError(kVarEventsPassedNoPS,kSavePerCall, _globPassesNoPSErr- _chainPassesNoPSErr); // Note - directly changing m_sumw2
 
     }
 
@@ -131,8 +143,10 @@ namespace TrigCostRootAnalysis {
 
     // See if L1 only, no HLT chains
     if (m_L2s.size() == 0) {
-      Info("CounterRatesUnion::classify","Chain %s topology classified as OnlyL1.", 
-        getName().c_str());
+      if (Config::config().debug()) {
+        Info("CounterRatesUnion::classify","Chain %s topology classified as OnlyL1.", 
+          getName().c_str());
+      }
       m_combinationClassification = kOnlyL1;
       return;
     }
@@ -152,9 +166,11 @@ namespace TrigCostRootAnalysis {
       }
       if (_allToAll == kFALSE) break;
     }
-    if (_allToAll == kTRUE && (Config::config().debug() == kTRUE || 1)) {
-      Info("CounterRatesUnion::classify","Chain %s topology classified as All-To-All.", 
-        getName().c_str());
+    if (_allToAll == kTRUE) {
+      if (Config::config().debug()) {
+        Info("CounterRatesUnion::classify","Chain %s topology classified as All-To-All.", 
+          getName().c_str());
+      }
       m_combinationClassification = kAllToAll;
       return;
     }
@@ -181,9 +197,11 @@ namespace TrigCostRootAnalysis {
       }
       if (_allOneToOne == kFALSE) break;
     }
-    if (_allOneToOne == kTRUE && (Config::config().debug() == kTRUE || 1)) {
-      Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-One.",
-        getName().c_str());
+    if (_allOneToOne == kTRUE) {
+      if (Config::config().debug()) {
+        Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-One.",
+          getName().c_str());
+      }
       m_combinationClassification = kAllOneToOne;
       return;
     }
@@ -199,20 +217,24 @@ namespace TrigCostRootAnalysis {
       }
     }
     if (_allOneToMany == kTRUE) {
-      Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-Many.",
-        m_name.c_str());
+      if (Config::config().debug()) {
+        Info("CounterRatesUnion::classify","Chain %s topology classified as All-One-To-Many.",
+          m_name.c_str());
+      }
       m_combinationClassification = kAllOneToMany;
       return;
     }
 
     // Otherwise we have to use the general form
-    Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
-      getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
-    if (m_L1s.size() > 32) {
-      Error("CounterRatesUnion::classify","Cannot calculate rates union for this complexity. Use fewer L1 seeds!!! Disabling this combination.");
+    if (Config::config().debug()) {
+      Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
+        getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
+    }
+    if (m_L1s.size() > 20) { // 32 is the technical maximim - but the this is already impractical
+      Error("CounterRatesUnion::classify","Cannot calculate rates union for this complexity, %s. Use fewer L1 seeds!!! Disabling this combination.", getName().c_str());
       m_cannotCompute = kTRUE;
     } else if (m_L1s.size() > 10) {
-      Warning("CounterRatesUnion::classify","Many L1s in this combination. Calculatuon will be *SLOW.*");
+      Warning("CounterRatesUnion::classify","Many L1s in this combination, %s. Calculatuon will be *SLOW.*", getName().c_str());
     }
     m_combinationClassification = kManyToMany;
   }

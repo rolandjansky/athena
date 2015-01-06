@@ -47,10 +47,16 @@ namespace TrigCostRootAnalysis {
     void   addHLTItem ( RatesChainItem* _toAdd );
     void   addHLTItems( ChainItemSet_t _toAdd );
     void   addOverlap ( CounterBase* _overlap );
+    void   setMyUniqueCounter( CounterBaseRates* _c ) { m_myUniqueCounter = _c; }
+    void   setGlobalRateCounter(CounterBaseRates* _c) { m_globalRates = _c; }
+
     Bool_t getInEvent();
 
     ChainItemSet_t& getHLTItemSet();
     UInt_t getBasicPrescale();
+    CounterBaseRates* getMyUniqueCounter() { return m_myUniqueCounter; }
+    CounterBaseRates* getGlobalRateCounter() { return m_globalRates; }
+
 
     virtual void    finalise();
     virtual Float_t runDirect(Bool_t _usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with appropriate trigger logic
@@ -58,10 +64,12 @@ namespace TrigCostRootAnalysis {
 
   protected:
 
-    CounterSet_t      m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them 
-    ChainItemSet_t    m_L2s;            //!< List of all L2 chains in this combination
-    ChainItemSet_t    m_L1s;            //!< List of all L1 items which seed L2 chains in this combination (not always used)
-    Bool_t            m_cannotCompute;  //!< Chain rate cannot be computed for whatever reason. Will always return weight 0;
+    CounterSet_t       m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them 
+    ChainItemSet_t     m_L2s;            //!< List of all L2 chains in this combination
+    ChainItemSet_t     m_L1s;            //!< List of all L1 items which seed L2 chains in this combination (not always used)
+    Bool_t             m_cannotCompute;  //!< Chain rate cannot be computed for whatever reason. Will always return weight 0;
+    CounterBaseRates*  m_myUniqueCounter;//!< For L1 and HLT chains, this pointer is set to the counter responsible for getting the unique rate for the chain.
+    CounterBaseRates*  m_globalRates;    //!< Pointer to the global rates counter. Used currently by Unique CounterRatesUnion derived counters. 
    
   }; //class CounterBaseRates
   

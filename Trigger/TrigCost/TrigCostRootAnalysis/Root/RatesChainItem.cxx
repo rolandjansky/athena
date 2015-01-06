@@ -22,20 +22,55 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct new RatesChainItem with a given prescale.
    */
-  RatesChainItem::RatesChainItem(std::string _name, Int_t _PS) : 
+  RatesChainItem::RatesChainItem(std::string _name, Int_t _level, Double_t _PS) : 
     m_name(_name),
+    m_level(_level),
     m_PS(_PS), // Integer prescale
-    m_PSWeight(1./(Double_t)m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
+    m_PSWeight(1./m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
+    m_bunchGroupType(kBG_UNSET),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
     m_inEvent(kFALSE)
   {
     if (Config::config().debug()) {
-      Info("RatesChainItem::RatesChainItem","New ChainItem:%s, PS:%i", m_name.c_str(), m_PS);
+      Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
     }
+
+    m_doEBWeighting = Config::config().getInt(kDoEBWeighting); // Cache for speed
+
+    // If L1: then classify my bunchgroup
+    if (m_level == 1) classifyBunchGroup();
+
+    if (m_PS < 0.) m_PSWeight = 0.;
     m_forcePassRaw = (Bool_t) Config::config().getInt(kRatesForcePass);
+  }
+
+  /**
+   * Look at L1 items from this counter and classify from their name what type of BG they triggered on
+   */
+  void RatesChainItem::classifyBunchGroup() {
+
+    if (getName().find("_BPTX") != std::string::npos || getName().find("_BGRP") != std::string::npos) { // Ignore the beam pickup triggers
+      m_bunchGroupType = kBG_NONE;
+    } else if (getName().find("_FIRSTEMPTY") != std::string::npos) {
+      m_bunchGroupType = kBG_FIRSTEMPTY;
+    } else if (getName().find("_EMPTY") != std::string::npos) {
+      m_bunchGroupType = kBG_EMPTY;
+    } else if (getName().find("_UNPAIRED_ISO") != std::string::npos) {
+      m_bunchGroupType = kBG_UNPAIRED_ISO;
+    } else if (getName().find("_UNPAIRED_NONISO") != std::string::npos) {
+      m_bunchGroupType = kBG_UNPAIRED_NONISO;
+    } else {
+      m_bunchGroupType = kBG_FILLED;
+    }
+
+    if (Config::config().debug()) {
+      Info("RatesChainItem::classifyBunchGroup","Item %s classified as %s.",
+        getName().c_str(), BunchGroupNameStr[m_bunchGroupType].c_str() );
+    }
+
   }
 
   /**
@@ -89,7 +124,7 @@ namespace TrigCostRootAnalysis {
   /**
    * @return The configured prescale value
    */
-  Int_t RatesChainItem::getPS() { 
+  Double_t RatesChainItem::getPS() { 
     return m_PS;
   }
 
@@ -129,7 +164,11 @@ namespace TrigCostRootAnalysis {
    * Update the random prescale to a new value
    */
   void RatesChainItem::newRandomPS() {
-    m_passPS = (m_R.Rndm() < m_PSWeight);
+    if (m_PS < 0.) {
+      m_passPS = kFALSE;
+    } else {
+      m_passPS = (m_R.Rndm() < m_PSWeight);
+    }
   }
 
   /**
@@ -144,6 +183,19 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t RatesChainItem::getPassRaw() { 
     if (m_forcePassRaw == kTRUE) return kTRUE;
+
+    // L1 can only pass raw if this is the correct bunchgroup, only if doing EB weighting
+    // TODO - This check is probably not needed as the trigger should have known what chains to run for each BG when it was running
+    if (m_level == 1 && m_doEBWeighting == kTRUE) {
+      if (m_bunchGroupType != Config::config().getInt(kCurrentEventBunchGroupID)) {
+        if (Config::config().debug() && Config::config().getInt(kCurrentEventBunchGroupID) >= 0) {
+          Info("RatesChainItem::getPassRaw","Item %s forced FALSE as bunchgroup ID is %s.",
+            getName().c_str(), BunchGroupNameStr[Config::config().getInt(kCurrentEventBunchGroupID)].c_str() );
+        }
+        return kFALSE;
+      }
+    }
+
     return m_passRaw; 
   } 
 

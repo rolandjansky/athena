@@ -14,7 +14,6 @@
 #include <Rtypes.h>
 
 //Local include(s):
-#include "MonitorBase.h"
 #include "Utility.h" //Typedefs
 
 namespace TrigCostRootAnalysis {

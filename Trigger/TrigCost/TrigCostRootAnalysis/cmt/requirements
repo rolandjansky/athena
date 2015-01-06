@@ -32,14 +32,14 @@ apply_pattern declare_runtime extras = "../data/*.xml"
 # (Manually specify other packages to link against)
 
 # Inform cmake of the required ROOT and xml components (invisible to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS XMLIO XMLParser)"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad MathCore XMLIO XMLParser)"
 apply_pattern cmake_add_command command="find_package(xml)"
 
 private
 macro_append TrigCostRootAnalysisLib_cppflags " `xml2-config --cflags`"
 ## xml libraries
 macro_append TrigCostRootAnalysisLib_use_linkopts " -L$(ROOTSYS)/lib \
-        -lCore -lCint -lTree -lpthread -lMathCore -lHist \
+        -lCore -lTree -lpthread -lMathCore -lHist \
         -lMathMore -lMinuit -lMinuit2 -lMatrix -lPhysics -lHistPainter -lHist -lRint \
         -lGraf -lGraf3d -lGpad -lHtml -lPostscript -lGui -lGX11TTF -lGX11 \
         -lXMLIO -lXMLParser \

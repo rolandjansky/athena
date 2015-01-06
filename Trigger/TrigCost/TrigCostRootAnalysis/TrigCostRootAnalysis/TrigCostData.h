@@ -50,6 +50,9 @@ namespace TrigCostRootAnalysis {
     void setup(const Long64_t& _master, const char* _prefix, TTree* _tree);
     
     Int_t   getEventNumber() const;
+    Float_t getEBWeight() const;
+    UInt_t  getEBWeightBG() const;
+    Bool_t  getIsMonitoringEvent() const;
     Int_t   getRunNumber() const;
     Int_t   getLumi() const;
     Float_t getLumiLength() const;

@@ -74,7 +74,6 @@ namespace TrigCostRootAnalysis {
       return 1.;
 
     }
-    return 0.;
   }
 
   /**

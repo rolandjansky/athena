@@ -50,7 +50,8 @@ namespace TrigCostRootAnalysis {
   /**
    * Data constructor, takes no arguments. Initialises to empty.
    */
-  DataVariable::Data::Data() : m_hist(0), m_hist2D(0) {
+  DataVariable::Data::Data() : m_entries(0), m_data(0), m_buffer(0), m_bufferWeight(0), m_bufferRawWeight(0),
+    m_sumw2(0), m_denominator(0), m_usedInEvent(kFALSE), m_histoTitle(), m_hist(0), m_hist2D(0) {
     // Nothing here
   }
   
@@ -77,8 +78,10 @@ namespace TrigCostRootAnalysis {
     _data->m_hist2D = 0;
     _data->m_entries = 0.;
     _data->m_data = 0.;
+    _data->m_sumw2 = 0.;
     _data->m_buffer = 0.;
     _data->m_bufferWeight = 0.;
+    _data->m_bufferRawWeight = 0.;
     _data->m_denominator = 0;
     _data->m_usedInEvent = kFALSE;
     _data->m_histoTitle = 0;
@@ -208,10 +211,10 @@ namespace TrigCostRootAnalysis {
    * @return The stored value.
    */
   Float_t DataVariable::getValueError(VariableOption_t _vo) {
-    if ( checkRegistered(_vo) == kFALSE) return 0; ///XXX TODO THIS IS WRONG - PUT IN CORRECT FORMULA!!!
-    Float_t _val = m_dataMap[_vo]->m_data;
+    if ( checkRegistered(_vo) == kFALSE) return 0; ///XXX TODO FIRST PASS - MAY NOT BE CORRECT
+    Float_t _sumw2 = m_dataMap[_vo]->m_sumw2;
     //Float_t _entries = m_dataMap[_vo]->m_entries;
-    return (Float_t) TMath::Sqrt( _val );
+    return (Float_t) TMath::Sqrt( _sumw2 );
   }
 
   /**
@@ -232,6 +235,16 @@ namespace TrigCostRootAnalysis {
   void DataVariable::setEntries(VariableOption_t _vo, UInt_t _val) {
     if ( checkRegistered(_vo) == kFALSE) return; 
     m_dataMap[_vo]->m_entries = _val;
+  }
+
+  /**
+   * Set the SQUARE of the error (the internal sumw2 vale). Be cafeful with this one.
+   * @param _vo Which VariableOption_t to retrieve the stored data from.
+   * @param _val The value to use for sumw2.
+   */
+  void DataVariable::setError(VariableOption_t _vo, Float_t _val) {
+    if ( checkRegistered(_vo) == kFALSE) return; 
+    m_dataMap[_vo]->m_sumw2 = _val;
   }
   
   /**
@@ -286,6 +299,7 @@ namespace TrigCostRootAnalysis {
     if (_data == 0) return;
     _data->m_entries++;
     _data->m_data += ( _value * _weight);
+    _data->m_sumw2 += ( _value * _weight * _weight );
     if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
     if (_data->m_hist != 0) {
       _data->m_hist->Fill( _value, _weight );
@@ -301,7 +315,8 @@ namespace TrigCostRootAnalysis {
   void DataVariable::dataBuffer(Data* _data, Float_t _value, Float_t _weight) {
     if (_data == 0) return;
     _data->m_buffer += _value; //TODO check
-    _data->m_bufferWeight = _weight; //TODO check
+    _data->m_bufferWeight += _value * _weight; //TODO check
+    _data->m_bufferRawWeight += _weight; //TODO check
     _data->m_usedInEvent = kTRUE;
   }
   
@@ -312,13 +327,22 @@ namespace TrigCostRootAnalysis {
   void DataVariable::dataSaveBuffer(Data* _data) {
     if (_data == 0 || _data->m_usedInEvent == kFALSE) return;
     _data->m_entries++;
-    _data->m_data += ( _data->m_buffer * _data->m_bufferWeight ); //TODO check
+    Float_t _effectiveWeight = 0;
+    if (!isZero(_data->m_buffer)) {
+      _effectiveWeight = _data->m_bufferWeight / _data->m_buffer;
+    } else {
+      _effectiveWeight = _data->m_bufferRawWeight;
+    }
+    //Info("!","%f %f %f",_data->m_buffer, _data->m_bufferWeight, _effectiveWeight);
+    _data->m_data += _data->m_buffer * _effectiveWeight; //TODO double check
+    _data->m_sumw2 += _data->m_buffer * _effectiveWeight * _effectiveWeight;  //TODO double check
     if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
     if (_data->m_hist != 0) {
-      _data->m_hist->Fill( _data->m_buffer, _data->m_bufferWeight ); //TODO check
+      _data->m_hist->Fill( _data->m_buffer, _effectiveWeight );  //TODO double check
     }
     _data->m_buffer = 0.;
     _data->m_bufferWeight = 0.;
+    _data->m_bufferRawWeight = 0.;
     _data->m_usedInEvent = kFALSE;
   }
   
@@ -329,19 +353,29 @@ namespace TrigCostRootAnalysis {
   void DataVariable::dataSaveFractionBuffer(Data* _data) {
     if (_data == 0 || _data->m_usedInEvent == kFALSE) return;
     if (isZero(_data->m_denominator) == kTRUE) {
-      Warning("DataVariable::dataSaveFractionBuffer", "Denominator of zero for per event fraction of %s [/0]."
-        "Make sure you call !=0 setVariableDenominator() before endEvent(). Save skipped.", 
-        m_parentDataStore->getNameOfMostRecentCall().c_str() );
+      if (Config::config().getDisplayMsg(kMsgDivZero) == kTRUE) {
+        Warning("DataVariable::dataSaveFractionBuffer", "Denominator of zero for per event fraction of %s [/0]."
+          "Make sure you call !=0 setVariableDenominator() before endEvent(). Save skipped.", 
+          m_parentDataStore->getNameOfMostRecentCall().c_str() );
+      }
     } else {
       _data->m_entries++;
-      _data->m_data += ( (_data->m_buffer * _data->m_bufferWeight) / _data->m_denominator);
+      Float_t _effectiveWeight = 0;
+      if (!isZero(_data->m_buffer)) {
+        _effectiveWeight = _data->m_bufferWeight / _data->m_buffer;
+      } else {
+        _effectiveWeight = _data->m_bufferRawWeight;
+      }
+      _data->m_data  += (_data->m_buffer * _effectiveWeight) / _data->m_denominator;
+      _data->m_sumw2 += (_data->m_buffer * _effectiveWeight * _effectiveWeight) / _data->m_denominator; // CHECK ME
       if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
       if (_data->m_hist != 0) {
-        _data->m_hist->Fill( (_data->m_buffer * _data->m_bufferWeight) / _data->m_denominator ); //TODO Think about this
+        _data->m_hist->Fill( _data->m_buffer * _effectiveWeight / _data->m_denominator, _effectiveWeight); //TODO double check
       }
     }
     _data->m_buffer = 0.;
     _data->m_bufferWeight = 0.;
+    _data->m_bufferRawWeight = 0.;
     _data->m_denominator = 0.;
     _data->m_usedInEvent = kFALSE;
   }

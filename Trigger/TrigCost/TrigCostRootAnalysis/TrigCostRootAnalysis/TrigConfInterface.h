@@ -17,6 +17,9 @@
 // ROOT include(s):
 #include <Rtypes.h>
 
+//Local include(s):
+#include "Utility.h" //Typedefs
+
 // Forward declaration(s):
 class TChain;
 namespace D3PD {
@@ -32,7 +35,7 @@ namespace TrigCostRootAnalysis {
   class DBKey {
   
    public:
-    DBKey(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) {
+    DBKey(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString()  {
       set(_SMK, _L1PSK, _HLTPSK);
     }
     ~DBKey() {}
@@ -98,9 +101,14 @@ namespace TrigCostRootAnalysis {
     static Int_t getCtpId( const std::string& _name );
     static const std::string& getNameFromCtpId( Int_t _ctpId );
     static Float_t getPrescale( std::string _chainName );
-    // static Bool_t getIsPassedPhysics( const std::string _chainName ); //TODO remove me
-    // static std::vector<std::string> getPassedL2Triggers(); //TODO remove me
-    // static std::vector<std::string> getPassedEFTriggers(); //TODO remove me
+    static Float_t getPassthrough( const std::string& _name );
+    static UInt_t getMetaStringN();
+    static std::string getMetaStringKey(UInt_t _m);
+    static std::string getMetaStringVal(UInt_t _m);
+    static std::string getMetaStringVal(std::string _key);
+    static StringIntMap_t getBunchGroupSetup();
+
+
     static Bool_t getUsingNtupleMetadata() {
       return m_usingNtupleMetadata;
     }

@@ -39,7 +39,7 @@ namespace TrigCostRootAnalysis {
     CounterBase(_costData, _name, _ID, _detailLevel),
     m_firstAlgStartTime(FLT_MAX),
     m_firstAlgTime(0.),
-    m_firstAlgTimeWeight(1.) {
+    m_firstAlgTimeWeight(0.) {
 
     if (m_detailLevel == 0) {
       // Detail 0 is no histograms and additional data cached from first execution
@@ -222,7 +222,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.store(kVarFirstTime, m_firstAlgTime, m_firstAlgTimeWeight);
     m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
     m_firstAlgTime = 0.;
-    m_firstAlgTimeWeight = 1.;
+    m_firstAlgTimeWeight = 0.;
 
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();

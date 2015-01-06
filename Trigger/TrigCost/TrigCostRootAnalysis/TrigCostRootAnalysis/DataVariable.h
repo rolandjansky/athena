@@ -47,6 +47,7 @@ namespace TrigCostRootAnalysis {
     Int_t getEntries(VariableOption_t _vo);
     void setValue(VariableOption_t _vo, Float_t _val);
     void setEntries(VariableOption_t _vo, UInt_t _val);
+    void setError(VariableOption_t _vo, Float_t _val);
     TH1F* getHist(VariableOption_t _vo, Bool_t _silent = kFALSE);
     std::string* getHistTitle(VariableOption_t _vo);
     TH2F* getHist2D(VariableOption_t _vo);
@@ -64,7 +65,9 @@ namespace TrigCostRootAnalysis {
       Int_t m_entries;  //!< Number of entries
       Float_t m_data; //!< Value stored
       Float_t m_buffer; //!< Temporary buffer for tabulating quantites which are stored per event
-      Float_t m_bufferWeight; //!< Weight of values in buffer
+      Float_t m_bufferWeight; //!< Temporary buffer for tabulating weight * value of quantites which are stored per event
+      Float_t m_bufferRawWeight ; //!< Temp buffer storing the just the sum of the weights, useful if all values are == 0. 
+      Float_t m_sumw2; // Sum of square of weights (scaled by values)
       Float_t m_denominator; //!< Denominator for averaged quantities
       Bool_t  m_usedInEvent;
       std::string* m_histoTitle; //!< Pointer to string which will hold the histogram title up to the point that we need to make a histo, then it's deleted

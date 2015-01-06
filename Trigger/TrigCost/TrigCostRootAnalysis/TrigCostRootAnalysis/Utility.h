@@ -72,6 +72,23 @@ namespace TrigCostRootAnalysis {
     "perEventFractional"
   };
 
+  enum EBBunchGroupType_t {
+    kBG_NONE = 0,
+    kBG_FILLED = 1,
+    kBG_CALREQ = 2, // Not used
+    kBG_EMPTY = 3,
+    kBG_UNPAIRED_ISO = 4,
+    kBG_UNPAIRED_NONISO = 5,
+    kBG_FIRSTEMPTY = 6,
+    kBG_UNPAIRED = 7, // Not used
+    kBG_UNSET = 8, // Internal default value
+    kEBBunchGroupType_SIZE = 9 //!< Size of this enum, this entry must always come last.
+  };
+
+  const static std::string BunchGroupNameStr[] = {
+    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "UNSET"
+  };
+
   enum FormatterOption_t {
     kFormatOptionNone = 0, //!< No additional formatting
     kFormatOptionNormaliseEntriesWallTime, //!< Divide the cell entries through by the collection's walltime
@@ -113,8 +130,13 @@ namespace TrigCostRootAnalysis {
     kFullEventSaveOnePer,
     kRatesForcePass,
     kRatesOverlapWarning,
+    kRatesScaleByPS,
     kMaxMultiSeed,
     kWroteProgressFile,
+    kBasicEventWeight,
+    kEffectivePrescale,
+    kEventWeight,
+    kCurrentEventBunchGroupID,
     // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere)
     // The rest of the monitors can come in any order, and new ones may be added
@@ -142,6 +164,7 @@ namespace TrigCostRootAnalysis {
     kOutputCsv,
     kOutputXML,
     kOutputRatesGraph,
+    kOutputRatesWarnings,
     kOutputMenus,
     kOutputDirectory,
     kOutputTag,
@@ -155,9 +178,13 @@ namespace TrigCostRootAnalysis {
     kUserDetails,
     kErrorIgnore,
     kSlowEventThreshold,
+    kNBunchGroups,
     kDoEBWeighting,
     kDirectlyApplyPrescales,
     kDoUniqueRates,
+    kDoGroupOverlap,
+    kDoAllOverlap,
+    kRatesForNonPhysics,
     kDefaultLBLength,
     kDebug,
     kCleanAll,
@@ -166,16 +193,22 @@ namespace TrigCostRootAnalysis {
     kROSXMLName,
     kMenuXMLPath,
     kMenuXMLName,
-    kPrescaleXMLPath,
-    kPrescaleXMLName,
+    kPrescaleXMLPath1,
+    kPrescaleXMLPath2,
+    kPrescaleXMLName1,
+    kPrescaleXMLName2,
+    kEBXMLPath,
+    kEBXMLName,
     kHLTPrescaleMenuXMLPath,
     kHLTPrescaleMenuXMLName,
     kL1PrescaleMenuXMLPath,
     kL1PrescaleMenuXMLName,
     kOutputSummaryDirectory,
+    kWriteEBWeightXML,
     kHistBins,
     // Inernally used strings
     kDataDir,
+    kAFSDataDir,
     kL1String,
     kL2String,
     kEFString,
@@ -191,6 +224,8 @@ namespace TrigCostRootAnalysis {
     kRateGlobalHLTString,
     kRateGlobalL1String,
     kRateUniqueString,
+    kRateFallbackPrescaleL1,
+    kRateFallbackPrescaleHLT,
     kCachedString,
     kCalledString,
     kAllROIString,
@@ -204,7 +239,10 @@ namespace TrigCostRootAnalysis {
     kROSString,
     kAlwaysPassString,
     kEventsInFiles,
+    kEventsProcessed,
+    kEventsSkipped,
     kRunNumber,
+    kVersionString,
     // Study Variable ENUMs
     kVarTime,
     kVarFirstTime,
@@ -224,8 +262,11 @@ namespace TrigCostRootAnalysis {
     kVarCallsSlow,
     kVarEventsPassed,
     kVarEventsPassedDP,
-    kVarEventsPassedRaw,
+    kVarEventsPassedNoPS,
     kVarEventsPassthrough,
+    kVarEventsRun,
+    kVarEventsPassRawStat,
+    kVarEventsRunRawStat,
     kVarEventsSlow,
     kVarTotalPrescale,
     kVarL1PassEvents,
@@ -252,7 +293,21 @@ namespace TrigCostRootAnalysis {
     kDecLbLength,
     kDecType,
     kDecRatesGroupName,
-    kDecPrescale,
+    kDecPrescaleStr,
+    kDecPrescaleVal,
+    kDecPrescaleValOnlineL1,
+    kDecUniqueRate,
+    kDecUniqueFraction,
+    // Error message suppression ENUM
+    kMsgNonPhysics,
+    kMsgDivZero,
+    kMsgRoISize,
+    kMsgRoIHack,
+    kMsgBadROB,
+    kMsgHourBoundary,
+    kMsgSaveFullEvent,
+    kMsgXMLWeight,
+    kMsgZeroRate,
     // END of config ENUM keys
     kConfKey_SIZE //!< Number of configuration keys - keep me as last entry
   };
@@ -265,6 +320,8 @@ namespace TrigCostRootAnalysis {
   typedef IntIntMap_t::const_iterator         IntIntMapIt_t;
   typedef std::map< Int_t, Float_t>           IntFloatMap_t;
   typedef IntFloatMap_t::const_iterator       IntFloatMapIt_t;
+  typedef std::map< Float_t, Int_t>           FloatIntMap_t;
+  typedef FloatIntMap_t::const_iterator       FloatIntMapIt_t;
   typedef std::map< std::string, std::string> StringStringMap_t;
   typedef StringStringMap_t::const_iterator   StringStringMapIt_t;
   typedef std::map< std::string, Int_t>       StringIntMap_t;
@@ -272,6 +329,11 @@ namespace TrigCostRootAnalysis {
   typedef StringIntMap_t::iterator            StringIntMapNonConstIt_t;
   typedef std::map< std::string, Float_t>     StringFloatMap_t;
   typedef StringFloatMap_t::const_iterator    StringFloatMapIt_t;
+  typedef std::map< std::string, Double_t>    StringDoubleMap_t;
+  typedef StringDoubleMap_t::const_iterator   StringDoubleMapIt_t;
+
+  typedef std::map< std::pair<std::string, Float_t>, Int_t > PairStringFloat_Float_Map_t;
+  typedef PairStringFloat_Float_Map_t::const_iterator        PairStringFloat_Float_MapIt_t;
 
   typedef std::map< ConfKey_t, std::string> confStringMap_t;
   typedef confStringMap_t::const_iterator   confStringMapIt_t;
@@ -318,6 +380,7 @@ namespace TrigCostRootAnalysis {
   
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);
+  Double_t stringToDouble(const std::string &_i);
   std::string intToString(Int_t _i, UInt_t _pad = 0);
   std::string intToString(UInt_t _i, UInt_t _pad = 0);
   std::string floatToString(Float_t _f, Int_t _precision = 4);

@@ -168,10 +168,24 @@ namespace TrigCostRootAnalysis {
    */
   void DataStore::setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val) {
     if ( checkRegistered(_name) == kFALSE )  {
-      Error("DataStore::getEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
+      Error("DataStore::setEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
       return;
     }
     m_mostRecent->setEntries(_vo, _val);  // m_mostRecent is set by checkRegistered
+  }
+
+  /**
+   * Set the sumw2 variable - this is the SQUARE of the error.
+   * @param _name Name of variable.
+   * @param _vo Variable option.
+   * @param _val The SQUARE of the error to save.
+   */
+  void DataStore::setError(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
+    if ( checkRegistered(_name) == kFALSE )  {
+      Error("DataStore::setError", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
+      return;
+    }
+    m_mostRecent->setError(_vo, _val);  // m_mostRecent is set by checkRegistered
   }
   
   /**

@@ -755,7 +755,9 @@ namespace TrigCostRootAnalysis {
 
     _sizeInner = m_trigCostObject->seq_roi()->at(_algRoIs).size(); // Range check
     if (_sizeInner <= _roi) {
-      Warning("TrigCostData::getSeqAlgRoIID", "Cannot find RoI #%u within the list for this alg (out of range [size:%u]).", _roi, _sizeInner);
+      if (Config::config().getDisplayMsg(kMsgRoISize) == kTRUE) {
+        Warning("TrigCostData::getSeqAlgRoIID", "Cannot find RoI #%u within the list for this alg (out of range [size:%u]).", _roi, _sizeInner);
+      }
       return 0;
     }
 
@@ -898,22 +900,26 @@ namespace TrigCostRootAnalysis {
     if (_startTimeDif > 1800.) { //This is 30m
       _startTimeDif = 3600. - _startTimeDif;
       _flagStartSpansHourBoundary = kTRUE;
-      Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in START AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStart:%f",
-            getSeqAlgTimeStartSec(_seq, _alg),
-            getSeqAlgTimeStartMicroSec(_seq, _alg),
-            getROBTimeStartSec(_ros),
-            getROBTimeStartMicroSec(_ros),
-            getROBTimeStopSec(_ros),
-            getROBTimeStopMicroSec(_ros),
-            getSeqAlgTimeStopSec(_seq, _alg),
-            getSeqAlgTimeStopMicroSec(_seq, _alg),
-            _startTimeDif );
+      if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+        Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in START AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStart:%f",
+              getSeqAlgTimeStartSec(_seq, _alg),
+              getSeqAlgTimeStartMicroSec(_seq, _alg),
+              getROBTimeStartSec(_ros),
+              getROBTimeStartMicroSec(_ros),
+              getROBTimeStopSec(_ros),
+              getROBTimeStopMicroSec(_ros),
+              getSeqAlgTimeStopSec(_seq, _alg),
+              getSeqAlgTimeStopMicroSec(_seq, _alg),
+              _startTimeDif );
+      }
     }
     _startTimeDif += ( (Float_t)getROBTimeStartMicroSec(_ros) - (Float_t)getSeqAlgTimeStartMicroSec(_seq, _alg) ) / 1e6;
     if ( _startTimeDif < 0) {
-      if (_flagStartSpansHourBoundary == kTRUE) Info("TrigCostData::getRosReqBelongsToAlg","Hour boundary in start, therefore modified _startTimeDif:%f"
-        " should be >= 0, but this is not the case it seems. Odd - this should be investigated. Failing this alg-ros match.",
-       _startTimeDif );
+      if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+        Info("TrigCostData::getRosReqBelongsToAlg","Hour boundary in start, therefore modified _startTimeDif:%f"
+          " should be >= 0, but this is not the case it seems. Odd - this should be investigated. Failing this alg-ros match.",
+         _startTimeDif );
+      }
       return kFALSE;
     }
 
@@ -923,34 +929,44 @@ namespace TrigCostRootAnalysis {
       if (_flagStartSpansHourBoundary == kTRUE) {
         // If both the start and stop appear to span the hour-boundary then this ROS req cannot be contained within the alg
         // Only if one of the two span the hour boundary is this possible
-        Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in STOP, therefore ROS cannot be associated to this ALG. TimeDifStop:%f", _stopTimeDif );
+        if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+          Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in STOP, therefore ROS cannot be associated to this ALG. TimeDifStop:%f", _stopTimeDif );
+        }
         return kFALSE; 
       }
       _stopTimeDif = 3600. + _stopTimeDif;
-      Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in STOP AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStop:%f",
-            getSeqAlgTimeStartSec(_seq, _alg),
-            getSeqAlgTimeStartMicroSec(_seq, _alg),
-            getROBTimeStartSec(_ros),
-            getROBTimeStartMicroSec(_ros),
-            getROBTimeStopSec(_ros),
-            getROBTimeStopMicroSec(_ros),
-            getSeqAlgTimeStopSec(_seq, _alg),
-            getSeqAlgTimeStopMicroSec(_seq, _alg),
-            _stopTimeDif );
+      if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+        Info("TrigCostData::getRosReqBelongsToAlg","Hour Boundary in STOP AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStop:%f",
+              getSeqAlgTimeStartSec(_seq, _alg),
+              getSeqAlgTimeStartMicroSec(_seq, _alg),
+              getROBTimeStartSec(_ros),
+              getROBTimeStartMicroSec(_ros),
+              getROBTimeStopSec(_ros),
+              getROBTimeStopMicroSec(_ros),
+              getSeqAlgTimeStopSec(_seq, _alg),
+              getSeqAlgTimeStopMicroSec(_seq, _alg),
+              _stopTimeDif );
+      }
     }
     _stopTimeDif += ( (Float_t)getSeqAlgTimeStopMicroSec(_seq, _alg) - (Float_t)getROBTimeStopMicroSec(_ros) ) / 1e6;
-    if (_flagStartSpansHourBoundary == kTRUE) Info("TrigCostData::getRosReqBelongsToAlg","Stop TimeDifStop:%f", _stopTimeDif );
+    if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+      Info("TrigCostData::getRosReqBelongsToAlg","Stop TimeDifStop:%f", _stopTimeDif );
+    }
 
     // One of the checks needs to have a veto on == 0 as we can get a ROS on the temporal border between two ALGS
     // e.g. Alg A: AlgStart:339.450639 ROSStart:339.453074 --- ROSEnd:339.453074 AlgEnd:339.453074
     // e.g. Alg B: AlgStart:339.453074 ROSStart:339.453074 --- ROSEnd:339.453074 AlgEnd:339.458076
     // Without this, this ROS req would be assigned to them both.
     if ( _stopTimeDif < 0 || isZero(_stopTimeDif) ) {
-      if (_flagStartSpansHourBoundary == kTRUE) Info("TrigCostData::getRosReqBelongsToAlg","Match failed due to _stopTimeDif <= 0 (%f)", _stopTimeDif );
+      if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) { 
+        Info("TrigCostData::getRosReqBelongsToAlg","Match failed due to _stopTimeDif <= 0 (%f)", _stopTimeDif );
+      }
       return kFALSE;
     }
 
-    if (_flagStartSpansHourBoundary == kTRUE) Info("TrigCostData::getRosReqBelongsToAlg","Match suceeded due to _stopTimeDif > 0 (%f)", _stopTimeDif );
+    if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+      Info("TrigCostData::getRosReqBelongsToAlg","Match suceeded due to _stopTimeDif > 0 (%f)", _stopTimeDif );
+    }
     return kTRUE;
   }
 
@@ -967,12 +983,14 @@ namespace TrigCostRootAnalysis {
     // Can't find it? try the hack. Note this is a XXX TODO HACK
     for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
       if ( (_id == 0 || _id == 255) && getRoIID(_i) == 253) {
-        Warning("TrigCostData::getRoIIndexFromId","Using RoI hack with %s RoI. NRoIs:%i. Requested RoI ID:%i, returning RoI #:%i with ID:%i", 
-          getRoITypeString(_i).c_str(), 
-          getNRoIs(), 
-          _id, 
-          _i, 
-          getRoIID(_i) );
+        if (Config::config().getDisplayMsg(kMsgRoIHack) == kTRUE) { 
+          Warning("TrigCostData::getRoIIndexFromId","Using RoI hack with %s RoI. NRoIs:%i. Requested RoI ID:%i, returning RoI #:%i with ID:%i", 
+            getRoITypeString(_i).c_str(), 
+            getNRoIs(), 
+            _id, 
+            _i, 
+            getRoIID(_i) );
+        }
         return _i;
       }
     }

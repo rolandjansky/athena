@@ -91,9 +91,13 @@ namespace TrigCostRootAnalysis {
     static Int_t _outputTagFromAthena = kFALSE;
     static Int_t _cleanAll = kFALSE;
     static Int_t _doEBWeighting = kFALSE;
+    static Int_t _writeEBWeightXML = kFALSE;
     static Int_t _debug = kFALSE;
     static Int_t _ratesForcePass = kFALSE;
+    static Int_t _ratesScaleByPS = kFALSE;
     static Int_t _doUniqueRates = kFALSE;
+    static Int_t _doGroupOverlap = kFALSE;
+    static Int_t _doAllOverlap = kFALSE;
     static Int_t _showVersion = kFALSE;
 
     // User options
@@ -110,25 +114,31 @@ namespace TrigCostRootAnalysis {
     std::string _outCSVDirectory = "csv";
     std::string _outXMLDirectory = "xml";
     std::string _outRatesGraphFilename = "ratesGraph.json";
+    std::string _outRatesWarningsFilename = "rates_WARNINGS.txt";
     std::string _outDirectory = "costMonitoring_%t_%r";
     std::string _outRootDirectory = ".";
     std::string _outTag = "LOCAL";
     std::string _userDetails = "";
     std::string _menuXML = "";//"HLTconfig_Physics_pp_v5_19.2.0.xml";
-    std::string _prescaleXML = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
+    std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
+    std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2012.xml";
-    std::string _version = "TrigCostRootAnalysis-00-05-09";
+    std::string _version = "TrigCostRootAnalysis-00-05-20";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
     UInt_t _nSkip = 0;
     UInt_t _nLbFullSummary = 1;
-    UInt_t _defaultLBLength = 60;
+    UInt_t _defaultLBLength = 30;
     UInt_t _slowThreshold = 500;
-    UInt_t _histogramBins = 100;
+    UInt_t _histogramBins = 50;
     UInt_t _maxNumberFullEvents = 10;
     UInt_t _ratesOverlapWarning = 80;
     UInt_t _maxMultiSeed = 1;
+    UInt_t _runNumber = 0;
+    Float_t _rateFallbackPrescaleL1 = 1.;
+    Float_t _rateFallbackPrescaleHLT = 1.;
+    Float_t _basicWeight = 1.;
     
     // Parse CLI
     Int_t _status = 0;
@@ -164,16 +174,22 @@ namespace TrigCostRootAnalysis {
         {"monitorGlobals",         no_argument,       &_monitorGlobals,         1},
         {"monitorRates",           no_argument,       &_monitorRates,           1},
         {"useEBWeight",            no_argument,       &_doEBWeighting,          1},
+        {"writeEBXML",             no_argument,       &_writeEBWeightXML,       1},
         {"summaryPerHLTConfig",    no_argument,       &_summaryPerHLTConfig,    1},
         {"summaryPerLumiBlock",    no_argument,       &_summaryPerLumiBlock,    1},
         {"summaryAll",             no_argument,       &_summaryAll,             1},
         {"forceAllPass",           no_argument,       &_ratesForcePass,         1},
         {"doUniqueRates",          no_argument,       &_doUniqueRates,          1},
+        {"doGroupOverlap",         no_argument,       &_doGroupOverlap,         1},
+        {"doAllOverlap",           no_argument,       &_doAllOverlap,           1},
+        {"scaleRatesByPS",         no_argument,       &_ratesScaleByPS,         1},
         {"version",                no_argument,       &_showVersion,            1},
         {"linkOutputDirectory",    no_argument,       &_linkOutputDirectory,    1},
         {"treeName",               required_argument, 0,                      't'},
         {"menuXML",                required_argument, 0,                      'm'},
         {"prescaleXML",            required_argument, 0,                      'M'},
+        {"prescaleXML1",           required_argument, 0,                      'g'},
+        {"prescaleXML2",           required_argument, 0,                      'G'},
         {"ROSXML",                 required_argument, 0,                      'R'},
         {"outputRootFile",         required_argument, 0,                      'r'},
         {"outputImageDirectory",   required_argument, 0,                      'i'},
@@ -189,6 +205,7 @@ namespace TrigCostRootAnalysis {
         {"prefixConfig",           required_argument, 0,                      'c'},
         {"lbBegin",                required_argument, 0,                      'b'},
         {"lbEnd",                  required_argument, 0,                      'e'},
+        {"basicWeight",            required_argument, 0,                      'B'},
         {"nEvents",                required_argument, 0,                      'n'},
         {"nSkip",                  required_argument, 0,                      's'},
         {"nFullEventSummaries",    required_argument, 0,                      'F'},
@@ -201,6 +218,9 @@ namespace TrigCostRootAnalysis {
         {"patternsOutput",         required_argument, 0,                      'P'},
         {"userDetails",            required_argument, 0,                      'u'},
         {"maxMultiSeed",           required_argument, 0,                      'X'},
+        {"runNumber",              required_argument, 0,                      'N'},
+        {"rateFallbackPrescaleL1", required_argument, 0,                      'a'},
+        {"rateFallbackPrescaleHLT",required_argument, 0,                      'A'},
         {0, 0, 0, 0}
       };
       
@@ -255,10 +275,10 @@ namespace TrigCostRootAnalysis {
           std::cout << "--doOutputMenus\t\t\t\t\t[Default] Save menu configurations in JSON format." << std::endl;
           std::cout << "--linkOutputDirectory\t\t\t\tSoft link the output directory to 'costMon' in the run directory for automated scripts to use the data."<< std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ RUN CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--useEBWeight\t\t\t\t\tCalculate and use per-event Enhanced Bias weighting factor." << std::endl;
           std::cout << "--lbBegin INT_MIN\t\t\t\tLowest value luminosity block from input to use." << std::endl;
           std::cout << "--lbEnd INT_MAX\t\t\t\t\tHighest value luminosity block from input to use." << std::endl;
           std::cout << "--nEvents INT_MAX\t\t\t\tNumber of input events from all files to run over." << std::endl;
+          std::cout << "--basicWeight "<< _basicWeight <<"\t\t\t\t\tBase event weight. Can be used to apply global scaling factor to run." << std::endl;
           std::cout << "--nSkip 0\t\t\t\t\tNumber of events to skip." << std::endl;
           std::cout << "--slowThreshold "<< _slowThreshold <<"\t\t\t\tTime in milliseconds. Execution times greater than this are flagged as slow." << std::endl;
           std::cout << "--nLbFullSummary " << _nLbFullSummary << "\t\t\t\tNumber of luminosity blocks, starting from lbBegin, to produce a full summary for." << std::endl;
@@ -269,10 +289,17 @@ namespace TrigCostRootAnalysis {
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--menuXML \"" << _menuXML << "\"\t\t\t\t\tMenu XML file from which to read custom prescales for rates calculations (place in /data or current dir for Athena use)." << std::endl;
-          std::cout << "--prescaleXML \"" << _prescaleXML << "\"\t\t\t\tPrescale XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
+          std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
+          std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;                
+          std::cout << "--useEBWeight\t\t\t\t\tApply precalculated weights to un-weight EnhancedBias data to MinimumBias data." << std::endl;
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
+          std::cout << "--doGroupOverlap\t\t\t\t\tCalculate overlaps between all chains within each rate group." << std::endl;
+          std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is slow." << std::endl;
           std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
+          std::cout << "--rateFallbackPrescaleL1 " << _rateFallbackPrescaleL1 << "\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
+          std::cout << "--rateFallbackPrescaleHLT " << _rateFallbackPrescaleHLT <<"\t\t\tIf prescales are not supplied for some or any items, what value to apply to HLT items." << std::endl;
+          std::cout << "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."<<std::endl;
           std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ I/O CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--files file1 file2 ...\t\t\t\tInput ntuple files." << std::endl;
@@ -290,6 +317,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--outputImageDirectory \"" << _outImageDirectory << "\"\t\t\tName of folder for image results." << std::endl;
           std::cout << "--outputCSVDirectory \"" << _outCSVDirectory << "\"\t\t\tName of folder for CSV results." << std::endl;
           std::cout << "--outputXMLDirectory \"" << _outXMLDirectory << "\"\t\t\tName of folder for XML results." << std::endl;
+          std::cout << "--writeEBXML\t\t\t\t\tWrite out EnhancedBias weights from D3PD to XML for future use (for use by rate experts)." << std::endl;
           std::cout << "--cleanAll\t\t\t\t\tRemove any old output directory before saving output." << std::endl;
           std::cout << "--userDetails \t\t\t\t\tUser supplied metadata string giving any extra details about this run." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OTHER ~~~~~~~~~~~~~~~" << std::endl;
@@ -348,6 +376,16 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _nEvents;
         break;
+      case 'a':
+        // Rate fallback prescale L1
+        _ss << optarg;
+        _ss >> _rateFallbackPrescaleL1;
+        break;
+      case 'A':
+        // Rate fallback prescale HLT
+        _ss << optarg;
+        _ss >> _rateFallbackPrescaleHLT;
+        break;
       case 'h':
         // N histogram bins
         _ss << optarg;
@@ -378,6 +416,11 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _lbEnd;
         break;
+      case 'B':
+        // Basic event weight
+        _ss << optarg;
+        _ss >> _basicWeight;
+        break;
       case 'L':
         // Number of lumi blocks to do a full summary for
         _ss << optarg;
@@ -387,6 +430,11 @@ namespace TrigCostRootAnalysis {
         // Default lumiblock length
         _ss << optarg;
         _ss >> _defaultLBLength;
+        break;
+      case 'N':
+        // User supplied run number
+        _ss << optarg;
+        _ss >> _runNumber;
         break;
       case 'X':
         // Default lumiblock length
@@ -407,7 +455,15 @@ namespace TrigCostRootAnalysis {
         break;
       case 'M':
         // Different prescale menu XML
-        _prescaleXML = std::string( optarg );
+        _prescaleXML1 = std::string( optarg );
+        break;
+      case 'g': // NOTE same as M
+        // Different prescale menu XML
+        _prescaleXML1 = std::string( optarg );
+        break;
+      case 'G':
+        // Different prescale menu XML
+        _prescaleXML2 = std::string( optarg );
         break;
       case 'R':
         // Different ROS mapping
@@ -466,8 +522,8 @@ namespace TrigCostRootAnalysis {
     
     // Settings read. Now to check them and store them for use
 
+    Info("Config::parseCLI","Version %s", _version.c_str());
     if ( _showVersion == kTRUE ) {
-      Info("Config::parseCLI","Version %s", _version.c_str());
       abort();
     }
 
@@ -555,7 +611,8 @@ namespace TrigCostRootAnalysis {
       + _monitorL1 
       + _monitorFullEvent
       + _monitorGlobals
-      + _monitorRates == 0 ) {
+      + _monitorRates 
+      + _writeEBWeightXML == 0 ) {
       Warning("Config::parseCLI", "Not specified a monitor to use. Will default to --monitorAll.");
       _monitorAll = 1;
     }
@@ -623,6 +680,7 @@ namespace TrigCostRootAnalysis {
     set(kOutputCSVDirectory, _outCSVDirectory, "OutputCSVDirectory");
     set(kOutputXMLDirectory, _outXMLDirectory, "OutputXMLDirectory");
     set(kOutputRatesGraphFilename, _outRatesGraphFilename, "OutputRatesGraphFilename");
+    set(kOutputRatesWarnings, _outRatesWarningsFilename, "OutputRatesWarningsFilename");
     set(kOutputRootFilename, _outRootFilename, "OutputROOTFileName");
     set(kLinkOutputDir, _linkOutputDirectory, "LinkOutputDirectory");
     set(kLinkOutputDirName, "costMon");
@@ -634,20 +692,47 @@ namespace TrigCostRootAnalysis {
     //        MISC SETTINGS
     //////////////////////////
 
+    // Cannot both use EB weights and export them
+    if (_doEBWeighting == kTRUE && _writeEBWeightXML == kTRUE) {
+      Error("Config::parseCLI", "Cannot use both --useEBWeight and --writeEBXML");
+      abort();
+    }
+
+    if (_doEBWeighting == kTRUE && _ratesScaleByPS == kTRUE) {
+      Error("Config::parseCLI", "--useEBWeight with --scaleRatesByPS is not valid. When using EB wieghts, all PS are supplied by the user. You can then set everything to PS=1.");
+      Error("Config::parseCLI", "(this is the default, if no PS XML is supplied). The --scaleRatesByPS option should only be used to undo online prescales for chains.");
+      abort();
+    }
+
+    setFloat(kBasicEventWeight, _basicWeight, "BasicEventWeight");
     set(kSlowEventThreshold, _slowThreshold, "SlowThreshold"); 
     set(kDoEBWeighting, _doEBWeighting, "DoEBWeighting");
+    set(kWriteEBWeightXML, _writeEBWeightXML, "WriteEBWeightXML");
     set(kDefaultLBLength, _defaultLBLength, "DefaultLBLength"); 
     set(kDebug, _debug, "Debug");
     set(kCleanAll, _cleanAll, "CleanAll"); //Specifies if the output directory is to be regenerated
     set(kRatesForcePass, _ratesForcePass, "RatesForceAllChainsToPassRaw");
     set(kDoUniqueRates, _doUniqueRates, "DoUniqueRates");
+    set(kDoGroupOverlap, _doGroupOverlap, "DoGroupOverlap");
+    set(kDoAllOverlap, _doAllOverlap, "DoAllOverlap");
     set(kHistBins, _histogramBins, "HistogramBins");
     set(kRatesOverlapWarning, _ratesOverlapWarning, "RatesOverlapWarning");
+    setFloat(kRateFallbackPrescaleL1, _rateFallbackPrescaleL1, "RatesFallbackPrescaleL1");
+    setFloat(kRateFallbackPrescaleHLT, _rateFallbackPrescaleHLT, "RatesFallbackPrescaleHLT");
+    set(kRatesScaleByPS, _ratesScaleByPS, "RatesScaleByPS");
+    if (isZero(_rateFallbackPrescaleL1 - 1.) == kFALSE) {
+      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for L1 items to %f.",_rateFallbackPrescaleL1);
+    }
+    if (isZero(_rateFallbackPrescaleHLT - 1.) == kFALSE) {
+      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for HLT items to %f.",_rateFallbackPrescaleHLT);
+    }
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
+    if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNumber");
 
     // Check we only have one of these two
-    if (_menuXML != m_blankString && _prescaleXML != m_blankString) {
-      Error("Config::parseCLI", "Please supply only one of prescaleXML (%s) OR menuXML (%s).", _prescaleXML.c_str(), _menuXML.c_str());
+    if (_menuXML != m_blankString && (_prescaleXML1 != m_blankString || _prescaleXML2 != m_blankString)) {
+      Error("Config::parseCLI", "Please supply only one of (prescaleXML [%s] / prescaleXML2 [%s]) OR menuXML [%s].",
+        _prescaleXML1.c_str(), _prescaleXML2.c_str(), _menuXML.c_str());
       abort();
     }
 
@@ -655,7 +740,8 @@ namespace TrigCostRootAnalysis {
     // File Names
     if (_ROSXML != m_blankString) set(kROSXMLName, _ROSXML, "ROSXML");
     if (_menuXML != m_blankString) set(kMenuXMLName, _menuXML, "MenuXML");
-    if (_prescaleXML != m_blankString) set(kPrescaleXMLName, _prescaleXML, "PrescaleXML");
+    if (_prescaleXML1 != m_blankString) set(kPrescaleXMLName1, _prescaleXML1, "PrescaleXML1");
+    if (_prescaleXML2 != m_blankString) set(kPrescaleXMLName2, _prescaleXML2, "PrescaleXML2");
 
     //////////////////////////
     //        END OF USER SETTINGS
@@ -675,15 +761,19 @@ namespace TrigCostRootAnalysis {
     //        BEGIN INTERNAL SETTINGS
     //////////////////////////
 
+    // Set external data location
+    set(kAFSDataDir, "/afs/cern.ch/user/a/attradm/public", "AFSDataDir");
+
     //Check if we're in ROOT CORE
     const Char_t* _env = std::getenv("ROOTCOREBIN");
     if (_env != NULL) {
       set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/") );
       if (getIsSet(kROSXMLName)) set(kROSXMLPath, getStr(kDataDir) + getStr(kROSXMLName));
       if (getIsSet(kMenuXMLName)) set(kMenuXMLPath, getStr(kDataDir) + getStr(kMenuXMLName));
-      if (getIsSet(kPrescaleXMLName)) set(kPrescaleXMLPath, getStr(kDataDir) + getStr(kPrescaleXMLName));      
+      if (getIsSet(kPrescaleXMLName1)) set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));     
+      if (getIsSet(kPrescaleXMLName2)) set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));   
     } else {
-// CAUTION - THIS IS THE ONLY "ATHENA ONLY" CODE IN THIS PACKAGE
+// CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
       if (getIsSet(kROSXMLName)) {
         std::string _locAthena = PathResolverFindDataFile( getStr(kROSXMLName) );
@@ -703,12 +793,20 @@ namespace TrigCostRootAnalysis {
         } 
       }
       //
-      if (getIsSet(kPrescaleXMLName)) {
-        std::string _locAthena  = PathResolverFindDataFile( getStr(kPrescaleXMLName) );
-        if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find prescale XML file %s", getStr(kPrescaleXMLName).c_str());
+      if (getIsSet(kPrescaleXMLName1)) {
+        std::string _locAthena  = PathResolverFindDataFile( getStr(kPrescaleXMLName1) );
+        if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find prescale XML file #1 %s", getStr(kPrescaleXMLName1).c_str());
         else {
-          set(kPrescaleXMLPath, _locAthena);
-          Info("Config::parseCLI","Athena has found the file: %s", getStr(kPrescaleXMLPath).c_str());
+          set(kPrescaleXMLPath1, _locAthena);
+          Info("Config::parseCLI","Athena has found the file: %s", getStr(kPrescaleXMLPath1).c_str());
+        }
+      }
+      if (getIsSet(kPrescaleXMLName2)) {
+        std::string _locAthena  = PathResolverFindDataFile( getStr(kPrescaleXMLName2) );
+        if (_locAthena == m_blankString) Error("Config::parseCLI","Athena cannot find prescale XML file #2 %s", getStr(kPrescaleXMLName2).c_str());
+        else {
+          set(kPrescaleXMLPath2, _locAthena);
+          Info("Config::parseCLI","Athena has found the file: %s", getStr(kPrescaleXMLPath2).c_str());
         }
       }
 #endif // not ROOTCORE
@@ -719,6 +817,17 @@ namespace TrigCostRootAnalysis {
     set(kOutputSummaryDirectory, "summary");
     set(kErrorIgnore, (Int_t) gErrorIgnoreLevel, "ErrorIgnoreLevel"); //Cache this internal ROOT variable
     set(kDirectlyApplyPrescales, 1, "DirectlyApplyPrescales");
+    set(kNBunchGroups, 16, "NumberOfBunchGroups");
+
+    // Maximum number of certain messages to show
+    set(kMsgDivZero, 5, "Division by zero");
+    set(kMsgBadROB, 10, "Bad ROB Data");
+    set(kMsgRoISize, 5, "RoI Container Size Missmatch");
+    set(kMsgRoIHack, 5, "RoI Hack");
+    set(kMsgHourBoundary, 10, "Hour boundary in ROS request association");
+    set(kMsgSaveFullEvent, 5, "Saving full event");
+    set(kMsgXMLWeight, 50, "Cannot find XML weight");    
+    set(kMsgZeroRate, 1, "Chain with positive prescale but zero rate");
 
     // Const strings literals to be referenced throughout
     set(kL1String,"L1");
@@ -748,6 +857,7 @@ namespace TrigCostRootAnalysis {
     set(kROBINString, "ROBIN");
     set(kROSString, "ROS");
     set(kAlwaysPassString, "UNSEEDED");
+    set(kVersionString, _version);
 
     set(kVarTime, "Time");
     set(kVarFirstTime, "FirstTime");
@@ -767,8 +877,10 @@ namespace TrigCostRootAnalysis {
     set(kVarCallsSlow, "CallsSlow");
     set(kVarEventsPassed, "EventsPassed");
     set(kVarEventsPassedDP, "EventsPassedDirectPrescale");
-    set(kVarEventsPassedRaw, "EventsPassedRaw");
+    set(kVarEventsPassedNoPS, "EventsPassedNoPS");
     set(kVarEventsPassthrough, "EventsPassthrough");
+    set(kVarEventsPassRawStat, "EventsPassedRawStatistics");
+    set(kVarEventsRunRawStat, "EventsRunRawStatistics");
     set(kVarEventsSlow, "EventsSlow");
     set(kVarTotalPrescale, "TotalPrescale");
     set(kVarL1PassEvents, "L1PassEvents");
@@ -795,7 +907,9 @@ namespace TrigCostRootAnalysis {
     set(kDecLbLength, "LBLength");
     set(kDecType, "Type");
     set(kDecRatesGroupName, "RatesGroupName");
-    set(kDecPrescale, "Prescale");
+    set(kDecPrescaleStr, "PrescaleString");
+    set(kDecPrescaleVal, "PrescaleValue");
+    set(kDecPrescaleValOnlineL1, "PrescaleValueOnlineL1");
     // End of option parsing
     
     return kTRUE;
@@ -808,12 +922,18 @@ namespace TrigCostRootAnalysis {
     Info("Config::dump", "TrigCostD3PD has %i configuration settings saved for this processing.", Int_t (m_settingsStr.size() + m_settingsVecStr.size() + m_settingsInt.size()) );
     
     std::map<ConfKey_t, Int_t>::iterator _itInt;
+    std::map<ConfKey_t, Float_t>::iterator _itFloat;
     std::map<ConfKey_t, std::string>::iterator _itStr;
     std::map<ConfKey_t, std::vector<std::string> > ::iterator _itStrVec;
     Int_t _i = -1;
     for (_itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
       const std::string _name = m_settingsName[_itInt->first];
       Info("Config::dump", " [INT:%i]\t[LOCK:%i]\t%s = %i", ++_i, (Int_t) getIsLocked(_itInt->first), _name.c_str(), _itInt->second  );
+    }
+    _i = -1;
+    for (_itFloat = m_settingsFloat.begin(); _itFloat != m_settingsFloat.end(); ++_itFloat) {
+      const std::string _name = m_settingsName[_itFloat->first];
+      Info("Config::dump", " [FLOAT:%i]\t[LOCK:%i]\t%s = %f", ++_i, (Int_t) getIsLocked(_itFloat->first), _name.c_str(), _itFloat->second  );
     }
     _i = -1;
     for (_itStr = m_settingsStr.begin(); _itStr != m_settingsStr.end(); ++_itStr) {
@@ -830,6 +950,22 @@ namespace TrigCostRootAnalysis {
     }
     
   }
+
+  void Config::messageSuppressionReport() {
+    for (std::map<ConfKey_t, Int_t>::iterator _itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
+      ConfKey_t _key = _itInt->first;
+      if (m_settingsCalls[_key] == 0) {
+        continue; // If no message calls then continue
+      } 
+      if (m_settingsInt[_key] > m_settingsCalls[_key]) {
+        continue; // If no suppresion messages
+      }
+      const std::string _name = m_settingsName[_key];
+      UInt_t _suppressed = m_settingsCalls[_key] - m_settingsInt[_key];
+      Warning("Config::messageSuppressionReport","There were %i additional instances of message '%s' which were suppressed.", _suppressed, _name.c_str());
+    }
+  }
+
   
   /**
    * Retrieve string configuration for given enum key.
@@ -838,7 +974,9 @@ namespace TrigCostRootAnalysis {
    */
   const std::string& Config::getStr( ConfKey_t _key ) {
     if ( m_settingsStr.count( _key ) == 0 ) {
-      Error("Config::getStr", "Unknown string-key %i. (name, if any:%s)", _key, m_settingsName[_key].c_str() );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getStr", "Unknown string-key %i. (name, if any:%s)", _key, _name.c_str() );
       return m_blankString;
     }
     // Return the requested string
@@ -866,10 +1004,57 @@ namespace TrigCostRootAnalysis {
    */
   Int_t Config::getInt( ConfKey_t _key ) {
     if ( m_settingsInt.count( _key ) == 0 ) {
-      Error("Config::getInt", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getInt", "Unknown key %i %s", _key, _name.c_str() );
       return -1;
     }
     return m_settingsInt[_key];
+  }
+
+  /**
+   * Increase by one the integer for given enum key.
+   * @param _key enum key for this config.
+   */
+  void Config::increment( ConfKey_t _key ) {
+    if ( m_settingsInt.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::increment", "Unknown key %i %s", _key, _name.c_str() );
+      return;
+    }
+    if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
+    ++m_settingsInt[_key];
+  }
+
+  /**
+   * Decrease by one the integer for given enum key.
+   * @param _key enum key for this config.
+   */
+  void Config::decrement( ConfKey_t _key ) {
+    if ( m_settingsInt.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::decrement", "Unknown key %i %s", _key, _name.c_str() );
+      return;
+    }
+    if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
+    --m_settingsInt[_key];
+  }
+
+  /**
+   * Retrieve float configuration for given enum key.
+   * @param _key enum key for this config.
+   * @return Requested configuration integer or -1 if key not found.
+   */
+  Float_t Config::getFloat( ConfKey_t _key ) {
+    if ( m_settingsFloat.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getFloat", "Unknown key %i %s", _key, _name.c_str() );
+      return -1.;
+    }
+    return m_settingsFloat[_key];
   }
   
   /**
@@ -879,7 +1064,9 @@ namespace TrigCostRootAnalysis {
    */
   UInt_t Config::getVecSize( ConfKey_t _key ) {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecSize", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecSize", "Unknown key %i %s", _key, _name.c_str() );
       return INT_MAX;
     }
     return m_settingsVecStr[_key].size();
@@ -893,7 +1080,9 @@ namespace TrigCostRootAnalysis {
    */
   const std::string& Config::getVecEntry( ConfKey_t _key, UInt_t _location ) {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecEntry", "Unknown key %i", _key);
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return m_blankString;
     }
     if (_location >= getVecSize( _key )) {
@@ -911,7 +1100,9 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t Config::addVecEntry( ConfKey_t _key, const std::string& _toAdd ) {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecEntry", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -929,7 +1120,9 @@ namespace TrigCostRootAnalysis {
   Bool_t Config::removeVecEntry( ConfKey_t _key, const std::string& _toRemove ) {
     Bool_t _entriesRemoved = kFALSE;
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecEntry", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -953,7 +1146,9 @@ namespace TrigCostRootAnalysis {
   Bool_t Config::clearVec( ConfKey_t _key ) {
     Bool_t _entriesRemoved = kFALSE;
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecEntry", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
@@ -972,7 +1167,9 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t Config::getVecMatches( ConfKey_t _key, const std::string& _entry ) {
     if ( m_settingsVecStr.count( _key ) == 0 ) {
-      Error("Config::getVecEntry", "Unknown key %i", _key );
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
     
@@ -995,6 +1192,29 @@ namespace TrigCostRootAnalysis {
     if ( m_settingsInt.count( _key ) == 1 ) return kTRUE;
     if ( m_settingsStr.count( _key ) == 1 ) return kTRUE;
     return kFALSE;
+  }
+
+  /**
+   * Get if to display a message, this assumes that _key has been preset to the maximum number of times the message should be displayed before suppression.
+   * @param _key enum key for this config.
+   * @return kTRUE if a setting is stored, with any type, for the given key.
+   */
+  Bool_t Config::getDisplayMsg( ConfKey_t _key ) {
+    if ( m_settingsInt.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
+      return kFALSE;
+    }
+
+    m_settingsCalls[_key]++;
+    if (m_settingsInt[_key] == m_settingsCalls[_key]) { // Warn of last time
+      Info("Config::getDisplayMsg","The following message has reached its suppression limit of %i and will not be displayed any more.", m_settingsInt[_key]);
+    } else if (m_settingsCalls[_key] > m_settingsInt[_key]) {
+      return kFALSE;
+    }
+    return kTRUE;
+
   }
   
   /**
@@ -1020,6 +1240,7 @@ namespace TrigCostRootAnalysis {
   void Config::set ( ConfKey_t _key, const Int_t _value, const std::string _name, LockStatus_t _lock ) {
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
     m_settingsInt[_key] = _value;
+    m_settingsCalls[_key] = 0;
     m_settingsName[_key] = _name;
     m_settingsLock[_key] = _lock;
     // This is a special flag, set for easy access.
@@ -1040,6 +1261,21 @@ namespace TrigCostRootAnalysis {
     m_settingsName[_key] = _name;
     m_settingsLock[_key] = _lock;
   }
+
+  /**
+   * Store or overwrite a float configuration with a enum key.
+   * Note - this setter has a unique name to prevent ambiguity with the Int_t setter
+   * @param _key enum key for this config.
+   * @param _name Optional name for this entry.
+   * @param _value Float to store.
+   */
+  void Config::setFloat ( ConfKey_t _key, const Float_t _value, const std::string _name, LockStatus_t _lock ) {
+    if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
+    m_settingsFloat[_key] = _value;
+    m_settingsName[_key] = _name;
+    m_settingsLock[_key] = _lock;
+  }
+
   
   /**
    * Check if this key has been used before, and if so then whether the lock was set to true. Regardles of type.

@@ -37,6 +37,7 @@ namespace TrigCostRootAnalysis {
     Float_t getTotalLumiBlockTime();
     UInt_t  getNLumiBlocks(); 
     void    saveOutput();
+    void    print();
     
    private:
    

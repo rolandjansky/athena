@@ -68,6 +68,7 @@ namespace TrigCostRootAnalysis {
     Int_t getEntries(ConfKey_t _name, VariableOption_t _vo);
     void  setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
     void  setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
+    void  setError(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
     TH1F* getHist(ConfKey_t _name, VariableOption_t _vo, Bool_t _silent = kFALSE);
     TH2F* getHist2D(ConfKey_t _name, VariableOption_t _vo);
     Bool_t getHistogramming() { return m_histogrammingEnabled; }

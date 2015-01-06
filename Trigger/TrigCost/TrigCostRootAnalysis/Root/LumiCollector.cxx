@@ -151,5 +151,12 @@ namespace TrigCostRootAnalysis {
     //enableROOTMsg();
 
   }
+
+  void LumiCollector::print() {
+    Info("LumiCollector::print","Total time of all LBs: %f", m_totalLumiLength);
+    for (IntFloatMapIt_t _it = m_lumiLength.begin(); _it != m_lumiLength.end(); ++_it) {
+      Info("LumiCollector::print","LB %i has time %f", _it->first, _it->second);
+    }
+  }
   
 } // namespace TrigCostRootAnalysis

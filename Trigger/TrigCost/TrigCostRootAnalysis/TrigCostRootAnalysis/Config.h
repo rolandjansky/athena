@@ -57,6 +57,7 @@ namespace TrigCostRootAnalysis {
     const std::string& getStr( ConfKey_t _key );
     const std::string& getName( ConfKey_t _key );
     Int_t              getInt( ConfKey_t _key );
+    Float_t            getFloat( ConfKey_t _key );
     UInt_t             getVecSize( ConfKey_t _key );
     const std::string& getVecEntry( ConfKey_t _key, UInt_t );
     Bool_t             getVecMatches( ConfKey_t _key, const std::string& _entry );
@@ -64,10 +65,15 @@ namespace TrigCostRootAnalysis {
     Bool_t             removeVecEntry( ConfKey_t _key, const std::string& _toRemove );
     Bool_t             clearVec( ConfKey_t _key );
     Bool_t             getIsSet( ConfKey_t _key );
+    Bool_t             getDisplayMsg( ConfKey_t _key );
     Bool_t             debug();
+    void               messageSuppressionReport();
     void               set( ConfKey_t _key, const Int_t _value, const std::string _name = "", LockStatus_t _lock = kLocked );
+    void               setFloat( ConfKey_t _key, const Float_t _value, const std::string _name = "", LockStatus_t _lock = kLocked );
     void               set( ConfKey_t _key, const std::vector< std::string > _value, const std::string _name = "", LockStatus_t _lock = kLocked );
     void               set( ConfKey_t _key, const std::string _value, const std::string _name = "", LockStatus_t _lock = kLocked );
+    void               increment( ConfKey_t _key );
+    void               decrement( ConfKey_t _key );
     void               dump();
     
    private:
@@ -79,7 +85,9 @@ namespace TrigCostRootAnalysis {
     std::map<ConfKey_t, std::string> m_settingsStr; //!< String Settings map
     std::map<ConfKey_t, std::string> m_settingsName; //!< String Name of settings map
     std::map<ConfKey_t, std::vector<std::string> > m_settingsVecStr; //!< Vector of Strings settings map
-    std::map<ConfKey_t, Int_t> m_settingsInt; //!< Int_t settings map
+    std::map<ConfKey_t, Int_t>   m_settingsInt;   //!< Int_t settings map
+    std::map<ConfKey_t, Float_t> m_settingsFloat; //!< Float_t settings map
+    std::map<ConfKey_t, Int_t> m_settingsCalls;   //!< Holds how many times an error message has been accessed, for supression purposes
     std::map<ConfKey_t, LockStatus_t> m_settingsLock; //!< Holds lock status for settings
     
     /**

@@ -77,7 +77,7 @@ namespace TrigCostRootAnalysis {
   void CounterROB::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
 
-    if (m_costData->getIsROBDataStatusOK(_e, _f) == kFALSE) {
+    if (m_costData->getIsROBDataStatusOK(_e, _f) == kFALSE && Config::config().getDisplayMsg(kMsgBadROB) == kTRUE) { 
       Warning("CounterROB::processEventCounter","ROB data from %s (ID 0x%x) is flagged as NOT OK.", getName().c_str(), m_costData->getROBDataID(_e, _f));  
     }
 
