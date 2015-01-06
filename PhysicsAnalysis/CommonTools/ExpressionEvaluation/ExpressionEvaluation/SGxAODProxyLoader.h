@@ -55,6 +55,7 @@ namespace ExpressionParsing {
             : BaseVariableLoader(evtStore), 
             m_containerName(containerName), 
             m_propertyName(propertyName),
+            m_variableType(),
             m_elementProxyLoader(NULL),
             m_initialised(false)
           { 
@@ -149,6 +150,7 @@ namespace ExpressionParsing {
             : BaseVariableLoader(evtStore), 
             m_containerName(containerName), 
             m_propertyName(propertyName),
+            m_variableType(),
             m_vectorProxyLoader(NULL),
             m_initialised(false)
           { 

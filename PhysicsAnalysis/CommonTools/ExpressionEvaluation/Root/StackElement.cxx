@@ -74,21 +74,52 @@
 
 namespace ExpressionParsing {
 
-  StackElement::StackElement() : type(SE_UNK), m_determinedVariableType(false) { }
-  StackElement::StackElement(unsigned int val) : type(SE_INT), intval(val), m_determinedVariableType(false) { }
-  StackElement::StackElement(int val) : type(SE_INT), intval(val), m_determinedVariableType(false) { }
-  StackElement::StackElement(double val) : type(SE_DOUBLE), doubleval(val), m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::vector<int> &val) : type(SE_VECINT), vecintval(val), m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::vector<double> &val) : type(SE_VECDOUBLE), vecdoubleval(val), m_determinedVariableType(false) { }
-  StackElement::StackElement(const std::string &val, IProxyLoader *proxyLoader): type(SE_UNK), varname(val), m_proxyLoader(proxyLoader), m_determinedVariableType(false) { }
-  StackElement::StackElement(const StackElement &other) 
-    : type(other.type), intval(other.intval), 
-    doubleval(other.doubleval), vecintval(other.vecintval),
-    vecdoubleval(other.vecdoubleval), varname(other.varname),
-    m_proxyLoader(other.m_proxyLoader), 
-    m_variableType(other.m_variableType),
-    m_determinedVariableType(other.m_determinedVariableType)
-  { }
+  StackElement::StackElement()
+    : type(SE_UNK),
+      intval(0),
+      doubleval(0),
+      m_proxyLoader(nullptr),
+      m_variableType(),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(unsigned int val)
+    : type(SE_INT),
+      intval(val), 
+      doubleval(0),
+      m_proxyLoader(nullptr),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(int val)
+    : type(SE_INT),
+      intval(val),
+      doubleval(0),
+      m_proxyLoader(nullptr),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(double val)
+    : type(SE_DOUBLE),
+      intval(0),
+      doubleval(val),
+      m_proxyLoader(nullptr),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(const std::vector<int> &val)
+    : type(SE_VECINT),
+      intval(0),
+      doubleval(0),
+      vecintval(val),
+      m_proxyLoader(0),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(const std::vector<double> &val)
+    : type(SE_VECDOUBLE),
+      intval(0),
+      doubleval(0),
+      vecdoubleval(val),
+      m_proxyLoader(0),
+      m_determinedVariableType(false) { }
+  StackElement::StackElement(const std::string &val, IProxyLoader *proxyLoader)
+    : type(SE_UNK),
+      intval(0),
+      doubleval(0),
+      varname(val),
+      m_proxyLoader(proxyLoader),
+      m_determinedVariableType(false) { }
 
   StackElement StackElement::operator =(const int &rhs)
   {

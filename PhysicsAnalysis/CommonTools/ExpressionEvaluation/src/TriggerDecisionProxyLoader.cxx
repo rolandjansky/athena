@@ -10,6 +10,9 @@
 // ExpressionParsing library
 /////////////////////////////////////////////////////////////////
 
+// ManaCore doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
+
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 #include <string>
 
@@ -54,3 +57,5 @@ namespace ExpressionParsing {
     throw std::runtime_error("Trigger decision can't be vector<double>: check " + varname);
   }
 }
+
+#endif // XAOD_ANALYSIS

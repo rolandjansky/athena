@@ -28,6 +28,9 @@ namespace ExpressionParsing {
       ExpressionParser(IProxyLoader *proxyLoader, IUnitInterpreter *unitInterpreter);
       ~ExpressionParser();
 
+      ExpressionParser (const ExpressionParser&) = delete;
+      ExpressionParser& operator= (const ExpressionParser&) = delete;
+
       bool loadExpression(const std::string &expression);
       StackElement evaluate(); 
       bool evaluateAsBool(); 

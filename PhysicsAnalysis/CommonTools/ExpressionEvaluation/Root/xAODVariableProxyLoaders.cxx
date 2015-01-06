@@ -15,6 +15,7 @@
       return VT_PREFIX ## VT_TYPE; \
     } else if (accWrap) { \
       accessorNotAvailableForThisContainer = true; \
+      delete accWrap; \
     } \
   } \
 } while(0)
@@ -145,14 +146,14 @@ namespace ExpressionParsing {
 
   TMethodCollectionWrapper::TMethodCollectionWrapper(const std::type_info &containerTypeinfo, 
       const std::string &methodName)
-    : m_methodCall(NULL), m_valid(false)
+    : m_collectionProxy(nullptr),
+      m_methodCall(NULL), m_valid(false)
   {
     TClass *containerClass = TClass::GetClass(containerTypeinfo);
     if (!containerClass) {
       containerClass = TClass::GetClass(SG::normalizedTypeinfoName(containerTypeinfo).c_str());
       if (!containerClass) return;
     }
-    if (!containerClass) return;
 
     m_collectionProxy = containerClass->GetCollectionProxy();
     if (!m_collectionProxy) return;

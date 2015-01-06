@@ -36,7 +36,6 @@ namespace ExpressionParsing {
       StackElement(const std::vector<int> &val);
       StackElement(const std::vector<double> &val);
       StackElement(const std::string &val, IProxyLoader *proxyLoader);
-      StackElement(const StackElement &other);
 
       StackElement operator =(const int &rhs);
       StackElement operator =(const double &rhs);

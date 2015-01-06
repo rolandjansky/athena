@@ -54,6 +54,9 @@ namespace ExpressionParsing {
         }
       }
 
+      EncapsulatingSingleton (const EncapsulatingSingleton&) = delete;
+      EncapsulatingSingleton& operator= (const EncapsulatingSingleton&) = delete;
+
       T *m_pointer;
   };
 }

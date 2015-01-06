@@ -16,7 +16,9 @@
 //#define BOOST_SPIRIT_QI_DEBUG
 
 // on_error template signature changes when using this
+#ifndef BOOST_SPIRIT_USE_PHOENIX_V3
 #define BOOST_SPIRIT_USE_PHOENIX_V3
+#endif
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/variant/recursive_variant.hpp>
