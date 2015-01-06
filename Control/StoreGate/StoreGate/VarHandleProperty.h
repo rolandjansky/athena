@@ -21,9 +21,9 @@
 #include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/ToStream.h"
 
-#include "StoreGate/RVar.h"
-#include "StoreGate/WVar.h"
-#include "StoreGate/RWVar.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/UpdateHandle.h"
 
 namespace Gaudi { 
 namespace Parsers {
@@ -87,20 +87,20 @@ class GAUDI_API VarHandleProperty :
   SG::VarHandleBase* m_pValue;
 };
 
-/** @brief Specialization for SG::RVar<T>
+/** @brief Specialization for SG::ReadHandle<T>
  *
  *  Needed drudgery for the @c PropertyMgr and @c Property classes so
  *  @c ::VarHandleBase (and derived) classes are known to the property handling
  *  infrastructure of Gaudi
  */
 template<typename T>
-class SimplePropertyRef< SG::RVar<T> > :
+class SimplePropertyRef< SG::ReadHandle<T> > :
   public ::VarHandleProperty
 {
 public:
 
   /// Constructor from the name and the handle
-  SimplePropertyRef(const std::string& name, SG::RVar<T>& value) :
+  SimplePropertyRef(const std::string& name, SG::ReadHandle<T>& value) :
     ::VarHandleProperty(name, value)
   {}
 
@@ -109,20 +109,20 @@ public:
 };
 
 
-/** @brief Specialization for SG::RWVar<T>
+/** @brief Specialization for SG::UpdateHandle<T>
  *
  *  Needed drudgery for the @c PropertyMgr and @c Property classes so
  *  @c ::VarHandleBase (and derived) classes are known to the property handling
  *  infrastructure of Gaudi
  */
 template<typename T>
-class SimplePropertyRef< SG::RWVar<T> > :
+class SimplePropertyRef< SG::UpdateHandle<T> > :
   public ::VarHandleProperty
 {
 public:
 
   /// Constructor from the name and the handle
-  SimplePropertyRef( const std::string& name, SG::RWVar<T>& value ) :
+  SimplePropertyRef( const std::string& name, SG::UpdateHandle<T>& value ) :
     ::VarHandleProperty(name, value)
   {}
 
@@ -130,20 +130,20 @@ public:
   virtual ~SimplePropertyRef() {}
 };
 
-/** @brief Specialization for SG::WVar<T>
+/** @brief Specialization for SG::WriteHandle<T>
  *
  *  Needed drudgery for the @c PropertyMgr and @c Property classes so
  *  @c ::VarHandleBase (and derived) classes are known to the property handling
  *  infrastructure of Gaudi
  */
 template<typename T>
-class SimplePropertyRef< SG::WVar<T> > :
+class SimplePropertyRef< SG::WriteHandle<T> > :
   public ::VarHandleProperty
 {
 public:
 
   /// Constructor from the name and the handle
-  SimplePropertyRef( const std::string& name, SG::WVar<T>& value ) :
+  SimplePropertyRef( const std::string& name, SG::WriteHandle<T>& value ) :
     ::VarHandleProperty(name, value)
   {}
 

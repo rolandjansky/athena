@@ -4,12 +4,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// WVar.icc
-// Implementation file for class SG::WVar<T>
-// Author: S.Binet<binet@cern.ch>
+// WriteHandle.icc
+// Implementation file for class SG::WriteHandle<T>
 /////////////////////////////////////////////////////////////////// 
-#ifndef STOREGATE_SG_WVAR_ICC
-#define STOREGATE_SG_WVAR_ICC 1
+#ifndef STOREGATE_SG_WRITEHANDLE_ICC
+#define STOREGATE_SG_WRITEHANDLE_ICC 1
 
 // stl includes
 #include <stdexcept>
@@ -36,20 +35,20 @@ namespace SG {
 
 /// Default constructor: 
 template <class T> 
-WVar<T>::WVar() : 
+WriteHandle<T>::WriteHandle() : 
   VarHandleBase()
 { }
 
 /// Copy constructor: 
 template <class T> 
-WVar<T>::WVar(const WVar& h):
+WriteHandle<T>::WriteHandle(const WriteHandle& h):
   VarHandleBase(h)
 {}
 
 /// Assignment operator: 
 template <class T>
-WVar<T>& 
-WVar<T>::WVar::operator= (const WVar& h)
+WriteHandle<T>& 
+WriteHandle<T>::WriteHandle::operator= (const WriteHandle& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(h);
@@ -58,17 +57,17 @@ WVar<T>::WVar::operator= (const WVar& h)
 }
 
 template <class T>
-WVar<T>& 
-WVar<T>::WVar::operator= (const T& data)
+WriteHandle<T>& 
+WriteHandle<T>::WriteHandle::operator= (const T& data)
 {
   if (!isInitialized()) {
     throw std::logic_error
-      ("WVar<T>::operator=(const T& data) called while un-initialized");
+      ("WriteHandle<T>::operator=(const T& data) called while un-initialized");
   }
   T* val = this->ptr();
   if (!val) {
     throw std::logic_error
-      ("WVar<T>::operator=(const T& data) called while invalid");
+      ("WriteHandle<T>::operator=(const T& data) called while invalid");
   }
   
   *val = data;
@@ -76,12 +75,12 @@ WVar<T>::WVar::operator= (const T& data)
 }
 
 template <class T>
-WVar<T>& 
-WVar<T>::WVar::operator= (std::unique_ptr<T> data)
+WriteHandle<T>& 
+WriteHandle<T>::WriteHandle::operator= (std::unique_ptr<T> data)
 {
   if (!isInitialized()) {
     // record into storegate
-    ServiceHandle<StoreGateSvc> svc(this->store(), "SG::WVar<T>");
+    ServiceHandle<StoreGateSvc> svc(this->store(), "SG::WriteHandle<T>");
     StatusCode sc(svc.retrieve());
     if (sc.isSuccess()) {
       T* dataPtr(data.release());
@@ -90,7 +89,7 @@ WVar<T>::WVar::operator= (std::unique_ptr<T> data)
       if (sc.isSuccess()) sc = setState();
     }
     if (!(sc.isSuccess())) throw
-      std::runtime_error("WVar<T>::operator=(unique_ptr) error initializing");
+      std::runtime_error("WriteHandle<T>::operator=(unique_ptr) error initializing");
   } else {
     reset();
     T* dataPtr(data.release());
@@ -103,23 +102,23 @@ WVar<T>::WVar::operator= (std::unique_ptr<T> data)
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-WVar<T>::WVar(const std::string& name) :
+WriteHandle<T>::WriteHandle(const std::string& name) :
   VarHandleBase( name )
 {}
 
 /// retrieve a proxy of name `name` from store `store`
 template <class T>
-WVar<T>::WVar(const std::string& name,
+WriteHandle<T>::WriteHandle(const std::string& name,
 	      const std::string& store) :
   VarHandleBase( name, store )
 {}
 
 /// Destructor: 
 template <class T> 
-WVar<T>::~WVar()
+WriteHandle<T>::~WriteHandle()
 { 
 } 
 
 } /* namespace SG */
 
-#endif //> !STOREGATE_SG_WVAR_ICC
+#endif //> !STOREGATE_SG_WRITEHANDLE_ICC

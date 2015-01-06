@@ -24,9 +24,6 @@ end_private
 apply_pattern dual_use_library files=*.cxx
 
 macro_append cppflags ""    \
-  gcc   " -ftemplate-depth-99 "
-
-macro_append cppflags ""    \
   gcc-3 " -DHAVE_ITERATOR -DHAVE_NEW_IOSTREAMS "
 
 private 

@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// RVar.icc
-// Implementation file for class SG::RVar<T>
+// ReadHandle.icc
+// Implementation file for class SG::ReadHandle<T>
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
-#ifndef STOREGATE_SG_RVAR_ICC
-#define STOREGATE_SG_RVAR_ICC 1
+#ifndef STOREGATE_SG_READHANDLE_ICC
+#define STOREGATE_SG_READHANDLE_ICC 1
 
 // stl includes
 #include <stdexcept>
@@ -36,20 +36,20 @@ namespace SG {
 
 /// Default constructor: 
 template <class T> 
-RVar<T>::RVar() : 
+ReadHandle<T>::ReadHandle() : 
   VarHandleBase()
 { }
 
 /// Copy constructor: 
 template <class T> 
-RVar<T>::RVar(const RVar& h):
+ReadHandle<T>::ReadHandle(const ReadHandle& h):
   VarHandleBase(h)
 {}
 
 /// Assignment operator: 
 template <class T>
-RVar<T>& 
-RVar<T>::RVar::operator= (const RVar& h)
+ReadHandle<T>& 
+ReadHandle<T>::ReadHandle::operator= (const ReadHandle& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(h);
@@ -59,14 +59,14 @@ RVar<T>::RVar::operator= (const RVar& h)
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RVar<T>::RVar(const IInterface* /*iface*/,
+ReadHandle<T>::ReadHandle(const IInterface* /*iface*/,
               const std::string& name) :
   VarHandleBase( name )
 {}
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RVar<T>::RVar(const IInterface* /*iface*/,
+ReadHandle<T>::ReadHandle(const IInterface* /*iface*/,
               const std::string& name,
               const std::string& store) :
   VarHandleBase( name, store )
@@ -75,23 +75,23 @@ RVar<T>::RVar(const IInterface* /*iface*/,
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RVar<T>::RVar(const std::string& name) :
+ReadHandle<T>::ReadHandle(const std::string& name) :
   VarHandleBase( name )
 {}
 
 /// retrieve a proxy of name `name` from store `store`
 template <class T>
-RVar<T>::RVar(const std::string& name,
+ReadHandle<T>::ReadHandle(const std::string& name,
               const std::string& store) :
   VarHandleBase( name, store )
 {}
 
 /// Destructor: 
 template <class T> 
-RVar<T>::~RVar()
+ReadHandle<T>::~ReadHandle()
 { 
 } 
 
 } /* namespace SG */
 
-#endif //> !STOREGATE_SG_RVAR_ICC
+#endif //> !STOREGATE_SG_READHANDLE_ICC

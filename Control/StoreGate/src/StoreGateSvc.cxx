@@ -1080,7 +1080,7 @@ bool StoreGateSvc::bindHandleToProxy(const CLID& id, const string& key,
     return false;
   }
     
-  dp->addRef();
+  //already done in DataHandleBase::setState  dp->addRef();
 
 #ifndef NDEBUG
 #ifndef HAVE_NEW_IOSTREAMS

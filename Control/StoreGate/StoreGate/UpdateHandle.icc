@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// RWVar.icc
-// Implementation file for class SG::RWVar<T>
+// UpdateHandle.icc
+// Implementation file for class SG::UpdateHandle<T>
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
-#ifndef STOREGATE_SG_RWVAR_ICC
-#define STOREGATE_SG_RWVAR_ICC 1
+#ifndef STOREGATE_SG_UPDATEHANDLE_ICC
+#define STOREGATE_SG_UPDATEHANDLE_ICC 1
 
 // stl includes
 #include <stdexcept>
@@ -36,20 +36,20 @@ namespace SG {
 
 /// Default constructor: 
 template <class T> 
-RWVar<T>::RWVar() : 
+UpdateHandle<T>::UpdateHandle() : 
   VarHandleBase()
 { }
 
 /// Copy constructor: 
 template <class T> 
-RWVar<T>::RWVar(const RWVar& h):
+UpdateHandle<T>::UpdateHandle(const UpdateHandle& h):
   VarHandleBase(h)
 {}
 
 /// Assignment operator: 
 template <class T>
-RWVar<T>& 
-RWVar<T>::RWVar::operator= (const RWVar& h)
+UpdateHandle<T>& 
+UpdateHandle<T>::UpdateHandle::operator= (const UpdateHandle& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(h);
@@ -58,12 +58,12 @@ RWVar<T>::RWVar::operator= (const RWVar& h)
 }
 
 template <class T>
-RWVar<T>& 
-RWVar<T>::RWVar::operator= (const T& data)
+UpdateHandle<T>& 
+UpdateHandle<T>::UpdateHandle::operator= (const T& data)
 {
   if (!isInitialized()) {
     throw std::logic_error
-      ("RWVar<T>::operator=(const T& data) called while un-initialized");
+      ("UpdateHandle<T>::operator=(const T& data) called while un-initialized");
   }
   if (!isConst()) {
     this->reset();
@@ -71,7 +71,7 @@ RWVar<T>::RWVar::operator= (const T& data)
   T*val = this->ptr();
   if (!val) {
     throw std::logic_error
-      ("RWVar<T>::operator=(const T& data) called while invalid");
+      ("UpdateHandle<T>::operator=(const T& data) called while invalid");
   }
   *val = data;
 
@@ -80,14 +80,14 @@ RWVar<T>::RWVar::operator= (const T& data)
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RWVar<T>::RWVar(const IInterface* /*iface*/,
+UpdateHandle<T>::UpdateHandle(const IInterface* /*iface*/,
                 const std::string& name) :
   VarHandleBase( name )
 {}
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RWVar<T>::RWVar(const IInterface* /*iface*/,
+UpdateHandle<T>::UpdateHandle(const IInterface* /*iface*/,
                 const std::string& name,
                 const std::string& store) :
   VarHandleBase( name, store )
@@ -96,22 +96,22 @@ RWVar<T>::RWVar(const IInterface* /*iface*/,
 
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
-RWVar<T>::RWVar(const std::string& name) :
+UpdateHandle<T>::UpdateHandle(const std::string& name) :
   VarHandleBase( name )
 {}
 
 /// retrieve a proxy of name `name` from store `store`
 template <class T>
-RWVar<T>::RWVar(const std::string& name,
+UpdateHandle<T>::UpdateHandle(const std::string& name,
                 const std::string& store) :
   VarHandleBase( name, store )
 {}
 
 /// Destructor: 
 template <class T> 
-RWVar<T>::~RWVar()
+UpdateHandle<T>::~UpdateHandle()
 { 
 } 
 } /* namespace SG */
 
-#endif //> !STOREGATE_SG_RWVAR_ICC
+#endif //> !STOREGATE_SG_UPDATEHANDLE_ICC

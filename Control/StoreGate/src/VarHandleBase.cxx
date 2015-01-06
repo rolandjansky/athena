@@ -11,15 +11,12 @@
 
 #undef DEBUG_VHB  /* define to get verbose debug printouts */
 
-// StoreGate includes
 #include "StoreGate/VarHandleBase.h"
-#include "StoreGate/StoreGateSvc.h"
 
-// SGTools includes
 #include "SGTools/DataBucketBase.h"
+#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/StorableConversions.h"
 
-// STL includes
 #include <algorithm> //> for std::swap
 
 // fwk includes
@@ -76,8 +73,8 @@ VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :
 {
   if (m_proxy) {
     m_proxy->addRef();
+    bindToProxy(this);
   }
-  bindToProxy(this);
 }
 
 
@@ -97,9 +94,9 @@ VarHandleBase::operator=( const VarHandleBase& rhs )
 
     if (m_proxy) {
       m_proxy->addRef();
+      bindToProxy(this);
     }
 
-    bindToProxy(this);
   }
   return *this;
 }
@@ -138,15 +135,10 @@ VarHandleBase::setState() const
   if (m_sgkey.empty() || m_store.empty()) {
     return StatusCode::FAILURE;
   }
-
-  typedef ServiceHandle<StoreGateSvc> Store_t;
-  Store_t store(m_store, "VarHandle");
-  if (!store.retrieve().isSuccess()) {
-    return StatusCode::FAILURE;
-  }
-
-  SG::DataProxy * proxy = store->proxy(this->clid(), m_sgkey);
-  return this->setState(proxy);
+  ServiceHandle<IProxyDictWithPool> hStore(m_store, "VarHandleBase");
+  return (hStore.retrieve().isSuccess()) ? 
+    this->setState(hStore->proxy(this->clid(), m_sgkey)):
+    StatusCode::FAILURE;
 }
 
 StatusCode 

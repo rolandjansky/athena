@@ -28,7 +28,7 @@
 #include "SGTools/DataHandleBase.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
-#include "StoreGate/WVar.h"
+#include "StoreGate/WriteHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataStore.h"
@@ -940,10 +940,6 @@ namespace Athena_test {
     SG::WPtr<Foo> pFoo1 = rSG.create<Foo>("pCreateFoo1", 1);
     assert(rSG.transientContains<Foo>("pCreateFoo1"));
     assert(pFoo1->i() == 1);
-    //added create behaviour to WVar as well
-    // SG::WVar<Foo> pFoo2("pCreateFoo2", 2);
-    // assert(rSG.transientContains<Foo>("pCreateFoo2"));
-    // assert(pFoo1->i() == 2);
     //not allowed to overwrite an existing object
     SGASSERTERROR(rSG.create<Foo>("pCreateFoo1",3));
     //make sure we left the old one alone

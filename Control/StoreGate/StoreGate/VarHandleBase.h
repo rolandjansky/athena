@@ -206,12 +206,6 @@ protected:
     return 0 != p && !isConst() ? p : 0;
   }
 
-  // /// helper function to retrieve a `SG::DataProxy` from a store
-  // /// given its name and clid
-  // static 
-  // SG::DataProxy* retrieveProxyFromStore(CLID clid,
-  //                                       const std::string& name,
-  //                                       const std::string& store);
 }; 
 
 /////////////////////////////////////////////////////////////////// 
