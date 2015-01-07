@@ -20,6 +20,11 @@ include_dirs "$(G4PhysicsLists_root)" "$(G4PhysicsLists_root)/G4PhysicsLists"
 macro G4PhysicsLists_CodeUsed "../src/*.cc ../src/MuBias/*.cc ../src/ElVariations/*.cc" \
       G496                    "../src/*.cc ../src/MuBias/*.cc"
 
+# Force the list of sources files for cmake to correspond to G4 9.6 since the cmt2cmake
+# parser takes the default macro value (it doesn't know which CMT tags are active). This
+# is transparent to CMT)
+apply_pattern cmake_set_macro macro=G4PhysicsLists_CodeUsed value="../src/*.cc ../src/MuBias/*.cc"
+
 library G4PhysicsLists "$(G4PhysicsLists_CodeUsed)"
 
 apply_pattern linked_library
