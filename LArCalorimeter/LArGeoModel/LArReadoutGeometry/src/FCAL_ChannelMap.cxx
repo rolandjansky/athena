@@ -71,13 +71,14 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
   // Get three integers from the tileName:
   std::istringstream tileStream1(std::string(tileName,1,1));
   std::istringstream tileStream2(std::string(tileName,3,2));
-  std::istringstream tileStream3(std::string(tileName,6,2));
+  std::istringstream tileStream3(std::string(tileName,6,3));
   int a1=0,a2=0,a3=0;
   if (tileStream1) tileStream1 >> a1;
   if (tileStream2) tileStream2 >> a2;
   if (tileStream3) tileStream3 >> a3;
 
   tileName_t tilename = (a3 << 16) + a2;
+
   TubePosition tb(tilename, x*CLHEP::cm, y*CLHEP::cm,"");
   // Add offsets, becaues iy and ix can be negative HMA
   
@@ -96,13 +97,14 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
   // Get three integers from the tileName:
   std::istringstream tileStream1(std::string(tileName,1,1));
   std::istringstream tileStream2(std::string(tileName,3,2));
-  std::istringstream tileStream3(std::string(tileName,6,2));
+  std::istringstream tileStream3(std::string(tileName,6,3));
   int a1=0,a2=0,a3=0;
   if (tileStream1) tileStream1 >> a1;
   if (tileStream2) tileStream2 >> a2;
   if (tileStream3) tileStream3 >> a3;
 
   tileName_t tilename = (a3 << 16) + a2;
+
   TubePosition tb(tilename, x*CLHEP::cm, y*CLHEP::cm, hvFT);
   // Add offsets, becaues iy and ix can be negative HMA
   
