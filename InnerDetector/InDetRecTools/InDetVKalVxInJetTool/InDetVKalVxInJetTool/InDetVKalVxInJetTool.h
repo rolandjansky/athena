@@ -148,6 +148,7 @@ namespace InDet {
       TH1D* m_hb_ntrkjet;
       TH1D* m_hb_impactZ;
       TH1D* m_hb_r2d;
+      TH1D* m_hb_r2dc;
       TH1D* m_hb_jmom;
       TH1D* m_hb_mom;
       TH1D* m_hb_signif3D;
@@ -156,7 +157,9 @@ namespace InDet {
       TH1F* m_hb_goodvrtN;
       TH1D* m_hb_distVV;
       TH1D* m_hb_diffPS;
+      TH1D* m_hb_sig3D1tr;
       TH1D* m_hb_sig3D2tr;
+      TH1D* m_hb_sig3DNtr;
       TH1D* m_hb_trkPtMax;
       TH1D* m_hb_tr2SelVar;
       TH1F* m_hb_blshared;
@@ -164,6 +167,8 @@ namespace InDet {
       TH1F* m_hb_addRatioMV;
       TH1F* m_hb_addChi2MV;
       TH1F* m_hb_addNVrtMV;
+      TH1F* m_hb_lifetime;
+      TH1F* m_hb_trkPErr;
       TProfile * m_pr_effVrt2tr;
       long int m_iflag;
 
@@ -196,8 +201,11 @@ namespace InDet {
       double m_AntiPileupSigZCut;
       double m_AntiFake2trVrtCut;
       double m_JetPtFractionCut;
+      int    m_TrackInJetNumberLimit;
 
       bool m_FillHist;
+
+      bool m_existIBL;
 
       long int m_RobustFit;
 
@@ -213,7 +221,10 @@ namespace InDet {
       double m_RlayerB;
       double m_Rlayer1;
       double m_Rlayer2;
+      double m_SVResolutionR;
 
+      bool     m_useMaterialRejection;
+      bool     m_useVertexCleaning;
       long int m_MassType;
       bool     m_MultiVertex;
       bool     m_MultiWithPrimary;
@@ -237,6 +248,7 @@ namespace InDet {
       double m_massE;
       double m_massK0;
       double m_massLam;
+      mutable int m_NRefTrk;    //Measure of track in jet multiplicity
 
 // For multivertex version only
 
@@ -255,6 +267,7 @@ namespace InDet {
          int nCloseVrt;
          double dCloseVrt;
 	 double ProjectedVrt;
+         int detachedTrack;
 	 };
 
 
@@ -282,8 +295,6 @@ namespace InDet {
 	                           std::vector<double>                         & Results) const;
 
 
-      int CheckKilledVertices( WrkVrt *KilledVertex, std::vector<WrkVrt> *VrtSet) const;
-
       void  TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                 std::vector< std::deque<long int> > *TrkInVrt) const;
 
@@ -307,7 +318,7 @@ namespace InDet {
 //
 // Gives correct mass assignment in case of nonequal masses
       double massV0( std::vector< std::vector<double> >& TrkAtVrt, double massP, double massPi ) const;
-      int FindMax( std::vector<double>& Chi2PerTrk) const;
+      int FindMax( std::vector<double>& Chi2PerTrk, std::vector<int>&  countT) const;
 
 
       TLorentzVector TotalMom(const std::vector<const Trk::Perigee*>& InpTrk) const; 
@@ -318,10 +329,12 @@ namespace InDet {
       double           pTvsDir(const Amg::Vector3D &Dir, const std::vector<double>& InpTrk) const; 
 
 
+      int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
       double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
       double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
-      void MergeVertices( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
       bool isPart( std::deque<long int> test, std::deque<long int> base) const;
+      void Clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
+      double JetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &PrimVrt, const TLorentzVector &JetDir) const;
 
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double> VrtErr,double& Signif ) const;
@@ -329,9 +342,11 @@ namespace InDet {
                                   const std::vector<double> VrtErr,double& Signif ) const;
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
+      double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+                                  const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
       double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
                         const Amg::Vector3D & Vrt2, const std::vector<double>& VrtErr2) const;
-
+ 
       template <class Particle>
       void DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
                          std::vector<const Particle*>  AllTracks) const;
@@ -346,6 +361,7 @@ namespace InDet {
 
       template <class Trk>
       double FitCommonVrt(std::vector<const Trk*>& ListSecondTracks,
+                          std::vector<int>     & cntComb,
                           const xAOD::Vertex   & PrimVrt,
                           std::vector<double>  & InpMass, 
 	                  Amg::Vector3D        & FitVertex,
@@ -354,7 +370,7 @@ namespace InDet {
 		     std::vector< std::vector<double> >  & TrkAtVrt) const; 
 
       template <class Trk>
-      void RemoveEntryInList(std::vector<const Trk*>& , int) const;
+      void RemoveEntryInList(std::vector<const Trk*>& , std::vector<int>&, int) const;
       template <class Trk>
       void RemoveDoubleEntries(std::vector<const Trk*>& ) const;
 
@@ -362,8 +378,18 @@ namespace InDet {
       template <class Particle>
       StatusCode RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
                               std::vector<const Particle*> & SelectedTracks) const;
+      template <class Particle>
+      double FitVertexWithPV( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex, const xAOD::Vertex & PV,
+                              std::vector<const Particle*> & SelectedTracks) const;
 
-      int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
+      template <class Particle>
+      double mergeAndRefitVertices( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2, WrkVrt & newvrt,
+                                     std::vector<const Particle*> & AllTrackList) const;
+
+      template <class Particle>
+      double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTracks)const;
+
+     int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
                                 const xAOD::Vertex                          & PrimVrt,
 	                        const TLorentzVector                        & JetDir,
                                       std::vector<const Rec::TrackParticle*>& SelPart) const;
@@ -405,9 +431,11 @@ namespace InDet {
      StatusCode VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,Amg::Vector3D& Vertex) const;
      StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex) const;
 
+     template <class Track>
+     bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, double ) const;
 
-     void  getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit ) const;
-     void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit ) const;
+     void  getPixelLayers(const Rec::TrackParticle* Part,  int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
+     void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
@@ -434,13 +462,16 @@ namespace InDet {
 
 
   template <class Trk>
-  void InDetVKalVxInJetTool::RemoveEntryInList(std::vector<const Trk*>& ListTracks, int Outlier) const
+  void InDetVKalVxInJetTool::RemoveEntryInList(std::vector<const Trk*>& ListTracks, std::vector<int> &cnt, int Outlier) const
   {
     if(Outlier < 0 ) return;
     if(Outlier >= (int)ListTracks.size() ) return;
     typename std::vector<const Trk*>::iterator   TransfEnd;
     TransfEnd = remove( ListTracks.begin(), ListTracks.end(), ListTracks[Outlier]);
     ListTracks.erase( TransfEnd,ListTracks.end());
+    typename std::vector<int>::iterator   cntEnd;
+    cntEnd = remove( cnt.begin(), cnt.end(), cnt[Outlier]);
+    cnt.erase( cntEnd,cnt.end());
   }     
 
   template <class Trk>

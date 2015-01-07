@@ -24,14 +24,19 @@ namespace InDet{
       <<", "<<(*WrkVrtSet)[iv].vertex[1]
       <<", "<<(*WrkVrtSet)[iv].vertex[2]
       <<" NTrk="<<(*WrkVrtSet)[iv].SelTrk.size()
-      <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good
+      <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good<<std::noboolalpha
+      <<"  Chi2="<<(*WrkVrtSet)[iv].Chi2
+      <<"  Mass="<<(*WrkVrtSet)[iv].vertexMom.M()
+      <<"  detached="<<(*WrkVrtSet)[iv].detachedTrack
+      <<"  proj.dist="<<(*WrkVrtSet)[iv].ProjectedVrt
       <<" trk=";
       for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
                 std::cout<<", "<<(*WrkVrtSet)[iv].SelTrk[kk];}
+      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
+      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
       std::cout<<'\n';
     }
   }
-
 
                /*  Technicalities */
   double InDetVKalVxInJetTool::ProjPos(const Amg::Vector3D & Vrt,const TLorentzVector & JetDir)
@@ -107,6 +112,7 @@ namespace InDet{
     if( Signif!=Signif ) Signif = 0.;
     return sqrt(distx*distx+disty*disty+distz*distz);
   }
+
 //--------------------------------------------------
 // Significance along jet direction
 //--------------------------------------------------
@@ -114,8 +120,8 @@ namespace InDet{
                                           const std::vector<double> SecVrtErr, const TLorentzVector & JetDir)
   const
   {
-    Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Z());
-    double projDist=(PrimVrt.position()-SecVrt).dot(jetDir);
+    Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
+    double projDist=(SecVrt-PrimVrt.position()).dot(jetDir);
     double distx =  jetDir.x()*projDist;
     double disty =  jetDir.y()*projDist;
     double distz =  jetDir.z()*projDist;
@@ -141,9 +147,47 @@ namespace InDet{
                 +2.*disty*WgtMtx(1,2)*distz;
     Signif=sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
+    if(projDist<0)Signif=-Signif;
     return Signif;
   }
 
+//--------------------------------------------------
+// Significance along jet direction
+//--------------------------------------------------
+  double InDetVKalVxInJetTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+                                          const std::vector<double> SecVrtErr, const TLorentzVector & JetDir)
+  const
+  {
+    Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
+    double projDist=(SecVrt-PrimVrt.position()).dot(jetDir);
+    double distx =  jetDir.x()*projDist;
+    double disty =  jetDir.y()*projDist;
+    double distz =  jetDir.z()*projDist;
+
+    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    PrimCovMtx(0,0) += SecVrtErr[0];
+    PrimCovMtx(0,1) += SecVrtErr[1];
+    PrimCovMtx(1,0) += SecVrtErr[1];
+    PrimCovMtx(1,1) += SecVrtErr[2];
+    PrimCovMtx(0,2) += SecVrtErr[3];
+    PrimCovMtx(2,0) += SecVrtErr[3];
+    PrimCovMtx(1,2) += SecVrtErr[4];
+    PrimCovMtx(2,1) += SecVrtErr[4];
+    PrimCovMtx(2,2) += SecVrtErr[5];
+
+    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+
+    double Signif = distx*WgtMtx(0,0)*distx
+                   +disty*WgtMtx(1,1)*disty
+                   +distz*WgtMtx(2,2)*distz
+                +2.*distx*WgtMtx(0,1)*disty
+                +2.*distx*WgtMtx(0,2)*distz
+                +2.*disty*WgtMtx(1,2)*distz;
+    Signif=sqrt(Signif);
+    if( Signif!=Signif ) Signif = 0.;
+    if(projDist<0)Signif=-Signif;
+    return Signif;
+  }
 
   double InDetVKalVxInJetTool::VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,
                                           const Amg::Vector3D & Vrt2, const std::vector<double>  & VrtErr2)
@@ -218,14 +262,14 @@ namespace InDet{
 
 
 
-   int InDetVKalVxInJetTool::FindMax( std::vector<double>& Chi2PerTrk)
+   int InDetVKalVxInJetTool::FindMax( std::vector<double>& Chi2PerTrk, std::vector<int> & cntTrk)
    const
    { 
       double Chi2Ref=0.;
       int Position=0;
       if( Chi2PerTrk.size() < 1 ) return Position ;
       for (int i=0; i< (int)Chi2PerTrk.size(); i++){
-         if( Chi2PerTrk[i] > Chi2Ref) { Chi2Ref=Chi2PerTrk[i]; Position=i;}
+         if( Chi2PerTrk[i]/cntTrk[i] > Chi2Ref) { Chi2Ref=Chi2PerTrk[i]/cntTrk[i]; Position=i;}
       }
 
       return Position;
@@ -427,7 +471,8 @@ namespace InDet{
                                                   std::vector< std::vector<double> >& TrkAtVrt,
                                                   double& Chi2 ) const
   {
-     return m_fitSvc->VKalVrtFit( listPart, Vertex, Momentum, Charge,
+     std::vector<const xAOD::NeutralParticle*> netralPartDummy(0);
+     return m_fitSvc->VKalVrtFit( listPart, netralPartDummy,Vertex, Momentum, Charge,
                                   ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
 
   }
@@ -435,25 +480,57 @@ namespace InDet{
 
 
 /*************************************************************************************************************/
-  void   InDetVKalVxInJetTool::getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit ) const
+  void   InDetVKalVxInJetTool::getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays  ) const
   {
-     	blHit=l1Hit=l2Hit=0; 
+     	blHit=l1Hit=l2Hit=nLays=0; 
         const Trk::TrackSummary* testSum = Part->trackSummary();
         if(testSum){ 
 	       if(testSum->isHit(Trk::pixelBarrel0))blHit=1;
 	       if(testSum->isHit(Trk::pixelBarrel1))l1Hit=1;
 	       if(testSum->isHit(Trk::pixelBarrel2))l2Hit=1;
         }
+	nLays=blHit+l1Hit+l2Hit;
   }
-  void   InDetVKalVxInJetTool::getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit ) const
+  void   InDetVKalVxInJetTool::getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays ) const
   {
-    	blHit=l1Hit=l2Hit=0; 
-        uint8_t BLhit,NPlay;
-        if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )                BLhit = 0;
-        if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;
-         if           (BLhit)       { blHit=l1Hit=l2Hit=1;}  // B-layer hit is present. Presumably all pixel layers are fired
-         else if (NPlay>1) { l1Hit=l2Hit=1;}                       // B-layer hit is absent. Presumably layers 1+2  are fired 
-	 else if (NPlay>0) { l2Hit=1;}
+    	blHit=l1Hit=l2Hit=nLays=0; 
+        if(m_existIBL){              // 4-layer pixel detector
+          uint8_t IBLhit,BLhit,NPlay;
+          if(!Part->summaryValue( IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )        IBLhit = 0;
+          if(!Part->summaryValue(  BLhit,  xAOD::numberOfNextToInnermostPixelLayerHits) )   BLhit = 0;
+          if(!Part->summaryValue(  NPlay,  xAOD::numberOfContribPixelLayers) )              NPlay = 0;
+          blHit=IBLhit;
+          l1Hit= BLhit;
+	  l2Hit=1;
+          if((IBLhit+BLhit) == 0){      //no hits in IBL and BL
+	     if(NPlay>=1) { l2Hit=1; }  // at least one of remaining layers is fired
+	     if(NPlay==0) { l2Hit=0; }
+          }else if( IBLhit*BLhit == 0){ // one hit in IBL and BL. Others are presumably also fired
+	     if(NPlay>=2) { l2Hit=1; }
+	     if(NPlay<=1) { l2Hit=0; }  // no fired layer except for IBL/BL
+          }
+          nLays=NPlay;
+        } else {                     // 3-layer pixel detector
+          uint8_t BLhit,NPlay,NHoles,IBLhit;
+          if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;
+          if(!Part->summaryValue(IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )  IBLhit = 0; // Some safety
+          BLhit=BLhit>IBLhit ? BLhit : IBLhit;                                                  // Some safety
+          if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;
+          if(!Part->summaryValue(NHoles,  xAOD::numberOfPixelHoles) )         NHoles = 0;
+          blHit=BLhit;  //B-layer hit is fired. Presumable all other layers are also fired.
+	  l1Hit=1;
+	  l2Hit=1;
+          if (BLhit==0) {   //B-layer hit is absent. 
+	     if(NPlay>=2) { l1Hit=l2Hit=1;}
+	     if(NPlay==0) { l1Hit=l2Hit=0;}
+	     if(NPlay==1) { 
+	       if( NHoles==0) {l1Hit=0; l2Hit=1;}  
+	       if( NHoles>=1) {l1Hit=1; l2Hit=0;}  
+             }
+          }
+          nLays=NPlay;
+        }
+
   }
 
 
@@ -670,7 +747,7 @@ namespace InDet{
                   cos(phi) * (0.- vxCandidate->recVertex().position().y());
       double t  = (0. - vxCandidate->recVertex().position().x())*cos(phi) +
                   (0. - vxCandidate->recVertex().position().y())*sin(phi);
-      double z0 = vxCandidate->recVertex().position().z() + t/tan(theta);
+      //double z0 = vxCandidate->recVertex().position().z() + t/tan(theta);
       double dA0dPhi = t;                            // Additional derivatives due to transportation
       double dZ0dPhi = -a0/tan(theta);
       double dZ0dTheta = - t /sin(theta)/sin(theta);
@@ -692,19 +769,19 @@ namespace InDet{
       }
 //---------------------------------------------------------------
 // Covariance at (0,0,0) perigee
-      AmgSymMatrix(5) * SumCovN=new  AmgSymMatrix(5);
-      SumCovN->setZero();
-      for(int ik=0; ik<5; ik++){
-        for(int jk=ik; jk<5; jk++){
-          for(int i=0; i<3*NTrk+3; i++){
-            for(int j=0; j<3*NTrk+3; j++){
-              (*SumCovN)(ik,jk) += Deriv(ik,i)*(*fullCov)(i,j)*Deriv(jk,j);
-            }
-          }
-        }
-      }
-      Amg::Vector3D zeroGlobalVertex(0.,0.,0.);
-      perigeeN = new Trk::NeutralPerigee( a0,z0,phi,theta,1./mom, Trk::PerigeeSurface( zeroGlobalVertex ),SumCovN  );
+      // AmgSymMatrix(5) *SumCovN=new  AmgSymMatrix(5);
+      // SumCovN->setZero();
+      // for(int ik=0; ik<5; ik++){
+      //   for(int jk=ik; jk<5; jk++){
+      //     for(int i=0; i<3*NTrk+3; i++){
+      //       for(int j=0; j<3*NTrk+3; j++){
+      //         (*SumCovN)(ik,jk) += Deriv(ik,i)*(*fullCov)(i,j)*Deriv(jk,j);
+      //       }
+      //     }
+      //   }
+      // }
+      //Amg::Vector3D zeroGlobalVertex(0.,0.,0.);
+      //perigeeN = new Trk::NeutralPerigee( a0,z0,phi,theta,1./mom, Trk::PerigeeSurface( zeroGlobalVertex ),SumCovN  );
 //std::cout<<" NEWPART="<<(*perigee)<<'\n';
       //nTrkPrt = new Trk::TrackParticleBase(0, Trk::SecVtx, vxCandidate, new Trk::TrackSummary(),
       //                             tmpPar, perigee, fitQuality);
@@ -717,18 +794,31 @@ namespace InDet{
 
 
 
- Amg::MatrixX InDetVKalVxInJetTool::SetFullMatrix(int NTrk, std::vector<double> & Matrix) const
- {
-   Amg::MatrixX mtx(3+3*NTrk,3+3*NTrk);   // Create identity matrix of needed size
-   long int ij=0;
-   for(int i=0; i<(3+3*NTrk); i++){
+  Amg::MatrixX InDetVKalVxInJetTool::SetFullMatrix(int NTrk, std::vector<double> & Matrix) const
+  {
+    Amg::MatrixX mtx(3+3*NTrk,3+3*NTrk);   // Create identity matrix of needed size
+    long int ij=0;
+    for(int i=0; i<(3+3*NTrk); i++){
       for(int j=0; j<i; j++){
                   mtx(i,j)=Matrix[ij];
          if(i!=j) mtx(j,i)=Matrix[ij];
          ij++;
       }
-   }
-   return mtx;
- }
+    }
+    return mtx;
+  }
+
+  Amg::MatrixX InDetVKalVxInJetTool::makeVrtCovMatrix( std::vector<double> & ErrorMatrix )
+  const
+  {
+      Amg::MatrixX VrtCovMtx(3,3);  
+      VrtCovMtx(0,0)                  = ErrorMatrix[0];
+      VrtCovMtx(0,1) = VrtCovMtx(1,0) = ErrorMatrix[1];
+      VrtCovMtx(1,1)                  = ErrorMatrix[2];
+      VrtCovMtx(0,2) = VrtCovMtx(2,0) = ErrorMatrix[3];
+      VrtCovMtx(1,2) = VrtCovMtx(2,1) = ErrorMatrix[4];
+      VrtCovMtx(2,2)                  = ErrorMatrix[5];
+      return VrtCovMtx;
+  }
 
 }  //end namespace

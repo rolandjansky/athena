@@ -66,11 +66,16 @@ namespace InDet{
           double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
           double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
           double CovTrkMtx22 = (*(m_mPer->covariance()))(1,1);
+          double CovTrkMtx55 = (*(m_mPer->covariance()))(4,4);
 
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
+          double trkP=1./fabs(VectPerig[4]);         
+          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
+	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
+                            if(trkPErr>0.15) continue;   }
 
           long int PixelHits     = 3;
           long int SctHits       = 9; 
@@ -178,6 +183,7 @@ namespace InDet{
 
           double CovTrkMtx11 = (*i_ntrk)->definingParametersCovMatrix()(0,0);
           double CovTrkMtx22 = (*i_ntrk)->definingParametersCovMatrix()(1,1);
+          double CovTrkMtx55 = (*i_ntrk)->definingParametersCovMatrix()(4,4);
 
 
 
@@ -185,6 +191,10 @@ namespace InDet{
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
+          double trkP=1./fabs(VectPerig[4]);         
+          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
+	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
+                            if(trkPErr>0.15) continue;   }
 
           uint8_t PixelHits,SctHits,BLayHits,SharedHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) ) PixelHits=0;
@@ -192,7 +202,20 @@ namespace InDet{
           if( !((*i_ntrk)->summaryValue( BLayHits,xAOD::numberOfBLayerHits)))  BLayHits=0;
           SharedHits    = 0; //Always 0 now
 
-//std::cout<<"NwTrkSummary="<<(long int)PixelHits<<", "<<(long int)SctHits<<", "<<(long int)BLayHits<<", fitter="<<'\n';
+//std::cout<<"NwTrkSummary="<<(long int)PixelHits<<", "<<(long int)SctHits<<", "<<(long int)BLayHits<<'\n';
+          //uint8_t BLaySharedH,BLaySplitH,BLayOutlier;
+          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfBLayerSharedHits)) )  BLaySharedH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfBLayerSplitHits))  )  BLaySplitH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfBLayerOutliers))   )  BLayOutlier=-1;
+//std::cout<<"NwBlayer="<<(long int)BLaySharedH<<", "<<(long int)BLaySplitH<<", "<<(long int)BLayOutlier<<'\n';
+          //uint8_t InmHits,InmSharedH,InmSplitH,InmOutlier;
+          //if( !((*i_ntrk)->summaryValue(InmHits,   xAOD::numberOfInnermostHits)) )        InmHits=-1;
+          //if( !((*i_ntrk)->summaryValue(InmSharedH,xAOD::numberOfInnermostSharedHits)) )  InmSharedH=-1;
+          //if( !((*i_ntrk)->summaryValue(InmSplitH ,xAOD::numberOfInnermostSplitHits))  )  InmSplitH=-1;
+          //if( !((*i_ntrk)->summaryValue(InmOutlier,xAOD::numberOfInnermostOutliers))   )  InmOutlier=-1;
+//std::cout<<"NwInnerM="<<(long int)InmHits<<", "<<(long int)InmSharedH<<", "<<(long int)InmSplitH<<", "<<(long int)InmOutlier<<'\n';
+
+
           double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
           double ImpactA0=VectPerig[0];                         // Temporary
           double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
@@ -246,7 +269,7 @@ namespace InDet{
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }
-      //AnalysisUtils::Sort::pT (&SelectedTracks); // no equivalent for TrkTrack yet...
+      AnalysisUtils::Sort::pT (&SelectedTracks); // no equivalent for TrkTrack yet...
       return NPrimTrk;
   }
 

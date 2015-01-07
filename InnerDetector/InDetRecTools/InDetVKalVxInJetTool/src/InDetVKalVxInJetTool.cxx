@@ -52,7 +52,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_AntiPileupSigZCut(6.0),
     m_AntiFake2trVrtCut(0.5),
     m_JetPtFractionCut(0.01),
+    m_TrackInJetNumberLimit(25),
     m_FillHist(false),
+    m_existIBL(false),
     m_RobustFit(5),
     m_Xbeampipe (0.),
     m_Ybeampipe (0.),
@@ -62,14 +64,13 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_Ylayer1 (0.),
     m_Xlayer2 (0.),
     m_Ylayer2 (0.),
-    m_Rbeampipe (29.4),    
-    m_RlayerB (50.5),
-    m_Rlayer1 (88.0),
-    m_Rlayer2 (123.0),
-//    m_Rbeampipe (25.4), //IBL
-//    m_RlayerB (34.0),   //IBL
-//    m_Rlayer1 (50.5),   //IBL
-//    m_Rlayer2 (88.0),   //IBL
+    m_Rbeampipe (0.),  //Correct values are filled     
+    m_RlayerB   (0.),  // in jobO or initialize()
+    m_Rlayer1   (0.),
+    m_Rlayer2   (0.),
+    m_SVResolutionR(5.),
+    m_useMaterialRejection(true),
+    m_useVertexCleaning(true),
     m_MassType (1),
     m_MultiVertex(false),
     m_MultiWithPrimary(false),
@@ -116,8 +117,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("AntiPileupSigZCut",   m_AntiPileupSigZCut, "Remove tracks with low Rphi and big Z impacts presumably coming from pileup"  );
     declareProperty("AntiFake2trVrtCut",   m_AntiFake2trVrtCut, "Cut to reduce fake 2-track vertices contribution.Single Vertex Finder only"  );
     declareProperty("JetPtFractionCut",    m_JetPtFractionCut,  "Reduce high Pt fakes. Jet HLV input is mandatory, direction is not enough. Multi and single vertex versions are affected"  );
+    declareProperty("TrackInJetNumberLimit", m_TrackInJetNumberLimit, " Use only limited number of highest pT tracks in jet for vertex search"  );
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
+    declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
 
     declareProperty("RobustFit",  m_RobustFit, "Use vertex fit with RobustFit functional(VKalVrt) for common secondary vertex fit" );
 
@@ -133,6 +136,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("RlayerB",   m_RlayerB  );
     declareProperty("Rlayer1",   m_Rlayer1  );
     declareProperty("Rlayer2",   m_Rlayer2  );
+
+    declareProperty("SVResolutionR",  m_SVResolutionR, "Radial resolution of SVs. Needed for correct pixel layers crossing checks" );
+    declareProperty("useMaterialRejection",  m_useMaterialRejection, "Reject vertices from hadronic interactions in detector material" );
+    declareProperty("useVertexCleaning",     m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
 
     declareProperty("MassType",  m_MassType, "Type of vertex mass returned by finder. Single Vertex Finder only!" );
     declareProperty("MultiVertex",        m_MultiVertex,       "Run Multiple Secondary Vertices in jet finder"  );
@@ -217,8 +224,22 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endreq;
 //     }
 
-
-
+//------------------------------------------
+// Chose whether IBL is installed
+     if(m_existIBL){ // 3-layer pixel detector
+       if( m_Rbeampipe==0.)  m_Rbeampipe=25.4;    
+       if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
+       if( m_Rlayer1  ==0.)  m_Rlayer1  =50.5;
+       if( m_Rlayer2  ==0.)  m_Rlayer2  =88.0;
+     } else {   // 3-layer pixel detector
+       if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
+       if( m_RlayerB  ==0.)  m_RlayerB  =50.5;
+       if( m_Rlayer1  ==0.)  m_Rlayer1  =88.0;
+       if( m_Rlayer2  ==0.)  m_Rlayer2  =123.0;
+     }       
+       
+//
+//
      ITHistSvc*     hist_root=0;
      if(m_FillHist){
 
@@ -236,22 +257,25 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        m_hb_totmass    = new TH1D("totmass"," totmass", 250,0., 10000.);
        m_hb_totmassEE  = new TH1D("massEEcomvrt"," totmass EE common vertex", 100,0., 1000.);
        m_hb_totmass2T0 = new TH1D("mass2trcomvrt0"," totmass 2tr common vertex", 800,0., 4000.);
-       m_hb_totmass2T1 = new TH1D("mass2trcomvrt1"," totmass 2tr common vertex", 100,0., 4000.);
-       m_hb_totmass2T2 = new TH1D("mass2trcomvrt2"," totmass 2tr common vertex", 100,0., 4000.);
+       m_hb_totmass2T1 = new TH1D("mass2trcomvrt1"," totmass 2tr common vertex", 200,0., 10000.);
+       m_hb_totmass2T2 = new TH1D("mass2trcomvrt2"," totmass 2tr common vertex", 200,0., 10000.);
        m_hb_impact     = new TH1D("impact", " impact", 100,0., 20.);
        m_hb_impactR    = new TH1D("impactR"," impactR", 100,-30., 70.);
        m_hb_impactZ    = new TH1D("impactZ"," impactZ", 100,-30., 70.);
        m_hb_impactRZ   = new TH2D("impactRZ"," impactRZ", 40,-10., 10., 60, -30.,30. );
-       m_hb_r2d        = new TH1D("r2interact"," interaction", 150,0., 150.);
+       m_hb_r2d        = new TH1D("r2interact","Interaction radius 2tr", 150,0., 150.);
+       m_hb_r2dc       = new TH1D("r2interactCommon","Interaction radius common", 150,0., 150.);
        m_hb_impV0      = new TH1D("impactV0"," V0 impact", 100,0., 50.);
        m_hb_ntrkjet    = new TH1D("ntrkjet"," NTrk in jet", 50,0., 50.);
        m_hb_jmom       = new TH1D("jetmom"," Jet mom", 200,0., 1000000.);
        m_hb_mom        = new TH1D("jetmomvrt"," Jet mom with sec. vertex", 200,0., 1000000.);
        m_hb_signif3D   = new TH1D("signif3D"," Signif3D for initial 2tr vertex", 140,-20., 50.);
-       m_hb_massPiPi1  = new TH1D("massPiPi1"," massPiPi",100,200., 800.);
+       m_hb_massPiPi1  = new TH1D("massPiPi1"," massPiPi",100,0., 4000.);
        m_hb_massPiPi2  = new TH1D("massPiPi2"," massPiPi",100,0., 4000.);
        m_hb_sig3DTot   = new TH1D("sig3dcommon"," Signif3D for common vertex", 140,-20., 50.);
-       m_hb_sig3D2tr   = new TH1D("sig3D2tr","Signif2D for 2tr single vertex", 140,-20., 50.);
+       m_hb_sig3D1tr   = new TH1D("sig3D1tr","Signif3D for 1tr  vertices", 140,-20., 50.);
+       m_hb_sig3D2tr   = new TH1D("sig3D2tr","Signif3D for 2tr single vertex", 140,-20., 50.);
+       m_hb_sig3DNtr   = new TH1D("sig3DNtr","Signif3D for many-tr single vertex", 140,-20., 50.);
        m_hb_goodvrtN   = new TH1F("goodvrtN","Number of good vertices", 20,0., 20.);
        m_hb_distVV     = new TH1D("distvv","Vertex-Vertex dist", 100,0., 20.);
        m_hb_diffPS     = new TH1D("diffPS","Primary-Secondary assoc", 200,-20., 20.);
@@ -262,6 +286,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        m_hb_addRatioMV = new TH1F("addRatioMV","Distance ratio for added vertices multivertex case", 100, 0., 2.5);
        m_hb_addChi2MV  = new TH1F("addChi2MV","Chi2 for added vertices multivertex case", 100, 0., 10.);
        m_hb_addNVrtMV  = new TH1F("addNVrtMV","N of added vertices multivertex case", 10, 0., 10.);
+       m_hb_lifetime   = new TH1F("lifetime","Distance/momentum", 100, 0., 5.);
+       m_hb_trkPErr    = new TH1F("trkPErr","Track momentum error for P>10 GeV", 100, 0., 0.5);
        m_pr_effVrt2tr  = new TProfile("effVrt2tr"," 2tr vertex efficiency vs track", 50, 0., 50.);
        std::string histDir;
        if(m_MultiVertex) histDir="/file1/stat/MSVrtInJet/";
@@ -280,16 +306,19 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"impactR", m_hb_impactR);
        sc = hist_root->regHist(histDir+"impactZ", m_hb_impactZ);
        sc = hist_root->regHist(histDir+"impactRZ", m_hb_impactRZ);
-       sc = hist_root->regHist(histDir+"r2interact", m_hb_r2d);
+       sc = hist_root->regHist(histDir+"r2interact2tr", m_hb_r2d);
+       sc = hist_root->regHist(histDir+"r2interactCommon", m_hb_r2dc);
        sc = hist_root->regHist(histDir+"impactV0", m_hb_impV0);
        sc = hist_root->regHist(histDir+"ntrkjet", m_hb_ntrkjet);
        sc = hist_root->regHist(histDir+"jetmom", m_hb_jmom);
        sc = hist_root->regHist(histDir+"jetmomvrt", m_hb_mom);
-       sc = hist_root->regHist(histDir+"sig3d2tr", m_hb_signif3D);
+       sc = hist_root->regHist(histDir+"signif3D", m_hb_signif3D);
        sc = hist_root->regHist(histDir+"massPiPi1", m_hb_massPiPi1);
        sc = hist_root->regHist(histDir+"massPiPi2", m_hb_massPiPi2);
        sc = hist_root->regHist(histDir+"sig3dcommon", m_hb_sig3DTot);
+       sc = hist_root->regHist(histDir+"sig3D1tr", m_hb_sig3D1tr);
        sc = hist_root->regHist(histDir+"sig3D2tr", m_hb_sig3D2tr);
+       sc = hist_root->regHist(histDir+"sig3DNtr", m_hb_sig3DNtr);
        sc = hist_root->regHist(histDir+"goodvrtN", m_hb_goodvrtN);
        sc = hist_root->regHist(histDir+"distVV", m_hb_distVV);
        sc = hist_root->regHist(histDir+"diffPS", m_hb_diffPS);
@@ -300,6 +329,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"addRatioMV", m_hb_addRatioMV);
        sc = hist_root->regHist(histDir+"addChi2MV", m_hb_addChi2MV);
        sc = hist_root->regHist(histDir+"addNVrtMV", m_hb_addNVrtMV);
+       sc = hist_root->regHist(histDir+"lifetime", m_hb_lifetime);
+       sc = hist_root->regHist(histDir+"trkPErr", m_hb_trkPErr);
        sc = hist_root->regHist(histDir+"effVrt2tr", m_pr_effVrt2tr);
        if( sc.isFailure() ) {     // Check of StatusCode
          if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endreq;
@@ -355,7 +386,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     double EnergyJet  =   0.;
     int N2trVertices  =   0 ;
 
-    InpTrk.clear();
+    InpTrk.clear(); InpTrk.reserve(IInpTrk.size());
     std::vector<const xAOD::IParticle*>::const_iterator   i_itrk;
     for (i_itrk = IInpTrk.begin(); i_itrk < IInpTrk.end(); ++i_itrk) {
           const xAOD::TrackParticle * tmp=dynamic_cast<const xAOD::TrackParticle *> ((*i_itrk));
@@ -390,6 +421,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     const Trk::VxSecVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, iparTrkFromV0 );
     m_fitSvc->clearMemory();
+    std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
+    std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
     return res;
    }
 
@@ -437,6 +470,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     const Trk::VxSecVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
     m_fitSvc->clearMemory();
+    std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
+    std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
     return res;
         
 //    return new Trk::VxSecVertexInfo(listVrtSec);
@@ -486,6 +521,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     const Trk::VxSecVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
     m_fitSvc->clearMemory();
+    std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
+    std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
     return res;
        
 //    return new Trk::VxSecVertexInfo(listVrtSec);

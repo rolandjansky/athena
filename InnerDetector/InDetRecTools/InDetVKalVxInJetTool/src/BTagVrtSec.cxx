@@ -87,9 +87,15 @@ namespace InDet{
         AnalysisUtils::Sort::pT (&TrkFromV0);
       }
 //---
+      std::vector<const Rec::TrackParticle*> saveSecondTracks(ListSecondTracks);
       double Vrt2TrackNumber = (double) ListSecondTracks.size()/2.;
       RemoveDoubleEntries(ListSecondTracks);
       AnalysisUtils::Sort::pT (&ListSecondTracks);
+//--Number of 2tr vertices where each track is used
+      std::vector<int> combCount(ListSecondTracks.size());
+      for(int tk=0;tk<(int)ListSecondTracks.size(); tk++){
+        combCount[tk]=std::count(saveSecondTracks.begin(),saveSecondTracks.end(),ListSecondTracks[tk]);
+      }
 //---
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different tracks in pairs="<< ListSecondTracks.size()<<endreq;
       if(ListSecondTracks.size() < 2 ) { return 0;} // Less than 2 tracks left
@@ -107,7 +113,7 @@ namespace InDet{
       double Signif3D, Signif3DP=0, Signif3DS=0;
       std::vector<double> Impact,ImpactError;
 
-      double Chi2 =  FitCommonVrt( ListSecondTracks, xaodPrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+      double Chi2 =  FitCommonVrt( ListSecondTracks,combCount, xaodPrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
 //
       if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
 //
@@ -130,13 +136,14 @@ namespace InDet{
       if( AdditionalTracks.size() > 0){
         for (i_ntrk = AdditionalTracks.begin(); i_ntrk < AdditionalTracks.end(); ++i_ntrk)
                       ListSecondTracks.push_back((*i_ntrk));
-        Chi2 =  FitCommonVrt( ListSecondTracks, xaodPrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+        std::vector<int> tmpCount(ListSecondTracks.size(),1);
+        Chi2 =  FitCommonVrt( ListSecondTracks, tmpCount, xaodPrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+        if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
       }
 //
 //  Saving of results
 //
 //
-      if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
 //
 // Find highest track Pt with respect to jet direction
       double trackPt, trackPtMax=0.;
@@ -149,48 +156,29 @@ namespace InDet{
 // VK 12.02.2008 Idea correct, implementation was wrong!!! Tracks must have BL hits only if vertex is inside BL!! 
       if( ListSecondTracks.size()==2 ){         // If there are 2 only tracks
         int Charge=0, tCnt=0;
-	int blTrk[2]={0,0}; 
-	int l1Trk[2]={0,0}; 
-	int l2Trk[2]={0,0}; 
 	int BLshared=0;
 	int PXshared=0;
         std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
         for (i_ntrk = ListSecondTracks.begin(); i_ntrk < ListSecondTracks.end(); ++i_ntrk) {
             Charge +=  (int) (*i_ntrk)->charge();
             const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-            if(testSum){ 
-	       if(testSum->isHit(Trk::pixelBarrel0))blTrk[tCnt]=1;
-	       if(testSum->isHit(Trk::pixelBarrel1))l1Trk[tCnt]=1;
-	       if(testSum->isHit(Trk::pixelBarrel2))l2Trk[tCnt]=1;
-               BLshared   += testSum->get(Trk::numberOfBLayerSharedHits);
-               PXshared   += testSum->get(Trk::numberOfPixelSharedHits);
-	    }
+            if(testSum){  BLshared   += testSum->get(Trk::numberOfBLayerSharedHits);
+                          PXshared   += testSum->get(Trk::numberOfPixelSharedHits); }
             tCnt++;
         }
-        double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
-        double Dist2D=sqrt(xDif*xDif+yDif*yDif);
-        if (Dist2D < m_RlayerB) {              // Inside B-layer
-          if(m_FillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),w_1);} }
-//          if( Momentum.m() < 400.)         {return 0;}
-          if( blTrk[0]==0 || blTrk[1]==0 ) {return 0;}
-          if(m_FillHist){ m_hb_blshared->Fill((float)BLshared,w_1); }
-          if(BLshared>m_CutSharedHits) return 0;
-        } else {                              //Outside b-layer
-//          if(m_FillHist){ if(!Charge){m_hb_totmass2T2->Fill(Momentum.m(),w_1);} }
-          if( blTrk[0]==1 || blTrk[1]==1 ) {return 0;}
-          if(m_FillHist){ m_hb_pxshared->Fill((float)PXshared,w_1); }
-          if(PXshared>m_CutSharedHits) return 0;
-        }
-	if(fabs(FitVertex.z())<400.){                            //Only if vertex is in acceptance
-          xDif=FitVertex.x()-m_Xlayer1, yDif=FitVertex.y()-m_Ylayer1 ; 
-          Dist2D=sqrt(xDif*xDif+yDif*yDif);
-          if (Dist2D < m_Rlayer1) {  if( l1Trk[0]==0 || l1Trk[1]==0 ) return 0; }  // Inside 1st-layer
-          else                    {  if( l1Trk[0]==1 || l1Trk[1]==1 ) return 0; }  // Outside 1st-layer
-          xDif=FitVertex.x()-m_Xlayer2, yDif=FitVertex.y()-m_Ylayer2 ; 
-          Dist2D=sqrt(xDif*xDif+yDif*yDif);
-          if (Dist2D < m_Rlayer2) {  if( l2Trk[0]==0 || l2Trk[1]==0 ) return 0; }  // Inside 2nd-layer
-          else                    {  if( l2Trk[0]==1 || l2Trk[1]==1 ) return 0; }  // Outside 2nd-layer
-        }
+        if(m_useVertexCleaning){
+          if(!Check2TrVertexInPixel(ListSecondTracks[0],ListSecondTracks[1],FitVertex,Signif3D)) return 0;
+          double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
+          double Dist2D=sqrt(xDif*xDif+yDif*yDif);
+          if     (Dist2D < m_RlayerB-m_SVResolutionR) {       // Inside B-layer
+            if(m_FillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),w_1);} }
+            if(m_FillHist){ m_hb_blshared->Fill((float)BLshared,w_1); }
+            if(BLshared>m_CutSharedHits) return 0; }
+          else if(Dist2D > m_RlayerB+m_SVResolutionR) {       //Outside b-layer
+            if(m_FillHist){ m_hb_pxshared->Fill((float)PXshared,w_1); }
+            if(PXshared>m_CutSharedHits) return 0;
+          }
+        }   // end of 2tr vertex cleaning code
 //
         if( !Charge && fabs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
 	  TrkFromV0.push_back(ListSecondTracks[0]);
@@ -232,7 +220,8 @@ namespace InDet{
       if( m_MassType == 2 ) Results.push_back(TotalTMom(GetPerigeeVector(ListSecondTracks))*1.15); 
       if( m_MassType == 1 ) Results.push_back(Momentum.M()); 
 
-      if(m_FillHist){m_hb_mom->Fill( MomentumJet.E(), w_1);}       //1st
+      if(m_FillHist){ m_hb_r2dc->Fill( FitVertex.perp(), w_1); }
+      if(m_FillHist){ m_hb_mom->Fill( MomentumJet.E(), w_1); }     //1st
       double eRatio = Momentum.E()/MomentumJet.E(); 
       Results.push_back(  eRatio<0.99999 ? eRatio : 0.99999);      //2nd
       Results.push_back(Vrt2TrackNumber);                          //3rd
@@ -364,8 +353,14 @@ namespace InDet{
       }
 //---
       double Vrt2TrackNumber = (double) ListSecondTracks.size()/2.;
+      std::vector<const xAOD::TrackParticle*> saveSecondTracks(ListSecondTracks);
       RemoveDoubleEntries(ListSecondTracks);
       AnalysisUtils::Sort::pT (&ListSecondTracks);      //no sorting for xAOD
+//--Number of 2tr vertices where each track is used
+      std::vector<int> combCount(ListSecondTracks.size());
+      for(int tk=0;tk<(int)ListSecondTracks.size(); tk++){
+        combCount[tk]=std::count(saveSecondTracks.begin(),saveSecondTracks.end(),ListSecondTracks[tk]);
+      }
 //---
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks in pairs="<< ListSecondTracks.size()<<endreq;
       if(ListSecondTracks.size() < 2 ) { return 0;} // Less than 2 tracks left
@@ -383,7 +378,8 @@ namespace InDet{
       double Signif3D, Signif3DP=0, Signif3DS=0;
       std::vector<double> Impact,ImpactError;
 
-      double Chi2 =  FitCommonVrt( ListSecondTracks, PrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+      double Chi2 =  FitCommonVrt( ListSecondTracks, combCount, PrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" FitCommonVrt result="<< Chi2<<endreq;
 //
       if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
 //
@@ -406,13 +402,14 @@ namespace InDet{
       if( AdditionalTracks.size() > 0){
         for (i_ntrk = AdditionalTracks.begin(); i_ntrk < AdditionalTracks.end(); ++i_ntrk)
                       ListSecondTracks.push_back((*i_ntrk));
-        Chi2 =  FitCommonVrt( ListSecondTracks, PrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+        std::vector<int> tmpCount(ListSecondTracks.size(),1);
+        Chi2 =  FitCommonVrt( ListSecondTracks, tmpCount, PrimVrt, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
+        if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
       }
 //
 //  Saving of results
 //
 //
-      if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
 //
 // Find highest track Pt with respect to jet direction
       double trackPt, trackPtMax=0.;
@@ -422,44 +419,30 @@ namespace InDet{
       }
 
       if( ListSecondTracks.size()==2 ){         // If there are 2 only tracks
-        int Charge=0, tCnt=0;
-	int blTrk[2]={0,0}; 
-	int l1Trk[2]={0,0}; 
-	int l2Trk[2]={0,0}; 
+        int Charge=0;
 	uint8_t BLshared=0;
 	uint8_t PXshared=0;
         for (i_ntrk = ListSecondTracks.begin(); i_ntrk < ListSecondTracks.end(); ++i_ntrk) {
             Charge +=  (int) (*i_ntrk)->charge();
-            getPixelLayers( (*i_ntrk), blTrk[tCnt] , l1Trk[tCnt], l2Trk[tCnt] );
-
-            uint8_t retval;
+            uint8_t retval=0;
             if( (*i_ntrk)->summaryValue( retval, xAOD::numberOfPixelSharedHits)  )  PXshared  += retval;
             if( (*i_ntrk)->summaryValue( retval, xAOD::numberOfBLayerSharedHits) )  BLshared  += retval;
+        }
 
-            tCnt++;
-        }
-        double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
-        double Dist2D=sqrt(xDif*xDif+yDif*yDif);
-        if (Dist2D < m_RlayerB) {              // Inside B-layer
-          if(m_FillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),w_1);} }
-          if( blTrk[0]==0 || blTrk[1]==0 ) {return 0;}
-          if(m_FillHist){ m_hb_blshared->Fill((float)BLshared,w_1); }
-          if(BLshared>m_CutSharedHits) return 0;
-        } else {                              //Outside b-layer
-          if( blTrk[0]==1 || blTrk[1]==1 ) {return 0;}
-          if(m_FillHist){ m_hb_pxshared->Fill((float)PXshared,w_1); }
-          if(PXshared>m_CutSharedHits) return 0;
-        }
-	if(fabs(FitVertex.z())<400.){                            //Only if vertex is in acceptance
-          xDif=FitVertex.x()-m_Xlayer1, yDif=FitVertex.y()-m_Ylayer1 ; 
-          Dist2D=sqrt(xDif*xDif+yDif*yDif);
-          if (Dist2D < m_Rlayer1) {  if( l1Trk[0]==0 || l1Trk[1]==0 ) return 0; }  // Inside 1st-layer
-          else                    {  if( l1Trk[0]==1 || l1Trk[1]==1 ) return 0; }  // Outside 1st-layer
-          xDif=FitVertex.x()-m_Xlayer2, yDif=FitVertex.y()-m_Ylayer2 ; 
-          Dist2D=sqrt(xDif*xDif+yDif*yDif);
-          if (Dist2D < m_Rlayer2) {  if( l2Trk[0]==0 || l2Trk[1]==0 ) return 0; }  // Inside 2nd-layer
-          else                    {  if( l2Trk[0]==1 || l2Trk[1]==1 ) return 0; }  // Outside 2nd-layer
-        }
+        double vvdist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
+        if(m_useVertexCleaning){
+          if(!Check2TrVertexInPixel(ListSecondTracks[0],ListSecondTracks[1],FitVertex,Signif3D)) return 0;
+          double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
+          double Dist2D=sqrt(xDif*xDif+yDif*yDif);
+          if     (Dist2D < m_RlayerB-m_SVResolutionR) {       // Inside B-layer
+            if(m_FillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),w_1);} }
+            if(m_FillHist){ m_hb_blshared->Fill((float)BLshared,w_1); }
+            if(BLshared>m_CutSharedHits) return 0;}
+          else if(Dist2D > m_RlayerB+m_SVResolutionR) {      //Outside b-layer
+            if(m_FillHist){ m_hb_pxshared->Fill((float)PXshared,w_1); }
+            if(PXshared>m_CutSharedHits) return 0;
+          }
+        } //end 2tr vertex cleaning code
 //
         if( !Charge && fabs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
 	  TrkFromV0.push_back(ListSecondTracks[0]);
@@ -472,7 +455,6 @@ namespace InDet{
         }
 //-- Protection against fake vertices far from interaction point 
 	if(NPVParticle<1)NPVParticle=1;
-        double vvdist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
         double t3Dimp1= m_fitSvc->VKalGetImpact(ListSecondTracks[0], PrimVrt.position(), 1, Impact, ImpactError)/fabs(TrkAtVrt[0][2]);
         double t3Dimp2= m_fitSvc->VKalGetImpact(ListSecondTracks[1], PrimVrt.position(), 1, Impact, ImpactError)/fabs(TrkAtVrt[1][2]);
 	double selVar=(t3Dimp1<t3Dimp2 ? t3Dimp1 : t3Dimp2)/sqrt((double)NPVParticle)/vvdist3D/500.;
@@ -501,7 +483,8 @@ namespace InDet{
       //if( m_MassType == 2 ) Results.push_back(TotalTMom(GetPerigeeVector(ListSecondTracks))*1.15); 
       if( m_MassType == 1 ) Results.push_back(Momentum.M()); 
 
-      if(m_FillHist){m_hb_mom->Fill( MomentumJet.E(), w_1);}       //1st
+      if(m_FillHist){ m_hb_r2dc->Fill( FitVertex.perp(), w_1); }
+      if(m_FillHist){ m_hb_mom->Fill( MomentumJet.E(), w_1); }     //1st
       double eRatio = Momentum.E()/MomentumJet.E(); 
       Results.push_back(  eRatio<0.99999 ? eRatio : 0.99999);      //2nd
       Results.push_back(Vrt2TrackNumber);                          //3rd
@@ -585,6 +568,7 @@ namespace InDet{
 
   template <class Track>
   double InDetVKalVxInJetTool::FitCommonVrt(std::vector<const Track*>& ListSecondTracks,
+ 				  std::vector<int>          & cntComb,
                                   const xAOD::Vertex        & PrimVrt,
                                   std::vector<double>       & InpMass, 
 	                          Amg::Vector3D             & FitVertex,
@@ -633,7 +617,7 @@ namespace InDet{
          sc=VKalVrtFitBase(ListSecondTracks,FitVertex, Momentum,Charge,
                                  ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
          if(sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}    // No fit
-         Outlier = FindMax( Chi2PerTrk ); 
+         Outlier = FindMax( Chi2PerTrk, cntComb ); 
 //	 FitProb=prob_( (float)Chi2,(long int)(2*ListSecondTracks.size()-3));
 	 FitProb=TMath::Prob( Chi2, 2*ListSecondTracks.size()-3);
 	 if(ListSecondTracks.size() == 2 )                break;         // Only 2 tracks left
@@ -643,7 +627,7 @@ namespace InDet{
 	 if( Momentum.M() <6000. && FitProb > 0.001) {
 	   if( Chi2PerTrk[Outlier] < m_SecTrkChi2Cut*m_chiScale[ListSecondTracks.size()<10?ListSecondTracks.size():10])  break;  // Solution found
 	 }
-         RemoveEntryInList(ListSecondTracks,Outlier);
+         RemoveEntryInList(ListSecondTracks,cntComb,Outlier);
          m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
       }
 //--
@@ -656,7 +640,7 @@ namespace InDet{
 //
 //-- To kill remnants of conversion
       double Dist2D=sqrt(FitVertex.x()*FitVertex.x()+FitVertex.y()*FitVertex.y());
-      if( ListSecondTracks.size()==2  && (Dist2D > 20.) && Charge==0 ) {      
+      if( ListSecondTracks.size()==2  && (Dist2D > 20.) && Charge==0 ) {
         double mass_EE   =  massV0( TrkAtVrt,m_massE,m_massE);
         if(m_FillHist){m_hb_totmassEE->Fill( mass_EE, w_1); }
         if( mass_EE < 100. ) return -40.;
@@ -718,11 +702,13 @@ namespace InDet{
 //  Impact parameters with sign calculations
 //
       double SignifR,SignifZ;
-      std::vector<double> TrackSignif,TrackPt;
+      std::vector<double> TrackSignif(0),TrackPt(0),TrackSignifBase(0);
       AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
-      int NPrimTrk=0, NSecTrk=0, NRefTrk=0;
+      int NPrimTrk=0, NSecTrk=0;
+      m_NRefTrk=0;
       for (i=0; i<NTracks; i++) {
          ImpactSignif = m_fitSvc->VKalGetImpact(SelectedTracks[i], PrimVrt.position(), 1, Impact, ImpactError);
+         TrackSignifBase.push_back(ImpactSignif*ImpactSignif);
          tmpPerigee = GetPerigee(SelectedTracks[i])->parameters(); 
          if( sin(tmpPerigee[2]-JetDir.Phi())*Impact[0] < 0 ){ Impact[0] = -fabs(Impact[0]);}
 	                                                else{ Impact[0] =  fabs(Impact[0]);}
@@ -737,7 +723,7 @@ namespace InDet{
          }
 	 if(ImpactSignif < 3.) { NPrimTrk += 1;}
          else{NSecTrk += 1;}
-         if( SignifR<0 || SignifZ<0 ) NRefTrk++;
+         if( SignifR<0 || SignifZ<0 ) m_NRefTrk++;
          if(m_getNegativeTail){
   	    ImpactSignif = sqrt( SignifR*SignifR + SignifZ*SignifZ);
   	 }else if(m_getNegativeTag){
@@ -758,14 +744,12 @@ namespace InDet{
       }
 
       int NTrDiff = NPrimTrk-NSecTrk; if(NTrDiff < 1) NTrDiff=1;
-//      double Chi2Corr =   sqrt( chisin_((float)(1.-0.1/NTrDiff),2) )
-//                        - sqrt( chisin_((float)(1.-0.1)        ,2) );
-      double Chi2Corr =   sqrt( TMath::ChisquareQuantile((1.-0.1/NTrDiff),2.) )
-                        - sqrt( TMath::ChisquareQuantile((1.-0.1)        ,2.) );
-      Chi2Corr = 0.;  //Remove correction   28.10.2007 - this correction worsen result
-      double SelLim = m_TrkSigCut + Chi2Corr;
+      m_NRefTrk=(m_NRefTrk+NPrimTrk)/2;
+      double SelLim = m_TrkSigCut;
 
-      StatusCode sc; if(sc.isSuccess())ImpactSignif=0; //Safety !
+      StatusCode sc; if(sc.isSuccess())ImpactSignif=0;      //Safety !
+      m_WorkArray->m_Incomp.reserve(NTracks*(NTracks-1));   // Reserve memory for multivertex
+      ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for sigle vertex
 
       m_fitSvc->setDefault();
       m_fitSvc->setMassInputParticles( InpMass );     // Use pion masses for fit
@@ -773,14 +757,18 @@ namespace InDet{
       for (i=0; i<NTracks-1; i++) {
          //if(TrackPt[i]<m_JetPtFractionCut*JetDir.perp())continue;
 	 double adp1=TrackPt[i]/64000.; if(adp1<0.)adp1=0;if(adp1>1.)adp1=1.;adp1=sqrt(adp1)/2.;
+         double prbP1=TMath::Prob(TrackSignifBase[i],2); if(prbP1<1.e-9)prbP1=0.;
          for (j=i+1; j<NTracks; j++) {
              //if(TrackPt[j]<m_JetPtFractionCut*JetDir.perp())continue;
-             m_WorkArray->m_Incomp.push_back(i);m_WorkArray->m_Incomp.push_back(j); // For multivertex
+             m_WorkArray->m_Incomp.push_back(i);m_WorkArray->m_Incomp.push_back(j); // For multivertex   !!!ALL SELECTIONS MUST BE AFTER THIS LINE!!!
+ 	     if(TrackSignif[i]==0.)continue; // Pileup and other problems
+ 	     if(TrackSignif[j]==0.)continue; // Pileup and other problems
 	     double adp2=TrackPt[j]/64000.; if(adp2<0.)adp2=0;if(adp2>1.)adp2=1.;adp2=sqrt(adp2)/2.;
+             double prbP2=TMath::Prob(TrackSignifBase[j],2); if(prbP2<1.e-9)prbP2=0.;
 	     if(!m_MultiWithPrimary) {  // Not used for multi-vertex with primary one search
 	        if(TrackSignif[i]<SelLim +adp1 )                    continue;
  	        if(TrackSignif[j]<SelLim +adp2 )                    continue;
-	        if(TrackSignif[i]+TrackSignif[j]  < 2.*SelLim + m_TrkSigSumCut + adp1 + adp2 + m_TrkSigSumNTrkDep*NRefTrk) continue;
+	        if(TrackSignif[i]+TrackSignif[j]  < 2.*SelLim + m_TrkSigSumCut + adp1 + adp2 + m_TrkSigSumNTrkDep*m_NRefTrk) continue;
 	     }
 	     int BadTracks = 0;                                       //Bad tracks identification 
              TracksForFit.clear();
@@ -811,50 +799,39 @@ namespace InDet{
                                ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
              if(sc.isFailure())                continue;          /* No fit */ 
              if(Chi2 > m_Sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
+             double mass_PiPi =  Momentum.M();  
+	     if(mass_PiPi > 6000.)             continue;  // can't be from B decay
+             Dist2D=FitVertex.perp(); 
+	     if(Dist2D    > 180. )             continue;  // can't be from B decay
+//---
+             //double prbSV=TMath::Prob(Chi2,1);
+	     //if( (1.-prbP1)*(1-prbP2)*prbSV < (prbP1+prbP2-prbP1*prbP2)) continue;
+//---
 	     vDist=FitVertex-PrimVrt.position();
              JetVrtDir = JetDir.Px()*vDist.x() + JetDir.Py()*vDist.y() + JetDir.Pz()*vDist.z();
 	     double vPos=(vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz())/Momentum.Rho();
-  	     if((!m_MultiWithPrimary) && (!m_getNegativeTail) && (!m_getNegativeTag) && (JetVrtDir<0.) )  continue; /* secondary vertex behind primary*/
+  	     if((!m_MultiWithPrimary) &&(!m_getNegativeTail) && (!m_getNegativeTag) &&  JetVrtDir<0. )  continue; /* secondary vertex behind primary*/
 	     if(vPos<-150.) continue;                                              /* Secondary vertex is too far behind primary*/
 //
-// Check pixel hit - vertex position. If Rv>Rlayer->tracks must not have given layer hits
-	     int blTrk[2]={0,0};  int l1Trk[2]={0,0};  int l2Trk[2]={0,0}; 
-             getPixelLayers(SelectedTracks[i], blTrk[0] , l1Trk[0], l2Trk[0] );
-             getPixelLayers(SelectedTracks[j], blTrk[1] , l1Trk[1], l2Trk[1] );
-	     double xdf=FitVertex.x()-m_XlayerB; double ydf=FitVertex.y()-m_YlayerB;
-             if( sqrt(xdf*xdf+ydf*ydf) > (m_RlayerB+4.)  && (blTrk[0] || blTrk[1])) continue;
-	     if(fabs(FitVertex.z())<400.){                            //Only if vertex is in acceptance
- 	        xdf=FitVertex.x()-m_Xlayer1;
-		ydf=FitVertex.y()-m_Ylayer1;
-                if( sqrt(xdf*xdf+ydf*ydf) > (m_Rlayer1+4.)  && (l1Trk[0] || l1Trk[1])) continue;
-  	        xdf=FitVertex.x()-m_Xlayer2;
-		ydf=FitVertex.y()-m_Ylayer2;
-                if( sqrt(xdf*xdf+ydf*ydf) > (m_Rlayer2+4.)  && (l2Trk[0] || l2Trk[1])) continue;
-	     }
-// Additional check for multivertex
-             if( m_MultiWithPrimary || m_MultiVertex ) {
- 	        xdf=FitVertex.x()-m_XlayerB;
-	        ydf=FitVertex.y()-m_YlayerB;
-                if( sqrt(xdf*xdf+ydf*ydf) < (m_RlayerB-5.)      &&   (blTrk[0] ==0 || blTrk[1] ==0)   ) continue;
-                if(TrackPt[i]<m_JetPtFractionCut*JetDir.Perp() && m_MultiWithPrimary )continue;
-                if(TrackPt[j]<m_JetPtFractionCut*JetDir.Perp() && m_MultiWithPrimary )continue;
+// Check pixel hits vs vertex positions.
+ 	     VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
+             if(m_useVertexCleaning){
+               if(!Check2TrVertexInPixel(SelectedTracks[i],SelectedTracks[j],FitVertex,Signif3D)) continue;
+             }
+
+             if( m_MultiWithPrimary || m_MultiVertex ) { // Additional check for multivertex
+               if(TrackPt[i]<m_JetPtFractionCut*JetDir.Perp() && m_MultiWithPrimary )continue;
+               if(TrackPt[j]<m_JetPtFractionCut*JetDir.Perp() && m_MultiWithPrimary )continue;
              }
              m_WorkArray->m_Incomp.pop_back();m_WorkArray->m_Incomp.pop_back();   // For multivertex
 
   	     if( m_MultiWithPrimary )   continue;   /* Multivertex with primary one. All below is not needed */
 //--------
 //
- 	     VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
-             Dist2D=sqrt(FitVertex.x()*FitVertex.x()+FitVertex.y()*FitVertex.y()); 
-             double Signif3Dproj=VrtVrtDist( Trk::RecVertex(PrimVrt.position(),PrimVrt.covariancePosition()), FitVertex, ErrorMatrix, JetDir);
+             double Signif3Dproj=VrtVrtDist( PrimVrt, FitVertex, ErrorMatrix, JetDir);
              double Signif3DSign=Signif3D;
-             double mass_PiPi =  Momentum.M();  
   	     if(  JetVrtDir < 0) Signif3DSign=-Signif3D;
-  	     if(m_FillHist){m_hb_signif3D->Fill( Signif3DSign, w_1); }
-             if(m_FillHist){m_hb_r2d->Fill( Dist2D, w_1); }
-//
-	     if(mass_PiPi > 6000.)  continue;  // can't be from B decay
-	     if(Dist2D    > 180. )  continue;  // can't be from B decay
+  	     if(m_FillHist)m_hb_signif3D->Fill( Signif3DSign, w_1);
 	     if(m_FillHist)m_hb_massPiPi2->Fill( mass_PiPi, w_1);
 //
 //  Check if V0 or material interaction on Pixel layer is present
@@ -874,7 +851,7 @@ namespace InDet{
 	         //if( TransMass<400. && m_FillHist)m_hb_massPiPi1->Fill( mass_PiPi, w_1);
 	       }
 //
-//  Creation on V0 tracks
+//  Creation of V0 tracks
 //
 	       if(BadTracks){
 	          std::vector<double> InpMassV0;
@@ -904,13 +881,15 @@ namespace InDet{
 //                    m_fitSvc->setCnstType(7);          // Set pointing to primary vertex constraint
                   }
                   m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); 
-                  sc=VKalVrtFitBase(TracksForFit,FitVertex, Momentum,Charge,
+                  TLorentzVector MomentumV0;
+                  Amg::Vector3D  FitVertexV0;
+                  sc=VKalVrtFitBase(TracksForFit, FitVertexV0, MomentumV0, Charge,
                                     ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
                   if(sc.isSuccess()) {
                     //std::cout<<" cnst result="<< massV0( TrkAtVrt,m_massPi,m_massPi)<<", "
                     //                          << massV0( TrkAtVrt,m_massP,m_massPi)<<", "
                     //                          << massV0( TrkAtVrt,m_massE,m_massE)<<", "<<i<<", "<<j<<'\n';
-                    sc=m_fitSvc->VKalVrtCvtTool(FitVertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
+                    sc=m_fitSvc->VKalVrtCvtTool(FitVertexV0,MomentumV0,ErrorMatrix,0,VKPerigee,CovPerigee);
                     if(sc.isSuccess()) {
                       const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
                       ImpactSignif=m_fitSvc->VKalGetImpact(TT, PrimVrt.position(), 0, Impact, ImpactError);
@@ -924,18 +903,18 @@ namespace InDet{
 //
 //  Check interactions on pixel layers
 //
-	     double xvt=FitVertex.x();
-	     double yvt=FitVertex.y();
-             Dist2D=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
-             if( fabs(Dist2D-m_Rbeampipe)< 1.5) BadTracks = 4;           // Beam Pipe removal
-           //Dist2D=sqrt(pow(xvt-m_XlayerB,2.)+pow(yvt-m_YlayerB,2.)); 
-             Dist2D=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-	     if( fabs(Dist2D-m_RlayerB) < 3.5)  BadTracks = 4;
-           //Dist2D=sqrt(pow(xvt-m_Xlayer1,2.)+pow(yvt-m_Ylayer1,2.)); 
-	     Dist2D=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
-	     if( fabs(Dist2D-m_Rlayer1) < 4.0)  BadTracks = 4;
-	     Dist2D=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
-	     if( fabs(Dist2D-m_Rlayer2) < 5.0)  BadTracks = 4;
+	     double xvt=FitVertex.x(); double yvt=FitVertex.y();
+             if(m_FillHist){m_hb_r2d->Fill( Dist2D, w_1); }
+             if(m_useMaterialRejection){
+               Dist2D=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
+               if( fabs(Dist2D-m_Rbeampipe)< 1.5) BadTracks = 4;           // Beam Pipe removal  
+               Dist2D=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
+               if( fabs(Dist2D-m_RlayerB) < 3.5)  BadTracks = 4;
+               Dist2D=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
+               if( fabs(Dist2D-m_Rlayer1) < 4.0)  BadTracks = 4;
+               Dist2D=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+               if( fabs(Dist2D-m_Rlayer2) < 5.0)  BadTracks = 4;
+             }
 //
 //  Creation of tracks from V0 list
 //	     
@@ -943,16 +922,6 @@ namespace InDet{
 	        TrkFromV0.push_back(SelectedTracks[i]);
 	        TrkFromV0.push_back(SelectedTracks[j]);
 	     }else{
-                Dist2D=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-		int hBL1,hBL2,hhh1,hhh2;
-                getPixelLayers(TracksForFit[0], hBL1 , hhh1, hhh2 );
-                getPixelLayers(TracksForFit[1], hBL2 , hhh1, hhh2 );
-
-                if( Dist2D > (m_RlayerB+5.) &&  ( hBL1 || hBL2 ) ) continue;
-                if( Dist2D < (m_RlayerB-5.) ) {
-		    if( hBL1==0 && hBL2==0  ) continue;
-	            if( Signif3D <10. && (hBL1*hBL2)==0)continue;
-		}
                 if(TrackPt[i]<m_JetPtFractionCut*JetDir.Perp())continue;
                 if(TrackPt[j]<m_JetPtFractionCut*JetDir.Perp())continue;
 //
@@ -975,27 +944,81 @@ namespace InDet{
 	     }
          }
       } 
+//
+//-- Post-selection cleaning 
+//
       if(ListSecondTracks.size()>0 ){ 
-        if(ListSecondTracks.size()<3 && saveSignif3D < (m_Sel2VrtSigCut+m_Sel2VrtSigNTrkDep*NRefTrk)){ ListSecondTracks.clear(); return; }
-        if(m_FillHist)m_pr_effVrt2tr->Fill((float)NRefTrk,1.);
-      } else if(ListSecondTracks.size()==0) { if(m_FillHist)m_pr_effVrt2tr->Fill((float)NRefTrk,0.);}
+        if(ListSecondTracks.size()<3){
+          //if(m_FillHist)m_hb_sig3D2tr->Fill(saveSignif3D,1.);
+	  if(saveSignif3D < (m_Sel2VrtSigCut+m_Sel2VrtSigNTrkDep*m_NRefTrk)){ ListSecondTracks.clear(); return; }
+        }
+        if(m_FillHist)m_pr_effVrt2tr->Fill((float)m_NRefTrk,1.);
+	//----- Only vertices with unique tracks are considered as bad
+	if(TrkFromV0.size()){
+	  std::vector<const Track*> tmpVec(0);
+          for(int tk=0;tk<(int)TrkFromV0.size(); tk+=2){
+            int nFound1=std::count(ListSecondTracks.begin(),ListSecondTracks.end(),TrkFromV0[tk]);
+            int nFound2=std::count(ListSecondTracks.begin(),ListSecondTracks.end(),TrkFromV0[tk+1]);
+	    if(nFound1+nFound2){
+	       ListSecondTracks.push_back(TrkFromV0[tk]);
+	       ListSecondTracks.push_back(TrkFromV0[tk+1]);
+	    }else{
+	       tmpVec.push_back(TrkFromV0[tk]);
+	       tmpVec.push_back(TrkFromV0[tk+1]);
+            }
+          }
+          TrkFromV0.swap(tmpVec);
+	}
+      } else if(ListSecondTracks.size()==0) { if(m_FillHist)m_pr_effVrt2tr->Fill((float)m_NRefTrk,0.);}
    }
 
 
 
 
-   Amg::MatrixX InDetVKalVxInJetTool::makeVrtCovMatrix( std::vector<double> & ErrorMatrix )
+   template <class Track>
+   bool InDetVKalVxInJetTool::Check2TrVertexInPixel( const Track* p1, const Track* p2,
+                                              Amg::Vector3D &FitVertex, double Signif3D)
    const
    {
-      Amg::MatrixX VrtCovMtx(3,3);  
-      VrtCovMtx(0,0)                  = ErrorMatrix[0];
-      VrtCovMtx(0,1) = VrtCovMtx(1,0) = ErrorMatrix[1];
-      VrtCovMtx(1,1)                  = ErrorMatrix[2];
-      VrtCovMtx(0,2) = VrtCovMtx(2,0) = ErrorMatrix[3];
-      VrtCovMtx(1,2) = VrtCovMtx(2,1) = ErrorMatrix[4];
-      VrtCovMtx(2,2)                  = ErrorMatrix[5];
-      return VrtCovMtx;
+	int blTrk[2]={0,0}; 
+	int l1Trk[2]={0,0}; 
+	int l2Trk[2]={0,0}; 
+	int nLays[2]={0,0}; 
+        getPixelLayers( p1, blTrk[0] , l1Trk[0], l2Trk[0], nLays[0] );
+        getPixelLayers( p2, blTrk[1] , l1Trk[1], l2Trk[1], nLays[1] );    // Very close to PV. Both b-layer hits are mandatory.
+        if( Signif3D<15. && !(blTrk[0]*blTrk[1]) ) return false;
+        double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
+        double Dist2DBL=sqrt(xDif*xDif+yDif*yDif);
+        if      (Dist2DBL < m_RlayerB-m_SVResolutionR){       //----------------------------------------- Inside B-layer
+          if( (blTrk[0]+blTrk[1])==0 )   return false;  // No b-layer hits at all
+          if(  nLays[0]           <2 )   return false;  // Less than 2 layers on track 0
+          if(  nLays[1]           <2 )   return false;  // Less than 2 layers on track 1
+        }else if(Dist2DBL > m_RlayerB+m_SVResolutionR){      //----------------------------------------- Outside b-layer
+          if(  blTrk[0]+blTrk[1]>0 )              return false;  // Hit in b-layer is present
+        }
+// 
+// L1 and L2 are considered only if vertex is in acceptance
+//
+	if(fabs(FitVertex.z())<400.){
+          xDif=FitVertex.x()-m_Xlayer1, yDif=FitVertex.y()-m_Ylayer1 ;
+	  double Dist2DL1=sqrt(xDif*xDif+yDif*yDif);
+          xDif=FitVertex.x()-m_Xlayer2, yDif=FitVertex.y()-m_Ylayer2 ; 
+	  double Dist2DL2=sqrt(xDif*xDif+yDif*yDif);
+          if      (Dist2DL1 < m_Rlayer1-m_SVResolutionR) {   //------------------------------------------ Inside 1st-layer
+	     if( (l1Trk[0]+l1Trk[1])==0 )         return false;  // No L1 hits at all
+             if( (l1Trk[0]+l2Trk[0]) <1 )         return false;  // Less than 1 hits on track 0
+             if( (l1Trk[1]+l2Trk[1]) <1 )         return false;  // Less than 1 hits on track 1
+          }else if(Dist2DL1 > m_Rlayer1+m_SVResolutionR) {  //------------------------------------------- Outside 1st-layer
+	     if( (l1Trk[0]+l1Trk[1])>0 )          return false;  //  L1 hits are present
+          }
+          //
+          if      (Dist2DL2 < m_Rlayer2-m_SVResolutionR) {  //------------------------------------------- Inside 2nd-layer
+	     if( (l2Trk[0]*l2Trk[1])==0 )  return false;           // Both L2 hits must be present
+          }else if(Dist2DL2 > m_Rlayer2+m_SVResolutionR) {  
+	     if( (l2Trk[0]+l2Trk[1])>0  )  return false;           // L2 hits are present
+	  }           
+        }
+        return true;
    }
-
 
 }  //end of namespace
