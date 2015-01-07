@@ -52,30 +52,22 @@ class  ISegmentOnTrackSelector;
   class MuonCalibExtraTreeAlg : public AthAlgorithm {
   public:
     MuonCalibExtraTreeAlg(const std::string& name, ISvcLocator* pSvcLocator); //!< Athena Algorithm constructor declaring the several properties ( doPhi/doTracks/doHoles adding extra branches to the CalibrationNtuple, and their locations in StoreGate)
-
     ~MuonCalibExtraTreeAlg(); //!< Athena Algorithm destructor
-
     StatusCode initialize();  //!< Algorithm initialize: retrieve StoreGateSvc, MuonHolesOnTrackTool and IdentifierConverter. Retrieves the ntuple to write in.
-  
     StatusCode execute();     //!< Algorithm execute, called once per event: resets branches, retrieves the PhiPattern and Track Collections. Finally, it writes the Tree.
-
-
     StatusCode finalize();    //!< Algorithm finalize: resets all Branches.
 
   private:
     bool  retrievePatterns();              //!< retrieves PhiPatterns from StoreGate
-    bool        handlePatterns();                //!< feeds PhiHits to MuonCalibPhiHit_EBranch   
-    void        finishEvent();                   //!< resets all branches
-    bool        createPhiHitBranch(TTree* tree); //!< creates MuonCalibPhiHit_EBranc
-    bool        createHitBranch(TTree* tree);    //!< creates MuonCalibHit_EBranch
-    bool        createTrackBranch(TTree* tree);  //!< creates hit overlap between two tracks
-    
+    bool  handlePatterns();                //!< feeds PhiHits to MuonCalibPhiHit_EBranch   
+    void  finishEvent();                   //!< resets all branches
+    bool  createPhiHitBranch(TTree* tree); //!< creates MuonCalibPhiHit_EBranc
+    bool  createHitBranch(TTree* tree);    //!< creates MuonCalibHit_EBranch
+    bool  createTrackBranch(TTree* tree);  //!< creates hit overlap between two tracks
 
-    const MuonGM::MuonDetectorManager*             m_detMgr;          //<! MuonDetector manager
-    const MdtIdHelper*                             m_muonIdHelper;     //<! //  const MuonPrdPatternCollection* m_patterns;    //!< Athena pattern Collection
+    const MuonGM::MuonDetectorManager*      m_detMgr;      //<! MuonDetector manager
+    const MdtIdHelper*                      m_muonIdHelper;//<! //  const MuonPrdPatternCollection* m_patterns;    //!< Athena pattern Collection
     const MuonPatternCombinationCollection* m_patterns;    //!< Athena pattern Collection
-
-
 
     bool        m_doPhi;                         //!< property flagging wether to store PhiHits on ExtraTree
     std::string m_ntupleName;                    //!< Name of the Ntuple

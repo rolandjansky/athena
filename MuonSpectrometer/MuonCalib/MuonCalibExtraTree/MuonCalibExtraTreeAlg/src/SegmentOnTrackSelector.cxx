@@ -95,19 +95,25 @@ std::vector<unsigned int> SegmentOnTrackSelector :: SegmentIndices(const Trk::Tr
 	{
 	std::set<MuonFixedId> ids;
 	getIdentifiers(track, ids);
-	
+
+ATH_MSG_DEBUG("start creating segment vector! segment_authors.size()=" << segment_authors.size() << " and m_authors.size()=" << m_authors.size());
+        for(auto a: segment_authors) ATH_MSG_DEBUG("segment_authors()=" << a);
 	std::vector<unsigned int> ret;
 	for(unsigned int i=0; i<m_authors.size(); i++)
 		{
+ATH_MSG_DEBUG("m_authors[i]=" << m_authors[i]);
 		if(segment_authors.find(m_authors[i])==segment_authors.end())
 			{
 			continue;
 			}
+ATH_MSG_DEBUG("m_authors[i]=" << m_authors[i] << " found.");
 		std::vector<MuonFixedId> result(ids.size());
 		std::vector<MuonFixedId>::iterator out_it=std::set_intersection( ids.begin(), ids.end(), m_segment_hits[i].begin(), m_segment_hits[i].end(), result.begin());
 		int n_match(out_it - result.begin());
+ATH_MSG_DEBUG("cuts: n_match=" << n_match << "<" << m_min_hits_on_track << "||" << static_cast<int>(m_segment_hits[i].size()) - n_match << "<m_max_hits_not_on_track=" << m_max_hits_not_on_track);
 		if(n_match<m_min_hits_on_track || (static_cast<int>(m_segment_hits[i].size()) - n_match) > m_max_hits_not_on_track)
 			continue;
+ATH_MSG_DEBUG("get here");
 		ret.push_back(i);
 		}
 	return ret;

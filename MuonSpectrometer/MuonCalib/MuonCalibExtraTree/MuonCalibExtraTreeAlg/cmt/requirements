@@ -21,7 +21,6 @@ use AtlasROOT		AtlasROOT-*		External
 
 private 
 use EventPrimitives * Event 
-use Particle Particle-* Reconstruction
 
 use AtlasCLHEP		AtlasCLHEP-*		External
 
@@ -59,8 +58,9 @@ use TrigT1Result         TrigT1Result-*        Trigger/TrigT1
 use TrigT1Interfaces     TrigT1Interfaces-*    Trigger/TrigT1
 use TrigConfL1Data       TrigConfL1Data-*      Trigger/TrigConfiguration
 
-use muonEvent		 muonEvent-*	Reconstruction/MuonIdentification
-
+#use muonEvent		 muonEvent-*	Reconstruction/MuonIdentification
+use xAODTracking                xAODTracking-*                Event/xAOD
+use xAODMuon                xAODMuon-*                Event/xAOD
 use CxxUtils             CxxUtils-*                 Control     
 
 use MuonReadoutGeometry MuonReadoutGeometry-* MuonSpectrometer/MuonDetDescr

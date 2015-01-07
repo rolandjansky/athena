@@ -20,22 +20,20 @@ using namespace std;
 
 namespace MuonCalib {
 
-  MuonCalibTriggerInfoBranch::MuonCalibTriggerInfoBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), m_first(true)
-  {
-
+  MuonCalibTriggerInfoBranch::MuonCalibTriggerInfoBranch(std::string branchName) : 
+    m_branchName(branchName), branchesInit(false), m_first(true), index(0), m_prescaledClock(0) {
   }
 
-  bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO)
-  {
+  bool  MuonCalibTriggerInfoBranch::fillBranch(const CTP_RDO* ctpRDO) {
     // check if branches where initialized
-    if( !branchesInit ){
+    if( !branchesInit ) {
       //std::cout << "MuonCalibTriggerInfoBranch::fillBranch  ERROR <branches where not initialized>"
       //	<<  std::endl;
       return false;    
     }
     
     // check if index not out of range 
-    if( index >= blockSize || index < 0 ){
+    if( index >= blockSize || index < 0 ) {
       if (m_first == true) {
 	//std::cout << "MuonCalibTriggerInfoBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
 	//  <<  index << std::endl;
@@ -72,7 +70,6 @@ namespace MuonCalib {
       m_delay[i] = 0;
     }
 
-
     if(m_numberBC == 0) return true;
 
     int index_bcid = 0; 
@@ -92,8 +89,10 @@ namespace MuonCalib {
       
       m_bcid[index_bcid] = it->getBCID();
       index_bcid++;
-      for(size_t pitNum = 0; pitNum < it->getPIT().size(); ++pitNum) {
-	if(it->getPIT().test(pitNum)) {
+      //Oct, 2014 PIT changed to TIP which is the old PIT and the new direct
+      //inputs from TOPO and ALFA (Joerg Stelzer)
+      for(size_t pitNum = 0; pitNum < it->getTIP().size(); ++pitNum) {  
+      if(it->getTIP().test(pitNum)) {
 	  m_pit[index_pit] = pitNum;
 	  m_bcIndexPIT[index_pit] = bunchIndex;
 	  index_pit++; 
@@ -146,12 +145,11 @@ namespace MuonCalib {
     index += indexm;
     
     return true;
-  }
+  }  // end MuonCalibTriggerInfoBranch::fillBranch
   
-  bool  MuonCalibTriggerInfoBranch::createBranch(TTree* tree)
-  {
+  bool  MuonCalibTriggerInfoBranch::createBranch(TTree* tree) {
     // check if pointer is valid
-    if( !tree ){
+    if( !tree ) {
       //std::cout << "MuonCalibTriggerInfoBranch::createBranch  ERROR <got invalid tree pointer> " 
       //	<< std::endl;
       return false;
@@ -195,6 +193,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  // end MuonCalibTriggerInfoBranch::createBranch
 
 }

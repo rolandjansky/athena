@@ -55,7 +55,7 @@
 namespace MuonCalib { 
 
   MuonCalibExtraTreeTriggerAlg::MuonCalibExtraTreeTriggerAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name, pSvcLocator), p_StoreGateSvc(0),
+    AthAlgorithm(name, pSvcLocator), p_StoreGateSvc(0),
     m_rpcRoiService( "LVL1RPC::RPCRecRoiSvc", name ),
     m_tgcRoiService( "LVL1TGC::TGCRecRoiSvc", name ),
     m_caloBranch("calo_")

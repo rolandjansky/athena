@@ -6,13 +6,14 @@
 #define MuonCalib_ExtraTreeMuonFillerTool_h
 
 #include "MuonCalibExtraTreeAlg/ExtraTreeTrackFillerTool.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTracking/TrackParticle.h"
 
-namespace Rec {
-class TrackParticle;
-}
-namespace Analysis {
-class Muon;
-}
+// namespace xAOD {
+// class Muon;
+// class TrackParticle;
+// }
 
 namespace Muon {
 class MuonEDMHelperTool;
@@ -50,8 +51,8 @@ class ExtraTreeMuonFillerTool: public ExtraTreeTrackFillerTool
 	// edm helper tool
 		ToolHandle<Muon::MuonEDMHelperTool>  m_edmHelper;
 		ToolHandle<Trk::IPropagator> m_propagator;
-		inline StatusCode writeTrackPartice(const Rec::TrackParticle *& part, bool /*isPrimaryAuthor*/, bool writeHits, unsigned int & index, int author);
-		inline Trk::Track* createTaggedMuonTrack( const Analysis::Muon& muon ) const;
+		inline StatusCode writeTrackPartice(const xAOD::TrackParticle *& part, bool /*isPrimaryAuthor*/, bool writeHits, unsigned int & index, int author);
+		inline Trk::Track* createTaggedMuonTrack( const xAOD::Muon& muon ) const;
 	};
 
 

@@ -15,22 +15,20 @@
 
 namespace MuonCalib {
 
-  MuonCalibCaloBranch::MuonCalibCaloBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), m_first(true)
-  {
-
+  MuonCalibCaloBranch::MuonCalibCaloBranch(std::string branchName) : 
+    m_branchName(branchName), branchesInit(false), m_first(true), index(0) {
   }
 
-  bool  MuonCalibCaloBranch::fillBranch(const MuonCalibCaloHit& hit)
-  {
-    // check if branches where initialized
+  bool  MuonCalibCaloBranch::fillBranch(const MuonCalibCaloHit& hit) {
+    // check if branches were initialized
     if( !branchesInit ){
-      //std::cout << "MuonCalibCaloBranch::fillBranch  ERROR <branches where not initialized>"
+      //std::cout << "MuonCalibCaloBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
-    if( index >= blockSize || index < 0 ){
+    if( index >= blockSize || index < 0 ) {
       if (m_first == true) {
 	//std::cout << "MuonCalibCaloBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
 	//  <<  index << std::endl;
@@ -38,7 +36,6 @@ namespace MuonCalib {
       }
       return false;
     }
-
     
     id[index]    = hit.identify();
     posX[index]  = hit.position().x();
@@ -51,12 +48,11 @@ namespace MuonCalib {
     ++index;
   
     return true;
-  }
+  }  //end MuonCalibCaloBranch::fillBranch
 
-  bool  MuonCalibCaloBranch::createBranch(TTree* tree)
-  {
+  bool  MuonCalibCaloBranch::createBranch(TTree* tree) {
     // check if pointer is valid
-    if( !tree ){
+    if( !tree ) {
       //std::cout << "MuonCalibCaloBranch::createBranch  ERROR <got invalid tree pointer> " 
       //	<< std::endl;
       return false;
@@ -89,4 +85,4 @@ namespace MuonCalib {
     return true;
   }
 
-}
+}  //end MuonCalibCaloBranch::createBranch

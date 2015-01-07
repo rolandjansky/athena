@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // MuonCalibPhiPattern_EBranch.h
 //   Header file for class MuonCalibPhiPattern_EBranch
 ///////////////////////////////////////////////////////////////////
@@ -30,8 +29,7 @@ namespace MuonCalib {
   */
   class MuonCalibTrack_E;
   
-  class MuonCalibPhiPattern_EBranch 
-  {
+  class MuonCalibPhiPattern_EBranch {
   public:
     MuonCalibPhiPattern_EBranch(std::string branchName = "phiPat_"); //!< default constructor 
     bool  fillBranch(const MuonCalibTrack_E& pat) ;                  //!< fill content of hit into branch 
@@ -42,7 +40,7 @@ namespace MuonCalib {
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
     bool branchesInit;                 //!< flag to check whether branches were initialized 
-    bool m_first;                        //!< flag to make sure that overflow message is only printed once
+    bool m_first;                      //!< flag to make sure that overflow message is only printed once
     static const int blockSize = 3000; //!< quantities stored in the tree 
     int   index;                       //!< counter keeping track on the number of MuonCalib::MuonCalibTrack_E s stored in the event
 
@@ -56,4 +54,3 @@ namespace MuonCalib {
 }// namespace MuonCalib
 
 #endif
-

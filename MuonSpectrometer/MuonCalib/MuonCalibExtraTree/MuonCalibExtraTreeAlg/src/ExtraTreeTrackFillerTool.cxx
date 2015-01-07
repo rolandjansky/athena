@@ -399,6 +399,8 @@ inline bool  ExtraTreeTrackFillerTool :: storeTrack(const Trk::Track* track, int
         m_trackBranch->fillBranch( muonTrack );
       //}	  
 // Segment on track search 
+      ATH_MSG_DEBUG(" trkSeg: seg_authors.size()=" << seg_authors.size());
+      if(m_segmentOnTrackSelector) ATH_MSG_DEBUG( "m_segmentOnTrackSelector is empty? " << m_segmentOnTrackSelector->empty() ); 
       if(seg_authors.size() && m_segmentOnTrackSelector && !m_segmentOnTrackSelector->empty())
       	{
 	m_trackSegmentBranch->fillBranch(

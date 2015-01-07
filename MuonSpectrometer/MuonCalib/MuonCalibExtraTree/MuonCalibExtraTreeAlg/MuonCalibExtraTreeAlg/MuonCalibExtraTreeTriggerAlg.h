@@ -7,8 +7,8 @@
 #define MUONCALIB_MUONCALIBEXTRATREETRIGGERALG_H
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "MuonCalibExtraTreeAlg/MuonCalibMuCTPIBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibCaloBranch.h"
@@ -43,7 +43,7 @@ namespace MuonCalib {
      
      @author Niels.Van.Eldik@cern.ch
   */   
-  class MuonCalibExtraTreeTriggerAlg : public Algorithm {
+  class MuonCalibExtraTreeTriggerAlg : public AthAlgorithm {
   public:
     /**
        Algorithm constructor declaring all properties and opening a ROOT file

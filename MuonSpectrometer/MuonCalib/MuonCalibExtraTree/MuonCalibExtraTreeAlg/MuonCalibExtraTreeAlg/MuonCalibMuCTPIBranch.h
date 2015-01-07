@@ -15,7 +15,6 @@ namespace LVL1 {
 
 namespace MuonCalib {
 
-
   /**
      MuCTPi trigger information
   */
@@ -31,8 +30,8 @@ namespace MuonCalib {
     std::string m_branchName;            //!< name of branch in tree, per default prepended to variable names 
     bool branchesInit;                   //!< flag to check whether branches were initialized 
     bool m_first;                        //!< flag to make sure that overflow message is only printed once
-    static const int blockSize = 2000;    //!< quantities stored in the tree 
-    int   index;                         //!< counter keeping track on the number of entries stored in the event
+    static const int blockSize = 2000;   //!< quantities stored in the tree 
+    int  index;                          //!< counter keeping track on the number of entries stored in the event
 
     int roiWord[blockSize];
     int bcID[blockSize];
@@ -53,4 +52,3 @@ namespace MuonCalib {
 }// namespace MuonCalib
 
 #endif
-

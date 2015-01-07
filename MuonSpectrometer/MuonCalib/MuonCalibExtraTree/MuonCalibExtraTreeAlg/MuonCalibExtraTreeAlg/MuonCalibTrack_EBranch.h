@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // MuonCalibTrack_EBranch.h
 //   Header file for class MuonCalibTrack_EBranch
 ///////////////////////////////////////////////////////////////////
@@ -29,8 +28,7 @@ namespace MuonCalib {
   */
   class MuonCalibTrack_E;
   
-  class MuonCalibTrack_EBranch 
-  {
+  class MuonCalibTrack_EBranch {
   public:
     MuonCalibTrack_EBranch(std::string branchName = "trk_"); //!< default constructor 
     bool  fillBranch(const MuonCalibTrack_E& track) ;        //!< fill content of hit into branch 
@@ -41,9 +39,9 @@ namespace MuonCalib {
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
     bool branchesInit;                 //!< flag to check whether branches were initialized 
-    bool m_first;                        //!< flag to make sure that overflow message is only printed once
+    bool m_first;                      //!< flag to make sure that overflow message is only printed once
     static const int blockSize = 3000; //!< quantities stored in the tree 
-    int   index;                       //!< counter keeping track on the number of MuonCalib::MuonCalibTrack_E s stored in the event
+    int  index;                        //!< counter keeping track on the number of MuonCalib::MuonCalibTrack_E s stored in the event
 
     float x0[blockSize];
     float y0[blockSize];
@@ -75,4 +73,3 @@ namespace MuonCalib {
 }// namespace MuonCalib
 
 #endif
-

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // MuonCalibHit_EBranch.h
 //   Header file for class MuonCalibHit_EBranch
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@ namespace MuonCalib {
     bool branchesInit;                  //!< flag to check whether branches were initialized 
     bool m_first;                       //!< flag to make sure that overflow message is only printed once
     static const int blockSize = 50*256;     //!< quantities stored in the tree 
-    int   index;                        //!< counter keeping track on the number of entries stored in the event
+    int  index;                         //!< counter keeping track on the number of entries stored in the event
 
     unsigned int m_numberBC;
     unsigned int m_L1A_BC;
