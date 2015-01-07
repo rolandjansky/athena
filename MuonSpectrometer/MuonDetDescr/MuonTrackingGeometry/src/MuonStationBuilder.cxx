@@ -734,6 +734,8 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    gmStation = m_muonMgr->getMuonStation(vname.substr(0,3),eta,phi);
 	  }
           //
+          if (!gmStation ) continue;
+          //
           std::string name = (clv->getName()).substr(0,vname.size()-8);
           // is this station known ?        
           // if TGC station, look for 1 component instead
@@ -825,8 +827,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 						  m_muonStationTypeBuilder->processBoxStationComponents(cv,envBounds); 
 		  // enveloping volume
 		  envelope= new Trk::Volume(0,envBounds);
-		}
-		if (shape=="Trd") {
+		} else if (shape=="Trd") {
 		  Trk::TrapezoidVolumeBounds* envBounds = 0;
 		  Amg::Transform3D* transf=new Amg::Transform3D(Trk::s_idTransform); 
 		  if (halfY1==halfY2) {
@@ -840,36 +841,44 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		    envBounds = new Trk::TrapezoidVolumeBounds(halfY1,halfY2,halfZ,halfX1); 
 		  }
 		  if (halfX1!=halfX2 && halfY1!=halfY2 )  ATH_MSG_WARNING( "station envelope arbitrary trapezoid?"<< name );
-		  // station components
-		  if (m_muonStationTypeBuilder) confinedVolumes = 
-						  m_muonStationTypeBuilder->processTrdStationComponents(cv,envBounds); 
-		  // enveloping volume
-		  envelope= new Trk::Volume(transf,envBounds);
+
+                  if (envBounds) {
+		    // station components
+		    if (m_muonStationTypeBuilder) confinedVolumes = 
+						    m_muonStationTypeBuilder->processTrdStationComponents(cv,envBounds); 
+		    // enveloping volume
+		    envelope= new Trk::Volume(transf,envBounds);
+		  } else {
+                    delete transf; 
+		  }
 		}
 		// hack to verify BI/BM stations
 		//  if (name.substr(0,2)=="BI") name = gmStation->getKey();
 		//  if (name.substr(0,2)=="BM") name = gmStation->getKey();
+	
+                if (envelope) {
+	
+		  // ready to build the station prototype
+		  const Trk::TrackingVolume* newType= new Trk::TrackingVolume( *envelope,
+									       m_muonMaterial,
+									       0,confinedVolumes,
+									       name);         
+		  delete envelope; 
 		
-		// ready to build the station prototype
-		const Trk::TrackingVolume* newType= new Trk::TrackingVolume( *envelope,
-									     m_muonMaterial,
-									     0,confinedVolumes,
-									     name);         
-		delete envelope; 
+		  // identify prototype
+		  if (m_resolveActiveLayers && ( name.substr(0,1)=="B" || name.substr(0,1)=="E") ) 
+		    identifyPrototype(newType,eta,phi,Amg::CLHEPTransformToEigen(gmStation->getTransform()));
+		  
+		  // create layer representation
+		  std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr 
+		    = m_muonStationTypeBuilder->createLayerRepresentation(newType);
+		  
+		  // create prototype as detached tracking volume
+		  const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,newType,layerRepr.first,layerRepr.second);
 		
-		// identify prototype
-		if (m_resolveActiveLayers && ( name.substr(0,1)=="B" || name.substr(0,1)=="E") ) 
-		  identifyPrototype(newType,eta,phi,Amg::CLHEPTransformToEigen(gmStation->getTransform()));
-		
-		// create layer representation
-		std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr 
-		  = m_muonStationTypeBuilder->createLayerRepresentation(newType);
-		
-		// create prototype as detached tracking volume
-		const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,newType,layerRepr.first,layerRepr.second);
-		
-		if (!m_resolveActiveLayers) typeStat->trackingVolume()->clear();
-		stations.push_back(typeStat); 
+		  if (!m_resolveActiveLayers) typeStat->trackingVolume()->clear();
+		  stations.push_back(typeStat);
+		} 
 	      }
 	    }
 	  } // end new station type 

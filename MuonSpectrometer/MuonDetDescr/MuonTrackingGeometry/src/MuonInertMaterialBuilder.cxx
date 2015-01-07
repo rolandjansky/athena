@@ -258,13 +258,15 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
           //if ( vname=="EdgeBTVoussoir" && accepted && m_simplify ) accepted = false;
 
 	  if (accepted) ATH_MSG_VERBOSE( name() << " INERT muon object found:" << vname );
+	  if(accepted) ATH_MSG_VERBOSE( " INERT muon object found and accepted :" << vname );
+	  if(!accepted)  ATH_MSG_VERBOSE(" INERT muon object found and rejected :" << vname );
 
 	  
 	  if (!accepted) { vol.next(); continue; }  
 
           // update to accomodate AGDD structures
 
-	  //printInfo(cv);
+	  if( msg().level()==MSG::VERBOSE) printInfo(cv);
 	    
 	  std::vector<const GeoShape*> input_shapes;
 	  std::vector<std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > > vols;
@@ -298,15 +300,21 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
             // m_geoShapeConverter->decodeShape(input_shapes[ish]);
             Amg::Transform3D ident;
             ident.setIdentity();
+            if( msg().level()==MSG::VERBOSE) {
+              const Trk::Volume* trTest = m_geoShapeConverter->translateGeoShape(input_shapes[ish],&(vols[ish].second[0]));
+              delete trTest;
+            }
 	    const Trk::Volume* trObject = m_geoShapeConverter->translateGeoShape(input_shapes[ish],&ident);
+
 	    if (trObject) {  
 	      Trk::Material mat = m_materialConverter->convert( vols[ish].first->getMaterial() );
 	      const Trk::TrackingVolume* newType= new Trk::TrackingVolume( *trObject, mat, 0,0,protoName);
-	      const Trk::TrackingVolume* simType = simplifyShape(newType,blend);
+              const Trk::TrackingVolume* simType = simplifyShape(newType,blend);
 	      const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName,simType);
-              if (blend) typeStat->saveConstituents(m_constituents.back());
+	      if (blend) typeStat->saveConstituents(m_constituents.back());
 	      objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
               delete trObject;
+
 	    }  else {
 	      ATH_MSG_WARNING( name()<< " volume not translated: " << vname );
 	    }            
@@ -377,7 +385,7 @@ StatusCode Muon::MuonInertMaterialBuilder::finalize()
 void Muon::MuonInertMaterialBuilder::printInfo(const GeoVPhysVol* pv) const
 {
   const GeoLogVol* lv = pv->getLogVol();
-  std::cout << "New Muon Inert Object:"<<lv->getName()<<", made of"<<lv->getMaterial()->getName()<<","<<lv->getShape()->type()<<std::endl;
+  ATH_MSG_VERBOSE( "New Muon Inert Object:"<<lv->getName()<<", made of "<<lv->getMaterial()->getName()<< " x0 " << lv->getMaterial()->getRadLength() <<","<<lv->getShape()->type());
   m_geoShapeConverter->decodeShape(lv->getShape());
   printChildren(pv);
 }
@@ -397,8 +405,8 @@ void Muon::MuonInertMaterialBuilder::printChildren(const GeoVPhysVol* pv) const
     //
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
     const GeoLogVol* clv = cv->getLogVol();
-    std::cout << "  ";
-    std::cout << "subcomponent:"<<ic<<":"<<clv->getName()<<", made of"<<clv->getMaterial()->getName()<<","<<clv->getShape()->type()<< ","<< transf.translation()<<std::endl;
+    ATH_MSG_VERBOSE("  ");
+    ATH_MSG_VERBOSE("subcomponent:"<<ic<<":"<<clv->getName()<<", made of "<<clv->getMaterial()->getName()<< " x0 " << clv->getMaterial()->getRadLength() << " , "<<clv->getShape()->type()<< ","<< transf.translation().x() << " " << transf.translation().y() << " " << transf.translation().z());
 
     m_geoShapeConverter->decodeShape(clv->getShape()); 	 
 
@@ -414,8 +422,8 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
   // resolve composed volumes (returns constituents with material fraction accounting for subtractions & overlaps)
   std::vector<std::pair<const Trk::Volume*,std::pair<float,float> > > constituents = splitComposedVolume(trVol,m_simplify||blend);
 
-  //std::cout << "simplifying shape for:"<<trVol->volumeName()<<","<< constituents[0].second.first<<","<<constituents[0].second.second << std::endl;
-  //for (unsigned int i=0;i<constituents.size(); i++) std::cout << "constituent:"<< calculateVolume(constituents[i].first)<<","<< constituents[i].second.first<<","<< constituents[i].second.second << std::endl;   
+  ATH_MSG_VERBOSE( "simplifying shape for:"<<trVol->volumeName()<<","<< constituents[0].second.first<<","<<constituents[0].second.second);
+  for (unsigned int i=0;i<constituents.size(); i++) ATH_MSG_VERBOSE("constituent:"<< calculateVolume(constituents[i].first)<<","<< constituents[i].second.first<<","<< constituents[i].second.second);   
   
   int simpleMode = 0;
   
@@ -423,6 +431,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
     envelope =  new Trk::Volume(*(constituents.front().first), trVol->transform());
     if ( constituents.front().second.first > 0.999 ) simpleMode=1;          // no need to simplify nor envelope
   } else { // construct envelope using constituent edges 
+    ATH_MSG_VERBOSE( " createEnvelope "); 
     envelope = createEnvelope(trVol->transform(),constituents);
   }
   if (!envelope) envelope = new Trk::Volume(*trVol);
@@ -442,6 +451,8 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
     if (constituents.size()==1) {   // simplified volume : the scale factor refers to the density scaling
       double fraction = constituents.front().second.first;
       // simplified material rescales X0, l0 and density
+      ATH_MSG_VERBOSE(" Applying scaling for " << trVol->volumeName() << " fraction " << fraction);
+
       Trk::Material mat(trVol->X0/fraction,trVol->L0/fraction,trVol->A,trVol->Z,fraction*trVol->rho);
       newVol = new Trk::TrackingVolume( *envelope, mat,  0, 0, envName);  
       delete trVol;  
@@ -449,6 +460,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
     } else {  // enclose simplified constituents
       for (unsigned int ic=0;ic<constituents.size();ic++) { 
 	double fraction = constituents[ic].second.first;
+        ATH_MSG_VERBOSE( " Applying scaling for " << trVol->volumeName() << " fraction " << fraction );
 	// simplified material rescales X0, l0 and density
 	Trk::Material mat(trVol->X0/fraction,trVol->L0/fraction,trVol->A,trVol->Z,fraction*trVol->rho);
 	Trk::TrackingVolume* trc = new Trk::TrackingVolume(*(constituents[ic].first),mat, 0, 0, trVol->volumeName());
@@ -461,10 +473,14 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
       delete trVol;  
     }
   } else {    // enclose the exact transcript
+     ATH_MSG_VERBOSE( " enclose the exact transcript "); 
     confinedVols->push_back(trVol);
     envName=trVol->volumeName()+"_envelope";
     newVol = new Trk::TrackingVolume( *envelope, m_muonMaterial,  confinedVols, envName);    
     Trk::TrackingVolumeManipulator::confineVolume(*trVol,newVol);
+//    for (unsigned int iv = 0; iv < confinedVols->size(); iv++)
+//	Trk::TrackingVolumeManipulator::confineVolume(*((*confinedVols)[iv]),newVol);
+    
   }
     
   if (blend) {
@@ -477,7 +493,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
     }
     m_constituents.push_back(new std::vector<std::pair<const Trk::Volume*,float> >(confinedConst));
   }
-
+  
   delete envelope;
   return newVol;
 }
@@ -566,8 +582,8 @@ void Muon::MuonInertMaterialBuilder::getObjsForTranslation(const GeoVPhysVol* pv
 	std::vector<Amg::Transform3D > volTr;
 	volTr.push_back(transform*transf); 
 	vols.push_back(std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > (clv,volTr) );
-	//std::cout << "new volume added:"<< clv->getName() <<","<<clv->getMaterial()->getName()<<std::endl;
-	//printInfo(cv);
+//	std::cout << "new volume added:"<< clv->getName() <<","<<clv->getMaterial()->getName()<<std::endl;
+//	printInfo(cv);
       }
     } else {
       getObjsForTranslation(cv, transform*transf, vols);
@@ -603,6 +619,7 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D( rOut,-rOut,-hZ));
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(-rOut,-rOut,-hZ));
       cylinder = true;
+      ATH_MSG_VERBOSE(" createEnvelope cylBounds " );
     } else if (cubBounds) {  
       double x = cubBounds->halflengthX();
       double y = cubBounds->halflengthY();
@@ -615,6 +632,7 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(-x, y,-z));
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D( x,-y,-z));
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(-x,-y,-z));
+      ATH_MSG_VERBOSE(" createEnvelope cubBounds " );
     } else if (trdBounds) {  
       double x1 = trdBounds->minHalflengthX();
       double x2 = trdBounds->maxHalflengthX();
@@ -628,6 +646,7 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(-x2, y,-z));
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D( x1,-y,-z));
       edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(-x1,-y,-z));
+      ATH_MSG_VERBOSE(" createEnvelope trpBounds " );
     } else if (spbBounds) {
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
@@ -641,8 +660,9 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
 	edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(xyVtx[iv].first,xyVtx[iv].second,-z));
 	edges.push_back(transf.inverse()*(*sIter).first->transform()*Amg::Vector3D(xyVtx[iv].first,xyVtx[iv].second, z));
       }
+      ATH_MSG_VERBOSE(" createEnvelope psbBounds " );
     } else {
-      std::cout << "bounds not recognized"<< std::endl;
+      ATH_MSG_VERBOSE(" bounds not recognized " );
       return 0;
     }
     sIter++;
@@ -662,6 +682,7 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
     yMax = fmax( yMax, edges[ie].y() );
     zMin = fmin( zMin, edges[ie].z() );
     zMax = fmax( zMax, edges[ie].z() );
+    ATH_MSG_VERBOSE(" Envelope edges x " << edges[ie].x() << " y " << edges[ie].y() << " z " << edges[ie].z()); 
   }
 
   double xSize = 0.5*(xMax-xMin);
@@ -672,10 +693,14 @@ const Trk::Volume* Muon::MuonInertMaterialBuilder::createEnvelope(const Amg::Tra
 
   if ( cylinder && fabs(xSize-ySize)/fmax(xSize,ySize)<0.1) { // make it a cylinder
     envelope = new Trk::Volume(new Amg::Transform3D(transf*Amg::Translation3D(Amg::Vector3D(0.5*(xMin+xMax),0.5*(yMin+yMax),0.5*(zMin+zMax)))), new Trk::CylinderVolumeBounds(sqrt(xSize*xSize+ySize*ySize),zSize));
+    ATH_MSG_VERBOSE(" envelop cylinder radius " << sqrt(xSize*xSize+ySize*ySize) << " zSize " << zSize << " xMin+xMax " << xMin+xMax << " yMin+yMax " << yMin+yMax << " zMin+zMax " << zMin+zMax << " global z " <<  ((transf*Amg::Translation3D(Amg::Vector3D(0.5*(xMin+xMax),0.5*(yMin+yMax),0.5*(zMin+zMax))))*Amg::Vector3D(0.,0.,0.)).z() );
+ 
     //cylEnv = true;
   } else {
     envelope = new Trk::Volume(new Amg::Transform3D(transf*Amg::Translation3D(Amg::Vector3D(0.5*(xMin+xMax),0.5*(yMin+yMax),0.5*(zMin+zMax)))),
 			     new Trk::CuboidVolumeBounds(xSize,ySize,zSize));
+     
+   ATH_MSG_VERBOSE(" envelop cube  xSize " << xSize << " ySize " << ySize << " zSize " << zSize << " xMin+xMax " << xMin+xMax << " yMin+yMax " << yMin+yMax << " zMin+zMax " << zMin+zMax);
   }  
   
   /*
@@ -780,15 +805,14 @@ Amg::Vector3D Muon::MuonInertMaterialBuilder::getScanPoint(const Trk::Volume* vo
 #endif       
       //std::cout << "prism vertices:"<< xy.size()<< std::endl;
       gp = Amg::Vector3D(xy[2].first +sqrt(rndm[1])*( xy[0].first -xy[2].first 
-							    + rndm[2]*( xy[1].first -xy[0].first  ) ),
-			       xy[2].second+sqrt(rndm[1])*( xy[0].second-xy[2].second 
-							    + rndm[2]*( xy[1].second-xy[0].second ) ),
+						      + rndm[2]*( xy[1].first -xy[0].first  ) ),
+			 xy[2].second+sqrt(rndm[1])*( xy[0].second-xy[2].second 
+						      + rndm[2]*( xy[1].second-xy[0].second ) ),
 			       -z + zfr*2*z);
     }
     
-  } else {
-    ATH_MSG_DEBUG("volume bounds not recognized in scan");
   }
+
   if (!vol->inside(vol->transform()*gp,0.001)) ATH_MSG_DEBUG("test hit:wrong scan hit:"<<gp);
   
   return (vol->transform()*gp);
@@ -898,11 +922,11 @@ Muon::MuonInertMaterialBuilder::splitComposedVolume(const Trk::Volume* trVol, bo
       if (replaceVol) wConst[iv].first = replaceVol; 
       wConst[iv].second.first = cutout/nHits; 
       wConst[iv].second.second = overlap/nHits; 
-    }
+      //std::cout << " cutout " << cutout/nHits << " overlap " << overlap/nHits << std::endl; 
+   }
   }
 
   for (size_t i=0; i<garbage.size();i++) delete garbage[i];
 
   return wConst;
 }
-

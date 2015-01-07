@@ -73,7 +73,7 @@ namespace Muon {
       const Trk::TrackingVolume* processMdtBox(Trk::Volume*&,const GeoVPhysVol*&, Amg::Transform3D*, double ) const;
       const Trk::TrackingVolume* processMdtTrd(Trk::Volume*&,const GeoVPhysVol*&, Amg::Transform3D*) const;
       const Trk::TrackingVolume* processRpc(Trk::Volume*&,std::vector<const GeoVPhysVol*>,std::vector<Amg::Transform3D>) const;
-      const Trk::TrackingVolume* processSpacer(Trk::Volume*&,std::vector<const GeoVPhysVol*>,std::vector<Amg::Transform3D>) const;
+      const Trk::TrackingVolume* processSpacer(Trk::Volume&,std::vector<const GeoVPhysVol*>,std::vector<Amg::Transform3D>) const;
       const Trk::TrackingVolume* processNSW(std::vector<const Trk::Layer*>) const;
       const Trk::LayerArray* processCSCTrdComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&) const;
       const Trk::LayerArray* processCSCDiamondComponent(const GeoVPhysVol*&, Trk::DoubleTrapezoidVolumeBounds*&, Amg::Transform3D*&) const;
