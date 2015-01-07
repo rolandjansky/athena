@@ -38,6 +38,7 @@
 
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
+#include "TrkDetDescrUtils/Intersection.h"
 
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -504,7 +505,7 @@ namespace Muon {
       
       
     }else{
-      ATH_MSG_DEBUG(" Refit failed " );
+//      ATH_MSG_DEBUG(" Refit failed " );
     }
     
     if( track ) ++m_counters.nsuccess;
@@ -1131,7 +1132,7 @@ namespace Muon {
       // shift of phi angle after projection into wire frame 
       const Trk::Surface& measSurf = isMdt ? detEl->surface() : meas.associatedSurface();
 
-      Trk::SurfaceIntersection intersect = measSurf.straightLineIntersection(ip,dir);
+      Trk::Intersection intersect = measSurf.straightLineIntersection(ip,dir);
       if( !intersect.valid ){
 	ATH_MSG_WARNING(" Intersect with surface failed for measurement "<< m_printer->print(meas)
 			<< " position " << Amg::toString(ip) 
@@ -1140,9 +1141,9 @@ namespace Muon {
       }else{
 
 	// now get central phi position on surface of segment
-	lpos = meas.associatedSurface().globalToLocal(intersect.intersection,3000.);
+	lpos = meas.associatedSurface().globalToLocal(intersect.position,3000.);
 
-        ATH_MSG_VERBOSE(" Used intersect with surface " << intersect.intersection.phi() 
+        ATH_MSG_VERBOSE(" Used intersect with surface " << intersect.position.phi() 
 			<< "  start phi " << phiPos->phi() );
 
       }
@@ -2405,6 +2406,7 @@ namespace Muon {
       for( TrkDriftCircleMath::DCOnTrackCit dcit = matchedDCs.begin();dcit!=matchedDCs.end();++dcit ){
         
         if( dcit->state() == TrkDriftCircleMath::DCOnTrack::OnTrack ) continue;
+	if(dcit->index()>=indexIdMap.size()) continue;
         indexIdMap[dcit->index()].second = true;
       }
       
@@ -2736,7 +2738,7 @@ namespace Muon {
             ATH_MSG_WARNING(" failed to create fake at first measurement " );
           }
         }
-        if( *tit == positionSecondFake ){
+        if( *tit == positionSecondFake && positionSecondFake ){
 	  double fakeError =100.;
           if( positionSecondFake->trackParameters()->covariance() ) {
             fakeError = Amg::error( *positionSecondFake->trackParameters()->covariance(),Trk::loc2);

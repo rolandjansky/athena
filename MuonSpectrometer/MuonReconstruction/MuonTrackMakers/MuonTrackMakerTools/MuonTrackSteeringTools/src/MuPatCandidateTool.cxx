@@ -625,8 +625,10 @@ namespace Muon {
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
       if ( !rot ) {
         const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(&meas);
-	const std::vector<const MuonClusterOnTrack*>& rots = crot->containedROTs();
-        if ( !rots.empty() ) rot = rots.front();
+	if ( crot ) {
+          const std::vector<const MuonClusterOnTrack*>& rots = crot->containedROTs();
+          if ( !rots.empty() ) rot = rots.front();
+        }
       }
       if ( rot ) {
         const MuonGM::MuonReadoutElement* roEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(rot->detectorElement());

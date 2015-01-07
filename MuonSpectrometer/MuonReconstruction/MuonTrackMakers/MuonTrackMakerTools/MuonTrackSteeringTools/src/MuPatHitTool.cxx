@@ -742,7 +742,7 @@ namespace Muon {
 	// add time for RPC
 	const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(rot);
 	if ( rpc ) {
-	  const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
+	  const RpcPrepData* rpcPRD = rpc->prepRawData();
 	  if( rpcPRD ) {
 	    sout << "  time " << std::fixed << std::setprecision(2) << std::setw(5) << rpcPRD->time();
 	  }
@@ -785,16 +785,14 @@ namespace Muon {
   bool MuPatHitTool::isSorted( const MuPatHitList& hitList ) const {
     SortMuPatHits isLargerCal;
     MuPatHitCit it = hitList.begin();
-    MuPatHitCit itNext = it; ++itNext;
     MuPatHitCit it_end = hitList.end();
+    MuPatHitCit itNext = it; if(itNext!=it_end) ++itNext;
     bool isLarger = true;
-    for( ;it!=it_end;++it,++itNext){
-      if( itNext != it_end ){
+    for( ;itNext!=it_end;++it,++itNext){
 	isLarger = isLargerCal(*it,*itNext);
 	bool sameSurface = (isLarger == isLargerCal(*it,*itNext)); // same surface 
 	if( !isLarger && !sameSurface ) return false;
 	if( sameSurface ) return false;	
-      }
     }
     return true;
   }

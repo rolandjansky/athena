@@ -48,8 +48,6 @@ namespace Muon {
   class IMuonSegmentFittingTool;
   class IMuonSegmentMerger;
   class IMuonHoleRecoveryTool;
-  class IFindMonitor;
-  class IRefineMonitor;
 }
 
 namespace Muon {
@@ -159,8 +157,6 @@ namespace Muon {
     ToolHandle<IMuonSegmentMerger>                m_segmentMerger; //<! segment merger
     ToolHandle<Trk::ITrackSelectorTool>           m_trackSelector; //<! track selector
     ToolHandle<IMuonHoleRecoveryTool>             m_muonHoleRecoverTool;
-    ToolHandle<IFindMonitor> p_IFindMonitor ; //!< Pointer On IFindMonitor
-    ToolHandle<IRefineMonitor> p_IRefineMonitor ; //!< Pointer On IRefineMonitor
 
     mutable SegColVec m_chamberSegments;      // <! Segments sorted per Chamber
     mutable SegColVec m_stationSegments;      // <! Segments sorted per station
@@ -179,7 +175,6 @@ namespace Muon {
     bool m_outputSingleStationTracks;
     bool m_combinedSLOverlaps;
     bool m_doSummary;
-    bool m_doTrackMon;
     bool m_writeMergedSegments;
     bool m_useTightMatching;
     bool m_onlyMDTSeeding;

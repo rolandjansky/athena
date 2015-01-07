@@ -1285,6 +1285,8 @@ namespace Muon {
     if( !crossingCalo ) return true;
     return false;
 
+    // Not used code leave in for the moment coverity 14808
+
     // Check on Z position
     bool crossesCaloDiskA = false;
     bool crossesCaloDiskC = false;

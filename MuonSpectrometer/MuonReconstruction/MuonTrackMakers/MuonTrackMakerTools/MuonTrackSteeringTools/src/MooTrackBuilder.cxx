@@ -1403,6 +1403,7 @@ namespace Muon {
 	if( slOverlap ){
 	  ATH_MSG_DEBUG("SLOverlap " << m_printer->print(*slOverlap->segment) );
 	  // hack to allow me to add a second segment without copying the track
+          // Coverity 13708 keep this 0 call with 0 pointer
 	  newCandidate->addSegment(slOverlap,0);
 	}
 	candidates->push_back(newCandidate);
