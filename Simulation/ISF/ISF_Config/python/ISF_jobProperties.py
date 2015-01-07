@@ -66,9 +66,9 @@ class ValidationMode(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
     def _do_action(self):
-        jobproperties.ISF_Flags.TruthService.set_Value("ISF_ValidationTruthService")
+        jobproperties.ISF_jobProperties.TruthService.set_Value("ISF_ValidationTruthService")
     def _undo_action(self):
-        jobproperties.ISF_Flags.TruthService.set_Value(jobproperties.ISF_Flags.TruthService.__class__.StoredValue)
+        jobproperties.ISF_jobProperties.TruthService.set_Value(jobproperties.ISF_jobProperties.TruthService.__class__.StoredValue)
 
 class VertexPositionFromFile(JobProperty):
     """Steering of ISF: run vertex position from file"""

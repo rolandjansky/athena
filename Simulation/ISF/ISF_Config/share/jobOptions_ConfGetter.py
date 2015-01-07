@@ -91,6 +91,6 @@ if ISF_Flags.ValidationMode:
   ServiceMgr.THistSvc.Output += ["ISFFatras DATAFILE='ISFFatras.root' OPT='RECREATE'"]
   ServiceMgr.THistSvc.Output += ["ISFG4SimKernel DATAFILE='ISFG4SimKernel.root' OPT='RECREATE'"]
 
-from AthenaCommon.ConfigurationShelve import saveToAscii
-saveToAscii("config.txt")
+#from AthenaCommon.ConfigurationShelve import saveToAscii
+#saveToAscii("config.txt")
 

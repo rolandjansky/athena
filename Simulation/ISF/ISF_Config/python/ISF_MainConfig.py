@@ -231,6 +231,16 @@ def getKernel_GenericG4Only(name="ISF_Kernel_GenericG4Only", **kwargs):
 def getKernel_FullG4(name="ISF_Kernel_FullG4", **kwargs):
     return getKernel_GenericG4Only(name, **kwargs)
 
+############## Simulator: PassBackG4 ###############
+def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
+    kwargs.setdefault("ParticleBroker"              , "ISF_ParticleBrokerSvcNoOrdering"  )
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_PassBackGeant4Selector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    return getKernel_GenericSimulator(name, **kwargs)
+
 ############## Simulator: CosmicsG4 ###############
 def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_FullGeant4Selector' ] )
@@ -302,6 +312,18 @@ def getKernel_Fatras_newExtrapolation(name="ISF_Kernel_Fatras_newExtrapolation",
     # set the simFlags accordingly (TODO: is this even needed?)
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "Fatras_newExtrapolation"
+    return getKernel_GenericSimulator(name, **kwargs)
+
+############## Simulator: Fatras_newExtrapolation_IDOnly ###############
+def getKernel_Fatras_newExtrapolation_IDOnly(name="ISF_Kernel_Fatras_newExtrapolation_IDOnly", **kwargs):
+    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultFatrasNewExtrapolationSelector' ] )
+    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParticleKillerSelector' ] )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
+    # set the simFlags accordingly (TODO: is this even needed?)
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "Fatras_newExtrapolation_IDOnly"
     return getKernel_GenericSimulator(name, **kwargs)
 
 ############## Simulator: ATLFASTIIF fast pileup ###############

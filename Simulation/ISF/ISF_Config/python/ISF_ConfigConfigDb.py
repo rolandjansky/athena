@@ -44,16 +44,6 @@ addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getMC12TruthService"    
 addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getMC15TruthService"          , "ISF_MC15TruthService")
 addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getValidationTruthService"    , "ISF_ValidationTruthService")
 
-addService("ISF_Services.ISF_ServicesConfig.getISFEnvelopeDefSvc"           , "ISF_ISFEnvelopeDefSvc"               )
-addService("ISF_Services.ISF_ServicesConfig.getAFIIEnvelopeDefSvc"          , "ISF_AFIIEnvelopeDefSvc"              )
-addService("ISF_Services.ISF_ServicesConfig.getGeoIDSvc"                    , "ISF_GeoIDSvc"                        )
-addService("ISF_Services.ISF_ServicesConfig.getAFIIGeoIDSvc"                , "ISF_AFIIGeoIDSvc"                    )
-addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvc"           , "ISF_ParticleBrokerSvc"               )
-addService("ISF_Services.ISF_ServicesConfig.getLongLivedParticleBrokerSvc"  , "ISF_LongLivedParticleBrokerSvc"      )
-addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvcNoOrdering" , "ISF_ParticleBrokerSvcNoOrdering"     )
-addService("ISF_Services.ISF_ServicesConfig.getAFIIParticleBrokerSvc"       , "ISF_AFIIParticleBrokerSvc"           )
-addService("ISF_Services.ISF_ServicesConfig.getSimHitService"               , "ISF_SimHitService"                   )
-
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
@@ -73,6 +63,7 @@ addAlgorithm("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitCo
 
 addService("ISF_Geant4Config.ISF_iGeant4Config.getGeant4SimSvc",                        "ISF_Geant4SimSvc")
 addService("ISF_Geant4Config.ISF_iGeant4Config.getFullGeant4SimSvc",                    "ISF_FullGeant4SimSvc")
+addService("ISF_Geant4Config.ISF_iGeant4Config.getPassBackGeant4SimSvc",                "ISF_PassBackGeant4SimSvc")
 addService("ISF_Config.ISF_Geant4CommonConfig.getAFIIGeant4SimSvc",                     "ISF_AFIIGeant4SimSvc")
 addService("ISF_Config.ISF_Geant4CommonConfig.getLongLivedGeant4SimSvc",                "ISF_LongLivedGeant4SimSvc")
 
@@ -93,6 +84,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_GenericSimulator",    "ISF_Ker
 #addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FromJobProperties",   "ISF_Kernel_FromJobProperties")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4",              "ISF_Kernel_MC12G4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_longLived",    "ISF_Kernel_MC12G4_longLived")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_PassBackG4",          "ISF_Kernel_PassBackG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4",              "ISF_Kernel_FullG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDOnly",       "ISF_Kernel_MC12G4_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDCalo",       "ISF_Kernel_MC12G4_IDCalo")
@@ -103,6 +95,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_PileUp",   "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDOnly",   "ISF_Kernel_ATLFASTIIF_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDCalo",   "ISF_Kernel_ATLFASTIIF_IDCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation","ISF_Kernel_Fatras_newExtrapolation")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation_IDOnly","ISF_Kernel_Fatras_newExtrapolation_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FastOnly",            "ISF_Kernel_FastOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MultiSimTest",        "ISF_Kernel_MultiSimTest")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4GammaCones"                , "ISF_Kernel_G4GammaCones"                 )
