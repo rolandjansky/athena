@@ -19,6 +19,8 @@
 #include "GaudiKernel/Algorithm.h"
 #include "AthenaKernel/IOVTime.h"
 #include <vector>
+#include <map>
+#include <utility>
 #include <stdint.h>
 
 #include "LumiBlockData/LumiBlockCollection.h"
@@ -33,7 +35,7 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  StatusCode fillLumiBlockCollection(std::vector<IOVTime>* coll, std::string key);
+  StatusCode fillLumiBlockCollection();
 
   /// Incident service handle listening for BeginFile and EndFile.
   void handle(const Incident& incident);
@@ -43,17 +45,23 @@ protected:
   /// Fill metaDataStore and ntuples
   void finishUp();
 
-  std::vector<IOVTime> m_LumiBlockColl;  //collection of (run,lumiblock) pairs
-  std::vector<IOVTime> m_cacheLBColl;  //collection of (run,lumiblock) pairs
-                                       //for files that have closed properly 
- 
+  // Here is the transient storage of the LB metadata
+  typedef std::pair<uint32_t,uint32_t> inOut;
+  typedef std::map<IOVTime,inOut> RLBMap;
+  RLBMap m_LumiBlockInfo;
+
   uint32_t m_lastRun;           // remember run from last event
   uint32_t m_lastLumiBlock;     // remember lumiBlock from last event
+  IOVTime m_lastIOVTime;        // could remake from the previous 2, but for efficiency save it
+  bool m_checkEventsExpected;   
+
   StoreGateSvc* m_storeGate;    //cache the StoreGateSvc ptr for efficiency
   StoreGateSvc* m_metaStore;    //cache the StoreGateSvc ptr for efficiency
  
   StringProperty  m_LBColl_name;
   StringProperty  m_unfinishedLBColl_name;
+  StringProperty  m_suspectLBColl_name;
 };
+
 
 #endif // end of CREATELUMIBLOCKCOLLECTIONFROMFILE_H

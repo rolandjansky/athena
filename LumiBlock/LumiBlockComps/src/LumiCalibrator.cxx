@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LumiCalibrator.h"
+#include "LumiBlockComps/LumiCalibrator.h"
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/Blob.h"

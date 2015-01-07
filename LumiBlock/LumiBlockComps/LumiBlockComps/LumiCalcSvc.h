@@ -24,7 +24,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "AthenaBaseComps/AthService.h"
-#include "LumiCalculator.h"
+#include "LumiCalc/LumiCalculator.h"
+#include "LumiBlockComps/ILumiCalcSvc.h"
 
 class TTree;
 class ILumiCalcSvc;

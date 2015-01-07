@@ -53,7 +53,7 @@ class ILuminosityTool: virtual public IAlgTool {
   virtual float lbLuminosityPerBCID(unsigned int bcid) = 0;
 
   // Conversion factor from OLC.  lumiPerBCID/muToLumi = interactionsPerCrossingPerBCID
-  virtual float muToLumi() const = 0;
+  virtual float muToLumi() = 0;
 
   // Callback function called when any cached data is invalidated, 
   // Can be used to provide callbacks to other functions

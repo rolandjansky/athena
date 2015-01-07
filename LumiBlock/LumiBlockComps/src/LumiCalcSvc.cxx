@@ -41,7 +41,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "LumiCalcSvc.h"
+#include "LumiBlockComps/LumiCalcSvc.h"
 
 LumiCalcSvc::LumiCalcSvc(const std::string& name, 
 		       ISvcLocator* pSvcLocator ) : 
@@ -50,6 +50,7 @@ LumiCalcSvc::LumiCalcSvc(const std::string& name,
   p_detstore(0),
   p_inputstore(0),
   p_metadatastore(0),
+  tHistSvc(0),
   m_sourcedb("COOLONL_TRIGGER/OFLP200"),
   m_parlumiestfolder("/TRIGGER/LUMI/LBLEST"),
   m_parlumilvl1folder("/TRIGGER/LUMI/LVL1COUNTERS"),
@@ -307,7 +308,7 @@ StatusCode LumiCalcSvc::stop(){
 //===========================================================================
 void LumiCalcSvc::printTree(){
 
-  if(LumiTree != 0 || LumiTree != NULL)LumiTree->Scan("*");
+  if(LumiTree != NULL)LumiTree->Scan("*");
 
 }
 

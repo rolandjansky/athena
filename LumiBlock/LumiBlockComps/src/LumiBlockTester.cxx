@@ -11,8 +11,8 @@
 //--------------------------------------------------
 LumiBlockTester::LumiBlockTester(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_lumiTool("LuminosityTool", this),
-  m_liveTool("TrigLivefractionTool", this)
+  m_lumiTool("LuminosityTool"),
+  m_liveTool("TrigLivefractionTool")
 {
   declareProperty("LuminosityTool", m_lumiTool);
   declareProperty("TrigLivefractionTool", m_liveTool);
@@ -52,6 +52,8 @@ LumiBlockTester::execute()
 
   if (m_lumiTool->muToLumi() > 0.)
     instmu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi(); 
+  else
+    ATH_MSG_DEBUG(" Lumi: " << m_lumiTool->lbLuminosityPerBCID() << " muToLumi: " << m_lumiTool->muToLumi() << "!");
 
   float live = m_liveTool->livefractionPerBCID();
   float lumilive = m_liveTool->lbAverageLivefraction();

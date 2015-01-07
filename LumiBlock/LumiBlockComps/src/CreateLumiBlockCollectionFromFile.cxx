@@ -12,12 +12,15 @@
 #include "StoreGate/StoreGateSvc.h"
 
 CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::string& name, ISvcLocator* pSvcLocator) :
-// *****************************************************
-  Algorithm(name, pSvcLocator), m_lastRun(9999999), m_lastLumiBlock(9999999),
+// ********************************************************************************************************************
+  Algorithm(name, pSvcLocator), m_lastRun(9999999), m_lastLumiBlock(9999999), m_lastIOVTime(0),
   m_storeGate(0), m_metaStore(0)
 {
   declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
   declareProperty("unfinishedLBCollName",m_unfinishedLBColl_name = "IncompleteLumiBlocks");
+  declareProperty("suspectLBCollName",m_suspectLBColl_name = "SuspectLumiBlocks");
+
+  declareProperty("checkEventsExpected",m_checkEventsExpected=false);
 }
 
 StatusCode CreateLumiBlockCollectionFromFile::initialize(){
@@ -53,8 +56,7 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
   incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 20 to be 
                                                   // before MetaDataSvc and AthenaOutputStream.
 
-  m_LumiBlockColl.clear();
-  m_cacheLBColl.clear();
+  m_LumiBlockInfo.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -84,11 +86,34 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
 
    if(m_lastRun!=evt->event_ID()->run_number() || 
       m_lastLumiBlock!=evt->event_ID()->lumi_block()) { 
-       IOVTime iov(evt->event_ID()->run_number(),evt->event_ID()->lumi_block());
-       m_LumiBlockColl.push_back(iov);
-       m_lastRun=evt->event_ID()->run_number();
-       m_lastLumiBlock=evt->event_ID()->lumi_block();
+
+       IOVTime iovtime(evt->event_ID()->run_number(),evt->event_ID()->lumi_block());
+       RLBMap::iterator mitr;
+       mitr=m_LumiBlockInfo.find(iovtime);
+       if (mitr==m_LumiBlockInfo.end()) {
+
+       // Here is where we should access the database
+       // ==============================================
+       unsigned int expectedEvents = 0;
+       if(m_checkEventsExpected) {
+         log << MSG::WARNING << "Database access to number of expected events not implemented" << endreq;
+         expectedEvents = 8;  // JUST FOR TESTING
+       }
+       inOut lbInOut(expectedEvents,1);
+       m_LumiBlockInfo[iovtime] = lbInOut;
+       }
+       else {
+         m_LumiBlockInfo[iovtime].second++;
+       }
+   
+     m_lastRun=evt->event_ID()->run_number();
+     m_lastLumiBlock=evt->event_ID()->lumi_block();
+     m_lastIOVTime=iovtime;
    }
+   else {
+     m_LumiBlockInfo[m_lastIOVTime].second++;
+   }
+
   
   return (StatusCode::SUCCESS);
 }
@@ -104,52 +129,87 @@ StatusCode CreateLumiBlockCollectionFromFile::finalize() {
 }
  
 
-//**********************************************************************
-StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection(std::vector<IOVTime>* coll, std::string key )
-// *********************************************************************
+//*********************************************************************
+StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
+// ********************************************************************
 {
   MsgStream log(msgSvc(), name());
   // Create the LumiBlockCollection
-  LumiBlockCollection* piovc = new LumiBlockCollection();
-  // Sort the collection and then remove duplicates
-  sort(coll->begin(),coll->end());
-  coll->erase( unique( coll->begin(), coll->end() ), coll->end() );
+  LumiBlockCollection* piovComplete = new LumiBlockCollection();
+  LumiBlockCollection* piovUnfinished = new LumiBlockCollection();
+  LumiBlockCollection* piovSuspect = new LumiBlockCollection();
 
-  // Iterate through the collection of IOV and create LumiBlockCollection 
-  // Note:  the IOVTime contains run and lumiblock even though the method
-  // names are run() and event()
-  std::vector<IOVTime>::iterator it, ibeg, iend;
-  ibeg = coll->begin();
-  iend = ibeg;
-  for(it=coll->begin(); it<coll->end(); it++) {
-    // If run number changes or lumiblock number is not contiguous, make new
-    // IOVRange object
-    if(it->run()!=iend->run() || it->event()>(iend->event()+1)) {
-      IOVRange* iov = new IOVRange(IOVTime(ibeg->run(),ibeg->event()),
-                     IOVTime(iend->run(),iend->event()));
-      piovc->push_back(iov);
-      ibeg=it;
+
+  for(RLBMap::iterator mitr=m_LumiBlockInfo.begin(); mitr!=m_LumiBlockInfo.end(); mitr++) {
+    // Create our LB_IOVRange object
+    // Looks a bit wierd, but our map is <iovTime, pair<unit32_t,uint32_t> >
+    LB_IOVRange* iovr = new LB_IOVRange(mitr->first,mitr->first);
+    iovr->setNumExpected(mitr->second.first);
+    iovr->setNumSeen(mitr->second.second);
+
+
+    // Decide which collection it goes into depending on whether the LB is complete
+    // =============================================================================
+    // Suspect LB's have more events read than the DB says should be there
+    if(!m_checkEventsExpected || mitr->second.second == mitr->second.first) {
+      piovComplete->push_back(iovr);
     }
-    iend=it;
-  } 
-  // We need to store the last one since it is left hanging by the above loop
-  IOVRange* iov = new IOVRange(IOVTime(ibeg->run(),ibeg->event()),
-                     IOVTime(iend->run(),iend->event()));
-  piovc->push_back(iov);
+    else if(mitr->second.second > mitr->second.first) {
+      piovSuspect->push_back(iovr);
+    }
+    else {
+      piovUnfinished->push_back(iovr);
+    }
+  }
+
   log << MSG::INFO << "Summary of LumiBlock Info:"  << endreq ;
-  piovc->dump(std::cout);
+  if(piovComplete->size()>0) {
+    log << MSG::INFO << "Complete LumiBlocks:" << endreq;
+     piovComplete->dump(std::cout);
+  }
+
+  if(piovUnfinished->size()>0) {
+    log << MSG::INFO << "Unfinished LumiBlocks:" << endreq;
+    piovUnfinished->dump(std::cout);
+  }
+
+  if(piovUnfinished->size()>0) {
+    log << MSG::INFO << "Suspect LumiBlocks:" << endreq;
+    piovSuspect->dump(std::cout);
+  }
+
+  /*
 
   // Store the LumiBlockCollection in the metadata store
+  // =======================================================
+  StatusCode sc;
+  if(piovComplete->size()>0) {
+    sc = m_metaStore->record(piovComplete, m_LBColl_name);
+    if (sc.isFailure()) {
+       log << MSG::ERROR << "could not register complete LumiBlockCollection" << endreq;
+       return(StatusCode::FAILURE);
+    }
+  }
 
-  StatusCode sc = m_metaStore->record(piovc, key);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "could not register LumiBlockCollection" << endreq;
-     return(StatusCode::FAILURE);
-   }   
+  if(piovUnfinished->size()>0) {
+    sc = m_metaStore->record(piovUnfinished,  m_unfinishedLBColl_name);
+    if (sc.isFailure()) {
+       log << MSG::ERROR << "could not register incomplete  LumiBlockCollection" << endreq;
+       return(StatusCode::FAILURE);
+    }
+  }
 
-  // Then clear m_LumiBlockColl.  This is in case we decide to store the 
+  if(piovSuspect->size()>0) {
+    sc = m_metaStore->record(piovSuspect, m_suspectLBColl_name);
+    if (sc.isFailure()) {
+       log << MSG::ERROR << "could not register suspect LumiBlockCollection" << endreq;
+       return(StatusCode::FAILURE);
+    }
+  }
+  // Then clear m_LumiBlockInfo.  This is in case we decide to store the 
   // LBColl separately for each input or output file.
-  coll->clear();
+  */
+  m_LumiBlockInfo.clear();
   return StatusCode::SUCCESS;
 }
 // *******************************************************************
@@ -164,7 +224,7 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
     if (fileInc == 0) { fileName = "Undefined "; }
     else { fileName = fileInc->fileName();}
     log <<  MSG::DEBUG << "BeginInputFile: " << fileName << endreq;
-    if(m_LumiBlockColl.size()>0) {
+    if(m_LumiBlockInfo.size()>0) {
       log << MSG::WARNING << " BeginInputFile handle detects non-zero size Cached LumiBlockColl" << endreq;
     }
   }
@@ -174,13 +234,6 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
     // Therefore we can transfer the list of LB to the cached collection of good LB's
     // ***************************************************************************************************
     log <<  MSG::DEBUG << "EndInputFile incident detected" << endreq;  
-    std::vector<IOVTime>::iterator it, ibeg, iend;
-    ibeg = m_LumiBlockColl.begin();
-    iend = ibeg;
-    for(it=m_LumiBlockColl.begin(); it<m_LumiBlockColl.end(); it++) {
-      m_cacheLBColl.push_back(*it);
-    }
-    m_LumiBlockColl.clear();
   }
   else if(inc.type() == "LastInputFile") {
     finishUp();
@@ -197,17 +250,10 @@ void CreateLumiBlockCollectionFromFile:: finishUp() {
 
    MsgStream log(msgSvc(), name());
    log << MSG::INFO <<  " finishUp: write lumiblocks to meta data store " << endreq;
-
-    if(m_cacheLBColl.size()>0) {
-        StatusCode sc=fillLumiBlockCollection(&m_cacheLBColl,m_LBColl_name);
+    if(m_LumiBlockInfo.size()>0) {
+      StatusCode sc=fillLumiBlockCollection();
         if (sc.isFailure()) {
-            log << MSG::ERROR << "Could not fill lumiblock collection for full files" << endreq;
-        }
-    }
-    if(m_LumiBlockColl.size()>0) {
-      StatusCode sc=fillLumiBlockCollection(&m_LumiBlockColl,m_unfinishedLBColl_name);
-        if (sc.isFailure()) {
-            log << MSG::ERROR << "Could not fill lumiblock collection for unfinished files" << endreq;
+            log << MSG::ERROR << "Could not fill lumiblock collections in finishUp()" << endreq;
         }
     }
 }

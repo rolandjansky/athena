@@ -14,7 +14,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockComps/ILuminosityTool.h"
-#include "LumiBlockComps/CoolQuery.h"
+#include "LumiCalc/CoolQuery.h"
 
 #include <string>
 

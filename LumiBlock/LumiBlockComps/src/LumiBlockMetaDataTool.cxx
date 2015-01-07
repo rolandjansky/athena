@@ -12,7 +12,7 @@
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/ITriggerRegistryTool.h"
-#include "LumiBlockComps/LumiBlockCollectionConverter.h"
+#include "LumiCalc/LumiBlockCollectionConverter.h"
 #include "LumiBlockComps/ILumiCalcSvc.h"
 
 // the user data-class defintions
@@ -261,9 +261,9 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
            LumiBlockCollection::const_iterator ilast(lbc->begin());
            // Now cache it locally
            m_tempLBColl->reserve(m_tempLBColl->size()+lbc->size());
-           if(i!=ie) m_tempLBColl->push_back(new IOVRange(*(*i++)));
+           if(i!=ie) m_tempLBColl->push_back(new LB_IOVRange(*(*i++)));
            while (i != ie) {
-	     if(**i!=**ilast ) { m_tempLBColl->push_back(new IOVRange(*(*i))); }
+	     if(**i!=**ilast ) { m_tempLBColl->push_back(new LB_IOVRange(*(*i))); }
              else {
 	       log << MSG::DEBUG << "Remove duplicate with range " << **i << endreq;
 	     }
@@ -289,10 +289,10 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
           LumiBlockCollection::const_iterator i(lbc->begin()), ie(lbc->end());
           LumiBlockCollection::const_iterator ilast(lbc->begin());
           // Now cache it locally
-          m_tempLBColl->reserve(m_unfinishedLBColl->size()+lbc->size());
-          if(i!=ie) m_unfinishedLBColl->push_back(new IOVRange(*(*i++)));
+          m_unfinishedLBColl->reserve(m_unfinishedLBColl->size()+lbc->size());
+          if(i!=ie) m_unfinishedLBColl->push_back(new LB_IOVRange(*(*i++)));
           while (i != ie) {
-	    if(**i!=**ilast ) { m_unfinishedLBColl->push_back(new IOVRange(*(*i))); }
+	    if(**i!=**ilast ) { m_unfinishedLBColl->push_back(new LB_IOVRange(*(*i))); }
             else {
 	      log << MSG::DEBUG << "Remove duplicate in unfinished collection with range " << **i << endreq;
 	    }
@@ -309,7 +309,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
      if(m_tempLBColl->size() >0 ) {
       m_cacheLBColl->reserve(m_cacheLBColl->size()+m_tempLBColl->size());
       LumiBlockCollection::const_iterator i(m_tempLBColl->begin()), ie(m_tempLBColl->end());
-      while (i != ie) {m_cacheLBColl->push_back(new IOVRange(*(*i++)));}
+      while (i != ie) {m_cacheLBColl->push_back(new LB_IOVRange(*(*i++)));}
       m_tempLBColl->clear();
      }
       m_fileCurrentlyOpened=false;
@@ -348,9 +348,9 @@ void  LumiBlockMetaDataTool::finishUp() {
 //    We have to do this because the copy constructor of DataVector only
 //    copies the pointers...
       LumiBlockCollection::const_iterator i(m_cacheLBColl->begin()), ie(m_cacheLBColl->end());
-      tmpColl->push_back(new IOVRange(*(*i++)));
+      tmpColl->push_back(new LB_IOVRange(*(*i++)));
       while (i != ie) { 
-        tmpColl->push_back(new IOVRange(*(*i))); 
+        tmpColl->push_back(new LB_IOVRange(*(*i))); 
         i++;
       }
 
@@ -395,9 +395,9 @@ void  LumiBlockMetaDataTool::finishUp() {
       LumiBlockCollection* tmp2Coll = new LumiBlockCollection();
       if (m_tempLBColl->size()>0 || m_unfinishedLBColl->size()>0) {
         LumiBlockCollection::const_iterator i(m_tempLBColl->begin()), ie(m_tempLBColl->end());
-        while (i != ie) { tmp2Coll->push_back(new IOVRange(*(*i++)));}
+        while (i != ie) { tmp2Coll->push_back(new LB_IOVRange(*(*i++)));}
         LumiBlockCollection::const_iterator j(m_unfinishedLBColl->begin()), je(m_unfinishedLBColl->end());
-        while (j != je) { tmp2Coll->push_back(new IOVRange(*(*j++)));}
+        while (j != je) { tmp2Coll->push_back(new LB_IOVRange(*(*j++)));}
         tmp2Coll->sort(LumiBlockCollection::SortIOVRangeByStart());
       }
 
@@ -456,7 +456,7 @@ LumiBlockMetaDataTool::GetCopyOfCollection( const LumiBlockCollection& lbc )
 {
   LumiBlockCollection* copyColl = new LumiBlockCollection();
   LumiBlockCollection::const_iterator itr(lbc.begin()), end(lbc.end());
-  for (; itr!=end; ++itr) { copyColl->push_back(new IOVRange(*(*itr))); }
+  for (; itr!=end; ++itr) { copyColl->push_back(new LB_IOVRange(*(*itr))); }
   copyColl->sort(LumiBlockCollection::SortIOVRangeByStart());
 
   return copyColl;
@@ -474,7 +474,7 @@ LumiBlockMetaDataTool::FilterOnDQFlags( const LumiBlockCollection& lbc,
   int lastoklbnr(-1), cur_runnbr(-1), cur_lbstart(-1), cur_lbstop(-1);
 
   for( LumiBlockCollection::const_iterator it=lbc.begin(); it != lbc.end(); ++it ) {
-    const IOVRange* iovr = (*it);
+    const LB_IOVRange* iovr = (*it);
     cur_runnbr = iovr->start().run();
     cur_lbstart = iovr->start().event();
     cur_lbstop = iovr->stop().event();
@@ -489,13 +489,13 @@ LumiBlockMetaDataTool::FilterOnDQFlags( const LumiBlockCollection& lbc,
 	  cur_lbstart = lbnr;
         }
       } else if (somethingtostore) {
-        iovc->push_back( new IOVRange(IOVTime(cur_runnbr, cur_lbstart),IOVTime(cur_runnbr, lastoklbnr)) );
+        iovc->push_back( new LB_IOVRange(IOVTime(cur_runnbr, cur_lbstart),IOVTime(cur_runnbr, lastoklbnr)) );
         somethingtostore=false;
       }
     }
     // store remaining good iovrange
     if (somethingtostore) {
-      iovc->push_back( new IOVRange(IOVTime(cur_runnbr, cur_lbstart),IOVTime(cur_runnbr, lastoklbnr)) );
+      iovc->push_back( new LB_IOVRange(IOVTime(cur_runnbr, cur_lbstart),IOVTime(cur_runnbr, lastoklbnr)) );
       somethingtostore=false;
     }
   } 
@@ -544,7 +544,7 @@ StatusCode LumiBlockMetaDataTool::fillFromXML(LumiBlockCollection* lbc_target,
       // Iterate over lumiblock ranges for that run and fill LumiBlockCollection argument
       log << MSG::INFO << "About to fill LBCollection with " << it->second.size() << "items" << endreq;
       for (std::vector<Root::TLumiBlockRange>::const_iterator lbrit = it->second.begin(); lbrit != it->second.end(); lbrit++) {
-         lbc_target->push_back(new IOVRange(IOVTime(run, lbrit->Begin()), IOVTime(run, lbrit->End())));
+         lbc_target->push_back(new LB_IOVRange(IOVTime(run, lbrit->Begin()), IOVTime(run, lbrit->End())));
       }
       // Ready for next LumiBlockCollection
    } // grl loop

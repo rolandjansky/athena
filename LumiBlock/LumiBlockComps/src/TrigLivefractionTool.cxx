@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigLivefractionTool.h"
+#include "LumiBlockComps/TrigLivefractionTool.h"
 
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
@@ -22,18 +22,19 @@ TrigLivefractionTool::TrigLivefractionTool(const std::string& type,
 				 const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_recalcLumiLivefraction(true),
-    m_lumiTool("LuminosityTool"),
+    m_lumiTool(""), // "LuminosityTool"),
     m_turnCounter(0),
-    m_deadtimeFolderName("/TRIGGER/LUMI/PerBcidDeadtime"),
-    m_lumiLiveFractionLo(0.),
-    m_lumiLiveFractionHi(0.)
+    m_deadtimeFolderName(""), // "/TRIGGER/LUMI/PerBcidDeadtime"),
+    m_lumiLiveFractionLo(1.),
+    m_lumiLiveFractionHi(1.)
 {
   declareInterface<ITrigLivefractionTool>(this);
   declareProperty("DeadtimeFolderName", m_deadtimeFolderName);
   declareProperty("LuminosityTool", m_lumiTool);
 
-  m_livefractionHigh = std::vector<float>(TOTAL_LHC_BCIDS, 0.);
-  m_livefractionLow  = std::vector<float>(TOTAL_LHC_BCIDS, 0.);
+  // Initialize to 1 so we don't have divide by zero if there is no data
+  m_livefractionHigh = std::vector<float>(TOTAL_LHC_BCIDS, 1.);
+  m_livefractionLow  = std::vector<float>(TOTAL_LHC_BCIDS, 1.);
 }
 
 StatusCode
@@ -41,37 +42,47 @@ TrigLivefractionTool::initialize()
 {
   ATH_MSG_DEBUG("TrigLivefractionTool::initialize() begin");
 
-  ATH_MSG_INFO("TrigLivefractionTool::initialize() registering " << m_deadtimeFolderName);
-
-  // In addition to local, private callback functions, also set up callbacks to updateCache any time
-  // the local cached data changes.
-  // This must be done with the interface (ILuminosityTool) so external code can use this to trigger
-  // their own callbacks.
-
-  // Setup callback
-  if (detStore()->contains<AthenaAttributeList>(m_deadtimeFolderName)) {
-
-    const DataHandle<AthenaAttributeList> aptr;
-
-    // Causes updateLivefraction to be called when m_deadtimeFolderName changes
-    CHECK(detStore()->regFcn(&TrigLivefractionTool::updateLivefraction, this, aptr, m_deadtimeFolderName));
-    // Causes updateCache to be called when updateLivefraction is called 
-    CHECK(detStore()->regFcn(&TrigLivefractionTool::updateLivefraction, this, &ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this)));
-
-    //    CHECK(detStore()->regFcn(&ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this) , aptr, m_deadtimeFolderName));
-
-    ATH_MSG_INFO( " Registered a callback for " << m_deadtimeFolderName << " COOL folder " );
+  if (m_deadtimeFolderName.empty()) {
+    // May not be configured, could be OK
+    ATH_MSG_INFO("DeadtimeFolderName.empty is TRUE, skipping...");
   } else {
-    ATH_MSG_ERROR( " cannot find " << m_deadtimeFolderName << " in DetectorStore" );
+    ATH_MSG_INFO("TrigLivefractionTool::initialize() registering " << m_deadtimeFolderName);
+
+    // In addition to local, private callback functions, also set up callbacks to updateCache any time
+    // the local cached data changes.
+    // This must be done with the interface (ILuminosityTool) so external code can use this to trigger
+    // their own callbacks.
+
+    // Setup callback
+    if (detStore()->contains<AthenaAttributeList>(m_deadtimeFolderName)) {
+
+      const DataHandle<AthenaAttributeList> aptr;
+
+      // Causes updateLivefraction to be called when m_deadtimeFolderName changes
+      CHECK(detStore()->regFcn(&TrigLivefractionTool::updateLivefraction, this, aptr, m_deadtimeFolderName));
+      // Causes updateCache to be called when updateLivefraction is called 
+      CHECK(detStore()->regFcn(&TrigLivefractionTool::updateLivefraction, this, &ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this)));
+
+      //    CHECK(detStore()->regFcn(&ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this) , aptr, m_deadtimeFolderName));
+
+      ATH_MSG_INFO( " Registered a callback for " << m_deadtimeFolderName << " COOL folder " );
+    } else {
+      ATH_MSG_ERROR( " cannot find " << m_deadtimeFolderName << " in DetectorStore" );
+    }
   }
 
   // Get the luminosity tool
-  ATH_MSG_INFO( "Retrieving luminosity tool handle" );
-  CHECK(m_lumiTool.retrieve());
+  if (m_lumiTool.empty()) {
+    // May not be configured, could be OK
+    ATH_MSG_INFO( "LuminosityTool.empty() is TRUE, skipping...");
+  } else {
+    ATH_MSG_INFO( "Retrieving luminosity tool handle" );
+    CHECK(m_lumiTool.retrieve());
 
-  // Also set up a callback on luminosityTool change
-  ATH_MSG_INFO( "Registering callback on ILuminosityTool::updateCache" );
-  CHECK(detStore()->regFcn(&ILuminosityTool::updateCache, dynamic_cast<ILuminosityTool*>(&(*m_lumiTool)), &ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this)));
+    // Also set up a callback on luminosityTool change
+    ATH_MSG_INFO( "Registering callback on ILuminosityTool::updateCache" );
+    CHECK(detStore()->regFcn(&ILuminosityTool::updateCache, dynamic_cast<ILuminosityTool*>(&(*m_lumiTool)), &ITrigLivefractionTool::updateCache, dynamic_cast<ITrigLivefractionTool*>(this)));
+  }
 
   ATH_MSG_DEBUG( "TrigLivefractionTool::initialize() end" );
   return StatusCode::SUCCESS;
@@ -157,10 +168,15 @@ TrigLivefractionTool::updateLivefraction( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys
   // Should be set in updateCache, but do it here just to make sure
   m_recalcLumiLivefraction = true;  
 
-  // Ensure zero on error
+  // Ensure value won't crash monitoring on error
   m_turnCounter = 0;
-  m_livefractionHigh = std::vector<float>(TOTAL_LHC_BCIDS, 0.);
-  m_livefractionLow  = std::vector<float>(TOTAL_LHC_BCIDS, 0.);
+  m_livefractionHigh = std::vector<float>(TOTAL_LHC_BCIDS, 1.);
+  m_livefractionLow  = std::vector<float>(TOTAL_LHC_BCIDS, 1.);
+
+  if (m_deadtimeFolderName.empty()) {
+    ATH_MSG_WARNING( "updateLiveFraction called with DeadtimeFolderName.empty() = True!" );
+    return StatusCode::SUCCESS;
+  }
 
   const AthenaAttributeList* attrList = 0;
   CHECK(detStore()->retrieve(attrList, m_deadtimeFolderName));
@@ -174,7 +190,7 @@ TrigLivefractionTool::updateLivefraction( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys
 
   // Nothing to do if turn counter is zero
   if (m_turnCounter == 0) {
-    ATH_MSG_INFO( "TurnCounter = " << m_turnCounter << " ... setting livefraction to 0");
+    ATH_MSG_INFO( "TurnCounter = " << m_turnCounter << " ... setting livefraction to 1");
     return StatusCode::SUCCESS;
   }
 
@@ -184,7 +200,7 @@ TrigLivefractionTool::updateLivefraction( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys
 
   // Check data availability
   if ((*attrList)["LowPriority"].isNull() || (*attrList)["HighPriority"].isNull()) {
-    ATH_MSG_WARNING( " NULL veto counter information in database ... set livefraction to 0 " );
+    ATH_MSG_WARNING( " NULL veto counter information in database ... set livefraction to 1 " );
     return StatusCode::SUCCESS;
   }
 
@@ -241,8 +257,14 @@ TrigLivefractionTool::recalculateLumiLivefraction()
   m_recalcLumiLivefraction = false;
 
   // One more thing, lets calculate the lumi-weighted live fraction
-  m_lumiLiveFractionLo = 0.;
-  m_lumiLiveFractionHi = 0.;
+  m_lumiLiveFractionLo = 1.;
+  m_lumiLiveFractionHi = 1.;
+
+  if (m_lumiTool.empty()) {
+    // May not be configured, could be OK
+    ATH_MSG_WARNING( "recalculateLumiLivefraction called with LuminosityTool.empty() == TRUE!");
+    return;
+  }
 
   double numsumlo = 0.;
   double numsumhi = 0.;

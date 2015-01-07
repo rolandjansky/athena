@@ -18,7 +18,12 @@
 #include "StoreGate/DataHandle.h"
 
 #include "LumiBlockComps/ILuminosityTool.h"
-#include "LumiCalibrator.h"
+
+#include "GaudiKernel/ToolHandle.h"
+#include "CoolLumiUtilities/IFillParamsTool.h"
+#include "CoolLumiUtilities/IBunchGroupTool.h"
+#include "CoolLumiUtilities/IBunchLumisTool.h"
+#include "CoolLumiUtilities/IOnlineLumiCalibrationTool.h"
 
 #include <string>
 #include <vector>
@@ -60,7 +65,7 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   float lbLuminosityPerBCID(unsigned int bcid);
 
   // Conversion factor from OLC.  lumiPerBCID/muToLumi = interactionsPerCrossingPerBCID
-  float muToLumi() const;
+  float muToLumi();
 
   // Functions
   StatusCode initialize();
@@ -74,9 +79,6 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
 
   // Callback functions
   virtual StatusCode updateAvgLumi(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode updateCalibrations(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode updateFillparams(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode updateBunchgroup(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode updateLBLB(IOVSVC_CALLBACK_ARGS);
 
   // Per-BCID Luminosity update function
@@ -100,11 +102,18 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   std::string m_lumiFolderName; // Default to /TRIGGER/OFLLUMI/LBLESTOFL 
   unsigned long m_lumiChannel;  // Default to 0 - preferred
 
+  //std::string m_fillparamsFolderName;
+  ToolHandle<IFillParamsTool> m_fillParamsTool;
+
+  //std::string m_bunchlumisFolderName;
+  ToolHandle<IBunchLumisTool> m_bunchLumisTool;
+
+  //std::string m_bunchgroupFolderName;
+  ToolHandle<IBunchGroupTool> m_bunchGroupTool;
+
   // Folders for per-BCID calculation
-  std::string m_calibrationFolderName;
-  std::string m_fillparamsFolderName;
-  std::string m_bunchlumisFolderName;
-  std::string m_bunchgroupFolderName;
+  ToolHandle<IOnlineLumiCalibrationTool> m_onlineLumiCalibrationTool;
+
   std::string m_lblbFolderName;
 
   // Flag to indicate that cached data has changed
@@ -117,12 +126,8 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
   unsigned int m_luminousBunches;
   std::vector<unsigned int> m_luminousBunchesVec;
 
-  // Bunchgroup data
-  unsigned int m_bgBunches;
-  std::vector<unsigned int> m_bgBunchesVec;
-
   // Calibration data
-  std::map<unsigned int, LumiCalibrator> m_cali;
+  // std::map<unsigned int, LumiCalibrator> m_cali;
 
 };
 
