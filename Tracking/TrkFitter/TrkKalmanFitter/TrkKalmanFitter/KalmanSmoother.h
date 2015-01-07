@@ -18,6 +18,8 @@
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkFitterInterfaces/IKalmanSmoother.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
 	
@@ -28,6 +30,8 @@ namespace Trk {
   class IAlignableSurfaceProvider;//!< Interface for Kalman alignment
   class DNA_MaterialEffects;      //!< dna data for logging method
   class ProtoTrajectoryUtility;  // helper to analyse current trajectory
+
+  class IExtrapolationEngine;     //!< Extrapolation Engine
 
   typedef std::vector<Trk::ProtoTrackStateOnSurface> Trajectory;
 	
@@ -100,6 +104,8 @@ private:
       
     // list of tracking tools and fitter extension tools used in backward filter
     IExtrapolator*                   m_extrapolator;
+    ToolHandle<IExtrapolationEngine>   m_extrapolationEngine;     
+    bool                               m_useExEngine;
     const IUpdator*                  m_updator;
     const IDynamicNoiseAdjustor*     m_dynamicNoiseAdjustor;
     const IAlignableSurfaceProvider* m_alignableSurfaceProvider;

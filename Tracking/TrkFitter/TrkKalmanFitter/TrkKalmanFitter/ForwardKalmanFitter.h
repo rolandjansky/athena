@@ -18,6 +18,7 @@
 #include "TrkFitterInterfaces/IForwardKalmanFitter.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
 
 /////////////////////// Forward Declarations ///////////////////////////////////
 //
@@ -35,6 +36,8 @@ namespace Trk {
   class TrackStateOnSurface;
   class DNA_MaterialEffects;      //!< dna data for logging method
   class ProtoTrajectoryUtility;   //!< helper class for analysing PTSoS vector.
+  class IExtrapolationEngine;     //!< Extrapolation Engine
+
 }
 		
 namespace Trk {
@@ -136,6 +139,8 @@ private:
     // all toolhandles are passed in through a configure method, for reasons of
     // consistency among the KF-subtools and to avoid recursive tool retrieval
     const IExtrapolator*         m_extrapolator;
+    ToolHandle<IExtrapolationEngine>   m_extrapolationEngine;     
+    bool                               m_useExEngine;
     const IUpdator*              m_updator;
     const IRIO_OnTrackCreator*   m_ROTcreator;
     const IDynamicNoiseAdjustor* m_dynamicNoiseAdjustor;

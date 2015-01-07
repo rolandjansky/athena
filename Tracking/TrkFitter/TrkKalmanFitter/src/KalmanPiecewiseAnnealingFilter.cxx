@@ -361,7 +361,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   // step 1: make first loop while turning ROT/PRDs into competing ones
   //////////////////////////////////////////////////////////////////////////////
   const TrackParameters* predPar     = 0;
-  const AmgVector(5)* predDiffPar = 0;
+  std::unique_ptr<const AmgVector(5)> predDiffPar;
   const TrackParameters* updatedPar  = 0;
   bool end_reached = false;
   bool hadAnnealingProblemDC = false;
@@ -376,10 +376,10 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       if (input_it->referenceParameters()) {
         if (start_predPar) {
           predPar = start_predPar->clone();
-          predDiffPar = new AmgVector(5)(start_predPar->parameters()
-                                         - start->referenceParameters()->parameters() );
+          predDiffPar.reset(  new AmgVector(5)(start_predPar->parameters()
+                                               - start->referenceParameters()->parameters() ) );
         } else {
-          predDiffPar = start->checkoutParametersDifference();
+          predDiffPar.reset(  start->checkoutParametersDifference() );
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
                                       (start->referenceParameters()->parameters() + (*predDiffPar)),
                                       new AmgSymMatrix(5)(*start->parametersCovariance()));
@@ -401,7 +401,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         const TransportJacobian& jac = *m_trajPiece.back().jacobian();
         AmgVector(5) updDiffPar = updatedPar->parameters() 
                                   - m_trajPiece.back().referenceParameters()->parameters();
-        predDiffPar = new AmgVector(5)(jac*updDiffPar);
+        predDiffPar.reset(  new AmgVector(5)(jac*updDiffPar) );
         AmgSymMatrix(5)* C = new AmgSymMatrix(5) (jac*(*updatedPar->covariance())*jac.transpose());
         // add uncertainties from material effects:
         if (input_it->materialEffects()) {
@@ -480,7 +480,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       // if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(new Trk::TransportJacobian(*input_it->jacobian()));
       if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(input_it->jacobian(),false);
       m_trajPiece.back().checkinReferenceParameters(input_it->referenceParameters(),false);
-      m_trajPiece.back().checkinParametersDifference(predDiffPar);
+      m_trajPiece.back().checkinParametersDifference(predDiffPar.release() );
       m_trajPiece.back().checkinParametersCovariance(new AmgSymMatrix(5)(*predPar->covariance()));
     }
  

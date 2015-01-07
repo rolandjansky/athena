@@ -1429,21 +1429,18 @@ const Trk::TrackStateOnSurface* Trk::KalmanFitter::internallyMakePerigee
       it->smoothedTrackParameters()->position().perp() < 350. ) {
     nearestParam = it->smoothedTrackParameters();
   } else {
-    std::vector<const Trk::TrackParameters*> * parameterTrajectory
-      = new std::vector<const Trk::TrackParameters*>;
+    std::vector<const Trk::TrackParameters*> parameterTrajectory;
     for ( ; it!= m_trajectory.end(); ++it) {
       if (!it->isOutlier() && (it->smoothedTrackParameters()))
-        parameterTrajectory->push_back(it->smoothedTrackParameters());
+        parameterTrajectory.push_back(it->smoothedTrackParameters());
     }
-    if (parameterTrajectory->empty()) {
+    if (parameterTrajectory.empty()) {
       ATH_MSG_WARNING ("Perigee-making failed: no useful parameters on track!");
-      delete parameterTrajectory; // fix leak
       return 0;
     }
-    nearestParam = *(std::min_element(parameterTrajectory->begin(),
-				      parameterTrajectory->end(),
+    nearestParam = *(std::min_element(parameterTrajectory.begin(),
+				      parameterTrajectory.end(),
 				      *m_tparScaleSetter));
-    delete parameterTrajectory;
   }
   // extrapolate to perigee
   const Trk::TrackParameters* per
@@ -1471,28 +1468,23 @@ const Trk::TrackStateOnSurface* Trk::KalmanFitter::makeReferenceState
   // --- simple case: ref surface was entered at first measurement
   if (!it->isOutlier() && (&(it->measurement()->associatedSurface()) == &refSurface) )
     return 0;
-  Trk::TrkParametersComparisonFunction* nearestSurfaceDefinition
-    = new Trk::TrkParametersComparisonFunction(refSurface.center());
-  std::vector<const Trk::TrackParameters*> * parameterTrajectory
-    = new std::vector<const Trk::TrackParameters*>;
+  Trk::TrkParametersComparisonFunction nearestSurfaceDefinition(refSurface.center());
+  std::vector<const Trk::TrackParameters*> parameterTrajectory;
   for ( ; it!= m_trajectory.end(); ++it)
     if (!it->isOutlier() && (it->smoothedTrackParameters()))
-      parameterTrajectory->push_back(it->smoothedTrackParameters());
-  if (parameterTrajectory->empty()) {
+      parameterTrajectory.push_back(it->smoothedTrackParameters());
+  if (parameterTrajectory.empty()) {
     ATH_MSG_WARNING ("Reference state making failed: no useful parameters on track!");
-      delete parameterTrajectory;
       return 0;
   }
-  nearestParam = *(std::min_element(parameterTrajectory->begin(),
-                                    parameterTrajectory->end(),
-                                    *nearestSurfaceDefinition));
-  delete parameterTrajectory;
+  nearestParam = *(std::min_element(parameterTrajectory.begin(),
+                                    parameterTrajectory.end(),
+                                    nearestSurfaceDefinition));
   const Trk::TrackParameters* fittedRefParams
     = m_extrapolator->extrapolate(*nearestParam, refSurface,
                                   ( m_sortingRefPoint.mag() > 1.0E-10 ?  // is it 0,0,0 ?
                                     Trk::anyDirection : Trk::oppositeMomentum),
                                   false, matEffects);
-  delete nearestSurfaceDefinition;
   if (!fittedRefParams) {
     ATH_MSG_DEBUG (" No ref-params made: extrapolation failed.");
     return 0;

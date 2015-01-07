@@ -52,6 +52,8 @@
 Trk::ForwardKalmanFitter::ForwardKalmanFitter(const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool (t,n,p),
   m_extrapolator(0),
+  m_extrapolationEngine(""),
+  m_useExEngine(false),
   m_updator(0),
   m_ROTcreator(0),
   m_dynamicNoiseAdjustor(0),
@@ -65,6 +67,9 @@ Trk::ForwardKalmanFitter::ForwardKalmanFitter(const std::string& t,const std::st
   // declare all properties needed to configure fitter, defaults
   declareProperty("StateChi2PerNDFPreCut", m_StateChiSquaredPerNumberDoFPreCut=50.f,
                   "coarse pre-cut on the predicted state's chi2/ndf against outliers destabilising the filter - only in effect if called with runOutlier true");
+  // the extrapolation engine
+  declareProperty("ExtrapolationEngine",      m_extrapolationEngine);
+  declareProperty("UseExtrapolationEngine",   m_useExEngine);
 }
 
 // destructor
@@ -80,6 +85,14 @@ StatusCode Trk::ForwardKalmanFitter::initialize()
     return StatusCode::FAILURE;
   }
   m_utility = new ProtoTrajectoryUtility(m_idHelper);
+
+  if (m_useExEngine) {
+    if (m_extrapolationEngine.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve ExtrapolationEngine.");
+      return StatusCode::FAILURE;
+    } else
+      ATH_MSG_INFO("Successfully retrieved ExtrapolationEngine.");
+  }
 
   ATH_MSG_INFO ("stability precut on state Chi2/ndf set to "<< m_StateChiSquaredPerNumberDoFPreCut );
   ATH_MSG_INFO ("initialize() successful in " << name());
@@ -375,9 +388,25 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
                        << " meas't - no extrapolation needed.");
     } else {
       ATH_MSG_VERBOSE ("-Fp get filter onto 1st surface by direct extrapolation.");
-      predPar = m_extrapolator->extrapolateDirectly(*updatedPar, destinationSurface,
-                                                    Trk::anyDirection,
-                                                    false, Trk::nonInteracting);
+      if (!m_useExEngine) 
+	predPar = m_extrapolator->extrapolateDirectly(*updatedPar, destinationSurface,
+						      Trk::anyDirection,
+						      false, Trk::nonInteracting);
+
+      else {
+        ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
+        Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar);
+        ecc.setParticleHypothesis(Trk::nonInteracting);
+        ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
+        Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, Trk::anyDirection, false);
+        
+	if (eCode.isSuccess() && ecc.endParameters) {
+	  ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
+	  predPar = ecc.endParameters;
+	} else 
+          ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine did not succeed");
+      }      
+
     }
 
     /* possible difficulty here
@@ -403,9 +432,22 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 
     ////////////////////////////////////////////////////////////////////////////
     // --- 2nd case covers filter loop: extrapolate to next surface with full matEffects
-    predPar = m_extrapolator->extrapolate(*updatedPar,destinationSurface,
-                                          Trk::alongMomentum,false,
-                                          controlledMatEffects.particleType());
+    if (!m_useExEngine) 
+      predPar = m_extrapolator->extrapolate(*updatedPar,destinationSurface,
+					    Trk::alongMomentum,false,
+					    controlledMatEffects.particleType());
+    else {
+      ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
+      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar);
+      ecc.setParticleHypothesis(controlledMatEffects.particleType());
+      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &destinationSurface, Trk::alongMomentum, false);
+      
+      if (eCode.isSuccess() && ecc.endParameters) {
+	ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
+	predPar = ecc.endParameters;
+      } else
+        ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine does not succeed");
+    }
   }
   return predPar;
 }
@@ -729,10 +771,24 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
     ATH_MSG_VERBOSE ("-Fe start params already expressed at 1st meas't - do no extrapolate.");
   } else {
     ATH_MSG_VERBOSE ("-Fe get filter onto 1st surface by direct extrapolation.");
-    inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
-                                                                 startSurface,
-                                                                 Trk::anyDirection,
-                                                                 false, Trk::nonInteracting);
+    if (!m_useExEngine)
+      inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
+								   startSurface,
+								   Trk::anyDirection,
+								   false, Trk::nonInteracting);
+    else {
+      ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
+      Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar);
+      ecc.setParticleHypothesis(Trk::nonInteracting);
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::Direct);
+      Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc, &startSurface, Trk::anyDirection, false);
+      
+      if (eCode.isSuccess() && ecc.endParameters) {
+	ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
+	inputParAtStartSurface = ecc.endParameters;
+      }
+    }      
+
     if (inputParAtStartSurface == NULL) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
       ATH_MSG_INFO ("-Fe parameters R="<< inputPar.position().perp() << ", z="<<

@@ -15,6 +15,7 @@ use TrkFitterInterfaces TrkFitterInterfaces-*   Tracking/TrkFitter
 use GeoPrimitives       GeoPrimitives-* DetectorDescription
 library TrkKalmanFitter *.cxx components/*.cxx
 apply_pattern component_library
+use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
 
 private
 use AtlasCLHEP          AtlasCLHEP-*            External
@@ -30,7 +31,6 @@ use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-* Tracking/TrkEvent
 use TrkDetDescrInterfaces TrkDetDescrInterfaces-* Tracking/TrkDetDescr
 use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
-use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
 use TrkValInterfaces    TrkValInterfaces-*      Tracking/TrkValidation
 
 macro DOXYGEN_IMAGE_PATH "../doc/images"

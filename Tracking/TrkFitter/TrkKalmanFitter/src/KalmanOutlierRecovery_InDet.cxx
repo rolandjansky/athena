@@ -195,6 +195,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                sqrt(broadPixel->localCovariance()(Trk::locY,Trk::locY)) );
                 it->replaceMeasurement(broadPixel,Trk::TrackState::BroadCluster);
                 it->isOutlier(false);
+                if (it->positionOnTrajectory() < firstNew) firstNew = it->positionOnTrajectory(); 
                 failureRecoveryNeedsRefit=true;
               } else {
                 delete broadPixel;

@@ -170,7 +170,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
   Trk::Trajectory::iterator it = m_utility->firstFittableState(trajectory);
-  std::pair<AmgVector(5),AmgSymMatrix(5)>* updatedDifference=0;        // delete & remake during filter
+  std::unique_ptr< std::pair<AmgVector(5),AmgSymMatrix(5)> >updatedDifference;        // delete & remake during filter
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
                  ", "<<(allowRecalibrate?"recalibrate:yes":"recalibrate:no")<<
                  " and start state "<<filterStartState);
@@ -233,7 +233,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       // back into trajectory
       it->checkinParametersDifference(predDiffPar);
       it->checkinParametersCovariance(predDiffCov); 
-      delete updatedDifference; updatedDifference=0;
+      updatedDifference.reset();
       // delete updatedDiffCov; updatedDiffCov=0;
     }
     if (msgLvl(MSG::DEBUG)) 
@@ -242,8 +242,8 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
 
     const MeasurementBase* fittableMeasurement = it->measurement();
     if ((!fittableMeasurement) || it->isOutlier()) { // pure material state
-      updatedDifference = new std::pair<AmgVector(5),AmgSymMatrix(5)>
-         (std::make_pair(*predDiffPar,*predDiffCov));
+      updatedDifference.reset( new std::pair<AmgVector(5),AmgSymMatrix(5)>
+                               (std::make_pair(*predDiffPar,*predDiffCov)) );
     } else {
 
       // Posibly re-calibrate. TRT extension finder leaves many TRT hits as wire-hits w/o LR solution
@@ -265,14 +265,14 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
       }
 
       Trk::FitQualityOnSurface* fitQS=0;
-      updatedDifference 
-        = m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
+      updatedDifference.reset(
+        m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                *(it->measurementDifference()),
                                                fittableMeasurement->localCovariance(),
                                                fittableMeasurement->localParameters().parameterKey(),
-                                               fitQS, /*doFQ=*/true );
-      if (updatedDifference == 0 || fitQS == 0) {
-        delete updatedDifference; delete fitQS;
+                                             fitQS, /*doFQ=*/true ) );
+      if (!updatedDifference || fitQS == 0) {
+        delete fitQS;
         ATH_MSG_DEBUG("update in reference-parameter formalism failed.");
         return FitterStatusCode::UpdateFailure;
       }
@@ -280,7 +280,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
                                                  *it->referenceParameters(), updatedDifference->first );
       const float updatedQoverP = (it->referenceParameters()->parameters()[Trk::qOverP]) + (updatedDifference->first[Trk::qOverP]);
       if (fabs(updatedQoverP) > 0.1) {
-            delete updatedDifference; delete fitQS;
+            delete fitQS;
             ATH_MSG_DEBUG("update in reference-parameter formalism failed, momentum too low: qoverp=" << updatedQoverP);
             return FitterStatusCode::UpdateFailure;
       }
@@ -304,14 +304,14 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
             fittableMeasurement = it->measurement();
 	    ATH_MSG_VERBOSE ("TRT ROT calibration changed, from "<<oldType<<" to broad hit "<<
                            it->calibrationType()<< " instead of outlier");
-            delete updatedDifference; delete fitQS; fitQS=0;
-            updatedDifference =
+            delete fitQS; fitQS=0;
+            updatedDifference.reset( 
               m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                    *(it->measurementDifference()),
                                                    fittableMeasurement->localCovariance(),
                                                    fittableMeasurement->localParameters().parameterKey(),
-                                                   fitQS, /*doFQ=*/true );
-            if ( (!updatedDifference || !fitQS ||
+                                                   fitQS, /*doFQ=*/true ) );
+            if ( (updatedDifference || !fitQS ||
                  (runOutlier && fitQS->chiSquared() > m_StateChiSquaredPerNumberDoFPreCut
                   * fitQS->numberDoF())) ) {
               ATH_MSG_DEBUG ("Chi2 ("<<fitQS->chiSquared()<<"/"<<fitQS->numberDoF()<<
@@ -343,13 +343,12 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         if ( it->positionOnTrajectory()==1 ) {
           // TO-DO investigate this! (TRT-only with PseudoMeast removed, and thus refPars not matching)
           ATH_MSG_WARNING ( "Failed on first filter step, this indicates bad inputs or job options!" );
-          delete updatedDifference; delete fitQS; //other objects managed by trajectory
+          delete fitQS; //other objects managed by trajectory
           return FitterStatusCode::BadInput;
         }
         // copy over prePar to updatedPar because we ignore this update
-        delete updatedDifference;
-        updatedDifference = new std::pair<AmgVector(5),AmgSymMatrix(5)>
-           (std::make_pair(*predDiffPar,*predDiffCov));
+        updatedDifference.reset( new std::pair<AmgVector(5),AmgSymMatrix(5)>
+                                 (std::make_pair(*predDiffPar,*predDiffCov)) );
       }
       it->setForwardStateFitQuality ( *fitQS );
       delete fitQS;
@@ -360,7 +359,6 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
     jacobian = it->jacobian();
   }
 
-  delete updatedDifference;
   int testNumber = m_utility->rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only " << testNumber
@@ -598,13 +596,13 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
         ATH_MSG_DEBUG ("changed from MS to ID propagator.");
       }
       TransportJacobian* jac = 0;
+      double pathLimit = -1.;
       if (!propagator) ATH_MSG_WARNING("NO propagator!!");
       lastPropagatedPar = propagator->propagate(*it->referenceParameters(),
                                                 nextSurface,
-                                                Trk::anyDirection, // TODO: check: does one need any direction for material updates here?
-                                                //Trk::alongMomentum,
+                                                Trk::anyDirection, 
                                                 /*bcheck=*/ false,
-                                                useFullField,jac,
+                                                useFullField,jac, pathLimit,
                                                 controlledMatEffects.particleType() );
       if (!jac || !lastPropagatedPar) {
         ATH_MSG_WARNING ("lost reference track while propagating.");
