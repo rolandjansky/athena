@@ -93,14 +93,19 @@ public :
 #endif
 
 #ifdef SimposAccessor_cxx
-SimposAccessor::SimposAccessor(TTree *tree)
+SimposAccessor::SimposAccessor(TTree *tree) :
+   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dx(NULL),
+   b_dydx(NULL), b_dzdx(NULL), b_time(NULL), b_gid(NULL), b_pdgid(NULL),
+   b_istation(NULL), b_phisec(NULL), b_zsec(NULL), b_sector(NULL), b_wlay(NULL),
+   b_eta(NULL), b_pt(NULL), b_phi0(NULL), b_d0(NULL), b_z0(NULL), b_vpr(NULL),
+   b_vpphi(NULL), b_vpz(NULL), b_ver(NULL), b_vephi(NULL), b_vez(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("csc_simpos.root");
       if (!f) {
-         f = new TFile("csc_simpos.root");
+         new TFile("csc_simpos.root");
       }
       tree = (TTree*)gDirectory->Get("csc_simpos");
 

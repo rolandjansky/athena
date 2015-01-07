@@ -8,6 +8,9 @@ apply_tag ROOTGraphicsLibs
 end_private
 use AtlasROOT           AtlasROOT-*       External
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree)"
+
 application csc_cluster_performance csc_cluster_performance.cxx
 macro_append csc_cluster_performance_dependencies " install_includes"
 application csc_cosmic_cluster csc_cosmic_cluster.cxx

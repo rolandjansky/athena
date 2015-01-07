@@ -61,12 +61,12 @@ namespace {
       return run() == rhs.run() && evt() == rhs.evt();
     }
   };
-  
+
   std::ostream& operator<<(std::ostream& str, const Runevt& rhs) {
     str << rhs.run() << ":" << rhs.evt();
     return str;
   }
-  
+
   class Cluster {
     float m_pos;
     float m_dpos;
@@ -77,7 +77,8 @@ namespace {
     float m_z;
   public:
     Cluster(float pos, float dpos, float z)
-      : m_pos(pos), m_dpos(dpos), m_z(z) { }
+      : m_pos(pos), m_dpos(dpos), m_phisec(-1), m_wlay(-1),
+        m_x(-9999.), m_y(-9999.), m_z(z) { }
     float z()    const { return m_z; }
     float pos()    const { return m_pos; }
     float dpos()   const { return m_dpos; }
@@ -86,7 +87,7 @@ namespace {
   };
 }  // end unnamed namespace
 //typedef std::vector<Cluster*> Clusters;
-  
+
 
 
 ////////////////////////////
@@ -223,7 +224,7 @@ int main(int narg, char* argv[]) {
   // int x = (int);
   // char*chX='a';
   // int x = (int)*chX;
-  
+
   // Open simpos file.
   TFile* psfile = new TFile(arg1.c_str(), "READ");
   TTree* pctree = dynamic_cast<TTree*>(psfile->Get("csc_cluster"));
@@ -252,10 +253,10 @@ int main(int narg, char* argv[]) {
 
   ClusterAccessor cluster(pctree);
   pctree->BuildIndex("run", "evt");
-  
+
   int nsample =1000;
   //  int nsample =pctree->GetEntries();
-  
+
   // Loop over events.
   for ( int icevt=1; icevt<nsample; ++icevt ) {
     cluster.GetEntry(icevt);
@@ -277,7 +278,7 @@ int main(int narg, char* argv[]) {
 
     for (int iphi=0; iphi<4; ++iphi)
       for (int ilay=0; ilay<4; ++ilay)
-        for ( int iclu=0; iclu<nclu; ++iclu ){ 
+        for ( int iclu=0; iclu<nclu; ++iclu ){
           if (cluster.phisec[iclu]==iphi+1 && cluster.wlay[iclu]==ilay+1 )
             if (cluster.qpeak[iclu]>ref_value[cluster.measphi[iclu]][iphi][ilay]) {
               ref_value[cluster.measphi[iclu]][iphi][ilay] =cluster.qpeak[iclu];
@@ -291,14 +292,14 @@ int main(int narg, char* argv[]) {
       for (Int_t ilay=3; ilay>=0; --ilay) {
         /*
         cout << "  [" << iphi+1 << ", " << ilay+1 << "]  "
-             << setw(7) << setprecision(2) << cluster.z[pid[0][iphi][ilay]] 
+             << setw(7) << setprecision(2) << cluster.z[pid[0][iphi][ilay]]
              << setw(10) << setiosflags (ios::fixed) << setprecision(0) << cluster.qpeak[pid[0][iphi][ilay]]
              << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][ilay]]
              << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.error[pid[0][iphi][ilay]]
              << setw(5)  << setiosflags (ios::fixed) << cluster.strip0[pid[0][iphi][ilay]]
              << setw(5)  << setiosflags (ios::fixed) << cluster.pstrip[pid[0][iphi][ilay]]+cluster.strip0[pid[0][iphi][ilay]]
              << setw(4)  << setiosflags (ios::fixed) << cluster.sfit[pid[0][iphi][ilay]];
-        if (doPhi) 
+        if (doPhi)
           cout << setw(10) << setiosflags (ios::fixed) << setprecision(0) << cluster.qpeak[pid[1][iphi][ilay]]
                << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[1][iphi][ilay]]
                << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.error[pid[1][iphi][ilay]]

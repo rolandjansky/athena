@@ -319,7 +319,7 @@ int main(int narg, char* argv[]) {
     int ient = 0;
     // Loop over hits.
     for ( int ihit=0; ihit<nhit; ++ihit ) {
-      if ( ient > MAXENT ) {
+      if ( ient >= MAXENT ) {
         cout << "Too many entries!!!" << endl;
         abort();
       }
@@ -582,10 +582,12 @@ int main(int narg, char* argv[]) {
   }  // end loop over events
 
   ptree->Print();
-  cout << "R-efficiency = " << ntot_rclu_matched << "/" << ntot_hit << " = "
-       << double(ntot_rclu_matched)/double(ntot_hit) << endl;
-  cout << "Phi-efficiency = " << ntot_pclu_matched << "/" << ntot_hit << " = "
-       << double(ntot_pclu_matched)/double(ntot_hit) << endl;
+  cout << "R-efficiency = " << ntot_rclu_matched << "/" << ntot_hit << " = ";
+  if( ntot_hit != 0 ) cout << double(ntot_rclu_matched)/double(ntot_hit) << endl;
+  else cout << "nan" << endl;
+  cout << "Phi-efficiency = " << ntot_pclu_matched << "/" << ntot_hit << " = ";
+  if( ntot_hit != 0 ) cout << double(ntot_pclu_matched)/double(ntot_hit) << endl;
+  else cout << "nan" << endl;
 
   pfile->Write();
 #endif
