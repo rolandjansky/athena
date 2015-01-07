@@ -197,17 +197,16 @@ namespace Muon {
     }
 
     
-
-    const Amg::Vector2D* lp = EL->surface(RIO.identify()).globalToLocal(GP);
+    Amg::Vector2D lp;
     double positionAlongStrip = 0;
 
-    if( !lp ){
+    if( !EL->surface(RIO.identify()).globalToLocal(GP,GP,lp) ){
       Amg::Vector3D lpos = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GP;
       ATH_MSG_WARNING ( "Extrapolated GlobalPosition not on detector surface! Distance " << lpos.z() );
-      lp = new Amg::Vector2D(lpos.x(),lpos.y());
+      lp[Trk::locX] = lpos.x();
+      lp[Trk::locY] = lpos.y();
     }
-    positionAlongStrip = (*lp)[Trk::locY];
-    
+    positionAlongStrip = lp[Trk::locY];  
 
     // Error matrix production - expect more intelligent code here.
     //
@@ -265,7 +264,7 @@ namespace Muon {
 	const MuonGM::TgcReadoutElement *ele= MClus->detectorElement();
 
 	double stripLength = ele->stripLength(gasGap,stripNo);
-	double stripWidth=fabs(ele->stripMaxX(gasGap, stripNo, (*lp)[Trk::locZ])-ele->stripMinX(gasGap, stripNo,  (*lp)[Trk::locZ]));
+	double stripWidth=fabs(ele->stripMaxX(gasGap, stripNo, lp[Trk::locZ])-ele->stripMinX(gasGap, stripNo,  lp[Trk::locZ]));
 	
 	double localX1=ele->stripCtrX(gasGap, stripNo,  stripLength/2.);
 	double localX2=ele->stripCtrX(gasGap, stripNo,  -stripLength/2.);
@@ -296,7 +295,6 @@ namespace Muon {
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
       if (!MClus) {
         ATH_MSG_WARNING ( "RIO not of type CscPrepData, cannot create ROT" );
-        delete lp; lp=0;
         return 0;
       }
       
@@ -305,8 +303,6 @@ namespace Muon {
 
     }
     
-    
-    delete lp; lp=0;
     return MClT; 
   }
 
@@ -348,15 +344,16 @@ namespace Muon {
       ATH_MSG_VERBOSE ( "Making 1-dim local parameters" );
     }
 
-    const Amg::Vector2D* lp = EL->surface(RIO.identify()).globalToLocal(GP);
+    Amg::Vector2D lp;
     double positionAlongStrip = 0;
-    if( !lp ){
+
+    if( !EL->surface(RIO.identify()).globalToLocal(GP,GP,lp) ){
       Amg::Vector3D lpos = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GP;
       ATH_MSG_WARNING ( "Extrapolated GlobalPosition not on detector surface! Distance " << lpos.z() );
-      lp = new Amg::Vector2D(lpos.x(),lpos.y());
+      lp[Trk::locX] = lpos.x();
+      lp[Trk::locY] = lpos.y();
     }
-    positionAlongStrip = (*lp)[Trk::locY]; 
-    delete lp; lp=0; // pointer is not needed so can be deleted
+    positionAlongStrip = lp[Trk::locY];  
 
     // Error matrix production - expect more intelligent code here.
     //
