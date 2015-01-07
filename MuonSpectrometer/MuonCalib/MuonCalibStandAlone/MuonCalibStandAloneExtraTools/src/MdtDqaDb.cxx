@@ -11,11 +11,11 @@
 #include <vector>
 
 
-MdtDqaDb::MdtDqaDb(std::string chamName) {
+MdtDqaDb::MdtDqaDb(std::string chamName) : m_numNoisyMezz(-1), m_numNoisyTube(-1) {
   Clear();
   m_chamberName = chamName;
 }
-MdtDqaDb::MdtDqaDb() {
+MdtDqaDb::MdtDqaDb() : m_numNoisyMezz(-1), m_numNoisyTube(-1) {
   Clear();
 }
 

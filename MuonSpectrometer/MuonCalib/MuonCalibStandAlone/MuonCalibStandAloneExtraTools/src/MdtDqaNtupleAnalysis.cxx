@@ -42,7 +42,10 @@ using namespace std;
 namespace MuonCalib {
 
 //====================================================================================
-MdtDqaNtupleAnalysis::MdtDqaNtupleAnalysis(bool verbose, std::string outputFileName){
+MdtDqaNtupleAnalysis::MdtDqaNtupleAnalysis(bool verbose, std::string outputFileName) :
+  m_histoManager(NULL), m_DeadElementsAlgorithm(-1), m_SectorMin(-1), m_SectorMax(-1),
+  m_analyseBarrel(false), m_analyseEndcapA(false), m_analyseEndcapC(false), m_ADCCUT(-1.)
+{
   m_verbose = verbose ;
   m_outputFileName = outputFileName ;
   p_reg_sel_svc = NULL ;
@@ -268,7 +271,7 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
       int tubestot;
       int tubesPerLayer;
       //      int nMezz;
-      int imezz;
+      int imezz = 0;
       int tubeOffset[2] ;
       tubeOffset[0]=m_histoManager->GetTubeOffsetML1(chamberName)  ;
       tubeOffset[1]=0 ;
@@ -616,6 +619,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
        mdtTubeAna->setNoVerbose();
        mdtTubeAna->WriteAsciFile();
        mdtTubeAna->histogramScanCalibCenters(f);
+       delete mdtTubeAna; mdtTubeAna=0;
     }
     else
     {
@@ -626,6 +630,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
       mdtTubeAna->setWriteListOfDeadTubes(false) ;
       mdtTubeAna->setDoNoisy(false) ;
       mdtTubeAna->MDTDqaDeadElementsAnalysis(f) ;
+      delete mdtTubeAna; mdtTubeAna=0;
     }
   }
   
@@ -1142,7 +1147,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
 		    if (ML==2) ibin = eta_id*2;
                     if ((chamberType=="BOG" || chamberType=="BOF") && side=="A") ibin = ibin+2 ;
 
-		    float MLshift;
+		    float MLshift = 0.;
 		    if (ML==1) MLshift = -0.25;
 		    if (ML==2) MLshift =  0.25;
  
@@ -1317,30 +1322,30 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                    continue ;
                }
 /* DOUBLE GAUSSIAN FIT
-               TF1 * f = new TF1("doublegaus","gaus(0)+gaus(3)") ;
+               TF1 * func = new TF1("doublegaus","gaus(0)+gaus(3)") ;
                double hmax = hres->GetMaximum() ;
                int binMax = hres->GetMaximumBin() ;
                double hmean = hres->GetBinCenter(binMax) ;
                // double hmean = hres->GetMean() ;
                double hrms = hres->GetRMS() ;
-               f->SetParameter(0,hmax/10) ;
-               f->SetParLimits(0,0.,hmax/5.) ;
-               f->SetParameter(1,hmean) ;
-               f->SetParameter(2,0.3) ;
-               f->SetParameter(3,hmax) ;
-               f->SetParameter(4,hmean) ;
-               f->SetParameter(5,0.1) ;
+               func->SetParameter(0,hmax/10) ;
+               func->SetParLimits(0,0.,hmax/5.) ;
+               func->SetParameter(1,hmean) ;
+               func->SetParameter(2,0.3) ;
+               func->SetParameter(3,hmax) ;
+               func->SetParameter(4,hmean) ;
+               func->SetParameter(5,0.1) ;
                // double xmin = -1.5 ;
                // double xmax = 1.5 ;
                double xmin = hmean - hrms ;
                double xmax = hmean + hrms ;
                hres->Fit("doublegaus","Q,0","",xmin,xmax) ;
-               double meanWide = f->GetParameter(1) ;
-               double widthWide = f->GetParameter(2) ;
-               double meanNarrow = f->GetParameter(4) ;
-               double widthNarrow = f->GetParameter(5) ;
-               double amplitWide = f->GetParameter(0) ;
-               double amplitNarrow = f->GetParameter(3) ;
+               double meanWide = func->GetParameter(1) ;
+               double widthWide = func->GetParameter(2) ;
+               double meanNarrow = func->GetParameter(4) ;
+               double widthNarrow = func->GetParameter(5) ;
+               double amplitWide = func->GetParameter(0) ;
+               double amplitNarrow = func->GetParameter(3) ;
                // if ( widthNarrow>0.15) {
                //    cout << "CHAMBER "<<chamber 
                //         << " entries "<< hres->GetEntries()
@@ -1350,7 +1355,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                //         << meanNarrow<<" "<< widthNarrow <<endl ; 
                // }
 
-               bool badChi2 = (f->GetChisquare())/(f->GetNDF()) > 50 ;
+               bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 50 ;
                // bool badRatio = amplitWide > amplitNarrow/3. ;
                bool badWidths = (widthNarrow>1)||(widthWide<widthNarrow) ;
                bool badMean = (meanNarrow<-1.) || (meanNarrow>1.) ;
@@ -1359,8 +1364,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                   // cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
                   // cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl ;
                   // cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-                  // cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << f->GetChisquare() << " "
-                  //     << f->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
+                  // cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << func->GetChisquare() << " "
+                  //     << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
 
                   widthNarrow = 0.9 ;
                   meanNarrow = 0.9 ;
@@ -1369,25 +1374,25 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
 
 // FIT Constant+Gaussian :
 
-               TF1 * f = new TF1("cgaus","pol0(0)+gaus(1)") ;
+               TF1 * func = new TF1("cgaus","pol0(0)+gaus(1)") ;
                double hmax = hres->GetMaximum() ;
                // double hmean = hres->GetMean() ;
                int binMax = hres->GetMaximumBin() ;
                double hmean = hres->GetBinCenter(binMax) ;
                double hrms = hres->GetRMS() ;
-               f->SetParameter(0,hmax/20.) ;
-               f->SetParameter(1,hmax) ;
-               f->SetParameter(2,hmean) ;
-               f->SetParameter(3,0.2) ;
+               func->SetParameter(0,hmax/20.) ;
+               func->SetParameter(1,hmax) ;
+               func->SetParameter(2,hmean) ;
+               func->SetParameter(3,0.2) ;
                // double xmin = -1.5 ;
                // double xmax = 1.5 ;
                double xmin = hmean - hrms ;
                double xmax = hmean + hrms ;
                hres->Fit("cgaus","Q,0","",xmin,xmax) ;
-               double amplitNoise = f->GetParameter(0) ;
-               double amplitNarrow = f->GetParameter(1) ;
-               double meanNarrow = f->GetParameter(2) ;
-               double widthNarrow = f->GetParameter(3) ;
+               double amplitNoise = func->GetParameter(0) ;
+               double amplitNarrow = func->GetParameter(1) ;
+               double meanNarrow = func->GetParameter(2) ;
+               double widthNarrow = func->GetParameter(3) ;
                // if ( widthNarrow>0.15) {
                //    cout << "CHAMBER "<<chamber 
                //         << " entries "<< hres->GetEntries()
@@ -1397,7 +1402,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                //         << meanNarrow<<" "<< widthNarrow <<endl ; 
                // }
 
-               bool badChi2 = (f->GetChisquare())/(f->GetNDF()) > 20. ;
+               bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 20. ;
                bool badWidths = (widthNarrow>1.) ;
                bool badMean = (meanNarrow<-1.) || (meanNarrow>1.) ;
                bool badNoise = (amplitNoise>hmax/3.) || (amplitNoise>amplitNarrow/2. );
@@ -1406,31 +1411,31 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                   // cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
                   // cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl ;
                   // cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-                  // cout << " DEBUG DEBUG: chi2, ndef, width, mean, noise : " << f->GetChisquare() << " "
-                  //      << f->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow <<" "<< amplitNoise<< endl;
+                  // cout << " DEBUG DEBUG: chi2, ndef, width, mean, noise : " << func->GetChisquare() << " "
+                  //      << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow <<" "<< amplitNoise<< endl;
                   widthNarrow = 0.9 ;
                   meanNarrow = 0.9 ;
                }
 
 
 /*   SIMPLE GAUSSIAN FIT
-               TF1 * f = new TF1("gaus","gaus(0)") ;
+               TF1 * func = new TF1("gaus","gaus(0)") ;
                double hmax = hres->GetMaximum() ;
                // double hmean = hres->GetMean() ;
                int binMax = hres->GetMaximumBin() ;
                double hmean = hres->GetBinCenter(binMax) ;
                double hrms = hres->GetRMS() ;
-               f->SetParameter(0,hmax) ;
-               f->SetParameter(1,hmean) ;
-               f->SetParameter(2,hrms) ;
+               func->SetParameter(0,hmax) ;
+               func->SetParameter(1,hmean) ;
+               func->SetParameter(2,hrms) ;
                // double xmin = -1.5 ;
                // double xmax = 1.5 ;
                double xmin = hmean - hrms ;
                double xmax = hmean + hrms ;
                hres->Fit("gaus","Q,0","",xmin,xmax) ;
-               double amplitNarrow = f->GetParameter(0) ;
-               double meanNarrow = f->GetParameter(1) ;
-               double widthNarrow = f->GetParameter(2) ;
+               double amplitNarrow = func->GetParameter(0) ;
+               double meanNarrow = func->GetParameter(1) ;
+               double widthNarrow = func->GetParameter(2) ;
                // if ( widthNarrow>0.15) {
                //    cout << "CHAMBER "<<chamber 
                //         << " entries "<< hres->GetEntries()
@@ -1440,7 +1445,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                //         << meanNarrow<<" "<< widthNarrow <<endl ; 
                // }
 
-               bool badChi2 = (f->GetChisquare())/(f->GetNDF()) > 10. ;
+               bool badChi2 = (func->GetChisquare())/(func->GetNDF()) > 10. ;
                bool badWidths = (widthNarrow>1.) ;
                bool badMean = (meanNarrow<-1.) || (meanNarrow>1.) ;
 
@@ -1448,15 +1453,15 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile * f){
                   cout << " DEBUG DEBUG: chamber, bin1, bin2 "<< chamber<<" "<< bin1<<" "<< bin2<<endl;
                   cout << " DEBUG DEBUG: xmin, xmax "<< xmin<<" "<<xmax<<endl ;
                   cout << " DEBUG DEBUG: hmean hrms : "<< hmean<<" "<<hrms << endl;
-                  cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << f->GetChisquare() << " "
-                       << f->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
+                  cout << " DEBUG DEBUG: chi2, ndef, width, mean : " << func->GetChisquare() << " "
+                       << func->GetNDF() << " "<< widthNarrow <<" "<<meanNarrow << endl;
                   widthNarrow = 0.9 ;
                   meanNarrow = 0.9 ;
                }
 */
 
-               hWidth->Fill(radius,(float)widthNarrow) ;
-               hMean->Fill(radius,(float)meanNarrow) ;
+               if(hWidth) hWidth->Fill(radius,(float)widthNarrow) ;
+               if(hMean) hMean->Fill(radius,(float)meanNarrow) ;
 
                hres->Delete() ;
           } //END LOOP over SLICES

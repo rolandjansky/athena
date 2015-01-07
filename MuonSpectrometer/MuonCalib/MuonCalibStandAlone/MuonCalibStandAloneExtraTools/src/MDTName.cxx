@@ -8,7 +8,7 @@
 
 namespace MuonCalib{
 
-  MDTName::MDTName()
+  MDTName::MDTName() : eta_on(-1), eta_off(-1), sector_on(-1), sector_off(-1), side('X')
   {
 
   }

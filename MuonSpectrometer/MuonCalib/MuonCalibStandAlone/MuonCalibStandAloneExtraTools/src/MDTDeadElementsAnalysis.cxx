@@ -30,7 +30,12 @@ public:
 using namespace std;
 //double completefunc(double*, double*);
 
-MDTDeadElementsAnalysis::MDTDeadElementsAnalysis() {
+MDTDeadElementsAnalysis::MDTDeadElementsAnalysis() :
+  polfunc(NULL), deadTubesMap(NULL), geo(NULL), ndeadmezz(-1), ndeadtubes(-1),
+  deadMezzDone(false), deadTubesDone(false), deadMultilayerDone(false),
+  nlayers(-1), nlayers_per_ml(-1), ntubes_per_mezz(-1), chi2poly(-1.),
+  average_entry(-1.), n_entry(-1.), nholes(-1)
+{
   verbose=false ;
   drawPlots=false ;
   writeResultsToAsciFile=false ;
@@ -87,7 +92,7 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
       }
     
     hsummary = (TH2F*) regiondir->Get("DeadElements") ;
-    hsummary->Reset();
+    if(hsummary) hsummary->Reset();
     
     nregionsanalysed++;
 
@@ -150,9 +155,7 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
        
         // Clone a_HitsPerTubeAdcCut 
         //
-	TH1F * HhitsCopy = new TH1F ;
-
-	HhitsCopy = (TH1F*)hadccut->Clone() ;
+	TH1F * HhitsCopy = (TH1F*)hadccut->Clone() ;
 	getBasicGeometry(hgeom,chamber_name);
 	deadElementsAnalysis(HhitsCopy,hgeom,hdeadmap,4,chamber_name);
 
@@ -163,7 +166,7 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
 	// report here the results in the 2D chamber view histogram:
 	// 
 	TH1F *hdeadtubestatus=(TH1F*)chamberdir->FindObjectAny("b_DeadTubeStatus");
-	hdeadtubestatus->Reset();    
+	if(hdeadtubestatus) hdeadtubestatus->Reset();    
 
 	TH2F* hdeadtubes=(TH2F*) deadstatusdir->FindObjectAny("ChamberDeadTubes");
 	hdeadtubes->Reset(); 
@@ -197,7 +200,7 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
 	    deadlayername+=jLay;
 	    
 	    TH1F *hdeadperlayer =(TH1F*)deadstatusdir->FindObjectAny((const char*)deadlayername);
-	    hdeadperlayer->Reset();
+	    if(hdeadperlayer) hdeadperlayer->Reset();
 	    
 	    
 	    int bincounter=0;
@@ -241,7 +244,7 @@ void MDTDeadElementsAnalysis::histogramScanCalibCenters(TFile * rootfile){
 	    if(hdeadperlayer) hdeadperlayer->SetBinContent(bincounter,contr2);
 	    if(chamber_name=="BIR1A11"){
 	      cout<<deadlayername<<' '<<jML<<' '<<jLay<<' '<<jbin<<' ' << contr2<<endl;
-	      cout<<hdeadperlayer->GetNbinsX()<<endl;
+	      if(hdeadperlayer) cout<<hdeadperlayer->GetNbinsX()<<endl;
 	    }
 	    }
 	  }
@@ -378,6 +381,7 @@ void MDTDeadElementsAnalysis::histogramScanGnam(string rootfile){
   f.Close();
 
   cout<<" number of processed chambers is "<<n_processed_chambers<<endl;
+  delete mdtTubeAna; mdtTubeAna=0;
   return;
    
 }//histogramScanGnam
@@ -559,6 +563,10 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
     " for Chamber "<<chambname<<endl;
   double layer_content[8];
   int layer_non_zero_bins[8];
+  for(int ii=0; ii<8; ii++){
+     layer_content[ii] = 0.;
+     layer_non_zero_bins[ii] = 0;
+  }
   int binstart = 1;
   int binend = nbins_per_layer[0];
   int indlayer=0;
@@ -1149,8 +1157,7 @@ void MDTDeadElementsAnalysis::deadTubes(TH1F* idh, TH1F* HRef, TH1F* deadTubesMa
   // string option="RQ";
   string option="Q";
 
-  TH1F * idh1 = new TH1F ;
-  idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone() ;
 
   int tottubes= (int) idh1->GetNbinsX();
   for (int nb=1;nb<=tottubes;nb++){
@@ -2263,8 +2270,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
   if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
     " for Chamber "<<chambname<<endl;
 
-  TH1F * idh1 = new TH1F ;
-  idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone() ;
 
   MDTDeadElementsAnalysis::deadMezzDone=true;
 
@@ -2423,6 +2429,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	}
 
 	double olderr[8];
+        for(int ii=0; ii<8; ii++) olderr[ii] = 0.;
 	for (int imezz=1+(ml-1)*nmezz[1];imezz<=nmezz[0]+(ml-1)*nmezz[1];imezz++){
 	  for (int ic=(imezz-1)*ntubes_per_mezz+1+(ml-1)*nbins_per_layer[1];
 	       ic<=(imezz)*ntubes_per_mezz+(ml-1)*nbins_per_layer[1];ic++){
@@ -2568,8 +2575,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
   if(verbose) cout<<"DeadMezzanines, Analyse histo "<<idh->GetName()<<
     " for Chamber "<<chambname<<endl;
 
-  TH1F * idh1 = new TH1F ;
-  idh1 = (TH1F*)idh->Clone() ;
+  TH1F * idh1 = (TH1F*)idh->Clone() ;
 
   MDTDeadElementsAnalysis::deadMezzDone=true;
 
@@ -2729,6 +2735,7 @@ void MDTDeadElementsAnalysis::deadMezzanines(TH1F* idh, TH1F* HRef, TH1F* deadTu
 	}
 
 	double olderr[8];
+        for(int ii=0; ii<8; ii++) olderr[ii] = 0.;
 	for (int imezz=1+(ml-1)*nmezz[1];imezz<=nmezz[0]+(ml-1)*nmezz[1];imezz++){
 	  for (int ic=(imezz-1)*ntubes_per_mezz+1+(ml-1)*nbins_per_layer[1];
 	       ic<=(imezz)*ntubes_per_mezz+(ml-1)*nbins_per_layer[1];ic++){

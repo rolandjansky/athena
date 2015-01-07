@@ -38,7 +38,7 @@ inline void fill_histogram(TH1F * & hist, const Double_t & val)
 // ExtraRegionSelectorSuperFast //
 ///////////////////////////
 
-ExtraRegionSelectorSuperFast :: ExtraRegionSelectorSuperFast(const std::string & t, const std::string & n, const IInterface *p): AlgTool(t, n, p)
+ExtraRegionSelectorSuperFast :: ExtraRegionSelectorSuperFast(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p)
 	{
 	m_exclusive_segments = false;
 	declareProperty("ExclusiveSegments", m_exclusive_segments);

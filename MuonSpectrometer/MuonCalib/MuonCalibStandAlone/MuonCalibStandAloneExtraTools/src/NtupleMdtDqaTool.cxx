@@ -77,7 +77,7 @@ namespace MuonCalib {
 
 NtupleMdtDqaTool::NtupleMdtDqaTool( const std::string& t, 
                                     const std::string& n, 
-                                    const IInterface* p) : AlgTool(t, n, p){
+                                    const IInterface* p) : AthAlgTool(t, n, p){
     
     declareInterface< NtupleCalibrationTool >(this);	
 

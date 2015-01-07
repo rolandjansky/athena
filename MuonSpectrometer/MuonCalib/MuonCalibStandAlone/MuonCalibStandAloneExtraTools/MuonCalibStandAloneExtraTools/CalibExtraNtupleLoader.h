@@ -7,6 +7,7 @@
 
 //Gaudi
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
@@ -23,7 +24,7 @@ class NTReader_E;
 
 //load events from CalibrationNtuple
 
-class CalibExtraNtupleLoader: public AlgTool, virtual public CalibSegmentPreparationTool
+class CalibExtraNtupleLoader: public AthAlgTool, virtual public CalibSegmentPreparationTool
 	{
 	public:
 //=========================constructor==========================================

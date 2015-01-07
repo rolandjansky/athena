@@ -37,6 +37,8 @@
 #include "MuonCalibStandAloneExtraTools/MdtDqaTrackAnalysis.h"
 #include "MuonCalibStandAloneExtraTools/SegmentAnalysis.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 class RegionSelectionSvc;
 class MdtCalibInputSvc;
 
@@ -64,7 +66,7 @@ class NtupleStationId;
 class MuonCalibEvent;
 
 
-class NtupleMdtDqaTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleMdtDqaTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 
     public:

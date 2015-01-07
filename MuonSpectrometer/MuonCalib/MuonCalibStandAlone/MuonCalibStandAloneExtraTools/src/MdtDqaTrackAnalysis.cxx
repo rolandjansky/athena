@@ -875,7 +875,7 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
 
       bool debug_seg = false ;
 
-      h1_nSegAll->Fill(segments.size()) ;
+      if(h1_nSegAll) h1_nSegAll->Fill(segments.size()) ;
 
       const int NSEGMAX = 20 ;       // Maximum of Segments in the same Layer (Inner, Middle, Outer)
       float t0acceptedSeg[NSEGMAX] ;

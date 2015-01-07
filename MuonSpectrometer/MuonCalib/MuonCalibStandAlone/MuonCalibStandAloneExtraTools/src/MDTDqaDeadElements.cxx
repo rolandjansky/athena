@@ -456,7 +456,7 @@ namespace MuonCalib{
 
 //This method reads the reference histograms and builds the chamber with the correct geometry
 
-  MDTChamber::MDTChamber(TH1* href, TString the_name)
+  MDTChamber::MDTChamber(TH1* href, TString the_name) : m_mean(-999.), m_standard_deviation(-999.), m_90min(-1), m_90max(-1), m_70(-1)
   {
     m_nmultilayers=0;
     m_entries=0;
@@ -709,7 +709,8 @@ namespace MuonCalib{
 
     //Calculate mean
 
-    m_mean=sum/(double)ntubes;
+    if(ntubes!=0) m_mean=sum/(double)ntubes;
+    else m_mean = -1.;
     
     //Calulate standard deviation
 
@@ -991,28 +992,29 @@ namespace MuonCalib{
 		if(!hadccut)
 		  {
 		    cout<<"a_HitsPerTubeAdcCut histogram not found: "<<chamber_name<<endl;
+		    delete chamber; chamber=0;
 		    continue;
 		  }
 		TH2F* hdeadchannels=(TH2F*) expertdir->FindObjectAny("ChamberDeadChannels");
 		if(!hdeadchannels)
 		  {
 		    cout<<"ChamberDeadChannels histogram not found: "<<chamber_name<<endl;
+		    delete chamber; chamber=0;
 		    continue;
-
 		  }
 		TH2F* hdeadtubes=(TH2F*) deadstatusdir->FindObjectAny("ChamberDeadTubes");
 		if(!hdeadtubes)
 		  {
 		    cout<<"ChamberDeadTubes histogram not found: "<<chamber_name<<endl;
+		    delete chamber; chamber=0;
 		    continue;
-
 		  }
 		TH1F* hdeadmap=(TH1F*) expertdir->FindObjectAny("DeadTubeMap");
 		if(!hdeadmap)
 		  {
 		    cout<<"DeadTubeMap histogram not found: "<<chamber_name<<endl;
+		    delete chamber; chamber=0;
 		    continue;
-
 		  }
                 if(m_verbose) cout<<"Reading a_HitsPerTubeAdcCut to fill chamber tubes entries"<<endl;
 		fillChamber(chamber,hadccut);
@@ -1043,7 +1045,7 @@ namespace MuonCalib{
                 
 
                 if(m_write_list_of_dead_tubes) PrintListOfDeadTubes(chamber);	
-		delete chamber;	
+		delete chamber; chamber=0;
 
 	      }
 
@@ -1578,7 +1580,8 @@ namespace MuonCalib{
         	  ntubes++;
         	  if(t->getStatus()==DEADTUBE) ndeadtubes++;
                }          
-    	       if((double)((double)ndeadtubes/(double)ntubes)>0.5) 
+    	       if(ntubes==0) continue;
+    	       else if((double)((double)ndeadtubes/(double)ntubes)>0.5) 
                {
 		 if(m_write_report) file_report<<"ML "<<i<<" Mezzanine "<<j<<" appears to be dead mezzanine"<<endl;
 		 if(m_write_compact_report) comp_report<<chamber->getName()<<" dead_MEZZANINE_rean "<<i<<" "<<j<<endl;

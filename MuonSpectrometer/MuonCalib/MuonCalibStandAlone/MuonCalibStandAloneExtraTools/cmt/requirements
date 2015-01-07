@@ -4,6 +4,7 @@ manager Felix Rauscher <rauscher@cern.ch>
 author  Felix Rauscher <rauscher@cern.ch>
 	
 use AtlasPolicy            AtlasPolicy-*
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use GaudiInterface         GaudiInterface-* 	    External
 
@@ -49,7 +50,6 @@ use MuonIdHelpers               MuonIdHelpers-*         MuonSpectrometer
 use MuonReadoutGeometry MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
 use StoreGate           StoreGate-*             Control
 use MdtCalibInterfaces * MuonSpectrometer/MuonCalib/MdtCalib
-use AthenaBaseComps     AthenaBaseComps-*       Control
 use MuonCalibNtuple * MuonSpectrometer/MuonCalib
 use MuonCalibExtraTreeAlg * MuonSpectrometer/MuonCalib/MuonCalibExtraTree
 

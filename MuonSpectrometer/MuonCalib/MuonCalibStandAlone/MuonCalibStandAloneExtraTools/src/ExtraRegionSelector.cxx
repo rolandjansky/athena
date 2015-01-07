@@ -26,7 +26,7 @@ namespace MuonCalib {
 // ExtraRegionSelector //
 ///////////////////////////
 
-ExtraRegionSelector :: ExtraRegionSelector(const std::string & t, const std::string & n, const IInterface *p): AlgTool(t, n, p)
+ExtraRegionSelector :: ExtraRegionSelector(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p)
 	{
 	m_exclusive_segments = false;
 	declareProperty("ExclusiveSegments", m_exclusive_segments);

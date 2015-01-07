@@ -79,8 +79,13 @@ namespace MuonCalib {
 
 MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
                  bool defaultResol, float adcCut, bool GTFitON, 
-                 bool useNewCalibConstants, bool useTimeCorrections) {
-
+                 bool useNewCalibConstants, bool useTimeCorrections) : 
+  m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
+  m_histoManager(NULL), m_tfile(NULL), m_tfile_debug(NULL), m_hit_ntuple(NULL), m_cal_region(NULL),
+  qfitter(NULL), m_nb_trigger(-1), m_nb_stations(-1), h_distance(NULL), h_nb_hit_tubes(NULL),
+  h_layer_efficiency(NULL), h_layer_fakerate(NULL), h_chamber_efficiency(NULL),
+  h_chamber_fakerate(NULL), h_chi2(NULL)
+{
     m_nsigma = nsigma;
     m_chi2Cut = chi2Cut ;
     m_defaultResol = defaultResol ; 
@@ -331,6 +336,7 @@ MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent & event,
   
      if ( !chamberRootDir || !effiRootDir ) {
         cout << " ERROR : dqa Directory " << chamberDirName <<" does NOT EXIST "<< endl;
+        delete GTFitter; GTFitter=0;
         return StatusCode::FAILURE ;
      }
 
@@ -744,7 +750,7 @@ MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent & event,
                                    double hitRadius = TMath::Abs(hit->driftRadius());
 	                           double resol = hit->driftRadiusError();
                                    double resid = distance-hitRadius ;
-				   heffiVsRadius->Fill(distance, resid);
+				   if(heffiVsRadius) heffiVsRadius->Fill(distance, resid);
                                    float averageExtrapolError = 0.090 ; // ..an educated guess!
                                    float sig = sqrt(resol*resol + averageExtrapolError*averageExtrapolError);
 
@@ -753,7 +759,7 @@ MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent & event,
                               } // close IF the Hit is found
                          } // close IF the hit is in the same chamber, same layer
                      } // END LOOP OVER RawHitCollection
-		    if (!hitFound) heffiVsRadius->Fill(distanceTraversedTube,15.5);
+		    if (!hitFound) if(heffiVsRadius) heffiVsRadius->Fill(distanceTraversedTube,15.5);
 
 		} // Close IF Traversed Tube Found
 	    } // END LOOP OVER ALL TUBES IN THE LAYER

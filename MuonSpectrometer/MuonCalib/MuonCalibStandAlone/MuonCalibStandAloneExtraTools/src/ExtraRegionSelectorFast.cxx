@@ -66,7 +66,7 @@ inline bool ExtraRegionSelectorFast :: isOnTrack(const MuonCalibSegment & seg, c
 // ExtraRegionSelectorFast //
 ///////////////////////////
 
-ExtraRegionSelectorFast :: ExtraRegionSelectorFast(const std::string & t, const std::string & n, const IInterface *p): AlgTool(t, n, p)
+ExtraRegionSelectorFast :: ExtraRegionSelectorFast(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p)
 	{
 	m_exclusive_segments = false;
 	declareProperty("ExclusiveSegments", m_exclusive_segments);

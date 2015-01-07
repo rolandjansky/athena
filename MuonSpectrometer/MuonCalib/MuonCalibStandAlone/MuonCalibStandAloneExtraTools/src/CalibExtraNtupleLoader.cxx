@@ -29,7 +29,7 @@ namespace MuonCalib {
 // CalibExtraNtupleLoader //
 ///////////////////////
 
-CalibExtraNtupleLoader :: CalibExtraNtupleLoader(const std::string & t, const std::string & n, const IInterface *p): AlgTool(t, n, p), p_reg_sel_svc(NULL)
+CalibExtraNtupleLoader :: CalibExtraNtupleLoader(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p), p_reg_sel_svc(NULL)
 	{
 	m_filelist="file_list.txt";
 	declareProperty("FileList", m_filelist);

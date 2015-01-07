@@ -7,6 +7,7 @@
 
 //Gaudi
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
@@ -23,7 +24,7 @@ namespace MuonCalib {
 
 class MuonCalibSegment;
 
-class ExtraRegionSelector : public AlgTool, virtual public CalibSegmentPreparationTool
+class ExtraRegionSelector : public AthAlgTool, virtual public CalibSegmentPreparationTool
 	{
 	public:
 //=========================constructor==========================================

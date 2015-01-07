@@ -27,12 +27,14 @@ HistogramManager::HistogramManager() {
   m_MdtIdHelper = NULL ;
   m_rootfile = NULL ;
   m_hList(0);
+  m_doTracks = false;
 }
 HistogramManager::HistogramManager(const MdtIdHelper* mdtIdHelper) {
   // m_rootfile = new TFile();
   m_MdtIdHelper = mdtIdHelper ;
   m_rootfile = NULL ;
   m_hList(0);
+  m_doTracks = false;
 }
 HistogramManager::~HistogramManager() {
   cout<<"Bye Bye"<<endl;
@@ -59,9 +61,9 @@ void HistogramManager::buildGlobalHistos() {
   // Building Base directory :
   // /GLOBAL/ 
   dir_name="/GLOBAL";
-  TDirectoryFile * global_dir=0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-     global_dir = new TDirectoryFile("GLOBAL","GLOBAL");
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile("GLOBAL","GLOBAL");
   }
 
   m_rootfile->cd("/GLOBAL") ;
@@ -109,9 +111,9 @@ void HistogramManager::buildTrackHistos() {
   m_rootfile->cd();
   string dir_name;
   dir_name="TRACKS";
-  TDirectoryFile * tracks_dir=0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-    tracks_dir = new TDirectoryFile("TRACKS","TRACKS");
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile("TRACKS","TRACKS");
   }
 
   m_rootfile->cd("/TRACKS") ;
@@ -179,35 +181,32 @@ void HistogramManager::buildTrackHistos() {
     trk_author2->GetXaxis()->SetBinLabel(6,"StacoMuonCB");
     trk_author2->GetXaxis()->SetBinLabel(7,"StacoMuonTag");
 
-    TH1F * h1;
-    TH2F * h2;
+    new TH1F("trk_pt","; pt (GeV)",1000,0.,1000.);
 
-    h1 = new TH1F("trk_pt","; pt (GeV)",1000,0.,1000.);
-
-    h1 = new TH1F("trk_eta","; #eta",80,-4.,4.);
-    h1 = new TH1F("trk_phi","; #phi",80,-4.,4.);
-    h2 = new TH2F("trk_etaVSphi",";#eta; #phi",80,-4.,4.,80,-4.,4.);
-    h2 = new TH2F("trk_d0VSz0",";d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
-    h2 = new TH2F("trk_yVSx","y Vs x",1000,-15000.,15000.,1000,-15000.,15000.);
+    new TH1F("trk_eta","; #eta",80,-4.,4.);
+    new TH1F("trk_phi","; #phi",80,-4.,4.);
+    new TH2F("trk_etaVSphi",";#eta; #phi",80,-4.,4.,80,-4.,4.);
+    new TH2F("trk_d0VSz0",";d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
+    TH2F * h2 = new TH2F("trk_yVSx","y Vs x",1000,-15000.,15000.,1000,-15000.,15000.);
     h2->GetXaxis()->SetTitle("x(mm)") ;
     h2->GetYaxis()->SetTitle("y(mm)") ;
-    h1 = new TH1F("trk_qOverP","; Q over P",1000,-0.001,0.001);
-    h1 = new TH1F("trk_chi2dof","; #chi^{2}/ndof",100,0.,10.);
-    h2 = new TH2F("trk_chi2dof_VS_author","; #chi^{2}/ndof; Track Author",100,0.,10., 2220,-10.,1100.);
-    h2 = new TH2F("trk_chi2dof_VS_eta",";#eta; #chi^{2}/ndof",80, -4.,4.,100,0.,10.);
-    h1 = new TH1F("trk_d0","; d0 ",200,-500.,500.);
-    h1 = new TH1F("trk_z0ip","; z0ip (mm)",2000,-5000.,5000.);
-    h2 = new TH2F("trk_mdthits_VS_eta",";#eta; nr hits per track",80, -4.,4.,100,-0.5,99.5);
-    h2 = new TH2F("trk_mdthits_VS_phi",";#phi; nr hits per track",80, -4.,4.,100,-0.5,99.5);
-    h1 = new TH1F("hit_driftR","; drift Radius (mm)",300,-15.,15.);
-    h1 = new TH1F("hit_pull","; pull (mm)",200,-10.,10.);
-    h1 = new TH1F("hit_mdt","; mdt hits per track", 50, -0.5, 49.5);
-    h2 = new TH2F("hit_mdtVSrpc","; rpc hits; mdt hits",  50, -0.5, 49.5,  50, -0.5, 49.5);
-    h1 = new TH1F("hit_rpc","; rpc hits per track", 50, -0.5, 49.5);
-    h1 = new TH1F("hit_tgc","; tgc hits per track", 50, -0.5, 49.5);
-    h1 = new TH1F("hit_csc","; csc hits per track", 50, -0.5, 49.5);
+    new TH1F("trk_qOverP","; Q over P",1000,-0.001,0.001);
+    new TH1F("trk_chi2dof","; #chi^{2}/ndof",100,0.,10.);
+    new TH2F("trk_chi2dof_VS_author","; #chi^{2}/ndof; Track Author",100,0.,10., 2220,-10.,1100.);
+    new TH2F("trk_chi2dof_VS_eta",";#eta; #chi^{2}/ndof",80, -4.,4.,100,0.,10.);
+    new TH1F("trk_d0","; d0 ",200,-500.,500.);
+    new TH1F("trk_z0ip","; z0ip (mm)",2000,-5000.,5000.);
+    new TH2F("trk_mdthits_VS_eta",";#eta; nr hits per track",80, -4.,4.,100,-0.5,99.5);
+    new TH2F("trk_mdthits_VS_phi",";#phi; nr hits per track",80, -4.,4.,100,-0.5,99.5);
+    new TH1F("hit_driftR","; drift Radius (mm)",300,-15.,15.);
+    new TH1F("hit_pull","; pull (mm)",200,-10.,10.);
+    new TH1F("hit_mdt","; mdt hits per track", 50, -0.5, 49.5);
+    new TH2F("hit_mdtVSrpc","; rpc hits; mdt hits",  50, -0.5, 49.5,  50, -0.5, 49.5);
+    new TH1F("hit_rpc","; rpc hits per track", 50, -0.5, 49.5);
+    new TH1F("hit_tgc","; tgc hits per track", 50, -0.5, 49.5);
+    new TH1F("hit_csc","; csc hits per track", 50, -0.5, 49.5);
 
-    h1 = new TH1F("trk_ID_ntrack","ID tracks",20,-0.5,19.5);
+    TH1F * h1 = new TH1F("trk_ID_ntrack","ID tracks",20,-0.5,19.5);
     h1->GetXaxis()->SetTitle("nb ID tracks");
     h1 = new TH1F("trk_ID_npixel","Pixel Hits in the Inner Tracker",50,-0.5,49.5);
     h1->GetXaxis()->SetTitle("Pixel Hits");
@@ -215,12 +214,12 @@ void HistogramManager::buildTrackHistos() {
     h1->GetXaxis()->SetTitle("SCT Hits");
     h1 = new TH1F("trk_ID_ntrt","TRT Hits in the Inner Tracker",50,-0.5,49.5);
     h1->GetXaxis()->SetTitle("TRT Hits");
-    h1 = new TH1F("trk_ID_p","P in the Inner Tracker; p (GeV)",200,0.,100.);
-    h1 = new TH1F("trk_Ev_trkveto","TRACK VETO in the Inner Tracker; TRACK VETO",20,-0.5,19.5);
+    new TH1F("trk_ID_p","P in the Inner Tracker; p (GeV)",200,0.,100.);
+    new TH1F("trk_Ev_trkveto","TRACK VETO in the Inner Tracker; TRACK VETO",20,-0.5,19.5);
     h1 = new TH1F("trk_Ev_pveto","P VETO in the Inner Tracker",20,-0.5,19.5);
     h1->GetXaxis()->SetTitle("PVETO");
-    h2 = new TH2F("trk_ID_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",105,-5.5,99.5,105,-5.5,99.5);
-    h2 = new TH2F("trk_ID_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
+    new TH2F("trk_ID_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",105,-5.5,99.5,105,-5.5,99.5);
+    new TH2F("trk_ID_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
 
     h1 = new TH1F("trk_SA_ntrack","SA tracks",20,-0.5,19.5);
     h1->GetXaxis()->SetTitle("nb SA tracks");
@@ -238,8 +237,8 @@ void HistogramManager::buildTrackHistos() {
     h1->GetXaxis()->SetTitle("TRT Hits");
     h1 = new TH1F("trk_Tag_pveto","P VETO in the Inner Tracker",20,-0.5,19.5);
     h1->GetXaxis()->SetTitle("PVETO");
-    h2 = new TH2F("trk_Tag_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",55,-5.5,49.5,55,-5.5,49.5);
-    h2 = new TH2F("trk_Tag_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
+    new TH2F("trk_Tag_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",55,-5.5,49.5,55,-5.5,49.5);
+    new TH2F("trk_Tag_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
 
 
     h1 = new TH1F("trk_CB_ntrack","CB tracks",20,-0.5,19.5);
@@ -252,8 +251,8 @@ void HistogramManager::buildTrackHistos() {
     h1->GetXaxis()->SetTitle("TRT Hits");
     h1=new TH1F("trk_CB_pveto","P VETO in the Inner Tracker",20,-0.5,19.5);
     h1->GetXaxis()->SetTitle("PVETO");
-    h2 = new TH2F("trk_CB_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",55,-5.5,49.5,55,-5.5,49.5);
-    h2 = new TH2F("trk_CB_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
+    new TH2F("trk_CB_pixsctVStrt","pix+sct VS trt; npixel + nsct ; ntrt",55,-5.5,49.5,55,-5.5,49.5);
+    new TH2F("trk_CB_pixVSsct","pix VS sct; npixel; nsct",55,-5.5,49.5,55,-5.5,49.5);
 
     TH2F * trk_cutflow;
     trk_cutflow=new TH2F("trk_cutflow","cut flow",5,0.5,5.5,9,-0.5,8.5);
@@ -272,21 +271,21 @@ void HistogramManager::buildTrackHistos() {
     trk_cutflow->GetYaxis()->SetBinLabel(8,"cut 7");
     trk_cutflow->GetYaxis()->SetBinLabel(9,"cut 8");
 
-    h1 = new TH1F("trk_selected_cut5_pt","; pt (GeV)",200,0.,100.);
-    h1 = new TH1F("trk_selected_cut5_p","; p (GeV)",200,0.,100.);
-    h2 = new TH2F("trk_selected_cut5_etaVSphi","#eta; #phi",90,-4.5,4.5,90,-4.5,4.5);
+    new TH1F("trk_selected_cut5_pt","; pt (GeV)",200,0.,100.);
+    new TH1F("trk_selected_cut5_p","; p (GeV)",200,0.,100.);
+    new TH2F("trk_selected_cut5_etaVSphi","#eta; #phi",90,-4.5,4.5,90,-4.5,4.5);
 
-    h1 = new TH1F("trk_selected_pt","; pt (GeV)",200,0.,100.);
-    h1 = new TH1F("trk_selected_p","; p (GeV)",200,0.,100.);
-    h1 = new TH1F("trk_selected_eta","; #eta",90,-4.5,4.5);
-    h1 = new TH1F("trk_selected_phi","; #phi",90,-4.5,4.5);
-    h2 = new TH2F("trk_selected_etaVSphi","#eta; #phi",90,-4.5,4.5,90,-4.5,4.5);
+    new TH1F("trk_selected_pt","; pt (GeV)",200,0.,100.);
+    new TH1F("trk_selected_p","; p (GeV)",200,0.,100.);
+    new TH1F("trk_selected_eta","; #eta",90,-4.5,4.5);
+    new TH1F("trk_selected_phi","; #phi",90,-4.5,4.5);
+    new TH2F("trk_selected_etaVSphi","#eta; #phi",90,-4.5,4.5,90,-4.5,4.5);
 
-    h1 = new TH1F("trk_associated_Deltapt","; pt (GeV)",200,-10.,10.);
-    h1 = new TH1F("trk_associated_Deltap","; p (GeV)",200,-10.,10.);
+    new TH1F("trk_associated_Deltapt","; pt (GeV)",200,-10.,10.);
+    new TH1F("trk_associated_Deltap","; p (GeV)",200,-10.,10.);
 
-    h1 = new TH1F("trk_associatedIP_Deltapt","; pt (GeV)",200,-10.,10.);
-    h1 = new TH1F("trk_associatedIP_Deltap","; p (GeV)",200,-10.,10.);
+    new TH1F("trk_associatedIP_Deltapt","; pt (GeV)",200,-10.,10.);
+    new TH1F("trk_associatedIP_Deltap","; p (GeV)",200,-10.,10.);
 
     buildDebugHistos() ;
 
@@ -311,40 +310,38 @@ void HistogramManager::buildDebugHistos() {
   // Building Base directory :
   // /DEBUG/ 
   dir_name=GetMdtDirectoryName();
-  TDirectoryFile * debug_dir=0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-    debug_dir = new TDirectoryFile("DEBUG","DEBUG");
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile("DEBUG","DEBUG");
   }
   m_rootfile->cd("/DEBUG") ;
 
-  TH1F * h1 ;
-  TH2F * h2 ;
-  // h2 = new TH2F("t0FitVst0RPC","; t0RPC (ns) ; t0Refit (ns)",200,-50.,50.,200,-50.,50.);
-  // h2 = new TH2F("At0FitVsAt0RPC","; slope t0RPC ; slope t0Refit (ns)",200,-50.,50.,200,-50.,50.);
-  // h2 = new TH2F("Bt0FitVsBt0RPC","; Intercept t0RPC ; Intercept t0Refit",200,-50.,50.,200,-50.,50.);
+  // new TH2F("t0FitVst0RPC","; t0RPC (ns) ; t0Refit (ns)",200,-50.,50.,200,-50.,50.);
+  // new TH2F("At0FitVsAt0RPC","; slope t0RPC ; slope t0Refit (ns)",200,-50.,50.,200,-50.,50.);
+  // new TH2F("Bt0FitVsBt0RPC","; Intercept t0RPC ; Intercept t0Refit",200,-50.,50.,200,-50.,50.);
   
-  h1 = new TH1F("nSegPerTrack","n Segments",21,-0.5,20.5);
+  TH1F * h1 = new TH1F("nSegPerTrack","n Segments",21,-0.5,20.5);
   h1->GetXaxis()->SetTitle("nSegments") ;
-  h2 = new TH2F("nSegPerTrack_HitCut","; Sector n. ; nSegments",16,0.5,16.5,21,-0.5,20.5);
+  TH2F * h2 = new TH2F("nSegPerTrack_HitCut","; Sector n. ; nSegments",16,0.5,16.5,21,-0.5,20.5);
   h2->SetTitle("Segment Per Track") ;
 
-  h2 = new TH2F("t0_BI","; Sector n. ; t0Refit_BI (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_BM","; Sector n. ; t0Refit_BM (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_BO","; Sector n. ; t0Refit_BO (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_BO_BM","; Sector n. ; t0Refit_BO-BM (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_BO_BI","; Sector n. ; t0Refit_BO-BI (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_BM_BI","; Sector n. ; t0Refit_BM-BI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BI","; Sector n. ; t0Refit_BI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BM","; Sector n. ; t0Refit_BM (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BO","; Sector n. ; t0Refit_BO (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BO_BM","; Sector n. ; t0Refit_BO-BM (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BO_BI","; Sector n. ; t0Refit_BO-BI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_BM_BI","; Sector n. ; t0Refit_BM-BI (ns)",16,0.5,16.5,400,-200.,200.);
 
-  h2 = new TH2F("t0_EI","; Sector n. ; t0Refit_EI (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_EM","; Sector n. ; t0Refit_EM (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_EO","; Sector n. ; t0Refit_EO (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_EO_EM","; Sector n. ; t0Refit_EO-EM (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_EO_EI","; Sector n. ; t0Refit_EO-EI (ns)",16,0.5,16.5,400,-200.,200.);
-  h2 = new TH2F("t0_EM_EI","; Sector n. ; t0Refit_EM-EI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EI","; Sector n. ; t0Refit_EI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EM","; Sector n. ; t0Refit_EM (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EO","; Sector n. ; t0Refit_EO (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EO_EM","; Sector n. ; t0Refit_EO-EM (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EO_EI","; Sector n. ; t0Refit_EO-EI (ns)",16,0.5,16.5,400,-200.,200.);
+  new TH2F("t0_EM_EI","; Sector n. ; t0Refit_EM-EI (ns)",16,0.5,16.5,400,-200.,200.);
 
-  h2 = new TH2F("trk_d0VSz0_GoodTime","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
-  h2 = new TH2F("trk_d0VSz0_BadTime","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
-  h2 = new TH2F("trk_d0VSz0_noSeg","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
+  new TH2F("trk_d0VSz0_GoodTime","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
+  new TH2F("trk_d0VSz0_BadTime","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
+  new TH2F("trk_d0VSz0_noSeg","d0(mm); z0(mm)",2000,-5000.,5000.,200,-500.,500.);
 }
 
 
@@ -426,9 +423,9 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
   // Building Base directory :
   // /MDT/ 
   dir_name=GetMdtDirectoryName();
-  TDirectoryFile * mdt_dir =0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-    mdt_dir = new TDirectoryFile("MDT","MDT");
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile("MDT","MDT");
   }
   // Building Base directory :
   // /MDTvsRPC/ (for Barrel) -  /MDTvsTGC/ (for Endcap)
@@ -436,9 +433,9 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
   string MDTvsTriggerChambers="Undefined" ;
   if (region == "Barrel") MDTvsTriggerChambers="MDTvsRPC" ;
   if (region == "Endcap") MDTvsTriggerChambers="MDTvsTGC" ;
-  TDirectoryFile * tdaq_dir =0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-    tdaq_dir = new TDirectoryFile(MDTvsTriggerChambers.c_str(),MDTvsTriggerChambers.c_str());
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile(MDTvsTriggerChambers.c_str(),MDTvsTriggerChambers.c_str());
   }
   
   // Building <region-side> (ex. Barrel_A) directories :
@@ -737,9 +734,9 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
   motherdir = GetTDaqDirectoryName(region);
   m_rootfile->cd(motherdir.c_str());
   dir_name = GetTDaqDirectoryName(region,side);
-  TDirectoryFile * TDaq_region = 0;
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
-    TDaq_region = new TDirectoryFile(regionSide.c_str(),regionSide.c_str());
+    // A new TDirectoryFile gets owned by the current directory (side effect).
+    new TDirectoryFile(regionSide.c_str(),regionSide.c_str());
   }
 
   // Build Sectors :
@@ -922,8 +919,8 @@ void HistogramManager::buildSector(string region, string side, int sector) {
       //
       // FIND HERE etaMin and etaMax from the list chamberListPerType[ichamber-1]
       //
-      int etaMin = 99 ;
-      int etaMax = -99 ;
+      int etaMin = 9 ;
+      int etaMax = -9 ;
 
       for (unsigned int ic=0; ic<chamberListPerType[ichamber-1].size(); ic++){
 	int etaic = chamberListPerType[ichamber-1].at(ic).getOnlineEta() ;
@@ -1551,7 +1548,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
     histoType="DeadTubeMap";
     histoTitle = histoType+" "+histoTitPart2;
 
-    h = new TH1F() ;
     h = (TH1F*) href->Clone(histoType.c_str()) ;
     h->SetTitle(histoTitle.c_str()) ;
 
