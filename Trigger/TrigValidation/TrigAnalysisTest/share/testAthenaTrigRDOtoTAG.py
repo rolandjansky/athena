@@ -11,7 +11,6 @@ if not acf.EvtMax.is_locked():
     acf.EvtMax=10
 if not ('OutputLevel' in dir()):
     rec.OutputLevel=INFO
-
 ###############################
 rec.doCBNT=False
 
@@ -31,7 +30,7 @@ doTAG=True
 rec.doTruth=True
 
 #-----------------------------------------------------------
-include("RecExCommon/RecExCommon_flags.py")
+include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
 TriggerFlags.readHLTconfigFromXML=False

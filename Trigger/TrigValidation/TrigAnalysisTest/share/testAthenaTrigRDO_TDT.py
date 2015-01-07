@@ -3,7 +3,6 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
 include("TriggerTest/testAthenaTrigRDO.py")
 
-
 from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
 trigDecWriter = WriteTrigDecision()
 

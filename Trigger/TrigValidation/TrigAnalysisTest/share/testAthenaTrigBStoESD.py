@@ -24,19 +24,17 @@ if not 'BSRDOInput' in dir():
    else:
       log.info("Using input BS file " + bsfiles[0])
       acf.BSRDOInput=bsfiles
-
-
  
 acf.FilesInput=acf.BSRDOInput()
 
 
 # specifying conditions by hand until auto configure is fixed
 # this will break every time the default file changes
-log.warning("setting geometry and coniditions by hand, will break if default RDO file changes")
+#log.warning("setting geometry and coniditions by hand, will break if default RDO file changes")
 
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-DR-BS7T-ANom-11")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-10-00-00")
+#from AthenaCommon.GlobalFlags import globalflags
+#globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-RUN12-SDR-17")
+#globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-21-02-02")
 
 
 
@@ -49,35 +47,23 @@ if not os.path.exists(acf.BSRDOInput()[0]):
 exit
 
 
-if not 'doWriteESD' in dir():
-    rec.doWriteESD=True
+#if not 'doWriteESD' in dir():
 
+rec.doWriteESD=True
 rec.doWriteRDO=False
 rec.doWriteAOD=False 
 rec.doAOD=False
 rec.doDPD=False
-rec.doESD=False
+rec.doESD=True
 rec.doWriteTAG=False
 
-doTrigger=True
-doTriggerConfigOnly=True
-
-#doTrigger=False
-#-------
-# Read from ByteStream
-#------
-from AthenaCommon.GlobalFlags import GlobalFlags
-globalflags.InputFormat.set_Value_and_Lock('bytestream')
-#GlobalFlags.InputFormat.set_bytestream()
-
-
-readBS=True
+rec.doTrigger=False
 
 
 #from AthenaCommon.AppMgr import ServiceMgr
 #ServiceMgr.IOVDbSvc.GlobalTag="OFLCOND-DR-BS7T-ANom-11"
 
-include ("RecExCommon/RecExCommon_flags.py")
+include ("RecExCond/RecExCommon_flags.py")
 # should be done afterwards so that TriggerFlags are configured ok
 
 # has been run at RDO->BS step (even EF ?)

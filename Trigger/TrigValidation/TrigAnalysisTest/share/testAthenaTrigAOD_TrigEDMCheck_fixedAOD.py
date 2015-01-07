@@ -16,7 +16,6 @@ if not acf.EvtMax.is_locked():
     acf.EvtMax=2000
 if not ('OutputLevel' in dir()):
     rec.OutputLevel=INFO
-
 ###############################
 rec.doCBNT=False
 

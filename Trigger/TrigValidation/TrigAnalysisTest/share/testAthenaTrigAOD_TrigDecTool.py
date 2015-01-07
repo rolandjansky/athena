@@ -18,8 +18,8 @@ if not ('OutputLevel' in dir()):
 if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
     #just for now take the DC14 as default input
     #
-    default = "../AthenaTrigRDOtoAOD_DC14/AOD.pool.root"
-    summary = "../AthenaTrigRDOtoAOD_DC14/summary.log"
+    default = "../AthenaTrigRDOtoAOD_Physics/AOD.pool.root"
+    summary = "../AthenaTrigRDOtoAOD_Physics/summary.log"
     RDOtoAODokay = False
     from os.path import exists
     if exists(summary):
@@ -54,7 +54,6 @@ if not ('RunningRTT' in dir()):
 #acf.FilesInput=fileList
 
 ###############################
-
 
 rec.doCBNT=False
 

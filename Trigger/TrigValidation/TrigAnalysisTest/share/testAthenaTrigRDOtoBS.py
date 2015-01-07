@@ -30,13 +30,14 @@ rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=False
 rec.doDPD=False
-rec.doESD=False
+#rec.doESD=False
+rec.doESD.set_Value_and_Lock(False)
 doTAG=False
 
 rec.doTruth=True
 
 #-----------------------------------------------------------
-include("RecExCommon/RecExCommon_flags.py")
+include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
 #TriggerFlags.readHLTconfigFromXML=False

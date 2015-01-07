@@ -13,7 +13,6 @@ if not ('OutputLevel' in dir()):
     rec.OutputLevel=INFO
 
 # look for backup files if RDOtoAOD fails
-
 #if not ('fileList' in dir()):
 #added for RTT-chainstore conmpatibility
 if not ('fileList' in dir()) and not ('RunningRTT' in dir()):

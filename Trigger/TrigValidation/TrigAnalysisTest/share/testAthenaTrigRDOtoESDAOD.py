@@ -26,7 +26,7 @@ rec.doCBNT=False
 rec.doTruth=True
 
 #-----------------------------------------------------------
-include("RecExCommon/RecExCommon_flags.py")
+include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
 # set up trigger monitoring                                                                                                                                                        
