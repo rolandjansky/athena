@@ -204,8 +204,9 @@ namespace Trk {
 		   std::vector<unsigned int>&         solutions,
 		   Trk::PathLimit&                    path,
 		   Trk::TimeLimit&                    time,
-		   bool                               returnCurv = false,
-		   const Trk::TrackingVolume*         tVol = 0) const;
+		   bool                               returnCurv,
+		   const Trk::TrackingVolume*         tVol,
+		   std::vector<Trk::HitInfo>*& hitVector) const;
        
     /** Propagate parameters and covariance with search of closest surface and material collection */
     const Trk::TrackParameters*    
@@ -231,6 +232,7 @@ namespace Trk {
 		       Trk::BoundaryCheck            boundaryCheck,
                  const MagneticFieldProperties&      magneticFieldProperties,
 		       Trk::TransportJacobian*&      jacobian,
+               double& pathLimit,
 		            ParticleHypothesis       particle,
 	        	    bool                     returnCurv=false,
 		 const Trk::TrackingVolume*          tVol = 0) const;       
@@ -469,6 +471,7 @@ namespace Trk {
     mutable const Trk::BinnedMaterial*   m_binMat;    
     mutable std::vector<const Trk::TrackStateOnSurface*>*      m_matstates; //!< cache of TrackStateOnSurfaces
     mutable std::vector<std::pair<const Trk::TrackParameters*,int> >*  m_identifiedParameters; //!< cache of intersections
+    mutable std::vector<Trk::HitInfo>*  m_hitVector; //!< cache of intersections/hit info
     mutable size_t                 m_currentLayerBin;
     mutable double                 m_matupd_lastmom;   
     mutable double                 m_matupd_lastpath;   
@@ -517,6 +520,7 @@ namespace Trk {
     MagField::IMagFieldSvc*                m_fieldService;
     mutable bool                           m_solenoid;
 
+    // caches
     mutable std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
     unsigned int m_maxCurrentDist;
     mutable double P[45];
