@@ -45,8 +45,7 @@
 /////////////////////////////////////////////////////////////////////
 
 LArCondDataTest::LArCondDataTest(const std::string& name, ISvcLocator* pSvcLocator) :
-	Algorithm(name,pSvcLocator),
-	m_detStore(0),
+	AthAlgorithm(name,pSvcLocator),
 	m_cablingSvc(0),
 	m_onlineID(0),
         m_emid(0),
@@ -71,52 +70,15 @@ LArCondDataTest::~LArCondDataTest()
 
 StatusCode LArCondDataTest::initialize()
 {
-    MsgStream  log(messageService(),name());
+    ATH_CHECK( detStore()->retrieve(m_onlineID) );
 
+    IToolSvc* toolSvc = 0;
+    ATH_CHECK( service("ToolSvc", toolSvc) );
+    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
+    ATH_CHECK( detStore()->retrieve( m_emid) );
 
-    // Pointer to StoreGate (cached)
-    StatusCode sc = service("DetectorStore", m_detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve pointer to DetectorStore "
-	    << endreq;
-	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-
-    // retrieve LArOnlineID
-    sc = m_detStore->retrieve(m_onlineID); 
-    if (sc.isFailure()) {
- 	log << MSG::ERROR
- 	    << "Unable to retrieve pointer to LArOnlineID  "
- 	    << endreq;
- 	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved LArOnlineID" << endreq;
-
-    IToolSvc* toolSvc;
-    if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
-	return StatusCode::FAILURE; 
-    }
-
-    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
-	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
-	// return StatusCode::FAILURE ; 
-	return StatusCode::FAILURE; 
-    }
-
- 
-    sc = m_detStore->retrieve( m_emid);
-    if(sc!=StatusCode::SUCCESS){ 
-	log << MSG::ERROR << " Can not retrieve LArEM_ID" << endreq;
-	return StatusCode::FAILURE; 
-    }
-
-    log << MSG::DEBUG << "initialize done" <<endreq; 
-
+    ATH_MSG_DEBUG ( "initialize done" );
     return StatusCode::SUCCESS;
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -125,24 +87,19 @@ StatusCode LArCondDataTest::initialize()
 
 StatusCode LArCondDataTest::execute()
 {
-    MsgStream  log(messageService(),name());  
-
-    StatusCode sc; 
-
-    log<< MSG::DEBUG<<" LArCondDataTest::execute() "<<endreq;
-
+     ATH_MSG_DEBUG(" LArCondDataTest::execute() ");
 
     // Access LArCablingService, which should use LArFebRodMap and LArOnOffIdMap.
 
     const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec(); 
-    log << MSG::DEBUG << " Number of LArReadoutModuleIDs= " << roms.size() << endreq;
+    ATH_MSG_DEBUG ( " Number of LArReadoutModuleIDs= " << roms.size() );
 
     std::vector<HWIdentifier>::const_iterator it = m_onlineID->channel_begin();
     std::vector<HWIdentifier>::const_iterator it_end = m_onlineID->channel_end();
 
     int ntot = it_end-it; 
-    log<< MSG::DEBUG<< " Total number of online channels from LArOnlineID "
-       <<ntot << endreq;
+    ATH_MSG_DEBUG( " Total number of online channels from LArOnlineID "
+                   <<ntot );
 
     int nch = 0; 
     int nconnected = 0; 
@@ -153,60 +110,60 @@ StatusCode LArCondDataTest::execute()
 
 
     const ILArShape* pShape=0; 
-    sc = m_detStore->retrieve(pShape);
+    StatusCode sc = detStore()->retrieve(pShape);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArShape from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArShape from DetStore");
     } 
 
 
     const ILArNoise* pNoise=0; 
-    sc = m_detStore->retrieve(pNoise);
+    sc = detStore()->retrieve(pNoise);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArNoise from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArNoise from DetStore");
     } 
 
 
     const ILArRamp* pRamp=0; 
-    sc = m_detStore->retrieve(pRamp);
+    sc = detStore()->retrieve(pRamp);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArRamp from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArRamp from DetStore");
     } 
 
     const ILArDAC2uA* pDAC2uA=0; 
-    sc = m_detStore->retrieve(pDAC2uA);
+    sc = detStore()->retrieve(pDAC2uA);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArDAC2uA from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArDAC2uA from DetStore");
     } 
 
     const ILAruA2MeV* puA2MeV=0; 
-    sc = m_detStore->retrieve(puA2MeV);
+    sc = detStore()->retrieve(puA2MeV);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILAruA2MeV from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILAruA2MeV from DetStore");
     } 
 
     const ILArAutoCorr* pAutoCorr=0; 
-    sc = m_detStore->retrieve(pAutoCorr);
+    sc = detStore()->retrieve(pAutoCorr);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArAutoCorr from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArAutoCorr from DetStore");
     } 
 
     const ILArPedestal* pPedestal=0; 
-    sc = m_detStore->retrieve(pPedestal);
+    sc = detStore()->retrieve(pPedestal);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArPedestal from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArPedestal from DetStore");
     } 
 
     const ILArfSampl* pfSampl=0; 
-    sc = m_detStore->retrieve(pfSampl);
+    sc = detStore()->retrieve(pfSampl);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArfSampl from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArfSampl from DetStore");
     } 
 
 
     const ILArMinBias* pMinBias=0; 
-    sc = m_detStore->retrieve(pMinBias);
+    sc = detStore()->retrieve(pMinBias);
     if (!sc.isSuccess() ){
-	log<<MSG::ERROR <<" Failed to retrieve ILArMinBias from DetStore"<<endreq;
+      ATH_MSG_ERROR (" Failed to retrieve ILArMinBias from DetStore");
     } 
 
 
@@ -221,7 +178,7 @@ StatusCode LArCondDataTest::execute()
 	     {// endcap 
 	        if(m_onlineID->feedthrough(sid)==6)
 		 { // fcal
-		   log<< MSG::DEBUG<< " FCAL  sid "<<sid<<endreq;
+		   ATH_MSG_DEBUG( " FCAL  sid "<<sid);
 		   m_emid->print(sid);
 		 }
 	     }
@@ -231,11 +188,11 @@ StatusCode LArCondDataTest::execute()
 	    HWIdentifier sid2 =m_cablingSvc->createSignalChannelID(id);
 	    ++nch ;
 	    if( sid  !=sid2  ) { 		
-		log<< MSG::ERROR<< " HWIdentifier mismatch,  sid "
-		   <<" "<<sid<<" "<<m_onlineID->show_to_string(sid)
-		   <<" offline id = "<< id <<" "<<m_onlineID->show_to_string(id) 
-		   <<" sid2 = "<< sid2 <<" "<<m_onlineID->show_to_string(sid2) 
-		   <<endreq;
+              ATH_MSG_ERROR( " HWIdentifier mismatch,  sid "
+                             <<" "<<sid<<" "<<m_onlineID->show_to_string(sid)
+                             <<" offline id = "<< id <<" "<<m_onlineID->show_to_string(id) 
+                             <<" sid2 = "<< sid2 <<" "<<m_onlineID->show_to_string(sid2) 
+                             );
 		++nerr; 
 	    } 
 	    else { // good identifier, test conditions objects
@@ -244,93 +201,93 @@ StatusCode LArCondDataTest::execute()
 		const std::vector<HWIdentifier>&
 		    calib = m_cablingSvc->calibSlotLine(sid) ; 
 		if(calib.size()==0) {
-		    log<< MSG::ERROR<< " No calibration for this channel,hdw id="
-		       <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " No calibration for this channel,hdw id="
+                                 <<sid.get_compact() );
 		} 
 		else {
-		    log<< MSG::VERBOSE<< " Calib ID ="<<m_onlineID->show_to_string(calib[0])
-		       <<endreq;
+                  ATH_MSG_VERBOSE( " Calib ID ="<<m_onlineID->show_to_string(calib[0]) );
 		}
 
 		const ILArRamp::RampRef_t v = pRamp->ADC2DAC(sid, 0 ); 
 
  		if(v.size()!=3) {
- 			log<< MSG::ERROR<< " Failed to find ramp, hdw id = " 
- 			   <<sid.get_compact() <<" "<< id.get_compact() << endreq;
- 			m_emid->print(id); 
+                  ATH_MSG_ERROR( " Failed to find ramp, hdw id = " 
+                                 <<sid.get_compact() <<" "<< id.get_compact() );
+                  m_emid->print(id); 
  		} 
 
                 float f = puA2MeV->UA2MEV( sid ) ;
                 if(f == ILAruA2MeV::ERRORCODE) 
 		 {
- 			log<< MSG::ERROR<< " Failed to find uA2MeV, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                        ATH_MSG_ERROR( " Failed to find uA2MeV, hdw id = " 
+                                       <<sid.get_compact() );
 			++n_err_uA2MeV;
 		 }
                 f = pDAC2uA->DAC2UA( sid ) ;
                 if(f == ILArDAC2uA::ERRORCODE) 
 		 {
- 			log<< MSG::ERROR<< " Failed to find DAC2uA, hdw id = " 
- 			   <<sid.get_compact() << endreq;	
+                        ATH_MSG_ERROR( " Failed to find DAC2uA, hdw id = " 
+                                       <<sid.get_compact() );
 			++n_err_DAC2uA;
 		 }
   		f = pNoise->noise( sid , 0 ) ; 
 		if( f == ILArNoise::ERRORCODE ) 
 		{
- 			log<< MSG::ERROR<< " Failed to find Noise, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " Failed to find Noise, hdw id = " 
+                                 <<sid.get_compact() );
 		}
 
 		ILArAutoCorr::AutoCorrRef_t v2 = pAutoCorr->autoCorr(sid, 0 ); 
   		if(v2.size()!=4) {
- 			log<< MSG::ERROR<< " Failed to find AutoCorr, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " Failed to find AutoCorr, hdw id = " 
+                                 <<sid.get_compact() );
  		} 
 
 
                 ILArShape::ShapeRef_t vShape=pShape->Shape(sid, 0,m_tbin);
                 ILArShape::ShapeRef_t vShapeDer=pShape->ShapeDer(sid, 0,m_tbin );
 		if(vShape.size() ==0 || vShapeDer.size() == 0 ) { 
- 			    log<< MSG::ERROR<< " Failed to get Shape or ShapeDer,  hdw id = " 
- 			       <<sid.get_compact() << " size = " << vShape.size() << " " << vShapeDer.size()<< endreq;
+                  ATH_MSG_ERROR( " Failed to get Shape or ShapeDer,  hdw id = " 
+                                 <<sid.get_compact() << " size = " << vShape.size() << " " << vShapeDer.size());
 		} else 
 		{
-			  log<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
-		          log<<MSG::VERBOSE<<" Shape= " ;
-			  for (unsigned int i=0; i < vShape.size(); ++i){
-			    log<<" " << vShape[i] ; 
-			  }
-			  log<<endreq;
-		          log<<MSG::VERBOSE<<" ShapeDer=" ;
-			  for (unsigned int i=0; i < vShapeDer.size(); ++i){
-			    log<<" " << vShapeDer[i] ; 
-			  }
-			  log<<endreq;
-
+                  if (msgLvl(MSG::VERBOSE)) {
+                    msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
+                    msg()<<MSG::VERBOSE<<" Shape= " ;
+                    for (unsigned int i=0; i < vShape.size(); ++i){
+                      msg()<<" " << vShape[i] ; 
+                    }
+                    msg()<<endreq;
+                    msg()<<MSG::VERBOSE<<" ShapeDer=" ;
+                    for (unsigned int i=0; i < vShapeDer.size(); ++i){
+                      msg()<<" " << vShapeDer[i] ; 
+                    }
+                    msg()<<endreq;
+                  }
 		}
 
 
   		// pedestal 
   		float vPed = pPedestal->pedestal( sid,0  ) ; 
  		if(vPed <= (1.0+LArElecCalib::ERRORCODE)) {
-  			log<< MSG::ERROR<< " Failed to find pedestal, hdw id = " 
-  			   <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " Failed to find pedestal, hdw id = " 
+                                 <<sid.get_compact() );
   		} 
 
   				// fSampl
   		float fs = pfSampl->FSAMPL( sid  ) ; 
-  	        log<<MSG::VERBOSE<< " fsample and hdw id ="<<fs<<" " <<sid.get_compact() <<endreq;
+  	        ATH_MSG_VERBOSE( " fsample and hdw id ="<<fs<<" " <<sid.get_compact() );
 
   		if( fs==ILArfSampl::ERRORCODE ) {
-  			log<< MSG::ERROR<< " Failed to find fSampl, hdw id = " 
-  			   <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " Failed to find fSampl, hdw id = " 
+                                 <<sid.get_compact() );
  		} 
 
  		// MinBias
   		float mbs = pMinBias->minBiasRMS( sid  ) ; 
  		    if( mbs== ILArMinBias::ERRORCODE) {
- 			log<< MSG::ERROR<< " Failed to find MinBias, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find MinBias, hdw id = " 
+                                     <<sid.get_compact() );
  		    } 
 
 	    } 
@@ -338,19 +295,18 @@ StatusCode LArCondDataTest::execute()
 	catch (LArID_Exception& except) {
 	    // this is allowed.
 	    std::string err = m_onlineID->print_to_string(sid); 
-	    log<< MSG::VERBOSE<< (std::string)except << sid.get_identifier32().get_compact()<<endreq;
-	    log<< MSG::VERBOSE<< err <<endreq;
+	    ATH_MSG_VERBOSE( (std::string)except << sid.get_identifier32().get_compact());
+	    ATH_MSG_VERBOSE( err );
 	} 
     }
-    log<< MSG::DEBUG <<" Number of Connected Channel ID = " <<nconnected <<endreq;
-    log<< MSG::DEBUG <<" Number of Valid Channel ID = " <<nch <<endreq;
-    if(nerr>0) log<< MSG::ERROR <<" Number channels with incorrect mapping= " <<nerr <<endreq;
+    ATH_MSG_DEBUG (" Number of Connected Channel ID = " <<nconnected );
+    ATH_MSG_DEBUG (" Number of Valid Channel ID = " <<nch );
+    if(nerr>0) ATH_MSG_ERROR (" Number channels with incorrect mapping= " <<nerr );
 
     if (n_err_uA2MeV!=0) 
-	log <<MSG::DEBUG <<" Number of channels without uA2MeV "<<n_err_uA2MeV<<endreq;
+      ATH_MSG_DEBUG (" Number of channels without uA2MeV "<<n_err_uA2MeV);
     if (n_err_DAC2uA!=0) 
-	log <<MSG::DEBUG <<" Number of channels without DAC2uA"<<n_err_DAC2uA<<endreq;
-
+      ATH_MSG_DEBUG (" Number of channels without DAC2uA"<<n_err_DAC2uA);
 
     return StatusCode::SUCCESS;
 }
@@ -364,39 +320,20 @@ StatusCode LArCondDataTest::execute()
 
 StatusCode LArCondDataTest::finalize()
 {
-  MsgStream  log(messageService(),name());
-
-  StatusCode sc;
-
-  log<<MSG::DEBUG << " finalize "<<endreq;
+  ATH_MSG_DEBUG ( " finalize ");
 
   if(!m_fixShape)
     return StatusCode::SUCCESS; 
 
-  log<<MSG::DEBUG << " fix LArShapeMC "<<endreq;
+  ATH_MSG_DEBUG ( " fix LArShapeMC ");
 
-  const LArShapeMC* shape ;
-  sc = m_detStore->retrieve(shape);
-  if(!sc.isSuccess()){
-	log<<MSG::ERROR<<" Fail to retrieve LArShapeMC" <<endreq; 
-        return StatusCode::FAILURE; 
-  }
-
+  const LArShapeMC* shape  = 0;
+  ATH_CHECK( detStore()->retrieve(shape) );
 
   LArShapeMC* newShape= new LArShapeMC();
   newShape->setGroupingType( LArShapeMC::SingleGroup );
-  sc = newShape->initialize(); 
-
-  if(!sc.isSuccess()){
-	log<<MSG::ERROR<<" Fail to initialize LArShapeMC" <<endreq; 
-        return StatusCode::FAILURE; 
-  }
-
-  sc = m_detStore->record(newShape,"LArFullShape"); 
-  if(!sc.isSuccess()){
-	log<<MSG::ERROR<<" record LArShapeMC" <<endreq; 
-        return StatusCode::FAILURE; 
-  }
+  ATH_CHECK( newShape->initialize() );
+  ATH_CHECK( detStore()->record(newShape,"LArFullShape") );
 
   for(unsigned int g=0;g<3;++g)
   {
@@ -413,10 +350,10 @@ StatusCode LArCondDataTest::finalize()
 	  m_onlineID->channel_Id(HWIdentifier(feb_id),chan_id);
 
 	 if(hw_chan_id!=it.channelId()) {
-	  log<<MSG::DEBUG<< " no match "<<endreq;
-	  m_onlineID->print(hw_chan_id);
-	  m_onlineID->print(it.channelId());
-	  continue ;  
+           ATH_MSG_DEBUG( " no match ");
+           m_onlineID->print(hw_chan_id);
+           m_onlineID->print(it.channelId());
+           continue ;  
 	 } 
 
          HWIdentifier hw_id = it.channelId(); 

@@ -22,7 +22,7 @@
  *
 **/
 
-#include "GaudiKernel/Algorithm.h" 
+#include "AthenaBaseComps/AthAlgorithm.h" 
 #include "GaudiKernel/IIncidentListener.h" 
 
 class StoreGateSvc;
@@ -30,7 +30,7 @@ class LArCablingService;
 class LArOnlineID; 
 class LArEM_ID; 
 
-class LArCondDataTest : public Algorithm 
+class LArCondDataTest : public AthAlgorithm 
 {
 
 public:
@@ -44,10 +44,6 @@ public:
     StatusCode finalize();
 
 private:
-
-    // Services 
-    StoreGateSvc* m_detStore;
-
     // cabling Service 
     LArCablingService* m_cablingSvc   ;  
     const LArOnlineID* m_onlineID; 

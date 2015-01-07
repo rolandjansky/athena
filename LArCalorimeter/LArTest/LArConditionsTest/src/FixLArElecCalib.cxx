@@ -59,8 +59,6 @@
 
 
 #include "LArConditionsTest/FixLArElecCalib.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -90,9 +88,8 @@
 #include "CoralBase/Blob.h"
 
 FixLArElecCalib::FixLArElecCalib(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
   m_fixFlag(0),
-  m_detStore(0),
   m_em_idhelper(0),
   m_hec_idhelper(0),
   m_fcal_idhelper(0),
@@ -114,101 +111,36 @@ FixLArElecCalib::~FixLArElecCalib()
 { }
 
 StatusCode FixLArElecCalib::initialize() {
-    MsgStream  log(messageService(),name());
-  log << MSG::INFO << " in initialize " <<endreq;
-
-
+  ATH_MSG_INFO ( " in initialize " );
   
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-      log << MSG::ERROR
-	  << "Unable to retrieve pointer to DetectorStore "
-	  << endreq;
-          return sc;
-    }
-  log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+  ATH_CHECK( detStore()->retrieve(m_em_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_hec_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_fcal_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_sem_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_shec_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_sfcal_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_online_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_sonline_idhelper) );
+  ATH_CHECK( detStore()->retrieve(m_scell_idhelper) );
 
-  sc=m_detStore->retrieve(m_em_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArEM_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_hec_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArHEC_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_fcal_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArFCAL_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_sem_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArEM_SuperCell_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_shec_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArHEC_SuperCell_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_sfcal_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find LArFCAL_SuperCell_ID " <<endreq;
-       return sc;
-   }
-
-  sc=m_detStore->retrieve(m_online_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-      log<< MSG::ERROR<<" Can not find LArOnlineID " <<endreq;
-      return sc;
-  }
-
-  sc=m_detStore->retrieve(m_sonline_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-      log<< MSG::ERROR<<" Can not find LArOnline_SuperCellID " <<endreq;
-      return sc;
-  }
-
-  IToolSvc* toolSvc;
-  if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-           log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;
-           return StatusCode::FAILURE ;
-    }
-
-  sc=m_detStore->retrieve(m_scell_idhelper) ;
-  if(sc!=StatusCode::SUCCESS){
-       log<< MSG::ERROR<<" Can not find CaloCell_SuperCell_ID " <<endreq;
-       return sc;
-   }
-
-  if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
-         log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;
-         return StatusCode::FAILURE ;
-   }
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service("ToolSvc", toolSvc) );
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode FixLArElecCalib::execute() {
 
-    MsgStream  log(messageService(),name());
-  log << MSG::INFO << " in execute  " <<endreq;
-    if(m_fixFlag==13)
-        return fix13();
+  ATH_MSG_INFO ( " in execute  " );
+  if(m_fixFlag==13)
+    return fix13();
   return StatusCode::SUCCESS;
 }
 
 StatusCode FixLArElecCalib::finalize() {
 
-    MsgStream  log(messageService(),name());
-   log << MSG::INFO << " in finalize " <<endreq;
+   ATH_MSG_INFO ( " in finalize " );
 
     if(m_fixFlag==1) 
 	return fix1(); 
@@ -239,62 +171,27 @@ StatusCode FixLArElecCalib::finalize() {
 
 StatusCode FixLArElecCalib::fix1() {
 
+   ATH_MSG_INFO ( " in fix1() " );
 
-    MsgStream  log(messageService(),name());
+   // Fix1 is for updating the EM DAC2uA, assuming symmetry. 
+   // Input should be MC Conditions data with DetDescrVersion=ATLAS-DC3-05
 
-   log << MSG::INFO << " in fix1() " <<endreq;
+   // Pointer to StoreGate 
+   const LArEM_ID* em_idhelper = nullptr;
+   ATH_CHECK( detStore()->retrieve(em_idhelper) );
 
+   const LArOnlineID* online_idhelper = nullptr;
+   ATH_CHECK( detStore()->retrieve(online_idhelper) );
 
-    // Fix1 is for updating the EM DAC2uA, assuming symmetry. 
-    // Input should be MC Conditions data with DetDescrVersion=ATLAS-DC3-05
+   // retrieve DetDescrManager and LArCablingService
+   IToolSvc* toolSvc = nullptr;
+   ATH_CHECK( service("ToolSvc", toolSvc) );
 
-    // Pointer to StoreGate 
-    StoreGateSvc * detStore; 
-    StatusCode sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve pointer to DetectorStore "
-	    << endreq;
-	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+   LArCablingService* cablingSvc = nullptr; 
+   ATH_CHECK( toolSvc->retrieveTool("LArCablingService",cablingSvc) );
 
-
-   const LArEM_ID* em_idhelper; 
-   sc=detStore->retrieve(em_idhelper) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find LArEM_ID " <<endreq;
-     return sc;
-   }
-
-   const LArOnlineID* online_idhelper; 
-   sc=detStore->retrieve(online_idhelper) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find LArOnlineID " <<endreq;
-     return sc;
-   }
-
-
-    // retrieve DetDescrManager and LArCablingService
-   IToolSvc* toolSvc;
-   if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
-	return StatusCode::FAILURE ; 
-    }
-
-   LArCablingService* cablingSvc ; 
-   if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",cablingSvc) ) {
-	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
-	return StatusCode::FAILURE ; 
-    }
-
-
-   const LArDAC2uAMC * dac2ua_c; 
-   sc=detStore->retrieve(dac2ua_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find DAC2uA" <<endreq;
-  	return sc;
-   }
+   const LArDAC2uAMC * dac2ua_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(dac2ua_c) );
 
    LArDAC2uAMC* dac2ua = const_cast<LArDAC2uAMC*>(dac2ua_c);
 
@@ -308,17 +205,17 @@ StatusCode FixLArElecCalib::fix1() {
    while ( infile>>det>>samp>>reg>>eta>>value )
     {
 	++n; 
-	log<<MSG::DEBUG<<" det,samp,reg,eta,value="
-	<<det<<" " 
-	<<samp<<" " 
-	<<reg<<" " 
-	<<eta<<" " 
-	<<value<<" " <<endreq; 
+	ATH_MSG_DEBUG(" det,samp,reg,eta,value="
+                      <<det<<" " 
+                      <<samp<<" " 
+                      <<reg<<" " 
+                      <<eta<<" " 
+                      <<value<<" " );
 
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-	   log<<MSG::DEBUG<<" disconnected strip "<<endreq;
+          ATH_MSG_DEBUG(" disconnected strip ");
  	 id = em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = em_idhelper->channel_id(det,samp,reg,eta,0); 
@@ -326,146 +223,79 @@ StatusCode FixLArElecCalib::fix1() {
 	HWIdentifier hid = cablingSvc->createSignalChannelID(id);
 	const LArDAC2uAComplete::LArCondObj & t = dac2ua->get(hid,0); 
 	std::string id_str = online_idhelper->print_to_string(hid); 
-	log<<MSG::DEBUG<<" online id = "<<id_str<<endreq; 
+	ATH_MSG_DEBUG(" online id = "<<id_str);
 
 	if( t.isEmpty() ) 
 	{
-	  log<<MSG::ERROR<<" No existing conditions data " <<endreq;
+	  ATH_MSG_ERROR(" No existing conditions data " );
 	  // return StatusCode::FAILURE ;
 	  continue ; 
 	}
-	log<<MSG::DEBUG<<" Old DAC2uA = "<< t.m_data<< " " <<endreq; 
+	ATH_MSG_DEBUG(" Old DAC2uA = "<< t.m_data<< " " );
 
 	LArDAC2uAComplete::LArCondObj& t2 = const_cast<LArDAC2uAComplete::LArCondObj&>(t); 
 	t2.m_data = value ; 
 
 	const LArDAC2uAComplete::LArCondObj & t3 = dac2ua->get(hid,0); 
-	log<<MSG::DEBUG<<" New DAC2uA = "<< t3.m_data
-<< " " <<endreq; 
+	ATH_MSG_DEBUG(" New DAC2uA = "<< t3.m_data << " " );
 
     }
 
-   log<<MSG::DEBUG<<"  Number of entries changes =  " <<n <<endreq; 
-
+   ATH_MSG_DEBUG("  Number of entries changes =  " <<n );
    return StatusCode::SUCCESS;
 }
 
 
 StatusCode FixLArElecCalib::fix2() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix2() " <<endreq;
-
+    ATH_MSG_INFO ( " in fix2() " );
 
     // Fix2 is for updating the FCAL conditions data after IdFix7
     // Input should be MC Conditions data with DetDescrVersion=ATLAS-DC3-05
 
-    // Pointer to StoreGate 
-    StoreGateSvc * detStore; 
-    StatusCode sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve pointer to DetectorStore "
-	    << endreq;
-	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-
-    const LArFCAL_ID* fcal_idhelper; 
-    sc=detStore->retrieve(fcal_idhelper) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find LArFCAL_ID " <<endreq;
-      return sc;
-    }
+    const LArFCAL_ID* fcal_idhelper = nullptr;
+    ATH_CHECK( detStore()->retrieve(fcal_idhelper) );
     
-    
-    const LArOnlineID* online_idhelper; 
-    sc=detStore->retrieve(online_idhelper) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find LArOnlineID " <<endreq;
-      return sc;
-    }
-    
+    const LArOnlineID* online_idhelper = nullptr;
+    ATH_CHECK( detStore()->retrieve(online_idhelper) );
     
     // retrieve DetDescrManager and LArCablingService
-    IToolSvc* toolSvc;
-    if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-      log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
-      return StatusCode::FAILURE ; 
-    }
+    IToolSvc* toolSvc = nullptr;
+    ATH_CHECK( service("ToolSvc", toolSvc) );
     
-    LArCablingService* cablingSvc ; 
-    if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",cablingSvc) ) {
-      log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
-      return StatusCode::FAILURE ; 
-    }
+    LArCablingService* cablingSvc = nullptr;
+    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",cablingSvc) );
     
-    
-    const LArDAC2uAMC * dac2ua_c; 
-    sc=detStore->retrieve(dac2ua_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find DAC2uA" <<endreq;
-      return sc;
-    }
+    const LArDAC2uAMC * dac2ua_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(dac2ua_c) );
     LArDAC2uAMC* dac2ua = const_cast<LArDAC2uAMC*>(dac2ua_c);
     
-    
-    const LAruA2MeVMC * ua2mev_c; 
-    sc=detStore->retrieve(ua2mev_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find uA2MeV" <<endreq;
-      return sc;
-    }
+    const LAruA2MeVMC * ua2mev_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ua2mev_c) );
     LAruA2MeVMC* ua2mev = const_cast<LAruA2MeVMC*>(ua2mev_c);
     
-    const LArRampMC * ramp_c; 
-    sc=detStore->retrieve(ramp_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Ramp" <<endreq;
-      return sc;
-    }
+    const LArRampMC * ramp_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ramp_c) );
     LArRampMC* ramp = const_cast<LArRampMC*>(ramp_c);
     
-    const LArShape32MC * shape_c; 
-    sc=detStore->retrieve(shape_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Shape" <<endreq;
-      return sc;
-    }
+    const LArShape32MC * shape_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(shape_c) );
     LArShape32MC* shape = const_cast<LArShape32MC*>(shape_c);
     
-    const LArNoiseMC * noise_c; 
-    sc=detStore->retrieve(noise_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Noise" <<endreq;
-      return sc;
-    }
+    const LArNoiseMC * noise_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(noise_c) );
     LArNoiseMC* noise = const_cast<LArNoiseMC*>(noise_c);
     
-    const LArfSamplMC * fsampl_c; 
-    sc=detStore->retrieve(fsampl_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find fSampl" <<endreq;
-      return sc;
-    }
+    const LArfSamplMC * fsampl_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(fsampl_c) );
     LArfSamplMC* fsampl = const_cast<LArfSamplMC*>(fsampl_c);
     
-    const LArMinBiasMC * minbias_c; 
-    sc=detStore->retrieve(minbias_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find MinBias" <<endreq;
-      return sc;
-    }
+    const LArMinBiasMC * minbias_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(minbias_c) );
     LArMinBiasMC* minbias = const_cast<LArMinBiasMC*>(minbias_c);
     
-    const LArAutoCorrMC * ac_c; 
-    sc=detStore->retrieve(ac_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find AutoCorr" <<endreq;
-      return sc;
-    }
+    const LArAutoCorrMC * ac_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ac_c) );
     LArAutoCorrMC* ac = const_cast<LArAutoCorrMC*>(ac_c);
     
     
@@ -484,8 +314,8 @@ StatusCode FixLArElecCalib::fix2() {
 	      continue;
 	    }else
 	      {
-		log<<MSG::DEBUG<<" unconnected channel" 
-		   << online_idhelper->print_to_string(hid) <<endreq;
+		ATH_MSG_DEBUG(" unconnected channel" 
+                              << online_idhelper->print_to_string(hid) );
 		ac->get(hid,gain) = LArAutoCorrComplete::LArCondObj(); 
 		ramp->get(hid,gain) = LArRampComplete::LArCondObj(); 
 		shape->get(hid,gain) = LArShape32MC::LArCondObj(); 
@@ -500,9 +330,8 @@ StatusCode FixLArElecCalib::fix2() {
 	      }
 	    
 	  }
-	    log<<MSG::DEBUG<<"  Gain="<<gain<<
-	      " Number of entries removed =  " <<n <<endreq; 
-
+        ATH_MSG_DEBUG("  Gain="<<gain<<
+                      " Number of entries removed =  " <<n );
       }
     
 
@@ -532,10 +361,10 @@ StatusCode FixLArElecCalib::fix2() {
 		LArRampComplete::LArCondObj& rampP = ramp->get(hid,gain) ;
 		if (!rampP.isEmpty()) continue ;
 
-		log<<MSG::DEBUG<<" channel needs repair " 
-		   << online_idhelper->print_to_string(hid) <<endreq;
-		log<<MSG::DEBUG << fcal_idhelper->print_to_string(id) <<endreq;
-		log<<MSG::DEBUG << "module = "<<module <<endreq;
+		ATH_MSG_DEBUG(" channel needs repair " 
+                              << online_idhelper->print_to_string(hid) );
+		ATH_MSG_DEBUG ( fcal_idhelper->print_to_string(id) );
+		ATH_MSG_DEBUG ( "module = "<<module );
 
 		++n;
 
@@ -587,16 +416,13 @@ StatusCode FixLArElecCalib::fix2() {
 	}
     }
 	
-    log<<MSG::DEBUG<< " Number of entries fixed " <<n <<endreq; 
+    ATH_MSG_DEBUG( " Number of entries fixed " <<n );
     return StatusCode::SUCCESS;    
 }
 
 StatusCode FixLArElecCalib::fix3() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix3() " <<endreq;
+    ATH_MSG_INFO ( " in fix3() " );
     std::string filename ;
 
     // updated for 13.0.20
@@ -608,39 +434,25 @@ StatusCode FixLArElecCalib::fix3() {
 	filename = "fsampl_1303_qgsp-bert.txt";
       }
       else {
-	log << MSG::ERROR << " wrong option  "<<m_g4Phys <<endreq;
+	ATH_MSG_ERROR ( " wrong option  "<<m_g4Phys );
 	return StatusCode::FAILURE; 
       }
 
     // Fix3 is for updating the FCAL conditions data after IdFix7
     // Input should be MC Conditions data with DetDescrVersion=ATLAS-DC3-05
-
-    StatusCode sc = updateEMfSampl(filename ); 
-    if(! sc.isSuccess()) return sc;
-
-    sc = updateHADfSampl();
-    if(! sc.isSuccess()) return sc;
-
-
-    return StatusCode::SUCCESS;
-
-
-}
-StatusCode FixLArElecCalib::fix4() {
-
-
-    MsgStream  log(messageService(),name());
     
-    log << MSG::INFO << " in fix4() " <<endreq;
+    ATH_CHECK( updateEMfSampl(filename ) );
+    ATH_CHECK( updateHADfSampl() );
+    return StatusCode::SUCCESS;
+}
 
-    StatusCode sc = updateEM_DACuAMeV( "dac2ua_ua2mev_rel13.txt" ); 
-    return sc;
 
+StatusCode FixLArElecCalib::fix4() {
+  ATH_MSG_INFO ( " in fix4() " );
+  return updateEM_DACuAMeV( "dac2ua_ua2mev_rel13.txt" ); 
 }
 
 StatusCode FixLArElecCalib::updateHADfSampl() {
-
-  MsgStream  log(messageService(),name());
 
   float fsampl_fcal1,fsampl_fcal2,fsampl_fcal3; 
   float fsampl_hec1,fsampl_hec2;
@@ -675,17 +487,13 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
       //fsampl_fcal3=0.01352; 
     }
     else {
-      log << MSG::ERROR << " wrong option  "<<m_g4Phys <<endreq;
-	return StatusCode::FAILURE; 
+      ATH_MSG_ERROR ( " wrong option  "<<m_g4Phys );
+      return StatusCode::FAILURE; 
     }
 
 
-  const LArfSamplMC * fsampl_c;
-  StatusCode sc=m_detStore->retrieve(fsampl_c) ;
-  if(sc!=StatusCode::SUCCESS){
-    log<< MSG::ERROR<<" Can not find fSampl" <<endreq;
-    return sc;
-  }
+  const LArfSamplMC * fsampl_c = nullptr;
+  ATH_CHECK( detStore()->retrieve(fsampl_c) );
 
   LArfSamplMC* fsampl = const_cast<LArfSamplMC*>(fsampl_c);
 
@@ -710,7 +518,7 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
 
     if(m_hec_idhelper->is_lar_hec(id)){
       // 
-      log<<MSG::INFO<<" HEC Old fsampl = "<< t2.m_fSampl<< " " <<endreq; 
+      ATH_MSG_INFO(" HEC Old fsampl = "<< t2.m_fSampl<< " " );
       int sam = m_hec_idhelper->sampling(id); 
 
       if(sam<=1){
@@ -721,13 +529,13 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
 	}
       
       const LArfSamplComplete::LArCondObj & t3 = fsampl->get(hid,0); 
-      log<<MSG::INFO<<" New fSampl = "<< t3.m_fSampl<< " " <<endreq; 
+      ATH_MSG_INFO(" New fSampl = "<< t3.m_fSampl<< " " );
 
       ++n_hec;
     }
     if(m_fcal_idhelper->is_lar_fcal(id)){
       // 
-      log<<MSG::INFO<<" FCAL Old fsampl = "<< t2.m_fSampl<< " " <<endreq; 
+      ATH_MSG_INFO(" FCAL Old fsampl = "<< t2.m_fSampl<< " " );
       int sam = m_fcal_idhelper->module(id); 
 
       if(sam==1){
@@ -741,46 +549,38 @@ StatusCode FixLArElecCalib::updateHADfSampl() {
       }
       
       const LArfSamplComplete::LArCondObj & t3 = fsampl->get(hid,0); 
-      log<<MSG::INFO<<" New fSampl = "<< t3.m_fSampl<< " " <<endreq; 
+      ATH_MSG_INFO(" New fSampl = "<< t3.m_fSampl<< " " );
 
       ++n_fcal;
     }
 
   }
 
-  log<<MSG::INFO<<" number of hec cells "<<n_hec<<endreq;
-  log<<MSG::INFO<<" number of fcal cells "<<n_fcal<<endreq;
-
+  ATH_MSG_INFO(" number of hec cells "<<n_hec);
+  ATH_MSG_INFO(" number of fcal cells "<<n_fcal);
 
   return StatusCode::SUCCESS;
 }
+
+
 StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
 
-    MsgStream  log(messageService(),name());
+   ATH_MSG_INFO ( " in updateEMfSampl() " );
 
-   log << MSG::INFO << " in updateEMfSampl() " <<endreq;
+   // this method updates the EM fSample, assuming symmetry. 
+   // input is the text file.
 
-
-    // this method updates the EM fSample, assuming symmetry. 
-    // input is the text file.
-
-
-   const LArfSamplMC * fsampl_c; 
-   StatusCode sc=m_detStore->retrieve(fsampl_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find fSampl" <<endreq;
-  	return sc;
-   }
-
+   const LArfSamplMC * fsampl_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(fsampl_c) );
    LArfSamplMC* fsampl = const_cast<LArfSamplMC*>(fsampl_c);
 
    // read in the file
 
-   log<<MSG::INFO<<" opening file "<< filename << endreq;
+   ATH_MSG_INFO(" opening file "<< filename );
    std::ifstream infile( filename.c_str() );
    if(! infile.good() ) 
      {
-       log<<MSG::ERROR<<" fail to open file "<<endreq;
+       ATH_MSG_ERROR(" fail to open file ");
        return StatusCode::FAILURE; 
      }
    int   det,samp,reg,eta; 
@@ -789,17 +589,17 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
    while ( infile>>det>>samp>>reg>>eta>>value )
     {
 	++n; 
-	log<<MSG::INFO<<" det,samp,reg,eta,value="
-	<<det<<" " 
-	<<samp<<" " 
-	<<reg<<" " 
-	<<eta<<" " 
-	<<value<<" " <<endreq; 
+	ATH_MSG_INFO(" det,samp,reg,eta,value="
+                     <<det<<" " 
+                     <<samp<<" " 
+                     <<reg<<" " 
+                     <<eta<<" " 
+                     <<value<<" " );
 
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-	   log<<MSG::INFO<<" disconnected strip "<<endreq;
+          ATH_MSG_INFO(" disconnected strip ");
  	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
@@ -807,69 +607,52 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
 	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
 	const LArfSamplComplete::LArCondObj & t = fsampl->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
-	log<<MSG::INFO<<" online id = "<<id_str<<endreq; 
+	ATH_MSG_INFO(" online id = "<<id_str);
 
 	if( t.isEmpty() ) 
 	{
-	  log<<MSG::ERROR<<" No existing conditions data " <<endreq;
-          log<<MSG::ERROR<< m_em_idhelper->print_to_string(id) << endreq;
+	  ATH_MSG_ERROR(" No existing conditions data " );
+          ATH_MSG_ERROR( m_em_idhelper->print_to_string(id) );
 	  // return StatusCode::FAILURE ;
 	  continue ; 
 	}
-	log<<MSG::INFO<<" Old fsampl = "<< t.m_fSampl<< " " <<endreq; 
+	ATH_MSG_INFO(" Old fsampl = "<< t.m_fSampl<< " " );
 
 	LArfSamplComplete::LArCondObj& t2 = const_cast<LArfSamplComplete::LArCondObj&>(t); 
 	t2.m_fSampl = value ; 
 
 	const LArfSamplComplete::LArCondObj & t3 = fsampl->get(hid,0); 
-	log<<MSG::INFO<<" New fSampl = "<< t3.m_fSampl<< " " <<endreq; 
-
+	ATH_MSG_INFO(" New fSampl = "<< t3.m_fSampl<< " " );
     }
 
-   log<<MSG::INFO<<"  Number of entries changes =  " <<n <<endreq; 
-
+   ATH_MSG_INFO("  Number of entries changes =  " <<n );
    return StatusCode::SUCCESS;
 }
 
 
 StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
-
-
    // read in the file
 
-   MsgStream  log(messageService(),name());
-
-   const LArDAC2uAMC * dac2ua_c; 
-   StatusCode sc=m_detStore->retrieve(dac2ua_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find DAC2uA" <<endreq;
-  	return sc;
-   }
-
+   const LArDAC2uAMC * dac2ua_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(dac2ua_c) );
    LArDAC2uAMC* dac2uaMC = const_cast<LArDAC2uAMC*>(dac2ua_c);
 
-
-   const LAruA2MeVMC * ua2mev_c; 
-   sc=m_detStore->retrieve(ua2mev_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find uA2MeV" <<endreq;
-  	return sc;
-   }
-
+   const LAruA2MeVMC * ua2mev_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(ua2mev_c) );
    LAruA2MeVMC* ua2mevMC = const_cast<LAruA2MeVMC*>(ua2mev_c);
 
    std::ifstream infile(filename.c_str() ) ; 
 
    if(! infile.good() ) 
      {
-       log<<MSG::ERROR<<" fail to open file "<<endreq;
+       ATH_MSG_ERROR(" fail to open file ");
        return StatusCode::FAILURE; 
      }
 
 
    char s[200];
    infile.getline(s,200);
-   log<<MSG::INFO<<" first line of the file  "<<s<<endreq;
+   ATH_MSG_INFO(" first line of the file  "<<s);
 
    int   det,samp,reg,eta;
    int n = 0;
@@ -878,18 +661,18 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
            dac2ua0>>ua2mev0>>attenuation>>dac2ua>>ua2mev )
      {
         ++n;
-	log<<MSG::DEBUG<<" det,samp,reg,eta,values="
-	<<det<<" " 
-	<<samp<<" " 
-	<<reg<<" " 
-	<<eta<<" " 
-	<<dac2ua<<" "
-	<<ua2mev<<" " <<endreq; 
+	ATH_MSG_DEBUG(" det,samp,reg,eta,values="
+                      <<det<<" " 
+                      <<samp<<" " 
+                      <<reg<<" " 
+                      <<eta<<" " 
+                      <<dac2ua<<" "
+                      <<ua2mev<<" " );
 
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-	   log<<MSG::DEBUG<<" disconnected strip "<<endreq;
+          ATH_MSG_DEBUG(" disconnected strip ");
  	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
@@ -899,22 +682,22 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
 	const LArDAC2uAComplete::LArCondObj & t = dac2uaMC->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
 	std::string id_str_off = m_em_idhelper->print_to_string(id); 
-	log<<MSG::DEBUG<<" online id = "<<id_str<<endreq; 
-	log<<MSG::DEBUG<<" offline id = "<<id_str_off<<endreq; 
+	ATH_MSG_DEBUG(" online id = "<<id_str);
+	ATH_MSG_DEBUG(" offline id = "<<id_str_off);
 
 	if( t.isEmpty() ) 
 	{
-	  log<<MSG::ERROR<<" No existing conditions data " <<endreq;
+	  ATH_MSG_ERROR(" No existing conditions data " );
 	  // return StatusCode::FAILURE ;
 	  continue ; 
 	}
-	log<<MSG::DEBUG<<" Old DAC2uA = "<< t.m_data<< " " <<endreq; 
+	ATH_MSG_DEBUG(" Old DAC2uA = "<< t.m_data<< " " );
 
 	LArDAC2uAComplete::LArCondObj& t2 = const_cast<LArDAC2uAComplete::LArCondObj&>(t); 
 	t2.m_data= dac2ua ; 
 
 	const LArDAC2uAComplete::LArCondObj & t3 = dac2uaMC->get(hid,0); 
-	log<<MSG::DEBUG<<" New DAC2uA = "<< t3.m_data<< " " <<endreq; 
+	ATH_MSG_DEBUG(" New DAC2uA = "<< t3.m_data<< " " );
 
 	/**************************/
 
@@ -922,65 +705,43 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
 
 	if( u.isEmpty() ) 
 	{
-	  log<<MSG::ERROR<<" No existing conditions data " <<endreq;
+	  ATH_MSG_ERROR(" No existing conditions data " );
 	  // return StatusCode::FAILURE ;
 	  continue ; 
 	}
-	log<<MSG::DEBUG<<" Old uA2MeV = "<< u.m_data<< " " <<endreq; 
+	ATH_MSG_DEBUG(" Old uA2MeV = "<< u.m_data<< " " );
 
 	LAruA2MeVComplete::LArCondObj& u2 = const_cast<LAruA2MeVComplete::LArCondObj&>(u); 
 	u2.m_data = ua2mev ; 
 
 	const LAruA2MeVComplete::LArCondObj & u3 = ua2mevMC->get(hid,0); 
-	log<<MSG::DEBUG<<" New uA2MeV = "<< u3.m_data<< " " <<endreq; 
+	ATH_MSG_DEBUG(" New uA2MeV = "<< u3.m_data<< " " );
 
     }
 
-   log<<MSG::DEBUG<<"  Number of entries changes =  " <<n <<endreq; 
-
+   ATH_MSG_DEBUG("  Number of entries changes =  " <<n );
    return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode FixLArElecCalib::fix5() {
-
-
-    MsgStream  log(messageService(),name());
     
-    log << MSG::INFO << " in fix5() " <<endreq;
+    ATH_MSG_INFO ( " in fix5() " );
 
     // update EM 
-    StatusCode sc = updateMinBias("mbrms_em_rel12.txt"); 
-    if (!sc.isSuccess()){
-      log<< MSG::ERROR<<" failed to write MinBias EM " <<endreq;
-      return sc;
-    }
-
-    sc = updateMinBias("mbrms_hec_rel12.txt"); 
-    if (!sc.isSuccess()){
-      log<< MSG::ERROR<<" failed to write MinBias HEC " <<endreq;
-      return sc;
-    }
-
+    ATH_CHECK( updateMinBias("mbrms_em_rel12.txt") );
+    ATH_CHECK( updateMinBias("mbrms_hec_rel12.txt") );
 
     // Fix5 is for updating the FCAL noise and MinBiasRMS data using 
     // Sven Menke's file.
 
-    const LArNoiseMC * noise_c; 
-    sc=m_detStore->retrieve(noise_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Noise" <<endreq;
-      return sc;
-    }
+    const LArNoiseMC * noise_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(noise_c) );
     LArNoiseMC* noise = const_cast<LArNoiseMC*>(noise_c);
     
-    const LArMinBiasMC * minbias_c; 
-    sc=m_detStore->retrieve(minbias_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find MinBias" <<endreq;
-      return sc;
-    }
+    const LArMinBiasMC * minbias_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(minbias_c) );
     LArMinBiasMC* minbias = const_cast<LArMinBiasMC*>(minbias_c);
     
     int ndisc=0;
@@ -1004,16 +765,16 @@ StatusCode FixLArElecCalib::fix5() {
 	      continue;
 	    }else
 	      {
-		log<<MSG::ERROR<<" unconnected channel" 
-		   << m_online_idhelper->print_to_string(hid) <<endreq;
+		ATH_MSG_ERROR(" unconnected channel" 
+                              << m_online_idhelper->print_to_string(hid) );
 
 		++ndisc ; 
 	      }
 	    
 	  }
 
-	log<<MSG::INFO<<"  Gain="<<gain<<
-	  " Number of connected and disconnected =  " <<nconn<<" " <<ndisc <<endreq; 
+	ATH_MSG_INFO("  Gain="<<gain<<
+                     " Number of connected and disconnected =  " <<nconn<<" " <<ndisc );
 	
       }
     
@@ -1026,17 +787,17 @@ StatusCode FixLArElecCalib::fix5() {
 
     if(! infile.good() ) 
       {
-	log<<MSG::ERROR<<" fail to open file "<<filename<<endreq;
+	ATH_MSG_ERROR(" fail to open file "<<filename);
 	return StatusCode::FAILURE; 
      }
     
 
    char s[200];
 
-   log<<MSG::INFO<<"Opened FCAL file"<<endreq;
+   ATH_MSG_INFO("Opened FCAL file");
    for(int i = 0;i<11;++i){
      infile.getline(s,200);
-     log<<MSG::INFO<<s<<endreq;
+     ATH_MSG_INFO(s);
    }
 
    std::string str_id;
@@ -1047,48 +808,48 @@ StatusCode FixLArElecCalib::fix5() {
      {
        const char* ch_id = str_id.c_str();
        if(str_id.find("A")!=0){
-	 log<<MSG::DEBUG<<" skipping string"<<str_id<<endreq; 
+	 ATH_MSG_DEBUG(" skipping string"<<str_id);
          continue;  
        }
        
        int mod,phi,eta;
        sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
-          log<<MSG::DEBUG<<" skipping phi"<<str_id<<" phi="<<phi<<endreq; 
+         ATH_MSG_DEBUG(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
        }
        ++n;
 
-       log<<MSG::INFO<<" Setting channel "<<str_id<<endreq; 
+       ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
        HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
 
        const LArMinBiasComplete::LArCondObj& t1 = minbias->get(hid,0) ;
        LArMinBiasComplete::LArCondObj& t2 = const_cast<LArMinBiasComplete::LArCondObj&>(t1); 
-       log<<MSG::INFO<<" minBiasRMS, old new "<<t2.m_MinBiasRMS<<" " <<noise_p<<endreq;
+       ATH_MSG_INFO(" minBiasRMS, old new "<<t2.m_MinBiasRMS<<" " <<noise_p);
        t2.m_MinBiasRMS = noise_p; 
 
        const LArNoiseComplete::LArCondObj& noise0 = noise->get(hid,0) ;
        LArNoiseComplete::LArCondObj& u0 = const_cast<LArNoiseComplete::LArCondObj&>(noise0); 
        if(u0.m_Noise!=noise_h) 
-	 log<<MSG::INFO<<" noise, old new "<<u0.m_Noise<<" " <<noise_h<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u0.m_Noise<<" " <<noise_h);
        u0.m_Noise=noise_h; 
 
        const LArNoiseComplete::LArCondObj& noise1 = noise->get(hid,1) ;
        LArNoiseComplete::LArCondObj& u1 = const_cast<LArNoiseComplete::LArCondObj&>(noise1); 
        if(u1.m_Noise!=noise_m) 
-	 log<<MSG::INFO<<" noise, old new "<<u1.m_Noise<<" " <<noise_m<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u1.m_Noise<<" " <<noise_m);
        u1.m_Noise=noise_m; 
 
        const LArNoiseComplete::LArCondObj& noise2 = noise->get(hid,2) ;
        LArNoiseComplete::LArCondObj& u2 = const_cast<LArNoiseComplete::LArCondObj&>(noise2); 
        if(u2.m_Noise!=noise_l) 
-	 log<<MSG::INFO<<" noise, old new "<<u2.m_Noise<<" " <<noise_l<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u2.m_Noise<<" " <<noise_l);
        u2.m_Noise=noise_l; 
        
      }
 
-     log<<MSG::INFO<<" number of channels in file ="<<n<<endreq;
+     ATH_MSG_INFO(" number of channels in file ="<<n);
 
      /*
     std::vector<Identifier>::const_iterator it= m_fcal_idhelper->fcal_begin();
@@ -1115,36 +876,27 @@ StatusCode FixLArElecCalib::fix5() {
 
      */
 
-
      return StatusCode::SUCCESS;
 }
 
 StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 
-    MsgStream  log(messageService(),name());
+   ATH_MSG_INFO ( " in updateMinBias(), filename =  "<<filename );
 
-    log << MSG::INFO << " in updateMinBias(), filename =  "<<filename <<endreq;
+   // this method updates the EM MinBias
+   // input is the text file.
 
-
-    // this method updates the EM MinBias
-    // input is the text file.
-
-   const LArMinBiasMC * minbias_c; 
-   StatusCode sc=m_detStore->retrieve(minbias_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find MinBias" <<endreq;
-  	return sc;
-   }
-
+   const LArMinBiasMC * minbias_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(minbias_c) );
    LArMinBiasMC* minbias = const_cast<LArMinBiasMC*>(minbias_c);
 
    // read in the file
 
-   log<<MSG::INFO<<" opening file "<< filename << endreq;
+   ATH_MSG_INFO(" opening file "<< filename );
    std::ifstream infile( filename.c_str() );
    if(! infile.good() ) 
      {
-       log<<MSG::ERROR<<" fail to open file "<<endreq;
+       ATH_MSG_ERROR(" fail to open file ");
        return StatusCode::FAILURE; 
      }
   
@@ -1156,17 +908,17 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
    while ( infile>>lar>>tp>>det>>samp>>reg>>eta>>phi>>value )
     {
 	++n; 
-	log<<MSG::INFO<<" det,samp,reg,eta,value="
-	<<det<<" " 
-	<<samp<<" " 
-	<<reg<<" " 
-	<<eta<<" " 
-	<<value<<" " <<endreq; 
+	ATH_MSG_INFO(" det,samp,reg,eta,value="
+                     <<det<<" " 
+                     <<samp<<" " 
+                     <<reg<<" " 
+                     <<eta<<" " 
+                     <<value<<" " );
 
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-	   log<<MSG::INFO<<" disconnected strip "<<endreq;
+           ATH_MSG_INFO(" disconnected strip ");
 	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
 	  {
@@ -1179,7 +931,7 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 		}
 	      else
 		{
-		  log<<MSG::ERROR<<" unknown type "<<tp<<endreq;
+		  ATH_MSG_ERROR(" unknown type "<<tp);
 		  continue;
 		}
 	  }
@@ -1187,73 +939,51 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 	HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
 	const LArMinBiasComplete::LArCondObj & t = minbias->get(hid,0); 
 	std::string id_str = m_online_idhelper->print_to_string(hid); 
-	log<<MSG::INFO<<" online id = "<<id_str<<endreq; 
+	ATH_MSG_INFO(" online id = "<<id_str);
 
 	if( t.isEmpty() ) 
 	{
-	  log<<MSG::ERROR<<" No existing conditions data " <<endreq;
-          log<<MSG::ERROR<< m_em_idhelper->print_to_string(id) << endreq;
+	  ATH_MSG_ERROR(" No existing conditions data " );
+          ATH_MSG_ERROR( m_em_idhelper->print_to_string(id) );
 	  // return StatusCode::FAILURE ;
 	  continue ; 
 	}
-	log<<MSG::INFO<<" Old MinBias = "<< t.m_MinBiasRMS<< " " <<endreq; 
+	ATH_MSG_INFO(" Old MinBias = "<< t.m_MinBiasRMS<< " " );
 
 	LArMinBiasComplete::LArCondObj& t2 = const_cast<LArMinBiasComplete::LArCondObj&>(t); 
 	t2.m_MinBiasRMS = value ; 
 
 	const LArMinBiasComplete::LArCondObj & t3 = minbias->get(hid,0); 
-	log<<MSG::INFO<<" New MinBias = "<< t3.m_MinBiasRMS<< " " <<endreq; 
+	ATH_MSG_INFO(" New MinBias = "<< t3.m_MinBiasRMS<< " " );
 
     }
 
-   log<<MSG::INFO<<"  Number of entries changes =  " <<n <<endreq; 
-
+   ATH_MSG_INFO("  Number of entries changes =  " <<n );
    return StatusCode::SUCCESS;
 }
 
 
 StatusCode FixLArElecCalib::fix6() {
 
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix6() " <<endreq;
+    ATH_MSG_INFO ( " in fix6() " );
+
     // update FCAL noise and gain
-
-
     // Fix6 is for updating the FCAL noise and ADC2DAC, uA2MeV and DAC2uA.
 
-    const LArNoiseMC * noise_c; 
-    StatusCode sc=m_detStore->retrieve(noise_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Noise" <<endreq;
-      return sc;
-    }
+    const LArNoiseMC * noise_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(noise_c) );
     LArNoiseMC* noise = const_cast<LArNoiseMC*>(noise_c);
-    
 
-    const LArRampMC * ramp_c; 
-    sc=m_detStore->retrieve(ramp_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Ramp" <<endreq;
-      return sc;
-    }
+    const LArRampMC * ramp_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ramp_c) );
     LArRampMC* ramp = const_cast<LArRampMC*>(ramp_c);
-    
 
-    const LAruA2MeVMC * ua2MeV_c; 
-    sc=m_detStore->retrieve(ua2MeV_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find uA2MeV" <<endreq;
-      return sc;
-    }
+    const LAruA2MeVMC * ua2MeV_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ua2MeV_c) );
     LAruA2MeVMC* ua2MeV = const_cast<LAruA2MeVMC*>(ua2MeV_c);
     
-    const LArDAC2uAMC * dac2uA_c; 
-    sc=m_detStore->retrieve(dac2uA_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find DAC2uA" <<endreq;
-      return sc;
-    }
+    const LArDAC2uAMC * dac2uA_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(dac2uA_c) );
     LArDAC2uAMC* dac2uA = const_cast<LArDAC2uAMC*>(dac2uA_c);
     
     int ndisc=0;
@@ -1277,16 +1007,16 @@ StatusCode FixLArElecCalib::fix6() {
 	      continue;
 	    }else
 	      {
-		log<<MSG::ERROR<<" unconnected channel" 
-		   << m_online_idhelper->print_to_string(hid) <<endreq;
+		ATH_MSG_ERROR(" unconnected channel" 
+                              << m_online_idhelper->print_to_string(hid) );
 
 		++ndisc ; 
 	      }
 	    
 	  }
 
-	log<<MSG::INFO<<"  Gain="<<gain<<
-	  " Number of connected and disconnected =  " <<nconn<<" " <<ndisc <<endreq; 
+	ATH_MSG_INFO("  Gain="<<gain<<
+                     " Number of connected and disconnected =  " <<nconn<<" " <<ndisc );
 	
       }
     
@@ -1294,22 +1024,21 @@ StatusCode FixLArElecCalib::fix6() {
     int n=0;
 
     std::string filename("FCal_noise_minbias_adc2mev.txt");
- 
     std::ifstream infile(filename.c_str() ) ; 
 
     if(! infile.good() ) 
       {
-	log<<MSG::ERROR<<" fail to open file "<<filename<<endreq;
+	ATH_MSG_ERROR(" fail to open file "<<filename);
 	return StatusCode::FAILURE; 
      }
     
 
    char s[200];
 
-   log<<MSG::INFO<<"Opened FCAL file"<<endreq;
+   ATH_MSG_INFO("Opened FCAL file");
    for(int i = 0;i<27;++i){
      infile.getline(s,200);
-     log<<MSG::INFO<<s<<endreq;
+     ATH_MSG_INFO(s);
    }
 
    std::string str_id;
@@ -1323,39 +1052,39 @@ StatusCode FixLArElecCalib::fix6() {
        const char* ch_id = str_id.c_str();
 
        if(str_id.substr(0,1)!=std::string("A")){
-	 log<<MSG::INFO<<" skipping string"<<str_id<<endreq; 
+	 ATH_MSG_INFO(" skipping string"<<str_id);
          continue;  
        }
 
        int mod,phi,eta;
        sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
-          log<<MSG::INFO<<" skipping phi"<<str_id<<" phi="<<phi<<endreq; 
+          ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
        }
 
        ++n;
 
-       log<<MSG::INFO<<" Setting channel "<<str_id<<endreq; 
+       ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
        HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
 
        const LArNoiseComplete::LArCondObj& noise0 = noise->get(hid,0) ;
        LArNoiseComplete::LArCondObj& u0 = const_cast<LArNoiseComplete::LArCondObj&>(noise0); 
        if(u0.m_Noise!=noise_h) 
-	 log<<MSG::INFO<<" noise, old new "<<u0.m_Noise<<" " <<noise_h<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u0.m_Noise<<" " <<noise_h);
        u0.m_Noise=noise_h; 
 
        const LArNoiseComplete::LArCondObj& noise1 = noise->get(hid,1) ;
        LArNoiseComplete::LArCondObj& u1 = const_cast<LArNoiseComplete::LArCondObj&>(noise1); 
        if(u1.m_Noise!=noise_m) 
-	 log<<MSG::INFO<<" noise, old new "<<u1.m_Noise<<" " <<noise_m<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u1.m_Noise<<" " <<noise_m);
        u1.m_Noise=noise_m; 
 
        const LArNoiseComplete::LArCondObj& noise2 = noise->get(hid,2) ;
        LArNoiseComplete::LArCondObj& u2 = const_cast<LArNoiseComplete::LArCondObj&>(noise2); 
        if(u2.m_Noise!=noise_l) 
-	 log<<MSG::INFO<<" noise, old new "<<u2.m_Noise<<" " <<noise_l<<endreq;
+	 ATH_MSG_INFO(" noise, old new "<<u2.m_Noise<<" " <<noise_l);
        u2.m_Noise=noise_l; 
        
        const LArRampComplete::LArCondObj& ramp0_c = ramp->get(hid,0) ;
@@ -1390,18 +1119,14 @@ StatusCode FixLArElecCalib::fix6() {
 
      }
 
-     log<<MSG::INFO<<" number of channels in file ="<<n<<endreq;
-
+     ATH_MSG_INFO(" number of channels in file ="<<n);
      return StatusCode::SUCCESS;
 }
 
 
 StatusCode FixLArElecCalib::fix7() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix7() " <<endreq;
+    ATH_MSG_INFO ( " in fix7() " );
     std::string filename ;
 
     // updating fSampl from 13.0.30 for QGSP_BERT
@@ -1409,81 +1134,49 @@ StatusCode FixLArElecCalib::fix7() {
       filename = "fsampl_1303_qgsp-bert.txt";
     }
     else {
-      log << MSG::ERROR << " wrong option  "<<m_g4Phys <<endreq;
+      ATH_MSG_ERROR ( " wrong option  "<<m_g4Phys );
       return StatusCode::FAILURE; 
     }
 
-
-    StatusCode sc = updateEMfSampl(filename ); 
-    if(! sc.isSuccess()) return sc;
-
+    ATH_CHECK( updateEMfSampl(filename ) );
     return StatusCode::SUCCESS;
-
-
 }
 
 StatusCode FixLArElecCalib::fix8() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix8() " <<endreq;
+    ATH_MSG_INFO ( " in fix8() " );
     // update EM/HEC 7 data objects.
 
-
-    StatusCode sc ;
-    sc = addMphysOverMcal();
-    if(! sc.isSuccess()) return sc;
+    ATH_CHECK( addMphysOverMcal() );
 
     //                                                          withGain , nvar
-    sc = update_EM_HEC<LArNoiseMC>("noise_em.txt","noise_hec.txt", true, 1 );
-    if(! sc.isSuccess()) return sc;
+    ATH_CHECK( update_EM_HEC<LArNoiseMC>("noise_em.txt","noise_hec.txt", true, 1 ) );
+    ATH_CHECK( update_EM_HEC<LArAutoCorrMC>("","autocorr_hec.txt", true, 4 ) );
 
-    sc = update_EM_HEC<LArAutoCorrMC>("","autocorr_hec.txt", true, 4 );
-    if(! sc.isSuccess()) return sc;
-
-    sc = update_EM_HEC<LArAutoCorrMC>("autocorr_em.txt","", true,5);
-    if(! sc.isSuccess()) return sc;
-    
-
-    sc = update_EM_HEC<LArRampMC>("ramp_em.txt","ramp_hec.txt", true, 1 );
-    if(! sc.isSuccess()) return sc;
-
-    sc = update_EM_HEC<LAruA2MeVMC>("ua2mev_em.txt","ua2mev_hec.txt", false, 1 );
-    if(! sc.isSuccess()) return sc;
-
-    sc = update_EM_HEC<LArDAC2uAMC>("dac2ua_em.txt","dac2ua_hec.txt", false, 1 );
-    if(! sc.isSuccess()) return sc;
-
-    sc = update_EM_HEC<LArShape32MC>("shape_em.txt","shape_hec.txt", true, 64 );
-    if(! sc.isSuccess()) return sc;
-
-    sc = update_EM_HEC<LArMphysOverMcalMC>("mphys_em.txt","", true, 1 );
-    if(! sc.isSuccess()) return sc;
+    ATH_CHECK( update_EM_HEC<LArAutoCorrMC>("autocorr_em.txt","", true,5) );
+    ATH_CHECK( update_EM_HEC<LArRampMC>("ramp_em.txt","ramp_hec.txt", true, 1 ) );
+    ATH_CHECK( update_EM_HEC<LAruA2MeVMC>("ua2mev_em.txt","ua2mev_hec.txt", false, 1 ) );
+    ATH_CHECK( update_EM_HEC<LArDAC2uAMC>("dac2ua_em.txt","dac2ua_hec.txt", false, 1 ) );
+    ATH_CHECK( update_EM_HEC<LArShape32MC>("shape_em.txt","shape_hec.txt", true, 64 ) );
+    ATH_CHECK( update_EM_HEC<LArMphysOverMcalMC>("mphys_em.txt","", true, 1 ) );
 
     // additional fix for LArDAC2uA and LAruA2MeV
-    sc = fixDACuAMeV() ; 
-    if(! sc.isSuccess()) return sc;
-
+    ATH_CHECK( fixDACuAMeV() );
     return StatusCode::SUCCESS;
-
-
 }
 
 
 StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool withGain, int nvar ) {
 
-
-   MsgStream  log(messageService(),name());
-
    std::ifstream infile(filename.c_str() ) ; 
 
    if(! infile.good() ) 
-     { log<<MSG::ERROR<<" fail to open file "<<filename << endreq;
+     {
+       ATH_MSG_ERROR(" fail to open file "<<filename );
        return StatusCode::FAILURE; 
      }
 
-   log<<MSG::INFO<<" Opened file "<<filename << endreq;
+   ATH_MSG_INFO(" Opened file "<<filename );
 
    m_cache[0].clear();
    m_cache[1].clear();
@@ -1491,7 +1184,7 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 
    char s[200];
    infile.getline(s,200);
-   log<<MSG::INFO<<" first line of the file  "<<s<<endreq;
+   ATH_MSG_INFO(" first line of the file  "<<s);
 
    int   det=2;
    int   samp,reg,eta;
@@ -1519,19 +1212,18 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 	   vfl.push_back(x);
 	 }
         ++n;
-	log<<MSG::DEBUG<<" det,samp,reg,eta,values="
-	   <<det<<" " 
-	   <<samp<<" " 
-	   <<reg<<" " 
-	   <<eta<<" " 
-	   <<endreq; 
+	ATH_MSG_DEBUG(" det,samp,reg,eta,values="
+                      <<det<<" " 
+                      <<samp<<" " 
+                      <<reg<<" " 
+                      <<eta<<" "  );
 
 	Identifier id ; 
 	if (EM)
 	{
 	  if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-	   log<<MSG::DEBUG<<" disconnected strip "<<endreq;
+           ATH_MSG_DEBUG(" disconnected strip ");
 	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
 	  }else
 	    id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
@@ -1546,16 +1238,15 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
      }
 
    return StatusCode::SUCCESS; 
-
 }
 
 
-void FixLArElecCalib::print_object(MsgStream& log, const std::string& msg, const LArNoiseMC::LArCondObj& obj)
+void FixLArElecCalib::print_object(const std::string& msg, const LArNoiseMC::LArCondObj& obj)
 {
   if( obj.isEmpty()){
-    log<<MSG::INFO<<" LArNoiseMC " << msg << " is empty" <<endreq; 
+    ATH_MSG_INFO(" LArNoiseMC " << msg << " is empty" );
   }else 
-    log<<MSG::DEBUG<<" LArNoiseMC" << msg << obj.m_Noise <<endreq; 
+    ATH_MSG_DEBUG(" LArNoiseMC" << msg << obj.m_Noise );
   return ; 
 }
 
@@ -1563,23 +1254,23 @@ void FixLArElecCalib::set_object(LArNoiseMC::LArCondObj& obj, std::vector<float>
 {
   if (v.size()!=1)
     {
-      std::cout<< " ERROR for LArNoiseMC, size of vector = "<< v.size()<<std::endl; 
+      ATH_MSG_ERROR ("for LArNoiseMC, size of vector = "<< v.size() );
       return ; 
     }
   obj.m_Noise = v[0]; 
   return;
 } 
 
-void FixLArElecCalib::print_object(MsgStream& log, const std::string& msg, const LArAutoCorrMC::LArCondObj& obj)
+void FixLArElecCalib::print_object(const std::string& s, const LArAutoCorrMC::LArCondObj& obj)
 {
   if( obj.isEmpty()){
-    log<<MSG::INFO<<" LArAutoCorrMC " << msg << " is empty" <<endreq; 
+    ATH_MSG_INFO(" LArAutoCorrMC " << s << " is empty" );
   }else 
     {
-      log<<MSG::DEBUG<<" LArAutoCorrMC" << msg ;
+      msg()<<MSG::DEBUG<<" LArAutoCorrMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vAutoCorr.size();++i)
-	log<< " " << obj.m_vAutoCorr[i];
-      log<<endreq; 
+	msg()<< " " << obj.m_vAutoCorr[i];
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1588,7 +1279,7 @@ void FixLArElecCalib::set_object(LArAutoCorrMC::LArCondObj& obj, std::vector<flo
 {
   if (v.size()<4 )
     {
-      std::cout<< " ERROR for LArAutoCorrMC, size of vector = "<< v.size()<<std::endl; 
+      ATH_MSG_ERROR( "for LArAutoCorrMC, size of vector = "<< v.size() );
       return ; 
     }
 
@@ -1600,16 +1291,16 @@ void FixLArElecCalib::set_object(LArAutoCorrMC::LArCondObj& obj, std::vector<flo
   return;
 } 
 
-void FixLArElecCalib::print_object(MsgStream& log, const std::string& msg, const LArRampMC::LArCondObj& obj)
+void FixLArElecCalib::print_object(const std::string& s, const LArRampMC::LArCondObj& obj)
 {
   if( obj.isEmpty()){
-    log<<MSG::INFO<<" LArRampMC " << msg << " is empty" <<endreq; 
+    ATH_MSG_INFO(" LArRampMC " << s << " is empty" );
   }else 
     {
-      log<<MSG::DEBUG<<" LArRampMC" << msg ;
+      msg()<<MSG::DEBUG<<" LArRampMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vRamp.size();++i)
-	log<< " " << obj.m_vRamp[i];
-      log<<endreq; 
+	msg()<< " " << obj.m_vRamp[i];
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1618,7 +1309,7 @@ void FixLArElecCalib::set_object(LArRampMC::LArCondObj& obj, std::vector<float>&
 {
   if (v.size()!=1 )
     {
-      std::cout<< " ERROR for LArRampMC, size of vector = "<< v.size()<<std::endl; 
+      ATH_MSG_ERROR ("for LArRampMC, size of vector = "<< v.size());
       return ; 
     }
   obj.m_vRamp.resize(3);
@@ -1629,21 +1320,21 @@ void FixLArElecCalib::set_object(LArRampMC::LArCondObj& obj, std::vector<float>&
   return;
 } 
 
-void FixLArElecCalib::print_object(MsgStream& log, const std::string& msg, const LArShape32MC::LArCondObj& obj)
+void FixLArElecCalib::print_object(const std::string& s, const LArShape32MC::LArCondObj& obj)
 {
   if( obj.isEmpty()){
-    log<<MSG::INFO<<" LArShape32MC " << msg << " is empty" <<endreq; 
+    ATH_MSG_INFO(" LArShape32MC " << s << " is empty" );
   }else 
     {
-      log<<MSG::DEBUG<<" LArShape" << msg ;
+      msg()<<MSG::DEBUG<<" LArShape" << s ;
       for (unsigned int i =0 ; i<obj.m_vShape.size();++i)
-	log<< " " << obj.m_vShape[i];
-      log<<endreq; 
+	msg()<< " " << obj.m_vShape[i];
+      msg()<<endreq; 
 
-      log<<MSG::DEBUG<<" LArShapeDer" << msg ;
+      msg()<<MSG::DEBUG<<" LArShapeDer" << s ;
       for (unsigned int i =0 ; i<obj.m_vShapeDer.size();++i)
-	log<< " " << obj.m_vShapeDer[i];
-      log<<endreq; 
+	msg()<< " " << obj.m_vShapeDer[i];
+      msg()<<endreq; 
     }
   return ; 
 }
@@ -1653,7 +1344,7 @@ void FixLArElecCalib::set_object(LArShape32MC::LArCondObj& obj, std::vector<floa
   
   if (v.size()!=64 )
     {
-      std::cout<< " ERROR for LArShape32MC, size of vector = "<< v.size()<<std::endl; 
+      ATH_MSG_ERROR ("for LArShape32MC, size of vector = "<< v.size());
       return ; 
     }
 
@@ -1673,12 +1364,12 @@ void FixLArElecCalib::set_object(LArShape32MC::LArCondObj& obj, std::vector<floa
 
 
 
-void FixLArElecCalib::print_object(MsgStream& log, const std::string& msg, const LArSingleFloatP& obj)
+void FixLArElecCalib::print_object(const std::string& msg, const LArSingleFloatP& obj)
 {
   if( obj.isEmpty()){
-    log<<MSG::INFO<<" LArSingleFloatP " << msg << " is empty" <<endreq;
+    ATH_MSG_INFO(" LArSingleFloatP " << msg << " is empty" );
   }else
-    log<<MSG::DEBUG<<" LArSingleFloatP " << msg << obj.m_data <<endreq;
+    ATH_MSG_DEBUG(" LArSingleFloatP " << msg << obj.m_data );
   return ;
 }
 
@@ -1686,7 +1377,7 @@ void FixLArElecCalib::set_object(LArSingleFloatP& obj, std::vector<float>& v )
 {
   if (v.size()!=1)
     {
-      std::cout<< " ERROR for LArSingleFloatP, size of vector = "<< v.size()<<std::endl;
+      ATH_MSG_ERROR( "for LArSingleFloatP, size of vector = "<< v.size() );
       return ;
     }
   obj.m_data = v[0];
@@ -1700,32 +1391,16 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
   // add the contain to DetStore.
   // fill 1 for all FCAL/HEC channels
 
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " addMphysOverMcal() " <<endreq;
+    ATH_MSG_INFO ( " addMphysOverMcal() " );
     // create LArMphysOverMcal with FCAL numbers = 1.
-
-    StatusCode sc; 
 
     LArMphysOverMcalMC* mphys = new LArMphysOverMcalMC() ;
     mphys->setGroupingType(LArConditionsContainerBase::SingleGroup);
-    sc = mphys->initialize();
-    if (sc != StatusCode::SUCCESS) {
-      log << MSG::ERROR << "Could not initialize LArMphysOverMcalMC " << endreq;
-      return StatusCode::FAILURE;
-    }
-    
-    sc=m_detStore->record(mphys,"LArMphysOverMcal") ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not record LArMphysOverMcal" <<endreq;
-      return sc;
-    }
+    ATH_CHECK( mphys->initialize() );
+
+    ATH_CHECK( detStore()->record(mphys,"LArMphysOverMcal") );
     ILArMphysOverMcal* imphys=0;
-    sc=m_detStore->symLink(mphys,imphys); 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not make symlink " <<endreq;
-      return sc;
-    }
+    ATH_CHECK (detStore()->symLink(mphys,imphys) );
 
     int n=0;
 
@@ -1735,17 +1410,17 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
 
     if(! infile.good() ) 
       {
-	log<<MSG::ERROR<<" fail to open file "<<filename<<endreq;
+	ATH_MSG_ERROR(" fail to open file "<<filename);
 	return StatusCode::FAILURE; 
      }
     
 
    char s[200];
 
-   log<<MSG::INFO<<"Opened FCAL file"<<endreq;
+   ATH_MSG_INFO("Opened FCAL file");
    for(int i = 0;i<27;++i){
      infile.getline(s,200);
-     log<<MSG::INFO<<s<<endreq;
+     ATH_MSG_INFO(s);
    }
 
    std::string str_id;
@@ -1759,20 +1434,20 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
        const char* ch_id = str_id.c_str();
 
        if(str_id.substr(0,1)!=std::string("A")){
-	 log<<MSG::INFO<<" skipping string"<<str_id<<endreq; 
+	 ATH_MSG_INFO(" skipping string"<<str_id);
          continue;  
        }
 
        int mod,phi,eta;
        sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
        if(phi>7){
-          log<<MSG::INFO<<" skipping phi"<<str_id<<" phi="<<phi<<endreq; 
+          ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
        }
 
        ++n;
 
-       log<<MSG::INFO<<" Setting channel "<<str_id<<endreq; 
+       ATH_MSG_INFO(" Setting channel "<<str_id);
        Identifier id = m_fcal_idhelper->channel_id(2,mod,eta,phi); 
        HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
 
@@ -1783,20 +1458,14 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
        mphys->setPdata(hid,t,2);
      }
        
-   log<<MSG::INFO<<" MphysOverMcal added  "<<n<<" FCAL channels"<<endreq;
+   ATH_MSG_INFO(" MphysOverMcal added  "<<n<<" FCAL channels");
 
    bool EM=false ;
    bool withGain=false; 
    int nvar = 1; 
    std::string hec_filename("mphys_hec.txt"); 
-   sc = ReadFile(hec_filename,EM,withGain,nvar);
+   ATH_CHECK( ReadFile(hec_filename,EM,withGain,nvar) );
    
-   if(sc!=StatusCode::SUCCESS){ 
-	     log<< MSG::ERROR<<" Failed to read file "<<hec_filename <<endreq;
-	     return sc;
-   }
-   
-
    int igain=0;
    VROW::iterator it = m_cache[igain].begin();
    VROW::iterator it_e = m_cache[igain].end();
@@ -1814,8 +1483,7 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
 
      }
 
-   log<< MSG::ERROR<<" Number of HEC channel added "<<n <<" per gain "<<endreq;
-
+   ATH_MSG_ERROR(" Number of HEC channel added "<<n <<" per gain ");
    return StatusCode::SUCCESS ;
 }
 
@@ -1824,30 +1492,15 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
 {
    // the old data has -10000000 for invalid. change it to {ERRORCODE = -999};
 
-   MsgStream  log(messageService(),name());
-
-   const LArDAC2uAMC * dac2ua_c; 
-   StatusCode sc=m_detStore->retrieve(dac2ua_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find DAC2uA" <<endreq;
-  	return sc;
-   }
-
+   const LArDAC2uAMC * dac2ua_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(dac2ua_c) );
    LArDAC2uAMC* dac2uaMC = const_cast<LArDAC2uAMC*>(dac2ua_c);
 
-
-   const LAruA2MeVMC * ua2mev_c; 
-   sc=m_detStore->retrieve(ua2mev_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find uA2MeV" <<endreq;
-  	return sc;
-   }
-
+   const LAruA2MeVMC * ua2mev_c = nullptr;
+   ATH_CHECK( detStore()->retrieve(ua2mev_c) );
    LAruA2MeVMC* ua2mevMC = const_cast<LAruA2MeVMC*>(ua2mev_c);
 
-
    int n=0;
-   
 
    LAruA2MeVMC::ConstConditionsMapIterator it = ua2mevMC->begin(0);
    LAruA2MeVMC::ConstConditionsMapIterator it_e = ua2mevMC->end(0);
@@ -1858,25 +1511,22 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
      
      if( u.m_data> -990)
        {
-	 log<<MSG::DEBUG<<" ua2MeV channel OK "<<u.m_data <<endreq;
+	 ATH_MSG_DEBUG(" ua2MeV channel OK "<<u.m_data );
 	 continue ; 
        }
      
-     log<<MSG::DEBUG<<" Old uA2MeV = "<< u.m_data<< " " <<endreq; 
+     ATH_MSG_DEBUG(" Old uA2MeV = "<< u.m_data<< " " );
      
      LAruA2MeVComplete::LArCondObj& u2 = const_cast<LAruA2MeVComplete::LArCondObj&>(u); 
      u2.m_data= ILAruA2MeV::ERRORCODE ;
      
      const LAruA2MeVComplete::LArCondObj & u3 = ua2mevMC->get(hid,0); 
-     log<<MSG::DEBUG<<" New uA2MeV = "<< u3.m_data<< " " <<endreq; 
+     ATH_MSG_DEBUG(" New uA2MeV = "<< u3.m_data<< " " );
      
      ++n;
-   
    }
 
-
-   log<<MSG::DEBUG<<"  Number of uA2MeV entries changes =  " <<n <<endreq; 
-
+   ATH_MSG_DEBUG("  Number of uA2MeV entries changes =  " <<n );
 
    for(unsigned int igain=0;igain<3;++igain)
      {
@@ -1890,35 +1540,30 @@ StatusCode FixLArElecCalib::fixDACuAMeV()
 	 
 	 if( u.m_data> -990.)
 	   {
-	     log<<MSG::DEBUG<<" DAC2uA channel OK "<<u.m_data <<endreq;
+	     ATH_MSG_DEBUG(" DAC2uA channel OK "<<u.m_data );
 	     continue ; 
 	   }
 	 
-	 log<<MSG::DEBUG<<" Old DAC2uA = "<< u.m_data<< " " <<endreq; 
+	 ATH_MSG_DEBUG(" Old DAC2uA = "<< u.m_data<< " " );
 	 
 	 LArDAC2uAMC::LArCondObj& u2 = const_cast<LArDAC2uAMC::LArCondObj&>(u); 
 	 u2.m_data = ILArDAC2uA::ERRORCODE ;
 	 
 	 const LArDAC2uAMC::LArCondObj & u3 = dac2uaMC->get(hid,igain); 
-	 log<<MSG::DEBUG<<" New DACuA2 = "<< u3.m_data << " " <<endreq; 
+	 ATH_MSG_DEBUG(" New DACuA2 = "<< u3.m_data << " " );
 	 ++n;
        }
        
      }   
    
-   log<<MSG::DEBUG<<"  Number of DAC2uA entries changes =  " <<n <<endreq; 
-   
+   ATH_MSG_DEBUG("  Number of DAC2uA entries changes =  " <<n );
    return StatusCode::SUCCESS;
 }
 
 
 StatusCode FixLArElecCalib::fix9() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix9(), replace FCAL AutoCorr " <<endreq;
-
+    ATH_MSG_INFO ( " in fix9(), replace FCAL AutoCorr " );
 
     std::vector<float> fcal_autoCorr[3][3] ; //[module][gain]
     fcal_autoCorr[0][0].push_back( -0.01);
@@ -1966,17 +1611,11 @@ StatusCode FixLArElecCalib::fix9() {
     fcal_autoCorr[2][2].push_back( 0.02);
     fcal_autoCorr[2][2].push_back( 0.02);
 
-
-
     // Fix9 is for updating the FCAL AutoCorr conditions data 
     // Input should be MC Conditions data with DetDescrVersion=ATLAS-CSC-02-00-00
 
-    const LArAutoCorrMC * ac_c; 
-    StatusCode   sc =m_detStore->retrieve(ac_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find AutoCorr" <<endreq;
-      return sc;
-    }
+    const LArAutoCorrMC * ac_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ac_c) );
     LArAutoCorrMC* ac = const_cast<LArAutoCorrMC*>(ac_c);
     
     
@@ -1998,47 +1637,39 @@ StatusCode FixLArElecCalib::fix9() {
 	    int module = m_fcal_idhelper->module(id);
 	    module = module - 1 ; 
 	    
-	    log<<MSG::DEBUG<<"module= " <<  module << " Old AutoCorr = "
+	    ATH_MSG_DEBUG("module= " <<  module << " Old AutoCorr = "
 		 << u.m_vAutoCorr[0]<< " "
 		 << u.m_vAutoCorr[1]<< " "
 		 << u.m_vAutoCorr[2]<< " "
-		 << u.m_vAutoCorr[3]<< " "
-		 << endreq; 
+		 << u.m_vAutoCorr[3]<< " " );
 	       
 	    LArAutoCorrMC::LArCondObj& u2 = const_cast<LArAutoCorrMC::LArCondObj&>(u); 
 	    u2.m_vAutoCorr = fcal_autoCorr[module][gain] ; 
 	       
 	    const LArAutoCorrMC::LArCondObj & u3 = ac->get(hid,gain); 
-	    log<<MSG::DEBUG<<" New AutoCorr = "
+	    ATH_MSG_DEBUG(" New AutoCorr = "
 		 << u3.m_vAutoCorr[0]<< " "
 		 << u3.m_vAutoCorr[1]<< " "
 		 << u3.m_vAutoCorr[2]<< " "
-		 << u3.m_vAutoCorr[3]<< " "
-		 << endreq; 
+		 << u3.m_vAutoCorr[3]<< " " );
 	      ++n;
 
 	  }
-	  log<<MSG::DEBUG<<"  Gain="<<gain<<
-	  " Number of entries modified  =  " <<n <<endreq; 
-
+        ATH_MSG_DEBUG("  Gain="<<gain<<
+                      " Number of entries modified  =  " <<n );
       }
     
     return StatusCode::SUCCESS;    
 }
 
+
 StatusCode FixLArElecCalib::fix10() {
 
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix10() " <<endreq;
+    ATH_MSG_INFO ( " in fix10() " );
     // fix medium and low gain ramp
 
-    const LArRampMC * ramp_c; 
-    StatusCode sc=m_detStore->retrieve(ramp_c) ; 
-    if(sc!=StatusCode::SUCCESS){ 
-      log<< MSG::ERROR<<" Can not find Ramp" <<endreq;
-      return sc;
-    }
+    const LArRampMC * ramp_c = nullptr;
+    ATH_CHECK( detStore()->retrieve(ramp_c) );
     LArRampMC* ramp = const_cast<LArRampMC*>(ramp_c);
     
     LArRampMC::ConstConditionsMapIterator  it = ramp->begin(0);
@@ -2055,8 +1686,8 @@ StatusCode FixLArElecCalib::fix10() {
 	    if(!m_fcal_idhelper->is_lar_fcal(id)) continue;
 
 	    if( ! m_cablingSvc->isOnlineConnected(hid)){
-		log<<MSG::ERROR<<" unconnected channel" 
-		   << m_online_idhelper->print_to_string(hid) <<endreq;
+              ATH_MSG_ERROR(" unconnected channel" 
+                            << m_online_idhelper->print_to_string(hid) );
 		++ndisc ; 
 		continue ;
 	      }
@@ -2082,13 +1713,13 @@ StatusCode FixLArElecCalib::fix10() {
 	    ramp2.m_vRamp=v_l;
 	    ++n; 
 
-	    log<<MSG::DEBUG<<" ramp hi,med,low"<< ramp0.m_vRamp[1]<< " "<<ramp1.m_vRamp[1]<<  " " <<
-	      ramp2.m_vRamp[1]<<endreq;
+	    ATH_MSG_DEBUG(" ramp hi,med,low"<< ramp0.m_vRamp[1]<< " "<<ramp1.m_vRamp[1]<<  " " <<
+                          ramp2.m_vRamp[1]);
 	    
 	  }
 
-    log<<MSG::INFO<< " Number of channels updted =  " <<n <<endreq; 
-    log<<MSG::INFO<< " Number of disconnected =  " <<ndisc <<endreq; 
+    ATH_MSG_INFO( " Number of channels updted =  " <<n );
+    ATH_MSG_INFO( " Number of disconnected =  " <<ndisc );
     
     return StatusCode::SUCCESS;
 }
@@ -2096,36 +1727,22 @@ StatusCode FixLArElecCalib::fix10() {
 
 StatusCode FixLArElecCalib::fix11() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix8() " <<endreq;
+    ATH_MSG_INFO ( " in fix8() " );
     // update EM/HEC 7 data objects.
 
-
-    StatusCode sc ;
-    
-
-    sc = update_EM_HEC<LArRampMC>("","ramp_hec_june2008.txt", true, 1 );
-    if(! sc.isSuccess()) return sc;
-
+    ATH_CHECK( update_EM_HEC<LArRampMC>("","ramp_hec_june2008.txt", true, 1 ) );
     return StatusCode::SUCCESS;
-
-
 }
 
 
 StatusCode FixLArElecCalib::fix13() {
 
-
-    MsgStream  log(messageService(),name());
-    
-    log << MSG::INFO << " in fix13() " <<endreq;
+    ATH_MSG_INFO ( " in fix13() " );
     // update EM/HEC 7 data objects.
 
     ToolHandle<ICaloSuperCellIDTool> scidtool("CaloSuperCellIDTool");
     if ( scidtool.retrieve().isFailure() ) {
-        log << MSG::ERROR << " Could not retrieve scitool " << endreq;
+      ATH_MSG_ERROR ( " Could not retrieve scitool " );
     }
 
     std::set<Identifier> scidset;
@@ -2384,15 +2001,9 @@ StatusCode FixLArElecCalib::fix13() {
 	pBlobOnOff[ii]=emptyId;
     }
 
-    log << MSG::INFO << "HashMax=" << onlHashMax << ", connected=" << nConn << endreq;
+    ATH_MSG_INFO ( "HashMax=" << onlHashMax << ", connected=" << nConn );
 
-    StatusCode sc=m_detStore->record(al_onOff,"/LAR/IdentifierOfl/OnOffIdMap_SC");
-    if (sc.isFailure()){
-      log << MSG::ERROR << "Failed to record LArCablingMap" << endreq;
-      return sc;
-    }
-
-    
+    ATH_CHECK( detStore()->record(al_onOff,"/LAR/IdentifierOfl/OnOffIdMap_SC") );
 
     hashes << "idx \t Off2OnlId \t Onl2OffId" << std::endl;
     for(size_t ii=0;ii<40000;ii++)

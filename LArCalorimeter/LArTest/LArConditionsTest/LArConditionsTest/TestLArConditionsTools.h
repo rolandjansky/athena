@@ -5,13 +5,11 @@
 #ifndef TESTLARCONDITIONSTOOLS_H
 #define TESTLARCONDITIONSTOOLS_H
 
-#include "GaudiKernel/Algorithm.h"
-#include <string>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include <string>
 
-class StoreGateSvc;
 class CaloCell_ID;
 
 #include "LArElecCalib/ILArOFCTool.h"
@@ -20,7 +18,7 @@ class CaloCell_ID;
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 #include "LArRawUtils/LArRoI_Map.h"
 
-class TestLArConditionsTools : public Algorithm
+class TestLArConditionsTools : public AthAlgorithm
 {
  public:
   TestLArConditionsTools(const std::string& name,ISvcLocator* pSvcLocator);
@@ -46,9 +44,6 @@ private:
   bool m_retrieveInInit ;
 
   const CaloCell_ID*  m_idHelper ;
-  StoreGateSvc* m_detStore; 
-  StoreGateSvc* m_evtStore; 
-
 };
 
 #endif // TESTLARCONDITIONSTOOLS_H

@@ -22,7 +22,7 @@
  *
 **/
 
-#include "GaudiKernel/Algorithm.h" 
+#include "AthenaBaseComps/AthAlgorithm.h" 
 #include "GaudiKernel/IIncidentListener.h" 
 #include "AthenaKernel/IOVSvcDefs.h"
 
@@ -45,13 +45,12 @@
 #include "LArConditionsTest/LArRampPTmp.h" 
 
 
-class StoreGateSvc;
 class LArCablingService; 
 class LArOnlineID; 
 class GenericDbTable; 
 class LArRampMC;
 
-class LArConditionsTestAlg : public Algorithm, public IIncidentListener 
+class LArConditionsTestAlg : public AthAlgorithm, public IIncidentListener 
 {
 
 public:
@@ -83,9 +82,6 @@ private:
     StatusCode testDbObjectRead() ;
     StatusCode testDCS_Objects() ; 
     void printTable( const GenericDbTable* t) ;
-
-    // Services 
-    StoreGateSvc* m_detStore;
 
     // DataHandle
     // const DataHandle<ExampleData> m_example; 

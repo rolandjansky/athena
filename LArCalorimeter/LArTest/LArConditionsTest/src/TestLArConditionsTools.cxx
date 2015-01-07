@@ -3,7 +3,6 @@
 */
 
 #include "LArConditionsTest/TestLArConditionsTools.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IAlgTool.h"
 
@@ -20,16 +19,14 @@
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 
 TestLArConditionsTools::TestLArConditionsTools(const std::string& name, ISvcLocator* pSvcLocator) : 
-  //Algorithm(name,pSvcLocator),m_noiseTool(0),m_detStore(0),m_evtStore(0)
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
   m_ofcTool("LArOFCTool"),
   m_acTotalTool("LArAutoCorrTotalTool"),
   m_acNoiseTool("LArAutoCorrNoiseTool"),
   m_adc2MeVTool("LArADC2MeVTool"),
   m_noiseTool("CaloNoiseTool/calonoisetool"),
   m_roiMap("LArRoI_Map"),
-  m_idHelper(0),
-  m_detStore(0),m_evtStore(0)
+  m_idHelper(0)
   { 
     declareProperty ("RetrieveToolInInit", m_retrieveInInit=true);
     //std::cout<<" in TestLArConditionsTools c-tor"<<std::endl;
@@ -41,104 +38,34 @@ TestLArConditionsTools::~TestLArConditionsTools()
 } 
 
 StatusCode TestLArConditionsTools::retrieveTools() {
-    MsgStream  log(messageService(),name());
+  ATH_CHECK( m_noiseTool.retrieve() );
 
-    StatusCode sc = m_noiseTool.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve ICaloNoiseTool " <<endreq;
-      return sc;
-    }
+  ATH_MSG_DEBUG(" CaloNoiseTool typename "<<m_noiseTool.typeAndName());
 
-    log<<MSG::DEBUG<<" CaloNoiseTool typename "<<m_noiseTool.typeAndName()<<endreq;
-
-    sc = m_acNoiseTool.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve ILArAutoCorrNoiseTool " <<endreq;
-      return sc;
-    }
-
-    // ILArADC2MeVTool
-    sc = m_adc2MeVTool.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve ILArADC2MeVTool " <<endreq;
-      return sc;
-    }
-
-    // ILArAutoCorrTotalTool
-    sc = m_acTotalTool.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve ILArAutoCorrTotalTool " <<endreq;
-      return sc;
-    }
-
-    sc = m_ofcTool.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve ILArOFCTool " <<endreq;
-      return sc;
-    }
-
-    sc = m_roiMap.retrieve();
-    if(!sc.isSuccess()) {
-      log<<MSG::ERROR<<" Failed to retrieve LArRoI_Map " <<endreq;
-      return sc;
-    }
-
-    return sc;
+  ATH_CHECK( m_acNoiseTool.retrieve() );
+  ATH_CHECK( m_adc2MeVTool.retrieve() );
+  ATH_CHECK( m_acTotalTool.retrieve() );
+  ATH_CHECK( m_ofcTool.retrieve() );
+  ATH_CHECK( m_roiMap.retrieve() );
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode TestLArConditionsTools::initialize() {
-  MsgStream  log(messageService(),name());
 
-  log << MSG::DEBUG 
-      << " in initialize  "<<endreq;
+  ATH_MSG_DEBUG ( " in initialize  ");
 
-  StatusCode sc = retrieveTools() ;
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve tools "
-	<< endreq;
-	return sc;
-  }
-   
-
-  // Pointer to StoreGate (cached)
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to DetectorStore "
-	<< endreq;
-	return sc;
-  }
-  log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-
-
-  // Pointer to StoreGateSvc (cached)
-  sc = service("StoreGateSvc", m_evtStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to StoreGateSvc  "
-	<< endreq;
-	return sc;
-  }
-  log << MSG::DEBUG << "Retrieved StoreGateSvc "<< endreq;
-
-
-  sc = m_detStore->retrieve( m_idHelper);
-  if(sc!=StatusCode::SUCCESS){ 
-    log << MSG::ERROR << " Can not retrieve CaloCell_ID" << endreq;
-    return sc;
-  }
+  ATH_CHECK( retrieveTools() );
+  ATH_CHECK( detStore()->retrieve( m_idHelper) );
 
   const EventInfo* evtInfo = 0;
-  sc = m_evtStore->retrieve( evtInfo);
+  StatusCode sc = evtStore()->retrieve( evtInfo);
   if(sc!=StatusCode::SUCCESS){ 
-    log << MSG::WARNING << " Can not retrieve EventInfo " << endreq;
+    ATH_MSG_WARNING ( " Can not retrieve EventInfo " );
     //  return sc;
   }else
     {
-
-      log << MSG::INFO << " EventInfo retrieved " << endreq;
+      ATH_MSG_INFO ( " EventInfo retrieved " );
     }
   
 
@@ -151,23 +78,15 @@ StatusCode TestLArConditionsTools::initialize() {
 
   */
 
-  log << MSG::INFO << " done initialize " << endreq;
-  
+  ATH_MSG_INFO ( " done initialize " );
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode TestLArConditionsTools::testCaloCellNoise() {
-  MsgStream  log(messageService(),name());
+  ATH_MSG_INFO ( " in testCaloCellNoise" );
 
-  log << MSG::INFO << " in testCaloCellNoise" << endreq;
-
-  const CaloCellContainer* cont;
-  StatusCode sc = m_evtStore->retrieve(cont,"AllCalo");
-  if(!sc.isSuccess()){
-	log << MSG::ERROR << " Can not retrieve CaloCellContainer" << endreq;
-	return sc; 
-  }
+  const CaloCellContainer* cont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(cont,"AllCalo") );
 
   CaloCellContainer::const_iterator cell_it = cont->begin();
   CaloCellContainer::const_iterator cell_it_e = cont->end();
@@ -180,11 +99,11 @@ StatusCode TestLArConditionsTools::testCaloCellNoise() {
       const CaloDetDescrElement* dde=cell->caloDDE();
 
       if(dde==0) {
-	log << MSG::ERROR << " DDE null " <<  m_idHelper->print_to_string(id)<<endreq;
+	ATH_MSG_ERROR ( " DDE null " <<  m_idHelper->print_to_string(id));
 	continue;
       }
 
-      log << MSG::DEBUG<< " channel " << m_idHelper->print_to_string(id)<<endreq;
+      ATH_MSG_DEBUG( " channel " << m_idHelper->print_to_string(id));
 
       float f2 = m_noiseTool->elecNoiseRMSHighestGain(dde);
       float f1 = m_noiseTool->elecNoiseRMS(cell);
@@ -200,28 +119,21 @@ StatusCode TestLArConditionsTools::testCaloCellNoise() {
 	  m_idHelper->print_to_string(id)<<endreq;
       }
       */
-      log << MSG::DEBUG<< " channel " << m_idHelper->print_to_string(id)
-	  <<" noise "<<f1<<" "<<f2<<endreq;
+      ATH_MSG_DEBUG( " channel " << m_idHelper->print_to_string(id)
+                     <<" noise "<<f1<<" "<<f2);
 
       ++n;
-
     }
 
-    log<<MSG::INFO<<" number of cells tested "<<n<<endreq;
+    ATH_MSG_INFO(" number of cells tested "<<n);
     return StatusCode::SUCCESS;
 
 }
 
 StatusCode TestLArConditionsTools::testCaloNoiseDDE() {
 
-    MsgStream  log(messageService(),name());
-
-    const CaloDetDescrManager*  dd_man ; 
-    StatusCode sc = m_detStore->retrieve( dd_man);
-    if(sc!=StatusCode::SUCCESS){ 
-	log << MSG::ERROR << " Can not retrieve CaloDetDescrManager" << endreq;
-	return sc;
-    }
+    const CaloDetDescrManager*  dd_man = nullptr;
+    ATH_CHECK( detStore()->retrieve( dd_man) );
 
     std::vector<Identifier>::const_iterator cell_it  = m_idHelper->cell_begin();
     std::vector<Identifier>::const_iterator cell_it_e  = m_idHelper->cell_end();
@@ -233,41 +145,41 @@ StatusCode TestLArConditionsTools::testCaloNoiseDDE() {
       bool isLAr = m_idHelper->is_lar(id);
       const CaloDetDescrElement* dde=dd_man->get_element(id); 
       if(dde==0) {
-	log << MSG::ERROR << " DDE null " <<  m_idHelper->print_to_string(id)<<endreq;
+	ATH_MSG_ERROR ( " DDE null " <<  m_idHelper->print_to_string(id));
 	continue;
       }
 
-      log << MSG::DEBUG<< " channel " << m_idHelper->print_to_string(id)<<endreq;
+      ATH_MSG_DEBUG( " channel " << m_idHelper->print_to_string(id));
 
       float f1 = m_noiseTool->elecNoiseRMS(dde,CaloGain::LARHIGHGAIN,-1);
       float f2 = m_noiseTool->elecNoiseRMS(dde,CaloGain::LARHIGHGAIN,1);
 
       std::vector<float> totalNoises = m_noiseTool->elecNoiseRMS3gains(dde,1);
       if(totalNoises.size()==0){
-	log << MSG::ERROR << " fail to get noise for this channel" << 
-	  m_idHelper->print_to_string(id)<<endreq;
+	ATH_MSG_ERROR ( " fail to get noise for this channel" << 
+                        m_idHelper->print_to_string(id));
       }
 
-      log << MSG::DEBUG<< " noise =  " << f1<<" "<<f2<<endreq;
+      ATH_MSG_DEBUG( " noise =  " << f1<<" "<<f2);
 
 
       if(isLAr){
         ILArOFCTool::OFCRef_t ofc_a = m_ofcTool->OFC_a(id,0); 
 	if(ofc_a.size()==0){
-	  log << MSG::ERROR << " fail to get OFC " << 
-	    m_idHelper->print_to_string(id)<<endreq;
+	  ATH_MSG_ERROR ( " fail to get OFC " << 
+                          m_idHelper->print_to_string(id));
       }
 	
 	const std::vector<float>& adc2mev  =  m_adc2MeVTool->ADC2MEV(id,0); 
 	if(adc2mev.size()==0){
-	log << MSG::ERROR << " fail to get ADC2MEV " << 
-	  m_idHelper->print_to_string(id)<<endreq;
+          ATH_MSG_ERROR ( " fail to get ADC2MEV " << 
+                          m_idHelper->print_to_string(id));
 	}
 	
 	const std::vector<double> acTotal  =  m_acTotalTool->autoCorrTotal(id,0); 
 	if(acTotal.size()==0){
-	  log << MSG::ERROR << " fail to get AutoCorrTotal " << 
-	    m_idHelper->print_to_string(id)<<endreq;
+	  ATH_MSG_ERROR ( " fail to get AutoCorrTotal " << 
+                          m_idHelper->print_to_string(id));
 	}
       }
 
@@ -275,14 +187,12 @@ StatusCode TestLArConditionsTools::testCaloNoiseDDE() {
 
     }
 
-    log<<MSG::INFO<<" number of cells tested "<<n<<endreq;
+    ATH_MSG_INFO(" number of cells tested "<<n);
     return StatusCode::SUCCESS;
 
 }
 
 StatusCode TestLArConditionsTools::testLArRoI_Map() {
-
-    MsgStream  log(messageService(),name());
 
     std::vector<Identifier>::const_iterator cell_it  = m_idHelper->cell_begin();
     std::vector<Identifier>::const_iterator cell_it_e  = m_idHelper->cell_end();
@@ -293,36 +203,30 @@ StatusCode TestLArConditionsTools::testLArRoI_Map() {
       Identifier id = *cell_it;
       bool isLAr = m_idHelper->is_lar(id);
       int ttid = m_roiMap->TrigTowerID(id);
-      if(log.level()<=MSG::DEBUG) {
-	log << MSG::DEBUG
-	    << " n " << n
-	    << " id " << id.get_compact()
-	    << " isLAr " << isLAr
-	    << " ttid " << ttid
-	    << endreq;
-      }
+      ATH_MSG_DEBUG ( " n " << n
+                      << " id " << id.get_compact()
+                      << " isLAr " << isLAr
+                      << " ttid " << ttid );
       ++n;
     }
 
-    log<<MSG::INFO<<" number of cells tested for LArRoI_Map "<<n<<endreq;
+    ATH_MSG_INFO(" number of cells tested for LArRoI_Map "<<n);
     return StatusCode::SUCCESS;
 
 }
 StatusCode TestLArConditionsTools::execute() {
   
-  MsgStream  log(messageService(),name());
-
-  log<<MSG::DEBUG<<" in execute"<<endreq;
+  ATH_MSG_DEBUG(" in execute");
   //StatusCode sc = testCaloCellNoise(); 
   StatusCode sc = testCaloNoiseDDE(); 
   if(!sc.isSuccess()) {
-    log<<MSG::ERROR<<" failed CaloNoise Test"<<endreq;
+    ATH_MSG_ERROR(" failed CaloNoise Test");
   }
 
 
   sc = testLArRoI_Map(); 
   if(!sc.isSuccess()) {
-    log<<MSG::ERROR<<" failed LArRoI_Map test "<<endreq;
+    ATH_MSG_ERROR(" failed LArRoI_Map test ");
   }
   return StatusCode::SUCCESS;
 }

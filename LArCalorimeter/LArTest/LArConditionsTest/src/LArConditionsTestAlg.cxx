@@ -49,8 +49,7 @@
 /////////////////////////////////////////////////////////////////////
 
 LArConditionsTestAlg::LArConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-	Algorithm(name,pSvcLocator),
-	m_detStore(0),
+	AthAlgorithm(name,pSvcLocator),
 	m_cablingSvc(0),
 	m_onlineID(0),
 	m_testFill(false),
@@ -90,143 +89,53 @@ LArConditionsTestAlg::~LArConditionsTestAlg()
 
 StatusCode LArConditionsTestAlg::initialize()
 {
-    MsgStream  log(messageService(),name());
+    ATH_MSG_DEBUG ( " TestCondObjs flag         = " << m_testCondObjs );
+    ATH_MSG_DEBUG ( " ReadCondObjs flag         = " << m_readCondObjs );
+    ATH_MSG_DEBUG ( " WriteCondObjs flag        = " << m_writeCondObjs );
+    ATH_MSG_DEBUG ( " WriteCorrections flag     = " << m_writeCorrections );
+    ATH_MSG_DEBUG ( " ApplyCorrections flag     = " << m_applyCorrections );
+    ATH_MSG_DEBUG ( " TestFill flag             = " << m_testFill );
+    ATH_MSG_DEBUG ( " TestReadDBDirect flag     = " << m_testReadDB );
+    ATH_MSG_DEBUG ( " Testbeam flag             = " << m_TB );
 
-    log << MSG::DEBUG << " TestCondObjs flag         = " << m_testCondObjs << endreq;
-    log << MSG::DEBUG << " ReadCondObjs flag         = " << m_readCondObjs << endreq;
-    log << MSG::DEBUG << " WriteCondObjs flag        = " << m_writeCondObjs << endreq;
-    log << MSG::DEBUG << " WriteCorrections flag     = " << m_writeCorrections << endreq;
-    log << MSG::DEBUG << " ApplyCorrections flag     = " << m_applyCorrections << endreq;
-    log << MSG::DEBUG << " TestFill flag             = " << m_testFill << endreq;
-    log << MSG::DEBUG << " TestReadDBDirect flag     = " << m_testReadDB << endreq;
-    log << MSG::DEBUG << " Testbeam flag             = " << m_TB << endreq;
-
-    // Pointer to StoreGate (cached)
-    StatusCode sc = service("DetectorStore", m_detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve pointer to DetectorStore "
-	    << endreq;
-	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-
-    // retrieve LArOnlineID
-    sc = m_detStore->retrieve(m_onlineID); 
-    if (sc.isFailure()) {
- 	log << MSG::ERROR
- 	    << "Unable to retrieve pointer to LArOnlineID  "
- 	    << endreq;
- 	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved LArOnlineID" << endreq;
+    ATH_CHECK( detStore()->retrieve(m_onlineID) );
 
     // Need to load authentication for RDBMS
     // log << MSG::INFO << "Loading XMLAuthenticationService " << endreq;
     // pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
 
-
-    // retrieve CaloCell_ID
-    const CaloCell_ID* calocell_id;  
-    sc = m_detStore->retrieve(calocell_id); 
-    if (sc.isFailure()) {
- 	log << MSG::ERROR
- 	    << "Unable to retrieve pointer to CaloCell_ID  "
- 	    << endreq;
- 	return sc;
-    }
-    log << MSG::DEBUG << "Retrieved CaloCell_ID" << endreq;
-
+    const CaloCell_ID* calocell_id = nullptr;
+    ATH_CHECK( detStore()->retrieve(calocell_id) );
 
      if(m_testMC){ 
 
-       // Incident Service: 
-       IIncidentSvc* incSvc;
-       sc = service("IncidentSvc", incSvc);
-       if (sc.isFailure()) {
- 	log << MSG::ERROR
- 	    << "Unable to retrieve pointer to IncidentSvc "
- 	    << endreq;
- 	return sc;
-       }
-       log << MSG::DEBUG << "Retrieved Incident Service" << endreq;
-
+       IIncidentSvc* incSvc = nullptr;
+       ATH_CHECK( service("IncidentSvc", incSvc) );
 
        int PRIORITY = 100;
        //start listening to "BeginRun"
        incSvc->addListener(this, "BeginRun", PRIORITY);
- 	// register handles or call back 
- 	log << MSG::DEBUG << " register DataHandles  or callback " <<endreq;
+       // register handles or call back 
+       ATH_MSG_DEBUG ( " register DataHandles  or callback " );
  	// retrieve handel is we are going to test cond db objects
- 	std::string key = "LArRamp" ; 
- 	sc =  m_detStore->regFcn(&LArConditionsTestAlg::testCallBack1, 
- 				 this, m_ramp, key); 
-	if(sc.isFailure() ){
-	    log << MSG::ERROR << " regFcn DataHandle<ILArRamp> failed " <<endreq;
- 	}
+       StatusCode sc =  detStore()->regFcn(&LArConditionsTestAlg::testCallBack1, 
+                                           this, m_ramp, "LArRamp"); 
+       if(sc.isFailure() ){
+         ATH_MSG_ERROR ( " regFcn DataHandle<ILArRamp> failed " );
+       }
 
- 	key = "LArDAC2uA";
- 	sc = m_detStore->regHandle(m_DAC2uA, key);
-	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArDAC2uA> failed " <<endreq;
- 	    return sc;
- 	}
-
- 	key = "LAruA2MeV";
- 	sc = m_detStore->regHandle(m_uA2MeV, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILAruA2MeV> failed " <<endreq;
- 	    return sc;
- 	}
-
- 	key = "LArNoise";
- 	sc = m_detStore->regHandle(m_noise, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArNoise> failed " <<endreq;
- 	    return sc;
- 	}
-
- 	key = "LArAutoCorr";
- 	sc = m_detStore->regHandle(m_autoCorr, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArAutoCorr> failed " <<endreq;
- 	    return sc;
- 	}
-
- 	key = "LArShape";
- 	sc = m_detStore->regHandle(m_shape, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArShape> failed " <<endreq;
- 	    // return sc;
- 	}
- 	key = "LArPedestal";
- 	sc = m_detStore->regHandle(m_pedestal, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArPedestal> failed " <<endreq;
- 	    return sc;
- 	}
-
-	key = "LArfSampl";
- 	sc = m_detStore->regHandle(m_fSampl, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArfSampl> failed " <<endreq;
- 	    return sc;
- 	}
-
- 	key = "LArMinBias";
- 	sc = m_detStore->regHandle(m_minBias, key);
- 	if(sc.isFailure() ){
- 	    log << MSG::ERROR << " regHandle DataHandle<ILArMinBias> failed " <<endreq;
- 	    return sc;
- 	}
-
+ 	ATH_CHECK( detStore()->regHandle(m_DAC2uA, "LArDAC2uA") );
+ 	ATH_CHECK( detStore()->regHandle(m_uA2MeV, "LAruA2MeV") );
+ 	ATH_CHECK( detStore()->regHandle(m_noise, "LArNoise") );
+ 	ATH_CHECK( detStore()->regHandle(m_autoCorr, "LArAutoCorr") );
+ 	ATH_CHECK( detStore()->regHandle(m_shape, "LArShape") );
+ 	ATH_CHECK( detStore()->regHandle(m_pedestal, "LArPedestal") );
+ 	ATH_CHECK( detStore()->regHandle(m_fSampl, "LArfSampl") );
+ 	ATH_CHECK( detStore()->regHandle(m_minBias, "LArMinBias") );
      }// end of m_testMC
 
- 
-    log << MSG::DEBUG << "initialize done" <<endreq; 
-
-    return StatusCode::SUCCESS;
-
+     ATH_MSG_DEBUG ( "initialize done" );
+     return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -235,18 +144,12 @@ StatusCode LArConditionsTestAlg::initialize()
 
 StatusCode LArConditionsTestAlg::execute()
 {
-    MsgStream  log(messageService(),name());  
-
-    log << MSG::DEBUG << " retrieve DataHandle<ILArRamp>  in execute " <<endreq;
+    ATH_MSG_DEBUG ( " retrieve DataHandle<ILArRamp>  in execute " );
 
     if(m_testCondObjs){ 
 
 	// create cache
-	StatusCode sc = testCondObjects();
-	if(sc.isFailure()) {
-  	    log << MSG::ERROR << "Failed to create Conditions Objects " << endreq;
-  	    return StatusCode::FAILURE;
-  	}
+        ATH_CHECK(  testCondObjects() );
 // 	StatusCode sc = testDbObjectRead();
 // 	if(sc.isFailure()) {
 //   	    log << MSG::ERROR << "Failed testDbObjectRead " << endreq;
@@ -267,23 +170,11 @@ StatusCode LArConditionsTestAlg::execute()
 //     } 
 
     if(m_TB){ 
+	const ILArOFC* ofc = nullptr;
+	ATH_CHECK( detStore()->retrieve(ofc, "LArOFC") );
 
-	std::string key = "LArOFC";
-	const ILArOFC* ofc = 0 ;
-	m_detStore->retrieve(ofc, key);
-	if(!ofc) {
-	    log<< MSG::ERROR<<" Failed to get LArOFC in execute " << endreq;
-	    return StatusCode::FAILURE ; 
-	}
-
-	key = "LArRamp";
-	const ILArRamp* ramp = 0 ;
-	m_detStore->retrieve(ramp, key);
-	if(!ramp) {
-	    log<< MSG::ERROR<<" Failed to get LArRamp in execute " << endreq;
-	    return StatusCode::FAILURE ;
-	}
-
+	const ILArRamp* ramp = nullptr;
+	ATH_CHECK( detStore()->retrieve(ramp, "LArRamp") );
     } 
 
 /* 
@@ -332,8 +223,7 @@ StatusCode
 LArConditionsTestAlg::createCompareObjects()
 {
     // StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in createCompareObjects()" << endreq;
+    ATH_MSG_INFO ("in createCompareObjects()" );
 
     // Create set of ids, LArRampComplete::LArCondObj
 
@@ -373,26 +263,23 @@ LArConditionsTestAlg::createCompareObjects()
     
     // Print out cache and corrections
     for (unsigned int i = 0; i < m_rampCache.size(); ++i) {
-	log << MSG::DEBUG <<"Cache: chan, gain, ramps "
-	    << 	m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 
-	    << m_rampCache[i].m_gain << " " 
-	    << m_rampCache[i].m_vRamp[0] << " " 
-	    << m_rampCache[i].m_vRamp[1] << " " 
-	    << m_rampCache[i].m_vRamp[2] << " " 
-	    << endreq;
+      ATH_MSG_DEBUG ("Cache: chan, gain, ramps "
+                     << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 
+                     << m_rampCache[i].m_gain << " " 
+                     << m_rampCache[i].m_vRamp[0] << " " 
+                     << m_rampCache[i].m_vRamp[1] << " " 
+                     << m_rampCache[i].m_vRamp[2] << " " );
     }
     for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
-	log << MSG::DEBUG <<"Corrections: chan, gain, ramps "
-	    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-	    << m_rampCorrections[i].m_gain << " " 
-	    << m_rampCorrections[i].m_vRamp[0] << " " 
-	    << m_rampCorrections[i].m_vRamp[1] << " " 
-	    << m_rampCorrections[i].m_vRamp[2] << " " 
-	    << endreq;
+      ATH_MSG_DEBUG ("Corrections: chan, gain, ramps "
+                     << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                     << m_rampCorrections[i].m_gain << " " 
+                     << m_rampCorrections[i].m_vRamp[0] << " " 
+                     << m_rampCorrections[i].m_vRamp[1] << " " 
+                     << m_rampCorrections[i].m_vRamp[2] << " " );
     }
     
-    log << MSG::DEBUG << "End of create comparison objects " << endreq;
-
+    ATH_MSG_DEBUG ( "End of create comparison objects " );
     return StatusCode::SUCCESS; 
 } 
 
@@ -434,206 +321,128 @@ inline bool operator != (const LArRampComplete::LArCondObj& r1, const LArRampPTm
 StatusCode
 LArConditionsTestAlg::testCondObjects()
 {
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in testCondObjects()" <<endreq;
+    ATH_MSG_INFO ("in testCondObjects()" );
 
     static bool first = true;
     if (!first) {
-	log << MSG::INFO <<"Multiple entries - returning" <<endreq;
+        ATH_MSG_INFO ("Multiple entries - returning" );
 	return StatusCode::SUCCESS; 
     }
     first = false;
-
     
     typedef LArRampMC::CONTAINER            CONTAINER; 
-    typedef CONTAINER::ConstCorrectionIt    ConstCorrectionIt;
     typedef CONTAINER::chan_const_iterator  chan_const_iterator;
     typedef CONTAINER::iov_const_iterator   iov_const_iterator;
     
-    // Create cache
-    sc = createCompareObjects();
-    if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "Could not create comparison objects " << endreq;
-	return StatusCode::FAILURE;
-    }
-	
-
-    // Test channel set
-    sc = testChannelSet();
-    if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "Failed channel set check " << endreq;
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK( createCompareObjects() );
+    ATH_CHECK( testChannelSet() );
 
     const LArRampMC* ramps = 0;
     
     // Create SingleGroup
     if (m_readCondObjs) {
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsSingleGroup");
-	if (sc.isFailure()) {
-	    log << MSG::ERROR <<"Could not find ramps for LArRampsSingleGroup" <<endreq;
-	    log << MSG::INFO << m_detStore->dump() <<endreq;
-	    return( StatusCode::FAILURE);
-	}
-	log << MSG::INFO << "Retrieved ramps for LArRampsSingleGroup " 
-	    << endreq;
+	ATH_CHECK( detStore()->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsSingleGroup") );
+	ATH_MSG_INFO ( "Retrieved ramps for LArRampsSingleGroup " );
 	ramps = dynamic_cast<const LArRampMC*>(iramps);
 	if (!ramps) {
-	    log << MSG::ERROR <<"Could not dynamic cast ILArRamp to LArRampMC" <<endreq;
+            ATH_MSG_ERROR ("Could not dynamic cast ILArRamp to LArRampMC" );
 	    return( StatusCode::FAILURE);
 	}
     }
     else {
 	LArRampMC* ramps_rw = new LArRampMC;
 	ramps = ramps_rw;
-	log << MSG::INFO << "Created ramps for LArRampsSingleGroup " 
-	    << endreq;
+	ATH_MSG_INFO ( "Created ramps for LArRampsSingleGroup "  );
 	ramps_rw->setGroupingType(LArConditionsContainerBase::SingleGroup);
-	sc = ramps_rw->initialize();
-	if (sc != StatusCode::SUCCESS) {
-	    log << MSG::ERROR << "Could not initialize ramps " << endreq;
-	    return StatusCode::FAILURE;
-	}
+	ATH_CHECK( ramps_rw->initialize() );
     }
     
-    // test
-    sc = testEachCondObject(ramps);
-    if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "Failed test  " << endreq;
-	return StatusCode::FAILURE;
-    }
-    else {
-	log << MSG::INFO << "Succeeded SingleGroup test  " << endreq;
-    }
+    ATH_CHECK( testEachCondObject(ramps) );
+    ATH_MSG_INFO ( "Succeeded SingleGroup test  " );
 
     if (!m_readCondObjs) {
 	// Save in DetectorStore
-	sc = m_detStore->record(ramps, "/LArCalorimeter/LArTests/LArRampsSingleGroup");
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not record LArRampMC" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+        ATH_CHECK( detStore()->record(ramps, "/LArCalorimeter/LArTests/LArRampsSingleGroup") );
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->symLink(ramps, iramps);
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not symlink ILArRamp" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+        ATH_CHECK( detStore()->symLink(ramps, iramps) );
 
 	/// Statistics: total number of conditions 
         if (ramps) {
-          log << MSG::DEBUG  << "Total number of conditions objects"
-              << ramps->totalNumberOfConditions() 
-              << endreq;
+          ATH_MSG_DEBUG  ( "Total number of conditions objects"
+                           << ramps->totalNumberOfConditions() );
         }
 	if (!m_writeCondObjs) {
 	    // Remove conditions objects if not writing out
 	    LArRampMC* ramps_rw = const_cast<LArRampMC*>(ramps);
 	    if (!ramps_rw) {
-		log << MSG::ERROR << "Could not const cast to LArRampMC " << endreq;
+                ATH_MSG_ERROR ( "Could not const cast to LArRampMC " );
 		return StatusCode::FAILURE;
 	    }
 	    ramps_rw->removeConditions();
-	    log << MSG::DEBUG  << "Removed conditions objects"
-	    << endreq;
+	    ATH_MSG_DEBUG  ( "Removed conditions objects" );
 	}
-	log << MSG::DEBUG  << "Total number of conditions objects "
-	    << ramps->totalNumberOfConditions() 
-	    << endreq;
-	log << MSG::DEBUG  << "Total number of correction objects"
-	    << ramps->totalNumberOfCorrections() 
-	    << endreq;
+	ATH_MSG_DEBUG  ( "Total number of conditions objects "
+                         << ramps->totalNumberOfConditions() );
+	ATH_MSG_DEBUG  ( "Total number of correction objects"
+                         << ramps->totalNumberOfCorrections() );
     }
     
     // Create SubDetectorGrouping
     if (m_readCondObjs) {
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsSubDetectorGrouping");
-	if (sc.isFailure()) {
-	    log << MSG::ERROR <<"Could not find ramps for LArRampsSubDetectorGrouping" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
-	log << MSG::INFO << "Retrieved ramps for LArRampsSubDetectorGrouping " 
-	    << endreq;
+	ATH_CHECK( detStore()->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsSubDetectorGrouping") );
+	ATH_MSG_INFO ( "Retrieved ramps for LArRampsSubDetectorGrouping "  );
 	ramps = dynamic_cast<const LArRampMC*>(iramps);
 	if (!ramps) {
-	    log << MSG::ERROR <<"Could not dynamic cast ILArRamp to LArRampMC" <<endreq;
-	    return( StatusCode::FAILURE);
+          ATH_MSG_ERROR ("Could not dynamic cast ILArRamp to LArRampMC" );
+          return( StatusCode::FAILURE);
 	}
     }
     else {
 	LArRampMC* ramps_rw = new LArRampMC;
 	ramps = ramps_rw;
 	//ramps_rw->setGroupingType(LArConditionsContainerBase::SubDetectorGrouping);
-	sc = ramps_rw->initialize();
-	if (sc != StatusCode::SUCCESS) {
-	    log << MSG::ERROR << "Could not initialize ramps " << endreq;
-	    return StatusCode::FAILURE;
-	}
+	ATH_CHECK( ramps_rw->initialize() );
     }
     
-    sc = testEachCondObject(ramps);
-    if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "Failed test  " << endreq;
-	return StatusCode::FAILURE;
-    }
-    else {
-	log << MSG::INFO << "Succeeded SubDetectorGrouping test  " << endreq;
-    }
-    
+    ATH_CHECK( testEachCondObject(ramps) );
+    ATH_MSG_INFO ( "Succeeded SubDetectorGrouping test  " );
+
     if (!m_readCondObjs) {
 	// Save in DetectorStore
-	sc = m_detStore->record(ramps, "/LArCalorimeter/LArTests/LArRampsSubDetectorGrouping");
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not record LArRampMC" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+        ATH_CHECK( detStore()->record(ramps, "/LArCalorimeter/LArTests/LArRampsSubDetectorGrouping") );
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->symLink(ramps, iramps);
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not symlink ILArRamp" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+	ATH_CHECK( detStore()->symLink(ramps, iramps) );
 	/// Statistics: total number of conditions 
         if (ramps) {
-          log << MSG::DEBUG  << "Total number of conditions objects"
-              << ramps->totalNumberOfConditions() 
-              << endreq;
+          ATH_MSG_DEBUG  ( "Total number of conditions objects"
+                           << ramps->totalNumberOfConditions() );
         }
 	if (!m_writeCondObjs) {
 	    // Remove conditions objects if not writing out
 	    LArRampMC* ramps_rw = const_cast<LArRampMC*>(ramps);
 	    if (!ramps_rw) {
-		log << MSG::ERROR << "Could not const cast to LArRampMC " << endreq;
+                ATH_MSG_ERROR ( "Could not const cast to LArRampMC " );
 		return StatusCode::FAILURE;
 	    }
 	    ramps_rw->removeConditions();
-	    log << MSG::DEBUG  << "Removed conditions objects"
-	    << endreq;
+	    ATH_MSG_DEBUG  ( "Removed conditions objects" );
 	}
-	log << MSG::DEBUG  << "Total number of conditions objects "
-	    << ramps->totalNumberOfConditions() 
-	    << endreq;
-	log << MSG::DEBUG  << "Total number of correction objects"
-	    << ramps->totalNumberOfConditions() 
-	    << endreq;
+	ATH_MSG_DEBUG  ( "Total number of conditions objects "
+                         << ramps->totalNumberOfConditions() );
+	ATH_MSG_DEBUG  ( "Total number of correction objects"
+                         << ramps->totalNumberOfConditions() );
     }
     
     // Create FeedThroughGrouping
     if (m_readCondObjs) {
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsFeedThroughGrouping");
-	if (sc.isFailure()) {
-	    log << MSG::ERROR <<"Could not find ramps for LArRampsFeedThroughGrouping" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
-	log << MSG::INFO << "Retrieved ramps for LArRampsFeedThroughGrouping " 
-	    << endreq;
+	ATH_CHECK( detStore()->retrieve(iramps, "/LArCalorimeter/LArTests/LArRampsFeedThroughGrouping") );
+	ATH_MSG_INFO ( "Retrieved ramps for LArRampsFeedThroughGrouping " );
 	ramps = dynamic_cast<const LArRampMC*>(iramps);
 	if (!ramps) {
-	    log << MSG::ERROR <<"Could not dynamic cast ILArRamp to LArRampMC" <<endreq;
+            ATH_MSG_ERROR ("Could not dynamic cast ILArRamp to LArRampMC" );
 	    return( StatusCode::FAILURE);
 	}
     }
@@ -641,102 +450,74 @@ LArConditionsTestAlg::testCondObjects()
 	LArRampMC* ramps_rw = new LArRampMC;
 	ramps = ramps_rw;
 	ramps_rw->setGroupingType(LArConditionsContainerBase::FeedThroughGrouping);
-	sc = ramps_rw->initialize();
-	if (sc != StatusCode::SUCCESS) {
-	    log << MSG::ERROR << "Could not initialize ramps " << endreq;
-	    return StatusCode::FAILURE;
-	}
+	ATH_CHECK( ramps_rw->initialize() );
     }
     
-    sc = testEachCondObject(ramps);
-    if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "Failed test  " << endreq;
-	return StatusCode::FAILURE;
-    }
-    else {
-	log << MSG::INFO << "Succeeded FeedThroughGrouping test  " << endreq;
-    }
+    ATH_CHECK( testEachCondObject(ramps) );
+    ATH_MSG_INFO ( "Succeeded FeedThroughGrouping test  " );
 
     if (!m_readCondObjs) {
 	// Save in DetectorStore
-	sc = m_detStore->record(ramps, "/LArCalorimeter/LArTests/LArRampsFeedThroughGrouping");
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not record LArRampMC" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+      ATH_CHECK( detStore()->record(ramps, "/LArCalorimeter/LArTests/LArRampsFeedThroughGrouping") );
 	const ILArRamp* iramps = 0;
-	sc = m_detStore->symLink(ramps, iramps);
-	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not symlink ILArRamp" <<endreq;
-	    return( StatusCode::FAILURE);
-	}
+	ATH_CHECK( detStore()->symLink(ramps, iramps) );
 	/// Statistics: total number of conditions 
         if (ramps) {
-          log << MSG::DEBUG  << "Total number of conditions objects"
-              << ramps->totalNumberOfConditions() 
-              << endreq;
+          ATH_MSG_DEBUG  ( "Total number of conditions objects"
+                           << ramps->totalNumberOfConditions() );
         }
 	if (!m_writeCondObjs) {
 	    // Remove conditions objects if not writing out
 	    LArRampMC* ramps_rw = const_cast<LArRampMC*>(ramps);
 	    if (!ramps_rw) {
-		log << MSG::ERROR << "Could not const cast to LArRampMC " << endreq;
+                ATH_MSG_ERROR ( "Could not const cast to LArRampMC " );
 		return StatusCode::FAILURE;
 	    }
 	    ramps_rw->removeConditions();
-	    log << MSG::DEBUG  << "Removed conditions objects"
-	    << endreq;
+	    ATH_MSG_DEBUG  ( "Removed conditions objects" );
 	}
-	log << MSG::DEBUG  << "Total number of conditions objects "
-	    << ramps->totalNumberOfConditions() 
-	    << endreq;
-	log << MSG::DEBUG  << "Total number of correction objects"
-	    << ramps->totalNumberOfCorrections() 
-	    << endreq;
+	ATH_MSG_DEBUG  ( "Total number of conditions objects "
+                         << ramps->totalNumberOfConditions() );
+	ATH_MSG_DEBUG  ( "Total number of correction objects"
+                         << ramps->totalNumberOfCorrections() );
     }
 
-    log << MSG::DEBUG << "Statistics for LArRampsFeedThroughGrouping " << endreq;
-    log << MSG::DEBUG << "Number of channels, iovs "
-	<< ramps->chan_size() << " " << ramps->iov_size()
-	<< endreq;
+    ATH_MSG_DEBUG ( "Statistics for LArRampsFeedThroughGrouping " );
+    ATH_MSG_DEBUG ( "Number of channels, iovs "
+                    << ramps->chan_size() << " " << ramps->iov_size() );
 
     iov_const_iterator iovIt  = ramps->iov_begin();
     iov_const_iterator iovEnd = ramps->iov_end  ();
-    log << MSG::DEBUG << "IOVs found:  ";
+    msg() << MSG::DEBUG << "IOVs found:  ";
     for (; iovIt != iovEnd; ++iovIt) {
-	log << MSG::DEBUG << (*iovIt) << ", ";
+      msg() << MSG::DEBUG << (*iovIt) << ", ";
     }
-    log << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endreq;
     
     chan_const_iterator chIt  = ramps->chan_begin();
     chan_const_iterator chEnd = ramps->chan_end  ();
     for (; chIt != chEnd; ++chIt) {
-	log << MSG::DEBUG << "Channel:  " << (*chIt) 
-	    << " number of conditions: " << ramps->conditionsPerChannel((*chIt))
-	    << MSG::DEBUG << endreq;
+      ATH_MSG_DEBUG ( "Channel:  " << (*chIt) 
+                      << " number of conditions: " << ramps->conditionsPerChannel((*chIt)) );
     }
     
     for (unsigned int i = 0; i < ramps->nGroups(); ++i) {
-	log << MSG::DEBUG << "Group:  " << i 
-	    << " number of conditions: " << ramps->conditionsPerGroup(i)
-	    << MSG::DEBUG << endreq;
+      ATH_MSG_DEBUG ( "Group:  " << i 
+                      << " number of conditions: " << ramps->conditionsPerGroup(i) );
     }
-    log << MSG::DEBUG << endreq;
+    ATH_MSG_DEBUG ("");
     
     for (unsigned int i = 0; i < ramps->nGains(); ++i) {
-	log << MSG::DEBUG << "Gain:  " << i 
-	    << " number of conditions: " << ramps->conditionsPerGain(i)
-	    << MSG::DEBUG << endreq;
+      ATH_MSG_DEBUG ( "Gain:  " << i 
+                      << " number of conditions: " << ramps->conditionsPerGain(i) );
     }
-    log << MSG::DEBUG  << "Total number of conditions objects "
-	<< ramps->totalNumberOfConditions() 
-	<< endreq;
-    log << MSG::DEBUG  << "Total number of correction objects "
-	<< ramps->totalNumberOfCorrections() 
-	<< endreq;
+    ATH_MSG_DEBUG  ( "Total number of conditions objects "
+                     << ramps->totalNumberOfConditions() );
+    ATH_MSG_DEBUG  ( "Total number of correction objects "
+                     << ramps->totalNumberOfCorrections() );
 
     
-    log << MSG::DEBUG << "End of testCondObjects " << endreq;
+    ATH_MSG_DEBUG ( "End of testCondObjects " );
 
     return StatusCode::SUCCESS; 
 } 
@@ -746,31 +527,29 @@ LArConditionsTestAlg::testCondObjects()
 StatusCode
 LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 {
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in testEachCondObject()" <<endreq;
+    ATH_MSG_INFO ("in testEachCondObject()" );
     bool error = false;
     
     typedef LArRampMC::CONTAINER         CONTAINER; 
-    typedef CONTAINER::ConstCorrectionIt ConstCorrectionIt;
+    //typedef CONTAINER::ConstCorrectionIt ConstCorrectionIt;
 
     // Cast into r/w for tests
     LArRampMC* ramps_rw = const_cast<LArRampMC*>(ramps);
     if (!ramps_rw) {
-	log << MSG::ERROR << "Could not const cast to LArRampMC " << endreq;
+        ATH_MSG_ERROR ( "Could not const cast to LArRampMC " );
 	return StatusCode::FAILURE;
     }
 
     if (ramps_rw->correctionsApplied())
-      CHECK(ramps_rw->undoCorrections());
+      ATH_CHECK(ramps_rw->undoCorrections());
 
     if (!m_readCondObjs) {
 	if (m_writeCondObjs) {
 	    
 	    for (unsigned int i = 0; i < m_rampCache.size(); ++i) {
-		log << MSG::DEBUG <<"setPdata for chan, chan id, gain " << i << " "
-		    << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 
-		    << m_rampCache[i].m_gain << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("setPdata for chan, chan id, gain " << i << " "
+                             << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 
+                             << m_rampCache[i].m_gain << " " );
 
 		// Must copy LArRampPTmp into a LArRampComplete::LArCondObj
 		LArRampComplete::LArCondObj ramp;
@@ -782,67 +561,54 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    }
 	}
 	
-	log << MSG::DEBUG << "Finished conditions, now write corrections " << endreq;
+	ATH_MSG_DEBUG ( "Finished conditions, now write corrections " );
 
 	if (m_writeCorrections) {
 	    for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 
-		log << MSG::DEBUG <<"insert corr for chan, chan id, gain " << i << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("insert corr for chan, chan id, gain " << i << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " );
 
 		// Must copy LArRampPTmp into a LArRampComplete::LArCondObj
 		LArRampComplete::LArCondObj ramp;
 		ramp.m_vRamp = m_rampCorrections[i].m_vRamp;
 
-		StatusCode sc = ramps_rw->insertCorrection(m_rampCorrections[i].m_channelID, 
-							   ramp,
-							   m_rampCorrections[i].m_gain);
-		if (sc != StatusCode::SUCCESS) {
-		    log << MSG::ERROR << "Could not insert correction " << endreq;
-		    return StatusCode::FAILURE;
-		}
+		ATH_CHECK( ramps_rw->insertCorrection(m_rampCorrections[i].m_channelID, 
+                                                      ramp,
+                                                      m_rampCorrections[i].m_gain) );
 	    }
 	}
     }
     
-    log << MSG::DEBUG <<"Number of channels, iovs "
-	<< ramps->chan_size() << " " << ramps->iov_size()
-	<< endreq;
+    ATH_MSG_DEBUG ("Number of channels, iovs "
+                   << ramps->chan_size() << " " << ramps->iov_size() );
 
     CONTAINER::chan_const_iterator   chanIt1  = ramps->chan_begin();
     CONTAINER::chan_const_iterator   endChan1 = ramps->chan_end  ();
     for (unsigned int i = 0; chanIt1 != endChan1; ++chanIt1, ++i) {
 	const CONTAINER::Subset* subset = ramps->at(i);
-	log << MSG::DEBUG << "Index " << i 
+	ATH_MSG_DEBUG ( "Index " << i 
 	    << " channel "           << subset->channel() 
 	    << " gain "              << subset->gain() 
 	    << " groupingType "      << subset->groupingType()
 	    << " subsetSize "        << subset->subsetSize()
-	    << " correctionVecSize " << subset->correctionVecSize()
-	    << endreq;
+	    << " correctionVecSize " << subset->correctionVecSize() );
 	if ((*chanIt1) != subset->channel()) {
-	    log << MSG::ERROR << "Channel numbers not the same for MultChanColl and subset: " 
+          ATH_MSG_ERROR ( "Channel numbers not the same for MultChanColl and subset: " 
 		<< i 
 		<< " multchan "           << (*chanIt1)
-		<< " subset   "           << subset->channel() 
-		<< endreq;
+		<< " subset   "           << subset->channel() );
 	    error = true;
 	}
     }
 
+    ATH_MSG_DEBUG ("Number of channels, iovs, subsets "
+                   << ramps->chan_size() << " " 
+                   << ramps->iov_size()  << " "
+                   << ramps->size()  << " " );
 
-
-
-    log << MSG::DEBUG <<"Number of channels, iovs, subsets "
-	<< ramps->chan_size() << " " 
-	<< ramps->iov_size()  << " "
-	<< ramps->size()  << " "
-	<< endreq;
-
-    log << MSG::DEBUG <<"Compare LArRampMC with cache "
-	    << endreq;
+    ATH_MSG_DEBUG ("Compare LArRampMC with cache " );
     // Now loop over ramps and compare with cache
     for (unsigned int i = 0; i < m_rampCache.size(); ++i) {
 
@@ -852,37 +618,34 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 						      m_rampCache[i].m_gain);
 
 	if (!rampP.isEmpty()) {
-	    log << MSG::DEBUG <<"New  : cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
-		<< m_rampCache[i].m_gain << " " 
-		<< rampP.m_vRamp[0] << " " 
-		<< rampP.m_vRamp[1] << " " 
-		<< rampP.m_vRamp[2] << " " 
-		<< endreq;
+          ATH_MSG_DEBUG ("New  : cool chan, chan id, gain, ramps "
+                         << coolChannel << " "
+                         << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
+                         << m_rampCache[i].m_gain << " " 
+                         << rampP.m_vRamp[0] << " " 
+                         << rampP.m_vRamp[1] << " " 
+                         << rampP.m_vRamp[2] << " " );
 	}
 	else {
-	    log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+          ATH_MSG_DEBUG ("New  : isEmpty " );
 	}
-	log << MSG::DEBUG <<"Cache: cool chan, chan id, gain, ramps "
-	    << coolChannel << " "
-	    << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
-	    << m_rampCache[i].m_gain << " " 
-	    << m_rampCache[i].m_vRamp[0] << " " 
-	    << m_rampCache[i].m_vRamp[1] << " " 
-	    << m_rampCache[i].m_vRamp[2] << " " 
-	    << " Compare = " << (rampP == m_rampCache[i])
-	    << endreq;
+	ATH_MSG_DEBUG ("Cache: cool chan, chan id, gain, ramps "
+                       << coolChannel << " "
+                       << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
+                       << m_rampCache[i].m_gain << " " 
+                       << m_rampCache[i].m_vRamp[0] << " " 
+                       << m_rampCache[i].m_vRamp[1] << " " 
+                       << m_rampCache[i].m_vRamp[2] << " " 
+                       << " Compare = " << (rampP == m_rampCache[i]) );
 	if (rampP != m_rampCache[i] && !rampP.isEmpty()) {
-	    log << MSG::ERROR <<"LArRampMC and cache NOT equal" << endreq;
+            ATH_MSG_ERROR ("LArRampMC and cache NOT equal" );
 	    error = true;
 	}
     }
 
 
     // Now loop over ramps using generic iterator and compare with cache
-    log << MSG::DEBUG <<"Compare LArRampMC with cache using iterator "
-	<< endreq;
+    ATH_MSG_DEBUG ("Compare LArRampMC with cache using iterator " );
     CONTAINER::ConstConditionsMapIterator rampIt;
     CONTAINER::ConstConditionsMapIterator rampEnd;
     for (unsigned int gain = 0; gain < 3; ++gain) {
@@ -902,29 +665,27 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCache[i].m_channelID, 
 							  m_rampCache[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New  : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(rampId) << " " 
-		    << m_rampCache[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New  : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(rampId) << " " 
+                             << m_rampCache[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " " );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
-	    log << MSG::DEBUG <<"Cache: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
-		<< m_rampCache[i].m_gain << " " 
-		<< m_rampCache[i].m_vRamp[0] << " " 
-		<< m_rampCache[i].m_vRamp[1] << " " 
-		<< m_rampCache[i].m_vRamp[2] << " " 
-		<< " Compare = " << (rampP == m_rampCache[i])
-		<< endreq;
+	    ATH_MSG_DEBUG ("Cache: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
+                           << m_rampCache[i].m_gain << " " 
+                           << m_rampCache[i].m_vRamp[0] << " " 
+                           << m_rampCache[i].m_vRamp[1] << " " 
+                           << m_rampCache[i].m_vRamp[2] << " " 
+                           << " Compare = " << (rampP == m_rampCache[i]) );
 	    if (rampP != m_rampCache[i] && !rampP.isEmpty()) {
-		log << MSG::ERROR <<"LArRampMC and cache NOT equal" << endreq;
+                ATH_MSG_ERROR ("LArRampMC and cache NOT equal" );
 		error = true;
 	    }
 	}
@@ -934,8 +695,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 
     // Now loop over ramps in pieces using the selector on febids to
     // iterate and compare with cache
-    log << MSG::DEBUG <<"Compare LArRampMC with cache using iterator and febid selection "
-	<< endreq;
+    ATH_MSG_DEBUG ("Compare LArRampMC with cache using iterator and febid selection " );
     // Loop over cache and divide the febids into three sets, where
     // each set is an array of size 3 for the separate gains
     std::vector<unsigned int> ids1[3];
@@ -962,48 +722,46 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int iend = m_rampCache.size()/3;
 	    if (febSet < m_rampCache.size()/3) {
 		rampIt  = ramps->begin(gain, ids1[gain]);	    
-		log << MSG::DEBUG <<"FebID vec 1  : ";
+		msg() << MSG::DEBUG <<"FebID vec 1  : ";
 		for (unsigned int i = 0; i < ids1[gain].size(); ++i) {
-		    log << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids1[gain][i]))
+                  msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids1[gain][i]))
 			<< " ";
 		}
-		log << MSG::DEBUG << endreq;
+		msg() << MSG::DEBUG << endreq;
 	    }
 	    else if (febSet < 2*m_rampCache.size()/3) {
 		rampIt  = ramps->begin(gain, ids2[gain]);	    
 		i0   = m_rampCache.size()/3 + 1;
 		iend = 2*m_rampCache.size()/3;
-		log << MSG::DEBUG <<"FebID vec 2  : ";
+		msg() << MSG::DEBUG <<"FebID vec 2  : ";
 		for (unsigned int i = 0; i < ids2[gain].size(); ++i) {
-		    log << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids2[gain][i]))
+                  msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids2[gain][i]))
 			<< " ";
 		}
-		log << MSG::DEBUG << endreq;
+                msg() << MSG::DEBUG << endreq;
 	    }
 	    else {
 		rampIt  = ramps->begin(gain, ids3[gain]);	    
 		i0   = 2*m_rampCache.size()/3 + 1;
 		iend = m_rampCache.size();
-		log << MSG::DEBUG <<"FebID vec 3  : ";
+		msg() << MSG::DEBUG <<"FebID vec 3  : ";
 		for (unsigned int i = 0; i < ids3[gain].size(); ++i) {
-		    log << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids3[gain][i]))
+                  msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids3[gain][i]))
 			<< " ";
 		}
-		log << MSG::DEBUG << endreq;
+		msg() << MSG::DEBUG << endreq;
 	    }
 	    
 	    rampEnd = ramps->end  (gain);
-	    log << MSG::DEBUG <<"After ramps->end "
-		<< endreq;
+	    ATH_MSG_DEBUG ("After ramps->end " );
 	    for (unsigned int i = i0; i < iend; ++i) {
 		// cache is not in order for gains, select the current gain
 		if (gain != m_rampCache[i].m_gain) continue; 
 		LArRampComplete::LArCondObj rampP;
 		HWIdentifier rampId;
 
-		log << MSG::DEBUG <<"Looking for "
-		    << m_onlineID->show_to_string(m_rampCache[i].m_channelID) 
-		    << endreq;
+		ATH_MSG_DEBUG ("Looking for "
+                               << m_onlineID->show_to_string(m_rampCache[i].m_channelID) );
 
 		// Skip the empty channels
 		while(rampIt != rampEnd) {
@@ -1015,39 +773,34 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		unsigned int coolChannel = ramps->coolChannel(m_rampCache[i].m_channelID, 
 							      m_rampCache[i].m_gain);
 		if (!rampP.isEmpty()) {
-		    log << MSG::DEBUG <<"New  : cool chan, chan id, gain, ramps "
-			<< coolChannel << " "
-			<< m_onlineID->show_to_string(rampId) << " " 
-			<< m_rampCache[i].m_gain << " " 
-			<< rampP.m_vRamp[0] << " " 
-			<< rampP.m_vRamp[1] << " " 
-			<< rampP.m_vRamp[2] << " " 
-			<< endreq;
+                  ATH_MSG_DEBUG ("New  : cool chan, chan id, gain, ramps "
+                                 << coolChannel << " "
+                                 << m_onlineID->show_to_string(rampId) << " " 
+                                 << m_rampCache[i].m_gain << " " 
+                                 << rampP.m_vRamp[0] << " " 
+                                 << rampP.m_vRamp[1] << " " 
+                                 << rampP.m_vRamp[2] << " "  );
 		}
 		else {
-		    log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+                  ATH_MSG_DEBUG ("New  : isEmpty " );
 		}
-		log << MSG::DEBUG <<"Cache: cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
-		    << m_rampCache[i].m_gain << " " 
-		    << m_rampCache[i].m_vRamp[0] << " " 
-		    << m_rampCache[i].m_vRamp[1] << " " 
-		    << m_rampCache[i].m_vRamp[2] << " " 
-		    << " Compare = " << (rampP == m_rampCache[i])
-		    << endreq;
+		ATH_MSG_DEBUG ("Cache: cool chan, chan id, gain, ramps "
+                               << coolChannel << " "
+                               << m_onlineID->show_to_string(m_rampCache[i].m_channelID) << " " 	
+                               << m_rampCache[i].m_gain << " " 
+                               << m_rampCache[i].m_vRamp[0] << " " 
+                               << m_rampCache[i].m_vRamp[1] << " " 
+                               << m_rampCache[i].m_vRamp[2] << " " 
+                               << " Compare = " << (rampP == m_rampCache[i]) );
 		if (rampP != m_rampCache[i] && !rampP.isEmpty()) {
-		    log << MSG::ERROR <<"LArRampMC and cache NOT equal" << endreq;
+                    ATH_MSG_ERROR ("LArRampMC and cache NOT equal" );
 		    error = true;
 		}
 	    }
 	}
     }
-    
 
-
-    log << MSG::DEBUG <<"Compare LArRampMC with corrections "
-	    << endreq;
+    ATH_MSG_DEBUG ("Compare LArRampMC with corrections " );
 
     if (m_applyCorrections) {
 	for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
@@ -1056,45 +809,37 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCorrections[i].m_channelID, 
 							  m_rampCorrections[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New        : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " "  );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
 	    
-	    log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i]))
-		<< endreq;
+	    ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i])) );
 	    if (!CorrectionCompare(rampP, m_rampCorrections[i]) && !rampP.isEmpty()) {
 		
-		log << MSG::ERROR <<"Before correction: LArRampMC and correction DO NOT compare - should have opposite signs for rampes" << endreq;
+                ATH_MSG_ERROR ("Before correction: LArRampMC and correction DO NOT compare - should have opposite signs for rampes" );
 		error = true;
 	    }
 	}
     
 
-	log << MSG::DEBUG <<"Apply corrections and compare LArRampMC with corrections "
-	    << endreq;
-	StatusCode sc = ramps_rw->applyCorrections();
-	if(sc!=StatusCode::SUCCESS){ 
-	    log << MSG::ERROR << " Can not apply corrections" << endreq;
-	    return (sc);
-	}
-	log << MSG::DEBUG <<"Corrections applied: " << ramps->correctionsApplied()
-	    << endreq;
+	ATH_MSG_DEBUG ("Apply corrections and compare LArRampMC with corrections " );
+	ATH_CHECK( ramps_rw->applyCorrections() );
+	ATH_MSG_DEBUG ("Corrections applied: " << ramps->correctionsApplied() );
 
 	for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 	    LArRampComplete::LArCondObj rampP           = ramps->get(m_rampCorrections[i].m_channelID, 
@@ -1102,42 +847,34 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCorrections[i].m_channelID, 
 							  m_rampCorrections[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New        : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " "  );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
-	    log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (rampP == m_rampCorrections[i])
-		<< endreq;
+	    ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (rampP == m_rampCorrections[i]) );
 	    if (rampP != m_rampCorrections[i] && !rampP.isEmpty()) {
-		log << MSG::ERROR <<"After correction: LArRampMC and correction NOT equal" << endreq;
+                ATH_MSG_ERROR ("After correction: LArRampMC and correction NOT equal" );
 		error = true;
 	    }
 	}
 
-	log << MSG::DEBUG <<"Undo corrections and compare LArRampMC with corrections "
-	    << endreq;
-	sc = ramps_rw->undoCorrections();
-	if(sc!=StatusCode::SUCCESS){ 
-	    log << MSG::ERROR << " Can not undo corrections" << endreq;
-	    return (sc);
-	}
-	log << MSG::DEBUG <<"Corrections applied: " << ramps->correctionsApplied()
-	    << endreq;
+	ATH_MSG_DEBUG ("Undo corrections and compare LArRampMC with corrections " );
+	ATH_CHECK( ramps_rw->undoCorrections() );
+	ATH_MSG_DEBUG ("Corrections applied: " << ramps->correctionsApplied() );
 
 	for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 	    LArRampComplete::LArCondObj rampP           = ramps->get(m_rampCorrections[i].m_channelID, 
@@ -1145,43 +882,35 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCorrections[i].m_channelID, 
 							  m_rampCorrections[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New        : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " "  );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
-	    log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i]))
-		<< endreq;
+	    ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i])) );
 	    if (!CorrectionCompare(rampP, m_rampCorrections[i]) && !rampP.isEmpty()) {
 		
-		log << MSG::ERROR <<"After undo: LArRampMC and correction DO NOT compare - should have opposite signs for rampes" << endreq;
+                ATH_MSG_ERROR ("After undo: LArRampMC and correction DO NOT compare - should have opposite signs for ramps" );
 		error = true;
 	    }
 	}
 
-	log << MSG::DEBUG <<"2nd Apply corrections and compare LArRampMC with corrections "
-	    << endreq;
-	sc = ramps_rw->applyCorrections();
-	if(sc!=StatusCode::SUCCESS){ 
-	    log << MSG::ERROR << " Can not apply corrections" << endreq;
-	    return (sc);
-	}
-	log << MSG::DEBUG <<"Corrections applied: " << ramps->correctionsApplied()
-	    << endreq;
+	ATH_MSG_DEBUG ("2nd Apply corrections and compare LArRampMC with corrections " );
+	ATH_CHECK( ramps_rw->applyCorrections() );
+	ATH_MSG_DEBUG ("Corrections applied: " << ramps->correctionsApplied() );
 
 	for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 	    LArRampComplete::LArCondObj rampP           = ramps->get(m_rampCorrections[i].m_channelID, 
@@ -1189,42 +918,34 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCorrections[i].m_channelID, 
 							  m_rampCorrections[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New        : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " "  );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
-	    log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (rampP == m_rampCorrections[i])
-		<< endreq;
+	    ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (rampP == m_rampCorrections[i]) );
 	    if (rampP != m_rampCorrections[i] && !rampP.isEmpty()) {
-		log << MSG::ERROR <<"After correction: LArRampMC and correction NOT equal" << endreq;
+                ATH_MSG_ERROR ("After correction: LArRampMC and correction NOT equal" );
 		error = true;
 	    }
 	}
 
-	log << MSG::DEBUG <<"2nd Undo corrections and compare LArRampMC with corrections "
-	    << endreq;
-	sc = ramps_rw->undoCorrections();
-	if(sc!=StatusCode::SUCCESS){ 
-	    log << MSG::ERROR << " Can not undo corrections" << endreq;
-	    return (sc);
-	}
-	log << MSG::DEBUG <<"Corrections applied: " << ramps->correctionsApplied()
-	    << endreq;
+	ATH_MSG_DEBUG ("2nd Undo corrections and compare LArRampMC with corrections " );
+	ATH_CHECK( ramps_rw->undoCorrections() );
+	ATH_MSG_DEBUG ("Corrections applied: " << ramps->correctionsApplied() );
 
 	for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 	    LArRampComplete::LArCondObj rampP           = ramps->get(m_rampCorrections[i].m_channelID, 
@@ -1232,30 +953,28 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    unsigned int coolChannel = ramps->coolChannel(m_rampCorrections[i].m_channelID, 
 							  m_rampCorrections[i].m_gain);
 	    if (!rampP.isEmpty()) {
-		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
-		    << coolChannel << " "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << rampP.m_vRamp[0] << " " 
-		    << rampP.m_vRamp[1] << " " 
-		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ("New        : cool chan, chan id, gain, ramps "
+                             << coolChannel << " "
+                             << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                             << m_rampCorrections[i].m_gain << " " 
+                             << rampP.m_vRamp[0] << " " 
+                             << rampP.m_vRamp[1] << " " 
+                             << rampP.m_vRamp[2] << " "  );
 	    }
 	    else {
-		log << MSG::DEBUG <<"New  : isEmpty " << endreq;
+              ATH_MSG_DEBUG ("New  : isEmpty " );
 	    }
-	    log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		<< coolChannel << " "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i]))
-		<< endreq;
+	    ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                           << coolChannel << " "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (CorrectionCompare(rampP, m_rampCorrections[i])) );
 	    if (!CorrectionCompare(rampP, m_rampCorrections[i]) && !rampP.isEmpty()) {
-		
-		log << MSG::ERROR <<"After undo: LArRampMC and correction DO NOT compare - should have opposite signs for rampes" << endreq;
+ 		
+                ATH_MSG_ERROR ("After undo: LArRampMC and correction DO NOT compare - should have opposite signs for ramps" );
 		error = true;
 	    }
 	}
@@ -1367,55 +1086,43 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
     removed.  
     */
 
-    log << MSG::DEBUG <<"Number of channels, iovs "
-	<< ramps->chan_size() << " " << ramps->iov_size()
-	<< endreq;
+    ATH_MSG_DEBUG ("Number of channels, iovs "
+                   << ramps->chan_size() << " " << ramps->iov_size() );
 
     std::set<unsigned int> channelNumbers;
     CONTAINER::chan_const_iterator   chanIt  = ramps->chan_begin();
     CONTAINER::chan_const_iterator   endChan = ramps->chan_end  ();
     for (unsigned int i = 0; chanIt != endChan; ++chanIt, ++i) {
 	const CONTAINER::Subset* subset = ramps->at(i);
-	log << MSG::DEBUG << "Index " << i 
-	    << " channel "           << subset->channel() 
-	    << " gain "              << subset->gain() 
-	    << " groupingType "      << subset->groupingType()
-	    << " subsetSize "        << subset->subsetSize()
-	    << " correctionVecSize " << subset->correctionVecSize()
-	    << endreq;
+	ATH_MSG_DEBUG ( "Index " << i 
+                        << " channel "           << subset->channel() 
+                        << " gain "              << subset->gain() 
+                        << " groupingType "      << subset->groupingType()
+                        << " subsetSize "        << subset->subsetSize()
+                        << " correctionVecSize " << subset->correctionVecSize() );
 	if ((*chanIt) != subset->channel()) {
-	    log << MSG::ERROR << "Channel numbers not the same for MultChanColl and subset: " 
-		<< i 
-		<< " multchan "           << (*chanIt)
-		<< " subset   "           << subset->channel() 
-		<< endreq;
+          ATH_MSG_ERROR ( "Channel numbers not the same for MultChanColl and subset: " 
+                          << i 
+                          << " multchan "           << (*chanIt)
+                          << " subset   "           << subset->channel()  );
 	    error = true;
 	}
 	if (!(channelNumbers.insert(subset->channel()).second)) {
-	    log << MSG::ERROR << "Duplicate channel number - Index " << i 
-		<< " channel "           << subset->channel() 
-		<< endreq;
+            ATH_MSG_ERROR ( "Duplicate channel number - Index " << i 
+                            << " channel "           << subset->channel()  );
 	    error = true;
 	}
     }
-    log << MSG::DEBUG << "Channel numbers size " << channelNumbers.size()
-	<< " ramps size " << ramps->chan_size()
-	<< endreq;
+    ATH_MSG_DEBUG ( "Channel numbers size " << channelNumbers.size()
+                    << " ramps size " << ramps->chan_size() );
     
-
     if (error) {
-	log << MSG::ERROR <<"Failing check of LArRamp - see above" << endreq;
+        ATH_MSG_ERROR ("Failing check of LArRamp - see above" );
 	return (StatusCode::FAILURE);
     }
 
-
-
-
-
-    log << MSG::DEBUG << "End of testEachCondObject " << endreq;
-
+    ATH_MSG_DEBUG ( "End of testEachCondObject " );
     return StatusCode::SUCCESS; 
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -1427,8 +1134,7 @@ LArConditionsTestAlg::testChannelSet()
     typedef LArConditionsChannelSet<LArRampComplete::LArCondObj>    ChanSet;
     typedef ChanSet::ConstChannelIt              ConstChannelIt;
 
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in testChannelSet" <<endreq;
+    ATH_MSG_INFO ("in testChannelSet" );
 
     ChanSet chanSet;
     
@@ -1444,15 +1150,12 @@ LArConditionsTestAlg::testChannelSet()
 	// Now loop over corrections and check that they agree
 	bool error = false;
 	if (m_rampCorrections.size() != chanSet.size()) {
-	    log << MSG::ERROR <<"Corrections not the same size as channel set: " 
-		<< m_rampCorrections.size() << " " << chanSet.size()
-		<< endreq;
+            ATH_MSG_ERROR ("Corrections not the same size as channel set: " 
+                           << m_rampCorrections.size() << " " << chanSet.size() );
 	    return (StatusCode::FAILURE);
 	}
 	else {
-	    log << MSG::DEBUG <<"Sizes OK: " 
-		<< chanSet.size()
-		<< endreq;
+          ATH_MSG_DEBUG ("Sizes OK: "  << chanSet.size() );
 	}
 
 	ConstChannelIt it    = chanSet.begin();
@@ -1466,30 +1169,28 @@ LArConditionsTestAlg::testChannelSet()
 	    HWIdentifier id1((*it).first);
 	    LArRampComplete::LArCondObj rampP           = (*it).second;
 	    if (id != id1 || rampP != m_rampCorrections[i]) {
-		log << MSG::ERROR <<"Correction retrieved with iterator does not match: " 
-		    << " i = " << i
-		    << endreq;
+                ATH_MSG_ERROR ("Correction retrieved with iterator does not match: " 
+                               << " i = " << i );
 		error = true;
 	    }
-	    log << MSG::DEBUG <<"New        : chan id, gain, ramps "
-		<< m_onlineID->show_to_string(id1) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< rampP.m_vRamp[0] << " " 
-		<< rampP.m_vRamp[1] << " " 
-		<< rampP.m_vRamp[2] << " " 
-		<< endreq;
-	    log << MSG::DEBUG <<"Corrections: chan id, gain, ramps "
-		<< m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		<< m_rampCorrections[i].m_gain << " " 
-		<< m_rampCorrections[i].m_vRamp[0] << " " 
-		<< m_rampCorrections[i].m_vRamp[1] << " " 
-		<< m_rampCorrections[i].m_vRamp[2] << " " 
-		<< " Compare = " << (rampP == m_rampCorrections[i])
-		<< endreq;
+	    ATH_MSG_DEBUG ("New        : chan id, gain, ramps "
+                           << m_onlineID->show_to_string(id1) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << rampP.m_vRamp[0] << " " 
+                           << rampP.m_vRamp[1] << " " 
+                           << rampP.m_vRamp[2] << " " 
+                           );
+	    ATH_MSG_DEBUG ("Corrections: chan id, gain, ramps "
+                           << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                           << m_rampCorrections[i].m_gain << " " 
+                           << m_rampCorrections[i].m_vRamp[0] << " " 
+                           << m_rampCorrections[i].m_vRamp[1] << " " 
+                           << m_rampCorrections[i].m_vRamp[2] << " " 
+                           << " Compare = " << (rampP == m_rampCorrections[i])
+                           );
 	}
 	if (!error) {
-	    log << MSG::DEBUG <<"Iteration check OK " 
-		<< endreq;
+          ATH_MSG_DEBUG ("Iteration check OK "  );
 	}
 	
 	i = 0;
@@ -1498,26 +1199,24 @@ LArConditionsTestAlg::testChannelSet()
 	    unsigned int id = m_rampCorrections[i].m_channelID.get_identifier32().get_compact();
 	    it = chanSet.find(id);
 	    if (it == itEnd) {
-		log << MSG::ERROR <<"Could not find correction: " 
-		    << " i = " << i
-		    << endreq;
+                ATH_MSG_ERROR ("Could not find correction: " 
+                               << " i = " << i );
 		error = true;
-		log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
-		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
-		    << m_rampCorrections[i].m_gain << " " 
-		    << m_rampCorrections[i].m_vRamp[0] << " " 
-		    << m_rampCorrections[i].m_vRamp[1] << " " 
-		    << m_rampCorrections[i].m_vRamp[2] << " " 
-		    << endreq;
+		ATH_MSG_DEBUG ("Corrections: cool chan, chan id, gain, ramps "
+                               << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
+                               << m_rampCorrections[i].m_gain << " " 
+                               << m_rampCorrections[i].m_vRamp[0] << " " 
+                               << m_rampCorrections[i].m_vRamp[1] << " " 
+                               << m_rampCorrections[i].m_vRamp[2] << " " 
+                               );
 	    }
 	}
 	if (!error) {
-	    log << MSG::DEBUG <<"Find check OK " 
-		<< endreq;
+          ATH_MSG_DEBUG ("Find check OK "  );
 	}
 
 	if (error) {
-	    log << MSG::ERROR <<"Failing check of channel set - see above" << endreq;
+            ATH_MSG_ERROR ("Failing check of channel set - see above" );
 	    return (StatusCode::FAILURE);
 	}
     }
@@ -1531,15 +1230,8 @@ LArConditionsTestAlg::testChannelSet()
 StatusCode 
 LArConditionsTestAlg::printCondObjects()
 {
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in printCondObjects()" <<endreq;
-
-    // Create LArRampMC
-
-    
-
-    return StatusCode::SUCCESS; 
+  ATH_MSG_INFO ("in printCondObjects()" );
+  return StatusCode::SUCCESS; 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -1547,15 +1239,8 @@ LArConditionsTestAlg::printCondObjects()
 StatusCode 
 LArConditionsTestAlg::streamOutCondObjects()
 {
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in streamOutCondObjects()" <<endreq;
-
-    // Create LArRampMC
-
-    
-
-    return StatusCode::SUCCESS; 
+  ATH_MSG_INFO ("in streamOutCondObjects()" );
+  return StatusCode::SUCCESS; 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -1563,15 +1248,8 @@ LArConditionsTestAlg::streamOutCondObjects()
 StatusCode 
 LArConditionsTestAlg::registerCondObjects()
 {
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO <<"in registerCondObjects()" <<endreq;
-
-    // Create LArRampMC
-
-    
-
-    return StatusCode::SUCCESS; 
+  ATH_MSG_INFO ("in registerCondObjects()" );
+  return StatusCode::SUCCESS; 
 }
 
 
@@ -1580,11 +1258,9 @@ StatusCode
 LArConditionsTestAlg::testCallBack1( int& i , std::list<std::string>& l  ) 
 {
   
-    MsgStream  log(messageService(),name());
-
-    log << MSG::DEBUG << " testing Call back function1 " <<endreq;
-    log<< MSG::DEBUG<<" int =  " << i <<endreq;
-    log<< MSG::DEBUG<<" list<string> size =  " << l.size() <<endreq;
+    ATH_MSG_DEBUG ( " testing Call back function1 " );
+    ATH_MSG_DEBUG(" int =  " << i );
+    ATH_MSG_DEBUG(" list<string> size =  " << l.size() );
 
 //     if(m_testCondObject){ 
 // 	const ILArRamp* ramp = m_ramp; 
@@ -1592,33 +1268,21 @@ LArConditionsTestAlg::testCallBack1( int& i , std::list<std::string>& l  )
 //     }  
  
     return StatusCode::SUCCESS;
-
 }
 
 
 StatusCode  LArConditionsTestAlg::testCallBack2( int& i , std::list<std::string>& l  ) 
 {
-  
-    MsgStream  log(messageService(),name());
-
-    log << MSG::DEBUG << " testing Call back function2 " <<endreq;
-
-    log<< MSG::DEBUG<<" int =  " << i <<endreq;
-    log<< MSG::DEBUG<<" list<string> size =  " << l.size() <<endreq;
-
+    ATH_MSG_DEBUG ( " testing Call back function2 " );
+    ATH_MSG_DEBUG(" int =  " << i );
+    ATH_MSG_DEBUG(" list<string> size =  " << l.size() );
     return StatusCode::SUCCESS;
-
 }
 
 StatusCode LArConditionsTestAlg::testFillIOVDb()
 {
-
-    MsgStream  log(messageService(),name());
-    IToolSvc* toolSvc;
-    if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
-	return StatusCode::FAILURE; 
-    }
+    IToolSvc* toolSvc = nullptr;
+    ATH_CHECK( service("ToolSvc", toolSvc) );
 
 //      IFillNovaIOVTool* fill; 
 //      if(StatusCode::SUCCESS != toolSvc->retrieveTool("FillNovaIOVTool",fill ))
@@ -1674,29 +1338,26 @@ StatusCode LArConditionsTestAlg::testFillIOVDb()
 
 void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 { // we get BeginRun incident here. 
- 
-    MsgStream  log(messageService(),name());
-    StatusCode sc; 
-    log<< MSG::DEBUG<<" in LArConditionsTestAlg::handle "<<endreq;
+    ATH_MSG_DEBUG(" in LArConditionsTestAlg::handle ");
 
-    const LArEM_ID*  emid ; 
-    sc = m_detStore->retrieve( emid);
+    const LArEM_ID*  emid = nullptr;
+    StatusCode sc = detStore()->retrieve( emid);
     if(sc!=StatusCode::SUCCESS){ 
-	log << MSG::ERROR << " Can not retrieve LArEM_ID" << endreq;
+        ATH_MSG_ERROR ( " Can not retrieve LArEM_ID" );
 	return;
     }
 
     // retrieve DetDescrManager and LArCablingService
-    IToolSvc* toolSvc;
+    IToolSvc* toolSvc = nullptr;
     if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
+        ATH_MSG_ERROR (" Failed to get ToolSvc" );
 	// return StatusCode::FAILURE ; 
 	return; 
     }
 
 
     if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArCablingService",m_cablingSvc) ) {
-	log<< MSG::ERROR <<" Failed to get LArCablingService" <<endreq;     
+        ATH_MSG_ERROR (" Failed to get LArCablingService" );
 	// return StatusCode::FAILURE ; 
 	return; 
     }
@@ -1739,7 +1400,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
     // Access LArCablingService, which should use LArFebRodMap and LArOnOffIdMap.
 
     const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec(); 
-    log << MSG::DEBUG << " Number of LArReadoutModuleIDs= " << roms.size() << endreq;
+    ATH_MSG_DEBUG ( " Number of LArReadoutModuleIDs= " << roms.size() );
 
 //    std::vector<HWIdentifier>::const_iterator it = febs.begin();
 //    std::vector<HWIdentifier>::const_iterator it_end = febs.end();
@@ -1747,8 +1408,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
     std::vector<HWIdentifier>::const_iterator it_end = m_onlineID->channel_end();
 
     int ntot = it_end-it; 
-    log<< MSG::DEBUG<< " Total number of online channels from LArOnlineID "
-       <<ntot << endreq;
+    ATH_MSG_DEBUG( " Total number of online channels from LArOnlineID " <<ntot);
 
     int nch = 0; 
     int nconnected = 0; 
@@ -1761,9 +1421,9 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
     const ILArShape* pShape=0; 
     if(!m_shape) {
        // try retrieving it 
-       sc = m_detStore->retrieve(pShape);
+       sc = detStore()->retrieve(pShape);
        if (sc.isSuccess() ){
-	log<<MSG::INFO<<" use ILArShape pointer retrieved from DetStore"<<endreq;
+         ATH_MSG_INFO(" use ILArShape pointer retrieved from DetStore");
        } 
     } else 
        pShape = m_shape; 
@@ -1785,11 +1445,11 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 	    HWIdentifier sid2 =m_cablingSvc->createSignalChannelID(id);
 	    ++nch ;
 	    if( sid  !=sid2  ) { 		
-		log<< MSG::ERROR<< " HWIdentifier mismatch,  sid "
+              ATH_MSG_ERROR( " HWIdentifier mismatch,  sid "
 		   <<" "<<sid<<" "<<m_onlineID->show_to_string(sid)
 		   <<" offline id = "<< id <<" "<<m_onlineID->show_to_string(id) 
 		   <<" sid2 = "<< sid2 <<" "<<m_onlineID->show_to_string(sid2) 
-		   <<endreq;
+                             );
 		++nerr; 
 	    } 
 	    else { // good identifier, test conditions objects
@@ -1798,20 +1458,20 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 		const std::vector<HWIdentifier>&
 		    calib = m_cablingSvc->calibSlotLine(sid) ; 
 		if(calib.size()==0) {
-		    log<< MSG::ERROR<< " No calibration for this channel,hdw id="
-		       <<sid.get_compact() << endreq;
+                  ATH_MSG_ERROR( " No calibration for this channel,hdw id="
+                                 <<sid.get_compact() );
 		} 
 		else {
-		    log<< MSG::VERBOSE<< " Calib ID ="<<m_onlineID->show_to_string(calib[0])
-		       <<endreq;
+                  ATH_MSG_VERBOSE( " Calib ID ="<<m_onlineID->show_to_string(calib[0])
+                                   );
 		}
 
  		if(m_testMC)  { 
 		  ILArRamp::RampRef_t v = m_ramp->ADC2DAC(sid, 0 ); 
 
  		    if(v.size()<2) {
- 			log<< MSG::ERROR<< " Failed to find ramp, hdw id = " 
- 			   <<sid.get_compact() <<" "<< id.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find ramp, hdw id = " 
+                                     <<sid.get_compact() <<" "<< id.get_compact() );
  			emid->print(id); 
  		    } 
 
@@ -1824,8 +1484,8 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
 		    ILArAutoCorr::AutoCorrRef_t v2 = m_autoCorr->autoCorr(sid, 0 ); 
   		    if(v2.size()!=4) {
- 			log<< MSG::ERROR<< " Failed to find AutoCorr, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find AutoCorr, hdw id = " 
+                                     <<sid.get_compact() );
  		    } 
 
 
@@ -1837,22 +1497,23 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
                         ILArShape::ShapeRef_t vShape=pShape->Shape(sid, 0,m_tbin);
                         ILArShape::ShapeRef_t vShapeDer=pShape->ShapeDer(sid, 0,m_tbin );
   			if(vShape.size() ==0 || vShapeDer.size() == 0 ) { 
- 			    log<< MSG::ERROR<< " Failed to get Shape or ShapeDer,  hdw id = " 
- 			       <<sid.get_compact() << " size = " << vShape.size() << " " << vShapeDer.size()<< endreq;
-  			} else 
-			{
-			  log<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
-		          log<<MSG::VERBOSE<<" Shape= " ;
-			  for (unsigned int i=0;i<vShape.size();++i){
-			    log<<" " << vShape[i] ; 
-			  }
-			  log<<endreq;
-		          log<<MSG::VERBOSE<<" ShapeDer=" ;
-			  for (unsigned int i=0;i<vShapeDer.size();++i){
-			    log<<" " << vShapeDer[i] ; 
-			  }
-			  log<<endreq;
-
+                          ATH_MSG_ERROR( " Failed to get Shape or ShapeDer,  hdw id = " 
+                                         <<sid.get_compact() << " size = " << vShape.size() << " " << vShapeDer.size());
+  			}
+                        else {
+                          if (msgLvl (MSG::VERBOSE)) {
+                            msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
+                            msg()<<MSG::VERBOSE<<" Shape= " ;
+                            for (unsigned int i=0;i<vShape.size();++i){
+                              msg()<<" " << vShape[i] ; 
+                            }
+                            msg()<<endreq;
+                            msg()<<MSG::VERBOSE<<" ShapeDer=" ;
+                            for (unsigned int i=0;i<vShapeDer.size();++i){
+                              msg()<<" " << vShapeDer[i] ; 
+                            }
+                            msg()<<endreq;
+                          }
 			}
 
  		    } 
@@ -1860,22 +1521,22 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
   				// pedestal 
   		    float vPed = m_pedestal->pedestal( sid,0  ) ; 
  		    if(vPed <= (1.0+LArElecCalib::ERRORCODE)) {
-  			log<< MSG::ERROR<< " Failed to find pedestal, hdw id = " 
-  			   <<sid.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find pedestal, hdw id = " 
+                                     <<sid.get_compact() );
   		    } 
 
   				// fSampl
   		    float fs = m_fSampl->FSAMPL( sid  ) ; 
   		    if( fs==0 ) {
-  			log<< MSG::ERROR<< " Failed to find fSampl, hdw id = " 
-  			   <<sid.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find fSampl, hdw id = " 
+                                     <<sid.get_compact() );
  		    } 
 
  				// MinBias
   		    float mbs = m_minBias->minBiasRMS( sid  ) ; 
  		    if( mbs==0 ) {
- 			log<< MSG::ERROR<< " Failed to find MinBias, hdw id = " 
- 			   <<sid.get_compact() << endreq;
+                      ATH_MSG_ERROR( " Failed to find MinBias, hdw id = " 
+                                     <<sid.get_compact() );
  		    } 
 
 		}// end of m_testMC
@@ -1886,23 +1547,19 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 	catch (LArID_Exception& except) {
 	    // this is allowed.
 	    std::string err = m_onlineID->print_to_string(sid); 
-	    log<< MSG::VERBOSE<< (std::string)except << sid.get_identifier32().get_compact()<<endreq;
-	    log<< MSG::VERBOSE<< err <<endreq;
+	    ATH_MSG_VERBOSE( (std::string)except << sid.get_identifier32().get_compact());
+	    ATH_MSG_VERBOSE( err );
 	} 
 // 	  }
     }
-    log<< MSG::DEBUG <<" Number of Connected Channel ID = " <<nconnected <<endreq;
-    log<< MSG::DEBUG <<" Number of Valid Channel ID = " <<nch <<endreq;
-    if(nerr>0) log<< MSG::ERROR <<" Number channels with incorrect mapping= " <<nerr <<endreq;
+    ATH_MSG_DEBUG (" Number of Connected Channel ID = " <<nconnected );
+    ATH_MSG_DEBUG (" Number of Valid Channel ID = " <<nch );
+    if(nerr>0) ATH_MSG_ERROR (" Number channels with incorrect mapping= " <<nerr );
 
     if (n_err_uA2MeV!=0) 
-	log <<MSG::DEBUG <<" Number of channels without uA2MeV "<<n_err_uA2MeV<<endreq;
+      ATH_MSG_DEBUG (" Number of channels without uA2MeV "<<n_err_uA2MeV);
     if (n_err_DAC2uA!=0) 
-	log <<MSG::DEBUG <<" Number of channels without DAC2uA"<<n_err_DAC2uA<<endreq;
-
-
-
-
+      ATH_MSG_DEBUG (" Number of channels without DAC2uA"<<n_err_DAC2uA);
 // test DCS data 
 //    testDCS_Objects() ;
 
@@ -1917,20 +1574,13 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
     typedef LArRampMC::CONTAINER  CONTAINER; 
     typedef CONTAINER::Subset     Subset;
 
-    MsgStream  log(messageService(),name());
-
-    std::string key = "LArRamp";
     const LArRampMC* ramp = 0 ;
-    m_detStore->retrieve(ramp, key);
-    if(!ramp) {
-	log<< MSG::ERROR<<" Failed to get LArRamp in execute " << endreq;
-	return StatusCode::FAILURE ; 
-    }
+    ATH_CHECK( detStore()->retrieve(ramp, "LArRamp") );
   
-    log << MSG::DEBUG << " Found LArRampMC, key LArRamp." << endreq;
+    ATH_MSG_DEBUG ( " Found LArRampMC, key LArRamp." );
 
     // Print out channels
-    log << MSG::DEBUG << " Number of channels " << ramp->chan_size() << endreq;
+    ATH_MSG_DEBUG ( " Number of channels " << ramp->chan_size() );
 
     // Print out first 10 elements of each gain for subset
     CONTAINER::chan_const_iterator   chanIt  = ramp->chan_begin();
@@ -1939,12 +1589,12 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
 	unsigned int coolChan = *chanIt;
 	const Subset* subset = ramp->at(i);
 
-	log << MSG::DEBUG << " Channel " << coolChan << " "
-	    << " Subset size " << subset->subsetSize() 
-	    << " gain, channel, grouping type " << subset->gain() << " "
-	    << MSG::hex << subset->channel() << " "  << MSG::dec
-	    << subset->groupingType() << " "
-	    << endreq;
+	ATH_MSG_DEBUG ( " Channel " << coolChan << " "
+                        << " Subset size " << subset->subsetSize() 
+                        << " gain, channel, grouping type " << subset->gain() << " "
+                        << MSG::hex << subset->channel() << " "  << MSG::dec
+                        << subset->groupingType() << " "
+                        );
 
 	Subset::ConstSubsetIt   first = subset->subsetBegin();
 	Subset::ConstSubsetIt   last  = subset->subsetEnd();
@@ -1954,17 +1604,17 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
 	    // select non-zero subsets
 	    if ((*first).second.size()) {
 
-		log << MSG::DEBUG << " FEB id " 
-		    << m_onlineID->show_to_string(HWIdentifier((*first).first)) << " " 
-		    << endreq;
+              ATH_MSG_DEBUG ( " FEB id " 
+                              << m_onlineID->show_to_string(HWIdentifier((*first).first)) << " " 
+                              );
 		for (unsigned int k = 0; k < 5; ++k) {
-		    log << MSG::DEBUG << " vramp " ;
+                    msg() << MSG::DEBUG << " vramp " ;
 //			<< m_onlineID->show_to_string((*first).second[k].m_channelID) << " " 
 //			<< (*first).second[k].m_gain << " ";
 		    for (unsigned int j = 0; j < (*first).second[k].m_vRamp.size(); ++j) {
-			log << MSG::DEBUG << (*first).second[k].m_vRamp[j] << " ";
+                      msg() << MSG::DEBUG << (*first).second[k].m_vRamp[j] << " ";
 		    }
-		    log << MSG::DEBUG << endreq;
+		    msg() << MSG::DEBUG << endreq;
 		}
 
 	    }

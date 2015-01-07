@@ -21,14 +21,12 @@
  *
 **/
 
-#include "GaudiKernel/Algorithm.h" 
+#include "AthenaBaseComps/AthAlgorithm.h" 
 #include "GaudiKernel/IIncidentListener.h" 
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArFecLvTempDcsTool.h"
 
-class StoreGateSvc;
-
-class LArFecLvTempDcsTest : public Algorithm 
+class LArFecLvTempDcsTest : public AthAlgorithm 
 {
 
 public:

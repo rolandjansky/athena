@@ -5,7 +5,7 @@
 #ifndef FIXLARELECCALIB_H
 #define FIXLARELECCALIB_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include <string>
@@ -28,7 +28,7 @@ class  CaloCell_SuperCell_ID;
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArMphysOverMcalMC.h"
 
-class FixLArElecCalib : public Algorithm
+class FixLArElecCalib : public AthAlgorithm
 {
  public:
   FixLArElecCalib(const std::string& name,ISvcLocator* pSvcLocator);
@@ -66,25 +66,25 @@ class FixLArElecCalib : public Algorithm
   template <class T>
   StatusCode update_EM_HEC(const std::string& em_filename,const std::string& hec_filename, bool withGain, int nvar);
 
-  void print_object(MsgStream& log, const std::string& msg, const LArNoiseMC::LArCondObj& obj); 
+  void print_object(const std::string& msg, const LArNoiseMC::LArCondObj& obj); 
   void set_object(LArNoiseMC::LArCondObj& obj, std::vector<float>& v ); 
 
-  void print_object(MsgStream& log, const std::string& msg, const LArAutoCorrMC::LArCondObj& obj); 
+  void print_object(const std::string& msg, const LArAutoCorrMC::LArCondObj& obj); 
   void set_object(LArAutoCorrMC::LArCondObj& obj, std::vector<float>& v ); 
 
-  void print_object(MsgStream& log, const std::string& msg, const LArRampMC::LArCondObj& obj); 
+  void print_object(const std::string& msg, const LArRampMC::LArCondObj& obj); 
   void set_object(LArRampMC::LArCondObj& obj, std::vector<float>& v ); 
 
-  //void print_object(MsgStream& log, const std::string& msg, const LAruA2MeVMC::LArCondObj& obj); 
+  //void print_object(const std::string& msg, const LAruA2MeVMC::LArCondObj& obj); 
   //void set_object(LAruA2MeVMC::LArCondObj& obj, std::vector<float>& v ); 
 
-  void print_object(MsgStream& log, const std::string& msg, const LArShape32MC::LArCondObj& obj); 
+  void print_object(const std::string& msg, const LArShape32MC::LArCondObj& obj); 
   void set_object(LArShape32MC::LArCondObj& obj, std::vector<float>& v ); 
 
-  void print_object(MsgStream& log, const std::string& msg, const LArSingleFloatP& obj); 
+  void print_object(const std::string& msg, const LArSingleFloatP& obj); 
   void set_object(LArSingleFloatP& obj, std::vector<float>& v ); 
 
-  //  void print_object(MsgStream& log, const std::string& msg, const LArDAC2uAMC::LArCondObj& obj); 
+  //  void print_object(const std::string& msg, const LArDAC2uAMC::LArCondObj& obj); 
   //void set_object(LArDAC2uAMC::LArCondObj& obj, std::vector<float>& v ); 
 
   StatusCode addMphysOverMcal() ; // add new one with default for FCAL
@@ -100,7 +100,6 @@ class FixLArElecCalib : public Algorithm
   int  m_fixFlag ; 
   std::string m_g4Phys; 
 
-  StoreGateSvc * m_detStore;
   const LArEM_ID* m_em_idhelper;
   const LArHEC_ID* m_hec_idhelper;
   const LArFCAL_ID* m_fcal_idhelper;
@@ -125,17 +124,10 @@ class FixLArElecCalib : public Algorithm
 template <class T >
   StatusCode FixLArElecCalib::update_EM_HEC(const std::string& em_filename,const std::string& hec_filename, bool withGain, int nvar)
 {
-
    // read in the file
 
-   MsgStream  log(messageService(),name());
-
-   const T * container_c; 
-   StatusCode sc=m_detStore->retrieve(container_c) ; 
-   if(sc!=StatusCode::SUCCESS){ 
-     log<< MSG::ERROR<<" Can not find Container for "<<em_filename<<" " <<hec_filename <<endreq;
-     return sc;
-   }
+   const T * container_c = nullptr; 
+   ATH_CHECK( detStore()->retrieve(container_c) );
 
    T* container = const_cast<T*>(container_c);
     
@@ -147,25 +139,13 @@ template <class T >
 	 {  
 	   if ( em_filename == "") continue ; 
 	   bool EM=true;
-	   sc = ReadFile(em_filename,EM,withGain,nvar);
-	   
-	   if(sc!=StatusCode::SUCCESS){ 
-	     log<< MSG::ERROR<<" Failed to read file "<<em_filename <<endreq;
-	     return sc;
-	   }
-     
+	   ATH_CHECK( ReadFile(em_filename,EM,withGain,nvar) );
 	 }
        if( i==1 )
 	 {  
 	   if ( hec_filename == "") continue ; 
 	   bool EM=false ;
-	   sc = ReadFile(hec_filename,EM,withGain,nvar);
-	   
-	   if(sc!=StatusCode::SUCCESS){ 
-	     log<< MSG::ERROR<<" Failed to read file "<<hec_filename <<endreq;
-	     return sc;
-	   }
-     
+	   ATH_CHECK( ReadFile(hec_filename,EM,withGain,nvar) );
 	 }
 
 
@@ -184,30 +164,30 @@ template <class T >
 
 	     if( u.isEmpty() ) 
 	       {
-		 log<<MSG::WARNING<<" No existing conditions data, adding new one " <<endreq;
+		 ATH_MSG_WARNING(" No existing conditions data, adding new one " );
 		 CONDOBJ t  ;
 		 set_object(t,(*it).second)  ; 
 		 container->setPdata(hid,t,igain); 
 	       }
 	     else
 	       {
-		 print_object(log," Old object = ",u);
+		 print_object(" Old object = ",u);
 		 
 		 CONDOBJ& u2 = const_cast<CONDOBJ&>(u); 
 		 set_object(u2,(*it).second)  ; 
 	       }
 		 
 	     const CONDOBJ& u3 = container->get(hid,igain); 
-	     print_object(log," New object = ",u3);
+	     print_object(" New object = ",u3);
 		 
 	     ++n;
 	   }
-	 log<<MSG::INFO<< " done for gain ="<<igain<<" with "<<n<<" objects"<<endreq;
+	 ATH_MSG_INFO( " done for gain ="<<igain<<" with "<<n<<" objects");
 
        }// gain
      }// EM HEC
 
-   log<< MSG::INFO<<" done with EM "<<em_filename<<"  and HEC" <<hec_filename <<endreq;
+   ATH_MSG_INFO(" done with EM "<<em_filename<<"  and HEC" <<hec_filename );
    return StatusCode::SUCCESS;
 }
 

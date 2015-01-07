@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////
 
 LArFecLvTempDcsTest::LArFecLvTempDcsTest(const std::string& name, ISvcLocator* pSvcLocator) :
-	Algorithm(name,pSvcLocator),
+	AthAlgorithm(name,pSvcLocator),
         m_tool("LArFecLvTempDcsTool")
 {
   declareProperty("LArFecLvTempDcsTool",m_tool,"tool for LArFecLvTempDcs");
@@ -44,15 +44,8 @@ LArFecLvTempDcsTest::~LArFecLvTempDcsTest()
 
 StatusCode LArFecLvTempDcsTest::initialize()
 {
-    MsgStream  log(messageService(),name());
-    StatusCode sc;
-    sc = m_tool.retrieve();
-    if ( sc.isFailure() ){
-	log << MSG::ERROR << "Could not fetch LArFecLvTempDcsTool" << endreq;
-	return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
-
+  ATH_CHECK( m_tool.retrieve() );
+  return StatusCode::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -61,40 +54,30 @@ StatusCode LArFecLvTempDcsTest::initialize()
 
 StatusCode LArFecLvTempDcsTest::execute()
 {
-    MsgStream  log(messageService(),name());  
-    log<< MSG::DEBUG<<" LArCondDataTest::execute() "<<endreq;
+    ATH_MSG_DEBUG(" LArCondDataTest::execute() ");
 
-    StoreGateSvc* detStore;
-    StatusCode sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-      return sc;
-    }
-    
-    const LArOnlineID* onlineID;
-    sc = detStore->retrieve(onlineID, "LArOnlineID");
-    if (sc.isFailure()) {
-      return sc;
-    }
+    const LArOnlineID* onlineID = nullptr;
+    ATH_CHECK( detStore()->retrieve(onlineID, "LArOnlineID") );
 
     float test = 0;
     LArFecLvTempDcs fec;
-    sc = m_tool->getV1("crate_H13",test);
+    StatusCode sc = m_tool->getV1("crate_H13",test);
     sc = m_tool->getFec("crate_H13",fec);
-    log << MSG::DEBUG << "Voltage for crate_H13 " << test << endreq;
-    log << MSG::DEBUG << "Data from crate_H13 " << endreq;
-    fec.print( log );
+    ATH_MSG_DEBUG ( "Voltage for crate_H13 " << test );
+    ATH_MSG_DEBUG ( "Data from crate_H13 " );
+    fec.print( msg() );
     test = 0;
     sc = m_tool->getV1("atllarclvtemp:crate_H13",test);
-    log << MSG::DEBUG << "Voltage for atllarclvtemp:crate_H13 " << test << endreq;
+    ATH_MSG_DEBUG ( "Voltage for atllarclvtemp:crate_H13 " << test );
     test = 0;
     sc = m_tool->getV1("abccrate_H13def",test);
-    log << MSG::DEBUG << "Voltage for abccrate_H13def " << test << endreq;
+    ATH_MSG_DEBUG ( "Voltage for abccrate_H13def " << test );
 
     for ( std::vector<HWIdentifier>::const_iterator i=onlineID->feb_begin();
 	  i!=onlineID->feb_end();++i) {
-        log << MSG::DEBUG << " HWIdentifier : " << *i << endreq;
+        ATH_MSG_DEBUG ( " HWIdentifier : " << *i );
 	m_tool->getFec(*i,fec);
-	fec.print( log );
+	fec.print( msg() );
     }
 
     return sc ;
@@ -109,12 +92,8 @@ StatusCode LArFecLvTempDcsTest::execute()
 
 StatusCode LArFecLvTempDcsTest::finalize()
 {
-  MsgStream  log(messageService(),name());
-
-  log<<MSG::DEBUG << " finalize "<<endreq;
-
+  ATH_MSG_DEBUG ( " finalize ");
   return StatusCode::SUCCESS; 
-
 } 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

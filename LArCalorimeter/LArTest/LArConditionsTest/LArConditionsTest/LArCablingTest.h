@@ -6,16 +6,15 @@
 #define LARCABLINGTEST_H
 
 //Dear emacs, this is -*-c++-*-
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/HWIdentifier.h"
 
 class LArCablingService;
-class MsgStream;
 class LArOnlineID;
 class CaloCell_ID;
 
-class LArCablingTest : public Algorithm
+class LArCablingTest : public AthAlgorithm
 {
  public:
   LArCablingTest(const std::string & name, ISvcLocator * pSvcLocator);
@@ -26,7 +25,6 @@ class LArCablingTest : public Algorithm
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  MsgStream* m_log;
   ToolHandle<LArCablingService> m_larCablingSvc;
   bool m_print;
   unsigned m_mode;

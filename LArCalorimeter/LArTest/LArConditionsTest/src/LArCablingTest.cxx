@@ -12,7 +12,7 @@
 #include <fstream>
 
 LArCablingTest::LArCablingTest(const std::string& name, ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator), m_log(NULL), m_larCablingSvc("LArCablingService"), m_print(true),
+  AthAlgorithm(name, pSvcLocator), m_larCablingSvc("LArCablingService"), m_print(true),
   m_onlineId(0),
   m_caloCellId(0)
 {
@@ -22,23 +22,11 @@ LArCablingTest::LArCablingTest(const std::string& name, ISvcLocator* pSvcLocator
 }
 
 LArCablingTest::~LArCablingTest() {
-  delete m_log;
 }
 
 StatusCode LArCablingTest::initialize() {
-  m_log=new MsgStream(msgSvc(), name());
-
-  StoreGateSvc* detStore;
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
-  detStore->retrieve(m_onlineId,"LArOnlineID").ignore();
-  detStore->retrieve(m_caloCellId,"CaloCell_ID").ignore();
-  
-
+  detStore()->retrieve(m_onlineId,"LArOnlineID").ignore();
+  detStore()->retrieve(m_caloCellId,"CaloCell_ID").ignore();
   m_larCablingSvc.retrieve().ignore();
 
   return StatusCode::SUCCESS;

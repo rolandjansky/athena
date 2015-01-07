@@ -17,7 +17,7 @@ use CaloInterface        CaloInterface-*           Calorimeter
 use Identifier Identifier-* DetectorDescription 
 use CaloIdentifier CaloIdentifier-*  Calorimeter
 use LArIdentifier  LArIdentifier-*   LArCalorimeter
-
+use CaloTriggerTool      CaloTriggerTool-*      Calorimeter	
 
 
 # Test infrastructure
@@ -25,23 +25,26 @@ use TestPolicy           TestPolicy-*
 use MinimalRunTime       MinimalRunTime-* Control -no_auto_imports
 
 private
-use CaloTriggerTool      CaloTriggerTool-*      Calorimeter	
+use LArCOOLConditions    LArCOOLConditions-*    LArCalorimeter
 end_private
 
 # make component lib
 apply_pattern component_library
 
+# DRQ: Note that I've removed a commented out line:
+#		FixLArIdMap.cxx \
+# because the cmt2cmake converter treats all subsequent .cxx files as further comments
 library LArConditionsTest \
         LArConditionsTest_entries.cxx \
         LArConditionsTest_load.cxx \
         TestLArConditionsTools.cxx \
-#        FixLArIdMap.cxx \
         FixLArElecCalib.cxx \
         LArCondDataTest.cxx \
         LArConditionsTestAlg.cxx \
 	LArFecLvTempDcsTest.cxx \
 	LArCablingTest.cxx \
 	LArIdMapConvert.cxx \
+	LArShapeToSCShape.cxx\
 	LArFebRodMapConvert.cxx
 
 apply_pattern declare_joboptions files="*.py"
