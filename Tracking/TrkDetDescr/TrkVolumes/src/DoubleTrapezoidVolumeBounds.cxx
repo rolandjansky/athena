@@ -202,21 +202,25 @@ bool Trk::DoubleTrapezoidVolumeBounds::inside(const Amg::Vector3D& pos, double t
 // ostream operator overload
 MsgStream& Trk::DoubleTrapezoidVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::DoubleTrapezoidVolumeBounds: (minhalfX, medhalfX, maxhalfX, halfY1, halfY2, halfZ) = ";
-    sl << "(" << m_minHalfX << ", " << m_medHalfX << ", " << m_maxHalfX;
-    sl << ", " << m_halfY1 <<", " << m_halfY2 << ", " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::DoubleTrapezoidVolumeBounds: (minhalfX, medhalfX, maxhalfX, halfY1, halfY2, halfZ) = ";
+    temp_sl << "(" << m_minHalfX << ", " << m_medHalfX << ", " << m_maxHalfX;
+    temp_sl << ", " << m_halfY1 <<", " << m_halfY2 << ", " << m_halfZ << ")";  
+    sl << temp_sl.str();
     return sl;
 }
 
 std::ostream& Trk::DoubleTrapezoidVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::DoubleTrapezoidVolumeBounds: ) =(minhalfX, medhalfX, maxhalfX, halfY1, halfY2, halfZ) ";
-    sl << "(" << m_minHalfX << ", " << m_medHalfX << ", " << m_maxHalfX;
-    sl << ", " << m_halfY1 <<", " << m_halfY2 << ", " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::DoubleTrapezoidVolumeBounds: ) =(minhalfX, medhalfX, maxhalfX, halfY1, halfY2, halfZ) ";
+    temp_sl << "(" << m_minHalfX << ", " << m_medHalfX << ", " << m_maxHalfX;
+    temp_sl << ", " << m_halfY1 <<", " << m_halfY2 << ", " << m_halfZ << ")";  
+    sl << temp_sl.str();
     return sl;
 }
 

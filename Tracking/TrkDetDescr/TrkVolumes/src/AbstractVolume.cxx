@@ -42,7 +42,8 @@ Trk::AbstractVolume::AbstractVolume(Amg::Transform3D* htrans, Trk::VolumeBounds*
 
 // copy constructor - will up to now not copy the sub structure!
 Trk::AbstractVolume::AbstractVolume(const Trk::AbstractVolume& vol) :
-  Volume(vol)
+  Volume(vol),
+  m_boundarySurfaces(0)
 {}
 
 // destructor
@@ -56,6 +57,8 @@ Trk::AbstractVolume& Trk::AbstractVolume::operator=(const Trk::AbstractVolume& v
 {
   if (this!=&vol)
 	{
+    Volume::operator=(vol);
+    delete m_boundarySurfaces;
     m_boundarySurfaces = new std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::AbstractVolume> > >(*vol.m_boundarySurfaces);
   }
 	return *this;

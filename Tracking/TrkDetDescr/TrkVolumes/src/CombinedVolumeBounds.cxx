@@ -26,7 +26,8 @@
 #include "GaudiKernel/MsgStream.h"
 //STD
 #include <iostream>
-#include <math.h>
+#include <cmath>
+#include <stdexcept>
 
 Trk::CombinedVolumeBounds::CombinedVolumeBounds() :
  VolumeBounds(),
@@ -129,6 +130,8 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
 	}
         //vEx.addRef();
 	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.getPtr());
+        if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
+       
 	Trk::Volume* firstSub = new Trk::Volume(*volExcl->volume());
 
 	Trk::Volume* comb_sub = 0;
@@ -139,20 +142,26 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
         bool new_shared = shared;
         if (m_intersection) new_shared = true;
-	if (splo) retsf->push_back(new Trk::SubtractedPlaneSurface(*plo,volEx,new_shared));
-	if (sclo) retsf->push_back(new Trk::SubtractedCylinderSurface(*clo,volEx,new_shared));       
+	if (splo) retsf->push_back(new Trk::SubtractedPlaneSurface(*splo,volEx,new_shared));
+	if (sclo) retsf->push_back(new Trk::SubtractedCylinderSurface(*sclo,volEx,new_shared));       
 
-      } else {
+      } 
+      else if (plo || clo || dlo) {
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(secondSub);
 	if (plo) retsf->push_back(new Trk::SubtractedPlaneSurface(*plo,volEx,m_intersection));
 	if (clo) retsf->push_back(new Trk::SubtractedCylinderSurface(*clo,volEx,m_intersection));
 	if (dlo) {
 	  const DiscBounds* db = dynamic_cast<const DiscBounds*> (&(dlo->bounds()));
+          if (!db) throw std::logic_error("Not DiscBounds");
+          
 	  EllipseBounds* eb = new EllipseBounds(db->rMin(),db->rMin(),db->rMax(),db->rMax(),db->halfPhiSector());
 	  plo = new PlaneSurface(new Amg::Transform3D(dlo->transform()),eb);
 	  retsf->push_back(new Trk::SubtractedPlaneSurface(*plo,volEx,m_intersection));
           delete plo;
 	}
+      }
+      else {
+        throw std::runtime_error("Unhandled surface in CombinedVolumeBounds::decomposeToSurfaces.");
       }
     }
 
@@ -191,6 +200,7 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
 	}
 	//vEx.addRef();
 	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.getPtr());
+        if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
 	Trk::Volume* secondSub = new Trk::Volume(*volExcl->volume());
  
 	Trk::Volume* comb_sub = 0;
@@ -201,20 +211,26 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
         bool new_shared = shared;
         if (m_intersection) new_shared = true;
-	if (spli) retsf->push_back(new Trk::SubtractedPlaneSurface(*pli,volEx,new_shared));
-	if (scli) retsf->push_back(new Trk::SubtractedCylinderSurface(*cli,volEx,new_shared));       
+	if (spli) retsf->push_back(new Trk::SubtractedPlaneSurface(*spli,volEx,new_shared));
+	if (scli) retsf->push_back(new Trk::SubtractedCylinderSurface(*scli,volEx,new_shared));       
 
-      } else {
+      } 
+      else if (pli || cli || dli) {
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(firstSub);        
 	if (pli) retsf->push_back(new Trk::SubtractedPlaneSurface(*pli,volEx,m_intersection));
 	if (cli) retsf->push_back(new Trk::SubtractedCylinderSurface(*cli,volEx,m_intersection));
 	if (dli) {
 	  const DiscBounds* db = dynamic_cast<const DiscBounds*> (&(dli->bounds()));
+          if (!db) throw std::logic_error("Not DiscBounds");
+
 	  EllipseBounds* eb = new EllipseBounds(db->rMin(),db->rMin(),db->rMax(),db->rMax(),db->halfPhiSector());
 	  pli = new PlaneSurface(new Amg::Transform3D(dli->transform()),eb);
 	  retsf->push_back(new Trk::SubtractedPlaneSurface(*pli,volEx,m_intersection));
           delete pli;
 	}
+      }
+      else {
+        throw std::runtime_error("Unhandled surface in CombinedVolumeBounds::decomposeToSurfaces.");
       }
     } 
         
@@ -234,9 +250,11 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
 
 MsgStream& Trk::CombinedVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::CombinedVolumeBounds: first,second ";
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::CombinedVolumeBounds: first,second ";
+    sl << temp_sl.str();
     m_first->volumeBounds().dump(sl);  
     m_second->volumeBounds().dump(sl);  
     return sl;
@@ -244,9 +262,11 @@ MsgStream& Trk::CombinedVolumeBounds::dump( MsgStream& sl ) const
 
 std::ostream& Trk::CombinedVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::CombinedVolumeBounds: first,second ";
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::CombinedVolumeBounds: first,second ";
+    sl << temp_sl.str();
     m_first->volumeBounds().dump(sl);  
     m_second->volumeBounds().dump(sl);  
     return sl;

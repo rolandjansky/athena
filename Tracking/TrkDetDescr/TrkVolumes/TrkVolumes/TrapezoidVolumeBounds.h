@@ -71,18 +71,18 @@ namespace Trk {
     TrapezoidVolumeBounds& operator=(const TrapezoidVolumeBounds& bobo);
     
     /**Virtual constructor */
-    TrapezoidVolumeBounds* clone() const;
+    TrapezoidVolumeBounds* clone() const override;
     
     /**This method checks if position in the 3D volume frame is inside the cylinder*/     
-    bool inside(const Amg::Vector3D& , double tol=0.) const;
+    bool inside(const Amg::Vector3D& , double tol=0.) const override;
          
     /** Method to decompose the Bounds into Surfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                   const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const;
+                                                  bool forceInside=false) const override;
                                             
     /**This method returns the minimal halflength in local x*/
     double minHalflengthX() const;
@@ -103,10 +103,10 @@ namespace Trk {
     double beta() const;
     
     /** Output Method for MsgStream*/
-    MsgStream& dump(MsgStream& sl) const;
+    MsgStream& dump(MsgStream& sl) const override;
     
     /** Output Method for std::ostream */
-    std::ostream& dump(std::ostream& sl) const;
+    std::ostream& dump(std::ostream& sl) const override;
 
   private:    
     /** This method returns the associated TrapezoidBounds of the face PlaneSurface parallel to local xy plane */

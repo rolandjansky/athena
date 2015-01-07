@@ -34,6 +34,10 @@ class Volume;
   template <class Tvol> class BoundaryCylinderSurface : 
                               virtual public BoundarySurface<Tvol>, public CylinderSurface {
   
+    /** typedef the BinnedArray */
+    typedef BinnedArray<Tvol> VolumeArray;                            
+
+
     public:
      /** Default Constructor - needed for pool and inherited classes */
      BoundaryCylinderSurface():
@@ -52,6 +56,12 @@ class Volume;
        BoundarySurface<Tvol>(inside, outside),
        CylinderSurface(csf)
      {}
+       
+     /** Constructor for a Boundary with two VolumeArrays attached to it*/
+     BoundaryCylinderSurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray, const CylinderSurface& csf) :
+       BoundarySurface<Tvol>(insideArray, outsideArray),
+       CylinderSurface(csf)
+     {}       
           
      /** Copy constructor with a shift */
      BoundaryCylinderSurface(const Tvol* inside, const Tvol* outside, const CylinderSurface& csf, const Amg::Transform3D& tr) :
@@ -67,14 +77,14 @@ class Volume;
          gives back 0 if there's no volume attached to the requested direction
          - this is speed optimized as it doesn't invoke a local to global transformation
        */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const;  
+     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;  
        
      /** Get the next Volume depending on position, momentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const;
+     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
                                           
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const;
+     const Surface& surfaceRepresentation() const override;
      
      /**Assignment operator*/
      BoundaryCylinderSurface& operator=(const BoundaryCylinderSurface& vol);

@@ -24,14 +24,25 @@ Trk::VolumeExcluder::VolumeExcluder(Trk::Volume* vol) :
 // copy constructor
 Trk::VolumeExcluder::VolumeExcluder(const VolumeExcluder& ex)
   : Trk::AreaExcluder (ex),
-    m_vol(ex.m_vol)
+    m_vol( new Volume(*(ex.m_vol)) )
 {}
 
 // destructor
 Trk::VolumeExcluder::~VolumeExcluder()
-{
+{  
   delete m_vol;
 }
+
+/** Assignment operator */
+Trk::VolumeExcluder& Trk::VolumeExcluder::operator=(const VolumeExcluder &vol) {
+  if (&vol != this) {
+    delete m_vol;
+    AreaExcluder::operator=(vol);
+    m_vol=new Volume(*(vol.m_vol));
+  }
+  return *this;
+}
+
  
 Trk::VolumeExcluder* Trk::VolumeExcluder::clone() const 
 { return new Trk::VolumeExcluder(*this); }    

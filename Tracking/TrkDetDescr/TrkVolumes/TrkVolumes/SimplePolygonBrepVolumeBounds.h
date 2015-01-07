@@ -61,18 +61,18 @@ namespace Trk {
     SimplePolygonBrepVolumeBounds& operator=(const SimplePolygonBrepVolumeBounds& bobo);
     
     /**Virtual constructor */
-    SimplePolygonBrepVolumeBounds* clone() const;
+    SimplePolygonBrepVolumeBounds* clone() const override;
     
     /**This method checks if position in the 3D volume frame is inside the volume*/     
-    bool inside(const Amg::Vector3D& , double tol=0.) const;
+    bool inside(const Amg::Vector3D& , double tol=0.) const override;
          
     /** Method to decompose the Bounds into Surfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                   const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const;
+                                                  bool forceInside=false) const override;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif                                            
@@ -91,10 +91,10 @@ namespace Trk {
     const Trk::Volume* envelope() const;
        
     /** Output Method for MsgStream*/
-    MsgStream& dump(MsgStream& sl) const;
+    MsgStream& dump(MsgStream& sl) const override;
     
     /** Output Method for std::ostream */
-    std::ostream& dump(std::ostream& sl) const;
+    std::ostream& dump(std::ostream& sl) const override;
 
   private:  
     void processSubVols() const;
@@ -116,9 +116,9 @@ namespace Trk {
     bool Diagonal(int i, int j, std::vector<std::pair<double,double> > inputVertices) const;
     
 
-    std::vector<std::pair<double,double> > TriangulatePolygon(std::vector<std::pair<double,double> >*& Vertices ) const;
+    std::vector<std::pair<double,double> > TriangulatePolygon(const std::vector<std::pair<double,double> >& Vertices ) const;
     
-    std::vector<std::pair<double,double> > TriangulatePolygonCheck(std::vector<std::pair<double,double> >*& Vertices ) const;
+    std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const;
 
     mutable std::vector<std::pair<double,double> > m_xyVtx; //!< generating xy vertices
     double m_halfX;                                         //!< halflength in x - to define enclosing rectangle 

@@ -12,9 +12,7 @@
 //Trk
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/SharedObject.h"
-
 #include "GeoPrimitives/GeoPrimitives.h"
-
 #include "CLIDSvc/CLASS_DEF.h"
 
 class MsgStream;

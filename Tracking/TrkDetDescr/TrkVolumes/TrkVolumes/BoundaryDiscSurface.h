@@ -15,7 +15,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "TrkDetDescrUtils/SharedObject.h"
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -37,6 +37,9 @@ class Volume;
   
   template <class Tvol> class BoundaryDiscSurface : 
                        virtual public BoundarySurface<Tvol>, public DiscSurface {
+                           
+    /** typedef the BinnedArray */
+    typedef BinnedArray<Tvol> VolumeArray;                            
 
     public:
      /** Default Constructor - needed for pool and inherited classes */
@@ -57,6 +60,12 @@ class Volume;
        DiscSurface(dsf)
      {}
      
+     /** Constructor for a Boundary with two VolumeArrays attached to it*/
+     BoundaryDiscSurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray, const DiscSurface& dsf) :
+       BoundarySurface<Tvol>(insideArray, outsideArray),
+       DiscSurface(dsf)
+     {}
+     
      /** Copy constructor with a shift */
      BoundaryDiscSurface(const Tvol* inside, const Tvol* outside, const DiscSurface& dsf, const Amg::Transform3D& tr) :
        BoundarySurface<Tvol>(inside,outside),
@@ -67,16 +76,18 @@ class Volume;
          gives back 0 if there's no volume attached to the requested direction
          - this is speed optimized as it doesn't invoke a local to global transformation
       */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const;    
+     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;
+         
      /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const;
+     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
           
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const;
+     const Surface& surfaceRepresentation() const override;
      
      /**Virtual Destructor*/
      virtual ~BoundaryDiscSurface(){}
+     
      /**Assignment operator*/
      BoundaryDiscSurface& operator=(const BoundaryDiscSurface& vol);
              

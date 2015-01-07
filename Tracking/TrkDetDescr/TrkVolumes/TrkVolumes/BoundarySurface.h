@@ -12,6 +12,7 @@
 // Trk
 #include "TrkVolumes/Volume.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
+#include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
 // Gaudi
@@ -62,15 +63,7 @@ class Surface;
        m_insideVolumeArray(),
        m_outsideVolumeArray()
        {}
-       
-     /** Copy constructor */                            
-     BoundarySurface(const BoundarySurface& bsf) :
-       m_insideVolume(bsf.m_insideVolume),
-       m_outsideVolume(bsf.m_outsideVolume),
-       m_insideVolumeArray(bsf.m_insideVolumeArray),
-       m_outsideVolumeArray(bsf.m_outsideVolumeArray)
-       {}
-       
+              
      /** Constructor for a Boundary with exact two Volumes attached to it*/
      BoundarySurface(const Tvol* inside, const Tvol* outside) :
        m_insideVolume(inside),
@@ -78,6 +71,14 @@ class Surface;
        m_insideVolumeArray(),
        m_outsideVolumeArray()
        {}     
+       
+     /** Constructor for a Boundary with exact two Volumes attached to it*/
+     BoundarySurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray) :
+       m_insideVolume(),
+       m_outsideVolume(),
+       m_insideVolumeArray(insideArray),
+       m_outsideVolumeArray(outsideArray)
+       {}         
        
      /** Get the next Volume depending on the TrackParameters and the requested direction */
      virtual const Tvol* attachedVolume(const TrackParameters& parms,
@@ -91,6 +92,11 @@ class Surface;
                                         PropDirection dir) const = 0;
 
                                                
+     /** templated onBoundary method */
+     template <class T> bool onBoundary(const T& pars) const
+     { return surfaceRepresentation().onSurface(pars); }
+                                                                              
+
      /** The Surface Representation of this */
      virtual const Surface& surfaceRepresentation() const = 0;
      
@@ -98,6 +104,7 @@ class Surface;
      virtual ~BoundarySurface()
      {}
      
+     /** output debug information */
      void debugInfo(MsgStream& msg) const;
          
    protected:         
@@ -118,6 +125,7 @@ class Surface;
   
   
   }
+  
                          
 } // end of namespace Trk
 

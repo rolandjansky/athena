@@ -308,19 +308,23 @@ Trk::RectangleBounds* Trk::CylinderVolumeBounds::sectorPlaneBounds() const
 
 MsgStream& Trk::CylinderVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(2);
-    sl << "Trk::CylinderVolumeBounds: (rMin, rMax, halfPhi, halfZ) = ";
-    sl <<  m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ;  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(2);
+    temp_sl << "Trk::CylinderVolumeBounds: (rMin, rMax, halfPhi, halfZ) = ";
+    temp_sl <<  m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ;  
+    sl << temp_sl.str();
     return sl;
 }
 
 std::ostream& Trk::CylinderVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(2);
-    sl << "Trk::CylinderVolumeBounds: (rMin, rMax, halfPhi, halfZ) = ";
-    sl <<  m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ;  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(2);
+    temp_sl << "Trk::CylinderVolumeBounds: (rMin, rMax, halfPhi, halfZ) = ";
+    temp_sl <<  m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ;  
+    sl << temp_sl.str();
     return sl;
 }
 

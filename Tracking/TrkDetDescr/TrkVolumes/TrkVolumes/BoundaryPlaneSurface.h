@@ -37,6 +37,9 @@ class Volume;
   template <class Tvol> class BoundaryPlaneSurface : 
                                virtual public BoundarySurface<Tvol>, public PlaneSurface {
 
+    /** typedef the BinnedArray */
+    typedef BinnedArray<Tvol> VolumeArray;                            
+
     public:
      /** Default Constructor - needed for pool and inherited classes */
      BoundaryPlaneSurface() :
@@ -55,6 +58,12 @@ class Volume;
        BoundarySurface<Tvol>(inside, outside),
        PlaneSurface(psf)
      {}
+
+     /** Constructor for a Boundary with two VolumeArrays attached to it*/
+     BoundaryPlaneSurface(SharedObject<VolumeArray> insideArray, SharedObject<VolumeArray> outsideArray, const PlaneSurface& psf) :
+       BoundarySurface<Tvol>(insideArray, outsideArray),
+       PlaneSurface(psf)
+     {}
      
      /** Copy constructor with a shift */
      BoundaryPlaneSurface(const Tvol* inside, const Tvol* outside, const PlaneSurface& psf, const Amg::Transform3D& tr) :
@@ -65,14 +74,14 @@ class Volume;
      /** Get the next Volume depending on the TrackParameters and the requested direction,
       gives back 0 if there's no volume attached to the requested direction
       */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const;    
+     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;    
      
      /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const;
+     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
      
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const;
+     const Surface& surfaceRepresentation() const override;
      
      /**Virtual Destructor*/
      virtual ~BoundaryPlaneSurface(){}

@@ -57,18 +57,18 @@ namespace Trk {
     SubtractedVolumeBounds& operator=(const SubtractedVolumeBounds& bobo);
     
     /**Virtual constructor */
-    SubtractedVolumeBounds* clone() const;
+    SubtractedVolumeBounds* clone() const override;
     
     /**This method checks if position in the 3D volume frame is inside the cylinder*/     
-    bool inside(const Amg::Vector3D& , double tol=0.) const;
+    bool inside(const Amg::Vector3D& , double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                   const Amg::Vector3D& dir,
-                                                  bool forceInside=false) const;
+                                                  bool forceInside=false) const override;
                                                 
     /**This method returns the outer Volume*/
     Volume* outer() const;
@@ -80,10 +80,10 @@ namespace Trk {
     const std::vector<bool> boundsOrientation() const;
     
     /** Output Method for MsgStream*/
-    MsgStream& dump(MsgStream& sl) const;
+    MsgStream& dump(MsgStream& sl) const override;
     
     /** Output Method for std::ostream */
-    std::ostream& dump(std::ostream& sl) const;
+    std::ostream& dump(std::ostream& sl) const override;
 
   private:
 
@@ -105,7 +105,7 @@ namespace Trk {
 
  inline bool SubtractedVolumeBounds::inside(const Amg::Vector3D &pos, double tol) const
  { 
-   return (m_outer->inside(pos,tol) && !m_inner->inside(pos,tol) );
+   return (m_outer->inside(pos,tol) && !m_inner->inside(pos,-tol) );
  }
 
  inline Volume* SubtractedVolumeBounds::outer() const { return m_outer; }

@@ -139,15 +139,15 @@ const std::vector<const Trk::Surface*>* Trk::SimplePolygonBrepVolumeBounds::deco
       
   // face surfaces xy     
   //  (1) - at negative local z
-  Trk::PlaneSurface* xymPlane = new Trk::PlaneSurface( new Amg::Transform3D(transform*Amg::Translation3D(Amg::Vector3D(0.,0.,-m_halfZ))),
-						      new Trk::RectangleBounds(m_halfX,m_halfY) );
+  Trk::PlaneSurface xymPlane( new Amg::Transform3D(transform*Amg::Translation3D(Amg::Vector3D(0.,0.,-m_halfZ))),
+                                                                      new Trk::RectangleBounds(m_halfX,m_halfY) );
   Trk::VolumeExcluder* volExcl = new Trk::VolumeExcluder(new Trk::Volume(*m_combinedVolume,Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-m_halfZ)))));
-  retsf->push_back(new Trk::SubtractedPlaneSurface(*xymPlane,volExcl,true));
+  retsf->push_back(new Trk::SubtractedPlaneSurface(xymPlane,volExcl,true));
   //  (2) - at positive local z
-  Trk::PlaneSurface* xyPlane = new Trk::PlaneSurface( new Amg::Transform3D(transform*Amg::Translation3D(Amg::Vector3D(0.,0.,m_halfZ))),
-						       new Trk::RectangleBounds(m_halfX,m_halfY) );
+  Trk::PlaneSurface xyPlane( new Amg::Transform3D(transform*Amg::Translation3D(Amg::Vector3D(0.,0.,m_halfZ))),
+                                                                     new Trk::RectangleBounds(m_halfX,m_halfY) );
   volExcl = new Trk::VolumeExcluder(new Trk::Volume(*m_combinedVolume,Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,m_halfZ)))));
-  retsf->push_back(new Trk::SubtractedPlaneSurface(*xyPlane,volExcl,true) );
+  retsf->push_back(new Trk::SubtractedPlaneSurface(xyPlane,volExcl,true) );
   // loop over xy vertices 
   //  (3)
   for (unsigned int iv = 0 ; iv < m_xyVtx.size(); iv++) {
@@ -200,8 +200,7 @@ void Trk::SimplePolygonBrepVolumeBounds::processSubVols() const
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif   
-  std::vector<std::pair<double,double> >*  vtx = new std::vector<std::pair<double,double> >(m_xyVtx);
-  std::vector<std::pair<double,double> > triangles = TriangulatePolygonCheck(vtx);
+  std::vector<std::pair<double,double> > triangles = TriangulatePolygonCheck(m_xyVtx); //@TODO change argument to const vector<pair< > >
   std::vector<std::pair<double,double> > vertices;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
@@ -221,23 +220,27 @@ void Trk::SimplePolygonBrepVolumeBounds::processSubVols() const
 // ostream operator overload
 MsgStream& Trk::SimplePolygonBrepVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::SimplePolygonBrepVolumeBounds: (halfZ, xy vertices) = ";
-    sl << "( " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::SimplePolygonBrepVolumeBounds: (halfZ, xy vertices) = ";
+    temp_sl << "( " << m_halfZ << ")";  
     for (unsigned int i=0;i<m_xyVtx.size();i++)
-      sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+      temp_sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+    sl << temp_sl.str();
     return sl;
 }
 
 std::ostream& Trk::SimplePolygonBrepVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::SimplePolygonBrepVolumeBounds: (halfZ, xy vertices) = ";
-    sl << "( " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::SimplePolygonBrepVolumeBounds: (halfZ, xy vertices) = ";
+    temp_sl << "( " << m_halfZ << ")";  
     for (unsigned int i=0;i<m_xyVtx.size();i++)
-      sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+      temp_sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+    sl << temp_sl.str();
     return sl;
 }
 
@@ -325,7 +328,7 @@ bool Trk::SimplePolygonBrepVolumeBounds::Diagonal(int i, int j, std::vector<std:
 }
 
   
-std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygon(std::vector<std::pair<double,double> >*& Vertices ) const
+std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygon(const std::vector<std::pair<double,double> >& Vertices ) const
 {
 // Subtracting ears method
 // 
@@ -336,10 +339,10 @@ std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::Trian
 //  only one triangle left.
 //
 
-  int NSize = Vertices->size();
+  int NSize = Vertices.size();
   std::vector<std::pair<double,double> > outTriangles;
   std::vector<std::pair<double,double> > inputVertices;
-  for (int i=0; i<NSize;i++) inputVertices.push_back((*Vertices)[i]);
+  for (int i=0; i<NSize;i++) inputVertices.push_back((Vertices)[i]);
   
 //for (int i; i<NSize;i++) std::cout<<"MW input vertices: "<<inputVertices[i].first<<" "<<inputVertices[i].second<<std::endl;	
 // Triangulates this polygon and saves triangle edges in TriPoly.
@@ -392,7 +395,7 @@ std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::Trian
 
 } 
 
-std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygonCheck(std::vector<std::pair<double,double> >*& Vertices ) const
+std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const
 {
 // Perform triangulation. Check the orientation of the verices in the polygon
 // m_ordering   = -1    not set

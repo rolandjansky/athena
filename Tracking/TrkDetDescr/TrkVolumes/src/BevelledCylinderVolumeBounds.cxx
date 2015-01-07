@@ -448,19 +448,23 @@ Trk::Volume* Trk::BevelledCylinderVolumeBounds::subtractedVolume() const
 
 MsgStream& Trk::BevelledCylinderVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::BevelledCylinderVolumeBounds: (innerR, outerR, halfPhiSector, halflengthInZ, thetaMinus, thetaPlus) = ";
-    sl << "(" << m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ << ", " << m_thetaMinus<< ", " << m_thetaPlus << ")";  
+    std::stringstream sl_temp;
+    sl_temp << std::setiosflags(std::ios::fixed);
+    sl_temp << std::setprecision(7);
+    sl_temp << "Trk::BevelledCylinderVolumeBounds: (innerR, outerR, halfPhiSector, halflengthInZ, thetaMinus, thetaPlus) = ";
+    sl_temp << "(" << m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ << ", " << m_thetaMinus<< ", " << m_thetaPlus << ")";  
+    sl << sl_temp.str();
     return sl;
 }
 
 std::ostream& Trk::BevelledCylinderVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::BevelledCylinderVolumeBounds: (innerR, outerR, halfPhiSector, halflengthInZ, thetaMinus, thetaPlus) = ";
-    sl << "(" << m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ << m_thetaMinus<< ", " << m_thetaPlus << ")";  
+    std::stringstream sl_temp;
+    sl_temp << std::setiosflags(std::ios::fixed);
+    sl_temp << std::setprecision(7);
+    sl_temp << "Trk::BevelledCylinderVolumeBounds: (innerR, outerR, halfPhiSector, halflengthInZ, thetaMinus, thetaPlus) = ";
+    sl_temp << "(" << m_innerRadius << ", " << m_outerRadius << ", " << m_halfPhiSector << ", " << m_halfZ << m_thetaMinus<< ", " << m_thetaPlus << ")";  
+    sl << sl_temp.str();
     return sl;
 }
 

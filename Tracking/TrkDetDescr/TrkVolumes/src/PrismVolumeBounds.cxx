@@ -200,24 +200,28 @@ int Trk::PrismVolumeBounds::ordering() const
 // ostream operator overload
 MsgStream& Trk::PrismVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::PrismVolumeBounds: (halfZ, generating vtx) = ";
-    sl << "( " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::PrismVolumeBounds: (halfZ, generating vtx) = ";
+    temp_sl << "( " << m_halfZ << ")";  
     for (unsigned int i=0;i<m_xyVtx.size();i++)
-      sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+      temp_sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+    sl << temp_sl.str();
 
     return sl;
 }
 
 std::ostream& Trk::PrismVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::PrismVolumeBounds:  (halfZ, generating vtx) = ";
-    sl << "( " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::PrismVolumeBounds:  (halfZ, generating vtx) = ";
+    temp_sl << "( " << m_halfZ << ")";  
     for (unsigned int i=0;i<m_xyVtx.size();i++)
-      sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+      temp_sl << "(" << m_xyVtx[i].first << ","<<m_xyVtx[i].second <<")";
+    sl << temp_sl.str();
 
     return sl;
 }

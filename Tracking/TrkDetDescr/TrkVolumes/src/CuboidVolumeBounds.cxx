@@ -110,19 +110,24 @@ Trk::RectangleBounds* Trk::CuboidVolumeBounds::faceZXRectangleBounds() const
 
 MsgStream& Trk::CuboidVolumeBounds::dump( MsgStream& sl ) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
-    sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
+    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+    sl << temp_sl.str();
     return sl;
 }
 
 std::ostream& Trk::CuboidVolumeBounds::dump( std::ostream& sl ) const 
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
-    sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+    std::stringstream temp_sl;
+    temp_sl << std::setiosflags(std::ios::fixed);
+    temp_sl << std::setprecision(7);
+    temp_sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
+    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+    sl << temp_sl.str();
     return sl;
 }
 

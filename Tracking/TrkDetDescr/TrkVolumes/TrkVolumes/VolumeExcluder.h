@@ -42,7 +42,7 @@ namespace Trk {
         virtual ~VolumeExcluder();
         
         /** Assignment operator */
-        VolumeExcluder& operator=(const VolumeExcluder vol);
+        VolumeExcluder& operator=(const VolumeExcluder &vol);
         
         /** Pseudo-constructor */
         VolumeExcluder* clone() const;
