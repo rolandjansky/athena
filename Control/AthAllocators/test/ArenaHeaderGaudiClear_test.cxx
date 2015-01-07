@@ -86,7 +86,9 @@ void test2()
 
 int main()
 {
+#ifndef ATHENAHIVE
   test1();
   test2();
+#endif
   return 0;
 }

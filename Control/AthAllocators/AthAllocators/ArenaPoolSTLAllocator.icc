@@ -119,12 +119,14 @@ template <class T, class VETO>
 inline
 typename ArenaPoolSTLAllocator<T, VETO>::pointer
 ArenaPoolSTLAllocator<T, VETO>::allocate (size_type
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__CLING__)
                       n
 #endif
                       , const void* /*hint = 0*/)
 {
+#if !defined(__CLING__)
   assert (n == 1);
+#endif
   return reinterpret_cast<pointer> (m_pool.allocate());
 }
 
@@ -138,12 +140,14 @@ ArenaPoolSTLAllocator<T, VETO>::allocate (size_type
 template <class T, class VETO>
 inline
 void ArenaPoolSTLAllocator<T, VETO>::deallocate (pointer, size_type 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__CLING__)
                              n
 #endif
                              )
 {
+#if !defined(__CLING__)
   assert (n == 1);
+#endif
 }
 
 

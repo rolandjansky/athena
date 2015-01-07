@@ -22,10 +22,12 @@
 
 namespace SG {
 
-
+#ifdef ATHENAHIVE
+bool ArenaHeaderGaudiClear::m_disabled = true;
+#else
 /// True if @c disable has been called.
 bool ArenaHeaderGaudiClear::m_disabled = false;
-
+#endif
 
 /**
  * @brief Constructor.
