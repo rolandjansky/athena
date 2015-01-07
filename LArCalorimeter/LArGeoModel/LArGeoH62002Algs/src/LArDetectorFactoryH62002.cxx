@@ -149,8 +149,8 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   }
 
   // V.N :  Patch LAr materials
-  LArMaterialManager *lArMaterialManager = new LArMaterialManager(m_detectorStore);
-  lArMaterialManager->buildMaterials();
+  LArMaterialManager lArMaterialManager(m_detectorStore);
+  lArMaterialManager.buildMaterials();
   //
 
   getSimulationParameters();
@@ -213,11 +213,10 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
 
   //Add the walls in front of the cryostat:
-  WallsConstruction*  WallsConstruction2002 = new WallsConstruction();
-  const double H62002WallsPos = 10182.*CLHEP::mm;  // A wild guess at the moment.....
   {
-    GeoVPhysVol* frontwalls = 0;
-    frontwalls = WallsConstruction2002->GetEnvelope();
+    const double H62002WallsPos = 10182.*CLHEP::mm;  // A wild guess at the moment.....
+    WallsConstruction  WallsConstruction2002;
+    GeoVPhysVol* frontwalls = WallsConstruction2002.GetEnvelope();
     if(frontwalls !=0 && expHallPhys !=0){
       expHallPhys->add( new GeoNameTag("LAr"));
       expHallPhys->add( new GeoTransform( HepGeom::TranslateZ3D(H62002WallsPos) ) );  
@@ -227,11 +226,10 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 
 
   //Add the table instrumentation:
-  TableConstructionH62002*  TableConstruction = new TableConstructionH62002();
-  const double H62002TablePos = 8320.*CLHEP::mm;  
   {    
-    GeoVPhysVol* table = 0;
-    table = TableConstruction->GetEnvelope();
+    const double H62002TablePos = 8320.*CLHEP::mm;  
+    TableConstructionH62002  TableConstruction;
+    GeoVPhysVol* table = TableConstruction.GetEnvelope();
     if(table !=0 && expHallPhys !=0){
       expHallPhys->add( new GeoNameTag("LAr"));
       expHallPhys->add( new GeoTransform( HepGeom::TranslateZ3D(H62002TablePos) ) );  
@@ -241,12 +239,12 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
  (*log) << MSG::DEBUG << "Built Table Instrumentation " << endreq;
 
   //Add the front beam instrumentation:
-  FrontBeamConstructionH62002*  FrontBeamConstruction = new FrontBeamConstructionH62002();
-  const double H62002FrontBeamPos = -20215.5*CLHEP::mm;  // (Use this to get the Front dets. in Peter Schacht's position)   
-  //const double H62002FrontBeamPos = -20439.*CLHEP::mm; // (according to old code: [-21600+801+350]*CLHEP::mm)   
-  {                                             // (with 350=1/2 length of FrontBeam volume)
-    GeoVPhysVol* front = 0;
-    front = FrontBeamConstruction->GetEnvelope();
+  {
+    const double H62002FrontBeamPos = -20215.5*CLHEP::mm;  // (Use this to get the Front dets. in Peter Schacht's position)   
+    //const double H62002FrontBeamPos = -20439.*CLHEP::mm; // (according to old code: [-21600+801+350]*CLHEP::mm)   
+    // (with 350=1/2 length of FrontBeam volume)
+    FrontBeamConstructionH62002  FrontBeamConstruction;
+    GeoVPhysVol* front = FrontBeamConstruction.GetEnvelope();
     if(front !=0 && expHallPhys !=0){
       expHallPhys->add( new GeoNameTag("LAr"));
       expHallPhys->add( new GeoTransform( HepGeom::TranslateZ3D(H62002FrontBeamPos) ) );  
@@ -275,10 +273,9 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   MrotRoha.rotateZ(PhiRoha); 
   CLHEP::Hep3Vector pos3Roha(    0*CLHEP::mm,   0.0*CLHEP::mm ,   0.*CLHEP::mm);
 
-  ExcluderConstruction*  excluderConstruction = new ExcluderConstruction();
   {    
-    GeoPhysVol* excluder = 0;
-    excluder = excluderConstruction->GetEnvelope();
+    ExcluderConstruction excluderConstruction;
+    GeoPhysVol* excluder = excluderConstruction.GetEnvelope();
     if(excluder !=0 && LArPhysical !=0){
       LArPhysical->add( new GeoNameTag("LAr::H6::Cryostat::Excluder"));
       LArPhysical->add(excluder);    
@@ -304,9 +301,9 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   CLHEP::Hep3Vector pos3Emec(    0*CLHEP::mm,   808.0*CLHEP::mm ,   1720.*CLHEP::mm);
 
   //use this line for physical construction of the EMEC outer wheel only:
-  EMECConstruction*  emecConstruction = new EMECConstruction(true, true, true);
+  EMECConstruction emecConstruction(true, true, true);
 
-  GeoVFullPhysVol* emecEnvelope = emecConstruction->GetEnvelope();
+  GeoVFullPhysVol* emecEnvelope = emecConstruction.GetEnvelope();
   LArPhysical->add(new GeoNameTag("LAr"));
   LArPhysical->add( new GeoTransform( HepGeom::Transform3D(MrotEmec, pos3Emec) ) );
   LArPhysical->add(emecEnvelope);    
@@ -412,8 +409,8 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   
   //double zPSpos = -869. -(61. +2. +13.5);
   //std::string PresamplerName = baseName + "::Presampler::";
-  EndcapPresamplerConstruction* PresamplerConstruction = new EndcapPresamplerConstruction(true);
-  GeoFullPhysVol* PresamplerEnvelope = PresamplerConstruction->Envelope();
+  EndcapPresamplerConstruction PresamplerConstruction(true);
+  GeoFullPhysVol* PresamplerEnvelope = PresamplerConstruction.Envelope();
   if ( PresamplerEnvelope != 0 && LArPhysical != 0 ) {    
     //LArPhysical->add( new GeoTransform( HepGeom::Translate3D(pos3PS)*HepGeom::RotateX3D(ThetaPS)*HepGeom::RotateZ3D(PhiPS) ));
      LArPhysical->add( new GeoTransform( HepGeom::Transform3D(MrotPS, pos3PS) ) );
@@ -439,10 +436,9 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   MrotHec.rotateZ(PhiHec); 
   CLHEP::Hep3Vector pos3Hec(    0*CLHEP::mm,   233.0*CLHEP::mm ,   1720.*CLHEP::mm);
 
-  HECConstructionH62002*  hecConstruction = new HECConstructionH62002();
   {    
-    GeoVFullPhysVol* hecEnvelope = 0;
-    hecEnvelope = hecConstruction->GetEnvelope();
+    HECConstructionH62002 hecConstruction;
+    GeoVFullPhysVol* hecEnvelope = hecConstruction.GetEnvelope();
     if(hecEnvelope !=0 && LArPhysical !=0){
       LArPhysical->add( new GeoNameTag("LAr"));
       //LArPhysical->add( new GeoTransform( HepGeom::Translate3D(pos3Hec)*HepGeom::RotateX3D(ThetaHec)*HepGeom::RotateZ3D(PhiHec) ));
