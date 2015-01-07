@@ -183,9 +183,9 @@ public:
 
 template<class TR, class TE, class CR, class CE, class DR, class DE>
 SampleMatch<TR, TE, CR, CE, DR, DE>::
-SampleMatch(const CR& refs, const CE& evs, const DR& rdist, const DE& edist,
+SampleMatch(const CR& refs, const CE& evs, const DR& rdist_in, const DE& edist_in,
             double drmax, double drgood, double demax, double degood)
-: m_ref(refs), m_rdist(rdist), m_edist(edist),
+: m_ref(refs), m_rdist(rdist_in), m_edist(edist_in),
   m_drmax(drmax), m_drgood(drgood), m_demax(demax), m_degood(degood) {
   // Loop over evaluation objects and find the nearest reference
   // for each.

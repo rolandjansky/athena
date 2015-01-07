@@ -102,7 +102,7 @@ public:
   }
 };
 // Output stream.
-ostream& operator<<(ostream& str, const Chamber& rhs) {
+  std::ostream& operator<<(std::ostream& str, const Chamber& rhs) {
   if ( rhs.istation() == 1 ) str << "CSS";
   else str << "CSL";
   if ( rhs.zsec() < 0 ) str << "-";
@@ -674,14 +674,18 @@ int main(int narg, char* argv[]) {
   } // End loop over events
 
   // Display result summary.
-  cout << "Eta efficiency = " << nfound_eta << "/" << ntot << " = "
-       << double(nfound_eta)/double(ntot) << endl;
-  cout << "Eta fakes/event = " << nfake_eta << "/" << nevt << " = "
-       << double(nfake_eta)/double(nevt) << endl;
-  cout << "Phi efficiency = " << nfound_phi << "/" << ntot << " = "
-       << double(nfound_phi)/double(ntot) << endl;
-  cout << "Phi fakes/event = " << nfake_phi << "/" << nevt << " = "
-       << double(nfake_phi)/double(nevt) << endl;
+  cout << "Eta efficiency = " << nfound_eta << "/" << ntot << " = ";
+  if( ntot != 0 ) cout << double(nfound_eta)/double(ntot) << endl;
+  else cout << "nan" << endl;
+  cout << "Eta fakes/event = " << nfake_eta << "/" << nevt << " = ";
+  if( nevt != 0 ) cout << double(nfake_eta)/double(nevt) << endl;
+  else cout << "nan" << endl;
+  cout << "Phi efficiency = " << nfound_phi << "/" << ntot << " = ";
+  if( ntot != 0 ) cout << double(nfound_phi)/double(ntot) << endl;
+  else cout << "nan" << endl;
+  cout << "Phi fakes/event = " << nfake_phi << "/" << nevt << " = ";
+  if( nevt != 0 ) cout << double(nfake_phi)/double(nevt) << endl;
+  else cout << "nan" << endl;
 
   // Write output file.
   pfile->Write();

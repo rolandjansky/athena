@@ -75,14 +75,18 @@ public :
 #endif
 
 #ifdef CalibAccessor_cxx
-CalibAccessor::CalibAccessor(TTree *tree)
+CalibAccessor::CalibAccessor(TTree *tree) :
+   b_measphi(NULL), b_wlay(NULL), b_istation(NULL), b_zsec(NULL), b_phisec(NULL),
+   b_sector(NULL), b_nchan(NULL), b_ped(NULL), b_pedADC(NULL), b_sigma(NULL),
+   b_rms(NULL), b_sigmaADC(NULL), b_rmsADC(NULL), b_f001(NULL), b_f001ADC(NULL),
+   b_thr(NULL), b_stat(NULL), b_address(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/susyraid1/wpark/DATA/Cosmics/11042009/cosmic125032.20k_0xSigma.root");
       if (!f) {
-         f = new TFile("/susyraid1/wpark/DATA/Cosmics/11042009/cosmic125032.20k_0xSigma.root");
+         new TFile("/susyraid1/wpark/DATA/Cosmics/11042009/cosmic125032.20k_0xSigma.root");
       }
       tree = (TTree*)gDirectory->Get("csc_calib");
 

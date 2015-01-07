@@ -103,7 +103,7 @@ public:
   }
 };
 // Output stream.
-ostream& operator<<(ostream& str, const Chamber& rhs) {
+std::ostream& operator<<(std::ostream& str, const Chamber& rhs) {
   if ( rhs.istation() == 1 ) str << "CSS";
   else str << "CSL";
   if ( rhs.zsec() < 0 ) str << "-";
@@ -155,7 +155,7 @@ public:
   double err[errdim];
   double chsq;
   // Constructor
-  RecSeg() {
+  RecSeg() : irsg(-1), ichm(-1), chsq(9999.) {
     m_weight[0] = 0.0;
   }
   // Return inverse of error matrix
@@ -604,10 +604,12 @@ int main(int narg, char* argv[]) {
   } // End loop over events
 
   // Display result summary.
-  cout << "Efficiency = " << nfoundtot << "/" << ntot << " = "
-       << double(nfoundtot)/double(ntot) << endl;
-  cout << "Fakes/event = " << nfaketot << "/" << nevt << " = "
-       << double(nfaketot)/double(nevt) << endl;
+  cout << "Efficiency = " << nfoundtot << "/" << ntot << " = ";
+  if( ntot != 0 ) cout << double(nfoundtot)/double(ntot) << endl;
+  else cout << "nan" << endl;
+  cout << "Fakes/event = " << nfaketot << "/" << nevt << " = ";
+  if( nevt != 0 ) cout << double(nfaketot)/double(nevt) << endl;
+  else cout << "nan" << endl;
 
   // Write output file.
   pfile->Write();

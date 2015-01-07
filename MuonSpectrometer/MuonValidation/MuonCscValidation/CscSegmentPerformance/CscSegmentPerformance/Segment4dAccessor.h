@@ -143,14 +143,24 @@ public :
 #endif
 
 #ifdef Segment4dAccessor_cxx
-Segment4dAccessor::Segment4dAccessor(TTree *tree)
+Segment4dAccessor::Segment4dAccessor(TTree *tree) :
+   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL),
+   b_nhit(NULL), b_gx(NULL), b_gy(NULL), b_gz(NULL), b_y(NULL), b_x(NULL),
+   b_ay(NULL), b_ax(NULL), b_dy(NULL), b_dx(NULL), b_day(NULL), b_dax(NULL),
+   b_eyx(NULL), b_eyay(NULL), b_eyax(NULL), b_exay(NULL), b_exax(NULL), b_eayax(NULL),
+   b_chsq(NULL), b_phase(NULL), b_ihit(NULL), b_str0(NULL), b_nstr(NULL), b_pstr(NULL),
+   b_sfit(NULL), b_qsum(NULL), b_qleft(NULL), b_qright(NULL), b_qpeak(NULL),
+   b_dqleft(NULL), b_dqright(NULL), b_dqpeak(NULL), b_tpeak(NULL), b_pos(NULL),
+   b_dpos(NULL), b_res(NULL), b_dres(NULL), b_rs(NULL), b_drs(NULL), b_posAsSid(NULL),
+   b_posInStr(NULL), b_refInStr(NULL), b_istation(NULL), b_zsec(NULL), b_phisec(NULL),
+   b_sector(NULL), b_hitmap(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("csc_clusters.root");
       if (!f) {
-         f = new TFile("csc_clusters.root");
+         new TFile("csc_clusters.root");
       }
       tree = (TTree*)gDirectory->Get("csc_4d_segment");
 

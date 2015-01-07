@@ -292,7 +292,10 @@ int main(int narg, char* argv[]) {
   for ( int i=0; i<pstree->GetEntries(); ++i ) { // 32*4*2 = 256
     calib.GetEntry(i);
     
-    unsigned int isector =getSectorIdx(calib.sector); 
+    unsigned int isector;
+    int tmpsector = getSectorIdx(calib.sector);
+    if( tmpsector < 0 ) continue;
+    else isector = (unsigned int) tmpsector; 
     unsigned int ilay    =calib.wlay-1;
     unsigned int imeas   =calib.measphi;
     
@@ -337,6 +340,7 @@ int main(int narg, char* argv[]) {
     bool hasPhiSeg=false;
     for (int isg=0; isg<segment.nentry; ++isg) {
       int ichm = getSectorIdx(segment.sector[isg]);
+      if( ichm < 0 ) continue;
       bool measphi = segment.measphi[isg];
       if (measphi) {
         hasPhiSeg =true;
@@ -357,7 +361,7 @@ int main(int narg, char* argv[]) {
     /////////////////////////////////
     for (int isg=0; isg<segment.nentry; ++isg) {
       int ichm = getSectorIdx(segment.sector[isg]);
-      
+      if( ichm < 0 ) continue;
       //      if (segment.sector[isg]==14)
       //        cout << nseg_phi_map[ichm] << " " << nseg_eta_map[ichm] << endl;
       if (!singleSegment_map[ichm]) continue; // require single track per chamber...
@@ -533,6 +537,7 @@ int main(int narg, char* argv[]) {
 
     for (int icl=0; icl<cluster.nentry; ++icl) {
       int ichm = getSectorIdx(cluster.sector[icl]);
+      if( ichm < 0 ) continue;
 
       RecClu* prclu = new RecClu;
       RecClu& rclu = *prclu;
@@ -718,7 +723,13 @@ namespace{
               int sector, bool meas){
               
 
-    unsigned int isector = getSectorIdx(sector);
+    unsigned int isector;
+    int tmpsector = getSectorIdx(sector);
+    if( tmpsector < 0 ) {
+      cout << "invalid sector!!" << endl;
+      return -1;
+    }
+    else isector = (unsigned int) tmpsector;
     int abit=0;
     if (qps.size()!=4) {
       cout << "qpeaks size should be 4!!" << endl;
@@ -753,7 +764,13 @@ namespace{
   ///////////////////////////////////
   bool getastrip(NoiseOption opt, double T0, double kFactor,
               double qpeak, int pid, int sector, int wlay, bool meas){
-    unsigned int isector = getSectorIdx(sector);
+    unsigned int isector;
+    int tmpsector = getSectorIdx(sector);
+    if( tmpsector < 0 ) {
+      cout << "invalid sector!!" << endl;
+      return false;
+    }
+    else isector = (unsigned int) tmpsector;
     double noise =getNoise(opt,isector,wlay-1,meas,pid-1); // starting from 0
     double threshold = std::max(T0,kFactor*noise);
 

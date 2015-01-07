@@ -10,6 +10,9 @@ apply_tag ROOTGraphicsLibs
 use AtlasCLHEP          AtlasCLHEP-*      External
 end_private
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist Tree)"
+
 application csc_layer_efficiency csc_layer_efficiency.cxx
 macro_append csc_layer_efficiency_dependencies " install_includes"
 

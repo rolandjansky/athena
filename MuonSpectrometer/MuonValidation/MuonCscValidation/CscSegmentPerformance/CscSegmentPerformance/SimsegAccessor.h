@@ -77,14 +77,17 @@ public :
 #endif
 
 #ifdef SimsegAccessor_cxx
-SimsegAccessor::SimsegAccessor(TTree *tree)
+SimsegAccessor::SimsegAccessor(TTree *tree) :
+  b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dydx(NULL), b_dzdx(NULL),
+  b_axy(NULL), b_axz(NULL), b_chsqy(NULL), b_chsqz(NULL), b_time(NULL), b_gid(NULL), b_pdgid(NULL),
+  b_eta(NULL), b_pt(NULL), b_istation(NULL), b_phisec(NULL), b_zsec(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/afs/usatlas.bnl.gov/users/dladams/data/csc_simseg.root");
       if (!f) {
-         f = new TFile("/afs/usatlas.bnl.gov/users/dladams/data/csc_simseg.root");
+         new TFile("/afs/usatlas.bnl.gov/users/dladams/data/csc_simseg.root");
       }
       tree = (TTree*)gDirectory->Get("csc_simseg");
 

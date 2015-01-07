@@ -121,14 +121,22 @@ public :
 #endif
 
 #ifdef ClusterAccessor_cxx
-ClusterAccessor::ClusterAccessor(TTree *tree)
+ClusterAccessor::ClusterAccessor(TTree *tree) :
+   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_pos(NULL), b_error(NULL), b_x(NULL),
+   b_y(NULL), b_z(NULL), b_nstrip(NULL), b_qstrip(NULL), b_tstrip(NULL), b_qpeak(NULL),
+   b_speak(NULL), b_qsum(NULL), b_qleft(NULL), b_sleft(NULL), b_qright(NULL), b_sright(NULL),
+   b_tpeak(NULL), b_sfit(NULL), b_measphi(NULL), b_wlay(NULL), b_istation(NULL), b_zsec(NULL),
+   b_phisec(NULL), b_sector(NULL), b_pitch(NULL), b_srefit(NULL), b_posrefit(NULL),
+   b_errrefit(NULL), b_maxstrip(NULL), b_strip0(NULL), b_pstrip(NULL), b_scor1(NULL),
+   b_scor2(NULL), b_scor(NULL), b_dscor1(NULL), b_dscor2(NULL), b_dscor(NULL), b_scordiff(NULL),
+   b_dscordiff(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/../run/cosmic125032.20000_0.0xsigma_RNDM.root");
       if (!f) {
-         f = new TFile("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/../run/cosmic125032.20000_0.0xsigma_RNDM.root");
+         new TFile("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/../run/cosmic125032.20000_0.0xsigma_RNDM.root");
       }
       tree = (TTree*)gDirectory->Get("csc_cluster");
 

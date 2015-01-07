@@ -138,14 +138,22 @@ public :
 #endif
 
 #ifdef SegmentAccessor_cxx
-SegmentAccessor::SegmentAccessor(TTree *tree)
+SegmentAccessor::SegmentAccessor(TTree *tree) :
+   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL), b_iseg(NULL),
+   b_nspoil(NULL), b_nunspoil(NULL), b_x(NULL), b_y(NULL), b_z(NULL), b_s0(NULL), b_s1(NULL),
+   b_sa(NULL), b_d0(NULL), b_d1(NULL), b_da(NULL), b_d01(NULL), b_d0a(NULL), b_chsq(NULL),
+   b_phase(NULL), b_str0(NULL), b_nstr(NULL), b_pstr(NULL), b_qsum(NULL), b_tstr(NULL),
+   b_qleft(NULL), b_qright(NULL), b_qpeak(NULL), b_sfit(NULL), b_pos(NULL), b_dpos(NULL),
+   b_res(NULL), b_dres(NULL), b_posAsSid(NULL), b_posInStr(NULL), b_refInStr(NULL), b_rs2(NULL),
+   b_rs3(NULL), b_drs2(NULL), b_drs3(NULL), b_measphi(NULL), b_istation(NULL), b_zsec(NULL),
+   b_phisec(NULL), b_sector(NULL), b_hitmap(NULL), b_spoilmap(NULL)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/csc_clusters.root");
       if (!f) {
-         f = new TFile("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/csc_clusters.root");
+         new TFile("/susyraid1/home/wpark/atlas/AtlasOffline-15.5.1/MuonSpectrometer/MuonValidation/MuonCscValidation/CscClusterValidation/run/csc_clusters.root");
       }
       tree = (TTree*)gDirectory->Get("csc_segment");
 
