@@ -108,6 +108,7 @@ class EvgenConfig(TransformConfig):
     specialConfig = String("Special configuration for subsequent prod steps")
     tune = String("Generator shower/hadronisation/MPI tune name")
     saveJets = Boolean("Save truth jet collections in the output file if they are available", False)
+    findJets = Boolean("Schedule jet finding algorithms for each defined jet container", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)

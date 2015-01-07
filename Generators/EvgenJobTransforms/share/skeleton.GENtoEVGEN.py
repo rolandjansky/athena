@@ -15,7 +15,13 @@ acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
 acam.athMasterSeq += acas.AlgSequence("EvgenFixSeq")
 fixSeq = acam.athMasterSeq.EvgenFixSeq
-acam.athFilterSeq += acas.AlgSequence("EvgenFilterSeq")
+acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
+prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
+acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
+testSeq = acam.athFilterSeq.EvgenTestSeq
+## NOTE: LogicalExpressionFilter is an algorithm, not a sequence
+from EvgenProdTools.LogicalExpressionFilter import LogicalExpressionFilter
+acam.athFilterSeq += LogicalExpressionFilter("EvgenFilterSeq")
 filtSeq = acam.athFilterSeq.EvgenFilterSeq
 topSeq = acas.AlgSequence()
 anaSeq = topSeq
@@ -49,8 +55,6 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 ## Compatibility with jets
 from RecExConfig.RecConfFlags import jobproperties
 jobproperties.RecConfFlags.AllowBackNavigation = True
-from JetRec.JetRecFlags import jobproperties as jobpropjet
-#jobpropjet.JetRecFlags.inputFileType = "GEN"
 
 ## Functions for operating on generator names
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
@@ -94,6 +98,11 @@ if hasattr(runArgs, "preExec"):
     for cmd in runArgs.preExec:
         evgenLog.info(cmd)
         exec(cmd)
+
+def OutputTXTFile():
+    outputTXTFile=None
+    if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
+    return outputTXTFile
 
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
@@ -206,6 +215,10 @@ if evgenConfig.keywords:
     else:
         evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
 
+## Configure and schedule jet finding algorithms
+## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
+if evgenConfig.findJets:
+    include("EvgenJobTransforms/Generate_TruthJets.py")
 
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -215,9 +228,11 @@ svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
 StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
 StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
+## Used for pile-up (remove dynamic variables except flavour labels)
 if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*"]
+    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
 
 ## Set the run numbers
@@ -250,8 +265,8 @@ if not hasattr(fixSeq, "FixHepMC"):
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
 if gens_testhepmc(evgenConfig.generators):
     evgenLog.info("Configuring TestHepMC")
-    if not hasattr(fixSeq, "TestHepMC"):
-        filtSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
+    if not hasattr(testSeq, "TestHepMC"):
+        testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
     if not hasattr(svcMgr, 'THistSvc'):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
@@ -276,7 +291,6 @@ if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
 postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CheckStream = ["StreamEVGEN"]
 postSeq.CountHepMC.CorrectHepMC = False
 postSeq.CountHepMC.CorrectEventID = True
 
@@ -388,6 +402,11 @@ if _checkattr("specialConfig"):
 if _checkattr("contact"):
     print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
 
+# Output list of generator filters used
+filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
+excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
+filterNames = list(set(filterNames) - set(excludedNames))
+print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
 
 ##==============================================================
 ## Input file arg handling

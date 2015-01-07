@@ -60,3 +60,7 @@ def addStdEvgenArgs(parser):
     parser.add_argument("--rivetAnas", group="Evgen",
                         help="a comma-separated list of Rivet analyses to run on the resulting events",
                         type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True))
+
+    parser.add_argument("--outputTXTFile", group="Evgen",
+                        help="optional output TXT file for LHEF events, default is None",
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
