@@ -21,7 +21,7 @@ use GeoPrimitives	              GeoPrimitives-*	                DetectorDescript
 private
 use StoreGate                   StoreGate-*                     Control
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
-use  EventInfo                  EventInfo-*                     Event
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  StoreGate                  StoreGate-*                     Control
 use  TrkAlgebraUtils            TrkAlgebraUtils-*               Tracking/TrkAlignment
 use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
@@ -50,6 +50,9 @@ use MuonSegment                 MuonSegment-*                   MuonSpectrometer
 
 
 apply_tag ROOTGraphicsLibs
+
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)"
 
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'

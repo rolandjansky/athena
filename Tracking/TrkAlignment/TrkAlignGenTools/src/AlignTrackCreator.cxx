@@ -8,8 +8,7 @@
 #include "GaudiKernel/PropertyMgr.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrkEventUtils/MeasurementTypeID.h"
 
@@ -221,13 +220,13 @@ namespace Trk {
       
       // store run/evt number in vector
       if (m_writeEventList) {
-        const EventInfo * eventInfo;
+        const xAOD::EventInfo * eventInfo;
         StatusCode sc=evtStore()->retrieve(eventInfo);
         if (sc.isFailure())
           ATH_MSG_ERROR("Couldn't retrieve event info");
 
-        int run=eventInfo->event_ID()->run_number();
-        int evt=eventInfo->event_ID()->event_number();
+        int run=eventInfo->runNumber();
+        int evt=eventInfo->eventNumber();
         m_goodEventList.push_back(std::make_pair(run,evt));
       }
 

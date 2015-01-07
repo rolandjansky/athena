@@ -268,6 +268,7 @@ namespace Trk {
     
     if (!checkValidity(*W)) {
       ATH_MSG_DEBUG("Weight matrix is invalid, skipping the track");
+      delete W;
       return false;
     }
     ATH_MSG_DEBUG("setting weight: "<<(*W));
@@ -400,9 +401,6 @@ namespace Trk {
     //CLHEP::HepSymMatrix HCH(nMeas,0);
     Amg::MatrixX HCH(nAtsos,nAtsos);
     HCH = CC.similarity( *H0 );
-
-
-    ATH_MSG_WARNING("CHECK the resulst of this similarity transform");
 
     ATH_MSG_DEBUG("HCH ( "<<HCH.rows()<<" x "<<HCH.cols()<<" )");
     ATH_MSG_DEBUG("HCH: "<<HCH);
@@ -645,7 +643,7 @@ namespace Trk {
       
       const TrackParameters * mtp  = alignTSOS->trackParameters();
       if (!mtp || !(mtp->covariance()) ) continue;
-      Amg::RotationMatrix3D localToGlobalRotation =    mtp->associatedSurface().transform().rotation();
+      Amg::RotationMatrix3D localToGlobalRotation =    mtp->measurementFrame();
        
 
       ATH_MSG_DEBUG( "localToGlobalRotation:");
@@ -661,8 +659,7 @@ namespace Trk {
 
       if(double alphastrip=alignTSOS->alphaStrip()) {
         ATH_MSG_DEBUG( "applying fanout rotation : " << alphastrip );
-        ATH_MSG_ERROR( "CHECK order of rotations"  );
-        localToGlobalRotation = localToGlobalRotation * Amg::AngleAxis3D(alphastrip, Amg::Vector3D(0.,0.,1.));
+	localToGlobalRotation = localToGlobalRotation * Amg::AngleAxis3D(alphastrip, Amg::Vector3D(0.,0.,1.));
         ATH_MSG_DEBUG( "localToGlobalRotation * fanout_rotation:");
         ATH_MSG_DEBUG(localToGlobalRotation(0,0) << " " <<
                       localToGlobalRotation(0,1) << " " <<

@@ -26,8 +26,7 @@
 #include "TrkAlignGenTools/ShiftingDerivCalcTool.h"
 #include "TrkAlignGenTools/AlignTrackCreator.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TGraph.h"
 #include "TF1.h"
@@ -714,12 +713,12 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
 
   // EventInfo
   if (chi2>1.e-6 || std::fabs(slope)<1.e-10) {
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     StatusCode sc=evtStore()->retrieve(eventInfo);
     if (sc.isFailure())
     ATH_MSG_ERROR("Couldn't retrieve event info");    
-    int run=eventInfo->event_ID()->run_number();
-    int evt=eventInfo->event_ID()->event_number();
+    int run=eventInfo->runNumber();
+    int evt=eventInfo->eventNumber();
     ATH_MSG_DEBUG("discontinuity check: chi2="<<chi2<<", run/evt "<<run<<"/"<<evt);
   }
 
@@ -893,9 +892,10 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
     ATH_MSG_ERROR("Need to assign this matrix correctly: ShiftingDerivCalcTool.cxx:893");
     W = *(alignTrack->localErrorMatrixInv());
     //W.assign(*(alignTrack->localErrorMatrixInv()));
-  } else 
+  } else{ 
+    delete pW;
     return false;
-  
+  }
   ATH_MSG_DEBUG("W: "<<W);
 
   bool Wisvalid(true);
