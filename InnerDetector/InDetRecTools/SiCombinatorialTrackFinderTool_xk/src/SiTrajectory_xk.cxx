@@ -19,6 +19,11 @@ void InDet::SiTrajectory_xk::setTools(const InDet::SiTools_xk* t)
   for(int i=0; i!=300; ++i) m_elements[i].setTools(t);
 } 
 
+void InDet::SiTrajectory_xk::setParameters()
+{
+  for(int i=0; i!=300; ++i) m_elements[i].setParameters();
+} 
+
 ///////////////////////////////////////////////////////////////////
 // Erase trajector element
 ///////////////////////////////////////////////////////////////////
@@ -470,7 +475,7 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
   ias.restore();
   return out;
 }   
-
+  
 ///////////////////////////////////////////////////////////////////
 // Build initiate trajectory
 ///////////////////////////////////////////////////////////////////
@@ -761,7 +766,7 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
     const InDetDD::SiDetectorElement* d  = (*r)->detElement();
     IdentifierHash                    id = d->identifyHash ();
     const Trk::Surface*               su = &d->surface();
-    const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(su);
+    const Trk::PlaneSurface* pla = static_cast<const Trk::PlaneSurface*>(su);
     if(!pla) continue;
 
     const Amg::Transform3D&  T = pla->transform();
@@ -934,9 +939,10 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
 
   for(; it!=itmax; ++it) {
 
-    int l = F;
-    int p = F; 
-    
+    int  l = F;
+    int  p = F; 
+    bool h = false;
+
     for(--F; F>=0; --F) {
       
       InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[F+1]];
@@ -945,10 +951,10 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       if(!Ef.BackwardPropagationFilter(El))  break;
 
       if     (Ef.cluster()) {
-	p=F; l=F; 
+	p=F; l=F; h=false; 
       }
       else if(Ef.inside() < 0  ) {
-	p=F; if(Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break;
+	p=F; if(Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break; h=true;
       }
     } 
 
@@ -989,7 +995,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       if(Ei.cluster() && Ei.isNextClusterHoleB())  {F=i; break;}
     }
   
-    if(F < 0 || m_nclusters+nbest >= 12) break;
+    if(F < 0 || (m_nclusters+nbest >= 12 && !h)) break;
     if(it!=itm) if(!m_elements[m_elementsMap[F]].addNextClusterB()) break; 
   }
 
@@ -1116,11 +1122,13 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
     int  p  = F;
     int  Fs = F;
     int  Ml = M;
+    bool h  = false;
 
     for(++F; F!=m_nElements; ++F) {
       
       InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[Fs]];
       InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[F ]];
+
       if(!Ef.ForwardPropagationWithSearch(El)) {
 
 	if(!Ef.isBarrel() || Fs!=F-1) break;
@@ -1138,11 +1146,11 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       if     (Ef.cluster()     ) {
 	double df = fabs(Ef.parametersUF().par()[2]-f0); if(df > pi) df = pi2-df; 
 	if(df > dfmax) break;
- 	p=F; l=F; Ml = M;
+ 	p=F; l=F; Ml = M; h=false;
       }
       else if(Ef.inside() < 0  ) {
 
-	p=F; if(Ef.nholesF() > maxholes || Ef.dholesF() > maxdholes) break;
+	p=F; if(Ef.nholesF() > maxholes || Ef.dholesF() > maxdholes) break; h=true;
 
 	double df = fabs(Ef.parametersPF().par()[2]-f0); if(df > pi) df = pi2-df; 
 	if(df > dfmax) break;
@@ -1192,8 +1200,8 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
       if(i!=lElement && Ei.cluster() && Ei.isNextClusterHoleF()) {F=i; M=j; break;}
     }
-    
-    if(F < 0 || m_nclusters+nbest >= 12) break;
+
+    if(F < 0 || (m_nclusters+nbest >= 12 && !h)) break;
     if(it!=itm) if(!m_elements[m_elementsMap[F]].addNextClusterF()) break;
   }
 

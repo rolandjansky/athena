@@ -58,6 +58,7 @@ namespace InDet{
       const int&  elementsMap(int& i) const {return m_elementsMap[i];}
 
       void setTools(const InDet::SiTools_xk*); 
+      void setParameters(); 
 
       bool initialize
 	(bool,bool,
@@ -151,8 +152,21 @@ namespace InDet{
 
   inline SiTrajectory_xk::SiTrajectory_xk()
     {
-      m_nElements = 0;
-      m_tools     = 0;
+      m_nElements      = 0 ;
+      m_tools          = 0 ;
+      m_firstElement   = 0 ;
+      m_lastElement    = 0 ;
+      m_nclusters      = 0 ;
+      m_nclustersNoAdd = 0 ;
+      m_difference     = 0 ;
+      m_nholesb        = 0 ;
+      m_nholese        = 0 ; 
+      m_nholes         = 0 ;
+      m_dholes         = 0 ;
+      m_naElements     = 0 ;
+      m_ndfcut         = 0 ;
+      m_ndf            = 0 ;
+      m_ntos           = 0 ;
     }
 
   inline SiTrajectory_xk::SiTrajectory_xk(const SiTrajectory_xk& T)

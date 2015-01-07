@@ -83,14 +83,6 @@ namespace InDet{
 	 Trk::PatternTrackParameters&);
 
       ///////////////////////////////////////////////////////////////////
-      // Methods propagate
-      ///////////////////////////////////////////////////////////////////
- 
-      bool propagate(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,    double&);
-      bool propagate(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,int,double&);
-      bool propagateParameters(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&,double&);
-
-      ///////////////////////////////////////////////////////////////////
       // Methods noise calculation
       ///////////////////////////////////////////////////////////////////
 
@@ -136,6 +128,7 @@ namespace InDet{
 	       const InDet::SiCluster*);
 
       void setTools(const InDet::SiTools_xk*); 
+      void setParameters(); 
       void bremNoiseModel();
 
       ///////////////////////////////////////////////////////////////////
@@ -157,7 +150,7 @@ namespace InDet{
 	 const InDet::SiDetElementBoundaryLink_xk*&       ,
 	 const InDet::SiClusterCollection::const_iterator&, 
 	 const InDet::SiClusterCollection::const_iterator&);
-
+      
       void CloseClusterSeach
 	(Trk::PatternTrackParameters&,
 	 const InDet::SiDetElementBoundaryLink_xk*&       ,
@@ -249,6 +242,37 @@ namespace InDet{
 
       double quality(int&) const;
 
+      ///////////////////////////////////////////////////////////////////
+      // Propagate parameters with covariance
+      ///////////////////////////////////////////////////////////////////
+
+      bool propagate
+	(Trk::PatternTrackParameters  &,
+	 Trk::PatternTrackParameters  &,
+	 double                       &);
+
+      ///////////////////////////////////////////////////////////////////
+      // Propagate parameters without covariance
+      ///////////////////////////////////////////////////////////////////
+
+      bool propagateParameters
+	(Trk::PatternTrackParameters&,
+	 Trk::PatternTrackParameters&,
+	 double                     &);
+
+      ///////////////////////////////////////////////////////////////////
+      // Work methods for propagation
+      ///////////////////////////////////////////////////////////////////
+
+      void transformPlaneToGlobal
+	(bool,Trk::PatternTrackParameters&,double*);
+      bool transformGlobalToPlane
+	(bool,double*,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool rungeKuttaToPlane
+	(bool,double*);
+      bool straightLineStepToPlane
+	(bool,double*);
+
     protected:
       
       ///////////////////////////////////////////////////////////////////
@@ -257,6 +281,8 @@ namespace InDet{
  
       bool                                        m_stereo      ;
       bool                                        m_utsos[3]    ;
+      bool                                        m_fieldMode   ;
+      bool                                        m_useassoTool ;  // Use assosiation tool
       int                                         m_status      ;  
       int                                         m_detstatus   ; // 0 (no clusters) 
       int                                         m_inside      ;
@@ -273,6 +299,8 @@ namespace InDet{
       int                                         m_ndfF        ;
       int                                         m_ndfB        ;
       int                                         m_ntsos       ;
+      int                                         m_maxholes    ;
+      int                                         m_maxdholes   ;
       double                                      m_xi2F        ;
       double                                      m_xi2B        ;
       double                                      m_xi2totalF   ;
@@ -282,6 +310,13 @@ namespace InDet{
       double                                      m_energylose  ;
       double                                      m_halflenght  ;
       double                                      m_step        ;
+      double                                      m_xi2max      ;
+      double                                      m_xi2maxNoAdd ;
+      double                                      m_xi2maxlink  ;  
+      double                                      m_xi2multi    ;
+      double                                      m_Tr[13]      ;
+      double                                      m_A [ 3]      ;
+
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
       const Trk::Surface*                         m_surface     ;
@@ -299,6 +334,11 @@ namespace InDet{
       InDet::SiClusterLink_xk                     m_linkB[10]   ; 
       Trk::NoiseOnSurface                         m_noise       ; 
       const InDet::SiTools_xk*                    m_tools       ; 
+      MagField::IMagFieldSvc*                     m_fieldService;
+      Trk::IPatternParametersUpdator*             m_updatorTool ;
+      Trk::IPatternParametersPropagator*          m_proptool    ;
+      Trk::IPRD_AssociationTool*                  m_assoTool    ; 
+      Trk::IRIO_OnTrackCreator*                   m_riotool     ;
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
 
@@ -307,7 +347,6 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
-
     };
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +366,35 @@ namespace InDet{
       m_noisemodel = 0  ; 
       m_covariance.resize(2,2);
       m_covariance<<0.,0.,0.,0.;
-    }
+      m_ndf         = 0 ;
+      m_ndfF        = 0 ;
+      m_ndfB        = 0 ;
+      m_ntsos       = 0 ;
+      m_maxholes    = 0 ;
+      m_maxdholes   = 0 ;
+      m_xi2F        = 0.;
+      m_xi2B        = 0.;
+      m_xi2totalF   = 0.;
+      m_xi2totalB   = 0.;
+      m_halflenght  = 0.;
+      m_step        = 0.;
+      m_xi2max      = 0.;
+      m_xi2maxNoAdd = 0.;
+      m_xi2maxlink  = 0.;  
+      m_xi2multi    = 0.;
+      m_detelement  = 0 ; 
+      m_detlink     = 0 ;
+      m_surface     = 0 ;
+      m_cluster     = 0 ;
+      m_clusterOld  = 0 ;
+      m_clusterNoAdd= 0 ;
+      m_fieldService= 0 ;
+      m_updatorTool = 0 ;
+      m_proptool    = 0 ;
+      m_assoTool    = 0 ;
+      m_riotool     = 0 ;
+      m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
+   }
 
   inline SiTrajectoryElement_xk::SiTrajectoryElement_xk(const SiTrajectoryElement_xk& E)
     {
@@ -337,6 +404,9 @@ namespace InDet{
   inline SiTrajectoryElement_xk& SiTrajectoryElement_xk::operator = 
     (const SiTrajectoryElement_xk& E) 
     {
+      if(&E==this) return(*this);
+
+      m_fieldMode    = E.m_fieldMode   ;
       m_status       = E.m_status      ;
       m_detstatus    = E.m_detstatus   ;
       m_inside       = E.m_inside      ;
@@ -405,7 +475,7 @@ namespace InDet{
   inline int SiTrajectoryElement_xk::searchClusters
     (Trk::PatternTrackParameters& Tp,SiClusterLink_xk* L) 
     {
-      if(!m_tools->useassoTool()) {
+      if(!m_useassoTool) {
 	if(!m_stereo) {
 	  if(m_ndf == 2) return searchClustersWithoutStereoPIX(Tp,L);
 	                 return searchClustersWithoutStereoSCT(Tp,L);
@@ -430,9 +500,9 @@ namespace InDet{
 
   inline bool SiTrajectoryElement_xk::isNextClusterHoleB()
     {
-      if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_tools->xi2max()) return true;
+      if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_xi2max) return true;
       if(m_inside < 0) {
-	if(m_nholesB < m_tools->maxholes() && m_dholesB < m_tools->maxdholes()) return true;
+	if(m_nholesB < m_maxholes && m_dholesB < m_maxdholes) return true;
 	return false;
       }
       return true;
@@ -441,9 +511,9 @@ namespace InDet{
   inline bool SiTrajectoryElement_xk::isNextClusterHoleF()
     {
       if(m_detstatus == 2) return false;
-      if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_tools->xi2max()) return true;
+      if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_xi2max) return true;
       if(m_inside < 0) {
-        if(m_nholesF < m_tools->maxholes() && m_dholesF < m_tools->maxdholes()) return true;
+        if(m_nholesF < m_maxholes && m_dholesF < m_maxdholes) return true;
 	return false;
       }
       return true;
@@ -479,13 +549,13 @@ namespace InDet{
 	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
 
 	if(m_detelement->isSCT()) {
-	  return m_tools->updatorTool()->addToStateOneDimension
+	  return m_updatorTool->addToStateOneDimension
 	    (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
 	} 
-        return m_tools->updatorTool()->addToState
+        return m_updatorTool->addToState
 	  (Ta,m_cluster->localPosition(),m_covariance,Tb,Xi2,N);
       }
-      return m_tools->updatorTool()->addToStateOneDimension
+      return m_updatorTool->addToStateOneDimension
 	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb,Xi2,N);
     }
 
@@ -501,13 +571,13 @@ namespace InDet{
 	patternCovariances
 	  (m_cluster,m_covariance(0,0),m_covariance(1,0),m_covariance(1,1));	
 	if(m_detelement->isSCT()) {
-	  return m_tools->updatorTool()->addToStateOneDimension
+	  return m_updatorTool->addToStateOneDimension
 	    (Ta,m_cluster->localPosition(),m_covariance,Tb);
 	}
-	return m_tools->updatorTool()->addToState
+	return m_updatorTool->addToState
 	  (Ta,m_cluster->localPosition(),m_covariance,Tb);
        }
-       return m_tools->updatorTool()->addToStateOneDimension
+       return m_updatorTool->addToStateOneDimension
 	(Ta,m_cluster->localPosition(),m_cluster->localCovariance(),Tb);
     }
   
@@ -520,40 +590,7 @@ namespace InDet{
 	 Trk::PatternTrackParameters& Tb,
 	 Trk::PatternTrackParameters& Tc)
     {
-      return m_tools->updatorTool()->combineStates(Ta,Tb,Tc);
-    }
-
-  /////////////////////////////////////////////////////////////////////////////////
-  // Propagate pattern track parameters to surface in any direction
-  /////////////////////////////////////////////////////////////////////////////////
-
-  inline bool SiTrajectoryElement_xk::propagate
-    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& step) 
-    {
-      return m_tools->propTool()->propagate
-	(Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
-    }
-
-  inline bool SiTrajectoryElement_xk::propagate
-    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,int dir,double& step) 
-    {
-      if(dir > 0) {
-	return m_tools->propTool()->propagate
-	  (Ta,*m_surface,Tb,Trk::alongMomentum,m_tools->fieldTool(),step,Trk::pion);
-      }
-      if(dir < 0) { 
-	return m_tools->propTool()->propagate
-	  (Ta,*m_surface,Tb,Trk::oppositeMomentum,m_tools->fieldTool(),step,Trk::pion);
-      }
-      return m_tools->propTool()->propagate
-	  (Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
-    }
-
-  inline bool SiTrajectoryElement_xk::propagateParameters
-    (Trk::PatternTrackParameters& Ta,Trk::PatternTrackParameters& Tb,double& step) 
-    {
-      return m_tools->propTool()->propagateParameters
-	(Ta,*m_surface,Tb,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+      return m_updatorTool->combineStates(Ta,Tb,Tc);
     }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -588,9 +625,6 @@ namespace InDet{
       if(m_ndf==1) {covY=v(1,1);}
       else         {
 	covY=c->width().z(); covY*=(covY*.08333); if(covY < v(1,1)) covY=v(1,1);
-	if(fabs(v(1,0)) > 1.e-20) {
-	  covXY = v(1,0)*sqrt((covX*covY)/(v(0,0)*v(1,1)));
-	}
       }
     }
 

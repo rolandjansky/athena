@@ -17,6 +17,7 @@ public
 use AtlasPolicy                   AtlasPolicy-*
 use AthenaBaseComps               AthenaBaseComps-*               Control
 use GaudiInterface                GaudiInterface-*                External 
+use MagFieldInterfaces *          MagneticField
 use TrkToolInterfaces             TrkToolInterfaces-*             Tracking/TrkTools
 use TrkExInterfaces               TrkExInterfaces-*               Tracking/TrkExtrapolation
 use TrkEventPrimitives            TrkEventPrimitives-*            Tracking/TrkEvent

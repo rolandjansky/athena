@@ -71,9 +71,11 @@ namespace InDet{
   inline SiDetElementBoundaryLink_xk& SiDetElementBoundaryLink_xk::operator = 
     (const SiDetElementBoundaryLink_xk& L) 
     {
-      m_detelement =  L.m_detelement;
-      for(int i=0; i!=4; ++i) {
-	for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+      if(&L!=this) {
+	m_detelement =  L.m_detelement;
+	for(int i=0; i!=4; ++i) {
+	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
+	}
       }
       return(*this);
     }

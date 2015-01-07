@@ -20,6 +20,7 @@
 #include <map>
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 
@@ -111,6 +112,7 @@ namespace InDet{
 
       ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;
       ServiceHandle<IInDetConditionsSvc>    m_sctCondSummarySvc  ;
+      ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ;
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool;
       ToolHandle<Trk::IRIO_OnTrackCreator>          m_riocreator ;
@@ -142,6 +144,7 @@ namespace InDet{
 
       const SiClusterContainer*      m_pixcontainer  ;
       const SiClusterContainer*      m_sctcontainer  ;
+      MagField::IMagFieldSvc*        m_fieldService  ;
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters

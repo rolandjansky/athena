@@ -22,7 +22,7 @@
 InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 ( const InDetDD::SiDetectorElement*& Si)
 {
-
+  m_detelement = 0;
   const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(& Si->surface());
   if(!pla) return;
   m_detelement = Si;
@@ -84,24 +84,24 @@ int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParamet
   double x = Tp.par()[0];
   double y = Tp.par()[1];
 
-  int    n  = 0        ;    
-  double a  = -1000000.;
-  double a1 = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; if(a1>a) {a=a1; n=0;}
+  int    n  = 0;
+  double a  = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 
   double a2 = m_bound[1][0]*x+m_bound[1][1]*y-m_bound[1][2]; if(a2>a) {a=a2; n=1;}
   double a3 = m_bound[2][0]*x+m_bound[2][1]*y-m_bound[2][2]; if(a3>a) {a=a3; n=2;}
   double a4 = m_bound[3][0]*x+m_bound[3][1]*y-m_bound[3][2]; if(a4>a) {a=a4; n=3;}
 
-  double D  = (m_bound[n][0]*m_bound[n][0]*Tp.cov()[0]+
-	       m_bound[n][1]*m_bound[n][1]*Tp.cov()[2]+
-	       m_bound[n][0]*m_bound[n][1]*Tp.cov()[1]*2.);
+  if(a > 100.) return 2;
+  if(a > 20. ) return 1;
+  double D  = (m_bound[n][0]*m_bound[n][0]* Tp.cov()[0]+
+	       m_bound[n][1]*m_bound[n][1]* Tp.cov()[2]+
+	       m_bound[n][0]*m_bound[n][1]*(Tp.cov()[1]*2.))*100.;
 
-  if(fabs(D) < 1.e-40) {D > 0. ? D = 1.e-40 : D = -1.e-40;}
+  if((a*a) <= D) return 0;
 
-  double X  = (a*a)/D;
-
-  if(a> 2. && X > 100.) return  1;
-  if(a<-2. && X > 100.) {
+  if(a >  2.) return 1;
+  if(a < -2.) {
     if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(Tp.cov()[2]))) return -1;
   }
   return 0;
 }
+

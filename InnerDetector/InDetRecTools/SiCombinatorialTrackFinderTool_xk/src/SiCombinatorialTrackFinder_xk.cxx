@@ -39,6 +39,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   : AthAlgTool(t,n,p)                                           ,
     m_pixelCondSummarySvc("PixelConditionsSummarySvc",n        ),
     m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc" ,n        ),
+    m_fieldServiceHandle("AtlasFieldSvc",n)                     ,
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),
     m_updatortool("Trk::KalmanUpdator_xk/InDetPatternUpdator"  ),
     m_riocreator ("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator" ),
@@ -55,6 +56,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_inputseeds  = 0                  ;
   m_findtracks  = 0                  ;
   m_qualityCut  = 9.3                ;
+  m_fieldService = 0                 ; 
   declareInterface<ISiCombinatorialTrackFinder>(this);
 
   declareProperty("SCTManagerLocation"   ,m_sctm               );
@@ -71,7 +73,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("PixelSummarySvc"      ,m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
-
+  declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -148,15 +150,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     sctcond = &(*m_sctCondSummarySvc); 
   }
 
-  // Set SiTools and conditions
-  //
-  m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool);
-  m_tools.setTools(pixcond,sctcond);
- 
-  // Set tool to trajectory
-  //
-  m_trajectory.setTools(&m_tools);
-
   // get the key -- from StoreGate (DetectorStore)
   //
   std::vector< std::string > tagInfoKeys =  detStore()->keys<TagInfo> ();
@@ -187,9 +180,26 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
       return StatusCode::FAILURE;
   }
 
+  if( !m_fieldServiceHandle.retrieve() ){
+    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
+    return StatusCode::FAILURE;
+  }    
+  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+  m_fieldService = &*m_fieldServiceHandle;
+
+  // Set SiTools and conditions
+  //
+  m_tools.setTools(&(*m_proptool),&(*m_updatortool),riocreator,assoTool,m_fieldService);
+  m_tools.setTools(pixcond,sctcond);
+
+
   // Setup callback for magnetic field
   //
   magneticFieldInit();       
+
+  // Set tool to trajectory
+  //
+  m_trajectory.setTools(&m_tools);
 
   // Get output print level
   //
@@ -852,12 +862,12 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
      const Trk::PrepRawData* p = (*s)->clusterList().first ; 
      
      if(p) {
-       const InDet::SiCluster* c = dynamic_cast<const InDet::SiCluster*>(p);
+       const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(p);
        if(c) Sc.push_back(c);
      }
      p = (*s)->clusterList().second; 
      if(p) {
-       const InDet::SiCluster* c = dynamic_cast<const InDet::SiCluster*>(p);
+       const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(p);
        if(c) Sc.push_back(c);
      }
   }
@@ -935,11 +945,13 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
     if(m_xi2maxNoAdd > 25.) m_xi2maxNoAdd = 25.        ;
   }
 
-  if(m_xi2maxNoAdd <= m_xi2max) m_xi2maxNoAdd = m_xi2max+5.; 
+  if(m_xi2maxNoAdd  <= m_xi2max   ) m_xi2maxNoAdd = m_xi2max+5.;
+  if(m_dholesmax    >  m_nholesmax) m_dholesmax   = m_nholesmax;
   m_nclusminb = m_nclusmin-1; if(m_nclusminb < 3 ) m_nclusminb = 3;
-
+ 
   m_tools.setXi2pTmin     (m_xi2max,m_xi2maxNoAdd,m_xi2maxlink,m_pTmin);
   m_tools.setHolesClusters(m_nholesmax,m_dholesmax,m_nclusmin);
   m_tools.setAssociation  (useasso);
   m_tools.setMultiTracks  (multitrack,xi2m);
+  m_trajectory.setParameters();
 }

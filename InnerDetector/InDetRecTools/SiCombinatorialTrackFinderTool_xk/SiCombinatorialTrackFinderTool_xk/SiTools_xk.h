@@ -16,6 +16,7 @@
 #define SiTools_xk_H
 
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -45,6 +46,7 @@ namespace InDet{
 
       Trk::IPatternParametersPropagator*  propTool   () const {return m_proptool   ;}
       Trk::IPatternParametersUpdator*     updatorTool() const {return m_updatortool;}
+      MagField::IMagFieldSvc*             magfield   () const {return m_fieldService;}  
 
       Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
@@ -66,11 +68,13 @@ namespace InDet{
 	(Trk::IPatternParametersPropagator* ,
 	 Trk::IPatternParametersUpdator*    , 
 	 Trk::IRIO_OnTrackCreator*          , 
-	 Trk::IPRD_AssociationTool*         );  
+	 Trk::IPRD_AssociationTool*         ,
+	 MagField::IMagFieldSvc* 
+	 );  
       
       void setTools
 	(const Trk::MagneticFieldProperties&);
-
+ 
       void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
 
       void setXi2pTmin(const double&,const double&,const double&,const double&);
@@ -78,6 +82,7 @@ namespace InDet{
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
       void setBremNoise  (const int&);
+
 
     protected:
       
@@ -87,6 +92,7 @@ namespace InDet{
 
       Trk::IPRD_AssociationTool*      m_assoTool   ;  // PRD-Track assosiation tool
       Trk::MagneticFieldProperties    m_fieldtool  ;  // Magnetic field properties
+      MagField::IMagFieldSvc*        m_fieldService;  // Magnetic field service 
       Trk::IPatternParametersPropagator* m_proptool;  // Propagator tool
       Trk::IPatternParametersUpdator* m_updatortool;  // Updator    tool
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
@@ -126,6 +132,7 @@ namespace InDet{
       m_xi2max      = 15. ;
       m_xi2maxlink  = 200.;
       m_xi2multi    = 5.  ;
+      m_xi2maxNoAdd = 20. ; 
       m_pTmin       = 500.;
       m_nholesmax   = 2   ;
       m_dholesmax   = 1   ;
@@ -133,12 +140,14 @@ namespace InDet{
       m_useassoTool = false;
       m_multitrack  = false; 
       m_bremnoise   = false;
+      m_fieldService= 0    ;
     }
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
     {
       m_assoTool    = T.m_assoTool   ;
       m_fieldtool   = T.m_fieldtool  ;
+      m_fieldService= T.m_fieldService;
       m_proptool    = T.m_proptool   ;
       m_updatortool = T.m_updatortool;
       m_riotool     = T.m_riotool    ;
@@ -159,23 +168,26 @@ namespace InDet{
   inline SiTools_xk& SiTools_xk::operator = 
     (const SiTools_xk& T) 
     {
-      m_assoTool    = T.m_assoTool   ;
-      m_fieldtool   = T.m_fieldtool  ;
-      m_proptool    = T.m_proptool   ;
-      m_updatortool = T.m_updatortool;
-      m_riotool     = T.m_riotool    ;
-      m_pixcond     = T.m_pixcond    ;
-      m_sctcond     = T.m_sctcond    ;
-      m_xi2max      = T.m_xi2max     ;
-      m_xi2maxlink  = T.m_xi2maxlink ;
-      m_xi2multi    = T.m_xi2multi   ;
-      m_pTmin       = T.m_pTmin      ;
-      m_nholesmax   = T.m_nholesmax  ;
-      m_dholesmax   = T.m_dholesmax  ;
-      m_nclusmin    = T.m_nclusmin   ; 
-      m_useassoTool = T.m_useassoTool;
-      m_multitrack  = T.m_multitrack ; 
-      m_bremnoise   = T.m_bremnoise  ;
+      if(&T!=this) {
+	m_assoTool    = T.m_assoTool   ;
+	m_fieldtool   = T.m_fieldtool  ;
+	m_fieldService= T.m_fieldService;
+	m_proptool    = T.m_proptool   ;
+	m_updatortool = T.m_updatortool;
+	m_riotool     = T.m_riotool    ;
+	m_pixcond     = T.m_pixcond    ;
+	m_sctcond     = T.m_sctcond    ;
+	m_xi2max      = T.m_xi2max     ;
+	m_xi2maxlink  = T.m_xi2maxlink ;
+	m_xi2multi    = T.m_xi2multi   ;
+	m_pTmin       = T.m_pTmin      ;
+	m_nholesmax   = T.m_nholesmax  ;
+	m_dholesmax   = T.m_dholesmax  ;
+	m_nclusmin    = T.m_nclusmin   ; 
+	m_useassoTool = T.m_useassoTool;
+	m_multitrack  = T.m_multitrack ; 
+	m_bremnoise   = T.m_bremnoise  ;
+      }
       return(*this);
     }
 
@@ -185,13 +197,15 @@ namespace InDet{
     (Trk::IPatternParametersPropagator*  PR,
      Trk::IPatternParametersUpdator*     UP, 
      Trk::IRIO_OnTrackCreator*           RO,
-     Trk::IPRD_AssociationTool*          AS    
+     Trk::IPRD_AssociationTool*          AS,
+     MagField::IMagFieldSvc*             MS     
      )    
     {
       m_proptool    = PR;
       m_updatortool = UP;
       m_riotool     = RO;
       m_assoTool    = AS; 
+      m_fieldService= MS;   
     }
 
   inline void SiTools_xk::setTools
