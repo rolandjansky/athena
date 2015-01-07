@@ -87,4 +87,5 @@ static FADS::PhysicsListEntryT<Shielding> physlist_Shielding("Shielding");
 
 #include "FadsPhysics/FactoryMadeList.h"
 static FADS::FactoryMadeList physlist_FTFP_BERT_EMY("FTFP_BERT_EMY");
+static FADS::FactoryMadeList physlist_FTFP_BERT_EMZ("FTFP_BERT_EMZ");
 
