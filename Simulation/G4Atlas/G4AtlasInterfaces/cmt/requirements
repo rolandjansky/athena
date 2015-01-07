@@ -1,0 +1,6 @@
+package G4AtlasInterfaces
+
+use AtlasPolicy      AtlasPolicy-*
+
+use GaudiInterface   GaudiInterface-*    External
+
