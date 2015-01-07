@@ -280,8 +280,7 @@ namespace Muon {
     }
     
     //recovered track, success!
-    if( chRecTrack ) return const_cast<Trk::Track*>(chRecTrack);
-    return 0; //bestOutputTrack;
+    return const_cast<Trk::Track*>(chRecTrack);
   }
   
   
@@ -789,9 +788,9 @@ namespace Muon {
 	    ATH_MSG_DEBUG("Failed to find prds in main sector: " << hitSummary.mainSector);
 	  }
 	}
-	if( prds ){
-	  std::vector<const MuonSegment*>* segments = m_seededSegmentFinder->find(*exParsFirst,*prds );
-	  if( segments ){
+	if( prds && exParsFirst){
+          std::vector<const MuonSegment*>* segments = m_seededSegmentFinder->find(*exParsFirst,*prds );
+          if( segments ){
 	    if( !segments->empty() ) ATH_MSG_DEBUG("found segments " << segments->size() );
 	    std::vector<const MuonSegment*>::iterator sit = segments->begin();
 	    std::vector<const MuonSegment*>::iterator sit_end = segments->end();

@@ -939,6 +939,7 @@ namespace Muon {
     Amg::Vector3D locDirTrack(gToStation.linear()*dir);
     double track_angleYZ = atan2(locDirTrack.z(),locDirTrack.y());
 	
+    if(!detEl) return false;
     // transform nominal pointing chamber position into surface frame
     Amg::Vector3D dirCh(gToStation.linear()*detEl->center());
     double chamber_angleYZ = atan2(dirCh.z(),dirCh.y());

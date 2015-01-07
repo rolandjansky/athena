@@ -326,7 +326,7 @@ namespace Muon {
       if( nstationsInitial != nstationsHitCleaning ){
 	ATH_MSG_DEBUG(" Cleaner removed full station from track: remaining layers " << nstationsHitCleaning );
 	
-	if( nstationsChamberCleaning < 2 ){
+	if( nstationsHitCleaning < 2 ){
 	  ATH_MSG_DEBUG(" Cleaner removed all but one station from track!!! " );
 	  ++m_counters.nhitOneChamberLeft;
 	  return 0;

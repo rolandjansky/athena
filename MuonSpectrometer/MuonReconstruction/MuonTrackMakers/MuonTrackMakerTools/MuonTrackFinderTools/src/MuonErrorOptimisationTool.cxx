@@ -303,7 +303,7 @@ namespace Muon {
     }
     // clean up
     if( result1 && result1 != refittedTrack ) delete result1;
-    if( result2 && result2 != refittedTrack ) delete result2;
+//    if( result2 && result2 != refittedTrack ) delete result2;
     return const_cast<Trk::Track*>(refittedTrack);    
   }
 

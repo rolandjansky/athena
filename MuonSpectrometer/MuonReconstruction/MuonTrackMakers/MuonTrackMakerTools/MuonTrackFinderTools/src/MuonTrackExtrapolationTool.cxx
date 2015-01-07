@@ -175,7 +175,7 @@ namespace Muon {
 	    << " pos " << pars.position() << " dir " << pars.momentum().unit();
       if( propDir == Trk::alongMomentum ) msg() << " going along momentum" << endreq;
       else if( propDir == Trk::oppositeMomentum ) msg() << " going opposite momentum" << endreq;
-      else msg() << " unknown direction" << endreq;
+//      else msg() << " unknown direction" << endreq;
     }
 
     // for cosmics try both directions

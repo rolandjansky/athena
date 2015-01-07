@@ -816,9 +816,10 @@ namespace Muon {
     ClusterLayerMap::iterator clit_end = clusterLayerMap.end();
     for( ;clit!=clit_end;++clit ){
  
-      bool addMeasurements = true;
+//      bool addMeasurements = true;
       Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS( clit->second.clus, clit->second.pars != &pars ? clit->second.pars : clit->second.pars->clone() , 
-								       addMeasurements ? Trk::TrackStateOnSurface::Measurement : Trk::TrackStateOnSurface::Outlier );
+								       Trk::TrackStateOnSurface::Measurement );
+//								       addMeasurements ? Trk::TrackStateOnSurface::Measurement : Trk::TrackStateOnSurface::Outlier );
       states.push_back( std::make_pair(true,tsos) );
       ATH_MSG_VERBOSE(" added hit " << m_idHelperTool->toString(clit->second.clus->identify()));      
       ++nNewHits;
@@ -980,10 +981,10 @@ namespace Muon {
 	    // cast away constness 
 	    MdtDriftCircleOnTrack* changeMdtROT = const_cast<MdtDriftCircleOnTrack*>(mdtROT);
 	    // sanity check
-	    if( !changeMdtROT ){
-	      ATH_MSG_WARNING(" failed to cast away constness of mdtROt " << m_idHelperTool->toString(id) );
-	      continue;
-	    }
+//	    if( !changeMdtROT ){
+//	      ATH_MSG_WARNING(" failed to cast away constness of mdtROt " << m_idHelperTool->toString(id) );
+//	      continue;
+//	    }
 	  
 	    // update sign
 	    m_mdtRotCreator->updateSign( *changeMdtROT, side );
