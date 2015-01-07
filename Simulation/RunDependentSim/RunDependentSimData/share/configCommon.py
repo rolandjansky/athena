@@ -8,12 +8,15 @@ if 'runArgs' in dir():
     if hasattr(runArgs,"jobNumber") and hasattr(runArgs,"maxEvents"):
         trfJobNumber = runArgs.jobNumber
         trfMaxEvents = runArgs.maxEvents
+        if runArgs.maxEvents==-1:
+            raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job."%(runArgs.maxEvents,))
         if not 'DoNotCorrectMaxEvents' in dir():
             corrMaxEvents = math.ceil(float(trfMaxEvents)/100.0)*100.0 # round up to nearest 100 events..
         else:
             digilog.warning('Using the actual number of HITS input events for this job -- not for production use!')
             corrMaxEvents = trfMaxEvents
-    else: digilog.error('Tried to include RunLumiOverride configuration without knowing this runArgs.jobNumber or runArgs.maxEvents!')
+    else: 
+        raise SystemExit("Please provide jobNumber and maxEvents to runArgs.") 
 else:
     #this is a test job not a trf job
     trfJobNumber=1
