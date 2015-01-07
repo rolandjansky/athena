@@ -57,16 +57,15 @@ namespace Trk {
     CombinedVolumeBounds& operator=(const CombinedVolumeBounds& bobo);
     
     /**Virtual constructor */
-    virtual CombinedVolumeBounds* clone() const override;
+    CombinedVolumeBounds* clone() const override;
     
     /**This method checks if position in the 3D volume frame is inside the volume*/     
-    virtual bool inside(const Amg::Vector3D&, double tol=0.) const override;
+    bool inside(const Amg::Vector3D&, double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const;
     
     /** Provide accessor for BoundarySurfaces */
-    virtual
     const ObjectAccessor& boundarySurfaceAccessor(const Amg::Vector3D& gp,
                                                   const Amg::Vector3D& dir,
                                                   bool forceInside=false) const override;
@@ -84,10 +83,10 @@ namespace Trk {
     const std::vector<bool> boundsOrientation() const;
     
     /** Output Method for MsgStream*/
-    virtual MsgStream& dump(MsgStream& sl) const override;
+    MsgStream& dump(MsgStream& sl) const override;
     
     /** Output Method for std::ostream */
-    virtual std::ostream& dump(std::ostream& sl) const override;
+    std::ostream& dump(std::ostream& sl) const override;
 
   private:
 
