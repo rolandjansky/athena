@@ -21,7 +21,7 @@ struct dummy_TrigEventTPCnvDict{
   std::vector<TrigInDetTrackTruthMap_p1>            m_dummyTrigInDetTrackTruthMap_p1;
   std::vector<TrigInDetTrackTruth_p1>               m_dummyTrigInDetTrackTruth_p1;
   std::vector<TrigIDHitStats_p1> 	            m_dummyTrigIDHitStats_p1;
-  std::vector< pair<unsigned int, unsigned int> >   m_dummyPairUnsignInt;
+  std::vector< std::pair<unsigned int, unsigned int> >   m_dummyPairUnsignInt;
 
 };
  

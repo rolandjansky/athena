@@ -37,7 +37,7 @@ class TrigInDetTrackTruth_p1
 
   std::vector<TPObjRef> m_true_part_vec;  //actual type std::vector<HepMcParticleLink> 
   std::vector<TPObjRef> m_nr_common_hits; //actual type std::vector<TrigIDHitStats>
-  std::vector< pair<unsigned int, unsigned int> >  m_family_tree; 
+  std::vector< std::pair<unsigned int, unsigned int> >  m_family_tree; 
 
 };
 
