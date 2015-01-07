@@ -12,8 +12,8 @@ use AtlasDoxygen AtlasDoxygen-* Tools
 # Define action that implements a post-install action
 action post_install "$(ATLASCOMMONPOLICYROOT)/cmt/post_install.sh $(post_install_script)"
 
-action post_merge_rootmap \
- "$(ATLASCOMMONPOLICYROOT)/scripts/abuild-merge-rootmap.py"
+action post_merge_rootmap "true"
+# "$(ATLASCOMMONPOLICYROOT)/scripts/abuild-merge-rootmap.py"
 
 action post_merge_genconfdb \
  "$(ATLASCOMMONPOLICYROOT)/scripts/abuild-merge-genconfdb.py"
@@ -25,7 +25,7 @@ action post_build_tpcnvdb \
 
 action all_post_constituents echo "running postaction"
 
-document installer install_merge_rootmap install_dir=$(CMTINSTALLAREA)/share/bin "../scripts/abuild-merge-rootmap.py"
+#document installer install_merge_rootmap install_dir=$(CMTINSTALLAREA)/share/bin "../scripts/abuild-merge-rootmap.py"
 
 document installer install_merge_genconfdb install_dir=$(CMTINSTALLAREA)/share/bin "../scripts/abuild-merge-genconfdb.py"
 
@@ -63,6 +63,21 @@ pattern cmake_add_command \
    macro dummy_for_cmake "<command>" ; \
    end_private
 
+pattern cmake_add_definitions \
+   private ; \
+   macro dummy_for_cmake "<defines>" ; \
+   end_private
+	
+pattern cmake_add_dependency \
+   private ; \
+   macro dummy_for_cmake "<package>" "<packages>"; \
+   end_private
+	
+pattern cmake_add_generated_files \
+   private ; \
+   macro dummy_for_cmake "<library>" "<files>" ; \
+   end_private
+	
 pattern cmake_add_libraries \
    private ; \
    macro dummy_for_cmake "<target>" "<libraries>" ; \
@@ -71,6 +86,21 @@ pattern cmake_add_libraries \
 pattern cmake_conditional_target \
    private ; \
    macro dummy_for_cmake "<target>" "<type>" ; \
+   end_private
+	
+pattern cmake_ignore_import \
+   private ; \
+   macro dummy_for_cmake "<library>" "<import>" ; \
+   end_private
+	
+pattern cmake_set_macro \
+   private ; \
+   macro dummy_for_cmake "<macro>" "<value>" ; \
+   end_private
+	
+pattern cmake_override_library_type \
+   private ; \
+   macro dummy_for_cmake "<library>" "<type>" ; \
    end_private
 	
 pattern optdebug_library \
