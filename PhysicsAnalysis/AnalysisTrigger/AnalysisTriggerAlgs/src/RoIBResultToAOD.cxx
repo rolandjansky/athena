@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToAOD.cxx 587265 2014-03-12 09:45:45Z krasznaa $
+// $Id: RoIBResultToAOD.cxx 622025 2014-10-15 16:37:41Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
@@ -290,7 +290,7 @@ StatusCode RoIBResultToAOD::buildCTP_Decision() {
       }
 
       // search for passed items in TAV vector from CTP result
-      const std::bitset< 256 > items = ROIB::convertToBitset( tav );
+      const std::bitset< 512 > items = ROIB::convertToBitset( tav );
 
       for(TrigConf::ItemContainer::const_iterator item = m_configSvc->ctpConfig()->menu().items().begin(); 
           item != m_configSvc->ctpConfig()->menu().items().end(); ++item ) {

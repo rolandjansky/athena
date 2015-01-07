@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.h 587265 2014-03-12 09:45:45Z krasznaa $
+// $Id: RoIBResultToxAOD.h 631433 2014-11-26 23:08:01Z watsona $
 #ifndef ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 
@@ -16,10 +16,6 @@
 
 // xAOD include(s):
 #include "xAODTriggerCnv/IMuonRoICnvTool.h"
-#include "xAODTriggerCnv/IEmTauRoICnvTool.h"
-#include "xAODTriggerCnv/IEnergySumRoICnvTool.h"
-#include "xAODTriggerCnv/IJetEtRoICnvTool.h"
-#include "xAODTriggerCnv/IJetRoICnvTool.h"
 
 // Forward declaration(s):
 class StoreGateSvc;
@@ -29,7 +25,7 @@ namespace TrigConf {
 }
 namespace LVL1 {
   class RecMuonRoiSvc;
-  class IL1EmTauTools;
+  class IL1CPMTools;
   class IL1JetTools;
 }
 namespace ROIB {
@@ -50,7 +46,7 @@ namespace ROIB {
  *
  *  The CTP_Decision and LVL1_ROI objects are stored in ESD/AOD.
  *
- *    $Id: RoIBResultToxAOD.h 587265 2014-03-12 09:45:45Z krasznaa $
+ *    $Id: RoIBResultToxAOD.h 631433 2014-11-26 23:08:01Z watsona $
  *
  * @author Tadashi Maeno <Tadashi.Maeno@cern.ch>
  * @author Attila Kraznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
@@ -72,9 +68,9 @@ private:
    /// build CTP_Decision from CTPResult stored in ROIB::RoIBResult
    StatusCode buildCTP_Decision();
    /// add EmTauRoi to LVL1_ROI from EmTauResult stored in ROIB::RoIBResult
-   void addEmTauRoI(const ROIB::RoIBResult*, LVL1_ROI*);
+   StatusCode addEmTauRoI(const ROIB::RoIBResult*);
    /// add JetEnergyRoi to LVL1_ROI from JetEnergyResult stored in ROIB::RoIBResult
-   void addJetEnergyRoI(const ROIB::RoIBResult*, LVL1_ROI*);
+   StatusCode addJetEnergyRoI(const ROIB::RoIBResult*);
    /// add MuonRoi to LVL1_ROI from MuCTPIResult stored in ROIB::RoIBResult
    void addMuonRoI(const ROIB::RoIBResult*, LVL1_ROI*);
    /// convert AOD ROI objects to xAOD objects
@@ -87,7 +83,7 @@ private:
    ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;                 //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
 
    // tools
-   ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;                       //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
+   ToolHandle<LVL1::IL1CPMTools> m_EmTauTool;                          //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
    ToolHandle<LVL1::IL1JetTools> m_JetTool;                           //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
    bool m_retrievedEmTauTool;
    bool m_retrievedJetTool;
@@ -100,13 +96,9 @@ private:
    std::string m_xaodKeyJet;
 
    ToolHandle< xAODMaker::IMuonRoICnvTool > m_MuCnvTool;
-   ToolHandle< xAODMaker::IEmTauRoICnvTool > m_EmTauCnvTool;
-   ToolHandle< xAODMaker::IEnergySumRoICnvTool > m_EsumCnvTool;
-   ToolHandle< xAODMaker::IJetEtRoICnvTool > m_JetEtCnvTool;
-   ToolHandle< xAODMaker::IJetRoICnvTool > m_JetCnvTool;
 
    // Data object StoreGate keys
-   std::string m_TriggerTowerLocation;
+   std::string m_CPMTowerLocation;
    std::string m_JetElementLocation;
    std::string m_roibInputKey;
    std::string m_lvl1RoIOutputKey;

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 587265 2014-03-12 09:45:45Z krasznaa $
+// $Id: RoIBResultToxAOD.cxx 638077 2015-01-07 16:25:46Z watsona $
 
 // STL include(s):
 #include <algorithm>
@@ -27,11 +27,10 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/CTPResult.h"
-#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
+#include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JetTools.h"
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloEvent/CPMTowerCollection.h"
 #include "TrigT1CaloEvent/JetElementCollection.h"
-#include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloEvent/JetInput.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
@@ -51,12 +50,14 @@
 // xAOD include(s):
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
+#include "xAODTrigger/EmTauRoI.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "xAODTrigger/EmTauRoIAuxContainer.h"
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigger/EnergySumRoIAuxInfo.h"
 #include "xAODTrigger/JetEtRoI.h"
 #include "xAODTrigger/JetEtRoIAuxInfo.h"
+#include "xAODTrigger/JetRoI.h"
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/JetRoIAuxContainer.h"
 
@@ -72,13 +73,9 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLo
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
     m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
     m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
-    m_EmTauTool( "LVL1::L1EmTauTools/L1EmTauTools" ),
+    m_EmTauTool( "LVL1::L1CPMTools/L1CPMTools" ),
     m_JetTool( "LVL1::L1JetTools/L1JetTools" ),
-    m_MuCnvTool( "xAODMaker::MuonRoICnvTool/MuonRoICnvTool", this ),
-    m_EmTauCnvTool( "xAODMaker::EmTauRoICnvTool/EmTauRoICnvTool", this ),
-    m_EsumCnvTool( "xAODMaker::EnergySumRoICnvTool/EnergySumRoICnvTool", this ),
-    m_JetEtCnvTool( "xAODMaker::JetEtRoICnvTool/JetEtRoICnvTool", this ),
-    m_JetCnvTool( "xAODMaker::JetRoICnvTool/JetRoICnvTool", this )
+    m_MuCnvTool( "xAODMaker::MuonRoICnvTool/MuonRoICnvTool", this )
  {
 
    // services
@@ -87,7 +84,7 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLo
    declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
 
    // tools
-   declareProperty( "L1EmTauTools", m_EmTauTool,
+   declareProperty( "L1CPMTools", m_EmTauTool,
                     "Tool for calculation of EmTau trigger sums per RoI");
    declareProperty( "L1JetTools", m_JetTool,
                     "Tool for calculation of Jet cluster sums per RoI");
@@ -111,9 +108,9 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name, ISvcLocator* pSvcLo
                     "List of LVL1 items for low pt muon trigger type" );
 
    // Properties: StoreGate keys
-   m_TriggerTowerLocation       = LVL1::TrigT1CaloDefs::TriggerTowerLocation;
+   m_CPMTowerLocation           = LVL1::TrigT1CaloDefs::CPMTowerLocation;
    m_JetElementLocation         = LVL1::TrigT1CaloDefs::JetElementLocation;
-   declareProperty( "TriggerTowerLocation", m_TriggerTowerLocation ) ;
+   declareProperty( "CPMTowerLocation", m_CPMTowerLocation ) ;
    declareProperty( "JetElementLocation",   m_JetElementLocation ) ;
    declareProperty( "RoIBResultInputKey", m_roibInputKey = "RoIBResult" );
    declareProperty( "LVL1_ROIOutputKey", m_lvl1RoIOutputKey = "LVL1_ROI" );
@@ -266,12 +263,12 @@ StatusCode RoIBResultToxAOD::execute() {
    ///////////////////////////////////////////////////////////////////////////
    // EmTau ROI
 
-   if( m_doCalo == true ) addEmTauRoI( result, lvl1ROI );
+   if( m_doCalo == true ) CHECK( addEmTauRoI( result ) );
 
    ///////////////////////////////////////////////////////////////////////////
    // JetEnergy ROI
 
-   if( m_doCalo == true ) addJetEnergyRoI( result, lvl1ROI );
+   if( m_doCalo == true ) CHECK( addJetEnergyRoI( result ) );
 
    ///////////////////////////////////////////////////////////////////////////
    // record LVL1 ROI in xAOD format
@@ -313,7 +310,7 @@ StatusCode RoIBResultToxAOD::buildCTP_Decision() {
       }
 
       // search for passed items in TAV vector from CTP result
-      const std::bitset< 256 > items = ROIB::convertToBitset( tav );
+      const std::bitset< 512 > items = ROIB::convertToBitset( tav );
 
       ATH_MSG_DEBUG( "Iterating Items on " << m_configSvc->ctpConfig() );
       for(TrigConf::ItemContainer::const_iterator item = m_configSvc->ctpConfig()->menu().items().begin(); 
@@ -377,15 +374,20 @@ StatusCode RoIBResultToxAOD::buildCTP_Decision() {
    return StatusCode::SUCCESS;
 }
 
-void RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl1ROI ) {
+StatusCode RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result ) {
 
    ATH_MSG_DEBUG( "building EmTauRoI" );
 
    // empty input
-   if( result == 0 ) return;
+   if( result == 0 ) return StatusCode::SUCCESS;
 
-   // Digit scale for calorimeter trigger
-   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * CLHEP::GeV;
+   /// Containers for xAOD
+   xAOD::EmTauRoIAuxContainer* emtau_aux = new xAOD::EmTauRoIAuxContainer();
+   xAOD::EmTauRoIContainer* emtau_xaod = new xAOD::EmTauRoIContainer();
+   emtau_xaod->setStore( emtau_aux );
+
+   /// Digit scale for calorimeter trigger
+   float caloTrigScale = CLHEP::GeV/m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get EmTau Thresholds from configSvc. Also fill a map of threshold names while
@@ -394,27 +396,32 @@ void RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lv
    std::vector< TrigConf::TriggerThreshold* > thresholds =
       m_configSvc->ctpConfig()->menu().thresholdVector();
    std::vector< TrigConf::TriggerThreshold* > caloThresholds;
-   std::map< int, std::string > thresholdNames;
+   std::map< int, std::string > emThresholdNames;
+   std::map< int, std::string > tauThresholdNames;
    for( std::vector< TrigConf::TriggerThreshold* >::const_iterator it = thresholds.begin();
         it != thresholds.end(); ++it ) {
-      if( ( *it )->type() == L1DataDef::emType() || ( *it )->type() == L1DataDef::tauType() ) {
+      if ( ( *it )->type() == L1DataDef::emType() ) {
          caloThresholds.push_back( *it );
-         thresholdNames.insert( std::map< int, std::string >::value_type( ( *it )->thresholdNumber(), ( *it )->name() ) );
+         emThresholdNames.insert( std::map< int, std::string >::value_type( ( *it )->thresholdNumber(), ( *it )->name() ) );
+      }
+      else if ( ( *it )->type() == L1DataDef::tauType() ) {
+         caloThresholds.push_back( *it );
+         tauThresholdNames.insert( std::map< int, std::string >::value_type( ( *it )->thresholdNumber(), ( *it )->name() ) );
       }
    }
 
    // Tool to reconstruct EM/tau cluster & isolation sums
    //   - need to form tower map for RoI reconstruction
-   const DataVector< LVL1::TriggerTower >* storedTTs;
+   const DataVector< LVL1::CPMTower >* storedTTs;
    std::map< int, LVL1::CPMTower* > cpmtowers;
    if( m_retrievedEmTauTool ) {
-      if( evtStore()->contains< TriggerTowerCollection >( m_TriggerTowerLocation ) ) {
-         StatusCode sc = evtStore()->retrieve( storedTTs, m_TriggerTowerLocation );
+      if( evtStore()->contains< CPMTowerCollection >( m_CPMTowerLocation ) ) {
+         StatusCode sc = evtStore()->retrieve( storedTTs, m_CPMTowerLocation );
          if( sc.isSuccess() ) m_EmTauTool->mapTowers( storedTTs, &cpmtowers );
-         else ATH_MSG_WARNING( "Error retrieving TriggerTowers" );
+         else ATH_MSG_WARNING( "Error retrieving CPMTowers" );
       }
-      else ATH_MSG_DEBUG( "No TriggerTowerCollection found at "
-                          << m_TriggerTowerLocation );
+      else ATH_MSG_DEBUG( "No CPMTowerCollection found at "
+                          << m_CPMTowerLocation );
    }
 
    // get EmTau Result
@@ -437,61 +444,83 @@ void RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result, LVL1_ROI* lv
          // RecRoI
          LVL1::RecEmTauRoI recRoI( roIWord, &caloThresholds );
 
-         // AOD component
+         // xAOD component
          // ATLAS standard phi convention differs from L1 hardware convention
          double roiPhi = recRoI.phi();
          if( roiPhi > M_PI ) roiPhi -= 2 * M_PI;
-         EmTau_ROI roi( roIWord, recRoI.eta(), roiPhi, roIWord & 0xFFFF );
+         
+         xAOD::EmTauRoI* roi = new xAOD::EmTauRoI();
+         emtau_xaod->push_back( roi );
+         roi->initialize( roIWord, recRoI.eta(), roiPhi );
+         roi->setEtScale( caloTrigScale );
+         //roi->setET( recRoI.et() );
+         //roi->setIsol( recRoI.isolation() );
+         roi->setThrPattern( recRoI.thresholdPattern() );
 
          // fired thresholds
          std::vector< unsigned int >* thrV = recRoI.thresholdsPassed();
          std::vector< unsigned int >::const_iterator itTh  = thrV->begin();
          std::vector< unsigned int >::const_iterator itThE = thrV->end();
          for( ; itTh != itThE; ++itTh ) {
-            double thrValue = recRoI.triggerThreshold(*itTh)* CLHEP::GeV;
+            float thrValue = recRoI.triggerThreshold(*itTh)* CLHEP::GeV;
             std::string thrName = "NameNotFound";
-            if ( thresholdNames.find( *itTh - 1 ) != thresholdNames.end() ) {
-               thrName = thresholdNames[ *itTh - 1 ];
+            if ( recRoI.thresholdType(*itTh) == TrigT1CaloDefs::EMAlg && emThresholdNames.find( *itTh ) != emThresholdNames.end() ) {
+               thrName = emThresholdNames[ *itTh ];
+            }
+            else if ( recRoI.thresholdType(*itTh) == TrigT1CaloDefs::TauAlg && tauThresholdNames.find( *itTh ) != tauThresholdNames.end() ) {
+               thrName = tauThresholdNames[ *itTh ];
             }
 
-            roi.addThresholdValue( thrValue );
-            roi.addThresholdName( thrName );
+            roi->addThreshold( thrName, thrValue );
 
-            ATH_MSG_DEBUG( "EmTau Thr : " << thrName
+            ATH_MSG_DEBUG( "EmTau Thr : " << *itTh << ", name = " << thrName
                            << ", value = "   << thrValue );
          }
          delete thrV;
-
+ 
          // Cluster ET values, reconstructed from TriggerTowers
          if( m_retrievedEmTauTool ) {
             m_EmTauTool->formSums( roIWord, &cpmtowers );
-            roi.setCore( m_EmTauTool->Core() * caloTrigScale );
-            roi.setEMClus( m_EmTauTool->EMClus() * caloTrigScale );
-            roi.setTauClus( m_EmTauTool->TauClus() * caloTrigScale );
-            roi.setEMIsol( m_EmTauTool->EMIsol() * caloTrigScale );
-            roi.setHadIsol( m_EmTauTool->HadIsol() * caloTrigScale );
-            roi.setHadCore( m_EmTauTool->HadCore() * caloTrigScale );
+            roi->setCore( m_EmTauTool->Core() * caloTrigScale );
+            roi->setEmClus( m_EmTauTool->EMClus() * caloTrigScale );
+            roi->setTauClus( m_EmTauTool->TauClus() * caloTrigScale );
+            roi->setEmIsol( m_EmTauTool->EMIsol() * caloTrigScale );
+            roi->setHadIsol( m_EmTauTool->HadIsol() * caloTrigScale );
+            roi->setHadCore( m_EmTauTool->HadCore() * caloTrigScale );
          }
-
-         lvl1ROI->addEmTauROI( roi );
+        
       }
    }
 
-   for( std::map< int, LVL1::CPMTower* >::iterator i = cpmtowers.begin();
-        i != cpmtowers.end(); ++i ) delete i->second;   
+   /// Record the results
+  CHECK( evtStore()->record( emtau_aux, m_xaodKeyEmTau + "Aux." ) );
+  CHECK( evtStore()->record( emtau_xaod, m_xaodKeyEmTau ) );   
 
-   return;
+   return StatusCode::SUCCESS;
 }
 
-void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl1ROI ) {
+StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
 
    ATH_MSG_DEBUG( "building JetEnergyRoI" );
 
    // empty input
-   if( result == 0 ) return;
+   if( result == 0 ) return StatusCode::SUCCESS;
+   
+   // Containers for xAOD
+   xAOD::JetRoIAuxContainer* jet_aux = new xAOD::JetRoIAuxContainer();
+   xAOD::JetRoIContainer* jet_xaod = new xAOD::JetRoIContainer();
+   jet_xaod->setStore( jet_aux );
+   
+   xAOD::EnergySumRoIAuxInfo* esum_aux = new xAOD::EnergySumRoIAuxInfo();
+   xAOD::EnergySumRoI* esum_xaod = new xAOD::EnergySumRoI();
+   esum_xaod->setStore( esum_aux );
+   
+   xAOD::JetEtRoIAuxInfo* jetet_aux = new xAOD::JetEtRoIAuxInfo();
+   xAOD::JetEtRoI* jetet_xaod = new xAOD::JetEtRoI();
+   jetet_xaod->setStore( jetet_aux );
 
    // Digit scale for calorimeter trigger
-   float caloTrigScale = m_configSvc->thresholdConfig()->caloInfo().globalScale() * CLHEP::GeV;
+   float caloTrigScale = CLHEP::GeV/m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
    ATH_MSG_DEBUG( "caloTrigScale = " << caloTrigScale );
 
    /** Get Jet/Energy Thresholds from configSvc. Also fill maps of threshold names while
@@ -584,12 +613,19 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
             // RecRoI
             LVL1::RecJetRoI recRoI( roIWord, &jetThresholds );
 
-            // AOD component
+            // xAOD component
             // Convert to ATLAS phi convention
             double roiPhi = recRoI.phi();
             if( roiPhi > M_PI ) roiPhi -= 2 * M_PI;
-            Jet_ROI roi( roIWord, recRoI.eta(), roiPhi, roIWord & 0xFFF );
-
+            
+            xAOD::JetRoI* roi = new xAOD::JetRoI();
+            jet_xaod->push_back( roi );
+            roi->initialize( roIWord, recRoI.eta(), roiPhi );
+            roi->setEtScale( caloTrigScale );
+            //roi->setEtLarge( recRoI.etLarge() );
+            //roi->setEtSmall( recRoI.etSmall() );
+            roi->setThrPattern( recRoI.thresholdPattern() );
+            
             // fired Jet thresholds
             std::vector< unsigned int >* thrV = recRoI.thresholdsPassed();
             std::vector< unsigned int >::const_iterator itTh  = thrV->begin();
@@ -598,17 +634,16 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
                double thrValue = recRoI.triggerThreshold(*itTh)* CLHEP::GeV;
                std::string thrName = "NameNotFound";
                if (!recRoI.isForwardJet()) {
-                  if (jetNames.find(*itTh-1) != jetNames.end()) thrName = jetNames[*itTh-1];
+                  if (jetNames.find(*itTh) != jetNames.end()) thrName = jetNames[*itTh];
                }
                else if (recRoI.eta() > 0) {
-                  if (jfNames.find(*itTh-1) != jfNames.end()) thrName = jfNames[*itTh-1];
+                  if (jfNames.find(*itTh) != jfNames.end()) thrName = jfNames[*itTh];
                }
                else {
-                  if (jbNames.find(*itTh-1) != jbNames.end()) thrName = jbNames[*itTh-1];
+                  if (jbNames.find(*itTh) != jbNames.end()) thrName = jbNames[*itTh];
                }
 
-               roi.addThresholdValue( thrValue );
-               roi.addThresholdName( thrName );
+               roi->addThreshold( thrName, thrValue );
 
                ATH_MSG_DEBUG( "Jet Thr : " << thrName
                               << ", value = " << thrValue );
@@ -618,29 +653,28 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
             // Jet Cluster ET sums
             if (m_retrievedJetTool) {
                m_JetTool->formSums(roIWord, &jetInputs);
-               roi.setET4x4(m_JetTool->ET4x4()*caloTrigScale);
-               roi.setET6x6(m_JetTool->ET6x6()*caloTrigScale);
-               roi.setET8x8(m_JetTool->ET8x8()*caloTrigScale);
+               roi->setEt4x4(m_JetTool->ET4x4() * caloTrigScale);
+               roi->setEt6x6(m_JetTool->ET6x6() * caloTrigScale);
+               roi->setEt8x8(m_JetTool->ET8x8() * caloTrigScale);
             }
 
-            lvl1ROI->addJetROI(roi);
          }
          // Jet ET ROI
          else if( roiType == LVL1::TrigT1CaloDefs::JetEtRoIWordType ) {
-            // AOD component
-            JetET_ROI roi( roIWord, roIWord & 0xF );
+            // xAOD component
+            
+            jetet_xaod->setRoIWord( roIWord );
 
             // fired Jet ET thresholds
             for( unsigned int i = 0; i < TrigT1CaloDefs::numOfJetEtSumThresholds; ++i ) {
                if( ( roIWord >> i ) & 0x1 ) {
                   std::string thrName = "NameNotFound";
                   if (jeNames.find(i) != jfNames.end()) thrName = jeNames[i];
-                  roi.addThreshold( thrName );
+                  jetet_xaod->addThreshold( thrName );
                   ATH_MSG_DEBUG( "JetEt Thr : " << thrName );
                }
             }
 
-            lvl1ROI->addJetETROI(roi);
          }
          // EnergySum ROI
          else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 ) {
@@ -665,13 +699,12 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
             if (conv.energyOverflow(roiWord1)) overflows |= 0x2;  
             if (conv.energyOverflow(roiWord2)) overflows |= 0x4;
 
-            // AOD component
-            EnergySum_ROI roi( roiWord0, roiWord1, roiWord2,
-                               recRoI.energyX() * caloTrigScale,
-                               recRoI.energyY() * caloTrigScale,
-                               recRoI.energyT() * caloTrigScale,
-                               ( roiWord1 >> 16 ) & 0xFF, ( roiWord2 >> 16 ) & 0xFF,
-                               ( roiWord0 >> 16 ) & 0xFF, overflows );
+            // xAOD component
+            esum_xaod->initialize( roiWord0, roiWord1, roiWord2,
+                                   recRoI.energyX() * caloTrigScale,
+                                   recRoI.energyY() * caloTrigScale,
+                                   recRoI.energyT() * caloTrigScale );
+            
 
             // fired summed ET thresholds
             std::vector< unsigned int >* thrEtMiss = recRoI.etMissThresholdsPassed();
@@ -681,7 +714,7 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
                if( xeNames.find( *itThEtMiss - 1 ) != xeNames.end() ) {
                   thrName = xeNames[ *itThEtMiss - 1 ];
                }
-               roi.addThreshold( thrName );
+               esum_xaod->addThreshold( thrName );
                ATH_MSG_DEBUG( "ETmiss threshold : " << thrName );
             }
             delete thrEtMiss;
@@ -694,7 +727,7 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
                if( teNames.find( *itThSumEt - 1 ) != teNames.end() ) {
                   thrName = teNames[ *itThSumEt - 1 ];
                }
-               roi.addThreshold( thrName );
+               esum_xaod->addThreshold( thrName );
                ATH_MSG_DEBUG( "SumET threshold : " << thrName );
             }
             delete thrSumEt;
@@ -707,22 +740,30 @@ void RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result, LVL1_ROI
                if( xsNames.find( *itThMETSig - 1 ) != xsNames.end() ) {
                   thrName = xsNames[ *itThMETSig - 1 ];
                }
-               roi.addThreshold( thrName );
+               esum_xaod->addThreshold( thrName );
                ATH_MSG_DEBUG( "METSig threshold : " << thrName );
             }
             delete thrMETSig;
 
-            lvl1ROI->addEnergySumROI(roi);
          }
       }
    }
 
-   for( std::map< int, LVL1::JetInput* >::iterator i = jetInputs.begin();
-        i != jetInputs.end(); ++i ) {
-      delete i->second;
-   }
+   /// Record the results
+   CHECK( evtStore()->record( jet_aux, m_xaodKeyJet + "Aux." ) );
+   CHECK( evtStore()->record( jet_xaod, m_xaodKeyJet ) );
 
-   return;
+   CHECK( evtStore()->record( jetet_aux, m_xaodKeyJetEt + "Aux." ) );
+   CHECK( evtStore()->record( jetet_xaod, m_xaodKeyJetEt ) );
+
+   CHECK( evtStore()->record( esum_aux, m_xaodKeyEsum + "Aux." ) );
+   CHECK( evtStore()->record( esum_xaod, m_xaodKeyEsum ) );
+
+   /// Clean up
+   for ( std::map< int, LVL1::JetInput* >::iterator i = jetInputs.begin();
+         i != jetInputs.end(); ++i ) delete i->second;
+   
+   return StatusCode::SUCCESS;
 }
 
 void RoIBResultToxAOD::addMuonRoI( const ROIB::RoIBResult* result, LVL1_ROI* lvl1ROI ) {
@@ -790,11 +831,6 @@ StatusCode RoIBResultToxAOD::convertToxAOD(LVL1_ROI* aod){
 
   ATH_MSG_DEBUG( "converting to xAOD" );
   ATH_MSG_DEBUG( "number of Muon RoIs: " << aod->getMuonROIs().size() );
-  ATH_MSG_DEBUG( "number of EmTau RoIs: " << aod->getEmTauROIs().size() );
-  ATH_MSG_DEBUG( "number of Jet RoIs: " << aod->getJetROIs().size() );
-  ATH_MSG_DEBUG( "number of JetEt RoIs: " << aod->getJetEtROIs().size() );
-  ATH_MSG_DEBUG( "number of Esum RoIs: " << aod->getEnergySumROIs().size() );
-
 
   ////////////////////////////////
   /// Muon RoIs
@@ -805,47 +841,6 @@ StatusCode RoIBResultToxAOD::convertToxAOD(LVL1_ROI* aod){
   CHECK( m_MuCnvTool->convert( aod, mu_xaod ) );
   CHECK( evtStore()->record( mu_aux, m_xaodKeyMu + "Aux." ) );
   CHECK( evtStore()->record( mu_xaod, m_xaodKeyMu ) );    
-
-  ////////////////////////////////
-  /// EmTau RoIs
-
-  xAOD::EmTauRoIAuxContainer* emtau_aux = new xAOD::EmTauRoIAuxContainer();
-  xAOD::EmTauRoIContainer* emtau_xaod = new xAOD::EmTauRoIContainer();
-  emtau_xaod->setStore( emtau_aux );
-
-  CHECK( m_EmTauCnvTool->convert( aod, emtau_xaod ) );
-  CHECK( evtStore()->record( emtau_aux, m_xaodKeyEmTau + "Aux." ) );
-  CHECK( evtStore()->record( emtau_xaod, m_xaodKeyEmTau ) );
-
-  ////////////////////////////////
-  /// EnergySum RoIs
-  xAOD::EnergySumRoIAuxInfo* esum_aux = new xAOD::EnergySumRoIAuxInfo();
-  xAOD::EnergySumRoI* esum_xaod = new xAOD::EnergySumRoI();
-  esum_xaod->setStore( esum_aux );
-
-  CHECK( m_EsumCnvTool->convert( aod, esum_xaod ) );
-  CHECK( evtStore()->record( esum_aux, m_xaodKeyEsum + "Aux." ) );
-  CHECK( evtStore()->record( esum_xaod, m_xaodKeyEsum ) );
-
-  ////////////////////////////////
-  /// JetEt RoIs
-  xAOD::JetEtRoIAuxInfo* jetet_aux = new xAOD::JetEtRoIAuxInfo();
-  xAOD::JetEtRoI* jetet_xaod = new xAOD::JetEtRoI();
-  jetet_xaod->setStore( jetet_aux );
-
-  CHECK( m_JetEtCnvTool->convert( aod, jetet_xaod ) );
-  CHECK( evtStore()->record( jetet_aux, m_xaodKeyJetEt + "Aux." ) );
-  CHECK( evtStore()->record( jetet_xaod, m_xaodKeyJetEt ) );
-
-  ////////////////////////////////
-  /// Jet RoIs
-  xAOD::JetRoIAuxContainer* jet_aux = new xAOD::JetRoIAuxContainer();
-  xAOD::JetRoIContainer* jet_xaod = new xAOD::JetRoIContainer();
-  jet_xaod->setStore( jet_aux );
-
-  CHECK( m_JetCnvTool->convert( aod, jet_xaod ) );
-  CHECK( evtStore()->record( jet_aux, m_xaodKeyJet + "Aux." ) );
-  CHECK( evtStore()->record( jet_xaod, m_xaodKeyJet ) );
 
   return StatusCode::SUCCESS;
 }
