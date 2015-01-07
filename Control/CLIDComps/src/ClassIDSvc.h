@@ -28,6 +28,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "SGTools/CLIDRegistry.h"
+#include "tbb/recursive_mutex.h"
 
 template <class TYPE> class SvcFactory;
 
@@ -133,6 +134,10 @@ private:
 
   /// a local @c MsgStream -like object
   mutable Athena::MsgStreamMember m_msg;
+
+  typedef tbb::recursive_mutex RegMutex_t;
+  ///protect db filling
+  RegMutex_t regMutex;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

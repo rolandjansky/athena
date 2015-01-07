@@ -31,20 +31,6 @@ namespace {
     boost::trim(s); 
     boost::replace_all(s, string(";"), string());
   }
-  inline 
-  void remove_v1 (string& s) {
-    boost::replace_all(s, string("_v1"), string());
-    boost::replace_all(s, string("_v2"), string());
-    boost::replace_all(s, string("_v3"), string());
-    boost::replace_all(s, string("_v4"), string());
-  }
-  inline
-  bool has_v_ending (const string& s) {
-    return ( ( s.find ("_v1") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v2") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v3") == ( s.size() - 3 ) ) ||
-             ( s.find ("_v4") == ( s.size() - 3 ) ) );
-  }
 
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
 #define ATH_MSG_LVL(lvl, x) \
@@ -56,6 +42,7 @@ namespace {
  
 #define ATH_MSG_VERBOSE(x) ATH_MSG_LVL(MSG::VERBOSE, x)
 #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG, x)
+#define ATH_MSG_INFO(x)   ATH_MSG_LVL(MSG::INFO, x)
 
 }
 
@@ -100,8 +87,8 @@ ClassIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 ClassIDSvc::initialize()
 {
-  msg() << MSG::INFO << "Initializing " << name() << " - package version " <<
-    PACKAGE_VERSION << endreq ;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " <<
+		PACKAGE_VERSION ) ;
 
   if (!(Service::initialize().isSuccess())) {
     msg() << MSG::FATAL << "Could not initialize base class" << endmsg;
@@ -125,6 +112,9 @@ ClassIDSvc::initialize()
 }
 
 bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
+
+  RegMutex_t::scoped_lock lock;
+  lock.acquire(regMutex);
   //not only this is fast, but is necessary to prevent recursion
   if (!CLIDRegistry::hasNewEntries()) return true;
 
@@ -156,8 +146,8 @@ bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
   
   if (allOK) {
     int nE = distance(er.first, er.second);
-    msg() << MSG::INFO << " getRegistryEntries: read " << nE 
-	  << " CLIDRegistry entries for module " << moduleName << endmsg;
+    ATH_MSG_INFO( " getRegistryEntries: read " << nE 
+		  << " CLIDRegistry entries for module " << moduleName );
   } else {
     msg() << MSG::ERROR 
 	  << " getRegistryEntries: can not read  CLIDRegistry entries for module " 
@@ -208,9 +198,8 @@ ClassIDSvc::finalize()
 	outfile	<< endl;
 	++i;
       }
-      msg() << MSG::INFO 
-	    << "finalize: wrote " << m_clidMap.size() 
-	    << " entries to output CLIDDB file: " << m_outputFileName << endmsg;
+      ATH_MSG_INFO( "finalize: wrote " << m_clidMap.size()  <<
+		    " entries to output CLIDDB file: " << m_outputFileName );
     }
     outfile.close();
   } //outputfilename != NULL
@@ -371,26 +360,16 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
   //first the id->name map
   string knownName("_____++++");
   if (getTypeNameOfID(id, knownName).isSuccess() && procName != knownName) {
-
-    // Temporary hack: If the two names only differ in a _vX ending, accept the
-    // name without the version name.
-    if( has_v_ending( procName ) || has_v_ending( knownName ) ) {
-       // Remove the _vX ending from the name:
-       remove_v1( procName );
-       ATH_MSG_DEBUG( "Removing \"version ending\" from name \""
-                      << procName << "\"" );
-    } else {
-       msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
-          " can not set type name <" << procName << "> for CLID " <<
-          id << ": Known name for this ID <" << knownName << '>';
-       Athena::PackageInfo existInfo;
-       if (getPackageInfoForID(id, existInfo).isSuccess()) {
-          msg() << MSG::FATAL 
-                << " It was set by " << existInfo;
-       }
-       msg() << MSG::ERROR << endreq;
-       sc = StatusCode::FAILURE;
+    msg() << MSG::FATAL << "uncheckedSetTypePackageForID: " << info <<
+      " can not set type name <" << procName << "> for CLID " <<
+      id << ": Known name for this ID <" << knownName << '>';
+    Athena::PackageInfo existInfo;
+    if (getPackageInfoForID(id, existInfo).isSuccess()) {
+      msg() << MSG::FATAL 
+	    << " It was set by " << existInfo;
     }
+    msg() << MSG::ERROR << endreq;
+    sc = StatusCode::FAILURE;
   } else if (procName == knownName) {
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: type name <" << procName <<
@@ -481,7 +460,14 @@ ClassIDSvc::processCLIDDB(const char* fileName) {
 	string massTok(*iToken++);
 	massage(massTok);
 	try {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 	  id = boost::lexical_cast<long>(massTok);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 	  //	  cout << "id " << id << endl;
 	} catch (boost::bad_lexical_cast e) { 
 	  msg() << MSG::ERROR << "processCLIDDB: Can't cast ["  
@@ -542,28 +528,29 @@ ClassIDSvc::processCLIDDB(const char* fileName) {
 
 void 
 ClassIDSvc::dump() const {
-  maybeRescan();
-  msg() << MSG::INFO << "dump: in memory" << endmsg;
-    CLIDMap::const_iterator i(m_clidMap.begin()), iE(m_clidMap.end());
-    while (i != iE) {
-      const CLID clid = i->first;
-      const std::string& typeName = i->second.first;
+  ATH_MSG_INFO("dump: in memory");
+  CLIDMap::const_iterator i(m_clidMap.begin()), iE(m_clidMap.end());
+  while (i != iE) {
+    const CLID clid = i->first;
+    const std::string& typeName = i->second.first;
+    msg() << MSG::INFO 
+	  << "CLID: "<< clid
+	  << " - type name: " << typeName;
+    Athena::PackageInfo info;
+    if (getPackageInfoForID(clid, info).isSuccess()) {
       msg() << MSG::INFO 
-	    << "CLID: "<< clid
-	    << " - type name: " << typeName;
-      Athena::PackageInfo info;
-      if (getPackageInfoForID(clid, info).isSuccess()) {
-	msg() << MSG::INFO 
-	      << "- Package "<< info; 
-      }
-      msg() << MSG::INFO << '\n';
-      ++i;
+	    << "- Package "<< info; 
     }
-    msg() << MSG::INFO << "------------------------------" << endreq;
+    msg() << MSG::INFO << '\n';
+    ++i;
+  }
+  ATH_MSG_INFO("------------------------------");
 }
 
 StatusCode
 ClassIDSvc::fillDB() {
+  RegMutex_t::scoped_lock lock;
+  lock.acquire(regMutex);
   // Process the various clid dbs according to user's request
   vector< string >::const_iterator f(m_DBFiles.begin()), fE(m_DBFiles.end());
   bool allOK(true);
@@ -594,9 +581,8 @@ ClassIDSvc::fillDB() {
       }
     }
   }
-
+  
   maybeRescan(); //scan registry if we had no CLIDDB to process
-
   return allOK ?  
     StatusCode::SUCCESS :
     StatusCode::FAILURE;
@@ -604,7 +590,7 @@ ClassIDSvc::fillDB() {
 
 StatusCode
 ClassIDSvc::reinitialize() {
-  msg() << MSG::INFO << "RE-initializing " << name() 
-	<< " - package version " << PACKAGE_VERSION << endreq ;  
+  ATH_MSG_INFO("RE-initializing " << name() 
+	       << " - package version " << PACKAGE_VERSION ) ;  
   return fillDB();
 }
