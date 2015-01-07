@@ -269,10 +269,9 @@ const Trk::MeasurementBase* Trk::ProtoTrackStateOnSurface::checkoutMeasurement()
   m_measurement = NULL;
   delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
   if (!m_iOwnMeasurement) {
-    m_iOwnMeasurement=false;
     return helper->clone();
   } else {
-    m_iOwnMeasurement=false;
+    //  not needed : m_iOwnMeasurement=false;
     return helper;
   }
 }
@@ -296,9 +295,11 @@ const Trk::TransportJacobian* Trk::ProtoTrackStateOnSurface::checkoutTransportJa
   }
   const Trk::TransportJacobian* helper =  m_transportJacobian;
   m_transportJacobian = 0;
-  m_iOwnJacobian=false;
   if ( !m_iOwnJacobian ) return new Trk::TransportJacobian ( *m_transportJacobian );
-  else                   return helper;
+  else {
+    // not needed : m_iOwnJacobian=false;
+    return helper;
+  }
 }
 
 void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters ( const Trk::TrackParameters* referenceParameters,
@@ -322,9 +323,11 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferencePara
   delete m_measurementDifferenceVector; m_measurementDifferenceVector = 0;
   const Trk::TrackParameters* helper = m_referenceParameters;
   m_referenceParameters = 0;
-  m_iOwnRefPars=false;
   if ( !m_iOwnRefPars ) return helper->clone();
-  else                  return helper;
+  else {
+    // m_iOwnRefPars=false;
+    return helper;
+  }
 }
 
 void Trk::ProtoTrackStateOnSurface::checkinParametersDifference ( const AmgVector(5)* inParametersDifference,
@@ -348,10 +351,9 @@ const AmgVector(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersDifference(
   const AmgVector(5)* helper = m_parametersDifference;
   m_parametersDifference = 0;
   if ( !m_iOwnParametersDifference ) {
-    m_iOwnParametersDifference=false;
     return new AmgVector(5) ( *helper );
   } else {
-    m_iOwnParametersDifference=false;
+    // not needed : m_iOwnParametersDifference=false;
     return helper;
   }
 }
@@ -379,6 +381,7 @@ const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersCovarian
   if ( !m_iOwnParametersCovariance ) {
     return new AmgSymMatrix(5) ( *helper );
   } else {
+    // not needed :  m_iOwnParametersCovariance=false;
     return helper;
   }
 }

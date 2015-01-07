@@ -57,7 +57,7 @@ Trk::DNA_MaterialEffects::DNA_MaterialEffects(const DNA_MaterialEffects& dme) :
   m_addSigmaQoverP(dme.m_addSigmaQoverP),
   m_foundByForwardFilter(dme.m_foundByForwardFilter),
   m_deltaP(dme.m_deltaP),
-  m_sigmaDeltaP(m_sigmaDeltaP),
+  m_sigmaDeltaP(dme.m_sigmaDeltaP),
   m_associatedSurface(dme.m_associatedSurface?
                       ( dme.m_associatedSurface->associatedDetectorElement()?
                         dme.m_associatedSurface :

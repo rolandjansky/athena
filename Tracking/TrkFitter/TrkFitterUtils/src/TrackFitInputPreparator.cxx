@@ -16,6 +16,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IUpdator.h"
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
 
 // using __gnu_cxx::is_sorted;
@@ -68,12 +69,12 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       sortedHitSet.push_back(std::make_pair((*it)->measurementOnTrack(), index));
     }
   }
-  Trk::MeasBaseIndexComparisonFunction* MB_IndexCompFunc = new
-    Trk::MeasBaseIndexComparisonFunction(referenceParameters->position(),
-                                         referenceParameters->momentum());
+  Trk::MeasBaseIndexComparisonFunction MB_IndexCompFunc(referenceParameters->position(),
+                                                        referenceParameters->momentum());
+
   int firstFittableStateIndex = (*std::min_element(sortedHitSet.begin(),
                                                    sortedHitSet.end(),
-                                                   *MB_IndexCompFunc)).second;
+                                                   MB_IndexCompFunc)).second;
   referenceParameters = (*inputTrk.trackStateOnSurfaces())[firstFittableStateIndex]->trackParameters();
   if (referenceParameters == NULL) {
     referenceParameters = doSorting
@@ -87,10 +88,10 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
   if (doSorting) {
     bool worstCaseSorting = // invest n*(logN)**2 sorting time only for lowPt
       fabs((*inputTrk.trackParameters()->begin())->parameters()[Trk::qOverP]) > 0.002;
-    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ) ) {
+    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ) ) {
       worstCaseSorting ?
-        stable_sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ):
-        sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc );
+        stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
+        sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
       /* std::cout << "input track was not sorted. Now the sequence is :"<<endreq;
       MB_IndexVector::iterator itLog = sortedHitSet.begin();
       for ( ; itLog!=sortedHitSet.end(); ++itLog) std::cout <<" " << (*itLog).second;
@@ -117,7 +118,6 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       }
     }
   }
-  delete MB_IndexCompFunc;
 
   /* if inputs are already sorted or assumed so by convention, trajectory will not
      yet have been filled. In that case, just copy linearly. */
@@ -561,6 +561,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
         if (trajectory.size()>0) {
             /// get previous state:
             const TrackParameters* prevPar = trajectory.back().referenceParameters();
+            if (prevPar->covariance()) prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),0);
             const std::vector< const Trk::TrackStateOnSurface * >* collectedTSOS = m_extrapolator->extrapolateM(
                         *prevPar,
                         measurement->associatedSurface(),
@@ -571,6 +572,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                         //Trk::pion   // FIXME: decide on particle hypothesis to use!
                         //track->info().particleHypothesis()
             );
+            if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier 
             if (collectedTSOS) {
                 // copy into ProtoTrackStateOnSurface for memory management, ignoring the last:
                 for (unsigned int i = 0 ; i < collectedTSOS->size() -1; i++) {

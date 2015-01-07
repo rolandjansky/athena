@@ -29,4 +29,4 @@ use TrkMaterialOnTrack  TrkMaterialOnTrack-*    Tracking/TrkEvent
 use TrkRIO_OnTrack      TrkRIO_OnTrack-*        Tracking/TrkEvent
 use TrkTrack            TrkTrack-*              Tracking/TrkEvent
 use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
-
+use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
