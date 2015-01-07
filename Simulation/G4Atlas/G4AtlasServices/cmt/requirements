@@ -1,0 +1,17 @@
+package G4AtlasServices
+
+# Required for every package
+use AtlasPolicy          AtlasPolicy-*
+
+# Member variables
+use GaudiInterface       GaudiInterface-*        External
+
+private
+# Base classes when the headers are in the src area
+use AthenaBaseComps      AthenaBaseComps-*       Control
+use G4AtlasInterfaces    G4AtlasInterfaces-*     Simulation/G4Atlas
+end_private
+
+library G4AtlasServices *.cxx components/*.cxx
+apply_pattern component_library
+
