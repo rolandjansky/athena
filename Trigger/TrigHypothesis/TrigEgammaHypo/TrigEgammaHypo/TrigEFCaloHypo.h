@@ -37,9 +37,10 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
 
-#include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IegammaShowerShape.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "LumiBlockComps/ILuminosityTool.h"
+
 class StoreGateSvc;
 class TriggerElement;
 
@@ -69,48 +70,38 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
 
   // define the properties:
   //----------------------------
-  bool m_UseShowerShapeTool;
   bool m_acceptAll;
   // Cuts to be applied:
 
-  double     m_EtCut;
-  double     m_deltaPhiCut;
-  double     m_deltaEtaCut;
-  double     m_energySecondSampling;
+  double     m_emEt;
   double     m_isEM;
-  double     m_etCalibFactor;
-
-
+  bool       m_applyIsEM;  //!< true if isem flag required 
+  bool       m_applyLH; // use LH
+  unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required
   // Switch on Monitoring:
-  ToolHandle<IegammaShowerShape> m_ShowerShapeTool;
   std::string m_SelectorToolName;
+  std::string m_LHSelectorToolName;
   ToolHandle<IAsgElectronIsEMSelector> m_SelectorTool;
+  ToolHandle<IAsgElectronLikelihoodTool> m_LHSelectorTool;
   
-  bool m_doMonitoring;
+  /** Luminosity Tool */
+  ToolHandle<ILuminosityTool>  m_lumiTool;
   
-  // Histograms:
-
- /*  IHistogram1D* m_efOrigEt; */
-/*   IHistogram1D* m_efDeltaPhi; */
-/*   IHistogram1D* m_efDeltaEta; */
-/*   IHistogram1D* m_efege277; */
-/*   IHistogram1D* m_efisEM; */
-
-
-  // path for the histograms:
-
-  std::string m_path;
-
-  // Histogram Service:
-  IHistogramSvc* m_histsvc;
-
-
- // Timing:
-
-  ITrigTimerSvc*            m_timersvc;
   std::vector<TrigTimer*>   m_timers;
   TrigTimer* m_totalTimer;
 
+  // Monitor collections
+  std::vector<float> m_EBE0;
+  std::vector<float> m_EBE1;
+  std::vector<float> m_EBE2;
+  std::vector<float> m_EBE3;
+  std::vector<float> m_Eta;
+  std::vector<float> m_EtaCalo;
+  std::vector<float> m_PhiCalo;
+  std::vector<float> m_E;
+  std::vector<float> m_ECalib;
+  std::vector<float> m_ERes;
+  std::vector<float> m_lhval;
 };
 #endif
 

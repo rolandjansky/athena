@@ -54,25 +54,14 @@ namespace {
 //
 TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name, 
 				   ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator),
+    HLT::HypoAlgo(name, pSvcLocator),
+    m_lumiTool("LuminosityTool"),
+    m_primaryVertex(Amg::Vector3D()), 
+    m_trackToVertexTool("Reco::TrackToVertex")
   
-  m_primaryVertex(Amg::Vector3D()),  //AT Jan 2010: added 	
-  m_trackToVertexTool("Reco::TrackToVertex")//AT Jan 2010: added
 {
-
-  
-
   declareProperty("AcceptAll",      m_acceptAll=true);
-
   declareProperty("CaloCutsOnly", m_caloCutsOnly);
-  
-  //
-  //Trig isEMTrigCut cuts adopted from offline
-  //
-  
-
-  //Calorimeter cuts
- 
   
   //isEM offline
   declareProperty("ApplyIsEM",m_applyIsEM = false);
@@ -80,7 +69,6 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareProperty("IsEMrequiredBits",m_IsEMrequiredBits = 0xF2);
   
   declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
-
   //TSelector
   //Athena Selector Tool
   declareProperty("AthenaElectronLHIDSelectorToolName", m_athElectronLHIDSelectorToolName="");
@@ -90,9 +78,10 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareProperty("trackToVertexTool", m_trackToVertexTool,  
 		  "Tool for track extrapolation to vertex"); 
 
+  /** Luminosity tool */
+  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  
   declareProperty("emEt",m_emEt = -3.*CLHEP::GeV);
-
-  declareProperty("histoPath", m_path = "/stat/Monitoring/EventFilter" ); 
 
   typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
   
@@ -132,7 +121,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareMonitoredCollection("El_E0Eaccordion",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getE0Eaccordion);
 
   //Track-related monitoring accesible from xAOD::Electron
-  declareMonitoredCollection("nBLayerHits",            *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfBLayerHits);
+  declareMonitoredCollection("nBLayerHits",            *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfInnermostPixelLayerHits);
   declareMonitoredCollection("nPixelHits",             *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfPixelHits);
   declareMonitoredCollection("nSCTHits",               *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfSCTHits);
   declareMonitoredCollection("nTRTHits",               *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getTrackSummary_numberOfTRTHits);
@@ -279,6 +268,13 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
           if (timerSvc()) m_timerPIDTool = addTimer("m_athElectronLHIDSelectorToolName");
       }
   }
+  // For now, just try to retrieve the lumi tool
+  if (m_lumiTool.retrieve().isFailure()) {
+      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+      // 244            return HLT::ERROR;
+  } else {
+      ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+  }
   //print summary info
   msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaElectronCutIDToolName << endreq;
   msg() << MSG::INFO << "REGTEST: Athena LH Particle Identification tool: " << m_athElectronLHIDSelectorToolName << endreq;
@@ -338,18 +334,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
 	    << endreq;
     }
     
-    msg() << MSG::INFO
-        << " ApplyIsEM: "
-        << m_applyIsEM
-        << endreq;
-    msg() << MSG::INFO
-	  << " emEt: "
-	  << m_emEt
-	  << endreq;
-    msg() << MSG::INFO
-        << " IsEMRequired: "
-        << m_IsEMrequiredBits
-        << endreq;
+    ATH_MSG_INFO(" ApplyIsEM: "<< m_applyIsEM);
+    ATH_MSG_INFO(" ApplyIsEMEt: "<< m_applyEtIsEM);
+    ATH_MSG_INFO(" emEt: "<< m_emEt);
+    ATH_MSG_INFO(" IsEMRequired: "<< m_IsEMrequiredBits);
   }
   
   return HLT::OK;
@@ -473,10 +461,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     //Apply cut on IsEM bit pattern re-running the  Offline Builder
     if( m_applyIsEM){ 
         //In order to force the tool to pick up the same cuts for Et>20 GeV, change the trigger threshold
-        double temp_EtThreshold=m_emEt;
-        if(!m_applyEtIsEM){
-            if (temp_EtThreshold>20000) temp_EtThreshold=20000;
-        }
+        double temp_EtThreshold=m_emEt; // Use the object Et rather than the trigger threshold
 
         ATH_MSG_DEBUG("Et for Cut selector " << temp_EtThreshold);
         //To re-run the Offline Electron isEM Builder
@@ -492,9 +477,15 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
                 //xAOD Tool does not accept Egamma object 
+                //Calo-only selection must be configured in tool
                 const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
                 isLHAcceptTrig = (bool) (acc);
+
                 ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << isLHAcceptTrig);
+                ATH_MSG_DEBUG("Stored Result LHVLoose " << egIt->passSelection("LHVLoose"));
+                ATH_MSG_DEBUG("Stored Result LHLoose " << egIt->passSelection("LHLoose"));
+                ATH_MSG_DEBUG("Stored Result LHMedium " << egIt->passSelection("LHMedium"));
+                ATH_MSG_DEBUG("Stored Result LHTight " << egIt->passSelection("LHTight"));
                 if (timerSvc()) m_timerPIDTool->stop(); //timer
             }
         }
@@ -503,17 +494,22 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             msg() << MSG::ERROR << m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
         }else{
             if (timerSvc()) m_timerPIDTool->start(); //timer
-            ATH_MSG_DEBUG(m_egammaElectronCutIDTool << " Passing egamma object to AthenaSelectorTool with Et " << temp_EtThreshold); 
-            if ( m_egammaElectronCutIDTool->execute(egIt, temp_EtThreshold, m_caloCutsOnly).isFailure() ) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                    << "problem with egammaElectronCutIDTool, egamma object not stored"
-                        << endreq;
-            }
+            if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) 
+                ATH_MSG_DEBUG("problem with egammaElectronCutIDTool, egamma object not stored");
             isEMTrig = m_egammaElectronCutIDTool->IsemValue();
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                 <<" isEMTrig = "
                     << std::hex << isEMTrig
                     << endreq;
+            unsigned int isEMbit=0;
+            ATH_MSG_DEBUG("isEMVLoose " << egIt->selectionisEM(isEMbit,"isEMVLoose"));
+            ATH_MSG_DEBUG("isEMVLoose " << std::hex << isEMbit);
+            ATH_MSG_DEBUG("isEMLoose " << egIt->selectionisEM(isEMbit,"isEMLoose"));
+            ATH_MSG_DEBUG("isEMLoose " << std::hex << isEMbit);
+            ATH_MSG_DEBUG("isEMMedium " << egIt->selectionisEM(isEMbit,"isEMMedium"));
+            ATH_MSG_DEBUG("isEMMedium " << std::hex << isEMbit);
+            ATH_MSG_DEBUG("isEMTight " << egIt->selectionisEM(isEMbit,"isEMTight"));
+            ATH_MSG_DEBUG("isEMTight " << std::hex << isEMbit);
             if (timerSvc()) m_timerPIDTool->stop(); //timer
         }
         
@@ -526,7 +522,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
            HLT::setFlag(isEMFlags, egIt, m_EgammaContainer, HLT::AsFlag(isEMTrig, flagSize) ); 
 
         //Apply cut from LH selector 
-        if(m_useAthElectronLHIDSelector && !m_caloCutsOnly){
+        if(m_useAthElectronLHIDSelector){
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << m_athElectronLHIDSelectorTool 
                 << " AthenaLHSelectorTool configured, hypo continues with TAccept " << endreq;
             if( !isLHAcceptTrig) {

@@ -79,7 +79,6 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
 
   declareProperty("emEt",m_emEt = 0.*CLHEP::GeV);
   
-  declareProperty("histoPath", m_path = "/EXPERT" ); 
   typedef const DataVector<xAOD::Photon> xAODPhotonDV_type; 
   // Cluster and ShowerShape Monitoring
   declareMonitoredCollection("Ph_E237",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_e237);
@@ -298,7 +297,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     msg() << MSG::WARNING 
 	  << " Failed to get xAOD::PhotonContainer's from the trigger element" 
 	  << endreq;
-    if (m_timersvc) m_totalTimer->stop();
+    if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
 
@@ -355,18 +354,15 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
           if (!m_usePhotonCuts){
               if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Applying LOW Lumi Cuts on Photons" << endreq;
 
-              // In order to force the tool to pick up the same cuts for Et>20 GeV, change the trigger threshold
-              double temp_EtThreshold=m_emEt;
-              if (temp_EtThreshold>20000) temp_EtThreshold=20000;
-
               //re-run the offline isEM for Electrons
               if (m_egammaElectronCutIDTool == 0) {
                   msg() << MSG::ERROR << m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
               }else{
                   if (timerSvc()) m_timerPIDTool_Ele->start(); //timer
                   //Following method only performs CaloCuts and take Egamma (i.e. photons / electrons) object as input
-                  //
-                  if ( m_egammaElectronCutIDTool->execute(egIt,temp_EtThreshold).isFailure() ) { 
+                  //Ensure that we set the trigger threshold in python to set 20 - 30 GeV bin
+                  
+                  if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) { 
                       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                           << "problem with egammaElectronCutIDTool, egamma object not stored"
                               << endreq;
@@ -378,6 +374,14 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
                       <<" isEMTrig = "
                           << std::hex << isEMTrig
                           << endreq;
+                  unsigned int isEMbit=0;
+                  // isEM for calo-only not working in PID builder since there is no TAccept for Calo-Only
+                  //ATH_MSG_DEBUG("isEMLoose " << egIt->selectionisEM(isEMbit,"isEMLoose"));
+                  //ATH_MSG_DEBUG("isEMLoose " << std::hex << isEMbit);
+                  //ATH_MSG_DEBUG("isEMMedium " << egIt->selectionisEM(isEMbit,"isEMMedium"));
+                  //ATH_MSG_DEBUG("isEMMedium " << std::hex << isEMbit);
+                  ATH_MSG_DEBUG("isEMTight " << egIt->selectionisEM(isEMbit,"isEMTight"));
+                  ATH_MSG_DEBUG("isEMTight " << std::hex << isEMbit);
                   if (timerSvc()) m_timerPIDTool_Ele->stop(); //timer
               }
           }//end of "LowLumi"
@@ -391,9 +395,9 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
                   msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
               }else{
                   if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
-                  if ( m_egammaPhotonCutIDTool->execute(egIt, m_emEt).isFailure() ) {
+                  if ( m_egammaPhotonCutIDTool->accept(egIt) ) {
                       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                          << "problem with PID egammaPhotonCutIDTool, egamma object not stored"
+                          << "passes PID egammaPhotonCutIDTool with TAccept"
                               << endreq;
                   } 
                   // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()

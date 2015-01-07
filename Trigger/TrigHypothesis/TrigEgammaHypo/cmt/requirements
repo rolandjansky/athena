@@ -27,7 +27,8 @@ use TrkSurfaces                 TrkSurfaces-*                 Tracking/TrkDetDes
 # Calo
 use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
 use CaloUtils                  CaloUtils-*             Calorimeter
-
+# Lumi <mu>
+use LumiBlockComps          LumiBlockComps-*             LumiBlock
 private
 apply_tag ROOTMathLibs
 
@@ -43,6 +44,7 @@ use     xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 
 use     TrigMissingEtEvent TrigMissingEtEvent-* Trigger/TrigEvent
 use     TrigNavigation     TrigNavigation-*     Trigger/TrigEvent
+use	TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
 
 #need to import egammaPID
 use AtlasROOT                   AtlasROOT-*                   External

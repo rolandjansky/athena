@@ -106,7 +106,6 @@ class L2CaloHypo_e_ID (TrigL2CaloHypoBase):
         self.CAERATIOthr    = [-999., -999., -999., -999., -999., -999., -999., -999., -999.]
         self.HADETthr       = [0.013, 0.013, 0.013, 0.013, 0.013, 0.023, 0.018, 0.017, 0.017]
         self.CARCOREthr     = [0.925, 0.925, 0.92, 0.92, 0.6675, 0.91, 0.9025, 0.895, 0.895]
-        print IDinfo
         self.HADETthr = L2CaloCutMaps(threshold).MapsHADETthr[IDinfo]
         self.CARCOREthr = L2CaloCutMaps(threshold).MapsCARCOREthr[IDinfo]
         self.CAERATIOthr =L2CaloCutMaps(threshold).MapsCAERATIOthr[IDinfo]

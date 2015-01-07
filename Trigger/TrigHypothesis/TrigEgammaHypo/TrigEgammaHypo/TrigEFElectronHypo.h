@@ -43,6 +43,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "VxVertex/RecVertex.h"
 
+#include "LumiBlockComps/ILuminosityTool.h"
 /**
  * \class TrigEFElectronHypo
  * \brief TrigEFElectronHypo is a Trigger Hypothesis  Algorithm that retrieves the EF EgammaContainer
@@ -95,6 +96,10 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::string m_athElectronLHIDSelectorToolName;
   ToolHandle<IAsgElectronIsEMSelector> m_egammaElectronCutIDTool;
   ToolHandle<IAsgElectronLikelihoodTool> m_athElectronLHIDSelectorTool;
+  
+  /** Luminosity Tool */
+  ToolHandle<ILuminosityTool>  m_lumiTool;
+  
   bool m_useAthElectronLHIDSelector;
   //Offline isEM bit cut
   unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required
@@ -125,9 +130,8 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::vector<unsigned int> m_NcandIsEMAfterCut; 
   std::vector<unsigned int> m_IsEMRequiredBits;
   std::vector<unsigned int> m_IsEMRequiredBitsAfterCut;
-  ///
-  std::string m_path;
-
+  // Likelihood output
+  std::vector<float> m_lhval;
   //Impact parameter monitoring
   std::vector<double> m_a0;
 
@@ -135,8 +139,6 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   const xAOD::ElectronContainer* m_EgammaContainer; //!<  pointer to ElectronContainer
 
  // Timing:
-
-  ITrigTimerSvc*            m_timersvc;
   TrigTimer* m_totalTimer;
   TrigTimer* m_timerPIDTool;
 

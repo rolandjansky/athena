@@ -26,11 +26,6 @@
 
 class ISvcLocator;
 
-template <class SRC>
-inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) { 
-  return (const DataVector<xAOD::TrigElectron>**)(ptr); 
-} 
-
 
 TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator)
@@ -43,6 +38,18 @@ TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pS
   declareProperty("ShowerBuilderTool", m_showerBuilder, "Handle of instance of EMShowerBuilder");
   declareProperty("FourMomBuilderTool", m_fourMomBuilder, "Handle of instance of EMFourBuilder");
   m_caloCellDetPos = new CaloCellDetPos();
+
+  //Monitor collections
+  declareMonitoredStdContainer("EnergyBE0",m_EBE0);
+  declareMonitoredStdContainer("EnergyBE1",m_EBE1);
+  declareMonitoredStdContainer("EnergyBE2",m_EBE2);
+  declareMonitoredStdContainer("EnergyBE3",m_EBE3);
+  declareMonitoredStdContainer("Eta",m_Eta);
+  declareMonitoredStdContainer("EtaCalo",m_EtaCalo);
+  declareMonitoredStdContainer("PhiCalo",m_PhiCalo);
+  declareMonitoredStdContainer("E",m_E);
+  declareMonitoredStdContainer("ECalib",m_ECalib);
+  declareMonitoredStdContainer("ERes",m_ERes);
 }
 
 
@@ -107,6 +114,19 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltFinalize()
 HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE,
         HLT::TriggerElement* outputTE) {
     HLT::ErrorCode stat = HLT::OK;
+
+    //clear the monitoring vectors
+    m_EBE0.clear();
+    m_EBE1.clear();
+    m_EBE2.clear();
+    m_EBE3.clear();
+    m_Eta.clear();
+    m_EtaCalo.clear();
+    m_PhiCalo.clear();
+    m_E.clear();
+    m_ECalib.clear();
+    m_ERes.clear();
+
 
     //Set the container to 0
     m_pCaloClusterContainer = 0;
@@ -249,15 +269,6 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     // Rather use auto
     unsigned int iclus=0;
     
-    // Can do the following
-    /*
-    xAOD::CaloClusterContainer::const_iterator clus_iter;  
-    xAOD::CaloClusterContainer::const_iterator clus_iter_end=clusContainer->end();
-    clus_iter = clusContainer->begin();
-    for(unsigned int clusNumber = 0; clus_iter !=  clus_iter_end; ++clus_iter,++clusNumber){
-        const ElementLink<xAOD::CaloClusterContainer> linkToOriginal(*clusContainer,clusNumber);
-    }*/
-
     for(const auto *clus : *clusContainer){
         
         if (!clus->inBarrel() && !clus->inEndcap() )
@@ -270,14 +281,11 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         ATH_MSG_DEBUG("Cluster Energy, eta, phi " << clus->e() << " " << clus->eta() << " " << clus->phi()); 
         ATH_MSG_DEBUG("Cluster raw E" << clus->energyBE(0) << " " << clus->energyBE(1) << " " << clus->energyBE(2) << " " <<clus->energyBE(3)); 
         //Make a copy of the original cluster
-        xAOD::CaloCluster *newClus = new xAOD::CaloCluster (*clus);
-        if(!newClus){
-            ATH_MSG_ERROR("Null newClus");
-        }
-        
-        //Now set the calibrated energy from MVA
+        xAOD::CaloCluster *newClus = new xAOD::CaloCluster(*clus);
         m_pCaloClusterContainer->push_back(newClus);
-        newClus->addCellLink(new CaloClusterCellLink(clus->getCellLinks()->getCellContainer())); //Ensure the cell links are there
+        //*newClus = *clus; //This causes an FPE overflow in TrigEgammaRec
+        
+        //newClus->addCellLink(new CaloClusterCellLink(clus->getCellLinks()->getCellContainer())); //Ensure the cell links are there
         ATH_MSG_DEBUG("Copied cluster Energy, eta, phi " << newClus->e() << " " << newClus->eta() << " " << newClus->phi());
         ATH_MSG_DEBUG("Copied cluster raw E, eta, phi " << newClus->rawE() << " " << newClus->rawEta() << " " << newClus->rawPhi()); 
         ATH_MSG_DEBUG("Copied cluster cal E, eta, phi " << newClus->calE() << " " << newClus->calEta() << " " << newClus->calPhi()); 
@@ -287,6 +295,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         
         //Now fill position in calo-frame
         fillPositionsInCalo(newClus);
+         //Now set the calibrated energy from MVA
         if(m_applyMVACalib){
             ATH_MSG_DEBUG("Applying MVA Calib");
             if(m_MVACalibTool->hltexecute(newClus,m_egType).isFailure())
@@ -317,6 +326,22 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         ATH_MSG_DEBUG("REGTEST: e " << eg->e());
         ATH_MSG_DEBUG("REGTEST: eta " << eg->eta());
         ATH_MSG_DEBUG("REGTEST: phi " << eg->phi());
+
+        // Monitoring
+        m_EBE0.push_back(newClus->energyBE(0));
+        m_EBE0.push_back(newClus->energyBE(1));
+        m_EBE0.push_back(newClus->energyBE(2));
+        m_EBE0.push_back(newClus->energyBE(3));
+        m_Eta.push_back(newClus->eta());
+        double tmpeta = -999.;
+        newClus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+        double tmpphi = -999.;
+        newClus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpphi);
+        m_EtaCalo.push_back(tmpeta);
+        m_PhiCalo.push_back(tmpphi);
+        m_E.push_back(clus->e());
+        m_ECalib.push_back(newClus->e());
+        m_ERes.push_back(clus->e()-newClus->e());
 
         // Increment counter to keep position in container
         iclus++;
@@ -451,7 +476,7 @@ void TrigEFCaloCalibFex::fillPositionsInCalo(xAOD::CaloCluster* cluster){
     CaloCell_ID::CaloSample sample = cluster->inBarrel() ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
     // eta and phi of the cluster in the calorimeter frame
     double eta, phi;
-    m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi0(), eta, phi);
+    m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi);
 
     cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
     cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);

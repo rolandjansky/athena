@@ -53,7 +53,9 @@
 //#include "TrigCaloEvent/RingerEventContainer.h" // will be moved to TrigEvent
 
 //class ITrigInDetTrackExtrapolator;
-class IExtrapolateToCaloTool;
+//class IExtrapolateToCaloTool;
+namespace Trk
+{ class IParticleCaloExtensionTool; } 
 
 /**
  * \class TrigL2ElectronFex 
@@ -118,7 +120,8 @@ class TrigL2ElectronFex : public HLT::FexAlgo  {
 
   // for extrapolating TrigInDetTracks to calorimeter surface
 //  ITrigInDetTrackExtrapolator* m_trackExtrapolator; //!<  pointer for extrapolating TrigInDetTracks to calorimeter surface
-  ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
+  //ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
+  ToolHandle< Trk::IParticleCaloExtensionTool > m_caloExtensionTool; 
 //  std::string m_trackExtrapolatorName;
 
   xAOD::TrigElectronContainer* m_trigElecColl; //!<  pointer to TrigElectron container

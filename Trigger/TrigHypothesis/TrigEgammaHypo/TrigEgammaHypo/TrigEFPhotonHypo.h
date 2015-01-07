@@ -118,44 +118,15 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   const xAOD::PhotonContainer* m_EgammaContainer; //!< pointer to PhotonContainer
   
   
-  std::vector<IHistogram1D*> nCandHistVector;
-
-  // path for the histograms:
-
-  std::string m_path;
+  //std::vector<IHistogram1D*> nCandHistVector;
 
   // Histogram Service:
-  IHistogramSvc* m_histsvc;
+  //IHistogramSvc* m_histsvc;
 
-
- // Timing:
-
+  // Timing:
   TrigTimer* m_totalTimer, *m_timerPIDTool_Ele, *m_timerPIDTool_Pho;
-  ITrigTimerSvc*            m_timersvc; //!< pointer to TimerSvc
 
   void prepareMonitoringVars();
-
-  //TBD
- /*static inline int monIsEM(const egamma* eg){
-    if(eg && eg->isem() ) {
-      int pass = 0;
-      if ((eg->isem() & 0xFD)      ==0)   pass = 1;  //AT 16 March 0xFF -> 0xFD (remove ConversionMatch) //loose
-      if ((eg->isem() & 0x1E8EFD)  ==0)   pass = 2;  //AT 16 March 0x1E8EFF -> 0x1E8EFD (remove ConversionMatch) //medium //AT jan 2010: 0x1E8FFF ->0x1E8EFF (no difference)
-      if ((eg->isem() & 0x3FFFFFF) ==0)   pass = 3;  //tight
-      return pass;
-    } else {
-      return 0;
-    }
-  }   
-
-  static inline unsigned int monIsEMTrig(unsigned int isem){
-    int pass = 0;
-    if ((isem & 0xFF)      ==0)   pass = 1;  //loose
-    if ((isem & 0x1E8EFF)  ==0)   pass = 2;  //medium //AT jan 2010: 0x1E8FFF ->0x1E8EFF (no difference)
-    if ((isem & 0x3FFFFFF) ==0)   pass = 3;  //tight
-    return pass;
-  }  */ 
-
 
 };
 #endif

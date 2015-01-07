@@ -22,13 +22,13 @@
  **************************************************************************/ 
 
 //#include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypoMoni.h"
 
 class ISvcLocator;
 
 TrigL2ElectronHypoMoni::TrigL2ElectronHypoMoni(const std::string & name, ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator), m_trackExtrapolator("ExtrapolateToCaloTool")
+  HLT::HypoAlgo(name, pSvcLocator)//, m_trackExtrapolator("ExtrapolateToCaloTool")
 {
 
   // Read cuts - should probably get these from an xml file
@@ -44,7 +44,7 @@ TrigL2ElectronHypoMoni::TrigL2ElectronHypoMoni(const std::string & name, ISvcLoc
   declareProperty("dPHICLUSTERthr",       m_dphicluster=0.1);
   declareProperty("RCalBarrelFace",       m_RCAL=1470.0*CLHEP::mm);
   declareProperty("ZCalEndcapFace",       m_ZCAL=3800.0*CLHEP::mm);
-  declareProperty( "TrackExtrapolator",    m_trackExtrapolator);
+//  declareProperty( "TrackExtrapolator",    m_trackExtrapolator);
 }
 
 TrigL2ElectronHypoMoni::~TrigL2ElectronHypoMoni()
@@ -60,12 +60,12 @@ HLT::ErrorCode TrigL2ElectronHypoMoni::hltInitialize()
   StatusCode sc = toolSvc()->retrieveTool(m_trackExtrapolatorName,
 					  m_trackExtrapolatorName,
 					  m_trackExtrapolator);
-*/
   StatusCode sc = m_trackExtrapolator.retrieve();
   if ( sc.isFailure() ) {
     msg() << MSG::FATAL << "Unable to locate TrackExtrapolator tool " << endreq;
     return HLT::BAD_JOB_SETUP;
   }
+*/
 
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;

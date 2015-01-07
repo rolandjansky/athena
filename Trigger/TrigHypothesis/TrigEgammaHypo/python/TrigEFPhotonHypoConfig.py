@@ -13,16 +13,6 @@ from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFPhotonHypo
 # Include EGammaPIDdefs for loose,medium,tight definitions
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton 
 
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaParameters
-
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
-from ROOT import egammaPID
-
-# Include electronPIDmenu from Trigger specific maps 
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu
-
 from AthenaCommon.SystemOfUnits import GeV
 
 class TrigEFPhotonHypoBase (TrigEFPhotonHypo):
@@ -83,56 +73,17 @@ class EFPhotonHypo_g_ID_CaloOnly (TrigEFPhotonHypoBase):
         self.AcceptAll = False
         self.ApplyIsEM = True
         self.usePhotonCuts = False
-        print IDinfo
         self.emEt = float(threshold)*GeV
         
-        try:
-            from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
-        except:
-            mlog = logging.getLogger(name+'::__init__')
-            mlog.error("could not get handle to AsgElectronSelectorTool")
-            print traceback.format_exc()
-            return False
-        
-        try:
-            from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
-        except:
-            mlog = logging.getLogger(name+'::__init__')
-            mlog.error("could not get handle to AsgPhotonSelectorTool")
-            print traceback.format_exc()
-            return False
-        
-        if IDinfo == 'loose' or IDinfo == 'loose1':
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonLooseEF #includ Rhad , Reta , Weta2 and Eratio
-            if hasattr(ToolSvc, "AsgPhotonIsEMLooseSelector"):
-                self.egammaElectronCutIDToolName = "AsgPhotonIsEMLooseSelector"
-            else:    
-                thephotoncutlooseid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMLooseSelector",egammaPID.PhotonIDLooseEF,electronPIDmenu.menuTrig2012)
-                self.egammaElectronCutIDToolName = thephotoncutlooseid.getFullName()
-                ToolSvc+=thephotoncutlooseid       
-        elif IDinfo == 'medium' or IDinfo == 'medium1':
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonMediumEF #includ Rhad , Reta , Weta2 and Eratio
-            if hasattr(ToolSvc, "AsgPhotonIsEMMediumSelector"):
-                self.egammaElectronCutIDToolName = "AsgPhotonIsEMMediumSelector"
-            else:    
-                thephotoncutmediumid=ConfiguredAsgElectronIsEMSelector("AsgPhotonIsEMMediumSelector",egammaPID.PhotonIDMediumEF,electronPIDmenu.menuTrig2012)
-                self.egammaElectronCutIDToolName = thephotoncutmediumid.getFullName()
-                ToolSvc+=thephotoncutmediumid       
-        #--- egammaPhotonCutIDTool without ForcePhotonConversion (same selection as in offline)
-        #--- Migrated to ElectronPhotonSelectorTool, menu from offline
-        # at High Lumi use Photon selection
-        elif IDinfo == 'tight' or IDinfo == 'tight1': 
+        from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
+        from TrigEgammaHypo.TrigEgammaPidTools import PhotonToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import PhotonIsEMBits
+        PhotonPidTools()
+        self.IsEMrequiredBits =  PhotonIsEMBits[IDinfo]
+        if IDinfo == 'loose1' or IDinfo == 'medium1':
+            self.egammaElectronCutIDToolName = PhotonToolName[IDinfo] 
+        if IDinfo == 'loose' or IDinfo == 'medium' or IDinfo == 'tight' or IDinfo == 'tight1':
             self.usePhotonCuts = True
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonTight #includ Rhad , Reta , Weta2 and Eratio
-            if hasattr(ToolSvc, "AsgPhotonIsEMTightSelector"):
-                self.egammaPhotonCutIDToolName = thephotoncuttightid.getFullName()
-            else:    
-                thephotoncuttightid=ConfiguredAsgPhotonIsEMSelector("AsgPhotonIsEMTightSelector",egammaPID.PhotonIDTight)
-                thephotoncuttightid.ForceConvertedPhotonPID = False
-                self.egammaPhotonCutIDToolName = thephotoncuttightid.getFullName()
-                ToolSvc+=thephotoncuttightid
-            
-        else:
-            raise RuntimeError('INCORRECT IDinfo: No SelectorTool configured')
+            self.egammaPhotonCutIDToolName =  PhotonToolName[IDinfo] 
 
         

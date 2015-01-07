@@ -71,6 +71,18 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
   ToolHandle<IEMShowerBuilder> m_showerBuilder;
+
+  // Monitor collections
+  std::vector<float> m_EBE0;
+  std::vector<float> m_EBE1;
+  std::vector<float> m_EBE2;
+  std::vector<float> m_EBE3;
+  std::vector<float> m_Eta;
+  std::vector<float> m_EtaCalo;
+  std::vector<float> m_PhiCalo;
+  std::vector<float> m_E;
+  std::vector<float> m_ECalib;
+  std::vector<float> m_ERes;
 };
 
 #endif

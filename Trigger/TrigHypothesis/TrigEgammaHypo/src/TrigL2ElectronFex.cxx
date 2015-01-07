@@ -21,7 +21,9 @@
  **************************************************************************/
 
 //#include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
+#include "TrkCaloExtension/CaloExtensionHelpers.h" 
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 
@@ -35,7 +37,7 @@ inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) {
 
 TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
-    m_trackExtrapolator("IExtrapolateToCaloTool/ExtrapolateToCaloTool"),
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
     m_trigElecColl(0)
 {
   // Read cuts - should probably get these from an xml file
@@ -53,7 +55,8 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
   declareProperty( "dPHICLUSTERthr",       m_dphicluster = 0.1 );
   declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
   declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
-  declareProperty( "TrackExtrapolator",    m_trackExtrapolator);
+//  declareProperty( "TrackExtrapolator",    m_trackExtrapolator);
+  declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
   
   declareProperty( "TrackPtTRT",              m_trackPtthrTRT = 5.0*CLHEP::GeV );
   declareProperty( "CaloTrackdETATRT",        m_calotrackdetaTRT ); 
@@ -84,12 +87,16 @@ HLT::ErrorCode TrigL2ElectronFex::hltInitialize()
   StatusCode sc = toolSvc()->retrieveTool(m_trackExtrapolatorName,
 					  m_trackExtrapolatorName,
 					  m_trackExtrapolator);
-  */
   StatusCode sc = m_trackExtrapolator.retrieve();
   if ( sc.isFailure() ) {
     msg() << MSG::FATAL << "Unable to locate TrackExtrapolator tool " << endreq;
     return HLT::BAD_JOB_SETUP;
   }
+  */
+  if ( m_caloExtensionTool.retrieve().isFailure() ) {  
+        msg() << MSG::FATAL << "Unable to locate TrackExtrapolator tool " << endreq; 
+        return HLT::BAD_JOB_SETUP; 
+  }  
 
   // print out settings
   if ( msgLvl() <= MSG::DEBUG ) {
@@ -281,6 +288,10 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
     msg() << MSG::DEBUG << "Got vector of " << v_inputTracks.size()
 	  << " InDetTrackCollections" << endreq;
 
+  CaloExtensionHelpers::LayersToSelect layersToSelect; 
+  layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
+  layersToSelect.insert(CaloSampling::CaloSample::EME2); 
+
 
   // loop over track collections
   int n_coll = 0;
@@ -364,8 +375,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 	      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "passed high cut on ET/PT" << endreq;
 
 	      // extrapolate track using tool
-	      double phiAtCalo = 0, etaAtCalo = 0;
-	      double offset = 0.;
+	      //double phiAtCalo = 0, etaAtCalo = 0;
+	      //double offset = 0.
+/*
               const Trk::TrackParameters* parametersInCalo (0);
 
 	      if ( (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EMB2) > (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EME2) ) {
@@ -374,11 +386,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
               	parametersInCalo = m_trackExtrapolator->extrapolate( *(trkIter), (CaloCell_ID::CaloSample)CaloSampling::CaloSample::EME2,offset);
 	      }
 	
-/*
 	      StatusCode sc = m_trackExtrapolator->extrapolateToCalo((trkIter),
 								     m_RCAL, m_ZCAL,
 								     phiAtCalo, etaAtCalo);
-*/
 
 	      // if extrapolation failed for some reason, don't do calo-track matching cuts
 	      // and instead reject electron already here (jump to next electron)
@@ -393,6 +403,30 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 	        etaAtCalo = parametersInCalo->position().eta();
 	        phiAtCalo = parametersInCalo->position().phi();
 		delete parametersInCalo;
+*/
+                // get calo extension 
+                const Trk::CaloExtension* caloExtension = 0; 
+                bool useCaching = false; 
+ 
+                if( !m_caloExtensionTool->caloExtension(*trkIter,caloExtension,useCaching) || caloExtension->caloLayerIntersections().empty() ) { 
+                         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "extrapolator failed 1"<<endreq;  
+                         m_extrapolator_failed++;  continue; 
+                }  
+                // extract eta/phi in EM2 
+                CaloExtensionHelpers::EtaPhiPerLayerVector intersections; 
+                CaloExtensionHelpers::midPointEtaPhiPerLayerVector( *caloExtension, intersections, &layersToSelect ); 
+                if( intersections.empty() ) { 
+                        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "extrapolator failed 2"<<endreq; 
+                        m_extrapolator_failed++; 
+                        continue; 
+                }  
+                // pick the correct sample in case of ambiguity 
+                std::tuple<CaloSampling::CaloSample, double, double> etaPhiTuple = intersections.front(); 
+                if( intersections.size() == 2 )  
+                        if ( (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EME2) > (*el_t2calo_clus)->energy(CaloSampling::CaloSample::EMB2) ) 
+                                etaPhiTuple=intersections.back(); 
+                double etaAtCalo = std::get<1>(etaPhiTuple); 
+                double phiAtCalo = std::get<2>(etaPhiTuple); 
 		// all ok: do track-matching cuts
 		if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "extrapolated eta/phi=" << etaAtCalo
 						    << "/" << phiAtCalo << endreq;
@@ -441,13 +475,13 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 		    // electron passed all cuts: push into collection
 //		    m_trigElecColl->push_back(trigElec);
 		    //if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << (*trigElec) << endreq;
-		  }
-		}
-	      }
+		  } // dphi
+		} // deta
+	      //}// track extrapolation
 	    }
-	  }
-	}
-      }
+	  } //eoverP
+	} //tmp track pt
+      } // track type
     //}
   }
 

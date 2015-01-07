@@ -57,7 +57,7 @@
 class StoreGateSvc;
 class TriggerElement;
 //class ITrigInDetTrackExtrapolator;
-class IExtrapolateToCaloTool;
+//class IExtrapolateToCaloTool;
 class TH1F;
 
 
@@ -119,7 +119,7 @@ class TrigL2ElectronHypoMoni: public HLT::HypoAlgo  {
 
 
   //ITrigInDetTrackExtrapolator* m_trackExtrapolator;
-  ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
+//  ToolHandle<IExtrapolateToCaloTool> m_trackExtrapolator;
 
 };
 

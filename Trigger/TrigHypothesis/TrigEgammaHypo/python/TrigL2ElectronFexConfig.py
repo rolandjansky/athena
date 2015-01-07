@@ -9,11 +9,11 @@ from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronFex
 from AthenaCommon.SystemOfUnits import GeV, mm
 
 from AthenaCommon.AppMgr import ToolSvc
-from TrackToCalo.ExtrapolateToCaloToolBase import \
-     ExtrapolateToCaloToolFactory
-extrap = ExtrapolateToCaloToolFactory (depth='showerdefault',
-                                       straightLine=False)
-ToolSvc+=extrap
+#from TrackToCalo.ExtrapolateToCaloToolBase import \
+#     ExtrapolateToCaloToolFactory
+#extrap = ExtrapolateToCaloToolFactory (depth='showerdefault',
+#                                       straightLine=False)
+#ToolSvc+=extrap
 
 # ---------------------------------------------------------------
 # class for common setups (like monitoring)
@@ -39,7 +39,7 @@ class L2ElectronFexBase(TrigL2ElectronFex):
         self.CaloTrackdEoverPHigh = [999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0]
         self.dETACLUSTERthr = 0.1  #not used any more
         self.dPHICLUSTERthr = 0.1  #not used any more
-        self.TrackExtrapolator=extrap
+#        self.TrackExtrapolator=extrap
 
 # ---------------------------------------------------------------
 # TrigL2ElectronFex configurations

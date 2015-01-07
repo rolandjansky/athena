@@ -13,8 +13,19 @@ from AthenaCommon.AppMgr import ToolSvc
 from egammaRec.Factories import ToolFactory
 
 from egammaMVACalib import egammaMVACalibConf
-egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool)
+egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,folder="egammaMVACalib/v1")
 from egammaTools.egammaToolsFactories import EMFourMomBuilder, EMShowerBuilder 
+
+def configureTrigEFCaloCalibFexMonitoring(tool):
+    
+    from TrigEgammaHypo.TrigEFCaloHypoMonitoring import TrigEFCaloCalibFexValidationMonitoring, TrigEFCaloCalibFexOnlineMonitoring
+    validation = TrigEFCaloCalibFexValidationMonitoring()
+    online     = TrigEFCaloCalibFexOnlineMonitoring()
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig("Time")
+
+    tool.AthenaMonTools = [ time, validation, online ]
+
 TrigEFCaloCalibFex_Electron = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron",
         AcceptAll = True,
         ApplyMVACalib = True,
@@ -26,6 +37,7 @@ TrigEFCaloCalibFex_Electron = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex,
                 Print = True,
                 ),
         FourMomBuilderTool = EMFourMomBuilder(),
+        postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
 
 TrigEFCaloCalibFex_Photon = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon",
@@ -39,35 +51,5 @@ TrigEFCaloCalibFex_Photon = ToolFactory(TrigEgammaHypoConf.TrigEFCaloCalibFex, n
                 Print = True,
                 ),
         FourMomBuilderTool = EMFourMomBuilder(),
+        postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
-# ---------------------------------------------------------------
-# class for common setups (like monitoring)
-#class TrigEFCaloCalibFexBase(TrigEFCaloCalibFex):
-#    __slots__ = []
-#    def __init__(self, name):
-#        super(TrigEFCaloCalibFex,self).__init__(name)
-#        self.AcceptAll = True
-#        self.MVACalibTool = egammaMVATool()
-#        self.egType = 'Electron'
-
-# ---------------------------------------------------------------
-# TrigEFCaloCalibFex configurations
-# ---------------------------------------------------------------
-
-#class TrigEFCaloCalibFex_Electron(TrigEFCaloCalibFexBase):
-#    __slots__ = []
-#    def __init__(self,name="TrigEFCaloCalibFex_Electron"):
-#        super(TrigEFCaloCalibFex_Electron, self).__init__(name)
-
-        # AcceptAll flag: if true take events regardless of cuts
-#        self.AcceptAll = False
-#        self.egType = 'Electron'
-#        
-#class TrigEFCaloCalibFex_Photon(TrigEFCaloCalibFexBase):
-#    __slots__ = []
-#    def __init__(self,name="TrigEFCaloCalibFex_Photon"):
-#        super(TrigEFCaloCalibFex_Electron, self).__init__(name)
-
-        # AcceptAll flag: if true take events regardless of cuts
-#        self.AcceptAll = False
-#        self.egType = 'Photon'
