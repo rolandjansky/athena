@@ -72,6 +72,7 @@ namespace InDet{
 
   inline SiNoise_bt::SiNoise_bt()
     {
+      initiate();
     }
 
   inline SiNoise_bt::SiNoise_bt(const SiNoise_bt& N)

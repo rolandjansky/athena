@@ -459,6 +459,9 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
   //Get the track segment information and build the initial track parameters
   const Trk::LocalParameters&     Vp   = tS.localParameters();
   const Trk::StraightLineSurface* surf = dynamic_cast<const Trk::StraightLineSurface*>(&(tS.associatedSurface()));
+  if (!surf) {
+    throw std::logic_error("Unhandled surface.");
+  }
 
   //Trk::ErrorMatrix* ie = tS.localErrorMatrix().clone();
   const AmgSymMatrix(5)& locCov = tS.localCovariance();
@@ -466,7 +469,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
 
 
   //const Trk::TrackParameters* newPerPar = new Trk::MeasuredAtaStraightLine(Vp(1),Vp(2),Vp(3),Vp(4),Vp(5),*surf,ie);
-  const Trk::TrackParameters* newPerPar = surf->createTrackParameters(Vp.get(Trk::loc1),Vp.get(Trk::loc2),Vp.get(Trk::phi),Vp.get(Trk::theta),Vp.get(Trk::qOverP),ie);
+  std::unique_ptr<const Trk::TrackParameters> newPerPar( surf->createTrackParameters(Vp.get(Trk::loc1),Vp.get(Trk::loc2),Vp.get(Trk::phi),Vp.get(Trk::theta),Vp.get(Trk::qOverP),ie) );
 
   if(newPerPar){
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created from TRT segment, " << endreq;
@@ -490,7 +493,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
   }
 
 
-  aSiTrack = findTrack(newPerPar,tS);
+  aSiTrack = findTrack(newPerPar.get(),tS);
   if((aSiTrack.size()==0)&&(m_bremCorrect)){
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "==============================================================" << endreq;
@@ -505,11 +508,10 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
     delete modTP;
     if(aSiTrack.size()==0){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endreq;
-      delete newPerPar; return aSiTrack;
+      return aSiTrack;
     }
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "==============================================================" << endreq;
   }
-  delete newPerPar;
 
   //Return list of tracks (by value !?)
   return aSiTrack;
