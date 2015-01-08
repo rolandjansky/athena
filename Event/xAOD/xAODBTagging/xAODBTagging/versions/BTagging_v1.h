@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagging_v1.h 605682 2014-07-09 16:31:37Z vacavant $
+// $Id: BTagging_v1.h 638212 2015-01-08 10:37:30Z filthaut $
 #ifndef XAODBTAGGING_VERSIONS_BTAGGING_V1_H
 #define XAODBTAGGING_VERSIONS_BTAGGING_V1_H
 
@@ -25,9 +25,6 @@
 #include <iostream>
 
 namespace xAOD {
-
-  // Forward declaration(s):
-  enum BTagInfo;
 
   /// @class xAOD::BTagging
   /// @brief Class for xAOD b-tagging information
