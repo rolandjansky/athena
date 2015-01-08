@@ -16,6 +16,7 @@
 #include "MuonRPC_Cabling/ICallBackMuonRPC_Cabling.h"
 
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "MuonRPC_Cabling/RPCPadParameters.h"
 
 class MuonRPC_CablingMap;
 class RpcIdHelper;
@@ -112,8 +113,17 @@ public:
 				   Identifier& EtaHighBorder_id,
 				   Identifier& PhiLowBorder_id,
 				   Identifier& PhiHighBorder_id) const;
- 
 
+
+    virtual bool give_Pad_Parameters(unsigned short int logic_sector,
+                             unsigned short int PADId,
+                             bool & feet,
+                             bool & eta_and_phi,
+                             unsigned short int  & cma_mask,
+                             unsigned short int  & feet_th0,
+                             unsigned short int  & feet_th1,
+                             unsigned short int  & feet_th2 ) const;
+    
     virtual unsigned long int strip_code_fromOffId (std::string stationName, 
 						    int stationEta, 
 						    int stationPhi, 
@@ -122,6 +132,7 @@ public:
 
 
     virtual Identifier  strip_OffId_fromCode (unsigned long int strip_code_cab) const; 
+    Identifier  protected_strip_OffId_fromCode (unsigned long int strip_code_cab) const; 
 
     virtual std::list<unsigned int> give_strip_code
                                            (unsigned short int SubsystemId,
@@ -201,7 +212,13 @@ public:
     // 15/03/2010 L. Bellagamba: Trigger Roads from Cool 
     BooleanProperty m_RPCTriggerRoadsfromCool;
     ToolHandle<IRPCTriggerDbTool> m_condTriggerTool;
-    
+
+    // 8/1/2015  M. Corradi: Pad parameters
+    BooleanProperty m_ApplyFeetPadThresholds;
+    std::vector<unsigned short int> m_FeetPadThresholds;
+
+    // list of RPCPadParameters
+    RPCPadParameters  m_RPCPadParameters_array[64][8];
 };
 
 

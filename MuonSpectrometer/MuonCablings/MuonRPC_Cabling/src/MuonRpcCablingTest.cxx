@@ -279,8 +279,42 @@ MuonRpcCablingTest::execute()
             }
         }
     }
-
     fout.close();
+
+
+    std::ofstream fout2("RPCPadParameters.dump");
+    // M.Corradi, test of Pad setup
+    fout2 << "DUMP OF PAD PARAMETERS" << std::endl;
+    fout2 << "======================" << std::endl;
+    fout2 << "s  p  a  m  f  t  t  t" << std::endl;
+    fout2 << "e  a  n  a  e  h  h  h" << std::endl;
+    fout2 << "c  d  d  s  e  0  1  2" << std::endl;
+    fout2 << "         k  t         " << std::endl;
+    for (unsigned short int isl=0; isl<64; isl++){
+        for (unsigned short int it=0; it<8; it++){
+            
+            bool eta_and_phi, feet;
+            unsigned short int cma_mask,feet_th0,feet_th1,feet_th2;
+            
+            if (
+                 m_cablingSvc->give_Pad_Parameters(isl,it,feet,eta_and_phi,
+                                                  cma_mask,feet_th0,
+                                                  feet_th1, feet_th2)
+                ){
+                fout2 << isl << "  "
+                     << it << "  "
+                     << eta_and_phi << "  "
+                     << cma_mask << "  "
+                     << feet << "  " 
+                     << feet_th0 << "  "
+                     << feet_th1 << "  "
+                     << feet_th2 << std::endl;
+            } else {
+                ATH_MSG_DEBUG("No pad parameters found");
+            }        
+        }
+    }
+    fout2.close();
     
 
     return StatusCode::SUCCESS;

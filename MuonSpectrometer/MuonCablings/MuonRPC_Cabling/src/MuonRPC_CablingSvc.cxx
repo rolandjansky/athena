@@ -46,6 +46,12 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     //L. Bellagamba 15/04/2010 -> Trigger roads from Cool
     declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=false);
     declareProperty( "TheRpcTriggerDbTool",  m_condTriggerTool,      "a tool reading RPC triiger roads from COOL");
+    //M. Corradi 2015/1/8
+    declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=false,
+                    "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
+    declareProperty("FeetPadThresolds", m_FeetPadThresholds,
+                    "threshold numbers assigned to 3 low pt thresholds from special feet pads");
+    
 }
 
 MuonRPC_CablingSvc::~MuonRPC_CablingSvc()
@@ -80,7 +86,6 @@ StatusCode MuonRPC_CablingSvc::initialize()
     
     bool tryRecoveringByReadingFromFile = false;
     bool tryRecoveringByReadingTrigRoadsFromFile = false;
-
 
     if(!m_RPCMapfromCool && m_RPCTriggerRoadsfromCool) {
       msg(MSG::ERROR)<< " !!! RPC cabling map from files and trigger roads from COOL - option not implemented !!!"<< endreq;
@@ -207,6 +212,37 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	    return StatusCode::FAILURE;
 	}	
     }    
+
+    msg(MSG::INFO) << "ApplyFeetPadThresholds : " << m_ApplyFeetPadThresholds << endreq;
+    
+    if (m_ApplyFeetPadThresholds){
+        if (m_FeetPadThresholds.size()!=3){
+            ATH_MSG_WARNING("ApplyFeetPadThreshold ON but FeetPadThresholds size is not 3");
+            m_FeetPadThresholds.assign(3,0);
+            m_FeetPadThresholds.at(0)=2;
+            m_FeetPadThresholds.at(1)=3;
+            m_FeetPadThresholds.at(2)=5;
+        }
+        msg(MSG::INFO) << "FeetPadThresholds : "
+                       <<  m_FeetPadThresholds.at(0) << " "
+                       <<  m_FeetPadThresholds.at(1) << " "
+                       <<  m_FeetPadThresholds.at(2) << endreq;
+        
+        const unsigned int NumFeetSectors = 8;
+        unsigned int FeetSectors[NumFeetSectors]={21,22,25,26,53,54,57,58};
+        const unsigned int NumSpecialFeetPads = 4;
+        unsigned int SpecialFeetPads[NumSpecialFeetPads]={2,4,5,7};
+
+        for (unsigned int is=0; is<NumFeetSectors; is++) {
+            for (unsigned int it=0; it<NumSpecialFeetPads; it++) {
+                
+                m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_on(true);
+                for (unsigned int th=0; th<3; th++) m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_threshold(th,m_FeetPadThresholds.at(th));
+            }
+        }
+        
+    }
+    
     
     return StatusCode::SUCCESS;
 }
@@ -293,11 +329,15 @@ bool MuonRPC_CablingSvc::give_RoI_borders_id (unsigned short int SubsystemId,
 						     EtaLowBorder,EtaHighBorder,
 						     PhiLowBorder,PhiHighBorder);  
   if (ok){
-    EtaLowBorder_id  =  this->strip_OffId_fromCode( EtaLowBorder);
-    EtaHighBorder_id =  this->strip_OffId_fromCode( EtaHighBorder);
-    PhiLowBorder_id  =  this->strip_OffId_fromCode( PhiLowBorder);
-    PhiHighBorder_id =  this->strip_OffId_fromCode( PhiHighBorder);
+    //    std::cout<<"in give_RoI_borders_id:: subsystemId/SectorId/RoIId = "<<SubsystemId<<"/"<<SectorId<<"/"<<RoIId<<std::endl;
+    //    std::cout<<" since give_RoI_borders is ok, EtaLowBorder/EtaHighBorder/PhiLowBorder/PhiHighBorder "<<EtaLowBorder<<"/"<<EtaHighBorder<<"/"<<PhiLowBorder<<"/"<<PhiHighBorder<<std::endl;
+    EtaLowBorder_id  =  this->protected_strip_OffId_fromCode( EtaLowBorder);
+    EtaHighBorder_id =  this->protected_strip_OffId_fromCode( EtaHighBorder);
+    PhiLowBorder_id  =  this->protected_strip_OffId_fromCode( PhiLowBorder);
+    PhiHighBorder_id =  this->protected_strip_OffId_fromCode( PhiHighBorder);
+    //    std::cout<<"id of borders = "<<m_pRpcIdHelper->show_to_string(EtaLowBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(EtaHighBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(PhiLowBorder_id)<<"/"<<m_pRpcIdHelper->show_to_string(PhiHighBorder_id)<<"/"<<std::endl;
   }
+  //  else {std::cout<<" since give_RoI_borders is not ok"<<std::endl;}
   return ok;
 }
 
@@ -368,10 +408,11 @@ bool MuonRPC_CablingSvc::give_HighPt_borders_id (unsigned short int SubsystemId,
   unsigned int EtaLowBorder=0;
   unsigned int EtaHighBorder=0;
   unsigned int PhiLowBorder=0;
-  unsigned int PhiHighBorder=0;  
+  unsigned int PhiHighBorder=0;
   bool ok = CablingRPC::s_instance->give_HighPt_borders(SubsystemId,SectorId,RoIId,
 						     EtaLowBorder,EtaHighBorder,
-						     PhiLowBorder,PhiHighBorder);  
+						     PhiLowBorder,PhiHighBorder);
+  
   if (ok){
     EtaLowBorder_id  =  this->strip_OffId_fromCode( EtaLowBorder);
     EtaHighBorder_id =  this->strip_OffId_fromCode( EtaHighBorder);
@@ -381,6 +422,37 @@ bool MuonRPC_CablingSvc::give_HighPt_borders_id (unsigned short int SubsystemId,
   return ok;
 }
 
+
+
+bool MuonRPC_CablingSvc::give_Pad_Parameters(unsigned short int logic_sector,
+                                             unsigned short int PADId,
+                                             bool & feet,
+                                             bool & eta_and_phi,
+                                             unsigned short int  & cma_mask,
+                                             unsigned short int  & feet_th0,
+                                             unsigned short int  & feet_th1,
+                                             unsigned short int  & feet_th2 )const {
+ 
+    if ( logic_sector>=64 || PADId >= 8) return false;
+    
+    feet = m_RPCPadParameters_array[logic_sector][PADId].feet_on();
+    eta_and_phi = m_RPCPadParameters_array[logic_sector][PADId].eta_and_phi();
+    cma_mask    = m_RPCPadParameters_array[logic_sector][PADId].cma_mask();
+    feet_th0    = m_RPCPadParameters_array[logic_sector][PADId].feet_threshold(0);
+    feet_th1    = m_RPCPadParameters_array[logic_sector][PADId].feet_threshold(1);
+    feet_th2    = m_RPCPadParameters_array[logic_sector][PADId].feet_threshold(2);    
+    
+
+    /*    
+    std::cout << "MuonRPC_CablingSvc::give_Pad_Parameters called:   "
+              << feet << " "
+              << eta_and_phi << " "
+              << cma_mask << " "
+              << feet_th2
+              << std::endl;
+    */
+    return true;
+}
 
 std::list<unsigned int> MuonRPC_CablingSvc::give_strip_code(unsigned short int SubsystemId,
                                                             unsigned short int SectorId,
@@ -403,6 +475,34 @@ unsigned long int MuonRPC_CablingSvc::strip_code_fromOffId (std::string stationN
 Identifier MuonRPC_CablingSvc::strip_OffId_fromCode (unsigned long int strip_code) const 
 {
   RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
+  Identifier rpcId = m_pRpcIdHelper->channelID(rpc_strip.stationName,
+					       rpc_strip.stationEta,
+					       rpc_strip.stationPhi,
+					       rpc_strip.doubletR,
+					       rpc_strip.doubletZ,
+					       rpc_strip.doubletPhi,
+					       rpc_strip.gasGap,
+					       rpc_strip.measuresPhi,
+					       rpc_strip.strip);
+  return rpcId;
+}
+Identifier MuonRPC_CablingSvc::protected_strip_OffId_fromCode (unsigned long int strip_code) const 
+{
+  RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
+  if (rpc_strip.stationName=="BOG")
+    {
+      if (fabs(rpc_strip.stationEta)==4 && rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+	{
+	  if (rpc_strip.strip>48) rpc_strip.strip=48;
+	}
+    }
+  if (rpc_strip.stationName=="BME")
+    {
+      if (rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+	{
+	  if (rpc_strip.strip>36) rpc_strip.strip=36;
+	}
+    }
   Identifier rpcId = m_pRpcIdHelper->channelID(rpc_strip.stationName,
 					       rpc_strip.stationEta,
 					       rpc_strip.stationPhi,
