@@ -9,8 +9,7 @@
 #include "LArRawEvent/LArFebHeaderContainer.h"
 
 CheckLArFebHeader::CheckLArFebHeader(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0)
 {
   m_count=0;
@@ -23,43 +22,20 @@ CheckLArFebHeader::~CheckLArFebHeader()
 
 StatusCode CheckLArFebHeader::initialize()
 { 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialize" << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    } 
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-     return StatusCode::FAILURE;
-    } 
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_INFO ( "Initialize" );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   m_count=0;  
-  log << MSG::DEBUG << "======== CheckLArFebHeader initialize successfully ========" << endreq;
+  ATH_MSG_DEBUG ( "======== CheckLArFebHeader initialize successfully ========" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode CheckLArFebHeader::execute()
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc; 
   m_count++; 
-  const LArFebHeaderContainer *larFebHeaderContainer;
-  sc= m_storeGateSvc->retrieve(larFebHeaderContainer);
-  if (sc.isFailure() || !larFebHeaderContainer) {
-    log << MSG::DEBUG << "Cannot read LArFebHeaderContainer from StoreGate!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  const LArFebHeaderContainer *larFebHeaderContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
   
   LArFebHeaderContainer::const_iterator it=larFebHeaderContainer->begin();
   LArFebHeaderContainer::const_iterator it_e=larFebHeaderContainer->end();
@@ -75,26 +51,24 @@ StatusCode CheckLArFebHeader::execute()
       int FebBCID   = (*it)->FebBCId();
       int FebLVL1ID = (*it)->FebELVL1Id();
 	
-      log << MSG::FATAL << "TTC information mismatch in event " << m_count << ":" << endreq;
-      log << MSG::FATAL << "    FEBID = " << febid.get_compact() << endreq;
-      log << MSG::FATAL << "      BARREL/EC = " << barrel_ec << " POS/NEG = " << pos_neg << endreq;
-      log << MSG::FATAL << "      FT = " << FT << " SLOT = " << slot << endreq;
-      log << MSG::FATAL << "    TTC from ROD: LVL1ID = " << LVL1ID << " BCID = " << BCID << endreq;
-      log << MSG::FATAL << "    TTC from FEB: LVL1ID = " << FebLVL1ID << " BCID = " << FebBCID << endreq;
+      ATH_MSG_FATAL ( "TTC information mismatch in event " << m_count << ":" );
+      ATH_MSG_FATAL ( "    FEBID = " << febid.get_compact() );
+      ATH_MSG_FATAL ( "      BARREL/EC = " << barrel_ec << " POS/NEG = " << pos_neg );
+      ATH_MSG_FATAL ( "      FT = " << FT << " SLOT = " << slot );
+      ATH_MSG_FATAL ( "    TTC from ROD: LVL1ID = " << LVL1ID << " BCID = " << BCID );
+      ATH_MSG_FATAL ( "    TTC from FEB: LVL1ID = " << FebLVL1ID << " BCID = " << FebBCID );
 	
       return StatusCode::FAILURE;
     } // End if 
     else
-      log << MSG::DEBUG << "FEB header consistent." << endreq;
+      ATH_MSG_DEBUG ( "FEB header consistent." );
   } // End FebHeader loop
 
-  
  return StatusCode::SUCCESS;
 }
 
 StatusCode CheckLArFebHeader::finalize()
 { 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << ">>> Finalize" << endreq;
+  ATH_MSG_DEBUG ( ">>> Finalize" );
   return StatusCode::SUCCESS;
 }

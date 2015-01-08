@@ -3,13 +3,13 @@
 */
 
 #include "LArEventTest/FakeTBPhase.h"
+#include "CxxUtils/make_unique.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 using CLHEP::ns;
 
 FakeTBPhase::FakeTBPhase(const std::string & name, ISvcLocator * pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_StoreGate(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_phaseInd(0)
 {
   declareProperty("TBPhase",        m_phase=25.);
@@ -22,40 +22,22 @@ FakeTBPhase::~FakeTBPhase() {}
 
 StatusCode FakeTBPhase::initialize() 
 {
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-
   m_phaseInd = (short)floor(m_phase/m_delta*(float)m_timeBins);
-
-  log << MSG::INFO << "Phase = " << m_phase << " - PhaseInd = " << m_phaseInd << endreq;
-
+  ATH_MSG_INFO ( "Phase = " << m_phase << " - PhaseInd = " << m_phaseInd );
   return StatusCode::SUCCESS;
 }
 
 StatusCode FakeTBPhase::execute()
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
-  log << MSG::DEBUG << "Phase = " << m_phase << endreq;
+  ATH_MSG_DEBUG ( "Phase = " << m_phase );
   
-  TBPhase* m_TBPhase = new TBPhase(m_phase,m_phaseInd,0.);
-  
-  sc = m_StoreGate->record(m_TBPhase,m_keyTBPhase);
-  if (sc.isFailure( )) {
-    log << MSG::FATAL << "Cannot record fake TBPhase to StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-return StatusCode::SUCCESS;
+  ATH_CHECK( evtStore()->record( CxxUtils::make_unique<TBPhase>
+                                   (m_phase,m_phaseInd,0.),
+                                 m_keyTBPhase) );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode FakeTBPhase::finalize()
-{return StatusCode::SUCCESS;}
+{
+  return StatusCode::SUCCESS;
+}

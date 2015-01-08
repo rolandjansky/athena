@@ -7,7 +7,7 @@
 #include "LArRawConditions/LArGlobalTimeOffset.h"
 
 FakeLArTimeOffset::FakeLArTimeOffset(const std::string & name, ISvcLocator * pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_globalOffset(0)
 {
   declareProperty("FEBids",m_FEBids);
@@ -20,53 +20,28 @@ FakeLArTimeOffset::FakeLArTimeOffset(const std::string & name, ISvcLocator * pSv
 FakeLArTimeOffset::~FakeLArTimeOffset() {}
 
 StatusCode FakeLArTimeOffset::initialize() {
-  MsgStream logstr(msgSvc(), name());
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  logstr << MSG::DEBUG << "Initialize..." << endreq;
-  sc= service("DetectorStore",detStore);
-  if(sc.isFailure()) {
-    logstr << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG ( "Initialize..." );
   //Check Consistency
   if (m_FEBtimeOffsets.size()!=m_FEBids.size()) {
-    logstr << MSG::ERROR << "Problem with jobOpts: Have " << m_FEBtimeOffsets.size() << " time offset values for " 
-	   << m_FEBids.size() << " FEBs." << endreq;
+    ATH_MSG_ERROR ( "Problem with jobOpts: Have " << m_FEBtimeOffsets.size() << " time offset values for " 
+                    << m_FEBids.size() << " FEBs." );
     return StatusCode::FAILURE;
   }
   LArGlobalTimeOffset* globalTimeOffset=new LArGlobalTimeOffset();
   globalTimeOffset->setTimeOffset(m_globalTimeOffset);
-  sc=detStore->record(globalTimeOffset,m_keyGlobalOffset);
-  if(sc.isFailure()) {
-    logstr << MSG::ERROR << "Can't record LArGlobalTimeOffset to DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->record(globalTimeOffset,m_keyGlobalOffset) );
   const ILArGlobalTimeOffset* ilarGobalTimeOffset=globalTimeOffset;
-  sc=detStore->symLink(globalTimeOffset,ilarGobalTimeOffset);
-  if(sc.isFailure()) {
-    logstr << MSG::ERROR << "Can't symlink LArGlobalTimeOffset to abstract interface in  DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->symLink(globalTimeOffset,ilarGobalTimeOffset) );
 
   LArFEBTimeOffset* febTimeOffset=new LArFEBTimeOffset();
   for (unsigned i=0;i<m_FEBids.size();i++) {
     const HWIdentifier id(m_FEBids[i]);
     febTimeOffset->setTimeOffset(id,m_FEBtimeOffsets[i]);
-    logstr << MSG::DEBUG << "FEB 0x" << MSG::hex << id << " Offset=" << m_FEBtimeOffsets[i] << endreq;
+    ATH_MSG_DEBUG ( "FEB 0x" << MSG::hex << id << " Offset=" << m_FEBtimeOffsets[i] );
   }
-  sc=detStore->record(febTimeOffset,m_keyFebOffset);
-  if(sc.isFailure()) {
-    logstr << MSG::ERROR << "Can't record LArFEBTimeOffset to DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->record(febTimeOffset,m_keyFebOffset) );
   const ILArFEBTimeOffset* ilarFEBTimeOffset=febTimeOffset;
-  sc=detStore->symLink(febTimeOffset,ilarFEBTimeOffset);
-  if(sc.isFailure()) {
-    logstr << MSG::ERROR << "Can't symlink LArFEBTimeOffset to abstract interface in  DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->symLink(febTimeOffset,ilarFEBTimeOffset) );
   return StatusCode::SUCCESS;
 }
 

@@ -4,8 +4,7 @@
 
 #include "LArEventTest/LArDigits2Ntuple.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -20,9 +19,7 @@
 
 
 LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0),
     m_larCablingSvc(0),
     m_emId(0),
@@ -57,27 +54,6 @@ LArDigits2Ntuple::~LArDigits2Ntuple()
 
 StatusCode LArDigits2Ntuple::initialize()
 {
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::ERROR << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
- 
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   //Use CaloIdManager to access detector info
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
@@ -85,158 +61,58 @@ StatusCode LArDigits2Ntuple::initialize()
   m_hecId=caloIdMgr->getHEC_ID();
 
   if (!m_emId) {
-    log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_fcalId) {
-    log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_hecId) {
-    log << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
     return StatusCode::FAILURE;
   }
 
-  // get cablingSvc
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  sc = svcLoc->service( "ToolSvc",toolSvc  );
-  if(sc.isSuccess()) {
-    sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-    if(sc.isFailure()){
-      log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    log << MSG::ERROR << "Could not retrieve ToolSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
 
-  // get onlineHelper
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
 
   // Book ntuple
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
-  if (!file1)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+  if (!file1) {
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
-    }
+  }
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE1/DIGITS");
   if (!nt) {
     nt=ntupleSvc()->book("/NTUPLES/FILE1/DIGITS",CLID_ColumnWiseTuple,"Digits");
   }
-  if (!nt)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+  if (!nt) {
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
-    }
+  }
 
-  sc=nt->addItem("event",event);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Event' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("layer",layer,0,4);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Layer' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("ieta",eta,0,510);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Eta' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("iphi",phi,0,1023);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Phi' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("region",region,0,1);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'region' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("barrel_ec",barrel_ec,0,1);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("pos_neg",pos_neg,0,1);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("detector",detector,0,2);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Region' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("FT",FT,0,32);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'FT' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("slot",slot,1,15);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'slot' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("channel",channel,0,127);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'channel' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("gain",gain,0,3);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Gain' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  sc=nt->addItem("samples",m_nsamples,samples);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Ped' failed" << endreq;
-    return StatusCode::FAILURE;
-    }
-  if(m_ped) {
-    sc=nt->addItem("ped",ped);
-    if (sc!=StatusCode::SUCCESS)
-      {log << MSG::ERROR << "addItem 'Ped' failed" << endreq;
-      return StatusCode::FAILURE;
-      }
-  }
-  if(m_sca) {
-    sc=nt->addItem("sca",m_nsamples,sca);
-    if (sc!=StatusCode::SUCCESS)
-      {log << MSG::ERROR << "addItem 'sca' failed" << endreq;
-      return StatusCode::FAILURE;
-      }
-  }
-  if(m_phase) {
-    sc=nt->addItem("tdc",tdc);
-    if (sc!=StatusCode::SUCCESS)
-      {log << MSG::ERROR << "addItem 'tdc' failed" << endreq;
-      return StatusCode::FAILURE;
-      }
-  }
-  if(m_trigger) {
-    sc=nt->addItem("trigger",trigger);
-    if (sc!=StatusCode::SUCCESS)
-      {log << MSG::ERROR << "addItem 'trigger' failed" << endreq;
-      return StatusCode::FAILURE;
-      }
-  }
-  if(m_scint) {
-    sc=nt->addItem("S1",S1);
-    if (sc!=StatusCode::SUCCESS)
-      {log << MSG::ERROR << "addItem 'S1' failed" << endreq;
-      return StatusCode::FAILURE;
-      }
-  }
+  ATH_CHECK( nt->addItem("event",event) );
+  ATH_CHECK( nt->addItem("layer",layer,0,4) );
+  ATH_CHECK( nt->addItem("ieta",eta,0,510) );
+  ATH_CHECK( nt->addItem("iphi",phi,0,1023) );
+  ATH_CHECK( nt->addItem("region",region,0,1) );
+  ATH_CHECK( nt->addItem("barrel_ec",barrel_ec,0,1) );
+  ATH_CHECK( nt->addItem("pos_neg",pos_neg,0,1) );
+  ATH_CHECK( nt->addItem("detector",detector,0,2) );
+  ATH_CHECK( nt->addItem("FT",FT,0,32) );
+  ATH_CHECK( nt->addItem("slot",slot,1,15) );
+  ATH_CHECK( nt->addItem("channel",channel,0,127) );
+  ATH_CHECK( nt->addItem("gain",gain,0,3) );
+  ATH_CHECK( nt->addItem("samples",m_nsamples,samples) );
+
+  if(m_ped)     ATH_CHECK( nt->addItem("ped",ped) );
+  if(m_sca)     ATH_CHECK( nt->addItem("sca",m_nsamples,sca) );
+  if(m_phase)   ATH_CHECK( nt->addItem("tdc",tdc) );
+  if(m_trigger) ATH_CHECK( nt->addItem("trigger",trigger) );
+  if(m_scint)   ATH_CHECK( nt->addItem("S1",S1) );
+
   m_nt=nt;
 
   return StatusCode::SUCCESS;
@@ -247,27 +123,24 @@ StatusCode LArDigits2Ntuple::execute()
   int eventnumber,triggerword;
   double S1Adc,tdcphase;
 
-  MsgStream log(msgSvc(), name());
-
   // Retrieve EventInfo
-  const DataHandle<EventInfo> thisEventInfo;
-  StatusCode sc=m_storeGateSvc->retrieve(thisEventInfo);
+  const DataHandle<xAOD::EventInfo> thisEventInfo;
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   eventnumber=0;
   if (sc!=StatusCode::SUCCESS)
-    log << MSG::WARNING << "No EventInfo object found!" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found!" );
   else {
-    EventID *thisEvent=thisEventInfo->event_ID();
-    eventnumber=thisEvent->event_number();
+    eventnumber=thisEventInfo->eventNumber();
   }
 
   // Retrieve the TBScintillators
   if(m_scint) {
     S1Adc=-999.0;
     const TBScintillatorCont * theTBScint;
-    sc = m_storeGateSvc->retrieve(theTBScint,"ScintillatorCont");
+    sc = evtStore()->retrieve(theTBScint,"ScintillatorCont");
     if (sc.isFailure()) 
       {
-	log << MSG::ERROR << " Cannot read TBScintillatorCont from StoreGate! " << endreq;
+	ATH_MSG_ERROR ( " Cannot read TBScintillatorCont from StoreGate! " );
 	//return StatusCode::FAILURE;
       }
     else {
@@ -288,13 +161,11 @@ StatusCode LArDigits2Ntuple::execute()
   //Retrieve the TBPhase
   if(m_phase) {
     const TBPhase* theTBPhase;
-    sc = m_storeGateSvc->retrieve(theTBPhase, "TBPhase");
+    sc = evtStore()->retrieve(theTBPhase, "TBPhase");
     
     if (sc.isFailure()) {
       tdcphase = -999.0;
-      log << MSG::ERROR
-	  << "cannot allocate TBPhase "
-	  << endreq;
+      ATH_MSG_ERROR( "cannot allocate TBPhase " );
       //return StatusCode::FAILURE;
     } else {
       tdcphase = theTBPhase->getPhase();
@@ -305,13 +176,11 @@ StatusCode LArDigits2Ntuple::execute()
   //Retrieve the TBTriggerPatternUnit
   if(m_trigger) {
     const TBTriggerPatternUnit* theTBTriggerPatternUnit;
-    sc = m_storeGateSvc->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
+    sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
 
     if (sc.isFailure()) {
       triggerword = 0;
-      log << MSG::ERROR
-	  << "cannot allocate TBTriggerPatternUnit"
-	  << endreq;
+      ATH_MSG_ERROR( "cannot allocate TBTriggerPatternUnit" );
       //return StatusCode::FAILURE;
     } else {
       triggerword = theTBTriggerPatternUnit->getTriggerWord();
@@ -330,40 +199,32 @@ StatusCode LArDigits2Ntuple::execute()
   //Pointer to conditions data objects 
   const ILArPedestal* larPedestal=NULL;
   if (m_ped) {
-    sc=m_detStore->retrieve(larPedestal);
+    sc=detStore()->retrieve(larPedestal);
     if (sc.isFailure()) {
       larPedestal=NULL;
-      log << MSG::INFO << "No pedestal found in database. Use default values." << endreq;
+      ATH_MSG_INFO ( "No pedestal found in database. Use default values." );
     }
   }
 
   // Retrieve LArDigitContainer
   const DataHandle < LArDigitContainer > digit_cont;
   if (m_contKey.size())
-    sc = m_storeGateSvc->retrieve(digit_cont,m_contKey);
+    ATH_CHECK( evtStore()->retrieve(digit_cont,m_contKey) );
   else
-    sc = m_storeGateSvc->retrieve(digit_cont);
-  if (sc.isFailure()) 
-    {log << MSG::ERROR << " Cannot read LArDigitContainer from StoreGate! key=" << m_contKey << endreq;
-    return StatusCode::FAILURE;
-    }
-  log << MSG::INFO << "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey << endreq;
+    ATH_CHECK( evtStore()->retrieve(digit_cont) );
+  ATH_MSG_INFO ( "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey );
 
   // Retrieve LArFebHeaderContainer
   const LArFebHeaderContainer *larFebHeaderContainer;
   if(m_sca) {
-    sc= m_storeGateSvc->retrieve(larFebHeaderContainer);
-    if (sc.isFailure() || !larFebHeaderContainer) {
-      log << MSG::DEBUG << "Cannot read LArFebHeaderContainer from StoreGate!" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
   }
 
   // Fill ntuple
   LArDigitContainer::const_iterator it = digit_cont->begin(); 
   LArDigitContainer::const_iterator it_e = digit_cont->end(); 
   if(it==it_e) {
-    log << MSG::DEBUG << "LArDigitContainer is empty..." << endreq;
+    ATH_MSG_DEBUG ( "LArDigitContainer is empty..." );
   }
   for(; it!=it_e; ++it){
     const HWIdentifier hwid=(*it)->channelID();//hardwareID();
@@ -419,7 +280,7 @@ StatusCode LArDigits2Ntuple::execute()
     }
     if (thePedestal<0) {
       thePedestal = -999;
-      log << MSG::DEBUG << "No pedestal found for this cell. Use default value " << thePedestal << endreq;
+      ATH_MSG_DEBUG ( "No pedestal found for this cell. Use default value " << thePedestal );
     }
     ped = thePedestal;
 
@@ -449,7 +310,7 @@ StatusCode LArDigits2Ntuple::execute()
     sc=ntupleSvc()->writeRecord(m_nt);
     
     if (sc!=StatusCode::SUCCESS) {
-      log << MSG::ERROR << "writeRecord failed" << endreq;
+      ATH_MSG_ERROR ( "writeRecord failed" );
       return StatusCode::FAILURE;
     }
   }
@@ -459,7 +320,6 @@ StatusCode LArDigits2Ntuple::execute()
 
 StatusCode LArDigits2Ntuple::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "LArDigits2Ntuple has finished." << endreq;
+  ATH_MSG_INFO ( "LArDigits2Ntuple has finished." );
   return StatusCode::SUCCESS;
 }// end finalize-method.

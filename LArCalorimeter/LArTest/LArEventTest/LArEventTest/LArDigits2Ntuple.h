@@ -19,9 +19,7 @@
 
 #ifndef LARDIGITS2NTUPLE_H
 #define LARDIGITS2NTUPLE_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArIdentifier/LArOnlineID.h"
 //#include <vector>
 #include <string>
@@ -39,7 +37,7 @@
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 
-class LArDigits2Ntuple : public Algorithm
+class LArDigits2Ntuple : public AthAlgorithm
 {
  public:
   LArDigits2Ntuple(const std::string & name, ISvcLocator * pSvcLocator);
@@ -51,8 +49,6 @@ class LArDigits2Ntuple : public Algorithm
   StatusCode finalize();
  private:
 
-  StoreGateSvc *m_storeGateSvc;
-  StoreGateSvc *m_detStore;
   const LArOnlineID *m_onlineHelper; 
   LArCablingService *m_larCablingSvc;
   const LArEM_ID    *m_emId;

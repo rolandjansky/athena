@@ -4,9 +4,7 @@
 
 #ifndef DUMPLARRAWCHANNEL_H
 #define DUMPLARRAWCHANNEL_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -15,7 +13,7 @@
 //#include "LArDetDescr/LArDetDescrManager.h"
 #include <fstream>
 
-class DumpLArRawChannels : public Algorithm
+class DumpLArRawChannels : public AthAlgorithm
 {
  public:
   DumpLArRawChannels(const std::string & name, ISvcLocator * pSvcLocator);
@@ -28,7 +26,6 @@ class DumpLArRawChannels : public Algorithm
   StatusCode finalize();
  private:
   int m_count, m_chan;
-  StoreGateSvc *m_storeGateSvc;
   //LArRawChannelContainer* m_larChannelCont;
   const LArOnlineID*       m_onlineHelper; 
   LArCablingService *m_larCablingSvc;

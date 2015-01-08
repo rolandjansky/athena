@@ -15,11 +15,9 @@
 //###############################################################################
 CaloClusterNavTest::CaloClusterNavTest(const std::string& name, 
 					       ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
-    m_storeGate(0)
+  : AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("ClusterContainerNames",m_clusterContainerNames);
-  
 }
 
 //###############################################################################
@@ -31,37 +29,21 @@ CaloClusterNavTest::~CaloClusterNavTest()
 
 StatusCode CaloClusterNavTest::initialize()
 {
-  MsgStream log(messageService(), name());
-
-  StatusCode sg= service("StoreGateSvc", m_storeGate);
-  
-  if ( !sg.isSuccess() ) 
-    log << MSG::ERROR << " Can not retrieve StoreGateSvc"
-	<< endreq; 
-
-
-  log << MSG::DEBUG << " initialized "	<< endreq; 
-  return sg; //sg from "initialize the StoreGateSvc ptr"
-  
+  ATH_MSG_DEBUG ( " initialized "	);
+  return StatusCode::SUCCESS;
 }
 
 //###############################################################################
 
 StatusCode CaloClusterNavTest::finalize()
 {
-  MsgStream log(messageService(), name());
-
   return StatusCode::SUCCESS;
-
 }
 
 //###############################################################################
 
 StatusCode CaloClusterNavTest::execute() {
   
-  MsgStream log(messageService(), name());
-  StatusCode sc;
- 
   std::vector<std::string>::const_iterator it =
 	m_clusterContainerNames.begin();
   std::vector<std::string>::const_iterator it_e =
@@ -72,12 +54,7 @@ StatusCode CaloClusterNavTest::execute() {
 
 	  const std::string & clusterName = *it; 
 	  const CaloClusterContainer * clusterColl ;
-	  sc = m_storeGate->retrieve(clusterColl,clusterName);
-	  if( !sc.isSuccess() || !clusterColl){ 
-	    log << MSG::ERROR << " Can not retrieve CaloClusterContainer: "
-		<< clusterName << endreq; 
-    		return StatusCode::FAILURE;      
-	  }    
+	  ATH_CHECK( evtStore()->retrieve(clusterColl,clusterName) );
 
 	  //Got ClusterContainer, loop over clusters;
 	  CaloClusterContainer::const_iterator it_cluster=clusterColl->begin();

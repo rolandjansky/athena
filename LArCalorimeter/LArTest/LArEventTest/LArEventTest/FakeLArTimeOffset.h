@@ -5,13 +5,11 @@
 #ifndef FAKELARTIMEOFFSET
 #define FAKELARTIMEOFFSET
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawConditions/LArFEBTimeOffset.h"
 #include "LArRawConditions/LArGlobalTimeOffset.h"
 
-class FakeLArTimeOffset : public Algorithm {
+class FakeLArTimeOffset : public AthAlgorithm {
   
  public:
   FakeLArTimeOffset(const std::string & name, ISvcLocator * pSvcLocator);

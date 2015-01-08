@@ -9,11 +9,13 @@ use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRawEvent      LArRawEvent-*         LArCalorimeter
 use LArTools         LArTools-*            LArCalorimeter
 use StoreGate        StoreGate-*           Control
+use AthenaBaseComps  AthenaBaseComps-*     Control
 use TBEvent          TBEvent-*             TestBeam
 
 private
 use AtlasCLHEP       AtlasCLHEP-*          External
-use EventInfo        EventInfo-*           Event
+use CxxUtils         CxxUtils-*            Control
+use xAODEventInfo    xAODEventInfo-*       Event/xAOD
 use CaloEvent	     CaloEvent-*           Calorimeter
 use LArElecCalib     LArElecCalib-*        LArCalorimeter
 end_private

@@ -5,13 +5,12 @@
 #ifndef FAKETBPHASE
 #define FAKETBPHASE
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TBEvent/TBPhase.h"
 
-class FakeTBPhase : public Algorithm {
+class FakeTBPhase : public AthAlgorithm {
   
  public:
   FakeTBPhase(const std::string & name, ISvcLocator * pSvcLocator);
@@ -22,9 +21,6 @@ class FakeTBPhase : public Algorithm {
   StatusCode finalize();
   
  private:
-  
-  StoreGateSvc* m_StoreGate;
-  
   float m_phase;
   short m_phaseInd;
   
@@ -32,9 +28,6 @@ class FakeTBPhase : public Algorithm {
   
   float m_delta;  // to fake TTC reco
   int m_timeBins; // to fake TTC reco
-   
-  //TBPhase* m_TBPhase ;
-
 };
 
 #endif

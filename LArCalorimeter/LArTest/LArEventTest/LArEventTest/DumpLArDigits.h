@@ -4,9 +4,7 @@
 
 #ifndef DUMPLARDIGITS_H
 #define DUMPLARDIGITS_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
 //#include "LArRawEvent/LArDigitCollection.h"
 #include "LArTools/LArCablingService.h"
@@ -16,7 +14,7 @@
 //#include "LArDetDescr/LArDetDescrManager.h"
 #include <fstream>
 
-class DumpLArDigits : public Algorithm
+class DumpLArDigits : public AthAlgorithm
 {
  public:
   DumpLArDigits(const std::string & name, ISvcLocator * pSvcLocator);
@@ -29,7 +27,6 @@ class DumpLArDigits : public Algorithm
   StatusCode finalize();
  private:
   int m_count, m_chan;
-  StoreGateSvc *m_storeGateSvc;
   //LArDigitContainer* m_larDigitCont;
   const LArOnlineID*       m_onlineHelper; 
   LArCablingService *m_larCablingSvc;

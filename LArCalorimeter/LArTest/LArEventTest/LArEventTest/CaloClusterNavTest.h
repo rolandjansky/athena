@@ -5,10 +5,9 @@
 #ifndef CALOCLUSTERNAVTEST_H
 #define CALOCLUSTERNAVTEST_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc; 
-class CaloClusterNavTest: public Algorithm
+class CaloClusterNavTest: public AthAlgorithm
 {
 
  public:    
@@ -21,8 +20,6 @@ class CaloClusterNavTest: public Algorithm
   virtual StatusCode finalize();
   
  private: 
-
- StoreGateSvc* m_storeGate ; 
  std::vector<std::string> m_clusterContainerNames; 
 };
 

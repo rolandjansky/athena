@@ -4,8 +4,7 @@
 
 #include "LArEventTest/FindDuplicatedLArDigits.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -21,16 +20,13 @@
  
 
 FindDuplicatedLArDigits::FindDuplicatedLArDigits(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_nProblemEvent(0),
-    m_storeGateSvc(0),
-    m_detStore(0),
     m_onlineHelper(0),
     m_larCablingSvc(0),
     m_emId(0),
     m_hecId(0),
-    m_fcalId(0),
-    m_log(0)
+    m_fcalId(0)
 { 
   declareProperty("ContainerKey",m_contKey);
   m_nDigits=-1;
@@ -41,29 +37,6 @@ FindDuplicatedLArDigits::~FindDuplicatedLArDigits()
 
 StatusCode FindDuplicatedLArDigits::initialize()
 {
-
-  m_log=new MsgStream(msgSvc(), name());
-  if (!m_log) return StatusCode::FAILURE;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {(*m_log) << MSG::ERROR << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
- 
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   //Use CaloIdManager to access detector info
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
@@ -71,42 +44,25 @@ StatusCode FindDuplicatedLArDigits::initialize()
   m_hecId=caloIdMgr->getHEC_ID();
 
   if (!m_emId) {
-    (*m_log) << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_fcalId) {
-    (*m_log) << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_hecId) {
-    (*m_log) << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
     return StatusCode::FAILURE;
   }
 
-  // get cablingSvc
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  sc = svcLoc->service( "ToolSvc",toolSvc  );
-  if(sc.isSuccess()) {
-    sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-    if(sc.isFailure()){
-      (*m_log) << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    (*m_log) << MSG::ERROR << "Could not retrieve ToolSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( svcLoc->service( "ToolSvc",toolSvc) );
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
 
-  // get onlineHelper
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
 
   m_nProblemEvent=0;
   return StatusCode::SUCCESS;
@@ -115,45 +71,29 @@ StatusCode FindDuplicatedLArDigits::initialize()
 StatusCode FindDuplicatedLArDigits::execute()
 {
   // Retrieve EventInfo
-  const DataHandle<EventInfo> thisEventInfo;
-  StatusCode sc=m_storeGateSvc->retrieve(thisEventInfo);
+  const DataHandle<xAOD::EventInfo> thisEventInfo;
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   unsigned eventnumber=0;
   if (sc!=StatusCode::SUCCESS)
-    (*m_log) << MSG::WARNING << "No EventInfo object found!" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found!" );
   else {
-    EventID *thisEvent=thisEventInfo->event_ID();
-    eventnumber=thisEvent->event_number();
+    eventnumber=thisEventInfo->eventNumber();
   }
 
   // Retrieve LArDigitContainer
   const DataHandle < LArDigitContainer > digit_cont;
   if (m_contKey.size())
-    sc = m_storeGateSvc->retrieve(digit_cont,m_contKey);
+    ATH_CHECK( evtStore()->retrieve(digit_cont,m_contKey) );
   else
-    sc = m_storeGateSvc->retrieve(digit_cont);
-  if (sc.isFailure()) 
-    {(*m_log) << MSG::ERROR << " Cannot read LArDigitContainer from StoreGate! key=" << m_contKey << endreq;
-    return StatusCode::FAILURE;
-    }
-  (*m_log) << MSG::DEBUG << "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey << endreq;
-
-  /*
-  // Retrieve LArFebHeaderContainer
-  const LArFebHeaderContainer *larFebHeaderContainer;
-  sc= m_storeGateSvc->retrieve(larFebHeaderContainer);
-  if (sc.isFailure() || !larFebHeaderContainer) {
-    (*m_log) << MSG::DEBUG << "Cannot read LArFebHeaderContainer from StoreGate!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  */
-  //const unsigned hashmax=m_onlineHelper->channelHashMax();
+    ATH_CHECK( evtStore()->retrieve(digit_cont) );
+  ATH_MSG_DEBUG ( "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey );
 
   int nDigits=digit_cont->size();
   if (m_nDigits==-1 || m_nDigits==nDigits) { //first event or no change 
-    (*m_log) << MSG::DEBUG << "Event " << eventnumber << ": Found " << nDigits << " Digits in container" << endreq;
+    ATH_MSG_DEBUG ( "Event " << eventnumber << ": Found " << nDigits << " Digits in container" );
   }
   else {
-    (*m_log) << MSG::ERROR << "Event " << eventnumber << ": Size of digit container changed! Now: " << nDigits << " Previous Event: " << m_nDigits << endreq;
+    ATH_MSG_ERROR ( "Event " << eventnumber << ": Size of digit container changed! Now: " << nDigits << " Previous Event: " << m_nDigits );
   }
   m_nDigits=nDigits;
   m_bitpattern.reset();
@@ -185,15 +125,15 @@ StatusCode FindDuplicatedLArDigits::execute()
       int FT        = m_onlineHelper->feedthrough(hwid);
       int slot      = m_onlineHelper->slot(hwid);
       int channel   = m_onlineHelper->channel(hwid);
-      (*m_log) << MSG::ERROR << "Event " << eventnumber << " Found duplicated cell! Location: (" << bc << "/" << pn << "/FT=" 
-	  << FT << "/Slot=" << slot << "/Channel=" << channel << ")" << endreq;
+      ATH_MSG_ERROR ( "Event " << eventnumber << " Found duplicated cell! Location: (" << bc << "/" << pn << "/FT=" 
+                      << FT << "/Slot=" << slot << "/Channel=" << channel << ")" );
       nDoubleDigits++;
     }
     m_bitpattern.set(h);
   }
   if (nDoubleDigits) {
     m_nProblemEvent++;
-    (*m_log) << MSG::ERROR << "Found " << nDoubleDigits << " duplicated digits in event " << eventnumber << endreq;
+    ATH_MSG_ERROR ( "Found " << nDoubleDigits << " duplicated digits in event " << eventnumber );
     //return StatusCode::RECOVERABLE;
   }
   return StatusCode::SUCCESS;
@@ -202,8 +142,8 @@ StatusCode FindDuplicatedLArDigits::execute()
 
 StatusCode FindDuplicatedLArDigits::finalize() {
   if (m_nProblemEvent)
-    (*m_log) << MSG::ERROR << "Found  " << m_nProblemEvent << " Events with duplicated LArDigits" << endreq;
+    ATH_MSG_ERROR ( "Found  " << m_nProblemEvent << " Events with duplicated LArDigits" );
   else
-    (*m_log) << MSG::INFO << "No duplicated LArDigits found." << endreq;
+    ATH_MSG_INFO ( "No duplicated LArDigits found." );
   return StatusCode::SUCCESS;
 }

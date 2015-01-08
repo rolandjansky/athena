@@ -5,11 +5,9 @@
 #ifndef FAKELAROFS
 #define FAKELAROFS
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class FakeLArOFCs : public Algorithm {
+class FakeLArOFCs : public AthAlgorithm {
   
  public:
   FakeLArOFCs(const std::string & name, ISvcLocator * pSvcLocator);

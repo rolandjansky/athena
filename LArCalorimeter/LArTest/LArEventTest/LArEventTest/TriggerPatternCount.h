@@ -19,9 +19,7 @@
 
 #ifndef TRIGGERPATTERNCOUNT_H
 #define TRIGGERPATTERNCOUNT_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArIdentifier/LArOnlineID.h"
 //#include <vector>
 #include <string>
@@ -36,7 +34,7 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 
-class TriggerPatternCount : public Algorithm
+class TriggerPatternCount : public AthAlgorithm
 {
  public:
   TriggerPatternCount(const std::string & name, ISvcLocator * pSvcLocator);
@@ -47,9 +45,6 @@ class TriggerPatternCount : public Algorithm
   StatusCode execute();
   StatusCode finalize();
  private:
-
-  StoreGateSvc *m_storeGateSvc;
-
   std::string m_contKey;
 
   int m_event;

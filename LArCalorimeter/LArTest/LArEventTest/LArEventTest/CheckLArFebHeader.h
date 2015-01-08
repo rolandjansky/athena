@@ -7,7 +7,7 @@
 
 #ifndef CHECKLARFEBHEADERS_H
 #define CHECKLARFEBHEADERS_H
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -16,7 +16,7 @@
 // All this is stored in FebHeader objects
 // Created July 17th 2004 by R. Lafaye
 
-class CheckLArFebHeader : public Algorithm
+class CheckLArFebHeader : public AthAlgorithm
 {
  public:
   CheckLArFebHeader(const std::string & name, ISvcLocator * pSvcLocator);
@@ -30,9 +30,7 @@ class CheckLArFebHeader : public Algorithm
 
  private:
   int m_count;
-  StoreGateSvc *m_storeGateSvc;
   const LArOnlineID* m_onlineHelper;
-
 };
 
 

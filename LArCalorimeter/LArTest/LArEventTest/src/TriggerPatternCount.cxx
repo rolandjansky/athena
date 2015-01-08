@@ -4,8 +4,6 @@
 
 #include "LArEventTest/TriggerPatternCount.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -15,8 +13,7 @@
 
 
 TriggerPatternCount::TriggerPatternCount(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0)
+  : AthAlgorithm(name, pSvcLocator)
 { 
   declareProperty("ContainerKey",m_contKey);
   m_pattern_max=31; // Set to m_pattern_count array size-1
@@ -31,21 +28,6 @@ TriggerPatternCount::~TriggerPatternCount()
 
 StatusCode TriggerPatternCount::initialize()
 {
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::ERROR << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
- 
   return StatusCode::SUCCESS;
 }  
 
@@ -53,17 +35,13 @@ StatusCode TriggerPatternCount::execute()
 {
   int triggerword;
 
-  MsgStream log(msgSvc(), name());
-
   //Retrieve the TBTriggerPatternUnit
   const TBTriggerPatternUnit* theTBTriggerPatternUnit;
-  StatusCode sc = m_storeGateSvc->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
+  StatusCode sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
 
   if (sc.isFailure()) {
     triggerword = 0;
-    log << MSG::ERROR
-	<< "cannot allocate TBTriggerPatternUnit"
-	<< endreq;
+    ATH_MSG_ERROR ( "cannot allocate TBTriggerPatternUnit" );
     //return StatusCode::FAILURE;
   } else {
     triggerword = theTBTriggerPatternUnit->getTriggerWord();
@@ -82,8 +60,7 @@ StatusCode TriggerPatternCount::execute()
 
 StatusCode TriggerPatternCount::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "TriggerPatternCount has finished." << endreq;
+  ATH_MSG_INFO ( "TriggerPatternCount has finished." );
 
   FILE *f;
   f=fopen("TPC.out","w");

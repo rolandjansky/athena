@@ -4,17 +4,15 @@
 
 #include "LArEventTest/DumpLArRawChannels.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 //#include "testpack/compdigit.h"
 #include <stdlib.h>
 
 #include <vector>
 
 DumpLArRawChannels::DumpLArRawChannels(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_chan(0),
-    m_storeGateSvc(0),
     m_onlineHelper(0),
     m_larCablingSvc(0),
     m_emId(0)
@@ -28,92 +26,52 @@ DumpLArRawChannels::~DumpLArRawChannels()
 }
 
 StatusCode DumpLArRawChannels::initialize()
-{ MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "======== initialize DumpLArRawChanels ========" << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::ERROR << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    }
+{
+  ATH_MSG_INFO ( "======== initialize DumpLArRawChanels ========" );
 
-  
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
+
+  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
+  if (!caloIdMgr) {
+    ATH_MSG_ERROR ( "Unable to get instance of CaloIdManager" );
+    return StatusCode::FAILURE;
+  }
+  m_emId=caloIdMgr->getEM_ID();
+  if (!m_emId) {
+    ATH_MSG_ERROR ( "Unable to get EM_ID" );
     return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  } 
-  log << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
-
-
-  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  if (!caloIdMgr)
-    {log << MSG::ERROR << "Unable to get instance of CaloIdManager" << endreq;
-     return StatusCode::FAILURE;
-    }
-  m_emId=caloIdMgr->getEM_ID();
-  if (!m_emId) 
-    {log << MSG::ERROR << "Unable to get EM_ID" << endreq;
-     return StatusCode::FAILURE;
-    }
-
-  //compdigit::m_emId=m_emId;
-
-
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
-      return StatusCode::FAILURE;
-    }
-  //compdigit::m_larCablingSvc=m_larCablingSvc;
-
-
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
 
   m_outfile.open(m_FileName.c_str(),std::ios::out);
 
-  log << MSG::INFO << "======== test-stuff initialize successfully ========" << endreq;
+  ATH_MSG_INFO ( "======== test-stuff initialize successfully ========" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode DumpLArRawChannels::execute()
-{MsgStream log(msgSvc(), name());
+{
  m_count++; 
- log << MSG::INFO << "======== executing event "<< m_count << " ========" << endreq;
- EventID *thisEvent;           //EventID is a part of EventInfo
- const DataHandle<EventInfo> thisEventInfo;
- StatusCode sc=m_storeGateSvc->retrieve(thisEventInfo);
+ ATH_MSG_INFO ( "======== executing event "<< m_count << " ========" );
+ const DataHandle<xAOD::EventInfo> thisEventInfo;
+ StatusCode sc=evtStore()->retrieve(thisEventInfo);
  if (sc!=StatusCode::SUCCESS)
-   log << MSG::WARNING << "No EventInfo object found!" << endreq;
+   ATH_MSG_WARNING ( "No EventInfo object found!" );
  else
-   {thisEvent=thisEventInfo->event_ID();
-   std::cout << "*** Event #" << std::dec << thisEvent->run_number() << "/" << thisEvent->event_number() << std::endl;
+   {
+   std::cout << "*** Event #" << std::dec << thisEventInfo->runNumber() << "/" << thisEventInfo->eventNumber() << std::endl;
    }
 
  const DataHandle < LArRawChannelContainer > channel_cont;
  
  if (m_key.size())
-   sc = m_storeGateSvc->retrieve(channel_cont,m_key);
+   ATH_CHECK( evtStore()->retrieve(channel_cont,m_key) );
  else
-   sc = m_storeGateSvc->retrieve(channel_cont);
- if (sc.isFailure()) 
-   {log << MSG::ERROR << " Cannot read LArRawChannelContainer from StoreGate! key=" << m_key << endreq;
-    return StatusCode::FAILURE;
-   }
- log << MSG::INFO << "Retrieved LArRawChannelContainer from StoreGate! key=" << m_key << endreq;
+   ATH_CHECK( evtStore()->retrieve(channel_cont) );
+ ATH_MSG_INFO ( "Retrieved LArRawChannelContainer from StoreGate! key=" << m_key );
  //int nColl=0;
  short layer,eta,phi;
  m_chan=0;
@@ -194,9 +152,9 @@ StatusCode DumpLArRawChannels::execute()
 }
 
 StatusCode DumpLArRawChannels::finalize()
-{ MsgStream log(msgSvc(), name());
- m_outfile.close(); 
-  log << MSG::INFO << "======== finalize DumpLArRawChannel ========" << endreq;
+{
+  m_outfile.close(); 
+  ATH_MSG_INFO ( "======== finalize DumpLArRawChannel ========" );
   return StatusCode::SUCCESS;
 }
 
