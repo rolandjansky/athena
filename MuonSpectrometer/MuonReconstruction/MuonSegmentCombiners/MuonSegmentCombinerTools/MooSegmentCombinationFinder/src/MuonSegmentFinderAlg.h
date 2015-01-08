@@ -20,7 +20,6 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
-#include "MuonPatternFinderToolInterfaces/IMuonRoadChamberAssocTool.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
@@ -50,7 +49,6 @@ class MuonSegmentFinderAlg : public AthAlgorithm
 
   ToolHandle<Muon::MuonIdHelperTool>              m_idHelperTool;   //<! Id helper tool  
   ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;   //<! helper printer tool  
-  ToolHandle<Muon::IMuonRoadChamberAssocTool>     m_roadAssocTool;
   ToolHandle<Muon::IMuonPatternCalibration>       m_patternCalibration;
   ToolHandle<Muon::IMuonPatternSegmentMaker>      m_patternSegmentMaker;
   ToolHandle<Muon::IMuonSegmentMaker>             m_segmentMaker;     

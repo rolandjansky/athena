@@ -394,7 +394,6 @@ Muon::ClusterSegmentCombinationFinder::findSegments( const MdtPrepDataContainer*
           }
           if (exPars->parameters()[Trk::locR] < 0.) m_mdtCreator->updateSign(*mdt,Trk::LEFT);
           const Trk::MeasurementBase* mBase = dynamic_cast<const Trk::MeasurementBase*>(mdt);
-          if (!mBase) ATH_MSG_WARNING(" the dynamic cast to measurement base didn't work ");
           const Trk::ResidualPull* pullCalc = m_residualPullCalculator->residualPull(mBase,exPars,Trk::ResidualPull::ResidualType::HitOnly,Trk::TrackState::MeasurementType::MDT);
           if (pullCalc){
             std::vector<double> theRes = pullCalc->residual();

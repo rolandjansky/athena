@@ -3,8 +3,6 @@
 */
 
 #include "MuonSegmentFinderAlg.h"
-#include "TrkRoad/TrackRoad.h"
-#include "TrkRoad/TrackRoadCollection.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
@@ -28,7 +26,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   AthAlgorithm(name,pSvcLocator),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_roadAssocTool("Muon::MuonRoadChamberAssocTool/MuonRoadChamberAssocTool"),
   m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration"),
   m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"),
   m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
@@ -42,7 +39,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   //tools
   declareProperty("EDMPrinter", m_printer);
   declareProperty("IdHelper", m_idHelperTool);
-  declareProperty("RoadAssociationTool",m_roadAssocTool);
   declareProperty("MuonPatternCalibration", m_patternCalibration);
   declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
   declareProperty("SegmentMaker",m_segmentMaker);
@@ -76,10 +72,6 @@ StatusCode MuonSegmentFinderAlg::initialize()
     ATH_MSG_FATAL("Could not get " << m_printer );
     return StatusCode::FAILURE;
   }   
-  if( m_roadAssocTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve " << m_roadAssocTool);
-    return StatusCode::FAILURE;
-  }
   if(m_patternCalibration.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not get " << m_patternCalibration ); 
     return StatusCode::FAILURE; 
@@ -127,39 +119,6 @@ StatusCode MuonSegmentFinderAlg::execute()
   // vector to hold segments
   std::vector<const Muon::MuonSegment*> segs;
 
-  if(evtStore()->contains<Trk::TrackRoadCollection>("MuonTrackRoads")) {
-
-    //attempt to retrieve the Trk::TrackRoad container
-    const Trk::TrackRoadCollection* mtrds = 0;
-    if(evtStore()->retrieve(mtrds,"MuonTrackRoads").isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve the MuonTrackRoads from SG" );
-      return StatusCode::FAILURE;
-    }
-   
-    //create a new SG container to store the MuonPatternCombinations
-    MuonPatternCombinationCollection* patternCollection = new MuonPatternCombinationCollection();
-
-    //loop on track roads & create the pattern combinations
-    Trk::TrackRoadCollection::const_iterator rdIt = mtrds->begin();
-    for(; rdIt!=mtrds->end(); ++rdIt) {
-      if( !(*rdIt) ) continue;
-      //associate chambers and hits to the road
-      Muon::MuonPatternCombination* patcomb = m_roadAssocTool->execute( **rdIt );    
-      //store the pattern combination
-      patternCollection->push_back(patcomb);
-      //fit the segments in the pattern combination
-
-      createSegmentsWithMDTs( patcomb,segs );
-    }//end loop on TrackRoads
-
-
-    //store the pattern collections
-    if(evtStore()->record(patternCollection,"MuonRoadPatternCombinations").isFailure()) {
-      ATH_MSG_FATAL( "Could not add the MuonPatternCombinationCollection to StoreGate" );
-      return StatusCode::FAILURE;
-    }
-
-  }
   //check for the Muon Layer Hough storegate container
   if( evtStore()->contains<MuonPatternCombinationCollection>("MuonLayerHoughCombis") ) {
 

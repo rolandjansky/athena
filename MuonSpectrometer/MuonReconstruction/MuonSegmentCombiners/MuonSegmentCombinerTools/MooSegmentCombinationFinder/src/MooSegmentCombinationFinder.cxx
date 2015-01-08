@@ -633,7 +633,8 @@ bool Muon::MooSegmentCombinationFinder::firstIsBest( const Muon::MuonSegment& se
   const Trk::FitQuality* fq2 = seg2.fitQuality();
   if( !fq1 && fq2 ) return false;
   if( fq1  && !fq2 ) return true;
-  
+  if( !fq1 && !fq2 ) return false; 
+ 
   // select candidate with smallest chi2
   double chi2Ndof1 = fq1->chiSquared()/fq1->numberDoF();
   double chi2Ndof2 = fq2->chiSquared()/fq2->numberDoF();

@@ -25,7 +25,6 @@ use TrkTruthData        TrkTruthData-*       Tracking/TrkEvent
 use MuonLinearSegmentMakerUtilities MuonLinearSegmentMakerUtilities-* MuonSpectrometer/MuonReconstruction/MuonRecUtils
 
 use  MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
-use  MuonPatternFinderToolInterfaces MuonPatternFinderToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonPatternFinders/MuonPatternFinderTools
 use  MuonPatternSegmentMaker    MuonPatternSegmentMaker-*       MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use  CscSegmentMakers           CscSegmentMakers-*              MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerAlgs
 use  MuonChamberT0s             MuonChamberT0s-*                MuonSpectrometer/MuonReconstruction/MuonRecEvent
@@ -39,7 +38,6 @@ use  MuonSegmentMakerUtils      MuonSegmentMakerUtils-*         MuonSpectrometer
 use  StoreGate                  StoreGate-*                     Control
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
-use  TrkRoad                    TrkRoad-*                       Tracking/TrkEvent
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
 
 end_private

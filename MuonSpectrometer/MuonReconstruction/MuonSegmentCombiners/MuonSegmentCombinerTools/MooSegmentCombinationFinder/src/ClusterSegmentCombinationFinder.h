@@ -63,6 +63,7 @@ namespace Muon
       IMooSegmentCombinationFinder::Output*
         findSegments( const MdtPrepDataContainer* mdtCont,
                       const TgcPrepDataContainer* tgcCont );
+      using IMooSegmentCombinationFinder::findSegments;
 
     private: 
 
