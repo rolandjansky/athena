@@ -10,7 +10,7 @@
 #ifndef MUONMUONCURVEDSEGMENTCOMBINER_H
 #define MUONMUONCURVEDSEGMENTCOMBINER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentPairFittingTool.h"
@@ -34,7 +34,7 @@ class TgcIdHelper;
 class CscIdHelper;
 class MdtIdHelper;
 
-namespace Muon 
+namespace Muon
 {
 
   class MuonEDMPrinterTool;
@@ -52,7 +52,7 @@ namespace Muon
   @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MuonCurvedSegmentCombiner : virtual public IMuonCurvedSegmentCombiner, virtual public IMuonSegmentPairFittingTool, public AlgTool
+  class MuonCurvedSegmentCombiner : virtual public IMuonCurvedSegmentCombiner, virtual public IMuonSegmentPairFittingTool, public AthAlgTool
   {
   public:
     MuonCurvedSegmentCombiner(const std::string&,const std::string&,const IInterface*);
@@ -94,11 +94,6 @@ namespace Muon
 
   private:
      
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream                 m_log;
-
-    int  m_logLevel;
-
     //       const Muon::MuonSegPatAssMap* m_assCscMap;
 
     const MuonGM::MuonDetectorManager*  m_detMgr;

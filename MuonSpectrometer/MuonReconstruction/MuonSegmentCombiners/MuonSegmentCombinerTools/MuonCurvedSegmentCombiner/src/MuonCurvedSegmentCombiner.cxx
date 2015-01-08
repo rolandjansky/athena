@@ -48,9 +48,7 @@ Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t,
     const std::string& n,
     const IInterface*  p )
     :
-    AlgTool(t,n,p),
-    m_log(msgSvc(),n),
-    m_logLevel(0),
+    AthAlgTool(t,n,p),
     m_detMgr(0),
     m_rpcIdHelper(0),
     m_tgcIdHelper(0),
@@ -101,11 +99,8 @@ Muon::MuonCurvedSegmentCombiner::~MuonCurvedSegmentCombiner()
 StatusCode Muon::MuonCurvedSegmentCombiner::initialize()
 {
 
-    StatusCode sc = AlgTool::initialize(); 
+    StatusCode sc = AlgTool::initialize();
     if (sc.isFailure()) return sc;
-    m_log.setLevel(outputLevel());
-    m_logLevel = outputLevel();
-
 
     StoreGateSvc* detStore=0;
     sc = serviceLocator()->service("DetectorStore", detStore);
@@ -113,35 +108,35 @@ StatusCode Muon::MuonCurvedSegmentCombiner::initialize()
     if ( sc.isSuccess() ) {
         sc = detStore->retrieve( m_detMgr );
         if ( sc.isFailure() ) {
-            m_log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endreq;
+            ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
         } else {
             m_mdtIdHelper = m_detMgr->mdtIdHelper();
-            m_cscIdHelper = m_detMgr->cscIdHelper();    
+            m_cscIdHelper = m_detMgr->cscIdHelper();
             m_rpcIdHelper = m_detMgr->rpcIdHelper();
             m_tgcIdHelper = m_detMgr->tgcIdHelper();
-            m_log << MSG::DEBUG << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endreq;
+            ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
         }
     } else {
-        m_log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+        ATH_MSG_ERROR(" MuonDetDescrMgr not found in DetectorStore ");
     }
 
     sc = m_printer.retrieve();
     if (sc.isSuccess()){
-        m_log<<MSG::DEBUG << "Retrieved " << m_printer << endreq;
+        ATH_MSG_DEBUG("Retrieved " << m_printer );
     }else{
-        m_log<<MSG::FATAL<<"Could not get " << m_printer <<endreq; 
+        ATH_MSG_FATAL("Could not get " << m_printer ); 
         return sc;
     }
     
     sc = m_assocTool.retrieve();
     if (sc.isSuccess()){
-        m_log<<MSG::DEBUG << "Retrieved " << m_assocTool << endreq;
+        ATH_MSG_DEBUG("Retrieved " << m_assocTool );
     }else{
-        m_log<<MSG::FATAL<<"Could not get " << m_assocTool <<endreq; 
+        ATH_MSG_FATAL("Could not get " << m_assocTool ); 
         return sc;
     }
 
-    m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+    ATH_MSG_INFO("initialize() successful in " << name() );
     return StatusCode::SUCCESS;
 }
 
@@ -169,9 +164,9 @@ Muon::MuonCurvedSegmentCombiner::combineSegments(   const MuonSegmentCombination
 
     m_segmentIndex = 0;
  
-    if( m_logLevel <= MSG::DEBUG || m_summary) {
-        if( mdtCombiColl.empty() ) m_log << m_log.level() << " summarizing input: Mdt MuonSegment combinations empty" << endreq;
-        else m_log << m_log.level() << " summarizing input: Mdt MuonSegment combinations " << std::endl << m_printer->print( mdtCombiColl ) << endreq;
+    if( msgLvl(MSG::DEBUG) || m_summary) {
+        if( mdtCombiColl.empty() ) ATH_MSG_INFO(" summarizing input: Mdt MuonSegment combinations empty" );
+        else ATH_MSG_INFO(" summarizing input: Mdt MuonSegment combinations " << std::endl << m_printer->print( mdtCombiColl ) );
     }
 
 
@@ -179,19 +174,19 @@ Muon::MuonCurvedSegmentCombiner::combineSegments(   const MuonSegmentCombination
       // Csc segments
     if( m_useCscSegments ){
 
-        m_log << MSG::DEBUG << " Retrieved CSC 4D MuonSegmentCombinationCollection "  << csc4DCombiColl.size() << endreq;
+        ATH_MSG_DEBUG(" Retrieved CSC 4D MuonSegmentCombinationCollection "  << csc4DCombiColl.size() );
 
-        if( m_logLevel <= MSG::DEBUG || m_summary) {
-            if( csc4DCombiColl.empty() ) m_log << m_log.level() << " summarizing input: Csc MuonSegment combinations empty" << endreq;
-            else m_log << m_log.level() << " summarizing input: Csc MuonSegment combinations " << std::endl << m_printer->print( csc4DCombiColl ) << endreq;
+        if( msgLvl(MSG::DEBUG) || m_summary) {
+            if( csc4DCombiColl.empty() ) ATH_MSG_INFO(" summarizing input: Csc MuonSegment combinations empty" );
+            else ATH_MSG_INFO(" summarizing input: Csc MuonSegment combinations " << std::endl << m_printer->print( csc4DCombiColl ) );
         }
         processCscCombinationCollection(csc4DCombiColl);
 
         // Csc 2D segments
 
-        if( m_logLevel <= MSG::DEBUG || m_summary) {
-            if( csc2DCombiColl.empty() ) m_log << m_log.level() << " summarizing input: Csc 2D MuonSegment combinations empty" << endreq;
-            else m_log << m_log.level() << " summarizing input: Csc 2D MuonSegment combinations " << std::endl << m_printer->print( csc2DCombiColl ) << endreq;
+        if( msgLvl(MSG::DEBUG) || m_summary) {
+            if( csc2DCombiColl.empty() ) ATH_MSG_INFO(" summarizing input: Csc 2D MuonSegment combinations empty" );
+            else ATH_MSG_INFO(" summarizing input: Csc 2D MuonSegment combinations " << std::endl << m_printer->print( csc2DCombiColl ) );
         }
         process2DCscCombinationCollection(csc2DCombiColl);
     }
@@ -214,7 +209,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
     for(; cit!=cit_end;++cit ){
         const Muon::MuonSegmentCombination* combi = *cit;
         if( !combi ) {
-            m_log << MSG::DEBUG << " empty Mdt MuonSegmentCombination!!! " << endreq;
+            ATH_MSG_DEBUG(" empty Mdt MuonSegmentCombination!!! " );
             continue;
         }
 
@@ -224,7 +219,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 
         IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(combi);
         if ((range.first)==(range.second)) {
-            m_log<<MSG::WARNING<<"MDT Combination missing from the map - something is wrong! Skip combination"<<endreq;
+            ATH_MSG_WARNING("MDT Combination missing from the map - something is wrong! Skip combination");
             continue;
         }
 
@@ -237,7 +232,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
         // if (assMap) {
         //     assMap->getObjects( combi, combiAssos );
         if( m_assocTool->count(combi) != 1 ){
-            m_log << MSG::INFO  << " This MuonSegPatAssMap for MDTs should only have one entry!! " << endreq;
+            ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
         }
 // Take 2D Csc segments
         m_segInfoMap = m_seg2DCscInfoMap;
@@ -269,7 +264,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
 	    if( it == m_segAssoMap.end() ){
 	      m_segAssoMap[segs[si]] = pattern;
 	    }else{
-	      if( it->second != pattern ) m_log << MSG::INFO  << " MDT Segment pointers should only be found once!! " << endreq;
+	      if( it->second != pattern ) ATH_MSG_INFO(" MDT Segment pointers should only be found once!! ");
 	      it->second=pattern;
 	    }
 	    Muon::MCSCSegmentInfo info = segInfo(segs[si]);
@@ -309,7 +304,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
         }
         const MuonPatternCombination* pattern = (range.first)->second;
         if( m_assocTool->count(combi) != 1 ){
-            m_log << MSG::INFO  << " This MuonSegPatAssMap for MDTs should only have one entry!! " << endreq;
+            ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
         }
 
 // Leave out 2D Csc segments
@@ -331,7 +326,7 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
           }
           const MuonPatternCombination* pattern1 = (range1.first)->second;
           if( m_assocTool->count(combi1) != 1 ){
-            m_log << MSG::INFO  << " This MuonSegPatAssMap for MDTs should only have one entry!! " << endreq;
+            ATH_MSG_INFO(" This MuonSegPatAssMap for MDTs should only have one entry!! ");
          } 
 
 	  if( m_debug )  std::cout << " handling combi " << combi << " associated pattern " << pattern1 << std::endl; 
@@ -495,9 +490,9 @@ MuonSegmentCombinationCollection* Muon::MuonCurvedSegmentCombiner::processCombin
      if (m_debug) std::cout << " Second stage muonCurvedSegmentCombinations " << curvedCombiCol->size() << std::endl;
     } // end mergePatterns
 
-    if( m_logLevel <= MSG::DEBUG || m_summary) {
-            if( curvedCombiCol->empty() ) m_log << m_log.level() << " summarizing output: MuonCurvedSegment combinations empty" << endreq;
-            else m_log << m_log.level() << " summarizing output: MuonCurvedSegment combinations " << std::endl << m_printer->print( *curvedCombiCol ) << endreq;
+    if( msgLvl(MSG::DEBUG) || m_summary) {
+            if( curvedCombiCol->empty() ) ATH_MSG_INFO(" summarizing output: MuonCurvedSegment combinations empty");
+            else ATH_MSG_INFO(" summarizing output: MuonCurvedSegment combinations " << std::endl << m_printer->print( *curvedCombiCol ) );
     }
     return curvedCombiCol;
 }
@@ -509,7 +504,7 @@ Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegm
     for(; cit!=cit_end;++cit ){
         const Muon::MuonSegmentCombination* combi = *cit;
         if( !combi ) {
-            m_log << MSG::DEBUG << " empty Csc 4D MuonSegmentCombination!!! " << endreq;
+            ATH_MSG_DEBUG(" empty Csc 4D MuonSegmentCombination!!! ");
             continue;
         }
         if(combi->numberOfStations() > 0 ){
@@ -520,7 +515,7 @@ Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection( const MuonSegm
             // }
             IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(combi);
             if ((range.first)==(range.second)) {
-                m_log<<MSG::DEBUG<<"CSC Combination missing from the map - can happen"<<endreq;
+                ATH_MSG_DEBUG("CSC Combination missing from the map - can happen");
                 return;
             }
             
@@ -570,7 +565,7 @@ Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection( const MuonSe
     for(; cit!=cit_end;++cit ){
         const Muon::MuonSegmentCombination* combi = *cit;
         if( !combi ) {
-            m_log << MSG::DEBUG << " empty Csc 2D MuonSegmentCombination!!! " << endreq;
+            ATH_MSG_DEBUG(" empty Csc 2D MuonSegmentCombination!!! ");
             continue;
         }
 
@@ -1241,8 +1236,8 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(MuonSegmentC
                 } else if (overlap == combi1.size()) {    
                     it = combiSegmentList.erase(it);
                     erased = true;
-                    break;
                     if (m_debug) std::cout << " erased first " << std::endl;
+                    break;
                 }
                 ++it2;
             } // it2
@@ -1305,9 +1300,9 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(MuonSegmentC
             }
         }
 
-        if( m_logLevel <= MSG::DEBUG || m_summary) {
-            if( curvedCombiCol->empty() ) m_log << m_log.level() << " summarizing output: MuonCurvedSegment combinations empty" << endreq;
-            else m_log << m_log.level() << " summarizing output: MuonCurvedSegment combinations " << std::endl << m_printer->print( *curvedCombiCol ) << endreq;
+        if( msgLvl(MSG::DEBUG) || m_summary) {
+            if( curvedCombiCol->empty() ) ATH_MSG_INFO(" summarizing output: MuonCurvedSegment combinations empty");
+            else ATH_MSG_INFO(" summarizing output: MuonCurvedSegment combinations " << std::endl << m_printer->print( *curvedCombiCol ) );
         }
     }
 
@@ -1318,12 +1313,12 @@ Muon::MuonCurvedSegmentCombiner::missedHits( const Muon::MuonSegment* seg) {
     const Muon::MuonSegmentQuality* q = dynamic_cast<const Muon::MuonSegmentQuality*>(seg->fitQuality());
 
     if( !q ) {
-        m_log << MSG::DEBUG << "dynamic_cast MuonSegmentQuality failed" << endreq;
+        ATH_MSG_DEBUG("dynamic_cast MuonSegmentQuality failed");
         return 0;
     }
 
-    m_log << MSG::DEBUG << "Got MuonSegmentQuality "
-            << " hots " << q->numberDoF()+2 << " number of holes + out of time hits " << q->channelsWithoutHit().size() << endreq;
+    ATH_MSG_DEBUG("Got MuonSegmentQuality "
+            << " hots " << q->numberDoF()+2 << " number of holes + out of time hits " << q->channelsWithoutHit().size() );
 
     //  unsigned int hots = q->hots();
     //unsigned int crossedtubes = q->crossedTubesMl1()+q->crossedTubesMl2() ;
@@ -1408,7 +1403,7 @@ Muon::MuonCurvedSegmentCombiner::segInfo( const Muon::MuonSegment* seg ){
       posAlongTube = (mdtShortest->associatedSurface().transform().inverse()*seg->globalPosition()).z();
       if( 0.5*shortestTube - fabs(posAlongTube) < 100. ) closeToChamberEdge = true;
     }else{
-      m_log << MSG::WARNING << " shorest tube not set " << endreq;
+      ATH_MSG_WARNING(" shorest tube not set ");
     }
     
     if (m_debug) std::cout << " new seg in " << m_mdtIdHelper->print_to_string(id) << std::endl;

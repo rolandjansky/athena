@@ -9,7 +9,7 @@ use AtlasPolicy AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
 
 use MuonEDM_AssociationObjects MuonEDM_AssociationObjects-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
-
+use AthenaBaseComps     AthenaBaseComps-*       Control
 use MuonSegmentCombinerToolInterfaces     MuonSegmentCombinerToolInterfaces-*  MuonSpectrometer/MuonReconstruction/MuonSegmentCombiners/MuonSegmentCombinerTools
 use MuonSegmentMakerToolInterfaces        MuonSegmentMakerToolInterfaces-*     MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 
