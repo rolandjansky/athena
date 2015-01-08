@@ -58,6 +58,8 @@ use TrkTrackLink         TrkTrackLink-*          Tracking/TrkEvent
 use TrkLinks             TrkLinks-*              Tracking/TrkEvent
 #use EventPrimitives      EventPrimitives-*       Event
 
+# truth label information
+use ParticleJetTools	ParticleJetTools-*	PhysicsAnalysis/AnalysisCommon
 
 # for new extrapolation
 use ITrackToVertex      ITrackToVertex-*         Reconstruction/RecoTools

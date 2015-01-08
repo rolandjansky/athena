@@ -14,6 +14,7 @@
 #include "JetTagTools/HistoHelperRoot.h"
 #include "JetTagTools/LikelihoodComponents.h"
 #include "JetTagTools/JetTagUtils.h"
+#include "ParticleJetTools/JetFlavourInfo.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -131,21 +132,21 @@ namespace Analysis
 	for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	  // SV1
 	  if (m_SVmode == "SV1") {
-	    std::string hDir = "/RefFileSV1"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
+	    std::string hDir = "/RefFile/SV1/"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
 	    m_histoHelper->bookHisto(hDir+"N2T", "Number of Good Two Track Vertices",9,xbi);
 	    m_histoHelper->bookHisto(hDir+"N2TEffSV1", "Number of Good Two Track Vertices",9,xbi);
 	    m_histoHelper->bookHisto(hDir+"N2TNormSV1", "Number of Good Two Track Vertices",30,0.,30.);
 	    m_histoHelper->bookHisto(hDir+"BidimME", "(E fraction)**0.7 vs Mass/(Mass+1)" ,50,0.218261406,1.,50,0.,1.);
 	    m_histoHelper->bookHisto(hDir+"DRJPVSV", "DeltaR between jet axis and (PV,SV) axis",100,0.,0.5);
 	  } else if (m_SVmode == "SV2") {
-	    std::string hDir = "/RefFileSV2"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
+	    std::string hDir = "/RefFile/SV2/"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
 	    // SV2
 	    m_histoHelper->bookHisto(hDir+"N2TEffSV2", "Number of Good Two Track Vertices",9,xbi);
 	    m_histoHelper->bookHisto(hDir+"N2TNormSV2", "Number of Good Two Track Vertices",30,0.,30.);
 	    m_histoHelper->bookHisto(hDir+"TridimMEN2T", "ln(N) vs (E fraction)**0.7 vs Mass/(Mass+1)" ,20,0.,1.,20,0.,1.,7,0.,3.8);
 	    if(ih==0) {
 	      // Control with SV2
-	      hDir = "/RefFileSV2"+m_jetCollectionList[ijc]+"/controlSV/";
+	      hDir = "/RefFile/SV2/"+m_jetCollectionList[ijc]+"/controlSV/";
 	      m_histoHelper->bookHisto(hDir+"eta","eta",60,-3.,3.);
 	      m_histoHelper->bookHisto(hDir+"phi","phi",64,-3.2,3.2);
 	      m_histoHelper->bookHisto(hDir+"pt","pt",50,0.,300.);
@@ -201,9 +202,9 @@ namespace Analysis
     // Fill control histograms
     if (m_runModus=="reference" && m_SVmode == "SV2") {
       if (fabs(jeteta) <= 2.5) {
-	m_histoHelper->fillHisto("/RefFileSV2"+author+"/controlSV/eta",(double)jeteta);
-	m_histoHelper->fillHisto("/RefFileSV2"+author+"/controlSV/phi",(double)jetphi);
-	m_histoHelper->fillHisto("/RefFileSV2"+author+"/controlSV/pt",(double)jetpt/c_mom);
+	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/eta",(double)jeteta);
+	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/phi",(double)jetphi);
+	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/pt",(double)jetpt/c_mom);
       }
     }
     //
@@ -317,58 +318,60 @@ namespace Analysis
     /* For SV1 & SV2, compute the weight (analysis) or fill histograms (reference) */
     ATH_MSG_VERBOSE("#BTAG# SV mode = " << m_SVmode);
 
-    if(m_SVmode != "SV0" ) {
+    if (m_SVmode != "SV0" ) {
       float ambtotp = ambtot > 0. ? ambtot/(1.+ambtot): 0.;
       float xratiop = xratio > 0. ? (float)pow(xratio,m_expos) : 0.;
       std::string pref = "";
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
-	  int label = -1;
-	  //std::string label = "N/A";
-	  bool success = jetToTag.getAttribute("TruthLabelID", label);//mcTrueInfo->jetTruthLabel();
-	  ATH_MSG_VERBOSE("#BTAG# label found : " << label);
-	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-	  double deltaRtoClosestB;
-	  jetToTag.getAttribute("TruthLabelDeltaR_B", deltaRtoClosestB);//mcTrueInfo->deltaRMinTo("B");
-	  double deltaRtoClosestC;
-	  jetToTag.getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
-	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
+	  int label = xAOD::jetFlavourLabel(&jetToTag);
+	  double deltaRtoClosestB = 999., deltaRtoClosestC = 999.;
+	  if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+	    ATH_MSG_VERBOSE("#BTAG# label found : " << label);
+	    // for purification: require no b or c quark closer than dR=m_purificationDeltaR
+	    double deltaRtoClosestC;
+	    jetToTag.getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
+	    double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
 
-	  if ( (    "B"==m_refType &&   5==label ) ||  // b-jets    
-	       ( "UDSG"==m_refType &&   0==label ) ||  // light jets
-	       (  "ALL"==m_refType && // all jets: b + purified light jets
-		  ( 5==label || 4==label || ( 0==label && deltaRmin > m_purificationDeltaR ) ) )
-	       ) {
-	    if (5==label) {
-	      pref = m_hypotheses[0];
-	      m_nbjet++;
-	    } else if (0==label) {
-	      pref = m_hypotheses[1];
-	      m_nljet++;
-	    } else if (4==label && m_useCHypo) {
-	      pref = m_hypotheses[2];
-	      m_ncjet++;
-	    }
-	  }
-	  if (pref == "B" || pref == "C" || pref == "U") {
-	    std::string hDir = "/RefFile"+m_SVmode+author+"/"+pref+"/";
-	    //std::cout<<"SVTAG tag histohelper: " << m_histoHelper << std::endl;
-	    //m_histoHelper->print();
-	    if (m_SVmode == "SV1") m_histoHelper->fillHisto(hDir+"N2TNormSV1",(float)NSVPair);
-	    if (m_SVmode == "SV2") m_histoHelper->fillHisto(hDir+"N2TNormSV2",(float)NSVPair);
-	    if (NSVPair > 0 && ambtot > 0.) {
-	      if (xratiop == 1.) xratiop = 0.999999;  //This is not an overflow...
-	      if (m_SVmode == "SV1") {
-		m_histoHelper->fillHisto(hDir+"N2T",(float)NSVPair);
-		m_histoHelper->fillHisto(hDir+"N2TEffSV1",(float)NSVPair);
-		m_histoHelper->fillHisto(hDir+"BidimME",ambtotp,xratiop);
-		m_histoHelper->fillHisto(hDir+"DRJPVSV",(float)drJPVSV);
-	      }
-	      if (m_SVmode == "SV2") {
-		m_histoHelper->fillHisto(hDir+"N2TEffSV2",(float)NSVPair);
-		m_histoHelper->fillHisto(hDir+"TridimMEN2T",ambtotp,xratiop,log((float)NSVPair));
+	    if ( (    "B"==m_refType &&   5==label ) ||  // b-jets    
+		 ( "UDSG"==m_refType &&   0==label ) ||  // light jets
+		 (  "ALL"==m_refType && // all jets: b + purified light jets
+		    ( 5==label || 4==label || ( 0==label && deltaRmin > m_purificationDeltaR ) ) )
+		 ) {
+	      if (5==label) {
+		pref = m_hypotheses[0];
+		m_nbjet++;
+	      } else if (0==label) {
+		pref = m_hypotheses[1];
+		m_nljet++;
+	      } else if (4==label && m_useCHypo) {
+		pref = m_hypotheses[2];
+		m_ncjet++;
 	      }
 	    }
+	    if (pref == "B" || pref == "C" || pref == "U") {
+	      std::string hDir = "/RefFile/"+m_SVmode+"/"+author+"/"+pref+"/";
+	      //std::cout<<"SVTAG tag histohelper: " << m_histoHelper << std::endl;
+	      //m_histoHelper->print();
+	      if (m_SVmode == "SV1") m_histoHelper->fillHisto(hDir+"N2TNormSV1",(float)NSVPair);
+	      if (m_SVmode == "SV2") m_histoHelper->fillHisto(hDir+"N2TNormSV2",(float)NSVPair);
+	      if (NSVPair > 0 && ambtot > 0.) {
+		if (xratiop == 1.) xratiop = 0.999999;  //This is not an overflow...
+		if (m_SVmode == "SV1") {
+		  m_histoHelper->fillHisto(hDir+"N2T",(float)NSVPair);
+		  m_histoHelper->fillHisto(hDir+"N2TEffSV1",(float)NSVPair);
+		  m_histoHelper->fillHisto(hDir+"BidimME",ambtotp,xratiop);
+		  m_histoHelper->fillHisto(hDir+"DRJPVSV",(float)drJPVSV);
+		}
+		if (m_SVmode == "SV2") {
+		  m_histoHelper->fillHisto(hDir+"N2TEffSV2",(float)NSVPair);
+		  m_histoHelper->fillHisto(hDir+"TridimMEN2T",ambtotp,xratiop,log((float)NSVPair));
+		}
+	      }
+	    }
+	  } else {
+	    ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run in reference mode !");
+	    return StatusCode::FAILURE;
 	  }
 	}
       } else if (m_runModus=="analysis") {

@@ -272,7 +272,14 @@ StatusCode JetFitterVariablesFactory::finalize() {
 	
 	if ( (nVTX>0 && vertexSize>1) || nVTX==0 ) {
 	  dist+=fabs(vertexPosition[ntrack])/vertexCovMatrix(ntrack,ntrack);
-	  inverrordist+=1./vertexCovMatrix(ntrack,ntrack);
+          if (vertexCovMatrix(ntrack,ntrack)>0)
+          {
+            inverrordist+=1./vertexCovMatrix(ntrack,ntrack);
+          }
+          else
+          {
+            ATH_MSG_WARNING("The diagonal element of the vertex cov matrix ("<<ntrack<<","<<ntrack<<") is "<<vertexCovMatrix(ntrack,ntrack)<<". It should be positive... Ignoring vertex when computing L/sigma(L)");
+          }
 	}
 	
 	Amg::Vector3D sumP(0.,0.,0.);

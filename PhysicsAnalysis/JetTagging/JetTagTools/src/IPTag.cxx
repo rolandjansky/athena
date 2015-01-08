@@ -7,10 +7,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IToolSvc.h"
-//#include "JetEvent/Jet.h"
-// #include "JetTagEvent/TrackAssociation.h"
-//#include "JetTagInfo/IPInfoBase.h"
-//#include "JetTagInfo/IPInfoPlus.h"
 #include "JetTagInfo/TruthInfo.h"
 #include "JetTagInfo/SvxSummary.h"
 #include "JetTagTools/NewLikelihoodTool.h"
@@ -27,6 +23,7 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "JetTagTools/JetTagUtils.h"
+#include "ParticleJetTools/JetFlavourInfo.h"
 #include "TH1.h"
 #include <cmath>
 #include <sstream>
@@ -261,7 +258,7 @@ namespace Analysis {
           const TrackGrade & grd = (*listIter);
 	  if(m_impactParameterView=="1D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
-	      std::string hName = "/RefFileIP1D" + m_jetCollectionList[j] + "/"
+	      std::string hName = "/RefFile/IP1D/" + m_jetCollectionList[j] + "/"
 		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipZ0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP1D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (z)",400,-40.,60.);
@@ -269,7 +266,7 @@ namespace Analysis {
 	  }
 	  if(m_impactParameterView=="2D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
-	      std::string hName = "/RefFileIP2D" + m_jetCollectionList[j] + "/"
+	      std::string hName = "/RefFile/IP2D/" + m_jetCollectionList[j] + "/"
 		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipA0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP2D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (rphi)",400,-40.,60.);
@@ -282,7 +279,7 @@ namespace Analysis {
 			       0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,8.0,10.0,15.0,20.0,40.0,60.0};
 	    double ybi[nby] = {-40.,-20.,-12.,-8.,-4.,-3.,-2.,-1.,-0.5,0.,0.5,1.,2.,3.,4.,6.,8.,12.,20.,40.,60.};
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
-	      std::string hName = "/RefFileIP3D" + m_jetCollectionList[j] + "/"
+	      std::string hName = "/RefFile/IP3D/" + m_jetCollectionList[j] + "/"
 		                      + m_hypotheses[ih] + "/" + (std::string)grd + "/Sip3D";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP3D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed IP Z0 vs (rphi)",nbx-1,xbi,nby-1,ybi);
@@ -351,12 +348,11 @@ namespace Analysis {
       if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
         // and also a truth match:
         //const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
+	label = xAOD::jetFlavourLabel(&jetToTag);
+	double deltaRtoClosestB = 999., deltaRtoClosestC = 999., deltaRtoClosestT = 999.;
     	double deltaRmin(0.);
-        if(jetToTag.getAttribute("TruthLabelID",label)) {
-	    //label = mcinfo->jetTruthLabel();
+        if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
     	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-	  double deltaRtoClosestB, deltaRtoClosestC, deltaRtoClosestT;
-	  jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB);
 	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
 	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
 	  //double deltaRtoClosestB = mcinfo->deltaRMinTo("B");
@@ -365,7 +361,7 @@ namespace Analysis {
           //double deltaRtoClosestT = mcinfo->deltaRMinTo("T");
           deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
         } else {
-          ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run on reference mode !");
+          ATH_MSG_ERROR("#BTAG# No TruthInfo ! Cannot run in reference mode !");
           return StatusCode::FAILURE;
         }
     	if ( (    "B"==m_referenceType &&   5==label ) ||  // b-jets    
@@ -419,10 +415,19 @@ namespace Analysis {
     } else {
       
       std::vector< ElementLink< xAOD::TrackParticleContainer> >::const_iterator trkIter;
+      double sumTrkpT = 0;
+      // We loop over the tracks twice: the first time is to compute the summed pt of all tracks satisfying
+      // the "normal" criteria; the second time a possibly tighter pt cut may be applied
+      for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
+	const xAOD::TrackParticle* aTemp = **trkIter;
+	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();
+      }
+      // m_trackSelectorTool->setSumTrkPt(sumTrkpT);
+
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(aTemp) ) {
+        if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag.p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << (std::string)(*theGrade) );
 	      bool tobeUsed = false;
@@ -575,19 +580,19 @@ namespace Analysis {
 	      ATH_MSG_DEBUG("#BTAG#   track is of required grade ");
               const std::string suffix = "_" + (std::string)grd;
               if( m_impactParameterView=="1D" ) {
-	        std::string hName = "/RefFileIP1D" + author + "/"
+	        std::string hName = "/RefFile/IP1D/" + author + "/"
 		  + pref + "/" + (std::string)grd + "/SipZ0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 1D: " << hName);
 		m_histoHelper->fillHisto(hName,z0Sig);
 	      }
               if( m_impactParameterView=="2D" ) {
-	        std::string hName = "/RefFileIP2D" + author + "/"
+	        std::string hName = "/RefFile/IP2D/" + author + "/"
 		  + pref + "/" + (std::string)grd + "/SipA0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 2D: " << hName);
 		m_histoHelper->fillHisto(hName,significance);
 	      }
               if( m_impactParameterView=="3D" ) {
-	        std::string hName = "/RefFileIP3D" + author + "/"
+	        std::string hName = "/RefFile/IP3D/" + author + "/"
 		  + pref + "/" + (std::string)grd + "/Sip3D";
 	        ATH_MSG_DEBUG("#BTAG#   histo 3D: " << hName);
 		m_histoHelper->fillHisto(hName,significance,z0Sig);
@@ -606,8 +611,8 @@ namespace Analysis {
       vectTP.push_back(trk);
       vectFromV0.push_back(isFromV0);
       // compute individual track contribution to likelihood:
-      double tpb, tpu, tpc;
-	  this->trackWeight(author,trkItr->grade,significance,z0Sig,tpb,tpu,tpc);
+      double tpb = 0., tpu = 0., tpc = 0.;
+      this->trackWeight(author,trkItr->grade,significance,z0Sig,tpb,tpu,tpc);
       vectWeightB.push_back(tpb);
       vectWeightU.push_back(tpu);
       vectWeightC.push_back(tpc);
@@ -682,60 +687,63 @@ namespace Analysis {
       
       if (IPTracks.size() == 0) {
         ATH_MSG_VERBOSE("#BTAG# IPTracks is empty.");
-      } else {
-        ATH_MSG_VERBOSE("#BTAG# IPTracks is not empty: "<<IPTracks.size());
-        // NB: all vector<double> are converted as vector<float> for persistency.
-        std::vector<float> f_vectD0( vectD0.begin(), vectD0.end() );
-        std::vector<float> f_vectD0Signi( vectD0Signi.begin(), vectD0Signi.end() );
-        std::vector<float> f_vectZ0( vectZ0.begin(), vectZ0.end() );
-        std::vector<float> f_vectZ0Signi( vectZ0Signi.begin(), vectZ0Signi.end() );
-        std::vector<int> i_vectGrades( vectGrades.begin(), vectGrades.end() );
-        // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
-        if( "IP3D"==m_xAODBaseName ) {
-          BTag->setIP3D_TrackParticleLinks(IPTracks);
-          BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
-          BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
-          BTag->setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
-          BTag->setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
-          BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
-          BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
-          BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
-          BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
-          BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
-        } else {
-          if( "IP2D"==m_xAODBaseName ) {
-            BTag->setIP2D_TrackParticleLinks(IPTracks);
-            BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
-            BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
-            BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
-            BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
-            BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
-            BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
-            BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
-          } else { // generic accessors
-	    //// need to handle to persistify for dynamic values before adding this
-            BTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > ( 
-                m_xAODBaseName, "TrackParticleLinks", IPTracks );
-	    BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
-            if(m_impactParameterView=="3D") {
-              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
-              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
-            }
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
-            BTag->setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
-            BTag->setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
-          }
-        }
       }
-      
-      IPTracks.clear();
-
-      m_likelihoodTool->clear();
+      else
+      {
+	ATH_MSG_VERBOSE("#BTAG# IPTracks is not empty: "<<IPTracks.size());
+      }
+      // NB: all vector<double> are converted as vector<float> for persistency.
+      std::vector<float> f_vectD0( vectD0.begin(), vectD0.end() );
+      std::vector<float> f_vectD0Signi( vectD0Signi.begin(), vectD0Signi.end() );
+      std::vector<float> f_vectZ0( vectZ0.begin(), vectZ0.end() );
+      std::vector<float> f_vectZ0Signi( vectZ0Signi.begin(), vectZ0Signi.end() );
+      std::vector<int> i_vectGrades( vectGrades.begin(), vectGrades.end() );
+      // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
+      if( "IP3D"==m_xAODBaseName ) {
+	BTag->setIP3D_TrackParticleLinks(IPTracks);
+	BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
+	BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
+	BTag->setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
+	BTag->setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
+	BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
+	BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
+	BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
+	BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
+	BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
+      } else {
+	if( "IP2D"==m_xAODBaseName ) {
+	  BTag->setIP2D_TrackParticleLinks(IPTracks);
+	  BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
+	  BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
+	  BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
+	  BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
+	  BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
+	  BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
+	  BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
+	} else { // generic accessors
+	  //// need to handle to persistify for dynamic values before adding this
+	  BTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > ( 
+	    m_xAODBaseName, "TrackParticleLinks", IPTracks );
+	  BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
+	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
+	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
+	  if(m_impactParameterView=="3D") {
+	    BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
+	    BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
+	  }
+	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
+	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
+	  BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
+	  BTag->setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
+	  BTag->setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
+	}
+      }
     }
+    
+    IPTracks.clear();
+    
+    m_likelihoodTool->clear();
+
     m_tracksInJet.clear();
 
     return StatusCode::SUCCESS;
@@ -743,7 +751,7 @@ namespace Analysis {
 
   /** compute individual track contribution to the likelihoods: */
   void IPTag::trackWeight(std::string author, TrackGrade grade, double sa0, double sz0, 
-     double twb, double twu, double twc) { // output parameters
+     double & twb, double & twu, double & twc) { // output parameters
     /** define and compute likelihood: */
     std::vector<Slice> slices;
     if(m_impactParameterView=="3D") {

@@ -142,7 +142,7 @@ namespace Analysis {
   ATH_MSG_DEBUG("Now registered with pointer " << newTree);
 
   //registering the tree
-  StatusCode sc = m_histoSvc->regTree("/RefFileJetFitter"+jetAuthor+"/JetFitterTag",newTree);
+  StatusCode sc = m_histoSvc->regTree("/RefFile/JetFitter/"+jetAuthor+"/JetFitterTag",newTree);
   if(!sc)
     {
       ATH_MSG_ERROR("initialize() Could not register the tree");

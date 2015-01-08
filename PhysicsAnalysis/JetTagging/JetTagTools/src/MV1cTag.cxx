@@ -36,8 +36,8 @@ namespace Analysis {
     declareProperty("calibrationTool", m_calibrationTool);
     // global configuration:
     declareProperty("Runmodus", m_runModus);
-    // to change input weights:
     declareProperty("xAODBaseName",      m_xAODBaseName="didyouforgettoconfigthename");
+    // to change input weights:
     declareProperty("inputIP3DWeightName", m_inputIP3DWeightName = "IP3D");
     declareProperty("inputSV1WeightName", m_inputSV1WeightName = "SV1");
     declareProperty("inputJetFitterWeightName", m_inputJetFitterWeightName = "JetFitterCombNN");
@@ -62,6 +62,7 @@ namespace Analysis {
     }
     m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
     m_tmvaReaders.clear();
+    m_tmvaMethod.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -70,6 +71,8 @@ namespace Analysis {
     // delete readers:
     std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.begin();
     for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
+    std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
+    for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
     return StatusCode::SUCCESS;
   }
 
@@ -79,16 +82,21 @@ namespace Analysis {
     /* jet author: */
     std::string author = JetTagUtils::getJetAuthor(myJet);
     std::string alias = m_calibrationTool->channelAlias(author);
-    std::string xmlFileName = "btag"+m_taggerNameBase+"Config_"+alias+".xml";
 
     ATH_MSG_DEBUG("#BTAG# Jet author: " << author << ", alias: " << alias );
 
     /* tweak name for Flip versions: */
 
+    TMVA::Reader* tmvaReader;
+    std::map<std::string, TMVA::Reader*>::iterator pos;
     /* check if calibration (neural net structure or weights) has to be updated: */
-    std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase,
-       author, m_taggerNameBase+"Calib");
+    std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib");
     bool calibHasChanged = calib.second;
+    
+    std::ostringstream iss; //iss.clear();
+    TMVA::MethodBase * kl=0;
+    std::map<std::string, TMVA::MethodBase*>::iterator itmap;
+
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
@@ -97,50 +105,43 @@ namespace Analysis {
       }
       m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
 
-      // now the ugly part: write an xml text file to be read by TMVAReader:
+      //now the new part istringstream
       TList* list = calib.first;
-      std::ofstream ofile( xmlFileName.c_str() );
-      if(!ofile) {
-        ATH_MSG_WARNING("#BTAG# Unable to create output file " << xmlFileName );
-        return StatusCode::SUCCESS;
-      }
       for(int i=0; i<list->GetSize(); ++i) {
-        TObjString* ss = (TObjString*)list->At(i);
-        ofile << ss->String() << std::endl;
-      }
-      ofile.close();
-      ATH_MSG_DEBUG("#BTAG# XML file created: " << xmlFileName );
-
-    }
-
-    // now configure the TMVAReader:
-    /// check if the reader for this tagger needs update
-    if(!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ){
-      
-      std::ifstream ifile(xmlFileName.c_str());
-      if(ifile){
-
-	TMVA::Reader* tmvaReader = new TMVA::Reader();
-	tmvaReader->AddVariable("ip3", &m_ip3);
-	tmvaReader->AddVariable("sv1", &m_sv1);
-	tmvaReader->AddVariable("jfc_pu", &m_jfc_pu);
-	tmvaReader->AddVariable("jfc_pc", &m_jfc_pc);
-	tmvaReader->AddVariable("jfc_pb", &m_jfc_pb);
-	tmvaReader->AddVariable("categ(pt,eta)", &m_cat);
-	tmvaReader->BookMVA("MLP_ANN", xmlFileName);
-	ATH_MSG_DEBUG("#BTAG# new TMVA reader created from configuration " << xmlFileName );
-	// add it or overwrite it in the map of readers:
-	std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.find(alias);
-	if(pos!=m_tmvaReaders.end()) {
-	  delete pos->second;
-	  m_tmvaReaders.erase(pos);
-	}
-	m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
-
-	m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase, 
-							  alias, m_taggerNameBase+"Calib", false, name());
+	TObjString* ss = (TObjString*)list->At(i);
+	std::string sss = ss->String().Data();
+	//KM: if it doesn't find "<" in the string, it starts from non-space character
+	int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	std::string tmp = sss.erase(0,posi);
+	//std::cout<<tmp<<std::endl;
+	iss << tmp.data();      //iss << sss.Data();
       }
 
+      // now configure the TMVAReader:
+      /// check if the reader for this tagger needs update
+      TMVA::Reader* tmvaReader = new TMVA::Reader();
+      tmvaReader->AddVariable("ip3", &m_ip3);
+      tmvaReader->AddVariable("sv1", &m_sv1);
+      tmvaReader->AddVariable("jfc_pu", &m_jfc_pu);
+      tmvaReader->AddVariable("jfc_pc", &m_jfc_pc);
+      tmvaReader->AddVariable("jfc_pb", &m_jfc_pb);
+      tmvaReader->AddVariable("categ(pt,eta)", &m_cat);
+      TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kMLP, iss.str().data() );
+      kl = dynamic_cast<TMVA::MethodBase*>(method);
+
+      // add it or overwrite it in the map of readers:
+      pos = m_tmvaReaders.find(alias);
+      if(pos!=m_tmvaReaders.end()) {
+	delete pos->second;
+	m_tmvaReaders.erase(pos);
+      }
+      itmap = m_tmvaMethod.find(alias);
+      if(itmap!=m_tmvaMethod.end()) {
+	delete itmap->second;
+	m_tmvaMethod.erase(itmap);
+      }
+      m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
+      m_tmvaMethod.insert( std::make_pair( alias, kl ) );
     }
 
     /* retrieveing weights: */
@@ -175,7 +176,7 @@ namespace Analysis {
     m_jfc_pu = jfc_pu;
     m_jfc_pc = jfc_pc;
     m_cat = (double)categ;
-    std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.find(alias);
+    pos = m_tmvaReaders.find(alias);
     if(pos==m_tmvaReaders.end()) {
       int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
       if(0==alreadyWarned) {
@@ -183,7 +184,11 @@ namespace Analysis {
         m_undefinedReaders.push_back(alias);
       }
     } else {
-      mv1c = pos->second->EvaluateMVA("MLP_ANN");
+      std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
+      if((itmap2->second)!=0) {
+	mv1c = pos->second->EvaluateMVA( itmap2->second );//("MLP_ANN");
+      }
+      else ATH_MSG_WARNING("#BTAG#  kl==0");
     }
 
     ATH_MSG_VERBOSE("#BTAG# pT=" << jpt << " eta=" << eta << " categ=" << categ << 

@@ -17,16 +17,23 @@ namespace Analysis
 DetailedTrackGradeFactory::DetailedTrackGradeFactory( const std::string& t, const std::string& n, const IInterface* p ) :
         AthAlgTool( t, n, p )
 {
-
     declareProperty("hitBLayerGrade", m_hitBLayerGrade = false);
 
     declareProperty("useSharedHitInfo", m_useSharedHitInfo = false);
     declareProperty("useDetailSharedHitInfo",m_useDetailSharedHitInfo=false);
+
     declareProperty("nSharedBLayer", m_nSharedBLayer = 0);
     declareProperty("nSharedPix", m_nSharedPix = 0);
     declareProperty("nSharedSct", m_nSharedSct = 1);
     declareProperty("nSharedSi", m_nSharedSi = 999);
 
+    // Flag to toggle track gradation according to Run2 pixel layout
+    declareProperty("useRun2TrackGrading", m_useRun2TrackGrading = false);
+    // And the properties for it:
+    declareProperty("hitInnerLayersGrade", m_hitInnerLayersGrade = true);
+    declareProperty("nSharedInnermostPixelLayer", m_nSharedInnermostPixelLayer = 0);
+    declareProperty("nSharedNextToInnermostPixelLayer", m_nSharedNextToInnermostPixelLayer = 0);
+    //
     declareProperty("ptFracGrade", m_ptFracGrade = false);
     declareProperty("ptFracCut", m_ptFracCut = 0.04);
 
@@ -50,29 +57,59 @@ DetailedTrackGradeFactory::~DetailedTrackGradeFactory()
 
 StatusCode DetailedTrackGradeFactory::initialize()
 {
-
+  
   std::vector<TrackGrade> myGrades;
   int nbGrades=0;
 
-  if (m_hitBLayerGrade)
-    {
-      myGrades.push_back(TrackGrade(nbGrades,std::string("0HitBLayer")));
-      nbGrades++;
-    }
-  if (m_useSharedHitInfo)
-    {
-      myGrades.push_back(TrackGrade(nbGrades,std::string("Shared")));
-      nbGrades++;
-    }
-  if(m_useDetailSharedHitInfo) //Add By Bai Yu Nov 28,2011
-    {
-      myGrades.push_back(TrackGrade(nbGrades,std::string("BlaShared")));
-      nbGrades++;
-      myGrades.push_back(TrackGrade(nbGrades,std::string("PixShared")));
-      nbGrades++;
-      myGrades.push_back(TrackGrade(nbGrades,std::string("SctShared")));
-      nbGrades++;
-    }
+  if (!m_useRun2TrackGrading){
+    if (m_hitBLayerGrade)
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("0HitBLayer")));
+	nbGrades++;
+      }
+    if (m_useSharedHitInfo)
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("Shared")));
+	nbGrades++;
+      }
+    if(m_useDetailSharedHitInfo) //Add By Bai Yu Nov 28,2011
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("BlaShared")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("PixShared")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("SctShared")));
+	nbGrades++;
+      }
+  }
+  else if (m_useRun2TrackGrading){
+    if (m_hitInnerLayersGrade)
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("0HitInnermostPixelLayer")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("0HitNextToInnermostPixelLayer")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("0Hit2InnermostPixelLayers")));
+	nbGrades++;
+      }
+    if (m_useSharedHitInfo)
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("Shared")));
+	nbGrades++;
+      }
+    if(m_useDetailSharedHitInfo)
+      {
+	myGrades.push_back(TrackGrade(nbGrades,std::string("InnermostShared")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("NextToInnermostShared")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("PixShared")));
+	nbGrades++;
+	myGrades.push_back(TrackGrade(nbGrades,std::string("SctShared")));
+	nbGrades++;
+      }
+  }
+
   if (m_ptFracGrade)
     {
       myGrades.push_back(TrackGrade(nbGrades,std::string("PtFrac")));
@@ -164,8 +201,14 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
 
   bool nohitBLayer(false);
+  bool nohitInnermostLayer(false);
+  bool nohitNextToInnermostLayer(false);
+
   bool sharedClass(false);  
   bool blasharedClass(false);
+  bool innermostsharedClass(false);
+  bool nexttoinnermostsharedClass(false);
+
   bool pixsharedClass(false);
   bool sctsharedClass(false);
   bool ptFrac(false);
@@ -185,40 +228,81 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
   
   if (m_useSharedHitInfo)
   {
-    
-    //check if shared
-    uint8_t nbs, nps, nss;
-    if (!track.summaryValue(nbs, xAOD::numberOfBLayerSharedHits)){
-      ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerSharedHists for TrackGrade!");
-    }
-    if(nbs < 0) nbs = 0;
+    if (!m_useRun2TrackGrading){
+      //check if shared
+      uint8_t nbs, nps, nss;
+      if (!track.summaryValue(nbs, xAOD::numberOfBLayerSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerSharedHists for TrackGrade!");
+      }
+      if(nbs < 0) nbs = 0;
 
-    if (!track.summaryValue(nps, xAOD::numberOfPixelSharedHits)){
-      ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfPixelSharedHists for TrackGrade!");
-    }
-    if(nps < 0) nps = 0;
+      if (!track.summaryValue(nps, xAOD::numberOfPixelSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfPixelSharedHists for TrackGrade!");
+      }
+      if(nps < 0) nps = 0;
 
-    if (!track.summaryValue(nss, xAOD::numberOfSCTSharedHits)){
-      ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfSCTSharedHists for TrackGrade!");
+      if (!track.summaryValue(nss, xAOD::numberOfSCTSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfSCTSharedHists for TrackGrade!");
+      }
+      if(nss < 0) nss = 0;
+      int nsht =  nps+nss ;
+      if(nbs>m_nSharedBLayer) {
+	sharedClass = true;
+	blasharedClass = true;
+      }
+      if(nps>m_nSharedPix) {
+	sharedClass = true;
+	pixsharedClass = true;
+      }
+      if(nss>m_nSharedSct) {
+	sharedClass = true;
+	sctsharedClass = true;
+      }
+      if(nsht>m_nSharedSi) {
+	sharedClass = true;
+      }
     }
-    if(nss < 0) nss = 0;
-    int nsht =  nps+nss ;
-    if(nbs>m_nSharedBLayer) {
-      sharedClass = true;
-      blasharedClass = true;
+    else if (m_useRun2TrackGrading){
+      uint8_t nips, nnips, nps, nss;
+      if (!track.summaryValue(nips, xAOD::numberOfInnermostPixelLayerSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfInnermostPixelLayerSharedHits for TrackGrade!");
+      }
+      if(nips < 0) nips = 0;
+
+      if (!track.summaryValue(nnips, xAOD::numberOfNextToInnermostPixelLayerSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfNextToInnermostPixelLayerSharedHits for TrackGrade!");
+      }
+      if(nnips < 0) nnips = 0;
+      if (!track.summaryValue(nps, xAOD::numberOfPixelSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfPixelSharedHits for TrackGrade!");
+      }
+      if(nps < 0) nps = 0;
+
+      if (!track.summaryValue(nss, xAOD::numberOfSCTSharedHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfSCTSharedHits for TrackGrade!");
+      }
+      if(nss < 0) nss = 0;
+      int nsht =  nps+nss ;
+      if(nips>m_nSharedInnermostPixelLayer) {
+	sharedClass = true;
+	innermostsharedClass = true;
+      }
+      if(nnips>m_nSharedNextToInnermostPixelLayer) {
+	sharedClass = true;
+	nexttoinnermostsharedClass = true;
+      }
+      if(nps>m_nSharedPix) {
+	sharedClass = true;
+	pixsharedClass = true;
+      }
+      if(nss>m_nSharedSct) {
+	sharedClass = true;
+	sctsharedClass = true;
+      }
+      if(nsht>m_nSharedSi) {
+	sharedClass = true;
+      }
     }
-    if(nps>m_nSharedPix) {
-      sharedClass = true;
-      pixsharedClass = true;
-    }
-    if(nss>m_nSharedSct) {
-      sharedClass = true;
-      sctsharedClass = true;
-    }
-    if(nsht>m_nSharedSi) {
-      sharedClass = true;
-    }
-    
   }
 
 
@@ -322,48 +406,109 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
   
   const TrackGrade * gradeToReturn(0);
 
-  if (nohitBLayer)
-    {
-      gradeToReturn=m_trackGradesDefinition.getGrade(std::string("0HitBLayer"));
-    }
-  else if (sharedClass)
-  {
-    if(!m_useDetailSharedHitInfo)
-    {
-      gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Shared"));
-    //gradeToReturn=m_trackGradesDefinition.getGrade(1);
-    }
-    else
-    {
-      if(blasharedClass)
+  if (!m_useRun2TrackGrading){
+    if (nohitBLayer)
       {
-        gradeToReturn=m_trackGradesDefinition.getGrade(std::string("BlaShared"));
+	gradeToReturn=m_trackGradesDefinition.getGrade(std::string("0HitBLayer"));
       }
-      if(pixsharedClass&&(!blasharedClass))
+    else if (sharedClass)
       {
-        gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PixShared"));
-      } 
-      if(sctsharedClass)
-      {
-        gradeToReturn=m_trackGradesDefinition.getGrade(std::string("SctShared"));
+	if(!m_useDetailSharedHitInfo)
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Shared"));
+	    //gradeToReturn=m_trackGradesDefinition.getGrade(1);
+	  }
+	else
+	  {
+	    if(blasharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("BlaShared"));
+	      }
+	    if(pixsharedClass&&(!blasharedClass))
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PixShared"));
+	      } 
+	    if(sctsharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("SctShared"));
+	      }
+	  }
       }
-    }
-  }
-  else if (ptFrac)
-  {
-    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PtFrac"));
-  }
-  else
-  {
-    if (m_ptEtaGrades)
-    {
-      ATH_MSG_VERBOSE(" category "<<ptEtaCategoryName);
-      gradeToReturn=m_trackGradesDefinition.getGrade(ptEtaCategoryName);
-    }
+    else if (ptFrac)
+      {
+	gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PtFrac"));
+      }
     else
-    {
-      gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Good"));
-    }
+      {
+	if (m_ptEtaGrades)
+	  {
+	    ATH_MSG_VERBOSE(" category "<<ptEtaCategoryName);
+	    gradeToReturn=m_trackGradesDefinition.getGrade(ptEtaCategoryName);
+	  }
+	else
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Good"));
+	  }
+      }
+  }
+  else if (m_useRun2TrackGrading){
+    if (nohitInnermostLayer)
+      {
+	if (nohitNextToInnermostLayer)
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("0Hit2InnermostPixelLayers"));
+	  }
+	else
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("0HitInnermostPixelLayer"));
+	  }
+      }
+    else if (nohitNextToInnermostLayer)
+      {
+	gradeToReturn=m_trackGradesDefinition.getGrade(std::string("0HitNextToInnermostPixelLayer"));
+      }
+    else if (sharedClass)
+      {
+	if(!m_useDetailSharedHitInfo)
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Shared"));
+	  }
+	else
+	  {
+	    if(innermostsharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("InnermostShared"));
+	      }
+	    else if(nexttoinnermostsharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("NextToInnermostShared"));
+	      }
+	    else if(pixsharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PixShared"));
+	      }
+	    if (sctsharedClass)
+	      {
+		gradeToReturn=m_trackGradesDefinition.getGrade(std::string("SctShared"));
+	      }
+	  }
+      }
+    else if (ptFrac)
+      {
+	gradeToReturn=m_trackGradesDefinition.getGrade(std::string("PtFrac"));
+      }
+    else
+      {
+	if (m_ptEtaGrades)
+	  {
+	    ATH_MSG_VERBOSE(" category "<<ptEtaCategoryName);
+	    gradeToReturn=m_trackGradesDefinition.getGrade(ptEtaCategoryName);
+	  }
+	else
+	  {
+	    gradeToReturn=m_trackGradesDefinition.getGrade(std::string("Good"));
+	  }
+      }
   }
       
   if (gradeToReturn==0)

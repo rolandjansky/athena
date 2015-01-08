@@ -35,6 +35,9 @@ namespace Analysis {
     declareProperty("useBLayerHitPrediction", m_useBLayerHitPrediction = false);
     declareProperty("usePerigeeParameters", m_usePerigeeParameters = false);
     declareProperty("pTMin", m_pTMin = 1.*Gaudi::Units::GeV);
+    declareProperty("usepTDepTrackSel", m_usepTDepTrackSel = false);
+    declareProperty("m_pTMinOffset", m_pTMinOffset);
+    declareProperty("m_pTMinSlope", m_pTMinSlope);
     declareProperty("d0Max", m_d0Max = 1.*Gaudi::Units::mm);
     declareProperty("z0Max", m_z0Max = 1.5*Gaudi::Units::mm);
     declareProperty("sigd0Max",m_sigd0Max = 999.*Gaudi::Units::mm);
@@ -150,7 +153,7 @@ namespace Analysis {
   }
 
 
-  bool TrackSelector::selectTrack(const xAOD::TrackParticle* track) {
+  bool TrackSelector::selectTrack(const xAOD::TrackParticle* track, double refPt) {
 
     /** for debugging purposes: */
     enum Cuts { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax, 
@@ -186,10 +189,16 @@ namespace Analysis {
 		     << " Eta= " << track->eta() << " Phi= " << track->phi() << " pT= " <<track->pt()
 		     << " d0= " << trackD0
 		     << " z0= " << trackZ0 << " sigd0= " << tracksigD0 << " sigz0: " << tracksigZ0 );
+    // if (m_usepTDepTrackSel){
+    //   m_pTMin = m_pTMinOffset + m_pTMinSlope*m_SumTrkPt;
+    // }
 
     /** apply cuts: */
     bool pass = true;
-    if(track->pt()<m_pTMin) {
+    if(track->pt() < m_pTMin) {
+      pass = false;
+      failedCuts.set(pTMin);
+    } else if (refPt > 0 && m_usepTDepTrackSel && track->pt() < m_pTMinOffset + m_pTMinSlope*refPt) {
       pass = false;
       failedCuts.set(pTMin);
     }

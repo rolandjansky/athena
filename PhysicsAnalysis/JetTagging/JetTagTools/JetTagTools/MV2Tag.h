@@ -18,6 +18,8 @@
 #include <string>
 #include <map>
 #include <list>
+#include "TMVA/MethodBase.h"
+#include "TMVA/IMethod.h"
 
 namespace TMVA { class Reader; }
 namespace Analysis { class CalibrationBroker; }
@@ -103,7 +105,8 @@ namespace Analysis {
     //float m_chi2Ondof;
     float m_jf_sig3;
 
-    std::map<std::string, TMVA::Reader*> m_tmvaReaders;//    std::map<std::string, TMVA::Reader*> m_tmvaReaders[10];
+    std::map<std::string, TMVA::Reader*> m_tmvaReaders;
+    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 

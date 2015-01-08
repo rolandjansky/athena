@@ -215,13 +215,13 @@ StatusCode SoftMuonTag::initialize()
       for(uint ih=0;ih<m_hypothese.size();ih++) {
 	if(ih==0) {
 	  // Control:
-	  std::string hDir = "/RefFileSoftMu"+m_jetCollectionList[ijc]+"/controlSoftMu/";
+	  std::string hDir = "/RefFile/SoftMu/"+m_jetCollectionList[ijc]+"/controlSoftMu/";
 	  m_histoHelper->bookHisto(hDir+"eta","eta",60,-3.,3.);
 	  m_histoHelper->bookHisto(hDir+"phi","phi",64,-3.2,3.2);
 	  m_histoHelper->bookHisto(hDir+"pt","pt",50,0.,300.);
 	  m_histoHelper->bookHisto(hDir+"smpt","Soft Muon pT",100,0.,100.);
 	}
-	std::string hDir = "/RefFileSoftMu"+m_jetCollectionList[ijc]+"/"+m_hypothese[ih]+"/";
+	std::string hDir = "/RefFile/SoftMu/"+m_jetCollectionList[ijc]+"/"+m_hypothese[ih]+"/";
 	// variables:
 	m_histoHelper->bookHisto(hDir+"pT",           "pT/(pT+5)",100,0.,1.);
 	m_histoHelper->bookHisto(hDir+"pTrel",        "pTrel/(pTrel+0.5)",100,0.,1.);
@@ -331,10 +331,10 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
     //
     if(hasHardMu)return; // skip jet
     //
-    m_histoHelper->fillHisto("/RefFileSoftMu"+author+"/controlSoftMu/eta",(double)jeteta);
+    m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/eta",(double)jeteta);
     if (fabs(jeteta) <= m_etajetmin) {
-      m_histoHelper->fillHisto("/RefFileSoftMu"+author+"/controlSoftMu/phi",(double)jetphi);
-      m_histoHelper->fillHisto("/RefFileSoftMu"+author+"/controlSoftMu/pt",(double)jetpt/1.e3);
+      m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/phi",(double)jetphi);
+      m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/pt",(double)jetpt/1.e3);
       //
       if(jetpt>m_pTjetmin)
 	{
@@ -363,7 +363,7 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
 	      } else if ("C"==label) {
 		pref = m_hypothese[2];
 	      }
-	      std::string hDir = "/RefFileSoftMu"+author+"/"+pref+"/";
+	      std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
 	      m_histoHelper->fillHisto(hDir+"JetETNormL1D",(double)jetpt/1.e3);
 	      m_histoHelper->fillHisto(hDir+"JetETNormL1DL1D",(double)jetpt/1.e3);
 	      m_histoHelper->fillHisto(hDir+"JetETNormL2D",(double)jetpt/1.e3);
@@ -507,7 +507,7 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
 	  if(m_runModus == "reference")
 	    {
 	      if (jetpt >= m_pTjetmin && fabs(jeteta) <= m_etajetmin) { // only once/jet
-		std::string hDir = "/RefFileSoftMu"+author+"/"+pref+"/";
+		std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
 		if(1==muCounter){
 		  m_histoHelper->fillHisto(hDir+"JetETEffL1DL1D",(double)jetpt/1.e3);
 		  m_histoHelper->fillHisto(hDir+"JetETEffL2D",(double)jetpt/1.e3);
@@ -673,7 +673,7 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
 
   if (m_runModus == "reference" && highestPT>0)
     {
-      std::string hDir = "/RefFileSoftMu"+author+"/"+pref+"/";
+      std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
       double ptN    ( highestPT    / (highestPT   +5.*Gaudi::Units::GeV) );
       double ptrelN ( highestPTrel / (highestPTrel+ 0.5*Gaudi::Units::GeV) );
       if(highestIsLowP){
@@ -693,7 +693,7 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
 	  m_histoHelper->fillHisto(hDir+"JetETEffL1D",(double)jetpt/1.e3);
 	  m_histoHelper->fillHisto(hDir+"pTrel",ptrelN);
 	}
-	hDir = "/RefFileSoftMu"+author+"/controlSoftMu/";
+	hDir = "/RefFile/SoftMu/"+author+"/controlSoftMu/";
 	m_histoHelper->fillHisto(hDir+"smpt",highestPT*1e-3);
       }
     }

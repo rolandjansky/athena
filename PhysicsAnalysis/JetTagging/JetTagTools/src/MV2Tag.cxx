@@ -82,6 +82,7 @@ namespace Analysis {
     }
     m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib");
     m_tmvaReaders.clear();
+    m_tmvaMethod.clear();
     return StatusCode::SUCCESS;
   }
 
@@ -90,6 +91,8 @@ namespace Analysis {
     // delete readers:
     std::map<std::string, TMVA::Reader*>::iterator pos = m_tmvaReaders.begin();
     for( ; pos != m_tmvaReaders.end(); ++pos ) delete pos->second;
+    std::map<std::string, TMVA::MethodBase*>::iterator posm = m_tmvaMethod.begin();
+    for( ; posm != m_tmvaMethod.end(); ++posm ) delete posm->second;
     return StatusCode::SUCCESS;
   }
 
@@ -106,15 +109,10 @@ namespace Analysis {
     }
 
     std::string alias = m_calibrationTool->channelAlias(author);//why this gives always the same?
-    TString xmlFileName = "btag"+m_taggerNameBase+"Config_"+alias+".xml";//from MV1, so should work
-    ATH_MSG_DEBUG("#BTAG# xmlFileName= "<<xmlFileName);
 
     TMVA::Reader* tmvaReader;
     std::map<std::string, TMVA::Reader*>::iterator pos;
 
-    //for (unsigned int iptbin=0; iptbin<njMV2ptbin-1; iptbin++) {
-    //unsigned int ptbin = iptbin+1;
-      
     ATH_MSG_DEBUG("#BTAG# Jet author for MV2: " << author << ", alias: " << alias );
 
 
@@ -122,7 +120,11 @@ namespace Analysis {
     std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author,m_taggerNameBase+"Calib"); 
 
     bool calibHasChanged = calib.second;
-    //bool calibHasChanged = true;
+        
+    std::ostringstream iss; //iss.clear();
+    TMVA::MethodBase * kl=0;
+    std::map<std::string, TMVA::MethodBase*>::iterator itmap;
+    
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
@@ -131,81 +133,73 @@ namespace Analysis {
       }
       m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
       
-      // now the ugly part: write an xml text file to be read by TMVAReader:
+      //now the new part istringstream
       TList* list = calib.first;
-      std::ofstream ofile( xmlFileName );
-      if(!ofile) {
-	ATH_MSG_WARNING("#BTAG# Unable to create output file " << xmlFileName );
-	return StatusCode::SUCCESS;
-      }
       for(int i=0; i<list->GetSize(); ++i) {
 	TObjString* ss = (TObjString*)list->At(i);
-	ofile << ss->String() << std::endl;
+	std::string sss = ss->String().Data();
+	//KM: if it doesn't find "<" in the string, it starts from non-space character
+	int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	std::string tmp = sss.erase(0,posi);
+	//std::cout<<tmp<<std::endl;
+	iss << tmp.data();      //iss << sss.Data();
       }
-      ofile.close();
-      ATH_MSG_DEBUG("#BTAG# XML file created: " << xmlFileName );
-    }
-    
-    // now configure the TMVAReaders:
-    /// check if the reader for this tagger needs update
-    if(!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
-      
-      std::ifstream ifile(xmlFileName);
-      if(ifile){
-	tmvaReader = new TMVA::Reader();
-	// IP2D posteriors
-	tmvaReader->AddVariable("ip2_pu",&m_ip2_pu);
-	tmvaReader->AddVariable("ip2_pb",&m_ip2_pb);
-	tmvaReader->AddVariable("ip2_pc",&m_ip2_pc);
-	// IP3D posteriors
-	tmvaReader->AddVariable("ip3_pu",&m_ip3_pu);
-	tmvaReader->AddVariable("ip3_pb",&m_ip3_pb);
-	tmvaReader->AddVariable("ip3_pc",&m_ip3_pc);
-	//SV1 posteriors
-	tmvaReader->AddVariable("sv1_pu",&m_sv1_pu);
-	tmvaReader->AddVariable("sv1_pb",&m_sv1_pb);
-	tmvaReader->AddVariable("sv1_pc",&m_sv1_pc);
-	//JetFitterCombNN posteriors
-	tmvaReader->AddVariable("jfc_pu",&m_jfc_pu);
-	tmvaReader->AddVariable("jfc_pb",&m_jfc_pb);
-	tmvaReader->AddVariable("jfc_pc",&m_jfc_pc);
-	//SV0 informations
-	tmvaReader->AddVariable("sv0",&m_sv0);
-	tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);
-	tmvaReader->AddVariable("sv0mass",&m_sv0mass);
-	tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);
-	tmvaReader->AddVariable("sv0_n2t",&m_sv0_n2t);	  //tmvaReader->AddVariable("sqrt(pow(sv0_x,2)+pow(sv0_y,2))",&m_sv0_radius);
-	//JetFitter informations
-	tmvaReader->AddVariable("jf_mass",&m_jf_mass);
-	tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
-	tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
-	tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
-	tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
-	tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
-	tmvaReader->AddVariable("jf_dphi",&m_jf_dphi);
-	tmvaReader->AddVariable("jf_deta",&m_jf_deta);	  //tmvaReader->AddVariable("jfitvx_chi2/jfitvx_ndof",&m_chi2Ondof);
-	tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
-	tmvaReader->BookMVA("BDT", xmlFileName);
-	ATH_MSG_DEBUG("#BTAG# new TMVA reader created from configuration " << xmlFileName );
-	// add it or overwrite it in the map of readers:
-	pos = m_tmvaReaders.find(alias);
-	if(pos!=m_tmvaReaders.end()) {
-	  delete pos->second;
-	  m_tmvaReaders.erase(pos);
-	}
-	m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
-	
-	m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,
-							  alias, m_taggerNameBase+"Calib", false, name());
-      }
-      else ATH_MSG_WARNING("#BTAG# xml file doesn't exist: " << xmlFileName );
-    }
-    
 
-    /* retrieving pT to select the good BDT forest*/
-    double jpt = myJet.pt();
+      // now configure the TMVAReaders:
+      /// check if the reader for this tagger needs update
+      tmvaReader = new TMVA::Reader();
+      // IP2D posteriors
+      tmvaReader->AddVariable("ip2_pu",&m_ip2_pu);
+      tmvaReader->AddVariable("ip2_pb",&m_ip2_pb);
+      tmvaReader->AddVariable("ip2_pc",&m_ip2_pc);
+      // IP3D posteriors
+      tmvaReader->AddVariable("ip3_pu",&m_ip3_pu);
+      tmvaReader->AddVariable("ip3_pb",&m_ip3_pb);
+      tmvaReader->AddVariable("ip3_pc",&m_ip3_pc);
+      //SV1 posteriors
+      tmvaReader->AddVariable("sv1_pu",&m_sv1_pu);
+      tmvaReader->AddVariable("sv1_pb",&m_sv1_pb);
+      tmvaReader->AddVariable("sv1_pc",&m_sv1_pc);
+      //JetFitterCombNN posteriors
+      tmvaReader->AddVariable("jfc_pu",&m_jfc_pu);
+      tmvaReader->AddVariable("jfc_pb",&m_jfc_pb);
+      tmvaReader->AddVariable("jfc_pc",&m_jfc_pc);
+      //SV0 informations
+      tmvaReader->AddVariable("sv0",&m_sv0);
+      tmvaReader->AddVariable("sv0_ntkv",&m_sv0_ntkv);
+      tmvaReader->AddVariable("sv0mass",&m_sv0mass);
+      tmvaReader->AddVariable("sv0_efrc",&m_sv0_efrc);
+      tmvaReader->AddVariable("sv0_n2t",&m_sv0_n2t);
+      //JetFitter informations
+      tmvaReader->AddVariable("jf_mass",&m_jf_mass);
+      tmvaReader->AddVariable("jf_efrc",&m_jf_efrc);
+      tmvaReader->AddVariable("jf_n2tv",&m_jf_n2tv);
+      tmvaReader->AddVariable("jf_ntrkv",&m_jf_ntrkv);
+      tmvaReader->AddVariable("jf_nvtx",&m_jf_nvtx);
+      tmvaReader->AddVariable("jf_nvtx1t",&m_jf_nvtx1t);
+      tmvaReader->AddVariable("jf_dphi",&m_jf_dphi);
+      tmvaReader->AddVariable("jf_deta",&m_jf_deta);	  //tmvaReader->AddVariable("jfitvx_chi2/jfitvx_ndof",&m_chi2Ondof);
+      tmvaReader->AddVariable("jf_sig3",&m_jf_sig3);
+      //tmvaReader->BookMVA("BDT", xmlFileName);
+      TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, iss.str().data() );
+      kl = dynamic_cast<TMVA::MethodBase*>(method);
+
+      // add it or overwrite it in the map of readers:
+      pos = m_tmvaReaders.find(alias);
+      if(pos!=m_tmvaReaders.end()) {
+	delete pos->second;
+	m_tmvaReaders.erase(pos);
+      }
+      itmap = m_tmvaMethod.find(alias);
+      if(itmap!=m_tmvaMethod.end()) {
+	delete itmap->second;
+	m_tmvaMethod.erase(itmap);
+      }
+      m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
+      m_tmvaMethod.insert( std::make_pair( alias, kl ) );
+    }
     
- 
+    double jpt = myJet.pt();
   
     /* default D3PD values*/
     // these variable are not alwasy defined -> make sure to use always the same default when training
@@ -219,7 +213,6 @@ namespace Analysis {
 
     m_sv0mass    = -1;
     m_sv0_efrc   = -1;
-    m_sv0_radius = 0.;
 
   ///// TMVA does not accept double or int -> use doubles to get xAOD-double info and copy to float
 
@@ -298,9 +291,6 @@ namespace Analysis {
     BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
     if (myVertices.size()>0 && myVertices[0].isValid()){
       const xAOD::Vertex* firstVertex = *(myVertices[0]);
-      double x = firstVertex->position().x();
-      double y = firstVertex->position().y();
-      m_sv0_radius = sqrt(pow(x,2)+pow(y,2));
       sv0OK=true;
     }
 
@@ -397,7 +387,7 @@ namespace Analysis {
 		  ", sv0_ntkv= "   << m_sv0_ntkv   <<
 		  ", sv0mass= "    << m_sv0mass    <<
 		  ", sv0_efrc= "   << m_sv0_efrc   <<
-		  ", sv0_n2t= "    << m_sv0_n2t    <<//" sv0_radius " << m_sv0_radius <<
+		  ", sv0_n2t= "    << m_sv0_n2t    <<
 		  ", jf_mass= "    << m_jf_mass    <<
 		  ", jf_efrc= "    << m_jf_efrc    <<
 		  ", jf_n2tv= "    << m_jf_n2tv    <<
@@ -412,8 +402,8 @@ namespace Analysis {
 
     /* compute MV2: */
     double mv2 = -10.;
-    std::map<std::string, TMVA::Reader*>::iterator pos2 = m_tmvaReaders.find(alias);
-    if(pos2==m_tmvaReaders.end()) {//    if(pos2==m_tmvaReaders[binnb-1].end()) {
+    pos = m_tmvaReaders.find(alias);
+    if(pos==m_tmvaReaders.end()) {
       int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
       if(0==alreadyWarned) {
         ATH_MSG_WARNING("#BTAG# no TMVAReader defined for jet collection " << alias);
@@ -421,11 +411,13 @@ namespace Analysis {
       }
     }
     else {
-      //TString bdttoeval("BDT_ptbin"); bdttoeval+=binnb;
-      //mv2 = pos2->second->EvaluateMVA(bdttoeval);
-      mv2 = pos2->second->EvaluateMVA("BDT");
-      ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2);
+      std::map<std::string, TMVA::MethodBase*>::iterator itmap2 = m_tmvaMethod.find(alias);
+      if((itmap2->second)!=0) {
+	mv2 = pos->second->EvaluateMVA( itmap2->second );
+      }
+      else ATH_MSG_WARNING("#BTAG#  kl==0");
     }
+    ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2);
     
     /** give information to the info class. */
     if(m_runModus=="analysis") {

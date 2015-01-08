@@ -54,9 +54,9 @@ class DetailedTrackGradeFactory : public AthAlgTool, virtual public ITrackGradeF
 
 private:
 
-
   TrackGradesDefinition m_trackGradesDefinition;
 
+  bool m_useRun2TrackGrading;
   bool m_hitBLayerGrade;   // grade for tracks without hit in Blayer
 
   bool m_useSharedHitInfo; /// if false the following cuts are ignored
@@ -65,6 +65,10 @@ private:
   int m_nSharedPix;   /// max. number of shared hits in pixels
   int m_nSharedSct;   /// max. number of shared hits in SCT
   int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
+
+  bool m_hitInnerLayersGrade;   // grade for tracks without hit in Blayer                                                                                                                    
+  int m_nSharedInnermostPixelLayer;/// max. number of shared hits in innermost pixel layer (IBL)                                                                                              
+  int m_nSharedNextToInnermostPixelLayer;/// max. number of shared hits next-to-innermost pixel layer (Run1 B layer)
 
   bool m_ptFracGrade;   // grade for tracks with ptFrac < m_ptFracCut
   double m_ptFracCut;    /// cut on ptFrac

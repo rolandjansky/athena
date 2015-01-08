@@ -40,9 +40,12 @@ public:
 
   inline void primaryVertex(const Amg::Vector3D& pv) { m_primaryVertex = pv; }
   inline const Amg::Vector3D& primaryVertex() { return m_primaryVertex; }
+
+  //  inline void setSumTrkPt(double sum) { m_SumTrkPt = sum; }
+
   /** Returns true if the argument track fulfills the selection
    */
-  bool selectTrack(const xAOD::TrackParticle* track); 
+  bool selectTrack(const xAOD::TrackParticle* track, double refPt = 0); 
   /** Processes all the tracks in input and outputs the tracks 
       passing the selection */
   StatusCode selectAllTracks();
@@ -59,6 +62,10 @@ private:
       all cuts are ANDed */
   bool m_usePerigeeParameters; /// if true use perigee parameters instead of parameters w.r.t. primary vertex
   double m_pTMin;     /// min. pT: |pT|>pTMin
+  bool m_usepTDepTrackSel;
+  double m_pTMinOffset;
+  double m_pTMinSlope;
+  //  double m_SumTrkPt;  /// sum of tracks pT
   double m_d0Max;     /// max. d0: |d0|<d0Max
   double m_z0Max;     /// max. z0:
   double m_sigd0Max; // max sig d0:

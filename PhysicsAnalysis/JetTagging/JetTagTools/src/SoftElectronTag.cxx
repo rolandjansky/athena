@@ -249,7 +249,7 @@ StatusCode SoftElectronTag::InitReferenceMode()
     for(uint ijc=0;ijc<m_jetCollectionList.size();ijc++) {
       // loop on hypotheses
       for(uint ih=0;ih<m_hypotheses.size();ih++) {
-	std::string hName = "/RefFileSoftEl"+m_jetCollectionList[ijc]+"/"+
+	std::string hName = "/RefFile/SoftEl/"+m_jetCollectionList[ijc]+"/"+
 	  m_hypotheses[ih]+"/";
 	
 	m_histoHelper->bookHisto(hName+"d0","|Transverse Impact Parameter|",
@@ -293,7 +293,7 @@ StatusCode SoftElectronTag::InitAnalysisMode()
   // loop on hypotheses
   for(uint ih=0;ih<m_hypotheses.size();ih++) {
     
-    //hDir="/RefFile"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
+    //hDir="/RefFile/"+m_jetCollectionList[ijc]+"/"+m_hypotheses[ih]+"/";
     hDir=m_hypotheses[ih]+"/";
     
     // use of pTrel
@@ -832,7 +832,7 @@ void SoftElectronTag::JetTagReferenceMode(xAOD::Jet& jetToTag)
       }
     }
     if (pref == m_hypotheses[0] || pref == m_hypotheses[1]) {
-      std::string hDir = "/RefFileSoftEl"+m_author+"/"+pref+"/";
+      std::string hDir = "/RefFile/SoftEl/"+m_author+"/"+pref+"/";
       m_histoHelper->fillHisto(hDir+"d0",fabs(m_d0wrtPvx));
       m_histoHelper->fillHisto(hDir+"pTrel",m_ptrel/1.e3);
       m_histoHelper->fillHisto(hDir+"D",m_totalproMax);

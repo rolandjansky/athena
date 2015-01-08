@@ -279,7 +279,7 @@ namespace Analysis {
           for(std::vector<TrackGrade>::const_iterator listIter=listBegin ; listIter !=listEnd ; ++listIter) {
             const TrackGrade & grd = (*listIter);
 	    //if(grd==TrackGrade::Undefined) continue;
-            std::string hName = "/RefFileJetProb" + m_jetCollectionList[j] + "/"
+            std::string hName = "/RefFile/JetProb/" + m_jetCollectionList[j] + "/"
 	                      + (std::string)grd + "/Resol"; 
 	    ATH_MSG_VERBOSE("#BTAG# booking for JetProb: " << hName);
 	    //use bins with variable size
@@ -502,7 +502,7 @@ namespace Analysis {
 	  if( grd==(*trkItr).grade ) { // check the grade of current track
 	    ATH_MSG_DEBUG("#BTAG#   track is of required grade ");
             const std::string suffix = "_" + (std::string)grd;
-	    std::string hName = "/RefFileJetProb" + author + "/"
+	    std::string hName = "/RefFile/JetProb/" + author + "/"
 		              + (std::string)grd + "/Resol";
 	    float val = fabs(d0wrtPriVtx/d0ErrwrtPriVtx);
 	    ATH_MSG_DEBUG("#BTAG#   histo JetProb: " << hName << " " << val);

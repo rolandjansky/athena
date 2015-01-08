@@ -37,6 +37,7 @@
 
 #
 #include "JetTagTools/JetTagUtils.h"
+#include "ParticleJetTools/JetFlavourInfo.h"
 
 namespace Analysis {
 
@@ -168,25 +169,18 @@ namespace Analysis {
     double jeteta = jetToTag.eta();
 
     /** for the reference mode we need the true label: */
-    int label = -1;
     std::string pref  = "";
-    // ELG: Disable reference mode running for now
-    if( m_runModus == "reference" ) {
+    if (m_runModus == "reference" ) {
       // here we require a jet selection:
-      if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
+      if (jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
         // and also a truth match:
-        //const TruthInfo* mcinfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
-	double deltaRmin(0.);
-        //if( mcinfo ) {
-	if (jetToTag.getAttribute("TruthLabelID",label))
-	{
+	int label = xAOD::jetFlavourLabel(&jetToTag);
+	double deltaRtoClosestB = 999., deltaRtoClosestC = 999.;
+	if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	  // for purification: require no b or c quark closer
 	  // than dR=m_purificationDeltaR
-	  double deltaRtoClosestB, deltaRtoClosestC;
-	  jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB);
 	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
-	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? 
-	    deltaRtoClosestB : deltaRtoClosestC;
+	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
           //JBdV 04/05/2006 purify also w.r.t tau
           double deltaRtoClosestT;
 	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);

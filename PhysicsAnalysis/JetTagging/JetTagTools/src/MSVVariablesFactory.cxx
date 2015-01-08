@@ -70,19 +70,27 @@ StatusCode MSVVariablesFactory::finalize() {
 
   StatusCode MSVVariablesFactory::fillMSVVariables(const xAOD::Jet &myJet, xAOD::BTagging* BTag, const Trk::VxSecVKalVertexInfo* myVertexInfoVKal, xAOD::VertexContainer* VertexContainer,const xAOD::Vertex& PrimaryVtx,  std::string basename) const {
     //...
+    int nvsec = 0;
+    float jetenergy=0.;
+    int n2t = 0;
+    float distnrm=0.;
     const xAOD::Vertex* priVtx = &PrimaryVtx;
     std::vector< ElementLink< xAOD::VertexContainer > > MSVVertexLinks;
     const std::vector<xAOD::Vertex*> myVertices = myVertexInfoVKal->vertices();
     if(myVertices.size() == 0){
-      ATH_MSG_DEBUG("#BTAG# no SVx ");
+      ATH_MSG_DEBUG("#BTAG# no MSV vertices...fill default values only... ");
+      BTag->setVariable<int>(basename, "N2Tpair", n2t);
+      BTag->setVariable<float>(basename, "energyTrkInJet", jetenergy);
+      BTag->setVariable<int>(basename, "nvsec", nvsec);
+      BTag->setVariable<float>(basename, "normdist", distnrm);
+      BTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", MSVVertexLinks);
+      BTag->setDynVxELName(basename, "vertices");
       return StatusCode::SUCCESS;
+
     }
     std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
     std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end();
-   
-    int nvsec = 0;
-    float jetenergy=-1.;
-    int n2t = -1; 
+    
     jetenergy = myVertexInfoVKal->energyTrkInJet();
     n2t = myVertexInfoVKal->n2trackvertices();
     BTag->setVariable<int>(basename, "N2Tpair", n2t);
@@ -153,7 +161,7 @@ StatusCode MSVVariablesFactory::finalize() {
 
     BTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", MSVVertexLinks);
     BTag->setDynVxELName(basename, "vertices");
-    float distnrm=0;
+    
     if (priVtx) {
       distnrm=get3DSignificance(priVtx, vecVertices, Amg::Vector3D(myJet.p4().Px(),myJet.p4().Py(),myJet.p4().Pz()));
     } else {

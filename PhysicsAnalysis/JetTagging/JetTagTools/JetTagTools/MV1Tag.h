@@ -18,7 +18,8 @@
 #include <string>
 #include <map>
 #include <list>
-
+#include "TMVA/MethodBase.h"
+#include "TMVA/IMethod.h"
 
 namespace TMVA { class Reader; }
 namespace Analysis { class CalibrationBroker; }
@@ -75,6 +76,7 @@ namespace Analysis {
     float m_jfc;
     float m_cat;
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
+    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
     /** to define the input weights */

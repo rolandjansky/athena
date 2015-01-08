@@ -233,14 +233,20 @@ namespace Analysis {
           int m2d=3;
           if(hname.find("#B/")==std::string::npos) m2d=5;
           if(!veto) {
-            HistoHelperRoot::smoothASH2D(dynamic_cast<TH2*>(h), m2d, m2d, msgLvl(MSG::DEBUG));
+	    TH2 * dc_tmp = dynamic_cast<TH2*>(h);
+	    if (dc_tmp) {
+              HistoHelperRoot::smoothASH2D(dc_tmp, m2d, m2d, msgLvl(MSG::DEBUG));
+            }
           }
         }
         if(3==h->GetDimension()) {
           int m3d1=3;
           int m3d3=2;
           if(!veto) {
-            HistoHelperRoot::smoothASH3D(dynamic_cast<TH3*>(h), m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+	    TH3 * dc_tmp = dynamic_cast<TH3*>(h);
+	    if (dc_tmp) {
+              HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+            }
           }
         }
         // normalize:
@@ -291,8 +297,11 @@ namespace Analysis {
                                                            << " (1D) actual value= " << valuex
                                                            << " --> bin= " << binx << " f = " << tmp;
               if(m_interpolate) {
-                tmp = HistoHelperRoot::Interpol1d(valuex, dynamic_cast<TH1*>(tmpHisto));
-                if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+                TH1* dc_tmp = dynamic_cast<TH1*>(tmpHisto);
+  		if (dc_tmp) {
+                  tmp = HistoHelperRoot::Interpol1d(valuex, dc_tmp);
+                  if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+  		}
               }
               if(m_normalizedProb) { // pdf are already normalized
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;
@@ -323,8 +332,11 @@ namespace Analysis {
                                                            << " (2D) actual value= " << valuex << " " << valuey
                                                            << " --> bin= " << binx << " " << biny << " f = " << tmp;
               if(m_interpolate) {
-                tmp = HistoHelperRoot::Interpol2d(valuex, valuey, dynamic_cast<TH2*>(tmpHisto));
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+ 		TH2* dc_tmp = dynamic_cast<TH2*>(tmpHisto);
+		if (dc_tmp) { 
+                  tmp = HistoHelperRoot::Interpol2d(valuex, valuey, dc_tmp);
+                  if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+		}
               }
               if(m_normalizedProb) { // pdf are already normalized
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;
@@ -362,8 +374,11 @@ namespace Analysis {
                                                            << " --> bin= " << binx << " " << biny 
                                                            << " " << binz << " f = " << tmp;
               if(m_interpolate) {
-                tmp = HistoHelperRoot::Interpol3d(valuex, valuey, valuez, dynamic_cast<TH3*>(tmpHisto));
-                if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+                TH3* dc_tmp = dynamic_cast<TH3*>(tmpHisto);
+                if (dc_tmp) { 
+                  tmp = HistoHelperRoot::Interpol3d(valuex, valuey, valuez, dc_tmp);
+                  if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " interpolated f = " << tmp;
+		}
               }
               if(m_normalizedProb) { // pdf are already normalized
                 if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " (normalized)" << endreq;

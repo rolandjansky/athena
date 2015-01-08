@@ -124,7 +124,7 @@ namespace Analysis {
 
     /** calculate individual track contribution to the three likelihoods: */
     void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,
-                     double returned_twb, double returned_twu, double returned_twc);
+                     double & twb, double & twu, double & twc);
 
     /** for reference mode: */
     std::string m_referenceType; // label to use for reference mode
