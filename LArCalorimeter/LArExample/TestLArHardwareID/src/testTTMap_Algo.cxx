@@ -26,8 +26,7 @@
 
 /********************************************************/
 testTTMap_Algo::testTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
-  Algorithm( name , pSvcLocator) ,
-  m_detStore(0),
+  AthAlgorithm( name , pSvcLocator) ,
   m_lvl1Helper(0),
   m_emHelper(0),
   m_hecHelper(0),
@@ -35,9 +34,7 @@ testTTMap_Algo::testTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocato
   m_ttSvc(0),
   m_dumpMap(false)
 {
-      
   declareProperty("dumpMap", m_dumpMap );
-
 }
 
 testTTMap_Algo::~testTTMap_Algo()
@@ -47,81 +44,54 @@ testTTMap_Algo::~testTTMap_Algo()
 // ==============================================================
 StatusCode testTTMap_Algo::initialize(){
 // ==============================================================
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " initializing " << endreq;
+  ATH_MSG_INFO ( " initializing " );
 
 
-  // retrieve LArId and CaloId managers and helpers from det store
-  // -------------------------------------------------------------
-  StatusCode sc = service( "DetectorStore", m_detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully located DetectorStore" << endreq;
-  }	
-
-
-  const CaloIdManager*	caloIdMgr;
-  sc = m_detStore->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
-  }	
+  const CaloIdManager*	caloIdMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
+  ATH_MSG_INFO ( "Successfully retrieved CaloIdManager from DetectorStore" );
   
   const CaloLVL1_ID* caloId = caloIdMgr->getLVL1_ID();
   if (!caloId) {
-    log << MSG::ERROR << "Could not access calolvl1 ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access calolvl1 ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully accessed calolvl1 ID helper" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed calolvl1 ID helper" );
     m_lvl1Helper = caloId ;
   }
   
   const LArEM_ID* emId = caloIdMgr->getEM_ID();
   if (!emId) {
-    log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully accessed lar EM ID helper" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar EM ID helper" );
     m_emHelper=emId;
   }
     
   const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
   if (!hecId) {
-    log << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully accessed lar HEC ID helper" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar HEC ID helper" );
     m_hecHelper=hecId;
   }
   
   const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
   if (!fcalId) {
-    log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully accessed lar FCAL ID helper" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar FCAL ID helper" );
     m_fcalHelper=fcalId;
   }
 
-  IToolSvc* toolSvc;
-  StatusCode status   = service( "ToolSvc",toolSvc  );
-  if(status.isSuccess()) {
-    sc = toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-    if(sc.isFailure()) {
-      log << MSG::ERROR << "Could not retrieve CaloTriggerTowerService"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-  } else    {
-    log << MSG::ERROR << "Could not get ToolSvc"<< endreq;
-    return(StatusCode::FAILURE);
-  }
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
+  ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
   
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -129,18 +99,10 @@ StatusCode testTTMap_Algo::initialize(){
 StatusCode testTTMap_Algo::execute(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> testTTMap_Algo::Executing " << endreq;
+  ATH_MSG_INFO ( "=> testTTMap_Algo::Executing " );
 
-  const LArTTCellMap* ttCellMap_c ;
-  StatusCode sc = m_detStore->retrieve( ttCellMap_c ) ;
-    
-  if ( sc.isFailure() || !ttCellMap_c)     {
-    log << MSG::ERROR << "Could not retrieve LArTTCellMap " 
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  const LArTTCellMap* ttCellMap_c = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
   LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
   
   //
@@ -150,13 +112,13 @@ StatusCode testTTMap_Algo::execute(){
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::const_iterator it   = ttCell_P->m_v.begin(); 
   VTTCELL::const_iterator it_e = ttCell_P->m_v.end(); 
-  log<<MSG::DEBUG<<"  Dump of LArTTCellMap" <<endreq; 
-  log<<MSG::DEBUG<<" Persistent LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
+  ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   unsigned int nLine=0;
   for (; it!=it_e;++it)       {
     const LArTTCell_P::LArTTCell_P_t& t = *it;    
-    log<<MSG::VERBOSE
-       <<" det="<<t.det
+    ATH_MSG_VERBOSE
+      (" det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -168,16 +130,15 @@ StatusCode testTTMap_Algo::execute(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
     nLine++;
   } 
-  log<<MSG::DEBUG<<" nb of lines in struct= " << nLine <<endreq; 
+  ATH_MSG_DEBUG(" nb of lines in struct= " << nLine );
   
   //
   // then test the map itself
   //
-  log<<MSG::DEBUG << " --1-- Loop on layers to test the map itself (directly, not via CaloTriggerTowerService)" 
-     << endreq;
+  ATH_MSG_DEBUG ( " --1-- Loop on layers to test the map itself (directly, not via CaloTriggerTowerService)"  );
   // loop on generalised trigger towers (1 id per layer)
   unsigned int nTT=0;
   unsigned int nTTincTile=0;
@@ -198,51 +159,48 @@ StatusCode testTTMap_Algo::execute(){
       nTT++;
       std::vector<Identifier> cellVec = ttCellMap->createCellIDvec(layerId);
       if(cellVec.size()==0) {
-	log<<MSG::VERBOSE << " --1-- empty TT " << m_lvl1Helper->show_to_string(layerId) << endreq;
+	ATH_MSG_VERBOSE ( " --1-- empty TT " << m_lvl1Helper->show_to_string(layerId) );
 	nEmpty++;
       } else {
 	for (unsigned int iCell=0;iCell<cellVec.size();iCell++){	
 	  nCell++;
 	  if(!(cellIdSet.insert(cellVec[iCell])).second) {
-	    log<<MSG::ERROR<<" --1-- Duplicate cell id " 
-	       << m_lvl1Helper->show_to_string(cellVec[iCell]) 
-	       << " in TT= "
-	       << m_lvl1Helper->show_to_string(layerId) 
-	       << endreq;
+	    ATH_MSG_ERROR(" --1-- Duplicate cell id " 
+                          << m_lvl1Helper->show_to_string(cellVec[iCell]) 
+                          << " in TT= "
+                          << m_lvl1Helper->show_to_string(layerId) );
 	  }
 
 	  // test return trip
 	  Identifier layerId2 = ttCellMap->whichTTID(cellVec[iCell]);
 	  if(layerId2 != layerId) {
 	    nWrong++;
-	    log<<MSG::DEBUG << " test1: return trip wrong for TT1 " 
-	       << m_lvl1Helper->show_to_string(layerId) 
-	       << " TT2 "
-	       << m_lvl1Helper->show_to_string(layerId2) 
-	       << " and cell "
-	       << m_lvl1Helper->show_to_string(cellVec[iCell]) 
-	       << endreq;
+	    ATH_MSG_DEBUG ( " test1: return trip wrong for TT1 " 
+                            << m_lvl1Helper->show_to_string(layerId) 
+                            << " TT2 "
+                            << m_lvl1Helper->show_to_string(layerId2) 
+                            << " and cell "
+                            << m_lvl1Helper->show_to_string(cellVec[iCell]) 
+                            );
 	  }
 	  // test is_in_lvl1 in passing
 	  bool inLvl1=m_ttSvc->is_in_lvl1(cellVec[iCell]);
 	  if(!inLvl1) {
 	    notInLvl1++;
-	    log<<MSG::VERBOSE << " cell not in LVL1; TTid= " << m_lvl1Helper->show_to_string(layerId) << endreq;
+	    ATH_MSG_VERBOSE ( " cell not in LVL1; TTid= " << m_lvl1Helper->show_to_string(layerId) );
 	  }
 	}
       }
     }
   }
-  log<<MSG::DEBUG << " --1-- nTT, nTT incl Tile, nEmpty(LAr only) =" 
-     << nTT 
-     << " " << nTTincTile  
-     << " " << nEmpty 
-     << endreq;
-  log<<MSG::DEBUG << " --1-- nCell, nWrong, nCell not in LVL1=" 
-     << " " << nCell 
-     << " " << nWrong 
-     << " " << notInLvl1 
-     << endreq;
+  ATH_MSG_DEBUG ( " --1-- nTT, nTT incl Tile, nEmpty(LAr only) =" 
+                  << nTT 
+                  << " " << nTTincTile  
+                  << " " << nEmpty  );
+  ATH_MSG_DEBUG ( " --1-- nCell, nWrong, nCell not in LVL1=" 
+                  << " " << nCell 
+                  << " " << nWrong 
+                  << " " << notInLvl1 );
 
 
   //
@@ -258,8 +216,7 @@ StatusCode testTTMap_Algo::execute(){
     }
   }
 
-  log<<MSG::DEBUG << " --2-- Loop on layers to test CaloTriggerTowerService" 
-     << endreq;
+  ATH_MSG_DEBUG ( " --2-- Loop on layers to test CaloTriggerTowerService" );
   // loop on generalised trigger towers (1 id per layer)
   nTT=0;
   nTTincTile=0;
@@ -277,7 +234,7 @@ StatusCode testTTMap_Algo::execute(){
       nTT++;
       std::vector<Identifier> cellVec = m_ttSvc->createCellIDvecLayer(layerId);
       if(cellVec.size()==0) {
-	log<<MSG::VERBOSE << " --2-- empty TT " << m_lvl1Helper->show_to_string(layerId) << endreq;
+	ATH_MSG_VERBOSE ( " --2-- empty TT " << m_lvl1Helper->show_to_string(layerId) );
 	nEmpty++;
       } else {
 	for (unsigned int iCell=0;iCell<cellVec.size();iCell++){	
@@ -291,24 +248,22 @@ StatusCode testTTMap_Algo::execute(){
 	  }
 
 	  if(!(cellIdSet.insert(cellVec[iCell])).second) {
-	    log<<MSG::ERROR<<" --2-- Duplicate cell id " 
-	       << m_lvl1Helper->show_to_string(cellVec[iCell]) 
-	       << " in TT= "
-	       << m_lvl1Helper->show_to_string(layerId) 
-	       << endreq;
+	    ATH_MSG_ERROR(" --2-- Duplicate cell id " 
+                          << m_lvl1Helper->show_to_string(cellVec[iCell]) 
+                          << " in TT= "
+                          << m_lvl1Helper->show_to_string(layerId) );
 	  }
 
 	  // test return trip
 	  Identifier layerId2 = m_ttSvc->whichTTID(cellVec[iCell]);
 	  if(layerId2 != layerId) {
 	    nWrong++;
-	    log<<MSG::DEBUG << " test2: return trip wrong for TT1 " 
-	       << m_lvl1Helper->show_to_string(layerId) 
-	       << " TT2 "
-	       << m_lvl1Helper->show_to_string(layerId2) 
-	       << " and cell "
-	       << m_lvl1Helper->show_to_string(cellVec[iCell]) 
-	       << endreq;
+	    ATH_MSG_DEBUG ( " test2: return trip wrong for TT1 " 
+                            << m_lvl1Helper->show_to_string(layerId) 
+                            << " TT2 "
+                            << m_lvl1Helper->show_to_string(layerId2) 
+                            << " and cell "
+                            << m_lvl1Helper->show_to_string(cellVec[iCell]) );
 	  }
 	}
       }
@@ -318,18 +273,15 @@ StatusCode testTTMap_Algo::execute(){
     dumpTTMap->close();
     delete dumpTTMap;
   }
-  log<<MSG::DEBUG << " --2-- nTT (incl Tile), nEmpty= " 
-     << nTT 
-     << " (" << nTTincTile << ") " 
-     << " " << nEmpty 
-     << endreq;
-  log<<MSG::DEBUG << " --2-- nCell, nWrong= " 
-     << " " << nCell 
-     << " " << nWrong 
-     << endreq;
+  ATH_MSG_DEBUG ( " --2-- nTT (incl Tile), nEmpty= " 
+                  << nTT 
+                  << " (" << nTTincTile << ") " 
+                  << " " << nEmpty );
+  ATH_MSG_DEBUG ( " --2-- nCell, nWrong= " 
+                  << " " << nCell 
+                  << " " << nWrong );
 
-  log<<MSG::DEBUG << " --3-- Loop on towers to test CaloTriggerTowerService" 
-     << endreq;
+  ATH_MSG_DEBUG ( " --3-- Loop on towers to test CaloTriggerTowerService" );
   // loop on trigger towers (1 per 'sampling' = EM or had)
   nTT=0;
   nTTincTile=0;
@@ -356,7 +308,7 @@ StatusCode testTTMap_Algo::execute(){
 
       std::vector<Identifier> cellVec = m_ttSvc->createCellIDvecTT(towerId);
       if(cellVec.size()==0) {
-	log<<MSG::VERBOSE << " --3-- empty TT " << m_lvl1Helper->show_to_string(towerId) << endreq;
+	ATH_MSG_VERBOSE ( " --3-- empty TT " << m_lvl1Helper->show_to_string(towerId) );
 	nEmpty++;
       } else {
 	for (unsigned int iCell=0;iCell<cellVec.size();iCell++){	
@@ -366,28 +318,25 @@ StatusCode testTTMap_Algo::execute(){
 	  Identifier towerId2=m_lvl1Helper->tower_id(layerId);
 	  if(towerId2 != towerId) {
 	    nWrong++;
-	    log<<MSG::DEBUG << " test3: return trip wrong for TT1 " 
-	       << m_lvl1Helper->show_to_string(towerId) 
-	       << " TT2 "
-	       << m_lvl1Helper->show_to_string(towerId2) 
-	       << " and cell "
-	       << m_lvl1Helper->show_to_string(cellVec[iCell]) 
-	       << endreq;
+	    ATH_MSG_DEBUG ( " test3: return trip wrong for TT1 " 
+                            << m_lvl1Helper->show_to_string(towerId) 
+                            << " TT2 "
+                            << m_lvl1Helper->show_to_string(towerId2) 
+                            << " and cell "
+                            << m_lvl1Helper->show_to_string(cellVec[iCell]) );
 	  }
 	}
       }
     }
   }
-  log<<MSG::DEBUG << " --3-- nTT (incl Tile), nEmpty, nTT if looping on layers= " 
-     << nTT 
-     << " (" << nTTincTile << ") " 
-     << " " << nEmpty 
-     << " " << nTTlay 
-     << endreq;
-  log<<MSG::DEBUG << " --3-- nCell, nWrong= "
-     << " " << nCell 
-     << " " << nWrong 
-     << endreq;
+  ATH_MSG_DEBUG ( " --3-- nTT (incl Tile), nEmpty, nTT if looping on layers= " 
+                  << nTT 
+                  << " (" << nTTincTile << ") " 
+                  << " " << nEmpty 
+                  << " " << nTTlay );
+  ATH_MSG_DEBUG ( " --3-- nCell, nWrong= "
+                  << " " << nCell 
+                  << " " << nWrong );
 
   return StatusCode::SUCCESS ;
 }
@@ -395,8 +344,6 @@ StatusCode testTTMap_Algo::execute(){
 /********************************************************/
 StatusCode testTTMap_Algo::finalize(){
 	
-  MsgStream log( messageService(), name() );	
-  log << MSG::INFO << " finalizing " << endreq;
+  ATH_MSG_INFO ( " finalizing " );
   return StatusCode::SUCCESS ; 
-  
 }

@@ -8,26 +8,22 @@
 /* author : F. Ledroit */
 /* date of creation : 10/10/2006 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 /** 
   * Algorithm meant to test LAr TT<->cell maping db obj
   *
   */
-class StoreGateSvc;
 class CaloLVL1_ID;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 class CaloTriggerTowerService;
 
-class testTTMap_Algo : public Algorithm {
+class testTTMap_Algo : public AthAlgorithm {
 
   private :
-  
-
-  StoreGateSvc*           m_detStore ;
 
   const CaloLVL1_ID*      m_lvl1Helper;
   const LArEM_ID*         m_emHelper;

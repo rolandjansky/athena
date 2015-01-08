@@ -8,25 +8,19 @@
 /* author : F. Ledroit */
 /* date of creation : 09/07/2007 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 /** 
   * Algorithm meant to update LAr TT<->cell maping db obj
   *
   */
-class StoreGateSvc;
+class updateTTMap_Algo : public AthAlgorithm {
 
-class updateTTMap_Algo : public Algorithm {
-
-  private :
-  
-
-  StoreGateSvc*           m_detStore ;
-
+private :
   bool m_dumpMap;
   
-  public :
+public :
   
   updateTTMap_Algo(const std::string &name ,  ISvcLocator* pSvcLocator) ;
   virtual ~updateTTMap_Algo();

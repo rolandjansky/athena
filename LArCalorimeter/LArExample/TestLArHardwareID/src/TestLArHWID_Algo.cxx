@@ -30,7 +30,7 @@
 
 /********************************************************/
 TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
-  Algorithm( name , pSvcLocator) ,
+  AthAlgorithm( name , pSvcLocator) ,
   m_Detector("EM") , 
   m_Manager("MGR") ,
   m_HighVoltage("OFF"),
@@ -162,187 +162,88 @@ TestLArHWID_Algo::~TestLArHWID_Algo(){
 // ==============================================================
 StatusCode TestLArHWID_Algo::initialize(){
 // ==============================================================
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " initializing " << endreq;
+  ATH_MSG_INFO ( " initializing " );
 
-  StatusCode sc ;  
-  IToolSvc* toolSvc;
-  StatusCode status = service( "ToolSvc",toolSvc  );
- 
-  if(status.isSuccess()) 
-    {
-      StatusCode sc = toolSvc->retrieveTool("LArCablingService", m_cablingSvc); 
-      if(sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "initialize() failed retrieving LArCablingService" << endreq;
-	return StatusCode::FAILURE;
-      }
-      else
-	{
-	  log << MSG::DEBUG << "initialize() successfully retrieved LArCablingService" << endreq;
-	}
-    }
-  else 
-    {
-      log << MSG::ERROR << "initialize() failed locating ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_cablingSvc) );
+  ATH_MSG_ERROR ("initialize() failed locating ToolSvc" );
 
-
-
-
-  // retrieve LArHVCablingTool from ToolSvc
-  // -------------------------------------
-  if(status.isSuccess()) 
-    {
-      StatusCode sc = toolSvc->retrieveTool("LArHVCablingTool", m_hvcablingTool); 
-      if(sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "initialize() failed retrieving LArHVCablingTool" << endreq;
-	return StatusCode::FAILURE;
-      }
-      else
-	{
-	  log << MSG::DEBUG << "initialize() successfully retrieved LArHVCablingTool" << endreq;
-	}
-    }
-  else
-    {
-      log << MSG::ERROR << "initialize() failed locating ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  // retrieve LArId and CaloId managers and helpers from det store
-  // -------------------------------------------------------------
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully located DetectorStore" << endreq;
-  }	
-
+  ATH_CHECK( toolSvc()->retrieveTool("LArHVCablingTool", m_hvcablingTool) );
+  ATH_MSG_DEBUG ( "initialize() successfully retrieved LArHVCablingTool" );
 
   // Calo
   if(m_Manager == "DIRECT") {
-    const CaloLVL1_ID* caloId;
-    sc = detStore->retrieve(caloId, "CaloLVL1_ID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get CaloLVL1_ID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      log << MSG::DEBUG << " Found the CaloLVL1_ID helper. " << endreq;
-      m_lvl1Helper=caloId;
-    }
-    const LArEM_ID* em_id;
-    sc = detStore->retrieve(em_id, "LArEM_ID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArEM_ID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_emHelper=em_id;
-      log << MSG::DEBUG << " Found the LArEM_ID helper. " << endreq;
-    }
-    const LArHEC_ID* hec_id;
-    sc = detStore->retrieve(hec_id, "LArHEC_ID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArHEC_ID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_hecHelper=hec_id;
-      log << MSG::DEBUG << " Found the LArHEC_ID helper. " << endreq;
-    }
-    const LArFCAL_ID* fcal_id;
-    sc = detStore->retrieve(fcal_id, "LArFCAL_ID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArFCAL_ID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_fcalHelper=fcal_id;
-      log << MSG::DEBUG << " Found the LArFCAL_ID helper. " << endreq;
-    }
+    ATH_CHECK( detStore()->retrieve(m_lvl1Helper, "CaloLVL1_ID") );
+    ATH_MSG_DEBUG ( " Found the CaloLVL1_ID helper. " );
+
+    ATH_CHECK( detStore()->retrieve(m_emHelper, "LArEM_ID") );
+    ATH_MSG_DEBUG ( " Found the LArEM_ID helper. " );
+
+    ATH_CHECK( detStore()->retrieve(m_hecHelper, "LArHEC_ID") );
+    ATH_MSG_DEBUG ( " Found the LArHEC_ID helper. " );
+
+    ATH_CHECK( detStore()->retrieve(m_fcalHelper, "LArFCAL_ID") );
+    ATH_MSG_DEBUG ( " Found the LArFCAL_ID helper. " );
   }
   else {
     // via Mgr
-    const CaloIdManager*	caloIdMgr;
-    sc = detStore->retrieve(caloIdMgr);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
-    }	
+    const CaloIdManager*	caloIdMgr = nullptr;
+    ATH_CHECK( detStore()->retrieve(caloIdMgr) );
+    ATH_MSG_INFO ( "Successfully retrieved CaloIdManager from DetectorStore" );
 
     const CaloLVL1_ID* caloId = caloIdMgr->getLVL1_ID();
     if (!caloId) {
-      log << MSG::ERROR << "Could not access calolvl1 ID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access calolvl1 ID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed calolvl1 ID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed calolvl1 ID helper" );
       m_lvl1Helper = caloId ;
     }
 
     const LArEM_ID* emId = caloIdMgr->getEM_ID();
     if (!emId) {
-      log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed lar EM ID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed lar EM ID helper" );
       m_emHelper=emId;
     }
     
     const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
     if (!hecId) {
-      log << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed lar HEC ID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed lar HEC ID helper" );
       m_hecHelper=hecId;
     }
     
     const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
     if (!fcalId) {
-      log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed lar FCAL ID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed lar FCAL ID helper" );
       m_fcalHelper=fcalId;
     }
   }
 
   // LAr 
   if(m_Manager == "DIRECT") {
-    const LArOnlineID* online_id;
-    sc = detStore->retrieve(online_id, "LArOnlineID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_onlineHelper=online_id;
-      log << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
-    }
-
+    ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+    ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
   }
   else {
     // via Mgr
-    const LArIdManager*	larIdMgr;
-    sc = detStore->retrieve(larIdMgr);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-    }	    
+    const LArIdManager*	larIdMgr = nullptr;
+    ATH_CHECK(  detStore()->retrieve(larIdMgr) );
+    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
+
     const LArOnlineID* onlineId = larIdMgr->getOnlineID();
     if (!onlineId) {
-      log << MSG::ERROR << "Could not access lar ONLINE ID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access lar ONLINE ID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed lar ONLINE ID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed lar ONLINE ID helper" );
       m_onlineHelper=onlineId;
     }
 
@@ -352,34 +253,21 @@ StatusCode TestLArHWID_Algo::initialize(){
   // LArHVLine  
   // =============================
   if(m_Manager == "DIRECT") {
-    const LArHVLineID* hvId;
-    sc = detStore->retrieve(hvId, "LArHVLineID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArHVLineID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_hvHelper=hvId;
-      log << MSG::DEBUG << " Found the LArHVLineID helper. " << endreq;
-    }
+    ATH_CHECK( detStore()->retrieve(m_hvHelper, "LArHVLineID") );
+    ATH_MSG_DEBUG ( " Found the LArHVLineID helper. " );
   }
   else {
     // via Mgr
-    const LArIdManager*	larIdMgr;
-    sc = detStore->retrieve(larIdMgr);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      log << MSG::INFO << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-    }	    
+    const LArIdManager*	larIdMgr = nullptr;
+    ATH_CHECK( detStore()->retrieve(larIdMgr) );
+    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
+
     const LArHVLineID* hvId = larIdMgr->getHVLineID();
     if (!hvId) {
-      log << MSG::ERROR << "Could not access LArHVLineID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access LArHVLineID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed LArHVLineID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed LArHVLineID helper" );
       m_hvHelper=hvId;
     }
   }
@@ -387,42 +275,25 @@ StatusCode TestLArHWID_Algo::initialize(){
   // LArElectrode
   // =============================
   if(m_Manager == "DIRECT") {
-    const LArElectrodeID* elecId;
-    sc = detStore->retrieve(elecId, "LArElectrodeID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArElectrodeID helper !" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      m_electrodeHelper=elecId;
-      log << MSG::DEBUG << " Found the LArElectrodeID helper. " << endreq;
-    }
+    ATH_CHECK( detStore()->retrieve(m_electrodeHelper, "LArElectrodeID") );
+    ATH_MSG_DEBUG ( " Found the LArElectrodeID helper. " );
   }
   else {
     // via Mgr
-    const LArIdManager*	larIdMgr;
-    sc = detStore->retrieve(larIdMgr);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } 
-    else {
-      log << MSG::INFO << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-    }	    
+    const LArIdManager*	larIdMgr = nullptr;
+    ATH_CHECK( detStore()->retrieve(larIdMgr) );
+    ATH_MSG_INFO ( "Successfully retrieved LArIdManager from DetectorStore" );
     const LArElectrodeID* elecId = larIdMgr->getLArElectrodeID();
     if (!elecId) {
-      log << MSG::ERROR << "Could not access LArElectrodeID helper" << endreq;
+      ATH_MSG_ERROR ( "Could not access LArElectrodeID helper" );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::INFO << "Successfully accessed LArElectrodeID helper" << endreq;
+      ATH_MSG_INFO ( "Successfully accessed LArElectrodeID helper" );
       m_electrodeHelper=elecId;
     }
   }
 
-
-
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -430,8 +301,7 @@ StatusCode TestLArHWID_Algo::initialize(){
 StatusCode TestLArHWID_Algo::execute(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> TestLArHWID_Algo::Executing " << endreq;
+  ATH_MSG_INFO ( "=> TestLArHWID_Algo::Executing " );
 
   // Output files for all Tests
   //---------------------------
@@ -482,32 +352,32 @@ StatusCode TestLArHWID_Algo::execute(){
   // Output files
   std::string l_version = m_emHelper->dictionaryVersion();
   std::string m_Connected = "ALL";
-  log << MSG::INFO << " Dictionary Version      = " << l_version << endreq; 
-  log << MSG::INFO << " [INI] m_Detector        = " << m_Detector << endreq;
-  log << MSG::INFO << " [INI] m_SubDetector     = " << m_SubDetector << endreq;
-  log << MSG::INFO << " [INI] m_HighVoltage     = " << m_HighVoltage << endreq;
-  log << MSG::INFO << " [INI] m_HVlineToOffline = " << m_HVlineToOffline << endreq;
-  log << MSG::INFO << " [INI] m_ElectrodeOffline= " << m_HVelectrodeToOffline << endreq;
-  log << MSG::INFO << " [INI] m_OnlineTest      = " << m_OnlineTest << endreq;
-  log << MSG::INFO << " [INI] m_OfflineTest     = " << m_OfflineTest << endreq;
-  log << MSG::INFO << " [INI] m_Connected       = " << m_Connected  << endreq;
+  ATH_MSG_INFO ( " Dictionary Version      = " << l_version );
+  ATH_MSG_INFO ( " [INI] m_Detector        = " << m_Detector );
+  ATH_MSG_INFO ( " [INI] m_SubDetector     = " << m_SubDetector );
+  ATH_MSG_INFO ( " [INI] m_HighVoltage     = " << m_HighVoltage );
+  ATH_MSG_INFO ( " [INI] m_HVlineToOffline = " << m_HVlineToOffline );
+  ATH_MSG_INFO ( " [INI] m_ElectrodeOffline= " << m_HVelectrodeToOffline );
+  ATH_MSG_INFO ( " [INI] m_OnlineTest      = " << m_OnlineTest );
+  ATH_MSG_INFO ( " [INI] m_OfflineTest     = " << m_OfflineTest );
+  ATH_MSG_INFO ( " [INI] m_Connected       = " << m_Connected  );
 
   if(m_OnlineTest != "OFF" || m_OfflineTest != "OFF" || m_HighVoltage != "OFF" )
     {// Online or Offline Test ON 
       if(l_version == "H8TestBeam"){
-	log << MSG::INFO << " ========================= " << endreq;
-	log << MSG::INFO << "  H8 Test Beam Dictionary  " << endreq;
-	log << MSG::INFO << " ========================= " << endreq;
+	ATH_MSG_INFO ( " ========================= " );
+	ATH_MSG_INFO ( "  H8 Test Beam Dictionary  " );
+	ATH_MSG_INFO ( " ========================= " );
 	fileError.open("H8_ERROR.out",std::ios::out);
 	if( m_OnlineTest != "OFF" ){
 	  fileAll.open("H8_ONLINE.out",std::ios::out);
-	  log << MSG::INFO << " --> Online Ids in H8_ONLINE.out " << endreq;
+	  ATH_MSG_INFO ( " --> Online Ids in H8_ONLINE.out " );
 	}
 	if( m_OfflineTest == "ON" ){
 	  offlineH8.open("H8_OFFLINE.out",std::ios::out);
-	  log << MSG::INFO << " --> Offline Ids in H8_OFFLINE.out " << endreq;
+	  ATH_MSG_INFO ( " --> Offline Ids in H8_OFFLINE.out " );
 	}
-	log << MSG::INFO << " --> error message in H8_ERROR.out " << endreq;
+	ATH_MSG_INFO ( " --> error message in H8_ERROR.out " );
       }
       else if(l_version == "H6TestBeam"){
 	fileError.open("H6_ERROR.out",std::ios::out);
@@ -515,12 +385,12 @@ StatusCode TestLArHWID_Algo::execute(){
 	fileFcal.open("H6_FCAL.out",std::ios::out);
 	fileHec.open("H6_HEC.out",std::ios::out);
 	fileEmec.open("H6_EMEC.out",std::ios::out);
-	log << MSG::INFO << " ======================== " << endreq;
-	log << MSG::INFO << " H6 Test Beam Dictionary  " << endreq;
-	log << MSG::INFO << " ======================== " << endreq;
-	log << MSG::INFO << " --> error message in H6_ERROR.out " << endreq;
-	log << MSG::INFO << " --> subdetector messages in H6_subdet.out " << endreq;
-	log << MSG::INFO << " --> Online/offline Ids in H6_ONLINE.out " << endreq;
+	ATH_MSG_INFO ( " ======================== " );
+	ATH_MSG_INFO ( " H6 Test Beam Dictionary  " );
+	ATH_MSG_INFO ( " ======================== " );
+	ATH_MSG_INFO ( " --> error message in H6_ERROR.out " );
+	ATH_MSG_INFO ( " --> subdetector messages in H6_subdet.out " );
+	ATH_MSG_INFO ( " --> Online/offline Ids in H6_ONLINE.out " );
       }
       else if(l_version == "fullAtlas"){
 	// if version == fullAtlas
@@ -595,9 +465,9 @@ StatusCode TestLArHWID_Algo::execute(){
 	if( m_Calibration == "ON" ){
 	  fileCalib.open("ATLAS_CALIB.out",std::ios::out);
 	}
-	log << MSG::INFO << " ============================= " << endreq;
-	log << MSG::INFO << "      ATLAS   Dictionary  " << endreq;
-	log << MSG::INFO << " ============================= " << endreq;
+	ATH_MSG_INFO ( " ============================= " );
+	ATH_MSG_INFO ( "      ATLAS   Dictionary  " );
+	ATH_MSG_INFO ( " ============================= " );
       }
     }
   
@@ -617,10 +487,10 @@ StatusCode TestLArHWID_Algo::execute(){
   
   if( m_HighVoltage == "ON" ){
     // if HighVoltage = ON
-    log << MSG::INFO << "   " << endreq;
-    log << MSG::INFO << "===================================================  " << endreq;
-    log << MSG::INFO << "  >>> Tests for High Voltage Identifiers <<<   " << endreq;
-    log << MSG::INFO << "===================================================  " << endreq;  
+    ATH_MSG_INFO ( "   " );
+    ATH_MSG_INFO ( "===================================================  " );
+    ATH_MSG_INFO ( "  >>> Tests for High Voltage Identifiers <<<   " );
+    ATH_MSG_INFO ( "===================================================  " );
     
 
     
@@ -939,8 +809,8 @@ StatusCode TestLArHWID_Algo::execute(){
 	    HWIdentifier elecId = *itElectrode;      
 	    n_electrode++;
 	    if(n_electrode==n_electrodeold+5000){
-	      log << MSG::INFO << "[ELECTRODE] processing ElectrodeID ..# "  
-		  << n_electrode << endreq;
+	      ATH_MSG_INFO ( "[ELECTRODE] processing ElectrodeID ..# "  
+                             << n_electrode );
 	      n_electrodeold=n_electrode;
 	    }
 	    if( m_Detector == "EMB" || m_Detector == "ALL"){
@@ -1081,62 +951,62 @@ StatusCode TestLArHWID_Algo::execute(){
 	    IdentifierHash hashId = m_electrodeHelper->electrodeHash( elecId );
 	    HWIdentifier   elecId2  = m_electrodeHelper->ElectrodeId( hashId );
 	    if ( elecId2 != elecId ) {
-	      log << MSG::INFO 
-		  << " elId2 incorrect: " <<  m_electrodeHelper->show_to_string(elecId2) 
+	      ATH_MSG_INFO 
+                ( " elId2 incorrect: " <<  m_electrodeHelper->show_to_string(elecId2) 
 		  << " should be: " <<  m_electrodeHelper->show_to_string(elecId) 
 		  << " hashId: " << hashId
-		  << endreq;
+		  );
 	    }
 	  }
 	int nelDET = nelFCAL+nelHEC+nelEMB+nelEMEC+nelEMBPS+nelEMECPS;
-	log << MSG::INFO  << "============================================================================ " << endreq;
+	ATH_MSG_INFO  ( "============================================================================ " );
 	if( m_Detector == "ALL" ){
-	  log << MSG::INFO  << " [ELECTRODE] | Test of LArElectrodeID's " << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
+	  ATH_MSG_INFO  ( " [ELECTRODE] | Test of LArElectrodeID's " );
+	  ATH_MSG_INFO  ( "============================================================================ " );
 	}
 	if( m_Detector == "ALL"){
-	  log << MSG::INFO  << "  total number Electrode " << n_electrode << ", electrode_hash_max= " 
-	      << m_electrodeHelper->electrodeHashMax() << endreq;
+	  ATH_MSG_INFO  ( "  total number Electrode " << n_electrode << ", electrode_hash_max= " 
+                          << m_electrodeHelper->electrodeHashMax() );
 	}
 	if( m_Detector == "EMB" || m_Detector == "ALL"){
-	  log << MSG::INFO  << " [ELECTRODE] |  EMBARREL SUMMARY (list in ATLAS_HIGHVOLTAGE_EMB.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- EMB      : " << nelEMB  << " (ref: 28672 for 1008 HV lines)" << endreq;
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  EMBARREL SUMMARY (list in ATLAS_HIGHVOLTAGE_EMB.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- EMB      : " << nelEMB  << " (ref: 28672 for 1008 HV lines)" );
 	}
 	if( m_Detector == "EMEC" || m_Detector == "ALL"){ 
-	  log << MSG::INFO  << " [ELECTRODE] |  EMEC   SUMMARY (list in ATLAS_HIGHVOLTAGE_EMEC.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- EMEC     : " << nelEMEC << " (ref: 23552 for 1493 HV lines)" << endreq; 
-	  log << MSG::INFO  << "    - inWheel :  " << nelEMECin << " (ref:  2048)" << endreq; 
-	  log << MSG::INFO  << "    - outWheel: " << nelEMECout << " (ref: 21504)" << endreq; 
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  EMEC   SUMMARY (list in ATLAS_HIGHVOLTAGE_EMEC.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- EMEC     : " << nelEMEC << " (ref: 23552 for 1493 HV lines)" );
+	  ATH_MSG_INFO  ( "    - inWheel :  " << nelEMECin << " (ref:  2048)" );
+	  ATH_MSG_INFO  ( "    - outWheel: " << nelEMECout << " (ref: 21504)" );
 	}
 	if( m_Detector == "HEC" || m_Detector == "ALL"){
-	  log << MSG::INFO  << " [ELECTRODE] |  HEC  SUMMARY (list in ATLAS_HIGHVOLTAGE_HEC.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- HEC      : " << nelHEC  << " (ref: 10240 for 1024 HV lines)" << endreq;	     
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  HEC  SUMMARY (list in ATLAS_HIGHVOLTAGE_HEC.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- HEC      : " << nelHEC  << " (ref: 10240 for 1024 HV lines)" );
 	}
 	if( m_Detector == "FCAL" || m_Detector == "ALL"){
-	  log << MSG::INFO  << " [ELECTRODE] |  FCAL   SUMMARY (list in ATLAS_HIGHVOLTAGE_FCAL.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- FCAL     :   " << nelFCAL << " (ref:  384 for 224 HV lines)" << endreq;
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  FCAL   SUMMARY (list in ATLAS_HIGHVOLTAGE_FCAL.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- FCAL     :   " << nelFCAL << " (ref:  384 for 224 HV lines)" );
 	}
 	if( m_Detector == "EMBPS" || m_Detector == "ALL"){
-	  log << MSG::INFO  << " [ELECTRODE] |  EMBPS SUMMARY (list in ATLAS_HIGHVOLTAGE_EMBPS.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- EMBPS    :  " << nelEMBPS << " (ref: 1024 for 512 HV lines)" << endreq;
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  EMBPS SUMMARY (list in ATLAS_HIGHVOLTAGE_EMBPS.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- EMBPS    :  " << nelEMBPS << " (ref: 1024 for 512 HV lines)" );
 	}
 	if( m_Detector == "EMECPS" || m_Detector == "ALL"){
-	  log << MSG::INFO  << " [ELECTRODE] |  EMECS SUMMARY (list in ATLAS_HIGHVOLTAGE_EMECPS.out)" << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- EMECPS   :   " << nelEMECPS << " (ref:  128 for 128 HV lines)" << endreq;
+	  ATH_MSG_INFO  ( " [ELECTRODE] |  EMECS SUMMARY (list in ATLAS_HIGHVOLTAGE_EMECPS.out)" );
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- EMECPS   :   " << nelEMECPS << " (ref:  128 for 128 HV lines)" );
 	}
 	if( m_Detector == "ALL"){
-	  log << MSG::INFO  << "============================================================================ " << endreq;
-	  log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
+	  ATH_MSG_INFO  ( "============================================================================ " );
+	  ATH_MSG_INFO  ( "  -- TOTAL    : " << nelDET );
+	  ATH_MSG_INFO  ( "============================================================================ " );
 	}
       }
-      log << MSG::INFO  << "============================================================================ " << endreq;
+      ATH_MSG_INFO  ( "============================================================================ " );
       
       // Close() files
       // -------------
@@ -1282,7 +1152,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  if( m_SubDetector == "ALL" ){
 		    nEMB++;
 		    if( nEMB == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMB << " in EMB " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMB << " in EMB " );
 		      nOLD = nEMB;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -1295,9 +1165,9 @@ StatusCode TestLArHWID_Algo::execute(){
 		  // -------------
 		  if( (m_SubDetector == "S0" || m_SubDetector== "ALL") && ( sam == 0 )){
 		    nEMB0++;
-		    log << MSG::DEBUG << "EMBPS Phi=" << phi << endreq;
+		    ATH_MSG_DEBUG ( "EMBPS Phi=" << phi );
 		    if( nEMB0 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMB0 << " in EMBPS " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMB0 << " in EMBPS " );
 		      nOLD = nEMB0;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -1339,7 +1209,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nEMB1r0++;}
 		    if( region == 1 ){nEMB1r1++;}
 		    if( nEMB1 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMB1 << " in EMB1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMB1 << " in EMB1 " );
 		      nOLD = nEMB1;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -1384,7 +1254,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 1 ){nEMB2r1++;}
 
 		    if( nEMB2 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMB2 << " in EMB2 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMB2 << " in EMB2 " );
 		      nOLD = nEMB2;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -1425,9 +1295,9 @@ StatusCode TestLArHWID_Algo::execute(){
 		  // -----------
 		  if( (m_SubDetector == "S3" || m_SubDetector== "ALL") && ( sam == 3) ){
 		    nEMB3++;
-		    log << MSG::DEBUG << "EM3 Phi=" << phi << endreq;
+		    ATH_MSG_DEBUG ( "EM3 Phi=" << phi );
 		    if( nEMB3 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMB3 << " in EMB3 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMB3 << " in EMB3 " );
 		      nOLD = nEMB3;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -1489,7 +1359,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    nEMEC0++;		      
 		    // Test of individual methods:
 		    if( nEMEC0 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing  cell " << nEMEC0 << " in EMEC1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing  cell " << nEMEC0 << " in EMEC1 " );
 		      nOLD = nEMEC0;
 		    }
 		    
@@ -1540,7 +1410,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 5 ){nEMEC1r5++;}
 		    // Test of individual methods:
 		    if( nEMEC1 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nEMEC1 << " in EMEC1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nEMEC1 << " in EMEC1 " );
 		      nOLD = nEMEC1;
 		    }		    
 		    // Test of getCellElectrodeIdVec()
@@ -1592,7 +1462,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 1 ){nEMEC2r1++;}
 		    // Test of individual methods:
 		    if( nEMEC2 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nEMEC2 << " in EMEC2 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nEMEC2 << " in EMEC2 " );
 		      nOLD = nEMEC2;
 		    }
 		    HWIdentifier onId = m_cablingSvc->createSignalChannelID( offId ) ; 
@@ -1640,7 +1510,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    nEMEC3++;
 		    // Test of individual methods:
 		    if( nEMEC3 == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nEMEC3 << " in EMEC3" << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nEMEC3 << " in EMEC3" );
 		      nOLD = nEMEC3;
 		    }
 		    
@@ -1685,7 +1555,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // m_SubDetector == ALL
 		    nEMEC++;
 		    if( nEMEC == nOLD+1000 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nEMEC << " in EMEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nEMEC << " in EMEC " );
 		      nOLD = nEMEC;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1726,7 +1596,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC1r0++;}
 		    if( region == 1 ){nHEC1r1++;}		    
 		    if( nHEC1 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC1 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC1 << " in HEC " );
 		      nOLD = nHEC1;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1773,7 +1643,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC2r0++;}
 		    if( region == 1 ){nHEC2r1++;}		    
 		    if( nHEC2 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC2 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC2 << " in HEC " );
 		      nOLD = nHEC2;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1821,7 +1691,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC3r0++;}
 		    if( region == 1 ){nHEC3r1++;}		    
 		    if( nHEC3 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC3 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC3 << " in HEC " );
 		      nOLD = nHEC3;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1868,7 +1738,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC0r0++;}
 		    if( region == 1 ){nHEC0r1++;}		    
 		    if( nHEC0 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC0 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC0 << " in HEC " );
 		      nOLD = nHEC0;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1913,7 +1783,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // HEC - ALL
 		    nHEC++;
 		    if( nHEC == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC << " in HEC " );
 		      nOLD = nHEC;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -1945,7 +1815,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  //Side = 1;
                   //}  
 		  if( nFCAL == nOLD+100 ){
-		    log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nFCAL << " in FCAL " << endreq;
+		    ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nFCAL << " in FCAL " );
 		    nOLD = nFCAL;
 		  }
 		  
@@ -1983,130 +1853,130 @@ StatusCode TestLArHWID_Algo::execute(){
 		}
 	      }
 	  }
-	log << MSG::INFO  << "============================================================================ " << endreq;
-	log << MSG::INFO  << " [OFFLINE->ELECTRODE] :  List of electrodeId " << endreq; 
-	log << MSG::INFO  << "============================================================================ " << endreq;
+	ATH_MSG_INFO  ( "============================================================================ " );
+	ATH_MSG_INFO  ( " [OFFLINE->ELECTRODE] :  List of electrodeId " );
+	ATH_MSG_INFO  ( "============================================================================ " );
 	if( m_Detector == "EMB" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in EMB :" << nEMB << endreq;
-	    log << MSG::INFO  << "    - nb electrodes in EMB :" << nelEMB << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in EMB :" << nEMB );
+	    ATH_MSG_INFO  ( "    - nb electrodes in EMB :" << nelEMB );
 	  }
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB0:" << nEMB0 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMB0:" << nelEMB0 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB0:" << nEMB0 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMB0:" << nelEMB0 );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB1:" << nEMB1 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMB1:" << nelEMB1 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nEMB1r0 
-		<< " N(el)= " << nelEMB1r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nEMB1r1 
-		<< " N(el)= " << nelEMB1r1 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB1:" << nEMB1 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMB1:" << nelEMB1 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nEMB1r0 
+                            << " N(el)= " << nelEMB1r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nEMB1r1 
+                            << " N(el)= " << nelEMB1r1 );
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB2:" << nEMB2 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMB2:" << nelEMB2 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nEMB2r0 
-		<< " N(el)= " << nelEMB2r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nEMB2r1 
-		<< " N(el)= " << nelEMB2r1 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB2:" << nEMB2 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMB2:" << nelEMB2 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nEMB2r0 
+                            << " N(el)= " << nelEMB2r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nEMB2r1 
+                            << " N(el)= " << nelEMB2r1 );
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB3:" << nEMB3 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMB3:" << nelEMB3 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB3:" << nEMB3 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMB3:" << nelEMB3 );
 	  }
 	}
 	if( m_Detector == "EMEC" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in EMEC:" << nEMEC << endreq;
-	    log << MSG::INFO  << "    - nb electrodes in EMEC:" << nelEMEC << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in EMEC:" << nEMEC );
+	    ATH_MSG_INFO  ( "    - nb electrodes in EMEC:" << nelEMEC );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC1:" << nEMEC1 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMEC1:" << nelEMEC1 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 0 N(cell)= " << nEMEC1r0 
-		<< " N(el)= " << nelEMEC1r0 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 1 N(cell)= " << nEMEC1r1 
-		<< " N(el)= " << nelEMEC1r1 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 2 N(cell)= " << nEMEC1r2 
-		<< " N(el)= " << nelEMEC1r2 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 3 N(cell)= " << nEMEC1r3 
-		<< " N(el)= " << nelEMEC1r3 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 4 N(cell)= " << nEMEC1r4 
-		<< " N(el)= " << nelEMEC1r4 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 5 N(cell)= " << nEMEC1r5 
-		<< " N(el)= " << nelEMEC1r5 << endreq;
-	    log << MSG::INFO  << "      - INNER region 0 N(cell)= " << nEMEC1r0IN 
-	    	<< " N(el)= " << nelEMEC1r0IN << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC1:" << nEMEC1 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMEC1:" << nelEMEC1 );
+	    ATH_MSG_INFO  ( "      - OUTER region 0 N(cell)= " << nEMEC1r0 
+                            << " N(el)= " << nelEMEC1r0 );
+	    ATH_MSG_INFO  ( "      - OUTER region 1 N(cell)= " << nEMEC1r1 
+                            << " N(el)= " << nelEMEC1r1 );
+	    ATH_MSG_INFO  ( "      - OUTER region 2 N(cell)= " << nEMEC1r2 
+                            << " N(el)= " << nelEMEC1r2 );
+	    ATH_MSG_INFO  ( "      - OUTER region 3 N(cell)= " << nEMEC1r3 
+                            << " N(el)= " << nelEMEC1r3 );
+	    ATH_MSG_INFO  ( "      - OUTER region 4 N(cell)= " << nEMEC1r4 
+                            << " N(el)= " << nelEMEC1r4 );
+	    ATH_MSG_INFO  ( "      - OUTER region 5 N(cell)= " << nEMEC1r5 
+                            << " N(el)= " << nelEMEC1r5 );
+	    ATH_MSG_INFO  ( "      - INNER region 0 N(cell)= " << nEMEC1r0IN 
+                            << " N(el)= " << nelEMEC1r0IN );
 
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC2:" << nEMEC2 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMEC2:" << nelEMEC2 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 0 N(cell)= " << nEMEC2r0 
-		<< " N(el)= " << nelEMEC2r0 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 1 N(cell)= " << nEMEC2r1 
-		<< " N(el)= " << nelEMEC2r1 << endreq;
-	    log << MSG::INFO  << "      - INNER region 0 N(cell)= " << nEMEC2r0IN 
-	    	<< " N(el)= " << nelEMEC2r0IN << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC2:" << nEMEC2 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMEC2:" << nelEMEC2 );
+	    ATH_MSG_INFO  ( "      - OUTER region 0 N(cell)= " << nEMEC2r0 
+                            << " N(el)= " << nelEMEC2r0 );
+	    ATH_MSG_INFO  ( "      - OUTER region 1 N(cell)= " << nEMEC2r1 
+                            << " N(el)= " << nelEMEC2r1 );
+	    ATH_MSG_INFO  ( "      - INNER region 0 N(cell)= " << nEMEC2r0IN 
+                            << " N(el)= " << nelEMEC2r0IN );
 
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC3:" << nEMEC3 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMEC3:" << nelEMEC3 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC3:" << nEMEC3 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMEC3:" << nelEMEC3 );
 	  }
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC0:" << nEMEC0 << endreq;
-	    log << MSG::INFO  << "    - nb electrode in EMEC0:" << nelEMEC0 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC0:" << nEMEC0 );
+	    ATH_MSG_INFO  ( "    - nb electrode in EMEC0:" << nelEMEC0 );
 	  }
 	}
 	if( m_Detector == "HEC" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC0  :" << nHEC0 << endreq;
-	    log << MSG::INFO  << " - nb electrodes in HEC0     :" << nelHEC0 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC0r0 
-		<< " N(el)= " << nelHEC0r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC0r1 
-		<< " N(el)= " << nelHEC0r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC0  :" << nHEC0 );
+	    ATH_MSG_INFO  ( " - nb electrodes in HEC0     :" << nelHEC0 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC0r0 
+                            << " N(el)= " << nelHEC0r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC0r1 
+                            << " N(el)= " << nelHEC0r1 );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC1  :" << nHEC1 << endreq;
-	    log << MSG::INFO  << " - nb electrodes in HEC1     :" << nelHEC1 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC1r0 
-		<< " N(el)= " << nelHEC1r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC1r1 
-		<< " N(el)= " << nelHEC1r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC1  :" << nHEC1 );
+	    ATH_MSG_INFO  ( " - nb electrodes in HEC1     :" << nelHEC1 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC1r0 
+                            << " N(el)= " << nelHEC1r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC1r1 
+                            << " N(el)= " << nelHEC1r1 );
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC2  :" << nHEC2 << endreq;
-	    log << MSG::INFO  << " - nb electrodes in HEC2     :" << nelHEC2 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC2r0 
-		<< " N(el)= " << nelHEC2r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC2r1 
-		<< " N(el)= " << nelHEC2r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC2  :" << nHEC2 );
+	    ATH_MSG_INFO  ( " - nb electrodes in HEC2     :" << nelHEC2 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC2r0 
+                            << " N(el)= " << nelHEC2r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC2r1 
+                            << " N(el)= " << nelHEC2r1 );
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC3  :" << nHEC3 << endreq;
-	    log << MSG::INFO  << " - nb electrodes in HEC3     :" << nelHEC3 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC3r0 
-		<< " N(el)= " << nelHEC3r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC3r1 
-		<< " N(el)= " << nelHEC3r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC3  :" << nHEC3 );
+	    ATH_MSG_INFO  ( " - nb electrodes in HEC3     :" << nelHEC3 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC3r0 
+                            << " N(el)= " << nelHEC3r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC3r1 
+                            << " N(el)= " << nelHEC3r1 );
 	  }
 
 
 	}
 	if( m_Detector == "FCAL" || m_Detector == "ALL" ){
-	  log << MSG::INFO  << " - Offline channels in FCAL :" << nFCAL << endreq;
-	  log << MSG::INFO  << "    - nb electrodes in FCAL :" << nelFCAL << endreq;
+	  ATH_MSG_INFO  ( " - Offline channels in FCAL :" << nFCAL );
+	  ATH_MSG_INFO  ( "    - nb electrodes in FCAL :" << nelFCAL );
 	}
 	if( m_Detector == "ALL"){
-	  log << MSG::INFO  << "============================================================================ " << endreq;
+	  ATH_MSG_INFO  ( "============================================================================ " );
 	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endreq; 
-	log << MSG::INFO  << "============================================================================ " << endreq;
+          ATH_MSG_INFO  ( "============================================================================ " );
 	}
       } // m_HVelectrodeToOffline == ON
-    log << MSG::INFO  << "============================================================================ " << endreq;
+    ATH_MSG_INFO  ( "============================================================================ " );
 
 
 
@@ -2228,8 +2098,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		  if( (m_SubDetector == "S0"|| m_SubDetector == "ALL" ) && sam == 0 ){
 		    nEMB0++;
 		    if( nEMB0 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMB0 
-			  << " in EMB0 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMB0 
+                                     << " in EMB0 " );
 		      nOLD = nEMB0;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -2240,7 +2110,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
-		    log << MSG::DEBUG << "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() << endreq;
+		    ATH_MSG_DEBUG ( "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() );
 		    fileHVEMBOFF 
 		      << "OfflineID " 
 		      << m_onlineHelper->show_to_string(offId);
@@ -2268,8 +2138,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nEMB1r0++;}
 		    if( region == 1 ){nEMB1r1++;}
 		    if( nEMB1 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMB1 
-			  << " in EMB1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMB1 
+                                     << " in EMB1 " );
 		      nOLD = nEMB1;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -2282,7 +2152,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
-		    log << MSG::DEBUG << "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() << endreq;
+		    ATH_MSG_DEBUG ( "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() );
 		    fileHVEMBOFF 
 		      << "OfflineID " 
 		      << m_onlineHelper->show_to_string(offId);
@@ -2310,8 +2180,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nEMB2r0++;}
 		    if( region == 1 ){nEMB2r1++;}
 		    if( nEMB2 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " 
-			  << nEMB2 << " in EMB2 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " 
+                                     << nEMB2 << " in EMB2 " );
 		      nOLD = nEMB2;
 		    }
 		    // Test of getCellElectrodeIdVec()
@@ -2348,22 +2218,22 @@ StatusCode TestLArHWID_Algo::execute(){
 		  if( (m_SubDetector == "S3" || m_SubDetector == "ALL" ) && ( sam == 3 )){
 		    nEMB3++;
 		    if( nEMB3 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMB3 
-			  << " in EMB3 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMB3 
+                                     << " in EMB3 " );
 		      nOLD = nEMB3;
 		    }
 		    // Test of getCellElectrodeIdVec()
 		    std::vector<HWIdentifier> IdVec;
-		    log << MSG::DEBUG << "Processing offline Cell=" 
-			<< m_onlineHelper->show_to_string( offId ) << "..-> getHVLine()"
-			<< endreq;
+		    ATH_MSG_DEBUG ( "Processing offline Cell=" 
+                                    << m_onlineHelper->show_to_string( offId ) << "..-> getHVLine()"
+                                    );
 		    m_hvcablingTool->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = hvlineIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = hvlineIdVec.end();
 		    nelEMB3 += hvlineIdVec.size();
-		    log << MSG::DEBUG << "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() << endreq;
+		    ATH_MSG_DEBUG ( "[TestLArHW] hvlineIdSize=" << hvlineIdVec.size() );
 		    for(; hv!=hvEnd;++hv){
 		      HWIdentifier hvlineId = *hv;
 		      int PART= m_hvHelper->partition( hvlineId );
@@ -2422,8 +2292,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    nEMEC0++;		      
 		    // Test of individual methods:
 		    if( nEMEC0 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing  cell " 
-			  << nEMEC0 << " in EMEC1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing  cell " 
+                                     << nEMEC0 << " in EMEC1 " );
 		      nOLD = nEMEC0;
 		    }		      
 		    // Test of getCellElectrodeIdVec()
@@ -2469,7 +2339,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 5 ){nEMEC1r5++;}
 		    // Test of individual methods:
 		    if( nEMEC1 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMEC1 << " in EMEC1 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMEC1 << " in EMEC1 " );
 		      nOLD = nEMEC1;
 		    }
 		    
@@ -2519,7 +2389,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 1 ){nEMEC2r1++;}
 		    // Test of individual methods:
 		    if( nEMEC2 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMEC2 << " in EMEC2 " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMEC2 << " in EMEC2 " );
 		      nOLD = nEMEC2;
 		    }
 		    
@@ -2562,7 +2432,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    nEMEC3++;
 		    // Test of individual methods:
 		    if( nEMEC3 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMEC3 << " in EMEC3" << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMEC3 << " in EMEC3" );
 		      nOLD = nEMEC3;
 		    }
 		    
@@ -2600,7 +2470,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		  // m_SubDetector == ALL
 		  nEMEC++;
 		  if( nEMEC == nOLD+100 ){
-		    log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " << nEMEC << " in EMEC " << endreq;
+		    ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " << nEMEC << " in EMEC " );
 		    nOLD = nEMEC;
 		  }    
 		  // Test of getCellElectrodeIdVec()
@@ -2640,7 +2510,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC0r0++;}
 		    if( region == 1 ){nHEC0r1++;}		    
 		    if( nHEC0 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC0 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC0 << " in HEC " );
 		      nOLD = nHEC0;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -2707,7 +2577,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC1r0++;}
 		    if( region == 1 ){nHEC1r1++;}		    
 		    if( nHEC1 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC1 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC1 << " in HEC " );
 		      nOLD = nHEC1;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -2774,7 +2644,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC2r0++;}
 		    if( region == 1 ){nHEC2r1++;}		    
 		    if( nHEC2 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC2 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC2 << " in HEC " );
 		      nOLD = nHEC2;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -2842,7 +2712,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    if( region == 0 ){nHEC3r0++;}
 		    if( region == 1 ){nHEC3r1++;}		    
 		    if( nHEC3 == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC3 << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC3 << " in HEC " );
 		      nOLD = nHEC3;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -2908,7 +2778,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // HEC - ALL
 		    nHEC++;
 		    if( nHEC == nOLD+100 ){
-		      log << MSG::INFO << "[OFFLINE->ELECTRODE] Processing cell " << nHEC << " in HEC " << endreq;
+		      ATH_MSG_INFO ( "[OFFLINE->ELECTRODE] Processing cell " << nHEC << " in HEC " );
 		      nOLD = nHEC;
 		    }    
 		    // Test of getCellElectrodeIdVec()
@@ -2940,8 +2810,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		}
 		if( abs(bec) == 2 ){
 		  if( nFCAL == nOLD+100 ){
-		    log << MSG::INFO << "[OFFLINE->HVLINE] Processing cell " 
-			<< nFCAL << " in FCAL " << endreq;
+		    ATH_MSG_INFO ( "[OFFLINE->HVLINE] Processing cell " 
+                                   << nFCAL << " in FCAL " );
 		    nOLD = nFCAL;
 		  }
 		  // Test of getCellElectrodeIdVec()
@@ -2992,147 +2862,130 @@ StatusCode TestLArHWID_Algo::execute(){
 	      }
 	  }
 	nelFCAL+= hvRefFCALvec.size();
-	log << MSG::INFO  << " " << endreq; 
-	log << MSG::INFO  << "============================================================================ " << endreq;
-	log << MSG::INFO  << " [OFFLINE->HVLINE] : List of hvlineId vs offlineId " << endreq; 
-	log << MSG::INFO  << "============================================================================ " << endreq;
+	ATH_MSG_INFO  ( " " );
+	ATH_MSG_INFO  ( "============================================================================ " );
+	ATH_MSG_INFO  ( " [OFFLINE->HVLINE] : List of hvlineId vs offlineId " );
+	ATH_MSG_INFO  ( "============================================================================ " );
 	if( m_Detector == "EMB" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in EMB :" << nEMB << endreq;
-	    log << MSG::INFO  << "    - nb hvlines in EMB :" << nelEMB << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in EMB :" << nEMB );
+	    ATH_MSG_INFO  ( "    - nb hvlines in EMB :" << nelEMB );
 	  }
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB0:" << nEMB0 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMB0:" << nelEMB0 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB0:" << nEMB0 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMB0:" << nelEMB0 );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB1:" << nEMB1 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMB1:" << nelEMB1 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nEMB1r0 
-		<< " N(HV)= " << nelEMB1r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nEMB1r1 
-		<< " N(HV)= " << nelEMB1r1 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB1:" << nEMB1 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMB1:" << nelEMB1 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nEMB1r0 
+                            << " N(HV)= " << nelEMB1r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nEMB1r1 
+                            << " N(HV)= " << nelEMB1r1 );
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB2:" << nEMB2 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMB2:" << nelEMB2 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nEMB2r0 
-		<< " N(HV)= " << nelEMB2r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nEMB2r1 
-		<< " N(HV)= " << nelEMB2r1 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB2:" << nEMB2 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMB2:" << nelEMB2 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nEMB2r0 
+                            << " N(HV)= " << nelEMB2r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nEMB2r1 
+                            << " N(HV)= " << nelEMB2r1 );
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMB3:" << nEMB3 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMB3:" << nelEMB3 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMB3:" << nEMB3 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMB3:" << nelEMB3 );
 	  }
 	}
 	// EMEC 
 	if( m_Detector == "EMEC" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in EMEC:" << nEMEC << endreq;
-	    log << MSG::INFO  << "    - nb hvlines in EMEC:" << nelEMEC << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in EMEC:" << nEMEC );
+	    ATH_MSG_INFO  ( "    - nb hvlines in EMEC:" << nelEMEC );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC1:" << nEMEC1 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMEC1:" << nelEMEC1 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 0 N(cell)= " << nEMEC1r0 
-		<< " N(HV)= " << nelEMEC1r0 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 1 N(cell)= " << nEMEC1r1 
-		<< " N(HV)= " << nelEMEC1r1 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 2 N(cell)= " << nEMEC1r2 
-		<< " N(HV)= " << nelEMEC1r2 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 3 N(cell)= " << nEMEC1r3 
-		<< " N(HV)= " << nelEMEC1r3 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 4 N(cell)= " << nEMEC1r4 
-		<< " N(HV)= " << nelEMEC1r4 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 5 N(cell)= " << nEMEC1r5 
-		<< " N(HV)= " << nelEMEC1r5 << endreq;
-	    log << MSG::INFO  << "      - INNER region 0 N(cell)= " << nEMEC1r0IN 
-	    	<< " N(HV)= " << nelEMEC1r0IN << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC1:" << nEMEC1 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMEC1:" << nelEMEC1 );
+	    ATH_MSG_INFO  ( "      - OUTER region 0 N(cell)= " << nEMEC1r0 
+                            << " N(HV)= " << nelEMEC1r0 );
+	    ATH_MSG_INFO  ( "      - OUTER region 1 N(cell)= " << nEMEC1r1 
+                            << " N(HV)= " << nelEMEC1r1 );
+	    ATH_MSG_INFO  ( "      - OUTER region 2 N(cell)= " << nEMEC1r2 
+                            << " N(HV)= " << nelEMEC1r2 );
+	    ATH_MSG_INFO  ( "      - OUTER region 3 N(cell)= " << nEMEC1r3 
+                            << " N(HV)= " << nelEMEC1r3 );
+	    ATH_MSG_INFO  ( "      - OUTER region 4 N(cell)= " << nEMEC1r4 
+                            << " N(HV)= " << nelEMEC1r4 );
+	    ATH_MSG_INFO  ( "      - OUTER region 5 N(cell)= " << nEMEC1r5 
+                            << " N(HV)= " << nelEMEC1r5 );
+	    ATH_MSG_INFO  ( "      - INNER region 0 N(cell)= " << nEMEC1r0IN 
+                            << " N(HV)= " << nelEMEC1r0IN );
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC2:" << nEMEC2 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMEC2:" << nelEMEC2 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 0 N(cell)= " << nEMEC2r0 
-		<< " N(HV)= " << nelEMEC2r0 << endreq;
-	    log << MSG::INFO  << "      - OUTER region 1 N(cell)= " << nEMEC2r1 
-		<< " N(HV)= " << nelEMEC2r1 << endreq;
-	    log << MSG::INFO  << "      - INNER region 0 N(cell)= " << nEMEC2r0IN 
-	    	<< " N(HV)= " << nelEMEC2r0IN << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC2:" << nEMEC2 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMEC2:" << nelEMEC2 );
+	    ATH_MSG_INFO  ( "      - OUTER region 0 N(cell)= " << nEMEC2r0 
+                            << " N(HV)= " << nelEMEC2r0 );
+	    ATH_MSG_INFO  ( "      - OUTER region 1 N(cell)= " << nEMEC2r1 
+                            << " N(HV)= " << nelEMEC2r1 );
+	    ATH_MSG_INFO  ( "      - INNER region 0 N(cell)= " << nEMEC2r0IN 
+                            << " N(HV)= " << nelEMEC2r0IN );
 
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC3:" << nEMEC3 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMEC3:" << nelEMEC3 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC3:" << nEMEC3 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMEC3:" << nelEMEC3 );
 	  }
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << "    - nb offline   in EMEC0:" << nEMEC0 << endreq;
-	    log << MSG::INFO  << "    - nb hvline in EMEC0:" << nelEMEC0 << endreq;
+	    ATH_MSG_INFO  ( "    - nb offline   in EMEC0:" << nEMEC0 );
+	    ATH_MSG_INFO  ( "    - nb hvline in EMEC0:" << nelEMEC0 );
 	  }
 	}
 	if( m_Detector == "HEC" || m_Detector == "ALL" ){
 	  if( m_SubDetector == "S0" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC0  :" << nHEC0 << endreq;
-	    log << MSG::INFO  << " - nb hvlines in HEC0     :" << nelHEC0 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC0r0 
-		<< " N(el)= " << nelHEC0r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC0r1 
-		<< " N(el)= " << nelHEC0r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC0  :" << nHEC0 );
+	    ATH_MSG_INFO  ( " - nb hvlines in HEC0     :" << nelHEC0 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC0r0 
+                            << " N(el)= " << nelHEC0r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC0r1 
+                            << " N(el)= " << nelHEC0r1 );
 	  }
 	  if( m_SubDetector == "S1" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC1  :" << nHEC1 << endreq;
-	    log << MSG::INFO  << " - nb hvlines in HEC1     :" << nelHEC1 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC1r0 
-		<< " N(el)= " << nelHEC1r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC1r1 
-		<< " N(el)= " << nelHEC1r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC1  :" << nHEC1 );
+	    ATH_MSG_INFO  ( " - nb hvlines in HEC1     :" << nelHEC1 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC1r0 
+                            << " N(el)= " << nelHEC1r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC1r1 
+                            << " N(el)= " << nelHEC1r1 );
 	  }
 	  if( m_SubDetector == "S2" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC2  :" << nHEC2 << endreq;
-	    log << MSG::INFO  << " - nb hvlines in HEC2     :" << nelHEC2 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC2r0 
-		<< " N(el)= " << nelHEC2r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC2r1 
-		<< " N(el)= " << nelHEC2r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC2  :" << nHEC2 );
+	    ATH_MSG_INFO  ( " - nb hvlines in HEC2     :" << nelHEC2 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC2r0 
+                            << " N(el)= " << nelHEC2r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC2r1 
+                            << " N(el)= " << nelHEC2r1 );
 	  }
 	  if( m_SubDetector == "S3" || m_SubDetector == "ALL"){
-	    log << MSG::INFO  << " - Offline channels in HEC3  :" << nHEC3 << endreq;
-	    log << MSG::INFO  << " - nb hvlines in HEC3     :" << nelHEC3 << endreq;
-	    log << MSG::INFO  << "      - region 0 N(cell)= " << nHEC3r0 
-		<< " N(el)= " << nelHEC3r0 << endreq;
-	    log << MSG::INFO  << "      - region 1 N(cell)= " << nHEC3r1 
-		<< " N(el)= " << nelHEC3r1 << endreq;
+	    ATH_MSG_INFO  ( " - Offline channels in HEC3  :" << nHEC3 );
+	    ATH_MSG_INFO  ( " - nb hvlines in HEC3     :" << nelHEC3 );
+	    ATH_MSG_INFO  ( "      - region 0 N(cell)= " << nHEC3r0 
+                            << " N(el)= " << nelHEC3r0 );
+	    ATH_MSG_INFO  ( "      - region 1 N(cell)= " << nHEC3r1 
+                            << " N(el)= " << nelHEC3r1 );
 	  }
 
 	}
 	if( m_Detector == "FCAL" || m_Detector == "ALL" ){
-	  log << MSG::INFO  << " - Offline channels in FCAL :" << nFCAL << endreq;
-	  log << MSG::INFO  << "    - nb hvlines in FCAL :" << nelFCAL << endreq;
+	  ATH_MSG_INFO  ( " - Offline channels in FCAL :" << nFCAL );
+	  ATH_MSG_INFO  ( "    - nb hvlines in FCAL :" << nelFCAL );
 	}
 	if( m_Detector == "ALL"){
-	  log << MSG::INFO  << "============================================================================ " << endreq;
+	  ATH_MSG_INFO  ( "============================================================================ " );
 	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endreq; 
-	  log << MSG::INFO  << "============================================================================ " << endreq;
+	  ATH_MSG_INFO  ( "============================================================================ " );
 	}
       }  
     }// if m_HVelectrodeToOffline == ON
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   // ============================================================================
@@ -3185,9 +3038,9 @@ StatusCode TestLArHWID_Algo::execute(){
     int nH8S2=0;
     int nH8S3=0;
     // Display on screen
-    log << MSG::INFO << "========================================  " << endreq;
-    log << MSG::INFO << "  >>> Tests for LArOnline Identifiers <<< " << endreq;
-    log << MSG::INFO << "========================================  " << endreq;  nch=0;
+    ATH_MSG_INFO ( "========================================  " );
+    ATH_MSG_INFO ( "  >>> Tests for LArOnline Identifiers <<< " );
+    ATH_MSG_INFO ( "========================================  " );
     std::string mychDisc;
     std::string mychStat;
     std::string myDet="unknown";
@@ -3459,8 +3312,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nch++;
 		      nEmba++;
 		      if(nch==nch_old+2000){
-			log << MSG::INFO << "[ATLAS] processing EMB online-channel ..# " 
-			    << nch << endreq;
+			ATH_MSG_INFO ( "[ATLAS] processing EMB online-channel ..# " 
+                                       << nch );
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
@@ -3564,8 +3417,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nch++;
 		      nEmec++;
 		      if(nch==nch_old+1000){
-			log << MSG::INFO << "[ATLAS] processing EMEC online-channel ..# " 
-			    << nch << endreq;
+			ATH_MSG_INFO ( "[ATLAS] processing EMEC online-channel ..# " 
+                                       << nch );
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
@@ -3664,8 +3517,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nch++;
 		      nHec++;
 		      if(nch==nch_old+1000){
-			log << MSG::INFO << "[ATLAS] processing HEC online-channel ..# " 
-			    << nch << endreq;
+			ATH_MSG_INFO ( "[ATLAS] processing HEC online-channel ..# " 
+                                       << nch );
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
@@ -3754,8 +3607,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		      nch++;
 		      nFcal++;
 		      if(nch==nch_old+1000){
-			log << MSG::INFO << "[ATLAS] processing FCAL online-channel ..# " 
-			    << nch << endreq;
+			ATH_MSG_INFO ( "[ATLAS] processing FCAL online-channel ..# " 
+                                       << nch );
 			nch_old=nch;
 		      }
 		      mychDisc="Unknown";
@@ -3833,26 +3686,26 @@ StatusCode TestLArHWID_Algo::execute(){
 		} // if version=fullAtlas
 	      else
 		{
-		  log << MSG::INFO << "===>>>> Channels not in dictionary " << endreq;
+		  ATH_MSG_INFO ( "===>>>> Channels not in dictionary " );
 		}
 	    }     // if version==H6TestBeam or H8TestBeam or fullAtlas 
 	}         // Loop over itOnId
     }             // if( m_Calibration != EXCL)
     if( l_version=="H6TestBeam" )
       {
-	log << MSG::INFO << "=============================================" << endreq;
-	log << MSG::INFO << "   Statistics for H6 TestBeam  " << endreq;      
-	log << MSG::INFO << "===> Total number of FCAL channels = " << nFcal << endreq;
-	log << MSG::INFO << "       #connected    channels = " << nFcalConn << endreq;
-	log << MSG::INFO << "       #disconnected channels = " << nFcalDisc << endreq;
-	log << MSG::INFO << "===> Total number of HEC  channels = " << nHec << endreq;
-	log << MSG::INFO << "       #connected    channels = " << nHecConn << endreq;
-	log << MSG::INFO << "       #disconnected channels = " << nHecDisc << endreq;
-	log << MSG::INFO << "===> Total number of EMEC channels = " << nEmec << endreq;
-	log << MSG::INFO << "       #connected    channels = " << nEmecConn << endreq;
-	log << MSG::INFO << "       #disconnected channels = " << nEmecDisc << endreq;
-	log << MSG::INFO << "===> Total    connected channels " << nH6Conn << endreq;
-	log << MSG::INFO << "===> Total disconnected channels " << nH6Disc << endreq;
+	ATH_MSG_INFO ( "=============================================" );
+	ATH_MSG_INFO ( "   Statistics for H6 TestBeam  " );
+	ATH_MSG_INFO ( "===> Total number of FCAL channels = " << nFcal );
+	ATH_MSG_INFO ( "       #connected    channels = " << nFcalConn );
+	ATH_MSG_INFO ( "       #disconnected channels = " << nFcalDisc );
+	ATH_MSG_INFO ( "===> Total number of HEC  channels = " << nHec );
+	ATH_MSG_INFO ( "       #connected    channels = " << nHecConn );
+	ATH_MSG_INFO ( "       #disconnected channels = " << nHecDisc );
+	ATH_MSG_INFO ( "===> Total number of EMEC channels = " << nEmec );
+	ATH_MSG_INFO ( "       #connected    channels = " << nEmecConn );
+	ATH_MSG_INFO ( "       #disconnected channels = " << nEmecDisc );
+	ATH_MSG_INFO ( "===> Total    connected channels " << nH6Conn );
+	ATH_MSG_INFO ( "===> Total disconnected channels " << nH6Disc );
 	// on files
 	fileAll << "===> Total number of FCAL channels = " << nFcal << std::endl;
 	fileAll << "       #connected    channels = " << nFcalConn << std::endl;
@@ -3879,7 +3732,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	// All 
 	fileAll << "===> Total    connected channels " << nH6Conn << std::endl;
 	fileAll << "===> Total disconnected channels " << nH6Disc << std::endl;
-	log << MSG::INFO << "=============================================" << endreq;
+	ATH_MSG_INFO ( "=============================================" );
 	fileEmec.close();
 	fileFcal.close();
 	fileHec.close();
@@ -3894,55 +3747,55 @@ StatusCode TestLArHWID_Algo::execute(){
 	fileAll << "         #disconnected channels = " << nH8Disc << std::endl;
 	fileAll << "    Channels with no counterpart= " << nNoCounterPart << std::endl;
 	fileAll << "===============================================" << std::endl;
-	log << MSG::INFO << "===============================================" << endreq;
-	log << MSG::INFO << "    Total number of H8 channels = " << nch << endreq;
-	log << MSG::INFO << "         #connected    channels = " << nH8Conn << endreq;
-	log << MSG::INFO << "         #disconnected channels = " << nH8Disc << endreq;
-	log << MSG::INFO << "    Channels with no counterpart= " << nNoCounterPart << endreq;
-	log << MSG::INFO << "    H8 Channels distribution :    " << endreq;
-	log << MSG::INFO << "                 Sampling 0  : " << nH8S0 << endreq;
-	log << MSG::INFO << "                 Sampling 1  : " << nH8S1 << endreq;
-	log << MSG::INFO << "                 Sampling 2  : " << nH8S2 << endreq;
-	log << MSG::INFO << "                 Sampling 3  : " << nH8S3 << endreq;
-	log << MSG::INFO << "====================================================" << endreq;
+	ATH_MSG_INFO ( "===============================================" );
+	ATH_MSG_INFO ( "    Total number of H8 channels = " << nch );
+	ATH_MSG_INFO ( "         #connected    channels = " << nH8Conn );
+	ATH_MSG_INFO ( "         #disconnected channels = " << nH8Disc );
+	ATH_MSG_INFO ( "    Channels with no counterpart= " << nNoCounterPart );
+	ATH_MSG_INFO ( "    H8 Channels distribution :    " );
+	ATH_MSG_INFO ( "                 Sampling 0  : " << nH8S0 );
+	ATH_MSG_INFO ( "                 Sampling 1  : " << nH8S1 );
+	ATH_MSG_INFO ( "                 Sampling 2  : " << nH8S2 );
+	ATH_MSG_INFO ( "                 Sampling 3  : " << nH8S3 );
+	ATH_MSG_INFO ( "====================================================" );
 	fileAll.close();
 	fileError.close();
       }  
     else if( l_version=="fullAtlas" )
       {// version == fullAtlas
-	log << MSG::INFO << "====================================================" << endreq;
+	ATH_MSG_INFO ( "====================================================" );
 	if( m_Detector == "ALL"){
-	  log << MSG::INFO << "    Total ATLAS channels    = " << nch << endreq;
-	  log << MSG::INFO << "    - connected channels    = " << nConn << " (ref=182468)" << endreq;
-	  log << MSG::INFO << "    - disconnected channels =  " << nDisc << " (ref= 12604)" << endreq;
-	  log << MSG::INFO << "====================================================" << endreq;
+	  ATH_MSG_INFO ( "    Total ATLAS channels    = " << nch );
+	  ATH_MSG_INFO ( "    - connected channels    = " << nConn << " (ref=182468)" );
+	  ATH_MSG_INFO ( "    - disconnected channels =  " << nDisc << " (ref= 12604)" );
+	  ATH_MSG_INFO ( "====================================================" );
 	}
 	if( m_Detector == "EMB" || m_Detector == "ALL" ){
-	  log << MSG::INFO << "    Total  EMB channels     = " << nEmba << " (ref=114688)" << endreq;
-	  log << MSG::INFO << "    - connected    channels = " << nEmbaConn << " (ref=109568)" << endreq;
-	  log << MSG::INFO << "    - disconnected channels =   " << nEmbaDisc << " (ref=5120)" << endreq;
-	  log << MSG::INFO << "      without warm cable    =   " << nEmbaWC << " (ref=4096)" << endreq;
-	  log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+	  ATH_MSG_INFO ( "    Total  EMB channels     = " << nEmba << " (ref=114688)" );
+	  ATH_MSG_INFO ( "    - connected    channels = " << nEmbaConn << " (ref=109568)" );
+	  ATH_MSG_INFO ( "    - disconnected channels =   " << nEmbaDisc << " (ref=5120)" );
+	  ATH_MSG_INFO ( "      without warm cable    =   " << nEmbaWC << " (ref=4096)" );
+	  ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
 	}
 	if( m_Detector == "EMEC" || m_Detector == "ALL" ){
-	  log << MSG::INFO << "    Total  EMEC channels    =  " << nEmec << " (ref=70656)" << endreq;
-	  log << MSG::INFO << "    - connected    channels =  " << nEmecConn << " (ref=63744)" << endreq;
-	  log << MSG::INFO << "    - disconnected channels =   " << nEmecDisc << " (ref= 6912)" << endreq;
-	  log << MSG::INFO << "      without warm cable    =    " << nEmecWC << " (ref=  512)" << endreq;
-	  log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+	  ATH_MSG_INFO ( "    Total  EMEC channels    =  " << nEmec << " (ref=70656)" );
+	  ATH_MSG_INFO ( "    - connected    channels =  " << nEmecConn << " (ref=63744)" );
+	  ATH_MSG_INFO ( "    - disconnected channels =   " << nEmecDisc << " (ref= 6912)" );
+	  ATH_MSG_INFO ( "      without warm cable    =    " << nEmecWC << " (ref=  512)" );
+	  ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
 	}
 	if( m_Detector == "HEC"|| m_Detector == "ALL" ){
-	  log << MSG::INFO << "    Total  HEC channels     =   " << nHec << " (ref=6144)" << endreq;
-	  log << MSG::INFO << "    - connected    channels =   " << nHecConn << " (ref=5632)" << endreq;
-	  log << MSG::INFO << "    - disconnected channels =    " << nHecDisc << " (ref= 512)" << endreq;
-	  log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+	  ATH_MSG_INFO ( "    Total  HEC channels     =   " << nHec << " (ref=6144)" );
+	  ATH_MSG_INFO ( "    - connected    channels =   " << nHecConn << " (ref=5632)" );
+	  ATH_MSG_INFO ( "    - disconnected channels =    " << nHecDisc << " (ref= 512)" );
+	  ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
 	}
 	if( m_Detector == "FCAL"|| m_Detector == "ALL" ){
-	  log << MSG::INFO << "    Total FCAL channels     =   " << nFcal << " (ref=3584)" << endreq;
-	  log << MSG::INFO << "    - connected    channels =   " << nFcalConn << " (ref=3524)" << endreq;
-	  log << MSG::INFO << "    - disconnected channels =     " << nFcalDisc << " (ref=  60)" << endreq;
+	  ATH_MSG_INFO ( "    Total FCAL channels     =   " << nFcal << " (ref=3584)" );
+	  ATH_MSG_INFO ( "    - connected    channels =   " << nFcalConn << " (ref=3524)" );
+	  ATH_MSG_INFO ( "    - disconnected channels =     " << nFcalDisc << " (ref=  60)" );
 	}
-	log << MSG::INFO << "==================================================" << endreq;
+	ATH_MSG_INFO ( "==================================================" );
 	fileEmecOn.close();
 	fileHecOn.close();
 	fileFcalOn.close();
@@ -4016,12 +3869,10 @@ StatusCode TestLArHWID_Algo::execute(){
 	    nch++;
 	    if(m_onlineHelper->is_H8(feb_id))
 	      {
-		log << MSG::INFO  
-		    <<  "FEB Ids = " 
-		    << m_onlineHelper->show_to_string(feb_id) 
-		    << " Compact Ids= " 
-		    << feb_id.getString()
-		    << endreq;
+		ATH_MSG_INFO(  "FEB Ids = " 
+                               << m_onlineHelper->show_to_string(feb_id) 
+                               << " Compact Ids= " 
+                               << feb_id.getString() );
 	      }
 	  }
       }
@@ -4095,15 +3946,15 @@ StatusCode TestLArHWID_Algo::execute(){
 	  }
 	}
       }
-      log << MSG::INFO << " m_OnlineTest= " << m_OnlineTest << endreq;
-      log << MSG::INFO << "=========================================" << endreq;
-      log << MSG::INFO << " - Total Number of FEBs in ATLAS: " << nch << endreq;
-      log << MSG::INFO << "=========================================" << endreq;
-      log << MSG::INFO << "    - EMB : " << nFEBemb << endreq;
-      log << MSG::INFO << "    - EMEC: " << nFEBemec << endreq;
-      log << MSG::INFO << "    - HEC : " << nFEBhec << endreq;
-      log << MSG::INFO << "    - FCAL: " << nFEBfcal << endreq;
-      log << MSG::INFO << "=========================================" << endreq;
+      ATH_MSG_INFO ( " m_OnlineTest= " << m_OnlineTest );
+      ATH_MSG_INFO ( "=========================================" );
+      ATH_MSG_INFO ( " - Total Number of FEBs in ATLAS: " << nch );
+      ATH_MSG_INFO ( "=========================================" );
+      ATH_MSG_INFO ( "    - EMB : " << nFEBemb );
+      ATH_MSG_INFO ( "    - EMEC: " << nFEBemec );
+      ATH_MSG_INFO ( "    - HEC : " << nFEBhec );
+      ATH_MSG_INFO ( "    - FCAL: " << nFEBfcal );
+      ATH_MSG_INFO ( "=========================================" );
     }
     fileEmecOn.close();
     fileFcalOn.close();
@@ -4138,29 +3989,29 @@ StatusCode TestLArHWID_Algo::execute(){
 	    // BARREL
 	    if( side == 0 ){
 	      // EMBA
-	      log << MSG::INFO << " EMBA Feedthrough: " << ftNb 
-		  << " Numbering : " << ftName << endreq; 
+	      ATH_MSG_INFO ( " EMBA Feedthrough: " << ftNb 
+                             << " Numbering : " << ftName );
 	    }
 	    else{
 	      // EMBC
-	      log << MSG::INFO << " EMBC Feedthrough: " << ftNb 
-		  << " Numbering : " << ftName << endreq; 
+	      ATH_MSG_INFO ( " EMBC Feedthrough: " << ftNb 
+                             << " Numbering : " << ftName );
 	    }
 	  }
 	  else if( bec == 1){
 	    if( side == 0){
 	      // EMEC-A
-	      log << MSG::INFO << " EMEC-A Feedthrough: " << ftNb 
-		  << " Numbering : " << ftName << endreq; 
+	      ATH_MSG_INFO ( " EMEC-A Feedthrough: " << ftNb 
+                             << " Numbering : " << ftName );
 	    }
 	    else{
 	      // EMEC-C
-	      log << MSG::INFO << " EMEC-C Feedthrough: " << ftNb 
-		  << " Numbering : " << ftName << endreq; 
+	      ATH_MSG_INFO ( " EMEC-C Feedthrough: " << ftNb 
+                             << " Numbering : " << ftName );
 	    }
 	  }	    
 	}
-      log << MSG::INFO << "----------------------------------------" << endreq;
+      ATH_MSG_INFO ( "----------------------------------------" );
     }
   }
   
@@ -4181,18 +4032,16 @@ StatusCode TestLArHWID_Algo::execute(){
     HWIdentifier testId;
     try{
       testId = m_onlineHelper->channel_Id(1,0,6,8,32);
-      log << MSG::INFO << "[TEST] Created old FCAL OnlineID= " 
-	  << m_onlineHelper->show_to_string(testId) 
-	  << " Compact OnlineID= "
-	  << testId.getString()
-	  << std::endl;
+      ATH_MSG_INFO ( "[TEST] Created old FCAL OnlineID= " 
+                     << m_onlineHelper->show_to_string(testId) 
+                     << " Compact OnlineID= "
+                     << testId.getString() );
     }
     catch(LArOnlID_Exception & except ){
-      log << MSG::ERROR 
-	  <<  "CALIB ....LArOnlId exception creating online id with feb and ichan " 
+      ATH_MSG_ERROR 
+        (  "CALIB ....LArOnlId exception creating online id with feb and ichan " 
 	  << m_emHelper->show_to_string(testId) << "   " 
-	  << (std::string)except
-	  << endreq;
+	  << (std::string)except );
     }
     testId = m_onlineHelper->channel_Id(1,0,6,8,32);
     Identifier ch_offl ; 
@@ -4202,14 +4051,13 @@ StatusCode TestLArHWID_Algo::execute(){
     catch(LArID_Exception & except){
       nerror++;
     }
-    log << MSG::INFO << "[TEST] Created old FCAL OnlineID= " 
-	<< m_onlineHelper->show_to_string(testId) 
-	<< " Compact OnlineID= "
-	<< testId.getString()
-	<< m_emHelper->show_to_string(ch_offl) 
-	<< " Compact OfflineID= " 
-	<< ch_offl.getString()
-	<< std::endl;
+    ATH_MSG_INFO ( "[TEST] Created old FCAL OnlineID= " 
+                   << m_onlineHelper->show_to_string(testId) 
+                   << " Compact OnlineID= "
+                   << testId.getString()
+                   << m_emHelper->show_to_string(ch_offl) 
+                   << " Compact OfflineID= " 
+                   << ch_offl.getString() );
     
     // Loop over Calib Modules
     // -------------------------
@@ -4229,17 +4077,16 @@ StatusCode TestLArHWID_Algo::execute(){
 		}
 	      catch(LArOnlID_Exception & except)
 		{
-		  log << MSG::ERROR 
-		      <<  "CALIB ....LArOnlId exception creating online id with feb and ichan " 
-		      << m_emHelper->show_to_string(feb_id) << "   " << ichan << " " 
-		      << (std::string)except
-		      << endreq;
+		  ATH_MSG_ERROR 
+                    (  "CALIB ....LArOnlId exception creating online id with feb and ichan " 
+                       << m_emHelper->show_to_string(feb_id) << "   " << ichan << " " 
+                       << (std::string)except );
 		}
 	    }
 	}
     }
-    log << MSG::INFO << " Tests for ATLAS Calibration Lines : " << endreq;
-    log << MSG::INFO << " --> Nb of Calib Modules = " << nch << "(122 expected)" << endreq;
+    ATH_MSG_INFO ( " Tests for ATLAS Calibration Lines : " );
+    ATH_MSG_INFO ( " --> Nb of Calib Modules = " << nch << "(122 expected)" );
    
     // CALIB Online-wise loop (2)
     nch=0;
@@ -4354,12 +4201,10 @@ StatusCode TestLArHWID_Algo::execute(){
 	for(; itOnId!=itOnIdEnd;++itOnId)
 	  {
 	    const HWIdentifier feb_id = *itOnId;
-	    log << MSG::DEBUG
-		<<  "OnlineID= "
-		  << m_onlineHelper->show_to_string(feb_id) 
-		<< " CompactID= "
-		<<feb_id.getString()
-		<< endreq;
+	    ATH_MSG_DEBUG(  "OnlineID= "
+                            << m_onlineHelper->show_to_string(feb_id) 
+                            << " CompactID= "
+                            <<feb_id.getString() );
 	  }
       }
     if( l_version=="H8TestBeam")
@@ -4369,40 +4214,38 @@ StatusCode TestLArHWID_Algo::execute(){
 	for(; itOnId!=itOnIdEnd;++itOnId)
 	  {
 	    const HWIdentifier feb_id = *itOnId;
-	    log << MSG::DEBUG
-		<<  "OnlineID= "
-		<< m_onlineHelper->show_to_string(feb_id) 
-		<< " CompactID= "
-		<<feb_id.getString()
-		<< endreq;
+	    ATH_MSG_DEBUG(  "OnlineID= "
+                            << m_onlineHelper->show_to_string(feb_id) 
+                            << " CompactID= "
+                            <<feb_id.getString() );
 	  }
       }
     
     if( l_version=="fullAtlas")
       {
-	log << MSG::INFO << " --> Nb of Calib Channels = " << nch 
-	    << "(15,616 expected)" << endreq;   
-	log << MSG::INFO << "       EM Barrel Channels = " << nEmbaCalib 
-	    << "(8,192 expected)" << endreq;   
-	log << MSG::INFO << "       EM Endcap Channels = " << nEmecCalib 
-	    << "(4,096 expected)" << endreq;   
-	log << MSG::INFO << "       HEC       Channels = " << nHecCalib 
-	    << "(3,072 expected)" << endreq;   
-	log << MSG::INFO << "       FCAL      Channels = " << nFcalCalib 
-	    << "(256 expected)" << endreq;   
-	log << MSG::INFO << "===============================================" << endreq;
+	ATH_MSG_INFO ( " --> Nb of Calib Channels = " << nch 
+                       << "(15,616 expected)" );
+	ATH_MSG_INFO ( "       EM Barrel Channels = " << nEmbaCalib 
+                       << "(8,192 expected)" );
+	ATH_MSG_INFO ( "       EM Endcap Channels = " << nEmecCalib 
+                       << "(4,096 expected)" );
+	ATH_MSG_INFO ( "       HEC       Channels = " << nHecCalib 
+                       << "(3,072 expected)" );
+	ATH_MSG_INFO ( "       FCAL      Channels = " << nFcalCalib 
+                       << "(256 expected)" );
+	ATH_MSG_INFO ( "===============================================" );
       }
     if( l_version=="H6TestBeam")
       {
-	log << MSG::INFO << " --> Nb of Calib Channels = " << nch 
-	    << "(384 expected)" << endreq;   
-	log << MSG::INFO << "       EM Endcap Channels = " << nEmecCalib 
-	    << "(128 expected)" << endreq;   
-	log << MSG::INFO << "       HEC       Channels = " << nHecCalib 
-	    << "(128 expected)" << endreq;   
-	log << MSG::INFO << "       FCAL      Channels = " << nFcalCalib 
-	    << "(128 expected)" << endreq;   
-	log << MSG::INFO << "===============================================" << endreq;
+	ATH_MSG_INFO ( " --> Nb of Calib Channels = " << nch 
+                       << "(384 expected)" );
+	ATH_MSG_INFO ( "       EM Endcap Channels = " << nEmecCalib 
+                       << "(128 expected)" );
+	ATH_MSG_INFO ( "       HEC       Channels = " << nHecCalib 
+                       << "(128 expected)" );
+	ATH_MSG_INFO ( "       FCAL      Channels = " << nFcalCalib 
+                       << "(128 expected)" );
+	ATH_MSG_INFO ( "===============================================" );
       }
   } // if m_Calibration = "ON"     
   
@@ -4424,9 +4267,9 @@ StatusCode TestLArHWID_Algo::execute(){
   if( m_OfflineTest == "ON" && m_HighVoltage == "OFF" )
     {// if OFFlineTest == ON
     // Display on screen
-      log << MSG::INFO << "========================================  " << endreq;
-      log << MSG::INFO << "  >>> Tests for LArOffline Identifiers <<< " << endreq;
-      log << MSG::INFO << "========================================  " << endreq;  
+      ATH_MSG_INFO ( "========================================  " );
+      ATH_MSG_INFO ( "  >>> Tests for LArOffline Identifiers <<< " );
+      ATH_MSG_INFO ( "========================================  " );
       int nch=0;
       int nSam0=0;
       int nSam1=1;
@@ -4462,16 +4305,15 @@ StatusCode TestLArHWID_Algo::execute(){
 		const Identifier ch_id = *itId;
 		HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 		Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-		log<< MSG::VERBOSE<< m_emHelper->show_to_string( ch_onl ) ; 
-		log<<"  "<< m_emHelper->show_to_string(ch_id) << endreq;   
+		ATH_MSG_VERBOSE( m_emHelper->show_to_string( ch_onl )
+                                 <<"  "<< m_emHelper->show_to_string(ch_id) );
 		if( ch_id != id_test ) { 
-		  log<<MSG::ERROR<<" EM: Error in mapping for offline id= (is_connected ?) "
-		     << m_emHelper->show_to_string( ch_id ) 
-		     << " ( " << m_emHelper->is_connected(ch_id) << " ) " 
-		     << endreq ;
-		  log<<MSG::ERROR<<"online ID, returned offline ID= " 
-		     << m_emHelper->show_to_string(ch_onl) << ", " 
-		     << m_emHelper->show_to_string(id_test) <<endreq ;
+		  ATH_MSG_ERROR(" EM: Error in mapping for offline id= (is_connected ?) "
+                                << m_emHelper->show_to_string( ch_id ) 
+                                << " ( " << m_emHelper->is_connected(ch_id) << " ) "  );
+		  ATH_MSG_ERROR("online ID, returned offline ID= " 
+                                << m_emHelper->show_to_string(ch_onl) << ", " 
+                                << m_emHelper->show_to_string(id_test) );
 		  break ; 
 		}
 		// test hash and neighbours
@@ -4481,15 +4323,15 @@ StatusCode TestLArHWID_Algo::execute(){
 		std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 		std::vector<IdentifierHash>::iterator last=neighbourList.end();
 		for (;last!=first; first++){
-                    log<<MSG::VERBOSE << "  neighbour list EM = " << (unsigned int)(*first) << endreq; 
+                  ATH_MSG_VERBOSE ( "  neighbour list EM = " << (unsigned int)(*first) );
 		}
 
 
 		if( m_Detector == "EM" || m_Detector == "ALL" ){
 		  nEMconn++;
 		  if(nEMconn==nch_old+1000){
-		    log << MSG::INFO << "[ATLAS] processing EM connected offline channel ..# " 
-			<< nEMconn << endreq;
+		    ATH_MSG_INFO ( "[ATLAS] processing EM connected offline channel ..# " 
+                                   << nEMconn );
 		    nch_old=nEMconn;
 		  }
 		  if( m_emHelper->sampling(ch_id) == 0 ){
@@ -4517,8 +4359,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // if EMBARREL
 		    nEMBconn++;
 		    if(nEMBconn==nch_old+1000){
-		      log << MSG::INFO << "[ATLAS] processing EMB connected offline channel ..# " 
-			  << nEMBconn << endreq;
+		      ATH_MSG_INFO ( "[ATLAS] processing EMB connected offline channel ..# " 
+                                     << nEMBconn );
 		      nch_old=nEMBconn;
 		    }
 		    if( m_Detector != "ALL"){
@@ -4565,8 +4407,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // if EMEC
 		    nEMECconn++;
 		    if(nEMECconn==nch_old+1000){
-		      log << MSG::INFO << "[ATLAS] processing EMEC connected offline channel ..# " 
-			  << nEMECconn << endreq;
+		      ATH_MSG_INFO ( "[ATLAS] processing EMEC connected offline channel ..# " 
+                                     << nEMECconn );
 		      nch_old=nEMECconn;
 		    }
 		    if( m_Detector != "ALL"){
@@ -4620,27 +4462,25 @@ StatusCode TestLArHWID_Algo::execute(){
 		const Identifier ch_id = *itId;
 		HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 		Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-		log<< MSG::VERBOSE<< m_emHelper->show_to_string( ch_onl ) ; 
-		log<<"  "<< m_emHelper->show_to_string(ch_id) << endreq;   
+		ATH_MSG_VERBOSE( m_emHelper->show_to_string( ch_onl )
+                                 <<"  "<< m_emHelper->show_to_string(ch_id) );
 		if( ch_id != id_test ) { 
-		  log<<MSG::ERROR<<" EM: Error in mapping for offline id= (is_connected ?) "
-		     << m_emHelper->show_to_string( ch_id ) 
-		     << " ( " << m_emHelper->is_connected(ch_id) << " ) " 
-		     << endreq ;
-		  log<<MSG::ERROR<<"online ID, returned offline ID= " 
-		     << m_emHelper->show_to_string(ch_onl) << ", " 
-		     << m_emHelper->show_to_string(id_test) <<endreq ;
+		  ATH_MSG_ERROR(" EM: Error in mapping for offline id= (is_connected ?) "
+                                << m_emHelper->show_to_string( ch_id ) 
+                                << " ( " << m_emHelper->is_connected(ch_id) << " ) "  );
+		  ATH_MSG_ERROR("online ID, returned offline ID= " 
+                                << m_emHelper->show_to_string(ch_onl) << ", " 
+                                << m_emHelper->show_to_string(id_test) );
 		  break ; 
 		}
 
 		// test hash and neighbours
 		IdentifierHash hashId=m_emHelper->disc_channel_hash(ch_id);
 		if(hashId<m_emHelper->channel_hash_max()) {
-		  log<<MSG::ERROR
-		     << " EM: pb with disc_channel_hash less than channel_hash_max"
-		     << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
-		     << "         hashId = " << hashId
-		     << endreq;
+		  ATH_MSG_ERROR
+                    ( " EM: pb with disc_channel_hash less than channel_hash_max"
+                      << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
+                      << "         hashId = " << hashId );
 		}
 		/*
 		std::vector<IdentifierHash> neighbourList;
@@ -4661,19 +4501,18 @@ StatusCode TestLArHWID_Algo::execute(){
 		// test is_connected as well
 		bool ok = m_emHelper->is_connected(hashId);
 		if ( ok ) {
-		  log<<MSG::ERROR
-		     << " EM: pb with is_connected(hash): true in disc loop !!!"
-		     << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
-		     << "         hashId = " << hashId
-		     << endreq;
+		  ATH_MSG_ERROR
+                    ( " EM: pb with is_connected(hash): true in disc loop !!!"
+                      << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
+                      << "         hashId = " << hashId );
 		}
 
 		if( m_Detector == "EM" || m_Detector == "ALL" ){
 		  // EM disconnected channels
 		  nEMdisc++;
 		  if(nEMdisc==nDiscOld+1000){
-		    log << MSG::INFO << "[ATLAS] processing EM disconnected offline channel ..# " 
-			<< nEMdisc << endreq;
+		    ATH_MSG_INFO ( "[ATLAS] processing EM disconnected offline channel ..# " 
+                                   << nEMdisc );
 		    nDiscOld=nEMdisc;
 		  }
 		}
@@ -4683,8 +4522,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // EMBARREL disconnected channels
 		    nEMBdisc++;
 		    if(nEMBdisc==nDiscOld+1000){
-		      log << MSG::INFO << "[ATLAS] processing EMB disconnected offline channel ..# " 
-			  << nEMBdisc << endreq;
+		      ATH_MSG_INFO ( "[ATLAS] processing EMB disconnected offline channel ..# " 
+                                     << nEMBdisc );
 		      nDiscOld=nEMBdisc;
 		    }
 		    // Output...
@@ -4711,8 +4550,8 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // if EMEC
 		    nEMECdisc++;
 		    if(nEMECdisc==nDiscOld+1000){
-		      log << MSG::INFO << "[ATLAS] processing EMEC disconnected offline channel ..# " 
-			  << nEMECdisc << endreq;
+		      ATH_MSG_INFO ( "[ATLAS] processing EMEC disconnected offline channel ..# " 
+                                     << nEMECdisc );
 		      nDiscOld=nEMECdisc;
 		    }
 		    // Output...
@@ -4749,19 +4588,19 @@ StatusCode TestLArHWID_Algo::execute(){
 	      nHECconn++;
 	      nATLASconn++;
 	      if(nATLASconn==nch_old+200){
-		log << MSG::INFO << "[ATLAS] processing HEC connected offline channel ..# " 
-		    << nATLASconn << endreq;
+		ATH_MSG_INFO ( "[ATLAS] processing HEC connected offline channel ..# " 
+                               << nATLASconn );
 		nch_old=nATLASconn;
 	      }
 	      Identifier ch_id = *itId;
 	      HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 	      Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	      log<<MSG::VERBOSE<< m_hecHelper->show_to_string( ch_onl ) ; 
-	      log<<"  "<< m_hecHelper->show_to_string(ch_id) << endreq ;   
+	      ATH_MSG_VERBOSE( m_hecHelper->show_to_string( ch_onl )
+                               <<"  "<< m_hecHelper->show_to_string(ch_id) );
 	      if( ch_id != id_test ) { 
-		log<<MSG::ERROR<<" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
-		   << " ( " << m_hecHelper->is_connected(ch_id) << " ) " << endreq ;
-		log<<MSG::ERROR<<"online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) <<endreq ;
+		ATH_MSG_ERROR(" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
+                              << " ( " << m_hecHelper->is_connected(ch_id) << " ) " );
+		ATH_MSG_ERROR("online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) );
 		break ; 
 	      }
 
@@ -4772,7 +4611,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 	      std::vector<IdentifierHash>::iterator last=neighbourList.end();
 	      for (;last!=first; first++){
-		log<<MSG::VERBOSE << "  neighbour list HEC = " << (unsigned int)(*first) << endreq; 
+		ATH_MSG_VERBOSE ( "  neighbour list HEC = " << (unsigned int)(*first) );
 	      }
 
 	      // Output...
@@ -4800,19 +4639,19 @@ StatusCode TestLArHWID_Algo::execute(){
 	      nHECdisc++;
 	      nATLASdisc++;
 	      if(nHECdisc==nch_old+100){
-		log << MSG::INFO << "[ATLAS] processing HEC disconnected offline-channel ..# " 
-		    << nHECdisc << endreq;
+		ATH_MSG_INFO ( "[ATLAS] processing HEC disconnected offline-channel ..# " 
+                               << nHECdisc );
 		nch_old=nHECdisc;
 	      }
 	      Identifier ch_id = *itId;
 	      HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 	      Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	      log<<MSG::VERBOSE<< m_hecHelper->show_to_string( ch_onl ) ; 
-	      log<<"  "<< m_hecHelper->show_to_string(ch_id) << endreq ;   
+	      ATH_MSG_VERBOSE( m_hecHelper->show_to_string( ch_onl )
+                               <<"  "<< m_hecHelper->show_to_string(ch_id) );
 	      if( ch_id != id_test ) { 
-		log<<MSG::ERROR<<" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
-		   << " ( " << m_hecHelper->is_connected(ch_id) << " ) " << endreq ;
-		log<<MSG::ERROR<<"online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) <<endreq ;
+		ATH_MSG_ERROR(" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
+                              << " ( " << m_hecHelper->is_connected(ch_id) << " ) " );
+		ATH_MSG_ERROR("online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) );
 		break ; 
 	      }
 
@@ -4824,7 +4663,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 	      std::vector<IdentifierHash>::iterator last=neighbourList.end();
 	      for (;last!=first; first++){
-		log<<MSG::INFO << "  neighbour disc HEC = " << (*first).getString() << endreq; 
+                ATH_MSG_INFO ( "  neighbour disc HEC = " << (*first).getString() );
 	      }
 	      */
 
@@ -4861,22 +4700,22 @@ StatusCode TestLArHWID_Algo::execute(){
 	    nFCALconn++;
 	    nATLASconn++;
 	    if(nATLASconn==nch_old+500){
-	      log << MSG::INFO << "[ATLAS] processing FCAL connected offline channel ..# " 
-		  << nATLASconn << endreq;
+	      ATH_MSG_INFO ( "[ATLAS] processing FCAL connected offline channel ..# " 
+                             << nATLASconn );
 	      nch_old=nATLASconn;
 	    }
 	    Identifier ch_id = *itId;
 	    HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 	    Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	    log<<MSG::VERBOSE<<  m_fcalHelper->show_to_string( ch_onl ) ; 
-	    log<<"  "<< m_fcalHelper->show_to_string(ch_id) << endreq ;   
+	    ATH_MSG_VERBOSE(  m_fcalHelper->show_to_string( ch_onl ) 
+                              <<"  "<< m_fcalHelper->show_to_string(ch_id) );
 	    if( ch_id != id_test ) { 
-	      log<<MSG::ERROR<<" FCAL: Error in mapping for offline id= (is_connected ?) "
-		 << m_fcalHelper->show_to_string( ch_id ) 
-		 << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " << endreq ;
-	      log<<MSG::ERROR<<"online ID, returned offline ID= " 
-		 << m_fcalHelper->show_to_string(ch_onl) << ", " 
-		 << m_fcalHelper->show_to_string(id_test) <<endreq ;
+	      ATH_MSG_ERROR(" FCAL: Error in mapping for offline id= (is_connected ?) "
+                            << m_fcalHelper->show_to_string( ch_id ) 
+                            << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " );
+	      ATH_MSG_ERROR("online ID, returned offline ID= " 
+                            << m_fcalHelper->show_to_string(ch_onl) << ", " 
+                            << m_fcalHelper->show_to_string(id_test) );
 	      break ; 
 	    }
 
@@ -4887,7 +4726,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 	    std::vector<IdentifierHash>::iterator last=neighbourList.end();
 	    for (;last!=first; first++){
-                log<<MSG::VERBOSE << "  neighbour list FCAL = " << (unsigned int)(*first) << endreq; 
+              ATH_MSG_VERBOSE ( "  neighbour list FCAL = " << (unsigned int)(*first) );
 	    }
 	    
 	    // Output...
@@ -4918,15 +4757,15 @@ StatusCode TestLArHWID_Algo::execute(){
 	    Identifier ch_id = *itId;
 	    HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
 	    Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	    log<<MSG::VERBOSE<<  m_fcalHelper->show_to_string( ch_onl ) ; 
-	    log<<"  "<< m_fcalHelper->show_to_string(ch_id) << endreq ;   
+	    ATH_MSG_VERBOSE(  m_fcalHelper->show_to_string( ch_onl )
+                              <<"  "<< m_fcalHelper->show_to_string(ch_id) );
 	    if( ch_id != id_test ) { 
-	      log<<MSG::ERROR<<" FCAL: Error in mapping for offline id= (is_connected ?) "
-		 << m_fcalHelper->show_to_string( ch_id ) 
-		 << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " << endreq ;
-	      log<<MSG::ERROR<<"online ID, returned offline ID= " 
-		 << m_fcalHelper->show_to_string(ch_onl) << ", " 
-		 << m_fcalHelper->show_to_string(id_test) <<endreq ;
+	      ATH_MSG_ERROR(" FCAL: Error in mapping for offline id= (is_connected ?) "
+                            << m_fcalHelper->show_to_string( ch_id ) 
+                            << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " );
+	      ATH_MSG_ERROR("online ID, returned offline ID= " 
+                            << m_fcalHelper->show_to_string(ch_onl) << ", " 
+                            << m_fcalHelper->show_to_string(id_test) );
 	      break ; 
 	    }
 
@@ -4967,64 +4806,64 @@ StatusCode TestLArHWID_Algo::execute(){
 
       if( l_version=="fullAtlas" )
 	{// if version == fullAtlas
-	  log << MSG::INFO << "===============================================" << endreq;
+	  ATH_MSG_INFO ( "===============================================" );
 	  if( m_Detector == "ALL"){
-	    log << MSG::INFO << "    Total number of ATLAS channels " << endreq; 	    
-	    log << MSG::INFO << "    - connected channels    : " << nATLASconn << " (ref=182468)" << endreq;
-	    log << MSG::INFO << "    - discconnected channels:   " << nATLASdisc << " (ref=  5948)" <<endreq;
-	    log << MSG::INFO << "===============================================" << endreq; 
+	    ATH_MSG_INFO ( "    Total number of ATLAS channels " );
+	    ATH_MSG_INFO ( "    - connected channels    : " << nATLASconn << " (ref=182468)" );
+	    ATH_MSG_INFO ( "    - discconnected channels:   " << nATLASdisc << " (ref=  5948)" );
+	    ATH_MSG_INFO ( "===============================================" );
 	  }
 	  if( m_Detector == "EMB" || m_Detector == "ALL" ){
-	    log << MSG::INFO << "    Total number of channels in EMB : " << endreq;
-	    log << MSG::INFO << "    - connected channels    = " << nEMBconn <<  " (ref=109568)" << endreq;
-	    log << MSG::INFO << "    - disconnected channels =   " << nEMBdisc <<  " (ref=  1024)" << endreq;
+	    ATH_MSG_INFO ( "    Total number of channels in EMB : " );
+	    ATH_MSG_INFO ( "    - connected channels    = " << nEMBconn <<  " (ref=109568)" );
+	    ATH_MSG_INFO ( "    - disconnected channels =   " << nEMBdisc <<  " (ref=  1024)" );
 	    if( m_Detector != "ALL" ){
-	      log << MSG::INFO << "    - channels in sampling 0= " << nSam0 << " (ref= 7808)" << endreq;
-	      log << MSG::INFO << "    - channels in sampling 1= " << nSam1 << " (ref=58753)" <<endreq;
-	      log << MSG::INFO << "    - channels in sampling 2= " << nSam2 << " (ref=29186)" <<endreq;
-	      log << MSG::INFO << "    - channels in sampling 3= " << nSam3 << " (ref=13827)" <<endreq;
+	      ATH_MSG_INFO ( "    - channels in sampling 0= " << nSam0 << " (ref= 7808)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 1= " << nSam1 << " (ref=58753)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 2= " << nSam2 << " (ref=29186)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 3= " << nSam3 << " (ref=13827)" );
 	    }
 	  }
 	  if( m_Detector == "EMEC" || m_Detector == "ALL" ){
-	    log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-	    log << MSG::INFO << "    Total number of channels in EMEC : " << endreq;
-	    log << MSG::INFO << "    - connected channels    =  " << nEMECconn <<  " (ref=63744)" << endreq;
-	    log << MSG::INFO << "    - disconnected channels =   " << nEMECdisc <<  " (ref= 4352)" << endreq;
+	    ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
+	    ATH_MSG_INFO ( "    Total number of channels in EMEC : " );
+	    ATH_MSG_INFO ( "    - connected channels    =  " << nEMECconn <<  " (ref=63744)" );
+	    ATH_MSG_INFO ( "    - disconnected channels =   " << nEMECdisc <<  " (ref= 4352)" );
 	    if( m_Detector != "ALL" ){
-	      log << MSG::INFO << "    - channels in sampling 0= " << nSam0 << " (ref= 1536)" << endreq;
-	      log << MSG::INFO << "    - channels in sampling 1= " << nSam1 << " (ref=28545)" <<endreq;
-	      log << MSG::INFO << "    - channels in sampling 2= " << nSam2 << " (ref=23426)" <<endreq;
-	      log << MSG::INFO << "    - channels in sampling 3= " << nSam3 << " (ref=10243)" <<endreq;
+	      ATH_MSG_INFO ( "    - channels in sampling 0= " << nSam0 << " (ref= 1536)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 1= " << nSam1 << " (ref=28545)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 2= " << nSam2 << " (ref=23426)" );
+	      ATH_MSG_INFO ( "    - channels in sampling 3= " << nSam3 << " (ref=10243)" );
 	    }
 	  }
 	  if( m_Detector == "FCAL" || m_Detector == "ALL" ){
-	    log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-	    log << MSG::INFO << "    Total channels in FCAL : " << endreq;
-	    log << MSG::INFO << "    - connected channels    =   " << nFCALconn << " (ref=3524)" << endreq;
-	    log << MSG::INFO << "    - disconnected channels =     " << nFCALdisc << " (ref=  60)" << endreq;
+	    ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
+	    ATH_MSG_INFO ( "    Total channels in FCAL : " );
+	    ATH_MSG_INFO ( "    - connected channels    =   " << nFCALconn << " (ref=3524)" );
+	    ATH_MSG_INFO ( "    - disconnected channels =     " << nFCALdisc << " (ref=  60)" );
 	  }
 	  if( m_Detector == "HEC" || m_Detector == "ALL" ){
-	    log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-	    log << MSG::INFO << "    Total number of channels in HEC : " << endreq;
-	    log << MSG::INFO << "    - connected channels    =   " << nHECconn <<  " (ref=5632)" << endreq;
-	    log << MSG::INFO << "    - disconnected channels =    " << nHECdisc <<  " (ref= 512)" << endreq;
+	    ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
+	    ATH_MSG_INFO ( "    Total number of channels in HEC : " );
+	    ATH_MSG_INFO ( "    - connected channels    =   " << nHECconn <<  " (ref=5632)" );
+	    ATH_MSG_INFO ( "    - disconnected channels =    " << nHECdisc <<  " (ref= 512)" );
 	  }
 	  if( m_Detector == "EM" || m_Detector == "ALL" ){
-	    log << MSG::INFO << " +++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-	    log << MSG::INFO << "    Total number of channels in EM : " << endreq;
-	    log << MSG::INFO << "    - connected channels    = " << nEMconn << " (ref=173312)" <<endreq;
-	    log << MSG::INFO << "    - disconnected channels =   " << nEMdisc << " (ref=  5376)" <<endreq;
-	    log << MSG::INFO << "    - channels in sampling 0= " << nSam0 << " (ref= 9344)" << endreq;
-	    log << MSG::INFO << "    - channels in sampling 1= " << nSam1 << " (ref=87297)" <<endreq;
-	    log << MSG::INFO << "    - channels in sampling 2= " << nSam2 << " (ref=52610)" <<endreq;
-	    log << MSG::INFO << "    - channels in sampling 3= " << nSam3 << " (ref=24067)" <<endreq;
-	    log << MSG::INFO << "===============================================" << endreq;
+	    ATH_MSG_INFO ( " +++++++++++++++++++++++++++++++++++++++++++++++++" );
+	    ATH_MSG_INFO ( "    Total number of channels in EM : " );
+	    ATH_MSG_INFO ( "    - connected channels    = " << nEMconn << " (ref=173312)" );
+	    ATH_MSG_INFO ( "    - disconnected channels =   " << nEMdisc << " (ref=  5376)" );
+	    ATH_MSG_INFO ( "    - channels in sampling 0= " << nSam0 << " (ref= 9344)" );
+	    ATH_MSG_INFO ( "    - channels in sampling 1= " << nSam1 << " (ref=87297)" );
+	    ATH_MSG_INFO ( "    - channels in sampling 2= " << nSam2 << " (ref=52610)" );
+	    ATH_MSG_INFO ( "    - channels in sampling 3= " << nSam3 << " (ref=24067)" );
+	    ATH_MSG_INFO ( "===============================================" );
 	  }    
 	  fileEmecOff.close();
 	  fileHecOff.close();
 	  fileFcalOff.close();
 	  fileEmbOff.close();
-	  log << MSG::INFO << "===============================================" << endreq;
+	  ATH_MSG_INFO ( "===============================================" );
 	}
     }
   
@@ -5039,8 +4878,6 @@ StatusCode TestLArHWID_Algo::execute(){
 /********************************************************/
 StatusCode TestLArHWID_Algo::finalize(){
 	
-  MsgStream log( messageService(), name() );	
-  log << MSG::INFO << " finalizing " << endreq;
+  ATH_MSG_INFO ( " finalizing " );
   return StatusCode::SUCCESS ; 
-  
 }

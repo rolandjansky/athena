@@ -9,7 +9,7 @@
 /* modif  : A. Lucotte */
 /* date of creation : 01/07/2001 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 /** 
@@ -27,7 +27,7 @@ class LArHVLineID;
 class LArElectrodeID;
 class LArHVCablingTool;
 
-class TestLArHWID_Algo : public Algorithm {
+class TestLArHWID_Algo : public AthAlgorithm {
 
   private :
   

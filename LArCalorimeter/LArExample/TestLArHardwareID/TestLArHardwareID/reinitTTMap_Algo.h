@@ -8,7 +8,7 @@
 /* author : F. Ledroit */
 /* date of creation : 11/03/2009 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 
@@ -17,10 +17,9 @@
   *
   */
 class LArFCAL_ID;
-class StoreGateSvc;
 class IAthenaOutputStreamTool;
 
-class reinitTTMap_Algo : public Algorithm {
+class reinitTTMap_Algo : public AthAlgorithm {
 
   private :
   

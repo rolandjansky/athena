@@ -30,10 +30,9 @@
 
 /********************************************************/
 initTTMap_Algo::initTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
-  Algorithm( name , pSvcLocator) ,
+  AthAlgorithm( name , pSvcLocator) ,
   m_initFromFile("OFF"),
   m_dumpMap(false),
-  m_detStore(0),
   m_cablingSvc(0),
   m_triggertowerSvc(0),
   m_lvl1Helper(0),
@@ -61,131 +60,58 @@ initTTMap_Algo::~initTTMap_Algo()
 // ==============================================================
 StatusCode initTTMap_Algo::initialize(){
 // ==============================================================
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " initializing " << endreq;
+  ATH_MSG_INFO ( " initializing " );
 
-  StatusCode sc ;  
-  IToolSvc* toolSvc;
-  StatusCode status = service( "ToolSvc",toolSvc  );
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc ) );
  
-  if(status.isSuccess()) 
-    {
-      StatusCode sc = toolSvc->retrieveTool("LArCablingService", m_cablingSvc); 
-      if(sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "initialize() failed retrieving LArCablingService" << endreq;
-	return StatusCode::FAILURE;
-      }
-      else
-	{
-	  log << MSG::DEBUG << "initialize() successfully retrieved LArCablingService" << endreq;
-	}
-    }
-  else 
-    {
-      log << MSG::ERROR << "initialize() failed locating ToolSvc" << endreq;
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingService", m_cablingSvc) );
+  ATH_MSG_DEBUG ( "initialize() successfully retrieved LArCablingService" );
+
+  ATH_CHECK( toolSvc->retrieveTool("CaloTriggerTowerService", m_triggertowerSvc) );
+  ATH_MSG_DEBUG ( "initialize() successfully retrieved CaloTriggerTowerService" );
+
+  const CaloIdManager*	caloIdMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
+  ATH_MSG_INFO ( "Successfully retrieved CaloIdManager from DetectorStore" );
+  
+  const CaloLVL1_ID* caloId = caloIdMgr->getLVL1_ID();
+  if (!caloId) {
+    ATH_MSG_ERROR ( "Could not access calolvl1 ID helper" );
       return StatusCode::FAILURE;
-    }
-
-  // CaloTriggerTowerService
-  // ----------------------
-  if(status.isSuccess()) 
-    {
-      StatusCode sc = toolSvc->retrieveTool("CaloTriggerTowerService", m_triggertowerSvc); 
-      if(sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR << "initialize() failed retrieving CaloTriggerTowerService" << endreq;
-	return StatusCode::FAILURE;
-      }
-      else
-	{
-	  log << MSG::DEBUG << "initialize() successfully retrieved CaloTriggerTowerService" << endreq;
-	}
-    }
-  else 
-    {
-      log << MSG::ERROR << "initialize() failed locating ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-
-
-
-  // retrieve LArId and CaloId managers and helpers from det store
-  // -------------------------------------------------------------
-  sc = service( "DetectorStore", m_detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
+  } else {
+    ATH_MSG_INFO ( "Successfully accessed calolvl1 ID helper" );
+    m_lvl1Helper = caloId ;
+  }
+    
+  const LArEM_ID* emId = caloIdMgr->getEM_ID();
+  if (!emId) {
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully located DetectorStore" << endreq;
-  }	
-
-  /*
-  const LArIdManager*	larIdMgr;
-  sc = m_detStore->retrieve(larIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar EM ID helper" );
+    m_emHelper=emId;
+  }
+    
+  const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
+  if (!hecId) {
+    ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-  
-    const LArOnlineID* onlId = LArIdMgr->getOnlineID();
-    if (!onlId) {
-      log << MSG::ERROR << "Could not access lar online ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed lar online ID helper" << endreq;
-      m_onlHelper = onlId ;
-    }
-  }	
-  */
-
-  const CaloIdManager*	caloIdMgr;
-  sc = m_detStore->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar HEC ID helper" );
+    m_hecHelper=hecId;
+  }
+    
+  const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
+  if (!fcalId) {
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
+    ATH_MSG_INFO ( "Successfully accessed lar FCAL ID helper" );
+    m_fcalHelper=fcalId;
+  }
   
-    const CaloLVL1_ID* caloId = caloIdMgr->getLVL1_ID();
-    if (!caloId) {
-      log << MSG::ERROR << "Could not access calolvl1 ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed calolvl1 ID helper" << endreq;
-      m_lvl1Helper = caloId ;
-    }
-    
-    const LArEM_ID* emId = caloIdMgr->getEM_ID();
-    if (!emId) {
-      log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed lar EM ID helper" << endreq;
-      m_emHelper=emId;
-    }
-    
-    const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
-    if (!hecId) {
-      log << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed lar HEC ID helper" << endreq;
-      m_hecHelper=hecId;
-    }
-    
-    const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
-    if (!fcalId) {
-      log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed lar FCAL ID helper" << endreq;
-      m_fcalHelper=fcalId;
-    }
-    
-  }	
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -193,25 +119,17 @@ StatusCode initTTMap_Algo::initialize(){
 StatusCode initTTMap_Algo::execute(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> initTTMap_Algo::Executing " << endreq;
+  ATH_MSG_INFO ( "=> initTTMap_Algo::Executing " );
 
-  StatusCode sc = initMap();
-
-  if(sc!= StatusCode::FAILURE) {
-    sc = testStruct();
-  } else {
-    log << MSG::ERROR << "initTTMap_Algo:: failed init map " << endreq;
-  }
-
-  return sc ;
+  ATH_CHECK( initMap() );
+  ATH_CHECK( testStruct() );
+  return StatusCode::SUCCESS;
 }
 // ====================================================================================
 StatusCode initTTMap_Algo::initMap(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> initTTMap_Algo::initMap " << endreq;
+  ATH_MSG_INFO ( "=> initTTMap_Algo::initMap " );
 
   std::vector<Identifier>::const_iterator itTt  = m_lvl1Helper->layer_begin() ;
   std::vector<Identifier>::const_iterator itEnd = m_lvl1Helper->layer_end() ;
@@ -232,9 +150,7 @@ StatusCode initTTMap_Algo::initMap(){
   // ....... init EM and HEC from hard coded mapping in LArCablingService
   // ....... loop on Trigger Towers
 
-  log << MSG::DEBUG
-      << " Starting loop on Trigger Towers " 
-      << endreq;
+  ATH_MSG_DEBUG ( " Starting loop on Trigger Towers " );
   for(; itTt!=itEnd;++itTt){
 	    
     Identifier layerId = (*itTt) ;
@@ -261,7 +177,7 @@ StatusCode initTTMap_Algo::initMap(){
       // .... loop on all LAr online channels belonging to the trigger tower (with layer info) 
       //
       if(channelIdVec.size()==0) {
-	log<<MSG::VERBOSE<<"non existing extented TT " << m_lvl1Helper->show_to_string(layerId)<<endreq ;
+	ATH_MSG_VERBOSE("non existing extented TT " << m_lvl1Helper->show_to_string(layerId));
 	nNE++;
       } else {
 	for (unsigned int ichan=0;ichan<channelIdVec.size();ichan++){	
@@ -272,7 +188,7 @@ StatusCode initTTMap_Algo::initMap(){
 	  nCell++;
 	  bool fcal=false;
 	  if(m_emHelper->is_lar_em(cellId)) {
-	    log<<MSG::VERBOSE<<"EM cell " << m_lvl1Helper->show_to_string(cellId)<<endreq ;
+	    ATH_MSG_VERBOSE("EM cell " << m_lvl1Helper->show_to_string(cellId));
 	    cell_det = 0;
 	    cell_pn = m_emHelper->barrel_ec(cellId);
 	    cell_samp = m_emHelper->sampling(cellId);
@@ -281,7 +197,7 @@ StatusCode initTTMap_Algo::initMap(){
 	    cell_phi = m_emHelper->phi(cellId);
 	  }
 	  else if(m_emHelper->is_lar_hec(cellId)) {
-	    log<<MSG::VERBOSE<<"HEC cell " << m_lvl1Helper->show_to_string(cellId)<<endreq ;
+	    ATH_MSG_VERBOSE("HEC cell " << m_lvl1Helper->show_to_string(cellId));
 	    cell_det = 1;
 	    cell_pn = m_hecHelper->pos_neg(cellId);
 	    cell_samp = m_hecHelper->sampling(cellId);
@@ -290,7 +206,7 @@ StatusCode initTTMap_Algo::initMap(){
 	    cell_phi = m_hecHelper->phi(cellId);
 	  }
 	  else if(m_emHelper->is_lar_fcal(cellId)) {
-	    log<<MSG::VERBOSE<<"FCAL cell " << m_lvl1Helper->show_to_string(cellId)<<endreq ;
+	    ATH_MSG_VERBOSE("FCAL cell " << m_lvl1Helper->show_to_string(cellId));
 	    fcal=true;
 	    cell_det = 2;
 	    cell_samp = 0;
@@ -309,16 +225,14 @@ StatusCode initTTMap_Algo::initMap(){
 	      cell_phi = 5;
 	      if(nDisc==2) {cell_phi = 13;}
 	      
-	      log<<MSG::DEBUG << "disc chan= " 
-		 << m_fcalHelper->show_to_string(cellId)
-		 << endreq;
+	      ATH_MSG_DEBUG ( "disc chan= " 
+                              << m_fcalHelper->show_to_string(cellId) );
 	    }
 	  } else {
-	    log<<MSG::ERROR<< "Cell not in EM, nor HEC, nor FCAL: "
-	       << m_emHelper->show_to_string(cellId) 
-	       << " from Trigger Tower " 
-	       << m_emHelper->show_to_string(layerId) 
-	       << endreq ;
+	    ATH_MSG_ERROR( "Cell not in EM, nor HEC, nor FCAL: "
+                           << m_emHelper->show_to_string(cellId) 
+                           << " from Trigger Tower " 
+                           << m_emHelper->show_to_string(layerId) );
 	  }
 	  
 	  if(m_initFromFile == "OFF" || !fcal) {
@@ -348,29 +262,25 @@ StatusCode initTTMap_Algo::initMap(){
       }
     }
   }
-  log<<MSG::INFO<< "number of cells found, skipped= " << nCell << " " << nSkip << endreq ;
-  log<<MSG::INFO<< "number of Non Existing Extented TT= " << nNE << endreq ;
+  ATH_MSG_INFO( "number of cells found, skipped= " << nCell << " " << nSkip );
+  ATH_MSG_INFO( "number of Non Existing Extented TT= " << nNE );
 
   if(m_initFromFile == "ON") {
     // the FCAL part is read from Gerald Oakham's file
 
     std::string fcalmapname=PathResolver::find_file ("FCal-online-map.txt", "DATAPATH");
     if (fcalmapname == "") {
-      log << MSG::ERROR << "Could not locate FCal-online-map.txt file" <<  endreq;
+      ATH_MSG_ERROR ( "Could not locate FCal-online-map.txt file" );
       return StatusCode::FAILURE;
     }
     const char * fcalmapfile= fcalmapname.c_str() ;
     std::ifstream infile (fcalmapfile) ;
     
     if(!infile) {
-      log << MSG::ERROR
-	  << " cannot open FCal-online-map.txt file "
-	  << endreq;
+      ATH_MSG_ERROR( " cannot open FCal-online-map.txt file " );
       return StatusCode::FAILURE;
     } else {
-      log << MSG::DEBUG
-	  << " FCal-online-map.txt file opened "
-	  << endreq;
+      ATH_MSG_DEBUG ( " FCal-online-map.txt file opened " );
     }
     
     // read the FCAL mapping file for all channels (from Gerald Oakham- oct 2007)
@@ -411,10 +321,9 @@ StatusCode initTTMap_Algo::initMap(){
       // check that the id makes sense:
       bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
       if(!connected) {
-	log << MSG::ERROR 
-	    << "wrong dictionary ? cell not connected ! pn= "
-	    << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
-	    << endreq;
+	ATH_MSG_ERROR  ( "wrong dictionary ? cell not connected ! pn= "
+                         << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
+                         );
       }
       
       // fields for the offline TT channel id
@@ -437,43 +346,21 @@ StatusCode initTTMap_Algo::initMap(){
   }
     infile.close() ;
 
-    log << MSG::INFO
-	<< " Read FCAL online-offline-TT map,nb of lines= "
-	<< iline  << endreq;
+    ATH_MSG_INFO ( " Read FCAL online-offline-TT map,nb of lines= " << iline  );
   }
 
   // store map in StoreGate
   LArTTCellMap *ttMap = new LArTTCellMap();
   if ( ttMap == 0 ){
-    log << MSG::ERROR 
-	<< "Could not allocate a new LArTTCellMap" 
-	<< endreq;
+    ATH_MSG_ERROR( "Could not allocate a new LArTTCellMap" );
     return StatusCode::FAILURE;	  
   }
 
   // register the Map into the TES 
-  StatusCode sc = m_detStore->record( ttMap ,  "LArTTCellMapAtlas") ;
-  if( sc.isFailure() )
-  {
-    log << MSG::ERROR 
-	<< "Could not record new LArTTCellMap in TES " 
-	<< endreq;
-    return StatusCode::FAILURE;	  
-  }
+  ATH_CHECK( detStore()->record( ttMap ,  "LArTTCellMapAtlas") );
 
   ttMap->set(d);
-      
-
-  sc = m_detStore->setConst( ttMap ) ;
-  if( sc.isFailure() )
-  {
-    log << MSG::ERROR 
-	<< "Could not lock ttMap in detStore " 
-	<< endreq;
-    return StatusCode::FAILURE;	  
-  }
-
-
+  ATH_CHECK( detStore()->setConst( ttMap ) );
   return StatusCode::SUCCESS ;
 }
 
@@ -484,25 +371,18 @@ StatusCode initTTMap_Algo::testStruct(){
 // currently only runs with no old map as input
 // (initial initialization with hard-coded map)
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> initTTMap_Algo::testStruct " << endreq;
+  ATH_MSG_INFO ( "=> initTTMap_Algo::testStruct " );
   
-  const LArTTCellMap* ttCellMap_c ;
-  StatusCode sc = m_detStore->retrieve( ttCellMap_c ) ;
-    
-  if ( sc.isFailure() || !ttCellMap_c)  {
-    log << MSG::ERROR << "testStruct: could not retrieve LArTTCellMap " 
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  const LArTTCellMap* ttCellMap_c = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
   
   LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
   LArTTCell_P* ttCell_P = ttCellMap->getP(); 
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::const_iterator it   = ttCell_P->m_v.begin(); 
   VTTCELL::const_iterator it_e = ttCell_P->m_v.end(); 
-  log<<MSG::DEBUG<<"  Dump of LArTTCellMap" <<endreq; 
-  log<<MSG::DEBUG<<" Persistent LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
+  ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   int lines=0;
   std::ofstream* dumpFcal=0;
   std::ofstream* dumpOther=0;
@@ -523,8 +403,8 @@ StatusCode initTTMap_Algo::testStruct(){
   for (; it!=it_e;++it)       {
     const LArTTCell_P::LArTTCell_P_t& t = *it;    
     lines++;
-    log<<MSG::VERBOSE
-       <<" det="<<t.det
+    ATH_MSG_VERBOSE
+      (" det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -536,7 +416,7 @@ StatusCode initTTMap_Algo::testStruct(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
 
     if(m_dumpMap) {
 
@@ -582,17 +462,13 @@ StatusCode initTTMap_Algo::testStruct(){
     delete dumpOther;
   }
 
-  log<<MSG::DEBUG<<" number of lines found = "<< lines<<endreq;
-
+  ATH_MSG_DEBUG(" number of lines found = "<< lines);
   return StatusCode::SUCCESS ;
-  
 }
 
 /********************************************************/
 StatusCode initTTMap_Algo::finalize(){
 	
-  MsgStream log( messageService(), name() );	
-  log << MSG::INFO << " finalizing " << endreq;
+  ATH_MSG_INFO ( " finalizing " );
   return StatusCode::SUCCESS ; 
-  
 }

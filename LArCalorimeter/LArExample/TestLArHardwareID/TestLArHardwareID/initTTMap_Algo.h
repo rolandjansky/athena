@@ -8,7 +8,7 @@
 /* author : F. Ledroit */
 /* date of creation : 10/10/2006 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 /** 
@@ -20,11 +20,10 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 //class LArOnlineID;
-class StoreGateSvc;
 class LArCablingService;
 class CaloTriggerTowerService;
 
-class initTTMap_Algo : public Algorithm {
+class initTTMap_Algo : public AthAlgorithm {
 
   private :
   
@@ -36,7 +35,6 @@ class initTTMap_Algo : public Algorithm {
   std::string m_initFromFile ; 
   bool m_dumpMap;
 
-  StoreGateSvc*           m_detStore ;
   LArCablingService*      m_cablingSvc ; 
   CaloTriggerTowerService* m_triggertowerSvc ; 
   const CaloLVL1_ID*      m_lvl1Helper;

@@ -22,13 +22,10 @@
 
 /********************************************************/
 updateTTMap_Algo::updateTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
-  Algorithm( name , pSvcLocator) ,
-  m_detStore(0),
+  AthAlgorithm( name , pSvcLocator) ,
   m_dumpMap(false)
 {
-      
   declareProperty("dumpMap", m_dumpMap );
-
 }
 
 updateTTMap_Algo::~updateTTMap_Algo()
@@ -38,20 +35,8 @@ updateTTMap_Algo::~updateTTMap_Algo()
 // ==============================================================
 StatusCode updateTTMap_Algo::initialize(){
 // ==============================================================
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " initializing " << endreq;
-
-
-  StatusCode sc = service( "DetectorStore", m_detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully located DetectorStore" << endreq;
-  }	
-
-  
-  return sc;
+  ATH_MSG_INFO ( " initializing " );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -59,18 +44,10 @@ StatusCode updateTTMap_Algo::initialize(){
 StatusCode updateTTMap_Algo::execute(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> updateTTMap_Algo::Executing " << endreq;
+  ATH_MSG_INFO ( "=> updateTTMap_Algo::Executing " );
 
-  const LArTTCellMap* ttCellMap_c ;
-  StatusCode sc = m_detStore->retrieve( ttCellMap_c ) ;
-    
-  if ( sc.isFailure() || !ttCellMap_c)     {
-    log << MSG::ERROR << "Could not retrieve LArTTCellMap " 
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  const LArTTCellMap* ttCellMap_c = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
   LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
   
   //
@@ -80,11 +57,11 @@ StatusCode updateTTMap_Algo::execute(){
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::iterator it   = ttCell_P->m_v.begin(); 
 
-  log<<MSG::DEBUG<<" Initial LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG(" Initial LArTTCell_P version = "<<ttCell_P->m_version);
 
   // set version to 1
   ttCell_P->m_version = 1 ;
-  log<<MSG::DEBUG<<" Final LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG(" Final LArTTCell_P version = "<<ttCell_P->m_version);
 
   unsigned int nLineI=0;
   unsigned int nLineF=0;
@@ -92,8 +69,8 @@ StatusCode updateTTMap_Algo::execute(){
 
   while (it!=ttCell_P->m_v.end()) {
     LArTTCell_P::LArTTCell_P_t& t = *it;    
-    log<<MSG::VERBOSE
-       <<" det="<<t.det
+    ATH_MSG_VERBOSE
+      (" det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -105,7 +82,7 @@ StatusCode updateTTMap_Algo::execute(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
     nLineI++;
 
     if((t.det)==0 && (t.pn)==1 && (t.tregion)==0 && (t.tphi)<4){
@@ -126,8 +103,8 @@ StatusCode updateTTMap_Algo::execute(){
   VTTCELL::iterator it_e2 = ttCell_P->m_v.end(); 
   for (; it2!=it_e2;++it2)       {
     LArTTCell_P::LArTTCell_P_t& t = *it2;    
-    log<<MSG::VERBOSE
-       <<" kept: det="<<t.det
+    ATH_MSG_VERBOSE
+      (" kept: det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -139,22 +116,19 @@ StatusCode updateTTMap_Algo::execute(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
   }
 
-  log<<MSG::DEBUG<<" nb of lines in initial struct= " << nLineI <<endreq; 
-  log<<MSG::DEBUG<<" nb of lines in final struct= " << nLineF <<endreq; 
-  log<<MSG::DEBUG<<" nb of lines erased= " << nLineE <<endreq; 
+  ATH_MSG_DEBUG(" nb of lines in initial struct= " << nLineI );
+  ATH_MSG_DEBUG(" nb of lines in final struct= " << nLineF );
+  ATH_MSG_DEBUG(" nb of lines erased= " << nLineE );
   
-
   return StatusCode::SUCCESS ;
 }
 
 /********************************************************/
 StatusCode updateTTMap_Algo::finalize(){
 	
-  MsgStream log( messageService(), name() );	
-  log << MSG::INFO << " finalizing " << endreq;
+  ATH_MSG_INFO ( " finalizing " );
   return StatusCode::SUCCESS ; 
-  
 }

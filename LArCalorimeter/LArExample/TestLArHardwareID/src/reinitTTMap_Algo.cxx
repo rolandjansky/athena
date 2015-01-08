@@ -29,14 +29,13 @@
 
 /********************************************************/
 reinitTTMap_Algo::reinitTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
-  Algorithm( name , pSvcLocator) ,
+  AthAlgorithm( name , pSvcLocator) ,
   m_dumpMap(false),
   m_testOnly(true),
   m_begRun(0),
   m_endRun(0),
   m_begLB(0),
   m_endLB(0),
-  m_detStore(0),
   m_fcalHelper(0),
   m_regSvc(0),
   m_streamName("CondStream1"),
@@ -62,64 +61,32 @@ reinitTTMap_Algo::~reinitTTMap_Algo()
 // ==============================================================
 StatusCode reinitTTMap_Algo::initialize(){
 // ==============================================================
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " initializing " << endreq;
+  ATH_MSG_INFO ( " initializing " );
 
-  StatusCode sc = service( "DetectorStore", m_detStore );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully located DetectorStore" << endreq;
-  }	
-
-  const CaloIdManager*	caloIdMgr;
-  sc = m_detStore->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
+  const CaloIdManager*	caloIdMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
+  ATH_MSG_INFO ( "Successfully retrieved CaloIdManager from DetectorStore" );
   
         
-    const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
-    if (!fcalId) {
-      log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << "Successfully accessed lar FCAL ID helper" << endreq;
-      m_fcalHelper=fcalId;
-    } 
-  }	
-
-  // get IOV registration service
-  sc = service("IOVRegistrationSvc", m_regSvc);
-  if (sc.isFailure()) {
-    log << MSG::INFO << "Unable to find IOVRegistrationSvc " << endreq;
+  const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
+  if (!fcalId) {
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << "Found IOVRegistrationSvc "  << endreq;
-  }
+    ATH_MSG_INFO ( "Successfully accessed lar FCAL ID helper" );
+    m_fcalHelper=fcalId;
+  } 
+
+  // get IOV registration service
+  ATH_CHECK( service("IOVRegistrationSvc", m_regSvc) );
+  ATH_MSG_DEBUG ( "Found IOVRegistrationSvc "  );
 
   // get the output stream tool for writing
-  IToolSvc* toolSvc = 0;
-  sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< " Tool Service not found "
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer) ;
-  if (sc.isFailure()) {
-    log << MSG::INFO
-	<< "Unable to find AthenaOutputStreamTool"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-    
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service("ToolSvc", toolSvc) );
+  ATH_CHECK( toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer) );
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -127,39 +94,25 @@ StatusCode reinitTTMap_Algo::initialize(){
 StatusCode reinitTTMap_Algo::execute(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> reinitTTMap_Algo::Executing " << endreq;
+  ATH_MSG_INFO ( "=> reinitTTMap_Algo::Executing " );
 
-  StatusCode sc = initMap();
+  ATH_CHECK( initMap() );
+  ATH_CHECK( testStruct() );
 
-  if(sc!= StatusCode::FAILURE) {
-    sc = testStruct();
-  } else {
-    log << MSG::ERROR << "reinitTTMap_Algo:: failed init map " << endreq;
-  }
-
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 // ====================================================================================
 StatusCode reinitTTMap_Algo::initMap(){
 // ====================================================================================
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> reinitTTMap_Algo::initMap " << endreq;
+  ATH_MSG_INFO ( "=> reinitTTMap_Algo::initMap " );
 
 
   // first keep the EM and HEC parts identical
 
 
-  const LArTTCellMap* ttCellMap_c ;
-  StatusCode sc = m_detStore->retrieve( ttCellMap_c ) ;
-    
-  if ( sc.isFailure() || !ttCellMap_c)     {
-    log << MSG::ERROR << "Could not retrieve LArTTCellMap " 
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  const LArTTCellMap* ttCellMap_c = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
   LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
   
   //
@@ -169,11 +122,11 @@ StatusCode reinitTTMap_Algo::initMap(){
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::iterator it   = ttCell_P->m_v.begin(); 
 
-  log<<MSG::DEBUG<<" Initial LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG(" Initial LArTTCell_P version = "<<ttCell_P->m_version);
 
   // set version to 2
   ttCell_P->m_version = 2 ;
-  log<<MSG::DEBUG<<" Final LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG(" Final LArTTCell_P version = "<<ttCell_P->m_version);
 
   unsigned int nLineI=0;
   unsigned int nLineF=0;
@@ -181,8 +134,8 @@ StatusCode reinitTTMap_Algo::initMap(){
 
   while (it!=ttCell_P->m_v.end()) {
     LArTTCell_P::LArTTCell_P_t& t = *it;    
-    log<<MSG::VERBOSE
-       <<" det="<<t.det
+    ATH_MSG_VERBOSE
+      (" det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -194,7 +147,7 @@ StatusCode reinitTTMap_Algo::initMap(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
     nLineI++;
 
     if((t.det)==2){
@@ -218,8 +171,8 @@ StatusCode reinitTTMap_Algo::initMap(){
   VTTCELL::iterator it_e2 = ttCell_P->m_v.end(); 
   for (; it2!=it_e2;++it2)       {
     LArTTCell_P::LArTTCell_P_t& t = *it2;    
-    log<<MSG::VERBOSE
-       <<" kept: det="<<t.det
+    ATH_MSG_VERBOSE
+      (" kept: det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -231,17 +184,13 @@ StatusCode reinitTTMap_Algo::initMap(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
 
   }
 
-  log<<MSG::DEBUG<<" nb of lines in initial struct= " << nLineI <<endreq; 
-  log<<MSG::DEBUG<<" nb of lines in final struct= " << nLineF <<endreq; 
-  log<<MSG::DEBUG<<" nb of lines erased= " << nLineE <<endreq; 
-
-
-
-
+  ATH_MSG_DEBUG(" nb of lines in initial struct= " << nLineI );
+  ATH_MSG_DEBUG(" nb of lines in final struct= " << nLineF );
+  ATH_MSG_DEBUG(" nb of lines erased= " << nLineE );
 
   // new FCAL file now
 
@@ -249,21 +198,17 @@ StatusCode reinitTTMap_Algo::initMap(){
 
   std::string fcalmapname=PathResolver::find_file ("FCal-online-map.txt", "DATAPATH");
   if (fcalmapname == "") {
-    log << MSG::ERROR << "Could not locate FCal-online-map.txt file" <<  endreq;
+    ATH_MSG_ERROR ( "Could not locate FCal-online-map.txt file" );
     return StatusCode::FAILURE;
   }
   const char * fcalmapfile= fcalmapname.c_str() ;
   std::ifstream infile (fcalmapfile) ;
   
   if(!infile) {
-    log << MSG::ERROR
-	<< " cannot open FCal-online-map.txt file "
-	<< endreq;
+    ATH_MSG_ERROR( " cannot open FCal-online-map.txt file " );
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG
-	<< " FCal-online-map.txt file opened "
-	<< endreq;
+    ATH_MSG_DEBUG( " FCal-online-map.txt file opened " );
   }
   
   // read the FCAL mapping file for all channels (from Gerald Oakham- oct 2007)
@@ -304,10 +249,10 @@ StatusCode reinitTTMap_Algo::initMap(){
     // check that the id makes sense:
     bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
     if(!connected) {
-      log << MSG::ERROR 
-	  << "wrong dictionary ? cell not connected ! pn= "
+      ATH_MSG_ERROR 
+        ( "wrong dictionary ? cell not connected ! pn= "
 	  << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
-	  << endreq;
+	  );
     }
     
     // fields for the offline TT channel id
@@ -330,19 +275,13 @@ StatusCode reinitTTMap_Algo::initMap(){
   }
   infile.close() ;
   
-  log << MSG::INFO
-      << " Read FCAL online-offline-TT map,nb of lines= "
-      << iline  << endreq;
+  ATH_MSG_INFO( " Read FCAL online-offline-TT map,nb of lines= "
+                << iline  );
 
   ttCellMap->set(d);
-
   
-  log << MSG::DEBUG << "Writing TT-cell map to POOL file" << endreq;
-  sc = m_streamer->connectOutput();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not connect stream to output" << endreq;
-    return( StatusCode::FAILURE);
-  }
+  ATH_MSG_DEBUG ( "Writing TT-cell map to POOL file" );
+  ATH_CHECK( m_streamer->connectOutput() );
 
   int npairs = 1;
   int index = 0;
@@ -352,37 +291,20 @@ StatusCode reinitTTMap_Algo::initMap(){
   typeKeys[index] = cellMap;
   ++index;
   
-  log << MSG::DEBUG <<"Stream out for pairs:" <<endreq;
+  ATH_MSG_DEBUG ("Stream out for pairs:" );
   for (unsigned int i = 0; i < typeKeys.size(); ++i) {
-    log << MSG::DEBUG << typeKeys[i].first << " " << typeKeys[i].second << " "
-	<< endreq;
+    ATH_MSG_DEBUG ( typeKeys[i].first << " " << typeKeys[i].second << " " );
   }
   
-  sc = m_streamer->streamObjects(typeKeys);
-  if (sc.isFailure()) {
-    log <<MSG::ERROR <<"Could not stream out ttCellMap" <<endreq;
-    return( StatusCode::FAILURE);
-  }
-  
-  sc = m_streamer->commitOutput();
-  if (sc.isFailure()) {
-    log <<MSG::ERROR <<"Could not commit output stream" <<endreq;
-    return( StatusCode::FAILURE);
-  }
+  ATH_CHECK( m_streamer->streamObjects(typeKeys) );
+  ATH_CHECK( m_streamer->commitOutput() );
 
-  
   if(m_testOnly) {
-    log << MSG::DEBUG
-	<< " End of reinit process "
-	<< endreq;
+    ATH_MSG_DEBUG( " End of reinit process " );
   } else {
     // register to cool
-    sc = m_regSvc->registerIOV("LArTTCellMap","LArTTCellMapAtlas","/LAR/Identifier/LArTTCellMapAtlas","-HadFcalFix",m_begRun,m_endRun, m_begLB, m_endLB);
-    if (sc.isFailure()) {
-      log <<MSG::ERROR <<"Could not register in IOV DB for CaloTTOnOffIdMap" <<endreq;
-      return( StatusCode::FAILURE);
-    }
-    log << MSG::INFO << "Registered LArTTCellMap in folder /LAR/Identifier/LArTTCellMapAtlas with tag -HadFcalFix" << endreq;
+    ATH_CHECK( m_regSvc->registerIOV("LArTTCellMap","LArTTCellMapAtlas","/LAR/Identifier/LArTTCellMapAtlas","-HadFcalFix",m_begRun,m_endRun, m_begLB, m_endLB) );
+    ATH_MSG_INFO ( "Registered LArTTCellMap in folder /LAR/Identifier/LArTTCellMapAtlas with tag -HadFcalFix" );
   }
 
   return StatusCode::SUCCESS ;
@@ -395,25 +317,18 @@ StatusCode reinitTTMap_Algo::testStruct(){
 // currently only runs with no old map as input
 // (initial initialization with hard-coded map)
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "=> reinitTTMap_Algo::testStruct " << endreq;
+  ATH_MSG_INFO ( "=> reinitTTMap_Algo::testStruct " );
   
-  const LArTTCellMap* ttCellMap_c ;
-  StatusCode sc = m_detStore->retrieve( ttCellMap_c ) ;
-    
-  if ( sc.isFailure() || !ttCellMap_c)  {
-    log << MSG::ERROR << "testStruct: could not retrieve LArTTCellMap " 
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  const LArTTCellMap* ttCellMap_c = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
   LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
+
   LArTTCell_P* ttCell_P = ttCellMap->getP(); 
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::const_iterator it   = ttCell_P->m_v.begin(); 
   VTTCELL::const_iterator it_e = ttCell_P->m_v.end(); 
-  log<<MSG::DEBUG<<"  Dump of LArTTCellMap" <<endreq; 
-  log<<MSG::DEBUG<<" Persistent LArTTCell_P version = "<<ttCell_P->m_version<<endreq;
+  ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
+  ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   int lines=0;
   std::ofstream* dumpFcal=0;
   std::ofstream* dumpOther=0;
@@ -434,8 +349,8 @@ StatusCode reinitTTMap_Algo::testStruct(){
   for (; it!=it_e;++it)       {
     const LArTTCell_P::LArTTCell_P_t& t = *it;    
     lines++;
-    log<<MSG::VERBOSE
-       <<" det="<<t.det
+    ATH_MSG_VERBOSE
+      (" det="<<t.det
        <<" pn="<<t.pn 
        <<" sample="<<t.sample
        <<" region="<<t.region
@@ -447,7 +362,7 @@ StatusCode reinitTTMap_Algo::testStruct(){
        <<" trig_eta="<<t.teta
        <<" trig_phi="<<t.tphi
        <<" layer="<<t.layer
-       <<endreq;
+       );
 
     if(m_dumpMap) {
 
@@ -493,17 +408,13 @@ StatusCode reinitTTMap_Algo::testStruct(){
     delete dumpOther;
   }
 
-  log<<MSG::DEBUG<<" number of lines found = "<< lines<<endreq;
-
+  ATH_MSG_DEBUG(" number of lines found = "<< lines);
   return StatusCode::SUCCESS ;
-  
 }
 
 /********************************************************/
 StatusCode reinitTTMap_Algo::finalize(){
 	
-  MsgStream log( messageService(), name() );	
-  log << MSG::INFO << " finalizing " << endreq;
+  ATH_MSG_INFO ( " finalizing " );
   return StatusCode::SUCCESS ; 
-  
 }
