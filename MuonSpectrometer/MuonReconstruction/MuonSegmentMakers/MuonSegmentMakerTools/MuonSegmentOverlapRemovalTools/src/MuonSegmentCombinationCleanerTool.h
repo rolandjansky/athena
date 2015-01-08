@@ -10,7 +10,7 @@
 #include <map>
 #include <vector>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
@@ -28,7 +28,7 @@ namespace Muon {
   class IMuonPatternSegmentAssociationTool;
   class IMuonSegmentOverlapRemovalTool;
 
-  class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombinationCleanerTool, public AlgTool
+  class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombinationCleanerTool, public AthAlgTool
   {
 
   public:
@@ -71,21 +71,12 @@ namespace Muon {
     std::string print( MuonSegmentCombiSummary& summary ) const;
     std::string print( MuonSegmentCombiOverlapSummary& summary ) const;
 
-
-    mutable MsgStream m_log;
-    int  m_logLevel;
-
-
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
     ToolHandle<Muon::MuonEDMHelperTool>  m_helperTool;
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool;
     ToolHandle<IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;    
     ToolHandle<IMuonPatternSegmentAssociationTool> m_assocTool;
-    
-
-    /** flag to print out debugging information */
-    bool m_debug;
 
     /** If set to true, all combinaties will be merged into one big one */ 
     bool m_mergeAllCombis;

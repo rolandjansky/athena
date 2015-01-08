@@ -7,11 +7,8 @@
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-class MsgStream;
-
 
 namespace Muon {
   
@@ -24,7 +21,7 @@ namespace Muon {
      @brief tool to remove overlaps between segments
 
   */
-  class MuonSegmentOverlapRemovalTool : virtual public IMuonSegmentOverlapRemovalTool, public AlgTool {
+  class MuonSegmentOverlapRemovalTool : virtual public IMuonSegmentOverlapRemovalTool, public AthAlgTool {
   public:
     /** @brief constructor */
     MuonSegmentOverlapRemovalTool(const std::string&,const std::string&,const IInterface*);
@@ -53,10 +50,6 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
     ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
-
-    mutable MsgStream* m_log;
-    bool               m_debug;
-    bool               m_verbose;
 
     bool m_removePartialOverlaps; //!< remove partial overlaps between segments
     bool m_overlapFractionCut;    //!< cut on overlap fraction for segments 

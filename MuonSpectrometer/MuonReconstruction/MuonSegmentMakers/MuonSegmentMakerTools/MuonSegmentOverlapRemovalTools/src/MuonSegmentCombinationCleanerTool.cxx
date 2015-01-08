@@ -32,9 +32,7 @@
 namespace Muon {
 
   MuonSegmentCombinationCleanerTool::MuonSegmentCombinationCleanerTool(const std::string& t,const std::string& n,const IInterface* p)  :  
-    AlgTool(t,n,p),
-    m_log(msgSvc(),name()),
-    m_logLevel(0),
+    AthAlgTool(t,n,p),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
@@ -58,50 +56,48 @@ namespace Muon {
   
     StatusCode sc = AlgTool::initialize(); 
     if (sc.isFailure()) return sc;
-    m_log.setLevel(outputLevel());
-    m_logLevel = outputLevel();
 
-    m_log << MSG::VERBOSE << " MuonSegmentCombinationCleanerTool::Initializing " << endreq;
+    ATH_MSG_VERBOSE(" MuonSegmentCombinationCleanerTool::Initializing ");
   
     sc = m_printer.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::INFO << "Retrieved " << m_printer << endreq;
+      ATH_MSG_INFO("Retrieved " << m_printer );
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_printer <<endreq; 
+      ATH_MSG_FATAL("Could not get " << m_printer); 
       return sc;
     }
     sc = m_helperTool.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::INFO << "Retrieved " << m_helperTool << endreq;
+      ATH_MSG_INFO("Retrieved " << m_helperTool );
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_helperTool <<endreq; 
+      ATH_MSG_FATAL("Could not get " << m_helperTool ); 
       return sc;
     }
     sc = m_idHelperTool.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::INFO << "Retrieved " << m_idHelperTool << endreq;
+      ATH_MSG_INFO("Retrieved " << m_idHelperTool );
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
+      ATH_MSG_FATAL("Could not get " << m_idHelperTool ); 
       return sc;
     }
     
     sc = m_overlapRemovalTool.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::DEBUG << "Retrieved " << m_overlapRemovalTool << endreq;
+      ATH_MSG_DEBUG("Retrieved " << m_overlapRemovalTool );
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_overlapRemovalTool <<endreq; 
+      ATH_MSG_FATAL("Could not get " << m_overlapRemovalTool ); 
       return sc;
     }
 
     sc = m_assocTool.retrieve();
     if (sc.isSuccess()){
-      m_log<<MSG::DEBUG << "Retrieved " << m_assocTool << endreq;
+      ATH_MSG_DEBUG("Retrieved " << m_assocTool );
     }else{
-      m_log<<MSG::FATAL<<"Could not get " << m_assocTool <<endreq; 
+      ATH_MSG_FATAL("Could not get " << m_assocTool ); 
       return sc;
     }
 
-    m_log << MSG::VERBOSE << "End of Initializing" << endreq;  
+    ATH_MSG_VERBOSE("End of Initializing");
     return StatusCode::SUCCESS; 
   }
 
@@ -117,14 +113,14 @@ namespace Muon {
 
   StatusCode MuonSegmentCombinationCleanerTool::finalize()
   {
-    m_log << MSG::VERBOSE << "finalize()" << endreq;
+    ATH_MSG_VERBOSE("finalize()");
     return StatusCode::SUCCESS;
   }
 
   void MuonSegmentCombinationCleanerTool::cleanAndMergeCombis( const MuonSegmentCombinationCollection& combiCol,
 							       MuonSegmentCombinationCollection* combiCleanCol ) {
 
-    if( m_logLevel <= MSG::DEBUG ) m_log << MSG::DEBUG  << " cleaning combis " << combiCol.size() << endreq;
+    ATH_MSG_DEBUG(" cleaning combis " << combiCol.size() );
 
     MuonSegmentCombinationCollection::const_iterator cit = combiCol.begin();
     MuonSegmentCombinationCollection::const_iterator cit_end = combiCol.end();
@@ -134,29 +130,29 @@ namespace Muon {
     for(; cit!=cit_end;++cit ){
       const Muon::MuonSegmentCombination* combi = *cit;
       if( !combi ) {
-        m_log << MSG::INFO  << " empty MuonSegmentCombination!!! " << endreq;
+        ATH_MSG_INFO(" empty MuonSegmentCombination!!! ");
         continue;
       }
       
       MuonSegmentCombiSummary summary = createSummary( *combi );
-      if( m_logLevel <= MSG::VERBOSE ) m_log << MSG::VERBOSE << print(summary) << endreq;
+      ATH_MSG_VERBOSE( print(summary) );
 
       if( summary.stations.size() < 2 ){
 	
 	// keep combination if Endcap middle 
 	if( summary.stations.count(MuonStationIndex::EM) ){
 
-	  if( m_logLevel <= MSG::VERBOSE ) m_log << MSG::VERBOSE  << " Keeping single station endcap middle MuonSegmentCombination " << endreq;
+	  ATH_MSG_VERBOSE(" Keeping single station endcap middle MuonSegmentCombination ");
 
 	}else{
 
-	  if( m_logLevel <= MSG::DEBUG ) m_log << MSG::DEBUG  << " MuonSegmentCombination has too few station layers, rejecting  " << endreq;
+	  ATH_MSG_DEBUG(" MuonSegmentCombination has too few station layers, rejecting  ");
 	  continue;
 	}
       }
 
       if( summary.stationsGood.size() == 0 ){
-	if( m_logLevel <= MSG::DEBUG ) m_log << MSG::DEBUG  << " MuonSegmentCombination has no station layer with good segment, rejecting  " << endreq;
+	ATH_MSG_DEBUG(" MuonSegmentCombination has no station layer with good segment, rejecting  ");
 	continue;
       }
       
@@ -178,7 +174,7 @@ namespace Muon {
 	// HACK: cast away const as DataVector expects no-const pointer
 	newCombi = const_cast<MuonSegmentCombination*>(&sit->segmentCombination());
 	if( !newCombi ){
-	  m_log << MSG::INFO  << " const_cast to MuonSegmentCombination failed " << endreq;
+	  ATH_MSG_INFO(" const_cast to MuonSegmentCombination failed ");
 	  continue;
 	}
 
@@ -196,12 +192,12 @@ namespace Muon {
       // lookup the patterncombi and add association
       unsigned int count = m_assocTool->count(originalCombi);
       if(count != 1 ){
-	m_log << MSG::INFO  << " This list should only have one entry!! " << endreq;
+	ATH_MSG_INFO(" This list should only have one entry!! ");
       }else{
 	IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(originalCombi);
-	const Muon::MuonPatternCombination* pat = count == 1 ? (range.first)->second : 0;
+	const Muon::MuonPatternCombination* pat = (range.first)->second;
 	if( pat ) m_assocTool->insert(finalCombi, pat);
-	else m_log << MSG::INFO  << " The pattern pointer should never be zero!!!! " << endreq;
+	else ATH_MSG_INFO(" The pattern pointer should never be zero!!!! ");
       }
 
       combiCleanCol->push_back( finalCombi );
@@ -215,7 +211,7 @@ namespace Muon {
     
     if( summaries.empty() ) return false;
     
-    if( m_logLevel <= MSG::DEBUG ) m_log << MSG::DEBUG  << " comparing combi with aleady handled ones " << endreq;
+    ATH_MSG_DEBUG(" comparing combi with aleady handled ones ");
     bool hasOverlap = false;
 
     std::vector<MuonSegmentCombiSummary>::iterator sit = summaries.begin();
@@ -233,7 +229,7 @@ namespace Muon {
 	}
 	// complete overlap, keep previous
 	if( overlap.uniqueFirst.empty() && overlap.uniqueSecond.empty() ){
-	  if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE <<  "    -> complete overlap, keeping first " << endreq;
+	  ATH_MSG_VERBOSE("    -> complete overlap, keeping first ");
 	  hasOverlap = true;
 	  break;
 	}
@@ -242,12 +238,12 @@ namespace Muon {
       // second simple case, no unique segments in first and no subsets in second combi
       if( overlap.uniqueFirst.empty() && overlap.subsetSecond.empty() ){
 	  
-	if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE <<  "    -> keeping selected combi " << endreq;
+	ATH_MSG_VERBOSE("    -> keeping selected combi ");
 	hasOverlap = true;
 	break;
       }else if( overlap.uniqueSecond.empty() && overlap.subsetFirst.empty() ){
 	  
-	if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE <<  "    -> replacing selected combi " << endreq;
+	ATH_MSG_VERBOSE("    -> replacing selected combi ");
 	  
 	if( sit->combiOriginal ) {
 	  // copy pointer to original combi, delete combi
@@ -266,7 +262,7 @@ namespace Muon {
       unsigned int uniqueSegments1      = overlap.uniqueFirst.size();
       unsigned int uniqueSegments2      = overlap.uniqueSecond.size();
       if( overlappingSegments1 > uniqueSegments1 || overlappingSegments2 > uniqueSegments2 || m_mergeAllCombis ) {
-	if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE <<  "    -> large overlap, merge candidate " << endreq;
+	ATH_MSG_VERBOSE("    -> large overlap, merge candidate ");
 
 	// set to make sure we are not adding segments twice
 	std::set<const MuonSegment*> addedSegments;
@@ -383,7 +379,7 @@ namespace Muon {
 	  delete sit->m_combi;
 	}
 
-	if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE <<  "    -> merged combis " << endreq;
+	ATH_MSG_VERBOSE("    -> merged combis ");
 	*sit = newSummary;
 	hasOverlap = true;
 	break;
@@ -398,9 +394,7 @@ namespace Muon {
   MuonSegmentCombiOverlapSummary MuonSegmentCombinationCleanerTool::calculateOverlap( MuonSegmentCombiSummary& summary1, 
 										      MuonSegmentCombiSummary& summary2 ) const {
     
-    if( m_logLevel <= MSG::DEBUG ) {
-      m_log << MSG::DEBUG  << " calculating overlap, size first " << summary1.nsegments << " size second " << summary2.nsegments << endreq;
-    }
+    ATH_MSG_DEBUG(" calculating overlap, size first " << summary1.nsegments << " size second " << summary2.nsegments );
     
     MuonSegmentCombiOverlapSummary summary;
     
@@ -416,7 +410,7 @@ namespace Muon {
       
       // if both not empty compare the two, exception for CSCs
       if( !chamberVec1.empty() &&  !chamberVec2.empty() ) {
-	if( m_logLevel <= MSG::DEBUG ) m_log << MSG::DEBUG  << " resolving chambe layer " << MuonStationIndex::chName((MuonStationIndex::ChIndex)i) << endreq;
+	ATH_MSG_DEBUG(" resolving chambe layer " << MuonStationIndex::chName((MuonStationIndex::ChIndex)i) );
 
 	resolveLayerOverlap(chamberVec1,chamberVec2,summary);
 
@@ -425,7 +419,7 @@ namespace Muon {
 	if( !chamberVec2.empty() ) summary.uniqueSecond.insert(summary.uniqueSecond.begin(),chamberVec2.begin(),chamberVec2.end());
       }      
     }
-    if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE << print(summary) << endreq;
+    ATH_MSG_VERBOSE( print(summary) );
     return summary;
   }
 
@@ -473,7 +467,7 @@ namespace Muon {
 	MuonSegmentKey key1(**sit1);
 	MuonSegmentKey key2(**sit2);
 	CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(key1,key2);
-	if( m_logLevel <= MSG::DEBUG )  m_log << MSG::VERBOSE << "  overlap Result: " << compareKeys.print(overlapResult) << endreq;
+	ATH_MSG_VERBOSE("  overlap Result: " << compareKeys.print(overlapResult) );
 
 	if( overlapResult == CompareMuonSegmentKeys::Identical ) {
 	  summary.shared.push_back( std::make_pair(*sit1,*sit2) );
@@ -497,8 +491,7 @@ namespace Muon {
 	    double intersectFrac1 = compareKeys.intersectionSizeTrigger == 0 ? 0. : compareKeys.intersectionSizeTrigger/(double)compareKeys.segment1SizeTrigger;
 	    double intersectFrac2 = compareKeys.intersectionSizeTrigger == 0 ? 0. : compareKeys.intersectionSizeTrigger/(double)compareKeys.segment2SizeTrigger;
 	    double openingAngle = (*sit1)->globalDirection().dot((*sit2)->globalDirection());
-	    if( m_logLevel <= MSG::VERBOSE )  m_log << MSG::VERBOSE << "  Partial overlap: (" << intersectFrac1 << "," << intersectFrac2 
-						    << "), opening angle " << openingAngle << endreq;
+	    ATH_MSG_VERBOSE("  Partial overlap: (" << intersectFrac1 << "," << intersectFrac2 << "), opening angle " << openingAngle );
 	    if( intersectFrac1 > 0.75 && intersectFrac2 > 0.75 && openingAngle > 0.99 ){
 	      summary.shared.push_back( std::make_pair(*sit1,*sit2) );
 	      uniqueFirst[index1] = 0;
@@ -509,7 +502,7 @@ namespace Muon {
 	}else if( overlapResult == CompareMuonSegmentKeys::NoOverlap ){
 
 	}else if( overlapResult == CompareMuonSegmentKeys::Unknown ){
-	  m_log << MSG::WARNING  << " Got invalid return argument comparing segments: " << compareKeys.print(overlapResult) << endreq;
+	  ATH_MSG_WARNING(" Got invalid return argument comparing segments: " << compareKeys.print(overlapResult) );
 	}
       }
     }
@@ -567,7 +560,7 @@ namespace Muon {
 	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
 
 	if( !seg ){
-	  m_log << MSG::WARNING << " MuonSegmentCombination contains a segment that is not a MuonSegment!! " << endreq;
+	  ATH_MSG_WARNING(" MuonSegmentCombination contains a segment that is not a MuonSegment!! ");
 	  continue;
 	}
 	
@@ -614,13 +607,12 @@ namespace Muon {
 	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
 
 	if( !seg ){
-	  m_log << MSG::WARNING << " MuonSegmentCombination contains a segment that is not a MuonSegment!! " << endreq;
+	  ATH_MSG_WARNING(" MuonSegmentCombination contains a segment that is not a MuonSegment!! ");
 	  continue;
 	}
 
 	
-	if( m_logLevel <= MSG::VERBOSE )  m_log << MSG::VERBOSE << "  segment " << m_printer->print(*seg) << std::endl
-						<< m_printer->print( seg->containedMeasurements() ) << endreq;
+	ATH_MSG_VERBOSE("  segment " << m_printer->print(*seg) << std::endl << m_printer->print( seg->containedMeasurements() ) );
 
 	// create key
 	MuonSegmentKey key(*seg);
@@ -632,7 +624,7 @@ namespace Muon {
 	for( ;kit!=kit_end;++kit ) {
 
 	  CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(key,kit->first);
-	  if( m_logLevel <= MSG::VERBOSE )  m_log << MSG::VERBOSE << "  overlap Result: " << compareKeys.print(overlapResult) << endreq;
+	  ATH_MSG_VERBOSE("  overlap Result: " << compareKeys.print(overlapResult) );
 
 	  if( overlapResult == CompareMuonSegmentKeys::Identical || 
 	      overlapResult == CompareMuonSegmentKeys::SubSet ){
@@ -643,7 +635,7 @@ namespace Muon {
 	    addSegment = false;
 	    break;
 	  }else if( overlapResult == CompareMuonSegmentKeys::Unknown ){
-	    m_log << MSG::WARNING  << " Got invalid return argument comparing segments: " << compareKeys.print(overlapResult) << endreq;
+	    ATH_MSG_WARNING(" Got invalid return argument comparing segments: " << compareKeys.print(overlapResult) );
 	  }
 	}
 	
@@ -656,7 +648,7 @@ namespace Muon {
 
     // check whether all segments were kept
     if( nsegments == segmentsToBeKept.size() ){
-      if( m_logLevel <= MSG::DEBUG )  m_log << MSG::DEBUG << "  no segments removed " << endreq;
+      ATH_MSG_DEBUG("  no segments removed ");
       return &combi;
     }
 
@@ -682,9 +674,9 @@ namespace Muon {
 	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*ipsg);
 
 	if( !segmentsToBeKept.count(seg) ){
-	  if( m_logLevel <= MSG::VERBOSE ) m_log << MSG::VERBOSE << " dropping segment  " << m_printer->print(*seg) << endreq;
+	  ATH_MSG_VERBOSE(" dropping segment  " << m_printer->print(*seg) );
 	  continue;
-	}else if( m_logLevel <= MSG::VERBOSE ) m_log << MSG::VERBOSE << " adding   segment  " << m_printer->print(*seg) << endreq;
+	}else ATH_MSG_VERBOSE(" adding   segment  " << m_printer->print(*seg) );
 	segVec->push_back( seg->clone() );
       }	
       newCombi->addSegments( segVec );
