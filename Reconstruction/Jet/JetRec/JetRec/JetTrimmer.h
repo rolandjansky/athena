@@ -10,7 +10,7 @@
 // David Adams
 // January 2014
 //
-// Tool to groom jets with a mass-drop filter.
+// Tool to groom jets by trimming.
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetGroomer.h"

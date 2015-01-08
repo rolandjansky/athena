@@ -39,6 +39,8 @@ using xAOD::JetContainer;
 using jet::IConstituentUserInfo;
 using jet::JetConstituentFiller;
 
+typedef IJetFinder::NameList NameList;
+
 //**********************************************************************
 
 JetFinder::JetFinder(string name)
@@ -90,7 +92,8 @@ StatusCode JetFinder::initialize() {
 //**********************************************************************
 
 int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-                     xAOD::JetInput::Type inputtype) const {
+                    xAOD::JetInput::Type inputtype,
+                    const NameList& ghostlabs) const {
   if ( m_fjalg == fastjet::undefined_jet_algorithm ) {
     ATH_MSG_ERROR("Jet finder is not properly initiialized.");
     return 1;
@@ -177,7 +180,7 @@ int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
   PseudoJetVector outs = sorted_by_pt(pcs->inclusive_jets(m_ptmin));
   ATH_MSG_DEBUG("Found jet count: " << outs.size());
   for ( PseudoJetVector::const_iterator ijet=outs.begin(); ijet!=outs.end(); ++ijet ) {
-    xAOD::Jet* pjet = m_bld->add(*ijet, jets, inputtype);
+    xAOD::Jet* pjet = m_bld->add(*ijet, jets, inputtype, ghostlabs);
     xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
     pjet->setAlgorithmType(ialg);
     pjet->setSizeParameter(m_jetrad);

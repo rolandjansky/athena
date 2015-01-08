@@ -9,12 +9,40 @@ if [ $NAME = time ]; then
 fi
 JOPT=$NAME.py
 LOG=$NAME.log
+CLEAN=$LOG.clean
+REF=$CLEAN.ref
 
 # Enable performance monitoring.
 OPT=
 if [ "$OPTARG" = time ]; then
   OPT="--pmon=sdmon"
   #OPT="--pmon=sdmonfp"
+fi
+
+# Check log size.
+if [ "$OPTARG" = "list" ]; then
+  ls -ls $CLEAN
+  ls -ls $REF
+  exit 0
+fi
+
+# Check log diff.
+if [ "$OPTARG" = "diff" ]; then
+  diff $CLEAN $REF >diff.log
+  echo
+  echo
+  echo
+  echo
+  echo
+  cat diff.log
+  exit 0
+fi
+
+# Update the log ref.
+if [ "$OPTARG" = "update" ]; then
+  cp $CLEAN $REF
+  echo Updated $REF
+  exit 0
 fi
 
 time athena.py $OPT $JOPT 2>&1 | tee $LOG

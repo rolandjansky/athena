@@ -40,7 +40,7 @@ StatusCode JetTrimmer::initialize() {
     ATH_MSG_WARNING("Invalid value for PtFrac " << m_ptfrac);
   }
   if ( m_bld.empty() ) {
-    ATH_MSG_ERROR("Unable top retrieve jet builder.");
+    ATH_MSG_ERROR("Unable to retrieve jet builder.");
   }
   return StatusCode::SUCCESS;
 }
@@ -48,9 +48,14 @@ StatusCode JetTrimmer::initialize() {
 //**********************************************************************
 
 int JetTrimmer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
-  const PseudoJet* ppjin = jin.getPseudoJet();
+  if ( pseudojetRetriever() == nullptr ) {
+    ATH_MSG_WARNING("Pseudojet retriever is null.");
+    return 1;
+  }
+  const PseudoJet* ppjin = pseudojetRetriever()->pseudojet(jin);
   if ( ppjin == 0 ) {
-    ATH_MSG_ERROR("Jet does not have a pseudojet.");
+    ATH_MSG_WARNING("Jet does not have a pseudojet.");
+    return 1;
   }
   // Trim.
   fastjet::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, m_rclus),

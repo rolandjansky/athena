@@ -31,7 +31,10 @@ JetSorter::JetSorter(const std::string& n) :
 }
 
 int JetSorter::modify(xAOD::JetContainer& jets) const {
-  ATH_MSG_DEBUG(" Sorting : "<< m_sortType );
+  ATH_MSG_DEBUG(" Sorting : "<< m_sortType  << "  "<< jets.size() );
+  // leave early if empty otherwise sort() throws an exception.
+  if(jets.empty() ) return 1;
+
   jets.sort( *g_compFuncMap[ m_sortType ] );
   return 1;
 }

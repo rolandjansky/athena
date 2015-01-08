@@ -27,6 +27,7 @@ using fastjet::PseudoJet;
 using jet::JetConstituentFiller;
 
 typedef std::vector<PseudoJet> PseudoJetVector;
+typedef IJetFromPseudojet::NameList NameList;
 
 //**********************************************************************
 
@@ -38,7 +39,7 @@ JetFromPseudojet::JetFromPseudojet(std::string name)
 //**********************************************************************
 
 StatusCode JetFromPseudojet::initialize() {
-
+  
 #ifdef USE_BOOST_FOREACH
   BOOST_FOREACH(std::string att, m_atts) {
 #else
@@ -54,47 +55,68 @@ StatusCode JetFromPseudojet::initialize() {
   return StatusCode::SUCCESS;
 
 }
+  
 
+//**********************************************************************
+void JetFromPseudojet::
+buildAndSetEMScaleMom(xAOD::Jet* jet,
+                      xAOD::JetInput::Type inputtype) const {
+
+  if ( jet->getConstituentsSignalState() == xAOD::UncalibratedJetConstituent ) {
+    // If constituents are already uncalibrated, the momentum is the same.
+    jet->setJetP4(xAOD::JetEMScaleMomentum, jet->jetP4());
+    ATH_MSG_DEBUG("  EM scale momentum set to jet scale");
+  } else if ( (inputtype == xAOD::JetInput::LCTopo) ||
+              (inputtype == xAOD::JetInput::LCPFlow)|| 
+              (inputtype == xAOD::JetInput::EMCPFlow) ) {     
+    // fetch and sum the uncalibrated constituent momenta
+    xAOD::JetConstituentVector vec = jet->getConstituents();
+    if(! vec.isValid() ) {
+      ATH_MSG_ERROR("Jet constituent vector is invalid. Can't set EM scale momentum");
+      return;
+    }
+
+    xAOD::JetFourMom_t emscaleSum;
+    xAOD::JetConstitScale uncal = xAOD::UncalibratedJetConstituent;
+    // just sum 4-vectors:
+    ATH_MSG_VERBOSE("  Summing four vectors.");
+    for (auto it=vec.begin(uncal); it != vec.end(uncal); ++it) emscaleSum +=**it;
+  
+    ATH_MSG_VERBOSE("  Setting EM scale momentum");
+    jet->setJetP4(xAOD::JetEMScaleMomentum, emscaleSum);        
+    ATH_MSG_DEBUG("  EM scale momentum set with uncalibrated constituents.");
+
+  } else {
+    ATH_MSG_DEBUG("  EM scale momentum not set.");
+  }
+
+}
+ 
 //**********************************************************************
 
 xAOD::Jet*
 JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
-                      xAOD::JetInput::Type inputtype) const {
+                      xAOD::JetInput::Type inputtype, const NameList& ghostlabs) const {
   const xAOD::Jet* pparent = nullptr;
-  xAOD::Jet* pjet = add(pj, jets, pparent);
+  xAOD::Jet* pjet = addjet(pj, jets, pparent, &ghostlabs);
   if ( pjet == nullptr ) return pjet;
   // Set the jet's input type.
+  ATH_MSG_VERBOSE("Setting input type.");
   pjet->setInputType(inputtype);
   // Set the jet's constituent scale.
   // Calibrated for all but EMTopo.
-  if ( inputtype == xAOD::JetInput::EMTopo ) {
+  ATH_MSG_VERBOSE("Done add with input");
+  if ( (inputtype == xAOD::JetInput::EMTopo ) || 
+       (inputtype == xAOD::JetInput::EMPFlow ) ) {
+    ATH_MSG_VERBOSE("Setting constituent state to uncalibrated state");
     pjet->setConstituentsSignalState(xAOD::UncalibratedJetConstituent);
   } else {
+    ATH_MSG_VERBOSE("Setting constituent state to calibrated state");
     pjet->setConstituentsSignalState(xAOD::CalibratedJetConstituent);
   }
   // Set the jet momentum at uncalibrated constituent scale.
-  if ( pjet->getConstituentsSignalState() == xAOD::UncalibratedJetConstituent ) {
-    // If constituents are already uncalibrated, the momentum is the same.
-    pjet->setJetP4(xAOD::JetEMScaleMomentum, pjet->jetP4());
-  } else if ( inputtype == xAOD::JetInput::LCTopo ) { 
-    // Otherwise, fetch and sum the uncalibrated constituent momenta
-    xAOD::JetConstituentVector vec = pjet->getConstituents();
-    xAOD::JetFourMom_t tot;
-    xAOD::JetConstitScale uncal = xAOD::UncalibratedJetConstituent;
-#ifdef USE_BOOST_AUTO
-    if ( ! vec.isValid() ) {
-      ATH_MSG_ERROR("Jet constituent vector is invalid.");
-    } else {
-      for (BOOST_AUTO(icon, vec.begin(uncal)); icon!=vec.end(uncal); ++icon) {
-        const xAOD::JetConstituent* pcon = *icon;
-        tot += *pcon;
-      }
-    }
-#else
-    for (auto it=vec.begin(uncal); it != vec.end(uncal); ++it) tot +=**it;
-#endif
-    pjet->setJetP4(xAOD::JetEMScaleMomentum, tot);
-  }
+  ATH_MSG_VERBOSE("Setting EM scale momentum");
+  buildAndSetEMScaleMom(pjet, inputtype );
   ATH_MSG_VERBOSE("Done add with input");
   return pjet;
 }
@@ -104,6 +126,14 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
 xAOD::Jet*
 JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
                       const xAOD::Jet* pparent) const {
+  return addjet(pj, jets, pparent, 0);
+}
+
+//**********************************************************************
+
+xAOD::Jet*
+JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
+                         const xAOD::Jet* pparent, const NameList* pghostlabs) const {
   ATH_MSG_VERBOSE("Creating jet from PseudoJet @ " << &pj);
   double  px = pj.px();
   double  py = pj.py();
@@ -179,7 +209,7 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
   const PseudoJetVector pjcons = pj.constituents();
   ATH_MSG_VERBOSE("  Adding constituents: multiplicity is " << pjcons.size());
   JetConstituentFiller confiller;
-  int nconskip = confiller.extractConstituents(*pjet, &pj);
+  int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
   if ( nconskip < 0 ) {
     ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
   }
@@ -193,15 +223,27 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
     if ( pcon == 0 ) {
       ATH_MSG_WARNING("Unable to find parent jet container.");
     } else {
+      ATH_MSG_VERBOSE("  Creating parent link.");
       ElementLink<JetContainer> el(*pcon, pparent->index());
+      ATH_MSG_VERBOSE("  Setting parent.");
       pjet->setAttribute("Parent", el);
       //pjet->setAssociatedObject("Parent", pparent); 
     }
+    ATH_MSG_VERBOSE("  Setting input type from parent.");
+    xAOD::JetInput::Type inputtype = pparent->getInputType();
+    pjet->setInputType(inputtype);
+    ATH_MSG_VERBOSE("  Setting algorithm type from parent.");
     pjet->setAlgorithmType(pparent->getAlgorithmType());
+    ATH_MSG_VERBOSE("  Setting size parameter from parent.");
     pjet->setSizeParameter(pparent->getSizeParameter());
-    pjet->setInputType(pparent->getInputType());
+    ATH_MSG_VERBOSE("  Setting signal state from parent.");
     pjet->setConstituentsSignalState(pparent->getConstituentsSignalState());
+    ATH_MSG_VERBOSE("  Setting ghost area from parent.");
     pjet->setAttribute("JetGhostArea", pparent->getAttribute<float>("JetGhostArea"));
+
+    ATH_MSG_VERBOSE("  Setting EM scale momentum.");
+    buildAndSetEMScaleMom(pjet, inputtype );
+        
   }
   ATH_MSG_VERBOSE("Done add with parent");
   return pjet;

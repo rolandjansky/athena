@@ -18,7 +18,7 @@
 #   useTopo  - Topocluster jets are enabled
 #   useTracks - Track jets and association are enabled
 #   useMuonSegmentss - Muon segemnt association is enabled
-#   usePFlow - Pflow jets and associations are enabled
+#   usePFlow - PFlow jets and associations are enabled
 #   useInDetTrackSelection - The inner detector track selection
 #     tool is used. This requires track propagator exist.
 #   jetAODList - The list of jet collections to be written out
@@ -77,7 +77,10 @@ class truthFlavorTags(JobProperty):
   allowedTypes = ['array']  # type
   StoredValue  = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
                   "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                  "TausFinal"]
+                  "TausFinal",
+                  "WBosons", "ZBosons", "HBosons", "TQuarksFinal",
+                  "Partons",
+                 ]
   
 class useTopo(JobProperty):
   """ If true, topoclusters are present and used in jet reconstruction.
@@ -100,7 +103,7 @@ class useMuonSegments(JobProperty):
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
-class usePflow(JobProperty):
+class usePFlow(JobProperty):
   """ If true, pflow objects are present and used in jet reconstruction.
   """
   statusOn     = True     
@@ -109,11 +112,11 @@ class usePflow(JobProperty):
 
 class eventShapeTools(JobProperty):
   """ List of event shape tools that should be called to calculate rho.
-      Allowed values are "em" and "lc".
+      Allowed values are "emtopo", "lctopo", "empflow", "emcpflow", "lcpflow".
   """
   statusOn     = True     
-  allowedTypes = ['list']  # type
-  StoredValue  = ['em', 'lc']        # default value
+  allowedTypes = ['None', 'list']  # type
+  StoredValue  = None              # default value
 
 class useInDetTrackSelection(JobProperty):
   """ If true, the InDet track selection tool is used.
@@ -135,6 +138,13 @@ class useCaloQualityTool(JobProperty):
   statusOn     = True     
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
+
+class useBTagging(JobProperty):
+  """ If true, then btagging is done when requested
+  """
+  statusOn     = True     
+  allowedTypes = ['bool']  # type
+  StoredValue  = False     # default value
 
 class skipTools(JobProperty):
   """ List of modifier tools to exclude
@@ -203,11 +213,12 @@ jobproperties.JetRecFlags.add_JobProperty(useTopo)
 jobproperties.JetRecFlags.add_JobProperty(useTracks)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)
-jobproperties.JetRecFlags.add_JobProperty(usePflow)
+jobproperties.JetRecFlags.add_JobProperty(usePFlow)
 jobproperties.JetRecFlags.add_JobProperty(eventShapeTools)
 jobproperties.JetRecFlags.add_JobProperty(jetAODList)
 jobproperties.JetRecFlags.add_JobProperty(useCells)
 jobproperties.JetRecFlags.add_JobProperty(useCaloQualityTool)
+jobproperties.JetRecFlags.add_JobProperty(useBTagging)
 jobproperties.JetRecFlags.add_JobProperty(skipTools)
 jobproperties.JetRecFlags.add_JobProperty(additionalTopoGetters)
 jobproperties.JetRecFlags.add_JobProperty(defaultCalibOpt)

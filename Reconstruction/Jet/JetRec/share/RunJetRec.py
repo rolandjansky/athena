@@ -15,10 +15,18 @@ runJetGrooming = True
 from JetRec.JetRecFlags import jetFlags
 
 # Import the standard jet tool manager.
-from JetRec.JetRecStandard import jtm
+from JetRec.JetRecStandardToolManager import jtm
 
 # Set this true to test LAr bad HV fractions with data.
+# See ATLJETMET-15
+#useLArHVCorr = jetFlags.useTruth == False
 useLArHVCorr = False
+
+# Add Delta-R truth flavor tags.
+useDRTruthFlavor = jetFlags.useTruth
+
+# Add JVF with loose track selection.
+useJVFLoose = True
 
 #--------------------------------------------------------------
 # Define the finders and groomers.
@@ -27,14 +35,12 @@ useLArHVCorr = False
 # A fifth argument may be added to change the list of modifiers.
 #--------------------------------------------------------------
 
-# Update the modier lists.
-jtm.modifiersMap["calib"] += [jtm.isolation]
+# Update the modifier lists.
 if useLArHVCorr:
   jtm.modifiersMap["calib"] += [jtm.larhvcorr]
+if useJVFLoose:
+  jtm.modifiersMap["calib"] += [jtm.jvfloose]
 jtm.modifiersMap["mycalib"] = jtm.modifiersMap["calib"] + [jtm.pull, jtm.charge, jtm.showerdec]
-print "%%%%%%%"
-print jtm.modifiersMap["mycalib"]
-print "%%%%%%%"
 
 # Finders.
 # Calibration for topo jets: calibOpt =
@@ -50,16 +56,16 @@ if jetFlags.useTruth:
   jtm.addJetFinder("Run2AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin= 5000)
   jtm.addJetFinder("Run2AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ghostArea=gatruth, ptmin= 5000)
   jtm.addJetFinder("Run2AntiKt10TruthJets",   "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2AntiKt10TruthWZJets", "AntiKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2CamKt12TruthJets",     "CamKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
-  jtm.addJetFinder("Run2CamKt12TruthWZJets",   "CamKt", 0.4,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2AntiKt10TruthWZJets", "AntiKt", 1.0,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2CamKt12TruthJets",     "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
+  jtm.addJetFinder("Run2CamKt12TruthWZJets",   "CamKt", 1.2,    "truth", ghostArea=gatruth, ptmin=40000)
 if jetFlags.useTracks:
   jtm.addJetFinder("Run2AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4TrackJets",    "AntiKt", 0.4,    "track", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4ZTrackJets",   "AntiKt", 0.4,   "ztrack", ghostArea=gatrack, ptmin= 2000)
   jtm.addJetFinder("Run2AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ghostArea=gatrack, ptmin= 2000)
-jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="arj")
-jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="ar")
+jtm.addJetFinder(  "Run2AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="aroj")
+jtm.addJetFinder(  "Run2AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "mycalib", ptmin=2000, ptminFilter= 7000, ghostArea=gatopo, calibOpt="aro")
 jtm.addJetFinder(  "Run2AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
 jtm.addJetFinder(  "Run2CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "mycalib", ptmin=2000, ptminFilter=50000, ghostArea=gatopo, calibOpt="a")
 
@@ -73,4 +79,5 @@ if runJetGrooming:
 # Configure the jet algorithm.
 #--------------------------------------------------------------
 
-from JetRec.JetAlgorithm import jetalg
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+addJetRecoToAlgSequence()

@@ -36,35 +36,16 @@ isTrackJetTagged = True
 infile = "/afs/cern.ch/user/d/dadams/pubdata/xaod_clusters.root"
 clname = "Clusters"
 vertexCollectionName = ""
+doEventShape = False
 if 0:
-  infile = "/afs/cern.ch/user/d/delsart/public/AOD.dev_rel3.pool.root"
-  clname = "CaloCalTopoCluster"
-elif 0:
-  infile = "/afs/cern.ch/user/d/dadams/pubdata/xaod_jetclusters.root"
-  clname = "JetClusters"
-elif 0:
-  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/xAODTest/AOD.pool.root"
-  clname = "CaloCalTopoCluster"
-  jetFlags.useTruth = True
-  vertexCollectionName = "PrimaryVertices"
-  jetFlags.useMuonSegments = False
-elif 0:
-  infile = "/afs/cern.ch/user/d/dadams/pubdata/aod_r1901devvalrel1_20140317.pool.root"
-  clname = "CaloCalTopoCluster"
-  jetFlags.useTruth = True
-  jetFlags.useTracks = False
-elif 0:
-  # mu=40 AOD
-  infile = "/afs/cern.ch/user/d/dadams/pubdata/aod_ttbar_14tev_mu40.pool.root"
-elif 0:
-  infile = "/afs/cern.ch/work/k/krasznaa/public/xAOD/devval_rel_4/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.AOD.devval_rel_3.pool.root"
-elif 1:
-  # 16may2014 ttbar xAOD
-  infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
-elif 1:
   # 16sep2014 run 1 data
   jetFlags.useTruth = False
-  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.CurrentRef.AOD.pool.root"
+  doEventShape = True
+  #infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.CurrentRef.AOD.pool.root"
+  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_0_2_1._lb0186._SFO-1._0001.pool.root.1"
+else:
+  # rdotoesd result from Dec05 devval rel_6
+  infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
 
 # Flag to show messges while running.
 #   0 - no messages
@@ -81,7 +62,8 @@ jetFlags.timeJetToolRunner = timelev
 jetFlags.timeJetRecTool = timelev
 
 # Event shape tools (calculate rho).
-jetFlags.eventShapeTools = ["em", "lc"]
+if doEventShape:
+  jetFlags.eventShapeTools = ["emtopo", "lctopo"]
 
 #--------------------------------------------------------------
 # Input stream
@@ -102,7 +84,7 @@ theApp.EvtMax = 2
 # Import the jet tool manager.
 #--------------------------------------------------------------
 
-from JetRec.JetRecStandard import jtm
+from JetRec.JetRecStandardToolManager import jtm
 jtm.debug = 0    # Nonzero to log more messages during configuration
 
 #--------------------------------------------------------------
@@ -114,7 +96,8 @@ if len(vertexCollectionName):
   jtm.vertexContainer = vertexCollectionName
 
 # Read job options and import the jet algorithm.
-from RunJetRec import jetalg, runJetGrooming, useLArHVCorr
+from RunJetRec import runJetGrooming, useLArHVCorr, useJVFLoose, useDRTruthFlavor
+from JetRec.JetAlgorithm import jetalg
 
 if not runJetGrooming:
   dumpGroomed = False
@@ -143,10 +126,16 @@ if 0:
   jtm.setOutputLevel("gmusegget", VERBOSE)
 
 verbosetools = []
-#verbosetools += ["calib_AntiKt4LCTopo_a"]
+if 0:
+  verbosetools += ["jvf"]
+  if useJVFLoose: verbosetools += ["jvfloose"]
+#verbosetools += ["calib_AntiKt4TopoEM_reco_arj"]
 #verbosetools += ["LCTopoEventShape"]
 #verbosetools = ["truthsel"]
-verbosetools = ["showerdec"]
+#verbosetools = ["showerdec"]
+#verbosetools = ["EMTopoEventShape"]
+#verbosetools = ["gmusegget"]
+#verbosetools = ["Run2Split040CamKt12LCTopoJetsGroomer"]
 for toolname in verbosetools:
   print myname + "Setting output level to VERBOSE for " + toolname
   jtm.setOutputLevel(toolname, VERBOSE)
@@ -187,9 +176,10 @@ if dumpPseudojets:
     names += ["PseudoJetTruthWZ"]
   names += ["PseudoJetEMTopo"]
   names += ["PseudoJetLCTopo"]
+  if jetFlags.useTracks():
+    names += ["PseudoJetTracks"]
   if jetFlags.useTruth():
     names += ["PseudoJetGhostTruth"]
-  if jetFlags.useTruth():
     for ptype in jetFlags.truthFlavorTags():
       names += ["PseudoJetGhost" + ptype]
   if jetFlags.useMuonSegments():
@@ -245,11 +235,15 @@ for name in names:
   jdmp.MaxObject = 20
   jdmp.IntMoments = ["AlgorithmType", "InputType"]
   jdmp.IntMoments += ["ConstituentScale"]
+  if isTopo:
+    jdmp.IntMoments += ["OriginCorrected"]
+    jdmp.IntMoments += ["PileupCorrected"]
   if jetFlags.useMuonSegments() and isTopo:
     jdmp.IntMoments += ["GhostMuonSegmentCount"]
   if jetFlags.useTruth():
     for ptype in jetFlags.truthFlavorTags():
       jdmp.IntMoments += ["Ghost" + ptype + "Count"]
+    jdmp.IntMoments += ["PartonTruthLabelID"]
   jdmp.FloatMoments = ["SizeParameter"]
   if hasActiveArea:
     jdmp.FloatMoments += ["JetGhostArea", "ActiveArea"]
@@ -257,6 +251,11 @@ for name in names:
   jdmp.FloatMoments += ["m"]
   jdmp.FloatMoments += ["eta"]
   jdmp.FloatMoments += ["phi"]
+  if useDRTruthFlavor:
+    jdmp.IntMoments += ["ConeTruthLabelID"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_B"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_C"]
+    jdmp.FloatMoments += ["TruthLabelDeltaR_T"]
   if jetFlags.useTracks() and isTopo:
     jdmp.IntMoments += ["GhostTrackCount"]
     jdmp.FloatMoments += ["GhostTrackPt"]
@@ -281,11 +280,13 @@ for name in names:
   if isTopo:
     jdmp.FloatMoments += ["EMFrac", "HECFrac"]
     if jetFlags.useCaloQualityTool():
-      jdmp.FloatMoments += ["LArQuality", "Timing", "HECQuality", "NegativeE", "AverageLArQF", "CentroidR"]
+      #jdmp.FloatMoments += ["LArQuality", "Timing", "HECQuality", "NegativeE", "AverageLArQF", "CentroidR"]
+      jdmp.FloatMoments += ["Timing", "LArQuality", "HECQuality", "NegativeE", "AverageLArQF", "CentroidR"]
       jdmp.FloatMoments += ["OotFracClusters5", "OotFracClusters10", "FracSamplingMax"]
     jdmp.FloatMoments += ["BchCorrCell"]
     #jdmp.FloatMoments += ["BchCorrDotxc", "BchCorrJet", "BchCorrJetForCell"]
     jdmp.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
+    jdmp.FloatMoments += ["IsoDelta2SumPt"]
   jdmp.FloatMoments += ["Width"]
   jdmp.FloatMoments += ["KtDR"]
   if useLArHVCorr:
@@ -297,6 +298,10 @@ for name in names:
   jdmp.FloatMoments += ["PlanarFlow"]
   jdmp.FloatMoments += ["Mu12"]
   jdmp.FloatMoments += ["ECF1", "ECF2", "ECF3"]
+  if isTopo and jetFlags.useTracks():
+    jdmp.FloatMoments += ["Jvt"]
+    jdmp.FloatMoments += ["JvtRpt"]
+    jdmp.FloatMoments += ["JvtJvfcorr"]
   if not "comshapes" in jetFlags.skipTools():
     jdmp.FloatMoments += ["ThrustMin", "ThrustMaj"]
     jdmp.FloatMoments += ["FoxWolfram0","FoxWolfram1", "FoxWolfram2", "FoxWolfram3", "FoxWolfram4"]
@@ -305,6 +310,7 @@ for name in names:
   jdmp.FourVectorMoments += ["jetP4()"]
   jdmp.FourVectorMoments += ["JetConstitScaleMomentum"]
   if isTopo:
+    jdmp.FourVectorMoments += ["JetOriginConstitScaleMomentum"]
     jdmp.FourVectorMoments += ["JetEMScaleMomentum"]
   if hasActiveArea:
     jdmp.FourVectorMoments += ["ActiveArea4vec"]
@@ -319,6 +325,8 @@ for name in names:
     jdmp.FloatVectorMoments += ["EnergyPerSampling"]
   if isTopo and jetFlags.useTracks():
     jdmp.FloatVectorMoments += ["JVF"]
+    if useJVFLoose:
+      jdmp.FloatVectorMoments += ["JVFLoose"]
   if isVTrack:
     jdmp.ElementLinkMoments += ["OriginVertex"]
   if isTopo and jetFlags.useTracks():
@@ -353,9 +361,12 @@ if dumpGroomed:
   gdmp1.IntMoments += ["NSubjet"]
   gdmp1.BoolMoments = ["BDRS"]
   gdmp1.FloatMoments = ["MuMax", "YMin", "RClus", 
-                        "SizeParameter", "JetGhostArea", "ActiveArea",
+                        "SizeParameter",
                         "DRFilt", "MuFilt", "YFilt"]
-  gdmp1.FourVectorMoments = ["ActiveArea4vec"]
+  hasActiveArea = False
+  if hasActiveArea:
+    gdmp1.FloatMoments += ["JetGhostArea", "ActiveArea"]
+    gdmp1.FourVectorMoments = ["ActiveArea4vec"]
   gdmp1.AssociatedParticleVectors += ["GhostTruth"]
   gdmp1.ElementLinkMoments = ["Parent"]
   gdmp1.OutputLevel = INFO

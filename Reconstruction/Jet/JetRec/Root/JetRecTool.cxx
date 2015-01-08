@@ -18,8 +18,11 @@
 #include "JetEDM/FastJetLink.h"
 #include "xAODJet/Jet_PseudoJet.icc"
 
+#include "JetRec/JetPseudojetRetriever.h"
+
 typedef ToolHandleArray<IPseudoJetGetter> PseudoJetGetterArray;
 typedef ToolHandleArray<IJetModifier> ModifierArray;
+typedef ToolHandleArray<IJetConsumer> ConsumerArray;
 
 using std::string;
 using std::setw;
@@ -31,41 +34,42 @@ using xAOD::Jet;
 
 namespace {
   
-  // void deepCopyJets( const xAOD::JetContainer & jetsin, xAOD::JetContainer & jetsout){
-
-  // } 
-
-  xAOD::JetContainer* shallowCopyJets( const xAOD::JetContainer& jetsin){
-    xAOD::JetContainer & shallowcopy = *(xAOD:: shallowCopyContainer( jetsin).first);
-    for (size_t i=0;i<shallowcopy.size(); i++) {
-      const fastjet::PseudoJet * pseudoJ = jetsin[i]->getPseudoJet();
-      if( pseudoJ ) shallowcopy[i]->setPseudoJet(pseudoJ);
+xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
+                                    const IJetPseudojetRetriever* ppjr){
+  xAOD::JetContainer& outjets = *(xAOD::shallowCopyContainer(jetsin).first);
+  if ( ppjr != nullptr ) {
+    for ( size_t ijet=0; ijet<outjets.size(); ++ijet ) {
+      const fastjet::PseudoJet* ppj = ppjr->pseudojet(*jetsin[ijet]);
+      if ( ppj != nullptr ) outjets[ijet]->setPseudoJet(ppj);
     }
-    return &shallowcopy;
-  } 
+  }
+  return &outjets;
+} 
 
-}
+}  // end unnamed namespace
 
 //**********************************************************************
 
 JetRecTool::JetRecTool(std::string myname)
-: AsgTool(myname), m_intool(""),
+: AsgTool(myname), m_intool(""), m_hpjr(""),
   m_finder(""), m_groomer(""),
   m_trigger(false),
   m_shallowCopy(true),
   m_initCount(0),
-  m_find(false), m_groom(false), m_copy(false)  {
+  m_find(false), m_groom(false), m_copy(false),
+  m_ppjr(nullptr) {
   declareProperty("OutputContainer", m_outcoll);
   declareProperty("InputContainer", m_incoll);
   declareProperty("InputTool", m_intool);
+  declareProperty("JetPseudojetRetriever", m_hpjr);
   declareProperty("PseudoJetGetters", m_pjgetters);
   declareProperty("JetFinder", m_finder);
   declareProperty("JetGroomer", m_groomer);
   declareProperty("JetModifiers", m_modifiers);
+  declareProperty("JetConsumers", m_consumers);
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
   declareProperty("ShallowCopy", m_shallowCopy =true);
-
 }
 
 //**********************************************************************
@@ -101,6 +105,17 @@ StatusCode JetRecTool::initialize() {
   }
   m_shallowCopy &= m_copy; // m_shallowCopy is false if not copy mode
 
+  // Retrieve or create pseudojet retrieval tool.
+  if ( m_hpjr.empty() ) {
+    m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
+  } else {
+    if ( m_hpjr.retrieve().isSuccess() ) {
+      m_ppjr = &*m_hpjr;
+    } else {
+      m_ppjr = nullptr;
+      ATH_MSG_ERROR("Unable to retrive requested pseudojet retriever: " << m_hpjr.name());
+    }
+  }
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
   if ( needinp ) {
@@ -138,6 +153,7 @@ StatusCode JetRecTool::initialize() {
       return StatusCode::FAILURE;
     }
   } else if ( m_groom ) {
+    m_groomer->setPseudojetRetriever(m_ppjr);
   } else if ( m_copy ) {
   } else {
     if ( m_pjgetters.size() == 0 ) {
@@ -171,6 +187,8 @@ StatusCode JetRecTool::initialize() {
         ATH_MSG_ERROR("Invalid label for first pseudojet getter: " << tname);
         rstat = StatusCode::FAILURE;
       }
+    } else {
+      m_ghostlabs.push_back(hget->label());
     }
     m_getclocks[iclk++].Reset();
     hget->inputContainerNames(m_incolls);
@@ -193,23 +211,33 @@ StatusCode JetRecTool::initialize() {
     }
     m_modclocks[iclk++].Reset();
     hmod->inputContainerNames(m_incolls);
+    hmod->setPseudojetRetriever(m_ppjr);
+  }
+  // Fetch the jet consumers.
+  ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_consumers.size()
+               << " jet consumers.");
+  m_conclocks.resize(m_consumers.size());
+  iclk = 0;
+  for ( ConsumerArray::const_iterator icon=m_consumers.begin();
+        icon!=m_consumers.end(); ++icon ) {
+    ToolHandle<IJetConsumer> hcon = *icon;
+    if ( hcon.retrieve().isSuccess() ) {
+      ATH_MSG_INFO(prefix << "Retrieved " << hcon->name());
+    } else {
+      ATH_MSG_ERROR(prefix << "Unable to retrieve IJetConsumer");
+      rstat = StatusCode::FAILURE;
+    }
+    m_conclocks[iclk++].Reset();
   }
   ATH_MSG_INFO(prefix << "Input collection names:");
-#ifdef USE_BOOST_FOREACH
-  BOOST_FOREACH(string name, m_incolls) ATH_MSG_INFO(prefix << "  " << name);
-#else
   for (const auto& name : m_incolls) ATH_MSG_INFO(prefix << "  " << name);
-#endif
   ATH_MSG_INFO(prefix << "Output collection names:");
-#ifdef USE_BOOST_FOREACH
-  BOOST_FOREACH(string name, m_outcolls) ATH_MSG_INFO(prefix << "  " << name);
-#else
   for (const auto& name : m_outcolls) ATH_MSG_INFO(prefix << "  " << name);
-#endif
   m_totclock.Reset();
   m_inpclock.Reset();
   m_actclock.Reset();
   m_modclock.Reset();
+  m_conclock.Reset();
   m_nevt = 0;
   return rstat;
 }
@@ -236,6 +264,8 @@ StatusCode JetRecTool::finalize() {
     double awtime = m_actclock.RealTime();
     double mctime = m_modclock.CpuTime();
     double mwtime = m_modclock.RealTime();
+    double cctime = m_conclock.CpuTime();
+    double cwtime = m_conclock.RealTime();
     double avg_tctime = 0.0;
     double avg_twtime = 0.0;
     double avg_ictime = 0.0;
@@ -244,6 +274,8 @@ StatusCode JetRecTool::finalize() {
     double avg_awtime = 0.0;
     double avg_mctime = 0.0;
     double avg_mwtime = 0.0;
+    double avg_cctime = 0.0;
+    double avg_cwtime = 0.0;
     if ( m_nevt > 0 ) {
       avg_tctime = tctime/double(m_nevt);
       avg_twtime = twtime/double(m_nevt);
@@ -253,6 +285,8 @@ StatusCode JetRecTool::finalize() {
       avg_awtime = awtime/double(m_nevt);
       avg_mctime = mctime/double(m_nevt);
       avg_mwtime = mwtime/double(m_nevt);
+      avg_cctime = cctime/double(m_nevt);
+      avg_cwtime = cwtime/double(m_nevt);
     }
     ATH_MSG_INFO("  " << setw(wname) << "Input"
                  << fixed << setprecision(3) << setw(10) << avg_ictime
@@ -263,6 +297,9 @@ StatusCode JetRecTool::finalize() {
     ATH_MSG_INFO("  " << setw(wname) << "Modifiers"
                  << fixed << setprecision(3) << setw(10) << avg_mctime
                  << fixed << setprecision(3) << setw(10) << avg_mwtime);
+    ATH_MSG_INFO("  " << setw(wname) << "Consumers"
+                 << fixed << setprecision(3) << setw(10) << avg_cctime
+                 << fixed << setprecision(3) << setw(10) << avg_cwtime);
     ATH_MSG_INFO("  " << setw(wname) << "Total"
                  << fixed << setprecision(3) << setw(10) << avg_tctime
                  << fixed << setprecision(3) << setw(10) << avg_twtime);
@@ -388,9 +425,9 @@ const JetContainer* JetRecTool::build() const {
       return 0;
     }
 
-    if(m_shallowCopy) {
+    if ( m_shallowCopy ) {
       ATH_MSG_DEBUG("Shallow-copying jets.");
-      pjets = shallowCopyJets(*pjetsin);
+      pjets = shallowCopyJets(*pjetsin, m_ppjr);
       ++naction;
     } else {
       pjets = new JetContainer;
@@ -406,7 +443,7 @@ const JetContainer* JetRecTool::build() const {
     // Find jets.
     if ( ! m_finder.empty() ) {
       ATH_MSG_DEBUG("Finding jets.");
-      m_finder->find(psjs, *pjets, m_inputtype);
+      m_finder->find(psjs, *pjets, m_inputtype, m_ghostlabs);
       ++naction;
     // Groom jets.
     } else if ( ! m_groomer.empty() ) {
@@ -454,6 +491,27 @@ const JetContainer* JetRecTool::build() const {
     }
     m_modclock.Stop();
   }
+  // Consume jets.
+  unsigned int ncon = m_consumers.size();
+  if ( ncon ) {
+    m_conclock.Start(false);
+    if ( pjets == 0 ) {
+      ATH_MSG_WARNING("There is no jet collection to consume");
+    } else {
+      ATH_MSG_DEBUG("Executing " << ncon << " jet consumers.");
+      unsigned int iclk = 0;
+      for ( ConsumerArray::const_iterator icon=m_consumers.begin();
+           icon!=m_consumers.end(); ++icon ) {
+        m_conclocks[iclk].Start(false);
+        ATH_MSG_DEBUG("  Executing consumer " << icon->name());
+        ATH_MSG_VERBOSE("    @ " << *icon);
+        (*icon)->process(*pjets) ;
+        ++naction;
+        m_conclocks[iclk++].Stop();
+      }
+    }
+    m_conclock.Stop();
+  }
   if ( naction == 0 ) {
     ATH_MSG_ERROR("Invalid configuration.");
   }
@@ -471,7 +529,7 @@ int JetRecTool::execute() const {
   const xAOD::JetContainer* pjets = build();
   if ( pjets == 0 ) {
     ATH_MSG_ERROR("Unable to retrieve container");
-   return 1;
+    return 1;
   }
   if ( m_trigger ) {
     return record<xAOD::JetTrigAuxContainer>(pjets);
@@ -540,6 +598,9 @@ void JetRecTool::print() const {
   } else {
     ATH_MSG_INFO("  Jet finder: " << m_finder->name());
     m_finder->print();
+    ATH_MSG_INFO("    Input type: " << m_inputtype);
+    ATH_MSG_INFO("    There are " << m_ghostlabs.size() << " ghost labels:");
+    for ( string lab : m_ghostlabs ) ATH_MSG_INFO("      " << lab);
   }
   if ( m_groomer.empty() ) {
     ATH_MSG_INFO("  Jet groomer is not defined");

@@ -13,7 +13,7 @@ def retrieveAODList():
     from RecExConfig.ObjKeyStore import objKeyStore
 
     inputcontent = objKeyStore['inputFile'].list()
-    typeToSave = [ 'xAOD::JetContainer_v1', 'xAOD::JetAuxContainer_v1', 'xAOD::JetTrigAuxContainer_v1' , 'xAOD::EventShape_v1', 'xAOD::EventShapeAuxInfo_v1' ]
+    typeToSave = [ 'xAOD::JetContainer', 'xAOD::JetAuxContainer', 'xAOD::JetTrigAuxContainer' , 'xAOD::EventShape', 'xAOD::EventShapeAuxInfo' ]
 
     def saveThisObject(o):
         # return True if o is of a desired type
@@ -41,7 +41,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
             return 
 
     if input is None:
-        for i in ['LCTopo','Tower','Topo', "Truth", "TrackZ"]:
+        for i in ['LCTopo','Tower','EMTopo', "Truth", "ZTrack", 'PV0Track']:
             if i in jetcollName:
                 input = i
                 if i== "Tower":

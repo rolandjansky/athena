@@ -6,4 +6,6 @@ LOG=$FILEBASE.dump
 echo "void $NAME() { CollectionTree->Print(); }" > $NAME.C
 root.exe -b -q $1 $NAME.C >$LOG 2>&1
 rm $NAME.C
+mv $LOG tmp$LOG
+grep "^\*Br" tmp$LOG | grep -v "^\*Branch" | awk -F: '{print $2}' >$LOG
 echo Output is in $LOG

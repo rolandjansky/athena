@@ -260,7 +260,16 @@ void JetDumper::extra_info(const xAOD::Jet* pjet, std::ostream& out, int iopt) c
   if ( iopt > 2 ) {
     int ncon = pjet->numConstituents();
     int scon = pjet->getConstituents().size();
-    out << ", size/ncon =" << scon << "/" << ncon;
+    string lab = ", size/ncon=";
+    out << lab << scon << "/" << ncon;
+  }
+  if ( iopt > 3 ) {
+    const fastjet::PseudoJet* ppj = pjet->getPseudoJet();
+    if ( ppj == nullptr ) {
+      out << ", No pseudojet";
+    } else {
+      out << ", npjcon=" << ppj->constituents().size();
+    }
   }
 }
 

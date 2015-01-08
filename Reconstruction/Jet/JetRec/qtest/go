@@ -1,0 +1,41 @@
+#!/bin/sh
+
+NUM=$1
+ACT=$2
+if [ -z "$ACT" ]; then
+  ACT=run
+fi
+HELP=
+
+if [ -z "$NUM" ]; then
+  HELP=true
+else if [ $NUM -ne 1  -a $NUM -ne 2 ]; then
+  HELP=true
+fi; fi
+
+if [ -n "$HELP" ]; then
+  echo Usage $0 NUM
+  echo "  NUM = 1 or 2"
+  exit 0
+fi
+
+COM=qtest_run$NUM
+if [ "$ACT" == run ]; then
+  rm -rf $COM
+  mkdir $COM
+  cd $COM
+  echo Running $COM
+  $COM.sh
+  cd ..
+fi
+ls -s1 $COM > $COM.log
+for BAD in ERROR FATAL FPE; do
+  echo
+  echo
+  echo Checking for $BAD
+  grep $BAD $COM/log*
+done
+echo
+echo
+echo Output files:
+ls -ls $COM/*.pool.root

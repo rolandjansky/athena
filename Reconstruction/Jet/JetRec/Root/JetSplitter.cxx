@@ -54,7 +54,7 @@ StatusCode JetSplitter::initialize() {
     ATH_MSG_WARNING("Invalid value for YMin: " << m_ymin);
   }
   if ( m_bld.empty() ) {
-    ATH_MSG_ERROR("Unable top retrieve jet builder.");
+    ATH_MSG_ERROR("Unable to retrieve jet builder.");
   }
   return StatusCode::SUCCESS;
 }
@@ -63,10 +63,17 @@ StatusCode JetSplitter::initialize() {
 
 int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   MassDropTagger mdtagger(m_mumax, m_ymin);
-  const PseudoJet* ppjin = jin.getPseudoJet();
-  if ( ppjin == 0 ) {
-    ATH_MSG_ERROR("Jet does not have a pseudojet.");
+  if ( pseudojetRetriever() == nullptr ) {
+    ATH_MSG_WARNING("Pseudojet retriever is null.");
+    return 1;
   }
+  const PseudoJet* ppjin = pseudojetRetriever()->pseudojet(jin);
+  if ( ppjin == 0 ) {
+    ATH_MSG_WARNING("Jet does not have a pseudojet.");
+    return 1;
+  }
+  ATH_MSG_VERBOSE("Input pseudojet pT: " << ppjin->pt());
+  ATH_MSG_VERBOSE("Input pseudojet has area: " << ppjin->has_area());
   int nconin = ppjin->constituents().size();
   PseudoJet pjfilt = mdtagger(*ppjin);
   if ( pjfilt == 0 ) {
@@ -81,6 +88,8 @@ int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   double mufilt = pjfilt.structure_of<MassDropTagger>().mu();
   double yfilt = pjfilt.structure_of<MassDropTagger>().y();
   ATH_MSG_DEBUG("Properties after filtering:");
+  ATH_MSG_DEBUG("     pT: " << pjfilt.pt());
+  ATH_MSG_DEBUG("  has A: " << pjfilt.has_area());
   ATH_MSG_DEBUG("   ncon: " << pjfilt.constituents().size() << "/" << nconin);
   ATH_MSG_DEBUG("   nsub: " << npfilt);
   ATH_MSG_DEBUG("   DR12: " << drfilt);
@@ -100,6 +109,9 @@ int JetSplitter::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   Filter filter(JetDefinition(cambridge_algorithm, rclus),
                 SelectorNHardest(m_nsubjetmax));
   PseudoJet pjclus = filter(pjfilt);
+  ATH_MSG_DEBUG("Properties after reclustering:");
+  ATH_MSG_DEBUG("     pT: " << pjclus.pt());
+  ATH_MSG_DEBUG("  has A: " << pjclus.has_area());
   ATH_MSG_VERBOSE("       Input cluster sequence: " << ppjin->associated_cluster_sequence());
   ATH_MSG_VERBOSE("    Filtered cluster sequence: " << pjfilt.associated_cluster_sequence());
   ATH_MSG_VERBOSE(" Reclustered cluster sequence: " << pjclus.associated_cluster_sequence());

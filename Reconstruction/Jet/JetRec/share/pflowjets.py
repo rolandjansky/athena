@@ -9,7 +9,8 @@
 #--------------------------------------------------------------
 # Input stream
 #--------------------------------------------------------------
-infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
+#infile = "/afs/cern.ch/user/d/dadams/pubdata/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.AOD_5ev.root"
+infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [infile]
@@ -35,6 +36,14 @@ theApp.EvtMax = 5
 # Jet control flags.
 #--------------------------------------------------------------
 
+# Exclude modifiers that cause problems.
+# B/c they require cells?
+from JetRec.JetRecFlags import jetFlags
+jetFlags.skipTools += ["jetens", "bchcorrclus", "caloqual_cluster"]
+
+# Import the jet tool manager.
+from JetRec.JetRecStandardToolManager import jtm
+
 # Import the jet reconstruction control flags.
 from JetRec.JetRecFlags import jetFlags
 
@@ -44,14 +53,18 @@ from JetRec.JetRecFlags import jetFlags
 #   2 - Details about jetrec execution including which modfier
 #   3 - Plus messages from the finder
 #   4 - Plus messages from the jet builder
-jetFlags.debug = 4
+jetFlags.debug = 0
+ServiceMgr.MessageSvc.verboseLimit = 100000
+#jtm.setOutputLevel("jblda", VERBOSE)
 
 #--------------------------------------------------------------
 # Configure jet reconstruction.
 #--------------------------------------------------------------
 
-# Import the jet tool manager.
-from JetRec.JetRecStandard import jtm
+doEMPFlowJets = True
+doEMCPFlowJets = True
+doLCPFlowJets = False
+findJets = True
 
 # Special flag to create jet containers in trigger format.
 #jtm.useTriggerStore = True
@@ -61,23 +74,6 @@ from JetRec.JetRecStandard import jtm
 # and syntax for adding more.
 # Here we add a new list of inputs with the name "mygetters".
 print jtm.gettersMap.keys()
-
-# Build a new list of jet modifiers.
-# See JetRec/python/JetRecStandardTools.py for standard definitions
-# and syntax for adding more.
-# In addition to these tools, a few special strings may be used to 
-# specify tools whose configuration depends on the input jet
-# collection. These include
-#   applyCalibrationTool:OPT where OPT = offset or jes
-#   truthassoc
-#   trackassoc
-#   jetfilter
-# Here we add a new list of inputs with the name "mymods".
-jtm.modifiersMap["mymods"] = [
-  "jetfilter",
-  jtm.nsubjettiness,
-  jtm.pull
-]
 
 # Add tools to find or groom jets.
 # Each call to addJetFinder adds one JetRecTool so that one jet
@@ -90,32 +86,84 @@ jtm.modifiersMap["mymods"] = [
 #   ghostArea: Size in eta-phi for area ghosts
 #   ptmin: pT threshold in MeV applied in jet finding
 #   ptminFilter: pT threshold applied by the jet modifier "jetfilter"
-jtm.addJetFinder("MyAntiKt4EMPFlowJets",  "AntiKt", 0.4, "empflow",  "mymods",
-                 ghostArea=0.01 , ptmin=2000, ptminFilter=7000)
-jtm.addJetFinder("MyAntiKt4EMCPFlowJets", "AntiKt", 0.4, "emcpflow", "mymods",
-                 ghostArea=0.01 , ptmin=2000, ptminFilter=7000)
-jtm.addJetFinder("MyAntiKt4LCPFlowJets",  "AntiKt", 0.4, "lcpflow",  "mymods",
-                 ghostArea=0.01 , ptmin=2000, ptminFilter=7000)
+if findJets:
+  jtm.addJetFinder("MyAntiKt4TruthJets",  "AntiKt", 0.4,  "truth",   "truth",
+                   ghostArea=0.01 , ptmin=2000, ptminFilter=3000)
+if doEMPFlowJets and findJets:
+  jtm.addJetFinder("MyAntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow",
+                   ghostArea=0.01 , ptmin=2000, ptminFilter=7000, calibOpt="a:pflow")
+if doEMCPFlowJets and findJets:
+  jtm.addJetFinder("MyAntiKt4EMCPFlowJets", "AntiKt", 0.4, "emcpflow", "pflow",
+                   ghostArea=0.01 , ptmin=2000, ptminFilter=7000, calibOpt="a:pflow")
+if doLCPFlowJets and findJets:
+  jtm.addJetFinder("MyAntiKt4LCPFlowJets",  "AntiKt", 0.4,  "lcpflow", "pflow",
+                   ghostArea=0.01 , ptmin=2000, ptminFilter=7000, calibOpt="a:pflow")
 
 #--------------------------------------------------------------
-# Configure the jet algorithm.
+
+# Add neutral-only pflow.
+
+# Add neutral pflow builder.
+# LC-scale neutral pflow.
+from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
+jtm += PFlowPseudoJetGetter(
+  "lcnpflowget",
+  Label = "LCPFlow",
+  OutputContainer = "PseudoJetLCNPFlow",
+  RetrievePFOTool = jtm.pflowretriever,
+  InputIsEM = False,
+  CalibratePFO = False,
+  SkipNegativeEnergy = True,
+  UseNeutral = True,
+  UseCharged = False
+)
+
+# Add neutral-only pflow jet definition.
+# Note here we provide an explicit list of getter instead of
+# the name of such a list in the jtm map. Either is allowed.
+if doLCPFlowJets and findJets:
+  jtm.addJetFinder("MyAntiKt4LCNPFlowJets", "AntiKt", 0.4, [jtm.lcnpflowget],  [jtm.width],
+                   ghostArea=0.01 , ptmin=5000, ptminFilter=7000)
+
+#--------------------------------------------------------------
+# Add jet reco to the algorithm sequence.
 # The current configuration of the jet tool manager is used.
 #--------------------------------------------------------------
-from JetRec.JetAlgorithm import jetalg
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+#addJetRecoToAlgSequence(eventShapeTools=["empflow", "emcpflow", "lcpflow"])
+if doEMCPFlowJets:
+  addJetRecoToAlgSequence(eventShapeTools=["emcpflow"])
+else:
+  addJetRecoToAlgSequence(eventShapeTools=[])
+#jtm.setOutputLevel("EMPFlowEventShape", VERBOSE)
 
 #--------------------------------------------------------------
 # Add tool to dump the new jet container to the log.
 #--------------------------------------------------------------
 from JetRec.JetRecConf import JetDumper
-for jetrec in [jtm.empflowget, jtm.emcpflowget, jtm.lcpflowget] + jtm.jetrecs:
+from JetRec.JetAlgorithm import jetalg
+dumps = []
+if doEMPFlowJets:
+  dumps += [jtm.empflowget]
+if doEMCPFlowJets:
+  dumps += [jtm.emcpflowget]
+if doLCPFlowJets:
+  dumps += [jtm.lcpflowget, jtm.lcnpflowget]
+dumps += jtm.jetrecs
+for jetrec in dumps:
+  print 1
+  print jetrec
+  print 2
   name = jetrec.name()
   cname = name
   if name == "empflowget": cname =  "PseudoJetEMPFlow"
   if name == "emcpflowget": cname = "PseudoJetEMCPFlow"
   if name == "lcpflowget": cname =  "PseudoJetLCPFlow"
+  if name == "lcnpflowget": cname = "PseudoJetLCNPFlow"
   tname = name + "Dumper"
   ToolSvc += JetDumper(tname)
   dumper = getattr(ToolSvc, tname)
   dumper.ContainerName = cname
-  dumper.MaxObject = 10
+  dumper.MaxObject = 10000
+  dumper.LineDetail = 2
   jetalg.Tools += [dumper]

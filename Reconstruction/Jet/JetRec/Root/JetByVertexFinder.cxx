@@ -55,8 +55,9 @@ StatusCode JetByVertexFinder::initialize() {
 
 //**********************************************************************
 
-int JetByVertexFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-                     xAOD::JetInput::Type inputtype) const {
+int JetByVertexFinder::
+find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
+     xAOD::JetInput::Type inputtype, const NameList& ghostlabs) const {
   ATH_MSG_DEBUG("Begin finding.");
   string sinp0 = xAOD::JetInput::typeName(inputtype);
   ATH_MSG_DEBUG("  Input type: " << sinp0);
@@ -109,7 +110,7 @@ int JetByVertexFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jet
         ATH_MSG_VERBOSE("    Adding jets from vertex " << ivtx);
         psjvector.insert(psjvector.end(), gpsjvector.begin(), gpsjvector.end());
         unsigned int ijet0 = jets.size();
-        m_finder->find(psjvector, jets, inputtype);
+        m_finder->find(psjvector, jets, inputtype, ghostlabs);
 #ifdef USE_BOOST_AUTO
         for (BOOST_AUTO(ijet, ijet0); ijet<jets.size(); ++ijet) {
 #else

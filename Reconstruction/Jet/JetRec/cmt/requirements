@@ -26,6 +26,9 @@ use AtlasFastJet        AtlasFastJet-*          External
 use AtlasFastJetContrib AtlasFastJetContrib-*   External
 use EventShapeInterface EventShapeInterface-*   Reconstruction/EventShapes
 
+# Specify the required FastJet components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(AtlasFastJet COMPONENTS fastjetplugins fastjettools siscone siscone_spherical)"
+
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="JetRec_jobOptions.py myjets.py"

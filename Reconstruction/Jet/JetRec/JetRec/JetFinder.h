@@ -55,7 +55,7 @@ public:
 
   // Find jets and put them in a container.
   int find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-           xAOD::JetInput::Type =xAOD::JetInput::Uncategorized) const;
+           xAOD::JetInput::Type contype, const NameList& ghostlabs) const;
 
   // Save a cluster sequence in the event store.
   // So it lives as long as this event.

@@ -4,86 +4,121 @@
 #
 # David Adams
 # March 2014
+# October 2014: Update to provide a fn that allow specification of alg sequence.
 #
 # Configure the jet algorithm after the tool manager has been configured.
 
-# Import message level flags.
-from GaudiKernel.Constants import DEBUG
+# Record the jet algorithm here.
+# Retrieve this with "from JetRec.JetAlgorithm import jetalg" *after*
+# calling addJetRecoToAlgSequence().
+jetalg = None
 
-# Import the jet reconstruction control flags.
-from JetRec.JetRecFlags import jetFlags
+# Function to add jet reconstruction to an algorithm sequence
+#               job: algorithm sequence
+#          useTruth: Flag to schedule building of selected-truth containers
+#   eventShapeTools: Keys for the event shape tools to be run
+#   separateJetAlgs: Run JetRecTools in separate algs (experts only)
+#             debug: Debug level (0 for quiet). See below.
+def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
+                            separateJetAlgs= None, debug =None):
 
-# Import the standard jet tool manager.
-from JetRec.JetRecStandard import jtm
+  myname = "JetAlgorithm: "
 
-# Full job is a list of algorithms
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+  # We need this to modify the global variable.
+  global jetalg
 
-# Add the truth tools.
-if jetFlags.useTruth:
-  from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-  scheduleCopyTruthParticles(job)
+  # Import message level flags.
+  from GaudiKernel.Constants import DEBUG
 
-# Event shape tools.
-evstools = []
-for name in jetFlags.eventShapeTools():
-  from EventShapeTools.EventDensityConfig import configEventDensityTool
-  if   name == "em":
-    jtm += configEventDensityTool("EMTopoEventShape", jtm.emget, 0.4)
-    evstools += [jtm.tools["EMTopoEventShape"]]
-  elif name == "lc":
-    jtm += configEventDensityTool("LCTopoEventShape", jtm.lcget, 0.4)
-    evstools += [jtm.tools["LCTopoEventShape"]]
-  else:
-    print myname + "Invalid event shape key: " + name
-    raise Exception
+  # Import the jet reconstruction control flags.
+  from JetRec.JetRecFlags import jetFlags
 
-# Add the tool runner. It runs the jetrec tools.
-rtools = []
-if jetFlags.useCells():
-  rtools += [jtm.missingcells]
-if jetFlags.useTracks:
-  rtools += [jtm.tracksel]
-  rtools += [jtm.tvassoc]
-rtools += jtm.jetrecs
-from JetRec.JetRecConf import JetToolRunner
-jtm += JetToolRunner("jetrun",
-         EventShapeTools=evstools,
-         Tools=rtools,
-         Timer=jetFlags.timeJetToolRunner()
-       )
-jetrun = jtm.jetrun
+  # Import the standard jet tool manager.
+  from JetRec.JetRecStandardToolManager import jtm
 
-# Add the algorithm. It runs the jetrec tools.
-from JetRec.JetRecConf import JetAlgorithm
+  # Set sequence and flags as needed.
+  if job == None:
+    from AthenaCommon.AlgSequence import AlgSequence
+    job = AlgSequence()
+  if useTruth == None:
+    useTruth = jetFlags.useTruth()
+  if eventShapeTools == None:
+    eventShapeTools = jetFlags.eventShapeTools()
+    if eventShapeTools == None:
+      eventShapeTools = []
+  if separateJetAlgs == None:
+    separateJetAlgs = jetFlags.separateJetAlgs()
 
-if jetFlags.separateJetAlgs():
+  # Add the truth tools.
+  if useTruth:
+    from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
+    scheduleCopyTruthParticles(job)
+
+  # Event shape tools.
+  evstools = []
+  evsDict = {
+    "emtopo"   : ("EMTopoEventShape",   jtm.emget),
+    "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
+    "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
+    "emcpflow" : ("EMCPFlowEventShape", jtm.emcpflowget),
+    "lcpflow"  : ("LCPFlowEventShape",  jtm.lcpflowget),
+  }
+  print myname + "Event shape tools: " + str(eventShapeTools)
+  for evskey in eventShapeTools:
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    if evskey in evsDict:
+      (toolname, getter) = evsDict[evskey]
+      if toolname in jtm.tools:
+        print myname + "Skipping duplicate event shape: " + toolname
+      else:
+        print myname + "Adding event shape " + evskey
+        jtm += configEventDensityTool(toolname, getter, 0.4)
+        evstools += [jtm.tools[toolname]]
+    else:
+      print myname + "Invalid event shape key: " + evskey
+      raise Exception
+
+  # Add the tool runner. It runs the jetrec tools.
+  rtools = []
+  if jetFlags.useCells():
+    rtools += [jtm.missingcells]
+  if jetFlags.useTracks:
+    rtools += [jtm.tracksel]
+    rtools += [jtm.tvassoc]
+  rtools += jtm.jetrecs
+  from JetRec.JetRecConf import JetToolRunner
+  jtm += JetToolRunner("jetrun",
+           EventShapeTools=evstools,
+           Tools=rtools,
+           Timer=jetFlags.timeJetToolRunner()
+         )
+  jetrun = jtm.jetrun
+
+  # Add the algorithm. It runs the jetrec tools.
+  from JetRec.JetRecConf import JetAlgorithm
+
+  if jetFlags.separateJetAlgs():
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg
     jetalg.Tools = [jtm.jetrun]
-
     for t in rtools:
-        jalg = JetAlgorithm("jetalg"+t.name())
-        jalg.Tools = [t]
-        job+= jalg
-else:
+      jalg = JetAlgorithm("jetalg"+t.name())
+      jalg.Tools = [t]
+      job+= jalg
+
+  else:
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg
     jetalg.Tools = [jtm.jetrun]
-
     if jetFlags.debug > 0:
       jtm.setOutputLevel(jtm.jetrun, DEBUG)
       jetalg.OutputLevel = DEBUG
-
     if jetFlags.debug > 1:
       for tool in jtm.jetrecs:
         jtm.setOutputLevel(tool, DEBUG)
-
     if jetFlags.debug > 2:
       for tool in jtm.finders:
         jtm.setOutputLevel(tool, DEBUG)
-
     if jetFlags.debug > 3:
       jtm.setOutputLevel(jtm.jetBuilderWithArea, DEBUG)
       jtm.setOutputLevel(jtm.jetBuilderWithoutArea, DEBUG)

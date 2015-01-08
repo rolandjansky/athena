@@ -1,8 +1,9 @@
+// JetFromPseudojet.h -*- C++ -*- 
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetFromPseudojet.h
 
 #ifndef JetFromPseudojet_H
 #define JetFromPseudojet_H
@@ -36,7 +37,8 @@ public:
   // If pparent is not null, then it is set as the parent and its
   // configuration properties are copied.
   xAOD::Jet* add(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
-                 xAOD::JetInput::Type inputtype) const;
+                 xAOD::JetInput::Type inputtype, const NameList& ghostlabs) const;
+
 
   // Construct jet from pseudojet and parent and add to a container.
   // Return a pointer to the new jet or null for failure.
@@ -47,6 +49,15 @@ public:
 
   // Dump to log.
   void print() const;
+
+private:
+
+  // Method use by the above add(...) to do most of the work.
+  xAOD::Jet* addjet(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
+                    const xAOD::Jet* pparent, const NameList* pghostlabs) const;
+
+  // Method to evalaute the EM scale momentum
+  void buildAndSetEMScaleMom(xAOD::Jet * jet, xAOD::JetInput::Type inputtype) const ;
 
 private:  //data
 

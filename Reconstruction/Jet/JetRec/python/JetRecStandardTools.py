@@ -10,8 +10,9 @@
 # Tools are configured and put in the global jet tool manager so
 # they can be accessed when configuring JetRec tools.
 #
-# Execute this file to add the definitions to JetRecStandard.jtm, e.g.
-# python> import JetRec.JetRecStandardTools
+# Execute this file to add the definitions to
+# JetRecStandardToolManager.jtm, e.g.
+#   import JetRec.JetRecStandardTools
 
 # Import the jet flags.
 from JetRec.JetRecFlags import jetFlags
@@ -22,31 +23,36 @@ if not "UseTriggerStore " in locals():
 # get levels defined VERBOSE=1 etc.
 from GaudiKernel.Constants import *
 
-from JetRec.JetRecStandard import jtm
-from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+from JetRec.JetRecStandardToolManager import jtm
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
-from JetRecTools.JetRecToolsConf import JetDetailedTrackSelectorTool
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
+from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 from JetRecTools.JetRecToolsConf import MissingCellListTool
 from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
+from JetRec.JetRecConf import JetPseudojetRetriever
+from JetRec.JetRecConf import JetConstituentsRetriever
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import PseudoJetGetter
 from JetRec.JetRecConf import MuonSegmentPseudoJetGetter
 from JetRec.JetRecConf import JetFromPseudojet
+from JetRec.JetRecConf import JetConstitRemover
 from JetSimTools.JetSimToolsConf import JetTruthParticleSelectorTool
 from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
 from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
+from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
 from JetMomentTools.JetMomentToolsConf import JetWidthTool
 from JetMomentTools.JetMomentToolsConf import JetCaloEnergies
 from JetMomentTools.JetMomentToolsConf import JetBadChanCorrTool
 from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
 from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
-#from JetMomentTools.JetMomentToolsConf import JetMuonSegmentMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetIsolationTool
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
 from JetMomentTools.JetMomentToolsConf import JetLArHVTool
+from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
@@ -59,50 +65,73 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMa
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
+from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
 
 #--------------------------------------------------------------
 # Track selection.
 #--------------------------------------------------------------
 
-if jetFlags.useInDetTrackSelection:
-  jtm += InDet__InDetDetailedTrackSelectorTool(
-    "trk_tracksel",
-    TrackSummaryTool     = None,
-    z0Max                = 200,
-    d0significanceMax    = 100.0,
-    pTMin                = 500.0,
-    etaMax               = 2.5,
-    fitChi2OnNdfMax      = 5.0,
-    nHitPix              = 1,
-    nHitSct              = 6,
-    nHitTrt              = 0,
-    nHitSi               = 6,
-    IPz0Max              = 1.0e15,
-    nHitBLayer           = 0,
-    nHitBLayerPlusPix    = 0
-  )
-
-else:
-  jtm += JetDetailedTrackSelectorTool("trk_tracksel")
+# This is the InDet loose selection from
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackingPerformanceGuidelines
+# October 28, 2014
+#jtm += InDet__InDetDetailedTrackSelectionTool(
+jtm += InDet__InDetTrackSelectionTool(
+  "trk_trackselloose",
+  minPt                = 400.0,
+  maxAbsEta            = 2.5,
+  minNSiHits           = 7,
+  maxNPixelSharedHits  = 1,
+  maxOneSharedModule   = True,
+  maxNSiHoles          = 2,
+  maxNPixelHoles       = 1,
+)
 
 jtm += JetTrackSelectionTool(
-  "tracksel",
+  "trackselloose",
   InputContainer  = jtm.trackContainer,
   OutputContainer = "JetSelectedTracks",
-  Selector        = jtm.trk_tracksel
+  Selector        = jtm.trk_trackselloose
 )
+
+if jetFlags.useInDetTrackSelection():
+  jtm += JetTrackSelectionTool(
+    "tracksel",
+    InputContainer  = jtm.trackContainer,
+    OutputContainer = "JetSelectedTracks",
+    Selector        = jtm.trk_trackselloose
+  )
+else:
+  jtm += SimpleJetTrackSelectionTool(
+    "tracksel",
+    PtMin = 500.0,
+    InputContainer  = jtm.trackContainer,
+    OutputContainer = "JetSelectedTracks",
+  )
 
 #--------------------------------------------------------------
 # Track-vertex association.
 #--------------------------------------------------------------
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
+jtm += CP__TightTrackVertexAssociationTool("jetTighTVAtool", dzSinTheta_cut=3, doPV=True)
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  MaxTransverseDistance   = 1.0,
-  MaxLongitudinalDistance = 1.0
+  TrackVertexAssoTool     = jtm.jetTighTVAtool,
+)
+
+jtm += TrackVertexAssociationTool(
+  "tvassoc_old",
+  TrackParticleContainer  = jtm.trackContainer,
+  TrackVertexAssociation  = "JetTrackVtxAssoc_old",
+  VertexContainer         = jtm.vertexContainer,
+  MaxTransverseDistance   = 1.5,
+  MaxLongitudinalDistance = 1.0e7,
+  MaxZ0SinTheta = 1.5
 )
 
 #--------------------------------------------------------------
@@ -121,13 +150,40 @@ if jetFlags.useTruth:
   )
 
 #--------------------------------------------------------------
+# Jet reco infrastructure.
+#--------------------------------------------------------------
+
+# Jet pseudojet retriever.
+jtm += JetPseudojetRetriever("jpjretriever")
+
+# Jet constituent retriever.
+labs = []
+if jetFlags.useTracks():
+  labs += ["Track"]
+  labs += ["AntiKt3TrackJet", "AntiKt3TrackJet"]
+if jetFlags.useMuonSegments():
+  labs += ["MuonSegment",]
+if jetFlags.useTruth():
+  labs += ["Truth"]
+  for lab in jetFlags.truthFlavorTags():
+    labs += [lab]
+jtm += JetConstituentsRetriever(
+  "jconretriever",
+  UsePseudojet = True,
+  UseJetConstituents = True,
+  PseudojetRetriever = jtm.jpjretriever,
+  GhostLabels = labs,
+  GhostScale = 1.e-20
+)
+
+#--------------------------------------------------------------
 # Pseudojet builders.
 #--------------------------------------------------------------
 
 # Clusters.
 jtm += PseudoJetGetter(
   "lcget",
-  InputContainer = "CaloCalTopoCluster",
+  InputContainer = "CaloCalTopoClusters",
   Label = "LCTopo",
   OutputContainer = "PseudoJetLCTopo",
   SkipNegativeEnergy = True,
@@ -137,7 +193,7 @@ jtm += PseudoJetGetter(
 # EM clusters.
 jtm += PseudoJetGetter(
   "emget",
-  InputContainer = "CaloCalTopoCluster",
+  InputContainer = "CaloCalTopoClusters",
   Label = "EMTopo",
   OutputContainer = "PseudoJetEMTopo",
   SkipNegativeEnergy = True,
@@ -236,7 +292,7 @@ if jetFlags.useTruth:
   jtm += TruthPseudoJetGetter(
     "truthget",
     Label = "Truth",
-    InputContainer = "TruthParticle",
+    InputContainer = "TruthParticles",
     OutputContainer = "PseudoJetTruth",
     TruthSelector = jtm.truthsel,
     GhostScale = 0.0,
@@ -246,7 +302,7 @@ if jetFlags.useTruth:
   jtm += TruthPseudoJetGetter(
     "truthwzget",
     Label = "TruthWZ",
-    InputContainer = "TruthParticle",
+    InputContainer = "TruthParticles",
     OutputContainer = "PseudoJetTruthWZ",
     TruthSelector = jtm.truthselwz,
     GhostScale = 0.0,
@@ -256,7 +312,7 @@ if jetFlags.useTruth:
   jtm += TruthPseudoJetGetter(
     "gtruthget",
     Label = "GhostTruth",
-    InputContainer = "TruthParticle",
+    InputContainer = "TruthParticles",
     OutputContainer = "PseudoJetGhostTruth",
     TruthSelector = jtm.truthsel,
     GhostScale = 1.e-20,
@@ -264,7 +320,7 @@ if jetFlags.useTruth:
 
   )
 
-  # Truth flavor
+  # Truth flavor tags.
   for ptype in jetFlags.truthFlavorTags():
     jtm += PseudoJetGetter(
       "gtruthget_" + ptype,
@@ -275,7 +331,18 @@ if jetFlags.useTruth:
       GhostScale = 1e-20
     )
 
-
+  # Delta-R truth parton label: truthpartondr.
+  jtm += Analysis__JetQuarkLabel(
+    "jetquarklabel",
+    McEventCollection = "TruthEvents"
+  )
+  jtm += Analysis__JetConeLabeling(
+    "truthpartondr",
+    JetTruthMatchTool = jtm.jetquarklabel
+  )
+  
+  # Parton truth label.
+  jtm += Analysis__JetPartonTruthLabel("partontruthlabel")
 
 #--------------------------------------------------------------
 # Jet builder.
@@ -296,22 +363,20 @@ jtm.addJetBuilderWithoutArea(JetFromPseudojet(
 # Non-substructure moment builders.
 #--------------------------------------------------------------
 
-# Quality.
+# Quality from clusters.
 jtm += JetCaloQualityTool(
   "caloqual_cluster",
-  DoFracSamplingMax = True,
-  DoN90 = True,
-  DoLArQuality = True,
+  TimingCuts = [5, 10],
+  Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],
+)
+
+# Quality from cells.
+jtm += JetCaloCellQualityTool(
+  "caloqual_cell",
   LArQualityCut = 4000,
   TileQualityCut = 254,
-  DoTiming = True,
-  TimingCellTimeCuts = [],
-  TimingClusterTimeCuts = [5, 10],
-  DoNegativeE = True,
-  DoHECQuality = True,
-  DoAverageLArQF = True,
-  DoJetCentroid = True,
-  ComputeVariableFromCluster = True
+  TimingCuts = [5, 10],
+  Calculations = ["LArQuality", "N90Cells", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF"]
 )
 
 # Jet width.
@@ -382,7 +447,31 @@ jtm += JetVertexFractionTool(
   "jvf",
   VertexContainer = jtm.vertexContainer,
   AssociatedTracks = "GhostTrack",
-  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation
+  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  JVFName = "JVF"
+)
+
+# Jet vertex fraction with selection.
+jtm += JetVertexFractionTool(
+  "jvfloose",
+  VertexContainer = jtm.vertexContainer,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  TrackSelector = jtm.trackselloose,
+  JVFName = "JVFLoose"
+)
+
+# Jet vertex tagger.
+jtm += JetVertexTaggerTool(
+  "jvt",
+  VertexContainer = jtm.vertexContainer,
+  TrackParticleContainer  = jtm.trackContainer,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  JVTName = "Jvt",
+  K_JVFCorrScale = 0.01,
+  Z0Cut = 3.0,
+  PUTrkPtCut = 30000.0
 )
 
 # Jet track info.
@@ -399,15 +488,26 @@ jtm += JetTrackMomentsTool(
 
 # Isolations.
 jtm += JetIsolationTool(
-  "isolation",
+  "jetisol",
+  #IsolationCalculations = ["IsoDelta:2:SumPt"],
+  IsolationCalculations = ["IsoDelta:2:SumPt", "IsoDelta:3:SumPt"],
+  ConstituentContainer = "CaloCalTopoClusters",
+)
+jtm += JetIsolationTool(
+  "run1jetisol",
   IsolationCalculations = ["IsoKR:11:Perp", "IsoKR:11:Par", "IsoFixedCone:6:SumPt",],
-  ConstituentContainer = "CaloCalTopoCluster",
+  ConstituentContainer = "CaloCalTopoClusters",
 )
 
 # Bad LAr fractions.
-theLArHVCorrTool=LArHVCorrToolDefault()
-jtm += theLArHVCorrTool
-jtm += JetLArHVTool("larhvcorr", HVCorrTool=theLArHVCorrTool)
+jtm += JetLArHVTool("larhvcorr")
+
+# Jet origin correction.
+jtm += JetOriginCorrectionTool(
+  "jetorigincorr",
+  VertexContainer = jtm.vertexContainer,
+  OriginCorrectedName = "JetOriginConstitScaleMomentum"
+)
 
 #--------------------------------------------------------------
 # Substructure moment builders.
@@ -455,4 +555,5 @@ jtm += JetChargeTool("charge", K=1.0)
 # Shower deconstruction.
 jtm += ShowerDeconstructionTool("showerdec")
 
-
+# Remove constituents (usefull for truth jets in evgen pile-up file)
+jtm += JetConstitRemover("removeconstit")

@@ -128,13 +128,14 @@ append(const xAOD::MuonSegmentContainer& inputs, PseudoJetVector& psjs, const La
     double y = ppar->y();
     double z = ppar->z();
     double xy = sqrt(x*x + y*y);
-    double r = xy*xy + z*z;
+    double r = sqrt(xy*xy + z*z);
     double pfac = pt/xy;
     double px = pfac*x;
     double py = pfac*y;
     double pz = pfac*z;
     double  e = pfac*r;
     fastjet::PseudoJet psj(px, py, pz, e);
+    ATH_MSG_VERBOSE("Muon segment pseuojet y: " << psj.rap());
     if ( pli != 0 ) {
       jet::IConstituentUserInfo* pcui =
         new jet::IndexedTConstituentUserInfo<xAOD::MuonSegment>(*ppar,labidx, pli);

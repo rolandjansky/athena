@@ -1,0 +1,18 @@
+#!/bin/sh
+
+rm athena.log
+if [ ! -r myTopOptions.py ];then
+  RecExCommon_links.sh
+fi
+#athena.py RecExCommon/rdotoesdnotrigger.py 2>&1 | tee athena.log
+athena.py myTopOptions.py 2>&1 | tee athena.log
+
+echo
+echo Jet collections:
+checkxAOD.py AOD.pool.root | grep Jets | tee jetcollections.log
+
+echo
+echo Dumping AOD file
+../share/dumpxaod AOD.pool.root
+ls -ls AOD.pool.root*
+sort AOD.pool.root.dump > sortAOD.pool.root.dump
