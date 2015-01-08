@@ -64,7 +64,7 @@ class TriggerGetter(Configured):
 
         # start with print some information what this will do
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d" % (recAlgs.doTrigger(), rec.doTrigger(), TriggerFlags.doTriggerConfigOnly()) )
-        log.info("TriggerFlags: doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s" % (TriggerFlags.doLVL1(), TriggerFlags.doLVL2(), TriggerFlags.doEF(), TriggerFlags.doHLT() ) )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s" % (TriggerFlags.doL1Topo(), TriggerFlags.doLVL1(), TriggerFlags.doLVL2(), TriggerFlags.doEF(), TriggerFlags.doHLT() ) )
 
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()

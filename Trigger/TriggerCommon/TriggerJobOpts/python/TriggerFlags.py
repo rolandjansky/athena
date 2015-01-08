@@ -10,7 +10,7 @@ __doc__="Trigger specific flags  "
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 
 #import traceback
@@ -51,7 +51,7 @@ class doL1Topo(JobProperty):
     """ Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file) """
     statusOn=True
     allowedType=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doL1Topo)
 
@@ -163,6 +163,16 @@ class doMergedHLTResult(JobProperty):
     StoredValue=True
 
 _flags.append(doMergedHLTResult)
+
+class EDMDecodingVersion(JobProperty):
+    """ if 1, Run1 decoding version is set; if 2, Run2 """
+    statusOn=True
+    allowedType=['int']
+    StoredValue=2
+
+_flags.append(EDMDecodingVersion)
+
+
 
 class doFEX(JobProperty):
     """ if False disable Feature extraction algorithms """
@@ -658,7 +668,7 @@ class readL1TopoConfigFromXML(JobProperty):
     allowedType=['bool']
     # note: if you change the following default value, you must also change the default value in class inputLVL1configFile
     # StoredValue=False
-    StoredValue = True # once the python generation is implemented the default should be False
+    StoredValue = False # once the python generation is implemented the default should be False
 
     def _do_action(self):
         """ setup some consistency """
@@ -872,7 +882,7 @@ class inputL1TopoConfigFile(JobProperty):
     """
     statusOn=True
     allowedType=['str']
-    StoredValue="NONE"
+    StoredValue=""
 
     def __call__(self):
         if self.get_Value() == "":
@@ -1010,7 +1020,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_default', 'MC_loose_default', 'MC_tight_default',
         # -----------------------------------------------------------------
         # Run 2
-        'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale', # for development and simulation
+        'MC_pp_v5', 'MC_pp_v5_no_prescale', 'MC_pp_v5_tight_mc_prescale', 'MC_pp_v5_loose_mc_prescale','MC_pp_v5_special_mc_prescale', # for development and simulation
         'Physics_pp_v5', # for testing algorithms and software quality during LS1, later for data taking
         'LS1_v1', # for P1 detector commissioning (cosmics, streamers)
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
@@ -1140,7 +1150,6 @@ _flags.append(HLTPrescaleSet)
 
 
 
-
 # the container of all trigger flags
 
 class Trigger(JobPropertyContainer):
@@ -1234,6 +1243,7 @@ if useNewTM:
         import TriggerMenu.calibcosmicmon.CalibSliceFlags
         import TriggerMenu.calibcosmicmon.StreamingSliceFlags
         import TriggerMenu.calibcosmicmon.MonitorSliceFlags
+        import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
 
 else:
     from TriggerMenuPython.Lvl1Flags            import Lvl1Flags

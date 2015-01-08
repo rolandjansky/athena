@@ -51,7 +51,7 @@ def keyInInputFile(sgKey):
 class Lvl1SimulationGetter (Configured):
 
     def configure(self):
-        log = logging.getLogger( "jobOfragment_LVL1.py" )
+        log = logging.getLogger( "Lvl1SimulationGetter" )
 
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         from AthenaCommon.AppMgr import ServiceMgr
@@ -62,14 +62,19 @@ class Lvl1SimulationGetter (Configured):
 
             if TriggerFlags.doCalo():
                 if TriggerFlags.useCaloTTL() and not jobproperties.CaloCellFlags.doFastCaloSim():
-                    if TriggerFlags.doCosmicSim():
-                        include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_cosmic.py" )
-                    elif TriggerFlags.useL1CaloCalibration():
-                        include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py")
-                    elif 'pp_v4' in TriggerFlags.triggerMenuSetup(): #temporary should be steered by run configuration
-                        include ( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_2012.py") 
+                    import re
+                    if re.search("pp_v[5-9]|HI_v[3-9]|LS1_v[1-9]|DC14", TriggerFlags.triggerMenuSetup() ):
+                        log.info("Using L1Calo Run 2 simulation")
+                        include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Run2.py" )
                     else:
-                        include ( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_NoCalib.py")
+                        if TriggerFlags.doCosmicSim():
+                            include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_cosmic.py" )
+                        elif TriggerFlags.useL1CaloCalibration():
+                            include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py")
+                        elif 'pp_v4' in TriggerFlags.triggerMenuSetup(): #temporary should be steered by run configuration
+                            include ( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_2012.py") 
+                        else:
+                            include ( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_NoCalib.py")
                 else:
                     include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Cell.py")
                     

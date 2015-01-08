@@ -133,7 +133,7 @@ class HLTSimulationGetter(Configured):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         if not hasattr(svcMgr, 'HltEventLoopMgr'):
             from RecExConfig.ObjKeyStore import objKeyStore
-            if not objKeyStore.isInInput( "xAOD::EventInfo_v1"):
+            if ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ):
                 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
                 topSequence+=xAODMaker__EventInfoCnvAlg()
 	        
@@ -205,14 +205,17 @@ class HLTSimulationGetter(Configured):
                 log.info("configuring HLT merged system, for normal running (FEX + Hypo)")
                 TrigSteer_HLT = TrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())
                 TrigSteer_HLT.doHypo = TriggerFlags.doHypo()
- 
 
             if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
                 log.info("configuring merged HLT for re-running (Hypo only)")
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
                 #            if not TriggerFlags.writeBS():
-            from TrigEDMConfig.TriggerEDM import getL2PreregistrationList, getEFPreregistrationList, getHLTPreregistrationList, getEDMLibraries
-            TrigSteer_HLT.Navigation.ClassesToPreregister = list(set(getL2PreregistrationList() + getEFPreregistrationList() + getHLTPreregistrationList())) 
+                
+            TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
+
+            from TrigEDMConfig.TriggerEDM import  getHLTPreregistrationList, getEDMLibraries 
+            TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList() 
+            
             TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()                       
 
             monitoringTools(TrigSteer_HLT)
@@ -238,12 +241,12 @@ class HLTSimulationGetter(Configured):
 
                 ### merged system
             if TriggerFlags.doHLT():
-                from TrigEDMConfig.TriggerEDM import getL2BSList, getEFBSList, getHLTBSList
-                TrigSteer_HLT.Navigation.ClassesToPayload = list(set(getL2BSList() + getEFBSList() + getHLTBSList())) 
+                from TrigEDMConfig.TriggerEDM import  getHLTBSList #FPP getL2BSList, getEFBSList,
+                TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() #list(set(getL2BSList() + getEFBSList() + getHLTBSList())) 
                 TrigSteer_HLT.Navigation.ClassesToPreregister = []
                 try:
-                    from TrigEDMConfig.TriggerEDM import getEFDSList,getHLTDSList
-                    TrigSteer_HLT.Navigation.ClassesToPayload_DSonly = getEFDSList() + getHLTDSList()
+                    from TrigEDMConfig.TriggerEDM import getHLTDSList #FPP getEFDSList,
+                    TrigSteer_HLT.Navigation.ClassesToPayload_DSonly = getHLTDSList() #FPP getEFDSList() + 
                 except ImportError:
                     log.warning("DataScouting not available in this release")
                 
@@ -252,7 +255,7 @@ class HLTSimulationGetter(Configured):
             from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
             TrigSerToolTP = TrigSerTPTool('TrigSerTPTool')
             from TrigEDMConfig.TriggerEDM import getTPList
-            TrigSerToolTP.TPMap = getTPList()
+            TrigSerToolTP.TPMap = getTPList(TriggerFlags.doHLT()) #FPP
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += TrigSerToolTP
 
@@ -270,8 +273,8 @@ class HLTSimulationGetter(Configured):
 
             ### merged system
             if TriggerFlags.doHLT():
-                from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList,getHLTBSTypeList
-                TrigSerToolTP.ActiveClasses = list(set(getL2BSTypeList() + getEFBSTypeList() + getHLTBSTypeList())) 
+                from TrigEDMConfig.TriggerEDM import getHLTBSTypeList #FPP  getL2BSTypeList, getEFBSTypeList,
+                TrigSerToolTP.ActiveClasses = getHLTBSTypeList() #FPP list(set(getL2BSTypeList() + getEFBSTypeList() + getHLTBSTypeList())) 
 
         from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
         result = HLTTriggerResultGetter()

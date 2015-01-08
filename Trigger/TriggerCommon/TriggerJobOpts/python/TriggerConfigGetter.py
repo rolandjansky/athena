@@ -399,8 +399,8 @@ class TriggerConfigGetter(Configured):
             topAlgs += TrigConf__xAODMenuWriter()
 
             # The metadata objects to add to the output:
-            metadataItems = [ "xAOD::TriggerMenuContainer_v1#TriggerMenu",
-                              "xAOD::TriggerMenuAuxContainer_v1#TriggerMenuAux." ]
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
 
             # Set up the metadata for the output ESD and AOD:
             from RecExConfig.ObjKeyStore import objKeyStore
