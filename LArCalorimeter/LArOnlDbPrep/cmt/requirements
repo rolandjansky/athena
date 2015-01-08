@@ -6,31 +6,27 @@ author chc
 
 use AtlasPolicy    AtlasPolicy-*
 use GaudiInterface GaudiInterface-* External
-use LArRawConditions LArRawConditions-* LArCalorimeter
+
 use LArTools LArTools-* LArCalorimeter
 use CaloIdentifier      CaloIdentifier-*   Calorimeter
-use CLIDSvc             CLIDSvc-*        Control
-use LArIdentifier       LArIdentifier-*  LArCalorimeter
-use StoreGate           StoreGate-*      Control
 use CaloTriggerTool	CaloTriggerTool-*   Calorimeter
 use LArRecConditions	LArRecConditions-*  LArCalorimeter
-###use LArBadChannelTool	LArBadChanTool-*    LArCalorimeter
+use AthenaBaseComps     AthenaBaseComps-*   Control
 
-library LArOnlDbPrep *.cxx
-
+library LArOnlDbPrep *.cxx components/*.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
 ##############################################
 
 private
+use StoreGate           StoreGate-*      Control
+use LArIdentifier       LArIdentifier-*  LArCalorimeter
 use CaloDetDescr	CaloDetDescr-*	    Calorimeter
 use CaloInterface       CaloInterface-*     Calorimeter
-use LArElecCalib        LArElecCalib-*      LArCalorimeter
-
-macro_append use_cppflags -ftemplate-depth-99
-use AtlasReflex  AtlasReflex-* External -no_auto_imports
-apply_pattern lcgdict dict=LArOnlDbPrep selectionfile=selection.xml \
-       headerfiles="../LArOnlDbPrep/LArOnlDbPrepDict.h"
+use LArCOOLConditions   LArCOOLConditions-* LArCalorimeter
+use AtlasCORAL          AtlasCORAL-* External
+use AtlasCOOL          AtlasCOOL-* External
+use AthenaPoolUtilities AthenaPoolUtilities-*     Database/AthenaPOOL
 
 end_private

@@ -14,6 +14,7 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-GEO-20-00-01')
 globalflags.DetGeo.set_Value_and_Lock('commis')
 globalflags.Luminosity.set_Value_and_Lock('zero')
+globalflags.DatabaseInstance.set_Value_and_Lock('COMP200')#"CONDBR2")
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()
@@ -38,14 +39,16 @@ include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
 theApp.EvtMax = 1
 #conddb.setGlobalTag("COMCOND-006-01") #For id mapping
 
-folder="/LAR/Configuration/DSPThreshold/Templates"
-key="LArDSPThresholds"
+folder="/LAR/Configuration/DSPThresholdFlat/Templates"
+
 #tag="LARConfigurationDSPThresholdTemplates-Qt5sigma-samp5sigma"
 
 #ModeType="noise" # fixed, group, noise
 
 #fileName=ModeType+"tQThr5sigmasampleThr5sigma"
 fileName=ModeType+tag
+
+setName="-".join(tag.split("-")[1:])
 
 from CaloTools.CaloNoiseFlags import jobproperties
 jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
@@ -64,14 +67,15 @@ theLArBadChannelMasker.ProblemsToMask=[
 ##    "deadReadout","deadPhys","deadCalib","short","almostDead",
 ToolSvc+=theLArBadChannelMasker
 
-from LArOnlDbPrep.LArOnlDbPrepConf import LArDSPThresholdFillAlg
-theLArDSPThresholdFillAlg=LArDSPThresholdFillAlg()
+from LArOnlDbPrep.LArOnlDbPrepConf import LArDSPThresholdFillInline
+theLArDSPThresholdFillAlg=LArDSPThresholdFillInline()
 theLArDSPThresholdFillAlg.OutputLevel=INFO
-theLArDSPThresholdFillAlg.Key=key
+theLArDSPThresholdFillAlg.Key=folder
 theLArDSPThresholdFillAlg.OutFile=fileName+".txt"
 theLArDSPThresholdFillAlg.mode=ModeType
 theLArDSPThresholdFillAlg.MaskBadChannels=True
 theLArDSPThresholdFillAlg.BadChannelMasker=theLArBadChannelMasker
+theLArDSPThresholdFillAlg.NameOfSet=setName
 # Set masked channel thresholds lower for diagnostics
 #theLArDSPThresholdFillAlg.MaskedtQThreshold=0.
 #theLArDSPThresholdFillAlg.MaskedsamplesThreshold=0.
@@ -107,7 +111,7 @@ MessageSvc = svcMgr.MessageSvc
 MessageSvc.OutputLevel = WARNING
 
 if fill:
-    OutputList=[ "LArDSPThresholdsComplete#"+key+"#"+folder ]
+    OutputList=[ "AthenaAttributeList#"+folder ]
     OutputTagList=[tag]
 
     WriteIOV=True
@@ -124,6 +128,10 @@ if fill:
     svcMgr.IOVRegistrationSvc.OutputLevel = WARNING
     ##svcMgr.IOVRegistrationSvc.RecreateFolders = True
     svcMgr.IOVRegistrationSvc.RecreateFolders = False
+    svcMgr.IOVRegistrationSvc.OverrideNames += ["tQThr","samplesThr","trigSumThr",]
+    svcMgr.IOVRegistrationSvc.OverrideTypes += ["Blob16M","Blob16M","Blob16M",]
+
+
 else:
     conddb.addFolder("",folder+"<tag>"+tag+"</tag>")
 
@@ -138,7 +146,7 @@ print svcMgr.PoolSvc
 
 #svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=test.db;dbname=COMP200"
 #svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+fileName+".db;dbname=COMP200"
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=DSPThresholdTemplates.db;dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=DSPThresholdTemplates.db;dbname=CONDBR2"
 
 svcMgr.DetectorStore.Dump=True
 svcMgr.EventSelector.RunNumber=0xFFFFFF
