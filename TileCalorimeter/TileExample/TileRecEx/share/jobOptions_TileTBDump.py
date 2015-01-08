@@ -21,7 +21,10 @@ svcMgr.MessageSvc.useColors = False
 
 if not 'RunNumber' in dir():
     RunNumber = 0
-             
+
+if not 'RUN2' in dir(): 
+    RUN2 = (RunNumber>232000) or (RunNumber<=0)
+
 if 'TilePhysRun' in dir():
     if TilePhysRun:
         TileRunType = 1
@@ -175,10 +178,12 @@ TileCisPulse = (TileCisRun or TileMonoRun or TileRampRun or TileL1CaloRun)
 #=============================================================
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo.set_Value_and_Lock('commis')
+globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
+if RUN2: globalflags.DatabaseInstance="CONDBR2"
+else:    globalflags.DatabaseInstance="COMP200"
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
@@ -199,7 +204,8 @@ DetFlags.readRDOBS.Tile_setOn()
 DetFlags.Print()
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-18-01-00'
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-00-00"
+else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
 from AtlasGeoModel import SetGeometryVersion
@@ -208,12 +214,14 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.IgnoreTagDifference = True
 log.info( "GeoModelSvc.AtlasVersion = %s" % (GeoModelSvc.AtlasVersion) )
-#GeoModelSvc.TileVersionOverride = "TileCal-GEO-05"
-#log.info( "GeoModelSvc.TileVersionOverride = %s" % (GeoModelSvc.TileVersionOverride) )
 
-# Set Global tag for IOVDbSvc for commissioning
+from RecExConfig.RecFlags import rec
+if RUN2: rec.projectName = "data15_tilecomm"
+else:    rec.projectName = "data12_tilecomm"
+
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('COMCOND-ES1PA-006-01')
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
+else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
 #=== setup TileConditions
@@ -242,8 +250,7 @@ print tileInfoConfigurator
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ] 
-ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
-ByteStreamInputSvc.FullFileName += FileNameVec
+svcMgr.ByteStreamInputSvc.FullFileName += FileNameVec
 svcMgr.ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["TileBeamElemContainer/TileBeamElemCnt",
                                                   "TileRawChannelContainer/TileRawChannelCnt",
@@ -269,11 +276,23 @@ if not 'noDump' in dir():
         theTileTBDump.dumpOnce = True
     theTileTBDump.dumpUnknown = False
 
-ByteStreamInputSvc.MaxBadEvents = 10000
-ByteStreamInputSvc.DumpFlag = False
+svcMgr.EventSelector.OutputLevel = 2
+svcMgr.ByteStreamInputSvc.OutputLevel = 3
+
+if OutputLevel < 2:
+    from TileByteStream.TileByteStreamConf import TileROD_Decoder
+    ToolSvc += TileROD_Decoder()
+    ToolSvc.TileROD_Decoder.VerboseOutput = True
+    #svcMgr.ByteStreamInputSvc.DumpFlag = True
+else:
+    svcMgr.ByteStreamInputSvc.DumpFlag = False
+
+svcMgr.MessageSvc.OutputLevel = OutputLevel
+svcMgr.EventSelector.MaxBadEvents = 10000
+svcMgr.EventSelector.ProcessBadEvent = True
+svcMgr.EventSelector.SkipEvents = EvtMin
 theApp.EvtMax = EvtMax
 
-svcMgr.EventSelector.SkipEvents = EvtMin
-svcMgr.EventSelector.OutputLevel = 2
-ByteStreamInputSvc.OutputLevel = 3
-#AthenaEventLoopMgr.OutputLevel = 3
+if not 'db' in dir():
+    from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
+    svcMgr += DBReplicaSvc(UseCOOLSQLite=False)

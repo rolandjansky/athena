@@ -369,11 +369,9 @@ else:
 
     if not 'doCaloNtuple' in dir():
         doCaloNtuple = True
-        if not 'doCaloTopoCluster' in dir():
-            doCaloTopoCluster = not doLab
-    else:
-        if not 'doCaloTopoCluster' in dir():
-            doCaloTopoCluster = doCaloNtuple
+
+    if not 'doCaloTopoCluster' in dir():
+        doCaloTopoCluster = False
 
 # Compare mode to compare frag5 with frag0 and frag4
 if not 'TileCompareMode' in dir():
@@ -521,9 +519,11 @@ else:
 
 # check if we want to create noise monitoring plots
 if not 'doTileCellNoiseMon' in dir(): 
-    doTileCellNoiseMon=False
+    doTileCellNoiseMon = False
 if not 'doTileDigiNoiseMon' in dir():
-    doTileDigiNoiseMon=doTileCellNoiseMon
+    doTileDigiNoiseMon = doTileCellNoiseMon or TilePedRun
+if not 'doTileRawChannelNoiseMon' in dir():
+    doTileRawChannelNoiseMon = doTileCellNoiseMon or TilePedRun
 
 # check if we need to create TileCells
 if not 'doCaloCell' in dir():
@@ -572,6 +572,8 @@ DetFlags.detdescr.LAr_setOn()
 DetFlags.detdescr.Tile_setOn()
 if TileL1CaloRun:
     DetFlags.detdescr.LVL1_setOn()
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
 if ReadPool:
     DetFlags.readRDOPool.Tile_setOn()
     if TileL1CaloRun:
@@ -593,12 +595,17 @@ rec.projectName = projectName
 if not 'RUN2' in dir(): 
     RUN2 = False
 if globalflags.DataSource() == 'data':
-    if Year > 2014 or RunNumber > 238000 or projectName.startswith("data15_") or RUN2:
+    if Year > 2014 or RunNumber > 232000 or projectName.startswith("data15_") or RUN2:
         RUN2 = True
     else: 
-        # use RUN1 DB for runs taken before Sep-2014
+        # use RUN1 DB for runs taken before Jul-2014
         if projectName.startswith("data14_"): rec.projectName = "data13_tilecomm"
         globalflags.DatabaseInstance = "COMP200"
+
+
+if not 'doTileRawChannelTimeMonTool' in dir():
+    doTileRawChannelTimeMonTool = (TileRunType == 2) and TilePhysTiming and RUN2 and doTileFit
+
 
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import jobproperties
@@ -626,10 +633,14 @@ else:
         else:
             if 'UPD4' in dir() and UPD4: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                        CondDbTag = 'COMCOND-ES1PA-006-05'
+    jobproperties.Global.ConditionsTag = CondDbTag        
     conddb.setGlobalTag(CondDbTag)
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-GEO-20-00-02'
+        if RUN2:
+            DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+        else:
+            DetDescrVersion = 'ATLAS-GEO-20-00-02'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -943,13 +954,13 @@ if doD3PD:
                 alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix='mbts_', sgkey='MBTSContainer'))
                 
         if doCaloTopoCluster:
-            from CaloD3PDMaker.ClusterD3PDObject import ClusterD3PDObject
+            from CaloD3PDMaker.xAODClusterD3PDObject import xAODClusterD3PDObject
 
             if not includeLAr:
                 from CaloD3PDMaker import ClusterSamplingFillerTool
                 ClusterSamplingFillerTool.Samplings=[12,13,14,15,16,17,18,19,20]
 
-            alg+= ClusterD3PDObject(**_args(3, 'topo_cl',kw, sgkey='TileTopoCluster', prefix='topo_'))
+            alg+= xAODClusterD3PDObject(**_args(3, 'topo_cl',kw, sgkey='TileTopoCluster', prefix='topo_'))
 
         if doTileMuId:
             from CaloD3PDMaker.TileMuD3PDObject import TileMuD3PDObject
@@ -1032,7 +1043,7 @@ if doTileMon:
     if not hasattr(svcMgr,"THistSvc"):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr+=THistSvc()
-    exec 'svcMgr.THistSvc.Output += [ "SHIFT DATAFILE=\'%(dir)s/tilemon_%(RunNum).f_%(Version)s.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    exec 'svcMgr.THistSvc.Output += [ "Tile DATAFILE=\'%(dir)s/tilemon_%(RunNum).f_%(Version)s.root\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
 
     if (TileMonoRun):
         runType = 9
@@ -1048,8 +1059,8 @@ if doTileMon:
 
     TileMon.ManualRunLBSetup    = True
     TileMon.ManualDataTypeSetup = True
-    TileMon.Environment         = "online"
-    TileMon.FileKey             = "SHIFT"
+    TileMon.Environment         = "user"
+    TileMon.FileKey             = "Tile"
     TileMon.Run                 = RunNumber
     TileMon.LumiBlock           = 1
 
@@ -1067,7 +1078,6 @@ if doTileMon:
     if doTileMonDigi:
         b2d = TilePedRun
         theTileDigitsMon = TileDigitsMonTool ( name            ="TileDigitsMon", 
-                                               histoStreamName = "/SHIFT",
                                                histoPathBase   = "/Tile/Digits",
                                                book2D          = b2d,
                                                runType         = runType )
@@ -1078,7 +1088,6 @@ if doTileMon:
     if doTileMonRch:
         b2d = TileCisRun or TileRampRun
         theTileRawChannelMon = TileRawChannelMonTool ( name            ="TileRawChannelMon", 
-                                                       histoStreamName = "/SHIFT",
                                                        histoPathBase   = "/Tile/RawChannel",
                                                        book2D          = b2d,
                                                        PlotDSP         = useRODReco,
@@ -1115,10 +1124,7 @@ if doTileMon:
         print theTileRawChannelMon
             
     if doTileMonDQ:
-        exec 'svcMgr.THistSvc.Output += [ "Tile DATAFILE=\'%(dir)s/tilemon_%(RunNum).f_%(Version)s.root\' OPT=\'RECREATE\' " ] ' %  {'dir':      OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
-
         theTileDQFragMon = TileDQFragMonTool(name               = 'TileDQFragMon',
-                                             histoStreamName    = "/SHIFT",
                                              OutputLevel        = 3,
                                              TileRawChannelContainerDSP    = "TileRawChannelCnt",
                                              TileRawChannelContainerOffl   = jobproperties.TileRecFlags.TileRawChannelContainer(),
@@ -1158,7 +1164,6 @@ if doTileMon:
 
     if doTileMonCell:
         theTileCellMon = TileCellMonTool(name               = 'TileCellMon',
-                                         histoStreamName    = "/SHIFT",
                                          OutputLevel        = 3,
                                          doOnline           = False,
                                          cellsContainerName = "AllCalo",
@@ -1174,7 +1179,7 @@ if doTileMon:
                                                 runType            = 4, # pedestal maybe always should be... 
                                                 bigain             = True,
                                                 TileRawChannelContainerDSP = "TileRawChannelCnt",
-                                                DigiNoiseHistoPath = "/SHIFT/Tile/DigiNoise" );
+                                                histoPathBase = "/Tile/DigiNoise" );
         
         TileDigiNoiseMon.OutputLevel=WARNING
         ToolSvc += TileDigiNoiseMon;
@@ -1186,8 +1191,7 @@ if doTileMon:
                                                   OutputLevel        = OutputLevel,
                                                   doOnline           = athenaCommonFlags.isOnline(),
                                                   cellsContainerName = "AllCaloLG",
-                                                  CellNoiseHistoPath = "/SHIFT/Tile/CellNoise/LG");
-        TileCellNoiseMonLG.FileKey       = "SHIFT";
+                                                  histoPathBase = "/Tile/CellNoise/LG");
         TileCellNoiseMonLG.Xmin          = -2000.;
         TileCellNoiseMonLG.Xmax          =  2000.;
         ToolSvc += TileCellNoiseMonLG;
@@ -1199,8 +1203,7 @@ if doTileMon:
                                                   OutputLevel        = OutputLevel,
                                                   doOnline           = athenaCommonFlags.isOnline(),
                                                   cellsContainerName = "AllCaloHG",
-                                                  CellNoiseHistoPath = "/SHIFT/Tile/CellNoise/HG");
-        TileCellNoiseMonHG.FileKey       = "SHIFT";
+                                                  histoPathBase = "/Tile/CellNoise/HG");
         TileCellNoiseMonHG.Xmin          = -300.;
         TileCellNoiseMonHG.Xmax          =  300.;
         ToolSvc += TileCellNoiseMonHG;
@@ -1212,15 +1215,86 @@ if doTileMon:
                                                 OutputLevel        = OutputLevel,
                                                 doOnline           = athenaCommonFlags.isOnline(),
                                                 cellsContainerName = "AllCalo",
-                                                CellNoiseHistoPath = "/SHIFT/Tile/CellNoise");
-        TileCellNoiseMon.FileKey       = "SHIFT";
+                                                histoPathBase = "/Tile/CellNoise");
         TileCellNoiseMon.Xmin          = -2000.;
         TileCellNoiseMon.Xmax          =  2000.;
         ToolSvc += TileCellNoiseMon;
         TileMon.AthenaMonTools += [ TileCellNoiseMon ];
         print TileCellNoiseMon;
 
-    if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ or doTileDigiNoiseMon or doTileCellNoiseMon:
+
+    if doTileRawChannelTimeMonTool:
+        TileRawChannelTimeMon = TileRawChannelTimeMonTool ( name            = "TileRawChannelTimeMon",
+                                                           histoPathBase    = "/Tile/RawChannelTime",
+                                                           runType          = TileRunType,
+                                                           LowGainThreshold = 10.0,
+                                                           HiGainThreshold  = 40.0,
+                                                           doOnline         = athenaCommonFlags.isOnline(),
+                                                           TileRawChannelContainer = "TileRawChannelFit")
+
+        ToolSvc += TileRawChannelTimeMon
+        TileMon.AthenaMonTools += [ TileRawChannelTimeMon ];
+        print TileRawChannelTimeMon
+
+
+
+
+    ############ doTileRawChannelNoiseMonTool #########
+    if TileBiGainRun and doTileRawChannelNoiseMon:
+        TileRawChannelNoiseMonLG = TileRawChannelNoiseMonTool(name          = 'TileRawChannelNoiseMonLG',
+                                                              OutputLevel   = OutputLevel,
+                                                              doOnline      = athenaCommonFlags.isOnline(),
+                                                              histoPathBase = "/Tile/RawChannelNoise/LG",
+                                                              Xmin          = -10.,
+                                                              Xmax          =  10.,
+                                                              Gain          = "LG",
+                                                              SummaryUpdateFrequency = 0 );
+
+        # TileRawChannelNoiseMonLG.do2GFit       = True;
+        ToolSvc += TileRawChannelNoiseMonLG;
+        TileMon.AthenaMonTools += [ TileRawChannelNoiseMonLG ];
+        print TileRawChannelNoiseMonLG;
+
+
+        TileRawChannelNoiseMonHG = TileRawChannelNoiseMonTool(name          = 'TileRawChannelNoiseMonHG',
+                                                              OutputLevel   = OutputLevel,
+                                                              doOnline      = athenaCommonFlags.isOnline(),
+                                                              histoPathBase = "/Tile/RawChannelNoise/HG",
+                                                              Xmin          = -10.,
+                                                              Xmax          =  10.,
+                                                              Gain          = "HG",
+                                                              SummaryUpdateFrequency = 0 );
+
+
+        ToolSvc += TileRawChannelNoiseMonHG;
+        TileMon.AthenaMonTools += [ TileRawChannelNoiseMonHG ];
+        print TileRawChannelNoiseMonHG;
+
+    if (not TileBiGainRun) and doTileRawChannelNoiseMon:
+        TileRawChannelNoiseMon = TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon',
+                                                            OutputLevel        = OutputLevel,
+                                                            doOnline           = athenaCommonFlags.isOnline(),
+                                                            histoPathBase = "/Tile/RawChannelNoise",
+                                                            Xmin          = -10.0,
+                                                            Xmax          =  10.0,
+                                                            Gain          = "HG",
+                                                            do2GFit       = True,
+                                                            SummaryUpdateFrequency = 0);
+
+        # fill raw channel noise mon histograms only for certain trigger types
+        # if not defined here, then by default all triggers will be considered
+        TileRawChannelNoiseMon.TriggerTypes           = [ 0x82 ];
+        TileRawChannelNoiseMon.do2GFit                = True;
+
+        ToolSvc += TileRawChannelNoiseMon;
+        TileMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
+        print TileRawChannelNoiseMon;
+
+
+    ########### end doTileCellNoiseMon ##########
+
+
+    if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ or doTileDigiNoiseMon or doTileCellNoiseMon or doTileRawChannelNoiseMon:
         topSequence += TileMon;
 
 
@@ -1347,14 +1421,28 @@ if doEventDisplay:
 
 if doAtlantis:
     include("JiveXML/JiveXML_jobOptionBase.py")
-
-    from JiveXML.JiveXMLConf import JiveXML__StreamToFileTool
-    theStreamToFileTool=JiveXML__StreamToFileTool("theStreamToFileTool")
-    exec 'theStreamToFileTool.FileNamePrefix = "%(dir)s/tile\"' %  {'dir': OutputDirectory }
-    theEventData2XML.StreamTools = [ theStreamToFileTool ]
-    theEventData2XML.WriteToFile = False
-
     from AthenaCommon.AppMgr import ToolSvc
+
+    if doAtlantisStreamToServer:
+        from JiveXML.JiveXMLConf import JiveXML__ONCRPCServerSvc
+        svcMgr += JiveXML__ONCRPCServerSvc("ONCRPCServerSvc", OutputLevel = DEBUG)
+
+        from JiveXML.JiveXMLConf import JiveXML__StreamToServerTool
+        StreamToServerTool = JiveXML__StreamToServerTool(OutputLevel = DEBUG
+                                                         , ServerService = svcMgr.ONCRPCServerSvc
+                                                         , StreamName = "Test")
+
+        ToolSvc += StreamToServerTool
+        theEventData2XML.StreamTools += [ StreamToServerTool ]
+
+    else:
+        from JiveXML.JiveXMLConf import JiveXML__StreamToFileTool
+        theStreamToFileTool=JiveXML__StreamToFileTool("theStreamToFileTool")
+        ToolSvc += theStreamToFileTool
+        theEventData2XML.StreamTools = [ theStreamToFileTool ]
+        theEventData2XML.WriteToFile = False
+
+
 
     if doCaloCell or doCaloNtuple:
         from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloTileRetriever
@@ -1373,12 +1461,12 @@ if doAtlantis:
         theEventData2XML.DataTypes += ["JiveXML::CaloMBTSRetriever/CaloMBTSRetriever"]
 
     if doCaloTopoCluster:
-        from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloClusterRetriever
-        theCaloClusterRetriever = JiveXML__CaloClusterRetriever (name = "CaloClusterRetriever")
-        theCaloClusterRetriever.FavouriteClusterCollection = "TileTopoCluster"
-        theCaloClusterRetriever.OtherClusterCollections = [ "" ]
-        ToolSvc += theCaloClusterRetriever
-        theEventData2XML.DataTypes += ["JiveXML::CaloClusterRetriever/CaloClusterRetriever"]
+        from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODCaloClusterRetriever
+        thexAODCaloClusterRetriever = JiveXML__xAODCaloClusterRetriever (name = "xAODCaloClusterRetriever")
+        thexAODCaloClusterRetriever.FavouriteClusterCollection = "TileTopoCluster"
+        thexAODCaloClusterRetriever.OtherClusterCollections = [ "" ]
+        ToolSvc += thexAODCaloClusterRetriever
+        theEventData2XML.DataTypes += ["JiveXML::xAODCaloClusterRetriever/xAODCaloClusterRetriever"]
 
     print theEventData2XML
 
@@ -1391,6 +1479,7 @@ theAuditorSvc.Auditors =  [ "ChronoAuditor" ]
 
 if not ReadPool:
     svcMgr.EventSelector.MaxBadEvents = 10000
+    svcMgr.EventSelector.ProcessBadEvent = True
     if OutputLevel < 2:
         #svcMgr.ByteStreamInputSvc.DumpFlag = True
         ToolSvc.TileROD_Decoder.VerboseOutput = True

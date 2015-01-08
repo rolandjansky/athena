@@ -57,6 +57,19 @@
       </expectations>
     </TEST>
 
+    <TEST name="Cosmic14" type="athena" suite="CaloCosEx">
+      <options_atn> -c RunNumber=239908 TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
+      <timelimit>25</timelimit>
+      <author>Luca Fiorini</author>
+      <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
+      <platform>x86_64</platform>
+      <prescript>TileRecEx_links.sh</prescript>
+      <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
+      <expectations>
+        <successMessage>Terminated successfully</successMessage>
+      </expectations>
+    </TEST>
+
   </atn>
 
   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
@@ -92,7 +105,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileCosmicRttReferenceHistograms_20101108.root</argvalue>
+            <argvalue>TileCosmicRttReferenceHistograms_20141022.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>
@@ -272,7 +285,7 @@
           </arg>
           <arg>
             <argname>DCubeRef</argname>
-            <argvalue>TileLasAllTestParamsOnOfaRttHistograms_20121016.root</argvalue>
+            <argvalue>TileLasAllTestParamsOnOfaRttHistograms_20141003.root</argvalue>
           </arg>
           <arg>
             <argname>DCubeMon</argname>

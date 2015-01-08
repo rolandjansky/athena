@@ -33,13 +33,13 @@
   [3] cmtconfig: *
   [4] project: *
   [5] jobId: *
-  [6] reference root file: /afs/cern.ch/atlas/project/RTT/Results/reference/offline/TileCalorimeter/TileExample/TileRecEx/TileCosmicRttReferenceHistograms_20101108.root
+  [6] reference root file: /afs/cern.ch/atlas/project/RTT/Results/reference/offline/TileCalorimeter/TileExample/TileRecEx/TileCosmicRttReferenceHistograms_20141022.root
   [7] p-values limits FAIL = 0.750000 WARN = 0.950000
   ###################################################
 -->
-  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TileCosmicRttReferenceHistograms_20101108.root"/>
+  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TileCosmicRttReferenceHistograms_20141022.root"/>
   <ref_desc>
-   Reference histograms have been got using devval rel1 (08.11.2010).
+   Reference histograms have been got using dev rel1 (20.14.2014).
   </ref_desc>
   <test_desc>
    RTT/DCube tests for Cosmic runs.

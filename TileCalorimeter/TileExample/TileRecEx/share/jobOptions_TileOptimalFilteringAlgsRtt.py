@@ -229,7 +229,11 @@ if os.path.exists('triggerDB') and os.path.islink('triggerDB'):
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doFullMon = True
 jobproperties.PerfMonFlags.doPostProcessing = doPerfPostProcessing
+jobproperties.PerfMonFlags.doSemiDetailedMonitoring = True
+jobproperties.PerfMonFlags.doSemiDetailedMonitoringFullPrint = True
 
 
 
 include("TileRecEx/jobOptions_TileCalibRec.py")
+
+topSequence.TileNtuple.SkipEvents = 0

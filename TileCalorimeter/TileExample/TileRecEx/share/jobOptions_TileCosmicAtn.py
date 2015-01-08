@@ -37,7 +37,7 @@ OfcFromCOOL = False            # Calculated Optimal Filtering constants on the f
 PhaseFromCOOL = False          # Assume phase=0
 
 
-doCaloTopoCluster = False
+doCaloTopoCluster = True
 
 
 if not 'InputDirectory' in dir():
@@ -103,7 +103,10 @@ if doRTT:
     #--------------------------------------------------------------------------
     from PerfMonComps.PerfMonFlags import jobproperties
     jobproperties.PerfMonFlags.doFullMon = True
-    jobproperties.PerfMonFlags.doPostProcessing = doPerfPostProcessing    
+    jobproperties.PerfMonFlags.doPostProcessing = doPerfPostProcessing
+    jobproperties.PerfMonFlags.doSemiDetailedMonitoring = True
+    jobproperties.PerfMonFlags.doSemiDetailedMonitoringFullPrint = True
+    
 
 
 else:
