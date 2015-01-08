@@ -15,8 +15,7 @@
 #define LARBYTESTREAM_LARRAWDATACONTBYTESTREAMTOOL_H
 
 #include <stdint.h>
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
@@ -33,7 +32,6 @@
 
 class LArRawChannelContainer; 
 class LArDigitContainer;
-class MsgStream ; 
 class IByteStreamEventAccess;
 class ICaloNoiseTool;
 
@@ -45,7 +43,7 @@ class ICaloNoiseTool;
  * find all LAr-Fragment in the full byte-stream event
  */
       
-class LArRawDataContByteStreamTool: public AlgTool {
+class LArRawDataContByteStreamTool: public AthAlgTool {
 public:
 
   /** Constructor
@@ -122,7 +120,6 @@ private:
  
   Hid2RESrcID m_hid2re;       //!< Contains the mapping from channel to ROD
   LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
-  StoreGateSvc* m_storeGate;  //!< Pointer to StoreGate Service
 
   /** Pointer to @c LArRodBlockStructure base class. 
       Which concrete implementation is used depends on the value of 
@@ -148,7 +145,6 @@ private:
   uint16_t m_subDetId;
   ToolHandle<ICaloNoiseTool> m_noisetool;
   double m_nfebsigma;
-  MsgStream* m_log; //!< Cached pointer to the MessageSvc.
   // map with ROB group (LAr) to rob addresses
   std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > m_robIndex;
   // last event processed

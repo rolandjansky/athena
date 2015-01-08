@@ -41,7 +41,7 @@ const InterfaceID& LArRawDataContByteStreamTool::interfaceID( )
  
 LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AlgTool(type,name,parent),
+  :  AthAlgTool(type,name,parent),
      m_noisetool("CaloNoiseTool/CaloNoiseToolDefault")
 { declareInterface< LArRawDataContByteStreamTool  >( this );
   declareProperty("DSPRunMode",m_DSPRunMode=4);
@@ -53,138 +53,118 @@ LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
   declareProperty("IncludeDigits",m_includeDigits=false);
   declareProperty("DigitsContainer",m_DigitContName="LArDigitContainer_MC_Thinned");
   m_RodBlockStructure=NULL;
-  m_log=NULL;
   m_lastEvent = 0xFFFFFFFF;
 }
 
 LArRawDataContByteStreamTool::~LArRawDataContByteStreamTool() {
-  delete m_log;
 }
 
  
 StatusCode
 LArRawDataContByteStreamTool::initialize()
-{StatusCode sc=AlgTool::initialize();
- m_log = new MsgStream(msgSvc(),name());
- if (sc!=StatusCode::SUCCESS)
-   return sc;
- (*m_log) << MSG::DEBUG << "Initializing LArRawDataContByteStream" << endreq;
+{
+  ATH_CHECK( AthAlgTool::initialize() );
+  ATH_MSG_DEBUG ( "Initializing LArRawDataContByteStream" );
  
- IToolSvc* toolSvc;
- if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
- sc=toolSvc->retrieveTool("LArRodDecoder",m_decoder);
- if (sc!=StatusCode::SUCCESS)
-   return sc;
- sc=service("StoreGateSvc", m_storeGate); 
- if (sc!=StatusCode::SUCCESS)
-   return sc;
+  ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
 
- if (m_initializeForWriting) {
-   sc = m_hid2re.initialize() ;
-   if(sc.isFailure()) return sc;
+  if (m_initializeForWriting) {
+   ATH_CHECK( m_hid2re.initialize() );
 
-   sc=m_noisetool.retrieve();
-   if (sc.isFailure()) {
-     (*m_log) << MSG::ERROR << "Could not retrieve CaloNoiseTool " << m_noisetool << endreq;
-     return sc;
-   }
-   else
-     (*m_log) << MSG::DEBUG << "Successfully retrieved CaloNoiseTool " << endreq;
+   ATH_CHECK( m_noisetool.retrieve() );
+   ATH_MSG_DEBUG ( "Successfully retrieved CaloNoiseTool " );
    
    //Set LArRodBlockStructure according to jobOpts.
    switch(m_DSPRunMode)
      {case 0:  //Obsolete mode 
 	m_RodBlockStructure=NULL;
-	(*m_log) << MSG::ERROR << "LArRodBlockStructure type 0 is obsolete and can't be used any more." << endreq;
+	ATH_MSG_ERROR ( "LArRodBlockStructure type 0 is obsolete and can't be used any more." );
 	return StatusCode::FAILURE;
       break;
      case 2:  //Transparent mode, DSP just copies FEB-data                                            
        m_RodBlockStructure=new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
-       (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockTransparent (#2)" << endreq;
+       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockTransparent (#2)" );
       break;
      case 7: //Calibration mode
        m_RodBlockStructure=new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
-       (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockCalibration (#7)" << endreq;
+       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockCalibration (#7)" );
        break;
      case 4: //Physics assembly mode
        if ( m_RodBlockVersion == 10 ){
          m_RodBlockStructure=new LArRodBlockPhysicsV5;
-         (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockPhysics (#5)" << endreq;
+         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
        } else if ( m_RodBlockVersion == 12 ){
          m_RodBlockStructure=new LArRodBlockPhysicsV6;
-         (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockPhysics (#6)" << endreq;
+         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#6)" );
        } else {
          m_RodBlockStructure=new LArRodBlockPhysicsV0;
-         (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockPhysics (#4)" << endreq;
+         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#4)" );
        }
        break;
      case 5: //Physics assembly mode
        m_RodBlockStructure=new LArRodBlockPhysicsV3;
-       (*m_log) << MSG::DEBUG << "Set Rod Block Type to LArRodBlockPhysics (#5)" << endreq;
+       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
        break;
      default:
        m_RodBlockStructure=new LArRodBlockPhysicsV0;
-       (*m_log) << MSG::WARNING << "DSP runmode " << m_DSPRunMode << " is unknown. Using physics assembly mode (#4) by default" << endreq;
+       ATH_MSG_WARNING ( "DSP runmode " << m_DSPRunMode << " is unknown. Using physics assembly mode (#4) by default" );
        break;
      }
 
    // Set chosen RodBlockType
    LArRodEncoder::setRodBlockStructure(m_RodBlockStructure);
-   (*m_log) << MSG::INFO << "Initialization done for reading and writing" << endreq;
+   ATH_MSG_INFO ( "Initialization done for reading and writing" );
  }
  else
-   (*m_log) << MSG::INFO << "Initialization done for reading only" << endreq;
+   ATH_MSG_INFO ( "Initialization done for reading only" );
  return StatusCode::SUCCESS;  
 }
 
  
 StatusCode
 LArRawDataContByteStreamTool::finalize()
-{if (m_RodBlockStructure)
+{
   delete m_RodBlockStructure;
- StatusCode sc = AlgTool::finalize(); 
- return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont, FullEventAssembler<Hid2RESrcID> *fea) {
  if (!m_initializeForWriting) {
-   (*m_log) << MSG::ERROR << "Tool not setup for writing! Use property " 
-	  << name()<<".InitializeForWriting" <<endreq;
+   ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
+                   << name()<<".InitializeForWriting" );
    return false;
  }
- (*m_log) << MSG::DEBUG << "Writing LArDigitContainer to ByteStream" << endreq;
- if (!digitCont)
-   {(*m_log) << MSG::ERROR << "Null pointer passed to WriteLArDigit routine!" << endreq;
+ ATH_MSG_DEBUG ( "Writing LArDigitContainer to ByteStream" );
+ if (!digitCont) {
+   ATH_MSG_ERROR ( "Null pointer passed to WriteLArDigit routine!" );
    return StatusCode::FAILURE;
-   }
- if (!m_RodBlockStructure->canSetRawData() && !m_RodBlockStructure->canSetRawDataFixed())
-    {(*m_log) << MSG::DEBUG << "This instance of LArRodBlockStructure can't hold LArDigits!" << endreq;
-    return StatusCode::FAILURE;
-   }
+ }
+ if (!m_RodBlockStructure->canSetRawData() && !m_RodBlockStructure->canSetRawDataFixed()) {
+   ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArDigits!" );
+   return StatusCode::FAILURE;
+ }
  //prepareWriting();
  fea->setRodMinorVersion(m_RodBlockVersion);
  fea->setDetEvtType(m_DSPRunMode);
- (*m_log) << MSG::DEBUG << "Setting Detector Event Type to " << m_DSPRunMode 
-     << " and Minor Version Number to " << m_RodBlockVersion << endreq;
+ ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
+                 << " and Minor Version Number to " << m_RodBlockVersion );
  FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
  LArDigitContainer::const_iterator it_b=digitCont->begin();
  LArDigitContainer::const_iterator it_e=digitCont->end();
- if (it_b==it_e)
-   {(*m_log) << MSG::WARNING << "Attempt to persitify a empty LArDigitContainer to ByteStream" << endreq;
-    return StatusCode::SUCCESS;
-   }
+ if (it_b==it_e) {
+   ATH_MSG_WARNING ( "Attempt to persitify a empty LArDigitContainer to ByteStream" );
+   return StatusCode::SUCCESS;
+ }
 
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
  unsigned n=0;
  if (m_RodBlockStructure->canSetRawDataFixed() && checkGainConsistency(digitCont))
    {//Set fixed gain raw data
      int fixgain=(*it_b)->gain();
-     (*m_log) <<MSG::DEBUG<<" number of Digits in LArDigitContainer for gain " << fixgain << ": " 
-	 << digitCont->size() << endreq;
+     ATH_MSG_DEBUG(" number of Digits in LArDigitContainer for gain " << fixgain << ": " 
+                   << digitCont->size() );
      // Sorting Channels by ROD
      for(; it_b!=it_e; ++it_b){
        const LArDigit* digit = *it_b; 
@@ -193,12 +173,12 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
        mapEncoder[reid].add(digit, fixgain);
        n++;
      }  
-     (*m_log) <<MSG::VERBOSE<<" number of channels in the LArDigitContainer for gain " 
-	 << fixgain << ": "<<n <<endreq;
+     ATH_MSG_VERBOSE(" number of channels in the LArDigitContainer for gain " 
+                     << fixgain << ": "<<n );
    } // end if
  else 
-   if (m_RodBlockStructure->canSetRawData()) //Set free gain raw data
-     {(*m_log) <<MSG::DEBUG<<" number of channels in LArDigit container: "<< digitCont->size() <<endreq;
+   if (m_RodBlockStructure->canSetRawData()) { //Set free gain raw data
+     ATH_MSG_DEBUG(" number of channels in LArDigit container: "<< digitCont->size() );
 
       // Sorting Channels by ROD
       for(; it_b!=it_e; ++it_b){
@@ -208,7 +188,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
 	mapEncoder[reid].add(digit);
 	n++;
       }  
-      (*m_log) <<MSG::VERBOSE<<" number of channels added to framgent: "<<n <<endreq;
+      ATH_MSG_VERBOSE(" number of channels added to framgent: "<<n );
      }//  end else-if(can set Raw data)
 
  // Now loop over map and fill all ROD Data Blocks
@@ -218,9 +198,9 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
  // ROD block data.
  for(; it!=it_end;++it) {
    theROD  = fea->getRodData( (*it).first );
-   ((*it).second).fillROD(*theROD,*m_log, &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it).second).fillROD(*theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
  } 
- (*m_log) << MSG::DEBUG << "Filled " << mapEncoder.size() << " Rod Blocks" << endreq;
+ ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  // Finally, fill full event
  //fea->fill(re,log); 
  return StatusCode::SUCCESS;
@@ -232,41 +212,39 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
 							     FullEventAssembler<Hid2RESrcID> *fea) {
 
  if (!m_initializeForWriting) {
-   (*m_log) << MSG::ERROR << "Tool not setup for writing! Use property " 
-	  << name()<<".InitializeForWriting" <<endreq;
+   ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
+                   << name()<<".InitializeForWriting" );
    return false;
  }
- (*m_log) << MSG::DEBUG << "Writing LArCalibDigitContainer to ByteStream" << endreq;
- if (!digitCont)
-   {(*m_log) << MSG::DEBUG << "Null pointer passed to WriteLArCalibDigit routine!" << endreq;
+ ATH_MSG_DEBUG ( "Writing LArCalibDigitContainer to ByteStream" );
+ if (!digitCont) {
+   ATH_MSG_DEBUG ( "Null pointer passed to WriteLArCalibDigit routine!" );
    return StatusCode::FAILURE;
-   }
- if (!m_RodBlockStructure->canSetCalibration()|| !m_RodBlockStructure->canSetRawDataFixed())
-    {(*m_log) << MSG::DEBUG << "This instance of LArRodBlockStructure can't hold LArCalibDigits!" << endreq;
-    return StatusCode::FAILURE;
-   }
+ }
+ if (!m_RodBlockStructure->canSetCalibration()|| !m_RodBlockStructure->canSetRawDataFixed()) {
+   ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArCalibDigits!" );
+   return StatusCode::FAILURE;
+ }
  //prepareWriting(); 
  fea->setRodMinorVersion(m_RodBlockVersion);
  fea->setDetEvtType(m_DSPRunMode);
- (*m_log) << MSG::DEBUG << "Setting Detector Event Type to " << m_DSPRunMode 
-     << "and Minor Version Number to " << m_RodBlockVersion << endreq;
+ ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
+                 << "and Minor Version Number to " << m_RodBlockVersion );
  FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
  LArCalibDigitContainer::const_iterator it_b=digitCont->begin();
  LArCalibDigitContainer::const_iterator it_e=digitCont->end();
- if (it_b==it_e)
-   {(*m_log) << MSG::WARNING << "Attempt to persistify a empty LArDigitContainer to ByteStream" << endreq;
-    return StatusCode::SUCCESS;
-   }
- if (!checkGainConsistency(digitCont))
-   {(*m_log) << MSG::ERROR << "Inconsistent gain in LArCalibDigitContainer" << endreq;
-    return StatusCode::FAILURE;
-   }
+ if (it_b==it_e) {
+   ATH_MSG_WARNING ( "Attempt to persistify a empty LArDigitContainer to ByteStream" );
+   return StatusCode::SUCCESS;
+ }
+ if (!checkGainConsistency(digitCont)) {
+   ATH_MSG_ERROR ( "Inconsistent gain in LArCalibDigitContainer" );
+   return StatusCode::FAILURE;
+ }
 
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
  unsigned n=0;
  int fixgain=(*it_b)->gain();
- //(*m_log) <<MSG::DEBUG<<" number of Digits in LArCalibDigitContainer of gain " << fixgain << ": " 
- //  << digitCont->size() << endreq;
  
  // Sorting Channels by ROD
  for(; it_b!=it_e; ++it_b){
@@ -277,8 +255,8 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
    n++;
  } 
  
- (*m_log) <<MSG::VERBOSE<<" number of channels in the LArCalibDigitContainer for gain " 
-     << fixgain << ": "<<n <<endreq;
+ ATH_MSG_VERBOSE(" number of channels in the LArCalibDigitContainer for gain " 
+                 << fixgain << ": "<<n );
 
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it  =mapEncoder.begin(); 
@@ -287,9 +265,9 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
  // ROD block data.
  for(; it!=it_end;++it) {
    theROD  = fea->getRodData( (*it).first ); 
-   ((*it).second).fillROD( *theROD,*m_log, &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it).second).fillROD( *theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
  } 
- (*m_log) << MSG::DEBUG << "Filled " << mapEncoder.size() << " Rod Blocks" << endreq;
+ ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  return StatusCode::SUCCESS;
 }
 
@@ -297,36 +275,34 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
 StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* channelCont, 
 							     FullEventAssembler<Hid2RESrcID> *fea) {
  if (!m_initializeForWriting) {
-   (*m_log) << MSG::ERROR << "Tool not setup for writing! Use property " 
-	  << name()<<".InitializeForWriting" <<endreq;
+   ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
+                   << name()<<".InitializeForWriting" );
    return false;
  }
- if (!channelCont)
-  {(*m_log) << MSG::DEBUG << "Null pointer passed to WriteLArCalibDigit routine!" << endreq;
+ if (!channelCont) {
+   ATH_MSG_DEBUG ( "Null pointer passed to WriteLArCalibDigit routine!" );
   return StatusCode::FAILURE;
-  }
- if (!m_RodBlockStructure->canSetEnergy())
-   {(*m_log) << MSG::DEBUG << "This instance of LArRodBlockStructure can't hold LArRawChannels!" << endreq;
+ }
+ if (!m_RodBlockStructure->canSetEnergy()) {
+   ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArRawChannels!" );
     return StatusCode::FAILURE;
-   }
+ }
  FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
  fea->setRodMinorVersion(m_RodBlockVersion);
  fea->setDetEvtType(m_DSPRunMode);
- if ( (*m_log).level() <= MSG::DEBUG )
-  (*m_log) << MSG::DEBUG << "Setting Detector Event Type to " << m_DSPRunMode 
-	<< "and Minor Version Number to " << m_RodBlockVersion << endreq;
+ ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
+                 << "and Minor Version Number to " << m_RodBlockVersion );
  LArRawChannelContainer::const_iterator it = channelCont->begin(); 
  LArRawChannelContainer::const_iterator it_e= channelCont->end(); 
- if ( it==it_e)
-   {(*m_log) << MSG::WARNING << "Attempt to persistify a empty LArDigitContainer to ByteStream" << endreq;
-    return StatusCode::SUCCESS;
-   }
+ if ( it==it_e) {
+   ATH_MSG_WARNING ( "Attempt to persistify a empty LArDigitContainer to ByteStream" );
+   return StatusCode::SUCCESS;
+ }
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
  //LArRodEncoder* Encoder = NULL;
  //uint32_t last_reid(0x0);
  //unsigned n=0; //For debug only
- if ( (*m_log).level() <= MSG::DEBUG )
-  (*m_log) <<MSG::DEBUG<<" number of LArRawChannel container "<< channelCont->size() <<endreq;
+ ATH_MSG_DEBUG(" number of LArRawChannel container "<< channelCont->size() );
  for(; it!=it_e; ++it){
      const LArRawChannel& rawChan = *it; 
      HWIdentifier  chid = rawChan.channelID() ; 
@@ -344,18 +320,17 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
 */
      mapEncoder[reid].add(&rawChan);
    } 
- //(*m_log) <<MSG::DEBUG<<" number of channels in the LArRawChannelcollection: "<<n <<endreq;
    // I may want to also include the digits
    if ( m_includeDigits ) {
 	const DataHandle<LArDigitContainer> digitCont;
-	if ( m_storeGate->retrieve(digitCont,m_DigitContName).isFailure() ){
-		(*m_log) << MSG::ERROR << "Digits required but not really found" << endreq;
+	if ( evtStore()->retrieve(digitCont,m_DigitContName).isFailure() ){
+          ATH_MSG_ERROR ( "Digits required but not really found" );
 	} else {
 	  if ( m_RodBlockStructure->canIncludeRawData() ){
 	   LArDigitContainer::const_iterator it_b=digitCont->begin();
 	   LArDigitContainer::const_iterator it_e=digitCont->end();
-	   if (it_b==it_e)
-		{(*m_log) << MSG::WARNING << "Attempt to persitify a empty LArDigitContainer to ByteStream" << endreq;
+	   if (it_b==it_e) {
+             ATH_MSG_WARNING ( "Attempt to persitify a empty LArDigitContainer to ByteStream" );
 	   }
 	   for(; it_b!=it_e; ++it_b){
 		const LArDigit* digit = *it_b;
@@ -375,11 +350,11 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
  // ROD block data.
  for(; it_m!=it_m_e;++it_m) {
    theROD  = fea->getRodData( (*it_m).first ); 
-   ((*it_m).second).fillROD( *theROD,*m_log, &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it_m).second).fillROD( *theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
    // delete ((*it_m).second);
    // ((*it_m).second)=NULL;
  } 
- (*m_log) << MSG::DEBUG << "Filled " << mapEncoder.size() << " Rod Blocks" << endreq;
+ ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  return StatusCode::SUCCESS;
 }
 
@@ -393,21 +368,19 @@ StatusCode LArRawDataContByteStreamTool::prepareRobIndex(const RawEvent* re)
   // so just remove this test.
 if ( 1/*re->lvl1_id() != m_lastEvent*/ ) {
   m_lastEvent = re->lvl1_id();
-  if ( m_log->level() <=MSG::DEBUG )
-    (*m_log) <<MSG::DEBUG<< "Converting event (from ByteStream)" <<endreq;
+  ATH_MSG_DEBUG( "Converting event (from ByteStream)" );
 
-  if (!re)
-    {(*m_log) << MSG::ERROR << "RawEvent passed to 'convert'-function is a null pointer!" << endreq;
-     return StatusCode::FAILURE;
-    }
-
-  if (!m_decoder->check_valid (re, *m_log)) return StatusCode::FAILURE;
-
-  if ( m_log->level() <=MSG::VERBOSE ) {
-     (*m_log) << MSG::VERBOSE << "Full Event:\n";
-     (*m_log) << MSG::VERBOSE << MSG::hex << "Full source ID: " << re->source_id() << MSG::dec <<endreq;
-     (*m_log) << MSG::VERBOSE <<"Fragment size in words: " << re->fragment_size_word() << endreq;
+  if (!re) {
+    ATH_MSG_ERROR ( "RawEvent passed to 'convert'-function is a null pointer!" );
+    return StatusCode::FAILURE;
   }
+
+  if (!m_decoder->check_valid (re, msg())) return StatusCode::FAILURE;
+
+  ATH_MSG_VERBOSE ( "Full Event:" );
+  ATH_MSG_VERBOSE ( MSG::hex << "Full source ID: " << re->source_id() << MSG::dec );
+  ATH_MSG_VERBOSE ("Fragment size in words: " << re->fragment_size_word() );
+
   // Need to clear up or it will accumulate
   m_robIndex.clear();
   eformat::helper::build_toc(*re, m_robIndex );

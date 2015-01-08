@@ -36,8 +36,8 @@ template <class COLLECTION >
 StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION* coll, CaloGain::CaloGain gain)
 { 
 	if (prepareRobIndex(re).isFailure()){
-	    (*m_log) << MSG::ERROR << "Error in prepareRobIndex " << endreq;
-	    return StatusCode::FAILURE;
+          ATH_MSG_ERROR ( "Error in prepareRobIndex " );
+          return StatusCode::FAILURE;
 	}
         std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> >::const_iterator it = m_robIndex.find(eformat::LAR);
         if ( it != m_robIndex.end() ) {
@@ -48,38 +48,35 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
               PointerType p;
 	      ROBFragment robFrag(*rob_add);
             
-	      if (!m_decoder->check_valid (&robFrag, *m_log)) {
-	        (*m_log) << MSG::WARNING << "Error reading bytestream event: "
-		     << "Invalid ROB fragment for source ID " << robFrag.rod_source_id() << endreq;
+	      if (!m_decoder->check_valid (&robFrag, msg())) {
+	        ATH_MSG_WARNING ( "Error reading bytestream event: "
+                                  << "Invalid ROB fragment for source ID " << robFrag.rod_source_id() );
 	        continue; //return StatusCode::FAILURE;
 	      }
 	      uint32_t n = robFrag.rod_ndata() ; 
 	      robFrag.rod_data(p); 
 	      if (n < 3) {
-	        (*m_log) << MSG::WARNING << "Error reading bytestream event: "
-	  	        << "Empty ROD block (less than 3 words) for source ID " << robFrag.rod_source_id() << endreq;
+	        ATH_MSG_WARNING ( "Error reading bytestream event: "
+                                  << "Empty ROD block (less than 3 words) for source ID " << robFrag.rod_source_id() );
 	        continue;
 	        //return StatusCode::FAILURE;
 	      }
-  	      if ( m_log->level() <=MSG::DEBUG ) {
-	        (*m_log) << MSG::DEBUG << "Format Version Number of ROD-Data Block: " 
-		     << MSG::hex << robFrag.rod_version()
-		     << MSG::dec<< endreq;
-	        (*m_log) << MSG::VERBOSE << "Calling RodDecoder for source ID " << MSG::hex 
-		     << robFrag.rod_source_id() << MSG::dec << endreq;
-	      }
+              ATH_MSG_DEBUG ( "Format Version Number of ROD-Data Block: " 
+                              << MSG::hex << robFrag.rod_version()
+                              << MSG::dec);
+              ATH_MSG_VERBOSE ( "Calling RodDecoder for source ID " << MSG::hex 
+                                << robFrag.rod_source_id() << MSG::dec );
 	      m_decoder->setRobFrag(&robFrag);
 	      m_decoder->fillCollection(p,n,*coll,gain); // ..and decode them.
             }
             catch (eformat::Issue& ex) {
-             (*m_log) << MSG::WARNING << " exception thrown by ROBFragment, badly corrupted event. Abort decoding " << endreq;
+              ATH_MSG_WARNING ( " exception thrown by ROBFragment, badly corrupted event. Abort decoding " );
              coll->clear();
              break;
             }
     }//end if LAr SubDet or ROS event building
   }//end of if empty
-  if ( m_log->level() <=MSG::DEBUG ) 
-  	(*m_log) << MSG::VERBOSE << "End of LArDigitCnvTool. Container size=" << coll->size() << endreq;
+  ATH_MSG_VERBOSE ( "End of LArDigitCnvTool. Container size=" << coll->size() );
   return StatusCode::SUCCESS;
 }
 
