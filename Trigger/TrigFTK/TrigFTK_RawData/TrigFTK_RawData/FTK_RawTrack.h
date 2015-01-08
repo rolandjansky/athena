@@ -44,6 +44,8 @@ private:
   static const float phi_precision;
   static const float curv_precision;
   static const float cot_precision;
+  static const float chi2_precision;
+  static const float quality_precision;
 
 public:
   FTK_RawTrack(); 
@@ -56,6 +58,9 @@ public:
   float getPhi() const;
   double getCotTh() const;
   double getCurv() const;
+  double getChi2() const;
+  double getQuality() const;
+
   uint32_t getRoadID() const {return m_word_th1; }
   uint32_t getTH1() const  {return m_word_th1; }
   uint32_t getTH2() const  {return m_word_th2; }
@@ -93,6 +98,8 @@ public:
   void setPhi(float);
   void setCotTh(float);
   void setCurv(float);
+  void setChi2(float);
+  void setQuality(float);
   void setPixelCluster( FTK_RawPixelCluster );
   void setSCTCluster(   FTK_RawSCT_Cluster  );
   void setPixelClusters( std::vector<FTK_RawPixelCluster> );
