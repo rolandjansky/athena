@@ -26,8 +26,7 @@
 //
 //_______________________________________________________________________________________
 CaloNoiseDbExample::CaloNoiseDbExample(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_sgSvc(0),
+  AthAlgorithm(name, pSvcLocator),
   m_evt(0),
   m_calo_id(0)
 {
@@ -45,36 +44,14 @@ CaloNoiseDbExample::~CaloNoiseDbExample()
 StatusCode 
 CaloNoiseDbExample::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log <<MSG::DEBUG <<"in initialize()" <<endreq;
+  ATH_MSG_DEBUG ("in initialize()" );
   
-  //=== Storegate
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
-    return sc;
-  }
-  
-  //=== DetectorStore
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (!sc.isSuccess() || 0 == detStore)  {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-
-  //retrieve ID helpers 
-   
-  sc = detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloIdMgr " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
   
   
   //=== Bind noise DataHandle to COOL folder
-  log << MSG::INFO << "Folder name " << m_foldername << endreq;
+  ATH_MSG_INFO ( "Folder name " << m_foldername );
  
   //   std::string folderName("/CALO/Ofl/Noise/CellNoise");
   std::string folderName(m_foldername);
@@ -87,10 +64,7 @@ CaloNoiseDbExample::initialize()
   //=== Register callback for this data handle
 
   
-  if(detStore->regFcn(&CaloNoiseDbExample::updateMap,this,m_noiseAttrListColl,folderName).isFailure()){
-    log << MSG::ERROR << "Could not register updateMap() callback" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->regFcn(&CaloNoiseDbExample::updateMap,this,m_noiseAttrListColl,folderName) );
   
   return StatusCode::SUCCESS;
 }
@@ -101,36 +75,22 @@ CaloNoiseDbExample::initialize()
 StatusCode 
 CaloNoiseDbExample::execute() 
 {
-  
-  MsgStream log(msgSvc(), name());
-  log <<MSG::DEBUG <<" in execute()" <<endreq;
+  ATH_MSG_DEBUG (" in execute()" );
   
   //=== print run/evt/lbn/time info for each event
-  StatusCode sc = m_sgSvc->retrieve(m_evt);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << "could not get event info " 
-	<< endreq;
-    return( StatusCode::FAILURE);
-  }
-  else {
-    log << MSG::DEBUG << "Event: [" << m_evt->event_ID()->run_number()
-	<< "," << m_evt->event_ID()->event_number();
-    log << "," << m_evt->event_ID()->lumi_block();
-    log    << ":" << m_evt->event_ID()->time_stamp()
-	   << "]" << endreq;
-  }
+  ATH_CHECK( evtStore()->retrieve(m_evt) );
+  ATH_MSG_DEBUG ( "Event: [" << m_evt->event_ID()->run_number()
+                  << "," << m_evt->event_ID()->event_number()
+                  << "," << m_evt->event_ID()->lumi_block()
+                  << ":" << m_evt->event_ID()->time_stamp()
+                  << "]" );
   
 
   //=======================================
   //=== Print out some noise values
   //=======================================
-  log << MSG::DEBUG << "Calling printSomeInfo" << endreq;
-  sc = printSomeInfo(); 
-  if (sc.isFailure()) {
-    log <<MSG::ERROR <<"Could not print out some info" <<endreq;
-    return( StatusCode::FAILURE);
-  }
-  
+  ATH_MSG_DEBUG ( "Calling printSomeInfo" );
+  ATH_CHECK( printSomeInfo() );
   return StatusCode::SUCCESS;
 }
 
@@ -140,8 +100,7 @@ CaloNoiseDbExample::execute()
 StatusCode 
 CaloNoiseDbExample::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log <<MSG::INFO <<"in finalize()" <<endreq;
+  ATH_MSG_INFO ("in finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -152,17 +111,16 @@ CaloNoiseDbExample::finalize()
 StatusCode 
 CaloNoiseDbExample::printSomeInfo()
 {
-  MsgStream log(msgSvc(), name());
-  log <<MSG::INFO <<"In printSomeInfo()" <<endreq;
+  ATH_MSG_INFO ("In printSomeInfo()" );
 
   int ncell=m_calo_id->calo_cell_hash_max();
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;  
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   
   //=== print some value
   CaloCondUtils::SYSTEM sysId = CaloCondUtils::TILE;
 
   const CaloCondBlobFlt* const flt = m_noiseBlobMap.find(sysId)->second;
-  log << MSG::INFO  << "ObjSize="<< flt->getObjSizeUint32() << endreq;
+  ATH_MSG_INFO  ( "ObjSize="<< flt->getObjSizeUint32() );
 
   //unsigned int cellHash       = 0;
   //     TILELOWHIGH =-15 ,
@@ -197,8 +155,8 @@ CaloNoiseDbExample::printSomeInfo()
 	float valc = getC(sysId, idSubHash, gain);
 	float vald = getD(sysId, idSubHash, gain);
 	float vale = getE(sysId, idSubHash, gain);
-	log << MSG::INFO << "Value a = " << vala  << " b = " << valb << " c = " << valc << " d = " << vald << " e = " << vale <<" totalnoise: " << val << endreq;
-	log << MSG::INFO << "Noise for sysId " << sysId << " IdHash " << idHash << " idSubHash " << idSubHash << " gain " << gain << " lumi=" <<lumi << endreq;
+	ATH_MSG_INFO ( "Value a = " << vala  << " b = " << valb << " c = " << valc << " d = " << vald << " e = " << vale <<" totalnoise: " << val );
+	ATH_MSG_INFO ( "Noise for sysId " << sysId << " IdHash " << idHash << " idSubHash " << idSubHash << " gain " << gain << " lumi=" <<lumi );
       }
     }
   }
@@ -211,7 +169,6 @@ float
 CaloNoiseDbExample::getA(CaloCondUtils::SYSTEM sysId, unsigned int cellHash, 
 			 CaloGain::CaloGain caloGain) const
 {
-  MsgStream log(msgSvc(), name());
   const CaloCondBlobFlt* const flt = m_noiseBlobMap.find(sysId)->second;
   unsigned int dbGain = CaloCondUtils::getDbCaloGain(caloGain);
   return flt->getData(cellHash,dbGain,0);
@@ -287,14 +244,13 @@ CaloNoiseDbExample::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
 // the different COOL channels are also up to date. 
 //
 {
-  MsgStream log(msgSvc(), name());
-  log <<MSG::INFO <<"In updateMap(), has been triggered by: " <<endreq;
+  ATH_MSG_INFO ("In updateMap(), has been triggered by: " );
   
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << *itr << " ";
+    msg() << *itr << " ";
   }
-  log << endreq;
+  msg() << endreq;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();

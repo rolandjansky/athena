@@ -13,7 +13,7 @@
  2008-01-14      nils.gollub@cern.ch
  ***************************************************************************/
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -40,7 +40,7 @@ class CaloCondBlobFlt;
 class Identifier; 
 class CaloIdManager;
 
-class CaloNoiseDbExample: public Algorithm 
+class CaloNoiseDbExample: public AthAlgorithm 
 {
  public:
   
@@ -66,7 +66,6 @@ class CaloNoiseDbExample: public Algorithm
   virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   
   //=== non-property members
-  StoreGateSvc*             m_sgSvc;
   const EventInfo*          m_evt;
   //
   const DataHandle<CaloIdManager> m_caloIdMgr;
