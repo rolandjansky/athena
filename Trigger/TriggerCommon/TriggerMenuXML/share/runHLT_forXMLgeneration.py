@@ -48,7 +48,7 @@ if 'TriggerMenuSetup' in dir():
       log.info('Overwriting menu: %s' % TriggerFlags.triggerMenuSetup())
    else:
       # The "> Warning:" string is important to recognize this as build warning in NICOS
-      log.error('--> Warning: Menu %s not available in this version of TriggerMenuPython. Skipping...' % TriggerMenuSetup)
+      log.error('--> Warning: Menu %s not available in this version of TriggerMenu. Skipping...' % TriggerMenuSetup)
       theApp.exit()
 
 if 'L1PrescaleSet' in dir():

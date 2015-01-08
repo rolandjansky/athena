@@ -56,18 +56,31 @@ TRAPTERM() {
     return 143 # 128+SIGTERM
 }
 
+
+## menu generation starts here
 pkgdir=`readlink -f $PWD/../`
 echo "XMLDumperFromAthena: *** Building menu: $menu for $release ***"
+logfiletopo=topo${menu}.log
 logfile=${menu}.log
 cd $rundir
+
+# L1Topo config file
+generateL1TopoMenu.py $menu >&! $logfiletopo
+cp L1Topoconfig_*.xml ${pkgdir}/data
+
+
+# L1 + HLT config file
 athena.py -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
 athena_exit=$?
-cp $logfile ${pkgdir}/${CMTCONFIG}
+cp $logfile $logfiletopo ${pkgdir}/${CMTCONFIG}
 if [ $athena_exit -eq 0 ]; then
     echo "XMLDumperFromAthena: *** $menu DONE | Exit code: $athena_exit | Log: $pkgdir/$CMTCONFIG/$logfile ***"
 else
     echo "XMLDumperFromAthena: *** $menu FAILED | Exit code: $athena_exit | Log: $pkgdir/$CMTCONFIG/$logfile ***"
 fi
+
+
+
 
 #upload default menu into to the SQLite file
 #doDBUpload is True if we are in NICOS and not in the P1HLT cache
