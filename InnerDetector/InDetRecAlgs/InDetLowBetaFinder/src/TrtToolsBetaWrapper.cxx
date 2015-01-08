@@ -127,12 +127,20 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	      int etaIndex;
 	      int barrelOrEndcap;
 	      int radiusIndex;
+/*
+
 	      if (channel >= 100000)
 	      {
 	        channel -= 100000;
 	        etaIndex = channel/1000;
 	        barrelOrEndcap = (channel%1000)/100;
 	        radiusIndex = channel%100;
+	      }
+	      else
+*/
+	      if (channel >= 100000)
+	      {
+		ATH_MSG_ERROR("Using an old verion of the channel (> 100000).");
 	      }
 	      else
 	      {

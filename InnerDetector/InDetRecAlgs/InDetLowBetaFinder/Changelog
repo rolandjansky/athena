@@ -1,3 +1,12 @@
+2015-01-08 Alex Alonso
+	* Fix Coverity report
+	* Tagged as InDetLowBetaFinder-02-00-03
+
+2014-10-09 David Quarrie <David.Quarrie@cern.ch>
+	* cmt/requirements
+		Specify required ROOT components for cmake (transparent to CMT)
+	* Tagged as InDetLowBetaFinder-02-00-02
+
 2014-03-31 Niels van Eldik
 	* Migrated to new fiels svc
 	* Tagged as InDetLowBetaFinder-02-00-01
