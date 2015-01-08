@@ -5,7 +5,7 @@
 #ifndef LArBadChanTool_H
 #define LArBadChanTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 
 #include "LArRecConditions/LArBadChannel.h"
@@ -27,7 +27,7 @@
 
 class StoreGateSvc;
 
-class LArBadChanTool : public AlgTool,
+class LArBadChanTool : public AthAlgTool,
 		       public ILArBadChanTool,
 		       public ICaloBadChanTool 
 {
@@ -87,7 +87,6 @@ private:
   typedef BadChanContainer<Identifier, LArBadChannel>    OfflineInfo;
   typedef OfflineInfo::BadChanVec                        OfflineVec;
 
-  StoreGateSvc*                 m_detStore;
   const DataHandle<LArOnlineID> m_onlineID;
   const DataHandle<CondAttrListCollection>  m_DBColl;
   const DataHandle<CondAttrListCollection>  m_TmpDBColl;

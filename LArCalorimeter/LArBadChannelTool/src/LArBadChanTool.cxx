@@ -41,7 +41,7 @@ struct BadFebEntryMerger {
 
 LArBadChanTool::LArBadChanTool(const std::string& type, const std::string& name, 
 			       const IInterface* parent) :
-	AlgTool( type, name, parent), 
+	AthAlgTool( type, name, parent), 
 	m_updatedFromDB( false),
 	m_updatedFebsFromDB( false),
 	m_ready( false),
@@ -104,28 +104,16 @@ StatusCode LArBadChanTool::queryInterface( const InterfaceID& riid, void** ppvIf
       return StatusCode::SUCCESS;
    }
    */
-   return AlgTool::queryInterface( riid, ppvIf );
+   return AthAlgTool::queryInterface( riid, ppvIf );
 }
 
 StatusCode LArBadChanTool::initialize()
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log <<MSG::DEBUG <<"in initialize()" <<endreq;
+  ATH_MSG_DEBUG ("in initialize()" );
 	
-  // locate the conditions store ptr to it.
-  sc = service("DetectorStore", m_detStore);
-  if (!sc.isSuccess() || 0 == m_detStore)  {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = m_detStore->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
   if (!prepareFebHash()) {
-    log << MSG::ERROR << "Could not configure FEB hasher" << endreq;
+    ATH_MSG_ERROR ( "Could not configure FEB hasher" );
     return StatusCode::FAILURE;
   }
 
@@ -134,7 +122,7 @@ StatusCode LArBadChanTool::initialize()
   // will be triggered immediately
   if (m_readFromASCII) {
     if (!readASCII()) {
-      log <<MSG::ERROR <<"Could not read ASCII file(s)" <<endreq;
+      ATH_MSG_ERROR ("Could not read ASCII file(s)" );
       return StatusCode::FAILURE;
     }
     // prepare the tool for use in case no DB update occurs, but keep m_ready false
@@ -145,39 +133,22 @@ StatusCode LArBadChanTool::initialize()
   }
 
   if (!m_DBFolder.empty()) {
-    sc = m_detStore->regFcn( &ILArBadChanTool::updateFromDB, dynamic_cast<ILArBadChanTool*>(this),
-			     m_DBColl, m_DBFolder, true);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not register callback for folder " << m_DBFolder << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->regFcn( &ILArBadChanTool::updateFromDB, dynamic_cast<ILArBadChanTool*>(this),
+                                   m_DBColl, m_DBFolder, true) );
   }
 
   if (!m_TmpDBFolder.empty()) {
-    sc = m_detStore->regFcn( &ILArBadChanTool::updateFromDB, dynamic_cast<ILArBadChanTool*>(this),
-			     m_TmpDBColl, m_TmpDBFolder, true);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Complementary bad channel folder " <<  m_TmpDBFolder 
-	  << " requested in job options, but callback registration failed for it" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->regFcn( &ILArBadChanTool::updateFromDB, dynamic_cast<ILArBadChanTool*>(this),
+                                   m_TmpDBColl, m_TmpDBFolder, true) );
   }
 
   if (!m_DBBadFebFolder.empty()) {
-    sc = m_detStore->regFcn( &ILArBadChanTool::updateBadFebsFromDB, dynamic_cast<ILArBadChanTool*>(this),
-			     m_DBBadFebColl, m_DBBadFebFolder, true);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not register callback for Missing FEBs folder " 
-	  << m_DBBadFebFolder << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->regFcn( &ILArBadChanTool::updateBadFebsFromDB, dynamic_cast<ILArBadChanTool*>(this),
+                                   m_DBBadFebColl, m_DBBadFebFolder, true) );
   }
 
-  if (m_cablingService.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to get CablingService " << endreq;
-    return StatusCode::FAILURE;
-  }
-  else log << MSG::DEBUG << "CablingService retrieved" << endreq;
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_MSG_DEBUG ( "CablingService retrieved" );
   
   return StatusCode::SUCCESS;
 }
@@ -185,7 +156,8 @@ StatusCode LArBadChanTool::initialize()
 std::vector<HWIdentifier> LArBadChanTool::missingFEBs() const
 {
   std::vector<HWIdentifier> result( m_BadFebs.size());
-  for (unsigned int i=0; i<m_BadFebs.size(); ++i) result[i] = m_BadFebs[i].first;
+  for (unsigned int i=0; i<m_BadFebs.size(); ++i)
+    result[i] = m_BadFebs[i].first;
   return result;
 }
 
@@ -193,35 +165,33 @@ void LArBadChanTool::complain() const
 {
   if (!m_updatedFromDB) {
     // if we are here then the bad channel DB update did not take place before first use
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "the LArBadChanTool is used without bad channel information from DB" << endreq;
+    ATH_MSG_WARNING ( "the LArBadChanTool is used without bad channel information from DB" );
 
     if (m_Updates.empty()) {
-      log << MSG::WARNING << "and it contains no bad channel information from ASCII file." << endreq;
-      log << MSG::WARNING 
-	  << "All channels will be considered good, but this may not be what you wanted" << endreq;
+      ATH_MSG_WARNING ( "and it contains no bad channel information from ASCII file." );
+      ATH_MSG_WARNING 
+        ( "All channels will be considered good, but this may not be what you wanted" );
       BadChanVec empty;
       m_HwBadChan.set(empty); //need to populate the hash table with good channels
     }
     else {
       // No need to apply updates from ASCII file, that's done in initialize()
-      log << MSG::WARNING << "Only ASCII file bad channel information is available." << endreq;
+      ATH_MSG_WARNING ( "Only ASCII file bad channel information is available." );
     }
   }
   if (!m_updatedFebsFromDB) {
     // if we are here then the bad Feb DB update did not take place before first use
-    MsgStream log(msgSvc(), name());
-    log << MSG::WARNING << "the LArBadChanTool is used without missing FEB information from DB" << endreq;
+    ATH_MSG_WARNING ( "the LArBadChanTool is used without missing FEB information from DB" );
 
     if (m_BadFebUpdates.empty()) {
-      log << MSG::WARNING << "and it contains no missing FEB information from ASCII file." << endreq;
-      log << MSG::WARNING 
-	  << "All FEBs will be considered good, but this may not be what you wanted" << endreq;
+      ATH_MSG_WARNING ( "and it contains no missing FEB information from ASCII file." );
+      ATH_MSG_WARNING 
+        ( "All FEBs will be considered good, but this may not be what you wanted" );
       // the febs are good by default so we don't need to set them explicitly
     }
     else {
       // No need to apply updates from ASCII file, that's done in initialize()
-      log << MSG::WARNING << "Only ASCII file missing FEB information is available." << endreq;
+      ATH_MSG_WARNING ( "Only ASCII file missing FEB information is available." );
     }
   }
   m_ready = true;
@@ -229,26 +199,25 @@ void LArBadChanTool::complain() const
 
 bool LArBadChanTool::readASCII() 
 {
-  MsgStream log(msgSvc(), name());
-  LArBadChannelDecoder decoder(&(*m_onlineID), log);
+  LArBadChannelDecoder decoder(&(*m_onlineID), msg());
 
   int goodLines = 0;
   for (int i=0; i<State::NCoolChannels; i++) {
     if ( !m_fileNames.at(i).empty()) {
       State::CoolChannelEnum coolChan = static_cast<State::CoolChannelEnum>(i);
-      log << MSG::INFO << "Attempting to read file " << m_fileNames[i] 
-	  << " for COOL channel " << State::coolChannelName( coolChan) << endreq;
+      ATH_MSG_INFO ( "Attempting to read file " << m_fileNames[i] 
+                     << " for COOL channel " << State::coolChannelName( coolChan) );
 
       std::vector<State::BadChanEntry> res = decoder.readASCII( m_fileNames[i], coolChan);
       if ( !res.empty()) {
-	log << MSG::INFO << "Read " << res.size() << " lines from file " << m_fileNames[i]
-	    << " into COOL channel " << State::coolChannelName( coolChan) << endreq;
+	ATH_MSG_INFO ( "Read " << res.size() << " lines from file " << m_fileNames[i]
+                       << " into COOL channel " << State::coolChannelName( coolChan) );
 	m_Updates.addUpdate( res, coolChan);
 	goodLines += res.size();
       }
       else if (!m_writeEmptyFolders) {
-	log << MSG::ERROR << "Failed to read any lines from file " << m_fileNames[i] 
-	    << " for COOL channel " << State::coolChannelName( coolChan) << endreq;
+	ATH_MSG_ERROR ( "Failed to read any lines from file " << m_fileNames[i] 
+                        << " for COOL channel " << State::coolChannelName( coolChan) );
 	return false;
       }
     }
@@ -256,24 +225,23 @@ bool LArBadChanTool::readASCII()
   if ( !m_febFileName.empty()) {
     std::vector<LArBadChannelDecoder::BadFebEntry> febs = decoder.readFebASCII( m_febFileName);
     if (febs.empty() && (!m_writeEmptyFolders) ) {
-      log << MSG::ERROR << "Failed to read any lines from FEB file " <<  m_febFileName << endreq;
+      ATH_MSG_ERROR ( "Failed to read any lines from FEB file " <<  m_febFileName );
       return false;
     }
     else {
-      log << MSG::INFO << "Decoded " << febs.size() << " lines from FEB file " <<  m_febFileName << endreq;
+      ATH_MSG_INFO ( "Decoded " << febs.size() << " lines from FEB file " <<  m_febFileName );
       m_BadFebUpdates = febs;
       goodLines += febs.size();
     }
   }
 
   if (goodLines == 0 && (!m_writeEmptyFolders) ) {
-    log << MSG::ERROR << "ASCII reading requested but no file names specified " 
-	<< endreq;
+    ATH_MSG_ERROR ( "ASCII reading requested but no file names specified " );
     return false;
   }
   else {
-    log << MSG::INFO << "Read " << goodLines 
-	<< " lines in total (for all COOL channels and missing FEBs together) " << endreq;
+    ATH_MSG_INFO ( "Read " << goodLines 
+                   << " lines in total (for all COOL channels and missing FEBs together) " );
   }
 
   // at this stage we have all the contents of the ASCII files in m_Updates.
@@ -316,9 +284,8 @@ LArBadChannel LArBadChanTool::status( const HWIdentifier& FEBid, int chan) const
 
 void LArBadChanTool::warnInvalidFEB( const HWIdentifier& id) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::WARNING << "status requested for unknown HWIdentifier " 
-      << id.get_identifier32().get_compact() << endreq;
+  ATH_MSG_WARNING ( "status requested for unknown HWIdentifier " 
+                    << id.get_identifier32().get_compact() );
 }
 
 LArBadChannel LArBadChanTool::offlineStatus( Identifier id) const
@@ -352,7 +319,6 @@ CaloBadChannel LArBadChanTool::caloStatus( Identifier id) const
 
 void LArBadChanTool::fillOfflineInfo() const
 {
-  
   m_OfflineBadChan.clear(); 
   OfflineVec vec;
   std::vector<HWIdentifier> hwvec;
@@ -384,8 +350,7 @@ void LArBadChanTool::fillOfflineInfo() const
 
 void LArBadChanTool::updateCache()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << " entering updateCache " << endreq;
+  ATH_MSG_DEBUG ( " entering updateCache " );
 
   BadChanVec bcv;
 
@@ -398,8 +363,7 @@ void LArBadChanTool::updateCache()
   // invalidate offline cache (will be filled at first access, if needed
   m_OfflineCacheInvalid = true;
   
-  log << MSG::DEBUG << " updateCache done " << endreq;
-
+  ATH_MSG_DEBUG ( " updateCache done " );
 }
 
 void LArBadChanTool::updateFebCache() 
@@ -414,13 +378,11 @@ void LArBadChanTool::updateFebCache()
 
 bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collection) 
 {
-  MsgStream log(msgSvc(), name());
-
   for ( CondAttrListCollection::const_iterator i=collection->begin(); 
 	i != collection->end(); ++i) {
     State::CoolChannelEnum coolChan = static_cast<State::CoolChannelEnum>(i->first);
-    log << MSG::DEBUG << "Reading Cool Channel " << i->first 
-	<< " corresponding to " << State::coolChannelName(coolChan) << endreq;
+    ATH_MSG_DEBUG ( "Reading Cool Channel " << i->first 
+                    << " corresponding to " << State::coolChannelName(coolChan) );
     /*
     const AthenaAttributeList& attrList( i->second);
     const coral::Blob& blob = attrList["Blob"].data<coral::Blob>();
@@ -443,26 +405,19 @@ bool LArBadChanTool::readFromDB( const DataHandle<CondAttrListCollection> collec
     }
     */
     
-    m_State.addFromDB( LArBadChannelDBTools::readBadChan( i->second, log), coolChan);
+    m_State.addFromDB( LArBadChannelDBTools::readBadChan( i->second, msg()), coolChan);
   }
   return true;
 }
 
 bool LArBadChanTool::readBadFebsFromDB() 
 {
-  MsgStream log(msgSvc(), name());
 
-  StatusCode sc = m_detStore->retrieve( m_DBBadFebColl, m_DBBadFebFolder);
-  if (  sc.isFailure()) {
-    log <<MSG::ERROR <<"Could not read the folder " << m_DBBadFebFolder << endreq;
-    return false;
-  }
-  else {
-    log << MSG::INFO << "Retrieved folder " << m_DBBadFebFolder << endreq;
-  }  
+  ATH_CHECK( detStore()->retrieve( m_DBBadFebColl, m_DBBadFebFolder) );
+  ATH_MSG_INFO ( "Retrieved folder " << m_DBBadFebFolder );
 
   if (!m_DBBadFebColl.isValid()){
-    log << MSG::ERROR << " DB handle for missing FEBs is invalid" << endreq;
+    ATH_MSG_ERROR ( " DB handle for missing FEBs is invalid" );
     return false;
   }
   /*
@@ -491,20 +446,18 @@ bool LArBadChanTool::readBadFebsFromDB()
   }
   */
 
-  m_BadFebs = LArBadChannelDBTools::readBadFeb( *m_DBBadFebColl, log);
+  m_BadFebs = LArBadChannelDBTools::readBadFeb( *m_DBBadFebColl, msg());
   return true;
 }
 
 
 StatusCode LArBadChanTool::updateFromDB( int&, std::list<std::string>& keylist)
 {
-  MsgStream log(msgSvc(), name());
-
   m_State.reset();
 
-  log << MSG::INFO <<  "DB callback called with " << keylist.size() << " keys " << endreq;
+  ATH_MSG_INFO (  "DB callback called with " << keylist.size() << " keys " );
   for (std::list<std::string>::const_iterator ikey = keylist.begin(); ikey != keylist.end(); ikey++) {
-    log << MSG::INFO <<  "DB callback called with key " << *ikey << endreq;
+    ATH_MSG_INFO (  "DB callback called with key " << *ikey );
   }
 
   // Always read both folders if they are valid, even if only one folder triggered the callback
@@ -517,7 +470,7 @@ StatusCode LArBadChanTool::updateFromDB( int&, std::list<std::string>& keylist)
 
   m_updatedFromDB = true;
 
-  log << MSG::INFO << "Callback updateFromDB finished reading from DB" << endreq;
+  ATH_MSG_INFO ( "Callback updateFromDB finished reading from DB" );
 
   if (!m_Updates.empty()) applyUpdates(); // from ASCII file
 
@@ -526,19 +479,17 @@ StatusCode LArBadChanTool::updateFromDB( int&, std::list<std::string>& keylist)
 
   if(m_dumpCache) dumpAscii("dump.txt");
 
-  log << MSG::INFO << "Have " << m_HwBadChan.size() << " entries in total." << endreq; 
+  ATH_MSG_INFO ( "Have " << m_HwBadChan.size() << " entries in total." );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArBadChanTool::updateBadFebsFromDB(IOVSVC_CALLBACK_ARGS)
 {
-  MsgStream log(msgSvc(), name());
-
   if (!readBadFebsFromDB()) return StatusCode::FAILURE;
   m_updatedFebsFromDB = true;
 
-  log <<MSG::INFO << "Callback updateBadFebsFromDB finished reading from DB" << endreq;
+  ATH_MSG_INFO ( "Callback updateBadFebsFromDB finished reading from DB" );
 
   if (!m_BadFebUpdates.empty()) applyFebUpdates(); // from ASCII file
 
@@ -547,22 +498,19 @@ StatusCode LArBadChanTool::updateBadFebsFromDB(IOVSVC_CALLBACK_ARGS)
 
   if(m_dumpCache) dumpFEBsAscii("dumpFEBs.txt");
 
-  log << MSG::INFO << "Have " << m_BadFebs.size() << " missing FEBs in total." << endreq; 
-
+  ATH_MSG_INFO ( "Have " << m_BadFebs.size() << " missing FEBs in total." );
   return StatusCode::SUCCESS;
 }
 
 void LArBadChanTool::dumpHWCache() const 
 {
-  MsgStream log(msgSvc(), name());
-
   LArBadChanBitPacking packing;
-  log << MSG::INFO << "Begin of dump of online Id cache" << endreq;
+  ATH_MSG_INFO ( "Begin of dump of online Id cache" );
   for (BadChanInfo::const_iterator i=m_HwBadChan.begin(); i!=m_HwBadChan.end(); ++i) {
-    log << MSG::INFO << "HWId " << i->first.get_identifier32().get_compact() << " status " 
-	<< packing.stringStatus(i->second) <<endreq;
+    ATH_MSG_INFO ( "HWId " << i->first.get_identifier32().get_compact() << " status " 
+                   << packing.stringStatus(i->second) );
   }
-  log << MSG::INFO << "End of dump of online Id cache" << endreq;
+  ATH_MSG_INFO ( "End of dump of online Id cache" );
 }
 
 void LArBadChanTool::applyUpdates()

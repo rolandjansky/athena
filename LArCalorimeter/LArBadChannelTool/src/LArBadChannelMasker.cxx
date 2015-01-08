@@ -9,7 +9,7 @@ LArBadChanBitPacking LArBadChannelMasker::s_bitPacking;  //init static member
 
 LArBadChannelMasker::LArBadChannelMasker(const std::string& type, 
       const std::string& name, const IInterface* parent) :
-  AlgTool(type, name, parent), 
+  AthAlgTool(type, name, parent), 
   m_badChanToolHandle("LArBadChanTool"), 
   m_badChanTool(0),
   m_problemWords(defaultProblems()),
@@ -30,12 +30,11 @@ LArBadChannelMasker::~LArBadChannelMasker()
 
 StatusCode LArBadChannelMasker::initialize() 
 {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in initialize()" << endreq;
+   ATH_MSG_DEBUG ( "in initialize()" );
 
    if(!m_doMasking)
    {
-      log << MSG::INFO << "Cell masking is OFF." << endreq;
+      ATH_MSG_INFO ( "Cell masking is OFF." );
       return StatusCode::SUCCESS;       // Do nothing.
    }
 
@@ -43,12 +42,12 @@ StatusCode LArBadChannelMasker::initialize()
 
    if(m_badChanToolHandle.retrieve().isFailure())
    {
-      log << MSG::ERROR << m_badChanToolHandle.propertyName() 
-         << ": Failed to retrieve tool " << m_badChanToolHandle << endreq;
+      ATH_MSG_ERROR ( m_badChanToolHandle.propertyName() 
+                      << ": Failed to retrieve tool " << m_badChanToolHandle );
       return StatusCode::FAILURE;
    }
 
-   log << MSG::DEBUG << "Successfully retrieved a " << m_badChanToolHandle.type() <<  endreq;
+   ATH_MSG_DEBUG ( "Successfully retrieved a " << m_badChanToolHandle.type() );
 
    // Please don't do this unless you know you really need to.
    m_badChanTool = &(*m_badChanToolHandle);   
@@ -71,8 +70,8 @@ StatusCode LArBadChannelMasker::initialize()
 */
 
    LArBadChannel tempBC(m_bitMask);    //consider overloading the function
-   log << MSG::INFO << "Cell masking is ON. The following problems will be masked: " 
-        << s_bitPacking.stringStatus(tempBC) << endreq;
+   ATH_MSG_INFO ( "Cell masking is ON. The following problems will be masked: " 
+                  << s_bitPacking.stringStatus(tempBC) );
    
    return StatusCode::SUCCESS;
 }
@@ -102,7 +101,6 @@ bool LArBadChannelMasker::cellShouldBeMaskedFEB(const HWIdentifier& FEBid, const
 
 void LArBadChannelMasker::buildBitMask()
 {
-  MsgStream log(msgSvc(), name());
   m_bitMask = 0;
 
   for(std::vector<std::string>::const_iterator it = m_problemWords.begin(); 
@@ -112,7 +110,7 @@ void LArBadChannelMasker::buildBitMask()
     if(result.first)
       s_bitPacking.setBit(result.second, m_bitMask);
     else
-      log << MSG::WARNING << "The problem flag '" << (*it) << "' was not recognized." << endreq;
+      ATH_MSG_WARNING ( "The problem flag '" << (*it) << "' was not recognized." );
   }
 }
 
@@ -162,7 +160,7 @@ StatusCode LArBadChannelMasker::queryInterface(const InterfaceID& riid, void** p
       addRef();
       return StatusCode::SUCCESS;
    }
-   else return AlgTool::queryInterface( riid, ppvIf );
+   else return AthAlgTool::queryInterface( riid, ppvIf );
 }
 
 const InterfaceID& LArBadChannelMasker::interfaceID() 

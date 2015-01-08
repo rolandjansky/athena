@@ -7,7 +7,7 @@
 #ifndef LArBadChannel2Ascii_H
 #define LArBadChannel2Ascii_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
@@ -16,7 +16,7 @@ class LArBadChanTool;
 class StoreGateSvc;
 class LArCablingService;
 
-class LArBadChannel2Ascii : public Algorithm 
+class LArBadChannel2Ascii : public AthAlgorithm 
 {
 public:
   LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator);
@@ -33,7 +33,6 @@ private:
   ToolHandle<LArCablingService> m_larCablingSvc;
 
   std::string                  m_dbFolder;
-  StoreGateSvc*                m_detStore;
   std::string                  m_fileName;
   std::string                  m_executiveSummaryFile;
   bool                         m_wMissing;

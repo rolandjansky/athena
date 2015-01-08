@@ -19,7 +19,7 @@ Description:
 
 ---------------------------------------------------- */
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
    //#include "CaloIdentifier/CaloGain.h"                   //included by ILArBadChannelMasker.h
@@ -31,7 +31,7 @@ Description:
 
 //class StoreGateSvc;
 
-class LArBadChannelMasker : virtual public ILArBadChannelMasker, public AlgTool
+class LArBadChannelMasker : virtual public ILArBadChannelMasker, public AthAlgTool
 {
 public:
 

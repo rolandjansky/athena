@@ -13,9 +13,8 @@
 #include <fstream>
 
 LArBadFeb2Ascii::LArBadFeb2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm( name, pSvcLocator),
-  m_BadChanTool("LArBadChanTool"),
-  m_detStore(0)
+  AthAlgorithm( name, pSvcLocator),
+  m_BadChanTool("LArBadChanTool")
 {
   declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("FileName",m_fileName="");
@@ -26,20 +25,8 @@ LArBadFeb2Ascii::~LArBadFeb2Ascii() {}
 
 StatusCode LArBadFeb2Ascii::initialize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
-
-  if ( m_BadChanTool.retrieve().isFailure() ) {
-    log << MSG::FATAL  << "Could not retrieve bad channel tool" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // locate the conditions store ptr to it.
-  if (service("DetectorStore", m_detStore).isFailure()) {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_INFO ( "initialize()" );
+  ATH_CHECK( m_BadChanTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -47,27 +34,19 @@ StatusCode LArBadFeb2Ascii::execute()
 {return StatusCode::SUCCESS;}
 
 StatusCode LArBadFeb2Ascii::finalize() {
-  MsgStream log(msgSvc(), name());
-
-  const LArOnlineID* larOnlineID;
-  StatusCode sc = m_detStore->retrieve(larOnlineID,"LArOnlineID");
-  if (sc.isFailure()) {
-    log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" 
-	 << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  const LArOnlineID* larOnlineID = nullptr;
+  ATH_CHECK( detStore()->retrieve(larOnlineID,"LArOnlineID") );
   
   std::ostream *out = &(std::cout); 
   std::ofstream outfile;
   if (m_fileName.size()) {
     outfile.open(m_fileName.c_str(),std::ios::out);
     if (outfile.is_open()) {
-      log << MSG::INFO << "Writing to file " << m_fileName << endreq;
+      ATH_MSG_INFO ( "Writing to file " << m_fileName );
       out = &outfile;
     }
     else
-      log << MSG::ERROR << "Failed to open file " << m_fileName << endreq;
+      ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
 
   const LArBadFebBitPacking packing;
@@ -90,7 +69,7 @@ StatusCode LArBadFeb2Ascii::finalize() {
       (*out) << "  # 0x" << std::hex << fid.get_identifier32().get_compact() << std::dec << std::endl;
     }
   }
-  log << MSG::INFO << "Found " << count << " entries in the bad-FEB database." << endreq;
+  ATH_MSG_INFO ( "Found " << count << " entries in the bad-FEB database." );
   if (outfile.is_open())
     outfile.close();
   return StatusCode::SUCCESS;

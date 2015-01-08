@@ -5,6 +5,7 @@ author Theodore Todorov
 use AtlasPolicy                    AtlasPolicy-*
 use StoreGate                      StoreGate-*       Control
 use AthenaKernel                  AthenaKernel-*        Control
+use AthenaBaseComps                AthenaBaseComps-*    Control
 use GaudiInterface	           GaudiInterface-*   External
 use AtlasCORAL                  AtlasCORAL-*           External
 use AtlasCOOL                   AtlasCOOL-*           External
@@ -19,10 +20,12 @@ use LArIdentifier                LArIdentifier-*     LArCalorimeter
 use CaloConditions           CaloConditions-*       Calorimeter
 use CaloIdentifier           CaloIdentifier-*       Calorimeter
 
-library LArBadChannelTool *.cxx -s=components *.cxx
 apply_pattern declare_joboptions files="*.py"
 
-apply_pattern component_library
+# Convert to a dual_use library because the lcgdict pattern within the cmake builds doesn't work with pure component libraries
+apply_pattern dual_use_library files=*.cxx
+#library LArBadChannelTool *.cxx -s=components *.cxx
+#apply_pattern component_library
 
 ## install our python modules
 apply_pattern declare_python_modules files="*.py"

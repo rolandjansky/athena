@@ -17,9 +17,8 @@
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 
 LArBadChannelDBAlg::LArBadChannelDBAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm( name, pSvcLocator),
-  m_BadChanTool("LArBadChanTool"),
-  m_detStore(0)
+  AthAlgorithm( name, pSvcLocator),
+  m_BadChanTool("LArBadChanTool")
 {
   declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("DBFolder",m_dbFolder="/LAR/BadChannels/BadChannels");
@@ -32,26 +31,11 @@ LArBadChannelDBAlg::~LArBadChannelDBAlg() {}
 
 StatusCode LArBadChannelDBAlg::initialize() {
 
-  // Part 1: Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
-  // Part 3: Retrieve the tools using the ToolHandles
-  if ( m_BadChanTool.retrieve().isFailure() ) {
-    log << MSG::FATAL  << m_BadChanTool.propertyName() << ": Failed to retrieve tool " 
-	<< m_BadChanTool << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << m_BadChanTool.propertyName() << ": Retrieved tool " 
-	<< m_BadChanTool.type() << endreq;
-  }
-
-  // locate the conditions store ptr to it.
-  if (service("DetectorStore", m_detStore).isFailure()) {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK ( m_BadChanTool.retrieve() );
+  ATH_MSG_INFO ( m_BadChanTool.propertyName() << ": Retrieved tool " 
+                 << m_BadChanTool.type() );
   return StatusCode::SUCCESS;
 }
 
@@ -59,32 +43,21 @@ StatusCode LArBadChannelDBAlg::execute()
 {return StatusCode::SUCCESS;}
 
 StatusCode LArBadChannelDBAlg::finalize() {
-  MsgStream log(msgSvc(), name());
-
   //if (m_mode == 0) {
-    log << MSG::INFO << "Creating AttrListCollection in folder " << m_dbFolder << endreq;
+  ATH_MSG_INFO ( "Creating AttrListCollection in folder " << m_dbFolder );
     CondAttrListCollection* attrListColl = 
       LArBadChannelDBTools::createCoolCollection( m_BadChanTool->fullState());
 
-    StatusCode sc = m_detStore->record( attrListColl, m_dbFolder);
-    if (sc.isFailure()) {
-      log <<MSG::ERROR <<"Could not record AttrListCollection" <<endreq;
-      return( StatusCode::FAILURE);
-    }
-    //} else {
-    log << MSG::INFO << "Creating AthenaAttributeList in folder " << m_dbFebFolder << endreq;
+    ATH_CHECK( detStore()->record( attrListColl, m_dbFolder) );
+    ATH_MSG_INFO ( "Creating AthenaAttributeList in folder " << m_dbFebFolder );
     const LArBadChanTool::BadFebVec& febs = m_BadChanTool->fullBadFebsState();
     if (!febs.empty()) {
       AthenaAttributeList* attrList = LArBadChannelDBTools::createFebPayload( febs);
 
-      StatusCode sc = m_detStore->record( attrList, m_dbFebFolder);
-      if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not record AthenaAttributeList" <<endreq;
-	return( StatusCode::FAILURE);
-      }
+      ATH_CHECK( detStore()->record( attrList, m_dbFebFolder) );
     }
     //}
-  log << MSG::INFO << "exiting finalize successfully " << m_dbFebFolder << endreq;
+    ATH_MSG_INFO ( "exiting finalize successfully " << m_dbFebFolder );
 
   return StatusCode::SUCCESS;
 }

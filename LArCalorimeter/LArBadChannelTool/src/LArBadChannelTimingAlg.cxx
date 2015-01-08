@@ -25,7 +25,7 @@
 using namespace std;
 
 LArBadChannelTimingAlg::LArBadChannelTimingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm( name, pSvcLocator),
+  AthAlgorithm( name, pSvcLocator),
   m_BadChanTool("LArBadChanTool"),
   m_cellID(0),
   m_reallyCheck(true)
@@ -40,41 +40,15 @@ LArBadChannelTimingAlg::~LArBadChannelTimingAlg() {}
 
 StatusCode LArBadChannelTimingAlg::initialize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
-  if ( m_BadChanTool.retrieve().isFailure() ) {
-    log << MSG::FATAL  << m_BadChanTool.propertyName() << ": Failed to retrieve tool " 
-	<< m_BadChanTool << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << m_BadChanTool.propertyName() << ": Retrieved tool " 
-	<< m_BadChanTool.type() << endreq;
-  }
+  ATH_CHECK( m_BadChanTool.retrieve() );
+  ATH_MSG_INFO ( m_BadChanTool.propertyName() << ": Retrieved tool " 
+                 << m_BadChanTool.type() );
 
-  StoreGateSvc* detStore;
-  StatusCode sc = service("DetectorStore", detStore);
-  if (!sc.isSuccess() || 0 == detStore)  {
-    log << MSG::ERROR << "Could not find DetStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = detStore->retrieve(m_cellID,"CaloCell_ID");    
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve CaloCell_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
-  sc = detStore->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = detStore->retrieve(m_emID, "LArEM_ID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArEM_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_cellID,"CaloCell_ID") );
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_emID, "LArEM_ID") );
   return StatusCode::SUCCESS;
 }
 

@@ -5,7 +5,7 @@
 #ifndef LArBadChannelTimingAlg_H
 #define LArBadChannelTimingAlg_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
@@ -17,7 +17,7 @@ class EventInfo;
 class LArEM_ID;
 
 
-class LArBadChannelTimingAlg : public Algorithm 
+class LArBadChannelTimingAlg : public AthAlgorithm 
 {
 public:
   LArBadChannelTimingAlg(const std::string& name, ISvcLocator* pSvcLocator);

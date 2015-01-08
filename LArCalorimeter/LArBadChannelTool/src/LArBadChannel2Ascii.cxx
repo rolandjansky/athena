@@ -14,10 +14,9 @@
 #include <fstream>
 
 LArBadChannel2Ascii::LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm( name, pSvcLocator),
+  AthAlgorithm( name, pSvcLocator),
   m_BadChanTool("LArBadChanTool"),
-  m_larCablingSvc("LArCablingService"),
-  m_detStore(0)
+  m_larCablingSvc("LArCablingService")
 {
   declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("FileName",m_fileName="");
@@ -31,24 +30,12 @@ LArBadChannel2Ascii::~LArBadChannel2Ascii() {}
 
 StatusCode LArBadChannel2Ascii::initialize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
-
-  if ( m_BadChanTool.retrieve().isFailure() ) {
-    log << MSG::FATAL  << "Could not retrieve bad channel tool" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // locate the conditions store ptr to it.
-  if (service("DetectorStore", m_detStore).isFailure()) {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_INFO ( "initialize()" );
+  ATH_CHECK( m_BadChanTool.retrieve() );
 
   if (m_skipDisconnected) {
     if(m_larCablingSvc.retrieve().isFailure()) {
-      log << MSG::FATAL  << "Could not retrieve LAr Cabling tool" << endreq;
+      ATH_MSG_FATAL  ( "Could not retrieve LAr Cabling tool" );
       return StatusCode::FAILURE;
     }
   }
@@ -63,27 +50,19 @@ StatusCode LArBadChannel2Ascii::finalize()
 {return StatusCode::SUCCESS;}
 
 StatusCode LArBadChannel2Ascii::stop() {
-  MsgStream log(msgSvc(), name());
-
   const LArOnlineID* larOnlineID;
-  StatusCode sc = m_detStore->retrieve(larOnlineID,"LArOnlineID");
-  if (sc.isFailure()) {
-    log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" 
-	 << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(larOnlineID,"LArOnlineID") );
   
   std::ostream *out = &(std::cout); 
   std::ofstream outfile;
   if (m_fileName.size()) {
     outfile.open(m_fileName.c_str(),std::ios::out);
     if (outfile.is_open()) {
-      log << MSG::INFO << "Writing to file " << m_fileName << endreq;
+      ATH_MSG_INFO ( "Writing to file " << m_fileName );
       out = &outfile;
     }
     else
-      log << MSG::ERROR << "Failed to open file " << m_fileName << endreq;
+      ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
 
   const bool doExecSummary=(m_executiveSummaryFile.size()!=0);
@@ -158,13 +137,13 @@ StatusCode LArBadChannel2Ascii::stop() {
 
   }//end loop over channels;
   if (m_skipDisconnected)
-    log << MSG::INFO << "Found " << count << " entries in the bad-channel database. (Number of connected cells: " << nConnected  << endreq;
+    ATH_MSG_INFO ( "Found " << count << " entries in the bad-channel database. (Number of connected cells: " << nConnected  );
   else
-    log << MSG::INFO << "Found " << count << " entries in the bad-channel database. (Number of cells: " << nConnected  << endreq;
+    ATH_MSG_INFO ( "Found " << count << " entries in the bad-channel database. (Number of cells: " << nConnected  );
   if (m_wMissing)
-    log << MSG::INFO << "Inclduing missing FEBs" << endreq;
+    ATH_MSG_INFO ( "Inclduing missing FEBs" );
   else
-    log << MSG::INFO << "Without missing FEBs" << endreq;
+    ATH_MSG_INFO ( "Without missing FEBs" );
   if (outfile.is_open())
     outfile.close();
 
@@ -173,11 +152,11 @@ StatusCode LArBadChannel2Ascii::stop() {
     std::ofstream exeSum;
     exeSum.open(m_executiveSummaryFile.c_str(),std::ios::out);
     if (!exeSum.is_open()) {
-      log << MSG::ERROR << "Failed to open file " << m_executiveSummaryFile << endreq;
+      ATH_MSG_ERROR ( "Failed to open file " << m_executiveSummaryFile );
       return StatusCode::FAILURE;
     }
 
-    log << MSG::INFO << "Writing Executive Summary to file " << m_executiveSummaryFile << endreq;    
+    ATH_MSG_INFO ( "Writing Executive Summary to file " << m_executiveSummaryFile );
 
     exeSum << "LAr dead readout channels:" << std::endl;
     writeSum(exeSum,problemMatrix[DeadReadout]);

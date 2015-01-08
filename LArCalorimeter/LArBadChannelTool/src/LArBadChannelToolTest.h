@@ -5,15 +5,14 @@
 #ifndef LArBadChannelToolTest_H
 #define LArBadChannelToolTest_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 class ILArBadChanTool;
-class StoreGateSvc;
 
-class LArBadChannelToolTest : public Algorithm {
+class LArBadChannelToolTest : public AthAlgorithm {
 public:
   LArBadChannelToolTest( const std::string& name, ISvcLocator* pSvcLocator );
   StatusCode initialize();
@@ -22,7 +21,6 @@ public:
 
 private:
   ToolHandle< ILArBadChanTool > m_BadChanTool;
-  StoreGateSvc*                 m_detStore;
   const DataHandle<LArOnlineID> m_onlineID;
 
   int m_Check1;
