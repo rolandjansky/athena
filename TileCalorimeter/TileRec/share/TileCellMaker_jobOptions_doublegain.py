@@ -24,12 +24,14 @@ if not hasattr( ToolSvc, "TileCellBuilderLG" ):
     from TileRecUtils.TileRecUtilsConf import TileCellBuilder
     theTileCellBuilderLG=TileCellBuilder("TileCellBuilderLG")
     theTileCellBuilderLG.MBTSContainer = "MBTSContainerLG"
+    theTileCellBuilderLG.E4prContainer = "E4prContainerLG"
     ToolSvc += theTileCellBuilderLG
 
 if not hasattr( ToolSvc, "TileCellBuilderHG" ):
     from TileRecUtils.TileRecUtilsConf import TileCellBuilder
     theTileCellBuilderHG=TileCellBuilder("TileCellBuilderHG")
     theTileCellBuilderHG.MBTSContainer = "MBTSContainerHG"
+    theTileCellBuilderHG.E4prContainer = "E4prContainerHG"
     ToolSvc += theTileCellBuilderHG
 
 

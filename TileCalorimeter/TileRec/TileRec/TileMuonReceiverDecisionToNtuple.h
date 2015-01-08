@@ -76,8 +76,8 @@ private:
     NTuple::Array<bool>   m_trigbit2;
     NTuple::Array<bool>   m_trigbit3;
 
-    const TileTBID*   m_tileTBID;
-    const TileID*     m_tileID;
+    //const TileTBID*   m_tileTBID;
+    //const TileID*     m_tileID;
 
     std::string m_TileMuRcvContainer;
     std::string m_TileMuRcvContainer_dbg;

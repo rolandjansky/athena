@@ -53,6 +53,7 @@
 // Tile includes
 #include "TileConditions/TileCablingService.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileEvent/TileLaserObject.h"
 
 #include <string>
 #include <stdint.h>
@@ -77,7 +78,6 @@ class TileInfo;
 class TileDetDescrManager;
 class TileBeamInfoProvider;
 class TileBeamElemContByteStreamCnv;
-class TileLaserObject;
 class ITileBadChanTool;
 class TileCondToolEmscale;
 class TileDCSSvc;
@@ -190,60 +190,39 @@ class TileAANtuple : public AthAlgorithm {
     uint32_t m_cispar[N_CISPAR];
 
     // Laser items
+    int m_las_version;
     int m_las_BCID;
 
     int m_las_Filt;
     float m_las_ReqAmp;
     float m_las_MeasAmp;
-
-    int m_las_D1_ADC;
-    int m_las_D2_ADC;
-    int m_las_D3_ADC;
-    int m_las_D4_ADC;
-
-    float m_las_D1_Ped;
-    float m_las_D2_Ped;
-    float m_las_D3_Ped;
-    float m_las_D4_Ped;
-
-    float m_las_D1_Ped_RMS;
-    float m_las_D2_Ped_RMS;
-    float m_las_D3_Ped_RMS;
-    float m_las_D4_Ped_RMS;
-
-    float m_las_D1_Alpha;
-    float m_las_D2_Alpha;
-    float m_las_D3_Alpha;
-    float m_las_D4_Alpha;
-
-    float m_las_D1_Alpha_RMS;
-    float m_las_D2_Alpha_RMS;
-    float m_las_D3_Alpha_RMS;
-    float m_las_D4_Alpha_RMS;
-
-    float m_las_D1_AlphaPed;
-    float m_las_D2_AlphaPed;
-    float m_las_D3_AlphaPed;
-    float m_las_D4_AlphaPed;
-
-    float m_las_D1_AlphaPed_RMS;
-    float m_las_D2_AlphaPed_RMS;
-    float m_las_D3_AlphaPed_RMS;
-    float m_las_D4_AlphaPed_RMS;
-
-    int m_las_PMT1_ADC;
-    int m_las_PMT2_ADC;
-
-    int m_las_PMT1_TDC;
-    int m_las_PMT2_TDC;
-
-    float m_las_PMT1_Ped;
-    float m_las_PMT2_Ped;
-
-    float m_las_PMT1_Ped_RMS;
-    float m_las_PMT2_Ped_RMS;
-
     float m_las_Temperature;
+
+    // LASERI
+    int   m_las_D_ADC[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_Ped[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_Alpha[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_Alpha_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_AlphaPed[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+    float m_las_D_AlphaPed_RMS[TileLaserObject::nbGains][TileLaserObject::nbDiodes];
+
+    int   m_las_PMT_ADC[TileLaserObject::nbGains][TileLaserObject::nbPmts];
+    int   m_las_PMT_TDC[TileLaserObject::nbGains][TileLaserObject::nbPmts];
+    float m_las_PMT_Ped[TileLaserObject::nbGains][TileLaserObject::nbPmts];
+    float m_las_PMT_Ped_RMS[TileLaserObject::nbGains][TileLaserObject::nbPmts];
+
+    // LASERII
+    int m_daqtype;
+    int m_chan[32];                   // Mean value for monitoring diodes, PMTs, phocal, CIS
+    float m_chan_Ped[32];             // Corresponding pedestal values
+    float m_chan_Led[32];             // Corresponding LED values
+    float m_chan_Lin[32];             // Corresponding linearity values
+    float m_chan_Alpha[32];           // Corresponding alpha peaks
+    float m_chan_SPed[32];            // Sigma of pedestal values
+    float m_chan_SLed[32];            // Sigma of LED values
+    float m_chan_SLin[32];            // Sigma of linearity values
+    float m_chan_SAlpha[32];          // Sigma of alpha peaks
 
     // Digi/Energy items
 
@@ -401,6 +380,8 @@ class TileAANtuple : public AthAlgorithm {
     float m_sumEz_zz[N_DRAWERS]; //!< Sum Ez recalculated offline using offline OF
     float m_sumE_zz[N_DRAWERS];  //!< Sum E  recalculated offline using offline OF
     bool m_bad[N_ROS][N_MODULES][N_CHANS];
+
+    int m_skipEvents;
 };
 
 #endif
