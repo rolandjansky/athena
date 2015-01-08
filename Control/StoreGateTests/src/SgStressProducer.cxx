@@ -36,9 +36,7 @@ typedef DataPool<SgTests::PayLoad> PayLoadPool_t;
 ////////////////
 SgStressProducer::SgStressProducer( const std::string& name, 
 			      ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
-  m_storeGate  ( "StoreGateSvc", name ),
-  m_msg        ( msgSvc(),       name ),
+  AthAlgorithm( name, pSvcLocator ),
   m_pool       ( 0 )
 {
   //
@@ -68,7 +66,7 @@ SgStressProducer::SgStressProducer( const std::string& name,
 ///////////////
 SgStressProducer::~SgStressProducer()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" );
   delete m_pool;
 }
 
@@ -77,20 +75,10 @@ SgStressProducer::~SgStressProducer()
 StatusCode SgStressProducer::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR 	
-	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   if ( m_useDataPool ) {
     delete m_pool; m_pool = new PayLoadPool_t;
     m_pool->reserve( m_nObjs );
@@ -100,22 +88,16 @@ StatusCode SgStressProducer::initialize()
 
 StatusCode SgStressProducer::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 
 StatusCode SgStressProducer::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   
   if ( !createData().isSuccess() ) {
-    m_msg << MSG::ERROR
-	  << "Could not create PayLoad data !!"
-	  << endreq;
+    ATH_MSG_ERROR ( "Could not create PayLoad data !!" );
     return StatusCode::FAILURE;
   }
 
@@ -166,18 +148,14 @@ StatusCode SgStressProducer::createData()
     }
     dv->push_back( data );
 
-    if ( !m_storeGate->record(dv, outName.str()).isSuccess() ) {
-      m_msg << MSG::ERROR
-	    << "Could not store data at [" << outName.str() << "] !!"
-	    << endreq;
+    if ( !evtStore()->record(dv, outName.str()).isSuccess() ) {
+      ATH_MSG_ERROR ( "Could not store data at [" << outName.str() << "] !!" );
       delete dv; dv = 0;
       allGood = false;
       continue;
     }
-    if ( !m_storeGate->setConst(dv).isSuccess() ) {
-      m_msg << MSG::WARNING << "Could not setConst data at ["
-	    << outName.str() << "] !!"
-	    << endreq;
+    if ( !evtStore()->setConst(dv).isSuccess() ) {
+      ATH_MSG_WARNING( "Could not setConst data at [" << outName.str() << "] !!");
     }  
 
     // filling data

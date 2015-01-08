@@ -13,6 +13,7 @@ use AthenaPython	AthenaPython-*		Control -no_auto_imports
 private
 use GaudiInterface 	GaudiInterface-* 	External
 use StoreGate		StoreGate-*		Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
 end_private
 
 branches src src/components doc python share share/tests test

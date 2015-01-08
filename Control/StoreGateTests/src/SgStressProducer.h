@@ -15,17 +15,16 @@
 #include <string>
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Forward declaration
-class StoreGateSvc;
 template<class Data>
 class DataPool;
 namespace SgTests { class PayLoad; }
 
-class SgStressProducer : public Algorithm
+class SgStressProducer : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -72,13 +71,6 @@ class SgStressProducer : public Algorithm
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to StoreGate
-  StoreGateSvc_t m_storeGate;
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
 
   // Containers
   

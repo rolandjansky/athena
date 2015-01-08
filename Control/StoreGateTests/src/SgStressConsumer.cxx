@@ -31,9 +31,7 @@
 ////////////////
 SgStressConsumer::SgStressConsumer( const std::string& name, 
 				    ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
-  m_storeGate  ( "StoreGateSvc", name ),
-  m_msg        ( msgSvc(),       name )
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -54,7 +52,7 @@ SgStressConsumer::SgStressConsumer( const std::string& name,
 ///////////////
 SgStressConsumer::~SgStressConsumer()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" );
 }
 
 // Athena Algorithm's Hooks
@@ -62,37 +60,22 @@ SgStressConsumer::~SgStressConsumer()
 StatusCode SgStressConsumer::initialize()
 {
   // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  msg().setLevel( outputLevel() );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR 	
-	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   return StatusCode::SUCCESS;
 }
 
 StatusCode SgStressConsumer::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
-
+  ATH_MSG_INFO( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 
 StatusCode SgStressConsumer::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
-  
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   return readData();
 }
 
@@ -124,18 +107,14 @@ StatusCode SgStressConsumer::readData()
     outName << m_dataName << "_payload_" << iObj;
     const SgTests::PayLoad * data = 0;
     const SgTests::PayLoadDv* dv  = 0;
-    if ( !m_storeGate->retrieve( dv, outName.str() ).isSuccess() ) {
-      m_msg << MSG::ERROR
-	    << "Could not retrieve payload !!"
-	    << endreq;
+    if ( !evtStore()->retrieve( dv, outName.str() ).isSuccess() ) {
+      ATH_MSG_ERROR( "Could not retrieve payload !!" );
       allGood = false;
     }
 
     data = (*dv)[0];
     if ( data->m_data.empty() ) {
-      m_msg << MSG::ERROR
-	    << "**NOT** my data !!"
-	    << endreq;
+      ATH_MSG_ERROR( "**NOT** my data !!" );
       allGood = false;
     }
   }
