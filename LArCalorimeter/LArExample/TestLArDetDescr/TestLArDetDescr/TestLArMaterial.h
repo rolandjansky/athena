@@ -17,15 +17,14 @@ PURPOSE:  provide example to play with the H8 CTB geometry.
 
 ********************************************************************/
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloDetDescr/CaloSubdetNames.h"
 
-class StoreGateSvc;
 class CaloDetDescrManager;
 class ICaloRecoMaterialTool;
 class ICaloSurfaceBuilder;
 
-class TestLArMaterial : public Algorithm
+class TestLArMaterial : public AthAlgorithm
 {
  public:
 
@@ -43,9 +42,6 @@ class TestLArMaterial : public Algorithm
   void print_Layers();
 
  protected:
-  
-  StoreGateSvc* m_storeGate;
-
   const CaloDetDescrManager*  m_calo_dd_man;
   ICaloSurfaceBuilder*   m_surfbuild;
   CaloSubdetNames* m_lar_names;

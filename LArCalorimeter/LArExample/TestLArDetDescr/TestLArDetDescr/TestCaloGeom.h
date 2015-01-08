@@ -17,13 +17,12 @@ PURPOSE:  provide example to play with the H8 CTB geometry.
 
 ********************************************************************/
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class CaloDetDescrManager;
 class ICaloCoordinateTool;
 
-class TestCaloGeom : public Algorithm
+class TestCaloGeom : public AthAlgorithm
 {
  public:
 
@@ -40,11 +39,7 @@ class TestCaloGeom : public Algorithm
   void print_beam();
 
  protected:
-  
-  StoreGateSvc* m_storeGate;
-
   const CaloDetDescrManager*  m_calo_dd_man;
-
   ICaloCoordinateTool* m_coord;
 };
 

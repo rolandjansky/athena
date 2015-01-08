@@ -18,7 +18,7 @@ PURPOSE:  provide example to retreive CaloDetDescr manager and
 
 ********************************************************************/
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class CaloIdManager;
 class LArIdManager;
@@ -28,7 +28,7 @@ class ICaloRecoMaterialTool;
 class ICaloRecoSimpleGeomTool;
 class CaloPhiRange;
 
-class TestCaloDDE : public Algorithm
+class TestCaloDDE : public AthAlgorithm
 {
  public:
 
@@ -63,12 +63,8 @@ class TestCaloDDE : public Algorithm
   const LArIdManager* m_lar_id_man;
 
   // Simplified geometry :
-  IToolSvc* m_toolsvc;
   ICaloRecoMaterialTool* m_lar_mat;
   ICaloRecoSimpleGeomTool* m_lar_simplegeom;
-
-  CaloPhiRange* m_range;
-
 };
 
 #endif

@@ -18,12 +18,11 @@ PURPOSE:  provide example to retreive CaloTTDetDescr manager and
 
 ********************************************************************/
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class CaloTTDescrManager;
 
-class TestLArTT : public Algorithm
+class TestLArTT : public AthAlgorithm
 {
  public:
 
@@ -39,11 +38,7 @@ class TestLArTT : public Algorithm
   void print_reg(bool em, bool hec, bool fcal, bool tile);
 
  protected:
-  
-  StoreGateSvc* m_storeGate;
-
   const CaloTTDescrManager*  m_tt_man;
-
 };
 
 #endif

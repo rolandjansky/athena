@@ -38,14 +38,12 @@ using HepGeom::RotateZ3D;
 // -------------------------------------------------------------
 TestCaloDDE::TestCaloDDE(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_calo_id_man(0),
   m_calo_dd_man(0),
   m_lar_id_man(0),
-  m_toolsvc(0),
   m_lar_mat(0),
-  m_lar_simplegeom(0),
-  m_range(0)
+  m_lar_simplegeom(0)
 {}
 
 // DESTRUCTOR:
@@ -55,94 +53,32 @@ TestCaloDDE::~TestCaloDDE()
 // INITIALIZE:
 StatusCode TestCaloDDE::initialize()
 {
-  MsgStream log( messageService(), name() );
+  ATH_CHECK( detStore()->retrieve(m_calo_id_man) );
+  ATH_MSG_DEBUG ( "Successfully retrieved CaloIdManager from DetectorStore" );
+  
+  ATH_CHECK( detStore()->retrieve(m_lar_id_man) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArIdManager from DetectorStore" );
 
-  m_range = new CaloPhiRange();
+  ATH_CHECK( detStore()->retrieve(m_calo_dd_man) );
+  ATH_MSG_DEBUG ( "Successfully retrieved CaloDetDescrManager from DetectorStore" );
 
-  //retrieves managers 
-  StoreGateSvc * detStore;
-  //  sc = serviceLocator()->service("DetectorStore", detStore);
-  StatusCode sc = service("DetectorStore", detStore);
-  if (sc.isFailure())
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-  else {
-    //  m_calo_id_man = CaloIdManager::instance();
-    sc = detStore->retrieve(m_calo_id_man);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
-    }	
-    //  m_lar_id_man = LArIdManager::instance();
-    sc = detStore->retrieve(m_lar_id_man);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-    }	
-    //  m_calo_dd_man = CaloDetDescrManager::instance();
-    sc = detStore->retrieve(m_calo_dd_man);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::DEBUG << "Successfully retrieved CaloDetDescrManager from DetectorStore" << endreq;
-    }	
-    log << MSG::INFO << "Successfully retrieved Calo,LArIdManager, CaloDetDescrManager from DetectorStore" << endreq;
-  }
-
-  // some tools :
-    
-  // Get The ToolSvc
-  sc=service("ToolSvc",m_toolsvc);
-  if(sc.isFailure())
-    {
-      log<<MSG::FATAL<<"Could not find ToolSvc. Exiting."<<endreq;
-      return sc;
-    }
-
-  // Get the simplified geometry :
-  //IAlgTool* tool;
-
-  /*
-  sc = m_toolsvc->retrieveTool("LArRecoMaterialTool",tool);
-  if (sc.isFailure())
-    { 
-      log<<MSG::FATAL<<"Could not find LArRecoMaterialTool" <<endreq;
-      return sc;
-    }     
-  m_lar_mat = dynamic_cast<ICaloRecoMaterialTool*>(tool);
-  */
-  /*
-  sc = m_toolsvc->retrieveTool("LArRecoSimpleGeomTool",tool);
-  if (sc.isFailure())
-    { 
-      log<<MSG::FATAL<<"Could not find LArRecoSimpleGeomTool" <<endreq;
-      return sc;
-    }     
-  m_lar_simplegeom = dynamic_cast<ICaloRecoSimpleGeomTool*>(tool);
-  */
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // FINALIZE:
 StatusCode TestCaloDDE::finalize()
 {
-
   return StatusCode::SUCCESS;
 }
 
 // EXECUTE:
 StatusCode TestCaloDDE::execute()
 {  
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestCaloDDE with geometry : " 
-      << m_calo_dd_man->lar_geometry()<< endreq;
+  ATH_MSG_INFO ( "Executing TestCaloDDE with geometry : " 
+                 << m_calo_dd_man->lar_geometry());
 
-  m_range->print(); 
+  CaloPhiRange range;
+  range.print(); 
 
   // Print Regions and/or CaloDDE :
 
@@ -208,18 +144,13 @@ StatusCode TestCaloDDE::execute()
 
   */
 
-
-  
-
   return StatusCode::SUCCESS;
 }
 
 void
 TestCaloDDE::print_subcalo( CaloCell_ID::CaloSample sample )
 {
-
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " printing CaloDDE characteristics " << endreq;
+  ATH_MSG_INFO ( " printing CaloDDE characteristics " );
 
   CaloCell_ID::SUBCALO subcalo;
   bool barrel;
@@ -251,8 +182,7 @@ TestCaloDDE::print_eta_line(int phi_num, bool em, bool hec, bool fcal)
 {
   boost::io::ios_base_all_saver coutsave (std::cout);
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " printing CaloDDE eta line " << endreq;
+  ATH_MSG_INFO ( " printing CaloDDE eta line " );
 
   IdentifierHash idhash;
   IdentifierHash idcalohash;
@@ -382,8 +312,7 @@ TestCaloDDE::print_phi_line(int eta_num, bool em, bool hec, bool fcal)
 {
   boost::io::ios_base_all_saver coutsave (std::cout);
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " printing CaloDDE phi line " << endreq;
+  ATH_MSG_INFO ( " printing CaloDDE phi line " );
 
   IdentifierHash idhash;
   IdentifierHash idcalohash;
@@ -509,8 +438,7 @@ TestCaloDDE::print_elt_HW(bool em, bool hec, bool fcal)
 {
   boost::io::ios_base_all_saver coutsave (std::cout);
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " printing CaloDDE characteristics " << endreq;
+  ATH_MSG_INFO ( " printing CaloDDE characteristics " );
 
   IdentifierHash idhash;
   IdentifierHash idcalohash;
@@ -623,8 +551,7 @@ void
 TestCaloDDE::try_zone()
 {
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestCaloDDE : try_zone " << endreq;
+  ATH_MSG_INFO ( "Executing TestCaloDDE : try_zone " );
 
   double eta, deta, phi, dphi;
   int sampling_or_module;
@@ -637,12 +564,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Negative EMB : should find = 192 strips " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Negative EMB : should find = 192 strips " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 1.;
   deta = 0.1;
@@ -650,12 +577,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Positive EMB : should find = 192 strips " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Positive EMB : should find = 192 strips " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = -1.;
   deta = 0.1;
@@ -663,12 +590,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 2;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Negative EMB : should find = 72 middle " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Negative EMB : should find = 72 middle " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 1.;
   deta = 0.1;
@@ -676,12 +603,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 2;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Positive EMB : should find = 72 middle " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Positive EMB : should find = 72 middle " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = -1.;
   deta = 0.1;
@@ -689,12 +616,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 3;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Negative EMB : should find = 36 back " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Negative EMB : should find = 36 back " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 1.;
   deta = 0.1;
@@ -702,12 +629,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 3;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Positive EMB : should find = 36 back " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Positive EMB : should find = 36 back " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   // -----------------------------------------------------------
 
@@ -717,12 +644,12 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Negative EMEC : should find 3* ( 15 + 23 ) = 114 strips " << endreq;
-  log << MSG::INFO << " ------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Negative EMEC : should find 3* ( 15 + 23 ) = 114 strips " );
+  ATH_MSG_INFO ( " ------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 1.81035;
   deta = 0.1;
@@ -730,13 +657,13 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " -------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Positive EMEC : should find 3 * ( 32 + 25 ) = 171 strips " << endreq;
-  log << MSG::INFO << " -------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " -------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Positive EMEC : should find 3 * ( 32 + 25 ) = 171 strips " );
+  ATH_MSG_INFO ( " -------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 0.;
   deta = 0.1;
@@ -744,14 +671,14 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " EMB, across z=0 : strip 0 disconnected   " << endreq;
-  log << MSG::INFO << " should find 3 * ( 31 + 31 ) = 186 strips " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " EMB, across z=0 : strip 0 disconnected   " );
+  ATH_MSG_INFO ( " should find 3 * ( 31 + 31 ) = 186 strips " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
 
   eta = 1.4;
   deta = 0.1;
@@ -759,16 +686,16 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 2;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " Crack, middle layer : should find 9 x 9 = 81 cells " << endreq;
-  log << MSG::INFO << " where : 9 = 4 EMB2 + 1 barrel-end + 1 emec-begin + 3 EMEC2 " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " Crack, middle layer : should find 9 x 9 = 81 cells " );
+  ATH_MSG_INFO ( " where : 9 = 4 EMB2 + 1 barrel-end + 1 emec-begin + 3 EMEC2 " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
 
   eta = -1.4;
   deta = 0.1;
@@ -776,16 +703,16 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 2;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ----------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " Negative crack, middle layer : should find 9 x 9 = 81 cells " << endreq;
-  log << MSG::INFO << " where : 9 = 4 EMB2 + 1 barrel-end + 1 emec-begin + 3 EMEC2  " << endreq;
-  log << MSG::INFO << " ----------------------------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ----------------------------------------------------------- " );
+  ATH_MSG_INFO ( " Negative crack, middle layer : should find 9 x 9 = 81 cells " );
+  ATH_MSG_INFO ( " where : 9 = 4 EMB2 + 1 barrel-end + 1 emec-begin + 3 EMEC2  " );
+  ATH_MSG_INFO ( " ----------------------------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
 
   eta = 1.4;
   deta = 0.1;
@@ -793,17 +720,17 @@ TestCaloDDE::try_zone()
   dphi = 0.1;
   sampling_or_module = 1;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " Crack, strips : should find 135 cells :" << endreq;
-  log << MSG::INFO << " 3 x ( 32 EMB1 + 1 EMEC1-reg0 + 3 EMEC1-reg1 ) " << endreq;
-  log << MSG::INFO << " + 9 x ( 3 barrel-end, which has a different phi grannularity ) " << endreq;
-  log << MSG::INFO << " ---------------------------------------- " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " Crack, strips : should find 135 cells :" );
+  ATH_MSG_INFO ( " 3 x ( 32 EMB1 + 1 EMEC1-reg0 + 3 EMEC1-reg1 ) " );
+  ATH_MSG_INFO ( " + 9 x ( 3 barrel-end, which has a different phi grannularity ) " );
+  ATH_MSG_INFO ( " ---------------------------------------- " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
 
   eta = 1.4;
   deta = 0.2;
@@ -811,16 +738,16 @@ TestCaloDDE::try_zone()
   dphi = 0.02;
   sampling_or_module = 3;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ----------------------------------  " << endreq;
-  log << MSG::INFO << " Crack, back : should find 15 cells :" << endreq;
-  log << MSG::INFO << " 3 x ( 3 EMB3 + 2 EMEC3 )            " << endreq;
-  log << MSG::INFO << " ----------------------------------  " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ----------------------------------  " );
+  ATH_MSG_INFO ( " Crack, back : should find 15 cells :" );
+  ATH_MSG_INFO ( " 3 x ( 3 EMB3 + 2 EMEC3 )            " );
+  ATH_MSG_INFO ( " ----------------------------------  " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
 
   eta = 0.966;
   deta = 0.05;
@@ -828,18 +755,18 @@ TestCaloDDE::try_zone()
   dphi = 0.05;
   sampling_or_module = 2;
 
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " ---------------------------------------  " << endreq;
-  log << MSG::INFO << " Phi wrapping : should find 25 cells :    " << endreq;
-  log << MSG::INFO << "     from phi_min (-3.15, i.e. 3.133 ) to +pi = 0.3 cell  " << endreq;
-  log << MSG::INFO << "     from -pi to phi_max (-3.05) : 0.0916 = 3.7 cells " << endreq;
-  log << MSG::INFO << " 5 in phi ( 4 ~ -pi, 1 ~ +pi ) x  5 EMB2  " << endreq;
-  log << MSG::INFO << " ---------------------------------------  " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " ---------------------------------------  " );
+  ATH_MSG_INFO ( " Phi wrapping : should find 25 cells :    " );
+  ATH_MSG_INFO ( "     from phi_min (-3.15, i.e. 3.133 ) to +pi = 0.3 cell  " );
+  ATH_MSG_INFO ( "     from -pi to phi_max (-3.05) : 0.0916 = 3.7 cells " );
+  ATH_MSG_INFO ( " 5 in phi ( 4 ~ -pi, 1 ~ +pi ) x  5 EMB2  " );
+  ATH_MSG_INFO ( " ---------------------------------------  " );
+  ATH_MSG_INFO ( " " );
   try_zone(eta, deta, phi, dphi, sampling_or_module);
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( " " );
 
 }
 
@@ -849,9 +776,9 @@ TestCaloDDE::try_each_descr_zone()
 {
 
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << endreq; 
-  log << MSG::INFO << "Executing TestCaloDDE : try_zone for each descriptor " << endreq;
-  log << MSG::INFO << endreq; 
+  ATH_MSG_INFO( "" );
+  ATH_MSG_INFO ( "Executing TestCaloDDE : try_zone for each descriptor " );
+  ATH_MSG_INFO( "" );
 
   CaloDetDescriptor* descr;    
   std::vector<IdentifierHash> cell_list;
@@ -937,12 +864,11 @@ void
 TestCaloDDE::try_zone(double eta, double deta, double phi, double dphi, int sampling_or_module)
 {
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << endreq; 
-  log << MSG::INFO << "Executing TestCaloDDE : try_zone for eta= " << eta << " +- " 
-      << deta << " phi= " << phi << " +- " << dphi << " sampling " << sampling_or_module
-      << endreq;
-  log << MSG::INFO << endreq; 
+  ATH_MSG_INFO( "" );
+  ATH_MSG_INFO ( "Executing TestCaloDDE : try_zone for eta= " << eta << " +- " 
+                 << deta << " phi= " << phi << " +- " << dphi << " sampling " << sampling_or_module
+                 );
+  ATH_MSG_INFO( "" );
 
   IdentifierHash idhash;
   Identifier id;
@@ -1005,9 +931,8 @@ void
 TestCaloDDE::where_am_I(double eta, double phi)
 {
   
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestCaloDDE : where am I ? eta, phi = " 
-      << eta << " " << phi << endreq;
+  ATH_MSG_INFO ( "Executing TestCaloDDE : where am I ? eta, phi = " 
+                 << eta << " " << phi );
 
   bool barrel = true;
   const CaloDetDescriptor* descr;
@@ -1046,9 +971,7 @@ TestCaloDDE::where_am_I(double eta, double phi)
 void
 TestCaloDDE::read_volumes()
 {
-
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestCaloDDE : read_volumes " << endreq;
+  ATH_MSG_INFO ( "Executing TestCaloDDE : read_volumes " );
 
   IdentifierHash caloHashId = 86725;
 
@@ -1058,7 +981,6 @@ TestCaloDDE::read_volumes()
   if (dde) 
     std::cout << dde->volume();
   std::cout << std::endl;
-
 }
 
 void

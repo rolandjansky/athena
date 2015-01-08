@@ -26,8 +26,7 @@
 // -------------------------------------------------------------
 TestLArTT::TestLArTT(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator),
-  m_storeGate(0),
+  AthAlgorithm(name, pSvcLocator),
   m_tt_man(0)
 {}
 
@@ -38,42 +37,14 @@ TestLArTT::~TestLArTT()
 // INITIALIZE:
 StatusCode TestLArTT::initialize()
 {
-  MsgStream log( messageService(), name() );
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-  {
-    log << MSG::FATAL
-	<< "Unable to get pointer to StoreGate Service"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }  
-
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure())
-  {
-    log << MSG::FATAL
-	<< "Unable to get pointer to DetectorStore"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }  
-
-  sc = detStore->retrieve(m_tt_man, "CaloTTMgr");
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " abc Could not get CaloTTDescrManager !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    log << MSG::DEBUG << " Found the CaloTTDescrManager" << endreq;
-  }
-  
-  return sc;
+  ATH_CHECK( detStore()->retrieve(m_tt_man, "CaloTTMgr") );
+  ATH_MSG_DEBUG ( " Found the CaloTTDescrManager" );
+  return StatusCode::SUCCESS;
 }
 
 // FINALIZE:
 StatusCode TestLArTT::finalize()
 {
-
   return StatusCode::SUCCESS;
 }
 
@@ -88,9 +59,7 @@ StatusCode TestLArTT::execute()
 void
 TestLArTT::print_reg(bool /*em*/, bool /*hec*/, bool /*fcal*/, bool /*tiles*/)
 {
-
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestLArTT" << endreq;
+  ATH_MSG_INFO ( "Executing TestLArTT" );
 
   std::vector<CaloTTDescriptor*>::const_iterator
     first = m_tt_man->calo_descriptors_begin();

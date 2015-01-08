@@ -6,7 +6,6 @@
 #include "TestLArDetDescr/TestLArMaterial.h"
 
 // Athena related 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -35,8 +34,7 @@
 // -------------------------------------------------------------
 TestLArMaterial::TestLArMaterial(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator),
-  m_storeGate(0),
+  AthAlgorithm(name, pSvcLocator),
   m_calo_dd_man(0),
   m_surfbuild(0),
   m_lar_names(0),
@@ -50,33 +48,20 @@ TestLArMaterial::~TestLArMaterial()
 // INITIALIZE:
 StatusCode TestLArMaterial::initialize()
 {
-  MsgStream log( messageService(), name() );
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-  {
-    log << MSG::ERROR
-	<< "Unable to get pointer to StoreGate Service"
-	<< endreq;
-  }
-
-  //retrieves helpers for Calorimeter
   m_calo_dd_man = CaloDetDescrManager::instance();
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // FINALIZE:
 StatusCode TestLArMaterial::finalize()
 {
-
   return StatusCode::SUCCESS;
 }
 
 // EXECUTE:
 StatusCode TestLArMaterial::execute()
 {  
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Executing TestLArMaterial" << endreq;
+  ATH_MSG_INFO ( "Executing TestLArMaterial" );
   
   // This little class handles the phi range cheching (-pi,pi)
   CaloPhiRange toto;  
@@ -84,32 +69,19 @@ StatusCode TestLArMaterial::execute()
   m_lar_names = new CaloSubdetNames();
 
   // General access to Tools :
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "Cannot find ToolSvc " << endreq;
-      return(StatusCode::FAILURE);
-    }
+  IToolSvc* p_toolSvc = nullptr;
+  ATH_CHECK( service("ToolSvc", p_toolSvc) );
 
   // This tool handles the conversion between local and ctb coordinates
-  IAlgTool* tool;
-  sc = p_toolSvc->retrieveTool("LArRecoMaterialTool",tool);
-
-  if(sc.isFailure() || !tool)
-    {
-      log << MSG::ERROR << "Cannot get LArRecoMaterialTool tool"<< endreq;
-      return(StatusCode::FAILURE);
-    }
-  else {
-    m_lar_mat = dynamic_cast<ICaloRecoMaterialTool*>(tool);
-    log << MSG::INFO << "Found LArRecoMaterialTool tool"<< endreq;
-  }
+  IAlgTool* tool = nullptr;
+  ATH_CHECK( p_toolSvc->retrieveTool("LArRecoMaterialTool",tool) );
+  m_lar_mat = dynamic_cast<ICaloRecoMaterialTool*>(tool);
+  ATH_MSG_INFO ( "Found LArRecoMaterialTool tool");
 
   // For checks : the surface builder 
-  sc = toolSvc()->retrieveTool("ICaloSurfaceBuilder",m_surfbuild);
+  StatusCode sc = toolSvc()->retrieveTool("ICaloSurfaceBuilder",m_surfbuild);
   if (sc.isFailure())
-    log<<MSG::WARNING<<"Could not find Tool CaloSurfaceBuilder" <<endreq;
+    ATH_MSG_WARNING("Could not find Tool CaloSurfaceBuilder" );
   else {
     m_surfbuild->setCaloDepth(0);
   }
@@ -125,8 +97,7 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
 {
   boost::io::ios_base_all_saver coutsave (std::cout);
 
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << " printing CaloDDE characteristics " << endreq;
+  ATH_MSG_INFO ( " printing CaloDDE characteristics " );
 
   IdentifierHash idcalohash,hash_min,hash_max ;
   Identifier id;
