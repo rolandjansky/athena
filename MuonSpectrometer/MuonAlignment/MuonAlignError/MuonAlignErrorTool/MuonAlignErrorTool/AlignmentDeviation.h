@@ -1,0 +1,53 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef MUONALIGNERRORTOOL_ALIGNMENTDEVIATION_H
+#define MUONALIGNERRORTOOL_ALIGNMENTDEVIATION_H
+
+#include "GeoPrimitives/GeoPrimitives.h"
+#include <iosfwd>
+#include <vector>
+
+namespace Trk {
+
+  class RIO_OnTrack;
+
+  /**
+   * An object decorating a track and holding degrees of freedom reflecting alignment accuracy
+   */
+  class AlignmentDeviation {
+    public:
+
+      virtual ~AlignmentDeviation() {}
+
+      /**
+       * The number of free parameters
+       */
+      virtual int nPar() const = 0;
+
+      /**
+       * The error matrix on the free parameters. Track fitters should use this
+       * to compute a constraint on the free parameters.
+       */
+      virtual double getCovariance(int ipar, int jpar) const = 0;
+
+      /**
+       * Return a Transform in the global coordinate system, given a list of
+       * parameters.
+       */
+      virtual Amg::Transform3D getTransform(const std::vector<double>& parameters) const = 0;
+
+      /**
+       * Return the list of hits the transform should be applied to.
+       */
+      virtual void getListOfHits(std::vector<const Trk::RIO_OnTrack*>& hits) const = 0;
+
+      /**
+       * Verbose
+       */
+      virtual void print(std::ostream& out) const = 0;
+  };
+}
+#endif
+
