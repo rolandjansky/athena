@@ -39,8 +39,8 @@ PURPOSE: Tool
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
-#include "VxVertex/VxContainer.h"
-
+//#include "VxVertex/VxContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 
 FillAlignTRTHits::FillAlignTRTHits(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -195,12 +195,30 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 	 if (msgLvl(MSG::DEBUG)) msg() << "Fail to extract Lumiblocke !!!" << endreq;
    }
 	//Number of Prim vertex:
+/*
    const VxContainer* vxContainer(0);
     if ( StatusCode::SUCCESS ==  evtStore()->retrieve( vxContainer,"VxPrimaryCandidate")) {
        nvrt_rec = (float) vxContainer->size();
     } else {
        ATH_MSG_ERROR("Could not get vertex container!");
     }
+*/
+  nvrt_rec = 0;
+  const xAOD::VertexContainer* vertices =  evtStore()->retrieve< const xAOD::VertexContainer >("PrimaryVertices");
+  if(!vertices) {
+        ATH_MSG_WARNING("Couldn't retrieve VertexContainer with key: PrimaryVertices");
+  }
+  else{
+    int countVertices(0);
+    for (const xAOD::Vertex* vx : *vertices) {
+      if (vx->vertexType() == xAOD::VxType::PriVtx) {
+        if ( vx-> nTrackParticles() >= 3) countVertices++;
+      } 
+    }
+    nvrt_rec= countVertices;
+  }
+
+
     typedef std::vector<const Trk::TrackStateOnSurface*>::const_iterator TsosIt_t;
     TsosIt_t tsos=aTrack->trackStateOnSurfaces()->begin();
     TsosIt_t tsosEnd=aTrack->trackStateOnSurfaces()->end();
@@ -252,11 +270,12 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 			  if (!isvalid) (*newhit)[TRT::Hit::driftTime]=-1.0;
 		
 			  (*newhit)[TRT::Hit::t0]=m_trtcaldbSvc->getT0(ident) ;	    
-			  (*newhit)[TRT::Hit::TimeoverThreshold]= dcp ? dcp->timeOverThreshold() : -1.0;
+			  //(*newhit)[TRT::Hit::TimeoverThreshold]= dcp ? dcp->timeOverThreshold() : -1.0;
+			  (*newhit)[TRT::Hit::TimeoverThreshold]= dcp->timeOverThreshold() ;
 			  //CORRECT FOR TUBEHITS!!!:
 			  const TRTCond::RtRelation* rtrelation = m_trtcaldbSvc->getRtRelation(ident) ;
 			  // added High Level Threshold information
-			  (*newhit)[TRT::Hit::HTLevel]= dcp ? dcp->highLevel() : -1.0;
+			  (*newhit)[TRT::Hit::HTLevel]= dcp->highLevel();
 			  // Extract the correction in the db for the ToT:
 			  float tot = (*newhit)[TRT::Hit::TimeoverThreshold];
 			  float ToTCorrection = m_driftFunctionTool->driftTimeToTCorrection( tot, ident); // (rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id);     )

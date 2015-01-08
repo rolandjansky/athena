@@ -44,6 +44,7 @@ A class for generating a r-t and t-r graphs by binning the 2D histograms in Cali
 class RtGraph{
 public:
   /** the constructor*/ RtGraph(TH2F*, int, const char*, bool, TDirectory*);
+  /** the destructor */ ~RtGraph();
   /** array of the histograms for all bins*/ TH1D** hslizes;
   /** the r values*/ vector<double> rval;
   /** the r values*/ vector<double> tval;
@@ -73,7 +74,7 @@ private:
   /***/ float *dv;
   /***/ float *etv;
   /***/ float *edv;
-  /***/ float width;
+//  /***/ float width;
   /***/ TF1* ff;
 };
 
@@ -111,6 +112,7 @@ class caldata{
  public:
   caldata();
   caldata(bool,int,int);
+  ~caldata();
   /**detector (barrel or end-cap)*/ int det;
   /**layer*/ int lay;
   /**phi module*/ int mod;
@@ -248,7 +250,7 @@ public:
      @param[in] caldata_above the caldata object from the sub-module above the one to be calibrated
      @return the root directory where the histgrams were written
   */
-  TDirectory* Calibrate(TDirectory*, string, string, caldata);
+  TDirectory* Calibrate(TDirectory*, string, string, caldata*);
 
   /**
      Makes the R-t fit

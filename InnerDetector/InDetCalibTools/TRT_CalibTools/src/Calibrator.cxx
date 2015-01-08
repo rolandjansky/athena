@@ -17,12 +17,92 @@ PURPOSE: Class for calibrating a TRT sub-level
 #include "Calibrator.h"
 
 caldata::caldata(){
+	res		= -999; 
+   	resMean 	= -999;
+   	reserr		= -999;
+   	tres 		= -999;
+   	tresMean 	= -999;
+   	t0 		= -999;
+   	t0err 		= -999;
+   	reft0  		= -999; 
+   	t0off  		= -999; 
+   	rtt0  		= -999; 
+   	nhits 		= -999;
+   	x  		= -999;
+   	y  		= -999;
+   	z  		= -999;
+   	oldt02  	= -999;
+   	sumt0  		= -999;
+   	sumx  		= -999;
+   	sumy  		= -999;
+   	sumz  		= -999;
+   	calflag  	= -999;
+   	rtflag  	= -999;
+   	t0flag  	= -999;
+   	treshist  	= NULL;
+   	reshist  	= NULL;
+   	rthist  	= NULL;
+  	det		= -999;
+  	lay		= -999;
+  	mod		= -999;
+  	brd		= -999;
+  	chp		= -999;
+  	stl		= -999;
+  	stw		= -999;
+  	sid		= -999;
+  	ntres		= -999;
+  	nrt		= -999;
+  	nres		= -999;
+  	t0fittype	= -999;
+  	rtgraph		= NULL;
+}
+
+caldata::~caldata(){
+  delete[] treshist;
+  delete[] reshist;
+  delete[] rthist;
+
 }
 
 caldata::caldata(bool makehist, int nbinst, int nbinsr){
-  if (makehist) treshist = new float[100];
-  if (makehist) reshist = new float[100];
-  if (makehist) rthist = new float[nbinsr*nbinst+200];
+	res		= -999; 
+   	resMean 	= -999;
+   	reserr		= -999;
+   	tres 		= -999;
+   	tresMean 	= -999;
+   	t0 		= -999;
+   	t0err 		= -999;
+   	reft0  		= -999; 
+   	t0off  		= -999; 
+   	rtt0  		= -999; 
+   	nhits 		= -999;
+   	x  		= -999;
+   	y  		= -999;
+   	z  		= -999;
+   	oldt02  	= -999;
+   	sumt0  		= -999;
+   	sumx  		= -999;
+   	sumy  		= -999;
+   	sumz  		= -999;
+   	calflag  	= -999;
+   	rtflag  	= -999;
+   	t0flag  	= -999;
+   	treshist  	= NULL;
+   	reshist  	= NULL;
+   	rthist  	= NULL;
+
+  if (makehist) {
+		if (treshist) delete treshist;
+		treshist = new float[100];
+		}
+  if (makehist) {
+		if (reshist) delete reshist;
+		reshist = new float[100];
+		}
+  if (makehist) {
+		if (rthist) delete rthist;
+		rthist = new float[nbinsr*nbinst+200];
+		}
 }
 
 RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDirectory* dir){
@@ -191,7 +271,25 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   trgr->SetName("trgraph") ;
 
   dir->cd();
-}  
+}
+
+
+RtGraph::~RtGraph(){  
+
+ delete hslizes   ;
+ delete btype     ;
+ delete tv        ;
+ delete dv        ;
+ delete etv       ;
+ delete edv       ;
+ delete rightsig  ;
+ delete leftsig   ;
+ delete leftval   ;
+ delete rightval  ;
+ delete maxbin    ;
+ delete maxval    ;
+}
+
 
 double pol3deg(double *x, double *par) {
   double r = x[0];
@@ -737,7 +835,7 @@ float Calibrator::FitResidual(string key, TH1F* resHist){
 
 }
 
-TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, caldata caldata_above){
+TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, caldata * caldata_above){
 
   //set some bool flags
   bool calrt=opt.find("R")!=string::npos;
@@ -788,8 +886,8 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
     //use old data
     data[key].rtflag=true;
     //data[key].rtt0=0;
-    data[key].rtt0=caldata_above.rtt0;
-    data[key].rtgraph=caldata_above.rtgraph;
+    data[key].rtt0=caldata_above->rtt0;
+    data[key].rtgraph=caldata_above->rtgraph;
     for (int i=0;i<4;i++) data[key].rtpar[i]=data[key].oldrtpar[i];
     if (prnt) printf("RT << %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt,data[key].rtpar[0],data[key].rtpar[1],data[key].rtpar[2],data[key].rtpar[3], data[key].rtt0); 
   }
@@ -813,9 +911,9 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
     }
     else{
       //use data from level above
-      data[key].rtgraph=caldata_above.rtgraph;
-      data[key].rtt0=caldata_above.rtt0;
-      for (int i=0;i<4;i++) data[key].rtpar[i]=caldata_above.rtpar[i];
+      data[key].rtgraph=caldata_above->rtgraph;
+      data[key].rtt0=caldata_above->rtt0;
+      for (int i=0;i<4;i++) data[key].rtpar[i]=caldata_above->rtpar[i];
       if (prnt) printf("RT /\\ %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt,data[key].rtpar[0],data[key].rtpar[1],data[key].rtpar[2],data[key].rtpar[3], data[key].rtt0); 
     }
   }
@@ -835,11 +933,11 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
     if (useref && level==5){
       //use chip reference values 
       data[key].t0flag=true;
-      data[key].t0=caldata_above.t0 + data[key].reft0 + data[key].rtt0;
-      data[key].t0err=caldata_above.t0err;
-      data[key].t0off=data[key].t0-caldata_above.t0;
+      data[key].t0=caldata_above->t0 + data[key].reft0 + data[key].rtt0;
+      data[key].t0err=caldata_above->t0err;
+      data[key].t0off=data[key].t0-caldata_above->t0;
       data[key].t0fittype = 3;
-      if (prnt) printf("T0 ** %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above.t0, data[key].reft0, data[key].rtt0, data[key].t0); 
+      if (prnt) printf("T0 ** %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, data[key].reft0, data[key].rtt0, data[key].t0); 
     }
     else {
       //do fit
@@ -856,7 +954,7 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
 	}      
 
 	data[key].t0=data[key].oldt02 + FitTimeResidual(key,tresHists[key]) + data[key].rtt0 + t0shift; //do the fit and modify t0
-	data[key].t0off=data[key].t0-caldata_above.t0; //calculate t0 offset from level above
+	data[key].t0off=data[key].t0-caldata_above->t0; //calculate t0 offset from level above
 	if (data[key].t0<0) data[key].t0=0;
 	if (prnt) printf("T0    %7i  %05.2f%+05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, data[key].oldt02, data[key].t0-data[key].oldt02-data[key].rtt0, data[key].rtt0, t0shift, data[key].t0); 
 
@@ -864,23 +962,23 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
       }
       //use data from level above
       else { 
-	//data[key].t0=caldata_above.t0;
+	//data[key].t0=caldata_above->t0;
 //TEMP FIX to dont destroy right T0s
-	if (data[key].oldt02 + (caldata_above.t0 - caldata_above.oldt02)  >0)    data[key].t0=data[key].oldt02 + (caldata_above.t0 - caldata_above.oldt02);
+	if (data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02)  >0)    data[key].t0=data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02);
 	else data[key].t0= 0;
 //TEMP FIX to dont destroy right T0s
 //	if (level != 6 )  data[key].t0=data[key].oldt02;
 //	if (level == 6 ) {
-//		data[key].t0=caldata_above.t0;
-//		if  (caldata_above.ntres< mint0stat )  data[key].t0=data[key].oldt02;
+//		data[key].t0=caldata_above->t0;
+//		if  (caldata_above->ntres< mint0stat )  data[key].t0=data[key].oldt02;
 //	}
       //add the short straw correction here. In this way, the shift is only done when contants at STRAW level come from level above.
-        if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above.t0-0.75; 
-	data[key].t0err=caldata_above.t0err;
-	data[key].t0off=data[key].t0-caldata_above.t0 + data[key].rtt0;;
+        if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
+	data[key].t0err=caldata_above->t0err;
+	data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;;
 	data[key].t0fittype = 4;
-//      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above.t0, 0.0, 0.0, data[key].t0); 
-      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above.t0, caldata_above.oldt02, data[key].oldt02 ,  data[key].t0); 
+//      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, 0.0, 0.0, data[key].t0); 
+      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, caldata_above->oldt02, data[key].oldt02 ,  data[key].t0); 
       }
     }
   }
@@ -1019,6 +1117,8 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
     hist->calflag=false;
 
     data[key]=*hist; //save the histogram in the map 
+
+    delete hist;
 
     data[key].oldt02 = AccumulativeMean(data[key].nhits, data[key].oldt02, d.t0); //update old t0 mean value
 
