@@ -176,8 +176,8 @@ int FTK_RawPixelCluster::getColWidth() const {
 int FTK_RawPixelCluster::getRowWidth() const { 
 
   float multiplier = 1.; // Range multiplier
-  float range_top  = 5.; 
-  float range_bot  = 1.;
+  //float range_top  = 5.; 
+  //float range_bot  = 1.;
   int   offset     = -1; // If you want to include -ve numbers it should be 2^n-1 where n is the number of bits
   int   position   = 12; // Position along the 32-bit word}
 

@@ -15,6 +15,9 @@ const float FTK_RawTrack::z0_precision     = 100.;
 const float FTK_RawTrack::phi_precision    = 10000.; 
 const float FTK_RawTrack::curv_precision   = 5.*10e6; 
 const float FTK_RawTrack::cot_precision    = 5000.; 
+const float FTK_RawTrack::chi2_precision   = 1000.;
+const float FTK_RawTrack::quality_precision = 1000.;
+
 
 FTK_RawTrack::FTK_RawTrack() :
   m_word_th1(0), // ROAD_ID                   32-bit
@@ -208,6 +211,30 @@ void FTK_RawTrack::setCurv(float track_curv){
   return;
 }
 
+void FTK_RawTrack::setChi2(float track_chi2){
+
+  uint32_t chi2 = 0;
+  if(!(fabs(track_chi2)>6.5))
+    chi2  = round( chi2_precision*track_chi2 + sixteen_bit_offset);
+
+  chi2 = chi2 << 16;
+  m_word_th4 = chi2 | m_word_th4;
+
+  return;
+}
+
+void FTK_RawTrack::setQuality(float track_qual){
+
+  uint32_t qual = 0;
+  if(!(fabs(track_qual)>6.5))
+    qual  = round( quality_precision*track_qual + sixteen_bit_offset);
+
+  qual = qual << 16;
+  m_word_th5 = qual | m_word_th5;
+
+  return;
+}
+
 int FTK_RawTrack::return_bits(int low, int high, uint32_t word) const{
   word = word << (32-high);
   word = word >> low;
@@ -247,6 +274,17 @@ double FTK_RawTrack::getCurv() const{
   return curv_f;
 }
 
+double FTK_RawTrack::getChi2() const{
+  uint16_t chi2 = 0;
+  double chi2_f = (double)(((int)(chi2 | (m_word_th4 >> 16)) - sixteen_bit_offset)/chi2_precision);
+  return chi2_f;
+}
+
+double FTK_RawTrack::getQuality() const{
+  uint16_t qual = 0;
+  double qual_f = (double)(((int)(qual | (m_word_th5 >> 16)) - sixteen_bit_offset)/quality_precision);
+  return qual_f;
+}
 
 #if defined(__MAKECINT__)
 #pragma link C++ class FTK_RawTrack;
