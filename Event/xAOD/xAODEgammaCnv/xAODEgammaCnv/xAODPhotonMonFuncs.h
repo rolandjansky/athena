@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAODEGAMMACNV_XAODPHOTONMONFUNCS_h
+#define XAODEGAMMACNV_XAODPHOTONMONFUNCS_h
+
 // Monitoring macros for egamma
 // Separate for Electron and Photon
 // GETTER for Shower Shape monitoring
@@ -48,9 +51,6 @@ GETTER(topoetcone40)
 GETTER(ptcone20)
 GETTER(ptcone30)
 GETTER(ptcone40)    
-GETTER(nucone20)
-GETTER(nucone30)
-GETTER(nucone40)    
 #undef GETTER    
 
 // GETTERs for CaloCluster monitoring   
@@ -148,3 +148,5 @@ float getE0Eaccordion(const xAOD::Photon *eg){
     }
     else return 0.;
 }
+
+#endif

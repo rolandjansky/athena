@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronReader.cxx 621018 2014-10-09 21:40:50Z christos $
+// $Id: ElectronReader.cxx 635870 2014-12-14 16:43:35Z christos $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -21,8 +21,8 @@ namespace xAODReader {
 
    ElectronReader::ElectronReader( const std::string& name, ISvcLocator* svcLoc )
       : AthAlgorithm( name, svcLoc ) {
-      declareProperty( "ContainerName", m_containerName = "ElectronCollection" );
-      declareProperty( "ContainerFrwdName", m_containerFrwdName = "FwdElectrons" );
+      declareProperty( "ContainerName", m_containerName = "Electrons" );
+      declareProperty( "ContainerFrwdName", m_containerFrwdName = "ForwardElectrons" );
 
    }
 
@@ -219,16 +219,16 @@ namespace xAODReader {
 	     ATH_MSG_DEBUG(    "ptcone40 = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone20_core57cells) ){
-	     ATH_MSG_DEBUG(    "topoetcone20_core57cells = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone20) ){
+	     ATH_MSG_DEBUG(    "topoetcone20  = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone30_core57cells) ){
-	     ATH_MSG_DEBUG(    "topoetcone30_core57cells = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone30) ){
+	     ATH_MSG_DEBUG(    "topoetcone30 = " <<val_float);
 	   }
 
-	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone40_core57cells) ){
-	     ATH_MSG_DEBUG(    "topoetcone40_core57cells = " <<val_float);
+	   if(( *el_itr )->isolationValue(val_float,xAOD::Iso::topoetcone40) ){
+	     ATH_MSG_DEBUG(    "topoetcone40 = " <<val_float);
 	   }
 
 	   //Cluster-Track Match
@@ -249,8 +249,8 @@ namespace xAODReader {
 	   ATH_MSG_DEBUG( "TrackParticle Summary"  );
 	   
 	   uint8_t val_uint8=0;
-	     if(( *el_itr )->trackParticleSummaryValue(val_uint8,xAOD::numberOfBLayerHits) ){
-	       ATH_MSG_DEBUG(    "numberOfBLayerHits = " <<static_cast<unsigned int> (val_uint8));
+	     if(( *el_itr )->trackParticleSummaryValue(val_uint8,xAOD::numberOfInnermostPixelLayerHits) ){
+	       ATH_MSG_DEBUG(    "numberOfInnermostPixelLayerHits = " <<static_cast<unsigned int> (val_uint8));
 	     }
 	     
 	     if(( *el_itr )->trackParticleSummaryValue(val_uint8,xAOD::numberOfPixelHits) ){

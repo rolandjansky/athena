@@ -101,7 +101,13 @@ namespace xAODMaker {
 	  // Create the xAOD object:
 	  xaod->push_back( electron );
 	  // p4
-	  electron->setP4((*itr)->pt(),(*itr)->eta(),(*itr)->phi(), (*itr)->m());
+	  double clE = (*itr)->cluster()->e();
+	  double pt  = sqrt(clE*clE - 0.511*0.511)/cosh((*itr)->trackParticle()->eta());
+	  double eta = (*itr)->trackParticle()->eta();
+	  double phi = (*itr)->trackParticle()->phi();
+	  electron->setP4(pt, eta, phi, 0.511);
+	  //electron->setP4((*itr)->pt(),(*itr)->eta(),(*itr)->phi(), (*itr)->m());
+
 	  // author(s)
 	  electron->setAuthor( (*itr)->author() );
 	  //OQ
@@ -134,7 +140,9 @@ namespace xAODMaker {
 	  setTrackMatch(**itr,*electron);	
 	  // set Links
 	  setLinks(**itr,*electron); 
-	  
+	  // set derived parameters - should be done last
+	  setDerivedParameters(*electron);
+  
 	  if (m_runPID) {
 	    CHECK(m_PIDBuilder->execute(electron));
 	  }
@@ -206,23 +214,11 @@ namespace xAODMaker {
     checkAndSetIsolation(egammaParameters::etcone20     ,   xAOD::Iso::etcone20     ,  aodel,   xaodel);
     checkAndSetIsolation(egammaParameters::etcone30     ,   xAOD::Iso::etcone30     ,  aodel,   xaodel);
     checkAndSetIsolation(egammaParameters::etcone40     ,   xAOD::Iso::etcone40     ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::nucone20     ,   xAOD::Iso::nucone20     ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::nucone30     ,   xAOD::Iso::nucone30     ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::nucone40     ,   xAOD::Iso::nucone40     ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::ptcone20     ,   xAOD::Iso::ptcone20     ,  aodel,   xaodel);
     checkAndSetIsolation(egammaParameters::ptcone30     ,   xAOD::Iso::ptcone30     ,  aodel,   xaodel);
     checkAndSetIsolation(egammaParameters::ptcone40     ,   xAOD::Iso::ptcone40     ,  aodel,   xaodel);   
-    checkAndSetIsolation(egammaParameters::etcone20_ptcorrected     ,   xAOD::Iso::etcone20_ptcorrected     ,  aodel,   xaodel);  
-    checkAndSetIsolation(egammaParameters::etcone30_ptcorrected     ,   xAOD::Iso::etcone30_ptcorrected     ,  aodel,   xaodel);  
-    checkAndSetIsolation(egammaParameters::etcone40_ptcorrected     ,   xAOD::Iso::etcone40_ptcorrected     ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::etcone20_corrected       ,   xAOD::Iso::etcone20_corrected       ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::etcone30_corrected       ,   xAOD::Iso::etcone30_corrected       ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::etcone40_corrected       ,   xAOD::Iso::etcone40_corrected       ,  aodel,   xaodel);
     checkAndSetIsolation(egammaParameters::topoetcone20     ,   xAOD::Iso::topoetcone20     ,  aodel,   xaodel);  
     checkAndSetIsolation(egammaParameters::topoetcone30     ,   xAOD::Iso::topoetcone30     ,  aodel,   xaodel);  
     checkAndSetIsolation(egammaParameters::topoetcone40     ,   xAOD::Iso::topoetcone40     ,  aodel,   xaodel); 
-    checkAndSetIsolation(egammaParameters::topoetcone40_ptcorrected   ,   xAOD::Iso::topoetcone40_ptcorrected   ,  aodel,   xaodel);
-    checkAndSetIsolation(egammaParameters::topoetcone40_corrected     ,   xAOD::Iso::topoetcone40_corrected     ,  aodel,   xaodel);
   }
   
   void ElectronCnvTool::checkAndSetIsolation(egammaParameters::ParamDef aodParameter,
@@ -321,7 +317,60 @@ namespace xAODMaker {
     newLink.resetWithKeyAndIndex( name, oldLink.index() );
     return newLink;
   }
+ 
+  void ElectronCnvTool::setDerivedParameters(xAOD::Electron& xaodel) const{
 
+    // Set some extra derived variables:
+    /// e237/e277
+    float e237 = 0;
+    float e277 = 0;
+    if (xaodel.showerShapeValue(e237, xAOD::EgammaParameters::e237) &&
+	xaodel.showerShapeValue(e277, xAOD::EgammaParameters::e277)) {
+      float reta = (e277 != 0) ? e237/e277 : 0;
+      xaodel.setShowerShapeValue(reta, xAOD::EgammaParameters::Reta);
+    }
+    ///  e233/e237
+    float e233 = 0;
+    if (xaodel.showerShapeValue(e233, xAOD::EgammaParameters::e233)) {
+      float rphi = (e237 != 0) ? e233/e237 : 0;
+      xaodel.setShowerShapeValue(rphi, xAOD::EgammaParameters::Rphi);
+     }
+    ///  (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
+    // Eratio
+    float emaxs1   = 0;
+    float e2tsts1  = 0;
+    if (xaodel.showerShapeValue(emaxs1, xAOD::EgammaParameters::emaxs1) &&
+	xaodel.showerShapeValue(e2tsts1, xAOD::EgammaParameters::e2tsts1)) {
+         float dEmaxs1  = 0;
+         float esums1 = emaxs1 + e2tsts1;
+         if (fabs(esums1) > 0.0) dEmaxs1   = (emaxs1 - e2tsts1)/esums1;
+         xaodel.setShowerShapeValue(dEmaxs1, xAOD::EgammaParameters::Eratio);
+    }
+    
+    /// e2tsts1-emins1
+    float emins1   = 0;
+    if (xaodel.showerShapeValue(emins1, xAOD::EgammaParameters::emins1)) {
+      float deltaE   = e2tsts1 - emins1;
+      xaodel.setShowerShapeValue(deltaE, xAOD::EgammaParameters::DeltaE);
+     }
+    
+    /// ethad/et
+    const xAOD::CaloCluster*   el_cl = xaodel.caloCluster();
+    float elEta    = fabs(el_cl->etaBE(2));
+    float elEt     = el_cl->e()/cosh(elEta);
+    float ethad    = 0;
+    if (xaodel.showerShapeValue(ethad, xAOD::EgammaParameters::ethad)) {
+      float raphad = fabs(elEt) != 0. ? ethad/elEt : 0.;
+      xaodel.setShowerShapeValue(raphad, xAOD::EgammaParameters::Rhad);
+     }
+    
+    ///  ethad1/et
+    float ethad1   = 0;
+    if (xaodel.showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1)) {
+      float raphad1    = fabs(elEt) != 0. ? ethad1/elEt : 0.;
+      xaodel.setShowerShapeValue(raphad1, xAOD::EgammaParameters::Rhad1);
+     }
+  }
 
 } // namespace xAODMaker
 

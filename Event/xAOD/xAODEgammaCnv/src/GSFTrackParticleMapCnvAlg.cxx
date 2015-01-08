@@ -78,7 +78,6 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
     }
     
-    Rec::TrackParticleContainer associatedElems(SG::VIEW_ELEMENTS);    
     /////////////////////////////////////////////////////////////////////////////////////////
     
     // Loop over the GSF track particles from the AOD and the GSF ones from xAOD
@@ -89,10 +88,10 @@ namespace xAODMaker {
     xAOD::TrackParticleContainer::const_iterator xaod = xaodContainerGSF->begin();
     xAOD::TrackParticleContainer::const_iterator xaodEnd = xaodContainerGSF->end();
     
-    for ( ; aod != aodEnd, xaod != xaodEnd; ++aod, ++xaod)
-    {
-      if ( !trkassocs->assocs(*aod, associatedElems) )
-      {
+    for ( ; aod != aodEnd, xaod != xaodEnd; ++aod, ++xaod){
+      Rec::TrackParticleContainer associatedElems(SG::VIEW_ELEMENTS);    
+
+      if ( !trkassocs->assocs(*aod, associatedElems) ){
         ATH_MSG_WARNING("Missing link from GSF track particle to original TP");
         continue;
       }
@@ -105,8 +104,7 @@ namespace xAODMaker {
       newLink.resetWithKeyAndIndex( m_xaodContainerName, oldLink.index() );
       
       // Set new link as a decoration of the new GSF track particle
-      if(newLink.isValid())
-      {
+      if(newLink.isValid()){
         newLink.toPersistent();
         xAOD::TrackParticle* gsfTrack = const_cast<xAOD::TrackParticle*> (*xaod);
         gsfTrack->auxdata< ElementLink< xAOD::TrackParticleContainer > >( "originalTrackParticle" ) = newLink;

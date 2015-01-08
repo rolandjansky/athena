@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAODEGAMMACNV_XAODELECTONMONFUNCS_h
+#define XAODEGAMMACNV_XAODELECTONMONFUNCS_h
+
 // Monitoring macros for egamma
 // Separate for Electron and Photon
 // GETTER for Shower Shape monitoring
@@ -47,9 +50,6 @@ GETTER(topoetcone40)
 GETTER(ptcone20)
 GETTER(ptcone30)
 GETTER(ptcone40)    
-GETTER(nucone20)
-GETTER(nucone30)
-GETTER(nucone40)    
 #undef GETTER    
 
 // GETTERs for CaloCluster monitoring   
@@ -80,8 +80,8 @@ GETTER(z0)
         eg->trackParticleSummaryValue(val_uint8,xAOD::_name_); \
         return val_uint8; } \
     else return -99; }
-GETTER(numberOfBLayerHits) 
-GETTER(numberOfBLayerOutliers) 
+GETTER(numberOfInnermostPixelLayerHits) 
+GETTER(numberOfInnermostPixelLayerOutliers) 
 GETTER(numberOfPixelHits)
 GETTER(numberOfPixelOutliers)
 GETTER(numberOfSCTHits)    
@@ -90,13 +90,26 @@ GETTER(numberOfTRTHits)
 GETTER(numberOfTRTHighThresholdHits)
 GETTER(numberOfTRTHighThresholdOutliers)
 GETTER(numberOfTRTOutliers)
-GETTER(expectBLayerHit)
+GETTER(expectInnermostPixelLayerHit)
 GETTER(numberOfPixelDeadSensors)
 GETTER(numberOfSCTDeadSensors)
 GETTER(numberOfTRTXenonHits)
 
 #undef GETTER
 
+#define GETTER(_name_) float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg) \
+{ float val_float{0}; \
+    if(eg && eg->trackParticle()){ \
+        eg->trackParticleSummaryValue(val_float,xAOD::_name_); \
+        return val_float; } \
+    else return -99; }
+GETTER(eProbabilityComb)
+GETTER(eProbabilityHT)
+GETTER(eProbabilityToT)
+GETTER(eProbabilityBrem)
+GETTER(pixeldEdx)    
+
+#undef GETTER
 // GETTERs for Calo-Track monitoring
 #define GETTER(_name_) float getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
 { float val={-99.}; \
@@ -245,3 +258,4 @@ float getE0Eaccordion(const xAOD::Electron *eg){
     else return 0.;
 }
 
+#endif

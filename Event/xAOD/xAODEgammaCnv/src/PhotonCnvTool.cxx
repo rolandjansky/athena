@@ -169,23 +169,12 @@ namespace xAODMaker {
     checkAndSetIsolation(egammaParameters::etcone20     ,   xAOD::Iso::etcone20     ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::etcone30     ,   xAOD::Iso::etcone30     ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::etcone40     ,   xAOD::Iso::etcone40     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone20  ,   xAOD::Iso::nucone20     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone30  ,   xAOD::Iso::nucone30     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::nucone40  ,   xAOD::Iso::nucone40     ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::ptcone20     ,   xAOD::Iso::ptcone20     ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::ptcone30     ,   xAOD::Iso::ptcone30     ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::ptcone40     ,   xAOD::Iso::ptcone40     ,  aodph,   xaodph);   
-    checkAndSetIsolation(egammaParameters::etcone20_ptcorrected     ,   xAOD::Iso::etcone20_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone30_ptcorrected     ,   xAOD::Iso::etcone30_ptcorrected     ,  aodph,   xaodph);  
-    checkAndSetIsolation(egammaParameters::etcone40_ptcorrected     ,   xAOD::Iso::etcone40_ptcorrected     ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone20_corrected       ,   xAOD::Iso::etcone20_corrected       ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone30_corrected       ,   xAOD::Iso::etcone30_corrected       ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::etcone40_corrected       ,   xAOD::Iso::etcone40_corrected       ,  aodph,   xaodph);
     checkAndSetIsolation(egammaParameters::topoetcone20     ,   xAOD::Iso::topoetcone20     ,  aodph,   xaodph);  
     checkAndSetIsolation(egammaParameters::topoetcone30     ,   xAOD::Iso::topoetcone30     ,  aodph,   xaodph);  
     checkAndSetIsolation(egammaParameters::topoetcone40     ,   xAOD::Iso::topoetcone40     ,  aodph,   xaodph); 
-    checkAndSetIsolation(egammaParameters::topoetcone40_ptcorrected   ,   xAOD::Iso::topoetcone40_ptcorrected   ,  aodph,   xaodph);
-    checkAndSetIsolation(egammaParameters::topoetcone40_corrected     ,   xAOD::Iso::topoetcone40_corrected     ,  aodph,   xaodph);
   }
   
   void PhotonCnvTool::checkAndSetIsolation(egammaParameters::ParamDef aodParameter,xAOD::Iso::IsolationType xaodParameter, 

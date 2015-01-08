@@ -70,8 +70,11 @@ namespace xAODMaker {
     ///@brief  Set the element links between the various particles
     void setLinks(const egamma&, xAOD::Electron& ) const;
     ElementLink<xAOD::TrackParticleContainer> getNewLink(const ElementLink<Rec::TrackParticleContainer>& oldLink, const std::string& name) const;
-    
-     // ///@brief Other Keys
+
+    ///@brief  Fills in some extra derived shower shape variables
+    void setDerivedParameters(xAOD::Electron& ) const;    
+
+    ///@brief Other Keys
     std::string   m_inDetTrackParticlesGSF; //!< Location/Key for xAOD::TrackParticles from ID
     std::string   m_inDetTrackParticles   ; //!< Location/Key for xAOD::TrackParticles from ID
     std::string   m_caloClusters;           //!< Location/Key for xAOD::CaloClusters for electrons and photons    
