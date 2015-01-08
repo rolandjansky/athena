@@ -103,7 +103,16 @@ class IRPCcablingSvc : virtual public IInterface
 					Identifier& PhiLowBorder_id,
 					Identifier& PhiHighBorder_id) const=0;
    
-
+    virtual bool give_Pad_Parameters(unsigned short int logic_sector,
+                                     unsigned short int PADId,
+                                     bool & feet,
+                                     bool & eta_and_phi,
+                                     unsigned short int  & cma_mask,
+                                     unsigned short int  & feet_th0,
+                                     unsigned short int  & feet_th1,
+                                     unsigned short int  & feet_th2 ) const=0;
+    
+    
    virtual unsigned long int strip_code_fromOffId (std::string stationName, 
 						    int stationEta, 
 						    int stationPhi, 

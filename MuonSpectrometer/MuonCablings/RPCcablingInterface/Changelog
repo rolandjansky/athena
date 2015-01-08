@@ -1,3 +1,7 @@
+2015-01-08 Massimo Corradi <massimo.corradi@bo.infn.it>
+	* tagged as  RPCcablingInterface-00-00-38
+	* added give_Pad_Parameters method added to interface
+	
 2014-07-25 Massimo Corradi <massimo.corradi@bo.infn.it>
 	* tagged as  RPCcablingInterface-00-00-37
 	* IRPCcablingSvc.h added interface to compute offline id from strip code
