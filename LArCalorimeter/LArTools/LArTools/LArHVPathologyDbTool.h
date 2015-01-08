@@ -5,10 +5,10 @@
 #ifndef LArHVPathologyDbTool_H
 #define LArHVPathologyDbTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h" 
 
-class LArHVPathologyDbTool: public AlgTool, virtual public ILArHVPathologyDbTool
+class LArHVPathologyDbTool: public AthAlgTool, virtual public ILArHVPathologyDbTool
 {
  public: 
   LArHVPathologyDbTool(const std::string& type

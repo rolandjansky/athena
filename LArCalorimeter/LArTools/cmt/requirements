@@ -6,6 +6,7 @@ use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*    External
 use StoreGate           StoreGate-*         Control
 use AthenaKernel	AthenaKernel-*	    Control
+use AthenaBaseComps     AthenaBaseComps-*   Control
 
 use Identifier 		Identifier-*        DetectorDescription
 use LArIdentifier 	LArIdentifier-*     LArCalorimeter
@@ -14,6 +15,9 @@ use LArElecCalib        LArElecCalib-*      LArCalorimeter
 
 use AthenaBaseComps    AthenaBaseComps-*    Control
 use AthenaPoolUtilities  AthenaPoolUtilities-* Database/AthenaPOOL
+
+# Apply the cmake-specific command to specify the necessary ROOT components
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
 
 #library LArTools "*.cxx -s=../src/components *.cxx "
 #apply_pattern component_library 
