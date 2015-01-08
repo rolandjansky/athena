@@ -90,6 +90,12 @@ Alg::execute()
   return PyAthena::callPyMethod( m_self, "sysExecute" );
 }
 
+void 
+Alg::resetExecuted()
+{  
+  PyAthena::callPyMethod( m_self, "resetExecuted" ).ignore();
+}
+
 StatusCode
 Alg::sysInitialize()
 {

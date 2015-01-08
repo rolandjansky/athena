@@ -5,13 +5,26 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__= "$Revision: 615758 $"
+__version__= "$Revision: 627236 $"
 __author__ = "Sebastien Binet"
 __doc__ = "provide components to peek into pool files"
 
 ### imports --------------------------------------------------------------------
 import AthenaPython.PyAthena as PyAthena
 StatusCode = PyAthena.StatusCode
+
+# MN: make Coral.AttributeList work in Coral3/ROOT6
+from PyCool import coral
+try:
+    getattr(coral.Attribute, 'data<std::basic_string<char> >')
+    #MN: use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6)
+    def attr_str_data(attr):
+        return getattr(attr, 'data<std::basic_string<char> >') ()
+    # if not defined, use the old one (ROOT5) 
+except AttributeError:
+    def attr_str_data(attr):
+        return getattr(attr, 'data<std::string>') ()
+
 
 ### helper functions ----------------------------------------------------------
 def _import_ROOT():
@@ -162,6 +175,16 @@ class FilePeeker(PyAthena.Alg):
         return StatusCode.Success
 
     def process_metadata(self, store, metadata_name):
+#        import PyCintex
+#        if hasattr(PyCintex.gbl, 'Reflex'):
+#            print "hasattr(PyCintex.gbl, 'Reflex')!"
+#            print type(PyCintex.gbl.Reflex)
+#            print dir(PyCintex.gbl.Reflex)
+#            del PyCintex.gbl.Reflex
+#            print "hasattr(PyCintex.gbl, 'Reflex')!",  hasattr(PyCintex.gbl, 'Reflex')
+            #import pdb
+            #pdb.set_trace()
+        #from PyCool import coral
         msg = self.msg
         try:
             obj = store[metadata_name]
@@ -180,7 +203,7 @@ class FilePeeker(PyAthena.Alg):
                 payloads.append(_tmp.at(ii))
             pass
         for ii,payload in zip(range(payloads_sz), payloads):
-            #print "-->",ii,payload,type(payload)
+            # print "-->",ii,payload,type(payload),'\n' 
             if not payload:
                 msg.info ("**error** null-pointer ?")
                 continue
@@ -220,25 +243,22 @@ class FilePeeker(PyAthena.Alg):
                 chan = payload.chanNum(idx)
                 #msg.info("idx: %i chan: %s", idx, chan)
                 attr_list = payload.attributeList(chan)
-                attr_list = list(toiter(attr_list.begin(),
-                                        attr_list.end()))
                 attr_data = []
-                for a in attr_list:
+                for a in list(toiter(attr_list.begin(), attr_list.end())):
                     #msg.info((a,dir(a),type(a)))
                     spec   = a.specification()
                     a_type = spec.typeName()
-                    a_type = 'std::string' if a_type == 'string' else a_type
-                    a_data = getattr(a,'data<%s>'%a_type)()
-                    if a_type == 'std::string':
+                    if a_type.find('string') >= 0:
+                        a_data = attr_str_data(a)
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
                             # swallow and keep as a string
                             pass
-                    #msg.info("%s: %s", spec.name(), a_data)
-                    attr_data.append((spec.name(),
-                                      #type(a_data),
-                                      a_data))
+                    else:
+                        a_data = getattr(a,'data<%s>'%a_type)()
+                    #msg.info("%s: %s  %s", spec.name(), a_data, type(a_data) )
+                    attr_data.append( (spec.name(), a_data) )
                 attrs.append(dict(attr_data))
                 # msg.info(attrs[-1])
             if len(attrs) == len(chan_names):
@@ -292,6 +312,8 @@ class FilePeeker(PyAthena.Alg):
                         if isinstance(v, list) and len(v)>0:
                             v = v[0]
                             peeked_data[k].append(v)
+            #_info('peeked_data:')
+            #_info(str(peeked_data))
             db['fileinfos'] = peeked_data
             db.close()
             _info('storing peeked file infos into [%s]... [done]', oname)
@@ -367,7 +389,7 @@ class FilePeeker(PyAthena.Alg):
             item_list = esi.item_list()
             item_list = map(_make_item_list, item_list)
             peeked_data['eventdata_items'] = item_list
-            print "======",len(item_list)
+            # print "======",len(item_list)
             peeked_data['lumi_block'] = esi.lumi_blocks()
             peeked_data['run_number'] = esi.run_numbers()
             #peeked_data['evt_number'] = esi.event_number()

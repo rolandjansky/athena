@@ -139,6 +139,16 @@ class Alg( CfgPyAlgorithm ):
         """Set the filter passed flag to the specified state"""
         return self._cppHandle.setFilterPassed(state)
     
+    def resetExecuted(self):
+       self.setExecuted(False)
+       return StatusCode.Success
+    
+    def setExecuted(self,state):
+       return self._cppHandle.setExecuted(state)
+    
+    def isExecuted(self):
+       return self._cppHandle.isExecuted()
+    
     pass # PyAthena.Alg
 
 ### PyAthena.Svc --------------------------------------------------------------
@@ -343,8 +353,7 @@ class AthFilterAlgorithm(Alg):
         return
 
     def sysInitialize(self):
-        self.cutID = self.cutFlowSvc().selfRegisterFilter(self.name(),
-                                                          self._filter_descr)
+        self.cutID = self.cutFlowSvc().registerFilter(self.name(), self._filter_descr)
         if not self.cutID:
             self.msg.error("could not register filter-cut with cutflowsvc")
             return StatusCode.Failure

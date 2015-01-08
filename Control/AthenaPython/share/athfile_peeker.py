@@ -23,6 +23,7 @@ svcMgr.EventSelector.InputCollections = FNAMES
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 from AthenaPython.FilePeekerLib import FilePeeker
+import AthenaCommon.Constants as Lvl
 job += FilePeeker('peeker', OutputLevel=Lvl.INFO)
 job.peeker.outfname = 'peeker.%08i.pkl' % os.getpid()
 job.peeker.infname  = FNAMES[0]
@@ -33,6 +34,5 @@ import IOVDbSvc.IOVDb
 ## evt-max
 theApp.EvtMax = vars().get('EVTMAX', 1)
 
-import AthenaCommon.Constants as Lvl
 svcMgr.AthenaRootStreamerSvc.OutputLevel = Lvl.ERROR
 svcMgr.MessageSvc.OutputLevel = Lvl.ERROR

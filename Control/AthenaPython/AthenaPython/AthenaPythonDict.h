@@ -32,6 +32,8 @@
 #include "AthenaPython/PyAthenaAud.h"
 
 namespace AthenaInternal {
+
+  class ROOT6_AthenaPython_WorkAround_Dummy {};
   
   CLID getClid( IClassIDSvc* self, const std::string& typeName ) {
     CLID clid = CLID_NULL;
