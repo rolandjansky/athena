@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoContainer_v1.h 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: EventInfoContainer_v1.h 629232 2014-11-18 18:17:36Z krasznaa $
 #ifndef XAODEVENTINFO_EVENTINFOCONTAINER_V1_H
 #define XAODEVENTINFO_EVENTINFOCONTAINER_V1_H
 
@@ -27,11 +27,5 @@ namespace xAOD {
    typedef DataVector< EventInfo_v1 > EventInfoContainer_v1;
 
 } // namespace xAOD
-
-// Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EventInfoContainer_v1, 1320594112, 1 )
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEVENTINFO_EVENTINFOCONTAINER_V1_H

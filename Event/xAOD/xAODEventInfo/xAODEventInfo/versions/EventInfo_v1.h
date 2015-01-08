@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.h 612503 2014-08-19 11:58:04Z krasznaa $
+// $Id: EventInfo_v1.h 636390 2014-12-16 21:52:18Z cranshaw $
 #ifndef XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 #define XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 612503 $
-   /// $Date: 2014-08-19 13:58:04 +0200 (Tue, 19 Aug 2014) $
+   /// $Revision: 636390 $
+   /// $Date: 2014-12-16 22:52:18 +0100 (Tue, 16 Dec 2014) $
    ///
    class EventInfo_v1 : public SG::AuxElement {
 
@@ -88,6 +88,14 @@ namespace xAOD {
       uint32_t detectorMask1() const;
       /// Set the  bit field indicating with TTC timezones were present
       void setDetectorMask1( uint32_t value );
+      /// Bit field indicating which TTC zones are present in the event
+      uint32_t detectorMask2() const;
+      /// Set the  bit field indicating with TTC timezones were present
+      void setDetectorMask2( uint32_t value );
+      /// Bit field indicating which TTC zones are present in the event
+      uint32_t detectorMask3() const;
+      /// Set the  bit field indicating with TTC timezones were present
+      void setDetectorMask3( uint32_t value );
 
       /// Bit field indicating which TTC zones are present in the event
       uint64_t detectorMask() const;
@@ -95,6 +103,12 @@ namespace xAOD {
       void setDetectorMask( uint32_t mask0, uint32_t mask1 );
       /// Set the bit fields indicating with TTC timezones were present
       void setDetectorMask( uint64_t mask );
+      /// Bit field indicating which TTC zones are present in the event
+      uint64_t detectorMaskExt() const;
+      /// Set the bit fields indicating with TTC timezones were present
+      void setDetectorMaskExt( uint32_t mask2, uint32_t mask3 );
+      /// Set the bit fields indicating with TTC timezones were present
+      void setDetectorMaskExt( uint64_t mask );
 
       /// @}
 
@@ -414,11 +428,8 @@ namespace xAOD {
 /// A helper operator to be able to print debug messages easily
 std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei );
 
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EventInfo_v1, 45903698, 1 )
-SG_BASE (xAOD::EventInfo_v1, SG::AuxElement);
-#endif // not XAOD_STANDALONE
+// Declare the inheritance of the type:
+#include "xAODCore/BaseInfo.h"
+SG_BASE( xAOD::EventInfo_v1, SG::AuxElement );
 
 #endif // XAODEVENTINFO_VERSIONS_EVENTINFO_V1_H

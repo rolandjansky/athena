@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 612503 2014-08-19 11:58:04Z krasznaa $
+// $Id: EventInfo_v1.cxx 636390 2014-12-16 21:52:18Z cranshaw $
 
 // System include(s):
 #include <iostream>
@@ -14,7 +14,7 @@
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventInfo_v1.h"
-#include "xAODEventInfo/versions/EventInfoContainer_v1.h"
+#include "xAODEventInfo/EventInfoContainer.h"
 #include "EventInfoAccessors_v1.h"
 
 namespace {
@@ -77,6 +77,10 @@ namespace xAOD {
                                          detectorMask0, setDetectorMask0 )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, uint32_t,
                                          detectorMask1, setDetectorMask1 )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, uint32_t,
+                                         detectorMask2, setDetectorMask2 )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, uint32_t,
+                                         detectorMask3, setDetectorMask3 )
 
    uint64_t EventInfo_v1::detectorMask() const {
 
@@ -95,6 +99,27 @@ namespace xAOD {
 
       setDetectorMask0( static_cast< uint32_t >( mask & 0xffffffff ) );
       setDetectorMask1( static_cast< uint32_t >( ( mask >> 32 ) &
+                                                 0xffffffff ) );
+      return;
+   }
+
+   uint64_t EventInfo_v1::detectorMaskExt() const {
+
+      return ( ( static_cast< uint64_t >( detectorMask3() ) << 32 ) |
+               detectorMask2() );
+   }
+
+   void EventInfo_v1::setDetectorMaskExt( uint32_t mask2, uint32_t mask3 ) {
+
+      setDetectorMask2( mask2 );
+      setDetectorMask3( mask3 );
+      return;
+   }
+
+   void EventInfo_v1::setDetectorMaskExt( uint64_t mask ) {
+
+      setDetectorMask2( static_cast< uint32_t >( mask & 0xffffffff ) );
+      setDetectorMask3( static_cast< uint32_t >( ( mask >> 32 ) &
                                                  0xffffffff ) );
       return;
    }

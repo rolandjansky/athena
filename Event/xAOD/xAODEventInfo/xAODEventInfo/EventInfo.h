@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo.h 568284 2013-11-01 13:31:06Z krasznaa $
+// $Id: EventInfo.h 629232 2014-11-18 18:17:36Z krasznaa $
 #ifndef XAODEVENTINFO_EVENTINFO_H
 #define XAODEVENTINFO_EVENTINFO_H
 
@@ -15,5 +15,9 @@ namespace xAOD {
    /// Definition of the latest event info version
    typedef EventInfo_v1 EventInfo;
 }
+
+// Define a CLID for the type:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::EventInfo, 45903698, 1 )
 
 #endif // XAODEVENTINFO_EVENTINFO_H

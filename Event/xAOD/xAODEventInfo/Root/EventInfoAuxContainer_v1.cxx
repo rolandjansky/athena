@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoAuxContainer_v1.cxx 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: EventInfoAuxContainer_v1.cxx 636390 2014-12-16 21:52:18Z cranshaw $
 
 // Local include(s):
 #include "xAODEventInfo/versions/EventInfoAuxContainer_v1.h"
@@ -21,6 +21,8 @@ namespace xAOD {
       AUX_VARIABLE( bcid );
       AUX_VARIABLE( detectorMask0 );
       AUX_VARIABLE( detectorMask1 );
+      AUX_VARIABLE( detectorMask2 );
+      AUX_VARIABLE( detectorMask3 );
 
       // Event type information:
       AUX_VARIABLE( detDescrTags );

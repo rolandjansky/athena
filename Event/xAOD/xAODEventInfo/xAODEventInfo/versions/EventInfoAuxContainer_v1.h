@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoAuxContainer_v1.h 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: EventInfoAuxContainer_v1.h 636390 2014-12-16 21:52:18Z cranshaw $
 #ifndef XAODEVENTINFO_VERSIONS_EVENTINFOAUXCONTAINER_V1_H
 #define XAODEVENTINFO_VERSIONS_EVENTINFOAUXCONTAINER_V1_H
 
@@ -27,8 +27,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 594315 $
-   /// $Date: 2014-04-25 19:34:40 +0200 (Fri, 25 Apr 2014) $
+   /// $Revision: 636390 $
+   /// $Date: 2014-12-16 22:52:18 +0100 (Tue, 16 Dec 2014) $
    ///
    class EventInfoAuxContainer_v1 : public AuxContainerBase {
 
@@ -47,6 +47,8 @@ namespace xAOD {
       std::vector< uint32_t > bcid;
       std::vector< uint32_t > detectorMask0;
       std::vector< uint32_t > detectorMask1;
+      std::vector< uint32_t > detectorMask2;
+      std::vector< uint32_t > detectorMask3;
       /// @}
 
       /// @name Event type information
@@ -81,12 +83,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EventInfoAuxContainer_v1, 1272974287, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the type to StoreGate:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::EventInfoAuxContainer_v1, xAOD::AuxContainerBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEVENTINFO_VERSIONS_EVENTINFOAUXCONTAINER_V1_H

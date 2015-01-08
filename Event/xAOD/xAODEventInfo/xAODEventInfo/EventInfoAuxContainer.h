@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoAuxContainer.h 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: EventInfoAuxContainer.h 629232 2014-11-18 18:17:36Z krasznaa $
 #ifndef XAODEVENTINFO_EVENTINFOAUXCONTAINER_H
 #define XAODEVENTINFO_EVENTINFOAUXCONTAINER_H
 
@@ -15,5 +15,9 @@ namespace xAOD {
    /// Define the latest version of the auxiliary container
    typedef EventInfoAuxContainer_v1 EventInfoAuxContainer;
 }
+
+// Set up a CLID for the object:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::EventInfoAuxContainer, 1272974287, 1 )
 
 #endif // XAODEVENTINFO_EVENTINFOAUXCONTAINER_H

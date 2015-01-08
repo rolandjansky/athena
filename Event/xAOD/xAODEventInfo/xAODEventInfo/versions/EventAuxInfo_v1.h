@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventAuxInfo_v1.h 594273 2014-04-25 14:12:33Z krasznaa $
+// $Id: EventAuxInfo_v1.h 636390 2014-12-16 21:52:18Z cranshaw $
 #ifndef XAODEVENTINFO_VERSIONS_EVENTAUXINFO_V1_H
 #define XAODEVENTINFO_VERSIONS_EVENTAUXINFO_V1_H
 
@@ -27,8 +27,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 594273 $
-   /// $Date: 2014-04-25 16:12:33 +0200 (Fri, 25 Apr 2014) $
+   /// $Revision: 636390 $
+   /// $Date: 2014-12-16 22:52:18 +0100 (Tue, 16 Dec 2014) $
    ///
    class EventAuxInfo_v1 : public AuxInfoBase {
 
@@ -47,6 +47,8 @@ namespace xAOD {
       uint32_t bcid;
       uint32_t detectorMask0;
       uint32_t detectorMask1;
+      uint32_t detectorMask2;
+      uint32_t detectorMask3;
       /// @}
 
       /// @name Event type information
@@ -103,12 +105,8 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the object:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::EventAuxInfo_v1, 38853911, 1 )
-#include "SGTools/BaseInfo.h"
+// Declare the inheritance of the type:
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::EventAuxInfo_v1, xAOD::AuxInfoBase );
-#endif // not XAOD_STANDALONE
 
 #endif // XAODEVENTINFO_VERSIONS_EVENTAUXINFO_V1_H

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEventInfoDict.h 612503 2014-08-19 11:58:04Z krasznaa $
+// $Id: xAODEventInfoDict.h 630576 2014-11-24 12:36:44Z krasznaa $
 #ifndef XAODEVENTINFO_XAODEVENTINFODICT_H
 #define XAODEVENTINFO_XAODEVENTINFODICT_H
 
@@ -17,6 +17,8 @@
 #include "AthLinks/DataLink.h"
 
 // Local include(s):
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfoContainer.h"
 #include "xAODEventInfo/versions/EventInfo_v1.h"
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
 #include "xAODEventInfo/versions/EventInfoContainer_v1.h"
