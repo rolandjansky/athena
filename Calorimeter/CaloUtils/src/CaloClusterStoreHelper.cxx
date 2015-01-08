@@ -62,6 +62,19 @@ StatusCode CaloClusterStoreHelper::finalizeClusters(StoreGateSvc* pStoreGate,
 						    xAOD::CaloClusterContainer* pClusterColl,
 						    const std::string& clusCollKey,
 						    MsgStream& msg) {
+  //Check if object is already locked:
+  SG::DataProxy* proxy=pStoreGate->proxy(pClusterColl);
+  //Could also check CLID and name at this point ....
+  if (!proxy) {
+    msg << MSG::ERROR << "Can't get DataProxy for object at address " << pClusterColl << endreq;    
+  }
+  else {
+    if (proxy->isConst()) {
+      msg << MSG::ERROR << "Object is already locked! Do nothing." << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+
 
   CaloClusterCellLinkContainer* cellLinks= new CaloClusterCellLinkContainer();
   if(pStoreGate->overwrite(cellLinks, clusCollKey + "_links").isFailure()) {
@@ -94,7 +107,10 @@ void CaloClusterStoreHelper::copyContainer (const xAOD::CaloClusterContainer* ol
   newColl->clear();
   newColl->reserve (oldColl->size());
   for (const xAOD::CaloCluster* oldCluster : *oldColl) { 
-    newColl->push_back (new xAOD::CaloCluster (*oldCluster)); //Copy c'tor creates a private AuxStore and a private ClusterCellLink obj
+    xAOD::CaloCluster* newClu=new xAOD::CaloCluster();
+    newColl->push_back (newClu);
+    *newClu=*oldCluster;
+    //new xAOD::CaloCluster (*oldCluster)); //Copy c'tor creates a private AuxStore and a private ClusterCellLink obj
   }
   return;
 }

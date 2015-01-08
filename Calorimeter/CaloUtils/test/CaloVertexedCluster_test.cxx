@@ -9,9 +9,11 @@
  * @date Feb, 2014
  * @brief Component test for CaloVertexedCluster.
  */
+#ifndef XAOD_STANDALONE
 
 #undef NDEBUG
 #include "CaloUtils/CaloVertexedCluster.h"
+#include "CaloUtils/CaloVertexedTopoCluster.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
@@ -152,7 +154,8 @@ CaloDetDescriptor* make_dd ()
 }
 
 
-void checkit (const xAOD::CaloVertexedCluster& cl,
+template<class VCLUS>
+void checkit (const VCLUS& cl,
               const FourMom_t& v)
 {
   assert (cl.clust().type() == cl.type());
@@ -208,20 +211,20 @@ void test1()
   cl->setClusterSize (xAOD::CaloCluster::Topo_420);
   cl->insertMoment (xAOD::CaloCluster::CENTER_MAG, 1000);
 
-  checkit (xAOD::CaloVertexedCluster (*cl), v1);
-  checkit (xAOD::CaloVertexedCluster (*cl, xAOD::CaloCluster::UNCALIBRATED), v2);
+  checkit (xAOD::CaloVertexedTopoCluster (*cl), v1);
+  checkit (xAOD::CaloVertexedTopoCluster (*cl, xAOD::CaloCluster::UNCALIBRATED), v2);
 
 
   FourMom_t v3 (53907.177467,84011.431644,6007.985731,100498.757813);
-  checkit (xAOD::CaloVertexedCluster (*cl, vx), v3);
+  checkit (xAOD::CaloVertexedTopoCluster (*cl, vx), v3);
 
   FourMom_t v4 (-20604.274536,44860.449042,7937.509874,50249.378906);
-  checkit (xAOD::CaloVertexedCluster (*cl, xAOD::CaloCluster::UNCALIBRATED, vx),
+  checkit (xAOD::CaloVertexedTopoCluster (*cl, xAOD::CaloCluster::UNCALIBRATED, vx),
            v4);
 
 }
 
-
+ 
 int main()
 {
   ISvcLocator* pSvcLoc;
@@ -235,3 +238,6 @@ int main()
   return 0;
 }
 
+#else // XAOD_STANDALONE
+int main(){return 0;}
+#endif

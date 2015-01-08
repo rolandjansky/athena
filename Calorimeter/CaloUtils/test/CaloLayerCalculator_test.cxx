@@ -9,7 +9,7 @@
  * @date March, 2006
  * @brief Component test for CaloLayerCalculator.
  */
-
+#ifndef XAOD_STANDALONE
 #undef NDEBUG
 
 #include "CaloUtils/CaloLayerCalculator.h"
@@ -285,3 +285,6 @@ int main()
   return 0;
 }
 
+#else // XAOD_STANDALONE
+int main(){return 0;}
+#endif

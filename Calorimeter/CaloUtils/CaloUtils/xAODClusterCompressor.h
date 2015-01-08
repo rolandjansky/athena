@@ -12,7 +12,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/IxAODClusterCompressor.h"
-#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 class xAODClusterCompressor : 
   virtual public IxAODClusterCompressor, public AthAlgTool { 
@@ -35,7 +35,7 @@ class xAODClusterCompressor :
   virtual StatusCode  initialize();
   virtual StatusCode  finalize();
 
-  void compress(xAOD::CaloCluster* cluster) const;
+  void compress(xAOD::CaloClusterContainer* clustercontainer) const;
 
  private: 
   //Private type:
@@ -52,13 +52,15 @@ class xAODClusterCompressor :
   //half of the LSB-value after cutting the lower 16 bits
   const uint32_t m_rounding=0x00008000;
 
- //Largest possible positive 32bit float minus the rounding 
+  //Largest possible positive 32bit float minus the rounding 
   const uint32_t m_vmax=0x7f7f7fff;
 
   //List of all moments
-  const std::array< xAOD::CaloCluster::MomentType,60> m_allMoments;
+  typedef std::array< xAOD::CaloCluster::MomentType,60> momentList_t;
+  momentList_t m_allMoments;
  
-
+  //JobO-driven flag to turn compression on/off
+  bool m_isEnabled;
 
 }; 
 

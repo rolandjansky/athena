@@ -16,11 +16,7 @@
 #ifndef CALOUTILS_CALOVERTEXEDCLUSTER_H
 #define CALOUTILS_CALOVERTEXEDCLUSTER_H
 
-
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODBase/IParticle.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "CxxUtils/final.h"
+#include "xAODCaloEvent/CaloVertexedClusterBase.h"
 
 
 namespace xAOD {
@@ -33,11 +29,16 @@ namespace xAOD {
  * the same @c IParticle interface, except that the cluster kinematics
  * are recalculated for a different vertex, and optionally a different
  * signal state.
+ * When kinematics are recalculated w.r.t a vertex, the EM layer information of 
+ * the cluster is used. Geometry of the calorimeter is needed, thus this class
+ * is available only in Athena. See CaloVertexedTopoCluster for a class available
+ * also in RootCore.
  */
 class CaloVertexedCluster
-  : public IParticle
+  : public CaloVertexedClusterBase
 {
 public:
+
   /**
    * @brief Constructor.
    * @param cl The cluster to proxy.
@@ -46,7 +47,6 @@ public:
    * for the default signal state.
    */
   CaloVertexedCluster (const CaloCluster& cl);
-
 
   /**
    * @brief Constructor.
@@ -59,7 +59,6 @@ public:
   CaloVertexedCluster (const CaloCluster& cl,
                        CaloCluster::State s);
 
-
   /**
    * @brief Constructor.
    * @param cl The cluster to proxy.
@@ -67,11 +66,10 @@ public:
    *
    * In this case, we'll return unchanged the kinematics of the cluster
    * relative to vertex @c vx for the default signal state.
-   */
+   */  
   CaloVertexedCluster (const CaloCluster& cl,
                        const Amg::Vector3D& vx);
-
-
+  
   /**
    * @brief Constructor.
    * @param cl The cluster to proxy.
@@ -85,61 +83,13 @@ public:
   CaloVertexedCluster (const CaloCluster& cl,
                        CaloCluster::State s,
                        const Amg::Vector3D& vx);
+  
+protected:  
 
-
-  /**
-   * @brief Return the cluster being proxied,.
+  /** @brief returns the radius value needed for vertex correction. Uses the EM layer.
    */
-  const CaloCluster& clust() const { return *m_cl; }
-
-  /// @name Functions describing the 4-momentum of the object
-  /// @{
-
-  /// The transverse momentum (\f$p_T\f$) of the particle
-  virtual double           pt() const ATH_FINAL { return m_p4.Pt(); }
-  /// The pseudorapidity (\f$\eta\f$) of the particle
-  virtual double           eta() const ATH_FINAL { return m_eta; }
-  /// The azimuthal angle (\f$\phi\f$) of the particle
-  virtual double           phi() const ATH_FINAL { return m_phi; }
-  /// The invariant mass of the particle
-  virtual double           m() const ATH_FINAL { return m_p4.M(); }
-  /// The total energy of the particle
-  virtual double           e() const ATH_FINAL { return m_p4.E(); }
-  /// The true rapidity (y) of the particle
-  virtual double           rapidity() const ATH_FINAL { return m_p4.Rapidity(); }
-
-  /// The full 4-momentum of the particle
-  virtual const FourMom_t& p4() const ATH_FINAL { return m_p4; }
-
-  /// @}
-
-  /// The type of the object as a simple enumeration
-  virtual Type::ObjectType type() const ATH_FINAL { return m_cl->type(); }
-
-
-
-private:
-  /**
-   * @brief Calculate cluster kinematics for a given vertex.
-   * @param vx The vertex to use for calculating cluster kinematics.
-   */
-  void computeVertexCorr (const Amg::Vector3D& vx);
-
-
-  /// The cluster being proxied.
-  const CaloCluster* m_cl;
-
-
-  /// The recalculated cluster eta.
-  double m_eta;
-
-
-  /// The recalculated cluster phi.
-  double m_phi;
-
-
-  /// The recalculated cluster 4-momentum.
-  FourMom_t m_p4;
+  double retrieveRadius() ;
+  
 };
 
 

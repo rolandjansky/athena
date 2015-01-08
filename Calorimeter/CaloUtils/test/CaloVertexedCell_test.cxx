@@ -9,7 +9,7 @@
  * @date Feb, 2014
  * @brief Component test for CaloVertexedCell.
  */
-
+#ifndef XAOD_STANDALONE
 #undef NDEBUG
 #include "CaloUtils/CaloVertexedCell.h"
 #include "CaloEvent/CaloCell.h"
@@ -214,3 +214,6 @@ int main()
   return 0;
 }
 
+#else // XAOD_STANDALONE
+int main(){return 0;}
+#endif
