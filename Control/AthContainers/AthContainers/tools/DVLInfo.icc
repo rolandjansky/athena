@@ -91,22 +91,27 @@ const void* dvlGetPointer (ITERATOR& it, const SG_STD_OR_BOOST::false_type&)
 
 
 /**
+ * @brief Helper for converting a container to @x AuxVectorBase.
+ */
+template <class T>
+SG::AuxVectorBase* dvlGetBase (T* p, const SG_STD_OR_BOOST::true_type&)
+{
+  return p;
+}
+template <class T>
+SG::AuxVectorBase* dvlGetBase (T*, const SG_STD_OR_BOOST::false_type&)
+{
+  return 0;
+}
+
+
+/**
  * @brief Return the @c type_info for the container.
  */
 inline
 const std::type_info& DVLInfoBase::tinfo() const
 {
   return m_tinfo;
-}
-
-
-/**
- * @brief Return the CLID for the container.
- */
-inline
-CLID DVLInfoBase::clid() const
-{
-  return m_clid;
 }
 
 
@@ -128,7 +133,7 @@ const std::type_info& DVLInfoBase::elt_tinfo() const
  */
 template <class T>
 DVLInfo<T>::DVLInfo()
-  : DVLInfoBase (typeid (Container), SG::safe_clid<Container>(), typeid (Elt))
+  : DVLInfoBase (typeid (Container), typeid (Elt))
 {
 }
 
@@ -235,6 +240,20 @@ DVLIteratorBase* DVLInfo<T>::iterator (const void* cont_p) const
 {
   const Container* cont = reinterpret_cast<const Container*> (cont_p);
   return new DVLIterator<T> (cont->begin(), cont->end());
+}
+
+
+/**
+ * @brief Return a pointer to the container base.
+ * @param cont_p Pointer to the container.
+ */
+template <class T>
+SG::AuxVectorBase* DVLInfo<T>::base (void* cont_p) const
+{
+  Container* cont = reinterpret_cast<Container*> (cont_p);
+  return DataModel_detail::dvlGetBase
+    (cont,
+     typename SG_STD_OR_BOOST::is_base_of<SG::AuxVectorBase,T>::type());
 }
 
 
@@ -476,5 +495,6 @@ void dvl_makecontainer (size_t /*nreserve*/, CONTAINER*& cont)
   cont = new CONTAINER;
   std::abort();
 }
+
 
 

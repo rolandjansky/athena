@@ -18,12 +18,30 @@
 
 
 #include "AthContainersInterfaces/IAuxTypeVector.h"
+#include "AthContainersInterfaces/IAuxSetOption.h"
+#include "AthContainers/tools/AuxDataTraits.h"
+#include "AthContainers/PackedContainer.h"
 #include "CxxUtils/override.h"
+#include <typeinfo>
 #include <vector>
 #include <algorithm>
+#include <stdint.h>
+
+
+#if __cplusplus > 201100
+# include <type_traits>
+namespace SG_STD_OR_BOOST = std;
+#else
+# include "boost/type_traits/is_base_of.hpp"
+# include "boost/type_traits/is_arithmetic.hpp"
+namespace SG_STD_OR_BOOST = boost;
+#endif
 
 
 namespace SG {
+
+
+class AuxDataOption;
 
 
 /**
@@ -34,33 +52,41 @@ namespace SG {
  * types in these vectors.  Thus, we define this abstract interface
  * to operate on the vectors.  This template class provides the
  * concrete implementations of this interface.
- *
- * This base class of @c AuxTypeVector allows specifying independently
- * the payload type and the vector type.  This is needed to handle
- * @c vector<bool> (for which we need to actually store @c vector<char>).
  */
-template <class T, class V>
-class AuxTypeVector1
+template <class T, class CONT = typename AuxDataTraits<T>::vector_type>
+class AuxTypeVector
   : public IAuxTypeVector
 {
+public:
+  /// Type of the STL vector used for storage.
+  typedef CONT vector_type;
+
+  /// Type that the user sees.
+  typedef typename AuxDataTraits<T>::element_type element_type;
+
+  /// Vector element type.
+  typedef typename vector_type::value_type vector_value_type;
+  
 private:
   /// 1 for the usual case of @c V being @c vector<T>.
   /// If @c V is @c vector<char>, then this is @c sizeof(T).
-  static const int SCALE = sizeof(T) / sizeof(typename V::value_type);
+  static const int SCALE = sizeof(element_type) / sizeof(vector_value_type);
 
 
 public:
-  /// Type of the STL vector used for storage.
-  typedef V vector_type;
-
-
   /**
    * @brief Constructor.  Makes a new vector.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
    */
-  AuxTypeVector1 (size_t size, size_t capacity);
+  AuxTypeVector (size_t size, size_t capacity);
     
+
+  /**
+   * @brief Return a reference to the payload vector.
+   */
+  vector_type& vec();
+
 
   /**
    * @brief Make a copy of this vector.
@@ -81,6 +107,15 @@ public:
 
 
   /**
+   * @brief Return the type of the payload object for this instance.
+   *
+   * May be different from what we get from the registry; if packing
+   * is used, for example.
+   */
+  virtual const std::type_info* objType() const ATH_OVERRIDE;
+
+
+  /**
    * @brief Return the size of the vector.
    */
   virtual size_t size() const ATH_OVERRIDE;
@@ -98,6 +133,17 @@ public:
    * @param sz The new vector capacity.
    */
   virtual void reserve (size_t sz) ATH_OVERRIDE;
+
+
+  /**
+   * @brief Make an option setting.
+   * @param option The option to set.
+   *
+   * The interpretation of the option depends on the concrete class.
+   *
+   * Returns true if the option setting was successful; false otherwise.
+   */
+  virtual bool setOption (const AuxDataOption& option) ATH_OVERRIDE;
 
 
   /**
@@ -123,6 +169,18 @@ public:
    * (running destructors as appropriate).
    */
   virtual void shift (size_t pos, ptrdiff_t offs) ATH_OVERRIDE;
+
+
+  /**
+   * @brief Try to convert this aux vector to a @c PackedContainer.
+   *
+   * If successful, returns a newly-allocated @c IAuxTypeVector.
+   * In this case, the contents of the vector will have been moved
+   * to the new vector (and this object will be empty).
+   *
+   * Returns null on failure.
+   */
+  virtual IAuxTypeVector* toPacked() ATH_OVERRIDE;
 
 
   /**
@@ -162,44 +220,6 @@ public:
 private:
   /// The contained vector.
   vector_type m_vec;
-};
-
-
-/**
- * @brief Implementation of @c IAuxTypeVector for specific types.
- *
- * Generic case.
- */
-template <class T>
-class AuxTypeVector
-  : public AuxTypeVector1<T, std::vector<T> >
-{
-public:
-  /**
-   * @brief Constructor.  Makes a new vector.
-   * @param size Initial size of the new vector.
-   * @param capacity Initial capacity of the new vector.
-   */
-  AuxTypeVector (size_t size, size_t capacity);
-};
-
-
-/**
- * @brief Implementation of @c IAuxTypeVector for specific types.
- *
- * bool case.
- */
-template <>
-class AuxTypeVector<bool>
-  : public AuxTypeVector1<bool, std::vector<char> >
-{
-public:
-  /**
-   * @brief Constructor.  Makes a new vector.
-   * @param size Initial size of the new vector.
-   * @param capacity Initial capacity of the new vector.
-   */
-  AuxTypeVector (size_t size, size_t capacity);
 };
 
 

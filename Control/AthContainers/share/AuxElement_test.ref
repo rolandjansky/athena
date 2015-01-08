@@ -4,3 +4,4 @@ test_clear
 test_copy
 test_standalone
 test_decoration
+test_private_store

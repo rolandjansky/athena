@@ -92,9 +92,11 @@ copyThinned1 (const CONTAINER& orig,
               const SG::IAuxStore* /*dummy*/,
               IThinningSvc* svc)
 {
-  if (orig.size() > 0 &&
-      svc &&
-      svc->thinningOccurred (&orig))
+  // T->P conversion is done from within copyAuxStoreThinned,
+  // so we need to call it regardless of whether or not
+  // thinning is actually done.  Don't call it though if the
+  // container is empty.
+  if (orig.size() > 0)
   {
     CONTAINER* newcont = new CONTAINER;
     copyAuxStoreThinned (orig, *newcont, svc);

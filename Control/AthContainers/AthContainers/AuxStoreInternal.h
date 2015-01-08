@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreInternal.h 608081 2014-07-23 04:38:51Z ssnyder $
+// $Id: AuxStoreInternal.h 628020 2014-11-12 21:32:04Z ssnyder $
 /**
  * @file AthContainers/AuxStoreInternal.h
  * @author scott snyder <snyder@bnl.gov>
@@ -257,6 +257,18 @@ public:
    * May return 0 for a store with no aux data.
    */
   virtual size_t size() const ATH_OVERRIDE;
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param id The variable for which we want to set the option.
+   * @param option The option setting to make.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  virtual bool setOption (auxid_t id, const AuxDataOption& option) ATH_OVERRIDE;
 
 
 protected:

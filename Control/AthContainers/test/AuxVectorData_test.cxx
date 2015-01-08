@@ -65,6 +65,12 @@ void test_get_data()
 
   assert (!b1.hasNonConstStore());
   assert (!b1.hasStore());
+  assert (!b1.isAvailable (ityp));
+  assert (!b1.isAvailableWritable (ityp));
+  assert (!b1.isAvailableWritableAsDecoration (ityp));
+  assert (!b1.isAvailable<int> ("anInt"));
+  assert (!b1.isAvailableWritable<int> ("anInt"));
+  assert (!b1.isAvailableWritableAsDecoration<int> ("anInt"));
   assert (b1.getConstStore() == 0);
   assert (b1.getStore() == 0);
   b1.setStore (cstore);
@@ -72,6 +78,12 @@ void test_get_data()
   assert (b1.getStore() == 0);
   assert (!b1.hasNonConstStore());
   assert (b1.hasStore());
+  assert (!b1.isAvailable (ityp));
+  assert (!b1.isAvailableWritable (ityp));
+  assert (!b1.isAvailableWritableAsDecoration (ityp));
+  assert (!b1.isAvailable<int> ("anInt"));
+  assert (!b1.isAvailableWritable<int> ("anInt"));
+  assert (!b1.isAvailableWritableAsDecoration<int> ("anInt"));
   EXPECT_EXCEPTION (SG::ExcConstAuxData, b1.getData<int> (ityp, 0));
   EXPECT_EXCEPTION (SG::ExcBadAuxVar, cb1.getData<int> (ityp, 0));   
 
@@ -86,11 +98,23 @@ void test_get_data()
   b1.getData<int> (ityp, 1) = 2;
   assert (b1.getData<int> (ityp, 0) == 1);
   assert (b1.getData<int> (ityp, 1) == 2);
+  assert (b1.isAvailable (ityp));
+  assert (b1.isAvailableWritable (ityp));
+  assert (b1.isAvailableWritableAsDecoration (ityp));
+  assert (b1.isAvailable<int> ("anInt"));
+  assert (b1.isAvailableWritable<int> ("anInt"));
+  assert (b1.isAvailableWritableAsDecoration<int> ("anInt"));
 
   b1.setStore (cstore);
   assert (!b1.hasNonConstStore());
   assert (cb1.getData<int> (ityp, 0) == 1);
   assert (cb1.getData<int> (ityp, 1) == 2);
+  assert (b1.isAvailable (ityp));
+  assert (!b1.isAvailableWritable (ityp));
+  assert (b1.isAvailableWritableAsDecoration (ityp));
+  assert (b1.isAvailable<int> ("anInt"));
+  assert (!b1.isAvailableWritable<int> ("anInt"));
+  assert (b1.isAvailableWritableAsDecoration<int> ("anInt"));
 
   SG::auxid_t ftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("aFloat");
   float* ff = reinterpret_cast<float*> (store.getData (ftyp, 10, 20));
@@ -332,6 +356,81 @@ void ThreadingTest::threadedTest()
 }
 
 
+class TestStore
+  : public SG::IAuxStore
+{
+public:
+  TestStore()  {}
+  virtual const void* getData (SG::auxid_t) const { std::abort(); }
+  virtual void* getDecoration (SG::auxid_t, size_t, size_t) { std::abort(); }
+  virtual const SG::auxid_set_t& getAuxIDs() const { std::abort(); }
+  virtual void lock() { std::abort(); }
+  virtual void clearDecorations() { std::abort(); }
+  virtual size_t size() const { std::abort(); }
+  virtual void* getData (SG::auxid_t, size_t, size_t) { std::abort(); }
+  virtual const SG::auxid_set_t& getWritableAuxIDs() const { std::abort(); }
+  virtual void resize (size_t) { std::abort(); }
+  virtual void reserve (size_t) { std::abort(); }
+  virtual void shift (size_t, ptrdiff_t) { std::abort(); }
+
+  virtual bool setOption (SG::auxid_t auxid, const SG::AuxDataOption&  option)
+  {
+    lastid = auxid;
+    lastopt = option;
+    return true;
+  }
+
+  static SG::auxid_t lastid;
+  static SG::AuxDataOption lastopt;
+};
+
+
+SG::auxid_t TestStore::lastid = 0;
+SG::AuxDataOption TestStore::lastopt ("", 0);
+
+
+void test_setoption()
+{
+  std::cout << "test_setoption\n";
+  AuxVectorData_test b;
+  assert (!b.setOption (SG::null_auxid, SG::AuxDataOption ("opt", 1)));
+  b.setStore (new TestStore);
+  assert (!b.setOption (SG::null_auxid, SG::AuxDataOption ("opt", 1)));
+  assert (b.setOption (1, SG::AuxDataOption ("opt", 1)));
+  assert (TestStore::lastid == 1);
+  assert (TestStore::lastopt.name() == "opt");
+  assert (TestStore::lastopt.intVal() == 1);
+
+  SG::auxid_t xtyp = SG::AuxTypeRegistry::instance().getAuxID<int> ("xint");
+  assert (b.setOption ("xint", SG::AuxDataOption ("opt2", 2)));
+  assert (TestStore::lastid == xtyp);
+  assert (TestStore::lastopt.name() == "opt2");
+  assert (TestStore::lastopt.intVal() == 2);
+
+  SG::auxid_t xtyp2 = SG::AuxTypeRegistry::instance().getAuxID<int> ("xint2",
+                                                                     "xcls");
+  assert (b.setOption ("xint2", "xcls", SG::AuxDataOption ("opt3", 2.5)));
+  assert (TestStore::lastid == xtyp2);
+  assert (TestStore::lastopt.name() == "opt3");
+  assert (TestStore::lastopt.floatVal() == 2.5);
+
+  assert (b.setOption (1, "opt", 1));
+  assert (TestStore::lastid == 1);
+  assert (TestStore::lastopt.name() == "opt");
+  assert (TestStore::lastopt.intVal() == 1);
+
+  assert (b.setOption ("xint", "opt2", 2));
+  assert (TestStore::lastid == xtyp);
+  assert (TestStore::lastopt.name() == "opt2");
+  assert (TestStore::lastopt.intVal() == 2);
+
+  assert (b.setOption ("xint2", "xcls", "opt3", 2.5));
+  assert (TestStore::lastid == xtyp2);
+  assert (TestStore::lastopt.name() == "opt3");
+  assert (TestStore::lastopt.floatVal() == 2.5);
+}
+
+
 void test_threading()
 {
   std::cout << "test_threading\n";
@@ -363,6 +462,7 @@ int main()
   test_get_types();
   test_decoration();
   test_move();
+  test_setoption();
   test_threading();
   return 0;
 }

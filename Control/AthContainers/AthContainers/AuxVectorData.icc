@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.icc 602256 2014-06-17 21:24:55Z ssnyder $
+// $Id: AuxVectorData.icc 634132 2014-12-05 19:25:02Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +13,9 @@
  */
 
 
+#include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainersInterfaces/IAuxStore.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainers/tools/likely.h"
 #include "AthContainers/tools/assume.h"
 
@@ -72,6 +75,92 @@ bool AuxVectorData::hasNonConstStore() const
 
 
 /**
+ * @brief Test to see if a variable exists in the store.
+ * @param id The variable to test.
+ */
+inline
+bool AuxVectorData::isAvailable (auxid_t id) const
+{
+  // First check to see if this variable is present in the cache.
+  if (m_constCache.cachePtr (id)) return true;
+  return isAvailableOol (id);
+}
+
+
+/**
+ * @brief Test to see if a variable exists in the store.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ */
+template <class T>
+inline
+bool AuxVectorData::isAvailable (const std::string& name,
+                                 const std::string& clsname /*= ""*/) const
+{
+  auxid_t id = SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname);
+  return isAvailable (id);
+}
+
+
+/**
+ * @brief Test to see if a variable is available for writing.
+ * @param id The variable to test.
+ */
+inline
+bool AuxVectorData::isAvailableWritable (auxid_t id) const
+{
+  // First check to see if this variable is present in the cache.
+  if (m_cache.cachePtr (id)) return true;
+  return isAvailableWritableOol (id);
+}
+
+
+/**
+ * @brief Test to see if a variable is available for writing.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ */
+template <class T>
+inline
+bool
+AuxVectorData::isAvailableWritable (const std::string& name,
+                                    const std::string& clsname /*= ""*/) const
+{
+  auxid_t id = SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname);
+  return isAvailableWritable (id);
+}
+
+
+/**
+ * @brief Test to see if a variable is available for writing as a decoration.
+ * @param id The variable to test.
+ */
+inline
+bool AuxVectorData::isAvailableWritableAsDecoration (auxid_t id) const
+{
+  // First check to see if this variable is present in the cache.
+  if (m_decorCache.cachePtr (id)) return true;
+  return isAvailableWritableAsDecorationOol (id);
+}
+
+
+/**
+ * @brief Test to see if a variable is available for writing as a decoration.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ */
+template <class T>
+inline
+bool
+AuxVectorData::isAvailableWritableAsDecoration (const std::string& name,
+                                                const std::string& clsname /*= ""*/) const
+{
+  auxid_t id = SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname);
+  return isAvailableWritableAsDecoration (id);
+}
+
+
+/**
  * @brief Return reference to an aux data item.
  * @param auxid The desired aux data item.
  * @param ndx Index of the element to return.
@@ -85,9 +174,10 @@ bool AuxVectorData::hasNonConstStore() const
  */
 template <class T>
 inline
-T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx)
+typename AuxDataTraits<T>::reference_type
+AuxVectorData::getData (SG::auxid_t auxid, size_t ndx)
 {
-  return reinterpret_cast<T*>(this->getDataArray (auxid))[ndx];
+  return AuxDataTraits<T>::index (this->getDataArray (auxid), ndx);
 }
 
 
@@ -105,9 +195,10 @@ T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx)
  */
 template <class T>
 inline
-const T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx) const
+typename AuxDataTraits<T>::const_reference_type
+AuxVectorData::getData (SG::auxid_t auxid, size_t ndx) const
 {
-  return reinterpret_cast<const T*>(this->getDataArray (auxid))[ndx];
+  return AuxDataTraits<T>::index (this->getDataArray (auxid), ndx);
 }
 
 
@@ -132,9 +223,10 @@ const T& AuxVectorData::getData (SG::auxid_t auxid, size_t ndx) const
  */
 template <class T>
 inline
-T& AuxVectorData::getDecoration (SG::auxid_t auxid, size_t ndx) const
+typename AuxDataTraits<T>::reference_type
+AuxVectorData::getDecoration (SG::auxid_t auxid, size_t ndx) const
 {
-  return reinterpret_cast<T*>(this->getDecorationArray (auxid))[ndx];
+  return AuxDataTraits<T>::index (this->getDecorationArray (auxid), ndx);
 }
 
 
@@ -191,7 +283,7 @@ AuxVectorData::getDataArray (SG::auxid_t auxid) const
 inline
 void* AuxVectorData::getDecorationArray (SG::auxid_t auxid) const
 {
-  return m_cache.getDecorationArray (auxid, *this);
+  return m_decorCache.getDecorationArray (auxid, *this);
 }
 
 
@@ -207,6 +299,7 @@ void AuxVectorData::swap (AuxVectorData& other)
 {
   m_cache.swap (other.m_cache);
   m_constCache.swap (other.m_constCache);
+  m_decorCache.swap (other.m_decorCache);
   std::swap (m_store, other.m_store);
   std::swap (m_constStore, other.m_constStore);
   std::swap (m_constStoreLink, other.m_constStoreLink);
@@ -224,6 +317,7 @@ void AuxVectorData::clearCache()
 {
   m_cache.clear();
   m_constCache.clear();
+  m_decorCache.clear();
 }
 
 
@@ -360,6 +454,79 @@ void* AuxVectorData::Cache::getDecorationArray (SG::auxid_t auxid,
 
 
 #endif // not __GCCXML__
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param id The variable for which we want to set the option.
+ * @param optname The name of the option to set.
+ * @param arg The option value to set.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+template <class T>
+bool AuxVectorData::setOption (auxid_t id,
+                               const std::string& optname,
+                               T arg)
+{
+  return this->setOption (id, AuxDataOption (optname, arg));
+}
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param name The name of the variable.
+ * @param optname The name of the option to set.
+ * @param arg The option value to set.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+inline
+bool AuxVectorData::setOption (const std::string& name,
+                               const std::string& optname,
+                               int arg)
+{
+  return this->setOption (name, AuxDataOption (optname, arg));
+}
+inline
+bool AuxVectorData::setOption (const std::string& name,
+                               const std::string& optname,
+                               float arg)
+{
+  return this->setOption (name, AuxDataOption (optname, arg));
+}
+inline
+bool AuxVectorData::setOption (const std::string& name,
+                               const std::string& optname,
+                               double arg)
+{
+  return this->setOption (name, AuxDataOption (optname, arg));
+}
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param name The name of the variable.
+ * @param clsname The name of the associated class.  May be blank.
+ * @param optname The name of the option to set.
+ * @param arg The option value to set.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+template <class T>
+bool AuxVectorData::setOption (const std::string& name,
+                               const std::string& clsname,
+                               const std::string& optname,
+                               T arg)
+{
+  return this->setOption (name, clsname, AuxDataOption (optname, arg));
+}
 
 
 } // namespace SG

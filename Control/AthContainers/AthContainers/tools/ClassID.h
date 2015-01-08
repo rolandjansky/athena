@@ -21,16 +21,12 @@
 
 typedef unsigned int CLID;
 static const CLID CLID_NULL = 0;
-namespace SG {
-template <class T> CLID safe_clid() { return 0; }
-}
 
 
 #else
 
 
 #include "GaudiKernel/ClassID.h"
-#include "SGTools/safe_clid.h"
 
 
 #endif

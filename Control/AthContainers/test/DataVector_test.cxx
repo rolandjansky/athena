@@ -745,6 +745,39 @@ void test_auxdata()
 }
 
 
+// If the xAOD base classes are used, they will always report that the static
+// auxids are present.  But if the container is empty, they are not actually
+// retrievable.  We need to work around that.
+class TestEmptyStore
+  : public SG::IAuxStore
+{
+public:
+  virtual const void* getData (SG::auxid_t) const { return 0;}
+  virtual void* getDecoration (SG::auxid_t, size_t, size_t) { return 0; }
+  virtual const SG::auxid_set_t& getAuxIDs() const { return m_auxids; }
+  virtual void lock() { }
+  virtual void clearDecorations() { }
+  virtual size_t size() const { return 0; }
+  virtual void* getData (SG::auxid_t, size_t, size_t) { return 0; }
+  virtual const SG::auxid_set_t& getWritableAuxIDs() const { return m_auxids; }
+  virtual void resize (size_t) { }
+  virtual void reserve (size_t) { }
+  virtual void shift (size_t, ptrdiff_t) { }
+
+  SG::auxid_set_t m_auxids;
+};
+void test_emptysort()
+{
+  std::cout << "test_emptysort\n";
+  DataVector<AAux> v;
+  TestEmptyStore store;
+  v.setStore (&store);
+  SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("xint");
+  store.m_auxids.insert (ityp);
+  v.sort();
+}
+
+
 int main()
 {
   test1();
@@ -754,6 +787,7 @@ int main()
   test_copyconvert();
   test_iterate();
   test_auxdata();
+  test_emptysort();
   return 0;
 }
 

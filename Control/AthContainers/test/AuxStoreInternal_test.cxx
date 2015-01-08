@@ -224,6 +224,45 @@ void test2()
 }
 
 
+// Test setOption / getIOType
+void test3()
+{
+  std::cout << "test3\n";
+  SG::AuxStoreInternal s;
+  SG::auxid_t ityp1 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
+  SG::auxid_t ityp2 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt2");
+  int* i1 = reinterpret_cast<int*> (s.getData(ityp1, 10, 20));
+  i1[0] = 1;
+  i1[1] = 2;
+
+  assert (!s.setOption (ityp2, SG::AuxDataOption ("opt", 1)));
+  assert (!s.setOption (ityp1, SG::AuxDataOption ("opt", 1)));
+  assert (s.getIOType (ityp1) == &typeid(std::vector<int>));
+  assert (s.setOption (ityp1, SG::AuxDataOption ("nbits", 29)));
+  assert (s.getIOType (ityp1) == &typeid(SG::PackedContainer<int>));
+  const SG::PackedContainer<int>* pvec =
+    reinterpret_cast<const SG::PackedContainer<int>*> (s.getIOData (ityp1));
+  assert (typeid(*pvec) == typeid(SG::PackedContainer<int>));
+  assert (pvec->parms().nbits() == 29);
+  assert (s.setOption (ityp1, SG::AuxDataOption ("nbits", 23)));
+  assert (pvec->parms().nbits() == 23);
+
+  assert (s.getIOType (ityp2) == &typeid(std::vector<int>));
+  assert (s.setOption (ityp2, SG::AuxDataOption ("nbits", 28)));
+  assert (s.getIOType (ityp2) == &typeid(SG::PackedContainer<int>));
+  pvec =
+    reinterpret_cast<const SG::PackedContainer<int>*> (s.getIOData (ityp2));
+  assert (typeid(*pvec) == typeid(SG::PackedContainer<int>));
+  assert (pvec->parms().nbits() == 28);
+  assert (s.setOption (ityp2, SG::AuxDataOption ("nbits", 27)));
+  assert (pvec->parms().nbits() == 27);
+
+  SG::auxid_t styp1 = SG::AuxTypeRegistry::instance().getAuxID<std::string> ("aString");
+  s.getData(styp1, 10, 20);
+  assert (!s.setOption (styp1, SG::AuxDataOption ("nbits", 26)));
+}
+
+
 class ThreadingTest
 {
 public:
@@ -328,6 +367,7 @@ int main()
 {
   test1();
   test2();
+  test3();
   test_threading();
   return 0;
 }

@@ -36,6 +36,10 @@ public:
   {
     b.setIndex (index, this);
   }
+  void clear (SG::AuxElement& b)
+  {
+    b.setIndex (0, 0);
+  }
 
   static
   void clearAux (SG::AuxElement& b)
@@ -131,6 +135,10 @@ void test1()
   auxids.insert (ftyp1_id);
   assert (b.getAuxIDs() == auxids);
 
+  assert (ityp1_c.auxid() == ityp1_id);
+  assert (ityp1.auxid() == ityp1_id);
+  assert (ftyp1.auxid() == ftyp1_id);
+
   assert (ityp1(v, 5) == 1);
   ityp1(v, 5) = 2;
   assert (ityp1(v, 5) == 2);
@@ -193,6 +201,8 @@ void test1()
   assert (*reinterpret_cast<const float*>(ftyp1a (b3)) == 1.5);
   assert (*reinterpret_cast<const float*>(ftyp1a (v3, 6)) == 1.5);
   assert ((reinterpret_cast<const float*>(ftyp1a.getDataArray (v3)))[6] == 1.5);
+
+  assert (ftyp1a.auxid() == ftyp1_id);
 
   EXPECT_EXCEPTION (SG::ExcUnknownAuxItem,
                     SG::AuxElement::TypelessConstAccessor ("adsasd"));
@@ -512,6 +522,10 @@ void test_decoration()
   SG::AuxElement::Accessor<int>  ityp1 ("anInt1");
   SG::AuxElement::Decorator<int> ityp2 ("anInt2");
 
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t ityp2_id = r.getAuxID<int> ("anInt2");
+  assert (ityp2.auxid() == ityp2_id);
+
   ityp1(b) = 10;
   ityp2(b) = 11;
 
@@ -567,6 +581,30 @@ void test_decoration()
 }
 
 
+void test_private_store()
+{
+  std::cout << "test_private_store\n";
+  Elt elt;
+  assert (elt.hasStore());
+  assert (elt.hasNonConstStore());
+  assert (elt.usingPrivateStore());
+  assert (!elt.usingStandaloneStore());
+
+  SG::AuxVectorBase v;
+  v.set (elt, 1);
+  assert (!elt.hasStore());
+  assert (!elt.hasNonConstStore());
+  assert (!elt.usingPrivateStore());
+  assert (!elt.usingStandaloneStore());
+
+  v.clear (elt);
+  assert (elt.hasStore());
+  assert (elt.hasNonConstStore());
+  assert (elt.usingPrivateStore());
+  assert (!elt.usingStandaloneStore());
+}
+
+
 int main()
 {
   test1();
@@ -575,6 +613,7 @@ int main()
   test_copy();
   test_standalone();
   test_decoration();
+  test_private_store();
   return 0;
 }
 

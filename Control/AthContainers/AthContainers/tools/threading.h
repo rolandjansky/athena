@@ -102,6 +102,12 @@ inline void fence_seq_cst() {}
 
 #else  // not ATHCONTAINERS_NO_THREADS
 
+//the shared_mutex include generates annoying unused_variable warnings during compilations... silence this in athanalysisbase
+#ifdef XAOD_ANALYSIS
+#ifndef BOOST_SYSTEM_NO_DEPRECATED
+#define BOOST_SYSTEM_NO_DEPRECATED 1
+#endif
+#endif
 
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/tss.hpp"

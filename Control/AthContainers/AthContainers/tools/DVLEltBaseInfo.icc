@@ -100,7 +100,7 @@ RegisterDVLEltBaseInit<T>::RegisterDVLEltBaseInit()
   // Make sure the BaseInfo derived class has been instantiated.
   SG::BaseInfo<T>::baseinfo();
   // Set up the init function.
-  SG::BaseInfoBase::addInit(SG::safe_clid<T>(), &typeid(T), doinit);
+  SG::BaseInfoBase::addInit(&typeid(T), doinit);
 }
 #endif
 template <class T>

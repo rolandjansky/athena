@@ -1,0 +1,131 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/PackedParameters.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2014
+ * @brief Describe how the contents of a @c PackedContainer are to be saved.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Initialize with default packing parameters for type @c T.
+ *
+ * For integer types, the number of bits and signedness is set to match @c T.
+ * For floating types, nbits is set to 32, nmantissa to 23, isSigned to true,
+ * and the scale is cleared.
+ */
+template <class T>
+PackedParameters::PackedParameters (T /*val*/)
+  : m_nbits(8 * sizeof(uint32_t)),
+    m_nmantissa(23),
+    m_scale(0),
+    m_flags(0)
+{
+  if (std::numeric_limits<T>::is_signed)
+    setSigned (true);
+
+  if (std::numeric_limits<T>::is_integer)
+    setNbits (8*sizeof(T));
+  else
+    setFloat (true);
+}
+
+
+/**
+ * @brief The number of bits used to store each element.
+ */
+inline
+uint8_t PackedParameters::nbits() const
+{
+    return m_nbits;
+}
+
+
+/**
+ * @brief The number of bits used for the mantissa portion of a float-point
+ *        representation, excluding a sign bit (if any).
+ *
+ *        If there are at least two bits left over after accounting
+ *        for the mantissa and sign bits, then numbers will be saved
+ *        in a floating-point format; otherwise, fixed-point.
+ */
+inline
+uint8_t PackedParameters::nmantissa() const
+{
+  return m_nmantissa;
+}
+
+
+/**
+ * @brief Additional flags describing the packing.
+ *
+ * (This should really only be used by converters.)
+ */
+inline
+uint8_t PackedParameters::flags() const
+{
+  return m_flags;
+}
+
+
+/**
+ * @brief Return the scale for floating-point numbers.
+ *
+ * If enabled, float-point numbers will be divided by this value
+ * before being saved.  If not enabled, this may return 0.
+ */
+inline
+float PackedParameters::scale() const
+{
+  return m_scale;
+}
+
+
+/**
+ * @brief Are elements being written as signed numbers?
+ */
+inline
+bool PackedParameters::isSigned() const
+{
+  return m_flags & FLAG_IS_SIGNED;
+}
+
+
+/**
+ * @brief Are elements being written as floating-point numbers?
+ */
+inline
+bool PackedParameters::isFloat()  const
+{
+  return m_flags & FLAG_IS_FLOAT;
+}
+
+
+/**
+ * @brief Should floats be rescaled before writing?
+ */
+inline
+bool PackedParameters::hasScale() const
+{
+  return m_flags & FLAG_HAS_SCALE;
+}
+
+
+/**
+ * @brief Should floats be rounded during writing?
+ */
+inline
+bool PackedParameters::rounding() const
+{
+  return m_flags & FLAG_ROUNDING;
+}
+
+
+} // namespace SG

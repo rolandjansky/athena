@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorBase.icc 598730 2014-05-23 18:29:21Z ssnyder $
+// $Id: AuxVectorBase.icc 628528 2014-11-14 17:04:35Z ssnyder $
 /**
  * @file AthContainers/AuxVectorBase.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -571,6 +571,12 @@ void AuxVectorBase::resortAux (size_t index,
                                ForwardIterator beg,
                                ForwardIterator end)
 {
+  // If the xAOD base classes are used, then they always report that
+  // static auxids are present.  However, if the container is empty,
+  // these variables are not actually retrievable, which can cause
+  // an exception in the ResortAuxHelper ctor.  Work around here.
+  if (beg==end) return;
+
   // Forward to the appropriate specialization, depending on whether
   // or not aux data is supported.
   typedef typename std::iterator_traits<ForwardIterator>::value_type valtype;

@@ -19,6 +19,7 @@
 
 
 #include "AthContainers/tools/ClassID.h"
+#include "AthContainers/AuxVectorBase.h"
 #include <typeinfo>
 #include <cstddef>
 
@@ -29,6 +30,7 @@ namespace SG_STD_OR_BOOST = std;
 #else
 # include "boost/type_traits/remove_const.hpp"
 # include "boost/type_traits/is_pointer.hpp"
+# include "boost/type_traits/is_base_of.hpp"
 namespace SG_STD_OR_BOOST = boost;
 #endif
 
@@ -82,14 +84,12 @@ public:
   /**
    * @brief Constructor.
    * @param tinfo Type info object for the container being described.
-   * @param clid CLID for the container being described.
    * @param elt_tinfo Type info object for the element type of the container
    *                  being described (with pointer and const's stripped.)
    *
    * Note: these objects should only be allocated statically.
    */
   DVLInfoBase (const std::type_info& tinfo,
-               CLID clid,
                const std::type_info& elt_tinfo);
 
 
@@ -169,6 +169,13 @@ public:
 
 
   /**
+   * @brief Return a pointer to the container base.
+   * @param cont_p Pointer to the container.
+   */
+  virtual SG::AuxVectorBase* base (void* cont_p) const = 0;
+
+
+  /**
    * @brief Find the @c DVLInfo for the container @a tinfo.
    * @param tinfo @c type_info of the desired container.
    * @returns Pointer to the @c DVLInfo, or 0 if not found.
@@ -187,9 +194,6 @@ public:
 private:
   /// The @c type_info of the container.
   const std::type_info& m_tinfo;
-
-  /// The @c CLID of the container.
-  CLID m_clid;
 
   /// The @c type_info of the container's element.
   const std::type_info& m_elt_tinfo;
@@ -274,6 +278,13 @@ public:
    * @param cont_p Pointer to the container.
    */
   virtual DVLIteratorBase* iterator (const void* cont_p) const;
+
+
+  /**
+   * @brief Return a pointer to the container base.
+   * @param cont_p Pointer to the container.
+   */
+  virtual SG::AuxVectorBase* base (void* cont_p) const;
 
 
   /**

@@ -16,6 +16,9 @@
 
 
 #include "AthContainers/tools/DVLInfo.h"
+#ifndef XAOD_STANDALONE
+#include "SGTools/CLIDRegistry.h"
+#endif
 #include <typeinfo>
 #include <string>
 #include <memory>
@@ -40,11 +43,9 @@ namespace DataModel_detail {
 typedef SG_STD_OR_SG::unordered_map<const std::type_info*, DVLInfoBase*>
    dvl_tinfo_map_t;
 dvl_tinfo_map_t* s_dvl_tinfo_map = 0;
-typedef SG_STD_OR_SG::unordered_map<CLID, DVLInfoBase*> dvl_clid_map_t;
-dvl_clid_map_t* s_dvl_clid_map = 0;
 
 struct dvlmapdel {
-  ~dvlmapdel() { delete s_dvl_tinfo_map; delete s_dvl_clid_map; }
+  ~dvlmapdel() { delete s_dvl_tinfo_map; }
 } s_dvlmapdel;
 
 
@@ -53,28 +54,19 @@ struct dvlmapdel {
 /**
  * @brief Constructor.
  * @param tinfo Type info object for the container being described.
- * @param clid CLID for the container being described.
  * @param elt_tinfo Type info object for the element type of the container
  *                  being described (with pointer and const's stripped.)
  *
  * Note: these objects should only be allocated statically.
  */
 DVLInfoBase::DVLInfoBase (const std::type_info& tinfo,
-                          CLID clid,
                           const std::type_info& elt_tinfo)
   : m_tinfo (tinfo),
-    m_clid (clid),
     m_elt_tinfo (elt_tinfo)
 {
   if (s_dvl_tinfo_map == 0)
     s_dvl_tinfo_map = new dvl_tinfo_map_t;
   (*s_dvl_tinfo_map)[&tinfo] = this;
-
-  if (clid != CLID_NULL) {
-    if (s_dvl_clid_map == 0)
-      s_dvl_clid_map = new dvl_clid_map_t;
-    (*s_dvl_clid_map)[clid] = this;
-  }
 }
 
 
@@ -94,6 +86,17 @@ DVLInfoBase* DVLInfoBase::find (const std::type_info& tinfo)
 }
 
 
+#ifdef XAOD_STANDALONE
+DVLInfoBase* DVLInfoBase::find (CLID /*clid*/)
+{
+  return 0;
+}
+
+CLID DVLInfoBase::clid() const
+{
+  return CLID_NULL;
+}
+#else
 /**
  * @brief Find the @c DVLInfo for the container @a tinfo.
  * @param clid @c CLID of the desired container.
@@ -102,13 +105,21 @@ DVLInfoBase* DVLInfoBase::find (const std::type_info& tinfo)
  */
 DVLInfoBase* DVLInfoBase::find (CLID clid)
 {
-  if (!s_dvl_clid_map)
-    return 0;
-  dvl_clid_map_t::iterator i = s_dvl_clid_map->find (clid);
-  if (i != s_dvl_clid_map->end())
-    return i->second;
+  const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
+  if (ti)
+    return DVLInfoBase::find (*ti);
   return 0;
 }
+
+
+/**
+ * @brief Return the CLID for the container.
+ */
+CLID DVLInfoBase::clid() const
+{
+  return CLIDRegistry::typeinfoToCLID (m_tinfo);
+}
+#endif
 
 
 } // namespace DataModel_detail

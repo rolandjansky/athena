@@ -151,26 +151,35 @@ private:
 ENTER_ROOT_SELECTION_NS
 
 namespace DataModel_detail {
+
+#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
+
 template <class DVL>
 class ElementProxy
 {
 public:
   typedef ElementProxy<DVL> self;
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dum2;
   ROOT_SELECTION_NS::TRANSIENT m_proxied;
   ROOT_SELECTION_NS::TRANSIENT m_container;
+};
 
 #else
 
+template <class DVL>
+class ElementProxy
+#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
+  : public SelectNoInstance
+#endif
+{
+public:
+  typedef ElementProxy<DVL> self;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_proxied;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_container;
+};
 
 #endif // ROOT_VERSION
 
-};
 }
 
 EXIT_ROOT_SELECTION_NS

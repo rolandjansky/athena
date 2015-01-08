@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxTypeRegistry.h 602003 2014-06-16 17:07:01Z ssnyder $
+// $Id: AuxTypeRegistry.h 637169 2014-12-19 23:10:51Z ssnyder $
 /**
  * @file AthContainers/AuxTypeRegistry.h
  * @author scott snyder <snyder@bnl.gov>
@@ -312,6 +312,40 @@ public:
 
 
   /**
+   * @brief Copy an element between vectors.
+   *        Apply any transformations needed for output.
+   * @param auxid The aux data item being operated on.
+   * @param dst Pointer to the start of the destination vector's data.
+   * @param dst_index Index of destination element in the vector.
+   * @param src Pointer to the start of the source vector's data.
+   * @param src_index Index of source element in the vector.
+   *
+   * @c dst and @ src can be either the same or different.
+   */
+  void copyForOutput (SG::auxid_t auxid,
+                      void* dst,       size_t dst_index,
+                      const void* src, size_t src_index);
+
+
+  /**
+   * @brief Copy an element between vectors (external locking).
+   *        Apply any transformations needed for output.
+   * @param lock The registry lock.
+   * @param auxid The aux data item being operated on.
+   * @param dst Pointer to the start of the destination vector's data.
+   * @param dst_index Index of destination element in the vector.
+   * @param src Pointer to the start of the source vector's data.
+   * @param src_index Index of source element in the vector.
+   *
+   * @c dst and @ src can be either the same or different.
+   */
+  void copyForOutput (lock_t& lock,
+                      SG::auxid_t auxid,
+                      void* dst,       size_t dst_index,
+                      const void* src, size_t src_index);
+
+
+  /**
    * @brief Swap an element between vectors.
    * @param auxid The aux data item being operated on.
    * @param a Pointer to the start of the first vector's data.
@@ -441,8 +475,9 @@ private:
   ~AuxTypeRegistry();
 
 
-  /// Disallow the copy constructor.
+  /// Disallow copy construction and assignment.
   AuxTypeRegistry (const AuxTypeRegistry&);
+  AuxTypeRegistry& operator= (const AuxTypeRegistry&);
 
 
   /**
@@ -539,6 +574,34 @@ private:
   IAuxTypeVectorFactory* makeFactoryNull() const;
 
 
+  /**
+   * @brief Initialize the m_isEL* flags for a given variable.
+   * @param auxid The variable for which the flags should be initialized.
+   * @param lock The registry lock (must be locked).
+   *
+   * ??? Should go away when we extend the factory interface.
+   */
+  void setELFlags (upgrading_lock_t& lock, auxid_t auxid);
+
+
+  /**
+   * @brief Apply @c ElementLink output transformations to a single element.
+   * @param dst Pointer to the element.
+   *
+   * ??? Should go away when we extend the factory interface.
+   */
+  void applyELThinning (void* dst);
+
+
+  /**
+   * @brief Apply @c ElementLink output transformations to a vector.
+   * @param dst Pointer to the vector.
+   *
+   * ??? Should go away when we extend the factory interface.
+   */
+  void applyELVecThinning (void* dst);
+
+
   /// Hold information about one aux data item.
   struct typeinfo_t
   {
@@ -568,7 +631,7 @@ private:
   /// Helper to hash the key type.
   struct stringpair_hash
   {
-    bool operator() (const key_t& key) const
+    size_t operator() (const key_t& key) const
     {
       return shash (key.first) + shash (key.second);
     }
@@ -599,6 +662,16 @@ private:
   /// Mutex controlling access to the registry.
   /// Reads should be much more common than writes, so use an upgrade_mutex.
   mutable mutex_t m_mutex;
+
+  /// Flag that a variable is an ElementLink.
+  /// ??? Should go away when we extend the factory interface.
+  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
+  std::vector<bool> m_isEL;
+
+  /// Flag that a variable is a vector of ElementLink.
+  /// ??? Should go away when we extend the factory interface.
+  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
+  std::vector<bool> m_isELVec;
 };
 
 

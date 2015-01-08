@@ -23,11 +23,15 @@
 #include <cassert>
 
 
+class Foo{};
+CLASS_DEF(Foo, 1234, 1)
+
+
 class DVLInfoTest
   : public DataModel_detail::DVLInfoBase
 {
 public:
-  DVLInfoTest() : DVLInfoBase (typeid(int), 1234, typeid(double)) {}
+  DVLInfoTest() : DVLInfoBase (typeid(Foo), typeid(double)) {}
   virtual void* make (size_t nreserve) const;
   virtual void  push (void* cont_p, void* elt_p) const;
   virtual size_t size (void* cont_p) const;
@@ -36,6 +40,7 @@ public:
   virtual void* clone (void* cont_p) const;
   virtual DataModel_detail::DVLIteratorBase*
   iterator (const void* cont_p) const;
+  SG::AuxVectorBase* base (void* /*cont_p*/) const { return 0; }
 };
 
 
@@ -89,9 +94,9 @@ void test_DVLInfoBase()
   static DVLInfoTest info;
   assert (DataModel_detail::DVLInfoBase::find (typeid (float)) == 0);
   DataModel_detail::DVLInfoBase* info2 =
-    DataModel_detail::DVLInfoBase::find (typeid (int));
+    DataModel_detail::DVLInfoBase::find (typeid (Foo));
   assert (info2 == &info);
-  assert (info2->tinfo() == typeid (int));
+  assert (info2->tinfo() == typeid (Foo));
   assert (info2->clid() == 1234);
   assert (info2->elt_tinfo() == typeid (double));
   info2 = DataModel_detail::DVLInfoBase::find (1234);
@@ -100,6 +105,7 @@ void test_DVLInfoBase()
   void* cont_p = info2->make (5);
   info2->push (cont_p, new int(1));
   info2->push (cont_p, new int(2));  
+  assert (info2->base(cont_p) == 0);
 
   std::vector<int*>* vec = reinterpret_cast<std::vector<int*>*> (cont_p);
   assert (vec->capacity() == 5);
@@ -141,6 +147,17 @@ public:
 
 typedef mycont<std::vector<int*> > myvec;
 typedef mycont<std::list<int*> > mylist;
+
+
+class myvec2 
+  : public myvec, public SG::AuxVectorBase
+{
+public:
+  myvec2 (SG::OwnershipPolicy pol = SG::VIEW_ELEMENTS) : myvec (pol) {}
+  myvec2 (const myvec2&) : myvec (SG::VIEW_ELEMENTS), SG::AuxVectorBase() {}
+  virtual size_t capacity_v() const { return 0; }
+  virtual size_t size_v() const { return 0; }
+};
 
 
 
@@ -230,6 +247,13 @@ void test_DVLInfo()
   myvec* vec = test_DVLInfo1<myvec>();
   assert (vec->capacity() == 5);
   test_DVLInfo1<mylist> ();
+
+  static DataModel_detail::DVLInfo<myvec> info;
+  assert (info.base(vec) == 0);
+
+  myvec2 vec2 (SG::VIEW_ELEMENTS);
+  static DataModel_detail::DVLInfo<myvec2> info2;
+  assert (info2.base(&vec2) == &vec2);
 }
 
 

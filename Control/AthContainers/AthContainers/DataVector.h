@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 616511 2014-09-12 15:31:11Z ssnyder $
+// $Id: DataVector.h 635856 2014-12-14 05:09:23Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -961,8 +961,11 @@ public:
   /**
    * @fn size_type size() const
    * @brief Returns the number of elements in the collection.
+   *
+   * Could in principle be inherited from the base class,
+   * but redeclared in the derived class to avoid root6 bugs.
    */
-  // This is inherited from the base class.
+  size_type size() const;
 
 
   /**
@@ -1033,6 +1036,17 @@ public:
    * Note that we return a @c const @c T* rather than a reference.
    */
   const T* operator[] (size_type n) const;
+
+
+  /**
+   * @brief Access an element, as an rvalue.
+   * @param n Array index to access.
+   * @return The element at @a n.
+   * 
+   * This is a synonym for operator[] const, to be used when calling from root
+   * (where we can't readily call just the const version of a method).
+   */
+  const T* get (size_type n) const;
 
 
   /**
@@ -1645,6 +1659,34 @@ public:
   virtual const DataModel_detail::DVLInfoBase& dvlinfo_v() const;
 
 
+  /**
+   * @brief Return the offset of a base @c DataVector class.
+   * @param ti @c std::type_info of the desired class.
+   *
+   * If @c ti represents a @c DataVector base class of this one,
+   * then return the offset of that base class.  Otherwise, return -1.
+   *
+   * This function is here due to limitations of root 6, which can't
+   * calculate these offsets correctly from the dictionary if
+   * virtual derivation is used.
+   */
+  static
+  int baseOffset (const std::type_info& ti);
+
+
+  /**
+   * @brief Convert to @c AuxVectorBase.
+   *
+   * Needed to get @x AuxVectorBase from a @c ConstDataVector.
+   * Present in @c DataVector as well for consistency.
+   * We only really need it in the base class; however, root6 fails
+   * constructing a @c TMethodCall for this if there is virtual
+   * derivation.  A workaround is to redeclare this in the derived
+   * classes too.
+   */
+  const SG::AuxVectorBase& auxbase() const;
+
+
   //@}
   //========================================================================
 
@@ -1657,7 +1699,6 @@ public:
   // So here are declarations which should be visible to doxygen
   // but not to C++.
 #ifndef __cplusplus
-  size_type size() const;
   size_type max_size() const;
   void resize(size_type sz);
   size_type capacity() const;
@@ -1674,6 +1715,22 @@ public:
 
   /** @name Internal operations. */
   //@{
+
+
+protected:
+  /**
+   * @brief Helper for @c baseOffset.
+   * @param p Pointer to the start of the top-level object.
+   * @param dv Reference to the DataVector object.
+   * @param ti @c std::type_info of the desired class.
+   *
+   * If @c ti represents a @c DataVector base class of this one,
+   * then return the offset of that base class.  Otherwise, return -1.
+   *
+   */
+  static
+  int baseOffset1 (const char* p, const DataVector& dv,
+                   const std::type_info& ti);
 
 
 public:
@@ -1788,6 +1845,8 @@ private:
   void shift (size_t pos, ptrdiff_t offs);
 
 
+public:
+  // Make this public so we can call it from DVCollectionProxy.
   /**
    * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
    * @param p The value to convert.
@@ -1800,6 +1859,7 @@ private:
   const T* do_cast (const typename PtrVector::value_type p);
 
 
+private:
   /**
    * @brief Find the most-derived @c DataVector class in the hierarchy.
    * @return The @c type_info for the class for which this method gets run.
@@ -2194,6 +2254,17 @@ public:
    * Note that we return a @c const @c T* rather than a reference.
    */
   const T* operator[] (size_type n) const;
+
+
+  /**
+   * @brief Access an element, as an rvalue.
+   * @param n Array index to access.
+   * @return The element at @a n.
+   * 
+   * This is a synonym for operator[] const, to be used when calling from root
+   * (where we can't readily call just the const version of a method).
+   */
+  const T* get (size_type n) const;
 
 
   /**
@@ -2799,6 +2870,21 @@ public:
 
 
   /**
+   * @brief Return the offset of a base @c DataVector class.
+   * @param ti @c std::type_info of the desired class.
+   *
+   * If @c ti represents a @c DataVector base class of this one,
+   * then return the offset of that base class.  Otherwise, return -1.
+   *
+   * This function is here due to limitations of root 6, which can't
+   * calculate these offsets correctly from the dictionary if
+   * virtual derivation is used.
+   */
+  static
+  int baseOffset (const std::type_info& ti);
+
+
+  /**
    * @brief Convert to @c AuxVectorBase.
    *
    * Needed to get @x AuxVectorBase from a @c ConstDataVector.
@@ -2811,6 +2897,22 @@ public:
   //========================================================================
   /** @name Internal operations. */
   //@{
+
+
+protected:
+  /**
+   * @brief Helper for @c baseOffset.
+   * @param p Pointer to the start of the top-level object.
+   * @param dv Reference to the DataVector object.
+   * @param ti @c std::type_info of the desired class.
+   *
+   * If @c ti represents a @c DataVector base class of this one,
+   * then return the offset of that base class.  Otherwise, return -1.
+   *
+   */
+  static
+  int baseOffset1 (const char* p, const DataVector& dv,
+                   const std::type_info& ti);
 
 
 public:
@@ -2925,6 +3027,20 @@ private:
   void shift (size_t pos, ptrdiff_t offs);
 
 
+public:
+  // Make this public so we can call it from DVCollectionProxy.
+  /**
+   * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+   * @param p The value to convert.
+   * @return The value as a @c const @c T*.
+   *
+   * This is a no-op for the base class.
+   */
+  static
+  const T* do_cast (const typename PtrVector::value_type p);
+
+
+private:
   /**
    * @brief Find the most-derived @c DataVector class in the hierarchy.
    * @return The @c type_info for the class for which this method gets run.
@@ -3075,6 +3191,18 @@ ENTER_ROOT_SELECTION_NS
 
 #if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
 
+template <class T>
+struct SelectVirtBases
+{
+  typedef int type;
+};
+
+template <class B1, class B2, class B3>
+struct SelectVirtBases<DataVector_detail::VirtBases<B1, B2, B3> >
+{
+  typedef ROOT_SELECTION_NS::AUTOSELECT type;
+};
+
 template <class T, class BASE>
 class DataVector
 {
@@ -3087,19 +3215,27 @@ public:
   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dum2;
   ROOT_SELECTION_NS::AUTOSELECT m_pCont;
   ROOT_SELECTION_NS::TRANSIENT m_isMostDerived;
+  typename SelectVirtBases<BASE>::type __base1;
 };
 
 #else
 
 template< class T, class BASE >
-class DataVector : KeepFirstTemplateArguments< 1 >, SelectNoInstance {
+class DataVector : KeepFirstTemplateArguments< 1 >
+// The SelectNoInstance type was added after 6.00/02...
+#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
+   , SelectNoInstance
+#endif // > v6.00/02
+{
 
 public:
    /// A helper typedef
    typedef DataVector< T, BASE > self;
-
+#ifndef XAOD_STANDALONE
    /// Automatically generate dictionary for contained vector
-   //   ROOT_SELECTION_NS::MemberAttributes< kAutoSelected > m_pCont;
+    //MN: this causes massive dictionary duplication.  Disabling for now.
+   // ROOT_SELECTION_NS::MemberAttributes< kAutoSelected > m_pCont;
+#endif  
    /// Declare the automatically created variable transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_isMostDerived;
 

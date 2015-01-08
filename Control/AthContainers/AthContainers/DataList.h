@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataList.h 616511 2014-09-12 15:31:11Z ssnyder $
+// $Id: DataList.h 616510 2014-09-12 15:31:07Z ssnyder $
 
 /**
  * @file AthContainers/DataList.h

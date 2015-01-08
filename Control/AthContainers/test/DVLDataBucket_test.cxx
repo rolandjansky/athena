@@ -171,7 +171,9 @@ void test1t()
     BUCKET* buck3 = new BUCKET (pp);
     assert (A::log.empty());
     delete buck3;
-    assert (A::log == std::vector<int>{21});
+    std::vector<int> exp21;
+    exp21.push_back(21);
+    assert (A::log == exp21);
   }
 
 #if __cplusplus > 201100

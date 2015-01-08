@@ -3,4 +3,5 @@ test_swap
 test_get_types
 test_decoration
 test_move
+test_setoption
 test_threading

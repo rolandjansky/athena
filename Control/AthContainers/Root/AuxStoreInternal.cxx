@@ -16,6 +16,7 @@
 
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/PackedParameters.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/foreach.h"
 #include "AthContainers/tools/error.h"
@@ -338,6 +339,11 @@ const std::type_info* AuxStoreInternal::getIOType (auxid_t auxid) const
 {
   if (m_standalone)
     return SG::AuxTypeRegistry::instance().getType (auxid);
+  guard_t guard (m_mutex);
+  if (auxid < m_vecs.size() && m_vecs[auxid]) {
+    const std::type_info* ret = m_vecs[auxid]->objType();
+    if (ret) return ret;
+  }
   return SG::AuxTypeRegistry::instance().getVecType (auxid);
 }
 
@@ -395,11 +401,57 @@ void AuxStoreInternal::clearDecorations()
 size_t AuxStoreInternal::size() const
 {
   guard_t guard (m_mutex);
-  for (SG::auxid_t id : m_auxids) {
+  ATHCONTAINERS_FOREACH (SG::auxid_t id, m_auxids) {
     if (id < m_vecs.size() && m_vecs[id] && m_vecs[id]->size() > 0)
       return m_vecs[id]->size();
   }
   return 0;
+}
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param id The variable for which we want to set the option.
+ * @param option The option setting to make.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+bool AuxStoreInternal::setOption (auxid_t id, const AuxDataOption& option)
+{
+  // Does this variable exist in this store?
+  bool exists = false;
+  {
+    guard_t guard (m_mutex);
+    if (id < m_vecs.size() && m_vecs[id] != 0)
+      exists = true;
+  }
+
+  // If not, and we have a packing parameter request, then create the variable.
+  if (!exists) {
+    if (!PackedParameters::isValidOption (option)) return false;
+    size_t sz = size();
+    getDataInternal (id, sz, sz, true);
+  }
+
+  // Try the option setting.
+  guard_t guard (m_mutex);
+  if (m_vecs[id]->setOption (option)) return true;
+
+  // It didn't work.  If this is a packing request, then try to convert
+  // the variable to packed form and retry.
+  if (!PackedParameters::isValidOption (option)) return false;
+  IAuxTypeVector* packed = m_vecs[id]->toPacked();
+  if (packed) {
+    // Converted to packed form.  Replace the object and retry.
+    delete m_vecs[id];
+    m_vecs[id] = packed;
+    return packed->setOption (option);
+  }
+
+  // Didn't work.
+  return false;
 }
 
 

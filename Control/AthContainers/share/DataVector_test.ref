@@ -1,48 +1,48 @@
 *** DataVector_test test1 BEGIN ***
-intV: 0x1419bf0 0x1419bb0 0x1419bd0 
+intV: 0xf78a10 0xf789d0 0xf789f0 
 7 1 3 
-intV2: 0x1419b90 0x1419c40 0x1419c60 0x1419c80 0x1419cc0 
+intV2: 0xf789b0 0xf78a60 0xf78a80 0xf78aa0 0xf78ae0 
 5 5 5 5 6 
-dfluff: 0x1419e30 0x1419f00 
+dfluff: 0xf78b90 0xf78de0 
  --> Now deleting copied vector, but it should not delete elements as it does not own them. You should not see message of Element Destructor
  <-- delete done
  --> Now deleting vector copied via iterator. You should NOT see the elements being deleted
  <-- delete done
  --> Now resizing DataVector<DerivedFluff>
  --> You should see one DerivedFluff object being deleted
- ----> Destructor of AbsFluff called for 0x1419f00. After return, left alive 1
+ ----> Destructor of AbsFluff called for 0xf78de0. After return, left alive 1
  <-- resize done
  --> Now deleting DataVector<DerivedFluff>. You should see all remaining DerivedFluff objects being deleted
- ----> Destructor of AbsFluff called for 0x1419e30. After return, left alive 0
+ ----> Destructor of AbsFluff called for 0xf78b90. After return, left alive 0
  <-- delete done
  --> Now erasing one element of the DerivedFluff container. You should see one instance being deleted
- ----> Destructor of AbsFluff called for 0x1419e30. After return, left alive 3
+ ----> Destructor of AbsFluff called for 0xf78b90. After return, left alive 3
  <-- erase done
  --> Now resizing view container. You should NOT see the elements being deleted
  <-- resize done
  --> Now deleting two DerivedFluff instances
- ----> Destructor of AbsFluff called for 0x141a5b0. After return, left alive 14
- ----> Destructor of AbsFluff called for 0x141a800. After return, left alive 13
+ ----> Destructor of AbsFluff called for 0xf79330. After return, left alive 14
+ ----> Destructor of AbsFluff called for 0xf79690. After return, left alive 13
  <-- delete done
- ----> Destructor of AbsFluff called for 0x141aac0. After return, left alive 17
- ----> Destructor of AbsFluff called for 0x141aa10. After return, left alive 16
+ ----> Destructor of AbsFluff called for 0xf79840. After return, left alive 17
+ ----> Destructor of AbsFluff called for 0xf79620. After return, left alive 16
 *** DataVector_test OK ***
- ----> Destructor of AbsFluff called for 0x141a800. After return, left alive 15
- ----> Destructor of AbsFluff called for 0x141a5b0. After return, left alive 14
- ----> Destructor of AbsFluff called for 0x141a960. After return, left alive 13
- ----> Destructor of AbsFluff called for 0x1419e30. After return, left alive 12
- ----> Destructor of AbsFluff called for 0x141a1e0. After return, left alive 11
- ----> Destructor of AbsFluff called for 0x141a250. After return, left alive 10
- ----> Destructor of AbsFluff called for 0x141a2f0. After return, left alive 9
- ----> Destructor of AbsFluff called for 0x141a360. After return, left alive 8
- ----> Destructor of AbsFluff called for 0x141a2c0. After return, left alive 7
- ----> Destructor of AbsFluff called for 0x141a460. After return, left alive 6
- ----> Destructor of AbsFluff called for 0x141a4d0. After return, left alive 5
- ----> Destructor of AbsFluff called for 0x141a540. After return, left alive 4
- ----> Destructor of AbsFluff called for 0x141a640. After return, left alive 3
- ----> Destructor of AbsFluff called for 0x1419f00. After return, left alive 2
- ----> Destructor of AbsFluff called for 0x141a050. After return, left alive 1
- ----> Destructor of AbsFluff called for 0x141a100. After return, left alive 0
+ ----> Destructor of AbsFluff called for 0xf79690. After return, left alive 15
+ ----> Destructor of AbsFluff called for 0xf79330. After return, left alive 14
+ ----> Destructor of AbsFluff called for 0xf795f0. After return, left alive 13
+ ----> Destructor of AbsFluff called for 0xf78b90. After return, left alive 12
+ ----> Destructor of AbsFluff called for 0xf78f90. After return, left alive 11
+ ----> Destructor of AbsFluff called for 0xf79000. After return, left alive 10
+ ----> Destructor of AbsFluff called for 0xf790a0. After return, left alive 9
+ ----> Destructor of AbsFluff called for 0xf79130. After return, left alive 8
+ ----> Destructor of AbsFluff called for 0xf79070. After return, left alive 7
+ ----> Destructor of AbsFluff called for 0xf791e0. After return, left alive 6
+ ----> Destructor of AbsFluff called for 0xf79250. After return, left alive 5
+ ----> Destructor of AbsFluff called for 0xf792c0. After return, left alive 4
+ ----> Destructor of AbsFluff called for 0xf793c0. After return, left alive 3
+ ----> Destructor of AbsFluff called for 0xf78de0. After return, left alive 2
+ ----> Destructor of AbsFluff called for 0xf78cb0. After return, left alive 1
+ ----> Destructor of AbsFluff called for 0xf78eb0. After return, left alive 0
 test2
 name: DataVector<AA>
  clid, vers, is_do: 2699 1 0
@@ -51,3 +51,4 @@ name: DataVector<BB>
 name: DataVector<CC>
  clid, vers, is_do: aa4491f 2 0
 test_auxdata
+test_emptysort

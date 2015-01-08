@@ -14,6 +14,9 @@
 #undef NDEBUG
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
+#include "AthLinks/ElementLink.h"
+#include "SGTools/CLASS_DEF.h"
+#include "TestStore.icc"
 #include <iostream>
 #include <cassert>
 
@@ -90,7 +93,7 @@ void test_type(const std::string& typname,
   SG::IAuxTypeVector* v2 = r.makeVector (auxid, 10, 20);
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   r.copy (auxid, ptr2, 0, ptr, 1);
-  r.copy (auxid, ptr2, 1, ptr, 0);
+  r.copyForOutput (auxid, ptr2, 1, ptr, 0);
 
   assert (ptr2[0] == makeT(1));
   assert (ptr2[1] == makeT(0));
@@ -182,6 +185,7 @@ void test_type_extlock(const std::string& typname,
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   r.copy (lock, auxid, ptr2, 0, ptr, 1);
   r.copy (lock, auxid, ptr2, 1, ptr, 0);
+  r.copyForOutput (lock, auxid, ptr2, 1, ptr, 0);
 
   assert (ptr2[0] == makeT(1));
   assert (ptr2[1] == makeT(0));
@@ -311,11 +315,57 @@ void test_get_by_ti()
 }
 
 
+CLASS_DEF (std::vector<int*>, 28374627, 0)
+
+
+void test_copyForOutput()
+{
+  std::cout << "test_copyForOutput\n";
+
+  typedef ElementLink<std::vector<int*> > EL;
+  EL el1 (123, 10);
+  EL el2;
+
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t auxid = r.getAuxID<EL> ("EL");
+  SG::auxid_t auxid_v = r.getAuxID<std::vector<EL> > ("ELv");
+
+  r.copyForOutput (auxid, &el2, 0, &el1, 0);
+  assert (el2.key() == 123);
+  assert (el2.index() == 10);
+
+  std::vector<EL> v1;
+  v1.push_back (EL (123, 5));
+  v1.push_back (EL (123, 6));
+  std::vector<EL> v2;
+  r.copyForOutput (auxid_v, &v2, 0, &v1, 0);
+  assert (v2[0].key() == 123);
+  assert (v2[0].index() == 5);
+  assert (v2[1].key() == 123);
+  assert (v2[1].index() == 6);
+
+  store.remap (123, 456, 10, 20);
+
+  r.copyForOutput (auxid, &el2, 0, &el1, 0);
+  assert (el2.key() == 456);
+  assert (el2.index() == 20);
+
+  store.remap (123, 456, 6, 12);
+  r.copyForOutput (auxid_v, &v2, 0, &v1, 0);
+  assert (v2[0].key() == 123);
+  assert (v2[0].index() == 5);
+  assert (v2[1].key() == 456);
+  assert (v2[1].index() == 12);
+}
+
+
 int main()
 {
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
   test2();
   test_placeholder();
   test_factories();
   test_get_by_ti();
+  test_copyForOutput();
   return 0;
 }

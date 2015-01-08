@@ -1,8 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ConstDataVector.icc 610620 2014-08-06 21:15:52Z ssnyder $
+// $Id: ConstDataVector.icc 626924 2014-11-07 15:00:54Z krasznaa $
 /**
  * @file AthContainers/ConstDataVector.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -1038,6 +1040,9 @@ ConstDataVector<DV>::to_element_proxy (typename BaseContainer::iterator i)
 //=== Other helper classes.
 
 
+#ifndef XAOD_STANDALONE
+
+
 /**
  * @brief Constructor from a payload object.
  * @param data Object to hold in the bucket.
@@ -1064,7 +1069,10 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
   : DVLDataBucket<DV> (std::unique_ptr<DV> (const_cast<DV*> (data.release()->asDataVector())))
 {
 }
-#endif
+#endif // C++11
 
 
 } // namespace SG
+
+
+#endif // not XAOD_STANDALONE

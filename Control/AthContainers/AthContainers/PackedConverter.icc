@@ -1,0 +1,278 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/PackedConverter.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2014
+ * @brief Helper for packing/unpacking a @c PackedContainer to/from a stream.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Pack a vector to the stream.
+ * @param nelt Number of elements to pack.
+ * @param vec Vector of elements to pack.
+ * @param stream Destination stream.
+ */
+template <class U, class STREAM>
+inline
+void PackedConverter::write (size_t nelt,
+                             const std::vector<U>& vec,
+                             STREAM& stream)
+{
+  // Dispatch on number of bits and on type.
+  switch (m_parms.nbits()) {
+  case 8:
+    if (m_parms.isFloat())
+      writeFloat<CxxUtils::BitPacker8> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      writeSigned<CxxUtils::BitPacker8> (nelt, vec, stream);
+    else
+      writeUnsigned<CxxUtils::BitPacker8> (nelt, vec, stream);
+    break;
+
+  case 16:
+    if (m_parms.isFloat())
+      writeFloat<CxxUtils::BitPacker16> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      writeSigned<CxxUtils::BitPacker16> (nelt, vec, stream);
+    else
+      writeUnsigned<CxxUtils::BitPacker16> (nelt, vec, stream);
+    break;
+
+  default:
+    if (m_parms.isFloat())
+      writeFloat<CxxUtils::BitPacker> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      writeSigned<CxxUtils::BitPacker> (nelt, vec, stream);
+    else
+      writeUnsigned<CxxUtils::BitPacker> (nelt, vec, stream);
+    break;
+  }
+}
+
+
+/**
+ * @brief Pack a nested vector to the stream.
+ * @param nelt Number of elements to pack.
+ * @param vec Vector of elements to pack.
+ * @param stream Destination stream.
+ */
+template <class U, class STREAM>
+inline
+void PackedConverter::write (size_t nelt,
+                             const std::vector<std::vector<U> >& vec,
+                             STREAM& stream)
+{
+  for (size_t i = 0; i < nelt; i++) {
+    size_t n = vec[i].size();
+    stream << static_cast<uint32_t>(n);
+    this->write (n, vec[i], stream);
+  }
+}
+
+
+/**
+ * @brief Unpack a vector from the stream.
+ * @param nelt Number of elements to unpack.
+ * @param vec Vector to receive the unpacked elements.
+ * @param stream Source stream.
+ */
+template <class U, class STREAM>
+inline
+void PackedConverter::read (size_t nelt,
+                            std::vector<U>& vec,
+                            STREAM& stream)
+{
+  vec.clear();
+  vec.reserve (nelt);
+
+  // Dispatch on number of bits and on type.
+  switch (m_parms.nbits()) {
+  case 8:
+    if (m_parms.isFloat())
+      readFloat<CxxUtils::BitUnpacker8> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      readSigned<CxxUtils::BitUnpacker8> (nelt, vec, stream);
+    else
+      readUnsigned<CxxUtils::BitUnpacker8> (nelt, vec, stream);
+    break;
+
+  case 16:
+    if (m_parms.isFloat())
+      readFloat<CxxUtils::BitUnpacker16> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      readSigned<CxxUtils::BitUnpacker16> (nelt, vec, stream);
+    else
+      readUnsigned<CxxUtils::BitUnpacker16> (nelt, vec, stream);
+    break;
+
+  default:
+    if (m_parms.isFloat())
+      readFloat<CxxUtils::BitUnpacker> (nelt, vec, stream);
+    else if (m_parms.isSigned())
+      readSigned<CxxUtils::BitUnpacker> (nelt, vec, stream);
+    else
+      readUnsigned<CxxUtils::BitUnpacker> (nelt, vec, stream);
+    break;
+  }
+}
+
+
+/**
+ * @brief Unpack a nested vector from the stream.
+ * @param nelt Number of elements to unpack.
+ * @param vec Vector to receive the unpacked elements.
+ * @param stream Source stream.
+ */
+template <class U, class STREAM>
+inline
+void PackedConverter::read (size_t nelt,
+                            std::vector<std::vector<U> >& vec,
+                            STREAM& stream)
+{
+  vec.resize (nelt);
+  for (size_t i = 0; i < nelt; i++) {
+    uint32_t n;
+    stream >> n;
+    this->read (n, vec[i], stream);
+  }
+}
+
+
+/**
+ * @brief Pack a vector of unsigned values to the stream.
+ * @param nelt Number of elements to pack.
+ * @param vec Vector of elements to pack.
+ * @param stream Destination stream.
+ */
+template <template<class> class PACKER, class U, class STREAM>
+inline
+void PackedConverter::writeUnsigned (size_t nelt,
+                                     const std::vector<U>& vec,
+                                     STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  PACKER<STREAM> packer (nbits, stream);
+  uint32_t mask = CxxUtils::ones<uint32_t> (nbits);
+  for (size_t i = 0; i < nelt; ++i)
+    packer.pack (static_cast<uint32_t>(vec[i]) & mask);
+}
+
+
+/**
+ * @brief Pack a vector of signed values to the stream.
+ * @param nelt Number of elements to pack.
+ * @param vec Vector of elements to pack.
+ * @param stream Destination stream.
+ */
+template <template<class> class PACKER, class U, class STREAM>
+inline
+void PackedConverter::writeSigned (size_t nelt,
+                                   const std::vector<U>& vec,
+                                   STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  PACKER<STREAM> packer (nbits, stream);
+  uint32_t mask = CxxUtils::ones<uint32_t> (nbits);
+  uint32_t sgnmask = ~ CxxUtils::ones<uint32_t> (nbits-1);
+  for (size_t i = 0; i < nelt; ++i) {
+    U val = vec[i];
+    uint32_t uval = static_cast<uint32_t> (val);
+    uint32_t m = uval & sgnmask;
+    if (m == 0 || m == sgnmask)
+      packer.pack (uval & mask);
+    else if (val > 0)
+      packer.pack (~sgnmask);  // Largest + number
+    else
+      packer.pack (sgnmask & mask); // Largest - number
+  }
+}
+
+
+/**
+ * @brief Pack a vector of float values to the stream.
+ * @param nelt Number of elements to pack.
+ * @param vec Vector of elements to pack.
+ * @param stream Destination stream.
+ */
+template <template<class> class PACKER, class U, class STREAM>
+inline
+void PackedConverter::writeFloat (size_t nelt,
+                                  const std::vector<U>& vec,
+                                  STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  PACKER<STREAM> packer (nbits, stream);
+  for (size_t i = 0; i < nelt; ++i)
+    packer.pack (m_packer.pack (vec[i]));
+}
+
+
+
+/**
+ * @brief Unpack a vector of unsigned values from the stream.
+ * @param nelt Number of elements to unpack.
+ * @param vec Vector to receive the unpacked elements.
+ * @param stream Source stream.
+ */
+template <template<class> class UNPACKER, class U, class STREAM>
+void PackedConverter::readUnsigned (size_t nelt,
+                                    std::vector<U>& vec,
+                                    STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  UNPACKER<STREAM> unpacker (nbits, stream);
+  for (size_t i = 0; i < nelt; ++i)
+    vec.push_back (static_cast<U> (unpacker.unpack()));
+}
+
+
+/**
+ * @brief Unpack a vector of signed values from the stream.
+ * @param nelt Number of elements to unpack.
+ * @param vec Vector to receive the unpacked elements.
+ * @param stream Source stream.
+ */
+template <template<class> class UNPACKER, class U, class STREAM>
+void PackedConverter::readSigned (size_t nelt,
+                                  std::vector<U>& vec,
+                                  STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  uint32_t sgnmask = ~ CxxUtils::ones<uint32_t> (nbits-1);
+  UNPACKER<STREAM> unpacker (nbits, stream);
+  for (size_t i = 0; i < nelt; ++i) {
+    uint32_t val = unpacker.unpack();
+    if (val & sgnmask)
+      val |= sgnmask; // Sign-extend.
+    vec.push_back (static_cast<U> (val));
+  }
+}
+
+
+/**
+ * @brief Unpack a vector of floating-point values from the stream.
+ * @param nelt Number of elements to unpack.
+ * @param vec Vector to receive the unpacked elements.
+ * @param stream Source stream.
+ */
+template <template<class> class UNPACKER, class U, class STREAM>
+void PackedConverter::readFloat (size_t nelt,
+                                 std::vector<U>& vec,
+                                 STREAM& stream)
+{
+  uint8_t nbits = m_parms.nbits();
+  UNPACKER<STREAM> unpacker (nbits, stream);
+  for (size_t i = 0; i < nelt; ++i)
+    vec.push_back (static_cast<U> (m_packer.unpack (unpacker.unpack())));
+}
+
+
+} // namespace SG

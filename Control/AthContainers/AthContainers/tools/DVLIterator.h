@@ -73,40 +73,22 @@ namespace DataModel_detail {
  * In particular, the container concept checks didn't work.
  *
  * This is templated on the specific @c DataVector/List class.
+ *
+ * This used to be done using boost::iterator_adaptor, but that caused
+ * problems with root6.  So now use just write out the iterator
+ * explicitly.
  */
 template <class DVL>
 class const_iterator
-  : public boost::iterator_adaptor<const_iterator<DVL>,
-                                   typename DVL::BaseContainer::const_iterator,
-                                   typename DVL::const_value_type, // Value
-                                   // Note: Can't use boost::use_default here.
-                                   // Otherwise, we get boost's new-fangled
-                                   // iterator categories, which won't work
-                                   // with libstdc++'s implementation
-                                   // of sort().
-                                   // CategoryOrTraversal
-                                   typename DVL::BaseContainer::
-                                            const_iterator::iterator_category,
-                                   // Reference
-                                   typename DVL::const_value_type>
-  // Also note: making the value and reference arguments above const
-  // just causes warnings about ignored qualifiers on function return types.
-  // The iterator will be const by virtue of the fact that the reference
-  // type is the same as the value type (and thus the result of a dereference
-  // is not an lvalue).
 {
-private:
-  // Shorthand for the base class type.
-  typedef boost::iterator_adaptor<const_iterator,
-                                  typename DVL::BaseContainer::const_iterator,
-                                  typename DVL::const_value_type, // Value
-                                  // CategoryOrTraversal
-                                  typename DVL::BaseContainer::
-                                           const_iterator::iterator_category,
-                                  typename DVL::const_value_type>
-                                    iterator_adaptor_;
-
 public:
+  /// Standard iterator typedefs.
+  typedef typename DVL::const_value_type value_type;
+  typedef value_type reference;
+  typedef value_type* pointer;
+  typedef typename DVL::BaseContainer::const_iterator::difference_type difference_type;
+  typedef typename DVL::BaseContainer::const_iterator::iterator_category iterator_category;
+
   typedef DVL Container;
   typedef typename DVL::BaseContainer BaseContainer;
 
@@ -122,13 +104,45 @@ public:
    * @param it The underlying container iterator.
    */
    const_iterator (typename BaseContainer::const_iterator it)
-    : iterator_adaptor_ (it)
+    : m_it (it)
   {}
 
 
+  /// Dereference.  Operaotr-> doesn't make sense here.
+  reference operator*() const { return dereference(); }
+  reference operator[] (difference_type n) const
+  { const_iterator tmp = *this + n; return *tmp; }
+
+
+  /// Increment / decrement.
+  const_iterator& operator++() { ++m_it; return *this; }
+  const_iterator operator++(int)
+  { const_iterator tmp = *this; ++m_it; return tmp; }
+  const_iterator& operator--() { --m_it; return *this; }
+  const_iterator operator--(int)
+  { const_iterator tmp = *this; --m_it; return tmp; }
+
+
+  /// Arithmetic.
+  const_iterator& operator+= (difference_type n) { m_it += n; return *this; }
+  const_iterator& operator-= (difference_type n) { m_it -= n; return *this; }
+  const_iterator operator+ (difference_type n) const { const_iterator tmp = *this; tmp += n; return tmp; }
+  const_iterator operator- (difference_type n) const { const_iterator tmp = *this; tmp -= n; return tmp; }
+  difference_type operator- (const_iterator other) const { return m_it - other.m_it; }
+
+
+  /// Comparisons.
+  bool operator== (const const_iterator& other) const { return m_it == other.m_it; }
+  bool operator!= (const const_iterator& other) const { return m_it != other.m_it; }
+  bool operator< (const const_iterator& other) const { return m_it < other.m_it; }
+  bool operator> (const const_iterator& other) const { return m_it > other.m_it; }
+  bool operator<= (const const_iterator& other) const { return m_it <= other.m_it; }
+  bool operator>= (const const_iterator& other) const { return m_it >= other.m_it; }
+
+
 private:
-  // Required for iterator_adaptor to work.
-  friend class boost::iterator_core_access;
+  /// The wrapped iterator.
+  typename BaseContainer::const_iterator m_it;
 
   /**
    * @brief Dereference the iterator.
@@ -136,7 +150,7 @@ private:
    */
   const typename DVL::value_type dereference() const
   {
-    return DataModel_detail::DVLCast<DVL>::cast (*this->base());
+    return DataModel_detail::DVLCast<DVL>::cast (*m_it);
   }
 };
 

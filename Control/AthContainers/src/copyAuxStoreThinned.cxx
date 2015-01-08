@@ -13,9 +13,11 @@
 
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/tools/getThinnedFlags.h"
+#include "AthContainers/tools/foreach.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStore.h"
+#include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include <vector>
 
@@ -50,10 +52,21 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
   // The auxiliary IDs that the original container has:
   SG::auxid_set_t auxids = orig.getAuxIDs();
 
+  SG::auxid_set_t dyn_auxids;
+  SG::auxid_set_t sel_auxids;
+  if (const IAuxStoreIO* iio = dynamic_cast<const IAuxStoreIO*> (&orig)) {
+    dyn_auxids = iio->getDynamicAuxIDs();
+    sel_auxids = iio->getSelectedAuxIDs();
+  }
+
   copy.resize (nremaining);
   
   // Loop over all the variables of the original container:
-  for (SG::auxid_t auxid : auxids) {
+  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxids) {
+    // Skip non-selected dynamic variables.
+    if (dyn_auxids.count(auxid) > 0 && sel_auxids.count(auxid) == 0)
+      continue;
+
     // Create the target variable:
     void* dst = copy.getData (auxid, nremaining, nremaining);
 
@@ -65,7 +78,7 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
     // Copy over all elements, with thinning.
     for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {
       if (!thinned || !flags[isrc]) {
-        r.copy (auxid, dst, idst, src, isrc);
+        r.copyForOutput (auxid, dst, idst, src, isrc);
         ++idst;
       }
     }

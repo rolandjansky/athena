@@ -1,0 +1,139 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/PackedContainer.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2014
+ * @brief Container to hold aux data to be stored in a packed form.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Metafunction to extract the innermost element type
+ *        from a nested vector type.
+ *
+ *        I.e., vector<vector<... <T> > should yield T.
+ */
+template <class T>
+struct inner_type
+{
+  typedef T type;
+};
+template <class T>
+struct inner_type<std::vector<T> >
+{
+  typedef typename inner_type<T>::type type;
+};
+
+
+/**
+ * @brief Constructor.
+ *
+ * The packing parameters will be initialized to defaults appropriate
+ * for type @c T.  (See @c PackedParameters.)
+ */
+template <class T>
+inline
+PackedContainer<T>::PackedContainer()
+  : m_parms (static_cast<typename inner_type<T>::type>(0))
+{
+}
+
+
+/**
+ * @brief Set a packing option.
+ * @param option The option to set.
+ *
+ * Returns true on success, false otherwise.
+ *
+ * See @c PackedParameters::setOptions for details.
+ */
+template <class T>
+inline
+bool PackedContainer<T>::setOption (const AuxDataOption& option)
+{
+  return m_parms.setOption (option);
+}
+
+
+/**
+ * @brief Set a packing option.
+ * @param name The option name.
+ * @param val The option value.
+ *
+ * Returns true on success, false otherwise.
+ *
+ * See @c PackedParameters::setOptions for details.
+ */
+template <class T>
+inline
+bool PackedContainer<T>::setOption (const std::string& name, int val)
+{
+  return this->setOption (SG::AuxDataOption (name, val));
+}
+
+
+/**
+ * @brief Set a packing option.
+ * @param name The option name.
+ * @param val The option value.
+ *
+ * Returns true on success, false otherwise.
+ *
+ * See @c PackedParameters::setOptions for details.
+ */
+template <class T>
+inline
+bool PackedContainer<T>::setOption (const std::string& name, float val)
+{
+  return this->setOption (SG::AuxDataOption (name, val));
+}
+
+
+/**
+ * @brief Set a packing option.
+ * @param name The option name.
+ * @param val The option value.
+ *
+ * Returns true on success, false otherwise.
+ *
+ * See @c PackedParameters::setOptions for details.
+ */
+template <class T>
+inline
+bool PackedContainer<T>::setOption (const std::string& name, double val)
+{
+  return this->setOption (SG::AuxDataOption (name, val));
+}
+
+
+/**
+ * @brief Return the packing parameters for this container.
+ */
+template <class T>
+inline
+const PackedParameters& PackedContainer<T>::parms() const
+{
+  return m_parms;
+}
+
+
+/**
+ * @brief Set the packing parameters.
+ * @param parms The new packing parameters.
+ */
+template <class T>
+inline
+void PackedContainer<T>::setParms (const PackedParameters& parms)
+{
+  m_parms = parms;
+}
+
+
+} // namespace SG

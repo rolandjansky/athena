@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.h 606970 2014-07-16 23:38:59Z ssnyder $
+// $Id: AuxVectorData.h 634132 2014-12-05 19:25:02Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +19,8 @@
 
 #include "AthContainersInterfaces/AuxTypes.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
+#include "AthContainersInterfaces/AuxDataOption.h"
+#include "AthContainers/tools/AuxDataTraits.h"
 #include "AthLinks/DataLink.h"
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
@@ -39,6 +41,7 @@ namespace SG {
 
 class AuxElement;
 class IAuxStore;
+class AuxDataOption;
 
 
 /**
@@ -241,6 +244,100 @@ public:
   bool hasNonConstStore() const;
 
 
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param id The variable for which we want to set the option.
+   * @param option The option setting to make.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  bool setOption (auxid_t id, const AuxDataOption& option);
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param name The name of the variable.
+   * @param option The option setting to make.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  bool setOption (const std::string& name,
+                  const AuxDataOption& option);
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param name The name of the variable.
+   * @param clsname The name of the associated class.  May be blank.
+   * @param option The option setting to make.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  bool setOption (const std::string& name,
+                  const std::string& clsname,
+                  const AuxDataOption& option);
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param id The variable for which we want to set the option.
+   * @param optname The name of the option to set.
+   * @param arg The option value to set.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  template <class T>
+  bool setOption (auxid_t id, const std::string& optname, T arg);
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param name The name of the variable.
+   * @param optname The name of the option to set.
+   * @param arg The option value to set.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  bool setOption (const std::string& name,
+                  const std::string& optname,
+                  int arg);
+  bool setOption (const std::string& name,
+                  const std::string& optname,
+                  float arg);
+  bool setOption (const std::string& name,
+                  const std::string& optname,
+                  double arg);
+
+
+  /**
+   * @brief Set an option for an auxiliary data variable.
+   * @param name The name of the variable.
+   * @param clsname The name of the associated class.  May be blank.
+   * @param optname The name of the option to set.
+   * @param arg The option value to set.
+   *
+   * The interpretation of @c option depends on the associated auxiliary store.
+   * See PackedParameters.h for option settings for writing packed data.
+   * Returns @c true on success, @c false otherwise.
+   */
+  template <class T>
+  bool setOption (const std::string& name,
+                  const std::string& clsname,
+                  const std::string& optname,
+                  T arg);
+
+
+
 protected:
   // These are protected.  They shouldn't be called directly but
   // instead from @c setStore methods in derived classes, which do
@@ -307,6 +404,57 @@ public:
 
 
   /**
+   * @brief Test to see if a variable exists in the store.
+   * @param id The variable to test.
+   */
+  bool isAvailable (auxid_t id) const;
+
+
+  /**
+   * @brief Test to see if a variable exists in the store.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   */
+  template <class T>
+  bool isAvailable (const std::string& name,
+                    const std::string& clsname = "") const;
+
+
+  /**
+   * @brief Test to see if a variable is available for writing.
+   * @param id The variable to test.
+   */
+  bool isAvailableWritable (auxid_t id) const;
+
+
+  /**
+   * @brief Test to see if a variable is available for writing.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   */
+  template <class T>
+  bool isAvailableWritable (const std::string& name,
+                            const std::string& clsname = "") const;
+
+
+  /**
+   * @brief Test to see if a variable is available for writing as a decoration.
+   * @param id The variable to test.
+   */
+  bool isAvailableWritableAsDecoration (auxid_t id) const;
+
+
+  /**
+   * @brief Test to see if a variable is available for writing as a decoration.
+   * @param name Name of the aux variable.
+   * @param clsname The name of the associated class.  May be blank.
+   */
+  template <class T>
+  bool isAvailableWritableAsDecoration (const std::string& name,
+                                        const std::string& clsname = "") const;
+
+
+  /**
    * @brief Return reference to an aux data item.
    * @param auxid The desired aux data item.
    * @param ndx Index of the element to return.
@@ -319,7 +467,8 @@ public:
    * the data via @c AuxElement::Accessor or @c AuxElement::ConstAccessor.
    */
   template <class T>
-  T& getData (SG::auxid_t auxid, size_t ndx);
+  typename AuxDataTraits<T>::reference_type
+  getData (SG::auxid_t auxid, size_t ndx);
 
 
   /**
@@ -334,7 +483,8 @@ public:
    * the data via @c AuxElement::Accessor or @c AuxElement::ConstAccessor.
    */
   template <class T>
-  const T& getData (SG::auxid_t auxid, size_t ndx) const;
+  typename AuxDataTraits<T>::const_reference_type
+  getData (SG::auxid_t auxid, size_t ndx) const;
 
 
   /**
@@ -357,7 +507,8 @@ public:
    * as a decoration.
    */
   template <class T>
-  T& getDecoration (SG::auxid_t auxid, size_t ndx) const;
+  typename AuxDataTraits<T>::reference_type
+  getDecoration (SG::auxid_t auxid, size_t ndx) const;
 
 
   /**
@@ -597,6 +748,27 @@ private:
 
 
   /**
+   * @brief Out-of-line portion of isAvailable.
+   * @param id The variable to test.
+   */
+  bool isAvailableOol (auxid_t id) const;
+
+
+  /**
+   * @brief Out-of-line portion of isAvailableWritable.
+   * @param id The variable to test.
+   */
+  bool isAvailableWritableOol (auxid_t id) const;
+
+
+  /**
+   * @brief Out-of-line portion of isAvailableWritableAsDecoration.
+   * @param id The variable to test.
+   */
+  bool isAvailableWritableAsDecorationOol (auxid_t id) const;
+
+
+  /**
    * @brief Out-of-line portion of data access.
    * @param auxid aux data item being accessed.
    *
@@ -640,6 +812,9 @@ private:
 
   /// Cached pointers to the start of aux data vectors, const.
   mutable Cache m_constCache;
+
+  /// Cached pointers to the start of aux data vectors, decorations.
+  mutable Cache m_decorCache;
 
 
   /// Associated store, non-const.

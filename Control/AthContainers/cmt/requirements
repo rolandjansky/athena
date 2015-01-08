@@ -56,6 +56,9 @@ apply_pattern UnitTest_run unit_test=normalizedTypeinfoName
 apply_pattern UnitTest_run unit_test=getThinnedFlags
 apply_pattern UnitTest_run unit_test=copyAuxStoreThinned
 apply_pattern UnitTest_run unit_test=copyThinned
+apply_pattern UnitTest_run unit_test=PackedParameters
+apply_pattern UnitTest_run unit_test=PackedConverter
+apply_pattern UnitTest_run unit_test=PackedContainer
 
 macro_append DOXYGEN_INPUT " ../doc" 
 

@@ -49,6 +49,7 @@ AuxVectorData::AuxVectorData()
 AuxVectorData::AuxVectorData (AuxVectorData&& rhs)
   : m_cache (std::move (rhs.m_cache)),
     m_constCache (std::move (rhs.m_constCache)),
+    m_decorCache (std::move (rhs.m_decorCache)),
     m_store (rhs.m_store),
     m_constStore (rhs.m_constStore),
     m_constStoreLink (std::move (rhs.m_constStoreLink))
@@ -68,6 +69,7 @@ AuxVectorData& AuxVectorData::operator= (AuxVectorData&& rhs)
   if (this != &rhs) {
     m_cache = std::move (rhs.m_cache);
     m_constCache = std::move (rhs.m_constCache);
+    m_decorCache = std::move (rhs.m_decorCache);
     m_store = rhs.m_store;
     m_constStore = rhs.m_constStore;
     m_constStoreLink = rhs.m_constStoreLink;
@@ -138,6 +140,60 @@ void AuxVectorData::setStore (const DataLink< SG::IConstAuxStore >& store)
 
 
 /**
+ * @brief Set an option for an auxiliary data variable.
+ * @param id The variable for which we want to set the option.
+ * @param option The option setting to make.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+bool AuxVectorData::setOption (auxid_t id, const AuxDataOption& option)
+{
+  if (id == null_auxid) return false;
+  SG::IAuxStore* store = getStore();
+  if (!store) return false;
+  return store->setOption (id, option);
+}
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param name The name of the variable.
+ * @param option The option setting to make.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+bool AuxVectorData::setOption (const std::string& name,
+                               const AuxDataOption& option)
+{
+  auxid_t id = SG::AuxTypeRegistry::instance().findAuxID (name);
+  return setOption (id, option);
+}
+
+
+/**
+ * @brief Set an option for an auxiliary data variable.
+ * @param name The name of the variable.
+ * @param clsname The name of the associated class.  May be blank.
+ * @param option The option setting to make.
+ *
+ * The interpretation of @c option depends on the associated auxiliary store.
+ * See PackedParameters.h for option settings for writing packed data.
+ * Returns @c true on success, @c false otherwise.
+ */
+bool AuxVectorData::setOption (const std::string& name,
+                               const std::string& clsname,
+                               const AuxDataOption& option)
+{
+  auxid_t id = SG::AuxTypeRegistry::instance().findAuxID (name, clsname);
+  return setOption (id, option);
+}
+
+
+/**
  * @brief Return a set of identifiers for existing data items
  *        in store associated with this object.
  *
@@ -170,6 +226,61 @@ const SG::auxid_set_t& AuxVectorData::getWritableAuxIDs() const
 
 
 /**
+ * @brief Out-of-line portion of isAvailable.
+ * @param id The variable to test.
+ */
+bool AuxVectorData::isAvailableOol (auxid_t id) const
+{
+  const SG::IConstAuxStore* store = getConstStore();
+  if (!store) return false;
+  const SG::auxid_set_t& ids = store->getAuxIDs();
+  // Check if it's already in memory:
+  if( ids.find (id) != ids.end() ) return true;
+
+  // Check if it can be loaded from the input:
+  const void* ptr = store->getData (id);
+  if (ptr) {
+    m_constCache.store (id, const_cast<void*> (ptr));
+    return true;
+  }
+  return false;
+}
+
+
+/**
+ * @brief Out-of-line portion of isAvailableWritable.
+ * @param id The variable to test.
+ */
+bool AuxVectorData::isAvailableWritableOol (auxid_t id) const
+{
+  const SG::IAuxStore* store = getStore();
+  if (!store) return false;
+  const SG::auxid_set_t& ids = store->getWritableAuxIDs();
+  return ( ids.find (id) != ids.end() );
+}
+
+
+/**
+ * @brief Out-of-line portion of isAvailableWritableAsDecoration.
+ * @param id The variable to test.
+ */
+bool AuxVectorData::isAvailableWritableAsDecorationOol (auxid_t id) const
+{
+  if (!isAvailableOol (id)) return false;
+
+  // Not nice, but not sure we can do otherwise without changing interfaces.
+  // I think the case of a caught exception should be rare.
+  try {
+    this->getDecorationArray (id);
+  }
+  catch (const SG::ExcStoreLocked&) {
+    return false;
+  }
+  return true;
+}
+
+
+/**
  * @brief Out-of-line portion of data access.
  * @param auxid aux data item being accessed.
  *
@@ -197,8 +308,9 @@ void* AuxVectorData::getDataOol (SG::auxid_t auxid)
 
   m_cache.store (auxid, ptr);
 
-  // Set the same entry in the const cache as well.
+  // Set the same entry in the other caches as well.
   m_constCache.store (auxid, ptr);
+  m_decorCache.store (auxid, ptr);
 
   return ptr;
 }
@@ -271,7 +383,7 @@ void* AuxVectorData::getDecorationOol (SG::auxid_t auxid) const
   if (!ptr)
     throw SG::ExcBadAuxVar (auxid);
 
-  m_cache.store (auxid, ptr);
+  m_decorCache.store (auxid, ptr);
 
   // Set the same entry in the const cache as well.
   m_constCache.store (auxid, ptr);
@@ -409,8 +521,7 @@ void AuxVectorData::lock()
 {
   if (m_store) {
     m_store->lock();
-    m_cache.clear();
-    m_constCache.clear();
+    clearCache();
   }
 
   // No error if no store or no writable store.
@@ -429,6 +540,7 @@ void AuxVectorData::clearDecorations() const
     m_store->clearDecorations();
     m_cache.clear();
     m_constCache.clear();
+    m_decorCache.clear();
   }
   else if (getConstStore()) {
     // The whole point of decorations is to allow adding information to

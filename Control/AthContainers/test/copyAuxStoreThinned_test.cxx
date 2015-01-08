@@ -18,6 +18,7 @@
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/tools/foreach.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -26,9 +27,32 @@
 #include "TestThinningSvc.icc"
 
 
+class AuxStoreTest
+  : public SG::AuxStoreInternal
+{
+public:
+  AuxStoreTest() {}
+  void suppress (SG::auxid_t auxid)
+  { m_suppressed.insert (auxid); }
+
+  virtual const SG::auxid_set_t& getSelectedAuxIDs() const
+  {
+    m_selected = getAuxIDs();
+    ATHCONTAINERS_FOREACH(SG::auxid_t auxid, m_suppressed)
+      m_selected.erase (auxid);
+    return m_selected;
+  }
+
+private:
+  SG::auxid_set_t m_suppressed;
+  mutable SG::auxid_set_t m_selected;
+};
+
+
 void compare (const SG::AuxStoreInternal& a,
               const SG::AuxStoreInternal& b,
-              bool thinned = false)
+              bool thinned = false,
+              SG::auxid_t suppressed = SG::null_auxid)
 {
   if (thinned) {
     assert (a.size()/2 == b.size());
@@ -39,7 +63,11 @@ void compare (const SG::AuxStoreInternal& a,
 
   const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
 
-  for (SG::auxid_t id : a.getAuxIDs()) {
+  ATHCONTAINERS_FOREACH(SG::auxid_t id, a.getAuxIDs()) {
+    if (id == suppressed) {
+      assert (b.getAuxIDs().count(id) == 0);
+      continue;
+    }
     const char* aptr = reinterpret_cast<const char*>(a.getData(id));
     const char* bptr = reinterpret_cast<const char*>(b.getData(id));
     assert (aptr != 0 && bptr != 0);
@@ -60,7 +88,7 @@ void test1()
   std::cout << "test1\n";
   TestThinningSvc svc;
 
-  SG::AuxStoreInternal src;
+  AuxStoreTest src;
   SG::AuxStoreInternal dst;
 
   copyAuxStoreThinned (src, dst, 0);
@@ -97,8 +125,12 @@ void test1()
 
   copyAuxStoreThinned (src, dst, &svc);
   compare (src, dst, true);
-}
 
+  SG::AuxStoreInternal dst2;
+  src.suppress (ftyp);
+  copyAuxStoreThinned (src, dst2, &svc);
+  compare (src, dst2, true, ftyp);
+}
 
 int main()
 {

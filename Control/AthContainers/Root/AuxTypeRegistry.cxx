@@ -15,8 +15,10 @@
 #include "AthContainers/exceptions.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthContainers/tools/foreach.h"
+#include "AthLinks/ElementLinkBase.h"
 #include <cassert>
 #include <sstream>
+#include <cstring>
 
 
 namespace SG {
@@ -349,6 +351,65 @@ void AuxTypeRegistry::copy (lock_t& lock,
 
 
 /**
+ * @brief Copy an element between vectors.
+ *        Apply any transformations needed for output.
+ * @param auxid The aux data item being operated on.
+ * @param dst Pointer to the start of the destination vector's data.
+ * @param dst_index Index of destination element in the vector.
+ * @param src Pointer to the start of the source vector's data.
+ * @param src_index Index of source element in the vector.
+ *
+ * @c dst and @ src can be either the same or different.
+ */
+void AuxTypeRegistry::copyForOutput (SG::auxid_t auxid,
+                                     void* dst,       size_t dst_index,
+                                     const void* src, size_t src_index)
+{
+  const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
+  if (factory) {
+    factory->copy (dst, dst_index, src, src_index);
+
+    // It would be cleaner, safer, and more flexible to add a new factory
+    // interface for this.  But that would require a full rebuild,
+    // which we want to avoid at this point.
+    upgrading_lock_t lock (m_mutex);
+    if (m_isEL[auxid]) applyELThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+    if (m_isELVec[auxid]) applyELVecThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+  }
+}
+
+
+/**
+ * @brief Copy an element between vectors (external locking).
+ *        Apply any transformations needed for output.
+ * @param lock The registry lock.
+ * @param auxid The aux data item being operated on.
+ * @param dst Pointer to the start of the destination vector's data.
+ * @param dst_index Index of destination element in the vector.
+ * @param src Pointer to the start of the source vector's data.
+ * @param src_index Index of source element in the vector.
+ *
+ * @c dst and @ src can be either the same or different.
+ */
+void AuxTypeRegistry::copyForOutput (lock_t& lock,
+                                     SG::auxid_t auxid,
+                                     void* dst,       size_t dst_index,
+                                     const void* src, size_t src_index)
+{
+  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
+  if (factory) {
+    factory->copy (dst, dst_index, src, src_index);
+
+    // It would be cleaner, safer, and more flexible to add a new factory
+    // interface for this.  But that would require a full rebuild,
+    // which we want to avoid at this point.
+    if (m_isEL[auxid]) applyELThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+    if (m_isELVec[auxid]) applyELVecThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+  }
+}
+
+
+/**
  * @brief Swap an element between vectors.
  * @param auxid The aux data item being operated on.
  * @param a Pointer to the start of the first vector's data.
@@ -545,6 +606,13 @@ AuxTypeRegistry::AuxTypeRegistry()
   ADD_FACTORY (float);
   ADD_FACTORY (double);
   ADD_FACTORY (std::string);
+
+  ADD_FACTORY (std::vector<char>);
+  ADD_FACTORY (std::vector<unsigned char>);
+  ADD_FACTORY (std::vector<int>);
+  ADD_FACTORY (std::vector<unsigned int>);
+  ADD_FACTORY (std::vector<float>);
+  ADD_FACTORY (std::vector<double>);
 #undef ADD_FACTORY
 }
 
@@ -638,6 +706,8 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   t.m_clsname = clsname;
   t.m_ti = &ti;
   t.m_factory = fac;
+
+  setELFlags (lock, auxid);
   return auxid;
 }
 
@@ -660,5 +730,55 @@ AuxTypeRegistry::getFactoryLocked (const std::type_info& ti) const
 }
 
 
+/**
+ * @brief Initialize the m_isEL* flags for a given variable.
+ * @param auxid The variable for which the flags should be initialized.
+ * @param lock The registry lock (must be locked).
+ *
+ * ??? Should go away when we extend the factory interface.
+ */
+void AuxTypeRegistry::setELFlags (upgrading_lock_t& /*lock*/, auxid_t auxid)
+{
+  m_isEL.resize (auxid+1);
+  m_isELVec.resize (auxid+1);
+  std::string tname =  normalizedTypeinfoName (*m_types[auxid].m_ti);
+  static std::string pat1 = "ElementLink<";
+  static std::string pat2 = "std::vector<ElementLink<";
+  if (tname.substr (0, pat1.size()) == pat1)
+    m_isEL[auxid] = true;
+  else if (tname.substr (0, pat2.size()) == pat2)
+    m_isELVec[auxid] = true;
+}
+
+
+/**
+ * @brief Apply @c ElementLink output transformations to a single element.
+ * @param dst Pointer to the element.
+ *
+ * ??? Should go away when we extend the factory interface.
+ */
+void AuxTypeRegistry::applyELThinning (void* dst)
+{
+  reinterpret_cast<ElementLinkBase*> (dst)->thin();
+}
+
+
+/**
+ * @brief Apply @c ElementLink output transformations to a vector.
+ * @param dst Pointer to the vector.
+ *
+ * ??? Should go away when we extend the factory interface.
+ */
+void AuxTypeRegistry::applyELVecThinning (void* dst)
+{
+  std::vector<ElementLinkBase>& v = 
+    *reinterpret_cast<std::vector<ElementLinkBase>* > (dst);
+  size_t sz = v.size();
+  for (size_t i = 0; i < sz; i++)
+    v[i].thin();
+}
+
+
 } // namespace SG
+
 

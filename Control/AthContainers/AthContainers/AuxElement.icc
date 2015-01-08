@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxElement.icc 612956 2014-08-21 20:26:41Z ssnyder $
+// $Id: AuxElement.icc 627952 2014-11-12 17:27:57Z ssnyder $
 /**
  * @file AthContainers/AuxElement.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -272,12 +272,18 @@ inline
 bool
 AuxElement::TypelessConstAccessor::isAvailable (const AuxElement& e) const
 {
-  if (!e.container() || !e.container()->getConstStore()) return false;
-  const SG::auxid_set_t& ids = e.container()->getConstStore()->getAuxIDs();
-  // Check if it's already in memory:
-  if( ids.find (m_auxid) != ids.end() ) return true;
-  // Check if it can be loaded from the input:
-  return e.container()->getConstStore()->getData( m_auxid ) != 0;
+  return e.container() && e.container()->isAvailable (m_auxid);
+}
+
+
+/**
+ * @brief Return the aux id for this variable.
+ */
+inline
+SG::auxid_t
+AuxElement::TypelessConstAccessor::auxid() const
+{
+  return m_auxid;
 }
 
 
@@ -320,7 +326,8 @@ AuxElement::ConstAccessor<T>::ConstAccessor (const std::string& name,
  */
 template <class T>
 inline
-const T& AuxElement::ConstAccessor<T>::operator() (const AuxElement& e) const
+typename AuxElement::ConstAccessor<T>::const_reference_type
+AuxElement::ConstAccessor<T>::operator() (const AuxElement& e) const
 {
   assert (e.container() != 0);
   return e.container()->template getData<T> (m_auxid, e.m_index);
@@ -338,7 +345,7 @@ const T& AuxElement::ConstAccessor<T>::operator() (const AuxElement& e) const
  */
 template <class T>
 inline
-const T&
+typename AuxElement::ConstAccessor<T>::const_reference_type
 AuxElement::ConstAccessor<T>::operator() (const AuxVectorData& container,
                                           size_t index) const
 {
@@ -346,17 +353,18 @@ AuxElement::ConstAccessor<T>::operator() (const AuxVectorData& container,
 }
 
 
-    
+
 /**
  * @brief Get a pointer to the start of the auxiliary data array.
  * @param container The container from which to fetch the variable.
  */
 template <class T>
 inline
-const T*
+typename AuxElement::ConstAccessor<T>::const_container_pointer_type
 AuxElement::ConstAccessor<T>::getDataArray (const AuxVectorData& container) const
 {
-  return &(*this)(container, 0);
+  return reinterpret_cast<const_container_pointer_type>
+    (container.getDataArray (m_auxid));
 }
     
 
@@ -369,12 +377,19 @@ inline
 bool
 AuxElement::ConstAccessor<T>::isAvailable (const AuxElement& e) const
 {
-  if (!e.container() || !e.container()->getConstStore()) return false;
-  const SG::auxid_set_t& ids = e.container()->getConstStore()->getAuxIDs();
-  // Check if it's already in memory:
-  if( ids.find (m_auxid) != ids.end() ) return true;
-  // Check if it can be loaded from the input:
-  return e.container()->getConstStore()->getData( m_auxid ) != 0;
+  return e.container() && e.container()->isAvailable (m_auxid);
+}
+
+
+/**
+ * @brief Return the aux id for this variable.
+ */
+template <class T>
+inline
+SG::auxid_t
+AuxElement::ConstAccessor<T>::auxid() const
+{
+  return m_auxid;
 }
 
 
@@ -417,7 +432,8 @@ AuxElement::Accessor<T>::Accessor (const std::string& name,
  */
 template <class T>
 inline
-T& AuxElement::Accessor<T>::operator() (AuxElement& e) const
+typename AuxElement::Accessor<T>::reference_type
+AuxElement::Accessor<T>::operator() (AuxElement& e) const
 {
   assert (e.container() != 0);
   return e.container()->template getData<T> (this->m_auxid, e.m_index);
@@ -435,8 +451,9 @@ T& AuxElement::Accessor<T>::operator() (AuxElement& e) const
  */
 template <class T>
 inline
-T& AuxElement::Accessor<T>::operator() (AuxVectorData& container,
-                                        size_t index) const
+typename AuxElement::Accessor<T>::reference_type
+AuxElement::Accessor<T>::operator() (AuxVectorData& container,
+                                     size_t index) const
 {
   return container.template getData<T> (this->m_auxid, index);
 }
@@ -449,7 +466,7 @@ T& AuxElement::Accessor<T>::operator() (AuxVectorData& container,
  */
 template <class T>
 inline
-void AuxElement::Accessor<T>::set (AuxElement& e, const T& x) const
+void AuxElement::Accessor<T>::set (AuxElement& e, const element_type& x) const
 {
   (*this)(e) = x;
 }
@@ -461,9 +478,11 @@ void AuxElement::Accessor<T>::set (AuxElement& e, const T& x) const
  */
 template <class T>
 inline
-T* AuxElement::Accessor<T>::getDataArray (AuxVectorData& container) const
+typename AuxElement::Accessor<T>::container_pointer_type
+AuxElement::Accessor<T>::getDataArray (AuxVectorData& container) const
 {
-  return &(*this)(container, 0);
+  return reinterpret_cast<container_pointer_type>
+    (container.getDataArray (this->m_auxid));
 }
 
 
@@ -476,9 +495,7 @@ inline
 bool
 AuxElement::Accessor<T>::isAvailableWritable (const AuxElement& e) const
 {
-  if (!e.container() || !e.container()->getStore()) return false;
-  const SG::auxid_set_t& ids = e.container()->getStore()->getWritableAuxIDs();
-  return ids.find (this->m_auxid) != ids.end();
+  return e.container() && e.container()->isAvailableWritable (this->m_auxid);
 }
 
 
@@ -525,7 +542,8 @@ AuxElement::Decorator<T>::Decorator (const std::string& name,
  */
 template <class T>
 inline
-T& AuxElement::Decorator<T>::operator() (const AuxElement& e) const
+typename AuxElement::Decorator<T>::reference_type
+AuxElement::Decorator<T>::operator() (const AuxElement& e) const
 {
   assert (e.container() != 0);
   return e.container()->template getDecoration<T> (m_auxid, e.m_index);
@@ -547,8 +565,9 @@ T& AuxElement::Decorator<T>::operator() (const AuxElement& e) const
  */
 template <class T>
 inline
-T& AuxElement::Decorator<T>::operator() (const AuxVectorData& container,
-                                         size_t index) const
+typename AuxElement::Decorator<T>::reference_type
+AuxElement::Decorator<T>::operator() (const AuxVectorData& container,
+                                      size_t index) const
 {
   return container.template getDecoration<T> (m_auxid, index);
 }
@@ -561,7 +580,8 @@ T& AuxElement::Decorator<T>::operator() (const AuxVectorData& container,
  */
 template <class T>
 inline
-void AuxElement::Decorator<T>::set (const AuxElement& e, const T& x) const
+void AuxElement::Decorator<T>::set (const AuxElement& e,
+                                    const element_type& x) const
 {
   (*this)(e) = x;
 }
@@ -577,9 +597,11 @@ void AuxElement::Decorator<T>::set (const AuxElement& e, const T& x) const
  */
 template <class T>
 inline
-T* AuxElement::Decorator<T>::getDataArray (const AuxVectorData& container) const
+typename AuxElement::Decorator<T>::const_container_pointer_type
+AuxElement::Decorator<T>::getDataArray (const AuxVectorData& container) const
 {
-  return &(*this)(container, 0);
+  return reinterpret_cast<const_container_pointer_type>
+    (container.getDataArray (m_auxid));
 }
 
 
@@ -593,12 +615,7 @@ inline
 bool
 AuxElement::Decorator<T>::isAvailable (const AuxElement& e) const
 {
-  if (!e.container() || !e.container()->getConstStore()) return false;
-  const SG::auxid_set_t& ids = e.container()->getConstStore()->getAuxIDs();
-  // Check if it's already in memory:
-  if( ids.find (m_auxid) != ids.end() ) return true;
-  // Check if it can be loaded from the input:
-  return e.container()->getConstStore()->getData( m_auxid ) != 0;
+  return e.container() && e.container()->isAvailable (m_auxid);
 }
 
 
@@ -611,9 +628,19 @@ inline
 bool
 AuxElement::Decorator<T>::isAvailableWritable (const AuxElement& e) const
 {
-  if (!e.container() || !e.container()->getStore()) return false;
-  const SG::auxid_set_t& ids = e.container()->getStore()->getWritableAuxIDs();
-  return ids.find (m_auxid) != ids.end();
+  return e.container() && e.container()->isAvailableWritableAsDecoration (m_auxid);
+}
+
+
+/**
+ * @brief Return the aux id for this variable.
+ */
+template <class T>
+inline
+SG::auxid_t
+AuxElement::Decorator<T>::auxid() const
+{
+  return m_auxid;
 }
 
 
@@ -631,7 +658,8 @@ AuxElement::Decorator<T>::isAvailableWritable (const AuxElement& e) const
  * class above.
  */
 template <class T>
-T& AuxElement::auxdata (const std::string& name)
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdata (const std::string& name)
 {
   return Accessor<T>(name, "")(*this);
 }
@@ -648,8 +676,9 @@ T& AuxElement::auxdata (const std::string& name)
  * class above.
  */
 template <class T>
-T& AuxElement::auxdata (const std::string& name,
-                        const std::string& clsname)
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdata (const std::string& name,
+                     const std::string& clsname)
 {
   return Accessor<T>(name, clsname)(*this);
 }
@@ -665,7 +694,8 @@ T& AuxElement::auxdata (const std::string& name,
  * or @c ConstAccessor classes above.
  */
 template <class T>
-const T& AuxElement::auxdata (const std::string& name) const
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdata (const std::string& name) const
 {
   return Accessor<T>(name, "")(*this);
 }
@@ -682,8 +712,9 @@ const T& AuxElement::auxdata (const std::string& name) const
  * or @c ConstAccessor classes above.
  */
 template <class T>
-const T& AuxElement::auxdata (const std::string& name,
-                              const std::string& clsname) const
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdata (const std::string& name,
+                     const std::string& clsname) const
 {
   return Accessor<T>(name, clsname)(*this);
 }
@@ -699,7 +730,8 @@ const T& AuxElement::auxdata (const std::string& name,
  * class above.
  */
 template <class T>
-const T& AuxElement::auxdataConst (const std::string& name) const
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdataConst (const std::string& name) const
 {
   return Accessor<T>(name, "")(*this);
 }
@@ -716,8 +748,9 @@ const T& AuxElement::auxdataConst (const std::string& name) const
  * class above.
  */
 template <class T>
-const T& AuxElement::auxdataConst (const std::string& name,
-                                   const std::string& clsname) const
+typename AuxDataTraits<T>::const_reference_type
+AuxElement::auxdataConst (const std::string& name,
+                          const std::string& clsname) const
 {
   return Accessor<T>(name, clsname)(*this);
 }
@@ -760,6 +793,24 @@ bool AuxElement::isAvailableWritable (const std::string& name,
 
 
 /**
+ * @brief Check if an aux variable is available for writing as a decoration.
+ * @param name Name of the aux variable.
+ * @param clsname The name of the associated class.  May be blank.
+ *
+ * This method has to translate from the aux data name to the internal
+ * representation each time it is called.  Using this method
+ * inside of loops is discouraged; instead use the @c Accessor
+ * class above.
+ */
+template <class T>
+bool AuxElement::isAvailableWritableAsDecoration (const std::string& name,
+                                                  const std::string& clsname /*= ""*/) const
+{
+  return Decorator<T>(name, clsname).isAvailableWritable(*this);
+}
+
+
+/**
  * @brief Fetch an aux decoration, as a non-const reference.
  * @param name Name of the aux variable.
  * @param clsname The name of the associated class.  May be blank.
@@ -774,7 +825,8 @@ bool AuxElement::isAvailableWritable (const std::string& name,
  * or variables already marked as decorations.
  */
 template <class T>
-T& AuxElement::auxdecor (const std::string& name) const
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdecor (const std::string& name) const
 {
   return Decorator<T>(name, "")(*this);
 }
@@ -795,8 +847,9 @@ T& AuxElement::auxdecor (const std::string& name) const
  * or variables already marked as decorations.
  */
 template <class T>
-T& AuxElement::auxdecor (const std::string& name,
-                         const std::string& clsname) const
+typename AuxDataTraits<T>::reference_type
+AuxElement::auxdecor (const std::string& name,
+                      const std::string& clsname) const
 {
   return Decorator<T>(name, clsname)(*this);
 }
@@ -904,6 +957,16 @@ inline
 void AuxElement::makePrivateStore1 (const void*)
 {
   makePrivateStore();
+}
+
+
+/**
+ * @brief Helper to test if m_privateData is valid.
+ */
+inline
+bool AuxElement::privateDataValid() const
+{
+  return m_privateData != 0 && m_privateData != s_privatePlaceholder;
 }
 
 

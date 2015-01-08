@@ -6,6 +6,7 @@
   <class name="SG::AuxVectorData">
     <field name="m_cache" transient="true"/>
     <field name="m_constCache" transient="true"/>
+    <field name="m_decorCache" transient="true"/>
     <field name="m_store" transient="true"/>
     <field name="m_constStore" transient="true"/>
     <field name="m_constStoreLink" transient="true"/>
@@ -50,6 +51,7 @@
   <class name="SG::AuxElement::ConstAccessor<unsigned char>"/>
   <class name="SG::AuxElement::ConstAccessor<int>"/>
   <class name="SG::AuxElement::ConstAccessor<short>"/>
+  <class name="SG::AuxElement::ConstAccessor<long>"/>
   <class name="SG::AuxElement::ConstAccessor<unsigned int>"/>
   <class name="SG::AuxElement::ConstAccessor<unsigned short>"/>
   <class name="SG::AuxElement::ConstAccessor<unsigned long>"/>
@@ -58,12 +60,26 @@
   <class name="SG::AuxElement::ConstAccessor<double>"/>
   <class name="SG::AuxElement::ConstAccessor<bool>"/>
   <class name="SG::AuxElement::ConstAccessor<std::string>"/>
+
+  <class name="SG::AuxElement::ConstAccessor<std::vector<char> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<unsigned char> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<int> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<short> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<long> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<unsigned int> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<unsigned short> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<unsigned long> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<unsigned long long> >"/>
   <class name="SG::AuxElement::ConstAccessor<std::vector<float> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<double> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<bool> >"/>
+  <class name="SG::AuxElement::ConstAccessor<std::vector<std::string> >"/>
 
   <class name="SG::AuxElement::Accessor<char>"/>
   <class name="SG::AuxElement::Accessor<unsigned char>"/>
   <class name="SG::AuxElement::Accessor<int>"/>
   <class name="SG::AuxElement::Accessor<short>"/>
+  <class name="SG::AuxElement::Accessor<long>"/>
   <class name="SG::AuxElement::Accessor<unsigned int>"/>
   <class name="SG::AuxElement::Accessor<unsigned short>"/>
   <class name="SG::AuxElement::Accessor<unsigned long>"/>
@@ -72,12 +88,26 @@
   <class name="SG::AuxElement::Accessor<double>"/>
   <class name="SG::AuxElement::Accessor<bool>"/>
   <class name="SG::AuxElement::Accessor<std::string>"/>
+
+  <class name="SG::AuxElement::Accessor<std::vector<char> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<unsigned char> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<int> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<short> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<long> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<unsigned int> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<unsigned short> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<unsigned long> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<unsigned long long> >"/>
   <class name="SG::AuxElement::Accessor<std::vector<float> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<double> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<bool> >"/>
+  <class name="SG::AuxElement::Accessor<std::vector<std::string> >"/>
 
   <class name="SG::AuxElement::Decorator<char>"/>
   <class name="SG::AuxElement::Decorator<unsigned char>"/>
   <class name="SG::AuxElement::Decorator<int>"/>
   <class name="SG::AuxElement::Decorator<short>"/>
+  <class name="SG::AuxElement::Decorator<long>"/>
   <class name="SG::AuxElement::Decorator<unsigned int>"/>
   <class name="SG::AuxElement::Decorator<unsigned short>"/>
   <class name="SG::AuxElement::Decorator<unsigned long>"/>
@@ -86,8 +116,53 @@
   <class name="SG::AuxElement::Decorator<double>"/>
   <class name="SG::AuxElement::Decorator<bool>"/>
   <class name="SG::AuxElement::Decorator<std::string>"/>
+
+  <class name="SG::AuxElement::Decorator<std::vector<char> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<unsigned char> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<int> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<short> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<long> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<unsigned int> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<unsigned short> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<unsigned long> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<unsigned long long> >"/>
   <class name="SG::AuxElement::Decorator<std::vector<float> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<double> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<bool> >"/>
+  <class name="SG::AuxElement::Decorator<std::vector<std::string> >"/>
+
+  <class name="SG::PackedParameters"/> 
 
   <enum name="SG::OwnershipPolicy"/>
+
+  <class name="SG::IAuxSetOption"/>
+  <class name="SG::AuxDataOption"/>
+
+  <class name="SG::PackedContainer<char>"/>
+  <class name="SG::PackedContainer<unsigned char>"/>
+  <class name="SG::PackedContainer<short>"/>
+  <class name="SG::PackedContainer<unsigned short>"/>
+  <class name="SG::PackedContainer<int>"/>
+  <class name="SG::PackedContainer<unsigned int>"/>
+  <class name="SG::PackedContainer<float>"/>
+  <class name="SG::PackedContainer<double>"/>
+
+  <class name="SG::PackedContainer<std::vector<char> >"/>
+  <class name="SG::PackedContainer<std::vector<unsigned char> >"/>
+  <class name="SG::PackedContainer<std::vector<short> >"/>
+  <class name="SG::PackedContainer<std::vector<unsigned short> >"/>
+  <class name="SG::PackedContainer<std::vector<int> >"/>
+  <class name="SG::PackedContainer<std::vector<unsigned int> >"/>
+  <class name="SG::PackedContainer<std::vector<float> >"/>
+  <class name="SG::PackedContainer<std::vector<double> >"/>
+
+  <class name="SG::PackedContainer<std::vector<std::vector<char> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<unsigned char> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<short> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<unsigned short> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<int> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<unsigned int> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<float> > >"/>
+  <class name="SG::PackedContainer<std::vector<std::vector<double> > >"/>
 
 </lcgdict>

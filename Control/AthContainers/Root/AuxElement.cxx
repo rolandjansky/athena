@@ -177,8 +177,7 @@ void AuxElement::setStore (const DataLink< SG::IConstAuxStore >& store)
  */
 bool AuxElement::usingPrivateStore() const
 {
-  return m_privateData!= 0 &&
-    m_privateData != s_privatePlaceholder &&
+  return privateDataValid() && 
     typeid(*m_privateData) == typeid(AuxElementPrivateData);
 }
 
@@ -188,8 +187,7 @@ bool AuxElement::usingPrivateStore() const
  */
 bool AuxElement::usingStandaloneStore() const
 {
-  return m_privateData!= 0 &&
-    m_privateData != s_privatePlaceholder &&
+  return privateDataValid() &&
     typeid(*m_privateData) == typeid(AuxElementStandaloneData);
 }
 
@@ -203,7 +201,7 @@ bool AuxElement::usingStandaloneStore() const
  */
 const SG::IConstAuxStore* AuxElement::getConstStore() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     return m_privateData->getConstStore();
   return 0;
 }
@@ -217,7 +215,7 @@ const SG::IConstAuxStore* AuxElement::getConstStore() const
  */
 SG::IAuxStore* AuxElement::getStore() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     return m_privateData->getStore();
   return 0;
 }
@@ -247,7 +245,7 @@ void AuxElement::clearCache()
  */
 const SG::auxid_set_t& AuxElement::getAuxIDs() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     return m_privateData->getConstStore()->getAuxIDs();
   if (container())
     return container()->getAuxIDs();
@@ -263,7 +261,7 @@ const SG::auxid_set_t& AuxElement::getAuxIDs() const
  */
 bool AuxElement::hasStore() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     return m_privateData->hasStore();
   return false;
 }
@@ -276,7 +274,7 @@ bool AuxElement::hasStore() const
  */
 bool AuxElement::hasNonConstStore() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     return m_privateData->hasNonConstStore();
   return false;
 }
@@ -290,7 +288,7 @@ bool AuxElement::hasNonConstStore() const
  */
 void AuxElement::clearDecorations() const
 {
-  if (m_privateData)
+  if (privateDataValid())
     m_privateData->clearDecorations();
 }
 
