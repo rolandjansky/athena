@@ -29,6 +29,7 @@ LArGeoWeightsFill::LArGeoWeightsFill(const std::string& name, ISvcLocator* pSvcL
   declareProperty("OutFile",m_outFileName="out.txt");
   //declareProperty("InFile",m_inFileName="");
 
+  declareProperty("Dump",m_dump=false);
   declareProperty("Fill",m_fill=true);
 }
 
