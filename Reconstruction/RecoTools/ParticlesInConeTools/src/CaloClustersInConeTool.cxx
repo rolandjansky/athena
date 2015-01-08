@@ -20,7 +20,7 @@ namespace xAOD {
         m_incidentSvc("IncidentSvc",name)
   {
     declareInterface<ICaloClustersInConeTool>(this);
-    declareProperty("CaloClusterLocation",m_caloClusterLocation = "CaloClusters");
+    declareProperty("CaloClusterLocation",m_caloClusterLocation = "CaloCalTopoClusters");
   }
 
   CaloClustersInConeTool::~CaloClustersInConeTool()
@@ -55,20 +55,37 @@ namespace xAOD {
       if(evtStore()->retrieve(caloClusters,m_caloClusterLocation).isFailure()) {
         ATH_MSG_FATAL( "Unable to retrieve " << m_caloClusterLocation );
         return 0;
+      }else{
+        ATH_MSG_VERBOSE("retrieved CaloClusterContainer with name " << m_caloClusterLocation << " size " << caloClusters->size());
+      
       }
+    }else{
+      ATH_MSG_WARNING("CaloClusterContainer with name " << m_caloClusterLocation << " not in StoreGate");
     }
     return caloClusters;
   }
 
-  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) {
-
-    /// initialize if needed
+  bool CaloClustersInConeTool::initLookUp() {
     if( !m_lookUpTable.isInitialized() ){
       /// retrieve track particles
       const CaloClusterContainer* caloClusters = retrieveCaloClusterContainer();
       if( !caloClusters ) return false;
       m_lookUpTable.init(*caloClusters);
     }
+    return true;
+  }
+
+  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) {
+    /// initialize if needed
+    if(!initLookUp() ) return false;
+
+    return m_lookUpTable.iParticlesInCone( eta, phi, dr, output );
+  }
+
+  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) {
+    /// initialize if needed
+    if(!initLookUp() ) return false;
+    
     return m_lookUpTable.iParticlesInCone( eta, phi, dr, output );
   }
 }	// end of namespace

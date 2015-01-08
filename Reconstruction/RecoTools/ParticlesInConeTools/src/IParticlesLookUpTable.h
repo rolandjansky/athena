@@ -25,7 +25,8 @@ namespace xAOD {
     void clear();
 
     /** collect IParticles in a given cone */
-    bool iParticlesInCone( float eta, float phi, float dr, std::vector< const T* >& output ) const;
+    template<class O>
+    bool iParticlesInCone( float eta, float phi, float dr, O& output ) const;
 
     /** return whether table is initialized */
     bool isInitialized() const;
@@ -44,9 +45,17 @@ namespace xAOD {
     /// calculate phi index for a given phi
     int phiIndex(float phi) const { return (phi + M_PI)/m_phiBinSize; };
 
+    /// add an entry into a vector of pointers 
+    void addEntry( int i, std::vector< const T* >& output ) const;
+
+    /// add an entry into a vector of ElementLinks 
+    void addEntry( int i, std::vector< ElementLink<DataVector<T> > >& output ) const;
+
+    const DataVector<T>* m_container;
+
     int   m_nphiBins;    /// number of bins
     float m_phiBinSize;  /// bin size 
-    std::vector< std::vector< const T* > > m_phiBinnedLookUpTable; /// the look-up table
+    std::vector< std::vector< int > > m_phiBinnedLookUpTable; /// the look-up table
   };
 
   template<class T>
@@ -62,32 +71,42 @@ namespace xAOD {
   void IParticlesLookUpTable<T>::init( const DataVector<T>& particles ) {
     /// resize hash table
     m_phiBinnedLookUpTable.resize(m_nphiBins);
+    m_container = &particles;
     /// loop over iparticles and copy them into the look-up struct
     /// use hashing for phi look-up and sorting for eta look-up
     unsigned int size = particles.size();
     for( unsigned int i=0; i<size;++i ){
-      int index = phiIndex(particles[i]->phi());
-      m_phiBinnedLookUpTable[index].push_back(particles[i]);
+      if(particles[i]->pt()>0){//sanity check (due to Truth)
+	int index = phiIndex(particles[i]->phi());
+	m_phiBinnedLookUpTable[index].push_back(i);
+      }
     }
+    //std::cout << " initializing lookup " << m_container->size() << std::endl;
     for( auto& vec : m_phiBinnedLookUpTable ) {
-      std::stable_sort(vec.begin(),vec.end(),[](const T* tp1,const T* tp2 ) { return tp1->eta() < tp2->eta(); });
+      if( vec.empty() ) continue;
+      std::stable_sort(vec.begin(),vec.end(),[&](int i, int j) { return (*m_container)[i]->eta() < (*m_container)[j]->eta(); });
+      // std::cout << " new phi slice " << vec.size() << " eta " ;
+      // for( auto index : vec ){
+      //   std::cout << "  " << (*m_container)[index]->eta();
+      // }
+      // std::cout << std::endl;
     }
   }
 
-  template<class T>
-  bool IParticlesLookUpTable<T>::iParticlesInCone( float eta, float phi, float dr, std::vector< const T* >& output ) const {
+  template<class T> template<class O>
+  bool IParticlesLookUpTable<T>::iParticlesInCone( float eta, float phi, float dr, O& output ) const {
 
     /// check if initialized
     if( m_phiBinnedLookUpTable.empty() ) return false;
   
     /// comparison functions for upper and lower bound
-    auto compEta1 = [](const T* tp,double val ) { return tp->eta() < val; };
-    auto compEta2 = [](double val,const T* tp ) { return val < tp->eta(); };
+    auto compEta1 = [&](int i,double val ) { return (*m_container)[i]->eta() < val; };
+    auto compEta2 = [&](double val,int i ) { return val < (*m_container)[i]->eta(); };
 
     /// get phi hash ranges
     int indexMin = phiIndex( phiInRange(phi-dr) );
     int indexMax = phiIndex( phiInRange(phi+dr) );
-    
+    //std::cout << " eta " << eta << " phi " << phi << " phi ranges " << indexMin << " " << indexMax << std::endl;
     // special treatment for boundary region
     std::vector< std::pair<int,int> > ranges;
     if( indexMin > indexMax ) {
@@ -105,23 +124,33 @@ namespace xAOD {
       indexMax = range.second;
       for( ; indexMin <= indexMax; ++indexMin ){
         // get iterators for iparticles to be included 
-        const std::vector< const T* >& tps = m_phiBinnedLookUpTable[indexMin];
+        const std::vector< int >& tps = m_phiBinnedLookUpTable[indexMin];
         auto it_min = std::lower_bound (tps.begin(),tps.end(),eta-dr,compEta1  );
         auto it_max = std::upper_bound (it_min,tps.end(),eta+dr,compEta2 );
+        //std::cout << " new range, entries in bounds " << std::distance(it_max,it_min) << std::endl;
         // add iparticles in cone
         for( ;it_min!=it_max;++it_min ){
-          float deta = eta-(*it_min)->eta();
-          float dphi = phiInRange(phi-(*it_min)->phi());
+          const T* entry = (*m_container)[*it_min];
+          float deta = eta- entry->eta();
+          float dphi = phiInRange(phi-entry->phi());
           float dr2 = deta*deta + dphi*dphi;
-          if( dr2 < dr2Cut ) {
-            output.push_back(*it_min);
-          }
+          //std::cout << "   new entry: " << *it_min << " eta,phi " << entry->eta() << " phi " << entry->phi() << " dr " << sqrt(dr2) << std::endl;
+          if( dr2 < dr2Cut )  addEntry( *it_min, output );
         }
       }
     }
     return true;
   }
 
+  template<class T>
+  void IParticlesLookUpTable<T>::addEntry( int i, std::vector< const T* >& output ) const {
+     output.push_back( (*m_container)[i]);
+  }
+
+  template<class T>
+  void IParticlesLookUpTable<T>::addEntry( int i, std::vector< ElementLink<DataVector<T> > >& output ) const {
+    output.push_back( ElementLink<DataVector<T> >(*m_container,i) );
+  }
 
 }	// end of namespace
 

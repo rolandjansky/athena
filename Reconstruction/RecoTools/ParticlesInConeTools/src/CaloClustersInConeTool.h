@@ -35,10 +35,16 @@ namespace xAOD {
     /**ICaloClustersInConeTool interface */    
     bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output );
 
+    /**ICaloClustersInConeTool interface */    
+    bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output );
+
     /** incident to clear cache at end of the event */
     void handle(const Incident& inc);
 
   private:
+    // init look-up table
+    bool initLookUp();
+
     /** retrieve id track particles */
     const CaloClusterContainer* retrieveCaloClusterContainer() const; 
 

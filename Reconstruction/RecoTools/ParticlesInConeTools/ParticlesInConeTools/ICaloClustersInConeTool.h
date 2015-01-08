@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include <vector>
 
 namespace xAOD {
@@ -34,6 +35,16 @@ namespace xAOD {
        @return true if the calculation was successfull
      */    
     virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) = 0;
+
+    /**ICaloClustersInConeTool interface: 
+       @param[in] eta       eta for matching
+       @param[in] phi       phi for matching
+       @param[in] dr        cone size
+       @param[in] output    output vector to be filled
+       @return true if the calculation was successfull
+     */    
+    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) = 0;
+
   };
 
   inline const InterfaceID& ICaloClustersInConeTool::interfaceID() { 
