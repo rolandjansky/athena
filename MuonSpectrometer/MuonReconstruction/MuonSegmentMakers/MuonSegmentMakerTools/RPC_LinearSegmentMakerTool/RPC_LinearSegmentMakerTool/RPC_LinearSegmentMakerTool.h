@@ -6,7 +6,7 @@
 #define RPC_LINEARSEGMENTMAKERTOOL_H
 
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class RpcIdHelper;
 
@@ -15,7 +15,7 @@ namespace MuonGM
     class MuonDetectorManager;
 }
 
-class RPC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AlgTool
+class RPC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AthAlgTool
 {
 public:
     RPC_LinearSegmentMakerTool(const std::string& type,

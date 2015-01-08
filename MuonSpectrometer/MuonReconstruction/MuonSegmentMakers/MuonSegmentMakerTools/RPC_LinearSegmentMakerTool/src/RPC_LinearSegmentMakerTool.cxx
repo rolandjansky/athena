@@ -18,7 +18,7 @@
 RPC_LinearSegmentMakerTool::RPC_LinearSegmentMakerTool(const std::string& type,
                                                        const std::string& name,
                                                        const IInterface* pIID) :
-AlgTool(type, name, pIID),
+AthAlgTool(type, name, pIID),
 m_pIdHelper(NULL)
 {
     declareInterface<Muon::IMuonSegmentMaker>(this);
@@ -27,8 +27,7 @@ m_pIdHelper(NULL)
 
 StatusCode RPC_LinearSegmentMakerTool::initialize()
 {
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Initializing RPC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION << endreq;
+    ATH_MSG_INFO("Initializing RPC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION );
     StatusCode sc = StatusCode::SUCCESS;
 
     // initialize RpcIdHelper
@@ -36,13 +35,13 @@ StatusCode RPC_LinearSegmentMakerTool::initialize()
     sc = svcLoc()->service("DetectorStore", pDetStore);
     if (sc.isFailure() || pDetStore == NULL)
     {
-        log << MSG::ERROR << "Cannot locate DetectorStore" << endreq;
+        ATH_MSG_ERROR("Cannot locate DetectorStore");
         return sc;
     }
     sc = pDetStore->retrieve(m_pMuonMgr);
     if (sc.isFailure() || m_pMuonMgr == NULL)
     {
-        log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endreq;
+        ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
         return sc;
     }
     m_pIdHelper = m_pMuonMgr->rpcIdHelper();
@@ -76,10 +75,11 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                  const std::vector< std::vector< const Muon::MuonClusterOnTrack* > >& clusters,
                                  bool,double)
 {
-    MsgStream log(msgSvc(), name());
-    if (log.level() <= MSG::DEBUG)
-        log << MSG::DEBUG << "RPC_LinearSegmentMakerTool::find" << endreq;
-
+    ATH_MSG_DEBUG("RPC_LinearSegmentMakerTool::find");
+    
+    std::vector<const Muon::MuonSegment*>* pMuonSegs = NULL;
+    double dChi2 = 0.0;
+    int nDegf = 0;
     Muon::Fit2D::PointArray zPoints, phiPoints;
     std::vector<const Muon::MuonClusterOnTrack*> rios;
     for (std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator itClusters = clusters.begin();
@@ -92,8 +92,10 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
     const MuonGM::RpcReadoutElement* pReadoutElement =
         dynamic_cast<const MuonGM::RpcReadoutElement*>(rios.front()->detectorElement());
+    if (!pReadoutElement) return pMuonSegs;
     double baseR = pReadoutElement->center().perp();
 
+    
     std::set<LayerID> zStations, phiStations;
     int iHit = 0;
     for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator itHit = rios.begin();
@@ -114,9 +116,11 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                                              w,
                                                              (void*)pHit);
             phiPoints.push_back(pPt);
-            const MuonGM::RpcReadoutElement* pReadoutElement =
-                dynamic_cast<const MuonGM::RpcReadoutElement*>(pHit->detectorElement());
-            phiStations.insert(LayerID(pReadoutElement->getStationName(), pReadoutElement->getDoubletR()));
+	    std::string iStationName = pReadoutElement->getStationName();
+	    int iDoubletR = pReadoutElement->getDoubletR();
+            // const MuonGM::RpcReadoutElement* pReadoutElement =
+            //    dynamic_cast<const MuonGM::RpcReadoutElement*>(pHit->detectorElement());
+            phiStations.insert(LayerID(iStationName, iDoubletR));
         }
         else
         {
@@ -126,14 +130,18 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                                              w,
                                                              (void*)pHit);
             zPoints.push_back(pPt);
-            const MuonGM::RpcReadoutElement* pReadoutElement =
-                dynamic_cast<const MuonGM::RpcReadoutElement*>(pHit->detectorElement());
-            zStations.insert(LayerID(pReadoutElement->getStationName(), pReadoutElement->getDoubletR()));
+	    std::string iStationName = pReadoutElement->getStationName();
+	    int iDoubletR = pReadoutElement->getDoubletR();
+            // const MuonGM::RpcReadoutElement* pReadoutElement =
+            //    dynamic_cast<const MuonGM::RpcReadoutElement*>(pHit->detectorElement());
+            zStations.insert(LayerID(iStationName, iDoubletR));
+        }
+    if (!pReadoutElement)
+        {
+            ATH_MSG_WARNING("Cannot get a RpcReadoutElement via dynamic cast.");
+            goto done;
         }
     }
-    std::vector<const Muon::MuonSegment*>* pMuonSegs = NULL;
-    double dChi2 = 0.0;
-    int nDegf = 0;
     double zCov[2][2], phiCov[2][2];
     memset(zCov, 0, sizeof(zCov));
     memset(phiCov, 0, sizeof(phiCov));
@@ -150,13 +158,10 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 //            if (stations.size() == 1 && zPoints.size() >= 4)
 //                std::cout << "RPC_LinearSegmentMakerTool::find 1 station with "
 //                << zPoints.size() <<" eta points" << std::endl;
-            fit.fitPoint(zPoints,   m_fExclChi2, log.level() <= MSG::DEBUG, zSimpleStats);
-            fit.fitPoint(phiPoints, m_fExclChi2, log.level() <= MSG::DEBUG, phiSimpleStats);
-            if (log.level() <= MSG::DEBUG)
-            {
-                log << MSG::DEBUG << "  Z: " << zSimpleStats.toString() << endreq;
-                log << MSG::DEBUG << "Phi: " << phiSimpleStats.toString() << endreq;
-            }
+            fit.fitPoint(zPoints,   m_fExclChi2, msgLvl(MSG::DEBUG), zSimpleStats);
+            fit.fitPoint(phiPoints, m_fExclChi2, msgLvl(MSG::DEBUG), phiSimpleStats);
+            ATH_MSG_DEBUG("  Z: " << zSimpleStats.toString() );
+            ATH_MSG_DEBUG("Phi: " << phiSimpleStats.toString() );
             pos[0]=baseR;
             pos[1]=0.;
             pos[2]=zSimpleStats.fMean;
@@ -168,9 +173,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
         else
         {
             double z, zErr, phi, phiErr;
-            fit.fitLine(zPoints, m_fExclChi2, log.level() <= MSG::DEBUG, zLinStats);
-            if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "Z: " << zLinStats.toString() << endreq;
+            fit.fitLine(zPoints, m_fExclChi2, msgLvl(MSG::DEBUG), zLinStats);
+            ATH_MSG_DEBUG("Z: " << zLinStats.toString() );
             zLinStats.eval(baseR, z, zErr);
             dChi2 = zLinStats.fChi2;
             nDegf = zLinStats.n - 2;
@@ -178,9 +182,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
             if (phiStations.size() == 1 || phiPoints.size() < 4)
             {
-                fit.fitPoint(phiPoints, m_fExclChi2, log.level() <= MSG::DEBUG, phiSimpleStats);
-                if (log.level() <= MSG::DEBUG)
-                    log << MSG::DEBUG << "Phi: " << phiSimpleStats.toString() << endreq;
+                fit.fitPoint(phiPoints, m_fExclChi2, msgLvl(MSG::DEBUG), phiSimpleStats);
+                ATH_MSG_DEBUG("Phi: " << phiSimpleStats.toString() );
                 phi = phiSimpleStats.fMean;
                 phiLinStats.fSlope = 0.0;
                 dChi2 += phiSimpleStats.fChi2;
@@ -190,9 +193,8 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             }
             else
             {
-                fit.fitLine(phiPoints, m_fExclChi2, log.level() <= MSG::DEBUG, phiLinStats);
-                if (log.level() <= MSG::DEBUG)
-                    log << MSG::DEBUG << "Phi: " << phiLinStats.toString() << endreq;
+                fit.fitLine(phiPoints, m_fExclChi2, msgLvl(MSG::DEBUG), phiLinStats);
+                ATH_MSG_DEBUG("Phi: " << phiLinStats.toString() );
                 phiLinStats.eval(baseR, phi, phiErr);
                 dChi2 += phiLinStats.fChi2;
                 nDegf += phiLinStats.n - 2;
@@ -216,44 +218,32 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             (pReadoutElement->normal().dot(dir));
         pos += dir * u;
 
-        if (log.level() <= MSG::DEBUG)
-        {
-            log << MSG::DEBUG << "Segment position " << point2String(pos) << endreq;
-            log << MSG::DEBUG << "Segment direction " << dir2String(dir) << endreq;
-        }
+        ATH_MSG_DEBUG("Segment position " << point2String(pos) );
+        ATH_MSG_DEBUG("Segment direction " << dir2String(dir) );
 
         const Trk::Surface& surface = pReadoutElement->surface();
-        if (log.level() <= MSG::DEBUG)
+        if (msgLvl(MSG::DEBUG))
         {
 //             surface.dump(log);
 //             const Amg::Vector3D& pos = surface.center();
-            log << MSG::DEBUG << "Surface at "
-            << " pos: " << point2String(surface.center())
-            << " dir: " << dir2String(surface.normal())
-            << endreq;
+            ATH_MSG_DEBUG("Surface at " << " pos: " << point2String(surface.center()) << " dir: " << dir2String(surface.normal()) );
         }
         const Trk::PlaneSurface* pSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface);
         if (pSurface == NULL)
         {
-            log << MSG::WARNING << "Cannot get a PlaneSurface from RpcClusterOnTrack" << endreq;
+            ATH_MSG_WARNING("Cannot get a PlaneSurface from RpcClusterOnTrack");
             goto done;
         }
         Amg::Vector2D pSegPos;
         if (!pSurface->globalToLocal(pos, Amg::Vector3D(0., 0., 0.), pSegPos))
         {
-            log << MSG::WARNING << "Cannot get LocalPosition from surface for " << point2String(pos) << endreq;
+            ATH_MSG_WARNING("Cannot get LocalPosition from surface for " << point2String(pos) );
             goto done;
         }
-        if (log.level() <= MSG::DEBUG)
-            log << MSG::DEBUG << "Segment local position is"
-            << " x=" << pSegPos[Trk::locX]
-            << ",y=" << pSegPos[Trk::locY] << endreq;
+        ATH_MSG_DEBUG("Segment local position is" << " x=" << pSegPos[Trk::locX] << ",y=" << pSegPos[Trk::locY] );
         Trk::LocalDirection pSegDir;
         pSurface->globalToLocalDirection(dir, pSegDir);
-        if (log.level() <= MSG::DEBUG)
-            log << MSG::DEBUG << "Segment local direction is"
-            << " angleXZ=" << pSegDir.angleXZ()
-            << ",angleYZ=" << pSegDir.angleYZ() << endreq;
+        ATH_MSG_DEBUG("Segment local direction is" << " angleXZ=" << pSegDir.angleXZ() << ",angleYZ=" << pSegDir.angleYZ() );
 
         AmgSymMatrix(4)  pcov;
         pcov(0,0) = zCov[0][0];
@@ -292,15 +282,14 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                                             const_cast<Trk::PlaneSurface*>(pSurface->clone()),
                                                             pRios,
                                                             pFitQuality);
-        if (log.level() <= MSG::DEBUG)
+        if (msgLvl(MSG::DEBUG))
 //            pMuonSeg->dump(log);
-            log << MSG::DEBUG << "Created a new Muon::MuonSegment" << endreq;
+            ATH_MSG_DEBUG("Created a new Muon::MuonSegment");
         pMuonSegs = new std::vector<const Muon::MuonSegment*>(1);
         (*pMuonSegs)[0] = pMuonSeg;
 //        delete pSegDir;
     }
-    if (log.level() <= MSG::DEBUG)
-        log << MSG::DEBUG << "RPC_LinearSegmentMakerTool::find ended" << endreq;
+    ATH_MSG_DEBUG("RPC_LinearSegmentMakerTool::find ended");
 done:
     for (unsigned iZ = 0; iZ < zPoints.size(); iZ++)
         delete zPoints[iZ];
