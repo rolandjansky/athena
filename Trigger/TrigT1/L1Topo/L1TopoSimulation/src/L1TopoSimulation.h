@@ -5,6 +5,8 @@
 #ifndef L1Topo_L1TopoSimulation
 #define L1Topo_L1TopoSimulation
 
+#include "TrigConfBase/MsgStream.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 
@@ -54,10 +56,16 @@ namespace LVL1 {
       ToolHandle<IInputTOBConverter> m_jetInputProvider;
 
       ToolHandle<IInputTOBConverter> m_energyInputProvider;
+
+      ToolHandle<IInputTOBConverter> m_muonInputProvider;
+
       //! @}
 
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
+      StringProperty  m_topoCTPLocation { "" }; // input dump file
+      int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms
+      int m_topoSteeringOutputLevel{TrigConf::MSGTC::WARNING};                          // property to set the outputlevel of the topo steering
 
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering 
 

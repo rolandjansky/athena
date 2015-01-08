@@ -1,4 +1,4 @@
-include.block ("RecExCommon/RecExCommon_topOptions.py")
+include.block ("L1TopoSimulation/L1Simulation_topOptions.py")
 
 # gbl.AthenaServices.SetFatalHandler(438)
 svcMgr.CoreDumpSvc.FatalHandler = 438
@@ -29,12 +29,8 @@ if rec.Production():
 
 include ( "RecExCond/RecExCommon_flags.py" )
    
-try:
-    if rec.abortOnUncheckedStatusCode():
-      svcMgr.StatusCodeSvc.AbortOnError=True
-      logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")    
-except Exception:
-    logRecExCommon_topOptions.info("Did not enable aboort on unchecked status code")    
+svcMgr.StatusCodeSvc.AbortOnError=True
+logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")    
 
 
 ###################
@@ -127,7 +123,7 @@ if globalflags.InputFormat.is_pool():
         logRecExCommon_topOptions.error("no input file defined in flags. If using RTT please use tag <athenaCommonFlags/>. Now continuing at own riske")
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
+    print "Initial content of objKeyStore "
     print objKeyStore
 
 if rec.doDumpPoolInputContent() and globalflags.InputFormat()=='pool':
@@ -146,6 +142,12 @@ if rec.doTruth():
         from TruthExamples.TruthExamplesConf import DumpMC
         topSequence+=DumpMC()
 
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
+    ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+
+
 if rec.doTrigger:
     try:
         from TriggerJobOpts.TriggerGetter import TriggerGetter
@@ -154,3 +156,4 @@ if rec.doTrigger:
         treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
         from RecExConfig.RecAlgsFlags import recAlgs
         recAlgs.doTrigger=False
+
