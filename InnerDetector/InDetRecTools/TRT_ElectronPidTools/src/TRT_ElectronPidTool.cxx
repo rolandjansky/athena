@@ -6,6 +6,8 @@
 // TRT_ElectronPidTool.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+
+#include "TRT_ElectronPidTools/BaseTRTPIDCalculator.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidTool.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidTool_ToTcalculation.h"
 #include "TRT_ElectronPidTools/TRT_ElectronPidTool_HTcalculation.h"
@@ -593,7 +595,7 @@ StatusCode InDet::TRT_ElectronPidTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) 
     ATH_MSG_DEBUG("IOVCALLBACK for key " << *key << " number " << I);
 
   const char * calcName[2]  = {"HT",             "ToT"};
-  BaseCalculator * calc[2]  = {&HTcalc,          &ToTcalc};
+  BaseTRTPIDCalculator * calc[2]  = {&HTcalc,          &ToTcalc};
   const char * storeName[2] = {"/TRT/Calib/PIDver_New", "/TRT/Calib/PID_RToTver_New"};
   const char * objName[2]   = {"TRT",            "TRT_RToT"};
 
@@ -685,54 +687,6 @@ bool InDet::TRT_ElectronPidTool::CheckGeometry(int BEC, int Layer, int Strawlaye
   }
   
   return true;
-}
-
-/**************************************************************************** \
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%  BaseCalculator class  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%  common funtionality of the other two Calculator classes  %%%%%%%%%%%%%*|
-|*%%%  is implemented here  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
-
-void InDet::TRT_ElectronPidTool::BaseCalculator::PrintBlob(){
-  //Print out the array values that should be entered into the database
-  parent.msg(MSG::ERROR)<<"Now printing the contents of the "<<my_name<<" Calibration Blob, "<<BLOB_SIZE<<" chars"<<endmsg;
-  parent.msg(MSG::ERROR)<<"This should never appear in a production: [ ";
-  for(int i=0; i < BLOB_SIZE; i++)
-    parent.msg(MSG::ERROR)<<int(Blob[i])<<", ";
-  parent.msg(MSG::ERROR)<<" ]"<<endmsg;
-}
-
-bool InDet::TRT_ElectronPidTool::BaseCalculator::FillBlob(const unsigned char* source){
-  //Copy the Coral Blob into a local array
-  for(int i=0; i < BLOB_SIZE; i++){
-    Blob[i]=source[i];
-  }
-  HasBeenInitialized=1;
-  
-  return 1;
-}
-
-void InDet::TRT_ElectronPidTool::BaseCalculator::checkInitialization(){
-  if( not HasBeenInitialized ) {
-    parent.msg(MSG::ERROR)<<"The "<<my_name<<"calculator is about to be used uninitialized"<<endmsg;
-    parent.msg(MSG::ERROR)<<"Loading default calibration into memory."<<endmsg;
-    setDefaultCalibrationConstants();
-    HasBeenInitialized=1;
-    PrintBlob();
-  }
-}
-
-float InDet::TRT_ElectronPidTool::BaseCalculator::Limit(float prob){
-  if( prob > UpperLimit ){
-    return UpperLimit;
-  }
-  else if( prob < LowerLimit ){
-    return LowerLimit;
-  }
-  
-  return prob;
 }
 
 /*****************************************************************************\

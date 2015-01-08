@@ -29,7 +29,7 @@
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidTool::HTcalculator::HTcalculator(AthAlgTool & parent):
-  BaseCalculator(parent,(SIZE_OF_HEADER +
+  BaseTRTPIDCalculator(parent,(SIZE_OF_HEADER +
                          SIZE_PAR_SET * 3 +
                          SIZE_STRAW_CONSTANTS ),"HT"),
   StrawConstants( (float*)( Blob + OFF_STRAW_CONSTANTS)),

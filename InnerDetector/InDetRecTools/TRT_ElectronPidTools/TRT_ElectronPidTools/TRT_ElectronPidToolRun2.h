@@ -3,25 +3,27 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TRT_ElectronPidTool.h, (c) ATLAS Detector software
+// TRT_ElectronPidToolRun2.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETTRT_ELECTRONPIDTOOL_H
-#define INDETTRT_ELECTRONPIDTOOL_H
+#ifndef INDETTRT_ELECTRONPIDTOOLRUN2_H
+#define INDETTRT_ELECTRONPIDTOOLRUN2_H
 
-// #include "GaudiKernel/AlgTool.h"           // Exchange OUT
-// #include "GaudiKernel/MsgStream.h"         // Exchange OUT
 #include "AthenaBaseComps/AthAlgTool.h"       // Exchange IN
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TRT_ElectronPidTools/ITRT_ElectronToTTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
+#include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 //#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
@@ -33,6 +35,15 @@ class Identifier;
 class TRT_ID;
 namespace InDetDD{ class TRT_DetectorManager; }
 
+namespace InDet{
+	class ITRT_LocalOccupancy;
+}
+
+
+// Troels (Sep 2014):
+class ITRT_StrawSummarySvc;
+
+
 //class IChronoStatSvc;
 class ITRT_ToT_dEdx;
 namespace Trk {
@@ -42,9 +53,9 @@ namespace Trk {
 namespace InDet 
 {
 
-  /** @class TRT_ElectronPidTool 
+  /** @class TRT_ElectronPidToolRun2 
 
-      TRT_ElectronPidTool is a tool for identification of electrons based on information
+      TRT_ElectronPidToolRun2 is a tool for identification of electrons based on information
       mainly from the TRT and partially from the whole ID. Given a track, three methods are used:
 
       1: High Threshold (HT) information - sensitive to Transition Radiation (TR) photons
@@ -72,17 +83,17 @@ namespace InDet
       and Simon Heisterkamp <Simon.Heisterkamp@cern.ch>
   */
 
-  class TRT_ElectronPidTool;
+  class TRT_ElectronPidToolRun2;
 
-  class TRT_ElectronPidTool : virtual public Trk::ITRT_ElectronPidTool, virtual public ITRT_ElectronToTTool, public AthAlgTool
+  class TRT_ElectronPidToolRun2 : virtual public Trk::ITRT_ElectronPidTool, virtual public ITRT_ElectronToTTool, public AthAlgTool
   {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     //Athena specific, called externally:
   public:
-    TRT_ElectronPidTool(const std::string&,const std::string&,const IInterface*);
+    TRT_ElectronPidToolRun2(const std::string&,const std::string&,const IInterface*);
 
     /** default destructor */
-    virtual ~TRT_ElectronPidTool ();
+    virtual ~TRT_ElectronPidToolRun2 ();
       
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
@@ -161,65 +172,11 @@ namespace InDet
     HTcalculator & HTcalc;
 
     ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
-/*
-    class BaseCalculator {
-    public:
-      //Class to encode those aspects of the ToT and HT calculator that they have in common
-      AthAlgTool & parent;
-      const char * my_name;
-      int BLOB_SIZE;
-      unsigned char * Blob;
 
-      float & UpperLimit;
-      float & LowerLimit;
+    ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool
 
-      bool HasBeenInitialized;
+    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc;
 
-      static const int SIZE_OF_HEADER = 12;
-      
-      // | 
-      // | The following are all the major offsets from the blob start:
-      
-      //versioning check constants
-      int CurrentVersion;
-      static const int _Version    = 0;
-      static const int _Day   = 1;
-      static const int _Month = 2;
-      static const int _Year  = 3;
-      
-      static const int OFF_UpperLim = 4;
-      static const int OFF_LowerLim = 8;
-
-
-    BaseCalculator(AthAlgTool & p, int size, const char * name):parent(p),
-        my_name(name),
-        BLOB_SIZE(size),
-        Blob(new unsigned char[size]),
-        UpperLimit( * ((float*)( Blob + OFF_UpperLim) ) ),
-        LowerLimit( * ((float*)( Blob + OFF_LowerLim) ) ),
-        HasBeenInitialized(0)
-          {}
-      
-      ~BaseCalculator(){
-        delete [] Blob;
-      }
-
-      // set constants to hard coded defaults
-      virtual void setDefaultCalibrationConstants()=0;
-
-    public:
-      void checkInitialization();
-
-      // Fill the data blob from a given pointer
-      bool FillBlob(const unsigned char*);      
-      
-      //print the blob of data to the screen very verbosely.
-      void PrintBlob();
-
-      // Limit the allowed PID value to lie between a lower and an upper limt
-      float Limit(float prob);      
-    };
-*/
    }; 
 } // end of namespace
 

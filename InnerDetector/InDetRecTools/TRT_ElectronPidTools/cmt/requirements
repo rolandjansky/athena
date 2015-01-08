@@ -1,5 +1,6 @@
 package TRT_ElectronPidTools
 
+author Alejandro Alonso <Alejandro.Alonso@cern.ch>
 author Troels Petersen <Troels.Petersen@cern.ch>
 
 public
@@ -14,6 +15,8 @@ use AthenaBaseComps      AthenaBaseComps-*         Control
 use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
 use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
 use GaudiInterface       GaudiInterface-*          External
+use TrkTrack             TrkTrack-*                Tracking/TrkEvent
+use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
 
 
 private
@@ -27,6 +30,11 @@ use TrkParameters        TrkParameters-*           Tracking/TrkEvent
 use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
 use TrkTrack             TrkTrack-*                Tracking/TrkEvent
 
+use InDetRawData                InDetRawData-*               InnerDetector/InDetRawEvent
+use InDetPrepRawData            InDetPrepRawData-*                InnerDetector/InDetRecEvent
+use EventInfo            EventInfo-*               Event
+
+
 use InDetRIO_OnTrack     InDetRIO_OnTrack-*        InnerDetector/InDetRecEvent
 use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
 
@@ -34,6 +42,11 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use TrkSurfaces          TrkSurfaces-*             Tracking/TrkDetDescr
 
 use TRT_ToT_Tools        TRT_ToT_Tools-*           InnerDetector/InDetRecTools
+
+
+# Troels: Silly attempt not needed!
+# use TRT_ConditionsServices  TRT_ConditionsServices-*  InnerDetector/InDetConditions
+
 # ---------------------------------------------------------------------------
 
 public

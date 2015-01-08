@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TRT_ElectronPidTool_HTcalculation.h, (c) ATLAS Detector software
+// TRT_ElectronPidToolRun2_HTcalculation.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 /****************************************************************************************\
@@ -14,10 +14,11 @@
   It is not true singleton as this was deemed unnecessary.
 
   Original creator: Simon Heisterkamp (simon.heisterkamp@cern.ch)
+  Author: Troels Petersen (petersen@nbi.dk)
 
 \****************************************************************************************/
 
-class InDet::TRT_ElectronPidTool::HTcalculator : public InDet::BaseTRTPIDCalculator {
+class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCalculator {
  public:
 
   static const int my_CurrentVersion = 4;
@@ -31,7 +32,22 @@ class InDet::TRT_ElectronPidTool::HTcalculator : public InDet::BaseTRTPIDCalcula
   //void PrintBlob();
   //bool FillBlob(const unsigned char*);
 
-  double getProbHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer);
+
+  double getProbHT( double pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int StrawLayer, double ZRpos, double rTrkAnode, double Occupancy); 
+  double pHTvsP(int etaBin, double p, double mass) ;
+  double Corr_el_SL(int part, double SL) ;
+  double Corr_el_SP(int part, double SP) ;
+  double Corr_el_RT(int part, double RT) ;
+  double Corr_el_PU(int part, double PU) ;
+  double Corr_el_OC(int part, double OC) ;
+  double Corr_mu_SL(int part, double SL) ;
+  double Corr_mu_SP(int part, double SP) ;
+  double Corr_mu_RT(int part, double RT) ;
+  double Corr_mu_PU(int part, double PU) ;
+  double Corr_mu_OC(int part, double OC) ;
+
+
+
 
   //float Limit(float prob);
 
@@ -82,6 +98,7 @@ class InDet::TRT_ElectronPidTool::HTcalculator : public InDet::BaseTRTPIDCalcula
   float* ParsBarrel;
   float* ParsEndcapA;
   float* ParsEndcapB;
+
 
   //  float & UpperLimit;
   //  float & LowerLimit;

@@ -3,12 +3,12 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TRT_ElectronPidTool_ToTcalculation.cxx, (c) ATLAS Detector software
+// TRT_ElectronPidToolRun2_ToTcalculation.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifdef INDETTRT_ELECTRONPIDTOOL_H
-#ifndef TRT_ELECTRONPID_TOTCALCULATION_CXX
-#define TRT_ELECTRONPID_TOTCALCULATION_CXX
+#ifdef INDETTRT_ELECTRONPIDTOOLRUN2_H
+#ifndef TRT_ELECTRONPIDRUN2_TOTCALCULATION_CXX
+#define TRT_ELECTRONPIDRUN2_TOTCALCULATION_CXX
 
 #include <time.h>
 
@@ -30,7 +30,7 @@
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-InDet::TRT_ElectronPidTool::ToTcalculator::ToTcalculator(AthAlgTool & parent):
+InDet::TRT_ElectronPidToolRun2::ToTcalculator::ToTcalculator(AthAlgTool & parent):
   BaseTRTPIDCalculator(parent,(SIZE_OF_HEADER + SIZE_GAUS_PARS * 2 + SIZE_TOT_CONSTANTS + SIZE_PAR_VAL),"ToT"),
   ToTCorrectionConstants( (float*)( Blob + OFF_TOT_CONSTANTS )),
   gausParametersElectron( (float*)( Blob + OFF_GAUS_PARS_ELE )),
@@ -49,7 +49,7 @@ InDet::TRT_ElectronPidTool::ToTcalculator::ToTcalculator(AthAlgTool & parent):
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-InDet::TRT_ElectronPidTool::ToTcalculator::~ToTcalculator(){
+InDet::TRT_ElectronPidToolRun2::ToTcalculator::~ToTcalculator(){
   //Nothing here yet
 }
 
@@ -60,15 +60,15 @@ InDet::TRT_ElectronPidTool::ToTcalculator::~ToTcalculator(){
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer){
   checkInitialization();
 
   double ToTraw=ExtractToT(bitpattern);
 
   double ToTcorr=correctToT(ToTraw, HitZ, HitR, BEC, Layer, Strawlayer);
 
-  //std::cout<<"TRT_ElectronPidTool    found raw ToT "<<ToTraw<<"  corrected to "<<ToTcorr<<std::endl;
-  //  std::cout<<"TRT_ElectronPidTool    used HitZ "<<HitZ<<", HitR "<<HitR<<", BEC "<<BEC<<", Layer "<<Layer<<", Strawlayer "<<Strawlayer<<std::endl;
+  //std::cout<<"TRT_ElectronPidToolRun2    found raw ToT "<<ToTraw<<"  corrected to "<<ToTcorr<<std::endl;
+  //  std::cout<<"TRT_ElectronPidToolRun2    used HitZ "<<HitZ<<", HitR "<<HitR<<", BEC "<<BEC<<", Layer "<<Layer<<", Strawlayer "<<Strawlayer<<std::endl;
   return ToTcorr;
 }
 
@@ -78,7 +78,7 @@ double InDet::TRT_ElectronPidTool::ToTcalculator::GetToT(unsigned int bitpattern
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::GetD(double R_Track){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::GetD(double R_Track){
   // This function was found to be the best function to use when normalizing the Time over Threshold
 
   R_Track=fabs(R_Track);
@@ -96,42 +96,42 @@ double InDet::TRT_ElectronPidTool::ToTcalculator::GetD(double R_Track){
 \*****************************************************************************/
 
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::correctToT(double ToT, double HitZ, double HitR, int HitPart, int Layer, int Strawlayer) {
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::correctToT(double ToT, double HitZ, double HitR, int HitPart, int Layer, int Strawlayer) {
   checkInitialization();
   //Function Pointer to the function that will correct the ToT
-  double (InDet::TRT_ElectronPidTool::ToTcalculator::*correctionFunction)(double, double, const float*);
+  double (InDet::TRT_ElectronPidToolRun2::ToTcalculator::*correctionFunction)(double, double, const float*);
 
   if (abs(HitPart)==1){
     if(Layer==0 && Strawlayer<9)
-      correctionFunction=&InDet::TRT_ElectronPidTool::ToTcalculator::BarrelShortToTCorrection;
+      correctionFunction=&InDet::TRT_ElectronPidToolRun2::ToTcalculator::BarrelShortToTCorrection;
     else
-      correctionFunction=&InDet::TRT_ElectronPidTool::ToTcalculator::BarrelLongToTCorrection;
+      correctionFunction=&InDet::TRT_ElectronPidToolRun2::ToTcalculator::BarrelLongToTCorrection;
   }
   else
-    correctionFunction=&InDet::TRT_ElectronPidTool::ToTcalculator::EndcapToTCorrection;
+    correctionFunction=&InDet::TRT_ElectronPidToolRun2::ToTcalculator::EndcapToTCorrection;
 
 
   double Val= parValBarrelLongNeg;  
   
   double correction=(*this.*correctionFunction)( HitZ, HitR, ToTCorrectionConstants + resolveIndex(HitPart,Layer,Strawlayer));
 
-  //std::cout<<"TRT_ElectronPidTool      Part: "<<HitPart<<" Layer "<<Layer<<" SL "<<Strawlayer<<std::endl; 
-  //std::cout<<"TRT_ElectronPidTool      calculated ToT correction: "<<correction<<std::endl;
+  //std::cout<<"TRT_ElectronPidToolRun2      Part: "<<HitPart<<" Layer "<<Layer<<" SL "<<Strawlayer<<std::endl; 
+  //std::cout<<"TRT_ElectronPidToolRun2      calculated ToT correction: "<<correction<<std::endl;
 
   return ToT  - correction + Val;
 }
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::BarrelLongToTCorrection( double HitZ, double /*HitR*/, const float *params){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::BarrelLongToTCorrection( double HitZ, double /*HitR*/, const float *params){
 
   return params[PAR0] + (abs( HitZ ) - 7.5 + 704.6 ) / params[PAR1] * exp( ( abs( HitZ ) - 704.6 ) / params[PAR2]);
 }
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::BarrelShortToTCorrection( double HitZ, double /*HitR*/, const float *params){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::BarrelShortToTCorrection( double HitZ, double /*HitR*/, const float *params){
 
   return params[PAR0] + ( HitZ * HitZ - 7.5 + 704.6 ) / params[PAR1] * exp( (  HitZ * HitZ  - 704.6 ) / params[PAR2]);
 }
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::EndcapToTCorrection( double /*HitZ*/, double HitR, const float *params){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::EndcapToTCorrection( double /*HitZ*/, double HitR, const float *params){
 
   return params[PAR0] + params[PAR1] * exp( ( HitR * HitR - params[PAR2]) / params[PAR3] );
 }
@@ -143,7 +143,7 @@ double InDet::TRT_ElectronPidTool::ToTcalculator::EndcapToTCorrection( double /*
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double InDet::TRT_ElectronPidTool::ToTcalculator::ExtractToT(unsigned int bitpattern){
+double InDet::TRT_ElectronPidToolRun2::ToTcalculator::ExtractToT(unsigned int bitpattern){
   /***************************************************************************
     Will find the time over threshold for this bitpattern using the largest island
     To find out how HT and LT bins are distributed please check TRT_DriftCircle.h
@@ -196,7 +196,7 @@ double InDet::TRT_ElectronPidTool::ToTcalculator::ExtractToT(unsigned int bitpat
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double  InDet::TRT_ElectronPidTool::ToTcalculator::GetElProb(double ToTbyD){
+double  InDet::TRT_ElectronPidToolRun2::ToTcalculator::GetElProb(double ToTbyD){
   checkInitialization();
   // calculate the likelyhood for electrons at this values of ToT over D
   //The distributions are given given by the sum of three gaussians
@@ -235,7 +235,7 @@ double  InDet::TRT_ElectronPidTool::ToTcalculator::GetElProb(double ToTbyD){
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-int InDet::TRT_ElectronPidTool::ToTcalculator::resolveIndex(int BEC, int Layer, int Strawlayer=-9999){
+int InDet::TRT_ElectronPidToolRun2::ToTcalculator::resolveIndex(int BEC, int Layer, int Strawlayer=-9999){
 
   int part=abs(BEC)-1;
 
@@ -287,7 +287,7 @@ int InDet::TRT_ElectronPidTool::ToTcalculator::resolveIndex(int BEC, int Layer, 
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-void InDet::TRT_ElectronPidTool::ToTcalculator::setDefaultCalibrationConstants(){
+void InDet::TRT_ElectronPidToolRun2::ToTcalculator::setDefaultCalibrationConstants(){
   /*****************************************************************************\
 
     This code is never called in production. It is used to set all

@@ -74,11 +74,11 @@ def main():
     HTblob.resize(len(dataBytesHT))
     ToTblob.resize(len(dataBytesToT))
 
-    print "Length data",len(dataBytesToT)
+    print "Length data ToT",len(dataBytesToT)
     for i in xrange(0,len(dataBytesToT)):
         ToTblob[i]=dataBytesToT[i]
 
-    print "Length data",len(dataBytesHT)
+    print "Length data HT",len(dataBytesHT)
     for i in xrange(0,len(dataBytesHT)):
         HTblob[i]=dataBytesHT[i]
 
