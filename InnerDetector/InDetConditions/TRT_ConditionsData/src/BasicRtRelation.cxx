@@ -9,8 +9,11 @@ namespace TRTCond
 
   BasicRtRelation& BasicRtRelation::operator=(const BasicRtRelation& rhs) 
  {
-    m_status = rhs.m_status ;
-    set(rhs.m_cal) ;
+
+    if ( this != &rhs){
+    	m_status = rhs.m_status ;
+    	set(rhs.m_cal) ;
+    }
     return *this ;
   }
 

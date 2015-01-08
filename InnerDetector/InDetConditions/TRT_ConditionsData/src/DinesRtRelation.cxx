@@ -9,8 +9,10 @@ namespace TRTCond
 
   DinesRtRelation& DinesRtRelation::operator=(const DinesRtRelation& rhs) 
  {
-    m_status = rhs.m_status ;
-    set(rhs.m_cal) ;
+    if ( this != &rhs){
+    	m_status = rhs.m_status ;
+    	set(rhs.m_cal) ;
+    }
     return *this ;
   }
 
