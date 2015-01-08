@@ -50,6 +50,7 @@ namespace InDet {
     const float&      param() const {return m_param;}
     const float&    quality() const {return m_q ;}
     const Trk::Surface* sur() const {return m_su;}
+    const Trk::Surface* sun() const {return m_sn;}
 
   protected:
     
@@ -62,6 +63,7 @@ namespace InDet {
     float m_param;
     float m_q   ;
     const Trk::Surface* m_su;
+    const Trk::Surface* m_sn;
   };
 
 
@@ -71,18 +73,29 @@ namespace InDet {
 
   inline SiSpacePointForSeed::SiSpacePointForSeed ()
     {
-    }
+      spacepoint = 0;
+      m_x     = 0.;
+      m_y     = 0.;
+      m_z     = 0.;
+      m_r     = 0.;
+      m_covr  = 0.;
+      m_covz  = 0.;
+      m_param = 0.;
+      m_q     = 0.;
+      m_su    = 0 ;
+      m_sn    = 0 ;
+   }
  
   inline SiSpacePointForSeed::SiSpacePointForSeed
     (Trk::SpacePoint*const& sp,const float* r) 
     {
-      set(sp,r);
+      set(sp,r); m_param = 0.;
     }
 
   inline SiSpacePointForSeed::SiSpacePointForSeed
     (Trk::SpacePoint*const& sp,const float* r,const float* sc) 
     {
-      set(sp,r,sc);
+      set(sp,r,sc); m_param = 0.;
     }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +112,8 @@ namespace InDet {
       m_covr      = sp.m_covr    ;
       m_covz      = sp.m_covz    ;
       m_q         = sp.m_q       ;
+      m_su        = sp.m_su      ;
+      m_sn        = sp.m_sn      ;        
     }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +138,7 @@ namespace InDet {
       m_r        =sqrt(m_x*m_x+m_y*m_y);
       m_q        = 100000.;
 
-      const InDet::SiCluster*           c  = dynamic_cast<const InDet::SiCluster*>(sp->clusterList().first);
+      const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
       const InDetDD::SiDetectorElement* de = c ->detectorElement();
 
       if( de->isPixel() ) {
@@ -134,6 +149,7 @@ namespace InDet {
 	float cov = wid*wid*.08333; if(cov < f22) cov = f22;
 	if(de->isBarrel()) {m_covz = 9.*cov; m_covr = .06;}
 	else               {m_covr = 9.*cov; m_covz = .06;}
+	m_sn = 0;
       }
       else                {
 
@@ -141,6 +157,7 @@ namespace InDet {
 	float f22 = float(v(1,1));
 	if(de->isBarrel()) {m_covz = 8.*f22; m_covr = .1;} 
 	else               {m_covr = 8.*f22; m_covz = .1;} 
+	m_sn =  &sp->clusterList().second->detectorElement()->surface();
       }
       m_su = &sp->clusterList().first->detectorElement()->surface();
     } 
@@ -163,7 +180,7 @@ namespace InDet {
       m_r        =sqrt(m_x*m_x+m_y*m_y);
       m_q        = 100000.;
 
-      const InDet::SiCluster*           c  = dynamic_cast<const InDet::SiCluster*>(sp->clusterList().first);
+      const InDet::SiCluster*           c  = static_cast<const InDet::SiCluster*>(sp->clusterList().first);
       const InDetDD::SiDetectorElement* de = c ->detectorElement();
 
       if( de->isPixel() ) {
@@ -174,7 +191,7 @@ namespace InDet {
 	float cov = wid*wid*.08333; if(cov < f22) cov = f22;
 	if(de->isBarrel()) {m_covz = 9.*cov*sc[0]; m_covr = .06;}
 	else               {m_covr = 9.*cov*sc[1]; m_covz = .06;}
-
+	m_sn = 0;
       }
       else                {
 
@@ -182,6 +199,7 @@ namespace InDet {
 	float f22 = float(v(1,1));
 	if(de->isBarrel()) {m_covz = 8.*f22*sc[2]; m_covr = .1;} 
 	else               {m_covr = 8.*f22*sc[3]; m_covz = .1;} 
+	m_sn =  &sp->clusterList().second->detectorElement()->surface();
       }
       m_su = &sp->clusterList().first->detectorElement()->surface();
     }

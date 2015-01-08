@@ -485,7 +485,6 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Ve
 
 MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dump( MsgStream& out ) const
 {
-  out<<std::setprecision(4)<<std::endl;
   if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
@@ -1013,9 +1012,12 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp()
   if(m_nsaz<3) return;
 
   float K = 0.;
-  double f[3], gP[3] ={10.,10.,0.}; m_fieldService->getFieldZR(gP,f);
-  if(fabs(f[2])>1.e-8) K = 2./(300.*f[2]);
-  else                 K = 2./(300.* 5. );
+  double f[3], gP[3] ={10.,10.,0.};
+
+  if(m_fieldService->solenoidOn()) {
+    m_fieldService->getFieldZR(gP,f); K = 2./(300.*f[2]);
+  }
+  else K = 2./(300.* 5. );
 
   const int   ZI[11]= {5,6,7,8,9,10,4,3,2,1,0};
   std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];

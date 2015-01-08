@@ -212,9 +212,12 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
   if(!m_pixel && !m_sct) return; erase();
   buildBeamFrameWork();
 
-  double f[3], gP[3] ={10.,10.,0.}; m_fieldService->getFieldZR(gP,f);
-  if(fabs(f[2])>1.e-8) m_K = 2./(300.*f[2]);
-  else                 m_K = 2./(300.* 5. );
+  double f[3], gP[3] ={10.,10.,0.}; 
+
+  if(m_fieldService->solenoidOn()) {
+    m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+  }
+  else m_K = 2./(300.* 5. );
 
   i_spforseed   = l_spforseed.begin();
 
@@ -317,9 +320,11 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 
   buildBeamFrameWork();
 
-  double f[3], gP[3] ={10.,10.,0.}; m_fieldService->getFieldZR(gP,f);
-  if(fabs(f[2])>1.e-8) m_K = 2./(300.*f[2]);
-  else                 m_K = 2./(300.* 5. );
+  double f[3], gP[3] ={10.,10.,0.}; 
+  if(m_fieldService->solenoidOn()) {
+    m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+  }
+  else m_K = 2./(300.* 5. );
 
   i_spforseed = l_spforseed.begin();
 
@@ -528,7 +533,6 @@ void InDet::SiSpacePointsSeedMaker_Trigger::findVSp (const std::list<Trk::Vertex
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dump( MsgStream& out ) const
 {
-  out<<std::setprecision(4)<<std::endl;
   if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 

@@ -480,7 +480,6 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp (const std::list<Trk::Vertex>
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
 {
-  out<<std::setprecision(4)<<std::endl;
   if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
@@ -842,8 +841,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp()
 
   float K   = 0.;
 
-  double f[3], gP[3] ={10.,10.,0.}; m_fieldService->getFieldZR(gP,f);
-  if(fabs(f[2])>1.e-8) K = 2./(300.*f[2]);
+  double f[3], gP[3] ={10.,10.,0.}; 
+
+  if(m_fieldService->solenoidOn()) {
+    m_fieldService->getFieldZR(gP,f); K = 2./(300.*f[2]);
+  }
   if(!K) return production3SpWithoutField();
 
   float ipt = 100000000.; if(m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);

@@ -169,6 +169,7 @@ namespace InDet {
       float                       m_ipt2K                         ;
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
+      float                       m_umax                          ;
       int r_size                                                  ;
       int r_first                                                 ;
       int rf_size                                                 ;
@@ -222,7 +223,8 @@ namespace InDet {
       int                                               m_nOneSeeds  ;
       int                                               m_fillOneSeeds;
       std::set<float>                                   l_vertex     ;
- 
+      std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> m_CmSp; 
+
       ///////////////////////////////////////////////////////////////////
       // Beam geometry
       ///////////////////////////////////////////////////////////////////
@@ -265,8 +267,7 @@ namespace InDet {
 	 SiSpacePointForSeed*&,float,float)                       ;
 
       void newOneSeedWithCurvaturesComparison
-	(SiSpacePointForSeed*&,SiSpacePointForSeed*&,float,
-	 std::multimap<float,InDet::SiSpacePointForSeed*>&)       ;
+	(SiSpacePointForSeed*&,SiSpacePointForSeed*&,float);
 
       void fillSeeds()                                            ;
       void fillLists     ()                                       ;
@@ -291,7 +292,6 @@ namespace InDet {
       bool isZCompatible     (float&,float&,float&)               ;
       void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
       bool isUsed(const Trk::SpacePoint*); 
-      
    };
 
   MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_ATLxk&);
@@ -381,8 +381,22 @@ namespace InDet {
 	i_seede = l_seeds.end(); 
       }
     }
-   
+  
 } // end of name space
+
+///////////////////////////////////////////////////////////////////
+// Object-function for curvature seeds comparison
+///////////////////////////////////////////////////////////////////
+
+class comCurvature  {
+public:
+  bool operator ()
+  (const std::pair<float,InDet::SiSpacePointForSeed*>& i1, 
+   const std::pair<float,InDet::SiSpacePointForSeed*>& i2)
+  {
+    return i1.first < i2.first;
+  }
+};
 
 #endif // SiSpacePointsSeedMaker_ATLxk_H
 

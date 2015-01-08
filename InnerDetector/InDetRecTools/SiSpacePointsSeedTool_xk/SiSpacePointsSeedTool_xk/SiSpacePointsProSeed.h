@@ -61,12 +61,17 @@ namespace InDet {
 
   inline SiSpacePointsProSeed::SiSpacePointsProSeed ()
     {
+      m_s0 = 0 ;
+      m_s1 = 0 ;
+      m_s2 = 0 ;
+      m_z  = 0.;
+      m_q  = 0.;
     }
  
   inline SiSpacePointsProSeed::SiSpacePointsProSeed
     (SiSpacePointForSeed*& s0,SiSpacePointForSeed*& s1,SiSpacePointForSeed*& s2,float z)
     {
-      set(s0,s1,s2,z);
+      set(s0,s1,s2,z); m_q = 0.;
     }
 
   /////////////////////////////////////////////////////////////////////////////////
