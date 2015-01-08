@@ -31,7 +31,7 @@
 LArFEBTempTool::LArFEBTempTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
-  : AlgTool(type,name,parent), m_foldername("/LAR/DCS/FEBTEMP")
+  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/FEBTEMP")
 {
    declareInterface< ILArFEBTempTool >( this );
    declareProperty("FolderName",m_foldername);   
@@ -44,35 +44,22 @@ LArFEBTempTool::~LArFEBTempTool()
 // intialize 
 StatusCode LArFEBTempTool::initialize()
 {
-   MsgStream  log(msgSvc(),name());
-
-   StatusCode sc = service("StoreGateSvc",StoreGate); 
-   if(sc!=StatusCode::SUCCESS) return sc; 
-   else log << MSG::DEBUG << "Retrieved StoreGateSvc" << endreq;
-   
-   sc = service("DetectorStore",m_detStore); 
-   if(sc!=StatusCode::SUCCESS) return sc; 
-   else log << MSG::DEBUG << "Retrieved Detector Store" << endreq;
-
-   m_isinit=false;
+  m_isinit=false;
   return StatusCode::SUCCESS;
 }
 
 FEBTemp LArFEBTempTool::getFebTemp( const HWIdentifier& id ) 
 {
-   MsgStream  log(msgSvc(),name());
    FEBTemp m_temp;
    m_temp.clear();
 
    if(!m_isinit) {
-     StatusCode sc = m_detStore->retrieve(m_atrlistcol,m_foldername); 
-     if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve AttrListCollection "<<m_foldername<<endreq;
+     if ( detStore()->retrieve(m_atrlistcol,m_foldername).isFailure() ) {
+       ATH_MSG_ERROR ( "Unable to retrieve AttrListCollection "<<m_foldername);
        return m_temp;
-     } else {
-       log << MSG::DEBUG << "Successfully retrieved AttrListCollection" << endreq;
-       m_isinit = true;
-     } 
+     }
+     ATH_MSG_DEBUG ( "Successfully retrieved AttrListCollection" );
+     m_isinit = true;
    }
 
    

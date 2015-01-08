@@ -32,9 +32,7 @@
 
   //Constructor
   LArHV2Ntuple:: LArHV2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator),
-    m_sgSvc(0),
-    m_detStore(0),
+    AthAlgorithm(name,pSvcLocator),
     m_thistSvc(0),
     m_tree(0),
     m_bec(0),
@@ -54,32 +52,13 @@
   //Destructor
   LArHV2Ntuple::~LArHV2Ntuple()
   {
-    MsgStream log( messageService(), name() ) ;
-    log << MSG::DEBUG << "LArHV2Ntuple destructor called" << endreq;
+    ATH_MSG_DEBUG ( "LArHV2Ntuple destructor called" );
   }
   //__________________________________________________________________________
   StatusCode LArHV2Ntuple::initialize()
   {
-    
-    MsgStream log( messageService(), name() );
-    log << MSG::INFO  <<"LArHV2Ntuple initialize()" << endreq;
-
-    // Get the StoreGateSvc
-    if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-      log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-    }
-
-    if (service("DetectorStore",m_detStore).isFailure()) {
-      log << MSG::ALWAYS << "No DetectorStore !!!!!!!" << endreq;
-    }
-
-// get THistSvc
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
+    ATH_MSG_INFO  ("LArHV2Ntuple initialize()" );
+    ATH_CHECK( service("THistSvc",m_thistSvc) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("bec",&m_bec,"bec/I");
@@ -92,14 +71,8 @@
   m_tree->Branch("hv",&m_hv,"hv/F");
   m_tree->Branch("current",&m_current,"current/F");
  
-  if( m_thistSvc->regTree("/file1/hv/mytree",m_tree).isFailure()) {
-       log << MSG::ERROR << " cannot register ntuple " << endreq; 
-       return StatusCode::FAILURE;
-  }
-
-
-
-    return StatusCode::SUCCESS; 
+  ATH_CHECK( m_thistSvc->regTree("/file1/hv/mytree",m_tree) );
+  return StatusCode::SUCCESS; 
 
   }
   //__________________________________________________________________________
@@ -107,11 +80,10 @@
   {
     //.............................................
     
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "LArHV2Ntuple execute()" << endreq;
+  ATH_MSG_DEBUG ( "LArHV2Ntuple execute()" );
 
   const LArHVManager *manager = NULL;
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
     const EMBHVManager* hvManager_EMB=manager->getEMBHVManager();
     for (unsigned int iSide=hvManager_EMB->beginSideIndex();iSide<hvManager_EMB->endSideIndex();iSide++) { // loop over HV modules
       for (unsigned int iPhi=hvManager_EMB->beginPhiIndex();iPhi<hvManager_EMB->endPhiIndex();iPhi++) {

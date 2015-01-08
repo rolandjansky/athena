@@ -17,7 +17,7 @@
 */
 
 // Includes for Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArElecCalib/ILArFecLvTempDcsTool.h" 
 #include "StoreGate/DataHandle.h" 
@@ -37,7 +37,7 @@ class HWIdentifier;
 class LArOnlineID;
 class CondAttrListCollection; 
 
-class LArFecLvTempDcsTool: public AlgTool, virtual public ILArFecLvTempDcsTool
+class LArFecLvTempDcsTool: public AthAlgTool, virtual public ILArFecLvTempDcsTool
 {
  
   public: 
@@ -61,8 +61,6 @@ class LArFecLvTempDcsTool: public AlgTool, virtual public ILArFecLvTempDcsTool
 
   void translateFec( const coral::AttributeList, LArFecLvTempDcs& ) const;
 
-  StoreGateSvc* m_detStore;
-  StoreGateSvc* StoreGate;
   const LArOnlineID* m_larOnlineId;
   std::string m_foldername;
 

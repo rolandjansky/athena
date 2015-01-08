@@ -20,18 +20,17 @@
 
 
 // Includes for Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArElecCalib/ILArHVTool.h" 
 #include "StoreGate/DataHandle.h" 
 #include "Identifier/HWIdentifier.h"
 
 // forward declaration
-class StoreGateSvc; 
 class LArEM_ID;
 class CaloIdManager;
 
-class LArHVToolMC: public AlgTool, virtual public ILArHVTool
+class LArHVToolMC: public AthAlgTool, virtual public ILArHVTool
 {
  
   public: 
@@ -59,9 +58,6 @@ class LArHVToolMC: public AlgTool, virtual public ILArHVTool
   private:
 
   bool m_readASCII;
-
-  // pointer to Detector Store.
-  StoreGateSvc* m_detStore; 
 
   double m_hv[2][1024][7][2];
 

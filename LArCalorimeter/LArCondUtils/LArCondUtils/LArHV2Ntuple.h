@@ -12,14 +12,14 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
 
-class LArHV2Ntuple : public Algorithm {
+class LArHV2Ntuple : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -39,10 +39,6 @@ class LArHV2Ntuple : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
-
   ITHistSvc* m_thistSvc;
   TTree* m_tree;
 

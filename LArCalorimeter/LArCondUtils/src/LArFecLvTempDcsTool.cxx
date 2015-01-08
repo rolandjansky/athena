@@ -34,7 +34,7 @@
 LArFecLvTempDcsTool::LArFecLvTempDcsTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : AlgTool(type,name,parent), m_foldername("/LAR/DCS/CLVTEMP")
+  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/CLVTEMP")
 {
  declareInterface< ILArFecLvTempDcsTool >( this );
  declareProperty("FolderName",m_foldername);
@@ -48,43 +48,20 @@ LArFecLvTempDcsTool::~LArFecLvTempDcsTool()
 // intialize 
 StatusCode LArFecLvTempDcsTool::initialize()
 {
-  MsgStream  log(msgSvc(),name());
+  const LArIdManager* larMgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(larMgr) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArIdManager from DetectorStore" );
 
-  StatusCode sc = service("StoreGateSvc",StoreGate); 
-  if(sc!=StatusCode::SUCCESS) return sc; 
-  else log << MSG::DEBUG << "Retrieved StoreGateSvc" << endreq;
-  
-  sc = service("DetectorStore",m_detStore); 
-  if(sc!=StatusCode::SUCCESS) return sc; 
-  else log << MSG::DEBUG << "Retrieved Detector Store" << endreq;
-
-  const LArIdManager* larMgr;
-  sc= m_detStore->retrieve(larMgr);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-  } else {
-      log << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
-  } 
   // retrieve LArOnlineID
   m_larOnlineId = larMgr->getOnlineID();
   if (!m_larOnlineId) {
-      log << MSG::ERROR
-          << "Unable to retrieve pointer to LArOnlineID  "
-          << endreq;
-      return sc;
+    ATH_MSG_ERROR( "Unable to retrieve pointer to LArOnlineID  " );
+    return StatusCode::FAILURE;
   }
-  log << MSG::DEBUG << "Retrieved LArOnlineID" << endreq;
+  ATH_MSG_DEBUG ( "Retrieved LArOnlineID" );
 
-
-  sc= m_detStore->regHandle(m_atrlistcol,m_foldername); 
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to register DataHandle "<<m_foldername<<endreq;
-      return StatusCode::FAILURE;
-  } else {
-      log << MSG::DEBUG << "Successfully registered DataHandle<CondAttrListCollection>" << endreq;
-  } 
-  
+  ATH_CHECK( detStore()->regHandle(m_atrlistcol,m_foldername) );
+  ATH_MSG_DEBUG ( "Successfully registered DataHandle<CondAttrListCollection>" );
   return StatusCode::SUCCESS;
 }
 
@@ -94,8 +71,6 @@ StatusCode LArFecLvTempDcsTool::initialize()
 StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename, 
 			float&  hv  ) 
 {
-  MsgStream  log(msgSvc(),name());
-
 /*
   // first print event number and time details
   const EventInfo* event;
@@ -117,8 +92,7 @@ StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename,
       // loop over collection
       for (CondAttrListCollection::const_iterator citr=m_atrlistcol->begin();
            citr!=m_atrlistcol->end();++citr) {
-        log << MSG::DEBUG << (((*citr).second)["DPNAME"]).data<std::string>()
-		<< endreq;
+        ATH_MSG_DEBUG ( (((*citr).second)["DPNAME"]).data<std::string>() );
 	if ( ((((*citr).second)["DPNAME"]).data<std::string>()).find(cratename) 
 			!= std::string::npos ){
 		crate_found = true;
@@ -128,11 +102,11 @@ StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename,
 	}
       }
     } else {
-      log << MSG::INFO << " No valid CondAttrListCollection with key " <<
-        m_foldername << endreq;
+     ATH_MSG_INFO ( " No valid CondAttrListCollection with key "
+                    << m_foldername );
     }
     if ( !crate_found ){
-	log << MSG::ERROR << "Crate : " << cratename << " Not Found" << endreq;
+        ATH_MSG_ERROR ( "Crate : " << cratename << " Not Found" );
 	return StatusCode::SUCCESS; 
     }
 
@@ -142,8 +116,6 @@ StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename,
 StatusCode LArFecLvTempDcsTool::getFec( const std::string& cratename, 
 			LArFecLvTempDcs&  fec  ) 
 {
-  MsgStream  log(msgSvc(),name());
-
 /*
   // first print event number and time details
   const EventInfo* event;
@@ -165,9 +137,8 @@ StatusCode LArFecLvTempDcsTool::getFec( const std::string& cratename,
       // loop over collection
       for (CondAttrListCollection::const_iterator citr=m_atrlistcol->begin();
            citr!=m_atrlistcol->end();++citr) {
-        log << MSG::VERBOSE << "trying to find : " 
-		<<(((*citr).second)["DPNAME"]).data<std::string>()
-		<< endreq;
+        ATH_MSG_VERBOSE ( "trying to find : " 
+                          <<(((*citr).second)["DPNAME"]).data<std::string>() );
 	if ( ((((*citr).second)["DPNAME"]).data<std::string>()).find(cratename) 
 			!= std::string::npos ){
 		crate_found = true;
@@ -177,21 +148,20 @@ StatusCode LArFecLvTempDcsTool::getFec( const std::string& cratename,
 	}
       }
     } else {
-      log << MSG::INFO << " DataHandle of CondAttrListCollection  " <<
-        m_foldername << endreq;
+      ATH_MSG_INFO ( " DataHandle of CondAttrListCollection  " <<
+                     m_foldername );
     }
     if ( !crate_found ){
-	log << MSG::ERROR << "Crate : " << cratename << " Not Found" << endreq;
+        ATH_MSG_ERROR ( "Crate : " << cratename << " Not Found" );
 	return StatusCode::SUCCESS; 
     }
 
-	return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS; 
 } 
 
 StatusCode LArFecLvTempDcsTool::getFec( const HWIdentifier& crateID, 
 			LArFecLvTempDcs&  fec  ) 
 {
-  MsgStream  log(msgSvc(),name());
   std::string partial_cratename =
 	m_larOnlineId->feedthrough_name( crateID );
   std::string cratename("crate_");

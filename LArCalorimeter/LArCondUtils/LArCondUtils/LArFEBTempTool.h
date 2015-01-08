@@ -17,7 +17,7 @@
 */
 
 // Includes for Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArElecCalib/ILArFEBTempTool.h"
 #include "StoreGate/DataHandle.h" 
@@ -26,13 +26,12 @@
 
 // forward declaration
 using namespace coral;
-class StoreGateSvc; 
 class AttributeList;
 class HWIdentifier;
 class LArOnlineID;
 class CondAttrListCollection; 
 
-class LArFEBTempTool: public AlgTool, virtual public ILArFEBTempTool
+class LArFEBTempTool: public AthAlgTool, virtual public ILArFEBTempTool
 {
  
  public: 
@@ -49,8 +48,6 @@ class LArFEBTempTool: public AlgTool, virtual public ILArFEBTempTool
 
  private:
    
-   StoreGateSvc* m_detStore;
-   StoreGateSvc* StoreGate;
    std::string m_foldername;
    
    const CondAttrListCollection* m_atrlistcol;

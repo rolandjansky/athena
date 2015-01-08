@@ -8,7 +8,6 @@
 #include "LArCondUtils/LArHVToolMC.h" 
 
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
@@ -28,8 +27,8 @@
 LArHVToolMC::LArHVToolMC(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : AlgTool(type,name,parent),
-  m_readASCII(false) 
+  : AthAlgTool(type,name,parent),
+    m_readASCII(false) 
 {
  declareInterface< ILArHVTool >( this );
  declareProperty("readASCII",m_readASCII);
@@ -42,31 +41,13 @@ LArHVToolMC::~LArHVToolMC()
 // intialize 
 StatusCode LArHVToolMC::initialize()
 {
-
-  MsgStream  log(msgSvc(),name());
-
-  StatusCode sc = service("DetectorStore",m_detStore); 
-  if(sc!=StatusCode::SUCCESS) return sc; 
-  
-// retrieve LArEM id helper
-
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr " << endreq;
-   return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
 
   m_larem_id   = m_caloIdMgr->getEM_ID();
-
   m_first=true;
 
-  const LArElectrodeID* electrodeID;
-
-  sc = m_detStore->retrieve(electrodeID);
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve ElectrodeID helper" << endreq;
-   return sc;
-  }
+  const LArElectrodeID* electrodeID = nullptr;
+  ATH_CHECK( detStore()->retrieve(electrodeID) );
 
   //Dummy implementation for MC. We assume that all electrodes had been update
   m_updatedElectrodes.reserve(electrodeID->electrodeHashMax());
@@ -155,8 +136,7 @@ StatusCode LArHVToolMC::getHV(const Identifier& id,
 StatusCode LArHVToolMC::getCurrent(const Identifier& /* id */,
          std::vector< CURRENT_t > & v  ) 
 {
-     MsgStream  log(msgSvc(),name());
-     log << MSG::WARNING << " LArHVToolMC: getCurrent not implemented " << endreq;
+     ATH_MSG_WARNING ( " LArHVToolMC: getCurrent not implemented " );
      CURRENT_t cu;
      cu.current=0;
      cu.weight=1.;
@@ -179,8 +159,8 @@ void LArHVToolMC::InitHV()
     }
     const AthenaAttributeList* keys = 0;
     if (!setHandcoded) {
-     if (m_detStore->contains<AthenaAttributeList>("/LAR/HVBARREL/MAPINLINE")) {
-      status = m_detStore->retrieve(keys, "/LAR/HVBARREL/MAPINLINE");
+      if (detStore()->contains<AthenaAttributeList>("/LAR/HVBARREL/MAPINLINE")) {
+       status = detStore()->retrieve(keys, "/LAR/HVBARREL/MAPINLINE");
       if(status.isFailure())
       {
         std::cout << "LArHVToolMC::InitHV() unable to retrieve AthenaAttributeList! Use default HV values\n";
