@@ -28,6 +28,14 @@
 #include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
+
+//run n. from geometry DB 
+#include "GeoModelInterfaces/IGeoModelSvc.h" 
+#include "GeometryDBSvc/IGeometryDBSvc.h" 
+#include "RDBAccessSvc/IRDBAccessSvc.h" 
+#include "RDBAccessSvc/IRDBRecordset.h" 
+#include "RDBAccessSvc/IRDBRecord.h" 
+
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h"
@@ -121,7 +129,8 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("ClusterSize1_2uncorr"      ,  m_ClusterSize1_2uncorr   = 0       );
   declareProperty("FirstClusterSizeInTail"    ,  m_FirstClusterSizeInTail = 3       );
   declareProperty("PrintCalibrationVector"    ,  m_PrintCalibrationVector = 0       );
-  declareProperty("BOG_BOF_DoubletR2_OFF"     ,  m_BOG_BOF_DoubletR2_OFF  = 1       );
+  declareProperty("Force_BOG_BOF_DoubletR2_OFF"     ,  m_BOG_BOF_DoubletR2_OFF  = true  );
+  declareProperty("IgnoreRunDependentConfig"  ,  m_ignoreRunDepConfig     = false   );
   declareProperty("RPCInfoFromDb"             ,  m_RPCInfoFromDb          = false   );
   declareProperty("DumpFromDbFirst"           ,  m_DumpFromDbFirst        = false   );
   declareProperty("CutMaxClusterSize"         ,  m_CutMaxClusterSize      = 5.0     );
@@ -200,6 +209,83 @@ StatusCode RpcDigitizationTool::initialize() {
   // initialize digit container
   // m_digitContainer = new RpcDigitContainer(m_idHelper->module_hash_max());
   //  m_digitContainer->addRef();
+
+
+  //set the configuration based on run1/run2
+  // Retrieve geometry config information from the database (RUN1, RUN2, etc...) 
+  IRDBAccessSvc* rdbAccess = 0; 
+  StatusCode result = service("RDBAccessSvc",rdbAccess); 
+
+  if(result.isFailure()) { 
+    ATH_MSG_ERROR("Unable to get RDBAccessSvc"); 
+    return result; 
+  } 
+
+  if(!rdbAccess->connect()) { 
+    ATH_MSG_ERROR("Unable to connect to the Geometry DB"); 
+    return StatusCode::FAILURE; 
+  } 
+
+  bool m_run1 = true;
+  const IGeoModelSvc* geoModel = 0; 
+  result = service("GeoModelSvc", geoModel); 
+  if (result.isFailure()) { 
+    ATH_MSG_ERROR( "Could not locate GeoModelSvc"  ); 
+  } 
+  else { 
+    // check the DetDescr version 
+    std::string atlasVersion = geoModel->atlasVersion(); 
+
+    IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS"); 
+    if(atlasCommonRec->size()==0) { 
+      m_run1 = true; 
+    } else { 
+      std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG"); 
+      if(configVal=="RUN1"){ 
+        m_run1 = true; 
+      } 
+      else if(configVal=="RUN2") { 
+        m_run1 = false; 
+      } 
+      else { 
+        ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal); 
+        return StatusCode::FAILURE; 
+      } 
+    } 
+    // 
+    if (m_run1) ATH_MSG_INFO("From Geometry DB configuration is: RUN1"); 
+    else        ATH_MSG_INFO("From Geometry DB configuration is: RUN2"); 
+  }
+  if (m_ignoreRunDepConfig==false) 
+    {
+      if (m_run1)
+	{
+	  //m_BOG_BOF_DoubletR2_OFF = true 
+	  //m_Efficiency_fromCOOL   = true 
+	  //m_ClusterSize_fromCOOL  = true
+	  m_BOG_BOF_DoubletR2_OFF = true;
+	  m_Efficiency_fromCOOL   = true;
+	  m_ClusterSize_fromCOOL  = true;
+	}
+      else 
+	{
+	  //m_BOG_BOF_DoubletR2_OFF = false # do not turn off at digitization the hits in the dbR=2 chambers in the feet
+	  //m_Efficiency_fromCOOL   = false # use common average values in python conf. 
+	  //m_ClusterSize_fromCOOL  = false # use common average values in python conf. 
+	  m_BOG_BOF_DoubletR2_OFF = false;
+	  m_Efficiency_fromCOOL   = false;
+	  m_ClusterSize_fromCOOL  = false;
+	}
+      ATH_MSG_INFO ( "Run1/Run2-dependent configuration is enforced; option setting reset for: " );
+      ATH_MSG_INFO ( "......Efficiency_fromCOOL    " <<  m_Efficiency_fromCOOL      );
+      ATH_MSG_INFO ( "......ClusterSize_fromCOOL   " <<  m_ClusterSize_fromCOOL     );
+      ATH_MSG_INFO ( "......BOG_BOF_DoubletR2_OFF  " <<  m_BOG_BOF_DoubletR2_OFF    );
+    }
+  else
+    {
+      ATH_MSG_WARNING ( "Run1/Run2-dependent configuration is bypassed; be careful with option settings" );
+    }
+
 
   ATH_MSG_DEBUG ( "Ready to read parameters for cluster simulation from file" );
 
@@ -299,8 +385,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int /*bunchXing*/,
     RPCSimHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      RPCSimHit rpchit(*i);
-      RPCHitColl->Insert(rpchit);
+      RPCHitColl->Emplace(*i);
     }
     m_thpcRPC->insert(thisEventIndex, RPCHitColl);
     //m_thpcRPC->insert(iEvt->time(), RPCHitColl);
@@ -674,11 +759,11 @@ StatusCode RpcDigitizationTool::doDigitization() {
             Amg::Vector3D ppos=hit.postLocalPosition();
             Amg::Vector3D gppos = ele->localToGlobalCoords(ppos,atlasId);
             Amg::Vector3D gdir = gppos - gpos;
-            Trk::SurfaceIntersection intersection = ele->surface(atlasId).straightLineIntersection(gpos,gdir,false,false); 
+            Trk::Intersection intersection = ele->surface(atlasId).straightLineIntersection(gpos,gdir,false,false); 
             SimDataContent& content = channelSimDataMap[atlasId];
             content.channelId = atlasId;
             content.deposits.push_back(deposit);
-            content.gpos = intersection.intersection;
+            content.gpos = intersection.position;
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
@@ -1691,7 +1776,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
   int doubletR    = m_idHelper->doubletR   (*IdEtaRpcStrip);
 
   //remove feet extension. driven by joboption
-  if(m_BOG_BOF_DoubletR2_OFF==1 && (stationName==9||stationName==10) && doubletR == 2){
+  if(m_BOG_BOF_DoubletR2_OFF && (stationName==9||stationName==10) && doubletR == 2){
 
     SetPhiOn = false ;
     SetEtaOn = false ;

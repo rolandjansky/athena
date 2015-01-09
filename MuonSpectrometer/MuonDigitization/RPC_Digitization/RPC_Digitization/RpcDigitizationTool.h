@@ -234,6 +234,7 @@ protected:
   bool	      m_ClusterSize_fromCOOL   ; // Read cluster size from CoolDB
   bool	      m_ClusterSize1_2uncorr   ; // Cluster size 1 and 2 not correlated to track position
   bool	      m_BOG_BOF_DoubletR2_OFF  ; // Turn-off BOG and BOF with DoubletR=2
+  bool        m_ignoreRunDepConfig     ; // true if we want to force the RUN1/RUN2 dependent options 
   bool	      m_PanelId_OFF_fromlist   ; // Turn-off PanelId from file m_FileName_DeadPanels
   std::string m_FileName_DeadPanels    ; // File with Dead panel PanelId list 
   bool	      m_PanelId_OK_fromlist    ; // Turn-on PanelId from file m_FileName_GoodPanels

@@ -13,6 +13,7 @@ use  MuonSimEvent               MuonSimEvent-*                  MuonSpectrometer
 use  PileUpTools                PileUpTools-*                   Control
     
 
+
 private
 use  AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*  Simulation/Tools
 use  AtlasAIDA                  AtlasAIDA-*                     External
@@ -27,6 +28,9 @@ use  EventInfoMgt               EventInfoMgt-*                  Event
 use  MuonCondInterface          MuonCondInterface-*             MuonSpectrometer/MuonConditions/MuonCondGeneral
 use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use RDBAccessSvc     RDBAccessSvc-*      Database/AthenaPOOL 
+use GeometryDBSvc GeometryDBSvc-*    DetectorDescription 
+use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel 
  
 public
 library RPC_Digitization *.cxx components/*.cxx
