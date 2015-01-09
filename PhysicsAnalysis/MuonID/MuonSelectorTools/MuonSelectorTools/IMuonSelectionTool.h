@@ -39,14 +39,26 @@ namespace CP {
       /// set the passes ID cuts variable of the muon 
       virtual void setPassesIDCuts( xAOD::Muon& mu ) const = 0;
 
+      /// set the passes high pT cuts variable of the muon 
+      virtual void setPassesHighPtCuts( xAOD::Muon& mu ) const = 0;
+
       /// set the passes quality variable of the muon 
       virtual void setQuality( xAOD::Muon& mu ) const = 0;
 
       /// Returns true if the muon passes the standard MCP ID cuts. To set the value on the muon, instead call setPassesIDCuts(xAOD::Muon&) const
       virtual bool                passedIDCuts(const xAOD::Muon&) const =0;
       
+      /// Returns true if the track particle passes the standard MCP ID cuts.
+      virtual bool                passedIDCuts(const xAOD::TrackParticle&) const=0;
+
+      /// Returns true if the muon passes the standard MCP high pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
+      virtual bool                passedHighPtCuts(const xAOD::Muon&) const =0;
+
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
       virtual xAOD::Muon::Quality getQuality(const xAOD::Muon& mu ) const =0;
+
+     /// Returns true if the muon passes additional calo-tag quality cuts
+     virtual bool               passedCaloTagQuality (const xAOD::Muon& mu) const = 0;
 
    }; // class IMuonSelectionTool
 

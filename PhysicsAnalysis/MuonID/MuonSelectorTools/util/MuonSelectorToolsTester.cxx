@@ -75,14 +75,27 @@ int main( int argc, char* argv[] ) {
 
    CP::MuonSelectionTool m_muonSelection("MuonSelection");
 
-   m_muonSelection.msg().setLevel( MSG::VERBOSE );
-   m_muonSelection.setProperty( "MaxEta", 2.4 );
+   m_muonSelection.msg().setLevel( MSG::INFO );
+   m_muonSelection.setProperty( "MaxEta", 2.5 );
+   m_muonSelection.setProperty( "MuQuality", 1);
    //m_muonSelection.setProperty( "Author", 12 );
    //m_muonSelection.initialize();
    CHECK (m_muonSelection.initialize().isSuccess());
 
    int allMuons = 0;
+   int badMuons = 0;
+   int verylooseMuons = 0;
+   int looseMuons = 0;
+   int mediumMuons = 0;
+   int tightMuons = 0;
    int allgoodMuons = 0;
+   int nCaloTagged = 0;
+
+   int nPositive = 0;
+   int nNegative = 0;
+
+   int passesCutsTool = 0;
+   int passesCutsxAOD = 0;
 
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
@@ -91,7 +104,6 @@ int main( int argc, char* argv[] ) {
       event.getEntry( entry );
 
       int goodMuons = 0;
-
       // Print some event information for fun:
       const xAOD::EventInfo* ei = 0;
       CHECK( event.retrieve( ei, "EventInfo" ) );
@@ -108,6 +120,10 @@ int main( int argc, char* argv[] ) {
       Info( APP_NAME, "Number of muons: %i",
             static_cast< int >( muons->size() ) );
 
+      xAOD::Muon::Quality my_quality;
+      bool passesIDRequirements;
+      
+      
       // Print their properties, using the tools:
       xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
       xAOD::MuonContainer::const_iterator mu_end = muons->end();
@@ -115,97 +131,187 @@ int main( int argc, char* argv[] ) {
 
 	allMuons++;
 	uint8_t PixHits = 0, PixDead = 0, SCTHits = 0, SCTDead = 0, PixHoles = 0, SCTHoles = 0, TRTHits = 0, TRTOut = 0;
+	uint8_t nprecisionLayers = 0, nprecisionHoleLayers = 0;
+	float momSigBal = 0;
+	float CaloLRLikelihood = 0;
+	int CaloMuonIDTag = 0;
+
+	float abseta = std::abs((*mu_itr)->eta());
+	bool passesTool = false;
+	bool passesxAOD = false;
+
+	// Info( APP_NAME, "Muon pT:             %g ", std::abs((*mu_itr)->pt()));
+	// Info( APP_NAME, "Muon eta:            %g ", std::abs((*mu_itr)->eta()));
+	// Info( APP_NAME, "Muon phi:            %g ", std::abs((*mu_itr)->phi()));
+	// Info( APP_NAME, "Muon charge:         %g ", (*mu_itr)->charge());
+	if((*mu_itr)->charge() > 0)
+	  nPositive++;
+	else
+	  nNegative++;
+	// //Info( APP_NAME, "Muon allAuthors:     %d ", std::abs((*mu_itr)->allAuthors()));
+	// Info( APP_NAME, "Muon author:         %d ", std::abs((*mu_itr)->author()));
+	// Info( APP_NAME, "Muon muonType:       %d ", std::abs((*mu_itr)->muonType()));
+	// Info( APP_NAME, "Muon quality:        %d ", std::abs((*mu_itr)->quality()));
+	// Info( APP_NAME, "----------------------------------------------------------");
+	if (!(*mu_itr)->parameter(momSigBal, xAOD::Muon_v1::momentumBalanceSignificance))
+	  //	  std::cout << "No momSigBal " << std::endl;
+	// Info( APP_NAME, "Muon: momSigBal %f ", momSigBal);
+	if (!(*mu_itr)->parameter(CaloLRLikelihood, xAOD::Muon_v1::CaloLRLikelihood))
+	  //	  std::cout << "No caloLRLikelihood " << std::endl;
+	Info( APP_NAME, "Muon: caloLRLH  %f ", CaloLRLikelihood);
+	if (!(*mu_itr)->parameter(CaloMuonIDTag, xAOD::Muon_v1::CaloMuonIDTag))
+	  //	  std::cout << "No caloMuonIDTag " << std::endl;
+	  //	Info( APP_NAME, "Muon: caloIDTag %u ", CaloMuonIDTag);
+	
+
+	// if( (*mu_itr)->muonType() == xAOD::Muon_v1::CaloTagged)	{
+	//   std::cout << "Found a calo-tagged muon! Yay! With abseta " << abseta << std::endl;
+	//   nCaloTagged++;
+	// }
+	
+        passesIDRequirements = m_muonSelection.passedIDCuts(**mu_itr);
+	my_quality = m_muonSelection.getQuality(**mu_itr);
+
+	//std::cout << "Comparison of the quality: xAOD vs SelectorTool " << (*mu_itr)->quality() << " " <<  my_quality << std::endl;
 
 
-	// std::cout << "ENTERING  ACCEPT FUNCTION " << std::endl;
-	// if(!m_muonSelection.accept(**mu_itr)) continue;
-	// std::cout << "PASSED ACCEPT FUNCTION " << std::endl;
+	//std::cout << passesxAOD << " "  << passesTool << std::endl;
+	if(abseta < 2.5 && passesIDRequirements && (*mu_itr)->quality() <= xAOD::Muon::Medium){
+	  //std:: cout << "Passes the selection (eta, IDCuts and quality) from the xAOD " << std::endl;
+	  passesCutsxAOD++; passesxAOD = true;
+	}
+	
+	if(my_quality <= xAOD::Muon::VeryLoose)
+	  verylooseMuons++;
+	if(my_quality <= xAOD::Muon::Loose)
+	  looseMuons++;
+	if(my_quality <= xAOD::Muon::Medium)
+	  mediumMuons++;
+	if(my_quality <= xAOD::Muon::Tight)
+	  tightMuons++;
+	if(my_quality <= xAOD::Muon::VeryLoose && !(my_quality <= xAOD::Muon::Loose))
+	  badMuons++;
+			  	
+	if(m_muonSelection.accept(**mu_itr)){
+	  //std::cout << "FAILED ACCEPT FUNCTION " << std::endl;
+	  //std:: cout << "Passes the selection (eta, IDCuts and quality) from the SelectorTool " << std::endl;
+	  passesCutsTool++; passesTool = true;}
+	
+	//std::cout << passesxAOD << " "  << passesTool << std::endl;
+	
+	if((passesTool && !passesxAOD) || (!passesTool && passesxAOD)){
+	  std::cout << "DISCREPANCY!!!! " << std::endl;
+	  std::cout << "eta " << abseta << " IDCuts " << passesIDRequirements << std::endl;
+	  std::cout << "Comparison of the quality: xAOD vs SelectorTool " << (*mu_itr)->quality() << " " <<  my_quality << std::endl;
+	  if( (*mu_itr)->muonType() == xAOD::Muon_v1::Combined)
+	    std::cout << "combined " << std::endl;
+	  else if( (*mu_itr)->muonType() == xAOD::Muon_v1::MuonStandAlone)
+	    std::cout << "stand-alone " << std::endl;
+	  else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SegmentTagged)
+	    std::cout << "segment-tagged " << std::endl;
+	  else if( (*mu_itr)->muonType() == xAOD::Muon_v1::CaloTagged)
+	    std::cout << "calo-tagged " << std::endl;
+	  else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SiliconAssociatedForwardMuon)
+	    std::cout << "forward " << std::endl;
+	  else
+	    std::cout << "no type! " << std::endl;
 
+	  if (!(*mu_itr)->primaryTrackParticle()->summaryValue(nprecisionLayers, xAOD::numberOfPrecisionLayers))
+	    std::cout << "no nprecisionlayers! " << std::endl;
+	     
+	  if (!(*mu_itr)->primaryTrackParticle()->summaryValue(nprecisionHoleLayers, xAOD::numberOfPrecisionHoleLayers))
+	    std::cout << "no nprecisionholelayers! " << std::endl;
+	  Info( APP_NAME, "Primary track: NPrecisionLayers %i NPrecisionHoleLayers %i ", nprecisionLayers, nprecisionHoleLayers);
+	  Info( APP_NAME, "Muon: momSigBal %f ", momSigBal);
+
+	}
+
+	if(!m_muonSelection.accept(**mu_itr)) continue;
+	
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(PixHits,xAOD::numberOfPixelHits))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: PixHits %i ", PixHits);
+	//Info( APP_NAME, "Primary track: PixHits %i ", PixHits);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(PixDead,xAOD::numberOfPixelDeadSensors))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: PixDead %i ", PixDead);
+	//Info( APP_NAME, "Primary track: PixDead %i ", PixDead);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTHits,xAOD::numberOfSCTHits))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: SCTHits %i ", SCTHits);
+	//Info( APP_NAME, "Primary track: SCTHits %i ", SCTHits);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTDead,xAOD::numberOfSCTDeadSensors))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: SCTDead %i ", SCTDead);
+	//Info( APP_NAME, "Primary track: SCTDead %i ", SCTDead);
 
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(PixHoles,xAOD::numberOfPixelHoles))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: PixHoles %i ", PixHoles);
+	//Info( APP_NAME, "Primary track: PixHoles %i ", PixHoles);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTHoles,xAOD::numberOfSCTHoles))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: SCTHoles %i ", SCTHoles);
-
-	float abseta = std::abs((*mu_itr)->eta());
+	//Info( APP_NAME, "Primary track: SCTHoles %i ", SCTHoles);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(TRTHits,xAOD::numberOfTRTHits))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: TRTHits %i ", TRTHits);
+	//Info( APP_NAME, "Primary track: TRTHits %i ", TRTHits);
 
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(TRTOut,xAOD::numberOfTRTOutliers))
 	  Info( APP_NAME, "Missing info!");
-	Info( APP_NAME, "Primary track: TRTOut %i ", TRTOut);
+	//Info( APP_NAME, "Primary track: TRTOut %i ", TRTOut);
 
-	uint8_t totTRT = TRTHits+TRTOut;
+	//uint8_t totTRT = TRTHits+TRTOut;
 
-	Info( APP_NAME, "Muon eta:  %g ", std::abs((*mu_itr)->eta()));
-	Info( APP_NAME, "TotTRT %i > 5; OutCond %i < %g ", totTRT, TRTOut, 0.9*totTRT);
+	//Info( APP_NAME, "Muon eta:  %g ", std::abs((*mu_itr)->eta()));
+	//Info( APP_NAME, "TotTRT %i > 5; OutCond %i < %g ", totTRT, TRTOut, 0.9*totTRT);
 
-	if (!((0.1<abseta && abseta<=1.9 && totTRT>5 && TRTOut<(0.9 * totTRT)) || (abseta <= 0.1 || abseta > 1.9)))
-	  std::cout << "didn't pass the TRT cuts! v1 " << std::endl;
+	// if (!((0.1<abseta && abseta<=1.9 && totTRT>5 && TRTOut<(0.9 * totTRT)) || (abseta <= 0.1 || abseta > 1.9)))
+	//   std::cout << "didn't pass the TRT cuts! v1 " << std::endl;
 
-	if ((0.1<abseta && abseta<=1.9) && !(totTRT>5 && TRTOut<(0.9 * totTRT)))
-	  std::cout << "didn't pass the TRT cuts! v2 " << std::endl;
+	// if ((0.1<abseta && abseta<=1.9) && !(totTRT>5 && TRTOut<(0.9 * totTRT)))
+	//   std::cout << "didn't pass the TRT cuts! v2 " << std::endl;
 
 
          // Select "good" muons:
 	//	if( ! m_muonSelection.accept( **mu_itr ) ) std::cout << "didn't pass! " << std::endl;
-	if( ! m_muonSelection.passedIDCuts( **mu_itr ) ) {
-	  Info(APP_NAME, "DIDNT PASS THE ID CUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-	  continue;
-	}
 
-	if( (*mu_itr)->quality() == xAOD::Muon_v1::Tight)
-	  std::cout << "tight " << std::endl;
-	else if( (*mu_itr)->quality() == xAOD::Muon_v1::Medium)
-	  std::cout << "medium " << std::endl;
-	else if( (*mu_itr)->quality() == xAOD::Muon_v1::Loose)
-	  std::cout << "loose " << std::endl;
-	else
-	  std::cout << "no quality! " << std::endl;
+	//	if( (*mu_itr)->quality() == xAOD::Muon_v1::Tight)
+	//	  std::cout << "tight " << std::endl;
+	//	else if( (*mu_itr)->quality() == xAOD::Muon_v1::Medium)
+	//	  std::cout << "medium " << std::endl;
+	//	else if( (*mu_itr)->quality() == xAOD::Muon_v1::Loose)
+	//	  std::cout << "loose " << std::endl;
+	//	else
+	//	  std::cout << "no quality! " << std::endl;
 
-	if( (*mu_itr)->muonType() == xAOD::Muon_v1::Combined)
-	  std::cout << "combined " << std::endl;
-	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::MuonStandAlone)
-	  std::cout << "stand-alone " << std::endl;
-	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SegmentTagged)
-	  std::cout << "segment-tagged " << std::endl;
-	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::CaloTagged)
-	  std::cout << "calo-tagged " << std::endl;
-	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SiliconAssociatedForwardMuon)
-	  std::cout << "forward " << std::endl;
-	else
-	  std::cout << "no type! " << std::endl;
+	//	if( (*mu_itr)->muonType() == xAOD::Muon_v1::Combined)
+	//	  std::cout << "combined " << std::endl;
+	//	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::MuonStandAlone)
+	//	  std::cout << "stand-alone " << std::endl;
+	//	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SegmentTagged)
+	//	  std::cout << "segment-tagged " << std::endl;
+	//	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::CaloTagged)
+	//	  std::cout << "calo-tagged " << std::endl;
+	//	else if( (*mu_itr)->muonType() == xAOD::Muon_v1::SiliconAssociatedForwardMuon)
+	//	  std::cout << "forward " << std::endl;
+	//	else
+	//	  std::cout << "no type! " << std::endl;
 
-	Info(APP_NAME, "MyVerboseType %i ", (*mu_itr)->muonType());
-	Info(APP_NAME, "MyVerboseQuality %i ", (*mu_itr)->quality());
+	//	Info(APP_NAME, "MyVerboseType %i ", (*mu_itr)->muonType());
+	//	Info(APP_NAME, "MyVerboseQuality %i ", (*mu_itr)->quality());
 	
-	Info(APP_NAME, "MyVerboseGetQuality %i ", m_muonSelection.getQuality( **mu_itr ));
+	//	Info(APP_NAME, "MyVerboseGetQuality %i ", m_muonSelection.getQuality( **mu_itr ));
 
-	if(m_muonSelection.getQuality( **mu_itr ) != xAOD::Muon_v1::Medium) {
-	  Info(APP_NAME, "DIDNT PASS THE QUALITY CUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-	  continue;
-	}
+	//	if(m_muonSelection.getQuality( **mu_itr ) != xAOD::Muon_v1::Medium) {
+	  //	  Info(APP_NAME, "DIDNT PASS THE QUALITY CUTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	  //continue;
+	//	}
+	//	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTHoles,xAOD::numberOfSCTHoles))
+	// if (!(*mu_itr)->parameter(momSigBal, xAOD::Muon_v1::momentumBalanceSignificance))
+	//   std::cout << "No momSigBal " << std::endl;
+	
+	// Info( APP_NAME, "Muon: momSigBal %f ", momSigBal);
 
 	goodMuons++;
 	allgoodMuons++;
@@ -240,7 +346,17 @@ int main( int argc, char* argv[] ) {
    }
 
    Info(APP_NAME, "All muons %i and good muons %i " , allMuons, allgoodMuons);
+   
+   Info(APP_NAME, "All muons %i, tight %i, medium %i, loose %i, veryloose %i, bad muons %i " , allMuons, tightMuons, mediumMuons, looseMuons, verylooseMuons, badMuons);
+   
+   Info(APP_NAME, "CaloTagged muons %i " , nCaloTagged);
 
+   Info(APP_NAME, "Positive %i and negative muons %i " , nPositive, nNegative);
+
+
+   Info(APP_NAME, "Good muons xAOD %i and SelectorTool %i " , passesCutsxAOD, passesCutsTool);
+
+  
    // Return gracefully:
    return 0;
 

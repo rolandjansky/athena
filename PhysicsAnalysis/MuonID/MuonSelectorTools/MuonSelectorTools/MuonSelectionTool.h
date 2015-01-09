@@ -37,7 +37,9 @@ namespace CP {
 
    public:
       /// Constructor for standalone usage
-      MuonSelectionTool( const std::string& name );
+      MuonSelectionTool( const std::string& name = "MuonSelection");
+
+     virtual ~MuonSelectionTool();
 
       /// @name Function(s) implementing the asg::IAsgTool interface
       /// @{
@@ -66,6 +68,9 @@ namespace CP {
 
       /// set the passes ID cuts variable of the muon 
       void setPassesIDCuts(xAOD::Muon&) const;
+	  
+      /// set the passes high pT cuts variable of the muon 
+      virtual void setPassesHighPtCuts( xAOD::Muon& mu ) const;
 
       /// set the passes quality variable of the muon 
       void setQuality( xAOD::Muon& mu ) const;
@@ -73,15 +78,30 @@ namespace CP {
       /// Returns true if the muon passes the standard MCP ID cuts. To set the value on the muon, instead call setPassesIDCuts(xAOD::Muon&) const
       bool                    passedIDCuts(const xAOD::Muon&) const;
       
+      /// Returns true if the track particle passes the standard MCP ID cuts.
+      bool                	  passedIDCuts(const xAOD::TrackParticle&) const;
+
+      /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
+      bool                    passedHighPtCuts(const xAOD::Muon&) const;
+
+
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
       xAOD::Muon::Quality     getQuality(const xAOD::Muon& mu ) const;
 
+     /// Returns true if the muon passed additional calo-tag quality cuts
+     bool               passedCaloTagQuality (const xAOD::Muon& mu) const;
       /// @}
 
 
    private:
+
+     MuonSelectionTool & operator=(const MuonSelectionTool &right);
+     MuonSelectionTool( const MuonSelectionTool& toCopy );
+     const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
-      double m_maxEta;
+     double m_maxEta;
+     /// xAOD::Muon::Quality m_quality;
+     int  m_quality;
 
       /// Object used to store the last decision
       mutable Root::TAccept m_accept;
