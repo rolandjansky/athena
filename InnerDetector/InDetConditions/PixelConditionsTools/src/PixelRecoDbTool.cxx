@@ -398,24 +398,27 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
   int datasize = N0+N1a+N1b+N1c+N2a+N2b+offset;
   if(offset>13) datasize +=2*n1 + n3e+1 + n3f+1 + ncyibl*n3e + ncxibl*n3f +n4e+1 + n4f+1 + ncxibl2*n4e + ncyibl2*n4f;
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of offline constants: " << datasize <<endreq; 
- 
-  DetCondCFloat *const1 = new DetCondCFloat(datasize,par_calibfolder); 
-  if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Adding constants to the DetCondCFloat object " 
-        <<endreq;
-  const1->add(Identifier(1),constants); 
-  if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "That's it. " <<endreq;
+
+  // check if collection already exits
+  if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
+    DetCondCFloat *const1 = new DetCondCFloat(datasize,par_calibfolder); 
+    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Adding constants to the DetCondCFloat object " 
+					      <<endreq;
+    const1->add(Identifier(1),constants); 
+    if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "That's it. " <<endreq;
 
   // check if collection already exits 
-  if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<par_calibfolder <<endreq; 
-     if(StatusCode::SUCCESS !=detStore()->record(const1,par_calibfolder)){ 
-        if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create DetCondCFloat "<<par_calibfolder 
-             << "with offline parameters" << endreq; 
-     }
-     else{
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<par_calibfolder 
-              << " with offline parameters" << endreq; 
-     }
+  //if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<par_calibfolder <<endreq; 
+    if(StatusCode::SUCCESS !=detStore()->record(const1,par_calibfolder)){ 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create DetCondCFloat "<<par_calibfolder 
+					    << "with offline parameters" << endreq; 
+    }
+    else{
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<par_calibfolder 
+					    << " with offline parameters" << endreq; 
+    }
+    delete [] const1;
   }  
   delete [] constants;
   return StatusCode::SUCCESS; 

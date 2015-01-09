@@ -112,7 +112,7 @@ StatusCode  PixelCalibDbTool::initialize()
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-  if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel") || m_pixman==0){
+  if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixman, "Pixel")){
     if(msgLvl(MSG::FATAL))msg(MSG::FATAL)<< "Could not find Pixel manager "<<endreq; 
     return StatusCode::FAILURE; 
   }
@@ -138,6 +138,7 @@ StatusCode  PixelCalibDbTool::initialize()
       Identifier ident = element->identify(); 
       if(m_pixid->is_pixel(ident)){  // OK this Element is included 
 	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+	if(!design)continue;
 	unsigned int mchips = design->numberOfCircuits();
 	if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
 	m_calibobjs.push_back(std::make_pair(ident,mchips)); 
@@ -225,7 +226,7 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	//unsigned int ix;
 	std::string ix;
 	char* dataPar = const_cast<char*>(data.c_str());
-	char buffer[4000],c;
+	char buffer[4001],c;
 	strncpy(buffer, dataPar,4000);
 	char* parameters;
 	parameters= strtok(buffer,"I");
@@ -448,6 +449,12 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " About to create AttributeListSpecification "<<endreq; 
   
   coral::AttributeListSpecification* aspec = new coral::AttributeListSpecification();
+
+  if(aspec==0){
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve non-const pointer to aspec"<<endreq;
+    return StatusCode::FAILURE;
+  }
+
   aspec->extend("data", "string");
 
   int k(0); // count for channels
@@ -462,7 +469,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Input file size is "<<size<<endreq; 
     Identifier ident_save(0);
     while(!feof(f)){ 
-      char header[4000];
+      char header[4001];
       char headerx[250]; 
       lprint = k<10||(k%100==0); 
       
