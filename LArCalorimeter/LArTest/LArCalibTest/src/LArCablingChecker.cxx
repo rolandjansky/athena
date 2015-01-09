@@ -7,18 +7,15 @@
 #include "LArRawEvent/LArDigit.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRawConditions/LArCalibParams.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
 
 LArCablingChecker::LArCablingChecker(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_chan(0),
-    m_storeGateSvc(0),
-    m_detStore(0),
     m_larCablingSvc(0),
     m_caloBadChannelTool(0),
     m_onlineHelper(0),
@@ -49,58 +46,22 @@ LArCablingChecker::~LArCablingChecker() {
 }
 
 StatusCode LArCablingChecker::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "======== LArCablingChecker Initialize ========" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = service("DetectorStore", m_detStore);
-  if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  } 
-  
-  IToolSvc* toolSvc;
-  sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = toolSvc->retrieveTool("LArCablingService", m_larCablingSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService", m_larCablingSvc) );
 
   if (m_useBadChannelTool) {
-    IAlgTool *tool;
-    sc = toolSvc->retrieveTool("LArBadChanTool", tool);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArBadChanTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-
+    IAlgTool *tool = nullptr;
+    ATH_CHECK ( toolSvc()->retrieveTool("LArBadChanTool", tool) );
     m_caloBadChannelTool = dynamic_cast<ILArBadChanTool*>(tool);
     if (!m_caloBadChannelTool) {
-      log << MSG::ERROR << "Failed dynamic_cast to ILArBadChanTool*" << endreq;
+      ATH_MSG_ERROR ( "Failed dynamic_cast to ILArBadChanTool*" );
       return StatusCode::FAILURE;
     }
   }
 
   m_outfile.open(m_outFileName.c_str(), std::ios::out);
   if (!m_outfile.is_open()) {
-    log << MSG::ERROR << "Unable to open output file with name " << m_outFileName << endreq;
+    ATH_MSG_ERROR ( "Unable to open output file with name " << m_outFileName );
     return StatusCode::FAILURE;
   }
   
@@ -116,41 +77,26 @@ StatusCode LArCablingChecker::initialize() {
   m_errorCounterThisEvent = 0;
   m_numberOfEventsWithThisErrorState = 0;
 
-  log << MSG::DEBUG << "======== LArCablingChecker initialize successfully ========" << endreq;
+  ATH_MSG_DEBUG ( "======== LArCablingChecker initialize successfully ========" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArCablingChecker::execute() {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc; 
+  const DataHandle<xAOD::EventInfo> thisEventInfo;
+  ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
 
-  const DataHandle<EventInfo> thisEventInfo;
-  sc = m_storeGateSvc->retrieve(thisEventInfo);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot read EventID from StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  }
+  unsigned eventNb = thisEventInfo->eventNumber();
 
-  unsigned eventNb = thisEventInfo->event_ID()->event_number();
-
-  log << MSG::INFO << "======== executing event "<< eventNb << " ========" << endreq;
+  ATH_MSG_INFO ( "======== executing event "<< eventNb << " ========" );
   //m_outfile << "Checking Event " << eventNb << "..." << std::endl;
 
   //log << MSG::INFO << "Retrieving LArDigitContainer. Key= " << m_key << std::endl; 
-  const LArDigitContainer* larDigitCont;
-  sc = m_storeGateSvc->retrieve(larDigitCont, m_key);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot read LArDigitContainer from StoreGate! key=" << m_key << endreq;
-    return StatusCode::FAILURE;
-  }
+  const LArDigitContainer* larDigitCont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(larDigitCont, m_key) );
   
   //const LArCalibParams* calibParams;
   const DataHandle<LArCalibParams> calibParams;
-  sc = m_detStore->retrieve(calibParams,"LArCalibParams");
-  if (sc.isFailure()) {                  
-    log << MSG::ERROR << "Cannot load LArCalibParams from DetStore. Please provide pattern as jobOpts!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(calibParams,"LArCalibParams") );
 
   // Using vectors like this works because the hashes seem to be guaranteed to be collision-free.
   delete m_errorcellsPreviousEvent; // OK to delete 0, Stroustrup 6.2.6
@@ -421,8 +367,6 @@ StatusCode LArCablingChecker::execute() {
 }
 
 StatusCode LArCablingChecker::finalize() {
-  MsgStream log(msgSvc(), name());
-
   if ((m_errorCounterThisEvent != 0) && (m_numberOfEventsWithThisErrorState > 1))
     m_outfile << "Last error occurred in " << m_numberOfEventsWithThisErrorState << " events." << std::endl << std::endl;
 

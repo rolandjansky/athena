@@ -4,9 +4,7 @@
 
 #ifndef LARCABLINGCHECKER
 #define LARCABLINGCHECKER
-#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArTools/LArCablingService.h"
 //#include "CaloIdentifier/LArEM_ID.h"
@@ -16,7 +14,7 @@
 #include <fstream>
 #include <vector>
 
-class LArCablingChecker : public Algorithm
+class LArCablingChecker : public AthAlgorithm
 {
  public:
   LArCablingChecker(const std::string & name, ISvcLocator * pSvcLocator);
@@ -30,7 +28,6 @@ class LArCablingChecker : public Algorithm
 
  private:
   int m_count, m_chan;
-  StoreGateSvc *m_storeGateSvc, *m_detStore;
   LArCablingService *m_larCablingSvc;
   ILArBadChanTool *m_caloBadChannelTool;
 

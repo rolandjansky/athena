@@ -6,11 +6,11 @@
 #ifndef LARCALIBTEST_LARFAKECELLFACTOR
 #define LARCALIBTEST_LARFAKECELLFACTOR
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 
-class LArFakeCellFactor : public Algorithm
+class LArFakeCellFactor : public AthAlgorithm
 {
  public:
   LArFakeCellFactor(const std::string & name, ISvcLocator * pSvcLocator);

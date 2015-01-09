@@ -6,12 +6,12 @@
 #ifndef LARCALIBTEST_DUMPCALOBADCHANNELS
 #define LARCALIBTEST_DUMPCALOBADCHANNELS
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloConditions/ICaloBadChanTool.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-class DumpCaloBadChannels : public Algorithm
+class DumpCaloBadChannels : public AthAlgorithm
 {
  public:
   DumpCaloBadChannels(const std::string & name, ISvcLocator * pSvcLocator);
@@ -25,8 +25,6 @@ class DumpCaloBadChannels : public Algorithm
   ToolHandle<ICaloBadChanTool> m_caloBCT;
   std::string m_fileName;
   const CaloCell_ID* m_cellID;
-
-
 };
 
 #endif

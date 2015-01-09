@@ -5,14 +5,14 @@
 #ifndef LARCALIBTEST_LARREADHADDMCOEFFFILE
 #define LARCALIBTEST_LARREADHADDMCOEFFFILE
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloConditions/CaloHadDMCoeff.h"
 
 #include <vector>
 #include <string>
 
 
-class LArReadHadDMCoeffFile : public Algorithm
+class LArReadHadDMCoeffFile : public AthAlgorithm
 {
  public:
   LArReadHadDMCoeffFile(const std::string & name, ISvcLocator * pSvcLocator);

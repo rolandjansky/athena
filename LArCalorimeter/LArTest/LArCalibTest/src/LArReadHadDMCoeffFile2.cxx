@@ -15,7 +15,7 @@
 c-tor
 *************************************************************************** */
 LArReadHadDMCoeffFile2::LArReadHadDMCoeffFile2(const std::string & name, 
-             ISvcLocator * pSvcLocator) : Algorithm(name,pSvcLocator) {
+             ISvcLocator * pSvcLocator) : AthAlgorithm(name,pSvcLocator) {
   declareProperty("HadDMCoeffFileName",m_hadDMCoeffFileName);
   declareProperty("CorrectionKey",m_key="HadDMCoeff");
 
@@ -29,30 +29,13 @@ LArReadHadDMCoeffFile2::~LArReadHadDMCoeffFile2() {}
 initialize
 *************************************************************************** */
 StatusCode LArReadHadDMCoeffFile2::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "=== LArReadHadDMCoeffFile2::initialize() ===  m_key:" << m_key << endreq;
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-     return sc;
-   }
+   ATH_MSG_INFO ( "=== LArReadHadDMCoeffFile2::initialize() ===  m_key:" << m_key );
    initDataFromFile(m_hadDMCoeffFileName);
 
-   int outputLevel = msgSvc()->outputLevel( name() );
-   if(outputLevel == MSG::DEBUG) m_data->PrintData(std::cout);
+   if(msgLvl(MSG::DEBUG)) m_data->PrintData(std::cout);
 
-   sc=detStore->record(m_data,m_key);
-   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to record CaloHadWeight" << endreq;
-      return sc;
-   }
-   sc=detStore->setConst(m_data);
-   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to lock CaloHadWeight" << endreq;
-      return sc;
-   }
+   ATH_CHECK( detStore()->record(m_data,m_key) );
+   ATH_CHECK( detStore()->setConst(m_data) );
    return StatusCode::SUCCESS;
 }
 
@@ -73,19 +56,17 @@ reading text file
 *************************************************************************** */
 StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileName)
 {
-  MsgStream log(msgSvc(), name());
-
   char cLine[MAX_BUFFER_LEN];
 
   m_data = new CaloHadDMCoeff2();
 
   // Find the full path to filename
   std::string file = hadDMCoeffFileName;
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  ATH_MSG_INFO ( "Reading file  " << file );
 
   std::ifstream fin(file.c_str());
   if ( !fin ) {
-    log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() - Can't open file " << file << endreq;
+    ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() - Can't open file " << file );
     return StatusCode::FAILURE;
   }
 
@@ -104,7 +85,7 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
     sLine = cLine;
     ist.clear(); ist.str(sLine);
     if( !(ist >> sdummy >> dmArea.m_indx >> dmArea.m_is_on >> dmArea.m_title) && sdummy.find("zone")==std::string::npos ) {
-      log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() -> Error! Could not parse line '" << cLine << "' at p1." << endreq;
+      ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() -> Error! Could not parse line '" << cLine << "' at p1." );
       return StatusCode::FAILURE;
     }
     dmArea.m_type = CaloHadDMCoeff2::kAREA_PROF;
@@ -118,7 +99,7 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
       if(sLine.find("npars") != std::string::npos){
         ist.clear(); ist.str(sLine);
         if( !(ist >> sdummy >> dmArea.m_nPars) || dmArea.m_nPars < 0 || dmArea.m_nPars > 1000 ){
-          log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p2." << endreq;
+          ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p2." );
           return StatusCode::FAILURE;
         }
         // this is the end of zone
@@ -126,7 +107,7 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
       }
       CaloHadDMCoeff2::HadDMDimension dim;
       if( !parse_dim(sLine, dim) ) {
-        log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << sLine << "' at p2a." << endreq;
+        ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << sLine << "' at p2a." );
         return StatusCode::FAILURE;
       }
       v_dims.push_back(dim);
@@ -148,7 +129,7 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
       v_dims[i_dim].xloc = xloc;
     }
     if( v_dims.size() != 4 ){
-      log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Wrong number of dimensions for area'" << dmArea.m_title << "' at p3." << endreq;
+      ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Wrong number of dimensions for area'" << dmArea.m_title << "' at p3." );
       return StatusCode::FAILURE;
     }
     dmArea.m_dimFrac = v_dims[0];
@@ -166,23 +147,23 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
     // now reading parameters
     for(int i_len=0; i_len<dmArea.m_length; i_len++){
       if(!fin.getline(cLine,sizeof(cLine)-1)) {
-        log << MSG::ERROR << "panic " << endreq;
+        ATH_MSG_ERROR ( "panic " );
         return StatusCode::FAILURE;
       }
       sLine = cLine;
       ist.clear(); ist.str(sLine);
       int idummy;
       if( !(ist >> idummy) ) {
-        log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() -> Warning! Area " << dmArea.m_title << " doesn't have parameters." << endreq;
+        ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() -> Warning! Area " << dmArea.m_title << " doesn't have parameters." );
         break;
       }
       if(idummy != dmArea.m_offset+i_len){
-        log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p3." << endreq;
+        ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p3." );
         return StatusCode::FAILURE;
       }
       for(int j=0; j<(int)v_dims.size(); j++) {
         if(!(ist >> idummy)) {
-          log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() -> panic!" << endreq;
+          ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() -> panic!" );
           return StatusCode::FAILURE;
         }
       }
@@ -190,8 +171,8 @@ StatusCode LArReadHadDMCoeffFile2::initDataFromFile(std::string hadDMCoeffFileNa
       pars.resize(dmArea.m_nPars,0.0);
       for(int j=0; j<dmArea.m_nPars; j++) {
         if( !(ist >> pars[j]) ) {
-          log << MSG::ERROR << "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p4." << endreq;
-          log << MSG::ERROR << " dmArea.m_title" << dmArea.m_title << endreq;
+          ATH_MSG_ERROR ( "LArReadHadDMCoeffFile2::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p4." );
+          ATH_MSG_ERROR ( " dmArea.m_title" << dmArea.m_title );
           return StatusCode::FAILURE;
         }
       }

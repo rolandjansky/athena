@@ -11,7 +11,7 @@
 
 LArReadHadDMCoeffFile::LArReadHadDMCoeffFile(const std::string & name, 
 					     ISvcLocator * pSvcLocator) : 
-  Algorithm(name,pSvcLocator) {
+  AthAlgorithm(name,pSvcLocator) {
   declareProperty("HadDMCoeffFileName",m_hadDMCoeffFileName);
   declareProperty("CorrectionKey",m_key="HadDMCoeff");
 
@@ -23,30 +23,13 @@ LArReadHadDMCoeffFile::~LArReadHadDMCoeffFile() {}
 
                             
 StatusCode LArReadHadDMCoeffFile::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "=== LArReadHadDMCoeffFile::initialize() ===" << endreq;
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-     return sc;
-   }
+   ATH_MSG_INFO ( "=== LArReadHadDMCoeffFile::initialize() ===" );
    initDataFromFile(m_hadDMCoeffFileName);
 
-   int outputLevel = msgSvc()->outputLevel( name() );
-   if(outputLevel == MSG::DEBUG) m_data->PrintData();
+   if(msgLvl (MSG::DEBUG)) m_data->PrintData();
 
-   sc=detStore->record(m_data,m_key);
-   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to record CaloHadWeight" << endreq;
-      return sc;
-   }
-   sc=detStore->setConst(m_data);
-   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to lock CaloHadWeight" << endreq;
-      return sc;
-   }
+   ATH_CHECK( detStore()->record(m_data,m_key) );
+   ATH_CHECK( detStore()->setConst(m_data) );
    return StatusCode::SUCCESS;
 }
 
@@ -64,17 +47,15 @@ StatusCode  LArReadHadDMCoeffFile::finalize()
 
 StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileName)
 {
-   MsgStream log(msgSvc(), name());
-
    m_data = new CaloHadDMCoeff();
 
    // Find the full path to filename
    std::string file = PathResolver::find_file (hadDMCoeffFileName, "DATAPATH");
-   log << MSG::INFO << "Reading file  " << file << endreq;
+   ATH_MSG_INFO ( "Reading file  " << file );
 
    FILE *fin = fopen(file.c_str(),"r");
    if ( fin == NULL) {
-      log << MSG::ERROR << "Can't open file " << file << endreq;
+      ATH_MSG_ERROR ( "Can't open file " << file );
       return StatusCode::FAILURE;
    }
 
@@ -86,7 +67,7 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
       if(line[0] == '#' || line[0] == '\n' ) continue;
       int _izone, _is_on;
       if(sscanf(line,"%d %d %s\n",&_izone, &_is_on, title)!=3 || indx_zone != _izone) {
-         log << MSG::ERROR << "Format error #1." << endreq;
+         ATH_MSG_ERROR ( "Format error #1." );
          fclose (fin);
          return StatusCode::FAILURE;         
       }
@@ -99,7 +80,7 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
       if(sscanf(line,"%d %f %f\n", &nFrac, &dmArea.m_MinFrac, &dmArea.m_MaxFrac)!=3 ||
          nFrac<0 || nFrac>1000)
       {
-         log << MSG::ERROR << "Format error #2." << endreq;
+         ATH_MSG_ERROR ( "Format error #2." );
          fclose (fin);
          return StatusCode::FAILURE;
       }
@@ -107,7 +88,7 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
       if(sscanf(line,"%d %f %f\n", &nEner, &dmArea.m_MinEner, &dmArea.m_MaxEner)!=3 ||
          nEner < 0 || nEner > 1000)
       {
-         log << MSG::ERROR << "Format error #3." << endreq;
+         ATH_MSG_ERROR ( "Format error #3." );
          fclose (fin);
          return StatusCode::FAILURE;         
       }
@@ -115,13 +96,13 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
       if(sscanf(line,"%d %f %f\n", &nEta, &dmArea.m_MinEta, &dmArea.m_MaxEta)!=3 ||
          nEta < 0 || nEta > 1000)
       {
-         log << MSG::ERROR << "Format error #4." << endreq;
+         ATH_MSG_ERROR ( "Format error #4." );
          fclose (fin);
          return StatusCode::FAILURE;         
       }
       fgets(line,1024,fin);
       if(sscanf(line,"%d \n", &nPars)!=1 || nPars < 0 || nPars> 1000) {
-         log << MSG::ERROR << "Format error #5." << endreq;
+         ATH_MSG_ERROR ( "Format error #5." );
          fclose (fin);
          return StatusCode::FAILURE;         
       }
@@ -142,13 +123,13 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
                   pars.resize(nPars);
                   for(int i=0; i<nPars; i++) {
                      if(!(es >> pars[i]) ) {
-                        log << MSG::ERROR << "Format error #6." << endreq;
+                        ATH_MSG_ERROR ( "Format error #6." );
                         fclose (fin);
                         return StatusCode::FAILURE;         
                      }
                   }
                   if(_ifrac != i_frac || _iener != i_ener || _ieta != i_eta || (int)pars.size() != nPars){
-                     log << MSG::ERROR << "Format error #7." << endreq;
+                     ATH_MSG_ERROR ( "Format error #7." );
                      fclose (fin);
                      return StatusCode::FAILURE;
                   }
@@ -158,7 +139,7 @@ StatusCode LArReadHadDMCoeffFile::initDataFromFile(std::string hadDMCoeffFileNam
                   pars.clear();
                   indx_parset++;
                } else {
-                     log << MSG::ERROR << "Format error #8." << endreq;
+                 ATH_MSG_ERROR ( "Format error #8." );
                }
             } // i_eta
             if(i_frac == 0) dmArea.m_EnerBins.push_back(_ener);

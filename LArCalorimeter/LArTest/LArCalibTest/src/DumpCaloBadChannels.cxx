@@ -10,8 +10,8 @@
 #include <fstream>
 
 DumpCaloBadChannels::DumpCaloBadChannels(const std::string & name, 
-				   ISvcLocator * pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
+                                         ISvcLocator * pSvcLocator) : 
+  AthAlgorithm(name,pSvcLocator),
   m_caloBCT("CaloBadChanTool"),
   m_cellID(0)
 
@@ -24,27 +24,9 @@ DumpCaloBadChannels::~DumpCaloBadChannels() {}
 
                             
 StatusCode DumpCaloBadChannels::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in Intialize()" << endreq;
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-     return sc;
-   }
-  sc = detStore->retrieve(m_cellID,"CaloCell_ID");    
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve CaloCell_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
-  sc=m_caloBCT.retrieve();
-   if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve CaloBadChanTool" << endreq;
-    return sc;
-  }
+  ATH_MSG_INFO ( "in Intialize()" );
+  ATH_CHECK( detStore()->retrieve(m_cellID,"CaloCell_ID") );
+  ATH_CHECK( m_caloBCT.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -52,18 +34,17 @@ StatusCode DumpCaloBadChannels::initialize() {
 
 
 StatusCode  DumpCaloBadChannels::finalize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO ( "in finalize()" );
   std::ostream *out = &(std::cout); 
   std::ofstream outfile;
   if (m_fileName.size()) {
     outfile.open(m_fileName.c_str(),std::ios::out);
     if (outfile.is_open()) {
-      log << MSG::INFO << "Writing to file " << m_fileName << endreq;
+      ATH_MSG_INFO ( "Writing to file " << m_fileName );
       out = &outfile;
     }
     else
-      log << MSG::ERROR << "Failed to open file " << m_fileName << endreq;
+      ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
 
   std::vector<Identifier>::const_iterator it=m_cellID->cell_begin();
