@@ -71,11 +71,10 @@
 #include "LArElecCalib/ILArHVTool.h"
 
 LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_BadChanTool("LArBadChanTool"),
   m_hvtool("LArHVToolMC"),
   m_onlineID(NULL),
-  m_detStore(NULL),
   m_metaDataTool("IOVDbMetaDataTool"),
   m_doHV(true)
 {
@@ -86,76 +85,50 @@ LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator*
 }
 //=========================================================================================
 StatusCode LArAffectedRegionAlg::initialize() {
-  MsgStream log(msgSvc(), name());  // Part 1: Get the messaging service, print where you are
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
   //-------------- deals with LAr Febs  
   if (m_larCablingSvc.retrieve().isFailure()) {
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
+    ATH_MSG_ERROR ( "Could not retrieve LArCablingService Tool" );
     return StatusCode::FAILURE;
   }
   
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (!sc.isSuccess() || 0 == m_detStore)  {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
-  sc = m_detStore->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_detStore->retrieve(m_caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get CaloIdMgr" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get calodetdescrmgr" << endreq;
-    return StatusCode::FAILURE;
-  }
   //-------------
   // Do only when reading bytestream
 
   if (m_readingFromBytestream) {
     
-    if ( m_BadChanTool.retrieve().isFailure() ) {   //  Retrieve the tools using the ToolHandles
-      log << MSG::FATAL  << m_BadChanTool.propertyName() << ": Failed to retrieve tool " 
-	  << m_BadChanTool << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      log << MSG::INFO << m_BadChanTool.propertyName() << ": Retrieved tool " 
-	  << m_BadChanTool.type() << endreq;
-    }  
+    ATH_CHECK( m_BadChanTool.retrieve() );
+    ATH_MSG_INFO ( m_BadChanTool.propertyName() << ": Retrieved tool " 
+                   << m_BadChanTool.type() );
     
-    sc = m_detStore->regFcn( &ILArBadChanTool::updateBadFebsFromDB,dynamic_cast<ILArBadChanTool*>(&(*m_BadChanTool)),&LArAffectedRegionAlg::updateMethod,this,true);
+    StatusCode sc = detStore()->regFcn( &ILArBadChanTool::updateBadFebsFromDB,dynamic_cast<ILArBadChanTool*>(&(*m_BadChanTool)),&LArAffectedRegionAlg::updateMethod,this,true);
     
     if (sc.isSuccess())
-      log << MSG::INFO << "Registered callback for LArAffectedRegionAlg/LArAffectedRegionAlg" << endreq;
+      ATH_MSG_INFO ( "Registered callback for LArAffectedRegionAlg/LArAffectedRegionAlg" );
     else
-      log << MSG::WARNING << "Cannot register Callback function for LArAffectedRegionAlg/LArAffectedRegionAlg" << endreq;
+      ATH_MSG_WARNING ( "Cannot register Callback function for LArAffectedRegionAlg/LArAffectedRegionAlg" );
   }
   else {     // Do only when reading ESD/AOD
 
-    if (m_detStore->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
+    if (detStore()->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
         const DataHandle<CondAttrListCollection> affectedRegionH;
-        if (m_detStore->regFcn(&LArAffectedRegionAlg::updateAffectedRegionsFromDB,
-                          this,
-                          affectedRegionH,
-                          "/LAR/LArAffectedRegionInfo").isSuccess()) {
-            if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "Registered callback for  LArAffectedRegion " << endreq;
+        if (detStore()->regFcn(&LArAffectedRegionAlg::updateAffectedRegionsFromDB,
+                               this,
+                               affectedRegionH,
+                               "/LAR/LArAffectedRegionInfo").isSuccess()) {
+          ATH_MSG_DEBUG ( "Registered callback for  LArAffectedRegion " );
         }
         else {
-             log << MSG::WARNING << "Cannot register callback for LArAffectedRegion " << endreq;
+          ATH_MSG_WARNING ( "Cannot register callback for LArAffectedRegion " );
         }
     }
     else {
-      log << MSG::WARNING << " no LArAffectedRegion information available from metadata " << endreq;
+      ATH_MSG_WARNING ( " no LArAffectedRegion information available from metadata " );
     }
   }
 
@@ -173,12 +146,8 @@ StatusCode LArAffectedRegionAlg::initialize() {
   */
 
   // register incident handler for begin run
-  IIncidentSvc* incSvc;
-  sc = service( "IncidentSvc", incSvc );
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  IIncidentSvc* incSvc = nullptr;
+  ATH_CHECK( service( "IncidentSvc", incSvc ) );
   long int priority=100;
   /*  in case one want to launch the search only one time
       bool rethrow = 0;
@@ -200,9 +169,7 @@ void LArAffectedRegionAlg::handle(const Incident& inc) { //for non nominal HV
     return;
 
   
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::INFO << " in LArAffectedRegionAlg  beginning of run handle " << endreq;
+  ATH_MSG_INFO ( " in LArAffectedRegionAlg  beginning of run handle " );
   
   long int runNumber=-1;  
   const EventIncident* eventInc=dynamic_cast<const EventIncident*>(&inc);
@@ -271,29 +238,29 @@ void LArAffectedRegionAlg::handle(const Incident& inc) { //for non nominal HV
 
     // Register folder in the IOV Db MetaData
     if (StatusCode::SUCCESS != m_metaDataTool->registerFolder("/LAR/LArAffectedRegionInfo")) {      
-      log << MSG::ERROR << "fillMetaData: Unable to register folder for /LAR/LArAffectedRegionInfo with meta data tool " << endreq;
+      ATH_MSG_ERROR ( "fillMetaData: Unable to register folder for /LAR/LArAffectedRegionInfo with meta data tool " );
       //return StatusCode::FAILURE;
       throw GaudiException( "Unable to get EventInfo from BeginRun incident", "TagInfoMgr::handle", StatusCode::FAILURE );
     }
     // Add payload
     if (StatusCode::SUCCESS != m_metaDataTool->addPayload("/LAR/LArAffectedRegionInfo", m_attrListColl)) {      
-      log << MSG::ERROR << "fillMetaData: Unable to register folder for /LAR/LArAffectedRegionInfo with meta data tool " << endreq;
+      ATH_MSG_ERROR ( "fillMetaData: Unable to register folder for /LAR/LArAffectedRegionInfo with meta data tool " );
       throw GaudiException( "fillMetaData: Unable to register folder for /LAR/LArAffectedRegionInfo with meta data tool ", "TagInfoMgr::handle", StatusCode::FAILURE );
     }
 
     // record also in the detector store
     CaloAffectedRegionInfoVec* affRegVec=0;
-    if (m_detStore->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
-         if (StatusCode::SUCCESS != m_detStore->retrieve(affRegVec,"LArAffectedRegion")) {
-             log << MSG::ERROR << " Cannot retrieve LArAffectedRegion " << endreq;
-             return;
-         }
+    if (detStore()->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
+      if (StatusCode::SUCCESS != detStore()->retrieve(affRegVec,"LArAffectedRegion")) {
+        ATH_MSG_ERROR ( " Cannot retrieve LArAffectedRegion " );
+        return;
+      }
     }
     else {
          affRegVec = new CaloAffectedRegionInfoVec();
-         if (StatusCode::SUCCESS != m_detStore->record(affRegVec,"LArAffectedRegion")) {
-             log << MSG::ERROR << " Cannot record LArAffectedRegion " << endreq;
-             return;
+         if (StatusCode::SUCCESS != detStore()->record(affRegVec,"LArAffectedRegion")) {
+           ATH_MSG_ERROR ( " Cannot record LArAffectedRegion " );
+           return;
          }
     }
     affRegVec->clear();
@@ -314,7 +281,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMB() {  // deals with LAr HV, EMB
 
   //std::cout << " in HV_EMB " << std::endl;
   CaloPhiRange _range;
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
     
 // accordion calorimeter
     float HVnominal = HV_nominal("EMB",0.);
@@ -463,7 +430,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_OUTER() { // deals with LAr H
   CaloPhiRange _range;
 
   //std::cout << " start HV_EMEC_OUTER " << std::endl;
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
       
     const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::OUTER);
 
@@ -614,7 +581,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_EMEC_INNER() { // deals with LAr H
   CaloPhiRange _range;
 
   //std::cout << " start loop over EMEC_INNER " << std::endl;
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
 
     const EMECHVManager* hvManager_EMEC=manager->getEMECHVManager(EMECHVModule::INNER);
 
@@ -730,7 +697,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_HEC() { // deals with LAr HV, HEC
   float HVnominal = HV_nominal("HEC",0.);
 
 
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
     //no sector index, no eta index==>sampling index
   
     const HECHVManager* hvManager_HEC=manager->getHECHVManager();
@@ -793,7 +760,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_FCAL() { // deals with LAr HV, FCA
   //std::cout << " inFCAL " << std::endl;
   CaloPhiRange _range;
   const LArHVManager *manager = NULL;
-  if (m_detStore->retrieve(manager)==StatusCode::SUCCESS) {  
+  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {  
     
     const FCALHVManager *hvManager_FCAL=manager->getFCALHVManager();
     
@@ -854,8 +821,7 @@ void LArAffectedRegionAlg::searchNonNominalHV_FCAL() { // deals with LAr HV, FCA
 }
 //=========================================================================================
 StatusCode LArAffectedRegionAlg::updateMethod(IOVSVC_CALLBACK_ARGS) { //store informations on the missing Febs w/ range of eta, phi, layer
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "updateMethod()" << endreq;
+  ATH_MSG_INFO ( "updateMethod()" );
   
   std::vector<HWIdentifier>::const_iterator febid_it=m_onlineID->feb_begin();
   std::vector<HWIdentifier>::const_iterator febid_end_it=m_onlineID->feb_end();
@@ -948,34 +914,21 @@ StatusCode LArAffectedRegionAlg::updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARG
 {
   // Converter attribute list collection into vector of AffectedRegionInfos
 
-  MsgStream log(msgSvc(), name());   // Part 1: Get the messaging service, print where you are
-  log << MSG::INFO << "updateAffectedRegionsFromDB()" << endreq;
+  ATH_MSG_INFO ( "updateAffectedRegionsFromDB()" );
 
   // retrieve from detStore 
   const CondAttrListCollection* attrListColl = 0;
-  StatusCode sc = m_detStore->retrieve(attrListColl, "/LAR/LArAffectedRegionInfo");
-  if (sc.isFailure()) {
-     log << MSG::WARNING  << "attrrListColl not found for /LAR/CaloAffectedRegionInfo " << endreq;
-     return StatusCode::SUCCESS;
-  }
+  ATH_CHECK( detStore()->retrieve(attrListColl, "/LAR/LArAffectedRegionInfo") );
 
   CaloAffectedRegionInfoVec* affRegVec = 0;
 
-  if (m_detStore->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
-      sc = m_detStore->retrieve(affRegVec,"LArAffectedRegion");
-      if (sc.isFailure() || !affRegVec) {
-       log << MSG::WARNING << "cannot find existing LArAffectedRegion ! " << endreq;
-       return StatusCode::SUCCESS;
-      }
-      affRegVec->clear();
+  if (detStore()->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
+    ATH_CHECK( detStore()->retrieve(affRegVec,"LArAffectedRegion") );
+    affRegVec->clear();
   }
   else {
       affRegVec = new CaloAffectedRegionInfoVec();
-      sc = m_detStore->record(affRegVec, "LArAffectedRegion");
-      if (sc.isFailure()) {
-        log << MSG::WARNING << "Unable to record affRegVec" << endreq; 
-        return StatusCode::SUCCESS;
-      }
+      ATH_CHECK( detStore()->record(affRegVec, "LArAffectedRegion") );
   }
 
   
@@ -985,8 +938,8 @@ StatusCode LArAffectedRegionAlg::updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARG
   for (; first != last; ++first) {
       std::ostringstream attrStr1;
       (*first).second.toOutputStream( attrStr1 );
-      log << MSG::DEBUG << "ChanNum " << (*first).first << 
-          " Attribute list " << attrStr1.str() << endreq;
+      ATH_MSG_DEBUG ( "ChanNum " << (*first).first << 
+                      " Attribute list " << attrStr1.str() );
       //      const AttributeList& attrList = (*first).second;
       const coral::AttributeList& attrList = (*first).second;
       CaloAffectedRegionInfo info;
@@ -1006,31 +959,23 @@ StatusCode LArAffectedRegionAlg::updateAffectedRegionsFromDB(IOVSVC_CALLBACK_ARG
 }
 //================================================================
 StatusCode LArAffectedRegionAlg::execute() {
-  MsgStream log(msgSvc(), name());   // Part 1: Get the messaging service, print where you are
-  log << MSG::DEBUG << "execute()" << endreq;
+  ATH_MSG_DEBUG ( "execute()" );
   
   if (!m_readingFromBytestream) {  //put the print to check that it is ok
     
     CaloAffectedRegionInfoVec* affRegVec;
     
-    if (m_detStore->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
-     StatusCode sc = m_detStore->retrieve(affRegVec, "LArAffectedRegion");
-     if (sc.isFailure()) {
-      log << MSG::WARNING << "Unable to retrieve pointer to CaloAffectedRegion" << endreq;
-      return StatusCode::SUCCESS;
-     }
+    if (detStore()->contains<CaloAffectedRegionInfoVec>("LArAffectedRegion")) {
+     ATH_CHECK( detStore()->retrieve(affRegVec, "LArAffectedRegion") );
 
-     bool dump=false;
-     if (log.level()<=MSG::DEBUG) dump=true;
-     if (dump) {
-      log << MSG::DEBUG  << " Dump of affected regions read : " << endreq; 
+     if (msgLvl(MSG::DEBUG)) {
+       ATH_MSG_DEBUG  ( " Dump of affected regions read : " );
       for (unsigned int i=0;i<affRegVec->size();i++) {
         ((*affRegVec)[i]).PrintInfo();
       }
      }
     }
-
-    
+   
   }
 
   return StatusCode::SUCCESS;
@@ -1039,13 +984,9 @@ StatusCode LArAffectedRegionAlg::execute() {
 //====================================================================================
 StatusCode LArAffectedRegionAlg::finalize() {
 
-  MsgStream log(msgSvc(), name()); 
-  bool dump=false;
-  if (log.level()<=MSG::DEBUG) dump=true;
-  
-  if (dump) {
-    log << MSG::DEBUG << "===============================" << endreq;
-    log << MSG::DEBUG << "Main summary of global problems (all runs) : " << m_ArrayLArAffectedRegionInfo_global.size() << " Affected regions" << endreq;
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG ( "===============================" );
+    ATH_MSG_DEBUG ( "Main summary of global problems (all runs) : " << m_ArrayLArAffectedRegionInfo_global.size() << " Affected regions" );
     for (int i=0;i<(int)m_ArrayLArAffectedRegionInfo_global.size();i++) {
       m_ArrayLArAffectedRegionInfo_global[i].PrintInfo();
     }

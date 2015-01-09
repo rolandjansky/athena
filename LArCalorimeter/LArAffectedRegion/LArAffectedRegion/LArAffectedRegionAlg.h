@@ -5,7 +5,7 @@
 #ifndef LArAffectedRegionAlg_H
 #define LArAffectedRegionAlg_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/DataHandle.h"
@@ -27,13 +27,12 @@ class LArCablingService;
 class LArOnlineID;
 class CaloDetDescrManager;
 class ILArBadChanTool;
-class StoreGateSvc;
 
 class CaloIdManager;
 class ILArHVTool;
 class IIOVDbMetaDataTool;
 
-class LArAffectedRegionAlg : public Algorithm,virtual public IIncidentListener  {
+class LArAffectedRegionAlg : public AthAlgorithm,virtual public IIncidentListener  {
   //---
  public:
   LArAffectedRegionAlg(const std::string& name, ISvcLocator* pSvcLocator );
@@ -69,8 +68,6 @@ class LArAffectedRegionAlg : public Algorithm,virtual public IIncidentListener  
   const LArOnlineID* m_onlineID;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   
-  StoreGateSvc*                 m_detStore;   //const
-
   bool m_readingFromBytestream;
 
   CondAttrListCollection* m_attrListColl;  // info to give to metadata  

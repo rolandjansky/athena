@@ -5,6 +5,7 @@ author Marc Escalier
 use AtlasPolicy             AtlasPolicy-*
 use StoreGate               StoreGate-*            Control
 use AthenaKernel            AthenaKernel-*         Control
+use AthenaBaseComps         AthenaBaseComps-*      Control
 use GaudiInterface	    GaudiInterface-*       External
 use AthenaPoolUtilities     AthenaPoolUtilities-*  Database/AthenaPOOL
 
