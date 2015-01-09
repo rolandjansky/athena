@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 594319 2014-04-25 17:39:50Z krasznaa $
+// $Id: EventInfoCnvAlg.cxx 634394 2014-12-08 11:10:34Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -45,6 +45,13 @@ namespace xAODMaker {
    }
 
    StatusCode EventInfoCnvAlg::execute() {
+
+      // Check if anything needs to be done:
+      if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey ) ) { 
+         ATH_MSG_DEBUG( "xAOD::EventInfo with key \"" << m_xaodKey
+                        << "\" is already in StoreGate" );
+         return StatusCode::SUCCESS;
+      }
 
       // Retrieve the AOD object:
       const EventInfo* aod = 0;
@@ -93,6 +100,18 @@ namespace xAODMaker {
       // Record the xAOD object(s):
       CHECK( evtStore()->record( puaux, "PileUp" + m_xaodKey + "Aux." ) );
       CHECK( evtStore()->record( puei, "PileUp" + m_xaodKey ) );
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode EventInfoCnvAlg::beginRun() {
+
+      // Let the user know what's happening:
+      ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
+
+      // Run the conversion using the execute function:
+      CHECK( execute() );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

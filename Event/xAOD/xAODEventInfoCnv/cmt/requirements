@@ -1,5 +1,5 @@
 package xAODEventInfoCnv
-# $Id: requirements 603159 2014-06-23 13:53:47Z krasznaa $
+# $Id: requirements 615394 2014-09-06 06:10:04Z dquarrie $
 
 author Attila Krasznahorkay
 
@@ -21,6 +21,10 @@ use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
 use EventInfo            EventInfo-*            Event
 
 end_private
+
+# Force dependencies against Eigen and CLHEP for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Eigen)"
+apply_pattern cmake_add_command command="find_package(CLHEP)"
 
 # Declare the library:
 library xAODEventInfoCnv *.cxx components/*.cxx

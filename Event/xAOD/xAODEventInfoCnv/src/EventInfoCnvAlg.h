@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.h 577605 2014-01-09 16:47:58Z krasznaa $
+// $Id: EventInfoCnvAlg.h 634394 2014-12-08 11:10:34Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 
@@ -28,8 +28,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 577605 $
-    * $Date: 2014-01-09 17:47:58 +0100 (Thu, 09 Jan 2014) $
+    * $Revision: 634394 $
+    * $Date: 2014-12-08 12:10:34 +0100 (Mon, 08 Dec 2014) $
     */
    class EventInfoCnvAlg : public AthAlgorithm {
 
@@ -41,6 +41,10 @@ namespace xAODMaker {
       virtual StatusCode initialize();
       /// Function executing the algorithm
       virtual StatusCode execute();
+
+      /// Function executed at the beginning of the job, once the first event
+      /// from the input file is already open
+      virtual StatusCode beginRun();
 
    private:
       /// StoreGate key for the input object

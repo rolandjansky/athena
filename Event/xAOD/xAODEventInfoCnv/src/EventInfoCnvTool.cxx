@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.cxx 612505 2014-08-19 11:59:55Z krasznaa $
+// $Id: EventInfoCnvTool.cxx 636755 2014-12-18 14:59:03Z cranshaw $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -92,6 +92,8 @@ namespace xAODMaker {
          xaod->setBCID( aod->event_ID()->bunch_crossing_id() );
          xaod->setDetectorMask( aod->event_ID()->detector_mask0(),
                                 aod->event_ID()->detector_mask1() );
+         xaod->setDetectorMaskExt( aod->event_ID()->detector_mask2(),
+                                 aod->event_ID()->detector_mask3() );
       }
 
       // Copy the event type properties:
@@ -182,6 +184,12 @@ namespace xAODMaker {
                 EventInfo::EventFlagSubDet >::const_iterator sd_end =
          subDetMap.end();
       for( ; sd_itr != sd_end; ++sd_itr ) {
+
+         // Lumi does not store event flags, or an error state:
+         if( sd_itr->first == EventInfo::Lumi ) {
+            continue;
+         }
+
          // Set the event flags for this sub-detector:
          xaod->setEventFlags( sd_itr->first, aod->eventFlags( sd_itr->second ) );
 

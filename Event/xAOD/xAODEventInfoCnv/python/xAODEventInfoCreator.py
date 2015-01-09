@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: xAODEventInfoCreator.py 594319 2014-04-25 17:39:50Z krasznaa $
+# $Id: xAODEventInfoCreator.py 634394 2014-12-08 11:10:34Z krasznaa $
 
 # Import the configurable(s):
 from xAODEventInfoCnv.xAODEventInfoCnvConf import *
@@ -48,9 +48,9 @@ def xAODEventInfoCreator( sequence = None, stream = None, key = "" ):
     sequence += alg
 
     # Add the created objects to the output:
-    stream.AddItem( "xAOD::EventInfo_v1#%s" % outkey )
-    stream.AddItem( "xAOD::EventAuxInfo_v1#%sAux." % outkey )
-    stream.AddItem( "xAOD::EventInfoContainer_v1#PileUp%s" % outkey )
-    stream.AddItem( "xAOD::EventInfoAuxContainer_v1#PileUp%sAux." % outkey )
+    stream.AddItem( "xAOD::EventInfo#%s" % outkey )
+    stream.AddItem( "xAOD::EventAuxInfo#%sAux." % outkey )
+    stream.AddItem( "xAOD::EventInfoContainer#PileUp%s" % outkey )
+    stream.AddItem( "xAOD::EventInfoAuxContainer#PileUp%sAux." % outkey )
 
     return
