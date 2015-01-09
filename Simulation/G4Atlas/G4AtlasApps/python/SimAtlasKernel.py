@@ -133,7 +133,7 @@ class AtlasSimSkeleton(SimSkeleton):
            frozen showers, etc
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: starting')
-        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         geo2G4Svc = Geo2G4Svc()
         theApp.CreateSvc += ["Geo2G4Svc"]
@@ -193,7 +193,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 if simFlags.SimulateNewSmallWheel():
                     AtlasG4Eng.G4Eng.log.info("Removing the original small wheel")
                     MuonDetectorTool.StationSelection  = 2
-                    MuonDetectorTool.SelectedStations  = [ "EIL1" ] 
+                    MuonDetectorTool.SelectedStations  = [ "EIL1" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL2" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL6" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL7" ]
@@ -208,12 +208,27 @@ class AtlasSimSkeleton(SimSkeleton):
                     MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 
             ## Additional material in the muon system
-            from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-            agdd2GeoSvc = AGDD2GeoSvc()
-            if not hasattr(agdd2GeoSvc, 'OverrideConfiguration') or not agdd2GeoSvc.OverrideConfiguration :
-                agdd2GeoSvc.Locked = True
-            theApp.CreateSvc += ["AGDD2GeoSvc"]
-            ServiceMgr += agdd2GeoSvc
+            from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+            AGDD2Geo = AGDDtoGeoSvc()
+            if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
+                from MuonAGDD.MuonAGDDConf import MuonAGDDTool
+                MuonAGDDTool = MuonAGDDTool('MuonSpectrometer')
+                MuonAGDDTool.BuildNSW = False
+                ToolSvc += MuonAGDDTool
+                AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+            if hasattr(simFlags, 'SimulateNewSmallWheel'):
+                if simFlags.SimulateNewSmallWheel():
+                    if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+                        from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+                        NSWAGDDTool = NSWAGDDTool('NewSmallWheel')
+                        NSWAGDDTool.Locked=False
+                        NSWAGDDTool.XMLFiles += ["stations.v1.69.xml"]
+                        NSWAGDDTool.Volumes += ["NewSmallWheel"]
+                        NSWAGDDTool.DefaultDetector="Muon"
+                        ToolSvc += NSWAGDDTool
+                        AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+            theApp.CreateSvc += ["AGDDtoGeoSvc"]
+            ServiceMgr += AGDD2Geo
 
         ## Add configured GeoModelSvc to service manager
         ServiceMgr += gms
@@ -582,8 +597,7 @@ class AtlasSimSkeleton(SimSkeleton):
         if simFlags.MagneticField.statusOn:
             if simFlags.MagneticField() == 'AtlasFieldSvc':
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
-                svcMgr += MagField__AtlasFieldSvc("AtlasFieldSvc");
+                import MagFieldServices.SetupField
                 # TODO: would be useful if the AthenaSvc name can be handed over to the PyG4Atlas.MagneticField somehow
                 # currently G4AtlasFieldSvc.cxx retrieves a field service with the default name 'AtlasFieldSvc'
                 atlasfield = PyG4Atlas.MagneticField('G4Field', 'G4AtlasFieldSvc', typefield='MapField')

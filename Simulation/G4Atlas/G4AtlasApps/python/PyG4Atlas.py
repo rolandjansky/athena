@@ -2143,9 +2143,17 @@ class SimSkeleton(object):
         stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
-                            "JetCollection#*",
-                            "xAOD::JetContainer_v1#*",
-                            "xAOD::JetAuxContainer_v1#*"]
+                            "JetCollection#*"]
+
+        from PyJobTransforms.trfUtils import releaseIsOlderThan
+        if releaseIsOlderThan(20,0):
+            #Hack to maintain compatibility of G4AtlasApps trunk with
+            #19.2.X.Y after EDM changes in release 20.0.0.
+            stream1.ItemList += ["xAOD::JetContainer_v1#*",
+                                 "xAOD::JetAuxContainer_v1#*"]
+        else:
+            stream1.ItemList += ["xAOD::JetContainer#*",
+                                 "xAOD::JetAuxContainer#*"]
 
         ## Make stream aware of aborted events
         stream1.AcceptAlgs = ["G4AtlasAlg"]
