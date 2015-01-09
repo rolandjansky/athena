@@ -13,18 +13,90 @@
 
 #include "AuxStoreARA.h"
 #include "AthenaROOTAccess/TBranchAlias.h"
+#include "AthenaROOTAccess/TBranchTPConvert.h"
 #include "AthenaROOTAccess/TTreeTrans.h"
 #include "AthenaROOTAccess/branchSeek.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "TTree.h"
+#include "TBranchElement.h"
 #include "TError.h"
 
 
+#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
 R__EXTERN TTree* gTree;
+#endif
 
 
 namespace AthenaROOTAccess {
+
+
+class TBranchAccess : public TBranch
+{
+public:
+  static int doNotUseBufferMap() { return kDoNotUseBufferMap; }
+};
+
+
+
+/**
+ * @brief Fix up branch status bits after possible schema evolution
+ *        from std::vector to SG::PackedContainer.
+ * @param br The branch to process.
+ *
+ * Some background is needed here.
+ *
+ * ROOT can keep a map associated with a buffer giving the location of objects
+ * in the root file.  This is used to handle C pointer resolution on I/O.
+ * The use of this is controlled by two flags in fBits.
+ * If kDoNotUseBufferMap is _clear_, then the map get cleared on each
+ * event (when reading); otherwise, it is not.  This bit is set by default
+ * when a branch is created.  When Fill() is called, then it is cleared
+ * if the map is empty.  The bit is then saved and restored along
+ * with the TBranch.
+ *
+ * But a branch also has the kBranchAny bit.  If this is set, then ROOT
+ * will actually try to make entries in the map.  This is set when
+ * a branch is initialized and also when SetAddress is called.  The bit
+ * is set if the class _might_ contain pointers.  Specifically, the bit
+ * is clear for branches with fundamental types, set::string, and std::vector
+ * of any of these.  It is turned on for anything else, in particular
+ * for any user types.
+ *
+ * This logic causes a problem when we schema evolve from std::vector
+ * to SG::PackedContainer.  When the branch is written, the map is not
+ * used.  So kDoNotUseBufferMap is set, and kBranchAny is clear.
+ * The branch is saved, and read back in with the same flag settings.
+ * But then when we go to do the SetAddress, ROOT sees that the type
+ * we have is SG::PackedContainer --- a user type.  So kBranchAny
+ * is turned on.  This means that the map gets filled when we read.
+ * But because kDoNotUseBufferMap is set, the map is not cleared
+ * when we go to a new event.  This results in errors from TExMap
+ * about duplicate keys.
+ *
+ * The easiest thing to do to resolve this seems to be to turn off
+ * the kDoNotUseBufferMap so that the map will in fact get cleared.
+ * (The arguably more consistent scheme of turning off kBranchAny
+ * is not preferred since we'd have to do that every time after
+ * SetAddress is called.)  Ideally, we'd like to be able to tell
+ * ROOT that a given class does not use pointers, but there's no way
+ * to do that at the moment.
+ */
+void fixupPackedConversion (TBranch* br)
+{
+  TIter next( br->GetListOfBranches() );
+  while ( TBranch* b = (TBranch*)next() ) {
+    fixupPackedConversion (b);
+  }
+
+  TBranchElement* belt = dynamic_cast<TBranchElement*> (br);
+  if (belt) {
+    TClass* cl = belt->GetCurrentClass();
+    if (cl && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0) {
+      br->ResetBit (TBranchAccess::doNotUseBufferMap());
+    }
+  }
+}
 
 
 /**
@@ -72,8 +144,10 @@ TBranchAlias* TBranchAlias::addToTree (TTreeTrans* tree,
                                        const char* targ_branchname,
                                        const char* aux_branchname /*= ""*/)
 {
+#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
   // Needed by the Root code...
   gTree = tree;
+#endif
 
   // May be needed by constructors.
   TTreeTrans::Push save_tree (tree);
@@ -86,7 +160,13 @@ TBranchAlias* TBranchAlias::addToTree (TTreeTrans* tree,
 
   // Add it to the tree.
   tree->GetListOfBranches()->Add (br);
-  tree->addBranch (br, targ_branchname);
+
+  std::string targ_name = targ_branchname;
+  TBranchTPConvert* br_targ =
+    dynamic_cast<TBranchTPConvert*>(targ_tree->GetBranch (targ_branchname));
+  if (br_targ)
+    targ_name = br_targ->getPersBranchName();
+  tree->addBranch (br, targ_name);
 
   return br;
 }
@@ -117,10 +197,33 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
   m_trans_tree->setEntry (entry);
 
   // Read aux branch if needed.
-  if (m_aux_branch)
-    branchSeek (m_aux_branch, local_entry);
-  if (m_dyn_store)
-    m_dyn_store->GetEntry (local_entry);
+  //if (m_dyn_store)
+  //m_dyn_store->GetEntry (local_entry);
+  if (m_holder_offset >= 0) {
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
+    if (auxptr && *auxptr) {
+      SG::IAuxStoreHolder* holder =
+        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
+      AuxStoreARA* store = dynamic_cast<AuxStoreARA*>(holder->getStore());
+      if (store) store->GetEntry (local_entry);
+    }
+  }
+
+  if (m_aux_branch) {
+    Long64_t ent = entry;
+    if (m_aux_branch == m_aux_branch_orig)
+      ent = local_entry;
+    branchSeek (m_aux_branch, ent);
+  }
+
+  if (m_setStore_method.IsValid()) {
+    void* thisobj = *reinterpret_cast<void**> (this->GetAddress());
+    if (thisobj) {
+      void* auxobj = 0;
+      m_setStore_method.SetParamPtrs (&auxobj, 1);
+      m_setStore_method.Execute (thisobj);
+    }
+  }
 
   m_targ_branch->SetStatus (true);
   Int_t ret = branchSeek (m_targ_branch, local_entry);
@@ -158,10 +261,12 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
 void TBranchAlias::SetAddress (void* addr)
 {
   if (checkBranch()) {
-    m_targ_branch->SetStatus (true);
-    TBranchObject::SetAddress (addr);
-    m_targ_branch->SetAddress (addr);
-    m_targ_branch->SetStatus (false);
+    if (addr) {
+      m_targ_branch->SetStatus (true);
+      TBranchObject::SetAddress (addr);
+      m_targ_branch->SetAddress (addr);
+      m_targ_branch->SetStatus (false);
+    }
     setStore(false);
   }
 
@@ -182,6 +287,7 @@ Bool_t TBranchAlias::Notify()
   if (m_aux_branch){
     //setStore (true);
     m_aux_branch = 0;
+    m_aux_branch_orig = 0;
     m_dyn_branch_map.clear();
     m_dyn_store = 0;
   }
@@ -254,7 +360,9 @@ TBranchAlias::TBranchAlias (TTreeTrans* tree,
     m_aux_branch (0),
     m_dyn_store (0),
     m_aux_offset (-1),
-    m_holder_offset (-1)
+    m_holder_offset (-1),
+    m_aux_branch_orig(0),
+    m_holder_offset_orig(-1)
 {
   // Set up the notification callback.
   targ_tree->SetNotify (this);
@@ -291,8 +399,13 @@ void TBranchAlias::setupAux()
  */
 void TBranchAlias::findAux()
 {
-  TBranch* br = m_targ_tree->GetBranch (m_aux_branchname.c_str());
-  if (!br) return;
+  TBranch* br_orig = m_targ_tree->GetBranch (m_aux_branchname.c_str());
+  if (!br_orig) return;
+  TBranch* br = m_trans_tree->GetBranch (m_aux_branchname.c_str());
+  if (!br || dynamic_cast<TBranchAlias*>(br) != 0)
+    br = br_orig;
+
+  fixupPackedConversion (br);
 
   TClass* cl = TClass::GetClass (br->GetClassName());
   if (!cl) return;
@@ -306,6 +419,20 @@ void TBranchAlias::findAux()
   const TClass* holder_cl = TClass::GetClass ("SG::IAuxStoreHolder");
   if (holder_cl)
     m_holder_offset = cl->GetBaseClassOffset (holder_cl);
+
+  m_aux_branch_orig = m_aux_branch;
+  m_holder_offset_orig = m_holder_offset;
+  if (br_orig) {
+    TClass* cl_orig = TClass::GetClass (br_orig->GetClassName());
+    if (cl_orig) {
+      int offs = cl_orig->GetBaseClassOffset (auxcl);
+      if (offs >= 0) {
+        m_aux_branch_orig = br_orig;
+        if (holder_cl)
+          m_holder_offset_orig = cl_orig->GetBaseClassOffset (holder_cl);
+      }
+    }
+  }
 
   setStore (false);
 }
@@ -322,6 +449,8 @@ void TBranchAlias::setStore (bool clear)
     m_targ_branch->SetAddress(0);
   if (m_aux_branch && m_aux_branch->GetAddress() == 0)
     m_aux_branch->SetAddress(0);
+  if (m_aux_branch_orig && m_aux_branch_orig->GetAddress() == 0)
+    m_aux_branch_orig->SetAddress(0);
 
   // Update our cached address if needed.
   if (GetAddress() != m_targ_branch->GetAddress() &&
@@ -335,10 +464,10 @@ void TBranchAlias::setStore (bool clear)
   if (!thisobj) return;
 
   if (m_dyn_store && clear) {
-    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch_orig->GetAddress());
     if (auxptr && *auxptr) {
       SG::IAuxStoreHolder* holder =
-        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
+        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset_orig);
       holder->setStore (0);
     }
     m_dyn_store = 0;
@@ -346,23 +475,38 @@ void TBranchAlias::setStore (bool clear)
 
   void* auxobj = 0;
   if (!clear) {
-    auxobj =
-      *reinterpret_cast<char**> (m_aux_branch->GetAddress()) + m_aux_offset;
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
+    auxobj = *auxptr + m_aux_offset;
   }
-  m_setStore_method.SetParamPtrs (&auxobj, -1);
+  m_setStore_method.SetParamPtrs (&auxobj, 1);
   m_setStore_method.Execute (thisobj);
 
-  if (!clear && m_holder_offset >= 0 && !m_dyn_store) {
-    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
+  if (!clear && m_holder_offset_orig >= 0 && !m_dyn_store) {
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch_orig->GetAddress());
     if (auxptr && *auxptr) {
       SG::IAuxStoreHolder* holder =
-        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
+        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset_orig);
       bool standalone =
         holder->getStoreType() == SG::IAuxStoreHolder::AST_ObjectStore;
       m_dyn_store = new AuxStoreARA (*this,
                                      this->GetReadEntry(),
                                      standalone);
       holder->setStore (m_dyn_store);
+
+      // If the aux branch is the result of a conversion, may need to rerun
+      // the conversion.
+      if (m_aux_branch)
+        m_aux_branch->ResetReadEntry();
+    }
+  }
+
+  if (m_holder_offset >= 0) {
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
+    if (auxptr && *auxptr) {
+      SG::IAuxStoreHolder* holder =
+        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
+      SG::IAuxStore* store = holder->getStore();
+      if (store) store->clearDecorations();
     }
   }
 }
@@ -430,10 +574,12 @@ TClass* TBranchAlias::Class()
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TBranchAlias::ShowMembers (TMemberInspector& R__insp)
 {
   TBranchObject::ShowMembers (R__insp);
 }
+#endif
 
 
 void TBranchAlias::Streamer (TBuffer& b)
@@ -442,7 +588,11 @@ void TBranchAlias::Streamer (TBuffer& b)
 }
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+atomic_TClass_ptr TBranchAlias::fgIsA;
+#else
 TClass* TBranchAlias::fgIsA = 0;
+#endif
 
 
 } // namespace AthenaROOTAccess

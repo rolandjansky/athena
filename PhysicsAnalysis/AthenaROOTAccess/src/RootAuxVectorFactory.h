@@ -11,6 +11,10 @@
  * @date May, 2014
  * @brief Dynamic implementation of @c IAuxVectorFactory,
  *        relying on root's vector proxy.
+ *
+ * This is basically the same as the corresponding class in RootStorageSvc.
+ * Duplicated here due to the lack of any suitable common packages
+ * with the correct dependencies.
  */
 
 
@@ -82,7 +86,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual SG::IAuxTypeVector* clone() const /*override*/;
+  virtual SG::IAuxTypeVector* clone() const override;
 
 
   /**
@@ -92,7 +96,7 @@ public:
 
 
   /**
-   * @brief Return a pointer to the STL vector itself.
+   * @brief Return a pointer to the overall object.
    */
   virtual void* toVector() override;
 
@@ -143,12 +147,29 @@ public:
   virtual void shift (size_t pos, ptrdiff_t offs);
 
 
+  /**
+   * @brief Return the type of the complete object to be saved.
+   *
+   * For example, if the object is a @c std::vector, then we return
+   * the @c type_info of the vector.  But if we're holding
+   * a @c PackedContainer, then we return the @c type_info of the
+   * @c PackedContainer.
+   *
+   * Can return null if the operation is not supported.  In that case,
+   * I/O will use the type found from the variable registry.
+   */
+  virtual const std::type_info* objType() const override;
+
+
 private:
   /// Pointer back to the factory class for this type.
   const RootAuxVectorFactory* m_factory;
 
   /// The collection proxy for the vector.
   TVirtualCollectionProxy* m_proxy;
+
+  /// Pointer to the overall object itself.
+  void* m_obj;
 
   /// Pointer to the vector object itself.
   void* m_vec;
@@ -166,6 +187,11 @@ private:
  *
  * This implementation works by relying entirely on the root
  * dictionary information.
+ *
+ * We may either be dealing directly with an STL vector class, or with
+ * embedded in another class (as for PackedContainer).  Here, @a vecClass
+ * is the class of the STL vector and @a objClass is the overall object
+ * class.  In the case of a direct STL vector, these are identical.
  */
 class RootAuxVectorFactory
   : public SG::IAuxTypeVectorFactory
@@ -173,9 +199,9 @@ class RootAuxVectorFactory
 public:
   /**
    * @brief Constructor.
-   * @param vecClass The @c TClass for the @c std::vector.
+   * @param vecClass The @c TClass for the vector object.
    */
-  RootAuxVectorFactory (TClass* vecClass);
+  RootAuxVectorFactory (TClass* objClass);
 
 
   /**
@@ -191,9 +217,21 @@ public:
 
 
   /**
+   * @brief Return the @c TClass for the overall object.
+   */
+  TClass* objClass() const { return m_objClass; }
+
+
+  /**
    * @brief Return the @c TClass for the @c std::vector.
    */
   TClass* vecClass() const { return m_vecClass; }
+
+
+  /**
+   * @brief Return the offset of the vector within the object.
+   */
+  size_t offset() const { return m_offset; }
 
 
   /**
@@ -246,7 +284,7 @@ public:
 
 
   /**
-   * @brief Return the @c type_info of the vector.
+   * @brief Return the @c type_info of the overall object.
    */
   virtual const std::type_info* tiVec() const override;
 
@@ -260,8 +298,14 @@ public:
 
 
 private:
+  /// The @c TClass for the overall object.
+  TClass* m_objClass;
+
   /// The @c TClass for the std::vector.
   TClass* m_vecClass;
+
+  /// Offset of the STL vector within the overall object.
+  size_t m_offset;
 
   /// Wrapper for the ROOT type of the element.
   RootUtils::Type m_type;

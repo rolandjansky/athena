@@ -10,7 +10,6 @@
     <class name="AthenaROOTAccess::DVCollectionProxy" />
     <class name="AthenaROOTAccess::DVCollectionProxyDummy" />
     <class name="DataVector<AthenaROOTAccess::DVCollectionProxyDummy>" />
-    <class name="AthenaROOTAccess::ScanForEL" />
     <class name="AthenaROOTAccess::TBranchAlias">
       <field name="m_targ_tree" transient="true" />
       <field name="m_targ_branch" transient="true" />

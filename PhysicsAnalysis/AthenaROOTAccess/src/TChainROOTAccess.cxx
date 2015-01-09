@@ -97,10 +97,12 @@ TClass* TChainROOTAccess::Class()
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TChainROOTAccess::ShowMembers (TMemberInspector& R__insp)
 {
   TChain::ShowMembers (R__insp);
 }
+#endif
 
 
 void TChainROOTAccess::Streamer (TBuffer& b)
@@ -109,7 +111,11 @@ void TChainROOTAccess::Streamer (TBuffer& b)
 }
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+atomic_TClass_ptr TChainROOTAccess::fgIsA;
+#else
 TClass* TChainROOTAccess::fgIsA = 0;
+#endif
 
 
 } // namespace AthenaROOTAccess
@@ -143,10 +149,12 @@ TClass* TChainROOTAccess::Class()
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TChainROOTAccess::ShowMembers (TMemberInspector& R__insp)
 {
   AthenaROOTAccess::TChainROOTAccess::ShowMembers (R__insp);
 }
+#endif
 
 
 void TChainROOTAccess::Streamer (TBuffer& b)
@@ -155,6 +163,10 @@ void TChainROOTAccess::Streamer (TBuffer& b)
 }
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+atomic_TClass_ptr TChainROOTAccess::fgIsA;
+#else
 TClass* TChainROOTAccess::fgIsA = 0;
+#endif
 
 

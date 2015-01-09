@@ -233,7 +233,7 @@ void ProxyMap::reset()
   size_t sz = m_payloads.size();
   for (size_t i = 0; i < sz; i++) {
     payload_t& data = *m_payloads[i];
-    if (data.m_tree != m_trans_tree)
+    //if (data.m_tree != m_trans_tree)
       data.m_branch = 0;
     if (data.m_tree != m_pers_tree &&
         data.m_tree != m_trans_tree &&
@@ -1096,6 +1096,7 @@ ProxyMap::addToStore (CLID id, SG::DataProxy* proxy)
   payload->m_last_trans_entry = -1;
   payload->m_last_pers_entry = -1;
   m_proxymap[sgkey] = payload;
+  proxy->setStore (m_trans_tree_dict);
   return StatusCode::SUCCESS;
 }
 

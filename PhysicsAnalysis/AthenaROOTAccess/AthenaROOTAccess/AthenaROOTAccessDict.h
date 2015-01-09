@@ -15,7 +15,6 @@
 
 
 #include "AthenaROOTAccess/DVCollectionProxy.h"
-#include "AthenaROOTAccess/ScanForEL.h"
 #include "AthenaROOTAccess/TBranchAlias.h"
 #include "AthenaROOTAccess/TTreeBranchMap.h"
 #include "AthenaROOTAccess/TTreeTrans.h"
@@ -24,6 +23,7 @@
 #include "AthenaROOTAccess/addDVProxy.h"
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "AthenaROOTAccess/tpcnvLoad.h"
+#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 
 #include "AthContainers/DataVector.h"
 /// Dummy to instantiate templates for dictionary generation.

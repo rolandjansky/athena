@@ -130,10 +130,12 @@ TClass* TTreeBranchMap::Class()
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TTreeBranchMap::ShowMembers (TMemberInspector& R__insp)
 {
   TTree::ShowMembers (R__insp);
 }
+#endif
 
 
 void TTreeBranchMap::Streamer (TBuffer& b)
@@ -142,7 +144,11 @@ void TTreeBranchMap::Streamer (TBuffer& b)
 }
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+atomic_TClass_ptr TTreeBranchMap::fgIsA;
+#else
 TClass* TTreeBranchMap::fgIsA = 0;
+#endif
 
 
 } // namespace AthenaROOTAccess

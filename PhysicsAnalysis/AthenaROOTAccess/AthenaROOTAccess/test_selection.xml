@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="ARATest::A"/>
+  <class name="ARATest::B"/>
+  <class name="ARATest::C"/>
+  <class name="ARATest::D"/>
+  <class name="ARATest::E"/>
+  <class name="ARATest::F"/>
+  <class name="ARATest::G"/>
+  <class name="ARATest::H"/>
+  <class name="ARATest::AVec"/>
+  <class name="ARATest::CVec"/>
+  <class name="ARATest::DVec"/>
+  <class name="ARATest::EVec"/>
+  <class name="ARATest::FVec"/>
+  <class name="ARATest::GVec"/>
+  <class name="ARATest::HVec"/>
+</lcgdict>

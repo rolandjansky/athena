@@ -2,6 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id$
+/**
+ * @file AthenaROOTAcccess/src/AuxStoreARA.cxx
+ * @author marcin, scott
+ * @date May, 2014
+ * @brief Aux store implementation to manage dynamic aux variables.
+ *
+ * This is basically the same as the corresponding class in RootStorageSvc.
+ * Duplicated here due to the lack of any suitable common packages
+ * with the correct dependencies.
+ */
+
+
 #include "AuxStoreARA.h"
 #include "RootAuxVectorFactory.h"
 #include "AthenaROOTAccess/branchSeek.h"
@@ -13,6 +26,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
+#include "TClassEdit.h"
 #include "TVirtualCollectionProxy.h"
 
 #include <iostream>
@@ -26,33 +40,9 @@ namespace {
 
 const std::type_info* dataTypeToTypeInfo (EDataType type, std::string& typeName)
 {
-#define TYPE(CODE, TYP) case CODE: typeName=#TYP; return &typeid(TYP)
-  switch (type) {
-    TYPE(kChar_t,     char);               // 1 
-    TYPE(kShort_t,    short);              // 2 
-    TYPE(kInt_t,      int);                // 3 
-    TYPE(kLong_t,     long);               // 4 
-    TYPE(kFloat_t,    float);              // 5 
-    TYPE(kCounter,    int);                // 6 
-    TYPE(kCharStar,   char*);              // 7 
-    TYPE(kDouble_t,   double);             // 8 
-    TYPE(kDouble32_t, Double32_t);         // 9 
-    TYPE(kchar,       char);               // 10
-    TYPE(kUChar_t,    unsigned char);      // 11
-    TYPE(kUShort_t,   unsigned short);     // 12
-    TYPE(kUInt_t,     unsigned int);       // 13
-    TYPE(kULong_t,    unsigned long);      // 14
-    TYPE(kBits,       unsigned int);       // 15
-    TYPE(kLong64_t,   long long);          // 16
-    TYPE(kULong64_t,  unsigned long long); // 17
-    TYPE(kBool_t,     bool);               // 18
-    TYPE(kFloat16_t,  Float16_t);          // 19
-    TYPE(kVoid_t,     void);               // 20
-    TYPE(kDataTypeAliasUnsigned_t, unsigned int); // 21
-  default: break;
-  }
-#undef TYPE
-  return 0;
+  RootUtils::Type typ (type);
+  typeName = typ.getTypeName();
+  return typ.getTypeInfo();
 }
 
 
@@ -97,14 +87,24 @@ const std::type_info* getElementType (TBranch* br,
   if (!expectedClass) return 0;
 
   branchTypeName = expectedClass->GetName();
-  if (strncmp (expectedClass->GetName(), "vector<", 7) != 0) return 0;
-  TVirtualCollectionProxy* prox = expectedClass->GetCollectionProxy();
-  if (!prox) return 0;
-  if (prox->GetValueClass()) {
-    elementTypeName = prox->GetValueClass()->GetName();
-    return prox->GetValueClass()->GetTypeInfo();
+  if (strncmp (expectedClass->GetName(), "vector<", 7) == 0) {
+    TVirtualCollectionProxy* prox = expectedClass->GetCollectionProxy();
+    if (!prox) return 0;
+    if (prox->GetValueClass()) {
+      elementTypeName = prox->GetValueClass()->GetName();
+      return prox->GetValueClass()->GetTypeInfo();
+    }
+    return dataTypeToTypeInfo (prox->GetType(), elementTypeName);
   }
-  return dataTypeToTypeInfo (prox->GetType(), elementTypeName);
+  else if (strncmp (expectedClass->GetName(), "SG::PackedContainer<", 20) == 0){
+    TClassEdit::TSplitType split (expectedClass->GetName());
+    if (split.fElements.size() > 1) {
+      elementTypeName = split.fElements[1];
+      RootUtils::Type typ (elementTypeName);
+      return typ.getTypeInfo();
+    }
+  }
+  return 0;
 }
 
 
@@ -168,7 +168,7 @@ AuxStoreARA::AuxStoreARA(IAuxBranches &container, long long entry, bool standalo
       addAuxID (auxid);
    }
 
-   lock();
+   //lock();
 }
 
 
@@ -235,9 +235,17 @@ bool AuxStoreARA::readData(SG::auxid_t auxid)
      return false;
    };
 
+   void *       vector = 0;
+
    // Make a 1-element vector.
    SG::AuxStoreInternal::getDataInternal(auxid, 1, 1, true);
-   void* vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
+   if (!standalone()) {
+     EDataType typ;
+     branch->GetExpectedType(cl, typ);
+     if (cl && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0)
+       setOption (auxid, SG::AuxDataOption ("nbits", 32));
+   }
+   vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
 
    void* data;
 

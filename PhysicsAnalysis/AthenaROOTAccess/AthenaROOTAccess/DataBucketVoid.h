@@ -19,8 +19,8 @@
 #define DATABUCKETVOID_H
 
 #include "SGTools/DataBucketBase.h"
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
+#include "SGTools/BaseInfo.h"
+#include "TMethodCall.h"
 #include <typeinfo>
 #include <vector>
 
@@ -128,50 +128,63 @@ public:
 
 
 private:
+  /// The class of the held object.
+  TClass* m_cl;
+
   /// The held object.
-  ROOT::Reflex::Object m_ptr;
+  void* m_ptr;
+
+  /// For calling baseOffset on the vector.
+  mutable TMethodCall m_baseOffsetMeth;
 
   /// Class of the held object, down-converted to a DataVector.
-  ROOT::Reflex::Type m_dvcl;
+  TClass* m_dvcl;
 
   /// Pointer to the held object, converted to type @c m_dvcl.
-  ROOT::Reflex::Object m_dvptr;
+  void* m_dvptr;
 
   /// For calling size() on @c m_dvptr.
-  ROOT::Reflex::Member m_methsize;
+  TMethodCall m_methsize;
 
   /// For calling at() on @c m_dvptr.
-  ROOT::Reflex::Member m_methat;
+  TMethodCall m_methat;
 
   /// Hold information about one DV copying conversion.
   struct dvconv_t {
     /// Destination type for the conversion.
-    ROOT::Reflex::Type m_cldest;
+    TClass* m_cldest;
 
     /// Source element type.
-    ROOT::Reflex::Type m_eltsource;
+    TClass* m_eltsource;
+
+    /// Function to cast an element pointer.
+    SG::BaseInfoBase::castfn_t* m_castfn;
 
     /// Destination element type.
-    ROOT::Reflex::Type m_eltdest;
+    TClass* m_eltdest;
 
     /// size() method on the destination.
-    ROOT::Reflex::Member m_methsize;
+    TMethodCall m_methsize;
 
     /// clear(SG::OwnershipPolicy) method on the destination.
-    ROOT::Reflex::Member m_methclear;
+    TMethodCall m_methclear;
 
     /// reserve method on the destination.
-    ROOT::Reflex::Member m_methreserve;
+    TMethodCall m_methreserve;
 
     /// push_back method on the destination.
-    ROOT::Reflex::Member m_methpush_back;
+    TMethodCall m_methpush_back;
 
     /// The converted DV object.
-    ROOT::Reflex::Object m_obj;
+    void* m_obj;
   };
 
   /// Table of DV copying conversions.
   std::vector<dvconv_t> m_dvconv;
+
+  /// Table of type/offset pairs for casting.
+  typedef std::vector<std::pair<const std::type_info*, int> > offset_table_t;
+  mutable offset_table_t m_offsets;
 
 
   /**
@@ -179,7 +192,7 @@ private:
    * @param cldest Desired destination class.
    * @return Pointer to converted object, or null.
    */
-  void* tryCopyingConversion (const ROOT::Reflex::Type& cldest);
+  void* tryCopyingConversion (TClass* cldest);
 
 
   /**
@@ -207,23 +220,7 @@ private:
    * Otherwise, walk the base classes.  If we find a base class
    * that's a @c DataVector instantiation, return it.
    */
-  static ROOT::Reflex::Type findDVBase (const ROOT::Reflex::Type& cl);
-
-
-  /**
-   * @brief Helper to look up a member function in @c typ or a base.
-   * @param typ The class in which to search.
-   * @param name The name of the desired function.
-   * @param signature Signature of the desired function.
-   *
-   * Searches @a typ and its bases for the function member @a name.
-   * Warning: ??? The base search order is depth-first, which isn't
-   * really right as per C++, but it should suffice for our purposes here.
-   */
-  static ROOT::Reflex::Member
-  getMethod (const ROOT::Reflex::Type& typ,
-             const std::string& name,
-             const ROOT::Reflex::Type& signature = ROOT::Reflex::Type(0,0));
+  static TClass* findDVBase (TClass* cl);
 };
 
 

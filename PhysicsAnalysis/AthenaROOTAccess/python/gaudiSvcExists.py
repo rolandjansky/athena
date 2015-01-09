@@ -13,7 +13,7 @@
 
 
 import ROOT
-import PyCintex
+import cppyy
 
 
 def gaudiSvcExists (svcname):
@@ -24,7 +24,7 @@ def gaudiSvcExists (svcname):
 
     # See if the GaudiKernel dictionary has been loaded.
     # Assume the service isn't there if not.
-    if "Service" not in PyCintex.getAllClasses():
+    if "Service" not in cppyy.getAllClasses():
         return False
 
     # Try to get the service locator.

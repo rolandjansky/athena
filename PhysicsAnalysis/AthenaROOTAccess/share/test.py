@@ -1,7 +1,15 @@
 import user  # look for .pythonrc.py for user init
 import ROOT
-import PyCintex
+import cppyy
 import AthenaROOTAccess.transientTree
+
+try:
+   # try to touch ROOT5-only attribute
+   cppyy.Cintex.Debug
+except AttributeError:
+   # ROOT 6
+   from PyUtils.Helpers import ROOT6Setup
+   ROOT6Setup()
 
 # Put your AOD file here.
 aodFile = 'AOD.pool.root'

@@ -183,10 +183,8 @@ public:
    * @param clsname The name of the branch's class (the transient type).
    * @param obj The contained object instance.
    *            If defaulted, one will be created automatically.
+   * @param pers_clsname The name of the persistent type.
    * @return The new branch, or 0 on failure.
-   *
-   * The converter class name is formed automatically from the
-   * transient and persistent class names, of the form @c T_TPCnv\<T,@c P>.
    */
   static TBranchTPConvert* addToTree (TTreeTrans* tree,
                                       const char* name,
@@ -196,6 +194,7 @@ public:
                                       TTree* perstree_primary,
                                       const char* persbranchname,
                                       const char* clsname,
+                                      const char* pers_clsname,
                                       void* obj = 0);
 
 
@@ -429,6 +428,10 @@ private:
     }
   };
   friend class ReadingEntry;
+
+  /// Aux store handling.
+  int m_trans_holder_offset;
+  int m_pers_holder_offset;
 
   // Disallow copying.
   TBranchTPConvert& operator= (const TBranchTPConvert&);

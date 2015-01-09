@@ -11,12 +11,11 @@ author Wim Lavrijsen <WLavrijsen@lbl.gov>
 use AtlasPolicy      AtlasPolicy-*    
 use AtlasROOT        AtlasROOT-*        External
 use GaudiInterface   GaudiInterface-*   External
-use AtlasReflex      AtlasReflex-*      External
 use CxxUtils         CxxUtils-*         Control
 use AthenaKernel     AthenaKernel-*     Control
 use SGTools          SGTools-*          Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
-use AtlasAnalysisRunTime AtlasAnalysisRunTime-*
+use AthContainers    AthContainers-*    Control
 #use AraTool          AraTool-*          PhysicsAnalysis
 
 private
@@ -40,7 +39,18 @@ use PersistentDataModel      PersistentDataModel-*      Database
 use PersistentDataModelTPCnv PersistentDataModelTPCnv-* Database
 use AthenaPoolCnvSvc         AthenaPoolCnvSvc-*         Database/AthenaPOOL
 
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=DVCollectionProxy
+apply_pattern UnitTest_run unit_test=DataBucketVoid
+
+macro_append DVCollectionProxy_test_dependencies " AthenaROOTAccessTestDict "
+macro_append DataBucketVoid_test_dependencies " AthenaROOTAccessTestDict "
+
 private
+use AtlasReflex      AtlasReflex-*      External
+
 apply_pattern lcgdict dict=AthenaROOTAccess selectionfile=selection.xml headerfiles="../AthenaROOTAccess/AthenaROOTAccessDict.h"
+
+apply_pattern lcgdict dict=AthenaROOTAccessTest selectionfile=test_selection.xml headerfiles="../AthenaROOTAccess/AthenaROOTAccessTestDict.h"
 
 macro_append AthenaROOTAccess_shlibflags " -lPyROOT"

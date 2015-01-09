@@ -23,25 +23,42 @@ AthenaROOTAccess.
 
 import re
 import ROOT
-import PyCintex
+import cppyy
 import string
 from AthenaROOTAccess.persTypeToTransType import persTypeToTransType
 from AthenaROOTAccess.gaudiSvcExists import gaudiSvcExists
 from RootUtils import PyROOTFixes
 
+import ROOT
+import glob
+import sys
+import os
+
+
+try:
+   # try to touch ROOT5-only attribute
+   cppyy.Cintex.Debug
+except AttributeError:
+   # ROOT 6
+   from PyUtils.Helpers import ROOT6Setup
+   ROOT6Setup()
+
 # Turn off annoying dict auto-generation --- it doesn't work anyway.
 ROOT.gInterpreter.ProcessLine(".autodict")
 
 # Make sure the proper dictionaries are loaded.
-PyCintex.loadDict('STLRflx')
-PyCintex.loadDict('STLAddRflx')
-PyCintex.loadDict('AtlasSTLAddReflexDict')
+cppyy.loadDictionary('libSTLRflx')
+cppyy.loadDictionary('libSTLAddRflx')
+cppyy.loadDictionary('libAtlasSTLAddReflexDict')
 
 # Make sure abstract base classes have streaminfos built.
 # Otherwise, we can get crashes from TTree::Scan.
-ROOT.gROOT.GetClass('Analysis::TauCommonDetails').GetStreamerInfo()
-ROOT.gROOT.GetClass('JetINav4MomAssociation').GetStreamerInfo()
-ROOT.gROOT.GetClass('Analysis::BaseTagInfo').GetStreamerInfo()
+
+def _loadStreamerInfo(cname):
+    if hasattr(ROOT,cname): ROOT.gROOT.GetClass(cname).GetStreamerInfo()
+_loadStreamerInfo('Analysis::TauCommonDetails')
+_loadStreamerInfo('JetINav4MomAssociation')
+_loadStreamerInfo('Analysis::BaseTagInfo')
 
 # Prevent AthenaBarCodeImpl from trying to create JobIDSvc.
 import os
@@ -135,6 +152,7 @@ def _do_extcnv (br, cnvs):
 #  trans_type        - Name of the transient data type.
 #  trans_tree        - The transient tree to which the new branch
 #                      should be added.
+#  pers_type         - Name of the persistent data type.
 #  pers_tree         - The persistent tree.
 #  pers_tree_primary - If we're building an external tree, this is the
 #                      primary persistent tree.
@@ -146,6 +164,7 @@ def _add_to_trans_tree (trans_branch_name,
                         pers_branch_name,
                         trans_type,
                         trans_tree,
+                        pers_type,
                         pers_tree,
                         pers_tree_primary = None):
 
@@ -161,6 +180,7 @@ def _add_to_trans_tree (trans_branch_name,
           print "ERROR: Can't find branch", pers_branch_name,\
                 "in tree", pers_tree.GetName()
 
+      
       # Make the branch.
       trans_br = ROOT.AthenaROOTAccess.TBranchTPConvert.addToTree\
                  (trans_tree,
@@ -170,8 +190,22 @@ def _add_to_trans_tree (trans_branch_name,
                   pers_tree,
                   pers_tree_primary,
                   pers_branch_name,
-                  trans_type)
+                  trans_type,
+                  pers_type)
       trans_br.SetEntries (trans_tree.GetEntries())
+
+      # Handle schema-evolved xAOD interface classes.
+      if trans_branch_name.endswith ('_auxcnv'):
+          trans_branch_name_orig = trans_branch_name[:-7]
+          aux_branch_name = trans_branch_name_orig + 'Aux.'
+          trans_br = ROOT.AthenaROOTAccess.TBranchAlias.addToTree\
+            (trans_tree,
+             trans_branch_name_orig,
+             trans_branch_name_orig,
+             elem.pClid(),
+             trans_tree,
+             trans_branch_name,
+             aux_branch_name)
 
       # Do Root fixups.
       _fix_vec_proxy (pers_br.GetClassName())
@@ -233,7 +267,8 @@ def _book_trans_tree (pers_tree, name_in = None):
     # loading.  That's wrong, though.  Clear the cached pointer so that
     # it will look up the dictionary again (and should now get the
     # correct one that the transient tree sets up).
-    ROOT.HepMcParticleLink.resetCachedDictionary()
+    if hasattr(ROOT, 'HepMcParticleLink'):
+        ROOT.HepMcParticleLink.resetCachedDictionary()
 
     return trans_tree
 
@@ -297,7 +332,7 @@ def _handle_aux_tree (elem, file, trans_tree, pers_type, pers_tree):
                                                          aux_tree_name)
             # Add the branch.
             _add_to_trans_tree (trans_type, elem, pers_type, trans_type,
-                                aux_tree, aux_pers_tree, pers_tree)
+                                aux_tree, pers_type, aux_pers_tree, pers_tree)
             # And remember it.
             trans_tree.aux_trees[aux_tree_name] = aux_tree
     finally:
@@ -428,6 +463,20 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
 
     # Find the transient type.
     trans_type = persTypeToTransType (pers_type)
+
+    # Look for schema evolution of an xAOD interface class.
+    trans_branch_name_suffix = ''
+    if pers_type == trans_type and pers_type.startswith ('DataVector<xAOD::'):
+        pers_type2 = pers_type[11:-1]
+        pos = pers_type2.rfind ('_')
+        if pos > 0:
+            pers_type2 = pers_type2[:pos] + 'Container' + pers_type2[pos:]
+            trans_type2 = persTypeToTransType (pers_type2)
+            if trans_type2 != pers_type2:
+                pers_type = pers_type2
+                trans_type = trans_type2
+                trans_branch_name_suffix = '_auxcnv'
+
     if not ROOT.gROOT.GetClass (trans_type):
         print "Warning: Can't find transient class", trans_type, "for persistent type", pers_type
         return
@@ -520,8 +569,9 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
             i = i + 1
 
     # Make the branch.
-    br = _add_to_trans_tree (trans_branch_name, elem, pers_branch_name,
-                             trans_type, trans_tree, pers_tree)
+    br = _add_to_trans_tree (trans_branch_name + trans_branch_name_suffix,
+                             elem, pers_branch_name,
+                             trans_type, trans_tree, pers_type, pers_tree)
 
     if alias:
         trans_tree.addAlias (br, alias)
@@ -954,31 +1004,32 @@ if ROOT.gApplication.GetName() != "PyROOT::TPyROOTApplication":
     ROOT.RootUtils.ClearCINTMessageCallback.initialize()
 
 # Set up RootConversions converters.
-reg=ROOT.TConverterRegistry.Instance()
-reg.AddConverter ("TauJetContainer_p1_old_cnv")
-reg.AddConverter ("TrigSpacePointCounts_p1_old_cnv")
-ROOT.TrigInDetTrackTruthMap
-reg.AddConverter ("TrigInDetTrackTruthMap_old_cnv")
+#reg=ROOT.TConverterRegistry.Instance()
+#reg.AddConverter ("TauJetContainer_p1_old_cnv")
+#reg.AddConverter ("TrigSpacePointCounts_p1_old_cnv")
+#if hasattr(ROOT, 'TrigInDetTrackTruthMap'):
+#    ROOT.TrigInDetTrackTruthMap
+#reg.AddConverter ("TrigInDetTrackTruthMap_old_cnv")
 
-
-# Call required hooks on ElementLink classes we read.
-ROOT.AthenaROOTAccess.ScanForEL.initialize()
 
 # Enable TTree speedups.
 PyROOTFixes.enable_tree_speedups()
 
 # Enable container conversions.
 import ROOT
-import PyCintex
 ROOT.TConvertingStreamerInfo.Initialize()
-ROOT.DataModelAthenaPool.CLHEPConverters.initialize()
+#ROOT.DataModelAthenaPool.CLHEPConverters.initialize()
 ROOT.RootConversions.VectorConverters.initialize()
-ROOT.CaloEnergyCnv_p2 # side-effect: loads the right dict + lib
-try:
-    ROOT.caloenergy_cnv_p2_register_streamer()
-    ROOT.CaloEnergyCnv_p2.registerStreamerConverter = ROOT.caloenergy_cnv_p2_register_streamer
-except AttributeError: #bwd compat
-    ROOT.CaloEnergyCnv_p2.registerStreamerConverter()
+cppyy.loadDictionary('libDataModelAthenaPool')
+ROOT.DataModelAthenaPool.CLHEPConverters
+ROOT.DataModelAthenaPool.installPackedContainerConverters()
+if hasattr(ROOT, 'CaloEnergyCnv_p2'):
+    ROOT.CaloEnergyCnv_p2 # side-effect: loads the right dict + lib
+    try:
+        ROOT.caloenergy_cnv_p2_register_streamer()
+        ROOT.CaloEnergyCnv_p2.registerStreamerConverter = ROOT.caloenergy_cnv_p2_register_streamer
+    except AttributeError: #bwd compat
+        ROOT.CaloEnergyCnv_p2.registerStreamerConverter()
 
 ROOT.TConvertingBranchElement.SetDoDel (True)
 

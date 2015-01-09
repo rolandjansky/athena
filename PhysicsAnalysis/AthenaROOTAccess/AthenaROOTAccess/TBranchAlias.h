@@ -22,11 +22,19 @@
 #include "SGTools/IStringPool.h"
 #include "TBranchObject.h"
 #include "TMethodCall.h"
+#include "GaudiKernel/MsgStream.h"
 #include <string>
 #include <memory>
 #include <unordered_map>
 class TTree;
 class TBranch;
+class TClass;
+class ITPCnvBase;
+
+
+namespace SG {
+class AuxStoreInternal;
+}
 
 
 namespace AthenaROOTAccess {
@@ -203,6 +211,12 @@ private:
 
   /// Dynamic branches indexed by auxid.
   mutable std::unordered_map<SG::auxid_t, TBranch*> m_dyn_branch_map;
+
+  /// Original branch being read.  May be different from m_aux_branch
+  /// in the case of a conversion.
+  TBranch* m_aux_branch_orig;
+  int m_holder_offset_orig;
+
 
   // Disallow copying
   TBranchAlias& operator= (const TBranchAlias&);

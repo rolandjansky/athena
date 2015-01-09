@@ -19,7 +19,7 @@
 
 
 #include "TGenCollectionProxy.h"
-#include "Reflex/Type.h"
+#include "TMethodCall.h"
 
 
 namespace AthenaROOTAccess {
@@ -90,11 +90,9 @@ private:
   /// The offset of the underlying @c DataVector in the declared type.
   off_t m_contoff;
 
-  /// The element type to which the DV representation points.
-  ROOT::Reflex::Type m_elt_base;
-
-  /// The declared element type of the DV.
-  ROOT::Reflex::Type m_elt_type;
+  /// Method to cast from the DV representation of an element
+  /// to the declared element type.
+  TMethodCall m_caster;
 
   // Disallow copying.
   DVCollectionProxy& operator= (const DVCollectionProxy&);

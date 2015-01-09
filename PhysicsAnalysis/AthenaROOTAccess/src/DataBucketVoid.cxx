@@ -9,28 +9,38 @@
  * @date April 2007
  * @brief Concrete @c DataBucket that holds the object via a @c void*
  *        and uses the Root dictionary to do conversions.
- *
- * Note: this had originally been written using @c TClass, etc.
- * However, we ran into problems because @c TClass does not properly
- * represent virtual derivation, which we require in some cases.
- * Thus, this was rewritten to use Reflex directly (which does represent
- * virtual derivation correctly.)
  */
 
 
 #include "AthenaROOTAccess/DataBucketVoid.h"
 #include "AthContainers/OwnershipPolicy.h"
 
-#include "Reflex/Base.h"
 #include "TError.h"
 #include "TClass.h"
+#include "TBaseClass.h"
+#include "TList.h"
+#include "TClassEdit.h"
 
 
-using ROOT::Reflex::Type;
-using ROOT::Reflex::Member;
-using ROOT::Reflex::Object;
-using ROOT::Reflex::Member_Iterator;
-using ROOT::Reflex::Base_Iterator;
+namespace {
+
+
+/**
+ * @brief Return the element type for a DataVector class.
+ * @param dvcls The input DataVector class.
+ *
+ * Given the TClass for DataVector<T>, return the TClass for T.
+ */
+TClass* getElementType (TClass* dvcls)
+{
+  TClassEdit::TSplitType sp (dvcls->GetName());
+  if (sp.fElements.size() < 2)
+    return 0;
+  return TClass::GetClass (sp.fElements[1].c_str());
+}
+
+
+} // anonymous namespace
 
 
 namespace AthenaROOTAccess {
@@ -42,8 +52,24 @@ namespace AthenaROOTAccess {
  * @param ptr The pointer to hold.
  */
 DataBucketVoid::DataBucketVoid (TClass* cl, void* ptr)
-  : m_ptr (Type::ByTypeInfo (*cl->GetTypeInfo()), ptr)
+  : m_cl (cl),
+    m_ptr (ptr),
+    m_dvcl (nullptr),
+    m_dvptr (nullptr)
 {
+  m_dvcl = findDVBase (m_cl);
+  m_dvptr = ptr;
+  if (m_dvcl) {
+    int dvoffs = cl->GetBaseClassOffset (m_dvcl);
+    if (dvoffs > 0)
+      m_dvptr = reinterpret_cast<char*> (ptr) + dvoffs;
+
+    m_baseOffsetMeth.InitWithPrototype (m_dvcl, "baseOffset", "const std::type_info&");
+    if (!m_baseOffsetMeth.IsValid()) {
+      ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::baseOffset ",
+               m_dvcl->GetName());
+    }
+  }
 }
 
 
@@ -56,7 +82,7 @@ DataBucketVoid::~DataBucketVoid()
   size_t sz = m_dvconv.size();
   for (size_t i = 0; i < sz; i++) {
     dvconv_t& ent = m_dvconv[i];
-    ent.m_obj.Destruct();
+    ent.m_cldest->Destructor (ent.m_obj);
   }
 }
 
@@ -66,7 +92,7 @@ DataBucketVoid::~DataBucketVoid()
  */
 void* DataBucketVoid::object()
 {
-  return m_ptr.Address();
+  return m_ptr;
 }
 
 
@@ -101,11 +127,11 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
 {
   // If the requested type is the same as the held type,
   //no conversion is needed.
-  if (tinfo == m_ptr.TypeOf().TypeInfo())
-    return m_ptr.Address();
+  if (tinfo == *m_cl->GetTypeInfo())
+    return m_ptr;
 
   // Look up the requested type.
-  Type cl = Type::ByTypeInfo (tinfo);
+  TClass* cl = TClass::GetClass (tinfo);
   if (!cl) {
     ::Error ("DataBucketVoid", "Cannot find definition for class %s",
              tinfo.name());
@@ -113,11 +139,34 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
   }
 
   // Find the offset.
-  Object castobj = m_ptr.CastObject (cl);
+  void* castobj = 0;
+  for (const auto& p : m_offsets) {
+    if (p.first == &tinfo) {
+      castobj = reinterpret_cast<char*>(m_dvptr) + p.second;
+      break;
+    }
+  }
+
+  if (castobj == 0) {
+    if (!m_baseOffsetMeth.IsValid()) {
+      ::Error ("DataBucketVoid", "Invalid %s::baseOffset",
+               m_cl->GetName());
+    }
+    else {
+      m_baseOffsetMeth.ResetParam();
+      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (&tinfo));
+      Long_t ret = 0;
+      m_baseOffsetMeth.Execute (ret);
+      if (ret >= 0) {
+        castobj = reinterpret_cast<char*>(m_dvptr) + ret;
+        m_offsets.emplace_back (&tinfo, ret);
+      }
+    }
+  }
 
   if (!castobj) {
-    std::string mclname = m_ptr.TypeOf().Name();
-    std::string clname = cl.Name();
+    std::string mclname = m_cl->GetName();
+    std::string clname = cl->GetName();
 
     // Handle some special cases.
     // These containers don't have the data vector inheritance macros
@@ -151,13 +200,13 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
 
       // Not a legal conversion.
       ::Error ("DataBucketVoid", "Cannot cast class %s to %s",
-               m_ptr.TypeOf().Name_c_str(), cl.Name_c_str());
+               m_cl->GetName(), cl->GetName());
       return 0;
     }
   }
 
   // Convert the pointer.
-  return castobj.Address();
+  return castobj;
 }
 
 /**
@@ -181,11 +230,9 @@ void DataBucketVoid::reset()
   size_t sz = m_dvconv.size();
   if (!sz) return;
   std::vector<void*> args;
-  SG::OwnershipPolicy pol = SG::VIEW_ELEMENTS;
-  args.push_back (&pol);
   for (size_t i = 0; i < sz; i++) {
     dvconv_t& ent = m_dvconv[i];
-    ent.m_methclear.Invoke (ent.m_obj, 0, args);
+    ent.m_methclear.Execute (ent.m_obj);
   }
 }
 
@@ -195,7 +242,7 @@ void DataBucketVoid::reset()
  * @param cldest Desired destination class.
  * @return Pointer to converted object, or null.
  */
-void* DataBucketVoid::tryCopyingConversion (const Type& cldest)
+void* DataBucketVoid::tryCopyingConversion (TClass* cldest)
 {
   // See if this destination is already in our table.
   size_t sz = m_dvconv.size();
@@ -207,56 +254,82 @@ void* DataBucketVoid::tryCopyingConversion (const Type& cldest)
 
   // See if this qualifies as a copying conversion.
   // Is the destination class a DataVector?
-  if (strncmp (cldest.Name_c_str(), "DataVector<", 11) != 0)
+  if (strncmp (cldest->GetName(), "DataVector<", 11) != 0)
     return 0;
 
   // Is the source class a DataVector, or does it derive from one?
   if (!m_dvcl)
-    m_dvcl = findDVBase (m_ptr.TypeOf());
-  if (!m_dvcl)
     return 0;
 
-  m_dvptr = m_ptr.CastObject (m_dvcl);
   if (!m_dvptr)
     return 0;
 
-  m_methsize = getMethod (m_dvcl, "size");
-  {
-    Member_Iterator beg = m_dvcl.FunctionMember_Begin();
-    Member_Iterator end = m_dvcl.FunctionMember_End();
-    for (; beg != end; ++beg) {
-      if (beg->Name() == "operator[]" && beg->IsConst()) {
-        m_methat = *beg;
-        break;
-      }
-    }
+  m_methsize.InitWithPrototype (m_dvcl, "size", "");
+  if (!m_methsize.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::size ",
+             m_dvcl->GetName());
+  }
+
+  m_methat.InitWithPrototype (m_dvcl, "get", "unsigned int");
+  if (!m_methat.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::operator[] ",
+             m_dvcl->GetName());
   }
 
   // Find the element types.
-  Type eltdest = cldest.TemplateArgumentAt (0);
+  TClass* eltdest = getElementType (cldest);
   if (!eltdest)
     return 0;
 
-  Type eltsource = m_dvcl.TemplateArgumentAt (0);
+  TClass* eltsource = getElementType (m_dvcl);
   if (!eltsource)
+    return 0;
+
+  const SG::BaseInfoBase* bib = SG::BaseInfoBase::find (*eltsource->GetTypeInfo());
+  if (!bib)
     return 0;
 
   // Is eltdest a base of eltsource?
   // (We're only allowing D->B conversions for now.)
-  if (!eltsource.HasBase (eltdest))
+  if (!bib->is_base (*eltdest->GetTypeInfo()))
     return 0;
 
   // Make a new table entry.
   m_dvconv.resize (sz + 1);
   dvconv_t& ent = m_dvconv.back();
+  ent.m_obj = nullptr;
   ent.m_cldest = cldest;
   ent.m_eltsource = eltsource;
   ent.m_eltdest = eltdest;
-  ent.m_methsize = getMethod (cldest, "size");
-  ent.m_methclear = getMethod (cldest, "clear",
-                               Type::ByName("void (SG::OwnershipPolicy)"));
-  ent.m_methreserve = getMethod (cldest, "reserve");
-  ent.m_methpush_back = cldest.FunctionMemberByName ("push_back");
+  ent.m_castfn = bib->castfn (*eltdest->GetTypeInfo());
+  ent.m_methsize.InitWithPrototype (cldest, "size", "");
+  if (!ent.m_methsize.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::size ",
+             cldest->GetName());
+  }
+
+  ent.m_methclear.InitWithPrototype (cldest, "clear",
+                                     "SG::OwnershipPolicy");
+  if (!ent.m_methclear.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::clear ",
+             cldest->GetName());
+  }
+  ent.m_methclear.ResetParam();
+  ent.m_methclear.SetParam (static_cast<Long_t>(SG::VIEW_ELEMENTS));
+
+  ent.m_methreserve.InitWithPrototype (cldest, "reserve", "unsigned long");
+  if (!ent.m_methreserve.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::reserve ",
+             cldest->GetName());
+  }
+
+  std::string proto = eltdest->GetName();
+  proto += "*";
+  ent.m_methpush_back.InitWithPrototype (cldest, "push_back", proto.c_str());
+  if (!ent.m_methpush_back.IsValid()) {
+    ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::push_back ",
+             cldest->GetName());
+  }
 
   // Do the conversion.
   return doCopyingConversion (ent);
@@ -272,21 +345,22 @@ void* DataBucketVoid::doCopyingConversion (dvconv_t& ent)
 {
   // Make a new instance if needed.
   if (!ent.m_obj) {
-    ent.m_obj = ent.m_cldest.Construct();
+    ent.m_obj = ent.m_cldest->New();
   }
 
   // If the sizes of the source and destination are different, recopy pointers.
-  size_t sz_source = 0;
-  m_methsize.Invoke (m_dvptr, sz_source);
+  Long_t ret = 0;
+  m_methsize.Execute (m_dvptr, ret);
+  size_t sz_source = ret;
 
-  size_t sz_dest;
-  ent.m_methsize.Invoke (ent.m_obj, sz_dest);
+  ent.m_methsize.Execute (ent.m_obj, ret);
+  size_t sz_dest = ret;
 
   // Refill the destination container if the sizes don't match.
   if (sz_source != sz_dest)
     refillDest (ent, sz_source);
 
-  return ent.m_obj.Address();
+  return ent.m_obj;
 }
 
 
@@ -298,24 +372,24 @@ void* DataBucketVoid::doCopyingConversion (dvconv_t& ent)
 void DataBucketVoid::refillDest (dvconv_t& ent, size_t sz_source)
 {
   // Clear the destination container.
-  std::vector<void*> args;
-  SG::OwnershipPolicy pol = SG::VIEW_ELEMENTS;
-  args.push_back (&pol);
-  ent.m_methclear.Invoke (ent.m_obj, 0, args);
+  ent.m_methclear.Execute (ent.m_obj);
 
-  args[0] = &sz_source;
-  ent.m_methreserve.Invoke (ent.m_obj, 0, args);
+  ent.m_methreserve.ResetParam();
+  ent.m_methreserve.SetParam (static_cast<Long_t> (sz_source));
+  ent.m_methreserve.Execute (ent.m_obj);
 
   for (size_t i = 0; i < sz_source; i++) {
-    args[0] = &i;
-    void* addr = 0;
-    m_methat.Invoke (m_dvptr, addr, args);
-    Object obj (ent.m_eltsource, addr);
-    Object castobj = obj.CastObject (ent.m_eltdest);
+    m_methat.ResetParam();
+    m_methat.SetParam (static_cast<Long_t> (i));
+    Long_t ret;
+    m_methat.Execute (m_dvptr, ret);
+    void* addr = reinterpret_cast<void*> (ret);
 
-    args[0] = castobj.Address();
+    void* castobj = ent.m_castfn (addr);
 
-    ent.m_methpush_back.Invoke (ent.m_obj, 0, args);
+    ent.m_methpush_back.ResetParam();
+    ent.m_methpush_back.SetParam (reinterpret_cast<Long_t> (castobj));
+    ent.m_methpush_back.Execute (ent.m_obj);
   }
 }
 
@@ -329,51 +403,21 @@ void DataBucketVoid::refillDest (dvconv_t& ent, size_t sz_source)
  * Otherwise, walk the base classes.  If we find a base class
  * that's a @c DataVector instantiation, return it.
  */
-Type DataBucketVoid::findDVBase (const Type& cl)
+TClass* DataBucketVoid::findDVBase (TClass* cl)
 {
   // If this class is a DataVector, return it.
-  if (strncmp (cl.Name_c_str(), "DataVector<", 11) == 0)
+  if (strncmp (cl->GetName(), "DataVector<", 11) == 0)
     return cl;
 
-  Type dvbase;
-
-  // Scan base classes too.
-  Base_Iterator beg = cl.Base_Begin();
-  Base_Iterator end = cl.Base_End();
-  for (; beg != end; ++beg) {
-    dvbase = findDVBase (beg->ToType());
+  TIter next (cl->GetListOfBases());
+  while (TBaseClass* bcl = dynamic_cast<TBaseClass*>(next())) {
+    TClass* cc = bcl->GetClassPointer();
+    TClass* dvbase = findDVBase (cc);
     if (dvbase)
       break;
   }
 
-  return dvbase;
-}
-
-
-/**
- * @brief Helper to look up a member function in @c typ or a base.
- * @param typ The class in which to search.
- * @param name The name of the desired function.
- * @param signature Signature of the desired function.
- *
- * Searches @a typ and its bases for the function member @a name.
- * Warning: ??? The base search order is depth-first, which isn't
- * really right as per C++, but it should suffice for our purposes here.
- */
-Member DataBucketVoid::getMethod (const Type& typ,
-                                  const std::string& name,
-                                  const Type& signature /*= Type(0,0)*/)
-{
-  Member mem = typ.FunctionMemberByName (name, signature);
-  if (!mem) {
-    Base_Iterator beg = typ.Base_Begin();
-    Base_Iterator end = typ.Base_End();
-    for (; beg != end; ++beg) {
-      mem = getMethod (beg->ToType(), name, signature);
-      if (mem) break;
-    }
-  }
-  return mem;
+  return nullptr;
 }
 
 
@@ -400,3 +444,5 @@ void DataBucketVoid::lock()
 
 
 } // namespace SG
+
+// m_dvptr wrong?

@@ -44,6 +44,8 @@ known_missing = ["egDetailContainer",
                  "CaloCellContainer",
                  "TrigTauClusterDetailsContainer",
                  "BCM_RDO_Container_p0",
+                 "TileCellContainer",
+                 "TrackCollection",
                  ]
 
 _skipBranches = []
@@ -102,28 +104,87 @@ _typedefs = {'AthenaHitsVector<TrackRecord>' : 'TrackRecordCollection',
              'DataVector<Trk::Segment>'      : 'Trk::SegmentCollection',
              'TileContainer<TileMu>'         : 'TileMuContainer',
              'DataVector<xAOD::BTagging_v1>' : 'xAOD::BTaggingContainer_v1',
+             'DataVector<xAOD::BTagging_v1>' : 'xAOD::BTaggingContainer',
              'DataVector<xAOD::CaloCluster_v1>':'xAOD::CaloClusterContainer_v1',
+             'DataVector<xAOD::CaloCluster_v1>':'xAOD::CaloClusterContainer',
              'DataVector<xAOD::Electron_v1>' : 'xAOD::ElectronContainer_v1',
-             'DataVector<xAOD::Photon_v1>'   : 'xAOD::PhotonContainer_v1',
+             'DataVector<xAOD::Electron_v1>' : 'xAOD::ElectronContainer',
              'DataVector<xAOD::Muon_v1>'     : 'xAOD::MuonContainer_v1',
+             'DataVector<xAOD::Muon_v1>'     : 'xAOD::MuonContainer',
              'DataVector<xAOD::MuonSegment_v1>':'xAOD::MuonSegmentContainer_v1',
+             'DataVector<xAOD::MuonSegment_v1>':'xAOD::MuonSegmentContainer',
+             'DataVector<xAOD::Photon_v1>'   : 'xAOD::PhotonContainer_v1',
+             'DataVector<xAOD::Photon_v1>'   : 'xAOD::PhotonContainer',
              'DataVector<xAOD::Jet_v1>'      : 'xAOD::JetContainer_v1',
+             'DataVector<xAOD::Jet_v1>'      : 'xAOD::JetContainer',
              'DataVector<xAOD::TauJet_v1>'   : 'xAOD::TauJetContainer_v1',
+             'DataVector<xAOD::TauJet_v2>'   : 'xAOD::TauJetContainer_v2',
+             'DataVector<xAOD::TauJet_v2>'   : 'xAOD::TauJetContainer',
              'DataVector<xAOD::TrackParticle_v1>':'xAOD::TrackParticleContainer_v1',
+             'DataVector<xAOD::TrackParticle_v1>':'xAOD::TrackParticleContainer',
              'DataVector<xAOD::Vertex_v1>'   : 'xAOD::VertexContainer_v1',
+             'DataVector<xAOD::Vertex_v1>'   : 'xAOD::VertexContainer',
              'DataVector<xAOD::TruthEvent_v1>':'xAOD::TruthEventContainer_v1',
+             'DataVector<xAOD::TruthEvent_v1>':'xAOD::TruthEventContainer',
              'DataVector<xAOD::TruthParticle_v1>':'xAOD::TruthParticleContainer_v1',
+             'DataVector<xAOD::TruthParticle_v1>':'xAOD::TruthParticleContainer',
              'DataVector<xAOD::TruthVertex_v1>':'xAOD::TruthVertexContainer_v1',
+             'DataVector<xAOD::TruthVertex_v1>':'xAOD::TruthVertexContainer',
              'DataVector<xAOD::PFO_v1>'      : 'xAOD::PFOContainer_v1',
-             'DataVector<xAOD::MuonRoI_v1>'  : 'xAOD::MuonRoIContainer_v1',
+             'DataVector<xAOD::PFO_v1>'      : 'xAOD::PFOContainer',
              'DataVector<xAOD::TrigBphys_v1>': 'xAOD::TrigBphysContainer_v1',
+             'DataVector<xAOD::TrigBphys_v1>': 'xAOD::TrigBphysContainer',
              'DataVector<xAOD::TrigEMCluster_v1>':'xAOD::TrigEMClusterContainer_v1',
+             'DataVector<xAOD::TrigEMCluster_v1>':'xAOD::TrigEMClusterContainer',
              'DataVector<xAOD::TrigElectron_v1>':'xAOD::TrigElectronContainer_v1',
+             'DataVector<xAOD::TrigElectron_v1>':'xAOD::TrigElectronContainer',
              'DataVector<xAOD::TrigPhoton_v1>':'xAOD::TrigPhotonContainer_v1',
+             'DataVector<xAOD::TrigPhoton_v1>':'xAOD::TrigPhotonContainer',
              'DataVector<xAOD::TrigMissingET_v1>':'xAOD::TrigMissingETContainer_v1',
+             'DataVector<xAOD::TrigMissingET_v1>':'xAOD::TrigMissingETContainer',
              'DataVector<xAOD::EmTauRoI_v1>':'xAOD::EmTauRoIContainer_v1',
+             'DataVector<xAOD::EmTauRoI_v2>':'xAOD::EmTauRoIContainer_v2',
+             'DataVector<xAOD::EmTauRoI_v2>':'xAOD::EmTauRoIContainer',
              'DataVector<xAOD::JetRoI_v1>':'xAOD::JetRoIContainer_v1',
+             'DataVector<xAOD::JetRoI_v2>':'xAOD::JetRoIContainer_v2',
+             'DataVector<xAOD::JetRoI_v2>':'xAOD::JetRoIContainer',
              'DataVector<xAOD::MuonRoI_v1>':'xAOD::MuonRoIContainer_v1',
+             'DataVector<xAOD::MuonRoI_v1>':'xAOD::MuonRoIContainer',
+             'DataVector<xAOD::SlowMuon_v1>':'xAOD::SlowMuonContainer_v1',
+             'DataVector<xAOD::SlowMuon_v1>':'xAOD::SlowMuonContainer',
+             'DataVector<xAOD::L2StandAloneMuon_v1>':'xAOD::L2StandAloneMuonContainer_v1',
+             'DataVector<xAOD::L2StandAloneMuon_v1>':'xAOD::L2StandAloneMuonContainer',
+             'DataVector<xAOD::TrigComposite_v1>':'xAOD::TrigCompositeContainer_v1',
+             'DataVector<xAOD::TrigComposite_v1>':'xAOD::TrigCompositeContainer',
+             'DataVector<xAOD::TrigSpacePointCounts_v1>':'xAOD::TrigSpacePointCountsContainer_v1',
+             'DataVector<xAOD::TrigSpacePointCounts_v1>':'xAOD::TrigSpacePointCountsContainer',
+             'DataVector<xAOD::TrigT2MbtsBits_v1>':'xAOD::TrigT2MbtsBitsContainer_v1',
+             'DataVector<xAOD::TrigT2MbtsBits_v1>':'xAOD::TrigT2MbtsBitsContainer',
+             'DataVector<xAOD::TrigTrackCounts_v1>':'xAOD::TrigTrackCountsContainer_v1',
+             'DataVector<xAOD::TrigTrackCounts_v1>':'xAOD::TrigTrackCountsContainer',
+             'DataVector<xAOD::TrigVertexCounts_v1>':'xAOD::TrigVertexCountsContainer_v1',
+             'DataVector<xAOD::TrigVertexCounts_v1>':'xAOD::TrigVertexCountsContainer',
+             'DataVector<xAOD::BTagVertex_v1>':'xAOD::BTagVertexContainer_v1',
+             'DataVector<xAOD::BTagVertex_v1>':'xAOD::BTagVertexContainer',
+             'DataVector<xAOD::TrigRNNOutput_v1>':'xAOD::TrigRNNOutputContainer_v1',
+             'DataVector<xAOD::TrigRNNOutput_v1>':'xAOD::TrigRNNOutputContainer',
+             'DataVector<xAOD::TrigRingerRings_v1>':'xAOD::TrigRingerRingsContainer_v1',
+             'DataVector<xAOD::TrigRingerRings_v1>':'xAOD::TrigRingerRingsContainer',
+             'DataVector<xAOD::L2CombinedMuon_v1>':'xAOD::L2CombinedMuonContainer_v1',
+             'DataVector<xAOD::L2CombinedMuon_v1>':'xAOD::L2CombinedMuonContainer',
+             'DataVector<xAOD::TrackParticleClusterAssociation_v1>' : 'xAOD::TrackParticleClusterAssociationContainer_v1',
+             'DataVector<xAOD::TrackParticleClusterAssociation_v1>' : 'xAOD::TrackParticleClusterAssociationContainer',
+             
+             'xAOD::MissingETContainer_v1'    : 'xAOD::MissingETContainer',
+             'xAOD::MissingETComponentMap_v1' : 'xAOD::MissingETComponentMap',
+             'xAOD::MissingETAssociationMap_v1' : 'xAOD::MissingETAssociationMap',
+             'xAOD::EventInfo_v1'             : 'xAOD::EventInfo',
+             'xAOD::TrigDecision_v1'          : 'xAOD::TrigDecision',
+             'xAOD::TrigConfKeys_v1'          : 'xAOD::TrigConfKeys',
+             'xAOD::JetEtRoI_v1'              : 'xAOD::JetEtRoI',
+             'xAOD::EnergySumRoI_v1'          : 'xAOD::EnergySumRoI',
+             'xAOD::EventShape_v1'            : 'xAOD::EventShape',
+             'xAOD::TrigNavigation_v1'        : 'xAOD::TrigNavigation',
              }
 
 class Evdump:
@@ -137,7 +198,19 @@ class Evdump:
         self.invtypedefs = dict((self.typedefs[t], t) for t in self.typedefs)
         for (t, v) in self.typedefs.items():
             ROOT.gROOT.GetClass (t)
-            ROOT.gInterpreter.ProcessLine ("typedef %s %s;" % (t, v))
+        for (t, v) in self.typedefs.items():
+            if not ROOT.gROOT.GetClass (t):
+               continue
+            ns = ''
+            npos = v.rfind('::')
+            if npos >= 0:
+               ns = v[:npos]
+               v = v[npos+2:]
+
+            if ns:
+               ROOT.gInterpreter.ProcessLine ("namespace %s { typedef %s %s;}" % (ns, t, v))
+            else:
+               ROOT.gInterpreter.ProcessLine ("typedef %s %s;" % (t, v))
 
         ROOT.SetSignalPolicy(ROOT.kSignalFast)
         return

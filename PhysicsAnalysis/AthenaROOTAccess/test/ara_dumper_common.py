@@ -13,7 +13,7 @@
 
 
 import ROOT
-import PyCintex
+import cppyy
 import AthenaROOTAccess.transientTree
 import sys
 from dumpers import Evdump, try_autokey

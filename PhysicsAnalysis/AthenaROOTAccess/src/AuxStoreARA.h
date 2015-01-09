@@ -1,12 +1,26 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id$
+/**
+ * @file AthenaROOTAcccess/AuxStoreARA.h
+ * @author marcin, scott
+ * @brief Aux store implementation to manage dynamic aux variables.
+ *
+ * This is basically the same as the corresponding class in RootStorageSvc.
+ * Duplicated here due to the lack of any suitable common packages
+ * with the correct dependencies.
+ */
+
+
 #ifndef ATHENAROOTACCESS_AUXSTOREARA
 #define ATHENAROOTACCESS_AUXSTOREARA
 
-#include "AthenaROOTAccess/IAuxBranches.h"
 #include "AthContainers/AuxStoreInternal.h" 
+#include "AthenaROOTAccess/IAuxBranches.h"
 
 #include "AthContainersInterfaces/IAuxTypeVector.h"
 #include <stdexcept>
@@ -16,10 +30,15 @@
 #include "TClass.h"
 class TBranch;
 
+
 namespace AthenaROOTAccess {
 
-   class AuxStoreARA : public SG::AuxStoreInternal
-   {
+
+  /**
+   * @brief Aux store implementation to manage dynamic aux variables.
+   */
+  class AuxStoreARA : public SG::AuxStoreInternal
+  {
   public:
      AuxStoreARA(IAuxBranches &container, long long entry, bool standalone=false);
      virtual ~AuxStoreARA() {}

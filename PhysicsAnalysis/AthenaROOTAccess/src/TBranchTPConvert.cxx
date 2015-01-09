@@ -17,8 +17,10 @@
 #include "AthenaROOTAccess/branchSeek.h"
 #include "AthenaROOTAccess/addDVProxy.h"
 #include "AthenaROOTAccess/tpcnvLoad.h"
+#include "AuxStoreARA.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
+#include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthAllocators/Arena.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
@@ -32,7 +34,9 @@
 #include <stdexcept>
 
 
+#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
 R__EXTERN TTree* gTree;
+#endif
 
 
 namespace {
@@ -165,6 +169,27 @@ Int_t TBranchTPConvert::GetEntry(Long64_t entry, Int_t getall)
     void* pers  = *(void**)(m_pers_branch->GetAddress());
     void* trans = *(void**)(this->GetAddress());
 
+    // Handle aux stores.
+    if (m_pers_holder_offset >= 0) {
+      SG::IAuxStoreHolder* h =
+        reinterpret_cast<SG::IAuxStoreHolder*>
+        (reinterpret_cast<char*> (pers) + m_pers_holder_offset);
+      AuxStoreARA* s = dynamic_cast<AuxStoreARA*> (h->getStore());
+      if (s) {
+        s->GetEntry (local_entry);
+        s->clearDecorations();
+      }
+    }
+
+    if (m_trans_holder_offset >= 0) {
+      SG::IAuxStoreHolder* h =
+        reinterpret_cast<SG::IAuxStoreHolder*>
+        (reinterpret_cast<char*> (trans) + m_trans_holder_offset);
+      bool standalone =
+        h->getStoreType() == SG::IAuxStoreHolder::AST_ObjectStore;
+      h->setStore (new SG::AuxStoreInternal (standalone));
+    }
+
     bool cnvstat = true;
 
     // If this is a top-level converter, we need to do extra work
@@ -284,8 +309,10 @@ TBranchTPConvert::addToTree (TTreeTrans* tree,
     clsname = cl->GetName();
   }
 
+#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
   // Required for creating a new TBranch.
   gTree = tree;
+#endif
 
   // May be needed by constructors.
   TTreeTrans::Push save_tree (tree);
@@ -374,12 +401,10 @@ TBranchTPConvert::addToTree (TTreeTrans* tree,
  * @param perstree_primary The primary persistent tree (see above), or 0.
  * @param persbranchname The name of the persistent branch.
  * @param clsname The name of the branch's class (the transient type).
+ * @param pers_clsname The name of the persistent type.
  * @param obj The contained object instance.
  *            If defaulted, one will be created automatically.
  * @return The new branch, or 0 on failure.
- *
- * The converter class name is formed automatically from the
- * transient and persistent class names, of the form @c T_TPCnv\<T,@c P>.
  */
 TBranchTPConvert*
 TBranchTPConvert::addToTree (TTreeTrans* tree,
@@ -390,40 +415,16 @@ TBranchTPConvert::addToTree (TTreeTrans* tree,
                              TTree* perstree_primary,
                              const char* persbranchname,
                              const char* clsname,
+                             const char* pers_clsname,
                              void* obj /*= 0*/)
 {
-  // Form the converter class name.
-  TBranch* persbranch = perstree->GetBranch (persbranchname);
-  const char* persname = persbranch->GetClassName();
-  /*
-  std::string cnvname = "T_TPCnv<";
-  cnvname += clsname;
-  cnvname += ",";
-  cnvname += persname;
-  if (cnvname[cnvname.size()-1] == '>')
-    cnvname += " ";
-  cnvname += ">";
-
-  // Chain to the previous addToTree.
-  return addToTree (tree,
-                    name,
-                    key,
-                    clid,
-                    cnvname.c_str(),
-                    perstree,
-                    perstree_primary,
-                    persbranchname,
-                    clsname,
-                    obj);
-  */
-  
   // get the ITPCnvBase instance...
   ITPCnvBase* cnv = AthenaROOTAccess::TPCnv::Registry::instance()
-    .p2t_cnv(std::string(persname));
+    .p2t_cnv(std::string(pers_clsname));
 
   if (!cnv) {
     ::Error ("TBranchTPConvert",
-             "Could not load T/P-cnv for persistent class [%s]", persname);
+             "Could not load T/P-cnv for persistent class [%s]", pers_clsname);
     return 0;
   }
 
@@ -518,6 +519,21 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
   if (m_pers_tree_primary) {
     m_notify_chain = perstree_primary->GetNotify();
     perstree_primary->SetNotify (this);
+  }
+
+  // Set up aux store handling.
+  const TClass* holder_cl = TClass::GetClass ("SG::IAuxStoreHolder");
+  m_trans_holder_offset = -1;
+  m_pers_holder_offset = -1;
+  if (holder_cl) {
+    TClass* cl = TClass::GetClass (clsname);
+    if (cl)
+      m_trans_holder_offset = cl->GetBaseClassOffset (holder_cl);
+  }
+  if (holder_cl) {
+    TClass* cl = TClass::GetClass (m_pers_branch->GetClassName());
+    if (cl)
+      m_pers_holder_offset = cl->GetBaseClassOffset (holder_cl);
   }
 }
 
@@ -881,10 +897,12 @@ TClass* TBranchTPConvert::Class()
 }
 
 
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TBranchTPConvert::ShowMembers (TMemberInspector& R__insp)
 {
   TBranchObject::ShowMembers (R__insp);
 }
+#endif
 
 
 void TBranchTPConvert::Streamer (TBuffer& b)
@@ -893,7 +911,11 @@ void TBranchTPConvert::Streamer (TBuffer& b)
 }
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
+atomic_TClass_ptr TBranchTPConvert::fgIsA;
+#else
 TClass* TBranchTPConvert::fgIsA = 0;
+#endif
 
 
 } // namespace AthenaROOTAccess

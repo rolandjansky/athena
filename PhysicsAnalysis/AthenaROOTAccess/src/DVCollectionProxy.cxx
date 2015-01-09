@@ -17,64 +17,38 @@
 #include "TClassEdit.h"
 #include "TClass.h"
 #include "TBaseClass.h"
+#include "TMethodCall.h"
 #include "TROOT.h"
 # include "TCollectionProxyInfo.h"
 #include <cassert>
-
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
-
-
-using ROOT::Reflex::Type;
-using ROOT::Reflex::Object;
 
 
 namespace AthenaROOTAccess {
 
 
 /**
- * @brief Find base class offset using Reflex.
+ * @brief Find the offset to the unique DV base class.
  * @param cls Class in which to find the base.
- * @param base The base for which to search.
- * @returns The offset of @a base in @a cls, or -1 if it's not a base.
+ * @returns The offset of the base in @a cls.
  *
- * Unlike @c TClass::GetBaseClassOffset, this should properly
+ * Can't use @c TClass::GetBaseClassOffset, because it doesn't
  * handle virtual derivation.  @a cls must have a default constructor.
  */
-int safe_get_base_offset (const Type& cls, const Type& base)
+int safe_get_base_offset (TClass* cls)
 {
-  // Make an instance of the class and try to convert it to the base.
-  Object inst = cls.Construct();
-  Object binst = inst.CastObject (base);
-  int offs = -1;
-
-  // Did the conversion work?
-  if (binst) {
-    // Yes --- find the offset.
-    offs = (char*)binst.Address() - (char*)inst.Address();
+  TMethodCall getbase;
+  getbase.InitWithPrototype (cls, "auxbase", "");
+  if (!getbase.IsValid()) {
+    ::Warning ("AthenaROOTAccess::DVCollectionProxy", "Can't get auxbase "
+               " for type `%s'.", cls->GetName());
+    return 0;
   }
-
-  // Destroy the temporary instance.
-  inst.Destruct();
-
-  return offs;
-}
-
-
-/**
- * @brief Find base class offset using Reflex.
- * @param cls Class in which to find the base.
- * @param base The base for which to search.
- * @returns The offset of @a base in @a cls, or -1 if it's not a base.
- *
- * Unlike @c TClass::GetBaseClassOffset, this should properly
- * handle virtual derivation.  @a cls must have a default constructor.
- */
-int safe_get_base_offset (TClass* cls, TClass* base)
-{
-  Type t1 (Type::ByName (cls->GetName()));
-  Type t2 (Type::ByName (base->GetName()));
-  return safe_get_base_offset (t1, t2);
+  void* obj = cls->New();
+  Long_t baseaddr;
+  getbase.Execute (obj, baseaddr);
+  int ret = reinterpret_cast<char*>(baseaddr) - reinterpret_cast<char*>(obj);
+  cls->Destructor (obj);
+  return ret;
 }
 
 
@@ -98,7 +72,8 @@ TClass* class_from_dvclass (TClass* dvclass)
   // Look up the element class.
   TClass* elclass = gROOT->GetClass (elname.c_str());
   if (!elclass)
-    ::Error ("DVCollectionProxy", "Cannot find class %s", elname.c_str());
+    ::Error ("AthenaROOTAccess::DVCollectionProxy",
+             "Cannot find class %s", elname.c_str());
   return elclass;
 }
 
@@ -119,7 +94,7 @@ TClass* find_dv_base (TClass* dvclass)
   TIter next (dvclass->GetListOfBases());
   while (TBaseClass* bcl = dynamic_cast<TBaseClass*>(next())) {
     TClass* cc = bcl->GetClassPointer();
-    if (strncmp (cc->GetName(), "DataVector", 10) == 0) {
+    if (cc && strncmp (cc->GetName(), "DataVector", 10) == 0) {
       TClass* bdv = find_dv_base (cc);
       if (bdv) return bdv;
       if (strncmp (cc->GetName(), "DataVector<", 11) == 0)
@@ -165,11 +140,9 @@ public:
     /// The last element pointer to have been returned.
     void* m_eltptr;
 
-    /// The element type to which the DV representation points.
-    Type m_elt_base;
-
-    /// The declared element type of the DV.
-    Type m_elt_type;
+    /// Method to cast from the DV representation of an element
+    /// to the declared element type.
+    TMethodCall m_caster;
   };
 
 
@@ -191,6 +164,21 @@ public:
   }
 
 
+  static void* do_cast (env_buff& buff, void* p)
+  {
+    if (buff.m_caster.IsValid()) {
+      buff.m_caster.ResetParam();
+      buff.m_caster.SetParam (reinterpret_cast<Long_t> (p));
+      Long_t ret = 0;
+      buff.m_caster.Execute (ret);
+      buff.m_eltptr = reinterpret_cast<void*> (ret);
+    }
+    else
+      buff.m_eltptr = p;
+    return &buff.m_eltptr;
+  }
+
+
   /**
    * @brief Return the first element of the container.
    * @param env The proxy environment.
@@ -206,9 +194,7 @@ public:
     e.FSIZE  = c.size();
     if ( 0 == e.FSIZE )
       return 0;
-    Object obj (buff.m_elt_base, c[0]);
-    buff.m_eltptr = obj.CastObject (buff.m_elt_type).Address();
-    return &buff.m_eltptr;
+    return do_cast (buff, c[0]);
   }
 
 
@@ -228,9 +214,7 @@ public:
     buff.m_index += e.FIDX;
     e.FIDX = 0;
     if (buff.m_index >= e.FSIZE) return 0;
-    Object obj (buff.m_elt_base, c[buff.m_index]);
-    buff.m_eltptr = obj.CastObject (buff.m_elt_type).Address();
-    return &buff.m_eltptr;
+    return do_cast (buff, c[buff.m_index]);
   }
 
 
@@ -364,8 +348,7 @@ DVCollectionProxy::DVCollectionProxy (const char* elttype,
 DVCollectionProxy::DVCollectionProxy (const DVCollectionProxy& rhs)
   : TGenCollectionProxy (rhs),
     m_contoff (rhs.m_contoff),
-    m_elt_base (rhs.m_elt_base),
-    m_elt_type (rhs.m_elt_type)
+    m_caster (rhs.m_caster)
 {
 }
 
@@ -384,8 +367,7 @@ void DVCollectionProxy::PushProxy(void *objstart)
   DVCollectionFuncs::env_buff& buff =
     ENVBUFF(*reinterpret_cast<DVCollectionFuncs::Env_t*>(fEnv));
 
-  buff.m_elt_type = m_elt_type;
-  buff.m_elt_base = m_elt_base;
+  buff.m_caster = m_caster;
 
   // Save the address of the underlying vector of the DataVector.
   // First, adjust the address to the base DataVector.
@@ -441,7 +423,8 @@ void DVCollectionProxy::FindOffsets (const char* elttype,
   // Find its TClass.
   TClass* dvclass = gROOT->GetClass (conttype);
   if (!dvclass) {
-    ::Error ("DVCollectionProxy", "Cannot find class %s", conttype);
+    ::Error ("AthenaROOTAccess::DVCollectionProxy",
+             "Cannot find class %s", conttype);
     return;
   }
 
@@ -453,7 +436,7 @@ void DVCollectionProxy::FindOffsets (const char* elttype,
   }
 
   // Find the container offset.
-  m_contoff = safe_get_base_offset (dvclass, dvbase);
+  m_contoff = safe_get_base_offset (dvclass);
 
   // Now, find the base and derived element classes.
   std::string elttype2 = elttype;
@@ -465,9 +448,11 @@ void DVCollectionProxy::FindOffsets (const char* elttype,
   if (!elclass || !baseclass)
     return;
 
-  // And set up the types for the element conversions.
-  m_elt_base = Type::ByName (baseclass->GetName());
-  m_elt_type = Type::ByName (elclass->GetName());
+  m_caster.InitWithPrototype (dvclass, "do_cast", elttype);
+  if (!m_caster.IsValid()) {
+    ::Warning ("AthenaROOTAccess::DVCollectionProxy", "Can't get do_cast "
+               " for type `%s' (%s).", dvclass->GetName(), elttype);
+  }
 }
 
 
