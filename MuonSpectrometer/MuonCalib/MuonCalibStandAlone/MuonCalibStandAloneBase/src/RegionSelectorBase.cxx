@@ -137,6 +137,7 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 					}
 				std::cerr<<"Unexpected ')'"<<std::endl;
 				print_position(input, start_element);
+				delete new_region;
 				return NULL;
 				break;
 				}

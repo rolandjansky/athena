@@ -7,7 +7,7 @@
 
 namespace MuonCalib {
 
-CalibrationTeeIOTool :: CalibrationTeeIOTool(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p), m_tool1("MuonCalib::CalibrationDummyIOTool"), m_tool2("MuonCalib::CalibrationDummyIOTool")
+CalibrationTeeIOTool :: CalibrationTeeIOTool(const std::string& t, const std::string& n, const IInterface* p): AthAlgTool(t, n, p), m_tool1("MuonCalib::CalibrationDummyIOTool"), m_tool2("MuonCalib::CalibrationDummyIOTool")
 	{
 	declareInterface< CalibrationIOTool >(this);
 	declareProperty("IOTool1", m_tool1);
@@ -30,13 +30,13 @@ StatusCode CalibrationTeeIOTool :: initialize()
 
 StatusCode CalibrationTeeIOTool :: WriteT0(MdtTubeFitContainer * t0_output, const NtupleStationId & station_id, int iov_start, int iov_end)
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Writing to tool 1"<< endreq;
+
+	ATH_MSG_INFO("Writing to tool 1");
 	StatusCode sc=m_tool1->WriteT0(t0_output, station_id, iov_start, iov_end);
 	
 	if(!sc.isSuccess())
 		return sc;
-	log<< MSG::INFO << "Writing to tool 2"<< endreq;
+	ATH_MSG_INFO("Writing to tool 2");
 	return m_tool2->WriteT0(t0_output, station_id, iov_start, iov_end);
 	}
 

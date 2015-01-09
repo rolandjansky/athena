@@ -5,10 +5,11 @@
 #ifndef CalibrationTeeIOTool_H
 #define CalibrationTeeIOTool_H
 
-
 // MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace MuonCalib{
 
@@ -17,7 +18,7 @@ Wites to two calibtaion IO Tools. Reads from the first one.
 */
 
 
-class CalibrationTeeIOTool : public AlgTool, virtual public CalibrationIOTool
+class CalibrationTeeIOTool : public AthAlgTool, virtual public CalibrationIOTool
 	{
 	public:
 	/** constructor*/

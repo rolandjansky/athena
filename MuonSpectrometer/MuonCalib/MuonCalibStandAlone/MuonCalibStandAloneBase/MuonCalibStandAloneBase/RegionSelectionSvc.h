@@ -13,7 +13,7 @@
 
 
 //gaudi
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -50,7 +50,7 @@ Seolect calibration region
 class TDirectory;
 class TChain;
 
-class RegionSelectionSvc : public Service
+class RegionSelectionSvc : public AthService
 	{
 	public:
 	/**contructor */

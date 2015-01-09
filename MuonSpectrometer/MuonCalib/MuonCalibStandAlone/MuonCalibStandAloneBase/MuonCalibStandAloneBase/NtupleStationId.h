@@ -29,25 +29,25 @@ class NtupleStationId
 	{
 	public:
 	/** Default constructor */
-		inline NtupleStationId(): m_station(-1), m_eta(-99), m_phi(-1), m_ml(0), m_author(0), geom_ok(false),  m_region_id_valid(false)
+		inline NtupleStationId(): m_station(-1), m_eta(-99), m_phi(-1), m_ml(0), m_author(0), region_hash(0), n_ml(-1), geom_ok(false), m_region_id_valid(false)
 		 {}
-	/** Initializing Constructor 
+	/** Initializing Constructor
 		@param id MuonFixedId identifier
 	*/
-		inline NtupleStationId(const MuonFixedId &id)
+		inline NtupleStationId(const MuonFixedId &id): region_hash(0), n_ml(-1)
 			{
 			Initialize(id);
 			}
-	/** Initializing Constructor 
+	/** Initializing Constructor
 		@param station station name
 		@param eta station eta
 		@param phi station phi
 	*/
-		inline NtupleStationId(const std::string & station, const int & eta, const int & phi, const int & ml=0, const int &author=0)
+		inline NtupleStationId(const std::string & station, const int & eta, const int & phi, const int & ml=0, const int &author=0): region_hash(0), n_ml(-1)
 			{
 			Initialize(station, eta, phi, ml, author);
 			}
-	/** initialize function 
+	/** initialize function
 		@param id MuonFixedId identifier
 	*/
 		inline void Initialize(const MuonFixedId &id)
@@ -68,7 +68,7 @@ class NtupleStationId
 			m_ml = ml;
 			m_author=author;
 			m_region_id_valid = false;
-			geom_ok=false;			
+			geom_ok=false;
 			}
 	/** initialize function
 		@param station station name
@@ -196,12 +196,12 @@ class NtupleStationId
 			{
 			if(!geom_ok || ml >= n_ml) return -1;
 			return layer_min[ml];
-			}	
+			}
 		inline int LayerMax(int ml) const
 			{
 			if(!geom_ok || ml >= n_ml) return -1;
 			return layer_max[ml];
-			}	
+			}
 		inline int TubeMin(int ml) const
 			{
 			if(!geom_ok || ml >= n_ml) return -1;
@@ -220,7 +220,7 @@ class NtupleStationId
 		int FixedId() const;
 //=============================================================================
 	private:
-	//! id	
+	//! id
 		int m_station, m_eta, m_phi, m_ml;
 		int m_author;
 	//! geo model information

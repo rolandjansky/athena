@@ -33,6 +33,7 @@ bool NtupleStationId :: Initialize(const std::string & station, const int & eta,
 	m_ml=ml;
 	m_author=author;
 	m_region_id_valid = false;
+	geom_ok=false;
 	return true;
 	}
 

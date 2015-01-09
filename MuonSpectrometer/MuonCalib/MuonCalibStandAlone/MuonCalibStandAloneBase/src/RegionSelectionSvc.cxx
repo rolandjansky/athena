@@ -39,7 +39,7 @@
 using namespace MuonCalib;
 
 
-RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *svc_locator) : Service(name, svc_locator), m_region_string(), m_print_list_of_selected_chambers(false), m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *svc_locator) : AthService(name, svc_locator), m_region_string(), m_print_list_of_selected_chambers(false), m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 	{
 	declareProperty("Region", m_region_string);
 	declareProperty("PrintList", m_print_list_of_selected_chambers);
@@ -59,12 +59,12 @@ RegionSelectionSvc :: ~RegionSelectionSvc()
 
 StatusCode RegionSelectionSvc::queryInterface(const InterfaceID& riid, 
 							void** ppvUnknown) {
-	std::cout<<"StatusCode RegionSelectionSvc::queryInterface"<<std::endl;
+	ATH_MSG_INFO("StatusCode RegionSelectionSvc::queryInterface");
 
 	if (IID_IRegionSelectionSvc.versionMatch(riid)) { 
 		*ppvUnknown = (RegionSelectionSvc *)this; 
 	} else { 
-		return Service::queryInterface(riid, ppvUnknown); 
+		return AthService::queryInterface(riid, ppvUnknown); 
 	}
 
 	return StatusCode::SUCCESS;
@@ -73,47 +73,40 @@ StatusCode RegionSelectionSvc::queryInterface(const InterfaceID& riid,
 
 StatusCode RegionSelectionSvc :: initialize()
 	{
- 	MsgStream log(messageService(), name());
-	log<< MSG::INFO << "initialize RegionSelectionSvc" << endreq;
 
-	StatusCode sc=Service::initialize();
-	if(!sc.isSuccess())
-		{
-		log << MSG::FATAL << "Failed to initialize myelf!"<<endreq;
-		return sc;
-		}
+	ATH_MSG_INFO("initialize RegionSelectionSvc");
 	
 	if(!ProcessString(m_region_string))
 		return StatusCode::FAILURE;
 
 
 //detector stre - id to fixed id ... 
-  sc = serviceLocator()->service("DetectorStore", m_detStore);
+  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-   log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
+    ATH_MSG_DEBUG("Retrieved DetectorStore");
   }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    ATH_MSG_ERROR("Failed to retrieve DetectorStore");
     return sc;
   }
 
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
+    ATH_MSG_ERROR("Can't retrieve MdtIdHelper");
     return sc;
   }
   
   sc = m_detStore->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
+    ATH_MSG_ERROR("Can't retrieve MuonDetectorManager");
     return sc;
   }
   
  sc = m_idToFixedIdTool.retrieve();
   if (sc.isFailure()) {
-     log << MSG::FATAL << "Could not find " << m_idToFixedIdTool << endreq;
-      return sc;
-  } else {
-     log << MSG::INFO << "Retrieved " << m_idToFixedIdTool << endreq;
+    ATH_MSG_FATAL("Could not find " << m_idToFixedIdTool );
+    return sc;
+  }else{
+    ATH_MSG_INFO("Retrieved " << m_idToFixedIdTool );
   }
 
 
@@ -234,14 +227,14 @@ inline bool RegionSelectionSvc :: ProcessString(const std::string & input)
 
 void  RegionSelectionSvc :: print_list_of_selected_chambers() const
 	{
-	MsgStream log(messageService(), name());
-	log<<MSG::INFO<<"Selected regions: "<<m_stations_in_region.size()<<endreq;
-	log<<MSG::INFO<<"Selected regions: ";
+
+	ATH_MSG_INFO("Selected regions: "<<m_stations_in_region.size() );
+	msg(MSG::INFO) << "Selected regions: ";
 	for(std::vector<MuonCalib::NtupleStationId> :: const_iterator it=m_stations_in_region.begin(); it!=m_stations_in_region.end(); it++)
 		{
-		log<<" "<<it->regionId();
+		msg(MSG::INFO) <<" "<<it->regionId();
 		}
-	log<<endreq;
+	msg(MSG::INFO) << endreq;
 	}
 	
 

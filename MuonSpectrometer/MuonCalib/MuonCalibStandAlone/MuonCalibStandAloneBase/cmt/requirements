@@ -4,7 +4,7 @@ author Felix Rauscher <rauscher@cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 
-
+use AthenaBaseComps      AthenaBaseComps-*      Control
 use MuonCalibIdentifier  MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
 use MdtCalibData         MdtCalibData-*         MuonSpectrometer/MuonCalib/MdtCalib
 use MuonCalibEventBase   MuonCalibEventBase-*   MuonSpectrometer/MuonCalib
@@ -17,7 +17,7 @@ use GaudiInterface GaudiInterface-* External
 use MuonCalibITools MuonCalibITools-* MuonSpectrometer/MuonCalib
  
 #apply_pattern declare_joboptions files="*.py"
-apply_pattern dual_use_library files= *.cxx
+apply_pattern dual_use_library files=*.cxx
 
 #use AtlasCLHEP AtlasCLHEP-* External
 
