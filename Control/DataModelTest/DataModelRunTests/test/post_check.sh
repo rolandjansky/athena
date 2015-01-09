@@ -167,6 +167,9 @@ PP="$PP"'|^RootCollection Info'
 PP="$PP"'|^RootCollectionSchemaEditor Warning'
 PP="$PP"'|already in TClassTable'
 PP="$PP"'|PluginService::SetDebug|setting LC_ALL'
+PP="$PP"'|including file'
+PP="$PP"'|Environment initialised for data access|building of dictionaries now off|Cannot find any ShowMembers function'
+PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
 
 test=$1
 if [ -z "$testStatus" ]; then

@@ -44,11 +44,13 @@ from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__DMTestRead
 topSequence += DMTest__DMTestRead ("DMTestRead")
 
 # Note: can't autoload these.
-theApp.getHandle().Dlls += [ "DataModelTestDataReadCnvPoolCnv" ]
-theApp.getHandle().Dlls += [ "DataModelTestDataRead" ]
-import PyCintex
-PyCintex.loadDictionary("libDataModelTestDataReadDict")
-PyCintex.loadDictionary("libDataModelTestDataCommonDict")
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataReadDict")
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+ROOT.DMTest.B
+getattr(ROOT, 'ElementLinkVector_p1<unsigned int>') #root6 pb workaround
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

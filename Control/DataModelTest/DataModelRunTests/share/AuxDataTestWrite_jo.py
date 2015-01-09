@@ -43,9 +43,12 @@ topSequence += DMTest__AuxDataTestWrite ("AuxDataTestWrite")
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-import PyCintex
-PyCintex.loadDictionary("libDataModelTestDataCommonDict")
-theApp.getHandle().Dlls += [ "DataModelTestDataWriteCnvPoolCnv" ]
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+cppyy.loadDictionary("libDataModelTestDataWriteDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
 
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )

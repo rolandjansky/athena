@@ -43,26 +43,48 @@ topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-import PyCintex
-PyCintex.loadDictionary("libDataModelTestDataCommonDict")
-theApp.getHandle().Dlls += [ "DataModelTestDataWriteCnvPoolCnv" ]
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+cppyy.loadDictionary("libDataModelTestDataWriteDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+
+theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec_v1#cvec"]
 fullItemList+=["DMTest::CAuxContainer_v1#cvecAux."]
+fullItemList+=["DMTest::GVec_v1#gvec"]
+fullItemList+=["DMTest::GAuxContainer_v1#gvecAux."]
 fullItemList+=["DMTest::CVec_v1#ctrig"]
 fullItemList+=["DMTest::CTrigAuxContainer_v1#ctrigAux."]
 fullItemList+=["DMTest::C_v1#cinfo"]
 fullItemList+=["DMTest::CInfoAuxContainer_v1#cinfoAux."]
 
+# from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+# fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
+#                                     ['DataVector<DMTest::C_v1>',
+#                                      'DMTest::CAuxContainer_v1',
+#                                      'DMTest::CTrigAuxContainer_v1',
+#                                      'DMTest::C_v1',
+#                                      'DMTest::CInfoAuxContainer_v1',
+#                                      'DataVector<DMTest::G_v1>',
+#                                      'DMTest::GAuxContainer_v1',
+#                                      'DMTest::G_v1'])
+# ServiceMgr += fmtsvc
+
 # Stream's output file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" )
-Stream1.OutputFile =   "xaoddata.root"
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata.root', asAlg=True)
+#Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat_v1#EventFormat')
+Stream1 = Stream1_Augmented.GetEventStream()
+Stream1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out
 Stream1.ItemList   += fullItemList
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='99'"]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
+
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

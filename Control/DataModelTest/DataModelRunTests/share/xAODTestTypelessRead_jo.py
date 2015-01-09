@@ -1,3 +1,4 @@
+
 #
 # $Id$
 #
@@ -50,12 +51,16 @@ fullItemList+=["DMTest::CTrigAuxContainer_v1#copy_ctrigAux."]
 fullItemList+=["DMTest::C_v1#copy_cinfo"]
 fullItemList+=["DMTest::CInfoAuxContainer_v1#copy_cinfoAux."]
 
-# Stream's output file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" )
-Stream1.OutputFile =   "xaoddata3.root"
-# List of DO's to write out
-Stream1.ItemList   += fullItemList
+# from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+# fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
+#                                     ['DataVector<DMTest::C_v1>',
+#                                      'DMTest::CAuxContainer_v1',
+#                                      'DMTest::CTrigAuxContainer_v1',
+#                                      'DMTest::C_v1',
+#                                      'DMTest::CInfoAuxContainer_v1'])
+# ServiceMgr += fmtsvc
+
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -71,11 +76,22 @@ topSequence += DMTest__xAODTestTypelessRead ("xAODTestTypelessRead",
                                              WritePrefix = "copy_")
 
 # Note: can't autoload these.
-theApp.getHandle().Dlls += [ "DataModelTestDataReadCnvPoolCnv" ]
-theApp.getHandle().Dlls += [ "DataModelTestDataRead" ]
-import PyCintex
-PyCintex.loadDictionary("libDataModelTestDataReadDict")
-PyCintex.loadDictionary("libDataModelTestDataCommonDict")
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+cppyy.loadDictionary("libDataModelTestDataReadDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
+
+
+# Stream's output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata3.root',asAlg=True)
+#Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat_v1#EventFormat')
+Stream1 = Stream1_Augmented.GetEventStream()
+Stream1.WritingTool.SubLevelBranchName = '<key>'
+# List of DO's to write out
+Stream1.ItemList   += fullItemList
 
 
 #--------------------------------------------------------------

@@ -2,6 +2,7 @@
 <atn>
    <TEST name="DataModelRunTests" type="makecheck">
       <package>Control/DataModelTest/DataModelRunTests/</package>
+      <timelimit>20</timelimit>
       <author> scott snyder </author>
       <mailto> snyder@bnl.gov </mailto>
       <expectations>

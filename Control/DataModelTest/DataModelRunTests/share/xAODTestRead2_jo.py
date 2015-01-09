@@ -49,11 +49,12 @@ topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
                                      ReadPrefix = "scopy_")
 
 # Note: can't autoload these.
-theApp.getHandle().Dlls += [ "DataModelTestDataReadCnvPoolCnv" ]
-theApp.getHandle().Dlls += [ "DataModelTestDataRead" ]
-import PyCintex
-PyCintex.loadDictionary("libDataModelTestDataReadDict")
-PyCintex.loadDictionary("libDataModelTestDataCommonDict")
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+cppyy.loadDictionary("libDataModelTestDataReadDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
 
 #--------------------------------------------------------------
