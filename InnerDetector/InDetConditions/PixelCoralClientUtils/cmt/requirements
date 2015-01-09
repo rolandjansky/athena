@@ -15,6 +15,9 @@ apply_pattern detcommon_shared_library_settings
 apply_pattern detcommon_ignores
 apply_pattern detcommon_header_installer
 
+# Specify to cmake that this package has non-standard headers (transparent to CMT)
+apply_pattern cmake_add_command command="athena_install_nonstandard_headers(PixelCoralClientUtils/*.hh)"
+
 #============================================================================
 # The CoraCool stuff + IOV
 #============================================================================

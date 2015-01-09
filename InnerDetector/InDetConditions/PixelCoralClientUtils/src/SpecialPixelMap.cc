@@ -215,8 +215,10 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const coral::Blob& blob, unsigned i
 ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 					     unsigned int module_status,
 					     std::vector<unsigned int> chip_status,
-					     std::vector<std::vector<unsigned int> > column_pair_status) :
+					     std::vector<std::vector<unsigned int> > column_pair_status,
+					     unsigned int mchips) :
   std::map<unsigned int, unsigned int>(pixels),
+  m_chipsPerModule(mchips),
   m_module_status(module_status),
   m_chip_status(chip_status),
   m_column_pair_status(column_pair_status)
@@ -1283,6 +1285,7 @@ bool ModuleSpecialPixelMap::fill_from_blob(const coral::Blob& blob){
 
 unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int row, unsigned int mchips){
   int i = (int)mchips%10;
+  if(i>(int)nmtype)i = (int)nmtype-1;
   int mch = (int)mchips/10;
   unsigned int mcolumns = columnsPerFEIX[i];
   unsigned int mrowsrdo = rowsRdoPerFEIX[i];
@@ -1331,7 +1334,8 @@ unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int 
 */
 
 unsigned int ModuleSpecialPixelMap::encodePixelID(unsigned int chip, unsigned int column, unsigned int row, unsigned int mchips){
-  int i = mchips%10; // type of module  
+  int i = mchips%10; // type of module 
+  if(i>(int)nmtype)i = (int)nmtype-1; 
   unsigned int pixelID = row;
   pixelID = (i==0) ? pixelID << 5 : pixelID << 8;
   pixelID += column;
@@ -1352,6 +1356,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 						  unsigned int pixel_eta_index, unsigned int pixel_phi_index, unsigned int mchips){
 
   int i = (int)mchips%10;
+  if(i>(int)nmtype)i = (int)nmtype-1;
   int mch = (int)mchips/10;
   unsigned int mcolumns = columnsPerFEIX[i];
   unsigned int mrowsrdo = rowsRdoPerFEIX[i];

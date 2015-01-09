@@ -5,6 +5,7 @@
 #include "PixelCoralClientUtils/CoralClient.hh"
 #include <string>
 #include <vector>
+#include <cstring>
 
 
   class DummyCoralClientListener : public IPixResultsDbListener {

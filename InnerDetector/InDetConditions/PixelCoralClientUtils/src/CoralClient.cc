@@ -16,6 +16,9 @@ fill the DB, read it back
 #include "PixelCoralClientUtils/SpecialPixelMap.hh"
 #include "PixelCoralClientUtils/PixelCalibData.hh"
 
+#include <assert.h>
+#include <cstring>
+
 // definition of table types
 enum ETableTypeId {kBoolType, kUIntType, kFloatType, kAvresType, kPixelMapType, kCalibData, kNTableTypes};
 const char *s_tableTypeName[kNTableTypes]={"BOOL","UINT","FLOAT","AVRES","SPECIALPIXELS","CALIBDATA"};

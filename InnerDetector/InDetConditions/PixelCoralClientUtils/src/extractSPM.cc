@@ -6,6 +6,7 @@
 #include "PixelCoralClientUtils/SpecialPixelMap.hh"
 
 #include<string>
+#include<cstring>
 #include<map>
 #include<set>
 #include<fstream>

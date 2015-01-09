@@ -31,6 +31,7 @@ namespace PixelCoralClientUtils {
   //static unsigned int FEI3sPerModule = 16; // number of FEI3s in a row
   //static unsigned int columnsPerFEI4 = 80;   // number of columns per FEI4
   //static unsigned int rowsPerFEI4    = 336;   // number of rows per FEI4
+  const unsigned int nmtype(5);
   static unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
   static unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
   static unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
@@ -116,7 +117,7 @@ class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
    ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 			 unsigned int module_status,
 			 std::vector<unsigned int> chip_status,
-			 std::vector<std::vector<unsigned int> > column_pair_status); 
+			 std::vector<std::vector<unsigned int> > column_pair_status,unsigned int mchips = 16); 
    //!< construct from contents
    virtual ~ModuleSpecialPixelMap();
 
@@ -279,7 +280,9 @@ inline unsigned int ModuleSpecialPixelMap::chipStatus(unsigned int chip) const{
 }
 
 inline unsigned int ModuleSpecialPixelMap::columnPairStatus(unsigned int chip, unsigned int column_pair) const{
-  if(chip < (m_chipsPerModule/10) && column_pair < (columnsPerFEIX[m_chipsPerModule%10]/2)){
+  int itype = (int)m_chipsPerModule%10;
+  if(itype>(int)nmtype)itype=(int)nmtype-1;
+  if(chip < (m_chipsPerModule/10) && column_pair < (columnsPerFEIX[itype]/2)){
     if(m_column_pair_status.size() != 0 && m_column_pair_status[chip].size() != 0){
       return m_column_pair_status[chip][column_pair];
     }
@@ -319,11 +322,14 @@ inline bool ModuleSpecialPixelMap::validPixelID(unsigned int pixelID) const{
 }
 
 inline bool ModuleSpecialPixelMap::validPixelID(unsigned int chip, unsigned int column, unsigned int row) const{
-  return (chip<(m_chipsPerModule/10)&&column<columnsPerFEIX[m_chipsPerModule%10]&&row<rowsPerFEIX[m_chipsPerModule%10]) ? true : false;
+  int itype = (int)m_chipsPerModule%10;
+  if(itype>(int)nmtype)itype=(int)nmtype-1;
+  return (chip<(m_chipsPerModule/10)&&column<columnsPerFEIX[itype]&&row<rowsPerFEIX[itype]) ? true : false;
 } 
 
 inline bool ModuleSpecialPixelMap::validPixelID(unsigned int pixel_eta_index, unsigned int pixel_phi_index) const{
   int i = m_chipsPerModule%10;
+  if(i>(int)nmtype)i = (int)nmtype-1;
   int m =  m_chipsPerModule/10;
   unsigned int rowsMax = m>2 ? 2*rowsPerFEIX[i] : rowsPerFEIX[i];
   unsigned int columnsMax = m>2 ? m/2*columnsPerFEIX[i] : m*columnsPerFEIX[i]; 
@@ -343,15 +349,15 @@ inline void ModuleSpecialPixelMap::setchipsPerModule(unsigned int chipsPerModule
 }
 
 inline unsigned int ModuleSpecialPixelMap::columnsPerChip() const{  
-  return columnsPerFEIX[m_chipsPerModule%10]; 
+  return (m_chipsPerModule%10)<nmtype?columnsPerFEIX[m_chipsPerModule%10]:columnsPerFEIX[nmtype-1]; 
 }
 
 inline unsigned int ModuleSpecialPixelMap::rowsPerChip() const{  
-  return rowsPerFEIX[m_chipsPerModule%10]; 
+  return (m_chipsPerModule%10)<nmtype?rowsPerFEIX[m_chipsPerModule%10]:rowsPerFEIX[nmtype-1]; 
 }
 
-inline unsigned int ModuleSpecialPixelMap::rowsrdoPerChip() const{  
-  return rowsRdoPerFEIX[m_chipsPerModule%10]; 
+inline unsigned int ModuleSpecialPixelMap::rowsrdoPerChip() const{
+  return (m_chipsPerModule%10)<nmtype?rowsRdoPerFEIX[m_chipsPerModule%10]:rowsRdoPerFEIX[nmtype-1]; 
 }
 
 } // namespace PixelCoralClientUtils
