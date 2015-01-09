@@ -32,9 +32,7 @@ TileTBOldNtupleRead * TileTBOldNtupleRead::getInstance()
 }
 
 TileTBOldNtupleRead::TileTBOldNtupleRead(std::string name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator)
-  , m_storeGate(0)
-  , m_detStore(0)
+  : AthAlgorithm(name, pSvcLocator)
   , m_tileHWID(0)
   , m_cabling(0)
   , m_trigType(0)
@@ -70,47 +68,16 @@ TileTBOldNtupleRead::~TileTBOldNtupleRead()
 //==============================================
 StatusCode TileTBOldNtupleRead::initialize() 
 {
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "Initialization started" << endreq;
+  ATH_MSG_INFO ( "Initialization started" );
   
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-
-  sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endreq;
-    return sc;
-  }
-
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
 
-  sc = m_detStore->retrieve(m_tileHWID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
-  sc = m_beamInfo.retrieve();
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve " << m_beamInfo << endreq;
-    return sc;
-  }
-  sc = m_beamInfo->setProperty("TileBeamElemContainer",m_beamContainer);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't set property 'TileBeamElemContainer' for TileBeamInfoProvider " << endreq;
-    return sc;
-  }
-  sc = m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't set property 'TileDigitsContainer' for TileBeamInfoProvider " << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_beamInfo.retrieve() );
+  ATH_CHECK( m_beamInfo->setProperty("TileBeamElemContainer",m_beamContainer) );
+  ATH_CHECK( m_beamInfo->setProperty("TileDigitsContainer",m_digitsContainer) );
 
   m_eventShift.resize(8);
   for (int i=0; i<6; ++i) { // find miminum and maximum event shift
@@ -121,55 +88,54 @@ StatusCode TileTBOldNtupleRead::initialize()
   if (m_eventNumber < 0) m_eventNumber = 0;
   
   if (m_eventNumber+m_eventShift[6]<0) {
-    log << MSG::INFO << "Adjusting first ntuple entry to read, setting it to " << -m_eventShift[6] << endreq;
+    ATH_MSG_INFO ( "Adjusting first ntuple entry to read, setting it to " << -m_eventShift[6] );
     m_eventNumber = -m_eventShift[6] - 1;
   } else {
-    log << MSG::INFO << "Reading old ntuple starting from entry " << m_eventNumber << endreq;
+    ATH_MSG_INFO ( "Reading old ntuple starting from entry " << m_eventNumber );
     m_eventNumber -= 1;
   }
   
   if (m_eventShift[6] != 0 || m_eventShift[7] != 0) {
-    log << MSG::INFO << "Additional shift for drawers"
-        << "  N0: " << m_eventShift[0]
-        << "  N1: " << m_eventShift[1]
-        << "  N2: " << m_eventShift[2]
-        << "  P0: " << m_eventShift[3]
-        << "  P1: " << m_eventShift[4]
-        << "  P2: " << m_eventShift[5]
-        << endreq;
+    ATH_MSG_INFO ( "Additional shift for drawers"
+                   << "  N0: " << m_eventShift[0]
+                   << "  N1: " << m_eventShift[1]
+                   << "  N2: " << m_eventShift[2]
+                   << "  P0: " << m_eventShift[3]
+                   << "  P1: " << m_eventShift[4]
+                   << "  P2: " << m_eventShift[5] );
   }
 
   char fname[100];
   sprintf(fname,"%s/r%7.7d.root",m_ntupleDir.c_str(),m_runNumber);
   m_file=new TFile(fname,"OLD");
   if (m_file == NULL) {
-    log << MSG::ERROR << "File not found: " << fname << endreq;
+    ATH_MSG_ERROR ( "File not found: " << fname );
     return StatusCode::FAILURE;
   }
 
   m_ntuple=(TTree*)(m_file->Get(m_ntupleID.c_str()));
   if (m_ntuple == NULL) {
-    log << MSG::ERROR << "Ntuple not found: " << m_ntupleID << endreq;
+    ATH_MSG_ERROR ( "Ntuple not found: " << m_ntupleID );
     return StatusCode::FAILURE;
   }
 
   if (m_nSamp != 9) {
-    log << MSG::ERROR << "Unexpected number of samples: " << m_nSamp << endreq;
+    ATH_MSG_ERROR ( "Unexpected number of samples: " << m_nSamp );
     return StatusCode::FAILURE;
   }
   
   m_maxEventNumber = m_ntuple->GetEntries() - m_eventShift[7];
-  log << MSG::INFO << "Max available entry to read " << m_maxEventNumber << endreq; 
+  ATH_MSG_INFO ( "Max available entry to read " << m_maxEventNumber );
   
   if (m_bigain) {
-    log << MSG::INFO << "Assuming bi-gain ntuple structure with " << m_nSamp << " samples" << endreq;
+    ATH_MSG_INFO ( "Assuming bi-gain ntuple structure with " << m_nSamp << " samples" );
   } else {
-    log << MSG::INFO << "Assuming mono-gain ntuple structure with " << m_nSamp << " samples" << endreq;
+    ATH_MSG_INFO ( "Assuming mono-gain ntuple structure with " << m_nSamp << " samples" );
   }
 
   m_ntupleStruct = new TileTBOldNtupleStruct(m_ntuple,m_bigain,m_adderFit,m_eventShift);
 
-  log << MSG::INFO << "Initialization completed." << endreq;
+  ATH_MSG_INFO ( "Initialization completed." );
   return StatusCode::SUCCESS;
 }
 
@@ -178,43 +144,38 @@ StatusCode TileTBOldNtupleRead::initialize()
 //==============================================
 StatusCode TileTBOldNtupleRead::execute() 
 {
-  MsgStream log(messageService(), name());
-  bool verbose = (log.level() <= MSG::VERBOSE);
-
   ++m_eventNumber;
   if (m_eventNumber >= m_maxEventNumber) {
-    log << MSG::ERROR << "All " << m_eventNumber << " entries processed. " << endreq;
+    ATH_MSG_ERROR ( "All " << m_eventNumber << " entries processed. " );
     return StatusCode::FAILURE;
   }
 
   m_ntupleStruct->GetEntry(m_eventNumber);
-  log << MSG::DEBUG << "Reading entry " << m_eventNumber 
-      << " event number from ntuple is " << m_ntupleStruct->Evt << endreq;
+  ATH_MSG_DEBUG ( "Reading entry " << m_eventNumber 
+                  << " event number from ntuple is " << m_ntupleStruct->Evt );
   
   // Fill beam elements container (PATTERN UNIT and CISPAR only)
   TileBeamElemContainer* pBeamContainer = new TileBeamElemContainer(true);
 
   m_trigType = m_ntupleStruct->Trig;
-  if (verbose) log << MSG::VERBOSE << "Trig type = " << m_trigType << endreq;
+  ATH_MSG_VERBOSE ( "Trig type = " << m_trigType );
   HWIdentifier adc_id = m_tileHWID->adc_id(0,LASE_PTN_FRAG,0,0);
   int value = (m_trigType << 8);
   TileBeamElem * rc = new TileBeamElem(adc_id,value);
   pBeamContainer->push_back(rc);
 
-  if (verbose) log << MSG::VERBOSE << "Cis par:";
+  if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Cis par:";
   for(int ch=0; ch<12; ++ch) {
     adc_id = m_tileHWID->adc_id(0,DIGI_PAR_FRAG,ch,0);
     value = m_ntupleStruct->cispar[ch];
-    if (verbose) log << "  " << value;
+    if (msgLvl(MSG::VERBOSE)) msg() << "  " << value;
     TileBeamElem * rc = new TileBeamElem(adc_id,value);
     pBeamContainer->push_back(rc);
   }
-  if (verbose) log << endreq;
-  StatusCode sc=m_storeGate->record(pBeamContainer, m_beamContainer, false);
+  if (msgLvl(MSG::VERBOSE)) msg() << endreq;
+  StatusCode sc=evtStore()->record(pBeamContainer, m_beamContainer, false);
   if(sc.isFailure()) {
-    log << MSG::ERROR
-        << "Failed to register the container: "
-        << m_beamContainer << endreq;
+    ATH_MSG_ERROR( "Failed to register the container: " << m_beamContainer );
   }
   
   // Fill the TileDigitsContainer
@@ -253,19 +214,25 @@ StatusCode TileTBOldNtupleRead::execute()
             case 10: samples = m_ntupleStruct->Samplep2lo[pmt]; break;
             case 11: samples = m_ntupleStruct->Samplep2hi[pmt]; break;
             default:
-              log << MSG::ERROR << "Bad drawer ID: IROS=" << iros << ", dr=" << dr << endreq;
+              ATH_MSG_ERROR ( "Bad drawer ID: IROS=" << iros << ", dr=" << dr );
             }
 
             HWIdentifier adc_id = m_tileHWID->adc_id(ros,dr,ch,gain);
-            if (verbose)
-              log << MSG::VERBOSE << m_tileHWID->to_string(adc_id)
+            if (msgLvl(MSG::VERBOSE))
+              msg() << MSG::VERBOSE << m_tileHWID->to_string(adc_id)
                   << " ch=" << ch << " pmt=" << pmt+1 << " gain=" << gain << " samples: ";
           
-            for(int i=0; i<m_nSamp; ++i) {
-              digitSamples[i] = samples[i];
-              if (verbose) log << " " << digitSamples[i];
+            if (samples) {
+              for(int i=0; i<m_nSamp; ++i) {
+                digitSamples[i] = samples[i];
+                if (msgLvl(MSG::VERBOSE)) msg() << " " << digitSamples[i];
+              }
+            } else {
+              for(int i=0; i<m_nSamp; ++i) {
+                digitSamples[i] = 0;
+              }
             }
-            if (verbose) log << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << endreq;
           	  
             TileDigits * digi = new TileDigits(adc_id,digitSamples);
             pDigitsContainer->push_back(digi);
@@ -302,19 +269,19 @@ StatusCode TileTBOldNtupleRead::execute()
           case 4: gain = m_ntupleStruct->Gainp1lo[pmt]; samples = m_ntupleStruct->Samplep1lo[pmt]; break;
           case 5: gain = m_ntupleStruct->Gainp2lo[pmt]; samples = m_ntupleStruct->Samplep2lo[pmt]; break;
           default:
-            log << MSG::ERROR << "Bad drawer ID: IROS=" << iros << ", dr=" << dr << endreq;
+            ATH_MSG_ERROR ( "Bad drawer ID: IROS=" << iros << ", dr=" << dr );
           }
 
 	  HWIdentifier adc_id = m_tileHWID->adc_id(ros,dr,ch,gain);
-          if (verbose)
-            log << MSG::VERBOSE << m_tileHWID->to_string(adc_id)
+          if (msgLvl(MSG::VERBOSE))
+            msg() << MSG::VERBOSE << m_tileHWID->to_string(adc_id)
                 << " ch=" << ch << " pmt=" << pmt+1 << " gain=" << gain << " samples: ";
           
 	  for(int i=0; i<m_nSamp; ++i) {
             digitSamples[i] = samples[i];
-            if (verbose) log << " " << digitSamples[i];
+            if (msgLvl(MSG::VERBOSE)) msg() << " " << digitSamples[i];
           }
-          if (verbose) log << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() << endreq;
           	  
 	  TileDigits * digi = new TileDigits(adc_id,digitSamples);
 	  pDigitsContainer->push_back(digi);
@@ -326,11 +293,9 @@ StatusCode TileTBOldNtupleRead::execute()
     }
   }
   
-  sc=m_storeGate->record(pDigitsContainer, m_digitsContainer, false);
+  sc=evtStore()->record(pDigitsContainer, m_digitsContainer, false);
   if(sc.isFailure()) {
-    log << MSG::ERROR
-        << "Failed to register the container: "
-        << m_digitsContainer << endreq;
+    ATH_MSG_ERROR( "Failed to register the container: " << m_digitsContainer );
   }
 
   Incident inc(name(),IncidentType::BeginEvent);
@@ -344,14 +309,13 @@ StatusCode TileTBOldNtupleRead::execute()
 //==============================================
 StatusCode TileTBOldNtupleRead::finalize() 
 {
-  MsgStream log(messageService(), name());
-  log<<MSG::INFO<<"finalize()"<<endreq;
+  ATH_MSG_INFO("finalize()");
 
   delete m_ntuple;
   m_file->Close();
   delete m_file;
   delete m_ntupleStruct;
 
-  log<<MSG::INFO<<"finalize() completed successfully"<<endreq;
+  ATH_MSG_INFO("finalize() completed successfully");
   return StatusCode::SUCCESS;
 }

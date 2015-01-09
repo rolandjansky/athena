@@ -23,11 +23,9 @@
 #include "TileEvent/TileRawChannelContainer.h"
 
 TileTBOldNtupleWrite::TileTBOldNtupleWrite(std::string name, ISvcLocator* pSvcLocator)
-   : Algorithm(name, pSvcLocator)
+   : AthAlgorithm(name, pSvcLocator)
    , m_bigain(0)
    , m_calibrateEnergyThisEvent(0)
-   , m_storeGate(0)
-   , m_detStore(0)
    , m_tileHWID(0)
    , m_cabling(0)
    , m_tileToolEmscale("TileCondToolEmscale")
@@ -55,39 +53,13 @@ TileTBOldNtupleWrite::~TileTBOldNtupleWrite()
 
 StatusCode TileTBOldNtupleWrite::initialize()
 {
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "Initialization started" << endreq;
+  ATH_MSG_INFO ( "Initialization started" );
   
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-
-  sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endreq;
-    return sc;
-  }
-
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
 
-  sc = m_detStore->retrieve(m_tileHWID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
-    return sc;
-  }
-
-  //=== get TileCondToolEmscale
-  sc = m_tileToolEmscale.retrieve();
-  if(sc.isFailure()){
-    log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolEmscale << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
   m_readNtupleAlg=TileTBOldNtupleRead::getInstance();
 
@@ -101,7 +73,7 @@ StatusCode TileTBOldNtupleWrite::initialize()
   m_file= new TFile(fname,"RECREATE");
   m_ntupleWrite=new TTree(m_ntupleID.c_str(),m_ntupleRead->GetTitle());
   if (m_ntupleWrite == NULL) {
-    log << MSG::ERROR << "Can not create ntuple  " << m_ntupleID << endreq;
+    ATH_MSG_ERROR ( "Can not create ntuple  " << m_ntupleID );
     return StatusCode::FAILURE;
   }
 
@@ -122,18 +94,15 @@ StatusCode TileTBOldNtupleWrite::initialize()
     }
   }
 
-  log << MSG::INFO << "Initialization completed." << endreq;
+  ATH_MSG_INFO ( "Initialization completed." );
   return StatusCode::SUCCESS;
 }
   
 StatusCode TileTBOldNtupleWrite::execute()
 {
-  MsgStream log(messageService(), name());
-  // bool verbose = (log.level() <= MSG::VERBOSE);
-
   m_eventNumber = m_readNtupleAlg->EventNumber();
   m_trigType = m_readNtupleAlg->TrigType();
-  log << MSG::DEBUG << "Writing event " << m_eventNumber << " trig Type is " << m_trigType << endreq;
+  ATH_MSG_DEBUG ( "Writing event " << m_eventNumber << " trig Type is " << m_trigType );
 
   // do not apply Cesium and Laser calibration for CIS events
   m_calibrateEnergyThisEvent = m_calibrateEnergy && (m_trigType != 8);
@@ -143,11 +112,7 @@ StatusCode TileTBOldNtupleWrite::execute()
 
   if (m_rawChannelContainerFit != "" ) {
     
-    StatusCode sc=m_storeGate->retrieve(rcCnt, m_rawChannelContainerFit);
-    if(sc.isFailure()) {
-      log<<MSG::ERROR<<"can't retrieve container '"<<m_rawChannelContainerFit<<"' from StoreGate"<<endreq;
-      return sc;
-    }
+    ATH_CHECK( evtStore()->retrieve(rcCnt, m_rawChannelContainerFit) );
 
     TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
 
@@ -186,10 +151,10 @@ StatusCode TileTBOldNtupleWrite::execute()
         // cabling for testbeam (convert channel to pmt#-1)
         int pmt = (m_pmtOrder) ? digiChannel2PMT(ros,channel) : channel;
         
-        log<<MSG::VERBOSE<<"TRC " << m_tileHWID->to_string(hwid)
-           << " ene="<<energy<<" time="<<(*it)->time()
-           <<" chi2="<<(*it)->quality()<<" ped="<<(*it)->pedestal()
-           <<" pmt-1="<<pmt<<endreq;
+        ATH_MSG_VERBOSE("TRC " << m_tileHWID->to_string(hwid)
+                        << " ene="<<energy<<" time="<<(*it)->time()
+                        <<" chi2="<<(*it)->quality()<<" ped="<<(*it)->pedestal()
+                        <<" pmt-1="<<pmt);
 
         int gainMode = (m_bigain) ? gain : 0; // 0 - low gain, 1 - high gain
         int drawerInd = (ros%2 == 0) ? drawer : drawer+3; // positive drawers shifted by 3
@@ -206,11 +171,7 @@ StatusCode TileTBOldNtupleWrite::execute()
 
   if (m_rawChannelContainerFlat != "" ) {
     
-    StatusCode sc=m_storeGate->retrieve(rcCnt, m_rawChannelContainerFlat);
-    if(sc.isFailure()) {
-      log<<MSG::ERROR<<"can't retrieve container '"<<m_rawChannelContainerFlat<<"' from StoreGate"<<endreq;
-      return sc;
-    }
+    ATH_CHECK( evtStore()->retrieve(rcCnt, m_rawChannelContainerFlat) );
 
     TileRawChannelUnit::UNIT rChUnit = rcCnt->get_unit();
 
@@ -249,9 +210,9 @@ StatusCode TileTBOldNtupleWrite::execute()
         // cabling for testbeam (convert channel to pmt#-1)
         int pmt = (m_pmtOrder) ? digiChannel2PMT(ros,channel) : channel;
 
-        log<<MSG::VERBOSE<<"TRC " << m_tileHWID->to_string(hwid)
-           << " flat ene="<<energy<<" time="<<(*it)->time()
-           <<" pmt-1="<<pmt<<endreq;
+        ATH_MSG_VERBOSE("TRC " << m_tileHWID->to_string(hwid)
+                        << " flat ene="<<energy<<" time="<<(*it)->time()
+                        <<" pmt-1="<<pmt);
 
         int gainMode = (m_bigain) ? gain : 0; // 0 - low gain, 1 - high gain
         int drawerInd = (ros%2 == 0) ? drawer : drawer+3; // positive drawers shifted by 3

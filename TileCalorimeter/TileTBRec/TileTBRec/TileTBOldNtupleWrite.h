@@ -5,7 +5,7 @@
 #ifndef TileTBOldNtupleWrite_H
 #define TileTBOldNtupleWrite_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // STL includes
@@ -19,12 +19,11 @@
 #include "TileConditions/TileCablingService.h"
 
 class TileTBOldNtupleRead;
-class StoreGateSvc;
 class TileHWID;
 class TileInfo;
 class TileCondToolEmscale;
 
-class TileTBOldNtupleWrite : public Algorithm {
+class TileTBOldNtupleWrite : public AthAlgorithm {
 public:
   TileTBOldNtupleWrite(std::string name, ISvcLocator* pSvcLocator);
   virtual ~TileTBOldNtupleWrite();
@@ -46,8 +45,6 @@ private:
   bool m_calibrateEnergy;
   bool m_calibrateEnergyThisEvent;
   
-  StoreGateSvc * m_storeGate;
-  StoreGateSvc * m_detStore;
   const TileHWID * m_tileHWID;
   const TileCablingService * m_cabling;
 

@@ -35,10 +35,59 @@
 #include "TileConditions/TileCondToolEmscale.h"
 
 #include "boost/io/ios_state.hpp"
+#include "boost/date_time/local_time/local_time.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
 
-#include <cstdio>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <bitset>
 #include <string>
 #include <ctime>
+
+const char *cern_local_time(time_t unix_time)
+{
+    using namespace boost::local_time;
+    using namespace boost::posix_time;
+    
+    static char dateTime[32];
+
+/*
+    // just an example how to read file with time zones
+    tz_database tz_db;
+    try {
+      tz_db.load_from_file("../data/date_time_zonespec.csv");
+      time_zone_ptr gva_tz = tz_db.time_zone_from_region("Europe/Zurich");
+    }catch(data_not_accessible dna) {
+      std::cerr << "Error with time zone data file: " << dna.what() << std::endl;
+      //exit(EXIT_FAILURE);
+    }catch(bad_field_count bfc) {
+      std::cerr << "Error with time zone data file: " << bfc.what() << std::endl;
+      //exit(EXIT_FAILURE);
+    }
+*/
+    //"Europe/Zurich","CET","CET","CEST","CEST","+01:00:00","+01:00:00","-1;0;3","+02:00:00","-1;0;10","+03:00:00"
+    static time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
+    local_date_time gva_time(from_time_t(unix_time),gva_tz);
+
+    //std::ostringstream otime;
+    //otime << gva_time; // time in the format YYYY-MMM-DD HH:MM:SS TZ
+    //strncpy(dateTime,otime.str().c_str(),31);
+
+    //time_duration hms(gva_time.time_of_day()); - will give time of the day in GMT
+    //int HHMMSS = hms.hours()*10000+hms.minutes()*100+hms.seconds();
+
+    struct tm gva_tm(to_tm(gva_time));
+    strftime(dateTime, 32, "%Y-%b-%d %H:%M:%S %Z", &gva_tm);
+    //HHMMSS = gva_tm.tm_hour*10000+gva_tm.tm_min*100+gva_tm.tm_sec;
+
+    // the code below is only valid when running at CERN (in Geneva time zone)
+    //struct tm *time = localtime((time_t*)(&m_evTime));
+    //HHMMSS = time->tm_hour*10000+time->tm_min*100+time->tm_sec;
+    //strftime(dateTime, 32, "%Y-%m-%d %H:%M:%S %Z", time);
+
+    return dateTime;
+}
 
 // Constructor & deconstructor
 
@@ -138,12 +187,12 @@ StatusCode TileTBDump::finalize() {
   std::cout << std::endl << "Units in DSP reco fragments are " << unitName[std::min(m_unit,4)] << std::endl;
   
   if (m_frag5found) {
-    printf("\nStatFrag5[40..129]");
+    std::cout << std::endl << "StatFrag5[40..129]";
     for (int i = 40; i < 130; i++) {
-      if (i % 10 == 0) printf("\n  [%3d] : ", i);
-      printf(" %8d", StatFrag5[i]);
+      if (i % 10 == 0) std::cout << std::endl << "  [" << std::setw(3) << i << "] : ";
+      std::cout << std::setw(9) << StatFrag5[i];
     }
-    printf("\n"); 
+    std::cout << std::endl; 
   }
   
   ATH_MSG_INFO( "finalize() successfully" );
@@ -157,14 +206,20 @@ StatusCode TileTBDump::execute() {
   static bool notFirst = false;
   if (m_dumpOnce && notFirst) return StatusCode::SUCCESS;
   notFirst = true;
+  boost::io::ios_base_all_saver coutsave(std::cout);
+  std::cout << std::fixed;
   
   ATH_MSG_DEBUG( "execute()" );
 
   int verbosity = 0;
-  if ( msgLvl(MSG::NIL) ) verbosity = 7;
-  else if ( msgLvl(MSG::VERBOSE) ) verbosity = 2;
-  else if ( msgLvl(MSG::DEBUG) ) verbosity = 1;
-
+  if ( msgLvl(MSG::NIL) ) {
+    verbosity = 7;
+  } else if ( msgLvl(MSG::VERBOSE) ) {
+    verbosity = 2;
+  } else if ( msgLvl(MSG::DEBUG) ) {
+    verbosity = 1;
+  }
+  
   // take full event
   const eformat::FullEventFragment<const uint32_t*> * event = m_RobSvc->getEvent();
   
@@ -198,12 +253,12 @@ StatusCode TileTBDump::execute() {
     event->child(fprob, irob);
     const eformat::ROBFragment<const uint32_t*> robf(fprob);
 
-    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec;
-    std::cout << " size " << robf.fragment_size_word() << std::endl;
+    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec
+              << " size " << robf.fragment_size_word() << std::endl;
 
     // Here we should unpack the fragment.
-    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec;
-    std::cout << " size " << robf.rod_fragment_size_word() << std::endl;
+    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec
+              << " size " << robf.rod_fragment_size_word() << std::endl;
 
     //
     // get info on ROD
@@ -252,21 +307,27 @@ StatusCode TileTBDump::execute() {
       max_allowed_size = 0;
     }
     
-    if (m_dumpStatus) {
+    unsigned int size = robf.rod_nstatus();
+    bool bad_status = (robf.rod_status_position()==0 && size > max_allowed_size);
 
-      unsigned int size = robf.rod_nstatus();
-      if (robf.rod_status_position() > 1
-          || robf.rod_ndata() > max_allowed_size
-          || size > max_allowed_size - robf.rod_ndata()) {
+    if (robf.rod_status_position() > 1
+        || robf.rod_ndata() > max_allowed_size
+        || size > max_allowed_size - robf.rod_ndata()
+        || bad_status ) {
+      std::cout << " Problem with status words - assuming no status words" << std::endl;
 
-        std::cout << " Problem with status words " << std::endl;
-      } else if (size > 0) {
+    } else if (m_dumpStatus) {
+
+      if (size > 0) {
         const uint32_t * stat;
         robf.rod_status(stat);
-        for (unsigned int ind = 0; ind < size; ++ind)
+        std::cout.unsetf(std::ios::fixed);
+        for (unsigned int ind = 0; ind < size; ++ind) {
           std::cout << " Status[" << ind << "] = " << stat[ind] << "\t\t" << stat[ind] / 1000000. - 1. << std::endl;
+        }
+        std::cout << std::fixed;
       } else {
-        std::cout << " No status words " << std::endl;
+        std::cout << " No status words" << std::endl;
       }
     }
           
@@ -275,23 +336,33 @@ StatusCode TileTBDump::execute() {
       unsigned int size = robf.rod_ndata();
       if (size > max_allowed_size) {
         size = max_allowed_size;
-        std::cout<<" Problem with data size - assuming " << size << " words "<<std::endl;
+        std::cout<<" Problem with data size - assuming " << size << " words"<<std::endl;
       }
 
       if ( size > 0 ) {
 
         const uint32_t * data;
-        robf.rod_data(data);
-
+        if (bad_status) {
+          robf.rod_status(data);
+        } else {
+          robf.rod_data(data);
+        }
+        
+        if (subdet_id == 0) {
+          std::cout<<" Problem with ROD frag - SubDetector ID is 0" <<std::endl;
+        }
         if ((subdet_id >= 0x50 && subdet_id < 0x60) || // TileCal IDs
             subdet_id == 0x63 || // wrong id in first testbeam test runs 
             subdet_id == 0x70) { // COMMON BEAM ROD in CTB2004
           dump_digi(subdet_id,data, size, version, verbosity);
         } else if ( m_dumpUnknown ) {
           dump_data(data, size, version, verbosity);
+          if (subdet_id == 0) { // try also to find normal fragments  
+            dump_digi(subdet_id,data, size, version, verbosity);
+          }
         }
         
-        std::cout<<std::endl;
+        std::cout << std::endl;
       }
     }
   }
@@ -305,6 +376,40 @@ StatusCode TileTBDump::execute() {
   }
 
   return StatusCode::SUCCESS;
+}
+
+//stream manipulators
+std::ostream &setup0x4 (std::ostream &stream){
+  stream << "0x" << std::setw(4);
+  return stream;
+}
+std::ostream &setupMod (std::ostream &stream){
+  stream << "\n mod" << std::setw(2);
+  return stream;
+}
+std::ostream &setup0 (std::ostream &stream){
+  stream << std::hex << std::setfill('0') << std::setw(8);
+  return stream;
+}
+std::ostream &setupDec (std::ostream &stream){
+  stream << std::setfill(' ') << std::dec;
+  return stream;
+}
+std::ostream &setupPr1 (std::ostream &stream){
+  stream << std::setw(5) << std::setprecision(1);
+  return stream;
+}
+std::ostream &setupPr2 (std::ostream &stream){
+  stream << std::setw(5) << std::setprecision(2);
+  return stream;
+}
+std::ostream &setupPr3 (std::ostream &stream){
+  stream << std::setw(4) << std::setprecision(1);
+  return stream;
+}
+std::ostream &setupPr4 (std::ostream &stream){
+  stream << std::setw(4) << std::setprecision(1);
+  return stream;
 }
 
 void TileTBDump::dump_data(const uint32_t * data, unsigned int size, unsigned int /* version */, int /* verbosity */) {
@@ -333,6 +438,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
   std::string unitName[4] = { "ADC count", "pCb", "Cs pCb", "MeV" };
   std::string shapeName[4] = { "Phys", "Laser", "CIS", "Simul" };
   std::string algName[8] = { "Unknown", "OF1", "OF2", "Fit", "ManyAmps", "Flat", "Alg6", "Alg7" };
+  boost::io::ios_base_all_saver coutsave(std::cout);
 
   T_RodDataFrag* frag[MAX_ROD_FRAG];
   T_TileRawComp rawcomp[MAX_DIGI_CHAN];
@@ -378,30 +484,33 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
       switch (id) {
 
         case COMMON_TOF_FRAG:
-          printf("\nBeam ToF TDC, %d hits found", size);
+          std::cout << "\nBeam ToF TDC, " << size << " hits found"; 
           prev = 0xFF;
           for (c = 0; c < size; ++c) {
             time = data[c] & 0x1FFF;
             res1 = (data[c] >> 13) & 0x1;
             chan = (data[c] >> 16) & 0x07FF;
             if (prev != chan) {
-              printf("\n ch%3d:", chan);
+              std::cout << "\n ch" << std::setw(3) << chan << ":"; 
               nhits = 0;
               prev = chan;
-            } else if (nhits % 8 == 0) printf("\n       ");
+            } else if (nhits % 8 == 0) {
+              std::cout << "\n       ";
+            }
             ++nhits;
-            if (res1)
-              printf(" U%4d", time);
-            else
-              printf("  %4d", time);
+            if (res1) {
+              std::cout << " U" << std::setw(4) << time; 
+            } else {
+              std::cout << "  " << std::setw(4) << time;
+            }
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case BEAM_TDC_FRAG:
         case COMMON_TDC1_FRAG:
         case COMMON_TDC2_FRAG:
-          printf("\nBeam TDC 0x%02x, %d hits found", id, size);
+          std::cout << "\nBeam TDC 0x" << std::setfill('0') << std::hex << std::setw(2) << id << setupDec << ", " << size << " hits found";
           prev = 0xFF;
           for (c = 0; c < size; ++c) {
             time = data[c] & 0xFFFF;
@@ -413,393 +522,524 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             //last = (flag >> 7) & 0x01;
             //res2 = (flag >> 8) & 0x0F;
             if (prev != chan) {
-              printf("\n ch%3d:", chan);
+              std::cout << "\n ch" << std::setw(3) << chan << ":";
               nhits = 0;
               prev = chan;
-            } else if (nhits % 8 == 0) printf("\n       ");
+            } else if (nhits % 8 == 0) {
+              std::cout << "\n       ";
+            }
             ++nhits;
-            if (bad)
-              printf(" %c%c%6d", gb[bad], fr[edge], time);
-            else
-              printf("  %c%6d", fr[edge], time);
+            if (bad) {
+              std::cout << " " << gb[bad] << fr[edge] << std::setw(6) << time;
+            } else {
+              std::cout << "  " << fr[edge] << std::setw(6) << time;
+            }
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case BEAM_ADC_FRAG:
         case COMMON_ADC1_FRAG:
         case COMMON_ADC2_FRAG:
-          if (BEAM_ADC_FRAG == id)
-            printf("\nTile Beam ADC, %d channels found", size);
-          else
-            printf("\nBeam ADC 0x%02x, %d channels found", id, size);
-          for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9u", data[c]);
+          if (BEAM_ADC_FRAG == id) {
+            std::cout << "\nTile Beam ADC, " << size << " channels found";
+          } else {
+            std::cout << "\nBeam ADC 0x" << std::hex << std::setfill('0') << std::setw(2) << id << setupDec << ", " << size << " channels found";
           }
-          printf("\n");
+          for (c = 0; c < size; ++c) {
+            if (c % 8 == 0) std::cout << setupMod << c / 8 << ":";
+            std::cout << std::setw(9) << data[c];
+          }
+          std::cout << std::endl;
           break;
 
         case MUON_ADC_FRAG:
-          printf("\nMuon ADC, %d channels found", size);
+          std::cout << "\nMuon ADC, " << size << " channels found";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9u", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c / 8 << ":";
+            std::cout << std::setw(9) << data[c];
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case ADDR_ADC_FRAG:
-          printf("\nMuon2 ADC, %d channels found", size);
+          std::cout << "\nMuon2 ADC, " << size << " channels found";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9u", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c / 8 << ":";
+            std::cout << std::setw(9) << data[c];
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case LASE_PTN_FRAG:
         case COMMON_PTN_FRAG:
-          if (LASE_PTN_FRAG == id)
-            printf("\nLaser Pattern Unit, %d words found (hex)", size);
-          else
-            printf("\nCommon Pattern Unit, %d words found (hex)", size);
-          for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf(" 0x%08x", data[c]);
+          if (LASE_PTN_FRAG == id) {
+            std::cout<<"\nLaser Pattern Unit, " << size << " words found (hex)";
+          } else {
+            std::cout<<"\nCommon Pattern Unit, " << size << " words found (hex)";
           }
-          printf("\n");
+          for (c = 0; c < size; ++c) {
+            if (c % 8 == 0) std::cout << setupMod << c/8 << ":";
+            std::cout <<  " 0x" << setup0 << data[c] << setupDec << std::endl;
+          }
+          std::cout << std::endl;
           break;
 
         case LASER_OBJ_FRAG:
-          printf("\nLASTROD Laser Object, %d words found (hex)", size);
-          for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf(" 0x%08x", data[c]);
-          }
-          printf("\n");
 
-          if (size != 31) {
-            printf("CRITICAL ERROR! Unknown format!\n");
-          } else {
-            unsigned int * p;
-            int Counter = 0;
-            int Filter = 0, ReqAmp = 0, MeasAmp = 0, Delay = 0, TDC1 = 0, TDC2 = 0;
-            p = data;
-            Counter = *p;
-            p++;
-            printf("\n Laser Counter: %5d\n", Counter);
+          if (size !=25 && size != 26) {
+            std::cout<<"\nLASTROD Laser Object, " << size << " words found (hex)";
+            for (c = 0; c < size; ++c) {
+              if (c % 8 == 0) std::cout << setupMod << c/8 << ":";
+              std::cout <<  " 0x" << setup0 << data[c] << setupDec;
+            }
+            std::cout<<std::endl<<std::endl;
 
-            if ((*p & 0xFF000000) == 0x20000000) {
-              ReqAmp = *p & 0xFFFF;
+            if (size != 31) {
+              std::cout<<"CRITICAL ERROR! Unknown format!"<<std::endl;
+            } else {
+              unsigned int * p;
+              int Counter = 0;
+              int Filter = 0, ReqAmp = 0, MeasAmp = 0, Delay = 0, TDC1 = 0, TDC2 = 0;
+              p = data;
+              Counter = *p;
+              p++;
+              std::cout << " Laser Counter: " << std::setw(5) << Counter << std::endl;
+    
+              if ((*p & 0xFF000000) == 0x20000000) {
+                ReqAmp = *p & 0xFFFF;
+                if (version > 1) {
+                  Filter = (((*p >> 16) & 7) ^ 7) + 2;
+                  if (Filter > 8) Filter -= 8;
+                  std::cout << "  Filter Wheel: " << std::setw(5) << Filter << std::endl;
+                }
+                std::cout << "  Required Amp: " << std::setw(5) << ReqAmp << std::endl;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 14." << std::endl;
+              }
+              p++;
+    
+              if ((*p & 0xFF000000) == 0x21000000) {
+                Delay = (*p >> 12) & 0xFFF;
+                MeasAmp = *p & 0xFFF;
+                std::cout << "  Measured Amp: " << std::setw(5) << MeasAmp << std::endl;
+                std::cout << "         Delay: " << std::setw(5) << Delay << std::endl;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 15." << std::endl;
+              }
+              p++;
+    
+              bool TDCPrint = true;
+    
+              if ((*p & 0xFF000000) == 0x22000000) {
+                if (version == 1) {
+                  TDC1 = (*p >> 16) & 0xF;
+                  TDC2 = (*p >> 20) & 0xF;
+                } else {
+                  TDC1 = *p & 0xFFFF;
+                }
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 16." << std::endl;
+                TDCPrint = false;
+              }
+              p++;
+              if ((*p & 0xFF000000) == 0x23000000) {
+                if (version == 1) {
+                  TDC1 = (TDC1 << 12) + (*p & 0xFFF);
+                  TDC2 = (TDC2 << 12) + ((*p >> 12) & 0xFFF);
+                } else {
+                  TDC2 = *p & 0xFFFF;
+                }
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 17." << std::endl;
+                TDCPrint = false;
+              }
+              p++;
+              if (TDCPrint) {
+                std::cout << "     TDC1 data: " << std::setw(5) << TDC1 << std::endl;
+                std::cout << "     TDC2 data: " << std::setw(5) << TDC2 << std::endl;
+              }
+    
+              int chan0 = 0, chan1 = 0, chan2 = 0, chan3 = 0, chan4 = 0, chan5 = 0, chan6 = 0, chan7 = 0;
+    
+              if ((*p & 0xFF000000) == 0x44000000) {
+                chan0 = (*p & 0xFFF) ^ 0xFFF;
+                chan1 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 18." << std::endl;
+              }
+              p++;
+    
+              if ((*p & 0xFF000000) == 0x45000000) {
+                chan2 = (*p & 0xFFF) ^ 0xFFF;
+                chan3 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 19." << std::endl;
+              }
+              p++;
+    
+              if ((*p & 0xFF000000) == 0x46000000) {
+                chan4 = (*p & 0xFFF) ^ 0xFFF;
+                chan5 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 20." << std::endl;
+              }
+              p++;
+    
+              if ((*p & 0xFF000000) == 0x47000000) {
+                chan6 = (*p & 0xFFF) ^ 0xFFF;
+                chan7 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
+              } else {
+                std::cout << "ERROR in Laser Fragment: decoding word 21." << std::endl;
+              }
+              p++;
+    
+              int diode1_Ped = 0, diode1_PedRMS = 0
+                  , diode2_Ped = 0, diode2_PedRMS = 0
+                  , diode3_Ped = 0, diode3_PedRMS = 0
+                  , diode4_Ped = 0, diode4_PedRMS = 0
+                  , PMT1_Ped = 0, PMT1_PedRMS = 0
+                  , PMT2_Ped = 0, PMT2_PedRMS = 0;
+    
+              diode1_Ped = (*p >> 16) & 0xFFFF;
+              diode1_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              diode2_Ped = (*p >> 16) & 0xFFFF;
+              diode2_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              diode3_Ped = (*p >> 16) & 0xFFFF;
+              diode3_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              diode4_Ped = (*p >> 16) & 0xFFFF;
+              diode4_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              PMT1_Ped = (*p >> 16) & 0xFFFF;
+              PMT1_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              PMT2_Ped = (*p >> 16) & 0xFFFF;
+              PMT2_PedRMS = *p & 0xFFFF;
+              p++;
+    
+              time_t Ped_Last_Run = *p;
+              p++;
+    
+              int diode1_alpha = 0, diode1_alphaRMS = 0
+                  , diode2_alpha = 0, diode2_alphaRMS = 0
+                  , diode3_alpha = 0, diode3_alphaRMS = 0
+                  , diode4_alpha = 0, diode4_alphaRMS = 0;
+    
+              diode1_alpha = (*p >> 16) & 0xFFFF;
+              diode1_alphaRMS = *p & 0xFFFF;
+              p++;
+    
+              diode2_alpha = (*p >> 16) & 0xFFFF;
+              diode2_alphaRMS = *p & 0xFFFF;
+              p++;
+    
+              diode3_alpha = (*p >> 16) & 0xFFFF;
+              diode3_alphaRMS = *p & 0xFFFF;
+              p++;
+    
+              diode4_alpha = (*p >> 16) & 0xFFFF;
+              diode4_alphaRMS = *p & 0xFFFF;
+              p++;
+    
+              time_t Alpha_Last_Run = *p;
+              p++;
+    
+              time_t PedAlpha_Last_Run;
+    
+              int diode1_PedAlpha = 0, diode1_PedAlphaRMS = 0
+                  , diode2_PedAlpha = 0, diode2_PedAlphaRMS = 0
+                  , diode3_PedAlpha = 0, diode3_PedAlphaRMS = 0
+                  , diode4_PedAlpha = 0, diode4_PedAlphaRMS = 0;
+    
               if (version > 1) {
-                Filter = (((*p >> 16) & 7) ^ 7) + 2;
-                if (Filter > 8) Filter -= 8;
-                printf("  Filter Wheel: %5d\n", Filter);
+                diode1_PedAlpha = (*p >> 16) & 0xFFFF;
+                diode1_PedAlphaRMS = *p & 0xFFFF;
+                p++;
+    
+                diode2_PedAlpha = (*p >> 16) & 0xFFFF;
+                diode2_PedAlphaRMS = *p & 0xFFFF;
+                p++;
+    
+                diode3_PedAlpha = (*p >> 16) & 0xFFFF;
+                diode3_PedAlphaRMS = *p & 0xFFFF;
+                p++;
+    
+                diode4_PedAlpha = (*p >> 16) & 0xFFFF;
+                diode4_PedAlphaRMS = *p & 0xFFFF;
+                p++;
+    
+                PedAlpha_Last_Run = *p;
+                p++;
               }
-              printf("  Required Amp: %5d\n", ReqAmp);
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 14.\n");
-            }
-            p++;
-
-            if ((*p & 0xFF000000) == 0x21000000) {
-              Delay = (*p >> 12) & 0xFFF;
-              MeasAmp = *p & 0xFFF;
-              printf("  Measured Amp: %5d\n", MeasAmp);
-              printf("         Delay: %5d\n", Delay);
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 15.\n");
-            }
-            p++;
-
-            bool TDCPrint = true;
-
-            if ((*p & 0xFF000000) == 0x22000000) {
-              if (version == 1) {
-                TDC1 = (*p >> 16) & 0xF;
-                TDC2 = (*p >> 20) & 0xF;
-              } else {
-                TDC1 = *p & 0xFFFF;
+    
+              std::cout << std::endl << "           |  ADC  | Pedestal(RMS) |  Alpha (RMS)  | PedAlpha(RMS) |" << std::endl;
+              if (version == 1){
+                std::cout << "   Diode 1 | " << std::setw(5) << chan0 << " | " << setupPr1 << diode1_Ped / 10.0 << " (" << setupPr2 << diode1_PedRMS / 100.0 << ") | " << setupPr1 << diode1_alpha / 10.0 << " (" << setupPr2 << diode1_alphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 2 | " << std::setw(5) << chan1 << " | " << setupPr1 << diode2_Ped / 10.0 << " (" << setupPr2 << diode2_PedRMS / 100.0 << ") | " << setupPr1 << diode2_alpha / 10.0 << " (" << setupPr2 << diode2_alphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 3 | " << std::setw(5) << chan2 << " | " << setupPr1 << diode3_Ped / 10.0 << " (" << setupPr2 << diode3_PedRMS / 100.0 << ") | " << setupPr1 << diode3_alpha / 10.0 << " (" << setupPr2 << diode3_alphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 4 | " << std::setw(5) << chan3 << " | " << setupPr1 << diode4_Ped / 10.0 << " (" << setupPr2 << diode4_PedRMS / 100.0 << ") | " << setupPr1 << diode4_alpha / 10.0 << " (" << setupPr2 << diode4_alphaRMS / 100.0 << ") |" << std::endl;
+              }  else {
+                std::cout << "   Diode 1 | " << std::setw(5) << chan0 << " | " << setupPr1 << diode1_Ped / 10.0 << " (" << setupPr2 << diode1_PedRMS / 100.0 << ") | " << setupPr1 << diode1_alpha / 10.0 << " (" << setupPr2 << diode1_alphaRMS / 100.0 << ") | " << setupPr1 << diode1_PedAlpha / 10.0 << " (" << setupPr2 << diode1_PedAlphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 2 | " << std::setw(5) << chan1 << " | " << setupPr1 << diode2_Ped / 10.0 << " (" << setupPr2 << diode2_PedRMS / 100.0 << ") | " << setupPr1 << diode2_alpha / 10.0 << " (" << setupPr2 << diode2_alphaRMS / 100.0 << ") | " << setupPr1 << diode2_PedAlpha / 10.0 << " (" << setupPr2 << diode2_PedAlphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 3 | " << std::setw(5) << chan2 << " | " << setupPr1 << diode3_Ped / 10.0 << " (" << setupPr2 << diode3_PedRMS / 100.0 << ") | " << setupPr1 << diode3_alpha / 10.0 << " (" << setupPr2 << diode3_alphaRMS / 100.0 << ") | " << setupPr1 << diode3_PedAlpha / 10.0 << " (" << setupPr2 << diode3_PedAlphaRMS / 100.0 << ") |" << std::endl;
+                std::cout << "   Diode 4 | " << std::setw(5) << chan3 << " | " << setupPr1 << diode4_Ped / 10.0 << " (" << setupPr2 << diode4_PedRMS / 100.0 << ") | " << setupPr1 << diode4_alpha / 10.0 << " (" << setupPr2 << diode4_alphaRMS / 100.0 << ") | " << setupPr1 << diode4_PedAlpha / 10.0 << " (" << setupPr2 << diode4_PedAlphaRMS / 100.0 << ") |" << std::endl;
               }
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 16.\n");
-              TDCPrint = false;
-            }
-            p++;
-            if ((*p & 0xFF000000) == 0x23000000) {
-              if (version == 1) {
-                TDC1 = (TDC1 << 12) + (*p & 0xFFF);
-                TDC2 = (TDC2 << 12) + ((*p >> 12) & 0xFFF);
-              } else {
-                TDC2 = *p & 0xFFFF;
+     
+              std::cout << "   PMT 1   | " << std::setw(5) << chan4 << " | " << setupPr1 << PMT1_Ped / 10.0 <<" (" << setupPr2 << PMT1_PedRMS / 100.0 << ") |       x       |       x       |" << std::endl;
+              std::cout << "   PMT 2   | " << std::setw(5) << chan5 << " | " << setupPr1 << PMT2_Ped / 10.0 <<" (" << setupPr2 << PMT2_PedRMS / 100.0 << ") |       x       |       x       |" << std::endl;
+              std::cout << "   InjChrg | " << std::setw(5) << chan6 << " |       x       |       x       |       x       |" << std::endl;
+              std::cout << "   Spare   | " << std::setw(5) << chan7 << " |       x       |       x       |       x       |" << std::endl;
+    
+              std::cout << std::endl << "          |  Date & Time (GMT)  |  Date & Time (CERN)" << std::endl;
+    
+              struct tm* TimeInfo;
+              char buf[80];
+              TimeInfo = gmtime(&Ped_Last_Run);
+              strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
+    
+              std::cout << " Pedestal | " << buf << " | " << cern_local_time(Ped_Last_Run) << std::endl;
+    
+              TimeInfo = gmtime(&Alpha_Last_Run);
+              strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
+    
+              std::cout << "    Alpha | " << buf << " | " << cern_local_time(Alpha_Last_Run) << std::endl;
+    
+              TimeInfo = gmtime(&PedAlpha_Last_Run);
+              strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
+    
+              std::cout << " PedAlpha | " << buf << " | " << cern_local_time(PedAlpha_Last_Run) << std::endl;
+    
+              int diodeTemp = 0, secsDiodeT = 0
+                  , boxTemp = 0, secsBoxT = 0
+                  , boxHum = 0, secsBoxH = 0
+                  , gasFlow = 0, secsGasF = 0;
+    
+              diodeTemp = *p & 0xFFF;
+              secsDiodeT = (*p >> 12) & 0xFFFFF;
+              p++;
+              boxTemp = *p & 0xFFF;
+              secsBoxT = (*p >> 12) & 0xFFFFF;
+              p++;
+              boxHum = *p & 0xFFF;
+              secsBoxH = (*p >> 12) & 0xFFFFF;
+              p++;
+              gasFlow = *p & 0xFFF;
+              secsGasF = (*p >> 12) & 0xFFFFF;
+              p++;
+    
+              std::cout << std::endl << "                    |   Time  | Value |" << std::endl;
+              std::cout << "   Laser diode temp | " << std::setw(7) << secsDiodeT << " |  " <<  setupPr3 << diodeTemp / 10.0 << " |" << std::endl;
+              std::cout << "     Laser box temp | " << std::setw(7) << secsBoxT   << " |  " <<  setupPr3 << boxTemp / 10.0 << " |" << std::endl;
+              std::cout << " Laser box humidity | " << std::setw(7) << secsBoxH   << " |  " <<  setupPr3 << boxHum / 10.0 << " |" << std::endl;
+              std::cout << " Laser box gas flow | " << std::setw(7) << secsGasF   << " |  " <<  setupPr3 << gasFlow / 10.0 << " |" << std::endl;
+    
+              std::bitset<32> PLCstatus = *p;
+              int PLCtime = (*p >> 12) & 0xFFFFF;
+              p++;
+    
+              int Alpha0 = PLCstatus[0];
+              int Alpha1 = PLCstatus[1];
+              int Alpha2 = PLCstatus[2];
+              int LV = PLCstatus[3];
+              int HV1 = PLCstatus[4];
+              int HV2 = PLCstatus[5];
+              int ShOpen = PLCstatus[6];
+              int ShClose = PLCstatus[7];
+              int Ilock = PLCstatus[8];
+              int Alarm = PLCstatus[9];
+              int Err = PLCstatus[11];
+    
+              const char *YesNo[2] = {" No","Yes"};
+              const char *OnOff[2] = {"Off"," On"};
+
+              std::cout << std::endl << "    Time  | Err | Alarm | Ilock | ShClose | ShOpen | HV2 | HV1 |  LV | Alpha2 | Alpha1 | Alpha0 |" 
+                        << std::endl << "  " << std::setw(7) << PLCtime 
+                        << " | " << YesNo[Err] << " |  " << OnOff[Alarm] << "  |  " << OnOff[Ilock] << "  |   " << YesNo[ShClose]
+                        << "   |  " << YesNo[ShOpen] << "   | " << OnOff[HV2] << " | " << OnOff[HV1] << " | "  << OnOff[LV] 
+                        << " |  " << OnOff[Alpha2] << "   |  " << OnOff[Alpha1] << "   |  " << OnOff[Alpha0] << "   |"  << std::endl;
+    
+              if (p != &data[size]) {
+                std::cout << "CRITICAL ERROR! Wrong size" << std::endl;
               }
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 17.\n");
-              TDCPrint = false;
             }
-            p++;
-            if (TDCPrint) {
-              printf("     TDC1 data: %5d\n", TDC1);
-              printf("     TDC2 data: %5d\n", TDC2);
-            }
-
-            int chan0 = 0, chan1 = 0, chan2 = 0, chan3 = 0, chan4 = 0, chan5 = 0, chan6 = 0, chan7 = 0;
-
-            if ((*p & 0xFF000000) == 0x44000000) {
-              chan0 = (*p & 0xFFF) ^ 0xFFF;
-              chan1 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 18.\n");
-            }
-            p++;
-
-            if ((*p & 0xFF000000) == 0x45000000) {
-              chan2 = (*p & 0xFFF) ^ 0xFFF;
-              chan3 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 19.\n");
-            }
-            p++;
-
-            if ((*p & 0xFF000000) == 0x46000000) {
-              chan4 = (*p & 0xFFF) ^ 0xFFF;
-              chan5 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 20.\n");
-            }
-            p++;
-
-            if ((*p & 0xFF000000) == 0x47000000) {
-              chan6 = (*p & 0xFFF) ^ 0xFFF;
-              chan7 = ((*p >> 12) & 0xFFF) ^ 0xFFF;
-            } else {
-              printf("ERROR in Laser Fragment: decoding word 21.\n");
-            }
-            p++;
-
-            int diode1_Ped = 0, diode1_PedRMS = 0
-                , diode2_Ped = 0, diode2_PedRMS = 0
-                , diode3_Ped = 0, diode3_PedRMS = 0
-                , diode4_Ped = 0, diode4_PedRMS = 0
-                , PMT1_Ped = 0, PMT1_PedRMS = 0
-                , PMT2_Ped = 0, PMT2_PedRMS = 0;
-
-            diode1_Ped = (*p >> 16) & 0xFFFF;
-            diode1_PedRMS = *p & 0xFFFF;
-            p++;
-
-            diode2_Ped = (*p >> 16) & 0xFFFF;
-            diode2_PedRMS = *p & 0xFFFF;
-            p++;
-
-            diode3_Ped = (*p >> 16) & 0xFFFF;
-            diode3_PedRMS = *p & 0xFFFF;
-            p++;
-
-            diode4_Ped = (*p >> 16) & 0xFFFF;
-            diode4_PedRMS = *p & 0xFFFF;
-            p++;
-
-            PMT1_Ped = (*p >> 16) & 0xFFFF;
-            PMT1_PedRMS = *p & 0xFFFF;
-            p++;
-
-            PMT2_Ped = (*p >> 16) & 0xFFFF;
-            PMT2_PedRMS = *p & 0xFFFF;
-            p++;
-
-            time_t Ped_Last_Run = *p;
-            p++;
-
-            int diode1_alpha = 0, diode1_alphaRMS = 0
-                , diode2_alpha = 0, diode2_alphaRMS = 0
-                , diode3_alpha = 0, diode3_alphaRMS = 0
-                , diode4_alpha = 0, diode4_alphaRMS = 0;
-
-            diode1_alpha = (*p >> 16) & 0xFFFF;
-            diode1_alphaRMS = *p & 0xFFFF;
-            p++;
-
-            diode2_alpha = (*p >> 16) & 0xFFFF;
-            diode2_alphaRMS = *p & 0xFFFF;
-            p++;
-
-            diode3_alpha = (*p >> 16) & 0xFFFF;
-            diode3_alphaRMS = *p & 0xFFFF;
-            p++;
-
-            diode4_alpha = (*p >> 16) & 0xFFFF;
-            diode4_alphaRMS = *p & 0xFFFF;
-            p++;
-
-            time_t Alpha_Last_Run = *p;
-            p++;
-
-            time_t PedAlpha_Last_Run;
-
-            int diode1_PedAlpha = 0, diode1_PedAlphaRMS = 0
-                , diode2_PedAlpha = 0, diode2_PedAlphaRMS = 0
-                , diode3_PedAlpha = 0, diode3_PedAlphaRMS = 0
-                , diode4_PedAlpha = 0, diode4_PedAlphaRMS = 0;
-
-            if (version > 1) {
-              diode1_PedAlpha = (*p >> 16) & 0xFFFF;
-              diode1_PedAlphaRMS = *p & 0xFFFF;
-              p++;
-
-              diode2_PedAlpha = (*p >> 16) & 0xFFFF;
-              diode2_PedAlphaRMS = *p & 0xFFFF;
-              p++;
-
-              diode3_PedAlpha = (*p >> 16) & 0xFFFF;
-              diode3_PedAlphaRMS = *p & 0xFFFF;
-              p++;
-
-              diode4_PedAlpha = (*p >> 16) & 0xFFFF;
-              diode4_PedAlphaRMS = *p & 0xFFFF;
-              p++;
-
-              PedAlpha_Last_Run = *p;
-              p++;
-            }
-
-            const char *sline = (
-                version == 1 ? "\n   %s | %5d | %5.1f (%5.2f) | %5.1f (%5.2f) |"
-                             : "\n   %s | %5d | %5.1f (%5.2f) | %5.1f (%5.2f) | %5.1f (%5.2f) |");
-
-            printf("\n           |  ADC  | Pedestal(RMS) |  Alpha (RMS)  | PedAlpha(RMS) |");
-            printf(sline, "Diode 1", chan0, diode1_Ped / 10.0, diode1_PedRMS / 100.0
-                   , diode1_alpha / 10.0, diode1_alphaRMS / 100.0, diode1_PedAlpha / 10.0
-                   , diode1_PedAlphaRMS / 100.0);
-
-            printf(sline, "Diode 2", chan1, diode2_Ped / 10.0, diode2_PedRMS / 100.0
-                   , diode2_alpha / 10.0, diode2_alphaRMS / 100.0, diode2_PedAlpha / 10.0
-                   , diode2_PedAlphaRMS / 100.0);
-
-            printf(sline, "Diode 3", chan2, diode3_Ped / 10.0, diode3_PedRMS / 100.0
-                   , diode3_alpha / 10.0, diode3_alphaRMS / 100.0, diode3_PedAlpha / 10.0
-                   , diode3_PedAlphaRMS / 100.0);
-
-            printf(sline, "Diode 4", chan3, diode4_Ped / 10.0, diode4_PedRMS / 100.0
-                   , diode4_alpha / 10.0, diode4_alphaRMS / 100.0, diode4_PedAlpha / 10.0
-                   , diode4_PedAlphaRMS / 100.0);
-
-            printf("\n   PMT 1   | %5d | %5.1f (%5.2f) |       x       |       x       |", chan4, PMT1_Ped / 10.0, PMT1_PedRMS / 100.0);
-
-            printf("\n   PMT 2   | %5d | %5.1f (%5.2f) |       x       |       x       |", chan5, PMT2_Ped / 10.0, PMT2_PedRMS / 100.0);
-
-            printf("\n   InjChrg | %5d |       x       |       x       |       x       |", chan6);
-            printf("\n   Spare   | %5d |       x       |       x       |       x       |\n", chan7);
-
-            printf("\n          |  Date & Time (GMT)  |");
-
-            struct tm* TimeInfo;
-            char buf[80];
-            TimeInfo = gmtime(&Ped_Last_Run);
-            strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
-
-            printf("\n Pedestal | %s |", buf);
-
-            TimeInfo = gmtime(&Alpha_Last_Run);
-            strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
-
-            printf("\n    Alpha | %s |", buf);
-
-            TimeInfo = gmtime(&PedAlpha_Last_Run);
-            strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
-
-            printf("\n PedAlpha | %s |\n", buf);
-
-            int diodeTemp = 0, secsDiodeT = 0
-                , boxTemp = 0, secsBoxT = 0
-                , boxHum = 0, secsBoxH = 0
-                , gasFlow = 0, secsGasF = 0;
-
-            diodeTemp = *p & 0xFFF;
-            secsDiodeT = (*p >> 12) & 0xFFFFF;
-            p++;
-            boxTemp = *p & 0xFFF;
-            secsBoxT = (*p >> 12) & 0xFFFFF;
-            p++;
-            boxHum = *p & 0xFFF;
-            secsBoxH = (*p >> 12) & 0xFFFFF;
-            p++;
-            gasFlow = *p & 0xFFF;
-            secsGasF = (*p >> 12) & 0xFFFFF;
-            p++;
-
-            printf("\n                    |   Time  | Value |");
-            printf("\n   Laser diode temp | %7d |  %4.1f |", secsDiodeT, diodeTemp / 10.0);
-            printf("\n     Laser box temp | %7d |  %4.1f |", secsBoxT, boxTemp / 10.0);
-            printf("\n Laser box humidity | %7d |  %4.1f |", secsBoxH, boxHum / 10.0);
-            printf("\n Laser box gas flow | %7d |  %4.1f |\n", secsGasF, gasFlow / 10.0);
-
-            int PLCstatus = *p & 0xFFF;
-            int PLCtime = (*p >> 12) & 0xFFFFF;
-            p++;
-
-            int Err, Alarm, Ilock, ShClose, ShOpen, HV2, HV1, LV, Alpha2, Alpha1, Alpha0;
-
-            Alpha0 = PLCstatus & 0x001;
-            Alpha1 = PLCstatus & 0x002;
-            Alpha2 = PLCstatus & 0x004;
-            LV = PLCstatus & 0x008;
-            HV1 = PLCstatus & 0x010;
-            HV2 = PLCstatus & 0x020;
-            ShOpen = PLCstatus & 0x040;
-            ShClose = PLCstatus & 0x080;
-            Ilock = PLCstatus & 0x100;
-            Alarm = PLCstatus & 0x200;
-            Err = PLCstatus & 0x800;
-
-            printf("\n    Time  | Err | Alarm | Ilock | ShClose | ShOpen | HV2 | HV1 |  LV | Alpha2 | Alpha1 | Alpha0 |");
-
-            printf("\n  %7d | %3s |  %3s  |  %3s  |   %3s   |  %3s   | %3s | %3s | %3s |  %3s   |  %3s   |  %3s   |\n"
-                   , PLCtime
-                   , (Err ? "Yes" : "No")
-                   , (Alarm ? "On" : "Off")
-                   , (Ilock ? "On" : "Off")
-                   , (ShClose ? "Yes" : "No")
-                   , (ShOpen ? "Yes" : "No")
-                   , (HV2 ? "On" : "Off")
-                   , (HV1 ? "On" : "Off")
-                   , (LV ? "On" : "Off")
-                   , (Alpha2 ? "On" : "Off")
-                   , (Alpha1 ? "On" : "Off")
-                   , (Alpha0 ? "On" : "Off"));
-
-            if (p != &data[size]) {
-              printf("CRITICAL ERROR! Wrong size!\n");
-            }
+            break;
           }
-          break;
+
+        case LASERII_OBJ_FRAG:
+
+          {
+            std::cout<<"\nLASTROD New Laser Object, " << size << " words found" << std::endl;
+    
+            bool first_half_present  = (size == 25 || size ==  26 || size == 128  || size == 129);
+            bool second_half_present = (size == 99 || size == 100 || size == 128  || size == 129);
+    
+            if ( ! (first_half_present || second_half_present) ) {
+              std::cout << "CRITICAL ERROR! Unknown format!" << std::endl;
+            } else {
+    
+              const char *name[17] = {"      PhotoDiode 0",
+                                      "      PhotoDiode 1",
+                                      "      PhotoDiode 2",
+                                      "      PhotoDiode 3",
+                                      "      PhotoDiode 4",
+                                      "      PhotoDiode 5",
+                                      "      PhotoDiode 6",
+                                      "      PhotoDiode 7",
+                                      "      PhotoDiode 8",
+                                      "      PhotoDiode 9",
+                                      "             PMT 0",
+                                      "    External CIS 0",
+                                      "      Internal CIS",
+                                      "      Diode Phocal",
+                                      "             PMT 1",
+                                      "    External CIS 1",
+                                      "         TDC 1 & 0"
+              };
+              
+              time_t tim;
+              struct tm* TimeInfo;
+              char buf[80];
+    
+              const unsigned int * p = data;
+    
+              if (first_half_present) {
+    
+                // p[0]    00 00 00 tt    Daq Type
+                // p[1]    nn nn nn nn    Laser Count    
+                // p[2]    rr rr mm mm    rrrr = Requested Intensity    mmmm = measured intensity 
+                // p[3]    00 0f dd dd    f = filter    dddd = Delay Slama
+                // p[4]    00 00 ll ll    Linearity DAC Value
+    
+                std::cout << std::endl << "      DAQ type: " << std::setw(5) << (data[0]%0xFF) << std::endl;
+                std::cout << " Laser Counter: " << std::setw(5) << data[1] << std::endl;
+                std::cout << "  Required Amp: " << std::setw(5) << (data[2]>>16) << std::endl;
+                std::cout << "  Measured Amp: " << std::setw(5) << (data[2]&0xFFFF) << std::endl;
+                std::cout << "  Filter Wheel: " << std::setw(5) << (data[3]>>16 & 0x000F) << std::endl;
+                std::cout << "         Delay: " << std::setw(5) << (data[3]&0xFFFF) << std::endl;
+                std::cout << " Linearity DAC: " << std::setw(5) << (data[4]&0xFFFF) << std::endl;
+                std::cout << std::endl;
+                
+                p = data+5;
+                // decode 32 ADC half-words (16 low & high channels)
+                std::cout << "                                       HG    LG" << std::endl;
+                for (int n=0; n<17; ++n) {
+                  // ll ll hh hh    ADC Channel 0 & 1 (Low & High Gain)
+                  std::cout << name[n] << ": " << std::setw(5) << ((*p)&0xFFFF) << std::setw(6) << ((*p)>>16) << "  =>  " << std::setw(5) << (8500-((*p)&0xFFFF)) << std::setw(6) << (8500-((*p)>>16))<< std::endl;
+                  ++p;
+                }
+                
+                // status word
+                // 27: 1 if HOLA link not full
+                // 26: 1 if HOLA link not down
+                // 24: 1 if bad clock from VME (16MHz)
+                // 22: 1 if bad clock from TTC (40MHz)
+                // 20: 1 if TTC double error
+                // 19: 1 if TTC single error
+                // 16: 1 if PLL locked for VME clock (16MHz)
+                // 15: 1 if PLL locked for TTC clock (40MHz)
+                // 10: 1 if fault from laser temperature sensor
+                //  9: 1 if laser diode off
+                //  8: 1 if interlock closed
+                //  6: 1 if combined run finished
+                //  1: 1 if busy
+                //  0: 1 if busy for longer than 5s 
+    
+    
+                std::bitset<32> status = *(p++);
+                const char *YesNo[2] = {" No","Yes"}; 
+                std::cout << std::endl;
+                std::cout << "| Link| Link| Bad | Bad | TTC | TTC | PLL | PLL |Laser|Laser|Inter| Comb| Busy| Long|" << std::endl;
+                std::cout << "| not | not | VME | TTC |doubl|singl| lock| lock| temp| diod| lock| run |     | busy|" << std::endl;
+                std::cout << "| full| down|clock|clock|error|error| VME | TTC |fault| off |close| fini|     |>5sec|" << std::endl;
+                std::cout << "|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|" << std::endl;
+                std::cout << "| " <<  YesNo[status[27]] << " | " << YesNo[status[26]] << " | " << YesNo[status[24]] << " | " << YesNo[status[22]] << " | " << YesNo[status[20]] << " | " << YesNo[status[19]] << " | " << YesNo[status[16]] << " | " << YesNo[status[15]] << " | " << YesNo[status[10]] << " | " << YesNo[status[9]] << " | " << YesNo[status[8]] << " | "  << YesNo[status[6]] << " | " << YesNo[status[1]] << " | " << YesNo[status[0]] << " |" << std::endl;
+                 
+                std::cout << std::endl << "  FPGA Global Status: 0x" << std::hex 
+                          << status.to_ulong() << " => " << status.to_string() << std::dec << std::endl; 
+                tim = *(p++);
+                TimeInfo = gmtime(&tim);
+                strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
+                std::cout << "DCS Time Stamp (GMT): " << buf << " => " << cern_local_time(tim) << std::endl;
+                std::cout << " PhotoDiode Polarity: " << std::setw(5) << (*p++) << std::endl;
+                p+=4; // skip 4 free words
+              }
+    
+              if (second_half_present) {
+                std::cout << "    Calibration Type: " << std::setw(5) << (*p++) << std::endl;
+                tim = p[97];
+                TimeInfo = gmtime(&tim);
+                strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
+                std::cout << "    Time Stamp (GMT): " << buf << " => " << cern_local_time(tim) << std::endl;
+                
+                double nevt = double(p[96]);
+                if (p[96]==0 || (p[96]==3072 && (*p)<21504000)) {
+                  std::cout << "    Number of events: " << p[96] << " => assuming 1024" << std::endl << std::endl;
+                  nevt=1024.; 
+                } else {
+                  std::cout << "    Number of events: " << std::setw(5) << p[96] << std::endl << std::endl;
+                }
+                std::cout << "                                                                                             pedHG       rmsHG    pedLG       rmsLG" << std::endl;
+                for (int n=0; n<16; ++n) {
+    
+                  uint32_t sum0 = *(p++);
+                  uint32_t sum1 = *(p++);
+      
+                  uint32_t lsb0 = *(p++);
+                  uint32_t msb0 = *(p++); 
+                  uint32_t lsb1 = *(p++);
+                  uint32_t msb1 = *(p++);
+                  uint64_t ssq0 = ((uint64_t) msb0 << 32) | ((uint64_t) lsb0);
+                  uint64_t ssq1 = ((uint64_t) msb1 << 32) | ((uint64_t) lsb1);
+    
+                  // COMPUTE MEAN AND STANDARD DEVIATION
+                  double ped0 = double(sum0)/nevt;
+                  double ped1 = double(sum1)/nevt;
+    
+                  double rms0 = double(ssq0)/nevt - ped0*ped0;
+                  double rms1 = double(ssq1)/nevt - ped1*ped1;
+                  if (rms0>0.0) rms0 = sqrt(rms0);
+                  if (rms1>0.0) rms1 = sqrt(rms1);
+    
+                  std::cout << name[n] << ":" << std::setw(11) << sum0 << std::setw(11) << sum1 << std::setw(11) << msb0 << std::setw(11) << lsb0 << std::setw(11) << msb1 << std::setw(11) << lsb1 << "  =>  " << std::setw(7) << std::setprecision(1) << 8500.-ped0 << " +/- " << std::setw(7) << std::setprecision(1) << rms0 << "  " << std::setw(7) << std::setprecision(1) << 8500.-ped1 << " +/- " << std::setw(7) << std::setprecision(1) << rms1 << std::endl;
+                }
+              }
+            }
+            break;
+          }
 
         case LASE_ADC_FRAG:
-          printf("\nLaser ADC, %d channels found", size);
+          std::cout << "\nLaser ADC, " << size << " channels found";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9u", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+            std::cout << std::setw(9) << data[c];
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case ECAL_ADC_FRAG:
-          printf("\nECAL ADC, %d channels found", size);
+          std::cout << "\nECAL ADC, " << size << " channels found";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9u", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+            std::cout << std::setw(9) << data[c];
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case DIGI_PAR_FRAG:
-          printf("\nDigi parameters, %d words found", size);
+          std::cout << "\nDigi parameters, " << size << " words found";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%11u", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+            std::cout << std::setw(11) << data[c];
           }
-          printf("\n");
+          std::cout << std::endl;
 
           if (size == 4 || size == 16 || size == 110) {
             unsigned int *p = data;
@@ -841,11 +1081,11 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               default: RunTypeText = "Unknown"; break;
             }
 
-            printf("\n  CIS Counter: %3d\n", Counter);
-            printf("\n     Run Type: %3d (%s)", RunType, RunTypeText);
+            std::cout << "\n  CIS Counter: " << std::setw(3) << Counter<< std::endl;
+            std::cout << "\n     Run Type: " << std::setw(3) << RunType << " (" << RunTypeText << ")";
             if (!DefFormat) {
-              printf("\n      Samples: %3d", Samples);
-              printf("\n     Pipeline: %3d\n", Pipeline);
+              std::cout << "\n      Samples: " << std::setw(3) << Samples;
+              std::cout << "\n     Pipeline: " << std::setw(3) << Pipeline << std::endl;
             } else {
               const char* ModeText;
               switch (Mode) {
@@ -860,45 +1100,46 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               char buf[80];
               TimeInfo = gmtime(&Time);
               strftime(buf, 80, "%d.%m.%Y %H:%M:%S", TimeInfo);
-              printf("\n   Time (GMT): %s", buf);
-              printf("\n    Microsec.: %d\n", microsec);
-              printf("\n         Mode: %3d (%s)", Mode, ModeText);
-              printf("\n      Samples: %3d", Samples);
-              printf("\n     Pipeline: %3d", Pipeline);
-              printf("\n      I3Delay: %3d", I3Delay);
-              printf("\n        Event: %3d", Event);
-              printf("\n        Phase: %3d", Phase);
-              printf("\n          DAC: %3d", DAC);
-              printf("\n     Capacity: %3d pF", Capacity);
-              printf("\n         Card: %3d\n", Card);
-
+              std::cout << std::endl;
+              std::cout << "   Time (GMT): " << buf << " => " << cern_local_time(Time) << std::endl;
+              std::cout << "    Microsec.: " << microsec << std::endl << std::endl;
+              std::cout << "         Mode: " << std::setw(3) << Mode << " (" << ModeText << ")" << std::endl;
+              std::cout << "      Samples: " << std::setw(3) << Samples << std::endl;
+              std::cout << "     Pipeline: " << std::setw(3) << Pipeline << std::endl;
+              std::cout << "      I3Delay: " << std::setw(3) << I3Delay << std::endl;
+              std::cout << "        Event: " << std::setw(3) << Event << std::endl;
+              std::cout << "        Phase: " << std::setw(3) << Phase << std::endl;
+              std::cout << "          DAC: " << std::setw(3) << DAC << std::endl;
+              std::cout << "     Capacity: " << std::setw(3) << Capacity << " pF" << std::endl;
+              std::cout << "         Card: " << std::setw(3) << Card << std::endl;
+              
               if (size > 16) {
                 int last = size - 1;
                 for (; last > 15; --last) {
                   if (data[last] != 0) break;
                 }
                 if (last > 15) {
-                  printf("\n Remaing %d non-zero words (hex):", last - 15);
+                  std::cout << "\n Remaing " << last - 15 << " non-zero words (hex):";
                   for (c = 16; c <= last; ++c) {
-                    if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-                    printf("%9x", data[c]);
+                    if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+                    std::cout << std::hex << std::setw(11) << data[c] << std::dec;
                   }
-                  printf("\n");
+                  std::cout << std:: endl;
                 }
               }
             }
           } else {
-            printf("CRITICAL ERROR! Unknown format!\n");
+            std::cout << "CRITICAL ERROR! Unknown format!" << std::endl;
           }
           break;
 
         case ADD_FADC_FRAG:
-          printf("\nAdder FADC, %d words found (hex)", size);
+          std::cout << "\nAdder FADC, " << size << " words found (hex)" ;
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%9x", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+            std::cout << std::hex << std::setw(9) << data[c] << std::dec;
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         case COIN_TRIG1_FRAG:
@@ -909,16 +1150,16 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
         case COIN_TRIG6_FRAG:
         case COIN_TRIG7_FRAG:
         case COIN_TRIG8_FRAG:
-          printf("\nCoincidence trigger frag %d, %d words found (hex)", id - COIN_TRIG1_FRAG + 1, size);
+          std::cout << "\nCoincidence trigger frag " << id - COIN_TRIG1_FRAG + 1 << ", " << size << " words found (hex)";
           for (c = 0; c < size; ++c) {
-            if (c % 8 == 0) printf("\n mod%2d:", c / 8);
-            printf("%11x", data[c]);
+            if (c % 8 == 0) std::cout << setupMod << c/8<< ":";
+            std::cout << std::hex << std::setw(11) << data[c] << std::dec;
           }
-          printf("\n");
+          std::cout << std::endl;
           break;
 
         default:
-          printf("\nUnknown fragment [%#x], %d words found\n", id, size);
+          std::cout << "\nUnknown fragment [0x" << std::hex << id << std::dec << "], " << size << " words found" << std::endl;
           break;
       }
     } else { // normal ROD fragments
@@ -939,9 +1180,8 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
         switch (type) {
           case 0: // digitizer fragment
             tile_unpack_digi(frag[f], channel, MAX_DIGI_CHAN, version, verbosity, &ngain, &nchan, &nsamp);
-
-            printf("\nDigitizer fragment %#x, %d words found:", id, size);
-            printf("\t%d chips, %d+2 samples\n", nchan / 3, nsamp);
+            std::cout << "\nDigitizer fragment 0x" << std::hex << id << std::dec << ", " << size << " words found:"
+                      << "\t" << nchan / 3 << " chips, " <<  nsamp << "+2 samples" << std::endl;
 
             if (ngain == 1) {
               extra = size - nchan * (nsamp + 2) / 3;
@@ -952,26 +1192,27 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             }
 
             if (version == 0x1 || version == 0x2) {
-              printf("\nfirst data word:%12u (0x%08x)", data[0], data[0]);
+              std::cout << "\nfirst data word:" << std::setw(12) << data[0] << " (0x"<< setup0 << data[0] << setupDec << ")";
               --extra;
             }
 
             if (extra > 0) {
-              printf("\n%3d extra words:", extra);
+              std::cout << "\n" << std::setw(3) << extra << " extra words:";
               for (c = size - extra; c < size; ++c) {
-                printf("%12u (0x%08x)", data[c], data[c]);
-                if ((c - size + extra) % 2 == 1) printf("\n                ");
+                std::cout << std::setw(12) << data[c] << " (0x"<< setup0 << data[c] << setupDec << ")";
+                if ((c - size + extra) % 2 == 1 && c!=size-1) std::cout << "\n                ";
               }
+              std::cout << std::endl;
             }
 
-            printf("\nPMT Ch | BCID M G");
+            std::cout << "\nPMT Ch | BCID M G";
             for (s = 0; s < nsamp; ++s) {
-              printf("%4d ", s);
+              std::cout << std::setw(4) << s << " ";
             }
 
-            printf("  Head/Data/CRC \n---|---|-------------------------");
+            std::cout << "  Head/Data/CRC\n---|---|-------------------------";
             for (s = 0; s < nsamp; ++s) {
-              printf("-----");
+              std::cout << "-----";
             }
 
             {
@@ -980,54 +1221,82 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
                 pmt = m_cabling->channel2hole(fragType, ch % 48);
                 if (extra == 0 && pmt < 0) pmt = -pmt;
 
-                if (pmt > 0) printf("\n%3d %2d |", pmt, ch);
-                else printf("\n -- %2d |", ch);
+                if (pmt > 0) {
+                  std::cout << "\n" << std::setw(3) << pmt << std::setw(3) << ch << " |";
+                } else {
+                  std::cout << "\n -- " << std::setw(2) << ch << " |";
+                }
+                
+                if (ch % 3 == 0) {
+                  std::cout << std::setw(5) << (channel[ch].bcid) << std::setw(2) << ((channel[ch].flag >> 3) & 3);
+                } else {
+                  std::cout << "       "; 
+                }
+                
+                std::cout << std::setw(2) << (channel[ch].gain);
 
-                if (ch % 3 == 0)
-                  printf(" %4u%2u", channel[ch].bcid, (channel[ch].flag >> 3) & 3);
-                else printf("       ");
-
-                printf("%2u", channel[ch].gain);
-
-                for (s = 0; s < nsamp; ++s)
-                  printf(" %4d", channel[ch].sample[s]);
-
-                if (ch % 3 == 0) printf(" %#10.8x Head", channel[ch].head);
-                if (ch % 3 == 1) printf(" %#10.8x Data", channel[ch].first);
-                if (ch % 3 == 2) printf(" %#10.8x CRC ", channel[ch].crc);
+                for (s = 0; s < nsamp; ++s) {
+                  std::cout << std::setw(5) << (channel[ch].sample[s]);
+                }
+                
+                if (ch % 3 == 0) { 
+                  if (channel[ch].head != 0) {
+                    std::cout << " 0x"  << setup0 << channel[ch].head << setupDec << " Head";
+                  } else {
+                    std::cout << "   "  << setup0 << channel[ch].head << setupDec << " Head";
+                  }
+                }
+                
+                if (ch % 3 == 1) { 
+                  if (channel[ch].first != 0) {
+                    std::cout << " 0x"  << setup0 << channel[ch].first << setupDec << " Data";
+                  } else {
+                    std::cout << "   "  << setup0 << channel[ch].first << setupDec << " Data";
+                  }
+                }
+                
+                if (ch % 3 == 2) { 
+                  if (channel[ch].crc != 0) {
+                    std::cout << " 0x"  << setup0 <<  channel[ch].crc << setupDec << " CRC ";
+                  } else {
+                    std::cout << "   "  << setup0 <<  channel[ch].crc << setupDec << " CRC ";
+                  }
+                }
 
                 /*
                  if (ch < 48) {
                  int s[7];
-                 for (int i = 0; i < 7; i++) s[i] = channel[ch].sample[i];
+                 for (int i = 0; i < 7; i++) {
+                   s[i] = channel[ch].sample[i];
+                 }
                  int gain = channel[ch].gain;
                  int ene_ctrl = m_rc2bytes5.amplitude(ofw, unit, ch, gain, s);
                  if (ene_ctrl < 0) ene_ctrl = 0;
                  if (ene_ctrl > 0x7FFF) ene_ctrl = 0x7FFF;
-                 printf(" | %5d %5d", ene_ctrl, recocalib[ch].amp);
-                 if (recocalib[ch].amp != ene_ctrl) { OK = false; printf(": ERROR"); }
+                 std::cout << " | " << std::setw(5) << ene_ctrl << std::setw(6) << recocalib[ch].amp);
+                 if (recocalib[ch].amp != ene_ctrl) { OK = false; std::cout << ": ERROR"; }
                  }
-                 */
+                */
                 if (isFrag5) {
                   bool chOK = true;
                   for (int i = 0; i < 7; i++) {
                     if (Frag5Data[ch].s[i] != channel[ch].sample[i]) chOK = false;
                   }
                   if (!chOK) {
-                    printf(" RawERR ");
+                    std::cout << " RawERR ";
                     m_rc2bytes5.print_code(Frag5Data[ch].code);
-                    printf(" | ");
+                    std::cout << " | ";
                     for (int i = 0; i < 7; i++) {
-                      printf(" %4d", Frag5Data[ch].s[i]);
+                      std::cout << std::setw(5) << Frag5Data[ch].s[i] ;
                     }
                   }
                 }
               }
-              if (!OK) printf("\nOF weights: ERROR");
+              if (!OK) std::cout << "\nOF weights: ERROR";
             }
 
             if (isFrag5) {
-              printf("\n");
+              std::cout << std::endl;
               bool OK = true;
               for (int ch = 0; ch < 48; ch++) {
                 bool chOK = true;
@@ -1039,75 +1308,87 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
                 //if (abs(a4) < 16000) chOK = true;
                 //if (!chOK) {
                 //  OK = false;
-                //  printf(" %d", ch);
-                //  for (int i = 0; i < 22; i++) printf(" 0x%08X,", ofc[i]);
-                //  printf("\n");
+                //  std::cout <<" " << ch << std::hex << std::setfill('0');
+                //  for (int i = 0; i < 22; i++) {
+                //    std::cout << " 0x" << std::setw(8) << ofc[i] << ",";
+                //  }
+                //  std::cout << std::dec << std::setfill(' ') << std::endl;
                 //}
                 if (Frag5Data[ch].gain != (int) channel[ch].gain) chOK = false;
                 if (!chOK) {
                   OK = false;
-                  printf(" %d,", ch);
+                  std::cout << " " << ch << ",";
                 }
               }
-              printf("\nCompare Raw <=> Frag5: ");
-              if (OK)
-                printf("OK\n");
-              else
-                printf("ERROR\n");
+              std::cout << "\nCompare Raw <=> Frag5: ";
+              if (OK) {
+                std::cout << "OK" << std::endl;
+              } else {
+                std::cout << "ERROR" << std::endl;
+              }
               isFrag5 = false;
             }
             break;
 
           case 1:
             if (tile_unpack_raw_comp(frag[f], rawcomp, MAX_DIGI_CHAN, version, verbosity, &ngain, &nchan, &nsamp)) {
-              printf("\nRaw data compressed fragment %#x, %d words found\n", id, size);
+              std::cout << "\nRaw data compressed fragment 0x" << std::hex << id << std::dec << ", " << size << " words found" << std::endl;
               dump_data((uint32_t*) data, size, version, verbosity);
               break;
             }
 
-            printf("\nRaw data compressed fragment %#x, %d words found:", id, size);
-            printf("\t%d gain, %d channels in total\n", ngain, nchan);
+            std::cout << "\nRaw data compressed fragment 0x" << std::hex << id << std::dec << ", " << size << " words found:"
+                      << "\t" << ngain << " gain, " << nchan << " channels in total" << std::endl;
 
-            printf("\nPMT Ch |");
-            for (int j = 1; j <= ((nsamp / 2) + 1); j++)
-              printf(" HexWord%d ", j);
-
-            printf("| G ");
-            for (int l = 1; l <= nsamp; l++)
-              printf(" Smp%d ", l);
-
+            std::cout << "\nPMT Ch |";
+            for (int j = 1; j <= ((nsamp / 2) + 1); j++) {
+              std::cout << " HexWord" << j << " ";
+            }
+            
+            std::cout << "| G";
+            for (int l = 1; l <= nsamp; l++) {
+              std::cout << "  Smp" << l;
+            }
+            
             for (int i = 0; i < nchan && i < MAX_DIGI_CHAN; i++) {
               int ch = rawcomp[i].chan;
               pmt = m_cabling->channel2hole(fragType, ch % 48);
-              if (pmt > 0) printf("\n%3d %2d |", pmt, ch);
-              else printf("\n -- %2d |", ch);
-              for (int j = 0; j < ((nsamp / 2) + 1); j++)
-                printf(" %08x ", rawcomp[i].words[j]);
-
-              printf("| %1d ", rawcomp[i].gain);
-              for (int l = 0; l < nsamp; l++)
-                printf(" %4d ", rawcomp[i].samples[l]);
-              if (!rawcomp[i].verif) printf(" Wrong Data");
+              if (pmt > 0) {
+                std::cout << "\n" << std::setw(3) << pmt << std::setw(3) << ch << " |";
+              } else {
+                std::cout << "\n -- " << std::setw(2) << ch << " |";
+              }
+              std::cout << std::hex << std::setfill('0');
+              for (int j = 0; j < ((nsamp / 2) + 1); j++) {
+                std::cout << " " << std::setw(8) << rawcomp[i].words[j] << " ";
+              }
+              std::cout << setupDec << "| " << rawcomp[i].gain;
+              for (int l = 0; l < nsamp; l++) {
+                std::cout << std::setw(6) << rawcomp[i].samples[l];
+              }
+              if (!rawcomp[i].verif) std::cout << " Wrong Data";
             }
             break;
 
           case 2: // fragment with gain/amp/time/quality in 32 bit words
             tile_unpack_reco(frag[f], recochan, MAX_DIGI_CHAN, version, verbosity, &ngain, &nchan);
 
-            printf("\nReco non calibrated energy fragment %#x, %d words found:", id, size);
-            printf("\t%d gain, %d channels in total\n", ngain, nchan);
-            printf("\tATTENTION: HIGH gain amplitude is divided by 64\n");
+            std::cout << "\nReco non calibrated energy fragment 0x" << std::hex  << id << std::dec << ", " << size << " words found:"
+                      << "\t" << ngain << " gain, " << nchan << " channels in total" << std::endl
+                      << "\tATTENTION: HIGH gain amplitude is divided by 64" << std::endl;
 
-            printf("\nPMT Ch |  full word | G  amp  time  q     amp        time      quality");
+            std::cout << "\nPMT Ch |  full word | G  amp  time  q    amp        time      qual";
             for (ch = 0; ch < nchan; ++ch) {
               pmt = m_cabling->channel2hole(fragType, ch % 48);
-              if (pmt > 0) printf("\n%3d %2d |", pmt, ch);
-              else printf("\n -- %2d |", ch);
-
-              printf(" %#10.8x | %1u %5u %4u %2u %10.4f %10.4f %10.4f"
-                     , recochan[ch].word, recochan[ch].gain, recochan[ch].amp, recochan[ch].time, recochan[ch].quality
-                     , (recochan[ch].gain ? recochan[ch].d_amp / 64. : recochan[ch].d_amp) //LF: If HG divide the amp by 64. req. by Bob.
-                     , recochan[ch].d_time, recochan[ch].d_quality);
+              if (pmt > 0) {
+                std::cout << "\n" << std::setw(3) << pmt << std::setw(3) << ch << " |";
+              } else {
+                std::cout << "\n -- " << std::setw(2) << ch << " |";
+              }
+              std::cout << " 0x" << setup0 << recochan[ch].word << setupDec << " | " 
+                        << std::setw(1) << recochan[ch].gain << std::setw(6) << recochan[ch].amp << std::setw(5) << recochan[ch].time 
+                        << std::setw(3) << recochan[ch].quality << std::setw(10)  << std::setprecision(1) << float (recochan[ch].gain ? recochan[ch].d_amp / 64. : recochan[ch].d_amp) 
+                        << std::setw(11) << std::setprecision(4) << (float) recochan[ch].d_time << std::setw(8) << std::setprecision(1) << (float) recochan[ch].d_quality;
             }
 
             break;
@@ -1118,32 +1399,31 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             tile_unpack_reco_calib(frag[f], recocalib, MAX_DIGI_CHAN, version, verbosity, &ngain,
                 &nchan);
 
-            printf("\nReco calibrated energy fragment %#x, %d words found:", id, size);
-            printf("\t%d gain, %s units, %d channels in total\n", ((nchan > 48 && nchan < 96) ? 1 : ngain), unitName[unit].c_str(), nchan);
+            std::cout << "\nReco calibrated energy fragment 0x" << std::hex  << id << std::dec << ", " << size << " words found:"
+                      << "\t" << ((nchan > 48 && nchan < 96) ? 1 : ngain) << " gain, " << unitName[unit].c_str() << " units, " << nchan << " channels in total" << std::endl;
 
-            if (pulse < 3)
-              printf("Reco flags: 0x%x  units: %s  pulse_shape: %s  nsamples: %d  algorithm: %s  niterations: %d \n"
-                     , rflag, unitName[unit].c_str(), shapeName[pulse].c_str(), 7 + 2 * nsmpl, algName[algor + 1].c_str(), niter);
-            else
-              printf("Reco flags: 0x%x  units: %s  pulse_shape: %s  nsamples: %d  algorithm: %s \n"
-                     , rflag, unitName[unit].c_str(), shapeName[pulse].c_str(), 7 + 2 * nsmpl, algName[algor * 4 + niter].c_str());
-
-            printf("\nPMT Ch |  full word | G  amp  time b  q     amp        time      quality");
+            if (pulse < 3) {
+              std::cout << "Reco flags: 0x" << std::hex << std::setfill('0') << rflag << setupDec << "  units: " << unitName[unit].c_str() << "  pulse_shape: " << shapeName[pulse].c_str() << "  nsamples: " << 7 + 2 * nsmpl << "  algorithm: " << algName[algor + 1].c_str() << "  niterations: " << niter << std::endl;
+            } else {
+              std::cout << "Reco flags: 0x" << std::hex << std::setfill('0') << rflag << setupDec << "  units: " << unitName[unit].c_str() << "  pulse_shape: " << shapeName[pulse].c_str() << "  nsamples: " << 7 + 2 * nsmpl << "  algorithm: " << algName[algor * 4 + niter].c_str() << std::endl;
+            }
+            
+            std::cout << "\nPMT Ch |  full word | G  amp  time b  q    amp        time      qual";
             for (ch = 0; ch < nchan; ++ch) {
               pmt = m_cabling->channel2hole(fragType, ch % 48);
-              if (pmt > 0) printf("\n%3d %2d |", pmt, ch);
-              else printf("\n -- %2d |", ch);
+              if (pmt > 0) {
+                std::cout << "\n" << std::setw(3) << pmt << std::setw(3) << ch << " |";
+              } else {
+                std::cout << "\n -- " << std::setw(2) << ch << " |";
+              }
 
               if (ch >= 48 && nchan < 96) { // sumE words
-                printf(" %#10.8x |                   %10.4f", recocalib[ch].word, Frag5_unpack_bin2sum(unit, (int )recocalib[ch].word));
+                std::cout << " 0x" << setup0 << recocalib[ch].word << setupDec << " |                   " << std::setw(11)  << std::setprecision(4) << Frag5_unpack_bin2sum(unit, (int )recocalib[ch].word);
               } else {
-                printf(" %#10.8x | %1u %5u %4u %1u %2u %10.4f %10.4f %10.4f"
-                       , recocalib[ch].word, recocalib[ch].gain, recocalib[ch].amp
-                       , recocalib[ch].time, recocalib[ch].bad, recocalib[ch].quality
-                       , recocalib[ch].d_amp, recocalib[ch].d_time, recocalib[ch].d_quality);
+                std::cout << " 0x" << setup0 << recocalib[ch].word << setupDec << " | " << std::setw(1) << recocalib[ch].gain << std::setw(6) << recocalib[ch].amp << std::setw(5) << recocalib[ch].time << std::setw(2) << recocalib[ch].bad << std::setw(3) << recocalib[ch].quality << std::setw(10)  << std::setprecision(1) << recocalib[ch].d_amp << std::setw(11) << std::setprecision(4) << recocalib[ch].d_time << std::setw(8) << std::setprecision(1) << recocalib[ch].d_quality;
 
                 if (recocalib[ch].bad != 0) {
-                  printf(" Bad channel");
+                  std::cout << " Bad channel";
                 }
               }
             }
@@ -1159,8 +1439,8 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             nchan = 48;
             OFC.clear();
 
-            printf("\nFrag5 Compressed fragment %#x, %d words found:", id, size);
-            printf("\t%d gain, %s units, %d channels in total\n", 1, unitName[unit].c_str(), nchan);
+            std::cout << "\nFrag5 Compressed fragment 0x" << std::hex << id << std::dec << ", " << size << " words found:"
+                      << "\t" << 1 << " gain, " << unitName[unit].c_str() << " units, " << nchan << " channels in total" << std::endl;
 
             dump_data((uint32_t*) data, size, version, verbosity);
 
@@ -1201,14 +1481,14 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             ofw = &(OFC[0]);
 
             int size_L2 = (*((uint32_t*) data - 3 + 2) >> (32 - 2 - 3)) & 0x7;
-            printf("size_L2: %d |", size_L2);
+            std::cout << "size_L2: " << size_L2 << " |";
             if (size_L2 == 3) {
               double SumEt = m_rc2bytes5.getSumEt((uint32_t*) data - 3);
               double SumEz = m_rc2bytes5.getSumEz((uint32_t*) data - 3);
               double SumE = m_rc2bytes5.getSumE((uint32_t*) data - 3);
-              printf(" SumEt: %f, SumEz: %f, SumE: %f\n", SumEt, SumEz, SumE);
+              std::cout << " SumEt: " << SumEt << ", SumEz: " << SumEz << ", SumE: " << SumE << std::endl;
             }
-            printf("\n");
+            std::cout << std::endl;
 
             m_rc2bytes5.unpack(ofw, (uint32_t*) data - 3, Frag5Data);
 
@@ -1224,8 +1504,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
 
             int cnt_ped4, cnt_ped5, cnt_amp5, cnt_amp6, cnt_raws, cnt_rawf, cnt_full, cnt_dump, cnt_null;
             cnt_ped4 = cnt_ped5 = cnt_amp5 = cnt_amp6 = cnt_raws = cnt_rawf = cnt_full = cnt_dump = cnt_null = 0;
-
-            printf("PMT Ch |  full word | Type  G  B  ectrl  ereco  ebin       ene  time |   s1   s2   s3   s4   s5   s6   s7");
+            std::cout << "PMT Ch |  full word | Type  G  B  ectrl  ereco  ebin       ene  time |   s1   s2   s3   s4   s5   s6   s7";
 
             const char *strcode_empty = "----";
             const char *strcode_ped4 = "ped4";
@@ -1242,9 +1521,12 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             bool OK = true;
             for (ch = 0; ch < nchan; ++ch) {
               pmt = m_cabling->channel2hole(fragType, ch % 48);
-              if (pmt > 0) printf("\n%3d %2d |", pmt, ch);
-              else printf("\n -- %2d |", ch);
-
+              if (pmt > 0) {
+                std::cout << "\n" << std::setw(3) << pmt << std::setw(3) << ch << " |";
+              } else {
+                std::cout << "\n -- " << std::setw(2) << ch << " |";
+              }
+              
               uint32_t reco = data[ch];
               const char *scode = strcode_empty;
               int code = Frag5Data[ch].code;
@@ -1254,9 +1536,10 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               float ene = Frag5Data[ch].ene;
               float time = Frag5Data[ch].time;
               int s[7];
-              for (int i = 0; i < 7; i++)
+              for (int i = 0; i < 7; i++) {
                 s[i] = Frag5Data[ch].s[i];
-
+              }
+              
               switch (code) {
                 case code_ped4: scode = strcode_ped4; cnt_ped4++; break;
                 case code_ped5: scode = strcode_ped5; cnt_ped5++; break;
@@ -1285,86 +1568,90 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               }
 
               int ene_ctrl = m_rc2bytes5.amplitude(ofw, unit, ch, gain, s);
-              if (ene_ctrl < 0)
+              if (ene_ctrl < 0) {
                 ene_ctrl = 0;
-              else if (ene_ctrl > 0x7FFF) ene_ctrl = 0x7FFF;
-
-              printf(" 0x%08x | %4s  %1d  %1d", reco, scode, gain, bad);
+              } else if (ene_ctrl > 0x7FFF) {
+                ene_ctrl = 0x7FFF;
+              }
+              
+              std::cout << " 0x" << setup0 << reco << setupDec << " | " << std::setw(4) << scode << "  " << gain << " " << bad;
+              
               switch (code) {
                 case code_ped4:
                 case code_ped5:
                 case code_raws:
                 case code_rawf:
                 case code_dump:
-                printf(" %6d %6d %5d %9.4f    -- ", ene_ctrl, ene_recobin, ene_bin, ene);
+                std::cout << std::setw(7) << ene_ctrl << std::setw(7) << ene_recobin << std::setw(6) << ene_bin << std::setw(10) << std::setprecision(4) << ene << "    -- ";
                 break;
                 case code_amp5:
                 case code_amp6:
-                printf(" %6d %6d %5d %9.4f %5.1f ", ene_ctrl, ene_recobin, ene_bin, ene, time);
+                std::cout << std::setw(7) << ene_ctrl << std::setw(7) << ene_recobin << std::setw(6) << ene_bin << std::setw(10) << std::setprecision(4) << ene << std::setw(6) << std::setprecision(1) << time << " ";
                 break;
                 case code_full:
                 case code_null:
-                printf("  -----  -----  ----       ---    -- ");
+                std::cout << "  -----  -----  ----       ---    -- ";
                 break;
                 default:;
               }
 
-              printf("| %4d %4d %4d %4d %4d %4d %4d ", s[0], s[1], s[2], s[3], s[4], s[5], s[6]);
+              std::cout << "| " << std::setw(4) << s[0] << std::setw(5) << s[1] << std::setw(5) << s[2] << std::setw(5) << s[3] << std::setw(5) << s[4] << std::setw(5) << s[5] << std::setw(5) << s[6] << " " ;
               if (ene_ctrl != ene_recobin) {
                 OK = false;
-                printf(" ERR");
+                std::cout << " ERR";
               }
             }
 
-            printf("\n\nFrag5 Self-Consistency: ");
-            if (OK) printf("OK\n");
-            else printf("ERROR\n");
-
-            printf( "\nped4 %d, ped5 %d, amp5 %d, amp6 %d, raws %d, rawf %d, full %d, dump %d, null %d\n"
-                   , cnt_ped4, cnt_ped5, cnt_amp5, cnt_amp6, cnt_raws, cnt_rawf, cnt_full, cnt_dump, cnt_null);
-
+            std::cout << "\n\nFrag5 Self-Consistency: ";
+            if (OK) {
+              std::cout << "OK" << std::endl;
+            } else {
+              std::cout << "ERROR" << std::endl;
+            }
+            
+            std::cout << "\nped4" <<  cnt_ped4 << ", ped5 " << cnt_ped5 << ", amp5 " << cnt_amp5 << ", amp6 " << cnt_amp6 << ", raws " << cnt_raws << ", rawf " << cnt_rawf << ", full " << cnt_full << ", dump " << cnt_dump << ", null " << cnt_null << std::endl;
+            
             break;
           }
 
           case 0xA: // fragment with data quality words
             DQstat = tile_unpack_quality(frag[f], DQword);
 
-            printf("\nQuality fragment %#x, %d words found:\n", id, size);
+            std::cout << "\nQuality fragment 0x" << std::hex  << id << ", "  << std::dec  << size << " words found:" << std::endl;
 
             if (DQstat) {
-              std::cout << " ATTENTION: Error bits found in the Data Quality fragment 0xA " << std::endl;
+              std::cout << " ATTENTION: Error bits found in the Data Quality fragment 0xA" << std::endl;
             }
 
             std::cout << " --------------------------------------" << std::endl;
-            std::cout << " | Quality Block      |  Word (16bit) " << std::endl;
-            if (DQword.dspbcid >> 15)
+            std::cout << " | Quality Block      |  Word (16bit)" << std::endl;
+            if (DQword.dspbcid >> 15) {
               std::cout << " | DSP BCID           |  " << std::dec << (DQword.dspbcid & 0x7FFF) << std::endl;
-            else
+            } else {
               std::cout << " | DSP BCID           |  not filled (" << std::dec << DQword.dspbcid << ")" << std::endl;
-
-            std::cout << " | Global CRC         |  " << std::hex << "0x" << std::setw(1) << DQword.global_crc << std::dec << std::endl;
-            std::cout << " | BCID checks        |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.bcid << std::dec << std::endl;
-            std::cout << " | Mem parity err     |  " << std::hex << "0x" << std::setw(4)  << std::setfill('0') << DQword.memory << std::dec << std::endl;
-            std::cout << " | Single strobe err  |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.Sstrobe << std::dec << std::endl;
-            std::cout << " | Double strobe err  |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.Dstrobe << std::dec << std::endl;
-            std::cout << " | Head format err    |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.headformat << std::dec << std::endl;
-            std::cout << " | Head parity err    |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.headparity << std::dec << std::endl;
-            std::cout << " | Sample format err  |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.sampleformat << std::dec << std::endl;
-            std::cout << " | Sample parity err  |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.sampleparity << std::dec << std::endl;
-            std::cout << " | FE chip mask err   |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.fe_chip_mask << std::dec << std::endl;
-            std::cout << " | ROD chip mask err  |  " << std::hex << "0x" << std::setw(4) << std::setfill('0') << DQword.rod_chip_mask << std::dec << std::endl;
-            std::cout << " --------------------------------------" << std::endl;
+            }
+            std::cout << " | Global CRC         |  " << std::hex << "0x" << std::setw(1) << DQword.global_crc << std::setfill('0') << std::endl;
+            std::cout << " | BCID checks        |  " << setup0x4 << DQword.bcid << std::endl;
+            std::cout << " | Mem parity err     |  " << setup0x4 << DQword.memory << std::endl;
+            std::cout << " | Single strobe err  |  " << setup0x4 << DQword.Sstrobe << std::endl;
+            std::cout << " | Double strobe err  |  " << setup0x4 << DQword.Dstrobe << std::endl;
+            std::cout << " | Head format err    |  " << setup0x4 << DQword.headformat << std::endl;
+            std::cout << " | Head parity err    |  " << setup0x4 << DQword.headparity << std::endl;
+            std::cout << " | Sample format err  |  " << setup0x4 << DQword.sampleformat << std::endl;
+            std::cout << " | Sample parity err  |  " << setup0x4 << DQword.sampleparity << std::endl;
+            std::cout << " | FE chip mask err   |  " << setup0x4 << DQword.fe_chip_mask << std::endl;
+            std::cout << " | ROD chip mask err  |  " << setup0x4 << DQword.rod_chip_mask << std::endl;
+            std::cout << " --------------------------------------" << std::setfill(' ') << std::dec << std::endl;
             break;
 
           default:
-            printf("\nUnknown (type %d) fragment %#x, %d words found\n", type, id, size);
+            std::cout << "\nUnknown (type " << type << ") fragment  0x" << std::hex  << id << ", "  << std::dec  << size << " words found" << std::endl;
             dump_data((uint32_t*) data, size, version, verbosity); // Salukvadze
         }
-        printf("\n");
-      } /* if check for empty events */
-      else { /* empty fragment */
-        printf("\nType %d fragment %#x, %d words found\n", type, id, size);
-        printf("\nEmpty Event\n");
+        std::cout << std::endl;
+      } else { /* empty fragment */
+        std::cout << "\nType " << type << " fragment 0x" << std::hex  << id << ", "  << std::dec  << size << " words found" << std::endl;
+        std::cout << "\nEmpty Event" << std::endl;
       }
     }
   }
@@ -1374,9 +1661,9 @@ void dump_it(unsigned int nw, unsigned int * data) {
 
   unsigned int i;
 
-  printf("size of data block: %d\n", nw);
+  std::cout  << "size of data block: " << nw << std::endl;
   for (i = 0; i < nw; i++, data++) {
-    printf("%4d:   %#10x\t%10u\n", i, *data, *data);
+    std::cout << std::setw(4) << i << ":   0x" << std::hex << std::setw(8) << *data << "\t"  << std::dec << std::setw(10) << *data << std::endl;
   }
 }
 
@@ -1403,34 +1690,44 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
 
     if (frag[*nfrag]->size < m_sizeOverhead
         || frag[*nfrag]->size > size - offset + m_sizeOverhead - 2) {
-
-      printf("\nWarning: garbage in frag %d of current ROD -> ignore it\n", *nfrag);
-      printf("Size:         \t%10u\n", frag[*nfrag]->size);
-      printf("Id:           \t%10u\n", frag[*nfrag]->id);
-      printf("Bad data:\n");
+    
+      std::cout << "\nWarning: garbage in frag "  << *nfrag << " of current ROD -> ignore it"  << std::endl;
+      std::cout << "Size:         \t"  << std::setw(10) << (frag[*nfrag]->size) << "\tMin/Max Size: \t" << std::setw(10) << m_sizeOverhead << "\t" <<  std::setw(10) << size - offset + m_sizeOverhead - 2 << std::endl;
+      std::cout << "Id:           \t"  << std::setw(10) << (frag[*nfrag]->id) << std::endl;
+      std::cout << "Bad data:"  << std::endl;
+      std::cout << "Before:\t"  << offset-1 << "\t" << data[offset-1] << "\t0x" << std::hex << data[offset-1] << std::dec << std::endl;
+      
       for (; offset < size; ++offset) {
-        printf("\t%d\t%d\t0x%x\n", offset, data[offset], data[offset]);
+        std::cout << "\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
         if (data[offset] == 0xff1234ff) break;
       }
-      if (m_v3Format) ++offset; // go to next good frag or jump outside ROD, if at the end
+      if (offset == size) {
+        std::cout << "After:\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
+      }
+      if (m_v3Format) {
+        ++offset; // go to next good frag or jump outside ROD, if at the end
+      }
+      
+    } else if (frag[*nfrag]->size < size - offset && m_v3Format && data[offset + frag[*nfrag]->size - 1] != 0xff1234ff) {
 
-    } else if (frag[*nfrag]->size < size - offset && m_v3Format
-                && data[offset + frag[*nfrag]->size - 1] != 0xff1234ff) {
-
-      printf("\nWarning: frag %d of current ROD is damaged\n", *nfrag);
-      printf("Size:         \t%10u\n", frag[*nfrag]->size);
-      printf("Id:           \t%10u\n", frag[*nfrag]->id);
-      printf("Bad data:\n");
+      std::cout << "\nWarning: frag "  << *nfrag << " of current ROD is damaged"  << std::endl;
+      std::cout << "Size:         \t"  << std::setw(10) << (frag[*nfrag]->size) << "\tMin/Max Size: \t" << std::setw(10) << m_sizeOverhead << "\t" <<  std::setw(10) << size - offset + m_sizeOverhead - 2 << std::endl;
+      std::cout << "Id:           \t"  << std::setw(10) << (frag[*nfrag]->id) << std::endl;
+      std::cout << "Bad data:"  << std::endl; 
       unsigned int newsize = 0;
+      std::cout << "Before:\t"  << offset-1 << "\t" << data[offset-1] << "\t0x" << std::hex << data[offset-1] << std::dec << std::endl;
       for (; offset < size; ++offset, ++newsize) {
-        printf("\t%d\t%d\t0x%x\n", offset, data[offset], data[offset]);
+        std::cout << "\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
         if (data[offset] == 0xff1234ff) break;
+      }
+      if (offset == size) {
+        std::cout << "After:\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
       }
       if (m_v3Format) {
         ++newsize;
         ++offset; // go to next good frag or jump outside ROD, if at the end
       }
-      printf("Correct size is:\t%10u\n", newsize);
+      std::cout << "Correct size is:\t" << std::setw(10) << newsize << std::endl;
 
     } else {
       offset += frag[*nfrag]->size;
@@ -1439,15 +1736,17 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
     }
   }
 
-  if (m_v3Format) --offset; // set offset back to correct value
-
+  if (m_v3Format) {
+    --offset; // set offset back to correct value
+  }
+  
   if (offset > size) {
     --(*nfrag);
-    printf("\nWarning: last fragment in current ROD is garbage -> ignore it\n");
-    printf("N good frag:  \t%10d\n", *nfrag);
-    printf("Last frag:\n");
+    std::cout << "\nWarning: last fragment in current ROD is garbage -> ignore it" << std::endl;
+    std::cout << "N good frag:  \t" << std::setw(10) << *nfrag << std::endl;
+    std::cout << "Last frag:" << std::endl;
     for (unsigned int i = offset - frag[*nfrag]->size; i < size; ++i) {
-      printf("\t%d\t%d\t0x%x\n", i, data[i], data[i]);
+      std::cout << "\t" << i << "\t" << data[i] << "\t0x" << std::hex  << data[i] << std::dec << std::endl;
     }
   }
 }
@@ -1612,7 +1911,7 @@ int TileTBDump::tile_unpack_raw_comp(T_RodDataFrag* frag, T_TileRawComp* rawcomp
   if (frag1version == 0) { //Old version
 
     if ((size % 4) != 0) {
-      printf(" Format Type 1: Raw compressed : Wrong Size = %d\n", size);
+      std::cout << " Format Type 1: Raw compressed : Wrong Size = " << size << std::endl;
       status = 1;
       return status;
     }
@@ -1645,8 +1944,7 @@ int TileTBDump::tile_unpack_raw_comp(T_RodDataFrag* frag, T_TileRawComp* rawcomp
         rawcomp[ch].verif = (((*nsample) == nsamp) && (rawcomp[ch].chan < 48));
         if (!rawcomp[ch].verif) {
           status = 1;
-          printf(" Verification ERROR for channel # %d (ch=%d g=%d ns=%d 0x%x)! \n", ch
-                 , rawcomp[ch].chan, rawcomp[ch].gain, nsamp, rawcomp[ch].words[0] & 0xFFFF);
+          std::cout << " Verification ERROR for channel # " << ch << " (ch=" << rawcomp[ch].chan << " g=" << rawcomp[ch].gain << " ns=" << nsamp  << " 0x" << std::hex  << (rawcomp[ch].words[0] & 0xFFFF) << std::dec << ")!" << std::endl;
         } else {
           unsigned short v = 0;
           for (int k = 0; k < nsamp; k++) {
@@ -1789,8 +2087,8 @@ int TileTBDump::tile_unpack_raw_comp(T_RodDataFrag* frag, T_TileRawComp* rawcomp
         ++ch;
       }
     }
-  } else {
-    status = 1;
+//} else {
+//  status = 1; // Logically dead code
   }
   return status;
 }
@@ -1817,9 +2115,11 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
 
   int dataoffset = 0;
   if (version == 0x2 || version == 0x1) { /* can not guess number of samples from size */
-    if (size > 176 && size < 205)
+    if (size > 176 && size < 205) {
       size = 179; /* we expect this number (9+2)*16+1+2 */
-    else if (size > 272 && size < 405) size = 275; /* we expect this number (7*2+3)*16+1+2 */
+    } else if (size > 272 && size < 405) {
+        size = 275; /* we expect this number (7*2+3)*16+1+2 */
+    }
     dataoffset = 1; // ignore first word
   }
     
@@ -1828,7 +2128,7 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
     nsamp2 = size/nchip; /* calculate number of data words per chip */
 
       
-	
+        
     /* find digitizers mode (calibration or normal) */
     /* do not do this if fragment has bad length */
 
@@ -1839,7 +2139,7 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
       if (tile_check_parity(data, 1) == 0) { /* check parity to be sure */
         dgm = ((*data) >> 15) & 3; /* that mode is correct    */
         if (verbosity > 3) {
-          printf("Good parity, chip%3d, mode%2d, head %#8.8x, data %#8.8x\n", m, (int) dgm, data[0], data[1]);
+          std::cout << "Good parity, chip" << std::setw(3) << m << ", mode" << std::setw(2) << (int) dgm << ", head 0x" << setup0 << data[0] << ", data 0x" << std::setw(8) << data[1] << setupDec << std::endl;
         }
 
         if (((data[0] >> 31) == 1) && ((data[1] >> 31) == 0)) {
@@ -1855,7 +2155,7 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
       for (m = 0; m < nchip; m++) {
         dgm = ((*data) >> 15) & 3;
         if (verbosity > 3) {
-          printf("Chip%3d, mode%2d, head 0x%8.8x, data 0x%8.8x\n", m, (int) dgm, data[0], data[1]);
+          std::cout << "Chip" << std::setw(3) << m << ", mode" << std::setw(2) << (int) dgm << ", head 0x" << setup0 << data[0] << ", data 0x" << std::setw(8) << data[1] << setupDec << std::endl;
         }
         if (((data[0] >> 31) == 1) && ((data[1] >> 31) == 0)) {
           digim[dm++] = dgm;
@@ -1870,35 +2170,40 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
         first = 0;
         if (nsamp2 == 17) {
           digi_mode = 1;
-          printf("Warning: No valid header found, calibration running mode(=1) assumed\n");
+          std::cout << "Warning: No valid header found, calibration running mode(=1) assumed" << std::endl;
         } else {
           digi_mode = 0;
-          printf("Warning: No valid header found, normal running mode(=0) assumed\n");
+          std::cout << "Warning: No valid header found, normal running mode(=0) assumed" << std::endl;
         }
       } else {
         if (verbosity > 3) {
-          printf("Warning: No valid header found, keeping  previous running mode(=%d)\n", (int) digi_mode);
+          std::cout << "Warning: No valid header found, keeping  previous running mode(=" << (int) digi_mode << ")" << std::endl;
         }
       }
       status |= 2;
     } else {
       digi_mode = dgm; /* last found digi mode */
       if (dm > 2) { /* more than 2 good headers found */
-        for (c = 0; c < dm; ++c)
+        for (c = 0; c < dm; ++c) {
           ++digm[digim[c]]; /* count different digi_modes */
-        for (c = 0; c < 4; ++c)
-          if (digm[c] > digm[digi_mode]) /* find most frequent digi_mode */
-          digi_mode = c;
+        }
+        for (c = 0; c < 4; ++c) {
+          if (digm[c] > digm[digi_mode]) {/* find most frequent digi_mode */
+            digi_mode = c;
+          }
+        }
       }
       if (first) {
         first = 0;
         if (digi_mode > 0) m <<= 1;
-        if (tile_check_parity(data, 1) == 0)
-          printf("\nMode=%d found in header of chip %d\n", digi_mode, m);
-        else
-          printf("\nMode=%d found in header of chip %d with bad parity\n", digi_mode, m);
-        if (digi_mode > 0)
-          printf("\nCalibration mode selected, effective number of chips is twice bigger\n");
+        if (tile_check_parity(data, 1) == 0) {
+          std::cout << "\nMode=" << digi_mode << " found in header of chip " << m << std::endl;
+        } else {
+          std::cout << "\nMode=" << digi_mode << " found in header of chip " << m << " with bad parity" << std::endl;
+        }
+        if (digi_mode > 0) {
+          std::cout << "\nCalibration mode selected, effective number of chips is twice bigger" << std::endl;
+        }
       }
     }
   }
@@ -1955,10 +2260,11 @@ int TileTBDump::tile_unpack_digi(T_RodDataFrag* frag, T_TileDigiChannel* channel
 
     headword = data[0];
     firstword = data[1];
-    if (gain_offs > 0)
+    if (gain_offs > 0) {
       crcword = data[nsamp1 + gain_offs]; /* first gain */
-    else
+    } else {
       crcword = data[nsamp1]; /* second gain */
+    }
     hlflags = ((headword) >> 12) & 7;
 
     /* check parity of all datawords in the frame, header and CRC */
@@ -2173,9 +2479,10 @@ unsigned int TileTBDump::tile_check_CRC(unsigned int *frame, int framelen, int d
     /* there were a bus swaped */
 
     reg1 = 0;
-    for (k = 16; reg != 0; reg >>= 1)
+    for (k = 16; reg != 0; reg >>= 1) {
       reg1 |= (reg & 1) << (--k);
-
+    }
+    
     /* reading the recived CRC (16 bit long) */
 
     reg2 = 0;

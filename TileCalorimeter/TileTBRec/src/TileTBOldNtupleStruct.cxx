@@ -245,6 +245,7 @@ TileTBOldNtupleStruct::TileTBOldNtupleStruct(TTree *tree, bool bigain, bool adde
    m_adderFit = adderFit;
    m_nGains = (bigain) ? 2 : 1;
    m_eventShift = shift;
+   m_eventShift.resize(7,0); // 7th element for beamROD itself
    int brs = 1; // set status for all branches to 1 for the moment
 
    fChain->SetBranchAddress("Evtime", &Evtime, &b_Evtime);          fChain->SetBranchStatus("Evtime",brs);   
@@ -645,26 +646,28 @@ Int_t TileTBOldNtupleStruct::GetEntry(Long64_t entry, int branch)
 
    }
 
-   for (int gain = 0; gain < m_nGains; ++gain) {
-     for (int br = brmin; br<brmax; ++br) {
-       int ent = entry + m_eventShift[br];
-       b_Evt[gain][br]->GetEntry(ent);      
-       b_Bcid[gain][br]->GetEntry(ent);     
-       b_Size[gain][br]->GetEntry(ent);     
-       b_Dmumask[gain][br]->GetEntry(ent);  
-       b_Slinkcrc[gain][br]->GetEntry(ent); 
-       b_Gain[gain][br]->GetEntry(ent);     
-       b_Err[gain][br]->GetEntry(ent);      
-       b_Sample[gain][br]->GetEntry(ent);   
-       b_Ene[gain][br]->GetEntry(ent);      
-       b_Time[gain][br]->GetEntry(ent);     
-       b_Efit[gain][br]->GetEntry(ent);     
-       b_Tfit[gain][br]->GetEntry(ent);     
-       b_Pedfit[gain][br]->GetEntry(ent);   
-       b_Chi2[gain][br]->GetEntry(ent);     
+   if (brmin < 6) {
+     for (int gain = 0; gain < m_nGains; ++gain) {
+       for (int br = brmin; br<brmax; ++br) {
+         int ent = entry + m_eventShift[br];
+         b_Evt[gain][br]->GetEntry(ent);      
+         b_Bcid[gain][br]->GetEntry(ent);     
+         b_Size[gain][br]->GetEntry(ent);     
+         b_Dmumask[gain][br]->GetEntry(ent);  
+         b_Slinkcrc[gain][br]->GetEntry(ent); 
+         b_Gain[gain][br]->GetEntry(ent);     
+         b_Err[gain][br]->GetEntry(ent);      
+         b_Sample[gain][br]->GetEntry(ent);   
+         b_Ene[gain][br]->GetEntry(ent);      
+         b_Time[gain][br]->GetEntry(ent);     
+         b_Efit[gain][br]->GetEntry(ent);     
+         b_Tfit[gain][br]->GetEntry(ent);     
+         b_Pedfit[gain][br]->GetEntry(ent);   
+         b_Chi2[gain][br]->GetEntry(ent);     
+       }
      }
    }
-
+   
    return 1;
 }
 

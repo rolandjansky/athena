@@ -5,7 +5,7 @@
 #ifndef TileTBOldNtupleRead_H
 #define TileTBOldNtupleRead_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // STL includes
@@ -23,7 +23,7 @@ class TileHWID;
 class TileBeamInfoProvider;
 class TileTBOldNtupleStruct;
 
-class TileTBOldNtupleRead : public Algorithm {
+class TileTBOldNtupleRead : public AthAlgorithm {
 public:
   TileTBOldNtupleRead(std::string name, ISvcLocator* pSvcLocator);
   virtual ~TileTBOldNtupleRead();
@@ -60,8 +60,6 @@ private:
   bool m_adderFit;
   std::vector<int> m_eventShift;
 
-  StoreGateSvc * m_storeGate;
-  StoreGateSvc * m_detStore;
   const TileHWID * m_tileHWID;
   const TileCablingService * m_cabling;
   ToolHandle<TileBeamInfoProvider> m_beamInfo;

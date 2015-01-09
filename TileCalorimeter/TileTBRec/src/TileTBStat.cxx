@@ -35,6 +35,9 @@
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"
 #include "TileTBRec/TileTBStat.h"
 
+#include "boost/io/ios_state.hpp"
+
+#include <iostream>
 #include <ctime>
 #include <cmath>
 
@@ -70,19 +73,24 @@ double StatDouble::getChi2() {
 }
 
 void StatDouble::print(const char* s, bool minMaxOnly) {
-  printf("%s ", s);
+  boost::io::ios_base_all_saver coutsave(std::cout);
+  std::cout << s << " " << std::fixed;
   if (minMaxOnly) {
     if (Counter > 0)
-      printf(" %4.1f - %4.1f", Min, Max);
+      std::cout << " "   << std::setw(4) << std::setprecision(1) << Min 
+                << " - " << std::setw(4) << std::setprecision(1) << Max;
     else
-      printf(" ---- - ----");
+      std::cout << " ---- - ----";
   } else {
     if (Counter > 0)
-      printf(" %4.1f - %4.1f  mean= %6.3f rms= %5.3f", Min, Max, getMean(), getChi2());
+      std::cout << " "        << std::setw(4) << std::setprecision(1) << Min 
+                << " - "      << std::setw(4) << std::setprecision(1) << Max
+                << "  mean= " << std::setw(6) << std::setprecision(3) << getMean()
+                << " rms= "   << std::setw(5) << std::setprecision(3) << getChi2();
     else
-      printf(" ---- - ----  mean= ------ rms= -----");
+      std::cout << " ---- - ----  mean= ------ rms= -----";
   }
-  printf("\n");
+  std::cout << std::endl;
 }
 
 StatInt::StatInt() {
@@ -93,25 +101,25 @@ void StatInt::addValue(int Value) {
 }
 
 void StatInt::print(const char* s, bool minMaxOnly) {
-  printf("%s ", s);
+  std::cout << s << " ";
   std::map<int, int>::const_iterator min = checkOut.begin();
   std::map<int, int>::const_iterator max = checkOut.end();
   if (min == max) { // empty map
-    printf(" ---");
+    std::cout << " ---";
   } else {
     --max;
     if (min == max) { // one value only
-      printf(" %d", min->first);
+      std::cout << " " << min->first;
     } else {
       if (minMaxOnly) {
-        printf(" %d - %d", min->first,max->first);
+        std::cout << " " << min->first << " - " << max->first;
       } else {
         for (++max; min != max; ++min)
-          printf(" %d(%d)", min->first,min->second);
+          std::cout << " " << min->first << "(" << min->second << ")";
       }
     }
   }
-  printf("\n");
+  std::cout << std::endl;
 }
 
 TileTBStat::TileTBStat(std::string name, ISvcLocator* pSvcLocator)
@@ -276,7 +284,7 @@ StatusCode TileTBStat::execute() {
         std::cout << "Fragments found in first event, calib mode=" << m_beamInfo->checkCalibMode() << std::endl;
       else
         std::cout << "Fragments found in second event, calib mode=" << m_beamInfo->checkCalibMode() << std::endl;
-      std::cout << "  ROB ID   ROD ID   Frag IDs " << std::endl;
+      std::cout << "  ROB ID   ROD ID   Frag IDs" << std::endl;
       for (unsigned int i = 0; i < nrob; ++i) {
         std::cout << std::hex << " 0x" << m_fragMap[i].ROBid << " 0x" << m_fragMap[i].RODid;
         for (unsigned int j = 0; j < m_fragMap[i].fragID.size(); ++j)
@@ -409,8 +417,8 @@ StatusCode TileTBStat::execute() {
     m_lasAlphaPos.addValue(lasAlpha);
     m_checkOn = m_checkOn | m_lasStatus;
     m_checkOff = m_checkOff | (~m_lasStatus);
-//    printf("\nStatus: %X", m_lasStatus);
-//    printf("\nAlpha: %d\n\n", lasAlpha);
+//    std::cout << std::endl << "Status: " << std::hex << m_lasStatus << std::dec
+//              << std::endl << "Alpha: "  << lasAlpha << std::endl   << std::endl;
   }
   
   //log<<MSG::DEBUG<<"execute() completed successfully"<<endreq;
@@ -497,10 +505,10 @@ StatusCode TileTBStat::finalize() {
   std::cout << "Bad    " << m_nEvt[4] << std::endl;
   std::cout << std::endl << std::endl;
 
-  printf("LasFrag begin\n");
+  std::cout << "LasFrag begin" << std::endl;
   m_lasFiltNum.print("FilterWheel");
   m_lasAmp.print("ReqAmp");
-  printf("Counter %d\n", LaserDiodeTemp.Counter);
+  std::cout << "Counter " << LaserDiodeTemp.Counter << std::endl;
   LaserDiodeTemp.print("LaserDiodeTemp");
   LaserBoxTemp.print  ("LaserBoxTemp  ");
   LaserBoxHum.print   ("LaserBoxHum   ");
@@ -510,12 +518,12 @@ StatusCode TileTBStat::finalize() {
   m_check2 = ~(m_check0 ^ m_check1);
   m_lasAlphaPos.print("LasAlpha");
   int bit = 0x800;
-//  printf("StatusHEX: %X\n", m_lasStatus);
-  printf("GlobalStatus ");
+//  std::cout << "StatusHEX: " << std::hex << m_lasStatus << std::endl;
+  std::cout << "GlobalStatus ";
   for (int i = 0; i < 9; i++) {
-    if (m_check0 & bit) printf(" 0"); else
-    if (m_check1 & bit) printf(" 1"); else
-      printf(" 2");
+    if (m_check0 & bit)      std::cout << " 0"; 
+    else if (m_check1 & bit) std::cout << " 1"; 
+    else                     std::cout << " 2";
     bit = bit >> 1;
   }
   m_Alarm = 0;
@@ -526,25 +534,25 @@ StatusCode TileTBStat::finalize() {
   if (m_check0 & bit) m_Error = 0; else
   if (m_check1 & bit) m_Error = 1; else
     m_Error = 2;
-  printf("\nLasError %d", m_Error);
+  std::cout << std::endl << "LasError " << m_Error;
   bit = 0x800;
   if (m_check0 & bit) m_Alarm = 0; else
   if (m_check1 & bit) m_Alarm = 1; else
     m_Alarm = 2;
-  printf("\nLasAlarm %d", m_Alarm);
+  std::cout  << std::endl << "LasAlarm " << m_Alarm;
   bit = bit >> 4;
   if (m_check0 & bit) m_ShOpen = 0; else
   if (m_check1 & bit) m_ShOpen = 1; else
     m_ShOpen = 2;
-  printf("\nLasShOpen %d", m_ShOpen);
+  std::cout  << std::endl << "LasShOpen " << m_ShOpen;
   bit = bit >> 1;
   if (m_check0 & bit) m_ShClose = 0; else
   if (m_check1 & bit) m_ShClose = 1; else
     m_ShClose = 2;
-  printf("\nLasShClosed %d", m_ShClose);
-  printf("\nLasFrag end\n\n");
+  std::cout << std::endl << "LasShClosed " << m_ShClose;
+  std::cout << std::endl << "LasFrag end" << std::endl << std::endl;
   
-  printf("CISparFrag begin\n");
+  std::cout << "CISparFrag begin" << std::endl;
   m_cisMode.print("CISparMode");
   m_cisSamples.print("CISparSamples");
   m_cisPipeline.print("CISparPipeline");
@@ -554,7 +562,7 @@ StatusCode TileTBStat::finalize() {
   m_cisEvent.print("CISparEvent");
   m_cisPhase.print("CISparPhase");
   m_cisCard.print("CISparCard");
-  printf("CISparFrag end\n\n");
+  std::cout << "CISparFrag end" << std::endl << std::endl;
 
   ATH_MSG_INFO( "finalize() successfully" );
 
